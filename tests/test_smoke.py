@@ -12,6 +12,11 @@ def test_package_imports() -> None:
 def test_bounds_geojson_exists() -> None:
   from pathlib import Path
 
-  p = Path(__file__).resolve().parents[1] / "geo_data" / "regierungsviertel" / "bounds.geojson"
+  p = (
+    Path(__file__).resolve().parents[1]
+    / "geo_data"
+    / "regierungsviertel"
+    / "bounds.geojson"
+  )
   assert p.exists()
   assert p.stat().st_size > 0

@@ -7,17 +7,18 @@
       "type": "Feature",
       "properties": {
         "name": "Regierungsviertel MVP bounds",
-        "description": "Rough rectangle covering Brandenburger Tor, Reichstag, Bundeskanzleramt, Paul-Löbe-Haus, Marie-Elisabeth-Lüders-Haus, Berlin Hauptbahnhof, Haus der Kulturen der Welt ('Schwangere Auster'), eastern Tiergarten strip down to the Tiergartentunnel south entrance at Sony Center / Potsdamer Platz.",
-        "source": "Manually defined for isometric-berlin MVP"
+        "description": "Landmark-fitted polygon covering Brandenburger Tor, Reichstag, Bundeskanzleramt, Paul-Löbe-Haus, Marie-Elisabeth-Lüders-Haus, Berlin Hauptbahnhof, Haus der Kulturen der Welt ('Schwangere Auster'), eastern Tiergarten strip down to the Tiergartentunnel south entrance at Sony Center / Potsdamer Platz. Derived from the convex hull of the eight landmarks plus a ~180 m margin; refine in the bounds editor.",
+        "source": "Convex hull of landmarks.geojson + 180 m buffer (isometric_berlin.generation.create_bounds)"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [13.3600, 52.5080],
-          [13.3820, 52.5080],
-          [13.3820, 52.5275],
-          [13.3600, 52.5275],
-          [13.3600, 52.5080]
+          [13.3752, 52.5059],
+          [13.36091, 52.5188],
+          [13.36902, 52.52812],
+          [13.3784, 52.52044],
+          [13.38047, 52.5163],
+          [13.3752, 52.5059]
         ]]
       }
     }

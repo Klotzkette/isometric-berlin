@@ -17,7 +17,7 @@ import argparse
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--map-id", default="regierungsviertel")
-  args = parser.parse_args()
+  parser.parse_args()
   raise NotImplementedError(
     "render_quadrants is a scaffold. Implement pyvista isometric render."
   )
