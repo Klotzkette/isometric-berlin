@@ -1,7 +1,7 @@
 # Task 04 — Fetch Berlin official support layers (ALKIS / DOP / DGM)
 
 **Pipeline step:** 4 (see `AGENTS.md` §5)
-**Status:** todo
+**Status:** done
 **Owner-set scope:** Implement
 `isometric_berlin.data.fetch_official_support` so it downloads the
 selected subset of ALKIS parcels, DOP orthophotos, and DGM terrain
@@ -11,21 +11,31 @@ the pipeline must continue cleanly if any of them is skipped.
 
 ## Acceptance criteria
 
-- [ ] CLI signature:
+- [x] CLI signature:
       `uv run python -m isometric_berlin.data.fetch_official_support
       --bounds <geojson> --layers alkis,dop,dgm --out-dir <dir>`.
-- [ ] Raw downloads land under
+- [x] Raw downloads land under
       `geo_data/regierungsviertel/raw/{alkis,dop,dgm}/` (gitignored).
-- [ ] Small derived artefacts (e.g. clipped ALKIS GeoPackage, low-res
+- [x] Small derived artefacts (e.g. clipped ALKIS GeoPackage, low-res
       DOP preview, DGM hillshade preview) may be written outside
       `raw/` but **must** stay < 5 MB each.
-- [ ] `--layers` accepts any comma-separated subset of
+- [x] `--layers` accepts any comma-separated subset of
       `alkis,dop,dgm`. Missing layers exit cleanly and are recorded
       as `available: false` by the downstream fusion step.
-- [ ] No Google API calls in this script.
-- [ ] No use of credentials beyond Geoportal Berlin public endpoints.
-- [ ] `uv run ruff format . && uv run ruff check . && uv run pytest`
+- [x] No Google API calls in this script.
+- [x] No use of credentials beyond Geoportal Berlin public endpoints.
+- [x] `uv run ruff format . && uv run ruff check . && uv run pytest`
       all pass.
+
+## Completion notes
+
+- `alkis.gpkg`: 292 clipped ALKIS Flurstücke, EPSG:25833, 336 KB.
+- `dop_preview.png`: DOP 2025 WMS reference preview, 3.8 MB.
+- `dgm_preview.png`: DGM1 WMS reference preview, 219 KB.
+- Raw capabilities/ATOM feeds were written under
+  `geo_data/regierungsviertel/raw/{alkis,dop,dgm}/` and remain
+  gitignored. Large DOP/DGM ZIP archives are listed in manifests, not
+  committed.
 
 ## Notes for agents
 
