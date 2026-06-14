@@ -1,9 +1,54 @@
 # Isometric Berlin – Regierungsviertel
 
 > **Status:** Private scaffold / Privates Gerüst — work in progress.
->
-> Inspired by [isometric.nyc](https://isometric.nyc) by [Andy Coenen](https://cannoneyed.com/projects/isometric-nyc) ([cannoneyed/isometric-nyc](https://github.com/cannoneyed/isometric-nyc), MIT).
-> Inspiriert von [isometric.nyc](https://isometric.nyc) von [Andy Coenen](https://cannoneyed.com/projects/isometric-nyc) ([cannoneyed/isometric-nyc](https://github.com/cannoneyed/isometric-nyc), MIT).
+
+---
+
+## Credit / Dank
+
+<table>
+<tr>
+<th width="50%">🇬🇧 English</th>
+<th width="50%">🇩🇪 Deutsch</th>
+</tr>
+<tr>
+<td valign="top">
+
+Full credit to **[Andy Coenen](https://cannoneyed.com)**, who invented
+this entire idea and executed it for New York City as
+**[isometric.nyc](https://isometric.nyc)**.
+
+His open-source codebase
+([cannoneyed/isometric-nyc](https://github.com/cannoneyed/isometric-nyc),
+MIT, © 2025 Andy Coenen) and his
+[write-up](https://cannoneyed.com/projects/isometric-nyc)
+are the basis on which this Berlin project is built. The directory
+layout, agent guidance, docs structure, generation DB schema, and
+isometric quadrant model are all directly inspired by his work.
+
+This project would not exist without him.
+
+</td>
+<td valign="top">
+
+Voller Dank an **[Andy Coenen](https://cannoneyed.com)**, der diese
+gesamte Idee erfunden und für New York City als
+**[isometric.nyc](https://isometric.nyc)** umgesetzt hat.
+
+Sein Open-Source-Code
+([cannoneyed/isometric-nyc](https://github.com/cannoneyed/isometric-nyc),
+MIT, © 2025 Andy Coenen) und sein
+[Werkstattbericht](https://cannoneyed.com/projects/isometric-nyc)
+sind die Grundlage, auf der dieses Berliner Projekt aufbaut. Die
+Verzeichnisstruktur, die Agenten-Anweisungen, die Dokumentation, das
+Datenbankschema und das isometrische Quadrantenmodell sind allesamt
+direkt von seiner Arbeit inspiriert.
+
+Dieses Projekt würde ohne ihn nicht existieren.
+
+</td>
+</tr>
+</table>
 
 ---
 
