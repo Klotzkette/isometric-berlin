@@ -1,0 +1,26 @@
+---
+description: Project rules for isometric-berlin
+alwaysApply: true
+---
+
+Read `AGENTS.md` at the repository root in full before suggesting any
+change. It is the single source of truth for scope, data sources,
+licensing, pipeline steps, and forbidden actions. The same rules apply
+to Cursor, Codex, Claude Code, Gemini CLI, and Perplexity.
+
+Non-negotiables:
+
+- Scope: Berlin Regierungsviertel only (v0.1). See `AGENTS.md §3`.
+- Data: Berlin LoD2 (`dl-de/zero-2-0`) + OpenStreetMap (`ODbL`) only.
+  No Google Maps / Google Tiles API. See `AGENTS.md §4` and `§11`.
+- Tooling: `uv` for Python, `bun` for the viewer. No `pip`, `poetry`,
+  `conda`, `npm`, or `pnpm`.
+- Attribution overlay must remain visible in the viewer:
+  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)".
+- Static-only viewer build, Perplexity-hosting friendly: relative
+  paths, `vite base: './'`, total bundle < 200 MB.
+
+Commit messages: `step-<n>: <short imperative>`, where `<n>` is the
+pipeline step number from `AGENTS.md §5`.
+
+When unsure, stop and ask the owner. Scope discipline beats velocity.

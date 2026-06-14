@@ -1,0 +1,87 @@
+# General
+.DS_Store
+.idea/
+*.log
+
+# Node / Bun / Vite
+node_modules/
+.vite
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Tests / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter
+.ipynb_checkpoints
+
+# pyenv (we keep .python-version tracked)
+# .python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Geo / large artifacts — never commit raw dumps
+geo_data/**/raw/
+geo_data/**/*.gml
+geo_data/**/*.citygml
+geo_data/**/*.xml
+geo_data/**/*.osm
+geo_data/**/*.osm.pbf
+geo_data/**/*.tif
+geo_data/**/*.tiff
+generations/**/*.db
+generations/**/tiles/
+generations/**/dzi/
+src/app/public/dzi/
+src/app/dist/
+
+# Model weights
+lora-weights/
+*.safetensors
+*.bin
+
+# Agent-local caches (keep tracked config files, ignore caches)
+.codex/cache/
+.cursor/cache/
+.gemini/cache/
