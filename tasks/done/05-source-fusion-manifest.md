@@ -1,7 +1,7 @@
 # Task 05 — Source-fusion manifest
 
 **Pipeline step:** 6 (see `AGENTS.md` §5)
-**Status:** todo
+**Status:** done
 **Owner-set scope:** Implement `isometric_berlin.data.fuse_sources` so
 that it produces a single fused source-stack manifest at
 `geo_data/regierungsviertel/fused_sources.json`, combining all
@@ -36,31 +36,38 @@ permitted sources that are available at fusion time:
 
 ## Acceptance criteria
 
-- [ ] CLI signature:
+- [x] CLI signature:
       `uv run python -m isometric_berlin.data.fuse_sources
       --bounds geo_data/regierungsviertel/bounds.geojson
       --out geo_data/regierungsviertel/fused_sources.json`.
-- [ ] Output JSON matches the schema documented in
+- [x] Output JSON matches the schema documented in
       `docs/data.md` ("Fused source-stack manifest"): top-level
       `bounds_ref`, `generated_at`, `sources` (with per-source
       availability + license), `features` (with per-feature
       `anchor_source`, `geometry_evidence`, `semantic_evidence`,
       `conflicts`), and `conflict_log`.
-- [ ] All six source slots (`lod2`, `osm`, `alkis`, `dop`, `dgm`,
+- [x] All six source slots (`lod2`, `osm`, `alkis`, `dop`, `dgm`,
       `google3d`) appear in `sources`, even when unavailable.
-- [ ] Every feature has at least one `geometry_evidence` entry.
-- [ ] Conflict resolution follows the ranking table in `docs/data.md`.
+- [x] Every feature has at least one `geometry_evidence` entry.
+- [x] Conflict resolution follows the ranking table in `docs/data.md`.
       Disagreements > 2 m in building height between `lod2` and
       `google3d` are always logged.
-- [ ] Hero features (Reichstag dome, Hauptbahnhof glass roof) may
+- [x] Hero features (Reichstag dome, Hauptbahnhof glass roof) may
       carry `manual: true` and are exempt from automatic conflict
       resolution.
-- [ ] Smoke test in `tests/test_fuse_sources.py` loads a tiny
+- [x] Smoke test in `tests/test_fuse_sources.py` loads a tiny
       fixture with two LoD2 buildings + matching OSM tags and asserts
       the manifest contains both, with at least one
       `semantic_evidence` from OSM.
-- [ ] `uv run ruff format . && uv run ruff check . && uv run pytest`
+- [x] `uv run ruff format . && uv run ruff check . && uv run pytest`
       all pass.
+
+## Completion notes
+
+- Real run writes 2,614 LoD2-anchored building features.
+- 2,453 building features receive additive OSM semantic evidence.
+- `alkis`, `dop`, `dgm`, and `google3d` remain explicitly recorded as
+  unavailable until their opt-in/download steps are run.
 
 ## Notes for agents
 
