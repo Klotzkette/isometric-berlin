@@ -23,7 +23,7 @@ def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--bounds", type=Path, required=True)
   parser.add_argument("--out", type=Path, required=True)
-  args = parser.parse_args()
+  parser.parse_args()
   raise NotImplementedError(
     "fetch_lod2 is a scaffold. Implement download + CityGML clip."
   )

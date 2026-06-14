@@ -17,7 +17,7 @@ def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--all", action="store_true")
   parser.add_argument("--map-id", default="regierungsviertel")
-  args = parser.parse_args()
+  parser.parse_args()
   raise NotImplementedError(
     "generate_tile is a scaffold. Implement Modal inference loop."
   )
