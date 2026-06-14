@@ -15,7 +15,11 @@ documentation structure, `pyproject.toml` shape) follows the upstream
 NYC project. All Berlin-specific code, data, models, and rendered
 tiles are produced independently for this repository.
 
-## Data attributions used by this project
+## Data sources used by this project (additive fusion)
+
+Per owner policy this project uses **additive data fusion** across
+all permitted sources (see [`docs/data.md`](docs/data.md) and
+[`AGENTS.md`](AGENTS.md) §4):
 
 - **3D building models (LoD2) — Berlin:**
   [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin),
@@ -23,11 +27,30 @@ tiles are produced independently for this repository.
   [Datenlizenz Deutschland – Zero – Version 2.0](https://www.govdata.de/dl-de/zero-2-0).
   No attribution legally required; provided here for transparency.
 
+- **ALKIS / DOP / DGM (optional support layers) — Berlin:**
+  Geoportal Berlin, dl-de/zero-2-0.
+
 - **OpenStreetMap:** © OpenStreetMap contributors, licensed under the
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
+
+- **Google Maps Platform / Photorealistic 3D Tiles (opt-in, additive):**
+  Only used when the three opt-in env vars are set
+  (`GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_3D_TILES_ENABLED=true`,
+  `GOOGLE_MAPS_TERMS_ACCEPTED=true`). Subject to the
+  [Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)
+  and the
+  [Photorealistic 3D Tiles policies](https://developers.google.com/maps/documentation/tile/policies).
+
+## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published
 gallery, video clips, etc.) **must** display, at minimum:
 
 > © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
+
+If Google Maps Platform content was used in producing the artefact,
+**also** display the Google attribution required by the Google Maps
+Platform Terms (typically a visible "Google" / "Google Maps" credit
+and any product-specific notices per the Photorealistic 3D Tiles
+policies).

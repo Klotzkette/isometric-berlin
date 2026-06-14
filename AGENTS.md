@@ -12,12 +12,11 @@
 
 Build a giant, zoomable, **SimCity-style isometric pixel-art map of the
 Berlin Regierungsviertel** (Government Quarter), generated tile-by-tile
-with AI from open city data. It is the Berlin equivalent of
-[isometric.nyc](https://isometric.nyc) by Andy Coenen, but scoped down
-to a single neighbourhood for v0.1, and built **only on open data** —
-no Google Maps 3D Tiles, no proprietary imagery. The final deliverable
-is a static, OpenSeadragon-based pan/zoom viewer plus the DZI tile
-pyramid that backs it.
+with AI from open and permitted city data. It is the Berlin equivalent
+of [isometric.nyc](https://isometric.nyc) by Andy Coenen, scoped down
+to a single neighbourhood for v0.1. Per owner policy this project uses
+**additive data fusion**: every permitted source contributes; the best
+evidence from each source is kept per tile.
 
 The owner is **Klotzkette**. He intends to publish the finished
 viewer through **Perplexity** (likely via the Perplexity website
@@ -64,63 +63,124 @@ A precise landmark list with coordinates lives in
 [`geo_data/regierungsviertel/landmarks.geojson`](geo_data/regierungsviertel/landmarks.geojson)
 and [`docs/bounds.md`](docs/bounds.md).
 
-## 4. Hard data / licensing rules
+## 4. Hard data / licensing rules — additive source fusion
 
-- **No Google Maps 3D Tiles API.** No Google imagery. No
-  `GOOGLE_TILES_API_KEY`, no `GOOGLE_MAPS_API_KEY` in any code path.
-  The NYC project used it; we deliberately do not.
-- Allowed geometry source: **Berlin LoD2 buildings** from
-  [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin),
-  licensed under [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0)
-  (effectively public domain).
-- Allowed context source: **OpenStreetMap** via Overpass / OSMnx /
-  Geofabrik extracts of the Berlin bounding box (then clipped to the
-  Regierungsviertel polygon), licensed under
-  [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
-- Every public-facing artefact (the viewer, exported PNGs, video
-  clips, social previews) **must** display:
+**Owner policy: additive data fusion.** Use all available permitted
+sources together; keep the best evidence from each source per tile. Do
+**not** treat any single source as a replacement for another. Do not
+silently discard a source because another exists. If sources disagree,
+record the conflict and choose evidence according to
+[`docs/data.md`](docs/data.md).
 
-  > © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
+### Permitted sources
 
-  See [`NOTICE.md`](NOTICE.md).
+1. **Berlin LoD2 buildings** — *authoritative building geometry anchor.*
+   Source: [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin),
+   licensed under [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0)
+   (effectively public domain).
+2. **OpenStreetMap** — streets, water, parks, rail, POIs, semantic
+   context. Pulled via Overpass / OSMnx / Geofabrik, clipped to the
+   Regierungsviertel polygon. Licensed under
+   [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
+3. **ALKIS / DOP / DGM (Berlin official data)** — official alignment,
+   parcel context, orthophoto QA, terrain where useful. Geoportal
+   Berlin, dl-de/zero-2-0.
+4. **Google Maps Platform / Photorealistic 3D Tiles** — *opt-in*
+   additive source for photorealistic geometry, texture, alignment,
+   and visual reference where permitted by Google's terms. **Not** a
+   replacement for Berlin LoD2 or OSM.
+
+### Google opt-in rules (strict)
+
+Google Maps Platform is allowed **only** when all of the following are
+set in the run environment:
+
+- `GOOGLE_MAPS_API_KEY` is set.
+- `GOOGLE_MAPS_3D_TILES_ENABLED=true`.
+- `GOOGLE_MAPS_TERMS_ACCEPTED=true`.
+
+Additional Google constraints (non-negotiable):
+
+- **Never** commit Google API keys. Use `.env` (gitignored).
+- **Do not** commit Google raw responses, tile caches, screenshots,
+  meshes, or other Google-derived intermediate artefacts by default.
+- Raw Google downloads live under
+  `geo_data/regierungsviertel/raw/google_3d_tiles/` (gitignored).
+- Manifest files written under `geo_data/regierungsviertel/raw/...`
+  **must omit API keys** — strip query parameters and store URL
+  templates with placeholders.
+- Any public-facing output that uses or derives from Google Maps
+  Platform content **must** include the required Google attribution /
+  product notices per Google's terms, **in addition to** the
+  OSM/Geoportal Berlin attribution string.
+
+### Mandatory attribution
+
+Every public-facing artefact (the viewer, exported PNGs in a published
+gallery, video clips, social previews) **must** display, at minimum:
+
+> © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
+
+When Google Maps Platform content was used in producing the artefact,
+append the appropriate Google attribution per their terms. See
+[`NOTICE.md`](NOTICE.md).
+
+### Repository hygiene for geodata
 
 - Do **not** commit raw multi-GB geodata dumps. Only commit small,
   derived, clipped artefacts (GeoJSON, small GeoPackage) for the
-  Regierungsviertel polygon. Raw downloads belong in
-  `geo_data/regierungsviertel/raw/` which is gitignored.
+  Regierungsviertel polygon.
+- Raw downloads (LoD2 CityGML, ALKIS, DOP, DGM, OSM Overpass cache,
+  Google 3D Tiles) belong in `geo_data/regierungsviertel/raw/<source>/`
+  which is gitignored.
 
-## 5. Pipeline (canonical 8 steps)
+## 5. Pipeline (canonical 10 steps)
 
 If you implement, modify, or debug any step, keep this numbering in
 commit messages and PR titles (e.g. `step-4: …`).
 
 1. **Bounds.** Polygon in `geo_data/regierungsviertel/bounds.geojson`.
-   Editor TODO: `isometric_berlin.generation.create_bounds` (analogous
-   to NYC's Leaflet bounds editor).
+   Editor TODO: `isometric_berlin.generation.create_bounds`.
 2. **LoD2 geometry.** `isometric_berlin.data.fetch_lod2` downloads the
    relevant Berlin LoD2 CityGML tile(s), clips to bounds, writes
    `geo_data/regierungsviertel/buildings.gpkg`.
 3. **OSM context.** `isometric_berlin.data.fetch_osm` pulls streets,
    water (Spree), parks (Tiergarten), railway (Hauptbahnhof tracks),
    POIs from Overpass, clipped to bounds. Writes `osm.gpkg`.
-4. **Quadrant grid.** `isometric_berlin.generation.create_grid` builds
+4. **ALKIS / DOP / DGM support (optional).**
+   `isometric_berlin.data.fetch_official_support` pulls Berlin parcel
+   / orthophoto / terrain data for alignment, QA, and terrain.
+5. **Google Photorealistic 3D Tiles (opt-in, additive).**
+   `isometric_berlin.data.fetch_google_tiles` writes a key-free
+   manifest to
+   `geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json`.
+   Only fetches actual tile content with `--download-content` when
+   explicitly approved for the current run.
+6. **Source-fusion manifest.** `isometric_berlin.data.fuse_sources`
+   combines all permitted sources into a single fused source-stack
+   manifest with provenance per feature/tile (see
+   [`docs/data.md`](docs/data.md) and
+   [`tasks/05-source-fusion-manifest.md`](tasks/05-source-fusion-manifest.md)).
+   Conflicts are recorded, not silently dropped.
+7. **Quadrant grid.** `isometric_berlin.generation.create_grid` builds
    an isometric 512×512 px quadrant grid covering the bounds and
    stores it as placeholder rows in
    `generations/regierungsviertel/quadrants.db`.
-5. **Renders.** `isometric_berlin.generation.render_quadrants` builds
-   a `pyvista` scene per quadrant, isometric camera, orthographic
-   projection, renders a 1024×1024 PNG into the `render` BLOB.
-6. **AI tile generation.** `isometric_berlin.generate_tile` POSTs each
+8. **Renders.** `isometric_berlin.generation.render_quadrants` builds
+   a `pyvista` scene per quadrant from the fused source stack,
+   isometric camera, orthographic projection, renders a 1024×1024 PNG
+   into the `render` BLOB.
+9. **AI tile generation.** `isometric_berlin.generate_tile` POSTs each
    render to a fine-tuned `Qwen/Image-Edit` LoRA on Modal, stores the
    returned pixel-art PNG in the `generation` BLOB. Apply the
    2×2 / 1×2 / 2×1 / 1×1 adjacency rules from the NYC project to
    avoid seams.
-7. **DZI export.** `isometric_berlin.generation.export_dzi` runs
-   pyvips to build a Deep Zoom pyramid into
-   `src/app/public/dzi/regierungsviertel/`.
-8. **Viewer.** React + TypeScript + Vite + OpenSeadragon under
-   `src/app/`. Static build, deployable to GitHub Pages or Perplexity
-   website hosting (see §9).
+10. **DZI export + viewer.**
+    `isometric_berlin.generation.export_dzi` runs pyvips to build a
+    Deep Zoom pyramid into `src/app/public/dzi/regierungsviertel/`,
+    then React + TypeScript + Vite + OpenSeadragon under `src/app/`
+    serve it as a static build, deployable via Perplexity hosting
+    (see §9).
 
 ## 6. Tech stack and conventions
 
@@ -163,16 +223,21 @@ isometric-berlin/
 ├── docs/
 │   ├── setup.md
 │   ├── bounds.md
-│   ├── data.md
+│   ├── data.md               # incl. additive fusion + conflict rules
 │   ├── generation.md
 │   ├── app.md
-│   └── deployment.md
+│   ├── deployment.md
+│   ├── perplexity-hosting.md
+│   ├── glossary.md
+│   └── agents.md
 ├── geo_data/
 │   └── regierungsviertel/
 │       ├── README.md
 │       ├── bounds.geojson    # MVP polygon
 │       ├── landmarks.geojson # Must-be-visible landmarks
-│       └── raw/              # gitignored, raw downloads
+│       ├── fused_sources.json # OUTPUT of step 6 (see docs/data.md)
+│       └── raw/              # gitignored, raw downloads, incl.
+│                             # google_3d_tiles/, alkis/, dop/, dgm/
 ├── generations/
 │   ├── README.md
 │   └── regierungsviertel/    # quadrants.db, renders, tiles
@@ -180,7 +245,7 @@ isometric-berlin/
 ├── inference/                # Modal serving for Qwen-Image-Edit LoRA
 ├── src/
 │   ├── isometric_berlin/     # Python pipeline package
-│   │   ├── data/
+│   │   ├── data/             # fetch_*, fuse_sources
 │   │   └── generation/
 │   └── app/                  # React + OpenSeadragon viewer
 └── tests/
@@ -191,12 +256,17 @@ isometric-berlin/
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
   GeoPackages in the repo.
+- A fused source-stack manifest at
+  `geo_data/regierungsviertel/fused_sources.json` referencing all
+  permitted sources that were available at fusion time, with
+  per-feature provenance and a recorded conflict log.
 - A `quadrants.db` covering the bounds with rendered source PNGs and
   AI-generated pixel-art PNGs for every quadrant.
 - A DZI pyramid built into `src/app/public/dzi/regierungsviertel/`.
 - A working static viewer (`bun run build`) under `src/app/dist/`
-  that pans/zooms cleanly, shows the required attribution overlay,
-  and renders the eight required landmarks recognisably.
+  that pans/zooms cleanly, shows the required attribution overlay
+  (including Google attribution if Google content was used), and
+  renders the eight required landmarks recognisably.
 - All eight landmarks from §3 are visually identifiable (hero tiles
   for Reichstag dome and Hauptbahnhof glass roof may be hand-touched).
 
@@ -232,29 +302,44 @@ a task:
 
 1. **Re-read this file** and the relevant `docs/*.md`. Skim
    `README.md` for the bilingual context. Read `NOTICE.md`.
-2. **State the plan before editing.** Identify which of the 8
+2. **State the plan before editing.** Identify which of the 10
    pipeline steps you are working on. Reference the step number.
-3. **Stay in scope.** Regierungsviertel only. Open data only. No
-   Google APIs. No raw multi-GB commits.
+3. **Stay in scope.** Regierungsviertel only. Permitted sources only.
+   Google only when the three opt-in env vars are set. No raw
+   multi-GB commits. No API keys in commits.
 4. **Prefer small, reversible changes.** One pipeline step per PR /
    per session.
 5. **Use `uv` and `bun` only.** Never invent a new package manager.
 6. **Write/extend tests** in `tests/` when you touch Python code.
-7. **Run `uv run ruff format .` and `uv run ruff check .`** before
-   handing back to the owner.
+7. **Run `uv run ruff format .` and `uv run ruff check .`** and
+   `uv run pytest` before handing back to the owner.
 8. **Never silently broaden scope, never silently switch data
-   sources, never silently change the license.**
+   sources, never silently drop a permitted source, never silently
+   change the license.**
 9. **Commit messages:** `step-<n>: <short imperative>` (e.g.
-   `step-2: fetch and clip Berlin LoD2 to Regierungsviertel`).
+   `step-5: fetch Google 3D Tiles manifest for Regierungsviertel`).
 10. **Open questions go in `docs/` or in PR descriptions**, not in
     silent code comments that nobody will see.
 
 ## 11. Things that will get a PR rejected immediately
 
-- Any use of Google Maps / Google Tiles API.
+- **Silently dropping a permitted source.** Additive fusion is owner
+  policy (see §4). If you must skip a source for a given tile,
+  record it as a conflict per `docs/data.md`, do not delete it.
+- **Treating Google as a replacement** for Berlin LoD2 or OSM, or
+  using Google without the three opt-in env vars set
+  (`GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_3D_TILES_ENABLED=true`,
+  `GOOGLE_MAPS_TERMS_ACCEPTED=true`).
+- **Committing Google API keys**, Google raw responses, Google tile
+  caches, Google-derived meshes/screenshots, or any other
+  Google-derived intermediate artefact.
+- **Manifest files that contain API keys** — keys must be stripped
+  before writing.
 - Committing raw `.gml`, `.citygml`, `.osm`, `.osm.pbf`, `.tif`,
-  `.tiff` files, or any binary > 5 MB outside of `references/`.
-- Removing or altering the required attribution string.
+  `.tiff`, `.glb`, `.b3dm`, `.json` Google tile responses, or any
+  binary > 5 MB outside of `references/`.
+- **Removing or altering the required attribution string** — including
+  failing to add Google attribution when Google content was used.
 - Changing the LICENSE without owner sign-off.
 - Replacing `uv` with `pip`/`poetry`, or `bun` with `npm`/`pnpm`.
 - Building anything outside the Regierungsviertel bounds in v0.1.

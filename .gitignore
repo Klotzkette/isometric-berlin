@@ -70,6 +70,11 @@ geo_data/**/*.osm
 geo_data/**/*.osm.pbf
 geo_data/**/*.tif
 geo_data/**/*.tiff
+# Google Maps Platform / Photorealistic 3D Tiles — never commit
+geo_data/**/google_3d_tiles/
+*.glb
+*.b3dm
+*.3dtiles
 generations/**/*.db
 generations/**/tiles/
 generations/**/dzi/
