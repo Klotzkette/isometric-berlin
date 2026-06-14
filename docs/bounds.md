@@ -18,6 +18,19 @@ The MVP polygon is stored at
 
 ## Editing
 
-Future: a small Leaflet-based bounds editor analogous to NYC's
-`create_bounds.py`, writing back to
-`geo_data/regierungsviertel/bounds.geojson`.
+A small Leaflet-based bounds editor (analogous to NYC's
+`create_bounds.py`) is available:
+
+```bash
+uv run python -m isometric_berlin.generation.create_bounds
+```
+
+It starts a local Flask server on `127.0.0.1:8765`, shows OSM raster
+tiles with the current polygon and the eight landmark markers, lets you
+drag the polygon vertices, and saves back to
+`geo_data/regierungsviertel/bounds.geojson`. The polygon is always kept
+as a single, closed, simple polygon (no holes, no multipolygons).
+
+The committed polygon was seeded from the convex hull of the eight
+landmarks plus a ~180 m margin, then can be refined further in the
+editor.

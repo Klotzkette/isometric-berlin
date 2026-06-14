@@ -1,7 +1,7 @@
 # Task 01 — Bounds editor for the Regierungsviertel polygon
 
 **Pipeline step:** 1 (see `AGENTS.md` §5)
-**Status:** todo
+**Status:** done
 **Owner-set scope:** Provide a small, local Leaflet-based polygon
 editor (Python Flask + static HTML, analogous to the NYC project's
 `create_bounds.py`) that loads
@@ -11,18 +11,18 @@ networked persistence, no external services.
 
 ## Acceptance criteria
 
-- [ ] `uv run python -m isometric_berlin.generation.create_bounds`
+- [x] `uv run python -m isometric_berlin.generation.create_bounds`
       starts a local server on `127.0.0.1:8765`.
-- [ ] The map shows OSM tiles (standard.openstreetmap.org) and
+- [x] The map shows OSM tiles (standard.openstreetmap.org) and
       overlays the current `bounds.geojson` polygon.
-- [ ] All eight landmarks from `landmarks.geojson` are shown as
+- [x] All eight landmarks from `landmarks.geojson` are shown as
       markers and must visibly stay inside the polygon after editing.
-- [ ] "Save" writes back to `geo_data/regierungsviertel/bounds.geojson`
+- [x] "Save" writes back to `geo_data/regierungsviertel/bounds.geojson`
       as a valid GeoJSON FeatureCollection with the same `name` and
       `description` properties.
-- [ ] Attribution overlay visible on the map:
+- [x] Attribution overlay visible on the map:
       `© OpenStreetMap contributors`.
-- [ ] `uv run ruff format . && uv run ruff check . && uv run pytest`
+- [x] `uv run ruff format . && uv run ruff check . && uv run pytest`
       all pass.
 
 ## Notes for agents
