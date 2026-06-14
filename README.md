@@ -148,46 +148,53 @@ NYC-Karte.
 
 ## Data Sources & Licensing
 
-Unlike the NYC project, this Berlin project deliberately avoids the
-Google Maps 3D Tiles API. We use only open data:
+This project uses **additive data fusion** built on open data, with
+Google Maps Platform as an **opt-in, additive** source (never a
+replacement for Berlin open data or OSM):
 
 | Dataset | Source | License |
 |---|---|---|
 | 3D building geometry (LoD2) | [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin) | [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0) (effectively public domain) |
 | Streets, parks, water, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
-| Orthophotos / DOP (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Required attribution in the viewer:**
 
 > © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
 
-OSM is share-alike for *derivative databases*, but rendered tile
-images are *Produced Works* and may be released under any license,
-as long as the attribution above is shown.
+When Google-derived content is used, the required Google attribution
+(e.g. *Imagery © Google · Google Maps Platform*) must additionally be
+shown. OSM is share-alike for *derivative databases*, but rendered tile
+images are *Produced Works* and may be released under any license, as
+long as the attributions above are shown.
 
 </td>
 <td valign="top">
 
 ## Datenquellen & Lizenzen
 
-Anders als das NYC-Projekt verzichtet diese Berliner Variante bewusst
-auf die Google Maps 3D Tiles API. Wir nutzen ausschließlich offene
-Daten:
+Dieses Projekt nutzt **additive Datenfusion** auf Basis offener Daten,
+mit Google Maps Platform als **optionaler, additiver** Quelle (niemals
+als Ersatz für Berliner Open Data oder OSM):
 
 | Datensatz | Quelle | Lizenz |
 |---|---|---|
 | 3D-Gebäudegeometrie (LoD2) | [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin) | [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0) (faktisch gemeinfrei) |
 | Straßen, Parks, Wasser, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
-| Orthophotos / DOP (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Pflicht-Attributionshinweis im Viewer:**
 
 > © OpenStreetMap-Mitwirkende · 3D-Gebäudemodelle: Geoportal Berlin (dl-de/zero-2-0)
 
-OSM hat eine Share-Alike-Klausel für *abgeleitete Datenbanken*,
-gerenderte Kachelbilder sind aber *Produced Works* und dürfen unter
-beliebiger Lizenz veröffentlicht werden, solange der obige Hinweis
-sichtbar ist.
+Bei Verwendung von Google-Inhalten ist zusätzlich der erforderliche
+Google-Hinweis (z. B. *Imagery © Google · Google Maps Platform*)
+anzuzeigen. OSM hat eine Share-Alike-Klausel für *abgeleitete
+Datenbanken*, gerenderte Kachelbilder sind aber *Produced Works* und
+dürfen unter beliebiger Lizenz veröffentlicht werden, solange die
+obigen Hinweise sichtbar sind.
 
 </td>
 </tr>

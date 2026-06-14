@@ -1,0 +1,33 @@
+{
+  "bounds_ref": "geo_data/regierungsviertel/bounds.geojson",
+  "generated_at": "2026-06-14T21:04:02.974135+00:00",
+  "fusion": "additive",
+  "sources": {
+    "lod2": {
+      "available": false,
+      "reason": "not_downloaded"
+    },
+    "osm": {
+      "available": false,
+      "reason": "not_downloaded"
+    },
+    "alkis": {
+      "available": false,
+      "reason": "not_downloaded"
+    },
+    "dop": {
+      "available": false,
+      "reason": "not_downloaded"
+    },
+    "dgm": {
+      "available": false,
+      "reason": "not_downloaded"
+    },
+    "google3d": {
+      "available": false,
+      "reason": "opt_in_env_missing"
+    }
+  },
+  "features": [],
+  "conflict_log": []
+}
