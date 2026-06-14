@@ -6,6 +6,7 @@
 # Node / Bun / Vite
 node_modules/
 .vite
+*.tsbuildinfo
 
 # Python
 __pycache__/
@@ -76,9 +77,12 @@ geo_data/**/google_3d_tiles/
 *.b3dm
 *.3dtiles
 generations/**/*.db
+generations/**/renders/
 generations/**/tiles/
 generations/**/dzi/
-src/app/public/dzi/
+src/app/public/dzi/*
+!src/app/public/dzi/regierungsviertel/
+!src/app/public/dzi/regierungsviertel/**
 src/app/dist/
 
 # Model weights

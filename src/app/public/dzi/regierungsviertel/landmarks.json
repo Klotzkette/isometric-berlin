@@ -1,0 +1,112 @@
+{
+  "image": {
+    "width": 2828,
+    "height": 1250
+  },
+  "landmarks": [
+    {
+      "name": "Brandenburger Tor",
+      "role": "must_be_visible",
+      "x": 1846,
+      "y": 747,
+      "nx": 0.652758,
+      "ny": 0.5976
+    },
+    {
+      "name": "Reichstagsgebäude",
+      "role": "hero_tile",
+      "x": 1509,
+      "y": 820,
+      "nx": 0.533593,
+      "ny": 0.656
+    },
+    {
+      "name": "Bundeskanzleramt",
+      "role": "must_be_visible",
+      "x": 905,
+      "y": 688,
+      "nx": 0.320014,
+      "ny": 0.5504
+    },
+    {
+      "name": "Paul-Löbe-Haus",
+      "role": "must_be_visible",
+      "x": 1258,
+      "y": 791,
+      "nx": 0.444837,
+      "ny": 0.6328
+    },
+    {
+      "name": "Marie-Elisabeth-Lüders-Haus",
+      "role": "must_be_visible",
+      "x": 1392,
+      "y": 875,
+      "nx": 0.492221,
+      "ny": 0.7
+    },
+    {
+      "name": "Berlin Hauptbahnhof",
+      "role": "hero_tile",
+      "x": 425,
+      "y": 957,
+      "nx": 0.150283,
+      "ny": 0.7656
+    },
+    {
+      "name": "Haus der Kulturen der Welt (Schwangere Auster)",
+      "role": "must_be_visible",
+      "x": 702,
+      "y": 464,
+      "nx": 0.248232,
+      "ny": 0.3712
+    },
+    {
+      "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+      "role": "must_be_visible",
+      "x": 2299,
+      "y": 291,
+      "nx": 0.812942,
+      "ny": 0.2328
+    },
+    {
+      "name": "Max-Liebermann-Haus",
+      "role": "owner_added",
+      "x": 1811,
+      "y": 773,
+      "nx": 0.640382,
+      "ny": 0.6184
+    },
+    {
+      "name": "Botschaft der Vereinigten Staaten von Amerika",
+      "role": "owner_added",
+      "x": 1975,
+      "y": 709,
+      "nx": 0.698373,
+      "ny": 0.5672
+    },
+    {
+      "name": "Zollpackhof",
+      "role": "owner_added",
+      "x": 645,
+      "y": 677,
+      "nx": 0.228076,
+      "ny": 0.5416
+    },
+    {
+      "name": "Gustav-Heinemann-Brücke",
+      "role": "owner_added",
+      "x": 775,
+      "y": 860,
+      "nx": 0.274045,
+      "ny": 0.688
+    },
+    {
+      "name": "Spreebogen",
+      "role": "owner_added",
+      "x": 883,
+      "y": 743,
+      "nx": 0.312235,
+      "ny": 0.5944
+    }
+  ]
+}
