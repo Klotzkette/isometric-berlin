@@ -202,6 +202,61 @@ obigen Hinweise sichtbar sind.
 <tr>
 <td valign="top">
 
+## Run locally
+
+The committed viewer can run from your hard drive with the generated
+open-data artefacts. It does **not** need an AI model at runtime. AI is
+only needed later if you want to replace the deterministic local
+pixel-art pass with a fine-tuned image model.
+
+```bash
+python3 scripts/serve_local_viewer.py
+```
+
+Open the printed local URL, usually:
+
+```text
+http://127.0.0.1:8766/
+```
+
+Current default data sources are free/open: Berlin LoD2, OSM, ALKIS,
+DOP preview, and DGM preview. Google 3D Tiles remain wired as an
+optional opt-in source, but are not required and are not fetched unless
+you provide a local `.env` with a Maps API key and the opt-in flags.
+
+</td>
+<td valign="top">
+
+## Lokal starten
+
+Der committed Viewer läuft mit den erzeugten Open-Data-Artefakten
+direkt von deiner Festplatte. Dafür brauchst du **kein KI-Modell** zur
+Laufzeit. KI wird erst später relevant, wenn der deterministische
+lokale Pixel-Art-Schritt durch ein feinabgestimmtes Bildmodell ersetzt
+werden soll.
+
+```bash
+python3 scripts/serve_local_viewer.py
+```
+
+Öffne die ausgegebene lokale URL, normalerweise:
+
+```text
+http://127.0.0.1:8766/
+```
+
+Der aktuelle Standard nutzt nur kostenlose/offene Quellen: Berlin
+LoD2, OSM, ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben
+als optionale Opt-in-Verbindung vorbereitet, werden aber nicht benötigt
+und nicht abgerufen, solange keine lokale `.env` mit Maps-API-Key und
+Opt-in-Flags vorhanden ist.
+
+</td>
+</tr>
+
+<tr>
+<td valign="top">
+
 ## Pipeline (planned)
 
 1. **Bounds** — define the Regierungsviertel polygon
