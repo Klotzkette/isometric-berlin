@@ -27,11 +27,12 @@ BACKGROUND = (236, 230, 208)
 PARK = (120, 159, 95)
 WATER = (87, 142, 171)
 ROAD = (218, 204, 177)
-RAIL = (84, 83, 85)
+RAIL = (74, 77, 82)
 BUILDING_WALL = (190, 174, 149)
 BUILDING_WALL_DARK = (150, 137, 119)
 BUILDING_ROOF = (166, 148, 124)
 BUILDING_HERO = (198, 181, 151)
+PARCEL = (189, 176, 151)
 OUTLINE = (80, 73, 64)
 LANDMARK = (105, 47, 47)
 
@@ -154,6 +155,7 @@ def draw_building(
   scale: float,
   width: int,
   height: int,
+  outline_width: int = 1,
 ) -> None:
   coords = list(polygon.exterior.coords)
   if len(coords) < 4:
@@ -189,22 +191,41 @@ def draw_building(
     wall = [base[idx], base[idx + 1], roof[idx + 1], roof[idx]]
     color = BUILDING_WALL if idx % 2 == 0 else BUILDING_WALL_DARK
     draw.polygon(wall, fill=color)
-    draw.line(wall + [wall[0]], fill=OUTLINE, width=1)
+    draw.line(wall + [wall[0]], fill=OUTLINE, width=outline_width)
   draw.polygon(roof, fill=BUILDING_HERO if is_hero else BUILDING_ROOF)
-  draw.line(roof, fill=OUTLINE, width=1)
+  draw.line(roof, fill=OUTLINE, width=outline_width)
 
 
-def building_height(row: Any) -> float:
-  """Return the best available LoD2 height for a building row."""
+def building_height(row: Any, *, is_hero: bool = False) -> float:
+  """Return measured LoD2 height or a conservative visual fallback."""
   for key in ("measured_height_m", "height_m"):
     value = row.get(key)
     if value is None:
       continue
     try:
-      return float(value)
+      height = float(value)
     except (TypeError, ValueError):
       continue
-  return 12.0
+    if height == height and height >= 2.5:
+      return height
+
+  geometry = row.get("geometry")
+  area = float(getattr(geometry, "area", 0.0) or 0.0)
+  if area >= 10_000:
+    fallback = 28.0
+  elif area >= 6_000:
+    fallback = 23.0
+  elif area >= 3_000:
+    fallback = 18.0
+  elif area >= 1_200:
+    fallback = 14.0
+  elif area >= 400:
+    fallback = 10.0
+  else:
+    fallback = 7.0
+  if is_hero:
+    fallback = max(fallback, 18.0)
+  return fallback
 
 
 def polygons(geom: Any) -> list[Polygon]:
@@ -264,6 +285,7 @@ def render_quadrant(
   span_x = quad["maxx"] - quad["minx"] + context_m * 2
   span_y = quad["maxy"] - quad["miny"] + context_m * 2
   scale = render_px / ((span_x + span_y) * 0.7)
+  line_scale = max(1, min(3, round(render_px / 3072)))
 
   for _, row in query(osm_layers["parks"], q_bounds).iterrows():
     draw_geom_fill(
@@ -291,19 +313,33 @@ def render_quadrant(
       draw,
       row.geometry,
       color=WATER,
-      line_width=5,
+      line_width=4 * line_scale,
       center_x=center_x,
       center_y=center_y,
       scale=scale,
       width=render_px,
       height=render_px,
     )
+  parcels = osm_layers.get("alkis")
+  if parcels is not None:
+    for _, row in query(parcels, q_bounds).iterrows():
+      draw_geom_line(
+        draw,
+        row.geometry,
+        color=PARCEL,
+        line_width=max(1, line_scale - 1),
+        center_x=center_x,
+        center_y=center_y,
+        scale=scale,
+        width=render_px,
+        height=render_px,
+      )
   for _, row in query(osm_layers["roads"], q_bounds).iterrows():
     draw_geom_line(
       draw,
       row.geometry,
       color=ROAD,
-      line_width=4,
+      line_width=3 * line_scale,
       center_x=center_x,
       center_y=center_y,
       scale=scale,
@@ -315,7 +351,7 @@ def render_quadrant(
       draw,
       row.geometry,
       color=RAIL,
-      line_width=2,
+      line_width=max(1, line_scale + 1),
       center_x=center_x,
       center_y=center_y,
       scale=scale,
@@ -339,13 +375,14 @@ def render_quadrant(
       draw_building(
         draw,
         poly,
-        height_m=building_height(row),
+        height_m=building_height(row, is_hero=is_hero),
         is_hero=is_hero,
         center_x=center_x,
         center_y=center_y,
         scale=scale,
         width=render_px,
         height=render_px,
+        outline_width=line_scale,
       )
 
   if show_labels:
@@ -429,6 +466,9 @@ def main() -> None:
     "--osm", type=Path, default=Path("geo_data/regierungsviertel/osm.gpkg")
   )
   parser.add_argument(
+    "--alkis", type=Path, default=Path("geo_data/regierungsviertel/alkis.gpkg")
+  )
+  parser.add_argument(
     "--landmarks",
     type=Path,
     default=Path("geo_data/regierungsviertel/landmarks.geojson"),
@@ -447,6 +487,7 @@ def main() -> None:
     layer: load_layer(args.osm, layer)
     for layer in ["roads", "water", "parks", "rail", "pois"]
   }
+  osm_layers["alkis"] = load_layer(args.alkis, "flurstuecke")
   landmarks = load_landmarks(args.landmarks)
   count = update_render(
     db_path,

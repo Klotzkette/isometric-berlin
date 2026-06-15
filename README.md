@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Private scaffold / Privates Gerüst — work in progress.
+> **Status:** Local v0.1 open-data viewer. The AI tile style pass is still planned.
 
 ---
 
@@ -63,8 +63,10 @@ Dieses Projekt würde ohne ihn nicht existieren.
 
 ## The Idea
 
-A giant, zoomable, SimCity-style isometric pixel-art map of Berlin —
-generated tile-by-tile with AI from open city data.
+The end goal is a giant, zoomable, SimCity-style isometric pixel-art map
+of Berlin. The current v0.1 local viewer already runs from generated
+open-data map tiles; the AI style pass is a later pipeline step, not a
+runtime requirement.
 
 This repository is an independent, derivative project inspired by
 Andy Coenen's [isometric.nyc](https://isometric.nyc). The approach,
@@ -78,8 +80,10 @@ for Berlin are produced from scratch.
 
 ## Die Idee
 
-Eine riesige, zoombare, isometrische Pixel-Art-Karte von Berlin im Stil
-von SimCity – Kachel für Kachel mit KI aus offenen Stadtdaten erzeugt.
+Das Ziel ist eine riesige, zoombare, isometrische Pixel-Art-Karte von
+Berlin im Stil von SimCity. Der aktuelle lokale v0.1-Viewer läuft
+bereits mit erzeugten Open-Data-Kacheln; der KI-Stilschritt ist ein
+späterer Pipeline-Schritt und keine Laufzeitvoraussetzung.
 
 Dieses Repository ist ein eigenständiges, abgeleitetes Projekt, inspiriert
 von Andy Coenens [isometric.nyc](https://isometric.nyc). Der Ansatz, die

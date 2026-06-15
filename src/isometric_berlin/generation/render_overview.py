@@ -90,6 +90,7 @@ def render_overview(
   bounds_path: Path,
   buildings_path: Path,
   osm_path: Path,
+  alkis_path: Path,
   landmarks_path: Path,
   out_dir: Path,
   render_px: int,
@@ -110,6 +111,7 @@ def render_overview(
     layer: load_layer(osm_path, layer)
     for layer in ["roads", "water", "parks", "rail", "pois"]
   }
+  osm_layers["alkis"] = load_layer(alkis_path, "flurstuecke")
   landmarks = load_landmarks(landmarks_path)
   out_dir.mkdir(parents=True, exist_ok=True)
   source = render_quadrant(
@@ -171,6 +173,9 @@ def main() -> None:
     "--osm", type=Path, default=Path("geo_data/regierungsviertel/osm.gpkg")
   )
   parser.add_argument(
+    "--alkis", type=Path, default=Path("geo_data/regierungsviertel/alkis.gpkg")
+  )
+  parser.add_argument(
     "--landmarks",
     type=Path,
     default=Path("geo_data/regierungsviertel/landmarks.geojson"),
@@ -187,6 +192,7 @@ def main() -> None:
     bounds_path=args.bounds,
     buildings_path=args.buildings,
     osm_path=args.osm,
+    alkis_path=args.alkis,
     landmarks_path=args.landmarks,
     out_dir=args.out_dir,
     render_px=args.render_px,
