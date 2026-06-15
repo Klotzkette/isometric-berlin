@@ -224,6 +224,21 @@ DOP preview, and DGM preview. Google 3D Tiles remain wired as an
 optional opt-in source, but are not required and are not fetched unless
 you provide a local `.env` with a Maps API key and the opt-in flags.
 
+To create a downloadable folder and ZIP for another Mac or PC:
+
+```bash
+python3 scripts/package_static_site.py
+```
+
+The result is written to
+`releases/isometric-berlin-regierungsviertel-local/` and
+`releases/isometric-berlin-regierungsviertel-local.zip`. Unzip it on
+the target computer and start:
+
+- macOS: `start-mac.command`
+- Windows: `start-windows.bat`
+- Linux: `start-linux.sh`
+
 </td>
 <td valign="top">
 
@@ -250,6 +265,21 @@ LoD2, OSM, ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben
 als optionale Opt-in-Verbindung vorbereitet, werden aber nicht benötigt
 und nicht abgerufen, solange keine lokale `.env` mit Maps-API-Key und
 Opt-in-Flags vorhanden ist.
+
+Ein herunterladbares Paket für einen anderen Mac oder PC erzeugst du so:
+
+```bash
+python3 scripts/package_static_site.py
+```
+
+Das Ergebnis liegt unter
+`releases/isometric-berlin-regierungsviertel-local/` und
+`releases/isometric-berlin-regierungsviertel-local.zip`. Auf dem
+Zielrechner entpacken und starten:
+
+- macOS: `start-mac.command`
+- Windows: `start-windows.bat`
+- Linux: `start-linux.sh`
 
 </td>
 </tr>

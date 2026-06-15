@@ -84,6 +84,7 @@ src/app/public/dzi/*
 !src/app/public/dzi/regierungsviertel/
 !src/app/public/dzi/regierungsviertel/**
 src/app/dist/
+releases/
 
 # Model weights
 lora-weights/
