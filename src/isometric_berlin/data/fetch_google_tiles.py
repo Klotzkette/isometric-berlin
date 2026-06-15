@@ -56,6 +56,29 @@ KEY_PLACEHOLDER: Final[str] = "key={GOOGLE_MAPS_API_KEY}"
 GOOGLE_ATTRIBUTION: Final[str] = "Imagery © Google · Google Maps Platform"
 
 
+def load_dotenv(
+  path: Path = Path(".env"), base_env: dict[str, str] | None = None
+) -> dict[str, str]:
+  """Load simple KEY=VALUE pairs from a gitignored .env file.
+
+  Existing environment values win over .env values so CI/explicit shell
+  exports cannot be shadowed by local files.
+  """
+  env = dict(os.environ if base_env is None else base_env)
+  if not path.exists():
+    return env
+  for raw_line in path.read_text(encoding="utf-8").splitlines():
+    line = raw_line.strip()
+    if not line or line.startswith("#") or "=" not in line:
+      continue
+    key, value = line.split("=", 1)
+    key = key.strip()
+    value = value.strip().strip("\"'")
+    if key and key not in env:
+      env[key] = value
+  return env
+
+
 def opt_in_satisfied(env: dict[str, str] | None = None) -> tuple[bool, str]:
   """Return ``(ok, reason)`` based on the three opt-in env vars."""
   e = env if env is not None else os.environ
@@ -193,7 +216,8 @@ def main() -> int:
   )
   args = parser.parse_args()
 
-  ok, reason = opt_in_satisfied()
+  env = load_dotenv()
+  ok, reason = opt_in_satisfied(env)
   if not ok:
     print(
       f"[fetch_google_tiles] opt-in not satisfied: {reason}. "
@@ -203,7 +227,7 @@ def main() -> int:
     write_unavailable_manifest(args.out, f"opt_in_env_missing: {reason}")
     return 0
 
-  api_key = os.environ["GOOGLE_MAPS_API_KEY"]
+  api_key = env["GOOGLE_MAPS_API_KEY"]
   tileset = fetch_root_tileset(api_key)
   manifest = build_manifest(tileset)
   if args.download_content:
