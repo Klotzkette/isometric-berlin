@@ -160,7 +160,7 @@ commit messages and PR titles (e.g. `step-4: …`).
    combines all permitted sources into a single fused source-stack
    manifest with provenance per feature/tile (see
    [`docs/data.md`](docs/data.md) and
-   [`tasks/05-source-fusion-manifest.md`](tasks/05-source-fusion-manifest.md)).
+   [`tasks/done/05-source-fusion-manifest.md`](tasks/done/05-source-fusion-manifest.md)).
    Conflicts are recorded, not silently dropped.
 7. **Quadrant grid.** `isometric_berlin.generation.create_grid` builds
    an isometric 512×512 px quadrant grid covering the bounds and

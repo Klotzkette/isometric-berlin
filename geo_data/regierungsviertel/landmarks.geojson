@@ -1,15 +1,155 @@
 {
   "type": "FeatureCollection",
   "name": "regierungsviertel_landmarks",
-  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
   "features": [
-    { "type": "Feature", "properties": { "name": "Brandenburger Tor" }, "geometry": { "type": "Point", "coordinates": [13.3777, 52.5163] } },
-    { "type": "Feature", "properties": { "name": "Reichstagsgebäude" }, "geometry": { "type": "Point", "coordinates": [13.3761, 52.5186] } },
-    { "type": "Feature", "properties": { "name": "Bundeskanzleramt" }, "geometry": { "type": "Point", "coordinates": [13.3692, 52.5200] } },
-    { "type": "Feature", "properties": { "name": "Paul-Löbe-Haus" }, "geometry": { "type": "Point", "coordinates": [13.3736, 52.5195] } },
-    { "type": "Feature", "properties": { "name": "Marie-Elisabeth-Lüders-Haus" }, "geometry": { "type": "Point", "coordinates": [13.3760, 52.5197] } },
-    { "type": "Feature", "properties": { "name": "Berlin Hauptbahnhof" }, "geometry": { "type": "Point", "coordinates": [13.3694, 52.5251] } },
-    { "type": "Feature", "properties": { "name": "Haus der Kulturen der Welt (Schwangere Auster)" }, "geometry": { "type": "Point", "coordinates": [13.3640, 52.5189] } },
-    { "type": "Feature", "properties": { "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)" }, "geometry": { "type": "Point", "coordinates": [13.3743, 52.5096] } }
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Brandenburger Tor",
+        "role": "must_be_visible"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.377701755, 52.5162787]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Reichstagsgebäude",
+        "role": "hero_tile"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3761, 52.5186]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bundeskanzleramt",
+        "role": "must_be_visible"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.369129324, 52.52015925]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Paul-Löbe-Haus",
+        "role": "must_be_visible"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3736, 52.5195]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Marie-Elisabeth-Lüders-Haus",
+        "role": "must_be_visible"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.376, 52.5197]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin Hauptbahnhof",
+        "role": "hero_tile"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3694, 52.5251]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Haus der Kulturen der Welt (Schwangere Auster)",
+        "role": "must_be_visible"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.364, 52.5189]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+        "role": "must_be_visible"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3743, 52.5096]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Max-Liebermann-Haus",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.377821855, 52.516702099]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Botschaft der Vereinigten Staaten von Amerika",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3781671, 52.515292]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Zollpackhof",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3668503, 52.5212821]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gustav-Heinemann-Brücke",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3707522, 52.5224857]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Spreebogen",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3698, 52.5208]
+      }
+    }
   ]
 }

@@ -34,9 +34,11 @@ Behaviour
 - Hero features (Reichstag dome, Hauptbahnhof glass roof) may be
   marked ``manual: true`` to bypass automatic conflict resolution.
 
-Per-feature evidence is produced by a later step once
-``buildings.gpkg`` / ``osm.gpkg`` exist; until then ``features`` and
-``conflict_log`` are empty but the source inventory is complete.
+When ``buildings.gpkg`` exists, each LoD2 building inside the bounds is
+emitted as a feature with LoD2 geometry evidence. OSM POIs that
+intersect the footprint are attached as additive semantic evidence.
+Unavailable optional sources stay in the source inventory with a
+reason, rather than disappearing from the manifest.
 """
 
 from __future__ import annotations
@@ -47,6 +49,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import geopandas as gpd
+import pandas as pd
+
+from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.data.fetch_google_tiles import opt_in_satisfied
 
 SOURCE_LICENSES: dict[str, str] = {
@@ -77,6 +83,33 @@ def _dir_source(source_id: str, path: Path) -> dict[str, Any]:
       "license": SOURCE_LICENSES[source_id],
     }
   return {"available": False, "reason": "not_downloaded"}
+
+
+def _support_source(
+  source_id: str, raw_path: Path, derived_path: Path
+) -> dict[str, Any]:
+  """Reflect an optional official support layer from raw or derived artefacts."""
+  manifest_path = raw_path / "manifest.json"
+  if manifest_path.exists():
+    try:
+      manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+      manifest = {}
+    if manifest.get("available") is False:
+      return {
+        "available": False,
+        "reason": manifest.get("reason", "manifest_unavailable"),
+      }
+  if derived_path.exists():
+    source = {
+      "available": True,
+      "path": str(derived_path),
+      "license": SOURCE_LICENSES[source_id],
+    }
+    if raw_path.is_dir() and any(raw_path.iterdir()):
+      source["raw_path"] = str(raw_path)
+    return source
+  return _dir_source(source_id, raw_path)
 
 
 def _google_source(manifest_path: Path, env: dict[str, str]) -> dict[str, Any]:
@@ -110,11 +143,112 @@ def discover_sources(geo_dir: Path, env: dict[str, str]) -> dict[str, Any]:
   return {
     "lod2": _file_source("lod2", geo_dir / "buildings.gpkg"),
     "osm": _file_source("osm", geo_dir / "osm.gpkg"),
-    "alkis": _dir_source("alkis", raw / "alkis"),
-    "dop": _dir_source("dop", raw / "dop"),
-    "dgm": _dir_source("dgm", raw / "dgm"),
+    "alkis": _support_source("alkis", raw / "alkis", geo_dir / "alkis.gpkg"),
+    "dop": _support_source("dop", raw / "dop", geo_dir / "dop_preview.png"),
+    "dgm": _support_source("dgm", raw / "dgm", geo_dir / "dgm_preview.png"),
     "google3d": _google_source(raw / "google_3d_tiles" / "manifest.json", env),
   }
+
+
+def read_layer(path: Path, layer: str) -> gpd.GeoDataFrame:
+  """Read a GeoPackage layer, returning an empty GeoDataFrame on absence."""
+  if not path.exists():
+    return gpd.GeoDataFrame(geometry=[], crs="EPSG:25833")
+  try:
+    gdf = gpd.read_file(path, layer=layer)
+  except Exception:
+    return gpd.GeoDataFrame(geometry=[], crs="EPSG:25833")
+  if gdf.crs is None:
+    gdf = gdf.set_crs("EPSG:25833")
+  return gdf.to_crs("EPSG:25833")
+
+
+def semantic_tags(row: Any) -> dict[str, str]:
+  """Return non-empty OSM semantic tags from a row."""
+  tags: dict[str, str] = {}
+  for key in ["name", "amenity", "tourism", "historic", "bridge"]:
+    value = row.get(key)
+    if value is None:
+      continue
+    text = str(value)
+    if text and text != "<NA>" and text.lower() != "nan":
+      tags[key] = text
+  return tags
+
+
+def json_value(value: Any) -> str | float | int | None:
+  """Return a JSON-safe scalar or ``None`` for missing values."""
+  if value is None or pd.isna(value):
+    return None
+  if hasattr(value, "item"):
+    value = value.item()
+  if isinstance(value, int | float | str):
+    return value
+  return str(value)
+
+
+def osm_semantic_evidence(
+  building: Any, pois: gpd.GeoDataFrame, *, max_matches: int = 4
+) -> list[dict[str, Any]]:
+  """Find additive OSM semantic evidence intersecting a building."""
+  if pois.empty:
+    return []
+  matches: list[dict[str, Any]] = []
+  possible = pois.iloc[
+    list(pois.sindex.query(building.geometry, predicate="intersects"))
+  ]
+  for _, poi in possible.head(max_matches).iterrows():
+    tags = semantic_tags(poi)
+    if not tags:
+      continue
+    ref = poi.get("osmid") or poi.get("id") or poi.name
+    matches.append(
+      {
+        "source": "osm",
+        "confidence": 0.8,
+        "ref": f"osm.gpkg#pois={ref}",
+        "tags": tags,
+      }
+    )
+  return matches
+
+
+def build_features(bounds_path: Path, geo_dir: Path) -> list[dict[str, Any]]:
+  """Build per-building additive provenance from LoD2 and OSM."""
+  buildings = read_layer(geo_dir / "buildings.gpkg", "buildings")
+  if buildings.empty:
+    return []
+  bounds = project_geometry(load_bounds_polygon(bounds_path))
+  buildings = buildings[buildings.geometry.intersects(bounds)].copy()
+  pois = read_layer(geo_dir / "osm.gpkg", "pois")
+  features: list[dict[str, Any]] = []
+  for index, building in buildings.iterrows():
+    building_id = building.get("building_id") or f"lod2-{index}"
+    geometry_attrs = {
+      "measured_height_m": json_value(building.get("measured_height_m")),
+      "roof_type": json_value(building.get("roof_type")),
+      "function": json_value(building.get("function")),
+    }
+    features.append(
+      {
+        "feature_id": str(building_id),
+        "kind": "building",
+        "anchor_source": "lod2",
+        "geometry_evidence": [
+          {
+            "source": "lod2",
+            "confidence": 1.0,
+            "ref": f"buildings.gpkg#building_id={building_id}",
+            "attributes": {
+              key: value for key, value in geometry_attrs.items() if value is not None
+            },
+          }
+        ],
+        "semantic_evidence": osm_semantic_evidence(building, pois),
+        "conflicts": [],
+      }
+    )
+  return features
 
 
 def build_fused_manifest(
@@ -126,7 +260,7 @@ def build_fused_manifest(
     "generated_at": datetime.now(timezone.utc).isoformat(),
     "fusion": "additive",
     "sources": discover_sources(geo_dir, env),
-    "features": [],
+    "features": build_features(bounds_path, geo_dir),
     "conflict_log": [],
   }
 

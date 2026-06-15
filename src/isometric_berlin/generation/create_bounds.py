@@ -32,6 +32,7 @@ from shapely.geometry import Polygon, shape
 HOST = "127.0.0.1"
 PORT = 8765
 ATTRIBUTION = "© OpenStreetMap contributors"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 def repo_root() -> Path:
@@ -145,7 +146,7 @@ def save_bounds(
 
 def create_app(bounds_path: Path, landmarks_path: Path) -> Flask:
   """Create the Flask app serving the bounds editor."""
-  app = Flask(__name__)
+  app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
 
   @app.get("/")
   def index() -> Response:
@@ -170,13 +171,26 @@ def create_app(bounds_path: Path, landmarks_path: Path) -> Flask:
       return jsonify(
         {"ok": False, "errors": ["Polygon must have exactly one ring (no holes)."]}
       ), 400
-    ring = close_ring([[float(x), float(y)] for x, y in rings[0]])
+    try:
+      ring = close_ring([[float(x), float(y)] for x, y in rings[0]])
+    except (TypeError, ValueError):
+      return jsonify({"ok": False, "errors": ["Coordinates must be numbers."]}), 400
     errors = validate_ring(ring)
     if errors:
       return jsonify({"ok": False, "errors": errors}), 400
+    report = landmark_report(ring, load_geojson(landmarks_path))
+    if not all(report.values()):
+      outside = ", ".join(name for name, inside in report.items() if not inside)
+      return jsonify(
+        {
+          "ok": False,
+          "errors": [f"Bounds must include all landmarks: {outside}"],
+          "landmarks_inside": report,
+          "all_inside": False,
+        }
+      ), 400
     props = bounds_properties(load_geojson(bounds_path))
     save_bounds(bounds_path, ring, props["name"], props["description"], props["source"])
-    report = landmark_report(ring, load_geojson(landmarks_path))
     return jsonify(
       {
         "ok": True,
@@ -218,9 +232,8 @@ _PAGE = """<!DOCTYPE html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Regierungsviertel bounds editor</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="/static/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/static/leaflet-draw/leaflet.draw.css" />
   <style>
     html, body { margin: 0; height: 100%; }
     #map { position: absolute; inset: 0; }
@@ -245,13 +258,13 @@ _PAGE = """<!DOCTYPE html>
     <p><button id="save">Save bounds.geojson</button></p>
     <div id="status"></div>
   </div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="/static/leaflet/leaflet.js"></script>
+  <script src="/static/leaflet-draw/leaflet.draw.js"></script>
   <script>
     const map = L.map("map");
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: "\\u00a9 OpenStreetMap contributors",
+      attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
     let polygonLayer = null;

@@ -35,7 +35,7 @@ def test_outer_ring_and_properties() -> None:
 def test_committed_bounds_contain_all_landmarks() -> None:
   ring = cb.outer_ring(cb.load_geojson(BOUNDS))
   report = cb.landmark_report(ring, cb.load_geojson(LANDMARKS))
-  assert len(report) == 8
+  assert len(report) >= 13
   assert all(report.values()), f"landmarks outside bounds: {report}"
 
 
@@ -85,11 +85,21 @@ def client(tmp_path: Path):
 
 def test_get_endpoints(client) -> None:
   test_client, _ = client
-  assert test_client.get("/").status_code == 200
+  page = test_client.get("/")
+  assert page.status_code == 200
+  assert b"https://unpkg.com" not in page.data
+  assert b"/static/leaflet/leaflet.css" in page.data
+  assert b"/static/leaflet/leaflet.js" in page.data
+  assert b"/static/leaflet-draw/leaflet.draw.css" in page.data
+  assert b"/static/leaflet-draw/leaflet.draw.js" in page.data
+  assert b"https://tile.openstreetmap.org/{z}/{x}/{y}.png" in page.data
+  assert "© OpenStreetMap contributors".encode() in page.data
+  assert test_client.get("/static/leaflet/leaflet.js").status_code == 200
+  assert test_client.get("/static/leaflet-draw/leaflet.draw.js").status_code == 200
   bounds = test_client.get("/api/bounds").get_json()
   assert bounds["features"][0]["geometry"]["type"] == "Polygon"
   landmarks = test_client.get("/api/landmarks").get_json()
-  assert len(landmarks["features"]) == 8
+  assert len(landmarks["features"]) >= 13
 
 
 def test_post_valid_polygon_saves_and_preserves_properties(client) -> None:
@@ -126,3 +136,31 @@ def test_post_polygon_with_hole_is_rejected(client) -> None:
   )
   assert res.status_code == 400
   assert res.get_json()["ok"] is False
+
+
+def test_post_polygon_excluding_landmarks_is_rejected(client) -> None:
+  test_client, bounds_copy = client
+  before = bounds_copy.read_text(encoding="utf-8")
+  res = test_client.post(
+    "/api/bounds",
+    json={
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [13.0, 52.0],
+            [13.1, 52.0],
+            [13.1, 52.1],
+            [13.0, 52.1],
+            [13.0, 52.0],
+          ]
+        ],
+      }
+    },
+  )
+  data = res.get_json()
+  assert res.status_code == 400
+  assert data["ok"] is False
+  assert data["all_inside"] is False
+  assert "Bounds must include all landmarks" in data["errors"][0]
+  assert bounds_copy.read_text(encoding="utf-8") == before

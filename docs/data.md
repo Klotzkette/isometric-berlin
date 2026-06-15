@@ -156,3 +156,52 @@ uv run python -m isometric_berlin.data.fuse_sources \
   --bounds geo_data/regierungsviertel/bounds.geojson \
   --out geo_data/regierungsviertel/fused_sources.json
 ```
+
+## OSM / Overpass query
+
+Pipeline step 3 uses OSMnx against Overpass with the Regierungsviertel
+polygon from `geo_data/regierungsviertel/bounds.geojson`, clipped back
+to the same polygon in EPSG:25833. The effective tag filter is:
+
+```python
+{
+  "highway": True,
+  "waterway": True,
+  "water": True,
+  "natural": ["water", "wood", "scrub", "grassland"],
+  "leisure": ["park", "garden", "playground"],
+  "landuse": ["grass", "forest", "meadow", "recreation_ground"],
+  "railway": True,
+  "amenity": True,
+  "tourism": True,
+  "historic": True,
+  "bridge": True,
+}
+```
+
+The normalized raw feature response is cached at
+`geo_data/regierungsviertel/raw/osm_overpass.json` (gitignored), and
+OSMnx's request cache lives under
+`geo_data/regierungsviertel/raw/osmnx_cache/`.
+
+## Berlin official support layers
+
+Pipeline step 4 keeps official support data additive and scoped to the
+Regierungsviertel bounds:
+
+- `alkis`: public ALKIS Flurstücke WFS
+  `https://gdi.berlin.de/services/wfs/alkis_flurstuecke`; the clipped
+  derived artefact is `geo_data/regierungsviertel/alkis.gpkg`.
+- `dop`: DOP 2025 ATOM/WMS
+  `https://gdi.berlin.de/data/dop_2025_fruehjahr/atom/` and
+  `https://gdi.berlin.de/services/wms/dop_2025_fruehjahr`; the
+  derived QA/reference artefact is `dop_preview.png`.
+- `dgm`: DGM1 ATOM/WMS
+  `https://gdi.berlin.de/data/dgm1/atom/` and
+  `https://gdi.berlin.de/services/wms/dgm1`; the derived QA/reference
+  artefact is `dgm_preview.png`.
+
+The raw service capabilities and ATOM feeds are cached under
+`geo_data/regierungsviertel/raw/{alkis,dop,dgm}/` and gitignored.
+Large DOP/DGM ZIP archives are referenced in those manifests, but are
+not downloaded or committed by default.

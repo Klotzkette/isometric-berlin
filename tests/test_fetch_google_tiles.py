@@ -7,6 +7,7 @@ from pathlib import Path
 
 from isometric_berlin.data.fetch_google_tiles import (
   build_manifest,
+  load_dotenv,
   opt_in_satisfied,
   to_url_template,
   write_unavailable_manifest,
@@ -50,6 +51,26 @@ def test_opt_in_passes_when_all_three_set() -> None:
   ok, reason = opt_in_satisfied(env)
   assert ok is True
   assert reason == "ok"
+
+
+def test_load_dotenv_preserves_explicit_env(tmp_path: Path) -> None:
+  env_path = tmp_path / ".env"
+  env_path.write_text(
+    "\n".join(
+      [
+        "GOOGLE_MAPS_API_KEY=from-file",
+        "GOOGLE_MAPS_3D_TILES_ENABLED=true",
+        "GOOGLE_MAPS_TERMS_ACCEPTED=true",
+      ]
+    ),
+    encoding="utf-8",
+  )
+
+  env = load_dotenv(env_path, {"GOOGLE_MAPS_API_KEY": "from-shell"})
+
+  assert env["GOOGLE_MAPS_API_KEY"] == "from-shell"
+  assert env["GOOGLE_MAPS_3D_TILES_ENABLED"] == "true"
+  assert env["GOOGLE_MAPS_TERMS_ACCEPTED"] == "true"
 
 
 def test_unavailable_manifest_has_no_key(tmp_path: Path) -> None:

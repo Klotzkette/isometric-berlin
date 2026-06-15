@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Private scaffold / Privates Gerüst — work in progress.
+> **Status:** Local v0.1 open-data viewer. The AI tile style pass is still planned.
 
 ---
 
@@ -63,8 +63,10 @@ Dieses Projekt würde ohne ihn nicht existieren.
 
 ## The Idea
 
-A giant, zoomable, SimCity-style isometric pixel-art map of Berlin —
-generated tile-by-tile with AI from open city data.
+The end goal is a giant, zoomable, SimCity-style isometric pixel-art map
+of Berlin. The current v0.1 local viewer already runs from generated
+open-data map tiles; the AI style pass is a later pipeline step, not a
+runtime requirement.
 
 This repository is an independent, derivative project inspired by
 Andy Coenen's [isometric.nyc](https://isometric.nyc). The approach,
@@ -78,8 +80,10 @@ for Berlin are produced from scratch.
 
 ## Die Idee
 
-Eine riesige, zoombare, isometrische Pixel-Art-Karte von Berlin im Stil
-von SimCity – Kachel für Kachel mit KI aus offenen Stadtdaten erzeugt.
+Das Ziel ist eine riesige, zoombare, isometrische Pixel-Art-Karte von
+Berlin im Stil von SimCity. Der aktuelle lokale v0.1-Viewer läuft
+bereits mit erzeugten Open-Data-Kacheln; der KI-Stilschritt ist ein
+späterer Pipeline-Schritt und keine Laufzeitvoraussetzung.
 
 Dieses Repository ist ein eigenständiges, abgeleitetes Projekt, inspiriert
 von Andy Coenens [isometric.nyc](https://isometric.nyc). Der Ansatz, die
@@ -195,6 +199,91 @@ anzuzeigen. OSM hat eine Share-Alike-Klausel für *abgeleitete
 Datenbanken*, gerenderte Kachelbilder sind aber *Produced Works* und
 dürfen unter beliebiger Lizenz veröffentlicht werden, solange die
 obigen Hinweise sichtbar sind.
+
+</td>
+</tr>
+
+<tr>
+<td valign="top">
+
+## Run locally
+
+The committed viewer can run from your hard drive with the generated
+open-data artefacts. It does **not** need an AI model at runtime. AI is
+only needed later if you want to replace the deterministic local
+pixel-art pass with a fine-tuned image model.
+
+```bash
+python3 scripts/serve_local_viewer.py
+```
+
+Open the printed local URL, usually:
+
+```text
+http://127.0.0.1:8766/
+```
+
+Current default data sources are free/open: Berlin LoD2, OSM, ALKIS,
+DOP preview, and DGM preview. Google 3D Tiles remain wired as an
+optional opt-in source, but are not required and are not fetched unless
+you provide a local `.env` with a Maps API key and the opt-in flags.
+
+To create a downloadable folder and ZIP for another Mac or PC:
+
+```bash
+python3 scripts/package_static_site.py
+```
+
+The result is written to
+`releases/isometric-berlin-regierungsviertel-local/` and
+`releases/isometric-berlin-regierungsviertel-local.zip`. Unzip it on
+the target computer and start:
+
+- macOS: `start-mac.command`
+- Windows: `start-windows.bat`
+- Linux: `start-linux.sh`
+
+</td>
+<td valign="top">
+
+## Lokal starten
+
+Der committed Viewer läuft mit den erzeugten Open-Data-Artefakten
+direkt von deiner Festplatte. Dafür brauchst du **kein KI-Modell** zur
+Laufzeit. KI wird erst später relevant, wenn der deterministische
+lokale Pixel-Art-Schritt durch ein feinabgestimmtes Bildmodell ersetzt
+werden soll.
+
+```bash
+python3 scripts/serve_local_viewer.py
+```
+
+Öffne die ausgegebene lokale URL, normalerweise:
+
+```text
+http://127.0.0.1:8766/
+```
+
+Der aktuelle Standard nutzt nur kostenlose/offene Quellen: Berlin
+LoD2, OSM, ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben
+als optionale Opt-in-Verbindung vorbereitet, werden aber nicht benötigt
+und nicht abgerufen, solange keine lokale `.env` mit Maps-API-Key und
+Opt-in-Flags vorhanden ist.
+
+Ein herunterladbares Paket für einen anderen Mac oder PC erzeugst du so:
+
+```bash
+python3 scripts/package_static_site.py
+```
+
+Das Ergebnis liegt unter
+`releases/isometric-berlin-regierungsviertel-local/` und
+`releases/isometric-berlin-regierungsviertel-local.zip`. Auf dem
+Zielrechner entpacken und starten:
+
+- macOS: `start-mac.command`
+- Windows: `start-windows.bat`
+- Linux: `start-linux.sh`
 
 </td>
 </tr>
