@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import io
 import sqlite3
+import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -30,10 +31,10 @@ PARK_LIGHT = (139, 171, 103)
 WATER = (87, 142, 171)
 ROAD = (218, 204, 177)
 ROAD_MAJOR = (236, 226, 207)
-ROAD_PATH = (227, 219, 202)
+ROAD_PATH = (192, 206, 174)
 ROAD_EDGE = (194, 180, 156)
-RAIL = (74, 77, 82)
-RAIL_PLATFORM = (126, 125, 112)
+RAIL = (94, 94, 88)
+RAIL_PLATFORM = (139, 136, 122)
 BUILDING_WALL = (190, 174, 149)
 BUILDING_WALL_DARK = (150, 137, 119)
 BUILDING_ROOF = (166, 148, 124)
@@ -42,6 +43,12 @@ BUILDING_SHADOW = (176, 168, 149)
 PARCEL = (189, 176, 151)
 OUTLINE = (80, 73, 64)
 LANDMARK = (105, 47, 47)
+MONUMENT = (219, 199, 164)
+MONUMENT_DARK = (124, 96, 77)
+GLASS = (111, 164, 181)
+GLASS_DARK = (62, 104, 121)
+TUNNEL = (41, 40, 39)
+BRIDGE = (226, 224, 209)
 
 MAJOR_HIGHWAYS = {"primary", "secondary", "tertiary", "trunk"}
 LOCAL_HIGHWAYS = {"residential", "service", "unclassified", "living_street"}
@@ -54,7 +61,7 @@ PATH_HIGHWAYS = {
   "crossing",
   "track",
 }
-RAIL_LINES = {"rail", "light_rail", "subway", "tram"}
+RAIL_LINES = {"rail", "light_rail", "tram"}
 RAIL_PLATFORMS = {"platform", "platform_edge"}
 
 
@@ -100,7 +107,7 @@ def project_point(
   height: int,
 ) -> tuple[int, int]:
   dx = x - center_x
-  dy = y - center_y
+  dy = center_y - y
   px = (dx - dy) * 0.88 * scale + width / 2
   py = (dx + dy) * 0.44 * scale - z * 2.7 + height * 0.62
   return int(round(px)), int(round(py))
@@ -181,6 +188,16 @@ def row_text(row: Any, key: str) -> str:
   return str(value)
 
 
+def normalized_text(value: str) -> str:
+  """Return an ASCII-ish lower-case key for landmark routing."""
+  return (
+    unicodedata.normalize("NFKD", value)
+    .encode("ascii", "ignore")
+    .decode("ascii")
+    .lower()
+  )
+
+
 def park_color(row: Any) -> tuple[int, int, int]:
   """Return a subdued landcover colour from OSM semantics."""
   natural = row_text(row, "natural")
@@ -201,7 +218,7 @@ def road_style(row: Any, line_scale: int) -> tuple[tuple[int, int, int], int, in
   if highway in LOCAL_HIGHWAYS:
     return ROAD, max(2, 2 * line_scale), 2
   if highway in PATH_HIGHWAYS:
-    return ROAD_PATH, max(1, line_scale), 1
+    return ROAD_PATH, max(1, round(line_scale * 0.7)), 1
   return ROAD_PATH, max(1, line_scale), 0
 
 
@@ -210,11 +227,216 @@ def rail_style(
 ) -> tuple[tuple[int, int, int], int, int] | None:
   """Return colour, width, and draw order for rail geometry worth drawing."""
   railway = row_text(row, "railway")
+  if row_text(row, "tunnel") or row_text(row, "covered") == "yes":
+    return None
+  try:
+    if int(row_text(row, "layer") or "0") < 0:
+      return None
+  except ValueError:
+    pass
   if railway in RAIL_LINES:
-    return RAIL, max(1, line_scale + 1), 2
+    return RAIL, max(1, line_scale), 2
   if railway in RAIL_PLATFORMS:
     return RAIL_PLATFORM, max(1, line_scale), 1
   return None
+
+
+def landmark_kind(name: str) -> str | None:
+  """Map required landmark names to explicit visual accent types."""
+  key = normalized_text(name)
+  if "brandenburger tor" in key:
+    return "gate"
+  if "reichstag" in key:
+    return "dome"
+  if "hauptbahnhof" in key:
+    return "glass_station"
+  if "kulturen der welt" in key or "schwangere auster" in key:
+    return "curved_roof"
+  if "bundeskanzleramt" in key:
+    return "chancellery"
+  if "paul-lobe" in key or "marie-elisabeth-luders" in key:
+    return "parliament_band"
+  if "gustav-heinemann-brucke" in key:
+    return "bridge"
+  if "tiergartentunnel" in key:
+    return "tunnel"
+  return None
+
+
+def landmark_icon_unit(render_px: int) -> int:
+  """Return a screen-space icon unit that survives pixel-art downsampling."""
+  return max(3, min(8, round(render_px / 768)))
+
+
+def draw_landmark_accent(
+  draw: ImageDraw.ImageDraw,
+  row: Any,
+  *,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+) -> None:
+  if not isinstance(row.geometry, Point):
+    return
+  kind = landmark_kind(row_text(row, "name"))
+  if kind is None:
+    return
+  unit = landmark_icon_unit(width)
+
+  def point(z: float) -> tuple[int, int]:
+    return project_point(
+      row.geometry.x,
+      row.geometry.y,
+      z=z,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=width,
+      height=height,
+    )
+
+  if kind == "gate":
+    x, y = point(18)
+    draw.rectangle(
+      (x - 6 * unit, y - 4 * unit, x + 6 * unit, y - 2 * unit),
+      fill=MONUMENT,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.rectangle(
+      (x - 7 * unit, y + 3 * unit, x + 7 * unit, y + 4 * unit),
+      fill=MONUMENT_DARK,
+    )
+    for idx in range(6):
+      cx = x - 5 * unit + idx * 2 * unit
+      draw.rectangle(
+        (cx - unit // 2, y - 2 * unit, cx + unit // 2, y + 4 * unit),
+        fill=MONUMENT,
+        outline=OUTLINE,
+        width=max(1, unit // 5),
+      )
+    return
+
+  if kind == "dome":
+    x, y = point(43)
+    draw.ellipse(
+      (x - 4 * unit, y - 3 * unit, x + 4 * unit, y + 3 * unit),
+      fill=GLASS,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.arc(
+      (x - 5 * unit, y - 4 * unit, x + 5 * unit, y + 4 * unit),
+      start=205,
+      end=335,
+      fill=GLASS_DARK,
+      width=max(1, unit // 3),
+    )
+    draw.line((x, y - 3 * unit, x, y + 3 * unit), fill=GLASS_DARK, width=1)
+    return
+
+  if kind == "glass_station":
+    x, y = point(36)
+    roof = [
+      (x - 9 * unit, y),
+      (x - 3 * unit, y - 3 * unit),
+      (x + 9 * unit, y),
+      (x + 3 * unit, y + 3 * unit),
+    ]
+    draw.polygon(roof, fill=GLASS, outline=OUTLINE)
+    for offset in (-5, 0, 5):
+      draw.line(
+        (x + offset * unit, y - 2 * unit, x + (offset + 4) * unit, y),
+        fill=GLASS_DARK,
+        width=max(1, unit // 4),
+      )
+    return
+
+  if kind == "curved_roof":
+    x, y = point(24)
+    draw.arc(
+      (x - 7 * unit, y - 6 * unit, x + 7 * unit, y + 6 * unit),
+      start=200,
+      end=340,
+      fill=MONUMENT,
+      width=max(2, unit),
+    )
+    draw.rectangle(
+      (x - 5 * unit, y, x + 5 * unit, y + 3 * unit),
+      fill=BUILDING_HERO,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    return
+
+  if kind == "chancellery":
+    x, y = point(34)
+    draw.rectangle(
+      (x - 7 * unit, y - 2 * unit, x - 3 * unit, y + 5 * unit),
+      fill=MONUMENT,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.rectangle(
+      (x + 3 * unit, y - 2 * unit, x + 7 * unit, y + 5 * unit),
+      fill=MONUMENT,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.rectangle(
+      (x - 3 * unit, y, x + 3 * unit, y + 3 * unit),
+      fill=GLASS,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    return
+
+  if kind == "parliament_band":
+    x, y = point(24)
+    draw.polygon(
+      [
+        (x - 7 * unit, y - unit),
+        (x - 2 * unit, y - 3 * unit),
+        (x + 7 * unit, y + unit),
+        (x + 2 * unit, y + 3 * unit),
+      ],
+      fill=BUILDING_HERO,
+      outline=OUTLINE,
+    )
+    for offset in (-4, -1, 2, 5):
+      draw.line(
+        (x + offset * unit, y - 2 * unit, x + (offset + 3) * unit, y + unit),
+        fill=MONUMENT_DARK,
+        width=max(1, unit // 5),
+      )
+    return
+
+  if kind == "bridge":
+    x, y = point(8)
+    draw.line(
+      (x - 7 * unit, y - 2 * unit, x + 7 * unit, y + 2 * unit),
+      fill=BRIDGE,
+      width=max(2, unit // 2),
+    )
+    draw.line(
+      (x - 7 * unit, y + unit, x + 7 * unit, y + 5 * unit),
+      fill=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    return
+
+  if kind == "tunnel":
+    x, y = point(6)
+    portal = max(2, unit // 2)
+    draw.ellipse(
+      (x - 5 * portal, y - 4 * portal, x + 5 * portal, y + 4 * portal),
+      fill=TUNNEL,
+      outline=ROAD_MAJOR,
+      width=max(1, portal // 2),
+    )
+    draw.rectangle((x - 5 * portal, y, x + 5 * portal, y + 4 * portal), fill=TUNNEL)
 
 
 def draw_building(
@@ -462,7 +684,7 @@ def render_quadrant(
   if not selected_buildings.empty:
     selected_buildings = selected_buildings.assign(
       _sort=selected_buildings.geometry.centroid.x
-      + selected_buildings.geometry.centroid.y
+      - selected_buildings.geometry.centroid.y
     ).sort_values("_sort")
   for _, row in selected_buildings.iterrows():
     is_hero = bool(hero_zone is not None and row.geometry.intersects(hero_zone))
@@ -479,6 +701,17 @@ def render_quadrant(
         height=render_px,
         outline_width=line_scale,
       )
+
+  for _, row in near_landmarks.iterrows():
+    draw_landmark_accent(
+      draw,
+      row,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=render_px,
+      height=render_px,
+    )
 
   if show_labels:
     font = ImageFont.load_default()

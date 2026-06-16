@@ -10,6 +10,8 @@ from isometric_berlin.generation.render_quadrants import (
   ROAD_MAJOR,
   ROAD_PATH,
   building_height,
+  landmark_icon_unit,
+  landmark_kind,
   rail_style,
   road_style,
 )
@@ -45,5 +47,29 @@ def test_road_style_separates_major_roads_from_paths() -> None:
 
 def test_rail_style_filters_signal_points_and_keeps_platforms() -> None:
   assert rail_style({"railway": "signal"}, 2) is None
-  assert rail_style({"railway": "rail"}, 2) == (RAIL, 3, 2)
+  assert rail_style({"railway": "rail"}, 2) == (RAIL, 2, 2)
   assert rail_style({"railway": "platform"}, 2) == (RAIL_PLATFORM, 2, 1)
+
+
+def test_rail_style_hides_subway_and_tunnel_lines() -> None:
+  assert rail_style({"railway": "subway"}, 2) is None
+  assert rail_style({"railway": "rail", "tunnel": "yes"}, 2) is None
+  assert rail_style({"railway": "rail", "covered": "yes"}, 2) is None
+  assert rail_style({"railway": "rail", "layer": "-1"}, 2) is None
+
+
+def test_landmark_kind_routes_required_hero_shapes() -> None:
+  assert landmark_kind("Brandenburger Tor") == "gate"
+  assert landmark_kind("Reichstagsgebäude") == "dome"
+  assert landmark_kind("Berlin Hauptbahnhof") == "glass_station"
+  assert landmark_kind("Haus der Kulturen der Welt (Schwangere Auster)") == (
+    "curved_roof"
+  )
+  assert landmark_kind("Gustav-Heinemann-Brücke") == "bridge"
+  assert landmark_kind("Unknown cafe") is None
+
+
+def test_landmark_icon_unit_stays_visible_but_bounded() -> None:
+  assert landmark_icon_unit(512) == 3
+  assert landmark_icon_unit(6144) == 8
+  assert landmark_icon_unit(12000) == 8
