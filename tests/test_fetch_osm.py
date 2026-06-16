@@ -27,3 +27,7 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
   assert counts["parks"] > 0
   assert counts["rail"] > 0
   assert counts["pois"] > 100
+
+  rail = gpd.read_file(OSM, layer="rail")
+  for column in ["tunnel", "covered", "layer", "service", "usage"]:
+    assert column in rail.columns

@@ -36,6 +36,11 @@ OSM_TAGS = {
   "tourism": True,
   "historic": True,
   "bridge": True,
+  "tunnel": True,
+  "covered": True,
+  "layer": True,
+  "service": True,
+  "usage": True,
 }
 USER_AGENT = "isometric-berlin/0.1 (Klotzkette)"
 
@@ -110,6 +115,11 @@ def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
       "tourism",
       "historic",
       "bridge",
+      "tunnel",
+      "covered",
+      "layer",
+      "service",
+      "usage",
       "geometry",
     ]
     if column in gdf.columns
