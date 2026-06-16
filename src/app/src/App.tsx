@@ -1,4 +1,4 @@
-import { Home, LocateFixed, Map, Minus, Plus } from "lucide-react";
+import { Home, Info, LocateFixed, Map, Minus, Plus } from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -19,9 +19,19 @@ type LandmarkPayload = {
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)";
 
+const ROLE_LABELS: Record<string, string> = {
+  hero_tile: "Hauptmotiv",
+  must_be_visible: "Pflicht-Landmarke",
+  owner_added: "ergänzter Ort",
+};
+
 function assetPath(path: string): string {
   const base = import.meta.env.BASE_URL || "./";
   return `${base.endsWith("/") ? base : `${base}/`}${path}`;
+}
+
+function roleLabel(role: string): string {
+  return ROLE_LABELS[role] ?? role.replaceAll("_", " ");
 }
 
 export function App() {
@@ -36,6 +46,13 @@ export function App() {
   const dziUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/regierungsviertel.dzi"),
     [],
+  );
+  const selectedLandmark = useMemo(
+    () =>
+      landmarks.find((landmark) => landmark.name === selected) ??
+      landmarks[0] ??
+      null,
+    [landmarks, selected],
   );
 
   const focusLandmark = useCallback((landmark: Landmark, immediate = false) => {
@@ -198,21 +215,34 @@ export function App() {
         <div className="rail-heading">
           <LocateFixed aria-hidden="true" size={17} />
           <span>Landmarken</span>
+          <small>{landmarks.length}</small>
         </div>
         <div className="landmark-list">
           {landmarks.map((landmark) => (
             <button
               key={landmark.name}
               type="button"
+              aria-label={`Landmarke ${landmark.name}`}
               className={landmark.name === selected ? "is-selected" : ""}
               onClick={() => focusLandmark(landmark)}
             >
               <span>{landmark.name}</span>
-              <small>{landmark.role.replaceAll("_", " ")}</small>
+              <small>{roleLabel(landmark.role)}</small>
             </button>
           ))}
         </div>
       </aside>
+
+      {selectedLandmark ? (
+        <aside className="selection-card" aria-live="polite">
+          <div>
+            <Info aria-hidden="true" size={16} />
+            <span>Fokus</span>
+          </div>
+          <strong>{selectedLandmark.name}</strong>
+          <small>{roleLabel(selectedLandmark.role)}</small>
+        </aside>
+      ) : null}
 
       <footer className="attribution">
         <span>{ATTRIBUTION}</span>
