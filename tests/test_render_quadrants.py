@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from shapely.geometry import box
 
-from isometric_berlin.generation.render_quadrants import building_height
+from isometric_berlin.generation.render_quadrants import (
+  RAIL,
+  RAIL_PLATFORM,
+  ROAD_MAJOR,
+  ROAD_PATH,
+  building_height,
+  rail_style,
+  road_style,
+)
 
 
 def test_building_height_prefers_valid_lod2_measurement() -> None:
@@ -23,3 +31,19 @@ def test_building_height_keeps_small_landmarks_visible() -> None:
   row = {"measured_height_m": None, "geometry": box(0, 0, 22, 20)}
 
   assert building_height(row, is_hero=True) == 18.0
+
+
+def test_road_style_separates_major_roads_from_paths() -> None:
+  major_color, major_width, major_order = road_style({"highway": "primary"}, 2)
+  path_color, path_width, path_order = road_style({"highway": "footway"}, 2)
+
+  assert major_color == ROAD_MAJOR
+  assert path_color == ROAD_PATH
+  assert major_width > path_width
+  assert major_order > path_order
+
+
+def test_rail_style_filters_signal_points_and_keeps_platforms() -> None:
+  assert rail_style({"railway": "signal"}, 2) is None
+  assert rail_style({"railway": "rail"}, 2) == (RAIL, 3, 2)
+  assert rail_style({"railway": "platform"}, 2) == (RAIL_PLATFORM, 2, 1)

@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1 open-data viewer. The AI tile style pass is still planned.
+> **Status:** Local v0.1.1 open-data viewer. The AI tile style pass is still planned.
 
 ---
 
