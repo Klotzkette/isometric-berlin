@@ -25,16 +25,37 @@ from isometric_berlin.generation.create_grid import quadrant_db_path
 
 BACKGROUND = (236, 230, 208)
 PARK = (120, 159, 95)
+PARK_DARK = (95, 137, 82)
+PARK_LIGHT = (139, 171, 103)
 WATER = (87, 142, 171)
 ROAD = (218, 204, 177)
+ROAD_MAJOR = (236, 226, 207)
+ROAD_PATH = (227, 219, 202)
+ROAD_EDGE = (194, 180, 156)
 RAIL = (74, 77, 82)
+RAIL_PLATFORM = (126, 125, 112)
 BUILDING_WALL = (190, 174, 149)
 BUILDING_WALL_DARK = (150, 137, 119)
 BUILDING_ROOF = (166, 148, 124)
 BUILDING_HERO = (198, 181, 151)
+BUILDING_SHADOW = (176, 168, 149)
 PARCEL = (189, 176, 151)
 OUTLINE = (80, 73, 64)
 LANDMARK = (105, 47, 47)
+
+MAJOR_HIGHWAYS = {"primary", "secondary", "tertiary", "trunk"}
+LOCAL_HIGHWAYS = {"residential", "service", "unclassified", "living_street"}
+PATH_HIGHWAYS = {
+  "footway",
+  "path",
+  "pedestrian",
+  "cycleway",
+  "steps",
+  "crossing",
+  "track",
+}
+RAIL_LINES = {"rail", "light_rail", "subway", "tram"}
+RAIL_PLATFORMS = {"platform", "platform_edge"}
 
 
 def load_layer(path: Path, layer: str) -> gpd.GeoDataFrame:
@@ -120,6 +141,8 @@ def draw_geom_line(
   *,
   color: tuple[int, int, int],
   line_width: int,
+  casing_color: tuple[int, int, int] | None = None,
+  casing_extra: int = 0,
   center_x: float,
   center_y: float,
   scale: float,
@@ -141,7 +164,57 @@ def draw_geom_line(
       for x, y in line.coords
     ]
     if len(pts) >= 2:
+      if casing_color is not None and casing_extra > 0:
+        draw.line(
+          pts,
+          fill=casing_color,
+          width=max(line_width + casing_extra, line_width),
+          joint="curve",
+        )
       draw.line(pts, fill=color, width=line_width, joint="curve")
+
+
+def row_text(row: Any, key: str) -> str:
+  value = row.get(key)
+  if value is None or value != value:
+    return ""
+  return str(value)
+
+
+def park_color(row: Any) -> tuple[int, int, int]:
+  """Return a subdued landcover colour from OSM semantics."""
+  natural = row_text(row, "natural")
+  leisure = row_text(row, "leisure")
+  landuse = row_text(row, "landuse")
+  if natural == "wood" or landuse == "forest":
+    return PARK_DARK
+  if leisure in {"garden", "playground"} or landuse == "meadow":
+    return PARK_LIGHT
+  return PARK
+
+
+def road_style(row: Any, line_scale: int) -> tuple[tuple[int, int, int], int, int]:
+  """Return colour, width, and draw order for an OSM road feature."""
+  highway = row_text(row, "highway")
+  if highway in MAJOR_HIGHWAYS:
+    return ROAD_MAJOR, max(3, 4 * line_scale), 3
+  if highway in LOCAL_HIGHWAYS:
+    return ROAD, max(2, 2 * line_scale), 2
+  if highway in PATH_HIGHWAYS:
+    return ROAD_PATH, max(1, line_scale), 1
+  return ROAD_PATH, max(1, line_scale), 0
+
+
+def rail_style(
+  row: Any, line_scale: int
+) -> tuple[tuple[int, int, int], int, int] | None:
+  """Return colour, width, and draw order for rail geometry worth drawing."""
+  railway = row_text(row, "railway")
+  if railway in RAIL_LINES:
+    return RAIL, max(1, line_scale + 1), 2
+  if railway in RAIL_PLATFORMS:
+    return RAIL_PLATFORM, max(1, line_scale), 1
+  return None
 
 
 def draw_building(
@@ -187,6 +260,9 @@ def draw_building(
     )
     for x, y in coords
   ]
+  shadow_offset = max(2, outline_width * 2)
+  shadow = [(x + shadow_offset, y + shadow_offset) for x, y in base]
+  draw.polygon(shadow, fill=BUILDING_SHADOW)
   for idx in range(len(coords) - 1):
     wall = [base[idx], base[idx + 1], roof[idx + 1], roof[idx]]
     color = BUILDING_WALL if idx % 2 == 0 else BUILDING_WALL_DARK
@@ -291,7 +367,7 @@ def render_quadrant(
     draw_geom_fill(
       draw,
       row.geometry,
-      color=PARK,
+      color=park_color(row),
       center_x=center_x,
       center_y=center_y,
       scale=scale,
@@ -334,24 +410,43 @@ def render_quadrant(
         width=render_px,
         height=render_px,
       )
+  road_features = []
   for _, row in query(osm_layers["roads"], q_bounds).iterrows():
+    if not lines(row.geometry):
+      continue
+    color, line_width, order = road_style(row, line_scale)
+    road_features.append((order, line_width, color, row.geometry))
+  for order, line_width, color, geometry in sorted(
+    road_features, key=lambda item: item[0]
+  ):
     draw_geom_line(
       draw,
-      row.geometry,
-      color=ROAD,
-      line_width=3 * line_scale,
+      geometry,
+      color=color,
+      line_width=line_width,
+      casing_color=ROAD_EDGE if order >= 2 else None,
+      casing_extra=max(1, line_scale) if order >= 2 else 0,
       center_x=center_x,
       center_y=center_y,
       scale=scale,
       width=render_px,
       height=render_px,
     )
+  rail_features = []
   for _, row in query(osm_layers["rail"], q_bounds).iterrows():
+    if not lines(row.geometry):
+      continue
+    style = rail_style(row, line_scale)
+    if style is None:
+      continue
+    color, line_width, order = style
+    rail_features.append((order, line_width, color, row.geometry))
+  for _, line_width, color, geometry in sorted(rail_features, key=lambda item: item[0]):
     draw_geom_line(
       draw,
-      row.geometry,
-      color=RAIL,
-      line_width=max(1, line_scale + 1),
+      geometry,
+      color=color,
+      line_width=line_width,
       center_x=center_x,
       center_y=center_y,
       scale=scale,

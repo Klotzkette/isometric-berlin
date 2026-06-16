@@ -14,6 +14,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
+PACKAGE_VERSION = "0.1.1"
 
 
 def repo_root() -> Path:
@@ -102,8 +103,8 @@ pause
 
 def write_readme(package_dir: Path) -> None:
   (package_dir / "README.txt").write_text(
-    """Isometric Berlin - Regierungsviertel
-=========================================
+    f"""Isometric Berlin - Regierungsviertel {PACKAGE_VERSION}
+==============================================
 
 Deutsch
 -------

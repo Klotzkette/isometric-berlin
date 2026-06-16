@@ -27,6 +27,7 @@ function assetPath(path: string): string {
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
+  const initialFocusDoneRef = useRef(false);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>("Reichstagsgebäude");
   const [status, setStatus] = useState("Lade DZI");
@@ -142,9 +143,10 @@ export function App() {
   }, [focusLandmark, isReady, landmarks, selected]);
 
   useEffect(() => {
-    if (!isReady || landmarks.length === 0) {
+    if (!isReady || landmarks.length === 0 || initialFocusDoneRef.current) {
       return;
     }
+    initialFocusDoneRef.current = true;
     const initial =
       landmarks.find((landmark) => landmark.name === selected) ?? landmarks[0];
     focusLandmark(initial, true);
