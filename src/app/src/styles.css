@@ -61,6 +61,7 @@ button {
 .brand,
 .toolbar,
 .landmark-rail,
+.selection-card,
 .attribution {
   border: 1px solid rgba(245, 239, 228, 0.16);
   background: rgba(25, 31, 29, 0.84);
@@ -138,6 +139,12 @@ button {
   font-size: 13px;
 }
 
+.rail-heading small {
+  margin-left: auto;
+  color: #f5efe4;
+  font-size: 12px;
+}
+
 .landmark-list {
   display: grid;
   gap: 6px;
@@ -181,6 +188,38 @@ button {
   color: #d8c8a8;
   font-size: 11px;
   line-height: 1.2;
+}
+
+.selection-card {
+  position: absolute;
+  z-index: 18;
+  bottom: 58px;
+  left: 16px;
+  display: grid;
+  width: min(360px, calc(100vw - 32px));
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.selection-card div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #d8c8a8;
+  font-size: 12px;
+}
+
+.selection-card strong {
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.selection-card small {
+  color: #d8c8a8;
+  font-size: 12px;
 }
 
 .attribution {
@@ -242,14 +281,22 @@ button {
   .landmark-rail {
     top: auto;
     right: 10px;
-    bottom: 56px;
+    bottom: 92px;
     left: 10px;
     width: auto;
-    max-height: 34vh;
+    max-height: 30vh;
   }
 
   .landmark-list {
-    max-height: calc(34vh - 48px);
+    max-height: calc(30vh - 48px);
+  }
+
+  .selection-card {
+    top: 68px;
+    right: 10px;
+    bottom: auto;
+    left: 10px;
+    width: auto;
   }
 
   .attribution {
