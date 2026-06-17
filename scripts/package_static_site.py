@@ -14,7 +14,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.3"
+PACKAGE_VERSION = "0.1.4"
 
 
 def repo_root() -> Path:
@@ -110,9 +110,10 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Die Daten stammen
-aus kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap, ALKIS,
-DOP-Preview und DGM-Preview.
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.4
+nutzt die korrigierte isometrische Orientierung plus einen kleinen
+Nordindikator. Die Daten stammen aus kostenlosen/offenen Quellen:
+Berlin LoD2, OpenStreetMap, ALKIS, DOP-Preview und DGM-Preview.
 
 Start:
 
@@ -132,9 +133,10 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Data sources are free
-and open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM
-preview.
+does not need an AI model or a Google key to run. Version 0.1.4 uses
+the corrected isometric orientation plus a small north indicator.
+Data sources are free and open: Berlin LoD2, OpenStreetMap, ALKIS,
+DOP preview, and DGM preview.
 
 Start:
 
