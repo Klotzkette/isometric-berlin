@@ -1,4 +1,12 @@
-import { Home, Info, LocateFixed, Map, Minus, Plus } from "lucide-react";
+import {
+  Compass,
+  Home,
+  Info,
+  LocateFixed,
+  Map,
+  Minus,
+  Plus,
+} from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -210,6 +218,12 @@ export function App() {
           </button>
         </div>
       </header>
+
+      <aside className="orientation-pill" aria-label="Kartenorientierung">
+        <Compass aria-hidden="true" size={16} />
+        <span>N</span>
+        <small>Nord</small>
+      </aside>
 
       <aside className="landmark-rail" aria-label="Landmarken">
         <div className="rail-heading">

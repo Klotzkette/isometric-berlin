@@ -61,6 +61,7 @@ button {
 .brand,
 .toolbar,
 .landmark-rail,
+.orientation-pill,
 .selection-card,
 .attribution {
   border: 1px solid rgba(245, 239, 228, 0.16);
@@ -190,6 +191,31 @@ button {
   line-height: 1.2;
 }
 
+.orientation-pill {
+  position: absolute;
+  z-index: 18;
+  top: 88px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #f5efe4;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.orientation-pill span {
+  font-weight: 700;
+  line-height: 1;
+}
+
+.orientation-pill small {
+  color: #d8c8a8;
+  font-size: 11px;
+}
+
 .selection-card {
   position: absolute;
   z-index: 18;
@@ -297,6 +323,11 @@ button {
     bottom: auto;
     left: 10px;
     width: auto;
+  }
+
+  .orientation-pill {
+    top: 152px;
+    left: 10px;
   }
 
   .attribution {
