@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import socket
 import stat
+import zipfile
 from pathlib import Path
 from types import ModuleType
 
@@ -60,6 +61,78 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "nächsten freien Port" in readme
   assert "next free port" in readme
   assert "--no-open --port 8770" in readme
+
+
+def test_copy_static_site_skips_duplicate_and_dev_files(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  source = tmp_path / "dist"
+  source.mkdir()
+  (source / "index.html").write_text("<html></html>", encoding="utf-8")
+  (source / "index 2.html").write_text("duplicate", encoding="utf-8")
+  (source / ".DS_Store").write_text("metadata", encoding="utf-8")
+  assets = source / "assets"
+  assets.mkdir()
+  (assets / "index.js").write_text("console.log('ok')", encoding="utf-8")
+  (assets / "index.js.map").write_text("{}", encoding="utf-8")
+
+  target = tmp_path / "package"
+  package_static_site.copy_static_site(source, target)
+
+  assert (target / "index.html").exists()
+  assert (target / "assets" / "index.js").exists()
+  assert not (target / "index 2.html").exists()
+  assert not (target / ".DS_Store").exists()
+  assert not (target / "assets" / "index.js.map").exists()
+
+
+def test_zip_package_skips_stale_duplicate_files(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  package_dir = tmp_path / package_static_site.PACKAGE_NAME
+  package_dir.mkdir()
+  (package_dir / "index.html").write_text("<html></html>", encoding="utf-8")
+  (package_dir / "index 2.html").write_text("duplicate", encoding="utf-8")
+  (package_dir / "README.txt").write_text("readme", encoding="utf-8")
+  (package_dir / "README 2.txt").write_text("duplicate", encoding="utf-8")
+  (package_dir / ".DS_Store").write_text("metadata", encoding="utf-8")
+
+  zip_path = tmp_path / "package.zip"
+  package_static_site.zip_package(package_dir, zip_path)
+
+  with zipfile.ZipFile(zip_path) as archive:
+    names = set(archive.namelist())
+
+  assert f"{package_static_site.PACKAGE_NAME}/index.html" in names
+  assert f"{package_static_site.PACKAGE_NAME}/README.txt" in names
+  assert f"{package_static_site.PACKAGE_NAME}/index 2.html" not in names
+  assert f"{package_static_site.PACKAGE_NAME}/README 2.txt" not in names
+  assert f"{package_static_site.PACKAGE_NAME}/.DS_Store" not in names
+
+
+def test_zip_package_preserves_executable_launcher_modes(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  package_dir = tmp_path / package_static_site.PACKAGE_NAME
+  package_dir.mkdir()
+  package_static_site.write_launchers(package_dir)
+
+  zip_path = tmp_path / "package.zip"
+  package_static_site.zip_package(package_dir, zip_path)
+
+  with zipfile.ZipFile(zip_path) as archive:
+    modes = {
+      info.filename: (info.external_attr >> 16) & 0o777 for info in archive.infolist()
+    }
+
+  prefix = package_static_site.PACKAGE_NAME
+  assert modes[f"{prefix}/serve-local.py"] & stat.S_IXUSR
+  assert modes[f"{prefix}/start-mac.command"] & stat.S_IXUSR
+  assert modes[f"{prefix}/start-linux.sh"] & stat.S_IXUSR
+  assert not modes[f"{prefix}/start-windows.bat"] & stat.S_IXUSR
 
 
 def test_local_viewer_server_skips_busy_port() -> None:
