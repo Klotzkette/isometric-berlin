@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.6 open-data viewer with corrected isometric orientation, robust local launchers, and current quickstart docs. The AI tile style pass is still planned.
+> **Status:** Local v0.1.7 open-data viewer with corrected isometric orientation, robust local launchers, configurable local server flags, and current quickstart docs. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest

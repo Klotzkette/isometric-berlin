@@ -14,11 +14,12 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.6"
+PACKAGE_VERSION = "0.1.7"
 SERVE_SCRIPT_NAME = "serve-local.py"
 SERVE_LOCAL_SCRIPT = """#!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import functools
 import http.server
 import socket
@@ -31,6 +32,12 @@ DEFAULT_PORT = 8766
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
+  def handle(self) -> None:
+    try:
+      super().handle()
+    except (BrokenPipeError, ConnectionResetError):
+      pass
+
   def end_headers(self) -> None:
     self.send_header("Cache-Control", "no-store")
     super().end_headers()
@@ -55,18 +62,28 @@ def first_available_port(host: str, start_port: int, attempts: int = 50) -> int:
   raise SystemExit(f"No free local port found from {start_port}.")
 
 
+def parse_args() -> argparse.Namespace:
+  parser = argparse.ArgumentParser(description="Serve the local Isometric Berlin package.")
+  parser.add_argument("--host", default=DEFAULT_HOST, help="Host/interface to bind.")
+  parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Preferred local port.")
+  parser.add_argument("--no-open", action="store_true", help="Do not open the browser automatically.")
+  return parser.parse_args()
+
+
 def main() -> None:
+  args = parse_args()
   root = Path(__file__).resolve().parent
-  port = first_available_port(DEFAULT_HOST, DEFAULT_PORT)
-  if port != DEFAULT_PORT:
-    print(f"Port {DEFAULT_PORT} is busy, using {port}.")
+  port = first_available_port(args.host, args.port)
+  if port != args.port:
+    print(f"Port {args.port} is busy, using {port}.")
 
   handler = functools.partial(QuietHandler, directory=str(root))
-  with ReusableTCPServer((DEFAULT_HOST, port), handler) as server:
-    url = f"http://{DEFAULT_HOST}:{port}/"
+  with ReusableTCPServer((args.host, port), handler) as server:
+    url = f"http://{args.host}:{port}/"
     print(f"Serving Isometric Berlin from {root}")
     print(f"Open: {url}")
-    webbrowser.open(url)
+    if not args.no_open:
+      webbrowser.open(url)
     try:
       server.serve_forever()
     except KeyboardInterrupt:
@@ -167,11 +184,12 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.6
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.7
 nutzt die korrigierte isometrische Orientierung plus einen kleinen
-Nordindikator und startet auf dem ersten freien lokalen Port ab 8766.
-Die Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2,
-OpenStreetMap, ALKIS, DOP-Preview und DGM-Preview.
+Nordindikator, startet auf dem ersten freien lokalen Port ab 8766 und
+erlaubt optionale Startparameter für Skripte oder feste Ports. Die
+Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap,
+ALKIS, DOP-Preview und DGM-Preview.
 
 Start:
 
@@ -189,15 +207,17 @@ Falls der Browser eine Warnung beim direkten Öffnen von index.html
 zeigt: Das ist normal. Für Deep-Zoom-Kacheln braucht die Website einen
 kleinen lokalen Webserver; dafür sind die Startdateien da.
 
+Erweitert: `python3 serve-local.py --no-open --port 8770`
+
 English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.6 uses
+does not need an AI model or a Google key to run. Version 0.1.7 uses
 the corrected isometric orientation plus a small north indicator and
-starts on the first free local port at or above 8766. Data sources are
-free and open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM
-preview.
+starts on the first free local port at or above 8766, with optional
+server flags for scripts or fixed ports. Data sources are free and
+open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM preview.
 
 Start:
 
@@ -209,6 +229,8 @@ Then a local address opens in the browser, usually
 http://127.0.0.1:8766/. If that port is busy, the launcher
 automatically uses the next free port. Keep the terminal window open
 while the website is running. Stop with Ctrl+C or close the window.
+
+Advanced: `python3 serve-local.py --no-open --port 8770`
 
 Attribution:
 © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)

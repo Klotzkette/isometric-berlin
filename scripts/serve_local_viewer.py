@@ -20,6 +20,12 @@ from pathlib import Path
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
   """Static file handler with concise logging and no stale cache."""
 
+  def handle(self) -> None:
+    try:
+      super().handle()
+    except (BrokenPipeError, ConnectionResetError):
+      pass
+
   def end_headers(self) -> None:
     self.send_header("Cache-Control", "no-store")
     super().end_headers()
