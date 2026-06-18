@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import functools
 import http.server
+import socket
 import socketserver
 import webbrowser
 from pathlib import Path
@@ -25,6 +26,10 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
   def log_message(self, format: str, *args: object) -> None:
     print(f"[viewer] {self.address_string()} - {format % args}")
+
+
+class ReusableTCPServer(socketserver.ThreadingTCPServer):
+  allow_reuse_address = True
 
 
 def repo_root() -> Path:
@@ -44,6 +49,18 @@ def viewer_directory(root: Path) -> tuple[Path, str]:
   )
 
 
+def first_available_port(host: str, start_port: int, attempts: int = 50) -> int:
+  for port in range(start_port, start_port + attempts):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+      probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+      try:
+        probe.bind((host, port))
+      except OSError:
+        continue
+      return port
+  raise SystemExit(f"No free local port found from {start_port}.")
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--port", type=int, default=8766)
@@ -53,9 +70,11 @@ def main() -> None:
 
   directory, start_path = viewer_directory(repo_root())
   handler = functools.partial(QuietHandler, directory=str(directory))
-  with socketserver.ThreadingTCPServer((args.host, args.port), handler) as server:
-    server.allow_reuse_address = True
-    url = f"http://{args.host}:{args.port}{start_path}"
+  port = first_available_port(args.host, args.port)
+  if port != args.port:
+    print(f"Port {args.port} is busy, using {port}.")
+  with ReusableTCPServer((args.host, port), handler) as server:
+    url = f"http://{args.host}:{port}{start_path}"
     print(f"Serving Isometric Berlin from {directory}")
     print(f"Open: {url}")
     if not args.no_open:

@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.4 open-data viewer with corrected isometric orientation. The AI tile style pass is still planned.
+> **Status:** Local v0.1.5 open-data viewer with corrected isometric orientation and a more robust local launcher. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
@@ -226,6 +226,9 @@ Open the printed local URL, usually:
 http://127.0.0.1:8766/
 ```
 
+If port `8766` is already busy, the local server automatically uses
+the next free port and prints that URL.
+
 Current default data sources are free/open: Berlin LoD2, OSM, ALKIS,
 DOP preview, and DGM preview. Google 3D Tiles remain wired as an
 optional opt-in source, but are not required and are not fetched unless
@@ -266,6 +269,9 @@ python3 scripts/serve_local_viewer.py
 ```text
 http://127.0.0.1:8766/
 ```
+
+Falls Port `8766` schon belegt ist, nutzt der lokale Server automatisch
+den nächsten freien Port und gibt diese URL aus.
 
 Der aktuelle Standard nutzt nur kostenlose/offene Quellen: Berlin
 LoD2, OSM, ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben

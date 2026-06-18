@@ -14,7 +14,68 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.4"
+PACKAGE_VERSION = "0.1.5"
+SERVE_SCRIPT_NAME = "serve-local.py"
+SERVE_LOCAL_SCRIPT = """#!/usr/bin/env python3
+from __future__ import annotations
+
+import functools
+import http.server
+import socket
+import socketserver
+import webbrowser
+from pathlib import Path
+
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_PORT = 8766
+
+
+class QuietHandler(http.server.SimpleHTTPRequestHandler):
+  def end_headers(self) -> None:
+    self.send_header("Cache-Control", "no-store")
+    super().end_headers()
+
+  def log_message(self, format: str, *args: object) -> None:
+    print(f"[viewer] {self.address_string()} - {format % args}")
+
+
+class ReusableTCPServer(socketserver.ThreadingTCPServer):
+  allow_reuse_address = True
+
+
+def first_available_port(host: str, start_port: int, attempts: int = 50) -> int:
+  for port in range(start_port, start_port + attempts):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+      probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+      try:
+        probe.bind((host, port))
+      except OSError:
+        continue
+      return port
+  raise SystemExit(f"No free local port found from {start_port}.")
+
+
+def main() -> None:
+  root = Path(__file__).resolve().parent
+  port = first_available_port(DEFAULT_HOST, DEFAULT_PORT)
+  if port != DEFAULT_PORT:
+    print(f"Port {DEFAULT_PORT} is busy, using {port}.")
+
+  handler = functools.partial(QuietHandler, directory=str(root))
+  with ReusableTCPServer((DEFAULT_HOST, port), handler) as server:
+    url = f"http://{DEFAULT_HOST}:{port}/"
+    print(f"Serving Isometric Berlin from {root}")
+    print(f"Open: {url}")
+    webbrowser.open(url)
+    try:
+      server.serve_forever()
+    except KeyboardInterrupt:
+      print("\\nStopped local viewer.")
+
+
+if __name__ == "__main__":
+  main()
+"""
 
 
 def repo_root() -> Path:
@@ -38,21 +99,26 @@ def copy_static_site(source: Path, target: Path) -> None:
     shutil.copy2(path, destination)
 
 
+def write_serve_script(package_dir: Path) -> None:
+  """Write the shared local web server used by every launcher."""
+  serve_script = package_dir / SERVE_SCRIPT_NAME
+  serve_script.write_text(SERVE_LOCAL_SCRIPT, encoding="utf-8")
+  serve_script.chmod(
+    serve_script.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+  )
+
+
 def write_launchers(package_dir: Path) -> None:
-  """Write cross-platform launchers that serve the folder locally."""
+  """Write cross-platform launchers for the shared local server."""
+  write_serve_script(package_dir)
   mac = package_dir / "start-mac.command"
   mac.write_text(
     """#!/bin/sh
 cd "$(dirname "$0")"
-PORT=8766
-URL="http://127.0.0.1:${PORT}/"
-echo "Starting Isometric Berlin at ${URL}"
 if command -v python3 >/dev/null 2>&1; then
-  (sleep 1; open "${URL}") &
-  python3 -m http.server "${PORT}" --bind 127.0.0.1
+  python3 serve-local.py
 elif command -v python >/dev/null 2>&1; then
-  (sleep 1; open "${URL}") &
-  python -m http.server "${PORT}" --bind 127.0.0.1
+  python serve-local.py
 else
   echo "Python 3 is required. Install it from https://www.python.org/downloads/"
   read -r _
@@ -66,15 +132,10 @@ fi
   linux.write_text(
     """#!/bin/sh
 cd "$(dirname "$0")"
-PORT=8766
-URL="http://127.0.0.1:${PORT}/"
-echo "Starting Isometric Berlin at ${URL}"
 if command -v python3 >/dev/null 2>&1; then
-  (sleep 1; xdg-open "${URL}" >/dev/null 2>&1 || true) &
-  python3 -m http.server "${PORT}" --bind 127.0.0.1
+  python3 serve-local.py
 elif command -v python >/dev/null 2>&1; then
-  (sleep 1; xdg-open "${URL}" >/dev/null 2>&1 || true) &
-  python -m http.server "${PORT}" --bind 127.0.0.1
+  python serve-local.py
 else
   echo "Python 3 is required. Install it from https://www.python.org/downloads/"
 fi
@@ -87,13 +148,9 @@ fi
   windows.write_text(
     """@echo off
 cd /d "%~dp0"
-set PORT=8766
-set URL=http://127.0.0.1:%PORT%/
-echo Starting Isometric Berlin at %URL%
-start "" "%URL%"
-py -3 -m http.server %PORT% --bind 127.0.0.1
+py -3 serve-local.py
 if errorlevel 1 (
-  python -m http.server %PORT% --bind 127.0.0.1
+  python serve-local.py
 )
 pause
 """,
@@ -110,10 +167,11 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.4
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.5
 nutzt die korrigierte isometrische Orientierung plus einen kleinen
-Nordindikator. Die Daten stammen aus kostenlosen/offenen Quellen:
-Berlin LoD2, OpenStreetMap, ALKIS, DOP-Preview und DGM-Preview.
+Nordindikator und startet auf dem ersten freien lokalen Port ab 8766.
+Die Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2,
+OpenStreetMap, ALKIS, DOP-Preview und DGM-Preview.
 
 Start:
 
@@ -121,9 +179,11 @@ Start:
 - Windows: Doppelklick auf start-windows.bat
 - Linux: ./start-linux.sh
 
-Danach öffnet sich http://127.0.0.1:8766/ im Browser. Das Terminalfenster
-muss geöffnet bleiben, solange die Website laufen soll. Beenden mit
-Ctrl+C oder Fenster schließen.
+Danach öffnet sich eine lokale Adresse im Browser, normalerweise
+http://127.0.0.1:8766/. Wenn dieser Port belegt ist, nimmt der Starter
+automatisch den nächsten freien Port. Das Terminalfenster muss geöffnet
+bleiben, solange die Website laufen soll. Beenden mit Ctrl+C oder
+Fenster schließen.
 
 Falls der Browser eine Warnung beim direkten Öffnen von index.html
 zeigt: Das ist normal. Für Deep-Zoom-Kacheln braucht die Website einen
@@ -133,10 +193,11 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.4 uses
-the corrected isometric orientation plus a small north indicator.
-Data sources are free and open: Berlin LoD2, OpenStreetMap, ALKIS,
-DOP preview, and DGM preview.
+does not need an AI model or a Google key to run. Version 0.1.5 uses
+the corrected isometric orientation plus a small north indicator and
+starts on the first free local port at or above 8766. Data sources are
+free and open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM
+preview.
 
 Start:
 
@@ -144,9 +205,10 @@ Start:
 - Windows: double-click start-windows.bat
 - Linux: ./start-linux.sh
 
-Then open http://127.0.0.1:8766/ in the browser. Keep the terminal
-window open while the website is running. Stop with Ctrl+C or close the
-window.
+Then a local address opens in the browser, usually
+http://127.0.0.1:8766/. If that port is busy, the launcher
+automatically uses the next free port. Keep the terminal window open
+while the website is running. Stop with Ctrl+C or close the window.
 
 Attribution:
 © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
