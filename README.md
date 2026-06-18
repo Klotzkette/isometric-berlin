@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.5 open-data viewer with corrected isometric orientation and a more robust local launcher. The AI tile style pass is still planned.
+> **Status:** Local v0.1.6 open-data viewer with corrected isometric orientation, robust local launchers, and current quickstart docs. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
@@ -371,18 +371,20 @@ isometric-berlin/
 
 ## Quickstart
 
-This is a scaffold — most steps are still TODO. See
-[`docs/setup.md`](docs/setup.md) for the planned flow.
+The local open-data viewer is ready to run. It does not need an AI
+model or a Google key at runtime.
 
 ```bash
 # Python env
 uv sync
 
-# Bounds editor (TODO)
-uv run python -m isometric_berlin.generation.create_bounds
+# Local viewer
+python3 scripts/serve_local_viewer.py
 
-# Web viewer (TODO)
-cd src/app && bun install && bun run dev
+# Downloadable Mac/Windows/Linux package
+cd src/app && bun install && bun run build
+cd ../..
+python3 scripts/package_static_site.py
 ```
 
 </td>
@@ -408,18 +410,20 @@ isometric-berlin/
 
 ## Schnellstart
 
-Das hier ist ein Gerüst – die meisten Schritte sind noch TODO.
-Siehe [`docs/setup.md`](docs/setup.md) für den geplanten Ablauf.
+Der lokale Open-Data-Viewer ist startklar. Zur Laufzeit brauchst du
+kein KI-Modell und keinen Google-Key.
 
 ```bash
 # Python-Umgebung
 uv sync
 
-# Bounds-Editor (TODO)
-uv run python -m isometric_berlin.generation.create_bounds
+# Lokaler Viewer
+python3 scripts/serve_local_viewer.py
 
-# Web-Viewer (TODO)
-cd src/app && bun install && bun run dev
+# Download-Paket für Mac/Windows/Linux
+cd src/app && bun install && bun run build
+cd ../..
+python3 scripts/package_static_site.py
 ```
 
 </td>
