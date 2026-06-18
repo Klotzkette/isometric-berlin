@@ -33,6 +33,34 @@ const ROLE_LABELS: Record<string, string> = {
   owner_added: "ergänzter Ort",
 };
 
+let openSeadragonConsoleFilterInstalled = false;
+
+function installOpenSeadragonConsoleFilter(): void {
+  if (openSeadragonConsoleFilterInstalled) {
+    return;
+  }
+  const osd = OpenSeadragon as typeof OpenSeadragon & {
+    console?: Pick<Console, "debug" | "error">;
+  };
+  const osdConsole = osd.console;
+  if (!osdConsole?.error) {
+    return;
+  }
+  const originalError = osdConsole.error.bind(osdConsole);
+  osdConsole.error = (...args: unknown[]) => {
+    const message = args.map(String).join(" ");
+    if (
+      message.includes("Tile %s failed to load") &&
+      message.includes("Image load aborted")
+    ) {
+      osdConsole.debug?.(...args);
+      return;
+    }
+    originalError(...args);
+  };
+  openSeadragonConsoleFilterInstalled = true;
+}
+
 function assetPath(path: string): string {
   const base = import.meta.env.BASE_URL || "./";
   return `${base.endsWith("/") ? base : `${base}/`}${path}`;
@@ -103,6 +131,7 @@ export function App() {
       return;
     }
 
+    installOpenSeadragonConsoleFilter();
     const viewer = OpenSeadragon({
       id: "openseadragon-viewer",
       element: containerRef.current,

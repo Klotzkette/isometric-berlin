@@ -28,7 +28,14 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   serve_script = tmp_path / "serve-local.py"
   assert serve_script.exists()
   assert serve_script.stat().st_mode & stat.S_IXUSR
-  assert "first_available_port" in serve_script.read_text(encoding="utf-8")
+  serve_text = serve_script.read_text(encoding="utf-8")
+  assert "first_available_port(args.host, args.port)" in serve_text
+  assert "--host" in serve_text
+  assert "--port" in serve_text
+  assert "--no-open" in serve_text
+  assert "if not args.no_open" in serve_text
+  assert "BrokenPipeError" in serve_text
+  assert "ConnectionResetError" in serve_text
 
   mac = (tmp_path / "start-mac.command").read_text(encoding="utf-8")
   linux = (tmp_path / "start-linux.sh").read_text(encoding="utf-8")
@@ -52,6 +59,7 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert package_static_site.PACKAGE_VERSION in readme
   assert "nächsten freien Port" in readme
   assert "next free port" in readme
+  assert "--no-open --port 8770" in readme
 
 
 def test_local_viewer_server_skips_busy_port() -> None:
@@ -68,3 +76,13 @@ def test_local_viewer_server_skips_busy_port() -> None:
 
   assert port != busy_port
   assert port > busy_port
+
+
+def test_repo_local_viewer_suppresses_aborted_browser_requests() -> None:
+  root = Path(__file__).resolve().parents[1]
+  server_script = (root / "scripts" / "serve_local_viewer.py").read_text(
+    encoding="utf-8"
+  )
+
+  assert "BrokenPipeError" in server_script
+  assert "ConnectionResetError" in server_script
