@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import socket
 import stat
 import zipfile
@@ -72,6 +73,9 @@ def test_copy_static_site_skips_duplicate_and_dev_files(tmp_path: Path) -> None:
   (source / "index.html").write_text("<html></html>", encoding="utf-8")
   (source / "index 2.html").write_text("duplicate", encoding="utf-8")
   (source / ".DS_Store").write_text("metadata", encoding="utf-8")
+  duplicate_dir = source / "dzi 2"
+  duplicate_dir.mkdir()
+  (duplicate_dir / "tile.jpg").write_text("duplicate tile", encoding="utf-8")
   assets = source / "assets"
   assets.mkdir()
   (assets / "index.js").write_text("console.log('ok')", encoding="utf-8")
@@ -84,6 +88,7 @@ def test_copy_static_site_skips_duplicate_and_dev_files(tmp_path: Path) -> None:
   assert (target / "assets" / "index.js").exists()
   assert not (target / "index 2.html").exists()
   assert not (target / ".DS_Store").exists()
+  assert not (target / "dzi 2").exists()
   assert not (target / "assets" / "index.js.map").exists()
 
 
@@ -98,6 +103,9 @@ def test_zip_package_skips_stale_duplicate_files(tmp_path: Path) -> None:
   (package_dir / "README.txt").write_text("readme", encoding="utf-8")
   (package_dir / "README 2.txt").write_text("duplicate", encoding="utf-8")
   (package_dir / ".DS_Store").write_text("metadata", encoding="utf-8")
+  duplicate_dir = package_dir / "dzi 2"
+  duplicate_dir.mkdir()
+  (duplicate_dir / "tile.jpg").write_text("duplicate tile", encoding="utf-8")
 
   zip_path = tmp_path / "package.zip"
   package_static_site.zip_package(package_dir, zip_path)
@@ -110,6 +118,30 @@ def test_zip_package_skips_stale_duplicate_files(tmp_path: Path) -> None:
   assert f"{package_static_site.PACKAGE_NAME}/index 2.html" not in names
   assert f"{package_static_site.PACKAGE_NAME}/README 2.txt" not in names
   assert f"{package_static_site.PACKAGE_NAME}/.DS_Store" not in names
+  assert f"{package_static_site.PACKAGE_NAME}/dzi 2/tile.jpg" not in names
+
+
+def test_remove_unwanted_package_paths_deletes_stale_duplicates(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  package_dir = tmp_path / package_static_site.PACKAGE_NAME
+  package_dir.mkdir()
+  (package_dir / "README.txt").write_text("readme", encoding="utf-8")
+  (package_dir / "README 2.txt").write_text("duplicate", encoding="utf-8")
+  duplicate_dir = package_dir / "assets 2"
+  duplicate_dir.mkdir()
+  (duplicate_dir / "index.js").write_text("duplicate asset", encoding="utf-8")
+  hidden_dir = package_dir / ".metadata"
+  hidden_dir.mkdir()
+  (hidden_dir / "state").write_text("hidden", encoding="utf-8")
+
+  package_static_site.remove_unwanted_package_paths(package_dir)
+
+  assert (package_dir / "README.txt").exists()
+  assert not (package_dir / "README 2.txt").exists()
+  assert not duplicate_dir.exists()
+  assert not hidden_dir.exists()
 
 
 def test_zip_package_preserves_executable_launcher_modes(tmp_path: Path) -> None:
@@ -127,12 +159,37 @@ def test_zip_package_preserves_executable_launcher_modes(tmp_path: Path) -> None
     modes = {
       info.filename: (info.external_attr >> 16) & 0o777 for info in archive.infolist()
     }
+    timestamps = {info.filename: info.date_time for info in archive.infolist()}
 
   prefix = package_static_site.PACKAGE_NAME
   assert modes[f"{prefix}/serve-local.py"] & stat.S_IXUSR
   assert modes[f"{prefix}/start-mac.command"] & stat.S_IXUSR
   assert modes[f"{prefix}/start-linux.sh"] & stat.S_IXUSR
   assert not modes[f"{prefix}/start-windows.bat"] & stat.S_IXUSR
+  assert set(timestamps.values()) == {package_static_site.ZIP_TIMESTAMP}
+
+
+def test_zip_package_is_deterministic(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  package_dir = tmp_path / package_static_site.PACKAGE_NAME
+  package_dir.mkdir()
+  readme = package_dir / "README.txt"
+  readme.write_text("readme", encoding="utf-8")
+  script = package_dir / "start-linux.sh"
+  script.write_text("#!/bin/sh\n", encoding="utf-8")
+  script.chmod(script.stat().st_mode | stat.S_IXUSR)
+
+  zip_a = tmp_path / "a.zip"
+  zip_b = tmp_path / "b.zip"
+
+  package_static_site.zip_package(package_dir, zip_a)
+  os.utime(readme, (1_700_000_000, 1_700_000_000))
+  os.utime(script, (1_800_000_000, 1_800_000_000))
+  package_static_site.zip_package(package_dir, zip_b)
+
+  assert zip_a.read_bytes() == zip_b.read_bytes()
 
 
 def test_local_viewer_server_skips_busy_port() -> None:

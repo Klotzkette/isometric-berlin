@@ -15,9 +15,10 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.8"
+PACKAGE_VERSION = "0.1.9"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
+ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
 SERVE_LOCAL_SCRIPT = """#!/usr/bin/env python3
 from __future__ import annotations
 
@@ -103,12 +104,13 @@ def repo_root() -> Path:
 
 def should_package_file(path: Path) -> bool:
   """Return whether ``path`` belongs in the downloadable package."""
-  if any(part == "__MACOSX" for part in path.parts):
-    return False
-  if path.name.startswith("."):
-    return False
-  if DUPLICATE_COPY_RE.match(path.name):
-    return False
+  for part in path.parts:
+    if part == "__MACOSX":
+      return False
+    if part.startswith("."):
+      return False
+    if DUPLICATE_COPY_RE.match(part):
+      return False
   return True
 
 
@@ -118,15 +120,29 @@ def copy_static_site(source: Path, target: Path) -> None:
     shutil.rmtree(target)
   target.mkdir(parents=True)
   for path in source.rglob("*"):
+    if not should_package_file(path):
+      continue
     relative = path.relative_to(source)
     destination = target / relative
     if path.is_dir():
       destination.mkdir(parents=True, exist_ok=True)
       continue
-    if path.suffix == ".map" or not should_package_file(path):
+    if path.suffix == ".map":
       continue
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(path, destination)
+
+
+def remove_unwanted_package_paths(package_dir: Path) -> None:
+  for path in sorted(
+    package_dir.rglob("*"), key=lambda item: len(item.parts), reverse=True
+  ):
+    if should_package_file(path):
+      continue
+    if path.is_dir():
+      shutil.rmtree(path)
+    else:
+      path.unlink()
 
 
 def write_serve_script(package_dir: Path) -> None:
@@ -197,12 +213,13 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.8
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.9
 nutzt die korrigierte isometrische Orientierung plus einen kleinen
-Nordindikator, startet auf dem ersten freien lokalen Port ab 8766 und
-erlaubt optionale Startparameter für Skripte oder feste Ports. Die
-Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap,
-ALKIS, DOP-Preview und DGM-Preview.
+Nordindikator, startet auf dem ersten freien lokalen Port ab 8766,
+erlaubt optionale Startparameter für Skripte oder feste Ports und
+erzeugt das Download-ZIP mit stabilen Metadaten. Die Daten stammen aus
+kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap, ALKIS,
+DOP-Preview und DGM-Preview.
 
 Start:
 
@@ -226,11 +243,12 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.8 uses
-the corrected isometric orientation plus a small north indicator and
-starts on the first free local port at or above 8766, with optional
-server flags for scripts or fixed ports. Data sources are free and
-open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM preview.
+does not need an AI model or a Google key to run. Version 0.1.9 uses
+the corrected isometric orientation plus a small north indicator,
+starts on the first free local port at or above 8766, supports optional
+server flags for scripts or fixed ports, and writes the downloadable ZIP
+with stable metadata. Data sources are free and open: Berlin LoD2,
+OpenStreetMap, ALKIS, DOP preview, and DGM preview.
 
 Start:
 
@@ -252,13 +270,24 @@ Attribution:
   )
 
 
+def zip_info_for(path: Path, arcname: Path) -> zipfile.ZipInfo:
+  info = zipfile.ZipInfo(str(arcname), ZIP_TIMESTAMP)
+  info.compress_type = zipfile.ZIP_DEFLATED
+  info.create_system = 3
+  info.external_attr = stat.S_IMODE(path.stat().st_mode) << 16
+  return info
+
+
 def zip_package(package_dir: Path, zip_path: Path) -> None:
   if zip_path.exists():
     zip_path.unlink()
   with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
     for path in sorted(package_dir.rglob("*")):
       if path.is_file() and should_package_file(path):
-        archive.write(path, path.relative_to(package_dir.parent))
+        archive.writestr(
+          zip_info_for(path, path.relative_to(package_dir.parent)),
+          path.read_bytes(),
+        )
 
 
 def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
@@ -271,6 +300,7 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
   copy_static_site(source, package_dir)
   write_launchers(package_dir)
   write_readme(package_dir)
+  remove_unwanted_package_paths(package_dir)
   zip_path = out_dir / f"{PACKAGE_NAME}.zip"
   zip_package(package_dir, zip_path)
   return package_dir, zip_path
