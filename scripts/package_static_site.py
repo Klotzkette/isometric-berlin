@@ -8,14 +8,16 @@ and small launcher scripts for macOS/Linux and Windows.
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import stat
 import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.7"
+PACKAGE_VERSION = "0.1.8"
 SERVE_SCRIPT_NAME = "serve-local.py"
+DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 SERVE_LOCAL_SCRIPT = """#!/usr/bin/env python3
 from __future__ import annotations
 
@@ -99,6 +101,17 @@ def repo_root() -> Path:
   return Path(__file__).resolve().parents[1]
 
 
+def should_package_file(path: Path) -> bool:
+  """Return whether ``path`` belongs in the downloadable package."""
+  if any(part == "__MACOSX" for part in path.parts):
+    return False
+  if path.name.startswith("."):
+    return False
+  if DUPLICATE_COPY_RE.match(path.name):
+    return False
+  return True
+
+
 def copy_static_site(source: Path, target: Path) -> None:
   """Copy the built static site, excluding development-only sourcemaps."""
   if target.exists():
@@ -110,7 +123,7 @@ def copy_static_site(source: Path, target: Path) -> None:
     if path.is_dir():
       destination.mkdir(parents=True, exist_ok=True)
       continue
-    if path.suffix == ".map":
+    if path.suffix == ".map" or not should_package_file(path):
       continue
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(path, destination)
@@ -184,7 +197,7 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.7
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.8
 nutzt die korrigierte isometrische Orientierung plus einen kleinen
 Nordindikator, startet auf dem ersten freien lokalen Port ab 8766 und
 erlaubt optionale Startparameter für Skripte oder feste Ports. Die
@@ -213,7 +226,7 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.7 uses
+does not need an AI model or a Google key to run. Version 0.1.8 uses
 the corrected isometric orientation plus a small north indicator and
 starts on the first free local port at or above 8766, with optional
 server flags for scripts or fixed ports. Data sources are free and
@@ -244,7 +257,7 @@ def zip_package(package_dir: Path, zip_path: Path) -> None:
     zip_path.unlink()
   with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
     for path in sorted(package_dir.rglob("*")):
-      if path.is_file():
+      if path.is_file() and should_package_file(path):
         archive.write(path, path.relative_to(package_dir.parent))
 
 

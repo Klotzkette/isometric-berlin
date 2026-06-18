@@ -28,7 +28,9 @@ uv run python -m isometric_berlin.data.fetch_osm \
   --out geo_data/regierungsviertel/osm.gpkg
 ```
 
-Both scripts are TODO — see `src/isometric_berlin/data/` placeholders.
+Both commands are implemented and intentionally clipped to the
+Regierungsviertel bounds. Raw upstream downloads and caches remain
+under `geo_data/regierungsviertel/raw/` and are gitignored.
 
 ## 4. Quadrant grid + render
 
