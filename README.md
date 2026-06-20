@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.11 open-data viewer with richer LoD2/OSM-derived building surface detail, corrected landmark alignment against OSM/LoD2, north/east/south/west rotation and mirror controls, robust local launchers, deterministic packaging, and current quickstart docs. The AI tile style pass is still planned.
+> **Status:** Local v0.1.12 open-data viewer with richer LoD2/OSM-derived building surface detail, corrected landmark alignment against OSM/LoD2, north/east/south/west rotation and mirror controls, an in-viewer top-down reference map, robust local launchers, deterministic packaging, and current quickstart docs. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
@@ -238,9 +238,10 @@ Landmark placement is checked in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) against the
 local OSM city-map layer and Berlin LoD2 building geometry. The viewer
 includes buttons for north/east/south/west-up views, 90° rotation,
-horizontal mirroring, and a vertical 2D flip. A true physical underside
-view would require a future multi-camera/3D-renderer export; the current
-download is a static Deep Zoom image viewer.
+horizontal mirroring, a vertical 2D flip, and a top-down OSM/LoD2
+reference map for standard city-map checks. A true physical underside
+view would require a future multi-camera/3D-renderer export; the
+current download is a static Deep Zoom image viewer.
 
 To create a downloadable folder and ZIP for another Mac or PC:
 
@@ -291,10 +292,11 @@ Die Landmarken-Lage wird in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) gegen den
 lokalen OSM-Stadtplan-Layer und die Berliner LoD2-Gebäudegeometrie
 geprüft. Der Viewer enthält Knöpfe für Nord/Ost/Süd/West-Ansichten,
-90°-Drehung, horizontales Spiegeln und ein vertikales 2D-Klappen. Eine
-echte physische Ansicht von unten braucht später einen
-Multi-Kamera-/3D-Renderer-Export; der aktuelle Download ist ein
-statischer Deep-Zoom-Bildviewer.
+90°-Drehung, horizontales Spiegeln, ein vertikales 2D-Klappen und eine
+Top-down-Referenzkarte aus OSM/LoD2 für den Standard-Stadtplan-Abgleich.
+Eine echte physische Ansicht von unten braucht später einen
+Multi-Kamera-/3D-Renderer-Export; der aktuelle Download ist ein statischer
+Deep-Zoom-Bildviewer.
 
 Ein herunterladbares Paket für einen anderen Mac oder PC erzeugst du so:
 
