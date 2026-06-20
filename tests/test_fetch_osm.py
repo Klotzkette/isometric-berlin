@@ -31,3 +31,8 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
   rail = gpd.read_file(OSM, layer="rail")
   for column in ["tunnel", "covered", "layer", "service", "usage"]:
     assert column in rail.columns
+
+  pois = gpd.read_file(OSM, layer="pois")
+  for column in ["office", "diplomatic", "government"]:
+    assert column in pois.columns
+  assert "Botschaft der Vereinigten Staaten von Amerika" in set(pois["name"].dropna())

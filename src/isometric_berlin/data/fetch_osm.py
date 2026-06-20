@@ -35,6 +35,9 @@ OSM_TAGS = {
   "amenity": True,
   "tourism": True,
   "historic": True,
+  "office": ["diplomatic", "government"],
+  "diplomatic": True,
+  "government": True,
   "bridge": True,
   "tunnel": True,
   "covered": True,
@@ -82,6 +85,9 @@ def split_layers(
       _has_value(features, "amenity")
       | _has_value(features, "tourism")
       | _has_value(features, "historic")
+      | _has_value(features, "office")
+      | _has_value(features, "diplomatic")
+      | _has_value(features, "government")
     ],
   }
   return {name: _clip(layer, clip_polygon) for name, layer in layers.items()}
@@ -114,6 +120,9 @@ def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
       "amenity",
       "tourism",
       "historic",
+      "office",
+      "diplomatic",
+      "government",
       "bridge",
       "tunnel",
       "covered",

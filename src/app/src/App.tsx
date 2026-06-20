@@ -1,11 +1,15 @@
 import {
   Compass,
+  FlipHorizontal2,
+  FlipVertical2,
   Home,
   Info,
   LocateFixed,
   Map,
   Minus,
   Plus,
+  RotateCcw,
+  RotateCw,
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -32,6 +36,13 @@ const ROLE_LABELS: Record<string, string> = {
   must_be_visible: "Pflicht-Landmarke",
   owner_added: "ergänzter Ort",
 };
+
+const ORIENTATIONS = [
+  { degrees: 0, short: "N", label: "Nord" },
+  { degrees: 90, short: "O", label: "Ost" },
+  { degrees: 180, short: "S", label: "Süd" },
+  { degrees: 270, short: "W", label: "West" },
+] as const;
 
 let openSeadragonConsoleFilterInstalled = false;
 
@@ -70,14 +81,22 @@ function roleLabel(role: string): string {
   return ROLE_LABELS[role] ?? role.replaceAll("_", " ");
 }
 
+function normalizeRotation(degrees: number): number {
+  return ((Math.round(degrees / 90) * 90) % 360 + 360) % 360;
+}
+
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const initialFocusDoneRef = useRef(false);
+  const rotationRef = useRef(0);
+  const flipRef = useRef(false);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>("Reichstagsgebäude");
   const [status, setStatus] = useState("Lade DZI");
   const [isReady, setIsReady] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const dziUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/regierungsviertel.dzi"),
@@ -90,6 +109,12 @@ export function App() {
       null,
     [landmarks, selected],
   );
+  const orientation = useMemo(
+    () =>
+      ORIENTATIONS.find((candidate) => candidate.degrees === rotation) ??
+      ORIENTATIONS[0],
+    [rotation],
+  );
 
   const focusLandmark = useCallback((landmark: Landmark, immediate = false) => {
     const viewer = viewerRef.current;
@@ -100,6 +125,56 @@ export function App() {
     setSelected(landmark.name);
     viewer.viewport.panTo(point, immediate);
     viewer.viewport.zoomTo(3.1, point, immediate);
+  }, []);
+
+  useEffect(() => {
+    rotationRef.current = rotation;
+  }, [rotation]);
+
+  useEffect(() => {
+    flipRef.current = isFlipped;
+  }, [isFlipped]);
+
+  const applyRotation = useCallback((degrees: number) => {
+    const next = normalizeRotation(degrees);
+    viewerRef.current?.viewport.setRotation(next);
+    setRotation(next);
+  }, []);
+
+  const rotateBy = useCallback((delta: number) => {
+    setRotation((current) => {
+      const next = normalizeRotation(current + delta);
+      viewerRef.current?.viewport.setRotation(next);
+      return next;
+    });
+  }, []);
+
+  const toggleHorizontalFlip = useCallback(() => {
+    setIsFlipped((current) => {
+      const next = !current;
+      viewerRef.current?.viewport.setFlip(next);
+      return next;
+    });
+  }, []);
+
+  const flipVertical = useCallback(() => {
+    setRotation((current) => {
+      const nextRotation = normalizeRotation(current + 180);
+      viewerRef.current?.viewport.setRotation(nextRotation);
+      return nextRotation;
+    });
+    setIsFlipped((current) => {
+      const next = !current;
+      viewerRef.current?.viewport.setFlip(next);
+      return next;
+    });
+  }, []);
+
+  const resetOrientation = useCallback(() => {
+    viewerRef.current?.viewport.setRotation(0);
+    viewerRef.current?.viewport.setFlip(false);
+    setRotation(0);
+    setIsFlipped(false);
   }, []);
 
   useEffect(() => {
@@ -158,6 +233,8 @@ export function App() {
     });
     viewerRef.current = viewer;
     viewer.addHandler("open", () => {
+      viewer.viewport.setRotation(rotationRef.current);
+      viewer.viewport.setFlip(flipRef.current);
       setIsReady(true);
       setStatus("Bereit");
     });
@@ -250,8 +327,70 @@ export function App() {
 
       <aside className="orientation-pill" aria-label="Kartenorientierung">
         <Compass aria-hidden="true" size={16} />
-        <span>N</span>
-        <small>Nord</small>
+        <span>{orientation.short}</span>
+        <small>
+          {isFlipped ? `${orientation.label} · gespiegelt` : orientation.label}
+        </small>
+      </aside>
+
+      <aside className="view-controls" aria-label="Ansicht drehen und spiegeln">
+        <div className="control-row" role="group" aria-label="Himmelsrichtung oben">
+          {ORIENTATIONS.map((candidate) => (
+            <button
+              key={candidate.short}
+              type="button"
+              aria-label={`${candidate.label} oben`}
+              aria-pressed={rotation === candidate.degrees}
+              title={`${candidate.label} oben`}
+              onClick={() => applyRotation(candidate.degrees)}
+            >
+              <span>{candidate.short}</span>
+            </button>
+          ))}
+        </div>
+        <div className="control-row" role="group" aria-label="Ansicht umklappen">
+          <button
+            type="button"
+            aria-label="Nach links drehen"
+            title="Nach links drehen"
+            onClick={() => rotateBy(-90)}
+          >
+            <RotateCcw size={17} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Nach rechts drehen"
+            title="Nach rechts drehen"
+            onClick={() => rotateBy(90)}
+          >
+            <RotateCw size={17} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Horizontal spiegeln"
+            aria-pressed={isFlipped}
+            title="Horizontal spiegeln"
+            onClick={toggleHorizontalFlip}
+          >
+            <FlipHorizontal2 size={17} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Vertikal klappen"
+            title="Vertikal klappen"
+            onClick={flipVertical}
+          >
+            <FlipVertical2 size={17} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Ausrichtung zurücksetzen"
+            title="Ausrichtung zurücksetzen"
+            onClick={resetOrientation}
+          >
+            <Compass size={17} aria-hidden="true" />
+          </button>
+        </div>
       </aside>
 
       <aside className="landmark-rail" aria-label="Landmarken">
