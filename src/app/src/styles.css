@@ -60,6 +60,7 @@ button {
 
 .brand,
 .toolbar,
+.view-controls,
 .landmark-rail,
 .orientation-pill,
 .selection-card,
@@ -114,9 +115,47 @@ button {
 }
 
 .toolbar button:hover,
-.toolbar button:focus-visible {
+.toolbar button:focus-visible,
+.view-controls button:hover,
+.view-controls button:focus-visible,
+.view-controls button[aria-pressed="true"] {
   background: #a94235;
   outline: none;
+}
+
+.view-controls {
+  position: absolute;
+  z-index: 18;
+  top: 136px;
+  left: 16px;
+  display: grid;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 8px;
+  pointer-events: auto;
+}
+
+.control-row {
+  display: flex;
+  gap: 6px;
+}
+
+.view-controls button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: #f5efe4;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.view-controls button span {
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1;
 }
 
 .landmark-rail {
@@ -327,6 +366,11 @@ button {
 
   .orientation-pill {
     top: 152px;
+    left: 10px;
+  }
+
+  .view-controls {
+    top: 196px;
     left: 10px;
   }
 

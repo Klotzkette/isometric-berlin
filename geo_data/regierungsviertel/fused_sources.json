@@ -1,6 +1,6 @@
 {
   "bounds_ref": "geo_data/regierungsviertel/bounds.geojson",
-  "generated_at": "2026-06-14T23:11:58.341296+00:00",
+  "generated_at": "2026-06-20T11:50:30.733834+00:00",
   "fusion": "additive",
   "sources": {
     "lod2": {
@@ -33,7 +33,7 @@
     },
     "google3d": {
       "available": false,
-      "reason": "opt_in_env_missing"
+      "reason": "opt_in_env_missing: GOOGLE_MAPS_API_KEY is not set"
     }
   },
   "features": [
@@ -107,6 +107,14 @@
         }
       ],
       "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=61765036",
+          "tags": {
+            "name": "Bundesministerium des Innern"
+          }
+        },
         {
           "source": "osm",
           "confidence": 0.8,
@@ -335,7 +343,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10968232305",
+          "tags": {
+            "name": "Toll Collect GmbH"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -527,24 +544,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=69226202",
-          "tags": {
-            "name": "Brammibal's Donuts",
-            "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=10616370270",
-          "tags": {
-            "name": "Caffè e Gelato",
-            "amenity": "ice_cream"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=10652790815",
           "tags": {
             "name": "KFC",
@@ -557,6 +556,24 @@
           "ref": "osm.gpkg#pois=12198637101",
           "tags": {
             "amenity": "toilets"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10652790813",
+          "tags": {
+            "name": "Vincent Vegan",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10652790814",
+          "tags": {
+            "name": "Masti Indian Kitchen",
+            "amenity": "restaurant"
           }
         }
       ],
@@ -643,19 +660,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=12733458103",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "DB Casino",
+            "amenity": "canteen"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=12733458103",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "DB Casino",
-            "amenity": "canteen"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         },
         {
@@ -872,19 +889,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13513482318",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Grindhouse Burgers",
-            "amenity": "fast_food"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=12802906550",
+          "ref": "osm.gpkg#pois=13513482318",
           "tags": {
-            "name": "Kerb Food Hall",
-            "amenity": "food_court"
+            "name": "Grindhouse Burgers",
+            "amenity": "fast_food"
           }
         }
       ],
@@ -1217,6 +1234,14 @@
           "tags": {
             "name": "THE ALCHEMIST",
             "amenity": "bar"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10968232305",
+          "tags": {
+            "name": "Toll Collect GmbH"
           }
         }
       ],
@@ -1865,19 +1890,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13261958095",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Pick & Cheese",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13261958095",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Pick & Cheese",
+            "amenity": "restaurant"
           }
         }
       ],
@@ -2024,19 +2049,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13513482318",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Grindhouse Burgers",
-            "amenity": "fast_food"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=12802906550",
+          "ref": "osm.gpkg#pois=13513482318",
           "tags": {
-            "name": "Kerb Food Hall",
-            "amenity": "food_court"
+            "name": "Grindhouse Burgers",
+            "amenity": "fast_food"
           }
         }
       ],
@@ -3035,7 +3060,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=6313236971",
+          "tags": {
+            "name": "Botschaft der Republik Botsuana"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -5262,19 +5296,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=5534648615",
-          "tags": {
-            "amenity": "waste_basket"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=172234733",
           "tags": {
             "name": "Denkmal für die ermordeten Juden Europas",
             "tourism": "attraction",
             "historic": "monument"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=5534648615",
+          "tags": {
+            "amenity": "waste_basket"
           }
         }
       ],
@@ -5446,6 +5480,14 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=11248322879",
+          "tags": {
+            "historic": "memorial"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=489762789",
           "tags": {
             "name": "T-34-200",
@@ -5459,14 +5501,6 @@
           "tags": {
             "name": "ML-20",
             "historic": "cannon"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11248322875",
-          "tags": {
-            "historic": "memorial"
           }
         }
       ],
@@ -5753,7 +5787,24 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203772",
+          "tags": {
+            "name": "Botschaft der Französischen Republik"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203717",
+          "tags": {
+            "name": "Jakob-Kaiser-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -6003,19 +6054,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=41368167",
+          "ref": "osm.gpkg#pois=11248322879",
           "tags": {
-            "name": "Sowjetisches Ehrenmal Tiergarten",
-            "tourism": "attraction",
-            "historic": "monument"
+            "historic": "memorial"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11248322879",
+          "ref": "osm.gpkg#pois=41368167",
           "tags": {
-            "historic": "memorial"
+            "name": "Sowjetisches Ehrenmal Tiergarten",
+            "tourism": "attraction",
+            "historic": "monument"
           }
         }
       ],
@@ -6420,7 +6471,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=417537172",
+          "tags": {
+            "name": "Vertretung des Landes Rheinland-Pfalz beim Bund"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -7359,6 +7419,14 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=150625182",
+          "tags": {
+            "name": "Botschaft der Republik Singapur"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=392450827",
           "tags": {
             "amenity": "parking"
@@ -7505,18 +7573,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13261692917",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "amenity": "bench"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13261692917",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "amenity": "bench"
           }
         }
       ],
@@ -7854,7 +7922,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=37408952",
+          "tags": {
+            "name": "Reichstagspräsidentenpalais"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -10154,19 +10231,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=260769037",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Lindenbräu",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=260769037",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Lindenbräu",
+            "amenity": "restaurant"
           }
         }
       ],
@@ -10276,7 +10353,24 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=374391",
+          "tags": {
+            "name": "Jakob-Kaiser-Haus"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=37408952",
+          "tags": {
+            "name": "Reichstagspräsidentenpalais"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -10893,7 +10987,24 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=542522840",
+          "tags": {
+            "name": "Vertretung des Landes Niedersachsen beim Bund"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=542514749",
+          "tags": {
+            "name": "Vertretung des Landes Schleswig-Holstein beim Bund"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -19991,7 +20102,32 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203772",
+          "tags": {
+            "name": "Botschaft der Französischen Republik"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203717",
+          "tags": {
+            "name": "Jakob-Kaiser-Haus"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=23160782",
+          "tags": {
+            "name": "Haus Sommer"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -28206,6 +28342,22 @@
             "name": "Casino",
             "amenity": "restaurant"
           }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=374391",
+          "tags": {
+            "name": "Jakob-Kaiser-Haus"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=37408952",
+          "tags": {
+            "name": "Reichstagspräsidentenpalais"
+          }
         }
       ],
       "conflicts": []
@@ -32762,7 +32914,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=195257482",
+          "tags": {
+            "name": "Botschaft der Vereinigten Staaten von Amerika"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -34849,6 +35010,14 @@
         }
       ],
       "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=150625182",
+          "tags": {
+            "name": "Botschaft der Republik Singapur"
+          }
+        },
         {
           "source": "osm",
           "confidence": 0.8,
@@ -37351,7 +37520,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=195257482",
+          "tags": {
+            "name": "Botschaft der Vereinigten Staaten von Amerika"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -40113,6 +40291,14 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=11196414736",
+          "tags": {
+            "name": "Deutscher Bundestag"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=2432753840",
           "tags": {
             "name": "Reichstagskuppel",
@@ -40126,14 +40312,6 @@
           "tags": {
             "name": "Reichstagsgebäude",
             "tourism": "attraction"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=12365219350",
-          "tags": {
-            "amenity": "waste_basket"
           }
         }
       ],
@@ -53238,6 +53416,14 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=195257482",
+          "tags": {
+            "name": "Botschaft der Vereinigten Staaten von Amerika"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=1760855223",
           "tags": {
             "name": "Commerzbank",
@@ -60479,7 +60665,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203717",
+          "tags": {
+            "name": "Jakob-Kaiser-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -61566,19 +61761,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=131487807",
+          "ref": "osm.gpkg#pois=531315561",
           "tags": {
-            "name": "Max-Liebermann-Haus",
-            "tourism": "museum"
+            "name": "Hopfingerbräu im Palais",
+            "amenity": "restaurant"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=531315561",
+          "ref": "osm.gpkg#pois=131487807",
           "tags": {
-            "name": "Hopfingerbräu im Palais",
-            "amenity": "restaurant"
+            "name": "Max-Liebermann-Haus",
+            "tourism": "museum"
           }
         },
         {
@@ -61619,15 +61814,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=260769037",
-          "tags": {
-            "name": "Lindenbräu",
-            "amenity": "restaurant"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=7083941411",
           "tags": {
             "amenity": "toilets"
@@ -61650,6 +61836,15 @@
             "name": "Monte Mente",
             "amenity": "restaurant"
           }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=260769037",
+          "tags": {
+            "name": "Lindenbräu",
+            "amenity": "restaurant"
+          }
         }
       ],
       "conflicts": []
@@ -61668,7 +61863,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203772",
+          "tags": {
+            "name": "Botschaft der Französischen Republik"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -61716,6 +61920,14 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=195257482",
+          "tags": {
+            "name": "Botschaft der Vereinigten Staaten von Amerika"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=26047019",
           "tags": {
             "name": "Axica Convention Center",
@@ -61749,6 +61961,14 @@
         }
       ],
       "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=195257482",
+          "tags": {
+            "name": "Botschaft der Vereinigten Staaten von Amerika"
+          }
+        },
         {
           "source": "osm",
           "confidence": 0.8,
@@ -61906,7 +62126,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -62086,7 +62315,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=1302352107",
+          "tags": {
+            "name": "Bundesministerium für Forschung, Technologie und Raumfahrt"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -62261,7 +62499,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -62278,7 +62525,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -62352,7 +62608,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=2886766",
+          "tags": {
+            "name": "Schweizerische Botschaft"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -62375,6 +62640,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=429271489",
+          "tags": {
+            "name": "DB Premium Lounge",
+            "amenity": "cafe"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=2089374928",
           "tags": {
             "amenity": "clock"
@@ -62393,15 +62667,6 @@
           "source": "osm",
           "confidence": 0.8,
           "ref": "osm.gpkg#pois=4052877746",
-          "tags": {
-            "name": "Deutsche Bahn",
-            "amenity": "vending_machine"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=4052877747",
           "tags": {
             "name": "Deutsche Bahn",
             "amenity": "vending_machine"
@@ -62628,7 +62893,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -62728,18 +63002,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=83809038",
+          "ref": "osm.gpkg#pois=741347052",
           "tags": {
-            "name": "Bahnhofsmission",
-            "amenity": "social_facility"
+            "amenity": "vending_machine"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=741347052",
+          "ref": "osm.gpkg#pois=83809038",
           "tags": {
-            "amenity": "vending_machine"
+            "name": "Bahnhofsmission",
+            "amenity": "social_facility"
           }
         },
         {
@@ -62753,9 +63027,10 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=4283844695",
+          "ref": "osm.gpkg#pois=407684437",
           "tags": {
-            "amenity": "vending_machine"
+            "name": "dean&david",
+            "amenity": "fast_food"
           }
         }
       ],
@@ -63311,6 +63586,14 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=11730708056",
+          "tags": {
+            "amenity": "waste_basket"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=11730754470",
           "tags": {
             "amenity": "waste_basket"
@@ -63328,14 +63611,6 @@
           "source": "osm",
           "confidence": 0.8,
           "ref": "osm.gpkg#pois=11730758510",
-          "tags": {
-            "amenity": "waste_basket"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11730750799",
           "tags": {
             "amenity": "waste_basket"
           }
@@ -63380,15 +63655,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=429271492",
-          "tags": {
-            "name": "Starbucks",
-            "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=429271489",
           "tags": {
             "name": "DB Premium Lounge",
@@ -63402,6 +63668,15 @@
           "tags": {
             "name": "Bahnhofsmission",
             "amenity": "social_facility"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=429271492",
+          "tags": {
+            "name": "Starbucks",
+            "amenity": "cafe"
           }
         },
         {
@@ -63527,7 +63802,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -63924,7 +64208,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -64369,7 +64662,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -64405,7 +64707,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=2886766",
+          "tags": {
+            "name": "Schweizerische Botschaft"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -64601,7 +64912,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -64827,7 +65147,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -64854,6 +65183,14 @@
           "tags": {
             "name": "Bibliothek des Deutschen Bundestages",
             "amenity": "library"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
           }
         }
       ],
@@ -64933,17 +65270,17 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=1297774006",
+          "ref": "osm.gpkg#pois=13456129454",
           "tags": {
-            "amenity": "bicycle_parking"
+            "amenity": "waste_basket"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13456129454",
+          "ref": "osm.gpkg#pois=1297774006",
           "tags": {
-            "amenity": "waste_basket"
+            "amenity": "bicycle_parking"
           }
         },
         {
@@ -65000,7 +65337,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=2886766",
+          "tags": {
+            "name": "Schweizerische Botschaft"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -65113,7 +65459,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=1302352107",
+          "tags": {
+            "name": "Bundesministerium für Forschung, Technologie und Raumfahrt"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -65359,7 +65714,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -65396,18 +65760,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=4283844695",
+          "ref": "osm.gpkg#pois=407684437",
           "tags": {
-            "amenity": "vending_machine"
+            "name": "dean&david",
+            "amenity": "fast_food"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=407684437",
+          "ref": "osm.gpkg#pois=4283844695",
           "tags": {
-            "name": "dean&david",
-            "amenity": "fast_food"
+            "amenity": "vending_machine"
           }
         }
       ],
@@ -65479,6 +65843,14 @@
           "ref": "osm.gpkg#pois=10593917363",
           "tags": {
             "amenity": "bicycle_parking"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
           }
         }
       ],
@@ -65784,7 +66156,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -65809,6 +66190,30 @@
           "tags": {
             "name": "Paul-Löbe-Haus",
             "tourism": "attraction"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10142210379",
+          "tags": {
+            "name": "Finanzausschuss"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10142210380",
+          "tags": {
+            "name": "Tourismusausschuss"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3806550977",
+          "tags": {
+            "name": "Zentrale Besucherbetreuung des Deutschen Bundestags"
           }
         }
       ],
@@ -65925,6 +66330,14 @@
           "tags": {
             "name": "Parlamentsarchiv des Deutschen Bundestages",
             "amenity": "archive"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3343",
+          "tags": {
+            "name": "Marie-Elisabeth-Lüders-Haus"
           }
         }
       ],
@@ -66430,7 +66843,16 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=23160782",
+          "tags": {
+            "name": "Haus Sommer"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -67369,19 +67791,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=7673848",
+          "ref": "osm.gpkg#pois=237816189",
           "tags": {
             "name": "Akademie der Künste",
-            "amenity": "university"
+            "amenity": "arts_centre"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=237816189",
+          "ref": "osm.gpkg#pois=7673848",
           "tags": {
             "name": "Akademie der Künste",
-            "amenity": "arts_centre"
+            "amenity": "university"
           }
         }
       ],
@@ -67701,7 +68123,24 @@
           }
         }
       ],
-      "semantic_evidence": [],
+      "semantic_evidence": [
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203717",
+          "tags": {
+            "name": "Jakob-Kaiser-Haus"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=23160782",
+          "tags": {
+            "name": "Haus Sommer"
+          }
+        }
+      ],
       "conflicts": []
     },
     {
@@ -67814,19 +68253,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=7673848",
+          "ref": "osm.gpkg#pois=237816189",
           "tags": {
             "name": "Akademie der Künste",
-            "amenity": "university"
+            "amenity": "arts_centre"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=237816189",
+          "ref": "osm.gpkg#pois=7673848",
           "tags": {
             "name": "Akademie der Künste",
-            "amenity": "arts_centre"
+            "amenity": "university"
           }
         },
         {
@@ -76707,6 +77146,14 @@
             "name": "Starbucks",
             "amenity": "cafe"
           }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3203772",
+          "tags": {
+            "name": "Botschaft der Französischen Republik"
+          }
         }
       ],
       "conflicts": []
@@ -77597,19 +78044,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=7673848",
+          "ref": "osm.gpkg#pois=237816189",
           "tags": {
             "name": "Akademie der Künste",
-            "amenity": "university"
+            "amenity": "arts_centre"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=237816189",
+          "ref": "osm.gpkg#pois=7673848",
           "tags": {
             "name": "Akademie der Künste",
-            "amenity": "arts_centre"
+            "amenity": "university"
           }
         },
         {

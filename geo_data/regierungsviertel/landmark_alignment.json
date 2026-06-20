@@ -1,0 +1,606 @@
+{
+  "checks": [
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "monument",
+        "name": "Brandenburger Tor",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "brandenburger tor"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0001xqy",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0001xqy",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Brandenburger Tor",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "monument",
+        "name": "Brandenburger Tor",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Reichstagsgeb\u00e4ude",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "reichstagsgebaude",
+        "reichstagskuppel"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002MCN",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002MCN",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Reichstagsgeb\u00e4ude",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Reichstagsgeb\u00e4ude",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "hero_tile",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": "ministry",
+        "highway": null,
+        "historic": null,
+        "name": "Bundeskanzleramt",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "bundeskanzleramt"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002KKb",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002KKb",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Bundeskanzleramt",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": "ministry",
+        "highway": null,
+        "historic": null,
+        "name": "Bundeskanzleramt",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": "legislative",
+        "highway": null,
+        "historic": null,
+        "name": "Paul-L\u00f6be-Haus",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "paul lobe haus"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002Kn7",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002Kn7",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Paul-L\u00f6be-Haus",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": "legislative",
+        "highway": null,
+        "historic": null,
+        "name": "Paul-L\u00f6be-Haus",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "mobility_hub",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Marie-Elisabeth-L\u00fcders-Haus",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "marie elisabeth luders haus"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK00007aT",
+        "nearest_distance_m": 17.98
+      },
+      "name": "Marie-Elisabeth-L\u00fcders-Haus",
+      "nearest_named_osm": {
+        "amenity": "mobility_hub",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Marie-Elisabeth-L\u00fcders-Haus",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 1.66,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Berlin Hauptbahnhof",
+        "office": null,
+        "railway": "platform",
+        "source_layer": "rail",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "berlin hauptbahnhof",
+        "hauptbahnhof"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002KiE",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002KiE",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Berlin Hauptbahnhof",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.3,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Berliner Stadtbahn",
+        "office": null,
+        "railway": "rail",
+        "source_layer": "rail",
+        "tourism": null
+      },
+      "role": "hero_tile",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "arts_centre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 2.92,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Haus der Kulturen der Welt",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "museum"
+      },
+      "expected_osm_aliases": [
+        "haus der kulturen der welt"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0003VNJ",
+        "nearest_distance_m": 9.61
+      },
+      "name": "Haus der Kulturen der Welt (Schwangere Auster)",
+      "nearest_named_osm": {
+        "amenity": "arts_centre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 2.92,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Haus der Kulturen der Welt",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "museum"
+      },
+      "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Das Center am Potsdamer Platz",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "tunnel tiergarten spreebogen",
+        "potsdamer platz",
+        "das center am potsdamer platz"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002Kau",
+        "nearest_distance_m": 0.37
+      },
+      "name": "Tiergartentunnel S\u00fcdeingang (Sony Center / Potsdamer Platz)",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Das Center am Potsdamer Platz",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Max-Liebermann-Haus",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "museum"
+      },
+      "expected_osm_aliases": [
+        "max liebermann haus"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0000765",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0000765",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Max-Liebermann-Haus",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Max-Liebermann-Haus",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "museum"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": "embassy",
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Botschaft der Vereinigten Staaten von Amerika",
+        "office": "diplomatic",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "botschaft der vereinigten staaten",
+        "embassy of the united states",
+        "united states embassy",
+        "amerikanische botschaft"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK00000k5",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK00000k5",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Botschaft der Vereinigten Staaten von Amerika",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": "embassy",
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Botschaft der Vereinigten Staaten von Amerika",
+        "office": "diplomatic",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "restaurant",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Zollpackhof",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "zollpackhof"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002Tak",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002Tak",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Zollpackhof",
+      "nearest_named_osm": {
+        "amenity": "restaurant",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Zollpackhof",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "name": "Gustav-Heinemann-Br\u00fccke",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "gustav heinemann brucke"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002NAU",
+        "nearest_distance_m": 110.35
+      },
+      "name": "Gustav-Heinemann-Br\u00fccke",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Spreebogenpark",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 55.36,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Spreebogenpark",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "spreebogenpark",
+        "tunnel tiergarten spreebogen",
+        "spreebogen"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002N6A",
+        "nearest_distance_m": 0.92
+      },
+      "name": "Spreebogen",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 20.86,
+        "geometry_type": "Polygon",
+        "government": "ministry",
+        "highway": null,
+        "historic": null,
+        "name": "Bundeskanzleramt",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    }
+  ],
+  "generated_at": "2026-06-20T11:45:57.271492+00:00",
+  "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
+  "sources": {
+    "landmarks": {
+      "path": "geo_data/regierungsviertel/landmarks.geojson",
+      "sha256": "c4d7b54c5748ce0e336b33a5d7cb7b6890aeeb56a5cefd8ec40d1f9ceed8732a"
+    },
+    "lod2": {
+      "path": "geo_data/regierungsviertel/buildings.gpkg",
+      "sha256": "c9d7c871b5cc2967e490c565c71a5faae291e6aac5728c99703c50839654b89e"
+    },
+    "osm": {
+      "path": "geo_data/regierungsviertel/osm.gpkg",
+      "sha256": "d0d2da708f0e051772338618dd4e81a10b3e47aa891f479b5e5e0ce98bff19e3"
+    }
+  },
+  "summary": {
+    "landmarks_checked": 13,
+    "review_count": 0,
+    "status": "ok"
+  }
+}

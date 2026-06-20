@@ -31,18 +31,18 @@
     {
       "name": "Paul-Löbe-Haus",
       "role": "must_be_visible",
-      "x": 1430,
-      "y": 647,
-      "nx": 0.663573,
-      "ny": 0.423152
+      "x": 1569,
+      "y": 654,
+      "nx": 0.728074,
+      "ny": 0.427731
     },
     {
       "name": "Marie-Elisabeth-Lüders-Haus",
       "role": "must_be_visible",
-      "x": 1598,
-      "y": 714,
-      "nx": 0.741531,
-      "ny": 0.466972
+      "x": 1810,
+      "y": 706,
+      "nx": 0.839907,
+      "ny": 0.46174
     },
     {
       "name": "Berlin Hauptbahnhof",

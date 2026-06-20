@@ -9,9 +9,12 @@ bun install
 bun run dev
 ```
 
-The app expects DZI tiles under `public/dzi/regierungsviertel/` or a
-remote URL (e.g. Cloudflare R2) configured via env. Scaffold only;
-not wired up yet.
+The app reads the committed DZI pyramid under
+`public/dzi/regierungsviertel/`. It is a static OpenSeadragon viewer
+with landmark focus buttons, a navigator, north/east/south/west
+orientation presets, 90° rotation, horizontal mirroring, and a vertical
+2D flip composed from rotation plus mirror. It does not need a backend,
+AI model, or Google key at runtime.
 
 ## Required attribution overlay
 

@@ -175,7 +175,15 @@ to the same polygon in EPSG:25833. The effective tag filter is:
   "amenity": True,
   "tourism": True,
   "historic": True,
+  "office": ["diplomatic", "government"],
+  "diplomatic": True,
+  "government": True,
   "bridge": True,
+  "tunnel": True,
+  "covered": True,
+  "layer": True,
+  "service": True,
+  "usage": True,
 }
 ```
 
