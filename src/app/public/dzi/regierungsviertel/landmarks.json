@@ -1,112 +1,112 @@
 {
   "image": {
-    "width": 3137,
-    "height": 2188
+    "width": 2155,
+    "height": 1529
   },
   "landmarks": [
     {
       "name": "Brandenburger Tor",
       "role": "must_be_visible",
-      "x": 1965,
-      "y": 1379,
-      "nx": 0.626395,
-      "ny": 0.630256
+      "x": 1342,
+      "y": 941,
+      "nx": 0.622738,
+      "ny": 0.615435
     },
     {
       "name": "Reichstagsgebäude",
       "role": "hero_tile",
-      "x": 2185,
-      "y": 1127,
-      "nx": 0.696525,
-      "ny": 0.515082
+      "x": 1488,
+      "y": 773,
+      "nx": 0.690487,
+      "ny": 0.505559
     },
     {
       "name": "Bundeskanzleramt",
       "role": "must_be_visible",
-      "x": 1789,
-      "y": 673,
-      "nx": 0.57029,
-      "ny": 0.307587
+      "x": 1225,
+      "y": 471,
+      "nx": 0.568445,
+      "ny": 0.308044
     },
     {
       "name": "Paul-Löbe-Haus",
       "role": "must_be_visible",
-      "x": 2096,
-      "y": 938,
-      "nx": 0.668154,
-      "ny": 0.428702
+      "x": 1430,
+      "y": 647,
+      "nx": 0.663573,
+      "ny": 0.423152
     },
     {
       "name": "Marie-Elisabeth-Lüders-Haus",
       "role": "must_be_visible",
-      "x": 2349,
-      "y": 1039,
-      "nx": 0.748805,
-      "ny": 0.474863
+      "x": 1598,
+      "y": 714,
+      "nx": 0.741531,
+      "ny": 0.466972
     },
     {
       "name": "Berlin Hauptbahnhof",
       "role": "hero_tile",
-      "x": 2594,
-      "y": 313,
-      "nx": 0.826905,
-      "ny": 0.143053
+      "x": 1761,
+      "y": 231,
+      "nx": 0.817169,
+      "ny": 0.151079
     },
     {
       "name": "Haus der Kulturen der Welt (Schwangere Auster)",
       "role": "must_be_visible",
-      "x": 1118,
-      "y": 521,
-      "nx": 0.356391,
-      "ny": 0.238117
+      "x": 777,
+      "y": 369,
+      "nx": 0.360557,
+      "ny": 0.241334
     },
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
       "role": "must_be_visible",
-      "x": 597,
-      "y": 1720,
-      "nx": 0.190309,
-      "ny": 0.786106
+      "x": 430,
+      "y": 1168,
+      "nx": 0.199536,
+      "ny": 0.763898
     },
     {
       "name": "Max-Liebermann-Haus",
       "role": "owner_added",
-      "x": 2043,
-      "y": 1353,
-      "nx": 0.651259,
-      "ny": 0.618373
+      "x": 1394,
+      "y": 924,
+      "nx": 0.646868,
+      "ny": 0.604317
     },
     {
       "name": "Botschaft der Vereinigten Staaten von Amerika",
       "role": "owner_added",
-      "x": 1852,
-      "y": 1476,
-      "nx": 0.590373,
-      "ny": 0.674589
+      "x": 1267,
+      "y": 1006,
+      "nx": 0.587935,
+      "ny": 0.657946
     },
     {
       "name": "Zollpackhof",
       "role": "owner_added",
-      "x": 1756,
-      "y": 479,
-      "nx": 0.55977,
-      "ny": 0.218921
+      "x": 1203,
+      "y": 341,
+      "nx": 0.558237,
+      "ny": 0.223022
     },
     {
       "name": "Gustav-Heinemann-Brücke",
       "role": "owner_added",
-      "x": 2306,
-      "y": 576,
-      "nx": 0.735097,
-      "ny": 0.263254
+      "x": 1569,
+      "y": 406,
+      "nx": 0.728074,
+      "ny": 0.265533
     },
     {
       "name": "Spreebogen",
       "role": "owner_added",
-      "x": 1952,
-      "y": 657,
-      "nx": 0.622251,
-      "ny": 0.300274
+      "x": 1333,
+      "y": 460,
+      "nx": 0.618561,
+      "ny": 0.30085
     }
   ]
 }
