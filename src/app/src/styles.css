@@ -327,6 +327,81 @@ button {
   outline: none;
 }
 
+.reference-modal {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(12, 16, 15, 0.72);
+  pointer-events: auto;
+}
+
+.reference-panel {
+  display: grid;
+  width: min(1220px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid rgba(245, 239, 228, 0.18);
+  border-radius: 8px;
+  background: #191f1d;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.46);
+}
+
+.reference-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(245, 239, 228, 0.12);
+}
+
+.reference-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.reference-title strong {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reference-header button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: #f5efe4;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.reference-header button:hover,
+.reference-header button:focus-visible {
+  background: #a94235;
+  outline: none;
+}
+
+.reference-panel img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  background: #f4f0e6;
+}
+
 .navigator {
   border: 1px solid rgba(245, 239, 228, 0.2) !important;
   background: rgba(25, 31, 29, 0.78) !important;

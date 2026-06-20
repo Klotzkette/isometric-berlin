@@ -2,6 +2,9 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
+The same evidence is also rendered as a top-down reference image in
+[`src/app/public/dzi/regierungsviertel/reference_map.png`](../src/app/public/dzi/regierungsviertel/reference_map.png).
+
 - Generated: `2026-06-20T11:45:57.271492+00:00`
 - Status: `ok`
 - Landmarks checked: `13`

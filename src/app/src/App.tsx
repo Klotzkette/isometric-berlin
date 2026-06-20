@@ -6,10 +6,12 @@ import {
   Info,
   LocateFixed,
   Map,
+  MapPinned,
   Minus,
   Plus,
   RotateCcw,
   RotateCw,
+  X,
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -97,9 +99,14 @@ export function App() {
   const [isReady, setIsReady] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isReferenceOpen, setIsReferenceOpen] = useState(false);
 
   const dziUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/regierungsviertel.dzi"),
+    [],
+  );
+  const referenceMapUrl = useMemo(
+    () => assetPath("dzi/regierungsviertel/reference_map.png"),
     [],
   );
   const selectedLandmark = useMemo(
@@ -200,6 +207,19 @@ export function App() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!isReferenceOpen) {
+      return;
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsReferenceOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isReferenceOpen]);
 
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) {
@@ -390,6 +410,15 @@ export function App() {
           >
             <Compass size={17} aria-hidden="true" />
           </button>
+          <button
+            type="button"
+            aria-label="Top-down Referenzkarte"
+            aria-pressed={isReferenceOpen}
+            title="Top-down Referenzkarte"
+            onClick={() => setIsReferenceOpen(true)}
+          >
+            <MapPinned size={17} aria-hidden="true" />
+          </button>
         </div>
       </aside>
 
@@ -424,6 +453,37 @@ export function App() {
           <strong>{selectedLandmark.name}</strong>
           <small>{roleLabel(selectedLandmark.role)}</small>
         </aside>
+      ) : null}
+
+      {isReferenceOpen ? (
+        <div
+          className="reference-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Top-down Referenzkarte"
+          onClick={() => setIsReferenceOpen(false)}
+        >
+          <div className="reference-panel" onClick={(event) => event.stopPropagation()}>
+            <header className="reference-header">
+              <div className="reference-title">
+                <MapPinned aria-hidden="true" size={18} />
+                <strong>Top-down Referenzkarte</strong>
+              </div>
+              <button
+                type="button"
+                aria-label="Referenzkarte schließen"
+                title="Referenzkarte schließen"
+                onClick={() => setIsReferenceOpen(false)}
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </header>
+            <img
+              src={referenceMapUrl}
+              alt="Top-down reference map with OSM, LoD2, and numbered landmarks"
+            />
+          </div>
+        </div>
       ) : null}
 
       <footer className="attribution">
