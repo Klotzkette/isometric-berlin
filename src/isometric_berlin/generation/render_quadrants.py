@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import sqlite3
 import unicodedata
@@ -49,6 +50,10 @@ GLASS = (111, 164, 181)
 GLASS_DARK = (62, 104, 121)
 TUNNEL = (41, 40, 39)
 BRIDGE = (226, 224, 209)
+SURFACE_LINE = (112, 100, 86)
+SURFACE_LIGHT = (219, 205, 178)
+POI_MARK = (143, 78, 65)
+POI_SERVICE = (118, 112, 92)
 
 MAJOR_HIGHWAYS = {"primary", "secondary", "tertiary", "trunk"}
 LOCAL_HIGHWAYS = {"residential", "service", "unclassified", "living_street"}
@@ -196,6 +201,85 @@ def normalized_text(value: str) -> str:
     .decode("ascii")
     .lower()
   )
+
+
+def clamp_channel(value: float) -> int:
+  return max(0, min(255, int(round(value))))
+
+
+def mix_color(
+  a: tuple[int, int, int], b: tuple[int, int, int], amount: float
+) -> tuple[int, int, int]:
+  return tuple(
+    clamp_channel(left * (1.0 - amount) + right * amount)
+    for left, right in zip(a, b, strict=True)
+  )
+
+
+def shift_color(color: tuple[int, int, int], amount: int) -> tuple[int, int, int]:
+  return tuple(clamp_channel(channel + amount) for channel in color)
+
+
+def stable_variation(key: str, spread: int = 9) -> int:
+  digest = hashlib.blake2s(key.encode("utf-8"), digest_size=2).digest()
+  return int.from_bytes(digest, "big") % (spread * 2 + 1) - spread
+
+
+def building_surface_palette(
+  row: Any, *, is_hero: bool, height_m: float
+) -> dict[str, tuple[int, int, int]]:
+  """Return deterministic material colours from LoD2 attributes."""
+  ident = row_text(row, "building_id") or row_text(row, "function") or "building"
+  roof_type = row_text(row, "roof_type")
+  function = row_text(row, "function")
+  variant = stable_variation(f"{ident}:{roof_type}:{function}")
+
+  if is_hero:
+    wall = BUILDING_HERO
+    roof = mix_color(BUILDING_HERO, MONUMENT, 0.28)
+  elif height_m >= 28:
+    wall = mix_color(BUILDING_WALL, GLASS, 0.24)
+    roof = mix_color(BUILDING_ROOF, GLASS_DARK, 0.18)
+  elif function.endswith("_2010") or function.endswith("_3010"):
+    wall = mix_color(BUILDING_WALL, SURFACE_LIGHT, 0.32)
+    roof = mix_color(BUILDING_ROOF, MONUMENT, 0.16)
+  else:
+    wall = BUILDING_WALL
+    roof = BUILDING_ROOF
+
+  if roof_type.startswith("3"):
+    roof = mix_color(roof, MONUMENT, 0.18)
+  elif roof_type.startswith("5"):
+    roof = mix_color(roof, OUTLINE, 0.08)
+
+  wall = shift_color(wall, variant)
+  roof = shift_color(roof, round(variant * 0.7))
+  return {
+    "wall": wall,
+    "wall_dark": mix_color(wall, OUTLINE, 0.25),
+    "wall_light": mix_color(wall, (255, 250, 228), 0.25),
+    "roof": roof,
+    "roof_line": mix_color(roof, SURFACE_LINE, 0.45),
+  }
+
+
+def poi_style(
+  row: Any, line_scale: int
+) -> tuple[tuple[int, int, int], int, int] | None:
+  """Return tiny OSM context marker style for visible surface detail."""
+  amenity = row_text(row, "amenity")
+  tourism = row_text(row, "tourism")
+  historic = row_text(row, "historic")
+  name = row_text(row, "name")
+  if amenity in {"bench", "waste_basket", "vending_machine", "bicycle_parking"}:
+    return None
+  if historic or tourism:
+    return MONUMENT_DARK, max(2, line_scale + 1), 3
+  if amenity in {"restaurant", "cafe", "bar", "embassy", "theatre", "arts_centre"}:
+    return POI_MARK, max(2, line_scale + 1), 2
+  if name:
+    return POI_SERVICE, max(1, line_scale), 1
+  return None
 
 
 def park_color(row: Any) -> tuple[int, int, int]:
@@ -439,12 +523,130 @@ def draw_landmark_accent(
     draw.rectangle((x - 5 * portal, y, x + 5 * portal, y + 4 * portal), fill=TUNNEL)
 
 
+def lerp_point(
+  a: tuple[int, int], b: tuple[int, int], amount: float
+) -> tuple[int, int]:
+  return (
+    int(round(a[0] * (1.0 - amount) + b[0] * amount)),
+    int(round(a[1] * (1.0 - amount) + b[1] * amount)),
+  )
+
+
+def line_length(a: tuple[int, int], b: tuple[int, int]) -> float:
+  return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
+
+def draw_wall_detail(
+  draw: ImageDraw.ImageDraw,
+  wall: list[tuple[int, int]],
+  *,
+  palette: dict[str, tuple[int, int, int]],
+  height_m: float,
+  outline_width: int,
+) -> None:
+  base_a, base_b, roof_b, roof_a = wall
+  wall_width = line_length(base_a, base_b)
+  if wall_width < 12:
+    return
+  floors = max(1, min(9, int(height_m // 3.2)))
+  detail_width = max(1, outline_width)
+  for floor in range(1, floors + 1):
+    amount = floor / (floors + 1)
+    draw.line(
+      (
+        lerp_point(base_a, roof_a, amount),
+        lerp_point(base_b, roof_b, amount),
+      ),
+      fill=palette["wall_dark"],
+      width=detail_width,
+    )
+  mullions = max(0, min(6, int(wall_width // 24)))
+  for mullion in range(1, mullions + 1):
+    amount = mullion / (mullions + 1)
+    lower = lerp_point(base_a, base_b, amount)
+    upper = lerp_point(roof_a, roof_b, amount)
+    draw.line(
+      (lerp_point(lower, upper, 0.15), lerp_point(lower, upper, 0.82)),
+      fill=palette["wall_light"],
+      width=detail_width,
+    )
+
+
+def draw_roof_detail(
+  draw: ImageDraw.ImageDraw,
+  roof: list[tuple[int, int]],
+  *,
+  palette: dict[str, tuple[int, int, int]],
+  roof_type: str,
+  is_hero: bool,
+  outline_width: int,
+) -> None:
+  unique = roof[:-1] if len(roof) > 1 and roof[0] == roof[-1] else roof
+  if len(unique) < 3:
+    return
+  center = (
+    int(round(sum(x for x, _ in unique) / len(unique))),
+    int(round(sum(y for _, y in unique) / len(unique))),
+  )
+  inset = [lerp_point(point, center, 0.18) for point in unique]
+  detail_width = max(1, outline_width)
+  draw.line(inset + [inset[0]], fill=palette["roof_line"], width=detail_width)
+  if len(unique) >= 4 and (is_hero or roof_type.startswith("3")):
+    draw.line(
+      (lerp_point(unique[0], unique[1], 0.5), lerp_point(unique[2], unique[3], 0.5)),
+      fill=palette["roof_line"],
+      width=max(1, outline_width + 1),
+    )
+  if is_hero or roof_type.startswith("5"):
+    for idx in range(0, len(unique), 2):
+      draw.line(
+        (lerp_point(unique[idx], center, 0.28), center),
+        fill=palette["roof_line"],
+        width=detail_width,
+      )
+
+
+def draw_poi_marker(
+  draw: ImageDraw.ImageDraw,
+  row: Any,
+  *,
+  color: tuple[int, int, int],
+  size: int,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+) -> None:
+  geometry = row.geometry
+  if geometry is None or geometry.is_empty:
+    return
+  point = geometry if isinstance(geometry, Point) else geometry.representative_point()
+  px, py = project_point(
+    point.x,
+    point.y,
+    z=1,
+    center_x=center_x,
+    center_y=center_y,
+    scale=scale,
+    width=width,
+    height=height,
+  )
+  radius = max(1, size)
+  draw.rectangle(
+    (px - radius, py - radius, px + radius, py + radius),
+    fill=color,
+    outline=OUTLINE,
+  )
+
+
 def draw_building(
   draw: ImageDraw.ImageDraw,
   polygon: Polygon,
   *,
   height_m: float,
   is_hero: bool,
+  surface_row: Any | None = None,
   center_x: float,
   center_y: float,
   scale: float,
@@ -456,6 +658,8 @@ def draw_building(
   if len(coords) < 4:
     return
   height_m = max(4.0, min(float(height_m or 12.0), 85.0))
+  surface = surface_row if surface_row is not None else {}
+  palette = building_surface_palette(surface, is_hero=is_hero, height_m=height_m)
   base = [
     project_point(
       x,
@@ -487,10 +691,25 @@ def draw_building(
   draw.polygon(shadow, fill=BUILDING_SHADOW)
   for idx in range(len(coords) - 1):
     wall = [base[idx], base[idx + 1], roof[idx + 1], roof[idx]]
-    color = BUILDING_WALL if idx % 2 == 0 else BUILDING_WALL_DARK
+    color = palette["wall"] if idx % 2 == 0 else palette["wall_dark"]
     draw.polygon(wall, fill=color)
+    draw_wall_detail(
+      draw,
+      wall,
+      palette=palette,
+      height_m=height_m,
+      outline_width=outline_width,
+    )
     draw.line(wall + [wall[0]], fill=OUTLINE, width=outline_width)
-  draw.polygon(roof, fill=BUILDING_HERO if is_hero else BUILDING_ROOF)
+  draw.polygon(roof, fill=palette["roof"])
+  draw_roof_detail(
+    draw,
+    roof,
+    palette=palette,
+    roof_type=row_text(surface, "roof_type"),
+    is_hero=is_hero,
+    outline_width=outline_width,
+  )
   draw.line(roof, fill=OUTLINE, width=outline_width)
 
 
@@ -676,6 +895,26 @@ def render_quadrant(
       height=render_px,
     )
 
+  poi_features = []
+  for _, row in query(osm_layers["pois"], q_bounds).iterrows():
+    style = poi_style(row, line_scale)
+    if style is None:
+      continue
+    color, size, order = style
+    poi_features.append((order, color, size, row))
+  for _, color, size, row in sorted(poi_features, key=lambda item: item[0]):
+    draw_poi_marker(
+      draw,
+      row,
+      color=color,
+      size=size,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=render_px,
+      height=render_px,
+    )
+
   near_landmarks = query(landmarks, q_bounds)
   hero_zone = (
     near_landmarks.geometry.union_all().buffer(65) if len(near_landmarks) else None
@@ -694,6 +933,7 @@ def render_quadrant(
         poly,
         height_m=building_height(row, is_hero=is_hero),
         is_hero=is_hero,
+        surface_row=row,
         center_x=center_x,
         center_y=center_y,
         scale=scale,

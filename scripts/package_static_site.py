@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.9"
+PACKAGE_VERSION = "0.1.10"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,10 +213,11 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.9
-nutzt die korrigierte isometrische Orientierung plus einen kleinen
-Nordindikator, startet auf dem ersten freien lokalen Port ab 8766,
-erlaubt optionale Startparameter für Skripte oder feste Ports und
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.10
+nutzt reichere Gebäudeflächen aus LoD2-Höhen, Dachtypen und
+OSM-Kontext, die korrigierte isometrische Orientierung plus einen
+kleinen Nordindikator, startet auf dem ersten freien lokalen Port ab
+8766, erlaubt optionale Startparameter für Skripte oder feste Ports und
 erzeugt das Download-ZIP mit stabilen Metadaten. Die Daten stammen aus
 kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap, ALKIS,
 DOP-Preview und DGM-Preview.
@@ -243,12 +244,13 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.9 uses
-the corrected isometric orientation plus a small north indicator,
-starts on the first free local port at or above 8766, supports optional
-server flags for scripts or fixed ports, and writes the downloadable ZIP
-with stable metadata. Data sources are free and open: Berlin LoD2,
-OpenStreetMap, ALKIS, DOP preview, and DGM preview.
+does not need an AI model or a Google key to run. Version 0.1.10 adds
+richer building surfaces from LoD2 heights, roof types, and OSM
+context, uses the corrected isometric orientation plus a small north
+indicator, starts on the first free local port at or above 8766,
+supports optional server flags for scripts or fixed ports, and writes
+the downloadable ZIP with stable metadata. Data sources are free and
+open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM preview.
 
 Start:
 
