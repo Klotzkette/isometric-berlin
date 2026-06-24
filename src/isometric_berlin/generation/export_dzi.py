@@ -11,10 +11,10 @@ from pathlib import Path
 
 from PIL import Image
 
-from isometric_berlin.generation.create_grid import quadrant_db_path
-
 
 def load_mosaic(map_id: str, tile_px: int) -> Image.Image:
+  from isometric_berlin.generation.create_grid import quadrant_db_path
+
   db_path = quadrant_db_path(map_id)
   with sqlite3.connect(db_path) as db:
     db.row_factory = sqlite3.Row
