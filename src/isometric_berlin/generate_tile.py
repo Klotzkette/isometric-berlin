@@ -16,7 +16,14 @@ from datetime import UTC, datetime
 
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
-from isometric_berlin.generation.create_grid import quadrant_db_path
+INK = (70, 62, 53)
+
+
+def crisp_ink_mask(image: Image.Image, size: tuple[int, int]) -> Image.Image:
+  """Return a subdued edge mask for the deterministic pixel-art pass."""
+  edges = image.convert("L").filter(ImageFilter.FIND_EDGES)
+  edges = ImageOps.autocontrast(edges.resize(size, Image.Resampling.BOX), cutoff=1)
+  return edges.point(lambda value: 82 if value > 32 else 0)
 
 
 def local_pixel_art(render: bytes, tile_px: int = 512) -> bytes:
@@ -34,15 +41,23 @@ def pixel_art_image(
   image = ImageEnhance.Contrast(image).enhance(1.04)
   small_size = (max(1, target_size[0] // 4), max(1, target_size[1] // 4))
   small = image.resize(small_size, Image.Resampling.BOX)
-  small = small.quantize(colors=48, method=Image.Quantize.MEDIANCUT).convert("RGB")
+  small = small.quantize(colors=56, method=Image.Quantize.MEDIANCUT).convert("RGB")
+  small = Image.composite(
+    Image.new("RGB", small_size, INK),
+    small,
+    crisp_ink_mask(image, small_size),
+  )
   pixel = small.resize(target_size, Image.Resampling.NEAREST)
-  pixel = pixel.filter(ImageFilter.UnsharpMask(radius=0.6, percent=120, threshold=2))
+  pixel = ImageEnhance.Sharpness(pixel).enhance(1.08)
+  pixel = pixel.filter(ImageFilter.UnsharpMask(radius=0.55, percent=110, threshold=2))
   output = io.BytesIO()
   pixel.save(output, format="PNG", optimize=True)
   return output.getvalue()
 
 
 def generate_local_tiles(map_id: str, *, all_tiles: bool, limit: int | None) -> int:
+  from isometric_berlin.generation.create_grid import quadrant_db_path
+
   db_path = quadrant_db_path(map_id)
   if not db_path.exists():
     raise SystemExit(f"Missing quadrant database: {db_path}")

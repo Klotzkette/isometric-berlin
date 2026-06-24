@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.12"
+PACKAGE_VERSION = "0.1.13"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,12 +213,13 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.12
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.13
 nutzt reichere Gebäudeflächen aus LoD2-Höhen, Dachtypen und
 OSM-Kontext, korrigierte Landmarken für Paul-Löbe-Haus und
 Marie-Elisabeth-Lüders-Haus, einen OSM/LoD2-Lagecheck und neue
 Ansichtssteuerungen für Nord/Ost/Süd/West, Drehen und Spiegeln. Neu ist
-außerdem eine Top-down-Referenzkarte aus OSM und LoD2 direkt im Viewer. Das
+außerdem eine schärfere lokale Pixel-Art-Stilisierung sowie eine
+Top-down-Referenzkarte aus OSM und LoD2 mit Nordpfeil und Maßstab direkt im Viewer. Das
 Paket startet auf dem ersten freien lokalen Port ab 8766, erlaubt
 optionale Startparameter für Skripte oder feste Ports und erzeugt das
 Download-ZIP mit stabilen Metadaten. Die Daten stammen aus
@@ -247,13 +248,14 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.12 adds
+does not need an AI model or a Google key to run. Version 0.1.13 adds
 richer building surfaces from LoD2 heights, roof types, and OSM
 context, corrected Paul-Löbe-Haus and
 Marie-Elisabeth-Lüders-Haus landmarks, an OSM/LoD2 placement QA report,
 and new view controls for north/east/south/west, rotation, and mirror
-views. It also includes a top-down OSM/LoD2 reference map inside the
-viewer. It starts on the first free local port at or above 8766, supports
+views. It also includes crisper local pixel-art styling and a top-down
+OSM/LoD2 reference map with north arrow and scale inside the viewer.
+It starts on the first free local port at or above 8766, supports
 optional server flags for scripts or fixed ports, and writes the
 downloadable ZIP with stable metadata. Data sources are free and open:
 Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, and DGM preview.

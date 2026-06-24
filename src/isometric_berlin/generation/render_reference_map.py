@@ -255,6 +255,46 @@ def draw_bounds_outline(
       draw.line(coords + [coords[0]], fill=OUTLINE, width=3, joint="curve")
 
 
+def draw_map_furniture(draw: ImageDraw.ImageDraw, transform: MapTransform) -> None:
+  """Draw north arrow and metric scale for placement QA."""
+  small_font = font(14, bold=True)
+  text_font = font(13)
+  north_x = transform.map_width - transform.pad - 44
+  north_y = transform.pad + 26
+  draw.polygon(
+    [
+      (north_x, north_y - 22),
+      (north_x - 9, north_y + 14),
+      (north_x, north_y + 8),
+      (north_x + 9, north_y + 14),
+    ],
+    fill=OUTLINE,
+  )
+  draw.text((north_x - 5, north_y + 18), "N", fill=OUTLINE, font=small_font)
+
+  bar_m = 500
+  bar_px = int(round(bar_m * transform.scale))
+  x0 = transform.pad + 18
+  y0 = transform.height - transform.pad - 34
+  x1 = x0 + bar_px
+  label = "500 m"
+  label_bbox = draw.textbbox((0, 0), label, font=text_font)
+  draw.rectangle(
+    (
+      x0 - 12,
+      y0 - 20,
+      x1 + 12,
+      y0 + 18 + (label_bbox[3] - label_bbox[1]),
+    ),
+    fill=REFERENCE_WHITE,
+    outline=PARCEL_LINE,
+  )
+  draw.line((x0, y0, x1, y0), fill=OUTLINE, width=4)
+  draw.line((x0, y0 - 7, x0, y0 + 7), fill=OUTLINE, width=3)
+  draw.line((x1, y0 - 7, x1, y0 + 7), fill=OUTLINE, width=3)
+  draw.text((x0, y0 + 10), label, fill=OUTLINE, font=text_font)
+
+
 def render_reference_map(
   *,
   bounds_path: Path,
@@ -302,6 +342,7 @@ def render_reference_map(
   draw_roads(draw, osm_layers["roads"], transform)
   draw_line_layer(draw, osm_layers["rail"], transform, fill=RAIL, width=2)
   draw_bounds_outline(draw, bounds, transform)
+  draw_map_furniture(draw, transform)
   draw_landmarks(draw, landmarks, transform)
   draw_legend(draw, landmarks, width=width, height=height, legend_width=legend_width)
 

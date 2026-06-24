@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.12 open-data viewer with richer LoD2/OSM-derived building surface detail, corrected landmark alignment against OSM/LoD2, north/east/south/west rotation and mirror controls, an in-viewer top-down reference map, robust local launchers, deterministic packaging, and current quickstart docs. The AI tile style pass is still planned.
+> **Status:** Local v0.1.13 open-data viewer with crisper deterministic pixel-art styling, richer LoD2/OSM-derived building surface detail, corrected landmark alignment against OSM/LoD2, north/east/south/west rotation and mirror controls, an in-viewer top-down reference map with scale/north arrow, robust local launchers, deterministic packaging, and current quickstart docs. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
