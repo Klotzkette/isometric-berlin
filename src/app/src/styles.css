@@ -130,6 +130,15 @@ button {
   cursor: pointer;
 }
 
+.toolbar button:disabled,
+.view-controls button:disabled,
+.landmark-list button:disabled {
+  color: rgba(245, 239, 228, 0.46);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .toolbar button:hover,
 .toolbar button:focus-visible,
 .toolbar button[aria-pressed="true"],
@@ -138,6 +147,15 @@ button {
 .view-controls button[aria-pressed="true"] {
   background: #a94235;
   outline: none;
+}
+
+.toolbar button:disabled:hover,
+.toolbar button:disabled:focus-visible,
+.view-controls button:disabled:hover,
+.view-controls button:disabled:focus-visible,
+.view-controls button:disabled[aria-pressed="true"] {
+  color: rgba(245, 239, 228, 0.46);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .app-shell--touring .toolbar button[aria-pressed="true"] {
@@ -252,6 +270,12 @@ button {
   border-color: rgba(224, 174, 105, 0.56);
   background: rgba(169, 66, 53, 0.74);
   outline: none;
+}
+
+.landmark-list button:disabled:hover,
+.landmark-list button:disabled:focus-visible {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .landmark-list span {
@@ -548,10 +572,17 @@ button {
     top: 10px;
     left: 10px;
     right: 10px;
+    align-items: flex-start;
   }
 
   .brand h1 {
     font-size: 16px;
+  }
+
+  .toolbar {
+    max-width: 132px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .landmark-rail {
@@ -568,7 +599,7 @@ button {
   }
 
   .selection-card {
-    top: 68px;
+    top: 112px;
     right: 10px;
     bottom: auto;
     left: 10px;
@@ -576,12 +607,12 @@ button {
   }
 
   .orientation-pill {
-    top: 152px;
+    top: 196px;
     left: 10px;
   }
 
   .view-controls {
-    top: 196px;
+    top: 240px;
     left: 10px;
   }
 
