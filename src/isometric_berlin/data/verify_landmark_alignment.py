@@ -82,6 +82,65 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
   },
 }
 
+RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
+  {
+    "from": "Berlin Hauptbahnhof",
+    "to": "Bundeskanzleramt",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "Kanzleramt lies west/south of Hauptbahnhof on the Spreebogen axis.",
+  },
+  {
+    "from": "Berlin Hauptbahnhof",
+    "to": "Marie-Elisabeth-Lüders-Haus",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Marie-Elisabeth-Lüders-Haus lies east/south of Hauptbahnhof.",
+  },
+  {
+    "from": "Berlin Hauptbahnhof",
+    "to": "Reichstagsgebäude",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Reichstag sits south/east of Hauptbahnhof, beyond the Spreebogen.",
+  },
+  {
+    "from": "Bundeskanzleramt",
+    "to": "Marie-Elisabeth-Lüders-Haus",
+    "east_west": "east",
+    "north_south": "north",
+    "note": "MELH is on the east/right side of the government-band sequence.",
+  },
+  {
+    "from": "Bundeskanzleramt",
+    "to": "Reichstagsgebäude",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Reichstag lies southeast of the Kanzleramt.",
+  },
+  {
+    "from": "Reichstagsgebäude",
+    "to": "Brandenburger Tor",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Brandenburger Tor lies southeast of the Reichstag.",
+  },
+  {
+    "from": "Brandenburger Tor",
+    "to": "Botschaft der Vereinigten Staaten von Amerika",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "US Embassy lies just southeast/south of Brandenburger Tor.",
+  },
+  {
+    "from": "Haus der Kulturen der Welt (Schwangere Auster)",
+    "to": "Reichstagsgebäude",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Reichstag lies east/south of HKW across the Tiergarten edge.",
+  },
+)
+
 
 def normalize_name(value: object) -> str:
   """Fold names to a stable ASCII-ish form for OSM comparison."""
@@ -199,6 +258,49 @@ def lod2_evidence(
   }
 
 
+def axis_direction(
+  delta: float, *, positive_label: str, negative_label: str, tolerance_m: float = 1.0
+) -> str:
+  if delta > tolerance_m:
+    return positive_label
+  if delta < -tolerance_m:
+    return negative_label
+  return "aligned"
+
+
+def relative_relationships(landmarks: gpd.GeoDataFrame) -> list[dict[str, Any]]:
+  indexed = landmarks.set_index("name")
+  relationships: list[dict[str, Any]] = []
+  for expectation in RELATIVE_EXPECTATIONS:
+    start = indexed.loc[expectation["from"]].geometry
+    end = indexed.loc[expectation["to"]].geometry
+    dx = float(end.x - start.x)
+    dy = float(end.y - start.y)
+    east_west = axis_direction(dx, positive_label="east", negative_label="west")
+    north_south = axis_direction(dy, positive_label="north", negative_label="south")
+    relationships.append(
+      {
+        "from": expectation["from"],
+        "to": expectation["to"],
+        "status": (
+          "ok"
+          if east_west == expectation["east_west"]
+          and north_south == expectation["north_south"]
+          else "review"
+        ),
+        "expected_east_west": expectation["east_west"],
+        "actual_east_west": east_west,
+        "delta_east_m": round(dx, 2),
+        "expected_north_south": expectation["north_south"],
+        "actual_north_south": north_south,
+        "delta_north_m": round(dy, 2),
+        "distance_m": round(float(start.distance(end)), 2),
+        "note": expectation["note"],
+      }
+    )
+  return relationships
+
+
 def landmark_status(
   *,
   name: str,
@@ -253,6 +355,7 @@ def build_alignment_report(
     )
 
   review_count = sum(1 for check in checks if check["status"] != "ok")
+  relationships = relative_relationships(landmarks)
   return {
     "generated_at": datetime.now(tz=UTC).isoformat(),
     "method": (
@@ -273,6 +376,7 @@ def build_alignment_report(
       "review_count": review_count,
     },
     "checks": checks,
+    "relative_relationships": relationships,
   }
 
 
@@ -315,6 +419,35 @@ def write_markdown_report(report: dict[str, Any], path: Path) -> None:
           osm_evidence,
           osm_distance,
           lod2_text,
+        ]
+      )
+      + " |"
+    )
+  lines.extend(
+    [
+      "",
+      "## Relative Placement",
+      "",
+      "These checks compare landmark-to-landmark relationships in EPSG:25833 "
+      "metres. They are meant to catch left/right and north/south swaps that "
+      "can be hard to see in an isometric view.",
+      "",
+      "| From | To | Status | East/West | North/South | Delta E | Delta N |",
+      "|---|---|---:|---|---|---:|---:|",
+    ]
+  )
+  for relation in report.get("relative_relationships", []):
+    lines.append(
+      "| "
+      + " | ".join(
+        [
+          str(relation["from"]),
+          str(relation["to"]),
+          f"`{relation['status']}`",
+          f"{relation['expected_east_west']} / {relation['actual_east_west']}",
+          f"{relation['expected_north_south']} / {relation['actual_north_south']}",
+          f"{relation['delta_east_m']:.2f} m",
+          f"{relation['delta_north_m']:.2f} m",
         ]
       )
       + " |"

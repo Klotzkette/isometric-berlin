@@ -252,19 +252,34 @@ def landmark_reference_id(name: str) -> str | None:
   }.get(kind or "")
 
 
-def averaged_reference_colour(records: list[dict[str, Any]]) -> tuple[int, int, int]:
+def reference_colours(records: list[dict[str, Any]]) -> list[tuple[int, int, int]]:
   colours: list[tuple[int, int, int]] = []
   for record in records:
     for value in record.get("dominant_colours", []):
       color = parse_hex_color(value)
       if color is not None and 35 <= colour_luma(color) <= 235:
         colours.append(color)
+  return colours
+
+
+def averaged_reference_colour(records: list[dict[str, Any]]) -> tuple[int, int, int]:
+  colours = reference_colours(records)
   if not colours:
     return BUILDING_HERO
   return tuple(
     round(sum(color[channel] for color in colours) / len(colours))
     for channel in range(3)
   )
+
+
+def reference_colour_extremes(
+  records: list[dict[str, Any]],
+) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
+  colours = reference_colours(records)
+  if not colours:
+    return BUILDING_WALL_DARK, SURFACE_LIGHT
+  ordered = sorted(colours, key=colour_luma)
+  return ordered[0], ordered[-1]
 
 
 def load_wikimedia_material_cues(path: Path) -> dict[str, MaterialCue]:
@@ -284,13 +299,15 @@ def load_wikimedia_material_cues(path: Path) -> dict[str, MaterialCue]:
   cues: dict[str, MaterialCue] = {}
   for landmark_id, records in grouped.items():
     base = averaged_reference_colour(records)
+    dark, light = reference_colour_extremes(records)
     cues[landmark_id] = {
-      "wall": mix_color(BUILDING_HERO, base, 0.42),
-      "wall_dark": mix_color(base, OUTLINE, 0.32),
-      "roof": mix_color(BUILDING_ROOF, base, 0.34),
-      "roof_line": mix_color(base, SURFACE_LINE, 0.5),
-      "glass": mix_color(GLASS, base, 0.18),
-      "glass_dark": mix_color(GLASS_DARK, base, 0.14),
+      "wall": mix_color(BUILDING_HERO, base, 0.52),
+      "wall_dark": mix_color(dark, OUTLINE, 0.24),
+      "wall_light": mix_color(light, (255, 250, 228), 0.18),
+      "roof": mix_color(BUILDING_ROOF, mix_color(base, dark, 0.22), 0.36),
+      "roof_line": mix_color(dark, SURFACE_LINE, 0.42),
+      "glass": mix_color(GLASS, light, 0.24),
+      "glass_dark": mix_color(GLASS_DARK, dark, 0.22),
     }
   return cues
 
@@ -327,17 +344,24 @@ def building_surface_palette(
     roof = mix_color(roof, OUTLINE, 0.08)
 
   if is_hero and material_cue:
-    wall = mix_color(wall, material_cue["wall"], 0.4)
-    roof = mix_color(roof, material_cue["roof"], 0.35)
+    wall = mix_color(wall, material_cue["wall"], 0.52)
+    roof = mix_color(roof, material_cue["roof"], 0.42)
 
   wall = shift_color(wall, variant)
   roof = shift_color(roof, round(variant * 0.7))
+  wall_dark = mix_color(wall, OUTLINE, 0.25)
+  wall_light = mix_color(wall, (255, 250, 228), 0.25)
+  roof_line = mix_color(roof, SURFACE_LINE, 0.45)
+  if is_hero and material_cue:
+    wall_dark = mix_color(wall_dark, material_cue["wall_dark"], 0.55)
+    wall_light = mix_color(wall_light, material_cue["wall_light"], 0.55)
+    roof_line = mix_color(roof_line, material_cue["roof_line"], 0.5)
   return {
     "wall": wall,
-    "wall_dark": mix_color(wall, OUTLINE, 0.25),
-    "wall_light": mix_color(wall, (255, 250, 228), 0.25),
+    "wall_dark": wall_dark,
+    "wall_light": wall_light,
     "roof": roof,
-    "roof_line": mix_color(roof, SURFACE_LINE, 0.45),
+    "roof_line": roof_line,
   }
 
 

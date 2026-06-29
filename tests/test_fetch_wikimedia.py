@@ -167,3 +167,19 @@ def test_title_suitable_rejects_loose_or_non_facade_matches() -> None:
     "reichstag",
     "File:Reichstagsgebäude Berlin Architekt Wallot Dresden, Tafel 41.jpg",
   )
+  assert not fw.title_suitable(
+    "reichstag",
+    "File:Academy Architecture 1895 Deutsches Reichstagsgebäude Berlin.jpg",
+  )
+  assert not fw.title_suitable(
+    "brandenburger_tor",
+    "File:Brandenburger Tor Berlin 1977.jpg",
+  )
+  assert not fw.title_suitable(
+    "hauptbahnhof",
+    "File:Skulptur Vertical Highways Washingtonplatz Hauptbahnhof Berlin.jpg",
+  )
+  assert not fw.title_suitable(
+    "hauptbahnhof",
+    "File:Berlin Hauptbahnhof, Notausgang auf dem Washingtonplatz.jpg",
+  )
