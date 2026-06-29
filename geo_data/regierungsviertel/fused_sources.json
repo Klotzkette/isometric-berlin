@@ -1,6 +1,6 @@
 {
   "bounds_ref": "geo_data/regierungsviertel/bounds.geojson",
-  "generated_at": "2026-06-20T11:50:30.733834+00:00",
+  "generated_at": "2026-06-27T09:50:17.551681+00:00",
   "fusion": "additive",
   "sources": {
     "lod2": {
@@ -34,6 +34,11 @@
     "google3d": {
       "available": false,
       "reason": "opt_in_env_missing: GOOGLE_MAPS_API_KEY is not set"
+    },
+    "wikimedia": {
+      "available": true,
+      "path": "geo_data/regierungsviertel/wikimedia_references.json",
+      "license": "Various Wikimedia Commons free licenses; see manifest per image"
     }
   },
   "features": [

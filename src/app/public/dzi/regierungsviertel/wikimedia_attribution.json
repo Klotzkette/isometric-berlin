@@ -1,0 +1,114 @@
+{
+  "source": "wikimedia",
+  "note": "Visual material references only; geometry remains Berlin LoD2 and semantics remain OSM.",
+  "records": [
+    {
+      "landmark_id": "reichstag",
+      "title": "File:Glaskuppel des Reichstagsgebäude Deutscher Bundestag Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AGlaskuppel_des_Reichstagsgeb%C3%A4ude_Deutscher_Bundestag_Berlin.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Schlaier",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "reichstag",
+      "title": "File:Reichstagsgebäude - Nordansicht ( Rechts - Ecke ).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_-_Nordansicht_%28_Rechts_-_Ecke_%29.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Heinzi",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:Berlin - Bundeskanzleramt Suedseite - Blickrichtung Paul-Loebe-Haus und Fernsehturm.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_-_Bundeskanzleramt_Suedseite_-_Blickrichtung_Paul-Loebe-Haus_und_Fernsehturm.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "",
+      "credit": ""
+    },
+    {
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:Kanzler22a.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AKanzler22a.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "",
+      "credit": ""
+    },
+    {
+      "landmark_id": "hauptbahnhof",
+      "title": "File:Berlin Hauptbahnhof 2 by user EmptyTerms.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_2_by_user_EmptyTerms.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "User:EmptyTerms",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "hauptbahnhof",
+      "title": "File:Berlin Hauptbahnhof 3 by user EmptyTerms.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_3_by_user_EmptyTerms.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "User:EmptyTerms",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "hkw",
+      "title": "File:Kongresshalle, Berlin, 1706172229, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AKongresshalle%2C_Berlin%2C_1706172229%2C_ako.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Ansgar Koreng",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "hkw",
+      "title": "File:Haus der Kulturen der Welt Berlin Tiergarten.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHaus_der_Kulturen_der_Welt_Berlin_Tiergarten.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Schlaier",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "brandenburger_tor",
+      "title": "File:Berlin Brandenburger Tor BW 5.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Brandenburger_Tor_BW_5.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Berthold Werner",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "brandenburger_tor",
+      "title": "File:Brandenburger Tor morgens.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburger_Tor_morgens.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Thomas Wolf , www.foto-tw.de",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "tiergarten_spreebogen",
+      "title": "File:Spreebogenpark, Skulptur an Uferpromenade.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASpreebogenpark%2C_Skulptur_an_Uferpromenade.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Beek100",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "tiergarten_spreebogen",
+      "title": "File:Spreebogenpark, Uferpromenade, Panoramaweg und Gartenspur.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASpreebogenpark%2C_Uferpromenade%2C_Panoramaweg_und_Gartenspur.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Beek100",
+      "credit": "Own work"
+    }
+  ]
+}

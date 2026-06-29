@@ -91,7 +91,12 @@ def export_dzi(
 
 
 def write_preview(
-  html_path: Path, *, title: str, overview_path: Path, dzi_path: Path
+  html_path: Path,
+  *,
+  title: str,
+  overview_path: Path,
+  dzi_path: Path,
+  extra_attribution: str = "",
 ) -> None:
   html_path.write_text(
     f"""<!doctype html>
@@ -112,7 +117,7 @@ def write_preview(
 <body>
   <header>
     <strong>{title}</strong>
-    <span class="attr">© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)</span>
+    <span class="attr">© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0){extra_attribution}</span>
   </header>
   <main>
     <img src="{overview_path.name}" alt="Isometric Berlin preview">

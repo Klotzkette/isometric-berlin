@@ -42,6 +42,15 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   and the
   [Photorealistic 3D Tiles policies](https://developers.google.com/maps/documentation/tile/policies).
 
+- **Wikimedia Commons / Wikipedia media (additive visual references):**
+  Small free-license thumbnails may be used for landmark facade,
+  roof, glass, stone, vegetation, and colour reference. Per-image
+  title, URL, author/artist, credit, license, and license URL are
+  recorded in
+  `geo_data/regierungsviertel/wikimedia_references.json` and
+  `references/wikimedia/README.md`. Derivative public artefacts must
+  preserve the relevant per-file attribution and license obligations.
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published
@@ -54,3 +63,8 @@ If Google Maps Platform content was used in producing the artefact,
 Platform Terms (typically a visible "Google" / "Google Maps" credit
 and any product-specific notices per the Photorealistic 3D Tiles
 policies).
+
+If Wikimedia Commons media was directly used as a texture source,
+visual derivative, or published reference plate, also include the
+relevant per-file Wikimedia attribution and license notices from
+`geo_data/regierungsviertel/wikimedia_references.json`.

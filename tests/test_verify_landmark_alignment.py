@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from isometric_berlin.data.verify_landmark_alignment import (
   build_alignment_report,
+  load_landmarks,
   normalize_name,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data" / "regierungsviertel"
+VIEWER_LANDMARKS = ROOT / "src/app/public/dzi/regierungsviertel/landmarks.json"
 
 
 def test_normalize_name_folds_berlin_landmark_names() -> None:
@@ -42,3 +45,66 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     == "Botschaft der Vereinigten Staaten von Amerika"
   )
   assert all(check["status"] == "ok" for check in checks.values())
+
+
+def test_committed_landmarks_preserve_real_world_relative_order() -> None:
+  landmarks = load_landmarks(DATA / "landmarks.geojson").set_index("name")
+
+  def delta(from_name: str, to_name: str) -> tuple[float, float]:
+    start = landmarks.loc[from_name].geometry
+    end = landmarks.loc[to_name].geometry
+    return float(end.x - start.x), float(end.y - start.y)
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Bundeskanzleramt")
+  assert dx < 0
+  assert dy < 0
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Marie-Elisabeth-Lüders-Haus")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Reichstagsgebäude")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Bundeskanzleramt", "Marie-Elisabeth-Lüders-Haus")
+  assert dx > 0
+  assert dy > 0
+
+  dx, dy = delta("Reichstagsgebäude", "Brandenburger Tor")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Brandenburger Tor", "Botschaft der Vereinigten Staaten von Amerika")
+  assert dx > 0
+  assert dy < 0
+
+
+def test_exported_viewer_landmarks_preserve_isometric_relative_order() -> None:
+  payload = json.loads(VIEWER_LANDMARKS.read_text(encoding="utf-8"))
+  landmarks = {row["name"]: row for row in payload["landmarks"]}
+
+  def delta(from_name: str, to_name: str) -> tuple[float, float]:
+    start = landmarks[from_name]
+    end = landmarks[to_name]
+    return float(end["x"] - start["x"]), float(end["y"] - start["y"])
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Bundeskanzleramt")
+  assert dx < 0
+  assert dy > 0
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Marie-Elisabeth-Lüders-Haus")
+  assert dx > 0
+  assert dy > 0
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Reichstagsgebäude")
+  assert dx < 0
+  assert dy > 0
+
+  dx, dy = delta("Reichstagsgebäude", "Brandenburger Tor")
+  assert dx < 0
+  assert dy > 0
+
+  dx, dy = delta("Brandenburger Tor", "Botschaft der Vereinigten Staaten von Amerika")
+  assert dx < 0
+  assert dy > 0

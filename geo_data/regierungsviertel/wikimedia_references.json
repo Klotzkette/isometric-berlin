@@ -1,0 +1,261 @@
+{
+  "source": "wikimedia",
+  "available": true,
+  "generated_by": "isometric_berlin.data.fetch_wikimedia",
+  "policy": "Small freely licensed Wikimedia Commons thumbnails for visual reference; attribution metadata retained per image.",
+  "records": [
+    {
+      "landmark_id": "reichstag",
+      "title": "File:Glaskuppel des Reichstagsgebäude Deutscher Bundestag Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AGlaskuppel_des_Reichstagsgeb%C3%A4ude_Deutscher_Bundestag_Berlin.JPG",
+      "thumbnail_path": "reichstag_01_file-glaskuppel-des-reichstagsgeb-ude-deutscher-bundestag-berlin-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Glaskuppel_des_Reichstagsgeb%C3%A4ude_Deutscher_Bundestag_Berlin.JPG/960px-Glaskuppel_des_Reichstagsgeb%C3%A4ude_Deutscher_Bundestag_Berlin.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Schlaier",
+      "credit": "Own work",
+      "description": "Glasdome (by Sir Norman Foster) of the Reichstagsgebäude of the Deutsche Bundestag (parliament of Germany) - Berlin, Germany.",
+      "dominant_colours": [
+        "#c4cad2",
+        "#c0c8d1",
+        "#bcb4ae",
+        "#b67945",
+        "#976c49",
+        "#724e34"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "reichstag",
+      "title": "File:Reichstagsgebäude - Nordansicht ( Rechts - Ecke ).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_-_Nordansicht_%28_Rechts_-_Ecke_%29.jpg",
+      "thumbnail_path": "reichstag_02_file-reichstagsgeb-ude-nordansicht-rechts-ecke-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Reichstagsgeb%C3%A4ude_-_Nordansicht_%28_Rechts_-_Ecke_%29.jpg/960px-Reichstagsgeb%C3%A4ude_-_Nordansicht_%28_Rechts_-_Ecke_%29.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Heinzi",
+      "credit": "Own work",
+      "description": "Reichstagsgebäude - Nordansicht ( Rechts - Ecke ) Ecke mit Turm vom Reichstagsufer Sitz - Deutscher Bundestag Baudenkmal ( LDA ) Landesdenkmalamt - Berlin Dok Nr. 09050341",
+      "dominant_colours": [
+        "#effbfb",
+        "#9cd4eb",
+        "#899e9e",
+        "#7e8078",
+        "#6b7469",
+        "#4b4f4b"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:Berlin - Bundeskanzleramt Suedseite - Blickrichtung Paul-Loebe-Haus und Fernsehturm.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_-_Bundeskanzleramt_Suedseite_-_Blickrichtung_Paul-Loebe-Haus_und_Fernsehturm.jpg",
+      "thumbnail_path": "bundeskanzleramt_01_file-berlin-bundeskanzleramt-suedseite-blickrichtung-paul-loebe-haus-und-fernsehturm-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Berlin_-_Bundeskanzleramt_Suedseite_-_Blickrichtung_Paul-Loebe-Haus_und_Fernsehturm.jpg/960px-Berlin_-_Bundeskanzleramt_Suedseite_-_Blickrichtung_Paul-Loebe-Haus_und_Fernsehturm.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "",
+      "credit": "",
+      "description": "",
+      "dominant_colours": [
+        "#abb9ca",
+        "#9fb3cb",
+        "#92a4b9",
+        "#5e6755",
+        "#485440",
+        "#2d3a24"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:Kanzler22a.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AKanzler22a.jpg",
+      "thumbnail_path": "bundeskanzleramt_02_file-kanzler22a-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Kanzler22a.jpg/960px-Kanzler22a.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "",
+      "credit": "",
+      "description": "",
+      "dominant_colours": [
+        "#a2aec4",
+        "#899cbc",
+        "#6f86a9",
+        "#4b6b70",
+        "#355967",
+        "#20333b"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "hauptbahnhof",
+      "title": "File:Berlin Hauptbahnhof 2 by user EmptyTerms.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_2_by_user_EmptyTerms.JPG",
+      "thumbnail_path": "hauptbahnhof_01_file-berlin-hauptbahnhof-2-by-user-emptyterms-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Berlin_Hauptbahnhof_2_by_user_EmptyTerms.JPG/960px-Berlin_Hauptbahnhof_2_by_user_EmptyTerms.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "User:EmptyTerms",
+      "credit": "Own work",
+      "description": "Berlin Hauptbahnhof",
+      "dominant_colours": [
+        "#fefdfa",
+        "#eae9e2",
+        "#8b9493",
+        "#4f4939",
+        "#3a3520",
+        "#242119"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "hauptbahnhof",
+      "title": "File:Berlin Hauptbahnhof 3 by user EmptyTerms.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_3_by_user_EmptyTerms.JPG",
+      "thumbnail_path": "hauptbahnhof_02_file-berlin-hauptbahnhof-3-by-user-emptyterms-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Berlin_Hauptbahnhof_3_by_user_EmptyTerms.JPG/960px-Berlin_Hauptbahnhof_3_by_user_EmptyTerms.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "User:EmptyTerms",
+      "credit": "Own work",
+      "description": "Berlin Hauptbahnhof",
+      "dominant_colours": [
+        "#fffdfe",
+        "#e3e0dd",
+        "#999794",
+        "#757351",
+        "#68643f",
+        "#474447"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "hkw",
+      "title": "File:Kongresshalle, Berlin, 1706172229, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AKongresshalle%2C_Berlin%2C_1706172229%2C_ako.jpg",
+      "thumbnail_path": "hkw_01_file-kongresshalle-berlin-1706172229-ako-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Kongresshalle%2C_Berlin%2C_1706172229%2C_ako.jpg/960px-Kongresshalle%2C_Berlin%2C_1706172229%2C_ako.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Ansgar Koreng",
+      "credit": "Own work",
+      "description": "The Haus der Kulturen der Welt (\"House of World Cultures\") at John-Foster-Dulles-Allee in the Great Tiergarten in Berlin. It was built as a congress hall by American architect Hugh Stubbins. The building is reflecting in the river Spree.",
+      "dominant_colours": [
+        "#8499a6",
+        "#3177b5",
+        "#276093",
+        "#333835",
+        "#102028",
+        "#042a52"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "hkw",
+      "title": "File:Haus der Kulturen der Welt Berlin Tiergarten.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHaus_der_Kulturen_der_Welt_Berlin_Tiergarten.JPG",
+      "thumbnail_path": "hkw_02_file-haus-der-kulturen-der-welt-berlin-tiergarten-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Haus_der_Kulturen_der_Welt_Berlin_Tiergarten.JPG/960px-Haus_der_Kulturen_der_Welt_Berlin_Tiergarten.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Schlaier",
+      "credit": "Own work",
+      "description": "The Haus der Kulturen der Welt in Berlin (district: Tiergarten), Germany, seen from the river Spree.",
+      "dominant_colours": [
+        "#f5fbfe",
+        "#dcedf9",
+        "#9aa7ad",
+        "#61605c",
+        "#4c433c",
+        "#2e2925"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "brandenburger_tor",
+      "title": "File:Berlin Brandenburger Tor BW 5.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Brandenburger_Tor_BW_5.jpg",
+      "thumbnail_path": "brandenburger_tor_01_file-berlin-brandenburger-tor-bw-5-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Berlin_Brandenburger_Tor_BW_5.jpg/960px-Berlin_Brandenburger_Tor_BW_5.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Berthold Werner",
+      "credit": "Own work",
+      "description": "Berlin, Tourists at the Brandenburg Gate with a man in the uniform of the former east german army",
+      "dominant_colours": [
+        "#f0e5d2",
+        "#d0c2aa",
+        "#aa9e8c",
+        "#9d9689",
+        "#7c7468",
+        "#3a3333"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "brandenburger_tor",
+      "title": "File:Brandenburger Tor morgens.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburger_Tor_morgens.jpg",
+      "thumbnail_path": "brandenburger_tor_02_file-brandenburger-tor-morgens-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Brandenburger_Tor_morgens.jpg/960px-Brandenburger_Tor_morgens.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Thomas Wolf , www.foto-tw.de",
+      "credit": "Own work",
+      "description": "The Brandenburg Gate in Berlin , Germany",
+      "dominant_colours": [
+        "#d6dee4",
+        "#ccd9e0",
+        "#bdceda",
+        "#a9afb2",
+        "#9a8c7e",
+        "#6a5e51"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "tiergarten_spreebogen",
+      "title": "File:Spreebogenpark, Skulptur an Uferpromenade.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASpreebogenpark%2C_Skulptur_an_Uferpromenade.jpg",
+      "thumbnail_path": "tiergarten_spreebogen_01_file-spreebogenpark-skulptur-an-uferpromenade-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Spreebogenpark%2C_Skulptur_an_Uferpromenade.jpg/960px-Spreebogenpark%2C_Skulptur_an_Uferpromenade.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Beek100",
+      "credit": "Own work",
+      "description": "Spreebogenpark in Berlin, sculpture on riverside promenade and passageway to the “traces garden” („Spurengarten“)",
+      "dominant_colours": [
+        "#d0eafa",
+        "#becacf",
+        "#b19e89",
+        "#8e8a80",
+        "#c16627",
+        "#362d18"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "tiergarten_spreebogen",
+      "title": "File:Spreebogenpark, Uferpromenade, Panoramaweg und Gartenspur.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASpreebogenpark%2C_Uferpromenade%2C_Panoramaweg_und_Gartenspur.jpg",
+      "thumbnail_path": "tiergarten_spreebogen_02_file-spreebogenpark-uferpromenade-panoramaweg-und-gartenspur-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Spreebogenpark%2C_Uferpromenade%2C_Panoramaweg_und_Gartenspur.jpg/960px-Spreebogenpark%2C_Uferpromenade%2C_Panoramaweg_und_Gartenspur.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Beek100",
+      "credit": "Own work",
+      "description": "waterside of Spreebogenpark in Berlin",
+      "dominant_colours": [
+        "#eef7f9",
+        "#d1deea",
+        "#90a0aa",
+        "#555a57",
+        "#44545e",
+        "#2b3132"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    }
+  ],
+  "atlas_path": "references/wikimedia/atlas.jpg"
+}

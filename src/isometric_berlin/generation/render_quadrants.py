@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import io
+import json
 import sqlite3
 import unicodedata
 from datetime import UTC, datetime
@@ -68,6 +69,7 @@ PATH_HIGHWAYS = {
 }
 RAIL_LINES = {"rail", "light_rail", "tram"}
 RAIL_PLATFORMS = {"platform", "platform_edge"}
+MaterialCue = dict[str, tuple[int, int, int]]
 
 
 def load_layer(path: Path, layer: str) -> gpd.GeoDataFrame:
@@ -225,8 +227,80 @@ def stable_variation(key: str, spread: int = 9) -> int:
   return int.from_bytes(digest, "big") % (spread * 2 + 1) - spread
 
 
+def parse_hex_color(value: Any) -> tuple[int, int, int] | None:
+  text = str(value).strip().lstrip("#")
+  if len(text) != 6:
+    return None
+  try:
+    return tuple(int(text[index : index + 2], 16) for index in range(0, 6, 2))
+  except ValueError:
+    return None
+
+
+def colour_luma(color: tuple[int, int, int]) -> float:
+  return color[0] * 0.2126 + color[1] * 0.7152 + color[2] * 0.0722
+
+
+def landmark_reference_id(name: str) -> str | None:
+  kind = landmark_kind(name)
+  return {
+    "gate": "brandenburger_tor",
+    "dome": "reichstag",
+    "glass_station": "hauptbahnhof",
+    "curved_roof": "hkw",
+    "chancellery": "bundeskanzleramt",
+  }.get(kind or "")
+
+
+def averaged_reference_colour(records: list[dict[str, Any]]) -> tuple[int, int, int]:
+  colours: list[tuple[int, int, int]] = []
+  for record in records:
+    for value in record.get("dominant_colours", []):
+      color = parse_hex_color(value)
+      if color is not None and 35 <= colour_luma(color) <= 235:
+        colours.append(color)
+  if not colours:
+    return BUILDING_HERO
+  return tuple(
+    round(sum(color[channel] for color in colours) / len(colours))
+    for channel in range(3)
+  )
+
+
+def load_wikimedia_material_cues(path: Path) -> dict[str, MaterialCue]:
+  """Load additive landmark material cues from the Wikimedia manifest."""
+  if not path.exists():
+    return {}
+  try:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+  except (OSError, json.JSONDecodeError):
+    return {}
+  grouped: dict[str, list[dict[str, Any]]] = {}
+  for record in payload.get("records", []):
+    if isinstance(record, dict):
+      landmark_id = str(record.get("landmark_id", ""))
+      if landmark_id:
+        grouped.setdefault(landmark_id, []).append(record)
+  cues: dict[str, MaterialCue] = {}
+  for landmark_id, records in grouped.items():
+    base = averaged_reference_colour(records)
+    cues[landmark_id] = {
+      "wall": mix_color(BUILDING_HERO, base, 0.42),
+      "wall_dark": mix_color(base, OUTLINE, 0.32),
+      "roof": mix_color(BUILDING_ROOF, base, 0.34),
+      "roof_line": mix_color(base, SURFACE_LINE, 0.5),
+      "glass": mix_color(GLASS, base, 0.18),
+      "glass_dark": mix_color(GLASS_DARK, base, 0.14),
+    }
+  return cues
+
+
 def building_surface_palette(
-  row: Any, *, is_hero: bool, height_m: float
+  row: Any,
+  *,
+  is_hero: bool,
+  height_m: float,
+  material_cue: MaterialCue | None = None,
 ) -> dict[str, tuple[int, int, int]]:
   """Return deterministic material colours from LoD2 attributes."""
   ident = row_text(row, "building_id") or row_text(row, "function") or "building"
@@ -251,6 +325,10 @@ def building_surface_palette(
     roof = mix_color(roof, MONUMENT, 0.18)
   elif roof_type.startswith("5"):
     roof = mix_color(roof, OUTLINE, 0.08)
+
+  if is_hero and material_cue:
+    wall = mix_color(wall, material_cue["wall"], 0.4)
+    roof = mix_color(roof, material_cue["roof"], 0.35)
 
   wall = shift_color(wall, variant)
   roof = shift_color(roof, round(variant * 0.7))
@@ -356,6 +434,7 @@ def draw_landmark_accent(
   draw: ImageDraw.ImageDraw,
   row: Any,
   *,
+  material_cue: MaterialCue | None = None,
   center_x: float,
   center_y: float,
   scale: float,
@@ -368,6 +447,12 @@ def draw_landmark_accent(
   if kind is None:
     return
   unit = landmark_icon_unit(width)
+  monument = material_cue["wall"] if material_cue else MONUMENT
+  monument_dark = material_cue["wall_dark"] if material_cue else MONUMENT_DARK
+  building_hero = material_cue["wall"] if material_cue else BUILDING_HERO
+  glass = material_cue["glass"] if material_cue else GLASS
+  glass_dark = material_cue["glass_dark"] if material_cue else GLASS_DARK
+  roof_line = material_cue["roof_line"] if material_cue else SURFACE_LINE
 
   def point(z: float) -> tuple[int, int]:
     return project_point(
@@ -385,19 +470,19 @@ def draw_landmark_accent(
     x, y = point(18)
     draw.rectangle(
       (x - 6 * unit, y - 4 * unit, x + 6 * unit, y - 2 * unit),
-      fill=MONUMENT,
+      fill=monument,
       outline=OUTLINE,
       width=max(1, unit // 4),
     )
     draw.rectangle(
       (x - 7 * unit, y + 3 * unit, x + 7 * unit, y + 4 * unit),
-      fill=MONUMENT_DARK,
+      fill=monument_dark,
     )
     for idx in range(6):
       cx = x - 5 * unit + idx * 2 * unit
       draw.rectangle(
         (cx - unit // 2, y - 2 * unit, cx + unit // 2, y + 4 * unit),
-        fill=MONUMENT,
+        fill=monument,
         outline=OUTLINE,
         width=max(1, unit // 5),
       )
@@ -407,7 +492,7 @@ def draw_landmark_accent(
     x, y = point(43)
     draw.ellipse(
       (x - 4 * unit, y - 3 * unit, x + 4 * unit, y + 3 * unit),
-      fill=GLASS,
+      fill=glass,
       outline=OUTLINE,
       width=max(1, unit // 4),
     )
@@ -415,10 +500,10 @@ def draw_landmark_accent(
       (x - 5 * unit, y - 4 * unit, x + 5 * unit, y + 4 * unit),
       start=205,
       end=335,
-      fill=GLASS_DARK,
+      fill=glass_dark,
       width=max(1, unit // 3),
     )
-    draw.line((x, y - 3 * unit, x, y + 3 * unit), fill=GLASS_DARK, width=1)
+    draw.line((x, y - 3 * unit, x, y + 3 * unit), fill=glass_dark, width=1)
     return
 
   if kind == "glass_station":
@@ -429,11 +514,11 @@ def draw_landmark_accent(
       (x + 9 * unit, y),
       (x + 3 * unit, y + 3 * unit),
     ]
-    draw.polygon(roof, fill=GLASS, outline=OUTLINE)
+    draw.polygon(roof, fill=glass, outline=OUTLINE)
     for offset in (-5, 0, 5):
       draw.line(
         (x + offset * unit, y - 2 * unit, x + (offset + 4) * unit, y),
-        fill=GLASS_DARK,
+        fill=glass_dark,
         width=max(1, unit // 4),
       )
     return
@@ -444,12 +529,12 @@ def draw_landmark_accent(
       (x - 7 * unit, y - 6 * unit, x + 7 * unit, y + 6 * unit),
       start=200,
       end=340,
-      fill=MONUMENT,
+      fill=monument,
       width=max(2, unit),
     )
     draw.rectangle(
       (x - 5 * unit, y, x + 5 * unit, y + 3 * unit),
-      fill=BUILDING_HERO,
+      fill=building_hero,
       outline=OUTLINE,
       width=max(1, unit // 4),
     )
@@ -459,19 +544,19 @@ def draw_landmark_accent(
     x, y = point(34)
     draw.rectangle(
       (x - 7 * unit, y - 2 * unit, x - 3 * unit, y + 5 * unit),
-      fill=MONUMENT,
+      fill=monument,
       outline=OUTLINE,
       width=max(1, unit // 4),
     )
     draw.rectangle(
       (x + 3 * unit, y - 2 * unit, x + 7 * unit, y + 5 * unit),
-      fill=MONUMENT,
+      fill=monument,
       outline=OUTLINE,
       width=max(1, unit // 4),
     )
     draw.rectangle(
       (x - 3 * unit, y, x + 3 * unit, y + 3 * unit),
-      fill=GLASS,
+      fill=glass,
       outline=OUTLINE,
       width=max(1, unit // 4),
     )
@@ -486,13 +571,13 @@ def draw_landmark_accent(
         (x + 7 * unit, y + unit),
         (x + 2 * unit, y + 3 * unit),
       ],
-      fill=BUILDING_HERO,
+      fill=building_hero,
       outline=OUTLINE,
     )
     for offset in (-4, -1, 2, 5):
       draw.line(
         (x + offset * unit, y - 2 * unit, x + (offset + 3) * unit, y + unit),
-        fill=MONUMENT_DARK,
+        fill=roof_line,
         width=max(1, unit // 5),
       )
     return
@@ -647,6 +732,7 @@ def draw_building(
   height_m: float,
   is_hero: bool,
   surface_row: Any | None = None,
+  material_cue: MaterialCue | None = None,
   center_x: float,
   center_y: float,
   scale: float,
@@ -659,7 +745,12 @@ def draw_building(
     return
   height_m = max(4.0, min(float(height_m or 12.0), 85.0))
   surface = surface_row if surface_row is not None else {}
-  palette = building_surface_palette(surface, is_hero=is_hero, height_m=height_m)
+  palette = building_surface_palette(
+    surface,
+    is_hero=is_hero,
+    height_m=height_m,
+    material_cue=material_cue,
+  )
   base = [
     project_point(
       x,
@@ -779,12 +870,29 @@ def png_bytes(image: Image.Image) -> bytes:
   return output.getvalue()
 
 
+def nearest_landmark_reference_id(
+  geometry: Any, landmarks: gpd.GeoDataFrame, *, max_distance_m: float = 90.0
+) -> str | None:
+  """Return the nearest visual-reference id for a hero building."""
+  if geometry is None or getattr(geometry, "is_empty", True) or landmarks.empty:
+    return None
+  point = geometry.representative_point()
+  distances = landmarks.geometry.distance(point)
+  if distances.empty:
+    return None
+  nearest_index = distances.idxmin()
+  if float(distances.loc[nearest_index]) > max_distance_m:
+    return None
+  return landmark_reference_id(row_text(landmarks.loc[nearest_index], "name"))
+
+
 def render_quadrant(
   *,
   quad: dict[str, Any],
   buildings: gpd.GeoDataFrame,
   osm_layers: dict[str, gpd.GeoDataFrame],
   landmarks: gpd.GeoDataFrame,
+  material_cues: dict[str, MaterialCue],
   render_px: int,
   context_m: float,
   show_labels: bool,
@@ -927,6 +1035,10 @@ def render_quadrant(
     ).sort_values("_sort")
   for _, row in selected_buildings.iterrows():
     is_hero = bool(hero_zone is not None and row.geometry.intersects(hero_zone))
+    reference_id = (
+      nearest_landmark_reference_id(row.geometry, near_landmarks) if is_hero else None
+    )
+    material_cue = material_cues.get(reference_id or "")
     for poly in polygons(row.geometry):
       draw_building(
         draw,
@@ -934,6 +1046,7 @@ def render_quadrant(
         height_m=building_height(row, is_hero=is_hero),
         is_hero=is_hero,
         surface_row=row,
+        material_cue=material_cue,
         center_x=center_x,
         center_y=center_y,
         scale=scale,
@@ -943,9 +1056,11 @@ def render_quadrant(
       )
 
   for _, row in near_landmarks.iterrows():
+    reference_id = landmark_reference_id(row_text(row, "name"))
     draw_landmark_accent(
       draw,
       row,
+      material_cue=material_cues.get(reference_id or ""),
       center_x=center_x,
       center_y=center_y,
       scale=scale,
@@ -981,6 +1096,7 @@ def update_render(
   buildings: gpd.GeoDataFrame,
   osm_layers: dict[str, gpd.GeoDataFrame],
   landmarks: gpd.GeoDataFrame,
+  material_cues: dict[str, MaterialCue],
   render_px: int,
   output_px: int,
   context_m: float,
@@ -1005,6 +1121,7 @@ def update_render(
         buildings=buildings,
         osm_layers=osm_layers,
         landmarks=landmarks,
+        material_cues=material_cues,
         render_px=render_px,
         context_m=context_m,
         show_labels=show_labels,
@@ -1041,6 +1158,11 @@ def main() -> None:
     type=Path,
     default=Path("geo_data/regierungsviertel/landmarks.geojson"),
   )
+  parser.add_argument(
+    "--wikimedia-references",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/wikimedia_references.json"),
+  )
   parser.add_argument("--render-px", type=int, default=1024)
   parser.add_argument("--output-px", type=int, default=512)
   parser.add_argument("--context-m", type=float, default=180.0)
@@ -1057,11 +1179,13 @@ def main() -> None:
   }
   osm_layers["alkis"] = load_layer(args.alkis, "flurstuecke")
   landmarks = load_landmarks(args.landmarks)
+  material_cues = load_wikimedia_material_cues(args.wikimedia_references)
   count = update_render(
     db_path,
     buildings=buildings,
     osm_layers=osm_layers,
     landmarks=landmarks,
+    material_cues=material_cues,
     render_px=args.render_px,
     output_px=args.output_px,
     context_m=args.context_m,

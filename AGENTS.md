@@ -89,6 +89,11 @@ record the conflict and choose evidence according to
    additive source for photorealistic geometry, texture, alignment,
    and visual reference where permitted by Google's terms. **Not** a
    replacement for Berlin LoD2 or OSM.
+5. **Wikimedia Commons / Wikipedia media** — additive visual-reference
+   source for freely licensed landmark facade, roof, glass, stone,
+   vegetation, and colour cues. Use only files with clear free-license
+   metadata (CC0, public domain, CC BY, CC BY-SA). Keep per-file
+   attribution in the manifest. **Not** a geometry or semantic source.
 
 ### Google opt-in rules (strict)
 
@@ -125,6 +130,11 @@ When Google Maps Platform content was used in producing the artefact,
 append the appropriate Google attribution per their terms. See
 [`NOTICE.md`](NOTICE.md).
 
+When Wikimedia Commons / Wikipedia media was directly used for visual
+references, texture cues, published reference plates, or derived
+material colours, include the visible Wikimedia visual-reference notice
+and keep the per-file credits packaged with the artefact.
+
 ### Repository hygiene for geodata
 
 - Do **not** commit raw multi-GB geodata dumps. Only commit small,
@@ -133,6 +143,10 @@ append the appropriate Google attribution per their terms. See
 - Raw downloads (LoD2 CityGML, ALKIS, DOP, DGM, OSM Overpass cache,
   Google 3D Tiles) belong in `geo_data/regierungsviertel/raw/<source>/`
   which is gitignored.
+- Wikimedia visual references are the exception for small, explicitly
+  licensed thumbnails and QA atlases under `references/wikimedia/`.
+  Do not commit arbitrary internet-photo dumps or files with unclear
+  rights.
 
 ## 5. Pipeline (canonical 10 steps)
 
@@ -156,6 +170,12 @@ commit messages and PR titles (e.g. `step-4: …`).
    `geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json`.
    Only fetches actual tile content with `--download-content` when
    explicitly approved for the current run.
+5a. **Wikimedia visual references (additive, free-license filtered).**
+   `isometric_berlin.data.fetch_wikimedia` writes
+   `geo_data/regierungsviertel/wikimedia_references.json` plus small
+   thumbnails / atlas files in `references/wikimedia/`. These support
+   material and facade QA; they do not replace steps 2–4 or the
+   Google opt-in source.
 6. **Source-fusion manifest.** `isometric_berlin.data.fuse_sources`
    combines all permitted sources into a single fused source-stack
    manifest with provenance per feature/tile (see

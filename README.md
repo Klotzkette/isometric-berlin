@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.13 open-data viewer with crisper deterministic pixel-art styling, richer LoD2/OSM-derived building surface detail, corrected landmark alignment against OSM/LoD2, north/east/south/west rotation and mirror controls, an in-viewer top-down reference map with scale/north arrow, robust local launchers, deterministic packaging, and current quickstart docs. The AI tile style pass is still planned.
+> **Status:** Local v0.1.15 open-data viewer with crisper deterministic pixel-art styling, richer LoD2/OSM/Wikimedia-derived visual detail, corrected landmark alignment against OSM/LoD2, a north-up default view with labeled landmark pins, north/east/south/west rotation and mirror controls, an in-viewer top-down reference map with scale/north arrow, robust local launchers, deterministic packaging, and current quickstart docs. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
@@ -164,17 +164,21 @@ replacement for Berlin open data or OSM):
 | 3D building geometry (LoD2) | [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin) | [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0) (effectively public domain) |
 | Streets, parks, water, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Landmark facade / material visual references | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Per file: CC0, public domain, CC BY, CC BY-SA; see `geo_data/regierungsviertel/wikimedia_references.json` |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Required attribution in the viewer:**
 
-> © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)
+> © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
 
 When Google-derived content is used, the required Google attribution
 (e.g. *Imagery © Google · Google Maps Platform*) must additionally be
 shown. OSM is share-alike for *derivative databases*, but rendered tile
 images are *Produced Works* and may be released under any license, as
 long as the attributions above are shown.
+Per-file Wikimedia credits are stored in
+`src/app/public/dzi/regierungsviertel/wikimedia_attribution.json` and
+`references/wikimedia/README.md`.
 
 </td>
 <td valign="top">
@@ -190,11 +194,12 @@ als Ersatz für Berliner Open Data oder OSM):
 | 3D-Gebäudegeometrie (LoD2) | [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin) | [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0) (faktisch gemeinfrei) |
 | Straßen, Parks, Wasser, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Fassaden-/Material-Referenzen für Landmarken | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Je Datei: CC0, Public Domain, CC BY, CC BY-SA; siehe `geo_data/regierungsviertel/wikimedia_references.json` |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Pflicht-Attributionshinweis im Viewer:**
 
-> © OpenStreetMap-Mitwirkende · 3D-Gebäudemodelle: Geoportal Berlin (dl-de/zero-2-0)
+> © OpenStreetMap-Mitwirkende · 3D-Gebäudemodelle: Geoportal Berlin (dl-de/zero-2-0) · Visuelle Referenzen: Wikimedia Commons/Wikipedia
 
 Bei Verwendung von Google-Inhalten ist zusätzlich der erforderliche
 Google-Hinweis (z. B. *Imagery © Google · Google Maps Platform*)
@@ -202,6 +207,9 @@ anzuzeigen. OSM hat eine Share-Alike-Klausel für *abgeleitete
 Datenbanken*, gerenderte Kachelbilder sind aber *Produced Works* und
 dürfen unter beliebiger Lizenz veröffentlicht werden, solange die
 obigen Hinweise sichtbar sind.
+Die Wikimedia-Credits pro Datei liegen in
+`src/app/public/dzi/regierungsviertel/wikimedia_attribution.json` und
+`references/wikimedia/README.md`.
 
 </td>
 </tr>
@@ -237,11 +245,12 @@ you provide a local `.env` with a Maps API key and the opt-in flags.
 Landmark placement is checked in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) against the
 local OSM city-map layer and Berlin LoD2 building geometry. The viewer
-includes buttons for north/east/south/west-up views, 90° rotation,
-horizontal mirroring, a vertical 2D flip, and a top-down OSM/LoD2
-reference map for standard city-map checks. A true physical underside
-view would require a future multi-camera/3D-renderer export; the
-current download is a static Deep Zoom image viewer.
+starts in a north-up view and labels the key landmarks directly on the
+map. It includes buttons for north/east/south/west-up views, 90°
+rotation, horizontal mirroring, a vertical 2D flip, and a top-down
+OSM/LoD2 reference map for standard city-map checks. A true physical
+underside view would require a future multi-camera/3D-renderer export;
+the current download is a static Deep Zoom image viewer.
 
 To create a downloadable folder and ZIP for another Mac or PC:
 
@@ -291,12 +300,13 @@ Opt-in-Flags vorhanden ist.
 Die Landmarken-Lage wird in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) gegen den
 lokalen OSM-Stadtplan-Layer und die Berliner LoD2-Gebäudegeometrie
-geprüft. Der Viewer enthält Knöpfe für Nord/Ost/Süd/West-Ansichten,
-90°-Drehung, horizontales Spiegeln, ein vertikales 2D-Klappen und eine
-Top-down-Referenzkarte aus OSM/LoD2 für den Standard-Stadtplan-Abgleich.
-Eine echte physische Ansicht von unten braucht später einen
-Multi-Kamera-/3D-Renderer-Export; der aktuelle Download ist ein statischer
-Deep-Zoom-Bildviewer.
+geprüft. Der Viewer startet mit geographisch Norden oben und beschriftet
+die wichtigsten Landmarken direkt in der Karte. Er enthält Knöpfe für
+Nord/Ost/Süd/West-Ansichten, 90°-Drehung, horizontales Spiegeln, ein
+vertikales 2D-Klappen und eine Top-down-Referenzkarte aus OSM/LoD2 für
+den Standard-Stadtplan-Abgleich. Eine echte physische Ansicht von unten
+braucht später einen Multi-Kamera-/3D-Renderer-Export; der aktuelle
+Download ist ein statischer Deep-Zoom-Bildviewer.
 
 Ein herunterladbares Paket für einen anderen Mac oder PC erzeugst du so:
 

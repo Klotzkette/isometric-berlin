@@ -21,6 +21,8 @@ Inputs
 - ``geo_data/regierungsviertel/raw/dgm/`` (optional)
 - ``geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json``
   (optional, opt-in)
+- ``geo_data/regierungsviertel/wikimedia_references.json``
+  (optional visual-reference layer)
 
 Behaviour
 ---------
@@ -62,6 +64,7 @@ SOURCE_LICENSES: dict[str, str] = {
   "dop": "dl-de/zero-2-0",
   "dgm": "dl-de/zero-2-0",
   "google3d": "Google Maps Platform Terms",
+  "wikimedia": "Various Wikimedia Commons free licenses; see manifest per image",
 }
 
 
@@ -147,6 +150,7 @@ def discover_sources(geo_dir: Path, env: dict[str, str]) -> dict[str, Any]:
     "dop": _support_source("dop", raw / "dop", geo_dir / "dop_preview.png"),
     "dgm": _support_source("dgm", raw / "dgm", geo_dir / "dgm_preview.png"),
     "google3d": _google_source(raw / "google_3d_tiles" / "manifest.json", env),
+    "wikimedia": _file_source("wikimedia", geo_dir / "wikimedia_references.json"),
   }
 
 

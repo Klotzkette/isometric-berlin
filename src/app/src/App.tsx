@@ -31,7 +31,7 @@ type LandmarkPayload = {
 };
 
 const ATTRIBUTION =
-  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)";
+  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
 
 const ROLE_LABELS: Record<string, string> = {
   hero_tile: "Hauptmotiv",
@@ -39,11 +39,30 @@ const ROLE_LABELS: Record<string, string> = {
   owner_added: "ergänzter Ort",
 };
 
+const LANDMARK_SHORT_LABELS: Record<string, string> = {
+  "Berlin Hauptbahnhof": "Hauptbahnhof",
+  "Bundeskanzleramt": "Kanzleramt",
+  "Marie-Elisabeth-Lüders-Haus": "M.-E.-Lüders-Haus",
+  "Paul-Löbe-Haus": "Paul-Löbe-Haus",
+  "Reichstagsgebäude": "Reichstag",
+  "Brandenburger Tor": "Brandenburger Tor",
+  "Botschaft der Vereinigten Staaten von Amerika": "US-Botschaft",
+  "Max-Liebermann-Haus": "Max-Liebermann-Haus",
+  "Haus der Kulturen der Welt (Schwangere Auster)": "HKW",
+  "Zollpackhof": "Zollpackhof",
+  "Gustav-Heinemann-Brücke": "Gustav-Heinemann-Brücke",
+  Spreebogen: "Spreebogen",
+  "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)":
+    "Tiergartentunnel",
+};
+
+const NORTH_UP_ROTATION = 296.565051177078;
+
 const ORIENTATIONS = [
-  { degrees: 0, short: "N", label: "Nord" },
-  { degrees: 90, short: "O", label: "Ost" },
-  { degrees: 180, short: "S", label: "Süd" },
-  { degrees: 270, short: "W", label: "West" },
+  { degrees: NORTH_UP_ROTATION, short: "N", label: "Nord oben" },
+  { degrees: NORTH_UP_ROTATION + 90, short: "O", label: "Ost oben" },
+  { degrees: NORTH_UP_ROTATION + 180, short: "S", label: "Süd oben" },
+  { degrees: NORTH_UP_ROTATION + 270, short: "W", label: "West oben" },
 ] as const;
 
 let openSeadragonConsoleFilterInstalled = false;
@@ -83,21 +102,34 @@ function roleLabel(role: string): string {
   return ROLE_LABELS[role] ?? role.replaceAll("_", " ");
 }
 
+function landmarkShortLabel(name: string): string {
+  return LANDMARK_SHORT_LABELS[name] ?? name;
+}
+
 function normalizeRotation(degrees: number): number {
-  return ((Math.round(degrees / 90) * 90) % 360 + 360) % 360;
+  return ((degrees % 360) + 360) % 360;
+}
+
+function rotationDistance(left: number, right: number): number {
+  const diff = Math.abs(normalizeRotation(left - right));
+  return Math.min(diff, 360 - diff);
+}
+
+function isRotationActive(left: number, right: number): boolean {
+  return rotationDistance(left, right) < 0.01;
 }
 
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const initialFocusDoneRef = useRef(false);
-  const rotationRef = useRef(0);
+  const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>("Reichstagsgebäude");
   const [status, setStatus] = useState("Lade DZI");
   const [isReady, setIsReady] = useState(false);
-  const [rotation, setRotation] = useState(0);
+  const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
 
@@ -118,8 +150,9 @@ export function App() {
   );
   const orientation = useMemo(
     () =>
-      ORIENTATIONS.find((candidate) => candidate.degrees === rotation) ??
-      ORIENTATIONS[0],
+      ORIENTATIONS.find((candidate) =>
+        isRotationActive(candidate.degrees, rotation),
+      ) ?? null,
     [rotation],
   );
 
@@ -178,9 +211,9 @@ export function App() {
   }, []);
 
   const resetOrientation = useCallback(() => {
-    viewerRef.current?.viewport.setRotation(0);
+    viewerRef.current?.viewport.setRotation(NORTH_UP_ROTATION);
     viewerRef.current?.viewport.setFlip(false);
-    setRotation(0);
+    setRotation(NORTH_UP_ROTATION);
     setIsFlipped(false);
   }, []);
 
@@ -245,9 +278,9 @@ export function App() {
       animationTime: 0.75,
       blendTime: 0.1,
       constrainDuringPan: true,
-      minZoomImageRatio: 0.82,
+      minZoomImageRatio: 0.56,
       maxZoomPixelRatio: 6,
-      visibilityRatio: 0.9,
+      visibilityRatio: 0.74,
       homeFillsViewer: false,
       springStiffness: 7,
     });
@@ -255,6 +288,8 @@ export function App() {
     viewer.addHandler("open", () => {
       viewer.viewport.setRotation(rotationRef.current);
       viewer.viewport.setFlip(flipRef.current);
+      viewer.viewport.goHome(true);
+      viewer.viewport.zoomBy(0.76, undefined, true);
       setIsReady(true);
       setStatus("Bereit");
     });
@@ -282,6 +317,8 @@ export function App() {
           : "map-marker";
       marker.type = "button";
       marker.title = landmark.name;
+      marker.dataset.label = landmarkShortLabel(landmark.name);
+      marker.dataset.role = landmark.role;
       marker.setAttribute("aria-label", landmark.name);
       marker.addEventListener("click", () => focusLandmark(landmark));
       viewer.addOverlay({
@@ -298,10 +335,7 @@ export function App() {
       return;
     }
     initialFocusDoneRef.current = true;
-    const initial =
-      landmarks.find((landmark) => landmark.name === selected) ?? landmarks[0];
-    focusLandmark(initial, true);
-  }, [focusLandmark, isReady, landmarks, selected]);
+  }, [isReady, landmarks]);
 
   return (
     <main className="app-shell">
@@ -347,21 +381,23 @@ export function App() {
 
       <aside className="orientation-pill" aria-label="Kartenorientierung">
         <Compass aria-hidden="true" size={16} />
-        <span>{orientation.short}</span>
+        <span>{orientation?.short ?? `${Math.round(rotation)}°`}</span>
         <small>
-          {isFlipped ? `${orientation.label} · gespiegelt` : orientation.label}
+          {isFlipped
+            ? `${orientation?.label ?? "frei gedreht"} · gespiegelt`
+            : (orientation?.label ?? "frei gedreht")}
         </small>
       </aside>
 
       <aside className="view-controls" aria-label="Ansicht drehen und spiegeln">
-        <div className="control-row" role="group" aria-label="Himmelsrichtung oben">
+        <div className="control-row" role="group" aria-label="Kardinalrichtung oben">
           {ORIENTATIONS.map((candidate) => (
             <button
               key={candidate.short}
               type="button"
-              aria-label={`${candidate.label} oben`}
-              aria-pressed={rotation === candidate.degrees}
-              title={`${candidate.label} oben`}
+              aria-label={candidate.label}
+              aria-pressed={isRotationActive(rotation, candidate.degrees)}
+              title={candidate.label}
               onClick={() => applyRotation(candidate.degrees)}
             >
               <span>{candidate.short}</span>
