@@ -2,10 +2,7 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-The same evidence is also rendered as a top-down reference image in
-[`src/app/public/dzi/regierungsviertel/reference_map.png`](../src/app/public/dzi/regierungsviertel/reference_map.png).
-
-- Generated: `2026-06-20T11:45:57.271492+00:00`
+- Generated: `2026-06-29T09:57:35.477501+00:00`
 - Status: `ok`
 - Landmarks checked: `13`
 - Review count: `0`
@@ -25,5 +22,20 @@ The same evidence is also rendered as a top-down reference image in
 | Zollpackhof | `ok` | Zollpackhof (pois) | 0.00 m | inside DEBE01YYK0002Tak |
 | Gustav-Heinemann-Brücke | `ok` | Gustav-Heinemann-Brücke (roads) | 0.00 m | nearest DEBE01YYK0002NAU at 110.35 m |
 | Spreebogen | `ok` | Spreebogenpark (parks) | 55.36 m | nearest DEBE01YYK0002N6A at 0.92 m |
+
+## Relative Placement
+
+These checks compare landmark-to-landmark relationships in EPSG:25833 metres. They are meant to catch left/right and north/south swaps that can be hard to see in an isometric view.
+
+| From | To | Status | East/West | North/South | Delta E | Delta N |
+|---|---|---:|---|---|---:|---:|
+| Berlin Hauptbahnhof | Bundeskanzleramt | `ok` | west / west | south / south | -30.78 m | -549.10 m |
+| Berlin Hauptbahnhof | Marie-Elisabeth-Lüders-Haus | `ok` | east / east | south / south | 539.59 m | -487.45 m |
+| Berlin Hauptbahnhof | Reichstagsgebäude | `ok` | east / east | south / south | 438.25 m | -733.18 m |
+| Bundeskanzleramt | Marie-Elisabeth-Lüders-Haus | `ok` | east / east | north / north | 570.37 m | 61.65 m |
+| Bundeskanzleramt | Reichstagsgebäude | `ok` | east / east | south / south | 469.02 m | -184.08 m |
+| Reichstagsgebäude | Brandenburger Tor | `ok` | east / east | south / south | 102.87 m | -260.62 m |
+| Brandenburger Tor | Botschaft der Vereinigten Staaten von Amerika | `ok` | east / east | south / south | 29.11 m | -110.45 m |
+| Haus der Kulturen der Welt (Schwangere Auster) | Reichstagsgebäude | `ok` | east / east | south / south | 820.20 m | -51.90 m |
 
 Interpretation: `ok` means the landmark is close to an expected named OSM feature within its configured tolerance, or has an explicit LoD2 building fallback where OSM does not carry the required semantic tag. `review` means the point may be on the wrong object and should not be used for rendering without manual correction.

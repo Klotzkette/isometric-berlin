@@ -123,6 +123,7 @@ def test_building_surface_palette_accepts_wikimedia_material_cue() -> None:
       "wall": (210, 190, 150),
       "roof": (150, 170, 185),
       "wall_dark": (118, 100, 86),
+      "wall_light": (232, 220, 198),
       "roof_line": (90, 90, 80),
       "glass": (120, 168, 185),
       "glass_dark": (70, 110, 128),
@@ -182,6 +183,7 @@ def test_load_wikimedia_material_cues_groups_dominant_colours(tmp_path: Path) ->
   assert set(cues["reichstag"]) == {
     "wall",
     "wall_dark",
+    "wall_light",
     "roof",
     "roof_line",
     "glass",

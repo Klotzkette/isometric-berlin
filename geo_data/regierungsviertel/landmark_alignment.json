@@ -582,8 +582,114 @@
       "status": "ok"
     }
   ],
-  "generated_at": "2026-06-20T11:45:57.271492+00:00",
+  "generated_at": "2026-06-29T09:57:35.477501+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
+  "relative_relationships": [
+    {
+      "actual_east_west": "west",
+      "actual_north_south": "south",
+      "delta_east_m": -30.78,
+      "delta_north_m": -549.1,
+      "distance_m": 549.96,
+      "expected_east_west": "west",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "Kanzleramt lies west/south of Hauptbahnhof on the Spreebogen axis.",
+      "status": "ok",
+      "to": "Bundeskanzleramt"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 539.59,
+      "delta_north_m": -487.45,
+      "distance_m": 727.17,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "Marie-Elisabeth-L\u00fcders-Haus lies east/south of Hauptbahnhof.",
+      "status": "ok",
+      "to": "Marie-Elisabeth-L\u00fcders-Haus"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 438.25,
+      "delta_north_m": -733.18,
+      "distance_m": 854.18,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "Reichstag sits south/east of Hauptbahnhof, beyond the Spreebogen.",
+      "status": "ok",
+      "to": "Reichstagsgeb\u00e4ude"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "north",
+      "delta_east_m": 570.37,
+      "delta_north_m": 61.65,
+      "distance_m": 573.69,
+      "expected_east_west": "east",
+      "expected_north_south": "north",
+      "from": "Bundeskanzleramt",
+      "note": "MELH is on the east/right side of the government-band sequence.",
+      "status": "ok",
+      "to": "Marie-Elisabeth-L\u00fcders-Haus"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 469.02,
+      "delta_north_m": -184.08,
+      "distance_m": 503.86,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Bundeskanzleramt",
+      "note": "Reichstag lies southeast of the Kanzleramt.",
+      "status": "ok",
+      "to": "Reichstagsgeb\u00e4ude"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 102.87,
+      "delta_north_m": -260.62,
+      "distance_m": 280.19,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Reichstagsgeb\u00e4ude",
+      "note": "Brandenburger Tor lies southeast of the Reichstag.",
+      "status": "ok",
+      "to": "Brandenburger Tor"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 29.11,
+      "delta_north_m": -110.45,
+      "distance_m": 114.22,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Brandenburger Tor",
+      "note": "US Embassy lies just southeast/south of Brandenburger Tor.",
+      "status": "ok",
+      "to": "Botschaft der Vereinigten Staaten von Amerika"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 820.2,
+      "delta_north_m": -51.9,
+      "distance_m": 821.84,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Haus der Kulturen der Welt (Schwangere Auster)",
+      "note": "Reichstag lies east/south of HKW across the Tiergarten edge.",
+      "status": "ok",
+      "to": "Reichstagsgeb\u00e4ude"
+    }
+  ],
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",

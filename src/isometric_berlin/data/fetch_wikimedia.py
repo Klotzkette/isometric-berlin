@@ -33,6 +33,8 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Bundeskanzleramt Berlin exterior",
   ],
   "hauptbahnhof": [
+    "Berlin Hauptbahnhof Washingtonplatz facade",
+    "Berlin Hauptbahnhof glass facade",
     "Berlin Hauptbahnhof east facade",
     "Berlin Hauptbahnhof glass roof exterior",
   ],
@@ -60,22 +62,34 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
 }
 
 EXCLUDED_TITLE_TERMS = (
+  "academy-architecture",
   "architekt",
+  "archiv",
+  "archive",
   "ausschreitungen",
   "blaue-stunde",
+  "bundesversammlung",
+  "bundesarchiv",
+  "cube",
   "demonstration",
   "exclusion-zone",
+  "historical",
+  "historisch",
   "interior",
   "innen",
   "karte",
   "map",
   "nachts",
   "night",
+  "ost-berlin",
   "plan",
   "protest",
+  "skulptur",
   "tafel",
+  "notausgang",
   "wahl",
 )
+HISTORIC_YEAR_RE = re.compile(r"(?<!\d)19\d{2}(?!\d)")
 
 
 @dataclass(frozen=True)
@@ -202,6 +216,8 @@ def slugify(value: str) -> str:
 def title_suitable(landmark_id: str, title: str) -> bool:
   key = slugify(title)
   if any(term in key for term in EXCLUDED_TITLE_TERMS):
+    return False
+  if HISTORIC_YEAR_RE.search(title):
     return False
   required = REQUIRED_TITLE_TERMS.get(landmark_id, ())
   return not required or any(term in key for term in required)
@@ -378,7 +394,7 @@ texture work based on these references.
 
 def main() -> int:
   parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument("--per-landmark", type=int, default=2)
+  parser.add_argument("--per-landmark", type=int, default=3)
   parser.add_argument("--search-limit", type=int, default=18)
   parser.add_argument("--clean", action="store_true")
   parser.add_argument(

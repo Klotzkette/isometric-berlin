@@ -45,6 +45,9 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     == "Botschaft der Vereinigten Staaten von Amerika"
   )
   assert all(check["status"] == "ok" for check in checks.values())
+  assert all(
+    relation["status"] == "ok" for relation in report["relative_relationships"]
+  )
 
 
 def test_committed_landmarks_preserve_real_world_relative_order() -> None:
@@ -60,6 +63,14 @@ def test_committed_landmarks_preserve_real_world_relative_order() -> None:
   assert dy < 0
 
   dx, dy = delta("Berlin Hauptbahnhof", "Marie-Elisabeth-Lüders-Haus")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Bundeskanzleramt", "Reichstagsgebäude")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Haus der Kulturen der Welt (Schwangere Auster)", "Reichstagsgebäude")
   assert dx > 0
   assert dy < 0
 

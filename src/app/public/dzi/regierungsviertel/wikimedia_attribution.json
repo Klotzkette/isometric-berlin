@@ -4,6 +4,15 @@
   "records": [
     {
       "landmark_id": "reichstag",
+      "title": "File:Giebel des Reichstags 2005.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AGiebel_des_Reichstags_2005.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "RudolfSimon",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "reichstag",
       "title": "File:Glaskuppel des Reichstagsgebäude Deutscher Bundestag Berlin.JPG",
       "page_url": "https://commons.wikimedia.org/wiki/File%3AGlaskuppel_des_Reichstagsgeb%C3%A4ude_Deutscher_Bundestag_Berlin.JPG",
       "license": "Public domain",
@@ -13,11 +22,11 @@
     },
     {
       "landmark_id": "reichstag",
-      "title": "File:Reichstagsgebäude - Nordansicht ( Rechts - Ecke ).jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_-_Nordansicht_%28_Rechts_-_Ecke_%29.jpg",
+      "title": "File:Der Deutsche Bundestag Plenarsaal-Gebäude Reichstagsgebäude Platz der Republik Berlin - Foto 2009 Wolfgang Pehlemann Steinberg DSCN9832.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ADer_Deutsche_Bundestag_Plenarsaal-Geb%C3%A4ude_Reichstagsgeb%C3%A4ude_Platz_der_Republik_Berlin_-_Foto_2009_Wolfgang_Pehlemann_Steinberg_DSCN9832.jpg",
       "license": "CC BY-SA 3.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "artist": "Heinzi",
+      "artist": "Wolfgang Pehlemann",
       "credit": "Own work"
     },
     {
@@ -39,22 +48,40 @@
       "credit": "Own work"
     },
     {
-      "landmark_id": "hauptbahnhof",
-      "title": "File:Berlin Hauptbahnhof 2 by user EmptyTerms.JPG",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_2_by_user_EmptyTerms.JPG",
+      "landmark_id": "bundeskanzleramt",
+      "title": "File:B Bundeskanzleramt 2.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AB_Bundeskanzleramt_2.JPG",
       "license": "CC BY-SA 3.0",
-      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
-      "artist": "User:EmptyTerms",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Warburg",
       "credit": "Own work"
     },
     {
       "landmark_id": "hauptbahnhof",
-      "title": "File:Berlin Hauptbahnhof 3 by user EmptyTerms.JPG",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_3_by_user_EmptyTerms.JPG",
-      "license": "CC BY-SA 3.0",
-      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
-      "artist": "User:EmptyTerms",
+      "title": "File:Berlin Hauptbahnhof, Ansicht vom Washingtonplatz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof%2C_Ansicht_vom_Washingtonplatz.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "JoachimKohlerBremen",
       "credit": "Own work"
+    },
+    {
+      "landmark_id": "hauptbahnhof",
+      "title": "File:Berlin Hauptbahnhof Südfassade.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Hauptbahnhof_S%C3%BCdfassade.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Geoprofi Lars",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "hauptbahnhof",
+      "title": "File:2018-08-04 DE Berlin-Mitte, Washingtonplatz, Berlin Hauptbahnhof (49479093352).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3A2018-08-04_DE_Berlin-Mitte%2C_Washingtonplatz%2C_Berlin_Hauptbahnhof_%2849479093352%29.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "artist": "Paul Korecky",
+      "credit": "2018-08-04 DE Berlin-Mitte, Washingtonplatz, Berlin Hauptbahnhof"
     },
     {
       "landmark_id": "hkw",
@@ -67,11 +94,29 @@
     },
     {
       "landmark_id": "hkw",
-      "title": "File:Haus der Kulturen der Welt Berlin Tiergarten.JPG",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AHaus_der_Kulturen_der_Welt_Berlin_Tiergarten.JPG",
-      "license": "Public domain",
-      "license_url": "",
-      "artist": "Schlaier",
+      "title": "File:Haus der Kulturen der Welt Berlin2007.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHaus_der_Kulturen_der_Welt_Berlin2007.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "VollwertBIT",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "hkw",
+      "title": "File:Haus-der-kulturen-der-welt-roof-tip.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHaus-der-kulturen-der-welt-roof-tip.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Adamantios",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "brandenburger_tor",
+      "title": "File:Berlin, Mitte, Pariser Platz, Brandenburger Tor 03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin%2C_Mitte%2C_Pariser_Platz%2C_Brandenburger_Tor_03.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jörg Zägel",
       "credit": "Own work"
     },
     {
@@ -85,30 +130,39 @@
     },
     {
       "landmark_id": "brandenburger_tor",
-      "title": "File:Brandenburger Tor morgens.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburger_Tor_morgens.jpg",
+      "title": "File:Brandenburger Tor, Pariser Platz.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburger_Tor%2C_Pariser_Platz.jpg",
       "license": "CC BY-SA 3.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "artist": "Thomas Wolf , www.foto-tw.de",
+      "artist": "Amb-foto",
       "credit": "Own work"
     },
     {
       "landmark_id": "tiergarten_spreebogen",
-      "title": "File:Spreebogenpark, Skulptur an Uferpromenade.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ASpreebogenpark%2C_Skulptur_an_Uferpromenade.jpg",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Beek100",
+      "title": "File:Berlin mitte spreebogenpark blick auf charite 10.08.2011 13-31-03.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_mitte_spreebogenpark_blick_auf_charite_10.08.2011_13-31-03.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Dirk Ingo Franke",
       "credit": "Own work"
     },
     {
       "landmark_id": "tiergarten_spreebogen",
-      "title": "File:Spreebogenpark, Uferpromenade, Panoramaweg und Gartenspur.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ASpreebogenpark%2C_Uferpromenade%2C_Panoramaweg_und_Gartenspur.jpg",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Beek100",
-      "credit": "Own work"
+      "title": "File:Berlin-Tiergarten Bundeskanzleramt Haupteingang Willy-Brandt-Straße Band des Bundes Am Spreebogenpark Regierungsviertel Foto 2009 Wolfgang Pehlemann Wiesbaden HSBD4965.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin-Tiergarten_Bundeskanzleramt_Haupteingang_Willy-Brandt-Stra%C3%9Fe_Band_des_Bundes_Am_Spreebogenpark_Regierungsviertel_Foto_2009_Wolfgang_Pehlemann_Wiesbaden_HSBD4965.jpg",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "artist": "Wolfgang Pehlemann Wiesbaden Germany",
+      "credit": "Self-photographed"
+    },
+    {
+      "landmark_id": "tiergarten_spreebogen",
+      "title": "File:Berlin Spreebogen-Humboldhafen - panoramio.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Spreebogen-Humboldhafen_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "dirktxl",
+      "credit": "https://web.archive.org/web/20161013230610/http://www.panoramio.com/photo/26564583"
     }
   ]
 }
