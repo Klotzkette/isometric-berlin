@@ -13,6 +13,7 @@ import {
   Plus,
   RotateCcw,
   RotateCw,
+  SkipBack,
   SkipForward,
   X,
 } from "lucide-react";
@@ -124,6 +125,8 @@ function isRotationActive(left: number, right: number): boolean {
 
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
+  const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const initialFocusDoneRef = useRef(false);
   const rotationRef = useRef(NORTH_UP_ROTATION);
@@ -163,6 +166,7 @@ export function App() {
       ) ?? null,
     [rotation],
   );
+  const canNavigateLandmarks = isReady && landmarks.length > 0;
 
   const focusLandmark = useCallback((landmark: Landmark, immediate = false) => {
     const viewer = viewerRef.current;
@@ -240,7 +244,7 @@ export function App() {
   }, []);
 
   const toggleTour = useCallback(() => {
-    if (!isReady || landmarks.length === 0) {
+    if (!canNavigateLandmarks) {
       return;
     }
     setIsTouring((current) => {
@@ -251,7 +255,20 @@ export function App() {
       }
       return next;
     });
-  }, [focusLandmark, isReady, landmarks, selectedIndex]);
+  }, [canNavigateLandmarks, focusLandmark, landmarks, selectedIndex]);
+
+  const openReferenceMap = useCallback(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      referenceReturnFocusRef.current = document.activeElement;
+    }
+    setIsTouring(false);
+    setStatus("Referenzkarte");
+    setIsReferenceOpen(true);
+  }, []);
+
+  const closeReferenceMap = useCallback(() => {
+    setIsReferenceOpen(false);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -280,7 +297,7 @@ export function App() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsReferenceOpen(false);
+        closeReferenceMap();
         setIsTouring(false);
         return;
       }
@@ -290,10 +307,13 @@ export function App() {
           return;
         }
       }
-      if (isReferenceOpen) {
+      if (isReferenceOpen || !isReady) {
         return;
       }
-      if (event.key === "ArrowRight") {
+      if (event.key === "Home" || event.key === "0") {
+        viewerRef.current?.viewport.goHome();
+        setStatus("Gesamtansicht");
+      } else if (event.key === "ArrowRight") {
         setIsTouring(false);
         focusLandmarkByOffset(1);
       } else if (event.key === "ArrowLeft") {
@@ -310,7 +330,20 @@ export function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [focusLandmarkByOffset, isReferenceOpen, toggleTour]);
+  }, [closeReferenceMap, focusLandmarkByOffset, isReady, isReferenceOpen, toggleTour]);
+
+  useEffect(() => {
+    if (!isReferenceOpen) {
+      const target = referenceReturnFocusRef.current;
+      if (target?.isConnected) {
+        target.focus();
+      }
+      referenceReturnFocusRef.current = null;
+      return;
+    }
+    const timer = window.setTimeout(() => closeReferenceButtonRef.current?.focus(), 0);
+    return () => window.clearTimeout(timer);
+  }, [isReferenceOpen]);
 
   useEffect(() => {
     if (!isTouring || !isReady || landmarks.length === 0) {
@@ -425,6 +458,7 @@ export function App() {
           <button
             type="button"
             aria-label="Gesamtansicht"
+            disabled={!isReady}
             title="Gesamtansicht"
             onClick={() => viewerRef.current?.viewport.goHome()}
           >
@@ -433,6 +467,7 @@ export function App() {
           <button
             type="button"
             aria-label="Vergrößern"
+            disabled={!isReady}
             title="Vergrößern"
             onClick={() => viewerRef.current?.viewport.zoomBy(1.35)}
           >
@@ -441,6 +476,7 @@ export function App() {
           <button
             type="button"
             aria-label="Verkleinern"
+            disabled={!isReady}
             title="Verkleinern"
             onClick={() => viewerRef.current?.viewport.zoomBy(0.74)}
           >
@@ -448,8 +484,21 @@ export function App() {
           </button>
           <button
             type="button"
+            aria-label="Vorige Landmarke"
+            disabled={!canNavigateLandmarks}
+            title="Vorige Landmarke"
+            onClick={() => {
+              setIsTouring(false);
+              focusLandmarkByOffset(-1);
+            }}
+          >
+            <SkipBack size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
             aria-label={isTouring ? "Tour pausieren" : "Landmarken-Tour starten"}
             aria-pressed={isTouring}
+            disabled={!canNavigateLandmarks}
             title={isTouring ? "Tour pausieren" : "Landmarken-Tour starten"}
             onClick={toggleTour}
           >
@@ -462,6 +511,7 @@ export function App() {
           <button
             type="button"
             aria-label="Nächste Landmarke"
+            disabled={!canNavigateLandmarks}
             title="Nächste Landmarke"
             onClick={() => {
               setIsTouring(false);
@@ -491,6 +541,7 @@ export function App() {
               type="button"
               aria-label={candidate.label}
               aria-pressed={isRotationActive(rotation, candidate.degrees)}
+              disabled={!isReady}
               title={candidate.label}
               onClick={() => applyRotation(candidate.degrees)}
             >
@@ -502,6 +553,7 @@ export function App() {
           <button
             type="button"
             aria-label="Nach links drehen"
+            disabled={!isReady}
             title="Nach links drehen"
             onClick={() => rotateBy(-90)}
           >
@@ -510,6 +562,7 @@ export function App() {
           <button
             type="button"
             aria-label="Nach rechts drehen"
+            disabled={!isReady}
             title="Nach rechts drehen"
             onClick={() => rotateBy(90)}
           >
@@ -519,6 +572,7 @@ export function App() {
             type="button"
             aria-label="Horizontal spiegeln"
             aria-pressed={isFlipped}
+            disabled={!isReady}
             title="Horizontal spiegeln"
             onClick={toggleHorizontalFlip}
           >
@@ -527,6 +581,7 @@ export function App() {
           <button
             type="button"
             aria-label="Vertikal klappen"
+            disabled={!isReady}
             title="Vertikal klappen"
             onClick={flipVertical}
           >
@@ -535,6 +590,7 @@ export function App() {
           <button
             type="button"
             aria-label="Ausrichtung zurücksetzen"
+            disabled={!isReady}
             title="Ausrichtung zurücksetzen"
             onClick={resetOrientation}
           >
@@ -544,8 +600,9 @@ export function App() {
             type="button"
             aria-label="Top-down Referenzkarte"
             aria-pressed={isReferenceOpen}
+            disabled={!isReady}
             title="Top-down Referenzkarte"
-            onClick={() => setIsReferenceOpen(true)}
+            onClick={openReferenceMap}
           >
             <MapPinned size={17} aria-hidden="true" />
           </button>
@@ -565,6 +622,7 @@ export function App() {
               type="button"
               aria-label={`Landmarke ${landmark.name}`}
               className={landmark.name === selected ? "is-selected" : ""}
+              disabled={!isReady}
               onClick={() => {
                 setIsTouring(false);
                 focusLandmark(landmark);
@@ -597,7 +655,7 @@ export function App() {
           role="dialog"
           aria-modal="true"
           aria-label="Top-down Referenzkarte"
-          onClick={() => setIsReferenceOpen(false)}
+          onClick={closeReferenceMap}
         >
           <div className="reference-panel" onClick={(event) => event.stopPropagation()}>
             <header className="reference-header">
@@ -606,10 +664,11 @@ export function App() {
                 <strong>Top-down Referenzkarte</strong>
               </div>
               <button
+                ref={closeReferenceButtonRef}
                 type="button"
                 aria-label="Referenzkarte schließen"
                 title="Referenzkarte schließen"
-                onClick={() => setIsReferenceOpen(false)}
+                onClick={closeReferenceMap}
               >
                 <X size={18} aria-hidden="true" />
               </button>
