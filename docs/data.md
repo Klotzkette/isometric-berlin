@@ -16,6 +16,7 @@ for another. If sources disagree, the conflict is recorded; it is
 | `dop` | DOP digital orthophotos (Geoportal Berlin) | Orthophoto QA, texture reference | dl-de/zero-2-0 |
 | `dgm` | DGM digital terrain model (Geoportal Berlin) | Terrain where useful (Spree bank, station forecourt) | dl-de/zero-2-0 |
 | `google3d` | Google Maps Platform Photorealistic 3D Tiles | **Opt-in.** Photorealistic geometry, texture, alignment, visual reference | Google Maps Platform Terms |
+| `wikimedia` | Wikimedia Commons / Wikipedia media | Freely licensed landmark facade, roof, glass, stone, vegetation and colour references for visual QA / material cues | Per file: CC0, public domain, CC BY, CC BY-SA, etc.; see manifest |
 
 ## Google opt-in flags
 
@@ -44,6 +45,26 @@ Strict hygiene rules:
   appropriate Google attribution per their terms, in addition to the
   OSM/Geoportal Berlin attribution.
 
+## Wikimedia visual-reference rules
+
+Wikimedia Commons / Wikipedia media is additive only. It is used to
+improve visual reference quality for landmark materials and facade QA;
+it does not replace LoD2 geometry, OSM semantics, ALKIS/DOP/DGM
+official support data, or the Google opt-in source.
+
+Strict hygiene rules:
+
+- Fetch only files with explicit free-license metadata (`CC0`, public
+  domain, `CC BY`, `CC BY-SA`). Do not import unclear, all-rights-
+  reserved, non-commercial (`NC`), or no-derivatives (`ND`) media.
+- Keep per-file title, URL, author/artist, credit, license, and
+  license URL in `geo_data/regierungsviertel/wikimedia_references.json`.
+- Commit only small thumbnails / atlas files under
+  `references/wikimedia/`; do not commit arbitrary web-photo dumps.
+- Any public artefact that directly uses or derives textures from
+  Wikimedia references must preserve the relevant per-file attribution
+  and share-alike obligations where applicable.
+
 ## Fused source-stack manifest
 
 The fusion step (pipeline step 6, see `tasks/05-source-fusion-manifest.md`)
@@ -59,7 +80,8 @@ writes `geo_data/regierungsviertel/fused_sources.json` with this shape:
     "alkis":   { "available": false, "reason": "not_downloaded" },
     "dop":     { "available": false, "reason": "not_downloaded" },
     "dgm":     { "available": false, "reason": "not_downloaded" },
-    "google3d":{ "available": false, "reason": "opt_in_env_missing" }
+    "google3d":{ "available": false, "reason": "opt_in_env_missing" },
+    "wikimedia": { "available": true, "path": "geo_data/regierungsviertel/wikimedia_references.json", "license": "Various Wikimedia Commons free licenses; see manifest per image" }
   },
   "features": [
     {
@@ -95,7 +117,7 @@ hero/manual:
 | Water (Spree) | `osm` | `alkis` | `dop` |
 | Parks (Tiergarten) | `osm` | `dop` | — |
 | Terrain | `dgm` | `lod2` (ground vertices) | — |
-| Texture / colour reference | `dop` | `google3d` | — |
+| Texture / colour reference | `dop` | `wikimedia` | `google3d` |
 
 Rationale: official Berlin data is the anchor for geometry; OSM is the
 anchor for semantics; Google is additive — it earns weight where it
@@ -126,6 +148,12 @@ geo_data/regierungsviertel/raw/
 └── google_3d_tiles/   # Google manifest + (opt-in) downloaded tile content
 ```
 
+Small Wikimedia thumbnails and the QA atlas are committed under:
+
+```
+references/wikimedia/
+```
+
 ## CLI summary
 
 ```bash
@@ -150,6 +178,11 @@ uv run python -m isometric_berlin.data.fetch_google_tiles \
   --bounds geo_data/regierungsviertel/bounds.geojson \
   --out geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json
 # add --download-content only when explicitly approved for the run
+
+# Wikimedia visual references (additive, free-license filtered)
+uv run python -m isometric_berlin.data.fetch_wikimedia \
+  --out geo_data/regierungsviertel/wikimedia_references.json \
+  --references-dir references/wikimedia
 
 # 6: Source-fusion manifest
 uv run python -m isometric_berlin.data.fuse_sources \

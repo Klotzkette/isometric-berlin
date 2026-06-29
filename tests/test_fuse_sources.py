@@ -53,7 +53,15 @@ def _write_bounds(path: Path) -> None:
 
 def test_all_sources_present_in_inventory_even_when_absent(tmp_path: Path) -> None:
   manifest = fs.build_fused_manifest(tmp_path / "bounds.geojson", tmp_path, {})
-  assert set(manifest["sources"]) == {"lod2", "osm", "alkis", "dop", "dgm", "google3d"}
+  assert set(manifest["sources"]) == {
+    "lod2",
+    "osm",
+    "alkis",
+    "dop",
+    "dgm",
+    "google3d",
+    "wikimedia",
+  }
   assert manifest["fusion"] == "additive"
   assert manifest["features"] == []
   assert manifest["conflict_log"] == []
@@ -69,6 +77,16 @@ def test_present_required_sources_detected(tmp_path: Path) -> None:
   assert manifest["sources"]["lod2"]["available"] is True
   assert manifest["sources"]["osm"]["available"] is True
   assert manifest["sources"]["lod2"]["license"] == "dl-de/zero-2-0"
+
+
+def test_wikimedia_reference_source_detected(tmp_path: Path) -> None:
+  _write(tmp_path / "wikimedia_references.json", json.dumps({"records": []}))
+
+  manifest = fs.build_fused_manifest(tmp_path / "bounds.geojson", tmp_path, {})
+
+  assert manifest["sources"]["wikimedia"]["available"] is True
+  assert manifest["sources"]["wikimedia"]["path"].endswith("wikimedia_references.json")
+  assert "Wikimedia Commons" in manifest["sources"]["wikimedia"]["license"]
 
 
 def test_official_support_sources_detect_derived_artifacts(tmp_path: Path) -> None:

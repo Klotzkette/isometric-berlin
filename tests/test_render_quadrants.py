@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from shapely.geometry import box
 
 from isometric_berlin.generation.render_quadrants import (
@@ -15,7 +18,10 @@ from isometric_berlin.generation.render_quadrants import (
   building_surface_palette,
   landmark_icon_unit,
   landmark_kind,
+  landmark_reference_id,
+  load_wikimedia_material_cues,
   mix_color,
+  parse_hex_color,
   poi_style,
   rail_style,
   road_style,
@@ -68,6 +74,12 @@ def test_mix_color_is_channel_wise_and_clamped() -> None:
   assert mix_color((0, 100, 200), (100, 200, 300), 0.5) == (50, 150, 250)
 
 
+def test_parse_hex_color_accepts_only_rgb_hex() -> None:
+  assert parse_hex_color("#d2be96") == (210, 190, 150)
+  assert parse_hex_color("6fa4b5") == (111, 164, 181)
+  assert parse_hex_color("bad") is None
+
+
 def test_stable_variation_is_deterministic_and_bounded() -> None:
   first = stable_variation("DEBE01YYK0002R7V:5000")
   second = stable_variation("DEBE01YYK0002R7V:5000")
@@ -96,6 +108,31 @@ def test_building_surface_palette_uses_lod2_surface_evidence() -> None:
   assert tall_palette["wall"] != palette["wall"]
 
 
+def test_building_surface_palette_accepts_wikimedia_material_cue() -> None:
+  row = {
+    "building_id": "DEBE01YYK0002R7V",
+    "function": "31001_2010",
+    "roof_type": "5000",
+  }
+  plain = building_surface_palette(row, is_hero=True, height_m=18.0)
+  cued = building_surface_palette(
+    row,
+    is_hero=True,
+    height_m=18.0,
+    material_cue={
+      "wall": (210, 190, 150),
+      "roof": (150, 170, 185),
+      "wall_dark": (118, 100, 86),
+      "roof_line": (90, 90, 80),
+      "glass": (120, 168, 185),
+      "glass_dark": (70, 110, 128),
+    },
+  )
+
+  assert cued["wall"] != plain["wall"]
+  assert cued["roof"] != plain["roof"]
+
+
 def test_poi_style_adds_named_context_without_low_signal_clutter() -> None:
   assert poi_style({"amenity": "bench"}, 2) is None
   assert poi_style({"amenity": "restaurant", "name": "Zollpackhof"}, 2) is not None
@@ -112,6 +149,44 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
   )
   assert landmark_kind("Gustav-Heinemann-Brücke") == "bridge"
   assert landmark_kind("Unknown cafe") is None
+
+
+def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
+  assert landmark_reference_id("Brandenburger Tor") == "brandenburger_tor"
+  assert landmark_reference_id("Reichstagsgebäude") == "reichstag"
+  assert landmark_reference_id("Berlin Hauptbahnhof") == "hauptbahnhof"
+  assert landmark_reference_id("Bundeskanzleramt") == "bundeskanzleramt"
+  assert landmark_reference_id("Unknown cafe") is None
+
+
+def test_load_wikimedia_material_cues_groups_dominant_colours(tmp_path: Path) -> None:
+  manifest = tmp_path / "wikimedia_references.json"
+  manifest.write_text(
+    json.dumps(
+      {
+        "records": [
+          {
+            "landmark_id": "reichstag",
+            "dominant_colours": ["#d6c4a0", "#f8f8f8", "#222222"],
+          },
+          {"landmark_id": "hauptbahnhof", "dominant_colours": ["#6fa4b5"]},
+        ]
+      }
+    ),
+    encoding="utf-8",
+  )
+
+  cues = load_wikimedia_material_cues(manifest)
+
+  assert set(cues) == {"reichstag", "hauptbahnhof"}
+  assert set(cues["reichstag"]) == {
+    "wall",
+    "wall_dark",
+    "roof",
+    "roof_line",
+    "glass",
+    "glass_dark",
+  }
 
 
 def test_landmark_icon_unit_stays_visible_but_bounded() -> None:

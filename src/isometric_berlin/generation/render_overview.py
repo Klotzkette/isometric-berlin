@@ -17,9 +17,12 @@ from isometric_berlin.generation.render_quadrants import (
   BACKGROUND,
   load_landmarks,
   load_layer,
+  load_wikimedia_material_cues,
   project_point,
   render_quadrant,
 )
+
+WIKIMEDIA_ATTRIBUTION = " · Visual references: Wikimedia Commons/Wikipedia"
 
 
 def content_bbox(image: Image.Image, pad: int = 96) -> tuple[int, int, int, int]:
@@ -85,6 +88,43 @@ def landmark_records(
   return records
 
 
+def write_wikimedia_attribution(out_dir: Path, manifest_path: Path) -> None:
+  if not manifest_path.exists():
+    return
+  try:
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+  except (OSError, json.JSONDecodeError):
+    return
+  records = []
+  for record in payload.get("records", []):
+    if not isinstance(record, dict):
+      continue
+    records.append(
+      {
+        "landmark_id": record.get("landmark_id"),
+        "title": record.get("title"),
+        "page_url": record.get("page_url"),
+        "license": record.get("license"),
+        "license_url": record.get("license_url"),
+        "artist": record.get("artist"),
+        "credit": record.get("credit"),
+      }
+    )
+  (out_dir / "wikimedia_attribution.json").write_text(
+    json.dumps(
+      {
+        "source": "wikimedia",
+        "note": "Visual material references only; geometry remains Berlin LoD2 and semantics remain OSM.",
+        "records": records,
+      },
+      ensure_ascii=False,
+      indent=2,
+    )
+    + "\n",
+    encoding="utf-8",
+  )
+
+
 def render_overview(
   *,
   bounds_path: Path,
@@ -92,6 +132,7 @@ def render_overview(
   osm_path: Path,
   alkis_path: Path,
   landmarks_path: Path,
+  wikimedia_references_path: Path,
   out_dir: Path,
   render_px: int,
   margin_m: float,
@@ -113,12 +154,14 @@ def render_overview(
   }
   osm_layers["alkis"] = load_layer(alkis_path, "flurstuecke")
   landmarks = load_landmarks(landmarks_path)
+  material_cues = load_wikimedia_material_cues(wikimedia_references_path)
   out_dir.mkdir(parents=True, exist_ok=True)
   source = render_quadrant(
     quad=quad,
     buildings=buildings,
     osm_layers=osm_layers,
     landmarks=landmarks,
+    material_cues=material_cues,
     render_px=render_px,
     context_m=margin_m,
     show_labels=False,
@@ -147,6 +190,7 @@ def render_overview(
     + "\n",
     encoding="utf-8",
   )
+  write_wikimedia_attribution(out_dir, wikimedia_references_path)
   dzi = out_dir / "regierungsviertel.dzi"
   export_dzi(pixel.convert("RGB"), dzi_path=dzi)
   write_preview(
@@ -154,6 +198,9 @@ def render_overview(
     title="Isometric Berlin Regierungsviertel",
     overview_path=pixel_path,
     dzi_path=dzi,
+    extra_attribution=WIKIMEDIA_ATTRIBUTION
+    if wikimedia_references_path.exists()
+    else "",
   )
 
 
@@ -181,6 +228,11 @@ def main() -> None:
     default=Path("geo_data/regierungsviertel/landmarks.geojson"),
   )
   parser.add_argument(
+    "--wikimedia-references",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/wikimedia_references.json"),
+  )
+  parser.add_argument(
     "--out-dir",
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel"),
@@ -194,6 +246,7 @@ def main() -> None:
     osm_path=args.osm,
     alkis_path=args.alkis,
     landmarks_path=args.landmarks,
+    wikimedia_references_path=args.wikimedia_references,
     out_dir=args.out_dir,
     render_px=args.render_px,
     margin_m=args.margin_m,

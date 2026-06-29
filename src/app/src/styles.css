@@ -313,6 +313,7 @@ button {
 }
 
 .map-marker {
+  position: relative;
   width: 13px;
   height: 13px;
   padding: 0;
@@ -325,11 +326,44 @@ button {
   cursor: pointer;
 }
 
+.map-marker::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 50%;
+  left: 17px;
+  z-index: 2;
+  max-width: 190px;
+  padding: 4px 6px;
+  transform: translateY(-50%);
+  border: 1px solid rgba(245, 239, 228, 0.72);
+  border-radius: 6px;
+  color: #241f1a;
+  background: rgba(245, 239, 228, 0.92);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.1;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.map-marker[data-role="owner_added"]::after {
+  opacity: 0.86;
+  font-weight: 680;
+}
+
 .map-marker:hover,
 .map-marker:focus-visible,
 .map-marker--selected {
   background: #e0ae69;
   outline: none;
+}
+
+.map-marker:hover::after,
+.map-marker:focus-visible::after,
+.map-marker--selected::after {
+  border-color: #f5efe4;
+  background: #e0ae69;
 }
 
 .reference-modal {
@@ -460,5 +494,9 @@ button {
     bottom: 10px;
     left: 10px;
     font-size: 11px;
+  }
+
+  .map-marker::after {
+    display: none;
   }
 }
