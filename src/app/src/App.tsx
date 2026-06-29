@@ -8,9 +8,12 @@ import {
   Map,
   MapPinned,
   Minus,
+  Pause,
+  Play,
   Plus,
   RotateCcw,
   RotateCw,
+  SkipForward,
   X,
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
@@ -132,6 +135,7 @@ export function App() {
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
+  const [isTouring, setIsTouring] = useState(false);
 
   const dziUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/regierungsviertel.dzi"),
@@ -146,6 +150,10 @@ export function App() {
       landmarks.find((landmark) => landmark.name === selected) ??
       landmarks[0] ??
       null,
+    [landmarks, selected],
+  );
+  const selectedIndex = useMemo(
+    () => landmarks.findIndex((landmark) => landmark.name === selected),
     [landmarks, selected],
   );
   const orientation = useMemo(
@@ -163,9 +171,23 @@ export function App() {
     }
     const point = viewer.viewport.imageToViewportCoordinates(landmark.x, landmark.y);
     setSelected(landmark.name);
+    setStatus(`Fokus: ${landmarkShortLabel(landmark.name)}`);
     viewer.viewport.panTo(point, immediate);
     viewer.viewport.zoomTo(3.1, point, immediate);
   }, []);
+
+  const focusLandmarkByOffset = useCallback(
+    (offset: number, immediate = false) => {
+      if (landmarks.length === 0) {
+        return;
+      }
+      const baseIndex = selectedIndex >= 0 ? selectedIndex : 0;
+      const nextIndex =
+        (baseIndex + offset + landmarks.length) % landmarks.length;
+      focusLandmark(landmarks[nextIndex], immediate);
+    },
+    [focusLandmark, landmarks, selectedIndex],
+  );
 
   useEffect(() => {
     rotationRef.current = rotation;
@@ -217,6 +239,20 @@ export function App() {
     setIsFlipped(false);
   }, []);
 
+  const toggleTour = useCallback(() => {
+    if (!isReady || landmarks.length === 0) {
+      return;
+    }
+    setIsTouring((current) => {
+      const next = !current;
+      setStatus(next ? "Tour läuft" : "Bereit");
+      if (next && selectedIndex < 0) {
+        focusLandmark(landmarks[0], true);
+      }
+      return next;
+    });
+  }, [focusLandmark, isReady, landmarks, selectedIndex]);
+
   useEffect(() => {
     let cancelled = false;
     fetch(assetPath("dzi/regierungsviertel/landmarks.json"))
@@ -242,17 +278,47 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!isReferenceOpen) {
-      return;
-    }
-    const closeOnEscape = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLElement) {
+        const tagName = event.target.tagName.toLowerCase();
+        if (tagName === "button" || tagName === "input" || tagName === "textarea") {
+          return;
+        }
+      }
       if (event.key === "Escape") {
         setIsReferenceOpen(false);
+        setIsTouring(false);
+        return;
+      }
+      if (isReferenceOpen) {
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        setIsTouring(false);
+        focusLandmarkByOffset(1);
+      } else if (event.key === "ArrowLeft") {
+        setIsTouring(false);
+        focusLandmarkByOffset(-1);
+      } else if (event.key === " ") {
+        event.preventDefault();
+        toggleTour();
+      } else if (event.key === "+") {
+        viewerRef.current?.viewport.zoomBy(1.24);
+      } else if (event.key === "-") {
+        viewerRef.current?.viewport.zoomBy(0.81);
       }
     };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [isReferenceOpen]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [focusLandmarkByOffset, isReferenceOpen, toggleTour]);
+
+  useEffect(() => {
+    if (!isTouring || !isReady || landmarks.length === 0) {
+      return;
+    }
+    const timer = window.setInterval(() => focusLandmarkByOffset(1), 4200);
+    return () => window.clearInterval(timer);
+  }, [focusLandmarkByOffset, isReady, isTouring, landmarks.length]);
 
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) {
@@ -320,7 +386,10 @@ export function App() {
       marker.dataset.label = landmarkShortLabel(landmark.name);
       marker.dataset.role = landmark.role;
       marker.setAttribute("aria-label", landmark.name);
-      marker.addEventListener("click", () => focusLandmark(landmark));
+      marker.addEventListener("click", () => {
+        setIsTouring(false);
+        focusLandmark(landmark);
+      });
       viewer.addOverlay({
         element: marker,
         location: viewer.viewport.imageToViewportCoordinates(landmark.x, landmark.y),
@@ -335,10 +404,11 @@ export function App() {
       return;
     }
     initialFocusDoneRef.current = true;
-  }, [isReady, landmarks]);
+    focusLandmark(selectedLandmark ?? landmarks[0], true);
+  }, [focusLandmark, isReady, landmarks, selectedLandmark]);
 
   return (
-    <main className="app-shell">
+    <main className={isTouring ? "app-shell app-shell--touring" : "app-shell"}>
       <section className="map-stage" aria-label="Isometrische Berlin-Karte">
         <div id="openseadragon-viewer" ref={containerRef} className="viewer" />
       </section>
@@ -375,6 +445,30 @@ export function App() {
             onClick={() => viewerRef.current?.viewport.zoomBy(0.74)}
           >
             <Minus size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label={isTouring ? "Tour pausieren" : "Landmarken-Tour starten"}
+            aria-pressed={isTouring}
+            title={isTouring ? "Tour pausieren" : "Landmarken-Tour starten"}
+            onClick={toggleTour}
+          >
+            {isTouring ? (
+              <Pause size={18} aria-hidden="true" />
+            ) : (
+              <Play size={18} aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            aria-label="Nächste Landmarke"
+            title="Nächste Landmarke"
+            onClick={() => {
+              setIsTouring(false);
+              focusLandmarkByOffset(1);
+            }}
+          >
+            <SkipForward size={18} aria-hidden="true" />
           </button>
         </div>
       </header>
@@ -471,7 +565,10 @@ export function App() {
               type="button"
               aria-label={`Landmarke ${landmark.name}`}
               className={landmark.name === selected ? "is-selected" : ""}
-              onClick={() => focusLandmark(landmark)}
+              onClick={() => {
+                setIsTouring(false);
+                focusLandmark(landmark);
+              }}
             >
               <span>{landmark.name}</span>
               <small>{roleLabel(landmark.role)}</small>
@@ -488,6 +585,9 @@ export function App() {
           </div>
           <strong>{selectedLandmark.name}</strong>
           <small>{roleLabel(selectedLandmark.role)}</small>
+          <span>
+            {selectedIndex >= 0 ? selectedIndex + 1 : 1} / {landmarks.length}
+          </span>
         </aside>
       ) : null}
 
