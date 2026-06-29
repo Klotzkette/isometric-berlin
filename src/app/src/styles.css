@@ -37,6 +37,17 @@ button {
   inset: 0;
 }
 
+.map-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(36, 43, 40, 0.24),
+    inset 0 0 130px rgba(36, 43, 40, 0.18);
+  pointer-events: none;
+}
+
 .viewer {
   background: #2e3530;
 }
@@ -121,11 +132,17 @@ button {
 
 .toolbar button:hover,
 .toolbar button:focus-visible,
+.toolbar button[aria-pressed="true"],
 .view-controls button:hover,
 .view-controls button:focus-visible,
 .view-controls button[aria-pressed="true"] {
   background: #a94235;
   outline: none;
+}
+
+.app-shell--touring .toolbar button[aria-pressed="true"] {
+  color: #241f1a;
+  background: #e0ae69;
 }
 
 .view-controls {
@@ -196,6 +213,22 @@ button {
   max-height: calc(100vh - 210px);
   overflow: auto;
   padding-right: 2px;
+  scrollbar-color: rgba(224, 174, 105, 0.54) rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+}
+
+.landmark-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.landmark-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.landmark-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(224, 174, 105, 0.54);
 }
 
 .landmark-list button {
@@ -292,6 +325,17 @@ button {
   font-size: 12px;
 }
 
+.selection-card > span {
+  width: fit-content;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #241f1a;
+  background: #e0ae69;
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
 .attribution {
   position: absolute;
   z-index: 19;
@@ -326,6 +370,37 @@ button {
   cursor: pointer;
 }
 
+.map-marker[data-role="hero_tile"] {
+  background: #2f8fa7;
+  box-shadow:
+    0 0 0 3px rgba(47, 143, 167, 0.28),
+    0 4px 10px rgba(0, 0, 0, 0.36);
+}
+
+.map-marker[data-role="must_be_visible"] {
+  background: #a94235;
+  box-shadow:
+    0 0 0 3px rgba(169, 66, 53, 0.28),
+    0 4px 10px rgba(0, 0, 0, 0.36);
+}
+
+.map-marker[data-role="owner_added"] {
+  background: #d2a044;
+  box-shadow:
+    0 0 0 3px rgba(210, 160, 68, 0.24),
+    0 4px 10px rgba(0, 0, 0, 0.36);
+}
+
+.map-marker::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(224, 174, 105, 0);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .map-marker::after {
   content: attr(data-label);
   position: absolute;
@@ -356,7 +431,14 @@ button {
 .map-marker:focus-visible,
 .map-marker--selected {
   background: #e0ae69;
+  transform: scale(1.12);
   outline: none;
+}
+
+.map-marker:hover::before,
+.map-marker:focus-visible::before,
+.map-marker--selected::before {
+  animation: marker-pulse 1.8s ease-out infinite;
 }
 
 .map-marker:hover::after,
@@ -364,6 +446,20 @@ button {
 .map-marker--selected::after {
   border-color: #f5efe4;
   background: #e0ae69;
+}
+
+@keyframes marker-pulse {
+  0% {
+    transform: scale(0.65);
+    border-color: rgba(224, 174, 105, 0.82);
+    opacity: 0.86;
+  }
+
+  100% {
+    transform: scale(1.42);
+    border-color: rgba(224, 174, 105, 0);
+    opacity: 0;
+  }
 }
 
 .reference-modal {
@@ -498,5 +594,13 @@ button {
 
   .map-marker::after {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-marker:hover::before,
+  .map-marker:focus-visible::before,
+  .map-marker--selected::before {
+    animation: none;
   }
 }

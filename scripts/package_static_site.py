@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.18"
+PACKAGE_VERSION = "0.1.19"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,23 +213,24 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.18
-verdichtet die Fassaden- und Fensterdetails der Gebäude, lässt
-relative Landmarken-Fehllagen den QA-Status blockieren, nutzt
-strengere Landmarken-Lagechecks, sauberer gefilterte aktuelle
-Wikimedia/Wikipedia-Referenzen, reichere Gebäudeflächen aus
-LoD2-Höhen, Dachtypen und OSM-Kontext, korrigierte Landmarken für
-Paul-Löbe-Haus und Marie-Elisabeth-Lüders-Haus, einen
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.19
+ergänzt eine Landmarken-Tour, Tastatursteuerung für vorige/nächste
+Landmarke und Tourstart, klarere rollenfarbige Landmark-Pins und
+stärkere Fokuszustände. Die Version enthält außerdem dichtere
+Fassaden- und Fensterdetails der Gebäude, blockierende QA bei
+relativen Landmarken-Fehllagen, strengere Landmarken-Lagechecks,
+sauberer gefilterte aktuelle Wikimedia/Wikipedia-Referenzen, reichere
+Gebäudeflächen aus LoD2-Höhen, Dachtypen und OSM-Kontext, korrigierte
+Landmarken für Paul-Löbe-Haus und Marie-Elisabeth-Lüders-Haus, einen
 OSM/LoD2-Lagecheck und Ansichtssteuerungen für Nord/Ost/Süd/West,
 Drehen und Spiegeln. Sie enthält außerdem eine schärfere lokale
 Pixel-Art-Stilisierung, eine Nord-oben-Startansicht, beschriftete
 Landmark-Pins und eine Top-down-Referenzkarte aus OSM und LoD2 mit
 Nordpfeil und Maßstab direkt im Viewer. Die Landmark-Materialfarben
 nutzen zusätzlich frei lizenzierte Wikimedia/Wikipedia-Referenzen. Das
-Paket startet auf dem
-ersten freien lokalen Port ab 8766, erlaubt optionale Startparameter
-für Skripte oder feste Ports und erzeugt das Download-ZIP mit stabilen
-Metadaten. Die Daten stammen aus
+Paket startet auf dem ersten freien lokalen Port ab 8766, erlaubt
+optionale Startparameter für Skripte oder feste Ports und erzeugt das
+Download-ZIP mit stabilen Metadaten. Die Daten stammen aus
 kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap, ALKIS,
 DOP-Preview, DGM-Preview und Wikimedia Commons/Wikipedia.
 
@@ -255,21 +256,23 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.18 adds
+does not need an AI model or a Google key to run. Version 0.1.19 adds a
+landmark tour, keyboard controls for previous/next/tour, clearer
+role-colored landmark pins, and stronger focus states. It also keeps
 denser building facade/window details, makes relative landmark-placement
 failures block QA status, keeps stricter landmark-placement QA, cleaner
 current-day Wikimedia/Wikipedia references, richer building surfaces
 from LoD2 heights, roof types, and OSM context, corrected Paul-Löbe-Haus
 and Marie-Elisabeth-Lüders-Haus landmarks, an OSM/LoD2 placement QA
 report, and view controls for north/east/south/west, rotation, and
-mirror views. It also includes crisper local pixel-art styling and a top-down
-OSM/LoD2 reference map with north arrow and scale inside the viewer,
-plus a north-up start view and labeled landmark pins. Landmark material
-colours additionally use freely licensed Wikimedia/Wikipedia
+mirror views. It also includes crisper local pixel-art styling and a
+top-down OSM/LoD2 reference map with north arrow and scale inside the
+viewer, plus a north-up start view and labeled landmark pins. Landmark
+material colours additionally use freely licensed Wikimedia/Wikipedia
 references. It starts on the first free local port at or above 8766,
-supports optional server flags for scripts or fixed ports, and writes the
-downloadable ZIP with stable metadata. Data sources are free and open:
-Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, DGM preview, and
+supports optional server flags for scripts or fixed ports, and writes
+the downloadable ZIP with stable metadata. Data sources are free and
+open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, DGM preview, and
 Wikimedia Commons/Wikipedia.
 
 Start:
