@@ -279,16 +279,16 @@ export function App() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsReferenceOpen(false);
+        setIsTouring(false);
+        return;
+      }
       if (event.target instanceof HTMLElement) {
         const tagName = event.target.tagName.toLowerCase();
         if (tagName === "button" || tagName === "input" || tagName === "textarea") {
           return;
         }
-      }
-      if (event.key === "Escape") {
-        setIsReferenceOpen(false);
-        setIsTouring(false);
-        return;
       }
       if (isReferenceOpen) {
         return;
