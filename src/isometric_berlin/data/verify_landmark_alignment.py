@@ -354,8 +354,12 @@ def build_alignment_report(
       }
     )
 
-  review_count = sum(1 for check in checks if check["status"] != "ok")
+  landmark_review_count = sum(1 for check in checks if check["status"] != "ok")
   relationships = relative_relationships(landmarks)
+  relative_review_count = sum(
+    1 for relationship in relationships if relationship["status"] != "ok"
+  )
+  review_count = landmark_review_count + relative_review_count
   return {
     "generated_at": datetime.now(tz=UTC).isoformat(),
     "method": (
@@ -373,6 +377,9 @@ def build_alignment_report(
     "summary": {
       "status": "ok" if review_count == 0 else "review",
       "landmarks_checked": len(checks),
+      "relative_relationships_checked": len(relationships),
+      "landmark_review_count": landmark_review_count,
+      "relative_review_count": relative_review_count,
       "review_count": review_count,
     },
     "checks": checks,
@@ -390,6 +397,10 @@ def write_markdown_report(report: dict[str, Any], path: Path) -> None:
     f"- Generated: `{report['generated_at']}`",
     f"- Status: `{report['summary']['status']}`",
     f"- Landmarks checked: `{report['summary']['landmarks_checked']}`",
+    "- Relative relationships checked: "
+    f"`{report['summary']['relative_relationships_checked']}`",
+    f"- Landmark review count: `{report['summary']['landmark_review_count']}`",
+    f"- Relative review count: `{report['summary']['relative_review_count']}`",
     f"- Review count: `{report['summary']['review_count']}`",
     "",
     "| Landmark | Status | Best OSM evidence | OSM distance | LoD2 evidence |",
