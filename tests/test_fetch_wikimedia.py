@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from PIL import Image
 
 from isometric_berlin.data import fetch_wikimedia as fw
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_license_allowed_accepts_only_clear_free_commons_licenses() -> None:
@@ -19,6 +22,14 @@ def test_license_allowed_accepts_only_clear_free_commons_licenses() -> None:
   assert not fw.license_allowed("All rights reserved")
   assert not fw.license_allowed("CC BY-NC 4.0")
   assert not fw.license_allowed("CC BY-ND 4.0")
+
+
+def test_license_requires_attribution_for_by_and_by_sa() -> None:
+  assert fw.license_requires_attribution("CC BY 4.0")
+  assert fw.license_requires_attribution("CC BY-SA 3.0")
+  assert not fw.license_requires_attribution("CC0")
+  assert not fw.license_requires_attribution("Public domain")
+  assert not fw.license_requires_attribution("All rights reserved")
 
 
 def test_text_meta_strips_html_and_collapses_whitespace() -> None:
@@ -85,6 +96,47 @@ def test_image_from_page_rejects_disallowed_or_non_image_entries() -> None:
 
   assert fw.image_from_page("reichstag", disallowed) is None
   assert fw.image_from_page("reichstag", non_image) is None
+
+
+def test_image_from_page_rejects_by_sa_without_artist_or_credit() -> None:
+  missing_attribution = {
+    "title": "File:Bundeskanzleramt Berlin.jpg",
+    "imageinfo": [
+      {
+        "mime": "image/jpeg",
+        "thumburl": "https://upload.wikimedia.org/example.jpg",
+        "thumbwidth": 640,
+        "thumbheight": 427,
+        "extmetadata": {
+          "LicenseShortName": {"value": "CC BY-SA 3.0"},
+          "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/3.0/"},
+          "Artist": {"value": ""},
+          "Credit": {"value": ""},
+        },
+      }
+    ],
+  }
+
+  assert fw.image_from_page("bundeskanzleramt", missing_attribution) is None
+
+
+def test_committed_wikimedia_manifest_has_required_attribution() -> None:
+  payload = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+
+  missing = [
+    record["title"]
+    for record in payload["records"]
+    if fw.license_requires_attribution(str(record.get("license", "")))
+    and not (
+      str(record.get("artist") or "").strip() or str(record.get("credit") or "").strip()
+    )
+  ]
+
+  assert missing == []
 
 
 def test_dominant_colours_returns_hex_palette(tmp_path: Path) -> None:

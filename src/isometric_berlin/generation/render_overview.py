@@ -12,7 +12,11 @@ from PIL import Image, ImageChops
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generate_tile import pixel_art_image
-from isometric_berlin.generation.export_dzi import export_dzi, write_preview
+from isometric_berlin.generation.export_dzi import (
+  export_dzi,
+  wikimedia_extra_attribution,
+  write_preview,
+)
 from isometric_berlin.generation.render_quadrants import (
   BACKGROUND,
   load_landmarks,
@@ -21,8 +25,6 @@ from isometric_berlin.generation.render_quadrants import (
   project_point,
   render_quadrant,
 )
-
-WIKIMEDIA_ATTRIBUTION = " · Visual references: Wikimedia Commons/Wikipedia"
 
 
 def content_bbox(image: Image.Image, pad: int = 96) -> tuple[int, int, int, int]:
@@ -198,9 +200,7 @@ def render_overview(
     title="Isometric Berlin Regierungsviertel",
     overview_path=pixel_path,
     dzi_path=dzi,
-    extra_attribution=WIKIMEDIA_ATTRIBUTION
-    if wikimedia_references_path.exists()
-    else "",
+    extra_attribution=wikimedia_extra_attribution(wikimedia_references_path),
   )
 
 

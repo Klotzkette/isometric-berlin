@@ -125,6 +125,13 @@ def license_allowed(license_name: str) -> bool:
   )
 
 
+def license_requires_attribution(license_name: str) -> bool:
+  key = normalized_license_key(license_name)
+  if not license_allowed(license_name):
+    return False
+  return not (key in {"cc0", "pd"} or key.startswith(("cc0-", "public-domain", "pd-")))
+
+
 def image_from_page(landmark_id: str, page: dict[str, Any]) -> WikimediaImage | None:
   infos = page.get("imageinfo") or []
   if not infos:
@@ -145,6 +152,10 @@ def image_from_page(landmark_id: str, page: dict[str, Any]) -> WikimediaImage | 
   height = int(info.get("thumbheight") or info.get("height") or 0)
   if width <= 0 or height <= 0:
     return None
+  artist = text_meta(metadata, "Artist")
+  credit = text_meta(metadata, "Credit")
+  if license_requires_attribution(license_name) and not (artist or credit):
+    return None
   return WikimediaImage(
     landmark_id=landmark_id,
     title=title,
@@ -155,8 +166,8 @@ def image_from_page(landmark_id: str, page: dict[str, Any]) -> WikimediaImage | 
     mime=mime,
     license=license_name,
     license_url=text_meta(metadata, "LicenseUrl"),
-    artist=text_meta(metadata, "Artist"),
-    credit=text_meta(metadata, "Credit"),
+    artist=artist,
+    credit=credit,
     description=text_meta(metadata, "ImageDescription"),
   )
 
