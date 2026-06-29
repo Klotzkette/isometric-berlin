@@ -352,16 +352,22 @@ def building_surface_palette(
   wall_dark = mix_color(wall, OUTLINE, 0.25)
   wall_light = mix_color(wall, (255, 250, 228), 0.25)
   roof_line = mix_color(roof, SURFACE_LINE, 0.45)
+  window = mix_color(wall_light, GLASS, 0.38 if height_m >= 24 else 0.18)
+  window_dark = mix_color(wall_dark, GLASS_DARK, 0.28 if height_m >= 24 else 0.12)
   if is_hero and material_cue:
     wall_dark = mix_color(wall_dark, material_cue["wall_dark"], 0.55)
     wall_light = mix_color(wall_light, material_cue["wall_light"], 0.55)
     roof_line = mix_color(roof_line, material_cue["roof_line"], 0.5)
+    window = mix_color(window, material_cue["glass"], 0.55)
+    window_dark = mix_color(window_dark, material_cue["glass_dark"], 0.5)
   return {
     "wall": wall,
     "wall_dark": wall_dark,
     "wall_light": wall_light,
     "roof": roof,
     "roof_line": roof_line,
+    "window": window,
+    "window_dark": window_dark,
   }
 
 
@@ -645,19 +651,52 @@ def line_length(a: tuple[int, int], b: tuple[int, int]) -> float:
   return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
 
 
+def facade_detail_counts(
+  *, wall_width: float, height_m: float, is_hero: bool
+) -> tuple[int, int, int, int]:
+  """Return floor/mullion/window detail counts for one projected facade."""
+  floors = max(1, min(12 if is_hero else 9, int(height_m // 3.0)))
+  if is_hero:
+    mullion_spacing = 14
+  elif height_m >= 24:
+    mullion_spacing = 18
+  else:
+    mullion_spacing = 24
+  mullions = max(0, min(10 if is_hero else 7, int(wall_width // mullion_spacing)))
+  window_rows = max(0, min(floors, 8 if is_hero else 5))
+  window_cols = max(0, min(max(1, mullions), 8 if is_hero else 5))
+  if wall_width < 20:
+    window_cols = 0
+  return floors, mullions, window_rows, window_cols
+
+
+def wall_point(
+  wall: list[tuple[int, int]], *, across: float, up: float
+) -> tuple[int, int]:
+  base_a, base_b, roof_b, roof_a = wall
+  lower = lerp_point(base_a, base_b, across)
+  upper = lerp_point(roof_a, roof_b, across)
+  return lerp_point(lower, upper, up)
+
+
 def draw_wall_detail(
   draw: ImageDraw.ImageDraw,
   wall: list[tuple[int, int]],
   *,
   palette: dict[str, tuple[int, int, int]],
   height_m: float,
+  is_hero: bool,
   outline_width: int,
 ) -> None:
   base_a, base_b, roof_b, roof_a = wall
   wall_width = line_length(base_a, base_b)
   if wall_width < 12:
     return
-  floors = max(1, min(9, int(height_m // 3.2)))
+  floors, mullions, window_rows, window_cols = facade_detail_counts(
+    wall_width=wall_width,
+    height_m=height_m,
+    is_hero=is_hero,
+  )
   detail_width = max(1, outline_width)
   for floor in range(1, floors + 1):
     amount = floor / (floors + 1)
@@ -669,7 +708,6 @@ def draw_wall_detail(
       fill=palette["wall_dark"],
       width=detail_width,
     )
-  mullions = max(0, min(6, int(wall_width // 24)))
   for mullion in range(1, mullions + 1):
     amount = mullion / (mullions + 1)
     lower = lerp_point(base_a, base_b, amount)
@@ -679,6 +717,19 @@ def draw_wall_detail(
       fill=palette["wall_light"],
       width=detail_width,
     )
+  for row_idx in range(window_rows):
+    up = (row_idx + 1) / (window_rows + 1)
+    for col_idx in range(window_cols):
+      left = (col_idx + 0.22) / max(1, window_cols)
+      right = min(left + 0.36 / max(1, window_cols), 0.94)
+      if right <= left:
+        continue
+      color = palette["window" if (row_idx + col_idx) % 3 else "window_dark"]
+      draw.line(
+        (wall_point(wall, across=left, up=up), wall_point(wall, across=right, up=up)),
+        fill=color,
+        width=detail_width,
+      )
 
 
 def draw_roof_detail(
@@ -700,6 +751,9 @@ def draw_roof_detail(
   inset = [lerp_point(point, center, 0.18) for point in unique]
   detail_width = max(1, outline_width)
   draw.line(inset + [inset[0]], fill=palette["roof_line"], width=detail_width)
+  if is_hero:
+    inner = [lerp_point(point, center, 0.36) for point in unique]
+    draw.line(inner + [inner[0]], fill=palette["roof_line"], width=detail_width)
   if len(unique) >= 4 and (is_hero or roof_type.startswith("3")):
     draw.line(
       (lerp_point(unique[0], unique[1], 0.5), lerp_point(unique[2], unique[3], 0.5)),
@@ -813,6 +867,7 @@ def draw_building(
       wall,
       palette=palette,
       height_m=height_m,
+      is_hero=is_hero,
       outline_width=outline_width,
     )
     draw.line(wall + [wall[0]], fill=OUTLINE, width=outline_width)

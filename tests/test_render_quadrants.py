@@ -16,6 +16,7 @@ from isometric_berlin.generation.render_quadrants import (
   ROAD_PATH,
   building_height,
   building_surface_palette,
+  facade_detail_counts,
   landmark_icon_unit,
   landmark_kind,
   landmark_reference_id,
@@ -99,13 +100,22 @@ def test_building_surface_palette_uses_lod2_surface_evidence() -> None:
   hero_palette = building_surface_palette(row, is_hero=True, height_m=12.0)
   tall_palette = building_surface_palette(row, is_hero=False, height_m=32.0)
 
-  assert set(palette) == {"wall", "wall_dark", "wall_light", "roof", "roof_line"}
+  assert set(palette) == {
+    "wall",
+    "wall_dark",
+    "wall_light",
+    "roof",
+    "roof_line",
+    "window",
+    "window_dark",
+  }
   assert palette["wall"] != BUILDING_WALL
   assert hero_palette["wall"] != palette["wall"]
   assert (
     hero_palette["wall"] != BUILDING_HERO or hero_palette["roof"] != palette["roof"]
   )
   assert tall_palette["wall"] != palette["wall"]
+  assert tall_palette["window"] != palette["window"]
 
 
 def test_building_surface_palette_accepts_wikimedia_material_cue() -> None:
@@ -132,6 +142,19 @@ def test_building_surface_palette_accepts_wikimedia_material_cue() -> None:
 
   assert cued["wall"] != plain["wall"]
   assert cued["roof"] != plain["roof"]
+  assert cued["window"] != plain["window"]
+
+
+def test_facade_detail_counts_scale_for_hero_and_tall_buildings() -> None:
+  small = facade_detail_counts(wall_width=18, height_m=9, is_hero=False)
+  tall = facade_detail_counts(wall_width=90, height_m=36, is_hero=False)
+  hero = facade_detail_counts(wall_width=90, height_m=36, is_hero=True)
+
+  assert small[2:] == (3, 0)
+  assert tall[0] > small[0]
+  assert tall[2] > small[2]
+  assert hero[1] > tall[1]
+  assert hero[2] >= tall[2]
 
 
 def test_poi_style_adds_named_context_without_low_signal_clutter() -> None:

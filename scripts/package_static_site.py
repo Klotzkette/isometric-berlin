@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.17"
+PACKAGE_VERSION = "0.1.18"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,8 +213,10 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.17
-nutzt strengere Landmarken-Lagechecks, sauberer gefilterte aktuelle
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.18
+verdichtet die Fassaden- und Fensterdetails der Gebäude, lässt
+relative Landmarken-Fehllagen den QA-Status blockieren, nutzt
+strengere Landmarken-Lagechecks, sauberer gefilterte aktuelle
 Wikimedia/Wikipedia-Referenzen, reichere Gebäudeflächen aus
 LoD2-Höhen, Dachtypen und OSM-Kontext, korrigierte Landmarken für
 Paul-Löbe-Haus und Marie-Elisabeth-Lüders-Haus, einen
@@ -253,13 +255,14 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.17 adds
-stricter landmark-placement QA, cleaner current-day
-Wikimedia/Wikipedia references, richer building surfaces from LoD2
-heights, roof types, and OSM context, corrected Paul-Löbe-Haus and
-Marie-Elisabeth-Lüders-Haus landmarks, an OSM/LoD2 placement QA report,
-and view controls for north/east/south/west, rotation, and mirror
-views. It also includes crisper local pixel-art styling and a top-down
+does not need an AI model or a Google key to run. Version 0.1.18 adds
+denser building facade/window details, makes relative landmark-placement
+failures block QA status, keeps stricter landmark-placement QA, cleaner
+current-day Wikimedia/Wikipedia references, richer building surfaces
+from LoD2 heights, roof types, and OSM context, corrected Paul-Löbe-Haus
+and Marie-Elisabeth-Lüders-Haus landmarks, an OSM/LoD2 placement QA
+report, and view controls for north/east/south/west, rotation, and
+mirror views. It also includes crisper local pixel-art styling and a top-down
 OSM/LoD2 reference map with north arrow and scale inside the viewer,
 plus a north-up start view and labeled landmark pins. Landmark material
 colours additionally use freely licensed Wikimedia/Wikipedia

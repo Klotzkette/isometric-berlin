@@ -582,7 +582,7 @@
       "status": "ok"
     }
   ],
-  "generated_at": "2026-06-29T09:57:35.477501+00:00",
+  "generated_at": "2026-06-29T10:16:31.923314+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -705,7 +705,10 @@
     }
   },
   "summary": {
+    "landmark_review_count": 0,
     "landmarks_checked": 13,
+    "relative_relationships_checked": 8,
+    "relative_review_count": 0,
     "review_count": 0,
     "status": "ok"
   }

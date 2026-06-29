@@ -5,11 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from isometric_berlin.data.verify_landmark_alignment import (
-  build_alignment_report,
-  load_landmarks,
-  normalize_name,
-)
+from pytest import MonkeyPatch
+
+from isometric_berlin.data import verify_landmark_alignment as vla
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data" / "regierungsviertel"
@@ -17,14 +15,14 @@ VIEWER_LANDMARKS = ROOT / "src/app/public/dzi/regierungsviertel/landmarks.json"
 
 
 def test_normalize_name_folds_berlin_landmark_names() -> None:
-  assert normalize_name("Marie-Elisabeth-Lüders-Haus") == (
+  assert vla.normalize_name("Marie-Elisabeth-Lüders-Haus") == (
     "marie elisabeth luders haus"
   )
-  assert normalize_name("Gustav-Heinemann-Brücke") == "gustav heinemann brucke"
+  assert vla.normalize_name("Gustav-Heinemann-Brücke") == "gustav heinemann brucke"
 
 
 def test_committed_landmarks_align_with_osm_city_map() -> None:
-  report = build_alignment_report(
+  report = vla.build_alignment_report(
     landmarks_path=DATA / "landmarks.geojson",
     osm_path=DATA / "osm.gpkg",
     buildings_path=DATA / "buildings.gpkg",
@@ -33,6 +31,9 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert report["summary"] == {
     "status": "ok",
     "landmarks_checked": 13,
+    "relative_relationships_checked": 8,
+    "landmark_review_count": 0,
+    "relative_review_count": 0,
     "review_count": 0,
   }
   checks = {check["name"]: check for check in report["checks"]}
@@ -50,8 +51,31 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   )
 
 
+def test_relative_relationship_reviews_affect_summary_status(
+  monkeypatch: MonkeyPatch,
+) -> None:
+  expectations = [dict(expectation) for expectation in vla.RELATIVE_EXPECTATIONS]
+  expectations[0]["east_west"] = "east"
+  monkeypatch.setattr(vla, "RELATIVE_EXPECTATIONS", tuple(expectations))
+
+  report = vla.build_alignment_report(
+    landmarks_path=DATA / "landmarks.geojson",
+    osm_path=DATA / "osm.gpkg",
+    buildings_path=DATA / "buildings.gpkg",
+  )
+
+  assert report["summary"]["status"] == "review"
+  assert report["summary"]["landmark_review_count"] == 0
+  assert report["summary"]["relative_review_count"] == 1
+  assert report["summary"]["review_count"] == 1
+  assert any(
+    relationship["status"] == "review"
+    for relationship in report["relative_relationships"]
+  )
+
+
 def test_committed_landmarks_preserve_real_world_relative_order() -> None:
-  landmarks = load_landmarks(DATA / "landmarks.geojson").set_index("name")
+  landmarks = vla.load_landmarks(DATA / "landmarks.geojson").set_index("name")
 
   def delta(from_name: str, to_name: str) -> tuple[float, float]:
     start = landmarks.loc[from_name].geometry
