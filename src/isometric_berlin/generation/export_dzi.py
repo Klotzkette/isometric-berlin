@@ -4,12 +4,18 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import math
 import sqlite3
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from PIL import Image
+
+WIKIMEDIA_ATTRIBUTION = " · Visual references: Wikimedia Commons/Wikipedia"
+DEFAULT_WIKIMEDIA_REFERENCES = Path(
+  "geo_data/regierungsviertel/wikimedia_references.json"
+)
 
 
 def load_mosaic(map_id: str, tile_px: int) -> Image.Image:
@@ -130,6 +136,16 @@ def write_preview(
   )
 
 
+def wikimedia_extra_attribution(manifest_path: Path) -> str:
+  if not manifest_path.exists():
+    return ""
+  try:
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+  except (OSError, json.JSONDecodeError):
+    return ""
+  return WIKIMEDIA_ATTRIBUTION if payload.get("records") else ""
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--map-id", default="regierungsviertel")
@@ -138,6 +154,11 @@ def main() -> None:
     "--out-dir",
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel"),
+  )
+  parser.add_argument(
+    "--wikimedia-references",
+    type=Path,
+    default=DEFAULT_WIKIMEDIA_REFERENCES,
   )
   args = parser.parse_args()
 
@@ -152,6 +173,7 @@ def main() -> None:
     title="Isometric Berlin Regierungsviertel",
     overview_path=overview,
     dzi_path=dzi,
+    extra_attribution=wikimedia_extra_attribution(args.wikimedia_references),
   )
   print(f"Wrote overview and DZI to {args.out_dir}")
 

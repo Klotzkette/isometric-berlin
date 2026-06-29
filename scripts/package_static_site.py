@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.15"
+PACKAGE_VERSION = "0.1.16"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,7 +213,7 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.15
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.16
 nutzt reichere Gebäudeflächen aus LoD2-Höhen, Dachtypen und
 OSM-Kontext, korrigierte Landmarken für Paul-Löbe-Haus und
 Marie-Elisabeth-Lüders-Haus, einen OSM/LoD2-Lagecheck und neue
@@ -251,7 +251,7 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.15 adds
+does not need an AI model or a Google key to run. Version 0.1.16 adds
 richer building surfaces from LoD2 heights, roof types, and OSM
 context, corrected Paul-Löbe-Haus and
 Marie-Elisabeth-Lüders-Haus landmarks, an OSM/LoD2 placement QA report,
