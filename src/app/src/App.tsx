@@ -4,8 +4,9 @@ import {
   FlipVertical2,
   Home,
   Info,
+  Keyboard,
   LocateFixed,
-  Map,
+  Map as MapIcon,
   MapPinned,
   Minus,
   Pause,
@@ -97,7 +98,14 @@ function installOpenSeadragonConsoleFilter(): void {
   openSeadragonConsoleFilterInstalled = true;
 }
 
+const DZI_PREFIX = "dzi/regierungsviertel/";
+
 function assetPath(path: string): string {
+  const dziBase = import.meta.env.VITE_DZI_BASE_URL;
+  if (dziBase && path.startsWith(DZI_PREFIX)) {
+    const rest = path.slice(DZI_PREFIX.length);
+    return `${dziBase.replace(/\/+$/, "")}/${rest}`;
+  }
   const base = import.meta.env.BASE_URL || "./";
   return `${base.endsWith("/") ? base : `${base}/`}${path}`;
 }
@@ -131,6 +139,8 @@ export function App() {
   const initialFocusDoneRef = useRef(false);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
+  const markersRef = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const selectedRef = useRef("Reichstagsgebäude");
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>("Reichstagsgebäude");
   const [status, setStatus] = useState("Lade DZI");
@@ -138,6 +148,7 @@ export function App() {
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
 
   const dziUrl = useMemo(
@@ -192,6 +203,10 @@ export function App() {
     },
     [focusLandmark, landmarks, selectedIndex],
   );
+
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
   useEffect(() => {
     rotationRef.current = rotation;
@@ -298,6 +313,7 @@ export function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeReferenceMap();
+        setIsHelpOpen(false);
         setIsTouring(false);
         return;
       }
@@ -307,7 +323,12 @@ export function App() {
           return;
         }
       }
-      if (isReferenceOpen || !isReady) {
+      if (event.key === "?") {
+        event.preventDefault();
+        setIsHelpOpen((open) => !open);
+        return;
+      }
+      if (isReferenceOpen || isHelpOpen || !isReady) {
         return;
       }
       if (event.key === "Home" || event.key === "0") {
@@ -322,7 +343,7 @@ export function App() {
       } else if (event.key === " ") {
         event.preventDefault();
         toggleTour();
-      } else if (event.key === "+") {
+      } else if (event.key === "+" || event.key === "=") {
         viewerRef.current?.viewport.zoomBy(1.24);
       } else if (event.key === "-") {
         viewerRef.current?.viewport.zoomBy(0.81);
@@ -330,7 +351,14 @@ export function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closeReferenceMap, focusLandmarkByOffset, isReady, isReferenceOpen, toggleTour]);
+  }, [
+    closeReferenceMap,
+    focusLandmarkByOffset,
+    isHelpOpen,
+    isReady,
+    isReferenceOpen,
+    toggleTour,
+  ]);
 
   useEffect(() => {
     if (!isReferenceOpen) {
@@ -402,16 +430,21 @@ export function App() {
     };
   }, [dziUrl]);
 
+  // Build the markers once per landmark set; rebuilding on every selection
+  // would leak the per-button click listeners (clearOverlays only detaches
+  // OSD's wrappers). Selection highlighting is handled separately below.
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer || !isReady || landmarks.length === 0) {
       return;
     }
     viewer.clearOverlays();
+    const markers = new Map<string, HTMLButtonElement>();
+    const detach: Array<() => void> = [];
     for (const landmark of landmarks) {
       const marker = document.createElement("button");
       marker.className =
-        landmark.name === selected
+        landmark.name === selectedRef.current
           ? "map-marker map-marker--selected"
           : "map-marker";
       marker.type = "button";
@@ -419,10 +452,13 @@ export function App() {
       marker.dataset.label = landmarkShortLabel(landmark.name);
       marker.dataset.role = landmark.role;
       marker.setAttribute("aria-label", landmark.name);
-      marker.addEventListener("click", () => {
+      const onClick = () => {
         setIsTouring(false);
         focusLandmark(landmark);
-      });
+      };
+      marker.addEventListener("click", onClick);
+      detach.push(() => marker.removeEventListener("click", onClick));
+      markers.set(landmark.name, marker);
       viewer.addOverlay({
         element: marker,
         location: viewer.viewport.imageToViewportCoordinates(landmark.x, landmark.y),
@@ -430,7 +466,22 @@ export function App() {
         checkResize: false,
       });
     }
-  }, [focusLandmark, isReady, landmarks, selected]);
+    markersRef.current = markers;
+    return () => {
+      for (const cleanup of detach) {
+        cleanup();
+      }
+      markersRef.current = new Map();
+      viewerRef.current?.clearOverlays();
+    };
+  }, [focusLandmark, isReady, landmarks]);
+
+  // Toggle the selected marker class without rebuilding overlays.
+  useEffect(() => {
+    for (const [name, marker] of markersRef.current) {
+      marker.classList.toggle("map-marker--selected", name === selected);
+    }
+  }, [selected]);
 
   useEffect(() => {
     if (!isReady || landmarks.length === 0 || initialFocusDoneRef.current) {
@@ -448,7 +499,7 @@ export function App() {
 
       <header className="topbar">
         <div className="brand">
-          <Map aria-hidden="true" size={22} />
+          <MapIcon aria-hidden="true" size={22} />
           <div>
             <h1>Isometric Berlin</h1>
             <span>Regierungsviertel</span>
@@ -519,6 +570,15 @@ export function App() {
             }}
           >
             <SkipForward size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Tastenkürzel und Hilfe"
+            aria-pressed={isHelpOpen}
+            title="Tastenkürzel und Hilfe (?)"
+            onClick={() => setIsHelpOpen((open) => !open)}
+          >
+            <Keyboard size={18} aria-hidden="true" />
           </button>
         </div>
       </header>
@@ -677,6 +737,79 @@ export function App() {
               src={referenceMapUrl}
               alt="Top-down reference map with OSM, LoD2, and numbered landmarks"
             />
+          </div>
+        </div>
+      ) : null}
+
+      {isHelpOpen ? (
+        <div
+          className="reference-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Tastenkürzel und Bedienhilfe"
+          onClick={() => setIsHelpOpen(false)}
+        >
+          <div
+            className="help-panel"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="reference-header">
+              <div className="reference-title">
+                <Keyboard aria-hidden="true" size={18} />
+                <strong>Tastenkürzel &amp; Bedienung</strong>
+              </div>
+              <button
+                type="button"
+                aria-label="Hilfe schließen"
+                title="Hilfe schließen"
+                onClick={() => setIsHelpOpen(false)}
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </header>
+            <dl className="help-list">
+              <div>
+                <dt>
+                  <kbd>←</kbd> <kbd>→</kbd>
+                </dt>
+                <dd>Vorige / nächste Landmarke</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>Leertaste</kbd>
+                </dt>
+                <dd>Landmarken-Tour starten / pausieren</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>+</kbd> <kbd>=</kbd> <kbd>−</kbd>
+                </dt>
+                <dd>Vergrößern / verkleinern</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>Home</kbd> <kbd>0</kbd>
+                </dt>
+                <dd>Gesamtansicht zeigen</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>?</kbd>
+                </dt>
+                <dd>Diese Hilfe ein- / ausblenden</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>Esc</kbd>
+                </dt>
+                <dd>Hilfe / Referenzkarte schließen, Tour stoppen</dd>
+              </div>
+            </dl>
+            <p className="help-hint">
+              Maus: ziehen zum Verschieben, scrollen zum Zoomen, Doppelklick
+              zum Heranzoomen. Die Werkzeugleisten links steuern Drehung,
+              Spiegelung und die Top-down-Referenzkarte.
+            </p>
           </div>
         </div>
       ) : null}

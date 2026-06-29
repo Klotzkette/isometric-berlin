@@ -88,7 +88,10 @@ def wms_getmap_url(
 ) -> str:
   """Build a WMS 1.3.0 GetMap URL for the EPSG:25833 project bbox."""
   minx, miny, maxx, maxy = bbox
-  aspect = max((maxy - miny) / (maxx - minx), 0.1)
+  span_x = maxx - minx
+  if span_x <= 0:
+    raise ValueError(f"Degenerate bbox with non-positive width: {bbox}")
+  aspect = max((maxy - miny) / span_x, 0.1)
   height = min(max(int(round(width * aspect)), 256), 2048)
   return service_url(
     service,

@@ -136,8 +136,10 @@ def _google_source(manifest_path: Path, env: dict[str, str]) -> dict[str, Any]:
       "available": False,
       "reason": payload.get("reason", "manifest_unavailable"),
     }
-  ok, reason = opt_in_satisfied(env)
-  return {"available": False, "reason": "opt_in_env_missing" if not ok else reason}
+  ok, _ = opt_in_satisfied(env)
+  # Opted in but no manifest yet -> the fetcher simply has not run.
+  reason = "opt_in_env_missing" if not ok else "manifest_not_generated"
+  return {"available": False, "reason": reason}
 
 
 def discover_sources(geo_dir: Path, env: dict[str, str]) -> dict[str, Any]:

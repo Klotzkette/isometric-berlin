@@ -6,7 +6,11 @@
 cp .env.example .env
 ```
 
-For the Berlin MVP no Google API keys are needed.
+The core pipeline (LoD2 + OSM + ALKIS/DOP/DGM) needs no API keys. Google
+Photorealistic 3D Tiles are an **optional, additive** source: leave the
+`GOOGLE_MAPS_*` flags unset to skip them, or set all three
+(`GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_3D_TILES_ENABLED=true`,
+`GOOGLE_MAPS_TERMS_ACCEPTED=true`) to opt in. See `docs/data.md`.
 
 ## 2. Python
 

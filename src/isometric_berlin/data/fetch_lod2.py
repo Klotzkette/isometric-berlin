@@ -112,21 +112,27 @@ def download_tiles(
 ) -> list[Path]:
   """Download LoD2 ZIPs into ``raw_dir`` and return local paths."""
   raw_dir.mkdir(parents=True, exist_ok=True)
+  # Close a session we create ourselves; never close an injected one.
+  owns_client = session is None
   client = session or requests.Session()
   paths: list[Path] = []
-  for tile in tiles:
-    path = raw_dir / tile.filename
-    if path.exists() and path.stat().st_size > 0:
+  try:
+    for tile in tiles:
+      path = raw_dir / tile.filename
+      if path.exists() and path.stat().st_size > 0:
+        paths.append(path)
+        continue
+      response = client.get(tile.url, timeout=timeout)
+      if response.status_code == 404:
+        continue
+      response.raise_for_status()
+      tmp = path.with_suffix(path.suffix + ".tmp")
+      tmp.write_bytes(response.content)
+      tmp.replace(path)
       paths.append(path)
-      continue
-    response = client.get(tile.url, timeout=timeout)
-    if response.status_code == 404:
-      continue
-    response.raise_for_status()
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_bytes(response.content)
-    tmp.replace(path)
-    paths.append(path)
+  finally:
+    if owns_client:
+      client.close()
   return paths
 
 

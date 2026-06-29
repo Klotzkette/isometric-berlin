@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
@@ -46,8 +47,8 @@ def build_grid(
   miny -= margin_m
   maxx += margin_m
   maxy += margin_m
-  rows = int((maxy - miny) // tile_size_m) + 1
-  cols = int((maxx - minx) // tile_size_m) + 1
+  rows = max(1, math.ceil((maxy - miny) / tile_size_m))
+  cols = max(1, math.ceil((maxx - minx) / tile_size_m))
   quadrants: list[dict[str, float]] = []
   ident = 1
   for row in range(rows):

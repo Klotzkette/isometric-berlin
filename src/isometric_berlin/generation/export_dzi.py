@@ -6,6 +6,7 @@ import argparse
 import io
 import json
 import math
+import shutil
 import sqlite3
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -54,11 +55,7 @@ def export_dzi(
   dzi_path.parent.mkdir(parents=True, exist_ok=True)
   tiles_root = dzi_path.with_name(f"{dzi_path.stem}_files")
   if tiles_root.exists():
-    for path in sorted(tiles_root.rglob("*"), reverse=True):
-      if path.is_file():
-        path.unlink()
-      else:
-        path.rmdir()
+    shutil.rmtree(tiles_root, ignore_errors=True)
   tiles_root.mkdir(parents=True, exist_ok=True)
 
   width, height = image.size

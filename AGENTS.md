@@ -281,7 +281,11 @@ isometric-berlin/
   permitted sources that were available at fusion time, with
   per-feature provenance and a recorded conflict log.
 - A `quadrants.db` covering the bounds with rendered source PNGs and
-  AI-generated pixel-art PNGs for every quadrant.
+  AI-generated pixel-art PNGs for every quadrant. This SQLite DB is a
+  regenerated intermediate (`generations/**/*.db` is gitignored): it is
+  rebuilt on demand by `create_grid` → `render_quadrants` →
+  `generate_tile`, not committed. The committed deliverable is the DZI
+  pyramid below.
 - A DZI pyramid built into `src/app/public/dzi/regierungsviertel/`.
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
