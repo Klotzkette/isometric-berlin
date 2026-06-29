@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.19"
+PACKAGE_VERSION = "0.1.20"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,10 +213,12 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.19
-ergänzt eine Landmarken-Tour, Tastatursteuerung für vorige/nächste
-Landmarke und Tourstart, klarere rollenfarbige Landmark-Pins und
-stärkere Fokuszustände. Die Version enthält außerdem dichtere
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.20
+schließt die Top-down-Referenzkarte zuverlässig mit Escape, auch wenn
+ein Button fokussiert ist. Sie ergänzt außerdem eine Landmarken-Tour,
+Tastatursteuerung für vorige/nächste Landmarke und Tourstart, klarere
+rollenfarbige Landmark-Pins und stärkere Fokuszustände. Die Version
+enthält außerdem dichtere
 Fassaden- und Fensterdetails der Gebäude, blockierende QA bei
 relativen Landmarken-Fehllagen, strengere Landmarken-Lagechecks,
 sauberer gefilterte aktuelle Wikimedia/Wikipedia-Referenzen, reichere
@@ -256,9 +258,11 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.19 adds a
-landmark tour, keyboard controls for previous/next/tour, clearer
-role-colored landmark pins, and stronger focus states. It also keeps
+does not need an AI model or a Google key to run. Version 0.1.20 closes
+the top-down reference map reliably with Escape, even when a button has
+focus. It also adds a landmark tour, keyboard controls for
+previous/next/tour, clearer role-colored landmark pins, and stronger
+focus states. It also keeps
 denser building facade/window details, makes relative landmark-placement
 failures block QA status, keeps stricter landmark-placement QA, cleaner
 current-day Wikimedia/Wikipedia references, richer building surfaces
