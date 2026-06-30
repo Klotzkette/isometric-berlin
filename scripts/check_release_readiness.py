@@ -1,0 +1,94 @@
+"""Check release metadata and bundled viewer assets before tagging."""
+
+from __future__ import annotations
+
+import json
+import re
+import tomllib
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+VERSION_RE = re.compile(r"__version__ = \"([^\"]+)\"")
+PACKAGE_VERSION_RE = re.compile(r"PACKAGE_VERSION = \"([^\"]+)\"")
+DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
+REQUIRED_VIEWER_FILES = (
+  "landmarks.json",
+  "reference_map.png",
+  "regierungsviertel.dzi",
+  "wikimedia_attribution.json",
+)
+
+
+def project_version(root: Path = ROOT) -> str:
+  metadata = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+  return str(metadata["project"]["version"])
+
+
+def package_version(root: Path = ROOT) -> str:
+  script = (root / "scripts" / "package_static_site.py").read_text(encoding="utf-8")
+  match = PACKAGE_VERSION_RE.search(script)
+  return match.group(1) if match else ""
+
+
+def module_version(root: Path = ROOT) -> str:
+  init = (root / "src" / "isometric_berlin" / "__init__.py").read_text(encoding="utf-8")
+  match = VERSION_RE.search(init)
+  return match.group(1) if match else ""
+
+
+def app_version(root: Path = ROOT) -> str:
+  package = json.loads(
+    (root / "src" / "app" / "package.json").read_text(encoding="utf-8")
+  )
+  return str(package["version"])
+
+
+def has_forbidden_duplicate_name(path: Path) -> bool:
+  return any(
+    part == "__MACOSX" or part.startswith(".") or DUPLICATE_COPY_RE.match(part)
+    for part in path.parts
+  )
+
+
+def collect_failures(root: Path = ROOT) -> list[str]:
+  failures: list[str] = []
+  version = project_version(root)
+  version_sources = {
+    "src/isometric_berlin/__init__.py": module_version(root),
+    "scripts/package_static_site.py": package_version(root),
+    "src/app/package.json": app_version(root),
+  }
+  for source, actual in version_sources.items():
+    if actual != version:
+      failures.append(f"{source} has version {actual!r}, expected {version!r}")
+
+  readme = (root / "README.md").read_text(encoding="utf-8")
+  if f"Local v{version}" not in readme:
+    failures.append(f"README.md status does not mention Local v{version}")
+
+  public_dzi = root / "src" / "app" / "public" / "dzi" / "regierungsviertel"
+  for filename in REQUIRED_VIEWER_FILES:
+    if not (public_dzi / filename).exists():
+      failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
+
+  scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
+  for scan_root in scan_roots:
+    if not scan_root.exists():
+      continue
+    for path in scan_root.rglob("*"):
+      if has_forbidden_duplicate_name(path.relative_to(scan_root)):
+        failures.append(f"Unwanted duplicate/hidden package path: {path}")
+
+  return failures
+
+
+def main() -> None:
+  failures = collect_failures()
+  if failures:
+    details = "\n".join(f"- {failure}" for failure in failures)
+    raise SystemExit(f"Release readiness failed:\n{details}")
+  print(f"Release readiness OK for v{project_version()}")
+
+
+if __name__ == "__main__":
+  main()

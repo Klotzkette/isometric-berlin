@@ -278,7 +278,27 @@ button {
   background: rgba(255, 255, 255, 0.045);
 }
 
-.landmark-list span {
+.landmark-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.landmark-index {
+  display: inline-grid;
+  min-width: 24px;
+  min-height: 20px;
+  place-items: center;
+  border-radius: 5px;
+  color: #241f1a;
+  background: #d8c8a8;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.landmark-name {
   overflow: hidden;
   font-size: 13px;
   line-height: 1.2;
@@ -358,6 +378,21 @@ button {
   font-size: 11px;
   font-weight: 760;
   line-height: 1.35;
+}
+
+.selection-progress {
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.selection-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #e0ae69;
 }
 
 .attribution {

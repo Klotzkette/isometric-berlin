@@ -32,6 +32,13 @@ orientation, and mirror state into the URL hash. Opening that URL restores
 the same landmark focus and view orientation, which makes local QA notes
 and screenshot handoff easier without needing server-side routes.
 
+## Landmark tour order
+
+The viewer sorts `landmarks.json` into a north-to-south Regierungsviertel
+walk before rendering the rail and tour. The source coordinates are not
+moved; only the user-facing order changes. See
+[`correctness-crosscheck.md`](correctness-crosscheck.md).
+
 ## Remote DZI hosting
 
 By default the viewer loads the DZI pyramid, `landmarks.json`, and the
