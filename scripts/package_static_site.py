@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.21"
+PACKAGE_VERSION = "0.1.22"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,7 +213,10 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.21
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.22
+ergänzt ein Tastenkürzel-Hilfefenster (Taste ?), behebt das Anhäufen von
+Marker-Klick-Listenern bei der Landmarken-Tour und erlaubt Remote-DZI-Hosting
+über VITE_DZI_BASE_URL. Sie
 verbessert die Viewer-Workflows mit sichtbaren Vor/Zurück-Controls für
 Landmarken, deaktivierten Controls während des Ladens, wiederhergestelltem
 Fokus nach dem Schließen der Referenzkarte und einer engeren Mobile-Toolbar.
@@ -261,7 +264,10 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.21 improves
+does not need an AI model or a Google key to run. Version 0.1.22 adds a
+keyboard-shortcut help panel (press ?), fixes marker-overlay click-listener
+accumulation during the landmark tour, and supports remote DZI hosting via
+VITE_DZI_BASE_URL. It improves
 viewer workflows with visible previous/next landmark controls, disabled
 controls while loading, restored focus after closing the reference map,
 and a tighter mobile toolbar. It closes the top-down reference map reliably
