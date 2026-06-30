@@ -5,6 +5,7 @@ import {
   Home,
   Info,
   Keyboard,
+  Link2,
   LocateFixed,
   Map as MapIcon,
   MapPinned,
@@ -70,6 +71,12 @@ const ORIENTATIONS = [
   { degrees: NORTH_UP_ROTATION + 270, short: "W", label: "West oben" },
 ] as const;
 
+type ViewHashState = {
+  flipped: boolean | null;
+  landmarkSlug: string | null;
+  rotationDegrees: number | null;
+};
+
 let openSeadragonConsoleFilterInstalled = false;
 
 function installOpenSeadragonConsoleFilter(): void {
@@ -118,6 +125,25 @@ function landmarkShortLabel(name: string): string {
   return LANDMARK_SHORT_LABELS[name] ?? name;
 }
 
+function landmarkSlug(name: string): string {
+  return name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function findLandmarkBySlug(
+  landmarks: Landmark[],
+  slug: string | null,
+): Landmark | null {
+  if (!slug) {
+    return null;
+  }
+  return landmarks.find((landmark) => landmarkSlug(landmark.name) === slug) ?? null;
+}
+
 function normalizeRotation(degrees: number): number {
   return ((degrees % 360) + 360) % 360;
 }
@@ -129,6 +155,54 @@ function rotationDistance(left: number, right: number): number {
 
 function isRotationActive(left: number, right: number): boolean {
   return rotationDistance(left, right) < 0.01;
+}
+
+function rotationFromHashValue(value: string | null): number | null {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.toUpperCase();
+  const orientation = ORIENTATIONS.find(
+    (candidate) => candidate.short === normalized,
+  );
+  if (orientation) {
+    return orientation.degrees;
+  }
+  const numeric = Number.parseFloat(normalized.replace(/DEG$/, ""));
+  return Number.isFinite(numeric) ? normalizeRotation(numeric) : null;
+}
+
+function readViewHash(): ViewHashState {
+  const rawHash = window.location.hash.replace(/^#/, "");
+  if (!rawHash) {
+    return { flipped: null, landmarkSlug: null, rotationDegrees: null };
+  }
+  const params = new URLSearchParams(
+    rawHash.includes("=") ? rawHash : `landmark=${rawHash}`,
+  );
+  const flipValue = params.get("flip");
+  return {
+    flipped: flipValue === null ? null : flipValue === "1",
+    landmarkSlug: params.get("landmark"),
+    rotationDegrees: rotationFromHashValue(params.get("view")),
+  };
+}
+
+function viewUrlFor(
+  landmark: Landmark,
+  rotation: number,
+  isFlipped: boolean,
+): string {
+  const params = new URLSearchParams();
+  const orientation = ORIENTATIONS.find((candidate) =>
+    isRotationActive(candidate.degrees, rotation),
+  );
+  params.set("landmark", landmarkSlug(landmark.name));
+  params.set("view", orientation?.short ?? `${Math.round(rotation)}deg`);
+  if (isFlipped) {
+    params.set("flip", "1");
+  }
+  return `${window.location.origin}${window.location.pathname}${window.location.search}#${params}`;
 }
 
 export function App() {
@@ -258,6 +332,20 @@ export function App() {
     setIsFlipped(false);
   }, []);
 
+  const copyViewLink = useCallback(async () => {
+    if (!selectedLandmark) {
+      return;
+    }
+    const url = viewUrlFor(selectedLandmark, rotation, isFlipped);
+    window.history.replaceState(null, "", url);
+    try {
+      await navigator.clipboard.writeText(url);
+      setStatus("Ansicht-Link kopiert");
+    } catch {
+      setStatus("Ansicht-Link in Adresszeile");
+    }
+  }, [isFlipped, rotation, selectedLandmark]);
+
   const toggleTour = useCallback(() => {
     if (!canNavigateLandmarks) {
       return;
@@ -296,6 +384,24 @@ export function App() {
       })
       .then((payload) => {
         if (!cancelled) {
+          const viewHash = readViewHash();
+          const hashLandmark = findLandmarkBySlug(
+            payload.landmarks,
+            viewHash.landmarkSlug,
+          );
+          if (hashLandmark) {
+            setSelected(hashLandmark.name);
+          }
+          if (viewHash.rotationDegrees !== null) {
+            rotationRef.current = viewHash.rotationDegrees;
+            setRotation(viewHash.rotationDegrees);
+            viewerRef.current?.viewport.setRotation(viewHash.rotationDegrees);
+          }
+          if (viewHash.flipped !== null) {
+            flipRef.current = viewHash.flipped;
+            setIsFlipped(viewHash.flipped);
+            viewerRef.current?.viewport.setFlip(viewHash.flipped);
+          }
           setLandmarks(payload.landmarks);
         }
       })
@@ -343,6 +449,9 @@ export function App() {
       } else if (event.key === " ") {
         event.preventDefault();
         toggleTour();
+      } else if (event.key.toLowerCase() === "l") {
+        event.preventDefault();
+        void copyViewLink();
       } else if (event.key === "+" || event.key === "=") {
         viewerRef.current?.viewport.zoomBy(1.24);
       } else if (event.key === "-") {
@@ -353,6 +462,7 @@ export function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
     closeReferenceMap,
+    copyViewLink,
     focusLandmarkByOffset,
     isHelpOpen,
     isReady,
@@ -580,6 +690,15 @@ export function App() {
           >
             <Keyboard size={18} aria-hidden="true" />
           </button>
+          <button
+            type="button"
+            aria-label="Ansicht-Link kopieren"
+            disabled={!selectedLandmark}
+            title="Ansicht-Link kopieren (L)"
+            onClick={() => void copyViewLink()}
+          >
+            <Link2 size={18} aria-hidden="true" />
+          </button>
         </div>
       </header>
 
@@ -791,6 +910,12 @@ export function App() {
                   <kbd>Home</kbd> <kbd>0</kbd>
                 </dt>
                 <dd>Gesamtansicht zeigen</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>L</kbd>
+                </dt>
+                <dd>Ansicht-Link kopieren</dd>
               </div>
               <div>
                 <dt>

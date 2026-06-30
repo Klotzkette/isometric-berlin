@@ -645,7 +645,7 @@ button {
   }
 
   .toolbar {
-    max-width: 132px;
+    max-width: 174px;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
