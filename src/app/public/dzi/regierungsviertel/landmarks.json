@@ -7,6 +7,7 @@
     {
       "name": "Brandenburger Tor",
       "role": "must_be_visible",
+      "tourOrder": 16,
       "x": 1342,
       "y": 941,
       "nx": 0.622738,
@@ -15,6 +16,7 @@
     {
       "name": "Pariser Platz",
       "role": "owner_added",
+      "tourOrder": 17,
       "x": 1423,
       "y": 974,
       "nx": 0.660325,
@@ -23,6 +25,7 @@
     {
       "name": "Denkmal für die ermordeten Juden Europas",
       "role": "owner_added",
+      "tourOrder": 20,
       "x": 1146,
       "y": 1081,
       "nx": 0.531787,
@@ -31,6 +34,7 @@
     {
       "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
       "role": "owner_added",
+      "tourOrder": 21,
       "x": 928,
       "y": 1043,
       "nx": 0.430626,
@@ -39,6 +43,7 @@
     {
       "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
       "role": "owner_added",
+      "tourOrder": 14,
       "x": 1346,
       "y": 837,
       "nx": 0.624594,
@@ -47,6 +52,7 @@
     {
       "name": "Reichstagsgebäude",
       "role": "hero_tile",
+      "tourOrder": 11,
       "x": 1488,
       "y": 773,
       "nx": 0.690487,
@@ -55,6 +61,7 @@
     {
       "name": "Sowjetisches Ehrenmal Tiergarten",
       "role": "owner_added",
+      "tourOrder": 15,
       "x": 1031,
       "y": 735,
       "nx": 0.478422,
@@ -63,6 +70,7 @@
     {
       "name": "Bundeskanzleramt",
       "role": "must_be_visible",
+      "tourOrder": 8,
       "x": 1225,
       "y": 471,
       "nx": 0.568445,
@@ -71,6 +79,7 @@
     {
       "name": "Paul-Löbe-Haus",
       "role": "must_be_visible",
+      "tourOrder": 10,
       "x": 1569,
       "y": 654,
       "nx": 0.728074,
@@ -79,6 +88,7 @@
     {
       "name": "Marie-Elisabeth-Lüders-Haus",
       "role": "must_be_visible",
+      "tourOrder": 9,
       "x": 1810,
       "y": 706,
       "nx": 0.839907,
@@ -87,6 +97,7 @@
     {
       "name": "Berlin Hauptbahnhof",
       "role": "hero_tile",
+      "tourOrder": 1,
       "x": 1761,
       "y": 231,
       "nx": 0.817169,
@@ -95,6 +106,7 @@
     {
       "name": "Humboldthafen",
       "role": "owner_added",
+      "tourOrder": 2,
       "x": 1919,
       "y": 314,
       "nx": 0.890487,
@@ -103,6 +115,7 @@
     {
       "name": "Hugo-Preuß-Brücke",
       "role": "owner_added",
+      "tourOrder": 3,
       "x": 1766,
       "y": 396,
       "nx": 0.81949,
@@ -111,6 +124,7 @@
     {
       "name": "Rahel-Hirsch-Straße",
       "role": "owner_added",
+      "tourOrder": 4,
       "x": 1565,
       "y": 337,
       "nx": 0.726218,
@@ -119,6 +133,7 @@
     {
       "name": "Moltkebrücke",
       "role": "owner_added",
+      "tourOrder": 6,
       "x": 1382,
       "y": 343,
       "nx": 0.641299,
@@ -127,6 +142,7 @@
     {
       "name": "Haus der Kulturen der Welt (Schwangere Auster)",
       "role": "must_be_visible",
+      "tourOrder": 13,
       "x": 777,
       "y": 369,
       "nx": 0.360557,
@@ -135,6 +151,7 @@
     {
       "name": "Großer Tiergarten",
       "role": "owner_added",
+      "tourOrder": 24,
       "x": 689,
       "y": 885,
       "nx": 0.319722,
@@ -143,6 +160,7 @@
     {
       "name": "Beethoven-Haydn-Mozart-Denkmal",
       "role": "owner_added",
+      "tourOrder": 23,
       "x": 623,
       "y": 832,
       "nx": 0.289095,
@@ -151,6 +169,7 @@
     {
       "name": "Goethe-Denkmal",
       "role": "owner_added",
+      "tourOrder": 22,
       "x": 1000,
       "y": 1023,
       "nx": 0.464037,
@@ -159,6 +178,7 @@
     {
       "name": "Kemperplatz / Tiergartentunnel",
       "role": "owner_added",
+      "tourOrder": 25,
       "x": 405,
       "y": 993,
       "nx": 0.187935,
@@ -167,6 +187,7 @@
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
       "role": "must_be_visible",
+      "tourOrder": 26,
       "x": 430,
       "y": 1168,
       "nx": 0.199536,
@@ -175,6 +196,7 @@
     {
       "name": "Max-Liebermann-Haus",
       "role": "owner_added",
+      "tourOrder": 18,
       "x": 1394,
       "y": 924,
       "nx": 0.646868,
@@ -183,6 +205,7 @@
     {
       "name": "Botschaft der Vereinigten Staaten von Amerika",
       "role": "owner_added",
+      "tourOrder": 19,
       "x": 1267,
       "y": 1006,
       "nx": 0.587935,
@@ -191,6 +214,7 @@
     {
       "name": "Zollpackhof",
       "role": "owner_added",
+      "tourOrder": 7,
       "x": 1203,
       "y": 341,
       "nx": 0.558237,
@@ -199,6 +223,7 @@
     {
       "name": "Gustav-Heinemann-Brücke",
       "role": "owner_added",
+      "tourOrder": 5,
       "x": 1569,
       "y": 406,
       "nx": 0.728074,
@@ -207,6 +232,7 @@
     {
       "name": "Spreebogen",
       "role": "owner_added",
+      "tourOrder": 12,
       "x": 1333,
       "y": 460,
       "nx": 0.618561,

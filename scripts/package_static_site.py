@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.25"
+PACKAGE_VERSION = "0.1.26"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,11 +213,14 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.25
-erweitert die OSM/LoD2-Lageprüfung auf 26 Landmarken, bündelt 68 sauber
-attribuierte Wikimedia-Referenzen für Fassaden, Brücken, Mahnmale,
-Tiergarten und Humboldthafen, und aktualisiert die Top-down-Referenzkarte
-mit lesbaren Kurzlabels. Sie behält die amtlich dokumentierte
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.26
+richtet die Nummern der Landmarken-Leiste und der Top-down-Referenzkarte
+auf dieselbe `tour_order`-Quelle aus und prüft vor Releases auch die
+vollständige DZI-Kachelpyramide. Sie behält die 26-Landmarken-
+OSM/LoD2-Lageprüfung, 68 sauber attribuierte Wikimedia-Referenzen für
+Fassaden, Brücken, Mahnmale, Tiergarten und Humboldthafen sowie die
+Top-down-Referenzkarte mit lesbaren Kurzlabels. Sie behält außerdem die
+amtlich dokumentierte
 Public-Data-Crosscheck-Notiz, eine geographisch sinnvollere
 Landmarken-Tour, nummerierte Landmarken, einen Fokus-Fortschrittsbalken
 und einen Release-Readiness-Check gegen Versionsdrift und fehlende
@@ -275,11 +278,14 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.25 expands
-the OSM/LoD2 placement QA to 26 landmarks, bundles 68 cleanly attributed
-Wikimedia references for facades, bridges, memorials, Tiergarten, and
-Humboldthafen, and refreshes the top-down reference map with readable
-short labels. It keeps the documented public-data correctness crosscheck,
+does not need an AI model or a Google key to run. Version 0.1.26 aligns
+the landmark rail and top-down reference-map numbering to the same
+`tour_order` source and makes release readiness verify the complete DZI
+tile pyramid. It keeps the 26-landmark OSM/LoD2 placement QA, 68 cleanly
+attributed Wikimedia references for facades, bridges, memorials,
+Tiergarten, and Humboldthafen, plus the top-down reference map with
+readable short labels. It keeps the documented public-data correctness
+crosscheck,
 a more geographic landmark-tour order, numbered landmarks, a focus
 progress bar, and a release-readiness check for version drift and missing
 viewer files. It

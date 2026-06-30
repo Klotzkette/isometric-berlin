@@ -126,6 +126,27 @@ def fit_text(
   return suffix
 
 
+def landmark_tour_order(row: object) -> int:
+  try:
+    value = row.get("tour_order")  # type: ignore[attr-defined]
+  except AttributeError:
+    return 1_000
+  try:
+    return int(value)
+  except (TypeError, ValueError):
+    return 1_000
+
+
+def sort_landmarks_for_reference(landmarks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+  if landmarks.empty:
+    return landmarks
+  ordered = landmarks.copy()
+  ordered["_tour_order"] = [landmark_tour_order(row) for _, row in ordered.iterrows()]
+  ordered["_source_order"] = list(range(len(ordered)))
+  ordered = ordered.sort_values(["_tour_order", "_source_order"])
+  return ordered.drop(columns=["_tour_order", "_source_order"])
+
+
 def draw_polygon_layer(
   draw: ImageDraw.ImageDraw,
   gdf: gpd.GeoDataFrame,
@@ -367,7 +388,9 @@ def render_reference_map(
   draw = ImageDraw.Draw(image)
 
   buildings = clipped(load_layer(buildings_path, "buildings"), bounds)
-  landmarks = landmarks_inside(load_landmarks(landmarks_path), bounds)
+  landmarks = sort_landmarks_for_reference(
+    landmarks_inside(load_landmarks(landmarks_path), bounds)
+  )
   osm_layers = {
     layer: clipped(load_layer(osm_path, layer), bounds)
     for layer in ["parks", "water", "roads", "rail"]

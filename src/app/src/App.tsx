@@ -25,6 +25,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 type Landmark = {
   name: string;
   role: string;
+  tourOrder: number;
   x: number;
   y: number;
   nx: number;
@@ -75,35 +76,6 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
   Spreebogen: "Spreebogen",
   "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)":
     "Tiergartentunnel",
-};
-
-const LANDMARK_TOUR_ORDER: Record<string, number> = {
-  "Berlin Hauptbahnhof": 10,
-  Humboldthafen: 12,
-  "Hugo-Preuß-Brücke": 15,
-  "Rahel-Hirsch-Straße": 18,
-  "Gustav-Heinemann-Brücke": 22,
-  Moltkebrücke: 25,
-  Zollpackhof: 28,
-  Bundeskanzleramt: 35,
-  "Marie-Elisabeth-Lüders-Haus": 40,
-  "Paul-Löbe-Haus": 45,
-  Reichstagsgebäude: 55,
-  Spreebogen: 60,
-  "Haus der Kulturen der Welt (Schwangere Auster)": 65,
-  "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas": 70,
-  "Sowjetisches Ehrenmal Tiergarten": 72,
-  "Brandenburger Tor": 80,
-  "Pariser Platz": 82,
-  "Max-Liebermann-Haus": 84,
-  "Botschaft der Vereinigten Staaten von Amerika": 86,
-  "Denkmal für die ermordeten Juden Europas": 90,
-  "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen": 95,
-  "Goethe-Denkmal": 100,
-  "Beethoven-Haydn-Mozart-Denkmal": 105,
-  "Großer Tiergarten": 110,
-  "Kemperplatz / Tiergartentunnel": 120,
-  "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)": 130,
 };
 
 const NORTH_UP_ROTATION = 296.565051177078;
@@ -190,8 +162,8 @@ function findLandmarkBySlug(
 
 function sortLandmarksForTour(landmarks: Landmark[]): Landmark[] {
   return [...landmarks].sort((left, right) => {
-    const leftOrder = LANDMARK_TOUR_ORDER[left.name] ?? 1_000;
-    const rightOrder = LANDMARK_TOUR_ORDER[right.name] ?? 1_000;
+    const leftOrder = left.tourOrder ?? 1_000;
+    const rightOrder = right.tourOrder ?? 1_000;
     if (leftOrder !== rightOrder) {
       return leftOrder - rightOrder;
     }

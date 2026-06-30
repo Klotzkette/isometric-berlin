@@ -54,14 +54,14 @@ def landmark_records(
   crop_bbox: tuple[int, int, int, int],
   render_px: int,
   margin_m: float,
-) -> list[dict[str, str | float]]:
+) -> list[dict[str, str | float | int]]:
   left, upper, right, lower = crop_bbox
   width = right - left
   height = lower - upper
   span_x = quad["maxx"] - quad["minx"] + margin_m * 2
   span_y = quad["maxy"] - quad["miny"] + margin_m * 2
   scale = render_px / ((span_x + span_y) * 0.7)
-  records: list[dict[str, str | float]] = []
+  records: list[dict[str, str | float | int]] = []
   for _, row in landmarks.iterrows():
     if row.geometry.geom_type != "Point":
       continue
@@ -81,6 +81,7 @@ def landmark_records(
       {
         "name": str(row.get("name", "")),
         "role": str(row.get("role", "context")),
+        "tourOrder": int(row.get("tour_order", 1_000)),
         "x": round(x, 2),
         "y": round(y, 2),
         "nx": round(x / width, 6) if width else 0,

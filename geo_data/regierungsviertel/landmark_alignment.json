@@ -1156,7 +1156,7 @@
       "status": "ok"
     }
   ],
-  "generated_at": "2026-06-30T08:44:44.980512+00:00",
+  "generated_at": "2026-06-30T12:20:15.616717+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -1410,7 +1410,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "ca6217cebeba5960dc5d0ffe1fc28a50de365862da7f3ef95d6af2d87575f436"
+      "sha256": "02bdddccf236e8a2cdd2b814f7f2960eba73f23e2ab66ff293756c18be446577"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",

@@ -4,11 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import geopandas as gpd
 from PIL import Image
 
-from isometric_berlin.generation.render_reference_map import MapTransform
+from isometric_berlin.generation.render_reference_map import (
+  MapTransform,
+  sort_landmarks_for_reference,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "geo_data" / "regierungsviertel"
 REFERENCE_MAP = ROOT / "src/app/public/dzi/regierungsviertel/reference_map.png"
 
 
@@ -39,3 +44,24 @@ def test_committed_reference_map_is_packaged_asset() -> None:
   with Image.open(REFERENCE_MAP) as image:
     assert image.size == (1900, 1300)
     assert image.mode == "RGB"
+
+
+def test_reference_map_numbers_follow_viewer_tour_order() -> None:
+  landmarks = gpd.read_file(DATA / "landmarks.geojson")
+
+  ordered = sort_landmarks_for_reference(landmarks)
+  names = list(ordered["name"])
+
+  assert names[:7] == [
+    "Berlin Hauptbahnhof",
+    "Humboldthafen",
+    "Hugo-Preuß-Brücke",
+    "Rahel-Hirsch-Straße",
+    "Gustav-Heinemann-Brücke",
+    "Moltkebrücke",
+    "Zollpackhof",
+  ]
+  assert names.index("Brandenburger Tor") + 1 == 16
+  assert (
+    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 26
+  )

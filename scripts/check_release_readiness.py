@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 import tomllib
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +19,8 @@ REQUIRED_VIEWER_FILES = (
   "regierungsviertel.dzi",
   "wikimedia_attribution.json",
 )
+DZI_DESCRIPTOR = "regierungsviertel.dzi"
+DZI_TILES_DIR = "regierungsviertel_files"
 
 
 def project_version(root: Path = ROOT) -> str:
@@ -50,6 +54,53 @@ def has_forbidden_duplicate_name(path: Path) -> bool:
   )
 
 
+def dzi_tile_failures(public_dzi: Path) -> list[str]:
+  descriptor = public_dzi / DZI_DESCRIPTOR
+  tiles_root = public_dzi / DZI_TILES_DIR
+  if not descriptor.exists():
+    return [f"Missing DZI descriptor: {descriptor}"]
+  if not tiles_root.is_dir():
+    return [f"Missing DZI tile directory: {tiles_root}"]
+
+  try:
+    root = ET.parse(descriptor).getroot()
+  except ET.ParseError as exc:
+    return [f"Invalid DZI descriptor {descriptor}: {exc}"]
+
+  try:
+    tile_size = int(root.attrib["TileSize"])
+    fmt = root.attrib["Format"]
+    size = next(child for child in root if child.tag.endswith("Size"))
+    width = int(size.attrib["Width"])
+    height = int(size.attrib["Height"])
+  except (KeyError, StopIteration, ValueError) as exc:
+    return [f"Incomplete DZI descriptor {descriptor}: {exc}"]
+
+  if tile_size <= 0 or width <= 0 or height <= 0:
+    return [f"Invalid DZI dimensions in {descriptor}"]
+
+  failures: list[str] = []
+  max_level = math.ceil(math.log2(max(width, height)))
+  for level in range(max_level + 1):
+    scale = 2 ** (max_level - level)
+    level_width = math.ceil(width / scale)
+    level_height = math.ceil(height / scale)
+    cols = math.ceil(level_width / tile_size)
+    rows = math.ceil(level_height / tile_size)
+    level_dir = tiles_root / str(level)
+    if not level_dir.is_dir():
+      failures.append(f"Missing DZI level directory: {level_dir}")
+      continue
+    for row in range(rows):
+      for col in range(cols):
+        tile = level_dir / f"{col}_{row}.{fmt}"
+        if not tile.exists():
+          failures.append(f"Missing DZI tile: {tile}")
+        elif tile.stat().st_size == 0:
+          failures.append(f"Empty DZI tile: {tile}")
+  return failures
+
+
 def collect_failures(root: Path = ROOT) -> list[str]:
   failures: list[str] = []
   version = project_version(root)
@@ -70,6 +121,7 @@ def collect_failures(root: Path = ROOT) -> list[str]:
   for filename in REQUIRED_VIEWER_FILES:
     if not (public_dzi / filename).exists():
       failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
+  failures.extend(dzi_tile_failures(public_dzi))
 
   scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
   for scan_root in scan_roots:

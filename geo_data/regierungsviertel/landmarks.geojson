@@ -12,7 +12,8 @@
       "type": "Feature",
       "properties": {
         "name": "Brandenburger Tor",
-        "role": "must_be_visible"
+        "role": "must_be_visible",
+        "tour_order": 16
       },
       "geometry": {
         "type": "Point",
@@ -23,7 +24,8 @@
       "type": "Feature",
       "properties": {
         "name": "Pariser Platz",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 17
       },
       "geometry": {
         "type": "Point",
@@ -34,7 +36,8 @@
       "type": "Feature",
       "properties": {
         "name": "Denkmal für die ermordeten Juden Europas",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 20
       },
       "geometry": {
         "type": "Point",
@@ -45,7 +48,8 @@
       "type": "Feature",
       "properties": {
         "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 21
       },
       "geometry": {
         "type": "Point",
@@ -56,7 +60,8 @@
       "type": "Feature",
       "properties": {
         "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 14
       },
       "geometry": {
         "type": "Point",
@@ -67,7 +72,8 @@
       "type": "Feature",
       "properties": {
         "name": "Reichstagsgebäude",
-        "role": "hero_tile"
+        "role": "hero_tile",
+        "tour_order": 11
       },
       "geometry": {
         "type": "Point",
@@ -78,7 +84,8 @@
       "type": "Feature",
       "properties": {
         "name": "Sowjetisches Ehrenmal Tiergarten",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 15
       },
       "geometry": {
         "type": "Point",
@@ -89,7 +96,8 @@
       "type": "Feature",
       "properties": {
         "name": "Bundeskanzleramt",
-        "role": "must_be_visible"
+        "role": "must_be_visible",
+        "tour_order": 8
       },
       "geometry": {
         "type": "Point",
@@ -100,7 +108,8 @@
       "type": "Feature",
       "properties": {
         "name": "Paul-Löbe-Haus",
-        "role": "must_be_visible"
+        "role": "must_be_visible",
+        "tour_order": 10
       },
       "geometry": {
         "type": "Point",
@@ -111,7 +120,8 @@
       "type": "Feature",
       "properties": {
         "name": "Marie-Elisabeth-Lüders-Haus",
-        "role": "must_be_visible"
+        "role": "must_be_visible",
+        "tour_order": 9
       },
       "geometry": {
         "type": "Point",
@@ -122,7 +132,8 @@
       "type": "Feature",
       "properties": {
         "name": "Berlin Hauptbahnhof",
-        "role": "hero_tile"
+        "role": "hero_tile",
+        "tour_order": 1
       },
       "geometry": {
         "type": "Point",
@@ -133,7 +144,8 @@
       "type": "Feature",
       "properties": {
         "name": "Humboldthafen",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 2
       },
       "geometry": {
         "type": "Point",
@@ -144,7 +156,8 @@
       "type": "Feature",
       "properties": {
         "name": "Hugo-Preuß-Brücke",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 3
       },
       "geometry": {
         "type": "Point",
@@ -155,7 +168,8 @@
       "type": "Feature",
       "properties": {
         "name": "Rahel-Hirsch-Straße",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 4
       },
       "geometry": {
         "type": "Point",
@@ -166,7 +180,8 @@
       "type": "Feature",
       "properties": {
         "name": "Moltkebrücke",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 6
       },
       "geometry": {
         "type": "Point",
@@ -177,7 +192,8 @@
       "type": "Feature",
       "properties": {
         "name": "Haus der Kulturen der Welt (Schwangere Auster)",
-        "role": "must_be_visible"
+        "role": "must_be_visible",
+        "tour_order": 13
       },
       "geometry": {
         "type": "Point",
@@ -188,7 +204,8 @@
       "type": "Feature",
       "properties": {
         "name": "Großer Tiergarten",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 24
       },
       "geometry": {
         "type": "Point",
@@ -199,7 +216,8 @@
       "type": "Feature",
       "properties": {
         "name": "Beethoven-Haydn-Mozart-Denkmal",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 23
       },
       "geometry": {
         "type": "Point",
@@ -210,7 +228,8 @@
       "type": "Feature",
       "properties": {
         "name": "Goethe-Denkmal",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 22
       },
       "geometry": {
         "type": "Point",
@@ -221,7 +240,8 @@
       "type": "Feature",
       "properties": {
         "name": "Kemperplatz / Tiergartentunnel",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 25
       },
       "geometry": {
         "type": "Point",
@@ -232,7 +252,8 @@
       "type": "Feature",
       "properties": {
         "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
-        "role": "must_be_visible"
+        "role": "must_be_visible",
+        "tour_order": 26
       },
       "geometry": {
         "type": "Point",
@@ -243,7 +264,8 @@
       "type": "Feature",
       "properties": {
         "name": "Max-Liebermann-Haus",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 18
       },
       "geometry": {
         "type": "Point",
@@ -254,7 +276,8 @@
       "type": "Feature",
       "properties": {
         "name": "Botschaft der Vereinigten Staaten von Amerika",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 19
       },
       "geometry": {
         "type": "Point",
@@ -265,7 +288,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zollpackhof",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 7
       },
       "geometry": {
         "type": "Point",
@@ -276,7 +300,8 @@
       "type": "Feature",
       "properties": {
         "name": "Gustav-Heinemann-Brücke",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 5
       },
       "geometry": {
         "type": "Point",
@@ -287,7 +312,8 @@
       "type": "Feature",
       "properties": {
         "name": "Spreebogen",
-        "role": "owner_added"
+        "role": "owner_added",
+        "tour_order": 12
       },
       "geometry": {
         "type": "Point",
