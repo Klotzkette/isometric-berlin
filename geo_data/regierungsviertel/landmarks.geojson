@@ -22,12 +22,67 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Pariser Platz",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3788652, 52.516363]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Denkmal für die ermordeten Juden Europas",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3784494, 52.513979]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3761369, 52.5132577]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3760406, 52.5172829]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Reichstagsgebäude",
         "role": "hero_tile"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [13.3761, 52.5186]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sowjetisches Ehrenmal Tiergarten",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.371919, 52.5166949]
       }
     },
     {
@@ -77,12 +132,100 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Humboldthafen",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3719899, 52.5250901]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hugo-Preuß-Brücke",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3721183, 52.5235582]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rahel-Hirsch-Straße",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3696072, 52.5231174]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Moltkebrücke",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3682697, 52.5221566]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Haus der Kulturen der Welt (Schwangere Auster)",
         "role": "must_be_visible"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [13.364, 52.5189]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Großer Tiergarten",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3716983, 52.5135731]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Beethoven-Haydn-Mozart-Denkmal",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.370336, 52.5137454]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Goethe-Denkmal",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3763737, 52.5137982]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kemperplatz / Tiergartentunnel",
+        "role": "owner_added"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3712477, 52.5111395]
       }
     },
     {

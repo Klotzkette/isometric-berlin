@@ -154,6 +154,9 @@ def test_slugify_is_filesystem_safe() -> None:
   assert fw.slugify("File:Berlin Hauptbahnhof, Ostseite.jpg") == (
     "file-berlin-hauptbahnhof-ostseite-jpg"
   )
+  assert fw.slugify("File:Marie-Elisabeth-Lüders-Haus Berlin.jpg") == (
+    "file-marie-elisabeth-luders-haus-berlin-jpg"
+  )
 
 
 def test_title_suitable_rejects_loose_or_non_facade_matches() -> None:
@@ -183,3 +186,54 @@ def test_title_suitable_rejects_loose_or_non_facade_matches() -> None:
     "hauptbahnhof",
     "File:Berlin Hauptbahnhof, Notausgang auf dem Washingtonplatz.jpg",
   )
+
+
+def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
+  examples = {
+    "paul_loebe_haus": "File:Paul-Löbe-Haus Berlin Westfassade.jpg",
+    "marie_elisabeth_lueders_haus": (
+      "File:Marie-Elisabeth-Lüders-Haus Berlin Spree.jpg"
+    ),
+    "hugo_preuss_bruecke": "File:Hugo-Preuß-Brücke Berlin.jpg",
+    "moltkebruecke": "File:Moltkebrücke Berlin-Mitte.jpg",
+    "holocaust_memorial": ("File:Denkmal für die ermordeten Juden Europas Berlin.jpg"),
+    "memorial_homosexuals": (
+      "File:Denkmal für die im Nationalsozialismus verfolgten Homosexuellen.jpg"
+    ),
+    "beethoven_haydn_mozart_memorial": (
+      "File:Beethoven-Haydn-Mozart-Denkmal Berlin-Tiergarten.jpg"
+    ),
+    "soviet_war_memorial_tiergarten": (
+      "File:Sowjetisches Ehrenmal Tiergarten Berlin.jpg"
+    ),
+  }
+
+  assert all(
+    fw.title_suitable(landmark_id, title) for landmark_id, title in examples.items()
+  )
+
+
+def test_committed_wikimedia_manifest_covers_expanded_reference_groups() -> None:
+  payload = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+  present = {str(record.get("landmark_id")) for record in payload["records"]}
+
+  assert {
+    "reichstag",
+    "bundeskanzleramt",
+    "paul_loebe_haus",
+    "marie_elisabeth_lueders_haus",
+    "hauptbahnhof",
+    "humboldthafen",
+    "gustav_heinemann_bruecke",
+    "hugo_preuss_bruecke",
+    "hkw",
+    "brandenburger_tor",
+    "holocaust_memorial",
+    "memorial_homosexuals",
+    "soviet_war_memorial_tiergarten",
+    "tiergarten_spreebogen",
+  }.issubset(present)

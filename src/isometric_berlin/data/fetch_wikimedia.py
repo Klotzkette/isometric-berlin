@@ -12,6 +12,7 @@ import html
 import json
 import re
 import textwrap
+import unicodedata
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -31,12 +32,43 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "bundeskanzleramt": [
     "Bundeskanzleramt Berlin south side",
     "Bundeskanzleramt Berlin exterior",
+    "Berlin Bundeskanzleramt Spreebogen exterior",
+  ],
+  "paul_loebe_haus": [
+    "Paul-Löbe-Haus Berlin exterior",
+    "Paul Loebe Haus Bundestag Berlin",
+    "Paul-Löbe-Haus Spree Berlin",
+  ],
+  "marie_elisabeth_lueders_haus": [
+    "Marie-Elisabeth-Lüders-Haus Berlin exterior",
+    "Marie Elisabeth Lueders Haus Berlin Spree",
+    "Marie-Elisabeth-Lüders-Haus Bundestag Berlin",
   ],
   "hauptbahnhof": [
     "Berlin Hauptbahnhof Washingtonplatz facade",
     "Berlin Hauptbahnhof glass facade",
     "Berlin Hauptbahnhof east facade",
     "Berlin Hauptbahnhof glass roof exterior",
+  ],
+  "humboldthafen": [
+    "Humboldthafen Berlin Hauptbahnhof",
+    "Berlin Humboldthafen",
+  ],
+  "rahel_hirsch_strasse": [
+    "Rahel-Hirsch-Straße Berlin Hauptbahnhof",
+    "Rahel Hirsch Strasse Berlin",
+  ],
+  "gustav_heinemann_bruecke": [
+    "Gustav-Heinemann-Brücke Berlin",
+    "Gustav Heinemann Bridge Berlin",
+  ],
+  "hugo_preuss_bruecke": [
+    "Hugo-Preuß-Brücke Berlin",
+    "Hugo Preuss Bridge Berlin",
+  ],
+  "moltkebruecke": [
+    "Moltkebrücke Berlin",
+    "Moltkebruecke Berlin",
   ],
   "hkw": [
     "Haus der Kulturen der Welt Berlin exterior",
@@ -45,20 +77,107 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "brandenburger_tor": [
     "Brandenburger Tor Berlin Pariser Platz",
   ],
+  "pariser_platz": [
+    "Pariser Platz Berlin Brandenburger Tor",
+    "Berlin Pariser Platz Brandenburger Tor",
+  ],
+  "max_liebermann_haus": [
+    "Max-Liebermann-Haus Berlin Pariser Platz",
+    "MaxLiebermannHaus Berlin",
+    "Max-Liebermann-Haus und Palais am Pariser Platz",
+  ],
+  "us_embassy": [
+    "United States Embassy Berlin Pariser Platz",
+    "Amerikanische Botschaft Berlin Pariser Platz",
+  ],
+  "holocaust_memorial": [
+    "Denkmal für die ermordeten Juden Europas Berlin",
+    "Memorial to the Murdered Jews of Europe Berlin",
+  ],
+  "memorial_homosexuals": [
+    "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen Berlin",
+    "Memorial to Homosexuals Persecuted Under Nazism Berlin",
+  ],
+  "sinti_roma_memorial": [
+    "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+    "Sinti und Roma Denkmal Berlin Tiergarten",
+  ],
+  "beethoven_haydn_mozart_memorial": [
+    "Beethoven-Haydn-Mozart-Denkmal Berlin Tiergarten",
+    "Beethoven Haydn Mozart Memorial Berlin",
+  ],
+  "goethe_denkmal": [
+    "Goethe-Denkmal Berlin Tiergarten",
+    "Goethe Denkmal Tiergarten Berlin",
+  ],
+  "soviet_war_memorial_tiergarten": [
+    "Sowjetisches Ehrenmal Tiergarten Berlin",
+    "Soviet War Memorial Tiergarten Berlin",
+  ],
+  "kemperplatz_tiergartentunnel": [
+    "Kemperplatz Berlin Tiergartentunnel",
+    "Tunnel Tiergarten Spreebogen Kemperplatz Berlin",
+    "Berlin Tiergartentunnel",
+  ],
   "tiergarten_spreebogen": [
     "Spreebogenpark Berlin Tiergarten",
     "Tiergarten Berlin Spreebogen",
     "Spreebogenpark Berlin",
+  ],
+  "tiergarten": [
+    "Tiergarten Berlin Ebertstraße Goethe Denkmal",
+    "Großer Tiergarten Berlin Reichstag",
+    "Tiergarten Berlin park entrance",
   ],
 }
 
 REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
   "reichstag": ("reichstag", "reichstags"),
   "bundeskanzleramt": ("bundeskanzleramt", "kanzler"),
+  "paul_loebe_haus": ("paul-lobe", "paul-loebe", "lobe-haus", "loebe-haus"),
+  "marie_elisabeth_lueders_haus": (
+    "marie-elisabeth",
+    "luders-haus",
+    "lueders-haus",
+  ),
   "hauptbahnhof": ("hauptbahnhof",),
+  "humboldthafen": ("humboldthafen",),
+  "rahel_hirsch_strasse": ("rahel-hirsch",),
+  "gustav_heinemann_bruecke": ("gustav-heinemann",),
+  "hugo_preuss_bruecke": ("hugo-preuss",),
+  "moltkebruecke": ("moltkebrucke", "moltke-brucke", "moltke"),
   "hkw": ("haus-der-kulturen", "kulturen-der-welt", "kongresshalle", "hkdw", "hkw"),
   "brandenburger_tor": ("brandenburger",),
+  "pariser_platz": ("pariser-platz",),
+  "max_liebermann_haus": (
+    "maxliebermannhaus",
+    "max-liebermann-haus",
+  ),
+  "us_embassy": ("embassy", "botschaft", "amerikanische", "united-states"),
+  "holocaust_memorial": (
+    "denkmal-fur-die-ermordeten-juden",
+    "memorial-to-the-murdered-jews",
+    "holocaust",
+  ),
+  "memorial_homosexuals": ("homosexuellen", "homosexuals", "homosexual"),
+  "sinti_roma_memorial": ("sinti", "roma"),
+  "beethoven_haydn_mozart_memorial": (
+    "beethoven-haydn-mozart",
+    "beethoven-haydn-mozart-denkmal",
+  ),
+  "goethe_denkmal": ("goethe",),
+  "soviet_war_memorial_tiergarten": (
+    "sowjetisches-ehrenmal",
+    "soviet-war-memorial",
+    "tiergarten",
+  ),
+  "kemperplatz_tiergartentunnel": (
+    "kemperplatz",
+    "tiergartentunnel",
+    "tunnel-tiergarten-spreebogen",
+  ),
   "tiergarten_spreebogen": ("tiergarten", "spreebogen", "spreebogenpark"),
+  "tiergarten": ("tiergarten",),
 }
 
 EXCLUDED_TITLE_TERMS = (
@@ -66,30 +185,54 @@ EXCLUDED_TITLE_TERMS = (
   "architekt",
   "archiv",
   "archive",
+  "ambassador",
+  "ambassadors",
+  "alte-nationalgalerie",
+  "amsterdam",
   "ausschreitungen",
   "blaue-stunde",
+  "blumenstauden",
   "bundesversammlung",
   "bundesarchiv",
   "cube",
+  "christmas",
+  "decoration",
   "demonstration",
   "exclusion-zone",
+  "gedenktafel",
+  "hanukkah",
   "historical",
   "historisch",
+  "hindenburg",
   "interior",
   "innen",
   "karte",
   "map",
+  "naumann",
   "nachts",
   "night",
   "ost-berlin",
   "plan",
+  "portrait",
+  "portrat",
+  "portraet",
   "protest",
+  "siegessaule",
+  "siegessaeule",
+  "siegessäule",
   "skulptur",
+  "stolperstein",
   "tafel",
   "notausgang",
+  "ukrainian",
+  "underground",
   "wahl",
+  "waisenhaus",
+  "wannseegarten",
+  "wreath",
+  "wannsee",
 )
-HISTORIC_YEAR_RE = re.compile(r"(?<!\d)19\d{2}(?!\d)")
+HISTORIC_YEAR_RE = re.compile(r"(?<!\d)(?:18|19)\d{2}(?!\d)")
 
 
 @dataclass(frozen=True)
@@ -209,7 +352,13 @@ def search_commons(landmark_id: str, query: str, *, limit: int) -> list[Wikimedi
 
 
 def slugify(value: str) -> str:
-  slug = re.sub(r"[^a-zA-Z0-9]+", "-", value.lower()).strip("-")
+  value = value.replace("ß", "ss").replace("ẞ", "SS")
+  ascii_value = "".join(
+    char
+    for char in unicodedata.normalize("NFKD", value)
+    if not unicodedata.combining(char)
+  )
+  slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_value.lower()).strip("-")
   return slug[:96] or "image"
 
 

@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.24"
+PACKAGE_VERSION = "0.1.25"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,11 +213,15 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.24
-ergänzt eine amtlich dokumentierte Public-Data-Crosscheck-Notiz, eine
-geographisch sinnvollere Landmarken-Tour, nummerierte Landmarken, einen
-Fokus-Fortschrittsbalken und einen Release-Readiness-Check gegen
-Versionsdrift und fehlende Viewer-Dateien. Sie enthält außerdem kopierbare
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.25
+erweitert die OSM/LoD2-Lageprüfung auf 26 Landmarken, bündelt 68 sauber
+attribuierte Wikimedia-Referenzen für Fassaden, Brücken, Mahnmale,
+Tiergarten und Humboldthafen, und aktualisiert die Top-down-Referenzkarte
+mit lesbaren Kurzlabels. Sie behält die amtlich dokumentierte
+Public-Data-Crosscheck-Notiz, eine geographisch sinnvollere
+Landmarken-Tour, nummerierte Landmarken, einen Fokus-Fortschrittsbalken
+und einen Release-Readiness-Check gegen Versionsdrift und fehlende
+Viewer-Dateien. Sie enthält außerdem kopierbare
 Ansicht-Links für Landmarke, Ausrichtung und Spiegelung, stellt solche
 Hash-Links beim Öffnen wieder her und hält die erweiterte Toolbar auf
 kleinen Bildschirmen zweizeilig. Sie enthält außerdem ein
@@ -271,10 +275,14 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.24 adds a
-documented public-data correctness crosscheck, a more geographic
-landmark-tour order, numbered landmarks, a focus progress bar, and a
-release-readiness check for version drift and missing viewer files. It
+does not need an AI model or a Google key to run. Version 0.1.25 expands
+the OSM/LoD2 placement QA to 26 landmarks, bundles 68 cleanly attributed
+Wikimedia references for facades, bridges, memorials, Tiergarten, and
+Humboldthafen, and refreshes the top-down reference map with readable
+short labels. It keeps the documented public-data correctness crosscheck,
+a more geographic landmark-tour order, numbered landmarks, a focus
+progress bar, and a release-readiness check for version drift and missing
+viewer files. It
 also adds copyable view links for the selected landmark, orientation, and
 mirror state, restores those hash links on open, and keeps the expanded
 toolbar to two rows on small screens. It also adds a keyboard-shortcut

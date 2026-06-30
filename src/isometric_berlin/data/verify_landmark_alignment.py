@@ -22,9 +22,33 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["brandenburger tor"],
     "max_distance_m": 20.0,
   },
+  "Pariser Platz": {
+    "aliases": ["pariser platz"],
+    "max_distance_m": 35.0,
+  },
+  "Denkmal für die ermordeten Juden Europas": {
+    "aliases": ["denkmal fur die ermordeten juden europas"],
+    "max_distance_m": 35.0,
+  },
+  "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen": {
+    "aliases": [
+      "denkmal fur die im nationalsozialismus verfolgten homosexuellen",
+    ],
+    "max_distance_m": 35.0,
+  },
+  "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas": {
+    "aliases": [
+      "denkmal fur die im nationalsozialismus ermordeten sinti und roma europas",
+    ],
+    "max_distance_m": 35.0,
+  },
   "Reichstagsgebäude": {
     "aliases": ["reichstagsgebaude", "reichstagskuppel"],
     "max_distance_m": 25.0,
+  },
+  "Sowjetisches Ehrenmal Tiergarten": {
+    "aliases": ["sowjetisches ehrenmal tiergarten"],
+    "max_distance_m": 35.0,
   },
   "Bundeskanzleramt": {
     "aliases": ["bundeskanzleramt"],
@@ -42,9 +66,41 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["berlin hauptbahnhof", "hauptbahnhof"],
     "max_distance_m": 35.0,
   },
+  "Humboldthafen": {
+    "aliases": ["humboldthafen"],
+    "max_distance_m": 35.0,
+  },
+  "Hugo-Preuß-Brücke": {
+    "aliases": ["hugo preuss brucke"],
+    "max_distance_m": 35.0,
+  },
+  "Rahel-Hirsch-Straße": {
+    "aliases": ["rahel hirsch strasse"],
+    "max_distance_m": 35.0,
+  },
+  "Moltkebrücke": {
+    "aliases": ["moltkebrucke"],
+    "max_distance_m": 35.0,
+  },
   "Haus der Kulturen der Welt (Schwangere Auster)": {
     "aliases": ["haus der kulturen der welt"],
     "max_distance_m": 35.0,
+  },
+  "Großer Tiergarten": {
+    "aliases": ["grosser tiergarten"],
+    "max_distance_m": 80.0,
+  },
+  "Beethoven-Haydn-Mozart-Denkmal": {
+    "aliases": ["beethoven haydn mozart denkmal"],
+    "max_distance_m": 35.0,
+  },
+  "Goethe-Denkmal": {
+    "aliases": ["goethe denkmal", "johann wolfgang von goethe"],
+    "max_distance_m": 35.0,
+  },
+  "Kemperplatz / Tiergartentunnel": {
+    "aliases": ["kemperplatz", "tunnel tiergarten spreebogen"],
+    "max_distance_m": 60.0,
   },
   "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)": {
     "aliases": [
@@ -85,6 +141,27 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
   {
     "from": "Berlin Hauptbahnhof",
+    "to": "Hugo-Preuß-Brücke",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Hugo-Preuß-Brücke lies southeast of Hauptbahnhof at Humboldthafen.",
+  },
+  {
+    "from": "Berlin Hauptbahnhof",
+    "to": "Rahel-Hirsch-Straße",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Rahel-Hirsch-Straße runs south/east of Hauptbahnhof.",
+  },
+  {
+    "from": "Berlin Hauptbahnhof",
+    "to": "Moltkebrücke",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "Moltkebrücke lies southwest of Hauptbahnhof.",
+  },
+  {
+    "from": "Berlin Hauptbahnhof",
     "to": "Bundeskanzleramt",
     "east_west": "west",
     "north_south": "south",
@@ -120,10 +197,24 @@ RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
   },
   {
     "from": "Reichstagsgebäude",
+    "to": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "The Sinti and Roma memorial lies southwest of the Reichstag.",
+  },
+  {
+    "from": "Reichstagsgebäude",
     "to": "Brandenburger Tor",
     "east_west": "east",
     "north_south": "south",
     "note": "Brandenburger Tor lies southeast of the Reichstag.",
+  },
+  {
+    "from": "Brandenburger Tor",
+    "to": "Pariser Platz",
+    "east_west": "east",
+    "north_south": "north",
+    "note": "Pariser Platz is just east/northeast of the Brandenburger Tor point.",
   },
   {
     "from": "Brandenburger Tor",
@@ -133,11 +224,53 @@ RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
     "note": "US Embassy lies just southeast/south of Brandenburger Tor.",
   },
   {
+    "from": "Brandenburger Tor",
+    "to": "Denkmal für die ermordeten Juden Europas",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Holocaust memorial lies southeast of Brandenburger Tor.",
+  },
+  {
+    "from": "Brandenburger Tor",
+    "to": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "The memorial to persecuted homosexuals lies southwest of the gate.",
+  },
+  {
+    "from": "Brandenburger Tor",
+    "to": "Sowjetisches Ehrenmal Tiergarten",
+    "east_west": "west",
+    "north_south": "north",
+    "note": "Soviet War Memorial lies west/northwest of Brandenburger Tor.",
+  },
+  {
     "from": "Haus der Kulturen der Welt (Schwangere Auster)",
     "to": "Reichstagsgebäude",
     "east_west": "east",
     "north_south": "south",
     "note": "Reichstag lies east/south of HKW across the Tiergarten edge.",
+  },
+  {
+    "from": "Großer Tiergarten",
+    "to": "Beethoven-Haydn-Mozart-Denkmal",
+    "east_west": "west",
+    "north_south": "north",
+    "note": "The Beethoven-Haydn-Mozart memorial sits west/northwest in Tiergarten.",
+  },
+  {
+    "from": "Großer Tiergarten",
+    "to": "Goethe-Denkmal",
+    "east_west": "east",
+    "north_south": "north",
+    "note": "Goethe-Denkmal sits east/northeast of the Tiergarten reference point.",
+  },
+  {
+    "from": "Kemperplatz / Tiergartentunnel",
+    "to": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "The southern tunnel/Potsdamer Platz marker lies southeast of Kemperplatz.",
   },
 )
 

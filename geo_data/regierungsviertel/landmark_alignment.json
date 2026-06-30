@@ -52,6 +52,182 @@
         "distance_m": 0.0,
         "geometry_type": "Polygon",
         "government": null,
+        "highway": "pedestrian",
+        "historic": null,
+        "name": "Pariser Platz",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "pariser platz"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0001x9i",
+        "nearest_distance_m": 58.52
+      },
+      "name": "Pariser Platz",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": "pedestrian",
+        "historic": null,
+        "name": "Pariser Platz",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "monument",
+        "name": "Denkmal f\u00fcr die ermordeten Juden Europas",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "denkmal fur die ermordeten juden europas"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE00YYGu00005X",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0001xm6",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Denkmal f\u00fcr die ermordeten Juden Europas",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "monument",
+        "name": "Denkmal f\u00fcr die ermordeten Juden Europas",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Denkmal f\u00fcr die im Nationalsozialismus verfolgten Homosexuellen",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "denkmal fur die im nationalsozialismus verfolgten homosexuellen"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01AL3Ib00000",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01AL3Ib00000",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Denkmal f\u00fcr die im Nationalsozialismus verfolgten Homosexuellen",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Denkmal f\u00fcr die im Nationalsozialismus verfolgten Homosexuellen",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Denkmal f\u00fcr die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "denkmal fur die im nationalsozialismus ermordeten sinti und roma europas"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002KL4",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002KL4",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Denkmal f\u00fcr die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Denkmal f\u00fcr die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
         "highway": null,
         "historic": null,
         "name": "Reichstagsgeb\u00e4ude",
@@ -87,6 +263,50 @@
         "tourism": "attraction"
       },
       "role": "hero_tile",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "monument",
+        "name": "Sowjetisches Ehrenmal Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "sowjetisches ehrenmal tiergarten"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0003Trf",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0003Trf",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Sowjetisches Ehrenmal Tiergarten",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": "monument",
+        "name": "Sowjetisches Ehrenmal Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
       "status": "ok"
     },
     {
@@ -268,6 +488,182 @@
     },
     {
       "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Humboldthafen",
+        "office": null,
+        "railway": null,
+        "source_layer": "water",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "humboldthafen"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0003VCM",
+        "nearest_distance_m": 46.94
+      },
+      "name": "Humboldthafen",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Humboldthafen",
+        "office": null,
+        "railway": null,
+        "source_layer": "water",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "Hugo-Preu\u00df-Br\u00fccke",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "hugo preuss brucke"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK00003Qp",
+        "nearest_distance_m": 39.42
+      },
+      "name": "Hugo-Preu\u00df-Br\u00fccke",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "Hugo-Preu\u00df-Br\u00fccke",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "Rahel-Hirsch-Stra\u00dfe",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "rahel hirsch strasse"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01AL4aE0000U",
+        "nearest_distance_m": 34.08
+      },
+      "name": "Rahel-Hirsch-Stra\u00dfe",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "Rahel-Hirsch-Stra\u00dfe",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "residential",
+        "historic": null,
+        "name": "Moltkebr\u00fccke",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "moltkebrucke"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYQV00005V",
+        "nearest_distance_m": 41.2
+      },
+      "name": "Moltkebr\u00fccke",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": "yes",
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "residential",
+        "historic": null,
+        "name": "Moltkebr\u00fccke",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
         "amenity": "arts_centre",
         "bridge": null,
         "diplomatic": null,
@@ -308,6 +704,184 @@
         "tourism": "museum"
       },
       "role": "must_be_visible",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "grosser tiergarten"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYT600005H",
+        "nearest_distance_m": 73.3
+      },
+      "name": "Gro\u00dfer Tiergarten",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Beethoven-Haydn-Mozart-Denkmal",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "beethoven haydn mozart denkmal"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYT600005H",
+        "nearest_distance_m": 54.64
+      },
+      "name": "Beethoven-Haydn-Mozart-Denkmal",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Johann Wolfgang von Goethe",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "goethe denkmal",
+        "johann wolfgang von goethe"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01AL3Ib00000",
+        "nearest_distance_m": 60.79
+      },
+      "name": "Goethe-Denkmal",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Johann Wolfgang von Goethe",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "trunk",
+        "historic": null,
+        "name": "Tunnel Tiergarten Spreebogen",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "kemperplatz",
+        "tunnel tiergarten spreebogen"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002MgI",
+        "nearest_distance_m": 27.98
+      },
+      "name": "Kemperplatz / Tiergartentunnel",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "secondary",
+        "historic": null,
+        "name": "Tiergartenstra\u00dfe",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
       "status": "ok"
     },
     {
@@ -582,9 +1156,48 @@
       "status": "ok"
     }
   ],
-  "generated_at": "2026-06-29T10:16:31.923314+00:00",
+  "generated_at": "2026-06-30T08:44:44.980512+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 180.53,
+      "delta_north_m": -175.64,
+      "distance_m": 251.88,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "Hugo-Preu\u00df-Br\u00fccke lies southeast of Hauptbahnhof at Humboldthafen.",
+      "status": "ok",
+      "to": "Hugo-Preu\u00df-Br\u00fccke"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 9.07,
+      "delta_north_m": -220.82,
+      "distance_m": 221.01,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "Rahel-Hirsch-Stra\u00dfe runs south/east of Hauptbahnhof.",
+      "status": "ok",
+      "to": "Rahel-Hirsch-Stra\u00dfe"
+    },
+    {
+      "actual_east_west": "west",
+      "actual_north_south": "south",
+      "delta_east_m": -84.08,
+      "delta_north_m": -325.64,
+      "distance_m": 336.31,
+      "expected_east_west": "west",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "Moltkebr\u00fccke lies southwest of Hauptbahnhof.",
+      "status": "ok",
+      "to": "Moltkebr\u00fccke"
+    },
     {
       "actual_east_west": "west",
       "actual_north_south": "south",
@@ -651,6 +1264,19 @@
       "to": "Reichstagsgeb\u00e4ude"
     },
     {
+      "actual_east_west": "west",
+      "actual_north_south": "south",
+      "delta_east_m": -7.33,
+      "delta_north_m": -146.4,
+      "distance_m": 146.58,
+      "expected_east_west": "west",
+      "expected_north_south": "south",
+      "from": "Reichstagsgeb\u00e4ude",
+      "note": "The Sinti and Roma memorial lies southwest of the Reichstag.",
+      "status": "ok",
+      "to": "Denkmal f\u00fcr die im Nationalsozialismus ermordeten Sinti und Roma Europas"
+    },
+    {
       "actual_east_west": "east",
       "actual_north_south": "south",
       "delta_east_m": 102.87,
@@ -662,6 +1288,19 @@
       "note": "Brandenburger Tor lies southeast of the Reichstag.",
       "status": "ok",
       "to": "Brandenburger Tor"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "north",
+      "delta_east_m": 79.15,
+      "delta_north_m": 7.6,
+      "distance_m": 79.52,
+      "expected_east_west": "east",
+      "expected_north_south": "north",
+      "from": "Brandenburger Tor",
+      "note": "Pariser Platz is just east/northeast of the Brandenburger Tor point.",
+      "status": "ok",
+      "to": "Pariser Platz"
     },
     {
       "actual_east_west": "east",
@@ -679,6 +1318,45 @@
     {
       "actual_east_west": "east",
       "actual_north_south": "south",
+      "delta_east_m": 44.98,
+      "delta_north_m": -256.91,
+      "distance_m": 260.82,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Brandenburger Tor",
+      "note": "Holocaust memorial lies southeast of Brandenburger Tor.",
+      "status": "ok",
+      "to": "Denkmal f\u00fcr die ermordeten Juden Europas"
+    },
+    {
+      "actual_east_west": "west",
+      "actual_north_south": "south",
+      "delta_east_m": -113.74,
+      "delta_north_m": -333.61,
+      "distance_m": 352.47,
+      "expected_east_west": "west",
+      "expected_north_south": "south",
+      "from": "Brandenburger Tor",
+      "note": "The memorial to persecuted homosexuals lies southwest of the gate.",
+      "status": "ok",
+      "to": "Denkmal f\u00fcr die im Nationalsozialismus verfolgten Homosexuellen"
+    },
+    {
+      "actual_east_west": "west",
+      "actual_north_south": "north",
+      "delta_east_m": -391.32,
+      "delta_north_m": 55.12,
+      "distance_m": 395.18,
+      "expected_east_west": "west",
+      "expected_north_south": "north",
+      "from": "Brandenburger Tor",
+      "note": "Soviet War Memorial lies west/northwest of Brandenburger Tor.",
+      "status": "ok",
+      "to": "Sowjetisches Ehrenmal Tiergarten"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
       "delta_east_m": 820.2,
       "delta_north_m": -51.9,
       "distance_m": 821.84,
@@ -688,12 +1366,51 @@
       "note": "Reichstag lies east/south of HKW across the Tiergarten edge.",
       "status": "ok",
       "to": "Reichstagsgeb\u00e4ude"
+    },
+    {
+      "actual_east_west": "west",
+      "actual_north_south": "north",
+      "delta_east_m": -92.01,
+      "delta_north_m": 21.25,
+      "distance_m": 94.43,
+      "expected_east_west": "west",
+      "expected_north_south": "north",
+      "from": "Gro\u00dfer Tiergarten",
+      "note": "The Beethoven-Haydn-Mozart memorial sits west/northwest in Tiergarten.",
+      "status": "ok",
+      "to": "Beethoven-Haydn-Mozart-Denkmal"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "north",
+      "delta_east_m": 317.81,
+      "delta_north_m": 17.89,
+      "distance_m": 318.32,
+      "expected_east_west": "east",
+      "expected_north_south": "north",
+      "from": "Gro\u00dfer Tiergarten",
+      "note": "Goethe-Denkmal sits east/northeast of the Tiergarten reference point.",
+      "status": "ok",
+      "to": "Goethe-Denkmal"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 203.27,
+      "delta_north_m": -175.89,
+      "distance_m": 268.81,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Kemperplatz / Tiergartentunnel",
+      "note": "The southern tunnel/Potsdamer Platz marker lies southeast of Kemperplatz.",
+      "status": "ok",
+      "to": "Tiergartentunnel S\u00fcdeingang (Sony Center / Potsdamer Platz)"
     }
   ],
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "c4d7b54c5748ce0e336b33a5d7cb7b6890aeeb56a5cefd8ec40d1f9ceed8732a"
+      "sha256": "ca6217cebeba5960dc5d0ffe1fc28a50de365862da7f3ef95d6af2d87575f436"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
@@ -706,8 +1423,8 @@
   },
   "summary": {
     "landmark_review_count": 0,
-    "landmarks_checked": 13,
-    "relative_relationships_checked": 8,
+    "landmarks_checked": 26,
+    "relative_relationships_checked": 19,
     "relative_review_count": 0,
     "review_count": 0,
     "status": "ok"

@@ -1,8 +1,9 @@
 # Correctness Crosscheck
 
-This note records the public reference sweep used for v0.1.24. It is not
-a new raw-data import; it is a provenance and QA pass for the existing
-Regierungsviertel viewer and renderer.
+This note records the public reference sweep used for v0.1.24 and the
+expanded Wikimedia/landmark sweep used for v0.1.25. It is not a new
+authoritative geometry import; it is a provenance and QA pass for the
+existing Regierungsviertel viewer and renderer.
 
 ## Reference hierarchy
 
@@ -26,28 +27,57 @@ Regierungsviertel viewer and renderer.
    for relative placement. No geometry, tiles, screenshots, labels, or
    derived assets from either service were copied, stored, or committed.
 
+## v0.1.25 Landmark And Commons Expansion
+
+v0.1.25 expands the committed placement QA from 13 to 26 landmarks. The
+new points cover the Humboldthafen / bridge context, Pariser Platz,
+Holocaust and Tiergarten memorials, and the southern Tiergarten /
+Kemperplatz tunnel context requested for orientation checks. Every
+committed point is checked against local OSM name evidence and Berlin
+LoD2 building evidence in `geo_data/regierungsviertel/landmark_alignment.json`.
+
+The Wikimedia reference manifest now contains 68 freely licensed
+thumbnail references across 23 motif groups. The fetcher rejects
+non-free licenses and attribution-required images without author/credit
+metadata, and it filters historical/archival/interior/event images that
+would distort current exterior material cues. Max-Liebermann-Haus has
+two accepted references because the remaining Commons hits were paintings
+or memorial plaques rather than usable building views.
+
 ## Spatial conclusion
 
-The viewer tour order now follows a north-to-south walk through the
+The viewer tour order follows a north-to-south walk through the
 Regierungsviertel rather than the incidental order of `landmarks.json`:
 
 1. Berlin Hauptbahnhof
-2. Zollpackhof
-3. Gustav-Heinemann-Brücke
-4. Bundeskanzleramt
-5. Marie-Elisabeth-Lüders-Haus
-6. Paul-Löbe-Haus
-7. Reichstagsgebäude
-8. Spreebogen
-9. Haus der Kulturen der Welt
-10. Brandenburger Tor
-11. Max-Liebermann-Haus
-12. Botschaft der Vereinigten Staaten von Amerika
-13. Tiergartentunnel Südeingang
+2. Humboldthafen
+3. Hugo-Preuß-Brücke
+4. Rahel-Hirsch-Straße
+5. Gustav-Heinemann-Brücke
+6. Moltkebrücke
+7. Zollpackhof
+8. Bundeskanzleramt
+9. Marie-Elisabeth-Lüders-Haus
+10. Paul-Löbe-Haus
+11. Reichstagsgebäude
+12. Spreebogen
+13. Haus der Kulturen der Welt
+14. Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas
+15. Sowjetisches Ehrenmal Tiergarten
+16. Brandenburger Tor
+17. Pariser Platz
+18. Max-Liebermann-Haus
+19. Botschaft der Vereinigten Staaten von Amerika
+20. Denkmal für die ermordeten Juden Europas
+21. Denkmal für die im Nationalsozialismus verfolgten Homosexuellen
+22. Goethe-Denkmal
+23. Beethoven-Haydn-Mozart-Denkmal
+24. Großer Tiergarten
+25. Kemperplatz / Tiergartentunnel
+26. Tiergartentunnel Südeingang
 
-This is a UI/tour ordering change only. It does not move landmark
-coordinates or geometry. The existing placement QA remains responsible
-for coordinate correctness against OSM and LoD2.
+The ordering is a UI/tour concern; coordinate correctness remains the
+responsibility of the committed placement QA against OSM and LoD2.
 
 ## Release-readiness guard
 

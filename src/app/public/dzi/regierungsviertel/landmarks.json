@@ -13,12 +13,52 @@
       "ny": 0.615435
     },
     {
+      "name": "Pariser Platz",
+      "role": "owner_added",
+      "x": 1423,
+      "y": 974,
+      "nx": 0.660325,
+      "ny": 0.637018
+    },
+    {
+      "name": "Denkmal für die ermordeten Juden Europas",
+      "role": "owner_added",
+      "x": 1146,
+      "y": 1081,
+      "nx": 0.531787,
+      "ny": 0.706998
+    },
+    {
+      "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
+      "role": "owner_added",
+      "x": 928,
+      "y": 1043,
+      "nx": 0.430626,
+      "ny": 0.682145
+    },
+    {
+      "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+      "role": "owner_added",
+      "x": 1346,
+      "y": 837,
+      "nx": 0.624594,
+      "ny": 0.547417
+    },
+    {
       "name": "Reichstagsgebäude",
       "role": "hero_tile",
       "x": 1488,
       "y": 773,
       "nx": 0.690487,
       "ny": 0.505559
+    },
+    {
+      "name": "Sowjetisches Ehrenmal Tiergarten",
+      "role": "owner_added",
+      "x": 1031,
+      "y": 735,
+      "nx": 0.478422,
+      "ny": 0.480706
     },
     {
       "name": "Bundeskanzleramt",
@@ -53,12 +93,76 @@
       "ny": 0.151079
     },
     {
+      "name": "Humboldthafen",
+      "role": "owner_added",
+      "x": 1919,
+      "y": 314,
+      "nx": 0.890487,
+      "ny": 0.205363
+    },
+    {
+      "name": "Hugo-Preuß-Brücke",
+      "role": "owner_added",
+      "x": 1766,
+      "y": 396,
+      "nx": 0.81949,
+      "ny": 0.258993
+    },
+    {
+      "name": "Rahel-Hirsch-Straße",
+      "role": "owner_added",
+      "x": 1565,
+      "y": 337,
+      "nx": 0.726218,
+      "ny": 0.220405
+    },
+    {
+      "name": "Moltkebrücke",
+      "role": "owner_added",
+      "x": 1382,
+      "y": 343,
+      "nx": 0.641299,
+      "ny": 0.22433
+    },
+    {
       "name": "Haus der Kulturen der Welt (Schwangere Auster)",
       "role": "must_be_visible",
       "x": 777,
       "y": 369,
       "nx": 0.360557,
       "ny": 0.241334
+    },
+    {
+      "name": "Großer Tiergarten",
+      "role": "owner_added",
+      "x": 689,
+      "y": 885,
+      "nx": 0.319722,
+      "ny": 0.57881
+    },
+    {
+      "name": "Beethoven-Haydn-Mozart-Denkmal",
+      "role": "owner_added",
+      "x": 623,
+      "y": 832,
+      "nx": 0.289095,
+      "ny": 0.544147
+    },
+    {
+      "name": "Goethe-Denkmal",
+      "role": "owner_added",
+      "x": 1000,
+      "y": 1023,
+      "nx": 0.464037,
+      "ny": 0.669065
+    },
+    {
+      "name": "Kemperplatz / Tiergartentunnel",
+      "role": "owner_added",
+      "x": 405,
+      "y": 993,
+      "nx": 0.187935,
+      "ny": 0.649444
     },
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",

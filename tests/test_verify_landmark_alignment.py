@@ -30,8 +30,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "ok",
-    "landmarks_checked": 13,
-    "relative_relationships_checked": 8,
+    "landmarks_checked": 26,
+    "relative_relationships_checked": 19,
     "landmark_review_count": 0,
     "relative_review_count": 0,
     "review_count": 0,
@@ -45,6 +45,16 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     checks["Botschaft der Vereinigten Staaten von Amerika"]["best_osm_match"]["name"]
     == "Botschaft der Vereinigten Staaten von Amerika"
   )
+  assert checks["Hugo-Preuß-Brücke"]["best_osm_match"]["name"] == ("Hugo-Preuß-Brücke")
+  assert checks["Moltkebrücke"]["best_osm_match"]["name"] == "Moltkebrücke"
+  assert checks["Humboldthafen"]["best_osm_match"]["name"] == "Humboldthafen"
+  assert (
+    checks["Denkmal für die ermordeten Juden Europas"]["best_osm_match"]["name"]
+    == "Denkmal für die ermordeten Juden Europas"
+  )
+  assert checks["Sowjetisches Ehrenmal Tiergarten"]["best_osm_match"]["name"] == (
+    "Sowjetisches Ehrenmal Tiergarten"
+  )
   assert all(check["status"] == "ok" for check in checks.values())
   assert all(
     relation["status"] == "ok" for relation in report["relative_relationships"]
@@ -55,7 +65,7 @@ def test_relative_relationship_reviews_affect_summary_status(
   monkeypatch: MonkeyPatch,
 ) -> None:
   expectations = [dict(expectation) for expectation in vla.RELATIVE_EXPECTATIONS]
-  expectations[0]["east_west"] = "east"
+  expectations[0]["east_west"] = "west"
   monkeypatch.setattr(vla, "RELATIVE_EXPECTATIONS", tuple(expectations))
 
   report = vla.build_alignment_report(
@@ -90,6 +100,14 @@ def test_committed_landmarks_preserve_real_world_relative_order() -> None:
   assert dx > 0
   assert dy < 0
 
+  dx, dy = delta("Berlin Hauptbahnhof", "Hugo-Preuß-Brücke")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Berlin Hauptbahnhof", "Moltkebrücke")
+  assert dx < 0
+  assert dy < 0
+
   dx, dy = delta("Bundeskanzleramt", "Reichstagsgebäude")
   assert dx > 0
   assert dy < 0
@@ -113,6 +131,14 @@ def test_committed_landmarks_preserve_real_world_relative_order() -> None:
   dx, dy = delta("Brandenburger Tor", "Botschaft der Vereinigten Staaten von Amerika")
   assert dx > 0
   assert dy < 0
+
+  dx, dy = delta("Brandenburger Tor", "Denkmal für die ermordeten Juden Europas")
+  assert dx > 0
+  assert dy < 0
+
+  dx, dy = delta("Brandenburger Tor", "Sowjetisches Ehrenmal Tiergarten")
+  assert dx < 0
+  assert dy > 0
 
 
 def test_exported_viewer_landmarks_preserve_isometric_relative_order() -> None:

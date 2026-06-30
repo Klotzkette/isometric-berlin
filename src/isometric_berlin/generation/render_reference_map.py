@@ -36,6 +36,23 @@ LEGEND_MUTED = (216, 200, 168)
 PARCEL_LINE = (205, 194, 173)
 REFERENCE_RED = (169, 66, 53)
 REFERENCE_WHITE = (255, 252, 242)
+LEGEND_SHORT_LABELS = {
+  "Berlin Hauptbahnhof": "Hauptbahnhof",
+  "Bundeskanzleramt": "Kanzleramt",
+  "Marie-Elisabeth-Lüders-Haus": "Marie-Elisabeth-Lüders-Haus",
+  "Haus der Kulturen der Welt (Schwangere Auster)": "HKW / Schwangere Auster",
+  "Denkmal für die ermordeten Juden Europas": "Holocaust-Mahnmal",
+  "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen": (
+    "Denkmal verfolgte Homosexuelle"
+  ),
+  "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas": (
+    "Sinti/Roma-Denkmal"
+  ),
+  "Botschaft der Vereinigten Staaten von Amerika": "US-Botschaft",
+  "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)": (
+    "Tiergartentunnel Südeingang"
+  ),
+}
 
 
 @dataclass(frozen=True)
@@ -85,6 +102,28 @@ def font(size: int, *, bold: bool = False) -> ImageFont.ImageFont:
     except OSError:
       continue
   return ImageFont.load_default()
+
+
+def legend_label(name: str) -> str:
+  return LEGEND_SHORT_LABELS.get(name, name)
+
+
+def fit_text(
+  draw: ImageDraw.ImageDraw,
+  text: str,
+  *,
+  max_width: int,
+  font: ImageFont.ImageFont,
+) -> str:
+  if draw.textbbox((0, 0), text, font=font)[2] <= max_width:
+    return text
+  suffix = "..."
+  while len(text) > len(suffix) + 1:
+    text = text[:-1].rstrip()
+    candidate = f"{text}{suffix}"
+    if draw.textbbox((0, 0), candidate, font=font)[2] <= max_width:
+      return candidate
+  return suffix
 
 
 def draw_polygon_layer(
@@ -223,7 +262,12 @@ def draw_legend(
       fill=REFERENCE_WHITE,
       font=marker_font,
     )
-    name = str(row.get("name", ""))
+    name = fit_text(
+      draw,
+      legend_label(str(row.get("name", ""))),
+      max_width=legend_width - 92,
+      font=body_font,
+    )
     draw.text((left + 64, y), name, fill=LEGEND_TEXT, font=body_font)
     y += 34
   draw.text(
