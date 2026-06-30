@@ -14,6 +14,7 @@ from isometric_berlin.generation.render_quadrants import (
   RAIL_PLATFORM,
   ROAD_MAJOR,
   ROAD_PATH,
+  architectural_shadow_offsets,
   building_height,
   building_surface_palette,
   facade_detail_counts,
@@ -26,6 +27,7 @@ from isometric_berlin.generation.render_quadrants import (
   poi_style,
   rail_style,
   road_style,
+  roof_grid_count,
   stable_variation,
 )
 
@@ -155,6 +157,22 @@ def test_facade_detail_counts_scale_for_hero_and_tall_buildings() -> None:
   assert tall[2] > small[2]
   assert hero[1] > tall[1]
   assert hero[2] >= tall[2]
+
+
+def test_architectural_shadow_offsets_scale_with_height_and_heroes() -> None:
+  small = architectural_shadow_offsets(height_m=8, is_hero=False, outline_width=1)
+  tall = architectural_shadow_offsets(height_m=60, is_hero=False, outline_width=1)
+  hero = architectural_shadow_offsets(height_m=60, is_hero=True, outline_width=1)
+
+  assert small[0] < tall[0] <= tall[1] <= tall[2]
+  assert hero[2] > tall[2]
+
+
+def test_roof_grid_count_adds_bounded_architectural_ribs() -> None:
+  assert roof_grid_count(roof_span=20, is_hero=False) == 0
+  assert roof_grid_count(roof_span=120, is_hero=False) == 3
+  assert roof_grid_count(roof_span=320, is_hero=False) == 4
+  assert roof_grid_count(roof_span=320, is_hero=True) == 7
 
 
 def test_poi_style_adds_named_context_without_low_signal_clutter() -> None:

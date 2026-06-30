@@ -42,6 +42,7 @@ BUILDING_WALL_DARK = (150, 137, 119)
 BUILDING_ROOF = (166, 148, 124)
 BUILDING_HERO = (198, 181, 151)
 BUILDING_SHADOW = (176, 168, 149)
+BUILDING_SHADOW_SOFT = (210, 203, 184)
 PARCEL = (189, 176, 151)
 OUTLINE = (80, 73, 64)
 LANDMARK = (105, 47, 47)
@@ -651,20 +652,44 @@ def line_length(a: tuple[int, int], b: tuple[int, int]) -> float:
   return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
 
 
+def architectural_shadow_offsets(
+  *, height_m: float, is_hero: bool, outline_width: int
+) -> tuple[int, int, int]:
+  """Return contact/mid/soft shadow offsets for an extruded building."""
+  unit = max(1, outline_width)
+  contact_steps = max(2, min(8, round(height_m / 13)))
+  mid_steps = max(contact_steps + 1, min(16, round(height_m / 6)))
+  soft_steps = max(mid_steps + 1, min(24, round(height_m / 4)))
+  contact = contact_steps * unit
+  mid = mid_steps * unit
+  soft = soft_steps * unit
+  if is_hero:
+    soft += unit * 2
+  return contact, mid, soft
+
+
+def roof_grid_count(*, roof_span: float, is_hero: bool) -> int:
+  """Return a bounded roof-rib count from projected roof span."""
+  if roof_span < 34:
+    return 0
+  limit = 7 if is_hero else 4
+  return max(1, min(limit, int(roof_span // 34)))
+
+
 def facade_detail_counts(
   *, wall_width: float, height_m: float, is_hero: bool
 ) -> tuple[int, int, int, int]:
   """Return floor/mullion/window detail counts for one projected facade."""
-  floors = max(1, min(12 if is_hero else 9, int(height_m // 3.0)))
+  floors = max(1, min(14 if is_hero else 10, int(height_m // 3.0)))
   if is_hero:
-    mullion_spacing = 14
+    mullion_spacing = 12
   elif height_m >= 24:
-    mullion_spacing = 18
+    mullion_spacing = 16
   else:
-    mullion_spacing = 24
-  mullions = max(0, min(10 if is_hero else 7, int(wall_width // mullion_spacing)))
-  window_rows = max(0, min(floors, 8 if is_hero else 5))
-  window_cols = max(0, min(max(1, mullions), 8 if is_hero else 5))
+    mullion_spacing = 22
+  mullions = max(0, min(12 if is_hero else 8, int(wall_width // mullion_spacing)))
+  window_rows = max(0, min(floors, 10 if is_hero else 6))
+  window_cols = max(0, min(max(1, mullions), 9 if is_hero else 6))
   if wall_width < 20:
     window_cols = 0
   return floors, mullions, window_rows, window_cols
@@ -677,6 +702,29 @@ def wall_point(
   lower = lerp_point(base_a, base_b, across)
   upper = lerp_point(roof_a, roof_b, across)
   return lerp_point(lower, upper, up)
+
+
+def draw_wall_panel(
+  draw: ImageDraw.ImageDraw,
+  wall: list[tuple[int, int]],
+  *,
+  left: float,
+  right: float,
+  bottom: float,
+  top: float,
+  fill: tuple[int, int, int],
+  outline: tuple[int, int, int] | None,
+  width: int,
+) -> None:
+  panel = [
+    wall_point(wall, across=left, up=bottom),
+    wall_point(wall, across=right, up=bottom),
+    wall_point(wall, across=right, up=top),
+    wall_point(wall, across=left, up=top),
+  ]
+  draw.polygon(panel, fill=fill)
+  if outline is not None:
+    draw.line(panel + [panel[0]], fill=outline, width=max(1, width))
 
 
 def draw_wall_detail(
@@ -698,6 +746,10 @@ def draw_wall_detail(
     is_hero=is_hero,
   )
   detail_width = max(1, outline_width)
+  cornice = mix_color(palette["wall_light"], palette["roof_line"], 0.35)
+  sill = mix_color(palette["wall_dark"], OUTLINE, 0.18)
+  draw.line((base_a, base_b), fill=sill, width=max(1, outline_width + 1))
+  draw.line((roof_a, roof_b), fill=cornice, width=detail_width)
   for floor in range(1, floors + 1):
     amount = floor / (floors + 1)
     draw.line(
@@ -708,6 +760,15 @@ def draw_wall_detail(
       fill=palette["wall_dark"],
       width=detail_width,
     )
+    if is_hero and floor % 3 == 0:
+      draw.line(
+        (
+          lerp_point(base_a, roof_a, amount + 0.01),
+          lerp_point(base_b, roof_b, amount + 0.01),
+        ),
+        fill=palette["wall_light"],
+        width=detail_width,
+      )
   for mullion in range(1, mullions + 1):
     amount = mullion / (mullions + 1)
     lower = lerp_point(base_a, base_b, amount)
@@ -718,16 +779,25 @@ def draw_wall_detail(
       width=detail_width,
     )
   for row_idx in range(window_rows):
-    up = (row_idx + 1) / (window_rows + 1)
+    middle = (row_idx + 1) / (window_rows + 1)
+    panel_height = 0.18 / max(1, window_rows)
+    bottom = max(0.1, middle - panel_height)
+    top = min(0.86, middle + panel_height)
     for col_idx in range(window_cols):
-      left = (col_idx + 0.22) / max(1, window_cols)
-      right = min(left + 0.36 / max(1, window_cols), 0.94)
+      left = (col_idx + 0.18) / max(1, window_cols)
+      right = min(left + 0.44 / max(1, window_cols), 0.94)
       if right <= left:
         continue
       color = palette["window" if (row_idx + col_idx) % 3 else "window_dark"]
-      draw.line(
-        (wall_point(wall, across=left, up=up), wall_point(wall, across=right, up=up)),
+      draw_wall_panel(
+        draw,
+        wall,
+        left=left,
+        right=right,
+        bottom=bottom,
+        top=top,
         fill=color,
+        outline=mix_color(color, OUTLINE, 0.18),
         width=detail_width,
       )
 
@@ -751,6 +821,11 @@ def draw_roof_detail(
   inset = [lerp_point(point, center, 0.18) for point in unique]
   detail_width = max(1, outline_width)
   draw.line(inset + [inset[0]], fill=palette["roof_line"], width=detail_width)
+  draw.line(
+    (unique[0], unique[1]),
+    fill=mix_color(palette["roof"], palette["wall_light"], 0.45),
+    width=max(1, outline_width + 1),
+  )
   if is_hero:
     inner = [lerp_point(point, center, 0.36) for point in unique]
     draw.line(inner + [inner[0]], fill=palette["roof_line"], width=detail_width)
@@ -760,6 +835,31 @@ def draw_roof_detail(
       fill=palette["roof_line"],
       width=max(1, outline_width + 1),
     )
+  if len(unique) >= 4:
+    span_a = line_length(unique[0], unique[1])
+    span_b = line_length(unique[1], unique[2])
+    ribs = roof_grid_count(roof_span=max(span_a, span_b), is_hero=is_hero)
+    rib_color = mix_color(palette["roof_line"], palette["roof"], 0.25)
+    for rib in range(1, ribs + 1):
+      amount = rib / (ribs + 1)
+      if span_a >= 34:
+        draw.line(
+          (
+            lerp_point(unique[0], unique[1], amount),
+            lerp_point(unique[3], unique[2], amount),
+          ),
+          fill=rib_color,
+          width=detail_width,
+        )
+      if is_hero and span_b >= 34:
+        draw.line(
+          (
+            lerp_point(unique[0], unique[3], amount),
+            lerp_point(unique[1], unique[2], amount),
+          ),
+          fill=rib_color,
+          width=detail_width,
+        )
   if is_hero or roof_type.startswith("5"):
     for idx in range(0, len(unique), 2):
       draw.line(
@@ -767,6 +867,28 @@ def draw_roof_detail(
         fill=palette["roof_line"],
         width=detail_width,
       )
+
+
+def draw_architectural_shadow(
+  draw: ImageDraw.ImageDraw,
+  base: list[tuple[int, int]],
+  *,
+  height_m: float,
+  is_hero: bool,
+  outline_width: int,
+) -> None:
+  contact, mid, soft = architectural_shadow_offsets(
+    height_m=height_m,
+    is_hero=is_hero,
+    outline_width=outline_width,
+  )
+  shadow_layers = (
+    (soft, max(1, soft // 2), BUILDING_SHADOW_SOFT),
+    (mid, max(1, mid // 2), mix_color(BUILDING_SHADOW_SOFT, BUILDING_SHADOW, 0.52)),
+    (contact, contact, BUILDING_SHADOW),
+  )
+  for offset_x, offset_y, color in shadow_layers:
+    draw.polygon([(x + offset_x, y + offset_y) for x, y in base], fill=color)
 
 
 def draw_poi_marker(
@@ -855,12 +977,21 @@ def draw_building(
     )
     for x, y in coords
   ]
-  shadow_offset = max(2, outline_width * 2)
-  shadow = [(x + shadow_offset, y + shadow_offset) for x, y in base]
-  draw.polygon(shadow, fill=BUILDING_SHADOW)
+  draw_architectural_shadow(
+    draw,
+    base,
+    height_m=height_m,
+    is_hero=is_hero,
+    outline_width=outline_width,
+  )
   for idx in range(len(coords) - 1):
     wall = [base[idx], base[idx + 1], roof[idx + 1], roof[idx]]
-    color = palette["wall"] if idx % 2 == 0 else palette["wall_dark"]
+    if idx % 3 == 0:
+      color = palette["wall_light"]
+    elif idx % 2 == 0:
+      color = palette["wall"]
+    else:
+      color = palette["wall_dark"]
     draw.polygon(wall, fill=color)
     draw_wall_detail(
       draw,
