@@ -23,7 +23,14 @@ show the Google attribution required by the Google Maps Platform Terms.
 The viewer has a built-in help panel (the keyboard button in the top
 toolbar, or press `?`) listing the shortcuts: `←`/`→` previous/next
 landmark, `Space` start/pause the tour, `+`/`=`/`−` zoom, `Home`/`0`
-overview, `Esc` close overlays.
+overview, `L` copy a view link, `Esc` close overlays.
+
+## Shareable view links
+
+The link button in the top toolbar copies the current landmark,
+orientation, and mirror state into the URL hash. Opening that URL restores
+the same landmark focus and view orientation, which makes local QA notes
+and screenshot handoff easier without needing server-side routes.
 
 ## Remote DZI hosting
 
