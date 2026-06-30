@@ -62,6 +62,22 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
     "Tiergartentunnel",
 };
 
+const LANDMARK_TOUR_ORDER: Record<string, number> = {
+  "Berlin Hauptbahnhof": 10,
+  Zollpackhof: 20,
+  "Gustav-Heinemann-Brücke": 30,
+  Bundeskanzleramt: 40,
+  "Marie-Elisabeth-Lüders-Haus": 50,
+  "Paul-Löbe-Haus": 60,
+  Reichstagsgebäude: 70,
+  Spreebogen: 80,
+  "Haus der Kulturen der Welt (Schwangere Auster)": 90,
+  "Brandenburger Tor": 100,
+  "Max-Liebermann-Haus": 110,
+  "Botschaft der Vereinigten Staaten von Amerika": 120,
+  "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)": 130,
+};
+
 const NORTH_UP_ROTATION = 296.565051177078;
 
 const ORIENTATIONS = [
@@ -144,6 +160,17 @@ function findLandmarkBySlug(
   return landmarks.find((landmark) => landmarkSlug(landmark.name) === slug) ?? null;
 }
 
+function sortLandmarksForTour(landmarks: Landmark[]): Landmark[] {
+  return [...landmarks].sort((left, right) => {
+    const leftOrder = LANDMARK_TOUR_ORDER[left.name] ?? 1_000;
+    const rightOrder = LANDMARK_TOUR_ORDER[right.name] ?? 1_000;
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+    return left.name.localeCompare(right.name, "de");
+  });
+}
+
 function normalizeRotation(degrees: number): number {
   return ((degrees % 360) + 360) % 360;
 }
@@ -213,6 +240,7 @@ export function App() {
   const initialFocusDoneRef = useRef(false);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
+  const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const markersRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const selectedRef = useRef("Reichstagsgebäude");
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
@@ -252,6 +280,10 @@ export function App() {
     [rotation],
   );
   const canNavigateLandmarks = isReady && landmarks.length > 0;
+  const selectionProgress =
+    landmarks.length > 0 && selectedIndex >= 0
+      ? ((selectedIndex + 1) / landmarks.length) * 100
+      : 0;
 
   const focusLandmark = useCallback((landmark: Landmark, immediate = false) => {
     const viewer = viewerRef.current;
@@ -384,9 +416,10 @@ export function App() {
       })
       .then((payload) => {
         if (!cancelled) {
+          const orderedLandmarks = sortLandmarksForTour(payload.landmarks);
           const viewHash = readViewHash();
           const hashLandmark = findLandmarkBySlug(
-            payload.landmarks,
+            orderedLandmarks,
             viewHash.landmarkSlug,
           );
           if (hashLandmark) {
@@ -402,7 +435,7 @@ export function App() {
             setIsFlipped(viewHash.flipped);
             viewerRef.current?.viewport.setFlip(viewHash.flipped);
           }
-          setLandmarks(payload.landmarks);
+          setLandmarks(orderedLandmarks);
         }
       })
       .catch(() => {
@@ -482,6 +515,11 @@ export function App() {
     const timer = window.setTimeout(() => closeReferenceButtonRef.current?.focus(), 0);
     return () => window.clearTimeout(timer);
   }, [isReferenceOpen]);
+
+  useEffect(() => {
+    const button = landmarkButtonsRef.current.get(selected);
+    button?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
 
   useEffect(() => {
     if (!isTouring || !isReady || landmarks.length === 0) {
@@ -795,9 +833,16 @@ export function App() {
           <small>{landmarks.length}</small>
         </div>
         <div className="landmark-list">
-          {landmarks.map((landmark) => (
+          {landmarks.map((landmark, index) => (
             <button
               key={landmark.name}
+              ref={(element) => {
+                if (element) {
+                  landmarkButtonsRef.current.set(landmark.name, element);
+                } else {
+                  landmarkButtonsRef.current.delete(landmark.name);
+                }
+              }}
               type="button"
               aria-label={`Landmarke ${landmark.name}`}
               className={landmark.name === selected ? "is-selected" : ""}
@@ -807,7 +852,12 @@ export function App() {
                 focusLandmark(landmark);
               }}
             >
-              <span>{landmark.name}</span>
+              <span className="landmark-row">
+                <span className="landmark-index">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="landmark-name">{landmark.name}</span>
+              </span>
               <small>{roleLabel(landmark.role)}</small>
             </button>
           ))}
@@ -825,6 +875,9 @@ export function App() {
           <span>
             {selectedIndex >= 0 ? selectedIndex + 1 : 1} / {landmarks.length}
           </span>
+          <div className="selection-progress" aria-hidden="true">
+            <span style={{ width: `${selectionProgress}%` }} />
+          </div>
         </aside>
       ) : null}
 

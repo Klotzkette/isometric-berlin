@@ -57,3 +57,13 @@ uv run python -m isometric_berlin.generate_tile --all
 uv run python -m isometric_berlin.generation.export_dzi
 cd src/app && bun install && bun run dev
 ```
+
+## 7. Release sanity check
+
+```bash
+uv run python scripts/check_release_readiness.py
+```
+
+This checks version sync, the README status line, required bundled DZI
+viewer assets, and stale duplicate/hidden files before packaging or
+tagging a release.

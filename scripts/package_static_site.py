@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.23"
+PACKAGE_VERSION = "0.1.24"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -213,10 +213,14 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.23
-ergänzt kopierbare Ansicht-Links für Landmarke, Ausrichtung und Spiegelung,
-stellt solche Hash-Links beim Öffnen wieder her und hält die erweiterte
-Toolbar auf kleinen Bildschirmen zweizeilig. Sie enthält außerdem ein
+Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.24
+ergänzt eine amtlich dokumentierte Public-Data-Crosscheck-Notiz, eine
+geographisch sinnvollere Landmarken-Tour, nummerierte Landmarken, einen
+Fokus-Fortschrittsbalken und einen Release-Readiness-Check gegen
+Versionsdrift und fehlende Viewer-Dateien. Sie enthält außerdem kopierbare
+Ansicht-Links für Landmarke, Ausrichtung und Spiegelung, stellt solche
+Hash-Links beim Öffnen wieder her und hält die erweiterte Toolbar auf
+kleinen Bildschirmen zweizeilig. Sie enthält außerdem ein
 Tastenkürzel-Hilfefenster (Taste ?), behebt das Anhäufen von
 Marker-Klick-Listenern bei der Landmarken-Tour und erlaubt Remote-DZI-Hosting
 über VITE_DZI_BASE_URL. Sie
@@ -267,12 +271,16 @@ English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.23 adds
-copyable view links for the selected landmark, orientation, and mirror
-state, restores those hash links on open, and keeps the expanded toolbar
-to two rows on small screens. It also adds a keyboard-shortcut help panel
-(press ?), fixes marker-overlay click-listener accumulation during the
-landmark tour, and supports remote DZI hosting via VITE_DZI_BASE_URL. It improves
+does not need an AI model or a Google key to run. Version 0.1.24 adds a
+documented public-data correctness crosscheck, a more geographic
+landmark-tour order, numbered landmarks, a focus progress bar, and a
+release-readiness check for version drift and missing viewer files. It
+also adds copyable view links for the selected landmark, orientation, and
+mirror state, restores those hash links on open, and keeps the expanded
+toolbar to two rows on small screens. It also adds a keyboard-shortcut
+help panel (press ?), fixes marker-overlay click-listener accumulation
+during the landmark tour, and supports remote DZI hosting via
+VITE_DZI_BASE_URL. It improves
 viewer workflows with visible previous/next landmark controls, disabled
 controls while loading, restored focus after closing the reference map,
 and a tighter mobile toolbar. It closes the top-down reference map reliably
