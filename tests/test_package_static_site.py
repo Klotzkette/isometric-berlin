@@ -8,6 +8,8 @@ import zipfile
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
 
 def load_script_module(name: str, relative_path: str) -> ModuleType:
   root = Path(__file__).resolve().parents[1]
@@ -81,6 +83,9 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "Drehen/Swivel" in html
   assert "rotateBy" in html
   assert "event.shiftKey" in html
+  assert "view-north" in html
+  assert "setViewPreset" in html
+  assert "compass" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 
@@ -113,10 +118,19 @@ def test_bundled_landmarks_match_public_viewer_landmarks() -> None:
   assert bundled_landmarks == public_landmarks
 
 
-def test_copy_static_site_skips_duplicate_and_dev_files(tmp_path: Path) -> None:
+def test_copy_static_site_skips_duplicate_and_dev_files(
+  tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
   package_static_site = load_script_module(
     "package_static_site", "scripts/package_static_site.py"
   )
+
+  def fail_fast_copy(*_args: object, **_kwargs: object) -> None:
+    raise AssertionError("copy_static_site must not use macOS fcopyfile fast paths")
+
+  monkeypatch.setattr(package_static_site.shutil, "copy2", fail_fast_copy)
+  monkeypatch.setattr(package_static_site.shutil, "copyfile", fail_fast_copy)
+
   source = tmp_path / "dist"
   source.mkdir()
   (source / "index.html").write_text("<html></html>", encoding="utf-8")

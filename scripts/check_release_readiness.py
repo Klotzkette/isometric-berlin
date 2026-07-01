@@ -174,6 +174,14 @@ def collect_failures(root: Path = ROOT) -> list[str]:
         failures.append(
           f"Package HTML launcher lacks rotate/swivel mouse controls: {start_here}"
         )
+      if (
+        "setViewPreset" not in start_here_text
+        or "view-north" not in start_here_text
+        or "compass" not in start_here_text
+      ):
+        failures.append(
+          f"Package HTML launcher lacks reproducible view presets: {start_here}"
+        )
     if (package_dir / "start-mac.command").exists():
       failures.append(
         f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"

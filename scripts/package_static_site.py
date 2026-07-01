@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.32"
+PACKAGE_VERSION = "0.1.33"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -161,6 +161,20 @@ START_HERE_HTML = """<!doctype html>
     .marker[data-role="hero_tile"] { background: #155d73; }
     .marker[data-role="owner_added"] { background: #5f6d39; }
     .marker:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
+    .compass {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 3;
+      padding: 7px 10px;
+      border: 1px solid rgba(29, 39, 35, .18);
+      border-radius: 7px;
+      background: rgba(255, 250, 240, .92);
+      color: #26302b;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+    }
     aside {
       display: grid;
       grid-template-rows: auto auto minmax(0, 1fr) auto;
@@ -196,6 +210,15 @@ START_HERE_HTML = """<!doctype html>
     }
     .wide { grid-column: span 4; }
     .half { grid-column: span 2; }
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .presets button {
+      min-width: 0;
+      padding-inline: 5px;
+    }
     .hint {
       margin: 0;
       padding: 9px 10px;
@@ -273,6 +296,7 @@ START_HERE_HTML = """<!doctype html>
         <img class="map-image" id="map-image" src="dzi/regierungsviertel/overview_source.png" alt="Isometric Berlin Regierungsviertel">
         <div id="markers"></div>
       </div>
+      <div class="compass" id="compass" aria-live="polite">Top · 0° · Swivel 0°</div>
     </section>
     <aside>
       <header>
@@ -290,10 +314,17 @@ START_HERE_HTML = """<!doctype html>
         <button type="button" id="tilt-right">Swivel ▶</button>
         <button type="button" id="quality" class="half">Pixel-Art</button>
         <button type="button" id="reset" class="half">Reset</button>
+        <div class="presets wide" aria-label="Blickrichtung">
+          <button type="button" id="view-top" class="active">Top</button>
+          <button type="button" id="view-north">Nord</button>
+          <button type="button" id="view-east">Ost</button>
+          <button type="button" id="view-south">Süd</button>
+          <button type="button" id="view-west">West</button>
+        </div>
         <button type="button" id="reference" class="wide">Top-down-Referenzkarte</button>
         <a class="button wide" href="index.html">Advanced Viewer nur mit Server-Fallback</a>
       </div>
-      <p class="hint" id="hint">Maus ziehen: Karte verschieben. Shift+ziehen oder Modus „Drehen/Swivel“: drehen und kippen.</p>
+      <p class="hint" id="hint">Maus ziehen: Karte verschieben. Shift+ziehen oder Modus „Drehen/Swivel“: drehen und kippen. Presets springen reproduzierbar auf Top/Nord/Ost/Süd/West.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
       <p class="notice">
         Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist
@@ -322,8 +353,20 @@ START_HERE_HTML = """<!doctype html>
     const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
+    const compass = document.getElementById("compass");
+    const VIEW_PRESETS = {
+      top: { label: "Top", rotation: 0, tilt: 0 },
+      north: { label: "Nord", rotation: 0, tilt: -10 },
+      east: { label: "Ost", rotation: 90, tilt: -10 },
+      south: { label: "Süd", rotation: 180, tilt: -10 },
+      west: { label: "West", rotation: 270, tilt: -10 },
+    };
+    const viewButtons = Object.fromEntries(
+      Object.keys(VIEW_PRESETS).map((key) => [key, document.getElementById(`view-${key}`)])
+    );
     const state = {
       mode: "pan",
+      viewKey: "top",
       scale: 1,
       fitScale: 1,
       x: 0,
@@ -345,6 +388,12 @@ START_HERE_HTML = """<!doctype html>
       layer.style.width = `${image.width}px`;
       layer.style.height = `${image.height}px`;
       layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale})`;
+      const rotation = Math.round(((state.rotation % 360) + 360) % 360);
+      const viewName = VIEW_PRESETS[state.viewKey]?.label || "Frei";
+      compass.textContent = `${viewName} · ${rotation}° · Swivel ${Math.round(state.tilt)}°`;
+      Object.entries(viewButtons).forEach(([key, button]) => {
+        button.classList.toggle("active", key === state.viewKey);
+      });
     }
     function setMode(mode) {
       state.mode = mode;
@@ -353,7 +402,7 @@ START_HERE_HTML = """<!doctype html>
       stage.classList.toggle("mode-rotate", mode === "rotate");
       document.getElementById("hint").textContent = mode === "rotate"
         ? "Drehmodus: Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt."
-        : "Maus ziehen: Karte verschieben. Shift+ziehen oder Rechtsziehen dreht und swivelt.";
+        : "Maus ziehen: Karte verschieben. Shift+ziehen oder Rechtsziehen dreht und swivelt. Presets setzen Top/Nord/Ost/Süd/West.";
     }
     function fit() {
       const rect = stage.getBoundingClientRect();
@@ -363,6 +412,7 @@ START_HERE_HTML = """<!doctype html>
       state.y = (rect.height - image.height * state.scale) / 2;
       state.rotation = 0;
       state.tilt = 0;
+      state.viewKey = "top";
       render();
     }
     function zoomBy(factor) {
@@ -385,10 +435,20 @@ START_HERE_HTML = """<!doctype html>
     }
     function rotateBy(delta) {
       state.rotation = ((state.rotation + delta) % 360 + 360) % 360;
+      state.viewKey = "free";
       render();
     }
     function tiltBy(delta) {
       state.tilt = Math.max(-28, Math.min(28, state.tilt + delta));
+      state.viewKey = "free";
+      render();
+    }
+    function setViewPreset(key) {
+      const preset = VIEW_PRESETS[key];
+      if (!preset) return;
+      state.rotation = preset.rotation;
+      state.tilt = preset.tilt;
+      state.viewKey = key;
       render();
     }
     function toggleQuality() {
@@ -438,6 +498,7 @@ START_HERE_HTML = """<!doctype html>
       if (state.rotateDrag) {
         state.rotation = state.or + (event.clientX - state.sx) * 0.22;
         state.tilt = Math.max(-28, Math.min(28, state.ot + (event.clientY - state.sy) * 0.08));
+        state.viewKey = "free";
       } else {
         state.x = state.ox + event.clientX - state.sx;
         state.y = state.oy + event.clientY - state.sy;
@@ -460,6 +521,9 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("mode-pan").addEventListener("click", () => setMode("pan"));
     document.getElementById("mode-rotate").addEventListener("click", () => setMode("rotate"));
     document.getElementById("quality").addEventListener("click", toggleQuality);
+    Object.entries(viewButtons).forEach(([key, button]) => {
+      button.addEventListener("click", () => setViewPreset(key));
+    });
     document.getElementById("reset").addEventListener("click", fit);
     document.getElementById("reference").addEventListener("click", () => referencePanel.classList.add("open"));
     document.getElementById("reference-close").addEventListener("click", () => referencePanel.classList.remove("open"));
@@ -471,6 +535,11 @@ START_HERE_HTML = """<!doctype html>
       if (event.key.toLowerCase() === "r") setMode(state.mode === "rotate" ? "pan" : "rotate");
       if (event.key === "[") rotateBy(-12);
       if (event.key === "]") rotateBy(12);
+      if (event.key.toLowerCase() === "t") setViewPreset("top");
+      if (event.key.toLowerCase() === "n") setViewPreset("north");
+      if (event.key.toLowerCase() === "e") setViewPreset("east");
+      if (event.key.toLowerCase() === "s") setViewPreset("south");
+      if (event.key.toLowerCase() === "w") setViewPreset("west");
     });
     window.addEventListener("resize", fit);
     addMarkers();
@@ -497,6 +566,13 @@ def should_package_file(path: Path) -> bool:
   return True
 
 
+def copy_file_contents(source: Path, destination: Path) -> None:
+  """Copy file bytes without macOS ``fcopyfile`` metadata fast paths."""
+  with source.open("rb") as src, destination.open("wb") as dst:
+    while chunk := src.read(1024 * 1024):
+      dst.write(chunk)
+
+
 def copy_static_site(source: Path, target: Path) -> None:
   """Copy the built static site, excluding development-only sourcemaps."""
   if target.exists():
@@ -513,7 +589,7 @@ def copy_static_site(source: Path, target: Path) -> None:
     if path.suffix == ".map":
       continue
     destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(path, destination)
+    copy_file_contents(path, destination)
 
 
 def remove_unwanted_package_paths(package_dir: Path) -> None:
@@ -642,8 +718,10 @@ START-HERE.html ist ein einfacher Offline-Viewer mit Karte, Zoom/Verschieben,
 Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
-Rechtsziehen drehst und swivelst du die Karte. Der Advanced Viewer bleibt
-zusätzlich dabei, braucht aber je nach Browser den lokalen Server-Fallback.
+Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
+und eine Kompasszeile machen Blickwinkel reproduzierbar. Der Advanced Viewer
+bleibt zusätzlich dabei, braucht aber je nach Browser den lokalen
+Server-Fallback.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
@@ -691,7 +769,8 @@ START-HERE.html is a simple offline viewer with the map, zoom/pan,
 reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
-right-drag you rotate and swivel the map. The Advanced Viewer is still
+right-drag you rotate and swivel the map. Top/North/East/South/West presets
+and a compass line make viewpoints reproducible. The Advanced Viewer is still
 included, but may need the local-server fallback depending on the browser.
 
 This version also refines the metric architectural rendering pass: LoD2
