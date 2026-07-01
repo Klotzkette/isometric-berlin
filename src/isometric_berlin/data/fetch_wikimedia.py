@@ -58,6 +58,11 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Rahel-Hirsch-Straße Berlin Hauptbahnhof",
     "Rahel Hirsch Strasse Berlin",
   ],
+  "zollpackhof": [
+    "Zollpackhof Berlin",
+    "Zollpackhof Berlin Moabit",
+    "Packhof Berlin-Moabit",
+  ],
   "gustav_heinemann_bruecke": [
     "Gustav-Heinemann-Brücke Berlin",
     "Gustav Heinemann Bridge Berlin",
@@ -143,6 +148,7 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
   "hauptbahnhof": ("hauptbahnhof",),
   "humboldthafen": ("humboldthafen",),
   "rahel_hirsch_strasse": ("rahel-hirsch",),
+  "zollpackhof": ("zollpackhof", "packhof"),
   "gustav_heinemann_bruecke": ("gustav-heinemann",),
   "hugo_preuss_bruecke": ("hugo-preuss",),
   "moltkebruecke": ("moltkebrucke", "moltke-brucke", "moltke"),

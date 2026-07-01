@@ -190,6 +190,17 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
     "curved_roof"
   )
   assert landmark_kind("Gustav-Heinemann-Brücke") == "bridge"
+  assert landmark_kind("Hugo-Preuß-Brücke") == "bridge"
+  assert landmark_kind("Moltkebrücke") == "bridge"
+  assert landmark_kind("Botschaft der Vereinigten Staaten von Amerika") == (
+    "embassy_block"
+  )
+  assert landmark_kind("Denkmal für die ermordeten Juden Europas") == ("memorial_field")
+  assert landmark_kind("Pariser Platz") == "urban_square"
+  assert landmark_kind("Großer Tiergarten") == "park_reference"
+  assert landmark_kind(
+    "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)"
+  ) == ("tunnel")
   assert landmark_kind("Unknown cafe") is None
 
 
@@ -198,6 +209,20 @@ def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
   assert landmark_reference_id("Reichstagsgebäude") == "reichstag"
   assert landmark_reference_id("Berlin Hauptbahnhof") == "hauptbahnhof"
   assert landmark_reference_id("Bundeskanzleramt") == "bundeskanzleramt"
+  assert landmark_reference_id("Paul-Löbe-Haus") == "paul_loebe_haus"
+  assert landmark_reference_id("Marie-Elisabeth-Lüders-Haus") == (
+    "marie_elisabeth_lueders_haus"
+  )
+  assert landmark_reference_id("Zollpackhof") == "zollpackhof"
+  assert landmark_reference_id("Moltkebrücke") == "moltkebruecke"
+  assert landmark_reference_id("Pariser Platz") == "pariser_platz"
+  assert landmark_reference_id("Botschaft der Vereinigten Staaten von Amerika") == (
+    "us_embassy"
+  )
+  assert landmark_reference_id("Denkmal für die ermordeten Juden Europas") == (
+    "holocaust_memorial"
+  )
+  assert landmark_reference_id("Großer Tiergarten") == "tiergarten"
   assert landmark_reference_id("Unknown cafe") is None
 
 

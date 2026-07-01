@@ -198,6 +198,7 @@ def row_text(row: Any, key: str) -> str:
 
 def normalized_text(value: str) -> str:
   """Return an ASCII-ish lower-case key for landmark routing."""
+  value = value.replace("ß", "ss").replace("ẞ", "SS")
   return (
     unicodedata.normalize("NFKD", value)
     .encode("ascii", "ignore")
@@ -243,6 +244,41 @@ def colour_luma(color: tuple[int, int, int]) -> float:
 
 
 def landmark_reference_id(name: str) -> str | None:
+  key = normalized_text(name)
+  explicit = (
+    ("reichstag", "reichstag"),
+    ("bundeskanzleramt", "bundeskanzleramt"),
+    ("paul-lobe", "paul_loebe_haus"),
+    ("marie-elisabeth-luders", "marie_elisabeth_lueders_haus"),
+    ("hauptbahnhof", "hauptbahnhof"),
+    ("humboldthafen", "humboldthafen"),
+    ("rahel-hirsch", "rahel_hirsch_strasse"),
+    ("zollpackhof", "zollpackhof"),
+    ("gustav-heinemann", "gustav_heinemann_bruecke"),
+    ("hugo-preuss", "hugo_preuss_bruecke"),
+    ("moltkebrucke", "moltkebruecke"),
+    ("haus der kulturen", "hkw"),
+    ("schwangere auster", "hkw"),
+    ("brandenburger tor", "brandenburger_tor"),
+    ("pariser platz", "pariser_platz"),
+    ("liebermann", "max_liebermann_haus"),
+    ("vereinigten staaten", "us_embassy"),
+    ("botschaft", "us_embassy"),
+    ("ermordeten juden", "holocaust_memorial"),
+    ("holocaust", "holocaust_memorial"),
+    ("verfolgten homosexuellen", "memorial_homosexuals"),
+    ("sinti und roma", "sinti_roma_memorial"),
+    ("beethoven-haydn-mozart", "beethoven_haydn_mozart_memorial"),
+    ("goethe", "goethe_denkmal"),
+    ("sowjetisches ehrenmal", "soviet_war_memorial_tiergarten"),
+    ("kemperplatz", "kemperplatz_tiergartentunnel"),
+    ("tiergartentunnel", "kemperplatz_tiergartentunnel"),
+    ("spreebogen", "tiergarten_spreebogen"),
+    ("tiergarten", "tiergarten"),
+  )
+  for term, reference_id in explicit:
+    if term in key:
+      return reference_id
   kind = landmark_kind(name)
   return {
     "gate": "brandenburger_tor",
@@ -449,10 +485,30 @@ def landmark_kind(name: str) -> str | None:
     return "chancellery"
   if "paul-lobe" in key or "marie-elisabeth-luders" in key:
     return "parliament_band"
-  if "gustav-heinemann-brucke" in key:
+  if (
+    "gustav-heinemann-brucke" in key
+    or "hugo-preuss-brucke" in key
+    or "moltkebrucke" in key
+  ):
     return "bridge"
+  if "botschaft" in key or "vereinigten staaten" in key:
+    return "embassy_block"
+  if "ermordeten juden" in key or "holocaust" in key:
+    return "memorial_field"
+  if (
+    "verfolgten homosexuellen" in key
+    or "sinti und roma" in key
+    or "goethe" in key
+    or "beethoven-haydn-mozart" in key
+    or "sowjetisches ehrenmal" in key
+  ):
+    return "monument_marker"
+  if "pariser platz" in key:
+    return "urban_square"
   if "tiergartentunnel" in key:
     return "tunnel"
+  if "spreebogen" in key or "tiergarten" in key:
+    return "park_reference"
   return None
 
 
@@ -625,6 +681,93 @@ def draw_landmark_accent(
       fill=OUTLINE,
       width=max(1, unit // 4),
     )
+    return
+
+  if kind == "embassy_block":
+    x, y = point(18)
+    draw.rectangle(
+      (x - 5 * unit, y - 3 * unit, x + 5 * unit, y + 4 * unit),
+      fill=building_hero,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    for offset in (-3, 0, 3):
+      draw.line(
+        (x + offset * unit, y - 2 * unit, x + offset * unit, y + 3 * unit),
+        fill=glass_dark,
+        width=max(1, unit // 5),
+      )
+    return
+
+  if kind == "memorial_field":
+    x, y = point(4)
+    for row_idx in range(3):
+      for col_idx in range(5):
+        px = x + (col_idx - 2) * unit
+        py = y + (row_idx - 1) * unit
+        tone = monument_dark if (row_idx + col_idx) % 2 else monument
+        draw.rectangle(
+          (px - unit // 2, py - unit // 3, px + unit // 2, py + unit // 3),
+          fill=tone,
+          outline=OUTLINE,
+          width=1,
+        )
+    return
+
+  if kind == "monument_marker":
+    x, y = point(10)
+    draw.rectangle(
+      (x - 2 * unit, y + 2 * unit, x + 2 * unit, y + 3 * unit),
+      fill=monument_dark,
+      outline=OUTLINE,
+      width=1,
+    )
+    draw.polygon(
+      [
+        (x, y - 4 * unit),
+        (x + 2 * unit, y + 2 * unit),
+        (x - 2 * unit, y + 2 * unit),
+      ],
+      fill=monument,
+      outline=OUTLINE,
+    )
+    return
+
+  if kind == "urban_square":
+    x, y = point(2)
+    paving = mix_color(monument, ROAD_MAJOR, 0.42)
+    draw.polygon(
+      [
+        (x - 5 * unit, y),
+        (x, y - 3 * unit),
+        (x + 5 * unit, y),
+        (x, y + 3 * unit),
+      ],
+      fill=paving,
+      outline=ROAD_EDGE,
+    )
+    for offset in (-2, 0, 2):
+      draw.line(
+        (x - 4 * unit, y + offset * unit, x + 4 * unit, y + offset * unit),
+        fill=ROAD_EDGE,
+        width=1,
+      )
+    return
+
+  if kind == "park_reference":
+    x, y = point(6)
+    canopy = material_cue["wall"] if material_cue else PARK_DARK
+    trunk = mix_color(canopy, OUTLINE, 0.45)
+    for offset_x, offset_y in [(-3, 0), (0, -2), (3, 1)]:
+      cx = x + offset_x * unit
+      cy = y + offset_y * unit
+      draw.rectangle((cx - 1, cy + unit, cx + 1, cy + 3 * unit), fill=trunk)
+      draw.ellipse(
+        (cx - 2 * unit, cy - 2 * unit, cx + 2 * unit, cy + 2 * unit),
+        fill=canopy,
+        outline=PARK_DARK,
+        width=1,
+      )
     return
 
   if kind == "tunnel":

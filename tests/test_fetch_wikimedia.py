@@ -194,6 +194,7 @@ def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
     "marie_elisabeth_lueders_haus": (
       "File:Marie-Elisabeth-Lüders-Haus Berlin Spree.jpg"
     ),
+    "zollpackhof": "File:Zollpackhof Berlin 2024-05-09 01.jpg",
     "hugo_preuss_bruecke": "File:Hugo-Preuß-Brücke Berlin.jpg",
     "moltkebruecke": "File:Moltkebrücke Berlin-Mitte.jpg",
     "holocaust_memorial": ("File:Denkmal für die ermordeten Juden Europas Berlin.jpg"),

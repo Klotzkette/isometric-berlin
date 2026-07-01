@@ -2,7 +2,7 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-06-30T20:18:12.817743+00:00`
+- Generated: `2026-07-01T07:25:38.859418+00:00`
 - Status: `ok`
 - Landmarks checked: `26`
 - Relative relationships checked: `19`
