@@ -17,6 +17,8 @@ re-deriving them.
 - Vite must be configured with `base: './'` so all asset URLs are
   relative. The site must work under any subdomain, any sub-path, and
   when opened via `file://` for local sanity checks.
+- Landmark navigation is bundled into the app so downloaded local
+  packages do not need `fetch()` for `landmarks.json`.
 
 ## DZI hosting strategy
 
@@ -29,7 +31,8 @@ Two acceptable options, chosen at build time:
 2. **Remote DZI on R2.** Upload the DZI pyramid to a Cloudflare R2
    bucket (CORS-enabled, public read) and set
    `VITE_DZI_BASE_URL="https://…/dzi/regierungsviertel"` before
-   building. The bundle then carries only HTML/JS/CSS.
+   building. The bundle then carries HTML/JS/CSS plus the small bundled
+   landmark-navigation payload.
 
 The MVP is small enough that option 1 should work cleanly. Re-evaluate
 if pyramid size approaches 100 MB.

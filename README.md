@@ -1,6 +1,6 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Status:** Local v0.1.28 open-data viewer with broader visual-reference fusion: more of the 68 attributed Wikimedia facade/context references now affect landmark material cues and visible accents for Parliament buildings, embassy, bridges, memorials, Pariser Platz, Tiergarten, and Spreebogen. Google/Apple map products are used only for visual QA, not copied into committed data. It also keeps the architectural render pass with layered contact shadows, crisper podium/cornice lines, paneled facade glazing, roof ribs, and stronger LoD2/Wikimedia-informed landmark massing; aligned landmark rail/reference-map numbering from shared `tour_order` data; DZI tile-pyramid release-readiness checks; expanded 26-landmark OSM/LoD2 placement QA; a refreshed top-down reference map; public-data correctness crosscheck; geographically coherent landmark tour order; indexed landmark rail; focus progress bar; release-readiness guard; shareable landmark/view links; hash-based view restore; keyboard help; optional remote DZI hosting; robust Escape handling; a landmark tour; clearer role-colored landmark pins; stricter landmark-placement QA; richer LoD2/OSM/Wikimedia-derived visual detail; north/east/south/west rotation and mirror controls; robust local launchers; deterministic packaging; and current quickstart docs. The AI tile style pass is still planned.
+> **Status:** Local v0.1.29 open-data viewer with Mac/Windows-friendly download startup: the ZIP now opens through `START-HERE.html` without executing a quarantined macOS `.command` file, and the React/OpenSeadragon viewer bundles the DZI tile source and landmark navigation so `file://` launch works as the first path. It keeps broader visual-reference fusion: more of the 68 attributed Wikimedia facade/context references now affect landmark material cues and visible accents for Parliament buildings, embassy, bridges, memorials, Pariser Platz, Tiergarten, and Spreebogen. Google/Apple map products are used only for visual QA, not copied into committed data. It also keeps the architectural render pass with layered contact shadows, crisper podium/cornice lines, paneled facade glazing, roof ribs, and stronger LoD2/Wikimedia-informed landmark massing; aligned landmark rail/reference-map numbering from shared `tour_order` data; DZI tile-pyramid release-readiness checks; expanded 26-landmark OSM/LoD2 placement QA; a refreshed top-down reference map; public-data correctness crosscheck; geographically coherent landmark tour order; indexed landmark rail; focus progress bar; release-readiness guard; shareable landmark/view links; hash-based view restore; keyboard help; optional remote DZI hosting; robust Escape handling; a landmark tour; clearer role-colored landmark pins; stricter landmark-placement QA; richer LoD2/OSM/Wikimedia-derived visual detail; north/east/south/west rotation and mirror controls; deterministic packaging; and current quickstart docs. The AI tile style pass is still planned.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
@@ -263,9 +263,15 @@ The result is written to
 `releases/isometric-berlin-regierungsviertel-local.zip`. Unzip it on
 the target computer and start:
 
-- macOS: `start-mac.command`
-- Windows: `start-windows.bat`
-- Linux: `start-linux.sh`
+- Mac and Windows, first choice: double-click `START-HERE.html`.
+- macOS fallback if your browser blocks local tiles: open Terminal and
+  run `python3 serve-local.py` from the unzipped folder.
+- Windows fallback: double-click `start-windows.bat`.
+- Linux fallback: `./start-linux.sh`.
+
+There is intentionally no `start-mac.command` anymore: downloaded
+`.command` files are unsigned executable scripts, so macOS Gatekeeper can
+block them before the viewer starts.
 
 </td>
 <td valign="top">
@@ -319,9 +325,17 @@ Das Ergebnis liegt unter
 `releases/isometric-berlin-regierungsviertel-local.zip`. Auf dem
 Zielrechner entpacken und starten:
 
-- macOS: `start-mac.command`
-- Windows: `start-windows.bat`
-- Linux: `start-linux.sh`
+- Mac und Windows, erster Weg: Doppelklick auf `START-HERE.html`.
+- macOS-Fallback, falls dein Browser lokale Kacheln blockiert:
+  Terminal öffnen und im entpackten Ordner `python3 serve-local.py`
+  ausführen.
+- Windows-Fallback: Doppelklick auf `start-windows.bat`.
+- Linux-Fallback: `./start-linux.sh`.
+
+Ein `start-mac.command` wird absichtlich nicht mehr ausgeliefert:
+heruntergeladene `.command`-Dateien sind unsignierte ausführbare Skripte
+und werden von macOS Gatekeeper oft blockiert, bevor der Viewer starten
+kann.
 
 </td>
 </tr>

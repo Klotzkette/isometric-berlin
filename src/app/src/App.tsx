@@ -22,6 +22,8 @@ import {
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
+
 type Landmark = {
   name: string;
   role: string;
@@ -36,6 +38,8 @@ type LandmarkPayload = {
   image: { width: number; height: number };
   landmarks: Landmark[];
 };
+
+type ViewerTileSource = NonNullable<OpenSeadragon.Options["tileSources"]>;
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
@@ -79,6 +83,11 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
 };
 
 const NORTH_UP_ROTATION = 296.565051177078;
+const DZI_WIDTH = 2157;
+const DZI_HEIGHT = 1529;
+const DZI_TILE_SIZE = 256;
+const DZI_OVERLAP = 0;
+const DZI_FORMAT = "jpg";
 
 const ORIENTATIONS = [
   { degrees: NORTH_UP_ROTATION, short: "N", label: "Nord oben" },
@@ -131,6 +140,22 @@ function assetPath(path: string): string {
   }
   const base = import.meta.env.BASE_URL || "./";
   return `${base.endsWith("/") ? base : `${base}/`}${path}`;
+}
+
+function regierungsviertelTileSource(): ViewerTileSource {
+  return {
+    Image: {
+      xmlns: "http://schemas.microsoft.com/deepzoom/2008",
+      Url: assetPath("dzi/regierungsviertel/regierungsviertel_files/"),
+      Format: DZI_FORMAT,
+      Overlap: String(DZI_OVERLAP),
+      TileSize: String(DZI_TILE_SIZE),
+      Size: {
+        Width: String(DZI_WIDTH),
+        Height: String(DZI_HEIGHT),
+      },
+    },
+  };
 }
 
 function roleLabel(role: string): string {
@@ -229,7 +254,9 @@ function viewUrlFor(
   if (isFlipped) {
     params.set("flip", "1");
   }
-  return `${window.location.origin}${window.location.pathname}${window.location.search}#${params}`;
+  const url = new URL(window.location.href);
+  url.hash = "";
+  return `${url.toString()}#${params}`;
 }
 
 export function App() {
@@ -253,10 +280,7 @@ export function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
 
-  const dziUrl = useMemo(
-    () => assetPath("dzi/regierungsviertel/regierungsviertel.dzi"),
-    [],
-  );
+  const tileSource = useMemo(() => regierungsviertelTileSource(), []);
   const referenceMapUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/reference_map.png"),
     [],
@@ -407,42 +431,29 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(assetPath("dzi/regierungsviertel/landmarks.json"))
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json() as Promise<LandmarkPayload>;
-      })
-      .then((payload) => {
-        if (!cancelled) {
-          const orderedLandmarks = sortLandmarksForTour(payload.landmarks);
-          const viewHash = readViewHash();
-          const hashLandmark = findLandmarkBySlug(
-            orderedLandmarks,
-            viewHash.landmarkSlug,
-          );
-          if (hashLandmark) {
-            setSelected(hashLandmark.name);
-          }
-          if (viewHash.rotationDegrees !== null) {
-            rotationRef.current = viewHash.rotationDegrees;
-            setRotation(viewHash.rotationDegrees);
-            viewerRef.current?.viewport.setRotation(viewHash.rotationDegrees);
-          }
-          if (viewHash.flipped !== null) {
-            flipRef.current = viewHash.flipped;
-            setIsFlipped(viewHash.flipped);
-            viewerRef.current?.viewport.setFlip(viewHash.flipped);
-          }
-          setLandmarks(orderedLandmarks);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setStatus("Landmarken nicht geladen");
-        }
-      });
+    const payload = bundledLandmarkPayload as LandmarkPayload;
+    if (!cancelled) {
+      const orderedLandmarks = sortLandmarksForTour(payload.landmarks);
+      const viewHash = readViewHash();
+      const hashLandmark = findLandmarkBySlug(
+        orderedLandmarks,
+        viewHash.landmarkSlug,
+      );
+      if (hashLandmark) {
+        setSelected(hashLandmark.name);
+      }
+      if (viewHash.rotationDegrees !== null) {
+        rotationRef.current = viewHash.rotationDegrees;
+        setRotation(viewHash.rotationDegrees);
+        viewerRef.current?.viewport.setRotation(viewHash.rotationDegrees);
+      }
+      if (viewHash.flipped !== null) {
+        flipRef.current = viewHash.flipped;
+        setIsFlipped(viewHash.flipped);
+        viewerRef.current?.viewport.setFlip(viewHash.flipped);
+      }
+      setLandmarks(orderedLandmarks);
+    }
     return () => {
       cancelled = true;
     };
@@ -538,7 +549,7 @@ export function App() {
     const viewer = OpenSeadragon({
       id: "openseadragon-viewer",
       element: containerRef.current,
-      tileSources: dziUrl,
+      tileSources: tileSource,
       showNavigationControl: false,
       showNavigator: true,
       navigatorPosition: "BOTTOM_RIGHT",
@@ -576,7 +587,7 @@ export function App() {
       viewer.destroy();
       viewerRef.current = null;
     };
-  }, [dziUrl]);
+  }, [tileSource]);
 
   // Build the markers once per landmark set; rebuilding on every selection
   // would leak the per-button click listeners (clearOverlays only detaches

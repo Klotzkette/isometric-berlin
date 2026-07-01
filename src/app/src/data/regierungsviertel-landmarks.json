@@ -1,0 +1,242 @@
+{
+  "image": {
+    "width": 2157,
+    "height": 1529
+  },
+  "landmarks": [
+    {
+      "name": "Brandenburger Tor",
+      "role": "must_be_visible",
+      "tourOrder": 16,
+      "x": 1342,
+      "y": 941,
+      "nx": 0.62216,
+      "ny": 0.615435
+    },
+    {
+      "name": "Pariser Platz",
+      "role": "owner_added",
+      "tourOrder": 17,
+      "x": 1423,
+      "y": 974,
+      "nx": 0.659713,
+      "ny": 0.637018
+    },
+    {
+      "name": "Denkmal für die ermordeten Juden Europas",
+      "role": "owner_added",
+      "tourOrder": 20,
+      "x": 1146,
+      "y": 1081,
+      "nx": 0.531293,
+      "ny": 0.706998
+    },
+    {
+      "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
+      "role": "owner_added",
+      "tourOrder": 21,
+      "x": 928,
+      "y": 1043,
+      "nx": 0.430227,
+      "ny": 0.682145
+    },
+    {
+      "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+      "role": "owner_added",
+      "tourOrder": 14,
+      "x": 1346,
+      "y": 837,
+      "nx": 0.624015,
+      "ny": 0.547417
+    },
+    {
+      "name": "Reichstagsgebäude",
+      "role": "hero_tile",
+      "tourOrder": 11,
+      "x": 1488,
+      "y": 773,
+      "nx": 0.689847,
+      "ny": 0.505559
+    },
+    {
+      "name": "Sowjetisches Ehrenmal Tiergarten",
+      "role": "owner_added",
+      "tourOrder": 15,
+      "x": 1031,
+      "y": 735,
+      "nx": 0.477979,
+      "ny": 0.480706
+    },
+    {
+      "name": "Bundeskanzleramt",
+      "role": "must_be_visible",
+      "tourOrder": 8,
+      "x": 1225,
+      "y": 471,
+      "nx": 0.567918,
+      "ny": 0.308044
+    },
+    {
+      "name": "Paul-Löbe-Haus",
+      "role": "must_be_visible",
+      "tourOrder": 10,
+      "x": 1569,
+      "y": 654,
+      "nx": 0.727399,
+      "ny": 0.427731
+    },
+    {
+      "name": "Marie-Elisabeth-Lüders-Haus",
+      "role": "must_be_visible",
+      "tourOrder": 9,
+      "x": 1810,
+      "y": 706,
+      "nx": 0.839128,
+      "ny": 0.46174
+    },
+    {
+      "name": "Berlin Hauptbahnhof",
+      "role": "hero_tile",
+      "tourOrder": 1,
+      "x": 1761,
+      "y": 231,
+      "nx": 0.816412,
+      "ny": 0.151079
+    },
+    {
+      "name": "Humboldthafen",
+      "role": "owner_added",
+      "tourOrder": 2,
+      "x": 1919,
+      "y": 314,
+      "nx": 0.889662,
+      "ny": 0.205363
+    },
+    {
+      "name": "Hugo-Preuß-Brücke",
+      "role": "owner_added",
+      "tourOrder": 3,
+      "x": 1766,
+      "y": 396,
+      "nx": 0.81873,
+      "ny": 0.258993
+    },
+    {
+      "name": "Rahel-Hirsch-Straße",
+      "role": "owner_added",
+      "tourOrder": 4,
+      "x": 1565,
+      "y": 337,
+      "nx": 0.725545,
+      "ny": 0.220405
+    },
+    {
+      "name": "Moltkebrücke",
+      "role": "owner_added",
+      "tourOrder": 6,
+      "x": 1382,
+      "y": 343,
+      "nx": 0.640705,
+      "ny": 0.22433
+    },
+    {
+      "name": "Haus der Kulturen der Welt (Schwangere Auster)",
+      "role": "must_be_visible",
+      "tourOrder": 13,
+      "x": 777,
+      "y": 369,
+      "nx": 0.360223,
+      "ny": 0.241334
+    },
+    {
+      "name": "Großer Tiergarten",
+      "role": "owner_added",
+      "tourOrder": 24,
+      "x": 689,
+      "y": 885,
+      "nx": 0.319425,
+      "ny": 0.57881
+    },
+    {
+      "name": "Beethoven-Haydn-Mozart-Denkmal",
+      "role": "owner_added",
+      "tourOrder": 23,
+      "x": 623,
+      "y": 832,
+      "nx": 0.288827,
+      "ny": 0.544147
+    },
+    {
+      "name": "Goethe-Denkmal",
+      "role": "owner_added",
+      "tourOrder": 22,
+      "x": 1000,
+      "y": 1023,
+      "nx": 0.463607,
+      "ny": 0.669065
+    },
+    {
+      "name": "Kemperplatz / Tiergartentunnel",
+      "role": "owner_added",
+      "tourOrder": 25,
+      "x": 405,
+      "y": 993,
+      "nx": 0.187761,
+      "ny": 0.649444
+    },
+    {
+      "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+      "role": "must_be_visible",
+      "tourOrder": 26,
+      "x": 430,
+      "y": 1168,
+      "nx": 0.199351,
+      "ny": 0.763898
+    },
+    {
+      "name": "Max-Liebermann-Haus",
+      "role": "owner_added",
+      "tourOrder": 18,
+      "x": 1394,
+      "y": 924,
+      "nx": 0.646268,
+      "ny": 0.604317
+    },
+    {
+      "name": "Botschaft der Vereinigten Staaten von Amerika",
+      "role": "owner_added",
+      "tourOrder": 19,
+      "x": 1267,
+      "y": 1006,
+      "nx": 0.58739,
+      "ny": 0.657946
+    },
+    {
+      "name": "Zollpackhof",
+      "role": "owner_added",
+      "tourOrder": 7,
+      "x": 1203,
+      "y": 341,
+      "nx": 0.557719,
+      "ny": 0.223022
+    },
+    {
+      "name": "Gustav-Heinemann-Brücke",
+      "role": "owner_added",
+      "tourOrder": 5,
+      "x": 1569,
+      "y": 406,
+      "nx": 0.727399,
+      "ny": 0.265533
+    },
+    {
+      "name": "Spreebogen",
+      "role": "owner_added",
+      "tourOrder": 12,
+      "x": 1333,
+      "y": 460,
+      "nx": 0.617988,
+      "ny": 0.30085
+    }
+  ]
+}

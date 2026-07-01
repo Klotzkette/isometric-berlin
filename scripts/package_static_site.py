@@ -1,8 +1,8 @@
 """Package the static Isometric Berlin viewer for local download/use.
 
 The output is a folder and ZIP archive under ``releases/``. It contains
-the built React/OpenSeadragon app, all DZI tiles, a direct preview HTML,
-and small launcher scripts for macOS/Linux and Windows.
+the built React/OpenSeadragon app, all DZI tiles, a double-clickable
+HTML entry point, and optional local-server fallbacks.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.28"
+PACKAGE_VERSION = "0.1.29"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -154,25 +154,39 @@ def write_serve_script(package_dir: Path) -> None:
   )
 
 
+def write_start_here(package_dir: Path) -> None:
+  """Write a clearly named HTML entry point that needs no executable script."""
+  index = package_dir / "index.html"
+  if not index.exists():
+    raise SystemExit(f"Missing packaged viewer entry point: {index}")
+  (package_dir / "START-HERE.html").write_text(
+    index.read_text(encoding="utf-8"), encoding="utf-8"
+  )
+
+
 def write_launchers(package_dir: Path) -> None:
-  """Write cross-platform launchers for the shared local server."""
+  """Write optional local-server fallbacks.
+
+  The primary package entry point is START-HERE.html. A downloaded macOS
+  .command file is intentionally not emitted, because Gatekeeper blocks
+  unsigned executable scripts from ZIP downloads before our code can run.
+  """
   write_serve_script(package_dir)
-  mac = package_dir / "start-mac.command"
-  mac.write_text(
-    """#!/bin/sh
-cd "$(dirname "$0")"
-if command -v python3 >/dev/null 2>&1; then
-  python3 serve-local.py
-elif command -v python >/dev/null 2>&1; then
-  python serve-local.py
-else
-  echo "Python 3 is required. Install it from https://www.python.org/downloads/"
-  read -r _
-fi
+  mac_notes = package_dir / "start-mac-if-needed.txt"
+  mac_notes.write_text(
+    """macOS fallback, only if START-HERE.html does not open correctly:
+
+1. Open Terminal.
+2. Type `cd ` including the trailing space.
+3. Drag this folder into the Terminal window and press Return.
+4. Run: python3 serve-local.py
+5. Open the printed http://127.0.0.1:... address.
+
+This package does not include start-mac.command because macOS Gatekeeper
+blocks unsigned downloaded .command files before the viewer can start.
 """,
     encoding="utf-8",
   )
-  mac.chmod(mac.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
   linux = package_dir / "start-linux.sh"
   linux.write_text(
@@ -213,138 +227,73 @@ Deutsch
 -------
 
 Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version 0.1.28
-nutzt mehr der 68 sauber attribuierten Wikimedia-Referenzen direkt für
-Landmark-Materialfarben und sichtbare Akzente an Parlamentsbauten,
-Botschaft, Brücken, Mahnmalen, Pariser Platz, Tiergarten und Spreebogen.
-Google/Apple-Kartenprodukte dienen nur als visuelle QA-Referenz; daraus
-wird nichts kopiert. Sie behält außerdem die architektonische
-Lesbarkeit mit mehrstufigen Kontaktschatten, Sockel- und Kranzlinien,
-Fassadenpaneelen, Dachrippen und stärkerer LoD2/Wikimedia-informierter
-Landmarken-Massung. Sie richtet außerdem die Nummern der
-Landmarken-Leiste und der Top-down-Referenzkarte auf dieselbe
-`tour_order`-Quelle aus und prüft vor Releases auch die vollständige
-DZI-Kachelpyramide. Sie behält die 26-Landmarken-
-OSM/LoD2-Lageprüfung, 68 sauber attribuierte Wikimedia-Referenzen für
-Fassaden, Brücken, Mahnmale, Tiergarten und Humboldthafen sowie die
-Top-down-Referenzkarte mit lesbaren Kurzlabels. Sie behält außerdem die
-amtlich dokumentierte
-Public-Data-Crosscheck-Notiz, eine geographisch sinnvollere
-Landmarken-Tour, nummerierte Landmarken, einen Fokus-Fortschrittsbalken
-und einen Release-Readiness-Check gegen Versionsdrift und fehlende
-Viewer-Dateien. Sie enthält außerdem kopierbare
-Ansicht-Links für Landmarke, Ausrichtung und Spiegelung, stellt solche
-Hash-Links beim Öffnen wieder her und hält die erweiterte Toolbar auf
-kleinen Bildschirmen zweizeilig. Sie enthält außerdem ein
-Tastenkürzel-Hilfefenster (Taste ?), behebt das Anhäufen von
-Marker-Klick-Listenern bei der Landmarken-Tour und erlaubt Remote-DZI-Hosting
-über VITE_DZI_BASE_URL. Sie
-verbessert die Viewer-Workflows mit sichtbaren Vor/Zurück-Controls für
-Landmarken, deaktivierten Controls während des Ladens, wiederhergestelltem
-Fokus nach dem Schließen der Referenzkarte und einer engeren Mobile-Toolbar.
-Sie schließt die Top-down-Referenzkarte zuverlässig mit Escape, auch wenn
-ein Button fokussiert ist. Sie enthält außerdem eine Landmarken-Tour,
-Tastatursteuerung für vorige/nächste Landmarke, Tourstart, Gesamtansicht und
-Ansicht-Link, klarere rollenfarbige Landmark-Pins und stärkere Fokuszustände. Die Version
-enthält außerdem dichtere
-Fassaden- und Fensterdetails der Gebäude, blockierende QA bei
-relativen Landmarken-Fehllagen, strengere Landmarken-Lagechecks,
-sauberer gefilterte aktuelle Wikimedia/Wikipedia-Referenzen, reichere
-Gebäudeflächen aus LoD2-Höhen, Dachtypen und OSM-Kontext, korrigierte
-Landmarken für Paul-Löbe-Haus und Marie-Elisabeth-Lüders-Haus, einen
-OSM/LoD2-Lagecheck und Ansichtssteuerungen für Nord/Ost/Süd/West,
-Drehen und Spiegeln. Sie enthält außerdem eine schärfere lokale
-Pixel-Art-Stilisierung, eine Nord-oben-Startansicht, beschriftete
-Landmark-Pins und eine Top-down-Referenzkarte aus OSM und LoD2 mit
-Nordpfeil und Maßstab direkt im Viewer. Die Landmark-Materialfarben
-nutzen zusätzlich frei lizenzierte Wikimedia/Wikipedia-Referenzen. Das
-Paket startet auf dem ersten freien lokalen Port ab 8766, erlaubt
-optionale Startparameter für Skripte oder feste Ports und erzeugt das
-Download-ZIP mit stabilen Metadaten. Die Daten stammen aus
-kostenlosen/offenen Quellen: Berlin LoD2, OpenStreetMap, ALKIS,
-DOP-Preview, DGM-Preview und Wikimedia Commons/Wikipedia.
+Anzeigen brauchst du keine KI und keinen Google-Key. Version {PACKAGE_VERSION}
+ist ausdrücklich macOS-/Windows-downloadfreundlich: der normale Startweg ist
+eine HTML-Datei, kein ausführbares macOS-.command-Skript.
 
-Start:
+Start ohne Terminal:
 
-- macOS: Doppelklick auf start-mac.command
-- Windows: Doppelklick auf start-windows.bat
+1. ZIP entpacken.
+2. Doppelklick auf START-HERE.html.
+3. Der Viewer öffnet sich im Browser.
+
+Falls dein Browser lokale Deep-Zoom-Dateien blockiert:
+
+- macOS: siehe start-mac-if-needed.txt und starte `python3 serve-local.py`.
+- Windows: Doppelklick auf start-windows.bat.
 - Linux: ./start-linux.sh
 
-Danach öffnet sich eine lokale Adresse im Browser, normalerweise
-http://127.0.0.1:8766/. Wenn dieser Port belegt ist, nimmt der Starter
-automatisch den nächsten freien Port. Das Terminalfenster muss geöffnet
-bleiben, solange die Website laufen soll. Beenden mit Ctrl+C oder
-Fenster schließen.
+Der Server-Fallback öffnet eine lokale Adresse im Browser, normalerweise
+http://127.0.0.1:8766/. Wenn dieser Port belegt ist, nimmt er automatisch
+den nächsten freien Port. Das Terminalfenster muss geöffnet bleiben,
+solange die Website laufen soll. Beenden mit Ctrl+C oder Fenster schließen.
 
-Falls der Browser eine Warnung beim direkten Öffnen von index.html
-zeigt: Das ist normal. Für Deep-Zoom-Kacheln braucht die Website einen
-kleinen lokalen Webserver; dafür sind die Startdateien da.
+Warum kein start-mac.command mehr? Apple Gatekeeper blockiert unsignierte,
+aus dem Internet geladene .command-Dateien oft mit "Not Opened", bevor sie
+überhaupt laufen können. START-HERE.html vermeidet genau diese Falle.
 
 Erweitert: `python3 serve-local.py --no-open --port 8770`
+
+Die Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2,
+OpenStreetMap, ALKIS, DOP-Preview, DGM-Preview und Wikimedia
+Commons/Wikipedia. Google/Apple-Kartenprodukte dienen nur als visuelle
+QA-Referenz; daraus wird nichts kopiert.
 
 English
 -------
 
 This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version 0.1.28 uses
-more of the 68 cleanly attributed Wikimedia references directly for
-landmark material colours and visible accents on parliament buildings,
-the embassy, bridges, memorials, Pariser Platz, Tiergarten, and
-Spreebogen. Google/Apple map products are used only as visual QA
-references; nothing from them is copied. It also keeps the visual pass
-with a more architectural read: layered contact shadows, podium and
-cornice lines, paneled facade glazing, roof ribs, and stronger
-LoD2/Wikimedia-informed landmark massing. It also aligns the landmark
-rail and top-down reference-map numbering to the same `tour_order`
-source and makes release readiness verify the complete DZI tile pyramid.
-It keeps the 26-landmark OSM/LoD2 placement QA, 68 cleanly
-attributed Wikimedia references for facades, bridges, memorials,
-Tiergarten, and Humboldthafen, plus the top-down reference map with
-readable short labels. It keeps the documented public-data correctness
-crosscheck,
-a more geographic landmark-tour order, numbered landmarks, a focus
-progress bar, and a release-readiness check for version drift and missing
-viewer files. It
-also adds copyable view links for the selected landmark, orientation, and
-mirror state, restores those hash links on open, and keeps the expanded
-toolbar to two rows on small screens. It also adds a keyboard-shortcut
-help panel (press ?), fixes marker-overlay click-listener accumulation
-during the landmark tour, and supports remote DZI hosting via
-VITE_DZI_BASE_URL. It improves
-viewer workflows with visible previous/next landmark controls, disabled
-controls while loading, restored focus after closing the reference map,
-and a tighter mobile toolbar. It closes the top-down reference map reliably
-with Escape, even when a button has focus. It also adds a landmark tour,
-keyboard controls for previous/next/tour/home/link, clearer role-colored
-landmark pins, and stronger focus states. It also keeps
-denser building facade/window details, makes relative landmark-placement
-failures block QA status, keeps stricter landmark-placement QA, cleaner
-current-day Wikimedia/Wikipedia references, richer building surfaces
-from LoD2 heights, roof types, and OSM context, corrected Paul-Löbe-Haus
-and Marie-Elisabeth-Lüders-Haus landmarks, an OSM/LoD2 placement QA
-report, and view controls for north/east/south/west, rotation, and
-mirror views. It also includes crisper local pixel-art styling and a
-top-down OSM/LoD2 reference map with north arrow and scale inside the
-viewer, plus a north-up start view and labeled landmark pins. Landmark
-material colours additionally use freely licensed Wikimedia/Wikipedia
-references. It starts on the first free local port at or above 8766,
-supports optional server flags for scripts or fixed ports, and writes
-the downloadable ZIP with stable metadata. Data sources are free and
-open: Berlin LoD2, OpenStreetMap, ALKIS, DOP preview, DGM preview, and
-Wikimedia Commons/Wikipedia.
+does not need an AI model or a Google key to run. Version {PACKAGE_VERSION}
+is explicitly macOS-/Windows-download-friendly: the normal launch path is
+an HTML file, not an executable macOS .command script.
 
-Start:
+Start without Terminal:
 
-- macOS: double-click start-mac.command
-- Windows: double-click start-windows.bat
+1. Unzip the package.
+2. Double-click START-HERE.html.
+3. The viewer opens in your browser.
+
+If your browser blocks local Deep Zoom files:
+
+- macOS: read start-mac-if-needed.txt and run `python3 serve-local.py`.
+- Windows: double-click start-windows.bat.
 - Linux: ./start-linux.sh
 
-Then a local address opens in the browser, usually
-http://127.0.0.1:8766/. If that port is busy, the launcher
-automatically uses the next free port. Keep the terminal window open
-while the website is running. Stop with Ctrl+C or close the window.
+The server fallback opens a local browser address, usually
+http://127.0.0.1:8766/. If that port is busy, it automatically uses the
+next free port. Keep the terminal window open while the website is
+running. Stop with Ctrl+C or close the window.
+
+Why no start-mac.command? Apple Gatekeeper often blocks unsigned
+downloaded .command files with "Not Opened" before they can run.
+START-HERE.html avoids that trap.
 
 Advanced: `python3 serve-local.py --no-open --port 8770`
+
+Data sources are free and open: Berlin LoD2, OpenStreetMap, ALKIS, DOP
+preview, DGM preview, and Wikimedia Commons/Wikipedia. Google/Apple map
+products are used only as visual QA references; nothing from them is
+copied.
 
 Attribution:
 © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
@@ -384,6 +333,7 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
     )
   package_dir = out_dir / PACKAGE_NAME
   copy_static_site(source, package_dir)
+  write_start_here(package_dir)
   write_launchers(package_dir)
   write_readme(package_dir)
   remove_unwanted_package_paths(package_dir)

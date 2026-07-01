@@ -39,10 +39,18 @@ walk before rendering the rail and tour. The source coordinates are not
 moved; only the user-facing order changes. See
 [`correctness-crosscheck.md`](correctness-crosscheck.md).
 
+For local download reliability, the same landmark payload is also bundled
+into the React app at `src/app/src/data/regierungsviertel-landmarks.json`.
+Keep it byte-identical to
+`src/app/public/dzi/regierungsviertel/landmarks.json`; the package tests
+enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
+
 ## Remote DZI hosting
 
-By default the viewer loads the DZI pyramid, `landmarks.json`, and the
-reference map from the bundled `public/dzi/regierungsviertel/`. Set
-`VITE_DZI_BASE_URL` at build time to load them from a remote host (e.g.
-a Cloudflare R2 bucket) instead — see
+By default the viewer loads the DZI tile pyramid and reference map from
+the bundled `public/dzi/regierungsviertel/`, while the DZI geometry and
+landmark navigation are bundled into the app to support double-click
+local starts. Set `VITE_DZI_BASE_URL` at build time to load the tile
+pyramid and reference map from a remote host (e.g. a Cloudflare R2
+bucket) instead — see
 [`perplexity-hosting.md`](perplexity-hosting.md).

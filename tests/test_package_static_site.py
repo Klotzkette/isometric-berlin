@@ -38,16 +38,34 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "if not args.no_open" in serve_text
   assert "BrokenPipeError" in serve_text
   assert "ConnectionResetError" in serve_text
+  assert not (tmp_path / "start-mac.command").exists()
 
-  mac = (tmp_path / "start-mac.command").read_text(encoding="utf-8")
+  mac_notes = (tmp_path / "start-mac-if-needed.txt").read_text(encoding="utf-8")
   linux = (tmp_path / "start-linux.sh").read_text(encoding="utf-8")
   windows = (tmp_path / "start-windows.bat").read_text(encoding="utf-8")
-  assert "python3 serve-local.py" in mac
+  assert "Gatekeeper" in mac_notes
+  assert "python3 serve-local.py" in mac_notes
   assert "python3 serve-local.py" in linux
   assert "py -3 serve-local.py" in windows
-  assert "-m http.server" not in mac
+  assert "-m http.server" not in mac_notes
   assert "-m http.server" not in linux
   assert "-m http.server" not in windows
+
+
+def test_write_start_here_copies_html_entrypoint(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  (tmp_path / "index.html").write_text(
+    '<script type="module" src="./assets/index.js"></script>',
+    encoding="utf-8",
+  )
+
+  package_static_site.write_start_here(tmp_path)
+
+  assert (tmp_path / "START-HERE.html").read_text(encoding="utf-8") == (
+    tmp_path / "index.html"
+  ).read_text(encoding="utf-8")
 
 
 def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> None:
@@ -59,9 +77,24 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
 
   readme = (tmp_path / "README.txt").read_text(encoding="utf-8")
   assert package_static_site.PACKAGE_VERSION in readme
+  assert "START-HERE.html" in readme
+  assert "start-mac.command" in readme
+  assert "Gatekeeper" in readme
   assert "nächsten freien Port" in readme
   assert "next free port" in readme
   assert "--no-open --port 8770" in readme
+
+
+def test_bundled_landmarks_match_public_viewer_landmarks() -> None:
+  root = Path(__file__).resolve().parents[1]
+  public_landmarks = (
+    root / "src/app/public/dzi/regierungsviertel/landmarks.json"
+  ).read_bytes()
+  bundled_landmarks = (
+    root / "src/app/src/data/regierungsviertel-landmarks.json"
+  ).read_bytes()
+
+  assert bundled_landmarks == public_landmarks
 
 
 def test_copy_static_site_skips_duplicate_and_dev_files(tmp_path: Path) -> None:
@@ -163,7 +196,8 @@ def test_zip_package_preserves_executable_launcher_modes(tmp_path: Path) -> None
 
   prefix = package_static_site.PACKAGE_NAME
   assert modes[f"{prefix}/serve-local.py"] & stat.S_IXUSR
-  assert modes[f"{prefix}/start-mac.command"] & stat.S_IXUSR
+  assert f"{prefix}/start-mac.command" not in modes
+  assert not modes[f"{prefix}/start-mac-if-needed.txt"] & stat.S_IXUSR
   assert modes[f"{prefix}/start-linux.sh"] & stat.S_IXUSR
   assert not modes[f"{prefix}/start-windows.bat"] & stat.S_IXUSR
   assert set(timestamps.values()) == {package_static_site.ZIP_TIMESTAMP}

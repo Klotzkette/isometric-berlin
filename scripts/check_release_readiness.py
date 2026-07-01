@@ -21,6 +21,7 @@ REQUIRED_VIEWER_FILES = (
 )
 DZI_DESCRIPTOR = "regierungsviertel.dzi"
 DZI_TILES_DIR = "regierungsviertel_files"
+PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 
 
 def project_version(root: Path = ROOT) -> str:
@@ -122,6 +123,31 @@ def collect_failures(root: Path = ROOT) -> list[str]:
     if not (public_dzi / filename).exists():
       failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
   failures.extend(dzi_tile_failures(public_dzi))
+
+  public_landmarks = public_dzi / "landmarks.json"
+  bundled_landmarks = (
+    root / "src" / "app" / "src" / "data" / "regierungsviertel-landmarks.json"
+  )
+  if not bundled_landmarks.exists():
+    failures.append(f"Missing bundled app landmarks: {bundled_landmarks}")
+  elif (
+    public_landmarks.exists()
+    and bundled_landmarks.read_bytes() != public_landmarks.read_bytes()
+  ):
+    failures.append(
+      "Bundled app landmarks differ from src/app/public/dzi/regierungsviertel/landmarks.json"
+    )
+
+  package_dir = root / "releases" / PACKAGE_NAME
+  if package_dir.exists():
+    if not (package_dir / "START-HERE.html").exists():
+      failures.append(
+        f"Missing package HTML launcher: {package_dir / 'START-HERE.html'}"
+      )
+    if (package_dir / "start-mac.command").exists():
+      failures.append(
+        f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"
+      )
 
   scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
   for scan_root in scan_roots:

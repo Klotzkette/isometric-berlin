@@ -43,6 +43,39 @@ def write_tiny_dzi(public_dzi: Path) -> None:
     (level_dir / "0_0.jpg").write_bytes(b"tile")
 
 
+def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
+  (root / "pyproject.toml").write_text(
+    f'[project]\nname = "fixture"\nversion = "{version}"\n',
+    encoding="utf-8",
+  )
+  package_script = root / "scripts" / "package_static_site.py"
+  package_script.parent.mkdir(parents=True)
+  package_script.write_text(
+    f'PACKAGE_VERSION = "{version}"\n',
+    encoding="utf-8",
+  )
+  init = root / "src" / "isometric_berlin" / "__init__.py"
+  init.parent.mkdir(parents=True)
+  init.write_text(f'__version__ = "{version}"\n', encoding="utf-8")
+  app_package = root / "src" / "app" / "package.json"
+  app_package.parent.mkdir(parents=True)
+  app_package.write_text(f'{{"version": "{version}"}}\n', encoding="utf-8")
+  (root / "README.md").write_text(f"Local v{version}\n", encoding="utf-8")
+
+  public_dzi = root / "src" / "app" / "public" / "dzi" / "regierungsviertel"
+  write_tiny_dzi(public_dzi)
+  for filename in [
+    "landmarks.json",
+    "reference_map.png",
+    "wikimedia_attribution.json",
+  ]:
+    (public_dzi / filename).write_bytes(b"shared")
+  bundled = root / "src" / "app" / "src" / "data"
+  bundled.mkdir(parents=True)
+  (bundled / "regierungsviertel-landmarks.json").write_bytes(b"shared")
+  return public_dzi
+
+
 def test_dzi_tile_failures_accepts_complete_pyramid(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_complete", "scripts/check_release_readiness.py"
@@ -83,3 +116,34 @@ def test_dzi_tile_failures_require_referenced_tiles(tmp_path: Path) -> None:
   assert release_readiness.dzi_tile_failures(tmp_path) == [
     f"Missing DZI tile: {missing_tile}"
   ]
+
+
+def test_collect_failures_rejects_mismatched_bundled_landmarks(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_landmarks", "scripts/check_release_readiness.py"
+  )
+  write_minimal_release_tree(tmp_path)
+  (tmp_path / "src/app/src/data/regierungsviertel-landmarks.json").write_bytes(
+    b"different"
+  )
+
+  assert (
+    "Bundled app landmarks differ from src/app/public/dzi/regierungsviertel/landmarks.json"
+    in release_readiness.collect_failures(tmp_path)
+  )
+
+
+def test_collect_failures_rejects_packaged_mac_command(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_package", "scripts/check_release_readiness.py"
+  )
+  write_minimal_release_tree(tmp_path)
+  package_dir = tmp_path / "releases" / release_readiness.PACKAGE_NAME
+  package_dir.mkdir(parents=True)
+  (package_dir / "START-HERE.html").write_text("<html></html>", encoding="utf-8")
+  (package_dir / "start-mac.command").write_text("#!/bin/sh\n", encoding="utf-8")
+
+  assert (
+    f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"
+    in release_readiness.collect_failures(tmp_path)
+  )
