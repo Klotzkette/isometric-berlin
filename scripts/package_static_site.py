@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.29"
+PACKAGE_VERSION = "0.1.30"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -231,6 +231,13 @@ Anzeigen brauchst du keine KI und keinen Google-Key. Version {PACKAGE_VERSION}
 ist ausdrücklich macOS-/Windows-downloadfreundlich: der normale Startweg ist
 eine HTML-Datei, kein ausführbares macOS-.command-Skript.
 
+Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
+LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
+sichtbar, Fassaden bekommen dichtere Rücksprung-/Fensterbänder und Dächer
+feinere Rippen/Aufbauten. Echte fotogrammetrische Fassadenreliefs sind noch
+nicht behauptet; dafür braucht der nächste große Schritt ein lizenziertes
+texturiertes 3D-Mesh/OBJ.
+
 Start ohne Terminal:
 
 1. ZIP entpacken.
@@ -266,6 +273,12 @@ This package is a local HTML website with all map data included. It
 does not need an AI model or a Google key to run. Version {PACKAGE_VERSION}
 is explicitly macOS-/Windows-download-friendly: the normal launch path is
 an HTML file, not an executable macOS .command script.
+
+This version also refines the metric architectural rendering pass: LoD2
+footprints remain the metre-scale anchor, interior rings render as
+courtyards/cut-outs, facades get denser recessed bay/window rhythm, and roofs
+get finer ribs/equipment marks. It still does not claim true photogrammetric
+facade relief; that needs a future licensed textured 3D mesh/OBJ ingest.
 
 Start without Terminal:
 

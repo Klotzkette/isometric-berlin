@@ -61,6 +61,16 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   app_package.parent.mkdir(parents=True)
   app_package.write_text(f'{{"version": "{version}"}}\n', encoding="utf-8")
   (root / "README.md").write_text(f"Local v{version}\n", encoding="utf-8")
+  (root / "docs").mkdir(parents=True)
+  (root / "docs" / "landmark-alignment.md").write_text("ok\n", encoding="utf-8")
+  (root / "docs" / "metric-precision.md").write_text("ok\n", encoding="utf-8")
+  (root / "geo_data" / "regierungsviertel").mkdir(parents=True)
+  (root / "geo_data/regierungsviertel/landmark_alignment.json").write_text(
+    "{}\n", encoding="utf-8"
+  )
+  (root / "geo_data/regierungsviertel/metric_precision.json").write_text(
+    "{}\n", encoding="utf-8"
+  )
 
   public_dzi = root / "src" / "app" / "public" / "dzi" / "regierungsviertel"
   write_tiny_dzi(public_dzi)

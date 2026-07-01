@@ -5,9 +5,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from shapely.geometry import box
+from PIL import Image, ImageChops, ImageDraw
+from shapely.geometry import Polygon, box
 
 from isometric_berlin.generation.render_quadrants import (
+  BACKGROUND,
   BUILDING_HERO,
   BUILDING_WALL,
   RAIL,
@@ -17,6 +19,8 @@ from isometric_berlin.generation.render_quadrants import (
   architectural_shadow_offsets,
   building_height,
   building_surface_palette,
+  draw_building,
+  facade_bay_count,
   facade_detail_counts,
   landmark_icon_unit,
   landmark_kind,
@@ -28,6 +32,7 @@ from isometric_berlin.generation.render_quadrants import (
   rail_style,
   road_style,
   roof_grid_count,
+  roof_service_count,
   stable_variation,
 )
 
@@ -171,8 +176,23 @@ def test_architectural_shadow_offsets_scale_with_height_and_heroes() -> None:
 def test_roof_grid_count_adds_bounded_architectural_ribs() -> None:
   assert roof_grid_count(roof_span=20, is_hero=False) == 0
   assert roof_grid_count(roof_span=120, is_hero=False) == 3
-  assert roof_grid_count(roof_span=320, is_hero=False) == 4
-  assert roof_grid_count(roof_span=320, is_hero=True) == 7
+  assert roof_grid_count(roof_span=320, is_hero=False) == 6
+  assert roof_grid_count(roof_span=320, is_hero=True) == 9
+
+
+def test_roof_service_count_adds_small_large_roof_equipment() -> None:
+  assert roof_service_count(roof_span=80, is_hero=False) == 0
+  assert roof_service_count(roof_span=180, is_hero=False) == 2
+  assert roof_service_count(roof_span=480, is_hero=False) == 4
+  assert roof_service_count(roof_span=480, is_hero=True) == 6
+
+
+def test_facade_bay_count_scales_with_long_hero_facades() -> None:
+  assert facade_bay_count(wall_width=20, is_hero=True) == 0
+  assert facade_bay_count(wall_width=96, is_hero=False) == 4
+  assert facade_bay_count(wall_width=96, is_hero=True) > facade_bay_count(
+    wall_width=96, is_hero=False
+  )
 
 
 def test_poi_style_adds_named_context_without_low_signal_clutter() -> None:
@@ -261,3 +281,29 @@ def test_landmark_icon_unit_stays_visible_but_bounded() -> None:
   assert landmark_icon_unit(512) == 3
   assert landmark_icon_unit(6144) == 8
   assert landmark_icon_unit(12000) == 8
+
+
+def test_draw_building_handles_lod2_interior_rings() -> None:
+  image = Image.new("RGB", (360, 360), BACKGROUND)
+  draw = ImageDraw.Draw(image)
+  building = Polygon(
+    [(0, 0), (80, 0), (80, 80), (0, 80), (0, 0)],
+    holes=[[(28, 28), (52, 28), (52, 52), (28, 52), (28, 28)]],
+  )
+
+  draw_building(
+    draw,
+    building,
+    height_m=18,
+    is_hero=True,
+    surface_row={"building_id": "courtyard", "roof_type": "5000"},
+    center_x=40,
+    center_y=40,
+    scale=2,
+    width=360,
+    height=360,
+    outline_width=1,
+  )
+
+  diff = ImageChops.difference(image, Image.new("RGB", image.size, BACKGROUND))
+  assert diff.getbbox() is not None

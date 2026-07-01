@@ -1,0 +1,54 @@
+{
+  "buildings": {
+    "building_count": 2614,
+    "building_footprint_area_m2": 300614.67,
+    "footprint_vertex_count": 17449,
+    "interior_ring_count": 48,
+    "max_segment_length_m": 149.72,
+    "measured_height_count": 2472,
+    "measured_height_share": 0.9457,
+    "median_measured_height_m": 3.0,
+    "median_segment_length_m": 1.42,
+    "median_vertices_per_polygon": 4.0,
+    "min_segment_length_m": 0.0,
+    "polygon_part_count": 2620,
+    "source_precision_interpretation": "Footprints remain in EPSG:25833 metres and are rendered from LoD2 polygon coordinates; roof forms are official generalized standard roof forms, not photogrammetric facade relief."
+  },
+  "coordinate_reference_system": "EPSG:25833",
+  "generated_at": "2026-07-01T08:52:05.133656+00:00",
+  "landmark_alignment": {
+    "available": true,
+    "landmark_review_count": 0,
+    "landmarks_checked": 26,
+    "relative_relationships_checked": 19,
+    "relative_review_count": 0,
+    "review_count": 0,
+    "status": "ok"
+  },
+  "render_policy": {
+    "geometry_anchor": "lod2",
+    "not_claimed": "The current deterministic viewer is metric in planimetric LoD2/OSM placement, but it is not yet a photogrammetric textured mesh. Granular facade relief is stylised from LoD2 footprint complexity, height, roof attributes, OSM semantics, and Wikimedia colour cues.",
+    "semantic_context": "osm",
+    "visual_material_cues": "wikimedia"
+  },
+  "sources": {
+    "alkis": {
+      "claim": "Official cadastral parcel context for geometry QA.",
+      "metadata_url": "https://daten.berlin.de/datensaetze/alkis-berlin-flurstucke-wfs-1bc014d7"
+    },
+    "berlin3d_mesh_future": {
+      "claim": "Berlin 3D download portal offers free OBJ mesh tiles with textures from the 2025 aerial survey; this should become the future source for true photogrammetric facade texture/relief.",
+      "metadata_url": "https://www.businesslocationcenter.de/en/economic-atlas/download-portal"
+    },
+    "dop": {
+      "claim": "Official Berlin DOP 2025 orthophotos: 0.20 m ground resolution and approximately +/- 0.4 m positional accuracy.",
+      "metadata_url": "https://gdi.berlin.de/geonetwork/srv/api/records/73a3de47-ab2a-4be2-ae5d-8d6f8fe5cc1c"
+    },
+    "lod2": {
+      "claim": "Official Berlin LoD2; building footprints correspond exactly to cadastral building outlines, with generalized standard roof forms.",
+      "metadata_url": "https://gdi.berlin.de/geonetwork/srv/api/records/3c7c49af-00a4-3bcd-bc00-20e7f0f1b7bf",
+      "path": "geo_data/regierungsviertel/buildings.gpkg",
+      "sha256": "c9d7c871b5cc2967e490c565c71a5faae291e6aac5728c99703c50839654b89e"
+    }
+  }
+}

@@ -19,6 +19,12 @@ REQUIRED_VIEWER_FILES = (
   "regierungsviertel.dzi",
   "wikimedia_attribution.json",
 )
+REQUIRED_REPORT_FILES = (
+  "docs/landmark-alignment.md",
+  "docs/metric-precision.md",
+  "geo_data/regierungsviertel/landmark_alignment.json",
+  "geo_data/regierungsviertel/metric_precision.json",
+)
 DZI_DESCRIPTOR = "regierungsviertel.dzi"
 DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
@@ -117,6 +123,10 @@ def collect_failures(root: Path = ROOT) -> list[str]:
   readme = (root / "README.md").read_text(encoding="utf-8")
   if f"Local v{version}" not in readme:
     failures.append(f"README.md status does not mention Local v{version}")
+
+  for report_file in REQUIRED_REPORT_FILES:
+    if not (root / report_file).exists():
+      failures.append(f"Missing QA/report artefact: {root / report_file}")
 
   public_dzi = root / "src" / "app" / "public" / "dzi" / "regierungsviertel"
   for filename in REQUIRED_VIEWER_FILES:

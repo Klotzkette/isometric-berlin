@@ -815,8 +815,17 @@ def roof_grid_count(*, roof_span: float, is_hero: bool) -> int:
   """Return a bounded roof-rib count from projected roof span."""
   if roof_span < 34:
     return 0
+  limit = 9 if is_hero else 6
+  spacing = 28 if is_hero else 32
+  return max(1, min(limit, int(roof_span // spacing)))
+
+
+def roof_service_count(*, roof_span: float, is_hero: bool) -> int:
+  """Return small roof-equipment/skylight count for large real footprints."""
+  if roof_span < 92:
+    return 0
   limit = 7 if is_hero else 4
-  return max(1, min(limit, int(roof_span // 34)))
+  return max(1, min(limit, int(roof_span // 78)))
 
 
 def facade_detail_counts(
@@ -825,17 +834,26 @@ def facade_detail_counts(
   """Return floor/mullion/window detail counts for one projected facade."""
   floors = max(1, min(14 if is_hero else 10, int(height_m // 3.0)))
   if is_hero:
-    mullion_spacing = 12
+    mullion_spacing = 10
   elif height_m >= 24:
-    mullion_spacing = 16
+    mullion_spacing = 14
   else:
-    mullion_spacing = 22
-  mullions = max(0, min(12 if is_hero else 8, int(wall_width // mullion_spacing)))
-  window_rows = max(0, min(floors, 10 if is_hero else 6))
-  window_cols = max(0, min(max(1, mullions), 9 if is_hero else 6))
+    mullion_spacing = 18
+  mullions = max(0, min(16 if is_hero else 10, int(wall_width // mullion_spacing)))
+  window_rows = max(0, min(floors, 12 if is_hero else 8))
+  window_cols = max(0, min(max(1, mullions), 12 if is_hero else 8))
   if wall_width < 20:
     window_cols = 0
   return floors, mullions, window_rows, window_cols
+
+
+def facade_bay_count(*, wall_width: float, is_hero: bool) -> int:
+  """Return recessed facade bay count from projected wall length."""
+  if wall_width < 30:
+    return 0
+  spacing = 18 if is_hero else 24
+  limit = 14 if is_hero else 9
+  return max(1, min(limit, int(wall_width // spacing)))
 
 
 def wall_point(
@@ -870,6 +888,42 @@ def draw_wall_panel(
     draw.line(panel + [panel[0]], fill=outline, width=max(1, width))
 
 
+def draw_facade_bays(
+  draw: ImageDraw.ImageDraw,
+  wall: list[tuple[int, int]],
+  *,
+  palette: dict[str, tuple[int, int, int]],
+  is_hero: bool,
+  outline_width: int,
+) -> None:
+  """Draw shallow recess/highlight bands so long facades read less flat."""
+  base_a, base_b, roof_b, roof_a = wall
+  bay_count = facade_bay_count(wall_width=line_length(base_a, base_b), is_hero=is_hero)
+  if bay_count == 0:
+    return
+  shadow = mix_color(palette["wall_dark"], OUTLINE, 0.2)
+  highlight = mix_color(palette["wall_light"], (255, 250, 228), 0.22)
+  width = max(1, outline_width)
+  for bay in range(1, bay_count + 1):
+    amount = bay / (bay_count + 1)
+    lower = lerp_point(base_a, base_b, amount)
+    upper = lerp_point(roof_a, roof_b, amount)
+    start = lerp_point(lower, upper, 0.08)
+    end = lerp_point(lower, upper, 0.9)
+    draw.line((start, end), fill=shadow, width=width)
+    offset_amount = min(0.98, amount + 0.012)
+    lower_light = lerp_point(base_a, base_b, offset_amount)
+    upper_light = lerp_point(roof_a, roof_b, offset_amount)
+    draw.line(
+      (
+        lerp_point(lower_light, upper_light, 0.14),
+        lerp_point(lower_light, upper_light, 0.82),
+      ),
+      fill=highlight,
+      width=width,
+    )
+
+
 def draw_wall_detail(
   draw: ImageDraw.ImageDraw,
   wall: list[tuple[int, int]],
@@ -891,6 +945,13 @@ def draw_wall_detail(
   detail_width = max(1, outline_width)
   cornice = mix_color(palette["wall_light"], palette["roof_line"], 0.35)
   sill = mix_color(palette["wall_dark"], OUTLINE, 0.18)
+  draw_facade_bays(
+    draw,
+    wall,
+    palette=palette,
+    is_hero=is_hero,
+    outline_width=outline_width,
+  )
   draw.line((base_a, base_b), fill=sill, width=max(1, outline_width + 1))
   draw.line((roof_a, roof_b), fill=cornice, width=detail_width)
   for floor in range(1, floors + 1):
@@ -1003,6 +1064,24 @@ def draw_roof_detail(
           fill=rib_color,
           width=detail_width,
         )
+    roof_span = max(span_a, span_b)
+    service_count = roof_service_count(roof_span=roof_span, is_hero=is_hero)
+    if service_count:
+      box_color = mix_color(palette["roof"], palette["wall_light"], 0.38)
+      box_shadow = mix_color(palette["roof_line"], OUTLINE, 0.22)
+      for idx in range(service_count):
+        along = (idx + 1) / (service_count + 1)
+        across = 0.32 if idx % 2 == 0 else 0.68
+        left_edge = lerp_point(unique[0], unique[3], across)
+        right_edge = lerp_point(unique[1], unique[2], across)
+        cx, cy = lerp_point(left_edge, right_edge, along)
+        size = max(2, detail_width + (2 if is_hero else 1))
+        draw.rectangle(
+          (cx - size, cy - size // 2, cx + size, cy + size // 2),
+          fill=box_color,
+          outline=box_shadow,
+          width=1,
+        )
   if is_hero or roof_type.startswith("5"):
     for idx in range(0, len(unique), 2):
       draw.line(
@@ -1032,6 +1111,94 @@ def draw_architectural_shadow(
   )
   for offset_x, offset_y, color in shadow_layers:
     draw.polygon([(x + offset_x, y + offset_y) for x, y in base], fill=color)
+
+
+def projected_ring(
+  coords: list[tuple[float, float]],
+  *,
+  z: float,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+) -> list[tuple[int, int]]:
+  """Project a polygon ring to screen coordinates at a fixed height."""
+  return [
+    project_point(
+      x,
+      y,
+      z=z,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=width,
+      height=height,
+    )
+    for x, y in coords
+  ]
+
+
+def draw_courtyard_voids(
+  draw: ImageDraw.ImageDraw,
+  polygon: Polygon,
+  *,
+  palette: dict[str, tuple[int, int, int]],
+  height_m: float,
+  is_hero: bool,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+  outline_width: int,
+) -> None:
+  """Render LoD2 interior rings as actual open cuts with inner facades."""
+  min_area = 18.0 if is_hero else 32.0
+  floor = mix_color(BACKGROUND, ROAD, 0.28)
+  inner_wall = mix_color(palette["wall_dark"], palette["wall"], 0.36)
+  inner_wall_light = mix_color(palette["wall"], palette["wall_light"], 0.22)
+  for interior in polygon.interiors:
+    hole = Polygon(interior)
+    if hole.area < min_area:
+      continue
+    coords = list(interior.coords)
+    if len(coords) < 4:
+      continue
+    roof_ring = projected_ring(
+      coords,
+      z=height_m,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=width,
+      height=height,
+    )
+    base_ring = projected_ring(
+      coords,
+      z=0,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=width,
+      height=height,
+    )
+    draw.polygon(roof_ring, fill=floor)
+    for idx in range(len(coords) - 1):
+      wall = [base_ring[idx], base_ring[idx + 1], roof_ring[idx + 1], roof_ring[idx]]
+      color = inner_wall_light if idx % 2 == 0 else inner_wall
+      draw.polygon(wall, fill=color)
+      draw_wall_detail(
+        draw,
+        wall,
+        palette=palette,
+        height_m=max(4.0, height_m * 0.72),
+        is_hero=is_hero,
+        outline_width=outline_width,
+      )
+      draw.line(wall + [wall[0]], fill=OUTLINE, width=max(1, outline_width))
+    draw.line(base_ring, fill=mix_color(ROAD_EDGE, OUTLINE, 0.18), width=1)
+    draw.line(roof_ring, fill=palette["roof_line"], width=max(1, outline_width))
 
 
 def draw_poi_marker(
@@ -1152,6 +1319,19 @@ def draw_building(
     palette=palette,
     roof_type=row_text(surface, "roof_type"),
     is_hero=is_hero,
+    outline_width=outline_width,
+  )
+  draw_courtyard_voids(
+    draw,
+    polygon,
+    palette=palette,
+    height_m=height_m,
+    is_hero=is_hero,
+    center_x=center_x,
+    center_y=center_y,
+    scale=scale,
+    width=width,
+    height=height,
     outline_width=outline_width,
   )
   draw.line(roof, fill=OUTLINE, width=outline_width)
