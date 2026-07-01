@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.31"
+PACKAGE_VERSION = "0.1.32"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -127,23 +127,25 @@ START_HERE_HTML = """<!doctype html>
       border-right: 1px solid rgba(30, 40, 35, .16);
     }
     .stage:active { cursor: grabbing; }
+    .stage.mode-rotate { cursor: ew-resize; }
+    .stage.mode-rotate:active { cursor: grabbing; }
     .map-layer {
       position: absolute;
       left: 0;
       top: 0;
       width: 2157px;
       height: 1529px;
-      transform-origin: 0 0;
+      transform-origin: 50% 50%;
       will-change: transform;
     }
     .map-image {
       display: block;
       width: 2157px;
       height: 1529px;
-      image-rendering: pixelated;
       user-select: none;
       -webkit-user-drag: none;
     }
+    .map-image.pixelated { image-rendering: pixelated; }
     .marker {
       position: absolute;
       width: 18px;
@@ -171,7 +173,7 @@ START_HERE_HTML = """<!doctype html>
     .sub { margin: 5px 0 0; font-size: 13px; color: #59615a; line-height: 1.35; }
     .controls {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
     }
     button, a.button {
@@ -187,7 +189,22 @@ START_HERE_HTML = """<!doctype html>
       cursor: pointer;
     }
     button:hover, a.button:hover { background: #f0eadc; }
-    .wide { grid-column: span 3; }
+    button.active {
+      background: #1d4d5b;
+      color: #fffaf0;
+      border-color: #1d4d5b;
+    }
+    .wide { grid-column: span 4; }
+    .half { grid-column: span 2; }
+    .hint {
+      margin: 0;
+      padding: 9px 10px;
+      border-radius: 7px;
+      background: #eef3ec;
+      color: #344039;
+      font-size: 12px;
+      line-height: 1.35;
+    }
     .list {
       overflow: auto;
       display: grid;
@@ -253,27 +270,34 @@ START_HERE_HTML = """<!doctype html>
   <main class="shell">
     <section class="stage" id="stage" aria-label="Isometrische Karte">
       <div class="map-layer" id="layer">
-        <img class="map-image" src="dzi/regierungsviertel/overview.png" alt="Isometric Berlin Regierungsviertel">
+        <img class="map-image" id="map-image" src="dzi/regierungsviertel/overview_source.png" alt="Isometric Berlin Regierungsviertel">
         <div id="markers"></div>
       </div>
     </section>
     <aside>
       <header>
         <h1>Isometric Berlin</h1>
-        <p class="sub">Offline-Start ohne Terminal. Ziehen zum Verschieben, Mausrad oder Buttons zum Zoomen.</p>
+        <p class="sub">Offline-Start ohne Terminal. Verschieben, zoomen, drehen und swiveln direkt mit Maus oder Buttons.</p>
       </header>
       <div class="controls" aria-label="Ansicht">
-        <button type="button" id="zoom-in">+</button>
-        <button type="button" id="zoom-out">-</button>
-        <button type="button" id="reset">Reset</button>
+        <button type="button" id="mode-pan" class="active half">Verschieben</button>
+        <button type="button" id="mode-rotate" class="half">Drehen/Swivel</button>
+        <button type="button" id="zoom-in">Zoom +</button>
+        <button type="button" id="zoom-out">Zoom -</button>
+        <button type="button" id="rotate-left">↶</button>
+        <button type="button" id="rotate-right">↷</button>
+        <button type="button" id="tilt-left">Swivel ◀</button>
+        <button type="button" id="tilt-right">Swivel ▶</button>
+        <button type="button" id="quality" class="half">Pixel-Art</button>
+        <button type="button" id="reset" class="half">Reset</button>
         <button type="button" id="reference" class="wide">Top-down-Referenzkarte</button>
-        <a class="button wide" href="index.html">Advanced Viewer</a>
+        <a class="button wide" href="index.html">Advanced Viewer nur mit Server-Fallback</a>
       </div>
+      <p class="hint" id="hint">Maus ziehen: Karte verschieben. Shift+ziehen oder Modus „Drehen/Swivel“: drehen und kippen.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
       <p class="notice">
-        Wenn der Advanced Viewer in deinem Browser nicht direkt aus dem Ordner startet,
-        bleib einfach hier. Diese Datei ist absichtlich klassisches HTML und braucht
-        keinen lokalen Server.
+        Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist
+        nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.
       </p>
     </aside>
   </main>
@@ -294,15 +318,42 @@ START_HERE_HTML = """<!doctype html>
     });
     const stage = document.getElementById("stage");
     const layer = document.getElementById("layer");
+    const mapImage = document.getElementById("map-image");
     const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
-    const state = { scale: 1, fitScale: 1, x: 0, y: 0, dragging: false, sx: 0, sy: 0, ox: 0, oy: 0 };
+    const state = {
+      mode: "pan",
+      scale: 1,
+      fitScale: 1,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      tilt: 0,
+      dragging: false,
+      rotateDrag: false,
+      sx: 0,
+      sy: 0,
+      ox: 0,
+      oy: 0,
+      or: 0,
+      ot: 0,
+      pixel: false,
+    };
 
     function render() {
       layer.style.width = `${image.width}px`;
       layer.style.height = `${image.height}px`;
-      layer.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+      layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale})`;
+    }
+    function setMode(mode) {
+      state.mode = mode;
+      document.getElementById("mode-pan").classList.toggle("active", mode === "pan");
+      document.getElementById("mode-rotate").classList.toggle("active", mode === "rotate");
+      stage.classList.toggle("mode-rotate", mode === "rotate");
+      document.getElementById("hint").textContent = mode === "rotate"
+        ? "Drehmodus: Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt."
+        : "Maus ziehen: Karte verschieben. Shift+ziehen oder Rechtsziehen dreht und swivelt.";
     }
     function fit() {
       const rect = stage.getBoundingClientRect();
@@ -310,6 +361,8 @@ START_HERE_HTML = """<!doctype html>
       state.scale = state.fitScale;
       state.x = (rect.width - image.width * state.scale) / 2;
       state.y = (rect.height - image.height * state.scale) / 2;
+      state.rotation = 0;
+      state.tilt = 0;
       render();
     }
     function zoomBy(factor) {
@@ -329,6 +382,20 @@ START_HERE_HTML = """<!doctype html>
       state.x = rect.width / 2 - landmark.x * state.scale;
       state.y = rect.height / 2 - landmark.y * state.scale;
       render();
+    }
+    function rotateBy(delta) {
+      state.rotation = ((state.rotation + delta) % 360 + 360) % 360;
+      render();
+    }
+    function tiltBy(delta) {
+      state.tilt = Math.max(-28, Math.min(28, state.tilt + delta));
+      render();
+    }
+    function toggleQuality() {
+      state.pixel = !state.pixel;
+      mapImage.src = state.pixel ? "dzi/regierungsviertel/overview.png" : "dzi/regierungsviertel/overview_source.png";
+      mapImage.classList.toggle("pixelated", state.pixel);
+      document.getElementById("quality").textContent = state.pixel ? "Detailbild" : "Pixel-Art";
     }
     function addMarkers() {
       markerRoot.innerHTML = "";
@@ -355,26 +422,44 @@ START_HERE_HTML = """<!doctype html>
 
     stage.addEventListener("pointerdown", (event) => {
       if (event.target.classList.contains("marker")) return;
+      event.preventDefault();
       state.dragging = true;
+      state.rotateDrag = state.mode === "rotate" || event.shiftKey || event.button === 2;
       state.sx = event.clientX;
       state.sy = event.clientY;
       state.ox = state.x;
       state.oy = state.y;
+      state.or = state.rotation;
+      state.ot = state.tilt;
       stage.setPointerCapture(event.pointerId);
     });
     stage.addEventListener("pointermove", (event) => {
       if (!state.dragging) return;
-      state.x = state.ox + event.clientX - state.sx;
-      state.y = state.oy + event.clientY - state.sy;
+      if (state.rotateDrag) {
+        state.rotation = state.or + (event.clientX - state.sx) * 0.22;
+        state.tilt = Math.max(-28, Math.min(28, state.ot + (event.clientY - state.sy) * 0.08));
+      } else {
+        state.x = state.ox + event.clientX - state.sx;
+        state.y = state.oy + event.clientY - state.sy;
+      }
       render();
     });
     stage.addEventListener("pointerup", () => { state.dragging = false; });
+    stage.addEventListener("pointercancel", () => { state.dragging = false; });
+    stage.addEventListener("contextmenu", (event) => event.preventDefault());
     stage.addEventListener("wheel", (event) => {
       event.preventDefault();
       zoomBy(event.deltaY < 0 ? 1.16 : 0.86);
     }, { passive: false });
     document.getElementById("zoom-in").addEventListener("click", () => zoomBy(1.25));
     document.getElementById("zoom-out").addEventListener("click", () => zoomBy(0.8));
+    document.getElementById("rotate-left").addEventListener("click", () => rotateBy(-18));
+    document.getElementById("rotate-right").addEventListener("click", () => rotateBy(18));
+    document.getElementById("tilt-left").addEventListener("click", () => tiltBy(-5));
+    document.getElementById("tilt-right").addEventListener("click", () => tiltBy(5));
+    document.getElementById("mode-pan").addEventListener("click", () => setMode("pan"));
+    document.getElementById("mode-rotate").addEventListener("click", () => setMode("rotate"));
+    document.getElementById("quality").addEventListener("click", toggleQuality);
     document.getElementById("reset").addEventListener("click", fit);
     document.getElementById("reference").addEventListener("click", () => referencePanel.classList.add("open"));
     document.getElementById("reference-close").addEventListener("click", () => referencePanel.classList.remove("open"));
@@ -383,6 +468,9 @@ START_HERE_HTML = """<!doctype html>
       if (event.key === "+" || event.key === "=") zoomBy(1.25);
       if (event.key === "-") zoomBy(0.8);
       if (event.key === "0" || event.key === "Home") fit();
+      if (event.key.toLowerCase() === "r") setMode(state.mode === "rotate" ? "pan" : "rotate");
+      if (event.key === "[") rotateBy(-12);
+      if (event.key === "]") rotateBy(12);
     });
     window.addEventListener("resize", fit);
     addMarkers();
@@ -460,10 +548,13 @@ def start_here_landmarks(package_dir: Path) -> dict:
 def write_start_here(package_dir: Path) -> None:
   """Write a double-click HTML viewer that needs no server or executable."""
   overview = package_dir / "dzi" / "regierungsviertel" / "overview.png"
+  overview_source = package_dir / "dzi" / "regierungsviertel" / "overview_source.png"
   reference = package_dir / "dzi" / "regierungsviertel" / "reference_map.png"
   index = package_dir / "index.html"
   if not overview.exists():
     raise SystemExit(f"Missing packaged overview image: {overview}")
+  if not overview_source.exists():
+    raise SystemExit(f"Missing packaged source overview image: {overview_source}")
   if not reference.exists():
     raise SystemExit(f"Missing packaged reference map: {reference}")
   if not index.exists():
@@ -548,8 +639,11 @@ Anzeigen brauchst du keine KI und keinen Google-Key. Version {PACKAGE_VERSION}
 ist ausdrücklich macOS-/Windows-downloadfreundlich: der normale Startweg ist
 eine HTML-Datei, kein ausführbares macOS-.command-Skript und kein Terminal.
 START-HERE.html ist ein einfacher Offline-Viewer mit Karte, Zoom/Verschieben,
-Referenzkarte und Landmarkenliste. Der Advanced Viewer bleibt zusätzlich dabei,
-braucht aber je nach Browser den lokalen Server-Fallback.
+Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
+und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
+Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
+Rechtsziehen drehst und swivelst du die Karte. Der Advanced Viewer bleibt
+zusätzlich dabei, braucht aber je nach Browser den lokalen Server-Fallback.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
@@ -594,8 +688,11 @@ does not need an AI model or a Google key to run. Version {PACKAGE_VERSION}
 is explicitly macOS-/Windows-download-friendly: the normal launch path is
 an HTML file, not an executable macOS .command script, and not Terminal.
 START-HERE.html is a simple offline viewer with the map, zoom/pan,
-reference map, and landmark list. The Advanced Viewer is still included,
-but may need the local-server fallback depending on the browser.
+reference map, and landmark list. It starts with the sharper detail render
+and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
+Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
+right-drag you rotate and swivel the map. The Advanced Viewer is still
+included, but may need the local-server fallback depending on the browser.
 
 This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor, interior rings render as

@@ -163,6 +163,17 @@ def collect_failures(root: Path = ROOT) -> list[str]:
         failures.append(
           f"Package HTML launcher does not reference overview.png: {start_here}"
         )
+      if "dzi/regierungsviertel/overview_source.png" not in start_here_text:
+        failures.append(
+          f"Package HTML launcher does not reference overview_source.png: {start_here}"
+        )
+      if (
+        "Drehen/Swivel" not in start_here_text
+        or "event.shiftKey" not in start_here_text
+      ):
+        failures.append(
+          f"Package HTML launcher lacks rotate/swivel mouse controls: {start_here}"
+        )
     if (package_dir / "start-mac.command").exists():
       failures.append(
         f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"

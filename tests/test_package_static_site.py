@@ -63,6 +63,7 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   dzi = tmp_path / "dzi" / "regierungsviertel"
   dzi.mkdir(parents=True)
   (dzi / "overview.png").write_bytes(b"png")
+  (dzi / "overview_source.png").write_bytes(b"png")
   (dzi / "reference_map.png").write_bytes(b"png")
   (dzi / "landmarks.json").write_text(
     '{"image":{"width":10,"height":10},"landmarks":[{"name":"Reichstag","x":5,"y":5}]}',
@@ -74,8 +75,12 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   html = (tmp_path / "START-HERE.html").read_text(encoding="utf-8")
   assert 'type="module"' not in html
   assert "overview.png" in html
+  assert "overview_source.png" in html
   assert "reference_map.png" in html
   assert "Reichstag" in html
+  assert "Drehen/Swivel" in html
+  assert "rotateBy" in html
+  assert "event.shiftKey" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 

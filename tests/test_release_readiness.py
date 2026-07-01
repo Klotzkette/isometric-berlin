@@ -150,7 +150,13 @@ def test_collect_failures_rejects_packaged_mac_command(tmp_path: Path) -> None:
   write_minimal_release_tree(tmp_path)
   package_dir = tmp_path / "releases" / release_readiness.PACKAGE_NAME
   package_dir.mkdir(parents=True)
-  (package_dir / "START-HERE.html").write_text("<html></html>", encoding="utf-8")
+  (package_dir / "START-HERE.html").write_text(
+    '<img src="dzi/regierungsviertel/overview.png">'
+    '<img src="dzi/regierungsviertel/overview_source.png">'
+    "<button>Drehen/Swivel</button>"
+    "<script>event.shiftKey</script>",
+    encoding="utf-8",
+  )
   (package_dir / "start-mac.command").write_text("#!/bin/sh\n", encoding="utf-8")
 
   assert (

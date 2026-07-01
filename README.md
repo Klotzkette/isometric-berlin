@@ -1,8 +1,8 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.31/isometric-berlin-regierungsviertel-local.zip
+> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.32/isometric-berlin-regierungsviertel-local.zip
 
-> **Status:** Local v0.1.31 open-data viewer. This release makes the downloaded ZIP genuinely click-to-start on Mac and Windows: `START-HERE.html` is now a zero-server offline viewer with the map, pan/zoom, reference map, and landmark list embedded in plain browser HTML. No Terminal, no `.command`, no Python, no Vite module loading for the first launch. It keeps the metric/architectural pass from v0.1.30: LoD2 footprints stay the EPSG:25833 metre-scale geometry anchor, 48 LoD2 interior rings render as visible courtyards/cut-outs, facades get denser recessed bay rhythm, and roofs get finer ribs/equipment marks. Google/Apple map products are used only for visual QA, not copied into committed data.
+> **Status:** Local v0.1.32 open-data viewer. `START-HERE.html` is the real click-to-start viewer for Mac and Windows: no Terminal, no `.command`, no Python. It now starts with the sharper detail render, has large visible zoom/rotate/swivel buttons, a Pixel-Art toggle, and mouse gestures: drag to move; use the Drehen/Swivel mode, Shift-drag, or right-drag to rotate and swivel. It keeps the metric/architectural pass: LoD2 footprints stay the EPSG:25833 metre-scale geometry anchor, 48 LoD2 interior rings render as visible courtyards/cut-outs, facades get denser recessed bay rhythm, and roofs get finer ribs/equipment marks. Google/Apple map products are used only for visual QA, not copied into committed data.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
