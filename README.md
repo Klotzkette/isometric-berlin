@@ -1,8 +1,8 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.29/isometric-berlin-regierungsviertel-local.zip
+> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.31/isometric-berlin-regierungsviertel-local.zip
 
-> **Status:** Local v0.1.30 open-data viewer. This release tightens the metric/architectural pass: LoD2 footprints stay the EPSG:25833 metre-scale geometry anchor, 48 LoD2 interior rings now render as visible courtyards/cut-outs, facades get denser recessed bay rhythm, and roofs get finer ribs/equipment marks from footprint size, height, roof type, OSM context, and Wikimedia material cues. It also adds [`docs/metric-precision.md`](docs/metric-precision.md), documenting official LoD2/DOP/ALKIS precision evidence and the current limitation: true photogrammetric facade relief still needs a future textured Berlin 3D mesh/OBJ ingest. The ZIP remains Mac/Windows-friendly through `START-HERE.html` without a quarantined macOS `.command` file. Google/Apple map products are used only for visual QA, not copied into committed data.
+> **Status:** Local v0.1.31 open-data viewer. This release makes the downloaded ZIP genuinely click-to-start on Mac and Windows: `START-HERE.html` is now a zero-server offline viewer with the map, pan/zoom, reference map, and landmark list embedded in plain browser HTML. No Terminal, no `.command`, no Python, no Vite module loading for the first launch. It keeps the metric/architectural pass from v0.1.30: LoD2 footprints stay the EPSG:25833 metre-scale geometry anchor, 48 LoD2 interior rings render as visible courtyards/cut-outs, facades get denser recessed bay rhythm, and roofs get finer ribs/equipment marks. Google/Apple map products are used only for visual QA, not copied into committed data.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest

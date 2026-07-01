@@ -52,7 +52,7 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "-m http.server" not in windows
 
 
-def test_write_start_here_copies_html_entrypoint(tmp_path: Path) -> None:
+def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None:
   package_static_site = load_script_module(
     "package_static_site", "scripts/package_static_site.py"
   )
@@ -60,12 +60,23 @@ def test_write_start_here_copies_html_entrypoint(tmp_path: Path) -> None:
     '<script type="module" src="./assets/index.js"></script>',
     encoding="utf-8",
   )
+  dzi = tmp_path / "dzi" / "regierungsviertel"
+  dzi.mkdir(parents=True)
+  (dzi / "overview.png").write_bytes(b"png")
+  (dzi / "reference_map.png").write_bytes(b"png")
+  (dzi / "landmarks.json").write_text(
+    '{"image":{"width":10,"height":10},"landmarks":[{"name":"Reichstag","x":5,"y":5}]}',
+    encoding="utf-8",
+  )
 
   package_static_site.write_start_here(tmp_path)
 
-  assert (tmp_path / "START-HERE.html").read_text(encoding="utf-8") == (
-    tmp_path / "index.html"
-  ).read_text(encoding="utf-8")
+  html = (tmp_path / "START-HERE.html").read_text(encoding="utf-8")
+  assert 'type="module"' not in html
+  assert "overview.png" in html
+  assert "reference_map.png" in html
+  assert "Reichstag" in html
+  assert "__LANDMARK_PAYLOAD__" not in html
 
 
 def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> None:

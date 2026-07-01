@@ -150,10 +150,19 @@ def collect_failures(root: Path = ROOT) -> list[str]:
 
   package_dir = root / "releases" / PACKAGE_NAME
   if package_dir.exists():
-    if not (package_dir / "START-HERE.html").exists():
-      failures.append(
-        f"Missing package HTML launcher: {package_dir / 'START-HERE.html'}"
-      )
+    start_here = package_dir / "START-HERE.html"
+    if not start_here.exists():
+      failures.append(f"Missing package HTML launcher: {start_here}")
+    else:
+      start_here_text = start_here.read_text(encoding="utf-8")
+      if 'type="module"' in start_here_text:
+        failures.append(
+          f"Package HTML launcher still depends on browser module loading: {start_here}"
+        )
+      if "dzi/regierungsviertel/overview.png" not in start_here_text:
+        failures.append(
+          f"Package HTML launcher does not reference overview.png: {start_here}"
+        )
     if (package_dir / "start-mac.command").exists():
       failures.append(
         f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"
