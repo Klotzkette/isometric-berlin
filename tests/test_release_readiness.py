@@ -165,3 +165,30 @@ def test_collect_failures_rejects_packaged_mac_command(tmp_path: Path) -> None:
     f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"
     in release_readiness.collect_failures(tmp_path)
   )
+
+
+def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_stale_server", "scripts/check_release_readiness.py"
+  )
+  write_minimal_release_tree(tmp_path)
+  package_dir = tmp_path / "releases" / release_readiness.PACKAGE_NAME
+  package_dir.mkdir(parents=True)
+  (package_dir / "START-HERE.html").write_text(
+    '<img src="dzi/regierungsviertel/overview.png">'
+    '<img src="dzi/regierungsviertel/overview_source.png">'
+    "<button>Drehen/Swivel</button>"
+    '<button id="view-north">Nord</button>'
+    '<div id="compass"></div>'
+    "<script>event.shiftKey; setViewPreset</script>",
+    encoding="utf-8",
+  )
+  (package_dir / "serve-local.py").write_text(
+    'print("old root launcher")\n',
+    encoding="utf-8",
+  )
+
+  assert (
+    f"Package server fallback does not open/flush START-HERE.html: {package_dir / 'serve-local.py'}"
+    in release_readiness.collect_failures(tmp_path)
+  )

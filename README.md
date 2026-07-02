@@ -1,8 +1,8 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.33/isometric-berlin-regierungsviertel-local.zip
+> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.34/isometric-berlin-regierungsviertel-local.zip
 
-> **Status:** Local v0.1.33 open-data viewer. `START-HERE.html` is the real click-to-start viewer for Mac and Windows: no Terminal, no `.command`, no Python. It starts with the sharper detail render, has large visible zoom/rotate/swivel buttons, a Pixel-Art toggle, mouse gestures, and now reproducible Top/North/East/South/West view presets with an on-map compass/status line. It keeps the metric/architectural pass: LoD2 footprints stay the EPSG:25833 metre-scale geometry anchor, 48 LoD2 interior rings render as visible courtyards/cut-outs, facades get denser recessed bay rhythm, and roofs get finer ribs/equipment marks. Google/Apple map products are used only for visual QA, not copied into committed data.
+> **Status:** Local v0.1.34 open-data viewer. `START-HERE.html` is the real click-to-start viewer for Mac and Windows: no Terminal, no `.command`, no Python. It starts with the sharper detail render, has large visible zoom/rotate/swivel buttons, a Pixel-Art toggle, mouse gestures, reproducible Top/North/East/South/West view presets, and an on-map compass/status line. The optional local-server fallback now opens `START-HERE.html` directly, flushes the printed URL immediately, and preflights required package files before serving. It keeps the metric/architectural pass: LoD2 footprints stay the EPSG:25833 metre-scale geometry anchor, 48 LoD2 interior rings render as visible courtyards/cut-outs, facades get denser recessed bay rhythm, and roofs get finer ribs/equipment marks. Google/Apple map products are used only for visual QA, not copied into committed data.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest

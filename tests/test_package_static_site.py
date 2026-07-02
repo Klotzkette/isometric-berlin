@@ -38,6 +38,10 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "--port" in serve_text
   assert "--no-open" in serve_text
   assert "if not args.no_open" in serve_text
+  assert 'START_PAGE = "START-HERE.html"' in serve_text
+  assert "require_package_files(root)" in serve_text
+  assert "flush=True" in serve_text
+  assert "/{START_PAGE}" in serve_text
   assert "BrokenPipeError" in serve_text
   assert "ConnectionResetError" in serve_text
   assert not (tmp_path / "start-mac.command").exists()
@@ -47,6 +51,7 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   windows = (tmp_path / "start-windows.bat").read_text(encoding="utf-8")
   assert "Gatekeeper" in mac_notes
   assert "python3 serve-local.py" in mac_notes
+  assert "START-HERE.html address" in mac_notes
   assert "python3 serve-local.py" in linux
   assert "py -3 serve-local.py" in windows
   assert "-m http.server" not in mac_notes

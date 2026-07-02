@@ -186,6 +186,19 @@ def collect_failures(root: Path = ROOT) -> list[str]:
       failures.append(
         f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"
       )
+    serve_local = package_dir / "serve-local.py"
+    if not serve_local.exists():
+      failures.append(f"Missing package server fallback: {serve_local}")
+    else:
+      serve_text = serve_local.read_text(encoding="utf-8")
+      if (
+        'START_PAGE = "START-HERE.html"' not in serve_text
+        or "require_package_files(root)" not in serve_text
+        or "flush=True" not in serve_text
+      ):
+        failures.append(
+          f"Package server fallback does not open/flush START-HERE.html: {serve_local}"
+        )
 
   scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
   for scan_root in scan_roots:

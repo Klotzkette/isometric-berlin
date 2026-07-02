@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.33"
+PACKAGE_VERSION = "0.1.34"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -33,6 +33,13 @@ from pathlib import Path
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8766
+START_PAGE = "START-HERE.html"
+REQUIRED_PACKAGE_FILES = (
+  START_PAGE,
+  "README.txt",
+  "dzi/regierungsviertel/overview_source.png",
+  "dzi/regierungsviertel/regierungsviertel.dzi",
+)
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -47,7 +54,7 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
     super().end_headers()
 
   def log_message(self, format: str, *args: object) -> None:
-    print(f"[viewer] {self.address_string()} - {format % args}")
+    print(f"[viewer] {self.address_string()} - {format % args}", flush=True)
 
 
 class ReusableTCPServer(socketserver.ThreadingTCPServer):
@@ -74,24 +81,34 @@ def parse_args() -> argparse.Namespace:
   return parser.parse_args()
 
 
+def require_package_files(root: Path) -> None:
+  missing = [relative for relative in REQUIRED_PACKAGE_FILES if not (root / relative).exists()]
+  if not missing:
+    return
+  for relative in missing:
+    print(f"Missing package file: {relative}", flush=True)
+  raise SystemExit("This local viewer package is incomplete. Download the ZIP again.")
+
+
 def main() -> None:
   args = parse_args()
   root = Path(__file__).resolve().parent
+  require_package_files(root)
   port = first_available_port(args.host, args.port)
   if port != args.port:
-    print(f"Port {args.port} is busy, using {port}.")
+    print(f"Port {args.port} is busy, using {port}.", flush=True)
 
   handler = functools.partial(QuietHandler, directory=str(root))
   with ReusableTCPServer((args.host, port), handler) as server:
-    url = f"http://{args.host}:{port}/"
-    print(f"Serving Isometric Berlin from {root}")
-    print(f"Open: {url}")
+    url = f"http://{args.host}:{port}/{START_PAGE}"
+    print(f"Serving Isometric Berlin from {root}", flush=True)
+    print(f"Open: {url}", flush=True)
     if not args.no_open:
       webbrowser.open(url)
     try:
       server.serve_forever()
     except KeyboardInterrupt:
-      print("\\nStopped local viewer.")
+      print("\\nStopped local viewer.", flush=True)
 
 
 if __name__ == "__main__":
@@ -657,14 +674,14 @@ def write_launchers(package_dir: Path) -> None:
 
 First try this: double-click START-HERE.html. It is the normal offline viewer.
 
-Only use Terminal for the advanced server viewer:
+Only use Terminal for the server fallback:
 
 1. Open Terminal.
 2. Type exactly `cd ` including the trailing space.
 3. Drag the whole unzipped folder into the Terminal window and press Return.
    The command line must start with `cd `. Do not run the folder path alone.
 4. Run: python3 serve-local.py
-5. Open the printed http://127.0.0.1:... address.
+5. Open the printed http://127.0.0.1:.../START-HERE.html address.
 
 This package does not include start-mac.command because macOS Gatekeeper
 blocks unsigned downloaded .command files before the viewer can start.
@@ -743,9 +760,11 @@ Falls dein Browser lokale Deep-Zoom-Dateien blockiert:
 - Linux: ./start-linux.sh
 
 Der Server-Fallback öffnet eine lokale Adresse im Browser, normalerweise
-http://127.0.0.1:8766/. Wenn dieser Port belegt ist, nimmt er automatisch
-den nächsten freien Port. Das Terminalfenster muss geöffnet bleiben,
-solange die Website laufen soll. Beenden mit Ctrl+C oder Fenster schließen.
+http://127.0.0.1:8766/START-HERE.html. Wenn dieser Port belegt ist, nimmt
+er automatisch den nächsten freien Port. Die Terminal-Ausgabe erscheint
+sofort und nennt die genaue Adresse. Das Terminalfenster muss geöffnet
+bleiben, solange die Website laufen soll. Beenden mit Ctrl+C oder Fenster
+schließen.
 
 Warum kein start-mac.command mehr? Apple Gatekeeper blockiert unsignierte,
 aus dem Internet geladene .command-Dateien oft mit "Not Opened", bevor sie
@@ -792,9 +811,10 @@ If your browser blocks local Deep Zoom files:
 - Linux: ./start-linux.sh
 
 The server fallback opens a local browser address, usually
-http://127.0.0.1:8766/. If that port is busy, it automatically uses the
-next free port. Keep the terminal window open while the website is
-running. Stop with Ctrl+C or close the window.
+http://127.0.0.1:8766/START-HERE.html. If that port is busy, it automatically
+uses the next free port. Terminal output is flushed immediately and prints the
+exact address. Keep the terminal window open while the website is running.
+Stop with Ctrl+C or close the window.
 
 Why no start-mac.command? Apple Gatekeeper often blocks unsigned
 downloaded .command files with "Not Opened" before they can run.
