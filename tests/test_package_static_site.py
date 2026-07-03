@@ -160,6 +160,28 @@ def test_copy_static_site_skips_duplicate_and_dev_files(
   assert not (target / "assets" / "index.js.map").exists()
 
 
+def test_ensure_dzi_tiles_copied_repairs_missing_package_level(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_dzi_repair", "scripts/package_static_site.py"
+  )
+  source = tmp_path / "dist"
+  tile = (
+    source / "dzi" / "regierungsviertel" / "regierungsviertel_files" / "8" / "0_0.jpg"
+  )
+  tile.parent.mkdir(parents=True)
+  tile.write_bytes(b"tile-level-8")
+
+  target = tmp_path / "package"
+  target.mkdir()
+  repaired = (
+    target / "dzi" / "regierungsviertel" / "regierungsviertel_files" / "8" / "0_0.jpg"
+  )
+
+  package_static_site.ensure_dzi_tiles_copied(source, target)
+
+  assert repaired.read_bytes() == b"tile-level-8"
+
+
 def test_zip_package_skips_stale_duplicate_files(tmp_path: Path) -> None:
   package_static_site = load_script_module(
     "package_static_site", "scripts/package_static_site.py"

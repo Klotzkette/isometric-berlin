@@ -8,7 +8,9 @@ import re
 import tomllib
 import xml.etree.ElementTree as ET
 import zipfile
+from collections.abc import Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_RE = re.compile(r"__version__ = \"([^\"]+)\"")
@@ -44,6 +46,13 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
 )
+
+
+class DziInfo(NamedTuple):
+  tile_size: int
+  fmt: str
+  width: int
+  height: int
 
 
 def project_version(root: Path = ROOT) -> str:
@@ -116,18 +125,13 @@ def package_server_failures(serve_text: str, label: str) -> list[str]:
   return []
 
 
-def dzi_tile_failures(public_dzi: Path) -> list[str]:
-  descriptor = public_dzi / DZI_DESCRIPTOR
-  tiles_root = public_dzi / DZI_TILES_DIR
-  if not descriptor.exists():
-    return [f"Missing DZI descriptor: {descriptor}"]
-  if not tiles_root.is_dir():
-    return [f"Missing DZI tile directory: {tiles_root}"]
-
+def parse_dzi_descriptor(
+  descriptor_label: str, data: bytes
+) -> tuple[DziInfo | None, list[str]]:
   try:
-    root = ET.parse(descriptor).getroot()
+    root = ET.fromstring(data)
   except ET.ParseError as exc:
-    return [f"Invalid DZI descriptor {descriptor}: {exc}"]
+    return None, [f"Invalid DZI descriptor {descriptor_label}: {exc}"]
 
   try:
     tile_size = int(root.attrib["TileSize"])
@@ -136,30 +140,88 @@ def dzi_tile_failures(public_dzi: Path) -> list[str]:
     width = int(size.attrib["Width"])
     height = int(size.attrib["Height"])
   except (KeyError, StopIteration, ValueError) as exc:
-    return [f"Incomplete DZI descriptor {descriptor}: {exc}"]
+    return None, [f"Incomplete DZI descriptor {descriptor_label}: {exc}"]
 
   if tile_size <= 0 or width <= 0 or height <= 0:
-    return [f"Invalid DZI dimensions in {descriptor}"]
+    return None, [f"Invalid DZI dimensions in {descriptor_label}"]
 
-  failures: list[str] = []
-  max_level = math.ceil(math.log2(max(width, height)))
+  return DziInfo(tile_size=tile_size, fmt=fmt, width=width, height=height), []
+
+
+def iter_dzi_tile_paths(info: DziInfo) -> Iterator[str]:
+  max_level = math.ceil(math.log2(max(info.width, info.height)))
   for level in range(max_level + 1):
     scale = 2 ** (max_level - level)
-    level_width = math.ceil(width / scale)
-    level_height = math.ceil(height / scale)
-    cols = math.ceil(level_width / tile_size)
-    rows = math.ceil(level_height / tile_size)
-    level_dir = tiles_root / str(level)
-    if not level_dir.is_dir():
-      failures.append(f"Missing DZI level directory: {level_dir}")
-      continue
+    level_width = math.ceil(info.width / scale)
+    level_height = math.ceil(info.height / scale)
+    cols = math.ceil(level_width / info.tile_size)
+    rows = math.ceil(level_height / info.tile_size)
     for row in range(rows):
       for col in range(cols):
-        tile = level_dir / f"{col}_{row}.{fmt}"
-        if not tile.exists():
-          failures.append(f"Missing DZI tile: {tile}")
-        elif tile.stat().st_size == 0:
-          failures.append(f"Empty DZI tile: {tile}")
+        yield f"{level}/{col}_{row}.{info.fmt}"
+
+
+def dzi_tile_failures(public_dzi: Path) -> list[str]:
+  descriptor = public_dzi / DZI_DESCRIPTOR
+  tiles_root = public_dzi / DZI_TILES_DIR
+  if not descriptor.exists():
+    return [f"Missing DZI descriptor: {descriptor}"]
+  if not tiles_root.is_dir():
+    return [f"Missing DZI tile directory: {tiles_root}"]
+
+  info, failures = parse_dzi_descriptor(str(descriptor), descriptor.read_bytes())
+  if failures:
+    return failures
+  assert info is not None
+
+  failures = []
+  seen_level_dirs: set[Path] = set()
+  for relative_tile in iter_dzi_tile_paths(info):
+    tile = tiles_root / relative_tile
+    level_dir = tile.parent
+    if level_dir not in seen_level_dirs:
+      seen_level_dirs.add(level_dir)
+      if not level_dir.is_dir():
+        failures.append(f"Missing DZI level directory: {level_dir}")
+        continue
+    if not tile.exists():
+      failures.append(f"Missing DZI tile: {tile}")
+    elif tile.stat().st_size == 0:
+      failures.append(f"Empty DZI tile: {tile}")
+  return failures
+
+
+def zip_dzi_tile_failures(
+  archive: zipfile.ZipFile, names: set[str], zip_path: Path
+) -> list[str]:
+  descriptor = package_arcname(f"dzi/regierungsviertel/{DZI_DESCRIPTOR}")
+  if descriptor not in names:
+    return []
+
+  info, failures = parse_dzi_descriptor(
+    f"{zip_path}!{descriptor}", archive.read(descriptor)
+  )
+  if failures:
+    return failures
+  assert info is not None
+
+  failures = []
+  seen_level_dirs: set[str] = set()
+  for relative_tile in iter_dzi_tile_paths(info):
+    level_dir = package_arcname(
+      f"dzi/regierungsviertel/{DZI_TILES_DIR}/{Path(relative_tile).parent}"
+    )
+    if level_dir not in seen_level_dirs:
+      seen_level_dirs.add(level_dir)
+      if not any(name.startswith(f"{level_dir}/") for name in names):
+        failures.append(f"Missing DZI ZIP level directory: {zip_path}!{level_dir}")
+        continue
+    tile = package_arcname(f"dzi/regierungsviertel/{DZI_TILES_DIR}/{relative_tile}")
+    if tile not in names:
+      failures.append(f"Missing DZI ZIP tile: {zip_path}!{tile}")
+      continue
+    if archive.getinfo(tile).file_size == 0:
+      failures.append(f"Empty DZI ZIP tile: {zip_path}!{tile}")
   return failures
 
 
@@ -180,6 +242,8 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
         arcname = package_arcname(relative)
         if arcname not in names:
           failures.append(f"Missing package ZIP entry: {zip_path}!{arcname}")
+
+      failures.extend(zip_dzi_tile_failures(archive, names, zip_path))
 
       for name in names:
         if name.endswith("/"):

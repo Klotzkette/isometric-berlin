@@ -8,6 +8,11 @@ from pathlib import Path
 from types import ModuleType
 
 ROOT = Path(__file__).resolve().parents[1]
+TINY_DZI_XML = """<?xml version='1.0' encoding='utf-8'?>
+<Image TileSize="256" Overlap="0" Format="jpg" xmlns="http://schemas.microsoft.com/deepzoom/2008">
+  <Size Width="2" Height="2" />
+</Image>
+"""
 VALID_START_HERE_HTML = (
   '<img src="dzi/regierungsviertel/overview.png">'
   '<img src="dzi/regierungsviertel/overview_source.png">'
@@ -44,14 +49,7 @@ def test_current_tree_is_release_ready() -> None:
 
 def write_tiny_dzi(public_dzi: Path) -> None:
   public_dzi.mkdir(parents=True, exist_ok=True)
-  (public_dzi / "regierungsviertel.dzi").write_text(
-    """<?xml version='1.0' encoding='utf-8'?>
-<Image TileSize="256" Overlap="0" Format="jpg" xmlns="http://schemas.microsoft.com/deepzoom/2008">
-  <Size Width="2" Height="2" />
-</Image>
-""",
-    encoding="utf-8",
-  )
+  (public_dzi / "regierungsviertel.dzi").write_text(TINY_DZI_XML, encoding="utf-8")
   for level in ["0", "1"]:
     level_dir = public_dzi / "regierungsviertel_files" / level
     level_dir.mkdir(parents=True, exist_ok=True)
@@ -118,7 +116,9 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/overview.png": b"png",
     "dzi/regierungsviertel/overview_source.png": b"png",
     "dzi/regierungsviertel/reference_map.png": b"png",
-    "dzi/regierungsviertel/regierungsviertel.dzi": "<Image />\n",
+    "dzi/regierungsviertel/regierungsviertel.dzi": TINY_DZI_XML,
+    "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
+    "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
   }
   for relative, body in overrides.items():
@@ -212,6 +212,25 @@ def test_zip_package_failures_require_referenced_tile(tmp_path: Path) -> None:
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg"
   )
   assert f"Missing package ZIP entry: {zip_path}!{missing}" in (
+    release_readiness.zip_package_failures(tmp_path)
+  )
+
+
+def test_zip_package_failures_require_full_dzi_pyramid(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_dzi_tile", "scripts/check_release_readiness.py"
+  )
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {"dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": None},
+  )
+
+  zip_path = tmp_path / "releases" / release_readiness.PACKAGE_ZIP
+  missing_level = release_readiness.package_arcname(
+    "dzi/regierungsviertel/regierungsviertel_files/1"
+  )
+  assert f"Missing DZI ZIP level directory: {zip_path}!{missing_level}" in (
     release_readiness.zip_package_failures(tmp_path)
   )
 

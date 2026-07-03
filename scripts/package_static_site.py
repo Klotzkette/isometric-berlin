@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.35"
+PACKAGE_VERSION = "0.1.36"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -609,6 +609,23 @@ def copy_static_site(source: Path, target: Path) -> None:
     copy_file_contents(path, destination)
 
 
+def ensure_dzi_tiles_copied(source: Path, target: Path) -> None:
+  """Make the packaged DZI tile tree byte-complete after copy quirks."""
+  source_tiles = source / "dzi" / "regierungsviertel" / "regierungsviertel_files"
+  if not source_tiles.is_dir():
+    return
+
+  for path in source_tiles.rglob("*"):
+    if not path.is_file() or not should_package_file(path):
+      continue
+    relative = path.relative_to(source)
+    destination = target / relative
+    if destination.exists() and destination.stat().st_size == path.stat().st_size:
+      continue
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    copy_file_contents(path, destination)
+
+
 def remove_unwanted_package_paths(package_dir: Path) -> None:
   for path in sorted(
     package_dir.rglob("*"), key=lambda item: len(item.parts), reverse=True
@@ -865,6 +882,7 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
     )
   package_dir = out_dir / PACKAGE_NAME
   copy_static_site(source, package_dir)
+  ensure_dzi_tiles_copied(source, package_dir)
   write_start_here(package_dir)
   write_launchers(package_dir)
   write_readme(package_dir)
