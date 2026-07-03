@@ -3,10 +3,25 @@
 from __future__ import annotations
 
 import importlib.util
+import zipfile
 from pathlib import Path
 from types import ModuleType
 
 ROOT = Path(__file__).resolve().parents[1]
+VALID_START_HERE_HTML = (
+  '<img src="dzi/regierungsviertel/overview.png">'
+  '<img src="dzi/regierungsviertel/overview_source.png">'
+  "<button>Drehen/Swivel</button>"
+  '<button id="view-north">Nord</button>'
+  '<div id="compass"></div>'
+  "<script>event.shiftKey; setViewPreset</script>"
+)
+VALID_SERVE_LOCAL = (
+  'START_PAGE = "START-HERE.html"\n'
+  "def require_package_files(root):\n"
+  "  return None\n"
+  "print('open', flush=True)\n"
+)
 
 
 def load_script_module(name: str, relative_path: str) -> ModuleType:
@@ -86,6 +101,39 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   return public_dzi
 
 
+def write_minimal_package_zip(
+  root: Path,
+  release_readiness: ModuleType,
+  overrides: dict[str, bytes | str | None] | None = None,
+) -> Path:
+  overrides = overrides or {}
+  files: dict[str, bytes | str] = {
+    "START-HERE.html": VALID_START_HERE_HTML,
+    "README.txt": "readme\n",
+    "serve-local.py": VALID_SERVE_LOCAL,
+    "start-mac-if-needed.txt": "fallback\n",
+    "start-windows.bat": "@echo off\n",
+    "start-linux.sh": "#!/bin/sh\n",
+    "index.html": "<!doctype html>\n",
+    "dzi/regierungsviertel/overview.png": b"png",
+    "dzi/regierungsviertel/overview_source.png": b"png",
+    "dzi/regierungsviertel/reference_map.png": b"png",
+    "dzi/regierungsviertel/regierungsviertel.dzi": "<Image />\n",
+    "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
+  }
+  for relative, body in overrides.items():
+    if body is None:
+      files.pop(relative, None)
+    else:
+      files[relative] = body
+  zip_path = root / "releases" / release_readiness.PACKAGE_ZIP
+  zip_path.parent.mkdir(parents=True, exist_ok=True)
+  with zipfile.ZipFile(zip_path, "w") as archive:
+    for relative, body in files.items():
+      archive.writestr(release_readiness.package_arcname(relative), body)
+  return zip_path
+
+
 def test_dzi_tile_failures_accepts_complete_pyramid(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_complete", "scripts/check_release_readiness.py"
@@ -126,6 +174,74 @@ def test_dzi_tile_failures_require_referenced_tiles(tmp_path: Path) -> None:
   assert release_readiness.dzi_tile_failures(tmp_path) == [
     f"Missing DZI tile: {missing_tile}"
   ]
+
+
+def test_zip_package_failures_accepts_complete_zip(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_complete", "scripts/check_release_readiness.py"
+  )
+  write_minimal_package_zip(tmp_path, release_readiness)
+
+  assert release_readiness.zip_package_failures(tmp_path) == []
+
+
+def test_collect_failures_can_require_package_zip(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_required", "scripts/check_release_readiness.py"
+  )
+  write_minimal_release_tree(tmp_path)
+
+  zip_path = tmp_path / "releases" / release_readiness.PACKAGE_ZIP
+  assert f"Missing package ZIP: {zip_path}" in release_readiness.collect_failures(
+    tmp_path, require_package_zip=True
+  )
+
+
+def test_zip_package_failures_require_referenced_tile(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_missing_tile", "scripts/check_release_readiness.py"
+  )
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {"dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": None},
+  )
+
+  zip_path = tmp_path / "releases" / release_readiness.PACKAGE_ZIP
+  missing = release_readiness.package_arcname(
+    "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg"
+  )
+  assert f"Missing package ZIP entry: {zip_path}!{missing}" in (
+    release_readiness.zip_package_failures(tmp_path)
+  )
+
+
+def test_zip_package_failures_rejects_stale_launcher(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_launcher", "scripts/check_release_readiness.py"
+  )
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {"START-HERE.html": '<script type="module" src="/assets/app.js"></script>'},
+  )
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+  assert any("browser module loading" in failure for failure in failures)
+
+
+def test_zip_package_failures_rejects_stale_server(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_server", "scripts/check_release_readiness.py"
+  )
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {"serve-local.py": 'print("old root launcher")\n'},
+  )
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+  assert any("does not open/flush START-HERE.html" in failure for failure in failures)
 
 
 def test_collect_failures_rejects_mismatched_bundled_landmarks(tmp_path: Path) -> None:

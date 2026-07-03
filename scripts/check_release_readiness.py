@@ -7,6 +7,7 @@ import math
 import re
 import tomllib
 import xml.etree.ElementTree as ET
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,21 @@ REQUIRED_REPORT_FILES = (
 DZI_DESCRIPTOR = "regierungsviertel.dzi"
 DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
+PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
+REQUIRED_PACKAGE_ENTRIES = (
+  "START-HERE.html",
+  "README.txt",
+  "serve-local.py",
+  "start-mac-if-needed.txt",
+  "start-windows.bat",
+  "start-linux.sh",
+  "index.html",
+  "dzi/regierungsviertel/overview.png",
+  "dzi/regierungsviertel/overview_source.png",
+  "dzi/regierungsviertel/reference_map.png",
+  "dzi/regierungsviertel/regierungsviertel.dzi",
+  "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+)
 
 
 def project_version(root: Path = ROOT) -> str:
@@ -59,6 +75,45 @@ def has_forbidden_duplicate_name(path: Path) -> bool:
     part == "__MACOSX" or part.startswith(".") or DUPLICATE_COPY_RE.match(part)
     for part in path.parts
   )
+
+
+def package_arcname(relative: str) -> str:
+  return f"{PACKAGE_NAME}/{relative}"
+
+
+def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
+  failures: list[str] = []
+  if 'type="module"' in start_here_text:
+    failures.append(
+      f"Package HTML launcher still depends on browser module loading: {label}"
+    )
+  if "dzi/regierungsviertel/overview.png" not in start_here_text:
+    failures.append(f"Package HTML launcher does not reference overview.png: {label}")
+  if "dzi/regierungsviertel/overview_source.png" not in start_here_text:
+    failures.append(
+      f"Package HTML launcher does not reference overview_source.png: {label}"
+    )
+  if "Drehen/Swivel" not in start_here_text or "event.shiftKey" not in start_here_text:
+    failures.append(
+      f"Package HTML launcher lacks rotate/swivel mouse controls: {label}"
+    )
+  if (
+    "setViewPreset" not in start_here_text
+    or "view-north" not in start_here_text
+    or "compass" not in start_here_text
+  ):
+    failures.append(f"Package HTML launcher lacks reproducible view presets: {label}")
+  return failures
+
+
+def package_server_failures(serve_text: str, label: str) -> list[str]:
+  if (
+    'START_PAGE = "START-HERE.html"' not in serve_text
+    or "require_package_files(root)" not in serve_text
+    or "flush=True" not in serve_text
+  ):
+    return [f"Package server fallback does not open/flush START-HERE.html: {label}"]
+  return []
 
 
 def dzi_tile_failures(public_dzi: Path) -> list[str]:
@@ -108,7 +163,60 @@ def dzi_tile_failures(public_dzi: Path) -> list[str]:
   return failures
 
 
-def collect_failures(root: Path = ROOT) -> list[str]:
+def zip_package_failures(root: Path = ROOT) -> list[str]:
+  zip_path = root / "releases" / PACKAGE_ZIP
+  if not zip_path.exists():
+    return [f"Missing package ZIP: {zip_path}"]
+
+  failures: list[str] = []
+  try:
+    with zipfile.ZipFile(zip_path) as archive:
+      corrupt_member = archive.testzip()
+      if corrupt_member is not None:
+        failures.append(f"Corrupt ZIP member: {zip_path}!{corrupt_member}")
+
+      names = set(archive.namelist())
+      for relative in REQUIRED_PACKAGE_ENTRIES:
+        arcname = package_arcname(relative)
+        if arcname not in names:
+          failures.append(f"Missing package ZIP entry: {zip_path}!{arcname}")
+
+      for name in names:
+        if name.endswith("/"):
+          continue
+        if not name.startswith(f"{PACKAGE_NAME}/"):
+          failures.append(f"Unexpected package ZIP root entry: {zip_path}!{name}")
+          continue
+        inner = Path(name).relative_to(PACKAGE_NAME)
+        if has_forbidden_duplicate_name(inner):
+          failures.append(
+            f"Unwanted duplicate/hidden package ZIP path: {zip_path}!{name}"
+          )
+        if inner.name == "start-mac.command":
+          failures.append(f"Forbidden macOS Gatekeeper ZIP launcher: {zip_path}!{name}")
+
+      start_here = package_arcname("START-HERE.html")
+      if start_here in names:
+        start_here_text = archive.read(start_here).decode("utf-8")
+        failures.extend(
+          package_start_here_failures(start_here_text, f"{zip_path}!{start_here}")
+        )
+
+      serve_local = package_arcname("serve-local.py")
+      if serve_local in names:
+        serve_text = archive.read(serve_local).decode("utf-8")
+        failures.extend(
+          package_server_failures(serve_text, f"{zip_path}!{serve_local}")
+        )
+  except (UnicodeDecodeError, zipfile.BadZipFile) as exc:
+    return [f"Invalid package ZIP: {zip_path}: {exc}"]
+
+  return failures
+
+
+def collect_failures(
+  root: Path = ROOT, *, require_package_zip: bool = False
+) -> list[str]:
   failures: list[str] = []
   version = project_version(root)
   version_sources = {
@@ -154,34 +262,11 @@ def collect_failures(root: Path = ROOT) -> list[str]:
     if not start_here.exists():
       failures.append(f"Missing package HTML launcher: {start_here}")
     else:
-      start_here_text = start_here.read_text(encoding="utf-8")
-      if 'type="module"' in start_here_text:
-        failures.append(
-          f"Package HTML launcher still depends on browser module loading: {start_here}"
+      failures.extend(
+        package_start_here_failures(
+          start_here.read_text(encoding="utf-8"), str(start_here)
         )
-      if "dzi/regierungsviertel/overview.png" not in start_here_text:
-        failures.append(
-          f"Package HTML launcher does not reference overview.png: {start_here}"
-        )
-      if "dzi/regierungsviertel/overview_source.png" not in start_here_text:
-        failures.append(
-          f"Package HTML launcher does not reference overview_source.png: {start_here}"
-        )
-      if (
-        "Drehen/Swivel" not in start_here_text
-        or "event.shiftKey" not in start_here_text
-      ):
-        failures.append(
-          f"Package HTML launcher lacks rotate/swivel mouse controls: {start_here}"
-        )
-      if (
-        "setViewPreset" not in start_here_text
-        or "view-north" not in start_here_text
-        or "compass" not in start_here_text
-      ):
-        failures.append(
-          f"Package HTML launcher lacks reproducible view presets: {start_here}"
-        )
+      )
     if (package_dir / "start-mac.command").exists():
       failures.append(
         f"Forbidden macOS Gatekeeper-blocked launcher: {package_dir / 'start-mac.command'}"
@@ -190,15 +275,15 @@ def collect_failures(root: Path = ROOT) -> list[str]:
     if not serve_local.exists():
       failures.append(f"Missing package server fallback: {serve_local}")
     else:
-      serve_text = serve_local.read_text(encoding="utf-8")
-      if (
-        'START_PAGE = "START-HERE.html"' not in serve_text
-        or "require_package_files(root)" not in serve_text
-        or "flush=True" not in serve_text
-      ):
-        failures.append(
-          f"Package server fallback does not open/flush START-HERE.html: {serve_local}"
+      failures.extend(
+        package_server_failures(
+          serve_local.read_text(encoding="utf-8"), str(serve_local)
         )
+      )
+
+  zip_path = root / "releases" / PACKAGE_ZIP
+  if require_package_zip or zip_path.exists():
+    failures.extend(zip_package_failures(root))
 
   scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
   for scan_root in scan_roots:
@@ -212,7 +297,7 @@ def collect_failures(root: Path = ROOT) -> list[str]:
 
 
 def main() -> None:
-  failures = collect_failures()
+  failures = collect_failures(require_package_zip=True)
   if failures:
     details = "\n".join(f"- {failure}" for failure in failures)
     raise SystemExit(f"Release readiness failed:\n{details}")
