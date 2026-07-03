@@ -85,9 +85,18 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "overview_source.png" in html
   assert "reference_map.png" in html
   assert "Reichstag" in html
+  assert "Bundeskanzleramt" in html
+  assert "DEFAULT_FOCUS_LANDMARK" in html
+  assert "PRIORITY_LANDMARKS" in html
   assert "Drehen/Swivel" in html
   assert "rotateBy" in html
+  assert "ArrowLeft" in html
+  assert "ArrowRight" in html
+  assert "ArrowUp" in html
+  assert "ArrowDown" in html
+  assert "PageDown" in html
   assert "event.shiftKey" in html
+  assert "tiltBy" in html
   assert "view-north" in html
   assert "setViewPreset" in html
   assert "compass" in html

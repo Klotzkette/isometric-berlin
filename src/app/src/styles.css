@@ -57,8 +57,7 @@ button {
 }
 
 .openseadragon-canvas canvas {
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .topbar {
@@ -272,6 +271,20 @@ button {
   outline: none;
 }
 
+.landmark-list button.is-priority {
+  border-color: rgba(47, 143, 167, 0.42);
+  background:
+    linear-gradient(90deg, rgba(47, 143, 167, 0.28), rgba(255, 255, 255, 0.07)),
+    rgba(255, 255, 255, 0.07);
+}
+
+.landmark-list button.is-priority.is-selected {
+  border-color: rgba(224, 174, 105, 0.82);
+  background:
+    linear-gradient(90deg, rgba(47, 143, 167, 0.42), rgba(169, 66, 53, 0.64)),
+    rgba(169, 66, 53, 0.74);
+}
+
 .landmark-list button:disabled:hover,
 .landmark-list button:disabled:focus-visible {
   border-color: transparent;
@@ -380,6 +393,13 @@ button {
   line-height: 1.35;
 }
 
+.selection-card--priority {
+  border-color: rgba(224, 174, 105, 0.42);
+  background:
+    linear-gradient(120deg, rgba(47, 143, 167, 0.24), rgba(25, 31, 29, 0.88)),
+    rgba(25, 31, 29, 0.84);
+}
+
 .selection-progress {
   width: 100%;
   height: 3px;
@@ -448,6 +468,24 @@ button {
   box-shadow:
     0 0 0 3px rgba(210, 160, 68, 0.24),
     0 4px 10px rgba(0, 0, 0, 0.36);
+}
+
+.map-marker[data-priority="true"] {
+  width: 17px;
+  height: 17px;
+  border-color: #fff8e7;
+  background: #2f8fa7;
+  box-shadow:
+    0 0 0 3px rgba(47, 143, 167, 0.34),
+    0 0 0 7px rgba(224, 174, 105, 0.12),
+    0 8px 18px rgba(0, 0, 0, 0.42);
+}
+
+.map-marker[data-priority="true"]::after {
+  opacity: 1;
+  border-color: rgba(224, 174, 105, 0.9);
+  background: rgba(255, 248, 231, 0.96);
+  font-weight: 820;
 }
 
 .map-marker::before {

@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.36"
+PACKAGE_VERSION = "0.1.37"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -177,6 +177,18 @@ START_HERE_HTML = """<!doctype html>
     }
     .marker[data-role="hero_tile"] { background: #155d73; }
     .marker[data-role="owner_added"] { background: #5f6d39; }
+    .marker[data-priority="true"] {
+      width: 22px;
+      height: 22px;
+      margin-left: -11px;
+      margin-top: -11px;
+      border-color: #fff8e7;
+      background: #155d73;
+      box-shadow:
+        0 0 0 4px rgba(21, 93, 115, .32),
+        0 0 0 9px rgba(192, 138, 70, .16),
+        0 8px 18px rgba(0, 0, 0, .36);
+    }
     .marker:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
     .compass {
       position: absolute;
@@ -260,6 +272,11 @@ START_HERE_HTML = """<!doctype html>
       text-align: left;
       min-height: 32px;
       padding: 6px 8px;
+    }
+    .list button.priority {
+      border-color: rgba(21, 93, 115, .34);
+      background: linear-gradient(90deg, rgba(21, 93, 115, .18), #fff);
+      font-weight: 700;
     }
     .index {
       color: #6c776e;
@@ -378,6 +395,13 @@ START_HERE_HTML = """<!doctype html>
       south: { label: "Süd", rotation: 180, tilt: -10 },
       west: { label: "West", rotation: 270, tilt: -10 },
     };
+    const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
+    const PRIORITY_LANDMARKS = new Set([
+      "Bundeskanzleramt",
+      "Reichstagsgebäude",
+      "Berlin Hauptbahnhof",
+    ]);
+    let selectedLandmarkName = DEFAULT_FOCUS_LANDMARK;
     const viewButtons = Object.fromEntries(
       Object.keys(VIEW_PRESETS).map((key) => [key, document.getElementById(`view-${key}`)])
     );
@@ -445,9 +469,18 @@ START_HERE_HTML = """<!doctype html>
     }
     function focusLandmark(landmark) {
       const rect = stage.getBoundingClientRect();
-      state.scale = Math.max(state.fitScale * 2.25, Math.min(state.fitScale * 4.5, 3.4));
+      const maxScale = landmark.name === DEFAULT_FOCUS_LANDMARK ? 4.85 : 3.4;
+      const minScale = landmark.name === DEFAULT_FOCUS_LANDMARK ? 2.85 : 2.25;
+      selectedLandmarkName = landmark.name;
+      state.scale = Math.max(state.fitScale * minScale, Math.min(state.fitScale * 5.4, maxScale));
       state.x = rect.width / 2 - landmark.x * state.scale;
       state.y = rect.height / 2 - landmark.y * state.scale;
+      render();
+    }
+    function panBy(dx, dy) {
+      state.x += dx;
+      state.y += dy;
+      state.viewKey = "free";
       render();
     }
     function rotateBy(delta) {
@@ -484,6 +517,7 @@ START_HERE_HTML = """<!doctype html>
         marker.style.left = `${landmark.x}px`;
         marker.style.top = `${landmark.y}px`;
         marker.dataset.role = landmark.role || "";
+        marker.dataset.priority = PRIORITY_LANDMARKS.has(landmark.name) ? "true" : "false";
         marker.title = landmark.name;
         marker.setAttribute("aria-label", landmark.name);
         marker.addEventListener("click", () => focusLandmark(landmark));
@@ -491,6 +525,7 @@ START_HERE_HTML = """<!doctype html>
 
         const row = document.createElement("button");
         row.type = "button";
+        row.className = PRIORITY_LANDMARKS.has(landmark.name) ? "priority" : "";
         row.innerHTML = `<span class="index">${String(index + 1).padStart(2, "0")}</span><span>${landmark.name}</span>`;
         row.addEventListener("click", () => focusLandmark(landmark));
         list.appendChild(row);
@@ -550,6 +585,24 @@ START_HERE_HTML = """<!doctype html>
       if (event.key === "-") zoomBy(0.8);
       if (event.key === "0" || event.key === "Home") fit();
       if (event.key.toLowerCase() === "r") setMode(state.mode === "rotate" ? "pan" : "rotate");
+      if (event.key === "PageDown" || event.key === "PageUp") {
+        event.preventDefault();
+        const index = Math.max(0, landmarks.findIndex((landmark) => landmark.name === selectedLandmarkName));
+        const direction = event.key === "PageDown" ? 1 : -1;
+        focusLandmark(landmarks[(index + direction + landmarks.length) % landmarks.length] || landmarks[0]);
+      }
+      if (event.key.startsWith("Arrow")) {
+        event.preventDefault();
+        const rotateMode = state.mode === "rotate" || event.shiftKey;
+        if (rotateMode && event.key === "ArrowLeft") rotateBy(-10);
+        if (rotateMode && event.key === "ArrowRight") rotateBy(10);
+        if (rotateMode && event.key === "ArrowUp") tiltBy(-4);
+        if (rotateMode && event.key === "ArrowDown") tiltBy(4);
+        if (!rotateMode && event.key === "ArrowLeft") panBy(44, 0);
+        if (!rotateMode && event.key === "ArrowRight") panBy(-44, 0);
+        if (!rotateMode && event.key === "ArrowUp") panBy(0, 44);
+        if (!rotateMode && event.key === "ArrowDown") panBy(0, -44);
+      }
       if (event.key === "[") rotateBy(-12);
       if (event.key === "]") rotateBy(12);
       if (event.key.toLowerCase() === "t") setViewPreset("top");
@@ -561,6 +614,7 @@ START_HERE_HTML = """<!doctype html>
     window.addEventListener("resize", fit);
     addMarkers();
     fit();
+    focusLandmark(landmarks.find((landmark) => landmark.name === DEFAULT_FOCUS_LANDMARK) || landmarks[0]);
   </script>
 </body>
 </html>

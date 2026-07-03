@@ -1,8 +1,8 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.36/isometric-berlin-regierungsviertel-local.zip
+> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.37/isometric-berlin-regierungsviertel-local.zip
 
-> **Status:** Local v0.1.36 open-data viewer. `START-HERE.html` is the real click-to-start viewer for Mac and Windows: no Terminal, no `.command`, no Python. It starts with the sharper detail render, has large visible zoom/rotate/swivel buttons, a Pixel-Art toggle, mouse gestures, reproducible Top/North/East/South/West view presets, and an on-map compass/status line. The optional local-server fallback opens `START-HERE.html` directly, flushes the printed URL immediately, and preflights required package files before serving. Release readiness validates the downloadable ZIP itself, now including the complete DZI tile pyramid derived from `regierungsviertel.dzi`, launcher controls, server fallback, and forbidden macOS/duplicate artefacts. Google/Apple map products are used only for visual QA, not copied into committed data.
+> **Status:** Local v0.1.37 open-data viewer. `START-HERE.html` is the real click-to-start viewer for Mac and Windows: no Terminal, no `.command`, no Python. It now starts focused on the Bundeskanzleramt, keeps Kanzleramt/Reichstag/Hauptbahnhof visibly prioritised, supports arrow-key pan plus Shift/rotate-mode arrow swivel controls, and keeps large zoom/rotate/swivel buttons, Pixel-Art toggle, reproducible Top/North/East/South/West presets, and an on-map compass/status line. Release readiness validates the downloadable ZIP itself, including the complete DZI tile pyramid, launcher controls, keyboard swivel controls, server fallback, and forbidden macOS/duplicate artefacts. Google/Apple map products are used only for visual QA, not copied into committed data.
 
 > **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
 > **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest

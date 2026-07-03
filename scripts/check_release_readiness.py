@@ -107,6 +107,14 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
       f"Package HTML launcher lacks rotate/swivel mouse controls: {label}"
     )
   if (
+    "ArrowLeft" not in start_here_text
+    or "ArrowRight" not in start_here_text
+    or "tiltBy" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks keyboard pan/rotate/swivel controls: {label}"
+    )
+  if (
     "setViewPreset" not in start_here_text
     or "view-north" not in start_here_text
     or "compass" not in start_here_text

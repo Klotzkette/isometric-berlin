@@ -19,7 +19,7 @@ VALID_START_HERE_HTML = (
   "<button>Drehen/Swivel</button>"
   '<button id="view-north">Nord</button>'
   '<div id="compass"></div>'
-  "<script>event.shiftKey; setViewPreset</script>"
+  "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy</script>"
 )
 VALID_SERVE_LOCAL = (
   'START_PAGE = "START-HERE.html"\n'
@@ -291,7 +291,7 @@ def test_collect_failures_rejects_packaged_mac_command(tmp_path: Path) -> None:
     "<button>Drehen/Swivel</button>"
     '<button id="view-north">Nord</button>'
     '<div id="compass"></div>'
-    "<script>event.shiftKey; setViewPreset</script>",
+    "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy</script>",
     encoding="utf-8",
   )
   (package_dir / "start-mac.command").write_text("#!/bin/sh\n", encoding="utf-8")
@@ -315,7 +315,7 @@ def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
     "<button>Drehen/Swivel</button>"
     '<button id="view-north">Nord</button>'
     '<div id="compass"></div>'
-    "<script>event.shiftKey; setViewPreset</script>",
+    "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy</script>",
     encoding="utf-8",
   )
   (package_dir / "serve-local.py").write_text(

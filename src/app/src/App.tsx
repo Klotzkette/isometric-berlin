@@ -1,24 +1,22 @@
-import {
-  Compass,
-  FlipHorizontal2,
-  FlipVertical2,
-  Home,
-  Info,
-  Keyboard,
-  Link2,
-  LocateFixed,
-  Map as MapIcon,
-  MapPinned,
-  Minus,
-  Pause,
-  Play,
-  Plus,
-  RotateCcw,
-  RotateCw,
-  SkipBack,
-  SkipForward,
-  X,
-} from "lucide-react";
+import Compass from "lucide-react/dist/esm/icons/compass.js";
+import FlipHorizontal2 from "lucide-react/dist/esm/icons/flip-horizontal-2.js";
+import FlipVertical2 from "lucide-react/dist/esm/icons/flip-vertical-2.js";
+import Home from "lucide-react/dist/esm/icons/home.js";
+import Info from "lucide-react/dist/esm/icons/info.js";
+import Keyboard from "lucide-react/dist/esm/icons/keyboard.js";
+import Link2 from "lucide-react/dist/esm/icons/link-2.js";
+import LocateFixed from "lucide-react/dist/esm/icons/locate-fixed.js";
+import MapIcon from "lucide-react/dist/esm/icons/map.js";
+import MapPinned from "lucide-react/dist/esm/icons/map-pinned.js";
+import Minus from "lucide-react/dist/esm/icons/minus.js";
+import Pause from "lucide-react/dist/esm/icons/pause.js";
+import Play from "lucide-react/dist/esm/icons/play.js";
+import Plus from "lucide-react/dist/esm/icons/plus.js";
+import RotateCcw from "lucide-react/dist/esm/icons/rotate-ccw.js";
+import RotateCw from "lucide-react/dist/esm/icons/rotate-cw.js";
+import SkipBack from "lucide-react/dist/esm/icons/skip-back.js";
+import SkipForward from "lucide-react/dist/esm/icons/skip-forward.js";
+import X from "lucide-react/dist/esm/icons/x.js";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -88,6 +86,12 @@ const DZI_HEIGHT = 1529;
 const DZI_TILE_SIZE = 256;
 const DZI_OVERLAP = 0;
 const DZI_FORMAT = "jpg";
+const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
+const PRIORITY_LANDMARKS = new Set([
+  "Bundeskanzleramt",
+  "Reichstagsgebäude",
+  "Berlin Hauptbahnhof",
+]);
 
 const ORIENTATIONS = [
   { degrees: NORTH_UP_ROTATION, short: "N", label: "Nord oben" },
@@ -164,6 +168,14 @@ function roleLabel(role: string): string {
 
 function landmarkShortLabel(name: string): string {
   return LANDMARK_SHORT_LABELS[name] ?? name;
+}
+
+function isPriorityLandmark(name: string): boolean {
+  return PRIORITY_LANDMARKS.has(name);
+}
+
+function focusZoomForLandmark(name: string): number {
+  return name === "Bundeskanzleramt" ? 4.35 : 3.1;
 }
 
 function landmarkSlug(name: string): string {
@@ -269,9 +281,9 @@ export function App() {
   const flipRef = useRef(false);
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const markersRef = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const selectedRef = useRef("Reichstagsgebäude");
+  const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-  const [selected, setSelected] = useState<string>("Reichstagsgebäude");
+  const [selected, setSelected] = useState<string>(DEFAULT_FOCUS_LANDMARK);
   const [status, setStatus] = useState("Lade DZI");
   const [isReady, setIsReady] = useState(false);
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
@@ -318,7 +330,7 @@ export function App() {
     setSelected(landmark.name);
     setStatus(`Fokus: ${landmarkShortLabel(landmark.name)}`);
     viewer.viewport.panTo(point, immediate);
-    viewer.viewport.zoomTo(3.1, point, immediate);
+    viewer.viewport.zoomTo(focusZoomForLandmark(landmark.name), point, immediate);
   }, []);
 
   const focusLandmarkByOffset = useCallback(
@@ -386,6 +398,16 @@ export function App() {
     viewerRef.current?.viewport.setFlip(false);
     setRotation(NORTH_UP_ROTATION);
     setIsFlipped(false);
+  }, []);
+
+  const panByViewport = useCallback((dx: number, dy: number) => {
+    const viewport = viewerRef.current?.viewport;
+    if (!viewport) {
+      return;
+    }
+    const bounds = viewport.getBounds();
+    viewport.panBy(new OpenSeadragon.Point(bounds.width * dx, bounds.height * dy));
+    viewport.applyConstraints();
   }, []);
 
   const copyViewLink = useCallback(async () => {
@@ -482,12 +504,55 @@ export function App() {
         return;
       }
       if (event.key === "Home" || event.key === "0") {
+        event.preventDefault();
         viewerRef.current?.viewport.goHome();
         setStatus("Gesamtansicht");
       } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        setIsTouring(false);
+        if (event.shiftKey) {
+          rotateBy(8);
+          setStatus("Drehung: rechts");
+        } else {
+          panByViewport(0.12, 0);
+          setStatus("Verschoben: Osten");
+        }
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setIsTouring(false);
+        if (event.shiftKey) {
+          rotateBy(-8);
+          setStatus("Drehung: links");
+        } else {
+          panByViewport(-0.12, 0);
+          setStatus("Verschoben: Westen");
+        }
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setIsTouring(false);
+        if (event.shiftKey) {
+          viewerRef.current?.viewport.zoomBy(1.16);
+          setStatus("Swivel/Zoom: näher");
+        } else {
+          panByViewport(0, -0.12);
+          setStatus("Verschoben: Norden");
+        }
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setIsTouring(false);
+        if (event.shiftKey) {
+          viewerRef.current?.viewport.zoomBy(0.86);
+          setStatus("Swivel/Zoom: weiter");
+        } else {
+          panByViewport(0, 0.12);
+          setStatus("Verschoben: Süden");
+        }
+      } else if (event.key === "PageDown") {
+        event.preventDefault();
         setIsTouring(false);
         focusLandmarkByOffset(1);
-      } else if (event.key === "ArrowLeft") {
+      } else if (event.key === "PageUp") {
+        event.preventDefault();
         setIsTouring(false);
         focusLandmarkByOffset(-1);
       } else if (event.key === " ") {
@@ -511,6 +576,8 @@ export function App() {
     isHelpOpen,
     isReady,
     isReferenceOpen,
+    panByViewport,
+    rotateBy,
     toggleTour,
   ]);
 
@@ -610,6 +677,7 @@ export function App() {
       marker.title = landmark.name;
       marker.dataset.label = landmarkShortLabel(landmark.name);
       marker.dataset.role = landmark.role;
+      marker.dataset.priority = isPriorityLandmark(landmark.name) ? "true" : "false";
       marker.setAttribute("aria-label", landmark.name);
       const onClick = () => {
         setIsTouring(false);
@@ -856,7 +924,12 @@ export function App() {
               }}
               type="button"
               aria-label={`Landmarke ${landmark.name}`}
-              className={landmark.name === selected ? "is-selected" : ""}
+              className={[
+                landmark.name === selected ? "is-selected" : "",
+                isPriorityLandmark(landmark.name) ? "is-priority" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
               disabled={!isReady}
               onClick={() => {
                 setIsTouring(false);
@@ -876,7 +949,14 @@ export function App() {
       </aside>
 
       {selectedLandmark ? (
-        <aside className="selection-card" aria-live="polite">
+        <aside
+          className={
+            isPriorityLandmark(selectedLandmark.name)
+              ? "selection-card selection-card--priority"
+              : "selection-card"
+          }
+          aria-live="polite"
+        >
           <div>
             <Info aria-hidden="true" size={16} />
             <span>Fokus</span>
@@ -954,6 +1034,25 @@ export function App() {
               <div>
                 <dt>
                   <kbd>←</kbd> <kbd>→</kbd>
+                  <kbd>↑</kbd> <kbd>↓</kbd>
+                </dt>
+                <dd>Karte in Meterlage verschieben</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
+                </dt>
+                <dd>Ansicht links / rechts drehen</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd>
+                </dt>
+                <dd>Swivel/Zoom näher oder weiter</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>PageUp</kbd> <kbd>PageDown</kbd>
                 </dt>
                 <dd>Vorige / nächste Landmarke</dd>
               </div>
