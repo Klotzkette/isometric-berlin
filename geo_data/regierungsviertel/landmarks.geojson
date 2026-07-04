@@ -205,7 +205,7 @@
       "properties": {
         "name": "Großer Tiergarten",
         "role": "owner_added",
-        "tour_order": 24
+        "tour_order": 25
       },
       "geometry": {
         "type": "Point",
@@ -227,6 +227,19 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Venusbassin / Goldfischteich",
+        "role": "owner_added",
+        "tour_order": 24,
+        "source": "Wikidata Q131192370 / OpenStreetMap way 28873112"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.370688333, 52.514502778]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Goethe-Denkmal",
         "role": "owner_added",
         "tour_order": 22
@@ -241,7 +254,7 @@
       "properties": {
         "name": "Kemperplatz / Tiergartentunnel",
         "role": "owner_added",
-        "tour_order": 25
+        "tour_order": 26
       },
       "geometry": {
         "type": "Point",
@@ -253,7 +266,7 @@
       "properties": {
         "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
         "role": "must_be_visible",
-        "tour_order": 26
+        "tour_order": 27
       },
       "geometry": {
         "type": "Point",

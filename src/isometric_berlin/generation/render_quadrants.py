@@ -30,7 +30,12 @@ BACKGROUND = (236, 230, 208)
 PARK = (120, 159, 95)
 PARK_DARK = (95, 137, 82)
 PARK_LIGHT = (139, 171, 103)
+TREE_CANOPY = (77, 122, 72)
+TREE_CANOPY_LIGHT = (108, 151, 83)
+SHRUB = (90, 133, 78)
 WATER = (87, 142, 171)
+WATER_LIGHT = (134, 180, 198)
+WATER_DARK = (59, 112, 142)
 ROAD = (218, 204, 177)
 ROAD_MAJOR = (236, 226, 207)
 ROAD_PATH = (192, 206, 174)
@@ -229,6 +234,11 @@ def stable_variation(key: str, spread: int = 9) -> int:
   return int.from_bytes(digest, "big") % (spread * 2 + 1) - spread
 
 
+def stable_fraction(key: str) -> float:
+  digest = hashlib.blake2s(key.encode("utf-8"), digest_size=4).digest()
+  return int.from_bytes(digest, "big") / 0xFFFFFFFF
+
+
 def parse_hex_color(value: Any) -> tuple[int, int, int] | None:
   text = str(value).strip().lstrip("#")
   if len(text) != 6:
@@ -269,6 +279,9 @@ def landmark_reference_id(name: str) -> str | None:
     ("verfolgten homosexuellen", "memorial_homosexuals"),
     ("sinti und roma", "sinti_roma_memorial"),
     ("beethoven-haydn-mozart", "beethoven_haydn_mozart_memorial"),
+    ("goldfischteich", "venusteich_goldfischteich"),
+    ("venusbassin", "venusteich_goldfischteich"),
+    ("venusbecken", "venusteich_goldfischteich"),
     ("goethe", "goethe_denkmal"),
     ("sowjetisches ehrenmal", "soviet_war_memorial_tiergarten"),
     ("kemperplatz", "kemperplatz_tiergartentunnel"),
@@ -503,6 +516,8 @@ def landmark_kind(name: str) -> str | None:
     or "sowjetisches ehrenmal" in key
   ):
     return "monument_marker"
+  if "goldfischteich" in key or "venusbassin" in key or "venusbecken" in key:
+    return "pond_reference"
   if "pariser platz" in key:
     return "urban_square"
   if "tiergartentunnel" in key:
@@ -770,6 +785,23 @@ def draw_landmark_accent(
       )
     return
 
+  if kind == "pond_reference":
+    x, y = point(2)
+    draw.ellipse(
+      (x - 5 * unit, y - 3 * unit, x + 5 * unit, y + 3 * unit),
+      fill=mix_color(WATER, WATER_LIGHT, 0.2),
+      outline=WATER_DARK,
+      width=max(1, unit // 4),
+    )
+    draw.arc(
+      (x - 4 * unit, y - 2 * unit, x + 4 * unit, y + 2 * unit),
+      start=185,
+      end=340,
+      fill=WATER_LIGHT,
+      width=max(1, unit // 5),
+    )
+    return
+
   if kind == "tunnel":
     x, y = point(6)
     portal = max(2, unit // 2)
@@ -864,6 +896,146 @@ def roof_texture_count(*, roof_span: float, is_hero: bool) -> int:
     return 0
   limit = 34 if is_hero else 18
   return max(2, min(limit, int(roof_span // (13 if is_hero else 19))))
+
+
+def vegetation_spacing(row: Any) -> float:
+  """Return approximate detail spacing in metres for park texture."""
+  natural = row_text(row, "natural")
+  leisure = row_text(row, "leisure")
+  landuse = row_text(row, "landuse")
+  if natural == "wood" or landuse == "forest":
+    return 32.0
+  if natural == "scrub":
+    return 24.0
+  if leisure == "garden":
+    return 38.0
+  return 48.0
+
+
+def vegetation_detail_limit(area_m2: float, row: Any) -> int:
+  """Return a bounded count for park trees/shrubs."""
+  if area_m2 < 180:
+    return 0
+  spacing = vegetation_spacing(row)
+  limit = 160 if spacing <= 32 else 96
+  return max(1, min(limit, int(area_m2 / (spacing * spacing))))
+
+
+def water_ripple_limit(area_m2: float) -> int:
+  """Return a bounded count for visible water ripples."""
+  if area_m2 < 120:
+    return 0
+  return max(2, min(80, int(area_m2 / 650)))
+
+
+def draw_park_texture(
+  draw: ImageDraw.ImageDraw,
+  row: Any,
+  *,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+  line_scale: int,
+) -> None:
+  """Draw deterministic trees/shrubs over OSM park and landcover polygons."""
+  spacing = vegetation_spacing(row)
+  is_scrub = row_text(row, "natural") == "scrub"
+  for polygon in polygons(row.geometry):
+    limit = vegetation_detail_limit(float(polygon.area), row)
+    if limit == 0:
+      continue
+    minx, miny, maxx, maxy = polygon.bounds
+    drawn = 0
+    gx = minx + spacing * 0.5
+    while gx <= maxx and drawn < limit:
+      gy = miny + spacing * 0.5
+      while gy <= maxy and drawn < limit:
+        key = f"{row_text(row, 'name')}:{gx:.1f}:{gy:.1f}:{spacing:.0f}"
+        jitter_x = (stable_fraction(key + ":x") - 0.5) * spacing * 0.62
+        jitter_y = (stable_fraction(key + ":y") - 0.5) * spacing * 0.62
+        point = Point(gx + jitter_x, gy + jitter_y)
+        if not polygon.contains(point):
+          gy += spacing
+          continue
+        px, py = project_point(
+          point.x,
+          point.y,
+          z=2,
+          center_x=center_x,
+          center_y=center_y,
+          scale=scale,
+          width=width,
+          height=height,
+        )
+        unit = max(1, line_scale)
+        if is_scrub or drawn % 5 == 0:
+          radius = max(2, unit + 1)
+          draw.ellipse(
+            (px - radius, py - radius, px + radius, py + radius),
+            fill=SHRUB,
+            outline=mix_color(SHRUB, OUTLINE, 0.24),
+            width=1,
+          )
+        else:
+          canopy = TREE_CANOPY_LIGHT if drawn % 4 == 0 else TREE_CANOPY
+          draw.rectangle((px - 1, py + unit, px + 1, py + 3 * unit), fill=OUTLINE)
+          draw.ellipse(
+            (px - 3 * unit, py - 3 * unit, px + 3 * unit, py + 2 * unit),
+            fill=canopy,
+            outline=PARK_DARK,
+            width=1,
+          )
+        drawn += 1
+        gy += spacing
+      gx += spacing
+
+
+def draw_water_texture(
+  draw: ImageDraw.ImageDraw,
+  geom: Any,
+  *,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+  line_scale: int,
+) -> None:
+  """Draw small deterministic highlights that make ponds and Spree readable."""
+  for polygon in polygons(geom):
+    limit = water_ripple_limit(float(polygon.area))
+    if limit == 0:
+      continue
+    minx, miny, maxx, maxy = polygon.bounds
+    for idx in range(limit):
+      key = f"water:{minx:.1f}:{miny:.1f}:{idx}"
+      point = Point(
+        minx + stable_fraction(key + ":x") * max(1.0, maxx - minx),
+        miny + stable_fraction(key + ":y") * max(1.0, maxy - miny),
+      )
+      if not polygon.contains(point):
+        continue
+      px, py = project_point(
+        point.x,
+        point.y,
+        z=1,
+        center_x=center_x,
+        center_y=center_y,
+        scale=scale,
+        width=width,
+        height=height,
+      )
+      span = max(4, line_scale * (3 + idx % 4))
+      color = WATER_LIGHT if idx % 3 else WATER_DARK
+      draw.arc(
+        (px - span, py - span // 2, px + span, py + span // 2),
+        start=190,
+        end=345,
+        fill=color,
+        width=max(1, line_scale),
+      )
 
 
 def facade_bay_count(*, wall_width: float, is_hero: bool) -> int:
@@ -1653,6 +1825,16 @@ def render_quadrant(
       width=render_px,
       height=render_px,
     )
+    draw_park_texture(
+      draw,
+      row,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=render_px,
+      height=render_px,
+      line_scale=line_scale,
+    )
   for _, row in query(osm_layers["water"], q_bounds).iterrows():
     draw_geom_fill(
       draw,
@@ -1663,6 +1845,16 @@ def render_quadrant(
       scale=scale,
       width=render_px,
       height=render_px,
+    )
+    draw_water_texture(
+      draw,
+      row.geometry,
+      center_x=center_x,
+      center_y=center_y,
+      scale=scale,
+      width=render_px,
+      height=render_px,
+      line_scale=line_scale,
     )
     draw_geom_line(
       draw,

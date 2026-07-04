@@ -111,6 +111,11 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Beethoven-Haydn-Mozart-Denkmal Berlin Tiergarten",
     "Beethoven Haydn Mozart Memorial Berlin",
   ],
+  "venusteich_goldfischteich": [
+    "Goldfischteich Großer Tiergarten Berlin",
+    "Venusbassin Großer Tiergarten Berlin",
+    "Venusbecken Tiergarten Berlin",
+  ],
   "goethe_denkmal": [
     "Goethe-Denkmal Berlin Tiergarten",
     "Goethe Denkmal Tiergarten Berlin",
@@ -170,6 +175,11 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
   "beethoven_haydn_mozart_memorial": (
     "beethoven-haydn-mozart",
     "beethoven-haydn-mozart-denkmal",
+  ),
+  "venusteich_goldfischteich": (
+    "goldfischteich",
+    "venusbassin",
+    "venusbecken",
   ),
   "goethe_denkmal": ("goethe",),
   "soviet_war_memorial_tiergarten": (

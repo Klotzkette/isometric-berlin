@@ -62,6 +62,7 @@ def test_reference_map_numbers_follow_viewer_tour_order() -> None:
     "Zollpackhof",
   ]
   assert names.index("Brandenburger Tor") + 1 == 16
+  assert names.index("Venusbassin / Goldfischteich") + 1 == 24
   assert (
-    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 26
+    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 27
   )

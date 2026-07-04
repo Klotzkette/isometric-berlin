@@ -204,6 +204,9 @@ def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
     "beethoven_haydn_mozart_memorial": (
       "File:Beethoven-Haydn-Mozart-Denkmal Berlin-Tiergarten.jpg"
     ),
+    "venusteich_goldfischteich": (
+      "File:Goldfischteich (Großer Tiergarten) - Berlin, Germany - DSC09426.JPG"
+    ),
     "soviet_war_memorial_tiergarten": (
       "File:Sowjetisches Ehrenmal Tiergarten Berlin.jpg"
     ),

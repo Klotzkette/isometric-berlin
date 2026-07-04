@@ -35,7 +35,11 @@ from isometric_berlin.generation.render_quadrants import (
   roof_grid_count,
   roof_service_count,
   roof_texture_count,
+  stable_fraction,
   stable_variation,
+  vegetation_detail_limit,
+  vegetation_spacing,
+  water_ripple_limit,
 )
 
 
@@ -96,6 +100,14 @@ def test_stable_variation_is_deterministic_and_bounded() -> None:
 
   assert first == second
   assert -9 <= first <= 9
+
+
+def test_stable_fraction_is_deterministic_unit_interval() -> None:
+  first = stable_fraction("tiergarten:venusteich")
+  second = stable_fraction("tiergarten:venusteich")
+
+  assert first == second
+  assert 0 <= first <= 1
 
 
 def test_building_surface_palette_uses_lod2_surface_evidence() -> None:
@@ -232,6 +244,7 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
   assert landmark_kind("Denkmal für die ermordeten Juden Europas") == ("memorial_field")
   assert landmark_kind("Pariser Platz") == "urban_square"
   assert landmark_kind("Großer Tiergarten") == "park_reference"
+  assert landmark_kind("Venusbassin / Goldfischteich") == "pond_reference"
   assert landmark_kind(
     "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)"
   ) == ("tunnel")
@@ -256,8 +269,25 @@ def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
   assert landmark_reference_id("Denkmal für die ermordeten Juden Europas") == (
     "holocaust_memorial"
   )
+  assert landmark_reference_id("Venusbassin / Goldfischteich") == (
+    "venusteich_goldfischteich"
+  )
   assert landmark_reference_id("Großer Tiergarten") == "tiergarten"
   assert landmark_reference_id("Unknown cafe") is None
+
+
+def test_landcover_detail_limits_are_bounded_by_semantics() -> None:
+  meadow = {"landuse": "meadow"}
+  wood = {"natural": "wood"}
+  scrub = {"natural": "scrub"}
+
+  assert vegetation_spacing(wood) < vegetation_spacing(meadow)
+  assert vegetation_spacing(scrub) < vegetation_spacing(wood)
+  assert vegetation_detail_limit(120, meadow) == 0
+  assert 1 <= vegetation_detail_limit(10_000, meadow) <= 96
+  assert 1 <= vegetation_detail_limit(120_000, wood) <= 160
+  assert water_ripple_limit(100) == 0
+  assert 2 <= water_ripple_limit(30_000) <= 80
 
 
 def test_load_wikimedia_material_cues_groups_dominant_colours(tmp_path: Path) -> None:

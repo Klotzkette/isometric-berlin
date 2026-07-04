@@ -151,7 +151,7 @@
     {
       "name": "Großer Tiergarten",
       "role": "owner_added",
-      "tourOrder": 24,
+      "tourOrder": 25,
       "x": 689,
       "y": 885,
       "nx": 0.319425,
@@ -167,6 +167,15 @@
       "ny": 0.544147
     },
     {
+      "name": "Venusbassin / Goldfischteich",
+      "role": "owner_added",
+      "tourOrder": 24,
+      "x": 725,
+      "y": 806,
+      "nx": 0.336115,
+      "ny": 0.527142
+    },
+    {
       "name": "Goethe-Denkmal",
       "role": "owner_added",
       "tourOrder": 22,
@@ -178,7 +187,7 @@
     {
       "name": "Kemperplatz / Tiergartentunnel",
       "role": "owner_added",
-      "tourOrder": 25,
+      "tourOrder": 26,
       "x": 405,
       "y": 993,
       "nx": 0.187761,
@@ -187,7 +196,7 @@
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
       "role": "must_be_visible",
-      "tourOrder": 26,
+      "tourOrder": 27,
       "x": 430,
       "y": 1168,
       "nx": 0.199351,
