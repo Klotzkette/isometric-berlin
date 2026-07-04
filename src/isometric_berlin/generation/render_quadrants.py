@@ -815,8 +815,8 @@ def roof_grid_count(*, roof_span: float, is_hero: bool) -> int:
   """Return a bounded roof-rib count from projected roof span."""
   if roof_span < 34:
     return 0
-  limit = 9 if is_hero else 6
-  spacing = 28 if is_hero else 32
+  limit = 13 if is_hero else 9
+  spacing = 20 if is_hero else 24
   return max(1, min(limit, int(roof_span // spacing)))
 
 
@@ -824,27 +824,46 @@ def roof_service_count(*, roof_span: float, is_hero: bool) -> int:
   """Return small roof-equipment/skylight count for large real footprints."""
   if roof_span < 92:
     return 0
-  limit = 7 if is_hero else 4
-  return max(1, min(limit, int(roof_span // 78)))
+  limit = 9 if is_hero else 6
+  return max(1, min(limit, int(roof_span // 62)))
 
 
 def facade_detail_counts(
   *, wall_width: float, height_m: float, is_hero: bool
 ) -> tuple[int, int, int, int]:
   """Return floor/mullion/window detail counts for one projected facade."""
-  floors = max(1, min(14 if is_hero else 10, int(height_m // 3.0)))
+  floors = max(1, min(18 if is_hero else 12, int(height_m // 2.7)))
   if is_hero:
-    mullion_spacing = 10
+    mullion_spacing = 8
   elif height_m >= 24:
-    mullion_spacing = 14
+    mullion_spacing = 11
   else:
-    mullion_spacing = 18
-  mullions = max(0, min(16 if is_hero else 10, int(wall_width // mullion_spacing)))
-  window_rows = max(0, min(floors, 12 if is_hero else 8))
-  window_cols = max(0, min(max(1, mullions), 12 if is_hero else 8))
+    mullion_spacing = 14
+  mullions = max(0, min(22 if is_hero else 14, int(wall_width // mullion_spacing)))
+  window_rows = max(0, min(floors, 16 if is_hero else 10))
+  window_cols = max(0, min(max(1, mullions), 16 if is_hero else 10))
   if wall_width < 20:
     window_cols = 0
   return floors, mullions, window_rows, window_cols
+
+
+def facade_microtexture_count(
+  *, wall_width: float, height_m: float, is_hero: bool
+) -> int:
+  """Return bounded facade grain count from visible wall area."""
+  if wall_width < 16 or height_m < 5:
+    return 0
+  visual_area = wall_width * min(height_m, 52.0)
+  limit = 42 if is_hero else 24
+  return max(2, min(limit, int(visual_area // (95 if is_hero else 145))))
+
+
+def roof_texture_count(*, roof_span: float, is_hero: bool) -> int:
+  """Return bounded roof-grain count for large, close visible roofs."""
+  if roof_span < 48:
+    return 0
+  limit = 34 if is_hero else 18
+  return max(2, min(limit, int(roof_span // (13 if is_hero else 19))))
 
 
 def facade_bay_count(*, wall_width: float, is_hero: bool) -> int:
@@ -924,6 +943,37 @@ def draw_facade_bays(
     )
 
 
+def draw_facade_microtexture(
+  draw: ImageDraw.ImageDraw,
+  wall: list[tuple[int, int]],
+  *,
+  palette: dict[str, tuple[int, int, int]],
+  height_m: float,
+  is_hero: bool,
+  outline_width: int,
+) -> None:
+  """Add subtle deterministic stone/glass grain inside the wall plane."""
+  base_a, base_b, _, _ = wall
+  count = facade_microtexture_count(
+    wall_width=line_length(base_a, base_b),
+    height_m=height_m,
+    is_hero=is_hero,
+  )
+  if count == 0:
+    return
+  dark = mix_color(palette["wall_dark"], palette["window_dark"], 0.28)
+  light = mix_color(palette["wall_light"], (255, 250, 228), 0.16)
+  width = max(1, outline_width)
+  for idx in range(count):
+    across = 0.08 + ((idx * 37) % 83) / 100
+    up = 0.12 + ((idx * 53) % 72) / 100
+    length = 0.018 + ((idx * 11) % 6) / 500
+    start = wall_point(wall, across=min(0.96, across), up=min(0.88, up))
+    end = wall_point(wall, across=min(0.98, across + length), up=min(0.9, up + 0.012))
+    color = light if idx % 4 == 0 else dark
+    draw.line((start, end), fill=color, width=width)
+
+
 def draw_wall_detail(
   draw: ImageDraw.ImageDraw,
   wall: list[tuple[int, int]],
@@ -949,6 +999,14 @@ def draw_wall_detail(
     draw,
     wall,
     palette=palette,
+    is_hero=is_hero,
+    outline_width=outline_width,
+  )
+  draw_facade_microtexture(
+    draw,
+    wall,
+    palette=palette,
+    height_m=height_m,
     is_hero=is_hero,
     outline_width=outline_width,
   )
@@ -1006,6 +1064,43 @@ def draw_wall_detail(
       )
 
 
+def roof_quad_point(
+  roof: list[tuple[int, int]], *, along: float, across: float
+) -> tuple[int, int]:
+  """Interpolate a point across the first four roof corners."""
+  left = lerp_point(roof[0], roof[3], across)
+  right = lerp_point(roof[1], roof[2], across)
+  return lerp_point(left, right, along)
+
+
+def draw_roof_microtexture(
+  draw: ImageDraw.ImageDraw,
+  roof: list[tuple[int, int]],
+  *,
+  palette: dict[str, tuple[int, int, int]],
+  is_hero: bool,
+  outline_width: int,
+) -> None:
+  """Draw fine roof seams/skylight glints on quadrilateral roof planes."""
+  unique = roof[:-1] if len(roof) > 1 and roof[0] == roof[-1] else roof
+  if len(unique) < 4:
+    return
+  span = max(line_length(unique[0], unique[1]), line_length(unique[1], unique[2]))
+  count = roof_texture_count(roof_span=span, is_hero=is_hero)
+  if count == 0:
+    return
+  seam = mix_color(palette["roof_line"], palette["roof"], 0.32)
+  glint = mix_color(palette["roof"], palette["wall_light"], 0.46)
+  width = max(1, outline_width)
+  for idx in range(count):
+    along = 0.08 + ((idx * 29) % 84) / 100
+    across = 0.16 + ((idx * 47) % 66) / 100
+    end_across = min(0.9, across + 0.035 + ((idx * 7) % 5) / 220)
+    start = roof_quad_point(unique, along=min(0.94, along), across=across)
+    end = roof_quad_point(unique, along=min(0.97, along + 0.018), across=end_across)
+    draw.line((start, end), fill=glint if idx % 5 == 0 else seam, width=width)
+
+
 def draw_roof_detail(
   draw: ImageDraw.ImageDraw,
   roof: list[tuple[int, int]],
@@ -1025,6 +1120,13 @@ def draw_roof_detail(
   inset = [lerp_point(point, center, 0.18) for point in unique]
   detail_width = max(1, outline_width)
   draw.line(inset + [inset[0]], fill=palette["roof_line"], width=detail_width)
+  draw_roof_microtexture(
+    draw,
+    unique,
+    palette=palette,
+    is_hero=is_hero,
+    outline_width=outline_width,
+  )
   draw.line(
     (unique[0], unique[1]),
     fill=mix_color(palette["roof"], palette["wall_light"], 0.45),
@@ -1089,6 +1191,90 @@ def draw_roof_detail(
         fill=palette["roof_line"],
         width=detail_width,
       )
+
+
+def draw_landmark_building_signature(
+  draw: ImageDraw.ImageDraw,
+  *,
+  walls: list[list[tuple[int, int]]],
+  roof: list[tuple[int, int]],
+  reference_id: str | None,
+  palette: dict[str, tuple[int, int, int]],
+  outline_width: int,
+) -> None:
+  """Add landmark-specific architectural cues on the LoD2 footprint."""
+  if not reference_id:
+    return
+  unique = roof[:-1] if len(roof) > 1 and roof[0] == roof[-1] else roof
+  width = max(1, outline_width)
+  glass = mix_color(palette["window"], palette["wall_light"], 0.32)
+  glass_dark = mix_color(palette["window_dark"], GLASS_DARK, 0.28)
+  if reference_id == "bundeskanzleramt":
+    if len(unique) >= 4:
+      for across in (0.36, 0.5, 0.64):
+        draw.line(
+          (
+            roof_quad_point(unique, along=0.14, across=across),
+            roof_quad_point(unique, along=0.86, across=across),
+          ),
+          fill=glass_dark,
+          width=max(1, width + 1),
+        )
+      center = roof_quad_point(unique, along=0.5, across=0.5)
+      radius = max(3, width * 3)
+      draw.ellipse(
+        (
+          center[0] - radius,
+          center[1] - radius // 2,
+          center[0] + radius,
+          center[1] + radius // 2,
+        ),
+        fill=glass,
+        outline=glass_dark,
+        width=width,
+      )
+    for wall in walls[:4]:
+      draw_wall_panel(
+        draw,
+        wall,
+        left=0.42,
+        right=0.58,
+        bottom=0.16,
+        top=0.82,
+        fill=glass,
+        outline=glass_dark,
+        width=width,
+      )
+    return
+
+  if reference_id == "hauptbahnhof" and len(unique) >= 4:
+    for along in (0.18, 0.32, 0.46, 0.6, 0.74, 0.88):
+      draw.line(
+        (
+          roof_quad_point(unique, along=along, across=0.08),
+          roof_quad_point(unique, along=min(0.97, along + 0.08), across=0.92),
+        ),
+        fill=glass,
+        width=max(1, width + 1),
+      )
+    return
+
+  if reference_id in {"paul_loebe_haus", "marie_elisabeth_lueders_haus"}:
+    band = mix_color(palette["wall_light"], palette["window"], 0.34)
+    band_dark = mix_color(palette["wall_dark"], OUTLINE, 0.18)
+    for wall in walls[:4]:
+      draw_wall_panel(
+        draw,
+        wall,
+        left=0.08,
+        right=0.92,
+        bottom=0.52,
+        top=0.64,
+        fill=band,
+        outline=band_dark,
+        width=width,
+      )
+    return
 
 
 def draw_architectural_shadow(
@@ -1243,6 +1429,7 @@ def draw_building(
   is_hero: bool,
   surface_row: Any | None = None,
   material_cue: MaterialCue | None = None,
+  reference_id: str | None = None,
   center_x: float,
   center_y: float,
   scale: float,
@@ -1294,8 +1481,10 @@ def draw_building(
     is_hero=is_hero,
     outline_width=outline_width,
   )
+  walls: list[list[tuple[int, int]]] = []
   for idx in range(len(coords) - 1):
     wall = [base[idx], base[idx + 1], roof[idx + 1], roof[idx]]
+    walls.append(wall)
     if idx % 3 == 0:
       color = palette["wall_light"]
     elif idx % 2 == 0:
@@ -1319,6 +1508,14 @@ def draw_building(
     palette=palette,
     roof_type=row_text(surface, "roof_type"),
     is_hero=is_hero,
+    outline_width=outline_width,
+  )
+  draw_landmark_building_signature(
+    draw,
+    walls=walls,
+    roof=roof,
+    reference_id=reference_id,
+    palette=palette,
     outline_width=outline_width,
   )
   draw_courtyard_voids(
@@ -1580,6 +1777,7 @@ def render_quadrant(
         is_hero=is_hero,
         surface_row=row,
         material_cue=material_cue,
+        reference_id=reference_id,
         center_x=center_x,
         center_y=center_y,
         scale=scale,

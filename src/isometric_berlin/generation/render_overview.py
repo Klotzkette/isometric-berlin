@@ -195,11 +195,11 @@ def render_overview(
   )
   write_wikimedia_attribution(out_dir, wikimedia_references_path)
   dzi = out_dir / "regierungsviertel.dzi"
-  export_dzi(pixel.convert("RGB"), dzi_path=dzi)
+  export_dzi(source.convert("RGB"), dzi_path=dzi)
   write_preview(
     out_dir / "preview.html",
     title="Isometric Berlin Regierungsviertel",
-    overview_path=pixel_path,
+    overview_path=source_path,
     dzi_path=dzi,
     extra_attribution=wikimedia_extra_attribution(wikimedia_references_path),
   )
@@ -238,7 +238,7 @@ def main() -> None:
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel"),
   )
-  parser.add_argument("--render-px", type=int, default=4096)
+  parser.add_argument("--render-px", type=int, default=6144)
   parser.add_argument("--margin-m", type=float, default=220)
   args = parser.parse_args()
   render_overview(

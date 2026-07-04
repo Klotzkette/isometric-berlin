@@ -22,6 +22,7 @@ from isometric_berlin.generation.render_quadrants import (
   draw_building,
   facade_bay_count,
   facade_detail_counts,
+  facade_microtexture_count,
   landmark_icon_unit,
   landmark_kind,
   landmark_reference_id,
@@ -33,6 +34,7 @@ from isometric_berlin.generation.render_quadrants import (
   road_style,
   roof_grid_count,
   roof_service_count,
+  roof_texture_count,
   stable_variation,
 )
 
@@ -175,16 +177,28 @@ def test_architectural_shadow_offsets_scale_with_height_and_heroes() -> None:
 
 def test_roof_grid_count_adds_bounded_architectural_ribs() -> None:
   assert roof_grid_count(roof_span=20, is_hero=False) == 0
-  assert roof_grid_count(roof_span=120, is_hero=False) == 3
-  assert roof_grid_count(roof_span=320, is_hero=False) == 6
-  assert roof_grid_count(roof_span=320, is_hero=True) == 9
+  assert roof_grid_count(roof_span=120, is_hero=False) == 5
+  assert roof_grid_count(roof_span=320, is_hero=False) == 9
+  assert roof_grid_count(roof_span=320, is_hero=True) == 13
 
 
 def test_roof_service_count_adds_small_large_roof_equipment() -> None:
   assert roof_service_count(roof_span=80, is_hero=False) == 0
   assert roof_service_count(roof_span=180, is_hero=False) == 2
-  assert roof_service_count(roof_span=480, is_hero=False) == 4
-  assert roof_service_count(roof_span=480, is_hero=True) == 6
+  assert roof_service_count(roof_span=480, is_hero=False) == 6
+  assert roof_service_count(roof_span=480, is_hero=True) == 7
+
+
+def test_microtexture_counts_add_bounded_surface_grain() -> None:
+  assert facade_microtexture_count(wall_width=10, height_m=12, is_hero=True) == 0
+  assert facade_microtexture_count(wall_width=120, height_m=30, is_hero=False) > 8
+  assert facade_microtexture_count(wall_width=120, height_m=30, is_hero=True) > (
+    facade_microtexture_count(wall_width=120, height_m=30, is_hero=False)
+  )
+  assert roof_texture_count(roof_span=40, is_hero=True) == 0
+  assert roof_texture_count(roof_span=260, is_hero=True) > roof_texture_count(
+    roof_span=260, is_hero=False
+  )
 
 
 def test_facade_bay_count_scales_with_long_hero_facades() -> None:
