@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import socket
 import stat
@@ -120,6 +121,41 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "--no-open --port 8770" in readme
 
 
+def test_write_package_manifest_records_version_hashes_and_attribution(
+  tmp_path: Path,
+) -> None:
+  package_static_site = load_script_module(
+    "package_static_site", "scripts/package_static_site.py"
+  )
+  dzi = tmp_path / "dzi" / "regierungsviertel"
+  dzi.mkdir(parents=True)
+  files = {
+    "START-HERE.html": b"<html></html>",
+    "dzi/regierungsviertel/overview_source.png": b"source",
+    "dzi/regierungsviertel/overview.png": b"pixel",
+    "dzi/regierungsviertel/regierungsviertel.dzi": b"dzi",
+    "dzi/regierungsviertel/reference_map.png": b"reference",
+    "dzi/regierungsviertel/landmarks.json": b"{}",
+    "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
+  }
+  for relative, data in files.items():
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+
+  package_static_site.write_package_manifest(tmp_path)
+
+  manifest = json.loads(
+    (tmp_path / "package-manifest.json").read_text(encoding="utf-8")
+  )
+  assert manifest["package_version"] == package_static_site.PACKAGE_VERSION
+  assert manifest["preferred_image"] == "dzi/regierungsviertel/overview_source.png"
+  assert manifest["uses_google_content"] is False
+  assert "OpenStreetMap contributors" in manifest["required_attribution"]
+  assert manifest["assets"]["detail_image"]["bytes"] == len(b"source")
+  assert len(manifest["assets"]["detail_image"]["sha256"]) == 64
+
+
 def test_bundled_landmarks_match_public_viewer_landmarks() -> None:
   root = Path(__file__).resolve().parents[1]
   public_landmarks = (
@@ -189,6 +225,48 @@ def test_ensure_dzi_tiles_copied_repairs_missing_package_level(tmp_path: Path) -
   package_static_site.ensure_dzi_tiles_copied(source, target)
 
   assert repaired.read_bytes() == b"tile-level-8"
+
+
+def test_package_static_site_repairs_dzi_levels_from_public_source(
+  tmp_path: Path,
+) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_public_dzi_repair", "scripts/package_static_site.py"
+  )
+  root = tmp_path / "repo"
+  dist_dzi = root / "src" / "app" / "dist" / "dzi" / "regierungsviertel"
+  public_dzi = root / "src" / "app" / "public" / "dzi" / "regierungsviertel"
+  dist_dzi.mkdir(parents=True)
+  public_dzi.mkdir(parents=True)
+  (root / "src" / "app" / "dist" / "index.html").write_text(
+    "<html></html>", encoding="utf-8"
+  )
+  for filename, data in {
+    "overview.png": b"overview",
+    "overview_source.png": b"source",
+    "reference_map.png": b"reference",
+    "regierungsviertel.dzi": b"dzi",
+    "wikimedia_attribution.json": b"{}",
+  }.items():
+    (dist_dzi / filename).write_bytes(data)
+  (dist_dzi / "landmarks.json").write_text(
+    '{"image":{"width":10,"height":10},"landmarks":[]}', encoding="utf-8"
+  )
+  missing_from_dist = public_dzi / "regierungsviertel_files" / "0" / "0_0.jpg"
+  missing_from_dist.parent.mkdir(parents=True)
+  missing_from_dist.write_bytes(b"low-level-tile")
+
+  package_dir, _ = package_static_site.package_static_site(root, tmp_path / "out")
+
+  repaired = (
+    package_dir
+    / "dzi"
+    / "regierungsviertel"
+    / "regierungsviertel_files"
+    / "0"
+    / "0_0.jpg"
+  )
+  assert repaired.read_bytes() == b"low-level-tile"
 
 
 def test_zip_package_skips_stale_duplicate_files(tmp_path: Path) -> None:

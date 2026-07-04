@@ -8,6 +8,7 @@ HTML entry point, and optional local-server fallbacks.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -16,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.38"
+PACKAGE_VERSION = "0.1.39"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -644,6 +645,17 @@ def copy_file_contents(source: Path, destination: Path) -> None:
       dst.write(chunk)
 
 
+def file_digest(path: Path) -> dict[str, int | str]:
+  """Return stable package-file size and SHA-256 metadata."""
+  digest = hashlib.sha256()
+  size = 0
+  with path.open("rb") as handle:
+    while chunk := handle.read(1024 * 1024):
+      size += len(chunk)
+      digest.update(chunk)
+  return {"bytes": size, "sha256": digest.hexdigest()}
+
+
 def copy_static_site(source: Path, target: Path) -> None:
   """Copy the built static site, excluding development-only sourcemaps."""
   if target.exists():
@@ -653,6 +665,8 @@ def copy_static_site(source: Path, target: Path) -> None:
     if not should_package_file(path):
       continue
     relative = path.relative_to(source)
+    if "regierungsviertel_files" in relative.parts:
+      continue
     destination = target / relative
     if path.is_dir():
       destination.mkdir(parents=True, exist_ok=True)
@@ -908,6 +922,58 @@ dzi/regierungsviertel/wikimedia_attribution.json.
   )
 
 
+def write_package_manifest(package_dir: Path) -> None:
+  """Write machine-readable release metadata for local package QA."""
+  dzi_root = package_dir / "dzi" / "regierungsviertel"
+  asset_paths = {
+    "detail_image": dzi_root / "overview_source.png",
+    "pixel_image": dzi_root / "overview.png",
+    "dzi_descriptor": dzi_root / "regierungsviertel.dzi",
+    "reference_map": dzi_root / "reference_map.png",
+    "landmarks": dzi_root / "landmarks.json",
+    "wikimedia_attribution": dzi_root / "wikimedia_attribution.json",
+    "start_page": package_dir / "START-HERE.html",
+  }
+  missing = [label for label, path in asset_paths.items() if not path.exists()]
+  if missing:
+    raise SystemExit(f"Cannot write package manifest; missing: {', '.join(missing)}")
+
+  manifest = {
+    "schema_version": 1,
+    "package_name": PACKAGE_NAME,
+    "package_version": PACKAGE_VERSION,
+    "start_page": "START-HERE.html",
+    "preferred_image": "dzi/regierungsviertel/overview_source.png",
+    "optional_pixel_image": "dzi/regierungsviertel/overview.png",
+    "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
+    "uses_google_content": False,
+    "scope": "Berlin Regierungsviertel v0.1 bounds only",
+    "render_mode": "source-detail DZI with optional pixel-art toggle",
+    "controls": [
+      "mouse-pan",
+      "mouse-rotate-swivel",
+      "keyboard-arrow-pan",
+      "shift-arrow-rotate-swivel",
+      "top-north-east-south-west-presets",
+    ],
+    "required_attribution": (
+      "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
+      "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia"
+    ),
+    "assets": {
+      label: {
+        "path": str(path.relative_to(package_dir)),
+        **file_digest(path),
+      }
+      for label, path in asset_paths.items()
+    },
+  }
+  (package_dir / "package-manifest.json").write_text(
+    json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
+  )
+
+
 def zip_info_for(path: Path, arcname: Path) -> zipfile.ZipInfo:
   info = zipfile.ZipInfo(str(arcname), ZIP_TIMESTAMP)
   info.compress_type = zipfile.ZIP_DEFLATED
@@ -930,6 +996,7 @@ def zip_package(package_dir: Path, zip_path: Path) -> None:
 
 def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
   source = root / "src" / "app" / "dist"
+  public_source = root / "src" / "app" / "public"
   if not (source / "index.html").exists():
     raise SystemExit(
       "Missing src/app/dist/index.html. Run `cd src/app && bun run build`."
@@ -937,9 +1004,11 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
   package_dir = out_dir / PACKAGE_NAME
   copy_static_site(source, package_dir)
   ensure_dzi_tiles_copied(source, package_dir)
+  ensure_dzi_tiles_copied(public_source, package_dir)
   write_start_here(package_dir)
   write_launchers(package_dir)
   write_readme(package_dir)
+  write_package_manifest(package_dir)
   remove_unwanted_package_paths(package_dir)
   zip_path = out_dir / f"{PACKAGE_NAME}.zip"
   zip_package(package_dir, zip_path)

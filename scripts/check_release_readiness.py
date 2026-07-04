@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
 import tomllib
 import xml.etree.ElementTree as ET
 import zipfile
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import NamedTuple
 
@@ -35,6 +36,7 @@ PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 REQUIRED_PACKAGE_ENTRIES = (
   "START-HERE.html",
   "README.txt",
+  "package-manifest.json",
   "serve-local.py",
   "start-mac-if-needed.txt",
   "start-windows.bat",
@@ -45,6 +47,9 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/reference_map.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+)
+REQUIRED_ATTRIBUTION = (
+  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
 )
 
 
@@ -90,6 +95,13 @@ def package_arcname(relative: str) -> str:
   return f"{PACKAGE_NAME}/{relative}"
 
 
+def expected_download_url(version: str) -> str:
+  return (
+    "https://github.com/Klotzkette/isometric-berlin/releases/download/"
+    f"v{version}/{PACKAGE_ZIP}"
+  )
+
+
 def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   failures: list[str] = []
   if 'type="module"' in start_here_text:
@@ -131,6 +143,70 @@ def package_server_failures(serve_text: str, label: str) -> list[str]:
   ):
     return [f"Package server fallback does not open/flush START-HERE.html: {label}"]
   return []
+
+
+def package_manifest_failures(
+  manifest: dict[str, object],
+  *,
+  label: str,
+  version: str,
+  asset_reader: Callable[[str], bytes],
+) -> list[str]:
+  failures: list[str] = []
+  if manifest.get("package_name") != PACKAGE_NAME:
+    failures.append(f"Package manifest has wrong package_name: {label}")
+  if manifest.get("package_version") != version:
+    failures.append(
+      "Package manifest has version "
+      f"{manifest.get('package_version')!r}, expected {version!r}: {label}"
+    )
+  if manifest.get("start_page") != "START-HERE.html":
+    failures.append(f"Package manifest does not point at START-HERE.html: {label}")
+  if manifest.get("preferred_image") != "dzi/regierungsviertel/overview_source.png":
+    failures.append(f"Package manifest does not prefer overview_source.png: {label}")
+  if manifest.get("uses_google_content") is not False:
+    failures.append(f"Package manifest unexpectedly marks Google content used: {label}")
+  attribution = str(manifest.get("required_attribution", ""))
+  if (
+    REQUIRED_ATTRIBUTION not in attribution
+    or "Wikimedia Commons/Wikipedia" not in attribution
+  ):
+    failures.append(f"Package manifest lacks required attribution: {label}")
+
+  assets = manifest.get("assets")
+  if not isinstance(assets, dict):
+    return failures + [f"Package manifest has no asset inventory: {label}"]
+
+  for required in [
+    "detail_image",
+    "pixel_image",
+    "dzi_descriptor",
+    "reference_map",
+    "landmarks",
+    "wikimedia_attribution",
+    "start_page",
+  ]:
+    entry = assets.get(required)
+    if not isinstance(entry, dict):
+      failures.append(f"Package manifest lacks asset {required!r}: {label}")
+      continue
+    relative = str(entry.get("path", ""))
+    expected_hash = str(entry.get("sha256", ""))
+    expected_size = entry.get("bytes")
+    if not relative or not expected_hash or not isinstance(expected_size, int):
+      failures.append(f"Package manifest asset {required!r} is incomplete: {label}")
+      continue
+    try:
+      data = asset_reader(relative)
+    except (FileNotFoundError, KeyError):
+      failures.append(f"Package manifest references missing asset {relative}: {label}")
+      continue
+    actual_hash = hashlib.sha256(data).hexdigest()
+    if len(data) != expected_size:
+      failures.append(f"Package manifest asset size mismatch for {relative}: {label}")
+    if actual_hash != expected_hash:
+      failures.append(f"Package manifest asset hash mismatch for {relative}: {label}")
+  return failures
 
 
 def parse_dzi_descriptor(
@@ -280,6 +356,24 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
         failures.extend(
           package_server_failures(serve_text, f"{zip_path}!{serve_local}")
         )
+
+      manifest_name = package_arcname("package-manifest.json")
+      if manifest_name in names:
+        try:
+          manifest = json.loads(archive.read(manifest_name).decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+          failures.append(
+            f"Invalid package manifest: {zip_path}!{manifest_name}: {exc}"
+          )
+        else:
+          failures.extend(
+            package_manifest_failures(
+              manifest,
+              label=f"{zip_path}!{manifest_name}",
+              version=project_version(root),
+              asset_reader=lambda relative: archive.read(package_arcname(relative)),
+            )
+          )
   except (UnicodeDecodeError, zipfile.BadZipFile) as exc:
     return [f"Invalid package ZIP: {zip_path}: {exc}"]
 
@@ -303,6 +397,10 @@ def collect_failures(
   readme = (root / "README.md").read_text(encoding="utf-8")
   if f"Local v{version}" not in readme:
     failures.append(f"README.md status does not mention Local v{version}")
+  if expected_download_url(version) not in readme:
+    failures.append(
+      f"README.md direct download link does not point at v{version} package"
+    )
 
   for report_file in REQUIRED_REPORT_FILES:
     if not (root / report_file).exists():
@@ -352,6 +450,23 @@ def collect_failures(
           serve_local.read_text(encoding="utf-8"), str(serve_local)
         )
       )
+    package_manifest = package_dir / "package-manifest.json"
+    if not package_manifest.exists():
+      failures.append(f"Missing package manifest: {package_manifest}")
+    else:
+      try:
+        manifest = json.loads(package_manifest.read_text(encoding="utf-8"))
+      except json.JSONDecodeError as exc:
+        failures.append(f"Invalid package manifest: {package_manifest}: {exc}")
+      else:
+        failures.extend(
+          package_manifest_failures(
+            manifest,
+            label=str(package_manifest),
+            version=version,
+            asset_reader=lambda relative: (package_dir / relative).read_bytes(),
+          )
+        )
 
   zip_path = root / "releases" / PACKAGE_ZIP
   if require_package_zip or zip_path.exists():

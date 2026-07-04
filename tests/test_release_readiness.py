@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import json
 import zipfile
 from pathlib import Path
 from types import ModuleType
@@ -73,7 +75,13 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   app_package = root / "src" / "app" / "package.json"
   app_package.parent.mkdir(parents=True)
   app_package.write_text(f'{{"version": "{version}"}}\n', encoding="utf-8")
-  (root / "README.md").write_text(f"Local v{version}\n", encoding="utf-8")
+  (root / "README.md").write_text(
+    "Local v"
+    f"{version}\n"
+    "https://github.com/Klotzkette/isometric-berlin/releases/download/"
+    f"v{version}/isometric-berlin-regierungsviertel-local.zip\n",
+    encoding="utf-8",
+  )
   (root / "docs").mkdir(parents=True)
   (root / "docs" / "landmark-alignment.md").write_text("ok\n", encoding="utf-8")
   (root / "docs" / "metric-precision.md").write_text("ok\n", encoding="utf-8")
@@ -116,6 +124,7 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/overview.png": b"png",
     "dzi/regierungsviertel/overview_source.png": b"png",
     "dzi/regierungsviertel/reference_map.png": b"png",
+    "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
     "dzi/regierungsviertel/regierungsviertel.dzi": TINY_DZI_XML,
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
@@ -126,6 +135,40 @@ def write_minimal_package_zip(
       files.pop(relative, None)
     else:
       files[relative] = body
+  if "package-manifest.json" not in files:
+    asset_paths = {
+      "detail_image": "dzi/regierungsviertel/overview_source.png",
+      "pixel_image": "dzi/regierungsviertel/overview.png",
+      "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
+      "reference_map": "dzi/regierungsviertel/reference_map.png",
+      "landmarks": "dzi/regierungsviertel/landmarks.json",
+      "wikimedia_attribution": "dzi/regierungsviertel/wikimedia_attribution.json",
+      "start_page": "START-HERE.html",
+    }
+
+    def file_meta(relative: str) -> dict[str, int | str]:
+      body = files[relative]
+      data = body.encode("utf-8") if isinstance(body, str) else body
+      return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+    files["package-manifest.json"] = json.dumps(
+      {
+        "package_name": release_readiness.PACKAGE_NAME,
+        "package_version": "9.9.9",
+        "start_page": "START-HERE.html",
+        "preferred_image": "dzi/regierungsviertel/overview_source.png",
+        "uses_google_content": False,
+        "required_attribution": (
+          "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
+          "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia"
+        ),
+        "assets": {
+          label: {"path": relative, **file_meta(relative)}
+          for label, relative in asset_paths.items()
+          if relative in files
+        },
+      }
+    )
   zip_path = root / "releases" / release_readiness.PACKAGE_ZIP
   zip_path.parent.mkdir(parents=True, exist_ok=True)
   with zipfile.ZipFile(zip_path, "w") as archive:
@@ -197,6 +240,26 @@ def test_collect_failures_can_require_package_zip(tmp_path: Path) -> None:
   )
 
 
+def test_collect_failures_rejects_stale_readme_download_link(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_readme_link", "scripts/check_release_readiness.py"
+  )
+  write_minimal_release_tree(tmp_path, version="1.2.3")
+  (tmp_path / "README.md").write_text(
+    "Local v1.2.3\n"
+    "https://github.com/Klotzkette/isometric-berlin/releases/download/"
+    "v1.2.2/isometric-berlin-regierungsviertel-local.zip\n",
+    encoding="utf-8",
+  )
+
+  assert (
+    "README.md direct download link does not point at v1.2.3 package"
+    in release_readiness.collect_failures(tmp_path)
+  )
+
+
 def test_zip_package_failures_require_referenced_tile(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_zip_missing_tile", "scripts/check_release_readiness.py"
@@ -247,6 +310,43 @@ def test_zip_package_failures_rejects_stale_launcher(tmp_path: Path) -> None:
 
   failures = release_readiness.zip_package_failures(tmp_path)
   assert any("browser module loading" in failure for failure in failures)
+
+
+def test_zip_package_failures_rejects_manifest_hash_mismatch(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_manifest_hash", "scripts/check_release_readiness.py"
+  )
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {
+      "package-manifest.json": json.dumps(
+        {
+          "package_name": release_readiness.PACKAGE_NAME,
+          "package_version": "9.9.9",
+          "start_page": "START-HERE.html",
+          "preferred_image": "dzi/regierungsviertel/overview_source.png",
+          "uses_google_content": False,
+          "required_attribution": (
+            "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
+            "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia"
+          ),
+          "assets": {
+            "detail_image": {
+              "path": "dzi/regierungsviertel/overview_source.png",
+              "bytes": 3,
+              "sha256": "0" * 64,
+            }
+          },
+        }
+      )
+    },
+  )
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+  assert any("asset hash mismatch" in failure for failure in failures)
 
 
 def test_zip_package_failures_rejects_stale_server(tmp_path: Path) -> None:
