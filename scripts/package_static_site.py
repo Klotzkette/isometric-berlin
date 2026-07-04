@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.40"
+PACKAGE_VERSION = "0.1.41"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -126,23 +126,80 @@ START_HERE_HTML = """<!doctype html>
     :root {
       color-scheme: light;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f4f0e4;
+      background: #101616;
       color: #202725;
+      --stage-bg: #101616;
+      --panel-bg: #fbf5e7;
+      --panel-ink: #1f2825;
+      --gold: #f1c84b;
+      --cyan: #1f8aa5;
+      --red: #9f3434;
+      --map-filter: contrast(1.08) saturate(1.16) brightness(1.04);
+      --map-shadow: 0 34px 90px rgba(0, 0, 0, .34);
+      --grid-opacity: .26;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; overflow: hidden; background: #f4f0e4; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(31, 138, 165, .2), transparent 28%),
+        radial-gradient(circle at 78% 18%, rgba(241, 200, 75, .18), transparent 24%),
+        linear-gradient(135deg, #0e1515, #1b2422 54%, #2d2a20);
+    }
+    body[data-profile="atlas"] {
+      --map-filter: contrast(1.11) saturate(1.18) brightness(1.05);
+      --grid-opacity: .24;
+    }
+    body[data-profile="cinematic"] {
+      --map-filter: contrast(1.2) saturate(1.34) brightness(1.02);
+      --stage-bg: #0d1115;
+      --grid-opacity: .18;
+    }
+    body[data-profile="lab"] {
+      --map-filter: contrast(1.18) saturate(.96) brightness(1.08);
+      --stage-bg: #0b1719;
+      --grid-opacity: .34;
+    }
     .shell {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
+      grid-template-columns: minmax(0, 1fr) 336px;
       min-height: 100vh;
     }
     .stage {
       position: relative;
       overflow: hidden;
-      background: #f7f3e8;
+      background:
+        linear-gradient(180deg, rgba(255, 252, 236, .09), transparent 22%),
+        var(--stage-bg);
       cursor: grab;
       touch-action: none;
-      border-right: 1px solid rgba(30, 40, 35, .16);
+      border-right: 1px solid rgba(241, 200, 75, .28);
+    }
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: var(--grid-opacity);
+      background-image:
+        linear-gradient(rgba(241, 200, 75, .16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31, 138, 165, .18) 1px, transparent 1px),
+        linear-gradient(135deg, transparent 47%, rgba(255, 255, 255, .05) 50%, transparent 53%);
+      background-size: 64px 64px, 64px 64px, 220px 220px;
+      mix-blend-mode: screen;
+    }
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 44%, transparent 0 52%, rgba(0, 0, 0, .28) 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, .1), transparent 18%, rgba(0, 0, 0, .16));
     }
     .stage:active { cursor: grabbing; }
     .stage.mode-rotate { cursor: ew-resize; }
@@ -155,6 +212,8 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       transform-origin: 50% 50%;
       will-change: transform;
+      z-index: 0;
+      filter: var(--map-shadow);
     }
     .map-image {
       display: block;
@@ -162,8 +221,49 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       user-select: none;
       -webkit-user-drag: none;
+      filter: var(--map-filter);
+      transition: filter .18s ease;
     }
     .map-image.pixelated { image-rendering: pixelated; }
+    .focus-ring {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 86px;
+      height: 86px;
+      margin-left: -43px;
+      margin-top: -43px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 1px rgba(16, 22, 22, .55),
+        0 0 0 12px rgba(241, 200, 75, .15),
+        0 0 28px rgba(31, 138, 165, .42);
+      pointer-events: none;
+      opacity: .94;
+      transform: scale(1);
+      animation: focusPulse 1.9s ease-in-out infinite;
+    }
+    .focus-ring::before,
+    .focus-ring::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      width: 116px;
+      height: 1px;
+      margin-left: -58px;
+      background: rgba(241, 200, 75, .74);
+    }
+    .focus-ring::after {
+      width: 1px;
+      height: 116px;
+      margin-left: 0;
+      margin-top: -58px;
+    }
+    @keyframes focusPulse {
+      0%, 100% { transform: scale(.96); opacity: .82; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
     .marker {
       position: absolute;
       width: 18px;
@@ -190,28 +290,84 @@ START_HERE_HTML = """<!doctype html>
         0 0 0 9px rgba(192, 138, 70, .16),
         0 8px 18px rgba(0, 0, 0, .36);
     }
+    .marker.active {
+      background: var(--gold);
+      border-color: #1b2422;
+      box-shadow:
+        0 0 0 4px rgba(255, 255, 255, .7),
+        0 0 0 10px rgba(241, 200, 75, .32),
+        0 10px 22px rgba(0, 0, 0, .38);
+    }
     .marker:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
     .compass {
       position: absolute;
       left: 14px;
       bottom: 14px;
-      z-index: 3;
-      padding: 7px 10px;
-      border: 1px solid rgba(29, 39, 35, .18);
+      z-index: 4;
+      padding: 8px 11px;
+      border: 1px solid rgba(241, 200, 75, .45);
       border-radius: 7px;
-      background: rgba(255, 250, 240, .92);
-      color: #26302b;
+      background: rgba(13, 20, 20, .78);
+      color: #fff6dc;
       font-size: 12px;
       font-variant-numeric: tabular-nums;
       box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+      backdrop-filter: blur(10px);
+    }
+    .hud {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      z-index: 4;
+      min-width: min(420px, calc(100% - 28px));
+      max-width: 520px;
+      display: grid;
+      gap: 7px;
+      padding: 12px 14px;
+      border: 1px solid rgba(241, 200, 75, .34);
+      border-radius: 8px;
+      background: rgba(12, 18, 18, .74);
+      color: #fff7df;
+      box-shadow: 0 18px 46px rgba(0, 0, 0, .32);
+      backdrop-filter: blur(13px);
+    }
+    .hud strong {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .hud-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .hud-meter {
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, .13);
+      overflow: hidden;
+    }
+    .hud-meter span {
+      display: block;
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, var(--cyan), var(--gold));
     }
     aside {
       display: grid;
       grid-template-rows: auto auto minmax(0, 1fr) auto;
       gap: 12px;
       padding: 16px;
-      background: #fffaf0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 250, 240, .96)),
+        var(--panel-bg);
       min-height: 100vh;
+      color: var(--panel-ink);
+      box-shadow: -14px 0 44px rgba(0, 0, 0, .18);
     }
     h1 { margin: 0; font-size: 19px; line-height: 1.1; letter-spacing: 0; }
     .sub { margin: 5px 0 0; font-size: 13px; color: #59615a; line-height: 1.35; }
@@ -249,6 +405,20 @@ START_HERE_HTML = """<!doctype html>
       min-width: 0;
       padding-inline: 5px;
     }
+    .profile-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid rgba(29, 39, 35, .14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .52);
+    }
+    .profile-controls button {
+      min-width: 0;
+      font-size: 12px;
+      padding-inline: 6px;
+    }
     .hint {
       margin: 0;
       padding: 9px 10px;
@@ -257,6 +427,9 @@ START_HERE_HTML = """<!doctype html>
       color: #344039;
       font-size: 12px;
       line-height: 1.35;
+    }
+    .hint strong {
+      color: #1d4d5b;
     }
     .list {
       overflow: auto;
@@ -274,10 +447,18 @@ START_HERE_HTML = """<!doctype html>
       min-height: 32px;
       padding: 6px 8px;
     }
+    .list button.active {
+      border-color: rgba(241, 200, 75, .82);
+      background: linear-gradient(90deg, rgba(241, 200, 75, .26), #fff);
+      box-shadow: inset 3px 0 0 var(--gold);
+    }
     .list button.priority {
       border-color: rgba(21, 93, 115, .34);
       background: linear-gradient(90deg, rgba(21, 93, 115, .18), #fff);
       font-weight: 700;
+    }
+    .list button.priority.active {
+      background: linear-gradient(90deg, rgba(31, 138, 165, .24), rgba(241, 200, 75, .22), #fff);
     }
     .index {
       color: #6c776e;
@@ -294,7 +475,7 @@ START_HERE_HTML = """<!doctype html>
     .reference {
       position: fixed;
       inset: 18px;
-      z-index: 10;
+      z-index: 20;
       display: none;
       grid-template-rows: auto minmax(0, 1fr);
       background: #fffaf0;
@@ -321,6 +502,9 @@ START_HERE_HTML = """<!doctype html>
       .shell { grid-template-columns: 1fr; grid-template-rows: minmax(65vh, 1fr) auto; }
       aside { min-height: 0; max-height: none; }
       .list { max-height: 280px; }
+      .hud {
+        max-width: calc(100% - 28px);
+      }
     }
   </style>
 </head>
@@ -329,7 +513,13 @@ START_HERE_HTML = """<!doctype html>
     <section class="stage" id="stage" aria-label="Isometrische Karte">
       <div class="map-layer" id="layer">
         <img class="map-image" id="map-image" src="dzi/regierungsviertel/overview_source.png" alt="Isometric Berlin Regierungsviertel">
+        <div class="focus-ring" id="focus-ring" aria-hidden="true"></div>
         <div id="markers"></div>
+      </div>
+      <div class="hud" aria-live="polite">
+        <strong>Regierungsviertel Live View</strong>
+        <div class="hud-row"><span id="hud-target">Bundeskanzleramt</span><span id="hud-zoom">Zoom 1.00x</span></div>
+        <div class="hud-meter"><span id="hud-meter"></span></div>
       </div>
       <div class="compass" id="compass" aria-live="polite">Top · 0° · Swivel 0°</div>
     </section>
@@ -349,6 +539,11 @@ START_HERE_HTML = """<!doctype html>
         <button type="button" id="tilt-right">Swivel ▶</button>
         <button type="button" id="quality" class="half">Pixel-Art</button>
         <button type="button" id="reset" class="half">Reset</button>
+        <div class="profile-controls wide" aria-label="Grafikprofil">
+          <button type="button" id="profile-atlas" class="active">Atlas</button>
+          <button type="button" id="profile-cinematic">Cinematic</button>
+          <button type="button" id="profile-lab">Lab</button>
+        </div>
         <div class="presets wide" aria-label="Blickrichtung">
           <button type="button" id="view-top" class="active">Top</button>
           <button type="button" id="view-north">Nord</button>
@@ -359,7 +554,7 @@ START_HERE_HTML = """<!doctype html>
         <button type="button" id="reference" class="wide">Top-down-Referenzkarte</button>
         <a class="button wide" href="index.html">Advanced Viewer nur mit Server-Fallback</a>
       </div>
-      <p class="hint" id="hint">Maus ziehen: Karte verschieben. Shift+ziehen oder Modus „Drehen/Swivel“: drehen und kippen. Presets springen reproduzierbar auf Top/Nord/Ost/Süd/West.</p>
+      <p class="hint" id="hint"><strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Atlas/Cinematic/Lab ändern Kontrast, Bühne und Lesbarkeit.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
       <p class="notice">
         Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist
@@ -389,6 +584,15 @@ START_HERE_HTML = """<!doctype html>
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
     const compass = document.getElementById("compass");
+    const focusRing = document.getElementById("focus-ring");
+    const hudTarget = document.getElementById("hud-target");
+    const hudZoom = document.getElementById("hud-zoom");
+    const hudMeter = document.getElementById("hud-meter");
+    const profileButtons = {
+      atlas: document.getElementById("profile-atlas"),
+      cinematic: document.getElementById("profile-cinematic"),
+      lab: document.getElementById("profile-lab"),
+    };
     const VIEW_PRESETS = {
       top: { label: "Top", rotation: 0, tilt: 0 },
       north: { label: "Nord", rotation: 0, tilt: -10 },
@@ -424,7 +628,9 @@ START_HERE_HTML = """<!doctype html>
       or: 0,
       ot: 0,
       pixel: false,
+      profile: "atlas",
     };
+    document.body.dataset.profile = state.profile;
 
     function render() {
       layer.style.width = `${image.width}px`;
@@ -432,9 +638,26 @@ START_HERE_HTML = """<!doctype html>
       layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale})`;
       const rotation = Math.round(((state.rotation % 360) + 360) % 360);
       const viewName = VIEW_PRESETS[state.viewKey]?.label || "Frei";
-      compass.textContent = `${viewName} · ${rotation}° · Swivel ${Math.round(state.tilt)}°`;
+      const selected = landmarks.find((landmark) => landmark.name === selectedLandmarkName) || landmarks[0];
+      compass.textContent = `${viewName} · ${rotation}° · Swivel ${Math.round(state.tilt)}° · ${selected?.name || "Landmarke"}`;
+      if (selected) {
+        focusRing.style.left = `${selected.x}px`;
+        focusRing.style.top = `${selected.y}px`;
+        hudTarget.textContent = selected.name;
+      }
+      const zoomRatio = state.fitScale ? state.scale / state.fitScale : 1;
+      hudZoom.textContent = `Zoom ${zoomRatio.toFixed(2)}x`;
+      hudMeter.style.width = `${Math.max(6, Math.min(100, zoomRatio * 18))}%`;
+      document.body.dataset.profile = state.profile;
       Object.entries(viewButtons).forEach(([key, button]) => {
         button.classList.toggle("active", key === state.viewKey);
+      });
+      Object.entries(profileButtons).forEach(([key, button]) => {
+        button.classList.toggle("active", key === state.profile);
+      });
+      document.querySelectorAll("[data-landmark-index]").forEach((node) => {
+        const index = Number(node.dataset.landmarkIndex);
+        node.classList.toggle("active", landmarks[index]?.name === selectedLandmarkName);
       });
     }
     function setMode(mode) {
@@ -502,6 +725,11 @@ START_HERE_HTML = """<!doctype html>
       state.viewKey = key;
       render();
     }
+    function setProfile(profile) {
+      if (!profileButtons[profile]) return;
+      state.profile = profile;
+      render();
+    }
     function toggleQuality() {
       state.pixel = !state.pixel;
       mapImage.src = state.pixel ? "dzi/regierungsviertel/overview.png" : "dzi/regierungsviertel/overview_source.png";
@@ -519,6 +747,7 @@ START_HERE_HTML = """<!doctype html>
         marker.style.top = `${landmark.y}px`;
         marker.dataset.role = landmark.role || "";
         marker.dataset.priority = PRIORITY_LANDMARKS.has(landmark.name) ? "true" : "false";
+        marker.dataset.landmarkIndex = String(index);
         marker.title = landmark.name;
         marker.setAttribute("aria-label", landmark.name);
         marker.addEventListener("click", () => focusLandmark(landmark));
@@ -527,6 +756,7 @@ START_HERE_HTML = """<!doctype html>
         const row = document.createElement("button");
         row.type = "button";
         row.className = PRIORITY_LANDMARKS.has(landmark.name) ? "priority" : "";
+        row.dataset.landmarkIndex = String(index);
         row.innerHTML = `<span class="index">${String(index + 1).padStart(2, "0")}</span><span>${landmark.name}</span>`;
         row.addEventListener("click", () => focusLandmark(landmark));
         list.appendChild(row);
@@ -574,6 +804,9 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("mode-pan").addEventListener("click", () => setMode("pan"));
     document.getElementById("mode-rotate").addEventListener("click", () => setMode("rotate"));
     document.getElementById("quality").addEventListener("click", toggleQuality);
+    Object.entries(profileButtons).forEach(([key, button]) => {
+      button.addEventListener("click", () => setProfile(key));
+    });
     Object.entries(viewButtons).forEach(([key, button]) => {
       button.addEventListener("click", () => setViewPreset(key));
     });
@@ -611,6 +844,9 @@ START_HERE_HTML = """<!doctype html>
       if (event.key.toLowerCase() === "e") setViewPreset("east");
       if (event.key.toLowerCase() === "s") setViewPreset("south");
       if (event.key.toLowerCase() === "w") setViewPreset("west");
+      if (event.key === "1") setProfile("atlas");
+      if (event.key === "2") setProfile("cinematic");
+      if (event.key === "3") setProfile("lab");
     });
     window.addEventListener("resize", fit);
     addMarkers();
@@ -819,11 +1055,13 @@ eine HTML-Datei, kein ausführbares macOS-.command-Skript und kein Terminal.
 START-HERE.html ist ein einfacher Offline-Viewer mit Karte, Zoom/Verschieben,
 Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
+Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
+eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
-und eine Kompasszeile machen Blickwinkel reproduzierbar. Der Advanced Viewer
-bleibt zusätzlich dabei, braucht aber je nach Browser den lokalen
-Server-Fallback.
+und eine Kompasszeile machen Blickwinkel reproduzierbar. Die Tasten 1/2/3
+wechseln die Grafikprofile. Der Advanced Viewer bleibt zusätzlich dabei,
+braucht aber je nach Browser den lokalen Server-Fallback.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
@@ -872,10 +1110,13 @@ an HTML file, not an executable macOS .command script, and not Terminal.
 START-HERE.html is a simple offline viewer with the map, zoom/pan,
 reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
+Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
+technical map stage, focus ring, and HUD for landmark/zoom/camera state.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
 right-drag you rotate and swivel the map. Top/North/East/South/West presets
-and a compass line make viewpoints reproducible. The Advanced Viewer is still
-included, but may need the local-server fallback depending on the browser.
+and a compass line make viewpoints reproducible. Keys 1/2/3 switch the visual
+profiles. The Advanced Viewer is still included, but may need the local-server
+fallback depending on the browser.
 
 This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor, interior rings render as
@@ -955,6 +1196,9 @@ def write_package_manifest(package_dir: Path) -> None:
       "keyboard-arrow-pan",
       "shift-arrow-rotate-swivel",
       "top-north-east-south-west-presets",
+      "atlas-cinematic-lab-visual-profiles",
+      "selected-landmark-focus-ring",
+      "instrument-hud",
     ],
     "required_attribution": (
       "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "

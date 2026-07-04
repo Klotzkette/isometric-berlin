@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.1.41
+
+- Upgrade the offline `START-HERE.html` presentation with a more polished
+  cartographic stage: technical grid, vignette/lighting treatment, stronger map
+  filtering, and a selected-landmark focus ring.
+- Add Atlas, Cinematic, and Lab visual profiles plus keyboard shortcuts 1/2/3
+  for quick contrast/readability changes.
+- Add an instrument HUD that shows selected landmark, zoom ratio, camera
+  orientation, and focus state while keeping the no-Terminal Mac/Windows launch
+  flow intact.
+
 ## v0.1.40
 
 - Add Venusbassin / Goldfischteich as an explicit Tiergarten landmark using
