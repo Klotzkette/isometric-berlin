@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "name": "tiergartentunnel_reference_route",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tunnel Tiergarten Spreebogen / B96",
+        "role": "underground_reference_route",
+        "source": "Public tunnel portal coordinates and route description; approximate centreline for visual QA",
+        "length_m": 2392,
+        "opened": "2006-03-26",
+        "notes": "Approximate visual centreline from Minna-Cauer-Strasse / Invalidenstrasse through Hauptbahnhof, under the Spree and Tiergarten to Kemperplatz, with southern continuation outside v0.1 visible bounds."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [13.36763, 52.52643],
+          [13.36789, 52.5251],
+          [13.36805, 52.5224],
+          [13.3688, 52.5202],
+          [13.3698, 52.5168],
+          [13.37071, 52.51222],
+          [13.3723, 52.50616]
+        ]
+      }
+    }
+  ]
+}

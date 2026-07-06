@@ -59,6 +59,10 @@ CORTEN_STEEL = (139, 82, 50)
 TENT_CANVAS = (232, 218, 185)
 PLENARY_PURPLE = (104, 82, 142)
 BRONZE = (121, 88, 57)
+PURPLE_TRIANGLE = (112, 78, 146)
+POLAND_RED = (162, 52, 56)
+TUNNEL_TRACE = (54, 57, 62)
+TUNNEL_TRACE_LIGHT = (175, 182, 185)
 TUNNEL = (41, 40, 39)
 BRIDGE = (226, 224, 209)
 SURFACE_LINE = (112, 100, 86)
@@ -98,6 +102,18 @@ def load_landmarks(path: Path) -> gpd.GeoDataFrame:
   if not path.exists():
     return gpd.GeoDataFrame(geometry=[], crs=BERLIN_PROJECTED)
   gdf = gpd.read_file(path)
+  if gdf.crs is None:
+    gdf = gdf.set_crs("EPSG:4326")
+  return gdf.to_crs(BERLIN_PROJECTED)
+
+
+def load_reference_geometries(path: Path) -> gpd.GeoDataFrame:
+  if not path.exists():
+    return gpd.GeoDataFrame(geometry=[], crs=BERLIN_PROJECTED)
+  try:
+    gdf = gpd.read_file(path)
+  except Exception:
+    return gpd.GeoDataFrame(geometry=[], crs=BERLIN_PROJECTED)
   if gdf.crs is None:
     gdf = gdf.set_crs("EPSG:4326")
   return gdf.to_crs(BERLIN_PROJECTED)
@@ -269,6 +285,12 @@ def landmark_reference_id(name: str) -> str | None:
     ("kanzlergarten", "kanzlergarten"),
     ("kanzlerpark", "kanzlergarten"),
     ("non-violence", "kanzlergarten"),
+    ("carillon", "carillon_tiergarten"),
+    ("zeugen jehovas", "jehovahs_witnesses_memorial"),
+    ("jehovas", "jehovahs_witnesses_memorial"),
+    ("gedenkort fur polen", "poland_memorial"),
+    ("polen 1939", "poland_memorial"),
+    ("kroll-oper", "poland_memorial"),
     ("reichstag", "reichstag"),
     ("bundeskanzleramt", "bundeskanzleramt"),
     ("paul-lobe", "paul_loebe_haus"),
@@ -509,6 +531,12 @@ def landmark_kind(name: str) -> str | None:
     return "sculpture"
   if "kanzlergarten" in key or "kanzlerpark" in key or "non-violence" in key:
     return "kanzlergarten_sculpture"
+  if "carillon" in key:
+    return "carillon"
+  if "zeugen jehovas" in key or "jehovas" in key:
+    return "jehovahs_memorial"
+  if "gedenkort fur polen" in key or "polen 1939" in key or "kroll-oper" in key:
+    return "poland_memorial"
   if "brandenburger tor" in key:
     return "gate"
   if "reichstag" in key:
@@ -752,6 +780,99 @@ def draw_landmark_accent(
       (x + 2 * unit, y - 3 * unit, x + 5 * unit, y),
       outline=BRONZE,
       width=max(1, unit // 3),
+    )
+    return
+
+  if kind == "carillon":
+    x, y = point(44)
+    shaft = mix_color(MONUMENT, OUTLINE, 0.18)
+    shaft_dark = mix_color(shaft, OUTLINE, 0.28)
+    draw.rectangle(
+      (x - 2 * unit, y - 12 * unit, x + 2 * unit, y + 6 * unit),
+      fill=shaft,
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    for level in range(5):
+      ly = y - (10 - level * 3) * unit
+      draw.line(
+        (x - 2 * unit, ly, x + 2 * unit, ly),
+        fill=shaft_dark,
+        width=max(1, unit // 5),
+      )
+      draw.ellipse(
+        (x - unit, ly - unit // 2, x + unit, ly + unit // 2),
+        fill=mix_color(BRONZE, MONUMENT, 0.25),
+        outline=shaft_dark,
+        width=1,
+      )
+    draw.polygon(
+      [
+        (x - 3 * unit, y - 12 * unit),
+        (x, y - 15 * unit),
+        (x + 3 * unit, y - 12 * unit),
+      ],
+      fill=MONUMENT_DARK,
+      outline=OUTLINE,
+    )
+    return
+
+  if kind == "jehovahs_memorial":
+    x, y = point(9)
+    bronze_dark = mix_color(BRONZE, OUTLINE, 0.22)
+    draw.ellipse(
+      (x - 4 * unit, y + 2 * unit, x + 4 * unit, y + 4 * unit),
+      fill=mix_color(PARK_LIGHT, OUTLINE, 0.16),
+    )
+    draw.line(
+      (x, y + 3 * unit, x, y - 7 * unit),
+      fill=bronze_dark,
+      width=max(2, unit),
+    )
+    for branch_x, branch_y in [(-3, -4), (3, -5), (-2, -1), (2, -2)]:
+      draw.line(
+        (x, y - 4 * unit, x + branch_x * unit, y + branch_y * unit),
+        fill=BRONZE,
+        width=max(1, unit // 2),
+      )
+    draw.polygon(
+      [
+        (x - 2 * unit, y + 2 * unit),
+        (x + 2 * unit, y + 2 * unit),
+        (x, y - unit),
+      ],
+      fill=PURPLE_TRIANGLE,
+      outline=OUTLINE,
+    )
+    return
+
+  if kind == "poland_memorial":
+    x, y = point(5)
+    boulder = mix_color(MONUMENT_DARK, MONUMENT, 0.26)
+    draw.ellipse(
+      (x - 5 * unit, y - 2 * unit, x + 4 * unit, y + 4 * unit),
+      fill=boulder,
+      outline=OUTLINE,
+      width=1,
+    )
+    draw.rectangle(
+      (x - 2 * unit, y, x + 2 * unit, y + unit),
+      fill=mix_color(POLAND_RED, MONUMENT, 0.25),
+      outline=OUTLINE,
+      width=1,
+    )
+    trunk_x = x + 5 * unit
+    draw.rectangle((trunk_x - 1, y - 2 * unit, trunk_x + 1, y + 3 * unit), fill=OUTLINE)
+    draw.ellipse(
+      (
+        trunk_x - 2 * unit,
+        y - 5 * unit,
+        trunk_x + 2 * unit,
+        y - unit,
+      ),
+      fill=TREE_CANOPY_LIGHT,
+      outline=PARK_DARK,
+      width=1,
     )
     return
 
@@ -1012,6 +1133,94 @@ def lerp_point(
 
 def line_length(a: tuple[int, int], b: tuple[int, int]) -> float:
   return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
+
+def draw_dashed_projected_line(
+  draw: ImageDraw.ImageDraw,
+  pts: list[tuple[int, int]],
+  *,
+  color: tuple[int, int, int],
+  width: int,
+  dash_px: int,
+  gap_px: int,
+) -> None:
+  """Draw a deterministic dashed polyline in projected screen space."""
+  if len(pts) < 2:
+    return
+  draw_dash = True
+  carry = 0.0
+  target = float(dash_px)
+  for start, end in zip(pts, pts[1:], strict=False):
+    segment = line_length(start, end)
+    if segment <= 0:
+      continue
+    distance = 0.0
+    while distance < segment:
+      remaining = target - carry
+      step = min(remaining, segment - distance)
+      a = distance / segment
+      b = (distance + step) / segment
+      point_a = lerp_point(start, end, a)
+      point_b = lerp_point(start, end, b)
+      if draw_dash:
+        draw.line((point_a, point_b), fill=color, width=width)
+      distance += step
+      carry += step
+      if carry >= target - 0.001:
+        draw_dash = not draw_dash
+        carry = 0.0
+        target = float(dash_px if draw_dash else gap_px)
+
+
+def draw_tunnel_reference_routes(
+  draw: ImageDraw.ImageDraw,
+  routes: gpd.GeoDataFrame,
+  bounds: tuple[float, float, float, float],
+  *,
+  center_x: float,
+  center_y: float,
+  scale: float,
+  width: int,
+  height: int,
+  line_scale: int,
+) -> None:
+  """Draw the Tiergartentunnel as a visible underground route cue."""
+  if routes.empty:
+    return
+  for _, row in query(routes, bounds).iterrows():
+    for line in lines(row.geometry):
+      pts = [
+        project_point(
+          x,
+          y,
+          z=-10,
+          center_x=center_x,
+          center_y=center_y,
+          scale=scale,
+          width=width,
+          height=height,
+        )
+        for x, y in line.coords
+      ]
+      if len(pts) < 2:
+        continue
+      casing = max(3, line_scale * 4)
+      draw_dashed_projected_line(
+        draw,
+        pts,
+        color=mix_color(TUNNEL_TRACE, OUTLINE, 0.28),
+        width=casing,
+        dash_px=max(14, line_scale * 14),
+        gap_px=max(8, line_scale * 8),
+      )
+      draw_dashed_projected_line(
+        draw,
+        pts,
+        color=TUNNEL_TRACE_LIGHT,
+        width=max(1, line_scale),
+        dash_px=max(10, line_scale * 10),
+        gap_px=max(12, line_scale * 10),
+      )
 
 
 def architectural_shadow_offsets(
@@ -2232,6 +2441,19 @@ def render_quadrant(
       width=render_px,
       height=render_px,
     )
+  draw_tunnel_reference_routes(
+    draw,
+    osm_layers.get(
+      "tunnel_routes", gpd.GeoDataFrame(geometry=[], crs=BERLIN_PROJECTED)
+    ),
+    q_bounds,
+    center_x=center_x,
+    center_y=center_y,
+    scale=scale,
+    width=render_px,
+    height=render_px,
+    line_scale=line_scale,
+  )
   rail_features = []
   for _, row in query(osm_layers["rail"], q_bounds).iterrows():
     if not lines(row.geometry):
@@ -2411,6 +2633,11 @@ def main() -> None:
     default=Path("geo_data/regierungsviertel/landmarks.geojson"),
   )
   parser.add_argument(
+    "--tunnel-route",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/tiergartentunnel.geojson"),
+  )
+  parser.add_argument(
     "--wikimedia-references",
     type=Path,
     default=Path("geo_data/regierungsviertel/wikimedia_references.json"),
@@ -2430,6 +2657,7 @@ def main() -> None:
     for layer in ["roads", "water", "parks", "rail", "pois"]
   }
   osm_layers["alkis"] = load_layer(args.alkis, "flurstuecke")
+  osm_layers["tunnel_routes"] = load_reference_geometries(args.tunnel_route)
   landmarks = load_landmarks(args.landmarks)
   material_cues = load_wikimedia_material_cues(args.wikimedia_references)
   count = update_render(

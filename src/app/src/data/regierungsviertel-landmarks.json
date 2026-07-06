@@ -291,6 +291,33 @@
       "y": 381,
       "nx": 0.459263,
       "ny": 0.249317
+    },
+    {
+      "name": "Carillon im Tiergarten",
+      "role": "owner_added",
+      "tourOrder": 33,
+      "x": 801,
+      "y": 523,
+      "nx": 0.371279,
+      "ny": 0.34193
+    },
+    {
+      "name": "Mahnmal für verfolgte Zeugen Jehovas",
+      "role": "owner_added",
+      "tourOrder": 34,
+      "x": 717,
+      "y": 825,
+      "nx": 0.332577,
+      "ny": 0.539674
+    },
+    {
+      "name": "Gedenkort für Polen 1939-1945",
+      "role": "owner_added",
+      "tourOrder": 35,
+      "x": 1262,
+      "y": 642,
+      "nx": 0.584843,
+      "ny": 0.419735
     }
   ]
 }

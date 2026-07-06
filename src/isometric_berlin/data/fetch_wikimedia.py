@@ -49,6 +49,11 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Non-Violence sculpture Berlin Bundeskanzleramt",
     "Rasenstück Olympiastadion Kanzlergarten",
   ],
+  "carillon_tiergarten": [
+    "Carillon Berlin Tiergarten",
+    "Carillon Berlin-Tiergarten",
+    "Berlin Tiergarten Carillon",
+  ],
   "paul_loebe_haus": [
     "Paul-Löbe-Haus Berlin exterior",
     "Paul Loebe Haus Bundestag Berlin",
@@ -132,6 +137,16 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen Berlin",
     "Memorial to Homosexuals Persecuted Under Nazism Berlin",
   ],
+  "jehovahs_witnesses_memorial": [
+    "Mahnmal Zeugen Jehovas Tiergarten Goldfischteich",
+    "Denkmal Zeugen Jehovas Berlin Tiergarten",
+    "Jehovah's Witnesses memorial Berlin Tiergarten",
+  ],
+  "poland_memorial": [
+    "Gedenkort für Polen 1939 1945 Berlin",
+    "Deutsch-Polnisches Haus Heinrich-von-Gagern-Straße",
+    "Gedenkort Polen Kroll-Oper Berlin",
+  ],
   "sinti_roma_memorial": [
     "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
     "Sinti und Roma Denkmal Berlin Tiergarten",
@@ -148,6 +163,11 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "goethe_denkmal": [
     "Goethe-Denkmal Berlin Tiergarten",
     "Goethe Denkmal Tiergarten Berlin",
+  ],
+  "luiseninsel": [
+    "Luiseninsel Tiergarten Königin Luise Denkmal",
+    "Königin-Luise-Denkmal Tiergarten Berlin",
+    "Queen Louise Statue Luiseninsel Tiergarten",
   ],
   "soviet_war_memorial_tiergarten": [
     "Sowjetisches Ehrenmal Tiergarten Berlin",
@@ -186,6 +206,7 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
     "non-violence",
     "rasenstuck",
   ),
+  "carillon_tiergarten": ("carillon",),
   "paul_loebe_haus": ("paul-lobe", "paul-loebe", "lobe-haus", "loebe-haus"),
   "marie_elisabeth_lueders_haus": (
     "marie-elisabeth",
@@ -226,6 +247,19 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
     "holocaust",
   ),
   "memorial_homosexuals": ("homosexuellen", "homosexuals", "homosexual"),
+  "jehovahs_witnesses_memorial": (
+    "zeugen-jehovas",
+    "jehovah",
+    "jehovas",
+    "goldfischteich",
+  ),
+  "poland_memorial": (
+    "gedenkort-fur-polen",
+    "gedenkort-polen",
+    "deutsch-polnisches",
+    "kroll-oper",
+    "heinrich-von-gagern",
+  ),
   "sinti_roma_memorial": ("sinti", "roma"),
   "beethoven_haydn_mozart_memorial": (
     "beethoven-haydn-mozart",
@@ -237,6 +271,7 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
     "venusbecken",
   ),
   "goethe_denkmal": ("goethe",),
+  "luiseninsel": ("luiseninsel", "konigin-luise", "koenigin-luise", "queen-louise"),
   "soviet_war_memorial_tiergarten": (
     "sowjetisches-ehrenmal",
     "soviet-war-memorial",

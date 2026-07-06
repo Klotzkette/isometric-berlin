@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.43"
+PACKAGE_VERSION = "0.1.44"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -225,6 +225,31 @@ START_HERE_HTML = """<!doctype html>
       transition: filter .18s ease;
     }
     .map-image.pixelated { image-rendering: pixelated; }
+    .tunnel-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2157px;
+      height: 1529px;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .tunnel-casing {
+      fill: none;
+      stroke: rgba(20, 24, 25, .72);
+      stroke-width: 16;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 30 18;
+    }
+    .tunnel-core {
+      fill: none;
+      stroke: rgba(205, 218, 220, .88);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 18 16;
+    }
     .focus-ring {
       position: absolute;
       left: 0;
@@ -513,6 +538,7 @@ START_HERE_HTML = """<!doctype html>
     <section class="stage" id="stage" aria-label="Isometrische Karte">
       <div class="map-layer" id="layer">
         <img class="map-image" id="map-image" src="dzi/regierungsviertel/overview_source.png" alt="Isometric Berlin Regierungsviertel">
+        <svg class="tunnel-overlay" id="tunnel-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
         <div class="focus-ring" id="focus-ring" aria-hidden="true"></div>
         <div id="markers"></div>
       </div>
@@ -571,6 +597,7 @@ START_HERE_HTML = """<!doctype html>
   </section>
   <script>
     const payload = __LANDMARK_PAYLOAD__;
+    const tunnelPayload = __TUNNEL_PAYLOAD__;
     const image = payload.image || { width: 2157, height: 1529 };
     const landmarks = [...(payload.landmarks || [])].sort((a, b) => {
       const left = Number.isFinite(a.tourOrder) ? a.tourOrder : 1000;
@@ -580,6 +607,7 @@ START_HERE_HTML = """<!doctype html>
     const stage = document.getElementById("stage");
     const layer = document.getElementById("layer");
     const mapImage = document.getElementById("map-image");
+    const tunnelOverlay = document.getElementById("tunnel-overlay");
     const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
@@ -762,6 +790,25 @@ START_HERE_HTML = """<!doctype html>
         list.appendChild(row);
       });
     }
+    function addTunnelRoutes() {
+      tunnelOverlay.innerHTML = "";
+      (tunnelPayload.routes || []).forEach((route) => {
+        const points = (route.points || [])
+          .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
+          .map((point) => `${point.x},${point.y}`)
+          .join(" ");
+        if (!points) return;
+        ["tunnel-casing", "tunnel-core"].forEach((className) => {
+          const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+          polyline.setAttribute("class", className);
+          polyline.setAttribute("points", points);
+          const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          title.textContent = route.name || "Tiergartentunnel";
+          polyline.appendChild(title);
+          tunnelOverlay.appendChild(polyline);
+        });
+      });
+    }
 
     stage.addEventListener("pointerdown", (event) => {
       if (event.target.classList.contains("marker")) return;
@@ -849,6 +896,7 @@ START_HERE_HTML = """<!doctype html>
       if (event.key === "3") setProfile("lab");
     });
     window.addEventListener("resize", fit);
+    addTunnelRoutes();
     addMarkers();
     fit();
     focusLandmark(landmarks.find((landmark) => landmark.name === DEFAULT_FOCUS_LANDMARK) || landmarks[0]);
@@ -927,7 +975,7 @@ def ensure_dzi_tiles_copied(source: Path, target: Path) -> None:
     if destination.exists() and destination.stat().st_size == path.stat().st_size:
       continue
     destination.parent.mkdir(parents=True, exist_ok=True)
-    copy_file_contents(path, destination)
+    shutil.copyfile(path, destination)
 
 
 def remove_unwanted_package_paths(package_dir: Path) -> None:
@@ -959,6 +1007,14 @@ def start_here_landmarks(package_dir: Path) -> dict:
   return json.loads(landmarks_path.read_text(encoding="utf-8"))
 
 
+def start_here_tunnel_routes(package_dir: Path) -> dict:
+  """Load optional tunnel overlay coordinates for the zero-server viewer."""
+  route_path = package_dir / "dzi" / "regierungsviertel" / "tiergartentunnel.json"
+  if not route_path.exists():
+    return {"routes": []}
+  return json.loads(route_path.read_text(encoding="utf-8"))
+
+
 def write_start_here(package_dir: Path) -> None:
   """Write a double-click HTML viewer that needs no server or executable."""
   overview = package_dir / "dzi" / "regierungsviertel" / "overview.png"
@@ -977,7 +1033,11 @@ def write_start_here(package_dir: Path) -> None:
   payload_json = json.dumps(
     start_here_landmarks(package_dir), ensure_ascii=False, separators=(",", ":")
   )
+  tunnel_json = json.dumps(
+    start_here_tunnel_routes(package_dir), ensure_ascii=False, separators=(",", ":")
+  )
   html = START_HERE_HTML.replace("__LANDMARK_PAYLOAD__", payload_json)
+  html = html.replace("__TUNNEL_PAYLOAD__", tunnel_json)
   (package_dir / "START-HERE.html").write_text(html, encoding="utf-8")
 
 
@@ -1057,6 +1117,8 @@ Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
+Der Tiergartentunnel ist als gestrichelte Untergrund-Referenzroute sichtbar;
+das ist eine öffentliche QA-Annäherung, keine vermessene Tunnelgeometrie.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
 und eine Kompasszeile machen Blickwinkel reproduzierbar. Die Tasten 1/2/3
@@ -1172,6 +1234,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "dzi_descriptor": dzi_root / "regierungsviertel.dzi",
     "reference_map": dzi_root / "reference_map.png",
     "landmarks": dzi_root / "landmarks.json",
+    "tiergartentunnel_overlay": dzi_root / "tiergartentunnel.json",
     "wikimedia_attribution": dzi_root / "wikimedia_attribution.json",
     "start_page": package_dir / "START-HERE.html",
   }
@@ -1199,6 +1262,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "atlas-cinematic-lab-visual-profiles",
       "selected-landmark-focus-ring",
       "instrument-hud",
+      "visible-tiergartentunnel-overlay",
     ],
     "required_attribution": (
       "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "

@@ -59,6 +59,24 @@ not permission to copy restricted material:
   pages, and the public `Platz der Republik` description. The open lawn
   and hedge-bosquet treatment is represented as an approximate landmark
   cue; hard geometry still comes from LoD2/OSM.
+- Carillon / HKW / TIPI context: geotagged Wikimedia Commons Carillon
+  files place the bell tower between HKW, TIPI, and the Chancellery /
+  Tiergarten band.
+- Zeugen-Jehovas-Mahnmal: 2026 public reports by Kulturstaatsminister,
+  RBB, WDR, and ALST place the new bronze memorial at or near the
+  Goldfischteich. The current point is approximate until a stable OSM /
+  Wikidata geometry exists.
+- Gedenkort fuer Polen 1939-1945: Deutsch-Polnisches Haus, Stiftung
+  Denkmal, Berlin.de, and Kulturstaatsminister sources place the
+  temporary memorial on Heinrich-von-Gagern-Strasse / former Kroll-Oper
+  grounds near Bundestag and Chancellery. Current point is approximate.
+- Tunnel Tiergarten Spreebogen: public route descriptions and portal
+  coordinates are used as an approximate underground visual centreline.
+  It is drawn as a dashed reference route, not as surveyed tunnel
+  geometry.
+- Luiseninsel / Koenigin-Luise-Denkmal: public references and coordinates
+  place it west of the current v0.1 image frame; keep as a future bounds
+  expansion candidate rather than an off-canvas marker.
 
 Commercial maps, social-media posts, official press photos, and tourism
 images without a clear free license may be inspected for orientation and
@@ -91,6 +109,14 @@ derived textures, or traced map geometry.
   sculpture QA layer, not a replacement for park polygons from OSM.
 - The Reichstag forecourt / Berlin Pavilion / Platz der Republik cues
   sit south of Scheidemannstraße and north-west of Brandenburger Tor.
+- Carillon sits between HKW / TIPI and the Chancellery/Tiergarten band.
+- Zeugen-Jehovas-Mahnmal belongs to the Goldfischteich / Venusbassin
+  cluster; it should render as a small bronze/purple-triangle cue.
+- Gedenkort fuer Polen belongs between Reichstag and Chancellery, at the
+  former Kroll-Oper / Heinrich-von-Gagern-Strasse context.
+- Tiergartentunnel should visually connect the north portals near
+  Hauptbahnhof / Minna-Cauer-Strasse through the Spreebogen and
+  Tiergarten toward Kemperplatz, then continue out of frame southward.
 
 ## Rendering Implications
 
@@ -105,5 +131,7 @@ derived textures, or traced map geometry.
   Beethoven-Haydn-Mozart-Denkmal surroundings.
 - Keep explicit render cues for TIPI, Chillida, Reichstagskuppel /
   Plenarsaal, Sinti/Roma memorial, Kanzlergarten, HKW, Max-Liebermann-
-  Haus, and Platz-der-Republik hedges small but recognizable; they
-  should orient the viewer without overriding source geometry.
+  Haus, Carillon, Zeugen-Jehovas-Mahnmal, Gedenkort fuer Polen,
+  Tiergartentunnel, and Platz-der-Republik hedges small but
+  recognizable; they should orient the viewer without overriding source
+  geometry.

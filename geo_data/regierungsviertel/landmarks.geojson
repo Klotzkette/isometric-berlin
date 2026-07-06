@@ -397,6 +397,45 @@
         "type": "Point",
         "coordinates": [13.36585, 52.51985]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Carillon im Tiergarten",
+        "role": "owner_added",
+        "tour_order": 33,
+        "source": "Wikimedia Commons geotagged Carillon Berlin Tiergarten files"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.366678, 52.517564]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mahnmal für verfolgte Zeugen Jehovas",
+        "role": "owner_added",
+        "tour_order": 34,
+        "source": "Kulturstaatsminister / RBB / ALST reports; approximate point near Goldfischteich"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.37095, 52.51428]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gedenkort für Polen 1939-1945",
+        "role": "owner_added",
+        "tour_order": 35,
+        "source": "Deutsch-Polnisches Haus / Stiftung Denkmal / Kulturstaatsminister; approximate former Kroll-Oper site"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3722, 52.51872]
+      }
     }
   ]
 }

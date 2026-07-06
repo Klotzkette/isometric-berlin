@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.44
+
+- Add Carillon im Tiergarten, Mahnmal fuer verfolgte Zeugen Jehovas, and
+  Gedenkort fuer Polen 1939-1945 as explicit QA/navigation landmarks.
+- Add `geo_data/regierungsviertel/tiergartentunnel.geojson` as an
+  approximate underground reference route and draw it as a dashed
+  under-surface Tiergartentunnel cue.
+- Expand free-license Wikimedia discovery for Carillon, Jehovah's
+  Witnesses memorial, Poland memorial, and Luiseninsel future-bound
+  reference candidates.
+- Improve deterministic render accents for the new bell tower, bronze /
+  purple memorial, boulder/apple-tree memorial, and tunnel route.
+
 ## v0.1.43
 
 - Add Kanzlergarten / Non-Violence-Skulptur as an explicit QA/navigation

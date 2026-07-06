@@ -1,0 +1,17 @@
+{
+  "routes": [
+    {
+      "name": "Tunnel Tiergarten Spreebogen / B96",
+      "role": "underground_reference_route",
+      "source": "Public route and portal-coordinate QA; approximate image overlay",
+      "points": [
+        { "x": 1793, "y": 107, "label": "Minna-Cauer-Straße" },
+        { "x": 1669, "y": 182, "label": "Invalidenstraße" },
+        { "x": 1374, "y": 340, "label": "Hauptbahnhof / Spree" },
+        { "x": 1193, "y": 492, "label": "Kanzleramt / Spreebogen" },
+        { "x": 929, "y": 694, "label": "Tiergarten" },
+        { "x": 486, "y": 921, "label": "Kemperplatz / Tiergartenstraße" }
+      ]
+    }
+  ]
+}

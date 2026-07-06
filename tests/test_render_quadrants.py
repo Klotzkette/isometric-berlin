@@ -26,6 +26,7 @@ from isometric_berlin.generation.render_quadrants import (
   landmark_icon_unit,
   landmark_kind,
   landmark_reference_id,
+  load_reference_geometries,
   load_wikimedia_material_cues,
   mix_color,
   parse_hex_color,
@@ -240,6 +241,9 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
   assert landmark_kind("Kanzlergarten / Non-Violence-Skulptur") == (
     "kanzlergarten_sculpture"
   )
+  assert landmark_kind("Carillon im Tiergarten") == "carillon"
+  assert landmark_kind("Mahnmal für verfolgte Zeugen Jehovas") == "jehovahs_memorial"
+  assert landmark_kind("Gedenkort für Polen 1939-1945") == "poland_memorial"
   assert landmark_kind("Reichstagsvorfeld / Berlin-Pavillon") == "visitor_pavilion"
   assert landmark_kind("Platz der Republik Heckenbosquets") == "forecourt_garden"
   assert landmark_kind("Gustav-Heinemann-Brücke") == "bridge"
@@ -276,6 +280,11 @@ def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
   assert landmark_reference_id("Kanzlergarten / Non-Violence-Skulptur") == (
     "kanzlergarten"
   )
+  assert landmark_reference_id("Carillon im Tiergarten") == "carillon_tiergarten"
+  assert landmark_reference_id("Mahnmal für verfolgte Zeugen Jehovas") == (
+    "jehovahs_witnesses_memorial"
+  )
+  assert landmark_reference_id("Gedenkort für Polen 1939-1945") == "poland_memorial"
   assert landmark_reference_id("Reichstagsvorfeld / Berlin-Pavillon") == (
     "reichstag_forecourt"
   )
@@ -345,6 +354,34 @@ def test_load_wikimedia_material_cues_groups_dominant_colours(tmp_path: Path) ->
     "glass",
     "glass_dark",
   }
+
+
+def test_load_reference_geometries_reads_geojson_lines(tmp_path: Path) -> None:
+  path = tmp_path / "tunnel.geojson"
+  path.write_text(
+    json.dumps(
+      {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "properties": {"name": "Tunnel"},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [[13.36763, 52.52643], [13.37071, 52.51222]],
+            },
+          }
+        ],
+      }
+    ),
+    encoding="utf-8",
+  )
+
+  routes = load_reference_geometries(path)
+
+  assert len(routes) == 1
+  assert routes.crs is not None
+  assert routes.geometry.iloc[0].geom_type == "LineString"
 
 
 def test_landmark_icon_unit_stays_visible_but_bounded() -> None:
