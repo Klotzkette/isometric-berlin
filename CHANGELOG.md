@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Improve README onboarding with a clearer download/start block, link
+  index, and grouped landmark inventory.
+- Add a documentation index at `docs/README.md`.
+- Refresh the Regierungsviertel geodata README so it lists the current
+  committed artefacts instead of stale TODO placeholders.
+- Refresh the reference-image README with links to Wikimedia credits,
+  the atlas, and the machine-readable manifest.
+
 ## v0.1.44
 
 - Add Carillon im Tiergarten, Mahnmal fuer verfolgte Zeugen Jehovas, and

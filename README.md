@@ -1,11 +1,66 @@
 # Isometric Berlin – Regierungsviertel
 
-> **Direktdownload / Local ZIP:** https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.44/isometric-berlin-regierungsviertel-local.zip
+## Download & Start
 
-> **Status:** Local v0.1.44 open-data viewer. `START-HERE.html` is the real click-to-start viewer for Mac and Windows: no Terminal, no `.command`, no Python. It now starts focused on the Bundeskanzleramt, keeps Kanzleramt/Reichstag/Hauptbahnhof visibly prioritised, uses a more granular source-render DZI by default, adds denser facade/roof micro-detail for landmark buildings, supports arrow-key pan plus Shift/rotate-mode arrow swivel controls, and keeps large zoom/rotate/swivel buttons, Pixel-Art toggle, reproducible Top/North/East/South/West presets, and an on-map compass/status line. v0.1.44 adds Carillon, Zeugen-Jehovas-Mahnmal, Gedenkort für Polen 1939-1945, and an approximate Tiergartentunnel underground reference route, expands free-license Commons/Wikimedia discovery for these details, and renders new small cues for bell tower, bronze/purple memorial, boulder/apple-tree memorial, and dashed under-surface tunnel alignment. The offline viewer still includes Atlas/Cinematic/Lab visual profiles, a technical stage grid, vignette/lighting treatment, an instrument HUD, and an animated selected-landmark focus ring. The ZIP includes a `package-manifest.json` with version, asset hashes, preferred detail image, DZI descriptor, attribution, and Google-content status. Release readiness validates the downloadable ZIP itself, including the complete DZI tile pyramid, manifest, launcher controls, keyboard swivel controls, server fallback, versioned README link, and forbidden macOS/duplicate artefacts. Google/Apple/Bing/Amap map products are used only for visual QA, not copied into committed data.
+| What | Link |
+|---|---|
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.44/isometric-berlin-regierungsviertel-local.zip |
+| Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
+| Public repository | https://github.com/Klotzkette/isometric-berlin |
+| Local start instructions | [Run locally / Lokal starten](#run-locally) |
+| Package manifest in the ZIP | `package-manifest.json` |
 
-> **Public repo / Öffentliches Repository:** https://github.com/Klotzkette/isometric-berlin  
-> **Download / Lokales Paket:** https://github.com/Klotzkette/isometric-berlin/releases/latest
+Unzip the download and double-click **`START-HERE.html`**. That is the
+main Mac/Windows start point: no Terminal, no `.command` file, no Python
+server required for the normal case. If a browser blocks local Deep Zoom
+tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
+`start-linux.sh` as fallbacks.
+
+## Current Viewer
+
+The current public package is **v0.1.44**. It is an open-data,
+offline-capable viewer for the Berlin Regierungsviertel with:
+
+- a granular source-render Deep Zoom image as default view;
+- large zoom, rotate, swivel, mirror and orientation controls;
+- mouse drag, arrow-key pan, and Shift/rotate-mode arrow swivel controls;
+- reproducible top/north/east/south/west presets;
+- Atlas, Cinematic and Lab visual profiles;
+- compass/status HUD, selected-landmark focus ring and reference-map modal;
+- visible OSM/LoD2 attribution and packaged Wikimedia attribution;
+- no committed Google, Apple, Bing, Amap, social-media or restricted-photo
+  assets. Those sources may be inspected for QA only, not copied.
+
+## Inhalt & Links
+
+| Area | What to open |
+|---|---|
+| Data policy and source ranking | [docs/data.md](docs/data.md) |
+| External map / official-site QA notes | [docs/external-geolocation-qa.md](docs/external-geolocation-qa.md) |
+| Landmark alignment report | [docs/landmark-alignment.md](docs/landmark-alignment.md) |
+| Metric precision notes | [docs/metric-precision.md](docs/metric-precision.md) |
+| Viewer and app notes | [docs/app.md](docs/app.md) |
+| Deployment and local package notes | [docs/deployment.md](docs/deployment.md) |
+| Documentation index | [docs/README.md](docs/README.md) |
+| Regierungsviertel data folder | [geo_data/regierungsviertel/README.md](geo_data/regierungsviertel/README.md) |
+| Wikimedia attribution | [references/wikimedia/README.md](references/wikimedia/README.md) |
+| Release history | [CHANGELOG.md](CHANGELOG.md) |
+
+## Landmarken im Paket
+
+The machine-readable source list is
+[`geo_data/regierungsviertel/landmarks.geojson`](geo_data/regierungsviertel/landmarks.geojson);
+the packaged viewer projection is
+[`src/app/public/dzi/regierungsviertel/landmarks.json`](src/app/public/dzi/regierungsviertel/landmarks.json).
+
+| Group | Included landmarks |
+|---|---|
+| Federal government core | Reichstagsgebäude, Bundeskanzleramt, Paul-Löbe-Haus, Marie-Elisabeth-Lüders-Haus, Reichstagsvorfeld / Berlin-Pavillon, Platz der Republik Heckenbosquets, Kanzlergarten / Non-Violence-Skulptur |
+| Hauptbahnhof / Spree / bridges | Berlin Hauptbahnhof, Humboldthafen, Hugo-Preuß-Brücke, Rahel-Hirsch-Straße, Moltkebrücke, Gustav-Heinemann-Brücke, Spreebogen, Zollpackhof |
+| Pariser Platz and diplomatic edge | Brandenburger Tor, Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
+| Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945 |
+| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
+| Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
 
 ---
 
