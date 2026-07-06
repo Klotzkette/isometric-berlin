@@ -46,6 +46,10 @@ not permission to copy restricted material:
   architecture notes for Eduardo Chillida's 5.5 m sculpture `Berlin`,
   plus Wikimedia Commons `Category:Berlin by Chillida` and related
   Commons files.
+- Kanzlerpark / Kanzlergarten: Wikimedia Commons
+  `Category:Kanzlerpark (Berlin)` and the Bundeskanzleramt architecture
+  context confirm the garden/park west of the Chancellery complex;
+  bundled output may use only files with retained free-license metadata.
 - Reichstag dome and plenary: Wikimedia Commons
   `Category:Reichstag dome`, `Category:Interior of the Reichstag dome`,
   and freely licensed Bundestag plenary-chamber views. These are used
@@ -82,6 +86,9 @@ derived textures, or traced map geometry.
   and Haus der Kulturen der Welt, south-west of the Chancellery complex.
 - The Chillida sculpture belongs to the Chancellery forecourt context,
   not the Bundestag band or Pariser Platz.
+- Kanzlergarten / Kanzlerpark sits west of the Chancellery complex
+  across the Spree context and is part of the Chancellery landscape /
+  sculpture QA layer, not a replacement for park polygons from OSM.
 - The Reichstag forecourt / Berlin Pavilion / Platz der Republik cues
   sit south of Scheidemannstraße and north-west of Brandenburger Tor.
 
@@ -97,6 +104,6 @@ derived textures, or traced map geometry.
 - Use the Venusbassin / Goldfischteich landmark as a QA marker for the
   Beethoven-Haydn-Mozart-Denkmal surroundings.
 - Keep explicit render cues for TIPI, Chillida, Reichstagskuppel /
-  Plenarsaal, Sinti/Roma memorial, and Platz-der-Republik hedges small
-  but recognizable; they should orient the viewer without overriding
-  source geometry.
+  Plenarsaal, Sinti/Roma memorial, Kanzlergarten, HKW, Max-Liebermann-
+  Haus, and Platz-der-Republik hedges small but recognizable; they
+  should orient the viewer without overriding source geometry.

@@ -282,6 +282,15 @@
       "y": 775,
       "nx": 0.584145,
       "ny": 0.506867
+    },
+    {
+      "name": "Kanzlergarten / Non-Violence-Skulptur",
+      "role": "owner_added",
+      "tourOrder": 32,
+      "x": 991,
+      "y": 381,
+      "nx": 0.459263,
+      "ny": 0.249317
     }
   ]
 }

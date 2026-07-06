@@ -43,6 +43,12 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Chillida Berlin Bundeskanzleramt",
     "Eduardo Chillida Berlin sculpture Bundeskanzleramt",
   ],
+  "kanzlergarten": [
+    "Kanzlerpark Berlin Bundeskanzleramt",
+    "Kanzlergarten Bundeskanzleramt Berlin",
+    "Non-Violence sculpture Berlin Bundeskanzleramt",
+    "Rasenstück Olympiastadion Kanzlergarten",
+  ],
   "paul_loebe_haus": [
     "Paul-Löbe-Haus Berlin exterior",
     "Paul Loebe Haus Bundestag Berlin",
@@ -87,11 +93,14 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "hkw": [
     "Haus der Kulturen der Welt Berlin exterior",
     "Kongresshalle Berlin Haus der Kulturen der Welt",
+    "Kongresshalle Berlin Spiegelbecken",
+    "Haus der Kulturen der Welt Schwangere Auster",
   ],
   "reichstag_dome_interior": [
     "Interior of the Reichstag dome",
     "Reichstag dome plenary chamber",
     "Deutscher Bundestag Plenarsaal Reichstag",
+    "Bellini Vitra chairs German Bundestag",
     "View of the Plenary Chamber from the Dome of the Reichstag",
   ],
   "reichstag_forecourt": [
@@ -169,6 +178,13 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
     "chillida",
     "bundeskanzleramt",
     "berlin-by-chillida",
+  ),
+  "kanzlergarten": (
+    "kanzlerpark",
+    "kanzlergarten",
+    "bundeskanzleramt",
+    "non-violence",
+    "rasenstuck",
   ),
   "paul_loebe_haus": ("paul-lobe", "paul-loebe", "lobe-haus", "loebe-haus"),
   "marie_elisabeth_lueders_haus": (

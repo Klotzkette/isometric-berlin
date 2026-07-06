@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.43
+
+- Add Kanzlergarten / Non-Violence-Skulptur as an explicit QA/navigation
+  landmark west of the Chancellery context.
+- Expand free-license Wikimedia discovery for Kanzlerpark/Kanzlergarten,
+  HKW/Kongresshalle, Max-Liebermann-Haus, and Reichstag dome/plenary cues.
+- Strengthen deterministic render signatures for Kanzlergarten, HKW,
+  Max-Liebermann-Haus, and the existing Reichstag/TIPI/forecourt detail layer.
+
 ## v0.1.42
 
 - Add TIPI am Kanzleramt, Eduardo-Chillida-Skulptur, Reichstagsvorfeld /

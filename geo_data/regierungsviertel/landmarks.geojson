@@ -384,6 +384,19 @@
         "type": "Point",
         "coordinates": [13.37435, 52.51745]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kanzlergarten / Non-Violence-Skulptur",
+        "role": "owner_added",
+        "tour_order": 32,
+        "source": "Wikimedia Commons Kanzlerpark / Bundeskanzleramt article; approximate Kanzlergarten point"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.36585, 52.51985]
+      }
     }
   ]
 }

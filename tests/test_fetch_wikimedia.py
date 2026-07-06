@@ -209,6 +209,7 @@ def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
     ),
     "tipi_am_kanzleramt": "File:Tipi am Kanzleramt.jpg",
     "chillida_berlin_sculpture": "File:Chillida berlin Bundeskanzleramt.jpg",
+    "kanzlergarten": "File:Bundeskanzleramt Berlin June 2007 016.jpg",
     "reichstag_dome_interior": (
       "File:View of the Plenary Chamber of the Bundestag from the Dome of "
       "the Reichstag.jpg"

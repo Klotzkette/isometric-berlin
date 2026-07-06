@@ -237,6 +237,9 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
   )
   assert landmark_kind("TIPI am Kanzleramt") == "tent"
   assert landmark_kind("Eduardo-Chillida-Skulptur Berlin") == "sculpture"
+  assert landmark_kind("Kanzlergarten / Non-Violence-Skulptur") == (
+    "kanzlergarten_sculpture"
+  )
   assert landmark_kind("Reichstagsvorfeld / Berlin-Pavillon") == "visitor_pavilion"
   assert landmark_kind("Platz der Republik Heckenbosquets") == "forecourt_garden"
   assert landmark_kind("Gustav-Heinemann-Brücke") == "bridge"
@@ -269,6 +272,9 @@ def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
   assert landmark_reference_id("TIPI am Kanzleramt") == "tipi_am_kanzleramt"
   assert landmark_reference_id("Eduardo-Chillida-Skulptur Berlin") == (
     "chillida_berlin_sculpture"
+  )
+  assert landmark_reference_id("Kanzlergarten / Non-Violence-Skulptur") == (
+    "kanzlergarten"
   )
   assert landmark_reference_id("Reichstagsvorfeld / Berlin-Pavillon") == (
     "reichstag_forecourt"

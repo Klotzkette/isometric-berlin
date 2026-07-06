@@ -58,6 +58,7 @@ GLASS_DARK = (62, 104, 121)
 CORTEN_STEEL = (139, 82, 50)
 TENT_CANVAS = (232, 218, 185)
 PLENARY_PURPLE = (104, 82, 142)
+BRONZE = (121, 88, 57)
 TUNNEL = (41, 40, 39)
 BRIDGE = (226, 224, 209)
 SURFACE_LINE = (112, 100, 86)
@@ -265,6 +266,9 @@ def landmark_reference_id(name: str) -> str | None:
     ("heckenbosquets", "reichstag_forecourt"),
     ("tipi", "tipi_am_kanzleramt"),
     ("chillida", "chillida_berlin_sculpture"),
+    ("kanzlergarten", "kanzlergarten"),
+    ("kanzlerpark", "kanzlergarten"),
+    ("non-violence", "kanzlergarten"),
     ("reichstag", "reichstag"),
     ("bundeskanzleramt", "bundeskanzleramt"),
     ("paul-lobe", "paul_loebe_haus"),
@@ -503,6 +507,8 @@ def landmark_kind(name: str) -> str | None:
     return "tent"
   if "chillida" in key:
     return "sculpture"
+  if "kanzlergarten" in key or "kanzlerpark" in key or "non-violence" in key:
+    return "kanzlergarten_sculpture"
   if "brandenburger tor" in key:
     return "gate"
   if "reichstag" in key:
@@ -707,6 +713,45 @@ def draw_landmark_accent(
       fill=mix_color(CORTEN_STEEL, MONUMENT_DARK, 0.2),
       outline=OUTLINE,
       width=1,
+    )
+    return
+
+  if kind == "kanzlergarten_sculpture":
+    x, y = point(8)
+    garden = [
+      (x - 6 * unit, y),
+      (x - 2 * unit, y - 3 * unit),
+      (x + 6 * unit, y),
+      (x + 2 * unit, y + 3 * unit),
+    ]
+    draw.polygon(garden, fill=mix_color(PARK_LIGHT, ROAD_PATH, 0.2), outline=PARK_DARK)
+    for offset in (-3, 0, 3):
+      draw.ellipse(
+        (
+          x + offset * unit - unit,
+          y - unit,
+          x + offset * unit + unit,
+          y + unit,
+        ),
+        fill=TREE_CANOPY_LIGHT,
+        outline=PARK_DARK,
+        width=1,
+      )
+    bronze_dark = mix_color(BRONZE, OUTLINE, 0.28)
+    draw.line(
+      (x - 3 * unit, y + 2 * unit, x + 3 * unit, y - 2 * unit),
+      fill=bronze_dark,
+      width=max(1, unit // 2),
+    )
+    draw.line(
+      (x + unit, y - 2 * unit, x + 4 * unit, y - 2 * unit),
+      fill=bronze_dark,
+      width=max(1, unit // 2),
+    )
+    draw.ellipse(
+      (x + 2 * unit, y - 3 * unit, x + 5 * unit, y),
+      outline=BRONZE,
+      width=max(1, unit // 3),
     )
     return
 
@@ -1633,6 +1678,74 @@ def draw_landmark_building_signature(
         outline=glass_dark,
         width=width,
       )
+    return
+
+  if reference_id == "hkw" and len(unique) >= 4:
+    center = roof_quad_point(unique, along=0.5, across=0.5)
+    shell = mix_color(palette["roof"], MONUMENT, 0.44)
+    shell_dark = mix_color(shell, OUTLINE, 0.22)
+    radius_x = max(6, width * 9)
+    radius_y = max(3, width * 5)
+    draw.arc(
+      (
+        center[0] - radius_x,
+        center[1] - radius_y,
+        center[0] + radius_x,
+        center[1] + radius_y,
+      ),
+      start=198,
+      end=342,
+      fill=shell,
+      width=max(2, width * 2),
+    )
+    draw.arc(
+      (
+        center[0] - radius_x + width,
+        center[1] - radius_y + width,
+        center[0] + radius_x - width,
+        center[1] + radius_y - width,
+      ),
+      start=205,
+      end=335,
+      fill=shell_dark,
+      width=max(1, width),
+    )
+    basin = [
+      roof_quad_point(unique, along=0.18, across=0.68),
+      roof_quad_point(unique, along=0.82, across=0.68),
+      roof_quad_point(unique, along=0.74, across=0.86),
+      roof_quad_point(unique, along=0.26, across=0.86),
+    ]
+    draw.polygon(basin, fill=mix_color(WATER, WATER_LIGHT, 0.2), outline=WATER_DARK)
+    return
+
+  if reference_id == "max_liebermann_haus":
+    cornice = mix_color(palette["wall_light"], MONUMENT, 0.34)
+    window_dark = mix_color(palette["window_dark"], OUTLINE, 0.16)
+    for wall in walls[:4]:
+      draw_wall_panel(
+        draw,
+        wall,
+        left=0.08,
+        right=0.92,
+        bottom=0.76,
+        top=0.84,
+        fill=cornice,
+        outline=window_dark,
+        width=width,
+      )
+      for left in (0.18, 0.38, 0.58, 0.78):
+        draw_wall_panel(
+          draw,
+          wall,
+          left=left,
+          right=min(left + 0.08, 0.9),
+          bottom=0.24,
+          top=0.66,
+          fill=mix_color(palette["wall_light"], palette["window"], 0.18),
+          outline=window_dark,
+          width=width,
+        )
     return
 
   if reference_id == "hauptbahnhof" and len(unique) >= 4:
