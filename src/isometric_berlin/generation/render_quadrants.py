@@ -55,6 +55,9 @@ MONUMENT = (219, 199, 164)
 MONUMENT_DARK = (124, 96, 77)
 GLASS = (111, 164, 181)
 GLASS_DARK = (62, 104, 121)
+CORTEN_STEEL = (139, 82, 50)
+TENT_CANVAS = (232, 218, 185)
+PLENARY_PURPLE = (104, 82, 142)
 TUNNEL = (41, 40, 39)
 BRIDGE = (226, 224, 209)
 SURFACE_LINE = (112, 100, 86)
@@ -256,6 +259,12 @@ def colour_luma(color: tuple[int, int, int]) -> float:
 def landmark_reference_id(name: str) -> str | None:
   key = normalized_text(name)
   explicit = (
+    ("reichstagsvorfeld", "reichstag_forecourt"),
+    ("berlin-pavillon", "reichstag_forecourt"),
+    ("platz der republik", "reichstag_forecourt"),
+    ("heckenbosquets", "reichstag_forecourt"),
+    ("tipi", "tipi_am_kanzleramt"),
+    ("chillida", "chillida_berlin_sculpture"),
     ("reichstag", "reichstag"),
     ("bundeskanzleramt", "bundeskanzleramt"),
     ("paul-lobe", "paul_loebe_haus"),
@@ -486,6 +495,14 @@ def rail_style(
 def landmark_kind(name: str) -> str | None:
   """Map required landmark names to explicit visual accent types."""
   key = normalized_text(name)
+  if "reichstagsvorfeld" in key or "berlin-pavillon" in key:
+    return "visitor_pavilion"
+  if "platz der republik" in key or "heckenbosquets" in key:
+    return "forecourt_garden"
+  if "tipi" in key:
+    return "tent"
+  if "chillida" in key:
+    return "sculpture"
   if "brandenburger tor" in key:
     return "gate"
   if "reichstag" in key:
@@ -510,12 +527,13 @@ def landmark_kind(name: str) -> str | None:
     return "memorial_field"
   if (
     "verfolgten homosexuellen" in key
-    or "sinti und roma" in key
     or "goethe" in key
     or "beethoven-haydn-mozart" in key
     or "sowjetisches ehrenmal" in key
   ):
     return "monument_marker"
+  if "sinti und roma" in key:
+    return "sinti_roma_memorial"
   if "goldfischteich" in key or "venusbassin" in key or "venusbecken" in key:
     return "pond_reference"
   if "pariser platz" in key:
@@ -642,6 +660,56 @@ def draw_landmark_accent(
     )
     return
 
+  if kind == "tent":
+    x, y = point(18)
+    draw.ellipse(
+      (x - 7 * unit, y + 2 * unit, x + 7 * unit, y + 5 * unit),
+      fill=mix_color(ROAD, OUTLINE, 0.12),
+    )
+    canopy = [
+      (x - 8 * unit, y + 2 * unit),
+      (x, y - 6 * unit),
+      (x + 8 * unit, y + 2 * unit),
+      (x + 3 * unit, y + 5 * unit),
+      (x - 4 * unit, y + 5 * unit),
+    ]
+    draw.polygon(canopy, fill=TENT_CANVAS, outline=OUTLINE)
+    for offset in (-5, -2, 2, 5):
+      draw.line(
+        (x + offset * unit, y + 3 * unit, x, y - 5 * unit),
+        fill=mix_color(TENT_CANVAS, MONUMENT_DARK, 0.38),
+        width=max(1, unit // 5),
+      )
+    draw.line((x, y - 6 * unit, x, y + 5 * unit), fill=OUTLINE, width=1)
+    return
+
+  if kind == "sculpture":
+    x, y = point(12)
+    draw.ellipse(
+      (x - 5 * unit, y + 2 * unit, x + 5 * unit, y + 4 * unit),
+      fill=mix_color(ROAD, OUTLINE, 0.15),
+    )
+    steel_dark = mix_color(CORTEN_STEEL, OUTLINE, 0.24)
+    draw.line(
+      (x - 4 * unit, y + 3 * unit, x - unit, y - 5 * unit, x + unit, y),
+      fill=steel_dark,
+      width=max(2, unit),
+      joint="curve",
+    )
+    draw.line(
+      (x + 4 * unit, y + 3 * unit, x + unit, y - 5 * unit, x - unit, y),
+      fill=CORTEN_STEEL,
+      width=max(2, unit),
+      joint="curve",
+    )
+    draw.rectangle(
+      (x - unit, y - unit, x + unit, y + 4 * unit),
+      fill=mix_color(CORTEN_STEEL, MONUMENT_DARK, 0.2),
+      outline=OUTLINE,
+      width=1,
+    )
+    return
+
   if kind == "chancellery":
     x, y = point(34)
     draw.rectangle(
@@ -729,6 +797,28 @@ def draw_landmark_accent(
         )
     return
 
+  if kind == "sinti_roma_memorial":
+    x, y = point(3)
+    basin = mix_color(WATER_DARK, OUTLINE, 0.2)
+    draw.ellipse(
+      (x - 5 * unit, y - 3 * unit, x + 5 * unit, y + 3 * unit),
+      fill=basin,
+      outline=MONUMENT_DARK,
+      width=max(1, unit // 4),
+    )
+    draw.ellipse(
+      (x - 3 * unit, y - 2 * unit, x + 3 * unit, y + 2 * unit),
+      fill=mix_color(WATER, OUTLINE, 0.3),
+      outline=WATER_LIGHT,
+      width=1,
+    )
+    draw.polygon(
+      [(x, y - 2 * unit), (x + unit, y), (x - unit, y)],
+      fill=MONUMENT,
+      outline=OUTLINE,
+    )
+    return
+
   if kind == "monument_marker":
     x, y = point(10)
     draw.rectangle(
@@ -765,6 +855,58 @@ def draw_landmark_accent(
       draw.line(
         (x - 4 * unit, y + offset * unit, x + 4 * unit, y + offset * unit),
         fill=ROAD_EDGE,
+        width=1,
+      )
+    return
+
+  if kind == "visitor_pavilion":
+    x, y = point(9)
+    base = [
+      (x - 6 * unit, y + unit),
+      (x - 2 * unit, y - unit),
+      (x + 6 * unit, y + unit),
+      (x + 2 * unit, y + 3 * unit),
+    ]
+    roof = [(px, py - 3 * unit) for px, py in base]
+    draw.polygon(base, fill=mix_color(ROAD, OUTLINE, 0.08), outline=OUTLINE)
+    draw.polygon(roof, fill=building_hero, outline=OUTLINE)
+    draw.line(
+      (x - 5 * unit, y - 2 * unit, x + 5 * unit, y - 2 * unit),
+      fill=glass_dark,
+      width=max(1, unit // 4),
+    )
+    draw.rectangle(
+      (x - 2 * unit, y - unit, x + 2 * unit, y + 2 * unit),
+      fill=glass,
+      outline=glass_dark,
+      width=1,
+    )
+    return
+
+  if kind == "forecourt_garden":
+    x, y = point(4)
+    paving = mix_color(ROAD_MAJOR, MONUMENT, 0.18)
+    hedge = mix_color(PARK_DARK, OUTLINE, 0.08)
+    draw.polygon(
+      [
+        (x - 7 * unit, y),
+        (x, y - 4 * unit),
+        (x + 7 * unit, y),
+        (x, y + 4 * unit),
+      ],
+      fill=paving,
+      outline=ROAD_EDGE,
+    )
+    for idx, offset in enumerate((-4, -1, 2, 5)):
+      draw.rectangle(
+        (
+          x + offset * unit - unit,
+          y - (2 + idx % 2) * unit,
+          x + offset * unit + unit,
+          y + (1 + idx % 2) * unit,
+        ),
+        fill=hedge,
+        outline=PARK_DARK,
         width=1,
       )
     return
@@ -1381,6 +1523,80 @@ def draw_landmark_building_signature(
   width = max(1, outline_width)
   glass = mix_color(palette["window"], palette["wall_light"], 0.32)
   glass_dark = mix_color(palette["window_dark"], GLASS_DARK, 0.28)
+  if reference_id == "reichstag" and len(unique) >= 4:
+    center = roof_quad_point(unique, along=0.5, across=0.5)
+    dome_rx = max(5, width * 7)
+    dome_ry = max(3, width * 4)
+    plenary = [
+      roof_quad_point(unique, along=0.37, across=0.42),
+      roof_quad_point(unique, along=0.63, across=0.42),
+      roof_quad_point(unique, along=0.66, across=0.58),
+      roof_quad_point(unique, along=0.34, across=0.58),
+    ]
+    draw.polygon(
+      plenary,
+      fill=mix_color(PLENARY_PURPLE, palette["roof"], 0.16),
+      outline=mix_color(PLENARY_PURPLE, OUTLINE, 0.18),
+    )
+    for seat_row in (0.43, 0.48, 0.53, 0.58):
+      draw.line(
+        (
+          roof_quad_point(unique, along=0.39, across=seat_row),
+          roof_quad_point(unique, along=0.61, across=seat_row),
+        ),
+        fill=mix_color(PLENARY_PURPLE, (235, 225, 245), 0.34),
+        width=max(1, width),
+      )
+    draw.ellipse(
+      (
+        center[0] - dome_rx,
+        center[1] - dome_ry,
+        center[0] + dome_rx,
+        center[1] + dome_ry,
+      ),
+      fill=glass,
+      outline=glass_dark,
+      width=max(1, width + 1),
+    )
+    draw.arc(
+      (
+        center[0] - dome_rx - width,
+        center[1] - dome_ry - width,
+        center[0] + dome_rx + width,
+        center[1] + dome_ry + width,
+      ),
+      start=200,
+      end=340,
+      fill=mix_color(glass_dark, OUTLINE, 0.18),
+      width=max(1, width),
+    )
+    for across in (0.25, 0.38, 0.5, 0.62, 0.75):
+      rib_top = (center[0] + round((across - 0.5) * dome_rx * 1.6), center[1] - dome_ry)
+      rib_bottom = (
+        center[0] + round((across - 0.5) * dome_rx * 1.9),
+        center[1] + dome_ry,
+      )
+      draw.line((rib_top, rib_bottom), fill=glass_dark, width=max(1, width))
+    cone = [
+      (center[0], center[1] - dome_ry + width),
+      (center[0] + 2 * width, center[1] + dome_ry - width),
+      (center[0] - 2 * width, center[1] + dome_ry - width),
+    ]
+    draw.polygon(cone, fill=mix_color(glass, (245, 242, 225), 0.48), outline=glass_dark)
+    for wall in walls[:4]:
+      draw_wall_panel(
+        draw,
+        wall,
+        left=0.14,
+        right=0.86,
+        bottom=0.72,
+        top=0.82,
+        fill=mix_color(palette["wall_light"], MONUMENT, 0.28),
+        outline=mix_color(palette["wall_dark"], OUTLINE, 0.18),
+        width=width,
+      )
+    return
+
   if reference_id == "bundeskanzleramt":
     if len(unique) >= 4:
       for across in (0.36, 0.5, 0.64):

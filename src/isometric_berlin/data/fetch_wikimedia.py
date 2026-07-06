@@ -34,6 +34,15 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Bundeskanzleramt Berlin exterior",
     "Berlin Bundeskanzleramt Spreebogen exterior",
   ],
+  "tipi_am_kanzleramt": [
+    "Tipi am Kanzleramt Berlin",
+    "Tiergarten Große Querallee Tipi am Kanzleramt",
+  ],
+  "chillida_berlin_sculpture": [
+    "Berlin by Chillida Bundeskanzleramt",
+    "Chillida Berlin Bundeskanzleramt",
+    "Eduardo Chillida Berlin sculpture Bundeskanzleramt",
+  ],
   "paul_loebe_haus": [
     "Paul-Löbe-Haus Berlin exterior",
     "Paul Loebe Haus Bundestag Berlin",
@@ -78,6 +87,17 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "hkw": [
     "Haus der Kulturen der Welt Berlin exterior",
     "Kongresshalle Berlin Haus der Kulturen der Welt",
+  ],
+  "reichstag_dome_interior": [
+    "Interior of the Reichstag dome",
+    "Reichstag dome plenary chamber",
+    "Deutscher Bundestag Plenarsaal Reichstag",
+    "View of the Plenary Chamber from the Dome of the Reichstag",
+  ],
+  "reichstag_forecourt": [
+    "Platz der Republik Reichstag",
+    "Reichstag Platz der Republik Heckenbosquets",
+    "Berlin Pavilion Scheidemannstraße Reichstag",
   ],
   "brandenburger_tor": [
     "Brandenburger Tor Berlin Pariser Platz",
@@ -144,6 +164,12 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
 REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
   "reichstag": ("reichstag", "reichstags"),
   "bundeskanzleramt": ("bundeskanzleramt", "kanzler"),
+  "tipi_am_kanzleramt": ("tipi-am-kanzleramt", "tipi"),
+  "chillida_berlin_sculpture": (
+    "chillida",
+    "bundeskanzleramt",
+    "berlin-by-chillida",
+  ),
   "paul_loebe_haus": ("paul-lobe", "paul-loebe", "lobe-haus", "loebe-haus"),
   "marie_elisabeth_lueders_haus": (
     "marie-elisabeth",
@@ -158,6 +184,19 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
   "hugo_preuss_bruecke": ("hugo-preuss",),
   "moltkebruecke": ("moltkebrucke", "moltke-brucke", "moltke"),
   "hkw": ("haus-der-kulturen", "kulturen-der-welt", "kongresshalle", "hkdw", "hkw"),
+  "reichstag_dome_interior": (
+    "reichstag-dome",
+    "interior-of-the-reichstag-dome",
+    "plenary-chamber",
+    "plenarsaal",
+    "bundestag-plenarsaal",
+  ),
+  "reichstag_forecourt": (
+    "platz-der-republik",
+    "reichstag",
+    "berlin-pavilion",
+    "scheidemann",
+  ),
   "brandenburger_tor": ("brandenburger",),
   "pariser_platz": ("pariser-platz",),
   "max_liebermann_haus": (
@@ -248,6 +287,9 @@ EXCLUDED_TITLE_TERMS = (
   "wreath",
   "wannsee",
 )
+TITLE_EXCLUSION_ALLOWLIST: dict[str, tuple[str, ...]] = {
+  "reichstag_dome_interior": ("interior", "innen"),
+}
 HISTORIC_YEAR_RE = re.compile(r"(?<!\d)(?:18|19)\d{2}(?!\d)")
 
 
@@ -380,7 +422,10 @@ def slugify(value: str) -> str:
 
 def title_suitable(landmark_id: str, title: str) -> bool:
   key = slugify(title)
-  if any(term in key for term in EXCLUDED_TITLE_TERMS):
+  allowed_exclusions = TITLE_EXCLUSION_ALLOWLIST.get(landmark_id, ())
+  if any(
+    term in key for term in EXCLUDED_TITLE_TERMS if term not in allowed_exclusions
+  ):
     return False
   if HISTORIC_YEAR_RE.search(title):
     return False

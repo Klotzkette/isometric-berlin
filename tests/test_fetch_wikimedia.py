@@ -207,6 +207,13 @@ def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
     "venusteich_goldfischteich": (
       "File:Goldfischteich (Großer Tiergarten) - Berlin, Germany - DSC09426.JPG"
     ),
+    "tipi_am_kanzleramt": "File:Tipi am Kanzleramt.jpg",
+    "chillida_berlin_sculpture": "File:Chillida berlin Bundeskanzleramt.jpg",
+    "reichstag_dome_interior": (
+      "File:View of the Plenary Chamber of the Bundestag from the Dome of "
+      "the Reichstag.jpg"
+    ),
+    "reichstag_forecourt": "File:Platz der Republik Reichstag 2023.jpg",
     "soviet_war_memorial_tiergarten": (
       "File:Sowjetisches Ehrenmal Tiergarten Berlin.jpg"
     ),

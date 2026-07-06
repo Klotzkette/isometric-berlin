@@ -235,6 +235,10 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
   assert landmark_kind("Haus der Kulturen der Welt (Schwangere Auster)") == (
     "curved_roof"
   )
+  assert landmark_kind("TIPI am Kanzleramt") == "tent"
+  assert landmark_kind("Eduardo-Chillida-Skulptur Berlin") == "sculpture"
+  assert landmark_kind("Reichstagsvorfeld / Berlin-Pavillon") == "visitor_pavilion"
+  assert landmark_kind("Platz der Republik Heckenbosquets") == "forecourt_garden"
   assert landmark_kind("Gustav-Heinemann-Brücke") == "bridge"
   assert landmark_kind("Hugo-Preuß-Brücke") == "bridge"
   assert landmark_kind("Moltkebrücke") == "bridge"
@@ -242,6 +246,12 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
     "embassy_block"
   )
   assert landmark_kind("Denkmal für die ermordeten Juden Europas") == ("memorial_field")
+  assert (
+    landmark_kind(
+      "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas"
+    )
+    == "sinti_roma_memorial"
+  )
   assert landmark_kind("Pariser Platz") == "urban_square"
   assert landmark_kind("Großer Tiergarten") == "park_reference"
   assert landmark_kind("Venusbassin / Goldfischteich") == "pond_reference"
@@ -256,6 +266,16 @@ def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
   assert landmark_reference_id("Reichstagsgebäude") == "reichstag"
   assert landmark_reference_id("Berlin Hauptbahnhof") == "hauptbahnhof"
   assert landmark_reference_id("Bundeskanzleramt") == "bundeskanzleramt"
+  assert landmark_reference_id("TIPI am Kanzleramt") == "tipi_am_kanzleramt"
+  assert landmark_reference_id("Eduardo-Chillida-Skulptur Berlin") == (
+    "chillida_berlin_sculpture"
+  )
+  assert landmark_reference_id("Reichstagsvorfeld / Berlin-Pavillon") == (
+    "reichstag_forecourt"
+  )
+  assert landmark_reference_id("Platz der Republik Heckenbosquets") == (
+    "reichstag_forecourt"
+  )
   assert landmark_reference_id("Paul-Löbe-Haus") == "paul_loebe_haus"
   assert landmark_reference_id("Marie-Elisabeth-Lüders-Haus") == (
     "marie_elisabeth_lueders_haus"

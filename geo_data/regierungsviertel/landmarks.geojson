@@ -332,6 +332,58 @@
         "type": "Point",
         "coordinates": [13.3698, 52.5208]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "TIPI am Kanzleramt",
+        "role": "owner_added",
+        "tour_order": 28,
+        "source": "Wikimedia Commons object location and official TIPI address"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.367084, 52.518362]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Eduardo-Chillida-Skulptur Berlin",
+        "role": "owner_added",
+        "tour_order": 29,
+        "source": "Berlin.de / Bundesregierung / Wikimedia Commons; approximate Chancellery forecourt point"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.36945, 52.51955]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Reichstagsvorfeld / Berlin-Pavillon",
+        "role": "owner_added",
+        "tour_order": 30,
+        "source": "Bundestag visitor-service and Berlin.de QA; approximate Scheidemannstraße south-side point"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.376, 52.5171]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Platz der Republik Heckenbosquets",
+        "role": "owner_added",
+        "tour_order": 31,
+        "source": "Platz der Republik public map/Wikipedia QA; approximate lawn and hedge-bosquet point"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.37435, 52.51745]
+      }
     }
   ]
 }

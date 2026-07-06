@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.42
+
+- Add TIPI am Kanzleramt, Eduardo-Chillida-Skulptur, Reichstagsvorfeld /
+  Berlin-Pavillon, and Platz der Republik Heckenbosquets as explicit
+  Regierungsviertel QA/navigation landmarks in the local viewer.
+- Expand free-license Wikimedia discovery for TIPI, Chillida, Reichstag
+  dome/plenary, and Reichstag forecourt references while keeping the
+  no-copy rule for commercial maps, official photos, and social media.
+- Improve the deterministic source renderer with recognizable TIPI,
+  Chillida, Reichstagskuppel/plenary, Sinti/Roma memorial, Berlin-Pavillon,
+  and hedge-bosquet accent cues.
+
 ## v0.1.41
 
 - Upgrade the offline `START-HERE.html` presentation with a more polished

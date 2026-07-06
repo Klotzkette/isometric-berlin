@@ -246,6 +246,42 @@
       "y": 460,
       "nx": 0.617988,
       "ny": 0.30085
+    },
+    {
+      "name": "TIPI am Kanzleramt",
+      "role": "owner_added",
+      "tourOrder": 28,
+      "x": 910,
+      "y": 496,
+      "nx": 0.421882,
+      "ny": 0.324395
+    },
+    {
+      "name": "Eduardo-Chillida-Skulptur Berlin",
+      "role": "owner_added",
+      "tourOrder": 29,
+      "x": 1180,
+      "y": 512,
+      "nx": 0.547056,
+      "ny": 0.334859
+    },
+    {
+      "name": "Reichstagsvorfeld / Berlin-Pavillon",
+      "role": "owner_added",
+      "tourOrder": 30,
+      "x": 1324,
+      "y": 845,
+      "nx": 0.613815,
+      "ny": 0.552649
+    },
+    {
+      "name": "Platz der Republik Heckenbosquets",
+      "role": "owner_added",
+      "tourOrder": 31,
+      "x": 1260,
+      "y": 775,
+      "nx": 0.584145,
+      "ny": 0.506867
     }
   ]
 }

@@ -33,6 +33,34 @@ per-file attribution.
 - Google Maps, Apple Maps, Bing Maps, and Amap/Alibaba search/map views
   only as no-copy cross-checks for north/south/east/west relationships.
 
+## July 2026 Expanded Landmark Sweep
+
+Additional source candidates were checked for the owner-requested
+Reichstag / Kanzleramt details. These are additive QA/reference leads,
+not permission to copy restricted material:
+
+- TIPI am Kanzleramt: official TIPI address (`Große Querallee, 10557
+  Berlin`), visitBerlin context, and Wikimedia Commons
+  `File:Tipi am Kanzleramt.jpg` / `Category:Tipi am Kanzleramt`.
+- Bundeskanzleramt forecourt art: Berlin.de and Bundesregierung
+  architecture notes for Eduardo Chillida's 5.5 m sculpture `Berlin`,
+  plus Wikimedia Commons `Category:Berlin by Chillida` and related
+  Commons files.
+- Reichstag dome and plenary: Wikimedia Commons
+  `Category:Reichstag dome`, `Category:Interior of the Reichstag dome`,
+  and freely licensed Bundestag plenary-chamber views. These are used
+  only as visual-reference search targets unless each selected file has
+  acceptable license and attribution metadata.
+- Reichstag forecourt: Bundestag visitor-service notes, Berlin.de QA
+  pages, and the public `Platz der Republik` description. The open lawn
+  and hedge-bosquet treatment is represented as an approximate landmark
+  cue; hard geometry still comes from LoD2/OSM.
+
+Commercial maps, social-media posts, official press photos, and tourism
+images without a clear free license may be inspected for orientation and
+visual plausibility only. Do not commit those images, screenshots,
+derived textures, or traced map geometry.
+
 ## Placement Conclusions
 
 - Berlin Hauptbahnhof is the northern anchor of the v0.1 scene.
@@ -50,6 +78,12 @@ per-file attribution.
   the Goldfischteich / Venusbassin area; Goethe-Denkmal is farther east,
   and the Soviet War Memorial is north of those park features on Straße
   des 17. Juni.
+- TIPI am Kanzleramt sits in the Tiergarten band between the Chancellery
+  and Haus der Kulturen der Welt, south-west of the Chancellery complex.
+- The Chillida sculpture belongs to the Chancellery forecourt context,
+  not the Bundestag band or Pariser Platz.
+- The Reichstag forecourt / Berlin Pavilion / Platz der Republik cues
+  sit south of Scheidemannstraße and north-west of Brandenburger Tor.
 
 ## Rendering Implications
 
@@ -62,3 +96,7 @@ per-file attribution.
   texture, and water ripples on Spree/pond polygons.
 - Use the Venusbassin / Goldfischteich landmark as a QA marker for the
   Beethoven-Haydn-Mozart-Denkmal surroundings.
+- Keep explicit render cues for TIPI, Chillida, Reichstagskuppel /
+  Plenarsaal, Sinti/Roma memorial, and Platz-der-Republik hedges small
+  but recognizable; they should orient the viewer without overriding
+  source geometry.
