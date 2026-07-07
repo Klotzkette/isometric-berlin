@@ -1,7 +1,12 @@
 # Changelog
 
-## Unreleased
+## v0.1.45
 
+- Add animation-frame render throttling, robust pointer-end handling, and
+  resize debounce to the offline `START-HERE.html` launcher so mouse drag,
+  wheel zoom, swivel and resizing stay responsive.
+- Harden release readiness so future ZIPs must include the anti-freeze
+  launcher logic as well as the Tiergartentunnel overlay.
 - Improve README onboarding with a clearer download/start block, link
   index, and grouped landmark inventory.
 - Add a documentation index at `docs/README.md`.
@@ -9,8 +14,10 @@
   committed artefacts instead of stale TODO placeholders.
 - Refresh the reference-image README with links to Wikimedia credits,
   the atlas, and the machine-readable manifest.
-- Restore the README `Local v0.1.44` status phrase expected by release
+- Keep the README `Local v...` status phrase aligned with release
   readiness and require the Tiergartentunnel overlay in release checks.
+- Rebuild the local Mac/Windows/Linux ZIP and update download links to
+  v0.1.45.
 
 ## v0.1.44
 

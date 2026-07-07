@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.44"
+PACKAGE_VERSION = "0.1.45"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -660,7 +660,9 @@ START_HERE_HTML = """<!doctype html>
     };
     document.body.dataset.profile = state.profile;
 
-    function render() {
+    let renderQueued = false;
+    let resizeTimer = 0;
+    function applyRender() {
       layer.style.width = `${image.width}px`;
       layer.style.height = `${image.height}px`;
       layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale})`;
@@ -686,6 +688,14 @@ START_HERE_HTML = """<!doctype html>
       document.querySelectorAll("[data-landmark-index]").forEach((node) => {
         const index = Number(node.dataset.landmarkIndex);
         node.classList.toggle("active", landmarks[index]?.name === selectedLandmarkName);
+      });
+    }
+    function render() {
+      if (renderQueued) return;
+      renderQueued = true;
+      window.requestAnimationFrame(() => {
+        renderQueued = false;
+        applyRender();
       });
     }
     function setMode(mode) {
@@ -835,8 +845,13 @@ START_HERE_HTML = """<!doctype html>
       }
       render();
     });
-    stage.addEventListener("pointerup", () => { state.dragging = false; });
-    stage.addEventListener("pointercancel", () => { state.dragging = false; });
+    function endPointerDrag() {
+      state.dragging = false;
+      state.rotateDrag = false;
+    }
+    stage.addEventListener("pointerup", endPointerDrag);
+    stage.addEventListener("pointercancel", endPointerDrag);
+    stage.addEventListener("lostpointercapture", endPointerDrag);
     stage.addEventListener("contextmenu", (event) => event.preventDefault());
     stage.addEventListener("wheel", (event) => {
       event.preventDefault();
@@ -895,7 +910,10 @@ START_HERE_HTML = """<!doctype html>
       if (event.key === "2") setProfile("cinematic");
       if (event.key === "3") setProfile("lab");
     });
-    window.addEventListener("resize", fit);
+    window.addEventListener("resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(fit, 80);
+    });
     addTunnelRoutes();
     addMarkers();
     fit();

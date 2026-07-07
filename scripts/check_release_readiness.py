@@ -136,6 +136,18 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     failures.append(f"Package HTML launcher lacks reproducible view presets: {label}")
   if "tunnel-overlay" not in start_here_text or "tunnelPayload" not in start_here_text:
     failures.append(f"Package HTML launcher lacks Tiergartentunnel overlay: {label}")
+  if (
+    "requestAnimationFrame" not in start_here_text
+    or "renderQueued" not in start_here_text
+    or "lostpointercapture" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks anti-freeze render throttling: {label}"
+    )
+  if (
+    "resizeTimer" not in start_here_text or "setTimeout(fit, 80)" not in start_here_text
+  ):
+    failures.append(f"Package HTML launcher lacks resize debounce: {label}")
   return failures
 
 
