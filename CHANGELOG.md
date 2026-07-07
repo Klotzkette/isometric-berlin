@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.46
+
+- Add `scripts/smoke_local_package.py`, an end-to-end HTTP smoke test for
+  the unzipped local package. It starts `serve-local.py`, verifies
+  `START-HERE.html`, manifest version, DZI descriptor, a DZI JPEG tile,
+  landmark payload, and the Tiergartentunnel overlay.
+- Rebuild the Mac/Windows/Linux ZIP and update README/version metadata to
+  v0.1.46.
+
 ## v0.1.45
 
 - Add animation-frame render throttling, robust pointer-end handling, and

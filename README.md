@@ -4,7 +4,7 @@
 
 | What | Link |
 |---|---|
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.45/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.46/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -16,11 +16,11 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.45 open-data package.
+**Status:** Local v0.1.46 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.45**. It is an open-data,
+The current public package is **v0.1.46**. It is an open-data,
 offline-capable viewer for the Berlin Regierungsviertel with:
 
 - a granular source-render Deep Zoom image as default view;
@@ -45,6 +45,7 @@ offline-capable viewer for the Berlin Regierungsviertel with:
 | Metric precision notes | [docs/metric-precision.md](docs/metric-precision.md) |
 | Viewer and app notes | [docs/app.md](docs/app.md) |
 | Deployment and local package notes | [docs/deployment.md](docs/deployment.md) |
+| Local package smoke test | [scripts/smoke_local_package.py](scripts/smoke_local_package.py) |
 | Documentation index | [docs/README.md](docs/README.md) |
 | Regierungsviertel data folder | [geo_data/regierungsviertel/README.md](geo_data/regierungsviertel/README.md) |
 | Wikimedia attribution | [references/wikimedia/README.md](references/wikimedia/README.md) |
