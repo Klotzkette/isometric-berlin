@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.49"
+PACKAGE_VERSION = "0.1.50"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -162,6 +162,11 @@ START_HERE_HTML = """<!doctype html>
       --stage-bg: #0b1719;
       --grid-opacity: .34;
     }
+    body[data-under="true"] {
+      --map-filter: contrast(.9) saturate(.72) brightness(.72);
+      --stage-bg: #070b0c;
+      --grid-opacity: .46;
+    }
     .shell {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 336px;
@@ -211,6 +216,7 @@ START_HERE_HTML = """<!doctype html>
       width: 2157px;
       height: 1529px;
       transform-origin: 50% 50%;
+      transform-style: preserve-3d;
       will-change: transform;
       z-index: 0;
       filter: var(--map-shadow);
@@ -224,6 +230,10 @@ START_HERE_HTML = """<!doctype html>
       filter: var(--map-filter);
       transition: filter .18s ease;
     }
+    body[data-under="true"] .map-image {
+      opacity: .38;
+      filter: var(--map-filter);
+    }
     .map-image.pixelated { image-rendering: pixelated; }
     .tunnel-overlay {
       position: absolute;
@@ -234,11 +244,25 @@ START_HERE_HTML = """<!doctype html>
       pointer-events: none;
       overflow: visible;
     }
+    body[data-under="true"] .tunnel-overlay {
+      filter: drop-shadow(0 0 18px rgba(247, 215, 122, .42));
+    }
+    .tunnel-under-glow {
+      fill: none;
+      stroke: rgba(247, 215, 122, .15);
+      stroke-width: 92;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
     .tunnel-volume {
       fill: rgba(31, 34, 36, .43);
       stroke: rgba(247, 215, 122, .26);
       stroke-width: 2;
       filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .34));
+    }
+    body[data-under="true"] .tunnel-volume {
+      fill: rgba(17, 21, 22, .78);
+      stroke: rgba(247, 215, 122, .56);
     }
     .tunnel-floor {
       fill: none;
@@ -247,6 +271,38 @@ START_HERE_HTML = """<!doctype html>
       stroke-linecap: round;
       stroke-linejoin: round;
       stroke-dasharray: 18 24;
+    }
+    .tunnel-lane {
+      fill: none;
+      stroke: rgba(242, 235, 201, .64);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 12 16;
+    }
+    .tunnel-ceiling-rib {
+      stroke: rgba(223, 232, 229, .72);
+      stroke-width: 3;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 5px rgba(247, 215, 122, .38));
+    }
+    .tunnel-service-bay {
+      fill: rgba(55, 62, 63, .92);
+      stroke: #f7d77a;
+      stroke-width: 2;
+      filter: drop-shadow(0 4px 9px rgba(0, 0, 0, .42));
+    }
+    .tunnel-service-link {
+      stroke: rgba(247, 215, 122, .58);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 6 8;
+    }
+    .tunnel-portal-ring {
+      fill: rgba(9, 12, 12, .82);
+      stroke: #f7d77a;
+      stroke-width: 4;
+      filter: drop-shadow(0 5px 12px rgba(0, 0, 0, .45));
     }
     .tunnel-sidewall {
       fill: none;
@@ -624,6 +680,8 @@ START_HERE_HTML = """<!doctype html>
         <button type="button" id="rotate-right">↷</button>
         <button type="button" id="tilt-left">Swivel ◀</button>
         <button type="button" id="tilt-right">Swivel ▶</button>
+        <button type="button" id="under-view" class="half">Unterseite</button>
+        <button type="button" id="tunnel-focus" class="half">Tunnel-Fokus</button>
         <button type="button" id="quality" class="half">Pixel-Art</button>
         <button type="button" id="reset" class="half">Reset</button>
         <div class="profile-controls wide" aria-label="Grafikprofil">
@@ -672,6 +730,7 @@ START_HERE_HTML = """<!doctype html>
     const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
+    const underButton = document.getElementById("under-view");
     const compass = document.getElementById("compass");
     const focusRing = document.getElementById("focus-ring");
     const hudTarget = document.getElementById("hud-target");
@@ -708,6 +767,7 @@ START_HERE_HTML = """<!doctype html>
       y: 0,
       rotation: 0,
       tilt: 0,
+      under: false,
       dragging: false,
       rotateDrag: false,
       sx: 0,
@@ -720,17 +780,22 @@ START_HERE_HTML = """<!doctype html>
       profile: "atlas",
     };
     document.body.dataset.profile = state.profile;
+    document.body.dataset.under = "false";
 
     let renderQueued = false;
     let resizeTimer = 0;
+    function displayY(y) {
+      return state.under ? image.height - y : y;
+    }
     function applyRender() {
       layer.style.width = `${image.width}px`;
       layer.style.height = `${image.height}px`;
-      layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale})`;
+      layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale}) scaleY(${state.under ? -1 : 1})`;
       const rotation = Math.round(((state.rotation % 360) + 360) % 360);
       const viewName = VIEW_PRESETS[state.viewKey]?.label || "Frei";
       const selected = landmarks.find((landmark) => landmark.name === selectedLandmarkName) || landmarks[0];
-      compass.textContent = `${viewName} · ${rotation}° · Swivel ${Math.round(state.tilt)}° · ${selected?.name || "Landmarke"}`;
+      const underText = state.under ? " · Unterseite" : "";
+      compass.textContent = `${viewName}${underText} · ${rotation}° · Swivel ${Math.round(state.tilt)}° · ${selected?.name || "Landmarke"}`;
       if (selected) {
         focusRing.style.left = `${selected.x}px`;
         focusRing.style.top = `${selected.y}px`;
@@ -750,6 +815,8 @@ START_HERE_HTML = """<!doctype html>
         const index = Number(node.dataset.landmarkIndex);
         node.classList.toggle("active", landmarks[index]?.name === selectedLandmarkName);
       });
+      underButton.classList.toggle("active", state.under);
+      document.body.dataset.under = state.under ? "true" : "false";
     }
     function render() {
       if (renderQueued) return;
@@ -765,8 +832,8 @@ START_HERE_HTML = """<!doctype html>
       document.getElementById("mode-rotate").classList.toggle("active", mode === "rotate");
       stage.classList.toggle("mode-rotate", mode === "rotate");
       document.getElementById("hint").textContent = mode === "rotate"
-        ? "Drehmodus: Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt."
-        : "Maus ziehen: Karte verschieben. Shift+ziehen oder Rechtsziehen dreht und swivelt. Presets setzen Top/Nord/Ost/Süd/West.";
+        ? "Drehmodus: Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tunnel von unten."
+        : "Maus ziehen: Karte verschieben. Shift+ziehen oder Rechtsziehen dreht und swivelt. Unterseite kippt zum Tunnel-Cutaway.";
     }
     function fit() {
       const rect = stage.getBoundingClientRect();
@@ -776,6 +843,7 @@ START_HERE_HTML = """<!doctype html>
       state.y = (rect.height - image.height * state.scale) / 2;
       state.rotation = 0;
       state.tilt = 0;
+      state.under = false;
       state.viewKey = "top";
       render();
     }
@@ -797,8 +865,48 @@ START_HERE_HTML = """<!doctype html>
       selectedLandmarkName = landmark.name;
       state.scale = Math.max(state.fitScale * minScale, Math.min(state.fitScale * 5.4, maxScale));
       state.x = rect.width / 2 - landmark.x * state.scale;
-      state.y = rect.height / 2 - landmark.y * state.scale;
+      state.y = rect.height / 2 - displayY(landmark.y) * state.scale;
       render();
+    }
+    function tunnelRoutePoints() {
+      return (tunnelPayload.routes || [])
+        .flatMap((route) => route.points || [])
+        .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+    }
+    function focusTunnelRoute() {
+      const points = tunnelRoutePoints();
+      if (points.length < 2) return;
+      const rect = stage.getBoundingClientRect();
+      const xs = points.map((point) => point.x);
+      const ys = points.map((point) => displayY(point.y));
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const routeWidth = Math.max(1, maxX - minX);
+      const routeHeight = Math.max(1, maxY - minY);
+      state.scale = Math.max(
+        state.fitScale * 1.45,
+        Math.min(rect.width / (routeWidth * 1.35), rect.height / (routeHeight * 1.35), state.fitScale * 4.8)
+      );
+      state.x = rect.width / 2 - ((minX + maxX) / 2) * state.scale;
+      state.y = rect.height / 2 - ((minY + maxY) / 2) * state.scale;
+      selectedLandmarkName = "Kemperplatz / Tiergartentunnel";
+      render();
+    }
+    function setUnderView(enabled) {
+      state.under = enabled;
+      if (enabled) {
+        state.rotation = 180;
+        state.tilt = 22;
+        state.viewKey = "free";
+        focusTunnelRoute();
+        return;
+      }
+      render();
+    }
+    function toggleUnderView() {
+      setUnderView(!state.under);
     }
     function panBy(dx, dy) {
       state.x += dx;
@@ -882,6 +990,8 @@ START_HERE_HTML = """<!doctype html>
         });
         addTunnelLights(routePoints, route.lighting || {});
         addTunnelVentilation(route.ventilation || []);
+        addTunnelServiceBays(route.service_bays || [], route.volume || {});
+        addTunnelPortals(route.portals || [], route.volume || {});
       });
     }
     function normalizedNormal(start, end) {
@@ -915,6 +1025,44 @@ START_HERE_HTML = """<!doctype html>
       polyline.setAttribute("points", svgPointList(points));
       tunnelOverlay.appendChild(polyline);
     }
+    function totalLength(points) {
+      return points.slice(1).reduce((length, point, index) => {
+        return length + Math.hypot(point.x - points[index].x, point.y - points[index].y);
+      }, 0);
+    }
+    function pointFrameAtDistance(points, targetDistance) {
+      let covered = 0;
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const start = points[index];
+        const end = points[index + 1];
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const segment = Math.hypot(dx, dy);
+        if (!segment) continue;
+        if (covered + segment >= targetDistance) {
+          const amount = (targetDistance - covered) / segment;
+          const normal = normalizedNormal(start, end);
+          return {
+            x: start.x + dx * amount,
+            y: start.y + dy * amount,
+            nx: normal.x,
+            ny: normal.y,
+            angle: Math.atan2(dy, dx) * 180 / Math.PI,
+          };
+        }
+        covered += segment;
+      }
+      const last = points[points.length - 1];
+      const before = points[points.length - 2] || last;
+      const normal = normalizedNormal(before, last);
+      return {
+        x: last.x,
+        y: last.y,
+        nx: normal.x,
+        ny: normal.y,
+        angle: Math.atan2(last.y - before.y, last.x - before.x) * 180 / Math.PI,
+      };
+    }
     function addTunnelTube(points, volume) {
       if (points.length < 2) return;
       const halfWidth = Number(volume.width_px) || 30;
@@ -924,6 +1072,7 @@ START_HERE_HTML = """<!doctype html>
       const right = offsetPolyline(points, -halfWidth);
       const leftFloor = offsetPolyline(points, Math.max(halfWidth - sideInset, 2));
       const rightFloor = offsetPolyline(points, -Math.max(halfWidth - sideInset, 2));
+      addPolyline("tunnel-under-glow", points);
       const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
       polygon.setAttribute("class", "tunnel-volume");
       polygon.setAttribute("points", svgPointList([...left, ...right.slice().reverse()]));
@@ -936,6 +1085,9 @@ START_HERE_HTML = """<!doctype html>
       addPolyline("tunnel-floor", leftFloor);
       addPolyline("tunnel-floor", rightFloor);
       addPolyline("tunnel-center-wall", points);
+      addPolyline("tunnel-lane", offsetPolyline(points, halfWidth * 0.36));
+      addPolyline("tunnel-lane", offsetPolyline(points, -halfWidth * 0.36));
+      addTunnelRibs(points, volume);
       points
         .filter((_, index) => index === 0 || index === points.length - 1 || index % 3 === 0)
         .forEach((point, index) => {
@@ -951,6 +1103,71 @@ START_HERE_HTML = """<!doctype html>
           label.textContent = index === 0 ? "Tunnelportal / Querschnitt" : "Tunnelquerschnitt / Notausstieg";
           section.appendChild(label);
           tunnelOverlay.appendChild(section);
+        });
+    }
+    function addTunnelRibs(points, volume) {
+      const spacing = Number(volume.ceiling_rib_spacing_px) || 54;
+      const halfWidth = Number(volume.width_px) || 30;
+      const total = totalLength(points);
+      for (let distance = spacing * 0.4; distance < total; distance += spacing) {
+        const frame = pointFrameAtDistance(points, distance);
+        const rib = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        rib.setAttribute("class", "tunnel-ceiling-rib");
+        rib.setAttribute("x1", (frame.x - frame.nx * halfWidth * 0.92).toFixed(1));
+        rib.setAttribute("y1", (frame.y - frame.ny * halfWidth * 0.92).toFixed(1));
+        rib.setAttribute("x2", (frame.x + frame.nx * halfWidth * 0.92).toFixed(1));
+        rib.setAttribute("y2", (frame.y + frame.ny * halfWidth * 0.92).toFixed(1));
+        tunnelOverlay.appendChild(rib);
+      }
+    }
+    function addTunnelServiceBays(bays, volume) {
+      const halfWidth = Number(volume.width_px) || 30;
+      bays
+        .filter((bay) => Number.isFinite(bay.x) && Number.isFinite(bay.y))
+        .forEach((bay) => {
+          const side = bay.side === "east" ? 1 : -1;
+          const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          const x = bay.x + side * halfWidth * 0.86;
+          const y = bay.y - 4;
+          group.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(-18)`);
+          const link = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          link.setAttribute("class", "tunnel-service-link");
+          link.setAttribute("x1", String(-side * halfWidth * 0.55));
+          link.setAttribute("y1", "0");
+          link.setAttribute("x2", "0");
+          link.setAttribute("y2", "0");
+          group.appendChild(link);
+          const bayBody = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          bayBody.setAttribute("class", "tunnel-service-bay");
+          bayBody.setAttribute("x", "-12");
+          bayBody.setAttribute("y", "-8");
+          bayBody.setAttribute("width", "24");
+          bayBody.setAttribute("height", "16");
+          bayBody.setAttribute("rx", "4");
+          group.appendChild(bayBody);
+          const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          title.textContent = bay.label || "Tunnel-Servicebucht";
+          group.appendChild(title);
+          tunnelOverlay.appendChild(group);
+        });
+    }
+    function addTunnelPortals(portals, volume) {
+      const halfWidth = Number(volume.width_px) || 30;
+      portals
+        .filter((portal) => Number.isFinite(portal.x) && Number.isFinite(portal.y))
+        .forEach((portal) => {
+          const portalShape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          portalShape.setAttribute("class", "tunnel-portal-ring");
+          portalShape.setAttribute("x", (portal.x - halfWidth * 0.72).toFixed(1));
+          portalShape.setAttribute("y", (portal.y - 11).toFixed(1));
+          portalShape.setAttribute("width", (halfWidth * 1.44).toFixed(1));
+          portalShape.setAttribute("height", "22");
+          portalShape.setAttribute("rx", "6");
+          portalShape.setAttribute("transform", `rotate(-18 ${portal.x} ${portal.y})`);
+          const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          title.textContent = portal.label || "Tunnelportal";
+          portalShape.appendChild(title);
+          tunnelOverlay.appendChild(portalShape);
         });
     }
     function pointAtDistance(points, targetDistance) {
@@ -1057,6 +1274,8 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("tilt-right").addEventListener("click", () => tiltBy(5));
     document.getElementById("mode-pan").addEventListener("click", () => setMode("pan"));
     document.getElementById("mode-rotate").addEventListener("click", () => setMode("rotate"));
+    underButton.addEventListener("click", toggleUnderView);
+    document.getElementById("tunnel-focus").addEventListener("click", focusTunnelRoute);
     document.getElementById("quality").addEventListener("click", toggleQuality);
     Object.entries(profileButtons).forEach(([key, button]) => {
       button.addEventListener("click", () => setProfile(key));
@@ -1073,6 +1292,8 @@ START_HERE_HTML = """<!doctype html>
       if (event.key === "-") zoomBy(0.8);
       if (event.key === "0" || event.key === "Home") fit();
       if (event.key.toLowerCase() === "r") setMode(state.mode === "rotate" ? "pan" : "rotate");
+      if (event.key.toLowerCase() === "u") toggleUnderView();
+      if (event.key.toLowerCase() === "f") focusTunnelRoute();
       if (event.key === "PageDown" || event.key === "PageUp") {
         event.preventDefault();
         const index = Math.max(0, landmarks.findIndex((landmark) => landmark.name === selectedLandmarkName));
@@ -1349,11 +1570,15 @@ zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
 Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie nutzt
 ab v0.1.49 abgeleitete OSM-B96-Tunnel-Ways als Carriageway-Evidenz und bleibt
 eine Ingenieurannäherung; sie ist noch keine amtliche Bestandsvermessung.
+Version {PACKAGE_VERSION} formt den Tunnel weiter aus: Unterseitenmodus,
+Portalrahmen, Deckenrippen, Fahrbahn-/Röhrenmarken und Servicebuchten laufen
+beim Drehen, Swiveln und Verschieben mit.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
-und eine Kompasszeile machen Blickwinkel reproduzierbar. Die Tasten 1/2/3
-wechseln die Grafikprofile. Der Advanced Viewer bleibt zusätzlich dabei,
-braucht aber je nach Browser den lokalen Server-Fallback.
+und eine Kompasszeile machen Blickwinkel reproduzierbar. Unterseite fokussiert
+den Tunnel von unten; Tunnel-Fokus zoomt auf den Verlauf. Die Tasten U und F
+schalten diese Ansichten, 1/2/3 wechseln die Grafikprofile. Der Advanced Viewer
+bleibt zusätzlich dabei, braucht aber je nach Browser den lokalen Server-Fallback.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
@@ -1409,11 +1634,15 @@ two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
 markers, and cross-section markers. Starting with v0.1.49, the geometry uses
 derived OSM B96 tunnel ways as carriageway evidence and remains an engineering
 approximation; it is not yet official surveyed as-built geometry.
+Version {PACKAGE_VERSION} further shapes the tunnel with an underside mode,
+portal frames, ceiling ribs, lane/tube marks and service bays that stay attached
+while the map is rotated, swivelled and panned.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
 right-drag you rotate and swivel the map. Top/North/East/South/West presets
-and a compass line make viewpoints reproducible. Keys 1/2/3 switch the visual
-profiles. The Advanced Viewer is still included, but may need the local-server
-fallback depending on the browser.
+and a compass line make viewpoints reproducible. Unterseite focuses the tunnel
+from below; Tunnel-Fokus zooms onto the route. Keys U and F switch these views,
+and 1/2/3 switch the visual profiles. The Advanced Viewer is still included,
+but may need the local-server fallback depending on the browser.
 
 This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor, interior rings render as
@@ -1500,6 +1729,9 @@ def write_package_manifest(package_dir: Path) -> None:
       "visible-tiergartentunnel-overlay",
       "visible-tiergartentunnel-volume",
       "visible-tiergartentunnel-center-wall",
+      "visible-tiergartentunnel-underside-view",
+      "visible-tiergartentunnel-ceiling-ribs",
+      "visible-tiergartentunnel-service-bays",
       "visible-tiergartentunnel-osm-way-evidence",
       "visible-tiergartentunnel-lighting",
       "visible-tiergartentunnel-ventilation",

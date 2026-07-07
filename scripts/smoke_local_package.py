@@ -28,6 +28,11 @@ REQUIRED_START_SNIPPETS = (
   "tunnel-vent",
   "tunnel-volume",
   "tunnel-center-wall",
+  "tunnel-ceiling-rib",
+  "tunnel-service-bay",
+  "under-view",
+  "scaleY",
+  "focusTunnelRoute",
   "addTunnelTube",
   "addTunnelVentilation",
   "Drehen/Swivel",
@@ -165,6 +170,12 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
     raise RuntimeError("Tiergartentunnel overlay route is too coarse")
   if len(route.get("osm_way_ids", [])) < 10:
     raise RuntimeError("Tiergartentunnel overlay lacks OSM way evidence IDs")
+  if len(route.get("service_bays", [])) < 4:
+    raise RuntimeError("Tiergartentunnel overlay lacks service bays")
+  if len(route.get("portals", [])) < 2:
+    raise RuntimeError("Tiergartentunnel overlay lacks portal markers")
+  if route.get("underside_view", {}).get("enabled") is not True:
+    raise RuntimeError("Tiergartentunnel overlay lacks enabled underside view")
 
   landmarks = read_json_url(f"{base_url}/dzi/regierungsviertel/landmarks.json")
   if len(landmarks.get("landmarks", [])) < 30:

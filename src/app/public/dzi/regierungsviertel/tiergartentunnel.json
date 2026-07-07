@@ -15,15 +15,18 @@
       "volume": {
         "label": "schematic two-tube rectangular tunnel volume",
         "tube_count": 2,
-        "width_px": 30,
-        "sidewall_px": 8,
-        "center_wall_px": 4,
+        "width_px": 34,
+        "sidewall_px": 9,
+        "center_wall_px": 5,
         "clear_width_each_direction_m": 10.5,
         "clear_height_m": 5.0,
         "total_width_m": 23.4,
         "assumed_depth_m": -10.0,
         "depth_status": "schematic constant depth for cutaway rendering",
-        "geometry_basis": "OSM trunk tunnel=yes layer=-2 carriageways plus engineered centreline"
+        "geometry_basis": "OSM trunk tunnel=yes layer=-2 carriageways plus engineered centreline",
+        "ceiling_rib_spacing_px": 54,
+        "lane_marking_spacing_px": 78,
+        "underside_glow_px": 46
       },
       "lighting": {
         "label": "Tunnelbeleuchtung",
@@ -129,7 +132,53 @@
         69999247,
         4411244
       ],
-      "osm_evidence_count": 13
+      "osm_evidence_count": 13,
+      "underside_view": {
+        "enabled": true,
+        "label": "Unteransicht / Tunnel-Cutaway",
+        "surface_opacity": 0.38,
+        "tunnel_opacity": 1.0,
+        "default_tilt": 22,
+        "default_rotation": 180
+      },
+      "portals": [
+        {
+          "x": 1793,
+          "y": 107,
+          "label": "Nordportal Minna-Cauer-Strasse"
+        },
+        {
+          "x": 486,
+          "y": 921,
+          "label": "Suedportal Kemperplatz / Tiergartenstrasse"
+        }
+      ],
+      "service_bays": [
+        {
+          "x": 1518,
+          "y": 260,
+          "side": "west",
+          "label": "Technikbucht Hauptbahnhof Nord"
+        },
+        {
+          "x": 1279,
+          "y": 415,
+          "side": "east",
+          "label": "Spreebogen Querschlag"
+        },
+        {
+          "x": 1059,
+          "y": 590,
+          "side": "west",
+          "label": "Tiergarten Notausstieg"
+        },
+        {
+          "x": 708,
+          "y": 809,
+          "side": "east",
+          "label": "Suedlicher Betriebsraum"
+        }
+      ]
     }
   ]
 }

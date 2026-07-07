@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.50
+
+- Add a zero-server `START-HERE.html` underside mode for the
+  Tiergartentunnel cutaway. The same SVG tunnel layer now stays attached
+  while the map is panned, rotated, swivelled and flipped for a
+  from-below inspection view.
+- Further shape the tunnel with portal frames, underside glow, ceiling
+  ribs, lane / tube guide marks and service-bay markers.
+- Add Tunnel-Fokus and Unterseite controls plus U/F keyboard shortcuts
+  to make the underground route easier to inspect locally.
+- Extend package readiness and smoke tests so tunnel underside controls,
+  service bays and portal markers are required in future releases.
+
 ## v0.1.49
 
 - Pull live OpenStreetMap / Overpass evidence for the Tunnel

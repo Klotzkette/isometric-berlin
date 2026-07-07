@@ -48,9 +48,17 @@ Draw the tunnel below the surface as a readable engineering cutaway:
 - dark rectangular tunnel body;
 - two separated tubes with a visible centre wall;
 - side walls / floor guide lines;
+- portal frames at the north and south visible endpoints;
+- ceiling ribs and lane / tube guide marks for the underside view;
+- small service-bay / emergency-cue boxes along the route;
 - warm light points along the route;
 - ventilation / shaft markers at portals and key service points;
 - small cross-section marks at portals and intermediate service points.
+
+The local `START-HERE.html` package includes an underside mode. It is a
+2D SVG / CSS cutaway transform, not a true 3D camera, but the tunnel
+layer remains attached during pan, rotate and swivel interactions so the
+route can be inspected from below.
 
 If a future agent finds official tunnel-survey geometry, keep the same
 public viewer semantics but replace only the approximate centreline /

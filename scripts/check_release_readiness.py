@@ -153,6 +153,16 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
       f"Package HTML launcher lacks tunnel volume / centre-wall geometry: {label}"
     )
   if (
+    "under-view" not in start_here_text
+    or "scaleY" not in start_here_text
+    or "focusTunnelRoute" not in start_here_text
+    or "tunnel-ceiling-rib" not in start_here_text
+    or "tunnel-service-bay" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks tunnel underside / detail controls: {label}"
+    )
+  if (
     "requestAnimationFrame" not in start_here_text
     or "renderQueued" not in start_here_text
     or "lostpointercapture" not in start_here_text
@@ -442,6 +452,13 @@ def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[s
     failures.append(f"Tiergartentunnel route is too coarse for v0.1.48: {label}")
   if len(route.get("ventilation", [])) < 5:
     failures.append(f"Tiergartentunnel route lacks enough ventilation markers: {label}")
+  if len(route.get("service_bays", [])) < 4:
+    failures.append(f"Tiergartentunnel route lacks service bay markers: {label}")
+  if len(route.get("portals", [])) < 2:
+    failures.append(f"Tiergartentunnel route lacks portal markers: {label}")
+  underside = route.get("underside_view")
+  if not isinstance(underside, dict) or underside.get("enabled") is not True:
+    failures.append(f"Tiergartentunnel route lacks enabled underside view: {label}")
   osm_way_ids = route.get("osm_way_ids")
   if not isinstance(osm_way_ids, list) or len(osm_way_ids) < 10:
     failures.append(f"Tiergartentunnel route lacks OSM way evidence IDs: {label}")
