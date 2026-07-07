@@ -442,10 +442,13 @@ def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[s
     failures.append(f"Tiergartentunnel route is too coarse for v0.1.48: {label}")
   if len(route.get("ventilation", [])) < 5:
     failures.append(f"Tiergartentunnel route lacks enough ventilation markers: {label}")
+  osm_way_ids = route.get("osm_way_ids")
+  if not isinstance(osm_way_ids, list) or len(osm_way_ids) < 10:
+    failures.append(f"Tiergartentunnel route lacks OSM way evidence IDs: {label}")
   status = str(route.get("geometry_status", ""))
-  if "not official surveyed" not in status:
+  if "OSM-derived" not in status or "not official surveyed" not in status:
     failures.append(
-      f"Tiergartentunnel route must state non-surveyed geometry status: {label}"
+      f"Tiergartentunnel route must state OSM-derived non-surveyed status: {label}"
     )
   return failures
 

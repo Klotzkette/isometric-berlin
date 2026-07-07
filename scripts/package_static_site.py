@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.48"
+PACKAGE_VERSION = "0.1.49"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -1346,9 +1346,9 @@ Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
 Der Tiergartentunnel ist als sichtbares unterirdisches Rechteckbauwerk mit
 zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
-Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie ist
-eine Open-Data-/Public-Route-/OSM-gestützte Ingenieurannäherung; sie ist noch
-keine amtliche Bestandsvermessung.
+Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie nutzt
+ab v0.1.49 abgeleitete OSM-B96-Tunnel-Ways als Carriageway-Evidenz und bleibt
+eine Ingenieurannäherung; sie ist noch keine amtliche Bestandsvermessung.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
 und eine Kompasszeile machen Blickwinkel reproduzierbar. Die Tasten 1/2/3
@@ -1406,9 +1406,9 @@ Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
 The Tiergartentunnel is shown as an underground rectangular structure with
 two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
-markers, and cross-section markers. The geometry is an open-data /
-public-route / OSM-assisted engineering approximation; it is not yet official
-surveyed as-built geometry.
+markers, and cross-section markers. Starting with v0.1.49, the geometry uses
+derived OSM B96 tunnel ways as carriageway evidence and remains an engineering
+approximation; it is not yet official surveyed as-built geometry.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
 right-drag you rotate and swivel the map. Top/North/East/South/West presets
 and a compass line make viewpoints reproducible. Keys 1/2/3 switch the visual
@@ -1500,6 +1500,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "visible-tiergartentunnel-overlay",
       "visible-tiergartentunnel-volume",
       "visible-tiergartentunnel-center-wall",
+      "visible-tiergartentunnel-osm-way-evidence",
       "visible-tiergartentunnel-lighting",
       "visible-tiergartentunnel-ventilation",
     ],

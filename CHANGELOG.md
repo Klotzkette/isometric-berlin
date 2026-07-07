@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.49
+
+- Pull live OpenStreetMap / Overpass evidence for the Tunnel
+  Tiergarten Spreebogen B96 trunk carriageways and store the derived
+  `tunnel=yes`, `layer=-2` way geometries in
+  `geo_data/regierungsviertel/tiergartentunnel.geojson`.
+- Keep the rendered centreline as an engineered simplification for the
+  isometric cutaway, but attach the OSM way IDs and evidence count to
+  both the GeoJSON and packaged viewer payload.
+- Update the local package and documentation so v0.1.49 is the first
+  release whose tunnel geometry is based on OSM tunnel carriageway
+  geometry rather than only portal/route approximation.
+
 ## v0.1.48
 
 - Upgrade the Tiergartentunnel representation from a reference line to

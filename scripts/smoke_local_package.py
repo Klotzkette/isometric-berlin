@@ -163,6 +163,8 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
     raise RuntimeError("Tiergartentunnel overlay depth is not underground")
   if len(route.get("points", [])) < 8:
     raise RuntimeError("Tiergartentunnel overlay route is too coarse")
+  if len(route.get("osm_way_ids", [])) < 10:
+    raise RuntimeError("Tiergartentunnel overlay lacks OSM way evidence IDs")
 
   landmarks = read_json_url(f"{base_url}/dzi/regierungsviertel/landmarks.json")
   if len(landmarks.get("landmarks", [])) < 30:
