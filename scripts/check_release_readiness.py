@@ -21,6 +21,7 @@ REQUIRED_VIEWER_FILES = (
   "landmarks.json",
   "reference_map.png",
   "regierungsviertel.dzi",
+  "tiergartentunnel.json",
   "wikimedia_attribution.json",
 )
 REQUIRED_REPORT_FILES = (
@@ -47,6 +48,7 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/reference_map.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+  "dzi/regierungsviertel/tiergartentunnel.json",
 )
 REQUIRED_ATTRIBUTION = (
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
@@ -132,6 +134,8 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "compass" not in start_here_text
   ):
     failures.append(f"Package HTML launcher lacks reproducible view presets: {label}")
+  if "tunnel-overlay" not in start_here_text or "tunnelPayload" not in start_here_text:
+    failures.append(f"Package HTML launcher lacks Tiergartentunnel overlay: {label}")
   return failures
 
 
@@ -183,6 +187,7 @@ def package_manifest_failures(
     "dzi_descriptor",
     "reference_map",
     "landmarks",
+    "tiergartentunnel_overlay",
     "wikimedia_attribution",
     "start_page",
   ]:

@@ -16,6 +16,8 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
+**Status:** Local v0.1.44 open-data package.
+
 ## Current Viewer
 
 The current public package is **v0.1.44**. It is an open-data,

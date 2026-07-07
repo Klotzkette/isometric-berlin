@@ -9,6 +9,8 @@
   committed artefacts instead of stale TODO placeholders.
 - Refresh the reference-image README with links to Wikimedia credits,
   the atlas, and the machine-readable manifest.
+- Restore the README `Local v0.1.44` status phrase expected by release
+  readiness and require the Tiergartentunnel overlay in release checks.
 
 ## v0.1.44
 
