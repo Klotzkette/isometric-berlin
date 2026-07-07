@@ -63,6 +63,8 @@ PURPLE_TRIANGLE = (112, 78, 146)
 POLAND_RED = (162, 52, 56)
 TUNNEL_TRACE = (54, 57, 62)
 TUNNEL_TRACE_LIGHT = (175, 182, 185)
+TUNNEL_LIGHT = (247, 215, 122)
+TUNNEL_VENT = (43, 48, 51)
 TUNNEL = (41, 40, 39)
 BRIDGE = (226, 224, 209)
 SURFACE_LINE = (112, 100, 86)
@@ -1209,9 +1211,17 @@ def draw_tunnel_reference_routes(
         draw,
         pts,
         color=mix_color(TUNNEL_TRACE, OUTLINE, 0.28),
-        width=casing,
-        dash_px=max(14, line_scale * 14),
-        gap_px=max(8, line_scale * 8),
+        width=max(casing, line_scale * 6),
+        dash_px=max(18, line_scale * 18),
+        gap_px=max(5, line_scale * 5),
+      )
+      draw_dashed_projected_line(
+        draw,
+        pts,
+        color=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.25),
+        width=max(2, line_scale * 2),
+        dash_px=max(3, line_scale * 3),
+        gap_px=max(13, line_scale * 11),
       )
       draw_dashed_projected_line(
         draw,
@@ -1221,6 +1231,41 @@ def draw_tunnel_reference_routes(
         dash_px=max(10, line_scale * 10),
         gap_px=max(12, line_scale * 10),
       )
+      for index, point in enumerate(pts):
+        radius = max(3, line_scale * (3 if index in {0, len(pts) - 1} else 2))
+        draw.ellipse(
+          (
+            point[0] - radius,
+            point[1] - radius,
+            point[0] + radius,
+            point[1] + radius,
+          ),
+          fill=TUNNEL_LIGHT,
+          outline=TUNNEL_VENT,
+          width=max(1, line_scale),
+        )
+        if index in {0, 2, 3, len(pts) - 1}:
+          vent = radius + max(2, line_scale)
+          draw.ellipse(
+            (
+              point[0] - vent,
+              point[1] - vent,
+              point[0] + vent,
+              point[1] + vent,
+            ),
+            outline=TUNNEL_LIGHT,
+            width=max(1, line_scale),
+          )
+          draw.line(
+            (point[0] - vent, point[1], point[0] + vent, point[1]),
+            fill=TUNNEL_TRACE_LIGHT,
+            width=max(1, line_scale),
+          )
+          draw.line(
+            (point[0], point[1] - vent, point[0], point[1] + vent),
+            fill=TUNNEL_TRACE_LIGHT,
+            width=max(1, line_scale),
+          )
 
 
 def architectural_shadow_offsets(

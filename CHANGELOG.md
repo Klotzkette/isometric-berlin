@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.47
+
+- Refine the Tiergartentunnel visual layer with a stronger under-surface
+  tube, warm lighting dots, and ventilation / shaft markers in the
+  zero-server `START-HERE.html` viewer.
+- Add matching tunnel-light and ventilation cues to the deterministic
+  source renderer.
+- Extend release readiness and the local package smoke test so future
+  packages must include tunnel lighting and ventilation metadata.
+- Rebuild the Mac/Windows/Linux ZIP and update README/version metadata to
+  v0.1.47.
+
 ## v0.1.46
 
 - Add `scripts/smoke_local_package.py`, an end-to-end HTTP smoke test for

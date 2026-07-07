@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.46"
+PACKAGE_VERSION = "0.1.47"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -237,18 +237,43 @@ START_HERE_HTML = """<!doctype html>
     .tunnel-casing {
       fill: none;
       stroke: rgba(20, 24, 25, .72);
-      stroke-width: 16;
+      stroke-width: 22;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: 30 18;
+      stroke-dasharray: 36 14;
+    }
+    .tunnel-halo {
+      fill: none;
+      stroke: rgba(247, 215, 122, .24);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 12 18;
     }
     .tunnel-core {
       fill: none;
-      stroke: rgba(205, 218, 220, .88);
+      stroke: rgba(205, 218, 220, .94);
       stroke-width: 4;
       stroke-linecap: round;
       stroke-linejoin: round;
       stroke-dasharray: 18 16;
+    }
+    .tunnel-light {
+      fill: #f7d77a;
+      stroke: rgba(73, 54, 18, .7);
+      stroke-width: 2;
+      filter: drop-shadow(0 0 8px rgba(247, 215, 122, .76));
+    }
+    .tunnel-vent {
+      fill: #2b3033;
+      stroke: #f7d77a;
+      stroke-width: 3;
+      filter: drop-shadow(0 5px 8px rgba(0, 0, 0, .38));
+    }
+    .tunnel-vent-blade {
+      stroke: #d9e4e5;
+      stroke-width: 2;
+      stroke-linecap: round;
     }
     .focus-ring {
       position: absolute;
@@ -803,12 +828,13 @@ START_HERE_HTML = """<!doctype html>
     function addTunnelRoutes() {
       tunnelOverlay.innerHTML = "";
       (tunnelPayload.routes || []).forEach((route) => {
-        const points = (route.points || [])
+        const routePoints = (route.points || [])
           .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
+        const points = routePoints
           .map((point) => `${point.x},${point.y}`)
           .join(" ");
         if (!points) return;
-        ["tunnel-casing", "tunnel-core"].forEach((className) => {
+        ["tunnel-casing", "tunnel-halo", "tunnel-core"].forEach((className) => {
           const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
           polyline.setAttribute("class", className);
           polyline.setAttribute("points", points);
@@ -817,7 +843,67 @@ START_HERE_HTML = """<!doctype html>
           polyline.appendChild(title);
           tunnelOverlay.appendChild(polyline);
         });
+        addTunnelLights(routePoints, route.lighting || {});
+        addTunnelVentilation(route.ventilation || []);
       });
+    }
+    function pointAtDistance(points, targetDistance) {
+      let covered = 0;
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const start = points[index];
+        const end = points[index + 1];
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const segment = Math.hypot(dx, dy);
+        if (!segment) continue;
+        if (covered + segment >= targetDistance) {
+          const amount = (targetDistance - covered) / segment;
+          return { x: start.x + dx * amount, y: start.y + dy * amount };
+        }
+        covered += segment;
+      }
+      return points[points.length - 1];
+    }
+    function addTunnelLights(points, lighting) {
+      if (points.length < 2) return;
+      const spacing = Number(lighting.spacing_px) || 92;
+      const total = points.slice(1).reduce((length, point, index) => {
+        return length + Math.hypot(point.x - points[index].x, point.y - points[index].y);
+      }, 0);
+      for (let distance = spacing * 0.55; distance < total; distance += spacing) {
+        const point = pointAtDistance(points, distance);
+        const light = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        light.setAttribute("class", "tunnel-light");
+        light.setAttribute("cx", point.x.toFixed(1));
+        light.setAttribute("cy", point.y.toFixed(1));
+        light.setAttribute("r", "7");
+        tunnelOverlay.appendChild(light);
+      }
+    }
+    function addTunnelVentilation(vents) {
+      vents
+        .filter((vent) => Number.isFinite(vent.x) && Number.isFinite(vent.y))
+        .forEach((vent) => {
+          const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          group.setAttribute("transform", `translate(${vent.x} ${vent.y})`);
+          const body = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          body.setAttribute("class", "tunnel-vent");
+          body.setAttribute("r", "14");
+          group.appendChild(body);
+          [[-9, 0, 9, 0], [0, -9, 0, 9], [-6, -6, 6, 6], [-6, 6, 6, -6]].forEach((blade) => {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("class", "tunnel-vent-blade");
+            line.setAttribute("x1", blade[0]);
+            line.setAttribute("y1", blade[1]);
+            line.setAttribute("x2", blade[2]);
+            line.setAttribute("y2", blade[3]);
+            group.appendChild(line);
+          });
+          const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          title.textContent = vent.label || "Tunnelbelüftung";
+          group.appendChild(title);
+          tunnelOverlay.appendChild(group);
+        });
     }
 
     stage.addEventListener("pointerdown", (event) => {
@@ -1135,7 +1221,8 @@ Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
-Der Tiergartentunnel ist als gestrichelte Untergrund-Referenzroute sichtbar;
+Der Tiergartentunnel ist als sichtbare Untergrund-Referenzroute mit
+Tunnelröhre, warmen Lichtpunkten und Lüftungs-/Schachtmarkern sichtbar;
 das ist eine öffentliche QA-Annäherung, keine vermessene Tunnelgeometrie.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
@@ -1192,6 +1279,9 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+The Tiergartentunnel is shown as an under-surface reference route with
+tunnel tube, warm lighting dots, and ventilation / shaft markers; it is a
+public QA approximation, not surveyed tunnel geometry.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
 right-drag you rotate and swivel the map. Top/North/East/South/West presets
 and a compass line make viewpoints reproducible. Keys 1/2/3 switch the visual
@@ -1281,6 +1371,8 @@ def write_package_manifest(package_dir: Path) -> None:
       "selected-landmark-focus-ring",
       "instrument-hud",
       "visible-tiergartentunnel-overlay",
+      "visible-tiergartentunnel-lighting",
+      "visible-tiergartentunnel-ventilation",
     ],
     "required_attribution": (
       "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "

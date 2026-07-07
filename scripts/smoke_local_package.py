@@ -24,6 +24,9 @@ REQUIRED_START_SNIPPETS = (
   "resizeTimer",
   "lostpointercapture",
   "tunnelPayload",
+  "tunnel-light",
+  "tunnel-vent",
+  "addTunnelVentilation",
   "Drehen/Swivel",
 )
 
@@ -145,6 +148,11 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   routes = tunnel.get("routes")
   if not isinstance(routes, list) or not routes or len(routes[0].get("points", [])) < 2:
     raise RuntimeError("Tiergartentunnel overlay has no usable route")
+  route = routes[0]
+  if len(route.get("ventilation", [])) < 3:
+    raise RuntimeError("Tiergartentunnel overlay lacks ventilation markers")
+  if int(route.get("lighting", {}).get("spacing_px", 0)) <= 0:
+    raise RuntimeError("Tiergartentunnel overlay lacks lighting spacing")
 
   landmarks = read_json_url(f"{base_url}/dzi/regierungsviertel/landmarks.json")
   if len(landmarks.get("landmarks", [])) < 30:

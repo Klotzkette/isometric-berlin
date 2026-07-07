@@ -137,6 +137,14 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   if "tunnel-overlay" not in start_here_text or "tunnelPayload" not in start_here_text:
     failures.append(f"Package HTML launcher lacks Tiergartentunnel overlay: {label}")
   if (
+    "tunnel-light" not in start_here_text
+    or "tunnel-vent" not in start_here_text
+    or "addTunnelVentilation" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks tunnel lighting / ventilation cues: {label}"
+    )
+  if (
     "requestAnimationFrame" not in start_here_text
     or "renderQueued" not in start_here_text
     or "lostpointercapture" not in start_here_text

@@ -16,6 +16,7 @@
         "source": "Public tunnel portal coordinates and route description; approximate centreline for visual QA",
         "length_m": 2392,
         "opened": "2006-03-26",
+        "render_cues": "Draw as a visible under-surface tunnel tube with warm lighting dots and ventilation / shaft markers at portals and key service points.",
         "notes": "Approximate visual centreline from Minna-Cauer-Strasse / Invalidenstrasse through Hauptbahnhof, under the Spree and Tiergarten to Kemperplatz, with southern continuation outside v0.1 visible bounds."
       },
       "geometry": {
