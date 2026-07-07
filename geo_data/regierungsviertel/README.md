@@ -18,7 +18,7 @@ archives stay under gitignored `raw/` paths as described in
 | `alkis.gpkg` | ALKIS parcel/support layer for official alignment context. |
 | `fused_sources.json` | Additive source-fusion manifest. |
 | `wikimedia_references.json` | Free-license Wikimedia visual-reference manifest with per-file attribution metadata. |
-| `tiergartentunnel.geojson` | Approximate public-reference Tiergartentunnel centreline for under-surface viewer cue. |
+| `tiergartentunnel.geojson` | Open-data engineered Tiergartentunnel approximation for the under-surface cutaway cue; not official surveyed as-built geometry. |
 | `dop_preview.png` | Small DOP preview image for QA; not a raw orthophoto dump. |
 | `dgm_preview.png` | Small DGM preview image for QA; not a raw terrain dump. |
 

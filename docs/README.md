@@ -13,6 +13,7 @@ local ZIP starts, and which legal/attribution rules apply.
 | External geolocation QA against official pages and map products | [external-geolocation-qa.md](external-geolocation-qa.md) |
 | Landmark placement checks and relative-position QA | [landmark-alignment.md](landmark-alignment.md) |
 | Metric precision and expected limits | [metric-precision.md](metric-precision.md) |
+| Tiergartentunnel geometry status and cutaway rules | [tiergartentunnel-geometry.md](tiergartentunnel-geometry.md) |
 | Known correctness checks | [correctness-crosscheck.md](correctness-crosscheck.md) |
 
 ## Build And Viewer

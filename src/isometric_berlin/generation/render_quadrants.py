@@ -1137,6 +1137,42 @@ def line_length(a: tuple[int, int], b: tuple[int, int]) -> float:
   return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
 
 
+def normalized_normal(a: tuple[int, int], b: tuple[int, int]) -> tuple[float, float]:
+  dx = b[0] - a[0]
+  dy = b[1] - a[1]
+  length = (dx**2 + dy**2) ** 0.5 or 1.0
+  return -dy / length, dx / length
+
+
+def normal_at(pts: list[tuple[int, int]], index: int) -> tuple[float, float]:
+  normals: list[tuple[float, float]] = []
+  if index > 0:
+    normals.append(normalized_normal(pts[index - 1], pts[index]))
+  if index < len(pts) - 1:
+    normals.append(normalized_normal(pts[index], pts[index + 1]))
+  if not normals:
+    return 0.0, 1.0
+  x = sum(normal[0] for normal in normals) / len(normals)
+  y = sum(normal[1] for normal in normals) / len(normals)
+  length = (x**2 + y**2) ** 0.5 or 1.0
+  return x / length, y / length
+
+
+def offset_projected_polyline(
+  pts: list[tuple[int, int]], offset: float
+) -> list[tuple[int, int]]:
+  offset_pts: list[tuple[int, int]] = []
+  for index, point in enumerate(pts):
+    normal = normal_at(pts, index)
+    offset_pts.append(
+      (
+        int(round(point[0] + normal[0] * offset)),
+        int(round(point[1] + normal[1] * offset)),
+      )
+    )
+  return offset_pts
+
+
 def draw_dashed_projected_line(
   draw: ImageDraw.ImageDraw,
   pts: list[tuple[int, int]],
@@ -1207,6 +1243,44 @@ def draw_tunnel_reference_routes(
       if len(pts) < 2:
         continue
       casing = max(3, line_scale * 4)
+      half_width = max(8, line_scale * 8)
+      left_wall = offset_projected_polyline(pts, half_width)
+      right_wall = offset_projected_polyline(pts, -half_width)
+      left_floor = offset_projected_polyline(pts, half_width * 0.68)
+      right_floor = offset_projected_polyline(pts, -half_width * 0.68)
+      draw.polygon(
+        left_wall + list(reversed(right_wall)),
+        fill=mix_color(TUNNEL_TRACE, BACKGROUND, 0.26),
+        outline=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.36),
+      )
+      draw.line(
+        left_wall,
+        fill=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.42),
+        width=max(1, line_scale),
+        joint="curve",
+      )
+      draw.line(
+        right_wall,
+        fill=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.42),
+        width=max(1, line_scale),
+        joint="curve",
+      )
+      draw_dashed_projected_line(
+        draw,
+        left_floor,
+        color=mix_color(TUNNEL_TRACE_LIGHT, TUNNEL_TRACE, 0.34),
+        width=max(1, line_scale),
+        dash_px=max(8, line_scale * 8),
+        gap_px=max(8, line_scale * 8),
+      )
+      draw_dashed_projected_line(
+        draw,
+        right_floor,
+        color=mix_color(TUNNEL_TRACE_LIGHT, TUNNEL_TRACE, 0.34),
+        width=max(1, line_scale),
+        dash_px=max(8, line_scale * 8),
+        gap_px=max(8, line_scale * 8),
+      )
       draw_dashed_projected_line(
         draw,
         pts,
@@ -1233,6 +1307,26 @@ def draw_tunnel_reference_routes(
       )
       for index, point in enumerate(pts):
         radius = max(3, line_scale * (3 if index in {0, len(pts) - 1} else 2))
+        if index in {0, 3, 6, len(pts) - 1}:
+          section_w = max(10, line_scale * 10)
+          section_h = max(5, line_scale * 5)
+          draw.rounded_rectangle(
+            (
+              point[0] - section_w,
+              point[1] - section_h,
+              point[0] + section_w,
+              point[1] + section_h,
+            ),
+            radius=max(2, line_scale),
+            fill=mix_color(TUNNEL_TRACE, OUTLINE, 0.38),
+            outline=TUNNEL_LIGHT,
+            width=max(1, line_scale),
+          )
+          draw.line(
+            (point[0], point[1] - section_h, point[0], point[1] + section_h),
+            fill=TUNNEL_TRACE_LIGHT,
+            width=max(1, line_scale),
+          )
         draw.ellipse(
           (
             point[0] - radius,

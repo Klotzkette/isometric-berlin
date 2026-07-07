@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.47"
+PACKAGE_VERSION = "0.1.48"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -233,6 +233,42 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       pointer-events: none;
       overflow: visible;
+    }
+    .tunnel-volume {
+      fill: rgba(31, 34, 36, .43);
+      stroke: rgba(247, 215, 122, .26);
+      stroke-width: 2;
+      filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .34));
+    }
+    .tunnel-floor {
+      fill: none;
+      stroke: rgba(205, 218, 220, .32);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 18 24;
+    }
+    .tunnel-sidewall {
+      fill: none;
+      stroke: rgba(247, 215, 122, .52);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 18 12;
+    }
+    .tunnel-center-wall {
+      fill: none;
+      stroke: rgba(235, 229, 204, .78);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 10 10;
+    }
+    .tunnel-section {
+      fill: rgba(22, 25, 26, .72);
+      stroke: #f7d77a;
+      stroke-width: 3;
+      filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .38));
     }
     .tunnel-casing {
       fill: none;
@@ -834,6 +870,7 @@ START_HERE_HTML = """<!doctype html>
           .map((point) => `${point.x},${point.y}`)
           .join(" ");
         if (!points) return;
+        addTunnelTube(routePoints, route.volume || {});
         ["tunnel-casing", "tunnel-halo", "tunnel-core"].forEach((className) => {
           const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
           polyline.setAttribute("class", className);
@@ -846,6 +883,75 @@ START_HERE_HTML = """<!doctype html>
         addTunnelLights(routePoints, route.lighting || {});
         addTunnelVentilation(route.ventilation || []);
       });
+    }
+    function normalizedNormal(start, end) {
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const length = Math.hypot(dx, dy) || 1;
+      return { x: -dy / length, y: dx / length };
+    }
+    function normalAt(points, index) {
+      const normals = [];
+      if (index > 0) normals.push(normalizedNormal(points[index - 1], points[index]));
+      if (index < points.length - 1) normals.push(normalizedNormal(points[index], points[index + 1]));
+      if (!normals.length) return { x: 0, y: 1 };
+      const x = normals.reduce((sum, normal) => sum + normal.x, 0) / normals.length;
+      const y = normals.reduce((sum, normal) => sum + normal.y, 0) / normals.length;
+      const length = Math.hypot(x, y) || 1;
+      return { x: x / length, y: y / length };
+    }
+    function offsetPolyline(points, distance) {
+      return points.map((point, index) => {
+        const normal = normalAt(points, index);
+        return { x: point.x + normal.x * distance, y: point.y + normal.y * distance };
+      });
+    }
+    function svgPointList(points) {
+      return points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+    }
+    function addPolyline(className, points) {
+      const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      polyline.setAttribute("class", className);
+      polyline.setAttribute("points", svgPointList(points));
+      tunnelOverlay.appendChild(polyline);
+    }
+    function addTunnelTube(points, volume) {
+      if (points.length < 2) return;
+      const halfWidth = Number(volume.width_px) || 30;
+      const sideInset = Number(volume.sidewall_px) || 8;
+      const centerWall = Math.max(2, Number(volume.center_wall_px) || 4);
+      const left = offsetPolyline(points, halfWidth);
+      const right = offsetPolyline(points, -halfWidth);
+      const leftFloor = offsetPolyline(points, Math.max(halfWidth - sideInset, 2));
+      const rightFloor = offsetPolyline(points, -Math.max(halfWidth - sideInset, 2));
+      const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      polygon.setAttribute("class", "tunnel-volume");
+      polygon.setAttribute("points", svgPointList([...left, ...right.slice().reverse()]));
+      const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      title.textContent = `${volume.label || "Tiergartentunnel"} · ca. ${volume.total_width_m || 23.4} m breit · ${volume.depth_status || "schematische Tiefe"}`;
+      polygon.appendChild(title);
+      tunnelOverlay.appendChild(polygon);
+      addPolyline("tunnel-sidewall", left);
+      addPolyline("tunnel-sidewall", right);
+      addPolyline("tunnel-floor", leftFloor);
+      addPolyline("tunnel-floor", rightFloor);
+      addPolyline("tunnel-center-wall", points);
+      points
+        .filter((_, index) => index === 0 || index === points.length - 1 || index % 3 === 0)
+        .forEach((point, index) => {
+          const section = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          section.setAttribute("class", "tunnel-section");
+          section.setAttribute("x", (point.x - halfWidth * 0.52).toFixed(1));
+          section.setAttribute("y", (point.y - centerWall * 2.2).toFixed(1));
+          section.setAttribute("width", (halfWidth * 1.04).toFixed(1));
+          section.setAttribute("height", (centerWall * 4.4).toFixed(1));
+          section.setAttribute("rx", "4");
+          section.setAttribute("transform", `rotate(-18 ${point.x} ${point.y})`);
+          const label = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          label.textContent = index === 0 ? "Tunnelportal / Querschnitt" : "Tunnelquerschnitt / Notausstieg";
+          section.appendChild(label);
+          tunnelOverlay.appendChild(section);
+        });
     }
     function pointAtDistance(points, targetDistance) {
       let covered = 0;
@@ -1082,6 +1188,23 @@ def ensure_dzi_tiles_copied(source: Path, target: Path) -> None:
     shutil.copyfile(path, destination)
 
 
+def ensure_public_dzi_metadata_copied(source: Path, target: Path) -> None:
+  """Overlay current public DZI descriptors/metadata after a stale dist copy."""
+  source_root = source / "dzi" / "regierungsviertel"
+  if not source_root.is_dir():
+    return
+
+  for path in source_root.rglob("*"):
+    if not path.is_file() or not should_package_file(path):
+      continue
+    relative = path.relative_to(source)
+    if "regierungsviertel_files" in relative.parts:
+      continue
+    destination = target / relative
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    copy_file_contents(path, destination)
+
+
 def remove_unwanted_package_paths(package_dir: Path) -> None:
   for path in sorted(
     package_dir.rglob("*"), key=lambda item: len(item.parts), reverse=True
@@ -1221,9 +1344,11 @@ Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
-Der Tiergartentunnel ist als sichtbare Untergrund-Referenzroute mit
-Tunnelröhre, warmen Lichtpunkten und Lüftungs-/Schachtmarkern sichtbar;
-das ist eine öffentliche QA-Annäherung, keine vermessene Tunnelgeometrie.
+Der Tiergartentunnel ist als sichtbares unterirdisches Rechteckbauwerk mit
+zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
+Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie ist
+eine Open-Data-/Public-Route-/OSM-gestützte Ingenieurannäherung; sie ist noch
+keine amtliche Bestandsvermessung.
 Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
 und eine Kompasszeile machen Blickwinkel reproduzierbar. Die Tasten 1/2/3
@@ -1279,9 +1404,11 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
-The Tiergartentunnel is shown as an under-surface reference route with
-tunnel tube, warm lighting dots, and ventilation / shaft markers; it is a
-public QA approximation, not surveyed tunnel geometry.
+The Tiergartentunnel is shown as an underground rectangular structure with
+two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
+markers, and cross-section markers. The geometry is an open-data /
+public-route / OSM-assisted engineering approximation; it is not yet official
+surveyed as-built geometry.
 Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
 right-drag you rotate and swivel the map. Top/North/East/South/West presets
 and a compass line make viewpoints reproducible. Keys 1/2/3 switch the visual
@@ -1371,6 +1498,8 @@ def write_package_manifest(package_dir: Path) -> None:
       "selected-landmark-focus-ring",
       "instrument-hud",
       "visible-tiergartentunnel-overlay",
+      "visible-tiergartentunnel-volume",
+      "visible-tiergartentunnel-center-wall",
       "visible-tiergartentunnel-lighting",
       "visible-tiergartentunnel-ventilation",
     ],
@@ -1421,6 +1550,7 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
     )
   package_dir = out_dir / PACKAGE_NAME
   copy_static_site(source, package_dir)
+  ensure_public_dzi_metadata_copied(public_source, package_dir)
   ensure_dzi_tiles_copied(source, package_dir)
   ensure_dzi_tiles_copied(public_source, package_dir)
   write_start_here(package_dir)

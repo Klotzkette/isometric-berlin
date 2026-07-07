@@ -70,10 +70,12 @@ not permission to copy restricted material:
   Denkmal, Berlin.de, and Kulturstaatsminister sources place the
   temporary memorial on Heinrich-von-Gagern-Strasse / former Kroll-Oper
   grounds near Bundestag and Chancellery. Current point is approximate.
-- Tunnel Tiergarten Spreebogen: public route descriptions and portal
-  coordinates are used as an approximate underground visual centreline.
-  It is drawn as a dashed reference route, not as surveyed tunnel
-  geometry.
+- Tunnel Tiergarten Spreebogen: public route descriptions, portal
+  coordinates, local OSM context, Wikimedia/Commons metadata and
+  DAUB/STUVA cross-section facts are used as an open-data engineered
+  approximation. It is drawn as a two-tube underground cutaway volume
+  with lighting and ventilation cues, but is still not official surveyed
+  as-built geometry.
 - Luiseninsel / Koenigin-Luise-Denkmal: public references and coordinates
   place it west of the current v0.1 image frame; keep as a future bounds
   expansion candidate rather than an off-canvas marker.
@@ -117,6 +119,9 @@ derived textures, or traced map geometry.
 - Tiergartentunnel should visually connect the north portals near
   Hauptbahnhof / Minna-Cauer-Strasse through the Spreebogen and
   Tiergarten toward Kemperplatz, then continue out of frame southward.
+  The viewer should show an underground body rather than only a map
+  line, because the owner wants the tunnel visibly carried under the
+  surface.
 
 ## Rendering Implications
 

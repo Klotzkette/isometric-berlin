@@ -3,24 +3,48 @@
     {
       "name": "Tunnel Tiergarten Spreebogen / B96",
       "role": "underground_reference_route",
-      "source": "Public route and portal-coordinate QA; approximate image overlay",
+      "geometry_status": "open-data engineered approximation, not official surveyed as-built geometry",
+      "source": "Public portal coordinates, public route description, local OSM context and DAUB/STUVA cross-section facts; image overlay extrapolated for the local viewer",
+      "source_urls": [
+        "https://de.wikipedia.org/wiki/Tunnel_Tiergarten_Spreebogen",
+        "https://www.daub-ita.de/en/tunnel-projects/deutschland/tiergartentunnel-b-96-berlin/",
+        "https://commons.wikimedia.org/wiki/Category:Tiergartentunnel_(road_tunnel)"
+      ],
+      "volume": {
+        "label": "schematic two-tube rectangular tunnel volume",
+        "tube_count": 2,
+        "width_px": 30,
+        "sidewall_px": 8,
+        "center_wall_px": 4,
+        "clear_width_each_direction_m": 10.5,
+        "clear_height_m": 5.0,
+        "total_width_m": 23.4,
+        "assumed_depth_m": -10.0,
+        "depth_status": "schematic constant depth for cutaway rendering"
+      },
       "lighting": {
         "label": "Tunnelbeleuchtung",
-        "spacing_px": 92,
+        "spacing_px": 72,
         "color": "#f7d77a"
       },
       "ventilation": [
         { "x": 1793, "y": 107, "label": "Nordportal / Lüftung" },
+        { "x": 1518, "y": 260, "label": "Hauptbahnhof Nord / Technik" },
         { "x": 1374, "y": 340, "label": "Hauptbahnhof / Abluft" },
         { "x": 1193, "y": 492, "label": "Spreebogen / Lüfter" },
+        { "x": 929, "y": 694, "label": "Tiergarten / Notausstieg" },
         { "x": 486, "y": 921, "label": "Kemperplatz / Lüftung" }
       ],
       "points": [
         { "x": 1793, "y": 107, "label": "Minna-Cauer-Straße" },
         { "x": 1669, "y": 182, "label": "Invalidenstraße" },
+        { "x": 1518, "y": 260, "label": "Hauptbahnhof Nord" },
         { "x": 1374, "y": 340, "label": "Hauptbahnhof / Spree" },
+        { "x": 1279, "y": 415, "label": "Spreebogen" },
         { "x": 1193, "y": 492, "label": "Kanzleramt / Spreebogen" },
+        { "x": 1059, "y": 590, "label": "Tiergarten Nord" },
         { "x": 929, "y": 694, "label": "Tiergarten" },
+        { "x": 708, "y": 809, "label": "Tiergarten / Straße des 17. Juni" },
         { "x": 486, "y": 921, "label": "Kemperplatz / Tiergartenstraße" }
       ]
     }

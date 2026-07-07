@@ -46,3 +46,12 @@ It does **not** yet claim true photogrammetric facade relief. For that,
 the next major step should ingest the official Berlin 3D mesh/OBJ
 texture tiles or another fully licensed textured 3D source, then render
 from that mesh rather than stylising LoD2 footprints.
+
+## Tiergartentunnel precision claim
+
+The Tiergartentunnel route is now drawn as a visible underground
+engineering cutaway using public portal coordinates, public route
+descriptions, OSM context and published cross-section facts. Its
+planimetric route and depth are still an approximation, not official
+surveyed as-built geometry. See
+[`tiergartentunnel-geometry.md`](tiergartentunnel-geometry.md).

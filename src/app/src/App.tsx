@@ -1,22 +1,24 @@
-import Compass from "lucide-react/dist/esm/icons/compass.js";
-import FlipHorizontal2 from "lucide-react/dist/esm/icons/flip-horizontal-2.js";
-import FlipVertical2 from "lucide-react/dist/esm/icons/flip-vertical-2.js";
-import Home from "lucide-react/dist/esm/icons/home.js";
-import Info from "lucide-react/dist/esm/icons/info.js";
-import Keyboard from "lucide-react/dist/esm/icons/keyboard.js";
-import Link2 from "lucide-react/dist/esm/icons/link-2.js";
-import LocateFixed from "lucide-react/dist/esm/icons/locate-fixed.js";
-import MapIcon from "lucide-react/dist/esm/icons/map.js";
-import MapPinned from "lucide-react/dist/esm/icons/map-pinned.js";
-import Minus from "lucide-react/dist/esm/icons/minus.js";
-import Pause from "lucide-react/dist/esm/icons/pause.js";
-import Play from "lucide-react/dist/esm/icons/play.js";
-import Plus from "lucide-react/dist/esm/icons/plus.js";
-import RotateCcw from "lucide-react/dist/esm/icons/rotate-ccw.js";
-import RotateCw from "lucide-react/dist/esm/icons/rotate-cw.js";
-import SkipBack from "lucide-react/dist/esm/icons/skip-back.js";
-import SkipForward from "lucide-react/dist/esm/icons/skip-forward.js";
-import X from "lucide-react/dist/esm/icons/x.js";
+import {
+  Compass,
+  FlipHorizontal2,
+  FlipVertical2,
+  Home,
+  Info,
+  Keyboard,
+  Link2,
+  LocateFixed,
+  Map as MapIcon,
+  MapPinned,
+  Minus,
+  Pause,
+  Play,
+  Plus,
+  RotateCcw,
+  RotateCw,
+  SkipBack,
+  SkipForward,
+  X,
+} from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

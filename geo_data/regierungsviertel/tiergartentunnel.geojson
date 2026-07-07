@@ -13,21 +13,39 @@
       "properties": {
         "name": "Tunnel Tiergarten Spreebogen / B96",
         "role": "underground_reference_route",
-        "source": "Public tunnel portal coordinates and route description; approximate centreline for visual QA",
+        "geometry_status": "open-data engineered approximation, not official surveyed as-built geometry",
+        "source": "Public tunnel portal coordinates, public route description, local OSM tunnel/road context, and DAUB/STUVA cross-section facts; centreline and depth profile extrapolated for visual QA",
+        "source_urls": [
+          "https://de.wikipedia.org/wiki/Tunnel_Tiergarten_Spreebogen",
+          "https://www.daub-ita.de/en/tunnel-projects/deutschland/tiergartentunnel-b-96-berlin/",
+          "https://commons.wikimedia.org/wiki/Category:Tiergartentunnel_(road_tunnel)"
+        ],
         "length_m": 2392,
         "opened": "2006-03-26",
-        "render_cues": "Draw as a visible under-surface tunnel tube with warm lighting dots and ventilation / shaft markers at portals and key service points.",
-        "notes": "Approximate visual centreline from Minna-Cauer-Strasse / Invalidenstrasse through Hauptbahnhof, under the Spree and Tiergarten to Kemperplatz, with southern continuation outside v0.1 visible bounds."
+        "route_description": "Minna-Cauer-Strasse / Invalidenstrasse, under Berlin Hauptbahnhof, under the Spree, past the Bundeskanzleramt / Spreebogen, through the Tiergarten, Kemperplatz / Tiergartenstrasse, then south toward Reichpietschufer outside the visible v0.1 focus area.",
+        "tube_count": 2,
+        "clear_width_each_direction_m": 10.5,
+        "clear_height_m": 5.0,
+        "total_width_m": 23.4,
+        "assumed_visual_depth_m": -10.0,
+        "depth_status": "schematic constant depth for cutaway rendering",
+        "render_cues": "Draw as a visible under-surface rectangular tunnel volume with casing, floor, side walls, centre wall, warm lighting dots, ventilation / shaft markers and portal markers.",
+        "notes": "The committed geometry is a first-pass engineered approximation for the isometric model. It is intentionally not labelled as surveyed Amtsgeometrie until an official as-built tunnel GIS/CAD source is found and licensed."
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
           [13.36763, 52.52643],
           [13.36789, 52.5251],
+          [13.36796, 52.52375],
           [13.36805, 52.5224],
+          [13.36835, 52.5213],
           [13.3688, 52.5202],
+          [13.36928, 52.51845],
           [13.3698, 52.5168],
+          [13.37026, 52.5147],
           [13.37071, 52.51222],
+          [13.37145, 52.5092],
           [13.3723, 52.50616]
         ]
       }

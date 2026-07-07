@@ -145,6 +145,14 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
       f"Package HTML launcher lacks tunnel lighting / ventilation cues: {label}"
     )
   if (
+    "tunnel-volume" not in start_here_text
+    or "tunnel-center-wall" not in start_here_text
+    or "addTunnelTube" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks tunnel volume / centre-wall geometry: {label}"
+    )
+  if (
     "requestAnimationFrame" not in start_here_text
     or "renderQueued" not in start_here_text
     or "lostpointercapture" not in start_here_text
@@ -405,6 +413,43 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
   return failures
 
 
+def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[str]:
+  failures: list[str] = []
+  routes = payload.get("routes")
+  if not isinstance(routes, list) or not routes:
+    return [f"Tiergartentunnel payload has no routes: {label}"]
+  route = routes[0]
+  if not isinstance(route, dict):
+    return [f"Tiergartentunnel route is not an object: {label}"]
+  volume = route.get("volume")
+  if not isinstance(volume, dict):
+    failures.append(f"Tiergartentunnel route lacks volume metadata: {label}")
+  else:
+    for key in [
+      "tube_count",
+      "width_px",
+      "clear_width_each_direction_m",
+      "clear_height_m",
+      "total_width_m",
+      "assumed_depth_m",
+    ]:
+      value = volume.get(key)
+      if not isinstance(value, int | float) or value <= 0 and key != "assumed_depth_m":
+        failures.append(f"Tiergartentunnel volume has invalid {key}: {label}")
+    if float(volume.get("assumed_depth_m", 0)) >= 0:
+      failures.append(f"Tiergartentunnel volume depth is not underground: {label}")
+  if len(route.get("points", [])) < 8:
+    failures.append(f"Tiergartentunnel route is too coarse for v0.1.48: {label}")
+  if len(route.get("ventilation", [])) < 5:
+    failures.append(f"Tiergartentunnel route lacks enough ventilation markers: {label}")
+  status = str(route.get("geometry_status", ""))
+  if "not official surveyed" not in status:
+    failures.append(
+      f"Tiergartentunnel route must state non-surveyed geometry status: {label}"
+    )
+  return failures
+
+
 def collect_failures(
   root: Path = ROOT, *, require_package_zip: bool = False
 ) -> list[str]:
@@ -436,6 +481,17 @@ def collect_failures(
     if not (public_dzi / filename).exists():
       failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
   failures.extend(dzi_tile_failures(public_dzi))
+  tunnel_payload = public_dzi / "tiergartentunnel.json"
+  if tunnel_payload.exists():
+    try:
+      failures.extend(
+        tunnel_payload_failures(
+          json.loads(tunnel_payload.read_text(encoding="utf-8")),
+          label=str(tunnel_payload),
+        )
+      )
+    except json.JSONDecodeError as exc:
+      failures.append(f"Invalid Tiergartentunnel payload: {tunnel_payload}: {exc}")
 
   public_landmarks = public_dzi / "landmarks.json"
   bundled_landmarks = (
@@ -492,6 +548,19 @@ def collect_failures(
             asset_reader=lambda relative: (package_dir / relative).read_bytes(),
           )
         )
+    packaged_tunnel = (
+      package_dir / "dzi" / "regierungsviertel" / "tiergartentunnel.json"
+    )
+    if packaged_tunnel.exists():
+      try:
+        failures.extend(
+          tunnel_payload_failures(
+            json.loads(packaged_tunnel.read_text(encoding="utf-8")),
+            label=str(packaged_tunnel),
+          )
+        )
+      except json.JSONDecodeError as exc:
+        failures.append(f"Invalid packaged Tiergartentunnel payload: {exc}")
 
   zip_path = root / "releases" / PACKAGE_ZIP
   if require_package_zip or zip_path.exists():

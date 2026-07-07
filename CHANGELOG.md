@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.1.48
+
+- Upgrade the Tiergartentunnel representation from a reference line to
+  an open-data engineered underground cutaway: two-tube rectangular
+  volume, side walls, centre wall, warm lighting, ventilation / shaft
+  markers and cross-section cues.
+- Add public-source and precision metadata for the tunnel route, with a
+  clear `geometry_status` that prevents the approximation from being
+  mistaken for official surveyed as-built geometry.
+- Align the deterministic source renderer and zero-server
+  `START-HERE.html` launcher so regenerated tiles and the packaged HTML
+  viewer use the same tunnel-volume semantics.
+- Extend release readiness and local package smoke tests to require the
+  new tunnel volume metadata and viewer functions.
+- Rebuild the Mac/Windows/Linux ZIP and update README/version metadata to
+  v0.1.48.
+
 ## v0.1.47
 
 - Refine the Tiergartentunnel visual layer with a stronger under-surface

@@ -26,6 +26,9 @@ REQUIRED_START_SNIPPETS = (
   "tunnelPayload",
   "tunnel-light",
   "tunnel-vent",
+  "tunnel-volume",
+  "tunnel-center-wall",
+  "addTunnelTube",
   "addTunnelVentilation",
   "Drehen/Swivel",
 )
@@ -153,6 +156,13 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
     raise RuntimeError("Tiergartentunnel overlay lacks ventilation markers")
   if int(route.get("lighting", {}).get("spacing_px", 0)) <= 0:
     raise RuntimeError("Tiergartentunnel overlay lacks lighting spacing")
+  volume = route.get("volume")
+  if not isinstance(volume, dict) or int(volume.get("width_px", 0)) <= 0:
+    raise RuntimeError("Tiergartentunnel overlay lacks tunnel volume metadata")
+  if float(volume.get("assumed_depth_m", 0)) >= 0:
+    raise RuntimeError("Tiergartentunnel overlay depth is not underground")
+  if len(route.get("points", [])) < 8:
+    raise RuntimeError("Tiergartentunnel overlay route is too coarse")
 
   landmarks = read_json_url(f"{base_url}/dzi/regierungsviertel/landmarks.json")
   if len(landmarks.get("landmarks", [])) < 30:
