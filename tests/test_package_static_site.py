@@ -101,6 +101,14 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "view-north" in html
   assert "setViewPreset" in html
   assert "compass" in html
+  assert "lang-en" in html
+  assert "applyLanguage" in html
+  assert "theme-night" in html
+  assert "setTheme" in html
+  assert "night-light-overlay" in html
+  assert "addNightLights" in html
+  assert "night-window" in html
+  assert "night-street-lamp" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 
@@ -118,6 +126,8 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "Gatekeeper" in readme
   assert "nächsten freien Port" in readme
   assert "next free port" in readme
+  assert "Tag-/Nachtmodus" in readme
+  assert "German/English" in readme
   assert "--no-open --port 8770" in readme
 
 
@@ -136,6 +146,7 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     "dzi/regierungsviertel/regierungsviertel.dzi": b"dzi",
     "dzi/regierungsviertel/reference_map.png": b"reference",
     "dzi/regierungsviertel/landmarks.json": b"{}",
+    "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
   }
   for relative, data in files.items():
@@ -246,6 +257,7 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
     "overview_source.png": b"source",
     "reference_map.png": b"reference",
     "regierungsviertel.dzi": b"dzi",
+    "tiergartentunnel.json": b'{"routes":[]}',
     "wikimedia_attribution.json": b"{}",
   }.items():
     (dist_dzi / filename).write_bytes(data)

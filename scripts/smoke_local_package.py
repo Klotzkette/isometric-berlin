@@ -36,6 +36,15 @@ REQUIRED_START_SNIPPETS = (
   "addTunnelTube",
   "addTunnelVentilation",
   "Drehen/Swivel",
+  "lang-en",
+  "applyLanguage",
+  "setLanguage",
+  "theme-night",
+  "setTheme",
+  "night-light-overlay",
+  "addNightLights",
+  "night-window",
+  "night-street-lamp",
 )
 
 

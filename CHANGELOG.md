@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.51
+
+- Add bilingual Deutsch/English controls to the zero-server
+  `START-HERE.html` viewer and keep labels, HUD text, hints and reference
+  modal copy in sync when switching language.
+- Add Day/Night controls to the offline viewer. Night mode overlays lit
+  windows for the Reichstag, Bundeskanzleramt and Hauptbahnhof, an
+  illuminated Brandenburg Gate / Quadriga cue, selected monument accents,
+  Tiergarten / Pariser Platz street lamps and stronger Tiergartentunnel
+  lighting.
+- Extend the package manifest, release-readiness check and local smoke test
+  so bilingual UI and night-light overlays are required in future packages.
+
 ## v0.1.50
 
 - Add a zero-server `START-HERE.html` underside mode for the

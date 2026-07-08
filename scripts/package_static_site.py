@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.50"
+PACKAGE_VERSION = "0.1.51"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -124,7 +124,7 @@ START_HERE_HTML = """<!doctype html>
   <title>Isometric Berlin starten</title>
   <style>
     :root {
-      color-scheme: light;
+      color-scheme: light dark;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #101616;
       color: #202725;
@@ -137,6 +137,8 @@ START_HERE_HTML = """<!doctype html>
       --map-filter: contrast(1.08) saturate(1.16) brightness(1.04);
       --map-shadow: 0 34px 90px rgba(0, 0, 0, .34);
       --grid-opacity: .26;
+      --night-light-opacity: 0;
+      --surface-night-opacity: 1;
     }
     * { box-sizing: border-box; }
     body {
@@ -166,6 +168,24 @@ START_HERE_HTML = """<!doctype html>
       --map-filter: contrast(.9) saturate(.72) brightness(.72);
       --stage-bg: #070b0c;
       --grid-opacity: .46;
+    }
+    body[data-theme="night"] {
+      --stage-bg: #05080b;
+      --panel-bg: #101715;
+      --panel-ink: #f4ead0;
+      --map-filter: brightness(.34) contrast(1.18) saturate(.62);
+      --map-shadow: 0 34px 100px rgba(0, 0, 0, .72);
+      --grid-opacity: .34;
+      --night-light-opacity: 1;
+      --surface-night-opacity: .92;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(247, 215, 122, .08), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(79, 150, 178, .12), transparent 22%),
+        linear-gradient(135deg, #020405, #071115 56%, #14100a);
+    }
+    body[data-theme="night"][data-under="true"] {
+      --map-filter: brightness(.28) contrast(1.1) saturate(.48);
+      --night-light-opacity: 1;
     }
     .shell {
       display: grid;
@@ -228,6 +248,7 @@ START_HERE_HTML = """<!doctype html>
       user-select: none;
       -webkit-user-drag: none;
       filter: var(--map-filter);
+      opacity: var(--surface-night-opacity);
       transition: filter .18s ease;
     }
     body[data-under="true"] .map-image {
@@ -243,6 +264,53 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       pointer-events: none;
       overflow: visible;
+    }
+    .night-light-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2157px;
+      height: 1529px;
+      pointer-events: none;
+      overflow: visible;
+      opacity: var(--night-light-opacity);
+      mix-blend-mode: screen;
+      transition: opacity .22s ease;
+    }
+    .night-glow {
+      fill: rgba(247, 215, 122, .2);
+      stroke: none;
+      filter: blur(.2px) drop-shadow(0 0 20px rgba(247, 215, 122, .48));
+    }
+    .night-window {
+      fill: #ffe7a4;
+      stroke: rgba(82, 56, 12, .7);
+      stroke-width: 1;
+      filter: drop-shadow(0 0 5px rgba(255, 221, 132, .72));
+    }
+    .night-cone {
+      fill: rgba(255, 218, 132, .22);
+      stroke: rgba(255, 234, 170, .2);
+      stroke-width: 1;
+      filter: drop-shadow(0 0 12px rgba(255, 210, 102, .32));
+    }
+    .night-street-lamp {
+      fill: #fff1b6;
+      stroke: rgba(61, 46, 12, .75);
+      stroke-width: 2;
+      filter: drop-shadow(0 0 9px rgba(255, 226, 139, .78));
+    }
+    .night-monument-gold {
+      fill: #f8d970;
+      stroke: #fff0b2;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 12px rgba(248, 217, 112, .82));
+    }
+    .night-bronze {
+      fill: #5f8e7d;
+      stroke: #c9f0d7;
+      stroke-width: 1.5;
+      filter: drop-shadow(0 0 10px rgba(123, 189, 161, .62));
     }
     body[data-under="true"] .tunnel-overlay {
       filter: drop-shadow(0 0 18px rgba(247, 215, 122, .42));
@@ -355,6 +423,16 @@ START_HERE_HTML = """<!doctype html>
       stroke: rgba(73, 54, 18, .7);
       stroke-width: 2;
       filter: drop-shadow(0 0 8px rgba(247, 215, 122, .76));
+    }
+    body[data-theme="night"] .tunnel-light {
+      fill: #fff1b6;
+      filter: drop-shadow(0 0 14px rgba(255, 231, 164, .92));
+    }
+    body[data-theme="night"] .tunnel-under-glow {
+      stroke: rgba(247, 215, 122, .3);
+    }
+    body[data-theme="night"] .tunnel-core {
+      stroke: rgba(255, 244, 204, .96);
     }
     .tunnel-vent {
       fill: #2b3033;
@@ -511,8 +589,28 @@ START_HERE_HTML = """<!doctype html>
       color: var(--panel-ink);
       box-shadow: -14px 0 44px rgba(0, 0, 0, .18);
     }
+    body[data-theme="night"] aside {
+      background:
+        linear-gradient(180deg, rgba(22, 31, 29, .97), rgba(8, 14, 14, .98)),
+        var(--panel-bg);
+      color: var(--panel-ink);
+      box-shadow: -14px 0 54px rgba(0, 0, 0, .52);
+    }
     h1 { margin: 0; font-size: 19px; line-height: 1.1; letter-spacing: 0; }
     .sub { margin: 5px 0 0; font-size: 13px; color: #59615a; line-height: 1.35; }
+    body[data-theme="night"] .sub { color: #c5d0c8; }
+    .top-toggles {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
+    }
+    .top-toggles button {
+      min-width: 0;
+      min-height: 31px;
+      padding-inline: 5px;
+      font-size: 12px;
+    }
     .controls {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -531,10 +629,25 @@ START_HERE_HTML = """<!doctype html>
       cursor: pointer;
     }
     button:hover, a.button:hover { background: #f0eadc; }
+    body[data-theme="night"] button,
+    body[data-theme="night"] a.button {
+      background: #182321;
+      color: #f6efd8;
+      border-color: rgba(247, 215, 122, .3);
+    }
+    body[data-theme="night"] button:hover,
+    body[data-theme="night"] a.button:hover {
+      background: #25302c;
+    }
     button.active {
       background: #1d4d5b;
       color: #fffaf0;
       border-color: #1d4d5b;
+    }
+    body[data-theme="night"] button.active {
+      background: #f1c84b;
+      color: #17201d;
+      border-color: #f1c84b;
     }
     .wide { grid-column: span 4; }
     .half { grid-column: span 2; }
@@ -570,6 +683,11 @@ START_HERE_HTML = """<!doctype html>
       font-size: 12px;
       line-height: 1.35;
     }
+    body[data-theme="night"] .hint {
+      background: #182420;
+      color: #e8dfc5;
+    }
+    body[data-theme="night"] .hint strong { color: #f1c84b; }
     .hint strong {
       color: #1d4d5b;
     }
@@ -602,6 +720,12 @@ START_HERE_HTML = """<!doctype html>
     .list button.priority.active {
       background: linear-gradient(90deg, rgba(31, 138, 165, .24), rgba(241, 200, 75, .22), #fff);
     }
+    body[data-theme="night"] .list button.active {
+      background: linear-gradient(90deg, rgba(241, 200, 75, .3), rgba(23, 32, 29, .96));
+    }
+    body[data-theme="night"] .list button.priority {
+      background: linear-gradient(90deg, rgba(31, 138, 165, .24), rgba(23, 32, 29, .96));
+    }
     .index {
       color: #6c776e;
       font-variant-numeric: tabular-nums;
@@ -614,6 +738,10 @@ START_HERE_HTML = """<!doctype html>
       border-top: 1px solid rgba(30, 40, 35, .14);
       padding-top: 10px;
     }
+    body[data-theme="night"] .notice {
+      color: #c5d0c8;
+      border-top-color: rgba(247, 215, 122, .22);
+    }
     .reference {
       position: fixed;
       inset: 18px;
@@ -623,6 +751,11 @@ START_HERE_HTML = """<!doctype html>
       background: #fffaf0;
       border: 1px solid rgba(30, 40, 35, .2);
       box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+    }
+    body[data-theme="night"] .reference {
+      background: #101715;
+      color: #f4ead0;
+      border-color: rgba(247, 215, 122, .32);
     }
     .reference.open { display: grid; }
     .reference header {
@@ -656,11 +789,12 @@ START_HERE_HTML = """<!doctype html>
       <div class="map-layer" id="layer">
         <img class="map-image" id="map-image" src="dzi/regierungsviertel/overview_source.png" alt="Isometric Berlin Regierungsviertel">
         <svg class="tunnel-overlay" id="tunnel-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
+        <svg class="night-light-overlay" id="night-light-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
         <div class="focus-ring" id="focus-ring" aria-hidden="true"></div>
         <div id="markers"></div>
       </div>
       <div class="hud" aria-live="polite">
-        <strong>Regierungsviertel Live View</strong>
+        <strong id="hud-title">Regierungsviertel Live View</strong>
         <div class="hud-row"><span id="hud-target">Bundeskanzleramt</span><span id="hud-zoom">Zoom 1.00x</span></div>
         <div class="hud-meter"><span id="hud-meter"></span></div>
       </div>
@@ -669,7 +803,13 @@ START_HERE_HTML = """<!doctype html>
     <aside>
       <header>
         <h1>Isometric Berlin</h1>
-        <p class="sub">Offline-Start ohne Terminal. Verschieben, zoomen, drehen und swiveln direkt mit Maus oder Buttons.</p>
+        <p class="sub" id="subtitle">Offline-Start ohne Terminal. Verschieben, zoomen, drehen und swiveln direkt mit Maus oder Buttons.</p>
+        <div class="top-toggles" aria-label="Sprache und Darstellung">
+          <button type="button" id="lang-de" class="active">Deutsch</button>
+          <button type="button" id="lang-en">English</button>
+          <button type="button" id="theme-day" class="active">Tag</button>
+          <button type="button" id="theme-night">Nacht</button>
+        </div>
       </header>
       <div class="controls" aria-label="Ansicht">
         <button type="button" id="mode-pan" class="active half">Verschieben</button>
@@ -697,11 +837,11 @@ START_HERE_HTML = """<!doctype html>
           <button type="button" id="view-west">West</button>
         </div>
         <button type="button" id="reference" class="wide">Top-down-Referenzkarte</button>
-        <a class="button wide" href="index.html">Advanced Viewer nur mit Server-Fallback</a>
+        <a class="button wide" id="advanced-link" href="index.html">Advanced Viewer nur mit Server-Fallback</a>
       </div>
       <p class="hint" id="hint"><strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Atlas/Cinematic/Lab ändern Kontrast, Bühne und Lesbarkeit.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
-      <p class="notice">
+      <p class="notice" id="notice">
         Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist
         nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.
       </p>
@@ -709,7 +849,7 @@ START_HERE_HTML = """<!doctype html>
   </main>
   <section class="reference" id="reference-panel" aria-label="Top-down-Referenzkarte">
     <header>
-      <strong>Top-down-Referenzkarte</strong>
+      <strong id="reference-title">Top-down-Referenzkarte</strong>
       <button type="button" id="reference-close">Schließen</button>
     </header>
     <img src="dzi/regierungsviertel/reference_map.png" alt="Top-down reference map">
@@ -727,6 +867,7 @@ START_HERE_HTML = """<!doctype html>
     const layer = document.getElementById("layer");
     const mapImage = document.getElementById("map-image");
     const tunnelOverlay = document.getElementById("tunnel-overlay");
+    const nightOverlay = document.getElementById("night-light-overlay");
     const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
@@ -741,12 +882,117 @@ START_HERE_HTML = """<!doctype html>
       cinematic: document.getElementById("profile-cinematic"),
       lab: document.getElementById("profile-lab"),
     };
+    const langButtons = {
+      de: document.getElementById("lang-de"),
+      en: document.getElementById("lang-en"),
+    };
+    const themeButtons = {
+      day: document.getElementById("theme-day"),
+      night: document.getElementById("theme-night"),
+    };
+    const ui = {
+      subtitle: document.getElementById("subtitle"),
+      modePan: document.getElementById("mode-pan"),
+      modeRotate: document.getElementById("mode-rotate"),
+      zoomIn: document.getElementById("zoom-in"),
+      zoomOut: document.getElementById("zoom-out"),
+      tiltLeft: document.getElementById("tilt-left"),
+      tiltRight: document.getElementById("tilt-right"),
+      tunnelFocus: document.getElementById("tunnel-focus"),
+      quality: document.getElementById("quality"),
+      reset: document.getElementById("reset"),
+      reference: document.getElementById("reference"),
+      advancedLink: document.getElementById("advanced-link"),
+      hint: document.getElementById("hint"),
+      notice: document.getElementById("notice"),
+      referenceTitle: document.getElementById("reference-title"),
+      referenceClose: document.getElementById("reference-close"),
+      hudTitle: document.getElementById("hud-title"),
+    };
     const VIEW_PRESETS = {
-      top: { label: "Top", rotation: 0, tilt: 0 },
-      north: { label: "Nord", rotation: 0, tilt: -10 },
-      east: { label: "Ost", rotation: 90, tilt: -10 },
-      south: { label: "Süd", rotation: 180, tilt: -10 },
-      west: { label: "West", rotation: 270, tilt: -10 },
+      top: { labelKey: "viewTop", rotation: 0, tilt: 0 },
+      north: { labelKey: "viewNorth", rotation: 0, tilt: -10 },
+      east: { labelKey: "viewEast", rotation: 90, tilt: -10 },
+      south: { labelKey: "viewSouth", rotation: 180, tilt: -10 },
+      west: { labelKey: "viewWest", rotation: 270, tilt: -10 },
+    };
+    const TEXT = {
+      de: {
+        documentTitle: "Isometric Berlin starten",
+        stageLabel: "Isometrische Karte",
+        subtitle: "Offline-Start ohne Terminal. Verschieben, zoomen, drehen und swiveln direkt mit Maus oder Buttons.",
+        modePan: "Verschieben",
+        modeRotate: "Drehen/Swivel",
+        zoomIn: "Zoom +",
+        zoomOut: "Zoom -",
+        tiltLeft: "Swivel ◀",
+        tiltRight: "Swivel ▶",
+        underside: "Unterseite",
+        tunnelFocus: "Tunnel-Fokus",
+        pixelArt: "Pixel-Art",
+        detailImage: "Detailbild",
+        reset: "Reset",
+        reference: "Top-down-Referenzkarte",
+        advanced: "Advanced Viewer nur mit Server-Fallback",
+        hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
+        hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten.",
+        notice: "Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.",
+        referenceTitle: "Top-down-Referenzkarte",
+        referenceClose: "Schließen",
+        hudTitle: "Regierungsviertel Live View",
+        day: "Tag",
+        night: "Nacht",
+        langDe: "Deutsch",
+        langEn: "English",
+        viewTop: "Top",
+        viewNorth: "Nord",
+        viewEast: "Ost",
+        viewSouth: "Süd",
+        viewWest: "West",
+        free: "Frei",
+        underSuffix: " · Unterseite",
+        landmarkFallback: "Landmarke",
+        zoom: "Zoom",
+        swivel: "Swivel",
+      },
+      en: {
+        documentTitle: "Start Isometric Berlin",
+        stageLabel: "Isometric map",
+        subtitle: "Offline start without Terminal. Pan, zoom, rotate and swivel with the mouse or buttons.",
+        modePan: "Pan",
+        modeRotate: "Rotate/Swivel",
+        zoomIn: "Zoom +",
+        zoomOut: "Zoom -",
+        tiltLeft: "Swivel ◀",
+        tiltRight: "Swivel ▶",
+        underside: "Underside",
+        tunnelFocus: "Tunnel focus",
+        pixelArt: "Pixel art",
+        detailImage: "Detail image",
+        reset: "Reset",
+        reference: "Top-down reference map",
+        advanced: "Advanced viewer, server fallback only",
+        hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
+        hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below.",
+        notice: "This START-HERE file is the robust offline viewer. The Advanced Viewer is only a fallback for server start and may be blocked when opened directly from the folder.",
+        referenceTitle: "Top-down reference map",
+        referenceClose: "Close",
+        hudTitle: "Government Quarter Live View",
+        day: "Day",
+        night: "Night",
+        langDe: "Deutsch",
+        langEn: "English",
+        viewTop: "Top",
+        viewNorth: "North",
+        viewEast: "East",
+        viewSouth: "South",
+        viewWest: "West",
+        free: "Free",
+        underSuffix: " · underside",
+        landmarkFallback: "Landmark",
+        zoom: "Zoom",
+        swivel: "Swivel",
+      },
     };
     const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
     const PRIORITY_LANDMARKS = new Set([
@@ -778,12 +1024,72 @@ START_HERE_HTML = """<!doctype html>
       ot: 0,
       pixel: false,
       profile: "atlas",
+      lang: "de",
+      theme: "day",
     };
     document.body.dataset.profile = state.profile;
     document.body.dataset.under = "false";
+    document.body.dataset.theme = state.theme;
 
     let renderQueued = false;
     let resizeTimer = 0;
+    function t(key) {
+      return (TEXT[state.lang] && TEXT[state.lang][key]) || TEXT.de[key] || key;
+    }
+    function updateHint() {
+      ui.hint.innerHTML = state.mode === "rotate" ? t("hintRotate") : t("hintPan");
+    }
+    function applyLanguage() {
+      document.documentElement.lang = state.lang;
+      document.title = t("documentTitle");
+      stage.setAttribute("aria-label", t("stageLabel"));
+      referencePanel.setAttribute("aria-label", t("reference"));
+      ui.subtitle.textContent = t("subtitle");
+      ui.modePan.textContent = t("modePan");
+      ui.modeRotate.textContent = t("modeRotate");
+      ui.zoomIn.textContent = t("zoomIn");
+      ui.zoomOut.textContent = t("zoomOut");
+      ui.tiltLeft.textContent = t("tiltLeft");
+      ui.tiltRight.textContent = t("tiltRight");
+      underButton.textContent = t("underside");
+      ui.tunnelFocus.textContent = t("tunnelFocus");
+      ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
+      ui.reset.textContent = t("reset");
+      ui.reference.textContent = t("reference");
+      ui.advancedLink.textContent = t("advanced");
+      ui.notice.textContent = t("notice");
+      ui.referenceTitle.textContent = t("referenceTitle");
+      ui.referenceClose.textContent = t("referenceClose");
+      ui.hudTitle.textContent = t("hudTitle");
+      langButtons.de.textContent = t("langDe");
+      langButtons.en.textContent = t("langEn");
+      themeButtons.day.textContent = t("day");
+      themeButtons.night.textContent = t("night");
+      Object.entries(VIEW_PRESETS).forEach(([key, preset]) => {
+        viewButtons[key].textContent = t(preset.labelKey);
+      });
+      updateHint();
+      Object.entries(langButtons).forEach(([key, button]) => {
+        button.classList.toggle("active", key === state.lang);
+        button.setAttribute("aria-pressed", key === state.lang ? "true" : "false");
+      });
+      render();
+    }
+    function setLanguage(lang) {
+      if (!TEXT[lang]) return;
+      state.lang = lang;
+      applyLanguage();
+    }
+    function setTheme(theme) {
+      if (!themeButtons[theme]) return;
+      state.theme = theme;
+      document.body.dataset.theme = theme;
+      Object.entries(themeButtons).forEach(([key, button]) => {
+        button.classList.toggle("active", key === theme);
+        button.setAttribute("aria-pressed", key === theme ? "true" : "false");
+      });
+      render();
+    }
     function displayY(y) {
       return state.under ? image.height - y : y;
     }
@@ -792,17 +1098,17 @@ START_HERE_HTML = """<!doctype html>
       layer.style.height = `${image.height}px`;
       layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale}) scaleY(${state.under ? -1 : 1})`;
       const rotation = Math.round(((state.rotation % 360) + 360) % 360);
-      const viewName = VIEW_PRESETS[state.viewKey]?.label || "Frei";
+      const viewName = VIEW_PRESETS[state.viewKey] ? t(VIEW_PRESETS[state.viewKey].labelKey) : t("free");
       const selected = landmarks.find((landmark) => landmark.name === selectedLandmarkName) || landmarks[0];
-      const underText = state.under ? " · Unterseite" : "";
-      compass.textContent = `${viewName}${underText} · ${rotation}° · Swivel ${Math.round(state.tilt)}° · ${selected?.name || "Landmarke"}`;
+      const underText = state.under ? t("underSuffix") : "";
+      compass.textContent = `${viewName}${underText} · ${rotation}° · ${t("swivel")} ${Math.round(state.tilt)}° · ${selected?.name || t("landmarkFallback")}`;
       if (selected) {
         focusRing.style.left = `${selected.x}px`;
         focusRing.style.top = `${selected.y}px`;
         hudTarget.textContent = selected.name;
       }
       const zoomRatio = state.fitScale ? state.scale / state.fitScale : 1;
-      hudZoom.textContent = `Zoom ${zoomRatio.toFixed(2)}x`;
+      hudZoom.textContent = `${t("zoom")} ${zoomRatio.toFixed(2)}x`;
       hudMeter.style.width = `${Math.max(6, Math.min(100, zoomRatio * 18))}%`;
       document.body.dataset.profile = state.profile;
       Object.entries(viewButtons).forEach(([key, button]) => {
@@ -831,9 +1137,7 @@ START_HERE_HTML = """<!doctype html>
       document.getElementById("mode-pan").classList.toggle("active", mode === "pan");
       document.getElementById("mode-rotate").classList.toggle("active", mode === "rotate");
       stage.classList.toggle("mode-rotate", mode === "rotate");
-      document.getElementById("hint").textContent = mode === "rotate"
-        ? "Drehmodus: Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tunnel von unten."
-        : "Maus ziehen: Karte verschieben. Shift+ziehen oder Rechtsziehen dreht und swivelt. Unterseite kippt zum Tunnel-Cutaway.";
+      updateHint();
     }
     function fit() {
       const rect = stage.getBoundingClientRect();
@@ -941,7 +1245,7 @@ START_HERE_HTML = """<!doctype html>
       state.pixel = !state.pixel;
       mapImage.src = state.pixel ? "dzi/regierungsviertel/overview.png" : "dzi/regierungsviertel/overview_source.png";
       mapImage.classList.toggle("pixelated", state.pixel);
-      document.getElementById("quality").textContent = state.pixel ? "Detailbild" : "Pixel-Art";
+      ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
     }
     function addMarkers() {
       markerRoot.innerHTML = "";
@@ -1228,6 +1532,182 @@ START_HERE_HTML = """<!doctype html>
           tunnelOverlay.appendChild(group);
         });
     }
+    function addSvgTitle(node, title) {
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      label.textContent = title;
+      node.appendChild(label);
+    }
+    function findLandmark(...needles) {
+      const lowered = needles.map((needle) => needle.toLowerCase());
+      return landmarks.find((landmark) => {
+        const name = String(landmark.name || "").toLowerCase();
+        return lowered.some((needle) => name.includes(needle));
+      });
+    }
+    function landmarkPoint(names, fallback) {
+      const found = findLandmark(...names);
+      return found || fallback;
+    }
+    function addNightEllipse(x, y, rx, ry, className, title, rotation = 0) {
+      const ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+      ellipse.setAttribute("class", className);
+      ellipse.setAttribute("cx", x.toFixed(1));
+      ellipse.setAttribute("cy", y.toFixed(1));
+      ellipse.setAttribute("rx", rx.toFixed(1));
+      ellipse.setAttribute("ry", ry.toFixed(1));
+      if (rotation) ellipse.setAttribute("transform", `rotate(${rotation} ${x} ${y})`);
+      addSvgTitle(ellipse, title);
+      nightOverlay.appendChild(ellipse);
+      return ellipse;
+    }
+    function addNightCircle(x, y, r, className, title) {
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("class", className);
+      circle.setAttribute("cx", x.toFixed(1));
+      circle.setAttribute("cy", y.toFixed(1));
+      circle.setAttribute("r", r.toFixed(1));
+      addSvgTitle(circle, title);
+      nightOverlay.appendChild(circle);
+      return circle;
+    }
+    function addNightRect(x, y, width, height, className, title, rotation = 0) {
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("class", className);
+      rect.setAttribute("x", (x - width / 2).toFixed(1));
+      rect.setAttribute("y", (y - height / 2).toFixed(1));
+      rect.setAttribute("width", width.toFixed(1));
+      rect.setAttribute("height", height.toFixed(1));
+      rect.setAttribute("rx", "2.5");
+      if (rotation) rect.setAttribute("transform", `rotate(${rotation} ${x} ${y})`);
+      addSvgTitle(rect, title);
+      nightOverlay.appendChild(rect);
+      return rect;
+    }
+    function addWindowGrid(x, y, columns, rows, gapX, gapY, rotation, title) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("transform", `translate(${x} ${y}) rotate(${rotation})`);
+      addSvgTitle(group, title);
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          if ((row + column) % 5 === 0) continue;
+          const windowRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          windowRect.setAttribute("class", "night-window");
+          windowRect.setAttribute("x", ((column - (columns - 1) / 2) * gapX - 3.8).toFixed(1));
+          windowRect.setAttribute("y", ((row - (rows - 1) / 2) * gapY - 2.4).toFixed(1));
+          windowRect.setAttribute("width", "7.6");
+          windowRect.setAttribute("height", "4.8");
+          windowRect.setAttribute("rx", "1.2");
+          group.appendChild(windowRect);
+        }
+      }
+      nightOverlay.appendChild(group);
+    }
+    function addLamp(x, y, title = "Street lamp") {
+      addNightEllipse(x, y + 9, 21, 12, "night-cone", title, -16);
+      addNightCircle(x, y, 4.6, "night-street-lamp", title);
+    }
+    function addLampRow(points, spacing, title) {
+      points.slice(1).forEach((end, index) => {
+        const start = points[index];
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const length = Math.hypot(dx, dy);
+        const steps = Math.max(1, Math.floor(length / spacing));
+        for (let step = 0; step <= steps; step += 1) {
+          const amount = step / steps;
+          addLamp(start.x + dx * amount, start.y + dy * amount, title);
+        }
+      });
+    }
+    function addNamedGlow(names, fallback, options) {
+      const point = landmarkPoint(names, fallback);
+      addNightEllipse(
+        point.x,
+        point.y,
+        options.rx,
+        options.ry,
+        options.className || "night-glow",
+        options.title,
+        options.rotation || 0
+      );
+    }
+    function addNightLights() {
+      nightOverlay.innerHTML = "";
+      addNightEllipse(1488, 742, 62, 24, "night-glow", "Reichstagskuppel mit transparenter Nachtbeleuchtung", -8);
+      addWindowGrid(1488, 774, 9, 4, 13, 10, -8, "Beleuchtete Reichstagsfenster und Plenarsaal-Akzent");
+      addNightEllipse(1488, 794, 46, 18, "night-cone", "Violetter Plenarsaal-Schimmer im Reichstag", -8);
+
+      addNightEllipse(1225, 471, 102, 42, "night-glow", "Bundeskanzleramt nachts beleuchtet", -16);
+      addWindowGrid(1225, 471, 10, 4, 15, 11, -16, "Fensterraster Bundeskanzleramt");
+      addWindowGrid(1128, 452, 5, 3, 13, 10, -16, "Kanzleramtsflügel mit Arbeitslicht");
+
+      addNightEllipse(1761, 231, 132, 31, "night-glow", "Glasdach Berlin Hauptbahnhof nachts", -18);
+      addWindowGrid(1761, 231, 12, 2, 18, 12, -18, "Beleuchtetes halbrundes Hauptbahnhofdach");
+
+      addNightEllipse(1342, 941, 112, 54, "night-cone", "Brandenburger Tor mit isometrischem Lichtkegel", -7);
+      addNightEllipse(1342, 909, 36, 12, "night-bronze", "Quadriga in grünlicher Bronze-Färbung", -7);
+      addWindowGrid(1342, 943, 6, 2, 13, 10, -7, "Toröffnungen und Akzentlicht Brandenburger Tor");
+
+      addNamedGlow(["Haus der Kulturen", "HKW"], { x: 777, y: 369 }, {
+        rx: 76,
+        ry: 28,
+        rotation: -10,
+        title: "Haus der Kulturen der Welt mit Dachlicht",
+      });
+      addNamedGlow(["Holocaust"], { x: 1450, y: 1100 }, {
+        rx: 92,
+        ry: 36,
+        rotation: -11,
+        title: "Holocaust-Mahnmal mit niedriger Platzbeleuchtung",
+      });
+      addNamedGlow(["Homosexuellen"], { x: 928, y: 1043 }, {
+        rx: 38,
+        ry: 18,
+        title: "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
+      });
+      addNamedGlow(["Sinti"], { x: 1346, y: 837 }, {
+        rx: 42,
+        ry: 20,
+        title: "Denkmal für die ermordeten Sinti und Roma Europas",
+      });
+      addNamedGlow(["Sowjetisches"], { x: 1031, y: 735 }, {
+        rx: 62,
+        ry: 24,
+        rotation: -8,
+        title: "Sowjetisches Ehrenmal Tiergarten",
+      });
+      addNamedGlow(["Zeugen Jehovas"], { x: 717, y: 825 }, {
+        rx: 34,
+        ry: 16,
+        title: "Mahnmal Zeugen Jehovas",
+      });
+      addNamedGlow(["Polen"], { x: 1262, y: 642 }, {
+        rx: 36,
+        ry: 18,
+        title: "Gedenkort ermordete Polen",
+      });
+      addNamedGlow(["Chillida"], { x: 1180, y: 512 }, {
+        rx: 32,
+        ry: 15,
+        title: "Eduardo-Chillida-Skulptur vor dem Kanzleramt",
+      });
+      addNamedGlow(["Non-Violence"], { x: 991, y: 381 }, {
+        rx: 30,
+        ry: 14,
+        title: "Kanzlergarten / Non-Violence-Skulptur",
+      });
+
+      addNightCircle(623, 832, 12, "night-monument-gold", "Beethoven-Haydn-Mozart-Denkmal mit Goldakzent");
+      addNightCircle(1000, 1023, 11, "night-monument-gold", "Goethe-Denkmal mit warmem Denkmallicht");
+      addNightCircle(910, 496, 10, "night-glow", "TIPI / Skulpturengarten-Nachtakzent");
+      addNightCircle(1324, 845, 8, "night-glow", "Reichstagsvorfeld / Berlin-Pavillon");
+
+      addLampRow([{ x: 1280, y: 936 }, { x: 1342, y: 941 }, { x: 1423, y: 974 }, { x: 1510, y: 1002 }], 54, "Laternen Pariser Platz");
+      addLampRow([{ x: 1761, y: 231 }, { x: 1608, y: 264 }, { x: 1488, y: 342 }, { x: 1225, y: 471 }], 68, "Laternen Hauptbahnhof-Spreebogen-Kanzleramt");
+      addLampRow([{ x: 1488, y: 773 }, { x: 1346, y: 837 }, { x: 1324, y: 845 }, { x: 1225, y: 906 }], 58, "Laternen Platz der Republik");
+      addLampRow([{ x: 623, y: 832 }, { x: 717, y: 825 }, { x: 928, y: 1043 }, { x: 1000, y: 1023 }], 62, "Tiergartenwege und Denkmäler");
+      addLampRow([{ x: 405, y: 993 }, { x: 430, y: 1168 }, { x: 520, y: 1194 }], 48, "Kemperplatz und Tiergartentunnel-Südportal");
+    }
 
     stage.addEventListener("pointerdown", (event) => {
       if (event.target.classList.contains("marker")) return;
@@ -1283,6 +1763,12 @@ START_HERE_HTML = """<!doctype html>
     Object.entries(viewButtons).forEach(([key, button]) => {
       button.addEventListener("click", () => setViewPreset(key));
     });
+    Object.entries(langButtons).forEach(([key, button]) => {
+      button.addEventListener("click", () => setLanguage(key));
+    });
+    Object.entries(themeButtons).forEach(([key, button]) => {
+      button.addEventListener("click", () => setTheme(key));
+    });
     document.getElementById("reset").addEventListener("click", fit);
     document.getElementById("reference").addEventListener("click", () => referencePanel.classList.add("open"));
     document.getElementById("reference-close").addEventListener("click", () => referencePanel.classList.remove("open"));
@@ -1314,6 +1800,9 @@ START_HERE_HTML = """<!doctype html>
       }
       if (event.key === "[") rotateBy(-12);
       if (event.key === "]") rotateBy(12);
+      if (event.key.toLowerCase() === "l") setLanguage(state.lang === "de" ? "en" : "de");
+      if (event.key.toLowerCase() === "d") setTheme("day");
+      if (event.key.toLowerCase() === "m") setTheme("night");
       if (event.key.toLowerCase() === "t") setViewPreset("top");
       if (event.key.toLowerCase() === "n") setViewPreset("north");
       if (event.key.toLowerCase() === "e") setViewPreset("east");
@@ -1328,7 +1817,10 @@ START_HERE_HTML = """<!doctype html>
       resizeTimer = window.setTimeout(fit, 80);
     });
     addTunnelRoutes();
+    addNightLights();
     addMarkers();
+    applyLanguage();
+    setTheme("day");
     fit();
     focusLandmark(landmarks.find((landmark) => landmark.name === DEFAULT_FOCUS_LANDMARK) || landmarks[0]);
   </script>
@@ -1565,6 +2057,11 @@ Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
+Neu ist ein zweisprachiger Deutsch/English-Schalter und ein Tag-/Nachtmodus.
+Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
+Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
+Denkmal-Akzente, Tiergarten-/Pariser-Platz-Laternen und verstärkte
+Tunnelbeleuchtung über die Karte.
 Der Tiergartentunnel ist als sichtbares unterirdisches Rechteckbauwerk mit
 zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
 Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie nutzt
@@ -1577,7 +2074,8 @@ Maus: ziehen verschiebt; im Modus "Drehen/Swivel", mit Shift+Ziehen oder
 Rechtsziehen drehst und swivelst du die Karte. Top/Nord/Ost/Süd/West-Presets
 und eine Kompasszeile machen Blickwinkel reproduzierbar. Unterseite fokussiert
 den Tunnel von unten; Tunnel-Fokus zoomt auf den Verlauf. Die Tasten U und F
-schalten diese Ansichten, 1/2/3 wechseln die Grafikprofile. Der Advanced Viewer
+schalten diese Ansichten, 1/2/3 wechseln die Grafikprofile. L wechselt die
+Sprache, D schaltet Tagmodus, M schaltet Nachtmodus. Der Advanced Viewer
 bleibt zusätzlich dabei, braucht aber je nach Browser den lokalen Server-Fallback.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
@@ -1629,6 +2127,10 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+It now includes a bilingual German/English switch and a Day/Night mode.
+Night mode overlays lit windows for the Reichstag, Federal Chancellery and
+Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
+Tiergarten/Pariser Platz street lamps and stronger tunnel lighting.
 The Tiergartentunnel is shown as an underground rectangular structure with
 two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
 markers, and cross-section markers. Starting with v0.1.49, the geometry uses
@@ -1641,7 +2143,8 @@ Mouse: drag to pan; in "Drehen/Swivel" mode, with Shift-drag, or with
 right-drag you rotate and swivel the map. Top/North/East/South/West presets
 and a compass line make viewpoints reproducible. Unterseite focuses the tunnel
 from below; Tunnel-Fokus zooms onto the route. Keys U and F switch these views,
-and 1/2/3 switch the visual profiles. The Advanced Viewer is still included,
+and 1/2/3 switch the visual profiles. L toggles language, D selects Day and M
+selects Night. The Advanced Viewer is still included,
 but may need the local-server fallback depending on the browser.
 
 This version also refines the metric architectural rendering pass: LoD2
@@ -1724,8 +2227,13 @@ def write_package_manifest(package_dir: Path) -> None:
       "shift-arrow-rotate-swivel",
       "top-north-east-south-west-presets",
       "atlas-cinematic-lab-visual-profiles",
+      "bilingual-de-en-ui",
+      "day-night-mode",
       "selected-landmark-focus-ring",
       "instrument-hud",
+      "night-building-window-lights",
+      "night-street-lamps",
+      "night-monument-accents",
       "visible-tiergartentunnel-overlay",
       "visible-tiergartentunnel-volume",
       "visible-tiergartentunnel-center-wall",
@@ -1734,6 +2242,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "visible-tiergartentunnel-service-bays",
       "visible-tiergartentunnel-osm-way-evidence",
       "visible-tiergartentunnel-lighting",
+      "night-tiergartentunnel-lighting",
       "visible-tiergartentunnel-ventilation",
     ],
     "required_attribution": (

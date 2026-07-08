@@ -19,9 +19,19 @@ VALID_START_HERE_HTML = (
   '<img src="dzi/regierungsviertel/overview.png">'
   '<img src="dzi/regierungsviertel/overview_source.png">'
   "<button>Drehen/Swivel</button>"
+  '<button id="under-view">Unterseite</button>'
+  '<button id="lang-de">Deutsch</button>'
+  '<button id="lang-en">English</button>'
+  '<button id="theme-night">Nacht</button>'
   '<button id="view-north">Nord</button>'
   '<div id="compass"></div>'
-  "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy</script>"
+  '<svg id="tunnel-overlay"><g class="tunnel-light tunnel-vent tunnel-volume '
+  'tunnel-center-wall tunnel-ceiling-rib tunnel-service-bay"></g></svg>'
+  '<svg id="night-light-overlay"><g class="night-window night-street-lamp"></g></svg>'
+  "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy; "
+  "tunnelPayload; addTunnelVentilation; addTunnelTube; scaleY; focusTunnelRoute; "
+  "applyLanguage; setLanguage; setTheme; addNightLights; requestAnimationFrame; "
+  "renderQueued; lostpointercapture; resizeTimer; setTimeout(fit, 80);</script>"
 )
 VALID_SERVE_LOCAL = (
   'START_PAGE = "START-HERE.html"\n'
@@ -101,6 +111,34 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
     "wikimedia_attribution.json",
   ]:
     (public_dzi / filename).write_bytes(b"shared")
+  (public_dzi / "tiergartentunnel.json").write_text(
+    json.dumps(
+      {
+        "routes": [
+          {
+            "points": [{"x": index, "y": index} for index in range(8)],
+            "volume": {
+              "tube_count": 2,
+              "width_px": 1,
+              "clear_width_each_direction_m": 7.5,
+              "clear_height_m": 4.5,
+              "total_width_m": 23.4,
+              "assumed_depth_m": -8,
+            },
+            "lighting": {"spacing_px": 1},
+            "ventilation": [{"x": index, "y": index} for index in range(5)],
+            "service_bays": [{"x": index, "y": index} for index in range(4)],
+            "portals": [{"x": index, "y": index} for index in range(2)],
+            "underside_view": {"enabled": True},
+            "osm_way_ids": list(range(10)),
+            "geometry_status": "OSM-derived approximation, not official surveyed",
+            "osm_evidence": {"way_count": 1},
+          }
+        ]
+      }
+    ),
+    encoding="utf-8",
+  )
   bundled = root / "src" / "app" / "src" / "data"
   bundled.mkdir(parents=True)
   (bundled / "regierungsviertel-landmarks.json").write_bytes(b"shared")
@@ -113,6 +151,10 @@ def write_minimal_package_zip(
   overrides: dict[str, bytes | str | None] | None = None,
 ) -> Path:
   overrides = overrides or {}
+  (root / "pyproject.toml").write_text(
+    '[project]\nname = "fixture"\nversion = "9.9.9"\n',
+    encoding="utf-8",
+  )
   files: dict[str, bytes | str] = {
     "START-HERE.html": VALID_START_HERE_HTML,
     "README.txt": "readme\n",
@@ -124,6 +166,8 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/overview.png": b"png",
     "dzi/regierungsviertel/overview_source.png": b"png",
     "dzi/regierungsviertel/reference_map.png": b"png",
+    "dzi/regierungsviertel/landmarks.json": b"{}",
+    "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
     "dzi/regierungsviertel/regierungsviertel.dzi": TINY_DZI_XML,
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
@@ -142,6 +186,7 @@ def write_minimal_package_zip(
       "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
       "reference_map": "dzi/regierungsviertel/reference_map.png",
       "landmarks": "dzi/regierungsviertel/landmarks.json",
+      "tiergartentunnel_overlay": "dzi/regierungsviertel/tiergartentunnel.json",
       "wikimedia_attribution": "dzi/regierungsviertel/wikimedia_attribution.json",
       "start_page": "START-HERE.html",
     }
@@ -386,12 +431,7 @@ def test_collect_failures_rejects_packaged_mac_command(tmp_path: Path) -> None:
   package_dir = tmp_path / "releases" / release_readiness.PACKAGE_NAME
   package_dir.mkdir(parents=True)
   (package_dir / "START-HERE.html").write_text(
-    '<img src="dzi/regierungsviertel/overview.png">'
-    '<img src="dzi/regierungsviertel/overview_source.png">'
-    "<button>Drehen/Swivel</button>"
-    '<button id="view-north">Nord</button>'
-    '<div id="compass"></div>'
-    "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy</script>",
+    VALID_START_HERE_HTML,
     encoding="utf-8",
   )
   (package_dir / "start-mac.command").write_text("#!/bin/sh\n", encoding="utf-8")
@@ -410,12 +450,7 @@ def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
   package_dir = tmp_path / "releases" / release_readiness.PACKAGE_NAME
   package_dir.mkdir(parents=True)
   (package_dir / "START-HERE.html").write_text(
-    '<img src="dzi/regierungsviertel/overview.png">'
-    '<img src="dzi/regierungsviertel/overview_source.png">'
-    "<button>Drehen/Swivel</button>"
-    '<button id="view-north">Nord</button>'
-    '<div id="compass"></div>'
-    "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy</script>",
+    VALID_START_HERE_HTML,
     encoding="utf-8",
   )
   (package_dir / "serve-local.py").write_text(

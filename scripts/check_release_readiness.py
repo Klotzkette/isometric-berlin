@@ -163,6 +163,22 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
       f"Package HTML launcher lacks tunnel underside / detail controls: {label}"
     )
   if (
+    "lang-de" not in start_here_text
+    or "lang-en" not in start_here_text
+    or "applyLanguage" not in start_here_text
+    or "setLanguage" not in start_here_text
+  ):
+    failures.append(f"Package HTML launcher lacks bilingual DE/EN UI: {label}")
+  if (
+    "theme-night" not in start_here_text
+    or "setTheme" not in start_here_text
+    or "night-light-overlay" not in start_here_text
+    or "addNightLights" not in start_here_text
+    or "night-window" not in start_here_text
+    or "night-street-lamp" not in start_here_text
+  ):
+    failures.append(f"Package HTML launcher lacks day/night lighting controls: {label}")
+  if (
     "requestAnimationFrame" not in start_here_text
     or "renderQueued" not in start_here_text
     or "lostpointercapture" not in start_here_text
