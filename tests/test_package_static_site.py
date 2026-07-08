@@ -109,6 +109,11 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "addNightLights" in html
   assert "night-window" in html
   assert "night-street-lamp" in html
+  assert "PREFERENCE_STORAGE_KEY" in html
+  assert "readPreferences" in html
+  assert "savePreferences" in html
+  assert "localStorage" in html
+  assert "applyQualityImage" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 
@@ -128,6 +133,7 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "next free port" in readme
   assert "Tag-/Nachtmodus" in readme
   assert "German/English" in readme
+  assert "localStorage" in readme
   assert "--no-open --port 8770" in readme
 
 

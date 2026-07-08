@@ -45,6 +45,11 @@ REQUIRED_START_SNIPPETS = (
   "addNightLights",
   "night-window",
   "night-street-lamp",
+  "PREFERENCE_STORAGE_KEY",
+  "readPreferences",
+  "savePreferences",
+  "localStorage",
+  "applyQualityImage",
 )
 
 

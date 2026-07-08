@@ -179,6 +179,14 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   ):
     failures.append(f"Package HTML launcher lacks day/night lighting controls: {label}")
   if (
+    "PREFERENCE_STORAGE_KEY" not in start_here_text
+    or "readPreferences" not in start_here_text
+    or "savePreferences" not in start_here_text
+    or "localStorage" not in start_here_text
+    or "applyQualityImage" not in start_here_text
+  ):
+    failures.append(f"Package HTML launcher lacks persistent preferences: {label}")
+  if (
     "requestAnimationFrame" not in start_here_text
     or "renderQueued" not in start_here_text
     or "lostpointercapture" not in start_here_text

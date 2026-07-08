@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.1.52
+
+- Persist `START-HERE.html` viewer preferences locally in the browser:
+  language, Day/Night mode, Atlas/Cinematic/Lab profile, and
+  Pixel-Art/detail image selection now survive reloads.
+- Keep the persistence fail-safe for strict `file://` browser contexts:
+  if localStorage is unavailable, the offline viewer still starts with
+  defaults.
+- Extend release-readiness and package smoke coverage so future ZIPs must
+  retain the preference persistence path.
+
 ## v0.1.51
 
 - Add bilingual Deutsch/English controls to the zero-server

@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.51"
+PACKAGE_VERSION = "0.1.52"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -994,6 +994,21 @@ START_HERE_HTML = """<!doctype html>
         swivel: "Swivel",
       },
     };
+    const PREFERENCE_STORAGE_KEY = "isometric-berlin-start-here-preferences-v1";
+    function readPreferences() {
+      try {
+        const raw = window.localStorage?.getItem(PREFERENCE_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+    function savedChoice(preferences, key, allowed, fallback) {
+      const value = preferences[key];
+      return allowed.includes(value) ? value : fallback;
+    }
+    const savedPreferences = readPreferences();
     const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
     const PRIORITY_LANDMARKS = new Set([
       "Bundeskanzleramt",
@@ -1022,10 +1037,10 @@ START_HERE_HTML = """<!doctype html>
       oy: 0,
       or: 0,
       ot: 0,
-      pixel: false,
-      profile: "atlas",
-      lang: "de",
-      theme: "day",
+      pixel: savedPreferences.pixel === true,
+      profile: savedChoice(savedPreferences, "profile", ["atlas", "cinematic", "lab"], "atlas"),
+      lang: savedChoice(savedPreferences, "lang", ["de", "en"], "de"),
+      theme: savedChoice(savedPreferences, "theme", ["day", "night"], "day"),
     };
     document.body.dataset.profile = state.profile;
     document.body.dataset.under = "false";
@@ -1038,6 +1053,23 @@ START_HERE_HTML = """<!doctype html>
     }
     function updateHint() {
       ui.hint.innerHTML = state.mode === "rotate" ? t("hintRotate") : t("hintPan");
+    }
+    function savePreferences() {
+      try {
+        window.localStorage?.setItem(PREFERENCE_STORAGE_KEY, JSON.stringify({
+          lang: state.lang,
+          theme: state.theme,
+          profile: state.profile,
+          pixel: state.pixel,
+        }));
+      } catch {
+        // Some locked-down file:// contexts disable localStorage; the viewer still works.
+      }
+    }
+    function applyQualityImage() {
+      mapImage.src = state.pixel ? "dzi/regierungsviertel/overview.png" : "dzi/regierungsviertel/overview_source.png";
+      mapImage.classList.toggle("pixelated", state.pixel);
+      ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
     }
     function applyLanguage() {
       document.documentElement.lang = state.lang;
@@ -1079,6 +1111,7 @@ START_HERE_HTML = """<!doctype html>
       if (!TEXT[lang]) return;
       state.lang = lang;
       applyLanguage();
+      savePreferences();
     }
     function setTheme(theme) {
       if (!themeButtons[theme]) return;
@@ -1088,6 +1121,7 @@ START_HERE_HTML = """<!doctype html>
         button.classList.toggle("active", key === theme);
         button.setAttribute("aria-pressed", key === theme ? "true" : "false");
       });
+      savePreferences();
       render();
     }
     function displayY(y) {
@@ -1239,13 +1273,13 @@ START_HERE_HTML = """<!doctype html>
     function setProfile(profile) {
       if (!profileButtons[profile]) return;
       state.profile = profile;
+      savePreferences();
       render();
     }
     function toggleQuality() {
       state.pixel = !state.pixel;
-      mapImage.src = state.pixel ? "dzi/regierungsviertel/overview.png" : "dzi/regierungsviertel/overview_source.png";
-      mapImage.classList.toggle("pixelated", state.pixel);
-      ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
+      applyQualityImage();
+      savePreferences();
     }
     function addMarkers() {
       markerRoot.innerHTML = "";
@@ -1819,8 +1853,9 @@ START_HERE_HTML = """<!doctype html>
     addTunnelRoutes();
     addNightLights();
     addMarkers();
+    applyQualityImage();
     applyLanguage();
-    setTheme("day");
+    setTheme(state.theme);
     fit();
     focusLandmark(landmarks.find((landmark) => landmark.name === DEFAULT_FOCUS_LANDMARK) || landmarks[0]);
   </script>
@@ -2062,6 +2097,9 @@ Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
 Denkmal-Akzente, Tiergarten-/Pariser-Platz-Laternen und verstärkte
 Tunnelbeleuchtung über die Karte.
+Sprache, Tag/Nacht, Grafikprofil und Pixel-/Detailbild-Auswahl werden lokal
+im Browser gespeichert und beim nächsten Öffnen wiederhergestellt. Falls ein
+Browser localStorage sperrt, startet START-HERE.html trotzdem mit Defaults.
 Der Tiergartentunnel ist als sichtbares unterirdisches Rechteckbauwerk mit
 zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
 Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie nutzt
@@ -2131,6 +2169,9 @@ It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
 Tiergarten/Pariser Platz street lamps and stronger tunnel lighting.
+Language, Day/Night, visual profile and Pixel-Art/detail-image selection are
+stored locally in the browser and restored on the next open. If a browser
+blocks localStorage, START-HERE.html still starts with defaults.
 The Tiergartentunnel is shown as an underground rectangular structure with
 two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
 markers, and cross-section markers. Starting with v0.1.49, the geometry uses
@@ -2229,6 +2270,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "atlas-cinematic-lab-visual-profiles",
       "bilingual-de-en-ui",
       "day-night-mode",
+      "persistent-offline-viewer-preferences",
       "selected-landmark-focus-ring",
       "instrument-hud",
       "night-building-window-lights",
