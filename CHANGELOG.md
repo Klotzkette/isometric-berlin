@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.1.53
+
+- Extend `START-HERE.html` persistence so the offline viewer restores the
+  last focused landmark, view preset or free rotation/swivel angle, and
+  Tiergartentunnel underside state in addition to language, Day/Night,
+  visual profile, and Pixel-Art/detail image selection.
+- Make Reset/Home return the zero-server viewer to the Bundeskanzleramt
+  top view and save that clean state.
+- Extend package manifest, release-readiness checks, smoke tests, and
+  fixture tests so future ZIPs must keep last-view restoration.
+
 ## v0.1.52
 
 - Persist `START-HERE.html` viewer preferences locally in the browser:

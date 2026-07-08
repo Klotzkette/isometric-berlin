@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.52"
+PACKAGE_VERSION = "0.1.53"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -1008,6 +1008,11 @@ START_HERE_HTML = """<!doctype html>
       const value = preferences[key];
       return allowed.includes(value) ? value : fallback;
     }
+    function savedNumber(preferences, key, fallback, min, max) {
+      const value = Number(preferences[key]);
+      if (!Number.isFinite(value)) return fallback;
+      return Math.max(min, Math.min(max, value));
+    }
     const savedPreferences = readPreferences();
     const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
     const PRIORITY_LANDMARKS = new Set([
@@ -1015,20 +1020,24 @@ START_HERE_HTML = """<!doctype html>
       "Reichstagsgebäude",
       "Berlin Hauptbahnhof",
     ]);
-    let selectedLandmarkName = DEFAULT_FOCUS_LANDMARK;
+    function savedLandmarkName(preferences) {
+      const name = String(preferences.landmark || "");
+      return landmarks.some((landmark) => landmark.name === name) ? name : DEFAULT_FOCUS_LANDMARK;
+    }
+    let selectedLandmarkName = savedLandmarkName(savedPreferences);
     const viewButtons = Object.fromEntries(
       Object.keys(VIEW_PRESETS).map((key) => [key, document.getElementById(`view-${key}`)])
     );
     const state = {
       mode: "pan",
-      viewKey: "top",
+      viewKey: savedChoice(savedPreferences, "viewKey", ["top", "north", "east", "south", "west", "free"], "top"),
       scale: 1,
       fitScale: 1,
       x: 0,
       y: 0,
-      rotation: 0,
-      tilt: 0,
-      under: false,
+      rotation: savedNumber(savedPreferences, "rotation", 0, 0, 360),
+      tilt: savedNumber(savedPreferences, "tilt", 0, -28, 28),
+      under: savedPreferences.under === true,
       dragging: false,
       rotateDrag: false,
       sx: 0,
@@ -1061,6 +1070,11 @@ START_HERE_HTML = """<!doctype html>
           theme: state.theme,
           profile: state.profile,
           pixel: state.pixel,
+          landmark: selectedLandmarkName,
+          viewKey: state.viewKey,
+          rotation: state.rotation,
+          tilt: state.tilt,
+          under: state.under,
         }));
       } catch {
         // Some locked-down file:// contexts disable localStorage; the viewer still works.
@@ -1185,6 +1199,13 @@ START_HERE_HTML = """<!doctype html>
       state.viewKey = "top";
       render();
     }
+    function resetView() {
+      fit();
+      const defaultLandmark = landmarks.find((landmark) => landmark.name === DEFAULT_FOCUS_LANDMARK) || landmarks[0];
+      if (defaultLandmark) focusLandmark(defaultLandmark);
+      setViewPreset("top");
+      savePreferences();
+    }
     function zoomBy(factor) {
       const rect = stage.getBoundingClientRect();
       const cx = rect.width / 2;
@@ -1204,6 +1225,7 @@ START_HERE_HTML = """<!doctype html>
       state.scale = Math.max(state.fitScale * minScale, Math.min(state.fitScale * 5.4, maxScale));
       state.x = rect.width / 2 - landmark.x * state.scale;
       state.y = rect.height / 2 - displayY(landmark.y) * state.scale;
+      savePreferences();
       render();
     }
     function tunnelRoutePoints() {
@@ -1230,6 +1252,7 @@ START_HERE_HTML = """<!doctype html>
       state.x = rect.width / 2 - ((minX + maxX) / 2) * state.scale;
       state.y = rect.height / 2 - ((minY + maxY) / 2) * state.scale;
       selectedLandmarkName = "Kemperplatz / Tiergartentunnel";
+      savePreferences();
       render();
     }
     function setUnderView(enabled) {
@@ -1241,6 +1264,7 @@ START_HERE_HTML = """<!doctype html>
         focusTunnelRoute();
         return;
       }
+      savePreferences();
       render();
     }
     function toggleUnderView() {
@@ -1255,11 +1279,13 @@ START_HERE_HTML = """<!doctype html>
     function rotateBy(delta) {
       state.rotation = ((state.rotation + delta) % 360 + 360) % 360;
       state.viewKey = "free";
+      savePreferences();
       render();
     }
     function tiltBy(delta) {
       state.tilt = Math.max(-28, Math.min(28, state.tilt + delta));
       state.viewKey = "free";
+      savePreferences();
       render();
     }
     function setViewPreset(key) {
@@ -1268,6 +1294,7 @@ START_HERE_HTML = """<!doctype html>
       state.rotation = preset.rotation;
       state.tilt = preset.tilt;
       state.viewKey = key;
+      savePreferences();
       render();
     }
     function setProfile(profile) {
@@ -1769,8 +1796,10 @@ START_HERE_HTML = """<!doctype html>
       render();
     });
     function endPointerDrag() {
+      const shouldSaveView = state.rotateDrag;
       state.dragging = false;
       state.rotateDrag = false;
+      if (shouldSaveView) savePreferences();
     }
     stage.addEventListener("pointerup", endPointerDrag);
     stage.addEventListener("pointercancel", endPointerDrag);
@@ -1803,14 +1832,14 @@ START_HERE_HTML = """<!doctype html>
     Object.entries(themeButtons).forEach(([key, button]) => {
       button.addEventListener("click", () => setTheme(key));
     });
-    document.getElementById("reset").addEventListener("click", fit);
+    document.getElementById("reset").addEventListener("click", resetView);
     document.getElementById("reference").addEventListener("click", () => referencePanel.classList.add("open"));
     document.getElementById("reference-close").addEventListener("click", () => referencePanel.classList.remove("open"));
     window.addEventListener("keydown", (event) => {
       if (event.key === "Escape") referencePanel.classList.remove("open");
       if (event.key === "+" || event.key === "=") zoomBy(1.25);
       if (event.key === "-") zoomBy(0.8);
-      if (event.key === "0" || event.key === "Home") fit();
+      if (event.key === "0" || event.key === "Home") resetView();
       if (event.key.toLowerCase() === "r") setMode(state.mode === "rotate" ? "pan" : "rotate");
       if (event.key.toLowerCase() === "u") toggleUnderView();
       if (event.key.toLowerCase() === "f") focusTunnelRoute();
@@ -1850,14 +1879,39 @@ START_HERE_HTML = """<!doctype html>
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(fit, 80);
     });
+    const initialViewState = {
+      viewKey: state.viewKey,
+      rotation: state.rotation,
+      tilt: state.tilt,
+      under: state.under,
+    };
+    function restoreInitialView() {
+      fit();
+      const landmark = landmarks.find((item) => item.name === selectedLandmarkName)
+        || landmarks.find((item) => item.name === DEFAULT_FOCUS_LANDMARK)
+        || landmarks[0];
+      if (landmark) focusLandmark(landmark);
+      if (initialViewState.under) {
+        setUnderView(true);
+        return;
+      }
+      if (VIEW_PRESETS[initialViewState.viewKey]) {
+        setViewPreset(initialViewState.viewKey);
+        return;
+      }
+      state.rotation = initialViewState.rotation;
+      state.tilt = initialViewState.tilt;
+      state.viewKey = "free";
+      savePreferences();
+      render();
+    }
     addTunnelRoutes();
     addNightLights();
     addMarkers();
     applyQualityImage();
     applyLanguage();
     setTheme(state.theme);
-    fit();
-    focusLandmark(landmarks.find((landmark) => landmark.name === DEFAULT_FOCUS_LANDMARK) || landmarks[0]);
+    restoreInitialView();
   </script>
 </body>
 </html>
@@ -2097,9 +2151,10 @@ Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
 Denkmal-Akzente, Tiergarten-/Pariser-Platz-Laternen und verstärkte
 Tunnelbeleuchtung über die Karte.
-Sprache, Tag/Nacht, Grafikprofil und Pixel-/Detailbild-Auswahl werden lokal
-im Browser gespeichert und beim nächsten Öffnen wiederhergestellt. Falls ein
-Browser localStorage sperrt, startet START-HERE.html trotzdem mit Defaults.
+Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
+Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
+Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
+START-HERE.html trotzdem mit Defaults.
 Der Tiergartentunnel ist als sichtbares unterirdisches Rechteckbauwerk mit
 zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
 Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie nutzt
@@ -2169,9 +2224,10 @@ It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
 Tiergarten/Pariser Platz street lamps and stronger tunnel lighting.
-Language, Day/Night, visual profile and Pixel-Art/detail-image selection are
-stored locally in the browser and restored on the next open. If a browser
-blocks localStorage, START-HERE.html still starts with defaults.
+Language, Day/Night, visual profile, Pixel-Art/detail-image selection, last
+focused landmark and view angle are stored locally in the browser and restored
+on the next open. If a browser blocks localStorage, START-HERE.html still
+starts with defaults.
 The Tiergartentunnel is shown as an underground rectangular structure with
 two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
 markers, and cross-section markers. Starting with v0.1.49, the geometry uses
@@ -2271,6 +2327,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "bilingual-de-en-ui",
       "day-night-mode",
       "persistent-offline-viewer-preferences",
+      "persistent-last-landmark-and-view",
       "selected-landmark-focus-ring",
       "instrument-hud",
       "night-building-window-lights",

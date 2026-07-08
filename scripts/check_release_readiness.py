@@ -184,6 +184,10 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "savePreferences" not in start_here_text
     or "localStorage" not in start_here_text
     or "applyQualityImage" not in start_here_text
+    or "savedLandmarkName" not in start_here_text
+    or "restoreInitialView" not in start_here_text
+    or "initialViewState" not in start_here_text
+    or "resetView" not in start_here_text
   ):
     failures.append(f"Package HTML launcher lacks persistent preferences: {label}")
   if (

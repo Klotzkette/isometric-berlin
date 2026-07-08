@@ -50,6 +50,10 @@ REQUIRED_START_SNIPPETS = (
   "savePreferences",
   "localStorage",
   "applyQualityImage",
+  "savedLandmarkName",
+  "restoreInitialView",
+  "initialViewState",
+  "resetView",
 )
 
 

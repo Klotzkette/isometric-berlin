@@ -114,6 +114,10 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "savePreferences" in html
   assert "localStorage" in html
   assert "applyQualityImage" in html
+  assert "savedLandmarkName" in html
+  assert "restoreInitialView" in html
+  assert "initialViewState" in html
+  assert "resetView" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 
@@ -134,6 +138,7 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "Tag-/Nachtmodus" in readme
   assert "German/English" in readme
   assert "localStorage" in readme
+  assert "focused landmark" in readme
   assert "--no-open --port 8770" in readme
 
 

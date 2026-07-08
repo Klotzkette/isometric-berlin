@@ -32,8 +32,9 @@ VALID_START_HERE_HTML = (
   "tunnelPayload; addTunnelVentilation; addTunnelTube; scaleY; focusTunnelRoute; "
   "applyLanguage; setLanguage; setTheme; addNightLights; requestAnimationFrame; "
   "PREFERENCE_STORAGE_KEY; readPreferences; savePreferences; localStorage; "
-  "applyQualityImage; renderQueued; lostpointercapture; resizeTimer; "
-  "setTimeout(fit, 80);</script>"
+  "applyQualityImage; savedLandmarkName; restoreInitialView; initialViewState; "
+  "resetView; renderQueued; lostpointercapture; resizeTimer; setTimeout(fit, 80);"
+  "</script>"
 )
 VALID_SERVE_LOCAL = (
   'START_PAGE = "START-HERE.html"\n'
