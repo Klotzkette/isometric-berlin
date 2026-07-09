@@ -4,7 +4,7 @@
 
 | What | Link |
 |---|---|
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.55/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.56/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -16,11 +16,11 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.55 open-data package.
+**Status:** Local v0.1.56 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.55**. It is an open-data,
+The current public package is **v0.1.56**. It is an open-data,
 offline-capable viewer for the Berlin Regierungsviertel with:
 
 - a granular source-render Deep Zoom image as default view;
@@ -48,6 +48,9 @@ offline-capable viewer for the Berlin Regierungsviertel with:
 - detail/cloud layer toggles, saved with the other offline preferences,
   plus cheaper drag rendering so large shadows and filters do not make
   panning feel heavy;
+- a saved lightweight performance mode and resize handling that preserves
+  the current focus, zoom, rotation and swivel instead of snapping back
+  to the overview;
 - extra polish cues for glass glints, water ripples, Tiergarten tree
   clusters and small path highlights;
 - persistent offline preferences for language, day/night mode, visual

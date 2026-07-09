@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.56
+
+- Add a saved lightweight performance mode to the zero-server
+  `START-HERE.html` viewer, with a dedicated button and `P` shortcut.
+  It removes expensive shadows / filters and cloud animation while keeping
+  the map usable and visually legible.
+- Replace resize reset behaviour with `refitPreservingView`, so changing
+  window size preserves the current focus, zoom ratio, rotation, swivel and
+  underside state instead of snapping back to the top overview.
+- Extend package release-readiness, generated HTML tests and local package
+  smoke checks so future downloads must keep the performance mode and
+  resize-preserving path.
+
 ## v0.1.55
 
 - Add detail and cloud toggles to `START-HERE.html`, persist both choices,

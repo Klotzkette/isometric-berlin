@@ -33,13 +33,16 @@ VALID_START_HERE_HTML = (
   "detail-tunnel-branch detail-train-ice detail-train-sbahn "
   'detail-vehicle vehicle-light-cone detail-boat"></g></svg>'
   '<button id="details-toggle">Details</button><button id="clouds-toggle">Clouds</button>'
+  '<button id="performance-toggle">Lite</button>'
   "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy; "
   "tunnelPayload; addTunnelVentilation; addTunnelTube; scaleY; focusTunnelRoute; "
   "applyLanguage; setLanguage; setTheme; addNightLights; requestAnimationFrame; "
   "PREFERENCE_STORAGE_KEY; readPreferences; savePreferences; localStorage; "
   "applyQualityImage; savedLandmarkName; restoreInitialView; initialViewState; "
-  "resetView; renderQueued; lostpointercapture; resizeTimer; setTimeout(fit, 80); "
-  "addSceneDetails; addFlag; setDetails; setClouds; data-dragging;"
+  "resetView; renderQueued; lostpointercapture; resizeTimer; "
+  "refitPreservingView; setTimeout(refitPreservingView, 80); "
+  "addSceneDetails; addFlag; setDetails; setClouds; setPerformance; "
+  "data-dragging; data-performance;"
   "</script>"
 )
 VALID_SERVE_LOCAL = (

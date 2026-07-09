@@ -113,8 +113,11 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "addSceneDetails" in html
   assert "details-toggle" in html
   assert "clouds-toggle" in html
+  assert "performance-toggle" in html
   assert "setDetails" in html
   assert "setClouds" in html
+  assert "setPerformance" in html
+  assert "data-performance" in html
   assert "data-dragging" in html
   assert "detail-cloud" in html
   assert "cloud-shadow" in html
@@ -139,6 +142,8 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "restoreInitialView" in html
   assert "initialViewState" in html
   assert "resetView" in html
+  assert "refitPreservingView" in html
+  assert "setTimeout(refitPreservingView, 80)" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 

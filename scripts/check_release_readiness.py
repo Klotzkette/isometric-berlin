@@ -183,8 +183,11 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "addSceneDetails" not in start_here_text
     or "details-toggle" not in start_here_text
     or "clouds-toggle" not in start_here_text
+    or "performance-toggle" not in start_here_text
     or "setDetails" not in start_here_text
     or "setClouds" not in start_here_text
+    or "setPerformance" not in start_here_text
+    or "data-performance" not in start_here_text
     or "data-dragging" not in start_here_text
     or "detail-cloud" not in start_here_text
     or "cloud-shadow" not in start_here_text
@@ -202,7 +205,7 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "detail-boat" not in start_here_text
   ):
     failures.append(
-      f"Package HTML launcher lacks v0.1.55 scene detail/performance overlays: {label}"
+      f"Package HTML launcher lacks v0.1.56 scene detail/performance overlays: {label}"
     )
   if (
     "PREFERENCE_STORAGE_KEY" not in start_here_text
@@ -225,7 +228,9 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
       f"Package HTML launcher lacks anti-freeze render throttling: {label}"
     )
   if (
-    "resizeTimer" not in start_here_text or "setTimeout(fit, 80)" not in start_here_text
+    "resizeTimer" not in start_here_text
+    or "refitPreservingView" not in start_here_text
+    or "setTimeout(refitPreservingView, 80)" not in start_here_text
   ):
     failures.append(f"Package HTML launcher lacks resize debounce: {label}")
   return failures

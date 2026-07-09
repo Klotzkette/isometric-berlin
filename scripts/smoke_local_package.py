@@ -49,8 +49,11 @@ REQUIRED_START_SNIPPETS = (
   "addSceneDetails",
   "details-toggle",
   "clouds-toggle",
+  "performance-toggle",
   "setDetails",
   "setClouds",
+  "setPerformance",
+  "data-performance",
   "data-dragging",
   "detail-cloud",
   "cloud-shadow",
@@ -75,6 +78,8 @@ REQUIRED_START_SNIPPETS = (
   "restoreInitialView",
   "initialViewState",
   "resetView",
+  "refitPreservingView",
+  "setTimeout(refitPreservingView, 80)",
 )
 
 

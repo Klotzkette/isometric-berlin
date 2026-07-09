@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.55"
+PACKAGE_VERSION = "0.1.56"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -352,6 +352,27 @@ START_HERE_HTML = """<!doctype html>
     body[data-dragging="true"] .detail-train-sbahn,
     body[data-dragging="true"] .detail-boat {
       filter: none;
+    }
+    body[data-performance="true"] {
+      --map-shadow: none;
+      --grid-opacity: .13;
+      --cloud-opacity: .44;
+      --cloud-shadow-opacity: .05;
+      --glint-opacity: .34;
+    }
+    body[data-performance="true"] .map-layer,
+    body[data-performance="true"] .cloud-puff,
+    body[data-performance="true"] .detail-vehicle,
+    body[data-performance="true"] .detail-train-ice,
+    body[data-performance="true"] .detail-train-sbahn,
+    body[data-performance="true"] .detail-boat,
+    body[data-performance="true"] .detail-tree-cluster,
+    body[data-performance="true"] .detail-glint,
+    body[data-performance="true"] .tunnel-overlay {
+      filter: none;
+    }
+    body[data-performance="true"] .cloud-drift {
+      animation: none;
     }
     .cloud-drift {
       transform-box: fill-box;
@@ -1065,6 +1086,7 @@ START_HERE_HTML = """<!doctype html>
         <button type="button" id="tunnel-focus" class="half">Tunnel-Fokus</button>
         <button type="button" id="details-toggle" class="half active">Details</button>
         <button type="button" id="clouds-toggle" class="half active">Wolken</button>
+        <button type="button" id="performance-toggle" class="half">Leicht</button>
         <button type="button" id="quality" class="half">Pixel-Art</button>
         <button type="button" id="reset" class="half">Reset</button>
         <div class="profile-controls wide" aria-label="Grafikprofil">
@@ -1145,6 +1167,7 @@ START_HERE_HTML = """<!doctype html>
       tunnelFocus: document.getElementById("tunnel-focus"),
       detailsToggle: document.getElementById("details-toggle"),
       cloudsToggle: document.getElementById("clouds-toggle"),
+      performanceToggle: document.getElementById("performance-toggle"),
       quality: document.getElementById("quality"),
       reset: document.getElementById("reset"),
       reference: document.getElementById("reference"),
@@ -1179,12 +1202,14 @@ START_HERE_HTML = """<!doctype html>
         detailsOff: "Details aus",
         cloudsOn: "Wolken",
         cloudsOff: "Wolken aus",
+        performanceOn: "Leicht an",
+        performanceOff: "Leicht",
         pixelArt: "Pixel-Art",
         detailImage: "Detailbild",
         reset: "Reset",
         reference: "Top-down-Referenzkarte",
         advanced: "Advanced Viewer nur mit Server-Fallback",
-        hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. G schaltet Details, C schaltet Wolken. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
+        hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. G schaltet Details, C Wolken, P Leichtmodus. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
         hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten. Beim Ziehen reduziert der Viewer teure Detailfilter.",
         notice: "Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.",
         referenceTitle: "Top-down-Referenzkarte",
@@ -1221,12 +1246,14 @@ START_HERE_HTML = """<!doctype html>
         detailsOff: "Hide details",
         cloudsOn: "Clouds",
         cloudsOff: "Hide clouds",
+        performanceOn: "Lite on",
+        performanceOff: "Lite",
         pixelArt: "Pixel art",
         detailImage: "Detail image",
         reset: "Reset",
         reference: "Top-down reference map",
         advanced: "Advanced viewer, server fallback only",
-        hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. G toggles details, C toggles clouds. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
+        hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. G toggles details, C clouds, P lite mode. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
         hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below. While dragging, the viewer reduces costly detail filters.",
         notice: "This START-HERE file is the robust offline viewer. The Advanced Viewer is only a fallback for server start and may be blocked when opened directly from the folder.",
         referenceTitle: "Top-down reference map",
@@ -1306,15 +1333,18 @@ START_HERE_HTML = """<!doctype html>
       theme: savedChoice(savedPreferences, "theme", ["day", "night"], "day"),
       details: savedPreferences.details !== false,
       clouds: savedPreferences.clouds !== false,
+      performance: savedPreferences.performance === true,
     };
     document.body.dataset.profile = state.profile;
     document.body.dataset.under = "false";
     document.body.dataset.theme = state.theme;
     document.body.dataset.details = state.details ? "true" : "false";
     document.body.dataset.clouds = state.clouds ? "true" : "false";
+    document.body.dataset.performance = state.performance ? "true" : "false";
 
     let renderQueued = false;
     let resizeTimer = 0;
+    let lastStageSize = { width: 0, height: 0 };
     function t(key) {
       return (TEXT[state.lang] && TEXT[state.lang][key]) || TEXT.de[key] || key;
     }
@@ -1330,6 +1360,7 @@ START_HERE_HTML = """<!doctype html>
           pixel: state.pixel,
           details: state.details,
           clouds: state.clouds,
+          performance: state.performance,
           landmark: selectedLandmarkName,
           viewKey: state.viewKey,
           rotation: state.rotation,
@@ -1361,6 +1392,7 @@ START_HERE_HTML = """<!doctype html>
       ui.tunnelFocus.textContent = t("tunnelFocus");
       ui.detailsToggle.textContent = state.details ? t("detailsOn") : t("detailsOff");
       ui.cloudsToggle.textContent = state.clouds ? t("cloudsOn") : t("cloudsOff");
+      ui.performanceToggle.textContent = state.performance ? t("performanceOn") : t("performanceOff");
       ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
       ui.reset.textContent = t("reset");
       ui.reference.textContent = t("reference");
@@ -1423,6 +1455,7 @@ START_HERE_HTML = """<!doctype html>
       document.body.dataset.profile = state.profile;
       document.body.dataset.details = state.details ? "true" : "false";
       document.body.dataset.clouds = state.clouds ? "true" : "false";
+      document.body.dataset.performance = state.performance ? "true" : "false";
       Object.entries(viewButtons).forEach(([key, button]) => {
         button.classList.toggle("active", key === state.viewKey);
       });
@@ -1440,6 +1473,9 @@ START_HERE_HTML = """<!doctype html>
       ui.cloudsToggle.classList.toggle("active", state.clouds);
       ui.cloudsToggle.setAttribute("aria-pressed", state.clouds ? "true" : "false");
       ui.cloudsToggle.textContent = state.clouds ? t("cloudsOn") : t("cloudsOff");
+      ui.performanceToggle.classList.toggle("active", state.performance);
+      ui.performanceToggle.setAttribute("aria-pressed", state.performance ? "true" : "false");
+      ui.performanceToggle.textContent = state.performance ? t("performanceOn") : t("performanceOff");
       document.body.dataset.under = state.under ? "true" : "false";
     }
     function render() {
@@ -1467,6 +1503,22 @@ START_HERE_HTML = """<!doctype html>
       state.tilt = 0;
       state.under = false;
       state.viewKey = "top";
+      lastStageSize = { width: rect.width, height: rect.height };
+      render();
+    }
+    function refitPreservingView() {
+      const rect = stage.getBoundingClientRect();
+      const oldWidth = lastStageSize.width || rect.width;
+      const oldHeight = lastStageSize.height || rect.height;
+      const oldScale = state.scale || state.fitScale || 1;
+      const centerImageX = (oldWidth / 2 - state.x) / oldScale;
+      const centerImageY = (oldHeight / 2 - state.y) / oldScale;
+      const zoomRatio = state.fitScale ? state.scale / state.fitScale : 1;
+      state.fitScale = Math.min(rect.width / image.width, rect.height / image.height) * 0.96;
+      state.scale = Math.max(state.fitScale * 0.45, Math.min(state.fitScale * zoomRatio, state.fitScale * 6));
+      state.x = rect.width / 2 - centerImageX * state.scale;
+      state.y = rect.height / 2 - centerImageY * state.scale;
+      lastStageSize = { width: rect.width, height: rect.height };
       render();
     }
     function resetView() {
@@ -1593,6 +1645,14 @@ START_HERE_HTML = """<!doctype html>
     }
     function toggleClouds() {
       setClouds(!state.clouds);
+    }
+    function setPerformance(enabled) {
+      state.performance = enabled;
+      savePreferences();
+      render();
+    }
+    function togglePerformance() {
+      setPerformance(!state.performance);
     }
     function addMarkers() {
       markerRoot.innerHTML = "";
@@ -2494,6 +2554,7 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("tunnel-focus").addEventListener("click", focusTunnelRoute);
     document.getElementById("details-toggle").addEventListener("click", toggleDetails);
     document.getElementById("clouds-toggle").addEventListener("click", toggleClouds);
+    document.getElementById("performance-toggle").addEventListener("click", togglePerformance);
     document.getElementById("quality").addEventListener("click", toggleQuality);
     Object.entries(profileButtons).forEach(([key, button]) => {
       button.addEventListener("click", () => setProfile(key));
@@ -2520,6 +2581,7 @@ START_HERE_HTML = """<!doctype html>
       if (event.key.toLowerCase() === "f") focusTunnelRoute();
       if (event.key.toLowerCase() === "g") toggleDetails();
       if (event.key.toLowerCase() === "c") toggleClouds();
+      if (event.key.toLowerCase() === "p") togglePerformance();
       if (event.key === "PageDown" || event.key === "PageUp") {
         event.preventDefault();
         const index = Math.max(0, landmarks.findIndex((landmark) => landmark.name === selectedLandmarkName));
@@ -2554,7 +2616,7 @@ START_HERE_HTML = """<!doctype html>
     });
     window.addEventListener("resize", () => {
       window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(fit, 80);
+      resizeTimer = window.setTimeout(refitPreservingView, 80);
     });
     const initialViewState = {
       viewKey: state.viewKey,
@@ -2840,6 +2902,10 @@ diese Ebenen direkt. Beim Ziehen reduziert der Viewer teure SVG-Filter, damit
 sich Pan/Rotate/Swivel leichter anfühlen. Neu sind außerdem Glasglanz auf
 Reichstag, Hauptbahnhof und Kanzleramt, Wasser-Ripples, Tiergarten-Baumgruppen
 und kleine Wegakzente.
+Version {PACKAGE_VERSION} ergänzt einen gespeicherten Leichtmodus mit Taste P.
+Er schaltet teure Schatten, Filter und Wolkenanimationen herunter. Außerdem
+behält der Viewer beim Ändern der Fenstergröße Fokus, Zoom, Drehung, Swivel
+und Unterseitenansicht, statt auf die Übersicht zurückzuspringen.
 Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
 Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
 Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
@@ -2923,6 +2989,9 @@ the other offline preferences. Keys G and C switch those layers directly. While
 dragging, the viewer reduces costly SVG filters so pan/rotate/swivel feels
 lighter. This version also adds glass glints for the Reichstag, Hauptbahnhof
 and Chancellery, water ripples, Tiergarten tree clusters and small path accents.
+Version {PACKAGE_VERSION} adds a saved Lite mode on key P. It reduces expensive
+shadows, filters and cloud animation. Window resizing now preserves focus, zoom,
+rotation, swivel and underside view instead of snapping back to the overview.
 Language, Day/Night, visual profile, Pixel-Art/detail-image selection, last
 focused landmark and view angle are stored locally in the browser and restored
 on the next open. If a browser blocks localStorage, START-HERE.html still
