@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.1.58
+
+- Public web release build. Fresh `bun run build` verified reproducible
+  on a clean-clone from `main`: 5.1 MB total, ~2.5 MB gzipped tarball,
+  116 files, all asset paths relative (`./assets/...`, `./dzi/...`) so
+  the bundle drops into any static host under any subdomain or
+  sub-path.
+- Pre-publish security review clean: no hardcoded secrets, no leaked
+  paths in source map, no runtime LLM/connector dependencies, only
+  React 19 + react-dom + OpenSeadragon 5 + lucide-react at runtime.
+- Ship the built React + OpenSeadragon viewer as a release asset
+  `isometric-berlin-viewer-v0.1.58.tar.gz` so it can be deployed from
+  anywhere (GitHub Pages, Cloudflare Pages, Vercel, Netlify,
+  `pplx.app`, an S3 bucket, or `python -m http.server` in the
+  extracted directory) without rebuilding. Complements the zero-server
+  `START-HERE.html` package shipped since v0.1.53.
+
 ## v0.1.57
 
 - Add URL start parameters to `START-HERE.html` for support/debug starts:
