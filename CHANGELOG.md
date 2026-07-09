@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.1.54
+
+- Add a deterministic scene-detail overlay to the zero-server
+  `START-HERE.html` viewer with translucent isometric clouds, southwest
+  late-afternoon sun cues, cloud shadows, water-depth accents, tunnel branch
+  hints, an ICE at Hauptbahnhof, an S-Bahn on the east-west rail line,
+  Pariser-Platz / tunnel cars with night light beams, Reichstag / EU /
+  US / French flags, a Spree tour boat, a pedicab / people cue and
+  Gustav-Heinemann-Brücke / Zollpackhof beer-garden details.
+- Tune Day/Night styling so cloud opacity, sun beams and vehicle light cones
+  respond to the selected mode while the new details stay attached during
+  pan, rotate, swivel and underside tunnel inspection.
+- Extend release readiness, package HTML tests and HTTP smoke tests so future
+  downloadable ZIPs must keep the v0.1.54 scene-detail layer.
+
 ## v0.1.53
 
 - Extend `START-HERE.html` persistence so the offline viewer restores the

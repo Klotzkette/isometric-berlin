@@ -109,6 +109,19 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "addNightLights" in html
   assert "night-window" in html
   assert "night-street-lamp" in html
+  assert "scene-detail-overlay" in html
+  assert "addSceneDetails" in html
+  assert "detail-cloud" in html
+  assert "cloud-shadow" in html
+  assert "sunbeam" in html
+  assert "detail-water-depth" in html
+  assert "detail-tunnel-branch" in html
+  assert "detail-train-ice" in html
+  assert "detail-train-sbahn" in html
+  assert "detail-vehicle" in html
+  assert "vehicle-light-cone" in html
+  assert "addFlag" in html
+  assert "detail-boat" in html
   assert "PREFERENCE_STORAGE_KEY" in html
   assert "readPreferences" in html
   assert "savePreferences" in html

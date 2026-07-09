@@ -179,6 +179,24 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   ):
     failures.append(f"Package HTML launcher lacks day/night lighting controls: {label}")
   if (
+    "scene-detail-overlay" not in start_here_text
+    or "addSceneDetails" not in start_here_text
+    or "detail-cloud" not in start_here_text
+    or "cloud-shadow" not in start_here_text
+    or "sunbeam" not in start_here_text
+    or "detail-water-depth" not in start_here_text
+    or "detail-tunnel-branch" not in start_here_text
+    or "detail-train-ice" not in start_here_text
+    or "detail-train-sbahn" not in start_here_text
+    or "detail-vehicle" not in start_here_text
+    or "vehicle-light-cone" not in start_here_text
+    or "addFlag" not in start_here_text
+    or "detail-boat" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks v0.1.54 scene detail overlays: {label}"
+    )
+  if (
     "PREFERENCE_STORAGE_KEY" not in start_here_text
     or "readPreferences" not in start_here_text
     or "savePreferences" not in start_here_text

@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.53"
+PACKAGE_VERSION = "0.1.54"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -139,6 +139,10 @@ START_HERE_HTML = """<!doctype html>
       --grid-opacity: .26;
       --night-light-opacity: 0;
       --surface-night-opacity: 1;
+      --cloud-opacity: .72;
+      --cloud-shadow-opacity: .22;
+      --sunbeam-opacity: .18;
+      --vehicle-light-opacity: .16;
     }
     * { box-sizing: border-box; }
     body {
@@ -178,6 +182,10 @@ START_HERE_HTML = """<!doctype html>
       --grid-opacity: .34;
       --night-light-opacity: 1;
       --surface-night-opacity: .92;
+      --cloud-opacity: .34;
+      --cloud-shadow-opacity: .08;
+      --sunbeam-opacity: 0;
+      --vehicle-light-opacity: 1;
       background:
         radial-gradient(circle at 12% 12%, rgba(247, 215, 122, .08), transparent 24%),
         radial-gradient(circle at 82% 18%, rgba(79, 150, 178, .12), transparent 22%),
@@ -311,6 +319,167 @@ START_HERE_HTML = """<!doctype html>
       stroke: #c9f0d7;
       stroke-width: 1.5;
       filter: drop-shadow(0 0 10px rgba(123, 189, 161, .62));
+    }
+    .scene-detail-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2157px;
+      height: 1529px;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .sunbeam {
+      fill: rgba(255, 210, 126, .46);
+      opacity: var(--sunbeam-opacity);
+      mix-blend-mode: screen;
+    }
+    .cloud-shadow {
+      fill: rgba(27, 39, 37, .36);
+      opacity: var(--cloud-shadow-opacity);
+      filter: blur(.35px);
+    }
+    .cloud-base {
+      fill: rgba(230, 242, 244, .45);
+      stroke: rgba(156, 180, 185, .48);
+      stroke-width: 1.2;
+      opacity: var(--cloud-opacity);
+    }
+    .cloud-puff {
+      fill: rgba(255, 255, 255, .86);
+      stroke: rgba(166, 187, 192, .58);
+      stroke-width: 1.2;
+      opacity: var(--cloud-opacity);
+      filter: drop-shadow(0 10px 13px rgba(55, 66, 66, .18));
+    }
+    .detail-water-depth {
+      fill: none;
+      stroke: rgba(35, 150, 184, .26);
+      stroke-width: 46;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      mix-blend-mode: multiply;
+    }
+    .detail-water-highlight {
+      fill: none;
+      stroke: rgba(211, 249, 255, .5);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 34 26;
+    }
+    .detail-island {
+      fill: #668849;
+      stroke: #e0e8a8;
+      stroke-width: 2;
+      filter: drop-shadow(0 4px 5px rgba(29, 44, 28, .26));
+    }
+    .detail-tunnel-branch {
+      fill: none;
+      stroke: rgba(247, 215, 122, .72);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 15 13;
+      filter: drop-shadow(0 0 8px rgba(247, 215, 122, .38));
+    }
+    .detail-portal {
+      fill: rgba(8, 13, 14, .82);
+      stroke: #f7d77a;
+      stroke-width: 3;
+      filter: drop-shadow(0 5px 10px rgba(0, 0, 0, .38));
+    }
+    .detail-vehicle,
+    .detail-train-ice,
+    .detail-train-sbahn,
+    .detail-boat,
+    .detail-pedicab {
+      stroke: #273432;
+      stroke-width: 1.2;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .24));
+    }
+    .detail-vehicle { fill: #f4efe1; }
+    .detail-vehicle.dark { fill: #263238; }
+    .vehicle-window,
+    .detail-train-window {
+      fill: #78adc1;
+      stroke: rgba(255, 255, 255, .45);
+      stroke-width: .8;
+    }
+    .vehicle-headlight,
+    .vehicle-taillight,
+    .vehicle-light-cone {
+      opacity: var(--vehicle-light-opacity);
+    }
+    .vehicle-headlight {
+      fill: #fff3ad;
+      filter: drop-shadow(0 0 8px rgba(255, 226, 138, .9));
+    }
+    .vehicle-taillight {
+      fill: #e33b30;
+      filter: drop-shadow(0 0 7px rgba(240, 54, 43, .78));
+    }
+    .vehicle-light-cone {
+      fill: rgba(255, 229, 135, .27);
+      stroke: rgba(255, 240, 184, .18);
+      stroke-width: 1;
+      filter: drop-shadow(0 0 10px rgba(255, 221, 120, .38));
+    }
+    .detail-train-ice {
+      fill: #f4f6f2;
+    }
+    .detail-train-sbahn {
+      fill: #d63a31;
+    }
+    .detail-train-yellow {
+      fill: #f1c84b;
+      stroke: none;
+    }
+    .detail-ice-stripe {
+      fill: #c73a32;
+    }
+    .detail-flag-pole {
+      stroke: #39423e;
+      stroke-width: 2.6;
+      stroke-linecap: round;
+    }
+    .flag-black { fill: #151515; }
+    .flag-red { fill: #d72b32; }
+    .flag-gold { fill: #f3c542; }
+    .flag-eu { fill: #2454a6; }
+    .flag-star { fill: #f7d85a; stroke: none; }
+    .flag-us-red { fill: #bf2d35; }
+    .flag-us-white { fill: #fffaf0; }
+    .flag-us-blue { fill: #24476f; }
+    .flag-fr-blue { fill: #244d91; }
+    .flag-fr-white { fill: #fffaf0; }
+    .flag-fr-red { fill: #d33a38; }
+    .detail-boat {
+      fill: #f7f0d6;
+    }
+    .detail-chair {
+      fill: #f1c84b;
+      stroke: #77612d;
+      stroke-width: 1;
+    }
+    .detail-person {
+      fill: #26312f;
+      stroke: #fff2cf;
+      stroke-width: .9;
+    }
+    .detail-sign {
+      fill: #0f6b4a;
+      stroke: #edf8ef;
+      stroke-width: 1.2;
+    }
+    .detail-label {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      fill: #fffaf0;
+      stroke: #153429;
+      stroke-width: 2;
+      paint-order: stroke;
     }
     body[data-under="true"] .tunnel-overlay {
       filter: drop-shadow(0 0 18px rgba(247, 215, 122, .42));
@@ -790,6 +959,7 @@ START_HERE_HTML = """<!doctype html>
         <img class="map-image" id="map-image" src="dzi/regierungsviertel/overview_source.png" alt="Isometric Berlin Regierungsviertel">
         <svg class="tunnel-overlay" id="tunnel-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
         <svg class="night-light-overlay" id="night-light-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
+        <svg class="scene-detail-overlay" id="scene-detail-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
         <div class="focus-ring" id="focus-ring" aria-hidden="true"></div>
         <div id="markers"></div>
       </div>
@@ -868,6 +1038,7 @@ START_HERE_HTML = """<!doctype html>
     const mapImage = document.getElementById("map-image");
     const tunnelOverlay = document.getElementById("tunnel-overlay");
     const nightOverlay = document.getElementById("night-light-overlay");
+    const sceneOverlay = document.getElementById("scene-detail-overlay");
     const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
@@ -1769,6 +1940,327 @@ START_HERE_HTML = """<!doctype html>
       addLampRow([{ x: 623, y: 832 }, { x: 717, y: 825 }, { x: 928, y: 1043 }, { x: 1000, y: 1023 }], 62, "Tiergartenwege und Denkmäler");
       addLampRow([{ x: 405, y: 993 }, { x: 430, y: 1168 }, { x: 520, y: 1194 }], 48, "Kemperplatz und Tiergartentunnel-Südportal");
     }
+    function addSceneNode(tag, attrs = {}, parent = sceneOverlay) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) node.setAttribute(key, String(value));
+      });
+      parent.appendChild(node);
+      return node;
+    }
+    function addCloud(x, y, scale, title) {
+      const group = addSceneNode("g", {
+        class: "detail-cloud",
+        transform: `translate(${x} ${y}) scale(${scale})`,
+      });
+      addSvgTitle(group, title);
+      addSceneNode("ellipse", {
+        class: "cloud-shadow",
+        cx: 58,
+        cy: 128,
+        rx: 126,
+        ry: 29,
+        transform: "rotate(-18 58 128)",
+      }, group);
+      addSceneNode("ellipse", { class: "cloud-base", cx: 0, cy: 0, rx: 92, ry: 19 }, group);
+      [
+        [-58, -2, 34],
+        [-26, -18, 43],
+        [18, -23, 50],
+        [63, -9, 36],
+        [42, 6, 45],
+        [-12, 9, 52],
+      ].forEach(([cx, cy, radius]) => {
+        addSceneNode("circle", { class: "cloud-puff", cx, cy, r: radius }, group);
+      });
+    }
+    function addVehicle(x, y, rotation, variant, title) {
+      const group = addSceneNode("g", {
+        transform: `translate(${x} ${y}) rotate(${rotation})`,
+      });
+      addSvgTitle(group, title);
+      addSceneNode("polygon", {
+        class: "vehicle-light-cone",
+        points: "18,-8 78,-24 82,-2 18,2",
+      }, group);
+      addSceneNode("rect", {
+        class: `detail-vehicle ${variant || ""}`.trim(),
+        x: -20,
+        y: -9,
+        width: 40,
+        height: 18,
+        rx: 4,
+      }, group);
+      addSceneNode("rect", {
+        class: "vehicle-window",
+        x: -8,
+        y: -7,
+        width: 14,
+        height: 14,
+        rx: 2,
+      }, group);
+      addSceneNode("circle", { class: "vehicle-headlight", cx: 18, cy: -5, r: 3 }, group);
+      addSceneNode("circle", { class: "vehicle-headlight", cx: 18, cy: 5, r: 3 }, group);
+      addSceneNode("circle", { class: "vehicle-taillight", cx: -18, cy: -5, r: 2.8 }, group);
+      addSceneNode("circle", { class: "vehicle-taillight", cx: -18, cy: 5, r: 2.8 }, group);
+    }
+    function addIceTrain(x, y, rotation) {
+      const group = addSceneNode("g", {
+        transform: `translate(${x} ${y}) rotate(${rotation})`,
+      });
+      addSvgTitle(group, "ICE auf einem oberen Hauptbahnhof-Gleis unter dem Glasdach");
+      addSceneNode("polygon", {
+        class: "detail-train-ice",
+        points: "-132,-15 120,-15 150,0 120,15 -132,15 -152,0",
+      }, group);
+      addSceneNode("rect", { class: "detail-ice-stripe", x: -124, y: -2, width: 246, height: 4 }, group);
+      for (let xWindow = -108; xWindow <= 92; xWindow += 22) {
+        addSceneNode("rect", {
+          class: "detail-train-window",
+          x: xWindow,
+          y: -11,
+          width: 12,
+          height: 6,
+          rx: 1.5,
+        }, group);
+      }
+      addSceneNode("text", {
+        class: "detail-label",
+        x: 38,
+        y: 4,
+      }, group).textContent = "ICE";
+    }
+    function addSbahnTrain(x, y, rotation) {
+      const group = addSceneNode("g", {
+        transform: `translate(${x} ${y}) rotate(${rotation})`,
+      });
+      addSvgTitle(group, "Rot-gelber S-Bahn-Zug aus Richtung Friedrichstraße");
+      addSceneNode("rect", {
+        class: "detail-train-sbahn",
+        x: -128,
+        y: -13,
+        width: 256,
+        height: 26,
+        rx: 9,
+      }, group);
+      addSceneNode("rect", { class: "detail-train-yellow", x: -118, y: -5, width: 236, height: 10, rx: 3 }, group);
+      for (let xWindow = -104; xWindow <= 96; xWindow += 24) {
+        addSceneNode("rect", {
+          class: "detail-train-window",
+          x: xWindow,
+          y: -11,
+          width: 13,
+          height: 6,
+          rx: 1.5,
+        }, group);
+      }
+    }
+    function addFlag(x, y, kind, scale, title) {
+      const group = addSceneNode("g", {
+        transform: `translate(${x} ${y}) scale(${scale})`,
+      });
+      addSvgTitle(group, title);
+      addSceneNode("line", { class: "detail-flag-pole", x1: 0, y1: 32, x2: 0, y2: -34 }, group);
+      if (kind === "eu") {
+        addSceneNode("path", { class: "flag-eu", d: "M0,-34 C22,-41 35,-27 58,-34 L58,-8 C35,-1 21,-15 0,-8 Z" }, group);
+        for (let index = 0; index < 10; index += 1) {
+          const angle = (Math.PI * 2 * index) / 10;
+          addSceneNode("circle", {
+            class: "flag-star",
+            cx: (31 + Math.cos(angle) * 13).toFixed(1),
+            cy: (-21 + Math.sin(angle) * 8).toFixed(1),
+            r: 1.7,
+          }, group);
+        }
+        return;
+      }
+      if (kind === "us") {
+        addSceneNode("path", { class: "flag-us-white", d: "M0,-34 C23,-41 35,-27 60,-34 L60,-8 C35,-1 22,-15 0,-8 Z" }, group);
+        [-31, -23, -15].forEach((stripeY) => {
+          addSceneNode("path", {
+            class: "flag-us-red",
+            d: `M0,${stripeY} C23,${stripeY - 7} 35,${stripeY + 7} 60,${stripeY} L60,${stripeY + 4} C35,${stripeY + 11} 23,${stripeY - 3} 0,${stripeY + 4} Z`,
+          }, group);
+        });
+        addSceneNode("path", { class: "flag-us-blue", d: "M0,-34 C11,-37 20,-36 29,-32 L29,-20 C19,-24 10,-24 0,-21 Z" }, group);
+        return;
+      }
+      if (kind === "fr") {
+        addSceneNode("path", { class: "flag-fr-blue", d: "M0,-34 C9,-37 18,-36 25,-31 L25,-8 C16,-12 8,-12 0,-8 Z" }, group);
+        addSceneNode("path", { class: "flag-fr-white", d: "M25,-31 C34,-26 42,-27 50,-31 L50,-8 C42,-4 34,-3 25,-8 Z" }, group);
+        addSceneNode("path", { class: "flag-fr-red", d: "M50,-31 C55,-33 59,-34 64,-34 L64,-8 C59,-8 55,-7 50,-8 Z" }, group);
+        return;
+      }
+      const width = kind === "de-large" ? 86 : 58;
+      const height = kind === "de-large" ? 33 : 25;
+      addSceneNode("path", { class: "flag-black", d: `M0,-34 C${width * .42},-42 ${width * .68},-27 ${width},-34 L${width},${-34 + height / 3} C${width * .68},${-27 + height / 3} ${width * .42},${-42 + height / 3} 0,${-34 + height / 3} Z` }, group);
+      addSceneNode("path", { class: "flag-red", d: `M0,${-34 + height / 3} C${width * .42},${-42 + height / 3} ${width * .68},${-27 + height / 3} ${width},${-34 + height / 3} L${width},${-34 + 2 * height / 3} C${width * .68},${-27 + 2 * height / 3} ${width * .42},${-42 + 2 * height / 3} 0,${-34 + 2 * height / 3} Z` }, group);
+      addSceneNode("path", { class: "flag-gold", d: `M0,${-34 + 2 * height / 3} C${width * .42},${-42 + 2 * height / 3} ${width * .68},${-27 + 2 * height / 3} ${width},${-34 + 2 * height / 3} L${width},${-34 + height} C${width * .68},${-27 + height} ${width * .42},${-42 + height} 0,${-34 + height} Z` }, group);
+    }
+    function addBoat(x, y, rotation) {
+      const group = addSceneNode("g", {
+        transform: `translate(${x} ${y}) rotate(${rotation})`,
+      });
+      addSvgTitle(group, "Ausflugsdampfer auf der Spree beim Reichstag / Jakob-Kaiser-Haus");
+      addSceneNode("path", {
+        class: "detail-boat",
+        d: "M-70,-14 L56,-14 L76,0 L58,16 L-62,16 L-78,1 Z",
+      }, group);
+      addSceneNode("rect", { class: "vehicle-window", x: -34, y: -24, width: 65, height: 16, rx: 4 }, group);
+      addSceneNode("rect", { class: "detail-boat", x: 16, y: -34, width: 25, height: 13, rx: 3 }, group);
+    }
+    function addPedicab(x, y, rotation) {
+      const group = addSceneNode("g", {
+        transform: `translate(${x} ${y}) rotate(${rotation})`,
+      });
+      addSvgTitle(group, "Rikscha / Pedicab mit Besucherinnen auf dem Pariser Platz");
+      addSceneNode("rect", { class: "detail-pedicab", x: -16, y: -8, width: 34, height: 16, rx: 4 }, group);
+      addSceneNode("circle", { class: "detail-pedicab", cx: -18, cy: 10, r: 6 }, group);
+      addSceneNode("circle", { class: "detail-pedicab", cx: 18, cy: 10, r: 6 }, group);
+      addSceneNode("line", { class: "detail-flag-pole", x1: 18, y1: 0, x2: 42, y2: -5 }, group);
+    }
+    function addPeopleCluster(points, title) {
+      const group = addSceneNode("g", {});
+      addSvgTitle(group, title);
+      points.forEach(([x, y, radius]) => {
+        addSceneNode("circle", { class: "detail-person", cx: x, cy: y, r: radius }, group);
+        addSceneNode("line", { class: "detail-flag-pole", x1: x, y1: y + radius, x2: x, y2: y + radius + 8 }, group);
+      });
+    }
+    function addSign(x, y, text, title) {
+      const group = addSceneNode("g", { transform: `translate(${x} ${y}) rotate(-8)` });
+      addSvgTitle(group, title);
+      addSceneNode("rect", { class: "detail-sign", x: -16, y: -9, width: 32, height: 18, rx: 3 }, group);
+      addSceneNode("text", { class: "detail-label", x: -10, y: 5 }, group).textContent = text;
+    }
+    function addBeerGarden(x, y) {
+      const group = addSceneNode("g", { transform: `translate(${x} ${y}) rotate(-15)` });
+      addSvgTitle(group, "Zollpackhof / Ausflugslokal an der Gustav-Heinemann-Brücke mit Liegestühlen");
+      for (let row = 0; row < 2; row += 1) {
+        for (let column = 0; column < 4; column += 1) {
+          addSceneNode("rect", {
+            class: "detail-chair",
+            x: column * 16 - 32,
+            y: row * 14 - 8,
+            width: 12,
+            height: 7,
+            rx: 2,
+          }, group);
+        }
+      }
+      addSceneNode("circle", { class: "night-monument-gold", cx: 4, cy: -19, r: 9 }, group);
+    }
+    function addSceneDetails() {
+      sceneOverlay.innerHTML = "";
+      addSceneNode("polygon", {
+        class: "sunbeam",
+        points: "0,1235 0,1485 860,760 900,680",
+      });
+      addSceneNode("polygon", {
+        class: "sunbeam",
+        points: "0,1010 0,1150 1370,500 1420,430",
+      });
+
+      addSceneNode("polyline", {
+        class: "detail-water-depth",
+        points: "690,646 842,604 1040,570 1220,520 1480,410 1720,270 1852,230",
+      });
+      addSceneNode("polyline", {
+        class: "detail-water-highlight",
+        points: "690,646 842,604 1040,570 1220,520 1480,410 1720,270 1852,230",
+      });
+      addSceneNode("ellipse", {
+        class: "detail-water-depth",
+        cx: 623,
+        cy: 832,
+        rx: 68,
+        ry: 28,
+        transform: "rotate(-17 623 832)",
+      });
+      addSceneNode("ellipse", {
+        class: "detail-water-highlight",
+        cx: 623,
+        cy: 832,
+        rx: 52,
+        ry: 16,
+        transform: "rotate(-17 623 832)",
+      });
+      addSceneNode("ellipse", {
+        class: "detail-island",
+        cx: 626,
+        cy: 829,
+        rx: 17,
+        ry: 8,
+        transform: "rotate(-17 626 829)",
+      });
+      addSceneNode("circle", {
+        class: "night-monument-gold",
+        cx: 626,
+        cy: 825,
+        r: 5,
+      });
+
+      [
+        "432,1168 386,1212 334,1270",
+        "432,1168 512,1208 602,1228",
+        "470,1092 560,1054 636,1017",
+        "772,951 700,1010 628,1054",
+      ].forEach((points) => addSceneNode("polyline", {
+        class: "detail-tunnel-branch",
+        points,
+      }));
+      addSceneNode("rect", {
+        class: "detail-portal",
+        x: 401,
+        y: 1151,
+        width: 70,
+        height: 28,
+        rx: 7,
+        transform: "rotate(-16 436 1165)",
+      });
+      addSceneNode("rect", {
+        class: "detail-portal",
+        x: 535,
+        y: 1211,
+        width: 58,
+        height: 22,
+        rx: 6,
+        transform: "rotate(12 564 1222)",
+      });
+
+      addIceTrain(1740, 248, -18);
+      addSbahnTrain(1556, 337, -18);
+      addBoat(1186, 575, -17);
+      addBeerGarden(1546, 333);
+
+      addVehicle(1382, 990, -8, "", "Auto am Pariser Platz mit Nachtlicht");
+      addVehicle(1448, 1054, -10, "dark", "Auto am Holocaust-Mahnmal mit Nachtlicht");
+      addVehicle(507, 1164, 18, "", "Auto am Tiergartentunnel-Südportal stadteinwärts");
+      addVehicle(385, 1192, -18, "dark", "Auto am Tiergartentunnel-Südportal stadtauswärts");
+      addVehicle(1518, 1010, -8, "", "Diplomatenfahrzeug an der Amerikanischen Botschaft");
+
+      addPedicab(1388, 964, -8);
+      addPeopleCluster([
+        [1328, 955, 4],
+        [1348, 969, 4],
+        [1366, 952, 3.6],
+        [1406, 985, 4],
+        [1420, 963, 3.8],
+      ], "Besucherinnen und Besucher auf dem Pariser Platz");
+      addSign(1287, 972, "SB", "Starbucks-Ecke am Pariser Platz als Orientierungssignal");
+
+      addFlag(1450, 727, "de", .42, "Reichstag-Turmflagge: Bundesflagge");
+      addFlag(1483, 718, "de", .42, "Reichstag-Turmflagge: Bundesflagge");
+      addFlag(1517, 725, "de", .42, "Reichstag-Turmflagge: Bundesflagge");
+      addFlag(1551, 719, "eu", .42, "Reichstag-Turmflagge: Europaflagge");
+      addFlag(1320, 858, "de-large", 1.05, "Flagge der Einheit vor dem Reichstag");
+      addFlag(1506, 1000, "us", .55, "Amerikanische Botschaft mit US-Flagge am Pariser Platz");
+      addFlag(1262, 922, "fr", .52, "Französische Botschaft am Pariser Platz");
+
+      addCloud(720, 238, .72, "Kleine transparente Cumulus-Wolke mit isometrischem Schatten");
+      addCloud(1190, 188, 1.02, "Große transparente Cumulus-Wolke über Spreebogen und Kanzleramt");
+      addCloud(1665, 418, .58, "Kleine transparente Cumulus-Wolke über Hauptbahnhof / Humboldthafen");
+    }
 
     stage.addEventListener("pointerdown", (event) => {
       if (event.target.classList.contains("marker")) return;
@@ -1907,6 +2399,7 @@ START_HERE_HTML = """<!doctype html>
     }
     addTunnelRoutes();
     addNightLights();
+    addSceneDetails();
     addMarkers();
     applyQualityImage();
     applyLanguage();
@@ -2151,6 +2644,11 @@ Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
 Denkmal-Akzente, Tiergarten-/Pariser-Platz-Laternen und verstärkte
 Tunnelbeleuchtung über die Karte.
+Version {PACKAGE_VERSION} ergänzt außerdem eine Szenen-Detail-Ebene mit drei
+transparenten isometrischen Wolken, Südwest-Sonnenlicht am späten Nachmittag,
+Wolkenschatten, Wasser-Tiefenakzenten, Tunnel-Zusatzästen, ICE, S-Bahn,
+Autos mit Nachtlichtkegeln, Flaggen, Spree-Ausflugsboot, Pariser-Platz-
+Besuchern/Rikscha und Zollpackhof-/Gustav-Heinemann-Brücke-Details.
 Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
 Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
 Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
@@ -2224,6 +2722,11 @@ It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
 Tiergarten/Pariser Platz street lamps and stronger tunnel lighting.
+Version {PACKAGE_VERSION} also adds a scene-detail layer with three translucent
+isometric clouds, southwest late-afternoon sunlight, cloud shadows, water-depth
+accents, tunnel branch hints, an ICE, an S-Bahn, cars with night light beams,
+flags, a Spree tour boat, Pariser Platz visitors / pedicab cues and
+Zollpackhof / Gustav-Heinemann-Brücke beer-garden details.
 Language, Day/Night, visual profile, Pixel-Art/detail-image selection, last
 focused landmark and view angle are stored locally in the browser and restored
 on the next open. If a browser blocks localStorage, START-HERE.html still

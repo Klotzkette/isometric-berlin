@@ -28,12 +28,16 @@ VALID_START_HERE_HTML = (
   '<svg id="tunnel-overlay"><g class="tunnel-light tunnel-vent tunnel-volume '
   'tunnel-center-wall tunnel-ceiling-rib tunnel-service-bay"></g></svg>'
   '<svg id="night-light-overlay"><g class="night-window night-street-lamp"></g></svg>'
+  '<svg id="scene-detail-overlay"><g class="detail-cloud cloud-shadow sunbeam '
+  "detail-water-depth detail-tunnel-branch detail-train-ice detail-train-sbahn "
+  'detail-vehicle vehicle-light-cone detail-boat"></g></svg>'
   "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy; "
   "tunnelPayload; addTunnelVentilation; addTunnelTube; scaleY; focusTunnelRoute; "
   "applyLanguage; setLanguage; setTheme; addNightLights; requestAnimationFrame; "
   "PREFERENCE_STORAGE_KEY; readPreferences; savePreferences; localStorage; "
   "applyQualityImage; savedLandmarkName; restoreInitialView; initialViewState; "
   "resetView; renderQueued; lostpointercapture; resizeTimer; setTimeout(fit, 80);"
+  "addSceneDetails; addFlag;"
   "</script>"
 )
 VALID_SERVE_LOCAL = (
