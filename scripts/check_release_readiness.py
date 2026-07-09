@@ -205,7 +205,7 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "detail-boat" not in start_here_text
   ):
     failures.append(
-      f"Package HTML launcher lacks v0.1.56 scene detail/performance overlays: {label}"
+      f"Package HTML launcher lacks v0.1.57 scene detail/performance overlays: {label}"
     )
   if (
     "PREFERENCE_STORAGE_KEY" not in start_here_text
@@ -217,8 +217,20 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "restoreInitialView" not in start_here_text
     or "initialViewState" not in start_here_text
     or "resetView" not in start_here_text
+    or "readStartParams" not in start_here_text
+    or "paramFlag" not in start_here_text
+    or "paramChoice" not in start_here_text
+    or "imageFallbackAttempted" not in start_here_text
+    or 'mapImage.addEventListener("error"' not in start_here_text
   ):
     failures.append(f"Package HTML launcher lacks persistent preferences: {label}")
+  if (
+    "event.metaKey" not in start_here_text
+    or "event.ctrlKey" not in start_here_text
+    or "event.altKey" not in start_here_text
+    or "targetTag" not in start_here_text
+  ):
+    failures.append(f"Package HTML launcher lacks keyboard shortcut guards: {label}")
   if (
     "requestAnimationFrame" not in start_here_text
     or "renderQueued" not in start_here_text

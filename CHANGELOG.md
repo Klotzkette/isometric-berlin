@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.57
+
+- Add URL start parameters to `START-HERE.html` for support/debug starts:
+  `lang`, `theme`, `view`, `profile`, `pixel`, `details`, `clouds`, `lite`
+  and `performance`.
+- Add an image-load fallback so the offline viewer switches from the detail
+  overview to the pixel overview if `overview_source.png` fails to load.
+- Guard keyboard shortcuts against browser/system modifier combinations and
+  form-focused targets.
+- Extend release readiness, package HTML tests and local smoke tests so future
+  ZIPs keep the start-parameter, fallback and keyboard-guard paths.
+
 ## v0.1.56
 
 - Add a saved lightweight performance mode to the zero-server

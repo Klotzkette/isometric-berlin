@@ -137,13 +137,22 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "readPreferences" in html
   assert "savePreferences" in html
   assert "localStorage" in html
+  assert "readStartParams" in html
+  assert "paramFlag" in html
+  assert "paramChoice" in html
   assert "applyQualityImage" in html
+  assert "imageFallbackAttempted" in html
+  assert 'mapImage.addEventListener("error"' in html
   assert "savedLandmarkName" in html
   assert "restoreInitialView" in html
   assert "initialViewState" in html
   assert "resetView" in html
   assert "refitPreservingView" in html
   assert "setTimeout(refitPreservingView, 80)" in html
+  assert "event.metaKey" in html
+  assert "event.ctrlKey" in html
+  assert "event.altKey" in html
+  assert "targetTag" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 

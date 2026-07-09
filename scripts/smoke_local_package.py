@@ -73,13 +73,22 @@ REQUIRED_START_SNIPPETS = (
   "readPreferences",
   "savePreferences",
   "localStorage",
+  "readStartParams",
+  "paramFlag",
+  "paramChoice",
   "applyQualityImage",
+  "imageFallbackAttempted",
+  'mapImage.addEventListener("error"',
   "savedLandmarkName",
   "restoreInitialView",
   "initialViewState",
   "resetView",
   "refitPreservingView",
   "setTimeout(refitPreservingView, 80)",
+  "event.metaKey",
+  "event.ctrlKey",
+  "event.altKey",
+  "targetTag",
 )
 
 

@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.56"
+PACKAGE_VERSION = "0.1.57"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -1294,7 +1294,27 @@ START_HERE_HTML = """<!doctype html>
       if (!Number.isFinite(value)) return fallback;
       return Math.max(min, Math.min(max, value));
     }
+    function readStartParams() {
+      try {
+        return new URLSearchParams(window.location.search);
+      } catch {
+        return new URLSearchParams();
+      }
+    }
+    function paramChoice(params, key, allowed, fallback) {
+      const value = params.get(key);
+      return allowed.includes(value) ? value : fallback;
+    }
+    function paramFlag(params, key, fallback) {
+      const value = params.get(key);
+      if (value === null) return fallback;
+      const lowered = value.toLowerCase();
+      if (["1", "true", "yes", "on"].includes(lowered)) return true;
+      if (["0", "false", "no", "off"].includes(lowered)) return false;
+      return fallback;
+    }
     const savedPreferences = readPreferences();
+    const startParams = readStartParams();
     const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
     const PRIORITY_LANDMARKS = new Set([
       "Bundeskanzleramt",
@@ -1311,7 +1331,12 @@ START_HERE_HTML = """<!doctype html>
     );
     const state = {
       mode: "pan",
-      viewKey: savedChoice(savedPreferences, "viewKey", ["top", "north", "east", "south", "west", "free"], "top"),
+      viewKey: paramChoice(
+        startParams,
+        "view",
+        ["top", "north", "east", "south", "west", "free"],
+        savedChoice(savedPreferences, "viewKey", ["top", "north", "east", "south", "west", "free"], "top")
+      ),
       scale: 1,
       fitScale: 1,
       x: 0,
@@ -1327,13 +1352,13 @@ START_HERE_HTML = """<!doctype html>
       oy: 0,
       or: 0,
       ot: 0,
-      pixel: savedPreferences.pixel === true,
-      profile: savedChoice(savedPreferences, "profile", ["atlas", "cinematic", "lab"], "atlas"),
-      lang: savedChoice(savedPreferences, "lang", ["de", "en"], "de"),
-      theme: savedChoice(savedPreferences, "theme", ["day", "night"], "day"),
-      details: savedPreferences.details !== false,
-      clouds: savedPreferences.clouds !== false,
-      performance: savedPreferences.performance === true,
+      pixel: paramFlag(startParams, "pixel", savedPreferences.pixel === true),
+      profile: paramChoice(startParams, "profile", ["atlas", "cinematic", "lab"], savedChoice(savedPreferences, "profile", ["atlas", "cinematic", "lab"], "atlas")),
+      lang: paramChoice(startParams, "lang", ["de", "en"], savedChoice(savedPreferences, "lang", ["de", "en"], "de")),
+      theme: paramChoice(startParams, "theme", ["day", "night"], savedChoice(savedPreferences, "theme", ["day", "night"], "day")),
+      details: paramFlag(startParams, "details", savedPreferences.details !== false),
+      clouds: paramFlag(startParams, "clouds", savedPreferences.clouds !== false),
+      performance: paramFlag(startParams, "lite", paramFlag(startParams, "performance", savedPreferences.performance === true)),
     };
     document.body.dataset.profile = state.profile;
     document.body.dataset.under = "false";
@@ -1345,6 +1370,7 @@ START_HERE_HTML = """<!doctype html>
     let renderQueued = false;
     let resizeTimer = 0;
     let lastStageSize = { width: 0, height: 0 };
+    let imageFallbackAttempted = false;
     function t(key) {
       return (TEXT[state.lang] && TEXT[state.lang][key]) || TEXT.de[key] || key;
     }
@@ -1372,10 +1398,20 @@ START_HERE_HTML = """<!doctype html>
       }
     }
     function applyQualityImage() {
+      imageFallbackAttempted = false;
       mapImage.src = state.pixel ? "dzi/regierungsviertel/overview.png" : "dzi/regierungsviertel/overview_source.png";
       mapImage.classList.toggle("pixelated", state.pixel);
       ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
     }
+    mapImage.addEventListener("error", () => {
+      if (state.pixel || imageFallbackAttempted) return;
+      imageFallbackAttempted = true;
+      state.pixel = true;
+      mapImage.classList.add("pixelated");
+      mapImage.src = "dzi/regierungsviertel/overview.png";
+      ui.quality.textContent = t("detailImage");
+      savePreferences();
+    });
     function applyLanguage() {
       document.documentElement.lang = state.lang;
       document.title = t("documentTitle");
@@ -2573,6 +2609,9 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("reference-close").addEventListener("click", () => referencePanel.classList.remove("open"));
     window.addEventListener("keydown", (event) => {
       if (event.key === "Escape") referencePanel.classList.remove("open");
+      if ((event.metaKey || event.ctrlKey || event.altKey) && event.key !== "Escape") return;
+      const targetTag = String(event.target?.tagName || "").toLowerCase();
+      if (["input", "select", "textarea"].includes(targetTag)) return;
       if (event.key === "+" || event.key === "=") zoomBy(1.25);
       if (event.key === "-") zoomBy(0.8);
       if (event.key === "0" || event.key === "Home") resetView();
@@ -2906,6 +2945,11 @@ Version {PACKAGE_VERSION} ergänzt einen gespeicherten Leichtmodus mit Taste P.
 Er schaltet teure Schatten, Filter und Wolkenanimationen herunter. Außerdem
 behält der Viewer beim Ändern der Fenstergröße Fokus, Zoom, Drehung, Swivel
 und Unterseitenansicht, statt auf die Übersicht zurückzuspringen.
+Version {PACKAGE_VERSION} kann außerdem gezielt mit URL-Parametern gestartet
+werden, etwa `START-HERE.html?lite=1&details=0&clouds=0` oder
+`START-HERE.html?lang=en&theme=night`. Wenn die schärfere Detailgrafik lokal
+nicht geladen werden kann, fällt der Viewer automatisch auf die Pixelgrafik
+zurück.
 Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
 Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
 Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
@@ -2992,6 +3036,10 @@ and Chancellery, water ripples, Tiergarten tree clusters and small path accents.
 Version {PACKAGE_VERSION} adds a saved Lite mode on key P. It reduces expensive
 shadows, filters and cloud animation. Window resizing now preserves focus, zoom,
 rotation, swivel and underside view instead of snapping back to the overview.
+Version {PACKAGE_VERSION} can also start with URL parameters such as
+`START-HERE.html?lite=1&details=0&clouds=0` or
+`START-HERE.html?lang=en&theme=night`. If the sharper detail image cannot be
+loaded locally, the viewer automatically falls back to the pixel image.
 Language, Day/Night, visual profile, Pixel-Art/detail-image selection, last
 focused landmark and view angle are stored locally in the browser and restored
 on the next open. If a browser blocks localStorage, START-HERE.html still

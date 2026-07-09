@@ -38,11 +38,13 @@ VALID_START_HERE_HTML = (
   "tunnelPayload; addTunnelVentilation; addTunnelTube; scaleY; focusTunnelRoute; "
   "applyLanguage; setLanguage; setTheme; addNightLights; requestAnimationFrame; "
   "PREFERENCE_STORAGE_KEY; readPreferences; savePreferences; localStorage; "
+  "readStartParams; paramFlag; paramChoice; imageFallbackAttempted; "
+  'mapImage.addEventListener("error"; '
   "applyQualityImage; savedLandmarkName; restoreInitialView; initialViewState; "
   "resetView; renderQueued; lostpointercapture; resizeTimer; "
   "refitPreservingView; setTimeout(refitPreservingView, 80); "
   "addSceneDetails; addFlag; setDetails; setClouds; setPerformance; "
-  "data-dragging; data-performance;"
+  "data-dragging; data-performance; event.metaKey; event.ctrlKey; event.altKey; targetTag;"
   "</script>"
 )
 VALID_SERVE_LOCAL = (
