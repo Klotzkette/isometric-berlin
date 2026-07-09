@@ -181,9 +181,17 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   if (
     "scene-detail-overlay" not in start_here_text
     or "addSceneDetails" not in start_here_text
+    or "details-toggle" not in start_here_text
+    or "clouds-toggle" not in start_here_text
+    or "setDetails" not in start_here_text
+    or "setClouds" not in start_here_text
+    or "data-dragging" not in start_here_text
     or "detail-cloud" not in start_here_text
     or "cloud-shadow" not in start_here_text
     or "sunbeam" not in start_here_text
+    or "detail-glint" not in start_here_text
+    or "detail-ripple" not in start_here_text
+    or "detail-tree-cluster" not in start_here_text
     or "detail-water-depth" not in start_here_text
     or "detail-tunnel-branch" not in start_here_text
     or "detail-train-ice" not in start_here_text
@@ -194,7 +202,7 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "detail-boat" not in start_here_text
   ):
     failures.append(
-      f"Package HTML launcher lacks v0.1.54 scene detail overlays: {label}"
+      f"Package HTML launcher lacks v0.1.55 scene detail/performance overlays: {label}"
     )
   if (
     "PREFERENCE_STORAGE_KEY" not in start_here_text

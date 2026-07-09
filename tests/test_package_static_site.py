@@ -111,9 +111,17 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "night-street-lamp" in html
   assert "scene-detail-overlay" in html
   assert "addSceneDetails" in html
+  assert "details-toggle" in html
+  assert "clouds-toggle" in html
+  assert "setDetails" in html
+  assert "setClouds" in html
+  assert "data-dragging" in html
   assert "detail-cloud" in html
   assert "cloud-shadow" in html
   assert "sunbeam" in html
+  assert "detail-glint" in html
+  assert "detail-ripple" in html
+  assert "detail-tree-cluster" in html
   assert "detail-water-depth" in html
   assert "detail-tunnel-branch" in html
   assert "detail-train-ice" in html

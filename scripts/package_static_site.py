@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.54"
+PACKAGE_VERSION = "0.1.55"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -143,6 +143,8 @@ START_HERE_HTML = """<!doctype html>
       --cloud-shadow-opacity: .22;
       --sunbeam-opacity: .18;
       --vehicle-light-opacity: .16;
+      --detail-opacity: 1;
+      --glint-opacity: .72;
     }
     * { box-sizing: border-box; }
     body {
@@ -186,6 +188,8 @@ START_HERE_HTML = """<!doctype html>
       --cloud-shadow-opacity: .08;
       --sunbeam-opacity: 0;
       --vehicle-light-opacity: 1;
+      --detail-opacity: .95;
+      --glint-opacity: .42;
       background:
         radial-gradient(circle at 12% 12%, rgba(247, 215, 122, .08), transparent 24%),
         radial-gradient(circle at 82% 18%, rgba(79, 150, 178, .12), transparent 22%),
@@ -245,6 +249,7 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       transform-origin: 50% 50%;
       transform-style: preserve-3d;
+      contain: layout paint style;
       will-change: transform;
       z-index: 0;
       filter: var(--map-shadow);
@@ -328,6 +333,46 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       pointer-events: none;
       overflow: visible;
+      opacity: var(--detail-opacity);
+      contain: paint;
+      transition: opacity .16s ease;
+    }
+    body[data-details="false"] .scene-detail-overlay {
+      display: none;
+    }
+    body[data-clouds="false"] .detail-cloud {
+      display: none;
+    }
+    body[data-dragging="true"] .scene-detail-overlay {
+      opacity: .74;
+    }
+    body[data-dragging="true"] .cloud-puff,
+    body[data-dragging="true"] .detail-vehicle,
+    body[data-dragging="true"] .detail-train-ice,
+    body[data-dragging="true"] .detail-train-sbahn,
+    body[data-dragging="true"] .detail-boat {
+      filter: none;
+    }
+    .cloud-drift {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: cloudDrift 36s ease-in-out infinite alternate;
+    }
+    .detail-cloud:nth-of-type(2) .cloud-drift {
+      animation-duration: 44s;
+    }
+    .detail-cloud:nth-of-type(3) .cloud-drift {
+      animation-duration: 31s;
+    }
+    @keyframes cloudDrift {
+      from { transform: translate(-5px, 3px); }
+      to { transform: translate(17px, -7px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cloud-drift,
+      .focus-ring {
+        animation: none;
+      }
     }
     .sunbeam {
       fill: rgba(255, 210, 126, .46);
@@ -480,6 +525,32 @@ START_HERE_HTML = """<!doctype html>
       stroke: #153429;
       stroke-width: 2;
       paint-order: stroke;
+    }
+    .detail-glint {
+      fill: rgba(255, 255, 255, .8);
+      stroke: rgba(247, 215, 122, .88);
+      stroke-width: 1.2;
+      opacity: var(--glint-opacity);
+      filter: drop-shadow(0 0 8px rgba(255, 244, 191, .66));
+    }
+    .detail-ripple {
+      fill: none;
+      stroke: rgba(226, 251, 255, .56);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 20 18;
+      opacity: .74;
+    }
+    .detail-tree-cluster {
+      fill: #2f6e39;
+      stroke: #d7e6b0;
+      stroke-width: 1;
+      filter: drop-shadow(0 2px 3px rgba(27, 48, 28, .24));
+    }
+    .detail-path-spark {
+      fill: rgba(255, 245, 204, .72);
+      stroke: rgba(101, 83, 36, .28);
+      stroke-width: .7;
     }
     body[data-under="true"] .tunnel-overlay {
       filter: drop-shadow(0 0 18px rgba(247, 215, 122, .42));
@@ -992,6 +1063,8 @@ START_HERE_HTML = """<!doctype html>
         <button type="button" id="tilt-right">Swivel ▶</button>
         <button type="button" id="under-view" class="half">Unterseite</button>
         <button type="button" id="tunnel-focus" class="half">Tunnel-Fokus</button>
+        <button type="button" id="details-toggle" class="half active">Details</button>
+        <button type="button" id="clouds-toggle" class="half active">Wolken</button>
         <button type="button" id="quality" class="half">Pixel-Art</button>
         <button type="button" id="reset" class="half">Reset</button>
         <div class="profile-controls wide" aria-label="Grafikprofil">
@@ -1070,6 +1143,8 @@ START_HERE_HTML = """<!doctype html>
       tiltLeft: document.getElementById("tilt-left"),
       tiltRight: document.getElementById("tilt-right"),
       tunnelFocus: document.getElementById("tunnel-focus"),
+      detailsToggle: document.getElementById("details-toggle"),
+      cloudsToggle: document.getElementById("clouds-toggle"),
       quality: document.getElementById("quality"),
       reset: document.getElementById("reset"),
       reference: document.getElementById("reference"),
@@ -1100,13 +1175,17 @@ START_HERE_HTML = """<!doctype html>
         tiltRight: "Swivel ▶",
         underside: "Unterseite",
         tunnelFocus: "Tunnel-Fokus",
+        detailsOn: "Details",
+        detailsOff: "Details aus",
+        cloudsOn: "Wolken",
+        cloudsOff: "Wolken aus",
         pixelArt: "Pixel-Art",
         detailImage: "Detailbild",
         reset: "Reset",
         reference: "Top-down-Referenzkarte",
         advanced: "Advanced Viewer nur mit Server-Fallback",
-        hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
-        hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten.",
+        hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. G schaltet Details, C schaltet Wolken. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
+        hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten. Beim Ziehen reduziert der Viewer teure Detailfilter.",
         notice: "Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.",
         referenceTitle: "Top-down-Referenzkarte",
         referenceClose: "Schließen",
@@ -1138,13 +1217,17 @@ START_HERE_HTML = """<!doctype html>
         tiltRight: "Swivel ▶",
         underside: "Underside",
         tunnelFocus: "Tunnel focus",
+        detailsOn: "Details",
+        detailsOff: "Hide details",
+        cloudsOn: "Clouds",
+        cloudsOff: "Hide clouds",
         pixelArt: "Pixel art",
         detailImage: "Detail image",
         reset: "Reset",
         reference: "Top-down reference map",
         advanced: "Advanced viewer, server fallback only",
-        hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
-        hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below.",
+        hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. G toggles details, C toggles clouds. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
+        hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below. While dragging, the viewer reduces costly detail filters.",
         notice: "This START-HERE file is the robust offline viewer. The Advanced Viewer is only a fallback for server start and may be blocked when opened directly from the folder.",
         referenceTitle: "Top-down reference map",
         referenceClose: "Close",
@@ -1221,10 +1304,14 @@ START_HERE_HTML = """<!doctype html>
       profile: savedChoice(savedPreferences, "profile", ["atlas", "cinematic", "lab"], "atlas"),
       lang: savedChoice(savedPreferences, "lang", ["de", "en"], "de"),
       theme: savedChoice(savedPreferences, "theme", ["day", "night"], "day"),
+      details: savedPreferences.details !== false,
+      clouds: savedPreferences.clouds !== false,
     };
     document.body.dataset.profile = state.profile;
     document.body.dataset.under = "false";
     document.body.dataset.theme = state.theme;
+    document.body.dataset.details = state.details ? "true" : "false";
+    document.body.dataset.clouds = state.clouds ? "true" : "false";
 
     let renderQueued = false;
     let resizeTimer = 0;
@@ -1241,6 +1328,8 @@ START_HERE_HTML = """<!doctype html>
           theme: state.theme,
           profile: state.profile,
           pixel: state.pixel,
+          details: state.details,
+          clouds: state.clouds,
           landmark: selectedLandmarkName,
           viewKey: state.viewKey,
           rotation: state.rotation,
@@ -1270,6 +1359,8 @@ START_HERE_HTML = """<!doctype html>
       ui.tiltRight.textContent = t("tiltRight");
       underButton.textContent = t("underside");
       ui.tunnelFocus.textContent = t("tunnelFocus");
+      ui.detailsToggle.textContent = state.details ? t("detailsOn") : t("detailsOff");
+      ui.cloudsToggle.textContent = state.clouds ? t("cloudsOn") : t("cloudsOff");
       ui.quality.textContent = state.pixel ? t("detailImage") : t("pixelArt");
       ui.reset.textContent = t("reset");
       ui.reference.textContent = t("reference");
@@ -1330,6 +1421,8 @@ START_HERE_HTML = """<!doctype html>
       hudZoom.textContent = `${t("zoom")} ${zoomRatio.toFixed(2)}x`;
       hudMeter.style.width = `${Math.max(6, Math.min(100, zoomRatio * 18))}%`;
       document.body.dataset.profile = state.profile;
+      document.body.dataset.details = state.details ? "true" : "false";
+      document.body.dataset.clouds = state.clouds ? "true" : "false";
       Object.entries(viewButtons).forEach(([key, button]) => {
         button.classList.toggle("active", key === state.viewKey);
       });
@@ -1341,6 +1434,12 @@ START_HERE_HTML = """<!doctype html>
         node.classList.toggle("active", landmarks[index]?.name === selectedLandmarkName);
       });
       underButton.classList.toggle("active", state.under);
+      ui.detailsToggle.classList.toggle("active", state.details);
+      ui.detailsToggle.setAttribute("aria-pressed", state.details ? "true" : "false");
+      ui.detailsToggle.textContent = state.details ? t("detailsOn") : t("detailsOff");
+      ui.cloudsToggle.classList.toggle("active", state.clouds);
+      ui.cloudsToggle.setAttribute("aria-pressed", state.clouds ? "true" : "false");
+      ui.cloudsToggle.textContent = state.clouds ? t("cloudsOn") : t("cloudsOff");
       document.body.dataset.under = state.under ? "true" : "false";
     }
     function render() {
@@ -1478,6 +1577,22 @@ START_HERE_HTML = """<!doctype html>
       state.pixel = !state.pixel;
       applyQualityImage();
       savePreferences();
+    }
+    function setDetails(enabled) {
+      state.details = enabled;
+      savePreferences();
+      render();
+    }
+    function toggleDetails() {
+      setDetails(!state.details);
+    }
+    function setClouds(enabled) {
+      state.clouds = enabled;
+      savePreferences();
+      render();
+    }
+    function toggleClouds() {
+      setClouds(!state.clouds);
     }
     function addMarkers() {
       markerRoot.innerHTML = "";
@@ -1954,6 +2069,7 @@ START_HERE_HTML = """<!doctype html>
         transform: `translate(${x} ${y}) scale(${scale})`,
       });
       addSvgTitle(group, title);
+      const drift = addSceneNode("g", { class: "cloud-drift" }, group);
       addSceneNode("ellipse", {
         class: "cloud-shadow",
         cx: 58,
@@ -1961,8 +2077,8 @@ START_HERE_HTML = """<!doctype html>
         rx: 126,
         ry: 29,
         transform: "rotate(-18 58 128)",
-      }, group);
-      addSceneNode("ellipse", { class: "cloud-base", cx: 0, cy: 0, rx: 92, ry: 19 }, group);
+      }, drift);
+      addSceneNode("ellipse", { class: "cloud-base", cx: 0, cy: 0, rx: 92, ry: 19 }, drift);
       [
         [-58, -2, 34],
         [-26, -18, 43],
@@ -1971,7 +2087,7 @@ START_HERE_HTML = """<!doctype html>
         [42, 6, 45],
         [-12, 9, 52],
       ].forEach(([cx, cy, radius]) => {
-        addSceneNode("circle", { class: "cloud-puff", cx, cy, r: radius }, group);
+        addSceneNode("circle", { class: "cloud-puff", cx, cy, r: radius }, drift);
       });
     }
     function addVehicle(x, y, rotation, variant, title) {
@@ -2150,6 +2266,38 @@ START_HERE_HTML = """<!doctype html>
       }
       addSceneNode("circle", { class: "night-monument-gold", cx: 4, cy: -19, r: 9 }, group);
     }
+    function addGlassGlint(x, y, width, rotation, title) {
+      const group = addSceneNode("g", { transform: `translate(${x} ${y}) rotate(${rotation})` });
+      addSvgTitle(group, title);
+      addSceneNode("path", {
+        class: "detail-glint",
+        d: `M${-width / 2},-6 L${width / 2},-18 L${width / 2 - 18},-6 L${-width / 2 + 16},7 Z`,
+      }, group);
+      addSceneNode("path", {
+        class: "detail-glint",
+        d: `M${-width / 3},8 L${width / 3},-2 L${width / 3 - 16},8 L${-width / 3 + 12},17 Z`,
+      }, group);
+    }
+    function addTreeCluster(x, y, scale, title) {
+      const group = addSceneNode("g", { transform: `translate(${x} ${y}) scale(${scale})` });
+      addSvgTitle(group, title);
+      [
+        [-18, -4, 11],
+        [-5, -13, 13],
+        [12, -6, 12],
+        [4, 10, 10],
+        [-17, 12, 9],
+      ].forEach(([cx, cy, radius]) => {
+        addSceneNode("circle", { class: "detail-tree-cluster", cx, cy, r: radius }, group);
+      });
+    }
+    function addPathSparkles(points, title) {
+      const group = addSceneNode("g", {});
+      addSvgTitle(group, title);
+      points.forEach(([x, y, radius]) => {
+        addSceneNode("circle", { class: "detail-path-spark", cx: x, cy: y, r: radius }, group);
+      });
+    }
     function addSceneDetails() {
       sceneOverlay.innerHTML = "";
       addSceneNode("polygon", {
@@ -2169,6 +2317,14 @@ START_HERE_HTML = """<!doctype html>
         class: "detail-water-highlight",
         points: "690,646 842,604 1040,570 1220,520 1480,410 1720,270 1852,230",
       });
+      [
+        "760,631 836,610 930,588",
+        "1130,544 1215,518 1306,484",
+        "1492,402 1586,358 1680,292",
+      ].forEach((points) => addSceneNode("polyline", {
+        class: "detail-ripple",
+        points,
+      }));
       addSceneNode("ellipse", {
         class: "detail-water-depth",
         cx: 623,
@@ -2198,6 +2354,10 @@ START_HERE_HTML = """<!doctype html>
         cx: 626,
         cy: 825,
         r: 5,
+      });
+      addSceneNode("path", {
+        class: "detail-ripple",
+        d: "M582,830 C610,815 641,815 672,832",
       });
 
       [
@@ -2232,6 +2392,25 @@ START_HERE_HTML = """<!doctype html>
       addSbahnTrain(1556, 337, -18);
       addBoat(1186, 575, -17);
       addBeerGarden(1546, 333);
+      addGlassGlint(1488, 742, 112, -8, "Glasglanz auf Reichstagskuppel / Plenarsaal");
+      addGlassGlint(1761, 231, 178, -18, "Glasglanz auf dem langen Hauptbahnhofdach");
+      addGlassGlint(1225, 471, 148, -16, "Glasglanz und Fassadenkante am Bundeskanzleramt");
+      addTreeCluster(715, 820, .86, "Verdichtete Tiergarten-Baumgruppe am Denkmalpfad");
+      addTreeCluster(912, 1005, .94, "Verdichtete Tiergarten-Baumgruppe beim Goethe-Denkmal");
+      addTreeCluster(1044, 744, .82, "Baumgruppe am Sowjetischen Ehrenmal / Straße des 17. Juni");
+      addTreeCluster(525, 908, .9, "Baumgruppe und Parkkante beim Venusbassin");
+      addPathSparkles([
+        [1310, 942, 2.5],
+        [1342, 941, 2.2],
+        [1381, 956, 2.4],
+        [1422, 975, 2.1],
+        [1465, 993, 2.3],
+        [620, 828, 1.9],
+        [675, 825, 2],
+        [735, 837, 1.8],
+        [932, 1040, 2.1],
+        [1000, 1023, 2.2],
+      ], "Kleine helle Wegpunkte für Pariser Platz und Tiergartenpfade");
 
       addVehicle(1382, 990, -8, "", "Auto am Pariser Platz mit Nachtlicht");
       addVehicle(1448, 1054, -10, "dark", "Auto am Holocaust-Mahnmal mit Nachtlicht");
@@ -2273,6 +2452,7 @@ START_HERE_HTML = """<!doctype html>
       state.oy = state.y;
       state.or = state.rotation;
       state.ot = state.tilt;
+      document.body.dataset.dragging = "true";
       stage.setPointerCapture(event.pointerId);
     });
     stage.addEventListener("pointermove", (event) => {
@@ -2291,6 +2471,7 @@ START_HERE_HTML = """<!doctype html>
       const shouldSaveView = state.rotateDrag;
       state.dragging = false;
       state.rotateDrag = false;
+      document.body.dataset.dragging = "false";
       if (shouldSaveView) savePreferences();
     }
     stage.addEventListener("pointerup", endPointerDrag);
@@ -2311,6 +2492,8 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("mode-rotate").addEventListener("click", () => setMode("rotate"));
     underButton.addEventListener("click", toggleUnderView);
     document.getElementById("tunnel-focus").addEventListener("click", focusTunnelRoute);
+    document.getElementById("details-toggle").addEventListener("click", toggleDetails);
+    document.getElementById("clouds-toggle").addEventListener("click", toggleClouds);
     document.getElementById("quality").addEventListener("click", toggleQuality);
     Object.entries(profileButtons).forEach(([key, button]) => {
       button.addEventListener("click", () => setProfile(key));
@@ -2335,6 +2518,8 @@ START_HERE_HTML = """<!doctype html>
       if (event.key.toLowerCase() === "r") setMode(state.mode === "rotate" ? "pan" : "rotate");
       if (event.key.toLowerCase() === "u") toggleUnderView();
       if (event.key.toLowerCase() === "f") focusTunnelRoute();
+      if (event.key.toLowerCase() === "g") toggleDetails();
+      if (event.key.toLowerCase() === "c") toggleClouds();
       if (event.key === "PageDown" || event.key === "PageUp") {
         event.preventDefault();
         const index = Math.max(0, landmarks.findIndex((landmark) => landmark.name === selectedLandmarkName));
@@ -2649,6 +2834,12 @@ transparenten isometrischen Wolken, Südwest-Sonnenlicht am späten Nachmittag,
 Wolkenschatten, Wasser-Tiefenakzenten, Tunnel-Zusatzästen, ICE, S-Bahn,
 Autos mit Nachtlichtkegeln, Flaggen, Spree-Ausflugsboot, Pariser-Platz-
 Besuchern/Rikscha und Zollpackhof-/Gustav-Heinemann-Brücke-Details.
+Details und Wolken lassen sich jetzt separat abschalten; die Auswahl wird mit
+den anderen Offline-Einstellungen gespeichert. Die Tasten G und C schalten
+diese Ebenen direkt. Beim Ziehen reduziert der Viewer teure SVG-Filter, damit
+sich Pan/Rotate/Swivel leichter anfühlen. Neu sind außerdem Glasglanz auf
+Reichstag, Hauptbahnhof und Kanzleramt, Wasser-Ripples, Tiergarten-Baumgruppen
+und kleine Wegakzente.
 Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
 Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
 Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
@@ -2727,6 +2918,11 @@ isometric clouds, southwest late-afternoon sunlight, cloud shadows, water-depth
 accents, tunnel branch hints, an ICE, an S-Bahn, cars with night light beams,
 flags, a Spree tour boat, Pariser Platz visitors / pedicab cues and
 Zollpackhof / Gustav-Heinemann-Brücke beer-garden details.
+Details and clouds can now be toggled separately and the choices are saved with
+the other offline preferences. Keys G and C switch those layers directly. While
+dragging, the viewer reduces costly SVG filters so pan/rotate/swivel feels
+lighter. This version also adds glass glints for the Reichstag, Hauptbahnhof
+and Chancellery, water ripples, Tiergarten tree clusters and small path accents.
 Language, Day/Night, visual profile, Pixel-Art/detail-image selection, last
 focused landmark and view angle are stored locally in the browser and restored
 on the next open. If a browser blocks localStorage, START-HERE.html still

@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.1.55
+
+- Add detail and cloud toggles to `START-HERE.html`, persist both choices,
+  expose G/C keyboard shortcuts and keep the buttons bilingual.
+- Reduce heavy visual work while the map is being dragged by dimming the
+  detail overlay and disabling costly SVG filters during active pointer
+  movement.
+- Add a reduced-motion guard for cloud drift / focus animation.
+- Refine the visual pass with glass glints for the Reichstag dome,
+  Hauptbahnhof roof and Bundeskanzleramt, plus water ripples, Tiergarten
+  tree clusters and path-highlight points.
+- Extend release-readiness, package HTML tests and local package smoke tests
+  so the new toggles, drag optimisation and polish details stay in future
+  downloads.
+
 ## v0.1.54
 
 - Add a deterministic scene-detail overlay to the zero-server
