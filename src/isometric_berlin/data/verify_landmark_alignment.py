@@ -136,6 +136,42 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["spreebogenpark", "tunnel tiergarten spreebogen", "spreebogen"],
     "max_distance_m": 90.0,
   },
+  "Venusbassin / Goldfischteich": {
+    "aliases": ["venusbassin", "goldfischteich"],
+    "max_distance_m": 35.0,
+  },
+  "Eduardo-Chillida-Skulptur Berlin": {
+    "aliases": ["bundeskanzleramt", "kanzlergarten"],
+    "max_distance_m": 70.0,
+  },
+  "Reichstagsvorfeld / Berlin-Pavillon": {
+    "aliases": ["simsonweg", "platz der republik", "reichstag bundestag"],
+    "max_distance_m": 70.0,
+  },
+  "Platz der Republik Heckenbosquets": {
+    "aliases": ["platz der republik", "scheidemannstrasse"],
+    "max_distance_m": 60.0,
+  },
+  "Kanzlergarten / Non-Violence-Skulptur": {
+    "aliases": ["kanzlergarten", "bundeskanzleramt", "bettina von arnim ufer"],
+    "max_distance_m": 45.0,
+  },
+  "Carillon im Tiergarten": {
+    "aliases": [
+      "john foster dulles allee",
+      "grosse querallee",
+      "tipi am kanzleramt",
+    ],
+    "max_distance_m": 65.0,
+  },
+  "Mahnmal für verfolgte Zeugen Jehovas": {
+    "aliases": ["zeugen jehovas", "jehovas"],
+    "max_distance_m": 25.0,
+  },
+  "Gedenkort für Polen 1939-1945": {
+    "aliases": ["kroll oper", "heinrich von gagern", "paul lobe allee"],
+    "max_distance_m": 115.0,
+  },
 }
 
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (

@@ -417,11 +417,11 @@
         "name": "Mahnmal für verfolgte Zeugen Jehovas",
         "role": "owner_added",
         "tour_order": 34,
-        "source": "Kulturstaatsminister / RBB / ALST reports; approximate point near Goldfischteich"
+        "source": "OSM node 13951345000; Kulturstaatsminister / RBB / ALST reports"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [13.37095, 52.51428]
+        "coordinates": [13.3700036, 52.5130436]
       }
     },
     {

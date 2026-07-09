@@ -89,6 +89,16 @@ REQUIRED_START_SNIPPETS = (
   "event.ctrlKey",
   "event.altKey",
   "targetTag",
+  "viewport-fit=cover",
+  "100dvh",
+  "@media (pointer: coarse)",
+  "min-height: 44px",
+  "activePointers",
+  "pinchGesture",
+  'pointerType === "touch"',
+  "startPinchGesture",
+  "updatePinchGesture",
+  "resumeSingleTouchDrag",
 )
 
 

@@ -245,6 +245,26 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or "setTimeout(refitPreservingView, 80)" not in start_here_text
   ):
     failures.append(f"Package HTML launcher lacks resize debounce: {label}")
+  if (
+    "viewport-fit=cover" not in start_here_text
+    or "100dvh" not in start_here_text
+    or "@media (pointer: coarse)" not in start_here_text
+    or "min-height: 44px" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks mobile viewport/touch-target hardening: {label}"
+    )
+  if (
+    "activePointers" not in start_here_text
+    or "pinchGesture" not in start_here_text
+    or 'pointerType === "touch"' not in start_here_text
+    or "startPinchGesture" not in start_here_text
+    or "updatePinchGesture" not in start_here_text
+    or "resumeSingleTouchDrag" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher lacks touchscreen pinch/pan handling: {label}"
+    )
   return failures
 
 

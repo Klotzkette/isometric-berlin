@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.58/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.59/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -19,16 +19,19 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.58 open-data package.
+**Status:** Local v0.1.59 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.58**. It is an open-data,
+The current public package is **v0.1.59**. It is an open-data,
 offline-capable viewer for the Berlin Regierungsviertel with:
 
 - a granular source-render Deep Zoom image as default view;
 - large zoom, rotate, swivel, mirror and orientation controls;
 - mouse drag, arrow-key pan, and Shift/rotate-mode arrow swivel controls;
+- touchscreen support for phones and tablets, including one-finger pan,
+  two-finger pinch zoom, larger coarse-pointer controls and safe viewport
+  sizing for iPhone/iPad/Android browser chrome;
 - animation-frame render throttling and resize debounce to keep drag,
   wheel zoom and window resizing responsive;
 - richer Tiergartentunnel under-surface overlay with OSM-derived

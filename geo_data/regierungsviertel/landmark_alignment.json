@@ -800,6 +800,51 @@
         "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Venusbassin",
+        "office": null,
+        "railway": null,
+        "source_layer": "water",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "venusbassin",
+        "goldfischteich"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYT600005H",
+        "nearest_distance_m": 46.3
+      },
+      "name": "Venusbassin / Goldfischteich",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
         "geometry_type": "Point",
         "government": null,
         "highway": null,
@@ -1154,9 +1199,372 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "theatre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Tipi am Kanzleramt",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "tipi am kanzleramt"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002MQ0",
+        "nearest_distance_m": 61.74
+      },
+      "name": "TIPI am Kanzleramt",
+      "nearest_named_osm": {
+        "amenity": "theatre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Tipi am Kanzleramt",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 17.3,
+        "geometry_type": "Polygon",
+        "government": "ministry",
+        "highway": null,
+        "historic": null,
+        "name": "Bundeskanzleramt",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "expected_osm_aliases": [
+        "bundeskanzleramt",
+        "kanzlergarten"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002KKb",
+        "nearest_distance_m": 17.14
+      },
+      "name": "Eduardo-Chillida-Skulptur Berlin",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 17.3,
+        "geometry_type": "Polygon",
+        "government": "ministry",
+        "highway": null,
+        "historic": null,
+        "name": "Bundeskanzleramt",
+        "office": "government",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 11.1,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "name": "Simsonweg",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "simsonweg",
+        "platz der republik",
+        "reichstag bundestag"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002KL4",
+        "nearest_distance_m": 3.46
+      },
+      "name": "Reichstagsvorfeld / Berlin-Pavillon",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 35.12,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "Scheidemannstra\u00dfe",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "platz der republik",
+        "scheidemannstrasse"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002Pvf",
+        "nearest_distance_m": 25.46
+      },
+      "name": "Platz der Republik Heckenbosquets",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 4.88,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "name": "Bettina-von-Arnim-Ufer",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "kanzlergarten",
+        "bundeskanzleramt",
+        "bettina von arnim ufer"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYIJ00003e",
+        "nearest_distance_m": 9.0
+      },
+      "name": "Kanzlergarten / Non-Violence-Skulptur",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 4.88,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "name": "Bettina-von-Arnim-Ufer",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 13.7,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "John-Foster-Dulles-Allee",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "john foster dulles allee",
+        "grosse querallee",
+        "tipi am kanzleramt"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002MQ0",
+        "nearest_distance_m": 23.33
+      },
+      "name": "Carillon im Tiergarten",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 13.7,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "tertiary",
+        "historic": null,
+        "name": "John-Foster-Dulles-Allee",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Mahnmal f\u00fcr die im Nationalsozialismus verfolgten und ermordeten Zeugen Jehovas",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "zeugen jehovas",
+        "jehovas"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYT600005H",
+        "nearest_distance_m": 130.41
+      },
+      "name": "Mahnmal f\u00fcr verfolgte Zeugen Jehovas",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 75.92,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "residential",
+        "historic": null,
+        "name": "Paul-L\u00f6be-Allee",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "kroll oper",
+        "heinrich von gagern",
+        "paul lobe allee"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYWA00004m",
+        "nearest_distance_m": 104.08
+      },
+      "name": "Gedenkort f\u00fcr Polen 1939-1945",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 62.56,
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "trunk",
+        "historic": null,
+        "name": "Tunnel Tiergarten Spreebogen",
+        "office": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
     }
   ],
-  "generated_at": "2026-07-01T07:25:38.859418+00:00",
+  "generated_at": "2026-07-09T20:00:24.586059+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -1410,7 +1818,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "02bdddccf236e8a2cdd2b814f7f2960eba73f23e2ab66ff293756c18be446577"
+      "sha256": "30c5ea257055de60a598fd4273653a1758c977c403c61e0fbdaee0080f3fa5ca"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
@@ -1423,7 +1831,7 @@
   },
   "summary": {
     "landmark_review_count": 0,
-    "landmarks_checked": 26,
+    "landmarks_checked": 35,
     "relative_relationships_checked": 19,
     "relative_review_count": 0,
     "review_count": 0,

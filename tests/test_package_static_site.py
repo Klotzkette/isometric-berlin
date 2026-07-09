@@ -153,6 +153,16 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "event.ctrlKey" in html
   assert "event.altKey" in html
   assert "targetTag" in html
+  assert "viewport-fit=cover" in html
+  assert "100dvh" in html
+  assert "@media (pointer: coarse)" in html
+  assert "min-height: 44px" in html
+  assert "activePointers" in html
+  assert "pinchGesture" in html
+  assert 'pointerType === "touch"' in html
+  assert "startPinchGesture" in html
+  assert "updatePinchGesture" in html
+  assert "resumeSingleTouchDrag" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 
 
@@ -174,6 +184,8 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "German/English" in readme
   assert "localStorage" in readme
   assert "focused landmark" in readme
+  assert "Touchscreen" in readme
+  assert "two fingers pinch-zoom" in readme
   assert "--no-open --port 8770" in readme
 
 

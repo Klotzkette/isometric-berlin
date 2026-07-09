@@ -30,7 +30,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "ok",
-    "landmarks_checked": 26,
+    "landmarks_checked": 35,
     "relative_relationships_checked": 19,
     "landmark_review_count": 0,
     "relative_review_count": 0,

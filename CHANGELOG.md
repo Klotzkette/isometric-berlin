@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.59
+
+- Harden the zero-server `START-HERE.html` package for phones, tablets and
+  touchscreens: add `viewport-fit=cover`, dynamic viewport heights,
+  safe-area-aware mobile layout and larger coarse-pointer controls.
+- Add Pointer Events pinch handling to the offline viewer, so one finger pans
+  and two fingers pinch-zoom / pan around the touch midpoint without freezing
+  the existing mouse, wheel, keyboard, rotate or underside workflows.
+- Extend release readiness, package HTML tests and local package smoke checks
+  so future downloads must keep the mobile viewport, touch target and
+  two-finger gesture paths.
+
 ## v0.1.58
 
 - Public web release build. Fresh `bun run build` verified reproducible

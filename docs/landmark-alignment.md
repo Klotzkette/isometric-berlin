@@ -2,9 +2,9 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-07-01T07:25:38.859418+00:00`
+- Generated: `2026-07-09T20:00:24.586059+00:00`
 - Status: `ok`
-- Landmarks checked: `26`
+- Landmarks checked: `35`
 - Relative relationships checked: `19`
 - Landmark review count: `0`
 - Relative review count: `0`
@@ -30,6 +30,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Haus der Kulturen der Welt (Schwangere Auster) | `ok` | Haus der Kulturen der Welt (pois) | 2.92 m | nearest DEBE01YYK0003VNJ at 9.61 m |
 | Großer Tiergarten | `ok` | Großer Tiergarten (parks) | 0.00 m | nearest DEBE00YYT600005H at 73.3 m |
 | Beethoven-Haydn-Mozart-Denkmal | `ok` | Beethoven-Haydn-Mozart-Denkmal (pois) | 0.00 m | nearest DEBE00YYT600005H at 54.64 m |
+| Venusbassin / Goldfischteich | `ok` | Venusbassin (water) | 0.00 m | nearest DEBE00YYT600005H at 46.3 m |
 | Goethe-Denkmal | `ok` | Johann Wolfgang von Goethe (pois) | 0.00 m | nearest DEBE01AL3Ib00000 at 60.79 m |
 | Kemperplatz / Tiergartentunnel | `ok` | Tunnel Tiergarten Spreebogen (roads) | 0.00 m | nearest DEBE01YYK0002MgI at 27.98 m |
 | Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz) | `ok` | Das Center am Potsdamer Platz (pois) | 0.00 m | nearest DEBE01YYK0002Kau at 0.37 m |
@@ -38,6 +39,14 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Zollpackhof | `ok` | Zollpackhof (pois) | 0.00 m | inside DEBE01YYK0002Tak |
 | Gustav-Heinemann-Brücke | `ok` | Gustav-Heinemann-Brücke (roads) | 0.00 m | nearest DEBE01YYK0002NAU at 110.35 m |
 | Spreebogen | `ok` | Spreebogenpark (parks) | 55.36 m | nearest DEBE01YYK0002N6A at 0.92 m |
+| TIPI am Kanzleramt | `ok` | Tipi am Kanzleramt (pois) | 0.00 m | nearest DEBE01YYK0002MQ0 at 61.74 m |
+| Eduardo-Chillida-Skulptur Berlin | `ok` | Bundeskanzleramt (pois) | 17.30 m | nearest DEBE01YYK0002KKb at 17.14 m |
+| Reichstagsvorfeld / Berlin-Pavillon | `ok` | Simsonweg (roads) | 11.10 m | nearest DEBE01YYK0002KL4 at 3.46 m |
+| Platz der Republik Heckenbosquets | `ok` | Scheidemannstraße (roads) | 35.12 m | nearest DEBE01YYK0002Pvf at 25.46 m |
+| Kanzlergarten / Non-Violence-Skulptur | `ok` | Bettina-von-Arnim-Ufer (roads) | 4.88 m | nearest DEBE00YYIJ00003e at 9.0 m |
+| Carillon im Tiergarten | `ok` | John-Foster-Dulles-Allee (roads) | 13.70 m | nearest DEBE01YYK0002MQ0 at 23.33 m |
+| Mahnmal für verfolgte Zeugen Jehovas | `ok` | Mahnmal für die im Nationalsozialismus verfolgten und ermordeten Zeugen Jehovas (pois) | 0.00 m | nearest DEBE00YYT600005H at 130.41 m |
+| Gedenkort für Polen 1939-1945 | `ok` | Paul-Löbe-Allee (roads) | 75.92 m | nearest DEBE00YYWA00004m at 104.08 m |
 
 ## Relative Placement
 

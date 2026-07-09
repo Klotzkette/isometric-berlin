@@ -341,6 +341,7 @@ EXCLUDED_TITLE_TERMS = (
 TITLE_EXCLUSION_ALLOWLIST: dict[str, tuple[str, ...]] = {
   "reichstag_dome_interior": ("interior", "innen"),
 }
+TITLE_YEAR_ALLOWLIST = frozenset({"poland_memorial"})
 HISTORIC_YEAR_RE = re.compile(r"(?<!\d)(?:18|19)\d{2}(?!\d)")
 
 
@@ -478,7 +479,7 @@ def title_suitable(landmark_id: str, title: str) -> bool:
     term in key for term in EXCLUDED_TITLE_TERMS if term not in allowed_exclusions
   ):
     return False
-  if HISTORIC_YEAR_RE.search(title):
+  if landmark_id not in TITLE_YEAR_ALLOWLIST and HISTORIC_YEAR_RE.search(title):
     return False
   required = REQUIRED_TITLE_TERMS.get(landmark_id, ())
   return not required or any(term in key for term in required)

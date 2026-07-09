@@ -44,8 +44,11 @@ VALID_START_HERE_HTML = (
   "resetView; renderQueued; lostpointercapture; resizeTimer; "
   "refitPreservingView; setTimeout(refitPreservingView, 80); "
   "addSceneDetails; addFlag; setDetails; setClouds; setPerformance; "
-  "data-dragging; data-performance; event.metaKey; event.ctrlKey; event.altKey; targetTag;"
+  "data-dragging; data-performance; event.metaKey; event.ctrlKey; event.altKey; targetTag; "
+  'activePointers; pinchGesture; pointerType === "touch"; startPinchGesture; '
+  "updatePinchGesture; resumeSingleTouchDrag;"
   "</script>"
+  "<style>viewport-fit=cover; 100dvh; @media (pointer: coarse) { button { min-height: 44px; } }</style>"
 )
 VALID_SERVE_LOCAL = (
   'START_PAGE = "START-HERE.html"\n'

@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.58"
+PACKAGE_VERSION = "0.1.59"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -120,7 +120,7 @@ START_HERE_HTML = """<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Isometric Berlin starten</title>
   <style>
     :root {
@@ -150,7 +150,9 @@ START_HERE_HTML = """<!doctype html>
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       overflow: hidden;
+      overscroll-behavior: none;
       background:
         radial-gradient(circle at 20% 10%, rgba(31, 138, 165, .2), transparent 28%),
         radial-gradient(circle at 78% 18%, rgba(241, 200, 75, .18), transparent 24%),
@@ -203,6 +205,7 @@ START_HERE_HTML = """<!doctype html>
       display: grid;
       grid-template-columns: minmax(0, 1fr) 336px;
       min-height: 100vh;
+      min-height: 100dvh;
     }
     .stage {
       position: relative;
@@ -1035,11 +1038,83 @@ START_HERE_HTML = """<!doctype html>
     }
     @media (max-width: 850px) {
       body { overflow: auto; }
-      .shell { grid-template-columns: 1fr; grid-template-rows: minmax(65vh, 1fr) auto; }
-      aside { min-height: 0; max-height: none; }
+      .shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(58dvh, 1fr) minmax(0, 42dvh);
+        min-height: 100dvh;
+      }
+      .stage {
+        min-height: 58dvh;
+        border-right: 0;
+        border-bottom: 1px solid rgba(241, 200, 75, .28);
+      }
+      aside {
+        min-height: 0;
+        max-height: 42dvh;
+        overflow: auto;
+        overscroll-behavior: contain;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      }
       .list { max-height: 280px; }
       .hud {
         max-width: calc(100% - 28px);
+      }
+    }
+    @media (pointer: coarse) {
+      button,
+      a.button {
+        min-height: 44px;
+        padding: 9px 11px;
+      }
+      .top-toggles button {
+        min-height: 42px;
+      }
+      .list button {
+        min-height: 44px;
+      }
+      .marker {
+        width: 26px;
+        height: 26px;
+        margin-left: -13px;
+        margin-top: -13px;
+      }
+      .marker[data-priority="true"] {
+        width: 30px;
+        height: 30px;
+        margin-left: -15px;
+        margin-top: -15px;
+      }
+      .controls,
+      .presets,
+      .profile-controls {
+        gap: 9px;
+      }
+    }
+    @media (max-width: 520px) {
+      .controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .half,
+      .wide {
+        grid-column: span 2;
+      }
+      .presets {
+        grid-template-columns: repeat(5, minmax(84px, 1fr));
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .top-toggles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hud {
+        left: 10px;
+        top: 10px;
+        font-size: 12px;
+      }
+      .compass {
+        right: 10px;
+        bottom: 10px;
+        max-width: calc(100% - 20px);
       }
     }
   </style>
@@ -1371,6 +1446,8 @@ START_HERE_HTML = """<!doctype html>
     let resizeTimer = 0;
     let lastStageSize = { width: 0, height: 0 };
     let imageFallbackAttempted = false;
+    const activePointers = new Map();
+    let pinchGesture = null;
     function t(key) {
       return (TEXT[state.lang] && TEXT[state.lang][key]) || TEXT.de[key] || key;
     }
@@ -1551,7 +1628,7 @@ START_HERE_HTML = """<!doctype html>
       const centerImageY = (oldHeight / 2 - state.y) / oldScale;
       const zoomRatio = state.fitScale ? state.scale / state.fitScale : 1;
       state.fitScale = Math.min(rect.width / image.width, rect.height / image.height) * 0.96;
-      state.scale = Math.max(state.fitScale * 0.45, Math.min(state.fitScale * zoomRatio, state.fitScale * 6));
+      state.scale = clampScale(state.fitScale * zoomRatio);
       state.x = rect.width / 2 - centerImageX * state.scale;
       state.y = rect.height / 2 - centerImageY * state.scale;
       lastStageSize = { width: rect.width, height: rect.height };
@@ -1564,13 +1641,16 @@ START_HERE_HTML = """<!doctype html>
       setViewPreset("top");
       savePreferences();
     }
+    function clampScale(value) {
+      return Math.max(state.fitScale * 0.45, Math.min(value, state.fitScale * 6));
+    }
     function zoomBy(factor) {
       const rect = stage.getBoundingClientRect();
       const cx = rect.width / 2;
       const cy = rect.height / 2;
       const imageX = (cx - state.x) / state.scale;
       const imageY = (cy - state.y) / state.scale;
-      state.scale = Math.max(state.fitScale * 0.45, Math.min(state.scale * factor, state.fitScale * 6));
+      state.scale = clampScale(state.scale * factor);
       state.x = cx - imageX * state.scale;
       state.y = cy - imageY * state.scale;
       render();
@@ -2537,9 +2617,83 @@ START_HERE_HTML = """<!doctype html>
       addCloud(1665, 418, .58, "Kleine transparente Cumulus-Wolke über Hauptbahnhof / Humboldthafen");
     }
 
+    function pointerSnapshot(event) {
+      return {
+        id: event.pointerId,
+        type: event.pointerType,
+        x: event.clientX,
+        y: event.clientY,
+      };
+    }
+    function touchPointers() {
+      return [...activePointers.values()].filter((pointer) => pointer.type === "touch");
+    }
+    function pointerPair() {
+      return touchPointers().slice(0, 2);
+    }
+    function pointerDistance(pair) {
+      return Math.hypot(pair[1].x - pair[0].x, pair[1].y - pair[0].y);
+    }
+    function pointerCenter(pair) {
+      return {
+        x: (pair[0].x + pair[1].x) / 2,
+        y: (pair[0].y + pair[1].y) / 2,
+      };
+    }
+    function startPinchGesture() {
+      const pair = pointerPair();
+      if (pair.length < 2) return false;
+      const rect = stage.getBoundingClientRect();
+      const center = pointerCenter(pair);
+      const stageX = center.x - rect.left;
+      const stageY = center.y - rect.top;
+      pinchGesture = {
+        distance: Math.max(1, pointerDistance(pair)),
+        startScale: state.scale,
+        imageX: (stageX - state.x) / state.scale,
+        imageY: (stageY - state.y) / state.scale,
+      };
+      state.dragging = false;
+      state.rotateDrag = false;
+      document.body.dataset.dragging = "true";
+      return true;
+    }
+    function updatePinchGesture() {
+      const pair = pointerPair();
+      if (pair.length < 2 || !pinchGesture) return;
+      const rect = stage.getBoundingClientRect();
+      const center = pointerCenter(pair);
+      const stageX = center.x - rect.left;
+      const stageY = center.y - rect.top;
+      const factor = pointerDistance(pair) / pinchGesture.distance;
+      state.scale = clampScale(pinchGesture.startScale * factor);
+      state.x = stageX - pinchGesture.imageX * state.scale;
+      state.y = stageY - pinchGesture.imageY * state.scale;
+      render();
+    }
+    function resumeSingleTouchDrag() {
+      const [pointer] = touchPointers();
+      if (!pointer) return false;
+      state.dragging = true;
+      state.rotateDrag = false;
+      state.sx = pointer.x;
+      state.sy = pointer.y;
+      state.ox = state.x;
+      state.oy = state.y;
+      state.or = state.rotation;
+      state.ot = state.tilt;
+      document.body.dataset.dragging = "true";
+      return true;
+    }
     stage.addEventListener("pointerdown", (event) => {
-      if (event.target.classList.contains("marker")) return;
+      if (event.target instanceof Element && event.target.classList.contains("marker")) return;
       event.preventDefault();
+      activePointers.set(event.pointerId, pointerSnapshot(event));
+      stage.setPointerCapture(event.pointerId);
+      if (event.pointerType === "touch" && pointerPair().length >= 2) {
+        startPinchGesture();
+        return;
+      }
       state.dragging = true;
       state.rotateDrag = state.mode === "rotate" || event.shiftKey || event.button === 2;
       state.sx = event.clientX;
@@ -2549,10 +2703,18 @@ START_HERE_HTML = """<!doctype html>
       state.or = state.rotation;
       state.ot = state.tilt;
       document.body.dataset.dragging = "true";
-      stage.setPointerCapture(event.pointerId);
     });
     stage.addEventListener("pointermove", (event) => {
+      if (activePointers.has(event.pointerId)) {
+        activePointers.set(event.pointerId, pointerSnapshot(event));
+      }
+      if (event.pointerType === "touch" && pointerPair().length >= 2) {
+        event.preventDefault();
+        updatePinchGesture();
+        return;
+      }
       if (!state.dragging) return;
+      event.preventDefault();
       if (state.rotateDrag) {
         state.rotation = state.or + (event.clientX - state.sx) * 0.22;
         state.tilt = Math.max(-28, Math.min(28, state.ot + (event.clientY - state.sy) * 0.08));
@@ -2563,7 +2725,12 @@ START_HERE_HTML = """<!doctype html>
       }
       render();
     });
-    function endPointerDrag() {
+    function endPointerDrag(event) {
+      if (event) activePointers.delete(event.pointerId);
+      if (pinchGesture) {
+        pinchGesture = null;
+        if (resumeSingleTouchDrag()) return;
+      }
       const shouldSaveView = state.rotateDrag;
       state.dragging = false;
       state.rotateDrag = false;
@@ -2969,6 +3136,10 @@ den Tunnel von unten; Tunnel-Fokus zoomt auf den Verlauf. Die Tasten U und F
 schalten diese Ansichten, 1/2/3 wechseln die Grafikprofile. L wechselt die
 Sprache, D schaltet Tagmodus, M schaltet Nachtmodus. Der Advanced Viewer
 bleibt zusätzlich dabei, braucht aber je nach Browser den lokalen Server-Fallback.
+Touchscreen: Ein Finger verschiebt die Karte, zwei Finger zoomen und
+verschieben um den Fingermittelpunkt. Auf iPhone, iPad, Android-Tablets und
+anderen Touch-Geräten nutzt der Viewer größere Buttons, sichere
+Viewport-Höhen und ein kompaktes unteres Bedienfeld.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
@@ -3059,6 +3230,10 @@ from below; Tunnel-Fokus zooms onto the route. Keys U and F switch these views,
 and 1/2/3 switch the visual profiles. L toggles language, D selects Day and M
 selects Night. The Advanced Viewer is still included,
 but may need the local-server fallback depending on the browser.
+Touchscreen: one finger pans the map; two fingers pinch-zoom and pan around
+the touch midpoint. On iPhone, iPad, Android tablets and other touch devices
+the viewer uses larger controls, safe viewport heights and a compact lower
+control sheet.
 
 This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor, interior rings render as

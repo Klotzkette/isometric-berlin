@@ -1,323 +1,323 @@
 {
   "image": {
-    "width": 2157,
-    "height": 1529
+    "width": 3141,
+    "height": 2188
   },
   "landmarks": [
     {
       "name": "Brandenburger Tor",
       "role": "must_be_visible",
       "tourOrder": 16,
-      "x": 1342,
-      "y": 941,
-      "nx": 0.62216,
-      "ny": 0.615435
+      "x": 1965,
+      "y": 1379,
+      "nx": 0.625597,
+      "ny": 0.630256
     },
     {
       "name": "Pariser Platz",
       "role": "owner_added",
       "tourOrder": 17,
-      "x": 1423,
-      "y": 974,
-      "nx": 0.659713,
-      "ny": 0.637018
+      "x": 2086,
+      "y": 1429,
+      "nx": 0.66412,
+      "ny": 0.653108
     },
     {
       "name": "Denkmal für die ermordeten Juden Europas",
       "role": "owner_added",
       "tourOrder": 20,
-      "x": 1146,
-      "y": 1081,
-      "nx": 0.531293,
-      "ny": 0.706998
+      "x": 1671,
+      "y": 1589,
+      "nx": 0.531996,
+      "ny": 0.726234
     },
     {
       "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
       "role": "owner_added",
       "tourOrder": 21,
-      "x": 928,
-      "y": 1043,
-      "nx": 0.430227,
-      "ny": 0.682145
+      "x": 1344,
+      "y": 1532,
+      "nx": 0.427889,
+      "ny": 0.700183
     },
     {
       "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
       "role": "owner_added",
       "tourOrder": 14,
-      "x": 1346,
-      "y": 837,
-      "nx": 0.624015,
-      "ny": 0.547417
+      "x": 1971,
+      "y": 1223,
+      "nx": 0.627507,
+      "ny": 0.558958
     },
     {
       "name": "Reichstagsgebäude",
       "role": "hero_tile",
       "tourOrder": 11,
-      "x": 1488,
-      "y": 773,
-      "nx": 0.689847,
-      "ny": 0.505559
+      "x": 2185,
+      "y": 1127,
+      "nx": 0.695638,
+      "ny": 0.515082
     },
     {
       "name": "Sowjetisches Ehrenmal Tiergarten",
       "role": "owner_added",
       "tourOrder": 15,
-      "x": 1031,
-      "y": 735,
-      "nx": 0.477979,
-      "ny": 0.480706
+      "x": 1499,
+      "y": 1069,
+      "nx": 0.477237,
+      "ny": 0.488574
     },
     {
       "name": "Bundeskanzleramt",
       "role": "must_be_visible",
       "tourOrder": 8,
-      "x": 1225,
-      "y": 471,
-      "nx": 0.567918,
-      "ny": 0.308044
+      "x": 1789,
+      "y": 673,
+      "nx": 0.569564,
+      "ny": 0.307587
     },
     {
       "name": "Paul-Löbe-Haus",
       "role": "must_be_visible",
       "tourOrder": 10,
-      "x": 1569,
-      "y": 654,
-      "nx": 0.727399,
-      "ny": 0.427731
+      "x": 2306,
+      "y": 949,
+      "nx": 0.734161,
+      "ny": 0.433729
     },
     {
       "name": "Marie-Elisabeth-Lüders-Haus",
       "role": "must_be_visible",
       "tourOrder": 9,
-      "x": 1810,
-      "y": 706,
-      "nx": 0.839128,
-      "ny": 0.46174
+      "x": 2667,
+      "y": 1027,
+      "nx": 0.849093,
+      "ny": 0.469378
     },
     {
       "name": "Berlin Hauptbahnhof",
       "role": "hero_tile",
       "tourOrder": 1,
-      "x": 1761,
-      "y": 231,
-      "nx": 0.816412,
-      "ny": 0.151079
+      "x": 2594,
+      "y": 313,
+      "nx": 0.825852,
+      "ny": 0.143053
     },
     {
       "name": "Humboldthafen",
       "role": "owner_added",
       "tourOrder": 2,
-      "x": 1919,
-      "y": 314,
-      "nx": 0.889662,
-      "ny": 0.205363
+      "x": 2831,
+      "y": 439,
+      "nx": 0.901305,
+      "ny": 0.20064
     },
     {
       "name": "Hugo-Preuß-Brücke",
       "role": "owner_added",
       "tourOrder": 3,
-      "x": 1766,
-      "y": 396,
-      "nx": 0.81873,
-      "ny": 0.258993
+      "x": 2601,
+      "y": 561,
+      "nx": 0.82808,
+      "ny": 0.256399
     },
     {
       "name": "Rahel-Hirsch-Straße",
       "role": "owner_added",
       "tourOrder": 4,
-      "x": 1565,
-      "y": 337,
-      "nx": 0.725545,
-      "ny": 0.220405
+      "x": 2300,
+      "y": 473,
+      "nx": 0.732251,
+      "ny": 0.216179
     },
     {
       "name": "Moltkebrücke",
       "role": "owner_added",
       "tourOrder": 6,
-      "x": 1382,
-      "y": 343,
-      "nx": 0.640705,
-      "ny": 0.22433
+      "x": 2025,
+      "y": 481,
+      "nx": 0.644699,
+      "ny": 0.219835
     },
     {
       "name": "Haus der Kulturen der Welt (Schwangere Auster)",
       "role": "must_be_visible",
       "tourOrder": 13,
-      "x": 777,
-      "y": 369,
-      "nx": 0.360223,
-      "ny": 0.241334
+      "x": 1118,
+      "y": 521,
+      "nx": 0.355938,
+      "ny": 0.238117
     },
     {
       "name": "Großer Tiergarten",
       "role": "owner_added",
       "tourOrder": 25,
-      "x": 689,
-      "y": 885,
-      "nx": 0.319425,
-      "ny": 0.57881
+      "x": 985,
+      "y": 1294,
+      "nx": 0.313594,
+      "ny": 0.591408
     },
     {
       "name": "Beethoven-Haydn-Mozart-Denkmal",
       "role": "owner_added",
       "tourOrder": 23,
-      "x": 623,
-      "y": 832,
-      "nx": 0.288827,
-      "ny": 0.544147
+      "x": 887,
+      "y": 1216,
+      "nx": 0.282394,
+      "ny": 0.555759
     },
     {
       "name": "Venusbassin / Goldfischteich",
       "role": "owner_added",
       "tourOrder": 24,
-      "x": 725,
-      "y": 806,
-      "nx": 0.336115,
-      "ny": 0.527142
+      "x": 1039,
+      "y": 1175,
+      "nx": 0.330786,
+      "ny": 0.53702
     },
     {
       "name": "Goethe-Denkmal",
       "role": "owner_added",
       "tourOrder": 22,
-      "x": 1000,
-      "y": 1023,
-      "nx": 0.463607,
-      "ny": 0.669065
+      "x": 1451,
+      "y": 1503,
+      "nx": 0.461955,
+      "ny": 0.686929
     },
     {
       "name": "Kemperplatz / Tiergartentunnel",
       "role": "owner_added",
       "tourOrder": 26,
-      "x": 405,
-      "y": 993,
-      "nx": 0.187761,
-      "ny": 0.649444
+      "x": 559,
+      "y": 1456,
+      "nx": 0.177969,
+      "ny": 0.665448
     },
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
       "role": "must_be_visible",
       "tourOrder": 27,
-      "x": 430,
-      "y": 1168,
-      "nx": 0.199351,
-      "ny": 0.763898
+      "x": 597,
+      "y": 1720,
+      "nx": 0.190067,
+      "ny": 0.786106
     },
     {
       "name": "Max-Liebermann-Haus",
       "role": "owner_added",
       "tourOrder": 18,
-      "x": 1394,
-      "y": 924,
-      "nx": 0.646268,
-      "ny": 0.604317
+      "x": 2043,
+      "y": 1353,
+      "nx": 0.65043,
+      "ny": 0.618373
     },
     {
       "name": "Botschaft der Vereinigten Staaten von Amerika",
       "role": "owner_added",
       "tourOrder": 19,
-      "x": 1267,
-      "y": 1006,
-      "nx": 0.58739,
-      "ny": 0.657946
+      "x": 1852,
+      "y": 1476,
+      "nx": 0.589621,
+      "ny": 0.674589
     },
     {
       "name": "Zollpackhof",
       "role": "owner_added",
       "tourOrder": 7,
-      "x": 1203,
-      "y": 341,
-      "nx": 0.557719,
-      "ny": 0.223022
+      "x": 1756,
+      "y": 479,
+      "nx": 0.559058,
+      "ny": 0.218921
     },
     {
       "name": "Gustav-Heinemann-Brücke",
       "role": "owner_added",
       "tourOrder": 5,
-      "x": 1569,
-      "y": 406,
-      "nx": 0.727399,
-      "ny": 0.265533
+      "x": 2306,
+      "y": 576,
+      "nx": 0.734161,
+      "ny": 0.263254
     },
     {
       "name": "Spreebogen",
       "role": "owner_added",
       "tourOrder": 12,
-      "x": 1333,
-      "y": 460,
-      "nx": 0.617988,
-      "ny": 0.30085
+      "x": 1952,
+      "y": 657,
+      "nx": 0.621458,
+      "ny": 0.300274
     },
     {
       "name": "TIPI am Kanzleramt",
       "role": "owner_added",
       "tourOrder": 28,
-      "x": 910,
-      "y": 496,
-      "nx": 0.421882,
-      "ny": 0.324395
+      "x": 1317,
+      "y": 710,
+      "nx": 0.419293,
+      "ny": 0.324497
     },
     {
       "name": "Eduardo-Chillida-Skulptur Berlin",
       "role": "owner_added",
       "tourOrder": 29,
-      "x": 1180,
-      "y": 512,
-      "nx": 0.547056,
-      "ny": 0.334859
+      "x": 1722,
+      "y": 735,
+      "nx": 0.548233,
+      "ny": 0.335923
     },
     {
       "name": "Reichstagsvorfeld / Berlin-Pavillon",
       "role": "owner_added",
       "tourOrder": 30,
-      "x": 1324,
-      "y": 845,
-      "nx": 0.613815,
-      "ny": 0.552649
+      "x": 1938,
+      "y": 1235,
+      "nx": 0.617001,
+      "ny": 0.564442
     },
     {
       "name": "Platz der Republik Heckenbosquets",
       "role": "owner_added",
       "tourOrder": 31,
-      "x": 1260,
-      "y": 775,
-      "nx": 0.584145,
-      "ny": 0.506867
+      "x": 1842,
+      "y": 1129,
+      "nx": 0.586437,
+      "ny": 0.515996
     },
     {
       "name": "Kanzlergarten / Non-Violence-Skulptur",
       "role": "owner_added",
       "tourOrder": 32,
-      "x": 991,
-      "y": 381,
-      "nx": 0.459263,
-      "ny": 0.249317
+      "x": 1438,
+      "y": 539,
+      "nx": 0.457816,
+      "ny": 0.246344
     },
     {
       "name": "Carillon im Tiergarten",
       "role": "owner_added",
       "tourOrder": 33,
-      "x": 801,
-      "y": 523,
-      "nx": 0.371279,
-      "ny": 0.34193
+      "x": 1153,
+      "y": 751,
+      "nx": 0.367081,
+      "ny": 0.343236
     },
     {
       "name": "Mahnmal für verfolgte Zeugen Jehovas",
       "role": "owner_added",
       "tourOrder": 34,
-      "x": 717,
-      "y": 825,
-      "nx": 0.332577,
-      "ny": 0.539674
+      "x": 745,
+      "y": 1253,
+      "nx": 0.237186,
+      "ny": 0.572669
     },
     {
       "name": "Gedenkort für Polen 1939-1945",
       "role": "owner_added",
       "tourOrder": 35,
-      "x": 1262,
-      "y": 642,
-      "nx": 0.584843,
-      "ny": 0.419735
+      "x": 1844,
+      "y": 930,
+      "nx": 0.587074,
+      "ny": 0.425046
     }
   ]
 }

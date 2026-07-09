@@ -630,6 +630,13 @@ export function App() {
         dragToPan: true,
         scrollToZoom: true,
       },
+      gestureSettingsTouch: {
+        clickToZoom: false,
+        dblClickToZoom: true,
+        dragToPan: true,
+        flickEnabled: true,
+        pinchToZoom: true,
+      },
       animationTime: 0.75,
       blendTime: 0.1,
       constrainDuringPan: true,
