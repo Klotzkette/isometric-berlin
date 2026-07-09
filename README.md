@@ -1,14 +1,17 @@
 # Isometric Berlin – Regierungsviertel
 
-## Download & Start
+## Web viewer & Downloads
 
 | What | Link |
 |---|---|
+| **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.58/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
+
+The hosted web viewer at [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/) is the built React + OpenSeadragon bundle from `src/app/` and works on any modern browser — including phones and tablets — with pinch-zoom, two-finger pan and tap gestures.
 
 Unzip the download and double-click **`START-HERE.html`**. That is the
 main Mac/Windows start point: no Terminal, no `.command` file, no Python
