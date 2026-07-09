@@ -98,6 +98,8 @@ REQUIRED_START_SNIPPETS = (
   'pointerType === "touch"',
   "startPinchGesture",
   "updatePinchGesture",
+  "pointerAngle",
+  "startRotation",
   "resumeSingleTouchDrag",
 )
 

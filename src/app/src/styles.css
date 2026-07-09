@@ -53,10 +53,14 @@ button {
 
 .viewer {
   background: #2e3530;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 .openseadragon-canvas {
   outline: none;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 .openseadragon-canvas canvas {
@@ -709,6 +713,19 @@ button {
 }
 
 @media (max-width: 760px) {
+  .toolbar button,
+  .view-controls button,
+  .reference-button,
+  .reference-close,
+  .landmark-list button {
+    min-height: 44px;
+  }
+
+  .toolbar button,
+  .view-controls button {
+    min-width: 44px;
+  }
+
   .topbar {
     top: calc(10px + env(safe-area-inset-top, 0px));
     left: calc(10px + env(safe-area-inset-left, 0px));

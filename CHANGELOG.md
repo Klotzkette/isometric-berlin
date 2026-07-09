@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.1.60
+
+- Regenerate the committed DZI from LoD2, OSM, ALKIS and free Wikimedia
+  material cues at 16384×11616 pixels. The complete 15-level pyramid uses
+  256-pixel JPEG tiles at quality 85 with one-pixel overlap and remains below
+  the 50 MB static-bundle target.
+- Remove stale hard-coded DZI dimensions from the React viewer and load the
+  descriptor directly, keeping image dimensions, overlays and future renders
+  in sync.
+- Enable OpenSeadragon pinch rotation for touch and pen input, synchronize
+  gesture rotation with controls and URL state, snap completed twists near the
+  four cardinal views, and keep landmark overlays upright.
+- Add the same two-finger twist workflow to the zero-server offline viewer,
+  plus iOS web-app metadata and stricter touch/overscroll handling.
+- Select exactly one primary LoD2 body per landmark signature, remove generic
+  radial roof artefacts and refine the Reichstag stone/window/dome treatment.
+- Add high-resolution DZI, overlap, hero-body selection and touch-gesture
+  regression tests.
+
 ## v0.1.59
 
 - Harden the zero-server `START-HERE.html` package for phones, tablets and

@@ -143,8 +143,12 @@ def project_point(
 ) -> tuple[int, int]:
   dx = x - center_x
   dy = center_y - y
-  px = (dx - dy) * 0.88 * scale + width / 2
-  py = (dx + dy) * 0.44 * scale - z * 2.7 + height * 0.62
+  rectangular_canvas = width != height
+  origin_x = width * (0.455 if rectangular_canvas else 0.5)
+  origin_y = height * (0.48 if rectangular_canvas else 0.62)
+  px = (dx - dy) * 0.88 * scale + origin_x
+  vertical_scale = max(2.7, scale * 1.76)
+  py = (dx + dy) * 0.44 * scale - z * vertical_scale + origin_y
   return int(round(px)), int(round(py))
 
 
@@ -583,7 +587,7 @@ def landmark_kind(name: str) -> str | None:
 
 def landmark_icon_unit(render_px: int) -> int:
   """Return a screen-space icon unit that survives pixel-art downsampling."""
-  return max(3, min(8, round(render_px / 768)))
+  return max(3, min(32, round(render_px / 768)))
 
 
 def draw_landmark_accent(
@@ -1689,6 +1693,7 @@ def draw_wall_detail(
   height_m: float,
   is_hero: bool,
   outline_width: int,
+  reference_id: str | None = None,
 ) -> None:
   base_a, base_b, roof_b, roof_a = wall
   wall_width = line_length(base_a, base_b)
@@ -1752,9 +1757,10 @@ def draw_wall_detail(
     panel_height = 0.18 / max(1, window_rows)
     bottom = max(0.1, middle - panel_height)
     top = min(0.86, middle + panel_height)
+    window_span = 0.18 if reference_id == "reichstag" else 0.44
     for col_idx in range(window_cols):
       left = (col_idx + 0.18) / max(1, window_cols)
-      right = min(left + 0.44 / max(1, window_cols), 0.94)
+      right = min(left + window_span / max(1, window_cols), 0.94)
       if right <= left:
         continue
       color = palette["window" if (row_idx + col_idx) % 3 else "window_dark"]
@@ -1891,13 +1897,6 @@ def draw_roof_detail(
           outline=box_shadow,
           width=1,
         )
-  if is_hero or roof_type.startswith("5"):
-    for idx in range(0, len(unique), 2):
-      draw.line(
-        (lerp_point(unique[idx], center, 0.28), center),
-        fill=palette["roof_line"],
-        width=detail_width,
-      )
 
 
 def draw_landmark_building_signature(
@@ -1918,8 +1917,8 @@ def draw_landmark_building_signature(
   glass_dark = mix_color(palette["window_dark"], GLASS_DARK, 0.28)
   if reference_id == "reichstag" and len(unique) >= 4:
     center = roof_quad_point(unique, along=0.5, across=0.5)
-    dome_rx = max(5, width * 7)
-    dome_ry = max(3, width * 4)
+    dome_rx = max(7, width * 12)
+    dome_ry = max(4, width * 7)
     plenary = [
       roof_quad_point(unique, along=0.37, across=0.42),
       roof_quad_point(unique, along=0.63, across=0.42),
@@ -2348,6 +2347,7 @@ def draw_building(
       height_m=height_m,
       is_hero=is_hero,
       outline_width=outline_width,
+      reference_id=reference_id,
     )
     draw.line(wall + [wall[0]], fill=OUTLINE, width=outline_width)
   draw.polygon(roof, fill=palette["roof"])
@@ -2449,20 +2449,53 @@ def png_bytes(image: Image.Image) -> bytes:
   return output.getvalue()
 
 
-def nearest_landmark_reference_id(
-  geometry: Any, landmarks: gpd.GeoDataFrame, *, max_distance_m: float = 90.0
-) -> str | None:
-  """Return the nearest visual-reference id for a hero building."""
-  if geometry is None or getattr(geometry, "is_empty", True) or landmarks.empty:
-    return None
-  point = geometry.representative_point()
-  distances = landmarks.geometry.distance(point)
-  if distances.empty:
-    return None
-  nearest_index = distances.idxmin()
-  if float(distances.loc[nearest_index]) > max_distance_m:
-    return None
-  return landmark_reference_id(row_text(landmarks.loc[nearest_index], "name"))
+def landmark_signature_buildings(
+  buildings: gpd.GeoDataFrame,
+  landmarks: gpd.GeoDataFrame,
+  *,
+  max_distance_m: float = 90.0,
+) -> dict[object, str]:
+  """Choose one primary LoD2 body for each landmark signature."""
+  supported_reference_ids = {
+    "bundeskanzleramt",
+    "hauptbahnhof",
+    "hkw",
+    "marie_elisabeth_lueders_haus",
+    "max_liebermann_haus",
+    "paul_loebe_haus",
+    "reichstag",
+  }
+  signatures: dict[object, str] = {}
+  claims: dict[object, float] = {}
+  if buildings.empty or landmarks.empty:
+    return signatures
+  for _, landmark in landmarks.iterrows():
+    point = landmark.geometry
+    if not isinstance(point, Point):
+      continue
+    reference_id = landmark_reference_id(row_text(landmark, "name"))
+    if reference_id not in supported_reference_ids:
+      continue
+    distances = buildings.geometry.distance(point)
+    candidates = buildings.loc[distances[distances <= max_distance_m].index]
+    if candidates.empty:
+      continue
+    containing = candidates[candidates.geometry.covers(point)]
+    if not containing.empty:
+      candidate_index = containing.geometry.area.idxmax()
+      distance = 0.0
+    else:
+      candidate_distances = candidates.geometry.distance(point)
+      distance = float(candidate_distances.min())
+      nearest = candidates.loc[
+        candidate_distances[candidate_distances == distance].index
+      ]
+      candidate_index = nearest.geometry.area.idxmax()
+    if distance >= claims.get(candidate_index, float("inf")):
+      continue
+    signatures[candidate_index] = reference_id
+    claims[candidate_index] = distance
+  return signatures
 
 
 def render_quadrant(
@@ -2473,10 +2506,12 @@ def render_quadrant(
   landmarks: gpd.GeoDataFrame,
   material_cues: dict[str, MaterialCue],
   render_px: int,
+  render_size: tuple[int, int] | None = None,
   context_m: float,
   show_labels: bool,
 ) -> Image.Image:
-  image = Image.new("RGB", (render_px, render_px), BACKGROUND)
+  render_width, render_height = render_size or (render_px, render_px)
+  image = Image.new("RGB", (render_width, render_height), BACKGROUND)
   draw = ImageDraw.Draw(image)
   q_bounds = (
     quad["minx"] - context_m,
@@ -2489,7 +2524,7 @@ def render_quadrant(
   span_x = quad["maxx"] - quad["minx"] + context_m * 2
   span_y = quad["maxy"] - quad["miny"] + context_m * 2
   scale = render_px / ((span_x + span_y) * 0.7)
-  line_scale = max(1, min(3, round(render_px / 3072)))
+  line_scale = max(1, round(render_px / 3072))
 
   for _, row in query(osm_layers["parks"], q_bounds).iterrows():
     draw_geom_fill(
@@ -2499,8 +2534,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
     draw_park_texture(
       draw,
@@ -2508,8 +2543,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
       line_scale=line_scale,
     )
   for _, row in query(osm_layers["water"], q_bounds).iterrows():
@@ -2520,8 +2555,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
     draw_water_texture(
       draw,
@@ -2529,8 +2564,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
       line_scale=line_scale,
     )
     draw_geom_line(
@@ -2541,8 +2576,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
   parcels = osm_layers.get("alkis")
   if parcels is not None:
@@ -2555,8 +2590,8 @@ def render_quadrant(
         center_x=center_x,
         center_y=center_y,
         scale=scale,
-        width=render_px,
-        height=render_px,
+        width=render_width,
+        height=render_height,
       )
   road_features = []
   for _, row in query(osm_layers["roads"], q_bounds).iterrows():
@@ -2577,8 +2612,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
   draw_tunnel_reference_routes(
     draw,
@@ -2589,8 +2624,8 @@ def render_quadrant(
     center_x=center_x,
     center_y=center_y,
     scale=scale,
-    width=render_px,
-    height=render_px,
+    width=render_width,
+    height=render_height,
     line_scale=line_scale,
   )
   rail_features = []
@@ -2611,8 +2646,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
 
   poi_features = []
@@ -2631,25 +2666,21 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
 
   near_landmarks = query(landmarks, q_bounds)
-  hero_zone = (
-    near_landmarks.geometry.union_all().buffer(65) if len(near_landmarks) else None
-  )
   selected_buildings = query(buildings, q_bounds)
   if not selected_buildings.empty:
     selected_buildings = selected_buildings.assign(
       _sort=selected_buildings.geometry.centroid.x
       - selected_buildings.geometry.centroid.y
     ).sort_values("_sort")
-  for _, row in selected_buildings.iterrows():
-    is_hero = bool(hero_zone is not None and row.geometry.intersects(hero_zone))
-    reference_id = (
-      nearest_landmark_reference_id(row.geometry, near_landmarks) if is_hero else None
-    )
+  signature_buildings = landmark_signature_buildings(selected_buildings, near_landmarks)
+  for index, row in selected_buildings.iterrows():
+    reference_id = signature_buildings.get(index)
+    is_hero = reference_id is not None
     material_cue = material_cues.get(reference_id or "")
     for poly in polygons(row.geometry):
       draw_building(
@@ -2663,13 +2694,17 @@ def render_quadrant(
         center_x=center_x,
         center_y=center_y,
         scale=scale,
-        width=render_px,
-        height=render_px,
+        width=render_width,
+        height=render_height,
         outline_width=line_scale,
       )
 
   for _, row in near_landmarks.iterrows():
     reference_id = landmark_reference_id(row_text(row, "name"))
+    if reference_id in signature_buildings.values() and landmark_kind(
+      row_text(row, "name")
+    ) in {"dome", "glass_station", "curved_roof", "chancellery", "parliament_band"}:
+      continue
     draw_landmark_accent(
       draw,
       row,
@@ -2677,8 +2712,8 @@ def render_quadrant(
       center_x=center_x,
       center_y=center_y,
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=render_width,
+      height=render_height,
     )
 
   if show_labels:
@@ -2693,8 +2728,8 @@ def render_quadrant(
         center_x=center_x,
         center_y=center_y,
         scale=scale,
-        width=render_px,
-        height=render_px,
+        width=render_width,
+        height=render_height,
       )
       draw.ellipse((px - 4, py - 4, px + 4, py + 4), fill=LANDMARK)
       name = str(row.get("name", ""))

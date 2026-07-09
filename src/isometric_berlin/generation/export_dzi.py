@@ -14,6 +14,11 @@ from pathlib import Path
 from PIL import Image
 
 WIKIMEDIA_ATTRIBUTION = " · Visual references: Wikimedia Commons/Wikipedia"
+DEFAULT_DZI_TILE_SIZE = 256
+DEFAULT_DZI_OVERLAP = 1
+DEFAULT_DZI_QUALITY = 85
+MIN_DZI_WIDTH = 12_288
+MIN_DZI_HEIGHT = 8_704
 DEFAULT_WIKIMEDIA_REFERENCES = Path(
   "geo_data/regierungsviertel/wikimedia_references.json"
 )
@@ -48,9 +53,10 @@ def export_dzi(
   image: Image.Image,
   *,
   dzi_path: Path,
-  tile_size: int = 256,
-  overlap: int = 0,
+  tile_size: int = DEFAULT_DZI_TILE_SIZE,
+  overlap: int = DEFAULT_DZI_OVERLAP,
   fmt: str = "jpg",
+  quality: int = DEFAULT_DZI_QUALITY,
 ) -> None:
   dzi_path.parent.mkdir(parents=True, exist_ok=True)
   tiles_root = dzi_path.with_name(f"{dzi_path.stem}_files")
@@ -63,24 +69,29 @@ def export_dzi(
   for level in range(max_level + 1):
     scale = 2 ** (max_level - level)
     level_size = (math.ceil(width / scale), math.ceil(height / scale))
-    level_image = image.resize(level_size, Image.Resampling.LANCZOS)
+    level_image = (
+      image
+      if level_size == image.size
+      else image.resize(level_size, Image.Resampling.LANCZOS)
+    )
     level_dir = tiles_root / str(level)
     level_dir.mkdir(parents=True, exist_ok=True)
     cols = math.ceil(level_size[0] / tile_size)
     rows = math.ceil(level_size[1] / tile_size)
     for row in range(rows):
       for col in range(cols):
-        left = col * tile_size
-        upper = row * tile_size
-        tile = level_image.crop(
-          (
-            left,
-            upper,
-            min(left + tile_size, level_size[0]),
-            min(upper + tile_size, level_size[1]),
-          )
+        left = max(0, col * tile_size - (overlap if col else 0))
+        upper = max(0, row * tile_size - (overlap if row else 0))
+        right = min(
+          (col + 1) * tile_size + (overlap if col < cols - 1 else 0),
+          level_size[0],
         )
-        tile.save(level_dir / f"{col}_{row}.{fmt}", quality=88)
+        lower = min(
+          (row + 1) * tile_size + (overlap if row < rows - 1 else 0),
+          level_size[1],
+        )
+        tile = level_image.crop((left, upper, right, lower))
+        tile.save(level_dir / f"{col}_{row}.{fmt}", quality=quality, optimize=True)
 
   image_elem = ET.Element(
     "Image",
@@ -152,6 +163,8 @@ def main() -> None:
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel"),
   )
+  parser.add_argument("--overlap", type=int, default=DEFAULT_DZI_OVERLAP)
+  parser.add_argument("--quality", type=int, default=DEFAULT_DZI_QUALITY)
   parser.add_argument(
     "--wikimedia-references",
     type=Path,
@@ -164,7 +177,12 @@ def main() -> None:
   overview = args.out_dir / "overview.png"
   image.save(overview, optimize=True)
   dzi = args.out_dir / "regierungsviertel.dzi"
-  export_dzi(image, dzi_path=dzi)
+  export_dzi(
+    image,
+    dzi_path=dzi,
+    overlap=args.overlap,
+    quality=args.quality,
+  )
   write_preview(
     args.out_dir / "preview.html",
     title="Isometric Berlin Regierungsviertel",

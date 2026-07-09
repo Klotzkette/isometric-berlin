@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.59"
+PACKAGE_VERSION = "0.1.60"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -2634,6 +2634,9 @@ START_HERE_HTML = """<!doctype html>
     function pointerDistance(pair) {
       return Math.hypot(pair[1].x - pair[0].x, pair[1].y - pair[0].y);
     }
+    function pointerAngle(pair) {
+      return Math.atan2(pair[1].y - pair[0].y, pair[1].x - pair[0].x);
+    }
     function pointerCenter(pair) {
       return {
         x: (pair[0].x + pair[1].x) / 2,
@@ -2649,7 +2652,9 @@ START_HERE_HTML = """<!doctype html>
       const stageY = center.y - rect.top;
       pinchGesture = {
         distance: Math.max(1, pointerDistance(pair)),
+        angle: pointerAngle(pair),
         startScale: state.scale,
+        startRotation: state.rotation,
         imageX: (stageX - state.x) / state.scale,
         imageY: (stageY - state.y) / state.scale,
       };
@@ -2666,9 +2671,14 @@ START_HERE_HTML = """<!doctype html>
       const stageX = center.x - rect.left;
       const stageY = center.y - rect.top;
       const factor = pointerDistance(pair) / pinchGesture.distance;
+      const angleDelta =
+        ((pointerAngle(pair) - pinchGesture.angle) * 180) / Math.PI;
       state.scale = clampScale(pinchGesture.startScale * factor);
+      state.rotation =
+        ((pinchGesture.startRotation + angleDelta) % 360 + 360) % 360;
       state.x = stageX - pinchGesture.imageX * state.scale;
       state.y = stageY - pinchGesture.imageY * state.scale;
+      state.viewKey = "free";
       render();
     }
     function resumeSingleTouchDrag() {
@@ -2729,6 +2739,13 @@ START_HERE_HTML = """<!doctype html>
       if (event) activePointers.delete(event.pointerId);
       if (pinchGesture) {
         pinchGesture = null;
+        const cardinal = Math.round(state.rotation / 90) * 90;
+        const distance = Math.abs(
+          ((state.rotation - cardinal + 540) % 360) - 180
+        );
+        if (distance <= 4) state.rotation = ((cardinal % 360) + 360) % 360;
+        savePreferences();
+        render();
         if (resumeSingleTouchDrag()) return;
       }
       const shouldSaveView = state.rotateDrag;
@@ -3136,8 +3153,9 @@ den Tunnel von unten; Tunnel-Fokus zoomt auf den Verlauf. Die Tasten U und F
 schalten diese Ansichten, 1/2/3 wechseln die Grafikprofile. L wechselt die
 Sprache, D schaltet Tagmodus, M schaltet Nachtmodus. Der Advanced Viewer
 bleibt zusätzlich dabei, braucht aber je nach Browser den lokalen Server-Fallback.
-Touchscreen: Ein Finger verschiebt die Karte, zwei Finger zoomen und
-verschieben um den Fingermittelpunkt. Auf iPhone, iPad, Android-Tablets und
+Touchscreen: Ein Finger verschiebt die Karte, zwei Finger zoomen, drehen und
+verschieben um den Fingermittelpunkt. Nahe 0/90/180/270 Grad rastet die
+Ansicht ein. Auf iPhone, iPad, Android-Tablets und
 anderen Touch-Geräten nutzt der Viewer größere Buttons, sichere
 Viewport-Höhen und ein kompaktes unteres Bedienfeld.
 
@@ -3230,8 +3248,9 @@ from below; Tunnel-Fokus zooms onto the route. Keys U and F switch these views,
 and 1/2/3 switch the visual profiles. L toggles language, D selects Day and M
 selects Night. The Advanced Viewer is still included,
 but may need the local-server fallback depending on the browser.
-Touchscreen: one finger pans the map; two fingers pinch-zoom and pan around
-the touch midpoint. On iPhone, iPad, Android tablets and other touch devices
+Touchscreen: one finger pans the map; two fingers pinch-zoom, twist-rotate and
+pan around the touch midpoint. Views within four degrees of 0/90/180/270 snap
+to the exact cardinal. On iPhone, iPad, Android tablets and other touch devices
 the viewer uses larger controls, safe viewport heights and a compact lower
 control sheet.
 
@@ -3311,6 +3330,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "controls": [
       "mouse-pan",
       "mouse-rotate-swivel",
+      "touch-pinch-pan-rotate",
       "keyboard-arrow-pan",
       "shift-arrow-rotate-swivel",
       "top-north-east-south-west-presets",

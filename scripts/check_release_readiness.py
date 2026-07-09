@@ -260,6 +260,8 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     or 'pointerType === "touch"' not in start_here_text
     or "startPinchGesture" not in start_here_text
     or "updatePinchGesture" not in start_here_text
+    or "pointerAngle" not in start_here_text
+    or "startRotation" not in start_here_text
     or "resumeSingleTouchDrag" not in start_here_text
   ):
     failures.append(

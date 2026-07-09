@@ -23,6 +23,13 @@ import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
+import {
+  PEN_GESTURE_SETTINGS,
+  TOUCH_GESTURE_SETTINGS,
+  normalizeRotation,
+  rotationDistance,
+  snapRotationToCardinals,
+} from "./viewerGestures";
 
 type Landmark = {
   name: string;
@@ -38,8 +45,6 @@ type LandmarkPayload = {
   image: { width: number; height: number };
   landmarks: Landmark[];
 };
-
-type ViewerTileSource = NonNullable<OpenSeadragon.Options["tileSources"]>;
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
@@ -83,11 +88,6 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
 };
 
 const NORTH_UP_ROTATION = 296.565051177078;
-const DZI_WIDTH = 2157;
-const DZI_HEIGHT = 1529;
-const DZI_TILE_SIZE = 256;
-const DZI_OVERLAP = 0;
-const DZI_FORMAT = "jpg";
 const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
 const PRIORITY_LANDMARKS = new Set([
   "Bundeskanzleramt",
@@ -148,20 +148,8 @@ function assetPath(path: string): string {
   return `${base.endsWith("/") ? base : `${base}/`}${path}`;
 }
 
-function regierungsviertelTileSource(): ViewerTileSource {
-  return {
-    Image: {
-      xmlns: "http://schemas.microsoft.com/deepzoom/2008",
-      Url: assetPath("dzi/regierungsviertel/regierungsviertel_files/"),
-      Format: DZI_FORMAT,
-      Overlap: String(DZI_OVERLAP),
-      TileSize: String(DZI_TILE_SIZE),
-      Size: {
-        Width: String(DZI_WIDTH),
-        Height: String(DZI_HEIGHT),
-      },
-    },
-  };
+function regierungsviertelTileSource(): string {
+  return assetPath("dzi/regierungsviertel/regierungsviertel.dzi");
 }
 
 function roleLabel(role: string): string {
@@ -208,15 +196,6 @@ function sortLandmarksForTour(landmarks: Landmark[]): Landmark[] {
     }
     return left.name.localeCompare(right.name, "de");
   });
-}
-
-function normalizeRotation(degrees: number): number {
-  return ((degrees % 360) + 360) % 360;
-}
-
-function rotationDistance(left: number, right: number): number {
-  const diff = Math.abs(normalizeRotation(left - right));
-  return Math.min(diff, 360 - diff);
 }
 
 function isRotationActive(left: number, right: number): boolean {
@@ -281,6 +260,7 @@ export function App() {
   const initialFocusDoneRef = useRef(false);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
+  const hashSyncFrameRef = useRef<number | null>(null);
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const markersRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
@@ -630,18 +610,16 @@ export function App() {
         dragToPan: true,
         scrollToZoom: true,
       },
-      gestureSettingsTouch: {
-        clickToZoom: false,
-        dblClickToZoom: true,
-        dragToPan: true,
-        flickEnabled: true,
-        pinchToZoom: true,
-      },
+      gestureSettingsTouch: TOUCH_GESTURE_SETTINGS,
+      gestureSettingsPen: PEN_GESTURE_SETTINGS,
       animationTime: 0.75,
       blendTime: 0.1,
       constrainDuringPan: true,
+      immediateRender: false,
+      minPixelRatio: 0.5,
       minZoomImageRatio: 0.56,
       maxZoomPixelRatio: 6,
+      showRotationControl: true,
       visibilityRatio: 0.74,
       homeFillsViewer: false,
       springStiffness: 7,
@@ -658,8 +636,48 @@ export function App() {
     viewer.addHandler("open-failed", () => {
       setStatus("DZI nicht gefunden");
     });
+    viewer.addHandler("rotate", (event) => {
+      const next = normalizeRotation(event.degrees);
+      rotationRef.current = next;
+      setRotation(next);
+      if (hashSyncFrameRef.current !== null) {
+        window.cancelAnimationFrame(hashSyncFrameRef.current);
+      }
+      hashSyncFrameRef.current = window.requestAnimationFrame(() => {
+        const params = new URLSearchParams();
+        params.set("landmark", landmarkSlug(selectedRef.current));
+        const activeOrientation = ORIENTATIONS.find((candidate) =>
+          isRotationActive(candidate.degrees, rotationRef.current),
+        );
+        params.set(
+          "view",
+          activeOrientation?.short ?? `${Math.round(rotationRef.current)}deg`,
+        );
+        if (flipRef.current) {
+          params.set("flip", "1");
+        }
+        window.history.replaceState(null, "", `#${params}`);
+        hashSyncFrameRef.current = null;
+      });
+    });
+    viewer.addHandler("canvas-release", () => {
+      const snapped = snapRotationToCardinals(
+        rotationRef.current,
+        ORIENTATIONS.map((candidate) => candidate.degrees),
+      );
+      if (rotationDistance(snapped, rotationRef.current) < 0.01) {
+        return;
+      }
+      rotationRef.current = snapped;
+      viewer.viewport.setRotation(snapped);
+      setRotation(snapped);
+    });
 
     return () => {
+      if (hashSyncFrameRef.current !== null) {
+        window.cancelAnimationFrame(hashSyncFrameRef.current);
+        hashSyncFrameRef.current = null;
+      }
       viewer.destroy();
       viewerRef.current = null;
     };
@@ -699,6 +717,7 @@ export function App() {
         element: marker,
         location: viewer.viewport.imageToViewportCoordinates(landmark.x, landmark.y),
         placement: OpenSeadragon.Placement.CENTER,
+        rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION,
         checkResize: false,
       });
     }

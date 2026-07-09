@@ -26,6 +26,11 @@ from isometric_berlin.generation.render_quadrants import (
   render_quadrant,
 )
 
+DEFAULT_RENDER_PX = 32_768
+DEFAULT_CANVAS_WIDTH = 16_384
+DEFAULT_CANVAS_HEIGHT = 11_616
+DEFAULT_PREVIEW_MAX_WIDTH = 3_584
+
 
 def content_bbox(image: Image.Image, pad: int = 96) -> tuple[int, int, int, int]:
   background = Image.new(image.mode, image.size, BACKGROUND)
@@ -47,12 +52,22 @@ def crop_to_content(
   return image.crop(bbox), bbox
 
 
+def fit_preview(image: Image.Image, max_width: int) -> Image.Image:
+  """Return a compact derived preview without changing the DZI source."""
+  if image.width <= max_width:
+    return image.copy()
+  height = max(1, round(image.height * max_width / image.width))
+  return image.resize((max_width, height), Image.Resampling.LANCZOS)
+
+
 def landmark_records(
   *,
   landmarks: gpd.GeoDataFrame,
   quad: dict[str, float],
   crop_bbox: tuple[int, int, int, int],
   render_px: int,
+  canvas_width: int,
+  canvas_height: int,
   margin_m: float,
 ) -> list[dict[str, str | float | int]]:
   left, upper, right, lower = crop_bbox
@@ -72,8 +87,8 @@ def landmark_records(
       center_x=quad["center_x"],
       center_y=quad["center_y"],
       scale=scale,
-      width=render_px,
-      height=render_px,
+      width=canvas_width,
+      height=canvas_height,
     )
     x = min(max(px - left, 0), width)
     y = min(max(py - upper, 0), height)
@@ -138,6 +153,9 @@ def render_overview(
   wikimedia_references_path: Path,
   out_dir: Path,
   render_px: int,
+  canvas_width: int,
+  canvas_height: int,
+  preview_max_width: int,
   margin_m: float,
 ) -> None:
   bounds = project_geometry(load_bounds_polygon(bounds_path))
@@ -166,24 +184,31 @@ def render_overview(
     landmarks=landmarks,
     material_cues=material_cues,
     render_px=render_px,
+    render_size=(canvas_width, canvas_height),
     context_m=margin_m,
     show_labels=False,
   )
-  source, crop_bbox = crop_to_content(source)
+  crop_bbox = (0, 0, source.width, source.height)
+  dzi = out_dir / "regierungsviertel.dzi"
+  export_dzi(source, dzi_path=dzi)
+
+  preview_source = fit_preview(source, preview_max_width)
   source_path = out_dir / "overview_source.png"
-  source.save(source_path, optimize=True)
-  pixel = Image.open(io.BytesIO(pixel_art_image(source)))
+  preview_source.save(source_path, optimize=True)
+  pixel = Image.open(io.BytesIO(pixel_art_image(preview_source)))
   pixel_path = out_dir / "overview.png"
   pixel.save(pixel_path, optimize=True)
   (out_dir / "landmarks.json").write_text(
     json.dumps(
       {
-        "image": {"width": pixel.width, "height": pixel.height},
+        "image": {"width": source.width, "height": source.height},
         "landmarks": landmark_records(
           landmarks=landmarks,
           quad=quad,
           crop_bbox=crop_bbox,
           render_px=render_px,
+          canvas_width=canvas_width,
+          canvas_height=canvas_height,
           margin_m=margin_m,
         ),
       },
@@ -194,8 +219,6 @@ def render_overview(
     encoding="utf-8",
   )
   write_wikimedia_attribution(out_dir, wikimedia_references_path)
-  dzi = out_dir / "regierungsviertel.dzi"
-  export_dzi(source.convert("RGB"), dzi_path=dzi)
   write_preview(
     out_dir / "preview.html",
     title="Isometric Berlin Regierungsviertel",
@@ -238,7 +261,12 @@ def main() -> None:
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel"),
   )
-  parser.add_argument("--render-px", type=int, default=6144)
+  parser.add_argument("--render-px", type=int, default=DEFAULT_RENDER_PX)
+  parser.add_argument("--canvas-width", type=int, default=DEFAULT_CANVAS_WIDTH)
+  parser.add_argument("--canvas-height", type=int, default=DEFAULT_CANVAS_HEIGHT)
+  parser.add_argument(
+    "--preview-max-width", type=int, default=DEFAULT_PREVIEW_MAX_WIDTH
+  )
   parser.add_argument("--margin-m", type=float, default=220)
   args = parser.parse_args()
   render_overview(
@@ -250,6 +278,9 @@ def main() -> None:
     wikimedia_references_path=args.wikimedia_references,
     out_dir=args.out_dir,
     render_px=args.render_px,
+    canvas_width=args.canvas_width,
+    canvas_height=args.canvas_height,
+    preview_max_width=args.preview_max_width,
     margin_m=args.margin_m,
   )
   print(f"Wrote global isometric preview to {args.out_dir}")

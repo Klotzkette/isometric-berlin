@@ -46,7 +46,7 @@ VALID_START_HERE_HTML = (
   "addSceneDetails; addFlag; setDetails; setClouds; setPerformance; "
   "data-dragging; data-performance; event.metaKey; event.ctrlKey; event.altKey; targetTag; "
   'activePointers; pinchGesture; pointerType === "touch"; startPinchGesture; '
-  "updatePinchGesture; resumeSingleTouchDrag;"
+  "updatePinchGesture; pointerAngle; startRotation; resumeSingleTouchDrag;"
   "</script>"
   "<style>viewport-fit=cover; 100dvh; @media (pointer: coarse) { button { min-height: 44px; } }</style>"
 )

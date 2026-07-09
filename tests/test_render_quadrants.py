@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import geopandas as gpd
 from PIL import Image, ImageChops, ImageDraw
-from shapely.geometry import Polygon, box
+from shapely.geometry import Point, Polygon, box
 
 from isometric_berlin.generation.render_quadrants import (
   BACKGROUND,
@@ -26,6 +27,7 @@ from isometric_berlin.generation.render_quadrants import (
   landmark_icon_unit,
   landmark_kind,
   landmark_reference_id,
+  landmark_signature_buildings,
   load_reference_geometries,
   load_wikimedia_material_cues,
   mix_color,
@@ -384,10 +386,42 @@ def test_load_reference_geometries_reads_geojson_lines(tmp_path: Path) -> None:
   assert routes.geometry.iloc[0].geom_type == "LineString"
 
 
-def test_landmark_icon_unit_stays_visible_but_bounded() -> None:
+def test_landmark_icon_unit_scales_for_high_resolution_renders() -> None:
   assert landmark_icon_unit(512) == 3
   assert landmark_icon_unit(6144) == 8
-  assert landmark_icon_unit(12000) == 8
+  assert landmark_icon_unit(12000) == 16
+  assert landmark_icon_unit(48000) == 32
+
+
+def test_landmark_signature_selects_one_primary_containing_body() -> None:
+  buildings = gpd.GeoDataFrame(
+    {"name": ["main", "roof detail", "nearby"]},
+    geometry=[box(-20, -20, 20, 20), box(-2, -2, 2, 2), box(30, 0, 34, 4)],
+    crs="EPSG:25833",
+  )
+  landmarks = gpd.GeoDataFrame(
+    {"name": ["Reichstagsgebäude"]},
+    geometry=[Point(0, 0)],
+    crs="EPSG:25833",
+  )
+
+  signatures = landmark_signature_buildings(buildings, landmarks)
+
+  assert signatures == {0: "reichstag"}
+
+
+def test_landmark_signature_ignores_non_building_visual_references() -> None:
+  buildings = gpd.GeoDataFrame(
+    geometry=[box(-20, -20, 20, 20)],
+    crs="EPSG:25833",
+  )
+  landmarks = gpd.GeoDataFrame(
+    {"name": ["Venusbassin / Goldfischteich"]},
+    geometry=[Point(0, 0)],
+    crs="EPSG:25833",
+  )
+
+  assert landmark_signature_buildings(buildings, landmarks) == {}
 
 
 def test_draw_building_handles_lod2_interior_rings() -> None:

@@ -1,12 +1,13 @@
 {
   "name": "isometric-berlin-viewer",
   "private": true,
-  "version": "0.1.59",
+  "version": "0.1.60",
   "type": "module",
   "scripts": {
     "dev": "bun --bun vite --host 127.0.0.1",
     "build": "bun --bun tsc -b && bun --bun vite build",
-    "preview": "bun --bun vite preview --host 127.0.0.1"
+    "preview": "bun --bun vite preview --host 127.0.0.1",
+    "test": "bun test"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

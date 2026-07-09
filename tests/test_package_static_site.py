@@ -162,6 +162,8 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert 'pointerType === "touch"' in html
   assert "startPinchGesture" in html
   assert "updatePinchGesture" in html
+  assert "pointerAngle" in html
+  assert "startRotation" in html
   assert "resumeSingleTouchDrag" in html
   assert "__LANDMARK_PAYLOAD__" not in html
 

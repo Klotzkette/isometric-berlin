@@ -5,13 +5,13 @@
 | What | Link |
 |---|---|
 | **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.59/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.60/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
-The hosted web viewer at [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/) is the built React + OpenSeadragon bundle from `src/app/` and works on any modern browser — including phones and tablets — with pinch-zoom, two-finger pan and tap gestures.
+The hosted web viewer at [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/) is the built React + OpenSeadragon bundle from `src/app/` and works on any modern browser — including phones and tablets — with pinch-zoom, two-finger pan/rotate and tap gestures.
 
 Unzip the download and double-click **`START-HERE.html`**. That is the
 main Mac/Windows start point: no Terminal, no `.command` file, no Python
@@ -19,19 +19,20 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.59 open-data package.
+**Status:** Local v0.1.60 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.59**. It is an open-data,
+The current public package is **v0.1.60**. It is an open-data,
 offline-capable viewer for the Berlin Regierungsviertel with:
 
-- a granular source-render Deep Zoom image as default view;
+- a genuine 16384×11616 open-data source render with a complete
+  15-level Deep Zoom pyramid and overlap-safe tile boundaries;
 - large zoom, rotate, swivel, mirror and orientation controls;
 - mouse drag, arrow-key pan, and Shift/rotate-mode arrow swivel controls;
 - touchscreen support for phones and tablets, including one-finger pan,
-  two-finger pinch zoom, larger coarse-pointer controls and safe viewport
-  sizing for iPhone/iPad/Android browser chrome;
+  two-finger pinch zoom, pan and twist rotation, larger coarse-pointer
+  controls and safe viewport sizing for iPhone/iPad/Android browser chrome;
 - animation-frame render throttling and resize debounce to keep drag,
   wheel zoom and window resizing responsive;
 - richer Tiergartentunnel under-surface overlay with OSM-derived
