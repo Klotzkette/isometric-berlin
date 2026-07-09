@@ -37,6 +37,7 @@ BERLIN_PROJECTED = "EPSG:25833"
 
 NS = {
   "bldg": "http://www.opengis.net/citygml/building/1.0",
+  "core": "http://www.opengis.net/citygml/1.0",
   "gen": "http://www.opengis.net/citygml/generics/1.0",
   "gml": "http://www.opengis.net/gml",
 }
@@ -256,6 +257,61 @@ def generic_attributes(building: ET.Element) -> dict[str, str]:
   return values
 
 
+def leaf_building_parts(building: ET.Element) -> list[ET.Element]:
+  """Return the deepest CityGML parts that carry distinct LoD2 volumes."""
+  direct = building.findall(
+    "bldg:consistsOfBuildingPart/bldg:BuildingPart", namespaces=NS
+  )
+  if not direct:
+    return []
+  leaves: list[ET.Element] = []
+  for part in direct:
+    nested = leaf_building_parts(part)
+    leaves.extend(nested or [part])
+  return leaves
+
+
+def building_record(
+  element: ET.Element,
+  *,
+  parent: ET.Element,
+  tile: Lod2Tile,
+  source_zip: Path,
+  clip_polygon: BaseGeometry,
+) -> dict[str, Any] | None:
+  """Build one clipped record while inheriting metadata from its parent."""
+  footprint = building_footprint(element)
+  if footprint is None:
+    return None
+  clipped = footprint.intersection(clip_polygon)
+  if clipped.is_empty or clipped.area < 0.1:
+    return None
+
+  parent_id = parent.attrib.get(GML_ID)
+  element_id = element.attrib.get(GML_ID) or parent_id
+  is_part = element is not parent
+  attrs = generic_attributes(parent)
+  attrs.update(generic_attributes(element))
+  return {
+    "building_id": element_id,
+    "parent_building_id": parent_id if is_part else None,
+    "building_name": text_at(element, "gml:name") or text_at(parent, "gml:name"),
+    "source_creation_date": text_at(element, "core:creationDate")
+    or text_at(parent, "core:creationDate"),
+    "lod2_role": "building_part" if is_part else "building",
+    "tile_id": tile.tile_id,
+    "function": text_at(element, "bldg:function") or text_at(parent, "bldg:function"),
+    "roof_type": text_at(element, "bldg:roofType") or text_at(parent, "bldg:roofType"),
+    "measured_height_m": float_at(element, "bldg:measuredHeight"),
+    "ground_plan_date": attrs.get("Grundrissaktualitaet"),
+    "roof_height_source": attrs.get("DatenquelleDachhoehe"),
+    "position_source": attrs.get("DatenquelleLage"),
+    "source_zip": str(source_zip),
+    "source_url": tile.url,
+    "geometry": clipped,
+  }
+
+
 def parse_buildings_from_xml(
   source: BinaryIO,
   *,
@@ -268,31 +324,32 @@ def parse_buildings_from_xml(
   for _, element in ET.iterparse(source, events=("end",)):
     if element.tag != f"{{{NS['bldg']}}}Building":
       continue
-    footprint = building_footprint(element)
-    if footprint is None:
-      element.clear()
-      continue
-    clipped = footprint.intersection(clip_polygon)
-    if clipped.is_empty:
-      element.clear()
-      continue
-
-    attrs = generic_attributes(element)
-    records.append(
-      {
-        "building_id": element.attrib.get(GML_ID),
-        "tile_id": tile.tile_id,
-        "function": text_at(element, "bldg:function"),
-        "roof_type": text_at(element, "bldg:roofType"),
-        "measured_height_m": float_at(element, "bldg:measuredHeight"),
-        "ground_plan_date": attrs.get("Grundrissaktualitaet"),
-        "roof_height_source": attrs.get("DatenquelleDachhoehe"),
-        "position_source": attrs.get("DatenquelleLage"),
-        "source_zip": str(source_zip),
-        "source_url": tile.url,
-        "geometry": clipped,
-      }
-    )
+    part_records = [
+      record
+      for part in leaf_building_parts(element)
+      if (
+        record := building_record(
+          part,
+          parent=element,
+          tile=tile,
+          source_zip=source_zip,
+          clip_polygon=clip_polygon,
+        )
+      )
+      is not None
+    ]
+    if part_records:
+      records.extend(part_records)
+    else:
+      record = building_record(
+        element,
+        parent=element,
+        tile=tile,
+        source_zip=source_zip,
+        clip_polygon=clip_polygon,
+      )
+      if record is not None:
+        records.append(record)
     element.clear()
   return records
 

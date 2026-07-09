@@ -18,19 +18,32 @@ photogrammetric mesh pass.
 
 ## Committed LoD2 geometry statistics
 
-- Buildings: 2614
-- Polygon parts: 2620
-- Total footprint area: 300614.67 m²
-- Footprint vertices rendered: 17449
+- Buildings: 3315
+- Polygon parts: 3318
+- Total footprint area: 307467.91 m²
+- Footprint vertices rendered: 23555
 - Median vertices per polygon: 4.0
-- Interior rings / courtyards: 48
-- Median segment length: 1.42 m
-- Measured LoD2 heights: 2472 (94.6%)
+- Interior rings / courtyards: 30
+- Median segment length: 1.57 m
+- Measured LoD2 heights: 3315 (100.0%)
+- Explicit CityGML BuildingParts: 848
+- Segmented parent ensembles: 142
+- Latest source creation date: 2026-03-08
+
+## Bundeskanzleramt scale check
+
+- Official architecture reference: https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040
+- Rendered LoD2 parts: 31
+- Measured part-height range: 6.85–41.277 m
+- Measured median part height: 21.832 m
+- Published nominal architecture: 18 m office rows; 36 m central cube.
+- Rendering policy: preserve every LoD2 part and measured height; use
+  published nominal dimensions as QA rather than flattening the ensemble.
 
 ## Landmark placement QA
 
 - Status: ok
-- Landmarks checked: 26
+- Landmarks checked: 35
 - Relative relationships checked: 19
 - Review count: 0
 
@@ -38,7 +51,8 @@ photogrammetric mesh pass.
 
 The viewer is metric in planimetric placement because it renders
 EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders
-LoD2 interior rings as visible courtyards/cut-outs and uses denser
+CityGML BuildingParts at their individual measured heights, LoD2
+interior rings as visible courtyards/cut-outs, and uses denser
 facade bays, roof ribs, and roof equipment marks from footprint size,
 height, roof type, and landmark material cues.
 
@@ -49,7 +63,7 @@ from that mesh rather than stylising LoD2 footprints.
 
 ## Tiergartentunnel precision claim
 
-The Tiergartentunnel route is now drawn as a visible underground
+The Tiergartentunnel route is drawn as a visible underground
 engineering cutaway using derived OpenStreetMap tunnel carriageway
 geometry, public portal coordinates, public route descriptions and
 published cross-section facts. Its rendered centreline and depth are

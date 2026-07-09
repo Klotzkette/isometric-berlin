@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import io
 import json
+import math
 import sqlite3
 import unicodedata
 from datetime import UTC, datetime
@@ -26,35 +27,35 @@ from shapely.geometry import (
 from isometric_berlin.data.common import BERLIN_PROJECTED
 from isometric_berlin.generation.create_grid import quadrant_db_path
 
-BACKGROUND = (236, 230, 208)
-PARK = (120, 159, 95)
-PARK_DARK = (95, 137, 82)
-PARK_LIGHT = (139, 171, 103)
-TREE_CANOPY = (77, 122, 72)
-TREE_CANOPY_LIGHT = (108, 151, 83)
-SHRUB = (90, 133, 78)
-WATER = (87, 142, 171)
-WATER_LIGHT = (134, 180, 198)
-WATER_DARK = (59, 112, 142)
-ROAD = (218, 204, 177)
-ROAD_MAJOR = (236, 226, 207)
-ROAD_PATH = (192, 206, 174)
-ROAD_EDGE = (194, 180, 156)
+BACKGROUND = (229, 235, 231)
+PARK = (104, 164, 91)
+PARK_DARK = (61, 126, 73)
+PARK_LIGHT = (148, 191, 109)
+TREE_CANOPY = (43, 111, 67)
+TREE_CANOPY_LIGHT = (83, 153, 79)
+SHRUB = (72, 137, 70)
+WATER = (63, 151, 191)
+WATER_LIGHT = (128, 203, 220)
+WATER_DARK = (36, 108, 153)
+ROAD = (218, 218, 207)
+ROAD_MAJOR = (241, 239, 229)
+ROAD_PATH = (207, 218, 187)
+ROAD_EDGE = (177, 175, 162)
 RAIL = (94, 94, 88)
 RAIL_PLATFORM = (139, 136, 122)
-BUILDING_WALL = (190, 174, 149)
-BUILDING_WALL_DARK = (150, 137, 119)
-BUILDING_ROOF = (166, 148, 124)
-BUILDING_HERO = (198, 181, 151)
-BUILDING_SHADOW = (176, 168, 149)
-BUILDING_SHADOW_SOFT = (210, 203, 184)
-PARCEL = (189, 176, 151)
-OUTLINE = (80, 73, 64)
+BUILDING_WALL = (198, 197, 187)
+BUILDING_WALL_DARK = (143, 146, 143)
+BUILDING_ROOF = (161, 163, 158)
+BUILDING_HERO = (218, 215, 202)
+BUILDING_SHADOW = (161, 169, 163)
+BUILDING_SHADOW_SOFT = (204, 212, 206)
+PARCEL = (174, 182, 173)
+OUTLINE = (65, 70, 68)
 LANDMARK = (105, 47, 47)
-MONUMENT = (219, 199, 164)
-MONUMENT_DARK = (124, 96, 77)
-GLASS = (111, 164, 181)
-GLASS_DARK = (62, 104, 121)
+MONUMENT = (225, 211, 181)
+MONUMENT_DARK = (118, 98, 80)
+GLASS = (105, 178, 199)
+GLASS_DARK = (47, 105, 130)
 CORTEN_STEEL = (139, 82, 50)
 TENT_CANVAS = (232, 218, 185)
 PLENARY_PURPLE = (104, 82, 142)
@@ -67,8 +68,8 @@ TUNNEL_LIGHT = (247, 215, 122)
 TUNNEL_VENT = (43, 48, 51)
 TUNNEL = (41, 40, 39)
 BRIDGE = (226, 224, 209)
-SURFACE_LINE = (112, 100, 86)
-SURFACE_LIGHT = (219, 205, 178)
+SURFACE_LINE = (91, 99, 95)
+SURFACE_LIGHT = (225, 224, 211)
 POI_MARK = (143, 78, 65)
 POI_SERVICE = (118, 112, 92)
 
@@ -86,6 +87,87 @@ PATH_HIGHWAYS = {
 RAIL_LINES = {"rail", "light_rail", "tram"}
 RAIL_PLATFORMS = {"platform", "platform_edge"}
 MaterialCue = dict[str, tuple[int, int, int]]
+
+ARCHITECTURAL_MATERIAL_CUES: dict[str, MaterialCue] = {
+  "bundeskanzleramt": {
+    "wall": (224, 225, 218),
+    "wall_dark": (159, 166, 164),
+    "wall_light": (244, 242, 230),
+    "roof": (187, 194, 190),
+    "roof_line": (91, 105, 105),
+    "glass": (116, 188, 205),
+    "glass_dark": (49, 111, 137),
+  },
+  "hauptbahnhof": {
+    "wall": (192, 205, 205),
+    "wall_dark": (103, 126, 132),
+    "wall_light": (225, 235, 231),
+    "roof": (133, 172, 183),
+    "roof_line": (58, 95, 107),
+    "glass": (105, 187, 211),
+    "glass_dark": (42, 100, 128),
+  },
+  "reichstag": {
+    "wall": (211, 199, 177),
+    "wall_dark": (144, 130, 111),
+    "wall_light": (237, 228, 207),
+    "roof": (159, 164, 158),
+    "roof_line": (83, 91, 89),
+    "glass": (121, 190, 207),
+    "glass_dark": (49, 104, 127),
+  },
+  "paul_loebe_haus": {
+    "wall": (213, 216, 207),
+    "wall_dark": (137, 145, 143),
+    "wall_light": (239, 238, 225),
+    "roof": (179, 185, 180),
+    "roof_line": (86, 99, 99),
+    "glass": (104, 181, 201),
+    "glass_dark": (45, 103, 128),
+  },
+  "marie_elisabeth_lueders_haus": {
+    "wall": (212, 216, 208),
+    "wall_dark": (132, 143, 141),
+    "wall_light": (239, 239, 228),
+    "roof": (174, 183, 180),
+    "roof_line": (82, 98, 99),
+    "glass": (102, 181, 204),
+    "glass_dark": (43, 102, 130),
+  },
+  "hkw": {
+    "wall": (225, 224, 211),
+    "wall_dark": (151, 151, 142),
+    "wall_light": (246, 243, 229),
+    "roof": (209, 210, 201),
+    "roof_line": (100, 105, 102),
+    "glass": (115, 181, 198),
+    "glass_dark": (55, 107, 126),
+  },
+}
+
+BUILDING_SIGNATURE_REFERENCE_IDS = frozenset(
+  {
+    "bundeskanzleramt",
+    "hauptbahnhof",
+    "hkw",
+    "marie_elisabeth_lueders_haus",
+    "max_liebermann_haus",
+    "paul_loebe_haus",
+    "reichstag",
+  }
+)
+
+SEMANTIC_BUILDING_NAMES = {
+  "bundeskanzleramt": {"bundeskanzleramt"},
+  "hauptbahnhof": {"berlin hauptbahnhof"},
+  "hkw": {"haus der kulturen der welt"},
+  "marie_elisabeth_lueders_haus": {"marie-elisabeth-luders-haus"},
+  "max_liebermann_haus": {"max-liebermann-haus"},
+  "paul_loebe_haus": {"paul-lobe-haus"},
+  "reichstag": {"reichstagsgebaude"},
+}
+
+SEMANTIC_SIGNATURE_REFERENCE_IDS = BUILDING_SIGNATURE_REFERENCE_IDS - {"hkw"}
 
 
 def load_layer(path: Path, layer: str) -> gpd.GeoDataFrame:
@@ -399,6 +481,15 @@ def load_wikimedia_material_cues(path: Path) -> dict[str, MaterialCue]:
       "roof_line": mix_color(dark, SURFACE_LINE, 0.42),
       "glass": mix_color(GLASS, light, 0.24),
       "glass_dark": mix_color(GLASS_DARK, dark, 0.22),
+    }
+  for landmark_id, architectural in ARCHITECTURAL_MATERIAL_CUES.items():
+    photo_cue = cues.get(landmark_id)
+    if photo_cue is None:
+      cues[landmark_id] = architectural.copy()
+      continue
+    cues[landmark_id] = {
+      key: mix_color(photo_cue[key], value, 0.68)
+      for key, value in architectural.items()
     }
   return cues
 
@@ -1618,6 +1709,46 @@ def draw_wall_panel(
     draw.line(panel + [panel[0]], fill=outline, width=max(1, width))
 
 
+def draw_wall_arch_panel(
+  draw: ImageDraw.ImageDraw,
+  wall: list[tuple[int, int]],
+  *,
+  left: float,
+  right: float,
+  bottom: float,
+  shoulder: float,
+  top: float,
+  fill: tuple[int, int, int],
+  outline: tuple[int, int, int],
+  width: int,
+) -> None:
+  """Draw a semicircular-headed opening within a projected facade."""
+  panel = [
+    wall_point(wall, across=left, up=bottom),
+    wall_point(wall, across=right, up=bottom),
+    wall_point(wall, across=right, up=shoulder),
+  ]
+  steps = 10
+  for index in range(steps + 1):
+    amount = index / steps
+    across = right - (right - left) * amount
+    up = shoulder + math.sin(math.pi * amount) * (top - shoulder)
+    panel.append(wall_point(wall, across=across, up=up))
+  draw.polygon(panel, fill=fill)
+  draw.line(panel + [panel[0]], fill=outline, width=max(1, width))
+
+
+def longest_walls(
+  walls: list[list[tuple[int, int]]], *, limit: int
+) -> list[list[tuple[int, int]]]:
+  """Return the longest projected facade edges for landmark detailing."""
+  return sorted(
+    walls,
+    key=lambda wall: line_length(wall[0], wall[1]),
+    reverse=True,
+  )[:limit]
+
+
 def draw_facade_bays(
   draw: ImageDraw.ImageDraw,
   wall: list[tuple[int, int]],
@@ -1907,6 +2038,7 @@ def draw_landmark_building_signature(
   reference_id: str | None,
   palette: dict[str, tuple[int, int, int]],
   outline_width: int,
+  anchor: tuple[int, int] | None = None,
 ) -> None:
   """Add landmark-specific architectural cues on the LoD2 footprint."""
   if not reference_id:
@@ -1916,7 +2048,7 @@ def draw_landmark_building_signature(
   glass = mix_color(palette["window"], palette["wall_light"], 0.32)
   glass_dark = mix_color(palette["window_dark"], GLASS_DARK, 0.28)
   if reference_id == "reichstag" and len(unique) >= 4:
-    center = roof_quad_point(unique, along=0.5, across=0.5)
+    center = anchor or roof_quad_point(unique, along=0.5, across=0.5)
     dome_rx = max(7, width * 12)
     dome_ry = max(4, width * 7)
     plenary = [
@@ -1990,37 +2122,17 @@ def draw_landmark_building_signature(
     return
 
   if reference_id == "bundeskanzleramt":
-    if len(unique) >= 4:
-      for across in (0.36, 0.5, 0.64):
-        draw.line(
-          (
-            roof_quad_point(unique, along=0.14, across=across),
-            roof_quad_point(unique, along=0.86, across=across),
-          ),
-          fill=glass_dark,
-          width=max(1, width + 1),
-        )
-      center = roof_quad_point(unique, along=0.5, across=0.5)
-      radius = max(3, width * 3)
-      draw.ellipse(
-        (
-          center[0] - radius,
-          center[1] - radius // 2,
-          center[0] + radius,
-          center[1] + radius // 2,
-        ),
-        fill=glass,
-        outline=glass_dark,
-        width=width,
-      )
-    for wall in walls[:4]:
-      draw_wall_panel(
+    for wall in longest_walls(walls, limit=3):
+      if line_length(wall[0], wall[1]) < 8 * width:
+        continue
+      draw_wall_arch_panel(
         draw,
         wall,
-        left=0.42,
-        right=0.58,
-        bottom=0.16,
-        top=0.82,
+        left=0.28,
+        right=0.72,
+        bottom=0.12,
+        shoulder=0.58,
+        top=0.84,
         fill=glass,
         outline=glass_dark,
         width=width,
@@ -2028,11 +2140,13 @@ def draw_landmark_building_signature(
     return
 
   if reference_id == "hkw" and len(unique) >= 4:
-    center = roof_quad_point(unique, along=0.5, across=0.5)
+    center = anchor or roof_quad_point(unique, along=0.5, across=0.5)
     shell = mix_color(palette["roof"], MONUMENT, 0.44)
     shell_dark = mix_color(shell, OUTLINE, 0.22)
-    radius_x = max(6, width * 9)
-    radius_y = max(3, width * 5)
+    roof_span_x = max(point[0] for point in unique) - min(point[0] for point in unique)
+    roof_span_y = max(point[1] for point in unique) - min(point[1] for point in unique)
+    radius_x = max(6, width * 9, round(roof_span_x * 0.38))
+    radius_y = max(3, width * 5, round(roof_span_y * 0.24))
     draw.arc(
       (
         center[0] - radius_x,
@@ -2043,7 +2157,7 @@ def draw_landmark_building_signature(
       start=198,
       end=342,
       fill=shell,
-      width=max(2, width * 2),
+      width=max(3, width * 4),
     )
     draw.arc(
       (
@@ -2057,13 +2171,6 @@ def draw_landmark_building_signature(
       fill=shell_dark,
       width=max(1, width),
     )
-    basin = [
-      roof_quad_point(unique, along=0.18, across=0.68),
-      roof_quad_point(unique, along=0.82, across=0.68),
-      roof_quad_point(unique, along=0.74, across=0.86),
-      roof_quad_point(unique, along=0.26, across=0.86),
-    ]
-    draw.polygon(basin, fill=mix_color(WATER, WATER_LIGHT, 0.2), outline=WATER_DARK)
     return
 
   if reference_id == "max_liebermann_haus":
@@ -2180,6 +2287,7 @@ def draw_courtyard_voids(
   palette: dict[str, tuple[int, int, int]],
   height_m: float,
   is_hero: bool,
+  reference_id: str | None = None,
   center_x: float,
   center_y: float,
   scale: float,
@@ -2189,9 +2297,14 @@ def draw_courtyard_voids(
 ) -> None:
   """Render LoD2 interior rings as actual open cuts with inner facades."""
   min_area = 18.0 if is_hero else 32.0
-  floor = mix_color(BACKGROUND, ROAD, 0.28)
-  inner_wall = mix_color(palette["wall_dark"], palette["wall"], 0.36)
-  inner_wall_light = mix_color(palette["wall"], palette["wall_light"], 0.22)
+  is_hkw_shell = reference_id == "hkw"
+  floor = mix_color(BACKGROUND, ROAD_MAJOR, 0.62 if is_hkw_shell else 0.28)
+  inner_wall = mix_color(
+    palette["wall_dark"], palette["wall_light"], 0.54 if is_hkw_shell else 0.36
+  )
+  inner_wall_light = mix_color(
+    palette["wall"], palette["wall_light"], 0.48 if is_hkw_shell else 0.22
+  )
   for interior in polygon.interiors:
     hole = Polygon(interior)
     if hole.area < min_area:
@@ -2218,19 +2331,31 @@ def draw_courtyard_voids(
       height=height,
     )
     draw.polygon(roof_ring, fill=floor)
+    if is_hkw_shell:
+      draw.line(
+        roof_ring,
+        fill=palette["roof_line"],
+        width=max(1, outline_width),
+      )
+      continue
     for idx in range(len(coords) - 1):
       wall = [base_ring[idx], base_ring[idx + 1], roof_ring[idx + 1], roof_ring[idx]]
       color = inner_wall_light if idx % 2 == 0 else inner_wall
       draw.polygon(wall, fill=color)
-      draw_wall_detail(
-        draw,
-        wall,
-        palette=palette,
-        height_m=max(4.0, height_m * 0.72),
-        is_hero=is_hero,
-        outline_width=outline_width,
+      if not is_hkw_shell:
+        draw_wall_detail(
+          draw,
+          wall,
+          palette=palette,
+          height_m=max(4.0, height_m * 0.72),
+          is_hero=is_hero,
+          outline_width=outline_width,
+        )
+      draw.line(
+        wall + [wall[0]],
+        fill=palette["roof_line"] if is_hkw_shell else OUTLINE,
+        width=max(1, outline_width),
       )
-      draw.line(wall + [wall[0]], fill=OUTLINE, width=max(1, outline_width))
     draw.line(base_ring, fill=mix_color(ROAD_EDGE, OUTLINE, 0.18), width=1)
     draw.line(roof_ring, fill=palette["roof_line"], width=max(1, outline_width))
 
@@ -2277,7 +2402,9 @@ def draw_building(
   is_hero: bool,
   surface_row: Any | None = None,
   material_cue: MaterialCue | None = None,
+  material_reference_id: str | None = None,
   reference_id: str | None = None,
+  landmark_anchor: Point | None = None,
   center_x: float,
   center_y: float,
   scale: float,
@@ -2288,7 +2415,7 @@ def draw_building(
   coords = list(polygon.exterior.coords)
   if len(coords) < 4:
     return
-  height_m = max(4.0, min(float(height_m or 12.0), 85.0))
+  height_m = render_height_m(height_m)
   surface = surface_row if surface_row is not None else {}
   palette = building_surface_palette(
     surface,
@@ -2359,6 +2486,20 @@ def draw_building(
     is_hero=is_hero,
     outline_width=outline_width,
   )
+  draw_courtyard_voids(
+    draw,
+    polygon,
+    palette=palette,
+    height_m=height_m,
+    is_hero=is_hero,
+    reference_id=material_reference_id or reference_id,
+    center_x=center_x,
+    center_y=center_y,
+    scale=scale,
+    width=width,
+    height=height,
+    outline_width=outline_width,
+  )
   draw_landmark_building_signature(
     draw,
     walls=walls,
@@ -2366,19 +2507,20 @@ def draw_building(
     reference_id=reference_id,
     palette=palette,
     outline_width=outline_width,
-  )
-  draw_courtyard_voids(
-    draw,
-    polygon,
-    palette=palette,
-    height_m=height_m,
-    is_hero=is_hero,
-    center_x=center_x,
-    center_y=center_y,
-    scale=scale,
-    width=width,
-    height=height,
-    outline_width=outline_width,
+    anchor=(
+      project_point(
+        landmark_anchor.x,
+        landmark_anchor.y,
+        z=height_m,
+        center_x=center_x,
+        center_y=center_y,
+        scale=scale,
+        width=width,
+        height=height,
+      )
+      if landmark_anchor is not None
+      else None
+    ),
   )
   draw.line(roof, fill=OUTLINE, width=outline_width)
 
@@ -2393,7 +2535,7 @@ def building_height(row: Any, *, is_hero: bool = False) -> float:
       height = float(value)
     except (TypeError, ValueError):
       continue
-    if height == height and height >= 2.5:
+    if height == height and height >= 0.05:
       return height
 
   geometry = row.get("geometry")
@@ -2413,6 +2555,11 @@ def building_height(row: Any, *, is_hero: bool = False) -> float:
   if is_hero:
     fallback = max(fallback, 18.0)
   return fallback
+
+
+def render_height_m(height_m: float) -> float:
+  """Keep valid LoD2 heights unchanged inside a broad safety envelope."""
+  return max(0.25, min(float(height_m or 12.0), 180.0))
 
 
 def polygons(geom: Any) -> list[Polygon]:
@@ -2449,22 +2596,96 @@ def png_bytes(image: Image.Image) -> bytes:
   return output.getvalue()
 
 
+def building_family_id(row: Any) -> str:
+  """Return the CityGML parent id shared by one building ensemble."""
+  return row_text(row, "parent_building_id") or row_text(row, "building_id")
+
+
+def semantic_signature_candidate(
+  buildings: gpd.GeoDataFrame,
+  semantic_features: gpd.GeoDataFrame,
+  *,
+  reference_id: str,
+  point: Point,
+) -> tuple[object, float] | None:
+  """Choose a LoD2 part through an overlapping named OSM building family."""
+  if reference_id not in SEMANTIC_SIGNATURE_REFERENCE_IDS:
+    return None
+  matches = semantic_features[
+    semantic_features.apply(
+      lambda row: (
+        normalized_text(row_text(row, "name"))
+        in SEMANTIC_BUILDING_NAMES.get(reference_id, set())
+        and isinstance(row.geometry, Polygon | MultiPolygon)
+      ),
+      axis=1,
+    )
+  ]
+  if matches.empty:
+    return None
+
+  family_overlap: dict[str, float] = {}
+  for geometry in matches.geometry:
+    possible = buildings[buildings.geometry.intersects(geometry)]
+    for _, building in possible.iterrows():
+      family_id = building_family_id(building)
+      if not family_id:
+        continue
+      overlap = float(building.geometry.intersection(geometry).area)
+      family_overlap[family_id] = family_overlap.get(family_id, 0.0) + overlap
+  if not family_overlap:
+    return None
+
+  family_id, overlap = max(family_overlap.items(), key=lambda item: item[1])
+  family = buildings[
+    buildings.apply(lambda row: building_family_id(row) == family_id, axis=1)
+  ]
+  containing = family[family.geometry.covers(point)]
+  if not containing.empty:
+    return containing.geometry.area.idxmax(), overlap
+  distances = family.geometry.distance(point)
+  nearest_distance = float(distances.min())
+  nearest = family.loc[distances[distances == nearest_distance].index]
+  return nearest.geometry.area.idxmax(), overlap
+
+
+def semantic_material_families(
+  buildings: gpd.GeoDataFrame, semantic_features: gpd.GeoDataFrame
+) -> dict[str, str]:
+  """Map overlapping CityGML families to exact named OSM landmark materials."""
+  scores: dict[str, tuple[float, str]] = {}
+  for reference_id, names in SEMANTIC_BUILDING_NAMES.items():
+    matches = semantic_features[
+      semantic_features.apply(
+        lambda row: (
+          normalized_text(row_text(row, "name")) in names
+          and isinstance(row.geometry, Polygon | MultiPolygon)
+        ),
+        axis=1,
+      )
+    ]
+    for geometry in matches.geometry:
+      possible = buildings[buildings.geometry.intersects(geometry)]
+      for _, building in possible.iterrows():
+        area = float(building.geometry.area)
+        overlap = float(building.geometry.intersection(geometry).area)
+        if area <= 0 or overlap < 20 or overlap / area < 0.45:
+          continue
+        family_id = building_family_id(building)
+        previous = scores.get(family_id)
+        if previous is None or overlap > previous[0]:
+          scores[family_id] = (overlap, reference_id)
+  return {family_id: value[1] for family_id, value in scores.items()}
+
+
 def landmark_signature_buildings(
   buildings: gpd.GeoDataFrame,
   landmarks: gpd.GeoDataFrame,
   *,
+  semantic_features: gpd.GeoDataFrame | None = None,
   max_distance_m: float = 90.0,
 ) -> dict[object, str]:
   """Choose one primary LoD2 body for each landmark signature."""
-  supported_reference_ids = {
-    "bundeskanzleramt",
-    "hauptbahnhof",
-    "hkw",
-    "marie_elisabeth_lueders_haus",
-    "max_liebermann_haus",
-    "paul_loebe_haus",
-    "reichstag",
-  }
   signatures: dict[object, str] = {}
   claims: dict[object, float] = {}
   if buildings.empty or landmarks.empty:
@@ -2474,7 +2695,24 @@ def landmark_signature_buildings(
     if not isinstance(point, Point):
       continue
     reference_id = landmark_reference_id(row_text(landmark, "name"))
-    if reference_id not in supported_reference_ids:
+    if reference_id not in BUILDING_SIGNATURE_REFERENCE_IDS:
+      continue
+    semantic_candidate = (
+      semantic_signature_candidate(
+        buildings,
+        semantic_features,
+        reference_id=reference_id,
+        point=point,
+      )
+      if semantic_features is not None and not semantic_features.empty
+      else None
+    )
+    if semantic_candidate is not None:
+      candidate_index, overlap = semantic_candidate
+      strength = 1_000_000.0 + overlap
+      if strength > claims.get(candidate_index, float("-inf")):
+        signatures[candidate_index] = reference_id
+        claims[candidate_index] = strength
       continue
     distances = buildings.geometry.distance(point)
     candidates = buildings.loc[distances[distances <= max_distance_m].index]
@@ -2484,6 +2722,7 @@ def landmark_signature_buildings(
     if not containing.empty:
       candidate_index = containing.geometry.area.idxmax()
       distance = 0.0
+      strength = 100_000.0 + float(containing.loc[candidate_index].geometry.area)
     else:
       candidate_distances = candidates.geometry.distance(point)
       distance = float(candidate_distances.min())
@@ -2491,11 +2730,25 @@ def landmark_signature_buildings(
         candidate_distances[candidate_distances == distance].index
       ]
       candidate_index = nearest.geometry.area.idxmax()
-    if distance >= claims.get(candidate_index, float("inf")):
+      strength = max(0.0, max_distance_m - distance)
+    if strength <= claims.get(candidate_index, float("-inf")):
       continue
     signatures[candidate_index] = reference_id
-    claims[candidate_index] = distance
+    claims[candidate_index] = strength
   return signatures
+
+
+def landmark_signature_anchors(landmarks: gpd.GeoDataFrame) -> dict[str, Point]:
+  """Return verified projected landmark points for building signatures."""
+  anchors: dict[str, Point] = {}
+  for _, landmark in landmarks.iterrows():
+    point = landmark.geometry
+    if not isinstance(point, Point):
+      continue
+    reference_id = landmark_reference_id(row_text(landmark, "name"))
+    if reference_id in BUILDING_SIGNATURE_REFERENCE_IDS:
+      anchors.setdefault(reference_id, point)
+  return anchors
 
 
 def render_quadrant(
@@ -2675,13 +2928,30 @@ def render_quadrant(
   if not selected_buildings.empty:
     selected_buildings = selected_buildings.assign(
       _sort=selected_buildings.geometry.centroid.x
-      - selected_buildings.geometry.centroid.y
-    ).sort_values("_sort")
-  signature_buildings = landmark_signature_buildings(selected_buildings, near_landmarks)
+      - selected_buildings.geometry.centroid.y,
+      _height=selected_buildings.apply(building_height, axis=1),
+    ).sort_values(["_sort", "_height"])
+  signature_buildings = landmark_signature_buildings(
+    selected_buildings,
+    near_landmarks,
+    semantic_features=query(osm_layers["pois"], q_bounds),
+  )
+  signature_anchors = landmark_signature_anchors(near_landmarks)
+  signature_families: dict[str, str] = {}
+  for index, reference_id in signature_buildings.items():
+    row = selected_buildings.loc[index]
+    family_id = building_family_id(row)
+    if family_id:
+      signature_families[family_id] = reference_id
+  signature_families.update(
+    semantic_material_families(selected_buildings, query(osm_layers["pois"], q_bounds))
+  )
   for index, row in selected_buildings.iterrows():
-    reference_id = signature_buildings.get(index)
-    is_hero = reference_id is not None
-    material_cue = material_cues.get(reference_id or "")
+    signature_reference_id = signature_buildings.get(index)
+    family_id = building_family_id(row)
+    material_reference_id = signature_reference_id or signature_families.get(family_id)
+    is_hero = material_reference_id is not None
+    material_cue = material_cues.get(material_reference_id or "")
     for poly in polygons(row.geometry):
       draw_building(
         draw,
@@ -2690,7 +2960,9 @@ def render_quadrant(
         is_hero=is_hero,
         surface_row=row,
         material_cue=material_cue,
-        reference_id=reference_id,
+        material_reference_id=material_reference_id,
+        reference_id=signature_reference_id,
+        landmark_anchor=signature_anchors.get(signature_reference_id or ""),
         center_x=center_x,
         center_y=center_y,
         scale=scale,

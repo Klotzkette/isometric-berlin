@@ -35,6 +35,13 @@ than one body contains the verified landmark point, the largest containing
 body wins. This prevents duplicate Reichstag domes and repeated station or
 chancellery roof treatments on small adjacent structures.
 
+Complex CityGML ensembles are rendered part by part at their official measured
+heights. The current clipped source contains 3,315 volumes, including 848
+`BuildingPart` records in 142 parent ensembles, and every committed volume has
+a measured LoD2 height. Named OSM building polygons associate all parts in a
+landmark family with the same material cue; only the one part at the verified
+landmark anchor receives the singular dome, shell or facade signature.
+
 ```bash
 uv run python -m isometric_berlin.generation.render_overview \
   --render-px 32768 --canvas-width 16384 --canvas-height 11616 \

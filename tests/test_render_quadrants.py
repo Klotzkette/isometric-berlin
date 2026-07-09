@@ -21,12 +21,14 @@ from isometric_berlin.generation.render_quadrants import (
   building_height,
   building_surface_palette,
   draw_building,
+  draw_landmark_building_signature,
   facade_bay_count,
   facade_detail_counts,
   facade_microtexture_count,
   landmark_icon_unit,
   landmark_kind,
   landmark_reference_id,
+  landmark_signature_anchors,
   landmark_signature_buildings,
   load_reference_geometries,
   load_wikimedia_material_cues,
@@ -34,10 +36,12 @@ from isometric_berlin.generation.render_quadrants import (
   parse_hex_color,
   poi_style,
   rail_style,
+  render_height_m,
   road_style,
   roof_grid_count,
   roof_service_count,
   roof_texture_count,
+  semantic_material_families,
   stable_fraction,
   stable_variation,
   vegetation_detail_limit,
@@ -62,6 +66,14 @@ def test_building_height_keeps_small_landmarks_visible() -> None:
   row = {"measured_height_m": None, "geometry": box(0, 0, 22, 20)}
 
   assert building_height(row, is_hero=True) == 18.0
+
+
+def test_render_height_preserves_current_lod2_range() -> None:
+  assert render_height_m(3.0) == 3.0
+  assert render_height_m(41.277) == 41.277
+  assert render_height_m(103.192) == 103.192
+  assert render_height_m(0.01) == 0.25
+  assert render_height_m(1_000) == 180.0
 
 
 def test_road_style_separates_major_roads_from_paths() -> None:
@@ -346,7 +358,7 @@ def test_load_wikimedia_material_cues_groups_dominant_colours(tmp_path: Path) ->
 
   cues = load_wikimedia_material_cues(manifest)
 
-  assert set(cues) == {"reichstag", "hauptbahnhof"}
+  assert {"reichstag", "hauptbahnhof", "bundeskanzleramt"} <= set(cues)
   assert set(cues["reichstag"]) == {
     "wall",
     "wall_dark",
@@ -410,6 +422,36 @@ def test_landmark_signature_selects_one_primary_containing_body() -> None:
   assert signatures == {0: "reichstag"}
 
 
+def test_landmark_signature_uses_named_osm_polygon_to_select_lod2_family() -> None:
+  buildings = gpd.GeoDataFrame(
+    {
+      "building_id": ["A_WEST", "A_EAST", "UNRELATED"],
+      "parent_building_id": ["A", "A", None],
+    },
+    geometry=[box(0, 0, 20, 20), box(20, 0, 30, 20), box(31, 0, 33, 2)],
+    crs="EPSG:25833",
+  )
+  landmarks = gpd.GeoDataFrame(
+    {"name": ["Marie-Elisabeth-Lüders-Haus"]},
+    geometry=[Point(31.5, 1)],
+    crs="EPSG:25833",
+  )
+  semantics = gpd.GeoDataFrame(
+    {"name": ["Marie-Elisabeth-Lüders-Haus"]},
+    geometry=[box(0, 0, 30, 20)],
+    crs="EPSG:25833",
+  )
+
+  signatures = landmark_signature_buildings(
+    buildings, landmarks, semantic_features=semantics
+  )
+
+  assert signatures == {1: "marie_elisabeth_lueders_haus"}
+  assert semantic_material_families(buildings, semantics) == {
+    "A": "marie_elisabeth_lueders_haus"
+  }
+
+
 def test_landmark_signature_ignores_non_building_visual_references() -> None:
   buildings = gpd.GeoDataFrame(
     geometry=[box(-20, -20, 20, 20)],
@@ -422,6 +464,39 @@ def test_landmark_signature_ignores_non_building_visual_references() -> None:
   )
 
   assert landmark_signature_buildings(buildings, landmarks) == {}
+
+
+def test_landmark_signature_anchor_keeps_detail_on_verified_point() -> None:
+  landmarks = gpd.GeoDataFrame(
+    {"name": ["Bundeskanzleramt", "Unknown cafe"]},
+    geometry=[Point(12, 34), Point(56, 78)],
+    crs="EPSG:25833",
+  )
+
+  anchors = landmark_signature_anchors(landmarks)
+
+  assert set(anchors) == {"bundeskanzleramt"}
+  assert anchors["bundeskanzleramt"].equals(Point(12, 34))
+
+
+def test_reichstag_signature_uses_explicit_anchor_on_complex_roof() -> None:
+  image = Image.new("RGB", (320, 180), BACKGROUND)
+  draw = ImageDraw.Draw(image)
+  anchor = (250, 70)
+
+  draw_landmark_building_signature(
+    draw,
+    walls=[],
+    roof=[(10, 130), (80, 130), (82, 126), (14, 126), (10, 130)],
+    reference_id="reichstag",
+    palette=building_surface_palette(
+      {"building_id": "chancellery"}, is_hero=True, height_m=40
+    ),
+    outline_width=2,
+    anchor=anchor,
+  )
+
+  assert image.getpixel(anchor) != BACKGROUND
 
 
 def test_draw_building_handles_lod2_interior_rings() -> None:

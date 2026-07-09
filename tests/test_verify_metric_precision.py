@@ -19,6 +19,9 @@ def test_building_precision_stats_count_vertices_and_interior_rings() -> None:
   buildings = gpd.GeoDataFrame(
     {
       "building_id": ["a", "b"],
+      "parent_building_id": ["ensemble", None],
+      "lod2_role": ["building_part", "building"],
+      "source_creation_date": ["2026-03-02", "2026-02-01"],
       "measured_height_m": [12.0, None],
       "geometry": [
         Polygon(
@@ -39,6 +42,9 @@ def test_building_precision_stats_count_vertices_and_interior_rings() -> None:
   assert stats["footprint_vertex_count"] == 12
   assert stats["measured_height_count"] == 1
   assert stats["measured_height_share"] == 0.5
+  assert stats["building_part_count"] == 1
+  assert stats["segmented_ensemble_count"] == 1
+  assert stats["latest_source_creation_date"] == "2026-03-02"
 
 
 def test_build_precision_report_writes_json_and_markdown(tmp_path: Path) -> None:

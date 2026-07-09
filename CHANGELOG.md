@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.1.61
+
+- Refresh all eight Regierungsviertel LoD2 source tiles from the official
+  March 2026 Berlin CityGML release and preserve nested `BuildingPart`
+  geometry instead of flattening complex ensembles into one fallback block.
+- Render 3,315 LoD2 volumes at their individual measured heights, including
+  848 explicit parts across 142 segmented ensembles; remove the former
+  4 m minimum / 85 m maximum visual distortion inside the current data range.
+- Rebuild the Bundeskanzleramt from 31 official component volumes, keeping
+  the lower office rows separate from its central leadership block and moving
+  the semicircular glass cue from the roof onto real facade planes.
+- Use exact named OSM building polygons to associate LoD2 families with
+  landmark semantics and keep the verified landmark point as the anchor for
+  Reichstag, Chancellery and HKW architectural signatures.
+- Refresh the material system with cooler concrete and glass, brighter water,
+  cleaner roads and more varied Tiergarten greens while retaining Wikimedia
+  reference cues and all required attribution.
+- Extend metric QA with source creation dates, measured-height coverage,
+  BuildingPart/ensemble counts and an explicit Chancellery scale cross-check.
+
 ## v0.1.60
 
 - Regenerate the committed DZI from LoD2, OSM, ALKIS and free Wikimedia

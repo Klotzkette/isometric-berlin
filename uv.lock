@@ -696,7 +696,7 @@ wheels = [
 
 [[package]]
 name = "isometric-berlin"
-version = "0.1.60"
+version = "0.1.61"
 source = { editable = "." }
 dependencies = [
     { name = "contextily" },

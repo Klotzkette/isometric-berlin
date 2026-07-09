@@ -28,6 +28,10 @@ ALKIS_METADATA_URL = (
 BERLIN_3D_MESH_URL = (
   "https://www.businesslocationcenter.de/en/economic-atlas/download-portal"
 )
+CHANCELLERY_ARCHITECTURE_URL = (
+  "https://www.bundesregierung.de/breg-de/bundesregierung/"
+  "bundeskanzleramt/geschichte-bundeskanzleramt-975040"
+)
 
 
 def polygons(geometry: Any) -> list[Polygon]:
@@ -75,6 +79,16 @@ def building_precision_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
   lengths = [length for poly in parts for length in segment_lengths(poly) if length > 0]
   measured = buildings.get("measured_height_m")
   measured_count = int(measured.notna().sum()) if measured is not None else 0
+  roles = buildings.get("lod2_role")
+  part_count = int((roles == "building_part").sum()) if roles is not None else 0
+  parents = buildings.get("parent_building_id")
+  ensemble_count = int(parents.dropna().nunique()) if parents is not None else 0
+  creation_dates = buildings.get("source_creation_date")
+  current_creation_date = (
+    max(str(value) for value in creation_dates.dropna().tolist())
+    if creation_dates is not None and creation_dates.notna().any()
+    else None
+  )
   height_values = [
     float(value)
     for value in (measured.dropna().tolist() if measured is not None else [])
@@ -92,6 +106,9 @@ def building_precision_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
     "max_segment_length_m": round(max(lengths), 2),
     "measured_height_count": measured_count,
     "measured_height_share": round(measured_count / len(buildings), 4),
+    "building_part_count": part_count,
+    "segmented_ensemble_count": ensemble_count,
+    "latest_source_creation_date": current_creation_date,
     "median_measured_height_m": round(statistics.median(height_values), 2)
     if height_values
     else None,
@@ -100,6 +117,37 @@ def building_precision_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
       "polygon coordinates; roof forms are official generalized standard "
       "roof forms, not photogrammetric facade relief."
     ),
+  }
+
+
+def landmark_scale_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
+  """Return explicit scale evidence for complex named LoD2 ensembles."""
+  names = buildings.get("building_name")
+  if names is None:
+    return {}
+  chancellery = buildings[names == "Bundeskanzleramt"]
+  if chancellery.empty:
+    return {}
+  heights = [float(value) for value in chancellery["measured_height_m"].dropna()]
+  return {
+    "bundeskanzleramt": {
+      "source": "Berlin LoD2 BuildingPart geometry",
+      "official_architecture_url": CHANCELLERY_ARCHITECTURE_URL,
+      "part_count": int(len(chancellery)),
+      "footprint_area_m2": round(float(chancellery.geometry.area.sum()), 2),
+      "min_measured_height_m": round(min(heights), 3),
+      "median_measured_height_m": round(statistics.median(heights), 3),
+      "max_measured_height_m": round(max(heights), 3),
+      "published_nominal_heights_m": {
+        "office_rows": 18,
+        "central_cube": 36,
+      },
+      "interpretation": (
+        "The renderer uses each official LoD2 part and measured height. "
+        "Published 18 m / 36 m architectural dimensions are a QA cross-check; "
+        "LoD2 roof/parapet and terrain references can be higher."
+      ),
+    }
   }
 
 
@@ -154,6 +202,7 @@ def build_precision_report(
       },
     },
     "buildings": building_precision_stats(buildings),
+    "landmark_scale": landmark_scale_stats(buildings),
     "landmark_alignment": load_alignment_summary(alignment_path),
     "render_policy": {
       "geometry_anchor": "lod2",
@@ -176,6 +225,7 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
   """Write a human-readable metric precision report."""
   buildings = report["buildings"]
   alignment = report["landmark_alignment"]
+  chancellery = report.get("landmark_scale", {}).get("bundeskanzleramt", {})
   path.parent.mkdir(parents=True, exist_ok=True)
   path.write_text(
     "\n".join(
@@ -208,6 +258,19 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         f"- Interior rings / courtyards: {buildings['interior_ring_count']}",
         f"- Median segment length: {buildings['median_segment_length_m']} m",
         f"- Measured LoD2 heights: {buildings['measured_height_count']} ({buildings['measured_height_share']:.1%})",
+        f"- Explicit CityGML BuildingParts: {buildings['building_part_count']}",
+        f"- Segmented parent ensembles: {buildings['segmented_ensemble_count']}",
+        f"- Latest source creation date: {buildings['latest_source_creation_date']}",
+        "",
+        "## Bundeskanzleramt scale check",
+        "",
+        f"- Official architecture reference: {chancellery.get('official_architecture_url', 'n/a')}",
+        f"- Rendered LoD2 parts: {chancellery.get('part_count', 'n/a')}",
+        f"- Measured part-height range: {chancellery.get('min_measured_height_m', 'n/a')}–{chancellery.get('max_measured_height_m', 'n/a')} m",
+        f"- Measured median part height: {chancellery.get('median_measured_height_m', 'n/a')} m",
+        "- Published nominal architecture: 18 m office rows; 36 m central cube.",
+        "- Rendering policy: preserve every LoD2 part and measured height; use",
+        "  published nominal dimensions as QA rather than flattening the ensemble.",
         "",
         "## Landmark placement QA",
         "",
@@ -220,7 +283,8 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "",
         "The viewer is metric in planimetric placement because it renders",
         "EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders",
-        "LoD2 interior rings as visible courtyards/cut-outs and uses denser",
+        "CityGML BuildingParts at their individual measured heights, LoD2",
+        "interior rings as visible courtyards/cut-outs, and uses denser",
         "facade bays, roof ribs, and roof equipment marks from footprint size,",
         "height, roof type, and landmark material cues.",
         "",
@@ -228,6 +292,15 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "the next major step should ingest the official Berlin 3D mesh/OBJ",
         "texture tiles or another fully licensed textured 3D source, then render",
         "from that mesh rather than stylising LoD2 footprints.",
+        "",
+        "## Tiergartentunnel precision claim",
+        "",
+        "The Tiergartentunnel route is drawn as a visible underground",
+        "engineering cutaway using derived OpenStreetMap tunnel carriageway",
+        "geometry, public portal coordinates, public route descriptions and",
+        "published cross-section facts. Its rendered centreline and depth are",
+        "still an approximation, not official surveyed as-built geometry. See",
+        "[`tiergartentunnel-geometry.md`](tiergartentunnel-geometry.md).",
         "",
       ]
     ),

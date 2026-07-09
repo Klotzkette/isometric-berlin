@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.60/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.61/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -19,13 +19,21 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.60 open-data package.
+**Status:** Local v0.1.61 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.60**. It is an open-data,
+The current public package is **v0.1.61**. It is an open-data,
 offline-capable viewer for the Berlin Regierungsviertel with:
 
+- refreshed official Berlin LoD2 data from March 2026: 3,315 measured
+  volumes, including 848 explicit CityGML building parts across 142 complex
+  ensembles, without the former 4 m minimum / 85 m maximum visual clamp;
+- a 31-part, individually measured Bundeskanzleramt ensemble instead of one
+  uniformly extruded block, cross-checked against the official published
+  18 m office-row / 36 m central-cube architecture description;
+- a cooler, clearer material palette with light concrete, blue-green glass,
+  brighter Spree/pond water and more varied Tiergarten vegetation;
 - a genuine 16384×11616 open-data source render with a complete
   15-level Deep Zoom pyramid and overlap-safe tile boundaries;
 - large zoom, rotate, swivel, mirror and orientation controls;

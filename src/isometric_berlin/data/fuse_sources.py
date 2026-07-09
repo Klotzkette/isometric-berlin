@@ -234,6 +234,9 @@ def build_features(bounds_path: Path, geo_dir: Path) -> list[dict[str, Any]]:
       "measured_height_m": json_value(building.get("measured_height_m")),
       "roof_type": json_value(building.get("roof_type")),
       "function": json_value(building.get("function")),
+      "parent_building_id": json_value(building.get("parent_building_id")),
+      "lod2_role": json_value(building.get("lod2_role")),
+      "source_creation_date": json_value(building.get("source_creation_date")),
     }
     features.append(
       {

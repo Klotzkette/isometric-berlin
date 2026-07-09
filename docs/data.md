@@ -246,3 +246,19 @@ The raw service capabilities and ATOM feeds are cached under
 `geo_data/regierungsviertel/raw/{alkis,dop,dgm}/` and gitignored.
 Large DOP/DGM ZIP archives are referenced in those manifests, but are
 not downloaded or committed by default.
+
+## LoD2 BuildingPart preservation
+
+The step-2 parser keeps complex CityGML buildings segmented. When a
+`bldg:Building` contains `bldg:BuildingPart` children, the committed
+`buildings.gpkg` stores the deepest parts as separate records with their own
+official footprint, roof type and `measuredHeight`; it does not also render a
+second, overlapping parent union. `parent_building_id`, `lod2_role`,
+`building_name` and `source_creation_date` retain the ensemble relationship
+and provenance.
+
+This matters for the Bundeskanzleramt, Paul-Löbe-Haus and
+Marie-Elisabeth-Lüders-Haus: their lower wings, central volumes and roof
+elements no longer receive one area-derived fallback height. OSM named
+building polygons associate the segmented LoD2 families with semantics, but
+Berlin LoD2 remains the geometry and height anchor.
