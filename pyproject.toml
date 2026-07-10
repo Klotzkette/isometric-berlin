@@ -1,6 +1,6 @@
 [project]
 name = "isometric-berlin"
-version = "0.1.62"
+version = "0.2.0"
 description = "Generate isometric views of Berlin's Regierungsviertel from open city data, with an optional AI style pipeline."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -35,6 +35,9 @@ dependencies = [
     "requests>=2.32.0",
     "tqdm>=4.67.0",
     "tabulate>=0.9.0",
+    "trimesh>=4.10.0",
+    "fast-simplification>=0.1.12",
+    "scipy>=1.15.0",
 ]
 
 [tool.ruff]

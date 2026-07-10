@@ -53,7 +53,7 @@ VALID_START_HERE_HTML = (
   "<style>viewport-fit=cover; 100dvh; @media (pointer: coarse) { button { min-height: 44px; } }</style>"
 )
 VALID_SERVE_LOCAL = (
-  'START_PAGE = "START-HERE.html"\n'
+  'START_PAGE = "index.html"\n'
   "def require_package_files(root):\n"
   "  return None\n"
   "print('open', flush=True)\n"
@@ -161,6 +161,31 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   bundled = root / "src" / "app" / "src" / "data"
   bundled.mkdir(parents=True)
   (bundled / "regierungsviertel-landmarks.json").write_bytes(b"shared")
+  public_mesh = root / "src/app/public/mesh/regierungsviertel"
+  public_mesh.mkdir(parents=True)
+  mesh_file = public_mesh / "tile.glb"
+  mesh_file.write_bytes(b"glb")
+  (public_mesh / "scene.json").write_text(
+    json.dumps(
+      {
+        "source": {
+          "attribution": ("3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH")
+        },
+        "base_tiles": [{"file": "tile.glb"} for _ in range(23)],
+        "hero_details": [
+          {"id": identifier, "files": [{"file": "tile.glb"}]}
+          for identifier in (
+            "reichstag",
+            "bundeskanzleramt",
+            "hauptbahnhof",
+            "brandenburger-tor",
+          )
+        ],
+        "tiergartentunnel": {"points": [[index, 0, index] for index in range(8)]},
+      }
+    ),
+    encoding="utf-8",
+  )
   return public_dzi
 
 
@@ -192,6 +217,8 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
+    "mesh/regierungsviertel/scene.json": b'{"base_tiles":[]}',
+    "mesh/regierungsviertel/tile-3894_58196.glb": b"glb",
   }
   for relative, body in overrides.items():
     if body is None:
@@ -207,6 +234,7 @@ def write_minimal_package_zip(
       "landmarks": "dzi/regierungsviertel/landmarks.json",
       "tiergartentunnel_overlay": "dzi/regierungsviertel/tiergartentunnel.json",
       "wikimedia_attribution": "dzi/regierungsviertel/wikimedia_attribution.json",
+      "webgl_scene": "mesh/regierungsviertel/scene.json",
       "start_page": "START-HERE.html",
     }
 
@@ -224,7 +252,8 @@ def write_minimal_package_zip(
         "uses_google_content": False,
         "required_attribution": (
           "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
-          "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia"
+          "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · "
+          "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
         ),
         "assets": {
           label: {"path": relative, **file_meta(relative)}
@@ -439,7 +468,7 @@ def test_zip_package_failures_rejects_stale_server(tmp_path: Path) -> None:
   )
 
   failures = release_readiness.zip_package_failures(tmp_path)
-  assert any("does not open/flush START-HERE.html" in failure for failure in failures)
+  assert any("does not open/flush the 3D viewer" in failure for failure in failures)
 
 
 def test_collect_failures_rejects_mismatched_bundled_landmarks(tmp_path: Path) -> None:
@@ -493,6 +522,6 @@ def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
   )
 
   assert (
-    f"Package server fallback does not open/flush START-HERE.html: {package_dir / 'serve-local.py'}"
+    f"Package server fallback does not open/flush the 3D viewer: {package_dir / 'serve-local.py'}"
     in release_readiness.collect_failures(tmp_path)
   )

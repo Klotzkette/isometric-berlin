@@ -1,0 +1,801 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-10T07:11:59.704800+00:00",
+  "source": {
+    "name": "Berlin 3D Mesh Model 2025",
+    "provider": "Berlin Partner für Wirtschaft und Technologie GmbH",
+    "portal_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/",
+    "index_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/mesh-index-2025.json",
+    "terms_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/resources/terms/terms.de.html",
+    "survey": "June 2025 aerial survey",
+    "attribution": "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH",
+    "license_summary": "Free use and modification, including commercial use, subject to provider attribution and portal terms."
+  },
+  "terms_accepted_for_run": true,
+  "bounds_path": "geo_data/regierungsviertel/bounds.geojson",
+  "tile_count": 23,
+  "tiles": [
+    {
+      "filename": "3887_58193_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3887_58193_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3657379239,
+              52.5126124086
+            ],
+            [
+              13.3656178671,
+              52.5158475523
+            ],
+            [
+              13.3603148941,
+              52.5157741846
+            ],
+            [
+              13.3604353401,
+              52.5125390494
+            ],
+            [
+              13.3657379239,
+              52.5126124086
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 47056730,
+      "sha256": "7575c7822b5769b93eecf24013811235be6c87051a46a89c8c4dbd5775171806"
+    },
+    {
+      "filename": "3887_58196_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3887_58196_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3656178671,
+              52.5158475523
+            ],
+            [
+              13.3654977874,
+              52.5190826941
+            ],
+            [
+              13.3601944252,
+              52.5190093178
+            ],
+            [
+              13.3603148941,
+              52.5157741846
+            ],
+            [
+              13.3656178671,
+              52.5158475523
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 40557540,
+      "sha256": "fcffb9910889bd97b76b8186166fc4bcb4d7d48daa867fd5f791085ee989aeef"
+    },
+    {
+      "filename": "3887_58200_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3887_58200_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3654977874,
+              52.5190826941
+            ],
+            [
+              13.3653776849,
+              52.5223178339
+            ],
+            [
+              13.3600739334,
+              52.5222444491
+            ],
+            [
+              13.3601944252,
+              52.5190093178
+            ],
+            [
+              13.3654977874,
+              52.5190826941
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 42726262,
+      "sha256": "e449a81573607028294bc078703fe062c992b9520d0f2691146131973ffb69e5"
+    },
+    {
+      "filename": "3887_58203_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3887_58203_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3653776849,
+              52.5223178339
+            ],
+            [
+              13.3652575595,
+              52.5255529717
+            ],
+            [
+              13.3599534187,
+              52.5254795784
+            ],
+            [
+              13.3600739334,
+              52.5222444491
+            ],
+            [
+              13.3653776849,
+              52.5223178339
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 48859844,
+      "sha256": "13d52eaaf4b16b450b0943476759bfaa8fa8ec01234612a58b6d63525928de45"
+    },
+    {
+      "filename": "3890_58189_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3890_58189_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3711601756,
+              52.5094503761
+            ],
+            [
+              13.3710405307,
+              52.5126855303
+            ],
+            [
+              13.3657379239,
+              52.5126124086
+            ],
+            [
+              13.365857958,
+              52.5093772629
+            ],
+            [
+              13.3711601756,
+              52.5094503761
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 43983186,
+      "sha256": "0bd118b12935630ab59c8c3efbf9b618aae8511065a5114c380a7c4dfaee320e"
+    },
+    {
+      "filename": "3890_58193_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3890_58193_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3710405307,
+              52.5126855303
+            ],
+            [
+              13.3709208629,
+              52.5159206825
+            ],
+            [
+              13.3656178671,
+              52.5158475523
+            ],
+            [
+              13.3657379239,
+              52.5126124086
+            ],
+            [
+              13.3710405307,
+              52.5126855303
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 46764423,
+      "sha256": "e9091934e91a4d104445b5b89702bb2a7030d6cc912a6237c3309eed140a0a61"
+    },
+    {
+      "filename": "3890_58196_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3890_58196_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3709208629,
+              52.5159206825
+            ],
+            [
+              13.3708011724,
+              52.5191558327
+            ],
+            [
+              13.3654977874,
+              52.5190826941
+            ],
+            [
+              13.3656178671,
+              52.5158475523
+            ],
+            [
+              13.3709208629,
+              52.5159206825
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 46397344,
+      "sha256": "a122972f14f4beb0f012fb085161f650795ac9abbe9af412cf6eb50ec1579976"
+    },
+    {
+      "filename": "3890_58200_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3890_58200_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3708011724,
+              52.5191558327
+            ],
+            [
+              13.3706814592,
+              52.522390981
+            ],
+            [
+              13.3653776849,
+              52.5223178339
+            ],
+            [
+              13.3654977874,
+              52.5190826941
+            ],
+            [
+              13.3708011724,
+              52.5191558327
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 37222759,
+      "sha256": "18598d3128b18909204127211b4bd95fa28ef60358ba1b578c8b5230e2367cba"
+    },
+    {
+      "filename": "3890_58203_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3890_58203_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3706814592,
+              52.522390981
+            ],
+            [
+              13.3705617231,
+              52.5256261273
+            ],
+            [
+              13.3652575595,
+              52.5255529717
+            ],
+            [
+              13.3653776849,
+              52.5223178339
+            ],
+            [
+              13.3706814592,
+              52.522390981
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 35639053,
+      "sha256": "f6492a73b0475289af511a57140cc493cbfd4e829b4b5493c680962e1563d5df"
+    },
+    {
+      "filename": "3890_58207_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3890_58207_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3705617231,
+              52.5256261273
+            ],
+            [
+              13.3704419643,
+              52.5288612717
+            ],
+            [
+              13.3651374112,
+              52.5287881075
+            ],
+            [
+              13.3652575595,
+              52.5255529717
+            ],
+            [
+              13.3705617231,
+              52.5256261273
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 37018366,
+      "sha256": "cb9e4c55e0f6e9e2150717ad12facc7ce274877061635233775f66b9ff04aced"
+    },
+    {
+      "filename": "3894_58182_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58182_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3767008599,
+              52.5030529205
+            ],
+            [
+              13.3765816493,
+              52.5062880871
+            ],
+            [
+              13.3712797979,
+              52.5062152199
+            ],
+            [
+              13.3713993974,
+              52.5029800618
+            ],
+            [
+              13.3767008599,
+              52.5030529205
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 44734617,
+      "sha256": "63d13f7a23735bb7f8aee3425d4e5ac2c0f6b621d63aad8bdcac84120608c2f1"
+    },
+    {
+      "filename": "3894_58185_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58185_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3765816493,
+              52.5062880871
+            ],
+            [
+              13.3764624161,
+              52.5095232518
+            ],
+            [
+              13.3711601756,
+              52.5094503761
+            ],
+            [
+              13.3712797979,
+              52.5062152199
+            ],
+            [
+              13.3765816493,
+              52.5062880871
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 41813794,
+      "sha256": "7a0e5cd094591a26575fbb3aac5281e58e8378ade5cba7893ea3ec88569666ac"
+    },
+    {
+      "filename": "3894_58189_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58189_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3764624161,
+              52.5095232518
+            ],
+            [
+              13.3763431601,
+              52.5127584144
+            ],
+            [
+              13.3710405307,
+              52.5126855303
+            ],
+            [
+              13.3711601756,
+              52.5094503761
+            ],
+            [
+              13.3764624161,
+              52.5095232518
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 51710351,
+      "sha256": "3ad2e6f0ba39e82a810caabeff13e1e1a057931221fcf71232df61edb2b3ee5d"
+    },
+    {
+      "filename": "3894_58193_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58193_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3763431601,
+              52.5127584144
+            ],
+            [
+              13.3762238815,
+              52.5159935751
+            ],
+            [
+              13.3709208629,
+              52.5159206825
+            ],
+            [
+              13.3710405307,
+              52.5126855303
+            ],
+            [
+              13.3763431601,
+              52.5127584144
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 41178605,
+      "sha256": "59d188c023cdfba84acbe700e273b01e0a21080f14004892ad1c8b5442df0fc4"
+    },
+    {
+      "filename": "3894_58196_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58196_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3762238815,
+              52.5159935751
+            ],
+            [
+              13.3761045802,
+              52.5192287339
+            ],
+            [
+              13.3708011724,
+              52.5191558327
+            ],
+            [
+              13.3709208629,
+              52.5159206825
+            ],
+            [
+              13.3762238815,
+              52.5159935751
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 38948450,
+      "sha256": "b0407f0a4ceab19ea71be1bf548d1f95c51a96eedb052ffc25c508c670363d0d"
+    },
+    {
+      "filename": "3894_58200_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58200_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3761045802,
+              52.5192287339
+            ],
+            [
+              13.3759852562,
+              52.5224638906
+            ],
+            [
+              13.3706814592,
+              52.522390981
+            ],
+            [
+              13.3708011724,
+              52.5191558327
+            ],
+            [
+              13.3761045802,
+              52.5192287339
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 30546879,
+      "sha256": "791925c04ad279fa5b925fc78c7ec9f362965d3567b8b6531b483fd3a0f80de6"
+    },
+    {
+      "filename": "3894_58203_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58203_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3759852562,
+              52.5224638906
+            ],
+            [
+              13.3758659096,
+              52.5256990454
+            ],
+            [
+              13.3705617231,
+              52.5256261273
+            ],
+            [
+              13.3706814592,
+              52.522390981
+            ],
+            [
+              13.3759852562,
+              52.5224638906
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 27473791,
+      "sha256": "2c7baddf85ff678a0ff9e24f96df838bfe66a828b4db93ca9a923434d80577c8"
+    },
+    {
+      "filename": "3894_58207_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3894_58207_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3758659096,
+              52.5256990454
+            ],
+            [
+              13.3757465402,
+              52.5289341982
+            ],
+            [
+              13.3704419643,
+              52.5288612717
+            ],
+            [
+              13.3705617231,
+              52.5256261273
+            ],
+            [
+              13.3758659096,
+              52.5256990454
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 34881282,
+      "sha256": "5d85a0e129cafd3a8b476600c6b438b1b5ec6c76103168f07101a76a176ff02b"
+    },
+    {
+      "filename": "3898_58185_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3898_58185_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3818835234,
+              52.5063607169
+            ],
+            [
+              13.3817646792,
+              52.50959589
+            ],
+            [
+              13.3764624161,
+              52.5095232518
+            ],
+            [
+              13.3765816493,
+              52.5062880871
+            ],
+            [
+              13.3818835234,
+              52.5063607169
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 44076206,
+      "sha256": "717dd4f779f783a34a975076e75cbf102804da7de871a6cb992c8682ab2de149"
+    },
+    {
+      "filename": "3898_58189_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3898_58189_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3817646792,
+              52.50959589
+            ],
+            [
+              13.3816458123,
+              52.5128310611
+            ],
+            [
+              13.3763431601,
+              52.5127584144
+            ],
+            [
+              13.3764624161,
+              52.5095232518
+            ],
+            [
+              13.3817646792,
+              52.50959589
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 41113188,
+      "sha256": "4e3bc7c42a158718131210a8f8286f8164a0a64c164e046d3f8a091e2ba20824"
+    },
+    {
+      "filename": "3898_58193_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3898_58193_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3816458123,
+              52.5128310611
+            ],
+            [
+              13.3815269228,
+              52.5160662302
+            ],
+            [
+              13.3762238815,
+              52.5159935751
+            ],
+            [
+              13.3763431601,
+              52.5127584144
+            ],
+            [
+              13.3816458123,
+              52.5128310611
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 44054782,
+      "sha256": "8eec0ccb51e1d633a8d8299fae24a0f7f6f0bdc121b6c2186feb73faf122d944"
+    },
+    {
+      "filename": "3898_58196_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3898_58196_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3815269228,
+              52.5160662302
+            ],
+            [
+              13.3814080107,
+              52.5193013974
+            ],
+            [
+              13.3761045802,
+              52.5192287339
+            ],
+            [
+              13.3762238815,
+              52.5159935751
+            ],
+            [
+              13.3815269228,
+              52.5160662302
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 41686307,
+      "sha256": "52bf0a13162cbe6af87956d418d400a57434024b4bde696b2078cf8260208da6"
+    },
+    {
+      "filename": "3898_58200_-002.zip",
+      "url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/datasource-data/berlin-mesh-2025/3898_58200_-002.zip",
+      "index_geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.3814080107,
+              52.5193013974
+            ],
+            [
+              13.381289076,
+              52.5225365626
+            ],
+            [
+              13.3759852562,
+              52.5224638906
+            ],
+            [
+              13.3761045802,
+              52.5192287339
+            ],
+            [
+              13.3814080107,
+              52.5193013974
+            ]
+          ]
+        ]
+      },
+      "downloaded": true,
+      "bytes": 36331305,
+      "sha256": "ac99ebb53385ef9d28f32d6c3cb02ddf593a6c2179f8e229dc0ab0ecc4795c2a"
+    }
+  ]
+}

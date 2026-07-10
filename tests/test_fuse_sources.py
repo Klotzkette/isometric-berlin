@@ -59,6 +59,7 @@ def test_all_sources_present_in_inventory_even_when_absent(tmp_path: Path) -> No
     "alkis",
     "dop",
     "dgm",
+    "berlinmesh",
     "google3d",
     "wikimedia",
   }
@@ -87,6 +88,17 @@ def test_wikimedia_reference_source_detected(tmp_path: Path) -> None:
   assert manifest["sources"]["wikimedia"]["available"] is True
   assert manifest["sources"]["wikimedia"]["path"].endswith("wikimedia_references.json")
   assert "Wikimedia Commons" in manifest["sources"]["wikimedia"]["license"]
+
+
+def test_official_berlin_mesh_source_detected(tmp_path: Path) -> None:
+  _write(tmp_path / "berlin_3d_mesh_sources.json", json.dumps({"tiles": []}))
+
+  manifest = fs.build_fused_manifest(tmp_path / "bounds.geojson", tmp_path, {})
+
+  source = manifest["sources"]["berlinmesh"]
+  assert source["available"] is True
+  assert source["path"].endswith("berlin_3d_mesh_sources.json")
+  assert "Berlin 3D" in source["license"]
 
 
 def test_official_support_sources_detect_derived_artifacts(tmp_path: Path) -> None:

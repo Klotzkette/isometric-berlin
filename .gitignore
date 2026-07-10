@@ -76,6 +76,10 @@ geo_data/**/google_3d_tiles/
 *.glb
 *.b3dm
 *.3dtiles
+# Exception: bounded, derived Berlin 3D Mesh web assets, each below 5 MiB.
+!src/app/public/mesh/
+!src/app/public/mesh/regierungsviertel/
+!src/app/public/mesh/regierungsviertel/*.glb
 generations/**/*.db
 generations/**/renders/
 generations/**/tiles/

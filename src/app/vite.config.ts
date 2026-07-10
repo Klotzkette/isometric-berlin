@@ -11,6 +11,7 @@ export default defineConfig({
         manualChunks: {
           "map-engine": ["openseadragon"],
           "react-vendor": ["react", "react-dom"],
+          "three-engine": ["three"],
         },
       },
     },

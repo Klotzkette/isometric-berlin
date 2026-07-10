@@ -1,4 +1,7 @@
 import {
+  ArrowDown,
+  ArrowUp,
+  Box as BoxIcon,
   Compass,
   FlipHorizontal2,
   FlipVertical2,
@@ -23,6 +26,7 @@ import {
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ThreeViewer, type ThreeViewerHandle } from "./ThreeViewer";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import {
   PEN_GESTURE_SETTINGS,
@@ -48,8 +52,12 @@ type LandmarkPayload = {
   landmarks: Landmark[];
 };
 
+type ViewerMode = "map" | "three";
+
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
+const MESH_ATTRIBUTION =
+  "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH";
 
 const ROLE_LABELS: Record<string, string> = {
   hero_tile: "Hauptmotiv",
@@ -94,6 +102,7 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
 };
 
 const NORTH_UP_ROTATION = 296.565051177078;
+const THREE_NORTH_AZIMUTH = 40;
 const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
 const PRIORITY_LANDMARKS = new Set([
   "Bundeskanzleramt",
@@ -158,6 +167,17 @@ function regierungsviertelTileSource(): string {
   return assetPath("dzi/regierungsviertel/regierungsviertel.dzi");
 }
 
+function initialViewerMode(): ViewerMode {
+  try {
+    const canvas = document.createElement("canvas");
+    return canvas.getContext("webgl2") || canvas.getContext("webgl")
+      ? "three"
+      : "map";
+  } catch {
+    return "map";
+  }
+}
+
 function roleLabel(role: string): string {
   return ROLE_LABELS[role] ?? role.replaceAll("_", " ");
 }
@@ -206,6 +226,14 @@ function sortLandmarksForTour(landmarks: Landmark[]): Landmark[] {
 
 function isRotationActive(left: number, right: number): boolean {
   return rotationDistance(left, right) < 0.01;
+}
+
+function threeAzimuthForMapRotation(degrees: number): number {
+  return THREE_NORTH_AZIMUTH + (degrees - NORTH_UP_ROTATION);
+}
+
+function mapRotationForThreeAzimuth(degrees: number): number {
+  return normalizeRotation(NORTH_UP_ROTATION + degrees - THREE_NORTH_AZIMUTH);
 }
 
 function rotationFromHashValue(value: string | null): number | null {
@@ -260,20 +288,24 @@ function viewUrlFor(
 
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
-  const initialFocusDoneRef = useRef(false);
+  const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
   const hashSyncFrameRef = useRef<number | null>(null);
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const markersRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>(DEFAULT_FOCUS_LANDMARK);
-  const [status, setStatus] = useState("Lade DZI");
-  const [isReady, setIsReady] = useState(false);
+  const [status, setStatus] = useState("Lade amtliches 3D-Mesh");
+  const [viewerMode, setViewerMode] = useState<ViewerMode>(initialViewerMode);
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [isThreeReady, setIsThreeReady] = useState(false);
+  const [isThreeUnderside, setIsThreeUnderside] = useState(false);
+  const [threePolarDegrees, setThreePolarDegrees] = useState(58);
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
@@ -284,6 +316,10 @@ export function App() {
   );
 
   const tileSource = useMemo(() => regierungsviertelTileSource(), []);
+  const sceneUrl = useMemo(
+    () => assetPath("mesh/regierungsviertel/scene.json"),
+    [],
+  );
   const referenceMapUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/reference_map.png"),
     [],
@@ -306,6 +342,7 @@ export function App() {
       ) ?? null,
     [rotation],
   );
+  const isReady = viewerMode === "three" ? isThreeReady : isMapReady;
   const canNavigateLandmarks = isReady && landmarks.length > 0;
   const selectionProgress =
     landmarks.length > 0 && selectedIndex >= 0
@@ -313,16 +350,20 @@ export function App() {
       : 0;
 
   const focusLandmark = useCallback((landmark: Landmark, immediate = false) => {
+    setSelected(landmark.name);
+    setStatus(`Fokus: ${landmarkShortLabel(landmark.name)}`);
+    if (viewerMode === "three") {
+      threeViewerRef.current?.focusLandmark(landmark.name, immediate);
+      return;
+    }
     const viewer = viewerRef.current;
     if (!viewer || !viewer.viewport) {
       return;
     }
     const point = viewer.viewport.imageToViewportCoordinates(landmark.x, landmark.y);
-    setSelected(landmark.name);
-    setStatus(`Fokus: ${landmarkShortLabel(landmark.name)}`);
     viewer.viewport.panTo(point, immediate);
     viewer.viewport.zoomTo(focusZoomForLandmark(landmark.name), point, immediate);
-  }, []);
+  }, [viewerMode]);
 
   const focusLandmarkByOffset = useCallback(
     (offset: number, immediate = false) => {
@@ -351,27 +392,52 @@ export function App() {
 
   const applyRotation = useCallback((degrees: number) => {
     const next = normalizeRotation(degrees);
+    if (viewerMode === "three") {
+      threeViewerRef.current?.setAzimuth(threeAzimuthForMapRotation(next));
+      setRotation(next);
+      return;
+    }
     viewerRef.current?.viewport.setRotation(next);
     setRotation(next);
-  }, []);
+  }, [viewerMode]);
 
   const rotateBy = useCallback((delta: number) => {
+    if (viewerMode === "three") {
+      threeViewerRef.current?.rotateBy(delta);
+      setRotation((current) => normalizeRotation(current + delta));
+      return;
+    }
     setRotation((current) => {
       const next = normalizeRotation(current + delta);
       viewerRef.current?.viewport.setRotation(next);
       return next;
     });
-  }, []);
+  }, [viewerMode]);
 
   const toggleHorizontalFlip = useCallback(() => {
+    if (viewerMode === "three") {
+      threeViewerRef.current?.rotateBy(180);
+      setRotation((current) => normalizeRotation(current + 180));
+      setStatus("3D-Gegenansicht");
+      return;
+    }
     setIsFlipped((current) => {
       const next = !current;
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, []);
+  }, [viewerMode]);
 
   const flipVertical = useCallback(() => {
+    if (viewerMode === "three") {
+      setIsThreeUnderside((current) => {
+        const next = !current;
+        threeViewerRef.current?.setUnderside(next);
+        setStatus(next ? "Echte Untersicht · Tunnel sichtbar" : "3D-Oberansicht");
+        return next;
+      });
+      return;
+    }
     setRotation((current) => {
       const nextRotation = normalizeRotation(current + 180);
       viewerRef.current?.viewport.setRotation(nextRotation);
@@ -382,14 +448,22 @@ export function App() {
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, []);
+  }, [viewerMode]);
 
   const resetOrientation = useCallback(() => {
+    if (viewerMode === "three") {
+      threeViewerRef.current?.reset();
+      setRotation(NORTH_UP_ROTATION);
+      setIsThreeUnderside(false);
+      setThreePolarDegrees(58);
+      setStatus("3D-Gesamtansicht");
+      return;
+    }
     viewerRef.current?.viewport.setRotation(NORTH_UP_ROTATION);
     viewerRef.current?.viewport.setFlip(false);
     setRotation(NORTH_UP_ROTATION);
     setIsFlipped(false);
-  }, []);
+  }, [viewerMode]);
 
   const panByViewport = useCallback((dx: number, dy: number) => {
     const viewport = viewerRef.current?.viewport;
@@ -399,6 +473,31 @@ export function App() {
     const bounds = viewport.getBounds();
     viewport.panBy(new OpenSeadragon.Point(bounds.width * dx, bounds.height * dy));
     viewport.applyConstraints();
+  }, []);
+
+  const zoomBy = useCallback(
+    (factor: number) => {
+      if (viewerMode === "three") {
+        threeViewerRef.current?.zoomBy(factor);
+        return;
+      }
+      viewerRef.current?.viewport.zoomBy(factor);
+    },
+    [viewerMode],
+  );
+
+  const goHome = useCallback(() => {
+    if (viewerMode === "three") {
+      threeViewerRef.current?.reset();
+      setRotation(NORTH_UP_ROTATION);
+      setIsThreeUnderside(false);
+      return;
+    }
+    viewerRef.current?.viewport.goHome();
+  }, [viewerMode]);
+
+  const tiltBy = useCallback((degrees: number) => {
+    threeViewerRef.current?.tiltBy(degrees);
   }, []);
 
   const copyViewLink = useCallback(async () => {
@@ -496,12 +595,12 @@ export function App() {
       }
       if (event.key === "Home" || event.key === "0") {
         event.preventDefault();
-        viewerRef.current?.viewport.goHome();
+        goHome();
         setStatus("Gesamtansicht");
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         setIsTouring(false);
-        if (event.shiftKey) {
+        if (viewerMode === "three" || event.shiftKey) {
           rotateBy(8);
           setStatus("Drehung: rechts");
         } else {
@@ -511,7 +610,7 @@ export function App() {
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         setIsTouring(false);
-        if (event.shiftKey) {
+        if (viewerMode === "three" || event.shiftKey) {
           rotateBy(-8);
           setStatus("Drehung: links");
         } else {
@@ -521,8 +620,11 @@ export function App() {
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         setIsTouring(false);
-        if (event.shiftKey) {
-          viewerRef.current?.viewport.zoomBy(1.16);
+        if (viewerMode === "three") {
+          tiltBy(-6);
+          setStatus("3D-Neigung: höher");
+        } else if (event.shiftKey) {
+          zoomBy(1.16);
           setStatus("Swivel/Zoom: näher");
         } else {
           panByViewport(0, -0.12);
@@ -531,8 +633,11 @@ export function App() {
       } else if (event.key === "ArrowDown") {
         event.preventDefault();
         setIsTouring(false);
-        if (event.shiftKey) {
-          viewerRef.current?.viewport.zoomBy(0.86);
+        if (viewerMode === "three") {
+          tiltBy(6);
+          setStatus("3D-Neigung: tiefer");
+        } else if (event.shiftKey) {
+          zoomBy(0.86);
           setStatus("Swivel/Zoom: weiter");
         } else {
           panByViewport(0, 0.12);
@@ -553,9 +658,9 @@ export function App() {
         event.preventDefault();
         void copyViewLink();
       } else if (event.key === "+" || event.key === "=") {
-        viewerRef.current?.viewport.zoomBy(1.24);
+        zoomBy(1.24);
       } else if (event.key === "-") {
-        viewerRef.current?.viewport.zoomBy(0.81);
+        zoomBy(0.81);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -564,12 +669,16 @@ export function App() {
     closeReferenceMap,
     copyViewLink,
     focusLandmarkByOffset,
+    goHome,
     isHelpOpen,
     isReady,
     isReferenceOpen,
     panByViewport,
     rotateBy,
+    tiltBy,
     toggleTour,
+    viewerMode,
+    zoomBy,
   ]);
 
   useEffect(() => {
@@ -599,10 +708,11 @@ export function App() {
   }, [focusLandmarkByOffset, isReady, isTouring, landmarks.length]);
 
   useEffect(() => {
-    if (!containerRef.current || viewerRef.current) {
+    if (viewerMode !== "map" || !containerRef.current || viewerRef.current) {
       return;
     }
 
+    setIsMapReady(false);
     installOpenSeadragonConsoleFilter();
     const viewer = OpenSeadragon({
       id: "openseadragon-viewer",
@@ -639,10 +749,11 @@ export function App() {
       viewer.viewport.setFlip(flipRef.current);
       viewer.viewport.goHome(true);
       viewer.viewport.zoomBy(0.76, undefined, true);
-      setIsReady(true);
+      setIsMapReady(true);
       setStatus("Bereit");
     });
     viewer.addHandler("open-failed", () => {
+      setIsMapReady(false);
       setStatus("DZI nicht gefunden");
     });
     viewer.addHandler("rotate", (event) => {
@@ -701,76 +812,88 @@ export function App() {
       }
       viewer.destroy();
       viewerRef.current = null;
+      setIsMapReady(false);
     };
-  }, [tileSource]);
+  }, [tileSource, viewerMode]);
 
-  // Build the markers once per landmark set; rebuilding on every selection
-  // would leak the per-button click listeners (clearOverlays only detaches
-  // OSD's wrappers). Selection highlighting is handled separately below.
+  // Keep the cartography clean: only the actively selected landmark receives
+  // an overlay. Navigation belongs to the landmark rail, not 39 map dots.
   useEffect(() => {
     const viewer = viewerRef.current;
-    if (!viewer || !isReady || landmarks.length === 0) {
+    if (
+      viewerMode !== "map" ||
+      !viewer ||
+      !isMapReady ||
+      !selectedLandmark
+    ) {
       return;
     }
     viewer.clearOverlays();
-    const markers = new Map<string, HTMLButtonElement>();
-    const detach: Array<() => void> = [];
-    for (const landmark of landmarks) {
-      const marker = document.createElement("button");
-      marker.className =
-        landmark.name === selectedRef.current
-          ? "map-marker map-marker--selected"
-          : "map-marker";
-      marker.type = "button";
-      marker.title = landmark.name;
-      marker.dataset.label = landmarkShortLabel(landmark.name);
-      marker.dataset.role = landmark.role;
-      marker.dataset.priority = isPriorityLandmark(landmark.name) ? "true" : "false";
-      marker.setAttribute("aria-label", landmark.name);
-      const onClick = () => {
-        setIsTouring(false);
-        focusLandmark(landmark);
-      };
-      marker.addEventListener("click", onClick);
-      detach.push(() => marker.removeEventListener("click", onClick));
-      markers.set(landmark.name, marker);
-      viewer.addOverlay({
-        element: marker,
-        location: viewer.viewport.imageToViewportCoordinates(landmark.x, landmark.y),
-        placement: OpenSeadragon.Placement.CENTER,
-        rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION,
-        checkResize: false,
-      });
-    }
-    markersRef.current = markers;
+    const marker = document.createElement("div");
+    marker.className = "map-marker map-marker--selected";
+    marker.dataset.label = landmarkShortLabel(selectedLandmark.name);
+    marker.setAttribute("aria-hidden", "true");
+    viewer.addOverlay({
+      element: marker,
+      location: viewer.viewport.imageToViewportCoordinates(
+        selectedLandmark.x,
+        selectedLandmark.y,
+      ),
+      placement: OpenSeadragon.Placement.CENTER,
+      rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION,
+      checkResize: false,
+    });
     return () => {
-      for (const cleanup of detach) {
-        cleanup();
-      }
-      markersRef.current = new Map();
       viewerRef.current?.clearOverlays();
     };
-  }, [focusLandmark, isReady, landmarks]);
-
-  // Toggle the selected marker class without rebuilding overlays.
-  useEffect(() => {
-    for (const [name, marker] of markersRef.current) {
-      marker.classList.toggle("map-marker--selected", name === selected);
-    }
-  }, [selected]);
+  }, [isMapReady, selectedLandmark, viewerMode]);
 
   useEffect(() => {
-    if (!isReady || landmarks.length === 0 || initialFocusDoneRef.current) {
+    if (
+      !isReady ||
+      landmarks.length === 0 ||
+      initialFocusModeRef.current === viewerMode
+    ) {
       return;
     }
-    initialFocusDoneRef.current = true;
+    initialFocusModeRef.current = viewerMode;
     focusLandmark(selectedLandmark ?? landmarks[0], true);
-  }, [focusLandmark, isReady, landmarks, selectedLandmark]);
+  }, [focusLandmark, isReady, landmarks, selectedLandmark, viewerMode]);
 
   return (
     <main className={isTouring ? "app-shell app-shell--touring" : "app-shell"}>
-      <section className="map-stage" aria-label="Isometrische Berlin-Karte">
-        <div id="openseadragon-viewer" ref={containerRef} className="viewer" />
+      <section
+        className="map-stage"
+        data-viewer-mode={viewerMode}
+        aria-label="Isometrische Berlin-Karte"
+      >
+        <div
+          id="openseadragon-viewer"
+          ref={containerRef}
+          className={viewerMode === "map" ? "viewer is-active" : "viewer"}
+        />
+        {viewerMode === "three" || isThreeReady ? (
+          <ThreeViewer
+            ref={threeViewerRef}
+            active={viewerMode === "three"}
+            sceneUrl={sceneUrl}
+            selectedLandmark={selected}
+            onReady={() => {
+              setIsThreeReady(true);
+              setStatus("Amtliches 3D-Mesh bereit");
+            }}
+            onError={(message) => {
+              setIsThreeReady(false);
+              setStatus(`3D nicht verfügbar: ${message}`);
+              setViewerMode("map");
+            }}
+            onViewChange={({ azimuthDegrees, polarDegrees, underside }) => {
+              setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
+              setThreePolarDegrees(polarDegrees);
+              setIsThreeUnderside(underside);
+            }}
+          />
+        ) : null}
       </section>
 
       <header className="topbar">
@@ -787,9 +910,34 @@ export function App() {
             aria-label="Gesamtansicht"
             disabled={!isReady}
             title="Gesamtansicht"
-            onClick={() => viewerRef.current?.viewport.goHome()}
+            onClick={goHome}
           >
             <Home size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label={
+              viewerMode === "three"
+                ? "Zur hochauflösenden Kartenansicht wechseln"
+                : "Zur freien amtlichen 3D-Ansicht wechseln"
+            }
+            aria-pressed={viewerMode === "three"}
+            title={viewerMode === "three" ? "2D-Detailkarte" : "Echte 3D-Ansicht"}
+            onClick={() => {
+              const next = viewerMode === "three" ? "map" : "three";
+              setViewerMode(next);
+              setStatus(
+                next === "three"
+                  ? "Lade amtliches 3D-Mesh"
+                  : "Lade hochauflösende Detailkarte",
+              );
+            }}
+          >
+            {viewerMode === "three" ? (
+              <MapIcon size={18} aria-hidden="true" />
+            ) : (
+              <BoxIcon size={18} aria-hidden="true" />
+            )}
           </button>
           <button
             type="button"
@@ -805,7 +953,7 @@ export function App() {
             aria-label="Vergrößern"
             disabled={!isReady}
             title="Vergrößern"
-            onClick={() => viewerRef.current?.viewport.zoomBy(1.35)}
+            onClick={() => zoomBy(1.35)}
           >
             <Plus size={18} aria-hidden="true" />
           </button>
@@ -814,7 +962,7 @@ export function App() {
             aria-label="Verkleinern"
             disabled={!isReady}
             title="Verkleinern"
-            onClick={() => viewerRef.current?.viewport.zoomBy(0.74)}
+            onClick={() => zoomBy(0.74)}
           >
             <Minus size={18} aria-hidden="true" />
           </button>
@@ -879,11 +1027,19 @@ export function App() {
 
       <aside className="orientation-pill" aria-label="Kartenorientierung">
         <Compass aria-hidden="true" size={16} />
-        <span>{orientation?.short ?? `${Math.round(rotation)}°`}</span>
+        <span>
+          {viewerMode === "three"
+            ? `${Math.round(threePolarDegrees)}°`
+            : (orientation?.short ?? `${Math.round(rotation)}°`)}
+        </span>
         <small>
-          {isFlipped
-            ? `${orientation?.label ?? "frei gedreht"} · gespiegelt`
-            : (orientation?.label ?? "frei gedreht")}
+          {viewerMode === "three"
+            ? `${orientation?.label ?? "frei gedreht"} · ${
+                isThreeUnderside ? "Untersicht" : "3D"
+              }`
+            : isFlipped
+              ? `${orientation?.label ?? "frei gedreht"} · gespiegelt`
+              : (orientation?.label ?? "frei gedreht")}
         </small>
       </aside>
 
@@ -904,6 +1060,28 @@ export function App() {
           ))}
         </div>
         <div className="control-row" role="group" aria-label="Ansicht umklappen">
+          {viewerMode === "three" ? (
+            <>
+              <button
+                type="button"
+                aria-label="Kamera höher neigen"
+                disabled={!isReady}
+                title="Kamera höher neigen (Pfeil hoch)"
+                onClick={() => tiltBy(-10)}
+              >
+                <ArrowUp size={17} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                aria-label="Kamera tiefer bis zur Untersicht neigen"
+                disabled={!isReady}
+                title="Kamera tiefer neigen (Pfeil runter)"
+                onClick={() => tiltBy(10)}
+              >
+                <ArrowDown size={17} aria-hidden="true" />
+              </button>
+            </>
+          ) : null}
           <button
             type="button"
             aria-label="Nach links drehen"
@@ -924,19 +1102,30 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label="Horizontal spiegeln"
-            aria-pressed={isFlipped}
+            aria-label={
+              viewerMode === "three" ? "3D-Gegenansicht" : "Horizontal spiegeln"
+            }
+            aria-pressed={viewerMode === "map" && isFlipped}
             disabled={!isReady}
-            title="Horizontal spiegeln"
+            title={viewerMode === "three" ? "3D-Gegenansicht" : "Horizontal spiegeln"}
             onClick={toggleHorizontalFlip}
           >
             <FlipHorizontal2 size={17} aria-hidden="true" />
           </button>
           <button
             type="button"
-            aria-label="Vertikal klappen"
+            aria-label={
+              viewerMode === "three"
+                ? "Echte Untersicht mit Tiergartentunnel"
+                : "Vertikal klappen"
+            }
+            aria-pressed={viewerMode === "three" && isThreeUnderside}
             disabled={!isReady}
-            title="Vertikal klappen"
+            title={
+              viewerMode === "three"
+                ? "Untersicht und Tiergartentunnel"
+                : "Vertikal klappen"
+            }
             onClick={flipVertical}
           >
             <FlipVertical2 size={17} aria-hidden="true" />
@@ -1099,19 +1288,31 @@ export function App() {
                   <kbd>←</kbd> <kbd>→</kbd>
                   <kbd>↑</kbd> <kbd>↓</kbd>
                 </dt>
-                <dd>Karte in Meterlage verschieben</dd>
+                <dd>
+                  {viewerMode === "three"
+                    ? "3D-Kamera drehen und bis zur Untersicht neigen"
+                    : "Karte in Meterlage verschieben"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
                 </dt>
-                <dd>Ansicht links / rechts drehen</dd>
+                <dd>
+                  {viewerMode === "three"
+                    ? "3D-Kamera links / rechts drehen"
+                    : "Ansicht links / rechts drehen"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd>
                 </dt>
-                <dd>Swivel/Zoom näher oder weiter</dd>
+                <dd>
+                  {viewerMode === "three"
+                    ? "Zusätzliche Kameraneigung"
+                    : "Swivel/Zoom näher oder weiter"}
+                </dd>
               </div>
               <div>
                 <dt>
@@ -1157,17 +1358,19 @@ export function App() {
               </div>
             </dl>
             <p className="help-hint">
-              Maus: ziehen zum Verschieben, Shift + ziehen zum freien Drehen,
-              scrollen zum Zoomen. Touch: ein Finger verschiebt; zwei Finger
-              zoomen, verschieben und drehen gleichzeitig. Die Werkzeugleisten
-              links steuern Drehung, Spiegelung und die Top-down-Referenzkarte.
+              {viewerMode === "three"
+                ? "3D: Mit gedrückter linker Maustaste frei drehen, mit dem Mausrad zoomen und mit der rechten Taste verschieben. Ein Finger dreht; zwei Finger zoomen und drehen; drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                : "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger zoomen, verschieben und drehen gleichzeitig."}
             </p>
           </div>
         </div>
       ) : null}
 
       <footer className="attribution">
-        <span>{ATTRIBUTION}</span>
+        <span>
+          {ATTRIBUTION}
+          {viewerMode === "three" ? ` · ${MESH_ATTRIBUTION}` : ""}
+        </span>
         <span>{status}</span>
       </footer>
     </main>

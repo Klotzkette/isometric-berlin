@@ -15,6 +15,7 @@ for another. If sources disagree, the conflict is recorded; it is
 | `alkis` | ALKIS parcels (Geoportal Berlin) | Official alignment, parcel context | dl-de/zero-2-0 |
 | `dop` | DOP digital orthophotos (Geoportal Berlin) | Orthophoto QA, texture reference | dl-de/zero-2-0 |
 | `dgm` | DGM digital terrain model (Geoportal Berlin) | Terrain where useful (Spree bank, station forecourt) | dl-de/zero-2-0 |
+| `berlinmesh` | [Berlin 3D Mesh Model 2025](https://www.businesslocationcenter.de/berlin3d-downloadportal/) | Official photogrammetric surface geometry and aerial textures for the true 3D viewer | Berlin 3D Downloadportal terms; Berlin Partner attribution required |
 | `google3d` | Google Maps Platform Photorealistic 3D Tiles | **Opt-in.** Photorealistic geometry, texture, alignment, visual reference | Google Maps Platform Terms |
 | `wikimedia` | Wikimedia Commons / Wikipedia media | Freely licensed landmark facade, roof, glass, stone, vegetation and colour references for visual QA / material cues | Per file: CC0, public domain, CC BY, CC BY-SA, etc.; see manifest |
 
@@ -44,6 +45,21 @@ Strict hygiene rules:
 - Any artefact that uses or derives from Google content must show the
   appropriate Google attribution per their terms, in addition to the
   OSM/Geoportal Berlin attribution.
+
+## Berlin 3D Mesh terms and derived assets
+
+The official Berlin mesh requires explicit acceptance of the portal terms,
+but no API key or payment. Run either with
+`BERLIN_3D_MESH_TERMS_ACCEPTED=true` or the explicit `--accept-terms` CLI
+flag. Raw OBJ/MTL/JPEG ZIP archives stay under
+`geo_data/regierungsviertel/raw/berlin_3d_mesh_2025/` and are gitignored.
+
+Only bounded, derived GLBs are committed under
+`src/app/public/mesh/regierungsviertel/`. Each GLB is below 5 MiB. Full-area
+tiles merge every source material segment, sample its aerial texture to
+vertex colours and simplify geometry for progressive mobile loading. Hero
+footprints retain higher-density textured geometry. LoD2 remains the metric
+building anchor; the mesh is additive visual/surface evidence.
 
 ## Wikimedia visual-reference rules
 
@@ -80,6 +96,7 @@ writes `geo_data/regierungsviertel/fused_sources.json` with this shape:
     "alkis":   { "available": false, "reason": "not_downloaded" },
     "dop":     { "available": false, "reason": "not_downloaded" },
     "dgm":     { "available": false, "reason": "not_downloaded" },
+    "berlinmesh": { "available": true, "path": "geo_data/regierungsviertel/berlin_3d_mesh_sources.json", "license": "Berlin 3D Downloadportal terms; provider attribution required" },
     "google3d":{ "available": false, "reason": "opt_in_env_missing" },
     "wikimedia": { "available": true, "path": "geo_data/regierungsviertel/wikimedia_references.json", "license": "Various Wikimedia Commons free licenses; see manifest per image" }
   },
@@ -111,13 +128,13 @@ hero/manual:
 | Attribute | Primary | Secondary | Tertiary |
 |---|---|---|---|
 | Building footprint | `lod2` | `alkis` | `google3d` |
-| Building height / roof | `lod2` | `google3d` | `osm` (`building:levels`) |
+| Building height / roof | `lod2` | `berlinmesh` | `google3d`, `osm` (`building:levels`) |
 | Building name / function | `osm` | `alkis` | — |
 | Streets, paths, rails | `osm` | `alkis` | — |
 | Water (Spree) | `osm` | `alkis` | `dop` |
 | Parks (Tiergarten) | `osm` | `dop` | — |
-| Terrain | `dgm` | `lod2` (ground vertices) | — |
-| Texture / colour reference | `dop` | `wikimedia` | `google3d` |
+| Terrain | `dgm` | `berlinmesh` | `lod2` (ground vertices) |
+| Texture / colour reference | `berlinmesh` | `dop` | `wikimedia`, `google3d` |
 
 Rationale: official Berlin data is the anchor for geometry; OSM is the
 anchor for semantics; Google is additive — it earns weight where it
@@ -145,6 +162,7 @@ geo_data/regierungsviertel/raw/
 ├── alkis/             # ALKIS exports
 ├── dop/               # DOP orthophoto tiles
 ├── dgm/               # DGM terrain grids
+├── berlin_3d_mesh_2025/ # Official OBJ/texture ZIPs after terms acceptance
 └── google_3d_tiles/   # Google manifest + (opt-in) downloaded tile content
 ```
 
@@ -178,6 +196,11 @@ uv run python -m isometric_berlin.data.fetch_google_tiles \
   --bounds geo_data/regierungsviertel/bounds.geojson \
   --out geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json
 # add --download-content only when explicitly approved for the run
+
+# 4a: official Berlin 3D Mesh 2025 (free; portal terms required)
+uv run python -m isometric_berlin.data.fetch_berlin_mesh \
+  --accept-terms --download-content
+uv run python -m isometric_berlin.generation.prepare_webgl_mesh
 
 # Wikimedia visual references (additive, free-license filtered)
 uv run python -m isometric_berlin.data.fetch_wikimedia \

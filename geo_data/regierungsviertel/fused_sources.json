@@ -1,6 +1,6 @@
 {
   "bounds_ref": "geo_data/regierungsviertel/bounds.geojson",
-  "generated_at": "2026-07-09T23:05:30.383534+00:00",
+  "generated_at": "2026-07-10T07:25:57.361941+00:00",
   "fusion": "additive",
   "sources": {
     "lod2": {
@@ -27,6 +27,11 @@
       "available": true,
       "path": "geo_data/regierungsviertel/dgm_preview.png",
       "license": "dl-de/zero-2-0"
+    },
+    "berlinmesh": {
+      "available": true,
+      "path": "geo_data/regierungsviertel/berlin_3d_mesh_sources.json",
+      "license": "Berlin 3D Downloadportal terms; provider attribution required"
     },
     "google3d": {
       "available": false,

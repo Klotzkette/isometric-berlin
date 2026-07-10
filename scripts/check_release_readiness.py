@@ -51,10 +51,18 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
   "dzi/regierungsviertel/tiergartentunnel.json",
+  "mesh/regierungsviertel/scene.json",
+  "mesh/regierungsviertel/tile-3894_58196.glb",
 )
 REQUIRED_ATTRIBUTION = (
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
 )
+REQUIRED_HERO_MESHES = {
+  "reichstag",
+  "bundeskanzleramt",
+  "hauptbahnhof",
+  "brandenburger-tor",
+}
 
 
 class DziInfo(NamedTuple):
@@ -116,6 +124,96 @@ def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
         f"Bundled viewer asset exceeds 5 MiB repository limit: {path} "
         f"({path.stat().st_size} bytes)"
       )
+  return failures
+
+
+def webgl_scene_failures(public_mesh: Path) -> list[str]:
+  """Validate the bounded official-mesh scene and every referenced GLB."""
+  scene_path = public_mesh / "scene.json"
+  if not scene_path.exists():
+    return [f"Missing bundled WebGL scene: {scene_path}"]
+  try:
+    scene = json.loads(scene_path.read_text(encoding="utf-8"))
+  except json.JSONDecodeError as exc:
+    return [f"Invalid WebGL scene manifest: {scene_path}: {exc}"]
+
+  failures: list[str] = []
+  base_tiles = scene.get("base_tiles")
+  if not isinstance(base_tiles, list) or len(base_tiles) < 23:
+    failures.append(f"WebGL scene needs all 23 bounded Berlin mesh tiles: {scene_path}")
+    base_tiles = []
+  hero_details = scene.get("hero_details")
+  if not isinstance(hero_details, list):
+    failures.append(f"WebGL scene lacks hero details: {scene_path}")
+    hero_details = []
+  hero_ids = {
+    str(hero.get("id"))
+    for hero in hero_details
+    if isinstance(hero, dict) and hero.get("files")
+  }
+  if not REQUIRED_HERO_MESHES.issubset(hero_ids):
+    failures.append(
+      f"WebGL scene lacks required hero mesh groups: {scene_path} "
+      f"({sorted(REQUIRED_HERO_MESHES - hero_ids)})"
+    )
+  tunnel = scene.get("tiergartentunnel")
+  if not isinstance(tunnel, dict) or len(tunnel.get("points", [])) < 8:
+    failures.append(f"WebGL scene lacks 3D Tiergartentunnel route: {scene_path}")
+
+  files = list(base_tiles)
+  files.extend(
+    file
+    for hero in hero_details
+    if isinstance(hero, dict)
+    for file in hero.get("files", [])
+  )
+  total_bytes = 0
+  for entry in files:
+    if not isinstance(entry, dict) or not entry.get("file"):
+      failures.append(f"Invalid WebGL asset entry: {scene_path}")
+      continue
+    path = public_mesh / str(entry["file"])
+    if not path.exists():
+      failures.append(f"Missing referenced WebGL asset: {path}")
+      continue
+    size = path.stat().st_size
+    total_bytes += size
+    if size > MAX_REPOSITORY_BINARY_BYTES:
+      failures.append(f"WebGL asset exceeds 5 MiB repository limit: {path}")
+  if total_bytes > 150 * 1024 * 1024:
+    failures.append(f"WebGL scene exceeds 150 MiB mobile budget: {total_bytes} bytes")
+  attribution = str(scene.get("source", {}).get("attribution", ""))
+  if "Berlin Partner für Wirtschaft und Technologie GmbH" not in attribution:
+    failures.append(f"WebGL scene lacks Berlin Partner attribution: {scene_path}")
+  return failures
+
+
+def webgl_viewer_source_failures(root: Path) -> list[str]:
+  """Keep the true-3D, selected-only and touch interaction contracts intact."""
+  viewer_path = root / "src/app/src/ThreeViewer.tsx"
+  app_path = root / "src/app/src/App.tsx"
+  if not viewer_path.exists() or not app_path.exists():
+    return ["Missing true-3D viewer sources"]
+  viewer = viewer_path.read_text(encoding="utf-8")
+  app = app_path.read_text(encoding="utf-8")
+  required_viewer_snippets = {
+    "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
+    "three-finger gesture": "touchPoints.size >= 3",
+    "three-finger underside": "setModelMaterialState(runtime, polar > Math.PI / 2)",
+    "full underside orbit": "controls.maxPolarAngle = Math.PI - 0.06",
+    "late-loaded underside materials": (
+      "material.side = runtime.underside ? DoubleSide : FrontSide"
+    ),
+    "oblique texture filtering": "material.map.anisotropy",
+    "hidden default marker": "marker.visible = false",
+  }
+  failures = [
+    f"True-3D viewer lacks {label}: {viewer_path}"
+    for label, snippet in required_viewer_snippets.items()
+    if snippet not in viewer
+  ]
+  if 'marker.className = "map-marker map-marker--selected"' not in app:
+    failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   return failures
 
 
@@ -297,11 +395,11 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
 
 def package_server_failures(serve_text: str, label: str) -> list[str]:
   if (
-    'START_PAGE = "START-HERE.html"' not in serve_text
+    'START_PAGE = "index.html"' not in serve_text
     or "require_package_files(root)" not in serve_text
     or "flush=True" not in serve_text
   ):
-    return [f"Package server fallback does not open/flush START-HERE.html: {label}"]
+    return [f"Package server fallback does not open/flush the 3D viewer: {label}"]
   return []
 
 
@@ -330,6 +428,7 @@ def package_manifest_failures(
   if (
     REQUIRED_ATTRIBUTION not in attribution
     or "Wikimedia Commons/Wikipedia" not in attribution
+    or "Berlin Partner für Wirtschaft und Technologie GmbH" not in attribution
   ):
     failures.append(f"Package manifest lacks required attribution: {label}")
 
@@ -345,6 +444,7 @@ def package_manifest_failures(
     "landmarks",
     "tiergartentunnel_overlay",
     "wikimedia_attribution",
+    "webgl_scene",
     "start_page",
   ]:
     entry = assets.get(required)
@@ -620,6 +720,9 @@ def collect_failures(
       failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
   failures.extend(viewer_binary_size_failures(public_dzi))
   failures.extend(dzi_tile_failures(public_dzi))
+  public_mesh = root / "src" / "app" / "public" / "mesh" / "regierungsviertel"
+  failures.extend(webgl_scene_failures(public_mesh))
+  failures.extend(webgl_viewer_source_failures(root))
   tunnel_payload = public_dzi / "tiergartentunnel.json"
   if tunnel_payload.exists():
     try:

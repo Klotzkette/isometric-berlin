@@ -58,12 +58,34 @@ ways remain provenance evidence and are not duplicated as visible tunnel
 bodies. The cutaway is clipped to the current scene and remains explicitly
 schematic in depth.
 
-## Step 10: DZI export
+## Step 8a: official photogrammetric WebGL mesh
+
+The true 3D viewer uses the free Berlin 3D Mesh Model 2025 from the June 2025
+aerial survey. The fetcher intersects the official index with the committed
+bounds and selects 23 source tiles. Raw OBJ/MTL/JPEG ZIPs remain gitignored.
+
+```bash
+uv run python -m isometric_berlin.data.fetch_berlin_mesh \
+  --accept-terms --download-content
+uv run python -m isometric_berlin.generation.prepare_webgl_mesh
+```
+
+The converter includes every OBJ material segment. For the full scene it
+samples source textures into enhanced-but-bounded vertex colours, merges
+duplicate OBJ vertices and simplifies each tile to a 70,000-face mobile base
+mesh. Reichstag, Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive
+separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
+real dome geometry while excluding surrounding tree noise. Every output GLB
+stays below 5 MiB; the scene manifest records face counts, source bounds, byte
+sizes and SHA-256 hashes.
+
+## Step 10: DZI export and dual viewer
 
 `export_dzi` writes 256-pixel JPEG tiles with quality 85 and a real one-pixel
 overlap on every internal tile edge. The current descriptor has levels 0–14
-and 3,945 tiles. A clean `bun run build` is approximately 41 MB (decimal),
-below the preferred 50 MB static-hosting target.
+and 3,945 tiles. A clean `bun run build` now contains both the DZI and
+progressive WebGL assets and remains below the hard 200 MB static-hosting
+ceiling. The browser loads hero crops only when their landmark is selected.
 
 Do not commit PNG quadrant intermediates. Commit only the DZI pyramid and the
 derived overview files under `src/app/public/dzi/regierungsviertel/`.

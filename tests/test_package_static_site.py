@@ -39,7 +39,7 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "--port" in serve_text
   assert "--no-open" in serve_text
   assert "if not args.no_open" in serve_text
-  assert 'START_PAGE = "START-HERE.html"' in serve_text
+  assert 'START_PAGE = "index.html"' in serve_text
   assert "require_package_files(root)" in serve_text
   assert "flush=True" in serve_text
   assert "/{START_PAGE}" in serve_text
@@ -52,7 +52,7 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   windows = (tmp_path / "start-windows.bat").read_text(encoding="utf-8")
   assert "Gatekeeper" in mac_notes
   assert "python3 serve-local.py" in mac_notes
-  assert "START-HERE.html address" in mac_notes
+  assert "index.html address" in mac_notes
   assert "python3 serve-local.py" in linux
   assert "py -3 serve-local.py" in windows
   assert "-m http.server" not in mac_notes
@@ -222,6 +222,7 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     "dzi/regierungsviertel/landmarks.json": b"{}",
     "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
+    "mesh/regierungsviertel/scene.json": b'{"schema_version":1}',
   }
   for relative, data in files.items():
     path = tmp_path / relative
@@ -338,6 +339,9 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
   (dist_dzi / "landmarks.json").write_text(
     '{"image":{"width":10,"height":10},"landmarks":[]}', encoding="utf-8"
   )
+  scene = root / "src" / "app" / "dist" / "mesh" / "regierungsviertel" / "scene.json"
+  scene.parent.mkdir(parents=True)
+  scene.write_text('{"schema_version":1}', encoding="utf-8")
   missing_from_dist = public_dzi / "regierungsviertel_files" / "0" / "0_0.jpg"
   missing_from_dist.parent.mkdir(parents=True)
   missing_from_dist.write_bytes(b"low-level-tile")

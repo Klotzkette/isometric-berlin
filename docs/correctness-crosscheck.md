@@ -46,7 +46,7 @@ or memorial plaques rather than usable building views.
 
 ## Spatial conclusion
 
-v0.1.62 extends the machine-checked layer to 39 landmarks and 23 relative
+v0.2.0 retains the machine-checked layer of 39 landmarks and 23 relative
 relationships without moving the existing points. The four additions are
 Schweizerische Botschaft (OSM relation `2886766`), Fahne der Einheit (OSM node
 `437140233`), Quadriga mit Victoria (OSM node `3786417057`) and Starbucks

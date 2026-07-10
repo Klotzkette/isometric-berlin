@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.2.0
+
+- Replace the transformed flat-map default with a true Three.js scene built
+  from 23 Regierungsviertel tiles of the official Berlin 3D Mesh Model 2025;
+  retain exact EPSG:25833 metric placement and publish source bounds, hashes,
+  byte sizes and face counts in a machine-readable scene manifest.
+- Raise each mobile context tile from 52,000 to 70,000 faces and use enhanced
+  vertex colours, brighter neutral daylight, shadows and anisotropic texture
+  filtering for clearer roofs, facades, vegetation and oblique views.
+- Add lazy high-detail photogrammetry crops for Reichstag,
+  Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor, masked against official
+  LoD2 footprints. The Reichstag now displays its actual measured glass dome
+  instead of a generic procedural roof cue.
+- Remove the 39 permanent coloured landmark dots in both viewer modes. A small
+  illuminated ring appears only for the currently selected landmark.
+- Add full orbit controls: mouse drag, wheel and right-drag; one-finger orbit;
+  two-finger pinch/rotate; a dedicated three-finger path through the underside;
+  keyboard/cardinal controls; and a visible 44 px mobile control grid.
+- Add a true below-ground cutaway for the documented OSM-derived
+  Tiergartentunnel approximation with two road tubes, warm light fixtures,
+  ventilation shafts and fan cues, while retaining its explicit non-surveyed
+  status in data, docs and release QA.
+- Load the 76.9 MiB scene progressively with one mobile or three desktop
+  workers, lazy hero assets, adaptive pixel ratio and per-file 5 MiB limits;
+  keep the complete 16384×11616 OpenSeadragon pyramid as a fast fallback.
+- Extend release readiness, package manifests, source-fusion inventory and
+  tests to require all 3D assets, Berlin Partner attribution, selected-only
+  markers, two-/three-finger interaction code and a complete bundled scene.
+
 ## v0.1.62
 
 - Expand the verified scene from 35 to 39 landmarks with OSM-backed points for

@@ -30,6 +30,15 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
 - **ALKIS / DOP / DGM (optional support layers) — Berlin:**
   Geoportal Berlin, dl-de/zero-2-0.
 
+- **Berlin 3D Mesh Model 2025:** official photogrammetric geometry and
+  aerial textures from the June 2025 survey, downloaded from the
+  [Berlin 3D Downloadportal](https://www.businesslocationcenter.de/berlin3d-downloadportal/).
+  Use and modification are permitted under the portal's
+  [license terms](https://www.businesslocationcenter.de/berlin3d-downloadportal/resources/terms/terms.de.html).
+  Required provider credit: **Berlin Partner für Wirtschaft und
+  Technologie GmbH**. Raw OBJ/texture archives remain gitignored; the
+  repository contains only bounded, compressed WebGL derivatives.
+
 - **OpenStreetMap:** © OpenStreetMap contributors, licensed under the
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
@@ -68,3 +77,7 @@ If Wikimedia Commons media was directly used as a texture source,
 visual derivative, or published reference plate, also include the
 relevant per-file Wikimedia attribution and license notices from
 `geo_data/regierungsviertel/wikimedia_references.json`.
+
+When the Berlin 3D Mesh viewer is used, also display:
+
+> 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH

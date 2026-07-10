@@ -5,13 +5,16 @@
 | What | Link |
 |---|---|
 | **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.62/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
-The hosted web viewer at [klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/) is the built React + OpenSeadragon bundle from `src/app/` and works on any modern browser — including phones and tablets — with pinch-zoom, two-finger pan/rotate and tap gestures.
+The hosted viewer is the built React + Three.js/OpenSeadragon app from
+`src/app/`. It defaults to the true 3D official-mesh view and works on modern
+desktop, phone and tablet browsers. No AI model, Google key or paid service is
+needed at runtime.
 
 Unzip the download and double-click **`START-HERE.html`**. That is the
 main Mac/Windows start point: no Terminal, no `.command` file, no Python
@@ -19,93 +22,42 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.62 open-data package.
+**Status:** Local v0.2.0 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.62**. It is an open-data,
-offline-capable viewer for the Berlin Regierungsviertel with:
+The current public package is **v0.2.0**. Its primary viewer is no longer a
+flat image transform: it is a progressively loaded, freely orbitable 3D scene.
 
-- refreshed official Berlin LoD2 data from March 2026: 3,315 measured
-  volumes, including 848 explicit CityGML building parts across 142 complex
-  ensembles, without the former 4 m minimum / 85 m maximum visual clamp;
-- a 31-part, individually measured Bundeskanzleramt ensemble instead of one
-  uniformly extruded block, cross-checked against the official published
-  18 m office-row / 36 m central-cube architecture description;
-- a cooler, clearer material palette with light concrete, blue-green glass,
-  brighter Spree/pond water and more varied Tiergarten vegetation;
-- a genuine 16384×11616 open-data source render with a complete
-  15-level Deep Zoom pyramid and overlap-safe tile boundaries;
-- a 6144-pixel offline detail fallback, up from 3584 pixels, while the hosted
-  viewer continues to use the full 16384×11616 Deep Zoom source; bounded PNG
-  palettes keep both committed fallbacks below the 5 MiB binary limit;
-- a restrained two-tube Tiergartentunnel engineering cutaway in the actual
-  DZI source, clipped to the Regierungsviertel frame and based on the committed
-  OSM-derived centreline rather than the 13 carriageways being drawn twice;
-- 39 OSM/LoD2-checked landmarks and 23 explicit relative-placement checks,
-  including Schweizerische Botschaft, Fahne der Einheit, Quadriga and the
-  mapped Starbucks on the Pariser-Platz edge;
-- 110 freely licensed Wikimedia references across 37 motif groups, with new
-  Swiss Embassy, Quadriga, Unity Flag, Reichstag interior, TIPI, Carillon,
-  memorial, pond and forecourt material/detail evidence;
-- individually recognizable Holocaust stelae, Homosexuals memorial, Goethe,
-  Beethoven/Haydn/Mozart and Soviet memorial cues, plus Reichstag/embassy
-  flags, Quadriga, Pariser-Platz people and stationary ICE/S-Bahn details;
-- southwest late-afternoon sun logic with measured-height shadows projected
-  toward map northeast instead of a generic same-direction offset;
-- large zoom, rotate, swivel, mirror and orientation controls;
-- mouse drag, arrow-key pan, and Shift/rotate-mode arrow swivel controls;
-- touchscreen support for phones and tablets, including one-finger pan,
-  two-finger pinch zoom, pan and twist rotation, larger coarse-pointer
-  controls and safe viewport sizing for iPhone/iPad/Android browser chrome;
-- a mobile-first collapsible landmark rail, compact focus display and a
-  horizontally scrollable bottom toolbar that leaves the map usable on narrow
-  portrait screens;
-- free mouse swivel with Shift-drag and cached frontend chunks split between
-  React, OpenSeadragon and project code for a smaller initial app payload;
-- animation-frame render throttling and resize debounce to keep drag,
-  wheel zoom and window resizing responsive;
-- richer Tiergartentunnel under-surface overlay with OSM-derived
-  B96 tunnel carriageway evidence, a two-tube rectangular tunnel body,
-  centre wall, warm lighting dots, ventilation / shaft markers and
-  cross-section cues;
-- a tunnel underside mode that keeps the cutaway attached while the map
-  is panned, rotated and swivelled, plus tunnel-focus controls;
-- reproducible top/north/east/south/west presets;
-- Atlas, Cinematic and Lab visual profiles;
-- bilingual German/English UI controls and a Day/Night mode;
-- night overlays for lit Reichstag/Kanzleramt/Hauptbahnhof windows,
-  Brandenburg Gate illumination, selected monument accents, street lamps
-  and stronger Tiergartentunnel lighting;
-- a new scene-detail overlay with three translucent isometric clouds,
-  late-afternoon sun/shadow cues, transparent water-depth accents,
-  tunnel branch hints, ICE/S-Bahn trains, cars with night beams, flags,
-  a Spree tour boat, Pariser-Platz people/pedicab cues and the
-  Gustav-Heinemann-Brücke / Zollpackhof beer-garden signal;
-- detail/cloud layer toggles, saved with the other offline preferences,
-  plus cheaper drag rendering so large shadows and filters do not make
-  panning feel heavy;
-- a saved lightweight performance mode and resize handling that preserves
-  the current focus, zoom, rotation and swivel instead of snapping back
-  to the overview;
-- a repaired zero-server camera that normalizes 16K landmark coordinates to
-  the local overlay canvas, preserves the viewed point through zoom, rotate,
-  swivel and underside transforms, and prevents the map from being dragged
-  completely outside the window;
-- viewport-height desktop staging and a 58dvh mobile map with an independently
-  scrollable control sheet, verified at 390×844 without page overflow;
-- URL start parameters for support/debug starts (`lang`, `theme`, `view`,
-  `profile`, `pixel`, `details`, `clouds`, `lite`) plus an image fallback
-  from the detail render to the pixel render if a local browser cannot load
-  the sharp overview image;
-- extra polish cues for glass glints, water ripples, Tiergarten tree
-  clusters and small path highlights;
-- persistent offline preferences for language, day/night mode, visual
-  profile, pixel/detail image selection, focused landmark and view angle;
-- compass/status HUD, selected-landmark focus ring and reference-map modal;
-- visible OSM/LoD2 attribution and packaged Wikimedia attribution;
-- no committed Google, Apple, Bing, Amap, social-media or restricted-photo
-  assets. Those sources may be inspected for QA only, not copied.
+- The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
+  Model 2025, generated from the June 2025 aerial survey and transformed from
+  EPSG:25833 without changing horizontal or vertical scale.
+- Each context tile retains up to 70,000 faces. Reichstag,
+  Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
+  high-detail, textured photogrammetry crops masked by official LoD2
+  footprints. The Reichstag crop contains the actual glass-dome geometry.
+- The old always-visible coloured landmark dots are gone. Only the selected
+  landmark receives a small illuminated focus ring.
+- Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag
+  pans; two fingers pinch and rotate; three fingers can carry the camera
+  continuously through a genuine underside view. Arrow and on-screen controls
+  provide the same rotation, tilt, zoom and cardinal presets.
+- The two-tube Tiergartentunnel cutaway has lit fixtures, road decks,
+  ventilation shafts and fan cues. Its route is explicitly labelled as an
+  OSM-derived engineering approximation, not surveyed tunnel geometry.
+- Assets load progressively with bounded concurrency and an adaptive pixel
+  ratio. The 76.9 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
+  individual public GLB remains below 5 MiB.
+- The 16384×11616, 15-level OpenSeadragon map remains available as a fast
+  high-resolution fallback. Its marker layer also shows only the selection.
+- The responsive controls were verified at 1280×720 and 390×844: no horizontal
+  overflow, full-viewport canvas, 44 px touch targets and visible mobile
+  orientation controls.
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 39 landmarks, 23 relative-placement
+  checks and 110 accepted Wikimedia references remain part of the additive
+  evidence pipeline and attribution chain.
+- No Google, Apple, Bing, Amap, social-media or restricted-photo content is
+  bundled. Those services may be inspected for QA, but are not copied.
 
 ## Inhalt & Links
 
@@ -203,9 +155,9 @@ Dieses Projekt würde ohne ihn nicht existieren.
 ## The Idea
 
 The end goal is a giant, zoomable, SimCity-style isometric pixel-art map
-of Berlin. The current v0.1 local viewer already runs from generated
-open-data map tiles; the AI style pass is a later pipeline step, not a
-runtime requirement.
+of Berlin. The current v0.2 viewer runs from generated open-data map tiles
+and the official Berlin photogrammetry mesh; the AI style pass is a later
+pipeline step, not a runtime requirement.
 
 This repository is an independent, derivative project inspired by
 Andy Coenen's [isometric.nyc](https://isometric.nyc). The approach,
@@ -373,20 +325,18 @@ http://127.0.0.1:8766/
 If port `8766` is already busy, the local server automatically uses
 the next free port and prints that URL.
 
-Current default data sources are free/open: Berlin LoD2, OSM, ALKIS,
-DOP preview, and DGM preview. Google 3D Tiles remain wired as an
+Current default data sources are free/open: Berlin LoD2, Berlin 3D Mesh 2025,
+OSM, ALKIS, DOP preview, and DGM preview. Google 3D Tiles remain wired as an
 optional opt-in source, but are not required and are not fetched unless
 you provide a local `.env` with a Maps API key and the opt-in flags.
 
 Landmark placement is checked in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) against the
 local OSM city-map layer and Berlin LoD2 building geometry. The viewer
-starts in a north-up view and labels the key landmarks directly on the
-map. It includes buttons for north/east/south/west-up views, 90°
-rotation, horizontal mirroring, a vertical 2D flip, and a top-down
-OSM/LoD2 reference map for standard city-map checks. A true physical
-underside view would require a future multi-camera/3D-renderer export;
-the current download is a static Deep Zoom image viewer.
+starts in a north-up true 3D view. It supports free orbit, zoom, pan and a
+physical underside camera with the Tiergartentunnel cutaway. Cardinal presets
+and a top-down OSM/LoD2 reference map keep orientation reproducible; the static
+Deep Zoom image remains available from the mode switch.
 
 To create a downloadable folder and ZIP for another Mac or PC:
 
@@ -399,10 +349,11 @@ The result is written to
 `releases/isometric-berlin-regierungsviertel-local.zip`. Unzip it on
 the target computer and start:
 
-- Mac and Windows, first choice: double-click `START-HERE.html`.
-- macOS fallback if your browser blocks local tiles: open Terminal and
-  run `python3 serve-local.py` from the unzipped folder.
-- Windows fallback: double-click `start-windows.bat`.
+- Mac and Windows zero-server fallback: double-click `START-HERE.html`.
+- Full local 3D on macOS: open Terminal and run `python3 serve-local.py` from
+  the unzipped folder; it opens the 3D viewer directly.
+- Full local 3D on Windows: double-click `start-windows.bat`; it opens the 3D
+  viewer directly.
 - Linux fallback: `./start-linux.sh`.
 
 There is intentionally no `start-mac.command` anymore: downloaded
@@ -433,8 +384,8 @@ http://127.0.0.1:8766/
 Falls Port `8766` schon belegt ist, nutzt der lokale Server automatisch
 den nächsten freien Port und gibt diese URL aus.
 
-Der aktuelle Standard nutzt nur kostenlose/offene Quellen: Berlin
-LoD2, OSM, ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben
+Der aktuelle Standard nutzt nur kostenlose/offene Quellen: Berlin LoD2,
+Berlin 3D Mesh 2025, OSM, ALKIS, DOP-Preview und DGM-Preview. Google 3D Tiles bleiben
 als optionale Opt-in-Verbindung vorbereitet, werden aber nicht benötigt
 und nicht abgerufen, solange keine lokale `.env` mit Maps-API-Key und
 Opt-in-Flags vorhanden ist.
@@ -442,13 +393,11 @@ Opt-in-Flags vorhanden ist.
 Die Landmarken-Lage wird in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) gegen den
 lokalen OSM-Stadtplan-Layer und die Berliner LoD2-Gebäudegeometrie
-geprüft. Der Viewer startet mit geographisch Norden oben und beschriftet
-die wichtigsten Landmarken direkt in der Karte. Er enthält Knöpfe für
-Nord/Ost/Süd/West-Ansichten, 90°-Drehung, horizontales Spiegeln, ein
-vertikales 2D-Klappen und eine Top-down-Referenzkarte aus OSM/LoD2 für
-den Standard-Stadtplan-Abgleich. Eine echte physische Ansicht von unten
-braucht später einen Multi-Kamera-/3D-Renderer-Export; der aktuelle
-Download ist ein statischer Deep-Zoom-Bildviewer.
+geprüft. Der Viewer startet mit geographisch Norden oben in echtem 3D. Freies
+Drehen, Zoomen, Verschieben und die physische Untersicht mit
+Tiergartentunnel-Cutaway sind direkt verfügbar. Kardinal-Presets und die
+Top-down-Referenzkarte aus OSM/LoD2 machen den Stadtplan-Abgleich
+reproduzierbar; die statische Deep-Zoom-Ansicht bleibt als Modus erhalten.
 
 Ein herunterladbares Paket für einen anderen Mac oder PC erzeugst du so:
 
@@ -461,11 +410,12 @@ Das Ergebnis liegt unter
 `releases/isometric-berlin-regierungsviertel-local.zip`. Auf dem
 Zielrechner entpacken und starten:
 
-- Mac und Windows, erster Weg: Doppelklick auf `START-HERE.html`.
-- macOS-Fallback, falls dein Browser lokale Kacheln blockiert:
-  Terminal öffnen und im entpackten Ordner `python3 serve-local.py`
-  ausführen.
-- Windows-Fallback: Doppelklick auf `start-windows.bat`.
+- Mac und Windows ohne Server: Doppelklick auf `START-HERE.html` öffnet die
+  robuste 2D-Fallbackansicht.
+- Volles lokales 3D auf macOS: Terminal öffnen und im entpackten Ordner
+  `python3 serve-local.py` ausführen; der 3D-Viewer öffnet sich direkt.
+- Volles lokales 3D auf Windows: `start-windows.bat` doppelklicken; der
+  3D-Viewer öffnet sich direkt.
 - Linux-Fallback: `./start-linux.sh`.
 
 Ein `start-mac.command` wird absichtlich nicht mehr ausgeliefert:

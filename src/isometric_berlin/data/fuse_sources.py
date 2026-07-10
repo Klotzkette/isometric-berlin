@@ -19,6 +19,8 @@ Inputs
 - ``geo_data/regierungsviertel/raw/alkis/`` (optional)
 - ``geo_data/regierungsviertel/raw/dop/`` (optional)
 - ``geo_data/regierungsviertel/raw/dgm/`` (optional)
+- ``geo_data/regierungsviertel/berlin_3d_mesh_sources.json``
+  (official photogrammetric mesh provenance)
 - ``geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json``
   (optional, opt-in)
 - ``geo_data/regierungsviertel/wikimedia_references.json``
@@ -63,6 +65,7 @@ SOURCE_LICENSES: dict[str, str] = {
   "alkis": "dl-de/zero-2-0",
   "dop": "dl-de/zero-2-0",
   "dgm": "dl-de/zero-2-0",
+  "berlinmesh": "Berlin 3D Downloadportal terms; provider attribution required",
   "google3d": "Google Maps Platform Terms",
   "wikimedia": "Various Wikimedia Commons free licenses; see manifest per image",
 }
@@ -151,6 +154,7 @@ def discover_sources(geo_dir: Path, env: dict[str, str]) -> dict[str, Any]:
     "alkis": _support_source("alkis", raw / "alkis", geo_dir / "alkis.gpkg"),
     "dop": _support_source("dop", raw / "dop", geo_dir / "dop_preview.png"),
     "dgm": _support_source("dgm", raw / "dgm", geo_dir / "dgm_preview.png"),
+    "berlinmesh": _file_source("berlinmesh", geo_dir / "berlin_3d_mesh_sources.json"),
     "google3d": _google_source(raw / "google_3d_tiles" / "manifest.json", env),
     "wikimedia": _file_source("wikimedia", geo_dir / "wikimedia_references.json"),
   }

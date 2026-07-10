@@ -1,8 +1,12 @@
 # Web viewer
 
-React + TypeScript + Vite + OpenSeadragon, managed with `bun`.
-Identical structure to the NYC viewer; only the title strings,
-default DZI path, and attribution overlay change.
+React + TypeScript + Vite with two complementary static engines, managed with
+`bun`:
+
+- **Three.js true 3D:** official Berlin 3D Mesh 2025, progressively loaded,
+  freely orbitable from above and below.
+- **OpenSeadragon detail map:** the 16384×11616 DZI remains the fast,
+  high-resolution cartographic fallback.
 
 Required attribution overlay in the viewer chrome. The viewer ships the
 required minimum (OSM + Geoportal Berlin) **plus** the Wikimedia visual-
@@ -15,6 +19,12 @@ OSM + Geoportal Berlin minimum:
 © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
 ```
 
+The true 3D mode appends:
+
+```
+3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
+```
+
 When Google Photorealistic 3D Tiles are enabled (opt-in), additionally
 show the Google attribution required by the Google Maps Platform Terms.
 
@@ -25,11 +35,16 @@ toolbar, or press `?`) listing the shortcuts: `←`/`→` previous/next
 landmark, `Space` start/pause the tour, `+`/`=`/`−` zoom, `Home`/`0`
 overview, `L` copy a view link, `Esc` close overlays.
 
-Mouse users can Shift-drag horizontally for continuous rotation while ordinary
-drag remains pan. On touch screens one finger pans and a two-finger gesture
-combines pinch zoom, pan and twist rotation. At phone widths the landmark rail
-starts closed, opens from the list icon, closes after selection and leaves the
-safe-area-aware bottom control strip available without covering the map.
+In true 3D, left-drag or one finger orbits, the wheel zooms, right-drag pans,
+and two fingers combine pinch and rotation. A three-finger gesture controls
+azimuth and polar tilt continuously through 90 degrees into the real underside
+camera. The underside fades surface materials and reveals the two-tube
+Tiergartentunnel cutaway. The arrow keys rotate and tilt in 3D. In DZI mode,
+ordinary drag pans and Shift-drag rotates. At phone widths the landmark rail
+starts closed and leaves the safe-area-aware bottom controls accessible.
+
+Only the selected landmark receives a focus ring. The former 39 permanently
+visible coloured map dots were removed because they obscured roofs and facades.
 
 The downloadable `START-HERE.html` uses a separate zero-server camera. It
 normalizes the 16384×11616 landmark payload into the 2157×1529 SVG overlay
@@ -61,10 +76,13 @@ enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
 
 ## Remote DZI hosting
 
-By default the viewer loads the DZI tile pyramid and reference map from
-the bundled `public/dzi/regierungsviertel/`, while the DZI geometry and
-landmark navigation are bundled into the app to support double-click
-local starts. Set `VITE_DZI_BASE_URL` at build time to load the tile
+By default the viewer loads the mesh scene from
+`public/mesh/regierungsviertel/scene.json`; individual GLBs are ordered by
+distance from the selected landmark and loaded with bounded concurrency. Hero
+texture crops load only when selected. The DZI tile pyramid and reference map
+load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is
+bundled into the app to support double-click local starts. Set
+`VITE_DZI_BASE_URL` at build time to load the tile
 pyramid and reference map from a remote host (e.g. a Cloudflare R2
 bucket) instead — see
 [`perplexity-hosting.md`](perplexity-hosting.md).

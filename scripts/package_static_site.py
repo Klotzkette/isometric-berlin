@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.62"
+PACKAGE_VERSION = "0.2.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -34,9 +34,10 @@ from pathlib import Path
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8766
-START_PAGE = "START-HERE.html"
+START_PAGE = "index.html"
 REQUIRED_PACKAGE_FILES = (
   START_PAGE,
+  "START-HERE.html",
   "README.txt",
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
@@ -3147,7 +3148,8 @@ Only use Terminal for the server fallback:
 3. Drag the whole unzipped folder into the Terminal window and press Return.
    The command line must start with `cd `. Do not run the folder path alone.
 4. Run: python3 serve-local.py
-5. Open the printed http://127.0.0.1:.../START-HERE.html address.
+5. The server opens the full 3D viewer at the printed
+   http://127.0.0.1:.../index.html address.
 
 This package does not include start-mac.command because macOS Gatekeeper
 blocks unsigned downloaded .command files before the viewer can start.
@@ -3252,12 +3254,21 @@ Ansicht ein. Auf iPhone, iPad, Android-Tablets und
 anderen Touch-Geräten nutzt der Viewer größere Buttons, sichere
 Viewport-Höhen und ein kompaktes unteres Bedienfeld.
 
+Der Advanced Viewer startet mit einem echten Three.js-3D-Modell aus dem
+amtlichen Berlin 3D Mesh 2025. Linke Maustaste oder ein Finger drehen frei,
+das Mausrad zoomt, die rechte Maustaste verschiebt. Zwei Finger zoomen und
+drehen; drei Finger steuern Drehung und Neigung bis in die echte Untersicht.
+In der Untersicht wird die Oberfläche transparent und der technische
+Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
+Nur die ausgewählte Landmarke erhält einen Leuchtring; permanente Farbpunkte
+über den Gebäuden gibt es nicht mehr.
+
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
-LoD2-Grundrisse bleiben der Metermaßstab, Innenringe werden als Höfe/Ausschnitte
-sichtbar, Fassaden bekommen dichtere Rücksprung-/Fensterbänder und Dächer
-feinere Rippen/Aufbauten. Echte fotogrammetrische Fassadenreliefs sind noch
-nicht behauptet; dafür braucht der nächste große Schritt ein lizenziertes
-texturiertes 3D-Mesh/OBJ.
+LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
+Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
+Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
+haben separate hochauflösende, LoD2-maskierte Texturmodelle; die Kuppel des
+Reichstags ist dadurch echte Geometrie und keine gezeichnete Ellipse.
 
 Start ohne Terminal:
 
@@ -3272,7 +3283,7 @@ Falls dein Browser lokale Deep-Zoom-Dateien blockiert:
 - Linux: ./start-linux.sh
 
 Der Server-Fallback öffnet eine lokale Adresse im Browser, normalerweise
-http://127.0.0.1:8766/START-HERE.html. Wenn dieser Port belegt ist, nimmt
+http://127.0.0.1:8766/index.html. Wenn dieser Port belegt ist, nimmt
 er automatisch den nächsten freien Port. Die Terminal-Ausgabe erscheint
 sofort und nennt die genaue Adresse. Das Terminalfenster muss geöffnet
 bleiben, solange die Website laufen soll. Beenden mit Ctrl+C oder Fenster
@@ -3285,6 +3296,7 @@ aus dem Internet geladene .command-Dateien oft mit "Not Opened", bevor sie
 Erweitert: `python3 serve-local.py --no-open --port 8770`
 
 Die Daten stammen aus kostenlosen/offenen Quellen: Berlin LoD2,
+Berlin 3D Mesh 2025 (Berlin Partner für Wirtschaft und Technologie GmbH),
 OpenStreetMap, ALKIS, DOP-Preview, DGM-Preview und Wikimedia
 Commons/Wikipedia. Google/Apple-Kartenprodukte dienen nur als visuelle
 QA-Referenz; daraus wird nichts kopiert.
@@ -3347,11 +3359,20 @@ to the exact cardinal. On iPhone, iPad, Android tablets and other touch devices
 the viewer uses larger controls, safe viewport heights and a compact lower
 control sheet.
 
+The Advanced Viewer starts with a true Three.js scene derived from the
+official Berlin 3D Mesh 2025. Left-drag or one finger orbits, the wheel zooms,
+and right-drag pans. Two fingers zoom and rotate; three fingers control
+azimuth and polar tilt into a real below-ground view. In underside mode the
+surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
+with lighting and ventilation. Only the selected landmark gets a focus ring;
+permanent coloured dots no longer cover the buildings.
+
 This version also refines the metric architectural rendering pass: LoD2
-footprints remain the metre-scale anchor, interior rings render as
-courtyards/cut-outs, facades get denser recessed bay/window rhythm, and roofs
-get finer ribs/equipment marks. It still does not claim true photogrammetric
-facade relief; that needs a future licensed textured 3D mesh/OBJ ingest.
+footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
+now adds real photogrammetric roof, terrain and facade surfaces. Reichstag,
+Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
+LoD2-masked texture models; the Reichstag dome is real geometry rather than a
+drawn ellipse.
 
 Start without Terminal:
 
@@ -3366,7 +3387,7 @@ If your browser blocks local Deep Zoom files:
 - Linux: ./start-linux.sh
 
 The server fallback opens a local browser address, usually
-http://127.0.0.1:8766/START-HERE.html. If that port is busy, it automatically
+http://127.0.0.1:8766/index.html. If that port is busy, it automatically
 uses the next free port. Terminal output is flushed immediately and prints the
 exact address. Keep the terminal window open while the website is running.
 Stop with Ctrl+C or close the window.
@@ -3377,13 +3398,13 @@ START-HERE.html avoids that trap.
 
 Advanced: `python3 serve-local.py --no-open --port 8770`
 
-Data sources are free and open: Berlin LoD2, OpenStreetMap, ALKIS, DOP
+Data sources are free and open: Berlin LoD2, Berlin 3D Mesh 2025 (Berlin
+Partner für Wirtschaft und Technologie GmbH), OpenStreetMap, ALKIS, DOP
 preview, DGM preview, and Wikimedia Commons/Wikipedia. Google/Apple map
-products are used only as visual QA references; nothing from them is
-copied.
+products are used only as visual QA references; nothing from them is copied.
 
 Attribution:
-© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
+© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
 
 Per-file Wikimedia credits are bundled at
 dzi/regierungsviertel/wikimedia_attribution.json.
@@ -3403,6 +3424,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "landmarks": dzi_root / "landmarks.json",
     "tiergartentunnel_overlay": dzi_root / "tiergartentunnel.json",
     "wikimedia_attribution": dzi_root / "wikimedia_attribution.json",
+    "webgl_scene": package_dir / "mesh/regierungsviertel/scene.json",
     "start_page": package_dir / "START-HERE.html",
   }
   missing = [label for label, path in asset_paths.items() if not path.exists()]
@@ -3418,12 +3440,14 @@ def write_package_manifest(package_dir: Path) -> None:
     "optional_pixel_image": "dzi/regierungsviertel/overview.png",
     "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
     "uses_google_content": False,
-    "scope": "Berlin Regierungsviertel v0.1 bounds only",
-    "render_mode": "source-detail DZI with optional pixel-art toggle",
+    "scope": "Berlin Regierungsviertel bounds only",
+    "render_mode": "progressive official WebGL mesh plus source-detail DZI fallback",
     "controls": [
       "mouse-pan",
       "mouse-rotate-swivel",
       "touch-pinch-pan-rotate",
+      "touch-three-finger-underside-orbit",
+      "true-threejs-3d-orbit",
       "keyboard-arrow-pan",
       "shift-arrow-rotate-swivel",
       "top-north-east-south-west-presets",
@@ -3433,6 +3457,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "persistent-offline-viewer-preferences",
       "persistent-last-landmark-and-view",
       "selected-landmark-focus-ring",
+      "selected-landmark-only-marker",
       "instrument-hud",
       "night-building-window-lights",
       "night-street-lamps",
@@ -3450,7 +3475,8 @@ def write_package_manifest(package_dir: Path) -> None:
     ],
     "required_attribution": (
       "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
-      "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia"
+      "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · "
+      "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
     ),
     "assets": {
       label: {

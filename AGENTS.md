@@ -85,11 +85,16 @@ record the conflict and choose evidence according to
 3. **ALKIS / DOP / DGM (Berlin official data)** — official alignment,
    parcel context, orthophoto QA, terrain where useful. Geoportal
    Berlin, dl-de/zero-2-0.
-4. **Google Maps Platform / Photorealistic 3D Tiles** — *opt-in*
+4. **Berlin 3D Mesh Model 2025** — official photogrammetric surface
+   geometry and aerial texture from the June 2025 survey, downloaded
+   tile-by-tile from the Berlin 3D Downloadportal after explicit terms
+   acceptance. LoD2 remains the metric building anchor. Public output
+   must credit Berlin Partner für Wirtschaft und Technologie GmbH.
+5. **Google Maps Platform / Photorealistic 3D Tiles** — *opt-in*
    additive source for photorealistic geometry, texture, alignment,
    and visual reference where permitted by Google's terms. **Not** a
    replacement for Berlin LoD2 or OSM.
-5. **Wikimedia Commons / Wikipedia media** — additive visual-reference
+6. **Wikimedia Commons / Wikipedia media** — additive visual-reference
    source for freely licensed landmark facade, roof, glass, stone,
    vegetation, and colour cues. Use only files with clear free-license
    metadata (CC0, public domain, CC BY, CC BY-SA). Keep per-file
@@ -135,6 +140,10 @@ references, texture cues, published reference plates, or derived
 material colours, include the visible Wikimedia visual-reference notice
 and keep the per-file credits packaged with the artefact.
 
+When the official Berlin 3D Mesh is displayed, append:
+
+> 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
+
 ### Repository hygiene for geodata
 
 - Do **not** commit raw multi-GB geodata dumps. Only commit small,
@@ -164,6 +173,11 @@ commit messages and PR titles (e.g. `step-4: …`).
 4. **ALKIS / DOP / DGM support (optional).**
    `isometric_berlin.data.fetch_official_support` pulls Berlin parcel
    / orthophoto / terrain data for alignment, QA, and terrain.
+4a. **Berlin 3D Mesh 2025 (official, additive).**
+   `isometric_berlin.data.fetch_berlin_mesh` selects only the source
+   tiles intersecting the bounds. Raw OBJ/texture ZIPs remain
+   gitignored. `isometric_berlin.generation.prepare_webgl_mesh` writes
+   bounded, derived GLBs below 5 MiB each for the static Three.js viewer.
 5. **Google Photorealistic 3D Tiles (opt-in, additive).**
    `isometric_berlin.data.fetch_google_tiles` writes a key-free
    manifest to
@@ -291,6 +305,9 @@ isometric-berlin/
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
   renders the eight required landmarks recognisably.
+- A true Three.js mode using the official Berlin 3D Mesh, with progressive
+  loading, mouse/touch orbit, a real below-ground camera and a schematic
+  Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.
 - All eight landmarks from §3 are visually identifiable (hero tiles
   for Reichstag dome and Hauptbahnhof glass roof may be hand-touched).
 
@@ -361,7 +378,9 @@ a task:
   before writing.
 - Committing raw `.gml`, `.citygml`, `.osm`, `.osm.pbf`, `.tif`,
   `.tiff`, `.glb`, `.b3dm`, `.json` Google tile responses, or any
-  binary > 5 MB outside of `references/`.
+  binary > 5 MB outside of `references/`. The only GLB exception is
+  the bounded, derived `src/app/public/mesh/regierungsviertel/*.glb`
+  web asset set; every file must remain below 5 MiB and pass release QA.
 - **Removing or altering the required attribution string** — including
   failing to add Google attribution when Google content was used.
 - Changing the LICENSE without owner sign-off.
