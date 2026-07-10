@@ -8,19 +8,23 @@ HTML entry point, and optional local-server fallbacks.
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import re
 import shutil
 import stat
+import tarfile
 import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.2.2"
+PACKAGE_VERSION = "0.2.3"
 SERVE_SCRIPT_NAME = "serve-local.py"
+STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
+ARCHIVE_MTIME = 1_767_225_600
 SERVE_LOCAL_SCRIPT = """#!/usr/bin/env python3
 from __future__ import annotations
 
@@ -33,6 +37,7 @@ import socket
 import socketserver
 import webbrowser
 from pathlib import Path
+from urllib.parse import urlsplit
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8766
@@ -45,9 +50,34 @@ REQUIRED_PACKAGE_FILES = (
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "mesh/regierungsviertel/scene.json",
 )
+CACHEABLE_SUFFIXES = {
+  ".css",
+  ".glb",
+  ".jpg",
+  ".js",
+  ".png",
+  ".svg",
+  ".wasm",
+  ".webp",
+  ".woff2",
+}
+
+
+def cache_control_for_path(request_path: str) -> str:
+  suffix = Path(urlsplit(request_path).path).suffix.lower()
+  if suffix in CACHEABLE_SUFFIXES:
+    return "public, max-age=31536000, immutable"
+  return "no-cache"
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
+  extensions_map = {
+    **http.server.SimpleHTTPRequestHandler.extensions_map,
+    ".dzi": "application/xml",
+    ".glb": "model/gltf-binary",
+  }
+  protocol_version = "HTTP/1.1"
+
   def handle(self) -> None:
     try:
       super().handle()
@@ -55,7 +85,7 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
       pass
 
   def end_headers(self) -> None:
-    self.send_header("Cache-Control", "no-store")
+    self.send_header("Cache-Control", cache_control_for_path(self.path))
     super().end_headers()
 
   def log_message(self, format: str, *args: object) -> None:
@@ -64,6 +94,8 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 class ReusableTCPServer(socketserver.ThreadingTCPServer):
   allow_reuse_address = True
+  daemon_threads = True
+  request_queue_size = 32
 
 
 def first_available_port(host: str, start_port: int, attempts: int = 50) -> int:
@@ -100,10 +132,17 @@ def verify_webgl_scene(root: Path) -> None:
     scene = json.loads(scene_path.read_text(encoding="utf-8"))
   except (OSError, json.JSONDecodeError) as exc:
     raise SystemExit(f"Invalid 3D scene manifest: {exc}") from exc
-  entries = list(scene.get("base_tiles", []))
+  if not isinstance(scene, dict):
+    raise SystemExit("Invalid 3D scene manifest: root must be an object.")
+  base_tiles = scene.get("base_tiles")
+  hero_details = scene.get("hero_details")
+  if not isinstance(base_tiles, list) or not isinstance(hero_details, list):
+    raise SystemExit("Invalid 3D scene manifest: model inventories are missing.")
+  entries = list(base_tiles)
   entries.extend(
     entry
-    for detail in scene.get("hero_details", [])
+    for detail in hero_details
+    if isinstance(detail, dict)
     for entry in detail.get("files", [])
   )
   if not entries:
@@ -111,6 +150,8 @@ def verify_webgl_scene(root: Path) -> None:
   verified: set[str] = set()
   mesh_root = scene_path.parent.resolve()
   for entry in entries:
+    if not isinstance(entry, dict):
+      raise SystemExit("Invalid 3D model entry in scene manifest.")
     relative = str(entry.get("file", ""))
     path = (mesh_root / relative).resolve()
     if not relative or path.parent != mesh_root or path.suffix.lower() != ".glb":
@@ -2984,6 +3025,8 @@ def repo_root() -> Path:
 
 def should_package_file(path: Path) -> bool:
   """Return whether ``path`` belongs in the downloadable package."""
+  if path.is_symlink():
+    return False
   for part in path.parts:
     if part == "__MACOSX":
       return False
@@ -3274,9 +3317,14 @@ Nicht mehr benötigte Geometrie, Materialien und Texturen werden vollständig au
 dem GPU-Speicher entfernt. Fehlgeschlagene Dateien werden einmal wiederholt;
 ein einzelnes optionales Detail schaltet das nutzbare Basismodell nicht mehr ab.
 Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive 3D-Szene vollständig
-frei; die aktive mobile 3D-Ansicht nutzt ein begrenztes 30-fps-Budget.
+frei und brechen die restliche GLB-Warteschlange ab; die aktive mobile
+3D-Ansicht nutzt ein begrenztes 30-fps-Budget. Verlorene Pointer-Captures oder
+ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück.
 Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
 45 GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
+Der lokale HTTP/1.1-Server cached unveränderliche GLBs, Kartenkacheln und
+Programmdateien, sodass ein erneuter 3D-Start nicht wieder alle Modelldaten
+übertragen muss.
 
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
@@ -3389,10 +3437,11 @@ Version {PACKAGE_VERSION} bounds high-resolution building-detail memory to one
 group on mobile and two groups on desktop. Evicted geometry, materials and
 textures are released from GPU memory. Failed files are retried once, and one
 optional detail no longer disables the usable base scene. Touch devices release
-inactive 3D when switching to the 2D map and cap active
-rendering at 30 fps. Before opening the browser, serve-local.py also checks the
-byte length and SHA-256 of all 45 GLBs and reports an incomplete extraction with
-the exact file name.
+inactive 3D when switching to the 2D map, cancel the remaining GLB queue and cap
+active rendering at 30 fps. Lost pointer capture or window focus cleanly resets
+three-finger gestures. Before opening the browser, serve-local.py checks all 45
+GLB hashes. Its HTTP/1.1 cache reuses immutable models, map tiles and app assets
+instead of transferring the complete scene again.
 
 This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
@@ -3479,6 +3528,8 @@ def write_package_manifest(package_dir: Path) -> None:
       "touch-pinch-pan-rotate",
       "touch-three-finger-underside-orbit",
       "true-threejs-3d-orbit",
+      "cancelable-progressive-model-loading",
+      "http11-immutable-heavy-asset-cache",
       "keyboard-arrow-pan",
       "shift-arrow-rotate-swivel",
       "top-north-east-south-west-presets",
@@ -3543,12 +3594,44 @@ def zip_package(package_dir: Path, zip_path: Path) -> None:
         )
 
 
-def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
+def tar_static_site(source: Path, tar_path: Path) -> None:
+  """Write a deterministic, link-free archive of the complete static viewer."""
+  if tar_path.exists():
+    tar_path.unlink()
+  with tar_path.open("wb") as raw_output:
+    with gzip.GzipFile(
+      filename="", mode="wb", fileobj=raw_output, mtime=0
+    ) as compressed:
+      with tarfile.open(
+        fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT
+      ) as archive:
+        for path in sorted(source.rglob("*")):
+          if not path.is_file() or not should_package_file(path):
+            continue
+          if path.suffix == ".map":
+            continue
+          relative = path.relative_to(source).as_posix()
+          info = archive.gettarinfo(str(path), arcname=relative)
+          info.uid = 0
+          info.gid = 0
+          info.uname = ""
+          info.gname = ""
+          info.mtime = ARCHIVE_MTIME
+          with path.open("rb") as handle:
+            archive.addfile(info, handle)
+
+
+def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
   source = root / "src" / "app" / "dist"
   public_source = root / "src" / "app" / "public"
-  if not (source / "index.html").exists():
+  required_build_files = ("index.html", "favicon.svg")
+  missing_build_files = [
+    filename for filename in required_build_files if not (source / filename).exists()
+  ]
+  if missing_build_files:
     raise SystemExit(
-      "Missing src/app/dist/index.html. Run `cd src/app && bun run build`."
+      "Missing built viewer files: "
+      f"{', '.join(missing_build_files)}. Run `cd src/app && bun run build`."
     )
   package_dir = out_dir / PACKAGE_NAME
   copy_static_site(source, package_dir)
@@ -3562,7 +3645,9 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path]:
   remove_unwanted_package_paths(package_dir)
   zip_path = out_dir / f"{PACKAGE_NAME}.zip"
   zip_package(package_dir, zip_path)
-  return package_dir, zip_path
+  static_archive = out_dir / STATIC_ARCHIVE_NAME
+  tar_static_site(source, static_archive)
+  return package_dir, zip_path, static_archive
 
 
 def main() -> None:
@@ -3570,9 +3655,10 @@ def main() -> None:
   parser.add_argument("--out-dir", type=Path, default=Path("releases"))
   args = parser.parse_args()
 
-  package_dir, zip_path = package_static_site(repo_root(), args.out_dir)
+  package_dir, zip_path, static_archive = package_static_site(repo_root(), args.out_dir)
   print(f"Wrote local website folder: {package_dir}")
   print(f"Wrote downloadable ZIP: {zip_path}")
+  print(f"Wrote static viewer archive: {static_archive}")
 
 
 if __name__ == "__main__":

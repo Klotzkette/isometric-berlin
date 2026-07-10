@@ -6,6 +6,7 @@ import json
 import os
 import socket
 import stat
+import tarfile
 import zipfile
 from pathlib import Path
 from types import ModuleType
@@ -53,6 +54,9 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "require_package_files(root)" in serve_text
   assert "verify_webgl_scene(root)" in serve_text
   assert "file_sha256(path)" in serve_text
+  assert "cache_control_for_path(self.path)" in serve_text
+  assert 'protocol_version = "HTTP/1.1"' in serve_text
+  assert "daemon_threads = True" in serve_text
   assert "flush=True" in serve_text
   assert "/{START_PAGE}" in serve_text
   assert "BrokenPipeError" in serve_text
@@ -234,6 +238,38 @@ def test_generated_server_rejects_corrupt_webgl_asset(tmp_path: Path) -> None:
     server.verify_webgl_scene(tmp_path)
 
 
+def test_generated_server_cache_policy_covers_100_requests(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_server_cache", "scripts/package_static_site.py"
+  )
+  package_static_site.write_launchers(tmp_path)
+  server = load_module_path("generated_cache_server", tmp_path / "serve-local.py")
+
+  for index in range(100):
+    suffix = ".glb" if index % 2 == 0 else ".html"
+    policy = server.cache_control_for_path(f"/asset-{index}{suffix}?v=1")
+    expected = "public, max-age=31536000, immutable" if suffix == ".glb" else "no-cache"
+    assert policy == expected
+  assert server.QuietHandler.extensions_map[".glb"] == "model/gltf-binary"
+  assert server.QuietHandler.protocol_version == "HTTP/1.1"
+  assert server.ReusableTCPServer.daemon_threads is True
+
+
+def test_repo_server_uses_static_asset_cache_without_stale_html() -> None:
+  serve_local_viewer = load_script_module(
+    "serve_local_viewer_cache", "scripts/serve_local_viewer.py"
+  )
+
+  assert (
+    serve_local_viewer.cache_control_for_path("/mesh/tile.glb?hash=abc")
+    == "public, max-age=0, must-revalidate"
+  )
+  assert serve_local_viewer.cache_control_for_path("/index.html") == "no-cache"
+  assert serve_local_viewer.cache_control_for_path("/scene.json") == "no-cache"
+  assert serve_local_viewer.QuietHandler.extensions_map[".glb"] == ("model/gltf-binary")
+  assert serve_local_viewer.ReusableTCPServer.daemon_threads is True
+
+
 def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> None:
   package_static_site = load_script_module(
     "package_static_site", "scripts/package_static_site.py"
@@ -348,6 +384,24 @@ def test_copy_static_site_skips_duplicate_and_dev_files(
   assert not (target / "assets" / "index.js.map").exists()
 
 
+def test_copy_static_site_does_not_follow_symlinks(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_symlink", "scripts/package_static_site.py"
+  )
+  source = tmp_path / "dist"
+  source.mkdir()
+  outside = tmp_path / "outside.txt"
+  outside.write_text("must not be packaged", encoding="utf-8")
+  (source / "linked.txt").symlink_to(outside)
+  (source / "index.html").write_text("<html></html>", encoding="utf-8")
+
+  target = tmp_path / "package"
+  package_static_site.copy_static_site(source, target)
+
+  assert (target / "index.html").exists()
+  assert not (target / "linked.txt").exists()
+
+
 def test_ensure_dzi_tiles_copied_repairs_missing_package_level(tmp_path: Path) -> None:
   package_static_site = load_script_module(
     "package_static_site_dzi_repair", "scripts/package_static_site.py"
@@ -384,6 +438,9 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
   (root / "src" / "app" / "dist" / "index.html").write_text(
     "<html></html>", encoding="utf-8"
   )
+  (root / "src" / "app" / "dist" / "favicon.svg").write_text(
+    "<svg></svg>", encoding="utf-8"
+  )
   for filename, data in {
     "overview.png": b"overview",
     "overview_source.png": b"source",
@@ -403,7 +460,7 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
   missing_from_dist.parent.mkdir(parents=True)
   missing_from_dist.write_bytes(b"low-level-tile")
 
-  package_dir, _ = package_static_site.package_static_site(root, tmp_path / "out")
+  package_dir, _, _ = package_static_site.package_static_site(root, tmp_path / "out")
 
   repaired = (
     package_dir
@@ -515,6 +572,36 @@ def test_zip_package_is_deterministic(tmp_path: Path) -> None:
   package_static_site.zip_package(package_dir, zip_b)
 
   assert zip_a.read_bytes() == zip_b.read_bytes()
+
+
+def test_static_tarball_is_deterministic_and_link_free(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_tar", "scripts/package_static_site.py"
+  )
+  source = tmp_path / "dist"
+  source.mkdir()
+  (source / "index.html").write_text("<html></html>", encoding="utf-8")
+  assets = source / "assets"
+  assets.mkdir()
+  script = assets / "index.js"
+  script.write_text("console.log('ok')", encoding="utf-8")
+  (assets / "index.js.map").write_text("{}", encoding="utf-8")
+
+  tar_a = tmp_path / "a.tar.gz"
+  tar_b = tmp_path / "b.tar.gz"
+  package_static_site.tar_static_site(source, tar_a)
+  os.utime(script, (1_800_000_000, 1_800_000_000))
+  package_static_site.tar_static_site(source, tar_b)
+
+  assert tar_a.read_bytes() == tar_b.read_bytes()
+  with tarfile.open(tar_a, "r:gz") as archive:
+    members = archive.getmembers()
+  assert {member.name for member in members} == {
+    "assets/index.js",
+    "index.html",
+  }
+  assert all(member.isfile() for member in members)
+  assert {member.mtime for member in members} == {package_static_site.ARCHIVE_MTIME}
 
 
 def test_local_viewer_server_skips_busy_port() -> None:

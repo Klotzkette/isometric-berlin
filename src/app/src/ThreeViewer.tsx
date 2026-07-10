@@ -317,6 +317,7 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   const geometries = new Set<Mesh["geometry"]>();
   const materials = new Set<Material>();
   const textures = new Set<Texture>();
+  const closeableImages = new Set<{ close: () => void }>();
   root.traverse((object) => {
     if (!(object instanceof Mesh)) {
       return;
@@ -332,6 +333,10 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
       )) {
         if (value instanceof Texture) {
           textures.add(value);
+          const image = value.source.data as { close?: () => void } | undefined;
+          if (typeof image?.close === "function") {
+            closeableImages.add(image as { close: () => void });
+          }
         }
       }
     }
@@ -343,6 +348,9 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   }
   for (const texture of textures) {
     texture.dispose();
+  }
+  for (const image of closeableImages) {
+    image.close();
   }
   for (const material of materials) {
     if (material instanceof MeshStandardMaterial) {
@@ -379,6 +387,9 @@ async function loadModel(
   parent: Group | Scene,
   { detail }: { detail: boolean },
 ): Promise<boolean> {
+  if (runtime.disposed) {
+    return false;
+  }
   const url = new URL(file.file, runtime.sceneRootUrl).toString();
   const gltf = await runtime.loader.loadAsync(url);
   if (runtime.disposed) {
@@ -551,15 +562,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           loaded: current.loaded,
           total: current.total + detail.files.length,
         }));
-        void runBoundedTasks(detail.files, 2, async (file) => {
-          if (
-            (await loadModelWithRetry(runtime, file, group, { detail: true })) &&
-            !runtime.disposed
-          ) {
-            entry.loadedFiles += 1;
-            setProgress((current) => ({ ...current, loaded: current.loaded + 1 }));
-          }
-        }).then((failures) => {
+        void runBoundedTasks(
+          detail.files,
+          2,
+          async (file) => {
+            if (
+              (await loadModelWithRetry(runtime, file, group, {
+                detail: true,
+              })) &&
+              !runtime.disposed
+            ) {
+              entry.loadedFiles += 1;
+              setProgress((current) => ({
+                ...current,
+                loaded: current.loaded + 1,
+              }));
+            }
+          },
+          { shouldStop: () => runtime.disposed },
+        ).then((failures) => {
           if (runtime.disposed) {
             return;
           }
@@ -799,6 +820,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         previousThreeFingerCenter = center;
       };
       const onPointerUp = (event: PointerEvent) => {
+        if (!touchPoints.has(event.pointerId)) {
+          return;
+        }
         touchPoints.delete(event.pointerId);
         if (customTouchGestureActive) {
           previousThreeFingerCenter = null;
@@ -814,13 +838,28 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           notifyView(runtime, onViewChangeRef.current);
         }
       };
+      const resetTouchGesture = () => {
+        if (touchPoints.size === 0 && !customTouchGestureActive) {
+          return;
+        }
+        touchPoints.clear();
+        previousThreeFingerCenter = null;
+        customTouchGestureActive = false;
+        controls.enabled = true;
+        notifyView(runtime, onViewChangeRef.current);
+      };
       renderer.domElement.addEventListener("pointerdown", onPointerDown, true);
       renderer.domElement.addEventListener("pointermove", onPointerMove, true);
       renderer.domElement.addEventListener("pointerup", onPointerUp, true);
       renderer.domElement.addEventListener("pointercancel", onPointerUp, true);
-      controls.addEventListener("end", () =>
-        notifyView(runtime, onViewChangeRef.current),
+      renderer.domElement.addEventListener(
+        "lostpointercapture",
+        onPointerUp,
+        true,
       );
+      window.addEventListener("blur", resetTouchGesture);
+      const onControlsEnd = () => notifyView(runtime, onViewChangeRef.current);
+      controls.addEventListener("end", onControlsEnd);
 
       const resize = () => {
         const { width, height } = host.getBoundingClientRect();
@@ -927,6 +966,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 onReadyRef.current();
               }
             },
+            { shouldStop: () => runtime.disposed },
           );
           if (disposed) {
             return;
@@ -968,7 +1008,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer.domElement.removeEventListener("pointermove", onPointerMove, true);
         renderer.domElement.removeEventListener("pointerup", onPointerUp, true);
         renderer.domElement.removeEventListener("pointercancel", onPointerUp, true);
+        renderer.domElement.removeEventListener(
+          "lostpointercapture",
+          onPointerUp,
+          true,
+        );
         renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+        window.removeEventListener("blur", resetTouchGesture);
+        controls.removeEventListener("end", onControlsEnd);
         controls.dispose();
         disposeObject3D(runtime, scene);
         renderer.dispose();

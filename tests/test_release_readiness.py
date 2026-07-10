@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import io
 import json
+import stat
+import tarfile
 import zipfile
 from pathlib import Path
 from types import ModuleType
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 TINY_DZI_XML = """<?xml version='1.0' encoding='utf-8'?>
@@ -57,6 +62,14 @@ VALID_START_HERE_HTML = (
 )
 VALID_SERVE_LOCAL = (
   'START_PAGE = "index.html"\n'
+  "def cache_control_for_path(path):\n"
+  "  return 'public, max-age=31536000, immutable'\n"
+  "class QuietHandler:\n"
+  '  protocol_version = "HTTP/1.1"\n'
+  "  def end_headers(self):\n"
+  "    cache_control_for_path(self.path)\n"
+  "class ReusableTCPServer:\n"
+  "  daemon_threads = True\n"
   "def file_sha256(path):\n"
   "  return 'hash'\n"
   "def verify_webgl_scene(root):\n"
@@ -239,6 +252,7 @@ def write_minimal_package_zip(
     "start-windows.bat": "@echo off\n",
     "start-linux.sh": "#!/bin/sh\n",
     "index.html": "<!doctype html>\n",
+    "favicon.svg": "<svg></svg>\n",
     "dzi/regierungsviertel/overview.png": b"png",
     "dzi/regierungsviertel/overview_source.png": b"png",
     "dzi/regierungsviertel/reference_map.png": b"png",
@@ -304,6 +318,51 @@ def write_minimal_package_zip(
     for relative, body in files.items():
       archive.writestr(release_readiness.package_arcname(relative), body)
   return zip_path
+
+
+def write_minimal_static_tarball(
+  root: Path,
+  release_readiness: ModuleType,
+  overrides: dict[str, bytes | str | None] | None = None,
+  extra_members: list[tarfile.TarInfo] | None = None,
+) -> Path:
+  overrides = overrides or {}
+  mesh_data = b"glb"
+  mesh_relative = "mesh/regierungsviertel/tile-3894_58196.glb"
+  files: dict[str, bytes | str] = {
+    "favicon.svg": "<svg></svg>\n",
+    "index.html": "<!doctype html>\n",
+    "assets/index.js": "console.log('ok')\n",
+    "dzi/regierungsviertel/regierungsviertel.dzi": TINY_DZI_XML,
+    "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
+    "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
+    "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
+    "mesh/regierungsviertel/scene.json": json.dumps(
+      minimal_webgl_scene(Path(mesh_relative).name, mesh_data)
+    ),
+    mesh_relative: mesh_data,
+  }
+  for relative, body in overrides.items():
+    if body is None:
+      files.pop(relative, None)
+    else:
+      files[relative] = body
+
+  tar_path = (
+    root
+    / "releases"
+    / release_readiness.static_archive_name(release_readiness.project_version(root))
+  )
+  tar_path.parent.mkdir(parents=True, exist_ok=True)
+  with tarfile.open(tar_path, "w:gz") as archive:
+    for relative, body in files.items():
+      data = body.encode("utf-8") if isinstance(body, str) else body
+      info = tarfile.TarInfo(relative)
+      info.size = len(data)
+      archive.addfile(info, fileobj=io.BytesIO(data))
+    for info in extra_members or []:
+      archive.addfile(info)
+  return tar_path
 
 
 def test_dzi_tile_failures_accepts_complete_pyramid(tmp_path: Path) -> None:
@@ -546,6 +605,96 @@ def test_zip_package_failures_rejects_corrupt_scene_glb(tmp_path: Path) -> None:
   failures = release_readiness.zip_package_failures(tmp_path)
 
   assert any("WebGL asset hash mismatch" in failure for failure in failures)
+
+
+def test_zip_package_failures_rejects_duplicate_member(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_duplicate", "scripts/check_release_readiness.py"
+  )
+  zip_path = write_minimal_package_zip(tmp_path, release_readiness)
+  duplicate = release_readiness.package_arcname("README.txt")
+  with zipfile.ZipFile(zip_path, "a") as archive:
+    with pytest.warns(UserWarning, match="Duplicate name"):
+      archive.writestr(duplicate, "duplicate\n")
+
+  assert any(
+    "Duplicate package ZIP member" in failure and duplicate in failure
+    for failure in release_readiness.zip_package_failures(tmp_path)
+  )
+
+
+def test_zip_package_failures_rejects_symlink_member(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_symlink", "scripts/check_release_readiness.py"
+  )
+  zip_path = write_minimal_package_zip(tmp_path, release_readiness)
+  link_name = release_readiness.package_arcname("assets/current.js")
+  info = zipfile.ZipInfo(link_name)
+  info.create_system = 3
+  info.external_attr = (stat.S_IFLNK | 0o777) << 16
+  with zipfile.ZipFile(zip_path, "a") as archive:
+    archive.writestr(info, "../outside.js")
+
+  assert any(
+    "Symlink package ZIP member" in failure and link_name in failure
+    for failure in release_readiness.zip_package_failures(tmp_path)
+  )
+
+
+def test_static_tarball_failures_accepts_complete_archive(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_tar_complete", "scripts/check_release_readiness.py"
+  )
+  (tmp_path / "pyproject.toml").write_text(
+    '[project]\nname = "fixture"\nversion = "9.9.9"\n',
+    encoding="utf-8",
+  )
+  write_minimal_static_tarball(tmp_path, release_readiness)
+
+  assert release_readiness.static_tarball_failures(tmp_path) == []
+
+
+def test_static_tarball_failures_rejects_missing_scene_glb(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_tar_missing_glb", "scripts/check_release_readiness.py"
+  )
+  (tmp_path / "pyproject.toml").write_text(
+    '[project]\nname = "fixture"\nversion = "9.9.9"\n',
+    encoding="utf-8",
+  )
+  write_minimal_static_tarball(
+    tmp_path,
+    release_readiness,
+    {"mesh/regierungsviertel/tile-3894_58196.glb": None},
+  )
+
+  failures = release_readiness.static_tarball_failures(tmp_path)
+  assert any("Missing referenced WebGL asset" in failure for failure in failures)
+
+
+def test_static_tarball_failures_rejects_links_and_duplicates(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_tar_links", "scripts/check_release_readiness.py"
+  )
+  (tmp_path / "pyproject.toml").write_text(
+    '[project]\nname = "fixture"\nversion = "9.9.9"\n',
+    encoding="utf-8",
+  )
+  link = tarfile.TarInfo("assets/current.js")
+  link.type = tarfile.SYMTYPE
+  link.linkname = "../outside.js"
+  duplicate = tarfile.TarInfo("index.html")
+  write_minimal_static_tarball(
+    tmp_path,
+    release_readiness,
+    extra_members=[link, duplicate],
+  )
+
+  failures = release_readiness.static_tarball_failures(tmp_path)
+  assert any("Linked static archive member" in failure for failure in failures)
+  assert any("Duplicate static archive member" in failure for failure in failures)
 
 
 def test_zip_package_failures_rejects_stale_launcher(tmp_path: Path) -> None:

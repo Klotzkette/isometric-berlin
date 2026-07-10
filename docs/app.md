@@ -97,7 +97,10 @@ textures are explicitly disposed to bound browser and GPU memory. A lost WebGL
 context switches to the DZI fallback and a later 3D selection creates a fresh
 context. On touch/coarse-pointer devices, switching to the 2D map unmounts the
 inactive WebGL scene and active 3D rendering uses a 30 fps budget; desktop keeps
-the loaded scene warm for rapid mode switching.
+the loaded scene warm for rapid mode switching. Disposal also stops workers
+before they start another queued GLB, closes decoded image resources where the
+browser exposes them and resets custom touch state on lost pointer capture or
+window blur.
 
 The DZI tile pyramid and reference map
 load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is
@@ -111,3 +114,9 @@ bucket) instead — see
 When opened over `file://`, its full-3D link now displays the platform-specific
 server command instead of navigating to a module page that browsers cannot load
 reliably from local files.
+
+The packaged HTTP server uses HTTP/1.1 and serves GLBs as
+`model/gltf-binary`. Heavy immutable assets (`.glb`, DZI images, JavaScript and
+CSS) receive a one-year immutable cache policy, while HTML and scene metadata
+revalidate. The repository development server uses revalidation rather than an
+immutable policy so a rebuilt file with the same name is not hidden by cache.

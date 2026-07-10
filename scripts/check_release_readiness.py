@@ -6,11 +6,14 @@ import hashlib
 import json
 import math
 import re
+import stat
+import tarfile
 import tomllib
 import xml.etree.ElementTree as ET
 import zipfile
+from collections import Counter
 from collections.abc import Callable, Iterator
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +39,7 @@ DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
 BOUNDED_PREVIEW_FILES = ("overview.png", "overview_source.png", "reference_map.png")
 REQUIRED_PACKAGE_ENTRIES = (
   "START-HERE.html",
@@ -46,6 +50,7 @@ REQUIRED_PACKAGE_ENTRIES = (
   "start-windows.bat",
   "start-linux.sh",
   "index.html",
+  "favicon.svg",
   "dzi/regierungsviertel/overview.png",
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/reference_map.png",
@@ -113,6 +118,10 @@ def expected_download_url(version: str) -> str:
     "https://github.com/Klotzkette/isometric-berlin/releases/download/"
     f"v{version}/{PACKAGE_ZIP}"
   )
+
+
+def static_archive_name(version: str) -> str:
+  return f"isometric-berlin-viewer-v{version}.tar.gz"
 
 
 def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
@@ -272,10 +281,12 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   """Keep the true-3D, selected-only and touch interaction contracts intact."""
   viewer_path = root / "src/app/src/ThreeViewer.tsx"
   app_path = root / "src/app/src/App.tsx"
-  if not viewer_path.exists() or not app_path.exists():
+  styles_path = root / "src/app/src/styles.css"
+  if not viewer_path.exists() or not app_path.exists() or not styles_path.exists():
     return ["Missing true-3D viewer sources"]
   viewer = viewer_path.read_text(encoding="utf-8")
   app = app_path.read_text(encoding="utf-8")
+  styles = styles_path.read_text(encoding="utf-8")
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
     "three-finger gesture": "touchPoints.size >= 3",
@@ -293,6 +304,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "nonfatal detail warnings": "onWarningRef.current",
     "WebGL context-loss fallback": 'addEventListener("webglcontextlost"',
     "coarse-pointer frame budget": "frameIntervalMs = coarsePointer ? 1000 / 30",
+    "disposed queue cancellation": "shouldStop: () => runtime.disposed",
+    "lost pointer-capture recovery": '"lostpointercapture"',
+    "window-blur gesture recovery": 'window.addEventListener("blur"',
+    "decoded texture-image disposal": "image.close()",
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"
@@ -303,6 +318,18 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:
     failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
+  required_mobile_style_snippets = {
+    "narrow-screen toolbar breakpoint": "@media (max-width: 520px)",
+    "two-row mobile toolbar": ("grid-template-columns: repeat(5, minmax(44px, 1fr))"),
+    "mobile toolbar clearance": (
+      "bottom: calc(158px + env(safe-area-inset-bottom, 0px))"
+    ),
+  }
+  failures.extend(
+    f"Viewer CSS lacks {label}: {styles_path}"
+    for label, snippet in required_mobile_style_snippets.items()
+    if snippet not in styles
+  )
   dome_path = root / "src/app/src/ReichstagDome.ts"
   if not dome_path.exists():
     failures.append(f"Missing official-dimension Reichstag dome source: {dome_path}")
@@ -510,6 +537,9 @@ def package_server_failures(serve_text: str, label: str) -> list[str]:
     or "require_package_files(root)" not in serve_text
     or "verify_webgl_scene(root)" not in serve_text
     or "file_sha256(path)" not in serve_text
+    or "cache_control_for_path(self.path)" not in serve_text
+    or 'protocol_version = "HTTP/1.1"' not in serve_text
+    or "daemon_threads = True" not in serve_text
     or "flush=True" not in serve_text
   ):
     return [
@@ -726,11 +756,33 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
   failures: list[str] = []
   try:
     with zipfile.ZipFile(zip_path) as archive:
-      corrupt_member = archive.testzip()
-      if corrupt_member is not None:
-        failures.append(f"Corrupt ZIP member: {zip_path}!{corrupt_member}")
+      members = archive.infolist()
+      name_counts = Counter(member.filename for member in members)
+      encrypted_names: set[str] = set()
+      for name, count in sorted(name_counts.items()):
+        if count > 1:
+          failures.append(
+            f"Duplicate package ZIP member ({count} copies): {zip_path}!{name}"
+          )
+      for member in members:
+        mode = member.external_attr >> 16
+        if stat.S_ISLNK(mode):
+          failures.append(f"Symlink package ZIP member: {zip_path}!{member.filename}")
+        if member.flag_bits & 0x1:
+          encrypted_names.add(member.filename)
+          failures.append(f"Encrypted package ZIP member: {zip_path}!{member.filename}")
+      uncompressed_bytes = sum(member.file_size for member in members)
+      if uncompressed_bytes > MAX_PACKAGE_UNCOMPRESSED_BYTES:
+        failures.append(
+          "Package ZIP exceeds 200 MiB extracted budget: "
+          f"{zip_path} ({uncompressed_bytes} bytes)"
+        )
+      if not any(member.flag_bits & 0x1 for member in members):
+        corrupt_member = archive.testzip()
+        if corrupt_member is not None:
+          failures.append(f"Corrupt ZIP member: {zip_path}!{corrupt_member}")
 
-      names = set(archive.namelist())
+      names = set(name_counts) - encrypted_names
       for relative in REQUIRED_PACKAGE_ENTRIES:
         arcname = package_arcname(relative)
         if arcname not in names:
@@ -790,6 +842,121 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
   return failures
 
 
+def normalized_tar_name(name: str) -> str:
+  return PurePosixPath(name).as_posix().removeprefix("./")
+
+
+def static_tarball_failures(root: Path = ROOT) -> list[str]:
+  """Validate the independently deployable static viewer archive."""
+  version = project_version(root)
+  tar_path = root / "releases" / static_archive_name(version)
+  if not tar_path.exists():
+    return [f"Missing static viewer archive: {tar_path}"]
+
+  failures: list[str] = []
+  try:
+    with tarfile.open(tar_path, "r:gz") as archive:
+      members = archive.getmembers()
+      files: dict[str, tarfile.TarInfo] = {}
+      name_counts: Counter[str] = Counter()
+      for member in members:
+        pure_path = PurePosixPath(member.name)
+        normalized = normalized_tar_name(member.name)
+        if pure_path.is_absolute() or ".." in pure_path.parts or "\\" in member.name:
+          failures.append(f"Unsafe static archive path: {tar_path}!{member.name}")
+          continue
+        if member.issym() or member.islnk():
+          failures.append(f"Linked static archive member: {tar_path}!{member.name}")
+          continue
+        if not member.isfile() and not member.isdir():
+          failures.append(f"Special static archive member: {tar_path}!{member.name}")
+          continue
+        if member.isfile():
+          name_counts[normalized] += 1
+          files.setdefault(normalized, member)
+          if has_forbidden_duplicate_name(Path(normalized)):
+            failures.append(
+              f"Unwanted duplicate/hidden static archive path: {tar_path}!{member.name}"
+            )
+
+      for name, count in sorted(name_counts.items()):
+        if count > 1:
+          failures.append(
+            f"Duplicate static archive member ({count} copies): {tar_path}!{name}"
+          )
+      uncompressed_bytes = sum(member.size for member in files.values())
+      if uncompressed_bytes > MAX_PACKAGE_UNCOMPRESSED_BYTES:
+        failures.append(
+          "Static archive exceeds 200 MiB extracted budget: "
+          f"{tar_path} ({uncompressed_bytes} bytes)"
+        )
+
+      required = {
+        "favicon.svg",
+        "index.html",
+        "mesh/regierungsviertel/scene.json",
+        "mesh/regierungsviertel/tile-3894_58196.glb",
+        "dzi/regierungsviertel/regierungsviertel.dzi",
+        "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
+      }
+      for name in sorted(required - files.keys()):
+        failures.append(f"Missing static archive entry: {tar_path}!{name}")
+      if not any(name.startswith("assets/") and name.endswith(".js") for name in files):
+        failures.append(f"Static archive has no built JavaScript: {tar_path}")
+
+      def read_member(name: str) -> bytes:
+        member = files[name]
+        extracted = archive.extractfile(member)
+        if extracted is None:
+          raise KeyError(name)
+        return extracted.read()
+
+      scene_name = "mesh/regierungsviertel/scene.json"
+      if scene_name in files:
+        try:
+          scene = json.loads(read_member(scene_name).decode("utf-8"))
+        except (KeyError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+          failures.append(f"Invalid static WebGL scene: {tar_path}: {exc}")
+        else:
+          if not isinstance(scene, dict):
+            failures.append(f"Static WebGL scene is not an object: {tar_path}")
+          else:
+            mesh_prefix = "mesh/regierungsviertel/"
+            actual_assets = {
+              name.removeprefix(mesh_prefix)
+              for name in files
+              if name.startswith(mesh_prefix) and name.endswith(".glb")
+            }
+            failures.extend(
+              webgl_manifest_failures(
+                scene,
+                label=f"{tar_path}!{scene_name}",
+                asset_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
+                actual_asset_names=actual_assets,
+              )
+            )
+
+      descriptor_name = f"dzi/regierungsviertel/{DZI_DESCRIPTOR}"
+      if descriptor_name in files:
+        info, dzi_failures = parse_dzi_descriptor(
+          f"{tar_path}!{descriptor_name}", read_member(descriptor_name)
+        )
+        failures.extend(dzi_failures)
+        if info is not None:
+          for relative_tile in iter_dzi_tile_paths(info):
+            tile_name = f"dzi/regierungsviertel/{DZI_TILES_DIR}/{relative_tile}"
+            if tile_name not in files:
+              failures.append(
+                f"Missing DZI static archive tile: {tar_path}!{tile_name}"
+              )
+            elif files[tile_name].size == 0:
+              failures.append(f"Empty DZI static archive tile: {tar_path}!{tile_name}")
+  except (OSError, EOFError, tarfile.TarError) as exc:
+    return [f"Invalid static viewer archive: {tar_path}: {exc}"]
+
+  return failures
+
+
 def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[str]:
   failures: list[str] = []
   routes = payload.get("routes")
@@ -838,7 +1005,10 @@ def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[s
 
 
 def collect_failures(
-  root: Path = ROOT, *, require_package_zip: bool = False
+  root: Path = ROOT,
+  *,
+  require_package_zip: bool = False,
+  require_static_tarball: bool = False,
 ) -> list[str]:
   failures: list[str] = []
   version = project_version(root)
@@ -958,6 +1128,9 @@ def collect_failures(
   zip_path = root / "releases" / PACKAGE_ZIP
   if require_package_zip or zip_path.exists():
     failures.extend(zip_package_failures(root))
+  tar_path = root / "releases" / static_archive_name(version)
+  if require_static_tarball or tar_path.exists():
+    failures.extend(static_tarball_failures(root))
 
   scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
   for scan_root in scan_roots:
@@ -971,7 +1144,10 @@ def collect_failures(
 
 
 def main() -> None:
-  failures = collect_failures(require_package_zip=True)
+  failures = collect_failures(
+    require_package_zip=True,
+    require_static_tarball=True,
+  )
   if failures:
     details = "\n".join(f"- {failure}" for failure in failures)
     raise SystemExit(f"Release readiness failed:\n{details}")

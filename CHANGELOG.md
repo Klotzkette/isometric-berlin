@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.2.3
+
+- Stop the bounded base/hero worker queues as soon as a Three.js runtime is
+  disposed. Switching a touch device to the 2D map no longer starts every
+  remaining GLB request in the background; already completed geometry,
+  materials, textures and closeable decoded images are released.
+- Recover custom touch controls from duplicate pointer endings, lost pointer
+  capture and window blur. A cancelled three-finger underside gesture can no
+  longer leave OrbitControls permanently disabled.
+- Replace blanket `Cache-Control: no-store` with HTTP/1.1 asset-aware caching.
+  The immutable local package reuses GLBs, DZI tiles, scripts and images for a
+  year; the repository server revalidates them so rebuilds still appear. Both
+  servers explicitly return `model/gltf-binary` for GLBs and use daemon request
+  threads for prompt shutdown.
+- Keep every primary viewer action visible on narrow phones by switching the
+  bottom toolbar to a two-row, five-column touch layout below 520 px.
+- Move the frontend toolchain from Vite 7.3.5/esbuild to Vite 8.1.4/Rolldown,
+  migrate manual chunking to the function form required by Rolldown and remove
+  the low-severity Windows development-server advisory reported by `bun audit`.
+- Generate the static viewer `.tar.gz` alongside the ZIP with deterministic
+  Python archive code. This removes more than 4,000 macOS AppleDouble `._…`
+  entries present in the previous tarball, excludes source maps and never
+  follows source symlinks.
+- Validate the static tarball as rigorously as the local ZIP: complete DZI
+  pyramid, all 45 scene GLB hashes/sizes, safe relative paths, 200 MiB extracted
+  ceiling and rejection of links, duplicate members and special files. ZIP QA
+  now also rejects duplicate, linked and encrypted members.
+- Extend executable regression coverage with 100-job cancellation and
+  100-request cache-policy sweeps, deterministic tar generation, archive-link
+  attacks, duplicate-member cases and live package HTTP/cache/content-type
+  checks.
+
 ## v0.2.2
 
 - Close the release-integrity gap around the official 3D scene. Release QA now

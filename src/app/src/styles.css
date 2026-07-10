@@ -912,6 +912,23 @@ button {
   }
 }
 
+@media (max-width: 520px) {
+  .three-progress,
+  .landmark-rail {
+    bottom: calc(158px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    overflow-x: visible;
+  }
+
+  .toolbar button {
+    width: 100%;
+  }
+}
+
 @media (pointer: coarse) {
   .toolbar button,
   .view-controls button,

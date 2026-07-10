@@ -153,6 +153,18 @@ def read_url(url: str) -> bytes:
     return response.read()
 
 
+def read_url_metadata(url: str) -> tuple[bytes, str, str, int]:
+  with urllib.request.urlopen(url, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+    if response.status != 200:
+      raise RuntimeError(f"HTTP {response.status} for {url}")
+    return (
+      response.read(),
+      response.headers.get("Cache-Control", ""),
+      response.headers.get("Content-Type", ""),
+      response.version,
+    )
+
+
 def read_json_url(url: str) -> dict[str, Any]:
   return json.loads(read_url(url).decode("utf-8"))
 
@@ -192,7 +204,14 @@ def require_package_files(package_dir: Path) -> None:
 
 
 def verify_package_http(base_url: str, expected_version: str) -> None:
-  start_html = read_url(f"{base_url}/START-HERE.html").decode("utf-8")
+  start_data, start_cache, _, http_version = read_url_metadata(
+    f"{base_url}/START-HERE.html"
+  )
+  start_html = start_data.decode("utf-8")
+  if start_cache != "no-cache":
+    raise RuntimeError(f"START-HERE.html has unsafe cache policy: {start_cache}")
+  if http_version != 11:
+    raise RuntimeError(f"Local package server is not using HTTP/1.1: {http_version}")
   missing = [
     snippet for snippet in REQUIRED_START_SNIPPETS if snippet not in start_html
   ]
@@ -257,6 +276,21 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   landmarks = read_json_url(f"{base_url}/dzi/regierungsviertel/landmarks.json")
   if len(landmarks.get("landmarks", [])) < 30:
     raise RuntimeError("Landmark payload is unexpectedly small")
+
+  scene = read_json_url(f"{base_url}/mesh/regierungsviertel/scene.json")
+  base_tiles = scene.get("base_tiles")
+  if not isinstance(base_tiles, list) or not base_tiles:
+    raise RuntimeError("WebGL scene has no base tiles")
+  model_name = str(base_tiles[0].get("file", ""))
+  model, model_cache, content_type, _ = read_url_metadata(
+    f"{base_url}/mesh/regierungsviertel/{model_name}"
+  )
+  if len(model) != base_tiles[0].get("bytes"):
+    raise RuntimeError(f"Served GLB byte count is wrong: {model_name}")
+  if model_cache != "public, max-age=31536000, immutable":
+    raise RuntimeError(f"GLB cache policy is ineffective: {model_cache}")
+  if content_type.split(";", maxsplit=1)[0] != "model/gltf-binary":
+    raise RuntimeError(f"GLB content type is wrong: {content_type}")
 
 
 def main() -> int:

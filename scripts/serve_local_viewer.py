@@ -15,10 +15,38 @@ import socket
 import socketserver
 import webbrowser
 from pathlib import Path
+from urllib.parse import urlsplit
+
+CACHEABLE_SUFFIXES = {
+  ".css",
+  ".glb",
+  ".jpg",
+  ".js",
+  ".png",
+  ".svg",
+  ".wasm",
+  ".webp",
+  ".woff2",
+}
+
+
+def cache_control_for_path(request_path: str) -> str:
+  """Cache immutable static payloads while revalidating entry metadata."""
+  suffix = Path(urlsplit(request_path).path).suffix.lower()
+  if suffix in CACHEABLE_SUFFIXES:
+    return "public, max-age=0, must-revalidate"
+  return "no-cache"
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
-  """Static file handler with concise logging and no stale cache."""
+  """Static file handler with concise logging and asset-aware caching."""
+
+  extensions_map = {
+    **http.server.SimpleHTTPRequestHandler.extensions_map,
+    ".dzi": "application/xml",
+    ".glb": "model/gltf-binary",
+  }
+  protocol_version = "HTTP/1.1"
 
   def handle(self) -> None:
     try:
@@ -27,15 +55,17 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
       pass
 
   def end_headers(self) -> None:
-    self.send_header("Cache-Control", "no-store")
+    self.send_header("Cache-Control", cache_control_for_path(self.path))
     super().end_headers()
 
   def log_message(self, format: str, *args: object) -> None:
-    print(f"[viewer] {self.address_string()} - {format % args}")
+    print(f"[viewer] {self.address_string()} - {format % args}", flush=True)
 
 
 class ReusableTCPServer(socketserver.ThreadingTCPServer):
   allow_reuse_address = True
+  daemon_threads = True
+  request_queue_size = 32
 
 
 def repo_root() -> Path:

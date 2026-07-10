@@ -19,6 +19,13 @@ uv run python scripts/check_release_readiness.py
 uv run python scripts/smoke_local_package.py
 ```
 
+`package_static_site.py` writes both
+`isometric-berlin-regierungsviertel-local.zip` and the independently deployable
+`isometric-berlin-viewer-v<version>.tar.gz`. Do not recreate the tarball with
+the macOS system `tar`: it can inject AppleDouble `._…` metadata files. The
+Python packager normalizes timestamps and ownership, excludes source maps and
+produces byte-identical output for identical builds.
+
 The package contains two entries:
 
 - `START-HERE.html` is the double-click, zero-server 2D compatibility view.
@@ -29,7 +36,9 @@ The package contains two entries:
 The generated server verifies the declared size and SHA-256 of every GLB before
 opening the browser. Release readiness performs the same check against the
 source tree, extracted package and final ZIP, verifies every DZI tile, and
-rejects hidden, duplicate or stale 3D assets.
+rejects hidden, duplicate or stale 3D assets. The same gate parses the static
+tarball, rejects links/special files/path traversal and verifies all scene and
+DZI payloads before tagging.
 
 If a future deployment separates heavy assets, the DZI pyramid and mesh can be
 placed on an object store such as Cloudflare R2. Attribution and relative-path

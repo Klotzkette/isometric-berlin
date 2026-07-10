@@ -8,10 +8,21 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          "map-engine": ["openseadragon"],
-          "react-vendor": ["react", "react-dom"],
-          "three-engine": ["three"],
+        manualChunks(moduleId) {
+          const normalizedModuleId = moduleId.replaceAll("\\", "/");
+          if (normalizedModuleId.includes("/node_modules/openseadragon/")) {
+            return "map-engine";
+          }
+          if (
+            normalizedModuleId.includes("/node_modules/react/") ||
+            normalizedModuleId.includes("/node_modules/react-dom/")
+          ) {
+            return "react-vendor";
+          }
+          if (normalizedModuleId.includes("/node_modules/three/")) {
+            return "three-engine";
+          }
+          return undefined;
         },
       },
     },
