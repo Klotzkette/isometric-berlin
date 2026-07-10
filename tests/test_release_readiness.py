@@ -114,7 +114,29 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
         "vertical_ribs": 24,
         "horizontal_rings": 17,
         "source_url": ("https://www.bundestag.de/besuche/architektur/reichstag/kuppel"),
-      }
+      },
+      {"id": "reichstag-model", "width_m": 100.0, "depth_m": 138.0},
+      {
+        "id": "bundeskanzleramt-model",
+        "cube_height_m": 36.0,
+        "office_height_m": 18.0,
+        "office_segments": [{}, {}, {}],
+      },
+      {
+        "id": "hauptbahnhof-model",
+        "east_west_roof_length_m": 321.0,
+        "north_south_hall_length_m": 160.0,
+        "north_south_hall_width_m": 45.0,
+        "office_bridge_height_m": 46.0,
+      },
+      {
+        "id": "brandenburger-tor-model",
+        "width_m": 62.5,
+        "depth_m": 11.0,
+        "total_height_m": 26.0,
+        "column_rows": 2,
+        "columns_per_row": 6,
+      },
     ],
   }
 

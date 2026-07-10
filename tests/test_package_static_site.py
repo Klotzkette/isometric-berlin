@@ -282,7 +282,9 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "START-HERE.html" in readme
   assert "2D-Kompatibilitätsansicht" in readme
   assert "Echtes 3D" in readme
-  assert "40 m Durchmesser" in readme
+  assert "40 x 23,5 m Kuppel" in readme
+  assert "321-m-Glasdach" in readme
+  assert "62,5 x 11 x 26 m" in readme
   assert "start-mac.command" in readme
   assert "Gatekeeper" in readme
   assert "nächsten freien Port" in readme

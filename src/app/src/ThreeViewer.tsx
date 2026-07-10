@@ -11,6 +11,7 @@ import {
   FrontSide,
   Group,
   HemisphereLight,
+  LineSegments,
   Material,
   MathUtils,
   Mesh,
@@ -34,8 +35,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   type ArchitecturalSignature,
-  createOfficialReichstagDome,
-} from "./ReichstagDome";
+  type FocusCamera,
+  createArchitecturalSignature,
+  focusCameraForSignature,
+} from "./ArchitecturalLandmarks";
 import { runBoundedTasks } from "./boundedTaskPool";
 import { heroDetailEvictions } from "./heroDetailCache";
 import {
@@ -113,6 +116,7 @@ type Runtime = {
   detailClock: number;
   detailGroups: Map<string, HeroDetailGroup>;
   disposed: boolean;
+  focusCameraByName: Map<string, FocusCamera>;
   heroByName: Map<string, HeroDetail>;
   landmarkByName: Map<string, SceneLandmark>;
   loader: GLTFLoader;
@@ -140,7 +144,7 @@ const DETAIL_RAISE_M = 0.035;
 function createSelectionMarker(): Group {
   const group = new Group();
   const ring = new Mesh(
-    new RingGeometry(4.2, 5.8, 48),
+    new RingGeometry(2.6, 3.7, 48),
     new MeshBasicMaterial({
       color: 0xffc45d,
       depthTest: false,
@@ -153,7 +157,7 @@ function createSelectionMarker(): Group {
   ring.renderOrder = 20;
   group.add(ring);
   const point = new Mesh(
-    new SphereGeometry(1.05, 18, 12),
+    new SphereGeometry(0.62, 18, 12),
     new MeshBasicMaterial({
       color: 0xffd98a,
       depthTest: false,
@@ -162,7 +166,7 @@ function createSelectionMarker(): Group {
       opacity: 0.95,
     }),
   );
-  point.position.y = 1.4;
+  point.position.y = 0.9;
   point.renderOrder = 21;
   group.add(point);
   return group;
@@ -319,7 +323,7 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   const textures = new Set<Texture>();
   const closeableImages = new Set<{ close: () => void }>();
   root.traverse((object) => {
-    if (!(object instanceof Mesh)) {
+    if (!(object instanceof Mesh) && !(object instanceof LineSegments)) {
       return;
     }
     geometries.add(object.geometry);
@@ -510,20 +514,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return;
       }
       const target = new Vector3(...landmark.world);
-      const currentOffset = runtime.camera.position
-        .clone()
-        .sub(runtime.controls.target)
-        .normalize();
-      const distance =
-        name.includes("Tiergartentunnel")
-          ? 460
-          : name === "Bundeskanzleramt"
-          ? 320
-          : runtime.heroByName.has(name)
-            ? 250
-            : 190;
+      const cameraPreset = runtime.focusCameraByName.get(name);
+      let cameraOffset: Vector3;
+      if (cameraPreset) {
+        target.y = cameraPreset.target_height_m;
+        cameraOffset = new Vector3().setFromSpherical(
+          new Spherical(
+            cameraPreset.distance_m,
+            MathUtils.degToRad(cameraPreset.polar_degrees),
+            MathUtils.degToRad(cameraPreset.azimuth_degrees),
+          ),
+        );
+      } else {
+        const currentDirection = runtime.camera.position
+          .clone()
+          .sub(runtime.controls.target)
+          .normalize();
+        const distance = name.includes("Tiergartentunnel") ? 460 : 190;
+        cameraOffset = currentDirection.multiplyScalar(distance);
+      }
       runtime.controls.target.copy(target);
-      runtime.camera.position.copy(target).addScaledVector(currentOffset, distance);
+      runtime.camera.position.copy(target).add(cameraOffset);
       const markerHeight =
         name === "Reichstagsgebäude"
           ? 62
@@ -537,6 +548,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtime.marker.position.copy(target).setY(markerHeight);
       runtime.marker.visible = true;
       runtime.controls.update(immediate ? 1 : undefined);
+      notifyView(runtime, onViewChangeRef.current);
 
       runtime.detailClock += 1;
       for (const [heroName, entry] of runtime.detailGroups) {
@@ -713,9 +725,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
-      scene.background = new Color(0xcce8f2);
-      scene.fog = new Fog(0xcce8f2, 1050, 2450);
-      scene.add(new HemisphereLight(0xf8fcff, 0x80967a, 3.35));
+      scene.background = new Color(0xd9f1f5);
+      scene.fog = new Fog(0xd9f1f5, 1050, 2450);
+      scene.add(new HemisphereLight(0xffffff, 0x729b75, 3.35));
       const sun = new DirectionalLight(0xfff1cf, 2.05);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
@@ -725,6 +737,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sun.shadow.camera.top = 1300;
       sun.shadow.camera.bottom = -1300;
       scene.add(sun);
+      const skyFill = new DirectionalLight(0xb9d8ff, 0.48);
+      skyFill.position.set(620, 430, -680);
+      scene.add(skyFill);
 
       const camera = new PerspectiveCamera(39, 1, 0.25, 6000);
       camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
@@ -758,6 +773,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         detailClock: 0,
         detailGroups: new Map(),
         disposed: false,
+        focusCameraByName: new Map(),
         heroByName: new Map(),
         landmarkByName: new Map(),
         loader: new GLTFLoader(),
@@ -922,8 +938,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
           );
           for (const signature of manifest.architectural_signatures ?? []) {
-            if (signature.id === "reichstag-dome") {
-              runtime.signatures.add(createOfficialReichstagDome(signature));
+            const model = createArchitecturalSignature(signature);
+            if (model) {
+              runtime.signatures.add(model);
+            }
+            const focusCamera = focusCameraForSignature(signature);
+            if (focusCamera) {
+              runtime.focusCameraByName.set(signature.landmark_name, focusCamera);
             }
           }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);

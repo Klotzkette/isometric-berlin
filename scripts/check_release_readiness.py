@@ -186,6 +186,51 @@ def webgl_manifest_failures(
   ):
     failures.append(f"WebGL scene lacks the official-dimension Reichstag dome: {label}")
 
+  signature_by_id = {
+    str(signature.get("id")): signature
+    for signature in signatures or []
+    if isinstance(signature, dict)
+  }
+  recognition_requirements = {
+    "reichstag-model": {
+      "width_m": 100.0,
+      "depth_m": 138.0,
+    },
+    "bundeskanzleramt-model": {
+      "cube_height_m": 36.0,
+      "office_height_m": 18.0,
+    },
+    "hauptbahnhof-model": {
+      "east_west_roof_length_m": 321.0,
+      "north_south_hall_length_m": 160.0,
+      "north_south_hall_width_m": 45.0,
+      "office_bridge_height_m": 46.0,
+    },
+    "brandenburger-tor-model": {
+      "width_m": 62.5,
+      "depth_m": 11.0,
+      "total_height_m": 26.0,
+      "column_rows": 2,
+      "columns_per_row": 6,
+    },
+  }
+  for signature_id, requirements in recognition_requirements.items():
+    signature = signature_by_id.get(signature_id)
+    if not isinstance(signature, dict) or any(
+      signature.get(field) != expected for field, expected in requirements.items()
+    ):
+      failures.append(
+        f"WebGL scene lacks metric recognition signature {signature_id}: {label}"
+      )
+  chancellery_signature = signature_by_id.get("bundeskanzleramt-model")
+  if (
+    not isinstance(chancellery_signature, dict)
+    or len(chancellery_signature.get("office_segments", [])) < 3
+  ):
+    failures.append(
+      f"WebGL scene lacks LoD2-aligned Chancellery office segments: {label}"
+    )
+
   files = list(base_tiles)
   files.extend(
     file
@@ -281,11 +326,18 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   """Keep the true-3D, selected-only and touch interaction contracts intact."""
   viewer_path = root / "src/app/src/ThreeViewer.tsx"
   app_path = root / "src/app/src/App.tsx"
+  architecture_path = root / "src/app/src/ArchitecturalLandmarks.ts"
   styles_path = root / "src/app/src/styles.css"
-  if not viewer_path.exists() or not app_path.exists() or not styles_path.exists():
+  if (
+    not viewer_path.exists()
+    or not app_path.exists()
+    or not architecture_path.exists()
+    or not styles_path.exists()
+  ):
     return ["Missing true-3D viewer sources"]
   viewer = viewer_path.read_text(encoding="utf-8")
   app = app_path.read_text(encoding="utf-8")
+  architecture = architecture_path.read_text(encoding="utf-8")
   styles = styles_path.read_text(encoding="utf-8")
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
@@ -296,7 +348,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       "material.side = runtime.underside ? DoubleSide : FrontSide"
     ),
     "oblique texture filtering": "material.map.anisotropy",
-    "official-dimension Reichstag dome": "createOfficialReichstagDome",
     "hidden default marker": "marker.visible = false",
     "bounded hero-detail cache": "heroDetailEvictions",
     "GPU texture disposal": "texture.dispose()",
@@ -318,6 +369,20 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:
     failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
+  required_architecture_snippets = {
+    "official-dimension Reichstag dome": "createOfficialReichstagDome",
+    "metric Brandenburg Gate columns": "Brandenburg Gate Doric column",
+    "metric Hauptbahnhof glass roof": "321 m east-west glass roof",
+    "metric Chancellery semicircular windows": (
+      "Chancellery semicircular leadership window"
+    ),
+    "metric Reichstag west portico": "Reichstag west portico column",
+  }
+  failures.extend(
+    f"Architecture models lack {model}: {architecture_path}"
+    for model, snippet in required_architecture_snippets.items()
+    if snippet not in architecture
+  )
   required_mobile_style_snippets = {
     "narrow-screen toolbar breakpoint": "@media (max-width: 520px)",
     "two-row mobile toolbar": ("grid-template-columns: repeat(5, minmax(44px, 1fr))"),

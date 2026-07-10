@@ -47,11 +47,20 @@ Only the selected landmark receives a focus ring. The former 39 permanently
 visible coloured map dots were removed from the Three.js, DZI and zero-server
 fallbacks because they obscured roofs and facades.
 
-The Reichstag carries an explicit architectural signature over the official
-photogrammetry: a transparent glass shell with 24 main ribs, 17 horizontal
-rings, two counter-rotating ramps and a mirror cone. Its 40 m diameter and
-23.5 m height come from the Bundestag's architecture page and are aligned to
-the apex of the official Berlin mesh rather than positioned by eye.
+The four hero landmarks carry metre-scale recognition models over the official
+photogrammetry. The Reichstag combines its four corner towers and west portico
+with a transparent 40 m by 23.5 m dome, 24 main ribs, 17 horizontal rings, two
+counter-rotating ramps and a mirror cone. The Chancellery separates its 36 m
+central cube, semicircular windows and 18 m office bands. Hauptbahnhof exposes
+the 321 m glass roof, 160 x 45 m crossing hall and 46 m office bridges. The
+Brandenburg Gate keeps its published 62.5 x 11 x 26 m envelope, twelve Doric
+columns and bronze-green Quadriga. These models sharpen silhouettes without
+replacing the aligned Berlin Mesh texture beneath them.
+
+Selecting one of these four heroes applies a documented presentation angle and
+building-specific camera distance. The model remains freely orbitable
+immediately afterward; the preset only prevents small landmarks such as the
+Brandenburg Gate from opening as an unrecognisable object in a 250 m-wide view.
 
 The downloadable `START-HERE.html` is explicitly a 2D compatibility fallback,
 not the full viewer. It uses a separate zero-server camera and

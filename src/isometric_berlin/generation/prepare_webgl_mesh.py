@@ -45,6 +45,18 @@ REICHSTAG_DOME_HORIZONTAL_RINGS = 17
 REICHSTAG_DOME_SOURCE_URL = (
   "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
 )
+REICHSTAG_ARCHITECTURE_SOURCE_URL = (
+  "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518"
+)
+CHANCELLERY_ARCHITECTURE_SOURCE_URL = (
+  "https://www.bundesregierung.de/breg-de/bundesregierung/"
+  "bundeskanzleramt/geschichte-bundeskanzleramt-975040"
+)
+HAUPTBAHNHOF_ARCHITECTURE_SOURCE_URL = (
+  "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/"
+  "hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186"
+)
+BRANDENBURG_GATE_SOURCE_URL = "https://www.visitberlin.de/de/brandenburger-tor"
 
 
 @dataclass(frozen=True)
@@ -387,6 +399,7 @@ def landmark_payload(landmarks: gpd.GeoDataFrame) -> list[dict[str, Any]]:
 def architectural_signature_payload(
   landmarks: gpd.GeoDataFrame,
   hero_details: dict[str, list[dict[str, Any]]],
+  buildings: gpd.GeoDataFrame | None = None,
 ) -> list[dict[str, Any]]:
   """Build dimensioned architectural overlays from primary-source evidence."""
   matches = landmarks[landmarks["name"] == "Reichstagsgebäude"]
@@ -400,9 +413,10 @@ def architectural_signature_payload(
   )
   point = matches.geometry.iloc[0]
   base_world_y = source_top_m - ORIGIN[2] - REICHSTAG_DOME_HEIGHT_M
-  return [
+  signatures = [
     {
       "id": "reichstag-dome",
+      "kind": "reichstag_dome",
       "landmark_name": "Reichstagsgebäude",
       "geometry_status": (
         "Procedural architectural signature aligned to the official Berlin 3D "
@@ -420,6 +434,198 @@ def architectural_signature_payload(
       "source_url": REICHSTAG_DOME_SOURCE_URL,
     }
   ]
+  if buildings is None:
+    return signatures
+
+  buildings = buildings.to_crs(SOURCE_CRS)
+  names = buildings["building_name"].fillna("")
+
+  def landmark_point(name: str) -> Any:
+    rows = landmarks[landmarks["name"] == name]
+    if len(rows) != 1:
+      raise ValueError(f"Missing unique landmark for architecture model: {name}")
+    return rows.geometry.iloc[0]
+
+  def base_elevation(identifier: str) -> float:
+    entries = hero_details.get(identifier, [])
+    if not entries:
+      raise ValueError(f"Missing hero geometry for architecture model: {identifier}")
+    return min(float(entry["source_bounds_epsg25833"][0][2]) for entry in entries)
+
+  def anchor_world(x: float, y: float, elevation: float) -> list[float]:
+    return [
+      round(float(x - ORIGIN[0]), 3),
+      round(float(elevation - ORIGIN[2]), 3),
+      round(float(ORIGIN[1] - y), 3),
+    ]
+
+  reichstag = buildings[names.str.contains("Reichstagsgebäude", regex=False)]
+  chancellery = buildings[names.str.contains("Bundeskanzleramt", regex=False)]
+  station = buildings[names.str.contains("Bahnhofshalle", regex=False)]
+  if reichstag.empty or chancellery.empty or station.empty:
+    raise ValueError("Missing LoD2 evidence for one or more architecture models")
+
+  reichstag_center = reichstag.geometry.union_all().centroid
+  reichstag_height = float(reichstag["measured_height_m"].max())
+  signatures.append(
+    {
+      "id": "reichstag-model",
+      "kind": "reichstag_model",
+      "landmark_name": "Reichstagsgebäude",
+      "geometry_status": (
+        "Metric recognition model aligned to the Berlin LoD2 footprint and "
+        "official Bundestag plan dimensions"
+      ),
+      "anchor_world": anchor_world(
+        reichstag_center.x,
+        reichstag_center.y,
+        base_elevation("reichstag"),
+      ),
+      "width_m": 100.0,
+      "depth_m": 138.0,
+      "body_height_m": round(reichstag_height, 3),
+      "focus_camera": {
+        "distance_m": 205.0,
+        "polar_degrees": 61.0,
+        "azimuth_degrees": -46.0,
+        "target_height_m": 18.0,
+      },
+      "source_url": REICHSTAG_ARCHITECTURE_SOURCE_URL,
+    }
+  )
+
+  chancellery_all = chancellery.geometry.union_all()
+  high_parts = chancellery[chancellery["measured_height_m"] >= 30.0]
+  chancellery_cube = high_parts.geometry.union_all()
+  office_parts = chancellery[
+    (chancellery["measured_height_m"] < 30.0) & (chancellery.geometry.area > 500.0)
+  ]
+  all_bounds = chancellery_all.bounds
+  cube_bounds = chancellery_cube.bounds
+  all_center_x = (all_bounds[0] + all_bounds[2]) / 2
+  all_center_y = (all_bounds[1] + all_bounds[3]) / 2
+  cube_center_x = (cube_bounds[0] + cube_bounds[2]) / 2
+  cube_center_y = (cube_bounds[1] + cube_bounds[3]) / 2
+  signatures.append(
+    {
+      "id": "bundeskanzleramt-model",
+      "kind": "chancellery_model",
+      "landmark_name": "Bundeskanzleramt",
+      "geometry_status": (
+        "Metric recognition model from Berlin LoD2 extents and the official "
+        "36 m cube / 18 m office-band heights"
+      ),
+      "anchor_world": anchor_world(
+        all_center_x,
+        all_center_y,
+        base_elevation("bundeskanzleramt"),
+      ),
+      "overall_width_m": round(float(all_bounds[2] - all_bounds[0]), 3),
+      "overall_depth_m": round(float(all_bounds[3] - all_bounds[1]), 3),
+      "office_height_m": 18.0,
+      "cube_width_m": round(float(cube_bounds[2] - cube_bounds[0]), 3),
+      "cube_depth_m": round(float(cube_bounds[3] - cube_bounds[1]), 3),
+      "cube_height_m": 36.0,
+      "cube_offset_world": [
+        round(float(cube_center_x - all_center_x), 3),
+        0.0,
+        round(float(all_center_y - cube_center_y), 3),
+      ],
+      "office_segments": [
+        {
+          "width_m": round(float(part.geometry.bounds[2] - part.geometry.bounds[0]), 3),
+          "depth_m": round(float(part.geometry.bounds[3] - part.geometry.bounds[1]), 3),
+          "height_m": 18.0,
+          "offset_world": [
+            round(
+              float(
+                (part.geometry.bounds[0] + part.geometry.bounds[2]) / 2 - all_center_x
+              ),
+              3,
+            ),
+            0.0,
+            round(
+              float(
+                all_center_y - (part.geometry.bounds[1] + part.geometry.bounds[3]) / 2
+              ),
+              3,
+            ),
+          ],
+        }
+        for _, part in office_parts.iterrows()
+      ],
+      "focus_camera": {
+        "distance_m": 245.0,
+        "polar_degrees": 60.0,
+        "azimuth_degrees": 43.0,
+        "target_height_m": 17.0,
+      },
+      "source_url": CHANCELLERY_ARCHITECTURE_SOURCE_URL,
+    }
+  )
+
+  station_point = landmark_point("Berlin Hauptbahnhof")
+  signatures.append(
+    {
+      "id": "hauptbahnhof-model",
+      "kind": "hauptbahnhof_model",
+      "landmark_name": "Berlin Hauptbahnhof",
+      "geometry_status": (
+        "Metric recognition model aligned to the official mesh and Deutsche "
+        "Bahn published hall / track-roof / office-bridge dimensions"
+      ),
+      "anchor_world": anchor_world(
+        station_point.x,
+        station_point.y,
+        base_elevation("hauptbahnhof"),
+      ),
+      "east_west_roof_length_m": 321.0,
+      "east_west_roof_width_m": 40.0,
+      "north_south_hall_length_m": 160.0,
+      "north_south_hall_width_m": 45.0,
+      "office_bridge_height_m": 46.0,
+      "focus_camera": {
+        "distance_m": 275.0,
+        "polar_degrees": 57.0,
+        "azimuth_degrees": 35.0,
+        "target_height_m": 20.0,
+      },
+      "source_url": HAUPTBAHNHOF_ARCHITECTURE_SOURCE_URL,
+    }
+  )
+
+  gate_point = landmark_point("Brandenburger Tor")
+  signatures.append(
+    {
+      "id": "brandenburger-tor-model",
+      "kind": "brandenburg_gate_model",
+      "landmark_name": "Brandenburger Tor",
+      "geometry_status": (
+        "Metric recognition model aligned to the official mesh and Berlin's "
+        "published gate, column and Quadriga dimensions"
+      ),
+      "anchor_world": anchor_world(
+        gate_point.x,
+        gate_point.y,
+        base_elevation("brandenburger-tor"),
+      ),
+      "width_m": 62.5,
+      "depth_m": 11.0,
+      "gate_height_m": 20.3,
+      "total_height_m": 26.0,
+      "column_height_m": 13.5,
+      "column_rows": 2,
+      "columns_per_row": 6,
+      "focus_camera": {
+        "distance_m": 115.0,
+        "polar_degrees": 64.0,
+        "azimuth_degrees": 73.0,
+        "target_height_m": 13.0,
+      },
+      "source_url": BRANDENBURG_GATE_SOURCE_URL,
+    }
+  )
+  return signatures
 
 
 def tunnel_payload() -> dict[str, Any]:
@@ -457,6 +663,9 @@ def build_webgl_scene(
 
   landmarks = projected_landmarks()
   footprints = hero_footprints(landmarks)
+  buildings = gpd.read_file(
+    REPO_ROOT / "geo_data/regierungsviertel/buildings.gpkg"
+  ).to_crs(SOURCE_CRS)
   base_tiles: list[dict[str, Any]] = []
   hero_details: dict[str, list[dict[str, Any]]] = {
     spec.identifier: [] for spec in HERO_SPECS
@@ -529,7 +738,7 @@ def build_webgl_scene(
       for spec in HERO_SPECS
     ],
     "architectural_signatures": architectural_signature_payload(
-      landmarks, hero_details
+      landmarks, hero_details, buildings
     ),
     "landmarks": landmark_payload(landmarks),
     "tiergartentunnel": tunnel_payload(),

@@ -1,8 +1,8 @@
 # Metric precision and surface-detail QA
 
 This report documents what the current deterministic viewer can claim
-from committed public/open data, and where it still needs a future
-photogrammetric mesh pass.
+from committed public/open data and how its metric recognition models
+complement the official photogrammetric surface.
 
 ## Source hierarchy
 
@@ -14,7 +14,10 @@ photogrammetric mesh pass.
   - Official DOP 2025 metadata gives 0.20 m ground resolution and
     approximately +/- 0.4 m positional accuracy.
 - ALKIS parcel context: https://daten.berlin.de/datensaetze/alkis-berlin-flurstucke-wfs-1bc014d7
-- Future textured mesh candidate: https://www.businesslocationcenter.de/en/economic-atlas/download-portal
+- Current textured surface: Berlin 3D Mesh Model 2025,
+  https://www.businesslocationcenter.de/en/economic-atlas/download-portal
+  - The bounded viewer keeps one Three.js unit equal to one metre and does not
+    rescale the official EPSG:25833 source coordinates.
 
 ## Committed LoD2 geometry statistics
 
@@ -40,6 +43,23 @@ photogrammetric mesh pass.
 - Rendering policy: preserve every LoD2 part and measured height; use
   published nominal dimensions as QA rather than flattening the ensemble.
 
+## Hero recognition dimensions
+
+The photogrammetric surface remains the visual evidence layer. Four small
+procedural overlays add only the architectural dimensions and silhouettes that
+are easily lost in aerial photogrammetry:
+
+| Landmark | Metric recognition evidence |
+| --- | --- |
+| Reichstagsgebäude | 138 m by almost 100 m official plan dimensions, LoD2 body height, four corner towers and west portico; separate 40 m by 23.5 m Bundestag dome signature |
+| Bundeskanzleramt | LoD2 overall extent and cube position; official 36 m central cube and 18 m office bands |
+| Berlin Hauptbahnhof | Deutsche Bahn 321 m east-west glass roof, 160 x 45 m crossing hall and 46 m office bridges |
+| Brandenburger Tor | Berlin/visitBerlin 62.5 x 11 m plan, 20.3 m gate body, 26 m total height, 13.5 m columns in two rows of six |
+
+These overlays are not substitutes for the source mesh. They are aligned at
+the committed landmark / LoD2 coordinates, use metre units, and retain the
+photogrammetric texture beneath them.
+
 ## Landmark placement QA
 
 - Status: ok
@@ -49,17 +69,12 @@ photogrammetric mesh pass.
 
 ## Current rendering claim
 
-The viewer is metric in planimetric placement because it renders
-EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders
-CityGML BuildingParts at their individual measured heights, LoD2
-interior rings as visible courtyards/cut-outs, and uses denser
-facade bays, roof ribs, and roof equipment marks from footprint size,
-height, roof type, and landmark material cues.
-
-It does **not** yet claim true photogrammetric facade relief. For that,
-the next major step should ingest the official Berlin 3D mesh/OBJ
-texture tiles or another fully licensed textured 3D source, then render
-from that mesh rather than stylising LoD2 footprints.
+The viewer is metric in planimetric placement because it renders EPSG:25833
+LoD2/OSM/ALKIS geometries and the official Berlin 3D Mesh in metres. It renders
+CityGML BuildingParts at individual measured heights, LoD2 interior rings as
+visible courtyards/cut-outs, and preserves the official 2025 aerial texture and
+surface relief. The recognition overlays above sharpen important forms but do
+not claim surveyed facade details beyond their cited dimensions.
 
 ## Tiergartentunnel precision claim
 

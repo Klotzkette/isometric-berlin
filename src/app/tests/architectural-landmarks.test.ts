@@ -1,0 +1,133 @@
+import { describe, expect, test } from "bun:test";
+import { Box3 } from "three";
+import {
+  type BrandenburgGateModelSignature,
+  type ChancelleryModelSignature,
+  type HauptbahnhofModelSignature,
+  type ReichstagModelSignature,
+  createArchitecturalSignature,
+  focusCameraForSignature,
+} from "../src/ArchitecturalLandmarks";
+
+const base = {
+  anchor_world: [0, 0, 0] as [number, number, number],
+  focus_camera: {
+    azimuth_degrees: 45,
+    distance_m: 200,
+    polar_degrees: 60,
+    target_height_m: 18,
+  },
+  geometry_status: "metric test",
+  landmark_name: "Test",
+  source_url: "https://example.com/official",
+};
+
+describe("metre-scale architectural recognition models", () => {
+  test("builds all twelve Brandenburg Gate columns at published scale", () => {
+    const signature: BrandenburgGateModelSignature = {
+      ...base,
+      column_height_m: 13.5,
+      column_rows: 2,
+      columns_per_row: 6,
+      depth_m: 11,
+      gate_height_m: 20.3,
+      id: "brandenburger-tor-model",
+      kind: "brandenburg_gate_model",
+      total_height_m: 26,
+      width_m: 62.5,
+    };
+    const gate = createArchitecturalSignature(signature);
+    expect(gate).not.toBeNull();
+    const bounds = new Box3().setFromObject(gate!);
+    expect(
+      gate!.children.filter((child) => child.name.includes("Doric column")),
+    ).toHaveLength(12);
+    expect(bounds.max.z - bounds.min.z).toBeCloseTo(62.5, 1);
+    expect(bounds.max.x - bounds.min.x).toBeCloseTo(11, 1);
+    expect(bounds.max.y).toBeGreaterThan(25);
+    expect(bounds.max.y).toBeLessThan(27);
+  });
+
+  test("makes the Hauptbahnhof cross and office bridges legible", () => {
+    const signature: HauptbahnhofModelSignature = {
+      ...base,
+      east_west_roof_length_m: 321,
+      east_west_roof_width_m: 40,
+      id: "hauptbahnhof-model",
+      kind: "hauptbahnhof_model",
+      north_south_hall_length_m: 160,
+      north_south_hall_width_m: 45,
+      office_bridge_height_m: 46,
+    };
+    const station = createArchitecturalSignature(signature);
+    expect(station).not.toBeNull();
+    const bounds = new Box3().setFromObject(station!);
+    expect(bounds.max.x - bounds.min.x).toBeGreaterThanOrEqual(321);
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThanOrEqual(160);
+    expect(bounds.max.y).toBeCloseTo(46, 1);
+    expect(
+      station!.children.some((child) => child.name.includes("321 m east-west")),
+    ).toBe(true);
+    expect(
+      station!.children.filter(
+        (child) => child.name === "Hauptbahnhof 46 m office bridge",
+      ),
+    ).toHaveLength(2);
+  });
+
+  test("preserves the LoD2 Chancellery envelope and official heights", () => {
+    const signature: ChancelleryModelSignature = {
+      ...base,
+      cube_depth_m: 56.376,
+      cube_height_m: 36,
+      cube_offset_world: [66.2, 0, -0.3],
+      cube_width_m: 56.472,
+      id: "bundeskanzleramt-model",
+      kind: "chancellery_model",
+      office_height_m: 18,
+      office_segments: [
+        {
+          depth_m: 24,
+          height_m: 18,
+          offset_world: [-25, 0, 32],
+          width_m: 180,
+        },
+      ],
+      overall_depth_m: 106.175,
+      overall_width_m: 344.964,
+    };
+    const chancellery = createArchitecturalSignature(signature);
+    expect(chancellery).not.toBeNull();
+    expect(chancellery!.userData.cube_height_m).toBe(36);
+    expect(chancellery!.userData.office_height_m).toBe(18);
+    expect(
+      chancellery!.children.filter((child) =>
+        child.name.includes("semicircular leadership window"),
+      ),
+    ).toHaveLength(2);
+  });
+
+  test("adds the Reichstag's four towers and west portico", () => {
+    const signature: ReichstagModelSignature = {
+      ...base,
+      body_height_m: 28.06,
+      depth_m: 138,
+      id: "reichstag-model",
+      kind: "reichstag_model",
+      width_m: 100,
+    };
+    const reichstag = createArchitecturalSignature(signature);
+    expect(reichstag).not.toBeNull();
+    expect(
+      reichstag!.children.filter(
+        (child) =>
+          child.name.includes("corner tower") &&
+          !child.name.includes("model edges"),
+      ),
+    ).toHaveLength(4);
+    expect(
+      reichstag!.children.filter((child) => child.name.includes("portico column")),
+    ).toHaveLength(6);
+    expect(focusCameraForSignature(signature)?.distance_m).toBe(200);
+  });
+});

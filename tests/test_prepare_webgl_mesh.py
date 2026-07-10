@@ -1,7 +1,7 @@
 import geopandas as gpd
 import numpy as np
 import trimesh
-from shapely.geometry import Point
+from shapely.geometry import Point, box
 
 from isometric_berlin.generation.prepare_webgl_mesh import (
   architectural_signature_payload,
@@ -67,3 +67,68 @@ def test_reichstag_signature_uses_official_dimensions_and_mesh_apex() -> None:
   assert signature["vertical_ribs"] == 24
   assert signature["horizontal_rings"] == 17
   assert signature["source_url"].startswith("https://www.bundestag.de/")
+
+
+def test_architecture_signatures_keep_published_dimensions() -> None:
+  landmarks = gpd.GeoDataFrame(
+    {
+      "name": [
+        "Reichstagsgebäude",
+        "Bundeskanzleramt",
+        "Berlin Hauptbahnhof",
+        "Brandenburger Tor",
+      ]
+    },
+    geometry=[
+      Point(389_815.0, 5_819_960.0),
+      Point(389_346.0, 5_820_144.0),
+      Point(389_377.0, 5_820_693.0),
+      Point(389_918.0, 5_819_700.0),
+    ],
+    crs="EPSG:25833",
+  )
+  buildings = gpd.GeoDataFrame(
+    {
+      "building_name": [
+        "Deutscher Bundestag; Reichstagsgebäude",
+        "Bundeskanzleramt",
+        "Bundeskanzleramt",
+        "Bahnhofshalle",
+      ],
+      "measured_height_m": [28.06, 36.0, 18.0, 28.15],
+    },
+    geometry=[
+      box(389_765, 5_819_890, 389_865, 5_820_028),
+      box(389_318, 5_820_116, 389_374, 5_820_172),
+      box(389_107, 5_820_091, 389_452, 5_820_197),
+      box(389_327, 5_820_609, 389_432, 5_820_757),
+    ],
+    crs="EPSG:25833",
+  )
+  details = {
+    identifier: [
+      {
+        "source_bounds_epsg25833": [
+          [389_000.0, 5_819_000.0, 34.0],
+          [390_000.0, 5_821_000.0, 90.0],
+        ]
+      }
+    ]
+    for identifier in (
+      "reichstag",
+      "bundeskanzleramt",
+      "hauptbahnhof",
+      "brandenburger-tor",
+    )
+  }
+
+  signatures = architectural_signature_payload(landmarks, details, buildings)
+  by_id = {signature["id"]: signature for signature in signatures}
+
+  assert by_id["reichstag-model"]["depth_m"] == 138.0
+  assert by_id["bundeskanzleramt-model"]["cube_height_m"] == 36.0
+  assert by_id["bundeskanzleramt-model"]["office_height_m"] == 18.0
+  assert by_id["hauptbahnhof-model"]["east_west_roof_length_m"] == 321.0
+  assert by_id["hauptbahnhof-model"]["office_bridge_height_m"] == 46.0
+  assert by_id["brandenburger-tor-model"]["columns_per_row"] == 6
+  assert by_id["brandenburger-tor-model"]["total_height_m"] == 26.0

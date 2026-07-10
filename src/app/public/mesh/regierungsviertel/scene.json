@@ -1201,6 +1201,7 @@
   "architectural_signatures": [
     {
       "id": "reichstag-dome",
+      "kind": "reichstag_dome",
       "landmark_name": "Reichstagsgebäude",
       "geometry_status": "Procedural architectural signature aligned to the official Berlin 3D mesh apex and official Bundestag dimensions",
       "anchor_world": [
@@ -1213,6 +1214,136 @@
       "vertical_ribs": 24,
       "horizontal_rings": 17,
       "source_url": "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
+    },
+    {
+      "id": "reichstag-model",
+      "kind": "reichstag_model",
+      "landmark_name": "Reichstagsgebäude",
+      "geometry_status": "Metric recognition model aligned to the Berlin LoD2 footprint and official Bundestag plan dimensions",
+      "anchor_world": [
+        315.455,
+        3.595,
+        40.386
+      ],
+      "width_m": 100.0,
+      "depth_m": 138.0,
+      "body_height_m": 28.055,
+      "focus_camera": {
+        "distance_m": 205.0,
+        "polar_degrees": 61.0,
+        "azimuth_degrees": -46.0,
+        "target_height_m": 18.0
+      },
+      "source_url": "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518"
+    },
+    {
+      "id": "bundeskanzleramt-model",
+      "kind": "chancellery_model",
+      "landmark_name": "Bundeskanzleramt",
+      "geometry_status": "Metric recognition model from Berlin LoD2 extents and the official 36 m cube / 18 m office-band heights",
+      "anchor_world": [
+        -220.236,
+        1.554,
+        -143.873
+      ],
+      "overall_width_m": 344.964,
+      "overall_depth_m": 106.175,
+      "office_height_m": 18.0,
+      "cube_width_m": 56.472,
+      "cube_depth_m": 56.376,
+      "cube_height_m": 36.0,
+      "cube_offset_world": [
+        66.352,
+        0.0,
+        -0.343
+      ],
+      "office_segments": [
+        {
+          "width_m": 219.208,
+          "depth_m": 26.55,
+          "height_m": 18.0,
+          "offset_world": [
+            60.642,
+            0.0,
+            39.812
+          ]
+        },
+        {
+          "width_m": 203.636,
+          "depth_m": 25.853,
+          "height_m": 18.0,
+          "offset_world": [
+            70.664,
+            0.0,
+            -40.161
+          ]
+        },
+        {
+          "width_m": 135.455,
+          "depth_m": 23.031,
+          "height_m": 18.0,
+          "offset_world": [
+            -104.754,
+            0.0,
+            36.622
+          ]
+        }
+      ],
+      "focus_camera": {
+        "distance_m": 245.0,
+        "polar_degrees": 60.0,
+        "azimuth_degrees": 43.0,
+        "target_height_m": 17.0
+      },
+      "source_url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040"
+    },
+    {
+      "id": "hauptbahnhof-model",
+      "kind": "hauptbahnhof_model",
+      "landmark_name": "Berlin Hauptbahnhof",
+      "geometry_status": "Metric recognition model aligned to the official mesh and Deutsche Bahn published hall / track-roof / office-bridge dimensions",
+      "anchor_world": [
+        -123.219,
+        4.575,
+        -693.353
+      ],
+      "east_west_roof_length_m": 321.0,
+      "east_west_roof_width_m": 40.0,
+      "north_south_hall_length_m": 160.0,
+      "north_south_hall_width_m": 45.0,
+      "office_bridge_height_m": 46.0,
+      "focus_camera": {
+        "distance_m": 275.0,
+        "polar_degrees": 57.0,
+        "azimuth_degrees": 35.0,
+        "target_height_m": 20.0
+      },
+      "source_url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186"
+    },
+    {
+      "id": "brandenburger-tor-model",
+      "kind": "brandenburg_gate_model",
+      "landmark_name": "Brandenburger Tor",
+      "geometry_status": "Metric recognition model aligned to the official mesh and Berlin's published gate, column and Quadriga dimensions",
+      "anchor_world": [
+        417.898,
+        4.734,
+        300.453
+      ],
+      "width_m": 62.5,
+      "depth_m": 11.0,
+      "gate_height_m": 20.3,
+      "total_height_m": 26.0,
+      "column_height_m": 13.5,
+      "column_rows": 2,
+      "columns_per_row": 6,
+      "focus_camera": {
+        "distance_m": 115.0,
+        "polar_degrees": 64.0,
+        "azimuth_degrees": 73.0,
+        "target_height_m": 13.0
+      },
+      "source_url": "https://www.visitberlin.de/de/brandenburger-tor"
     }
   ],
   "landmarks": [

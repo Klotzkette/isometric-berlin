@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.2.4
+
+- Add metre-scale recognition geometry over the official textured mesh for the
+  four hero landmarks. The overlays preserve the photogrammetric surface while
+  making silhouettes and primary materials readable from normal isometric
+  viewing distances.
+- Model the Reichstag at its published 138 x almost 100 m plan with four corner
+  towers and west portico, retaining the existing 40 x 23.5 m glass dome with
+  24 ribs, 17 rings, ramps and mirror cone.
+- Separate the Chancellery's LoD2-aligned office segments from its official
+  36 m central cube, 18 m office bands and semicircular leadership windows.
+- Add Hauptbahnhof's published 321 m east-west glass roof, 160 x 45 m crossing
+  hall, 46 m office-frame height and filigree roof ribs without covering the
+  official facade texture with solid proxy boxes.
+- Rebuild the 62.5 x 11 x 26 m Brandenburg Gate with twelve 13.5 m Doric
+  columns, differentiated sandstone and a bronze-green Quadriga.
+- Use hero-specific presentation cameras so each landmark opens at a useful
+  scale and angle, then remains fully orbitable. Reduce the focus marker so it
+  no longer competes with small architecture.
+- Brighten the sky and shaded facades with a restrained cool fill light while
+  retaining directional shadows and avoiding deprecated WebGL settings.
+- Extend release QA and geometry tests to enforce published dimensions,
+  component counts and the presence of every recognition model.
+
 ## v0.2.3
 
 - Stop the bounded base/hero worker queues as soon as a Three.js runtime is

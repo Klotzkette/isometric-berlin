@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.3/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.4/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.3 open-data package.
+**Status:** Local v0.2.4 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.3**. Its full viewer is a progressively
+The current public package is **v0.2.4**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -37,9 +37,16 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Each context tile retains up to 70,000 faces. Reichstag,
   Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
   high-detail, textured photogrammetry crops masked by official LoD2
-  footprints, now using up to 1536 px per material segment. The Reichstag
-  combines its real mesh dome with an explicit official-dimension glass/steel
-  signature: 40 m diameter, 23.5 m height, 24 ribs and 17 horizontal rings.
+  footprints, using up to 1536 px per material segment. Metric recognition
+  models now sharpen the silhouettes without replacing that texture: the
+  Reichstag has its 138 x 100 m body, west portico, four towers and 40 x 23.5 m
+  dome; the Chancellery separates its 36 m cube and three LoD2-aligned 18 m
+  office bands; Hauptbahnhof exposes its 321 m glass roof, 160 x 45 m hall and
+  46 m frames; the 62.5 x 11 x 26 m Brandenburg Gate has all twelve columns and
+  a bronze-green Quadriga.
+- Selecting one of the four hero buildings opens a building-specific,
+  presentation-quality camera angle and distance before normal free orbiting.
+  The Brandenburg Gate is no longer shown as a tiny object in a 250 m view.
 - The old always-visible coloured landmark dots are gone. Only the selected
   landmark receives a small illuminated focus ring.
 - Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag

@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.2.3"
+PACKAGE_VERSION = "0.2.4"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3331,9 +3331,11 @@ LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
 Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
 Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
 haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 1536 px pro
-Materialsegment. Die Reichstagskuppel kombiniert das reale Mesh mit einer
-amtlich dimensionierten Glas-/Stahlkonstruktion (40 m Durchmesser, 23,5 m Höhe,
-24 Rippen, 17 Ringe) und ist keine gezeichnete Ellipse.
+Materialsegment. Maßhaltige Erkennungsmodelle ergänzen das Fotomesh: Reichstag
+mit Westportal, Ecktürmen und 40 x 23,5 m Kuppel; Kanzleramt mit 36-m-Kubus und
+LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 160 x 45 m
+Querhalle und 46-m-Bügeln; Brandenburger Tor mit 62,5 x 11 x 26 m, zwölf Säulen
+und grün patinierter Quadriga. Die Fototextur bleibt darunter erhalten.
 
 2D-Kompatibilitätsansicht ohne Terminal:
 
@@ -3447,10 +3449,12 @@ This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
 now adds real photogrammetric roof, terrain and facade surfaces. Reichstag,
 Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
-LoD2-masked texture models up to 1536 px per material segment. The Reichstag
-dome combines the real mesh with an officially dimensioned glass/steel
-structure (40 m diameter, 23.5 m height, 24 ribs, 17 rings) rather than a drawn
-ellipse.
+LoD2-masked texture models up to 1536 px per material segment. Metre-scale
+recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
+the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
+glass roof, 160 x 45 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
+Brandenburg Gate with twelve columns and a patinated Quadriga. The official
+photographic texture remains visible underneath.
 
 2D compatibility view without Terminal:
 
