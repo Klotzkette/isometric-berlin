@@ -4,17 +4,18 @@
 
 | What | Link |
 |---|---|
-| **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
+| Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
-The hosted viewer is the built React + Three.js/OpenSeadragon app from
+The downloadable viewer is the built React + Three.js/OpenSeadragon app from
 `src/app/`. It defaults to the true 3D official-mesh view and works on modern
 desktop, phone and tablet browsers. No AI model, Google key or paid service is
-needed at runtime.
+needed at runtime. GitHub Pages currently shows an owner-requested offline
+placeholder; use the release ZIP for the functional viewer.
 
 Unzip the download and double-click **`START-HERE.html`**. That is the
 main Mac/Windows start point: no Terminal, no `.command` file, no Python
