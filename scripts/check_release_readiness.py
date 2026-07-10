@@ -159,6 +159,26 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
   tunnel = scene.get("tiergartentunnel")
   if not isinstance(tunnel, dict) or len(tunnel.get("points", [])) < 8:
     failures.append(f"WebGL scene lacks 3D Tiergartentunnel route: {scene_path}")
+  signatures = scene.get("architectural_signatures")
+  reichstag_dome = next(
+    (
+      signature
+      for signature in signatures or []
+      if isinstance(signature, dict) and signature.get("id") == "reichstag-dome"
+    ),
+    None,
+  )
+  if (
+    not isinstance(reichstag_dome, dict)
+    or reichstag_dome.get("height_m") != 23.5
+    or reichstag_dome.get("diameter_m") != 40.0
+    or reichstag_dome.get("vertical_ribs") != 24
+    or reichstag_dome.get("horizontal_rings") != 17
+    or "bundestag.de" not in str(reichstag_dome.get("source_url", ""))
+  ):
+    failures.append(
+      f"WebGL scene lacks the official-dimension Reichstag dome: {scene_path}"
+    )
 
   files = list(base_tiles)
   files.extend(
@@ -205,6 +225,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       "material.side = runtime.underside ? DoubleSide : FrontSide"
     ),
     "oblique texture filtering": "material.map.anisotropy",
+    "official-dimension Reichstag dome": "createOfficialReichstagDome",
     "hidden default marker": "marker.visible = false",
   }
   failures = [
@@ -214,6 +235,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   ]
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
+  dome_path = root / "src/app/src/ReichstagDome.ts"
+  if not dome_path.exists():
+    failures.append(f"Missing official-dimension Reichstag dome source: {dome_path}")
   return failures
 
 
@@ -390,6 +414,14 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     failures.append(
       f"Package HTML launcher lacks touchscreen pinch/pan handling: {label}"
     )
+  if (
+    'className = "marker"' in start_here_text
+    or '<div id="markers">' in start_here_text
+    or "markerRoot" in start_here_text
+  ):
+    failures.append(f"Package HTML launcher still renders permanent markers: {label}")
+  if "focus-ring" not in start_here_text or "addLandmarkList" not in start_here_text:
+    failures.append(f"Package HTML launcher lacks selected-only focus UI: {label}")
   return failures
 
 
@@ -420,6 +452,10 @@ def package_manifest_failures(
     )
   if manifest.get("start_page") != "START-HERE.html":
     failures.append(f"Package manifest does not point at START-HERE.html: {label}")
+  if manifest.get("start_page_mode") != "2d-compatibility-fallback":
+    failures.append(f"Package manifest mislabels the compatibility start: {label}")
+  if manifest.get("full_3d_start_page") != "index.html":
+    failures.append(f"Package manifest lacks the full 3D start page: {label}")
   if manifest.get("preferred_image") != "dzi/regierungsviertel/overview_source.png":
     failures.append(f"Package manifest does not prefer overview_source.png: {label}")
   if manifest.get("uses_google_content") is not False:

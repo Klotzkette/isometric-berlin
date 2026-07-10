@@ -60,6 +60,11 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   `references/wikimedia/README.md`. Derivative public artefacts must
   preserve the relevant per-file attribution and license obligations.
 
+- **Reichstag dome dimensions:** the procedural glass/steel signature uses
+  the diameter, height, rib and ring counts published on the
+  [Deutscher Bundestag architecture page](https://www.bundestag.de/besuche/architektur/reichstag/kuppel).
+  No Bundestag photograph or other media asset is copied into the viewer.
+
 ## Required attribution
 
 Any public-facing deliverable (web viewer, exported PNGs in a published

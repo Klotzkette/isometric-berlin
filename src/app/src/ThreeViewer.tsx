@@ -31,6 +31,10 @@ import {
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
+  type ArchitecturalSignature,
+  createOfficialReichstagDome,
+} from "./ReichstagDome";
+import {
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -64,6 +68,7 @@ type TunnelPayload = {
 };
 
 type SceneManifest = {
+  architectural_signatures?: ArchitecturalSignature[];
   base_tiles: MeshFile[];
   hero_details: HeroDetail[];
   landmarks: SceneLandmark[];
@@ -108,6 +113,7 @@ type Runtime = {
   renderer: WebGLRenderer;
   scene: Scene;
   sceneRootUrl: URL;
+  signatures: Group;
   tunnel: Group;
   underside: boolean;
 };
@@ -264,6 +270,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     material.needsUpdate = true;
   }
   runtime.tunnel.visible = underside;
+  runtime.signatures.visible = !underside;
 }
 
 function notifyView(runtime: Runtime, callback: (angles: ViewAngles) => void): void {
@@ -603,6 +610,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const marker = createSelectionMarker();
       marker.visible = false;
       scene.add(marker);
+      const signatures = new Group();
+      signatures.name = "Dimensioned architectural signatures";
+      scene.add(signatures);
       const runtime: Runtime = {
         camera,
         controls,
@@ -615,6 +625,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer,
         scene,
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
+        signatures,
         tunnel: new Group(),
         underside: false,
       };
@@ -725,6 +736,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
           );
+          for (const signature of manifest.architectural_signatures ?? []) {
+            if (signature.id === "reichstag-dome") {
+              runtime.signatures.add(createOfficialReichstagDome(signature));
+            }
+          }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           scene.add(runtime.tunnel);
           setProgress({ loaded: 0, total: manifest.base_tiles.length });

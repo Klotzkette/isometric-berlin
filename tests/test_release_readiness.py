@@ -25,6 +25,7 @@ VALID_START_HERE_HTML = (
   '<button id="theme-night">Nacht</button>'
   '<button id="view-north">Nord</button>'
   '<div id="compass"></div>'
+  '<div id="focus-ring"></div>'
   '<svg id="tunnel-overlay"><g class="tunnel-light tunnel-vent tunnel-volume '
   'tunnel-center-wall tunnel-ceiling-rib tunnel-service-bay"></g></svg>'
   '<svg id="night-light-overlay"><g class="night-window night-street-lamp"></g></svg>'
@@ -45,7 +46,7 @@ VALID_START_HERE_HTML = (
   "applyQualityImage; savedLandmarkName; restoreInitialView; initialViewState; "
   "resetView; renderQueued; lostpointercapture; resizeTimer; "
   "refitPreservingView; setTimeout(refitPreservingView, 80); "
-  "addSceneDetails; addFlag; setDetails; setClouds; setPerformance; "
+  "addSceneDetails; addFlag; addLandmarkList; setDetails; setClouds; setPerformance; "
   "data-dragging; data-performance; event.metaKey; event.ctrlKey; event.altKey; targetTag; "
   'activePointers; pinchGesture; pointerType === "touch"; startPinchGesture; '
   "updatePinchGesture; pointerAngle; startRotation; resumeSingleTouchDrag;"
@@ -182,6 +183,18 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
           )
         ],
         "tiergartentunnel": {"points": [[index, 0, index] for index in range(8)]},
+        "architectural_signatures": [
+          {
+            "id": "reichstag-dome",
+            "height_m": 23.5,
+            "diameter_m": 40.0,
+            "vertical_ribs": 24,
+            "horizontal_rings": 17,
+            "source_url": (
+              "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
+            ),
+          }
+        ],
       }
     ),
     encoding="utf-8",
@@ -248,6 +261,8 @@ def write_minimal_package_zip(
         "package_name": release_readiness.PACKAGE_NAME,
         "package_version": "9.9.9",
         "start_page": "START-HERE.html",
+        "start_page_mode": "2d-compatibility-fallback",
+        "full_3d_start_page": "index.html",
         "preferred_image": "dzi/regierungsviertel/overview_source.png",
         "uses_google_content": False,
         "required_attribution": (

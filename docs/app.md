@@ -44,15 +44,25 @@ ordinary drag pans and Shift-drag rotates. At phone widths the landmark rail
 starts closed and leaves the safe-area-aware bottom controls accessible.
 
 Only the selected landmark receives a focus ring. The former 39 permanently
-visible coloured map dots were removed because they obscured roofs and facades.
+visible coloured map dots were removed from the Three.js, DZI and zero-server
+fallbacks because they obscured roofs and facades.
 
-The downloadable `START-HERE.html` uses a separate zero-server camera. It
+The Reichstag carries an explicit architectural signature over the official
+photogrammetry: a transparent glass shell with 24 main ribs, 17 horizontal
+rings, two counter-rotating ramps and a mirror cone. Its 40 m diameter and
+23.5 m height come from the Bundestag's architecture page and are aligned to
+the apex of the official Berlin mesh rather than positioned by eye.
+
+The downloadable `START-HERE.html` is explicitly a 2D compatibility fallback,
+not the full viewer. It uses a separate zero-server camera and
 normalizes the 16384×11616 landmark payload into the 2157×1529 SVG overlay
 coordinate system, applies an invertible pan/scale/skew/rotate transform, keeps
 the stage centre stable through zoom and swivel, and constrains the transformed
 corners so the map cannot be lost completely outside the viewport. Desktop
 stage height is fixed to the viewport; below 850 px the map uses 58dvh and the
-controls scroll independently in the remaining 42dvh.
+controls scroll independently in the remaining 42dvh. The local server opens
+`index.html` directly so users do not mistake this fallback for the true 3D
+scene.
 
 ## Shareable view links
 

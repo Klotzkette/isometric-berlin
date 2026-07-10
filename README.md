@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.0/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -17,18 +17,19 @@ desktop, phone and tablet browsers. No AI model, Google key or paid service is
 needed at runtime. GitHub Pages currently shows an owner-requested offline
 placeholder; use the release ZIP for the functional viewer.
 
-Unzip the download and double-click **`START-HERE.html`**. That is the
-main Mac/Windows start point: no Terminal, no `.command` file, no Python
-server required for the normal case. If a browser blocks local Deep Zoom
-tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
-`start-linux.sh` as fallbacks.
+`START-HERE.html` is the zero-server **2D compatibility fallback**, not the
+full model. For true 3D on Windows, double-click `start-windows.bat`. On macOS
+or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
+3D viewer directly. The distinction is explicit in the package so the old
+flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.0 open-data package.
+**Status:** Local v0.2.1 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.0**. Its primary viewer is no longer a
-flat image transform: it is a progressively loaded, freely orbitable 3D scene.
+The current public package is **v0.2.1**. Its full viewer is a progressively
+loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
+labelled compatibility fallback for browsers that cannot run local modules.
 
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
@@ -36,7 +37,9 @@ flat image transform: it is a progressively loaded, freely orbitable 3D scene.
 - Each context tile retains up to 70,000 faces. Reichstag,
   Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
   high-detail, textured photogrammetry crops masked by official LoD2
-  footprints. The Reichstag crop contains the actual glass-dome geometry.
+  footprints, now using up to 1536 px per material segment. The Reichstag
+  combines its real mesh dome with an explicit official-dimension glass/steel
+  signature: 40 m diameter, 23.5 m height, 24 ribs and 17 horizontal rings.
 - The old always-visible coloured landmark dots are gone. Only the selected
   landmark receives a small illuminated focus ring.
 - Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag
@@ -47,7 +50,7 @@ flat image transform: it is a progressively loaded, freely orbitable 3D scene.
   ventilation shafts and fan cues. Its route is explicitly labelled as an
   OSM-derived engineering approximation, not surveyed tunnel geometry.
 - Assets load progressively with bounded concurrency and an adaptive pixel
-  ratio. The 76.9 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
+  ratio. The 93.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
   individual public GLB remains below 5 MiB.
 - The 16384×11616, 15-level OpenSeadragon map remains available as a fast
   high-resolution fallback. Its marker layer also shows only the selection.

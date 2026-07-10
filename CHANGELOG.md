@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.2.1
+
+- Fix the release's most misleading workflow bug: `START-HERE.html` was still
+  presented as the normal viewer even though it is the legacy flat renderer.
+  The package and README now label it as a 2D compatibility fallback and route
+  Windows/macOS/Linux instructions explicitly to the true local 3D server.
+- Remove all 39 permanent coloured buttons from the zero-server fallback.
+  Landmark navigation remains in the list, and only the selected location gets
+  the restrained focus ring, matching the React/DZI and Three.js modes.
+- Add a dimensioned Reichstag dome signature aligned to the official Berlin
+  mesh apex and Bundestag primary-source dimensions: 40 m diameter, 23.5 m
+  height, 24 main ribs and 17 horizontal rings, plus transparent glass,
+  counter-rotating ramps and the daylight mirror cone.
+- Increase hero texture candidates from 1024 to 1536 px per material segment.
+  The bounded scene grows from 76.9 to 93.7 MiB while retaining lazy hero loads,
+  a 150 MiB scene budget and the 5 MiB per-file repository limit.
+- Add geometry and release regressions for the dome dimensions, source URL,
+  ring/rib counts, selected-only offline focus UI and absence of permanent
+  marker code; visually verify the dome and underside at desktop and 390×844.
+
 ## v0.2.0
 
 - Replace the transformed flat-map default with a true Three.js scene built

@@ -36,6 +36,8 @@ REQUIRED_START_SNIPPETS = (
   "addTunnelTube",
   "addTunnelVentilation",
   "Drehen/Swivel",
+  "2D-Kompatibilitätsansicht",
+  "addLandmarkList",
   "lang-en",
   "applyLanguage",
   "setLanguage",
@@ -196,6 +198,12 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   ]
   if missing:
     raise RuntimeError("START-HERE.html missing snippets: " + ", ".join(missing))
+  if (
+    'className = "marker"' in start_html
+    or '<div id="markers">' in start_html
+    or "markerRoot" in start_html
+  ):
+    raise RuntimeError("START-HERE.html still contains permanent landmark markers")
 
   manifest = read_json_url(f"{base_url}/package-manifest.json")
   if manifest.get("package_version") != expected_version:
@@ -203,6 +211,10 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
       "Package manifest version "
       f"{manifest.get('package_version')!r} != {expected_version!r}"
     )
+  if manifest.get("start_page_mode") != "2d-compatibility-fallback":
+    raise RuntimeError("Package manifest mislabels START-HERE.html")
+  if manifest.get("full_3d_start_page") != "index.html":
+    raise RuntimeError("Package manifest lacks the true 3D entry point")
   assets = manifest.get("assets")
   if not isinstance(assets, dict) or "tiergartentunnel_overlay" not in assets:
     raise RuntimeError("Package manifest lacks tiergartentunnel_overlay asset")

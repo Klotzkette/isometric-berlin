@@ -89,6 +89,11 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "Bundeskanzleramt" in html
   assert "DEFAULT_FOCUS_LANDMARK" in html
   assert "PRIORITY_LANDMARKS" in html
+  assert "addLandmarkList" in html
+  assert 'className = "marker"' not in html
+  assert '<div id="markers">' not in html
+  assert "markerRoot" not in html
+  assert "focus-ring" in html
   assert "sourceImage" in html
   assert "landmarkScaleX" in html
   assert "landmarkScaleY" in html
@@ -192,6 +197,9 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   readme = (tmp_path / "README.txt").read_text(encoding="utf-8")
   assert package_static_site.PACKAGE_VERSION in readme
   assert "START-HERE.html" in readme
+  assert "2D-Kompatibilitätsansicht" in readme
+  assert "Echtes 3D" in readme
+  assert "40 m Durchmesser" in readme
   assert "start-mac.command" in readme
   assert "Gatekeeper" in readme
   assert "nächsten freien Port" in readme
@@ -235,6 +243,8 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     (tmp_path / "package-manifest.json").read_text(encoding="utf-8")
   )
   assert manifest["package_version"] == package_static_site.PACKAGE_VERSION
+  assert manifest["start_page_mode"] == "2d-compatibility-fallback"
+  assert manifest["full_3d_start_page"] == "index.html"
   assert manifest["preferred_image"] == "dzi/regierungsviertel/overview_source.png"
   assert manifest["uses_google_content"] is False
   assert "OpenStreetMap contributors" in manifest["required_attribution"]

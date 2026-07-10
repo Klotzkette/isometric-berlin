@@ -75,9 +75,16 @@ samples source textures into enhanced-but-bounded vertex colours, merges
 duplicate OBJ vertices and simplifies each tile to a 70,000-face mobile base
 mesh. Reichstag, Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive
 separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
-real dome geometry while excluding surrounding tree noise. Every output GLB
-stays below 5 MiB; the scene manifest records face counts, source bounds, byte
-sizes and SHA-256 hashes.
+real dome geometry while excluding surrounding tree noise. Hero material
+segments try 1536, 1280 and 1024 px textures before lower bounded fallbacks.
+Every output GLB stays below 5 MiB; the scene manifest records face counts,
+source bounds, byte sizes and SHA-256 hashes.
+
+The manifest also anchors a procedural Reichstag glass/steel signature to the
+photogrammetric apex. Its 40 m diameter, 23.5 m height, 24 primary ribs and 17
+horizontal rings are sourced from the Bundestag architecture page. This
+dimensioned overlay makes the dome legible without replacing the underlying
+official measured mesh.
 
 ## Step 10: DZI export and dual viewer
 

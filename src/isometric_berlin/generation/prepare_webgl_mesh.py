@@ -38,6 +38,13 @@ SOURCE_CRS = "EPSG:25833"
 ORIGIN = np.array([389_500.0, 5_820_000.0, 30.0])
 MAX_ASSET_BYTES = 5 * 1024 * 1024
 BASE_TARGET_FACES = 70_000
+REICHSTAG_DOME_HEIGHT_M = 23.5
+REICHSTAG_DOME_DIAMETER_M = 40.0
+REICHSTAG_DOME_VERTICAL_RIBS = 24
+REICHSTAG_DOME_HORIZONTAL_RINGS = 17
+REICHSTAG_DOME_SOURCE_URL = (
+  "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
+)
 
 
 @dataclass(frozen=True)
@@ -231,7 +238,7 @@ def export_hero_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
   """Export a high-detail hero crop while respecting the repository cap."""
   source_vertices = np.asarray(mesh.vertices, dtype=float).copy()
   source_visual = mesh.visual
-  for max_edge in (1024, 768, 512, 384):
+  for max_edge in (1536, 1280, 1024, 768, 512, 384):
     candidate = mesh.copy()
     candidate.vertices = source_vertices.copy()
     candidate.visual = resized_texture_visual(mesh, max_edge)
@@ -377,6 +384,44 @@ def landmark_payload(landmarks: gpd.GeoDataFrame) -> list[dict[str, Any]]:
   return records
 
 
+def architectural_signature_payload(
+  landmarks: gpd.GeoDataFrame,
+  hero_details: dict[str, list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+  """Build dimensioned architectural overlays from primary-source evidence."""
+  matches = landmarks[landmarks["name"] == "Reichstagsgebäude"]
+  if len(matches) != 1:
+    raise ValueError("Missing unique Reichstagsgebäude landmark")
+  details = hero_details.get("reichstag", [])
+  if not details:
+    raise ValueError("Missing Reichstag hero geometry for dome alignment")
+  source_top_m = max(
+    float(detail["source_bounds_epsg25833"][1][2]) for detail in details
+  )
+  point = matches.geometry.iloc[0]
+  base_world_y = source_top_m - ORIGIN[2] - REICHSTAG_DOME_HEIGHT_M
+  return [
+    {
+      "id": "reichstag-dome",
+      "landmark_name": "Reichstagsgebäude",
+      "geometry_status": (
+        "Procedural architectural signature aligned to the official Berlin 3D "
+        "mesh apex and official Bundestag dimensions"
+      ),
+      "anchor_world": [
+        round(float(point.x - ORIGIN[0]), 3),
+        round(base_world_y, 3),
+        round(float(ORIGIN[1] - point.y), 3),
+      ],
+      "height_m": REICHSTAG_DOME_HEIGHT_M,
+      "diameter_m": REICHSTAG_DOME_DIAMETER_M,
+      "vertical_ribs": REICHSTAG_DOME_VERTICAL_RIBS,
+      "horizontal_rings": REICHSTAG_DOME_HORIZONTAL_RINGS,
+      "source_url": REICHSTAG_DOME_SOURCE_URL,
+    }
+  ]
+
+
 def tunnel_payload() -> dict[str, Any]:
   """Serialize the documented OSM-derived tunnel centreline for WebGL."""
   payload = json.loads(TUNNEL_PATH.read_text(encoding="utf-8"))
@@ -483,6 +528,9 @@ def build_webgl_scene(
       }
       for spec in HERO_SPECS
     ],
+    "architectural_signatures": architectural_signature_payload(
+      landmarks, hero_details
+    ),
     "landmarks": landmark_payload(landmarks),
     "tiergartentunnel": tunnel_payload(),
   }

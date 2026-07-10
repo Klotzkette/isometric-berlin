@@ -579,7 +579,7 @@
               68.044
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389765.725,
             5819891.888,
@@ -607,7 +607,7 @@
               77.068
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389766.654,
             5819892.948,
@@ -619,8 +619,8 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-2.glb",
-          "bytes": 1032376,
-          "sha256": "359fe366ff7099b2833a98c7dd439160a30b32cb81c8165d145dca2463f4e1a4",
+          "bytes": 2094268,
+          "sha256": "c7ebcc84bf095553fd33e7f04cd6f28bac8e2588b31caaf041f12faed33b222e",
           "vertices": 1413,
           "faces": 471,
           "source_bounds_epsg25833": [
@@ -635,7 +635,7 @@
               85.357
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389757.141,
             5819890.359,
@@ -647,8 +647,8 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-3.glb",
-          "bytes": 2080804,
-          "sha256": "d0de921be56b9a54c52a5fcde5559cec38ef32e02f4c2df783ce85f1d8a30bfc",
+          "bytes": 4231188,
+          "sha256": "955bcf80fc17d6bd61bceb523e26eedc9d5b66178680ccab96e8a66c636b4ef5",
           "vertices": 3120,
           "faces": 1040,
           "source_bounds_epsg25833": [
@@ -663,7 +663,7 @@
               89.939
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389760.758,
             5819891.661,
@@ -703,8 +703,8 @@
         },
         {
           "file": "hero-reichstag-3894_58200-material-0.glb",
-          "bytes": 2491388,
-          "sha256": "d4f3cc05a4df39fe0915a85bc9b3025b158cab1163e8fee47c5bf70e1f9b3a0b",
+          "bytes": 3763644,
+          "sha256": "293c44b86d07e9da5214d1bd3d62ad58edbddf4aa5cf955ac712e16ac187befd",
           "vertices": 1572,
           "faces": 524,
           "source_bounds_epsg25833": [
@@ -719,7 +719,7 @@
               62.485
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389759.296,
             5820020.312,
@@ -747,7 +747,7 @@
               76.898
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389813.712,
             5819907.94,
@@ -759,8 +759,8 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-4.glb",
-          "bytes": 1033700,
-          "sha256": "d978f72481c100e30919fdcfec5e2abfa91e98cf4703fb5449db7f828ba5d2a6",
+          "bytes": 2100060,
+          "sha256": "509ea0e28d6ba1d3161b55b26d11a128e3f2e07b42edbf615501f9ec52cfc04c",
           "vertices": 1167,
           "faces": 389,
           "source_bounds_epsg25833": [
@@ -775,7 +775,7 @@
               86.791
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389810.667,
             5819888.742,
@@ -787,8 +787,8 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-5.glb",
-          "bytes": 1298516,
-          "sha256": "dd72e2d9f5f3b6f4fb9da91d28565e6ca26afece7ddd25176e54c0791e4afd8c",
+          "bytes": 2578092,
+          "sha256": "6fa6a809c3a3751c8207f3990b11e9fa16fdba3a19f66456ab0ef5d6e71e8efe",
           "vertices": 5769,
           "faces": 1923,
           "source_bounds_epsg25833": [
@@ -803,7 +803,7 @@
               89.939
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389804.391,
             5819888.911,
@@ -843,8 +843,8 @@
         },
         {
           "file": "hero-reichstag-3898_58200-material-5.glb",
-          "bytes": 2558632,
-          "sha256": "89696c9e708c105fdab8f80d92b712190404a37ac0e01313149129073f3e5aa7",
+          "bytes": 3887504,
+          "sha256": "6aea4b4bbeadd26f2ff95e5648eeccb266253c39035c1d6747c73e71d4ae3728",
           "vertices": 645,
           "faces": 215,
           "source_bounds_epsg25833": [
@@ -859,7 +859,7 @@
               37.945
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389814.703,
             5820025.083,
@@ -877,8 +877,8 @@
       "files": [
         {
           "file": "hero-bundeskanzleramt-3890_58200-material-0.glb",
-          "bytes": 2117100,
-          "sha256": "854649e39ce7ce4c63f927e82cb0a2424d9dffb89b56f224cc39d497e6d847db",
+          "bytes": 4256980,
+          "sha256": "442f590ee896ebd7fd6ac96ef4ced8dd4216cea5225a520e9d2f87f8fa9cb9b0",
           "vertices": 4641,
           "faces": 1547,
           "source_bounds_epsg25833": [
@@ -893,7 +893,7 @@
               72.372
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389107.292,
             5820086.147,
@@ -939,8 +939,8 @@
       "files": [
         {
           "file": "hero-hauptbahnhof-3890_58203-material-2.glb",
-          "bytes": 1088316,
-          "sha256": "fde44c6bc8a2a47a5b23eeefd6a382f976156000e40fdbbed60aa36b4f1fe436",
+          "bytes": 2183376,
+          "sha256": "1926cd94e8ecd125cf657f43ae9a7da99d6b39d127db9ad1e5bd5be0c112dd05",
           "vertices": 2553,
           "faces": 851,
           "source_bounds_epsg25833": [
@@ -955,7 +955,7 @@
               84.772
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389317.409,
             5820594.587,
@@ -1011,7 +1011,7 @@
               73.87
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389327.385,
             5820749.375,
@@ -1023,8 +1023,8 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-3.glb",
-          "bytes": 1043492,
-          "sha256": "7237afb1817f1eeded4f4ceffad278a8506f4576a9bb6d0370af6e32171da1d2",
+          "bytes": 2133996,
+          "sha256": "deaf9cdb8203de478baa0a2cb31d7cbd8e9acb69592917cfd042aaa42779e0d4",
           "vertices": 954,
           "faces": 318,
           "source_bounds_epsg25833": [
@@ -1039,7 +1039,7 @@
               81.532
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389315.049,
             5820749.469,
@@ -1051,8 +1051,8 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-4.glb",
-          "bytes": 3040556,
-          "sha256": "f04d2dc8b29b27f9e03eb57ad53ab87fc88eb1558d0add72151f1b749d1bfd7d",
+          "bytes": 4400968,
+          "sha256": "ec32c335d9ffa096d241d5870464a733a510e2a33ddbf1b4cf2cd3cc5d2b6ff5",
           "vertices": 19665,
           "faces": 6555,
           "source_bounds_epsg25833": [
@@ -1067,7 +1067,7 @@
               84.795
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389311.895,
             5820748.693,
@@ -1085,8 +1085,8 @@
       "files": [
         {
           "file": "hero-brandenburger-tor-3898_58193-material-2.glb",
-          "bytes": 2594688,
-          "sha256": "bf7922a4c35ff63692493853f601714557377e6ff6614c3794bc1d2de6468dc5",
+          "bytes": 3958160,
+          "sha256": "bb1bbec31bc952c3c81287f39e320bead7e56414044db8afe5ed0eae0dfd4664",
           "vertices": 78,
           "faces": 26,
           "source_bounds_epsg25833": [
@@ -1101,7 +1101,7 @@
               45.886
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389903.647,
             5819666.702,
@@ -1113,8 +1113,8 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-4.glb",
-          "bytes": 1014180,
-          "sha256": "dde778a80817333e129a10302587bf1166cb9d149c4bc09f884aac9f8191661c",
+          "bytes": 2080540,
+          "sha256": "c599cf620f6250875134608075b229c17d172d76c1c0856f951946967fb8fce7",
           "vertices": 354,
           "faces": 118,
           "source_bounds_epsg25833": [
@@ -1129,7 +1129,7 @@
               55.018
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389911.547,
             5819676.274,
@@ -1141,8 +1141,8 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-5.glb",
-          "bytes": 1203468,
-          "sha256": "de3730ca49b0444b66de60aa63758aabda511b6428f52a19ef166c6c101831f3",
+          "bytes": 2483044,
+          "sha256": "871fa7c30e20facf45d73b23d024a47cde7975eb8476b0e2bad8884da0fd08bc",
           "vertices": 1809,
           "faces": 603,
           "source_bounds_epsg25833": [
@@ -1157,7 +1157,7 @@
               56.622
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 1536,
           "crop_bounds_epsg25833": [
             389909.852,
             5819669.819,
@@ -1196,6 +1196,23 @@
           "source_material_segment": "Mesh_3898_58196_-002-0"
         }
       ]
+    }
+  ],
+  "architectural_signatures": [
+    {
+      "id": "reichstag-dome",
+      "landmark_name": "Reichstagsgebäude",
+      "geometry_status": "Procedural architectural signature aligned to the official Berlin 3D mesh apex and official Bundestag dimensions",
+      "anchor_world": [
+        315.026,
+        36.439,
+        39.831
+      ],
+      "height_m": 23.5,
+      "diameter_m": 40.0,
+      "vertical_ribs": 24,
+      "horizontal_rings": 17,
+      "source_url": "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
     }
   ],
   "landmarks": [

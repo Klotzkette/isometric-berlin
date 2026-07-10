@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.2.0"
+PACKAGE_VERSION = "0.2.1"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -754,41 +754,6 @@ START_HERE_HTML = """<!doctype html>
       0%, 100% { transform: scale(.96); opacity: .82; }
       50% { transform: scale(1.06); opacity: 1; }
     }
-    .marker {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      margin-left: -9px;
-      margin-top: -9px;
-      border: 2px solid #fff8e7;
-      border-radius: 50%;
-      background: #9f3434;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .28);
-      cursor: pointer;
-    }
-    .marker[data-role="hero_tile"] { background: #155d73; }
-    .marker[data-role="owner_added"] { background: #5f6d39; }
-    .marker[data-priority="true"] {
-      width: 22px;
-      height: 22px;
-      margin-left: -11px;
-      margin-top: -11px;
-      border-color: #fff8e7;
-      background: #155d73;
-      box-shadow:
-        0 0 0 4px rgba(21, 93, 115, .32),
-        0 0 0 9px rgba(192, 138, 70, .16),
-        0 8px 18px rgba(0, 0, 0, .36);
-    }
-    .marker.active {
-      background: var(--gold);
-      border-color: #1b2422;
-      box-shadow:
-        0 0 0 4px rgba(255, 255, 255, .7),
-        0 0 0 10px rgba(241, 200, 75, .32),
-        0 10px 22px rgba(0, 0, 0, .38);
-    }
-    .marker:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
     .compass {
       position: absolute;
       left: 14px;
@@ -1079,18 +1044,6 @@ START_HERE_HTML = """<!doctype html>
       .list button {
         min-height: 44px;
       }
-      .marker {
-        width: 26px;
-        height: 26px;
-        margin-left: -13px;
-        margin-top: -13px;
-      }
-      .marker[data-priority="true"] {
-        width: 30px;
-        height: 30px;
-        margin-left: -15px;
-        margin-top: -15px;
-      }
       .controls,
       .presets,
       .profile-controls {
@@ -1135,7 +1088,6 @@ START_HERE_HTML = """<!doctype html>
         <svg class="night-light-overlay" id="night-light-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
         <svg class="scene-detail-overlay" id="scene-detail-overlay" viewBox="0 0 2157 1529" aria-hidden="true"></svg>
         <div class="focus-ring" id="focus-ring" aria-hidden="true"></div>
-        <div id="markers"></div>
       </div>
       <div class="hud" aria-live="polite">
         <strong id="hud-title">Regierungsviertel Live View</strong>
@@ -1147,7 +1099,7 @@ START_HERE_HTML = """<!doctype html>
     <aside>
       <header>
         <h1>Isometric Berlin</h1>
-        <p class="sub" id="subtitle">Offline-Start ohne Terminal. Verschieben, zoomen, drehen und swiveln direkt mit Maus oder Buttons.</p>
+        <p class="sub" id="subtitle">Kompatible 2D-Notansicht ohne Terminal. Für echte 3D-Geometrie den lokalen Server starten.</p>
         <div class="top-toggles" aria-label="Sprache und Darstellung">
           <button type="button" id="lang-de" class="active">Deutsch</button>
           <button type="button" id="lang-en">English</button>
@@ -1184,13 +1136,13 @@ START_HERE_HTML = """<!doctype html>
           <button type="button" id="view-west">West</button>
         </div>
         <button type="button" id="reference" class="wide">Top-down-Referenzkarte</button>
-        <a class="button wide" id="advanced-link" href="index.html">Advanced Viewer nur mit Server-Fallback</a>
+        <a class="button wide" id="advanced-link" href="index.html">Echtes 3D öffnen (lokaler Server)</a>
       </div>
       <p class="hint" id="hint"><strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Atlas/Cinematic/Lab ändern Kontrast, Bühne und Lesbarkeit.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
       <p class="notice" id="notice">
-        Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist
-        nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.
+        Dies ist nur die 2D-Kompatibilitätsansicht. Für das maßstäbliche 3D-Modell
+        unter Windows start-windows.bat öffnen, unter macOS/Linux python3 serve-local.py.
       </p>
     </aside>
   </main>
@@ -1223,7 +1175,6 @@ START_HERE_HTML = """<!doctype html>
     const tunnelOverlay = document.getElementById("tunnel-overlay");
     const nightOverlay = document.getElementById("night-light-overlay");
     const sceneOverlay = document.getElementById("scene-detail-overlay");
-    const markerRoot = document.getElementById("markers");
     const list = document.getElementById("landmarks");
     const referencePanel = document.getElementById("reference-panel");
     const underButton = document.getElementById("under-view");
@@ -1278,7 +1229,7 @@ START_HERE_HTML = """<!doctype html>
       de: {
         documentTitle: "Isometric Berlin starten",
         stageLabel: "Isometrische Karte",
-        subtitle: "Offline-Start ohne Terminal. Verschieben, zoomen, drehen und swiveln direkt mit Maus oder Buttons.",
+        subtitle: "Kompatible 2D-Notansicht ohne Terminal. Für echte 3D-Geometrie den lokalen Server starten.",
         modePan: "Verschieben",
         modeRotate: "Drehen/Swivel",
         zoomIn: "Zoom +",
@@ -1297,10 +1248,10 @@ START_HERE_HTML = """<!doctype html>
         detailImage: "Detailbild",
         reset: "Reset",
         reference: "Top-down-Referenzkarte",
-        advanced: "Advanced Viewer nur mit Server-Fallback",
+        advanced: "Echtes 3D öffnen (lokaler Server)",
         hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. G schaltet Details, C Wolken, P Leichtmodus. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
         hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten. Beim Ziehen reduziert der Viewer teure Detailfilter.",
-        notice: "Diese START-HERE-Datei ist der robuste Offline-Viewer. Der Advanced Viewer ist nur Plan B für Serverstart und kann beim direkten Öffnen aus dem Ordner blockieren.",
+        notice: "Dies ist nur die 2D-Kompatibilitätsansicht. Für das maßstäbliche 3D-Modell unter Windows start-windows.bat öffnen, unter macOS/Linux python3 serve-local.py.",
         referenceTitle: "Top-down-Referenzkarte",
         referenceClose: "Schließen",
         hudTitle: "Regierungsviertel Live View",
@@ -1322,7 +1273,7 @@ START_HERE_HTML = """<!doctype html>
       en: {
         documentTitle: "Start Isometric Berlin",
         stageLabel: "Isometric map",
-        subtitle: "Offline start without Terminal. Pan, zoom, rotate and swivel with the mouse or buttons.",
+        subtitle: "Compatible zero-server 2D fallback. Start the local server for true 3D geometry.",
         modePan: "Pan",
         modeRotate: "Rotate/Swivel",
         zoomIn: "Zoom +",
@@ -1341,10 +1292,10 @@ START_HERE_HTML = """<!doctype html>
         detailImage: "Detail image",
         reset: "Reset",
         reference: "Top-down reference map",
-        advanced: "Advanced viewer, server fallback only",
+        advanced: "Open true 3D (local server)",
         hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. G toggles details, C clouds, P lite mode. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
         hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below. While dragging, the viewer reduces costly detail filters.",
-        notice: "This START-HERE file is the robust offline viewer. The Advanced Viewer is only a fallback for server start and may be blocked when opened directly from the folder.",
+        notice: "This is only the compatible 2D fallback. For the metric 3D model, open start-windows.bat on Windows or run python3 serve-local.py on macOS/Linux.",
         referenceTitle: "Top-down reference map",
         referenceClose: "Close",
         hudTitle: "Government Quarter Live View",
@@ -1856,23 +1807,9 @@ START_HERE_HTML = """<!doctype html>
     function togglePerformance() {
       setPerformance(!state.performance);
     }
-    function addMarkers() {
-      markerRoot.innerHTML = "";
+    function addLandmarkList() {
       list.innerHTML = "";
       landmarks.forEach((landmark, index) => {
-        const marker = document.createElement("button");
-        marker.type = "button";
-        marker.className = "marker";
-        marker.style.left = `${landmark.x}px`;
-        marker.style.top = `${landmark.y}px`;
-        marker.dataset.role = landmark.role || "";
-        marker.dataset.priority = PRIORITY_LANDMARKS.has(landmark.name) ? "true" : "false";
-        marker.dataset.landmarkIndex = String(index);
-        marker.title = landmark.name;
-        marker.setAttribute("aria-label", landmark.name);
-        marker.addEventListener("click", () => focusLandmark(landmark));
-        markerRoot.appendChild(marker);
-
         const row = document.createElement("button");
         row.type = "button";
         row.className = PRIORITY_LANDMARKS.has(landmark.name) ? "priority" : "";
@@ -2788,7 +2725,6 @@ START_HERE_HTML = """<!doctype html>
       return true;
     }
     stage.addEventListener("pointerdown", (event) => {
-      if (event.target instanceof Element && event.target.classList.contains("marker")) return;
       event.preventDefault();
       activePointers.set(event.pointerId, pointerSnapshot(event));
       stage.setPointerCapture(event.pointerId);
@@ -2964,7 +2900,7 @@ START_HERE_HTML = """<!doctype html>
     addTunnelRoutes();
     addNightLights();
     addSceneDetails();
-    addMarkers();
+    addLandmarkList();
     applyQualityImage();
     applyLanguage();
     setTheme(state.theme);
@@ -3139,7 +3075,7 @@ def write_launchers(package_dir: Path) -> None:
   mac_notes.write_text(
     """macOS fallback, only if START-HERE.html does not open correctly.
 
-First try this: double-click START-HERE.html. It is the normal offline viewer.
+For the 2D compatibility fallback, double-click START-HERE.html.
 
 Only use Terminal for the server fallback:
 
@@ -3151,7 +3087,8 @@ Only use Terminal for the server fallback:
 5. The server opens the full 3D viewer at the printed
    http://127.0.0.1:.../index.html address.
 
-This package does not include start-mac.command because macOS Gatekeeper
+The command below opens the true 3D viewer directly. This package does not
+include start-mac.command because macOS Gatekeeper
 blocks unsigned downloaded .command files before the viewer can start.
 """,
     encoding="utf-8",
@@ -3195,11 +3132,12 @@ def write_readme(package_dir: Path) -> None:
 Deutsch
 -------
 
-Dieses Paket ist eine lokale HTML-Website mit allen Kartendaten. Zum
-Anzeigen brauchst du keine KI und keinen Google-Key. Version {PACKAGE_VERSION}
-ist ausdrücklich macOS-/Windows-downloadfreundlich: der normale Startweg ist
-eine HTML-Datei, kein ausführbares macOS-.command-Skript und kein Terminal.
-START-HERE.html ist ein einfacher Offline-Viewer mit Karte, Zoom/Verschieben,
+Dieses Paket ist eine lokale Website mit allen Kartendaten. Zum Anzeigen
+brauchst du keine KI und keinen Google-Key. START-HERE.html ist die klar
+gekennzeichnete 2D-Kompatibilitätsansicht ohne Server, nicht das vollständige
+Modell. Echtes 3D startet unter Windows per start-windows.bat und unter
+macOS/Linux per `python3 serve-local.py`; ein unsigniertes macOS-.command-Skript
+wird nicht ausgeliefert. Die 2D-Notansicht enthält Karte, Zoom/Verschieben,
 Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
@@ -3267,16 +3205,19 @@ Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
 Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
 Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
-haben separate hochauflösende, LoD2-maskierte Texturmodelle; die Kuppel des
-Reichstags ist dadurch echte Geometrie und keine gezeichnete Ellipse.
+haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 1536 px pro
+Materialsegment. Die Reichstagskuppel kombiniert das reale Mesh mit einer
+amtlich dimensionierten Glas-/Stahlkonstruktion (40 m Durchmesser, 23,5 m Höhe,
+24 Rippen, 17 Ringe) und ist keine gezeichnete Ellipse.
 
-Start ohne Terminal:
+2D-Kompatibilitätsansicht ohne Terminal:
 
 1. ZIP entpacken.
 2. Doppelklick auf START-HERE.html.
 3. Der Viewer öffnet sich im Browser.
 
-Falls dein Browser lokale Deep-Zoom-Dateien blockiert:
+Für vollständiges lokales 3D beziehungsweise falls der Browser lokale
+Deep-Zoom-Dateien blockiert:
 
 - macOS: siehe start-mac-if-needed.txt und starte `python3 serve-local.py`.
 - Windows: Doppelklick auf start-windows.bat.
@@ -3304,11 +3245,11 @@ QA-Referenz; daraus wird nichts kopiert.
 English
 -------
 
-This package is a local HTML website with all map data included. It
-does not need an AI model or a Google key to run. Version {PACKAGE_VERSION}
-is explicitly macOS-/Windows-download-friendly: the normal launch path is
-an HTML file, not an executable macOS .command script, and not Terminal.
-START-HERE.html is a simple offline viewer with the map, zoom/pan,
+This package is a local website with all map data included. It does not need an
+AI model or a Google key to run. START-HERE.html is the clearly labelled
+zero-server 2D compatibility view, not the complete model. True 3D starts with
+start-windows.bat on Windows or `python3 serve-local.py` on macOS/Linux; no
+unsigned macOS .command script is shipped. The 2D fallback has the map, zoom/pan,
 reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
@@ -3371,16 +3312,18 @@ This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
 now adds real photogrammetric roof, terrain and facade surfaces. Reichstag,
 Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
-LoD2-masked texture models; the Reichstag dome is real geometry rather than a
-drawn ellipse.
+LoD2-masked texture models up to 1536 px per material segment. The Reichstag
+dome combines the real mesh with an officially dimensioned glass/steel
+structure (40 m diameter, 23.5 m height, 24 ribs, 17 rings) rather than a drawn
+ellipse.
 
-Start without Terminal:
+2D compatibility view without Terminal:
 
 1. Unzip the package.
 2. Double-click START-HERE.html.
 3. The viewer opens in your browser.
 
-If your browser blocks local Deep Zoom files:
+For full local 3D, or if your browser blocks local Deep Zoom files:
 
 - macOS: read start-mac-if-needed.txt and run `python3 serve-local.py`.
 - Windows: double-click start-windows.bat.
@@ -3436,6 +3379,8 @@ def write_package_manifest(package_dir: Path) -> None:
     "package_name": PACKAGE_NAME,
     "package_version": PACKAGE_VERSION,
     "start_page": "START-HERE.html",
+    "start_page_mode": "2d-compatibility-fallback",
+    "full_3d_start_page": "index.html",
     "preferred_image": "dzi/regierungsviertel/overview_source.png",
     "optional_pixel_image": "dzi/regierungsviertel/overview.png",
     "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
