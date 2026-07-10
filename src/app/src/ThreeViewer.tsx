@@ -11,6 +11,7 @@ import {
   FrontSide,
   Group,
   HemisphereLight,
+  Material,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
@@ -25,6 +26,7 @@ import {
   SphereGeometry,
   SRGBColorSpace,
   TorusGeometry,
+  Texture,
   Vector3,
   WebGLRenderer,
 } from "three";
@@ -34,6 +36,8 @@ import {
   type ArchitecturalSignature,
   createOfficialReichstagDome,
 } from "./ReichstagDome";
+import { runBoundedTasks } from "./boundedTaskPool";
+import { heroDetailEvictions } from "./heroDetailCache";
 import {
   forwardRef,
   useEffect,
@@ -88,6 +92,7 @@ type ThreeViewerProps = {
   selectedLandmark: string;
   onError: (message: string) => void;
   onReady: () => void;
+  onWarning: (message: string) => void;
   onViewChange: (angles: ViewAngles) => void;
 };
 
@@ -103,8 +108,11 @@ export type ThreeViewerHandle = {
 
 type Runtime = {
   camera: PerspectiveCamera;
+  coarsePointer: boolean;
   controls: OrbitControls;
-  detailGroups: Map<string, Group>;
+  detailClock: number;
+  detailGroups: Map<string, HeroDetailGroup>;
+  disposed: boolean;
   heroByName: Map<string, HeroDetail>;
   landmarkByName: Map<string, SceneLandmark>;
   loader: GLTFLoader;
@@ -116,6 +124,13 @@ type Runtime = {
   signatures: Group;
   tunnel: Group;
   underside: boolean;
+};
+
+type HeroDetailGroup = {
+  group: Group;
+  lastUsed: number;
+  loadedFiles: number;
+  loading: boolean;
 };
 
 const DEFAULT_TARGET = new Vector3(-110, 12, -165);
@@ -298,20 +313,84 @@ function setOrbitAngles(
   runtime.controls.update();
 }
 
+function disposeObject3D(runtime: Runtime, root: Object3D): void {
+  const geometries = new Set<Mesh["geometry"]>();
+  const materials = new Set<Material>();
+  const textures = new Set<Texture>();
+  root.traverse((object) => {
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+    geometries.add(object.geometry);
+    const objectMaterials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of objectMaterials) {
+      materials.add(material);
+      for (const value of Object.values(
+        material as unknown as Record<string, unknown>,
+      )) {
+        if (value instanceof Texture) {
+          textures.add(value);
+        }
+      }
+    }
+  });
+  root.removeFromParent();
+  root.clear();
+  for (const geometry of geometries) {
+    geometry.dispose();
+  }
+  for (const texture of textures) {
+    texture.dispose();
+  }
+  for (const material of materials) {
+    if (material instanceof MeshStandardMaterial) {
+      runtime.modelMaterials.delete(material);
+    }
+    material.dispose();
+  }
+}
+
+function evictHeroDetails(runtime: Runtime, activeName: string): void {
+  const limit = runtime.coarsePointer ? 1 : 2;
+  const evictions = heroDetailEvictions(
+    [...runtime.detailGroups].map(([name, entry]) => ({
+      lastUsed: entry.lastUsed,
+      loading: entry.loading,
+      name,
+    })),
+    activeName,
+    limit,
+  );
+  for (const name of evictions) {
+    const entry = runtime.detailGroups.get(name);
+    if (!entry) {
+      continue;
+    }
+    runtime.detailGroups.delete(name);
+    disposeObject3D(runtime, entry.group);
+  }
+}
+
 async function loadModel(
   runtime: Runtime,
   file: MeshFile,
   parent: Group | Scene,
   { detail }: { detail: boolean },
-): Promise<void> {
+): Promise<boolean> {
   const url = new URL(file.file, runtime.sceneRootUrl).toString();
   const gltf = await runtime.loader.loadAsync(url);
+  if (runtime.disposed) {
+    disposeObject3D(runtime, gltf.scene);
+    return false;
+  }
   gltf.scene.traverse((object: Object3D) => {
     if (!(object instanceof Mesh)) {
       return;
     }
     object.receiveShadow = true;
-    object.castShadow = detail && !window.matchMedia("(pointer: coarse)").matches;
+    object.castShadow = detail && !runtime.coarsePointer;
     if (!detail) {
       object.geometry.computeVertexNormals();
     }
@@ -352,30 +431,41 @@ async function loadModel(
     gltf.scene.position.y += DETAIL_RAISE_M;
   }
   parent.add(gltf.scene);
+  return true;
 }
 
-async function loadWithConcurrency<T>(
-  items: T[],
-  concurrency: number,
-  task: (item: T) => Promise<void>,
-): Promise<void> {
-  let nextIndex = 0;
-  const workers = Array.from(
-    { length: Math.min(concurrency, Math.max(1, items.length)) },
-    async () => {
-      while (nextIndex < items.length) {
-        const item = items[nextIndex];
-        nextIndex += 1;
-        await task(item);
-      }
-    },
-  );
-  await Promise.all(workers);
+async function loadModelWithRetry(
+  runtime: Runtime,
+  file: MeshFile,
+  parent: Group | Scene,
+  options: { detail: boolean },
+): Promise<boolean> {
+  try {
+    return await loadModel(runtime, file, parent, options);
+  } catch (firstError: unknown) {
+    if (runtime.disposed) {
+      return false;
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 180));
+    try {
+      return await loadModel(runtime, file, parent, options);
+    } catch {
+      throw firstError;
+    }
+  }
 }
 
 export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
   function ThreeViewer(
-    { active, sceneUrl, selectedLandmark, onError, onReady, onViewChange },
+    {
+      active,
+      sceneUrl,
+      selectedLandmark,
+      onError,
+      onReady,
+      onWarning,
+      onViewChange,
+    },
     ref,
   ) {
     const hostRef = useRef<HTMLDivElement | null>(null);
@@ -384,6 +474,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const activeRef = useRef(active);
     const onErrorRef = useRef(onError);
     const onReadyRef = useRef(onReady);
+    const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
     const [progress, setProgress] = useState({ loaded: 0, total: 1 });
 
@@ -394,8 +485,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useEffect(() => {
       onErrorRef.current = onError;
       onReadyRef.current = onReady;
+      onWarningRef.current = onWarning;
       onViewChangeRef.current = onViewChange;
-    }, [onError, onReady, onViewChange]);
+    }, [onError, onReady, onWarning, onViewChange]);
 
     const focusLandmark = (name: string, immediate = false): void => {
       const runtime = runtimeRef.current;
@@ -435,35 +527,59 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtime.marker.visible = true;
       runtime.controls.update(immediate ? 1 : undefined);
 
-      for (const [heroName, group] of runtime.detailGroups) {
-        group.visible = heroName === name;
+      runtime.detailClock += 1;
+      for (const [heroName, entry] of runtime.detailGroups) {
+        entry.group.visible = heroName === name;
+        if (heroName === name) {
+          entry.lastUsed = runtime.detailClock;
+        }
       }
       const detail = runtime.heroByName.get(name);
       if (detail && !runtime.detailGroups.has(name)) {
         const group = new Group();
         group.name = `${name} high detail`;
-        runtime.detailGroups.set(name, group);
+        const entry: HeroDetailGroup = {
+          group,
+          lastUsed: runtime.detailClock,
+          loadedFiles: 0,
+          loading: true,
+        };
+        runtime.detailGroups.set(name, entry);
         runtime.scene.add(group);
+        evictHeroDetails(runtime, name);
         setProgress((current) => ({
           loaded: current.loaded,
           total: current.total + detail.files.length,
         }));
-        void loadWithConcurrency(detail.files, 2, async (file) => {
-          await loadModel(runtime, file, group, { detail: true });
-          setProgress((current) => ({ ...current, loaded: current.loaded + 1 }));
-        }).catch((error: unknown) => {
-          setProgress((current) => ({
-            ...current,
-            total: Math.max(
-              current.loaded,
-              current.total - detail.files.length,
-            ),
-          }));
-          onErrorRef.current(
-            error instanceof Error ? error.message : "3D detail failed",
-          );
+        void runBoundedTasks(detail.files, 2, async (file) => {
+          if (
+            (await loadModelWithRetry(runtime, file, group, { detail: true })) &&
+            !runtime.disposed
+          ) {
+            entry.loadedFiles += 1;
+            setProgress((current) => ({ ...current, loaded: current.loaded + 1 }));
+          }
+        }).then((failures) => {
+          if (runtime.disposed) {
+            return;
+          }
+          entry.loading = false;
+          if (failures.length > 0) {
+            runtime.detailGroups.delete(name);
+            disposeObject3D(runtime, group);
+            setProgress((current) => ({
+              loaded: Math.max(0, current.loaded - entry.loadedFiles),
+              total: Math.max(0, current.total - detail.files.length),
+            }));
+            onWarningRef.current(
+              `${name}: ${failures.length} Detaildatei(en) konnten nicht geladen werden; Basis-3D bleibt aktiv.`,
+            );
+            return;
+          }
+          evictHeroDetails(runtime, selectedRef.current);
         });
       }
+      evictHeroDetails(runtime, name);
     };
 
     useImperativeHandle(
@@ -554,8 +670,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let disposed = false;
       let frame = 0;
       let resizeObserver: ResizeObserver | null = null;
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
       const renderer = new WebGLRenderer({
-        antialias: !window.matchMedia("(pointer: coarse)").matches,
+        antialias: !coarsePointer,
         powerPreference: "high-performance",
       });
       renderer.outputColorSpace = SRGBColorSpace;
@@ -580,7 +697,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(new HemisphereLight(0xf8fcff, 0x80967a, 3.35));
       const sun = new DirectionalLight(0xfff1cf, 2.05);
       sun.position.set(-760, 980, 720);
-      sun.castShadow = !window.matchMedia("(pointer: coarse)").matches;
+      sun.castShadow = !coarsePointer;
       sun.shadow.mapSize.set(2048, 2048);
       sun.shadow.camera.left = -1100;
       sun.shadow.camera.right = 1100;
@@ -615,8 +732,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(signatures);
       const runtime: Runtime = {
         camera,
+        coarsePointer,
         controls,
+        detailClock: 0,
         detailGroups: new Map(),
+        disposed: false,
         heroByName: new Map(),
         landmarkByName: new Map(),
         loader: new GLTFLoader(),
@@ -632,6 +752,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtimeRef.current = runtime;
 
       const touchPoints = new Map<number, { x: number; y: number }>();
+      let customTouchGestureActive = false;
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       const onPointerDown = (event: PointerEvent) => {
         if (event.pointerType !== "touch") {
@@ -639,6 +760,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (touchPoints.size >= 3) {
+          customTouchGestureActive = true;
           controls.enabled = false;
           const points = [...touchPoints.values()];
           previousThreeFingerCenter = {
@@ -678,8 +800,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       const onPointerUp = (event: PointerEvent) => {
         touchPoints.delete(event.pointerId);
-        if (touchPoints.size < 3) {
+        if (customTouchGestureActive) {
           previousThreeFingerCenter = null;
+          if (touchPoints.size === 0) {
+            customTouchGestureActive = false;
+            controls.enabled = true;
+            notifyView(runtime, onViewChangeRef.current);
+          }
+          return;
+        }
+        if (touchPoints.size < 3) {
           controls.enabled = true;
           notifyView(runtime, onViewChangeRef.current);
         }
@@ -705,7 +835,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       resizeObserver.observe(host);
       resize();
 
-      const animate = () => {
+      const onContextLost = (event: Event) => {
+        event.preventDefault();
+        if (!disposed) {
+          onErrorRef.current(
+            "WebGL-Kontext verloren; die Detailkarte bleibt verfügbar und 3D kann erneut geöffnet werden.",
+          );
+        }
+      };
+      renderer.domElement.addEventListener("webglcontextlost", onContextLost);
+
+      const frameIntervalMs = coarsePointer ? 1000 / 30 : 0;
+      let lastRenderedAt = Number.NEGATIVE_INFINITY;
+      const animate = (timestamp = 0) => {
         if (disposed) {
           return;
         }
@@ -713,13 +855,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!activeRef.current) {
           return;
         }
+        if (timestamp - lastRenderedAt < frameIntervalMs) {
+          return;
+        }
+        lastRenderedAt = timestamp;
         controls.update();
-        marker.rotation.y += 0.006;
         renderer.render(scene, camera);
       };
       animate();
 
-      void fetch(sceneUrl)
+      const manifestController = new AbortController();
+      void fetch(sceneUrl, { signal: manifestController.signal })
         .then(async (response) => {
           if (!response.ok) {
             throw new Error(`3D scene manifest: HTTP ${response.status}`);
@@ -760,24 +906,52 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           });
           focusLandmark(selectedRef.current, true);
           let readyNotified = false;
-          await loadWithConcurrency(
+          let loadedBaseTiles = 0;
+          const baseFailures = await runBoundedTasks(
             sortedTiles,
-            window.matchMedia("(pointer: coarse)").matches ? 1 : 3,
+            coarsePointer ? 1 : 3,
             async (file) => {
-              await loadModel(runtime, file, scene, { detail: false });
-              setProgress((current) => ({ ...current, loaded: current.loaded + 1 }));
-              if (!readyNotified && !disposed) {
+              const loaded = await loadModelWithRetry(runtime, file, scene, {
+                detail: false,
+              });
+              if (!loaded || disposed) {
+                return;
+              }
+              loadedBaseTiles += 1;
+              setProgress((current) => ({
+                ...current,
+                loaded: current.loaded + 1,
+              }));
+              if (!readyNotified) {
                 readyNotified = true;
                 onReadyRef.current();
               }
             },
           );
+          if (disposed) {
+            return;
+          }
+          if (loadedBaseTiles === 0) {
+            throw new Error("Keine 3D-Basiskachel konnte geladen werden");
+          }
+          if (baseFailures.length > 0) {
+            setProgress((current) => ({
+              ...current,
+              total: Math.max(current.loaded, current.total - baseFailures.length),
+            }));
+            onWarningRef.current(
+              `${baseFailures.length} Basiskachel(n) konnten nach zwei Versuchen nicht geladen werden.`,
+            );
+          }
           if (!disposed && !readyNotified) {
             onReadyRef.current();
           }
         })
         .catch((error: unknown) => {
-          if (!disposed) {
+          if (
+            !disposed &&
+            !(error instanceof DOMException && error.name === "AbortError")
+          ) {
             onErrorRef.current(
               error instanceof Error ? error.message : "3D scene failed",
             );
@@ -786,25 +960,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       return () => {
         disposed = true;
+        runtime.disposed = true;
+        manifestController.abort();
         window.cancelAnimationFrame(frame);
         resizeObserver?.disconnect();
         renderer.domElement.removeEventListener("pointerdown", onPointerDown, true);
         renderer.domElement.removeEventListener("pointermove", onPointerMove, true);
         renderer.domElement.removeEventListener("pointerup", onPointerUp, true);
         renderer.domElement.removeEventListener("pointercancel", onPointerUp, true);
+        renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
         controls.dispose();
-        scene.traverse((object) => {
-          if (!(object instanceof Mesh)) {
-            return;
-          }
-          object.geometry.dispose();
-          const materials = Array.isArray(object.material)
-            ? object.material
-            : [object.material];
-          for (const material of materials) {
-            material.dispose();
-          }
-        });
+        disposeObject3D(runtime, scene);
         renderer.dispose();
         renderer.domElement.remove();
         runtimeRef.current = null;

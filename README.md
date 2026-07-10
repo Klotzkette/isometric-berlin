@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.1/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.2/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.1 open-data package.
+**Status:** Local v0.2.2 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.1**. Its full viewer is a progressively
+The current public package is **v0.2.2**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -52,6 +52,16 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Assets load progressively with bounded concurrency and an adaptive pixel
   ratio. The 93.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
   individual public GLB remains below 5 MiB.
+- Mobile devices retain only the selected high-resolution hero group; desktop
+  retains the two most recent. Evicted geometry, materials and textures are
+  explicitly released from GPU memory. A failed detail file is retried once
+  and no longer disables an otherwise usable base scene. Touch devices release
+  inactive 3D when switching to the 2D map and cap active rendering at 30 fps;
+  desktop retains the warm mode switch.
+- Release QA verifies the exact byte length and SHA-256 of all 45 scene GLBs in
+  the source tree, extracted package and ZIP. The bundled local server repeats
+  that verification before opening the browser, so a partial extraction is
+  reported directly instead of presenting a blank or frozen canvas.
 - The 16384×11616, 15-level OpenSeadragon map remains available as a fast
   high-resolution fallback. Its marker layer also shows only the selection.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal

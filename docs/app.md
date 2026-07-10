@@ -89,10 +89,25 @@ enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
 By default the viewer loads the mesh scene from
 `public/mesh/regierungsviertel/scene.json`; individual GLBs are ordered by
 distance from the selected landmark and loaded with bounded concurrency. Hero
-texture crops load only when selected. The DZI tile pyramid and reference map
+texture crops load only when selected. A failed model request is retried once,
+and one failed optional hero group reports a warning without closing the usable
+base scene. Mobile/coarse-pointer devices retain one hero group, while desktop
+retains the two most recently used groups; evicted geometry, materials and
+textures are explicitly disposed to bound browser and GPU memory. A lost WebGL
+context switches to the DZI fallback and a later 3D selection creates a fresh
+context. On touch/coarse-pointer devices, switching to the 2D map unmounts the
+inactive WebGL scene and active 3D rendering uses a 30 fps budget; desktop keeps
+the loaded scene warm for rapid mode switching.
+
+The DZI tile pyramid and reference map
 load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is
 bundled into the app to support double-click local starts. Set
 `VITE_DZI_BASE_URL` at build time to load the tile
 pyramid and reference map from a remote host (e.g. a Cloudflare R2
 bucket) instead — see
 [`perplexity-hosting.md`](perplexity-hosting.md).
+
+`START-HERE.html` intentionally remains a zero-server 2D compatibility view.
+When opened over `file://`, its full-3D link now displays the platform-specific
+server command instead of navigating to a module page that browsers cannot load
+reliably from local files.

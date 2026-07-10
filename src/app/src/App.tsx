@@ -314,6 +314,9 @@ export function App() {
   const [isLandmarkRailOpen, setIsLandmarkRailOpen] = useState(
     () => !window.matchMedia("(max-width: 760px)").matches,
   );
+  const [keepThreeWarm] = useState(
+    () => !window.matchMedia("(pointer: coarse)").matches,
+  );
 
   const tileSource = useMemo(() => regierungsviertelTileSource(), []);
   const sceneUrl = useMemo(
@@ -872,7 +875,7 @@ export function App() {
           ref={containerRef}
           className={viewerMode === "map" ? "viewer is-active" : "viewer"}
         />
-        {viewerMode === "three" || isThreeReady ? (
+        {viewerMode === "three" || (isThreeReady && keepThreeWarm) ? (
           <ThreeViewer
             ref={threeViewerRef}
             active={viewerMode === "three"}
@@ -886,6 +889,9 @@ export function App() {
               setIsThreeReady(false);
               setStatus(`3D nicht verfügbar: ${message}`);
               setViewerMode("map");
+            }}
+            onWarning={(message) => {
+              setStatus(`3D-Hinweis: ${message}`);
             }}
             onViewChange={({ azimuthDegrees, polarDegrees, underside }) => {
               setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
@@ -925,6 +931,9 @@ export function App() {
             title={viewerMode === "three" ? "2D-Detailkarte" : "Echte 3D-Ansicht"}
             onClick={() => {
               const next = viewerMode === "three" ? "map" : "three";
+              if (next === "map" && !keepThreeWarm) {
+                setIsThreeReady(false);
+              }
               setViewerMode(next);
               setStatus(
                 next === "three"

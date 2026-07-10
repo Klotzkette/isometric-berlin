@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import os
@@ -15,6 +16,15 @@ import pytest
 def load_script_module(name: str, relative_path: str) -> ModuleType:
   root = Path(__file__).resolve().parents[1]
   module_path = root / relative_path
+  spec = importlib.util.spec_from_file_location(name, module_path)
+  assert spec is not None
+  assert spec.loader is not None
+  module = importlib.util.module_from_spec(spec)
+  spec.loader.exec_module(module)
+  return module
+
+
+def load_module_path(name: str, module_path: Path) -> ModuleType:
   spec = importlib.util.spec_from_file_location(name, module_path)
   assert spec is not None
   assert spec.loader is not None
@@ -41,6 +51,8 @@ def test_write_launchers_use_shared_port_fallback_server(tmp_path: Path) -> None
   assert "if not args.no_open" in serve_text
   assert 'START_PAGE = "index.html"' in serve_text
   assert "require_package_files(root)" in serve_text
+  assert "verify_webgl_scene(root)" in serve_text
+  assert "file_sha256(path)" in serve_text
   assert "flush=True" in serve_text
   assert "/{START_PAGE}" in serve_text
   assert "BrokenPipeError" in serve_text
@@ -184,7 +196,42 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "pointerAngle" in html
   assert "startRotation" in html
   assert "resumeSingleTouchDrag" in html
+  assert "!activePointers.has(event.pointerId)" in html
+  assert 'window.location.protocol !== "file:"' in html
+  assert "serverRequired" in html
   assert "__LANDMARK_PAYLOAD__" not in html
+
+
+def test_generated_server_rejects_corrupt_webgl_asset(tmp_path: Path) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_server_integrity", "scripts/package_static_site.py"
+  )
+  package_static_site.write_launchers(tmp_path)
+  mesh_root = tmp_path / "mesh" / "regierungsviertel"
+  mesh_root.mkdir(parents=True)
+  model = b"valid-glb"
+  (mesh_root / "tile.glb").write_bytes(model)
+  entry = {
+    "file": "tile.glb",
+    "bytes": len(model),
+    "sha256": hashlib.sha256(model).hexdigest(),
+  }
+  (mesh_root / "scene.json").write_text(
+    json.dumps(
+      {
+        "base_tiles": [entry],
+        "hero_details": [],
+      }
+    ),
+    encoding="utf-8",
+  )
+  server = load_module_path("generated_local_server", tmp_path / "serve-local.py")
+
+  server.verify_webgl_scene(tmp_path)
+  (mesh_root / "tile.glb").write_bytes(b"corrupt")
+
+  with pytest.raises(SystemExit, match="3D model size mismatch"):
+    server.verify_webgl_scene(tmp_path)
 
 
 def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> None:

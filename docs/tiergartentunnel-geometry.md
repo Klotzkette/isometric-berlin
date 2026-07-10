@@ -1,6 +1,6 @@
 # Tiergartentunnel Geometry
 
-This note documents the v0.2.1 tunnel representation used by the
+This note documents the v0.2.2 tunnel representation used by the
 Regierungsviertel viewer.
 
 ## Status

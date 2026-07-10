@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.2.2
+
+- Close the release-integrity gap around the official 3D scene. Release QA now
+  checks the safe relative path, declared byte length and SHA-256 of every one
+  of the 45 referenced GLBs in the repository, extracted package and final ZIP,
+  and rejects stale unreferenced models.
+- Make the generated local server verify the same complete scene inventory
+  before opening a browser. Partial or corrupt extraction now produces a
+  precise file error instead of a blank or apparently frozen WebGL canvas.
+- Bound lazy hero-detail memory to one group on coarse-pointer/mobile devices
+  and two on desktop. Eviction releases geometry, materials and texture GPU
+  resources; unmount and late asynchronous completions now clean up as well.
+  Touch devices also release the complete inactive WebGL scene when switching
+  to the 2D map and use a 30 fps frame budget; desktop keeps its warm switch.
+- Retry each failed GLB once, continue the bounded worker queue after individual
+  failures and keep usable base 3D active when only an optional hero detail
+  fails. WebGL context loss falls back to the high-resolution detail map and
+  permits a fresh 3D start.
+- Fix duplicate `pointerup` / `lostpointercapture` processing in the zero-server
+  touch viewer, which could cancel the remaining one-finger drag after a pinch.
+  Keep the custom three-finger underside gesture isolated until all gesture
+  fingers are released.
+- Prevent `START-HERE.html` from following its advanced-view link directly over
+  `file://`, where browser module security would produce a broken page. It now
+  shows the exact Windows and macOS/Linux full-3D start instructions in place.
+- Add executable 100-case regressions for corrupted GLBs, mobile hero-cache
+  churn and failure-tolerant bounded loading, plus package/server corruption
+  tests and stronger viewer source contracts.
+
 ## v0.2.1
 
 - Fix the release's most misleading workflow bug: `START-HERE.html` was still

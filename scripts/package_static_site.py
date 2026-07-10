@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.2.1"
+PACKAGE_VERSION = "0.2.2"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -26,7 +26,9 @@ from __future__ import annotations
 
 import argparse
 import functools
+import hashlib
 import http.server
+import json
 import socket
 import socketserver
 import webbrowser
@@ -41,6 +43,7 @@ REQUIRED_PACKAGE_FILES = (
   "README.txt",
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
+  "mesh/regierungsviertel/scene.json",
 )
 
 
@@ -83,13 +86,55 @@ def parse_args() -> argparse.Namespace:
   return parser.parse_args()
 
 
+def file_sha256(path: Path) -> str:
+  digest = hashlib.sha256()
+  with path.open("rb") as handle:
+    while chunk := handle.read(1024 * 1024):
+      digest.update(chunk)
+  return digest.hexdigest()
+
+
+def verify_webgl_scene(root: Path) -> None:
+  scene_path = root / "mesh/regierungsviertel/scene.json"
+  try:
+    scene = json.loads(scene_path.read_text(encoding="utf-8"))
+  except (OSError, json.JSONDecodeError) as exc:
+    raise SystemExit(f"Invalid 3D scene manifest: {exc}") from exc
+  entries = list(scene.get("base_tiles", []))
+  entries.extend(
+    entry
+    for detail in scene.get("hero_details", [])
+    for entry in detail.get("files", [])
+  )
+  if not entries:
+    raise SystemExit("The local 3D scene has no model files.")
+  verified: set[str] = set()
+  mesh_root = scene_path.parent.resolve()
+  for entry in entries:
+    relative = str(entry.get("file", ""))
+    path = (mesh_root / relative).resolve()
+    if not relative or path.parent != mesh_root or path.suffix.lower() != ".glb":
+      raise SystemExit(f"Unsafe 3D model path in package: {relative!r}")
+    if relative in verified:
+      continue
+    verified.add(relative)
+    if not path.is_file():
+      raise SystemExit(f"Missing 3D model file: {relative}")
+    expected_size = entry.get("bytes")
+    if type(expected_size) is not int or path.stat().st_size != expected_size:
+      raise SystemExit(f"3D model size mismatch: {relative}")
+    expected_hash = str(entry.get("sha256", ""))
+    if len(expected_hash) != 64 or file_sha256(path) != expected_hash:
+      raise SystemExit(f"3D model hash mismatch: {relative}")
+
+
 def require_package_files(root: Path) -> None:
   missing = [relative for relative in REQUIRED_PACKAGE_FILES if not (root / relative).exists()]
-  if not missing:
-    return
-  for relative in missing:
-    print(f"Missing package file: {relative}", flush=True)
-  raise SystemExit("This local viewer package is incomplete. Download the ZIP again.")
+  if missing:
+    for relative in missing:
+      print(f"Missing package file: {relative}", flush=True)
+    raise SystemExit("This local viewer package is incomplete. Download the ZIP again.")
+  verify_webgl_scene(root)
 
 
 def main() -> None:
@@ -974,9 +1019,19 @@ START_HERE_HTML = """<!doctype html>
       border-top: 1px solid rgba(30, 40, 35, .14);
       padding-top: 10px;
     }
+    .notice.is-warning {
+      color: #6f2d23;
+      border: 1px solid rgba(159, 52, 52, .35);
+      background: rgba(255, 232, 205, .78);
+      padding: 10px;
+    }
     body[data-theme="night"] .notice {
       color: #c5d0c8;
       border-top-color: rgba(247, 215, 122, .22);
+    }
+    body[data-theme="night"] .notice.is-warning {
+      color: #ffe0b0;
+      background: rgba(101, 42, 32, .5);
     }
     .reference {
       position: fixed;
@@ -1140,7 +1195,7 @@ START_HERE_HTML = """<!doctype html>
       </div>
       <p class="hint" id="hint"><strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Atlas/Cinematic/Lab ändern Kontrast, Bühne und Lesbarkeit.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
-      <p class="notice" id="notice">
+      <p class="notice" id="notice" role="status" aria-live="polite">
         Dies ist nur die 2D-Kompatibilitätsansicht. Für das maßstäbliche 3D-Modell
         unter Windows start-windows.bat öffnen, unter macOS/Linux python3 serve-local.py.
       </p>
@@ -1249,6 +1304,7 @@ START_HERE_HTML = """<!doctype html>
         reset: "Reset",
         reference: "Top-down-Referenzkarte",
         advanced: "Echtes 3D öffnen (lokaler Server)",
+        serverRequired: "Echtes 3D kann nicht direkt über file:// geladen werden. Windows: start-windows.bat doppelklicken. macOS/Linux: Terminal in diesem Ordner öffnen und python3 serve-local.py ausführen. Der Server öffnet danach automatisch das vollständige 3D-Modell.",
         hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. G schaltet Details, C Wolken, P Leichtmodus. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
         hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten. Beim Ziehen reduziert der Viewer teure Detailfilter.",
         notice: "Dies ist nur die 2D-Kompatibilitätsansicht. Für das maßstäbliche 3D-Modell unter Windows start-windows.bat öffnen, unter macOS/Linux python3 serve-local.py.",
@@ -1293,6 +1349,7 @@ START_HERE_HTML = """<!doctype html>
         reset: "Reset",
         reference: "Top-down reference map",
         advanced: "Open true 3D (local server)",
+        serverRequired: "True 3D cannot load directly over file://. Windows: double-click start-windows.bat. macOS/Linux: open Terminal in this folder and run python3 serve-local.py. The server then opens the complete 3D model automatically.",
         hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. G toggles details, C clouds, P lite mode. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
         hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below. While dragging, the viewer reduces costly detail filters.",
         notice: "This is only the compatible 2D fallback. For the metric 3D model, open start-windows.bat on Windows or run python3 serve-local.py on macOS/Linux.",
@@ -1475,7 +1532,9 @@ START_HERE_HTML = """<!doctype html>
       ui.reset.textContent = t("reset");
       ui.reference.textContent = t("reference");
       ui.advancedLink.textContent = t("advanced");
-      ui.notice.textContent = t("notice");
+      ui.notice.textContent = t(
+        ui.notice.classList.contains("is-warning") ? "serverRequired" : "notice"
+      );
       ui.referenceTitle.textContent = t("referenceTitle");
       ui.referenceClose.textContent = t("referenceClose");
       ui.hudTitle.textContent = t("hudTitle");
@@ -2766,6 +2825,7 @@ START_HERE_HTML = """<!doctype html>
       render();
     });
     function endPointerDrag(event) {
+      if (event && !activePointers.has(event.pointerId)) return;
       if (event) activePointers.delete(event.pointerId);
       if (pinchGesture) {
         pinchGesture = null;
@@ -2821,6 +2881,13 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("reset").addEventListener("click", resetView);
     document.getElementById("reference").addEventListener("click", () => referencePanel.classList.add("open"));
     document.getElementById("reference-close").addEventListener("click", () => referencePanel.classList.remove("open"));
+    ui.advancedLink.addEventListener("click", (event) => {
+      if (window.location.protocol !== "file:") return;
+      event.preventDefault();
+      ui.notice.classList.add("is-warning");
+      ui.notice.textContent = t("serverRequired");
+      ui.notice.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
     window.addEventListener("keydown", (event) => {
       if (event.key === "Escape") referencePanel.classList.remove("open");
       if ((event.metaKey || event.ctrlKey || event.altKey) && event.key !== "Escape") return;
@@ -3201,6 +3268,16 @@ Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
 Nur die ausgewählte Landmarke erhält einen Leuchtring; permanente Farbpunkte
 über den Gebäuden gibt es nicht mehr.
 
+Version {PACKAGE_VERSION} begrenzt den Speicher für hochauflösende
+Gebäudedetails auf eine Gruppe bei Mobilgeräten und zwei Gruppen am Desktop.
+Nicht mehr benötigte Geometrie, Materialien und Texturen werden vollständig aus
+dem GPU-Speicher entfernt. Fehlgeschlagene Dateien werden einmal wiederholt;
+ein einzelnes optionales Detail schaltet das nutzbare Basismodell nicht mehr ab.
+Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive 3D-Szene vollständig
+frei; die aktive mobile 3D-Ansicht nutzt ein begrenztes 30-fps-Budget.
+Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
+45 GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
+
 Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
 Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
@@ -3307,6 +3384,15 @@ azimuth and polar tilt into a real below-ground view. In underside mode the
 surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
 with lighting and ventilation. Only the selected landmark gets a focus ring;
 permanent coloured dots no longer cover the buildings.
+
+Version {PACKAGE_VERSION} bounds high-resolution building-detail memory to one
+group on mobile and two groups on desktop. Evicted geometry, materials and
+textures are released from GPU memory. Failed files are retried once, and one
+optional detail no longer disables the usable base scene. Touch devices release
+inactive 3D when switching to the 2D map and cap active
+rendering at 30 fps. Before opening the browser, serve-local.py also checks the
+byte length and SHA-256 of all 45 GLBs and reports an incomplete extraction with
+the exact file name.
 
 This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey

@@ -50,15 +50,60 @@ VALID_START_HERE_HTML = (
   "data-dragging; data-performance; event.metaKey; event.ctrlKey; event.altKey; targetTag; "
   'activePointers; pinchGesture; pointerType === "touch"; startPinchGesture; '
   "updatePinchGesture; pointerAngle; startRotation; resumeSingleTouchDrag;"
+  '!activePointers.has(event.pointerId); window.location.protocol !== "file:"; '
+  "serverRequired;"
   "</script>"
   "<style>viewport-fit=cover; 100dvh; @media (pointer: coarse) { button { min-height: 44px; } }</style>"
 )
 VALID_SERVE_LOCAL = (
   'START_PAGE = "index.html"\n'
+  "def file_sha256(path):\n"
+  "  return 'hash'\n"
+  "def verify_webgl_scene(root):\n"
+  "  file_sha256(root)\n"
   "def require_package_files(root):\n"
+  "  verify_webgl_scene(root)\n"
   "  return None\n"
   "print('open', flush=True)\n"
 )
+
+
+def webgl_entry(filename: str, data: bytes) -> dict[str, int | str]:
+  return {
+    "file": filename,
+    "bytes": len(data),
+    "sha256": hashlib.sha256(data).hexdigest(),
+  }
+
+
+def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
+  entry = webgl_entry(filename, data)
+  return {
+    "source": {
+      "attribution": "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
+    },
+    "base_tiles": [dict(entry) for _ in range(23)],
+    "hero_details": [
+      {"id": identifier, "files": [dict(entry)]}
+      for identifier in (
+        "reichstag",
+        "bundeskanzleramt",
+        "hauptbahnhof",
+        "brandenburger-tor",
+      )
+    ],
+    "tiergartentunnel": {"points": [[index, 0, index] for index in range(8)]},
+    "architectural_signatures": [
+      {
+        "id": "reichstag-dome",
+        "height_m": 23.5,
+        "diameter_m": 40.0,
+        "vertical_ribs": 24,
+        "horizontal_rings": 17,
+        "source_url": ("https://www.bundestag.de/besuche/architektur/reichstag/kuppel"),
+      }
+    ],
+  }
 
 
 def load_script_module(name: str, relative_path: str) -> ModuleType:
@@ -165,38 +210,10 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
   public_mesh = root / "src/app/public/mesh/regierungsviertel"
   public_mesh.mkdir(parents=True)
   mesh_file = public_mesh / "tile.glb"
-  mesh_file.write_bytes(b"glb")
+  mesh_data = b"glb"
+  mesh_file.write_bytes(mesh_data)
   (public_mesh / "scene.json").write_text(
-    json.dumps(
-      {
-        "source": {
-          "attribution": ("3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH")
-        },
-        "base_tiles": [{"file": "tile.glb"} for _ in range(23)],
-        "hero_details": [
-          {"id": identifier, "files": [{"file": "tile.glb"}]}
-          for identifier in (
-            "reichstag",
-            "bundeskanzleramt",
-            "hauptbahnhof",
-            "brandenburger-tor",
-          )
-        ],
-        "tiergartentunnel": {"points": [[index, 0, index] for index in range(8)]},
-        "architectural_signatures": [
-          {
-            "id": "reichstag-dome",
-            "height_m": 23.5,
-            "diameter_m": 40.0,
-            "vertical_ribs": 24,
-            "horizontal_rings": 17,
-            "source_url": (
-              "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
-            ),
-          }
-        ],
-      }
-    ),
+    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
     encoding="utf-8",
   )
   return public_dzi
@@ -212,6 +229,8 @@ def write_minimal_package_zip(
     '[project]\nname = "fixture"\nversion = "9.9.9"\n',
     encoding="utf-8",
   )
+  mesh_relative = "mesh/regierungsviertel/tile-3894_58196.glb"
+  mesh_data = b"glb"
   files: dict[str, bytes | str] = {
     "START-HERE.html": VALID_START_HERE_HTML,
     "README.txt": "readme\n",
@@ -230,8 +249,10 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/1/0_0.jpg": b"tile",
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
-    "mesh/regierungsviertel/scene.json": b'{"base_tiles":[]}',
-    "mesh/regierungsviertel/tile-3894_58196.glb": b"glb",
+    "mesh/regierungsviertel/scene.json": json.dumps(
+      minimal_webgl_scene(Path(mesh_relative).name, mesh_data)
+    ),
+    mesh_relative: mesh_data,
   }
   for relative, body in overrides.items():
     if body is None:
@@ -307,6 +328,81 @@ def test_viewer_binary_size_failures_rejects_oversized_preview(tmp_path: Path) -
   assert len(failures) == 1
   assert "overview_source.png" in failures[0]
   assert "exceeds 5 MiB" in failures[0]
+
+
+def test_webgl_integrity_matrix_rejects_100_corrupt_assets() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_webgl_matrix", "scripts/check_release_readiness.py"
+  )
+  assets = {
+    f"asset-{index:03d}.glb": f"model-{index:03d}".encode() for index in range(100)
+  }
+  names = list(assets)
+  scene = minimal_webgl_scene(names[0], assets[names[0]])
+  scene["base_tiles"] = [webgl_entry(name, assets[name]) for name in names[:96]]
+  scene["hero_details"] = [
+    {"id": identifier, "files": [webgl_entry(name, assets[name])]}
+    for identifier, name in zip(
+      ("reichstag", "bundeskanzleramt", "hauptbahnhof", "brandenburger-tor"),
+      names[96:],
+      strict=True,
+    )
+  ]
+
+  assert (
+    release_readiness.webgl_manifest_failures(
+      scene,
+      label="100-asset fixture",
+      asset_reader=assets.__getitem__,
+      actual_asset_names=set(assets),
+    )
+    == []
+  )
+  for name in names:
+    corrupted = dict(assets)
+    corrupted[name] += b"-corrupt"
+    failures = release_readiness.webgl_manifest_failures(
+      scene,
+      label=f"corrupt {name}",
+      asset_reader=corrupted.__getitem__,
+      actual_asset_names=set(corrupted),
+    )
+    assert any(name in failure and "mismatch" in failure for failure in failures)
+
+
+def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_webgl_hash", "scripts/check_release_readiness.py"
+  )
+  mesh_data = b"original"
+  (tmp_path / "tile.glb").write_bytes(b"corrupted")
+  (tmp_path / "scene.json").write_text(
+    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    encoding="utf-8",
+  )
+
+  failures = release_readiness.webgl_scene_failures(tmp_path)
+
+  assert any("size mismatch" in failure for failure in failures)
+  assert any("hash mismatch" in failure for failure in failures)
+
+
+def test_webgl_scene_failures_rejects_unreferenced_glb(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_webgl_orphan", "scripts/check_release_readiness.py"
+  )
+  mesh_data = b"model"
+  (tmp_path / "tile.glb").write_bytes(mesh_data)
+  (tmp_path / "stale.glb").write_bytes(b"stale")
+  (tmp_path / "scene.json").write_text(
+    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    encoding="utf-8",
+  )
+
+  assert any(
+    "Unreferenced WebGL asset stale.glb" in failure
+    for failure in release_readiness.webgl_scene_failures(tmp_path)
+  )
 
 
 def test_dzi_tile_failures_require_tile_directory(tmp_path: Path) -> None:
@@ -421,6 +517,37 @@ def test_zip_package_failures_require_full_dzi_pyramid(tmp_path: Path) -> None:
   )
 
 
+def test_zip_package_failures_require_every_scene_glb(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_missing_glb", "scripts/check_release_readiness.py"
+  )
+  relative = "mesh/regierungsviertel/tile-3894_58196.glb"
+  write_minimal_package_zip(tmp_path, release_readiness, {relative: None})
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+
+  assert any(
+    "Missing referenced WebGL asset tile-3894_58196.glb" in failure
+    for failure in failures
+  )
+
+
+def test_zip_package_failures_rejects_corrupt_scene_glb(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_corrupt_glb", "scripts/check_release_readiness.py"
+  )
+  relative = "mesh/regierungsviertel/tile-3894_58196.glb"
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {relative: b"a different model payload"},
+  )
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+
+  assert any("WebGL asset hash mismatch" in failure for failure in failures)
+
+
 def test_zip_package_failures_rejects_stale_launcher(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_zip_launcher", "scripts/check_release_readiness.py"
@@ -483,7 +610,9 @@ def test_zip_package_failures_rejects_stale_server(tmp_path: Path) -> None:
   )
 
   failures = release_readiness.zip_package_failures(tmp_path)
-  assert any("does not open/flush the 3D viewer" in failure for failure in failures)
+  assert any(
+    "does not verify/open/flush the 3D viewer" in failure for failure in failures
+  )
 
 
 def test_collect_failures_rejects_mismatched_bundled_landmarks(tmp_path: Path) -> None:
@@ -537,6 +666,6 @@ def test_collect_failures_rejects_stale_server_fallback(tmp_path: Path) -> None:
   )
 
   assert (
-    f"Package server fallback does not open/flush the 3D viewer: {package_dir / 'serve-local.py'}"
-    in release_readiness.collect_failures(tmp_path)
+    "Package server fallback does not verify/open/flush the 3D viewer: "
+    f"{package_dir / 'serve-local.py'}" in release_readiness.collect_failures(tmp_path)
   )

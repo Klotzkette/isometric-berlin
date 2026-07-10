@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_RE = re.compile(r"__version__ = \"([^\"]+)\"")
 PACKAGE_VERSION_RE = re.compile(r"PACKAGE_VERSION = \"([^\"]+)\"")
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_VIEWER_FILES = (
   "landmarks.json",
   "reference_map.png",
@@ -127,24 +128,22 @@ def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
   return failures
 
 
-def webgl_scene_failures(public_mesh: Path) -> list[str]:
-  """Validate the bounded official-mesh scene and every referenced GLB."""
-  scene_path = public_mesh / "scene.json"
-  if not scene_path.exists():
-    return [f"Missing bundled WebGL scene: {scene_path}"]
-  try:
-    scene = json.loads(scene_path.read_text(encoding="utf-8"))
-  except json.JSONDecodeError as exc:
-    return [f"Invalid WebGL scene manifest: {scene_path}: {exc}"]
-
+def webgl_manifest_failures(
+  scene: dict[str, object],
+  *,
+  label: str,
+  asset_reader: Callable[[str], bytes],
+  actual_asset_names: set[str] | None = None,
+) -> list[str]:
+  """Validate scene structure and the bytes of every referenced GLB."""
   failures: list[str] = []
   base_tiles = scene.get("base_tiles")
   if not isinstance(base_tiles, list) or len(base_tiles) < 23:
-    failures.append(f"WebGL scene needs all 23 bounded Berlin mesh tiles: {scene_path}")
+    failures.append(f"WebGL scene needs all 23 bounded Berlin mesh tiles: {label}")
     base_tiles = []
   hero_details = scene.get("hero_details")
   if not isinstance(hero_details, list):
-    failures.append(f"WebGL scene lacks hero details: {scene_path}")
+    failures.append(f"WebGL scene lacks hero details: {label}")
     hero_details = []
   hero_ids = {
     str(hero.get("id"))
@@ -153,12 +152,12 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
   }
   if not REQUIRED_HERO_MESHES.issubset(hero_ids):
     failures.append(
-      f"WebGL scene lacks required hero mesh groups: {scene_path} "
+      f"WebGL scene lacks required hero mesh groups: {label} "
       f"({sorted(REQUIRED_HERO_MESHES - hero_ids)})"
     )
   tunnel = scene.get("tiergartentunnel")
   if not isinstance(tunnel, dict) or len(tunnel.get("points", [])) < 8:
-    failures.append(f"WebGL scene lacks 3D Tiergartentunnel route: {scene_path}")
+    failures.append(f"WebGL scene lacks 3D Tiergartentunnel route: {label}")
   signatures = scene.get("architectural_signatures")
   reichstag_dome = next(
     (
@@ -176,9 +175,7 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
     or reichstag_dome.get("horizontal_rings") != 17
     or "bundestag.de" not in str(reichstag_dome.get("source_url", ""))
   ):
-    failures.append(
-      f"WebGL scene lacks the official-dimension Reichstag dome: {scene_path}"
-    )
+    failures.append(f"WebGL scene lacks the official-dimension Reichstag dome: {label}")
 
   files = list(base_tiles)
   files.extend(
@@ -187,25 +184,88 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
     if isinstance(hero, dict)
     for file in hero.get("files", [])
   )
-  total_bytes = 0
+  asset_cache: dict[str, bytes] = {}
+  expected_asset_names: set[str] = set()
   for entry in files:
     if not isinstance(entry, dict) or not entry.get("file"):
-      failures.append(f"Invalid WebGL asset entry: {scene_path}")
+      failures.append(f"Invalid WebGL asset entry: {label}")
       continue
-    path = public_mesh / str(entry["file"])
-    if not path.exists():
-      failures.append(f"Missing referenced WebGL asset: {path}")
+    relative = str(entry["file"])
+    relative_path = Path(relative)
+    if (
+      relative_path.is_absolute()
+      or relative_path.suffix.lower() != ".glb"
+      or relative_path.as_posix() != relative
+      or ".." in relative_path.parts
+      or "\\" in relative
+    ):
+      failures.append(f"Unsafe WebGL asset path {relative!r}: {label}")
       continue
-    size = path.stat().st_size
-    total_bytes += size
-    if size > MAX_REPOSITORY_BINARY_BYTES:
-      failures.append(f"WebGL asset exceeds 5 MiB repository limit: {path}")
+    expected_asset_names.add(relative)
+    expected_size = entry.get("bytes")
+    expected_hash = entry.get("sha256")
+    if type(expected_size) is not int or expected_size <= 0:
+      failures.append(f"WebGL asset has invalid byte count for {relative}: {label}")
+    if not isinstance(expected_hash, str) or not SHA256_RE.fullmatch(expected_hash):
+      failures.append(f"WebGL asset has invalid SHA-256 for {relative}: {label}")
+
+    if relative in asset_cache:
+      data = asset_cache[relative]
+    else:
+      try:
+        data = asset_reader(relative)
+      except (FileNotFoundError, KeyError, OSError):
+        failures.append(f"Missing referenced WebGL asset {relative}: {label}")
+        continue
+      asset_cache[relative] = data
+    actual_size = len(data)
+    if actual_size > MAX_REPOSITORY_BINARY_BYTES:
+      failures.append(
+        f"WebGL asset exceeds 5 MiB repository limit ({relative}): {label}"
+      )
+    if type(expected_size) is int and actual_size != expected_size:
+      failures.append(f"WebGL asset size mismatch for {relative}: {label}")
+    if (
+      isinstance(expected_hash, str)
+      and SHA256_RE.fullmatch(expected_hash)
+      and hashlib.sha256(data).hexdigest() != expected_hash
+    ):
+      failures.append(f"WebGL asset hash mismatch for {relative}: {label}")
+
+  total_bytes = sum(len(data) for data in asset_cache.values())
   if total_bytes > 150 * 1024 * 1024:
     failures.append(f"WebGL scene exceeds 150 MiB mobile budget: {total_bytes} bytes")
-  attribution = str(scene.get("source", {}).get("attribution", ""))
+  if actual_asset_names is not None:
+    for relative in sorted(actual_asset_names - expected_asset_names):
+      failures.append(f"Unreferenced WebGL asset {relative}: {label}")
+  source = scene.get("source")
+  attribution = str(source.get("attribution", "")) if isinstance(source, dict) else ""
   if "Berlin Partner für Wirtschaft und Technologie GmbH" not in attribution:
-    failures.append(f"WebGL scene lacks Berlin Partner attribution: {scene_path}")
+    failures.append(f"WebGL scene lacks Berlin Partner attribution: {label}")
   return failures
+
+
+def webgl_scene_failures(public_mesh: Path) -> list[str]:
+  """Validate the bounded official-mesh scene and every referenced GLB."""
+  scene_path = public_mesh / "scene.json"
+  if not scene_path.exists():
+    return [f"Missing bundled WebGL scene: {scene_path}"]
+  try:
+    scene = json.loads(scene_path.read_text(encoding="utf-8"))
+  except json.JSONDecodeError as exc:
+    return [f"Invalid WebGL scene manifest: {scene_path}: {exc}"]
+  if not isinstance(scene, dict):
+    return [f"WebGL scene manifest is not an object: {scene_path}"]
+
+  actual_asset_names = {
+    path.relative_to(public_mesh).as_posix() for path in public_mesh.rglob("*.glb")
+  }
+  return webgl_manifest_failures(
+    scene,
+    label=str(scene_path),
+    asset_reader=lambda relative: (public_mesh / relative).read_bytes(),
+    actual_asset_names=actual_asset_names,
+  )
 
 
 def webgl_viewer_source_failures(root: Path) -> list[str]:
@@ -227,6 +287,12 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "oblique texture filtering": "material.map.anisotropy",
     "official-dimension Reichstag dome": "createOfficialReichstagDome",
     "hidden default marker": "marker.visible = false",
+    "bounded hero-detail cache": "heroDetailEvictions",
+    "GPU texture disposal": "texture.dispose()",
+    "retryable model loading": "loadModelWithRetry",
+    "nonfatal detail warnings": "onWarningRef.current",
+    "WebGL context-loss fallback": 'addEventListener("webglcontextlost"',
+    "coarse-pointer frame budget": "frameIntervalMs = coarsePointer ? 1000 / 30",
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"
@@ -235,6 +301,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   ]
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
+  if "isThreeReady && keepThreeWarm" not in app:
+    failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
   dome_path = root / "src/app/src/ReichstagDome.ts"
   if not dome_path.exists():
     failures.append(f"Missing official-dimension Reichstag dome source: {dome_path}")
@@ -422,6 +490,17 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     failures.append(f"Package HTML launcher still renders permanent markers: {label}")
   if "focus-ring" not in start_here_text or "addLandmarkList" not in start_here_text:
     failures.append(f"Package HTML launcher lacks selected-only focus UI: {label}")
+  if (
+    'window.location.protocol !== "file:"' not in start_here_text
+    or "serverRequired" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher can still open broken true-3D file URLs: {label}"
+    )
+  if "!activePointers.has(event.pointerId)" not in start_here_text:
+    failures.append(
+      f"Package HTML launcher lacks duplicate pointer-end protection: {label}"
+    )
   return failures
 
 
@@ -429,9 +508,13 @@ def package_server_failures(serve_text: str, label: str) -> list[str]:
   if (
     'START_PAGE = "index.html"' not in serve_text
     or "require_package_files(root)" not in serve_text
+    or "verify_webgl_scene(root)" not in serve_text
+    or "file_sha256(path)" not in serve_text
     or "flush=True" not in serve_text
   ):
-    return [f"Package server fallback does not open/flush the 3D viewer: {label}"]
+    return [
+      f"Package server fallback does not verify/open/flush the 3D viewer: {label}"
+    ]
   return []
 
 
@@ -606,6 +689,35 @@ def zip_dzi_tile_failures(
   return failures
 
 
+def zip_webgl_scene_failures(
+  archive: zipfile.ZipFile, names: set[str], zip_path: Path
+) -> list[str]:
+  """Validate every GLB declared by the packaged scene manifest."""
+  scene_relative = "mesh/regierungsviertel/scene.json"
+  scene_name = package_arcname(scene_relative)
+  if scene_name not in names:
+    return []
+  try:
+    scene = json.loads(archive.read(scene_name).decode("utf-8"))
+  except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    return [f"Invalid packaged WebGL scene: {zip_path}!{scene_name}: {exc}"]
+  if not isinstance(scene, dict):
+    return [f"Packaged WebGL scene is not an object: {zip_path}!{scene_name}"]
+
+  prefix = package_arcname("mesh/regierungsviertel")
+  actual_asset_names = {
+    name.removeprefix(f"{prefix}/")
+    for name in names
+    if name.startswith(f"{prefix}/") and name.lower().endswith(".glb")
+  }
+  return webgl_manifest_failures(
+    scene,
+    label=f"{zip_path}!{scene_name}",
+    asset_reader=lambda relative: archive.read(f"{prefix}/{relative}"),
+    actual_asset_names=actual_asset_names,
+  )
+
+
 def zip_package_failures(root: Path = ROOT) -> list[str]:
   zip_path = root / "releases" / PACKAGE_ZIP
   if not zip_path.exists():
@@ -625,6 +737,7 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
           failures.append(f"Missing package ZIP entry: {zip_path}!{arcname}")
 
       failures.extend(zip_dzi_tile_failures(archive, names, zip_path))
+      failures.extend(zip_webgl_scene_failures(archive, names, zip_path))
 
       for name in names:
         if name.endswith("/"):
@@ -839,6 +952,8 @@ def collect_failures(
         )
       except json.JSONDecodeError as exc:
         failures.append(f"Invalid packaged Tiergartentunnel payload: {exc}")
+    packaged_mesh = package_dir / "mesh" / "regierungsviertel"
+    failures.extend(webgl_scene_failures(packaged_mesh))
 
   zip_path = root / "releases" / PACKAGE_ZIP
   if require_package_zip or zip_path.exists():
