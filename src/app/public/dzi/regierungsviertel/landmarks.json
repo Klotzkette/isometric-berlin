@@ -7,7 +7,7 @@
     {
       "name": "Brandenburger Tor",
       "role": "must_be_visible",
-      "tourOrder": 16,
+      "tourOrder": 25,
       "x": 10289,
       "y": 7392,
       "nx": 0.627991,
@@ -16,7 +16,7 @@
     {
       "name": "Pariser Platz",
       "role": "owner_added",
-      "tourOrder": 17,
+      "tourOrder": 27,
       "x": 10932,
       "y": 7657,
       "nx": 0.667236,
@@ -25,7 +25,7 @@
     {
       "name": "Denkmal für die ermordeten Juden Europas",
       "role": "owner_added",
-      "tourOrder": 20,
+      "tourOrder": 31,
       "x": 8719,
       "y": 8510,
       "nx": 0.532166,
@@ -34,7 +34,7 @@
     {
       "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
       "role": "owner_added",
-      "tourOrder": 21,
+      "tourOrder": 32,
       "x": 6976,
       "y": 8206,
       "nx": 0.425781,
@@ -43,7 +43,7 @@
     {
       "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
       "role": "owner_added",
-      "tourOrder": 14,
+      "tourOrder": 23,
       "x": 10319,
       "y": 6561,
       "nx": 0.629822,
@@ -52,7 +52,7 @@
     {
       "name": "Reichstagsgebäude",
       "role": "hero_tile",
-      "tourOrder": 11,
+      "tourOrder": 16,
       "x": 11457,
       "y": 6046,
       "nx": 0.69928,
@@ -61,7 +61,7 @@
     {
       "name": "Sowjetisches Ehrenmal Tiergarten",
       "role": "owner_added",
-      "tourOrder": 15,
+      "tourOrder": 24,
       "x": 7799,
       "y": 5739,
       "nx": 0.476013,
@@ -70,7 +70,7 @@
     {
       "name": "Bundeskanzleramt",
       "role": "must_be_visible",
-      "tourOrder": 8,
+      "tourOrder": 9,
       "x": 9347,
       "y": 3627,
       "nx": 0.570496,
@@ -79,7 +79,7 @@
     {
       "name": "Paul-Löbe-Haus",
       "role": "must_be_visible",
-      "tourOrder": 10,
+      "tourOrder": 14,
       "x": 12106,
       "y": 5097,
       "nx": 0.738892,
@@ -88,7 +88,7 @@
     {
       "name": "Marie-Elisabeth-Lüders-Haus",
       "role": "must_be_visible",
-      "tourOrder": 9,
+      "tourOrder": 13,
       "x": 14028,
       "y": 5511,
       "nx": 0.856201,
@@ -142,7 +142,7 @@
     {
       "name": "Haus der Kulturen der Welt (Schwangere Auster)",
       "role": "must_be_visible",
-      "tourOrder": 13,
+      "tourOrder": 20,
       "x": 5767,
       "y": 2816,
       "nx": 0.35199,
@@ -151,7 +151,7 @@
     {
       "name": "Großer Tiergarten",
       "role": "owner_added",
-      "tourOrder": 25,
+      "tourOrder": 37,
       "x": 5061,
       "y": 6939,
       "nx": 0.308899,
@@ -160,7 +160,7 @@
     {
       "name": "Beethoven-Haydn-Mozart-Denkmal",
       "role": "owner_added",
-      "tourOrder": 23,
+      "tourOrder": 34,
       "x": 4537,
       "y": 6519,
       "nx": 0.276917,
@@ -169,7 +169,7 @@
     {
       "name": "Venusbassin / Goldfischteich",
       "role": "owner_added",
-      "tourOrder": 24,
+      "tourOrder": 35,
       "x": 5348,
       "y": 6305,
       "nx": 0.326416,
@@ -178,7 +178,7 @@
     {
       "name": "Goethe-Denkmal",
       "role": "owner_added",
-      "tourOrder": 22,
+      "tourOrder": 33,
       "x": 7547,
       "y": 8049,
       "nx": 0.460632,
@@ -187,7 +187,7 @@
     {
       "name": "Kemperplatz / Tiergartentunnel",
       "role": "owner_added",
-      "tourOrder": 26,
+      "tourOrder": 38,
       "x": 2789,
       "y": 7803,
       "nx": 0.170227,
@@ -196,7 +196,7 @@
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
       "role": "must_be_visible",
-      "tourOrder": 27,
+      "tourOrder": 39,
       "x": 2992,
       "y": 9207,
       "nx": 0.182617,
@@ -205,7 +205,7 @@
     {
       "name": "Max-Liebermann-Haus",
       "role": "owner_added",
-      "tourOrder": 18,
+      "tourOrder": 29,
       "x": 10705,
       "y": 7252,
       "nx": 0.653381,
@@ -214,7 +214,7 @@
     {
       "name": "Botschaft der Vereinigten Staaten von Amerika",
       "role": "owner_added",
-      "tourOrder": 19,
+      "tourOrder": 30,
       "x": 9687,
       "y": 7909,
       "nx": 0.591248,
@@ -250,7 +250,7 @@
     {
       "name": "TIPI am Kanzleramt",
       "role": "owner_added",
-      "tourOrder": 28,
+      "tourOrder": 21,
       "x": 6828,
       "y": 3825,
       "nx": 0.416748,
@@ -259,7 +259,7 @@
     {
       "name": "Eduardo-Chillida-Skulptur Berlin",
       "role": "owner_added",
-      "tourOrder": 29,
+      "tourOrder": 10,
       "x": 8991,
       "y": 3955,
       "nx": 0.548767,
@@ -268,7 +268,7 @@
     {
       "name": "Reichstagsvorfeld / Berlin-Pavillon",
       "role": "owner_added",
-      "tourOrder": 30,
+      "tourOrder": 18,
       "x": 10145,
       "y": 6624,
       "nx": 0.619202,
@@ -277,7 +277,7 @@
     {
       "name": "Platz der Republik Heckenbosquets",
       "role": "owner_added",
-      "tourOrder": 31,
+      "tourOrder": 19,
       "x": 9629,
       "y": 6059,
       "nx": 0.587708,
@@ -286,7 +286,7 @@
     {
       "name": "Kanzlergarten / Non-Violence-Skulptur",
       "role": "owner_added",
-      "tourOrder": 32,
+      "tourOrder": 11,
       "x": 7476,
       "y": 2909,
       "nx": 0.456299,
@@ -295,7 +295,7 @@
     {
       "name": "Carillon im Tiergarten",
       "role": "owner_added",
-      "tourOrder": 33,
+      "tourOrder": 22,
       "x": 5957,
       "y": 4042,
       "nx": 0.363586,
@@ -304,7 +304,7 @@
     {
       "name": "Mahnmal für verfolgte Zeugen Jehovas",
       "role": "owner_added",
-      "tourOrder": 34,
+      "tourOrder": 36,
       "x": 3782,
       "y": 6716,
       "nx": 0.230835,
@@ -313,11 +313,47 @@
     {
       "name": "Gedenkort für Polen 1939-1945",
       "role": "owner_added",
-      "tourOrder": 35,
+      "tourOrder": 15,
       "x": 9643,
       "y": 4995,
       "nx": 0.588562,
       "ny": 0.43001
+    },
+    {
+      "name": "Schweizerische Botschaft",
+      "role": "owner_added",
+      "tourOrder": 8,
+      "x": 11203,
+      "y": 3798,
+      "nx": 0.683777,
+      "ny": 0.326963
+    },
+    {
+      "name": "Fahne der Einheit",
+      "role": "owner_added",
+      "tourOrder": 17,
+      "x": 10664,
+      "y": 5783,
+      "nx": 0.650879,
+      "ny": 0.497848
+    },
+    {
+      "name": "Quadriga mit Victoria",
+      "role": "owner_added",
+      "tourOrder": 26,
+      "x": 10282,
+      "y": 7396,
+      "nx": 0.627563,
+      "ny": 0.636708
+    },
+    {
+      "name": "Starbucks Pariser Platz",
+      "role": "owner_added",
+      "tourOrder": 28,
+      "x": 11686,
+      "y": 7743,
+      "nx": 0.713257,
+      "ny": 0.666581
     }
   ]
 }

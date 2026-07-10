@@ -5,6 +5,12 @@ city-wide dumps do **not** belong here; raw downloads and large source
 archives stay under gitignored `raw/` paths as described in
 [`docs/data.md`](../../docs/data.md).
 
+The current landmark layer contains 39 OSM/LoD2-checked points. v0.1.62 adds
+the Schweizerische Botschaft, Fahne der Einheit, Quadriga mit Victoria and the
+mapped Starbucks at Pariser Platz without changing the scene bounds. The
+Wikimedia manifest contains 110 freely licensed visual references across 37
+motif groups; geometry still comes from Berlin LoD2/OSM/official support data.
+
 ## Files
 
 | File | Purpose |

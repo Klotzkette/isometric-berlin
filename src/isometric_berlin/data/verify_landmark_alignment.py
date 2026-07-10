@@ -172,6 +172,22 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["kroll oper", "heinrich von gagern", "paul lobe allee"],
     "max_distance_m": 115.0,
   },
+  "Schweizerische Botschaft": {
+    "aliases": ["schweizerische botschaft"],
+    "max_distance_m": 20.0,
+  },
+  "Fahne der Einheit": {
+    "aliases": ["fahne der einheit"],
+    "max_distance_m": 15.0,
+  },
+  "Quadriga mit Victoria": {
+    "aliases": ["quadriga mit victoria"],
+    "max_distance_m": 15.0,
+  },
+  "Starbucks Pariser Platz": {
+    "aliases": ["starbucks"],
+    "max_distance_m": 20.0,
+  },
 }
 
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
@@ -202,6 +218,13 @@ RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
     "east_west": "west",
     "north_south": "south",
     "note": "Kanzleramt lies west/south of Hauptbahnhof on the Spreebogen axis.",
+  },
+  {
+    "from": "Berlin Hauptbahnhof",
+    "to": "Schweizerische Botschaft",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "The Swiss Embassy lies southeast of Hauptbahnhof in the Spreebogen.",
   },
   {
     "from": "Berlin Hauptbahnhof",
@@ -246,11 +269,32 @@ RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
     "note": "Brandenburger Tor lies southeast of the Reichstag.",
   },
   {
+    "from": "Reichstagsgebäude",
+    "to": "Fahne der Einheit",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "The Unity Flag stands southwest of the Reichstag on Platz der Republik.",
+  },
+  {
     "from": "Brandenburger Tor",
     "to": "Pariser Platz",
     "east_west": "east",
     "north_south": "north",
     "note": "Pariser Platz is just east/northeast of the Brandenburger Tor point.",
+  },
+  {
+    "from": "Brandenburger Tor",
+    "to": "Quadriga mit Victoria",
+    "east_west": "aligned",
+    "north_south": "aligned",
+    "note": "The Quadriga point coincides with the Brandenburg Gate roofline.",
+  },
+  {
+    "from": "Pariser Platz",
+    "to": "Starbucks Pariser Platz",
+    "east_west": "east",
+    "north_south": "north",
+    "note": "The mapped Starbucks is on the northeast edge of Pariser Platz.",
   },
   {
     "from": "Brandenburger Tor",

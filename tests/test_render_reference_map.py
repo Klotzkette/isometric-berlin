@@ -9,6 +9,7 @@ from PIL import Image
 
 from isometric_berlin.generation.render_reference_map import (
   MapTransform,
+  legend_grid,
   sort_landmarks_for_reference,
 )
 
@@ -42,8 +43,13 @@ def test_committed_reference_map_is_packaged_asset() -> None:
   assert REFERENCE_MAP.exists()
   assert REFERENCE_MAP.stat().st_size > 100_000
   with Image.open(REFERENCE_MAP) as image:
-    assert image.size == (1900, 1300)
+    assert image.size == (2200, 1300)
     assert image.mode == "RGB"
+
+
+def test_legend_grid_uses_two_columns_for_full_landmark_inventory() -> None:
+  assert legend_grid(26) == (1, 26)
+  assert legend_grid(39) == (2, 20)
 
 
 def test_reference_map_numbers_follow_viewer_tour_order() -> None:
@@ -61,8 +67,9 @@ def test_reference_map_numbers_follow_viewer_tour_order() -> None:
     "Moltkebrücke",
     "Zollpackhof",
   ]
-  assert names.index("Brandenburger Tor") + 1 == 16
-  assert names.index("Venusbassin / Goldfischteich") + 1 == 24
+  assert names.index("Schweizerische Botschaft") + 1 == 8
+  assert names.index("Brandenburger Tor") + 1 == 25
+  assert names.index("Venusbassin / Goldfischteich") + 1 == 35
   assert (
-    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 27
+    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 39
   )

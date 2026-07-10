@@ -86,6 +86,32 @@ images without a clear free license may be inspected for orientation and
 visual plausibility only. Do not commit those images, screenshots,
 derived textures, or traced map geometry.
 
+## July 10, 2026 Detail Sweep
+
+- The [Swiss Federal Department of Foreign Affairs building page](https://www.schweiz-deutschland.eda.admin.ch/de/das-botschaftsgebaeude)
+  and [official contact entry](https://www.eda.admin.ch/countries/germany/de/home/vertretungen/botschaft.html/content/contacts/de/EDAVis/B/184)
+  confirm the embassy at Otto-von-Bismarck-Allee 4A and the
+  visible contrast between the 1871/1911 city palace and the 2000 Diener &
+  Diener extension. OSM relation `2886766` supplies the committed geometry and
+  semantic anchor; three freely licensed Commons views supply colour/detail
+  cues.
+- [Deutscher Bundestag's dome documentation](https://www.bundestag.de/besuche/architektur/reichstag/kuppel)
+  confirms a 40 m diameter, 23.5 m
+  dome height, 17 glazing rows and 24 panes per row. These published dimensions
+  are visual QA for the LoD2-anchored rising glass signature, not replacement
+  geometry.
+- [Deutscher Bundestag's Unity Flag page](https://www.bundestag.de/dokumente/textarchiv/2023/kw34-rtg-flagge-der-einheit-383254)
+  and OSM node `437140233` confirm the
+  large flag on Platz der Republik. OSM node `3786417057` anchors the Quadriga
+  to the Brandenburg Gate roofline; dedicated free Commons close-ups guide its
+  green-bronze cue.
+- OSM node `66917229` confirms the Starbucks POI on the northeast Pariser-Platz
+  edge. It is represented only as a small semantic sign; no trademark image or
+  restricted commercial photograph is copied.
+- The committed Wikimedia set now contains 110 accepted thumbnails across 37
+  motif groups. Every attribution-required file has a non-empty artist or
+  credit field, and the public attribution payload remains packaged.
+
 ## Placement Conclusions
 
 - Berlin Hauptbahnhof is the northern anchor of the v0.1 scene.

@@ -43,8 +43,8 @@ photogrammetric mesh pass.
 ## Landmark placement QA
 
 - Status: ok
-- Landmarks checked: 35
-- Relative relationships checked: 19
+- Landmarks checked: 39
+- Relative relationships checked: 23
 - Review count: 0
 
 ## Current rendering claim

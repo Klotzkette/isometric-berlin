@@ -30,6 +30,7 @@ from isometric_berlin.generation.render_quadrants import (
   landmark_reference_id,
   landmark_signature_anchors,
   landmark_signature_buildings,
+  late_afternoon_shadow_offset,
   load_reference_geometries,
   load_wikimedia_material_cues,
   mix_color,
@@ -200,6 +201,7 @@ def test_architectural_shadow_offsets_scale_with_height_and_heroes() -> None:
 
   assert small[0] < tall[0] <= tall[1] <= tall[2]
   assert hero[2] > tall[2]
+  assert late_afternoon_shadow_offset(20) == (20, -4)
 
 
 def test_roof_grid_count_adds_bounded_architectural_ribs() -> None:
@@ -274,6 +276,16 @@ def test_landmark_kind_routes_required_hero_shapes() -> None:
     == "sinti_roma_memorial"
   )
   assert landmark_kind("Pariser Platz") == "urban_square"
+  assert landmark_kind("Schweizerische Botschaft") == "swiss_embassy"
+  assert landmark_kind("Fahne der Einheit") == "unity_flag"
+  assert landmark_kind("Quadriga mit Victoria") == "quadriga"
+  assert landmark_kind("Starbucks Pariser Platz") == "cafe_sign"
+  assert landmark_kind(
+    "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen"
+  ) == ("memorial_homosexuals")
+  assert landmark_kind("Goethe-Denkmal") == "goethe_monument"
+  assert landmark_kind("Beethoven-Haydn-Mozart-Denkmal") == "composer_monument"
+  assert landmark_kind("Sowjetisches Ehrenmal Tiergarten") == "soviet_memorial"
   assert landmark_kind("Großer Tiergarten") == "park_reference"
   assert landmark_kind("Venusbassin / Goldfischteich") == "pond_reference"
   assert landmark_kind(
@@ -315,6 +327,12 @@ def test_landmark_reference_id_maps_to_wikimedia_records() -> None:
   assert landmark_reference_id("Botschaft der Vereinigten Staaten von Amerika") == (
     "us_embassy"
   )
+  assert landmark_reference_id("Schweizerische Botschaft") == "swiss_embassy"
+  assert landmark_reference_id("Fahne der Einheit") == "unity_flag_reichstag"
+  assert landmark_reference_id("Quadriga mit Victoria") == (
+    "quadriga_brandenburger_tor"
+  )
+  assert landmark_reference_id("Starbucks Pariser Platz") == ("starbucks_pariser_platz")
   assert landmark_reference_id("Denkmal für die ermordeten Juden Europas") == (
     "holocaust_memorial"
   )

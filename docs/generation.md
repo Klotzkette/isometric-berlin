@@ -45,12 +45,18 @@ landmark anchor receives the singular dome, shell or facade signature.
 ```bash
 uv run python -m isometric_berlin.generation.render_overview \
   --render-px 32768 --canvas-width 16384 --canvas-height 11616 \
-  --preview-max-width 3584
+  --preview-max-width 6144
 ```
 
-The derived `overview_source.png` and `overview.png` are capped at 3584 pixels
-wide for offline fallback/package size. The DZI itself retains all
-16384×11616 source pixels.
+The derived `overview_source.png` and `overview.png` are capped at 6144 pixels
+wide and use a bounded PNG palette for offline fallback/package size. The DZI
+itself retains all 16384×11616 source pixels and its full colour source.
+
+The global render also loads `tiergartentunnel.geojson`. Only its engineered
+`underground_reference_route` centreline is rendered; the 13 OSM carriageway
+ways remain provenance evidence and are not duplicated as visible tunnel
+bodies. The cutaway is clipped to the current scene and remains explicitly
+schematic in depth.
 
 ## Step 10: DZI export
 

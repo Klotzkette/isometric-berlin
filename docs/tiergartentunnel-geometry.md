@@ -1,6 +1,6 @@
 # Tiergartentunnel Geometry
 
-This note documents the v0.1.48 tunnel representation used by the
+This note documents the v0.1.62 tunnel representation used by the
 Regierungsviertel viewer.
 
 ## Status
@@ -25,7 +25,7 @@ for the tunnel body is found and committed as a derived clipped artefact.
 | Length | Published length around 2.4 km / 2392 m | Metadata and QA sanity check |
 | Cross section | Published two-tube rectangular road tunnel facts: 10.5 m clear width per direction, 5.0 m clear height, 23.4 m total width | Schematic two-tube cutaway volume |
 | Surface context | OSM roads, tunnels, footways, station passages and portals clipped to the Regierungsviertel | Alignment sanity check only |
-| Depth | Not found as licensed official geometry in this repo | Schematic -10 m visual depth |
+| Depth | Not found as licensed official geometry in this repo | Schematic -12 m visual depth |
 
 ## Committed Artefacts
 
@@ -40,12 +40,18 @@ for the tunnel body is found and committed as a derived clipped artefact.
 - `src/isometric_berlin/generation/render_quadrants.py` renders the
   same kind of volume in deterministic source tiles when quadrants are
   regenerated.
+- `src/isometric_berlin/generation/render_overview.py` loads that route into
+  the committed global DZI. It draws only the engineered centreline; the 13
+  OSM carriageways remain evidence and are not rendered as overlapping
+  duplicate tunnel bodies.
 
 ## Rendering Rule
 
 Draw the tunnel below the surface as a readable engineering cutaway:
 
-- dark rectangular tunnel body;
+- interrupted twin-tube outlines in the global DZI, so the route cannot be
+  mistaken for an elevated road and does not cover water, paths or vegetation;
+- dark rectangular tunnel body in the dedicated local underside overlay;
 - two separated tubes with a visible centre wall;
 - side walls / floor guide lines;
 - portal frames at the north and south visible endpoints;

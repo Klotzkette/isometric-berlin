@@ -6,5 +6,13 @@ export default defineConfig({
   plugins: [react()],
   build: {
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "map-engine": ["openseadragon"],
+          "react-vendor": ["react", "react-dom"],
+        },
+      },
+    },
   },
 });

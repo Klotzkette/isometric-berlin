@@ -22,33 +22,34 @@ from shapely.geometry import (
   MultiPolygon,
   Point,
   Polygon,
+  box,
 )
 
 from isometric_berlin.data.common import BERLIN_PROJECTED
 from isometric_berlin.generation.create_grid import quadrant_db_path
 
-BACKGROUND = (229, 235, 231)
-PARK = (104, 164, 91)
-PARK_DARK = (61, 126, 73)
-PARK_LIGHT = (148, 191, 109)
-TREE_CANOPY = (43, 111, 67)
-TREE_CANOPY_LIGHT = (83, 153, 79)
-SHRUB = (72, 137, 70)
-WATER = (63, 151, 191)
-WATER_LIGHT = (128, 203, 220)
-WATER_DARK = (36, 108, 153)
-ROAD = (218, 218, 207)
-ROAD_MAJOR = (241, 239, 229)
-ROAD_PATH = (207, 218, 187)
-ROAD_EDGE = (177, 175, 162)
+BACKGROUND = (235, 241, 237)
+PARK = (96, 176, 91)
+PARK_DARK = (43, 128, 70)
+PARK_LIGHT = (154, 207, 111)
+TREE_CANOPY = (31, 114, 64)
+TREE_CANOPY_LIGHT = (78, 166, 80)
+SHRUB = (71, 151, 73)
+WATER = (45, 158, 207)
+WATER_LIGHT = (128, 218, 232)
+WATER_DARK = (26, 105, 160)
+ROAD = (226, 227, 215)
+ROAD_MAJOR = (248, 245, 234)
+ROAD_PATH = (216, 229, 191)
+ROAD_EDGE = (173, 176, 163)
 RAIL = (94, 94, 88)
 RAIL_PLATFORM = (139, 136, 122)
-BUILDING_WALL = (198, 197, 187)
-BUILDING_WALL_DARK = (143, 146, 143)
-BUILDING_ROOF = (161, 163, 158)
-BUILDING_HERO = (218, 215, 202)
-BUILDING_SHADOW = (161, 169, 163)
-BUILDING_SHADOW_SOFT = (204, 212, 206)
+BUILDING_WALL = (207, 211, 205)
+BUILDING_WALL_DARK = (139, 151, 151)
+BUILDING_ROOF = (165, 176, 173)
+BUILDING_HERO = (226, 225, 215)
+BUILDING_SHADOW = (139, 157, 155)
+BUILDING_SHADOW_SOFT = (201, 214, 210)
 PARCEL = (174, 182, 173)
 OUTLINE = (65, 70, 68)
 LANDMARK = (105, 47, 47)
@@ -60,6 +61,15 @@ CORTEN_STEEL = (139, 82, 50)
 TENT_CANVAS = (232, 218, 185)
 PLENARY_PURPLE = (104, 82, 142)
 BRONZE = (121, 88, 57)
+BRONZE_GREEN = (70, 124, 105)
+GOLD = (207, 166, 65)
+SWISS_RED = (218, 41, 28)
+GERMAN_BLACK = (30, 31, 31)
+GERMAN_RED = (205, 43, 52)
+GERMAN_GOLD = (247, 198, 40)
+EU_BLUE = (31, 73, 145)
+TRAIN_RED = (198, 38, 46)
+TRAIN_YELLOW = (237, 190, 45)
 PURPLE_TRIANGLE = (112, 78, 146)
 POLAND_RED = (162, 52, 56)
 TUNNEL_TRACE = (54, 57, 62)
@@ -143,6 +153,15 @@ ARCHITECTURAL_MATERIAL_CUES: dict[str, MaterialCue] = {
     "glass": (115, 181, 198),
     "glass_dark": (55, 107, 126),
   },
+  "swiss_embassy": {
+    "wall": (229, 224, 207),
+    "wall_dark": (153, 150, 139),
+    "wall_light": (247, 243, 229),
+    "roof": (170, 177, 171),
+    "roof_line": (83, 94, 92),
+    "glass": (108, 179, 197),
+    "glass_dark": (47, 103, 125),
+  },
 }
 
 BUILDING_SIGNATURE_REFERENCE_IDS = frozenset(
@@ -154,6 +173,7 @@ BUILDING_SIGNATURE_REFERENCE_IDS = frozenset(
     "max_liebermann_haus",
     "paul_loebe_haus",
     "reichstag",
+    "swiss_embassy",
   }
 )
 
@@ -165,6 +185,7 @@ SEMANTIC_BUILDING_NAMES = {
   "max_liebermann_haus": {"max-liebermann-haus"},
   "paul_loebe_haus": {"paul-lobe-haus"},
   "reichstag": {"reichstagsgebaude"},
+  "swiss_embassy": {"schweizerische botschaft"},
 }
 
 SEMANTIC_SIGNATURE_REFERENCE_IDS = BUILDING_SIGNATURE_REFERENCE_IDS - {"hkw"}
@@ -379,6 +400,10 @@ def landmark_reference_id(name: str) -> str | None:
     ("gedenkort fur polen", "poland_memorial"),
     ("polen 1939", "poland_memorial"),
     ("kroll-oper", "poland_memorial"),
+    ("fahne der einheit", "unity_flag_reichstag"),
+    ("quadriga", "quadriga_brandenburger_tor"),
+    ("schweizerische botschaft", "swiss_embassy"),
+    ("starbucks", "starbucks_pariser_platz"),
     ("reichstag", "reichstag"),
     ("bundeskanzleramt", "bundeskanzleramt"),
     ("paul-lobe", "paul_loebe_haus"),
@@ -618,6 +643,14 @@ def rail_style(
 def landmark_kind(name: str) -> str | None:
   """Map required landmark names to explicit visual accent types."""
   key = normalized_text(name)
+  if "fahne der einheit" in key:
+    return "unity_flag"
+  if "quadriga" in key:
+    return "quadriga"
+  if "schweizerische botschaft" in key:
+    return "swiss_embassy"
+  if "starbucks" in key:
+    return "cafe_sign"
   if "reichstagsvorfeld" in key or "berlin-pavillon" in key:
     return "visitor_pavilion"
   if "platz der republik" in key or "heckenbosquets" in key:
@@ -656,13 +689,14 @@ def landmark_kind(name: str) -> str | None:
     return "embassy_block"
   if "ermordeten juden" in key or "holocaust" in key:
     return "memorial_field"
-  if (
-    "verfolgten homosexuellen" in key
-    or "goethe" in key
-    or "beethoven-haydn-mozart" in key
-    or "sowjetisches ehrenmal" in key
-  ):
-    return "monument_marker"
+  if "verfolgten homosexuellen" in key:
+    return "memorial_homosexuals"
+  if "goethe" in key:
+    return "goethe_monument"
+  if "beethoven-haydn-mozart" in key:
+    return "composer_monument"
+  if "sowjetisches ehrenmal" in key:
+    return "soviet_memorial"
   if "sinti und roma" in key:
     return "sinti_roma_memorial"
   if "goldfischteich" in key or "venusbassin" in key or "venusbecken" in key:
@@ -679,6 +713,83 @@ def landmark_kind(name: str) -> str | None:
 def landmark_icon_unit(render_px: int) -> int:
   """Return a screen-space icon unit that survives pixel-art downsampling."""
   return max(3, min(32, round(render_px / 768)))
+
+
+def draw_screen_flag(
+  draw: ImageDraw.ImageDraw,
+  *,
+  x: int,
+  base_y: int,
+  unit: int,
+  style: str,
+  scale: float = 1.0,
+) -> None:
+  """Draw one small readable flag without changing landmark geometry."""
+  pole_height = max(5, round(6 * unit * scale))
+  flag_width = max(5, round(4.4 * unit * scale))
+  flag_height = max(4, round(2.8 * unit * scale))
+  top = base_y - pole_height
+  pole_width = max(1, round(unit * scale * 0.14))
+  draw.line((x, base_y, x, top), fill=OUTLINE, width=pole_width)
+  left = x + pole_width
+  right = left + flag_width
+  bottom = top + flag_height
+  cloth = [
+    (left, top),
+    (right, top + flag_height // 5),
+    (right, bottom),
+    (left, bottom),
+  ]
+  if style == "swiss":
+    draw.polygon(cloth, fill=SWISS_RED, outline=OUTLINE)
+    cx = left + flag_width // 2
+    cy = top + flag_height // 2
+    arm = max(1, flag_height // 5)
+    draw.rectangle((cx - arm, top + arm, cx + arm, bottom - arm), fill=(255, 255, 255))
+    draw.rectangle((left + arm, cy - arm, right - arm, cy + arm), fill=(255, 255, 255))
+    return
+  if style == "eu":
+    draw.polygon(cloth, fill=EU_BLUE, outline=OUTLINE)
+    radius = max(1, round(unit * scale * 0.12))
+    for offset_x, offset_y in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+      cx = left + flag_width // 2 + offset_x * flag_width // 5
+      cy = top + flag_height // 2 + offset_y * flag_height // 5
+      draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=GOLD)
+    return
+  if style == "us":
+    draw.polygon(cloth, fill=(248, 247, 238), outline=OUTLINE)
+    stripe = max(1, flag_height // 5)
+    for idx in (0, 2, 4):
+      y = min(bottom, top + idx * stripe)
+      draw.rectangle((left, y, right, min(bottom, y + stripe)), fill=GERMAN_RED)
+    draw.rectangle(
+      (left, top, left + flag_width // 2, top + flag_height // 2),
+      fill=(44, 70, 124),
+    )
+    return
+  stripe_height = max(1, flag_height // 3)
+  for idx, color in enumerate((GERMAN_BLACK, GERMAN_RED, GERMAN_GOLD)):
+    y0 = top + idx * stripe_height
+    y1 = bottom if idx == 2 else min(bottom, y0 + stripe_height)
+    draw.rectangle((left, y0, right, y1), fill=color)
+  draw.line(cloth + [cloth[0]], fill=OUTLINE, width=1)
+
+
+def draw_iso_person(
+  draw: ImageDraw.ImageDraw,
+  *,
+  x: int,
+  y: int,
+  unit: int,
+  color: tuple[int, int, int],
+) -> None:
+  """Draw a tiny static person as a scale cue for public squares."""
+  head = max(1, unit // 4)
+  body = max(2, unit)
+  draw.ellipse((x - head, y - body - 2 * head, x + head, y - body), fill=MONUMENT)
+  draw.line((x, y - body, x, y), fill=color, width=max(1, unit // 4))
+  draw.line((x, y - body // 2, x - head * 2, y - head), fill=color, width=1)
+  draw.line((x, y - body // 2, x + head * 2, y - head), fill=color, width=1)
 
 
 def draw_landmark_accent(
@@ -716,6 +827,101 @@ def draw_landmark_accent(
       width=width,
       height=height,
     )
+
+  if kind == "unity_flag":
+    x, y = point(3)
+    draw_screen_flag(draw, x=x, base_y=y + 3 * unit, unit=unit, style="de", scale=1.35)
+    return
+
+  if kind == "quadriga":
+    x, y = point(27)
+    bronze_dark = mix_color(BRONZE_GREEN, OUTLINE, 0.26)
+    draw.rectangle(
+      (x - 4 * unit, y, x + 3 * unit, y + 2 * unit),
+      fill=BRONZE_GREEN,
+      outline=bronze_dark,
+      width=max(1, unit // 5),
+    )
+    for wheel_x in (-3, 2):
+      draw.ellipse(
+        (
+          x + wheel_x * unit - unit,
+          y + unit,
+          x + wheel_x * unit + unit,
+          y + 3 * unit,
+        ),
+        outline=bronze_dark,
+        width=max(1, unit // 4),
+      )
+    for horse in range(4):
+      hx = x + (horse - 1) * unit
+      draw.line(
+        (x - 3 * unit, y + unit, hx + 4 * unit, y - 2 * unit),
+        fill=bronze_dark if horse % 2 else BRONZE_GREEN,
+        width=max(1, unit // 3),
+      )
+      draw.ellipse(
+        (hx + 3 * unit, y - 3 * unit, hx + 4 * unit, y - 2 * unit),
+        fill=BRONZE_GREEN,
+        outline=bronze_dark,
+      )
+    draw.line(
+      (x - 2 * unit, y, x - 2 * unit, y - 5 * unit), fill=bronze_dark, width=unit
+    )
+    draw.ellipse(
+      (x - 3 * unit, y - 7 * unit, x - unit, y - 5 * unit),
+      fill=BRONZE_GREEN,
+      outline=bronze_dark,
+    )
+    draw.line(
+      (x - 2 * unit, y - 4 * unit, x - 5 * unit, y - 6 * unit),
+      fill=BRONZE_GREEN,
+      width=max(1, unit // 2),
+    )
+    draw.line(
+      (x - 2 * unit, y - 4 * unit, x + unit, y - 6 * unit),
+      fill=BRONZE_GREEN,
+      width=max(1, unit // 2),
+    )
+    return
+
+  if kind == "swiss_embassy":
+    x, y = point(20)
+    draw.rectangle(
+      (x - 6 * unit, y - 3 * unit, x, y + 4 * unit),
+      fill=mix_color(monument, (238, 229, 207), 0.45),
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.rectangle(
+      (x, y - 2 * unit, x + 6 * unit, y + 4 * unit),
+      fill=mix_color(building_hero, glass, 0.24),
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw_screen_flag(
+      draw, x=x + 2 * unit, base_y=y, unit=unit, style="swiss", scale=0.8
+    )
+    return
+
+  if kind == "cafe_sign":
+    x, y = point(6)
+    radius = max(2, 2 * unit)
+    green = (27, 112, 74)
+    draw.ellipse(
+      (x - radius, y - radius, x + radius, y + radius),
+      fill=green,
+      outline=(245, 244, 225),
+      width=max(1, unit // 4),
+    )
+    for angle in range(0, 360, 45):
+      rad = math.radians(angle)
+      end = (
+        x + round(math.cos(rad) * radius * 0.58),
+        y + round(math.sin(rad) * radius * 0.58),
+      )
+      draw.line((x, y, end[0], end[1]), fill=(245, 244, 225), width=max(1, unit // 5))
+    return
 
   if kind == "gate":
     x, y = point(18)
@@ -1043,17 +1249,39 @@ def draw_landmark_accent(
         fill=glass_dark,
         width=max(1, unit // 5),
       )
+    draw_screen_flag(
+      draw,
+      x=x + 3 * unit,
+      base_y=y - 2 * unit,
+      unit=unit,
+      style="us",
+      scale=0.72,
+    )
     return
 
   if kind == "memorial_field":
     x, y = point(4)
-    for row_idx in range(3):
-      for col_idx in range(5):
-        px = x + (col_idx - 2) * unit
-        py = y + (row_idx - 1) * unit
-        tone = monument_dark if (row_idx + col_idx) % 2 else monument
+    rows, columns = 7, 11
+    spacing_x = max(2, round(unit * 0.82))
+    spacing_y = max(2, round(unit * 0.7))
+    for row_idx in range(rows):
+      for col_idx in range(columns):
+        px = x + round((col_idx - (columns - 1) / 2) * spacing_x)
+        py = y + round((row_idx - (rows - 1) / 2) * spacing_y)
+        height_steps = 1 + ((row_idx * 5 + col_idx * 3) % 4)
+        top = py - max(1, round(height_steps * unit * 0.24))
+        tone = mix_color(
+          monument_dark if (row_idx + col_idx) % 2 else monument,
+          OUTLINE,
+          height_steps * 0.035,
+        )
         draw.rectangle(
-          (px - unit // 2, py - unit // 3, px + unit // 2, py + unit // 3),
+          (
+            px - max(1, unit // 3),
+            top,
+            px + max(1, unit // 3),
+            py + max(1, unit // 5),
+          ),
           fill=tone,
           outline=OUTLINE,
           width=1,
@@ -1082,21 +1310,109 @@ def draw_landmark_accent(
     )
     return
 
-  if kind == "monument_marker":
+  if kind == "memorial_homosexuals":
+    x, y = point(5)
+    concrete = mix_color(TUNNEL_TRACE, MONUMENT_DARK, 0.2)
+    draw.polygon(
+      [
+        (x - 4 * unit, y + 2 * unit),
+        (x + 3 * unit, y + unit),
+        (x + 2 * unit, y - 4 * unit),
+        (x - 3 * unit, y - 3 * unit),
+      ],
+      fill=concrete,
+      outline=OUTLINE,
+    )
+    draw.rectangle(
+      (x - unit, y - 2 * unit, x + unit, y),
+      fill=mix_color(GLASS_DARK, OUTLINE, 0.2),
+      outline=SURFACE_LIGHT,
+      width=1,
+    )
+    return
+
+  if kind == "goethe_monument":
     x, y = point(10)
     draw.rectangle(
-      (x - 2 * unit, y + 2 * unit, x + 2 * unit, y + 3 * unit),
+      (x - 3 * unit, y + unit, x + 3 * unit, y + 3 * unit),
       fill=monument_dark,
       outline=OUTLINE,
       width=1,
     )
+    draw.rectangle(
+      (x - 2 * unit, y - 2 * unit, x + 2 * unit, y + unit),
+      fill=monument,
+      outline=OUTLINE,
+      width=1,
+    )
+    draw.line((x, y - 2 * unit, x, y - 6 * unit), fill=monument, width=max(2, unit))
+    draw.ellipse(
+      (x - unit, y - 8 * unit, x + unit, y - 6 * unit),
+      fill=monument,
+      outline=OUTLINE,
+    )
+    draw.line(
+      (x - unit, y - 5 * unit, x + 2 * unit, y - 4 * unit),
+      fill=GOLD,
+      width=max(1, unit // 3),
+    )
+    return
+
+  if kind == "composer_monument":
+    x, y = point(9)
+    draw.ellipse(
+      (x - 5 * unit, y - 2 * unit, x + 5 * unit, y + 3 * unit),
+      fill=monument,
+      outline=monument_dark,
+      width=max(1, unit // 4),
+    )
+    for idx, offset in enumerate((-3, 0, 3)):
+      cx = x + offset * unit
+      draw.rectangle(
+        (cx - unit, y - (4 + idx % 2) * unit, cx + unit, y + unit),
+        fill=mix_color(monument, (248, 244, 225), 0.24),
+        outline=OUTLINE,
+      )
+      draw.ellipse(
+        (cx - unit, y - (6 + idx % 2) * unit, cx + unit, y - (4 + idx % 2) * unit),
+        fill=monument,
+        outline=OUTLINE,
+      )
+    draw.arc(
+      (x - 4 * unit, y - 5 * unit, x + 4 * unit, y + 2 * unit),
+      start=200,
+      end=340,
+      fill=GOLD,
+      width=max(1, unit // 2),
+    )
+    return
+
+  if kind == "soviet_memorial":
+    x, y = point(14)
+    draw.rectangle(
+      (x - 7 * unit, y + unit, x + 7 * unit, y + 3 * unit),
+      fill=monument_dark,
+      outline=OUTLINE,
+    )
+    for offset in (-5, -3, -1, 1, 3, 5):
+      cx = x + offset * unit
+      draw.rectangle(
+        (cx - unit // 3, y - 4 * unit, cx + unit // 3, y + unit),
+        fill=monument,
+        outline=OUTLINE,
+      )
+    draw.rectangle(
+      (x - unit, y - 9 * unit, x + unit, y + unit),
+      fill=mix_color(monument, MONUMENT_DARK, 0.16),
+      outline=OUTLINE,
+    )
     draw.polygon(
       [
-        (x, y - 4 * unit),
-        (x + 2 * unit, y + 2 * unit),
-        (x - 2 * unit, y + 2 * unit),
+        (x, y - 11 * unit),
+        (x + unit, y - 9 * unit),
+        (x - unit, y - 9 * unit),
       ],
-      fill=monument,
+      fill=GERMAN_RED,
       outline=OUTLINE,
     )
     return
@@ -1120,6 +1436,32 @@ def draw_landmark_accent(
         fill=ROAD_EDGE,
         width=1,
       )
+    for idx, (offset_x, offset_y) in enumerate(
+      [(-3, -1), (-2, 1), (-1, -1), (1, 1), (2, -1), (3, 0)]
+    ):
+      draw_iso_person(
+        draw,
+        x=x + offset_x * unit,
+        y=y + offset_y * unit,
+        unit=unit,
+        color=(142, 55 + idx * 12, 72 + idx * 10),
+      )
+    pedicab_y = y + 3 * unit
+    draw.ellipse(
+      (x - 2 * unit, pedicab_y, x, pedicab_y + 2 * unit),
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.ellipse(
+      (x + 2 * unit, pedicab_y, x + 4 * unit, pedicab_y + 2 * unit),
+      outline=OUTLINE,
+      width=max(1, unit // 4),
+    )
+    draw.line(
+      (x - unit, pedicab_y + unit, x + 3 * unit, pedicab_y + unit),
+      fill=GERMAN_RED,
+      width=max(1, unit // 3),
+    )
     return
 
   if kind == "visitor_pavilion":
@@ -1320,13 +1662,17 @@ def draw_tunnel_reference_routes(
   """Draw the Tiergartentunnel as a visible underground route cue."""
   if routes.empty:
     return
+  clip_boundary = box(*bounds)
   for _, row in query(routes, bounds).iterrows():
-    for line in lines(row.geometry):
+    if row_text(row, "role") != "underground_reference_route":
+      continue
+    clipped = row.geometry.intersection(clip_boundary)
+    for line in lines(clipped):
       pts = [
         project_point(
           x,
           y,
-          z=-10,
+          z=-12,
           center_x=center_x,
           center_y=center_y,
           scale=scale,
@@ -1337,74 +1683,78 @@ def draw_tunnel_reference_routes(
       ]
       if len(pts) < 2:
         continue
-      casing = max(3, line_scale * 4)
-      half_width = max(8, line_scale * 8)
+      half_width = max(7, line_scale * 6)
       left_wall = offset_projected_polyline(pts, half_width)
       right_wall = offset_projected_polyline(pts, -half_width)
-      left_floor = offset_projected_polyline(pts, half_width * 0.68)
-      right_floor = offset_projected_polyline(pts, -half_width * 0.68)
-      draw.polygon(
-        left_wall + list(reversed(right_wall)),
-        fill=mix_color(TUNNEL_TRACE, BACKGROUND, 0.26),
-        outline=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.36),
-      )
-      draw.line(
+      left_floor = offset_projected_polyline(pts, half_width * 0.52)
+      right_floor = offset_projected_polyline(pts, -half_width * 0.52)
+      wall_color = mix_color(TUNNEL_TRACE_LIGHT, BACKGROUND, 0.42)
+      draw_dashed_projected_line(
+        draw,
         left_wall,
-        fill=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.42),
+        color=wall_color,
         width=max(1, line_scale),
-        joint="curve",
+        dash_px=max(18, line_scale * 16),
+        gap_px=max(8, line_scale * 7),
       )
-      draw.line(
+      draw_dashed_projected_line(
+        draw,
         right_wall,
-        fill=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.42),
+        color=wall_color,
         width=max(1, line_scale),
-        joint="curve",
+        dash_px=max(18, line_scale * 16),
+        gap_px=max(8, line_scale * 7),
       )
       draw_dashed_projected_line(
         draw,
         left_floor,
         color=mix_color(TUNNEL_TRACE_LIGHT, TUNNEL_TRACE, 0.34),
         width=max(1, line_scale),
-        dash_px=max(8, line_scale * 8),
-        gap_px=max(8, line_scale * 8),
+        dash_px=max(12, line_scale * 11),
+        gap_px=max(7, line_scale * 7),
       )
       draw_dashed_projected_line(
         draw,
         right_floor,
         color=mix_color(TUNNEL_TRACE_LIGHT, TUNNEL_TRACE, 0.34),
         width=max(1, line_scale),
-        dash_px=max(8, line_scale * 8),
-        gap_px=max(8, line_scale * 8),
+        dash_px=max(12, line_scale * 11),
+        gap_px=max(7, line_scale * 7),
       )
       draw_dashed_projected_line(
         draw,
         pts,
-        color=mix_color(TUNNEL_TRACE, OUTLINE, 0.28),
-        width=max(casing, line_scale * 6),
-        dash_px=max(18, line_scale * 18),
-        gap_px=max(5, line_scale * 5),
-      )
-      draw_dashed_projected_line(
-        draw,
-        pts,
-        color=mix_color(TUNNEL_LIGHT, TUNNEL_TRACE, 0.25),
+        color=mix_color(TUNNEL_TRACE, OUTLINE, 0.24),
         width=max(2, line_scale * 2),
-        dash_px=max(3, line_scale * 3),
-        gap_px=max(13, line_scale * 11),
+        dash_px=max(20, line_scale * 18),
+        gap_px=max(10, line_scale * 9),
       )
-      draw_dashed_projected_line(
-        draw,
-        pts,
-        color=TUNNEL_TRACE_LIGHT,
-        width=max(1, line_scale),
-        dash_px=max(10, line_scale * 10),
-        gap_px=max(12, line_scale * 10),
-      )
-      for index, point in enumerate(pts):
-        radius = max(3, line_scale * (3 if index in {0, len(pts) - 1} else 2))
-        if index in {0, 3, 6, len(pts) - 1}:
-          section_w = max(10, line_scale * 10)
-          section_h = max(5, line_scale * 5)
+      light_radius = max(1, line_scale)
+      for start, end in zip(pts, pts[1:], strict=False):
+        steps = max(2, round(line_length(start, end) / max(18, line_scale * 18)))
+        for step in range(1, steps):
+          light = lerp_point(start, end, step / steps)
+          for light_line in (-0.64, 0.64):
+            normal = normalized_normal(start, end)
+            lx = round(light[0] + normal[0] * half_width * light_line)
+            ly = round(light[1] + normal[1] * half_width * light_line)
+            draw.ellipse(
+              (
+                lx - light_radius,
+                ly - light_radius,
+                lx + light_radius,
+                ly + light_radius,
+              ),
+              fill=TUNNEL_LIGHT,
+              outline=TUNNEL_VENT,
+            )
+      service_indices = {0, len(pts) // 2, len(pts) - 1}
+      for index in sorted(service_indices):
+        point = pts[index]
+        radius = max(3, line_scale * (2 if index in {0, len(pts) - 1} else 1))
+        if index in {0, len(pts) - 1}:
+          section_w = max(8, line_scale * 7)
+          section_h = max(4, line_scale * 4)
           draw.rounded_rectangle(
             (
               point[0] - section_w,
@@ -1413,8 +1763,8 @@ def draw_tunnel_reference_routes(
               point[1] + section_h,
             ),
             radius=max(2, line_scale),
-            fill=mix_color(TUNNEL_TRACE, OUTLINE, 0.38),
-            outline=TUNNEL_LIGHT,
+            fill=mix_color(TUNNEL_TRACE, OUTLINE, 0.28),
+            outline=TUNNEL_TRACE_LIGHT,
             width=max(1, line_scale),
           )
           draw.line(
@@ -1422,39 +1772,28 @@ def draw_tunnel_reference_routes(
             fill=TUNNEL_TRACE_LIGHT,
             width=max(1, line_scale),
           )
+        vent = radius + max(2, line_scale)
         draw.ellipse(
           (
-            point[0] - radius,
-            point[1] - radius,
-            point[0] + radius,
-            point[1] + radius,
+            point[0] - vent,
+            point[1] - vent,
+            point[0] + vent,
+            point[1] + vent,
           ),
-          fill=TUNNEL_LIGHT,
-          outline=TUNNEL_VENT,
+          fill=mix_color(TUNNEL_TRACE, BACKGROUND, 0.28),
+          outline=TUNNEL_LIGHT,
           width=max(1, line_scale),
         )
-        if index in {0, 2, 3, len(pts) - 1}:
-          vent = radius + max(2, line_scale)
-          draw.ellipse(
-            (
-              point[0] - vent,
-              point[1] - vent,
-              point[0] + vent,
-              point[1] + vent,
-            ),
-            outline=TUNNEL_LIGHT,
-            width=max(1, line_scale),
-          )
-          draw.line(
-            (point[0] - vent, point[1], point[0] + vent, point[1]),
-            fill=TUNNEL_TRACE_LIGHT,
-            width=max(1, line_scale),
-          )
-          draw.line(
-            (point[0], point[1] - vent, point[0], point[1] + vent),
-            fill=TUNNEL_TRACE_LIGHT,
-            width=max(1, line_scale),
-          )
+        draw.line(
+          (point[0] - vent, point[1], point[0] + vent, point[1]),
+          fill=TUNNEL_TRACE_LIGHT,
+          width=max(1, line_scale),
+        )
+        draw.line(
+          (point[0], point[1] - vent, point[0], point[1] + vent),
+          fill=TUNNEL_TRACE_LIGHT,
+          width=max(1, line_scale),
+        )
 
 
 def architectural_shadow_offsets(
@@ -1471,6 +1810,11 @@ def architectural_shadow_offsets(
   if is_hero:
     soft += unit * 2
   return contact, mid, soft
+
+
+def late_afternoon_shadow_offset(distance: int) -> tuple[int, int]:
+  """Project a southwest-sun shadow toward map northeast."""
+  return distance, -max(1, round(distance * 0.18))
 
 
 def roof_grid_count(*, roof_span: float, is_hero: bool) -> int:
@@ -2048,9 +2392,10 @@ def draw_landmark_building_signature(
   glass = mix_color(palette["window"], palette["wall_light"], 0.32)
   glass_dark = mix_color(palette["window_dark"], GLASS_DARK, 0.28)
   if reference_id == "reichstag" and len(unique) >= 4:
-    center = anchor or roof_quad_point(unique, along=0.5, across=0.5)
+    roof_center = anchor or roof_quad_point(unique, along=0.5, across=0.5)
     dome_rx = max(7, width * 12)
     dome_ry = max(4, width * 7)
+    center = (roof_center[0], roof_center[1] - dome_ry)
     plenary = [
       roof_quad_point(unique, along=0.37, across=0.42),
       roof_quad_point(unique, along=0.63, across=0.42),
@@ -2084,6 +2429,18 @@ def draw_landmark_building_signature(
     )
     draw.arc(
       (
+        center[0] - dome_rx,
+        roof_center[1] - max(2, dome_ry // 3),
+        center[0] + dome_rx,
+        roof_center[1] + max(2, dome_ry // 3),
+      ),
+      start=180,
+      end=360,
+      fill=mix_color(glass_dark, OUTLINE, 0.2),
+      width=max(1, width + 1),
+    )
+    draw.arc(
+      (
         center[0] - dome_rx - width,
         center[1] - dome_ry - width,
         center[0] + dome_rx + width,
@@ -2101,6 +2458,24 @@ def draw_landmark_building_signature(
         center[1] + dome_ry,
       )
       draw.line((rib_top, rib_bottom), fill=glass_dark, width=max(1, width))
+    for layer in range(1, 9):
+      ratio = layer / 9
+      y_offset = round((ratio - 0.5) * dome_ry * 1.65)
+      half_span = max(
+        2, round(dome_rx * math.sqrt(max(0.0, 1 - (y_offset / dome_ry) ** 2)))
+      )
+      draw.arc(
+        (
+          center[0] - half_span,
+          center[1] + y_offset - max(1, width // 2),
+          center[0] + half_span,
+          center[1] + y_offset + max(1, width // 2),
+        ),
+        start=180,
+        end=360,
+        fill=mix_color(glass_dark, glass, 0.28),
+        width=max(1, width),
+      )
     cone = [
       (center[0], center[1] - dome_ry + width),
       (center[0] + 2 * width, center[1] + dome_ry - width),
@@ -2119,22 +2494,39 @@ def draw_landmark_building_signature(
         outline=mix_color(palette["wall_dark"], OUTLINE, 0.18),
         width=width,
       )
+    flag_unit = max(3, width * 2)
+    for (along, across), style in zip(
+      ((0.12, 0.18), (0.82, 0.14), (0.16, 0.82), (0.84, 0.8)),
+      ("de", "de", "de", "eu"),
+      strict=True,
+    ):
+      flag_x, flag_y = roof_quad_point(unique, along=along, across=across)
+      draw_screen_flag(
+        draw,
+        x=flag_x,
+        base_y=flag_y,
+        unit=flag_unit,
+        style=style,
+        scale=0.48,
+      )
     return
 
   if reference_id == "bundeskanzleramt":
-    for wall in longest_walls(walls, limit=3):
+    facade_glass = (76, 169, 199)
+    facade_glass_dark = (39, 94, 121)
+    for wall in longest_walls(walls, limit=2):
       if line_length(wall[0], wall[1]) < 8 * width:
         continue
       draw_wall_arch_panel(
         draw,
         wall,
-        left=0.28,
-        right=0.72,
-        bottom=0.12,
-        shoulder=0.58,
-        top=0.84,
-        fill=glass,
-        outline=glass_dark,
+        left=0.31,
+        right=0.69,
+        bottom=0.16,
+        shoulder=0.56,
+        top=0.8,
+        fill=facade_glass,
+        outline=facade_glass_dark,
         width=width,
       )
     return
@@ -2212,6 +2604,80 @@ def draw_landmark_building_signature(
         fill=glass,
         width=max(1, width + 1),
       )
+    train_specs = (
+      (0.38, (239, 242, 239), TRAIN_RED, max(3, width * 3)),
+      (0.66, TRAIN_YELLOW, TRAIN_RED, max(3, width * 3)),
+    )
+    for across, body, stripe, body_width in train_specs:
+      start = roof_quad_point(unique, along=0.12, across=across)
+      end = roof_quad_point(unique, along=0.88, across=across)
+      draw.line(
+        (start, end),
+        fill=mix_color(body, OUTLINE, 0.08),
+        width=body_width + max(2, width),
+      )
+      draw.line((start, end), fill=body, width=body_width)
+      draw.line(
+        (
+          lerp_point(start, end, 0.04),
+          lerp_point(start, end, 0.96),
+        ),
+        fill=stripe,
+        width=max(1, width),
+      )
+      for window_idx in range(1, 12):
+        position = lerp_point(start, end, window_idx / 12)
+        draw.ellipse(
+          (
+            position[0] - max(1, width // 2),
+            position[1] - max(1, width // 2),
+            position[0] + max(1, width // 2),
+            position[1] + max(1, width // 2),
+          ),
+          fill=GLASS_DARK,
+        )
+    return
+
+  if reference_id == "swiss_embassy":
+    for wall_index, wall in enumerate(longest_walls(walls, limit=3)):
+      if line_length(wall[0], wall[1]) < 8 * width:
+        continue
+      if wall_index == 0:
+        for left in (0.14, 0.34, 0.54, 0.74):
+          draw_wall_panel(
+            draw,
+            wall,
+            left=left,
+            right=min(0.9, left + 0.1),
+            bottom=0.2,
+            top=0.7,
+            fill=mix_color(palette["wall_light"], palette["window"], 0.18),
+            outline=palette["wall_dark"],
+            width=width,
+          )
+      else:
+        draw_wall_panel(
+          draw,
+          wall,
+          left=0.12,
+          right=0.88,
+          bottom=0.18,
+          top=0.78,
+          fill=mix_color(palette["window"], palette["wall_light"], 0.24),
+          outline=palette["window_dark"],
+          width=width,
+        )
+    flag_x, flag_y = anchor or (
+      roof_quad_point(unique, along=0.56, across=0.5) if len(unique) >= 4 else unique[0]
+    )
+    draw_screen_flag(
+      draw,
+      x=flag_x,
+      base_y=flag_y,
+      unit=max(3, width * 2),
+      style="swiss",
+      scale=0.62,
+    )
     return
 
   if reference_id in {"paul_loebe_haus", "marie_elisabeth_lueders_haus"}:
@@ -2250,7 +2716,8 @@ def draw_architectural_shadow(
     (mid, max(1, mid // 2), mix_color(BUILDING_SHADOW_SOFT, BUILDING_SHADOW, 0.52)),
     (contact, contact, BUILDING_SHADOW),
   )
-  for offset_x, offset_y, color in shadow_layers:
+  for distance, _, color in shadow_layers:
+    offset_x, offset_y = late_afternoon_shadow_offset(distance)
     draw.polygon([(x + offset_x, y + offset_y) for x, y in base], fill=color)
 
 
@@ -2975,7 +3442,14 @@ def render_quadrant(
     reference_id = landmark_reference_id(row_text(row, "name"))
     if reference_id in signature_buildings.values() and landmark_kind(
       row_text(row, "name")
-    ) in {"dome", "glass_station", "curved_roof", "chancellery", "parliament_band"}:
+    ) in {
+      "dome",
+      "glass_station",
+      "curved_roof",
+      "chancellery",
+      "parliament_band",
+      "swiss_embassy",
+    }:
       continue
     draw_landmark_accent(
       draw,

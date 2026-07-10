@@ -46,6 +46,13 @@ or memorial plaques rather than usable building views.
 
 ## Spatial conclusion
 
+v0.1.62 extends the machine-checked layer to 39 landmarks and 23 relative
+relationships without moving the existing points. The four additions are
+Schweizerische Botschaft (OSM relation `2886766`), Fahne der Einheit (OSM node
+`437140233`), Quadriga mit Victoria (OSM node `3786417057`) and Starbucks
+Pariser Platz (OSM node `66917229`). The generated alignment report remains
+the current source of truth for status and distances.
+
 The viewer tour order follows a north-to-south walk through the
 Regierungsviertel rather than the incidental order of `landmarks.json`:
 
@@ -56,25 +63,38 @@ Regierungsviertel rather than the incidental order of `landmarks.json`:
 5. Gustav-Heinemann-Brücke
 6. Moltkebrücke
 7. Zollpackhof
-8. Bundeskanzleramt
-9. Marie-Elisabeth-Lüders-Haus
-10. Paul-Löbe-Haus
-11. Reichstagsgebäude
+8. Schweizerische Botschaft
+9. Bundeskanzleramt
+10. Eduardo-Chillida-Skulptur Berlin
+11. Kanzlergarten / Non-Violence-Skulptur
 12. Spreebogen
-13. Haus der Kulturen der Welt
-14. Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas
-15. Sowjetisches Ehrenmal Tiergarten
-16. Brandenburger Tor
-17. Pariser Platz
-18. Max-Liebermann-Haus
-19. Botschaft der Vereinigten Staaten von Amerika
-20. Denkmal für die ermordeten Juden Europas
-21. Denkmal für die im Nationalsozialismus verfolgten Homosexuellen
-22. Goethe-Denkmal
-23. Beethoven-Haydn-Mozart-Denkmal
-24. Großer Tiergarten
-25. Kemperplatz / Tiergartentunnel
-26. Tiergartentunnel Südeingang
+13. Marie-Elisabeth-Lüders-Haus
+14. Paul-Löbe-Haus
+15. Gedenkort für Polen 1939-1945
+16. Reichstagsgebäude
+17. Fahne der Einheit
+18. Reichstagsvorfeld / Berlin-Pavillon
+19. Platz der Republik Heckenbosquets
+20. Haus der Kulturen der Welt (Schwangere Auster)
+21. TIPI am Kanzleramt
+22. Carillon im Tiergarten
+23. Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas
+24. Sowjetisches Ehrenmal Tiergarten
+25. Brandenburger Tor
+26. Quadriga mit Victoria
+27. Pariser Platz
+28. Starbucks Pariser Platz
+29. Max-Liebermann-Haus
+30. Botschaft der Vereinigten Staaten von Amerika
+31. Denkmal für die ermordeten Juden Europas
+32. Denkmal für die im Nationalsozialismus verfolgten Homosexuellen
+33. Goethe-Denkmal
+34. Beethoven-Haydn-Mozart-Denkmal
+35. Venusbassin / Goldfischteich
+36. Mahnmal für verfolgte Zeugen Jehovas
+37. Großer Tiergarten
+38. Kemperplatz / Tiergartentunnel
+39. Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)
 
 The ordering is a UI/tour concern; coordinate correctness remains the
 responsibility of the committed placement QA against OSM and LoD2.

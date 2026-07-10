@@ -89,6 +89,16 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "Bundeskanzleramt" in html
   assert "DEFAULT_FOCUS_LANDMARK" in html
   assert "PRIORITY_LANDMARKS" in html
+  assert "sourceImage" in html
+  assert "landmarkScaleX" in html
+  assert "landmarkScaleY" in html
+  assert "landmark.nx * image.width" in html
+  assert "mapImage.style.width" in html
+  assert "transform-origin: 0 0" in html
+  assert "stagePointToImage" in html
+  assert "placeImagePointAt" in html
+  assert "preserveStageCenter" in html
+  assert "constrainView" in html
   assert "Drehen/Swivel" in html
   assert "rotateBy" in html
   assert "ArrowLeft" in html
@@ -131,6 +141,10 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "detail-train-sbahn" in html
   assert "detail-vehicle" in html
   assert "vehicle-light-cone" in html
+  assert "tunnelHalfWidth" in html
+  assert "rotate(${rotation}) scale(.16)" in html
+  assert "rotate(${rotation}) scale(.46)" in html
+  assert "rotate(${rotation}) scale(.3)" in html
   assert "addFlag" in html
   assert "detail-boat" in html
   assert "PREFERENCE_STORAGE_KEY" in html

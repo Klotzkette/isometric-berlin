@@ -34,6 +34,8 @@ DZI_DESCRIPTOR = "regierungsviertel.dzi"
 DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
+MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
+BOUNDED_PREVIEW_FILES = ("overview.png", "overview_source.png", "reference_map.png")
 REQUIRED_PACKAGE_ENTRIES = (
   "START-HERE.html",
   "README.txt",
@@ -104,6 +106,19 @@ def expected_download_url(version: str) -> str:
   )
 
 
+def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
+  """Keep committed fallback images below the repository binary limit."""
+  failures: list[str] = []
+  for filename in BOUNDED_PREVIEW_FILES:
+    path = public_dzi / filename
+    if path.exists() and path.stat().st_size > MAX_REPOSITORY_BINARY_BYTES:
+      failures.append(
+        f"Bundled viewer asset exceeds 5 MiB repository limit: {path} "
+        f"({path.stat().st_size} bytes)"
+      )
+  return failures
+
+
 def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   failures: list[str] = []
   if 'type="module"' in start_here_text:
@@ -115,6 +130,16 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
   if "dzi/regierungsviertel/overview_source.png" not in start_here_text:
     failures.append(
       f"Package HTML launcher does not reference overview_source.png: {label}"
+    )
+  if (
+    "sourceImage" not in start_here_text
+    or "landmarkScaleX" not in start_here_text
+    or "mapImage.style.width" not in start_here_text
+    or "stagePointToImage" not in start_here_text
+    or "constrainView" not in start_here_text
+  ):
+    failures.append(
+      f"Package HTML launcher does not normalize DZI coordinates to its offline canvas: {label}"
     )
   if "Drehen/Swivel" not in start_here_text or "event.shiftKey" not in start_here_text:
     failures.append(
@@ -593,6 +618,7 @@ def collect_failures(
   for filename in REQUIRED_VIEWER_FILES:
     if not (public_dzi / filename).exists():
       failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
+  failures.extend(viewer_binary_size_failures(public_dzi))
   failures.extend(dzi_tile_failures(public_dzi))
   tunnel_payload = public_dzi / "tiergartentunnel.json"
   if tunnel_payload.exists():

@@ -30,8 +30,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "ok",
-    "landmarks_checked": 35,
-    "relative_relationships_checked": 19,
+    "landmarks_checked": 39,
+    "relative_relationships_checked": 23,
     "landmark_review_count": 0,
     "relative_review_count": 0,
     "review_count": 0,
@@ -48,6 +48,14 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert checks["Hugo-Preuß-Brücke"]["best_osm_match"]["name"] == ("Hugo-Preuß-Brücke")
   assert checks["Moltkebrücke"]["best_osm_match"]["name"] == "Moltkebrücke"
   assert checks["Humboldthafen"]["best_osm_match"]["name"] == "Humboldthafen"
+  assert checks["Schweizerische Botschaft"]["best_osm_match"]["name"] == (
+    "Schweizerische Botschaft"
+  )
+  assert checks["Fahne der Einheit"]["best_osm_match"]["name"] == ("Fahne der Einheit")
+  assert checks["Quadriga mit Victoria"]["best_osm_match"]["name"] == (
+    "Quadriga mit Victoria"
+  )
+  assert checks["Starbucks Pariser Platz"]["best_osm_match"]["name"] == "Starbucks"
   assert (
     checks["Denkmal für die ermordeten Juden Europas"]["best_osm_match"]["name"]
     == "Denkmal für die ermordeten Juden Europas"

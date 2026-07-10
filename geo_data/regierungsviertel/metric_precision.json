@@ -18,12 +18,12 @@
     "source_precision_interpretation": "Footprints remain in EPSG:25833 metres and are rendered from LoD2 polygon coordinates; roof forms are official generalized standard roof forms, not photogrammetric facade relief."
   },
   "coordinate_reference_system": "EPSG:25833",
-  "generated_at": "2026-07-09T23:12:46.480459+00:00",
+  "generated_at": "2026-07-10T00:00:22.294833+00:00",
   "landmark_alignment": {
     "available": true,
     "landmark_review_count": 0,
-    "landmarks_checked": 35,
-    "relative_relationships_checked": 19,
+    "landmarks_checked": 39,
+    "relative_relationships_checked": 23,
     "relative_review_count": 0,
     "review_count": 0,
     "status": "ok"

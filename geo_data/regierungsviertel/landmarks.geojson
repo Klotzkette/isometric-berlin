@@ -13,7 +13,7 @@
       "properties": {
         "name": "Brandenburger Tor",
         "role": "must_be_visible",
-        "tour_order": 16
+        "tour_order": 25
       },
       "geometry": {
         "type": "Point",
@@ -25,7 +25,7 @@
       "properties": {
         "name": "Pariser Platz",
         "role": "owner_added",
-        "tour_order": 17
+        "tour_order": 27
       },
       "geometry": {
         "type": "Point",
@@ -37,7 +37,7 @@
       "properties": {
         "name": "Denkmal für die ermordeten Juden Europas",
         "role": "owner_added",
-        "tour_order": 20
+        "tour_order": 31
       },
       "geometry": {
         "type": "Point",
@@ -49,7 +49,7 @@
       "properties": {
         "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
         "role": "owner_added",
-        "tour_order": 21
+        "tour_order": 32
       },
       "geometry": {
         "type": "Point",
@@ -61,7 +61,7 @@
       "properties": {
         "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
         "role": "owner_added",
-        "tour_order": 14
+        "tour_order": 23
       },
       "geometry": {
         "type": "Point",
@@ -73,7 +73,7 @@
       "properties": {
         "name": "Reichstagsgebäude",
         "role": "hero_tile",
-        "tour_order": 11
+        "tour_order": 16
       },
       "geometry": {
         "type": "Point",
@@ -85,7 +85,7 @@
       "properties": {
         "name": "Sowjetisches Ehrenmal Tiergarten",
         "role": "owner_added",
-        "tour_order": 15
+        "tour_order": 24
       },
       "geometry": {
         "type": "Point",
@@ -97,7 +97,7 @@
       "properties": {
         "name": "Bundeskanzleramt",
         "role": "must_be_visible",
-        "tour_order": 8
+        "tour_order": 9
       },
       "geometry": {
         "type": "Point",
@@ -109,7 +109,7 @@
       "properties": {
         "name": "Paul-Löbe-Haus",
         "role": "must_be_visible",
-        "tour_order": 10
+        "tour_order": 14
       },
       "geometry": {
         "type": "Point",
@@ -121,7 +121,7 @@
       "properties": {
         "name": "Marie-Elisabeth-Lüders-Haus",
         "role": "must_be_visible",
-        "tour_order": 9
+        "tour_order": 13
       },
       "geometry": {
         "type": "Point",
@@ -193,7 +193,7 @@
       "properties": {
         "name": "Haus der Kulturen der Welt (Schwangere Auster)",
         "role": "must_be_visible",
-        "tour_order": 13
+        "tour_order": 20
       },
       "geometry": {
         "type": "Point",
@@ -205,7 +205,7 @@
       "properties": {
         "name": "Großer Tiergarten",
         "role": "owner_added",
-        "tour_order": 25
+        "tour_order": 37
       },
       "geometry": {
         "type": "Point",
@@ -217,7 +217,7 @@
       "properties": {
         "name": "Beethoven-Haydn-Mozart-Denkmal",
         "role": "owner_added",
-        "tour_order": 23
+        "tour_order": 34
       },
       "geometry": {
         "type": "Point",
@@ -229,7 +229,7 @@
       "properties": {
         "name": "Venusbassin / Goldfischteich",
         "role": "owner_added",
-        "tour_order": 24,
+        "tour_order": 35,
         "source": "Wikidata Q131192370 / OpenStreetMap way 28873112"
       },
       "geometry": {
@@ -242,7 +242,7 @@
       "properties": {
         "name": "Goethe-Denkmal",
         "role": "owner_added",
-        "tour_order": 22
+        "tour_order": 33
       },
       "geometry": {
         "type": "Point",
@@ -254,7 +254,7 @@
       "properties": {
         "name": "Kemperplatz / Tiergartentunnel",
         "role": "owner_added",
-        "tour_order": 26
+        "tour_order": 38
       },
       "geometry": {
         "type": "Point",
@@ -266,7 +266,7 @@
       "properties": {
         "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
         "role": "must_be_visible",
-        "tour_order": 27
+        "tour_order": 39
       },
       "geometry": {
         "type": "Point",
@@ -278,7 +278,7 @@
       "properties": {
         "name": "Max-Liebermann-Haus",
         "role": "owner_added",
-        "tour_order": 18
+        "tour_order": 29
       },
       "geometry": {
         "type": "Point",
@@ -290,7 +290,7 @@
       "properties": {
         "name": "Botschaft der Vereinigten Staaten von Amerika",
         "role": "owner_added",
-        "tour_order": 19
+        "tour_order": 30
       },
       "geometry": {
         "type": "Point",
@@ -338,7 +338,7 @@
       "properties": {
         "name": "TIPI am Kanzleramt",
         "role": "owner_added",
-        "tour_order": 28,
+        "tour_order": 21,
         "source": "Wikimedia Commons object location and official TIPI address"
       },
       "geometry": {
@@ -351,7 +351,7 @@
       "properties": {
         "name": "Eduardo-Chillida-Skulptur Berlin",
         "role": "owner_added",
-        "tour_order": 29,
+        "tour_order": 10,
         "source": "Berlin.de / Bundesregierung / Wikimedia Commons; approximate Chancellery forecourt point"
       },
       "geometry": {
@@ -364,7 +364,7 @@
       "properties": {
         "name": "Reichstagsvorfeld / Berlin-Pavillon",
         "role": "owner_added",
-        "tour_order": 30,
+        "tour_order": 18,
         "source": "Bundestag visitor-service and Berlin.de QA; approximate Scheidemannstraße south-side point"
       },
       "geometry": {
@@ -377,7 +377,7 @@
       "properties": {
         "name": "Platz der Republik Heckenbosquets",
         "role": "owner_added",
-        "tour_order": 31,
+        "tour_order": 19,
         "source": "Platz der Republik public map/Wikipedia QA; approximate lawn and hedge-bosquet point"
       },
       "geometry": {
@@ -390,7 +390,7 @@
       "properties": {
         "name": "Kanzlergarten / Non-Violence-Skulptur",
         "role": "owner_added",
-        "tour_order": 32,
+        "tour_order": 11,
         "source": "Wikimedia Commons Kanzlerpark / Bundeskanzleramt article; approximate Kanzlergarten point"
       },
       "geometry": {
@@ -403,7 +403,7 @@
       "properties": {
         "name": "Carillon im Tiergarten",
         "role": "owner_added",
-        "tour_order": 33,
+        "tour_order": 22,
         "source": "Wikimedia Commons geotagged Carillon Berlin Tiergarten files"
       },
       "geometry": {
@@ -416,7 +416,7 @@
       "properties": {
         "name": "Mahnmal für verfolgte Zeugen Jehovas",
         "role": "owner_added",
-        "tour_order": 34,
+        "tour_order": 36,
         "source": "OSM node 13951345000; Kulturstaatsminister / RBB / ALST reports"
       },
       "geometry": {
@@ -429,12 +429,64 @@
       "properties": {
         "name": "Gedenkort für Polen 1939-1945",
         "role": "owner_added",
-        "tour_order": 35,
+        "tour_order": 15,
         "source": "Deutsch-Polnisches Haus / Stiftung Denkmal / Kulturstaatsminister; approximate former Kroll-Oper site"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [13.3722, 52.51872]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Schweizerische Botschaft",
+        "role": "owner_added",
+        "tour_order": 8,
+        "source": "OpenStreetMap relation 2886766 / EDA official address and building description"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.37128072047285, 52.52110815]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Fahne der Einheit",
+        "role": "owner_added",
+        "tour_order": 17,
+        "source": "OpenStreetMap node 437140233 / Deutscher Bundestag"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3747951, 52.5184194]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Quadriga mit Victoria",
+        "role": "owner_added",
+        "tour_order": 26,
+        "source": "OpenStreetMap node 3786417057 / Wikimedia Commons"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3777021, 52.51627]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Starbucks Pariser Platz",
+        "role": "owner_added",
+        "tour_order": 28,
+        "source": "OpenStreetMap node 66917229"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3797732, 52.5167295]
       }
     }
   ]

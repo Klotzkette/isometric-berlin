@@ -4,12 +4,46 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.error import HTTPError
 
 from PIL import Image
+from pytest import MonkeyPatch
 
 from isometric_berlin.data import fetch_wikimedia as fw
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+class FakeResponse:
+  def __enter__(self) -> FakeResponse:
+    return self
+
+  def __exit__(self, *_args: object) -> None:
+    return None
+
+  def read(self) -> bytes:
+    return b"ok"
+
+
+def test_request_bytes_retries_rate_limits(monkeypatch: MonkeyPatch) -> None:
+  attempts = 0
+
+  def fake_urlopen(*_args: object, **_kwargs: object) -> FakeResponse:
+    nonlocal attempts
+    attempts += 1
+    if attempts == 1:
+      raise HTTPError("https://example.test", 429, "rate limited", {}, None)
+    return FakeResponse()
+
+  monkeypatch.setattr(fw.urllib.request, "urlopen", fake_urlopen)
+  monkeypatch.setattr(fw.time, "sleep", lambda _seconds: None)
+  monkeypatch.setattr(fw, "REQUEST_INTERVAL_SECONDS", 0)
+  monkeypatch.setattr(fw, "MAX_REQUEST_ATTEMPTS", 2)
+
+  request = fw.urllib.request.Request("https://example.test")
+
+  assert fw.request_bytes(request, timeout=1) == b"ok"
+  assert attempts == 2
 
 
 def test_license_allowed_accepts_only_clear_free_commons_licenses() -> None:
@@ -224,6 +258,9 @@ def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
     "soviet_war_memorial_tiergarten": (
       "File:Sowjetisches Ehrenmal Tiergarten Berlin.jpg"
     ),
+    "swiss_embassy": "File:Berlin Schweizerische Botschaft.jpg",
+    "quadriga_brandenburger_tor": "File:Quadriga Brandenburger Tor.JPG",
+    "unity_flag_reichstag": "File:Berlin Reichstag at night 1.jpg",
   }
 
   assert all(
@@ -250,8 +287,11 @@ def test_committed_wikimedia_manifest_covers_expanded_reference_groups() -> None
     "hugo_preuss_bruecke",
     "hkw",
     "brandenburger_tor",
+    "quadriga_brandenburger_tor",
+    "unity_flag_reichstag",
     "holocaust_memorial",
     "memorial_homosexuals",
     "soviet_war_memorial_tiergarten",
     "tiergarten_spreebogen",
+    "swiss_embassy",
   }.issubset(present)

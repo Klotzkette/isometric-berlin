@@ -40,6 +40,8 @@ VALID_START_HERE_HTML = (
   "PREFERENCE_STORAGE_KEY; readPreferences; savePreferences; localStorage; "
   "readStartParams; paramFlag; paramChoice; imageFallbackAttempted; "
   'mapImage.addEventListener("error"; '
+  "sourceImage; landmarkScaleX; landmarkScaleY; mapImage.style.width; "
+  "stagePointToImage; placeImagePointAt; preserveStageCenter; constrainView; "
   "applyQualityImage; savedLandmarkName; restoreInitialView; initialViewState; "
   "resetView; renderQueued; lostpointercapture; resizeTimer; "
   "refitPreservingView; setTimeout(refitPreservingView, 80); "
@@ -246,6 +248,21 @@ def test_dzi_tile_failures_accepts_complete_pyramid(tmp_path: Path) -> None:
   write_tiny_dzi(tmp_path)
 
   assert release_readiness.dzi_tile_failures(tmp_path) == []
+
+
+def test_viewer_binary_size_failures_rejects_oversized_preview(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_binary_size", "scripts/check_release_readiness.py"
+  )
+  preview = tmp_path / "overview_source.png"
+  with preview.open("wb") as stream:
+    stream.truncate(release_readiness.MAX_REPOSITORY_BINARY_BYTES + 1)
+
+  failures = release_readiness.viewer_binary_size_failures(tmp_path)
+
+  assert len(failures) == 1
+  assert "overview_source.png" in failures[0]
+  assert "exceeds 5 MiB" in failures[0]
 
 
 def test_dzi_tile_failures_require_tile_directory(tmp_path: Path) -> None:

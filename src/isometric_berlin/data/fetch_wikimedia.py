@@ -12,18 +12,23 @@ import html
 import json
 import re
 import textwrap
+import time
 import unicodedata
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError
 
 from PIL import Image, ImageDraw, ImageFont
 
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
 COMMONS_FILE_URL = "https://commons.wikimedia.org/wiki/"
 USER_AGENT = "isometric-berlin/0.1 (+https://github.com/Klotzkette/isometric-berlin)"
+REQUEST_INTERVAL_SECONDS = 0.45
+MAX_REQUEST_ATTEMPTS = 6
+_last_request_started = 0.0
 LANDMARK_QUERIES: dict[str, list[str]] = {
   "reichstag": [
     "Reichstagsgebäude Berlin exterior",
@@ -116,6 +121,14 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "brandenburger_tor": [
     "Brandenburger Tor Berlin Pariser Platz",
   ],
+  "quadriga_brandenburger_tor": [
+    "Quadriga Brandenburger Tor Berlin close up",
+    "Brandenburger Tor mit Quadriga Berlin",
+  ],
+  "unity_flag_reichstag": [
+    "Fahne der Einheit Reichstag Berlin",
+    "Flagge der Einheit Platz der Republik Berlin",
+  ],
   "pariser_platz": [
     "Pariser Platz Berlin Brandenburger Tor",
     "Berlin Pariser Platz Brandenburger Tor",
@@ -128,6 +141,11 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   "us_embassy": [
     "United States Embassy Berlin Pariser Platz",
     "Amerikanische Botschaft Berlin Pariser Platz",
+  ],
+  "swiss_embassy": [
+    "Swiss Embassy Berlin exterior",
+    "Schweizerische Botschaft Berlin Otto-von-Bismarck-Allee",
+    "Berlin Schweizerische Botschaft",
   ],
   "holocaust_memorial": [
     "Denkmal für die ermordeten Juden Europas Berlin",
@@ -235,12 +253,23 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
     "scheidemann",
   ),
   "brandenburger_tor": ("brandenburger",),
+  "quadriga_brandenburger_tor": ("quadriga", "brandenburger-tor-mit-quadriga"),
+  "unity_flag_reichstag": (
+    "fahne-der-einheit",
+    "flagge-der-einheit",
+    "reichstag-at-night",
+  ),
   "pariser_platz": ("pariser-platz",),
   "max_liebermann_haus": (
     "maxliebermannhaus",
     "max-liebermann-haus",
   ),
   "us_embassy": ("embassy", "botschaft", "amerikanische", "united-states"),
+  "swiss_embassy": (
+    "swiss-embassy",
+    "schweizerische-botschaft",
+    "schweiz-botschaft",
+  ),
   "holocaust_memorial": (
     "denkmal-fur-die-ermordeten-juden",
     "memorial-to-the-murdered-jews",
@@ -340,6 +369,7 @@ EXCLUDED_TITLE_TERMS = (
 )
 TITLE_EXCLUSION_ALLOWLIST: dict[str, tuple[str, ...]] = {
   "reichstag_dome_interior": ("interior", "innen"),
+  "unity_flag_reichstag": ("night", "nachts"),
 }
 TITLE_YEAR_ALLOWLIST = frozenset({"poland_memorial"})
 HISTORIC_YEAR_RE = re.compile(r"(?<!\d)(?:18|19)\d{2}(?!\d)")
@@ -361,13 +391,35 @@ class WikimediaImage:
   description: str
 
 
+def request_bytes(request: urllib.request.Request, *, timeout: int) -> bytes:
+  """Read one Commons URL with a polite interval and bounded 429 retry."""
+  global _last_request_started
+  for attempt in range(MAX_REQUEST_ATTEMPTS):
+    wait = REQUEST_INTERVAL_SECONDS - (time.monotonic() - _last_request_started)
+    if wait > 0:
+      time.sleep(wait)
+    _last_request_started = time.monotonic()
+    try:
+      with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+    except HTTPError as exc:
+      if exc.code != 429 or attempt == MAX_REQUEST_ATTEMPTS - 1:
+        raise
+      retry_after = exc.headers.get("Retry-After")
+      try:
+        delay = float(retry_after) if retry_after else 0.0
+      except ValueError:
+        delay = 0.0
+      time.sleep(max(delay, min(30.0, 2.0**attempt)))
+  raise RuntimeError("Commons request retry loop exhausted")
+
+
 def request_json(params: dict[str, str | int]) -> dict[str, Any]:
   query = urllib.parse.urlencode({**params, "format": "json", "formatversion": "2"})
   request = urllib.request.Request(
     f"{COMMONS_API}?{query}", headers={"User-Agent": USER_AGENT}
   )
-  with urllib.request.urlopen(request, timeout=30) as response:
-    return json.loads(response.read().decode("utf-8"))
+  return json.loads(request_bytes(request, timeout=30).decode("utf-8"))
 
 
 def text_meta(metadata: dict[str, Any], key: str) -> str:
@@ -487,8 +539,7 @@ def title_suitable(landmark_id: str, title: str) -> bool:
 
 def download_thumbnail(image: WikimediaImage, path: Path) -> None:
   request = urllib.request.Request(image.thumb_url, headers={"User-Agent": USER_AGENT})
-  with urllib.request.urlopen(request, timeout=45) as response:
-    data = response.read()
+  data = request_bytes(request, timeout=45)
   path.parent.mkdir(parents=True, exist_ok=True)
   path.write_bytes(data)
 

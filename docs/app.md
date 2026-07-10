@@ -25,6 +25,20 @@ toolbar, or press `?`) listing the shortcuts: `←`/`→` previous/next
 landmark, `Space` start/pause the tour, `+`/`=`/`−` zoom, `Home`/`0`
 overview, `L` copy a view link, `Esc` close overlays.
 
+Mouse users can Shift-drag horizontally for continuous rotation while ordinary
+drag remains pan. On touch screens one finger pans and a two-finger gesture
+combines pinch zoom, pan and twist rotation. At phone widths the landmark rail
+starts closed, opens from the list icon, closes after selection and leaves the
+safe-area-aware bottom control strip available without covering the map.
+
+The downloadable `START-HERE.html` uses a separate zero-server camera. It
+normalizes the 16384×11616 landmark payload into the 2157×1529 SVG overlay
+coordinate system, applies an invertible pan/scale/skew/rotate transform, keeps
+the stage centre stable through zoom and swivel, and constrains the transformed
+corners so the map cannot be lost completely outside the viewport. Desktop
+stage height is fixed to the viewport; below 850 px the map uses 58dvh and the
+controls scroll independently in the remaining 42dvh.
+
 ## Shareable view links
 
 The link button in the top toolbar copies the current landmark,

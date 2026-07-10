@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   PEN_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
+  rotationDeltaFromMouseDrag,
   rotationDeltaFromTouchPairs,
   snapRotationToCardinals,
 } from "../src/viewerGestures";
@@ -40,5 +41,10 @@ describe("touch viewer gestures", () => {
 
     expect(snapRotationToCardinals(299.9, cardinals)).toBeCloseTo(296.565);
     expect(snapRotationToCardinals(301, cardinals)).toBeCloseTo(301);
+  });
+
+  test("turns a deliberate shift-drag into a controlled free rotation", () => {
+    expect(rotationDeltaFromMouseDrag(100)).toBeCloseTo(28);
+    expect(rotationDeltaFromMouseDrag(-50)).toBeCloseTo(-14);
   });
 });

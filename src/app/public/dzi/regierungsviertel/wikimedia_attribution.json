@@ -4,30 +4,30 @@
   "records": [
     {
       "landmark_id": "reichstag",
-      "title": "File:Glaskuppel des Reichstagsgebäude Deutscher Bundestag Berlin.JPG",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AGlaskuppel_des_Reichstagsgeb%C3%A4ude_Deutscher_Bundestag_Berlin.JPG",
-      "license": "Public domain",
-      "license_url": "",
-      "artist": "Schlaier",
+      "title": "File:Reichstagsgebäude November 2013.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_November_2013.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Arild Vågen",
       "credit": "Own work"
     },
     {
       "landmark_id": "reichstag",
-      "title": "File:Reichstagsgebäude - Nordansicht ( Mitte ).jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_-_Nordansicht_%28_Mitte_%29.jpg",
+      "title": "File:Reichstagsgebäude November 2013 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_November_2013_01.jpg",
       "license": "CC BY-SA 3.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "artist": "Heinzi",
+      "artist": "Arild Vågen",
       "credit": "Own work"
     },
     {
       "landmark_id": "reichstag",
-      "title": "File:Reichstagsgebäude - Nordansicht ( Links - Ecke - Bogenfenster ).jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagsgeb%C3%A4ude_-_Nordansicht_%28_Links_-_Ecke_-_Bogenfenster_%29.jpg",
-      "license": "CC BY-SA 3.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "artist": "Heinzi",
-      "credit": "Own work"
+      "title": "File:BERLIN Reichstagsgebäude - panoramio.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABERLIN_Reichstagsgeb%C3%A4ude_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "fotogoocom",
+      "credit": "https://web.archive.org/web/20161027204538/http://www.panoramio.com/photo/103784844"
     },
     {
       "landmark_id": "bundeskanzleramt",
@@ -55,6 +55,114 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
       "artist": "Warburg",
       "credit": "Own work"
+    },
+    {
+      "landmark_id": "tipi_am_kanzleramt",
+      "title": "File:Tipi am Kanzleramt.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ATipi_am_Kanzleramt.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Shisma",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "tipi_am_kanzleramt",
+      "title": "File:Tipi am Kanzleramt II.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ATipi_am_Kanzleramt_II.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Wilhelmy",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "tipi_am_kanzleramt",
+      "title": "File:Berlin-Tiergarten, das Theater TIPI, Blick zum Carillon.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin-Tiergarten%2C_das_Theater_TIPI%2C_Blick_zum_Carillon.JPG",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Dguendel",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "chillida_berlin_sculpture",
+      "title": "File:Bundeskanzleramt Berlin 3.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABundeskanzleramt_Berlin_3.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "artist": "Sebastian Bergmann",
+      "credit": "originally posted to Flickr as Bundeskanzleramt"
+    },
+    {
+      "landmark_id": "chillida_berlin_sculpture",
+      "title": "File:Bundeskanzleramt - Berlin - Deutschland - Germany - 04.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABundeskanzleramt_-_Berlin_-_Deutschland_-_Germany_-_04.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Norbert Nagel",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "chillida_berlin_sculpture",
+      "title": "File:Bundeskanzleramt - Berlin - Deutschland - Germany - 08.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABundeskanzleramt_-_Berlin_-_Deutschland_-_Germany_-_08.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Norbert Nagel",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "kanzlergarten",
+      "title": "File:Bundeskanzleramt Berlin June 2007 016.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABundeskanzleramt_Berlin_June_2007_016.jpg",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Gryffindor",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "kanzlergarten",
+      "title": "File:Bundeskanzleramt (Berlin)0508.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABundeskanzleramt_%28Berlin%290508.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "MaryG90",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "kanzlergarten",
+      "title": "File:Besucher im Kanzlergarten, August 2017.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABesucher_im_Kanzlergarten%2C_August_2017.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Mutter Erde",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "carillon_tiergarten",
+      "title": "File:Berlin Tiergarten Carillon.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Tiergarten_Carillon.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Nikolai Schwerg",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "carillon_tiergarten",
+      "title": "File:Carillon Berlin Tiergarten 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ACarillon_Berlin_Tiergarten_2.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Manfred Brueckels Permission:PD-self",
+      "credit": "Self-photographed"
+    },
+    {
+      "landmark_id": "carillon_tiergarten",
+      "title": "File:Carillon Berlin Tiergarten 4.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ACarillon_Berlin_Tiergarten_4.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Manfred Brueckels Permission:PD-self",
+      "credit": "Self-photographed"
     },
     {
       "landmark_id": "paul_loebe_haus",
@@ -165,6 +273,60 @@
       "credit": "Own work"
     },
     {
+      "landmark_id": "rahel_hirsch_strasse",
+      "title": "File:Rahel-Hirsch-Straße.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ARahel-Hirsch-Stra%C3%9Fe.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Bodo müller",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "rahel_hirsch_strasse",
+      "title": "File:Rahel-Hirsch-Schule Peter-Weiss-Gasse sculpture by Per Kirkeby Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ARahel-Hirsch-Schule_Peter-Weiss-Gasse_sculpture_by_Per_Kirkeby_Berlin.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Singlespeedfahrer",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "rahel_hirsch_strasse",
+      "title": "File:Rahel-Hirsch-Straße Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ARahel-Hirsch-Stra%C3%9Fe_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Lukas Beck",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "zollpackhof",
+      "title": "File:Zollpackhof-Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AZollpackhof-Berlin.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Schibo",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "zollpackhof",
+      "title": "File:Packhof Berlin-Moabit.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3APackhof_Berlin-Moabit.jpg",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Otto Günther-Naumburg",
+      "credit": "Unknown source Unknown source"
+    },
+    {
+      "landmark_id": "zollpackhof",
+      "title": "File:Zollpackhof Berlin 2024-05-09 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AZollpackhof_Berlin_2024-05-09_01.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Leonhard Lenz",
+      "credit": "Own work"
+    },
+    {
       "landmark_id": "gustav_heinemann_bruecke",
       "title": "File:Gustav-Heinemann-Brücke.JPG",
       "page_url": "https://commons.wikimedia.org/wiki/File%3AGustav-Heinemann-Br%C3%BCcke.JPG",
@@ -220,29 +382,29 @@
     },
     {
       "landmark_id": "moltkebruecke",
-      "title": "File:Moltkebrücke vor Berliner Hauptbahnhof.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AMoltkebr%C3%BCcke_vor_Berliner_Hauptbahnhof.jpg",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Beek100",
+      "title": "File:Berlin Moltkebrücke 002.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Moltkebr%C3%BCcke_002.JPG",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Janericloebe",
       "credit": "Own work"
     },
     {
       "landmark_id": "moltkebruecke",
-      "title": "File:Moltkebrücke in Berlin, Kinder in römischer Soldatenkleidung.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AMoltkebr%C3%BCcke_in_Berlin%2C_Kinder_in_r%C3%B6mischer_Soldatenkleidung.jpg",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Beek100",
-      "credit": "Own work"
-    },
-    {
-      "landmark_id": "moltkebruecke",
-      "title": "File:Moltkebrücke section from Spree River 1.JPG",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AMoltkebr%C3%BCcke_section_from_Spree_River_1.JPG",
+      "title": "File:Bridge dragon - Brückendrache der Moltkebrücke - Berlin - Germany - 01a.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABridge_dragon_-_Br%C3%BCckendrache_der_Moltkebr%C3%BCcke_-_Berlin_-_Germany_-_01a.jpg",
       "license": "CC BY-SA 3.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "artist": "BrokenSphere",
+      "artist": "Norbert Nagel",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "moltkebruecke",
+      "title": "File:Bridge dragon - Brückendrache der Moltkebrücke - Berlin - Germany - 02a.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABridge_dragon_-_Br%C3%BCckendrache_der_Moltkebr%C3%BCcke_-_Berlin_-_Germany_-_02a.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Norbert Nagel",
       "credit": "Own work"
     },
     {
@@ -273,6 +435,60 @@
       "credit": "Own work"
     },
     {
+      "landmark_id": "reichstag_dome_interior",
+      "title": "File:Detail, Reichstag dome (II) (4209915704).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ADetail%2C_Reichstag_dome_%28II%29_%284209915704%29.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "artist": "BriYYZ from Toronto, Canada",
+      "credit": "Detail, Reichstag dome (II)"
+    },
+    {
+      "landmark_id": "reichstag_dome_interior",
+      "title": "File:View of the Plenary Chamber of the Bundestag from the Dome of the Reichstag. (4209149129).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AView_of_the_Plenary_Chamber_of_the_Bundestag_from_the_Dome_of_the_Reichstag._%284209149129%29.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "artist": "BriYYZ from Toronto, Canada",
+      "credit": "View of the Plenary Chamber of the Bundestag from the Dome of the Reichstag."
+    },
+    {
+      "landmark_id": "reichstag_dome_interior",
+      "title": "File:Detail, Reichstag dome (4209150839).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ADetail%2C_Reichstag_dome_%284209150839%29.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "artist": "BriYYZ from Toronto, Canada",
+      "credit": "Detail, Reichstag dome"
+    },
+    {
+      "landmark_id": "reichstag_forecourt",
+      "title": "File:Reichstag building Berlin view from west before sunset.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstag_building_Berlin_view_from_west_before_sunset.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Jürgen Matern",
+      "credit": "Own work (JMatern_071104_8454-8458_WC.jpg)"
+    },
+    {
+      "landmark_id": "reichstag_forecourt",
+      "title": "File:Reichstag desde la Platz der Republik 03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstag_desde_la_Platz_der_Republik_03.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Sahaquiel9102",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "reichstag_forecourt",
+      "title": "File:Reichstag desde la Platz der Republik 02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstag_desde_la_Platz_der_Republik_02.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Sahaquiel9102",
+      "credit": "Own work"
+    },
+    {
       "landmark_id": "brandenburger_tor",
       "title": "File:Berlin Brandenburger Tor BW 5.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Brandenburger_Tor_BW_5.jpg",
@@ -300,6 +516,60 @@
       "credit": "Own work"
     },
     {
+      "landmark_id": "quadriga_brandenburger_tor",
+      "title": "File:Brandenburg gate sunset quadriga.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburg_gate_sunset_quadriga.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "No machine-readable author provided. Bdk assumed (based on copyright claims).",
+      "credit": "No machine-readable source provided. Own work assumed (based on copyright claims)."
+    },
+    {
+      "landmark_id": "quadriga_brandenburger_tor",
+      "title": "File:Restored quadriga atop Brandenburg Gate.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ARestored_quadriga_atop_Brandenburg_Gate.jpg",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "artist": "Karl-Ludwig Poggemann from Germany",
+      "credit": "restored quadriga atop Brandenburg Gate ►pale-verdigris gateway build-up (“horses'-herma”) in gloomy night◄ Uploaded by Gary Dee"
+    },
+    {
+      "landmark_id": "quadriga_brandenburger_tor",
+      "title": "File:Brandenburger Tor mit Quadriga.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburger_Tor_mit_Quadriga.jpg",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Schlaier",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "unity_flag_reichstag",
+      "title": "File:Berlin Reichstag at night 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Reichstag_at_night_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Aconcagua",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "unity_flag_reichstag",
+      "title": "File:Flagge der Einheit vor dem Reichstag.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AFlagge_der_Einheit_vor_dem_Reichstag.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Der Hausgeist",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "unity_flag_reichstag",
+      "title": "File:2004-12 Fahnenmast Flagge der Einheit Reichstag Berlin 2v2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3A2004-12_Fahnenmast_Flagge_der_Einheit_Reichstag_Berlin_2v2.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Sir James",
+      "credit": "Own work"
+    },
+    {
       "landmark_id": "pariser_platz",
       "title": "File:Berlin, Pariser Platz zum Brandenburger Tor 2014-07.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin%2C_Pariser_Platz_zum_Brandenburger_Tor_2014-07.jpg",
@@ -310,17 +580,17 @@
     },
     {
       "landmark_id": "pariser_platz",
-      "title": "File:Brandenburger Tor am Pariser Platz - panoramio.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABrandenburger_Tor_am_Pariser_Platz_-_panoramio.jpg",
-      "license": "CC BY 3.0",
-      "license_url": "https://creativecommons.org/licenses/by/3.0",
-      "artist": "fotogoocom",
-      "credit": "https://web.archive.org/web/20161030235831/http://www.panoramio.com/photo/123023930"
+      "title": "File:Pariser Platz am Brandenburger Tor in Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3APariser_Platz_am_Brandenburger_Tor_in_Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fronl",
+      "credit": "Own work"
     },
     {
       "landmark_id": "pariser_platz",
-      "title": "File:Pariser Platz am Brandenburger Tor in Berlin.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3APariser_Platz_am_Brandenburger_Tor_in_Berlin.jpg",
+      "title": "File:Pariser Platz am Brandenburger Tor in Berlin 2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3APariser_Platz_am_Brandenburger_Tor_in_Berlin_2.jpg",
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "artist": "Fronl",
@@ -346,15 +616,6 @@
     },
     {
       "landmark_id": "us_embassy",
-      "title": "File:Embassy usa berlin north-side.JPG",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AEmbassy_usa_berlin_north-side.JPG",
-      "license": "CC BY-SA 3.0",
-      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
-      "artist": "De-okin ( talk ) 05:57, 31 July 2008 (UTC)",
-      "credit": "sefmade"
-    },
-    {
-      "landmark_id": "us_embassy",
       "title": "File:US Amerikanische Botschaft Berlin Embassy of the United States in Berlin.JPG",
       "page_url": "https://commons.wikimedia.org/wiki/File%3AUS_Amerikanische_Botschaft_Berlin_Embassy_of_the_United_States_in_Berlin.JPG",
       "license": "Public domain",
@@ -372,6 +633,42 @@
       "credit": "From this image at geo-en.hlipp.de ; transferred by User:oxyman using geograph_org2commons ."
     },
     {
+      "landmark_id": "us_embassy",
+      "title": "File:Berlin Jun 2012 020 (United States Embassy).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Jun_2012_020_%28United_States_Embassy%29.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Michael Barera",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "swiss_embassy",
+      "title": "File:Schweizerische Botschaft Berlin 02.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASchweizerische_Botschaft_Berlin_02.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Denis Apel",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "swiss_embassy",
+      "title": "File:Schweizerische Botschaft Berlin 01.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASchweizerische_Botschaft_Berlin_01.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Denis Apel",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "swiss_embassy",
+      "title": "File:Berlin - Schweizerische Botschaft.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_-_Schweizerische_Botschaft.jpg",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "artist": "Fred Romero from Paris, France",
+      "credit": "Berlin - Schweizerische Botschaft"
+    },
+    {
       "landmark_id": "holocaust_memorial",
       "title": "File:Denkmal für die ermordeten Juden Europas .jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ADenkmal_f%C3%BCr_die_ermordeten_Juden_Europas_.jpg",
@@ -382,17 +679,17 @@
     },
     {
       "landmark_id": "holocaust_memorial",
-      "title": "File:Denkmal für die ermordeten Juden Europas, Berlin 2011 01.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ADenkmal_f%C3%BCr_die_ermordeten_Juden_Europas%2C_Berlin_2011_01.jpg",
-      "license": "CC BY 2.0",
-      "license_url": "https://creativecommons.org/licenses/by/2.0",
-      "artist": "jimmyweee",
-      "credit": "Berlin"
+      "title": "File:Berlin, Denkmal für die ermordeten Juden Europas -- 2011 -- 2413.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin%2C_Denkmal_f%C3%BCr_die_ermordeten_Juden_Europas_--_2011_--_2413.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Dietmar Rabich",
+      "credit": "Self-photographed"
     },
     {
       "landmark_id": "holocaust_memorial",
-      "title": "File:Berlin, Denkmal für die ermordeten Juden Europas -- 2011 -- 2413.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin%2C_Denkmal_f%C3%BCr_die_ermordeten_Juden_Europas_--_2011_--_2413.jpg",
+      "title": "File:Berlin, Denkmal für die ermordeten Juden Europas -- 2011 -- 2415.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin%2C_Denkmal_f%C3%BCr_die_ermordeten_Juden_Europas_--_2011_--_2415.jpg",
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "artist": "Dietmar Rabich",
@@ -418,12 +715,39 @@
     },
     {
       "landmark_id": "memorial_homosexuals",
-      "title": "File:Memorial to Homosexuals Persecuted Under Nazism (15323121606).jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AMemorial_to_Homosexuals_Persecuted_Under_Nazism_%2815323121606%29.jpg",
-      "license": "CC BY 2.0",
-      "license_url": "https://creativecommons.org/licenses/by/2.0",
-      "artist": "Tony Webster from Portland, Oregon, United States",
-      "credit": "Memorial to Homosexuals Persecuted Under Nazism"
+      "title": "File:Memorial to Homosexuals persecuted under Nazism-Tiergarten park-Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AMemorial_to_Homosexuals_persecuted_under_Nazism-Tiergarten_park-Berlin.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Yair Haklai",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "jehovahs_witnesses_memorial",
+      "title": "File:Stele Großer Tiergarten (Tierg) Mahnmal Zeugen Jehovas&Matthias Leeck&2026.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AStele_Gro%C3%9Fer_Tiergarten_%28Tierg%29_Mahnmal_Zeugen_Jehovas%26Matthias_Leeck%262026.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "OTFW , Berlin",
+      "credit": "Self-photographed"
+    },
+    {
+      "landmark_id": "jehovahs_witnesses_memorial",
+      "title": "File:Stele Großer Tiergarten (Tierg) Mahnmal Zeugen Jehovas&Matthias Leeck&20262.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AStele_Gro%C3%9Fer_Tiergarten_%28Tierg%29_Mahnmal_Zeugen_Jehovas%26Matthias_Leeck%2620262.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "OTFW , Berlin",
+      "credit": "Self-photographed"
+    },
+    {
+      "landmark_id": "jehovahs_witnesses_memorial",
+      "title": "File:Stele Großer Tiergarten (Tierg) Mahnmal Zeugen Jehovas&Matthias Leeck&20263.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AStele_Gro%C3%9Fer_Tiergarten_%28Tierg%29_Mahnmal_Zeugen_Jehovas%26Matthias_Leeck%2620263.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "OTFW , Berlin",
+      "credit": "Self-photographed"
     },
     {
       "landmark_id": "sinti_roma_memorial",
@@ -454,29 +778,56 @@
     },
     {
       "landmark_id": "beethoven_haydn_mozart_memorial",
-      "title": "File:Haydn from the Beethoven-Haydn-Mozart monument at tiergarden.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AHaydn_from_the_Beethoven-Haydn-Mozart_monument_at_tiergarden.jpg",
+      "title": "File:Beethoven-Haydn-Mozart Memorial, Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABeethoven-Haydn-Mozart_Memorial%2C_Berlin.jpg",
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Jespa",
+      "artist": "MrPanyGoff",
       "credit": "Own work"
     },
     {
       "landmark_id": "beethoven_haydn_mozart_memorial",
-      "title": "File:Beethoven from the Beethoven-Haydn-Mozart monument at tiergarden.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3ABeethoven_from_the_Beethoven-Haydn-Mozart_monument_at_tiergarden.jpg",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Jespa",
+      "title": "File:Beethoven - Beethoven-Haydn-Mozart-Denkmal - Berlin, Germany - DSC09441.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABeethoven_-_Beethoven-Haydn-Mozart-Denkmal_-_Berlin%2C_Germany_-_DSC09441.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Daderot",
       "credit": "Own work"
     },
     {
       "landmark_id": "beethoven_haydn_mozart_memorial",
-      "title": "File:Mozart from the Beethoven-Haydn-Mozart monument at tiergarden.jpg",
-      "page_url": "https://commons.wikimedia.org/wiki/File%3AMozart_from_the_Beethoven-Haydn-Mozart_monument_at_tiergarden.jpg",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "artist": "Jespa",
+      "title": "File:Beethoven - Beethoven-Haydn-Mozart-Denkmal - Berlin, Germany - DSC09442.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABeethoven_-_Beethoven-Haydn-Mozart-Denkmal_-_Berlin%2C_Germany_-_DSC09442.JPG",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Daderot",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "venusteich_goldfischteich",
+      "title": "File:Berlin - Goldfischteich (Tiergarten).03867.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_-_Goldfischteich_%28Tiergarten%29.03867.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Franz Richter ( User:FRZ ), permission granted",
+      "credit": "own work (taken with Sony Ericsson W810i)"
+    },
+    {
+      "landmark_id": "venusteich_goldfischteich",
+      "title": "File:Goldfischteich (Großer Tiergarten) - Berlin, Germany - DSC09426.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AGoldfischteich_%28Gro%C3%9Fer_Tiergarten%29_-_Berlin%2C_Germany_-_DSC09426.JPG",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Daderot",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "venusteich_goldfischteich",
+      "title": "File:Goldfischteich (Großer Tiergarten) - Berlin, Germany - DSC09432.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AGoldfischteich_%28Gro%C3%9Fer_Tiergarten%29_-_Berlin%2C_Germany_-_DSC09432.JPG",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Daderot",
       "credit": "Own work"
     },
     {
@@ -504,6 +855,33 @@
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "artist": "Photograph by Mike Peel ( www.mikepeel.net ).",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "luiseninsel",
+      "title": "File:Berlin Tiergarten Luiseninsel.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Tiergarten_Luiseninsel.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brückels",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "luiseninsel",
+      "title": "File:Königin Luise - Luiseninsel, Tiergarten.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AK%C3%B6nigin_Luise_-_Luiseninsel%2C_Tiergarten.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Tat2bln",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "luiseninsel",
+      "title": "File:Koenigin Luise.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AKoenigin_Luise.jpg",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "artist": "Miriam Guterland",
       "credit": "Own work"
     },
     {

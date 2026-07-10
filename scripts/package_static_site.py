@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.1.61"
+PACKAGE_VERSION = "0.1.62"
 SERVE_SCRIPT_NAME = "serve-local.py"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
@@ -204,11 +204,13 @@ START_HERE_HTML = """<!doctype html>
     .shell {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 336px;
-      min-height: 100vh;
-      min-height: 100dvh;
+      height: 100vh;
+      height: 100dvh;
     }
     .stage {
       position: relative;
+      min-width: 0;
+      min-height: 0;
       overflow: hidden;
       background:
         linear-gradient(180deg, rgba(255, 252, 236, .09), transparent 22%),
@@ -250,7 +252,7 @@ START_HERE_HTML = """<!doctype html>
       top: 0;
       width: 2157px;
       height: 1529px;
-      transform-origin: 50% 50%;
+      transform-origin: 0 0;
       transform-style: preserve-3d;
       contain: layout paint style;
       will-change: transform;
@@ -280,6 +282,8 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       pointer-events: none;
       overflow: visible;
+      opacity: .3;
+      transition: opacity .18s ease, filter .18s ease;
     }
     .night-light-overlay {
       position: absolute;
@@ -577,6 +581,7 @@ START_HERE_HTML = """<!doctype html>
       stroke-width: .7;
     }
     body[data-under="true"] .tunnel-overlay {
+      opacity: 1;
       filter: drop-shadow(0 0 18px rgba(247, 215, 122, .42));
     }
     .tunnel-under-glow {
@@ -713,16 +718,16 @@ START_HERE_HTML = """<!doctype html>
       position: absolute;
       left: 0;
       top: 0;
-      width: 86px;
-      height: 86px;
-      margin-left: -43px;
-      margin-top: -43px;
+      width: 38px;
+      height: 38px;
+      margin-left: -19px;
+      margin-top: -19px;
       border: 2px solid var(--gold);
       border-radius: 50%;
       box-shadow:
         0 0 0 1px rgba(16, 22, 22, .55),
-        0 0 0 12px rgba(241, 200, 75, .15),
-        0 0 28px rgba(31, 138, 165, .42);
+        0 0 0 7px rgba(241, 200, 75, .15),
+        0 0 20px rgba(31, 138, 165, .42);
       pointer-events: none;
       opacity: .94;
       transform: scale(1);
@@ -733,16 +738,16 @@ START_HERE_HTML = """<!doctype html>
       content: "";
       position: absolute;
       inset: 50%;
-      width: 116px;
+      width: 58px;
       height: 1px;
-      margin-left: -58px;
+      margin-left: -29px;
       background: rgba(241, 200, 75, .74);
     }
     .focus-ring::after {
       width: 1px;
-      height: 116px;
+      height: 58px;
       margin-left: 0;
-      margin-top: -58px;
+      margin-top: -29px;
     }
     @keyframes focusPulse {
       0%, 100% { transform: scale(.96); opacity: .82; }
@@ -843,13 +848,14 @@ START_HERE_HTML = """<!doctype html>
     }
     aside {
       display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      grid-template-rows: auto auto auto minmax(0, 1fr) auto;
       gap: 12px;
       padding: 16px;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 250, 240, .96)),
         var(--panel-bg);
-      min-height: 100vh;
+      min-height: 0;
+      overflow: hidden;
       color: var(--panel-ink);
       box-shadow: -14px 0 44px rgba(0, 0, 0, .18);
     }
@@ -1197,8 +1203,15 @@ START_HERE_HTML = """<!doctype html>
   <script>
     const payload = __LANDMARK_PAYLOAD__;
     const tunnelPayload = __TUNNEL_PAYLOAD__;
-    const image = payload.image || { width: 2157, height: 1529 };
-    const landmarks = [...(payload.landmarks || [])].sort((a, b) => {
+    const image = Object.freeze({ width: 2157, height: 1529 });
+    const sourceImage = payload.image || image;
+    const landmarkScaleX = image.width / Math.max(1, Number(sourceImage.width) || image.width);
+    const landmarkScaleY = image.height / Math.max(1, Number(sourceImage.height) || image.height);
+    const landmarks = [...(payload.landmarks || [])].map((landmark) => ({
+      ...landmark,
+      x: Number.isFinite(landmark.nx) ? landmark.nx * image.width : landmark.x * landmarkScaleX,
+      y: Number.isFinite(landmark.ny) ? landmark.ny * image.height : landmark.y * landmarkScaleY,
+    })).sort((a, b) => {
       const left = Number.isFinite(a.tourOrder) ? a.tourOrder : 1000;
       const right = Number.isFinite(b.tourOrder) ? b.tourOrder : 1000;
       return left - right || String(a.name).localeCompare(String(b.name), "de");
@@ -1545,12 +1558,74 @@ START_HERE_HTML = """<!doctype html>
       savePreferences();
       render();
     }
-    function displayY(y) {
-      return state.under ? image.height - y : y;
+    function transformedImageVector(imageX, imageY) {
+      const vertical = state.under ? -1 : 1;
+      let x = imageX * state.scale;
+      let y = imageY * state.scale * vertical;
+      x += Math.tan((state.tilt * Math.PI) / 180) * y;
+      const radians = (state.rotation * Math.PI) / 180;
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      return {
+        x: cos * x - sin * y,
+        y: sin * x + cos * y,
+      };
+    }
+    function imagePointToStage(imageX, imageY) {
+      const vector = transformedImageVector(imageX, imageY);
+      return { x: state.x + vector.x, y: state.y + vector.y };
+    }
+    function stagePointToImage(stageX, stageY) {
+      const radians = (-state.rotation * Math.PI) / 180;
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      const translatedX = stageX - state.x;
+      const translatedY = stageY - state.y;
+      let x = cos * translatedX - sin * translatedY;
+      let y = sin * translatedX + cos * translatedY;
+      x -= Math.tan((state.tilt * Math.PI) / 180) * y;
+      x /= state.scale;
+      y /= state.scale;
+      if (state.under) y *= -1;
+      return { x, y };
+    }
+    function placeImagePointAt(imageX, imageY, stageX, stageY) {
+      const vector = transformedImageVector(imageX, imageY);
+      state.x = stageX - vector.x;
+      state.y = stageY - vector.y;
+    }
+    function preserveStageCenter(update) {
+      const rect = stage.getBoundingClientRect();
+      const stageX = rect.width / 2;
+      const stageY = rect.height / 2;
+      const imagePoint = stagePointToImage(stageX, stageY);
+      update();
+      placeImagePointAt(imagePoint.x, imagePoint.y, stageX, stageY);
+    }
+    function constrainView() {
+      const rect = stage.getBoundingClientRect();
+      const corners = [
+        imagePointToStage(0, 0),
+        imagePointToStage(image.width, 0),
+        imagePointToStage(0, image.height),
+        imagePointToStage(image.width, image.height),
+      ];
+      const minX = Math.min(...corners.map((point) => point.x));
+      const maxX = Math.max(...corners.map((point) => point.x));
+      const minY = Math.min(...corners.map((point) => point.y));
+      const maxY = Math.max(...corners.map((point) => point.y));
+      const visible = Math.min(72, rect.width * 0.2, rect.height * 0.2);
+      if (maxX < visible) state.x += visible - maxX;
+      if (minX > rect.width - visible) state.x += rect.width - visible - minX;
+      if (maxY < visible) state.y += visible - maxY;
+      if (minY > rect.height - visible) state.y += rect.height - visible - minY;
     }
     function applyRender() {
+      constrainView();
       layer.style.width = `${image.width}px`;
       layer.style.height = `${image.height}px`;
+      mapImage.style.width = `${image.width}px`;
+      mapImage.style.height = `${image.height}px`;
       layer.style.transform = `translate(${state.x}px, ${state.y}px) rotate(${state.rotation}deg) skewX(${state.tilt}deg) scale(${state.scale}) scaleY(${state.under ? -1 : 1})`;
       const rotation = Math.round(((state.rotation % 360) + 360) % 360);
       const viewName = VIEW_PRESETS[state.viewKey] ? t(VIEW_PRESETS[state.viewKey].labelKey) : t("free");
@@ -1610,12 +1685,11 @@ START_HERE_HTML = """<!doctype html>
       const rect = stage.getBoundingClientRect();
       state.fitScale = Math.min(rect.width / image.width, rect.height / image.height) * 0.96;
       state.scale = state.fitScale;
-      state.x = (rect.width - image.width * state.scale) / 2;
-      state.y = (rect.height - image.height * state.scale) / 2;
       state.rotation = 0;
       state.tilt = 0;
       state.under = false;
       state.viewKey = "top";
+      placeImagePointAt(image.width / 2, image.height / 2, rect.width / 2, rect.height / 2);
       lastStageSize = { width: rect.width, height: rect.height };
       render();
     }
@@ -1623,14 +1697,16 @@ START_HERE_HTML = """<!doctype html>
       const rect = stage.getBoundingClientRect();
       const oldWidth = lastStageSize.width || rect.width;
       const oldHeight = lastStageSize.height || rect.height;
-      const oldScale = state.scale || state.fitScale || 1;
-      const centerImageX = (oldWidth / 2 - state.x) / oldScale;
-      const centerImageY = (oldHeight / 2 - state.y) / oldScale;
+      const centerImage = stagePointToImage(oldWidth / 2, oldHeight / 2);
       const zoomRatio = state.fitScale ? state.scale / state.fitScale : 1;
       state.fitScale = Math.min(rect.width / image.width, rect.height / image.height) * 0.96;
       state.scale = clampScale(state.fitScale * zoomRatio);
-      state.x = rect.width / 2 - centerImageX * state.scale;
-      state.y = rect.height / 2 - centerImageY * state.scale;
+      placeImagePointAt(
+        centerImage.x,
+        centerImage.y,
+        rect.width / 2,
+        rect.height / 2,
+      );
       lastStageSize = { width: rect.width, height: rect.height };
       render();
     }
@@ -1648,21 +1724,17 @@ START_HERE_HTML = """<!doctype html>
       const rect = stage.getBoundingClientRect();
       const cx = rect.width / 2;
       const cy = rect.height / 2;
-      const imageX = (cx - state.x) / state.scale;
-      const imageY = (cy - state.y) / state.scale;
+      const imagePoint = stagePointToImage(cx, cy);
       state.scale = clampScale(state.scale * factor);
-      state.x = cx - imageX * state.scale;
-      state.y = cy - imageY * state.scale;
+      placeImagePointAt(imagePoint.x, imagePoint.y, cx, cy);
       render();
     }
     function focusLandmark(landmark) {
       const rect = stage.getBoundingClientRect();
-      const maxScale = landmark.name === DEFAULT_FOCUS_LANDMARK ? 4.85 : 3.4;
-      const minScale = landmark.name === DEFAULT_FOCUS_LANDMARK ? 2.85 : 2.25;
+      const zoomRatio = landmark.name === DEFAULT_FOCUS_LANDMARK ? 3.6 : 2.8;
       selectedLandmarkName = landmark.name;
-      state.scale = Math.max(state.fitScale * minScale, Math.min(state.fitScale * 5.4, maxScale));
-      state.x = rect.width / 2 - landmark.x * state.scale;
-      state.y = rect.height / 2 - displayY(landmark.y) * state.scale;
+      state.scale = clampScale(state.fitScale * zoomRatio);
+      placeImagePointAt(landmark.x, landmark.y, rect.width / 2, rect.height / 2);
       savePreferences();
       render();
     }
@@ -1676,7 +1748,7 @@ START_HERE_HTML = """<!doctype html>
       if (points.length < 2) return;
       const rect = stage.getBoundingClientRect();
       const xs = points.map((point) => point.x);
-      const ys = points.map((point) => displayY(point.y));
+      const ys = points.map((point) => point.y);
       const minX = Math.min(...xs);
       const maxX = Math.max(...xs);
       const minY = Math.min(...ys);
@@ -1687,21 +1759,28 @@ START_HERE_HTML = """<!doctype html>
         state.fitScale * 1.45,
         Math.min(rect.width / (routeWidth * 1.35), rect.height / (routeHeight * 1.35), state.fitScale * 4.8)
       );
-      state.x = rect.width / 2 - ((minX + maxX) / 2) * state.scale;
-      state.y = rect.height / 2 - ((minY + maxY) / 2) * state.scale;
+      placeImagePointAt(
+        (minX + maxX) / 2,
+        (minY + maxY) / 2,
+        rect.width / 2,
+        rect.height / 2,
+      );
       selectedLandmarkName = "Kemperplatz / Tiergartentunnel";
       savePreferences();
       render();
     }
     function setUnderView(enabled) {
-      state.under = enabled;
       if (enabled) {
+        state.under = true;
         state.rotation = 180;
         state.tilt = 22;
         state.viewKey = "free";
         focusTunnelRoute();
         return;
       }
+      preserveStageCenter(() => {
+        state.under = false;
+      });
       savePreferences();
       render();
     }
@@ -1715,13 +1794,17 @@ START_HERE_HTML = """<!doctype html>
       render();
     }
     function rotateBy(delta) {
-      state.rotation = ((state.rotation + delta) % 360 + 360) % 360;
+      preserveStageCenter(() => {
+        state.rotation = ((state.rotation + delta) % 360 + 360) % 360;
+      });
       state.viewKey = "free";
       savePreferences();
       render();
     }
     function tiltBy(delta) {
-      state.tilt = Math.max(-28, Math.min(28, state.tilt + delta));
+      preserveStageCenter(() => {
+        state.tilt = Math.max(-28, Math.min(28, state.tilt + delta));
+      });
       state.viewKey = "free";
       savePreferences();
       render();
@@ -1729,8 +1812,10 @@ START_HERE_HTML = """<!doctype html>
     function setViewPreset(key) {
       const preset = VIEW_PRESETS[key];
       if (!preset) return;
-      state.rotation = preset.rotation;
-      state.tilt = preset.tilt;
+      preserveStageCenter(() => {
+        state.rotation = preset.rotation;
+        state.tilt = preset.tilt;
+      });
       state.viewKey = key;
       savePreferences();
       render();
@@ -1890,9 +1975,12 @@ START_HERE_HTML = """<!doctype html>
         angle: Math.atan2(last.y - before.y, last.x - before.x) * 180 / Math.PI,
       };
     }
+    function tunnelHalfWidth(volume) {
+      return Math.max(8, (Number(volume.width_px) || 30) * 0.35);
+    }
     function addTunnelTube(points, volume) {
       if (points.length < 2) return;
-      const halfWidth = Number(volume.width_px) || 30;
+      const halfWidth = tunnelHalfWidth(volume);
       const sideInset = Number(volume.sidewall_px) || 8;
       const centerWall = Math.max(2, Number(volume.center_wall_px) || 4);
       const left = offsetPolyline(points, halfWidth);
@@ -1934,7 +2022,7 @@ START_HERE_HTML = """<!doctype html>
     }
     function addTunnelRibs(points, volume) {
       const spacing = Number(volume.ceiling_rib_spacing_px) || 54;
-      const halfWidth = Number(volume.width_px) || 30;
+      const halfWidth = tunnelHalfWidth(volume);
       const total = totalLength(points);
       for (let distance = spacing * 0.4; distance < total; distance += spacing) {
         const frame = pointFrameAtDistance(points, distance);
@@ -1948,7 +2036,7 @@ START_HERE_HTML = """<!doctype html>
       }
     }
     function addTunnelServiceBays(bays, volume) {
-      const halfWidth = Number(volume.width_px) || 30;
+      const halfWidth = tunnelHalfWidth(volume);
       bays
         .filter((bay) => Number.isFinite(bay.x) && Number.isFinite(bay.y))
         .forEach((bay) => {
@@ -1979,7 +2067,7 @@ START_HERE_HTML = """<!doctype html>
         });
     }
     function addTunnelPortals(portals, volume) {
-      const halfWidth = Number(volume.width_px) || 30;
+      const halfWidth = tunnelHalfWidth(volume);
       portals
         .filter((portal) => Number.isFinite(portal.x) && Number.isFinite(portal.y))
         .forEach((portal) => {
@@ -2268,7 +2356,7 @@ START_HERE_HTML = """<!doctype html>
     }
     function addVehicle(x, y, rotation, variant, title) {
       const group = addSceneNode("g", {
-        transform: `translate(${x} ${y}) rotate(${rotation})`,
+        transform: `translate(${x} ${y}) rotate(${rotation}) scale(.16)`,
       });
       addSvgTitle(group, title);
       addSceneNode("polygon", {
@@ -2298,7 +2386,7 @@ START_HERE_HTML = """<!doctype html>
     }
     function addIceTrain(x, y, rotation) {
       const group = addSceneNode("g", {
-        transform: `translate(${x} ${y}) rotate(${rotation})`,
+        transform: `translate(${x} ${y}) rotate(${rotation}) scale(.46)`,
       });
       addSvgTitle(group, "ICE auf einem oberen Hauptbahnhof-Gleis unter dem Glasdach");
       addSceneNode("polygon", {
@@ -2324,7 +2412,7 @@ START_HERE_HTML = """<!doctype html>
     }
     function addSbahnTrain(x, y, rotation) {
       const group = addSceneNode("g", {
-        transform: `translate(${x} ${y}) rotate(${rotation})`,
+        transform: `translate(${x} ${y}) rotate(${rotation}) scale(.3)`,
       });
       addSvgTitle(group, "Rot-gelber S-Bahn-Zug aus Richtung Friedrichstraße");
       addSceneNode("rect", {
@@ -2391,7 +2479,7 @@ START_HERE_HTML = """<!doctype html>
     }
     function addBoat(x, y, rotation) {
       const group = addSceneNode("g", {
-        transform: `translate(${x} ${y}) rotate(${rotation})`,
+        transform: `translate(${x} ${y}) rotate(${rotation}) scale(.3)`,
       });
       addSvgTitle(group, "Ausflugsdampfer auf der Spree beim Reichstag / Jakob-Kaiser-Haus");
       addSceneNode("path", {
@@ -2403,7 +2491,7 @@ START_HERE_HTML = """<!doctype html>
     }
     function addPedicab(x, y, rotation) {
       const group = addSceneNode("g", {
-        transform: `translate(${x} ${y}) rotate(${rotation})`,
+        transform: `translate(${x} ${y}) rotate(${rotation}) scale(.14)`,
       });
       addSvgTitle(group, "Rikscha / Pedicab mit Besucherinnen auf dem Pariser Platz");
       addSceneNode("rect", { class: "detail-pedicab", x: -16, y: -8, width: 34, height: 16, rx: 4 }, group);
@@ -2426,7 +2514,7 @@ START_HERE_HTML = """<!doctype html>
       addSceneNode("text", { class: "detail-label", x: -10, y: 5 }, group).textContent = text;
     }
     function addBeerGarden(x, y) {
-      const group = addSceneNode("g", { transform: `translate(${x} ${y}) rotate(-15)` });
+      const group = addSceneNode("g", { transform: `translate(${x} ${y}) rotate(-15) scale(.22)` });
       addSvgTitle(group, "Zollpackhof / Ausflugslokal an der Gustav-Heinemann-Brücke mit Liegestühlen");
       for (let row = 0; row < 2; row += 1) {
         for (let column = 0; column < 4; column += 1) {
@@ -2655,8 +2743,7 @@ START_HERE_HTML = """<!doctype html>
         angle: pointerAngle(pair),
         startScale: state.scale,
         startRotation: state.rotation,
-        imageX: (stageX - state.x) / state.scale,
-        imageY: (stageY - state.y) / state.scale,
+        imagePoint: stagePointToImage(stageX, stageY),
       };
       state.dragging = false;
       state.rotateDrag = false;
@@ -2676,8 +2763,12 @@ START_HERE_HTML = """<!doctype html>
       state.scale = clampScale(pinchGesture.startScale * factor);
       state.rotation =
         ((pinchGesture.startRotation + angleDelta) % 360 + 360) % 360;
-      state.x = stageX - pinchGesture.imageX * state.scale;
-      state.y = stageY - pinchGesture.imageY * state.scale;
+      placeImagePointAt(
+        pinchGesture.imagePoint.x,
+        pinchGesture.imagePoint.y,
+        stageX,
+        stageY,
+      );
       state.viewKey = "free";
       render();
     }
@@ -2726,8 +2817,10 @@ START_HERE_HTML = """<!doctype html>
       if (!state.dragging) return;
       event.preventDefault();
       if (state.rotateDrag) {
-        state.rotation = state.or + (event.clientX - state.sx) * 0.22;
-        state.tilt = Math.max(-28, Math.min(28, state.ot + (event.clientY - state.sy) * 0.08));
+        preserveStageCenter(() => {
+          state.rotation = state.or + (event.clientX - state.sx) * 0.22;
+          state.tilt = Math.max(-28, Math.min(28, state.ot + (event.clientY - state.sy) * 0.08));
+        });
         state.viewKey = "free";
       } else {
         state.x = state.ox + event.clientX - state.sx;

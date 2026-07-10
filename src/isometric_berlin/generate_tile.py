@@ -50,6 +50,7 @@ def pixel_art_image(
   pixel = small.resize(target_size, Image.Resampling.NEAREST)
   pixel = ImageEnhance.Sharpness(pixel).enhance(1.08)
   pixel = pixel.filter(ImageFilter.UnsharpMask(radius=0.55, percent=110, threshold=2))
+  pixel = pixel.quantize(colors=96, method=Image.Quantize.MEDIANCUT)
   output = io.BytesIO()
   pixel.save(output, format="PNG", optimize=True)
   return output.getvalue()

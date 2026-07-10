@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.1.62
+
+- Expand the verified scene from 35 to 39 landmarks with OSM-backed points for
+  the Swiss Embassy, Unity Flag, Brandenburg Gate Quadriga and Starbucks on the
+  Pariser-Platz edge; all 39 landmarks and 23 relative-placement checks pass.
+- Add 42 newly accepted free-license Wikimedia references for 110 total across
+  37 motif groups, including Swiss Embassy, Quadriga, Unity Flag, Reichstag
+  dome/interior, TIPI, Carillon, memorial, pond and forecourt evidence.
+- Make the Wikimedia fetcher resilient to Commons rate limiting with a polite
+  request interval and bounded Retry-After/exponential backoff handling.
+- Refresh the renderer with a livelier multi-hue park/water/material palette,
+  southwest-sun shadows projected toward map northeast and a visibly rising,
+  more densely ribbed Reichstag glass dome.
+- Give the Holocaust field, Homosexuals memorial, Goethe monument,
+  Beethoven/Haydn/Mozart monument and Soviet memorial distinct silhouettes;
+  add Quadriga, Unity/Reichstag/embassy flags, Pariser-Platz people and
+  stationary ICE/S-Bahn cues.
+- Load the committed Tiergartentunnel centreline into the global Deep Zoom
+  renderer, clip it to the scene and render one restrained two-tube engineering
+  cutaway with lighting, service sections and ventilation instead of drawing
+  all 13 OSM evidence carriageways as duplicate bodies.
+- Raise the direct-open offline detail fallback from 3584 to 6144 pixels while
+  retaining the full 16384×11616 DZI pyramid for deep zoom; use bounded PNG
+  palettes and enforce the 5 MiB per-file repository limit in release QA.
+- Improve phone/tablet use with a collapsible landmark rail, compact focus card,
+  safe-area-aware scrollable bottom toolbar and automatic rail close after a
+  mobile landmark selection; preserve one-finger pan and two-finger
+  pinch/pan/twist.
+- Add Shift-drag free rotation for mouse users, document the gesture in-app and
+  split React/OpenSeadragon into cacheable frontend chunks for faster reloads.
+- Repair the zero-server viewer's mixed 16K/2157 coordinate systems and camera
+  transform math, which could place a correctly loaded map outside the window;
+  preserve the stage centre through zoom/rotate/swivel/flip, constrain panning,
+  keep the desktop stage at viewport height and separate the mobile control
+  sheet from its 58dvh touch map.
+- Re-scale the local tunnel cross-section, ICE, S-Bahn, tour boat, cars,
+  pedicab and beer-garden cues to plausible map proportions and keep the full
+  tunnel engineering overlay subdued until its dedicated underside view opens.
+
 ## v0.1.61
 
 - Refresh all eight Regierungsviertel LoD2 source tiles from the official

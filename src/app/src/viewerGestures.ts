@@ -1,6 +1,7 @@
 import type OpenSeadragon from "openseadragon";
 
 export const CARDINAL_SNAP_TOLERANCE_DEGREES = 4;
+export const MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL = 0.28;
 
 export type RotatableGestureSettings = OpenSeadragon.GestureSettings & {
   pinchRotate: boolean;
@@ -60,4 +61,8 @@ export function rotationDeltaFromTouchPairs(
   const angle = (points: readonly [GesturePoint, GesturePoint]) =>
     Math.atan2(points[0].y - points[1].y, points[0].x - points[1].x);
   return normalizeRotation(((angle(current) - angle(previous)) * 180) / Math.PI);
+}
+
+export function rotationDeltaFromMouseDrag(deltaX: number): number {
+  return deltaX * MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL;
 }

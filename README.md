@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | **Open in your browser (phone/tablet/desktop)** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.61/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.1.62/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -19,11 +19,11 @@ server required for the normal case. If a browser blocks local Deep Zoom
 tiles, the ZIP also contains `serve-local.py`, `start-windows.bat`, and
 `start-linux.sh` as fallbacks.
 
-**Status:** Local v0.1.61 open-data package.
+**Status:** Local v0.1.62 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.1.61**. It is an open-data,
+The current public package is **v0.1.62**. It is an open-data,
 offline-capable viewer for the Berlin Regierungsviertel with:
 
 - refreshed official Berlin LoD2 data from March 2026: 3,315 measured
@@ -36,11 +36,33 @@ offline-capable viewer for the Berlin Regierungsviertel with:
   brighter Spree/pond water and more varied Tiergarten vegetation;
 - a genuine 16384×11616 open-data source render with a complete
   15-level Deep Zoom pyramid and overlap-safe tile boundaries;
+- a 6144-pixel offline detail fallback, up from 3584 pixels, while the hosted
+  viewer continues to use the full 16384×11616 Deep Zoom source; bounded PNG
+  palettes keep both committed fallbacks below the 5 MiB binary limit;
+- a restrained two-tube Tiergartentunnel engineering cutaway in the actual
+  DZI source, clipped to the Regierungsviertel frame and based on the committed
+  OSM-derived centreline rather than the 13 carriageways being drawn twice;
+- 39 OSM/LoD2-checked landmarks and 23 explicit relative-placement checks,
+  including Schweizerische Botschaft, Fahne der Einheit, Quadriga and the
+  mapped Starbucks on the Pariser-Platz edge;
+- 110 freely licensed Wikimedia references across 37 motif groups, with new
+  Swiss Embassy, Quadriga, Unity Flag, Reichstag interior, TIPI, Carillon,
+  memorial, pond and forecourt material/detail evidence;
+- individually recognizable Holocaust stelae, Homosexuals memorial, Goethe,
+  Beethoven/Haydn/Mozart and Soviet memorial cues, plus Reichstag/embassy
+  flags, Quadriga, Pariser-Platz people and stationary ICE/S-Bahn details;
+- southwest late-afternoon sun logic with measured-height shadows projected
+  toward map northeast instead of a generic same-direction offset;
 - large zoom, rotate, swivel, mirror and orientation controls;
 - mouse drag, arrow-key pan, and Shift/rotate-mode arrow swivel controls;
 - touchscreen support for phones and tablets, including one-finger pan,
   two-finger pinch zoom, pan and twist rotation, larger coarse-pointer
   controls and safe viewport sizing for iPhone/iPad/Android browser chrome;
+- a mobile-first collapsible landmark rail, compact focus display and a
+  horizontally scrollable bottom toolbar that leaves the map usable on narrow
+  portrait screens;
+- free mouse swivel with Shift-drag and cached frontend chunks split between
+  React, OpenSeadragon and project code for a smaller initial app payload;
 - animation-frame render throttling and resize debounce to keep drag,
   wheel zoom and window resizing responsive;
 - richer Tiergartentunnel under-surface overlay with OSM-derived
@@ -66,6 +88,12 @@ offline-capable viewer for the Berlin Regierungsviertel with:
 - a saved lightweight performance mode and resize handling that preserves
   the current focus, zoom, rotation and swivel instead of snapping back
   to the overview;
+- a repaired zero-server camera that normalizes 16K landmark coordinates to
+  the local overlay canvas, preserves the viewed point through zoom, rotate,
+  swivel and underside transforms, and prevents the map from being dragged
+  completely outside the window;
+- viewport-height desktop staging and a 58dvh mobile map with an independently
+  scrollable control sheet, verified at 390×844 without page overflow;
 - URL start parameters for support/debug starts (`lang`, `theme`, `view`,
   `profile`, `pixel`, `details`, `clouds`, `lite`) plus an image fallback
   from the detail render to the pixel render if a local browser cannot load
@@ -107,7 +135,8 @@ the packaged viewer projection is
 |---|---|
 | Federal government core | Reichstagsgebäude, Bundeskanzleramt, Paul-Löbe-Haus, Marie-Elisabeth-Lüders-Haus, Reichstagsvorfeld / Berlin-Pavillon, Platz der Republik Heckenbosquets, Kanzlergarten / Non-Violence-Skulptur |
 | Hauptbahnhof / Spree / bridges | Berlin Hauptbahnhof, Humboldthafen, Hugo-Preuß-Brücke, Rahel-Hirsch-Straße, Moltkebrücke, Gustav-Heinemann-Brücke, Spreebogen, Zollpackhof |
-| Pariser Platz and diplomatic edge | Brandenburger Tor, Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
+| Pariser Platz and diplomatic edge | Brandenburger Tor, Quadriga mit Victoria, Pariser Platz, Starbucks Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
+| Spreebogen diplomacy / civic symbols | Schweizerische Botschaft, Fahne der Einheit |
 | Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945 |
 | Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |

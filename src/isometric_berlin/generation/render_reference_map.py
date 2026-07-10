@@ -147,6 +147,13 @@ def sort_landmarks_for_reference(landmarks: gpd.GeoDataFrame) -> gpd.GeoDataFram
   return ordered.drop(columns=["_tour_order", "_source_order"])
 
 
+def legend_grid(item_count: int) -> tuple[int, int]:
+  """Return columns and rows that keep the full legend inside the canvas."""
+  columns = 2 if item_count > 30 else 1
+  rows = (item_count + columns - 1) // columns
+  return columns, rows
+
+
 def draw_polygon_layer(
   draw: ImageDraw.ImageDraw,
   gdf: gpd.GeoDataFrame,
@@ -246,7 +253,7 @@ def draw_legend(
   left = width - legend_width
   draw.rectangle((left, 0, width, height), fill=LEGEND_BACKGROUND)
   title_font = font(24, bold=True)
-  body_font = font(17)
+  body_font = font(15)
   small_font = font(14)
   marker_font = font(11, bold=True)
   draw.text((left + 28, 28), "Top-down reference", fill=LEGEND_TEXT, font=title_font)
@@ -256,11 +263,18 @@ def draw_legend(
     fill=LEGEND_MUTED,
     font=small_font,
   )
-  y = 104
+  columns, rows = legend_grid(len(landmarks))
+  column_width = (legend_width - 32) // columns
+  row_height = 48 if columns > 1 else 34
   for index, (_, row) in enumerate(landmarks.iterrows(), start=1):
-    marker_x = left + 40
+    zero_index = index - 1
+    column = zero_index // rows
+    row_index = zero_index % rows
+    column_left = left + 16 + column * column_width
+    y = 104 + row_index * row_height
+    marker_x = column_left + 22
     marker_y = y + 10
-    marker_radius = 11
+    marker_radius = 10
     draw.ellipse(
       (
         marker_x - marker_radius,
@@ -286,11 +300,10 @@ def draw_legend(
     name = fit_text(
       draw,
       legend_label(str(row.get("name", ""))),
-      max_width=legend_width - 92,
+      max_width=column_width - 70,
       font=body_font,
     )
-    draw.text((left + 64, y), name, fill=LEGEND_TEXT, font=body_font)
-    y += 34
+    draw.text((column_left + 44, y), name, fill=LEGEND_TEXT, font=body_font)
   draw.text(
     (left + 28, height - 70),
     "© OpenStreetMap contributors · Geoportal Berlin LoD2",
@@ -442,9 +455,9 @@ def main() -> None:
     type=Path,
     default=Path("src/app/public/dzi/regierungsviertel/reference_map.png"),
   )
-  parser.add_argument("--width", type=int, default=1900)
+  parser.add_argument("--width", type=int, default=2200)
   parser.add_argument("--height", type=int, default=1300)
-  parser.add_argument("--legend-width", type=int, default=560)
+  parser.add_argument("--legend-width", type=int, default=800)
   parser.add_argument("--pad", type=int, default=52)
   args = parser.parse_args()
   render_reference_map(

@@ -21,6 +21,7 @@ from isometric_berlin.generation.render_quadrants import (
   BACKGROUND,
   load_landmarks,
   load_layer,
+  load_reference_geometries,
   load_wikimedia_material_cues,
   project_point,
   render_quadrant,
@@ -29,7 +30,8 @@ from isometric_berlin.generation.render_quadrants import (
 DEFAULT_RENDER_PX = 32_768
 DEFAULT_CANVAS_WIDTH = 16_384
 DEFAULT_CANVAS_HEIGHT = 11_616
-DEFAULT_PREVIEW_MAX_WIDTH = 3_584
+DEFAULT_PREVIEW_MAX_WIDTH = 6_144
+PREVIEW_PALETTE_COLORS = 256
 
 
 def content_bbox(image: Image.Image, pad: int = 96) -> tuple[int, int, int, int]:
@@ -58,6 +60,17 @@ def fit_preview(image: Image.Image, max_width: int) -> Image.Image:
     return image.copy()
   height = max(1, round(image.height * max_width / image.width))
   return image.resize((max_width, height), Image.Resampling.LANCZOS)
+
+
+def compact_preview(
+  image: Image.Image, *, colors: int = PREVIEW_PALETTE_COLORS
+) -> Image.Image:
+  """Keep the high-resolution fallback below the repository binary limit."""
+  return image.convert("RGB").quantize(
+    colors=colors,
+    method=Image.Quantize.MEDIANCUT,
+    dither=Image.Dither.NONE,
+  )
 
 
 def landmark_records(
@@ -143,12 +156,26 @@ def write_wikimedia_attribution(out_dir: Path, manifest_path: Path) -> None:
   )
 
 
+def load_overview_context(
+  *, osm_path: Path, alkis_path: Path, tunnel_path: Path
+) -> dict[str, gpd.GeoDataFrame]:
+  """Load every surface and underground context layer used by the DZI."""
+  layers = {
+    layer: load_layer(osm_path, layer)
+    for layer in ["roads", "water", "parks", "rail", "pois"]
+  }
+  layers["alkis"] = load_layer(alkis_path, "flurstuecke")
+  layers["tunnel_routes"] = load_reference_geometries(tunnel_path)
+  return layers
+
+
 def render_overview(
   *,
   bounds_path: Path,
   buildings_path: Path,
   osm_path: Path,
   alkis_path: Path,
+  tunnel_path: Path,
   landmarks_path: Path,
   wikimedia_references_path: Path,
   out_dir: Path,
@@ -169,11 +196,11 @@ def render_overview(
     "center_y": (miny + maxy) / 2,
   }
   buildings = load_layer(buildings_path, "buildings")
-  osm_layers = {
-    layer: load_layer(osm_path, layer)
-    for layer in ["roads", "water", "parks", "rail", "pois"]
-  }
-  osm_layers["alkis"] = load_layer(alkis_path, "flurstuecke")
+  osm_layers = load_overview_context(
+    osm_path=osm_path,
+    alkis_path=alkis_path,
+    tunnel_path=tunnel_path,
+  )
   landmarks = load_landmarks(landmarks_path)
   material_cues = load_wikimedia_material_cues(wikimedia_references_path)
   out_dir.mkdir(parents=True, exist_ok=True)
@@ -192,7 +219,7 @@ def render_overview(
   dzi = out_dir / "regierungsviertel.dzi"
   export_dzi(source, dzi_path=dzi)
 
-  preview_source = fit_preview(source, preview_max_width)
+  preview_source = compact_preview(fit_preview(source, preview_max_width))
   source_path = out_dir / "overview_source.png"
   preview_source.save(source_path, optimize=True)
   pixel = Image.open(io.BytesIO(pixel_art_image(preview_source)))
@@ -252,6 +279,11 @@ def main() -> None:
     default=Path("geo_data/regierungsviertel/landmarks.geojson"),
   )
   parser.add_argument(
+    "--tunnel-route",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/tiergartentunnel.geojson"),
+  )
+  parser.add_argument(
     "--wikimedia-references",
     type=Path,
     default=Path("geo_data/regierungsviertel/wikimedia_references.json"),
@@ -274,6 +306,7 @@ def main() -> None:
     buildings_path=args.buildings,
     osm_path=args.osm,
     alkis_path=args.alkis,
+    tunnel_path=args.tunnel_route,
     landmarks_path=args.landmarks,
     wikimedia_references_path=args.wikimedia_references,
     out_dir=args.out_dir,

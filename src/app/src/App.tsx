@@ -6,6 +6,7 @@ import {
   Info,
   Keyboard,
   Link2,
+  List,
   LocateFixed,
   Map as MapIcon,
   MapPinned,
@@ -28,6 +29,7 @@ import {
   TOUCH_GESTURE_SETTINGS,
   normalizeRotation,
   rotationDistance,
+  rotationDeltaFromMouseDrag,
   snapRotationToCardinals,
 } from "./viewerGestures";
 
@@ -85,6 +87,10 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
   Spreebogen: "Spreebogen",
   "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)":
     "Tiergartentunnel",
+  "Schweizerische Botschaft": "Schweizer Botschaft",
+  "Fahne der Einheit": "Fahne der Einheit",
+  "Quadriga mit Victoria": "Quadriga",
+  "Starbucks Pariser Platz": "Starbucks Pariser Platz",
 };
 
 const NORTH_UP_ROTATION = 296.565051177078;
@@ -273,6 +279,9 @@ export function App() {
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
+  const [isLandmarkRailOpen, setIsLandmarkRailOpen] = useState(
+    () => !window.matchMedia("(max-width: 760px)").matches,
+  );
 
   const tileSource = useMemo(() => regierungsviertelTileSource(), []);
   const referenceMapUrl = useMemo(
@@ -660,6 +669,18 @@ export function App() {
         hashSyncFrameRef.current = null;
       });
     });
+    viewer.addHandler("canvas-drag", (event) => {
+      if (event.pointerType !== "mouse" || !event.shift) {
+        return;
+      }
+      event.preventDefaultAction = true;
+      const next = normalizeRotation(
+        rotationRef.current + rotationDeltaFromMouseDrag(event.delta.x),
+      );
+      rotationRef.current = next;
+      viewer.viewport.setRotation(next);
+      setRotation(next);
+    });
     viewer.addHandler("canvas-release", () => {
       const snapped = snapRotationToCardinals(
         rotationRef.current,
@@ -769,6 +790,15 @@ export function App() {
             onClick={() => viewerRef.current?.viewport.goHome()}
           >
             <Home size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Landmarkenliste ein- oder ausblenden"
+            aria-pressed={isLandmarkRailOpen}
+            title="Landmarkenliste"
+            onClick={() => setIsLandmarkRailOpen((open) => !open)}
+          >
+            <List size={18} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -933,48 +963,53 @@ export function App() {
         </div>
       </aside>
 
-      <aside className="landmark-rail" aria-label="Landmarken">
-        <div className="rail-heading">
-          <LocateFixed aria-hidden="true" size={17} />
-          <span>Landmarken</span>
-          <small>{landmarks.length}</small>
-        </div>
-        <div className="landmark-list">
-          {landmarks.map((landmark, index) => (
-            <button
-              key={landmark.name}
-              ref={(element) => {
-                if (element) {
-                  landmarkButtonsRef.current.set(landmark.name, element);
-                } else {
-                  landmarkButtonsRef.current.delete(landmark.name);
-                }
-              }}
-              type="button"
-              aria-label={`Landmarke ${landmark.name}`}
-              className={[
-                landmark.name === selected ? "is-selected" : "",
-                isPriorityLandmark(landmark.name) ? "is-priority" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-              disabled={!isReady}
-              onClick={() => {
-                setIsTouring(false);
-                focusLandmark(landmark);
-              }}
-            >
-              <span className="landmark-row">
-                <span className="landmark-index">
-                  {String(index + 1).padStart(2, "0")}
+      {isLandmarkRailOpen ? (
+        <aside className="landmark-rail" aria-label="Landmarken">
+          <div className="rail-heading">
+            <LocateFixed aria-hidden="true" size={17} />
+            <span>Landmarken</span>
+            <small>{landmarks.length}</small>
+          </div>
+          <div className="landmark-list">
+            {landmarks.map((landmark, index) => (
+              <button
+                key={landmark.name}
+                ref={(element) => {
+                  if (element) {
+                    landmarkButtonsRef.current.set(landmark.name, element);
+                  } else {
+                    landmarkButtonsRef.current.delete(landmark.name);
+                  }
+                }}
+                type="button"
+                aria-label={`Landmarke ${landmark.name}`}
+                className={[
+                  landmark.name === selected ? "is-selected" : "",
+                  isPriorityLandmark(landmark.name) ? "is-priority" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                disabled={!isReady}
+                onClick={() => {
+                  setIsTouring(false);
+                  focusLandmark(landmark);
+                  if (window.matchMedia("(max-width: 760px)").matches) {
+                    setIsLandmarkRailOpen(false);
+                  }
+                }}
+              >
+                <span className="landmark-row">
+                  <span className="landmark-index">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="landmark-name">{landmark.name}</span>
                 </span>
-                <span className="landmark-name">{landmark.name}</span>
-              </span>
-              <small>{roleLabel(landmark.role)}</small>
-            </button>
-          ))}
-        </div>
-      </aside>
+                <small>{roleLabel(landmark.role)}</small>
+              </button>
+            ))}
+          </div>
+        </aside>
+      ) : null}
 
       {selectedLandmark ? (
         <aside
@@ -1122,9 +1157,10 @@ export function App() {
               </div>
             </dl>
             <p className="help-hint">
-              Maus: ziehen zum Verschieben, scrollen zum Zoomen, Doppelklick
-              zum Heranzoomen. Die Werkzeugleisten links steuern Drehung,
-              Spiegelung und die Top-down-Referenzkarte.
+              Maus: ziehen zum Verschieben, Shift + ziehen zum freien Drehen,
+              scrollen zum Zoomen. Touch: ein Finger verschiebt; zwei Finger
+              zoomen, verschieben und drehen gleichzeitig. Die Werkzeugleisten
+              links steuern Drehung, Spiegelung und die Top-down-Referenzkarte.
             </p>
           </div>
         </div>

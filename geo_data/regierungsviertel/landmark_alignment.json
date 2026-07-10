@@ -108,9 +108,9 @@
         "denkmal fur die ermordeten juden europas"
       ],
       "lod2": {
-        "containing_building_id": "DEBE00YYGu00005X",
+        "containing_building_id": "DEBE3DeExMIcRZKx",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK0001xm6",
+        "nearest_building_id": "DEBE3DeExMIcRZKx",
         "nearest_distance_m": 0.0
       },
       "name": "Denkmal f\u00fcr die ermordeten Juden Europas",
@@ -285,9 +285,9 @@
         "sowjetisches ehrenmal tiergarten"
       ],
       "lod2": {
-        "containing_building_id": "DEBE01YYK0003Trf",
+        "containing_building_id": "DEBE3DNvFubIvyI4",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK0003Trf",
+        "nearest_building_id": "DEBE3DNvFubIvyI4",
         "nearest_distance_m": 0.0
       },
       "name": "Sowjetisches Ehrenmal Tiergarten",
@@ -329,9 +329,9 @@
         "bundeskanzleramt"
       ],
       "lod2": {
-        "containing_building_id": "DEBE01YYK0002KKb",
+        "containing_building_id": "DEBE3DAJMLwG4KW9",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK0002KKb",
+        "nearest_building_id": "DEBE3DAJMLwG4KW9",
         "nearest_distance_m": 0.0
       },
       "name": "Bundeskanzleramt",
@@ -373,9 +373,9 @@
         "paul lobe haus"
       ],
       "lod2": {
-        "containing_building_id": "DEBE01YYK0002Kn7",
+        "containing_building_id": "DEBE3DO70sVYAxtY",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK0002Kn7",
+        "nearest_building_id": "DEBE3DO70sVYAxtY",
         "nearest_distance_m": 0.0
       },
       "name": "Paul-L\u00f6be-Haus",
@@ -508,7 +508,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0003VCM",
+        "nearest_building_id": "DEBE3Dbzrg8J0PRu",
         "nearest_distance_m": 46.94
       },
       "name": "Humboldthafen",
@@ -552,7 +552,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK00003Qp",
+        "nearest_building_id": "DEBE3DM6eGZXjFeA",
         "nearest_distance_m": 39.42
       },
       "name": "Hugo-Preu\u00df-Br\u00fccke",
@@ -596,7 +596,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01AL4aE0000U",
+        "nearest_building_id": "DEBE3DVLFD4M9wox",
         "nearest_distance_m": 34.08
       },
       "name": "Rahel-Hirsch-Stra\u00dfe",
@@ -640,7 +640,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE00YYQV00005V",
+        "nearest_building_id": "DEBE3DMwj8PWhvKV",
         "nearest_distance_m": 41.2
       },
       "name": "Moltkebr\u00fccke",
@@ -907,7 +907,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0002MgI",
+        "nearest_building_id": "DEBE3DEIvfRWreMo",
         "nearest_distance_m": 27.98
       },
       "name": "Kemperplatz / Tiergartentunnel",
@@ -953,7 +953,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0002Kau",
+        "nearest_building_id": "DEBE3DmKORetJTt6",
         "nearest_distance_m": 0.37
       },
       "name": "Tiergartentunnel S\u00fcdeingang (Sony Center / Potsdamer Platz)",
@@ -995,9 +995,9 @@
         "max liebermann haus"
       ],
       "lod2": {
-        "containing_building_id": "DEBE01YYK0000765",
+        "containing_building_id": "DEBE3DR4UJpsABDn",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK0000765",
+        "nearest_building_id": "DEBE3DR4UJpsABDn",
         "nearest_distance_m": 0.0
       },
       "name": "Max-Liebermann-Haus",
@@ -1042,9 +1042,9 @@
         "amerikanische botschaft"
       ],
       "lod2": {
-        "containing_building_id": "DEBE01YYK00000k5",
+        "containing_building_id": "DEBE3DCJHq6phC2X",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK00000k5",
+        "nearest_building_id": "DEBE3DCJHq6phC2X",
         "nearest_distance_m": 0.0
       },
       "name": "Botschaft der Vereinigten Staaten von Amerika",
@@ -1086,9 +1086,9 @@
         "zollpackhof"
       ],
       "lod2": {
-        "containing_building_id": "DEBE01YYK0002Tak",
+        "containing_building_id": "DEBE3Dv7RVRCWHeT",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE01YYK0002Tak",
+        "nearest_building_id": "DEBE3Dv7RVRCWHeT",
         "nearest_distance_m": 0.0
       },
       "name": "Zollpackhof",
@@ -1267,7 +1267,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0002KKb",
+        "nearest_building_id": "DEBE3DZEo2mpm3tp",
         "nearest_distance_m": 17.14
       },
       "name": "Eduardo-Chillida-Skulptur Berlin",
@@ -1358,7 +1358,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0002Pvf",
+        "nearest_building_id": "DEBE3DdXH5BzPXTO",
         "nearest_distance_m": 25.46
       },
       "name": "Platz der Republik Heckenbosquets",
@@ -1404,7 +1404,7 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE00YYIJ00003e",
+        "nearest_building_id": "DEBE3DhkSa8wckKv",
         "nearest_distance_m": 9.0
       },
       "name": "Kanzlergarten / Non-Violence-Skulptur",
@@ -1562,9 +1562,185 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": "embassy",
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Schweizerische Botschaft",
+        "office": "diplomatic",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "schweizerische botschaft"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DNvokAngVCn",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DNvokAngVCn",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Schweizerische Botschaft",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": "embassy",
+        "distance_m": 0.0,
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Schweizerische Botschaft",
+        "office": "diplomatic",
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Fahne der Einheit",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "fahne der einheit"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002TmN",
+        "nearest_distance_m": 13.38
+      },
+      "name": "Fahne der Einheit",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "name": "Fahne der Einheit",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Quadriga mit Victoria",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "artwork"
+      },
+      "expected_osm_aliases": [
+        "quadriga mit victoria"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0001xqy",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0001xqy",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Quadriga mit Victoria",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Quadriga mit Victoria",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "artwork"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "cafe",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Starbucks",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "starbucks"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK00005Hq",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK00005Hq",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Starbucks Pariser Platz",
+      "nearest_named_osm": {
+        "amenity": "cafe",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "name": "Starbucks",
+        "office": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
     }
   ],
-  "generated_at": "2026-07-09T20:00:24.586059+00:00",
+  "generated_at": "2026-07-10T00:00:22.789205+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -1618,6 +1794,19 @@
       "note": "Kanzleramt lies west/south of Hauptbahnhof on the Spreebogen axis.",
       "status": "ok",
       "to": "Bundeskanzleramt"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "south",
+      "delta_east_m": 117.56,
+      "delta_north_m": -446.86,
+      "distance_m": 462.07,
+      "expected_east_west": "east",
+      "expected_north_south": "south",
+      "from": "Berlin Hauptbahnhof",
+      "note": "The Swiss Embassy lies southeast of Hauptbahnhof in the Spreebogen.",
+      "status": "ok",
+      "to": "Schweizerische Botschaft"
     },
     {
       "actual_east_west": "east",
@@ -1698,6 +1887,19 @@
       "to": "Brandenburger Tor"
     },
     {
+      "actual_east_west": "west",
+      "actual_north_south": "south",
+      "delta_east_m": -88.99,
+      "delta_north_m": -18.09,
+      "distance_m": 90.81,
+      "expected_east_west": "west",
+      "expected_north_south": "south",
+      "from": "Reichstagsgeb\u00e4ude",
+      "note": "The Unity Flag stands southwest of the Reichstag on Platz der Republik.",
+      "status": "ok",
+      "to": "Fahne der Einheit"
+    },
+    {
       "actual_east_west": "east",
       "actual_north_south": "north",
       "delta_east_m": 79.15,
@@ -1709,6 +1911,32 @@
       "note": "Pariser Platz is just east/northeast of the Brandenburger Tor point.",
       "status": "ok",
       "to": "Pariser Platz"
+    },
+    {
+      "actual_east_west": "aligned",
+      "actual_north_south": "aligned",
+      "delta_east_m": 0.0,
+      "delta_north_m": -0.97,
+      "distance_m": 0.97,
+      "expected_east_west": "aligned",
+      "expected_north_south": "aligned",
+      "from": "Brandenburger Tor",
+      "note": "The Quadriga point coincides with the Brandenburg Gate roofline.",
+      "status": "ok",
+      "to": "Quadriga mit Victoria"
+    },
+    {
+      "actual_east_west": "east",
+      "actual_north_south": "north",
+      "delta_east_m": 62.52,
+      "delta_north_m": 39.38,
+      "distance_m": 73.89,
+      "expected_east_west": "east",
+      "expected_north_south": "north",
+      "from": "Pariser Platz",
+      "note": "The mapped Starbucks is on the northeast edge of Pariser Platz.",
+      "status": "ok",
+      "to": "Starbucks Pariser Platz"
     },
     {
       "actual_east_west": "east",
@@ -1818,11 +2046,11 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "30c5ea257055de60a598fd4273653a1758c977c403c61e0fbdaee0080f3fa5ca"
+      "sha256": "29e6cfa5739dae181e2ef76405f89c12f47d7656893e8ef87e93af26908cfe10"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
-      "sha256": "c9d7c871b5cc2967e490c565c71a5faae291e6aac5728c99703c50839654b89e"
+      "sha256": "41ef1936ee0571571ae50465f13ce3fa7e6d2ba3c5f85d1808c6d94082927788"
     },
     "osm": {
       "path": "geo_data/regierungsviertel/osm.gpkg",
@@ -1831,8 +2059,8 @@
   },
   "summary": {
     "landmark_review_count": 0,
-    "landmarks_checked": 35,
-    "relative_relationships_checked": 19,
+    "landmarks_checked": 39,
+    "relative_relationships_checked": 23,
     "relative_review_count": 0,
     "review_count": 0,
     "status": "ok"

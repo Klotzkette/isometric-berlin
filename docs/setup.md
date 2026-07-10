@@ -65,5 +65,6 @@ uv run python scripts/check_release_readiness.py
 ```
 
 This checks version sync, the README status line, required bundled DZI
-viewer assets, and stale duplicate/hidden files before packaging or
-tagging a release.
+viewer assets, the 5 MiB committed-preview limit, zero-server camera
+normalization, and stale duplicate/hidden files before packaging or tagging a
+release.
