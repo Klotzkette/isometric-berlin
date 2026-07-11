@@ -424,10 +424,10 @@ async function loadModel(
         material.map.needsUpdate = true;
         material.emissive.set(0xffffff);
         material.emissiveMap = material.map;
-        material.emissiveIntensity = 0.42;
+        material.emissiveIntensity = 0.24;
       } else {
         material.emissive.set(0x2b3130);
-        material.emissiveIntensity = 0.2;
+        material.emissiveIntensity = 0.09;
       }
       if (detail) {
         material.polygonOffset = true;
@@ -513,11 +513,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!landmark) {
         return;
       }
-      const target = new Vector3(...landmark.world);
       const cameraPreset = runtime.focusCameraByName.get(name);
+      const target = new Vector3(
+        ...(cameraPreset?.target_world ?? landmark.world),
+      );
       let cameraOffset: Vector3;
       if (cameraPreset) {
-        target.y = cameraPreset.target_height_m;
+        target.y += cameraPreset.target_height_m;
         cameraOffset = new Vector3().setFromSpherical(
           new Spherical(
             cameraPreset.distance_m,
@@ -710,7 +712,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       });
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.46;
+      renderer.toneMappingExposure = 1.32;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = PCFShadowMap;
       renderer.setPixelRatio(
@@ -725,10 +727,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
-      scene.background = new Color(0xd9f1f5);
-      scene.fog = new Fog(0xd9f1f5, 1050, 2450);
-      scene.add(new HemisphereLight(0xffffff, 0x729b75, 3.35));
-      const sun = new DirectionalLight(0xfff1cf, 2.05);
+      scene.background = new Color(0xcfeaf1);
+      scene.fog = new Fog(0xcfeaf1, 1100, 2550);
+      scene.add(new HemisphereLight(0xffffff, 0x658266, 2.7));
+      const sun = new DirectionalLight(0xffefc9, 2.75);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
       sun.shadow.mapSize.set(2048, 2048);
@@ -737,7 +739,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sun.shadow.camera.top = 1300;
       sun.shadow.camera.bottom = -1300;
       scene.add(sun);
-      const skyFill = new DirectionalLight(0xb9d8ff, 0.48);
+      const skyFill = new DirectionalLight(0xb6dcff, 0.34);
       skyFill.position.set(620, 430, -680);
       scene.add(skyFill);
 

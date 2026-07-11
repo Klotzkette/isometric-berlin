@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -23,6 +24,7 @@ from PIL import Image, ImageEnhance
 from pyproj import Transformer
 from scipy.spatial import cKDTree
 from shapely import contains_xy
+from shapely.affinity import rotate
 from shapely.geometry.base import BaseGeometry
 from trimesh.visual.color import ColorVisuals, uv_to_color
 from trimesh.visual.material import SimpleMaterial
@@ -65,12 +67,117 @@ class HeroSpec:
   landmark_name: str
 
 
+@dataclass(frozen=True)
+class OrientedGeometryFrame:
+  """Local metre frame aligned to one axis of an official footprint."""
+
+  center_x: float
+  center_y: float
+  depth_m: float
+  rotation_degrees: float
+  width_m: float
+
+
 HERO_SPECS = (
   HeroSpec("reichstag", "Reichstagsgebäude"),
   HeroSpec("bundeskanzleramt", "Bundeskanzleramt"),
   HeroSpec("hauptbahnhof", "Berlin Hauptbahnhof"),
   HeroSpec("brandenburger-tor", "Brandenburger Tor"),
 )
+
+
+def oriented_geometry_frame(
+  geometry: BaseGeometry, *, x_axis: str
+) -> OrientedGeometryFrame:
+  """Return a stable local frame from a geometry's minimum rectangle.
+
+  ``x_axis`` selects whether the local X axis follows the long or short
+  rectangle edge. The returned angle is a GIS heading from east, normalized
+  to the range [-90, 90). Three.js uses the same numeric Y rotation after the
+  project converts northing to negative world Z.
+  """
+  if geometry.is_empty:
+    raise ValueError("Cannot build an oriented frame from empty geometry")
+  if x_axis not in {"long", "short"}:
+    raise ValueError("x_axis must be 'long' or 'short'")
+
+  source_bounds = geometry.bounds
+  rough_center = np.array(
+    [
+      (source_bounds[0] + source_bounds[2]) / 2,
+      (source_bounds[1] + source_bounds[3]) / 2,
+    ],
+    dtype=float,
+  )
+  points = np.asarray(geometry.convex_hull.exterior.coords[:-1], dtype=float)
+  points -= rough_center
+  edge_vectors = np.roll(points, -1, axis=0) - points
+  candidate_angles = np.unique(
+    np.round(
+      np.mod(np.arctan2(edge_vectors[:, 1], edge_vectors[:, 0]), math.pi / 2),
+      12,
+    )
+  )
+
+  def rotated_bounds(angle: float) -> tuple[float, float, float, float]:
+    cosine = math.cos(angle)
+    sine = math.sin(angle)
+    local_x = points[:, 0] * cosine + points[:, 1] * sine
+    local_y = -points[:, 0] * sine + points[:, 1] * cosine
+    return (
+      float(local_x.min()),
+      float(local_y.min()),
+      float(local_x.max()),
+      float(local_y.max()),
+    )
+
+  def rotated_area(angle: float) -> float:
+    min_x, min_y, max_x, max_y = rotated_bounds(angle)
+    return (max_x - min_x) * (max_y - min_y)
+
+  rotation = min(candidate_angles, key=lambda angle: rotated_area(float(angle)))
+  min_x, min_y, max_x, max_y = rotated_bounds(float(rotation))
+  width = max_x - min_x
+  depth = max_y - min_y
+  if (x_axis == "long" and width < depth) or (x_axis == "short" and width > depth):
+    rotation += math.pi / 2
+    min_x, min_y, max_x, max_y = rotated_bounds(float(rotation))
+    width = max_x - min_x
+    depth = max_y - min_y
+
+  rotation_degrees = ((math.degrees(float(rotation)) + 90.0) % 180.0) - 90.0
+  local_center = np.array([(min_x + max_x) / 2, (min_y + max_y) / 2])
+  cosine = math.cos(float(rotation))
+  sine = math.sin(float(rotation))
+  world_center = (
+    np.array(
+      [
+        local_center[0] * cosine - local_center[1] * sine,
+        local_center[0] * sine + local_center[1] * cosine,
+      ]
+    )
+    + rough_center
+  )
+  return OrientedGeometryFrame(
+    center_x=float(world_center[0]),
+    center_y=float(world_center[1]),
+    depth_m=float(depth),
+    rotation_degrees=float(rotation_degrees),
+    width_m=float(width),
+  )
+
+
+def geometry_bounds_in_frame(
+  geometry: BaseGeometry, frame: OrientedGeometryFrame
+) -> tuple[float, float, float, float]:
+  """Return one geometry's bounds in an existing oriented local frame."""
+  local_geometry = rotate(
+    geometry,
+    -frame.rotation_degrees,
+    origin=(frame.center_x, frame.center_y),
+    use_radians=False,
+  )
+  return tuple(float(value) for value in local_geometry.bounds)
 
 
 def sha256_file(path: Path) -> str:
@@ -465,7 +572,8 @@ def architectural_signature_payload(
   if reichstag.empty or chancellery.empty or station.empty:
     raise ValueError("Missing LoD2 evidence for one or more architecture models")
 
-  reichstag_center = reichstag.geometry.union_all().centroid
+  reichstag_geometry = reichstag.geometry.union_all()
+  reichstag_frame = oriented_geometry_frame(reichstag_geometry, x_axis="short")
   reichstag_height = float(reichstag["measured_height_m"].max())
   signatures.append(
     {
@@ -477,10 +585,11 @@ def architectural_signature_payload(
         "official Bundestag plan dimensions"
       ),
       "anchor_world": anchor_world(
-        reichstag_center.x,
-        reichstag_center.y,
+        reichstag_frame.center_x,
+        reichstag_frame.center_y,
         base_elevation("reichstag"),
       ),
+      "rotation_y_degrees": round(reichstag_frame.rotation_degrees, 3),
       "width_m": 100.0,
       "depth_m": 138.0,
       "body_height_m": round(reichstag_height, 3),
@@ -495,17 +604,33 @@ def architectural_signature_payload(
   )
 
   chancellery_all = chancellery.geometry.union_all()
+  chancellery_frame = oriented_geometry_frame(chancellery_all, x_axis="long")
   high_parts = chancellery[chancellery["measured_height_m"] >= 30.0]
   chancellery_cube = high_parts.geometry.union_all()
   office_parts = chancellery[
     (chancellery["measured_height_m"] < 30.0) & (chancellery.geometry.area > 500.0)
   ]
-  all_bounds = chancellery_all.bounds
-  cube_bounds = chancellery_cube.bounds
+  all_bounds = geometry_bounds_in_frame(chancellery_all, chancellery_frame)
+  cube_bounds = geometry_bounds_in_frame(chancellery_cube, chancellery_frame)
   all_center_x = (all_bounds[0] + all_bounds[2]) / 2
   all_center_y = (all_bounds[1] + all_bounds[3]) / 2
   cube_center_x = (cube_bounds[0] + cube_bounds[2]) / 2
   cube_center_y = (cube_bounds[1] + cube_bounds[3]) / 2
+  office_segments: list[dict[str, Any]] = []
+  for _, part in office_parts.iterrows():
+    bounds = geometry_bounds_in_frame(part.geometry, chancellery_frame)
+    office_segments.append(
+      {
+        "width_m": round(float(bounds[2] - bounds[0]), 3),
+        "depth_m": round(float(bounds[3] - bounds[1]), 3),
+        "height_m": 18.0,
+        "offset_world": [
+          round(float((bounds[0] + bounds[2]) / 2 - all_center_x), 3),
+          0.0,
+          round(float(all_center_y - (bounds[1] + bounds[3]) / 2), 3),
+        ],
+      }
+    )
   signatures.append(
     {
       "id": "bundeskanzleramt-model",
@@ -516,10 +641,11 @@ def architectural_signature_payload(
         "36 m cube / 18 m office-band heights"
       ),
       "anchor_world": anchor_world(
-        all_center_x,
-        all_center_y,
+        chancellery_frame.center_x,
+        chancellery_frame.center_y,
         base_elevation("bundeskanzleramt"),
       ),
+      "rotation_y_degrees": round(chancellery_frame.rotation_degrees, 3),
       "overall_width_m": round(float(all_bounds[2] - all_bounds[0]), 3),
       "overall_depth_m": round(float(all_bounds[3] - all_bounds[1]), 3),
       "office_height_m": 18.0,
@@ -531,29 +657,7 @@ def architectural_signature_payload(
         0.0,
         round(float(all_center_y - cube_center_y), 3),
       ],
-      "office_segments": [
-        {
-          "width_m": round(float(part.geometry.bounds[2] - part.geometry.bounds[0]), 3),
-          "depth_m": round(float(part.geometry.bounds[3] - part.geometry.bounds[1]), 3),
-          "height_m": 18.0,
-          "offset_world": [
-            round(
-              float(
-                (part.geometry.bounds[0] + part.geometry.bounds[2]) / 2 - all_center_x
-              ),
-              3,
-            ),
-            0.0,
-            round(
-              float(
-                all_center_y - (part.geometry.bounds[1] + part.geometry.bounds[3]) / 2
-              ),
-              3,
-            ),
-          ],
-        }
-        for _, part in office_parts.iterrows()
-      ],
+      "office_segments": office_segments,
       "focus_camera": {
         "distance_m": 245.0,
         "polar_degrees": 60.0,
@@ -564,7 +668,7 @@ def architectural_signature_payload(
     }
   )
 
-  station_point = landmark_point("Berlin Hauptbahnhof")
+  station_frame = oriented_geometry_frame(station.geometry.union_all(), x_axis="short")
   signatures.append(
     {
       "id": "hauptbahnhof-model",
@@ -575,19 +679,20 @@ def architectural_signature_payload(
         "Bahn published hall / track-roof / office-bridge dimensions"
       ),
       "anchor_world": anchor_world(
-        station_point.x,
-        station_point.y,
+        station_frame.center_x,
+        station_frame.center_y,
         base_elevation("hauptbahnhof"),
       ),
+      "rotation_y_degrees": round(station_frame.rotation_degrees, 3),
       "east_west_roof_length_m": 321.0,
       "east_west_roof_width_m": 40.0,
       "north_south_hall_length_m": 160.0,
       "north_south_hall_width_m": 45.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
-        "distance_m": 275.0,
-        "polar_degrees": 57.0,
-        "azimuth_degrees": 35.0,
+        "distance_m": 310.0,
+        "polar_degrees": 62.0,
+        "azimuth_degrees": 40.0,
         "target_height_m": 20.0,
       },
       "source_url": HAUPTBAHNHOF_ARCHITECTURE_SOURCE_URL,
@@ -595,6 +700,8 @@ def architectural_signature_payload(
   )
 
   gate_point = landmark_point("Brandenburger Tor")
+  gate_building = buildings.loc[buildings.geometry.distance(gate_point).idxmin()]
+  gate_frame = oriented_geometry_frame(gate_building.geometry, x_axis="short")
   signatures.append(
     {
       "id": "brandenburger-tor-model",
@@ -609,6 +716,7 @@ def architectural_signature_payload(
         gate_point.y,
         base_elevation("brandenburger-tor"),
       ),
+      "rotation_y_degrees": round(gate_frame.rotation_degrees, 3),
       "width_m": 62.5,
       "depth_m": 11.0,
       "gate_height_m": 20.3,

@@ -222,6 +222,29 @@ def webgl_manifest_failures(
       failures.append(
         f"WebGL scene lacks metric recognition signature {signature_id}: {label}"
       )
+      continue
+    rotation = signature.get("rotation_y_degrees")
+    if (
+      not isinstance(rotation, (int, float))
+      or isinstance(rotation, bool)
+      or not math.isfinite(rotation)
+    ):
+      failures.append(
+        f"WebGL recognition signature lacks a finite LoD2 rotation "
+        f"{signature_id}: {label}"
+      )
+  station_signature = signature_by_id.get("hauptbahnhof-model")
+  station_rotation = (
+    station_signature.get("rotation_y_degrees")
+    if isinstance(station_signature, dict)
+    else None
+  )
+  if not isinstance(station_rotation, (int, float)) or not (
+    15.0 <= abs(station_rotation) <= 30.0
+  ):
+    failures.append(
+      f"WebGL Hauptbahnhof model is not aligned to its rotated LoD2 hall: {label}"
+    )
   chancellery_signature = signature_by_id.get("bundeskanzleramt-model")
   if (
     not isinstance(chancellery_signature, dict)

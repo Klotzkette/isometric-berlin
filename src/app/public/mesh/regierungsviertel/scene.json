@@ -1221,10 +1221,11 @@
       "landmark_name": "Reichstagsgebäude",
       "geometry_status": "Metric recognition model aligned to the Berlin LoD2 footprint and official Bundestag plan dimensions",
       "anchor_world": [
-        315.455,
+        317.729,
         3.595,
-        40.386
+        40.477
       ],
+      "rotation_y_degrees": -1.676,
       "width_m": 100.0,
       "depth_m": 138.0,
       "body_height_m": 28.055,
@@ -1244,48 +1245,49 @@
       "anchor_world": [
         -220.236,
         1.554,
-        -143.873
+        -145.806
       ],
-      "overall_width_m": 344.964,
-      "overall_depth_m": 106.175,
+      "rotation_y_degrees": -1.337,
+      "overall_width_m": 342.676,
+      "overall_depth_m": 102.074,
       "office_height_m": 18.0,
-      "cube_width_m": 56.472,
-      "cube_depth_m": 56.376,
+      "cube_width_m": 55.211,
+      "cube_depth_m": 55.103,
       "cube_height_m": 36.0,
       "cube_offset_world": [
-        66.352,
+        66.373,
         0.0,
-        -0.343
+        0.042
       ],
       "office_segments": [
         {
-          "width_m": 219.208,
-          "depth_m": 26.55,
+          "width_m": 219.532,
+          "depth_m": 23.463,
           "height_m": 18.0,
           "offset_world": [
-            60.642,
+            61.563,
             0.0,
-            39.812
+            39.306
           ]
         },
         {
-          "width_m": 203.636,
-          "depth_m": 25.853,
+          "width_m": 203.2,
+          "depth_m": 23.536,
           "height_m": 18.0,
           "offset_world": [
-            70.664,
+            69.738,
             0.0,
-            -40.161
+            -39.269
           ]
         },
         {
-          "width_m": 135.455,
-          "depth_m": 23.031,
+          "width_m": 135.151,
+          "depth_m": 21.027,
           "height_m": 18.0,
           "offset_world": [
-            -104.754,
+            -103.762,
             0.0,
-            36.622
+            40.523
           ]
         }
       ],
@@ -1303,19 +1305,20 @@
       "landmark_name": "Berlin Hauptbahnhof",
       "geometry_status": "Metric recognition model aligned to the official mesh and Deutsche Bahn published hall / track-roof / office-bridge dimensions",
       "anchor_world": [
-        -123.219,
+        -119.936,
         4.575,
-        -693.353
+        -683.307
       ],
+      "rotation_y_degrees": 21.82,
       "east_west_roof_length_m": 321.0,
       "east_west_roof_width_m": 40.0,
       "north_south_hall_length_m": 160.0,
       "north_south_hall_width_m": 45.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
-        "distance_m": 275.0,
-        "polar_degrees": 57.0,
-        "azimuth_degrees": 35.0,
+        "distance_m": 310.0,
+        "polar_degrees": 62.0,
+        "azimuth_degrees": 40.0,
         "target_height_m": 20.0
       },
       "source_url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186"
@@ -1330,6 +1333,7 @@
         4.734,
         300.453
       ],
+      "rotation_y_degrees": 5.083,
       "width_m": 62.5,
       "depth_m": 11.0,
       "gate_height_m": 20.3,

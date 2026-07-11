@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.2.5
+
+- Fix the major metric-alignment bug in the recognition layer. Procedural hero
+  geometry now uses a minimum-area local frame derived from each official LoD2
+  footprint instead of assuming that every building follows the map axes.
+- Rotate Berlin Hauptbahnhof by its measured 21.82-degree LoD2 axis and move
+  its model anchor from the OSM label point to the official hall centre, a
+  correction of more than ten metres. Preserve finite LoD2 rotations for all
+  four hero models in the scene manifest and release gate.
+- Target presentation cameras at the recognition-model anchors. Keep the
+  Chancellery camera on its characteristic 36 m leadership cube rather than
+  the centre of the complete 343 m office ensemble, and use a north-referenced
+  Hauptbahnhof view that exposes the crossing glass roofs.
+- Add model-railway detail to Hauptbahnhof: four upper tracks, two platforms,
+  a stationary ICE, a Berlin S-Bahn, rounded bodies, cab glazing, windows,
+  stripes and office-bridge floor lines.
+- Refine the Brandenburg Gate with correctly lower side pavilions, layered
+  cornices, five shaded passages, Doric bases and capitals, a deeper frieze,
+  chariot wheels, horse necks and legs, Victoria wings and victory standard.
+- Refine the Reichstag with roof cornices, portico bases and capitals, entrance
+  shadows and four roof flags around the existing official-dimension glass
+  dome. Add Chancellery floor plates, two-sided facade mullions and a framed
+  leadership-window grid.
+- Improve daylight contrast without a costly full-canvas CSS filter. Retain
+  the official 45 GLBs byte-for-byte and keep the procedural details as an
+  additive recognition layer over the photogrammetric source.
+- Audit all six unresolved automatic Codex P2 review threads. Their Wikimedia,
+  DZI, spatial-QA, Escape, numbering and tile-pyramid fixes are present and the
+  focused regression suite passes; the GitHub threads are merely unresolved
+  administratively.
+- Extend geometry and release QA to test oriented frames, finite local model
+  rotations, Hauptbahnhof's non-axis-aligned hall, model component counts and
+  camera targets. Re-verify desktop, 390 x 844 mobile layout, mouse orbit and
+  focused-control Escape handling.
+
 ## v0.2.4
 
 - Add metre-scale recognition geometry over the official textured mesh for the

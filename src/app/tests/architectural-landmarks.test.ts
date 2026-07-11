@@ -19,6 +19,7 @@ const base = {
   },
   geometry_status: "metric test",
   landmark_name: "Test",
+  rotation_y_degrees: 0,
   source_url: "https://example.com/official",
 };
 
@@ -42,6 +43,19 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       gate!.children.filter((child) => child.name.includes("Doric column")),
     ).toHaveLength(12);
+    expect(
+      gate!.children.filter((child) => child.name.includes("Doric capital")),
+    ).toHaveLength(12);
+    expect(
+      gate!.children.filter(
+        (child) => child.name === "Brandenburg Gate passage paving shadow",
+      ),
+    ).toHaveLength(5);
+    expect(
+      gate!.children.filter(
+        (child) => child.name === "Brandenburg Gate shaded passage interior",
+      ),
+    ).toHaveLength(5);
     expect(bounds.max.z - bounds.min.z).toBeCloseTo(62.5, 1);
     expect(bounds.max.x - bounds.min.x).toBeCloseTo(11, 1);
     expect(bounds.max.y).toBeGreaterThan(25);
@@ -73,6 +87,17 @@ describe("metre-scale architectural recognition models", () => {
         (child) => child.name === "Hauptbahnhof 46 m office bridge",
       ),
     ).toHaveLength(2);
+    expect(
+      station!.children.filter(
+        (child) => child.name === "Hauptbahnhof upper-level rail",
+      ),
+    ).toHaveLength(8);
+    expect(
+      station!.children.some((child) => child.name.includes("stationary ICE")),
+    ).toBe(true);
+    expect(
+      station!.children.some((child) => child.name.includes("Berlin S-Bahn")),
+    ).toBe(true);
   });
 
   test("preserves the LoD2 Chancellery envelope and official heights", () => {
@@ -105,6 +130,11 @@ describe("metre-scale architectural recognition models", () => {
         child.name.includes("semicircular leadership window"),
       ),
     ).toHaveLength(2);
+    expect(focusCameraForSignature(signature)?.target_world).toEqual([
+      66.2,
+      0,
+      -0.3,
+    ]);
   });
 
   test("adds the Reichstag's four towers and west portico", () => {
@@ -114,6 +144,7 @@ describe("metre-scale architectural recognition models", () => {
       depth_m: 138,
       id: "reichstag-model",
       kind: "reichstag_model",
+      rotation_y_degrees: 21.82,
       width_m: 100,
     };
     const reichstag = createArchitecturalSignature(signature);
@@ -126,8 +157,13 @@ describe("metre-scale architectural recognition models", () => {
       ),
     ).toHaveLength(4);
     expect(
-      reichstag!.children.filter((child) => child.name.includes("portico column")),
+      reichstag!.children.filter((child) =>
+        /^Reichstag west portico column \d+$/.test(child.name),
+      ),
     ).toHaveLength(6);
-    expect(focusCameraForSignature(signature)?.distance_m).toBe(200);
+    const focusCamera = focusCameraForSignature(signature);
+    expect(focusCamera?.distance_m).toBe(200);
+    expect(focusCamera?.target_world).toEqual([0, 0, 0]);
+    expect(reichstag!.rotation.y).toBeCloseTo((21.82 * Math.PI) / 180, 6);
   });
 });

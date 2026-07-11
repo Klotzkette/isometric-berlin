@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.4/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.5/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.4 open-data package.
+**Status:** Local v0.2.5 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.4**. Its full viewer is a progressively
+The current public package is **v0.2.5**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -47,6 +47,18 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Selecting one of the four hero buildings opens a building-specific,
   presentation-quality camera angle and distance before normal free orbiting.
   The Brandenburg Gate is no longer shown as a tiny object in a 250 m view.
+- Recognition geometry now follows each building's measured LoD2 local axis,
+  not the map's screen axes. This fixes the Hauptbahnhof overlay's former
+  21.82° orientation error and moves its anchor from the OSM label point to the
+  official hall centre. Camera targets use the model anchors; the Chancellery
+  still centres its characteristic 36 m leadership cube rather than the full
+  343 m ensemble.
+- Model-railway detail is visible at normal viewing distances: Hauptbahnhof has
+  four upper tracks, platforms, a stationary ICE and Berlin S-Bahn; the Gate
+  has stepped side pavilions, five shaded passages and a more articulated
+  Quadriga; the Chancellery has floor plates, facade mullions and its arched
+  leadership-window grid; the Reichstag adds roof cornices, portico bases and
+  capitals, entrances and four roof flags around the official dome.
 - The old always-visible coloured landmark dots are gone. Only the selected
   landmark receives a small illuminated focus ring.
 - Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag

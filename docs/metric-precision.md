@@ -51,14 +51,17 @@ are easily lost in aerial photogrammetry:
 
 | Landmark | Metric recognition evidence |
 | --- | --- |
-| Reichstagsgebäude | 138 m by almost 100 m official plan dimensions, LoD2 body height, four corner towers and west portico; separate 40 m by 23.5 m Bundestag dome signature |
-| Bundeskanzleramt | LoD2 overall extent and cube position; official 36 m central cube and 18 m office bands |
-| Berlin Hauptbahnhof | Deutsche Bahn 321 m east-west glass roof, 160 x 45 m crossing hall and 46 m office bridges |
-| Brandenburger Tor | Berlin/visitBerlin 62.5 x 11 m plan, 20.3 m gate body, 26 m total height, 13.5 m columns in two rows of six |
+| Reichstagsgebäude | 138 m by almost 100 m official plan dimensions, LoD2 body height and -1.676° local footprint axis, four corner towers and west portico; separate 40 m by 23.5 m Bundestag dome signature |
+| Bundeskanzleramt | 342.676 x 102.074 m oriented LoD2 ensemble, -1.337° local axis and cube position; official 36 m central cube and 18 m office bands |
+| Berlin Hauptbahnhof | LoD2 hall-centre anchor and 21.82° local track axis; Deutsche Bahn 321 m glass roof, 160 x 45 m crossing hall and 46 m office bridges |
+| Brandenburger Tor | LoD2-derived 5.083° local axis; Berlin/visitBerlin 62.5 x 11 m plan, 20.3 m gate body, 26 m total height, 13.5 m columns in two rows of six |
 
-These overlays are not substitutes for the source mesh. They are aligned at
-the committed landmark / LoD2 coordinates, use metre units, and retain the
-photogrammetric texture beneath them.
+These overlays are not substitutes for the source mesh. Their anchors and
+local axes come from committed LoD2 geometry, they use metre units, and they
+retain the photogrammetric texture beneath them. Presentation cameras target
+the model anchors; the Chancellery target is offset to its central leadership
+cube because the complete office ensemble is much wider than the recognisable
+main building.
 
 ## Landmark placement QA
 

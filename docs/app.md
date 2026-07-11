@@ -57,8 +57,20 @@ Brandenburg Gate keeps its published 62.5 x 11 x 26 m envelope, twelve Doric
 columns and bronze-green Quadriga. These models sharpen silhouettes without
 replacing the aligned Berlin Mesh texture beneath them.
 
+Every recognition group is now rotated into the minimum-area local frame of
+its official LoD2 footprint. In particular, the Hauptbahnhof track roof follows
+the measured 21.82-degree local axis and is anchored at the LoD2 hall centre
+rather than the OSM label point. Its four upper tracks carry a stationary ICE
+and Berlin S-Bahn with ends visible outside the glass roof. Reichstag cornices,
+portico capitals and flags, Chancellery floor plates and facade mullions, and
+the Gate's five passages and articulated Quadriga provide model-railway scale
+cues while retaining the official textured surface as the visual evidence
+layer.
+
 Selecting one of these four heroes applies a documented presentation angle and
-building-specific camera distance. The model remains freely orbitable
+building-specific camera distance and targets the recognition-model anchor.
+The Chancellery camera deliberately targets its leadership cube rather than the
+centre of the complete office ensemble. The model remains freely orbitable
 immediately afterward; the preset only prevents small landmarks such as the
 Brandenburg Gate from opening as an unrecognisable object in a 250 m-wide view.
 

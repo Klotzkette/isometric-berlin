@@ -1,12 +1,15 @@
 import geopandas as gpd
 import numpy as np
+import pytest
 import trimesh
+from shapely.affinity import rotate
 from shapely.geometry import Point, box
 
 from isometric_berlin.generation.prepare_webgl_mesh import (
   architectural_signature_payload,
   crop_mesh,
   metric_to_world,
+  oriented_geometry_frame,
   split_bounds,
 )
 
@@ -40,6 +43,18 @@ def test_split_bounds_uses_longer_axis() -> None:
   first, second = split_bounds((0.0, 0.0, 20.0, 8.0))
   assert first == (0.0, 0.0, 10.0, 8.0)
   assert second == (10.0, 0.0, 20.0, 8.0)
+
+
+def test_oriented_geometry_frame_preserves_metric_rotation_and_center() -> None:
+  source = rotate(box(-20.0, -80.0, 20.0, 80.0), 21.82, origin=(0, 0))
+
+  frame = oriented_geometry_frame(source, x_axis="short")
+
+  assert frame.center_x == pytest.approx(0.0, abs=1e-9)
+  assert frame.center_y == pytest.approx(0.0, abs=1e-9)
+  assert frame.rotation_degrees == pytest.approx(21.82, abs=1e-6)
+  assert frame.width_m == pytest.approx(40.0, abs=1e-6)
+  assert frame.depth_m == pytest.approx(160.0, abs=1e-6)
 
 
 def test_reichstag_signature_uses_official_dimensions_and_mesh_apex() -> None:
@@ -126,9 +141,11 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
   by_id = {signature["id"]: signature for signature in signatures}
 
   assert by_id["reichstag-model"]["depth_m"] == 138.0
+  assert by_id["reichstag-model"]["rotation_y_degrees"] == 0.0
   assert by_id["bundeskanzleramt-model"]["cube_height_m"] == 36.0
   assert by_id["bundeskanzleramt-model"]["office_height_m"] == 18.0
   assert by_id["hauptbahnhof-model"]["east_west_roof_length_m"] == 321.0
   assert by_id["hauptbahnhof-model"]["office_bridge_height_m"] == 46.0
+  assert by_id["hauptbahnhof-model"]["rotation_y_degrees"] == 0.0
   assert by_id["brandenburger-tor-model"]["columns_per_row"] == 6
   assert by_id["brandenburger-tor-model"]["total_height_m"] == 26.0

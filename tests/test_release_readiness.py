@@ -115,12 +115,18 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
         "horizontal_rings": 17,
         "source_url": ("https://www.bundestag.de/besuche/architektur/reichstag/kuppel"),
       },
-      {"id": "reichstag-model", "width_m": 100.0, "depth_m": 138.0},
+      {
+        "id": "reichstag-model",
+        "width_m": 100.0,
+        "depth_m": 138.0,
+        "rotation_y_degrees": -1.676,
+      },
       {
         "id": "bundeskanzleramt-model",
         "cube_height_m": 36.0,
         "office_height_m": 18.0,
         "office_segments": [{}, {}, {}],
+        "rotation_y_degrees": -1.337,
       },
       {
         "id": "hauptbahnhof-model",
@@ -128,6 +134,7 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
         "north_south_hall_length_m": 160.0,
         "north_south_hall_width_m": 45.0,
         "office_bridge_height_m": 46.0,
+        "rotation_y_degrees": 21.82,
       },
       {
         "id": "brandenburger-tor-model",
@@ -136,6 +143,7 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
         "total_height_m": 26.0,
         "column_rows": 2,
         "columns_per_row": 6,
+        "rotation_y_degrees": 5.083,
       },
     ],
   }
@@ -449,6 +457,29 @@ def test_webgl_integrity_matrix_rejects_100_corrupt_assets() -> None:
       actual_asset_names=set(corrupted),
     )
     assert any(name in failure and "mismatch" in failure for failure in failures)
+
+
+def test_webgl_manifest_rejects_axis_aligned_hauptbahnhof_model() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_station_rotation", "scripts/check_release_readiness.py"
+  )
+  mesh_data = b"model"
+  scene = minimal_webgl_scene("tile.glb", mesh_data)
+  station = next(
+    signature
+    for signature in scene["architectural_signatures"]
+    if signature["id"] == "hauptbahnhof-model"
+  )
+  station["rotation_y_degrees"] = 0.0
+
+  failures = release_readiness.webgl_manifest_failures(
+    scene,
+    label="axis-aligned station",
+    asset_reader={"tile.glb": mesh_data}.__getitem__,
+    actual_asset_names={"tile.glb"},
+  )
+
+  assert any("not aligned to its rotated LoD2 hall" in failure for failure in failures)
 
 
 def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:
