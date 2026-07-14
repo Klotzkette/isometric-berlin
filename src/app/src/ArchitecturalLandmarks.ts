@@ -106,6 +106,17 @@ export type ArchitecturalSignature =
 
 const EDGE_COLOR = 0x26383d;
 
+type InstanceTransform = {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: [number, number, number];
+};
+
+type VectorSegment = [
+  [number, number, number],
+  [number, number, number],
+];
+
 function nightEmitter<T extends MeshStandardMaterial>(
   material: T,
   color: number,
@@ -170,6 +181,7 @@ function addBoxOutline(
     new EdgesGeometry(source, 24),
     new LineBasicMaterial({
       color,
+      depthWrite: opacity >= 0.75,
       opacity,
       transparent: opacity < 1,
     }),
@@ -200,6 +212,73 @@ function addBox(
     addEdges(group, mesh, edgeOpacity);
   }
   return mesh;
+}
+
+function addInstancedGeometry(
+  group: Group,
+  name: string,
+  geometry: BufferGeometry,
+  material: MeshStandardMaterial | MeshPhysicalMaterial,
+  transforms: InstanceTransform[],
+): InstancedMesh {
+  const instances = new InstancedMesh(geometry, material, transforms.length);
+  instances.name = name;
+  instances.castShadow = material.opacity >= 0.5;
+  instances.receiveShadow = true;
+  const dummy = new Object3D();
+  transforms.forEach((transform, index) => {
+    dummy.position.set(...transform.position);
+    dummy.rotation.set(...(transform.rotation ?? [0, 0, 0]));
+    dummy.scale.set(...(transform.scale ?? [1, 1, 1]));
+    dummy.updateMatrix();
+    instances.setMatrixAt(index, dummy.matrix);
+  });
+  instances.instanceMatrix.needsUpdate = true;
+  instances.computeBoundingBox();
+  instances.computeBoundingSphere();
+  group.add(instances);
+  return instances;
+}
+
+function addInstancedBoxes(
+  group: Group,
+  name: string,
+  size: [number, number, number],
+  material: MeshStandardMaterial | MeshPhysicalMaterial,
+  transforms: InstanceTransform[],
+): InstancedMesh {
+  return addInstancedGeometry(
+    group,
+    name,
+    new BoxGeometry(...size),
+    material,
+    transforms,
+  );
+}
+
+function addVectorSegments(
+  group: Group,
+  name: string,
+  segments: VectorSegment[],
+  color: number,
+  opacity = 0.72,
+): LineSegments {
+  const positions = segments.flatMap(([start, end]) => [...start, ...end]);
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const lines = new LineSegments(
+    geometry,
+    new LineBasicMaterial({
+      color,
+      depthWrite: opacity >= 0.75,
+      opacity,
+      transparent: opacity < 1,
+    }),
+  );
+  lines.name = name;
+  lines.renderOrder = 9;
+  group.add(lines);
+  return lines;
 }
 
 function placeMetricGroup(group: Group, signature: SignatureBase): void {
@@ -331,16 +410,18 @@ function addReichstagWindowGrid(
     1.7,
   );
   const floors = [6.1, 10.5, 14.9, 19.3];
-  const longCount = 14;
-  const shortCount = 10;
+  const longCount = Math.max(18, Math.round(signature.width_m / 4.6));
+  const shortCount = Math.max(18, Math.round(signature.depth_m / 4.6));
+  const longSpacing = (signature.width_m - 16) / (longCount - 1);
+  const shortSpacing = (signature.depth_m - 26) / (shortCount - 1);
   const longWindows = new InstancedMesh(
-    new BoxGeometry(4.25, 2.15, 0.16),
+    new BoxGeometry(Math.max(1.9, longSpacing * 0.62), 2.15, 0.16),
     windowMaterial,
     floors.length * longCount * 2,
   );
   longWindows.name = "Reichstag north/south facade windows";
   const shortWindows = new InstancedMesh(
-    new BoxGeometry(0.16, 2.15, 4.25),
+    new BoxGeometry(0.16, 2.15, Math.max(1.9, shortSpacing * 0.62)),
     windowMaterial,
     floors.length * shortCount * 2,
   );
@@ -377,6 +458,66 @@ function addReichstagWindowGrid(
   longWindows.instanceMatrix.needsUpdate = true;
   shortWindows.instanceMatrix.needsUpdate = true;
   group.add(longWindows, shortWindows);
+}
+
+function addReichstagMicroDetails(
+  group: Group,
+  signature: ReichstagModelSignature,
+  stone: MeshStandardMaterial,
+): void {
+  const postTransforms: InstanceTransform[] = [];
+  const longPostCount = Math.max(16, Math.round((signature.width_m - 24) / 4.2));
+  const shortPostCount = Math.max(20, Math.round((signature.depth_m - 24) / 4.2));
+  for (const zSide of [-1, 1]) {
+    for (let index = 0; index <= longPostCount; index += 1) {
+      postTransforms.push({
+        position: [
+          -signature.width_m / 2 + 12 +
+            (index / longPostCount) * (signature.width_m - 24),
+          signature.body_height_m + 1.05,
+          zSide * (signature.depth_m / 2 - 2.2),
+        ],
+      });
+    }
+  }
+  for (const xSide of [-1, 1]) {
+    for (let index = 0; index <= shortPostCount; index += 1) {
+      postTransforms.push({
+        position: [
+          xSide * (signature.width_m / 2 - 2.2),
+          signature.body_height_m + 1.05,
+          -signature.depth_m / 2 + 12 +
+            (index / shortPostCount) * (signature.depth_m - 24),
+        ],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced roof-balustrade posts",
+    [0.28, 1.22, 0.28],
+    stone,
+    postTransforms,
+  );
+
+  const courses: VectorSegment[] = [];
+  for (const y of [4.1, 8.5, 12.9, 17.3, 21.7]) {
+    const x = signature.width_m / 2 + 0.2;
+    const z = signature.depth_m / 2 + 0.2;
+    courses.push(
+      [[-x, y, -z], [x, y, -z]],
+      [[-x, y, z], [x, y, z]],
+      [[-x, y, -z], [-x, y, z]],
+      [[x, y, -z], [x, y, z]],
+    );
+  }
+  addVectorSegments(
+    group,
+    "Reichstag batched facade string courses",
+    courses,
+    0x817665,
+    0.68,
+  );
 }
 
 function triangularPrism(width: number, height: number, depth: number): BufferGeometry {
@@ -545,6 +686,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   group.add(pediment);
   addEdges(group, pediment, 0.9);
   addReichstagWindowGrid(group, signature);
+  addReichstagMicroDetails(group, signature, stoneAccent);
 
   return group;
 }
@@ -570,6 +712,15 @@ function addChancelleryOfficeBand(
     opacity: 0.74,
     roughness: 0.76,
   });
+  const pane = nightEmitter(
+    modelMaterial(0x2e5964, {
+      metalness: 0.18,
+      opacity: 0.28,
+      roughness: 0.2,
+    }),
+    0xffcf7c,
+    1.5,
+  );
   addBox(
     group,
     "Chancellery office-band glass volume",
@@ -586,19 +737,50 @@ function addChancelleryOfficeBand(
     concrete,
     0.46,
   );
-  const columnCount = Math.max(8, Math.round(width / 16));
+  const columnCount = Math.max(12, Math.round(width / 7.2));
+  const mullions: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let index = 0; index <= columnCount; index += 1) {
       const columnX = x - width / 2 + (index / columnCount) * width;
-      addBox(
-        group,
-        "Chancellery office-band facade mullion",
-        [0.4, height - 2.8, 0.42],
-        [columnX, height / 2 - 0.2, z + side * (depth / 2 + 0.13)],
-        concrete,
-      );
+      mullions.push({
+        position: [
+          columnX,
+          height / 2 - 0.2,
+          z + side * (depth / 2 + 0.13),
+        ],
+      });
     }
   }
+  addInstancedBoxes(
+    group,
+    "Chancellery instanced office-band facade mullions",
+    [0.28, height - 2.8, 0.3],
+    concrete,
+    mullions,
+  );
+
+  const bayWidth = Math.max(1.6, width / columnCount - 0.48);
+  const panes: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    for (let floor = 0; floor < 5; floor += 1) {
+      for (let bay = 0; bay < columnCount; bay += 1) {
+        panes.push({
+          position: [
+            x - width / 2 + ((bay + 0.5) / columnCount) * width,
+            1.8 + floor * 3.6,
+            z + side * (depth / 2 + 0.17),
+          ],
+        });
+      }
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Chancellery instanced office-band window panes",
+    [bayWidth, 2.62, 0.12],
+    pane,
+    panes,
+  );
   for (const floorY of [3.6, 7.2, 10.8, 14.4]) {
     addBox(
       group,
@@ -713,17 +895,43 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   );
   const cubeX = signature.cube_offset_world[0];
   const cubeZ = signature.cube_offset_world[2];
+  const glassWidth = signature.cube_width_m - 7;
+  const glassHeight = signature.cube_height_m - 5;
+  const glassDepth = signature.cube_depth_m - 7;
+  const glassMinY = signature.cube_height_m / 2 - glassHeight / 2;
+  const glassMaxY = glassMinY + glassHeight;
   addBox(
     group,
     "Chancellery central glass cube",
-    [
-      signature.cube_width_m - 7,
-      signature.cube_height_m - 5,
-      signature.cube_depth_m - 7,
-    ],
+    [glassWidth, glassHeight, glassDepth],
     [cubeX, signature.cube_height_m / 2, cubeZ],
     glass,
     0.7,
+  );
+  const cubeGrid: VectorSegment[] = [];
+  const verticalBays = Math.max(10, Math.round(glassWidth / 3.8));
+  for (const zSide of [-1, 1]) {
+    const faceZ = cubeZ + zSide * (glassDepth / 2 - 0.02);
+    for (let bay = 0; bay <= verticalBays; bay += 1) {
+      const x = cubeX - glassWidth / 2 + (bay / verticalBays) * glassWidth;
+      cubeGrid.push([
+        [x, glassMinY + 0.1, faceZ],
+        [x, glassMaxY - 0.1, faceZ],
+      ]);
+    }
+    for (let y = glassMinY + 3.2; y < glassMaxY; y += 3.2) {
+      cubeGrid.push([
+        [cubeX - glassWidth / 2, y, faceZ],
+        [cubeX + glassWidth / 2, y, faceZ],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Chancellery batched central-cube curtain-wall grid",
+    cubeGrid,
+    0xa8d6d9,
+    0.58,
   );
 
   for (const x of [-1, 1]) {
@@ -766,6 +974,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
     2.2,
   );
   const archFrame = modelMaterial(0xf0f1ec, { roughness: 0.68 });
+  const windowGrid: VectorSegment[] = [];
   for (const xDirection of [-1, 1]) {
     const glassWindow = new Mesh(new CircleGeometry(17.2, 64, 0, Math.PI), windowGlass);
     glassWindow.name = "Chancellery semicircular leadership window";
@@ -783,33 +992,29 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       new Vector3(xDirection * 0.08, 0, 0),
     );
     group.add(frame);
-    for (const zOffset of [-10.5, 0, 10.5]) {
-      addBox(
-        group,
-        "Chancellery semicircular window vertical mullion",
-        [0.2, 15.5, 0.38],
-        [
-          cubeX + xDirection * (signature.cube_width_m / 2 + 0.2),
-          17.2,
-          cubeZ + zOffset,
-        ],
-        archFrame,
-      );
+    const faceX = cubeX + xDirection * (signature.cube_width_m / 2 + 0.22);
+    for (const zOffset of [-13.5, -9, -4.5, 0, 4.5, 9, 13.5]) {
+      const top = 10.5 + Math.sqrt(17.2 ** 2 - zOffset ** 2);
+      windowGrid.push([
+        [faceX, 10.5, cubeZ + zOffset],
+        [faceX, top, cubeZ + zOffset],
+      ]);
     }
-    for (const y of [12.5, 17.5, 22.5]) {
-      addBox(
-        group,
-        "Chancellery semicircular window horizontal mullion",
-        [0.2, 0.38, 29],
-        [
-          cubeX + xDirection * (signature.cube_width_m / 2 + 0.21),
-          y,
-          cubeZ,
-        ],
-        archFrame,
-      );
+    for (const yOffset of [3, 6, 9, 12, 15]) {
+      const halfWidth = Math.sqrt(17.2 ** 2 - yOffset ** 2);
+      windowGrid.push([
+        [faceX, 10.5 + yOffset, cubeZ - halfWidth],
+        [faceX, 10.5 + yOffset, cubeZ + halfWidth],
+      ]);
     }
   }
+  addVectorSegments(
+    group,
+    "Chancellery batched semicircular leadership-window grid",
+    windowGrid,
+    0xdce9e7,
+    0.82,
+  );
 
   for (const segment of signature.office_segments) {
     addChancelleryOfficeBand(
@@ -893,40 +1098,99 @@ function addBarrelRoof(
   group.add(roof);
 
   const ribCount = Math.max(14, Math.round(length / 8));
-  for (let ribIndex = 0; ribIndex <= ribCount; ribIndex += 1) {
-    const longitudinal = -length / 2 + (ribIndex / ribCount) * length;
-    const points = Array.from({ length: 25 }, (_, index) => {
-      const angle = (index / 24) * Math.PI;
-      const lateral = Math.cos(angle) * (width / 2);
-      const y = baseY + Math.sin(angle) * height;
-      return alongX
-        ? new Vector3(longitudinal, y, lateral)
-        : new Vector3(lateral, y, longitudinal);
-    });
-    const rib = new Mesh(
-      new TubeGeometry(new CatmullRomCurve3(points), 32, 0.12, 4, false),
-      steel,
-    );
-    rib.name = `${name} steel arch rib`;
-    rib.castShadow = true;
-    group.add(rib);
-  }
+  const ribPoints = Array.from({ length: 33 }, (_, index) => {
+    const angle = (index / 32) * Math.PI;
+    const lateral = Math.cos(angle) * (width / 2);
+    const y = baseY + Math.sin(angle) * height;
+    return alongX
+      ? new Vector3(0, y, lateral)
+      : new Vector3(lateral, y, 0);
+  });
+  const ribTransforms = Array.from({ length: ribCount + 1 }, (_, index) => {
+    const longitudinal = -length / 2 + (index / ribCount) * length;
+    return {
+      position: (alongX
+        ? [longitudinal, 0, 0]
+        : [0, 0, longitudinal]) as [number, number, number],
+    };
+  });
+  addInstancedGeometry(
+    group,
+    `${name} instanced steel arch ribs`,
+    new TubeGeometry(new CatmullRomCurve3(ribPoints), 40, 0.12, 5, false),
+    steel,
+    ribTransforms,
+  );
 
-  for (const fraction of Array.from(
-    { length: 11 },
-    (_, index) => (index + 1) / 12,
-  )) {
+  const purlinFractions = Array.from(
+    { length: 17 },
+    (_, index) => (index + 1) / 18,
+  );
+  const purlinTransforms: InstanceTransform[] = [];
+  for (const fraction of purlinFractions) {
     const angle = fraction * Math.PI;
     const lateral = Math.cos(angle) * (width / 2);
     const y = baseY + Math.sin(angle) * height;
-    addBox(
-      group,
-      `${name} longitudinal steel purlin`,
-      alongX ? [length, 0.18, 0.18] : [0.18, 0.18, length],
-      alongX ? [0, y, lateral] : [lateral, y, 0],
-      steel,
+    purlinTransforms.push({
+      position: alongX ? [0, y, lateral] : [lateral, y, 0],
+    });
+  }
+  addInstancedBoxes(
+    group,
+    `${name} instanced longitudinal steel purlins`,
+    alongX ? [length, 0.18, 0.18] : [0.18, 0.18, length],
+    steel,
+    purlinTransforms,
+  );
+
+  const panelSegments: VectorSegment[] = [];
+  const transverseCount = Math.max(24, Math.round(length / 4));
+  const arcSegments = 28;
+  for (let seam = 0; seam <= transverseCount; seam += 1) {
+    const longitudinal = -length / 2 + (seam / transverseCount) * length;
+    for (let index = 0; index < arcSegments; index += 1) {
+      const startAngle = (index / arcSegments) * Math.PI;
+      const endAngle = ((index + 1) / arcSegments) * Math.PI;
+      const startLateral = Math.cos(startAngle) * (width / 2);
+      const endLateral = Math.cos(endAngle) * (width / 2);
+      const startY = baseY + Math.sin(startAngle) * height + 0.24;
+      const endY = baseY + Math.sin(endAngle) * height + 0.24;
+      panelSegments.push(
+        alongX
+          ? [
+              [longitudinal, startY, startLateral],
+              [longitudinal, endY, endLateral],
+            ]
+          : [
+              [startLateral, startY, longitudinal],
+              [endLateral, endY, longitudinal],
+            ],
+      );
+    }
+  }
+  for (const fraction of purlinFractions) {
+    const angle = fraction * Math.PI;
+    const lateral = Math.cos(angle) * (width / 2);
+    const y = baseY + Math.sin(angle) * height + 0.24;
+    panelSegments.push(
+      alongX
+        ? [
+            [-length / 2, y, lateral],
+            [length / 2, y, lateral],
+          ]
+        : [
+            [lateral, y, -length / 2],
+            [lateral, y, length / 2],
+          ],
     );
   }
+  addVectorSegments(
+    group,
+    `${name} batched glass panel seams`,
+    panelSegments,
+    0x3d6874,
+    0.64,
+  );
 }
 
 function addStationOfficeBridge(
@@ -973,22 +1237,44 @@ function addStationOfficeBridge(
       0x769da7,
     );
   }
-  const mullionCount = Math.max(10, Math.round(depth / 12));
+  const mullionCount = Math.max(18, Math.round(depth / 6));
+  const mullions: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let index = 0; index <= mullionCount; index += 1) {
-      addBox(
-        group,
-        "Hauptbahnhof office-bridge facade mullion",
-        [0.24, height - 2.4, 0.28],
-        [
+      mullions.push({
+        position: [
           x + side * 9.3,
           height / 2,
           -depth / 2 + (index / mullionCount) * depth,
         ],
-        frame,
-      );
+      });
     }
   }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced office-bridge facade mullions",
+    [0.24, height - 2.4, 0.28],
+    frame,
+    mullions,
+  );
+
+  const panelSeams: VectorSegment[] = [];
+  for (const side of [-1, 1]) {
+    const faceX = x + side * 9.43;
+    for (let y = 3; y < height; y += 3) {
+      panelSeams.push([
+        [faceX, y, -depth / 2],
+        [faceX, y, depth / 2],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof batched office-bridge curtain-wall seams",
+    panelSeams,
+    0x9bc6cf,
+    0.52,
+  );
 }
 
 function addStationTrain(
@@ -1045,19 +1331,88 @@ function addStationTrain(
   );
 
   const windowCount = Math.max(8, Math.floor(options.length / 9));
+  const windows: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let index = 0; index < windowCount; index += 1) {
       const windowX =
         -options.length / 2 + 5.5 + (index / (windowCount - 1)) * (options.length - 11);
-      addBox(
-        group,
-        `${options.name} side window`,
-        [4.4, 0.88, 0.08],
-        [options.x + windowX, 13.55, options.z + side * 1.5],
-        windowMaterial,
-      );
+      windows.push({
+        position: [options.x + windowX, 13.55, options.z + side * 1.5],
+      });
     }
   }
+  addInstancedBoxes(
+    group,
+    `${options.name} instanced side windows`,
+    [4.4, 0.88, 0.08],
+    windowMaterial,
+    windows,
+  );
+
+  const doorCount = Math.max(3, Math.round(options.length / 28));
+  const doors: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    for (let index = 1; index <= doorCount; index += 1) {
+      doors.push({
+        position: [
+          options.x - options.length / 2 + (index / (doorCount + 1)) * options.length,
+          13.05,
+          options.z + side * 1.56,
+        ],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    `${options.name} instanced passenger doors`,
+    [1.18, 2.05, 0.08],
+    windowMaterial,
+    doors,
+  );
+
+  const wheelMaterial = modelMaterial(0x20272a, {
+    metalness: 0.56,
+    roughness: 0.5,
+  });
+  const wheels: InstanceTransform[] = [];
+  for (const fraction of [0.16, 0.34, 0.66, 0.84]) {
+    for (const side of [-1, 1]) {
+      wheels.push({
+        position: [
+          options.x - options.length / 2 + fraction * options.length,
+          11.04,
+          options.z + side * 1.58,
+        ],
+        rotation: [Math.PI / 2, 0, 0],
+      });
+    }
+  }
+  addInstancedGeometry(
+    group,
+    `${options.name} instanced wheels`,
+    new CylinderGeometry(0.48, 0.48, 0.18, 16),
+    wheelMaterial,
+    wheels,
+  );
+
+  const carriageSeams: VectorSegment[] = [];
+  const carriageCount = Math.max(3, Math.round(options.length / 25));
+  for (let index = 1; index < carriageCount; index += 1) {
+    const seamX = options.x - options.length / 2 + (index / carriageCount) * options.length;
+    for (const side of [-1, 1]) {
+      carriageSeams.push([
+        [seamX, 11.9, options.z + side * 1.6],
+        [seamX, 14.25, options.z + side * 1.6],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    `${options.name} batched carriage joints`,
+    carriageSeams,
+    0x39494d,
+    0.72,
+  );
   for (const end of [-1, 1]) {
     addBox(
       group,
@@ -1100,6 +1455,27 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
       );
     }
   }
+  const trackLength = signature.east_west_roof_length_m + 110;
+  const sleeperCount = Math.max(100, Math.round(trackLength / 2.5));
+  const sleeperTransforms: InstanceTransform[] = [];
+  for (const trackZ of [-12, -4, 4, 12]) {
+    for (let index = 0; index <= sleeperCount; index += 1) {
+      sleeperTransforms.push({
+        position: [
+          -trackLength / 2 + (index / sleeperCount) * trackLength,
+          10.39,
+          trackZ,
+        ],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced upper-level track sleepers",
+    [0.26, 0.12, 3.6],
+    modelMaterial(0x554f48, { roughness: 0.86 }),
+    sleeperTransforms,
+  );
   for (const platformZ of [-8, 8]) {
     addBox(
       group,
@@ -1110,6 +1486,22 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
       0.25,
     );
   }
+  const platformJointSegments: VectorSegment[] = [];
+  for (const platformZ of [-8, 8]) {
+    for (let x = -108; x <= 108; x += 4) {
+      platformJointSegments.push([
+        [x, 10.75, platformZ - 2.05],
+        [x, 10.75, platformZ + 2.05],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof batched upper-platform paving joints",
+    platformJointSegments,
+    0x75817e,
+    0.5,
+  );
   addStationTrain(group, {
     bodyColor: 0xf1f2ef,
     length: 126,
@@ -1179,9 +1571,12 @@ function createBrandenburgGateModel(
     side: FrontSide,
   });
   const colonnadeWidth = 43;
+  const columnCenters: Array<[number, number]> = [];
   for (let row = 0; row < signature.column_rows; row += 1) {
     const x = row === 0 ? -3.25 : 3.25;
     for (let index = 0; index < signature.columns_per_row; index += 1) {
+      const z = -colonnadeWidth / 2 + (index / 5) * colonnadeWidth;
+      columnCenters.push([x, z]);
       const column = new Mesh(
         new CylinderGeometry(1.05, 1.34, signature.column_height_m, 20),
         sandstone,
@@ -1190,7 +1585,7 @@ function createBrandenburgGateModel(
       column.position.set(
         x,
         signature.column_height_m / 2,
-        -colonnadeWidth / 2 + (index / 5) * colonnadeWidth,
+        z,
       );
       column.castShadow = true;
       group.add(column);
@@ -1207,6 +1602,31 @@ function createBrandenburgGateModel(
       group.add(capital);
     }
   }
+  const flutingSegments: VectorSegment[] = [];
+  for (const [columnX, columnZ] of columnCenters) {
+    for (let flute = 0; flute < 12; flute += 1) {
+      const angle = (flute / 12) * Math.PI * 2;
+      flutingSegments.push([
+        [
+          columnX + Math.cos(angle) * 1.3,
+          0.72,
+          columnZ + Math.sin(angle) * 1.3,
+        ],
+        [
+          columnX + Math.cos(angle) * 1.04,
+          signature.column_height_m - 0.7,
+          columnZ + Math.sin(angle) * 1.04,
+        ],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Brandenburg Gate batched Doric column fluting",
+    flutingSegments,
+    0x887b62,
+    0.58,
+  );
 
   for (let passage = 0; passage < 5; passage += 1) {
     const passageZ = -colonnadeWidth / 2 + ((passage + 0.5) / 5) * colonnadeWidth;
@@ -1227,6 +1647,7 @@ function createBrandenburgGateModel(
 
   const pavilionWidth = (signature.width_m - colonnadeWidth) / 2;
   const pavilionHeight = 15.6;
+  const pavilionMasonry: VectorSegment[] = [];
   for (const z of [-1, 1]) {
     const pavilionZ = z * (signature.width_m / 2 - pavilionWidth / 2);
     addBox(
@@ -1270,7 +1691,39 @@ function createBrandenburgGateModel(
       sandstone,
       0.78,
     );
+    const courseHeight = 1.3;
+    for (const xSide of [-1, 1]) {
+      const faceX = xSide * (signature.depth_m / 2 - 0.01);
+      for (let course = 1; course < 12; course += 1) {
+        const y = course * courseHeight;
+        pavilionMasonry.push([
+          [faceX, y, pavilionZ - pavilionWidth / 2 + 0.3],
+          [faceX, y, pavilionZ + pavilionWidth / 2 - 0.3],
+        ]);
+      }
+      for (let course = 0; course < 12; course += 1) {
+        const yStart = course * courseHeight;
+        const offset = course % 2 === 0 ? 0 : 1.05;
+        for (
+          let jointZ = pavilionZ - pavilionWidth / 2 + 0.9 + offset;
+          jointZ < pavilionZ + pavilionWidth / 2 - 0.5;
+          jointZ += 2.1
+        ) {
+          pavilionMasonry.push([
+            [faceX, yStart, jointZ],
+            [faceX, Math.min(pavilionHeight, yStart + courseHeight), jointZ],
+          ]);
+        }
+      }
+    }
   }
+  addVectorSegments(
+    group,
+    "Brandenburg Gate batched pavilion masonry joints",
+    pavilionMasonry,
+    0x9c8c6f,
+    0.38,
+  );
   addBox(
     group,
     "Brandenburg Gate entablature",
@@ -1302,6 +1755,51 @@ function createBrandenburgGateModel(
     [0, 17.2, 0],
     sandstone,
     0.8,
+  );
+  const triglyphs: InstanceTransform[] = [];
+  const triglyphCount = 24;
+  for (const xSide of [-1, 1]) {
+    for (let index = 0; index <= triglyphCount; index += 1) {
+      triglyphs.push({
+        position: [
+          xSide * (signature.depth_m / 2 - 0.13),
+          17.2,
+          -colonnadeWidth / 2 + (index / triglyphCount) * colonnadeWidth,
+        ],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Brandenburg Gate instanced frieze triglyphs",
+    [0.26, 0.64, 0.72],
+    sandstoneShadow,
+    triglyphs,
+  );
+
+  const entablatureProfiles: VectorSegment[] = [];
+  for (const xSide of [-1, 1]) {
+    const faceX = xSide * (signature.depth_m / 2 - 0.01);
+    for (const y of [13.45, 14.5, 15.65, 16.45, 17.2, 17.65]) {
+      entablatureProfiles.push([
+        [faceX, y, -colonnadeWidth / 2],
+        [faceX, y, colonnadeWidth / 2],
+      ]);
+    }
+    for (let division = 0; division <= 5; division += 1) {
+      const z = -colonnadeWidth / 2 + (division / 5) * colonnadeWidth;
+      entablatureProfiles.push([
+        [faceX, 13.25, z],
+        [faceX, 17.62, z],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Brandenburg Gate batched entablature profiles",
+    entablatureProfiles,
+    0x88775d,
+    0.62,
   );
 
   addBox(group, "Quadriga chariot", [3.4, 1.0, 5.8], [-1.1, 21.0, 0], bronze, 0.8);

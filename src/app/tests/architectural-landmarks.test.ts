@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3 } from "three";
+import { Box3, InstancedMesh, LineSegments } from "three";
 import {
   type BrandenburgGateModelSignature,
   type ChancelleryModelSignature,
@@ -41,7 +41,9 @@ describe("metre-scale architectural recognition models", () => {
     expect(gate).not.toBeNull();
     const bounds = new Box3().setFromObject(gate!);
     expect(
-      gate!.children.filter((child) => child.name.includes("Doric column")),
+      gate!.children.filter((child) =>
+        /^Brandenburg Gate Doric column \d+:\d+$/.test(child.name),
+      ),
     ).toHaveLength(12);
     expect(
       gate!.children.filter((child) => child.name.includes("Doric capital")),
@@ -66,6 +68,17 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       gate!.children.filter((child) => child.name.startsWith("Quadriga horse ear")),
     ).toHaveLength(8);
+    expect(
+      gate!.getObjectByName("Brandenburg Gate batched Doric column fluting"),
+    ).toBeInstanceOf(LineSegments);
+    expect(
+      gate!.getObjectByName("Brandenburg Gate batched pavilion masonry joints"),
+    ).toBeInstanceOf(LineSegments);
+    const triglyphs = gate!.getObjectByName(
+      "Brandenburg Gate instanced frieze triglyphs",
+    );
+    expect(triglyphs).toBeInstanceOf(InstancedMesh);
+    expect((triglyphs as InstancedMesh).count).toBe(50);
   });
 
   test("makes the Hauptbahnhof cross and office bridges legible", () => {
@@ -105,9 +118,26 @@ describe("metre-scale architectural recognition models", () => {
       station!.children.some((child) => child.name.includes("Berlin S-Bahn")),
     ).toBe(true);
     expect(
-      station!.children.filter((child) => child.name.includes("steel arch rib"))
-        .length,
+      station!.children.filter((child) => child.name.includes("glass panel seams")),
+    ).toHaveLength(2);
+    const roofRibs = station!.children.filter((child) =>
+      child.name.includes("instanced steel arch ribs"),
+    );
+    expect(roofRibs).toHaveLength(2);
+    expect(
+      roofRibs.reduce(
+        (count, child) => count + (child as InstancedMesh).count,
+        0,
+      ),
     ).toBeGreaterThan(50);
+    const sleepers = station!.getObjectByName(
+      "Hauptbahnhof instanced upper-level track sleepers",
+    );
+    expect(sleepers).toBeInstanceOf(InstancedMesh);
+    expect((sleepers as InstancedMesh).count).toBeGreaterThan(600);
+    expect(
+      station!.children.filter((child) => child.name.includes("instanced wheels")),
+    ).toHaveLength(2);
   });
 
   test("preserves the LoD2 Chancellery envelope and official heights", () => {
@@ -152,6 +182,21 @@ describe("metre-scale architectural recognition models", () => {
         child.name.includes("Eduardo Chillida Berlin"),
       ).length,
     ).toBeGreaterThanOrEqual(7);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery batched semicircular leadership-window grid",
+      ),
+    ).toBeInstanceOf(LineSegments);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery batched central-cube curtain-wall grid",
+      ),
+    ).toBeInstanceOf(LineSegments);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery instanced office-band window panes",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
   });
 
   test("adds the Reichstag's four towers and west portico", () => {
@@ -195,5 +240,13 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       reichstag!.children.filter((child) => child.name.includes("facade windows")),
     ).toHaveLength(2);
+    const balustrade = reichstag!.getObjectByName(
+      "Reichstag instanced roof-balustrade posts",
+    );
+    expect(balustrade).toBeInstanceOf(InstancedMesh);
+    expect((balustrade as InstancedMesh).count).toBeGreaterThan(80);
+    expect(
+      reichstag!.getObjectByName("Reichstag batched facade string courses"),
+    ).toBeInstanceOf(LineSegments);
   });
 });

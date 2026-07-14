@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.6/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.7/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.6 open-data package.
+**Status:** Local v0.2.7 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.6**. Its full viewer is a progressively
+The current public package is **v0.2.7**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -61,6 +61,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
   leadership-window grid; the Reichstag adds roof cornices, portico bases and
   capitals, entrances, three German flags and one EU flag around the official
   dome.
+- Close-up detail now stays sharp without multiplying draw calls: instanced
+  roof ribs, sleepers, facade panes, train fittings and balustrade posts are
+  combined with batched glass seams, masonry courses, column fluting and
+  entablature profiles. All additions remain inside the published metric
+  envelopes of the four hero landmarks.
 - Day/Night is available from the moon/sun button or `D`. The true 3D scene
   changes sky, fog, directional light and exposure; landmark windows, station
   glass and dome structure emit light at night. The 2D fallback receives a

@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.2.7
+
+- Increase the four hero landmarks' close-range legibility with batched
+  metre-scale microdetail rather than screen-space filters: denser Reichstag
+  windows, stone courses and roof-balustrade posts; Chancellery curtain-wall
+  panes and clipped semicircular-window grids; station glass-panel seams,
+  sleepers, platform joints, train doors, wheels and carriage joints; and Gate
+  column fluting, triglyphs, entablature profiles and masonry courses.
+- Preserve the published building envelopes while replacing repeated station
+  roof ribs, purlins, facade mullions and train windows with GPU instancing.
+  The additional detail therefore uses a small number of draw calls and stays
+  compatible with the adaptive desktop/mobile rendering path.
+- Extend frontend geometry tests to enforce the new vector and instanced
+  detail batches, their instance density and the unchanged metric Gate
+  envelope. Recheck all four hero views and the mobile tunnel underside in a
+  production build without renderer errors or transparency artefacts.
+
 ## v0.2.6
 
 - Correct the Reichstag dome's largest metric error: anchor its base to the

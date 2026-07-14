@@ -76,6 +76,14 @@ the Gate's five passages and articulated Quadriga provide model-railway scale
 cues while retaining the official textured surface as the visual evidence
 layer.
 
+Close-range facade articulation is deliberately batched. Reichstag windows,
+stone courses and balustrade posts, Chancellery curtain-wall panes and arched
+window grids, Hauptbahnhof roof-panel seams, sleepers, platform joints and
+train fittings, and Brandenburg Gate fluting, triglyphs and masonry joints use
+instanced meshes or consolidated vector segments. This keeps the published
+metric envelopes unchanged and avoids turning hundreds of small visual cues
+into hundreds of draw calls on phones and tablets.
+
 Selecting one of these four heroes applies a documented presentation angle and
 building-specific camera distance and targets the recognition-model anchor.
 The Chancellery camera deliberately targets its leadership cube rather than the
