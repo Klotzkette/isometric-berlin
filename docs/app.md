@@ -33,7 +33,7 @@ show the Google attribution required by the Google Maps Platform Terms.
 The viewer has a built-in help panel (the keyboard button in the top
 toolbar, or press `?`) listing the shortcuts: `←`/`→` previous/next
 landmark, `Space` start/pause the tour, `+`/`=`/`−` zoom, `Home`/`0`
-overview, `L` copy a view link, `Esc` close overlays.
+overview, `D` switch Day/Night, `L` copy a view link, `Esc` close overlays.
 
 In true 3D, left-drag or one finger orbits, the wheel zooms, right-drag pans,
 and two fingers combine pinch and rotation. A three-finger gesture controls
@@ -43,19 +43,28 @@ Tiergartentunnel cutaway. The arrow keys rotate and tilt in 3D. In DZI mode,
 ordinary drag pans and Shift-drag rotates. At phone widths the landmark rail
 starts closed and leaves the safe-area-aware bottom controls accessible.
 
-Only the selected landmark receives a focus ring. The former 39 permanently
-visible coloured map dots were removed from the Three.js, DZI and zero-server
-fallbacks because they obscured roofs and facades.
+Only the selected landmark receives a small focus ring, and that ring fades
+again after 2.4 seconds. The former 39 permanently visible coloured map dots
+were removed from the Three.js, DZI and zero-server fallbacks because they
+obscured roofs and facades.
+
+Day/Night is a real scene-lighting mode rather than a CSS tint. It changes the
+sun, hemisphere and fill lighting, fog, background and tone mapping; tagged
+windows, station glass, street/tunnel fixtures and monument lighting become
+emissive at night. The selected lighting mode is restored locally and can be
+overridden with `?theme=day` or `?theme=night` for deterministic QA.
 
 The four hero landmarks carry metre-scale recognition models over the official
 photogrammetry. The Reichstag combines its four corner towers and west portico
-with a transparent 40 m by 23.5 m dome, 24 main ribs, 17 horizontal rings, two
-counter-rotating ramps and a mirror cone. The Chancellery separates its 36 m
-central cube, semicircular windows and 18 m office bands. Hauptbahnhof exposes
-the 321 m glass roof, 160 x 45 m crossing hall and 46 m office bridges. The
-Brandenburg Gate keeps its published 62.5 x 11 x 26 m envelope, twelve Doric
-columns and bronze-green Quadriga. These models sharpen silhouettes without
-replacing the aligned Berlin Mesh texture beneath them.
+with a transparent 40 m by 23.5 m dome anchored to the published 24 m terrace
+datum, 24 main ribs, 17 horizontal rings, two counter-rotating ramps and a
+mirror cone. The Chancellery separates its 36 m central cube, semicircular
+windows and 18 m office bands and locates the 5.5 m Chillida sculpture from its
+verified landmark point. Hauptbahnhof exposes the 321 m glass roof, 160 x 45 m
+crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
+62.5 x 11 x 26 m envelope, twelve Doric columns and articulated bronze-green
+Quadriga. These models sharpen silhouettes without replacing the aligned
+Berlin Mesh texture beneath them.
 
 Every recognition group is now rotated into the minimum-area local frame of
 its official LoD2 footprint. In particular, the Hauptbahnhof track roof follows
@@ -117,11 +126,14 @@ retains the two most recently used groups; evicted geometry, materials and
 textures are explicitly disposed to bound browser and GPU memory. A lost WebGL
 context switches to the DZI fallback and a later 3D selection creates a fresh
 context. On touch/coarse-pointer devices, switching to the 2D map unmounts the
-inactive WebGL scene and active 3D rendering uses a 30 fps budget; desktop keeps
-the loaded scene warm for rapid mode switching. Disposal also stops workers
-before they start another queued GLB, closes decoded image resources where the
-browser exposes them and resets custom touch state on lost pointer capture or
-window blur.
+inactive WebGL scene and moving 3D rendering uses a 30 fps budget; desktop keeps
+the loaded scene warm and interaction at 60 fps. Static scenes settle to 10 fps
+on mobile and 12 fps on desktop. Existing GLB normals are reused, repeated
+tunnel fixtures are instanced, and a stale mobile hero queue is stopped and
+disposed after a new landmark selection. Disposal also stops workers before
+they start another queued GLB, closes decoded image resources where the browser
+exposes them and resets custom touch state on lost pointer capture or window
+blur.
 
 The DZI tile pyramid and reference map
 load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is

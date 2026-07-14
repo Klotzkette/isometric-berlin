@@ -1,5 +1,53 @@
 # Changelog
 
+## v0.2.6
+
+- Correct the Reichstag dome's largest metric error: anchor its base to the
+  Bundestag's published 24 m roof-terrace datum instead of the highest triangle
+  in a photogrammetry crop. Align it to the LoD2 building centre, preserve the
+  40 x 23.5 m envelope, expose the lower four ventilation rows and keep all 24
+  ribs and 17 horizontal rings legible over the measured mesh.
+- Raise hero material candidates to 2048 px and regenerate all 45 bounded GLBs
+  with livelier but restrained colour. The official scene is now 114.7 MiB
+  after bundling vertex normals for faster startup; each asset remains below
+  5 MiB and the surroundings retain their 70,000-face mobile limit.
+- Add a persistent Day/Night control and `D` shortcut to the true 3D viewer.
+  Night mode changes the sky, fog, sun/fill balance and tone mapping, dims the
+  photogrammetry and illuminates procedural facade windows, station glass,
+  trains and the Reichstag dome rather than applying a flat colour overlay.
+- Replace the floating focus dot with a 2.4-second, selected-only ring. No
+  landmark marker remains over a roof after focus settles.
+- Fix the real mobile underside bug caused by invoking the Three.js camera from
+  inside a React state updater. The underside button now remains pressed,
+  reaches 122 degrees, focuses the Kemperplatz tunnel context and reliably
+  reveals the cutaway under React Strict Mode.
+- Refine the Tiergartentunnel with two transparent casings, road decks, dashed
+  lane marks, continuous safety-light strips, denser fixtures, shaft rings and
+  four-blade fan cues while retaining its explicit OSM-derived approximation
+  status.
+- Add fine architectural cues without replacing official geometry: batched
+  Reichstag facade windows, three German flags plus one EU flag, Kanzleramt
+  Ehrenhof paving and a 5.5 m Chillida sculpture at its verified landmark,
+  denser Hauptbahnhof glass-panel ribs and office mullions, and a more
+  articulated Quadriga with sixteen legs, ears, muzzles, tails, harness, reins,
+  Victoria, robe, wings, wreath and Iron Cross.
+- Reframe Hauptbahnhof from a higher diagonal camera so its 321 m east-west
+  roof and 160 m crossing hall read together. Keep the ICE, S-Bahn, four tracks
+  and measured 46 m office bridges.
+- Increase settled rendering to a GPU-stable 1.75x desktop / 1.35x mobile
+  device pixels while temporarily reducing resolution during orbit gestures,
+  preserving sharp stills without compositor dropouts or touch rotation
+  stutter. Fit eleven primary controls in a safe two-row, six-column mobile
+  toolbar.
+- Reuse GLB normals instead of recalculating the 23 base meshes, stop and
+  dispose stale mobile hero queues after landmark changes, render interaction
+  at 60/30 fps and static scenes at 12/10 fps, and instance repeated tunnel
+  fixtures into five draw calls. Correct the fan geometry from duplicated
+  overlapping blade pairs to four distinct blades per fan.
+- Extend release QA and frontend geometry tests for day/night lighting,
+  temporary markers, the official dome datum, EU/German flag split, Chancellery
+  forecourt, station rib density, Quadriga anatomy and tunnel interaction.
+
 ## v0.2.5
 
 - Fix the major metric-alignment bug in the recognition layer. Procedural hero

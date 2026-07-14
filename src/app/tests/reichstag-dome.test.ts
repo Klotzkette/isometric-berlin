@@ -38,6 +38,14 @@ describe("official-dimension Reichstag dome", () => {
     ).toHaveLength(17);
     expect(dome.userData.heightM).toBe(23.5);
     expect(dome.userData.diameterM).toBe(40);
+    const glass = dome.children.find((child) =>
+      child.name.includes("glass envelope"),
+    );
+    expect(glass).toBeDefined();
+    if (glass && "geometry" in glass) {
+      glass.geometry.computeBoundingBox();
+      expect(glass.geometry.boundingBox?.min.y).toBeGreaterThan(5);
+    }
   });
 
   test("anchors the complete structure at metre-scale scene coordinates", () => {

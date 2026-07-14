@@ -50,6 +50,13 @@ button {
     inset 0 0 0 1px rgba(36, 43, 40, 0.24),
     inset 0 0 130px rgba(36, 43, 40, 0.18);
   pointer-events: none;
+  transition: box-shadow 320ms ease;
+}
+
+.app-shell--night .map-stage::after {
+  box-shadow:
+    inset 0 0 0 1px rgba(105, 151, 191, 0.2),
+    inset 0 0 180px rgba(0, 6, 16, 0.48);
 }
 
 .viewer {
@@ -60,6 +67,14 @@ button {
   pointer-events: none;
   touch-action: none;
   transition: opacity 180ms ease;
+}
+
+.viewer canvas {
+  transition: filter 320ms ease;
+}
+
+.app-shell--night .viewer canvas {
+  filter: brightness(0.4) saturate(0.82) contrast(1.12) hue-rotate(8deg);
 }
 
 .viewer.is-active {
@@ -75,6 +90,10 @@ button {
   pointer-events: none;
   touch-action: none;
   transition: opacity 180ms ease;
+}
+
+.app-shell--night .three-viewer {
+  background: #07131f;
 }
 
 .three-viewer.is-active {
@@ -920,7 +939,9 @@ button {
 
   .toolbar {
     display: grid;
-    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    grid-template-columns: repeat(6, minmax(44px, 1fr));
+    gap: 4px;
+    padding: 4px;
     overflow-x: visible;
   }
 

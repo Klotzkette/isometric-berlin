@@ -60,6 +60,12 @@ describe("metre-scale architectural recognition models", () => {
     expect(bounds.max.x - bounds.min.x).toBeCloseTo(11, 1);
     expect(bounds.max.y).toBeGreaterThan(25);
     expect(bounds.max.y).toBeLessThan(27);
+    expect(
+      gate!.children.filter((child) => child.name.startsWith("Quadriga horse leg")),
+    ).toHaveLength(16);
+    expect(
+      gate!.children.filter((child) => child.name.startsWith("Quadriga horse ear")),
+    ).toHaveLength(8);
   });
 
   test("makes the Hauptbahnhof cross and office bridges legible", () => {
@@ -98,6 +104,10 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       station!.children.some((child) => child.name.includes("Berlin S-Bahn")),
     ).toBe(true);
+    expect(
+      station!.children.filter((child) => child.name.includes("steel arch rib"))
+        .length,
+    ).toBeGreaterThan(50);
   });
 
   test("preserves the LoD2 Chancellery envelope and official heights", () => {
@@ -107,6 +117,8 @@ describe("metre-scale architectural recognition models", () => {
       cube_height_m: 36,
       cube_offset_world: [66.2, 0, -0.3],
       cube_width_m: 56.472,
+      forecourt_offset_world: [88, 0, 68],
+      forecourt_sculpture_height_m: 5.5,
       id: "bundeskanzleramt-model",
       kind: "chancellery_model",
       office_height_m: 18,
@@ -135,6 +147,11 @@ describe("metre-scale architectural recognition models", () => {
       0,
       -0.3,
     ]);
+    expect(
+      chancellery!.children.filter((child) =>
+        child.name.includes("Eduardo Chillida Berlin"),
+      ).length,
+    ).toBeGreaterThanOrEqual(7);
   });
 
   test("adds the Reichstag's four towers and west portico", () => {
@@ -165,5 +182,18 @@ describe("metre-scale architectural recognition models", () => {
     expect(focusCamera?.distance_m).toBe(200);
     expect(focusCamera?.target_world).toEqual([0, 0, 0]);
     expect(reichstag!.rotation.y).toBeCloseTo((21.82 * Math.PI) / 180, 6);
+    expect(
+      reichstag!.children.filter((child) =>
+        child.name.includes("German flag stripe"),
+      ),
+    ).toHaveLength(9);
+    expect(
+      reichstag!.children.filter((child) =>
+        child.name.includes("European Union flag"),
+      ),
+    ).toHaveLength(2);
+    expect(
+      reichstag!.children.filter((child) => child.name.includes("facade windows")),
+    ).toHaveLength(2);
   });
 });

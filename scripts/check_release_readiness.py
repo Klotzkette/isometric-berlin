@@ -281,6 +281,8 @@ def webgl_manifest_failures(
     expected_asset_names.add(relative)
     expected_size = entry.get("bytes")
     expected_hash = entry.get("sha256")
+    if entry.get("includes_normals") is not True:
+      failures.append(f"WebGL asset lacks bundled normals flag for {relative}: {label}")
     if type(expected_size) is not int or expected_size <= 0:
       failures.append(f"WebGL asset has invalid byte count for {relative}: {label}")
     if not isinstance(expected_hash, str) or not SHA256_RE.fullmatch(expected_hash):
@@ -377,11 +379,27 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "retryable model loading": "loadModelWithRetry",
     "nonfatal detail warnings": "onWarningRef.current",
     "WebGL context-loss fallback": 'addEventListener("webglcontextlost"',
-    "coarse-pointer frame budget": "frameIntervalMs = coarsePointer ? 1000 / 30",
+    "coarse-pointer frame budget": (
+      "activeFrameIntervalMs = coarsePointer ? 1000 / 30"
+    ),
+    "low-power idle frame budget": (
+      "idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12"
+    ),
+    "reuse bundled mesh normals": (
+      '!detail && !object.geometry.getAttribute("normal")'
+    ),
+    "instanced tunnel fixtures": ('"Tiergartentunnel instanced ceiling lights"'),
+    "stale mobile hero cancellation": (
+      "runtime.coarsePointer && selectedRef.current !== name"
+    ),
     "disposed queue cancellation": "shouldStop: () => runtime.disposed",
     "lost pointer-capture recovery": '"lostpointercapture"',
     "window-blur gesture recovery": 'window.addEventListener("blur"',
     "decoded texture-image disposal": "image.close()",
+    "GPU-bounded settled pixel ratio": ("window.innerWidth <= 760 ? 1.35 : 1.75"),
+    "lower interaction pixel ratio": ("renderer.setPixelRatio(interactionPixelRatio)"),
+    "day/night scene lighting": "setSceneLighting(runtime, lightingMode)",
+    "temporary selected marker": "runtime.markerTimer = window.setTimeout",
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"
@@ -392,6 +410,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:
     failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
+  if "toggleLightingMode" not in app or "lightingMode={lightingMode}" not in app:
+    failures.append(f"Viewer lacks persistent day/night controls: {app_path}")
   required_architecture_snippets = {
     "official-dimension Reichstag dome": "createOfficialReichstagDome",
     "metric Brandenburg Gate columns": "Brandenburg Gate Doric column",
@@ -408,7 +428,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   )
   required_mobile_style_snippets = {
     "narrow-screen toolbar breakpoint": "@media (max-width: 520px)",
-    "two-row mobile toolbar": ("grid-template-columns: repeat(5, minmax(44px, 1fr))"),
+    "two-row mobile toolbar": ("grid-template-columns: repeat(6, minmax(44px, 1fr))"),
     "mobile toolbar clearance": (
       "bottom: calc(158px + env(safe-area-inset-bottom, 0px))"
     ),

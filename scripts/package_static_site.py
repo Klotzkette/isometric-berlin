@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.2.5"
+PACKAGE_VERSION = "0.2.6"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3308,8 +3308,10 @@ das Mausrad zoomt, die rechte Maustaste verschiebt. Zwei Finger zoomen und
 drehen; drei Finger steuern Drehung und Neigung bis in die echte Untersicht.
 In der Untersicht wird die Oberfläche transparent und der technische
 Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
-Nur die ausgewählte Landmarke erhält einen Leuchtring; permanente Farbpunkte
-über den Gebäuden gibt es nicht mehr.
+Nur die ausgewählte Landmarke erhält kurz einen Leuchtring; permanente
+Farbpunkte über den Gebäuden gibt es nicht mehr. Der Advanced Viewer besitzt
+einen echten Tag-/Nacht-Lichtwechsel; Taste D oder der Mond-/Sonnenknopf
+schaltet Himmel, Nebel, Gebäudelicht, Glas und beleuchtete Fenster um.
 
 Version {PACKAGE_VERSION} begrenzt den Speicher für hochauflösende
 Gebäudedetails auf eine Gruppe bei Mobilgeräten und zwei Gruppen am Desktop.
@@ -3330,7 +3332,7 @@ Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
 Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
 Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
-haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 1536 px pro
+haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 2048 px pro
 Materialsegment. Maßhaltige Erkennungsmodelle ergänzen das Fotomesh: Reichstag
 mit Westportal, Ecktürmen und 40 x 23,5 m Kuppel; Kanzleramt mit 36-m-Kubus und
 LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 160 x 45 m
@@ -3432,8 +3434,10 @@ official Berlin 3D Mesh 2025. Left-drag or one finger orbits, the wheel zooms,
 and right-drag pans. Two fingers zoom and rotate; three fingers control
 azimuth and polar tilt into a real below-ground view. In underside mode the
 surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
-with lighting and ventilation. Only the selected landmark gets a focus ring;
-permanent coloured dots no longer cover the buildings.
+with lighting and ventilation. Only the selected landmark gets a brief focus
+ring; permanent coloured dots no longer cover the buildings. The Advanced
+Viewer has a true Day/Night lighting pass; D or the moon/sun button switches
+the sky, fog, glass, building light and illuminated windows.
 
 Version {PACKAGE_VERSION} bounds high-resolution building-detail memory to one
 group on mobile and two groups on desktop. Evicted geometry, materials and
@@ -3449,7 +3453,7 @@ This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
 now adds real photogrammetric roof, terrain and facade surfaces. Reichstag,
 Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
-LoD2-masked texture models up to 1536 px per material segment. Metre-scale
+LoD2-masked texture models up to 2048 px per material segment. Metre-scale
 recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 160 x 45 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m

@@ -14,6 +14,7 @@ import {
   Map as MapIcon,
   MapPinned,
   Minus,
+  Moon,
   Pause,
   Play,
   Plus,
@@ -21,12 +22,17 @@ import {
   RotateCw,
   SkipBack,
   SkipForward,
+  Sun,
   X,
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { ThreeViewer, type ThreeViewerHandle } from "./ThreeViewer";
+import {
+  ThreeViewer,
+  type LightingMode,
+  type ThreeViewerHandle,
+} from "./ThreeViewer";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import {
   PEN_GESTURE_SETTINGS,
@@ -53,6 +59,8 @@ type LandmarkPayload = {
 };
 
 type ViewerMode = "map" | "three";
+
+const APPEARANCE_STORAGE_KEY = "isometric-berlin-lighting";
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
@@ -175,6 +183,20 @@ function initialViewerMode(): ViewerMode {
       : "map";
   } catch {
     return "map";
+  }
+}
+
+function initialLightingMode(): LightingMode {
+  try {
+    const requested = new URLSearchParams(window.location.search).get("theme");
+    if (requested === "day" || requested === "night") {
+      return requested;
+    }
+    return window.localStorage.getItem(APPEARANCE_STORAGE_KEY) === "night"
+      ? "night"
+      : "day";
+  } catch {
+    return "day";
   }
 }
 
@@ -302,6 +324,8 @@ export function App() {
   const [selected, setSelected] = useState<string>(DEFAULT_FOCUS_LANDMARK);
   const [status, setStatus] = useState("Lade amtliches 3D-Mesh");
   const [viewerMode, setViewerMode] = useState<ViewerMode>(initialViewerMode);
+  const [lightingMode, setLightingMode] =
+    useState<LightingMode>(initialLightingMode);
   const [isMapReady, setIsMapReady] = useState(false);
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
@@ -393,6 +417,14 @@ export function App() {
     flipRef.current = isFlipped;
   }, [isFlipped]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(APPEARANCE_STORAGE_KEY, lightingMode);
+    } catch {
+      // The viewer remains usable when storage is blocked.
+    }
+  }, [lightingMode]);
+
   const applyRotation = useCallback((degrees: number) => {
     const next = normalizeRotation(degrees);
     if (viewerMode === "three") {
@@ -433,12 +465,18 @@ export function App() {
 
   const flipVertical = useCallback(() => {
     if (viewerMode === "three") {
-      setIsThreeUnderside((current) => {
-        const next = !current;
-        threeViewerRef.current?.setUnderside(next);
-        setStatus(next ? "Echte Untersicht · Tunnel sichtbar" : "3D-Oberansicht");
-        return next;
-      });
+      const next = !isThreeUnderside;
+      if (next) {
+        const tunnelLandmark = landmarks.find(
+          (landmark) => landmark.name === "Kemperplatz / Tiergartentunnel",
+        );
+        if (tunnelLandmark) {
+          focusLandmark(tunnelLandmark, true);
+        }
+      }
+      setIsThreeUnderside(next);
+      threeViewerRef.current?.setUnderside(next);
+      setStatus(next ? "Echte Untersicht · Tunnel sichtbar" : "3D-Oberansicht");
       return;
     }
     setRotation((current) => {
@@ -451,7 +489,7 @@ export function App() {
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, [viewerMode]);
+  }, [focusLandmark, isThreeUnderside, landmarks, viewerMode]);
 
   const resetOrientation = useCallback(() => {
     if (viewerMode === "three") {
@@ -531,6 +569,12 @@ export function App() {
     });
   }, [canNavigateLandmarks, focusLandmark, landmarks, selectedIndex]);
 
+  const toggleLightingMode = useCallback(() => {
+    const next = lightingMode === "day" ? "night" : "day";
+    setLightingMode(next);
+    setStatus(next === "night" ? "Nachtmodus" : "Tagmodus");
+  }, [lightingMode]);
+
   const openReferenceMap = useCallback(() => {
     if (document.activeElement instanceof HTMLElement) {
       referenceReturnFocusRef.current = document.activeElement;
@@ -591,6 +635,11 @@ export function App() {
       if (event.key === "?") {
         event.preventDefault();
         setIsHelpOpen((open) => !open);
+        return;
+      }
+      if (event.key.toLowerCase() === "d") {
+        event.preventDefault();
+        toggleLightingMode();
         return;
       }
       if (isReferenceOpen || isHelpOpen || !isReady) {
@@ -680,6 +729,7 @@ export function App() {
     rotateBy,
     tiltBy,
     toggleTour,
+    toggleLightingMode,
     viewerMode,
     zoomBy,
   ]);
@@ -864,7 +914,15 @@ export function App() {
   }, [focusLandmark, isReady, landmarks, selectedLandmark, viewerMode]);
 
   return (
-    <main className={isTouring ? "app-shell app-shell--touring" : "app-shell"}>
+    <main
+      className={[
+        "app-shell",
+        isTouring ? "app-shell--touring" : "",
+        lightingMode === "night" ? "app-shell--night" : "app-shell--day",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <section
         className="map-stage"
         data-viewer-mode={viewerMode}
@@ -879,6 +937,7 @@ export function App() {
           <ThreeViewer
             ref={threeViewerRef}
             active={viewerMode === "three"}
+            lightingMode={lightingMode}
             sceneUrl={sceneUrl}
             selectedLandmark={selected}
             onReady={() => {
@@ -946,6 +1005,23 @@ export function App() {
               <MapIcon size={18} aria-hidden="true" />
             ) : (
               <BoxIcon size={18} aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            aria-label={
+              lightingMode === "night"
+                ? "Zum Tagmodus wechseln"
+                : "Zum Nachtmodus wechseln"
+            }
+            aria-pressed={lightingMode === "night"}
+            title={lightingMode === "night" ? "Tagmodus (D)" : "Nachtmodus (D)"}
+            onClick={toggleLightingMode}
+          >
+            {lightingMode === "night" ? (
+              <Sun size={18} aria-hidden="true" />
+            ) : (
+              <Moon size={18} aria-hidden="true" />
             )}
           </button>
           <button
@@ -1358,6 +1434,12 @@ export function App() {
                   <kbd>?</kbd>
                 </dt>
                 <dd>Diese Hilfe ein- / ausblenden</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>D</kbd>
+                </dt>
+                <dd>Tag- / Nachtbeleuchtung umschalten</dd>
               </div>
               <div>
                 <dt>

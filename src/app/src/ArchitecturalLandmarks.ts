@@ -11,6 +11,7 @@ import {
   Float32BufferAttribute,
   FrontSide,
   Group,
+  InstancedMesh,
   LineBasicMaterial,
   LineSegments,
   MathUtils,
@@ -18,6 +19,7 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  Object3D,
   PlaneGeometry,
   RingGeometry,
   SphereGeometry,
@@ -61,6 +63,8 @@ export type ChancelleryModelSignature = SignatureBase & {
   cube_height_m: number;
   cube_offset_world: [number, number, number];
   cube_width_m: number;
+  forecourt_offset_world?: [number, number, number] | null;
+  forecourt_sculpture_height_m?: number;
   kind: "chancellery_model";
   office_height_m: number;
   office_segments: Array<{
@@ -101,6 +105,16 @@ export type ArchitecturalSignature =
   | BrandenburgGateModelSignature;
 
 const EDGE_COLOR = 0x26383d;
+
+function nightEmitter<T extends MeshStandardMaterial>(
+  material: T,
+  color: number,
+  intensity: number,
+): T {
+  material.userData.nightEmissive = color;
+  material.userData.nightEmissiveIntensity = intensity;
+  return material;
+}
 
 function modelMaterial(
   color: number,
@@ -253,6 +267,118 @@ function addGermanFlag(
   }
 }
 
+function addEuropeanFlag(
+  group: Group,
+  name: string,
+  position: [number, number, number],
+): void {
+  const poleMaterial = modelMaterial(0x6f7675, {
+    metalness: 0.62,
+    roughness: 0.3,
+  });
+  const poleHeight = 9;
+  const pole = new Mesh(
+    new CylinderGeometry(0.12, 0.16, poleHeight, 10),
+    poleMaterial,
+  );
+  pole.name = `${name} flagpole`;
+  pole.position.set(position[0], position[1] + poleHeight / 2, position[2]);
+  pole.castShadow = true;
+  group.add(pole);
+
+  const flag = new Mesh(
+    new PlaneGeometry(4.8, 2.28, 4, 2),
+    new MeshBasicMaterial({ color: 0x174c9c, side: DoubleSide }),
+  );
+  flag.name = `${name} European Union flag`;
+  flag.position.set(position[0] + 2.4, position[1] + poleHeight - 1.25, position[2]);
+  flag.rotation.y = -0.06;
+  group.add(flag);
+
+  const stars = new InstancedMesh(
+    new CircleGeometry(0.09, 5),
+    new MeshBasicMaterial({ color: 0xffd447, side: DoubleSide }),
+    12,
+  );
+  stars.name = `${name} European Union flag stars`;
+  const dummy = new Object3D();
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI * 2;
+    dummy.position.set(
+      position[0] + 2.4 + Math.cos(angle) * 0.58,
+      position[1] + poleHeight - 1.25 + Math.sin(angle) * 0.58,
+      position[2] - 0.015,
+    );
+    dummy.rotation.y = -0.06;
+    dummy.updateMatrix();
+    stars.setMatrixAt(index, dummy.matrix);
+  }
+  stars.instanceMatrix.needsUpdate = true;
+  group.add(stars);
+}
+
+function addReichstagWindowGrid(
+  group: Group,
+  signature: ReichstagModelSignature,
+): void {
+  const windowMaterial = nightEmitter(
+    modelMaterial(0x34474e, {
+      metalness: 0.12,
+      opacity: 0.16,
+      roughness: 0.24,
+    }),
+    0xffd58a,
+    1.7,
+  );
+  const floors = [6.1, 10.5, 14.9, 19.3];
+  const longCount = 14;
+  const shortCount = 10;
+  const longWindows = new InstancedMesh(
+    new BoxGeometry(4.25, 2.15, 0.16),
+    windowMaterial,
+    floors.length * longCount * 2,
+  );
+  longWindows.name = "Reichstag north/south facade windows";
+  const shortWindows = new InstancedMesh(
+    new BoxGeometry(0.16, 2.15, 4.25),
+    windowMaterial,
+    floors.length * shortCount * 2,
+  );
+  shortWindows.name = "Reichstag east/west facade windows";
+  const dummy = new Object3D();
+  let longIndex = 0;
+  let shortIndex = 0;
+  for (const y of floors) {
+    for (const side of [-1, 1]) {
+      for (let index = 0; index < longCount; index += 1) {
+        dummy.position.set(
+          -signature.width_m / 2 + 8 + (index / (longCount - 1)) * (signature.width_m - 16),
+          y,
+          side * (signature.depth_m / 2 + 0.1),
+        );
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        longWindows.setMatrixAt(longIndex, dummy.matrix);
+        longIndex += 1;
+      }
+      for (let index = 0; index < shortCount; index += 1) {
+        dummy.position.set(
+          side * (signature.width_m / 2 + 0.1),
+          y,
+          -signature.depth_m / 2 + 13 +
+            (index / (shortCount - 1)) * (signature.depth_m - 26),
+        );
+        dummy.updateMatrix();
+        shortWindows.setMatrixAt(shortIndex, dummy.matrix);
+        shortIndex += 1;
+      }
+    }
+  }
+  longWindows.instanceMatrix.needsUpdate = true;
+  shortWindows.instanceMatrix.needsUpdate = true;
+  group.add(longWindows, shortWindows);
+}
+
 function triangularPrism(width: number, height: number, depth: number): BufferGeometry {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
@@ -297,7 +423,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   placeMetricGroup(group, signature);
 
   const stoneAccent = modelMaterial(0xd8d0bf, {
-    opacity: 0.82,
+    opacity: 0.48,
     roughness: 0.82,
   });
   const entranceShadow = modelMaterial(0x343a39, {
@@ -338,11 +464,16 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
         stoneAccent,
         0.72,
       );
-      addGermanFlag(group, `Reichstag tower ${x}:${z}`, [
+      const flagPosition: [number, number, number] = [
         x * (signature.width_m / 2 - towerSize / 2 - 2),
         signature.body_height_m + 2.35,
         z * (signature.depth_m / 2 - towerSize / 2 - 2),
-      ]);
+      ];
+      if (x === 1 && z === 1) {
+        addEuropeanFlag(group, `Reichstag tower ${x}:${z}`, flagPosition);
+      } else {
+        addGermanFlag(group, `Reichstag tower ${x}:${z}`, flagPosition);
+      }
     }
   }
 
@@ -413,6 +544,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   pediment.castShadow = true;
   group.add(pediment);
   addEdges(group, pediment, 0.9);
+  addReichstagWindowGrid(group, signature);
 
   return group;
 }
@@ -425,11 +557,15 @@ function addChancelleryOfficeBand(
   depth: number,
   height: number,
 ): void {
-  const glass = modelMaterial(0x70bfd0, {
-    metalness: 0.12,
-    opacity: 0.18,
-    roughness: 0.22,
-  });
+  const glass = nightEmitter(
+    modelMaterial(0x70bfd0, {
+      metalness: 0.12,
+      opacity: 0.18,
+      roughness: 0.22,
+    }),
+    0xffd994,
+    1.25,
+  );
   const concrete = modelMaterial(0xe6ebe8, {
     opacity: 0.74,
     roughness: 0.76,
@@ -475,17 +611,106 @@ function addChancelleryOfficeBand(
   }
 }
 
+function addChancelleryForecourt(
+  group: Group,
+  signature: ChancelleryModelSignature,
+): void {
+  if (!signature.forecourt_offset_world) {
+    return;
+  }
+  const [x, , z] = signature.forecourt_offset_world;
+  const paving = modelMaterial(0xcfd3cf, {
+    opacity: 0.34,
+    roughness: 0.86,
+  });
+  const joint = modelMaterial(0x7f8b89, {
+    opacity: 0.55,
+    roughness: 0.9,
+  });
+  addBox(
+    group,
+    "Chancellery Ehrenhof paving",
+    [76, 0.16, 52],
+    [x, 0.08, z],
+    paving,
+  );
+  for (let index = -4; index <= 4; index += 1) {
+    addBox(
+      group,
+      "Chancellery Ehrenhof east-west paving joint",
+      [76, 0.025, 0.08],
+      [x, 0.18, z + index * 5.6],
+      joint,
+    );
+  }
+  for (let index = -6; index <= 6; index += 1) {
+    addBox(
+      group,
+      "Chancellery Ehrenhof north-south paving joint",
+      [0.08, 0.025, 52],
+      [x + index * 5.6, 0.18, z],
+      joint,
+    );
+  }
+
+  const sculptureHeight = signature.forecourt_sculpture_height_m ?? 5.5;
+  const steel = modelMaterial(0x8d4938, {
+    metalness: 0.48,
+    roughness: 0.52,
+  });
+  addBox(
+    group,
+    "Eduardo Chillida Berlin sculpture plinth",
+    [8.4, 0.42, 5.6],
+    [x, 0.4, z],
+    modelMaterial(0x787c78, { roughness: 0.9 }),
+    0.4,
+  );
+  for (const side of [-1, 1]) {
+    const sculptureX = x + side * 1.7;
+    addBox(
+      group,
+      "Eduardo Chillida Berlin vertical steel body",
+      [1.05, sculptureHeight, 1.2],
+      [sculptureX, 0.62 + sculptureHeight / 2, z],
+      steel,
+      0.55,
+    );
+    for (const level of [0.28, 0.72]) {
+      addBox(
+        group,
+        "Eduardo Chillida Berlin interlocking arm",
+        [3.2, 0.72, 1.05],
+        [
+          sculptureX - side * 1.05,
+          0.62 + sculptureHeight * level,
+          z + side * (level > 0.5 ? 0.62 : -0.62),
+        ],
+        steel,
+        0.5,
+      );
+    }
+  }
+}
+
 function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   const group = new Group();
   group.name = "Metre-scale Federal Chancellery recognition model";
   placeMetricGroup(group, signature);
 
-  const concrete = modelMaterial(0xe8ece9, { roughness: 0.78 });
-  const glass = modelMaterial(0x6fb9c8, {
-    metalness: 0.08,
-    opacity: 0.24,
-    roughness: 0.2,
+  const concrete = modelMaterial(0xe8ece9, {
+    opacity: 0.58,
+    roughness: 0.78,
   });
+  const glass = nightEmitter(
+    modelMaterial(0x6fb9c8, {
+      metalness: 0.08,
+      opacity: 0.24,
+      roughness: 0.2,
+    }),
+    0xffd994,
+    1.45,
+  );
   const cubeX = signature.cube_offset_world[0];
   const cubeZ = signature.cube_offset_world[2];
   addBox(
@@ -526,16 +751,20 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
     0.84,
   );
 
-  const windowGlass = new MeshPhysicalMaterial({
-    color: 0x5fcce0,
-    depthWrite: false,
-    metalness: 0.04,
-    opacity: 0.42,
-    roughness: 0.12,
-    side: DoubleSide,
-    transparent: true,
-    transmission: 0.2,
-  });
+  const windowGlass = nightEmitter(
+    new MeshPhysicalMaterial({
+      color: 0x5fcce0,
+      depthWrite: false,
+      metalness: 0.04,
+      opacity: 0.42,
+      roughness: 0.12,
+      side: DoubleSide,
+      transparent: true,
+      transmission: 0.2,
+    }),
+    0xffcf78,
+    2.2,
+  );
   const archFrame = modelMaterial(0xf0f1ec, { roughness: 0.68 });
   for (const xDirection of [-1, 1]) {
     const glassWindow = new Mesh(new CircleGeometry(17.2, 64, 0, Math.PI), windowGlass);
@@ -592,6 +821,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       segment.height_m,
     );
   }
+  addChancelleryForecourt(group, signature);
   return group;
 }
 
@@ -640,24 +870,29 @@ function addBarrelRoof(
   baseY: number,
   alongX: boolean,
 ): void {
-  const glass = new MeshPhysicalMaterial({
-    color: 0x72d0e3,
-    depthWrite: false,
-    metalness: 0.04,
-    opacity: 0.3,
-    roughness: 0.12,
-    side: DoubleSide,
-    transparent: true,
-    transmission: 0.28,
-  });
+  const glass = nightEmitter(
+    new MeshPhysicalMaterial({
+      color: 0x72d0e3,
+      depthTest: false,
+      depthWrite: false,
+      metalness: 0.04,
+      opacity: 0.24,
+      roughness: 0.12,
+      side: DoubleSide,
+      transparent: true,
+      transmission: 0.28,
+    }),
+    0xaedfff,
+    1.1,
+  );
   const steel = modelMaterial(0x47616d, { metalness: 0.66, roughness: 0.28 });
   const roof = new Mesh(barrelRoofGeometry(length, width, height, alongX), glass);
   roof.name = name;
-  roof.position.y = baseY;
+  roof.position.y = baseY + 0.18;
   roof.renderOrder = 6;
   group.add(roof);
 
-  const ribCount = Math.max(10, Math.round(length / 16));
+  const ribCount = Math.max(14, Math.round(length / 8));
   for (let ribIndex = 0; ribIndex <= ribCount; ribIndex += 1) {
     const longitudinal = -length / 2 + (ribIndex / ribCount) * length;
     const points = Array.from({ length: 25 }, (_, index) => {
@@ -677,7 +912,10 @@ function addBarrelRoof(
     group.add(rib);
   }
 
-  for (const fraction of [0.2, 0.38, 0.62, 0.8]) {
+  for (const fraction of Array.from(
+    { length: 11 },
+    (_, index) => (index + 1) / 12,
+  )) {
     const angle = fraction * Math.PI;
     const lateral = Math.cos(angle) * (width / 2);
     const y = baseY + Math.sin(angle) * height;
@@ -697,6 +935,26 @@ function addStationOfficeBridge(
   depth: number,
   height: number,
 ): void {
+  const glass = nightEmitter(
+    modelMaterial(0x75b4c4, {
+      metalness: 0.12,
+      opacity: 0.16,
+      roughness: 0.2,
+    }),
+    0xffdca0,
+    1.35,
+  );
+  const frame = modelMaterial(0x60757c, {
+    metalness: 0.42,
+    roughness: 0.38,
+  });
+  addBox(
+    group,
+    "Hauptbahnhof office-bridge glazed volume",
+    [18.4, height - 2.2, depth - 1.2],
+    [x, height / 2, 0],
+    glass,
+  );
   addBoxOutline(
     group,
     "Hauptbahnhof 46 m office bridge",
@@ -714,6 +972,22 @@ function addStationOfficeBridge(
       0.3,
       0x769da7,
     );
+  }
+  const mullionCount = Math.max(10, Math.round(depth / 12));
+  for (const side of [-1, 1]) {
+    for (let index = 0; index <= mullionCount; index += 1) {
+      addBox(
+        group,
+        "Hauptbahnhof office-bridge facade mullion",
+        [0.24, height - 2.4, 0.28],
+        [
+          x + side * 9.3,
+          height / 2,
+          -depth / 2 + (index / mullionCount) * depth,
+        ],
+        frame,
+      );
+    }
   }
 }
 
@@ -736,11 +1010,15 @@ function addStationTrain(
   const stripeMaterial = modelMaterial(options.stripeColor, {
     roughness: 0.48,
   });
-  const windowMaterial = modelMaterial(options.windowColor, {
-    metalness: 0.24,
-    opacity: 0.88,
-    roughness: 0.2,
-  });
+  const windowMaterial = nightEmitter(
+    modelMaterial(options.windowColor, {
+      metalness: 0.24,
+      opacity: 0.88,
+      roughness: 0.2,
+    }),
+    0xffd688,
+    1.5,
+  );
   const body = new Mesh(
     new CapsuleGeometry(1.58, options.length - 3.16, 5, 12),
     bodyMaterial,
@@ -1048,6 +1326,12 @@ function createBrandenburgGateModel(
     head.position.set(3.15, 23.35, z);
     head.castShadow = true;
     group.add(head);
+    const muzzle = new Mesh(new SphereGeometry(0.36, 12, 8), bronze);
+    muzzle.name = `Quadriga horse muzzle ${index + 1}`;
+    muzzle.scale.set(1.35, 0.72, 0.82);
+    muzzle.position.set(3.68, 23.12, z);
+    muzzle.castShadow = true;
+    group.add(muzzle);
     addCylinderBetween(
       group,
       `Quadriga horse neck ${index + 1}`,
@@ -1057,23 +1341,80 @@ function createBrandenburgGateModel(
       bronze,
       10,
     );
-    for (const legX of [0.15, 1.75]) {
-      addCylinderBetween(
-        group,
-        `Quadriga horse leg ${index + 1}`,
-        new Vector3(legX, 21.82, z),
-        new Vector3(legX + 0.28, 20.55, z),
-        0.16,
-        bronze,
-        8,
-      );
+    for (const earZ of [-0.22, 0.22]) {
+      const ear = new Mesh(new ConeGeometry(0.16, 0.55, 8), bronze);
+      ear.name = `Quadriga horse ear ${index + 1}`;
+      ear.position.set(3.08, 24.05, z + earZ);
+      ear.rotation.z = -0.18;
+      group.add(ear);
     }
+    for (const legX of [0.1, 1.72]) {
+      for (const legZ of [-0.22, 0.22]) {
+        addCylinderBetween(
+          group,
+          `Quadriga horse leg ${index + 1}`,
+          new Vector3(legX, 21.82, z + legZ),
+          new Vector3(legX + (legX > 1 ? 0.36 : -0.18), 20.48, z + legZ),
+          0.13,
+          bronze,
+          8,
+        );
+      }
+    }
+    const tailPoints = [
+      new Vector3(-1.0, 22.35, z),
+      new Vector3(-1.55, 21.95, z),
+      new Vector3(-1.85, 21.15, z + 0.08),
+    ];
+    const tail = new Mesh(
+      new TubeGeometry(new CatmullRomCurve3(tailPoints), 12, 0.1, 6, false),
+      bronze,
+    );
+    tail.name = `Quadriga horse tail ${index + 1}`;
+    group.add(tail);
+    addCylinderBetween(
+      group,
+      `Quadriga rein ${index + 1}`,
+      new Vector3(-0.6, 23.1, 0),
+      new Vector3(3.45, 23.55, z),
+      0.035,
+      bronze,
+      6,
+    );
   }
+  addBox(
+    group,
+    "Quadriga horse harness crossbar",
+    [0.2, 0.24, 6.7],
+    [0.05, 22.7, 0],
+    bronze,
+    0.5,
+  );
   const victoria = new Mesh(new CylinderGeometry(0.3, 0.58, 3.6, 12), bronze);
   victoria.name = "Quadriga Victoria";
   victoria.position.set(-1.6, 23.1, 0);
   victoria.castShadow = true;
   group.add(victoria);
+  const dress = new Mesh(new ConeGeometry(0.82, 3.2, 18, 1, true), bronze);
+  dress.name = "Quadriga Victoria draped robe";
+  dress.position.set(-1.6, 22.65, 0);
+  dress.castShadow = true;
+  group.add(dress);
+  const victoriaHead = new Mesh(new SphereGeometry(0.38, 14, 10), bronze);
+  victoriaHead.name = "Quadriga Victoria head";
+  victoriaHead.position.set(-1.6, 25.12, 0);
+  group.add(victoriaHead);
+  for (const side of [-1, 1]) {
+    addCylinderBetween(
+      group,
+      "Quadriga Victoria arm",
+      new Vector3(-1.58, 24.0, side * 0.18),
+      new Vector3(-0.92, 24.55, side * 0.52),
+      0.11,
+      bronze,
+      8,
+    );
+  }
   for (const side of [-1, 1]) {
     const wing = new Mesh(new ConeGeometry(0.9, 2.8, 3), bronze);
     wing.name = "Quadriga Victoria wing";
@@ -1097,6 +1438,20 @@ function createBrandenburgGateModel(
   wreath.rotation.y = Math.PI / 2;
   wreath.position.set(-0.35, signature.total_height_m - 0.55, 0);
   group.add(wreath);
+  addBox(
+    group,
+    "Quadriga Iron Cross vertical",
+    [0.12, 0.68, 0.12],
+    [-0.32, signature.total_height_m - 0.56, 0],
+    bronze,
+  );
+  addBox(
+    group,
+    "Quadriga Iron Cross horizontal",
+    [0.12, 0.16, 0.62],
+    [-0.32, signature.total_height_m - 0.5, 0],
+    bronze,
+  );
   return group;
 }
 

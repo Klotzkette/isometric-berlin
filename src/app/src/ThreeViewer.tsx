@@ -3,6 +3,7 @@ import {
   TOUCH,
   ACESFilmicToneMapping,
   BoxGeometry,
+  BufferGeometry,
   Color,
   CylinderGeometry,
   DirectionalLight,
@@ -11,8 +12,10 @@ import {
   FrontSide,
   Group,
   HemisphereLight,
+  InstancedMesh,
   LineSegments,
   Material,
+  Matrix4,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
@@ -66,7 +69,7 @@ type HeroDetail = {
   files: MeshFile[];
 };
 
-type TunnelPayload = {
+export type TunnelPayload = {
   clear_height_m: number;
   clear_width_each_direction_m: number;
   depth_status: string;
@@ -89,8 +92,11 @@ type ViewAngles = {
   underside: boolean;
 };
 
+export type LightingMode = "day" | "night";
+
 type ThreeViewerProps = {
   active: boolean;
+  lightingMode: LightingMode;
   sceneUrl: string;
   selectedLandmark: string;
   onError: (message: string) => void;
@@ -117,16 +123,21 @@ type Runtime = {
   detailGroups: Map<string, HeroDetailGroup>;
   disposed: boolean;
   focusCameraByName: Map<string, FocusCamera>;
+  hemisphere: HemisphereLight;
   heroByName: Map<string, HeroDetail>;
   landmarkByName: Map<string, SceneLandmark>;
   loader: GLTFLoader;
   marker: Group;
+  markerTimer: number | null;
   modelMaterials: Set<MeshStandardMaterial>;
   renderer: WebGLRenderer;
   scene: Scene;
   sceneRootUrl: URL;
   signatures: Group;
+  skyFill: DirectionalLight;
+  sun: DirectionalLight;
   tunnel: Group;
+  lightingMode: LightingMode;
   underside: boolean;
 };
 
@@ -144,7 +155,7 @@ const DETAIL_RAISE_M = 0.035;
 function createSelectionMarker(): Group {
   const group = new Group();
   const ring = new Mesh(
-    new RingGeometry(2.6, 3.7, 48),
+    new RingGeometry(1.5, 2.25, 48),
     new MeshBasicMaterial({
       color: 0xffc45d,
       depthTest: false,
@@ -156,20 +167,70 @@ function createSelectionMarker(): Group {
   ring.rotation.x = -Math.PI / 2;
   ring.renderOrder = 20;
   group.add(ring);
-  const point = new Mesh(
-    new SphereGeometry(0.62, 18, 12),
-    new MeshBasicMaterial({
-      color: 0xffd98a,
-      depthTest: false,
-      side: DoubleSide,
-      transparent: true,
-      opacity: 0.95,
-    }),
-  );
-  point.position.y = 0.9;
-  point.renderOrder = 21;
-  group.add(point);
   return group;
+}
+
+function applyMaterialLighting(
+  material: MeshStandardMaterial,
+  mode: LightingMode,
+): void {
+  if (!material.userData.appearanceCaptured) {
+    material.userData.appearanceCaptured = true;
+    material.userData.dayEmissive = material.emissive.getHex();
+    material.userData.dayEmissiveIntensity = material.emissiveIntensity;
+  }
+  if (mode === "night") {
+    const nightEmissive = material.userData.nightEmissive;
+    if (typeof nightEmissive === "number") {
+      material.emissive.setHex(nightEmissive);
+      material.emissiveIntensity =
+        material.userData.nightEmissiveIntensity ?? 1;
+    } else if (material.userData.sourceMaterial) {
+      material.emissiveIntensity = material.map ? 0.035 : 0.015;
+    }
+  } else {
+    material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
+    material.emissiveIntensity =
+      material.userData.dayEmissiveIntensity ?? 1;
+  }
+  material.needsUpdate = true;
+}
+
+function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
+  const seen = new Set<MeshStandardMaterial>();
+  root.traverse((object) => {
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) {
+      if (material instanceof MeshStandardMaterial && !seen.has(material)) {
+        seen.add(material);
+        applyMaterialLighting(material, mode);
+      }
+    }
+  });
+}
+
+function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
+  runtime.lightingMode = mode;
+  const sky = mode === "night" ? 0x07131f : 0xc9eaf3;
+  runtime.scene.background = new Color(sky);
+  runtime.scene.fog = new Fog(sky, mode === "night" ? 900 : 1100, 2550);
+  runtime.renderer.toneMappingExposure = mode === "night" ? 0.82 : 1.3;
+  runtime.hemisphere.color.setHex(mode === "night" ? 0x5877a4 : 0xffffff);
+  runtime.hemisphere.groundColor.setHex(mode === "night" ? 0x08120f : 0x658266);
+  runtime.hemisphere.intensity = mode === "night" ? 0.34 : 2.7;
+  runtime.sun.color.setHex(mode === "night" ? 0x91b9ed : 0xffefc9);
+  runtime.sun.intensity = mode === "night" ? 0.62 : 2.75;
+  runtime.skyFill.color.setHex(mode === "night" ? 0x6c82ae : 0xb6dcff);
+  runtime.skyFill.intensity = mode === "night" ? 0.2 : 0.34;
+  for (const material of runtime.modelMaterials) {
+    applyMaterialLighting(material, mode);
+  }
+  applyLightingToRoot(runtime.signatures, mode);
 }
 
 function segmentMesh(
@@ -189,26 +250,45 @@ function segmentMesh(
   return mesh;
 }
 
-function createTunnel(payload: TunnelPayload): Group {
+function addInstancedMeshes(
+  group: Group,
+  name: string,
+  geometry: BufferGeometry,
+  material: Material,
+  matrices: Matrix4[],
+  renderOrder = 0,
+): void {
+  if (matrices.length === 0) {
+    return;
+  }
+  const mesh = new InstancedMesh(geometry, material, matrices.length);
+  mesh.name = name;
+  matrices.forEach((matrix, index) => mesh.setMatrixAt(index, matrix));
+  mesh.instanceMatrix.needsUpdate = true;
+  mesh.renderOrder = renderOrder;
+  group.add(mesh);
+}
+
+export function createTunnel(payload: TunnelPayload): Group {
   const group = new Group();
   group.name = "Tiergartentunnel cutaway";
   const width = payload.clear_width_each_direction_m;
   const height = payload.clear_height_m;
   const casingMaterial = new MeshPhysicalMaterial({
-    color: 0x668b98,
-    emissive: 0x244d5b,
-    emissiveIntensity: 0.75,
+    color: 0x5e98aa,
+    emissive: 0x246f84,
+    emissiveIntensity: 1.25,
     metalness: 0.12,
     roughness: 0.72,
     side: DoubleSide,
     transparent: true,
-    opacity: 0.36,
+    opacity: 0.44,
     depthWrite: false,
   });
   const roadMaterial = new MeshPhysicalMaterial({
     color: 0x30464f,
     emissive: 0x162d35,
-    emissiveIntensity: 0.48,
+    emissiveIntensity: 0.72,
     roughness: 0.9,
     side: DoubleSide,
     transparent: true,
@@ -219,9 +299,41 @@ function createTunnel(payload: TunnelPayload): Group {
     color: 0xffe59b,
     depthTest: false,
   });
+  const lightStripMaterial = new MeshBasicMaterial({
+    color: 0xffe3a1,
+    opacity: 0.58,
+    transparent: true,
+  });
   const casingGeometry = new BoxGeometry(width, height, 1);
   const roadGeometry = new BoxGeometry(width - 0.7, 0.28, 1);
+  const lightStripGeometry = new BoxGeometry(0.12, 0.1, 1);
+  const lampGeometry = new SphereGeometry(0.95, 12, 8);
+  const laneMarkGeometry = new BoxGeometry(0.16, 0.06, 1);
+  const laneMarkMaterial = new MeshBasicMaterial({ color: 0xe8e4d4 });
+  const shaftGeometry = new CylinderGeometry(2.4, 2.4, 12, 20, 1, true);
+  const shaftMaterial = new MeshPhysicalMaterial({
+    color: 0x85949c,
+    metalness: 0.36,
+    roughness: 0.5,
+    side: DoubleSide,
+  });
+  const fanGeometry = new TorusGeometry(1.65, 0.28, 10, 28);
+  const fanMaterial = new MeshBasicMaterial({
+    color: 0xffd978,
+    side: DoubleSide,
+  });
+  const bladeGeometry = new BoxGeometry(1.3, 0.12, 0.3);
+  const bladeMaterial = new MeshBasicMaterial({
+    color: 0xffd978,
+    side: DoubleSide,
+  });
   const points = payload.points.map((point) => new Vector3(...point));
+  const lampMatrices: Matrix4[] = [];
+  const laneMarkMatrices: Matrix4[] = [];
+  const shaftMatrices: Matrix4[] = [];
+  const fanMatrices: Matrix4[] = [];
+  const bladeMatrices: Matrix4[] = [];
+  const instance = new Object3D();
 
   for (let index = 0; index < points.length - 1; index += 1) {
     const start = points[index];
@@ -241,46 +353,119 @@ function createTunnel(payload: TunnelPayload): Group {
       const road = segmentMesh(roadGeometry, roadMaterial, start, end, offset);
       road.position.y -= height / 2 - 0.26;
       group.add(road);
+      for (const wallSide of [-1, 1]) {
+        const strip = segmentMesh(
+          lightStripGeometry,
+          lightStripMaterial,
+          start,
+          end,
+          offset + wallSide * (width / 2 - 0.55),
+        );
+        strip.name = "Tiergartentunnel continuous safety-light strip";
+        strip.position.y += height / 2 - 0.48;
+        strip.renderOrder = 12;
+        group.add(strip);
+      }
 
-      const lampCount = Math.max(1, Math.floor(segmentLength / 34));
+      const lampCount = Math.max(1, Math.floor(segmentLength / 24));
       const normal = new Vector3(-delta.z / segmentLength, 0, delta.x / segmentLength);
       for (let lamp = 1; lamp <= lampCount; lamp += 1) {
         const position = start.clone().lerp(end, lamp / (lampCount + 1));
         position.addScaledVector(normal, offset).add(new Vector3(0, height / 2 - 0.35, 0));
-        const fixture = new Mesh(new SphereGeometry(0.78, 12, 8), lightMaterial);
-        fixture.position.copy(position);
-        fixture.renderOrder = 12;
-        group.add(fixture);
+        instance.position.copy(position);
+        instance.rotation.set(0, 0, 0);
+        instance.scale.set(1, 1, 1);
+        instance.updateMatrix();
+        lampMatrices.push(instance.matrix.clone());
+      }
+      const markCount = Math.max(1, Math.floor(segmentLength / 16));
+      for (let mark = 1; mark <= markCount; mark += 1) {
+        instance.position
+          .copy(start)
+          .lerp(end, mark / (markCount + 1))
+          .addScaledVector(normal, offset)
+          .add(new Vector3(0, -height / 2 + 0.46, 0));
+        instance.rotation.set(0, Math.atan2(delta.x, delta.z), 0);
+        instance.scale.set(
+          1,
+          1,
+          Math.min(5.5, segmentLength / (markCount + 1) / 2),
+        );
+        instance.updateMatrix();
+        laneMarkMatrices.push(instance.matrix.clone());
       }
     }
   }
 
+  addInstancedMeshes(
+    group,
+    "Tiergartentunnel instanced ceiling lights",
+    lampGeometry,
+    lightMaterial,
+    lampMatrices,
+    12,
+  );
+  addInstancedMeshes(
+    group,
+    "Tiergartentunnel instanced dashed lane markings",
+    laneMarkGeometry,
+    laneMarkMaterial,
+    laneMarkMatrices,
+    11,
+  );
+
   for (const point of points.filter((_, index) => index % 2 === 0)) {
-    const shaft = new Mesh(
-      new CylinderGeometry(2.4, 2.4, 12, 20, 1, true),
-      new MeshPhysicalMaterial({
-        color: 0x85949c,
-        metalness: 0.36,
-        roughness: 0.5,
-        side: DoubleSide,
-      }),
-    );
-    shaft.position.copy(point).add(new Vector3(0, 6, 0));
-    group.add(shaft);
-    const fan = new Mesh(
-      new TorusGeometry(1.65, 0.28, 10, 28),
-      new MeshBasicMaterial({ color: 0xffd978, side: DoubleSide }),
-    );
-    fan.rotation.x = Math.PI / 2;
-    fan.position.copy(point).add(new Vector3(0, 11.8, 0));
-    group.add(fan);
+    instance.position.copy(point).add(new Vector3(0, 6, 0));
+    instance.rotation.set(0, 0, 0);
+    instance.scale.set(1, 1, 1);
+    instance.updateMatrix();
+    shaftMatrices.push(instance.matrix.clone());
+
+    const fanPosition = point.clone().add(new Vector3(0, 11.8, 0));
+    instance.position.copy(fanPosition);
+    instance.rotation.set(Math.PI / 2, 0, 0);
+    instance.updateMatrix();
+    fanMatrices.push(instance.matrix.clone());
+    for (let bladeIndex = 0; bladeIndex < 4; bladeIndex += 1) {
+      const angle = (bladeIndex / 4) * Math.PI * 2;
+      instance.position.copy(fanPosition).add(
+        new Vector3(Math.cos(angle) * 0.72, 0, Math.sin(angle) * 0.72),
+      );
+      instance.rotation.set(0, -angle, 0);
+      instance.updateMatrix();
+      bladeMatrices.push(instance.matrix.clone());
+    }
   }
+  addInstancedMeshes(
+    group,
+    "Tiergartentunnel instanced ventilation shafts",
+    shaftGeometry,
+    shaftMaterial,
+    shaftMatrices,
+  );
+  addInstancedMeshes(
+    group,
+    "Tiergartentunnel instanced ventilation fan rings",
+    fanGeometry,
+    fanMaterial,
+    fanMatrices,
+  );
+  addInstancedMeshes(
+    group,
+    "Tiergartentunnel instanced ventilation fan blades",
+    bladeGeometry,
+    bladeMaterial,
+    bladeMatrices,
+  );
   group.visible = false;
   return group;
 }
 
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
+  if (underside) {
+    runtime.marker.visible = false;
+  }
   for (const material of runtime.modelMaterials) {
     material.side = underside ? DoubleSide : FrontSide;
     material.transparent = underside;
@@ -406,7 +591,7 @@ async function loadModel(
     }
     object.receiveShadow = true;
     object.castShadow = detail && !runtime.coarsePointer;
-    if (!detail) {
+    if (!detail && !object.geometry.getAttribute("normal")) {
       object.geometry.computeVertexNormals();
     }
     const materials = Array.isArray(object.material)
@@ -429,6 +614,8 @@ async function loadModel(
         material.emissive.set(0x2b3130);
         material.emissiveIntensity = 0.09;
       }
+      material.userData.sourceMaterial = true;
+      applyMaterialLighting(material, runtime.lightingMode);
       if (detail) {
         material.polygonOffset = true;
         material.polygonOffsetFactor = -1;
@@ -474,6 +661,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
   function ThreeViewer(
     {
       active,
+      lightingMode,
       sceneUrl,
       selectedLandmark,
       onError,
@@ -487,6 +675,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const runtimeRef = useRef<Runtime | null>(null);
     const selectedRef = useRef(selectedLandmark);
     const activeRef = useRef(active);
+    const lightingModeRef = useRef(lightingMode);
     const onErrorRef = useRef(onError);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
@@ -496,6 +685,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useEffect(() => {
       activeRef.current = active;
     }, [active]);
+
+    useEffect(() => {
+      lightingModeRef.current = lightingMode;
+      const runtime = runtimeRef.current;
+      if (runtime) {
+        setSceneLighting(runtime, lightingMode);
+      }
+    }, [lightingMode]);
 
     useEffect(() => {
       onErrorRef.current = onError;
@@ -549,6 +746,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 : 18;
       runtime.marker.position.copy(target).setY(markerHeight);
       runtime.marker.visible = true;
+      if (runtime.markerTimer !== null) {
+        window.clearTimeout(runtime.markerTimer);
+      }
+      runtime.markerTimer = window.setTimeout(() => {
+        if (!runtime.disposed) {
+          runtime.marker.visible = false;
+        }
+        runtime.markerTimer = null;
+      }, 2400);
       runtime.controls.update(immediate ? 1 : undefined);
       notifyView(runtime, onViewChangeRef.current);
 
@@ -593,12 +799,33 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               }));
             }
           },
-          { shouldStop: () => runtime.disposed },
+          {
+            shouldStop: () =>
+              runtime.disposed ||
+              (runtime.coarsePointer && selectedRef.current !== name),
+          },
         ).then((failures) => {
           if (runtime.disposed) {
             return;
           }
           entry.loading = false;
+          const interruptedOnMobile =
+            runtime.coarsePointer &&
+            failures.length === 0 &&
+            entry.loadedFiles < detail.files.length;
+          if (interruptedOnMobile) {
+            const shouldRestart = selectedRef.current === name;
+            runtime.detailGroups.delete(name);
+            disposeObject3D(runtime, group);
+            setProgress((current) => ({
+              loaded: Math.max(0, current.loaded - entry.loadedFiles),
+              total: Math.max(0, current.total - detail.files.length),
+            }));
+            if (shouldRestart) {
+              focusLandmark(name);
+            }
+            return;
+          }
           if (failures.length > 0) {
             runtime.detailGroups.delete(name);
             disposeObject3D(runtime, group);
@@ -715,9 +942,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.toneMappingExposure = 1.32;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = PCFShadowMap;
-      renderer.setPixelRatio(
-        Math.min(window.devicePixelRatio, window.innerWidth <= 760 ? 1.25 : 1.75),
+      const fullPixelRatio = Math.min(
+        window.devicePixelRatio,
+        window.innerWidth <= 760 ? 1.35 : 1.75,
       );
+      const interactionPixelRatio = Math.min(
+        fullPixelRatio,
+        coarsePointer ? 1 : 1.25,
+      );
+      renderer.setPixelRatio(fullPixelRatio);
       renderer.domElement.className = "three-canvas";
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute(
@@ -727,9 +960,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
-      scene.background = new Color(0xcfeaf1);
-      scene.fog = new Fog(0xcfeaf1, 1100, 2550);
-      scene.add(new HemisphereLight(0xffffff, 0x658266, 2.7));
+      scene.background = new Color(0xc9eaf3);
+      scene.fog = new Fog(0xc9eaf3, 1100, 2550);
+      const hemisphere = new HemisphereLight(0xffffff, 0x658266, 2.7);
+      scene.add(hemisphere);
       const sun = new DirectionalLight(0xffefc9, 2.75);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
@@ -776,23 +1010,31 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         detailGroups: new Map(),
         disposed: false,
         focusCameraByName: new Map(),
+        hemisphere,
         heroByName: new Map(),
         landmarkByName: new Map(),
         loader: new GLTFLoader(),
         marker,
+        markerTimer: null,
         modelMaterials: new Set(),
         renderer,
         scene,
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
         signatures,
+        skyFill,
+        sun,
         tunnel: new Group(),
+        lightingMode: lightingModeRef.current,
         underside: false,
       };
       runtimeRef.current = runtime;
+      setSceneLighting(runtime, lightingModeRef.current);
 
       const touchPoints = new Map<number, { x: number; y: number }>();
       let customTouchGestureActive = false;
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
+      let controlsInteracting = false;
+      let settleUntil = 0;
       const onPointerDown = (event: PointerEvent) => {
         if (event.pointerType !== "touch") {
           return;
@@ -800,6 +1042,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (touchPoints.size >= 3) {
           customTouchGestureActive = true;
+          controlsInteracting = true;
           controls.enabled = false;
           const points = [...touchPoints.values()];
           previousThreeFingerCenter = {
@@ -846,6 +1089,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           previousThreeFingerCenter = null;
           if (touchPoints.size === 0) {
             customTouchGestureActive = false;
+            controlsInteracting = false;
+            settleUntil = performance.now() + 650;
             controls.enabled = true;
             notifyView(runtime, onViewChangeRef.current);
           }
@@ -863,6 +1108,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         touchPoints.clear();
         previousThreeFingerCenter = null;
         customTouchGestureActive = false;
+        controlsInteracting = false;
+        settleUntil = performance.now() + 650;
         controls.enabled = true;
         notifyView(runtime, onViewChangeRef.current);
       };
@@ -876,9 +1123,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         true,
       );
       window.addEventListener("blur", resetTouchGesture);
-      const onControlsEnd = () => notifyView(runtime, onViewChangeRef.current);
-      controls.addEventListener("end", onControlsEnd);
-
       const resize = () => {
         const { width, height } = host.getBoundingClientRect();
         if (width < 1 || height < 1) {
@@ -888,6 +1132,30 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
       };
+      let qualityRestoreTimer: number | null = null;
+      const onControlsStart = () => {
+        controlsInteracting = true;
+        if (qualityRestoreTimer !== null) {
+          window.clearTimeout(qualityRestoreTimer);
+          qualityRestoreTimer = null;
+        }
+        renderer.setPixelRatio(interactionPixelRatio);
+        resize();
+      };
+      const onControlsEnd = () => {
+        controlsInteracting = false;
+        settleUntil = performance.now() + 650;
+        notifyView(runtime, onViewChangeRef.current);
+        qualityRestoreTimer = window.setTimeout(() => {
+          if (!runtime.disposed) {
+            renderer.setPixelRatio(fullPixelRatio);
+            resize();
+          }
+          qualityRestoreTimer = null;
+        }, 140);
+      };
+      controls.addEventListener("start", onControlsStart);
+      controls.addEventListener("end", onControlsEnd);
       resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(host);
       resize();
@@ -902,7 +1170,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
 
-      const frameIntervalMs = coarsePointer ? 1000 / 30 : 0;
+      const activeFrameIntervalMs = coarsePointer ? 1000 / 30 : 0;
+      const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       const animate = (timestamp = 0) => {
         if (disposed) {
@@ -912,11 +1181,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!activeRef.current) {
           return;
         }
+        const isMoving =
+          controlsInteracting || marker.visible || timestamp < settleUntil;
+        const frameIntervalMs = isMoving
+          ? activeFrameIntervalMs
+          : idleFrameIntervalMs;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;
         }
         lastRenderedAt = timestamp;
         controls.update();
+        if (marker.visible) {
+          const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
+          marker.scale.setScalar(pulse);
+        }
         renderer.render(scene, camera);
       };
       animate();
@@ -949,6 +1227,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.focusCameraByName.set(signature.landmark_name, focusCamera);
             }
           }
+          applyLightingToRoot(runtime.signatures, runtime.lightingMode);
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           scene.add(runtime.tunnel);
           setProgress({ loaded: 0, total: manifest.base_tiles.length });
@@ -1038,7 +1317,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         );
         renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
         window.removeEventListener("blur", resetTouchGesture);
+        controls.removeEventListener("start", onControlsStart);
         controls.removeEventListener("end", onControlsEnd);
+        if (qualityRestoreTimer !== null) {
+          window.clearTimeout(qualityRestoreTimer);
+        }
+        if (runtime.markerTimer !== null) {
+          window.clearTimeout(runtime.markerTimer);
+        }
         controls.dispose();
         disposeObject3D(runtime, scene);
         renderer.dispose();

@@ -42,6 +42,7 @@ MAX_ASSET_BYTES = 5 * 1024 * 1024
 BASE_TARGET_FACES = 70_000
 REICHSTAG_DOME_HEIGHT_M = 23.5
 REICHSTAG_DOME_DIAMETER_M = 40.0
+REICHSTAG_DOME_BASE_HEIGHT_M = 24.0
 REICHSTAG_DOME_VERTICAL_RIBS = 24
 REICHSTAG_DOME_HORIZONTAL_RINGS = 17
 REICHSTAG_DOME_SOURCE_URL = (
@@ -213,7 +214,7 @@ def colored_base_mesh(
     colours = uv_to_color(visual.uv, visual.material.image)
     rgb = colours[:, :3].astype(np.float32) / 255
     luminance = rgb[:, 0:1] * 0.2126 + rgb[:, 1:2] * 0.7152 + rgb[:, 2:3] * 0.0722
-    rgb = luminance + (rgb - luminance) * 1.12
+    rgb = luminance + (rgb - luminance) * 1.18
     rgb = np.power(np.clip(rgb, 0, 1), 0.9)
     colours[:, :3] = np.clip(rgb * 255, 0, 255).astype(np.uint8)
     mesh.visual = ColorVisuals(mesh=mesh, vertex_colors=colours)
@@ -257,7 +258,9 @@ def export_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
   """Transform and export one textured mesh, returning public metadata."""
   source_bounds = np.asarray(mesh.bounds, dtype=float)
   mesh.vertices = metric_to_world(np.asarray(mesh.vertices, dtype=float))
-  output_path.write_bytes(trimesh.Scene(mesh).export(file_type="glb"))
+  output_path.write_bytes(
+    trimesh.Scene(mesh).export(file_type="glb", include_normals=True)
+  )
   if output_path.stat().st_size > MAX_ASSET_BYTES:
     raise ValueError(
       f"Generated asset exceeds 5 MiB: {output_path} "
@@ -266,6 +269,7 @@ def export_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
   return {
     "file": output_path.name,
     "bytes": output_path.stat().st_size,
+    "includes_normals": True,
     "sha256": sha256_file(output_path),
     "vertices": int(len(mesh.vertices)),
     "faces": int(len(mesh.faces)),
@@ -277,9 +281,9 @@ def resized_texture_visual(mesh: Any, max_edge: int) -> TextureVisuals:
   """Return the mesh UVs with an RGB texture bounded by ``max_edge``."""
   visual = mesh.visual
   image = visual.material.image.convert("RGB")
-  image = ImageEnhance.Color(image).enhance(1.08)
-  image = ImageEnhance.Contrast(image).enhance(1.04)
-  image = ImageEnhance.Brightness(image).enhance(1.06)
+  image = ImageEnhance.Color(image).enhance(1.16)
+  image = ImageEnhance.Contrast(image).enhance(1.07)
+  image = ImageEnhance.Brightness(image).enhance(1.05)
   if max(image.size) > max_edge:
     ratio = max_edge / max(image.size)
     size = (max(1, round(image.width * ratio)), max(1, round(image.height * ratio)))
@@ -357,7 +361,7 @@ def export_hero_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
   """Export a high-detail hero crop while respecting the repository cap."""
   source_vertices = np.asarray(mesh.vertices, dtype=float).copy()
   source_visual = mesh.visual
-  for max_edge in (1536, 1280, 1024, 768, 512, 384):
+  for max_edge in (2048, 1792, 1536, 1280, 1024, 768, 512, 384):
     candidate = mesh.copy()
     candidate.vertices = source_vertices.copy()
     candidate.visual = resized_texture_visual(mesh, max_edge)
@@ -515,11 +519,11 @@ def architectural_signature_payload(
   details = hero_details.get("reichstag", [])
   if not details:
     raise ValueError("Missing Reichstag hero geometry for dome alignment")
-  source_top_m = max(
-    float(detail["source_bounds_epsg25833"][1][2]) for detail in details
+  source_ground_m = min(
+    float(detail["source_bounds_epsg25833"][0][2]) for detail in details
   )
   point = matches.geometry.iloc[0]
-  base_world_y = source_top_m - ORIGIN[2] - REICHSTAG_DOME_HEIGHT_M
+  base_world_y = source_ground_m - ORIGIN[2] + REICHSTAG_DOME_BASE_HEIGHT_M
   signatures = [
     {
       "id": "reichstag-dome",
@@ -527,14 +531,15 @@ def architectural_signature_payload(
       "landmark_name": "Reichstagsgebäude",
       "geometry_status": (
         "Procedural architectural signature aligned to the official Berlin 3D "
-        "mesh apex and official Bundestag dimensions"
+        "mesh ground and the Bundestag's 24 m roof-terrace datum"
       ),
       "anchor_world": [
         round(float(point.x - ORIGIN[0]), 3),
-        round(base_world_y, 3),
+        round(float(base_world_y), 3),
         round(float(ORIGIN[1] - point.y), 3),
       ],
       "height_m": REICHSTAG_DOME_HEIGHT_M,
+      "base_height_above_ground_m": REICHSTAG_DOME_BASE_HEIGHT_M,
       "diameter_m": REICHSTAG_DOME_DIAMETER_M,
       "vertical_ribs": REICHSTAG_DOME_VERTICAL_RIBS,
       "horizontal_rings": REICHSTAG_DOME_HORIZONTAL_RINGS,
@@ -575,6 +580,11 @@ def architectural_signature_payload(
   reichstag_geometry = reichstag.geometry.union_all()
   reichstag_frame = oriented_geometry_frame(reichstag_geometry, x_axis="short")
   reichstag_height = float(reichstag["measured_height_m"].max())
+  signatures[0]["anchor_world"] = anchor_world(
+    reichstag_frame.center_x,
+    reichstag_frame.center_y,
+    base_elevation("reichstag") + REICHSTAG_DOME_BASE_HEIGHT_M,
+  )
   signatures.append(
     {
       "id": "reichstag-model",
@@ -616,6 +626,20 @@ def architectural_signature_payload(
   all_center_y = (all_bounds[1] + all_bounds[3]) / 2
   cube_center_x = (cube_bounds[0] + cube_bounds[2]) / 2
   cube_center_y = (cube_bounds[1] + cube_bounds[3]) / 2
+  forecourt_offset_world: list[float] | None = None
+  forecourt_rows = landmarks[landmarks["name"] == "Eduardo-Chillida-Skulptur Berlin"]
+  if len(forecourt_rows) == 1:
+    forecourt_point = rotate(
+      forecourt_rows.geometry.iloc[0],
+      -chancellery_frame.rotation_degrees,
+      origin=(chancellery_frame.center_x, chancellery_frame.center_y),
+      use_radians=False,
+    )
+    forecourt_offset_world = [
+      round(float(forecourt_point.x - all_center_x), 3),
+      0.0,
+      round(float(all_center_y - forecourt_point.y), 3),
+    ]
   office_segments: list[dict[str, Any]] = []
   for _, part in office_parts.iterrows():
     bounds = geometry_bounds_in_frame(part.geometry, chancellery_frame)
@@ -657,6 +681,8 @@ def architectural_signature_payload(
         0.0,
         round(float(all_center_y - cube_center_y), 3),
       ],
+      "forecourt_offset_world": forecourt_offset_world,
+      "forecourt_sculpture_height_m": 5.5,
       "office_segments": office_segments,
       "focus_camera": {
         "distance_m": 245.0,
@@ -690,10 +716,10 @@ def architectural_signature_payload(
       "north_south_hall_width_m": 45.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
-        "distance_m": 310.0,
-        "polar_degrees": 62.0,
-        "azimuth_degrees": 40.0,
-        "target_height_m": 20.0,
+        "distance_m": 370.0,
+        "polar_degrees": 42.0,
+        "azimuth_degrees": 52.0,
+        "target_height_m": 21.0,
       },
       "source_url": HAUPTBAHNHOF_ARCHITECTURE_SOURCE_URL,
     }
@@ -725,7 +751,7 @@ def architectural_signature_payload(
       "column_rows": 2,
       "columns_per_row": 6,
       "focus_camera": {
-        "distance_m": 115.0,
+        "distance_m": 98.0,
         "polar_degrees": 64.0,
         "azimuth_degrees": 73.0,
         "target_height_m": 13.0,

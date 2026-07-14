@@ -8,6 +8,7 @@ from shapely.geometry import Point, box
 from isometric_berlin.generation.prepare_webgl_mesh import (
   architectural_signature_payload,
   crop_mesh,
+  export_mesh,
   metric_to_world,
   oriented_geometry_frame,
   split_bounds,
@@ -45,6 +46,17 @@ def test_split_bounds_uses_longer_axis() -> None:
   assert second == (10.0, 0.0, 20.0, 8.0)
 
 
+def test_export_mesh_bundles_normals_for_fast_browser_startup(tmp_path) -> None:
+  mesh = trimesh.creation.box(extents=(8.0, 12.0, 5.0))
+  mesh.apply_translation((389_500.0, 5_820_000.0, 35.0))
+  output_path = tmp_path / "normal-test.glb"
+
+  metadata = export_mesh(mesh, output_path)
+
+  assert metadata["includes_normals"] is True
+  assert b'"NORMAL"' in output_path.read_bytes()
+
+
 def test_oriented_geometry_frame_preserves_metric_rotation_and_center() -> None:
   source = rotate(box(-20.0, -80.0, 20.0, 80.0), 21.82, origin=(0, 0))
 
@@ -57,7 +69,7 @@ def test_oriented_geometry_frame_preserves_metric_rotation_and_center() -> None:
   assert frame.depth_m == pytest.approx(160.0, abs=1e-6)
 
 
-def test_reichstag_signature_uses_official_dimensions_and_mesh_apex() -> None:
+def test_reichstag_signature_uses_official_dimensions_and_roof_datum() -> None:
   landmarks = gpd.GeoDataFrame(
     {"name": ["Reichstagsgebäude"]},
     geometry=[Point(390_000.0, 5_820_000.0)],
@@ -76,7 +88,8 @@ def test_reichstag_signature_uses_official_dimensions_and_mesh_apex() -> None:
 
   signature = architectural_signature_payload(landmarks, details)[0]
 
-  assert signature["anchor_world"] == [500.0, 36.5, 0.0]
+  assert signature["anchor_world"] == [500.0, 27.0, 0.0]
+  assert signature["base_height_above_ground_m"] == 24.0
   assert signature["height_m"] == 23.5
   assert signature["diameter_m"] == 40.0
   assert signature["vertical_ribs"] == 24
@@ -92,6 +105,7 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
         "Bundeskanzleramt",
         "Berlin Hauptbahnhof",
         "Brandenburger Tor",
+        "Eduardo-Chillida-Skulptur Berlin",
       ]
     },
     geometry=[
@@ -99,6 +113,7 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
       Point(389_346.0, 5_820_144.0),
       Point(389_377.0, 5_820_693.0),
       Point(389_918.0, 5_819_700.0),
+      Point(389_366.0, 5_820_076.0),
     ],
     crs="EPSG:25833",
   )
@@ -144,8 +159,11 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
   assert by_id["reichstag-model"]["rotation_y_degrees"] == 0.0
   assert by_id["bundeskanzleramt-model"]["cube_height_m"] == 36.0
   assert by_id["bundeskanzleramt-model"]["office_height_m"] == 18.0
+  assert by_id["bundeskanzleramt-model"]["forecourt_offset_world"] is not None
+  assert by_id["bundeskanzleramt-model"]["forecourt_sculpture_height_m"] == 5.5
   assert by_id["hauptbahnhof-model"]["east_west_roof_length_m"] == 321.0
   assert by_id["hauptbahnhof-model"]["office_bridge_height_m"] == 46.0
   assert by_id["hauptbahnhof-model"]["rotation_y_degrees"] == 0.0
+  assert by_id["hauptbahnhof-model"]["focus_camera"]["azimuth_degrees"] == 52.0
   assert by_id["brandenburger-tor-model"]["columns_per_row"] == 6
   assert by_id["brandenburger-tor-model"]["total_height_m"] == 26.0

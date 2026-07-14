@@ -1,6 +1,6 @@
 # Generation
 
-The committed v0.1 viewer is generated entirely from the permitted open-data
+The committed v0.2.6 viewer is generated entirely from the permitted open-data
 stack. Berlin LoD2 anchors building footprints/heights, OSM supplies roads,
 water, parks, rail and POIs, ALKIS supplies parcel context, and freely licensed
 Wikimedia records provide colour/material cues. Google is not used unless the
@@ -76,15 +76,19 @@ duplicate OBJ vertices and simplifies each tile to a 70,000-face mobile base
 mesh. Reichstag, Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive
 separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
 real dome geometry while excluding surrounding tree noise. Hero material
-segments try 1536, 1280 and 1024 px textures before lower bounded fallbacks.
+segments try 2048, 1792, 1536, 1280 and 1024 px textures before lower bounded
+fallbacks. Every GLB includes offline-generated vertex normals, so the browser
+does not recompute the 23 base tiles at startup.
 Every output GLB stays below 5 MiB; the scene manifest records face counts,
 source bounds, byte sizes and SHA-256 hashes.
 
-The manifest also anchors a procedural Reichstag glass/steel signature to the
-photogrammetric apex. Its 40 m diameter, 23.5 m height, 24 primary ribs and 17
-horizontal rings are sourced from the Bundestag architecture page. This
-dimensioned overlay makes the dome legible without replacing the underlying
-official measured mesh.
+The manifest anchors a procedural Reichstag glass/steel signature at the
+LoD2-aligned building centre and the Bundestag's published 24 m roof-terrace
+datum, not at a noisy photogrammetric crop apex. Its 40 m diameter, 23.5 m
+height, 24 primary ribs and 17 horizontal rings are sourced from the Bundestag
+architecture page; the lower four ring rows remain unglazed as documented.
+This dimensioned overlay makes the dome legible without replacing the
+underlying official measured mesh.
 
 ## Step 10: DZI export and dual viewer
 

@@ -1,6 +1,6 @@
 # Tiergartentunnel Geometry
 
-This note documents the v0.2.5 tunnel representation used by the
+This note documents the v0.2.6 tunnel representation used by the
 Regierungsviertel viewer.
 
 ## Status
@@ -58,6 +58,10 @@ Draw the tunnel below the surface as a readable engineering cutaway:
 - ceiling ribs and lane / tube guide marks for the underside view;
 - small service-bay / emergency-cue boxes along the route;
 - warm light points along the route;
+- continuous safety-light strips and denser ceiling fixtures in true 3D;
+- paired road decks, dashed lane guides and visible ventilation fan blades;
+- instanced repeated fixtures, reducing lamps, lane marks, shafts, fan rings
+  and four distinct blades per fan to five draw calls;
 - ventilation / shaft markers at portals and key service points;
 - small cross-section marks at portals and intermediate service points.
 

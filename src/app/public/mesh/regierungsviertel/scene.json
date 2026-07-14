@@ -28,8 +28,9 @@
   "base_tiles": [
     {
       "file": "tile-3887_58193.glb",
-      "bytes": 1404120,
-      "sha256": "27e45dd0f2aba1b1976f4c4f19cf339e1d14b87f90ffeed39196cbd2a4c4a5dd",
+      "bytes": 1826724,
+      "includes_normals": true,
+      "sha256": "24f700fb4447174dd6224979573a5c7f4715c66014343cf959c74781606d4a15",
       "vertices": 35194,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -51,8 +52,9 @@
     },
     {
       "file": "tile-3887_58196.glb",
-      "bytes": 1403836,
-      "sha256": "fa28715e85cdc96a699ef6fd15d23829f62e33ef8e6350a16456205d6100aae0",
+      "bytes": 1826236,
+      "includes_normals": true,
+      "sha256": "49d5440f5c25f52d8a80a643cf4843528c83594a1a5ca08e5e0f49d125011925",
       "vertices": 35177,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -74,8 +76,9 @@
     },
     {
       "file": "tile-3887_58200.glb",
-      "bytes": 1406272,
-      "sha256": "9652b7124f0d8b875e6ce0df0460bd55e78eea6a35ad8f57b00094024c851b4f",
+      "bytes": 1830496,
+      "includes_normals": true,
+      "sha256": "0c037d7a898a47ec54300ac39962f4db0ea960cb2c625c237e180b777e4453bb",
       "vertices": 35329,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -97,8 +100,9 @@
     },
     {
       "file": "tile-3887_58203.glb",
-      "bytes": 1404760,
-      "sha256": "570c33a4c860c6117b45821604587b4084fb89ebab0c8440e82a351dd388786a",
+      "bytes": 1827844,
+      "includes_normals": true,
+      "sha256": "8e4f85918a324c69ffd65c34e26235ea3e4490e54504f49f3ca790bc6c98ff35",
       "vertices": 35234,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -120,8 +124,9 @@
     },
     {
       "file": "tile-3890_58189.glb",
-      "bytes": 1404812,
-      "sha256": "93bd1fc520dfcc281a92450c150af61e8b53a7aa606d1fde45392e279d2de3b1",
+      "bytes": 1827948,
+      "includes_normals": true,
+      "sha256": "b9804f4e64ba9dd7f4db9bd0838a440e423e90c7bb0fe5f42b0fab3dc4942df5",
       "vertices": 35238,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -143,8 +148,9 @@
     },
     {
       "file": "tile-3890_58193.glb",
-      "bytes": 1404892,
-      "sha256": "a77f3fe9e7fc3218f3bca225fcb270475330b9dcc4852fabc329392c8ce70224",
+      "bytes": 1828084,
+      "includes_normals": true,
+      "sha256": "a6f488b48960aaefd55d154f01b45743767a8a803725d80f706564a5bfc9cd0a",
       "vertices": 35243,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -166,8 +172,9 @@
     },
     {
       "file": "tile-3890_58196.glb",
-      "bytes": 1402684,
-      "sha256": "9739457160dc445d7ce72cedcd51c37481f076671efad0bdffa5800367dede6e",
+      "bytes": 1824220,
+      "includes_normals": true,
+      "sha256": "3a74aa956b134f5a7e7d212bc38afc961f7d90eb3d381419aa6bd2db5866ae05",
       "vertices": 35105,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -189,8 +196,9 @@
     },
     {
       "file": "tile-3890_58200.glb",
-      "bytes": 1405804,
-      "sha256": "6fa301714d040d8a3436357c1d8c9efc14678fad3dfc71379a1a50cccde64e44",
+      "bytes": 1829684,
+      "includes_normals": true,
+      "sha256": "978befd88bb5e1ea1412e010190233384355963d74f81539eacc1948c92b6b1c",
       "vertices": 35300,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -212,8 +220,9 @@
     },
     {
       "file": "tile-3890_58203.glb",
-      "bytes": 1408196,
-      "sha256": "f71574a5f30a41c1e260e68939d7cf93c80ad6d9337a65a0898ed84749959e58",
+      "bytes": 1833864,
+      "includes_normals": true,
+      "sha256": "de9ebec0cf123ecb2cc295d98e82c93cd75b66121346fb97ad5cc2c11b401703",
       "vertices": 35449,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -235,8 +244,9 @@
     },
     {
       "file": "tile-3890_58207.glb",
-      "bytes": 1409344,
-      "sha256": "2d1dbda887a97c280b7899e4e4f32003b00d5189b4293cda4b1d8932de887488",
+      "bytes": 1835872,
+      "includes_normals": true,
+      "sha256": "b22311a468964f146355578118c1559f6a1d748627ee0bde1258a882000f9f05",
       "vertices": 35521,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -258,8 +268,9 @@
     },
     {
       "file": "tile-3894_58182.glb",
-      "bytes": 1406328,
-      "sha256": "c8144fb8b8486173f22f62147e038182fd5003889edb08eaf8cc927d137720cc",
+      "bytes": 1830592,
+      "includes_normals": true,
+      "sha256": "f924e5b23b9265f49c8ce829db68e3f66783eabd76a57dcba9eb75f02b504cb3",
       "vertices": 35332,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -281,8 +292,9 @@
     },
     {
       "file": "tile-3894_58185.glb",
-      "bytes": 1405404,
-      "sha256": "0c9473d19a90c8a30feb572e5c7dcd0d16f66e4e3e27061797ac6848cab2e6bf",
+      "bytes": 1828984,
+      "includes_normals": true,
+      "sha256": "50f62b6abb6e99aae307f2ce479d8a50630248ea4d486c8222a3d95611f43f18",
       "vertices": 35275,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -304,8 +316,9 @@
     },
     {
       "file": "tile-3894_58189.glb",
-      "bytes": 1403336,
-      "sha256": "2dd4d777fd000d36042c67213602fe07314818507e63c6ac0f70e2c93dfd5ea6",
+      "bytes": 1825356,
+      "includes_normals": true,
+      "sha256": "922f389618ea5cc806efb074fd5d9c4976fdcbc4ba9c458ecebc34423c8e8376",
       "vertices": 35145,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -327,8 +340,9 @@
     },
     {
       "file": "tile-3894_58193.glb",
-      "bytes": 1404740,
-      "sha256": "a449928f8c7fa267a0ae3e67872f6afb4890a78192423e80d0bfcdfe7f2ede36",
+      "bytes": 1827816,
+      "includes_normals": true,
+      "sha256": "0073ba34dce3e9d3c9e8e97adf4bf2668ae114f88d1c662d8cf41504a60a0bde",
       "vertices": 35233,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -350,8 +364,9 @@
     },
     {
       "file": "tile-3894_58196.glb",
-      "bytes": 1403532,
-      "sha256": "c9c29f1f11449087ee9bc4d08275f5f3e147341db7e3b2514f4f3328d1f33a6b",
+      "bytes": 1825704,
+      "includes_normals": true,
+      "sha256": "a919af0dcfd72e446d7020b2ce9f5a01e99e8ff3ccb193758f156167d6f35dc3",
       "vertices": 35158,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -373,8 +388,9 @@
     },
     {
       "file": "tile-3894_58200.glb",
-      "bytes": 1408380,
-      "sha256": "ba901d4335e5b815fdf90fcad377c686e97c5dd5161de8e7301e192f360c8018",
+      "bytes": 1834192,
+      "includes_normals": true,
+      "sha256": "927587f441cad2fd770a4286ff033c4c7f9e635cfac71e5b9d796759e2b54c28",
       "vertices": 35461,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -396,8 +412,9 @@
     },
     {
       "file": "tile-3894_58203.glb",
-      "bytes": 1408060,
-      "sha256": "89c25d95bb88079727651d44a019ead5b922474722196f5902e75b3f9a74ce59",
+      "bytes": 1833628,
+      "includes_normals": true,
+      "sha256": "ad48ae2355d46d8aaabe9bc8be8042b577a3ac0b2472e1c269df63ba49b36ef0",
       "vertices": 35441,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -419,8 +436,9 @@
     },
     {
       "file": "tile-3894_58207.glb",
-      "bytes": 1406432,
-      "sha256": "1d8a30b60bf4737667f1eff9bceaa3d221ab09b3c95d6136cc6711a57076b04d",
+      "bytes": 1830776,
+      "includes_normals": true,
+      "sha256": "831fa464bcbc4642acc1380cf76783c59810ef4022f6c3ba5296cfdb97d561e9",
       "vertices": 35339,
       "faces": 70000,
       "source_bounds_epsg25833": [
@@ -442,8 +460,9 @@
     },
     {
       "file": "tile-3898_58185.glb",
-      "bytes": 1403864,
-      "sha256": "2d4de41a9ed9a3c2a5dd6cfcdcf3892af42ebeb3fafe3b22423aaa846722462d",
+      "bytes": 1826292,
+      "includes_normals": true,
+      "sha256": "a852ce207f167ab8fd4273497a98b34068be6904d5419f508776a0f122a49828",
       "vertices": 35179,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -465,8 +484,9 @@
     },
     {
       "file": "tile-3898_58189.glb",
-      "bytes": 1406024,
-      "sha256": "0b195e5d32b10b1596429059e5442d35c6243f6fd1b3ae983fabace08e5f3acb",
+      "bytes": 1830072,
+      "includes_normals": true,
+      "sha256": "1ab1589980109731989c484a9c48e4e48a2bc01c9793c466ef56a32398aed7d8",
       "vertices": 35314,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -488,8 +508,9 @@
     },
     {
       "file": "tile-3898_58193.glb",
-      "bytes": 1406908,
-      "sha256": "388ac22627e84d6fa9f90d258c562f0fa45ddeb0417eaa08f92c6c88b5728523",
+      "bytes": 1831612,
+      "includes_normals": true,
+      "sha256": "209c9cd3907135fc1a784ac5cf9e7069cbcde5e7c1e838e7002f69ae1ea44296",
       "vertices": 35369,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -511,8 +532,9 @@
     },
     {
       "file": "tile-3898_58196.glb",
-      "bytes": 1409976,
-      "sha256": "8c0768439ef877ac03fcb6b02fc3a79dc2292dd79078f171591edd480a2867f4",
+      "bytes": 1836988,
+      "includes_normals": true,
+      "sha256": "5437e06e96f0ac58789c2dd80302e51a06e8726845afc1b5533cc7eca79a0d34",
       "vertices": 35561,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -534,8 +556,9 @@
     },
     {
       "file": "tile-3898_58200.glb",
-      "bytes": 1405548,
-      "sha256": "19a7cc7f223b8f1cd6137228bb721657b63f72b975d3704ba3697e194d0980f4",
+      "bytes": 1829232,
+      "includes_normals": true,
+      "sha256": "301aa9be3f6dbce33cba4686f516fda7e9b9eb49658c01d77fd83a9c5f5f46d2",
       "vertices": 35284,
       "faces": 69999,
       "source_bounds_epsg25833": [
@@ -563,8 +586,9 @@
       "files": [
         {
           "file": "hero-reichstag-3894_58196-material-0.glb",
-          "bytes": 411356,
-          "sha256": "d57d9d43793af97b3b9e9170417687cfd41a6be8f9d5474e008cc9b5e9e83145",
+          "bytes": 418188,
+          "includes_normals": true,
+          "sha256": "f58bf0cad61fbb6bd10032bc7365e1611cff2a2244f203af1a3e6ca06b2f1c5d",
           "vertices": 117,
           "faces": 39,
           "source_bounds_epsg25833": [
@@ -579,7 +603,7 @@
               68.044
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389765.725,
             5819891.888,
@@ -591,8 +615,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-1.glb",
-          "bytes": 881324,
-          "sha256": "d8b4d566a9f776fc1103a5855ee378340bb967ffa99e9df1777b89df1b33ac4f",
+          "bytes": 897684,
+          "includes_normals": true,
+          "sha256": "c9c6f6c05c33886a0e40d48dae716ffbb21aaf15e6f6f50149d374bf336f6f10",
           "vertices": 303,
           "faces": 101,
           "source_bounds_epsg25833": [
@@ -607,7 +632,7 @@
               77.068
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389766.654,
             5819892.948,
@@ -619,8 +644,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-2.glb",
-          "bytes": 2094268,
-          "sha256": "c7ebcc84bf095553fd33e7f04cd6f28bac8e2588b31caaf041f12faed33b222e",
+          "bytes": 3483776,
+          "includes_normals": true,
+          "sha256": "62b5a6f4fd34a46a183e3a8941536c0d5dd9d8956ba8127c67b075ccfba7051d",
           "vertices": 1413,
           "faces": 471,
           "source_bounds_epsg25833": [
@@ -635,7 +661,7 @@
               85.357
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389757.141,
             5819890.359,
@@ -647,8 +673,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-3.glb",
-          "bytes": 4231188,
-          "sha256": "955bcf80fc17d6bd61bceb523e26eedc9d5b66178680ccab96e8a66c636b4ef5",
+          "bytes": 4315984,
+          "includes_normals": true,
+          "sha256": "0919b2d58647c60e9f4b192c4a4bd9cbaf4d991b35cbe2f5de58faf5b1851be6",
           "vertices": 3120,
           "faces": 1040,
           "source_bounds_epsg25833": [
@@ -675,8 +702,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-4.glb",
-          "bytes": 4117760,
-          "sha256": "62c369469cb6ad13bc02d88734151f75634a96ec48b0bc59737b2d90b5b45c9e",
+          "bytes": 4954116,
+          "includes_normals": true,
+          "sha256": "2774a7921875229d64e37562d78ecd337223ba11d26f731483b8097f1616240b",
           "vertices": 68751,
           "faces": 22917,
           "source_bounds_epsg25833": [
@@ -703,8 +731,9 @@
         },
         {
           "file": "hero-reichstag-3894_58200-material-0.glb",
-          "bytes": 3763644,
-          "sha256": "293c44b86d07e9da5214d1bd3d62ad58edbddf4aa5cf955ac712e16ac187befd",
+          "bytes": 3803404,
+          "includes_normals": true,
+          "sha256": "0485446c7b059faccaafabf0d66b3a62438af249ce7cdf8a0ea97084266ca7ec",
           "vertices": 1572,
           "faces": 524,
           "source_bounds_epsg25833": [
@@ -731,8 +760,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-3.glb",
-          "bytes": 430736,
-          "sha256": "e899b9867269e82dcf87c83229bf91c2872d1a83f94b97a675a91f57e92b3097",
+          "bytes": 436752,
+          "includes_normals": true,
+          "sha256": "75f46e4a4fbb0f3ccfcbe8ebdf82e8e1245407f799ac2230acb618a4483d9d51",
           "vertices": 162,
           "faces": 54,
           "source_bounds_epsg25833": [
@@ -747,7 +777,7 @@
               76.898
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389813.712,
             5819907.94,
@@ -759,8 +789,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-4.glb",
-          "bytes": 2100060,
-          "sha256": "509ea0e28d6ba1d3161b55b26d11a128e3f2e07b42edbf615501f9ec52cfc04c",
+          "bytes": 3434348,
+          "includes_normals": true,
+          "sha256": "008144216000b2441ef5eadbd98355a19d3216d0fd79854abd8ab231749e8035",
           "vertices": 1167,
           "faces": 389,
           "source_bounds_epsg25833": [
@@ -775,7 +806,7 @@
               86.791
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389810.667,
             5819888.742,
@@ -787,8 +818,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-5.glb",
-          "bytes": 2578092,
-          "sha256": "6fa6a809c3a3751c8207f3990b11e9fa16fdba3a19f66456ab0ef5d6e71e8efe",
+          "bytes": 4347728,
+          "includes_normals": true,
+          "sha256": "c693f8a13c181837eb878eccff9a97eb972671f475df0df7e598791bd0a5ba90",
           "vertices": 5769,
           "faces": 1923,
           "source_bounds_epsg25833": [
@@ -803,7 +835,7 @@
               89.939
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389804.391,
             5819888.911,
@@ -815,8 +847,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-6.glb",
-          "bytes": 3945944,
-          "sha256": "9b50c961cd9eb5b904f661ee16c562a18328563ac1e723822bfc49aa3570eb26",
+          "bytes": 4648668,
+          "includes_normals": true,
+          "sha256": "b57434f79a68dd00d0e21873a2b38972577cbab6cffa3e56bac885eae26be6e6",
           "vertices": 57552,
           "faces": 19184,
           "source_bounds_epsg25833": [
@@ -843,8 +876,9 @@
         },
         {
           "file": "hero-reichstag-3898_58200-material-5.glb",
-          "bytes": 3887504,
-          "sha256": "6aea4b4bbeadd26f2ff95e5648eeccb266253c39035c1d6747c73e71d4ae3728",
+          "bytes": 3916472,
+          "includes_normals": true,
+          "sha256": "4d176b788b30aaabe891beee50a0f8b89c373000bc16432cdbb765836156f3d0",
           "vertices": 645,
           "faces": 215,
           "source_bounds_epsg25833": [
@@ -877,8 +911,9 @@
       "files": [
         {
           "file": "hero-bundeskanzleramt-3890_58200-material-0.glb",
-          "bytes": 4256980,
-          "sha256": "442f590ee896ebd7fd6ac96ef4ced8dd4216cea5225a520e9d2f87f8fa9cb9b0",
+          "bytes": 4352616,
+          "includes_normals": true,
+          "sha256": "0dae17bb6c4344cc0516e62ace66ac43aa00e3e847c6f97ed00d13e2ed372fb4",
           "vertices": 4641,
           "faces": 1547,
           "source_bounds_epsg25833": [
@@ -905,8 +940,9 @@
         },
         {
           "file": "hero-bundeskanzleramt-3890_58200-material-1.glb",
-          "bytes": 4625380,
-          "sha256": "b59b0a70b9ae016120c0e0b8c35f7d82c552f4d7d9762ee26bdc6869117aaffd",
+          "bytes": 5135828,
+          "includes_normals": true,
+          "sha256": "420992697414f78738e2a7d0371f5d6c775ae4867ab28e0f7f06d09bfb744935",
           "vertices": 131808,
           "faces": 43936,
           "source_bounds_epsg25833": [
@@ -921,7 +957,7 @@
               74.485
             ]
           ],
-          "texture_max_edge": 768,
+          "texture_max_edge": 384,
           "crop_bounds_epsg25833": [
             389099.985,
             5820082.779,
@@ -939,8 +975,9 @@
       "files": [
         {
           "file": "hero-hauptbahnhof-3890_58203-material-2.glb",
-          "bytes": 2183376,
-          "sha256": "1926cd94e8ecd125cf657f43ae9a7da99d6b39d127db9ad1e5bd5be0c112dd05",
+          "bytes": 3579784,
+          "includes_normals": true,
+          "sha256": "5c64f2a7c435dc3547436448f11479c160ccefb9e654e176e9b6e97081a8c22d",
           "vertices": 2553,
           "faces": 851,
           "source_bounds_epsg25833": [
@@ -955,7 +992,7 @@
               84.772
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389317.409,
             5820594.587,
@@ -967,8 +1004,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58203-material-3.glb",
-          "bytes": 4400764,
-          "sha256": "8b0f30ab78ac01caec96450d320deab5e7a3e3e7ffe389a880e672d68652f99c",
+          "bytes": 4253156,
+          "includes_normals": true,
+          "sha256": "60fbd003f90abaad02b4d59d2848845e70fdd687aa2e2b54b4c8784806f6b377",
           "vertices": 77133,
           "faces": 25711,
           "source_bounds_epsg25833": [
@@ -983,7 +1021,7 @@
               87.416
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 768,
           "crop_bounds_epsg25833": [
             389312.926,
             5820591.444,
@@ -995,8 +1033,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-2.glb",
-          "bytes": 1685612,
-          "sha256": "ff3ce7eeb53f4c2e7ff70580ea29fdfcd06c19c20ebc0a306c45356861c01be9",
+          "bytes": 1708176,
+          "includes_normals": true,
+          "sha256": "4c3158b692e2c2f79f88c699b5cc5590b696c39dff40005fe9d50815508e23c5",
           "vertices": 138,
           "faces": 46,
           "source_bounds_epsg25833": [
@@ -1011,7 +1050,7 @@
               73.87
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389327.385,
             5820749.375,
@@ -1023,8 +1062,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-3.glb",
-          "bytes": 2133996,
-          "sha256": "deaf9cdb8203de478baa0a2cb31d7cbd8e9acb69592917cfd042aaa42779e0d4",
+          "bytes": 3533692,
+          "includes_normals": true,
+          "sha256": "ab0f863d3aba1ce232716840c2b23989a3852c77963de8864373be93a49c8772",
           "vertices": 954,
           "faces": 318,
           "source_bounds_epsg25833": [
@@ -1039,7 +1079,7 @@
               81.532
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389315.049,
             5820749.469,
@@ -1051,8 +1091,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-4.glb",
-          "bytes": 4400968,
-          "sha256": "ec32c335d9ffa096d241d5870464a733a510e2a33ddbf1b4cf2cd3cc5d2b6ff5",
+          "bytes": 4655800,
+          "includes_normals": true,
+          "sha256": "612ce0edc030735775800a95ef004147ae83bc0cb8aa42aeb796e48a256cd277",
           "vertices": 19665,
           "faces": 6555,
           "source_bounds_epsg25833": [
@@ -1085,8 +1126,9 @@
       "files": [
         {
           "file": "hero-brandenburger-tor-3898_58193-material-2.glb",
-          "bytes": 3958160,
-          "sha256": "bb1bbec31bc952c3c81287f39e320bead7e56414044db8afe5ed0eae0dfd4664",
+          "bytes": 3976512,
+          "includes_normals": true,
+          "sha256": "2fa9ec24135ac18f1d3b1fd6ed53aa36a3c0739610ea8afa9eb600712c5b95f1",
           "vertices": 78,
           "faces": 26,
           "source_bounds_epsg25833": [
@@ -1113,8 +1155,9 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-4.glb",
-          "bytes": 2080540,
-          "sha256": "c599cf620f6250875134608075b229c17d172d76c1c0856f951946967fb8fce7",
+          "bytes": 3405064,
+          "includes_normals": true,
+          "sha256": "b4daab1b2587e8759481f818140fdd6b1ea94d5a823823b65da35436be3e608b",
           "vertices": 354,
           "faces": 118,
           "source_bounds_epsg25833": [
@@ -1129,7 +1172,7 @@
               55.018
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389911.547,
             5819676.274,
@@ -1141,8 +1184,9 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-5.glb",
-          "bytes": 2483044,
-          "sha256": "871fa7c30e20facf45d73b23d024a47cde7975eb8476b0e2bad8884da0fd08bc",
+          "bytes": 4205160,
+          "includes_normals": true,
+          "sha256": "9d299ce2f373d31de29ef1c15a816b50e85de077d660798c32fc5b51e946009d",
           "vertices": 1809,
           "faces": 603,
           "source_bounds_epsg25833": [
@@ -1157,7 +1201,7 @@
               56.622
             ]
           ],
-          "texture_max_edge": 1536,
+          "texture_max_edge": 2048,
           "crop_bounds_epsg25833": [
             389909.852,
             5819669.819,
@@ -1169,8 +1213,9 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-6.glb",
-          "bytes": 5240512,
-          "sha256": "2c9012410f70942e857b39ba84df7ce1e58b627c23de27b016698f0d9abbabab",
+          "bytes": 4700216,
+          "includes_normals": true,
+          "sha256": "fa0f0f3b1c2cec91b06be1cf8d4f6999c09a1d7c6407a3596237ea4719eec586",
           "vertices": 111492,
           "faces": 37164,
           "source_bounds_epsg25833": [
@@ -1185,7 +1230,7 @@
               62.834
             ]
           ],
-          "texture_max_edge": 1024,
+          "texture_max_edge": 512,
           "crop_bounds_epsg25833": [
             389894.324,
             5819666.702,
@@ -1203,13 +1248,14 @@
       "id": "reichstag-dome",
       "kind": "reichstag_dome",
       "landmark_name": "Reichstagsgebäude",
-      "geometry_status": "Procedural architectural signature aligned to the official Berlin 3D mesh apex and official Bundestag dimensions",
+      "geometry_status": "Procedural architectural signature aligned to the official Berlin 3D mesh ground and the Bundestag's 24 m roof-terrace datum",
       "anchor_world": [
-        315.026,
-        36.439,
-        39.831
+        317.729,
+        27.595,
+        40.477
       ],
       "height_m": 23.5,
+      "base_height_above_ground_m": 24.0,
       "diameter_m": 40.0,
       "vertical_ribs": 24,
       "horizontal_rings": 17,
@@ -1259,6 +1305,12 @@
         0.0,
         0.042
       ],
+      "forecourt_offset_world": [
+        88.069,
+        0.0,
+        67.77
+      ],
+      "forecourt_sculpture_height_m": 5.5,
       "office_segments": [
         {
           "width_m": 219.532,
@@ -1316,10 +1368,10 @@
       "north_south_hall_width_m": 45.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
-        "distance_m": 310.0,
-        "polar_degrees": 62.0,
-        "azimuth_degrees": 40.0,
-        "target_height_m": 20.0
+        "distance_m": 370.0,
+        "polar_degrees": 42.0,
+        "azimuth_degrees": 52.0,
+        "target_height_m": 21.0
       },
       "source_url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186"
     },
@@ -1342,7 +1394,7 @@
       "column_rows": 2,
       "columns_per_row": 6,
       "focus_camera": {
-        "distance_m": 115.0,
+        "distance_m": 98.0,
         "polar_degrees": 64.0,
         "azimuth_degrees": 73.0,
         "target_height_m": 13.0

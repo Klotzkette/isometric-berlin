@@ -26,6 +26,7 @@ export type ArchitecturalSignature = {
 };
 
 const TOP_OPENING_RADIUS_M = 2.4;
+const LOWER_UNGLAZED_ROWS = 4;
 
 export function domeRadius(
   normalizedHeight: number,
@@ -47,7 +48,7 @@ function domeCurvePoints(
 ): Vector3[] {
   return Array.from({ length: samples + 1 }, (_, index) => {
     const t = index / samples;
-    const radius = domeRadius(t, signature.diameter_m);
+    const radius = domeRadius(t, signature.diameter_m) + 0.12;
     return new Vector3(
       Math.cos(angle) * radius,
       t * signature.height_m,
@@ -97,8 +98,9 @@ export function createOfficialReichstagDome(
     sourceUrl: signature.source_url,
   };
 
-  const profile = Array.from({ length: 41 }, (_, index) => {
-    const t = index / 40;
+  const glassStart = LOWER_UNGLAZED_ROWS / signature.horizontal_rings;
+  const profile = Array.from({ length: 37 }, (_, index) => {
+    const t = glassStart + (index / 36) * (1 - glassStart);
     return new Vector2(
       domeRadius(t, signature.diameter_m),
       t * signature.height_m,
@@ -109,31 +111,38 @@ export function createOfficialReichstagDome(
     new MeshPhysicalMaterial({
       color: 0xb9dce8,
       metalness: 0.04,
-      opacity: 0.28,
+      opacity: 0.2,
       roughness: 0.08,
       side: DoubleSide,
       thickness: 0.32,
-      transmission: 0.54,
+      transmission: 0.64,
       transparent: true,
       depthWrite: false,
     }),
   );
+  glass.material.userData.nightEmissive = 0xb8dcff;
+  glass.material.userData.nightEmissiveIntensity = 0.72;
   glass.name = "3,000 square metre glass envelope";
   glass.renderOrder = 5;
   group.add(glass);
 
   const steel = new MeshStandardMaterial({
-    color: 0xaab7bd,
+    color: 0x90a5ad,
+    depthTest: false,
+    emissive: 0x1c3038,
+    emissiveIntensity: 0.1,
     metalness: 0.82,
-    roughness: 0.23,
+    roughness: 0.19,
   });
+  steel.userData.nightEmissive = 0x9ecaf0;
+  steel.userData.nightEmissiveIntensity = 0.44;
   for (let index = 0; index < signature.vertical_ribs; index += 1) {
     const angle = (index / signature.vertical_ribs) * Math.PI * 2;
     const rib = new Mesh(
       new TubeGeometry(
         new CatmullRomCurve3(domeCurvePoints(signature, angle)),
         64,
-        0.105,
+        0.1,
         6,
         false,
       ),
@@ -141,28 +150,36 @@ export function createOfficialReichstagDome(
     );
     rib.name = `main steel rib ${index + 1}`;
     rib.castShadow = true;
+    rib.renderOrder = 7;
     group.add(rib);
   }
 
   for (let index = 1; index <= signature.horizontal_rings; index += 1) {
     const t = index / (signature.horizontal_rings + 1);
     const ring = new Mesh(
-      new TorusGeometry(domeRadius(t, signature.diameter_m), 0.085, 6, 96),
+      new TorusGeometry(
+        domeRadius(t, signature.diameter_m) + 0.12,
+        0.08,
+        6,
+        96,
+      ),
       steel,
     );
     ring.name = `horizontal steel ring ${index}`;
     ring.rotation.x = Math.PI / 2;
     ring.position.y = t * signature.height_m;
     ring.castShadow = true;
+    ring.renderOrder = 7;
     group.add(ring);
   }
 
   const baseRing = new Mesh(
-    new TorusGeometry(signature.diameter_m / 2, 0.22, 8, 128),
+    new TorusGeometry(signature.diameter_m / 2 + 0.12, 0.16, 8, 128),
     steel,
   );
   baseRing.name = "dome base ring";
   baseRing.rotation.x = Math.PI / 2;
+  baseRing.renderOrder = 7;
   group.add(baseRing);
 
   const mirrorCone = new Mesh(
@@ -174,6 +191,8 @@ export function createOfficialReichstagDome(
       side: DoubleSide,
     }),
   );
+  mirrorCone.material.userData.nightEmissive = 0xffd58d;
+  mirrorCone.material.userData.nightEmissiveIntensity = 0.85;
   mirrorCone.name = "daylight mirror cone";
   mirrorCone.position.y = 9;
   mirrorCone.castShadow = true;

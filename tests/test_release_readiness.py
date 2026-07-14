@@ -81,10 +81,11 @@ VALID_SERVE_LOCAL = (
 )
 
 
-def webgl_entry(filename: str, data: bytes) -> dict[str, int | str]:
+def webgl_entry(filename: str, data: bytes) -> dict[str, bool | int | str]:
   return {
     "file": filename,
     "bytes": len(data),
+    "includes_normals": True,
     "sha256": hashlib.sha256(data).hexdigest(),
   }
 
@@ -480,6 +481,24 @@ def test_webgl_manifest_rejects_axis_aligned_hauptbahnhof_model() -> None:
   )
 
   assert any("not aligned to its rotated LoD2 hall" in failure for failure in failures)
+
+
+def test_webgl_manifest_rejects_missing_bundled_normals() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_mesh_normals", "scripts/check_release_readiness.py"
+  )
+  mesh_data = b"model"
+  scene = minimal_webgl_scene("tile.glb", mesh_data)
+  scene["base_tiles"][0].pop("includes_normals")
+
+  failures = release_readiness.webgl_manifest_failures(
+    scene,
+    label="missing normals",
+    asset_reader={"tile.glb": mesh_data}.__getitem__,
+    actual_asset_names={"tile.glb"},
+  )
+
+  assert any("lacks bundled normals flag" in failure for failure in failures)
 
 
 def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:

@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.5/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.6/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.5 open-data package.
+**Status:** Local v0.2.6 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.5**. Its full viewer is a progressively
+The current public package is **v0.2.6**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -37,10 +37,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Each context tile retains up to 70,000 faces. Reichstag,
   Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
   high-detail, textured photogrammetry crops masked by official LoD2
-  footprints, using up to 1536 px per material segment. Metric recognition
+  footprints, using up to 2048 px per material segment. Metric recognition
   models now sharpen the silhouettes without replacing that texture: the
   Reichstag has its 138 x 100 m body, west portico, four towers and 40 x 23.5 m
-  dome; the Chancellery separates its 36 m cube and three LoD2-aligned 18 m
+  dome at the official 24 m roof-terrace datum; the Chancellery separates its
+  36 m cube and three LoD2-aligned 18 m
   office bands; Hauptbahnhof exposes its 321 m glass roof, 160 x 45 m hall and
   46 m frames; the 62.5 x 11 x 26 m Brandenburg Gate has all twelve columns and
   a bronze-green Quadriga.
@@ -58,31 +59,48 @@ labelled compatibility fallback for browsers that cannot run local modules.
   has stepped side pavilions, five shaded passages and a more articulated
   Quadriga; the Chancellery has floor plates, facade mullions and its arched
   leadership-window grid; the Reichstag adds roof cornices, portico bases and
-  capitals, entrances and four roof flags around the official dome.
-- The old always-visible coloured landmark dots are gone. Only the selected
-  landmark receives a small illuminated focus ring.
+  capitals, entrances, three German flags and one EU flag around the official
+  dome.
+- Day/Night is available from the moon/sun button or `D`. The true 3D scene
+  changes sky, fog, directional light and exposure; landmark windows, station
+  glass and dome structure emit light at night. The 2D fallback receives a
+  restrained night treatment as well.
+- The old always-visible coloured landmark dots are gone. Selecting a landmark
+  briefly shows a small ring, which fades after 2.4 seconds so roofs and
+  facades remain unobstructed.
 - Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag
   pans; two fingers pinch and rotate; three fingers can carry the camera
   continuously through a genuine underside view. Arrow and on-screen controls
   provide the same rotation, tilt, zoom and cardinal presets.
-- The two-tube Tiergartentunnel cutaway has lit fixtures, road decks,
-  ventilation shafts and fan cues. Its route is explicitly labelled as an
+- The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
+  road decks and lane marks, ventilation shafts and four-blade fan cues. The
+  underside control now focuses the tunnel and remains stable under React
+  Strict Mode. Its route is explicitly labelled as an
   OSM-derived engineering approximation, not surveyed tunnel geometry.
 - Assets load progressively with bounded concurrency and an adaptive pixel
-  ratio. The 93.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
-  individual public GLB remains below 5 MiB.
+  ratio. The 114.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
+  individual public GLB remains below 5 MiB. Existing GLB normals are reused
+  instead of recalculating roughly 1.6 million base triangles at startup.
 - Mobile devices retain only the selected high-resolution hero group; desktop
   retains the two most recent. Evicted geometry, materials and textures are
   explicitly released from GPU memory. A failed detail file is retried once
   and no longer disables an otherwise usable base scene. Touch devices release
-  inactive 3D when switching to the 2D map and cap active rendering at 30 fps;
-  desktop retains the warm mode switch.
+  inactive 3D when switching to the 2D map, cancel a stale hero queue after a
+  new selection and cap moving rendering at 30 fps; desktop retains the warm
+  mode switch and 60 fps interaction.
 - Disposing the viewer now cancels the remaining 100-item-capable worker queue
   before it can start another GLB. Pointer capture loss and window blur also
   reset three-finger state, preventing a permanently disabled orbit control.
+- Settled 3D uses up to 1.75x desktop / 1.35x mobile device pixels. Orbit gestures
+  temporarily lower the render ratio, then restore full sharpness after 140 ms.
+  Static scenes settle to 12 fps on desktop and 10 fps on mobile to reduce GPU
+  load without reducing interaction smoothness.
+- Repeated tunnel lamps, lane marks, ventilation shafts, fan rings and blades
+  are instanced into five draw calls; each fan now has four distinct blades
+  instead of two duplicated pairs.
 - The local package server uses HTTP/1.1, the correct GLB media type and
   immutable caching for heavy static assets. Reopening 3D reuses the local
-  browser cache instead of transferring the 93.7 MiB scene again.
+  browser cache instead of transferring the 114.7 MiB scene again.
 - Release QA verifies the exact byte length and SHA-256 of all 45 scene GLBs in
   the source tree, extracted package, ZIP and static tarball. Both archives now
   reject duplicate, linked, encrypted, hidden and oversized content. The local

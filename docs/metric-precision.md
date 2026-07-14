@@ -51,8 +51,8 @@ are easily lost in aerial photogrammetry:
 
 | Landmark | Metric recognition evidence |
 | --- | --- |
-| Reichstagsgebäude | 138 m by almost 100 m official plan dimensions, LoD2 body height and -1.676° local footprint axis, four corner towers and west portico; separate 40 m by 23.5 m Bundestag dome signature |
-| Bundeskanzleramt | 342.676 x 102.074 m oriented LoD2 ensemble, -1.337° local axis and cube position; official 36 m central cube and 18 m office bands |
+| Reichstagsgebäude | 138 m by almost 100 m official plan dimensions, LoD2 body height and -1.676° local footprint axis, four corner towers and west portico; separate 40 m by 23.5 m Bundestag dome signature based at the published 24 m roof-terrace datum |
+| Bundeskanzleramt | 342.676 x 102.074 m oriented LoD2 ensemble, -1.337° local axis and cube position; official 36 m central cube, 18 m office bands and 5.5 m Chillida sculpture at the verified landmark offset |
 | Berlin Hauptbahnhof | LoD2 hall-centre anchor and 21.82° local track axis; Deutsche Bahn 321 m glass roof, 160 x 45 m crossing hall and 46 m office bridges |
 | Brandenburger Tor | LoD2-derived 5.083° local axis; Berlin/visitBerlin 62.5 x 11 m plan, 20.3 m gate body, 26 m total height, 13.5 m columns in two rows of six |
 
