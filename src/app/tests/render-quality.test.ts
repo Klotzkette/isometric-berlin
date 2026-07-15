@@ -12,7 +12,7 @@ describe("adaptive 3D render quality", () => {
         interacting: false,
         width: 390,
       }),
-    ).toBe(1.75);
+    ).toBe(2);
   });
 
   test("drops interaction resolution for smooth touch movement", () => {
@@ -35,7 +35,7 @@ describe("adaptive 3D render quality", () => {
       interacting: false,
       width: 3840,
     });
-    expect(ratio).toBe(1);
-    expect(3840 * 2160 * ratio ** 2).toBeLessThanOrEqual(8_300_000);
+    expect(ratio).toBeGreaterThanOrEqual(1);
+    expect(3840 * 2160 * ratio ** 2).toBeLessThanOrEqual(11_600_000);
   });
 });

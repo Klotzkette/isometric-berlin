@@ -62,6 +62,42 @@ describe("cultural and Spree recognition details", () => {
     ).toHaveLength(4);
   });
 
+  test("keeps the TIPI night character in the bulbs, not the canvas", () => {
+    const details = createCulturalLandmarks(landmarks);
+    const tipi = details.getObjectByName("Granular TIPI am Kanzleramt show tent");
+    const skirt = tipi?.getObjectByName(
+      "TIPI elliptical canvas skirt",
+    ) as Mesh;
+    const roof = tipi?.getObjectByName(
+      "TIPI main peaked canvas roof",
+    ) as Mesh;
+    const marquee = details.getObjectByName(
+      "TIPI PIGOR & EICHHORN golden marquee bulbs",
+    ) as InstancedMesh;
+    const stringBulbs = details.getObjectByName(
+      "TIPI warm canvas-rib string bulbs",
+    ) as InstancedMesh;
+    // Canvas surfaces must not glow like a lampshade at night.
+    for (const canvasMesh of [skirt, roof]) {
+      const material = canvasMesh.material as { userData: Record<string, number> };
+      expect(material.userData.nightEmissiveIntensity).toBeLessThanOrEqual(0.15);
+    }
+    // The bulb chains and golden marquee remain the bright night character.
+    expect(
+      (stringBulbs.material as { userData: Record<string, number> }).userData
+        .nightEmissiveIntensity,
+    ).toBe(4.1);
+    expect(
+      (marquee.material as { userData: Record<string, number> }).userData
+        .nightEmissiveIntensity,
+    ).toBe(5.4);
+    const concertLights = tipi?.children.filter(
+      (child): child is PointLight =>
+        child instanceof PointLight && child.userData.nightOnly === true,
+    );
+    expect(concertLights?.every((light) => light.intensity <= 8)).toBe(true);
+  });
+
   test("preserves the Carillon height and all 68 visible bells", () => {
     const details = createCulturalLandmarks(landmarks);
     const carillon = details.getObjectByName("Granular 42 m Carillon im Tiergarten");
@@ -70,6 +106,11 @@ describe("cultural and Spree recognition details", () => {
     expect(carillon).toBeDefined();
     expect(carillon?.userData.heightM).toBe(42);
     expect(carillon?.userData.officialMeshCarriesPylons).toBe(true);
+    // The payload anchor is a photo-geotag ~29 m south-west of the tower;
+    // the recognition detail must sit on the official-mesh tower footprint
+    // so it does not read as a second Carillon.
+    expect(carillon?.position.toArray()).toEqual([-307.06, 4.51, 118.51]);
+    expect(carillon?.userData.payloadAnchorWorld).toEqual([-326.839, 8, 140.633]);
     expect(
       carillon?.getObjectByName("Carillon black-granite tower shaft"),
     ).toBeUndefined();

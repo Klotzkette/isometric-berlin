@@ -563,10 +563,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     if snippet not in viewer
   ]
   required_render_quality_snippets = {
-    "2.25x desktop settled quality": "coarsePointer ? 1.75 : 2.25",
-    "1x touch interaction quality": "coarsePointer ? 1 : 1.25",
-    "fixed settled GPU budget": "8_000_000",
-    "fixed mobile GPU budget": "4_800_000",
+    "2.75x desktop settled quality": "coarsePointer ? 2 : 2.75",
+    "1x touch interaction quality": "coarsePointer ? 1 : 1.4",
+    "fixed settled GPU budget": "11_500_000",
+    "fixed mobile GPU budget": "5_800_000",
   }
   failures.extend(
     f"3D render-quality policy lacks {label}: {render_quality_path}"

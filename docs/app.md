@@ -41,14 +41,28 @@ pans. A two-finger centre swipe flies along the current camera heading, pinch
 zooms and twist rotates. A three-finger gesture controls
 azimuth and polar tilt continuously through 90 degrees into the real underside
 camera. The underside fades surface materials and strengthens the two-tube
-Tiergartentunnel cutaway; the tunnel is completely hidden in ordinary exterior
-views and appears automatically only after the camera crosses below ground.
+Tiergartentunnel cutaway; the tunnel is hidden in ordinary exterior views and
+appears automatically after the camera crosses below ground **or flies into
+the tunnel tube itself** — approaching a portal at street level and diving in
+switches to the lit interior (safety-light strips, ceiling lights, ventilation
+shafts and fans) and out the other end.
 Arrow keys translate camera and target together in the visible screen plane.
 `Shift` plus arrows flies forward/backward or strafes relative to the current
-heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. In DZI
-mode, ordinary drag pans and Shift-drag rotates. On phones and coarse-pointer
-tablets up to 1024 px, the sight rail starts closed and leaves the
-safe-area-aware bottom controls accessible.
+heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts.
+
+**Continuous flight:** holding `Space` in 3D arms a smooth, velocity-damped
+flight mode — `Space`+`↑`/`↓` flies forward/backward along the current
+heading, `Space`+`←`/`→` strafes, `Space`+`Shift`+`↑`/`↓` changes altitude. A
+plain `Space` tap still toggles the sight tour. On coarse-pointer devices a
+bottom-left thumb joystick provides the same continuous flight (drag up =
+forward, sideways = strafe); the existing two-finger swipe remains. Flying
+below the Spree surface (scene water level 1.31 m) switches to an underwater
+presentation with deep-teal fog; it lifts as soon as the camera surfaces, and
+the Tiergartentunnel interior — which passes under the river — is exempt.
+
+In DZI mode, ordinary drag pans and Shift-drag rotates. On phones and
+coarse-pointer tablets up to 1024 px, the sight rail starts closed and leaves
+the safe-area-aware bottom controls accessible.
 
 ## Language, visual modes, and sound
 

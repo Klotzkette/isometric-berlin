@@ -39,7 +39,14 @@ import {
   X,
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   ThreeViewer,
@@ -383,6 +390,89 @@ function viewUrlFor(
   return `${url.toString()}#${params}`;
 }
 
+const JOYSTICK_RADIUS_PX = 44;
+
+function FlightJoystick({
+  disabled,
+  label,
+  onInput,
+}: {
+  disabled: boolean;
+  label: string;
+  onInput: (strafe: number, forward: number, vertical: number) => void;
+}) {
+  const baseRef = useRef<HTMLDivElement | null>(null);
+  const pointerIdRef = useRef<number | null>(null);
+  const [knob, setKnob] = useState({ x: 0, y: 0 });
+
+  const applyFromEvent = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const base = baseRef.current;
+      if (!base) {
+        return;
+      }
+      const rect = base.getBoundingClientRect();
+      const dx = event.clientX - (rect.left + rect.width / 2);
+      const dy = event.clientY - (rect.top + rect.height / 2);
+      const length = Math.hypot(dx, dy);
+      const scale = length > JOYSTICK_RADIUS_PX ? JOYSTICK_RADIUS_PX / length : 1;
+      const x = dx * scale;
+      const y = dy * scale;
+      setKnob({ x, y });
+      onInput(x / JOYSTICK_RADIUS_PX, -y / JOYSTICK_RADIUS_PX, 0);
+    },
+    [onInput],
+  );
+
+  const release = useCallback(() => {
+    pointerIdRef.current = null;
+    setKnob({ x: 0, y: 0 });
+    onInput(0, 0, 0);
+  }, [onInput]);
+
+  return (
+    <div
+      ref={baseRef}
+      className="flight-joystick"
+      role="application"
+      aria-label={label}
+      data-disabled={disabled ? "true" : undefined}
+      onPointerDown={(event) => {
+        if (disabled) {
+          return;
+        }
+        event.preventDefault();
+        pointerIdRef.current = event.pointerId;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        applyFromEvent(event);
+      }}
+      onPointerMove={(event) => {
+        if (pointerIdRef.current !== event.pointerId) {
+          return;
+        }
+        applyFromEvent(event);
+      }}
+      onPointerUp={(event) => {
+        if (pointerIdRef.current === event.pointerId) {
+          release();
+        }
+      }}
+      onPointerCancel={(event) => {
+        if (pointerIdRef.current === event.pointerId) {
+          release();
+        }
+      }}
+      onLostPointerCapture={release}
+    >
+      <span
+        className="flight-joystick-knob"
+        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
+        aria-hidden="true"
+      />
+    </div>
+  );
+}
+
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
@@ -392,6 +482,10 @@ export function App() {
   const closeRepositoryButtonRef = useRef<HTMLButtonElement | null>(null);
   const repositoryReturnFocusRef = useRef<HTMLElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
+  // Held-key state for continuous 3D flight (Space + arrows).
+  const heldFlightKeysRef = useRef(new Set<string>());
+  const spaceHeldRef = useRef(false);
+  const spaceUsedForFlightRef = useRef(false);
   const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
@@ -764,6 +858,16 @@ export function App() {
     );
   }, [copy.flyBack, copy.flyForward, copy.flyLeft, copy.flyRight]);
 
+  const setFlightInput = useCallback(
+    (strafe: number, forward: number, vertical: number) => {
+      if (strafe !== 0 || forward !== 0 || vertical !== 0) {
+        setIsTouring(false);
+      }
+      threeViewerRef.current?.setFlightInput(strafe, forward, vertical);
+    },
+    [],
+  );
+
   const zoomBy = useCallback(
     (factor: number) => {
       if (viewerMode === "three") {
@@ -1040,8 +1144,36 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    const FLIGHT_KEYS = [
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "Shift",
+    ];
+    const updateHeldFlight = () => {
+      const keys = heldFlightKeysRef.current;
+      const shift = keys.has("Shift");
+      const strafe =
+        (keys.has("ArrowRight") ? 1 : 0) - (keys.has("ArrowLeft") ? 1 : 0);
+      const forward =
+        (keys.has("ArrowUp") && !shift ? 1 : 0) -
+        (keys.has("ArrowDown") && !shift ? 1 : 0);
+      const vertical =
+        (keys.has("ArrowUp") && shift ? 1 : 0) -
+        (keys.has("ArrowDown") && shift ? 1 : 0);
+      setFlightInput(strafe, forward, vertical);
+    };
+    const stopHeldFlight = () => {
+      if (spaceHeldRef.current || heldFlightKeysRef.current.size > 0) {
+        spaceHeldRef.current = false;
+        heldFlightKeysRef.current.clear();
+        setFlightInput(0, 0, 0);
+      }
+    };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        stopHeldFlight();
         closeReferenceMap();
         setIsHelpOpen(false);
         setIsRepositoryOpen(false);
@@ -1087,6 +1219,24 @@ export function App() {
         return;
       }
       if (isReferenceOpen || isHelpOpen || isRepositoryOpen || !isReady) {
+        return;
+      }
+      if (
+        viewerMode === "three" &&
+        spaceHeldRef.current &&
+        FLIGHT_KEYS.includes(event.key)
+      ) {
+        event.preventDefault();
+        heldFlightKeysRef.current.add(event.key);
+        if (!spaceUsedForFlightRef.current) {
+          spaceUsedForFlightRef.current = true;
+          setStatus(
+            language === "de"
+              ? "Flugmodus: Space halten + Pfeiltasten (Shift: Höhe)"
+              : "Flight mode: hold Space + arrow keys (Shift: altitude)",
+          );
+        }
+        updateHeldFlight();
         return;
       }
       if (event.key === "Home" || event.key === "0") {
@@ -1171,7 +1321,16 @@ export function App() {
         focusLandmarkByOffset(-1);
       } else if (event.key === " ") {
         event.preventDefault();
-        toggleTour();
+        if (viewerMode === "three") {
+          // Held Space arms continuous flight; a plain tap still toggles
+          // the tour on key release (see handleKeyUp).
+          if (!spaceHeldRef.current && !event.repeat) {
+            spaceHeldRef.current = true;
+            spaceUsedForFlightRef.current = false;
+          }
+        } else {
+          toggleTour();
+        }
       } else if (event.key.toLowerCase() === "l") {
         event.preventDefault();
         void copyViewLink();
@@ -1181,8 +1340,39 @@ export function App() {
         zoomBy(0.81);
       }
     };
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === " ") {
+        if (spaceHeldRef.current) {
+          const tapped = !spaceUsedForFlightRef.current;
+          stopHeldFlight();
+          if (
+            tapped &&
+            viewerMode === "three" &&
+            isReady &&
+            !isReferenceOpen &&
+            !isHelpOpen &&
+            !isRepositoryOpen
+          ) {
+            toggleTour();
+          }
+        }
+        return;
+      }
+      if (FLIGHT_KEYS.includes(event.key)) {
+        if (heldFlightKeysRef.current.delete(event.key)) {
+          updateHeldFlight();
+        }
+      }
+    };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", stopHeldFlight);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", stopHeldFlight);
+      stopHeldFlight();
+    };
   }, [
     closeReferenceMap,
     copy.home,
@@ -1198,6 +1388,7 @@ export function App() {
     language,
     panByViewport,
     rotateBy,
+    setFlightInput,
     tiltBy,
     toggleTour,
     toggleLightingMode,
@@ -1816,6 +2007,20 @@ export function App() {
           </button>
         ) : null}
       </div>
+
+      {viewerMode === "three" && !isChromeHidden ? (
+        <div className="flight-joystick-wrap">
+          <FlightJoystick
+            disabled={!isReady}
+            label={
+              language === "de"
+                ? "Flug-Joystick: Daumen ziehen zum Fliegen"
+                : "Flight joystick: drag with your thumb to fly"
+            }
+            onInput={setFlightInput}
+          />
+        </div>
+      ) : null}
 
       <aside className="orientation-pill" aria-label={copy.orientation}>
         <Compass aria-hidden="true" size={16} />
@@ -2629,10 +2834,23 @@ export function App() {
                 </dt>
                 <dd>
                   {language === "de"
-                    ? "Sehenswürdigkeiten-Tour starten / pausieren"
-                    : "Start / pause the sights tour"}
+                    ? "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
+                    : "Tap: start / pause the sights tour"}
                 </dd>
               </div>
+              {viewerMode === "three" ? (
+                <div>
+                  <dt>
+                    <kbd>Leertaste</kbd> halten + <kbd>←</kbd> <kbd>→</kbd>
+                    <kbd>↑</kbd> <kbd>↓</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Flugmodus: gleichmäßig fliegen (mit Shift: Höhe ändern); auf dem Handy übernimmt der Daumen-Joystick unten links"
+                      : "Flight mode: fly smoothly (with Shift: change altitude); on phones the bottom-left thumb joystick does the same"}
+                  </dd>
+                </div>
+              ) : null}
               <div>
                 <dt>
                   <kbd>+</kbd> <kbd>=</kbd> <kbd>−</kbd>

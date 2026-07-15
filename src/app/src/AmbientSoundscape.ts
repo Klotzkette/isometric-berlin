@@ -96,7 +96,7 @@ export class AmbientSoundscape {
     const master = context.createGain();
     const compressor = context.createDynamicsCompressor();
     master.gain.setValueAtTime(0.0001, context.currentTime);
-    master.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.8);
+    master.gain.exponentialRampToValueAtTime(0.095, context.currentTime + 1.4);
     compressor.threshold.value = -22;
     compressor.knee.value = 14;
     compressor.ratio.value = 4;
@@ -203,7 +203,7 @@ export class AmbientSoundscape {
       this.scheduleChime(context, at, variant.rootMidi + chimeInterval);
     }
     if (step % 2 === 1) {
-      this.scheduleHat(context, at, step % 4 === 3 ? 0.022 : 0.014);
+      this.scheduleHat(context, at, step % 4 === 3 ? 0.012 : 0.007);
     }
     if (step % 16 === 0) {
       this.scheduleDrone(context, at, variant.rootMidi - 12);

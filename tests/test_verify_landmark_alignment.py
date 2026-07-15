@@ -30,8 +30,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "ok",
-    "landmarks_checked": 40,
-    "relative_relationships_checked": 23,
+    "landmarks_checked": 43,
+    "relative_relationships_checked": 26,
     "landmark_review_count": 0,
     "relative_review_count": 0,
     "review_count": 0,
@@ -63,6 +63,13 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   )
   assert checks["Sowjetisches Ehrenmal Tiergarten"]["best_osm_match"]["name"] == (
     "Sowjetisches Ehrenmal Tiergarten"
+  )
+  assert checks["Jakob-Kaiser-Haus"]["best_osm_match"]["name"] == "Jakob-Kaiser-Haus"
+  assert checks["Lessing-Denkmal"]["best_osm_match"]["name"] == (
+    "Gotthold Ephraim Lessing"
+  )
+  assert checks["Königin-Luise-Denkmal (Luiseninsel)"]["best_osm_match"]["id"] == (
+    "28586183"
   )
   assert all(check["status"] == "ok" for check in checks.values())
   assert all(

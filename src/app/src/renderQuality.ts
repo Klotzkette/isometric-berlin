@@ -15,14 +15,14 @@ export function renderPixelRatio({
 }: RenderQualityOptions): number {
   const safeWidth = Math.max(1, width);
   const safeHeight = Math.max(1, height);
-  const ratioCap = interacting ? (coarsePointer ? 1 : 1.25) : coarsePointer ? 1.75 : 2.25;
+  const ratioCap = interacting ? (coarsePointer ? 1 : 1.4) : coarsePointer ? 2 : 2.75;
   const pixelBudget = interacting
     ? coarsePointer
       ? 2_800_000
-      : 4_500_000
+      : 5_200_000
     : coarsePointer
-      ? 4_800_000
-      : 8_000_000;
+      ? 5_800_000
+      : 11_500_000;
   const budgetRatio = Math.sqrt(pixelBudget / (safeWidth * safeHeight));
   return Math.max(1, Math.min(devicePixelRatio, ratioCap, budgetRatio));
 }

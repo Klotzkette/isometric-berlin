@@ -501,6 +501,45 @@
         "type": "Point",
         "coordinates": [13.3797732, 52.5167295]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jakob-Kaiser-Haus",
+        "role": "owner_added",
+        "tour_order": 41,
+        "source": "OpenStreetMap relations 374391 and 3203717; centroid of the combined Dorotheenstraße/Wilhelmstraße complex"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.378477587, 52.518032234]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lessing-Denkmal",
+        "role": "owner_added",
+        "tour_order": 42,
+        "source": "OpenStreetMap node 884700390 (historic=memorial, Gotthold Ephraim Lessing)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.3749541, 52.5120477]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Königin-Luise-Denkmal (Luiseninsel)",
+        "role": "owner_added",
+        "tour_order": 43,
+        "source": "OpenStreetMap way 28586183 (Luiseninsel) centroid; statue itself is not mapped in the committed OSM extract, Wikimedia Commons Luiseninsel photos confirm it stands at the island centre"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.365044975, 52.510774284]
+      }
     }
   ]
 }

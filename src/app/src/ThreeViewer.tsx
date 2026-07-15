@@ -2,6 +2,7 @@ import {
   MOUSE,
   TOUCH,
   ACESFilmicToneMapping,
+  Box3,
   BoxGeometry,
   BufferGeometry,
   Color,
@@ -68,6 +69,7 @@ import {
 } from "./ParkDetails";
 import { runBoundedTasks } from "./boundedTaskPool";
 import {
+  REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   captureCameraPose,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
@@ -164,6 +166,7 @@ export type ThreeViewerHandle = {
   reset: () => void;
   rotateBy: (degrees: number) => void;
   setAzimuth: (degrees: number) => void;
+  setFlightInput: (strafe: number, forward: number, vertical: number) => void;
   setUnderside: (enabled: boolean) => void;
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
@@ -204,8 +207,10 @@ type Runtime = {
   settledSurfaceReady: boolean;
   sun: DirectionalLight;
   tunnel: Group;
+  tunnelBounds: Box3 | null;
   lightingMode: LightingMode;
   underside: boolean;
+  underwater: boolean;
 };
 
 type HeroDetailGroup = {
@@ -218,6 +223,26 @@ type HeroDetailGroup = {
 const DEFAULT_TARGET = new Vector3(-110, 12, -165);
 const DEFAULT_CAMERA_OFFSET = new Vector3(540, 430, 650);
 const DETAIL_RAISE_M = 0.035;
+// Spree surface height in scene metres; keep in sync with
+// SPREE_WATER_Y in CulturalLandmarks.ts.
+const WATER_LEVEL_Y = 1.31;
+const UNDERWATER_COLOR = 0x0b4250;
+
+function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void {
+  if (runtime.underwater === underwater) {
+    return;
+  }
+  runtime.underwater = underwater;
+  if (underwater) {
+    const deep = new Color(UNDERWATER_COLOR);
+    runtime.scene.background = deep;
+    runtime.scene.fog = new Fog(deep.getHex(), 4, 240);
+    runtime.renderer.toneMappingExposure = 0.94;
+    runtime.hemisphere.intensity = 1.1;
+  } else {
+    setSceneLighting(runtime, runtime.lightingMode);
+  }
+}
 
 function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   const settled = shouldUseSettledSurface({
@@ -349,10 +374,14 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
     );
   }
   runtime.crispPass.enabled = false;
-  runtime.crispPass.uniforms.strength.value = isNight ? 0.2 : 0.26;
-  runtime.crispPass.uniforms.saturation.value = isNight ? 1.03 : 1.07;
-  runtime.crispPass.uniforms.contrast.value = isNight ? 1.02 : 1.025;
+  runtime.crispPass.uniforms.strength.value = isNight ? 0.3 : 0.38;
+  runtime.crispPass.uniforms.saturation.value = isNight ? 1.05 : 1.1;
+  runtime.crispPass.uniforms.contrast.value = isNight ? 1.035 : 1.05;
   runtime.minecraftPass.enabled = isMinecraft;
+  if (runtime.underwater) {
+    runtime.underwater = false;
+    setUnderwaterPresentation(runtime, true);
+  }
 }
 
 function segmentMesh(
@@ -877,6 +906,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const runtimeRef = useRef<Runtime | null>(null);
     const selectedRef = useRef(selectedLandmark);
     const activeRef = useRef(active);
+    // Continuous flight input (x = strafe, y = vertical, z = forward),
+    // integrated per frame in the animate loop with velocity smoothing.
+    const flightInputRef = useRef(new Vector3());
     const lightingModeRef = useRef(lightingMode);
     const onErrorRef = useRef(onError);
     const onReadyRef = useRef(onReady);
@@ -1098,6 +1130,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.controls.getAzimuthalAngle() + MathUtils.degToRad(degrees),
           });
           notifyView(runtime, onViewChangeRef.current);
+        },
+        setFlightInput: (strafe, forward, vertical) => {
+          flightInputRef.current.set(
+            MathUtils.clamp(strafe, -1, 1),
+            MathUtils.clamp(vertical, -1, 1),
+            MathUtils.clamp(forward, -1, 1),
+          );
         },
         setAzimuth: (degrees) => {
           const runtime = runtimeRef.current;
@@ -1330,8 +1369,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         settledSurfaceReady: false,
         sun,
         tunnel: new Group(),
+        tunnelBounds: null,
         lightingMode: lightingModeRef.current,
         underside: false,
+        underwater: false,
       };
       runtimeRef.current = runtime;
       setSceneLighting(runtime, lightingModeRef.current);
@@ -1595,6 +1636,50 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const activeFrameIntervalMs = coarsePointer ? 1000 / 30 : 0;
       const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
+      let lastAnimateAt = Number.NEGATIVE_INFINITY;
+      const flightVelocity = new Vector3();
+      let wasFlying = false;
+      const applyContinuousFlight = (dtSeconds: number): boolean => {
+        const input = flightInputRef.current;
+        flightVelocity.lerp(input, 1 - Math.exp(-dtSeconds * 7));
+        if (input.lengthSq() < 1e-6 && flightVelocity.lengthSq() < 1e-4) {
+          flightVelocity.set(0, 0, 0);
+          if (wasFlying) {
+            wasFlying = false;
+            notifyView(runtime, onViewChangeRef.current);
+          }
+          return false;
+        }
+        wasFlying = true;
+        const distance = camera.position.distanceTo(controls.target);
+        const speed = MathUtils.clamp(distance * 1.3, 36, 620);
+        const verticalSpeed = MathUtils.clamp(distance * 0.85, 16, 230);
+        const heading = controls.target.clone().sub(camera.position);
+        heading.y = 0;
+        if (heading.lengthSq() < 1e-6) {
+          camera.getWorldDirection(heading);
+          heading.y = 0;
+        }
+        heading.normalize();
+        const right = new Vector3().crossVectors(heading, camera.up).normalize();
+        const move = heading
+          .multiplyScalar(flightVelocity.z * speed * dtSeconds)
+          .add(right.multiplyScalar(flightVelocity.x * speed * dtSeconds));
+        move.y += flightVelocity.y * verticalSpeed * dtSeconds;
+        const nextTarget = controls.target
+          .clone()
+          .add(move)
+          .clamp(
+            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min,
+            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max,
+          );
+        const applied = nextTarget.sub(controls.target);
+        controls.target.add(applied);
+        camera.position.add(applied);
+        camera.updateMatrixWorld();
+        markSurfaceInteraction(runtime, 220);
+        return true;
+      };
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -1603,6 +1688,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!activeRef.current) {
           return;
         }
+        const dtSeconds = MathUtils.clamp(
+          (timestamp - lastAnimateAt) / 1000,
+          0,
+          0.1,
+        );
+        lastAnimateAt = timestamp;
         if (
           !controls.enabled &&
           (!customTouchGestureActive ||
@@ -1611,6 +1702,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ) {
           resetTouchGesture();
         }
+        const flying = applyContinuousFlight(dtSeconds);
         const controlsChanged = controls.update();
         const stabilized = stabilizeCameraRig(
           camera,
@@ -1624,6 +1716,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const isMoving =
+          flying ||
           controlsInteracting ||
           controlsChanged ||
           stabilized.changed ||
@@ -1639,11 +1732,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastRenderedAt = timestamp;
-        const underside = controls.getPolarAngle() > Math.PI / 2;
+        // The cutaway also engages when the camera itself flies into the
+        // Tiergartentunnel tube, not only when orbiting below the horizon.
+        const insideTunnel =
+          runtime.tunnelBounds !== null &&
+          runtime.tunnelBounds.containsPoint(camera.position);
+        const underside = controls.getPolarAngle() > Math.PI / 2 || insideTunnel;
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
         }
+        setUnderwaterPresentation(
+          runtime,
+          camera.position.y < WATER_LEVEL_Y - 0.2 && !insideTunnel,
+        );
         if (marker.visible) {
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
           marker.scale.setScalar(pulse);
@@ -1803,6 +1905,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           scene.add(runtime.tunnel);
+          runtime.tunnelBounds = new Box3()
+            .setFromObject(runtime.tunnel)
+            .expandByScalar(5);
           setModelMaterialState(runtime, runtime.underside);
           setProgress({ loaded: 0, total: manifest.base_tiles.length });
 

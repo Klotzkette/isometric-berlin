@@ -1,5 +1,51 @@
 # Changelog
 
+## v0.5.0
+
+- Raise stationary render quality: the settled desktop pixel budget grows
+  from 8.0 to 11.5 megapixels (ratio cap 2.25→2.75), settled touch from 4.8
+  to 5.8 megapixels (cap 1.75→2.0), and desktop interaction from 4.5 to 5.2
+  megapixels (cap 1.25→1.4). The settled crisp pass sharpens harder
+  (strength 0.26→0.38 day, 0.2→0.3 night) with slightly stronger saturation
+  and contrast, so facades and roofs read crisp instead of soft.
+- Add continuous flight: holding `Space` plus arrow keys flies smoothly
+  along the view heading with velocity damping (`Shift` changes altitude);
+  a plain `Space` tap still toggles the tour. Coarse-pointer devices get a
+  bottom-left thumb joystick for the same continuous flight. Flight speed
+  scales with camera distance and respects the scene bounds.
+- Fly into the Tiergartentunnel: the lit two-tube interior (safety strips,
+  ceiling lights, ventilation shafts and fans) now also engages when the
+  camera itself enters the tunnel volume at portal level, not only from the
+  underside view, so you can dive into one portal and come out the other.
+- Dive into the Spree: flying below the 1.31 m scene water level switches
+  to an underwater presentation with deep-teal fog that lifts on surfacing;
+  the tunnel interior (which passes under the river) is exempt.
+- Calm the Minecraft shimmer: sparkle/twinkle amplitudes drop to roughly
+  40% with tighter highlight exponents and slower drift, so water and glass
+  glint instead of glittering.
+- Soften the ambient score: master level drops from 0.16 to 0.095 with a
+  slower fade-in and quieter hats, keeping the 72 BPM 8-bit variants gentle
+  and melancholic.
+- Tone down the TIPI at night: canvas emissive glow reduced to bulb-chain
+  character (skirt/roof night intensity 0.62→0.12, wash cones and concert
+  lights roughly a third of their former strength); the golden
+  `PIGOR & EICHHORN` / `NUR HEUTE ABEND` marquee and warm rib bulbs are
+  unchanged.
+- Fix the second Carillon tower: the recognition roof, cabin and 68 bells
+  floated 29.4 m south-west of the real tower because the committed anchor
+  came from Wikimedia photographer standpoints. The detail layer is now
+  anchored to the mesh-verified tower position (tile 3890_58196); the
+  source-data correction is tracked in `tasks/08-carillon-anchor-correction.md`.
+- Add three sights with OSM-verified positions: Jakob-Kaiser-Haus (OSM
+  relations 374391+3203717), Lessing-Denkmal (OSM node 884700390, in the
+  south-east Tiergarten), and Königin-Luise-Denkmal on the Luiseninsel
+  (island centroid, documented display approximation). Alignment and
+  precision artefacts, reference map and viewer payloads regenerated.
+- Defer with concrete task files: the southern Kulturforum expansion
+  (Philharmonie, Staatsbibliothek, Neue Nationalgalerie) in
+  `tasks/06-kulturforum-expansion.md` and animated OSM traffic lights in
+  `tasks/07-animated-traffic-lights.md`.
+
 ## v0.4.0
 
 - Add heading-relative 3D flight: `Shift` + arrows and the flight pad move

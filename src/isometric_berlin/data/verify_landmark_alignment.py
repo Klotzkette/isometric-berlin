@@ -193,6 +193,18 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["starbucks"],
     "max_distance_m": 20.0,
   },
+  "Jakob-Kaiser-Haus": {
+    "aliases": ["jakob kaiser haus"],
+    "max_distance_m": 35.0,
+  },
+  "Lessing-Denkmal": {
+    "aliases": ["gotthold ephraim lessing", "lessing denkmal"],
+    "max_distance_m": 15.0,
+  },
+  "Königin-Luise-Denkmal (Luiseninsel)": {
+    "aliases": ["luiseninsel"],
+    "max_distance_m": 25.0,
+  },
 }
 
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
@@ -356,6 +368,27 @@ RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (
     "east_west": "east",
     "north_south": "south",
     "note": "The southern tunnel/Potsdamer Platz marker lies southeast of Kemperplatz.",
+  },
+  {
+    "from": "Reichstagsgebäude",
+    "to": "Jakob-Kaiser-Haus",
+    "east_west": "east",
+    "north_south": "south",
+    "note": "Jakob-Kaiser-Haus fills the Dorotheenstraße block southeast of the Reichstag.",
+  },
+  {
+    "from": "Goethe-Denkmal",
+    "to": "Lessing-Denkmal",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "The Lessing memorial stands southwest of the Goethe memorial in the Tiergarten.",
+  },
+  {
+    "from": "Spielplatz an der Luiseninsel",
+    "to": "Königin-Luise-Denkmal (Luiseninsel)",
+    "east_west": "west",
+    "north_south": "south",
+    "note": "The Queen Luise memorial stands on the Luiseninsel west of the playground.",
   },
 )
 

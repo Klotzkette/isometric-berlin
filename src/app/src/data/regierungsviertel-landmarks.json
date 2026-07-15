@@ -363,6 +363,33 @@
       "y": 7743,
       "nx": 0.713257,
       "ny": 0.666581
+    },
+    {
+      "name": "Jakob-Kaiser-Haus",
+      "role": "owner_added",
+      "tourOrder": 41,
+      "x": 12147,
+      "y": 6885,
+      "nx": 0.741394,
+      "ny": 0.592717
+    },
+    {
+      "name": "Lessing-Denkmal",
+      "role": "owner_added",
+      "tourOrder": 42,
+      "x": 5375,
+      "y": 8389,
+      "nx": 0.328064,
+      "ny": 0.722194
+    },
+    {
+      "name": "Königin-Luise-Denkmal (Luiseninsel)",
+      "role": "owner_added",
+      "tourOrder": 43,
+      "x": 0,
+      "y": 6356,
+      "nx": 0.0,
+      "ny": 0.547176
     }
   ]
 }

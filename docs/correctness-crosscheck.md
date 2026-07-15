@@ -46,12 +46,16 @@ or memorial plaques rather than usable building views.
 
 ## Spatial conclusion
 
-The current tree retains the machine-checked layer of 40 landmarks and 23 relative
-relationships without moving the existing points. The four additions are
+The current tree retains the machine-checked layer of 43 landmarks and 26 relative
+relationships without moving the existing points. Earlier additions are
 Schweizerische Botschaft (OSM relation `2886766`), Fahne der Einheit (OSM node
 `437140233`), Quadriga mit Victoria (OSM node `3786417057`) and Starbucks
 Pariser Platz (OSM node `66917229`). The Luiseninsel playground is additionally
-anchored to OSM way `24911694`. The generated alignment report remains
+anchored to OSM way `24911694`. The latest additions are Jakob-Kaiser-Haus
+(centroid of OSM relations `374391` and `3203717`), Lessing-Denkmal (OSM node
+`884700390`, mapped as "Gotthold Ephraim Lessing") and Königin-Luise-Denkmal
+(centroid of the Luiseninsel, OSM way `28586183`; the statue itself carries no
+OSM feature in the committed extract). The generated alignment report remains
 the current source of truth for status and distances.
 
 The viewer tour order follows a north-to-south walk through the
@@ -97,6 +101,9 @@ Regierungsviertel rather than the incidental order of `landmarks.json`:
 38. Spielplatz an der Luiseninsel
 39. Kemperplatz / Tiergartentunnel
 40. Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)
+41. Jakob-Kaiser-Haus
+42. Lessing-Denkmal
+43. Königin-Luise-Denkmal (Luiseninsel)
 
 The ordering is a UI/tour concern; coordinate correctness remains the
 responsibility of the committed placement QA against OSM and LoD2.

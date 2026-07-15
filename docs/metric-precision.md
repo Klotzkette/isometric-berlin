@@ -46,8 +46,8 @@ surface, and which additions remain display approximations.
 ## Landmark placement QA
 
 - Status: ok
-- Landmarks checked: 40
-- Relative relationships checked: 23
+- Landmarks checked: 43
+- Relative relationships checked: 26
 - Review count: 0
 
 ## Committed photogrammetric surface statistics

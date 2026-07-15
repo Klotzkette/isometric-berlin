@@ -2,10 +2,10 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-07-14T23:29:41.517878+00:00`
+- Generated: `2026-07-15T17:49:40.413535+00:00`
 - Status: `ok`
-- Landmarks checked: `40`
-- Relative relationships checked: `23`
+- Landmarks checked: `43`
+- Relative relationships checked: `26`
 - Landmark review count: `0`
 - Relative review count: `0`
 - Review count: `0`
@@ -52,6 +52,9 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Fahne der Einheit | `ok` | Fahne der Einheit (pois) | 0.00 m | nearest DEBE01YYK0002TmN at 13.38 m |
 | Quadriga mit Victoria | `ok` | Quadriga mit Victoria (pois) | 0.00 m | inside DEBE01YYK0001xqy |
 | Starbucks Pariser Platz | `ok` | Starbucks (pois) | 0.00 m | inside DEBE01YYK00005Hq |
+| Jakob-Kaiser-Haus | `ok` | Jakob-Kaiser-Haus (pois) | 0.00 m | inside DEBE3DZfZnvQ4nLq |
+| Lessing-Denkmal | `ok` | Gotthold Ephraim Lessing (pois) | 0.00 m | nearest DEBE3DmClxxhZDO8 at 45.02 m |
+| Königin-Luise-Denkmal (Luiseninsel) | `ok` | Luiseninsel (parks) | 0.00 m | nearest DEBE3DKboxsGo8qm at 368.76 m |
 
 ## Relative Placement
 
@@ -82,5 +85,8 @@ These checks compare landmark-to-landmark relationships in EPSG:25833 metres. Th
 | Großer Tiergarten | Beethoven-Haydn-Mozart-Denkmal | `ok` | west / west | north / north | -92.01 m | 21.25 m |
 | Großer Tiergarten | Goethe-Denkmal | `ok` | east / east | north / north | 317.81 m | 17.89 m |
 | Kemperplatz / Tiergartentunnel | Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz) | `ok` | east / east | south / south | 203.27 m | -175.89 m |
+| Reichstagsgebäude | Jakob-Kaiser-Haus | `ok` | east / east | south / south | 159.89 m | -66.77 m |
+| Goethe-Denkmal | Lessing-Denkmal | `ok` | west / west | south / south | -100.71 m | -192.52 m |
+| Spielplatz an der Luiseninsel | Königin-Luise-Denkmal (Luiseninsel) | `ok` | west / west | south / south | -123.29 m | -2.36 m |
 
 Interpretation: `ok` means the landmark is close to an expected named OSM feature within its configured tolerance, or has an explicit LoD2 building fallback where OSM does not carry the required semantic tag. `review` means the point may be on the wrong object and should not be used for rendering without manual correction.

@@ -351,6 +351,61 @@ button:active:not(:disabled) {
   pointer-events: auto;
 }
 
+.flight-joystick-wrap {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .flight-joystick-wrap {
+    position: absolute;
+    z-index: 21;
+    left: 14px;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    display: block;
+    pointer-events: auto;
+  }
+}
+
+.flight-joystick {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border: 1px solid rgba(245, 239, 228, 0.22);
+  border-radius: 999px;
+  background: rgba(25, 31, 29, 0.62);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(14px);
+  touch-action: none;
+}
+
+.flight-joystick[data-disabled="true"] {
+  opacity: 0.4;
+}
+
+.flight-joystick::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px dashed rgba(245, 239, 228, 0.18);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.flight-joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 1px solid rgba(245, 239, 228, 0.4);
+  border-radius: 999px;
+  background: rgba(224, 174, 105, 0.86);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.36);
+  pointer-events: none;
+  will-change: transform;
+}
+
 .control-row {
   display: flex;
   gap: 6px;

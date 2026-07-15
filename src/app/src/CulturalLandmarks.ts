@@ -48,7 +48,21 @@ const CARILLON_NAME = "Carillon im Tiergarten";
 const SPREEBOGEN_NAME = "Spreebogen";
 const HKW_NAME = "Haus der Kulturen der Welt (Schwangere Auster)";
 const TIPI_GROUND_Y = 3.98;
-const CARILLON_GROUND_Y = 3.778;
+// The committed "Carillon im Tiergarten" landmark anchor derives from
+// Wikimedia photo geotags (photographer standpoints, see
+// geo_data/regierungsviertel/landmarks.geojson) and lands about 29 m
+// south-west of the tower; docs/landmark-alignment.md accordingly matches it
+// only to John-Foster-Dulles-Allee at 13.70 m, not to the Carillon itself.
+// The official mesh carries the real tower: its roof plate in
+// tile-3890_58196 spans world x [-313.2, -300.9], z [112.1, 125.0]
+// (EPSG:25833 centre 389192.9 E, 5819881.5 N = 52.51776 N, 13.36696 E, the
+// surveyed Carillon). Centring the recognition detail on that footprint keeps
+// it on the photogrammetry tower instead of showing a second tower beside it.
+const CARILLON_MESH_TOWER_WORLD: [number, number] = [-307.06, 118.51];
+// Fifth-percentile mesh surface elevation sampled within 14 m of the
+// verified tower footprint (the previous 3.778 was sampled around the
+// offset photo-geotag anchor).
+const CARILLON_GROUND_Y = 4.51;
 const BOAT_WORLD: [number, number, number] = [-259.21, 1.249, -219.53];
 const SPREE_WATER_Y = 1.31;
 const LEGO_GIRAFFE_WORLD: [number, number, number] = [17.884, 4.12, 1023.63];
@@ -268,20 +282,24 @@ function createTipi(anchor: CulturalLandmark): Group {
     ],
   };
 
+  // Night glare policy (owner feedback): the tent canvas must read as fabric
+  // faintly lit by the bulb chains, not as a glowing lampshade. Canvas and
+  // facade emissive intensities stay low; the character comes from the
+  // string bulbs and the untouched golden marquee lights.
   const canvas = nightEmitter(
     modelMaterial(0xe8e4d8, { roughness: 0.9 }),
     0xffb56f,
-    0.62,
+    0.12,
   );
   const canvasShade = nightEmitter(
     modelMaterial(0xc7c1b6, { roughness: 0.92 }),
     0xd94f8c,
-    0.48,
+    0.09,
   );
   const redFront = nightEmitter(
     modelMaterial(0x7f2f35, { roughness: 0.74 }),
     0xd84555,
-    0.72,
+    0.3,
   );
   const timber = modelMaterial(0x76533b, { roughness: 0.86 });
   const darkBoard = modelMaterial(0x271b1b, { roughness: 0.66 });
@@ -410,16 +428,16 @@ function createTipi(anchor: CulturalLandmark): Group {
       `TIPI colourful night uplight ${index + 1}`,
       new ConeGeometry(2.25, 7.5, 16, 1, true),
       nightEmitter(
-        modelMaterial(0x343434, { opacity: 0.12, roughness: 0.5 }),
+        modelMaterial(0x343434, { opacity: 0.08, roughness: 0.5 }),
         color,
-        3.2,
+        1.3,
       ),
       [Math.sin(angle) * 11.8, 3.75, Math.cos(angle) * 11.8],
     );
     wash.rotation.z = Math.sin(angle) * 0.13;
     wash.userData.nightOnly = true;
     wash.visible = false;
-    const light = new PointLight(color, 24, 42, 1.45);
+    const light = new PointLight(color, 8, 34, 1.45);
     light.name = `TIPI colourful concert light ${index + 1}`;
     light.position.set(
       Math.sin(angle) * 9.8,
@@ -450,13 +468,20 @@ function bellGeometry(): LatheGeometry {
 function createCarillon(anchor: CulturalLandmark): Group {
   const group = new Group();
   group.name = "Granular 42 m Carillon im Tiergarten";
-  group.position.set(anchor.world[0], CARILLON_GROUND_Y, anchor.world[2]);
+  group.position.set(
+    CARILLON_MESH_TOWER_WORLD[0],
+    CARILLON_GROUND_Y,
+    CARILLON_MESH_TOWER_WORLD[1],
+  );
   group.userData = {
     bellCount: 68,
     geometryStatus:
-      "Official mesh pylons with published-height roof and 68-bell recognition detail",
+      "Official mesh pylons with published-height roof and 68-bell recognition detail, centred on the mesh tower footprint",
     heightM: 42,
     officialMeshCarriesPylons: true,
+    payloadAnchorWorld: anchor.world,
+    payloadAnchorNote:
+      "Landmark payload anchor stems from photo geotags ~29 m south-west of the tower; the model is re-centred on the official-mesh tower to avoid a duplicate tower",
     sourceUrl: "https://www.berlin.de/kultur-und-tickets/tipps/pfingsten/4877500-3383646-pfingstcarillon-internationales-carillon.html",
   };
 
@@ -1100,7 +1125,11 @@ export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
       distance_m: 88,
       polar_degrees: 66,
       target_height_m: 20,
-      target_world: [-326.839, CARILLON_GROUND_Y, 140.633],
+      target_world: [
+        CARILLON_MESH_TOWER_WORLD[0],
+        CARILLON_GROUND_Y,
+        CARILLON_MESH_TOWER_WORLD[1],
+      ],
     };
   }
   if (name === SPREEBOGEN_NAME) {
