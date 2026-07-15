@@ -159,7 +159,11 @@ enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
 
 By default the viewer loads the mesh scene from
 `public/mesh/regierungsviertel/scene.json`; individual GLBs are ordered by
-distance from the selected landmark and loaded with bounded concurrency. Hero
+distance from the selected landmark and loaded with bounded concurrency. The
+2.3M-face interaction tier opens first on every device. Desktop then loads the
+4M-face settled tier serially in the background, shows it only while idle and
+returns to the interaction tier for mouse, touch, keyboard or button movement.
+Touch/coarse-pointer devices never request the settled tier. Hero
 texture crops load only when selected. A failed model request is retried once,
 and one failed optional hero group reports a warning without closing the usable
 base scene. Mobile/coarse-pointer devices retain one hero group, while desktop
@@ -173,8 +177,9 @@ on mobile and 12 fps on desktop. Existing GLB normals are reused, repeated
 tunnel fixtures are instanced, and a stale mobile hero queue is stopped and
 disposed after a new landmark selection. Disposal also stops workers before
 they start another queued GLB, closes decoded image resources where the browser
-exposes them and resets custom touch state on lost pointer capture or window
-blur.
+exposes them and resets custom touch state on lost pointer capture, global
+pointer release, window blur or tab hiding. A watchdog restores controls after
+a stale three-finger sequence, while finite camera bounds recover a lost pose.
 
 The DZI tile pyramid and reference map
 load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is

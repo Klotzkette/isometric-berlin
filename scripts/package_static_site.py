@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.3.1"
+PACKAGE_VERSION = "0.3.2"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -135,18 +135,23 @@ def verify_webgl_scene(root: Path) -> None:
   if not isinstance(scene, dict):
     raise SystemExit("Invalid 3D scene manifest: root must be an object.")
   base_tiles = scene.get("base_tiles")
+  surface_tiles = scene.get("surface_detail_tiles")
   hero_details = scene.get("hero_details")
-  if not isinstance(base_tiles, list) or not isinstance(hero_details, list):
+  if (
+    not isinstance(base_tiles, list)
+    or not isinstance(surface_tiles, list)
+    or not isinstance(hero_details, list)
+  ):
     raise SystemExit("Invalid 3D scene manifest: model inventories are missing.")
-  entries = list(base_tiles)
+  if not base_tiles or not surface_tiles:
+    raise SystemExit("The local 3D scene lacks a required surface quality tier.")
+  entries = [*base_tiles, *surface_tiles]
   entries.extend(
     entry
     for detail in hero_details
     if isinstance(detail, dict)
     for entry in detail.get("files", [])
   )
-  if not entries:
-    raise SystemExit("The local 3D scene has no model files.")
   verified: set[str] = set()
   mesh_root = scene_path.parent.resolve()
   for entry in entries:
@@ -3326,9 +3331,14 @@ ein einzelnes optionales Detail schaltet das nutzbare Basismodell nicht mehr ab.
 Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive 3D-Szene vollständig
 frei und brechen die restliche GLB-Warteschlange ab; die aktive mobile
 3D-Ansicht nutzt ein begrenztes 30-fps-Budget. Verlorene Pointer-Captures oder
-ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück.
+ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück. Globale
+Pointer-Releases und ein zehnsekündiger Watchdog verhindern zusätzlich ein
+Festhängen. Am Desktop wird nach vollständigem Stillstand eine zweite amtliche
+4.000.039-Flächen-Stufe eingeblendet; bei Maus-, Tasten- oder Buttonbewegung
+bleibt die flüssige 2.299.987-Flächen-Stufe aktiv. Touchgeräte laden nur diese
+leichtere Stufe.
 Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
-45 GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
+68 GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
 Der lokale HTTP/1.1-Server cached unveränderliche GLBs, Kartenkacheln und
 Programmdateien, sodass ein erneuter 3D-Start nicht wieder alle Modelldaten
 übertragen muss.
@@ -3451,8 +3461,12 @@ textures are released from GPU memory. Failed files are retried once, and one
 optional detail no longer disables the usable base scene. Touch devices release
 inactive 3D when switching to the 2D map, cancel the remaining GLB queue and cap
 active rendering at 30 fps. Lost pointer capture or window focus cleanly resets
-three-finger gestures. Before opening the browser, serve-local.py checks all 45
-GLB hashes. Its HTTP/1.1 cache reuses immutable models, map tiles and app assets
+three-finger gestures; global pointer release and a ten-second watchdog prevent
+stuck input. Desktop swaps from the fluid 2,299,987-face interaction surface to
+the official 4,000,039-face surface only after movement fully settles; touch
+devices request only the lighter tier. Before opening the browser,
+serve-local.py checks all 68 GLB hashes. Its HTTP/1.1 cache reuses immutable
+models, map tiles and app assets
 instead of transferring the complete scene again.
 
 This version also refines the metric architectural rendering pass: LoD2

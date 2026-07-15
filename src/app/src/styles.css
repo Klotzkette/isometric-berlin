@@ -1030,7 +1030,7 @@ button:active:not(:disabled) {
 @media (max-width: 768px),
   (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
   :root {
-    --control-size: 40px;
+    --control-size: 44px;
     --panel-padding: 8px;
   }
 
@@ -1059,13 +1059,13 @@ button:active:not(:disabled) {
     top: calc(6px + env(safe-area-inset-top, 0px));
     right: calc(8px + env(safe-area-inset-right, 0px));
     left: calc(8px + env(safe-area-inset-left, 0px));
-    height: 40px;
+    height: 44px;
     align-items: center;
   }
 
   .brand {
     width: calc(100% - 96px);
-    height: 40px;
+    height: 44px;
     gap: 7px;
     overflow: hidden;
     padding: 5px 8px;
@@ -1166,7 +1166,7 @@ button:active:not(:disabled) {
 
   .chrome-toggle {
     width: 44px;
-    height: 40px;
+    height: 44px;
   }
 
   .mobile-compass-fab {
@@ -1407,11 +1407,11 @@ button:active:not(:disabled) {
 @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
   .topbar {
     top: calc(4px + env(safe-area-inset-top, 0px));
-    height: 32px;
+    height: 44px;
   }
 
   .brand {
-    height: 32px;
+    height: 44px;
     padding-block: 2px;
   }
 
@@ -1435,7 +1435,7 @@ button:active:not(:disabled) {
   }
 
   .chrome-toggle {
-    height: 32px;
+    height: 44px;
   }
 
   .mobile-compass-fab {

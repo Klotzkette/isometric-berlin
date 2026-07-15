@@ -1,6 +1,6 @@
 # Generation
 
-The committed v0.3.1 viewer is generated entirely from the permitted open-data
+The committed v0.3.2 viewer is generated entirely from the permitted open-data
 stack. Berlin LoD2 anchors building footprints/heights, OSM supplies roads,
 water, parks, rail and POIs, ALKIS supplies parcel context, and freely licensed
 Wikimedia records provide colour/material cues. Google is not used unless the
@@ -72,18 +72,24 @@ uv run python -m isometric_berlin.generation.prepare_webgl_mesh
 
 The converter includes every OBJ material segment. For the full scene it
 samples source textures into enhanced-but-bounded vertex colours, merges
-duplicate OBJ vertices and simplifies each tile to a 100,000-face mobile base
-mesh with quadric aggression 5. A 72° smoothing crease splits normals only at
-severe folds, sharpening roof and facade edges without introducing invented
-metric geometry. The 23 base tiles contain 2,299,987 faces and 1,180,361
-vertices in 70.8 MiB. Reichstag, Bundeskanzleramt, Hauptbahnhof and
+duplicate OBJ vertices and emits two scale-identical tiers: a 100,000-face-per-
+tile interaction/touch surface and a 175,700-face-per-tile settled desktop
+surface, both with quadric aggression 5. A 72° smoothing crease splits normals
+only at severe folds, sharpening roof and facade edges without introducing
+invented metric geometry. The 23 interaction tiles contain 2,299,987 faces and
+1,180,361 vertices in 26.1 MiB; the 23 settled tiles contain 4,000,039 faces and
+2,050,813 vertices in 46.8 MiB. Meshopt uses 16-bit positions and 8-bit normals;
+the viewer carries the interaction tier while moving and swaps to the settled
+tier only after desktop loading and camera damping complete. Touch devices do
+not request the settled tier. Reichstag, Bundeskanzleramt, Hauptbahnhof and
 Brandenburger Tor receive
 separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
 real dome geometry while excluding surrounding tree noise. Hero material
 segments try 2048, 1792, 1536, 1280 and 1024 px textures before lower bounded
 fallbacks. Every GLB includes offline-generated vertex normals, so the browser
 does not recompute the 23 base tiles at startup.
-Every output GLB stays below 5 MiB; the scene manifest records face counts,
+Every output GLB stays below 5 MiB; the complete 68-file scene is 147.4 MiB.
+The scene manifest records quality tier, face counts, quantization profile,
 source bounds, byte sizes and SHA-256 hashes.
 
 The manifest anchors a procedural Reichstag glass/steel signature at the

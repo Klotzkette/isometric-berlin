@@ -281,6 +281,9 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
   base_tiles = scene.get("base_tiles")
   if not isinstance(base_tiles, list) or not base_tiles:
     raise RuntimeError("WebGL scene has no base tiles")
+  surface_tiles = scene.get("surface_detail_tiles")
+  if not isinstance(surface_tiles, list) or len(surface_tiles) < 23:
+    raise RuntimeError("WebGL scene has no complete settled surface tier")
   model_name = str(base_tiles[0].get("file", ""))
   model, model_cache, content_type, _ = read_url_metadata(
     f"{base_url}/mesh/regierungsviertel/{model_name}"
@@ -291,6 +294,16 @@ def verify_package_http(base_url: str, expected_version: str) -> None:
     raise RuntimeError(f"GLB cache policy is ineffective: {model_cache}")
   if content_type.split(";", maxsplit=1)[0] != "model/gltf-binary":
     raise RuntimeError(f"GLB content type is wrong: {content_type}")
+  surface_name = str(surface_tiles[0].get("file", ""))
+  surface_model, surface_cache, surface_type, _ = read_url_metadata(
+    f"{base_url}/mesh/regierungsviertel/{surface_name}"
+  )
+  if len(surface_model) != surface_tiles[0].get("bytes"):
+    raise RuntimeError(f"Served settled GLB byte count is wrong: {surface_name}")
+  if surface_cache != "public, max-age=31536000, immutable":
+    raise RuntimeError(f"Settled GLB cache policy is ineffective: {surface_cache}")
+  if surface_type.split(";", maxsplit=1)[0] != "model/gltf-binary":
+    raise RuntimeError(f"Settled GLB content type is wrong: {surface_type}")
 
 
 def main() -> int:

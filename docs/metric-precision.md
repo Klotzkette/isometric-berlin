@@ -54,8 +54,12 @@ pass, and where procedural recognition geometry is still only a display aid.
 - Official source tiles: 23
 - Base faces: 2,299,987
 - Base vertices: 1,180,361
-- Base GLB size: 70.8 MiB
+- Base GLB size: 26.1 MiB (Meshopt)
 - Per-tile target: 100,000 faces
+- Settled desktop faces: 4,000,039
+- Settled desktop vertices: 2,050,813
+- Settled desktop GLB size: 46.8 MiB (Meshopt)
+- Settled per-tile target: 175,700 faces
 - Normal crease: 72°
 - Simplification aggression: 5
 - Separate high-detail hero groups: Reichstag, Bundeskanzleramt,
@@ -70,9 +74,12 @@ interior rings as visible courtyards/cut-outs, and uses denser
 facade bays, roof ribs, and roof equipment marks from footprint size, height,
 roof type, and landmark material cues. The official Berlin 3D Mesh 2025 now
 adds genuine photogrammetric roof, facade, ground and canopy relief. Its 23
-base tiles preserve EPSG:25833 scale and placement, retain 2.30 million faces,
-and use source-texture-derived vertex colours; four LoD2-masked hero groups
-retain denser textured source geometry for close inspection.
+interaction tiles preserve EPSG:25833 scale and placement, retain 2.30 million
+faces, and use source-texture-derived vertex colours. An identically placed
+4.00-million-face tier preserves more of that official surface for settled
+desktop inspection; it is a denser simplification of the same evidence, not
+extrapolated geometry. Four LoD2-masked hero groups retain denser textured
+source geometry for close inspection.
 
 Procedural monument, window, train, tunnel and architectural-signature layers
 remain labelled display geometry. They improve recognition where aerial

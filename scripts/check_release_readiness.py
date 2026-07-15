@@ -41,9 +41,14 @@ PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
 MAX_PACKAGE_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
 MIN_BASE_MESH_FACES = 2_250_000
+MIN_SETTLED_SURFACE_FACES = 4_000_000
 REQUIRED_BASE_TARGET_FACES = 100_000
+REQUIRED_SETTLED_TARGET_FACES = 175_700
 REQUIRED_BASE_NORMAL_CREASE_DEGREES = 72.0
 REQUIRED_BASE_SIMPLIFICATION_AGGRESSION = 5
+REQUIRED_MESHOPT_POSITION_BITS = 16
+REQUIRED_MESHOPT_NORMAL_BITS = 8
+MAX_WEBGL_SCENE_BYTES = 165 * 1024 * 1024
 BOUNDED_PREVIEW_FILES = ("overview.png", "overview_source.png", "reference_map.png")
 REQUIRED_PACKAGE_ENTRIES = (
   "START-HERE.html",
@@ -179,6 +184,52 @@ def webgl_manifest_failures(
         "WebGL base tiles do not use the required 100k/72-degree/aggression-5 "
         f"surface profile: {label} ({invalid_quality_entries[:3]})"
       )
+    invalid_meshopt_entries = [
+      str(entry.get("file", "<unknown>"))
+      for entry in base_tiles
+      if not isinstance(entry, dict)
+      or entry.get("meshopt_compressed") is not True
+      or entry.get("quantize_position_bits") != REQUIRED_MESHOPT_POSITION_BITS
+      or entry.get("quantize_normal_bits") != REQUIRED_MESHOPT_NORMAL_BITS
+    ]
+    if invalid_meshopt_entries:
+      failures.append(
+        "WebGL base tiles lack the required Meshopt 16-bit-position/8-bit-normal "
+        f"profile: {label} ({invalid_meshopt_entries[:3]})"
+      )
+  surface_tiles = scene.get("surface_detail_tiles")
+  if not isinstance(surface_tiles, list) or len(surface_tiles) < 23:
+    failures.append(f"WebGL scene needs all 23 settled surface-detail tiles: {label}")
+    surface_tiles = []
+  if surface_tiles:
+    surface_face_count = sum(
+      entry.get("faces", 0)
+      for entry in surface_tiles
+      if isinstance(entry, dict) and type(entry.get("faces")) is int
+    )
+    if surface_face_count < MIN_SETTLED_SURFACE_FACES:
+      failures.append(
+        f"WebGL settled surface is below the {MIN_SETTLED_SURFACE_FACES:,}-face "
+        f"quality floor: {label} ({surface_face_count:,} faces)"
+      )
+    invalid_surface_entries = [
+      str(entry.get("file", "<unknown>"))
+      for entry in surface_tiles
+      if not isinstance(entry, dict)
+      or entry.get("target_faces") != REQUIRED_SETTLED_TARGET_FACES
+      or entry.get("normal_crease_degrees") != REQUIRED_BASE_NORMAL_CREASE_DEGREES
+      or entry.get("simplification_aggression")
+      != REQUIRED_BASE_SIMPLIFICATION_AGGRESSION
+      or entry.get("meshopt_compressed") is not True
+      or entry.get("quantize_position_bits") != REQUIRED_MESHOPT_POSITION_BITS
+      or entry.get("quantize_normal_bits") != REQUIRED_MESHOPT_NORMAL_BITS
+    ]
+    if invalid_surface_entries:
+      failures.append(
+        "WebGL settled tiles do not use the required "
+        "175700-face/72-degree/aggression-5/Meshopt profile: "
+        f"{label} ({invalid_surface_entries[:3]})"
+      )
   hero_details = scene.get("hero_details")
   if not isinstance(hero_details, list):
     failures.append(f"WebGL scene lacks hero details: {label}")
@@ -283,7 +334,7 @@ def webgl_manifest_failures(
       f"WebGL scene lacks LoD2-aligned Chancellery office segments: {label}"
     )
 
-  files = list(base_tiles)
+  files = [*base_tiles, *surface_tiles]
   files.extend(
     file
     for hero in hero_details
@@ -341,8 +392,10 @@ def webgl_manifest_failures(
       failures.append(f"WebGL asset hash mismatch for {relative}: {label}")
 
   total_bytes = sum(len(data) for data in asset_cache.values())
-  if total_bytes > 150 * 1024 * 1024:
-    failures.append(f"WebGL scene exceeds 150 MiB mobile budget: {total_bytes} bytes")
+  if total_bytes > MAX_WEBGL_SCENE_BYTES:
+    failures.append(
+      f"WebGL scene exceeds 165 MiB progressive offline budget: {total_bytes} bytes"
+    )
   if actual_asset_names is not None:
     for relative in sorted(actual_asset_names - expected_asset_names):
       failures.append(f"Unreferenced WebGL asset {relative}: {label}")
@@ -384,6 +437,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
   render_quality_path = root / "src/app/src/renderQuality.ts"
+  surface_quality_path = root / "src/app/src/surfaceQuality.ts"
   styles_path = root / "src/app/src/styles.css"
   if (
     not viewer_path.exists()
@@ -392,6 +446,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not memorial_path.exists()
     or not camera_navigation_path.exists()
     or not render_quality_path.exists()
+    or not surface_quality_path.exists()
     or not styles_path.exists()
   ):
     return ["Missing true-3D viewer sources"]
@@ -401,6 +456,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   memorial = memorial_path.read_text(encoding="utf-8")
   camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
   render_quality = render_quality_path.read_text(encoding="utf-8")
+  surface_quality = surface_quality_path.read_text(encoding="utf-8")
   styles = styles_path.read_text(encoding="utf-8")
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
@@ -442,6 +498,16 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "adaptive GPU-bounded pixel ratio": "renderPixelRatio({",
     "day/night scene lighting": "setSceneLighting(runtime, lightingMode)",
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
+    "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
+    "four-million-face settled surface": "manifest.surface_detail_tiles",
+    "interaction surface swap": "setSurfacePresentation(runtime, isMoving)",
+    "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
+    "inspectable surface tier": "dataset.surfaceQuality",
+    "damping-aware active rendering": "const controlsChanged = controls.update()",
+    "stuck touch watchdog": "timestamp - lastTouchActivityAt > 10_000",
+    "global pointer release recovery": 'window.addEventListener("pointerup"',
+    "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
+    "camera rig stabilization": "stabilizeCameraRig(",
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"
@@ -459,6 +525,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     for label, snippet in required_render_quality_snippets.items()
     if snippet not in render_quality
   )
+  if "detailReady && !coarsePointer && !interacting" not in surface_quality:
+    failures.append(
+      f"3D surface quality policy lacks idle-desktop gating: {surface_quality_path}"
+    )
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:
@@ -486,6 +556,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "screen-relative flight": "screenRelativeFlightDelta",
     "bounded flight volume": "REGIERUNGSVIERTEL_FLIGHT_BOUNDS",
     "camera-target translation": "camera.position.add(applied)",
+    "last-safe camera capture": "captureCameraPose",
+    "invalid camera recovery": "stabilizeCameraRig",
   }
   failures.extend(
     f"Camera navigation lacks {label}: {camera_navigation_path}"

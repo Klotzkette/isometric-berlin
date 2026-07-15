@@ -87,12 +87,25 @@ def webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int | st
     "bytes": len(data),
     "faces": 100_000,
     "includes_normals": True,
+    "meshopt_compressed": True,
     "normal_crease_degrees": 72.0,
+    "quantize_normal_bits": 8,
+    "quantize_position_bits": 16,
     "sha256": hashlib.sha256(data).hexdigest(),
     "simplification_aggression": 5,
     "target_faces": 100_000,
     "vertices": 50_000,
   }
+
+
+def surface_webgl_entry(
+  filename: str, data: bytes
+) -> dict[str, bool | float | int | str]:
+  entry = webgl_entry(filename, data)
+  entry["faces"] = 175_700
+  entry["target_faces"] = 175_700
+  entry["vertices"] = 90_000
+  return entry
 
 
 def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
@@ -102,6 +115,7 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
       "attribution": "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
     },
     "base_tiles": [dict(entry) for _ in range(23)],
+    "surface_detail_tiles": [surface_webgl_entry(filename, data) for _ in range(23)],
     "hero_details": [
       {"id": identifier, "files": [dict(entry)]}
       for identifier in (
@@ -525,6 +539,25 @@ def test_webgl_manifest_rejects_coarse_base_surface() -> None:
 
   assert any("face quality floor" in failure for failure in failures)
   assert any("100k/72-degree/aggression-5" in failure for failure in failures)
+
+
+def test_webgl_manifest_rejects_missing_settled_surface_tier() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_settled_surface",
+    "scripts/check_release_readiness.py",
+  )
+  mesh_data = b"model"
+  scene = minimal_webgl_scene("tile.glb", mesh_data)
+  scene["surface_detail_tiles"] = []
+
+  failures = release_readiness.webgl_manifest_failures(
+    scene,
+    label="missing settled surface",
+    asset_reader={"tile.glb": mesh_data}.__getitem__,
+    actual_asset_names={"tile.glb"},
+  )
+
+  assert any("all 23 settled surface-detail tiles" in failure for failure in failures)
 
 
 def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:

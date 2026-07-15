@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import math
+import subprocess
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -36,12 +37,16 @@ BOUNDS_PATH = REPO_ROOT / "geo_data/regierungsviertel/bounds.geojson"
 LANDMARKS_PATH = REPO_ROOT / "geo_data/regierungsviertel/landmarks.geojson"
 TUNNEL_PATH = REPO_ROOT / "geo_data/regierungsviertel/tiergartentunnel.geojson"
 OUTPUT_DIR = REPO_ROOT / "src/app/public/mesh/regierungsviertel"
+MESHOPT_SCRIPT = REPO_ROOT / "src/app/scripts/compress-meshopt.mjs"
 SOURCE_CRS = "EPSG:25833"
 ORIGIN = np.array([389_500.0, 5_820_000.0, 30.0])
 MAX_ASSET_BYTES = 5 * 1024 * 1024
 BASE_TARGET_FACES = 100_000
+SURFACE_DETAIL_TARGET_FACES = 175_700
 BASE_SIMPLIFICATION_AGGRESSION = 5
 BASE_NORMAL_CREASE_DEGREES = 72.0
+MESHOPT_POSITION_BITS = 16
+MESHOPT_NORMAL_BITS = 8
 REICHSTAG_DOME_HEIGHT_M = 23.5
 REICHSTAG_DOME_DIAMETER_M = 40.0
 REICHSTAG_DOME_BASE_HEIGHT_M = 24.0
@@ -283,19 +288,48 @@ def load_archive_scene(archive: Path) -> trimesh.Scene:
     return loaded
 
 
-def export_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
+def compress_meshopt_file(path: Path) -> None:
+  """Compress one GLB with fast-decoding Meshopt geometry compression."""
+  if not MESHOPT_SCRIPT.is_file():
+    raise FileNotFoundError(f"Missing Meshopt compressor: {MESHOPT_SCRIPT}")
+  compressed = path.with_name(f"{path.stem}.meshopt.glb")
+  try:
+    result = subprocess.run(
+      ["bun", str(MESHOPT_SCRIPT), str(path), str(compressed)],
+      cwd=REPO_ROOT / "src/app",
+      check=False,
+      capture_output=True,
+      text=True,
+      timeout=120,
+    )
+    if result.returncode != 0 or not compressed.is_file():
+      message = result.stderr.strip() or result.stdout.strip() or "unknown error"
+      raise RuntimeError(f"Meshopt compression failed for {path.name}: {message}")
+    compressed.replace(path)
+  finally:
+    compressed.unlink(missing_ok=True)
+
+
+def export_mesh(
+  mesh: Any,
+  output_path: Path,
+  *,
+  compress_geometry: bool = False,
+) -> dict[str, Any]:
   """Transform and export one textured mesh, returning public metadata."""
   source_bounds = np.asarray(mesh.bounds, dtype=float)
   mesh.vertices = metric_to_world(np.asarray(mesh.vertices, dtype=float))
   output_path.write_bytes(
     trimesh.Scene(mesh).export(file_type="glb", include_normals=True)
   )
+  if compress_geometry:
+    compress_meshopt_file(output_path)
   if output_path.stat().st_size > MAX_ASSET_BYTES:
     raise ValueError(
       f"Generated asset exceeds 5 MiB: {output_path} "
       f"({output_path.stat().st_size} bytes)"
     )
-  return {
+  metadata = {
     "file": output_path.name,
     "bytes": output_path.stat().st_size,
     "includes_normals": True,
@@ -304,6 +338,15 @@ def export_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
     "faces": int(len(mesh.faces)),
     "source_bounds_epsg25833": source_bounds.round(3).tolist(),
   }
+  if compress_geometry:
+    metadata.update(
+      {
+        "meshopt_compressed": True,
+        "quantize_normal_bits": MESHOPT_NORMAL_BITS,
+        "quantize_position_bits": MESHOPT_POSITION_BITS,
+      }
+    )
+  return metadata
 
 
 def resized_texture_visual(mesh: Any, max_edge: int) -> TextureVisuals:
@@ -324,10 +367,10 @@ def resized_texture_visual(mesh: Any, max_edge: int) -> TextureVisuals:
 
 
 def export_base_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
-  """Export a full base tile with adaptive texture resolution."""
+  """Export one vertex-colour surface tile with Meshopt compression."""
   candidate = mesh.copy()
   try:
-    return export_mesh(candidate, output_path)
+    return export_mesh(candidate, output_path, compress_geometry=True)
   except ValueError:
     output_path.unlink(missing_ok=True)
     if not isinstance(mesh.visual, TextureVisuals):
@@ -832,6 +875,7 @@ def build_webgl_scene(
     REPO_ROOT / "geo_data/regierungsviertel/buildings.gpkg"
   ).to_crs(SOURCE_CRS)
   base_tiles: list[dict[str, Any]] = []
+  surface_detail_tiles: list[dict[str, Any]] = []
   hero_details: dict[str, list[dict[str, Any]]] = {
     spec.identifier: [] for spec in HERO_SPECS
   }
@@ -842,8 +886,26 @@ def build_webgl_scene(
     base_mesh, base_source = colored_base_mesh(scene)
     base_parts = export_base_parts(base_mesh, output_dir, f"tile-{tile_id}")
     for base_metadata in base_parts:
-      base_metadata.update({"tile_id": tile_id, **base_source})
+      base_metadata.update(
+        {"quality_tier": "interaction", "tile_id": tile_id, **base_source}
+      )
     base_tiles.extend(base_parts)
+    del base_mesh
+
+    surface_mesh, surface_source = colored_base_mesh(
+      scene, target_faces=SURFACE_DETAIL_TARGET_FACES
+    )
+    surface_parts = export_base_parts(
+      surface_mesh,
+      output_dir,
+      f"surface-detail-{tile_id}",
+    )
+    for surface_metadata in surface_parts:
+      surface_metadata.update(
+        {"quality_tier": "settled", "tile_id": tile_id, **surface_source}
+      )
+    surface_detail_tiles.extend(surface_parts)
+    del surface_mesh
 
     for spec in HERO_SPECS:
       footprint = footprints[spec.identifier]
@@ -880,7 +942,7 @@ def build_webgl_scene(
 
   bounds = gpd.read_file(BOUNDS_PATH).to_crs(SOURCE_CRS).total_bounds
   manifest = {
-    "schema_version": 1,
+    "schema_version": 2,
     "source": {
       "name": "Berlin 3D Mesh Model 2025",
       "provider": "Berlin Partner für Wirtschaft und Technologie GmbH",
@@ -894,6 +956,7 @@ def build_webgl_scene(
     "origin_epsg25833": ORIGIN.tolist(),
     "bounds_epsg25833": [round(float(value), 3) for value in bounds],
     "base_tiles": base_tiles,
+    "surface_detail_tiles": surface_detail_tiles,
     "hero_details": [
       {
         "id": spec.identifier,
@@ -929,11 +992,13 @@ def main() -> None:
   args = parser.parse_args()
   manifest = build_webgl_scene(args.raw_dir, args.output_dir)
   total_bytes = sum(tile["bytes"] for tile in manifest["base_tiles"])
+  total_bytes += sum(tile["bytes"] for tile in manifest["surface_detail_tiles"])
   total_bytes += sum(
     detail["bytes"] for hero in manifest["hero_details"] for detail in hero["files"]
   )
   print(
     f"Wrote {len(manifest['base_tiles'])} base tiles and "
+    f"{len(manifest['surface_detail_tiles'])} settled-surface tiles and "
     f"{sum(len(hero['files']) for hero in manifest['hero_details'])} hero crops "
     f"({total_bytes / 1024 / 1024:.1f} MiB)"
   )

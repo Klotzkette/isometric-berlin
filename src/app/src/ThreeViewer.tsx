@@ -39,6 +39,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
@@ -65,9 +66,14 @@ import {
   setParkDetailsFocus,
 } from "./ParkDetails";
 import { runBoundedTasks } from "./boundedTaskPool";
-import { flyCameraInViewPlane } from "./cameraNavigation";
+import {
+  captureCameraPose,
+  flyCameraInViewPlane,
+  stabilizeCameraRig,
+} from "./cameraNavigation";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { renderPixelRatio } from "./renderQuality";
+import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
 import type { VisualMode } from "./visualMode";
 import {
@@ -125,6 +131,7 @@ type SceneManifest = {
     source: string;
   };
   source: { attribution: string };
+  surface_detail_tiles?: MeshFile[];
   tiergartentunnel: TunnelPayload;
 };
 
@@ -171,6 +178,8 @@ type Runtime = {
   focusCameraByName: Map<string, FocusCamera>;
   hemisphere: HemisphereLight;
   heroByName: Map<string, HeroDetail>;
+  interactionSurface: Group;
+  interactionUntil: number;
   landmarkByName: Map<string, SceneLandmark>;
   loader: GLTFLoader;
   marker: Group;
@@ -186,6 +195,8 @@ type Runtime = {
   sceneRootUrl: URL;
   signatures: Group;
   skyFill: DirectionalLight;
+  settledSurface: Group;
+  settledSurfaceReady: boolean;
   sun: DirectionalLight;
   tunnel: Group;
   lightingMode: LightingMode;
@@ -202,6 +213,27 @@ type HeroDetailGroup = {
 const DEFAULT_TARGET = new Vector3(-110, 12, -165);
 const DEFAULT_CAMERA_OFFSET = new Vector3(540, 430, 650);
 const DETAIL_RAISE_M = 0.035;
+
+function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
+  const settled = shouldUseSettledSurface({
+    coarsePointer: runtime.coarsePointer,
+    detailReady: runtime.settledSurfaceReady,
+    interacting,
+  });
+  runtime.interactionSurface.visible = !settled;
+  runtime.settledSurface.visible = settled;
+  runtime.renderer.domElement.dataset.surfaceQuality = settled
+    ? "settled-4m"
+    : "interaction-2_3m";
+}
+
+function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
+  runtime.interactionUntil = Math.max(
+    runtime.interactionUntil,
+    performance.now() + durationMs,
+  );
+  setSurfacePresentation(runtime, true);
+}
 
 function createSelectionMarker(): Group {
   const group = new Group();
@@ -870,6 +902,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!landmark) {
         return;
       }
+      markSurfaceInteraction(runtime);
       setParkDetailsFocus(runtime.parkDetails, name);
       const cameraPreset = runtime.focusCameraByName.get(name);
       const target = new Vector3(
@@ -1006,6 +1039,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           flyCameraInViewPlane(
             runtime.camera,
             runtime.controls.target,
@@ -1021,6 +1055,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           runtime.controls.target.copy(DEFAULT_TARGET);
           runtime.camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
           setModelMaterialState(runtime, false);
@@ -1032,6 +1067,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           setOrbitAngles(runtime, {
             azimuth:
               runtime.controls.getAzimuthalAngle() + MathUtils.degToRad(degrees),
@@ -1043,6 +1079,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           setOrbitAngles(runtime, { azimuth: MathUtils.degToRad(degrees) });
           notifyView(runtime, onViewChangeRef.current);
         },
@@ -1051,6 +1088,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           setModelMaterialState(runtime, enabled);
           setOrbitAngles(runtime, {
             polar: MathUtils.degToRad(enabled ? 122 : 58),
@@ -1062,6 +1100,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           const polar = MathUtils.clamp(
             runtime.controls.getPolarAngle() + MathUtils.degToRad(degrees),
             0.08,
@@ -1077,6 +1116,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          markSurfaceInteraction(runtime);
           const offset = runtime.camera.position.clone().sub(runtime.controls.target);
           offset.multiplyScalar(1 / factor);
           offset.clampLength(runtime.controls.minDistance, runtime.controls.maxDistance);
@@ -1172,12 +1212,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.075;
+      controls.dampingFactor = 0.085;
       controls.zoomToCursor = true;
-      controls.rotateSpeed = 0.72;
-      controls.zoomSpeed = 0.9;
-      controls.panSpeed = 0.72;
-      controls.minDistance = 38;
+      controls.rotateSpeed = 0.68;
+      controls.zoomSpeed = 0.84;
+      controls.panSpeed = 0.68;
+      controls.minDistance = 30;
       controls.maxDistance = 2600;
       controls.minPolarAngle = 0.06;
       controls.maxPolarAngle = Math.PI - 0.06;
@@ -1190,6 +1230,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       controls.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_ROTATE };
       controls.update();
 
+      const interactionSurface = new Group();
+      interactionSurface.name = "Official interaction surface (2.3M faces)";
+      scene.add(interactionSurface);
+      const settledSurface = new Group();
+      settledSurface.name = "Official settled surface (4.0M faces)";
+      settledSurface.visible = false;
+      scene.add(settledSurface);
       const marker = createSelectionMarker();
       marker.visible = false;
       scene.add(marker);
@@ -1221,8 +1268,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         focusCameraByName: new Map(),
         hemisphere,
         heroByName: new Map(),
+        interactionSurface,
+        interactionUntil: 0,
         landmarkByName: new Map(),
-        loader: new GLTFLoader(),
+        loader: new GLTFLoader().setMeshoptDecoder(MeshoptDecoder),
         marker,
         markerTimer: null,
         minecraftMaterialState: createMinecraftMaterialState(),
@@ -1236,6 +1285,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
         signatures,
         skyFill,
+        settledSurface,
+        settledSurfaceReady: false,
         sun,
         tunnel: new Group(),
         lightingMode: lightingModeRef.current,
@@ -1248,17 +1299,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let customTouchGestureActive = false;
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
+      let lastTouchActivityAt = performance.now();
       let settleUntil = 0;
+      let lastSafeCameraPose = captureCameraPose(camera, controls.target);
       const onPointerDown = (event: PointerEvent) => {
         if (event.pointerType !== "touch") {
           renderer.domElement.focus({ preventScroll: true });
           return;
         }
+        lastTouchActivityAt = performance.now();
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (touchPoints.size >= 3) {
           customTouchGestureActive = true;
           controlsInteracting = true;
           controls.enabled = false;
+          markSurfaceInteraction(runtime);
           const points = [...touchPoints.values()];
           previousThreeFingerCenter = {
             x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
@@ -1270,6 +1325,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!touchPoints.has(event.pointerId)) {
           return;
         }
+        lastTouchActivityAt = performance.now();
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (touchPoints.size < 3 || !previousThreeFingerCenter) {
           return;
@@ -1299,10 +1355,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!touchPoints.has(event.pointerId)) {
           return;
         }
+        lastTouchActivityAt = performance.now();
         touchPoints.delete(event.pointerId);
         if (customTouchGestureActive) {
           previousThreeFingerCenter = null;
-          if (touchPoints.size === 0) {
+          if (touchPoints.size < 3) {
             customTouchGestureActive = false;
             controlsInteracting = false;
             settleUntil = performance.now() + 650;
@@ -1326,7 +1383,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controlsInteracting = false;
         settleUntil = performance.now() + 650;
         controls.enabled = true;
+        setSurfacePresentation(runtime, false);
         notifyView(runtime, onViewChangeRef.current);
+      };
+      const onVisibilityChange = () => {
+        if (document.hidden) {
+          resetTouchGesture();
+        }
       };
       renderer.domElement.addEventListener("pointerdown", onPointerDown, true);
       renderer.domElement.addEventListener("pointermove", onPointerMove, true);
@@ -1334,10 +1397,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.domElement.addEventListener("pointercancel", onPointerUp, true);
       renderer.domElement.addEventListener(
         "lostpointercapture",
-        onPointerUp,
+        resetTouchGesture,
         true,
       );
+      window.addEventListener("pointerup", onPointerUp, true);
+      window.addEventListener("pointercancel", onPointerUp, true);
       window.addEventListener("blur", resetTouchGesture);
+      document.addEventListener("visibilitychange", onVisibilityChange);
       const resize = () => {
         const { width, height } = host.getBoundingClientRect();
         if (width < 1 || height < 1) {
@@ -1368,6 +1434,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let qualityRestoreTimer: number | null = null;
       const onControlsStart = () => {
         controlsInteracting = true;
+        markSurfaceInteraction(runtime);
         if (qualityRestoreTimer !== null) {
           window.clearTimeout(qualityRestoreTimer);
           qualityRestoreTimer = null;
@@ -1377,6 +1444,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onControlsEnd = () => {
         controlsInteracting = false;
         settleUntil = performance.now() + 650;
+        markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
         qualityRestoreTimer = window.setTimeout(() => {
           if (!runtime.disposed) {
@@ -1412,11 +1480,35 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!activeRef.current) {
           return;
         }
+        if (
+          !controls.enabled &&
+          (!customTouchGestureActive ||
+            touchPoints.size < 3 ||
+            timestamp - lastTouchActivityAt > 10_000)
+        ) {
+          resetTouchGesture();
+        }
+        const controlsChanged = controls.update();
+        const stabilized = stabilizeCameraRig(
+          camera,
+          controls.target,
+          lastSafeCameraPose,
+          controls.minDistance,
+          controls.maxDistance,
+        );
+        lastSafeCameraPose = stabilized.pose;
+        if (stabilized.recovered) {
+          resetTouchGesture();
+        }
         const isMoving =
           controlsInteracting ||
+          controlsChanged ||
+          stabilized.changed ||
           marker.visible ||
           runtime.lightingMode === "minecraft" ||
+          timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
+        setSurfacePresentation(runtime, isMoving);
         const frameIntervalMs = isMoving
           ? activeFrameIntervalMs
           : idleFrameIntervalMs;
@@ -1424,7 +1516,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastRenderedAt = timestamp;
-        controls.update();
         const underside = controls.getPolarAngle() > Math.PI / 2;
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
@@ -1586,18 +1677,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           setProgress({ loaded: 0, total: manifest.base_tiles.length });
 
           const selected = runtime.landmarkByName.get(selectedRef.current);
-          const sortedTiles = [...manifest.base_tiles].sort((left, right) => {
+          const distanceFromSelection = (file: MeshFile): number => {
             if (!selected) {
               return 0;
             }
-            const distance = (file: MeshFile) => {
-              const bounds = file.source_bounds_epsg25833;
-              const centerX = (bounds[0][0] + bounds[1][0]) / 2 - 389_500;
-              const centerZ = 5_820_000 - (bounds[0][1] + bounds[1][1]) / 2;
-              return Math.hypot(centerX - selected.world[0], centerZ - selected.world[2]);
-            };
-            return distance(left) - distance(right);
-          });
+            const bounds = file.source_bounds_epsg25833;
+            const centerX = (bounds[0][0] + bounds[1][0]) / 2 - 389_500;
+            const centerZ = 5_820_000 - (bounds[0][1] + bounds[1][1]) / 2;
+            return Math.hypot(
+              centerX - selected.world[0],
+              centerZ - selected.world[2],
+            );
+          };
+          const sortedTiles = [...manifest.base_tiles].sort(
+            (left, right) =>
+              distanceFromSelection(left) - distanceFromSelection(right),
+          );
           focusLandmark(selectedRef.current, true);
           let readyNotified = false;
           let loadedBaseTiles = 0;
@@ -1605,9 +1700,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             sortedTiles,
             coarsePointer ? 1 : 3,
             async (file) => {
-              const loaded = await loadModelWithRetry(runtime, file, scene, {
-                detail: false,
-              });
+              const loaded = await loadModelWithRetry(
+                runtime,
+                file,
+                runtime.interactionSurface,
+                { detail: false },
+              );
               if (!loaded || disposed) {
                 return;
               }
@@ -1641,6 +1739,40 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!disposed && !readyNotified) {
             onReadyRef.current();
           }
+          const surfaceTiles = manifest.surface_detail_tiles ?? [];
+          if (!coarsePointer && surfaceTiles.length > 0) {
+            const sortedSurfaceTiles = [...surfaceTiles].sort(
+              (left, right) =>
+                distanceFromSelection(left) - distanceFromSelection(right),
+            );
+            void runBoundedTasks(
+              sortedSurfaceTiles,
+              1,
+              async (file) => {
+                await loadModelWithRetry(
+                  runtime,
+                  file,
+                  runtime.settledSurface,
+                  { detail: false },
+                );
+              },
+              { shouldStop: () => runtime.disposed },
+            ).then((failures) => {
+              if (runtime.disposed) {
+                return;
+              }
+              if (failures.length > 0) {
+                disposeObject3D(runtime, runtime.settledSurface);
+                onWarningRef.current(
+                  `${failures.length} Oberflächen-Detailkachel(n) konnten nicht geladen werden; die flüssige 2,3-Millionen-Flächen-Stufe bleibt aktiv.`,
+                );
+                return;
+              }
+              runtime.settledSurfaceReady = true;
+              settleUntil = performance.now() + 180;
+              markSurfaceInteraction(runtime, 180);
+            });
+          }
         })
         .catch((error: unknown) => {
           if (
@@ -1665,11 +1797,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer.domElement.removeEventListener("pointercancel", onPointerUp, true);
         renderer.domElement.removeEventListener(
           "lostpointercapture",
-          onPointerUp,
+          resetTouchGesture,
           true,
         );
         renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+        window.removeEventListener("pointerup", onPointerUp, true);
+        window.removeEventListener("pointercancel", onPointerUp, true);
         window.removeEventListener("blur", resetTouchGesture);
+        document.removeEventListener("visibilitychange", onVisibilityChange);
         controls.removeEventListener("start", onControlsStart);
         controls.removeEventListener("end", onControlsEnd);
         if (qualityRestoreTimer !== null) {

@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.3.2
+
+- Add a second, 4,000,039-face settled desktop surface from the same 23
+  metre-aligned Berlin 3D Mesh 2025 source tiles. The existing 2,299,987-face
+  tier remains the interaction and touch tier; no source coordinates,
+  landmark anchors or building envelopes are extrapolated or moved.
+- Meshopt-compress both official surface tiers with 16-bit positions and 8-bit
+  normals. This keeps all 46 surface GLBs below 2.1 MiB, the complete
+  68-GLB scene at 147.4 MiB and the offline package below its 200 MiB ceiling.
+- Keep orbit damping at the active frame rate until movement really ends,
+  swap immediately to the lighter surface for mouse, touch, keyboard and UI
+  movement, then restore the 4M surface after the camera settles. Touch devices
+  do not download the desktop-only 4M tier.
+- Add bounded camera recovery for invalid/lost positions, a ten-second
+  three-finger watchdog, global pointer-release handling and hidden-tab reset.
+  Raise the remaining compact phone controls to a true 44 px touch minimum.
+- Extend source, local-server, ZIP and tarball readiness checks to require both
+  complete quality tiers, Meshopt metadata, every byte count and every SHA-256.
+
 ## v0.3.1
 
 - Rebuild all 23 bounded Berlin 3D Mesh 2025 base tiles at a 100,000-face

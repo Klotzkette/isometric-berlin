@@ -5,10 +5,79 @@ export type CameraFlightBounds = {
   min: Vector3;
 };
 
+export type CameraPose = {
+  position: Vector3;
+  target: Vector3;
+};
+
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   min: new Vector3(-850, -120, -1_100),
   max: new Vector3(850, 280, 1_550),
 };
+
+export function captureCameraPose(
+  camera: PerspectiveCamera,
+  target: Vector3,
+): CameraPose {
+  return { position: camera.position.clone(), target: target.clone() };
+}
+
+function vectorIsFinite(vector: Vector3): boolean {
+  return [vector.x, vector.y, vector.z].every(Number.isFinite);
+}
+
+export function stabilizeCameraRig(
+  camera: PerspectiveCamera,
+  target: Vector3,
+  lastSafePose: CameraPose,
+  minDistance: number,
+  maxDistance: number,
+  bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+): { changed: boolean; pose: CameraPose; recovered: boolean } {
+  const distance = camera.position.distanceTo(target);
+  if (
+    !vectorIsFinite(camera.position) ||
+    !vectorIsFinite(target) ||
+    !Number.isFinite(distance) ||
+    distance < 1e-6
+  ) {
+    camera.position.copy(lastSafePose.position);
+    target.copy(lastSafePose.target);
+    camera.updateMatrixWorld();
+    return {
+      changed: true,
+      pose: captureCameraPose(camera, target),
+      recovered: true,
+    };
+  }
+
+  let changed = false;
+  const boundedTarget = target.clone().clamp(bounds.min, bounds.max);
+  if (!boundedTarget.equals(target)) {
+    const correction = boundedTarget.sub(target);
+    target.add(correction);
+    camera.position.add(correction);
+    changed = true;
+  }
+
+  const offset = camera.position.clone().sub(target);
+  const distanceBeforeClamp = offset.length();
+  const boundedDistance = MathUtils.clamp(
+    distanceBeforeClamp,
+    minDistance,
+    maxDistance,
+  );
+  if (Math.abs(distanceBeforeClamp - boundedDistance) > 1e-6) {
+    camera.position.copy(target).add(offset.setLength(boundedDistance));
+    changed = true;
+  }
+  camera.updateMatrixWorld();
+  return {
+    changed,
+    pose: captureCameraPose(camera, target),
+    recovered: false,
+  };
+}
 
 export function screenRelativeFlightDelta(
   camera: PerspectiveCamera,

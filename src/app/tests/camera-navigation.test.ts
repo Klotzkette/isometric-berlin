@@ -3,8 +3,10 @@ import { PerspectiveCamera, Vector3 } from "three";
 
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+  captureCameraPose,
   flyCameraInViewPlane,
   screenRelativeFlightDelta,
+  stabilizeCameraRig,
 } from "../src/cameraNavigation";
 
 describe("screen-relative 3D flight", () => {
@@ -51,5 +53,37 @@ describe("screen-relative 3D flight", () => {
     expect(target.x).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x);
     expect(target.y).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.y);
     expect(target.z).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z);
+  });
+});
+
+describe("forgiving 3D camera bounds", () => {
+  test("restores the last safe pose after invalid camera input", () => {
+    const camera = new PerspectiveCamera();
+    const target = new Vector3(1, 2, 3);
+    camera.position.set(30, 40, 50);
+    const safe = captureCameraPose(camera, target);
+    camera.position.x = Number.NaN;
+
+    const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
+
+    expect(result.recovered).toBe(true);
+    expect(camera.position.toArray()).toEqual([30, 40, 50]);
+    expect(target.toArray()).toEqual([1, 2, 3]);
+  });
+
+  test("clamps a lost pan target without changing the view offset", () => {
+    const camera = new PerspectiveCamera();
+    const target = new Vector3(5000, 1000, -5000);
+    camera.position.copy(target).add(new Vector3(100, 80, 120));
+    const offset = camera.position.clone().sub(target);
+    const safe = captureCameraPose(camera, target);
+
+    const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
+
+    expect(result.changed).toBe(true);
+    expect(target.x).toBeLessThanOrEqual(850);
+    expect(target.y).toBeLessThanOrEqual(280);
+    expect(target.z).toBeGreaterThanOrEqual(-1100);
+    expect(camera.position.clone().sub(target).toArray()).toEqual(offset.toArray());
   });
 });

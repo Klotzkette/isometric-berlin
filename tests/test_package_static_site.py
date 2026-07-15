@@ -231,6 +231,7 @@ def test_generated_server_rejects_corrupt_webgl_asset(tmp_path: Path) -> None:
     json.dumps(
       {
         "base_tiles": [entry],
+        "surface_detail_tiles": [entry],
         "hero_details": [],
       }
     ),
