@@ -16,6 +16,7 @@ import {
   Home,
   Info,
   Keyboard,
+  Languages,
   Link2,
   List,
   LocateFixed,
@@ -33,6 +34,8 @@ import {
   SkipBack,
   SkipForward,
   Sun,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
@@ -42,7 +45,18 @@ import {
   ThreeViewer,
   type ThreeViewerHandle,
 } from "./ThreeViewer";
+import {
+  AmbientSoundscape,
+  isAmbientAudioSupported,
+} from "./AmbientSoundscape";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
+import { discoveryNoteFor } from "./discoveryNotes";
+import {
+  LANGUAGE_STORAGE_KEY,
+  UI_COPY,
+  type Language,
+  initialLanguage,
+} from "./localization";
 import { type VisualMode, isVisualMode, VISUAL_MODE_STORAGE_KEY } from "./visualMode";
 import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
 import { MinecraftDziPostProcessor } from "./visual-modes/minecraft/MinecraftDziPostProcessor";
@@ -83,18 +97,12 @@ const LEGACY_APPEARANCE_STORAGE_KEY = "isometric-berlin-lighting";
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
 const MOBILE_MEDIA_QUERY =
-  "(max-width: 768px), (max-width: 900px) and (max-height: 500px) and (orientation: landscape)";
+  "(max-width: 768px), (max-width: 1024px) and (pointer: coarse), (max-width: 900px) and (max-height: 500px) and (orientation: landscape)";
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
 const MESH_ATTRIBUTION =
   "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH";
-
-const ROLE_LABELS: Record<string, string> = {
-  hero_tile: "Hauptmotiv",
-  must_be_visible: "Pflicht-Landmarke",
-  owner_added: "ergänzter Ort",
-};
 
 const LANDMARK_SHORT_LABELS: Record<string, string> = {
   "Berlin Hauptbahnhof": "Hauptbahnhof",
@@ -247,8 +255,28 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function roleLabel(role: string): string {
-  return ROLE_LABELS[role] ?? role.replaceAll("_", " ");
+function roleLabel(role: string, language: Language): string {
+  const copy = UI_COPY[language];
+  const labels: Record<string, string> = {
+    hero_tile: copy.roleHero,
+    must_be_visible: copy.roleRequired,
+    owner_added: copy.roleAdded,
+  };
+  return labels[role] ?? role.replaceAll("_", " ");
+}
+
+function orientationLabel(short: string, language: Language): string {
+  const copy = UI_COPY[language];
+  return {
+    N: copy.northUp,
+    O: copy.eastUp,
+    S: copy.southUp,
+    W: copy.westUp,
+  }[short] ?? short;
+}
+
+function orientationShort(short: string, language: Language): string {
+  return language === "en" && short === "O" ? "E" : short;
 }
 
 function landmarkShortLabel(name: string): string {
@@ -357,6 +385,7 @@ function viewUrlFor(
 
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -369,11 +398,15 @@ export function App() {
   const hashSyncFrameRef = useRef<number | null>(null);
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const brandRevealTimerRef = useRef<number | null>(null);
+  const discoveryTimerRef = useRef<number | null>(null);
+  const discoveredLandmarksRef = useRef<Set<string>>(new Set());
   const minecraftSparkTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>(DEFAULT_FOCUS_LANDMARK);
-  const [status, setStatus] = useState("Lade amtliches 3D-Mesh");
+  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const copy = UI_COPY[language];
+  const [status, setStatus] = useState(copy.loadingMesh);
   const [viewerMode, setViewerMode] = useState<ViewerMode>(initialViewerMode);
   const [lightingMode, setLightingMode] =
     useState<VisualMode>(initialLightingMode);
@@ -386,6 +419,7 @@ export function App() {
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isRepositoryOpen, setIsRepositoryOpen] = useState(false);
+  const [isMusicEnabled, setIsMusicEnabled] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
   const [isChromeHidden, setIsChromeHidden] = useState(initialChromeHidden);
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
@@ -398,6 +432,7 @@ export function App() {
     x: number;
     y: number;
   } | null>(null);
+  const [discoveryLandmark, setDiscoveryLandmark] = useState<string | null>(null);
   const [isAttributionOpen, setIsAttributionOpen] = useState(() => {
     try {
       const seen = window.sessionStorage.getItem("isometric-berlin.attributionSeen");
@@ -452,7 +487,7 @@ export function App() {
     (landmark: Landmark, immediate = false) => {
       const shouldMoveImmediately = immediate || prefersReducedMotion();
       setSelected(landmark.name);
-      setStatus(`Fokus: ${landmarkShortLabel(landmark.name)}`);
+      setStatus(`${copy.focus}: ${landmarkShortLabel(landmark.name)}`);
       if (viewerMode === "three") {
         threeViewerRef.current?.focusLandmark(
           landmark.name,
@@ -481,7 +516,7 @@ export function App() {
         shouldMoveImmediately,
       );
     },
-    [viewerMode],
+    [copy.focus, viewerMode],
   );
 
   const focusLandmarkByOffset = useCallback(
@@ -516,6 +551,75 @@ export function App() {
       // The viewer remains usable when storage is blocked.
     }
   }, [lightingMode]);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    } catch {
+      // The viewer remains usable when storage is blocked.
+    }
+  }, [language]);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (isMusicEnabled) {
+        void ambientSoundscapeRef.current?.setSuspended(document.hidden);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [isMusicEnabled]);
+
+  useEffect(
+    () => () => {
+      ambientSoundscapeRef.current?.stop();
+      ambientSoundscapeRef.current = null;
+    },
+    [],
+  );
+
+  const toggleLanguage = useCallback(() => {
+    setLanguage((current) => (current === "de" ? "en" : "de"));
+  }, []);
+
+  const toggleMusic = useCallback(async () => {
+    if (isMusicEnabled) {
+      ambientSoundscapeRef.current?.stop();
+      setIsMusicEnabled(false);
+      setStatus(copy.musicOff);
+      return;
+    }
+    const unsupportedMessage =
+      language === "de"
+        ? "Audio wird von diesem Browser nicht unterstützt"
+        : "Audio is not supported by this browser";
+    if (!isAmbientAudioSupported()) {
+      setStatus(unsupportedMessage);
+      return;
+    }
+    setStatus(copy.musicStarting);
+    const soundscape = ambientSoundscapeRef.current ?? new AmbientSoundscape();
+    ambientSoundscapeRef.current = soundscape;
+    let started = false;
+    try {
+      started = await soundscape.start();
+    } catch {
+      soundscape.stop();
+    }
+    if (!started) {
+      soundscape.stop();
+      ambientSoundscapeRef.current = null;
+    }
+    setIsMusicEnabled(started);
+    setStatus(started ? copy.musicOn : unsupportedMessage);
+  }, [
+    copy.musicOff,
+    copy.musicOn,
+    copy.musicStarting,
+    isMusicEnabled,
+    language,
+  ]);
 
   useEffect(() => {
     try {
@@ -553,7 +657,7 @@ export function App() {
     if (viewerMode === "three") {
       threeViewerRef.current?.rotateBy(180);
       setRotation((current) => normalizeRotation(current + 180));
-      setStatus("3D-Gegenansicht");
+      setStatus(language === "de" ? "3D-Gegenansicht" : "Opposite 3D view");
       return;
     }
     setIsFlipped((current) => {
@@ -561,7 +665,7 @@ export function App() {
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, [viewerMode]);
+  }, [language, viewerMode]);
 
   const flipVertical = useCallback(() => {
     if (viewerMode === "three") {
@@ -576,7 +680,15 @@ export function App() {
       }
       setIsThreeUnderside(next);
       threeViewerRef.current?.setUnderside(next);
-      setStatus(next ? "Echte Untersicht · Tunnel sichtbar" : "3D-Oberansicht");
+      setStatus(
+        next
+          ? language === "de"
+            ? "Echte Untersicht · Tunnel sichtbar"
+            : "True underside · tunnel visible"
+          : language === "de"
+            ? "3D-Oberansicht"
+            : "3D surface view",
+      );
       return;
     }
     setRotation((current) => {
@@ -589,7 +701,7 @@ export function App() {
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, [focusLandmark, isThreeUnderside, landmarks, viewerMode]);
+  }, [focusLandmark, isThreeUnderside, landmarks, language, viewerMode]);
 
   const resetOrientation = useCallback(() => {
     if (viewerMode === "three") {
@@ -597,14 +709,14 @@ export function App() {
       setRotation(NORTH_UP_ROTATION);
       setIsThreeUnderside(false);
       setThreePolarDegrees(58);
-      setStatus("3D-Gesamtansicht");
+      setStatus(language === "de" ? "3D-Gesamtansicht" : "3D overview");
       return;
     }
     viewerRef.current?.viewport.setRotation(NORTH_UP_ROTATION);
     viewerRef.current?.viewport.setFlip(false);
     setRotation(NORTH_UP_ROTATION);
     setIsFlipped(false);
-  }, [viewerMode]);
+  }, [language, viewerMode]);
 
   const panByViewport = useCallback((dx: number, dy: number) => {
     const viewport = viewerRef.current?.viewport;
@@ -620,15 +732,37 @@ export function App() {
     setIsTouring(false);
     threeViewerRef.current?.flyBy(horizontal, vertical);
     setStatus(
-      horizontal < 0
-        ? "3D-Flug: links"
-        : horizontal > 0
-          ? "3D-Flug: rechts"
-          : vertical > 0
-            ? "3D-Flug: aufwärts"
-            : "3D-Flug: abwärts",
+      language === "de"
+        ? horizontal < 0
+          ? "3D-Flug: links"
+          : horizontal > 0
+            ? "3D-Flug: rechts"
+            : vertical > 0
+              ? "3D-Flug: aufwärts"
+              : "3D-Flug: abwärts"
+        : horizontal < 0
+          ? "3D flight: left"
+          : horizontal > 0
+            ? "3D flight: right"
+            : vertical > 0
+              ? "3D flight: up"
+              : "3D flight: down",
     );
-  }, []);
+  }, [language]);
+
+  const flyForwardBy = useCallback((strafe: number, forward: number) => {
+    setIsTouring(false);
+    threeViewerRef.current?.flyForwardBy(strafe, forward);
+    setStatus(
+      strafe < 0
+        ? copy.flyLeft
+        : strafe > 0
+          ? copy.flyRight
+          : forward > 0
+            ? copy.flyForward
+            : copy.flyBack,
+    );
+  }, [copy.flyBack, copy.flyForward, copy.flyLeft, copy.flyRight]);
 
   const zoomBy = useCallback(
     (factor: number) => {
@@ -663,11 +797,13 @@ export function App() {
     window.history.replaceState(null, "", url);
     try {
       await navigator.clipboard.writeText(url);
-      setStatus("Ansicht-Link kopiert");
+      setStatus(language === "de" ? "Ansicht-Link kopiert" : "View link copied");
     } catch {
-      setStatus("Ansicht-Link in Adresszeile");
+      setStatus(
+        language === "de" ? "Ansicht-Link in Adresszeile" : "View link in address bar",
+      );
     }
-  }, [isFlipped, rotation, selectedLandmark]);
+  }, [isFlipped, language, rotation, selectedLandmark]);
 
   const toggleTour = useCallback(() => {
     if (!canNavigateLandmarks) {
@@ -675,44 +811,33 @@ export function App() {
     }
     setIsTouring((current) => {
       const next = !current;
-      setStatus(next ? "Tour läuft" : "Bereit");
+      setStatus(next ? (language === "de" ? "Tour läuft" : "Tour running") : copy.ready);
       if (next && selectedIndex < 0) {
         focusLandmark(landmarks[0], true);
       }
       return next;
     });
-  }, [canNavigateLandmarks, focusLandmark, landmarks, selectedIndex]);
+  }, [canNavigateLandmarks, copy.ready, focusLandmark, landmarks, language, selectedIndex]);
 
-  const toggleLightingMode = useCallback(() => {
-    const next = lightingMode === "day" ? "night" : "day";
-    setLightingMode(next);
-    setStatus(next === "night" ? "Nachtmodus" : "Tagmodus");
-  }, [lightingMode]);
-
-  const cycleVisualMode = useCallback(() => {
-    const next: VisualMode =
-      lightingMode === "day"
-        ? "night"
-        : lightingMode === "night"
-          ? "minecraft"
-          : "day";
+  const selectVisualMode = useCallback((next: VisualMode) => {
     setLightingMode(next);
     setStatus(
       next === "minecraft"
-        ? "Minecraft · Premium-Voxelmodus"
+        ? `${copy.minecraft} · Premium Voxel`
         : next === "night"
-          ? "Nachtmodus"
-          : "Tagmodus",
+          ? copy.night
+          : copy.day,
     );
-  }, [lightingMode]);
+  }, [copy]);
+
+  const toggleLightingMode = useCallback(() => {
+    selectVisualMode(lightingMode === "day" ? "night" : "day");
+  }, [lightingMode, selectVisualMode]);
 
   const toggleMinecraftMode = useCallback(() => {
     const next: VisualMode = lightingMode === "minecraft" ? "day" : "minecraft";
-    setLightingMode(next);
-    setStatus(
-      next === "minecraft" ? "Minecraft · Premium-Voxelmodus" : "Tagmodus",
-    );
-  }, [lightingMode]);
+    selectVisualMode(next);
+  }, [lightingMode, selectVisualMode]);
 
   const toggleViewerMode = useCallback(() => {
     const next = viewerMode === "three" ? "map" : "three";
@@ -722,10 +847,10 @@ export function App() {
     setViewerMode(next);
     setStatus(
       next === "three"
-        ? "Lade amtliches 3D-Mesh"
-        : "Lade hochauflösende Detailkarte",
+        ? copy.loadingMesh
+        : copy.loadingMap,
     );
-  }, [keepThreeWarm, viewerMode]);
+  }, [copy.loadingMap, copy.loadingMesh, keepThreeWarm, viewerMode]);
 
   const toggleChrome = useCallback(() => {
     setMobileSheet(null);
@@ -760,9 +885,31 @@ export function App() {
       if (minecraftSparkTimerRef.current !== null) {
         window.clearTimeout(minecraftSparkTimerRef.current);
       }
+      if (discoveryTimerRef.current !== null) {
+        window.clearTimeout(discoveryTimerRef.current);
+      }
     },
     [],
   );
+
+  useEffect(() => {
+    if (
+      !isReady ||
+      !discoveryNoteFor(selected, language) ||
+      discoveredLandmarksRef.current.has(selected)
+    ) {
+      return;
+    }
+    discoveredLandmarksRef.current.add(selected);
+    setDiscoveryLandmark(selected);
+    if (discoveryTimerRef.current !== null) {
+      window.clearTimeout(discoveryTimerRef.current);
+    }
+    discoveryTimerRef.current = window.setTimeout(() => {
+      setDiscoveryLandmark(null);
+      discoveryTimerRef.current = null;
+    }, 3600);
+  }, [isReady, language, selected]);
 
   useEffect(() => {
     const points = new Map<
@@ -829,9 +976,9 @@ export function App() {
       referenceReturnFocusRef.current = document.activeElement;
     }
     setIsTouring(false);
-    setStatus("Referenzkarte");
+    setStatus(copy.reference);
     setIsReferenceOpen(true);
-  }, []);
+  }, [copy.reference]);
 
   const closeReferenceMap = useCallback(() => {
     setIsReferenceOpen(false);
@@ -934,66 +1081,85 @@ export function App() {
         toggleMinecraftMode();
         return;
       }
+      if (event.key.toLowerCase() === "b") {
+        event.preventDefault();
+        void toggleMusic();
+        return;
+      }
       if (isReferenceOpen || isHelpOpen || isRepositoryOpen || !isReady) {
         return;
       }
       if (event.key === "Home" || event.key === "0") {
         event.preventDefault();
         goHome();
-        setStatus("Gesamtansicht");
+        setStatus(copy.home);
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && !event.shiftKey) {
+        if (viewerMode === "three" && event.altKey) {
+          rotateBy(8);
+          setStatus(language === "de" ? "Drehung: rechts" : "Orbit: right");
+        } else if (viewerMode === "three" && event.shiftKey) {
+          flyForwardBy(1, 0);
+        } else if (viewerMode === "three") {
           flyBy(1, 0);
         } else if (event.shiftKey) {
           rotateBy(8);
-          setStatus("Drehung: rechts");
+          setStatus(language === "de" ? "Drehung: rechts" : "Rotation: right");
         } else {
           panByViewport(0.12, 0);
-          setStatus("Verschoben: Osten");
+          setStatus(language === "de" ? "Verschoben: Osten" : "Moved: east");
         }
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && !event.shiftKey) {
+        if (viewerMode === "three" && event.altKey) {
+          rotateBy(-8);
+          setStatus(language === "de" ? "Drehung: links" : "Orbit: left");
+        } else if (viewerMode === "three" && event.shiftKey) {
+          flyForwardBy(-1, 0);
+        } else if (viewerMode === "three") {
           flyBy(-1, 0);
         } else if (event.shiftKey) {
           rotateBy(-8);
-          setStatus("Drehung: links");
+          setStatus(language === "de" ? "Drehung: links" : "Rotation: left");
         } else {
           panByViewport(-0.12, 0);
-          setStatus("Verschoben: Westen");
+          setStatus(language === "de" ? "Verschoben: Westen" : "Moved: west");
         }
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && !event.shiftKey) {
-          flyBy(0, 1);
-        } else if (viewerMode === "three") {
+        if (viewerMode === "three" && event.altKey) {
           tiltBy(-6);
-          setStatus("3D-Neigung: höher");
+          setStatus(language === "de" ? "3D-Neigung: höher" : "3D tilt: higher");
+        } else if (viewerMode === "three" && event.shiftKey) {
+          flyForwardBy(0, 1);
+        } else if (viewerMode === "three") {
+          flyBy(0, 1);
         } else if (event.shiftKey) {
           zoomBy(1.16);
-          setStatus("Swivel/Zoom: näher");
+          setStatus(language === "de" ? "Zoom: näher" : "Zoom: closer");
         } else {
           panByViewport(0, -0.12);
-          setStatus("Verschoben: Norden");
+          setStatus(language === "de" ? "Verschoben: Norden" : "Moved: north");
         }
       } else if (event.key === "ArrowDown") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && !event.shiftKey) {
-          flyBy(0, -1);
-        } else if (viewerMode === "three") {
+        if (viewerMode === "three" && event.altKey) {
           tiltBy(6);
-          setStatus("3D-Neigung: tiefer");
+          setStatus(language === "de" ? "3D-Neigung: tiefer" : "3D tilt: lower");
+        } else if (viewerMode === "three" && event.shiftKey) {
+          flyForwardBy(0, -1);
+        } else if (viewerMode === "three") {
+          flyBy(0, -1);
         } else if (event.shiftKey) {
           zoomBy(0.86);
-          setStatus("Swivel/Zoom: weiter");
+          setStatus(language === "de" ? "Zoom: weiter" : "Zoom: farther");
         } else {
           panByViewport(0, 0.12);
-          setStatus("Verschoben: Süden");
+          setStatus(language === "de" ? "Verschoben: Süden" : "Moved: south");
         }
       } else if (event.key === "PageDown") {
         event.preventDefault();
@@ -1019,20 +1185,24 @@ export function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
     closeReferenceMap,
+    copy.home,
     copyViewLink,
     flyBy,
+    flyForwardBy,
     focusLandmarkByOffset,
     goHome,
     isHelpOpen,
     isReady,
     isReferenceOpen,
     isRepositoryOpen,
+    language,
     panByViewport,
     rotateBy,
     tiltBy,
     toggleTour,
     toggleLightingMode,
     toggleMinecraftMode,
+    toggleMusic,
     viewerMode,
     zoomBy,
   ]);
@@ -1142,11 +1312,11 @@ export function App() {
       viewer.viewport.goHome(true);
       viewer.viewport.zoomBy(0.76, undefined, true);
       setIsMapReady(true);
-      setStatus("Bereit");
+      setStatus("Bereit · Ready");
     });
     viewer.addHandler("open-failed", () => {
       setIsMapReady(false);
-      setStatus("DZI nicht gefunden");
+      setStatus("DZI nicht gefunden · DZI not found");
     });
     viewer.addHandler("rotate", (event) => {
       const next = normalizeRotation(event.degrees);
@@ -1302,13 +1472,17 @@ export function App() {
         minecraftSparkTimerRef.current = window.setTimeout(() => {
           setMinecraftSpark(null);
           minecraftSparkTimerRef.current = null;
-        }, 420);
+        }, 280);
       }}
     >
       <section
         className="map-stage"
         data-viewer-mode={viewerMode}
-        aria-label="Isometrische Berlin-Karte"
+        aria-label={
+          language === "de"
+            ? "Isometrische Berlin-Karte"
+            : "Isometric Berlin map"
+        }
       >
         <div
           id="openseadragon-viewer"
@@ -1324,15 +1498,23 @@ export function App() {
             selectedLandmark={selected}
             onReady={() => {
               setIsThreeReady(true);
-              setStatus("Amtliches 3D-Mesh bereit");
+              setStatus(
+                language === "de"
+                  ? "Amtliches 3D-Mesh bereit"
+                  : "Official 3D mesh ready",
+              );
             }}
             onError={(message) => {
               setIsThreeReady(false);
-              setStatus(`3D nicht verfügbar: ${message}`);
+              setStatus(
+                `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
+              );
               setViewerMode("map");
             }}
             onWarning={(message) => {
-              setStatus(`3D-Hinweis: ${message}`);
+              setStatus(
+                `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
+              );
             }}
             onViewChange={({ azimuthDegrees, polarDegrees, underside }) => {
               setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
@@ -1355,12 +1537,21 @@ export function App() {
           aria-hidden="true"
         />
       ) : null}
+      {discoveryLandmark &&
+      mobileSheet === null &&
+      !isHelpOpen &&
+      !isReferenceOpen &&
+      !isRepositoryOpen ? (
+        <aside className="discovery-note" role="status" aria-live="polite">
+          {discoveryNoteFor(discoveryLandmark, language)}
+        </aside>
+      ) : null}
 
       <header className="topbar">
         <button
           type="button"
           className="brand"
-          aria-label="Projektname und aktuelle Landmarke"
+          aria-label={copy.projectAndCurrent}
           title={`Isometric Berlin · Regierungsviertel · ${PROJECT_VERSION}`}
           onClick={revealBrandTitle}
           onPointerEnter={revealBrandTitle}
@@ -1383,13 +1574,13 @@ export function App() {
             </small>
           </span>
         </button>
-        <div className="toolbar" aria-label="Kartensteuerung">
+        <div className="toolbar" aria-label={copy.controls}>
           <button
             type="button"
             className="mobile-overflow"
-            aria-label="Weitere Aktionen"
+            aria-label={copy.moreActions}
             aria-expanded={mobileSheet === "overflow"}
-            title="Weitere Aktionen"
+            title={copy.moreActions}
             onClick={() =>
               setMobileSheet((current) =>
                 current === "overflow" ? null : "overflow",
@@ -1400,9 +1591,9 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label="Gesamtansicht"
+            aria-label={copy.home}
             disabled={!isReady}
-            title="Gesamtansicht"
+            title={copy.home}
             onClick={goHome}
           >
             <Home size={18} aria-hidden="true" />
@@ -1424,26 +1615,67 @@ export function App() {
               <BoxIcon size={18} aria-hidden="true" />
             )}
           </button>
+          <div
+            className="visual-mode-switch"
+            role="group"
+            aria-label={copy.visualModes}
+          >
+            <button
+              type="button"
+              aria-label={copy.day}
+              aria-pressed={lightingMode === "day"}
+              title={`${copy.day} (D)`}
+              onClick={() => selectVisualMode("day")}
+            >
+              <Sun size={17} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={copy.night}
+              aria-pressed={lightingMode === "night"}
+              title={`${copy.night} (D)`}
+              onClick={() => selectVisualMode("night")}
+            >
+              <Moon size={17} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={copy.minecraft}
+              aria-pressed={lightingMode === "minecraft"}
+              title={`${copy.minecraft} (M)`}
+              onClick={() => selectVisualMode("minecraft")}
+            >
+              <MinecraftCubeIcon size={18} />
+            </button>
+          </div>
           <button
             type="button"
-            aria-label="Visuellen Modus wechseln: Tag, Nacht oder Minecraft"
-            aria-pressed={lightingMode !== "day"}
-            title="Tag / Nacht / Minecraft wechseln (D / M)"
-            onClick={cycleVisualMode}
+            className="language-toggle"
+            aria-label={`${copy.language}: ${language === "de" ? "Deutsch" : "English"}`}
+            title={language === "de" ? "Switch to English" : "Auf Deutsch wechseln"}
+            onClick={toggleLanguage}
           >
-            {lightingMode === "minecraft" ? (
-              <MinecraftCubeIcon size={19} />
-            ) : lightingMode === "night" ? (
-              <Sun size={18} aria-hidden="true" />
+            <Languages size={17} aria-hidden="true" />
+            <span>{language.toUpperCase()}</span>
+          </button>
+          <button
+            type="button"
+            aria-label={isMusicEnabled ? copy.musicOff : copy.musicOn}
+            aria-pressed={isMusicEnabled}
+            title={`${isMusicEnabled ? copy.musicOff : copy.musicOn} (B)`}
+            onClick={toggleMusic}
+          >
+            {isMusicEnabled ? (
+              <Volume2 size={18} aria-hidden="true" />
             ) : (
-              <Moon size={18} aria-hidden="true" />
+              <VolumeX size={18} aria-hidden="true" />
             )}
           </button>
           <button
             type="button"
-            aria-label="Landmarkenliste ein- oder ausblenden"
+            aria-label={copy.showAttractions}
             aria-pressed={isLandmarkRailOpen}
-            title="Landmarkenliste"
+            title={copy.attractions}
             onClick={() => setIsLandmarkRailOpen((open) => !open)}
           >
             <List size={18} aria-hidden="true" />
@@ -1451,9 +1683,9 @@ export function App() {
           <button
             type="button"
             className="zoom-action"
-            aria-label="Vergrößern"
+            aria-label={copy.zoomIn}
             disabled={!isReady}
-            title="Vergrößern"
+            title={copy.zoomIn}
             onClick={() => zoomBy(1.6)}
           >
             <Plus size={18} aria-hidden="true" />
@@ -1461,18 +1693,18 @@ export function App() {
           <button
             type="button"
             className="zoom-action"
-            aria-label="Verkleinern"
+            aria-label={copy.zoomOut}
             disabled={!isReady}
-            title="Verkleinern"
+            title={copy.zoomOut}
             onClick={() => zoomBy(0.625)}
           >
             <Minus size={18} aria-hidden="true" />
           </button>
           <button
             type="button"
-            aria-label="Vorige Landmarke"
+            aria-label={copy.previousAttraction}
             disabled={!canNavigateLandmarks}
-            title="Vorige Landmarke"
+            title={copy.previousAttraction}
             onClick={() => {
               setIsTouring(false);
               focusLandmarkByOffset(-1);
@@ -1482,10 +1714,10 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label={isTouring ? "Tour pausieren" : "Landmarken-Tour starten"}
+            aria-label={isTouring ? copy.stopTour : copy.startTour}
             aria-pressed={isTouring}
             disabled={!canNavigateLandmarks}
-            title={isTouring ? "Tour pausieren" : "Landmarken-Tour starten"}
+            title={isTouring ? copy.stopTour : copy.startTour}
             onClick={toggleTour}
           >
             {isTouring ? (
@@ -1496,9 +1728,9 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label="Nächste Landmarke"
+            aria-label={copy.nextAttraction}
             disabled={!canNavigateLandmarks}
-            title="Nächste Landmarke"
+            title={copy.nextAttraction}
             onClick={() => {
               setIsTouring(false);
               focusLandmarkByOffset(1);
@@ -1508,9 +1740,9 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label="Tastenkürzel und Hilfe"
+            aria-label={copy.helpTitle}
             aria-pressed={isHelpOpen}
-            title="Tastenkürzel und Hilfe (?)"
+            title={`${copy.helpTitle} (?)`}
             onClick={() => setIsHelpOpen((open) => !open)}
           >
             <Keyboard size={18} aria-hidden="true" />
@@ -1526,9 +1758,9 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label="Ansicht-Link kopieren"
+            aria-label={copy.copyLink}
             disabled={!selectedLandmark}
-            title="Ansicht-Link kopieren (L)"
+            title={`${copy.copyLink} (L)`}
             onClick={() => void copyViewLink()}
           >
             <Link2 size={18} aria-hidden="true" />
@@ -1542,14 +1774,14 @@ export function App() {
           className="chrome-toggle"
           aria-label={
             isChromeHidden
-              ? "Bedienelemente wieder einblenden"
-              : "Bedienelemente ausblenden"
+              ? copy.showControls
+              : copy.hideControls
           }
           aria-pressed={isChromeHidden}
           title={
             isChromeHidden
-              ? "Bedienelemente einblenden"
-              : "Bedienelemente ausblenden"
+              ? copy.showControls
+              : copy.hideControls
           }
           onClick={toggleChrome}
         >
@@ -1562,10 +1794,10 @@ export function App() {
         <button
           type="button"
           className="mobile-compass-fab"
-          aria-label="Richtungs- und 3D-Steuerung öffnen"
+          aria-label={copy.alignMove}
           aria-expanded={mobileSheet === "compass"}
           disabled={!isReady}
-          title="Richtungs- und 3D-Steuerung"
+          title={copy.alignMove}
           onClick={() =>
             setMobileSheet((current) =>
               current === "compass" ? null : "compass",
@@ -1580,12 +1812,12 @@ export function App() {
             className="mobile-coach-mark"
             onClick={dismissCoachMark}
           >
-            Kompass öffnet die Steuerung · Pfeil blendet sie aus
+            {copy.coach}
           </button>
         ) : null}
       </div>
 
-      <aside className="orientation-pill" aria-label="Kartenorientierung">
+      <aside className="orientation-pill" aria-label={copy.orientation}>
         <Compass aria-hidden="true" size={16} />
         <span>
           {viewerMode === "three"
@@ -1594,28 +1826,30 @@ export function App() {
         </span>
         <small>
           {viewerMode === "three"
-            ? `${orientation?.label ?? "frei gedreht"} · ${
-                isThreeUnderside ? "Untersicht" : "3D"
+            ? `${orientation ? orientationLabel(orientation.short, language) : copy.freelyRotated} · ${
+                isThreeUnderside ? copy.underside : "3D"
               }`
             : isFlipped
-              ? `${orientation?.label ?? "frei gedreht"} · gespiegelt`
-              : (orientation?.label ?? "frei gedreht")}
+              ? `${orientation ? orientationLabel(orientation.short, language) : copy.freelyRotated} · ${language === "de" ? "gespiegelt" : "mirrored"}`
+              : orientation
+                ? orientationLabel(orientation.short, language)
+                : copy.freelyRotated}
         </small>
       </aside>
 
-      <aside className="view-controls" aria-label="3D-Ansicht bewegen und ausrichten">
-        <div className="control-row" role="group" aria-label="Kardinalrichtung oben">
+      <aside className="view-controls" aria-label={copy.alignMove}>
+        <div className="control-row" role="group" aria-label={copy.orientation}>
           {ORIENTATIONS.map((candidate) => (
             <button
               key={candidate.short}
               type="button"
-              aria-label={candidate.label}
+              aria-label={orientationLabel(candidate.short, language)}
               aria-pressed={isRotationActive(rotation, candidate.degrees)}
               disabled={!isReady}
-              title={candidate.label}
+              title={orientationLabel(candidate.short, language)}
               onClick={() => applyRotation(candidate.degrees)}
             >
-              <span>{candidate.short}</span>
+              <span>{orientationShort(candidate.short, language)}</span>
             </button>
           ))}
         </div>
@@ -1623,41 +1857,41 @@ export function App() {
           <div
             className="control-row movement-controls"
             role="group"
-            aria-label="Steuerkreuz zum Fliegen durch die 3D-Ansicht"
+            aria-label={copy.flight}
           >
             <button
               type="button"
-              aria-label="Im Bild nach oben fliegen"
+              aria-label={copy.flyForward}
               disabled={!isReady}
-              title="Im Bild nach oben fliegen (Pfeil hoch)"
-              onClick={() => flyBy(0, 1)}
+              title={`${copy.flyForward} (Shift + ↑)`}
+              onClick={() => flyForwardBy(0, 1)}
             >
               <ArrowUp size={17} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Im Bild nach links fliegen"
+              aria-label={copy.flyLeft}
               disabled={!isReady}
-              title="Im Bild nach links fliegen (Pfeil links)"
-              onClick={() => flyBy(-1, 0)}
+              title={`${copy.flyLeft} (Shift + ←)`}
+              onClick={() => flyForwardBy(-1, 0)}
             >
               <ArrowLeft size={17} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Im Bild nach unten fliegen"
+              aria-label={copy.flyBack}
               disabled={!isReady}
-              title="Im Bild nach unten fliegen (Pfeil runter)"
-              onClick={() => flyBy(0, -1)}
+              title={`${copy.flyBack} (Shift + ↓)`}
+              onClick={() => flyForwardBy(0, -1)}
             >
               <ArrowDown size={17} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Im Bild nach rechts fliegen"
+              aria-label={copy.flyRight}
               disabled={!isReady}
-              title="Im Bild nach rechts fliegen (Pfeil rechts)"
-              onClick={() => flyBy(1, 0)}
+              title={`${copy.flyRight} (Shift + →)`}
+              onClick={() => flyForwardBy(1, 0)}
             >
               <ArrowRight size={17} aria-hidden="true" />
             </button>
@@ -1668,18 +1902,18 @@ export function App() {
             <>
               <button
                 type="button"
-                aria-label="Kamera höher neigen"
+                aria-label={copy.tiltUp}
                 disabled={!isReady}
-                title="Kamera höher neigen (Shift + Pfeil hoch)"
+                title={`${copy.tiltUp} (Alt/Option + ↑)`}
                 onClick={() => tiltBy(-10)}
               >
                 <ArrowUp size={17} aria-hidden="true" />
               </button>
               <button
                 type="button"
-                aria-label="Kamera tiefer bis zur Untersicht neigen"
+                aria-label={copy.tiltDown}
                 disabled={!isReady}
-                title="Kamera tiefer neigen (Shift + Pfeil runter)"
+                title={`${copy.tiltDown} (Alt/Option + ↓)`}
                 onClick={() => tiltBy(10)}
               >
                 <ArrowDown size={17} aria-hidden="true" />
@@ -1688,18 +1922,18 @@ export function App() {
           ) : null}
           <button
             type="button"
-            aria-label="Nach links drehen"
+            aria-label={copy.rotateLeft}
             disabled={!isReady}
-            title="Nach links drehen"
+            title={copy.rotateLeft}
             onClick={() => rotateBy(-90)}
           >
             <RotateCcw size={17} aria-hidden="true" />
           </button>
           <button
             type="button"
-            aria-label="Nach rechts drehen"
+            aria-label={copy.rotateRight}
             disabled={!isReady}
-            title="Nach rechts drehen"
+            title={copy.rotateRight}
             onClick={() => rotateBy(90)}
           >
             <RotateCw size={17} aria-hidden="true" />
@@ -1736,19 +1970,19 @@ export function App() {
           </button>
           <button
             type="button"
-            aria-label="Ausrichtung zurücksetzen"
+            aria-label={copy.resetOrientation}
             disabled={!isReady}
-            title="Ausrichtung zurücksetzen"
+            title={copy.resetOrientation}
             onClick={resetOrientation}
           >
             <Compass size={17} aria-hidden="true" />
           </button>
           <button
             type="button"
-            aria-label="Top-down Referenzkarte"
+            aria-label={copy.reference}
             aria-pressed={isReferenceOpen}
             disabled={!isReady}
-            title="Top-down Referenzkarte"
+            title={copy.reference}
             onClick={openReferenceMap}
           >
             <MapPinned size={17} aria-hidden="true" />
@@ -1768,7 +2002,7 @@ export function App() {
         <aside
           className="mobile-sheet mobile-compass-sheet"
           role="dialog"
-          aria-label="Kompakte Richtungs- und 3D-Steuerung"
+          aria-label={copy.alignMove}
           onClick={(event) => event.stopPropagation()}
           onTouchStart={(event) => {
             event.currentTarget.dataset.startY = String(
@@ -1786,10 +2020,10 @@ export function App() {
           <div className="mobile-sheet-handle" aria-hidden="true" />
           <div className="mobile-sheet-title">
             <Compass size={17} aria-hidden="true" />
-            <strong>Ausrichten &amp; bewegen</strong>
+            <strong>{copy.alignMove}</strong>
             <button
               type="button"
-              aria-label="Steuerung schließen"
+              aria-label={copy.closeControls}
               onClick={() => setMobileSheet(null)}
             >
               <X size={18} aria-hidden="true" />
@@ -1800,57 +2034,65 @@ export function App() {
               <button
                 key={candidate.short}
                 type="button"
-                aria-label={candidate.label}
+                aria-label={orientationLabel(candidate.short, language)}
                 aria-pressed={isRotationActive(rotation, candidate.degrees)}
                 disabled={!isReady}
                 onClick={() => applyRotation(candidate.degrees)}
               >
-                <strong>{candidate.short}</strong>
+                <strong>{orientationShort(candidate.short, language)}</strong>
               </button>
             ))}
             <button
               type="button"
-              aria-label="Im Bild nach oben bewegen"
+              aria-label={viewerMode === "three" ? copy.flyForward : copy.northUp}
               disabled={!isReady}
               onClick={() =>
-                viewerMode === "three" ? flyBy(0, 1) : panByViewport(0, -0.12)
+                viewerMode === "three"
+                  ? flyForwardBy(0, 1)
+                  : panByViewport(0, -0.12)
               }
             >
               <ArrowUp size={20} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Im Bild nach links bewegen"
+              aria-label={viewerMode === "three" ? copy.flyLeft : copy.westUp}
               disabled={!isReady}
               onClick={() =>
-                viewerMode === "three" ? flyBy(-1, 0) : panByViewport(-0.12, 0)
+                viewerMode === "three"
+                  ? flyForwardBy(-1, 0)
+                  : panByViewport(-0.12, 0)
               }
             >
               <ArrowLeft size={20} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Im Bild nach unten bewegen"
+              aria-label={viewerMode === "three" ? copy.flyBack : copy.southUp}
               disabled={!isReady}
               onClick={() =>
-                viewerMode === "three" ? flyBy(0, -1) : panByViewport(0, 0.12)
+                viewerMode === "three"
+                  ? flyForwardBy(0, -1)
+                  : panByViewport(0, 0.12)
               }
             >
               <ArrowDown size={20} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Im Bild nach rechts bewegen"
+              aria-label={viewerMode === "three" ? copy.flyRight : copy.eastUp}
               disabled={!isReady}
               onClick={() =>
-                viewerMode === "three" ? flyBy(1, 0) : panByViewport(0.12, 0)
+                viewerMode === "three"
+                  ? flyForwardBy(1, 0)
+                  : panByViewport(0.12, 0)
               }
             >
               <ArrowRight size={20} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Nach links drehen"
+              aria-label={copy.rotateLeft}
               disabled={!isReady}
               onClick={() => rotateBy(-15)}
             >
@@ -1858,7 +2100,7 @@ export function App() {
             </button>
             <button
               type="button"
-              aria-label="Nach rechts drehen"
+              aria-label={copy.rotateRight}
               disabled={!isReady}
               onClick={() => rotateBy(15)}
             >
@@ -1866,7 +2108,7 @@ export function App() {
             </button>
             <button
               type="button"
-              aria-label={viewerMode === "three" ? "Kamera höher neigen" : "Näher"}
+              aria-label={viewerMode === "three" ? copy.tiltUp : copy.zoomIn}
               disabled={!isReady}
               onClick={() =>
                 viewerMode === "three" ? tiltBy(-8) : zoomBy(1.24)
@@ -1876,7 +2118,7 @@ export function App() {
             </button>
             <button
               type="button"
-              aria-label={viewerMode === "three" ? "Kamera tiefer neigen" : "Weiter"}
+              aria-label={viewerMode === "three" ? copy.tiltDown : copy.zoomOut}
               disabled={!isReady}
               onClick={() =>
                 viewerMode === "three" ? tiltBy(8) : zoomBy(0.81)
@@ -1885,10 +2127,10 @@ export function App() {
               <ChevronDown size={20} aria-hidden="true" />
             </button>
           </div>
-          <div className="mobile-sheet-footer" role="group" aria-label="Ansicht">
+          <div className="mobile-sheet-footer" role="group" aria-label={copy.mode}>
             <button
               type="button"
-              aria-label="Gegenansicht"
+              aria-label={copy.oppositeView}
               disabled={!isReady}
               onClick={toggleHorizontalFlip}
             >
@@ -1896,7 +2138,7 @@ export function App() {
             </button>
             <button
               type="button"
-              aria-label="Untersicht"
+              aria-label={copy.underside}
               aria-pressed={viewerMode === "three" && isThreeUnderside}
               disabled={!isReady}
               onClick={flipVertical}
@@ -1905,7 +2147,7 @@ export function App() {
             </button>
             <button
               type="button"
-              aria-label="Ausrichtung zurücksetzen"
+              aria-label={copy.resetOrientation}
               disabled={!isReady}
               onClick={resetOrientation}
             >
@@ -1913,7 +2155,7 @@ export function App() {
             </button>
             <button
               type="button"
-              aria-label="Top-down Referenzkarte"
+              aria-label={copy.reference}
               disabled={!isReady}
               onClick={() => {
                 setMobileSheet(null);
@@ -1941,7 +2183,7 @@ export function App() {
         <aside
           className="mobile-sheet mobile-overflow-sheet"
           role="dialog"
-          aria-label="Weitere Kartenaktionen"
+          aria-label={copy.moreActions}
           onTouchStart={(event) => {
             event.currentTarget.dataset.startY = String(
               event.touches[0]?.clientY ?? 0,
@@ -1958,10 +2200,10 @@ export function App() {
           <div className="mobile-sheet-handle" aria-hidden="true" />
           <div className="mobile-sheet-title">
             <MoreHorizontal size={18} aria-hidden="true" />
-            <strong>Aktionen</strong>
+            <strong>{copy.actions}</strong>
             <button
               type="button"
-              aria-label="Aktionsmenü schließen"
+              aria-label={copy.closeActions}
               onClick={() => setMobileSheet(null)}
             >
               <X size={18} aria-hidden="true" />
@@ -1977,7 +2219,7 @@ export function App() {
               }}
             >
               <Home size={20} aria-hidden="true" />
-              <span>Gesamt</span>
+              <span>{copy.home}</span>
             </button>
             <button
               type="button"
@@ -1993,15 +2235,29 @@ export function App() {
               )}
               <span>{viewerMode === "three" ? "2D" : "3D"}</span>
             </button>
-            <button type="button" onClick={cycleVisualMode}>
-              {lightingMode === "minecraft" ? (
-                <MinecraftCubeIcon size={20} />
-              ) : lightingMode === "night" ? (
-                <Sun size={20} aria-hidden="true" />
-              ) : (
-                <Moon size={20} aria-hidden="true" />
-              )}
-              <span>Modus</span>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "day"}
+              onClick={() => selectVisualMode("day")}
+            >
+              <Sun size={20} aria-hidden="true" />
+              <span>{copy.day}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "night"}
+              onClick={() => selectVisualMode("night")}
+            >
+              <Moon size={20} aria-hidden="true" />
+              <span>{copy.night}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={lightingMode === "minecraft"}
+              onClick={() => selectVisualMode("minecraft")}
+            >
+              <MinecraftCubeIcon size={20} />
+              <span>{copy.minecraft}</span>
             </button>
             <button
               type="button"
@@ -2012,7 +2268,7 @@ export function App() {
               }}
             >
               <List size={20} aria-hidden="true" />
-              <span>Orte</span>
+              <span>{copy.attractions}</span>
             </button>
             <button
               type="button"
@@ -2023,7 +2279,7 @@ export function App() {
               }}
             >
               <SkipBack size={20} aria-hidden="true" />
-              <span>Zurück</span>
+              <span>{copy.previous}</span>
             </button>
             <button
               type="button"
@@ -2039,7 +2295,7 @@ export function App() {
               ) : (
                 <Play size={20} aria-hidden="true" />
               )}
-              <span>Tour</span>
+              <span>{copy.tour}</span>
             </button>
             <button
               type="button"
@@ -2050,7 +2306,7 @@ export function App() {
               }}
             >
               <SkipForward size={20} aria-hidden="true" />
-              <span>Weiter</span>
+              <span>{copy.next}</span>
             </button>
             <button
               type="button"
@@ -2060,11 +2316,27 @@ export function App() {
               }}
             >
               <Keyboard size={20} aria-hidden="true" />
-              <span>Hilfe</span>
+              <span>{copy.help}</span>
             </button>
             <button type="button" onClick={openRepository}>
               <Github size={20} aria-hidden="true" />
-              <span>Repo</span>
+              <span>{copy.repository}</span>
+            </button>
+            <button type="button" onClick={toggleLanguage}>
+              <Languages size={20} aria-hidden="true" />
+              <span>{language === "de" ? "English" : "Deutsch"}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={isMusicEnabled}
+              onClick={toggleMusic}
+            >
+              {isMusicEnabled ? (
+                <Volume2 size={20} aria-hidden="true" />
+              ) : (
+                <VolumeX size={20} aria-hidden="true" />
+              )}
+              <span>{isMusicEnabled ? copy.musicOff : copy.musicOn}</span>
             </button>
             <button
               type="button"
@@ -2075,17 +2347,17 @@ export function App() {
               }}
             >
               <Link2 size={20} aria-hidden="true" />
-              <span>Link</span>
+              <span>{copy.link}</span>
             </button>
           </div>
         </aside>
       ) : null}
 
       {isLandmarkRailOpen ? (
-        <aside className="landmark-rail" aria-label="Landmarken">
+        <aside className="landmark-rail" aria-label={copy.attractions}>
           <div className="rail-heading">
             <LocateFixed aria-hidden="true" size={17} />
-            <span>Landmarken</span>
+            <span>{copy.attractions}</span>
             <small>{landmarks.length}</small>
           </div>
           <div className="landmark-list">
@@ -2100,7 +2372,7 @@ export function App() {
                   }
                 }}
                 type="button"
-                aria-label={`Landmarke ${landmark.name}`}
+                aria-label={`${copy.attraction}: ${landmark.name}`}
                 className={[
                   landmark.name === selected ? "is-selected" : "",
                   isPriorityLandmark(landmark.name) ? "is-priority" : "",
@@ -2122,7 +2394,7 @@ export function App() {
                   </span>
                   <span className="landmark-name">{landmark.name}</span>
                 </span>
-                <small>{roleLabel(landmark.role)}</small>
+                <small>{roleLabel(landmark.role, language)}</small>
               </button>
             ))}
           </div>
@@ -2140,10 +2412,10 @@ export function App() {
         >
           <div>
             <Info aria-hidden="true" size={16} />
-            <span>Fokus</span>
+            <span>{copy.focus}</span>
           </div>
           <strong>{selectedLandmark.name}</strong>
-          <small>{roleLabel(selectedLandmark.role)}</small>
+          <small>{roleLabel(selectedLandmark.role, language)}</small>
           <span>
             {selectedIndex >= 0 ? selectedIndex + 1 : 1} / {landmarks.length}
           </span>
@@ -2158,20 +2430,20 @@ export function App() {
           className="reference-modal"
           role="dialog"
           aria-modal="true"
-          aria-label="Top-down Referenzkarte"
+          aria-label={copy.reference}
           onClick={closeReferenceMap}
         >
           <div className="reference-panel" onClick={(event) => event.stopPropagation()}>
             <header className="reference-header">
               <div className="reference-title">
                 <MapPinned aria-hidden="true" size={18} />
-                <strong>Top-down Referenzkarte</strong>
+                <strong>{copy.reference}</strong>
               </div>
               <button
                 ref={closeReferenceButtonRef}
                 type="button"
-                aria-label="Referenzkarte schließen"
-                title="Referenzkarte schließen"
+                aria-label={copy.closeReference}
+                title={copy.closeReference}
                 onClick={closeReferenceMap}
               >
                 <X size={18} aria-hidden="true" />
@@ -2179,7 +2451,11 @@ export function App() {
             </header>
             <img
               src={referenceMapUrl}
-              alt="Top-down reference map with OSM, LoD2, and numbered landmarks"
+              alt={
+                language === "de"
+                  ? "Top-down-Referenzkarte mit OSM, LoD2 und nummerierten Sehenswürdigkeiten"
+                  : "Top-down reference map with OSM, LoD2, and numbered sights"
+              }
             />
           </div>
         </div>
@@ -2270,7 +2546,7 @@ export function App() {
           className="reference-modal"
           role="dialog"
           aria-modal="true"
-          aria-label="Tastenkürzel und Bedienhilfe"
+          aria-label={copy.helpTitle}
           onClick={() => setIsHelpOpen(false)}
         >
           <div
@@ -2280,12 +2556,12 @@ export function App() {
             <header className="reference-header">
               <div className="reference-title">
                 <Keyboard aria-hidden="true" size={18} />
-                <strong>Tastenkürzel &amp; Bedienung</strong>
+                <strong>{copy.helpTitle}</strong>
               </div>
               <button
                 type="button"
-                aria-label="Hilfe schließen"
-                title="Hilfe schließen"
+                aria-label={copy.closeHelp}
+                title={copy.closeHelp}
                 onClick={() => setIsHelpOpen(false)}
               >
                 <X size={18} aria-hidden="true" />
@@ -2299,89 +2575,131 @@ export function App() {
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? "Bildschirmbezogen durch die 3D-Isometrie fliegen"
-                    : "Karte in Meterlage verschieben"}
+                    ? language === "de"
+                      ? "Bildschirmbezogen durch die 3D-Isometrie verschieben"
+                      : "Move through the 3D isometry in screen directions"
+                    : language === "de"
+                      ? "Karte in Meterlage verschieben"
+                      : "Move the map in metric space"}
                 </dd>
               </div>
               <div>
                 <dt>
                   <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
+                  <kbd>↑</kbd> <kbd>↓</kbd>
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? "3D-Kamera links / rechts um das Ziel drehen"
-                    : "Ansicht links / rechts drehen"}
+                    ? language === "de"
+                      ? "Entlang der Blickrichtung vorwärts / rückwärts fliegen und seitwärts versetzen"
+                      : "Fly forward / backward along the view heading and strafe sideways"
+                    : language === "de"
+                      ? "Ansicht drehen oder zoomen"
+                      : "Rotate or zoom the view"}
                 </dd>
               </div>
               <div>
                 <dt>
-                  <kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd>
+                  <kbd>Alt</kbd>/<kbd>Option</kbd> + <kbd>←</kbd> <kbd>→</kbd>
+                  <kbd>↑</kbd> <kbd>↓</kbd>
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? "Kamera neigen und stufenlos in die Untersicht wechseln"
-                    : "Swivel/Zoom näher oder weiter"}
+                    ? language === "de"
+                      ? "Kamera drehen und stufenlos bis in die Untersicht neigen"
+                      : "Orbit and tilt the camera continuously into the underside view"
+                    : language === "de"
+                      ? "Ansicht drehen und neigen"
+                      : "Rotate and tilt the view"}
                 </dd>
               </div>
               <div>
                 <dt>
                   <kbd>PageUp</kbd> <kbd>PageDown</kbd>
                 </dt>
-                <dd>Vorige / nächste Landmarke</dd>
+                <dd>
+                  {language === "de"
+                    ? "Vorige / nächste Sehenswürdigkeit"
+                    : "Previous / next sight"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>Leertaste</kbd>
                 </dt>
-                <dd>Landmarken-Tour starten / pausieren</dd>
+                <dd>
+                  {language === "de"
+                    ? "Sehenswürdigkeiten-Tour starten / pausieren"
+                    : "Start / pause the sights tour"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>+</kbd> <kbd>=</kbd> <kbd>−</kbd>
                 </dt>
-                <dd>Vergrößern / verkleinern</dd>
+                <dd>{language === "de" ? "Vergrößern / verkleinern" : "Zoom in / out"}</dd>
               </div>
               <div>
                 <dt>
                   <kbd>Home</kbd> <kbd>0</kbd>
                 </dt>
-                <dd>Gesamtansicht zeigen</dd>
+                <dd>{language === "de" ? "Gesamtansicht zeigen" : "Show overview"}</dd>
               </div>
               <div>
                 <dt>
                   <kbd>L</kbd>
                 </dt>
-                <dd>Ansicht-Link kopieren</dd>
+                <dd>{copy.copyLink}</dd>
               </div>
               <div>
                 <dt>
                   <kbd>?</kbd>
                 </dt>
-                <dd>Diese Hilfe ein- / ausblenden</dd>
+                <dd>
+                  {language === "de" ? "Diese Hilfe ein- / ausblenden" : "Toggle this help"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>D</kbd>
                 </dt>
-                <dd>Tag- / Nachtbeleuchtung umschalten</dd>
+                <dd>
+                  {language === "de" ? "Tag- / Nachtbeleuchtung umschalten" : "Toggle day / night lighting"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>M</kbd>
                 </dt>
-                <dd>Premium-Minecraft-Modus ein- / ausschalten</dd>
+                <dd>
+                  {language === "de" ? "Minecraft-Modus ein- / ausschalten" : "Toggle Minecraft mode"}
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>B</kbd>
+                </dt>
+                <dd>{isMusicEnabled ? copy.musicOff : copy.musicOn}</dd>
               </div>
               <div>
                 <dt>
                   <kbd>Esc</kbd>
                 </dt>
-                <dd>Hilfe / Referenzkarte schließen, Tour stoppen</dd>
+                <dd>
+                  {language === "de"
+                    ? "Hilfe / Referenzkarte schließen, Tour stoppen"
+                    : "Close help / reference map and stop the tour"}
+                </dd>
               </div>
             </dl>
             <p className="help-hint">
               {viewerMode === "three"
-                ? "3D: Mit gedrückter linker Maustaste frei drehen, mit dem Mausrad zoomen und mit der rechten Taste verschieben. Ein Finger dreht; zwei Finger zoomen und drehen; drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                : "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger zoomen, verschieben und drehen gleichzeitig."}
+                ? language === "de"
+                  ? "3D: Linke Maustaste dreht, Mausrad zoomt, rechte Maustaste verschiebt. Zwei Finger fliegen per Swipe, zoomen per Pinch und drehen per Twist; drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                  : "3D: Left-drag orbits, the wheel zooms, and right-drag pans. Two fingers fly by swiping, zoom by pinching, and rotate by twisting; three fingers control orbit and tilt into the underside."
+                : language === "de"
+                  ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger zoomen, verschieben und drehen gleichzeitig."
+                  : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}
             </p>
           </div>
         </div>
@@ -2397,8 +2715,8 @@ export function App() {
           className="attribution-toggle"
           aria-label={
             isAttributionOpen
-              ? "Datenquellen schließen"
-              : "Datenquellen und Status anzeigen"
+              ? copy.dataClose
+              : copy.dataOpen
           }
           aria-expanded={isAttributionOpen}
           onClick={() => setIsAttributionOpen((open) => !open)}

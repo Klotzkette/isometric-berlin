@@ -455,6 +455,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   viewer_path = root / "src/app/src/ThreeViewer.tsx"
   app_path = root / "src/app/src/App.tsx"
   architecture_path = root / "src/app/src/ArchitecturalLandmarks.ts"
+  cultural_path = root / "src/app/src/CulturalLandmarks.ts"
+  localization_path = root / "src/app/src/localization.ts"
+  ambient_path = root / "src/app/src/AmbientSoundscape.ts"
+  discovery_path = root / "src/app/src/discoveryNotes.ts"
+  crisp_path = root / "src/app/src/crisp.frag"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   park_path = root / "src/app/src/ParkDetails.ts"
   project_metadata_path = root / "src/app/src/projectMetadata.ts"
@@ -466,6 +471,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     not viewer_path.exists()
     or not app_path.exists()
     or not architecture_path.exists()
+    or not cultural_path.exists()
+    or not localization_path.exists()
+    or not ambient_path.exists()
+    or not discovery_path.exists()
+    or not crisp_path.exists()
     or not memorial_path.exists()
     or not park_path.exists()
     or not project_metadata_path.exists()
@@ -478,6 +488,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   viewer = viewer_path.read_text(encoding="utf-8")
   app = app_path.read_text(encoding="utf-8")
   architecture = architecture_path.read_text(encoding="utf-8")
+  cultural = cultural_path.read_text(encoding="utf-8")
+  localization = localization_path.read_text(encoding="utf-8")
+  ambient = ambient_path.read_text(encoding="utf-8")
+  discovery = discovery_path.read_text(encoding="utf-8")
+  crisp = crisp_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
   park = park_path.read_text(encoding="utf-8")
   project_metadata = project_metadata_path.read_text(encoding="utf-8")
@@ -539,6 +554,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "global pointer release recovery": 'window.addEventListener("pointerup"',
     "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
     "camera rig stabilization": "stabilizeCameraRig(",
+    "two-finger heading flight": "flyCameraAlongViewHeading(",
+    "settled-only crisp pass": ('runtime.lightingMode !== "minecraft" && !isMoving'),
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"
@@ -572,8 +589,36 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       f"Viewer lacks the complete public repository URL: {project_metadata_path}"
     )
-  if "flyBy(1, 0)" not in app or "Shift + Pfeil" not in app:
-    failures.append(f"Viewer lacks direct arrow-key flight controls: {app_path}")
+  if (
+    "flyBy(1, 0)" not in app
+    or "flyForwardBy(0, 1)" not in app
+    or "event.shiftKey" not in app
+    or "event.altKey" not in app
+  ):
+    failures.append(f"Viewer lacks direct and heading-relative flight: {app_path}")
+  for mode in ("day", "night", "minecraft"):
+    if f'selectVisualMode("{mode}")' not in app:
+      failures.append(f"Viewer lacks direct {mode} mode selection: {app_path}")
+  if (
+    'attractions: "Sehenswürdigkeiten"' not in localization
+    or 'attraction: "Sehenswürdigkeit"' not in localization
+    or "Landmarken" in localization
+  ):
+    failures.append(
+      f"Viewer lacks correct bilingual sight terminology: {localization_path}"
+    )
+  if "AMBIENT_VARIANTS" not in ambient or ambient.count('name: "') != 7:
+    failures.append(f"Viewer lacks seven original ambient variants: {ambient_path}")
+  if "toggleMusic" not in app or "new AmbientSoundscape" not in app:
+    failures.append(f"Viewer lacks an explicit music control: {app_path}")
+  if (
+    "discoveryNoteFor" not in app
+    or discovery.count("    de: ") != 7
+    or discovery.count("    en: ") != 7
+  ):
+    failures.append(f"Viewer lacks bilingual location discoveries: {discovery_path}")
+  if "neighbours * 0.25" not in crisp or "uniform float strength" not in crisp:
+    failures.append(f"Viewer lacks the bounded settled-image crisp pass: {crisp_path}")
   required_memorial_snippets = {
     "complete Holocaust stela field": "Holocaust Memorial 2710 instanced stelae",
     "official Holocaust height bands": "high: 872",
@@ -627,6 +672,20 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     for model, snippet in required_architecture_snippets.items()
     if snippet not in architecture
   )
+  if "selectively lit upper rectangular" in architecture:
+    failures.append(
+      f"Reichstag upper rectangular windows must remain dark: {architecture_path}"
+    )
+  if "selectively lit three-bay tower" in architecture:
+    failures.append(f"Reichstag tower windows must remain dark: {architecture_path}")
+  if "Carillon black-granite tower shaft" in cultural:
+    failures.append(
+      f"Carillon recognition layer duplicates official mesh pylons: {cultural_path}"
+    )
+  if "officialMeshCarriesPylons: true" not in cultural:
+    failures.append(
+      f"Carillon source ownership is not documented in code: {cultural_path}"
+    )
   required_mobile_style_snippets = {
     "compact phone breakpoint": "@media (max-width: 768px)",
     "mobile overflow action": ".toolbar .mobile-overflow",
@@ -636,6 +695,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "four-column compass sheet": (
       "grid-template-columns: repeat(4, minmax(44px, 1fr))"
     ),
+    "coarse-pointer tablet layout": ("(max-width: 1024px) and (pointer: coarse)"),
   }
   failures.extend(
     f"Viewer CSS lacks {label}: {styles_path}"
@@ -1340,6 +1400,13 @@ def collect_failures(
     failures.append(
       f"README.md direct download link does not point at v{version} package"
     )
+  package_source = (root / "scripts" / "package_static_site.py").read_text(
+    encoding="utf-8"
+  )
+  if (
+    "Große transparente Cumulus-Wolke über Spreebogen und Kanzleramt" in package_source
+  ):
+    failures.append("Zero-server fallback still places a cloud over the Chancellery")
 
   for report_file in REQUIRED_REPORT_FILES:
     if not (root / report_file).exists():

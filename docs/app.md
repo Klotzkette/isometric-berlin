@@ -31,21 +31,43 @@ show the Google attribution required by the Google Maps Platform Terms.
 ## Keyboard shortcuts & help
 
 The viewer has a built-in help panel (the keyboard button in the top
-toolbar, or press `?`) listing the shortcuts: `←`/`→` previous/next
-landmark, `Space` start/pause the tour, `+`/`=`/`−` zoom, `Home`/`0`
-overview, `D` switch Day/Night, `L` copy a view link, `Esc` close overlays.
+toolbar, or press `?`) listing the shortcuts: `PageUp`/`PageDown`
+previous/next sight, `Space` start/pause the tour, `+`/`=`/`−` zoom,
+`Home`/`0` overview, `D` switch Day/Night, `M` toggle Minecraft, `B` toggle
+music, `L` copy a view link, and `Esc` close overlays.
 
-In true 3D, left-drag or one finger orbits, the wheel zooms, right-drag pans,
-and two fingers combine pinch and rotation. A three-finger gesture controls
+In true 3D, left-drag or one finger orbits, the wheel zooms, and right-drag
+pans. A two-finger centre swipe flies along the current camera heading, pinch
+zooms and twist rotates. A three-finger gesture controls
 azimuth and polar tilt continuously through 90 degrees into the real underside
 camera. The underside fades surface materials and strengthens the two-tube
 Tiergartentunnel cutaway; the tunnel is completely hidden in ordinary exterior
 views and appears automatically only after the camera crosses below ground.
-Arrow keys translate camera and target together in the visible screen plane,
-so they fly through the current isometry even after rotation or an underside
-flip. `Shift` plus left/right rotates and `Shift` plus up/down tilts. In DZI
-mode, ordinary drag pans and Shift-drag rotates. At phone widths the landmark
-rail starts closed and leaves the safe-area-aware bottom controls accessible.
+Arrow keys translate camera and target together in the visible screen plane.
+`Shift` plus arrows flies forward/backward or strafes relative to the current
+heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. In DZI
+mode, ordinary drag pans and Shift-drag rotates. On phones and coarse-pointer
+tablets up to 1024 px, the sight rail starts closed and leaves the
+safe-area-aware bottom controls accessible.
+
+## Language, visual modes, and sound
+
+The toolbar exposes direct Day, Night and Minecraft buttons. `D` remains the
+fast Day/Night toggle and `M` enters or leaves Minecraft independently. A
+persistent DE/EN control translates all viewer chrome; official German place
+names remain unchanged, and the German UI uses `Sehenswürdigkeiten` rather than
+the English false friend.
+
+Music is off by default and cannot autoplay. The music button or `B` starts a
+local Web Audio score with seven original 72 BPM variants built from triangle
+bass, square/sine chimes, high-pass noise hats and quiet drones. It loads no
+audio file and suspends when the tab is hidden. Short bilingual discovery notes
+are tied to seven selected sights and appear only once per page session.
+
+The ordinary Day/Night pipeline applies a bounded crisp/saturation pass only
+after camera movement settles; direct rendering resumes during motion. Minecraft
+uses its separate palette pass with reduced bloom and sparse shimmer. This keeps
+controls responsive while improving stationary facade and roof definition.
 
 Seven memorial recognition models supplement the official mesh at normal
 selection distances. Repeated Holocaust stelae use GPU instancing, as do the
@@ -80,8 +102,9 @@ Berlin Mesh texture beneath them.
 The cultural recognition layer keeps similarly small features readable without
 altering the official base mesh. The 32 x 26 m TIPI has twenty structural ribs,
 220 warm rib bulbs, a night-only four-colour show wash and the requested golden
-`PIGOR & EICHHORN` and `NUR HEUTE ABEND` marquee lines. The 42 m Carillon
-carries 68 individually placed bells beneath a shallow roof cap. Two compact
+`PIGOR & EICHHORN` and `NUR HEUTE ABEND` marquee lines. The 42 m Carillon lets
+the official photogrammetric mesh carry its four granite pylons and adds 68
+individually placed bells beneath a shallow roof cap. Two compact
 uniformed figures mark the Chancellery entrance. Selecting `Spreebogen` opens
 an unobstructed east-side view of the occupied excursion boat, its open deck,
 wake and a 3D wave ribbon aligned to the committed OSM river centreline.

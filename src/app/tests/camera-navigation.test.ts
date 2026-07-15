@@ -4,9 +4,11 @@ import { PerspectiveCamera, Vector3 } from "three";
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   captureCameraPose,
+  flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   screenRelativeFlightDelta,
   stabilizeCameraRig,
+  viewHeadingFlightDelta,
 } from "../src/cameraNavigation";
 
 describe("screen-relative 3D flight", () => {
@@ -53,6 +55,39 @@ describe("screen-relative 3D flight", () => {
     expect(target.x).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x);
     expect(target.y).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.y);
     expect(target.z).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z);
+  });
+});
+
+describe("view-heading 3D flight", () => {
+  test("flies forward on the horizontal camera heading without zooming", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(0, 100, 200);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+    const beforeOffset = camera.position.clone().sub(target);
+
+    const applied = flyCameraAlongViewHeading(camera, target, 0, 1);
+
+    expect(applied.z).toBeLessThan(0);
+    expect(Math.abs(applied.y)).toBeLessThan(1e-8);
+    expect(camera.position.clone().sub(target).distanceTo(beforeOffset)).toBeLessThan(
+      1e-8,
+    );
+  });
+
+  test("keeps strafe perpendicular to forward travel", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(80, 60, 140);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+
+    const forward = viewHeadingFlightDelta(camera, target, 0, 1);
+    const strafe = viewHeadingFlightDelta(camera, target, 1, 0);
+
+    expect(Math.abs(forward.dot(strafe))).toBeLessThan(1e-8);
+    expect(strafe.y).toBe(0);
   });
 });
 

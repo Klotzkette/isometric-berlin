@@ -116,3 +116,41 @@ export function flyCameraInViewPlane(
   camera.updateMatrixWorld();
   return applied;
 }
+
+export function viewHeadingFlightDelta(
+  camera: PerspectiveCamera,
+  target: Vector3,
+  strafe: number,
+  forward: number,
+): Vector3 {
+  camera.updateMatrixWorld();
+  const distance = camera.position.distanceTo(target);
+  const step = MathUtils.clamp(distance * 0.055, 3.5, 58);
+  const heading = target.clone().sub(camera.position);
+  heading.y = 0;
+  if (heading.lengthSq() < 1e-6) {
+    camera.getWorldDirection(heading);
+    heading.y = 0;
+  }
+  heading.normalize();
+  const right = new Vector3().crossVectors(heading, camera.up).normalize();
+  return heading
+    .multiplyScalar(forward * step)
+    .add(right.multiplyScalar(strafe * step));
+}
+
+export function flyCameraAlongViewHeading(
+  camera: PerspectiveCamera,
+  target: Vector3,
+  strafe: number,
+  forward: number,
+  bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+): Vector3 {
+  const requested = viewHeadingFlightDelta(camera, target, strafe, forward);
+  const nextTarget = target.clone().add(requested).clamp(bounds.min, bounds.max);
+  const applied = nextTarget.sub(target);
+  target.add(applied);
+  camera.position.add(applied);
+  camera.updateMatrixWorld();
+  return applied;
+}

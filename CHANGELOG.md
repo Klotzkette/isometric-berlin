@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.4.0
+
+- Add heading-relative 3D flight: `Shift` + arrows and the flight pad move
+  forward/backward or strafe without changing orbit distance; two-finger centre
+  swipe does the same on touch while pinch zooms and twist rotates. Plain arrows
+  retain screen-plane movement and `Alt`/`Option` + arrows handle orbit/tilt.
+- Add persistent German/English application chrome with the correct German term
+  `Sehenswürdigkeiten`, plus direct Day, Night and Minecraft controls on desktop
+  and in the mobile action sheet.
+- Add an opt-in, locally synthesized 72 BPM ambient score with seven original
+  8-bit variants, explicit music on/off controls and hidden-tab suspension. Add
+  seven concise bilingual location discoveries without inventing map geometry.
+- Sharpen the settled Day/Night output with a bounded post-process pass, rebalance
+  ambient/key lighting and source-texture emissive fill, and reduce Minecraft
+  bloom, shimmer and tap sparkle. Rendering during movement stays on the direct
+  low-latency path.
+- Fix the doubled Carillon by leaving its four granite pylons to the official
+  mesh and limiting the additive recognition layer to roof, cabin, 68 bells and
+  lights. Remove the Chancellery cloud from the offline fallback.
+- Restrict Reichstag night emission to selected tall arched facade bays; small
+  upper rectangular and corner-tower windows now retain their real dark glass.
+- Fix two responsive-control regressions found in browser QA: hide the mobile
+  overflow button on desktop, move the undersized language button into the phone
+  action sheet, and use the compact 44 px layout on coarse-pointer tablets up to
+  1024 px. Extend release guards and regression tests for all new contracts.
+
 ## v0.3.4
 
 - Add a dedicated GitHub control to desktop and mobile viewer chrome. Its

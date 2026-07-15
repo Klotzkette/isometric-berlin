@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.3.4"
+PACKAGE_VERSION = "0.4.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -1264,7 +1264,7 @@ START_HERE_HTML = """<!doctype html>
         </a>
       </div>
       <p class="hint" id="hint"><strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Atlas/Cinematic/Lab ändern Kontrast, Bühne und Lesbarkeit.</p>
-      <div class="list" id="landmarks" aria-label="Landmarken"></div>
+      <div class="list" id="landmarks" aria-label="Sehenswürdigkeiten"></div>
       <p class="notice" id="notice" role="status" aria-live="polite">
         Dies ist nur die 2D-Kompatibilitätsansicht. Für das maßstäbliche 3D-Modell
         unter Windows start-windows.bat öffnen, unter macOS/Linux python3 serve-local.py.
@@ -1396,7 +1396,7 @@ START_HERE_HTML = """<!doctype html>
         viewWest: "West",
         free: "Frei",
         underSuffix: " · Unterseite",
-        landmarkFallback: "Landmarke",
+        landmarkFallback: "Sehenswürdigkeit",
         zoom: "Zoom",
         swivel: "Swivel",
       },
@@ -2776,7 +2776,6 @@ START_HERE_HTML = """<!doctype html>
       addFlag(1262, 922, "fr", .52, "Französische Botschaft am Pariser Platz");
 
       addCloud(720, 238, .72, "Kleine transparente Cumulus-Wolke mit isometrischem Schatten");
-      addCloud(1190, 188, 1.02, "Große transparente Cumulus-Wolke über Spreebogen und Kanzleramt");
       addCloud(1665, 418, .58, "Kleine transparente Cumulus-Wolke über Hauptbahnhof / Humboldthafen");
     }
 
@@ -3287,16 +3286,16 @@ gekennzeichnete 2D-Kompatibilitätsansicht ohne Server, nicht das vollständige
 Modell. Echtes 3D startet unter Windows per start-windows.bat und unter
 macOS/Linux per `python3 serve-local.py`; ein unsigniertes macOS-.command-Skript
 wird nicht ausgeliefert. Die 2D-Notansicht enthält Karte, Zoom/Verschieben,
-Referenzkarte und Landmarkenliste. Er startet mit der schärferen Detailansicht
+Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Detailansicht
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
-eine technische Kartenbühne, Fokus-Ring und HUD für Landmarke/Zoom/Kamera.
+eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
 Neu ist ein zweisprachiger Deutsch/English-Schalter und ein Tag-/Nachtmodus.
 Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
 Denkmal-Akzente, Tiergarten-/Pariser-Platz-Laternen und verstärkte
 Tunnelbeleuchtung über die Karte.
-Version {PACKAGE_VERSION} ergänzt außerdem eine Szenen-Detail-Ebene mit drei
+Version {PACKAGE_VERSION} ergänzt außerdem eine Szenen-Detail-Ebene mit zwei
 transparenten isometrischen Wolken, Südwest-Sonnenlicht am späten Nachmittag,
 Wolkenschatten, Wasser-Tiefenakzenten, Tunnel-Zusatzästen, ICE, S-Bahn,
 Autos mit Nachtlichtkegeln, Flaggen, Spree-Ausflugsboot, Pariser-Platz-
@@ -3317,7 +3316,7 @@ werden, etwa `START-HERE.html?lite=1&details=0&clouds=0` oder
 nicht geladen werden kann, fällt der Viewer automatisch auf die Pixelgrafik
 zurück.
 Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
-Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
+Sehenswürdigkeit und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
 Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
 START-HERE.html trotzdem mit Defaults.
 Der Tiergartentunnel ist ein unterirdisches Rechteckbauwerk mit zwei Röhren,
@@ -3344,14 +3343,18 @@ Viewport-Höhen und ein kompaktes unteres Bedienfeld.
 
 Der Advanced Viewer startet mit einem echten Three.js-3D-Modell aus dem
 amtlichen Berlin 3D Mesh 2025. Linke Maustaste oder ein Finger drehen frei,
-das Mausrad zoomt, die rechte Maustaste verschiebt. Zwei Finger zoomen und
-drehen; drei Finger steuern Drehung und Neigung bis in die echte Untersicht.
+das Mausrad zoomt, die rechte Maustaste verschiebt. Zwei Finger fliegen per
+Swipe, zoomen per Pinch und drehen per Twist; drei Finger steuern Drehung und
+Neigung bis in die echte Untersicht. Shift plus Pfeiltasten fliegt entlang der
+Blickrichtung, Alt/Option plus Pfeiltasten dreht oder neigt.
 In der Untersicht wird die Oberfläche transparent und der technische
 Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
-Nur die ausgewählte Landmarke erhält kurz einen Leuchtring; permanente
+Nur die ausgewählte Sehenswürdigkeit erhält kurz einen Leuchtring; permanente
 Farbpunkte über den Gebäuden gibt es nicht mehr. Der Advanced Viewer besitzt
-einen echten Tag-/Nacht-Lichtwechsel; Taste D oder der Mond-/Sonnenknopf
-schaltet Himmel, Nebel, Gebäudelicht, Glas und beleuchtete Fenster um.
+direkte Tag-, Nacht- und Minecraft-Schalter. Die Oberfläche ist vollständig
+Deutsch/Englisch umschaltbar. Taste B oder der Lautsprecherknopf startet und
+stoppt sieben lokal erzeugte 8-Bit-Musikvarianten; Musik bleibt standardmäßig
+aus. Taste D schaltet Tag/Nacht, Taste M Minecraft.
 
 Version {PACKAGE_VERSION} begrenzt den Speicher für hochauflösende
 Gebäudedetails auf eine Gruppe bei Mobilgeräten und zwei Gruppen am Desktop.
@@ -3364,7 +3367,7 @@ frei und brechen die restliche GLB-Warteschlange ab; die aktive mobile
 ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück. Globale
 Pointer-Releases und ein zehnsekündiger Watchdog verhindern zusätzlich ein
 Festhängen. Am Desktop wird nach vollständigem Stillstand eine zweite amtliche
-4.000.039-Flächen-Stufe eingeblendet; bei Maus-, Tasten- oder Buttonbewegung
+6.000.002-Flächen-Stufe eingeblendet; bei Maus-, Tasten- oder Buttonbewegung
 bleibt die flüssige 2.299.987-Flächen-Stufe aktiv. Touchgeräte laden nur diese
 leichtere Stufe.
 Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
@@ -3380,7 +3383,7 @@ Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
 haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 1600 px pro
 Materialsegment. Maßhaltige Erkennungsmodelle ergänzen das Fotomesh: Reichstag
 mit Westportal, Ecktürmen und 40 x 23,5 m Kuppel; Kanzleramt mit 36-m-Kubus und
-LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 160 x 45 m
+LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 180 x 42 m
 Querhalle und 46-m-Bügeln; Brandenburger Tor mit 62,5 x 11 x 26 m, zwölf Säulen
 und grün patinierter Quadriga. Die Fototextur bleibt darunter erhalten.
 
@@ -3432,7 +3435,7 @@ It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,
 Tiergarten/Pariser Platz street lamps and stronger tunnel lighting.
-Version {PACKAGE_VERSION} also adds a scene-detail layer with three translucent
+Version {PACKAGE_VERSION} also adds a scene-detail layer with two translucent
 isometric clouds, southwest late-afternoon sunlight, cloud shadows, water-depth
 accents, tunnel branch hints, an ICE, an S-Bahn, cars with night light beams,
 flags, a Spree tour boat, Pariser Platz visitors / pedicab cues and
@@ -3477,13 +3480,17 @@ control sheet.
 
 The Advanced Viewer starts with a true Three.js scene derived from the
 official Berlin 3D Mesh 2025. Left-drag or one finger orbits, the wheel zooms,
-and right-drag pans. Two fingers zoom and rotate; three fingers control
-azimuth and polar tilt into a real below-ground view. In underside mode the
+and right-drag pans. Two-finger swipe flies along the view heading, pinch zooms
+and twist rotates; three fingers control azimuth and polar tilt into a real
+below-ground view. Shift plus arrows flies forward/back or strafes, while
+Alt/Option plus arrows orbits and tilts. In underside mode the
 surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
 with lighting and ventilation. Only the selected landmark gets a brief focus
 ring; permanent coloured dots no longer cover the buildings. The Advanced
-Viewer has a true Day/Night lighting pass; D or the moon/sun button switches
-the sky, fog, glass, building light and illuminated windows.
+Viewer has direct Day, Night and Minecraft controls and a complete DE/EN
+switch. B or the speaker button starts/stops seven locally synthesized 8-bit
+ambient variants; music is off by default. D toggles Day/Night and M toggles
+Minecraft.
 
 Version {PACKAGE_VERSION} bounds high-resolution building-detail memory to one
 group on mobile and two groups on desktop. Evicted geometry, materials and
@@ -3506,7 +3513,7 @@ Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
 LoD2-masked texture models up to 1600 px per material segment. Metre-scale
 recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
-glass roof, 160 x 45 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
+glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
 photographic texture remains visible underneath.
 
@@ -3585,15 +3592,19 @@ def write_package_manifest(package_dir: Path) -> None:
       "mouse-rotate-swivel",
       "touch-pinch-pan-rotate",
       "touch-three-finger-underside-orbit",
+      "touch-two-finger-heading-flight-pinch-zoom-twist",
       "true-threejs-3d-orbit",
       "cancelable-progressive-model-loading",
       "http11-immutable-heavy-asset-cache",
-      "keyboard-arrow-pan",
-      "shift-arrow-rotate-swivel",
+      "keyboard-arrow-screen-plane-flight",
+      "shift-arrow-heading-flight",
+      "alt-arrow-orbit-tilt",
+      "fallback-shift-drag-rotate-swivel",
       "top-north-east-south-west-presets",
       "atlas-cinematic-lab-visual-profiles",
       "bilingual-de-en-ui",
-      "day-night-mode",
+      "direct-day-night-minecraft-modes",
+      "opt-in-seven-variant-procedural-audio",
       "persistent-offline-viewer-preferences",
       "persistent-last-landmark-and-view",
       "selected-landmark-focus-ring",

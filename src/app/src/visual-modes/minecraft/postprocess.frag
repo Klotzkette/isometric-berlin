@@ -62,7 +62,7 @@ void main() {
   float bright = smoothstep(0.74, 0.98, here);
   vec3 bloom = texture2D(tDiffuse, snappedUv + sampleStep * 1.7).rgb +
     texture2D(tDiffuse, snappedUv - sampleStep * 1.7).rgb;
-  colour += bloom * bright * 0.055;
+  colour += bloom * bright * 0.022;
   colour = premiumShimmer(colour, snappedUv, time);
   colour *= vec3(1.045, 1.02, 0.93);
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);

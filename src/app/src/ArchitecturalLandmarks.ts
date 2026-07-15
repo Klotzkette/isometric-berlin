@@ -525,8 +525,6 @@ function addReichstagWindowSets(
     lit: transforms.filter((_, index) => index % 6 === 2),
   });
   const mainSets = splitLighting(arched);
-  const upperSets = splitLighting(upper);
-  const towerSets = splitLighting(towerArches);
   const mainGeometry = archedWindowGeometry(2.35, 6.1);
   const towerGeometry = archedWindowGeometry(2.25, 6.8);
   const upperGeometry = new PlaneGeometry(0.72, 1);
@@ -549,28 +547,14 @@ function addReichstagWindowSets(
     "Reichstag dark upper rectangular facade windows",
     upperGeometry,
     darkGlass,
-    upperSets.dark,
-  );
-  addInstancedGeometry(
-    group,
-    "Reichstag selectively lit upper rectangular facade windows",
-    upperGeometry,
-    occupiedGlass,
-    upperSets.lit,
+    upper,
   );
   addInstancedGeometry(
     group,
     "Reichstag dark three-bay tower arched windows",
     towerGeometry,
     darkGlass,
-    towerSets.dark,
-  );
-  addInstancedGeometry(
-    group,
-    "Reichstag selectively lit three-bay tower arched windows",
-    towerGeometry,
-    occupiedGlass,
-    towerSets.lit,
+    towerArches,
   );
   addInstancedBoxes(
     group,

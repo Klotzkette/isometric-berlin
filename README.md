@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.3.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.4/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.4.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.4.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.3.4** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.4.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,7 +42,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.3.4**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.4.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -110,18 +110,19 @@ labelled compatibility fallback for browsers that cannot run local modules.
   combined with batched glass seams, masonry courses, column fluting and
   entablature profiles. All additions remain inside the published metric
   envelopes of the four hero landmarks.
-- Day/Night is available from the moon/sun button or `D`. The true 3D scene
-  changes sky, fog, directional light and exposure; landmark windows, station
-  glass and dome structure emit light at night. The 2D fallback receives a
-  restrained night treatment as well.
-- A third `Minecraft` visual mode, available from the mode control or `M`,
+- Day, Night and Minecraft now have separate direct controls. The true 3D scene
+  changes sky, fog, directional light and exposure; only the Reichstag's tall
+  arched occupied bays emit light at night, while its small upper and tower
+  windows remain dark. The 2D fallback receives a restrained night treatment.
+- The `Minecraft` visual mode, also available with `M`,
   applies an original 48-colour premium voxel palette, ordered dithering,
-  toon materials and subtle animated water/glass highlights without moving a
+  toon materials and restrained animated water/glass highlights without moving a
   single LoD2 anchor or changing camera framing. Deterministic villages,
   market tents, fields, tiny people, animals and boats appear progressively
   only after 20–75 seconds of uninterrupted dwell time and remain under a
   strict mobile density budget.
-- Phones use a compact 40 px landmark status bar, a 56 px bottom action bar,
+- Phones and coarse-pointer tablets up to 1024 px use a compact 40 px sight
+  status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with
   its chevron or a three-finger downward swipe; iPhone safe areas, landscape,
   44 px touch targets, reduced motion and momentum-rich pinch/pan/rotate are
@@ -129,11 +130,22 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The old always-visible coloured landmark dots are gone. Selecting a landmark
   briefly shows a small ring, which fades after 2.4 seconds so roofs and
   facades remain unobstructed.
-- Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag
-  pans; two fingers pinch and rotate; three fingers can carry the camera
-  continuously through a genuine underside view. Arrow keys and the four-arrow
-  pad now fly screen-relative through the isometry; `Shift` plus arrows rotates
-  and tilts without overloading the direct movement controls.
+- Left mouse drag or one finger orbits; wheel zooms; right mouse drag pans.
+  Two-finger swipe flies along the current camera heading, pinch zooms and
+  twist rotates; three fingers carry the camera continuously through a genuine
+  underside view. Plain arrows translate in the visible screen plane,
+  `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows
+  orbit and tilt. Camera and target move together, so flight never changes the
+  orbit distance accidentally.
+- A persistent DE/EN switch translates the application chrome and correctly
+  calls the German list `Sehenswürdigkeiten`. Optional music (`B`) starts only
+  after an explicit click and synthesizes seven original slow 8-bit ambient
+  variations locally with Web Audio; no recording, stream or external asset is
+  loaded. Seven brief bilingual discovery notes appear once per selected sight.
+- A bounded sharpen/saturation pass runs only after camera motion stops, while
+  movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
+  and the Carillon layer now lets the official mesh carry its granite pylons
+  instead of drawing a second tower over them.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an
@@ -232,7 +244,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
 | Wikimedia attribution | [references/wikimedia/README.md](references/wikimedia/README.md) |
 | Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-## Landmarken im Paket
+## Sehenswürdigkeiten im Paket
 
 The machine-readable source list is
 [`geo_data/regierungsviertel/landmarks.geojson`](geo_data/regierungsviertel/landmarks.geojson);
@@ -441,7 +453,7 @@ als Ersatz für Berliner Open Data oder OSM):
 | Straßen, Parks, Wasser, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
 | Einzelbäume, öffentliche Beleuchtung, Mauerverlauf 1989 | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
-| Fassaden-/Material-Referenzen für Landmarken | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Je Datei: CC0, Public Domain, CC BY, CC BY-SA; siehe `geo_data/regierungsviertel/wikimedia_references.json` |
+| Fassaden-/Material-Referenzen für Sehenswürdigkeiten | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Je Datei: CC0, Public Domain, CC BY, CC BY-SA; siehe `geo_data/regierungsviertel/wikimedia_references.json` |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Pflicht-Attributionshinweis im Viewer:**
@@ -549,7 +561,7 @@ als optionale Opt-in-Verbindung vorbereitet, werden aber nicht benötigt
 und nicht abgerufen, solange keine lokale `.env` mit Maps-API-Key und
 Opt-in-Flags vorhanden ist.
 
-Die Landmarken-Lage wird in
+Die Lage der Sehenswürdigkeiten wird in
 [`docs/landmark-alignment.md`](docs/landmark-alignment.md) gegen den
 lokalen OSM-Stadtplan-Layer und die Berliner LoD2-Gebäudegeometrie
 geprüft. Der Viewer startet mit geographisch Norden oben in echtem 3D. Freies

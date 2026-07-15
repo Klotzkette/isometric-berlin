@@ -266,7 +266,7 @@ describe("metre-scale architectural recognition models", () => {
     expect(windFlagMatrixCount(reichstag!)).toBe(11);
     expect(
       reichstag!.children.filter((child) => child.name.includes("facade windows")),
-    ).toHaveLength(4);
+    ).toHaveLength(3);
     const darkArches = reichstag!.getObjectByName(
       "Reichstag dark tall arched facade windows",
     ) as InstancedMesh;
@@ -280,8 +280,9 @@ describe("metre-scale architectural recognition models", () => {
     const towerWindows = reichstag!.children.filter((child) =>
       child.name.includes("three-bay tower arched windows"),
     ) as InstancedMesh[];
-    expect(towerWindows).toHaveLength(2);
+    expect(towerWindows).toHaveLength(1);
     expect(towerWindows.reduce((sum, windows) => sum + windows.count, 0)).toBe(24);
+    expect(towerWindows[0].material.userData.nightEmissive).toBeUndefined();
     const tallMullions = reichstag!.getObjectByName(
       "Reichstag instanced tall-window vertical mullions",
     );
@@ -290,6 +291,7 @@ describe("metre-scale architectural recognition models", () => {
     const upperWindows = reichstag!.getObjectByName(
       "Reichstag dark upper rectangular facade windows",
     ) as InstancedMesh;
+    expect(upperWindows.material.userData.nightEmissive).toBeUndefined();
     upperWindows.geometry.computeBoundingBox();
     const upperBounds = upperWindows.geometry.boundingBox!;
     expect(upperBounds.max.y - upperBounds.min.y).toBeGreaterThan(

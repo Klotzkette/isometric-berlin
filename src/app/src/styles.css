@@ -263,6 +263,33 @@ button:active:not(:disabled) {
   pointer-events: auto;
 }
 
+.visual-mode-switch {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid rgba(245, 239, 228, 0.12);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.toolbar .visual-mode-switch button {
+  width: 32px;
+  height: 32px;
+}
+
+.toolbar .language-toggle {
+  display: flex;
+  width: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.language-toggle span {
+  font-size: 9px;
+  font-weight: 800;
+}
+
 .toolbar button {
   display: grid;
   width: 36px;
@@ -273,6 +300,10 @@ button:active:not(:disabled) {
   color: #f5efe4;
   background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
+}
+
+.toolbar .mobile-overflow {
+  display: none;
 }
 
 .toolbar button:disabled,
@@ -708,6 +739,45 @@ button:active:not(:disabled) {
   display: none;
 }
 
+.discovery-note {
+  position: fixed;
+  z-index: 34;
+  bottom: 22px;
+  left: 50%;
+  width: max-content;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 9px 13px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(61, 66, 62, 0.42);
+  border-radius: 6px;
+  color: #202723;
+  background: rgba(249, 251, 247, 0.94);
+  box-shadow: 0 8px 26px rgba(18, 28, 23, 0.18);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  animation: discovery-note-in 180ms ease-out both;
+}
+
+.app-shell--night .discovery-note,
+.app-shell--minecraft .discovery-note {
+  border-color: rgba(214, 229, 217, 0.34);
+  color: #eef5ec;
+  background: rgba(23, 35, 29, 0.92);
+}
+
+@keyframes discovery-note-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 .minecraft-tap-spark {
   position: fixed;
   z-index: 40;
@@ -721,7 +791,7 @@ button:active:not(:disabled) {
     0 -8px #a4dfe2,
     0 8px #c18a4b;
   pointer-events: none;
-  animation: minecraft-spark 420ms steps(4, end) forwards;
+  animation: minecraft-spark 280ms steps(4, end) forwards;
 }
 
 @keyframes minecraft-spawn {
@@ -747,7 +817,7 @@ button:active:not(:disabled) {
 
 @keyframes minecraft-spark {
   from {
-    opacity: 0.95;
+    opacity: 0.56;
     scale: 0.7;
   }
   to {
@@ -1161,6 +1231,7 @@ button:active:not(:disabled) {
 }
 
 @media (max-width: 768px),
+  (max-width: 1024px) and (pointer: coarse),
   (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
   :root {
     --control-size: 44px;
@@ -1256,6 +1327,11 @@ button:active:not(:disabled) {
   }
 
   .toolbar button {
+    display: none;
+  }
+
+  .toolbar .visual-mode-switch,
+  .toolbar .language-toggle {
     display: none;
   }
 

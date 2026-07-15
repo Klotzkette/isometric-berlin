@@ -69,6 +69,7 @@ import {
 import { runBoundedTasks } from "./boundedTaskPool";
 import {
   captureCameraPose,
+  flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   stabilizeCameraRig,
 } from "./cameraNavigation";
@@ -85,6 +86,7 @@ import {
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
 import { createPaletteLutData } from "./visual-modes/minecraft/palette";
+import crispFragment from "./crisp.frag?raw";
 import postprocessFragment from "./visual-modes/minecraft/postprocess.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
 import shimmerFragment from "./visual-modes/minecraft/shimmer.frag?raw";
@@ -157,6 +159,7 @@ type ThreeViewerProps = {
 
 export type ThreeViewerHandle = {
   flyBy: (horizontal: number, vertical: number) => void;
+  flyForwardBy: (strafe: number, forward: number) => void;
   focusLandmark: (name: string, immediate?: boolean) => void;
   reset: () => void;
   rotateBy: (degrees: number) => void;
@@ -172,6 +175,7 @@ type Runtime = {
   coarsePointer: boolean;
   controls: OrbitControls;
   composer: EffectComposer;
+  crispPass: ShaderPass;
   culturalDetails: Group;
   detailClock: number;
   detailGroups: Map<string, HeroDetailGroup>;
@@ -316,14 +320,14 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xc9eaf3;
   runtime.scene.background = new Color(sky);
   runtime.scene.fog = new Fog(sky, isNight ? 900 : isMinecraft ? 1450 : 1100, 2550);
-  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.38 : 1.22;
+  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.34 : 1.23;
   runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
   runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x57775b);
-  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 2.25 : 2.12;
+  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 2.18 : 2.06;
   runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xffdda3 : 0xffefc9);
-  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.15 : 3.15;
+  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.18 : 3.28;
   runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);
-  runtime.skyFill.intensity = isNight ? 0.2 : isMinecraft ? 0.48 : 0.26;
+  runtime.skyFill.intensity = isNight ? 0.18 : isMinecraft ? 0.44 : 0.24;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
@@ -344,6 +348,10 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
       true,
     );
   }
+  runtime.crispPass.enabled = false;
+  runtime.crispPass.uniforms.strength.value = isNight ? 0.2 : 0.26;
+  runtime.crispPass.uniforms.saturation.value = isNight ? 1.03 : 1.07;
+  runtime.crispPass.uniforms.contrast.value = isNight ? 1.02 : 1.025;
   runtime.minecraftPass.enabled = isMinecraft;
 }
 
@@ -796,10 +804,10 @@ async function loadModel(
         material.map.needsUpdate = true;
         material.emissive.set(0xffffff);
         material.emissiveMap = material.map;
-        material.emissiveIntensity = 0.24;
+        material.emissiveIntensity = 0.18;
       } else {
         material.emissive.set(0x2b3130);
-        material.emissiveIntensity = 0.09;
+        material.emissiveIntensity = 0.07;
       }
       material.userData.sourceMaterial = true;
       applyMaterialLighting(material, runtime.lightingMode);
@@ -1051,6 +1059,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.controls.update();
           notifyView(runtime, onViewChangeRef.current);
         },
+        flyForwardBy: (strafe, forward) => {
+          const runtime = runtimeRef.current;
+          if (!runtime) {
+            return;
+          }
+          markSurfaceInteraction(runtime);
+          flyCameraAlongViewHeading(
+            runtime.camera,
+            runtime.controls.target,
+            strafe,
+            forward,
+          );
+          runtime.controls.update();
+          notifyView(runtime, onViewChangeRef.current);
+        },
         focusLandmark,
         reset: () => {
           const runtime = runtimeRef.current;
@@ -1152,7 +1175,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       });
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.22;
+      renderer.toneMappingExposure = 1.23;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = PCFShadowMap;
       renderer.setPixelRatio(1);
@@ -1167,9 +1190,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const scene = new Scene();
       scene.background = new Color(0xc9eaf3);
       scene.fog = new Fog(0xc9eaf3, 1100, 2550);
-      const hemisphere = new HemisphereLight(0xffffff, 0x57775b, 2.12);
+      const hemisphere = new HemisphereLight(0xffffff, 0x57775b, 2.06);
       scene.add(hemisphere);
-      const sun = new DirectionalLight(0xffefc9, 3.15);
+      const sun = new DirectionalLight(0xffefc9, 3.28);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
       sun.shadow.mapSize.set(2048, 2048);
@@ -1177,8 +1200,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sun.shadow.camera.right = 1100;
       sun.shadow.camera.top = 1300;
       sun.shadow.camera.bottom = -1300;
+      sun.shadow.bias = -0.00035;
+      sun.shadow.normalBias = 0.018;
       scene.add(sun);
-      const skyFill = new DirectionalLight(0xb6dcff, 0.26);
+      const skyFill = new DirectionalLight(0xb6dcff, 0.24);
       skyFill.position.set(620, 430, -680);
       scene.add(skyFill);
 
@@ -1208,8 +1233,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ),
       });
       minecraftPass.enabled = false;
+      const crispPass = new ShaderPass({
+        uniforms: {
+          contrast: { value: 1.025 },
+          resolution: { value: new Vector2(1, 1) },
+          saturation: { value: 1.07 },
+          strength: { value: 0.26 },
+          tDiffuse: { value: null },
+        },
+        vertexShader: postprocessVertex,
+        fragmentShader: crispFragment,
+      });
+      crispPass.enabled = false;
       const composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(crispPass);
       composer.addPass(minecraftPass);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
@@ -1263,6 +1301,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         coarsePointer,
         composer,
         controls,
+        crispPass,
         culturalDetails,
         detailClock: 0,
         detailGroups: new Map(),
@@ -1299,11 +1338,32 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       const touchPoints = new Map<number, { x: number; y: number }>();
       let customTouchGestureActive = false;
+      let previousTwoFingerGesture: {
+        angle: number;
+        center: { x: number; y: number };
+        distance: number;
+      } | null = null;
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let lastTouchActivityAt = performance.now();
       let settleUntil = 0;
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
+      const twoFingerGesture = () => {
+        const points = [...touchPoints.values()].slice(0, 2);
+        if (points.length !== 2) {
+          return null;
+        }
+        const dx = points[1].x - points[0].x;
+        const dy = points[1].y - points[0].y;
+        return {
+          angle: Math.atan2(dy, dx),
+          center: {
+            x: (points[0].x + points[1].x) / 2,
+            y: (points[0].y + points[1].y) / 2,
+          },
+          distance: Math.max(1, Math.hypot(dx, dy)),
+        };
+      };
       const onPointerDown = (event: PointerEvent) => {
         if (event.pointerType !== "touch") {
           renderer.domElement.focus({ preventScroll: true });
@@ -1311,11 +1371,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         lastTouchActivityAt = performance.now();
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (touchPoints.size === 2) {
+          customTouchGestureActive = true;
+          controlsInteracting = true;
+          controls.enabled = false;
+          markSurfaceInteraction(runtime);
+          previousTwoFingerGesture = twoFingerGesture();
+          previousThreeFingerCenter = null;
+          return;
+        }
         if (touchPoints.size >= 3) {
           customTouchGestureActive = true;
           controlsInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
+          previousTwoFingerGesture = null;
           const points = [...touchPoints.values()];
           previousThreeFingerCenter = {
             x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
@@ -1329,6 +1399,45 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         lastTouchActivityAt = performance.now();
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (touchPoints.size === 2 && previousTwoFingerGesture) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const current = twoFingerGesture();
+          if (!current) {
+            return;
+          }
+          const deltaX = current.center.x - previousTwoFingerGesture.center.x;
+          const deltaY = current.center.y - previousTwoFingerGesture.center.y;
+          flyCameraAlongViewHeading(
+            camera,
+            controls.target,
+            deltaX / 72,
+            -deltaY / 72,
+          );
+          const zoomFactor = MathUtils.clamp(
+            current.distance / previousTwoFingerGesture.distance,
+            0.88,
+            1.14,
+          );
+          const offset = camera.position.clone().sub(controls.target);
+          offset.multiplyScalar(1 / zoomFactor);
+          offset.clampLength(controls.minDistance, controls.maxDistance);
+          camera.position.copy(controls.target).add(offset);
+          const angleDelta = Math.atan2(
+            Math.sin(current.angle - previousTwoFingerGesture.angle),
+            Math.cos(current.angle - previousTwoFingerGesture.angle),
+          );
+          if (Math.abs(angleDelta) > 0.0005) {
+            setOrbitAngles(runtime, {
+              azimuth: controls.getAzimuthalAngle() + angleDelta,
+            });
+          } else {
+            controls.update();
+          }
+          previousTwoFingerGesture = current;
+          markSurfaceInteraction(runtime);
+          return;
+        }
         if (touchPoints.size < 3 || !previousThreeFingerCenter) {
           return;
         }
@@ -1360,14 +1469,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         lastTouchActivityAt = performance.now();
         touchPoints.delete(event.pointerId);
         if (customTouchGestureActive) {
-          previousThreeFingerCenter = null;
-          if (touchPoints.size < 3) {
-            customTouchGestureActive = false;
-            controlsInteracting = false;
-            settleUntil = performance.now() + 650;
-            controls.enabled = true;
-            notifyView(runtime, onViewChangeRef.current);
+          if (touchPoints.size >= 2) {
+            previousThreeFingerCenter = null;
+            previousTwoFingerGesture = twoFingerGesture();
+            return;
           }
+          previousTwoFingerGesture = null;
+          previousThreeFingerCenter = null;
+          customTouchGestureActive = false;
+          controlsInteracting = false;
+          settleUntil = performance.now() + 650;
+          controls.enabled = true;
+          notifyView(runtime, onViewChangeRef.current);
           return;
         }
         if (touchPoints.size < 3) {
@@ -1380,6 +1493,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         touchPoints.clear();
+        previousTwoFingerGesture = null;
         previousThreeFingerCenter = null;
         customTouchGestureActive = false;
         controlsInteracting = false;
@@ -1428,6 +1542,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const resolution = minecraftPass.uniforms.resolution.value;
         if (resolution instanceof Vector2) {
           resolution.set(
+            width * renderer.getPixelRatio(),
+            height * renderer.getPixelRatio(),
+          );
+        }
+        const crispResolution = crispPass.uniforms.resolution.value;
+        if (crispResolution instanceof Vector2) {
+          crispResolution.set(
             width * renderer.getPixelRatio(),
             height * renderer.getPixelRatio(),
           );
@@ -1485,7 +1606,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (
           !controls.enabled &&
           (!customTouchGestureActive ||
-            touchPoints.size < 3 ||
+            touchPoints.size < 2 ||
             timestamp - lastTouchActivityAt > 10_000)
         ) {
           resetTouchGesture();
@@ -1530,8 +1651,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const windTime = reducedMotion ? 0.9 : timestamp / 1000;
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
+        const useCrispPass =
+          runtime.lightingMode !== "minecraft" && !isMoving;
+        crispPass.enabled = useCrispPass;
         if (runtime.lightingMode === "minecraft") {
           minecraftPass.uniforms.time.value = timestamp / 1000;
+          composer.render();
+        } else if (useCrispPass) {
           composer.render();
         } else {
           renderer.render(scene, camera);
@@ -1824,6 +1950,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           false,
         );
         disposeObject3D(runtime, scene);
+        crispPass.dispose();
         minecraftPass.dispose();
         composer.dispose();
         minecraftPaletteTexture.dispose();

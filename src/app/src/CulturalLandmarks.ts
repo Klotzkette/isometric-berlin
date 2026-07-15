@@ -453,13 +453,13 @@ function createCarillon(anchor: CulturalLandmark): Group {
   group.position.set(anchor.world[0], CARILLON_GROUND_Y, anchor.world[2]);
   group.userData = {
     bellCount: 68,
-    geometryStatus: "Published dimensions with recognition geometry",
+    geometryStatus:
+      "Official mesh pylons with published-height roof and 68-bell recognition detail",
     heightM: 42,
+    officialMeshCarriesPylons: true,
     sourceUrl: "https://www.berlin.de/kultur-und-tickets/tipps/pfingsten/4877500-3383646-pfingstcarillon-internationales-carillon.html",
   };
 
-  const granite = modelMaterial(0x25272a, { metalness: 0.16, roughness: 0.48 });
-  const graniteEdge = modelMaterial(0x3b3d40, { metalness: 0.14, roughness: 0.42 });
   const bronze = modelMaterial(0x9b652d, { metalness: 0.72, roughness: 0.3 });
   const roof = modelMaterial(0x9d7b36, { metalness: 0.64, roughness: 0.34 });
   const cabinGlass = nightEmitter(
@@ -468,33 +468,8 @@ function createCarillon(anchor: CulturalLandmark): Group {
     1.5,
   );
 
-  for (const x of [-2.9, 2.9]) {
-    for (const z of [-2.9, 2.9]) {
-      addBox(
-        group,
-        "Carillon black-granite tower shaft",
-        [2.25, 41.2, 2.25],
-        [x, 20.6, z],
-        granite,
-      );
-    }
-  }
-  for (const y of [8, 16, 24, 28.5, 34.5, 39.3]) {
-    addBox(
-      group,
-      "Carillon granite horizontal joint east-west",
-      [8.2, 0.34, 0.52],
-      [0, y, 0],
-      graniteEdge,
-    );
-    addBox(
-      group,
-      "Carillon granite horizontal joint north-south",
-      [0.52, 0.34, 8.2],
-      [0, y, 0],
-      graniteEdge,
-    );
-  }
+  // The photogrammetric source already carries the four granite pylons.
+  // This additive layer supplies recognition detail without drawing a second tower.
   addBox(
     group,
     "Carillon overhanging brass-toned roof",

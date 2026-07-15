@@ -69,12 +69,16 @@ describe("cultural and Spree recognition details", () => {
     const clappers = details.getObjectByName("Carillon 68 bell clappers");
     expect(carillon).toBeDefined();
     expect(carillon?.userData.heightM).toBe(42);
+    expect(carillon?.userData.officialMeshCarriesPylons).toBe(true);
+    expect(
+      carillon?.getObjectByName("Carillon black-granite tower shaft"),
+    ).toBeUndefined();
     expect(bells).toBeInstanceOf(InstancedMesh);
     expect((bells as InstancedMesh).count).toBe(68);
     expect(clappers).toBeInstanceOf(InstancedMesh);
     expect((clappers as InstancedMesh).count).toBe(68);
     const bounds = new Box3().setFromObject(carillon!);
-    expect(bounds.max.y - bounds.min.y).toBeGreaterThanOrEqual(42);
+    expect(bounds.max.y - bounds.min.y).toBeCloseTo(42, 5);
     expect(bounds.max.y - bounds.min.y).toBeLessThan(43);
   });
 
