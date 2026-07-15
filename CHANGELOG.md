@@ -1,5 +1,73 @@
 # Changelog
 
+## v0.2.8
+
+- Add a LoD2-anchored Swiss Embassy recognition model that distinguishes the
+  1871 palace from the Diener & Diener extension, plus a correctly proportioned
+  animated Swiss flag. Add the Bundestag's 28.5 m Unity Flag pole and its
+  official 60 m² German flag with four night spotlights.
+- Animate the Reichstag's three German flags and one EU flag in one shared wind
+  field. The EU stars follow the fabric deformation, motion respects reduced-
+  motion preferences, and the historic facade gains narrow upper windows plus
+  batched arched-window mullions instead of square night panels.
+- Align the TIPI main canvas to its official 32 x 26 m ellipse, add twenty
+  structural ribs, 220 string bulbs and four night-only coloured concert
+  lights. Add close-range Carillon and occupied Spree excursion-boat models.
+- Extend the Hauptbahnhof upper railway to a supported 541 m approach deck with
+  ballast beds, sleepers and instanced viaduct piers so the ICE and S-Bahn no
+  longer appear to stand on floating or truncated track.
+- Hide exactly three true-scale coloured Easter eggs beside deterministic OSM
+  tree samples. They remain deliberately difficult to find and add one
+  instanced draw call rather than three permanent landmark markers.
+- Let arrow-key camera movement continue after a toolbar click, focus the 3D
+  canvas on mouse interaction and zoom toward the cursor. Mouse, keyboard and
+  one-, two- and three-finger controls retain free orbit, pan, zoom and
+  underside traversal.
+- Increase the always-visible Tiergartentunnel's surface X-ray contrast while
+  preserving its stronger underside presentation, lit safety strips, road
+  decks, ventilation shafts and fan cues.
+
+- Replace the Reichstag's uniform four-row window grid with facade-specific
+  tall arched bays, smaller upper windows, three-bay tower windows and tall
+  west-entrance glazing. Night mode now illuminates only a restrained subset
+  of occupied bays instead of turning every historical window into the same
+  light panel.
+- Refine the official-dimension Reichstag dome into 24 faceted sectors with 17
+  structural rows, the officially open lower four ventilation rows, 13 glazed
+  rows, alternating diagonal braces, a crown/oculus ring, all 360 mirror-cone
+  panels and double visitor ramps with handrails and batched balusters. The
+  40 x 23.5 m published envelope remains unchanged.
+- Extend the bounded OSM context with 3,012 mapped trees/tree-row samples, 167
+  simplified Tiergarten paths and five playgrounds. The newly selectable
+  Luiseninsel playground preserves its sand footprint plus two climbing
+  frames, slide, swing, basket swing, sandpit, water play and excavator cues.
+- Fix tree-canopy vertices being mistaken for terrain under the Luiseninsel
+  playground. A wider robust sample of the packaged official mesh now keeps
+  every outline point and item on a consistent park-ground elevation.
+- Add an oblique equipment-centred Luiseninsel inspection view. It temporarily
+  clears nearby display crowns and keeps mapped climbing, swing and slide
+  geometry readable above the coarse source-mesh canopy without altering the
+  normal park view.
+- Reduce the supplemental Reichstag glazing opacity so its 24-sector structural
+  grid remains crisp over the textured official mesh instead of softening the
+  source dome a second time.
+- Add screen-relative 3D flight to the arrow keys and a matching four-button
+  movement pad. `Shift` plus arrows retains orbit and tilt, while bounded
+  camera/target translation keeps the Regierungsviertel in reach above and
+  below ground.
+- Keep the Tiergartentunnel loaded as a restrained surface X-ray and strengthen
+  it automatically whenever any orbit gesture crosses into the underside. The
+  tunnel no longer depends on the dedicated underside preset to become visible.
+- Add seven close-range monument models over the official surface. The
+  Holocaust field uses all 2,710 officially documented stelae in one instanced
+  draw call and preserves the official cross-section and height bands; the
+  Soviet, Sinti/Roma, homosexual-victims, Goethe, composer and 2026 Jehovah's
+  Witnesses memorials receive characteristic, source-documented silhouettes.
+- Ground every procedural memorial on a local surface sample from the committed
+  official Berlin mesh instead of the manifest's generic camera-anchor height.
+- Raise settled rendering to 2x desktop / 1.5x mobile device pixels and use up
+  to 16x texture anisotropy for crisper oblique roofs and monument edges.
+
 ## v0.2.7
 
 - Increase the four hero landmarks' close-range legibility with batched

@@ -15,7 +15,7 @@ from shapely.geometry.base import BaseGeometry
 
 from isometric_berlin.data.common import BERLIN_PROJECTED, sha256_file, write_json
 
-OSM_LAYERS = ("pois", "roads", "parks", "water", "rail")
+OSM_LAYERS = ("pois", "roads", "parks", "playgrounds", "water", "rail")
 
 LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
   "Brandenburger Tor": {
@@ -89,6 +89,11 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
   "Großer Tiergarten": {
     "aliases": ["grosser tiergarten"],
     "max_distance_m": 80.0,
+  },
+  "Spielplatz an der Luiseninsel": {
+    "aliases": [],
+    "osm_ids": ["24911694"],
+    "max_distance_m": 25.0,
   },
   "Beethoven-Haydn-Mozart-Denkmal": {
     "aliases": ["beethoven haydn mozart denkmal"],
@@ -389,8 +394,10 @@ def load_named_osm(path: Path) -> gpd.GeoDataFrame:
   named = gpd.GeoDataFrame(pd.concat(layers, ignore_index=True), crs=layers[0].crs)
   if "name" not in named.columns:
     return gpd.GeoDataFrame(geometry=[], crs=named.crs)
-  named = named[named["name"].notna()].copy()
-  named["normalized_name"] = named["name"].map(normalize_name)
+  named = named.copy()
+  named["normalized_name"] = named["name"].map(
+    lambda value: normalize_name(value) if pd.notna(value) else ""
+  )
   return named
 
 
@@ -399,13 +406,16 @@ def best_osm_match(
   point: BaseGeometry,
   named_osm: gpd.GeoDataFrame,
   aliases: list[str],
+  osm_ids: list[str] | None = None,
 ) -> dict[str, Any] | None:
   if named_osm.empty:
     return None
+  ids = set(osm_ids or [])
   matches = named_osm[
     named_osm["normalized_name"].map(
       lambda candidate: any(alias in candidate for alias in aliases)
     )
+    | named_osm["id"].astype("string").isin(ids)
   ].copy()
   if matches.empty:
     return None
@@ -427,6 +437,8 @@ def nearest_named_osm(
 def osm_record(row: pd.Series) -> dict[str, Any]:
   fields = [
     "source_layer",
+    "element",
+    "id",
     "name",
     "amenity",
     "tourism",
@@ -437,6 +449,8 @@ def osm_record(row: pd.Series) -> dict[str, Any]:
     "highway",
     "railway",
     "bridge",
+    "leisure",
+    "playground",
   ]
   record = {
     field: None if field not in row or pd.isna(row[field]) else str(row[field])
@@ -546,10 +560,12 @@ def build_alignment_report(
   for _, landmark in landmarks.iterrows():
     name = str(landmark.get("name", ""))
     aliases = expected_aliases(name)
+    expectation = LANDMARK_EXPECTATIONS.get(name, {})
     osm_match = best_osm_match(
       point=landmark.geometry,
       named_osm=named_osm,
       aliases=aliases,
+      osm_ids=[str(value) for value in expectation.get("osm_ids", [])],
     )
     lod2 = lod2_evidence(point=landmark.geometry, buildings=buildings)
     checks.append(
@@ -622,7 +638,8 @@ def write_markdown_report(report: dict[str, Any], path: Path) -> None:
   for check in report["checks"]:
     best = check["best_osm_match"]
     if best:
-      osm_evidence = f"{best['name']} ({best['source_layer']})"
+      osm_label = best["name"] or f"OSM {best['element']} {best['id']}"
+      osm_evidence = f"{osm_label} ({best['source_layer']})"
       osm_distance = f"{best['distance_m']:.2f} m"
     else:
       nearest = check["nearest_named_osm"]

@@ -1737,6 +1737,15 @@
       ]
     },
     {
+      "name": "Spielplatz an der Luiseninsel",
+      "role": "owner_added",
+      "world": [
+        -331.4490041086101,
+        8.0,
+        890.9276426956058
+      ]
+    },
+    {
       "name": "Kemperplatz / Tiergartentunnel",
       "role": "owner_added",
       "world": [
@@ -1755,6 +1764,11 @@
       ]
     }
   ],
+  "park_details": {
+    "file": "park-details.json",
+    "source": "OpenStreetMap",
+    "geometry_status": "Bounded paths, trees and playground display details"
+  },
   "tiergartentunnel": {
     "name": "Tunnel Tiergarten Spreebogen / B96",
     "geometry_status": "OSM-derived tunnel carriageway evidence plus engineered centreline, not official surveyed as-built geometry",

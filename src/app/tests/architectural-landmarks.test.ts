@@ -8,6 +8,7 @@ import {
   createArchitecturalSignature,
   focusCameraForSignature,
 } from "../src/ArchitecturalLandmarks";
+import { windFlagMatrixCount } from "../src/WindFlags";
 
 const base = {
   anchor_world: [0, 0, 0] as [number, number, number],
@@ -111,6 +112,21 @@ describe("metre-scale architectural recognition models", () => {
         (child) => child.name === "Hauptbahnhof upper-level rail",
       ),
     ).toHaveLength(8);
+    const trackDeck = station!.getObjectByName(
+      "Hauptbahnhof east-west elevated track deck",
+    );
+    const trackDeckBounds = new Box3().setFromObject(trackDeck!);
+    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeCloseTo(541, 1);
+    expect(
+      station!.children.filter(
+        (child) => child.name === "Hauptbahnhof upper-level ballast bed",
+      ),
+    ).toHaveLength(4);
+    const approachPiers = station!.getObjectByName(
+      "Hauptbahnhof instanced approach-viaduct piers",
+    );
+    expect(approachPiers).toBeInstanceOf(InstancedMesh);
+    expect((approachPiers as InstancedMesh).count).toBeGreaterThan(8);
     expect(
       station!.children.some((child) => child.name.includes("stationary ICE")),
     ).toBe(true);
@@ -237,9 +253,43 @@ describe("metre-scale architectural recognition models", () => {
         child.name.includes("European Union flag"),
       ),
     ).toHaveLength(2);
+    expect(windFlagMatrixCount(reichstag!)).toBe(11);
     expect(
       reichstag!.children.filter((child) => child.name.includes("facade windows")),
-    ).toHaveLength(2);
+    ).toHaveLength(4);
+    const darkArches = reichstag!.getObjectByName(
+      "Reichstag dark tall arched facade windows",
+    ) as InstancedMesh;
+    const litArches = reichstag!.getObjectByName(
+      "Reichstag selectively lit tall arched facade windows",
+    ) as InstancedMesh;
+    expect(darkArches).toBeInstanceOf(InstancedMesh);
+    expect(litArches).toBeInstanceOf(InstancedMesh);
+    expect(darkArches.material.userData.nightEmissive).toBeUndefined();
+    expect(litArches.material.userData.nightEmissive).toBe(0xffd28a);
+    const towerWindows = reichstag!.children.filter((child) =>
+      child.name.includes("three-bay tower arched windows"),
+    ) as InstancedMesh[];
+    expect(towerWindows).toHaveLength(2);
+    expect(towerWindows.reduce((sum, windows) => sum + windows.count, 0)).toBe(24);
+    const tallMullions = reichstag!.getObjectByName(
+      "Reichstag instanced tall-window vertical mullions",
+    );
+    expect(tallMullions).toBeInstanceOf(InstancedMesh);
+    expect((tallMullions as InstancedMesh).count).toBeGreaterThan(40);
+    const upperWindows = reichstag!.getObjectByName(
+      "Reichstag dark upper rectangular facade windows",
+    ) as InstancedMesh;
+    upperWindows.geometry.computeBoundingBox();
+    const upperBounds = upperWindows.geometry.boundingBox!;
+    expect(upperBounds.max.y - upperBounds.min.y).toBeGreaterThan(
+      upperBounds.max.x - upperBounds.min.x,
+    );
+    expect(
+      reichstag!.children.filter((child) =>
+        child.name.includes("west entrance tall glass pane"),
+      ),
+    ).toHaveLength(5);
     const balustrade = reichstag!.getObjectByName(
       "Reichstag instanced roof-balustrade posts",
     );

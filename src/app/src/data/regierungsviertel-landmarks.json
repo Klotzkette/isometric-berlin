@@ -185,9 +185,18 @@
       "ny": 0.692924
     },
     {
-      "name": "Kemperplatz / Tiergartentunnel",
+      "name": "Spielplatz an der Luiseninsel",
       "role": "owner_added",
       "tourOrder": 38,
+      "x": 365.29,
+      "y": 6803.48,
+      "nx": 0.022296,
+      "ny": 0.585699
+    },
+    {
+      "name": "Kemperplatz / Tiergartentunnel",
+      "role": "owner_added",
+      "tourOrder": 39,
       "x": 2789,
       "y": 7803,
       "nx": 0.170227,
@@ -196,7 +205,7 @@
     {
       "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
       "role": "must_be_visible",
-      "tourOrder": 39,
+      "tourOrder": 40,
       "x": 2992,
       "y": 9207,
       "nx": 0.182617,

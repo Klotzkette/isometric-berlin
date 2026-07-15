@@ -51,6 +51,8 @@ Must be inside the polygon and visible in the final map:
 - Berlin Hauptbahnhof (north-west corner, incl. the glass roof — hero tile)
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
 - Eastern strip of the Tiergarten with the Spree
+- Luiseninsel playground opposite the Philharmonie, including mapped paths,
+  trees and playground equipment
 - Tiergartentunnel south entrance at Sony Center / Potsdamer Platz
   (south edge — the tunnel mouth must be visible, the rest of
   Potsdamer Platz does not need to be)
@@ -308,7 +310,7 @@ isometric-berlin/
 - A true Three.js mode using the official Berlin 3D Mesh, with progressive
   loading, mouse/touch orbit, a real below-ground camera and a schematic
   Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.
-- All eight landmarks from §3 are visually identifiable (hero tiles
+- All landmarks and required context details from §3 are visually identifiable (hero tiles
   for Reichstag dome and Hauptbahnhof glass roof may be hand-touched).
 
 ## 9. Hosting target: Perplexity

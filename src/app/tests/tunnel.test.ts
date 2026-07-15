@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh } from "three";
+import { InstancedMesh, Material, Mesh } from "three";
 
-import { createTunnel, type TunnelPayload } from "../src/ThreeViewer";
+import {
+  createTunnel,
+  setTunnelPresentation,
+  type TunnelPayload,
+} from "../src/ThreeViewer";
 
 const payload: TunnelPayload = {
   clear_height_m: 5,
@@ -31,7 +35,7 @@ describe("Tiergartentunnel rendering budget", () => {
       "Tiergartentunnel instanced ventilation fan blades",
     );
 
-    expect(tunnel.visible).toBe(false);
+    expect(tunnel.visible).toBe(true);
     expect(lamps).toBeInstanceOf(InstancedMesh);
     expect(laneMarks).toBeInstanceOf(InstancedMesh);
     expect(fanRings).toBeInstanceOf(InstancedMesh);
@@ -41,5 +45,20 @@ describe("Tiergartentunnel rendering budget", () => {
     expect((fanRings as InstancedMesh).count).toBe(2);
     expect((fanBlades as InstancedMesh).count).toBe(8);
     expect(tunnel.children.length).toBeLessThan(30);
+  });
+
+  test("stays visible and strengthens its x-ray materials below ground", () => {
+    const tunnel = createTunnel(payload);
+    const casing = tunnel.children[0] as Mesh;
+    const material = casing.material as Material;
+
+    expect(material.depthTest).toBe(false);
+    expect(material.depthWrite).toBe(false);
+    expect(material.opacity).toBeCloseTo(0.19);
+
+    setTunnelPresentation(tunnel, true);
+    expect(tunnel.visible).toBe(true);
+    expect(material.opacity).toBeCloseTo(0.58);
+    expect(casing.renderOrder).toBe(14);
   });
 });

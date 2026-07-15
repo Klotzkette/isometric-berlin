@@ -42,8 +42,25 @@ import {
   createArchitecturalSignature,
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
+import { createCivicLandmarks } from "./CivicLandmarks";
+import {
+  createMemorialLandmarks,
+  memorialFocusDistance,
+} from "./MemorialLandmarks";
+import {
+  createCulturalLandmarks,
+  culturalFocusCamera,
+} from "./CulturalLandmarks";
+import {
+  type ParkDetailsPayload,
+  createParkDetails,
+  parkDetailFocusDistance,
+  setParkDetailsFocus,
+} from "./ParkDetails";
 import { runBoundedTasks } from "./boundedTaskPool";
+import { flyCameraInViewPlane } from "./cameraNavigation";
 import { heroDetailEvictions } from "./heroDetailCache";
+import { updateWindFlags } from "./WindFlags";
 import {
   forwardRef,
   useEffect,
@@ -82,6 +99,11 @@ type SceneManifest = {
   base_tiles: MeshFile[];
   hero_details: HeroDetail[];
   landmarks: SceneLandmark[];
+  park_details?: {
+    file: string;
+    geometry_status: string;
+    source: string;
+  };
   source: { attribution: string };
   tiergartentunnel: TunnelPayload;
 };
@@ -106,6 +128,7 @@ type ThreeViewerProps = {
 };
 
 export type ThreeViewerHandle = {
+  flyBy: (horizontal: number, vertical: number) => void;
   focusLandmark: (name: string, immediate?: boolean) => void;
   reset: () => void;
   rotateBy: (degrees: number) => void;
@@ -117,8 +140,10 @@ export type ThreeViewerHandle = {
 
 type Runtime = {
   camera: PerspectiveCamera;
+  civicDetails: Group;
   coarsePointer: boolean;
   controls: OrbitControls;
+  culturalDetails: Group;
   detailClock: number;
   detailGroups: Map<string, HeroDetailGroup>;
   disposed: boolean;
@@ -130,6 +155,8 @@ type Runtime = {
   marker: Group;
   markerTimer: number | null;
   modelMaterials: Set<MeshStandardMaterial>;
+  monuments: Group;
+  parkDetails: Group;
   renderer: WebGLRenderer;
   scene: Scene;
   sceneRootUrl: URL;
@@ -199,6 +226,9 @@ function applyMaterialLighting(
 function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
+    if (object.userData.nightOnly === true) {
+      object.visible = mode === "night";
+    }
     if (!(object instanceof Mesh)) {
       return;
     }
@@ -231,6 +261,10 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
     applyMaterialLighting(material, mode);
   }
   applyLightingToRoot(runtime.signatures, mode);
+  applyLightingToRoot(runtime.civicDetails, mode);
+  applyLightingToRoot(runtime.monuments, mode);
+  applyLightingToRoot(runtime.culturalDetails, mode);
+  applyLightingToRoot(runtime.parkDetails, mode);
 }
 
 function segmentMesh(
@@ -274,59 +308,72 @@ export function createTunnel(payload: TunnelPayload): Group {
   group.name = "Tiergartentunnel cutaway";
   const width = payload.clear_width_each_direction_m;
   const height = payload.clear_height_m;
-  const casingMaterial = new MeshPhysicalMaterial({
-    color: 0x5e98aa,
-    emissive: 0x246f84,
-    emissiveIntensity: 1.25,
-    metalness: 0.12,
-    roughness: 0.72,
-    side: DoubleSide,
-    transparent: true,
-    opacity: 0.44,
-    depthWrite: false,
-  });
-  const roadMaterial = new MeshPhysicalMaterial({
-    color: 0x30464f,
-    emissive: 0x162d35,
-    emissiveIntensity: 0.72,
-    roughness: 0.9,
-    side: DoubleSide,
-    transparent: true,
-    opacity: 0.68,
-    depthWrite: false,
-  });
-  const lightMaterial = new MeshBasicMaterial({
-    color: 0xffe59b,
-    depthTest: false,
-  });
-  const lightStripMaterial = new MeshBasicMaterial({
-    color: 0xffe3a1,
-    opacity: 0.58,
-    transparent: true,
-  });
+  const casingMaterial = tunnelMaterial(
+    new MeshPhysicalMaterial({
+      color: 0x5e98aa,
+      emissive: 0x246f84,
+      emissiveIntensity: 1.25,
+      metalness: 0.12,
+      roughness: 0.72,
+      side: DoubleSide,
+    }),
+    0.19,
+    0.58,
+  );
+  const roadMaterial = tunnelMaterial(
+    new MeshPhysicalMaterial({
+      color: 0x30464f,
+      emissive: 0x162d35,
+      emissiveIntensity: 0.72,
+      roughness: 0.9,
+      side: DoubleSide,
+    }),
+    0.16,
+    0.82,
+  );
+  const lightMaterial = tunnelMaterial(
+    new MeshBasicMaterial({ color: 0xffe59b }),
+    0.46,
+    1,
+  );
+  const lightStripMaterial = tunnelMaterial(
+    new MeshBasicMaterial({ color: 0xffe3a1 }),
+    0.3,
+    0.82,
+  );
   const casingGeometry = new BoxGeometry(width, height, 1);
   const roadGeometry = new BoxGeometry(width - 0.7, 0.28, 1);
   const lightStripGeometry = new BoxGeometry(0.12, 0.1, 1);
   const lampGeometry = new SphereGeometry(0.95, 12, 8);
   const laneMarkGeometry = new BoxGeometry(0.16, 0.06, 1);
-  const laneMarkMaterial = new MeshBasicMaterial({ color: 0xe8e4d4 });
+  const laneMarkMaterial = tunnelMaterial(
+    new MeshBasicMaterial({ color: 0xe8e4d4 }),
+    0.22,
+    0.92,
+  );
   const shaftGeometry = new CylinderGeometry(2.4, 2.4, 12, 20, 1, true);
-  const shaftMaterial = new MeshPhysicalMaterial({
-    color: 0x85949c,
-    metalness: 0.36,
-    roughness: 0.5,
-    side: DoubleSide,
-  });
+  const shaftMaterial = tunnelMaterial(
+    new MeshPhysicalMaterial({
+      color: 0x85949c,
+      metalness: 0.36,
+      roughness: 0.5,
+      side: DoubleSide,
+    }),
+    0.22,
+    0.74,
+  );
   const fanGeometry = new TorusGeometry(1.65, 0.28, 10, 28);
-  const fanMaterial = new MeshBasicMaterial({
-    color: 0xffd978,
-    side: DoubleSide,
-  });
+  const fanMaterial = tunnelMaterial(
+    new MeshBasicMaterial({ color: 0xffd978, side: DoubleSide }),
+    0.25,
+    0.96,
+  );
   const bladeGeometry = new BoxGeometry(1.3, 0.12, 0.3);
-  const bladeMaterial = new MeshBasicMaterial({
-    color: 0xffd978,
-    side: DoubleSide,
-  });
+  const bladeMaterial = tunnelMaterial(
+    new MeshBasicMaterial({ color: 0xffd978, side: DoubleSide }),
+    0.25,
+    0.96,
+  );
   const points = payload.points.map((point) => new Vector3(...point));
   const lampMatrices: Matrix4[] = [];
   const laneMarkMatrices: Matrix4[] = [];
@@ -457,8 +504,45 @@ export function createTunnel(payload: TunnelPayload): Group {
     bladeMaterial,
     bladeMatrices,
   );
-  group.visible = false;
+  group.visible = true;
+  setTunnelPresentation(group, false);
   return group;
+}
+
+function tunnelMaterial<T extends Material>(
+  material: T,
+  surfaceOpacity: number,
+  undersideOpacity: number,
+): T {
+  material.depthTest = false;
+  material.depthWrite = false;
+  material.opacity = surfaceOpacity;
+  material.transparent = true;
+  material.userData.tunnelSurfaceOpacity = surfaceOpacity;
+  material.userData.tunnelUndersideOpacity = undersideOpacity;
+  return material;
+}
+
+export function setTunnelPresentation(tunnel: Group, underside: boolean): void {
+  tunnel.visible = true;
+  tunnel.traverse((object) => {
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+    object.renderOrder = underside ? 14 : 10;
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) {
+      const opacity = underside
+        ? material.userData.tunnelUndersideOpacity
+        : material.userData.tunnelSurfaceOpacity;
+      if (typeof opacity === "number") {
+        material.opacity = opacity;
+        material.needsUpdate = true;
+      }
+    }
+  });
 }
 
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
@@ -473,8 +557,12 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     material.depthWrite = !underside;
     material.needsUpdate = true;
   }
-  runtime.tunnel.visible = underside;
+  setTunnelPresentation(runtime.tunnel, underside);
   runtime.signatures.visible = !underside;
+  runtime.civicDetails.visible = !underside;
+  runtime.monuments.visible = !underside;
+  runtime.culturalDetails.visible = !underside;
+  runtime.parkDetails.visible = !underside;
 }
 
 function notifyView(runtime: Runtime, callback: (angles: ViewAngles) => void): void {
@@ -603,7 +691,7 @@ async function loadModel(
       material.roughness = Math.max(0.58, material.roughness ?? 0.75);
       if (material.map) {
         material.map.anisotropy = Math.min(
-          8,
+          16,
           runtime.renderer.capabilities.getMaxAnisotropy(),
         );
         material.map.needsUpdate = true;
@@ -710,6 +798,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!landmark) {
         return;
       }
+      setParkDetailsFocus(runtime.parkDetails, name);
       const cameraPreset = runtime.focusCameraByName.get(name);
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
@@ -729,7 +818,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           .clone()
           .sub(runtime.controls.target)
           .normalize();
-        const distance = name.includes("Tiergartentunnel") ? 460 : 190;
+        const distance = name.includes("Tiergartentunnel")
+          ? 460
+          : (parkDetailFocusDistance(name) ?? memorialFocusDistance(name) ?? 190);
         cameraOffset = currentDirection.multiplyScalar(distance);
       }
       runtime.controls.target.copy(target);
@@ -741,6 +832,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ? 58
             : name === "Bundeskanzleramt"
               ? 50
+              : name === "Carillon im Tiergarten"
+                ? 46
+                : name === "TIPI am Kanzleramt"
+                  ? 23
               : name === "Brandenburger Tor"
                 ? 34
                 : 18;
@@ -847,6 +942,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useImperativeHandle(
       ref,
       () => ({
+        flyBy: (horizontal, vertical) => {
+          const runtime = runtimeRef.current;
+          if (!runtime) {
+            return;
+          }
+          flyCameraInViewPlane(
+            runtime.camera,
+            runtime.controls.target,
+            horizontal,
+            vertical,
+          );
+          runtime.controls.update();
+          notifyView(runtime, onViewChangeRef.current);
+        },
         focusLandmark,
         reset: () => {
           const runtime = runtimeRef.current;
@@ -933,6 +1042,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let frame = 0;
       let resizeObserver: ResizeObserver | null = null;
       const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
       const renderer = new WebGLRenderer({
         antialias: !coarsePointer,
         powerPreference: "high-performance",
@@ -944,7 +1056,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.shadowMap.type = PCFShadowMap;
       const fullPixelRatio = Math.min(
         window.devicePixelRatio,
-        window.innerWidth <= 760 ? 1.35 : 1.75,
+        window.innerWidth <= 760 ? 1.5 : 2,
       );
       const interactionPixelRatio = Math.min(
         fullPixelRatio,
@@ -983,6 +1095,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       controls.target.copy(DEFAULT_TARGET);
       controls.enableDamping = true;
       controls.dampingFactor = 0.075;
+      controls.zoomToCursor = true;
+      controls.rotateSpeed = 0.72;
+      controls.zoomSpeed = 0.9;
+      controls.panSpeed = 0.72;
       controls.minDistance = 38;
       controls.maxDistance = 2600;
       controls.minPolarAngle = 0.06;
@@ -1002,10 +1118,24 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const signatures = new Group();
       signatures.name = "Dimensioned architectural signatures";
       scene.add(signatures);
+      const civicDetails = new Group();
+      civicDetails.name = "Pending civic landmark details";
+      scene.add(civicDetails);
+      const monuments = new Group();
+      monuments.name = "Verified memorial detail models";
+      scene.add(monuments);
+      const culturalDetails = new Group();
+      culturalDetails.name = "Pending cultural and Spree details";
+      scene.add(culturalDetails);
+      const parkDetails = new Group();
+      parkDetails.name = "Pending OSM park details";
+      scene.add(parkDetails);
       const runtime: Runtime = {
         camera,
+        civicDetails,
         coarsePointer,
         controls,
+        culturalDetails,
         detailClock: 0,
         detailGroups: new Map(),
         disposed: false,
@@ -1017,6 +1147,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         marker,
         markerTimer: null,
         modelMaterials: new Set(),
+        monuments,
+        parkDetails,
         renderer,
         scene,
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
@@ -1037,6 +1169,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let settleUntil = 0;
       const onPointerDown = (event: PointerEvent) => {
         if (event.pointerType !== "touch") {
+          renderer.domElement.focus({ preventScroll: true });
           return;
         }
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -1191,10 +1324,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         lastRenderedAt = timestamp;
         controls.update();
+        const underside = controls.getPolarAngle() > Math.PI / 2;
+        if (underside !== runtime.underside) {
+          setModelMaterialState(runtime, underside);
+          notifyView(runtime, onViewChangeRef.current);
+        }
         if (marker.visible) {
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
           marker.scale.setScalar(pulse);
         }
+        const windTime = reducedMotion ? 0.9 : timestamp / 1000;
+        updateWindFlags(runtime.signatures, windTime);
+        updateWindFlags(runtime.civicDetails, windTime);
         renderer.render(scene, camera);
       };
       animate();
@@ -1214,6 +1355,38 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.landmarkByName = new Map(
             manifest.landmarks.map((landmark) => [landmark.name, landmark]),
           );
+          runtime.civicDetails.removeFromParent();
+          runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
+          scene.add(runtime.civicDetails);
+          applyLightingToRoot(runtime.civicDetails, runtime.lightingMode);
+          runtime.focusCameraByName.set("Schweizerische Botschaft", {
+            azimuth_degrees: -42,
+            distance_m: 88,
+            polar_degrees: 52,
+            target_height_m: 9,
+            target_world: [-5.21648, 3.86, -244.099765],
+          });
+          runtime.focusCameraByName.set("TIPI am Kanzleramt", {
+            azimuth_degrees: -28,
+            distance_m: 78,
+            polar_degrees: 48,
+            target_height_m: 7,
+            target_world: [-297.284279, 3.95, 52.50208],
+          });
+          runtime.focusCameraByName.set("Fahne der Einheit", {
+            azimuth_degrees: -40,
+            distance_m: 76,
+            polar_degrees: 58,
+            target_height_m: 14,
+            target_world: [226.039773, 4.18, 57.925456],
+          });
+          runtime.focusCameraByName.set("Spielplatz an der Luiseninsel", {
+            azimuth_degrees: -30,
+            distance_m: 82,
+            polar_degrees: 38,
+            target_height_m: 0,
+            target_world: [-324, 4.05, 886],
+          });
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
           );
@@ -1228,8 +1401,61 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
           }
           applyLightingToRoot(runtime.signatures, runtime.lightingMode);
+          runtime.monuments.removeFromParent();
+          runtime.monuments = createMemorialLandmarks(manifest.landmarks);
+          scene.add(runtime.monuments);
+          applyLightingToRoot(runtime.monuments, runtime.lightingMode);
+          runtime.culturalDetails.removeFromParent();
+          runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
+          scene.add(runtime.culturalDetails);
+          applyLightingToRoot(runtime.culturalDetails, runtime.lightingMode);
+          for (const landmark of manifest.landmarks) {
+            const focusCamera = culturalFocusCamera(landmark.name);
+            if (focusCamera) {
+              runtime.focusCameraByName.set(landmark.name, focusCamera);
+            }
+          }
+          if (manifest.park_details?.file) {
+            const parkUrl = new URL(
+              manifest.park_details.file,
+              runtime.sceneRootUrl,
+            );
+            void fetch(parkUrl, { signal: manifestController.signal })
+              .then(async (response) => {
+                if (!response.ok) {
+                  throw new Error(`Parkdetails: HTTP ${response.status}`);
+                }
+                return (await response.json()) as ParkDetailsPayload;
+              })
+              .then((payload) => {
+                if (runtime.disposed) {
+                  return;
+                }
+                const details = createParkDetails(payload);
+                runtime.parkDetails.removeFromParent();
+                runtime.parkDetails = details;
+                details.visible = !runtime.underside;
+                setParkDetailsFocus(details, selectedRef.current);
+                scene.add(details);
+                applyLightingToRoot(details, runtime.lightingMode);
+                settleUntil = performance.now() + 350;
+              })
+              .catch((error: unknown) => {
+                if (
+                  !runtime.disposed &&
+                  !(error instanceof DOMException && error.name === "AbortError")
+                ) {
+                  onWarningRef.current(
+                    error instanceof Error
+                      ? error.message
+                      : "Optionale Parkdetails konnten nicht geladen werden.",
+                  );
+                }
+              });
+          }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           scene.add(runtime.tunnel);
+          setModelMaterialState(runtime, runtime.underside);
           setProgress({ loaded: 0, total: manifest.base_tiles.length });
 
           const selected = runtime.landmarkByName.get(selectedRef.current);

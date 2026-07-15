@@ -1,6 +1,6 @@
 # Tiergartentunnel Geometry
 
-This note documents the v0.2.7 tunnel representation used by the
+This note documents the v0.2.8 tunnel representation used by the
 Regierungsviertel viewer.
 
 ## Status
@@ -69,6 +69,14 @@ The local `START-HERE.html` package includes an underside mode. It is a
 2D SVG / CSS cutaway transform, not a true 3D camera, but the tunnel
 layer remains attached during pan, rotate and swivel interactions so the
 route can be inspected from below.
+
+In the true Three.js viewer the tunnel group is never unloaded or hidden. A
+low-opacity, depth-independent X-ray keeps the route readable in the normal
+surface view. Crossing 90 degrees of polar orbit by mouse, touch, keyboard or
+the underside preset automatically fades the official surface and strengthens
+the tunnel casings, roads, lights, lane marks and ventilation cues. The mode
+therefore follows the real camera angle instead of depending on one special
+button path.
 
 If a future agent finds official tunnel-survey geometry, keep the same
 public viewer semantics but replace only the approximate centreline /

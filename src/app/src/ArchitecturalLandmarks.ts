@@ -22,6 +22,8 @@ import {
   Object3D,
   PlaneGeometry,
   RingGeometry,
+  Shape,
+  ShapeGeometry,
   SphereGeometry,
   TorusGeometry,
   TubeGeometry,
@@ -31,6 +33,7 @@ import {
   type ArchitecturalSignature as ReichstagDomeSignature,
   createOfficialReichstagDome,
 } from "./ReichstagDome";
+import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 
 export type FocusCamera = {
   azimuth_degrees: number;
@@ -326,9 +329,12 @@ function addGermanFlag(
   group.add(poleMesh);
 
   const stripeColors = [0x151515, 0xc82f35, 0xe5b93f];
+  const flagWidth = 4.8;
   for (let index = 0; index < stripeColors.length; index += 1) {
+    const geometry = new PlaneGeometry(flagWidth, 0.76, 12, 2);
+    geometry.translate(flagWidth / 2, 0, 0);
     const stripe = new Mesh(
-      new PlaneGeometry(4.8, 0.76, 4, 1),
+      geometry,
       new MeshBasicMaterial({
         color: stripeColors[index],
         side: DoubleSide,
@@ -336,12 +342,13 @@ function addGermanFlag(
     );
     stripe.name = `${name} German flag stripe ${index + 1}`;
     stripe.position.set(
-      position[0] + 2.4,
+      position[0],
       position[1] + poleHeight - 0.5 - index * 0.76,
       position[2],
     );
     stripe.rotation.y = -0.06;
     stripe.rotation.z = 0.04 * (index - 1);
+    markWindFlag(stripe, flagWidth, { phase: 0.42 });
     group.add(stripe);
   }
 }
@@ -365,13 +372,17 @@ function addEuropeanFlag(
   pole.castShadow = true;
   group.add(pole);
 
+  const flagWidth = 4.8;
+  const flagGeometry = new PlaneGeometry(flagWidth, 2.28, 12, 4);
+  flagGeometry.translate(flagWidth / 2, 0, 0);
   const flag = new Mesh(
-    new PlaneGeometry(4.8, 2.28, 4, 2),
+    flagGeometry,
     new MeshBasicMaterial({ color: 0x174c9c, side: DoubleSide }),
   );
   flag.name = `${name} European Union flag`;
-  flag.position.set(position[0] + 2.4, position[1] + poleHeight - 1.25, position[2]);
+  flag.position.set(position[0], position[1] + poleHeight - 1.25, position[2]);
   flag.rotation.y = -0.06;
+  markWindFlag(flag, flagWidth, { phase: 0.42 });
   group.add(flag);
 
   const stars = new InstancedMesh(
@@ -381,83 +392,215 @@ function addEuropeanFlag(
   );
   stars.name = `${name} European Union flag stars`;
   const dummy = new Object3D();
+  const starTransforms: Array<{
+    position: [number, number, number];
+    rotation: [number, number, number];
+    xFromPoleM: number;
+  }> = [];
   for (let index = 0; index < 12; index += 1) {
     const angle = (index / 12) * Math.PI * 2;
-    dummy.position.set(
+    const starPosition: [number, number, number] = [
       position[0] + 2.4 + Math.cos(angle) * 0.58,
       position[1] + poleHeight - 1.25 + Math.sin(angle) * 0.58,
       position[2] - 0.015,
-    );
+    ];
+    dummy.position.set(...starPosition);
     dummy.rotation.y = -0.06;
     dummy.updateMatrix();
     stars.setMatrixAt(index, dummy.matrix);
+    starTransforms.push({
+      position: starPosition,
+      rotation: [0, -0.06, 0],
+      xFromPoleM: starPosition[0] - position[0],
+    });
   }
   stars.instanceMatrix.needsUpdate = true;
+  markWindFlagInstances(stars, starTransforms, flagWidth, { phase: 0.42 });
   group.add(stars);
 }
 
-function addReichstagWindowGrid(
+function archedWindowGeometry(width: number, height: number): ShapeGeometry {
+  const radius = width / 2;
+  const bottom = -height / 2;
+  const spring = height / 2 - radius;
+  const shape = new Shape();
+  shape.moveTo(-radius, bottom);
+  shape.lineTo(radius, bottom);
+  shape.lineTo(radius, spring);
+  shape.absarc(0, spring, radius, 0, Math.PI, false);
+  shape.lineTo(-radius, bottom);
+  return new ShapeGeometry(shape, 12);
+}
+
+function addReichstagWindowSets(
   group: Group,
   signature: ReichstagModelSignature,
 ): void {
-  const windowMaterial = nightEmitter(
-    modelMaterial(0x34474e, {
+  const darkGlass = modelMaterial(0x27393f, {
+    metalness: 0.18,
+    opacity: 0.48,
+    roughness: 0.3,
+  });
+  const occupiedGlass = nightEmitter(
+    modelMaterial(0x4c4b40, {
       metalness: 0.12,
-      opacity: 0.16,
-      roughness: 0.24,
+      opacity: 0.44,
+      roughness: 0.3,
     }),
-    0xffd58a,
-    1.7,
+    0xffd28a,
+    1.05,
   );
-  const floors = [6.1, 10.5, 14.9, 19.3];
-  const longCount = Math.max(18, Math.round(signature.width_m / 4.6));
-  const shortCount = Math.max(18, Math.round(signature.depth_m / 4.6));
-  const longSpacing = (signature.width_m - 16) / (longCount - 1);
-  const shortSpacing = (signature.depth_m - 26) / (shortCount - 1);
-  const longWindows = new InstancedMesh(
-    new BoxGeometry(Math.max(1.9, longSpacing * 0.62), 2.15, 0.16),
-    windowMaterial,
-    floors.length * longCount * 2,
-  );
-  longWindows.name = "Reichstag north/south facade windows";
-  const shortWindows = new InstancedMesh(
-    new BoxGeometry(0.16, 2.15, Math.max(1.9, shortSpacing * 0.62)),
-    windowMaterial,
-    floors.length * shortCount * 2,
-  );
-  shortWindows.name = "Reichstag east/west facade windows";
-  const dummy = new Object3D();
-  let longIndex = 0;
-  let shortIndex = 0;
-  for (const y of floors) {
-    for (const side of [-1, 1]) {
-      for (let index = 0; index < longCount; index += 1) {
-        dummy.position.set(
-          -signature.width_m / 2 + 8 + (index / (longCount - 1)) * (signature.width_m - 16),
-          y,
-          side * (signature.depth_m / 2 + 0.1),
-        );
-        dummy.rotation.set(0, 0, 0);
-        dummy.updateMatrix();
-        longWindows.setMatrixAt(longIndex, dummy.matrix);
-        longIndex += 1;
+  const windowMetal = modelMaterial(0x8b8173, {
+    metalness: 0.24,
+    roughness: 0.48,
+  });
+  const arched: InstanceTransform[] = [];
+  const upper: InstanceTransform[] = [];
+  const towerArches: InstanceTransform[] = [];
+  const longCount = 11;
+  const longSpan = signature.width_m - 46;
+  const shortCount = 15;
+  const shortSpan = signature.depth_m - 48;
+
+  for (const side of [-1, 1]) {
+    for (let index = 0; index < longCount; index += 1) {
+      const x = -longSpan / 2 + (index / (longCount - 1)) * longSpan;
+      arched.push({
+        position: [x, 9.1, side * (signature.depth_m / 2 + 0.12)],
+      });
+      for (const y of [16.2, 20.6]) {
+        upper.push({
+          position: [x, y, side * (signature.depth_m / 2 + 0.14)],
+          scale: [1.85, 2.15, 1],
+        });
       }
-      for (let index = 0; index < shortCount; index += 1) {
-        dummy.position.set(
-          side * (signature.width_m / 2 + 0.1),
-          y,
-          -signature.depth_m / 2 + 13 +
-            (index / (shortCount - 1)) * (signature.depth_m - 26),
-        );
-        dummy.updateMatrix();
-        shortWindows.setMatrixAt(shortIndex, dummy.matrix);
-        shortIndex += 1;
+    }
+    for (let index = 0; index < shortCount; index += 1) {
+      const z = -shortSpan / 2 + (index / (shortCount - 1)) * shortSpan;
+      if (side > 0 || Math.abs(z) > 24) {
+        arched.push({
+          position: [side * (signature.width_m / 2 + 0.12), 9.1, z],
+          rotation: [0, Math.PI / 2, 0],
+        });
+      }
+      for (const y of [16.2, 20.6]) {
+        upper.push({
+          position: [side * (signature.width_m / 2 + 0.14), y, z],
+          rotation: [0, Math.PI / 2, 0],
+          scale: [1.85, 2.15, 1],
+        });
       }
     }
   }
-  longWindows.instanceMatrix.needsUpdate = true;
-  shortWindows.instanceMatrix.needsUpdate = true;
-  group.add(longWindows, shortWindows);
+
+  const towerSize = 19;
+  for (const xSide of [-1, 1]) {
+    for (const zSide of [-1, 1]) {
+      const towerX = xSide * (signature.width_m / 2 - towerSize / 2 - 2);
+      const towerZ = zSide * (signature.depth_m / 2 - towerSize / 2 - 2);
+      for (const offset of [-4.1, 0, 4.1]) {
+        towerArches.push(
+          {
+            position: [
+              towerX + offset,
+              10.2,
+              zSide * (signature.depth_m / 2 + 0.16),
+            ],
+          },
+          {
+            position: [
+              xSide * (signature.width_m / 2 + 0.16),
+              10.2,
+              towerZ + offset,
+            ],
+            rotation: [0, Math.PI / 2, 0],
+          },
+        );
+      }
+    }
+  }
+
+  const splitLighting = (transforms: InstanceTransform[]) => ({
+    dark: transforms.filter((_, index) => index % 6 !== 2),
+    lit: transforms.filter((_, index) => index % 6 === 2),
+  });
+  const mainSets = splitLighting(arched);
+  const upperSets = splitLighting(upper);
+  const towerSets = splitLighting(towerArches);
+  const mainGeometry = archedWindowGeometry(2.35, 6.1);
+  const towerGeometry = archedWindowGeometry(2.25, 6.8);
+  const upperGeometry = new PlaneGeometry(0.72, 1);
+  addInstancedGeometry(
+    group,
+    "Reichstag dark tall arched facade windows",
+    mainGeometry,
+    darkGlass,
+    mainSets.dark,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag selectively lit tall arched facade windows",
+    mainGeometry,
+    occupiedGlass,
+    mainSets.lit,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag dark upper rectangular facade windows",
+    upperGeometry,
+    darkGlass,
+    upperSets.dark,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag selectively lit upper rectangular facade windows",
+    upperGeometry,
+    occupiedGlass,
+    upperSets.lit,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag dark three-bay tower arched windows",
+    towerGeometry,
+    darkGlass,
+    towerSets.dark,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag selectively lit three-bay tower arched windows",
+    towerGeometry,
+    occupiedGlass,
+    towerSets.lit,
+  );
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced tall-window vertical mullions",
+    [0.11, 4.85, 0.1],
+    windowMetal,
+    arched,
+  );
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced tower-window vertical mullions",
+    [0.11, 5.45, 0.1],
+    windowMetal,
+    towerArches,
+  );
+  const transoms = [...arched, ...towerArches].map((transform) => ({
+    ...transform,
+    position: [
+      transform.position[0],
+      transform.position[1] + 0.85,
+      transform.position[2],
+    ] as [number, number, number],
+  }));
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced arched-window transoms",
+    [1.92, 0.11, 0.1],
+    windowMetal,
+    transoms,
+  );
 }
 
 function addReichstagMicroDetails(
@@ -567,10 +710,15 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     opacity: 0.48,
     roughness: 0.82,
   });
-  const entranceShadow = modelMaterial(0x343a39, {
-    opacity: 0.72,
-    roughness: 0.94,
-  });
+  const entranceGlass = nightEmitter(
+    modelMaterial(0x263f45, {
+      metalness: 0.18,
+      opacity: 0.58,
+      roughness: 0.28,
+    }),
+    0xffd69a,
+    1.25,
+  );
   addBoxOutline(
     group,
     "Reichstag LoD2 envelope",
@@ -665,10 +813,10 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   for (let index = 0; index < 5; index += 1) {
     addBox(
       group,
-      "Reichstag west entrance shadow",
+      "Reichstag west entrance tall glass pane",
       [0.28, 8.6, 4.2],
       [westX + 0.7, 8.35, -14 + index * 7],
-      entranceShadow,
+      entranceGlass,
     );
   }
   addBox(
@@ -685,7 +833,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   pediment.castShadow = true;
   group.add(pediment);
   addEdges(group, pediment, 0.9);
-  addReichstagWindowGrid(group, signature);
+  addReichstagWindowSets(group, signature);
   addReichstagMicroDetails(group, signature, stoneAccent);
 
   return group;
@@ -1436,26 +1584,51 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   const deck = modelMaterial(0x42545b, { metalness: 0.34, roughness: 0.7 });
   const rail = modelMaterial(0x74868b, { metalness: 0.78, roughness: 0.26 });
   const platform = modelMaterial(0xaeb7b4, { roughness: 0.82 });
+  // Keep both complete trains and a legible stretch of approach viaduct on
+  // supported track beyond the 321 m station roof.
+  const trackLength = signature.east_west_roof_length_m + 220;
   addBox(
     group,
     "Hauptbahnhof east-west elevated track deck",
-    [signature.east_west_roof_length_m, 1.1, signature.east_west_roof_width_m - 3],
+    [trackLength, 1.1, signature.east_west_roof_width_m - 3],
     [0, 9.8, 0],
     deck,
     0.5,
   );
   for (const trackZ of [-12, -4, 4, 12]) {
+    addBox(
+      group,
+      "Hauptbahnhof upper-level ballast bed",
+      [trackLength, 0.1, 3.45],
+      [0, 10.34, trackZ],
+      modelMaterial(0x6e706a, { roughness: 0.96 }),
+    );
     for (const railOffset of [-0.76, 0.76]) {
       addBox(
         group,
         "Hauptbahnhof upper-level rail",
-        [signature.east_west_roof_length_m + 110, 0.16, 0.14],
+        [trackLength, 0.16, 0.14],
         [0, 10.48, trackZ + railOffset],
         rail,
       );
     }
   }
-  const trackLength = signature.east_west_roof_length_m + 110;
+  const approachPiers: InstanceTransform[] = [];
+  for (let x = -trackLength / 2 + 13; x <= trackLength / 2 - 13; x += 26) {
+    if (Math.abs(x) <= signature.east_west_roof_length_m / 2 - 18) {
+      continue;
+    }
+    for (const z of [-13, 13]) {
+      approachPiers.push({ position: [x, 4.55, z] });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced approach-viaduct piers",
+    [1.35, 9.1, 1.35],
+    modelMaterial(0x8a9594, { roughness: 0.84 }),
+    approachPiers,
+  );
   const sleeperCount = Math.max(100, Math.round(trackLength / 2.5));
   const sleeperTransforms: InstanceTransform[] = [];
   for (const trackZ of [-12, -4, 4, 12]) {

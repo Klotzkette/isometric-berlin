@@ -875,6 +875,11 @@ def build_webgl_scene(
       landmarks, hero_details, buildings
     ),
     "landmarks": landmark_payload(landmarks),
+    "park_details": {
+      "file": "park-details.json",
+      "source": "OpenStreetMap",
+      "geometry_status": "Bounded paths, trees and playground display details",
+    },
     "tiergartentunnel": tunnel_payload(),
   }
   scene_path = output_dir / "scene.json"

@@ -352,17 +352,23 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   viewer_path = root / "src/app/src/ThreeViewer.tsx"
   app_path = root / "src/app/src/App.tsx"
   architecture_path = root / "src/app/src/ArchitecturalLandmarks.ts"
+  memorial_path = root / "src/app/src/MemorialLandmarks.ts"
+  camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
   styles_path = root / "src/app/src/styles.css"
   if (
     not viewer_path.exists()
     or not app_path.exists()
     or not architecture_path.exists()
+    or not memorial_path.exists()
+    or not camera_navigation_path.exists()
     or not styles_path.exists()
   ):
     return ["Missing true-3D viewer sources"]
   viewer = viewer_path.read_text(encoding="utf-8")
   app = app_path.read_text(encoding="utf-8")
   architecture = architecture_path.read_text(encoding="utf-8")
+  memorial = memorial_path.read_text(encoding="utf-8")
+  camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
   styles = styles_path.read_text(encoding="utf-8")
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
@@ -389,6 +395,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       '!detail && !object.geometry.getAttribute("normal")'
     ),
     "instanced tunnel fixtures": ('"Tiergartentunnel instanced ceiling lights"'),
+    "always-on tunnel presentation": "setTunnelPresentation(runtime.tunnel, underside)",
+    "automatic orbit underside detection": (
+      "const underside = controls.getPolarAngle() > Math.PI / 2"
+    ),
+    "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "stale mobile hero cancellation": (
       "runtime.coarsePointer && selectedRef.current !== name"
     ),
@@ -396,7 +407,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "lost pointer-capture recovery": '"lostpointercapture"',
     "window-blur gesture recovery": 'window.addEventListener("blur"',
     "decoded texture-image disposal": "image.close()",
-    "GPU-bounded settled pixel ratio": ("window.innerWidth <= 760 ? 1.35 : 1.75"),
+    "GPU-bounded settled pixel ratio": ("window.innerWidth <= 760 ? 1.5 : 2"),
     "lower interaction pixel ratio": ("renderer.setPixelRatio(interactionPixelRatio)"),
     "day/night scene lighting": "setSceneLighting(runtime, lightingMode)",
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
@@ -412,6 +423,33 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
   if "toggleLightingMode" not in app or "lightingMode={lightingMode}" not in app:
     failures.append(f"Viewer lacks persistent day/night controls: {app_path}")
+  if "flyBy(1, 0)" not in app or "Shift + Pfeil" not in app:
+    failures.append(f"Viewer lacks direct arrow-key flight controls: {app_path}")
+  required_memorial_snippets = {
+    "complete Holocaust stela field": "Holocaust Memorial 2710 instanced stelae",
+    "official Holocaust height bands": "high: 872",
+    "official-mesh ground placement": "MEMORIAL_GROUND_Y",
+    "mobile-safe Holocaust shadow budget": "stelae.castShadow = false",
+    "Soviet memorial tanks": "Soviet memorial T-34 west",
+    "2026 Jehovah's Witnesses memorial": (
+      "Jehovahs Witnesses memorial fine vertical folds"
+    ),
+  }
+  failures.extend(
+    f"Memorial models lack {label}: {memorial_path}"
+    for label, snippet in required_memorial_snippets.items()
+    if snippet not in memorial
+  )
+  required_camera_snippets = {
+    "screen-relative flight": "screenRelativeFlightDelta",
+    "bounded flight volume": "REGIERUNGSVIERTEL_FLIGHT_BOUNDS",
+    "camera-target translation": "camera.position.add(applied)",
+  }
+  failures.extend(
+    f"Camera navigation lacks {label}: {camera_navigation_path}"
+    for label, snippet in required_camera_snippets.items()
+    if snippet not in camera_navigation
+  )
   required_architecture_snippets = {
     "official-dimension Reichstag dome": "createOfficialReichstagDome",
     "metric Brandenburg Gate columns": "Brandenburg Gate Doric column",

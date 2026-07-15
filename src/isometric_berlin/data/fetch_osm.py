@@ -1,7 +1,7 @@
 """Fetch OSM context for the Regierungsviertel bounds via OSMnx.
 
 Layers written to the output GeoPackage:
-roads, water, parks, rail, pois.
+roads, water, parks, vegetation, playgrounds, rail, pois.
 
 License: OSM data is © OpenStreetMap contributors, ODbL 1.0.
 The viewer must show the attribution string defined in NOTICE.md.
@@ -28,8 +28,9 @@ OSM_TAGS = {
   "highway": True,
   "waterway": True,
   "water": True,
-  "natural": ["water", "wood", "scrub", "grassland"],
+  "natural": ["water", "wood", "scrub", "grassland", "tree", "tree_row"],
   "leisure": ["park", "garden", "playground"],
+  "playground": True,
   "landuse": ["grass", "forest", "meadow", "recreation_ground"],
   "railway": True,
   "amenity": True,
@@ -80,6 +81,12 @@ def split_layers(
       | _isin(features, "landuse", ["grass", "forest", "meadow", "recreation_ground"])
       | _isin(features, "natural", ["wood", "scrub", "grassland"])
     ],
+    "vegetation": features[
+      _isin(features, "natural", ["tree", "tree_row", "wood", "scrub"])
+    ],
+    "playgrounds": features[
+      _isin(features, "leisure", ["playground"]) | _has_value(features, "playground")
+    ],
     "rail": _filter(features, "railway"),
     "pois": features[
       _has_value(features, "amenity")
@@ -115,6 +122,7 @@ def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
       "water",
       "natural",
       "leisure",
+      "playground",
       "landuse",
       "railway",
       "amenity",
@@ -129,6 +137,16 @@ def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
       "layer",
       "service",
       "usage",
+      "surface",
+      "material",
+      "height",
+      "circumference",
+      "leaf_type",
+      "leaf_cycle",
+      "species",
+      "genus",
+      "access",
+      "wheelchair",
       "geometry",
     ]
     if column in gdf.columns

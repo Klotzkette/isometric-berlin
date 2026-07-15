@@ -46,11 +46,12 @@ or memorial plaques rather than usable building views.
 
 ## Spatial conclusion
 
-v0.2.7 retains the machine-checked layer of 39 landmarks and 23 relative
+The current tree retains the machine-checked layer of 40 landmarks and 23 relative
 relationships without moving the existing points. The four additions are
 Schweizerische Botschaft (OSM relation `2886766`), Fahne der Einheit (OSM node
 `437140233`), Quadriga mit Victoria (OSM node `3786417057`) and Starbucks
-Pariser Platz (OSM node `66917229`). The generated alignment report remains
+Pariser Platz (OSM node `66917229`). The Luiseninsel playground is additionally
+anchored to OSM way `24911694`. The generated alignment report remains
 the current source of truth for status and distances.
 
 The viewer tour order follows a north-to-south walk through the
@@ -93,8 +94,9 @@ Regierungsviertel rather than the incidental order of `landmarks.json`:
 35. Venusbassin / Goldfischteich
 36. Mahnmal für verfolgte Zeugen Jehovas
 37. Großer Tiergarten
-38. Kemperplatz / Tiergartentunnel
-39. Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)
+38. Spielplatz an der Luiseninsel
+39. Kemperplatz / Tiergartentunnel
+40. Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)
 
 The ordering is a UI/tour concern; coordinate correctness remains the
 responsibility of the committed placement QA against OSM and LoD2.

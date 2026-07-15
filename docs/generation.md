@@ -1,6 +1,6 @@
 # Generation
 
-The committed v0.2.7 viewer is generated entirely from the permitted open-data
+The committed v0.2.8 viewer is generated entirely from the permitted open-data
 stack. Berlin LoD2 anchors building footprints/heights, OSM supplies roads,
 water, parks, rail and POIs, ALKIS supplies parcel context, and freely licensed
 Wikimedia records provide colour/material cues. Google is not used unless the
@@ -86,9 +86,24 @@ The manifest anchors a procedural Reichstag glass/steel signature at the
 LoD2-aligned building centre and the Bundestag's published 24 m roof-terrace
 datum, not at a noisy photogrammetric crop apex. Its 40 m diameter, 23.5 m
 height, 24 primary ribs and 17 horizontal rings are sourced from the Bundestag
-architecture page; the lower four ring rows remain unglazed as documented.
-This dimensioned overlay makes the dome legible without replacing the
-underlying official measured mesh.
+architecture page. The transparent display skin leaves the lower four
+ventilation rows open, covers the remaining 13 rows in 24 faceted sectors and
+adds alternating braces, an open crown ring, 360 mirror-cone panels and two
+guarded visitor ramps. This dimensioned overlay makes the dome legible without
+replacing the underlying official measured mesh.
+
+Tiergarten paths, tree points/tree rows and playground equipment are rebuilt
+after an OSM refresh with:
+
+```bash
+uv run python -m isometric_berlin.generation.build_park_details
+```
+
+The builder simplifies paths, instances 3,012 mapped tree positions and keeps
+the five clipped playground footprints. Heights are sampled from a broad local
+neighbourhood of the packaged official mesh so canopy vertices cannot lift
+playground equipment above ground. The resulting `park-details.json` is about
+0.4 MiB; raw OSM and mesh intermediates remain excluded.
 
 ## Step 10: DZI export and dual viewer
 

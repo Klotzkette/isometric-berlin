@@ -252,9 +252,22 @@
     {
       "type": "Feature",
       "properties": {
+        "name": "Spielplatz an der Luiseninsel",
+        "role": "owner_added",
+        "tour_order": 38,
+        "source": "OpenStreetMap way 24911694; Bezirksamt Mitte Spielplatzversorgungsplanung object 2126-6"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.36686014, 52.51082053]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "name": "Kemperplatz / Tiergartentunnel",
         "role": "owner_added",
-        "tour_order": 38
+        "tour_order": 39
       },
       "geometry": {
         "type": "Point",
@@ -266,7 +279,7 @@
       "properties": {
         "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
         "role": "must_be_visible",
-        "tour_order": 39
+        "tour_order": 40
       },
       "geometry": {
         "type": "Point",

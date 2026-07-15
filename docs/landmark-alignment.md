@@ -2,9 +2,9 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-07-10T00:00:22.789205+00:00`
+- Generated: `2026-07-14T23:29:41.517878+00:00`
 - Status: `ok`
-- Landmarks checked: `39`
+- Landmarks checked: `40`
 - Relative relationships checked: `23`
 - Landmark review count: `0`
 - Relative review count: `0`
@@ -32,7 +32,8 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Beethoven-Haydn-Mozart-Denkmal | `ok` | Beethoven-Haydn-Mozart-Denkmal (pois) | 0.00 m | nearest DEBE00YYT600005H at 54.64 m |
 | Venusbassin / Goldfischteich | `ok` | Venusbassin (water) | 0.00 m | nearest DEBE00YYT600005H at 46.3 m |
 | Goethe-Denkmal | `ok` | Johann Wolfgang von Goethe (pois) | 0.00 m | nearest DEBE01AL3Ib00000 at 60.79 m |
-| Kemperplatz / Tiergartentunnel | `ok` | Tunnel Tiergarten Spreebogen (roads) | 0.00 m | nearest DEBE3DEIvfRWreMo at 27.98 m |
+| Spielplatz an der Luiseninsel | `ok` | OSM way 24911694 (parks) | 0.00 m | nearest DEBE3DKboxsGo8qm at 249.35 m |
+| Kemperplatz / Tiergartentunnel | `ok` | Kemperplatz (roads) | 0.00 m | nearest DEBE3DEIvfRWreMo at 27.98 m |
 | Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz) | `ok` | Das Center am Potsdamer Platz (pois) | 0.00 m | nearest DEBE3DmKORetJTt6 at 0.37 m |
 | Max-Liebermann-Haus | `ok` | Max-Liebermann-Haus (pois) | 0.00 m | inside DEBE3DR4UJpsABDn |
 | Botschaft der Vereinigten Staaten von Amerika | `ok` | Botschaft der Vereinigten Staaten von Amerika (pois) | 0.00 m | inside DEBE3DCJHq6phC2X |

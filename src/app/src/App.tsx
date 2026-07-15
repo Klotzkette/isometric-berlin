@@ -1,5 +1,7 @@
 import {
   ArrowDown,
+  ArrowLeft,
+  ArrowRight,
   ArrowUp,
   Box as BoxIcon,
   Compass,
@@ -516,6 +518,20 @@ export function App() {
     viewport.applyConstraints();
   }, []);
 
+  const flyBy = useCallback((horizontal: number, vertical: number) => {
+    setIsTouring(false);
+    threeViewerRef.current?.flyBy(horizontal, vertical);
+    setStatus(
+      horizontal < 0
+        ? "3D-Flug: links"
+        : horizontal > 0
+          ? "3D-Flug: rechts"
+          : vertical > 0
+            ? "3D-Flug: aufwärts"
+            : "3D-Flug: abwärts",
+    );
+  }, []);
+
   const zoomBy = useCallback(
     (factor: number) => {
       if (viewerMode === "three") {
@@ -628,7 +644,18 @@ export function App() {
       }
       if (event.target instanceof HTMLElement) {
         const tagName = event.target.tagName.toLowerCase();
-        if (tagName === "button" || tagName === "input" || tagName === "textarea") {
+        const isTextEntry =
+          tagName === "input" ||
+          tagName === "textarea" ||
+          tagName === "select" ||
+          event.target.isContentEditable;
+        if (isTextEntry) {
+          return;
+        }
+        if (
+          tagName === "button" &&
+          (event.key === " " || event.key === "Enter")
+        ) {
           return;
         }
       }
@@ -652,7 +679,9 @@ export function App() {
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" || event.shiftKey) {
+        if (viewerMode === "three" && !event.shiftKey) {
+          flyBy(1, 0);
+        } else if (event.shiftKey) {
           rotateBy(8);
           setStatus("Drehung: rechts");
         } else {
@@ -662,7 +691,9 @@ export function App() {
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" || event.shiftKey) {
+        if (viewerMode === "three" && !event.shiftKey) {
+          flyBy(-1, 0);
+        } else if (event.shiftKey) {
           rotateBy(-8);
           setStatus("Drehung: links");
         } else {
@@ -672,7 +703,9 @@ export function App() {
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three") {
+        if (viewerMode === "three" && !event.shiftKey) {
+          flyBy(0, 1);
+        } else if (viewerMode === "three") {
           tiltBy(-6);
           setStatus("3D-Neigung: höher");
         } else if (event.shiftKey) {
@@ -685,7 +718,9 @@ export function App() {
       } else if (event.key === "ArrowDown") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three") {
+        if (viewerMode === "three" && !event.shiftKey) {
+          flyBy(0, -1);
+        } else if (viewerMode === "three") {
           tiltBy(6);
           setStatus("3D-Neigung: tiefer");
         } else if (event.shiftKey) {
@@ -720,6 +755,7 @@ export function App() {
   }, [
     closeReferenceMap,
     copyViewLink,
+    flyBy,
     focusLandmarkByOffset,
     goHome,
     isHelpOpen,
@@ -1128,7 +1164,7 @@ export function App() {
         </small>
       </aside>
 
-      <aside className="view-controls" aria-label="Ansicht drehen und spiegeln">
+      <aside className="view-controls" aria-label="3D-Ansicht bewegen und ausrichten">
         <div className="control-row" role="group" aria-label="Kardinalrichtung oben">
           {ORIENTATIONS.map((candidate) => (
             <button
@@ -1144,6 +1180,50 @@ export function App() {
             </button>
           ))}
         </div>
+        {viewerMode === "three" ? (
+          <div
+            className="control-row movement-controls"
+            role="group"
+            aria-label="Steuerkreuz zum Fliegen durch die 3D-Ansicht"
+          >
+            <button
+              type="button"
+              aria-label="Im Bild nach oben fliegen"
+              disabled={!isReady}
+              title="Im Bild nach oben fliegen (Pfeil hoch)"
+              onClick={() => flyBy(0, 1)}
+            >
+              <ArrowUp size={17} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Im Bild nach links fliegen"
+              disabled={!isReady}
+              title="Im Bild nach links fliegen (Pfeil links)"
+              onClick={() => flyBy(-1, 0)}
+            >
+              <ArrowLeft size={17} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Im Bild nach unten fliegen"
+              disabled={!isReady}
+              title="Im Bild nach unten fliegen (Pfeil runter)"
+              onClick={() => flyBy(0, -1)}
+            >
+              <ArrowDown size={17} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Im Bild nach rechts fliegen"
+              disabled={!isReady}
+              title="Im Bild nach rechts fliegen (Pfeil rechts)"
+              onClick={() => flyBy(1, 0)}
+            >
+              <ArrowRight size={17} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
         <div className="control-row" role="group" aria-label="Ansicht umklappen">
           {viewerMode === "three" ? (
             <>
@@ -1151,7 +1231,7 @@ export function App() {
                 type="button"
                 aria-label="Kamera höher neigen"
                 disabled={!isReady}
-                title="Kamera höher neigen (Pfeil hoch)"
+                title="Kamera höher neigen (Shift + Pfeil hoch)"
                 onClick={() => tiltBy(-10)}
               >
                 <ArrowUp size={17} aria-hidden="true" />
@@ -1160,7 +1240,7 @@ export function App() {
                 type="button"
                 aria-label="Kamera tiefer bis zur Untersicht neigen"
                 disabled={!isReady}
-                title="Kamera tiefer neigen (Pfeil runter)"
+                title="Kamera tiefer neigen (Shift + Pfeil runter)"
                 onClick={() => tiltBy(10)}
               >
                 <ArrowDown size={17} aria-hidden="true" />
@@ -1375,7 +1455,7 @@ export function App() {
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? "3D-Kamera drehen und bis zur Untersicht neigen"
+                    ? "Bildschirmbezogen durch die 3D-Isometrie fliegen"
                     : "Karte in Meterlage verschieben"}
                 </dd>
               </div>
@@ -1385,7 +1465,7 @@ export function App() {
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? "3D-Kamera links / rechts drehen"
+                    ? "3D-Kamera links / rechts um das Ziel drehen"
                     : "Ansicht links / rechts drehen"}
                 </dd>
               </div>
@@ -1395,7 +1475,7 @@ export function App() {
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? "Zusätzliche Kameraneigung"
+                    ? "Kamera neigen und stufenlos in die Untersicht wechseln"
                     : "Swivel/Zoom näher oder weiter"}
                 </dd>
               </div>

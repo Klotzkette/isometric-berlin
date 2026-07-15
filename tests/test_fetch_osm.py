@@ -7,7 +7,15 @@ from pathlib import Path
 import geopandas as gpd
 
 OSM = Path("geo_data/regierungsviertel/osm.gpkg")
-LAYERS = ("roads", "water", "parks", "rail", "pois")
+LAYERS = (
+  "roads",
+  "water",
+  "parks",
+  "vegetation",
+  "playgrounds",
+  "rail",
+  "pois",
+)
 
 
 def test_generated_osm_gpkg_contains_required_layers() -> None:
@@ -25,6 +33,8 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
   assert counts["roads"] > 100
   assert counts["water"] > 0
   assert counts["parks"] > 0
+  assert counts["vegetation"] > 0
+  assert counts["playgrounds"] > 0
   assert counts["rail"] > 0
   assert counts["pois"] > 100
 
@@ -36,3 +46,7 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
   for column in ["office", "diplomatic", "government"]:
     assert column in pois.columns
   assert "Botschaft der Vereinigten Staaten von Amerika" in set(pois["name"].dropna())
+
+  playgrounds = gpd.read_file(OSM, layer="playgrounds")
+  for column in ["playground", "surface", "material", "height", "wheelchair"]:
+    assert column in playgrounds.columns

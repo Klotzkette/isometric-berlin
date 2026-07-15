@@ -1,12 +1,19 @@
 import {
+  BufferGeometry,
   CatmullRomCurve3,
   CylinderGeometry,
   DoubleSide,
+  Float32BufferAttribute,
   Group,
   LatheGeometry,
+  LineBasicMaterial,
+  LineSegments,
   Mesh,
+  InstancedMesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  Object3D,
+  PlaneGeometry,
   TorusGeometry,
   TubeGeometry,
   Vector2,
@@ -26,7 +33,7 @@ export type ArchitecturalSignature = {
 };
 
 const TOP_OPENING_RADIUS_M = 2.4;
-const LOWER_UNGLAZED_ROWS = 4;
+const UNGLAZED_LOWER_ROWS = 4;
 
 export function domeRadius(
   normalizedHeight: number,
@@ -58,10 +65,15 @@ function domeCurvePoints(
 }
 
 function addRamps(group: Group, signature: ArchitecturalSignature): void {
-  const material = new MeshStandardMaterial({
+  const deckMaterial = new MeshStandardMaterial({
     color: 0xd8e0e3,
     metalness: 0.72,
     roughness: 0.24,
+  });
+  const railMaterial = new MeshStandardMaterial({
+    color: 0xaebbc0,
+    metalness: 0.86,
+    roughness: 0.18,
   });
   for (const direction of [-1, 1]) {
     const points = Array.from({ length: 97 }, (_, index) => {
@@ -75,14 +87,185 @@ function addRamps(group: Group, signature: ArchitecturalSignature): void {
         Math.sin(angle) * radius,
       );
     });
+    const label = direction < 0 ? "descending" : "ascending";
     const ramp = new Mesh(
-      new TubeGeometry(new CatmullRomCurve3(points), 144, 0.22, 6, false),
-      material,
+      new TubeGeometry(new CatmullRomCurve3(points), 160, 0.42, 8, false),
+      deckMaterial,
     );
-    ramp.name = direction < 0 ? "descending ramp" : "ascending ramp";
+    ramp.name = `${label} visitor ramp deck`;
     ramp.castShadow = true;
     group.add(ramp);
+
+    for (const railOffset of [-0.72, 0.72]) {
+      const railPoints = points.map((point, index) => {
+        const radial = new Vector3(point.x, 0, point.z).normalize();
+        return point
+          .clone()
+          .addScaledVector(radial, railOffset)
+          .add(new Vector3(0, 0.92, 0));
+      });
+      const rail = new Mesh(
+        new TubeGeometry(
+          new CatmullRomCurve3(railPoints),
+          160,
+          0.045,
+          6,
+          false,
+        ),
+        railMaterial,
+      );
+      rail.name = `${label} ramp ${railOffset < 0 ? "inner" : "outer"} handrail`;
+      group.add(rail);
+    }
+
+    const balusters: number[] = [];
+    for (let index = 0; index < points.length; index += 4) {
+      const point = points[index];
+      for (const railOffset of [-0.72, 0.72]) {
+        const radial = new Vector3(point.x, 0, point.z).normalize();
+        const base = point.clone().addScaledVector(radial, railOffset);
+        const top = base.clone().add(new Vector3(0, 0.92, 0));
+        balusters.push(...base.toArray(), ...top.toArray());
+      }
+    }
+    const balusterGeometry = new BufferGeometry();
+    balusterGeometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(balusters, 3),
+    );
+    const balusterLines = new LineSegments(
+      balusterGeometry,
+      new LineBasicMaterial({ color: 0xaebbc0 }),
+    );
+    balusterLines.name = `${label} ramp batched guardrail balusters`;
+    group.add(balusterLines);
   }
+}
+
+function addDiagonalBracing(
+  group: Group,
+  signature: ArchitecturalSignature,
+): void {
+  const positions: number[] = [];
+  for (let row = 0; row < signature.horizontal_rings; row += 1) {
+    const t0 = row / signature.horizontal_rings;
+    const t1 = (row + 1) / signature.horizontal_rings;
+    for (let sector = 0; sector < signature.vertical_ribs; sector += 1) {
+      const direction = row % 2 === 0 ? 1 : -1;
+      const angle0 = (sector / signature.vertical_ribs) * Math.PI * 2;
+      const angle1 =
+        ((sector + direction) / signature.vertical_ribs) * Math.PI * 2;
+      const radius0 = domeRadius(t0, signature.diameter_m) + 0.135;
+      const radius1 = domeRadius(t1, signature.diameter_m) + 0.135;
+      positions.push(
+        Math.cos(angle0) * radius0,
+        t0 * signature.height_m,
+        Math.sin(angle0) * radius0,
+        Math.cos(angle1) * radius1,
+        t1 * signature.height_m,
+        Math.sin(angle1) * radius1,
+      );
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const braces = new LineSegments(
+    geometry,
+    new LineBasicMaterial({ color: 0x8fa3aa, opacity: 0.66, transparent: true }),
+  );
+  braces.name = "dome alternating diagonal glazing braces";
+  braces.renderOrder = 7;
+  group.add(braces);
+}
+
+function addMirrorConeFacets(group: Group): void {
+  const positions: number[] = [];
+  const sectors = 24;
+  for (let index = 0; index < sectors; index += 1) {
+    const angle = (index / sectors) * Math.PI * 2;
+    positions.push(
+      Math.cos(angle) * 2.4,
+      0,
+      Math.sin(angle) * 2.4,
+      Math.cos(angle) * 7.8,
+      18,
+      Math.sin(angle) * 7.8,
+    );
+  }
+  for (let level = 1; level < 6; level += 1) {
+    const t = level / 6;
+    const radius = 2.4 + (7.8 - 2.4) * t;
+    for (let index = 0; index < sectors; index += 1) {
+      const angle0 = (index / sectors) * Math.PI * 2;
+      const angle1 = ((index + 1) / sectors) * Math.PI * 2;
+      positions.push(
+        Math.cos(angle0) * radius,
+        t * 18,
+        Math.sin(angle0) * radius,
+        Math.cos(angle1) * radius,
+        t * 18,
+        Math.sin(angle1) * radius,
+      );
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const facets = new LineSegments(
+    geometry,
+    new LineBasicMaterial({
+      color: 0xf1f5f4,
+      opacity: 0.72,
+      transparent: true,
+    }),
+  );
+  facets.name = "daylight mirror cone 24-sector facet grid";
+  facets.renderOrder = 8;
+  group.add(facets);
+}
+
+function addMirrorConePanels(group: Group): void {
+  const sectors = 24;
+  const rows = 15;
+  const panelGeometry = new PlaneGeometry(1, 1);
+  const panelMaterial = new MeshPhysicalMaterial({
+    color: 0xe4ecee,
+    metalness: 0.94,
+    roughness: 0.06,
+    side: DoubleSide,
+  });
+  panelMaterial.userData.nightEmissive = 0xffd99a;
+  panelMaterial.userData.nightEmissiveIntensity = 0.58;
+  const panels = new InstancedMesh(
+    panelGeometry,
+    panelMaterial,
+    sectors * rows,
+  );
+  panels.name = "daylight mirror cone 360 individual panels";
+  const dummy = new Object3D();
+  let instance = 0;
+  for (let row = 0; row < rows; row += 1) {
+    const t = (row + 0.5) / rows;
+    const radius = 2.4 + (7.8 - 2.4) * t + 0.04;
+    const panelWidth = ((Math.PI * 2 * radius) / sectors) * 0.84;
+    for (let sector = 0; sector < sectors; sector += 1) {
+      const angle = ((sector + 0.5) / sectors) * Math.PI * 2;
+      dummy.position.set(
+        Math.cos(angle) * radius,
+        t * 18,
+        Math.sin(angle) * radius,
+      );
+      dummy.rotation.set(0, Math.PI / 2 - angle, 0);
+      dummy.scale.set(panelWidth, 0.94, 1);
+      dummy.updateMatrix();
+      panels.setMatrixAt(instance, dummy.matrix);
+      instance += 1;
+    }
+  }
+  panels.instanceMatrix.needsUpdate = true;
+  panels.computeBoundingBox();
+  panels.computeBoundingSphere();
+  panels.renderOrder = 6;
+  group.add(panels);
 }
 
 export function createOfficialReichstagDome(
@@ -98,44 +281,49 @@ export function createOfficialReichstagDome(
     sourceUrl: signature.source_url,
   };
 
-  const glassStart = LOWER_UNGLAZED_ROWS / signature.horizontal_rings;
-  const profile = Array.from({ length: 37 }, (_, index) => {
-    const t = glassStart + (index / 36) * (1 - glassStart);
+  const firstGlazedRow = UNGLAZED_LOWER_ROWS / signature.horizontal_rings;
+  const profile = Array.from({ length: 49 }, (_, index) => {
+    const t = firstGlazedRow + (index / 48) * (1 - firstGlazedRow);
     return new Vector2(
-      domeRadius(t, signature.diameter_m),
+      domeRadius(t, signature.diameter_m) + 0.24,
       t * signature.height_m,
     );
   });
   const glass = new Mesh(
-    new LatheGeometry(profile, 128),
+    new LatheGeometry(profile, signature.vertical_ribs),
     new MeshPhysicalMaterial({
-      color: 0xb9dce8,
+      color: 0xc8e4ec,
       metalness: 0.04,
-      opacity: 0.2,
-      roughness: 0.08,
+      opacity: 0.13,
+      roughness: 0.04,
       side: DoubleSide,
-      thickness: 0.32,
-      transmission: 0.64,
+      thickness: 0.18,
+      transmission: 0.78,
       transparent: true,
       depthWrite: false,
     }),
   );
-  glass.material.userData.nightEmissive = 0xb8dcff;
-  glass.material.userData.nightEmissiveIntensity = 0.72;
-  glass.name = "3,000 square metre glass envelope";
+  glass.material.userData.nightEmissive = 0xb8d8ec;
+  glass.material.userData.nightEmissiveIntensity = 2.8;
+  glass.name = "24-sector glass envelope with 13 glazed rows";
+  glass.userData = {
+    glazedRows: signature.horizontal_rings - UNGLAZED_LOWER_ROWS,
+    glazingSectors: signature.vertical_ribs,
+    structuralRows: signature.horizontal_rings,
+    unglazedLowerRows: UNGLAZED_LOWER_ROWS,
+  };
   glass.renderOrder = 5;
   group.add(glass);
 
   const steel = new MeshStandardMaterial({
     color: 0x90a5ad,
-    depthTest: false,
     emissive: 0x1c3038,
     emissiveIntensity: 0.1,
     metalness: 0.82,
     roughness: 0.19,
   });
-  steel.userData.nightEmissive = 0x9ecaf0;
-  steel.userData.nightEmissiveIntensity = 0.44;
+  steel.userData.nightEmissive = 0xb5d5ea;
+  steel.userData.nightEmissiveIntensity = 2.2;
   for (let index = 0; index < signature.vertical_ribs; index += 1) {
     const angle = (index / signature.vertical_ribs) * Math.PI * 2;
     const rib = new Mesh(
@@ -153,6 +341,8 @@ export function createOfficialReichstagDome(
     rib.renderOrder = 7;
     group.add(rib);
   }
+
+  addDiagonalBracing(group, signature);
 
   for (let index = 1; index <= signature.horizontal_rings; index += 1) {
     const t = index / (signature.horizontal_rings + 1);
@@ -182,6 +372,16 @@ export function createOfficialReichstagDome(
   baseRing.renderOrder = 7;
   group.add(baseRing);
 
+  const oculusRing = new Mesh(
+    new TorusGeometry(TOP_OPENING_RADIUS_M, 0.24, 10, 96),
+    steel,
+  );
+  oculusRing.name = "dome crown compression and open oculus ring";
+  oculusRing.rotation.x = Math.PI / 2;
+  oculusRing.position.y = signature.height_m;
+  oculusRing.castShadow = true;
+  group.add(oculusRing);
+
   const mirrorCone = new Mesh(
     new CylinderGeometry(7.8, 2.4, 18, 48, 1, true),
     new MeshPhysicalMaterial({
@@ -197,6 +397,8 @@ export function createOfficialReichstagDome(
   mirrorCone.position.y = 9;
   mirrorCone.castShadow = true;
   group.add(mirrorCone);
+  addMirrorConePanels(group);
+  addMirrorConeFacets(group);
 
   addRamps(group, signature);
   return group;

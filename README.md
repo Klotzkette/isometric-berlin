@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.7/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.8/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.7 open-data package.
+**Status:** Local v0.2.8 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.7**. Its full viewer is a progressively
+The current public package is **v0.2.8**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -40,7 +40,9 @@ labelled compatibility fallback for browsers that cannot run local modules.
   footprints, using up to 2048 px per material segment. Metric recognition
   models now sharpen the silhouettes without replacing that texture: the
   Reichstag has its 138 x 100 m body, west portico, four towers and 40 x 23.5 m
-  dome at the official 24 m roof-terrace datum; the Chancellery separates its
+  24-sector dome at the official 24 m roof-terrace datum; its historic facade
+  now separates tall arched bays, three-bay tower windows, upper windows and
+  west-entrance glass instead of repeating one generic grid. The Chancellery separates its
   36 m cube and three LoD2-aligned 18 m
   office bands; Hauptbahnhof exposes its 321 m glass roof, 160 x 45 m hall and
   46 m frames; the 62.5 x 11 x 26 m Brandenburg Gate has all twelve columns and
@@ -55,12 +57,21 @@ labelled compatibility fallback for browsers that cannot run local modules.
   still centres its characteristic 36 m leadership cube rather than the full
   343 m ensemble.
 - Model-railway detail is visible at normal viewing distances: Hauptbahnhof has
-  four upper tracks, platforms, a stationary ICE and Berlin S-Bahn; the Gate
+  four upper tracks, platforms, a stationary ICE and Berlin S-Bahn. Its 541 m
+  approach deck now carries ballast, sleepers and viaduct piers beyond the
+  321 m glass roof instead of leaving either train on visually floating track;
+  the Gate
   has stepped side pavilions, five shaded passages and a more articulated
   Quadriga; the Chancellery has floor plates, facade mullions and its arched
   leadership-window grid; the Reichstag adds roof cornices, portico bases and
   capitals, entrances, three German flags and one EU flag around the official
-  dome.
+  dome. All four flags share a subtle reduced-motion-aware wind animation.
+- The civic layer adds the LoD2-aligned Swiss Embassy with its historic palace,
+  modern extension and Swiss flag, plus the Bundestag's official 28.5 m Unity
+  Flag pole and 60 m² German flag. The TIPI uses its published 32 x 26 m
+  ellipse and receives structural ribs, string lights and night-only concert
+  colour; the 42 m Carillon and an occupied Spree excursion boat add further
+  close-range context.
 - Close-up detail now stays sharp without multiplying draw calls: instanced
   roof ribs, sleepers, facade panes, train fittings and balustrade posts are
   combined with batched glass seams, masonry courses, column fluting and
@@ -75,13 +86,30 @@ labelled compatibility fallback for browsers that cannot run local modules.
   facades remain unobstructed.
 - Left mouse drag or one finger orbits; wheel/pinch zooms; right mouse drag
   pans; two fingers pinch and rotate; three fingers can carry the camera
-  continuously through a genuine underside view. Arrow and on-screen controls
-  provide the same rotation, tilt, zoom and cardinal presets.
+  continuously through a genuine underside view. Arrow keys and the four-arrow
+  pad now fly screen-relative through the isometry; `Shift` plus arrows rotates
+  and tilts without overloading the direct movement controls.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
-  road decks and lane marks, ventilation shafts and four-blade fan cues. The
-  underside control now focuses the tunnel and remains stable under React
-  Strict Mode. Its route is explicitly labelled as an
+  road decks and lane marks, ventilation shafts and four-blade fan cues. It is
+  always present as a restrained X-ray and automatically strengthens whenever
+  any orbit crosses below ground; the underside control remains a direct tunnel
+  preset rather than the only way to reveal it. Its route is explicitly labelled as an
   OSM-derived engineering approximation, not surveyed tunnel geometry.
+- Seven memorials now have close-range recognition geometry. The Holocaust
+  field draws all 2,710 officially documented stelae in one instanced call with
+  the published 0.95 x 2.38 m cross-section and height bands; the Soviet,
+  Sinti/Roma, homosexual-victims, Goethe, composer and 2026 Jehovah's Witnesses
+  memorials preserve their defining source-documented forms while the official
+  Berlin surface remains visible underneath.
+- Tiergarten detail is no longer only a coarse photogrammetric canopy. A
+  compact OSM display layer adds 167 park-path sections and 3,012 mapped
+  trees/tree-row samples in four instanced draw calls. Five playground
+  footprints are retained; the selectable Luiseninsel playground opposite the
+  Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
+  water-play point and excavator. Its oblique focus view keeps those small
+  devices readable above the coarse source-mesh canopy and restores the normal
+  tree presentation as soon as another landmark is selected. Exactly three
+  tiny coloured Easter eggs are deterministically hidden beside mapped trees.
 - Assets load progressively with bounded concurrency and an adaptive pixel
   ratio. The 114.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
   individual public GLB remains below 5 MiB. Existing GLB normals are reused
@@ -96,7 +124,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Disposing the viewer now cancels the remaining 100-item-capable worker queue
   before it can start another GLB. Pointer capture loss and window blur also
   reset three-finger state, preventing a permanently disabled orbit control.
-- Settled 3D uses up to 1.75x desktop / 1.35x mobile device pixels. Orbit gestures
+- Settled 3D uses up to 2x desktop / 1.5x mobile device pixels. Orbit gestures
   temporarily lower the render ratio, then restore full sharpness after 140 ms.
   Static scenes settle to 12 fps on desktop and 10 fps on mobile to reduce GPU
   load without reducing interaction smoothness.
@@ -115,7 +143,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
-- LoD2, OSM, ALKIS/DOP/DGM inventories, 39 landmarks, 23 relative-placement
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 40 landmarks, 23 relative-placement
   checks and 110 accepted Wikimedia references remain part of the additive
   evidence pipeline and attribution chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is
@@ -129,6 +157,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
 | External map / official-site QA notes | [docs/external-geolocation-qa.md](docs/external-geolocation-qa.md) |
 | Landmark alignment report | [docs/landmark-alignment.md](docs/landmark-alignment.md) |
 | Metric precision notes | [docs/metric-precision.md](docs/metric-precision.md) |
+| Monument detail status and sources | [docs/monument-detail.md](docs/monument-detail.md) |
 | Tiergartentunnel geometry notes | [docs/tiergartentunnel-geometry.md](docs/tiergartentunnel-geometry.md) |
 | Viewer and app notes | [docs/app.md](docs/app.md) |
 | Deployment and local package notes | [docs/deployment.md](docs/deployment.md) |

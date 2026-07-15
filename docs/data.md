@@ -224,8 +224,9 @@ to the same polygon in EPSG:25833. The effective tag filter is:
   "highway": True,
   "waterway": True,
   "water": True,
-  "natural": ["water", "wood", "scrub", "grassland"],
+  "natural": ["water", "wood", "scrub", "grassland", "tree", "tree_row"],
   "leisure": ["park", "garden", "playground"],
+  "playground": True,
   "landuse": ["grass", "forest", "meadow", "recreation_ground"],
   "railway": True,
   "amenity": True,
@@ -247,6 +248,12 @@ The normalized raw feature response is cached at
 `geo_data/regierungsviertel/raw/osm_overpass.json` (gitignored), and
 OSMnx's request cache lives under
 `geo_data/regierungsviertel/raw/osmnx_cache/`.
+
+The clipped GeoPackage now exposes `vegetation` and `playgrounds` alongside
+roads, water, parks, rail and POIs. It retains equipment type, surface,
+material, height, leaf and accessibility attributes. The public viewer does
+not ship the raw response: `build_park_details` simplifies this evidence into
+the compact `park-details.json` display payload.
 
 ## Berlin official support layers
 

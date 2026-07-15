@@ -38,13 +38,23 @@ overview, `D` switch Day/Night, `L` copy a view link, `Esc` close overlays.
 In true 3D, left-drag or one finger orbits, the wheel zooms, right-drag pans,
 and two fingers combine pinch and rotation. A three-finger gesture controls
 azimuth and polar tilt continuously through 90 degrees into the real underside
-camera. The underside fades surface materials and reveals the two-tube
-Tiergartentunnel cutaway. The arrow keys rotate and tilt in 3D. In DZI mode,
-ordinary drag pans and Shift-drag rotates. At phone widths the landmark rail
-starts closed and leaves the safe-area-aware bottom controls accessible.
+camera. The underside fades surface materials and strengthens the two-tube
+Tiergartentunnel cutaway; a restrained X-ray remains present above ground.
+Arrow keys translate camera and target together in the visible screen plane,
+so they fly through the current isometry even after rotation or an underside
+flip. `Shift` plus left/right rotates and `Shift` plus up/down tilts. In DZI
+mode, ordinary drag pans and Shift-drag rotates. At phone widths the landmark
+rail starts closed and leaves the safe-area-aware bottom controls accessible.
+
+Seven memorial recognition models supplement the official mesh at normal
+selection distances. Repeated Holocaust stelae use GPU instancing, as do the
+Soviet colonnade and fine folds of the 2026 Jehovah's Witnesses memorial; this
+adds close-range granularity without loading another texture set or creating
+thousands of draw calls. Evidence and approximation boundaries are documented
+in [`monument-detail.md`](monument-detail.md).
 
 Only the selected landmark receives a small focus ring, and that ring fades
-again after 2.4 seconds. The former 39 permanently visible coloured map dots
+again after 2.4 seconds. Permanently visible coloured map dots
 were removed from the Three.js, DZI and zero-server fallbacks because they
 obscured roofs and facades.
 
@@ -65,6 +75,16 @@ crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
 62.5 x 11 x 26 m envelope, twelve Doric columns and articulated bronze-green
 Quadriga. These models sharpen silhouettes without replacing the aligned
 Berlin Mesh texture beneath them.
+
+The optional OSM park-detail request is deliberately non-blocking: a failed
+`park-details.json` request raises a warning but never delays or disables the
+23 official base meshes. When present, seven path material classes are batched,
+tree trunks and three-lobed crowns are instanced, and only the small number of
+mapped playground devices use individual geometry. The Luiseninsel landmark
+opens from an 82 m oblique camera preset centred on the main equipment cluster.
+Nearby OSM crowns step aside and only the mapped equipment receives a temporary
+focus reveal above the coarse official canopy; the sourced footprint and the
+normal Tiergarten depth presentation remain unchanged outside that selection.
 
 Every recognition group is now rotated into the minimum-area local frame of
 its official LoD2 footprint. In particular, the Hauptbahnhof track roof follows

@@ -50,6 +50,7 @@ def test_committed_reference_map_is_packaged_asset() -> None:
 def test_legend_grid_uses_two_columns_for_full_landmark_inventory() -> None:
   assert legend_grid(26) == (1, 26)
   assert legend_grid(39) == (2, 20)
+  assert legend_grid(40) == (2, 20)
 
 
 def test_reference_map_numbers_follow_viewer_tour_order() -> None:
@@ -70,6 +71,7 @@ def test_reference_map_numbers_follow_viewer_tour_order() -> None:
   assert names.index("Schweizerische Botschaft") + 1 == 8
   assert names.index("Brandenburger Tor") + 1 == 25
   assert names.index("Venusbassin / Goldfischteich") + 1 == 35
+  assert names.index("Spielplatz an der Luiseninsel") + 1 == 38
   assert (
-    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 39
+    names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 40
   )

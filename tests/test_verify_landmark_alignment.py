@@ -30,7 +30,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "ok",
-    "landmarks_checked": 39,
+    "landmarks_checked": 40,
     "relative_relationships_checked": 23,
     "landmark_review_count": 0,
     "relative_review_count": 0,
@@ -55,6 +55,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert checks["Quadriga mit Victoria"]["best_osm_match"]["name"] == (
     "Quadriga mit Victoria"
   )
+  assert checks["Spielplatz an der Luiseninsel"]["best_osm_match"]["id"] == ("24911694")
   assert checks["Starbucks Pariser Platz"]["best_osm_match"]["name"] == "Starbucks"
   assert (
     checks["Denkmal für die ermordeten Juden Europas"]["best_osm_match"]["name"]
