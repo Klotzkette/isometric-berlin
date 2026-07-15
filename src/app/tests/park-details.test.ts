@@ -5,6 +5,7 @@ import {
   createParkDetails,
   parkDetailFocusDistance,
   setParkDetailsFocus,
+  setParkSettledDetail,
 } from "../src/ParkDetails";
 
 const payload: ParkDetailsPayload = {
@@ -42,6 +43,7 @@ const payload: ParkDetailsPayload = {
       id: "tree-1",
       leaf_type: "broadleaved",
       position: [2, 1, 3],
+      source: "berlin_official",
       variant: 0,
     },
     {
@@ -50,6 +52,7 @@ const payload: ParkDetailsPayload = {
       id: "tree-2",
       leaf_type: null,
       position: [8, 1.1, 4],
+      source: "osm",
       variant: 2,
     },
   ],
@@ -132,6 +135,40 @@ describe("OSM park details", () => {
     expect((branches as InstancedMesh).count).toBe(4);
   });
 
+  test("adds official-tree microcrowns only to settled desktop detail", () => {
+    const park = createParkDetails(payload);
+    const settledCrowns = park.children.filter(
+      (child) => child.userData.settledOnly === true,
+    );
+    expect(settledCrowns.length).toBeGreaterThan(0);
+    expect(
+      settledCrowns.reduce(
+        (sum, child) => sum + (child as InstancedMesh).count,
+        0,
+      ),
+    ).toBe(2);
+    expect(park.userData.settledOfficialTreeDetailFaces).toBe(160);
+    expect(settledCrowns.every((crown) => !crown.visible)).toBeTrue();
+
+    setParkSettledDetail(park, true);
+    expect(settledCrowns.every((crown) => crown.visible)).toBeTrue();
+    setParkDetailsFocus(park, "Spielplatz an der Luiseninsel");
+    expect(settledCrowns.every((crown) => !crown.visible)).toBeTrue();
+
+    setParkDetailsFocus(park, "Großer Tiergarten");
+    expect(settledCrowns.every((crown) => crown.visible)).toBeTrue();
+    setParkSettledDetail(park, false);
+    expect(settledCrowns.every((crown) => !crown.visible)).toBeTrue();
+  });
+
+  test("does not allocate settled-only tree geometry for touch profiles", () => {
+    const park = createParkDetails(payload, { settledDetail: false });
+    expect(
+      park.children.some((child) => child.userData.settledOnly === true),
+    ).toBeFalse();
+    expect(park.userData.settledOfficialTreeDetailFaces).toBe(0);
+  });
+
   test("renders the Luiseninsel footprint and recognizable climbing equipment", () => {
     const park = createParkDetails(payload);
     expect(
@@ -175,7 +212,9 @@ describe("OSM park details", () => {
   test("clears only nearby crowns while the playground is inspected", () => {
     const park = createParkDetails(payload);
     const cutawayCrowns = park.children.filter(
-      (child) => child.userData.focusCutawayFor === "Spielplatz an der Luiseninsel",
+      (child) =>
+        child.userData.focusCutawayFor === "Spielplatz an der Luiseninsel" &&
+        child.userData.settledOnly !== true,
     );
     expect(cutawayCrowns.length).toBeGreaterThan(0);
 

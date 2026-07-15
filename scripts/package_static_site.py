@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.3.3"
+PACKAGE_VERSION = "0.3.4"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -958,6 +958,20 @@ START_HERE_HTML = """<!doctype html>
       cursor: pointer;
     }
     button:hover, a.button:hover { background: #f0eadc; }
+    a.repository-button {
+      display: grid;
+      gap: 3px;
+      align-content: center;
+      overflow: hidden;
+    }
+    a.repository-button code {
+      overflow: hidden;
+      color: #6d493a;
+      font-size: 9px;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     body[data-theme="night"] button,
     body[data-theme="night"] a.button {
       background: #182321;
@@ -968,6 +982,7 @@ START_HERE_HTML = """<!doctype html>
     body[data-theme="night"] a.button:hover {
       background: #25302c;
     }
+    body[data-theme="night"] a.repository-button code { color: #f1c84b; }
     button.active {
       background: #1d4d5b;
       color: #fffaf0;
@@ -1240,6 +1255,13 @@ START_HERE_HTML = """<!doctype html>
         </div>
         <button type="button" id="reference" class="wide">Top-down-Referenzkarte</button>
         <a class="button wide" id="advanced-link" href="index.html">Echtes 3D öffnen (lokaler Server)</a>
+        <a class="button wide repository-button" id="repository-link" href="https://github.com/Klotzkette/isometric-berlin" target="_blank" rel="noreferrer">
+          <span id="repository-label">Öffentliches Repository öffnen</span>
+          <code>https://github.com/Klotzkette/isometric-berlin</code>
+        </a>
+        <a class="button wide" id="download-link" href="https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip">
+          <span id="download-label">Aktuellen Viewer herunterladen</span>
+        </a>
       </div>
       <p class="hint" id="hint"><strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. Atlas/Cinematic/Lab ändern Kontrast, Bühne und Lesbarkeit.</p>
       <div class="list" id="landmarks" aria-label="Landmarken"></div>
@@ -1315,6 +1337,8 @@ START_HERE_HTML = """<!doctype html>
       reset: document.getElementById("reset"),
       reference: document.getElementById("reference"),
       advancedLink: document.getElementById("advanced-link"),
+      repositoryLabel: document.getElementById("repository-label"),
+      downloadLabel: document.getElementById("download-label"),
       hint: document.getElementById("hint"),
       notice: document.getElementById("notice"),
       referenceTitle: document.getElementById("reference-title"),
@@ -1352,6 +1376,8 @@ START_HERE_HTML = """<!doctype html>
         reset: "Reset",
         reference: "Top-down-Referenzkarte",
         advanced: "Echtes 3D öffnen (lokaler Server)",
+        repository: "Öffentliches Repository öffnen",
+        download: "Aktuellen Viewer herunterladen",
         serverRequired: "Echtes 3D kann nicht direkt über file:// geladen werden. Windows: start-windows.bat doppelklicken. macOS/Linux: Terminal in diesem Ordner öffnen und python3 serve-local.py ausführen. Der Server öffnet danach automatisch das vollständige 3D-Modell.",
         hintPan: "<strong>Direktsteuerung:</strong> Maus ziehen verschiebt. Shift+ziehen oder Modus „Drehen/Swivel“ dreht und kippt. G schaltet Details, C Wolken, P Leichtmodus. Tag/Nacht schaltet beleuchtete Fenster, Laternen, Denkmäler und Tunnellicht.",
         hintRotate: "<strong>Drehmodus:</strong> Maus gedrückt halten und bewegen. Links/rechts dreht, hoch/runter swivelt. Unterseite zeigt den Tiergartentunnel von unten. Beim Ziehen reduziert der Viewer teure Detailfilter.",
@@ -1397,6 +1423,8 @@ START_HERE_HTML = """<!doctype html>
         reset: "Reset",
         reference: "Top-down reference map",
         advanced: "Open true 3D (local server)",
+        repository: "Open public repository",
+        download: "Download the current viewer",
         serverRequired: "True 3D cannot load directly over file://. Windows: double-click start-windows.bat. macOS/Linux: open Terminal in this folder and run python3 serve-local.py. The server then opens the complete 3D model automatically.",
         hintPan: "<strong>Direct control:</strong> Drag to pan. Shift-drag or Rotate/Swivel mode rotates and tilts. G toggles details, C clouds, P lite mode. Day/Night toggles lit windows, street lamps, monuments and tunnel lighting.",
         hintRotate: "<strong>Rotate mode:</strong> Hold the mouse button and move. Left/right rotates, up/down swivels. Underside shows the Tiergarten tunnel from below. While dragging, the viewer reduces costly detail filters.",
@@ -1580,6 +1608,8 @@ START_HERE_HTML = """<!doctype html>
       ui.reset.textContent = t("reset");
       ui.reference.textContent = t("reference");
       ui.advancedLink.textContent = t("advanced");
+      ui.repositoryLabel.textContent = t("repository");
+      ui.downloadLabel.textContent = t("download");
       ui.notice.textContent = t(
         ui.notice.classList.contains("is-warning") ? "serverRequired" : "notice"
       );

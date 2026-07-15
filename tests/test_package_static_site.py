@@ -134,6 +134,10 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "compass" in html
   assert "lang-en" in html
   assert "applyLanguage" in html
+  assert "https://github.com/Klotzkette/isometric-berlin" in html
+  assert "Open public repository" in html
+  assert "Öffentliches Repository öffnen" in html
+  assert "releases/latest/download/isometric-berlin-regierungsviertel-local.zip" in html
   assert "theme-night" in html
   assert "setTheme" in html
   assert "night-light-overlay" in html

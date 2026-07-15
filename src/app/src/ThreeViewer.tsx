@@ -64,6 +64,7 @@ import {
   createParkDetails,
   parkDetailFocusDistance,
   setParkDetailsFocus,
+  setParkSettledDetail,
 } from "./ParkDetails";
 import { runBoundedTasks } from "./boundedTaskPool";
 import {
@@ -222,8 +223,9 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   });
   runtime.interactionSurface.visible = !settled;
   runtime.settledSurface.visible = settled;
+  setParkSettledDetail(runtime.parkDetails, settled);
   runtime.renderer.domElement.dataset.surfaceQuality = settled
-    ? "settled-6m"
+    ? "settled-7m-plus"
     : "interaction-2_3m";
 }
 
@@ -314,14 +316,14 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xc9eaf3;
   runtime.scene.background = new Color(sky);
   runtime.scene.fog = new Fog(sky, isNight ? 900 : isMinecraft ? 1450 : 1100, 2550);
-  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.38 : 1.3;
+  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.38 : 1.22;
   runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
-  runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x658266);
-  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 2.25 : 2.7;
+  runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x57775b);
+  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 2.25 : 2.12;
   runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xffdda3 : 0xffefc9);
-  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.15 : 2.75;
+  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.15 : 3.15;
   runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);
-  runtime.skyFill.intensity = isNight ? 0.2 : isMinecraft ? 0.48 : 0.34;
+  runtime.skyFill.intensity = isNight ? 0.2 : isMinecraft ? 0.48 : 0.26;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
@@ -1150,7 +1152,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       });
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.32;
+      renderer.toneMappingExposure = 1.22;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = PCFShadowMap;
       renderer.setPixelRatio(1);
@@ -1165,9 +1167,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const scene = new Scene();
       scene.background = new Color(0xc9eaf3);
       scene.fog = new Fog(0xc9eaf3, 1100, 2550);
-      const hemisphere = new HemisphereLight(0xffffff, 0x658266, 2.7);
+      const hemisphere = new HemisphereLight(0xffffff, 0x57775b, 2.12);
       scene.add(hemisphere);
-      const sun = new DirectionalLight(0xffefc9, 2.75);
+      const sun = new DirectionalLight(0xffefc9, 3.15);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
       sun.shadow.mapSize.set(2048, 2048);
@@ -1176,7 +1178,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sun.shadow.camera.top = 1300;
       sun.shadow.camera.bottom = -1300;
       scene.add(sun);
-      const skyFill = new DirectionalLight(0xb6dcff, 0.34);
+      const skyFill = new DirectionalLight(0xb6dcff, 0.26);
       skyFill.position.set(620, 430, -680);
       scene.add(skyFill);
 
@@ -1642,7 +1644,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 if (runtime.disposed) {
                   return;
                 }
-                const details = createParkDetails(payload);
+                const details = createParkDetails(payload, {
+                  settledDetail: !runtime.coarsePointer,
+                });
                 runtime.parkDetails.removeFromParent();
                 runtime.parkDetails = details;
                 details.visible = !runtime.underside;

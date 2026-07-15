@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh } from "three";
+import { Box3, InstancedMesh, Vector3 } from "three";
 
 import {
   createMemorialLandmarks,
@@ -58,8 +58,17 @@ describe("granular memorial recognition models", () => {
 
   test("keeps the Soviet composition and 10 m composer silhouette legible", () => {
     const root = createMemorialLandmarks(landmarks);
-    expect(root.getObjectByName("Soviet memorial T-34 west hull")).not.toBeNull();
+    const westHull = root.getObjectByName("Soviet memorial T-34 west hull");
+    expect(westHull).not.toBeNull();
     expect(root.getObjectByName("Soviet memorial T-34 east hull")).not.toBeNull();
+    expect(westHull?.userData.vehicleType).toBe("T-34/76");
+    const hullSize = new Box3().setFromObject(westHull!).getSize(new Vector3());
+    expect(hullSize.z).toBeGreaterThan(hullSize.x);
+    const westWheels = root.getObjectByName(
+      "Soviet memorial T-34 west ten T-34 road wheels",
+    );
+    expect(westWheels).toBeInstanceOf(InstancedMesh);
+    expect((westWheels as InstancedMesh).count).toBe(10);
     expect(
       root.getObjectByName("Soviet memorial eight metre soldier body"),
     ).not.toBeNull();

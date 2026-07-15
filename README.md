@@ -5,9 +5,10 @@
 | What | Link |
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.3/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.3.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.4/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
-| Public repository | https://github.com/Klotzkette/isometric-berlin |
+| **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
@@ -23,11 +24,25 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.3.3 open-data package, also deployed as the hosted viewer.
+**Status:** Public open-data project · **Local v0.3.4** · hosted viewer and a
+complete local package for macOS, Windows, and Linux.
+
+## What this repository is / Was dieses Repository ist
+
+| English | Deutsch |
+|---|---|
+| This public repository contains the complete React/Three.js viewer, Python geodata pipeline, bounded Regierungsviertel source manifests, tests, documentation, generated WebGL assets, and reproducible release tooling. | Dieses öffentliche Repository enthält den vollständigen React/Three.js-Viewer, die Python-Geodatenpipeline, begrenzte Quellenmanifeste des Regierungsviertels, Tests, Dokumentation, erzeugte WebGL-Dateien und reproduzierbare Release-Werkzeuge. |
+| The live and downloaded viewers need no AI model, account, API key, or paid service. They render bundled static assets directly in a modern browser. | Der Live-Viewer und das Download-Paket benötigen weder KI-Modell noch Konto, API-Key oder Bezahldienst. Sie rendern die mitgelieferten statischen Dateien direkt im modernen Browser. |
+| Metric placement comes from Berlin LoD2, the Berlin 3D Mesh, official support layers, and OSM. Procedural recognition details are additive and explicitly documented; an approximation is never described as surveyed geometry. | Die metrische Lage stammt aus Berlin LoD2, dem Berliner 3D-Mesh, amtlichen Zusatzebenen und OSM. Prozedurale Erkennungsdetails sind additiv und ausdrücklich dokumentiert; eine Annäherung wird niemals als vermessene Geometrie ausgegeben. |
+| The browser UI contains a GitHub button. It shows this complete repository URL in German and English and provides a stable download action. | Die Browseroberfläche enthält einen GitHub-Knopf. Er zeigt diese vollständige Repository-Adresse auf Deutsch und Englisch und bietet einen stabilen Download an. |
+
+The canonical source and issue history always live at
+<https://github.com/Klotzkette/isometric-berlin>. Release archives are
+reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.3.3**. Its full viewer is a progressively
+The current public package is **v0.3.4**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -38,12 +53,19 @@ labelled compatibility fallback for browsers that cannot run local modules.
   1,609,984 to 2,299,987 faces without moving its source coordinates. A 58°
   normal crease keeps severe roof and facade folds crisp while preserving
   continuous terrain and vegetation. On desktop, a second background-loaded
-  tier retains 6,000,002 official faces while the camera is still; mouse,
+  tier retains 6,000,002 official mesh faces while the camera is still; mouse,
   keyboard or UI movement switches immediately to the lighter tier and returns
-  only after damping has ended. Touch devices retain the 2.3M interaction tier
-  and do not download the desktop-only 6M geometry. Source-texture vertex
+  only after damping has ended. Two additional 80-triangle crown microclusters
+  then appear for each of the 6,893 official Berlin tree points. This produces
+  7,102,882 rendered official-source face equivalents in the settled
+  presentation. The figure transparently includes GPU instances; it does not
+  claim seven million unique surveyed polygons. Touch devices retain the 2.3M
+  interaction tier and do not download the desktop-only 6M geometry or render
+  the settled-only microcrowns. Source-texture vertex
   colours receive a bounded saturation/contrast lift so grass, water, brick and
-  glass remain distinct without inventing textures. Reichstag,
+  glass remain distinct without inventing textures. A stronger south-west
+  key light and reduced ambient fill keep facade folds and tree trunks crisp
+  instead of washing them into beige/green. Reichstag,
   Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
   high-detail, textured photogrammetry crops masked by official LoD2
   footprints, using up to 1600 px per material segment. Metric recognition
@@ -53,7 +75,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
   now separates tall arched bays, three-bay tower windows, upper windows and
   west-entrance glass instead of repeating one generic grid. The Chancellery separates its
   36 m cube and three LoD2-aligned 18 m
-  office bands; Hauptbahnhof exposes its 321 m glass roof, 160 x 45 m hall and
+  office bands; Hauptbahnhof exposes its 321 m glass roof, 180 x 42 m hall and
   46 m frames; the 62.5 x 11 x 26 m Brandenburg Gate has all twelve columns and
   a bronze-green Quadriga.
 - Selecting one of the four hero buildings opens a building-specific,
@@ -123,7 +145,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,
   Sinti/Roma, homosexual-victims, Goethe, composer and 2026 Jehovah's Witnesses
   memorials preserve their defining source-documented forms while the official
-  Berlin surface remains visible underneath.
+  Berlin surface remains visible underneath. The Soviet memorial's two
+  Berlin.de-identified T-34/76 vehicles now use longitudinal hulls, sloped
+  glacis plates, ten road wheels each, turrets, hatches and 76 mm barrels rather
+  than transverse generic boxes; their local spacing remains an approximation.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. A
   compact additive layer combines 6,893 official Berlin tree-catalogue points
   with unmatched OSM evidence into 8,029 individual trees, including measured
@@ -285,8 +310,8 @@ Dieses Projekt würde ohne ihn nicht existieren.
 
 ## The Idea
 
-The end goal is a giant, zoomable, SimCity-style isometric pixel-art map
-of Berlin. The current v0.2 viewer runs from generated open-data map tiles
+The end goal is a giant, zoomable, SimCity-style isometric map
+of Berlin. The current viewer runs from generated open-data map tiles
 and the official Berlin photogrammetry mesh; the AI style pass is a later
 pipeline step, not a runtime requirement.
 
@@ -302,9 +327,9 @@ for Berlin are produced from scratch.
 
 ## Die Idee
 
-Das Ziel ist eine riesige, zoombare, isometrische Pixel-Art-Karte von
-Berlin im Stil von SimCity. Der aktuelle lokale v0.1-Viewer läuft
-bereits mit erzeugten Open-Data-Kacheln; der KI-Stilschritt ist ein
+Das Ziel ist eine riesige, zoombare, isometrische Karte von
+Berlin im Stil von SimCity. Der aktuelle Viewer läuft mit erzeugten
+Open-Data-Kacheln und dem amtlichen Berliner Photogrammetrie-Mesh; der KI-Stilschritt ist ein
 späterer Pipeline-Schritt und keine Laufzeitvoraussetzung.
 
 Dieses Repository ist ein eigenständiges, abgeleitetes Projekt, inspiriert
@@ -322,9 +347,9 @@ Kacheln für Berlin werden neu erzeugt.
 
 ## MVP Scope: Regierungsviertel
 
-The first milestone covers only the
-**Government Quarter of Berlin** — a tight area around the heart of
-the federal government. Nothing else is in scope for v0.1.
+The bounded release covers only the **Government Quarter of Berlin** — a tight
+area around the heart of the federal government. The source polygon remains
+the hard spatial limit so releases stay reproducible and locally downloadable.
 
 **Bounding area (approximate):**
 
@@ -346,9 +371,10 @@ the low hundreds, not the ~40,000 of the NYC map.
 
 ## MVP-Umfang: Regierungsviertel
 
-Der erste Meilenstein deckt ausschließlich das **Regierungsviertel
-Berlin** ab – ein enger Bereich rund um das Herz der Bundesregierung.
-Mehr ist in v0.1 nicht vorgesehen.
+Der begrenzte Release deckt ausschließlich das **Regierungsviertel Berlin**
+ab – einen engen Bereich rund um das Herz der Bundesregierung. Das
+Quellpolygon bleibt die feste räumliche Grenze, damit Releases reproduzierbar
+und lokal herunterladbar bleiben.
 
 **Ausschnitt (ungefähr):**
 

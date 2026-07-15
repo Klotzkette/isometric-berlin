@@ -70,6 +70,12 @@ not permission to copy restricted material:
   Denkmal, Berlin.de, and Kulturstaatsminister sources place the
   temporary memorial on Heinrich-von-Gagern-Strasse / former Kroll-Oper
   grounds near Bundestag and Chancellery. Current point is approximate.
+- Soviet Memorial Tiergarten: Berlin.de and the Landesdenkmalamt identify the
+  two displayed vehicles as T-34 tanks; Berlin.de specifies T-34/76. The
+  recognition model therefore uses a longitudinal hull, ten visible road
+  wheels per vehicle, sloped glacis, turret, hatch and 76 mm barrel. Exact
+  local vehicle dimensions and spacing remain a documented visual
+  approximation over the official surface.
 - Tunnel Tiergarten Spreebogen: v0.1.49 uses OpenStreetMap / Overpass
   `highway=trunk`, `tunnel=yes`, `layer=-2` carriageway geometries for
   the named B96 tunnel ways, plus public route descriptions, portal
@@ -108,6 +114,10 @@ derived textures, or traced map geometry.
 - OSM node `66917229` confirms the Starbucks POI on the northeast Pariser-Platz
   edge. It is represented only as a small semantic sign; no trademark image or
   restricted commercial photograph is copied.
+- Deutsche Bahn's current architecture page gives the crossing station hall as
+  180 m long and 42 m wide beneath the 321 m east-west glass roof. These values
+  replace the earlier 160 x 45 m recognition-envelope estimate; the official
+  mesh and LoD2 alignment remain unchanged.
 - The committed Wikimedia set now contains 110 accepted thumbnails across 37
   motif groups. Every attribution-required file has a non-empty artist or
   credit field, and the public attribution payload remains packaged.

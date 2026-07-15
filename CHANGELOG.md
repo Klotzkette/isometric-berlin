@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.3.4
+
+- Add a dedicated GitHub control to desktop and mobile viewer chrome. Its
+  focus-safe dialog explains the project in German and English, displays and
+  copies the complete public repository URL, and links to the stable current
+  Mac/Windows/Linux download. The zero-server fallback exposes the same
+  bilingual repository and download actions, while the visible app version is
+  now derived from `package.json` instead of a stale hard-coded value.
+- Extend the idle desktop presentation with two additional 80-triangle crown
+  microclusters for each of 6,893 official Berlin tree-catalogue points. The
+  6,000,002-face official surface plus those instanced, officially anchored
+  details yields 7,102,882 rendered official-source face equivalents without
+  inventing a seven-million-polygon survey or subdividing unchanged triangles.
+  Motion and coarse-pointer devices neither render nor allocate this extra
+  geometry.
+- Increase daylight shape separation with a stronger south-west key light,
+  reduced ambient fill and restrained exposure. Facade folds, tree trunks and
+  monuments keep deeper shadows and livelier source colours without replacing
+  the official aerial texture.
+- Correct the Hauptbahnhof crossing hall recognition envelope from the old
+  160 x 45 m estimate to Deutsche Bahn's current published 180 x 42 m, while
+  retaining its 321 m east-west glass roof and official mesh/LoD2 alignment.
+- Replace the Soviet Memorial's transverse generic vehicle blocks with
+  source-identified T-34/76 recognition models: longitudinal hulls, sloped
+  glacis plates, ten road wheels each, turrets, hatches, mantlets, headlamps and
+  76 mm barrels. Exact local dimensions remain explicitly approximate.
+- Expand release guards and regression tests for project metadata, bilingual
+  offline links, touch-safe settled detail, T-34 orientation and station
+  dimensions; update the public README and geolocation QA record accordingly.
+
 ## v0.3.3
 
 - Raise the settled desktop surface from 4,000,039 to 6,000,002 faces from the

@@ -303,8 +303,8 @@ def webgl_manifest_failures(
     },
     "hauptbahnhof-model": {
       "east_west_roof_length_m": 321.0,
-      "north_south_hall_length_m": 160.0,
-      "north_south_hall_width_m": 45.0,
+      "north_south_hall_length_m": 180.0,
+      "north_south_hall_width_m": 42.0,
       "office_bridge_height_m": 46.0,
     },
     "brandenburger-tor-model": {
@@ -456,6 +456,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   app_path = root / "src/app/src/App.tsx"
   architecture_path = root / "src/app/src/ArchitecturalLandmarks.ts"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
+  park_path = root / "src/app/src/ParkDetails.ts"
+  project_metadata_path = root / "src/app/src/projectMetadata.ts"
   camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
   render_quality_path = root / "src/app/src/renderQuality.ts"
   surface_quality_path = root / "src/app/src/surfaceQuality.ts"
@@ -465,6 +467,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not app_path.exists()
     or not architecture_path.exists()
     or not memorial_path.exists()
+    or not park_path.exists()
+    or not project_metadata_path.exists()
     or not camera_navigation_path.exists()
     or not render_quality_path.exists()
     or not surface_quality_path.exists()
@@ -475,6 +479,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   app = app_path.read_text(encoding="utf-8")
   architecture = architecture_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
+  park = park_path.read_text(encoding="utf-8")
+  project_metadata = project_metadata_path.read_text(encoding="utf-8")
   camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
   render_quality = render_quality_path.read_text(encoding="utf-8")
   surface_quality = surface_quality_path.read_text(encoding="utf-8")
@@ -521,6 +527,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
     "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
     "six-million-face settled surface": "manifest.surface_detail_tiles",
+    "seven-million-plus official-source presentation": '"settled-7m-plus"',
+    "settled-only official-tree detail gate": (
+      "setParkSettledDetail(runtime.parkDetails, settled)"
+    ),
     "interaction surface swap": "setSurfacePresentation(runtime, isMoving)",
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
@@ -556,6 +566,12 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(f"Touch mode does not release inactive 3D memory: {app_path}")
   if "toggleLightingMode" not in app or "lightingMode={lightingMode}" not in app:
     failures.append(f"Viewer lacks persistent day/night controls: {app_path}")
+  if "openRepository" not in app or "REPOSITORY_URL" not in app:
+    failures.append(f"Viewer lacks repository information control: {app_path}")
+  if "https://github.com/Klotzkette/isometric-berlin" not in project_metadata:
+    failures.append(
+      f"Viewer lacks the complete public repository URL: {project_metadata_path}"
+    )
   if "flyBy(1, 0)" not in app or "Shift + Pfeil" not in app:
     failures.append(f"Viewer lacks direct arrow-key flight controls: {app_path}")
   required_memorial_snippets = {
@@ -563,7 +579,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "official Holocaust height bands": "high: 872",
     "official-mesh ground placement": "MEMORIAL_GROUND_Y",
     "mobile-safe Holocaust shadow budget": "stelae.castShadow = false",
-    "Soviet memorial tanks": "Soviet memorial T-34 west",
+    "Soviet memorial T-34/76 tanks": 'vehicleType = "T-34/76"',
     "2026 Jehovah's Witnesses memorial": (
       "Jehovahs Witnesses memorial fine vertical folds"
     ),
@@ -572,6 +588,18 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     f"Memorial models lack {label}: {memorial_path}"
     for label, snippet in required_memorial_snippets.items()
     if snippet not in memorial
+  )
+  required_park_snippets = {
+    "official settled tree microcrowns": (
+      "Geoportal Berlin settled-only official tree microcrowns"
+    ),
+    "official tree-only detail filter": 'tree.source === "berlin_official"',
+    "settled detail visibility switch": "setParkSettledDetail",
+  }
+  failures.extend(
+    f"Park detail layer lacks {label}: {park_path}"
+    for label, snippet in required_park_snippets.items()
+    if snippet not in park
   )
   required_camera_snippets = {
     "screen-relative flight": "screenRelativeFlightDelta",

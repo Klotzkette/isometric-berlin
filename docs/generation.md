@@ -81,7 +81,11 @@ invented metric geometry. The 23 interaction tiles contain 2,299,987 faces and
 3,134,292 vertices in 71.6 MiB. Meshopt uses 16-bit positions and 8-bit normals;
 the viewer carries the interaction tier while moving and swaps to the settled
 tier only after desktop loading and camera damping complete. Touch devices do
-not request the settled tier. Reichstag, Bundeskanzleramt, Hauptbahnhof and
+not request the settled tier. At rest, the frontend adds two 80-triangle crown
+microclusters for each of the 6,893 official tree-catalogue points. Together
+with the 6,000,002-face surface this yields 7,102,882 official-source rendered
+face equivalents without tessellating unchanged triangles or describing the
+procedural crowns as surveyed shapes. Reichstag, Bundeskanzleramt, Hauptbahnhof and
 Brandenburger Tor receive
 separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
 real dome geometry while excluding surrounding tree noise. Hero material

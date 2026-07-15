@@ -1821,7 +1821,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   );
   addBarrelRoof(
     group,
-    "Hauptbahnhof 160 m north-south hall",
+    "Hauptbahnhof 180 m north-south hall",
     signature.north_south_hall_length_m,
     signature.north_south_hall_width_m,
     19,

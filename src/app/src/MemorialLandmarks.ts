@@ -294,26 +294,87 @@ function createHomosexualMemorial(anchor: MemorialLandmark): Group {
 }
 
 function addTank(group: Group, name: string, x: number): void {
-  const armor = modelMaterial(0x4b6353, { metalness: 0.28, roughness: 0.62 });
-  const dark = modelMaterial(0x252d28, { metalness: 0.34, roughness: 0.68 });
-  addBox(group, `${name} hull`, [6.7, 1.25, 3], [x, 1.12, 8], armor);
-  addBox(group, `${name} left track`, [5.8, 0.75, 0.48], [x, 0.58, 6.7], dark);
-  addBox(group, `${name} right track`, [5.8, 0.75, 0.48], [x, 0.58, 9.3], dark);
+  const armor = modelMaterial(0x496451, { metalness: 0.28, roughness: 0.62 });
+  const dark = modelMaterial(0x222a25, { metalness: 0.34, roughness: 0.68 });
+  const hull = addBox(
+    group,
+    `${name} hull`,
+    [3.05, 1.18, 5.45],
+    [x, 1.28, 8],
+    armor,
+  );
+  hull.userData.vehicleType = "T-34/76";
+  addBox(group, `${name} left track`, [0.52, 0.78, 5.9], [x - 1.55, 0.62, 8], dark);
+  addBox(group, `${name} right track`, [0.52, 0.78, 5.9], [x + 1.55, 0.62, 8], dark);
+  const wheelTransforms: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    for (let index = 0; index < 5; index += 1) {
+      wheelTransforms.push({
+        position: [x + side * 1.82, 0.62, 5.92 + index * 1.04],
+        rotation: [0, 0, Math.PI / 2],
+      });
+    }
+  }
+  addInstances(
+    group,
+    `${name} ten T-34 road wheels`,
+    new CylinderGeometry(0.46, 0.46, 0.24, 12),
+    dark,
+    wheelTransforms,
+  );
+  const glacis = addBox(
+    group,
+    `${name} sloped front glacis`,
+    [2.78, 0.62, 1.18],
+    [x, 1.52, 5.38],
+    armor,
+  );
+  glacis.rotation.x = -0.32;
+  addBox(
+    group,
+    `${name} engine deck`,
+    [2.74, 0.28, 1.48],
+    [x, 1.91, 9.92],
+    armor,
+  );
   addMesh(
     group,
     `${name} turret`,
-    new CylinderGeometry(1.25, 1.45, 0.92, 12),
+    new CylinderGeometry(1.16, 1.4, 0.94, 12),
     armor,
-    [x, 2.18, 8],
+    [x, 2.33, 7.82],
   );
+  addMesh(
+    group,
+    `${name} command hatch`,
+    new CylinderGeometry(0.42, 0.46, 0.16, 12),
+    dark,
+    [x + 0.34, 2.88, 7.94],
+  );
+  addMesh(
+    group,
+    `${name} gun mantlet`,
+    new SphereGeometry(0.43, 12, 8),
+    armor,
+    [x, 2.36, 6.7],
+  ).scale.set(1.35, 0.82, 0.58);
   addSegment(
     group,
-    `${name} barrel`,
-    new Vector3(x, 2.4, 7.5),
-    new Vector3(x, 2.45, 3.2),
+    `${name} 76 mm barrel`,
+    new Vector3(x, 2.38, 6.62),
+    new Vector3(x, 2.45, 3.15),
     0.14,
     dark,
   );
+  for (const side of [-1, 1]) {
+    addMesh(
+      group,
+      `${name} front headlamp ${side < 0 ? "left" : "right"}`,
+      new SphereGeometry(0.17, 10, 7),
+      modelMaterial(0xe5d6a4, { metalness: 0.18, roughness: 0.32 }),
+      [x + side * 0.92, 1.72, 5.12],
+    );
+  }
 }
 
 function createSovietMemorial(anchor: MemorialLandmark): Group {
@@ -322,7 +383,9 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   placeOnOfficialMesh(group, anchor);
   group.rotation.y = Math.PI;
   group.userData.geometryStatus =
-    "Official composition and 8 m soldier height; local spacing remains a visual approximation";
+    "Official composition, T-34/76 tank type and 8 m soldier height; local spacing remains a visual approximation";
+  group.userData.sourceUrl =
+    "https://www.berlin.de/sehenswuerdigkeiten/3561689-3558930-sowjetisches-ehrenmal-tiergarten.html";
   const stone = modelMaterial(0xc2c1b7, { roughness: 0.78 });
   const stoneDark = modelMaterial(0x777a73, { roughness: 0.84 });
   const bronze = modelMaterial(0x4f6657, { metalness: 0.38, roughness: 0.55 });

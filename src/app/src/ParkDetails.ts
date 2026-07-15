@@ -103,6 +103,10 @@ type TreeCrownCutaway = {
   z: number;
 };
 
+export type ParkDetailOptions = {
+  settledDetail?: boolean;
+};
+
 const UP = new Vector3(0, 1, 0);
 const PATH_STYLE: Record<string, { color: number; width: number }> = {
   bridleway: { color: 0x79684b, width: 1.7 },
@@ -217,11 +221,14 @@ function addTrees(
   group: Group,
   trees: ParkTree[],
   cutaway: TreeCrownCutaway | null,
-): void {
+  includeSettledDetail: boolean,
+): number {
   const trunks: Transform[] = [];
   const branches: Transform[] = [];
   const crowns: Transform[][] = [[], [], []];
   const cutawayCrowns: Transform[][] = [[], [], []];
+  const settledCrowns: Transform[][] = [[], [], []];
+  const settledCutawayCrowns: Transform[][] = [[], [], []];
   for (const tree of trees) {
     const [x, y, z] = tree.position;
     const trunkHeight = tree.height_m * 0.5;
@@ -271,6 +278,27 @@ function addTrees(
         scale: [radius, radius * (0.7 + layer * 0.045), radius],
       });
     }
+    if (includeSettledDetail && tree.source === "berlin_official") {
+      const settledOffsets = [
+        [-0.43, 0.45, -0.3],
+        [0.42, 0.3, 0.34],
+      ];
+      const target = isInsideCutaway
+        ? settledCutawayCrowns
+        : settledCrowns;
+      settledOffsets.forEach(([offsetX, offsetY, offsetZ], index) => {
+        const radius = tree.crown_radius_m * (index === 0 ? 0.54 : 0.58);
+        target[variant].push({
+          position: [
+            x + offsetX * tree.crown_radius_m,
+            y + trunkHeight + radius * offsetY,
+            z + offsetZ * tree.crown_radius_m,
+          ],
+          rotation: [0, ((tree.variant + index + 5) * Math.PI) / 7, 0],
+          scale: [radius, radius * (index === 0 ? 0.74 : 0.79), radius],
+        });
+      });
+    }
   }
   group.add(
     instanced(
@@ -314,6 +342,41 @@ function addTrees(
       group.add(mesh);
     }
   });
+  let settledDetailFaces = 0;
+  const addSettledCrownInstances = (
+    transforms: Transform[],
+    index: number,
+    focusCutaway: boolean,
+  ) => {
+    if (transforms.length === 0) {
+      return;
+    }
+    const geometry = new IcosahedronGeometry(1, 1);
+    const faces = geometry.index
+      ? geometry.index.count / 3
+      : geometry.getAttribute("position").count / 3;
+    const mesh = instanced(
+      `Geoportal Berlin settled-only official tree microcrowns variant ${index + 1}`,
+      geometry,
+      material(colors[index], 0.9),
+      transforms,
+    );
+    mesh.visible = false;
+    mesh.userData.settledOnly = true;
+    mesh.userData.settledActive = false;
+    if (focusCutaway && cutaway) {
+      mesh.userData.focusCutawayFor = cutaway.focusName;
+    }
+    group.add(mesh);
+    settledDetailFaces += faces * transforms.length;
+  };
+  settledCrowns.forEach((transforms, index) => {
+    addSettledCrownInstances(transforms, index, false);
+  });
+  settledCutawayCrowns.forEach((transforms, index) => {
+    addSettledCrownInstances(transforms, index, true);
+  });
+  return settledDetailFaces;
 }
 
 function lampHeadCount(lightType: string | null): number {
@@ -812,7 +875,10 @@ function addPlaygrounds(group: Group, playgrounds: ParkPlayground[]): void {
   }
 }
 
-export function createParkDetails(payload: ParkDetailsPayload): Group {
+export function createParkDetails(
+  payload: ParkDetailsPayload,
+  options: ParkDetailOptions = {},
+): Group {
   if (payload.schema_version !== 1 && payload.schema_version !== 2) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
@@ -829,7 +895,12 @@ export function createParkDetails(payload: ParkDetailsPayload): Group {
     treeCount: payload.trees.length,
   };
   addPaths(group, payload.paths);
-  addTrees(group, payload.trees, treeCrownCutaway(payload.playgrounds));
+  group.userData.settledOfficialTreeDetailFaces = addTrees(
+    group,
+    payload.trees,
+    treeCrownCutaway(payload.playgrounds),
+    options.settledDetail ?? true,
+  );
   addStreetLights(group, streetLights);
   group.userData.wallStoneCount = addWallTraces(group, wallTraces);
   group.userData.eggCount = addHiddenEasterEggs(group, payload.trees);
@@ -841,7 +912,12 @@ export function setParkDetailsFocus(group: Group, name: string): void {
   group.traverse((object) => {
     const focusCutawayFor = object.userData.focusCutawayFor;
     if (typeof focusCutawayFor === "string") {
-      object.visible = focusCutawayFor !== name;
+      const focusSuppressed = focusCutawayFor === name;
+      object.userData.focusSuppressed = focusSuppressed;
+      object.visible =
+        !focusSuppressed &&
+        (object.userData.settledOnly !== true ||
+          object.userData.settledActive === true);
     }
   });
   for (const child of group.children) {
@@ -872,6 +948,20 @@ export function setParkDetailsFocus(group: Group, name: string): void {
         : 0;
     });
   }
+}
+
+export function setParkSettledDetail(group: Group, enabled: boolean): void {
+  if (group.userData.settledDetailEnabled === enabled) {
+    return;
+  }
+  group.userData.settledDetailEnabled = enabled;
+  group.traverse((object) => {
+    if (object.userData.settledOnly !== true) {
+      return;
+    }
+    object.userData.settledActive = enabled;
+    object.visible = enabled && object.userData.focusSuppressed !== true;
+  });
 }
 
 export function parkDetailFocusDistance(name: string): number | null {

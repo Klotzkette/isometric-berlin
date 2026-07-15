@@ -2398,8 +2398,8 @@
       "rotation_y_degrees": 21.82,
       "east_west_roof_length_m": 321.0,
       "east_west_roof_width_m": 40.0,
-      "north_south_hall_length_m": 160.0,
-      "north_south_hall_width_m": 45.0,
+      "north_south_hall_length_m": 180.0,
+      "north_south_hall_width_m": 42.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
         "distance_m": 370.0,
@@ -2407,7 +2407,7 @@
         "azimuth_degrees": 52.0,
         "target_height_m": 21.0
       },
-      "source_url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186"
+      "source_url": "https://www.deutschebahn.com/de/architektur_bahnhof-6878040"
     },
     {
       "id": "brandenburger-tor-model",

@@ -7,8 +7,12 @@ import {
   ChevronDown,
   ChevronUp,
   Compass,
+  Copy,
+  Download,
+  ExternalLink,
   FlipHorizontal2,
   FlipVertical2,
+  Github,
   Home,
   Info,
   Keyboard,
@@ -44,6 +48,11 @@ import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
 import { MinecraftDziPostProcessor } from "./visual-modes/minecraft/MinecraftDziPostProcessor";
 import { MinecraftLifeOverlay } from "./visual-modes/minecraft/MinecraftLifeOverlay";
 import {
+  DOWNLOAD_URL,
+  PROJECT_VERSION,
+  REPOSITORY_URL,
+} from "./projectMetadata";
+import {
   PEN_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
   normalizeRotation,
@@ -73,7 +82,6 @@ type MobileSheet = "compass" | "overflow" | null;
 const LEGACY_APPEARANCE_STORAGE_KEY = "isometric-berlin-lighting";
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
-const VERSION = "v0.3.0";
 const MOBILE_MEDIA_QUERY =
   "(max-width: 768px), (max-width: 900px) and (max-height: 500px) and (orientation: landscape)";
 
@@ -352,6 +360,8 @@ export function App() {
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
+  const closeRepositoryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const repositoryReturnFocusRef = useRef<HTMLElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
@@ -375,6 +385,7 @@ export function App() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isRepositoryOpen, setIsRepositoryOpen] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
   const [isChromeHidden, setIsChromeHidden] = useState(initialChromeHidden);
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
@@ -826,6 +837,31 @@ export function App() {
     setIsReferenceOpen(false);
   }, []);
 
+  const openRepository = useCallback(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      repositoryReturnFocusRef.current = document.activeElement;
+    }
+    setIsTouring(false);
+    setMobileSheet(null);
+    setIsHelpOpen(false);
+    setIsReferenceOpen(false);
+    setStatus("Öffentliches Repository · Public repository");
+    setIsRepositoryOpen(true);
+  }, []);
+
+  const closeRepository = useCallback(() => {
+    setIsRepositoryOpen(false);
+  }, []);
+
+  const copyRepositoryLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(REPOSITORY_URL);
+      setStatus("Repo-Link kopiert · Repository link copied");
+    } catch {
+      setStatus("Repo-Link sichtbar · Repository link shown");
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     const payload = bundledLandmarkPayload as LandmarkPayload;
@@ -861,6 +897,7 @@ export function App() {
       if (event.key === "Escape") {
         closeReferenceMap();
         setIsHelpOpen(false);
+        setIsRepositoryOpen(false);
         setMobileSheet(null);
         setIsTouring(false);
         return;
@@ -897,7 +934,7 @@ export function App() {
         toggleMinecraftMode();
         return;
       }
-      if (isReferenceOpen || isHelpOpen || !isReady) {
+      if (isReferenceOpen || isHelpOpen || isRepositoryOpen || !isReady) {
         return;
       }
       if (event.key === "Home" || event.key === "0") {
@@ -989,6 +1026,7 @@ export function App() {
     isHelpOpen,
     isReady,
     isReferenceOpen,
+    isRepositoryOpen,
     panByViewport,
     rotateBy,
     tiltBy,
@@ -1011,6 +1049,22 @@ export function App() {
     const timer = window.setTimeout(() => closeReferenceButtonRef.current?.focus(), 0);
     return () => window.clearTimeout(timer);
   }, [isReferenceOpen]);
+
+  useEffect(() => {
+    if (!isRepositoryOpen) {
+      const target = repositoryReturnFocusRef.current;
+      if (target?.isConnected) {
+        target.focus();
+      }
+      repositoryReturnFocusRef.current = null;
+      return;
+    }
+    const timer = window.setTimeout(
+      () => closeRepositoryButtonRef.current?.focus(),
+      0,
+    );
+    return () => window.clearTimeout(timer);
+  }, [isRepositoryOpen]);
 
   useEffect(() => {
     const button = landmarkButtonsRef.current.get(selected);
@@ -1307,7 +1361,7 @@ export function App() {
           type="button"
           className="brand"
           aria-label="Projektname und aktuelle Landmarke"
-          title={`Isometric Berlin · Regierungsviertel · ${VERSION}`}
+          title={`Isometric Berlin · Regierungsviertel · ${PROJECT_VERSION}`}
           onClick={revealBrandTitle}
           onPointerEnter={revealBrandTitle}
         >
@@ -1319,7 +1373,7 @@ export function App() {
           <span className="brand-mobile">
             <strong>
               {showBrandTitle
-                ? `Isometric Berlin · Regierungsviertel · ${VERSION}`
+                ? `Isometric Berlin · Regierungsviertel · ${PROJECT_VERSION}`
                 : landmarkShortLabel(selectedLandmark?.name ?? status)}
             </strong>
             <small>
@@ -1460,6 +1514,15 @@ export function App() {
             onClick={() => setIsHelpOpen((open) => !open)}
           >
             <Keyboard size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Repository und Download / Repository and download"
+            aria-pressed={isRepositoryOpen}
+            title="Öffentliches GitHub-Repository / Public GitHub repository"
+            onClick={openRepository}
+          >
+            <Github size={18} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -1999,6 +2062,10 @@ export function App() {
               <Keyboard size={20} aria-hidden="true" />
               <span>Hilfe</span>
             </button>
+            <button type="button" onClick={openRepository}>
+              <Github size={20} aria-hidden="true" />
+              <span>Repo</span>
+            </button>
             <button
               type="button"
               disabled={!selectedLandmark}
@@ -2114,6 +2181,86 @@ export function App() {
               src={referenceMapUrl}
               alt="Top-down reference map with OSM, LoD2, and numbered landmarks"
             />
+          </div>
+        </div>
+      ) : null}
+
+      {isRepositoryOpen ? (
+        <div
+          className="reference-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Projekt-Repository und Download / Project repository and download"
+          onClick={closeRepository}
+        >
+          <div
+            className="repository-panel"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="reference-header">
+              <div className="reference-title">
+                <Github aria-hidden="true" size={18} />
+                <strong>Projekt / Project</strong>
+              </div>
+              <button
+                ref={closeRepositoryButtonRef}
+                type="button"
+                aria-label="Repository-Hinweis schließen / Close repository information"
+                title="Schließen / Close"
+                onClick={closeRepository}
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </header>
+            <div className="repository-content">
+              <div className="repository-language-grid">
+                <section lang="de">
+                  <span className="repository-language">Deutsch</span>
+                  <h2>Offenes Projekt und vollständiger Quellcode</h2>
+                  <p>
+                    Diese Website gehört zum öffentlichen GitHub-Repository
+                    <strong> Klotzkette/isometric-berlin</strong>. Dort liegen
+                    Quellcode, Datenquellen, Methodik, Tests und alle Releases.
+                  </p>
+                </section>
+                <section lang="en">
+                  <span className="repository-language">English</span>
+                  <h2>Open project and complete source code</h2>
+                  <p>
+                    This website belongs to the public GitHub repository
+                    <strong> Klotzkette/isometric-berlin</strong>. It contains
+                    the source code, data sources, methodology, tests, and every
+                    release.
+                  </p>
+                </section>
+              </div>
+              <div className="repository-url-row">
+                <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">
+                  {REPOSITORY_URL}
+                </a>
+                <button
+                  type="button"
+                  aria-label="Repository-Link kopieren / Copy repository link"
+                  title="Link kopieren / Copy link"
+                  onClick={() => void copyRepositoryLink()}
+                >
+                  <Copy size={18} aria-hidden="true" />
+                </button>
+              </div>
+              <div className="repository-actions">
+                <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">
+                  <ExternalLink size={18} aria-hidden="true" />
+                  <span>Repository öffnen / Open repository</span>
+                </a>
+                <a href={DOWNLOAD_URL}>
+                  <Download size={18} aria-hidden="true" />
+                  <span>Viewer herunterladen / Download viewer</span>
+                </a>
+              </div>
+              <small>
+                {PROJECT_VERSION} · öffentlich / public · MIT-Code · Open-Data-Modell
+              </small>
+            </div>
           </div>
         </div>
       ) : null}

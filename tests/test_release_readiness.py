@@ -157,8 +157,8 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
       {
         "id": "hauptbahnhof-model",
         "east_west_roof_length_m": 321.0,
-        "north_south_hall_length_m": 160.0,
-        "north_south_hall_width_m": 45.0,
+        "north_south_hall_length_m": 180.0,
+        "north_south_hall_width_m": 42.0,
         "office_bridge_height_m": 46.0,
         "rotation_y_degrees": 21.82,
       },

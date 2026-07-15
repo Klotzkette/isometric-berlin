@@ -89,15 +89,15 @@ describe("metre-scale architectural recognition models", () => {
       east_west_roof_width_m: 40,
       id: "hauptbahnhof-model",
       kind: "hauptbahnhof_model",
-      north_south_hall_length_m: 160,
-      north_south_hall_width_m: 45,
+      north_south_hall_length_m: 180,
+      north_south_hall_width_m: 42,
       office_bridge_height_m: 46,
     };
     const station = createArchitecturalSignature(signature);
     expect(station).not.toBeNull();
     const bounds = new Box3().setFromObject(station!);
     expect(bounds.max.x - bounds.min.x).toBeGreaterThanOrEqual(321);
-    expect(bounds.max.z - bounds.min.z).toBeGreaterThanOrEqual(160);
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThanOrEqual(180);
     expect(bounds.max.y).toBeCloseTo(46, 1);
     expect(
       station!.children.some((child) => child.name.includes("321 m east-west")),

@@ -66,8 +66,7 @@ CHANCELLERY_ARCHITECTURE_SOURCE_URL = (
   "bundeskanzleramt/geschichte-bundeskanzleramt-975040"
 )
 HAUPTBAHNHOF_ARCHITECTURE_SOURCE_URL = (
-  "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/"
-  "hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186"
+  "https://www.deutschebahn.com/de/architektur_bahnhof-6878040"
 )
 BRANDENBURG_GATE_SOURCE_URL = "https://www.visitberlin.de/de/brandenburger-tor"
 
@@ -793,8 +792,8 @@ def architectural_signature_payload(
       "rotation_y_degrees": round(station_frame.rotation_degrees, 3),
       "east_west_roof_length_m": 321.0,
       "east_west_roof_width_m": 40.0,
-      "north_south_hall_length_m": 160.0,
-      "north_south_hall_width_m": 45.0,
+      "north_south_hall_length_m": 180.0,
+      "north_south_hall_width_m": 42.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
         "distance_m": 370.0,

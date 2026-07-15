@@ -71,7 +71,7 @@ with a transparent 40 m by 23.5 m dome anchored to the published 24 m terrace
 datum, 24 main ribs, 17 horizontal rings, two counter-rotating ramps and a
 mirror cone. The Chancellery separates its 36 m central cube, semicircular
 windows and 18 m office bands and locates the 5.5 m Chillida sculpture from its
-verified landmark point. Hauptbahnhof exposes the 321 m glass roof, 160 x 45 m
+verified landmark point. Hauptbahnhof exposes the 321 m glass roof, 180 x 42 m
 crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
 62.5 x 11 x 26 m envelope, twelve Doric columns and articulated bronze-green
 Quadriga. These models sharpen silhouettes without replacing the aligned
@@ -161,9 +161,13 @@ By default the viewer loads the mesh scene from
 `public/mesh/regierungsviertel/scene.json`; individual GLBs are ordered by
 distance from the selected landmark and loaded with bounded concurrency. The
 2.3M-face interaction tier opens first on every device. Desktop then loads the
-6M-face settled tier serially in the background, shows it only while idle and
+6M-face settled surface serially in the background, shows it only while idle and
 returns to the interaction tier for mouse, touch, keyboard or button movement.
-Touch/coarse-pointer devices never request the settled tier. Hero
+The idle presentation also enables two extra 80-triangle microcrowns for each
+of 6,893 official Berlin tree points, taking the displayed official-source
+surface equivalents to 7,102,882. This is an instanced rendering count, not a
+claim of seven million independently surveyed polygons. Touch/coarse-pointer
+devices never request the settled tier or render those extra crowns. Hero
 texture crops load only when selected. A failed model request is retried once,
 and one failed optional hero group reports a warning without closing the usable
 base scene. Mobile/coarse-pointer devices retain one hero group, while desktop
