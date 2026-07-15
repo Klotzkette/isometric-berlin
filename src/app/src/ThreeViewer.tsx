@@ -67,6 +67,7 @@ import {
 import { runBoundedTasks } from "./boundedTaskPool";
 import { flyCameraInViewPlane } from "./cameraNavigation";
 import { heroDetailEvictions } from "./heroDetailCache";
+import { renderPixelRatio } from "./renderQuality";
 import { updateWindFlags } from "./WindFlags";
 import type { VisualMode } from "./visualMode";
 import {
@@ -1112,15 +1113,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.toneMappingExposure = 1.32;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = PCFShadowMap;
-      const fullPixelRatio = Math.min(
-        window.devicePixelRatio,
-        window.innerWidth <= 760 ? 1.5 : 2,
-      );
-      const interactionPixelRatio = Math.min(
-        fullPixelRatio,
-        coarsePointer ? 1 : 1.25,
-      );
-      renderer.setPixelRatio(fullPixelRatio);
+      renderer.setPixelRatio(1);
       renderer.domElement.className = "three-canvas";
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute(
@@ -1350,6 +1343,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (width < 1 || height < 1) {
           return;
         }
+        renderer.setPixelRatio(
+          renderPixelRatio({
+            coarsePointer,
+            devicePixelRatio: window.devicePixelRatio,
+            height,
+            interacting: controlsInteracting,
+            width,
+          }),
+        );
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
@@ -1370,7 +1372,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           window.clearTimeout(qualityRestoreTimer);
           qualityRestoreTimer = null;
         }
-        renderer.setPixelRatio(interactionPixelRatio);
         resize();
       };
       const onControlsEnd = () => {
@@ -1379,7 +1380,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         notifyView(runtime, onViewChangeRef.current);
         qualityRestoreTimer = window.setTimeout(() => {
           if (!runtime.disposed) {
-            renderer.setPixelRatio(fullPixelRatio);
             resize();
           }
           qualityRestoreTimer = null;

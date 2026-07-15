@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.0/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,18 +23,21 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.3.0 open-data package, also deployed as the hosted viewer.
+**Status:** Local v0.3.1 open-data package, also deployed as the hosted viewer.
 
 ## Current Viewer
 
-The current public package is **v0.3.0**. Its full viewer is a progressively
+The current public package is **v0.3.1**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale.
-- Each context tile retains up to 70,000 faces. Reichstag,
+- Each context tile retains up to 100,000 faces, raising the official base from
+  1,609,984 to 2,299,987 faces without moving its source coordinates. A 72°
+  normal crease keeps severe roof and facade folds crisp while preserving
+  continuous terrain and vegetation. Reichstag,
   Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
   high-detail, textured photogrammetry crops masked by official LoD2
   footprints, using up to 2048 px per material segment. Metric recognition
@@ -129,9 +132,9 @@ labelled compatibility fallback for browsers that cannot run local modules.
   committed OSM centreline. Its 0.32 m relief and crest highlights are a
   procedural display treatment, not surveyed hydrodynamic data.
 - Assets load progressively with bounded concurrency and an adaptive pixel
-  ratio. The 114.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
+  ratio. The 145.3 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
   individual public GLB remains below 5 MiB. Existing GLB normals are reused
-  instead of recalculating roughly 1.6 million base triangles at startup.
+  instead of recalculating roughly 2.3 million base triangles at startup.
 - Mobile devices retain only the selected high-resolution hero group; desktop
   retains the two most recent. Evicted geometry, materials and textures are
   explicitly released from GPU memory. A failed detail file is retried once
@@ -142,8 +145,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Disposing the viewer now cancels the remaining 100-item-capable worker queue
   before it can start another GLB. Pointer capture loss and window blur also
   reset three-finger state, preventing a permanently disabled orbit control.
-- Settled 3D uses up to 2x desktop / 1.5x mobile device pixels. Orbit gestures
-  temporarily lower the render ratio, then restore full sharpness after 140 ms.
+- Settled 3D uses up to 2.25x desktop / 1.75x mobile device pixels, bounded by
+  fixed eight- and 4.8-megapixel budgets so 4K screens and high-DPI phones do
+  not over-allocate GPU memory. Orbit gestures temporarily lower the render
+  ratio, then restore full sharpness after 140 ms.
   Static scenes settle to 12 fps on desktop and 10 fps on mobile to reduce GPU
   load without reducing interaction smoothness.
 - Repeated tunnel lamps, lane marks, ventilation shafts, fan rings and blades
@@ -151,7 +156,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
   instead of two duplicated pairs.
 - The local package server uses HTTP/1.1, the correct GLB media type and
   immutable caching for heavy static assets. Reopening 3D reuses the local
-  browser cache instead of transferring the 114.7 MiB scene again.
+  browser cache instead of transferring the 145.3 MiB scene again.
 - Release QA verifies the exact byte length and SHA-256 of all 45 scene GLBs in
   the source tree, extracted package, ZIP and static tarball. Both archives now
   reject duplicate, linked, encrypted, hidden and oversized content. The local

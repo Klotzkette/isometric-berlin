@@ -28,227 +28,245 @@
   "base_tiles": [
     {
       "file": "tile-3887_58193.glb",
-      "bytes": 1826724,
+      "bytes": 3212108,
       "includes_normals": true,
-      "sha256": "24f700fb4447174dd6224979573a5c7f4715c66014343cf959c74781606d4a15",
-      "vertices": 35194,
-      "faces": 70000,
+      "sha256": "d796614ddfb950a6e2eeae6fc9f1533b827916c8ba024e4137d12d71e081d669",
+      "vertices": 50770,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
-          388731.638,
-          5819309.431,
-          31.932
+          388732.305,
+          5819309.243,
+          31.425
         ],
         [
-          389101.411,
+          389102.349,
           5819672.837,
-          66.469
+          66.493
         ]
       ],
       "tile_id": "3887_58193",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 423421,
       "source_material_segments": 6,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3887_58196.glb",
-      "bytes": 1826236,
+      "bytes": 3209068,
       "includes_normals": true,
-      "sha256": "49d5440f5c25f52d8a80a643cf4843528c83594a1a5ca08e5e0f49d125011925",
-      "vertices": 35177,
-      "faces": 69999,
+      "sha256": "46cfe30e15342c0a1d7bc8f0a90f6294afb16acd0e178e9dd5932be0325b2717",
+      "vertices": 50664,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           388726.788,
           5819667.34,
-          29.086
+          29.184
         ],
         [
-          389099.198,
+          389103.119,
           5820045.159,
-          63.051
+          62.99
         ]
       ],
       "tile_id": "3887_58196",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 354654,
       "source_material_segments": 7,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3887_58200.glb",
-      "bytes": 1830496,
+      "bytes": 3233152,
       "includes_normals": true,
-      "sha256": "0c037d7a898a47ec54300ac39962f4db0ea960cb2c625c237e180b777e4453bb",
-      "vertices": 35329,
-      "faces": 69999,
+      "sha256": "f0f5a7353f937345f12cc7ccc3fe7fcb806eeeca09ebcfc8fc5e631ec816cbaa",
+      "vertices": 51505,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           388731.917,
           5820017.74,
-          26.755
+          26.817
         ],
         [
           389106.029,
-          5820393.833,
+          5820394.883,
           100.498
         ]
       ],
       "tile_id": "3887_58200",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 289286,
       "source_material_segments": 6,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3887_58203.glb",
-      "bytes": 1827844,
+      "bytes": 3231308,
       "includes_normals": true,
-      "sha256": "8e4f85918a324c69ffd65c34e26235ea3e4490e54504f49f3ca790bc6c98ff35",
-      "vertices": 35234,
-      "faces": 70000,
+      "sha256": "8dba559a39d26ec72b62b3732a5222b01e6089b4a0c4e3b032c32031dbb4ebe9",
+      "vertices": 51441,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           388731.753,
-          5820386.229,
-          32.226
+          5820383.968,
+          32.193
         ],
         [
-          389102.865,
+          389110.641,
           5820751.0,
-          88.771
+          88.861
         ]
       ],
       "tile_id": "3887_58203",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 373150,
       "source_material_segments": 8,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3890_58189.glb",
-      "bytes": 1827948,
+      "bytes": 3220724,
       "includes_normals": true,
-      "sha256": "b9804f4e64ba9dd7f4db9bd0838a440e423e90c7bb0fe5f42b0fab3dc4942df5",
-      "vertices": 35238,
-      "faces": 69999,
+      "sha256": "5a720c5026e198525f76cd726b0f105bb2b76ce75a881019877420621a5a454f",
+      "vertices": 51072,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
-          389093.363,
+          389093.016,
           5818945.233,
           27.953
         ],
         [
           389457.733,
-          5819310.88,
-          70.239
+          5819310.94,
+          70.332
         ]
       ],
       "tile_id": "3890_58189",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 358354,
       "source_material_segments": 6,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3890_58193.glb",
-      "bytes": 1828084,
+      "bytes": 3222516,
       "includes_normals": true,
-      "sha256": "a6f488b48960aaefd55d154f01b45743767a8a803725d80f706564a5bfc9cd0a",
-      "vertices": 35243,
-      "faces": 69999,
+      "sha256": "34f83c66291892b911eca2b7b1f408d55403419e55682f59e0e1e601c4651db8",
+      "vertices": 51134,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
           389095.011,
           5819309.063,
-          30.606
+          30.385
         ],
         [
-          389457.631,
-          5819672.847,
+          389457.661,
+          5819673.334,
           63.76
         ]
       ],
       "tile_id": "3890_58193",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 407693,
       "source_material_segments": 4,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3890_58196.glb",
-      "bytes": 1824220,
+      "bytes": 3209452,
       "includes_normals": true,
-      "sha256": "3a74aa956b134f5a7e7d212bc38afc961f7d90eb3d381419aa6bd2db5866ae05",
-      "vertices": 35105,
-      "faces": 69999,
+      "sha256": "a7efce1841007f63562e3f8767de21b9012789dc89de84a23091c976fd6017df",
+      "vertices": 50674,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
-          389093.255,
+          389090.152,
           5819666.398,
           32.14
         ],
         [
-          389457.554,
-          5820034.989,
-          78.36
+          389457.921,
+          5820035.647,
+          78.422
         ]
       ],
       "tile_id": "3890_58196",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 384419,
       "source_material_segments": 4,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3890_58200.glb",
-      "bytes": 1829684,
+      "bytes": 3229788,
       "includes_normals": true,
-      "sha256": "978befd88bb5e1ea1412e010190233384355963d74f81539eacc1948c92b6b1c",
-      "vertices": 35300,
-      "faces": 69999,
+      "sha256": "3520a41b0b6362fc902ceecaaa799189cdeadd4f322730c74da8acb319cfbe20",
+      "vertices": 51385,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           389089.97,
-          5820026.014,
-          28.793
+          5820025.371,
+          28.883
         ],
         [
           389457.385,
           5820396.943,
-          91.522
+          91.55
         ]
       ],
       "tile_id": "3890_58200",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 247359,
       "source_material_segments": 2,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3890_58203.glb",
-      "bytes": 1833864,
+      "bytes": 3236012,
       "includes_normals": true,
-      "sha256": "de9ebec0cf123ecb2cc295d98e82c93cd75b66121346fb97ad5cc2c11b401703",
-      "vertices": 35449,
-      "faces": 70000,
+      "sha256": "c3c89c6bff19d095e7da5622af683f4268cb04788a992dfb0c27acd16b27f776",
+      "vertices": 51609,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           389087.831,
-          5820384.218,
+          5820381.46,
           30.476
         ],
         [
           389458.044,
-          5820751.324,
+          5820751.388,
           97.56
         ]
       ],
       "tile_id": "3890_58203",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 204627,
       "source_material_segments": 4,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3890_58207.glb",
-      "bytes": 1835872,
+      "bytes": 3240376,
       "includes_normals": true,
-      "sha256": "b22311a468964f146355578118c1559f6a1d748627ee0bde1258a882000f9f05",
-      "vertices": 35521,
-      "faces": 69999,
+      "sha256": "893a9768fbc1684743338bff5fcd18fd1b2b374267fbce33556c798cc835101b",
+      "vertices": 51760,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
           389091.828,
@@ -258,141 +276,153 @@
         [
           389457.971,
           5821120.037,
-          119.565
+          119.512
         ]
       ],
       "tile_id": "3890_58207",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 229352,
       "source_material_segments": 5,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58182.glb",
-      "bytes": 1830592,
+      "bytes": 3229300,
       "includes_normals": true,
-      "sha256": "f924e5b23b9265f49c8ce829db68e3f66783eabd76a57dcba9eb75f02b504cb3",
-      "vertices": 35332,
-      "faces": 70000,
+      "sha256": "2b75aa889536262a750f52ec44cf0b121483bba47f2d23c8f8e7ab4973e5d327",
+      "vertices": 51371,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           389455.352,
           5818223.992,
-          28.97
+          28.992
         ],
         [
-          389820.671,
+          389820.78,
           5818595.467,
-          142.666
+          142.68
         ]
       ],
       "tile_id": "3894_58182",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 312139,
       "source_material_segments": 3,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58185.glb",
-      "bytes": 1828984,
+      "bytes": 3224952,
       "includes_normals": true,
-      "sha256": "50f62b6abb6e99aae307f2ce479d8a50630248ea4d486c8222a3d95611f43f18",
-      "vertices": 35275,
-      "faces": 69999,
+      "sha256": "0e0d6eeff5b623c6a7fb5b72fed65e85f3b2130e02f030961bc715c92c0a84a6",
+      "vertices": 51218,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
           389456.064,
-          5818584.792,
-          26.834
+          5818582.246,
+          26.769
         ],
         [
           389827.334,
           5818957.405,
-          136.836
+          136.972
         ]
       ],
       "tile_id": "3894_58185",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 266659,
       "source_material_segments": 5,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58189.glb",
-      "bytes": 1825356,
+      "bytes": 3236164,
       "includes_normals": true,
-      "sha256": "922f389618ea5cc806efb074fd5d9c4976fdcbc4ba9c458ecebc34423c8e8376",
-      "vertices": 35145,
-      "faces": 70000,
+      "sha256": "f05e682d1c26dbaef978fe8063ec6f29bd40be30da51ec60ffcb257509f6d16f",
+      "vertices": 51606,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
           389455.791,
-          5818946.25,
+          5818945.62,
           26.801
         ],
         [
           389821.413,
           5819311.023,
-          141.741
+          141.823
         ]
       ],
       "tile_id": "3894_58189",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 382205,
       "source_material_segments": 2,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58193.glb",
-      "bytes": 1827816,
+      "bytes": 3211664,
       "includes_normals": true,
-      "sha256": "0073ba34dce3e9d3c9e8e97adf4bf2668ae114f88d1c662d8cf41504a60a0bde",
-      "vertices": 35233,
-      "faces": 70000,
+      "sha256": "66e291724950f120e2cef6bd0d7a605b87344d45ae209f3fe755c7ba666445e7",
+      "vertices": 50755,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
-          389452.179,
-          5819308.372,
-          31.936
+          389448.835,
+          5819308.055,
+          31.852
         ],
         [
           389820.391,
-          5819678.055,
-          62.645
+          5819679.419,
+          62.625
         ]
       ],
       "tile_id": "3894_58193",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 370127,
       "source_material_segments": 6,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58196.glb",
-      "bytes": 1825704,
+      "bytes": 3214476,
       "includes_normals": true,
-      "sha256": "a919af0dcfd72e446d7020b2ce9f5a01e99e8ff3ccb193758f156167d6f35dc3",
-      "vertices": 35158,
-      "faces": 69999,
+      "sha256": "4b71b7b25b865b5e7099c05b729d7c147ac031a354d0e18f32f098caeec70cf4",
+      "vertices": 50850,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
           389452.579,
-          5819662.421,
+          5819662.498,
           32.65
         ],
         [
-          389821.825,
+          389822.268,
           5820041.831,
-          89.832
+          89.939
         ]
       ],
       "tile_id": "3894_58196",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 292494,
       "source_material_segments": 5,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58200.glb",
-      "bytes": 1834192,
+      "bytes": 3240240,
       "includes_normals": true,
-      "sha256": "927587f441cad2fd770a4286ff033c4c7f9e635cfac71e5b9d796759e2b54c28",
-      "vertices": 35461,
-      "faces": 69999,
+      "sha256": "9220a63dc9a25bbc5aec890ebb4f4635159e1ce4a6b0e0d9a3fe2b82b80a7b83",
+      "vertices": 51748,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           389446.103,
@@ -400,47 +430,51 @@
           30.004
         ],
         [
-          389825.524,
-          5820396.674,
-          62.954
+          389827.826,
+          5820399.509,
+          62.96
         ]
       ],
       "tile_id": "3894_58200",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 173715,
       "source_material_segments": 1,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58203.glb",
-      "bytes": 1833628,
+      "bytes": 3241552,
       "includes_normals": true,
-      "sha256": "ad48ae2355d46d8aaabe9bc8be8042b577a3ac0b2472e1c269df63ba49b36ef0",
-      "vertices": 35441,
-      "faces": 69999,
+      "sha256": "fb2a54a70cc457b16138d156117a6d4db34310721553ec45fcb419af8f03914a",
+      "vertices": 51799,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
-          389450.835,
+          389449.799,
           5820373.036,
           29.211
         ],
         [
           389825.216,
-          5820758.639,
+          5820758.796,
           80.168
         ]
       ],
       "tile_id": "3894_58203",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 136640,
       "source_material_segments": 1,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3894_58207.glb",
-      "bytes": 1830776,
+      "bytes": 3229628,
       "includes_normals": true,
-      "sha256": "831fa464bcbc4642acc1380cf76783c59810ef4022f6c3ba5296cfdb97d561e9",
-      "vertices": 35339,
-      "faces": 70000,
+      "sha256": "a0dae1725dfff82fdb9744718df7cd45798126d63973a48dc673b1ce678e0ca7",
+      "vertices": 51385,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           389456.085,
@@ -449,134 +483,146 @@
         ],
         [
           389821.005,
-          5821117.569,
-          90.425
+          5821119.541,
+          90.319
         ]
       ],
       "tile_id": "3894_58207",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 229559,
       "source_material_segments": 6,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3898_58185.glb",
-      "bytes": 1826292,
+      "bytes": 3224052,
       "includes_normals": true,
-      "sha256": "a852ce207f167ab8fd4273497a98b34068be6904d5419f508776a0f122a49828",
-      "vertices": 35179,
-      "faces": 69999,
+      "sha256": "9dfdc320921dd3e9d74390c157b297334af20013766466db57de3dbd025c2ddb",
+      "vertices": 51186,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
           389811.328,
           5818582.137,
-          29.761
+          28.778
         ],
         [
-          390186.154,
-          5818955.805,
-          82.447
+          390188.833,
+          5818959.499,
+          82.448
         ]
       ],
       "tile_id": "3898_58185",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 267698,
       "source_material_segments": 4,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3898_58189.glb",
-      "bytes": 1830072,
+      "bytes": 3227192,
       "includes_normals": true,
-      "sha256": "1ab1589980109731989c484a9c48e4e48a2bc01c9793c466ef56a32398aed7d8",
-      "vertices": 35314,
-      "faces": 69999,
+      "sha256": "ca31542feb29848a80057cc88c565bba51da09ec8aaded7593c2ba4ac00fb9a7",
+      "vertices": 51296,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
-          389811.755,
-          5818946.119,
-          31.65
+          389810.753,
+          5818943.184,
+          31.625
         ],
         [
-          390183.274,
-          5819310.788,
+          390183.645,
+          5819310.789,
           76.664
         ]
       ],
       "tile_id": "3898_58189",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 268484,
       "source_material_segments": 5,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3898_58193.glb",
-      "bytes": 1831612,
+      "bytes": 3230472,
       "includes_normals": true,
-      "sha256": "209c9cd3907135fc1a784ac5cf9e7069cbcde5e7c1e838e7002f69ae1ea44296",
-      "vertices": 35369,
-      "faces": 69999,
+      "sha256": "910cfde345cb2f39430d4ca79c1aaba0f4e42524ff2d4094a9551b6fa3be7e76",
+      "vertices": 51412,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
-          389812.106,
+          389812.145,
           5819304.151,
-          29.048
+          28.976
         ],
         [
           390179.948,
-          5819674.56,
-          69.279
+          5819675.138,
+          69.318
         ]
       ],
       "tile_id": "3898_58193",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 313468,
       "source_material_segments": 3,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3898_58196.glb",
-      "bytes": 1836988,
+      "bytes": 3258760,
       "includes_normals": true,
-      "sha256": "5437e06e96f0ac58789c2dd80302e51a06e8726845afc1b5533cc7eca79a0d34",
-      "vertices": 35561,
-      "faces": 69999,
+      "sha256": "e3d193b60af19cc7daa9b57eb74f21b994f52e5ea63aa93ce1462e431e08725b",
+      "vertices": 52405,
+      "faces": 99999,
       "source_bounds_epsg25833": [
         [
           389806.467,
           5819663.946,
-          26.887
+          26.933
         ],
         [
-          390183.234,
+          390185.838,
           5820037.39,
-          89.87
+          89.933
         ]
       ],
       "tile_id": "3898_58196",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 286665,
       "source_material_segments": 7,
-      "target_faces": 70000
+      "target_faces": 100000
     },
     {
       "file": "tile-3898_58200.glb",
-      "bytes": 1829232,
+      "bytes": 3227804,
       "includes_normals": true,
-      "sha256": "301aa9be3f6dbce33cba4686f516fda7e9b9eb49658c01d77fd83a9c5f5f46d2",
-      "vertices": 35284,
-      "faces": 69999,
+      "sha256": "107c05874a799d3b3288d00301426e004385bedc17c09ccbca8a9ac6d04d1906",
+      "vertices": 51316,
+      "faces": 100000,
       "source_bounds_epsg25833": [
         [
-          389809.347,
+          389808.66,
           5820013.262,
-          27.813
+          27.812
         ],
         [
           390188.335,
           5820395.169,
-          74.026
+          74.02
         ]
       ],
       "tile_id": "3898_58200",
+      "normal_crease_degrees": 72.0,
+      "simplification_aggression": 5,
       "source_faces": 212199,
       "source_material_segments": 6,
-      "target_faces": 70000
+      "target_faces": 100000
     }
   ],
   "hero_details": [

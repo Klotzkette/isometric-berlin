@@ -81,12 +81,17 @@ VALID_SERVE_LOCAL = (
 )
 
 
-def webgl_entry(filename: str, data: bytes) -> dict[str, bool | int | str]:
+def webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int | str]:
   return {
     "file": filename,
     "bytes": len(data),
+    "faces": 100_000,
     "includes_normals": True,
+    "normal_crease_degrees": 72.0,
     "sha256": hashlib.sha256(data).hexdigest(),
+    "simplification_aggression": 5,
+    "target_faces": 100_000,
+    "vertices": 50_000,
   }
 
 
@@ -499,6 +504,27 @@ def test_webgl_manifest_rejects_missing_bundled_normals() -> None:
   )
 
   assert any("lacks bundled normals flag" in failure for failure in failures)
+
+
+def test_webgl_manifest_rejects_coarse_base_surface() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_mesh_density", "scripts/check_release_readiness.py"
+  )
+  mesh_data = b"model"
+  scene = minimal_webgl_scene("tile.glb", mesh_data)
+  for entry in scene["base_tiles"]:
+    entry["faces"] = 70_000
+    entry["target_faces"] = 70_000
+
+  failures = release_readiness.webgl_manifest_failures(
+    scene,
+    label="coarse surface",
+    asset_reader={"tile.glb": mesh_data}.__getitem__,
+    actual_asset_names={"tile.glb"},
+  )
+
+  assert any("face quality floor" in failure for failure in failures)
+  assert any("100k/72-degree/aggression-5" in failure for failure in failures)
 
 
 def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:

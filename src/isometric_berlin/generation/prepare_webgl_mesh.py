@@ -39,7 +39,9 @@ OUTPUT_DIR = REPO_ROOT / "src/app/public/mesh/regierungsviertel"
 SOURCE_CRS = "EPSG:25833"
 ORIGIN = np.array([389_500.0, 5_820_000.0, 30.0])
 MAX_ASSET_BYTES = 5 * 1024 * 1024
-BASE_TARGET_FACES = 70_000
+BASE_TARGET_FACES = 100_000
+BASE_SIMPLIFICATION_AGGRESSION = 5
+BASE_NORMAL_CREASE_DEGREES = 72.0
 REICHSTAG_DOME_HEIGHT_M = 23.5
 REICHSTAG_DOME_DIAMETER_M = 40.0
 REICHSTAG_DOME_BASE_HEIGHT_M = 24.0
@@ -203,8 +205,8 @@ def point_to_world(x: float, y: float, elevation: float = 38.0) -> list[float]:
 
 def colored_base_mesh(
   scene: trimesh.Scene, target_faces: int = BASE_TARGET_FACES
-) -> tuple[Any, dict[str, int]]:
-  """Merge every material segment and simplify it with sampled vertex colours."""
+) -> tuple[Any, dict[str, int | float]]:
+  """Merge every material segment into a crisp, detailed mobile base mesh."""
   parts = []
   source_faces = 0
   for geometry in scene.geometry.values():
@@ -225,18 +227,45 @@ def colored_base_mesh(
   if len(merged.faces) > target_faces:
     source_vertices = np.asarray(merged.vertices).copy()
     source_colours = np.asarray(merged.visual.vertex_colors).copy()
-    simplified = merged.simplify_quadric_decimation(face_count=target_faces)
+    simplified = merged.simplify_quadric_decimation(
+      face_count=target_faces,
+      aggression=BASE_SIMPLIFICATION_AGGRESSION,
+    )
     tree = cKDTree(source_vertices)
     _, nearest = tree.query(np.asarray(simplified.vertices), k=1, workers=-1)
     simplified.visual = ColorVisuals(
       mesh=simplified, vertex_colors=source_colours[nearest]
     )
     merged = simplified
+  merged = split_surface_normals(merged)
   return merged, {
+    "normal_crease_degrees": BASE_NORMAL_CREASE_DEGREES,
+    "simplification_aggression": BASE_SIMPLIFICATION_AGGRESSION,
     "source_faces": source_faces,
     "source_material_segments": len(parts),
     "target_faces": target_faces,
   }
+
+
+def split_surface_normals(
+  mesh: Any, crease_degrees: float = BASE_NORMAL_CREASE_DEGREES
+) -> Any:
+  """Split shading vertices at real surface folds without moving geometry.
+
+  Photogrammetric triangles need shared normals on gently curved trees and
+  terrain, but not across building corners or roof folds.  Disconnecting only
+  the normal patches above the crease angle preserves metric coordinates and
+  face count while producing materially crisper architectural edges in WebGL.
+  """
+  if not 0.0 < crease_degrees < 180.0:
+    raise ValueError("crease_degrees must be between 0 and 180")
+  shaded = trimesh.graph.smooth_shade(
+    mesh,
+    angle=np.radians(crease_degrees),
+    facet_minarea=None,
+  )
+  shaded.remove_unreferenced_vertices()
+  return shaded
 
 
 def load_archive_scene(archive: Path) -> trimesh.Scene:
@@ -301,6 +330,8 @@ def export_base_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
     return export_mesh(candidate, output_path)
   except ValueError:
     output_path.unlink(missing_ok=True)
+    if not isinstance(mesh.visual, TextureVisuals):
+      raise
   for max_edge in (2048, 1024, 768, 512):
     candidate = mesh.copy()
     candidate.visual = resized_texture_visual(mesh, max_edge)

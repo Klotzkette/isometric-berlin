@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.3.1
+
+- Rebuild all 23 bounded Berlin 3D Mesh 2025 base tiles at a 100,000-face
+  target, raising the official context surface from 1,609,984 to 2,299,987
+  faces while leaving landmark anchors, architectural signatures and all 22
+  high-detail hero files byte-identical.
+- Preserve hard roof and facade folds with a 72° normal crease after quadric
+  simplification. Fix oversized vertex-colour export handling so it requests a
+  spatial split instead of entering the texture-only fallback path.
+- Raise settled rendering to 2.25x desktop and 1.75x mobile device pixels while
+  enforcing fixed pixel budgets. Interaction still drops resolution
+  immediately and restores full close-up sharpness after 140 ms.
+- Add regression coverage for the surface budget, crease-normal topology,
+  vertex-colour overflow path and adaptive phone/desktop render budgets.
+- Correct the precision and generation documentation to describe the already
+  integrated official photogrammetric mesh rather than a future mesh pass.
+
 ## v0.3.0
 
 - Replace the oversized phone chrome with a compact landmark status bar,

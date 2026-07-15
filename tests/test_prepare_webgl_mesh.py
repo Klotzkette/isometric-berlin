@@ -6,12 +6,17 @@ from shapely.affinity import rotate
 from shapely.geometry import Point, box
 
 from isometric_berlin.generation.prepare_webgl_mesh import (
+  BASE_NORMAL_CREASE_DEGREES,
+  BASE_SIMPLIFICATION_AGGRESSION,
+  BASE_TARGET_FACES,
   architectural_signature_payload,
   crop_mesh,
+  export_base_mesh,
   export_mesh,
   metric_to_world,
   oriented_geometry_frame,
   split_bounds,
+  split_surface_normals,
 )
 
 
@@ -55,6 +60,45 @@ def test_export_mesh_bundles_normals_for_fast_browser_startup(tmp_path) -> None:
 
   assert metadata["includes_normals"] is True
   assert b'"NORMAL"' in output_path.read_bytes()
+
+
+def test_oversized_vertex_colour_mesh_requests_spatial_split(
+  tmp_path, monkeypatch
+) -> None:
+  mesh = trimesh.creation.box(extents=(8.0, 12.0, 5.0))
+  output_path = tmp_path / "oversized-colour.glb"
+
+  def reject_oversized(_mesh, path):
+    path.write_bytes(b"partial")
+    raise ValueError("oversized vertex-colour mesh")
+
+  monkeypatch.setattr(
+    "isometric_berlin.generation.prepare_webgl_mesh.export_mesh",
+    reject_oversized,
+  )
+
+  with pytest.raises(ValueError, match="oversized vertex-colour mesh"):
+    export_base_mesh(mesh, output_path)
+  assert not output_path.exists()
+
+
+def test_base_surface_budget_retains_finer_official_geometry() -> None:
+  assert BASE_TARGET_FACES == 100_000
+  assert BASE_SIMPLIFICATION_AGGRESSION == 5
+  assert BASE_NORMAL_CREASE_DEGREES == pytest.approx(72.0)
+
+
+def test_split_surface_normals_preserves_metric_shape_and_faces() -> None:
+  mesh = trimesh.creation.box(extents=(42.0, 18.0, 36.0))
+  original_bounds = mesh.bounds.copy()
+  original_faces = len(mesh.faces)
+
+  refined = split_surface_normals(mesh)
+
+  np.testing.assert_allclose(refined.bounds, original_bounds)
+  assert len(refined.faces) == original_faces
+  assert len(refined.vertices) > len(mesh.vertices)
+  assert len(refined.vertex_normals) == len(refined.vertices)
 
 
 def test_oriented_geometry_frame_preserves_metric_rotation_and_center() -> None:

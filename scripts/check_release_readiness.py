@@ -40,6 +40,10 @@ PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
 MAX_PACKAGE_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
+MIN_BASE_MESH_FACES = 2_250_000
+REQUIRED_BASE_TARGET_FACES = 100_000
+REQUIRED_BASE_NORMAL_CREASE_DEGREES = 72.0
+REQUIRED_BASE_SIMPLIFICATION_AGGRESSION = 5
 BOUNDED_PREVIEW_FILES = ("overview.png", "overview_source.png", "reference_map.png")
 REQUIRED_PACKAGE_ENTRIES = (
   "START-HERE.html",
@@ -150,6 +154,31 @@ def webgl_manifest_failures(
   if not isinstance(base_tiles, list) or len(base_tiles) < 23:
     failures.append(f"WebGL scene needs all 23 bounded Berlin mesh tiles: {label}")
     base_tiles = []
+  if base_tiles:
+    base_face_count = sum(
+      entry.get("faces", 0)
+      for entry in base_tiles
+      if isinstance(entry, dict) and type(entry.get("faces")) is int
+    )
+    if base_face_count < MIN_BASE_MESH_FACES:
+      failures.append(
+        f"WebGL base surface is below the {MIN_BASE_MESH_FACES:,}-face quality "
+        f"floor: {label} ({base_face_count:,} faces)"
+      )
+    invalid_quality_entries = [
+      str(entry.get("file", "<unknown>"))
+      for entry in base_tiles
+      if not isinstance(entry, dict)
+      or entry.get("target_faces") != REQUIRED_BASE_TARGET_FACES
+      or entry.get("normal_crease_degrees") != REQUIRED_BASE_NORMAL_CREASE_DEGREES
+      or entry.get("simplification_aggression")
+      != REQUIRED_BASE_SIMPLIFICATION_AGGRESSION
+    ]
+    if invalid_quality_entries:
+      failures.append(
+        "WebGL base tiles do not use the required 100k/72-degree/aggression-5 "
+        f"surface profile: {label} ({invalid_quality_entries[:3]})"
+      )
   hero_details = scene.get("hero_details")
   if not isinstance(hero_details, list):
     failures.append(f"WebGL scene lacks hero details: {label}")
@@ -354,6 +383,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   architecture_path = root / "src/app/src/ArchitecturalLandmarks.ts"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
+  render_quality_path = root / "src/app/src/renderQuality.ts"
   styles_path = root / "src/app/src/styles.css"
   if (
     not viewer_path.exists()
@@ -361,6 +391,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not architecture_path.exists()
     or not memorial_path.exists()
     or not camera_navigation_path.exists()
+    or not render_quality_path.exists()
     or not styles_path.exists()
   ):
     return ["Missing true-3D viewer sources"]
@@ -369,6 +400,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   architecture = architecture_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
   camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
+  render_quality = render_quality_path.read_text(encoding="utf-8")
   styles = styles_path.read_text(encoding="utf-8")
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
@@ -407,8 +439,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "lost pointer-capture recovery": '"lostpointercapture"',
     "window-blur gesture recovery": 'window.addEventListener("blur"',
     "decoded texture-image disposal": "image.close()",
-    "GPU-bounded settled pixel ratio": ("window.innerWidth <= 760 ? 1.5 : 2"),
-    "lower interaction pixel ratio": ("renderer.setPixelRatio(interactionPixelRatio)"),
+    "adaptive GPU-bounded pixel ratio": "renderPixelRatio({",
     "day/night scene lighting": "setSceneLighting(runtime, lightingMode)",
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
   }
@@ -417,6 +448,17 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     for label, snippet in required_viewer_snippets.items()
     if snippet not in viewer
   ]
+  required_render_quality_snippets = {
+    "2.25x desktop settled quality": "coarsePointer ? 1.75 : 2.25",
+    "1x touch interaction quality": "coarsePointer ? 1 : 1.25",
+    "fixed settled GPU budget": "8_000_000",
+    "fixed mobile GPU budget": "4_800_000",
+  }
+  failures.extend(
+    f"3D render-quality policy lacks {label}: {render_quality_path}"
+    for label, snippet in required_render_quality_snippets.items()
+    if snippet not in render_quality
+  )
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:

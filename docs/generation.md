@@ -1,6 +1,6 @@
 # Generation
 
-The committed v0.3.0 viewer is generated entirely from the permitted open-data
+The committed v0.3.1 viewer is generated entirely from the permitted open-data
 stack. Berlin LoD2 anchors building footprints/heights, OSM supplies roads,
 water, parks, rail and POIs, ALKIS supplies parcel context, and freely licensed
 Wikimedia records provide colour/material cues. Google is not used unless the
@@ -72,8 +72,12 @@ uv run python -m isometric_berlin.generation.prepare_webgl_mesh
 
 The converter includes every OBJ material segment. For the full scene it
 samples source textures into enhanced-but-bounded vertex colours, merges
-duplicate OBJ vertices and simplifies each tile to a 70,000-face mobile base
-mesh. Reichstag, Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive
+duplicate OBJ vertices and simplifies each tile to a 100,000-face mobile base
+mesh with quadric aggression 5. A 72° smoothing crease splits normals only at
+severe folds, sharpening roof and facade edges without introducing invented
+metric geometry. The 23 base tiles contain 2,299,987 faces and 1,180,361
+vertices in 70.8 MiB. Reichstag, Bundeskanzleramt, Hauptbahnhof and
+Brandenburger Tor receive
 separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
 real dome geometry while excluding surrounding tree noise. Hero material
 segments try 2048, 1792, 1536, 1280 and 1024 px textures before lower bounded

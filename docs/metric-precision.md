@@ -1,8 +1,8 @@
 # Metric precision and surface-detail QA
 
-This report documents what the current deterministic viewer can claim
-from committed public/open data, and where it still needs a future
-photogrammetric mesh pass.
+This report documents what the current deterministic viewer can claim from
+committed public/open data, including the official photogrammetric surface
+pass, and where procedural recognition geometry is still only a display aid.
 
 ## Source hierarchy
 
@@ -14,7 +14,9 @@ photogrammetric mesh pass.
   - Official DOP 2025 metadata gives 0.20 m ground resolution and
     approximately +/- 0.4 m positional accuracy.
 - ALKIS parcel context: https://daten.berlin.de/datensaetze/alkis-berlin-flurstucke-wfs-1bc014d7
-- Future textured mesh candidate: https://www.businesslocationcenter.de/en/economic-atlas/download-portal
+- Official textured surface: https://www.businesslocationcenter.de/en/economic-atlas/download-portal
+  - The bounded Berlin 3D Mesh Model 2025 supplies the current viewer's roof,
+    facade, terrain and vegetation surface plus aerial texture colour.
 
 ## Committed LoD2 geometry statistics
 
@@ -47,19 +49,35 @@ photogrammetric mesh pass.
 - Relative relationships checked: 23
 - Review count: 0
 
+## Committed photogrammetric surface statistics
+
+- Official source tiles: 23
+- Base faces: 2,299,987
+- Base vertices: 1,180,361
+- Base GLB size: 70.8 MiB
+- Per-tile target: 100,000 faces
+- Normal crease: 72°
+- Simplification aggression: 5
+- Separate high-detail hero groups: Reichstag, Bundeskanzleramt,
+  Hauptbahnhof and Brandenburger Tor
+
 ## Current rendering claim
 
 The viewer is metric in planimetric placement because it renders
 EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders
 CityGML BuildingParts at their individual measured heights, LoD2
 interior rings as visible courtyards/cut-outs, and uses denser
-facade bays, roof ribs, and roof equipment marks from footprint size,
-height, roof type, and landmark material cues.
+facade bays, roof ribs, and roof equipment marks from footprint size, height,
+roof type, and landmark material cues. The official Berlin 3D Mesh 2025 now
+adds genuine photogrammetric roof, facade, ground and canopy relief. Its 23
+base tiles preserve EPSG:25833 scale and placement, retain 2.30 million faces,
+and use source-texture-derived vertex colours; four LoD2-masked hero groups
+retain denser textured source geometry for close inspection.
 
-It does **not** yet claim true photogrammetric facade relief. For that,
-the next major step should ingest the official Berlin 3D mesh/OBJ
-texture tiles or another fully licensed textured 3D source, then render
-from that mesh rather than stylising LoD2 footprints.
+Procedural monument, window, train, tunnel and architectural-signature layers
+remain labelled display geometry. They improve recognition where aerial
+photogrammetry is incomplete, but they are not surveyed facade, interior or
+as-built detail and do not replace the LoD2/official-mesh anchors.
 
 ## Tiergartentunnel precision claim
 
