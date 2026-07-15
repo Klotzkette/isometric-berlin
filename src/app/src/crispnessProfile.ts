@@ -3,9 +3,10 @@
  * the day/night/minecraft lighting palettes. `strength` drives the
  * unsharp-mask, `edgeStrength` the screen-space "isometric edge" outline
  * (Roberts-cross on luminance in crisp.frag). Minecraft bypasses the
- * crisp pass entirely: its palette post-process already draws a stronger
- * quantized edge (0.72 mix in postprocess.frag), so its entry documents
- * the intended strength without being wired into a second pass.
+ * crisp pass entirely (strength 0): its `edgeStrength` feeds the
+ * `edgeMix` uniform of the shared minecraft postprocess shader instead,
+ * which draws the near-black block outline in both the 3D composer pass
+ * and the 2D DZI post-processor.
  */
 export type CrispnessProfile = {
   contrast: number;
@@ -25,5 +26,5 @@ export const CRISPNESS_PROFILES: Record<
     saturation: 1.05,
     strength: 0.4,
   },
-  minecraft: { contrast: 1, edgeStrength: 0.55, saturation: 1, strength: 0 },
+  minecraft: { contrast: 1, edgeStrength: 0.85, saturation: 1, strength: 0 },
 };

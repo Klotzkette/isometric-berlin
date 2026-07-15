@@ -1,6 +1,8 @@
+import { CRISPNESS_PROFILES } from "../../crispnessProfile";
 import postprocessFragment from "./postprocess.frag?raw";
 import shimmerFragment from "./shimmer.frag?raw";
 import { createPaletteLutData } from "./palette";
+import { voxelBaseCell } from "./voxelGrid";
 
 const CANVAS_VERTEX_SHADER = `
 attribute vec2 position;
@@ -94,6 +96,7 @@ export class MinecraftDziPostProcessor {
   private readonly program: WebGLProgram;
   private readonly resizeObserver: ResizeObserver;
   private readonly sourceTexture: WebGLTexture;
+  private ditherStrength = 0;
   private frame = 0;
   private lastDrawnAt = Number.NEGATIVE_INFINITY;
   private stopped = false;
@@ -159,6 +162,15 @@ export class MinecraftDziPostProcessor {
     }
   }
 
+  /**
+   * Ordered dithering is off by default (hard palette snap). The app
+   * raises this to 1 only at the deepest zoom, where dithering avoids
+   * banding on large flat block faces.
+   */
+  setDitherStrength(value: number): void {
+    this.ditherStrength = Math.min(1, Math.max(0, value));
+  }
+
   dispose(): void {
     this.host.classList.remove("minecraft-dzi-fallback");
     if (this.stopped) {
@@ -211,8 +223,16 @@ export class MinecraftDziPostProcessor {
       this.canvas.height,
     );
     gl.uniform1f(gl.getUniformLocation(this.program, "time"), timestamp / 1000);
-    const blockSize = this.host.clientWidth < 769 ? 2.35 : 2.8;
+    const blockSize = voxelBaseCell(this.host.clientWidth < 769);
     gl.uniform1f(gl.getUniformLocation(this.program, "pixelScale"), blockSize);
+    gl.uniform1f(
+      gl.getUniformLocation(this.program, "ditherStrength"),
+      this.ditherStrength,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(this.program, "edgeMix"),
+      CRISPNESS_PROFILES.minecraft.edgeStrength,
+    );
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     this.lastDrawnAt = timestamp;

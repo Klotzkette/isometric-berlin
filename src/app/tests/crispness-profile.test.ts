@@ -15,9 +15,9 @@ describe("isometric crispness profile", () => {
     expect(CRISPNESS_PROFILES.night.strength).toBe(0.4);
     expect(CRISPNESS_PROFILES.day.edgeStrength).toBe(0.25);
     expect(CRISPNESS_PROFILES.night.edgeStrength).toBe(0.35);
-    // Minecraft documents its intended edge strength but bypasses the
-    // crisp pass — its palette post-process draws its own stronger edge.
-    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0.55);
+    // Minecraft bypasses the crisp pass; its edgeStrength feeds the
+    // edgeMix uniform of the minecraft postprocess shader (v0.5.3).
+    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0.85);
     expect(CRISPNESS_PROFILES.minecraft.strength).toBe(0);
   });
 

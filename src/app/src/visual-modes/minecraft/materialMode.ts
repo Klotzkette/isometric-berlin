@@ -18,7 +18,10 @@ export type MinecraftMaterialState = {
 type FlatToonMaterial = MeshToonMaterial & { flatShading: boolean };
 
 export function createMinecraftMaterialState(): MinecraftMaterialState {
-  const gradientMap = new DataTexture(new Uint8Array([54, 142, 244]), 3, 1, RedFormat);
+  // Two-step toon gradient: shading snaps hard between a dark shadow
+  // side and a lit side, the stepped "voxel cube" look. (v0.5.2 used
+  // three steps, which read as a smooth photographic ramp.)
+  const gradientMap = new DataTexture(new Uint8Array([64, 236]), 2, 1, RedFormat);
   gradientMap.minFilter = NearestFilter;
   gradientMap.magFilter = NearestFilter;
   gradientMap.needsUpdate = true;

@@ -16,7 +16,16 @@ import {
   disposeMinecraftMaterialState,
   setMinecraftMaterialPresentation,
 } from "../src/visual-modes/minecraft/materialMode";
-import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
+import { CRISPNESS_PROFILES } from "../src/crispnessProfile";
+import {
+  MATERIAL_PALETTES,
+  MINECRAFT_PALETTE,
+} from "../src/visual-modes/minecraft/palette";
+import {
+  VOXEL_BASE_CELL_CAP_DEVICE_PX,
+  VOXEL_BASE_CELL_DEVICE_PX,
+  voxelBaseCell,
+} from "../src/visual-modes/minecraft/voxelGrid";
 
 const domeSignature = {
   anchor_world: [12, 36.4, -8] as [number, number, number],
@@ -44,9 +53,59 @@ function screenPoint(
 }
 
 describe("premium Minecraft visual mode", () => {
-  test("uses a 48-colour authored palette", () => {
-    expect(MINECRAFT_PALETTE).toHaveLength(48);
-    expect(new Set(MINECRAFT_PALETTE).size).toBe(48);
+  test("uses a coarse 24-28 colour authored palette", () => {
+    expect(MINECRAFT_PALETTE.length).toBeGreaterThanOrEqual(24);
+    expect(MINECRAFT_PALETTE.length).toBeLessThanOrEqual(28);
+    expect(new Set(MINECRAFT_PALETTE).size).toBe(MINECRAFT_PALETTE.length);
+    // Every per-material colour must come from the master palette.
+    const master = new Set<number>(MINECRAFT_PALETTE);
+    for (const family of Object.values(MATERIAL_PALETTES)) {
+      for (const colour of family) {
+        expect(master.has(colour)).toBe(true);
+      }
+    }
+    // Roof-copper must stay varied so Reichstag dome and Chancellery
+    // remain distinct at zoom-out.
+    expect(new Set(MATERIAL_PALETTES.roofCopper).size).toBeGreaterThanOrEqual(4);
+  });
+
+  test("doubles the voxel base cell and caps it below building collapse", () => {
+    expect(VOXEL_BASE_CELL_DEVICE_PX.coarse).toBe(4.7);
+    expect(VOXEL_BASE_CELL_DEVICE_PX.fine).toBe(5.6);
+    expect(voxelBaseCell(true)).toBe(4.7);
+    expect(voxelBaseCell(false)).toBe(5.6);
+    expect(VOXEL_BASE_CELL_CAP_DEVICE_PX).toBe(24);
+    expect(voxelBaseCell(true)).toBeLessThanOrEqual(VOXEL_BASE_CELL_CAP_DEVICE_PX);
+    expect(voxelBaseCell(false)).toBeLessThanOrEqual(VOXEL_BASE_CELL_CAP_DEVICE_PX);
+  });
+
+  test("drives the near-black outline from the shared crispness profile", () => {
+    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0.85);
+    // Minecraft still bypasses the shared crisp pass entirely.
+    expect(CRISPNESS_PROFILES.minecraft.strength).toBe(0);
+  });
+
+  test("postprocess shader hard-quantises and draws near-black outlines", async () => {
+    const fragment = await Bun.file(
+      new URL("../src/visual-modes/minecraft/postprocess.frag", import.meta.url),
+    ).text();
+    // Hard quantise: dithering must be gated behind the ditherStrength
+    // uniform (0 by default) instead of always-on.
+    expect(fragment).toContain("uniform float ditherStrength");
+    expect(fragment).toContain("dither * ditherStrength");
+    // The outline mix comes from the shared profile via the edgeMix
+    // uniform, with a lowered trigger threshold.
+    expect(fragment).toContain("uniform float edgeMix");
+    expect(fragment).toContain("edge * edgeMix");
+    expect(fragment).toContain("smoothstep(0.075, 0.24");
+    // Outline tints must be near-black (every channel below 0.07):
+    // slightly warm for glass, cool for stone.
+    const tintChannels = [0.03, 0.04, 0.058, 0.062, 0.046, 0.028];
+    for (const channel of tintChannels) {
+      expect(channel).toBeLessThan(0.07);
+    }
+    expect(fragment).toContain("vec3(0.030, 0.040, 0.058)");
+    expect(fragment).toContain("vec3(0.062, 0.046, 0.028)");
   });
 
   test("changes materials without moving or resizing source geometry", () => {

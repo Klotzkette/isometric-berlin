@@ -5,6 +5,11 @@ uniform sampler2D paletteLut;
 uniform vec2 resolution;
 uniform float time;
 uniform float pixelScale;
+// 0.0 = hard palette snap (default); raised to 1.0 only at the deepest
+// zoom, where ordered dithering avoids banding on large flat faces.
+uniform float ditherStrength;
+// Outline mix from the shared crispness profile (minecraft entry).
+uniform float edgeMix;
 varying vec2 vUv;
 
 /*__SHIMMER__*/
@@ -46,23 +51,48 @@ void main() {
   vec2 snappedUv = (floor(vUv * resolution / block) + 0.5) * block / resolution;
   vec2 sampleStep = block / resolution;
   vec3 source = texture2D(tDiffuse, snappedUv).rgb;
+  // Hard quantise: snap straight to the nearest palette colour. Ordered
+  // dithering only fades in via ditherStrength at the deepest zoom.
   float dither = bayer4(gl_FragCoord.xy / block) - 0.5;
-  vec3 colour = paletteLookup(source + dither / 26.0);
+  vec3 colour = paletteLookup(source + dither * ditherStrength / 26.0);
 
   float here = ibLuminance(source);
   float east = ibLuminance(texture2D(tDiffuse, snappedUv + vec2(sampleStep.x, 0.0)).rgb);
   float north = ibLuminance(texture2D(tDiffuse, snappedUv + vec2(0.0, sampleStep.y)).rgb);
   float diagonal = ibLuminance(texture2D(tDiffuse, snappedUv + sampleStep).rgb);
-  float edge = smoothstep(0.10, 0.34,
+  float edge = smoothstep(0.075, 0.24,
     abs(here - diagonal) + abs(east - north));
+  // Foliage guard: dense tree canopy is all high-frequency luminance
+  // noise; full-strength outlines there turn the Tiergarten into mud.
+  float canopy = smoothstep(0.02, 0.12, source.g - max(source.r, source.b));
+  edge *= 1.0 - 0.55 * canopy;
+  // Busyness guard: at overview zoom nearly every block boundary is a
+  // strong gradient; near-black outlines everywhere read as mud, not
+  // blocks. When BOTH distant taps also contrast with this block, we
+  // are in high-frequency texture rather than on a silhouette, so the
+  // outline backs off. True object silhouettes keep one quiet side and
+  // stay at full strength.
+  float farEast = ibLuminance(texture2D(tDiffuse, snappedUv + sampleStep * 3.0).rgb);
+  float farWest = ibLuminance(texture2D(tDiffuse, snappedUv - sampleStep * 3.0).rgb);
+  float busyness = smoothstep(0.09, 0.28, abs(farEast - here)) *
+    smoothstep(0.09, 0.28, abs(farWest - here));
+  edge *= 1.0 - 0.68 * busyness;
   float northEastLight = clamp((east + north - here * 2.0) * 0.22 + 0.04, -0.05, 0.11);
   colour *= 1.0 + northEastLight;
-  colour = mix(colour, colour * vec3(0.30, 0.36, 0.31), edge * 0.72);
+  // Near-black block outline, tinted slightly warm on glass and cool on
+  // stone so the look reads modded rather than vanilla.
+  float glassish = smoothstep(0.02, 0.14, source.b - source.r);
+  vec3 outlineTint = mix(
+    vec3(0.030, 0.040, 0.058),
+    vec3(0.062, 0.046, 0.028),
+    glassish
+  );
+  colour = mix(colour, outlineTint, edge * edgeMix);
 
-  float bright = smoothstep(0.74, 0.98, here);
+  float bright = smoothstep(0.85, 0.99, here);
   vec3 bloom = texture2D(tDiffuse, snappedUv + sampleStep * 1.7).rgb +
     texture2D(tDiffuse, snappedUv - sampleStep * 1.7).rgb;
-  colour += bloom * bright * 0.022;
+  colour += bloom * bright * 0.010;
   colour = premiumShimmer(colour, snappedUv, time);
   colour *= vec3(1.045, 1.02, 0.93);
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);

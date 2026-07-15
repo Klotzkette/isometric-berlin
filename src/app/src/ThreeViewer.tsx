@@ -92,6 +92,7 @@ import {
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
 import { createPaletteLutData } from "./visual-modes/minecraft/palette";
+import { voxelBaseCell } from "./visual-modes/minecraft/voxelGrid";
 import crispFragment from "./crisp.frag?raw";
 import postprocessFragment from "./visual-modes/minecraft/postprocess.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
@@ -349,12 +350,15 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xc9eaf3;
   runtime.scene.background = new Color(sky);
   runtime.scene.fog = new Fog(sky, isNight ? 900 : isMinecraft ? 1450 : 1100, 2550);
-  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.34 : 1.23;
+  // Minecraft exposure compensates for the darker outline pass and the
+  // wider light/dark contrast so mids stay readable, not muddy.
+  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.5 : 1.23;
   runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
   runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x57775b);
-  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 2.18 : 2.06;
+  // Minecraft wants strong shadow sides on cubes: ambient down, key up.
+  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 1.72 : 2.06;
   runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xffdda3 : 0xffefc9);
-  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.18 : 3.28;
+  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.72 : 3.28;
   runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);
   runtime.skyFill.intensity = isNight ? 0.18 : isMinecraft ? 0.44 : 0.24;
   runtime.sun.position.set(
@@ -1268,8 +1272,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       minecraftPaletteTexture.needsUpdate = true;
       const minecraftPass = new ShaderPass({
         uniforms: {
+          ditherStrength: { value: 0 },
+          edgeMix: { value: CRISPNESS_PROFILES.minecraft.edgeStrength },
           paletteLut: { value: minecraftPaletteTexture },
-          pixelScale: { value: coarsePointer ? 2.35 : 2.8 },
+          pixelScale: { value: voxelBaseCell(coarsePointer) },
           resolution: { value: new Vector2(1, 1) },
           tDiffuse: { value: null },
           time: { value: 0 },

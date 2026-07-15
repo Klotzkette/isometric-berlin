@@ -7,8 +7,10 @@ import {
   SpawnThresholdMemory,
 } from "../src/visual-modes/minecraft/lifecycle";
 import {
+  BASE_SCALE_MIN,
   MAX_DECORATIVE_SPRITES,
   SPAWN_SCHEDULE,
+  SPRITE_SIZE_MULTIPLIER,
 } from "../src/visual-modes/minecraft/spawns";
 
 /**
@@ -231,6 +233,12 @@ describe("Minecraft lifecycle controller", () => {
       expect(spawns.length).toBeLessThanOrEqual(MAX_DECORATIVE_SPRITES);
       const ids = new Set(spawns.map((spawn) => spawn.id));
       expect(ids.size).toBe(spawns.length);
+      // The ~40 % render-size boost applies to every spawned sprite.
+      for (const spawn of spawns) {
+        expect(spawn.scale).toBeGreaterThanOrEqual(
+          BASE_SCALE_MIN * SPRITE_SIZE_MULTIPLIER,
+        );
+      }
       controller.setMode("day");
       scheduler.advance(MODE_FADE_MS);
       expect(controller.getState().spawns).toHaveLength(0);

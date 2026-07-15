@@ -5,19 +5,72 @@ const COLORS = ["#2f783d", "#78b64b", "#d7bd65", "#c56745", "#6bb5c5", "#f2dfb0"
 function encode(svg: string): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
+
+/**
+ * Hand-pixelled, trademark-free sprite bodies on a 16×16 block grid.
+ * Every shape is an axis-aligned `<rect>` snapped to whole pixels — no
+ * `<path>`, no diagonals, no curves, no gradients — so the sprites keep
+ * a visible 1 px block grid when scaled up with `crispEdges`.
+ */
 export function minecraftSpriteDataUri(
   category: SpawnCategory,
   variant: number,
 ): string {
   const accent = COLORS[variant % COLORS.length];
-  const common = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges"';
+  const common =
+    'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges"';
   const bodies: Record<SpawnCategory, string> = {
-    village: `<path fill="#2b211b" d="M3 10 12 3l9 7v11H3z"/><path fill="${accent}" d="m5 10 7-5 7 5v3H5z"/><path fill="#e8d1ae" d="M6 12h12v9H6z"/><path fill="#69452e" d="M10 15h4v6h-4z"/>`,
-    tent: `<path fill="#302720" d="m2 20 10-17 10 17z"/><path fill="${accent}" d="m5 19 7-13 7 13z"/><path fill="#f4e4bd" d="m12 6 2 13h-4z"/>`,
-    field: `<path fill="#315d31" d="M2 7h20v14H2z"/><path fill="${accent}" d="M3 8h3v12H3zm6 0h3v12H9zm6 0h3v12h-3z"/><path fill="#8bc665" d="M2 4h20v3H2z"/>`,
-    npc: `<path fill="#26342e" d="M8 2h8v7H8z"/><path fill="${accent}" d="M6 9h12v9H6z"/><path fill="#d8b08a" d="M9 4h6v5H9z"/><path fill="#2b211b" d="M7 18h4v5H7zm6 0h4v5h-4z"/>`,
-    animal: `<path fill="#f2efd8" d="M4 8h14v10H4z"/><path fill="#d1d0bd" d="M17 10h5v7h-5z"/><path fill="#313733" d="M6 18h3v5H6zm7 0h3v5h-3z"/><path fill="${accent}" d="M19 12h2v2h-2z"/>`,
-    boat: `<path fill="#7a4c2c" d="M2 13h20l-4 7H6z"/><path fill="${accent}" d="M11 3h2v10h-2z"/><path fill="#f2dfb0" d="M13 4v7h7z"/>`,
+    // House with a stepped roof, plastered wall, window and door.
+    village:
+      `<rect fill="#2b211b" x="5" y="1" width="6" height="2"/>` +
+      `<rect fill="${accent}" x="3" y="3" width="10" height="2"/>` +
+      `<rect fill="${accent}" x="1" y="5" width="14" height="2"/>` +
+      `<rect fill="#e8d1ae" x="3" y="7" width="10" height="8"/>` +
+      `<rect fill="#2b211b" x="4" y="8" width="2" height="2"/>` +
+      `<rect fill="#69452e" x="7" y="10" width="3" height="5"/>`,
+    // Market tent as a stepped pyramid of stacked rects with an entrance.
+    tent:
+      `<rect fill="#302720" x="7" y="2" width="2" height="2"/>` +
+      `<rect fill="${accent}" x="5" y="4" width="6" height="3"/>` +
+      `<rect fill="${accent}" x="3" y="7" width="10" height="3"/>` +
+      `<rect fill="${accent}" x="1" y="10" width="14" height="4"/>` +
+      `<rect fill="#302720" x="1" y="14" width="14" height="1"/>` +
+      `<rect fill="#f4e4bd" x="6" y="10" width="4" height="5"/>`,
+    // Crop plot: grass strip, dark soil, chunky crop-row columns.
+    field:
+      `<rect fill="#8bc665" x="1" y="2" width="14" height="2"/>` +
+      `<rect fill="#315d31" x="1" y="4" width="14" height="10"/>` +
+      `<rect fill="${accent}" x="2" y="5" width="2" height="8"/>` +
+      `<rect fill="${accent}" x="6" y="5" width="2" height="8"/>` +
+      `<rect fill="${accent}" x="10" y="5" width="2" height="8"/>` +
+      `<rect fill="#f2dfb0" x="13" y="5" width="2" height="8"/>`,
+    // Tiny Berliner: hair block, face with 1 px eyes, tunic, arms, legs.
+    npc:
+      `<rect fill="#26342e" x="5" y="1" width="6" height="2"/>` +
+      `<rect fill="#d8b08a" x="5" y="3" width="6" height="4"/>` +
+      `<rect fill="#26342e" x="6" y="4" width="1" height="1"/>` +
+      `<rect fill="#26342e" x="9" y="4" width="1" height="1"/>` +
+      `<rect fill="${accent}" x="4" y="7" width="8" height="5"/>` +
+      `<rect fill="#d8b08a" x="2" y="7" width="2" height="4"/>` +
+      `<rect fill="#d8b08a" x="12" y="7" width="2" height="4"/>` +
+      `<rect fill="#2b211b" x="5" y="12" width="2" height="3"/>` +
+      `<rect fill="#2b211b" x="9" y="12" width="2" height="3"/>`,
+    // Generic blocky quadruped: body, boxy head, snout marking, legs.
+    animal:
+      `<rect fill="#f2efd8" x="1" y="6" width="10" height="6"/>` +
+      `<rect fill="#d1d0bd" x="11" y="4" width="4" height="5"/>` +
+      `<rect fill="${accent}" x="11" y="7" width="4" height="2"/>` +
+      `<rect fill="#313733" x="12" y="5" width="1" height="1"/>` +
+      `<rect fill="#313733" x="2" y="12" width="2" height="3"/>` +
+      `<rect fill="#313733" x="8" y="12" width="2" height="3"/>`,
+    // Spree boat: mast, stepped block sail, two-step hull.
+    boat:
+      `<rect fill="${accent}" x="7" y="1" width="2" height="9"/>` +
+      `<rect fill="#f2dfb0" x="9" y="2" width="5" height="2"/>` +
+      `<rect fill="#f2dfb0" x="9" y="4" width="4" height="2"/>` +
+      `<rect fill="#f2dfb0" x="9" y="6" width="3" height="2"/>` +
+      `<rect fill="#7a4c2c" x="1" y="10" width="14" height="3"/>` +
+      `<rect fill="#5d3a22" x="3" y="13" width="10" height="2"/>`,
   };
   return encode(`<svg ${common}>${bodies[category]}</svg>`);
 }

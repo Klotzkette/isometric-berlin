@@ -1674,7 +1674,21 @@ export function App() {
       return;
     }
     const processor = MinecraftDziPostProcessor.attach(host);
+    // Hard palette snap by default; ordered dithering fades in only at
+    // the deepest zoom to avoid banding on large flat block faces.
+    const viewer = viewerRef.current;
+    const applyDither = () => {
+      if (!processor || !viewer) {
+        return;
+      }
+      const zoom = viewer.viewport.getZoom(true);
+      const deepest = viewer.viewport.getMaxZoom() * 0.72;
+      processor.setDitherStrength(zoom >= deepest ? 1 : 0);
+    };
+    applyDither();
+    viewer?.addHandler("zoom", applyDither);
     return () => {
+      viewer?.removeHandler("zoom", applyDither);
       processor?.dispose();
       host.classList.remove("minecraft-dzi-fallback");
     };

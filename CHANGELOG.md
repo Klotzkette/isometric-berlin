@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.5.3
+
+- Much blockier Minecraft mode. The voxel base cell doubles (2.35→4.7 on
+  coarse layouts, 2.8→5.6 on fine, shared constant in `voxelGrid.ts`,
+  capped below 24 device px so buildings never collapse), and the palette
+  drops from 48 to 28 discrete colours grouped around stone, sandstone,
+  concrete, glass-teal, a still-varied roof-copper family, water, foliage,
+  asphalt, plaza brick, dirt and canvas.
+- Hard palette snap replaces the always-on ordered dither; dithering now
+  fades in only at the deepest zoom (new `ditherStrength` uniform, wired
+  from the OpenSeadragon zoom) to avoid banding on large flat faces.
+- Near-black block outlines: the shared minecraft postprocess shader
+  (used by both the 3D composer pass and the 2D DZI post-processor) gets
+  a lower edge threshold and an `edgeMix` uniform driven by the shared
+  crispness profile (0.55→0.85), tinted slightly warm on glass and cool
+  on stone. Two guards keep it from turning into mud: foliage suppression
+  for tree canopy, and a busyness guard that backs the outline off in
+  high-frequency texture while true silhouettes keep full strength.
+  Measured at the Reichstag fit-to-view: 12.2× more hard-outline pixels
+  than Day mode (requirement was ≥3×).
+- Stepped 2-step toon shading (previously 3 steps) with flat shading kept
+  on, ambient down (2.18→1.72) and key light up (3.18→3.72) for strong
+  cube shadow sides, plus a small exposure lift (1.34→1.5) so mids stay
+  readable. The mesh outline uses the screen-space edge pass rather than
+  inverted hulls — duplicating the 2.3–7M-face official mesh would not
+  hold 60 fps on a 2020-era iPhone. Bloom threshold and strength reduced
+  (0.74→0.85, 0.022→0.010). No geometry, camera, or landmark anchor
+  changed; the ≤1 px hero-centre contract is guarded by tests.
+- Chunkier decorations: all six sprites are redrawn as rect-only 16×16
+  hand-pixelled blocks (no diagonals, no gradients), every category
+  renders 40% larger, and NPC/animal counts drop ~30% (36→25 / 12→8) so
+  the map reads as fewer, bigger blocks. Density budget stays ≤220 and
+  the v0.5.1 lifecycle teardown contract is untouched.
+
 ## v0.5.2
 
 - Two-finger swipe on touch devices now pans the map along with the

@@ -42,6 +42,17 @@ export const SPAWN_CATEGORY_ORDER: readonly SpawnCategory[] = [
 
 export const MAX_DECORATIVE_SPRITES = 220;
 
+/**
+ * Uniform per-sprite render-size boost applied to every spawn's `scale`
+ * (all categories). Introduced together with the reduced npc/animal
+ * counts: ~30 % fewer moving sprites, each rendered ~40 % larger.
+ */
+export const SPRITE_SIZE_MULTIPLIER = 1.4;
+
+/** Base random scale range before SPRITE_SIZE_MULTIPLIER is applied. */
+export const BASE_SCALE_MIN = 0.78;
+export const BASE_SCALE_SPREAD = 0.44;
+
 export const SPAWN_SCHEDULE = {
   village: 20_000,
   tent: 30_000,
@@ -51,12 +62,14 @@ export const SPAWN_SCHEDULE = {
   boat: 75_000,
 } as const;
 
-const CATEGORY_COUNTS: Record<SpawnCategory, number> = {
+// npc/animal were 36/12 before v0.5.2's blockier pass; both are reduced
+// by ~30 % while every sprite renders larger (SPRITE_SIZE_MULTIPLIER).
+export const CATEGORY_COUNTS: Record<SpawnCategory, number> = {
   village: 30,
   tent: 12,
   field: 12,
-  npc: 36,
-  animal: 12,
+  npc: 25,
+  animal: 8,
   boat: 4,
 };
 
@@ -119,7 +132,9 @@ export function buildSpawnPlan(options: SpawnPlanOptions): DecorativeSpawn[] {
         category,
         delayMs: Math.round(random() * 900),
         id: `${category}-${index}-${seed.toString(16)}`,
-        scale: 0.78 + random() * 0.44,
+        scale:
+          (BASE_SCALE_MIN + random() * BASE_SCALE_SPREAD) *
+          SPRITE_SIZE_MULTIPLIER,
         variant: Math.floor(random() * 6),
         x: minX + random() * (maxX - minX),
         y: minY + random() * (maxY - minY),
