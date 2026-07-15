@@ -646,6 +646,20 @@ export function App() {
     }
   }, [lightingMode]);
 
+  // Minecraft decorations are strictly scoped to Minecraft mode: any pending
+  // tap spark (DOM node and its timer) is discarded the moment the visual
+  // mode changes, so nothing Minecraft-flavoured survives into Day/Night.
+  useEffect(() => {
+    if (lightingMode === "minecraft") {
+      return;
+    }
+    if (minecraftSparkTimerRef.current !== null) {
+      window.clearTimeout(minecraftSparkTimerRef.current);
+      minecraftSparkTimerRef.current = null;
+    }
+    setMinecraftSpark(null);
+  }, [lightingMode]);
+
   useEffect(() => {
     document.documentElement.lang = language;
     try {

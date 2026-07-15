@@ -21,8 +21,24 @@ export type SpawnPlanOptions = {
   dayOfWeek: number;
   devicePixelRatio: number;
   elapsedMs: number;
+  /**
+   * Categories whose dwell thresholds were already reached earlier in this
+   * page load. They spawn immediately regardless of the current elapsed
+   * dwell time (positions stay deterministic: the random stream is consumed
+   * in fixed category order).
+   */
+  reachedCategories?: ReadonlySet<SpawnCategory>;
   zoomBucket: number;
 };
+
+export const SPAWN_CATEGORY_ORDER: readonly SpawnCategory[] = [
+  "village",
+  "tent",
+  "field",
+  "npc",
+  "animal",
+  "boat",
+];
 
 export const MAX_DECORATIVE_SPRITES = 220;
 
@@ -73,16 +89,11 @@ function randomGenerator(seed: number): () => number {
 }
 
 function enabledCategories(options: SpawnPlanOptions): SpawnCategory[] {
-  const order: SpawnCategory[] = [
-    "village",
-    "tent",
-    "field",
-    "npc",
-    "animal",
-    "boat",
-  ];
-  return order.filter((category) => {
-    if (options.elapsedMs < SPAWN_SCHEDULE[category]) {
+  return SPAWN_CATEGORY_ORDER.filter((category) => {
+    const dwellReached =
+      options.elapsedMs >= SPAWN_SCHEDULE[category] ||
+      (options.reachedCategories?.has(category) ?? false);
+    if (!dwellReached) {
       return false;
     }
     if (

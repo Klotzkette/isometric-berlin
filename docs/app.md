@@ -79,7 +79,12 @@ audio file and suspends when the tab is hidden. Short bilingual discovery notes
 are tied to seven selected sights and appear only once per page session.
 
 The ordinary Day/Night pipeline applies a bounded crisp/saturation pass only
-after camera movement settles; direct rendering resumes during motion. Minecraft
+after camera movement settles; direct rendering resumes during motion. The
+settled pass now includes an "isometric edge" outline (Roberts-cross on
+luminance, strengths in `crispnessProfile.ts`) that darkens strong gradients so
+buildings read graphic and edge-defined, while green-dominant vegetation is
+suppressed and stays soft. Known photogrammetry sky artefacts are removed at
+tile load via `meshArtefacts.ts` (evidence notes inline). Minecraft
 uses its separate palette pass with reduced bloom and sparse shimmer. This keeps
 controls responsive while improving stationary facade and roof definition.
 

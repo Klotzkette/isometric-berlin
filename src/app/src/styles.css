@@ -739,6 +739,32 @@ button:active:not(:disabled) {
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  /* Mode-switch fade; duration must match MODE_FADE_MS in lifecycle.ts. */
+  animation: minecraft-life-fade-in 180ms ease both;
+}
+
+.minecraft-life--leaving {
+  animation: minecraft-life-fade-out 180ms ease both;
+}
+
+@keyframes minecraft-life-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes minecraft-life-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 .minecraft-sprite {
@@ -788,10 +814,6 @@ button:active:not(:disabled) {
   font-size: 12px;
   text-align: center;
   pointer-events: none;
-}
-
-.minecraft-dwell {
-  display: none;
 }
 
 .discovery-note {
@@ -1789,5 +1811,10 @@ button:active:not(:disabled) {
   .minecraft-sprite--boat {
     animation-duration: 60ms;
     animation-iteration-count: 1;
+  }
+
+  .minecraft-life,
+  .minecraft-life--leaving {
+    animation-duration: 60ms;
   }
 }

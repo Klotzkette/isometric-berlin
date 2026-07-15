@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.5.1
+
+- Remove the dark cloud over the Chancellery: the blob was a photogrammetry
+  reconstruction artefact baked into the official mesh tiles
+  (`tile-3890_58200` and its settled twin) floating 47–61 m over the
+  Kanzlerpark side, where the 36 m cube and sub-45 m park trees leave no
+  surveyed counterpart. A new load-time sky-artefact filter
+  (`meshArtefacts.ts`) strips the offending triangles from known artefact
+  volumes without touching the committed source tiles; a regression test
+  decodes both real tiles and asserts the volume stays empty, plus a
+  scene-level guard that no programmatic mesh hovers over the Chancellery
+  roofline.
+- Crisper isometric buildings: the settled sharpening moves into a named
+  crispness profile (day strength 0.38→0.48, night 0.30→0.40) and gains a
+  screen-space "isometric edge" pass — a Roberts-cross luminance outline
+  (0.25 day / 0.35 night) that darkens strong gradients so facades and roof
+  lines read graphic and edged. Green-dominant pixels are suppressed, so
+  park canopy deliberately stays soft. Minecraft keeps its own stronger
+  quantized edge (0.72 mix) and bypasses the crisp pass. Touch devices now
+  render with antialiasing (previously none), and the post-process chain
+  runs on an explicit 2× (touch) / 4× (desktop) MSAA target, so straight
+  edges stop shimmering. Post-processing stays strictly screen-space; no
+  camera, geometry, or landmark anchor changed.
+- Minecraft decorations strictly scoped to Minecraft mode: spawn state is
+  owned by a single mode-keyed lifecycle controller — leaving Minecraft
+  removes every decoration and clears every timer, returning within the
+  same page load restores already-reached categories immediately at the
+  same seeded positions, and switches fade over ≤ 200 ms. Threshold state
+  lives in memory only; the mode itself keeps its localStorage key.
+
 ## v0.5.0
 
 - Raise stationary render quality: the settled desktop pixel budget grows

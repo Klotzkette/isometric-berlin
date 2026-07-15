@@ -13,6 +13,7 @@ import {
   Fog,
   FrontSide,
   Group,
+  HalfFloatType,
   HemisphereLight,
   InstancedMesh,
   LineSegments,
@@ -38,6 +39,7 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
+  WebGLRenderTarget,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
@@ -75,7 +77,9 @@ import {
   flyCameraInViewPlane,
   stabilizeCameraRig,
 } from "./cameraNavigation";
+import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import { heroDetailEvictions } from "./heroDetailCache";
+import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
@@ -374,9 +378,11 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
     );
   }
   runtime.crispPass.enabled = false;
-  runtime.crispPass.uniforms.strength.value = isNight ? 0.3 : 0.38;
-  runtime.crispPass.uniforms.saturation.value = isNight ? 1.05 : 1.1;
-  runtime.crispPass.uniforms.contrast.value = isNight ? 1.035 : 1.05;
+  const crispness = CRISPNESS_PROFILES[isNight ? "night" : "day"];
+  runtime.crispPass.uniforms.strength.value = crispness.strength;
+  runtime.crispPass.uniforms.saturation.value = crispness.saturation;
+  runtime.crispPass.uniforms.contrast.value = crispness.contrast;
+  runtime.crispPass.uniforms.edgeStrength.value = crispness.edgeStrength;
   runtime.minecraftPass.enabled = isMinecraft;
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -856,6 +862,7 @@ async function loadModel(
   if (detail) {
     gltf.scene.position.y += DETAIL_RAISE_M;
   }
+  stripSkyArtefacts(gltf.scene, skyArtefactsFor(file.file));
   parent.add(gltf.scene);
   if (runtime.lightingMode === "minecraft") {
     setMinecraftMaterialPresentation(
@@ -1208,8 +1215,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
+      // Antialias everywhere: touch devices previously rendered without
+      // MSAA, which made straight roof edges shimmer on retina phones.
       const renderer = new WebGLRenderer({
-        antialias: !coarsePointer,
+        antialias: true,
         powerPreference: "high-performance",
       });
       renderer.outputColorSpace = SRGBColorSpace;
@@ -1274,17 +1283,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       minecraftPass.enabled = false;
       const crispPass = new ShaderPass({
         uniforms: {
-          contrast: { value: 1.025 },
+          contrast: { value: CRISPNESS_PROFILES.day.contrast },
+          edgeStrength: { value: CRISPNESS_PROFILES.day.edgeStrength },
           resolution: { value: new Vector2(1, 1) },
-          saturation: { value: 1.07 },
-          strength: { value: 0.26 },
+          saturation: { value: CRISPNESS_PROFILES.day.saturation },
+          strength: { value: CRISPNESS_PROFILES.day.strength },
           tDiffuse: { value: null },
         },
         vertexShader: postprocessVertex,
         fragmentShader: crispFragment,
       });
       crispPass.enabled = false;
-      const composer = new EffectComposer(renderer);
+      // Hard MSAA floor for the settled post-process chain: 2x on
+      // coarse-pointer/retina touch, 4x on desktop, so straight roof
+      // edges stop shimmering once the crisp/edge pass runs.
+      const composerTarget = new WebGLRenderTarget(1, 1, {
+        samples: coarsePointer ? 2 : 4,
+        type: HalfFloatType,
+      });
+      const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
       composer.addPass(crispPass);
       composer.addPass(minecraftPass);

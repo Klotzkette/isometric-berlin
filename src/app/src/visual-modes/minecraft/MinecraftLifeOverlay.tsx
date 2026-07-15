@@ -1,10 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
-import {
-  type SpawnCategory,
-  SPAWN_SCHEDULE,
-  buildSpawnPlan,
-} from "./spawns";
+import { MinecraftLifecycleController } from "./lifecycle";
+import type { SpawnCategory } from "./spawns";
 import { minecraftSpriteDataUri } from "./sprites";
 
 type MinecraftLifeOverlayProps = {
@@ -32,93 +29,56 @@ const SPAWN_MESSAGES: Record<"de" | "en", Record<SpawnCategory, string>> = {
   },
 };
 
+/**
+ * Renders whatever the single Minecraft lifecycle controller says exists.
+ * Outside Minecraft mode (phase "hidden") this renders nothing at all —
+ * no wrapper node, no sprites, no timers.
+ */
 export function MinecraftLifeOverlay({
   active,
   resetToken,
   zoomBucket,
 }: MinecraftLifeOverlayProps) {
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const [averageFrameMs, setAverageFrameMs] = useState(16.7);
-  const [toast, setToast] = useState("");
-  const announcedRef = useRef(new Set<SpawnCategory>());
+  const controllerRef = useRef<MinecraftLifecycleController | null>(null);
+  controllerRef.current ??= new MinecraftLifecycleController();
+  const controller = controllerRef.current;
+
+  useEffect(() => () => controller.dispose(), [controller]);
 
   useEffect(() => {
-    announcedRef.current.clear();
-    setElapsedMs(0);
-    setToast("");
-    if (!active) {
+    controller.setEnvironment({
+      dayOfWeek: new Date().getDay(),
+      devicePixelRatio: window.devicePixelRatio,
+      zoomBucket,
+    });
+  }, [controller, zoomBucket]);
+
+  const seenResetTokenRef = useRef(resetToken);
+  useEffect(() => {
+    if (seenResetTokenRef.current === resetToken) {
       return;
     }
-    const startedAt = performance.now();
-    const timer = window.setInterval(
-      () => setElapsedMs(performance.now() - startedAt),
-      500,
-    );
-    return () => window.clearInterval(timer);
-  }, [active, resetToken]);
+    seenResetTokenRef.current = resetToken;
+    controller.resetSchedule();
+  }, [controller, resetToken]);
 
   useEffect(() => {
-    if (!active) {
-      return;
-    }
-    let frame = 0;
-    let last = performance.now();
-    const samples: number[] = [];
-    const profile = (timestamp: number) => {
-      samples.push(timestamp - last);
-      last = timestamp;
-      if (samples.length >= 60) {
-        setAverageFrameMs(
-          samples.reduce((sum, sample) => sum + sample, 0) / samples.length,
-        );
-        samples.length = 0;
-      }
-      frame = window.requestAnimationFrame(profile);
-    };
-    frame = window.requestAnimationFrame(profile);
-    return () => window.cancelAnimationFrame(frame);
-  }, [active]);
+    controller.setMode(active ? "minecraft" : "day");
+  }, [active, controller]);
 
-  const plan = useMemo(
-    () =>
-      active
-        ? buildSpawnPlan({
-            averageFrameMs,
-            dayOfWeek: new Date().getDay(),
-            devicePixelRatio: window.devicePixelRatio,
-            elapsedMs,
-            zoomBucket,
-          })
-        : [],
-    [active, averageFrameMs, elapsedMs, zoomBucket],
-  );
+  const state = useSyncExternalStore(controller.subscribe, controller.getState);
 
-  useEffect(() => {
-    const visible = new Set(plan.map((spawn) => spawn.category));
-    const next = ([
-      "village",
-      "tent",
-      "field",
-      "npc",
-      "animal",
-      "boat",
-    ] as SpawnCategory[]).find(
-      (category) =>
-        visible.has(category) && !announcedRef.current.has(category),
-    );
-    if (!next) {
-      return;
-    }
-    announcedRef.current.add(next);
-    const locale = document.documentElement.lang.startsWith("en") ? "en" : "de";
-    setToast(SPAWN_MESSAGES[locale][next]);
-    const timer = window.setTimeout(() => setToast(""), 3200);
-    return () => window.clearTimeout(timer);
-  }, [plan]);
+  if (state.phase === "hidden") {
+    return null;
+  }
 
+  const locale = document.documentElement.lang.startsWith("en") ? "en" : "de";
   return (
-    <div className="minecraft-life" aria-hidden="true">
-      {plan.map((spawn) => (
+    <div
+      className={`minecraft-life minecraft-life--${state.phase}`}
+      aria-hidden="true"
+    >
+      {state.spawns.map((spawn) => (
         <img
           key={spawn.id}
           className={`minecraft-sprite minecraft-sprite--${spawn.category}`}
@@ -132,8 +92,11 @@ export function MinecraftLifeOverlay({
           }}
         />
       ))}
-      {toast ? <div className="minecraft-toast">{toast}</div> : null}
-      <span className="minecraft-dwell" data-elapsed={elapsedMs} data-schedule={SPAWN_SCHEDULE.boat} />
+      {state.announcedCategory ? (
+        <div className="minecraft-toast">
+          {SPAWN_MESSAGES[locale][state.announcedCategory]}
+        </div>
+      ) : null}
     </div>
   );
 }
