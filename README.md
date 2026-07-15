@@ -4,8 +4,8 @@
 
 | What | Link |
 |---|---|
-| Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.9/isometric-berlin-regierungsviertel-local.zip |
+| **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -14,8 +14,8 @@
 The downloadable viewer is the built React + Three.js/OpenSeadragon app from
 `src/app/`. It defaults to the true 3D official-mesh view and works on modern
 desktop, phone and tablet browsers. No AI model, Google key or paid service is
-needed at runtime. GitHub Pages currently shows an owner-requested offline
-placeholder; use the release ZIP for the functional viewer.
+needed at runtime. The same functional viewer is deployed on GitHub Pages and
+bundled with all required local assets in the release ZIP.
 
 `START-HERE.html` is the zero-server **2D compatibility fallback**, not the
 full model. For true 3D on Windows, double-click `start-windows.bat`. On macOS
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.9 open-data package.
+**Status:** Local v0.3.0 open-data package, also deployed as the hosted viewer.
 
 ## Current Viewer
 
-The current public package is **v0.2.9**. Its full viewer is a progressively
+The current public package is **v0.3.0**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -83,6 +83,18 @@ labelled compatibility fallback for browsers that cannot run local modules.
   changes sky, fog, directional light and exposure; landmark windows, station
   glass and dome structure emit light at night. The 2D fallback receives a
   restrained night treatment as well.
+- A third `Minecraft` visual mode, available from the mode control or `M`,
+  applies an original 48-colour premium voxel palette, ordered dithering,
+  toon materials and subtle animated water/glass highlights without moving a
+  single LoD2 anchor or changing camera framing. Deterministic villages,
+  market tents, fields, tiny people, animals and boats appear progressively
+  only after 20–75 seconds of uninterrupted dwell time and remain under a
+  strict mobile density budget.
+- Phones use a compact 40 px landmark status bar, a 56 px bottom action bar,
+  a compass sheet and a separate action sheet. The chrome can be hidden with
+  its chevron or a three-finger downward swipe; iPhone safe areas, landscape,
+  44 px touch targets, reduced motion and momentum-rich pinch/pan/rotate are
+  handled explicitly.
 - The old always-visible coloured landmark dots are gone. Selecting a landmark
   briefly shows a small ring, which fades after 2.4 seconds so roofs and
   facades remain unobstructed.

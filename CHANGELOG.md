@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.3.0
+
+- Replace the oversized phone chrome with a compact landmark status bar,
+  bottom zoom/action bar, compass sheet and overflow sheet. Add iPhone safe
+  areas, landscape sizing, 44 px touch targets, explicit active states,
+  reduced-motion timing, haptic feedback where supported, a one-time coach
+  mark and a persistent hide control with a three-finger swipe-down shortcut.
+- Make touch flight more direct with stronger OpenSeadragon momentum, a lower
+  flick threshold, cardinal rotation snapping, constrained panning, sharper
+  mobile tile selection and faster zoom/spring response. Focused landmarks are
+  offset above the phone action bar instead of being hidden underneath it.
+- Add the original premium `Minecraft` visual mode for both DZI and free 3D:
+  a 48-colour palette, ordered dithering, edge treatment, toon materials,
+  warm directional light and animated water/glass shimmer. The filter changes
+  presentation only and preserves source geometry, world transforms and
+  camera framing.
+- Add deterministic, performance-gated villages, tents, fields, tiny people,
+  animals and boats after 20–75 seconds of continuous Minecraft dwell time.
+  Original inline sprites stay below a 220-item budget and avoid the central
+  landmark inspection area; no Mojang assets or trademarks are bundled.
+- Add scheduler, density, palette, material-envelope and Reichstag dome-centre
+  regressions. Re-run the complete LoD2 alignment suite with no coordinate or
+  silhouette-anchor drift.
+
 ## v0.2.9
 
 - Hide the Tiergartentunnel completely in ordinary exterior views and reveal

@@ -46,6 +46,7 @@ type InstanceTransform = {
 const TIPI_NAME = "TIPI am Kanzleramt";
 const CARILLON_NAME = "Carillon im Tiergarten";
 const SPREEBOGEN_NAME = "Spreebogen";
+const HKW_NAME = "Haus der Kulturen der Welt (Schwangere Auster)";
 const TIPI_GROUND_Y = 3.98;
 const CARILLON_GROUND_Y = 3.778;
 const BOAT_WORLD: [number, number, number] = [-259.21, 1.249, -219.53];
@@ -946,6 +947,15 @@ export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
 }
 
 export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
+  if (name === HKW_NAME) {
+    return {
+      azimuth_degrees: 38,
+      distance_m: 385,
+      polar_degrees: 58,
+      target_height_m: 15,
+      target_world: [-505.17, 3.89, -12.073],
+    };
+  }
   if (name === TIPI_NAME) {
     return {
       azimuth_degrees: 34,

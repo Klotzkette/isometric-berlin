@@ -12,8 +12,8 @@ export const TOUCH_GESTURE_SETTINGS: RotatableGestureSettings = {
   dblClickToZoom: true,
   dragToPan: true,
   flickEnabled: true,
-  flickMinSpeed: 120,
-  flickMomentum: 0.25,
+  flickMinSpeed: 60,
+  flickMomentum: 0.5,
   pinchRotate: true,
   pinchToZoom: true,
 };

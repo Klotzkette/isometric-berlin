@@ -1,6 +1,6 @@
 # Generation
 
-The committed v0.2.9 viewer is generated entirely from the permitted open-data
+The committed v0.3.0 viewer is generated entirely from the permitted open-data
 stack. Berlin LoD2 anchors building footprints/heights, OSM supplies roads,
 water, parks, rail and POIs, ALKIS supplies parcel context, and freely licensed
 Wikimedia records provide colour/material cues. Google is not used unless the

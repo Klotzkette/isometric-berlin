@@ -6,6 +6,7 @@ import {
   BufferGeometry,
   Color,
   CylinderGeometry,
+  DataTexture,
   DirectionalLight,
   DoubleSide,
   Fog,
@@ -21,20 +22,26 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  NearestFilter,
   Object3D,
   PerspectiveCamera,
   PCFShadowMap,
   RingGeometry,
+  RGBAFormat,
   Scene,
   Spherical,
   SphereGeometry,
   SRGBColorSpace,
   TorusGeometry,
   Texture,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   type ArchitecturalSignature,
@@ -61,6 +68,18 @@ import { runBoundedTasks } from "./boundedTaskPool";
 import { flyCameraInViewPlane } from "./cameraNavigation";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { updateWindFlags } from "./WindFlags";
+import type { VisualMode } from "./visualMode";
+import {
+  createMinecraftMaterialState,
+  disposeMinecraftMaterialState,
+  releaseMinecraftMaterialBindings,
+  setMinecraftMaterialPresentation,
+  type MinecraftMaterialState,
+} from "./visual-modes/minecraft/materialMode";
+import { createPaletteLutData } from "./visual-modes/minecraft/palette";
+import postprocessFragment from "./visual-modes/minecraft/postprocess.frag?raw";
+import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
+import shimmerFragment from "./visual-modes/minecraft/shimmer.frag?raw";
 import {
   forwardRef,
   useEffect,
@@ -114,7 +133,7 @@ type ViewAngles = {
   underside: boolean;
 };
 
-export type LightingMode = "day" | "night";
+export type LightingMode = VisualMode;
 
 type ThreeViewerProps = {
   active: boolean;
@@ -143,6 +162,7 @@ type Runtime = {
   civicDetails: Group;
   coarsePointer: boolean;
   controls: OrbitControls;
+  composer: EffectComposer;
   culturalDetails: Group;
   detailClock: number;
   detailGroups: Map<string, HeroDetailGroup>;
@@ -154,6 +174,9 @@ type Runtime = {
   loader: GLTFLoader;
   marker: Group;
   markerTimer: number | null;
+  minecraftMaterialState: MinecraftMaterialState;
+  minecraftPass: ShaderPass;
+  minecraftPaletteTexture: DataTexture;
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
   parkDetails: Group;
@@ -246,17 +269,31 @@ function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
 
 function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   runtime.lightingMode = mode;
-  const sky = mode === "night" ? 0x07131f : 0xc9eaf3;
+  const isNight = mode === "night";
+  const isMinecraft = mode === "minecraft";
+  if (!isMinecraft) {
+    setMinecraftMaterialPresentation(
+      runtime.scene,
+      runtime.minecraftMaterialState,
+      false,
+    );
+  }
+  const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xc9eaf3;
   runtime.scene.background = new Color(sky);
-  runtime.scene.fog = new Fog(sky, mode === "night" ? 900 : 1100, 2550);
-  runtime.renderer.toneMappingExposure = mode === "night" ? 0.82 : 1.3;
-  runtime.hemisphere.color.setHex(mode === "night" ? 0x5877a4 : 0xffffff);
-  runtime.hemisphere.groundColor.setHex(mode === "night" ? 0x08120f : 0x658266);
-  runtime.hemisphere.intensity = mode === "night" ? 0.34 : 2.7;
-  runtime.sun.color.setHex(mode === "night" ? 0x91b9ed : 0xffefc9);
-  runtime.sun.intensity = mode === "night" ? 0.62 : 2.75;
-  runtime.skyFill.color.setHex(mode === "night" ? 0x6c82ae : 0xb6dcff);
-  runtime.skyFill.intensity = mode === "night" ? 0.2 : 0.34;
+  runtime.scene.fog = new Fog(sky, isNight ? 900 : isMinecraft ? 1450 : 1100, 2550);
+  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.38 : 1.3;
+  runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
+  runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x658266);
+  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 2.25 : 2.7;
+  runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xffdda3 : 0xffefc9);
+  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.15 : 2.75;
+  runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);
+  runtime.skyFill.intensity = isNight ? 0.2 : isMinecraft ? 0.48 : 0.34;
+  runtime.sun.position.set(
+    isMinecraft ? 760 : -760,
+    980,
+    isMinecraft ? -720 : 720,
+  );
   for (const material of runtime.modelMaterials) {
     applyMaterialLighting(material, mode);
   }
@@ -265,6 +302,14 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   applyLightingToRoot(runtime.monuments, mode);
   applyLightingToRoot(runtime.culturalDetails, mode);
   applyLightingToRoot(runtime.parkDetails, mode);
+  if (isMinecraft) {
+    setMinecraftMaterialPresentation(
+      runtime.scene,
+      runtime.minecraftMaterialState,
+      true,
+    );
+  }
+  runtime.minecraftPass.enabled = isMinecraft;
 }
 
 function segmentMesh(
@@ -609,6 +654,7 @@ function setOrbitAngles(
 }
 
 function disposeObject3D(runtime: Runtime, root: Object3D): void {
+  releaseMinecraftMaterialBindings(root, runtime.minecraftMaterialState);
   const geometries = new Set<Mesh["geometry"]>();
   const materials = new Set<Material>();
   const textures = new Set<Texture>();
@@ -739,6 +785,13 @@ async function loadModel(
     gltf.scene.position.y += DETAIL_RAISE_M;
   }
   parent.add(gltf.scene);
+  if (runtime.lightingMode === "minecraft") {
+    setMinecraftMaterialPresentation(
+      gltf.scene,
+      runtime.minecraftMaterialState,
+      true,
+    );
+  }
   return true;
 }
 
@@ -1096,6 +1149,33 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       const camera = new PerspectiveCamera(39, 1, 0.25, 6000);
       camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
+      const minecraftPaletteTexture = new DataTexture(
+        createPaletteLutData(),
+        256,
+        16,
+        RGBAFormat,
+      );
+      minecraftPaletteTexture.minFilter = NearestFilter;
+      minecraftPaletteTexture.magFilter = NearestFilter;
+      minecraftPaletteTexture.needsUpdate = true;
+      const minecraftPass = new ShaderPass({
+        uniforms: {
+          paletteLut: { value: minecraftPaletteTexture },
+          pixelScale: { value: coarsePointer ? 2.35 : 2.8 },
+          resolution: { value: new Vector2(1, 1) },
+          tDiffuse: { value: null },
+          time: { value: 0 },
+        },
+        vertexShader: postprocessVertex,
+        fragmentShader: postprocessFragment.replace(
+          "/*__SHIMMER__*/",
+          shimmerFragment,
+        ),
+      });
+      minecraftPass.enabled = false;
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(minecraftPass);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
       controls.enableDamping = true;
@@ -1139,6 +1219,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         camera,
         civicDetails,
         coarsePointer,
+        composer,
         controls,
         culturalDetails,
         detailClock: 0,
@@ -1151,6 +1232,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         loader: new GLTFLoader(),
         marker,
         markerTimer: null,
+        minecraftMaterialState: createMinecraftMaterialState(),
+        minecraftPaletteTexture,
+        minecraftPass,
         modelMaterials: new Set(),
         monuments,
         parkDetails,
@@ -1269,6 +1353,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
+        composer.setPixelRatio(renderer.getPixelRatio());
+        composer.setSize(width, height);
+        const resolution = minecraftPass.uniforms.resolution.value;
+        if (resolution instanceof Vector2) {
+          resolution.set(
+            width * renderer.getPixelRatio(),
+            height * renderer.getPixelRatio(),
+          );
+        }
       };
       let qualityRestoreTimer: number | null = null;
       const onControlsStart = () => {
@@ -1320,7 +1413,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         const isMoving =
-          controlsInteracting || marker.visible || timestamp < settleUntil;
+          controlsInteracting ||
+          marker.visible ||
+          runtime.lightingMode === "minecraft" ||
+          timestamp < settleUntil;
         const frameIntervalMs = isMoving
           ? activeFrameIntervalMs
           : idleFrameIntervalMs;
@@ -1341,7 +1437,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const windTime = reducedMotion ? 0.9 : timestamp / 1000;
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
-        renderer.render(scene, camera);
+        if (runtime.lightingMode === "minecraft") {
+          minecraftPass.uniforms.time.value = timestamp / 1000;
+          composer.render();
+        } else {
+          renderer.render(scene, camera);
+        }
       };
       animate();
 
@@ -1364,6 +1465,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
           scene.add(runtime.civicDetails);
           applyLightingToRoot(runtime.civicDetails, runtime.lightingMode);
+          if (runtime.lightingMode === "minecraft") {
+            setMinecraftMaterialPresentation(
+              runtime.civicDetails,
+              runtime.minecraftMaterialState,
+              true,
+            );
+          }
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
             distance_m: 88,
@@ -1399,6 +1507,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
           }
           applyLightingToRoot(runtime.signatures, runtime.lightingMode);
+          if (runtime.lightingMode === "minecraft") {
+            setMinecraftMaterialPresentation(
+              runtime.signatures,
+              runtime.minecraftMaterialState,
+              true,
+            );
+          }
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           scene.add(runtime.monuments);
@@ -1407,6 +1522,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
           scene.add(runtime.culturalDetails);
           applyLightingToRoot(runtime.culturalDetails, runtime.lightingMode);
+          if (runtime.lightingMode === "minecraft") {
+            setMinecraftMaterialPresentation(
+              scene,
+              runtime.minecraftMaterialState,
+              true,
+            );
+          }
           for (const landmark of manifest.landmarks) {
             const focusCamera = culturalFocusCamera(landmark.name);
             if (focusCamera) {
@@ -1436,6 +1558,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 setParkDetailsFocus(details, selectedRef.current);
                 scene.add(details);
                 applyLightingToRoot(details, runtime.lightingMode);
+                if (runtime.lightingMode === "minecraft") {
+                  setMinecraftMaterialPresentation(
+                    details,
+                    runtime.minecraftMaterialState,
+                    true,
+                  );
+                }
                 settleUntil = performance.now() + 350;
               })
               .catch((error: unknown) => {
@@ -1550,7 +1679,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           window.clearTimeout(runtime.markerTimer);
         }
         controls.dispose();
+        setMinecraftMaterialPresentation(
+          scene,
+          runtime.minecraftMaterialState,
+          false,
+        );
         disposeObject3D(runtime, scene);
+        minecraftPass.dispose();
+        composer.dispose();
+        minecraftPaletteTexture.dispose();
+        disposeMinecraftMaterialState(runtime.minecraftMaterialState);
         renderer.dispose();
         renderer.domElement.remove();
         runtimeRef.current = null;

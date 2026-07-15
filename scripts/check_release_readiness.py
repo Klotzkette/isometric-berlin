@@ -465,10 +465,13 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     if snippet not in architecture
   )
   required_mobile_style_snippets = {
-    "narrow-screen toolbar breakpoint": "@media (max-width: 520px)",
-    "two-row mobile toolbar": ("grid-template-columns: repeat(6, minmax(44px, 1fr))"),
-    "mobile toolbar clearance": (
-      "bottom: calc(158px + env(safe-area-inset-bottom, 0px))"
+    "compact phone breakpoint": "@media (max-width: 768px)",
+    "mobile overflow action": ".toolbar .mobile-overflow",
+    "safe-area bottom action bar": (
+      "bottom: calc(8px + env(safe-area-inset-bottom, 0px))"
+    ),
+    "four-column compass sheet": (
+      "grid-template-columns: repeat(4, minmax(44px, 1fr))"
     ),
   }
   failures.extend(

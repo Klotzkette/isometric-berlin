@@ -131,7 +131,12 @@ describe("cultural and Spree recognition details", () => {
     ).toBeDefined();
   });
 
-  test("provides close oblique cameras for TIPI, Carillon, and the Spree boat", () => {
+  test("provides legible oblique cameras for the cultural landmarks", () => {
+    const hkwCamera = culturalFocusCamera(
+      "Haus der Kulturen der Welt (Schwangere Auster)",
+    );
+    expect(hkwCamera?.distance_m).toBeGreaterThanOrEqual(380);
+    expect(hkwCamera?.target_world).toEqual([-505.17, 3.89, -12.073]);
     expect(culturalFocusCamera("TIPI am Kanzleramt")?.distance_m).toBe(74);
     expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(20);
     expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(90);

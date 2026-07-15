@@ -15,8 +15,8 @@ describe("touch viewer gestures", () => {
       expect(settings.pinchToZoom).toBe(true);
       expect(settings.dragToPan).toBe(true);
       expect(settings.flickEnabled).toBe(true);
-      expect(settings.flickMinSpeed).toBe(120);
-      expect(settings.flickMomentum).toBe(0.25);
+      expect(settings.flickMinSpeed).toBe(60);
+      expect(settings.flickMomentum).toBe(0.5);
     }
   });
 
