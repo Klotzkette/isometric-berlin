@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.2.9
+
+- Hide the Tiergartentunnel completely in ordinary exterior views and reveal
+  its illuminated twin-tube engineering cutaway only after the camera crosses
+  below the surface. The zero-server fallback follows the same rule, and its
+  Tunnel focus control now enters the underside view automatically.
+- Add a 2,475-vertex translucent Spree surface aligned to the committed OSM
+  centreline, with 0.32 m procedural vertical relief, broken crest highlights
+  and the excursion boat's stern wash. It adds visible water form without
+  claiming measured wave geometry or replacing the official source surface.
+- Expand the TIPI marquee to two golden bulb lines, `PIGOR & EICHHORN` and
+  `NUR HEUTE ABEND`, while preserving its published 32 x 26 m footprint. Add
+  two small uniformed security figures beside the Chancellery entrance.
+- Correct the tree-object labels to match their existing trunks, fork branches
+  and irregular five-part crowns. Add a shallow Carillon roof cap, a clearer
+  Spree-boat camera and restrained night-only Reichstag dome glow and interior
+  lights.
+- Add regression tests for above/below-ground tunnel visibility, metre-aligned
+  water relief, both TIPI bulb lines and the two Chancellery figures. The full
+  frontend and Python suites remain green.
+
 ## v0.2.8
 
 - Add a LoD2-anchored Swiss Embassy recognition model that distinguishes the

@@ -1,19 +1,23 @@
 import {
+  AdditiveBlending,
   BufferGeometry,
   CatmullRomCurve3,
   CylinderGeometry,
   DoubleSide,
   Float32BufferAttribute,
+  FrontSide,
   Group,
   LatheGeometry,
   LineBasicMaterial,
   LineSegments,
   Mesh,
+  MeshBasicMaterial,
   InstancedMesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   PlaneGeometry,
+  PointLight,
   TorusGeometry,
   TubeGeometry,
   Vector2,
@@ -171,7 +175,7 @@ function addDiagonalBracing(
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const braces = new LineSegments(
     geometry,
-    new LineBasicMaterial({ color: 0x8fa3aa, opacity: 0.66, transparent: true }),
+    new LineBasicMaterial({ color: 0x9eb1b7, opacity: 0.4, transparent: true }),
   );
   braces.name = "dome alternating diagonal glazing braces";
   braces.renderOrder = 7;
@@ -234,7 +238,7 @@ function addMirrorConePanels(group: Group): void {
     side: DoubleSide,
   });
   panelMaterial.userData.nightEmissive = 0xffd99a;
-  panelMaterial.userData.nightEmissiveIntensity = 0.58;
+  panelMaterial.userData.nightEmissiveIntensity = 2.2;
   const panels = new InstancedMesh(
     panelGeometry,
     panelMaterial,
@@ -315,6 +319,24 @@ export function createOfficialReichstagDome(
   glass.renderOrder = 5;
   group.add(glass);
 
+  const nightGlassGlow = new Mesh(
+    new LatheGeometry(profile, signature.vertical_ribs),
+    new MeshBasicMaterial({
+      blending: AdditiveBlending,
+      color: 0xffc987,
+      depthTest: false,
+      depthWrite: false,
+      opacity: 0.08,
+      side: FrontSide,
+      transparent: true,
+    }),
+  );
+  nightGlassGlow.name = "Reichstag dome 13-row interior night glow";
+  nightGlassGlow.renderOrder = 6;
+  nightGlassGlow.visible = false;
+  nightGlassGlow.userData.nightOnly = true;
+  group.add(nightGlassGlow);
+
   const steel = new MeshStandardMaterial({
     color: 0x90a5ad,
     emissive: 0x1c3038,
@@ -330,7 +352,7 @@ export function createOfficialReichstagDome(
       new TubeGeometry(
         new CatmullRomCurve3(domeCurvePoints(signature, angle)),
         64,
-        0.1,
+        0.075,
         6,
         false,
       ),
@@ -349,7 +371,7 @@ export function createOfficialReichstagDome(
     const ring = new Mesh(
       new TorusGeometry(
         domeRadius(t, signature.diameter_m) + 0.12,
-        0.08,
+        0.055,
         6,
         96,
       ),
@@ -392,13 +414,22 @@ export function createOfficialReichstagDome(
     }),
   );
   mirrorCone.material.userData.nightEmissive = 0xffd58d;
-  mirrorCone.material.userData.nightEmissiveIntensity = 0.85;
+  mirrorCone.material.userData.nightEmissiveIntensity = 3.4;
   mirrorCone.name = "daylight mirror cone";
   mirrorCone.position.y = 9;
   mirrorCone.castShadow = true;
   group.add(mirrorCone);
   addMirrorConePanels(group);
   addMirrorConeFacets(group);
+
+  for (const [index, y] of [7.2, 14.4].entries()) {
+    const light = new PointLight(0xffd6a0, 110, 65, 1.8);
+    light.name = `Reichstag dome warm interior night light ${index + 1}`;
+    light.position.set(0, y, 0);
+    light.visible = false;
+    light.userData.nightOnly = true;
+    group.add(light);
+  }
 
   addRamps(group, signature);
   return group;

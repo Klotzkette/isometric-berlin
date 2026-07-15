@@ -35,7 +35,7 @@ describe("Tiergartentunnel rendering budget", () => {
       "Tiergartentunnel instanced ventilation fan blades",
     );
 
-    expect(tunnel.visible).toBe(true);
+    expect(tunnel.visible).toBe(false);
     expect(lamps).toBeInstanceOf(InstancedMesh);
     expect(laneMarks).toBeInstanceOf(InstancedMesh);
     expect(fanRings).toBeInstanceOf(InstancedMesh);
@@ -47,7 +47,7 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(tunnel.children.length).toBeLessThan(30);
   });
 
-  test("stays visible and strengthens its x-ray materials below ground", () => {
+  test("hides above ground and reveals its cutaway below ground", () => {
     const tunnel = createTunnel(payload);
     const casing = tunnel.children[0] as Mesh;
     const material = casing.material as Material;
@@ -55,10 +55,15 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(material.depthTest).toBe(false);
     expect(material.depthWrite).toBe(false);
     expect(material.opacity).toBeCloseTo(0.19);
+    expect(tunnel.visible).toBe(false);
 
     setTunnelPresentation(tunnel, true);
     expect(tunnel.visible).toBe(true);
     expect(material.opacity).toBeCloseTo(0.58);
     expect(casing.renderOrder).toBe(14);
+
+    setTunnelPresentation(tunnel, false);
+    expect(tunnel.visible).toBe(false);
+    expect(material.opacity).toBeCloseTo(0.19);
   });
 });

@@ -1023,6 +1023,122 @@ function addChancelleryForecourt(
   }
 }
 
+function addChancelleryPolice(
+  group: Group,
+  signature: ChancelleryModelSignature,
+): void {
+  if (!signature.forecourt_offset_world) {
+    return;
+  }
+  const cube = new Vector3(
+    signature.cube_offset_world[0],
+    0,
+    signature.cube_offset_world[2],
+  );
+  const forecourt = new Vector3(
+    signature.forecourt_offset_world[0],
+    0,
+    signature.forecourt_offset_world[2],
+  );
+  const forward = forecourt.clone().sub(cube).normalize();
+  const lateral = new Vector3(-forward.z, 0, forward.x);
+  const entrance = cube.clone().addScaledVector(forward, 34);
+  const heading = Math.atan2(forward.x, forward.z);
+  const officers = [-1, 1].map((side) =>
+    entrance.clone().addScaledVector(lateral, side * 1.45),
+  );
+  const transformsAt = (
+    y: number,
+    lateralOffset = 0,
+    forwardOffset = 0,
+  ): InstanceTransform[] =>
+    officers.map((position) => {
+      const placed = position
+        .clone()
+        .addScaledVector(lateral, lateralOffset)
+        .addScaledVector(forward, forwardOffset);
+      return {
+        position: [placed.x, y, placed.z],
+        rotation: [0, heading, 0],
+      };
+    });
+
+  const navy = modelMaterial(0x162c41, { roughness: 0.76 });
+  const black = modelMaterial(0x15191c, { roughness: 0.82 });
+  const skin = modelMaterial(0xc58f6c, { roughness: 0.86 });
+  const reflective = nightEmitter(
+    modelMaterial(0xb8d8d9, { metalness: 0.08, roughness: 0.42 }),
+    0xdafcff,
+    0.32,
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery two Federal Police uniformed torsos",
+    new CapsuleGeometry(0.25, 0.45, 4, 8),
+    navy,
+    transformsAt(1.16),
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery four Federal Police trouser legs",
+    new CylinderGeometry(0.1, 0.115, 0.72, 8),
+    navy,
+    [...transformsAt(0.42, -0.13), ...transformsAt(0.42, 0.13)],
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery four Federal Police boots",
+    [0.22, 0.16, 0.34],
+    black,
+    [
+      ...transformsAt(0.12, -0.13, 0.06),
+      ...transformsAt(0.12, 0.13, 0.06),
+    ],
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery four Federal Police uniformed arms",
+    new CylinderGeometry(0.085, 0.095, 0.62, 8),
+    navy,
+    [...transformsAt(1.19, -0.32), ...transformsAt(1.19, 0.32)],
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery two Federal Police heads",
+    new SphereGeometry(0.17, 10, 8),
+    skin,
+    transformsAt(1.74),
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery two Federal Police caps",
+    new CylinderGeometry(0.2, 0.215, 0.13, 12),
+    navy,
+    transformsAt(1.91),
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery two Federal Police cap brims",
+    [0.35, 0.04, 0.24],
+    navy,
+    transformsAt(1.865, 0, 0.12),
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery two Federal Police reflective chest bands",
+    [0.5, 0.075, 0.29],
+    reflective,
+    transformsAt(1.3, 0, 0.015),
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery two Federal Police shoulder radios",
+    [0.09, 0.18, 0.08],
+    black,
+    transformsAt(1.48, 0.19, 0.08),
+  );
+}
+
 function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   const group = new Group();
   group.name = "Metre-scale Federal Chancellery recognition model";
@@ -1175,6 +1291,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
     );
   }
   addChancelleryForecourt(group, signature);
+  addChancelleryPolice(group, signature);
   return group;
 }
 

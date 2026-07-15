@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, PointLight } from "three";
+import { Box3, InstancedMesh, Mesh, PointLight } from "three";
 import {
   createCulturalLandmarks,
   culturalFocusCamera,
@@ -23,6 +23,9 @@ describe("cultural and Spree recognition details", () => {
     const marquee = details.getObjectByName(
       "TIPI PIGOR & EICHHORN golden marquee bulbs",
     );
+    const todayMarquee = details.getObjectByName(
+      "TIPI NUR HEUTE ABEND golden marquee bulbs",
+    );
     const stringBulbs = details.getObjectByName(
       "TIPI warm canvas-rib string bulbs",
     );
@@ -30,8 +33,11 @@ describe("cultural and Spree recognition details", () => {
     expect(tipi?.userData.ellipseLengthM).toBe(32);
     expect(tipi?.userData.ellipseWidthM).toBe(26);
     expect(tipi?.userData.marquee).toBe("PIGOR & EICHHORN");
+    expect(tipi?.userData.todayMarquee).toBe("NUR HEUTE ABEND");
     expect(marquee).toBeInstanceOf(InstancedMesh);
     expect((marquee as InstancedMesh).count).toBeGreaterThan(200);
+    expect(todayMarquee).toBeInstanceOf(InstancedMesh);
+    expect((todayMarquee as InstancedMesh).count).toBeGreaterThan(150);
     expect(
       (marquee as InstancedMesh).material.userData.nightEmissive,
     ).toBe(0xffbd3d);
@@ -93,12 +99,43 @@ describe("cultural and Spree recognition details", () => {
     expect((passengers as InstancedMesh).count).toBe(10);
     expect((greenDrinks as InstancedMesh).count).toBe(5);
     expect((redDrinks as InstancedMesh).count).toBe(5);
+    expect(
+      boat?.children.filter((child) => child.name.includes("wake")),
+    ).toHaveLength(2);
+    expect(boat?.getObjectByName("Spree steamer stern wash")).toBeDefined();
+  });
+
+  test("adds a metrically aligned Spree surface with real vertical relief", () => {
+    const details = createCulturalLandmarks(landmarks);
+    const waves = details.getObjectByName(
+      "OSM-derived three-dimensional Spree wave field",
+    );
+    const surface = details.getObjectByName(
+      "Spree metrically aligned undulating water surface",
+    ) as Mesh;
+    const positions = surface.geometry.getAttribute("position");
+    const heights = Array.from(
+      { length: positions.count },
+      (_, index) => positions.getY(index),
+    );
+
+    expect(waves).toBeDefined();
+    expect(waves?.userData.source).toContain("osm.gpkg");
+    expect(surface).toBeInstanceOf(Mesh);
+    expect(positions.count).toBeGreaterThan(2_000);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeGreaterThan(0.25);
+    expect(
+      details.getObjectByName(
+        "Spree broken three-dimensional wave crest highlights",
+      ),
+    ).toBeDefined();
   });
 
   test("provides close oblique cameras for TIPI, Carillon, and the Spree boat", () => {
     expect(culturalFocusCamera("TIPI am Kanzleramt")?.distance_m).toBe(74);
     expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(20);
-    expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(105);
+    expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(90);
+    expect(culturalFocusCamera("Spreebogen")?.azimuth_degrees).toBe(130);
     expect(culturalFocusCamera("Spreebogen")?.target_world).toEqual([
       -259.21, 1.249, -219.53,
     ]);

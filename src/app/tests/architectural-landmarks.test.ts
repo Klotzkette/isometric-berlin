@@ -213,6 +213,16 @@ describe("metre-scale architectural recognition models", () => {
         "Chancellery instanced office-band window panes",
       ),
     ).toBeInstanceOf(InstancedMesh);
+    const police = chancellery!.getObjectByName(
+      "Chancellery two Federal Police uniformed torsos",
+    );
+    expect(police).toBeInstanceOf(InstancedMesh);
+    expect((police as InstancedMesh).count).toBe(2);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery two Federal Police reflective chest bands",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
   });
 
   test("adds the Reichstag's four towers and west portico", () => {

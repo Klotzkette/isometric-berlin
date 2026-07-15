@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, Mesh, MeshPhysicalMaterial } from "three";
+import {
+  Box3,
+  InstancedMesh,
+  Mesh,
+  MeshPhysicalMaterial,
+  PointLight,
+} from "three";
 import {
   type ArchitecturalSignature,
   createOfficialReichstagDome,
@@ -62,6 +68,12 @@ describe("official-dimension Reichstag dome", () => {
     expect(
       dome.getObjectByName("dome alternating diagonal glazing braces"),
     ).toBeDefined();
+    const nightGlow = dome.getObjectByName(
+      "Reichstag dome 13-row interior night glow",
+    );
+    expect(nightGlow).toBeDefined();
+    expect(nightGlow?.userData.nightOnly).toBeTrue();
+    expect(nightGlow?.visible).toBeFalse();
     expect(
       dome.getObjectByName("dome crown compression and open oculus ring"),
     ).toBeDefined();
@@ -74,11 +86,20 @@ describe("official-dimension Reichstag dome", () => {
     expect(mirrorPanels).toBeInstanceOf(InstancedMesh);
     expect((mirrorPanels as InstancedMesh).count).toBe(360);
     expect(
+      (mirrorPanels as InstancedMesh).material.userData
+        .nightEmissiveIntensity,
+    ).toBeGreaterThan(2);
+    expect(
       dome.children.filter((child) => child.name.endsWith("visitor ramp deck")),
     ).toHaveLength(2);
     expect(
       dome.children.filter((child) => child.name.endsWith("handrail")),
     ).toHaveLength(4);
+    const interiorLights = dome.children.filter(
+      (child) => child instanceof PointLight && child.userData.nightOnly,
+    );
+    expect(interiorLights).toHaveLength(2);
+    expect(interiorLights.every((light) => !light.visible)).toBeTrue();
     expect(
       dome.children.filter((child) =>
         child.name.endsWith("batched guardrail balusters"),

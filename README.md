@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | Hosted viewer status | https://klotzkette.github.io/isometric-berlin/ (intentionally offline) |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.8/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.2.9/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.2.8 open-data package.
+**Status:** Local v0.2.9 open-data package.
 
 ## Current Viewer
 
-The current public package is **v0.2.8**. Its full viewer is a progressively
+The current public package is **v0.2.9**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -69,9 +69,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The civic layer adds the LoD2-aligned Swiss Embassy with its historic palace,
   modern extension and Swiss flag, plus the Bundestag's official 28.5 m Unity
   Flag pole and 60 m² German flag. The TIPI uses its published 32 x 26 m
-  ellipse and receives structural ribs, string lights and night-only concert
-  colour; the 42 m Carillon and an occupied Spree excursion boat add further
-  close-range context.
+  ellipse and receives structural ribs, golden `PIGOR & EICHHORN` / `NUR HEUTE
+  ABEND` bulb lines, 220 rib lights and night-only concert colour. The 42 m
+  Carillon exposes all 68 bells below its shallow roof; two small security
+  figures mark the Chancellery entrance. An occupied Spree excursion boat adds
+  an open upper deck, deckchairs, passengers, drinks, steam and wake.
 - Close-up detail now stays sharp without multiplying draw calls: instanced
   roof ribs, sleepers, facade panes, train fittings and balustrade posts are
   combined with batched glass seams, masonry courses, column fluting and
@@ -91,10 +93,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   and tilts without overloading the direct movement controls.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
-  always present as a restrained X-ray and automatically strengthens whenever
-  any orbit crosses below ground; the underside control remains a direct tunnel
-  preset rather than the only way to reveal it. Its route is explicitly labelled as an
-  OSM-derived engineering approximation, not surveyed tunnel geometry.
+  hidden in ordinary exterior views and appears automatically only when an
+  orbit crosses below ground; the underside control remains a direct tunnel
+  preset. Its route is explicitly labelled as an OSM-derived engineering
+  approximation, not surveyed tunnel geometry.
 - Seven memorials now have close-range recognition geometry. The Holocaust
   field draws all 2,710 officially documented stelae in one instanced call with
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,
@@ -103,13 +105,17 @@ labelled compatibility fallback for browsers that cannot run local modules.
   Berlin surface remains visible underneath.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. A
   compact OSM display layer adds 167 park-path sections and 3,012 mapped
-  trees/tree-row samples in four instanced draw calls. Five playground
+  trees/tree-row samples as trunks, fork branches and five-part crowns in five
+  instanced draw calls. Five playground
   footprints are retained; the selectable Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
   water-play point and excavator. Its oblique focus view keeps those small
   devices readable above the coarse source-mesh canopy and restores the normal
   tree presentation as soon as another landmark is selected. Exactly three
   tiny coloured Easter eggs are deterministically hidden beside mapped trees.
+- The Spree carries a narrow translucent 3D wave surface aligned to the
+  committed OSM centreline. Its 0.32 m relief and crest highlights are a
+  procedural display treatment, not surveyed hydrodynamic data.
 - Assets load progressively with bounded concurrency and an adaptive pixel
   ratio. The 114.7 MiB scene contains 23 base GLBs and 22 lazy hero parts; every
   individual public GLB remains below 5 MiB. Existing GLB normals are reused

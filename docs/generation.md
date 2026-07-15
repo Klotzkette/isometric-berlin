@@ -1,6 +1,6 @@
 # Generation
 
-The committed v0.2.8 viewer is generated entirely from the permitted open-data
+The committed v0.2.9 viewer is generated entirely from the permitted open-data
 stack. Berlin LoD2 anchors building footprints/heights, OSM supplies roads,
 water, parks, rail and POIs, ALKIS supplies parcel context, and freely licensed
 Wikimedia records provide colour/material cues. Google is not used unless the
@@ -89,8 +89,19 @@ height, 24 primary ribs and 17 horizontal rings are sourced from the Bundestag
 architecture page. The transparent display skin leaves the lower four
 ventilation rows open, covers the remaining 13 rows in 24 faceted sectors and
 adds alternating braces, an open crown ring, 360 mirror-cone panels and two
-guarded visitor ramps. This dimensioned overlay makes the dome legible without
+guarded visitor ramps. Two night-only interior lights, a warm emissive mirror
+cone and a thin front-facing glow over only the 13 glazed rows improve the
+after-dark reading. This dimensioned overlay makes the dome legible without
 replacing the underlying official measured mesh.
+
+Small cultural objects are procedural recognition layers rather than source
+geometry replacements. The TIPI uses its published 32 x 26 m ellipse and owner
+venue material for its tent and show-light cues. The Carillon keeps the
+published 42 m height and 68-bell count. The Spree boat is explicitly a typical
+excursion-boat display model and remains labelled as such in its metadata.
+The translucent 3D water ribbon follows 45 m samples of the committed OSM
+Spree centreline. Its 30 m display width and 0.32 m wave relief are procedural,
+not assertions about the river's measured cross-section or instantaneous state.
 
 Tiergarten paths, tree points/tree rows and playground equipment are rebuilt
 after an OSM refresh with:

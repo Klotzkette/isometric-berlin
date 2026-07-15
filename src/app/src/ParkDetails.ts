@@ -268,7 +268,7 @@ function addTrees(
     if (transforms.length > 0) {
       group.add(
         instanced(
-          `OSM instanced three-lobed tree crowns variant ${index + 1}`,
+          `OSM instanced five-lobed tree crowns variant ${index + 1}`,
           new IcosahedronGeometry(1, 1),
           material(colors[index], 0.9),
           transforms,
@@ -279,7 +279,7 @@ function addTrees(
   cutawayCrowns.forEach((transforms, index) => {
     if (transforms.length > 0 && cutaway) {
       const mesh = instanced(
-        `OSM instanced three-lobed tree crowns variant ${index + 1}`,
+        `OSM instanced five-lobed tree crowns variant ${index + 1}`,
         new IcosahedronGeometry(1, 1),
         material(colors[index], 0.9),
         transforms,

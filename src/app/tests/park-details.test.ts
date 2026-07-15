@@ -102,7 +102,7 @@ describe("OSM park details", () => {
     expect(trunks).toBeInstanceOf(InstancedMesh);
     expect((trunks as InstancedMesh).count).toBe(2);
     const crownInstances = park.children
-      .filter((child) => child.name.includes("three-lobed tree crowns"))
+      .filter((child) => child.name.includes("five-lobed tree crowns"))
       .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
     expect(crownInstances).toBe(10);
     const branches = park.getObjectByName(

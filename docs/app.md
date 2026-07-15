@@ -39,7 +39,8 @@ In true 3D, left-drag or one finger orbits, the wheel zooms, right-drag pans,
 and two fingers combine pinch and rotation. A three-finger gesture controls
 azimuth and polar tilt continuously through 90 degrees into the real underside
 camera. The underside fades surface materials and strengthens the two-tube
-Tiergartentunnel cutaway; a restrained X-ray remains present above ground.
+Tiergartentunnel cutaway; the tunnel is completely hidden in ordinary exterior
+views and appears automatically only after the camera crosses below ground.
 Arrow keys translate camera and target together in the visible screen plane,
 so they fly through the current isometry even after rotation or an underside
 flip. `Shift` plus left/right rotates and `Shift` plus up/down tilts. In DZI
@@ -76,15 +77,27 @@ crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
 Quadriga. These models sharpen silhouettes without replacing the aligned
 Berlin Mesh texture beneath them.
 
+The cultural recognition layer keeps similarly small features readable without
+altering the official base mesh. The 32 x 26 m TIPI has twenty structural ribs,
+220 warm rib bulbs, a night-only four-colour show wash and the requested golden
+`PIGOR & EICHHORN` and `NUR HEUTE ABEND` marquee lines. The 42 m Carillon
+carries 68 individually placed bells beneath a shallow roof cap. Two compact
+uniformed figures mark the Chancellery entrance. Selecting `Spreebogen` opens
+an unobstructed east-side view of the occupied excursion boat, its open deck,
+wake and a 3D wave ribbon aligned to the committed OSM river centreline.
+
 The optional OSM park-detail request is deliberately non-blocking: a failed
 `park-details.json` request raises a warning but never delays or disables the
 23 official base meshes. When present, seven path material classes are batched,
-tree trunks and three-lobed crowns are instanced, and only the small number of
-mapped playground devices use individual geometry. The Luiseninsel landmark
+tree trunks, fork branches and five-part crowns are instanced, and only the
+small number of mapped playground devices use individual geometry. The
+Luiseninsel landmark
 opens from an 82 m oblique camera preset centred on the main equipment cluster.
 Nearby OSM crowns step aside and only the mapped equipment receives a temporary
 focus reveal above the coarse official canopy; the sourced footprint and the
 normal Tiergarten depth presentation remain unchanged outside that selection.
+Three true-scale 6.7 cm eggs are placed deterministically beside mapped trees;
+they are decorative discoveries, not landmark markers.
 
 Every recognition group is now rotated into the minimum-area local frame of
 its official LoD2 footprint. In particular, the Hauptbahnhof track roof follows

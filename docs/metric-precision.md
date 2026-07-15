@@ -63,9 +63,9 @@ from that mesh rather than stylising LoD2 footprints.
 
 ## Tiergartentunnel precision claim
 
-The Tiergartentunnel route is drawn as a visible underground
-engineering cutaway using derived OpenStreetMap tunnel carriageway
-geometry, public portal coordinates, public route descriptions and
-published cross-section facts. Its rendered centreline and depth are
-still an approximation, not official surveyed as-built geometry. See
+The Tiergartentunnel route is drawn below ground as an engineering cutaway
+that becomes visible only from the underside, using derived OpenStreetMap
+carriageway geometry, public portal coordinates, public route descriptions
+and published cross-section facts. Its rendered centreline and depth are still
+an approximation, not official surveyed as-built geometry. See
 [`tiergartentunnel-geometry.md`](tiergartentunnel-geometry.md).

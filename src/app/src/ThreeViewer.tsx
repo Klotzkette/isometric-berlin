@@ -504,7 +504,6 @@ export function createTunnel(payload: TunnelPayload): Group {
     bladeMaterial,
     bladeMatrices,
   );
-  group.visible = true;
   setTunnelPresentation(group, false);
   return group;
 }
@@ -524,7 +523,7 @@ function tunnelMaterial<T extends Material>(
 }
 
 export function setTunnelPresentation(tunnel: Group, underside: boolean): void {
-  tunnel.visible = true;
+  tunnel.visible = underside;
   tunnel.traverse((object) => {
     if (!(object instanceof Mesh)) {
       return;
@@ -571,6 +570,25 @@ function notifyView(runtime: Runtime, callback: (angles: ViewAngles) => void): v
     polarDegrees: MathUtils.radToDeg(runtime.controls.getPolarAngle()),
     underside: runtime.underside,
   });
+}
+
+function markerHeightForLandmark(name: string): number {
+  switch (name) {
+    case "Reichstagsgebäude":
+      return 62;
+    case "Berlin Hauptbahnhof":
+      return 58;
+    case "Bundeskanzleramt":
+      return 50;
+    case "Carillon im Tiergarten":
+      return 46;
+    case "TIPI am Kanzleramt":
+      return 23;
+    case "Brandenburger Tor":
+      return 34;
+    default:
+      return 18;
+  }
 }
 
 function setOrbitAngles(
@@ -825,20 +843,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       runtime.controls.target.copy(target);
       runtime.camera.position.copy(target).add(cameraOffset);
-      const markerHeight =
-        name === "Reichstagsgebäude"
-          ? 62
-          : name === "Berlin Hauptbahnhof"
-            ? 58
-            : name === "Bundeskanzleramt"
-              ? 50
-              : name === "Carillon im Tiergarten"
-                ? 46
-                : name === "TIPI am Kanzleramt"
-                  ? 23
-              : name === "Brandenburger Tor"
-                ? 34
-                : 18;
+      const markerHeight = markerHeightForLandmark(name);
       runtime.marker.position.copy(target).setY(markerHeight);
       runtime.marker.visible = true;
       if (runtime.markerTimer !== null) {
@@ -1365,13 +1370,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             polar_degrees: 52,
             target_height_m: 9,
             target_world: [-5.21648, 3.86, -244.099765],
-          });
-          runtime.focusCameraByName.set("TIPI am Kanzleramt", {
-            azimuth_degrees: -28,
-            distance_m: 78,
-            polar_degrees: 48,
-            target_height_m: 7,
-            target_world: [-297.284279, 3.95, 52.50208],
           });
           runtime.focusCameraByName.set("Fahne der Einheit", {
             azimuth_degrees: -40,

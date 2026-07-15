@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.2.8"
+PACKAGE_VERSION = "0.2.9"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -369,7 +369,8 @@ START_HERE_HTML = """<!doctype html>
       height: 1529px;
       pointer-events: none;
       overflow: visible;
-      opacity: .3;
+      visibility: hidden;
+      opacity: 0;
       transition: opacity .18s ease, filter .18s ease;
     }
     .night-light-overlay {
@@ -668,6 +669,7 @@ START_HERE_HTML = """<!doctype html>
       stroke-width: .7;
     }
     body[data-under="true"] .tunnel-overlay {
+      visibility: visible;
       opacity: 1;
       filter: drop-shadow(0 0 18px rgba(247, 215, 122, .42));
     }
@@ -2902,7 +2904,9 @@ START_HERE_HTML = """<!doctype html>
     document.getElementById("mode-pan").addEventListener("click", () => setMode("pan"));
     document.getElementById("mode-rotate").addEventListener("click", () => setMode("rotate"));
     underButton.addEventListener("click", toggleUnderView);
-    document.getElementById("tunnel-focus").addEventListener("click", focusTunnelRoute);
+    document.getElementById("tunnel-focus").addEventListener("click", () => {
+      setUnderView(true);
+    });
     document.getElementById("details-toggle").addEventListener("click", toggleDetails);
     document.getElementById("clouds-toggle").addEventListener("click", toggleClouds);
     document.getElementById("performance-toggle").addEventListener("click", togglePerformance);
@@ -3281,9 +3285,10 @@ Sprache, Tag/Nacht, Grafikprofil, Pixel-/Detailbild-Auswahl, zuletzt fokussierte
 Landmarke und Blickwinkel werden lokal im Browser gespeichert und beim nächsten
 Öffnen wiederhergestellt. Falls ein Browser localStorage sperrt, startet
 START-HERE.html trotzdem mit Defaults.
-Der Tiergartentunnel ist als sichtbares unterirdisches Rechteckbauwerk mit
-zwei Röhren, Seitenwänden, Mittelwand, warmen Lichtpunkten,
-Lüftungs-/Schachtmarkern und Querschnittsmarken sichtbar. Die Geometrie nutzt
+Der Tiergartentunnel ist ein unterirdisches Rechteckbauwerk mit zwei Röhren,
+Seitenwänden, Mittelwand, warmen Lichtpunkten, Lüftungs-/Schachtmarkern und
+Querschnittsmarken. Von oben bleibt er verborgen; sichtbar wird er erst in der
+Unterseitenansicht. Die Geometrie nutzt
 ab v0.1.49 abgeleitete OSM-B96-Tunnel-Ways als Carriageway-Evidenz und bleibt
 eine Ingenieurannäherung; sie ist noch keine amtliche Bestandsvermessung.
 Version {PACKAGE_VERSION} formt den Tunnel weiter aus: Unterseitenmodus,
@@ -3408,9 +3413,10 @@ Language, Day/Night, visual profile, Pixel-Art/detail-image selection, last
 focused landmark and view angle are stored locally in the browser and restored
 on the next open. If a browser blocks localStorage, START-HERE.html still
 starts with defaults.
-The Tiergartentunnel is shown as an underground rectangular structure with
-two tubes, side walls, a centre wall, warm lighting dots, ventilation / shaft
-markers, and cross-section markers. Starting with v0.1.49, the geometry uses
+The Tiergartentunnel is an underground rectangular structure with two tubes,
+side walls, a centre wall, warm lighting dots, ventilation / shaft markers,
+and cross-section markers. It stays hidden from above and appears only in the
+underside view. Starting with v0.1.49, the geometry uses
 derived OSM B96 tunnel ways as carriageway evidence and remains an engineering
 approximation; it is not yet official surveyed as-built geometry.
 Version {PACKAGE_VERSION} further shapes the tunnel with an underside mode,

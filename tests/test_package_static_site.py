@@ -158,6 +158,13 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "detail-tree-cluster" in html
   assert "detail-water-depth" in html
   assert "detail-tunnel-branch" in html
+  assert ".tunnel-overlay {" in html
+  assert "visibility: hidden;" in html
+  assert 'body[data-under="true"] .tunnel-overlay' in html
+  assert (
+    'document.getElementById("tunnel-focus").addEventListener("click", () =>' in html
+  )
+  assert "setUnderView(true);" in html
   assert "detail-train-ice" in html
   assert "detail-train-sbahn" in html
   assert "detail-vehicle" in html

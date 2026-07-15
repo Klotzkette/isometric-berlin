@@ -2,6 +2,7 @@ import {
   BoxGeometry,
   BufferGeometry,
   CapsuleGeometry,
+  CatmullRomCurve3,
   ConeGeometry,
   CylinderGeometry,
   DoubleSide,
@@ -9,9 +10,12 @@ import {
   Group,
   InstancedMesh,
   LatheGeometry,
+  LineBasicMaterial,
+  LineSegments,
   Material,
   MathUtils,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   PointLight,
@@ -45,6 +49,47 @@ const SPREEBOGEN_NAME = "Spreebogen";
 const TIPI_GROUND_Y = 3.98;
 const CARILLON_GROUND_Y = 3.778;
 const BOAT_WORLD: [number, number, number] = [-259.21, 1.249, -219.53];
+const SPREE_WATER_Y = 1.31;
+const SPREE_CENTERLINE_WORLD: Array<[number, number]> = [
+  [513.9, -25.1],
+  [471, -38.2],
+  [431, -58.7],
+  [394.5, -84.8],
+  [363.7, -117.5],
+  [347.1, -159.1],
+  [341.8, -203.8],
+  [335.6, -248.3],
+  [322.2, -291],
+  [300.3, -330],
+  [270.1, -363.4],
+  [235, -391.5],
+  [198.1, -417.1],
+  [158.5, -438.4],
+  [115.9, -452.5],
+  [71.6, -460.5],
+  [26.7, -461.3],
+  [-17.4, -453],
+  [-59.7, -437.8],
+  [-99.9, -418.3],
+  [-134.3, -389.6],
+  [-162.6, -354.7],
+  [-187.7, -317.4],
+  [-211.9, -279.4],
+  [-237.6, -242.5],
+  [-269.5, -210.9],
+  [-305.1, -183.4],
+  [-344.1, -161.1],
+  [-384.7, -141.7],
+  [-425.4, -122.4],
+  [-467.3, -106.2],
+  [-509.4, -90.2],
+  [-551.5, -74.2],
+  [-593.5, -58.2],
+  [-632.9, -36.5],
+  [-670.4, -11.7],
+  [-704, 18.2],
+  [-707.4, 21.2],
+];
 
 function modelMaterial(
   color: number,
@@ -156,7 +201,10 @@ function addSegment(
 
 const DOT_GLYPHS: Record<string, string[]> = {
   "&": ["01100", "10010", "10100", "01000", "10101", "10010", "01101"],
+  A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
+  B: ["11110", "10001", "10001", "11110", "10001", "10001", "11110"],
   C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
+  D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
   E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
   G: ["01110", "10001", "10000", "10111", "10001", "10001", "01110"],
   H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
@@ -165,10 +213,15 @@ const DOT_GLYPHS: Record<string, string[]> = {
   O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
   P: ["11110", "10001", "10001", "11110", "10000", "10000", "10000"],
   R: ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
+  T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+  U: ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
 };
 
-function marqueeTransforms(text: string): InstanceTransform[] {
-  const spacing = 0.245;
+function marqueeTransforms(
+  text: string,
+  options: { centerY: number; spacing: number },
+): InstanceTransform[] {
+  const { centerY, spacing } = options;
   const glyphAdvance = spacing * 6;
   const width = text.length * glyphAdvance - spacing;
   const transforms: InstanceTransform[] = [];
@@ -185,7 +238,7 @@ function marqueeTransforms(text: string): InstanceTransform[] {
         transforms.push({
           position: [
             -width / 2 + characterIndex * glyphAdvance + column * spacing,
-            8.3 + (3 - row) * spacing,
+            centerY + (3 - row) * spacing,
             14.86,
           ],
         });
@@ -206,6 +259,7 @@ function createTipi(anchor: CulturalLandmark): Group {
     geometryStatus:
       "Official 32 x 26 m venue footprint with a recognition model over the official mesh",
     marquee: "PIGOR & EICHHORN",
+    todayMarquee: "NUR HEUTE ABEND",
     sourceUrls: [
       "https://www.tipi-am-kanzleramt.de/de/theater/tipi-am-kanzleramt.html",
       "https://www.tipi-am-kanzleramt.de/_Resources/Persistent/0/1/3/9/0139b75bd22d148179852011cf066a1968138877/TIPI_Technikinfo_07_2024.pdf",
@@ -289,9 +343,9 @@ function createTipi(anchor: CulturalLandmark): Group {
   }
   addBox(
     group,
-    "TIPI PIGOR & EICHHORN marquee board",
-    [25.4, 3.25, 0.44],
-    [0, 8.3, 14.62],
+    "TIPI two-line golden marquee board",
+    [25.4, 5.5, 0.44],
+    [0, 8.05, 14.62],
     darkBoard,
   );
   addInstances(
@@ -303,7 +357,24 @@ function createTipi(anchor: CulturalLandmark): Group {
       0xffbd3d,
       5.4,
     ),
-    marqueeTransforms("PIGOR & EICHHORN"),
+    marqueeTransforms("PIGOR & EICHHORN", {
+      centerY: 9.18,
+      spacing: 0.225,
+    }),
+  );
+  addInstances(
+    group,
+    "TIPI NUR HEUTE ABEND golden marquee bulbs",
+    new SphereGeometry(0.067, 8, 6),
+    nightEmitter(
+      modelMaterial(0x8a681d, { metalness: 0.42, roughness: 0.28 }),
+      0xffc957,
+      5.1,
+    ),
+    marqueeTransforms("NUR HEUTE ABEND", {
+      centerY: 6.67,
+      spacing: 0.165,
+    }),
   );
 
   const stringBulbs: InstanceTransform[] = [];
@@ -425,10 +496,18 @@ function createCarillon(anchor: CulturalLandmark): Group {
   addBox(
     group,
     "Carillon overhanging brass-toned roof",
-    [9.8, 0.8, 9.8],
-    [0, 41.6, 0],
+    [9.8, 0.35, 9.8],
+    [0, 41.27, 0],
     roof,
   );
+  const roofCap = addMesh(
+    group,
+    "Carillon shallow four-sided roof cap",
+    new ConeGeometry(6.7, 0.7, 4),
+    roof,
+    [0, 41.65, 0],
+  );
+  roofCap.rotation.y = Math.PI / 4;
   addBox(
     group,
     "Carillon player cabin at 33 m",
@@ -556,6 +635,31 @@ function createExcursionSteamer(): Group {
   );
   const rail = modelMaterial(0xc5d0cf, { metalness: 0.72, roughness: 0.26 });
   const chimney = modelMaterial(0x253037, { metalness: 0.46, roughness: 0.4 });
+  const wakeMaterial = modelMaterial(0xf1f3ee, {
+    opacity: 0.4,
+    roughness: 0.9,
+  });
+  wakeMaterial.depthWrite = false;
+
+  const sternWash = addBox(
+    group,
+    "Spree steamer stern wash",
+    [4.5, 0.035, 2.2],
+    [0, 0.72, -16.1],
+    wakeMaterial,
+  );
+  sternWash.renderOrder = 4;
+  for (const side of [-1, 1]) {
+    const wake = addBox(
+      group,
+      "Spree steamer diverging wake",
+      [0.18, 0.04, 9.5],
+      [side * 1.6, 0.73, -19.7],
+      wakeMaterial,
+    );
+    wake.rotation.y = side * 0.14;
+    wake.renderOrder = 4;
+  }
 
   addMesh(
     group,
@@ -687,6 +791,143 @@ function createExcursionSteamer(): Group {
   return group;
 }
 
+function spreeWaveSurfaceGeometry(): BufferGeometry {
+  const curve = new CatmullRomCurve3(
+    SPREE_CENTERLINE_WORLD.map(
+      ([x, z]) => new Vector3(x, SPREE_WATER_Y, z),
+    ),
+    false,
+    "centripetal",
+  );
+  const longitudinalSegments = 224;
+  const crossSegments = 10;
+  const halfWidth = 15;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+
+  for (let row = 0; row <= longitudinalSegments; row += 1) {
+    const t = row / longitudinalSegments;
+    const center = curve.getPointAt(t);
+    const tangent = curve.getTangentAt(t).setY(0).normalize();
+    const crossNormal = new Vector3(-tangent.z, 0, tangent.x);
+    for (let column = 0; column <= crossSegments; column += 1) {
+      const cross = (column / crossSegments) * 2 - 1;
+      const longWave = Math.sin(row * 0.52 + cross * 4.6) * 0.11;
+      const crossWave = Math.sin(row * 0.21 - cross * 7.4) * 0.05;
+      const vertex = center
+        .clone()
+        .addScaledVector(crossNormal, cross * halfWidth);
+      vertex.y += longWave + crossWave;
+      positions.push(vertex.x, vertex.y, vertex.z);
+      uvs.push(t, column / crossSegments);
+    }
+  }
+
+  const rowLength = crossSegments + 1;
+  for (let row = 0; row < longitudinalSegments; row += 1) {
+    for (let column = 0; column < crossSegments; column += 1) {
+      const topLeft = row * rowLength + column;
+      const bottomLeft = topLeft + rowLength;
+      indices.push(
+        topLeft,
+        bottomLeft,
+        topLeft + 1,
+        topLeft + 1,
+        bottomLeft,
+        bottomLeft + 1,
+      );
+    }
+  }
+
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  geometry.userData = {
+    crossSegments,
+    longitudinalSegments,
+    waveReliefM: 0.32,
+  };
+  return geometry;
+}
+
+function spreeWaveCrestGeometry(surface: BufferGeometry): BufferGeometry {
+  const source = surface.getAttribute("position");
+  const crossSegments = surface.userData.crossSegments as number;
+  const longitudinalSegments = surface.userData.longitudinalSegments as number;
+  const rowLength = crossSegments + 1;
+  const positions: number[] = [];
+  for (const column of [1, 3, 5, 7, 9]) {
+    for (let row = 0; row < longitudinalSegments; row += 1) {
+      if ((row + column) % 4 === 0) {
+        continue;
+      }
+      for (const index of [row * rowLength + column, (row + 1) * rowLength + column]) {
+        positions.push(
+          source.getX(index),
+          source.getY(index) + 0.035,
+          source.getZ(index),
+        );
+      }
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+function createSpreeWaveField(): Group {
+  const group = new Group();
+  group.name = "OSM-derived three-dimensional Spree wave field";
+  group.userData = {
+    geometryStatus:
+      "Thirty-metre display ribbon aligned to the committed OSM Spree centreline; wave relief is procedural",
+    source: "geo_data/regierungsviertel/osm.gpkg water layer",
+    waveReliefM: 0.32,
+  };
+  const geometry = spreeWaveSurfaceGeometry();
+  const water = new Mesh(
+    geometry,
+    new MeshPhysicalMaterial({
+      color: 0x39a9c7,
+      depthWrite: false,
+      metalness: 0.04,
+      opacity: 0.2,
+      roughness: 0.2,
+      side: DoubleSide,
+      thickness: 0.25,
+      transmission: 0.16,
+      transparent: true,
+    }),
+  );
+  water.name = "Spree metrically aligned undulating water surface";
+  water.castShadow = false;
+  water.receiveShadow = true;
+  water.renderOrder = 3;
+  water.material.userData.nightEmissive = 0x0b4a60;
+  water.material.userData.nightEmissiveIntensity = 0.28;
+  group.add(water);
+
+  const crests = new LineSegments(
+    spreeWaveCrestGeometry(geometry),
+    new LineBasicMaterial({
+      color: 0xc8f3ef,
+      depthWrite: false,
+      opacity: 0.28,
+      transparent: true,
+    }),
+  );
+  crests.name = "Spree broken three-dimensional wave crest highlights";
+  crests.renderOrder = 4;
+  group.add(crests);
+  return group;
+}
+
 export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   const group = new Group();
   group.name = "Cultural venues, Carillon and Spree excursion detail";
@@ -699,6 +940,7 @@ export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   if (carillon) {
     group.add(createCarillon(carillon));
   }
+  group.add(createSpreeWaveField());
   group.add(createExcursionSteamer());
   return group;
 }
@@ -724,10 +966,10 @@ export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
   }
   if (name === SPREEBOGEN_NAME) {
     return {
-      azimuth_degrees: 35,
-      distance_m: 105,
+      azimuth_degrees: 130,
+      distance_m: 90,
       polar_degrees: 58,
-      target_height_m: 4.5,
+      target_height_m: 4,
       target_world: BOAT_WORLD,
     };
   }
