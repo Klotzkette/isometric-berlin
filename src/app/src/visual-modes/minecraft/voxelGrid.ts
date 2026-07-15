@@ -20,6 +20,32 @@ export function voxelBaseCell(coarseLayout: boolean): number {
 }
 
 /**
+ * Scales the on-screen block size with the map zoom so a block always
+ * covers the same *world* area, no matter how far in the user has zoomed.
+ *
+ * Why this matters for stability: a fragment's block index is
+ * `floor((screenPos - anchor) / cell)`. A world feature's screen distance
+ * from the anchor grows in proportion to the zoom (`relWorld * zoom`). If
+ * `cell` also grows in proportion to the zoom, the zoom cancels out of the
+ * index and every world feature keeps the *same* block through the whole
+ * zoom — so blocks stay glued to the geometry instead of re-quantizing and
+ * swimming while the camera moves (requirement #6). A fixed screen-space
+ * cell can only stay glued under pure panning; under zoom it inevitably
+ * decays, which is what users still saw after the v0.5.4 pan anchor.
+ *
+ * `scale` is the current zoom relative to the zoom at which the base cell
+ * should apply (pass `currentZoom / minZoom`, so `scale === 1` at the
+ * furthest-out view). The result is clamped to `[base, cap]`: never smaller
+ * than the base cell, never so large a whole building collapses to a block.
+ */
+export function voxelCellForScale(base: number, scale: number): number {
+  const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+  const scaled = base * safeScale;
+  const floor = Math.min(base, VOXEL_BASE_CELL_CAP_DEVICE_PX);
+  return Math.min(VOXEL_BASE_CELL_CAP_DEVICE_PX, Math.max(floor, scaled));
+}
+
+/**
  * World/scene anchor for the voxel post-process grid, in device pixels.
  * The caller passes the on-screen pixel position of a fixed world point
  * (the map's content origin in 2D, or the projected scene origin in 3D).

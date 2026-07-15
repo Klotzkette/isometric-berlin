@@ -142,6 +142,23 @@ describe("Chancellery airspace stays clear of floating artefacts", () => {
     }
   }, 240_000);
 
+  test("no artefact box can reach a landmark or ground-level geometry", () => {
+    // Safety invariant for the whole registry: every sky-artefact box must
+    // (a) float well above the roofline so it can never clip surveyed
+    // buildings, trees or terrain, and (b) never contain a landmark anchor.
+    // This is the guard that lets the box list grow without risking a hero
+    // landmark (Reichstag dome, Hauptbahnhof roof, Potsdamer Platz towers)
+    // being silently deleted along with a blob.
+    const anchor = new Vector3();
+    for (const artefact of MESH_SKY_ARTEFACTS) {
+      expect(artefact.box.min.y).toBeGreaterThanOrEqual(45);
+      for (const landmark of manifest.landmarks) {
+        anchor.set(...landmark.world);
+        expect(artefact.box.containsPoint(anchor)).toBe(false);
+      }
+    }
+  });
+
   test("files without registered artefacts are left untouched", () => {
     expect(skyArtefactsFor("tile-3894_58196.glb")).toEqual([]);
     const untouched = stripSkyArtefacts(new Group(), skyArtefactsFor("x.glb"));

@@ -44,6 +44,12 @@ describe("Tiergartentunnel rendering budget", () => {
     expect((laneMarks as InstancedMesh).count).toBeGreaterThan(10);
     expect((fanRings as InstancedMesh).count).toBe(2);
     expect((fanBlades as InstancedMesh).count).toBe(8);
+    const portals = tunnel.getObjectByName(
+      "Tiergartentunnel instanced portal frames",
+    );
+    expect(portals).toBeInstanceOf(InstancedMesh);
+    // One frame per tube at each of the two visible endpoints.
+    expect((portals as InstancedMesh).count).toBe(4);
     expect(tunnel.children.length).toBeLessThan(30);
   });
 

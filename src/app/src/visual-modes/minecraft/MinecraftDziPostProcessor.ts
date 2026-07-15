@@ -2,15 +2,21 @@ import { CRISPNESS_PROFILES } from "../../crispnessProfile";
 import postprocessFragment from "./postprocess.frag?raw";
 import shimmerFragment from "./shimmer.frag?raw";
 import { createPaletteLutData } from "./palette";
-import { voxelBaseCell, voxelGridOffset } from "./voxelGrid";
+import { voxelBaseCell, voxelCellForScale, voxelGridOffset } from "./voxelGrid";
 
 /**
  * Returns the on-screen position, in CSS pixels relative to the viewer
- * host, of a fixed map-content point. The post-processor turns this into
- * the world-anchored voxel grid offset so blocks stay glued to the map
- * while the user pans and zooms.
+ * host, of a fixed map-content point, plus the current map zoom relative
+ * to the furthest-out zoom (`scale`, 1 at min zoom). The post-processor
+ * turns the position into the world-anchored voxel grid offset and uses
+ * the scale to size blocks in world units, so blocks stay glued to the map
+ * while the user pans AND zooms (requirement #6).
  */
-export type ContentAnchorReader = () => { x: number; y: number } | null;
+export type ContentAnchorReader = () => {
+  x: number;
+  y: number;
+  scale?: number;
+} | null;
 
 const CANVAS_VERTEX_SHADER = `
 attribute vec2 position;
@@ -235,9 +241,13 @@ export class MinecraftDziPostProcessor {
       this.canvas.width,
       this.canvas.height,
     );
-    const blockSize = voxelBaseCell(this.host.clientWidth < 769);
+    const anchor = this.readAnchor?.() ?? null;
+    const base = voxelBaseCell(this.host.clientWidth < 769);
+    // Grow the block with the zoom so it stays a fixed world size: this is
+    // what keeps blocks locked to the geometry under zoom, not just pan.
+    const blockSize = voxelCellForScale(base, anchor?.scale ?? 1);
     gl.uniform1f(gl.getUniformLocation(this.program, "pixelScale"), blockSize);
-    const [offsetX, offsetY] = this.gridOffset(blockSize);
+    const [offsetX, offsetY] = this.gridOffset(anchor, blockSize);
     gl.uniform2f(
       gl.getUniformLocation(this.program, "gridOffset"),
       offsetX,
@@ -256,8 +266,10 @@ export class MinecraftDziPostProcessor {
     this.lastDrawnAt = timestamp;
   };
 
-  private gridOffset(blockSize: number): readonly [number, number] {
-    const anchor = this.readAnchor?.();
+  private gridOffset(
+    anchor: { x: number; y: number } | null,
+    blockSize: number,
+  ): readonly [number, number] {
     if (!anchor) {
       return [0, 0];
     }

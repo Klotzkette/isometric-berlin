@@ -10,6 +10,7 @@ import {
   DataTexture,
   DirectionalLight,
   DoubleSide,
+  ExtrudeGeometry,
   Fog,
   FrontSide,
   Group,
@@ -31,6 +32,7 @@ import {
   RingGeometry,
   RGBAFormat,
   Scene,
+  Shape,
   Spherical,
   SphereGeometry,
   SRGBColorSpace,
@@ -501,6 +503,45 @@ export function createTunnel(payload: TunnelPayload): Group {
     0.25,
     0.96,
   );
+  // Portal headwall: a rectangular concrete frame around each tube mouth so
+  // the entrance reads as a real portal instead of an abruptly cut-open box
+  // (requirement #5). The frame is one extruded ring (outer rectangle with a
+  // tube-sized hole) instanced once per tube per visible endpoint.
+  const portalJamb = 1.4;
+  const portalOuterW = width + portalJamb * 2;
+  const portalOuterH = height + portalJamb * 2;
+  const portalShape = new Shape();
+  portalShape.moveTo(-portalOuterW / 2, -portalOuterH / 2);
+  portalShape.lineTo(portalOuterW / 2, -portalOuterH / 2);
+  portalShape.lineTo(portalOuterW / 2, portalOuterH / 2);
+  portalShape.lineTo(-portalOuterW / 2, portalOuterH / 2);
+  portalShape.lineTo(-portalOuterW / 2, -portalOuterH / 2);
+  const portalHole = new Shape();
+  portalHole.moveTo(-width / 2, -height / 2);
+  portalHole.lineTo(width / 2, -height / 2);
+  portalHole.lineTo(width / 2, height / 2);
+  portalHole.lineTo(-width / 2, height / 2);
+  portalHole.lineTo(-width / 2, -height / 2);
+  portalShape.holes.push(portalHole);
+  const portalGeometry = new ExtrudeGeometry(portalShape, {
+    depth: 1.6,
+    bevelEnabled: false,
+    steps: 1,
+  });
+  portalGeometry.translate(0, 0, -0.8);
+  const portalMaterial = tunnelMaterial(
+    new MeshPhysicalMaterial({
+      color: 0x74797f,
+      emissive: 0x2c3237,
+      emissiveIntensity: 0.6,
+      metalness: 0.18,
+      roughness: 0.82,
+      side: DoubleSide,
+    }),
+    0.24,
+    0.86,
+  );
+  const portalMatrices: Matrix4[] = [];
   const points = payload.points.map((point) => new Vector3(...point));
   const lampMatrices: Matrix4[] = [];
   const laneMarkMatrices: Matrix4[] = [];
@@ -610,6 +651,39 @@ export function createTunnel(payload: TunnelPayload): Group {
       bladeMatrices.push(instance.matrix.clone());
     }
   }
+  // Portal frames at the two visible endpoints (north/south mouths), one per
+  // tube. The terminal segment gives the facing direction so the headwall
+  // sits square across each tube opening.
+  if (points.length >= 2) {
+    const endpoints: { point: Vector3; delta: Vector3 }[] = [
+      { point: points[0], delta: points[1].clone().sub(points[0]) },
+      {
+        point: points[points.length - 1],
+        delta: points[points.length - 1].clone().sub(points[points.length - 2]),
+      },
+    ];
+    for (const { point, delta } of endpoints) {
+      const length = Math.hypot(delta.x, delta.z) || 1;
+      const yaw = Math.atan2(delta.x, delta.z);
+      const normal = new Vector3(-delta.z / length, 0, delta.x / length);
+      for (const side of [-1, 1]) {
+        const offset = side * (width / 2 + 0.85);
+        instance.position.copy(point).addScaledVector(normal, offset);
+        instance.rotation.set(0, yaw, 0);
+        instance.scale.set(1, 1, 1);
+        instance.updateMatrix();
+        portalMatrices.push(instance.matrix.clone());
+      }
+    }
+  }
+  addInstancedMeshes(
+    group,
+    "Tiergartentunnel instanced portal frames",
+    portalGeometry,
+    portalMaterial,
+    portalMatrices,
+    13,
+  );
   addInstancedMeshes(
     group,
     "Tiergartentunnel instanced ventilation shafts",
@@ -851,9 +925,17 @@ async function loadModel(
       material.userData.sourceMaterial = true;
       applyMaterialLighting(material, runtime.lightingMode);
       if (detail) {
+        // Hero-detail tiles are a higher-resolution copy of the same building
+        // that already exists in the base/surface tile beneath them. Two
+        // near-coplanar textured copies z-fight — this was the flicker on the
+        // Brandenburger Tor and other landmark facades. A weak -1/-1 offset
+        // left near-vertical facades (viewed edge-on, where the depth slope is
+        // largest) still fighting, so bias the detail copy decisively toward
+        // the camera. This is a depth-only bias: it never displaces the mesh,
+        // so the <= 1 px hero-centre contract is untouched.
         material.polygonOffset = true;
-        material.polygonOffsetFactor = -1;
-        material.polygonOffsetUnits = -1;
+        material.polygonOffsetFactor = -4;
+        material.polygonOffsetUnits = -8;
       }
       material.side = runtime.underside ? DoubleSide : FrontSide;
       material.transparent = runtime.underside;
@@ -1314,11 +1396,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.085;
+      // v0.5.5: a lighter damping factor lets the orbit/tilt glide to rest
+      // (more inertia) and higher rotate/pan speeds make the one-finger tilt
+      // and two-finger drag feel effortless on touch.
+      controls.dampingFactor = 0.065;
       controls.zoomToCursor = true;
-      controls.rotateSpeed = 0.68;
-      controls.zoomSpeed = 0.84;
-      controls.panSpeed = 0.68;
+      controls.rotateSpeed = 0.82;
+      controls.zoomSpeed = 0.9;
+      controls.panSpeed = 0.9;
       controls.minDistance = 30;
       controls.maxDistance = 2600;
       controls.minPolarAngle = 0.06;
@@ -1656,6 +1741,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
+      // Smoothly ramped strength of the settled crisp/edge pass (0 while the
+      // camera moves, easing to 1 once it settles). Day/Night always render
+      // through the composer; only this factor changes, so there is no longer
+      // a hard switch between the direct-render and composer paths that used
+      // to pop the image (v0.5.4 Day-mode flicker / momentary darkening).
+      let crispBlend = 1;
+      let lastCrispRampAt = Number.NEGATIVE_INFINITY;
       // Reused each frame to project the voxel grid's world anchor.
       const voxelAnchor = new Vector3();
       const flightVelocity = new Vector3();
@@ -1746,9 +1838,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
         setSurfacePresentation(runtime, isMoving);
-        const frameIntervalMs = isMoving
-          ? activeFrameIntervalMs
-          : idleFrameIntervalMs;
+        // The crisp/edge pass applies at full strength only once Day/Night has
+        // settled (never in Minecraft, which owns the composer for its voxel
+        // pass). This is the ramp *target*: crispBlend eases toward 1 here and
+        // toward 0 while moving, rather than the pass being hard-toggled.
+        const crispSettled =
+          runtime.lightingMode !== "minecraft" && !isMoving;
+        // Keep rendering at the active cadence while the crisp/edge pass is
+        // still fading in or out, so the Day/Night settle ramp stays smooth
+        // instead of stepping across sparse idle frames.
+        const crispRamping =
+          runtime.lightingMode !== "minecraft" &&
+          Math.abs(crispBlend - (crispSettled ? 1 : 0)) > 0.01;
+        const frameIntervalMs =
+          isMoving || crispRamping ? activeFrameIntervalMs : idleFrameIntervalMs;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;
         }
@@ -1774,10 +1877,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const windTime = reducedMotion ? 0.9 : timestamp / 1000;
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
-        const useCrispPass =
-          runtime.lightingMode !== "minecraft" && !isMoving;
-        crispPass.enabled = useCrispPass;
         if (runtime.lightingMode === "minecraft") {
+          crispPass.enabled = false;
           // World-anchor the voxel grid: project a fixed scene point to
           // screen pixels and hand its wrapped offset to the shader so the
           // blocks stay glued to the geometry while the camera orbits,
@@ -1795,10 +1896,38 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             gridOffset.set(offsetX, offsetY);
           }
           composer.render();
-        } else if (useCrispPass) {
-          composer.render();
         } else {
-          renderer.render(scene, camera);
+          // Day/Night: always render through the composer so the colour and
+          // anti-aliasing pipeline is identical whether the camera moves or
+          // settles. Instead of hard-toggling the crisp pass on/off (which
+          // popped the image every time motion started or stopped), ramp its
+          // effective strength via crispBlend. At crispBlend === 0 the pass
+          // is a pure passthrough (strength/edge 0, saturation/contrast 1),
+          // at 1 it applies the full settled profile — so motion only fades
+          // the sharpening in and out smoothly, with no flicker or darkening.
+          const profile =
+            CRISPNESS_PROFILES[runtime.lightingMode === "night" ? "night" : "day"];
+          const rampDt =
+            lastCrispRampAt === Number.NEGATIVE_INFINITY
+              ? 0.016
+              : MathUtils.clamp((timestamp - lastCrispRampAt) / 1000, 0, 0.25);
+          lastCrispRampAt = timestamp;
+          const crispTarget = crispSettled ? 1 : 0;
+          crispBlend += (crispTarget - crispBlend) * Math.min(1, rampDt * 7);
+          if (crispBlend < 0.002) {
+            crispBlend = 0;
+          } else if (crispBlend > 0.998) {
+            crispBlend = 1;
+          }
+          crispPass.enabled = true;
+          crispPass.uniforms.strength.value = profile.strength * crispBlend;
+          crispPass.uniforms.edgeStrength.value =
+            profile.edgeStrength * crispBlend;
+          crispPass.uniforms.saturation.value =
+            1 + (profile.saturation - 1) * crispBlend;
+          crispPass.uniforms.contrast.value =
+            1 + (profile.contrast - 1) * crispBlend;
+          composer.render();
         }
       };
       animate();

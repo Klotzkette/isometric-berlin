@@ -461,6 +461,38 @@ button:active:not(:disabled) {
   line-height: 1;
 }
 
+/* v0.5.5: bigger touch targets on phones/tablets. 34 px squares were fiddly
+   under a fingertip; grow the movement pad, view controls and joystick to at
+   least the ~44 px comfortable minimum on coarse pointers. */
+@media (pointer: coarse) {
+  .movement-controls {
+    grid-template-columns: repeat(3, 46px);
+    gap: 4px;
+  }
+
+  .movement-controls button,
+  .view-controls button {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+  }
+
+  .view-controls button span {
+    font-size: 15px;
+  }
+
+  .flight-joystick {
+    width: 128px;
+    height: 128px;
+  }
+
+  .flight-joystick-knob {
+    width: 48px;
+    height: 48px;
+    margin: -24px 0 0 -24px;
+  }
+}
+
 .landmark-rail {
   position: absolute;
   z-index: 18;

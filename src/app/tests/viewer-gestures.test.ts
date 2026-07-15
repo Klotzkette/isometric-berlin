@@ -21,8 +21,11 @@ describe("touch viewer gestures", () => {
         expect(settings.pinchToZoom).toBe(true);
         expect(settings.dragToPan).toBe(true);
         expect(settings.flickEnabled).toBe(true);
-        expect(settings.flickMinSpeed).toBe(60);
-        expect(settings.flickMomentum).toBe(0.5);
+        // v0.5.5: lighter flick threshold + more momentum for effortless
+        // phone panning (still bounded so a hard swipe does not fling away).
+        expect(settings.flickMinSpeed).toBe(35);
+        expect(settings.flickMomentum).toBe(0.68);
+        expect(settings.flickMomentum).toBeLessThan(1);
       }
     },
   );

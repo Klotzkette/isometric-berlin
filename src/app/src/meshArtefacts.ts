@@ -23,14 +23,17 @@ export const MESH_SKY_ARTEFACTS: readonly SkyArtefact[] = [
   {
     filePattern: "3890_58200",
     box: new Box3(
-      new Vector3(-147.5, 45.0, -83.5),
-      new Vector3(-113.0, 62.5, -76.0),
+      new Vector3(-147.5, 45.0, -84.0),
+      new Vector3(-105.0, 63.0, -75.0),
     ),
     reason:
-      "Dark reconstruction blob floating 47-61 m over the Chancellery's " +
+      "Dark reconstruction blob floating 45-63 m over the Chancellery's " +
       "north side (Kanzlerpark). The leadership cube tops out at 36 m plus " +
       "roof plant, and the tallest park poplars stay below 45 m, so no " +
-      "surveyed structure can occupy this volume.",
+      "surveyed structure can occupy this volume. v0.5.5 widened the east " +
+      "edge (was -113) to swallow the ~7 m sliver of the same slab that the " +
+      "old box clipped, which still showed as a dark smudge in the sky; the " +
+      "floor stays at 45 m so it can never reach roof or tree geometry.",
   },
 ];
 

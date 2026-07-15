@@ -12,13 +12,17 @@ export type RotatableGestureSettings = OpenSeadragon.GestureSettings & {
 // through the on-screen rotate buttons and the keyboard shortcuts. This
 // matches the natural iPhone expectation that swiping fingers left moves
 // the map contents left along with the fingers, not spinning the map.
+// v0.5.5: lower the flick threshold and raise the momentum so a light
+// two-finger swipe glides the map instead of stopping dead — the previous
+// 60 px/s / 0.5 momentum felt sticky on a phone. Pinch-zoom semantics are
+// unchanged.
 export const TOUCH_GESTURE_SETTINGS: RotatableGestureSettings = {
   clickToZoom: false,
   dblClickToZoom: true,
   dragToPan: true,
   flickEnabled: true,
-  flickMinSpeed: 60,
-  flickMomentum: 0.5,
+  flickMinSpeed: 35,
+  flickMomentum: 0.68,
   pinchRotate: false,
   pinchToZoom: true,
 };

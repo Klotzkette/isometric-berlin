@@ -1,5 +1,60 @@
 # Changelog
 
+## v0.5.5
+
+- Day mode is rock steady again. Since v0.5.4 it flickered and briefly
+  darkened whenever the camera started or stopped moving, because the
+  render loop hard-switched between a direct `renderer.render` path
+  while moving and the `EffectComposer` path once settled — the crisp
+  pass is not a passthrough at strength 0, so toggling it popped the
+  colour and edge grade in one frame. Day and Night now always render
+  through the composer; the settled crisp/edge strength is ramped in and
+  out via a `crispBlend` factor (a true passthrough at 0, the full
+  profile at 1), so motion only fades the sharpening smoothly with no
+  flicker or darkening. The active frame cadence is held while the ramp
+  is in flight so it never steps across sparse idle frames.
+- Fixed the localized flicker on the Brandenburger Tor and other landmark
+  facades. Hero-detail tiles are a higher-resolution copy of the same
+  building already present in the base/surface tile beneath them, and the
+  two near-coplanar textured copies z-fought — worst on near-vertical
+  facades seen edge-on, where the depth slope is largest. The detail
+  copy's polygon offset is strengthened (factor -1→-4, units -1→-8) so it
+  biases decisively toward the camera. This is depth-only: no mesh is
+  displaced, so the ≤1 px hero-centre contract still holds.
+- The dark "sky blob" over the Bundeskanzleramt is fully gone. The
+  hand-verified artefact box for tile `3890_58200` is widened at its east
+  edge (was -113 m, now -105 m) to swallow the ~7 m sliver of the same
+  floating slab the old box clipped. The box floor stays at 45 m — above
+  the 36 m leadership-cube roof and the <45 m park poplars — so it can
+  never reach surveyed geometry. A new registry-wide safety test asserts
+  every artefact box floats at ≥45 m and contains no landmark anchor,
+  which keeps the hero landmarks (Reichstag glass dome, Hauptbahnhof
+  roof, Potsdamer Platz towers) safe as the box list grows.
+- Easier, lighter touch control. The two-finger flick threshold drops
+  (60→35 px/s) and its momentum rises (0.5→0.68) so a gentle swipe
+  glides the map instead of stopping dead, and the OpenSeadragon spring
+  softens (stiffness 8→6, animation 0.6→0.72 s) for effortless inertia.
+  On the 3D view the orbit/tilt damping loosens (0.085→0.065) and the
+  rotate/pan speeds rise (0.68→0.82 / 0.68→0.9) so one-finger tilt and
+  two-finger drag feel light. On-screen controls grow to a ≥44 px touch
+  target on coarse pointers (movement pad, view buttons and the flight
+  joystick). Pinch-zoom semantics are unchanged.
+- The Tiergartentunnel entrance at Kemperplatz renders as a real portal.
+  The twin tubes previously ended as abruptly cut-open boxes; a concrete
+  portal headwall — one extruded rectangular frame with a tube-sized hole
+  — is now instanced once per tube at each of the two visible endpoints
+  (four frames), squared across each mouth by the terminal segment
+  direction. It follows the same depth-test-off underside presentation as
+  the rest of the cutaway, so it reads correctly in the tunnel dive view
+  in all modes and adds a single draw call.
+- Minecraft mode stays glued under zoom, not only under pan. The v0.5.4
+  world anchor kept blocks locked while panning, but a fixed screen-pixel
+  cell still re-quantized and swam while zooming. The 2D voxel cell now
+  scales with the map zoom (`voxelCellForScale`, clamped to the sane
+  device-pixel band) so a block always covers the same world area and a
+  world feature keeps the same block index across zoom levels. A
+  regression test pins that invariance and the clamp behaviour.
+
 ## v0.5.4
 
 - Minecraft mode drops its "Dörfchen" entirely: no NPCs, animals or

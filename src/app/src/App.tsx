@@ -1538,7 +1538,7 @@ export function App() {
       },
       gestureSettingsTouch: TOUCH_GESTURE_SETTINGS,
       gestureSettingsPen: PEN_GESTURE_SETTINGS,
-      animationTime: prefersReducedMotion() ? 0.05 : 0.6,
+      animationTime: prefersReducedMotion() ? 0.05 : 0.72,
       blendTime: 0.1,
       constrainDuringPan: true,
       immediateRender: false,
@@ -1549,7 +1549,9 @@ export function App() {
       showRotationControl: true,
       visibilityRatio: 1,
       homeFillsViewer: false,
-      springStiffness: 8,
+      // v0.5.5: a softer spring (was 8) glides pans/zooms to rest instead of
+      // snapping, which reads as effortless inertia on touch.
+      springStiffness: prefersReducedMotion() ? 8 : 6,
     });
     viewerRef.current = viewer;
     if (import.meta.env.DEV) {
@@ -1666,7 +1668,12 @@ export function App() {
         new OpenSeadragon.Point(0, 0),
         true,
       );
-      return { x: point.x, y: point.y };
+      // Zoom relative to the furthest-out view; the post-processor sizes
+      // blocks in world units from this so they stay glued under zoom, not
+      // only under pan.
+      const minZoom = viewer.viewport.getMinZoom() || 1;
+      const scale = viewer.viewport.getZoom(true) / minZoom;
+      return { x: point.x, y: point.y, scale };
     };
     const processor = MinecraftDziPostProcessor.attach(host, readAnchor);
     // Hard palette snap by default; ordered dithering fades in only at
