@@ -1,0 +1,54 @@
+name: Upload release assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build and attach assets to (e.g. v0.5.3)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build viewer
+        working-directory: src/app
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+
+      - name: Package static site
+        run: python scripts/package_static_site.py
+
+      - name: Check release readiness
+        run: python scripts/check_release_readiness.py
+
+      - name: Smoke-test local package
+        run: python scripts/smoke_local_package.py
+
+      - name: Upload assets to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          VERSION="${TAG#v}"
+          gh release upload "$TAG" \
+            "releases/isometric-berlin-regierungsviertel-local.zip" \
+            "releases/isometric-berlin-viewer-v${VERSION}.tar.gz" \
+            --clobber
