@@ -92,7 +92,7 @@ import {
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
 import { createPaletteLutData } from "./visual-modes/minecraft/palette";
-import { voxelBaseCell } from "./visual-modes/minecraft/voxelGrid";
+import { voxelBaseCell, voxelGridOffset } from "./visual-modes/minecraft/voxelGrid";
 import crispFragment from "./crisp.frag?raw";
 import postprocessFragment from "./visual-modes/minecraft/postprocess.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
@@ -1274,11 +1274,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         uniforms: {
           ditherStrength: { value: 0 },
           edgeMix: { value: CRISPNESS_PROFILES.minecraft.edgeStrength },
+          gridOffset: { value: new Vector2(0, 0) },
           paletteLut: { value: minecraftPaletteTexture },
           pixelScale: { value: voxelBaseCell(coarsePointer) },
           resolution: { value: new Vector2(1, 1) },
           tDiffuse: { value: null },
-          time: { value: 0 },
         },
         vertexShader: postprocessVertex,
         fragmentShader: postprocessFragment.replace(
@@ -1470,6 +1470,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!current) {
             return;
           }
+          // A two-finger swipe MOVES the camera/avatar in the swiped,
+          // view-relative direction (swipe right → strafe right, swipe up →
+          // travel forward along the heading), it never rotates or tilts the
+          // view. Rotation stays on the on-screen buttons, the keyboard and
+          // the mouse-drag; a three-finger gesture still tilts deliberately.
           const deltaX = current.center.x - previousTwoFingerGesture.center.x;
           const deltaY = current.center.y - previousTwoFingerGesture.center.y;
           flyCameraAlongViewHeading(
@@ -1478,6 +1483,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             deltaX / 72,
             -deltaY / 72,
           );
+          // Pinch still zooms; the twist component no longer rotates.
           const zoomFactor = MathUtils.clamp(
             current.distance / previousTwoFingerGesture.distance,
             0.88,
@@ -1487,17 +1493,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           offset.multiplyScalar(1 / zoomFactor);
           offset.clampLength(controls.minDistance, controls.maxDistance);
           camera.position.copy(controls.target).add(offset);
-          const angleDelta = Math.atan2(
-            Math.sin(current.angle - previousTwoFingerGesture.angle),
-            Math.cos(current.angle - previousTwoFingerGesture.angle),
-          );
-          if (Math.abs(angleDelta) > 0.0005) {
-            setOrbitAngles(runtime, {
-              azimuth: controls.getAzimuthalAngle() + angleDelta,
-            });
-          } else {
-            controls.update();
-          }
+          controls.update();
           previousTwoFingerGesture = current;
           markSurfaceInteraction(runtime);
           return;
@@ -1660,6 +1656,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
+      // Reused each frame to project the voxel grid's world anchor.
+      const voxelAnchor = new Vector3();
       const flightVelocity = new Vector3();
       let wasFlying = false;
       const applyContinuousFlight = (dtSeconds: number): boolean => {
@@ -1780,7 +1778,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.lightingMode !== "minecraft" && !isMoving;
         crispPass.enabled = useCrispPass;
         if (runtime.lightingMode === "minecraft") {
-          minecraftPass.uniforms.time.value = timestamp / 1000;
+          // World-anchor the voxel grid: project a fixed scene point to
+          // screen pixels and hand its wrapped offset to the shader so the
+          // blocks stay glued to the geometry while the camera orbits,
+          // pans and zooms, instead of crawling across a fixed screen grid.
+          const resolution = minecraftPass.uniforms.resolution.value;
+          const gridOffset = minecraftPass.uniforms.gridOffset.value;
+          if (resolution instanceof Vector2 && gridOffset instanceof Vector2) {
+            const anchor = voxelAnchor.set(0, 0, 0).project(camera);
+            const block = minecraftPass.uniforms.pixelScale.value as number;
+            const [offsetX, offsetY] = voxelGridOffset(
+              (anchor.x * 0.5 + 0.5) * resolution.x,
+              (anchor.y * 0.5 + 0.5) * resolution.y,
+              block,
+            );
+            gridOffset.set(offsetX, offsetY);
+          }
           composer.render();
         } else if (useCrispPass) {
           composer.render();

@@ -733,89 +733,6 @@ button:active:not(:disabled) {
   background: #76b852;
 }
 
-.minecraft-life {
-  position: absolute;
-  z-index: 7;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  /* Mode-switch fade; duration must match MODE_FADE_MS in lifecycle.ts. */
-  animation: minecraft-life-fade-in 180ms ease both;
-}
-
-.minecraft-life--leaving {
-  animation: minecraft-life-fade-out 180ms ease both;
-}
-
-@keyframes minecraft-life-fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes minecraft-life-fade-out {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-
-.minecraft-sprite {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  transform-origin: center bottom;
-  opacity: 0;
-  image-rendering: pixelated;
-  filter: drop-shadow(1px 2px 1px rgba(12, 24, 14, 0.34));
-  animation: minecraft-spawn 520ms steps(4, end) forwards;
-}
-
-.minecraft-sprite--npc {
-  width: 8px;
-  height: 8px;
-  animation:
-    minecraft-spawn 520ms steps(4, end) forwards,
-    minecraft-walk 5.8s steps(10, end) 1s infinite alternate;
-}
-
-.minecraft-sprite--animal {
-  width: 10px;
-  height: 10px;
-}
-
-.minecraft-sprite--boat {
-  width: 18px;
-  height: 18px;
-  animation:
-    minecraft-spawn 520ms steps(4, end) forwards,
-    minecraft-boat 12s ease-in-out 1s infinite alternate;
-}
-
-.minecraft-toast {
-  position: absolute;
-  top: 82px;
-  left: 50%;
-  max-width: min(360px, calc(100vw - 32px));
-  padding: 8px 12px;
-  transform: translateX(-50%);
-  border: 1px solid rgba(17, 31, 18, 0.82);
-  border-radius: 6px;
-  color: #f1f5da;
-  background: rgba(34, 58, 34, 0.9);
-  box-shadow: 0 10px 30px rgba(10, 24, 12, 0.28);
-  font-size: 12px;
-  text-align: center;
-  pointer-events: none;
-}
-
 .discovery-note {
   position: fixed;
   z-index: 34;
@@ -869,27 +786,6 @@ button:active:not(:disabled) {
     0 8px #c18a4b;
   pointer-events: none;
   animation: minecraft-spark 280ms steps(4, end) forwards;
-}
-
-@keyframes minecraft-spawn {
-  from {
-    opacity: 0;
-    translate: 0 5px;
-  }
-  to {
-    opacity: 0.86;
-    translate: 0 0;
-  }
-}
-
-@keyframes minecraft-walk {
-  from { margin-left: -5px; }
-  to { margin-left: 7px; }
-}
-
-@keyframes minecraft-boat {
-  from { margin-left: -10px; }
-  to { margin-left: 18px; }
 }
 
 @keyframes minecraft-spark {
@@ -1565,19 +1461,6 @@ button:active:not(:disabled) {
     border-top: 1px solid rgba(245, 239, 228, 0.12);
   }
 
-  .mobile-sheet-footer .minecraft-reset {
-    display: flex;
-    width: auto;
-    gap: 5px;
-    padding: 0 9px;
-    color: #eaf3dd;
-    background: rgba(78, 132, 55, 0.42);
-  }
-
-  .minecraft-reset span {
-    font-size: 10px;
-  }
-
   .mobile-overflow-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(64px, 1fr));
@@ -1685,11 +1568,6 @@ button:active:not(:disabled) {
 
   .map-marker::after {
     display: none;
-  }
-
-  .minecraft-toast {
-    top: calc(54px + env(safe-area-inset-top, 0px));
-    font-size: 10px;
   }
 
   .app-shell--minecraft .mobile-sheet,
@@ -1806,15 +1684,4 @@ button:active:not(:disabled) {
     animation: none;
   }
 
-  .minecraft-sprite,
-  .minecraft-sprite--npc,
-  .minecraft-sprite--boat {
-    animation-duration: 60ms;
-    animation-iteration-count: 1;
-  }
-
-  .minecraft-life,
-  .minecraft-life--leaving {
-    animation-duration: 60ms;
-  }
 }

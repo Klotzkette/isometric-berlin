@@ -2,7 +2,15 @@ import { CRISPNESS_PROFILES } from "../../crispnessProfile";
 import postprocessFragment from "./postprocess.frag?raw";
 import shimmerFragment from "./shimmer.frag?raw";
 import { createPaletteLutData } from "./palette";
-import { voxelBaseCell } from "./voxelGrid";
+import { voxelBaseCell, voxelGridOffset } from "./voxelGrid";
+
+/**
+ * Returns the on-screen position, in CSS pixels relative to the viewer
+ * host, of a fixed map-content point. The post-processor turns this into
+ * the world-anchored voxel grid offset so blocks stay glued to the map
+ * while the user pans and zooms.
+ */
+export type ContentAnchorReader = () => { x: number; y: number } | null;
 
 const CANVAS_VERTEX_SHADER = `
 attribute vec2 position;
@@ -96,13 +104,15 @@ export class MinecraftDziPostProcessor {
   private readonly program: WebGLProgram;
   private readonly resizeObserver: ResizeObserver;
   private readonly sourceTexture: WebGLTexture;
+  private readonly readAnchor: ContentAnchorReader | null;
   private ditherStrength = 0;
   private frame = 0;
   private lastDrawnAt = Number.NEGATIVE_INFINITY;
   private stopped = false;
 
-  constructor(host: HTMLElement) {
+  constructor(host: HTMLElement, readAnchor?: ContentAnchorReader) {
     this.host = host;
+    this.readAnchor = readAnchor ?? null;
     this.canvas.className = "minecraft-dzi-filter";
     const gl = this.canvas.getContext("webgl", {
       alpha: false,
@@ -153,9 +163,12 @@ export class MinecraftDziPostProcessor {
     this.frame = window.requestAnimationFrame(this.draw);
   }
 
-  static attach(host: HTMLElement): MinecraftDziPostProcessor | null {
+  static attach(
+    host: HTMLElement,
+    readAnchor?: ContentAnchorReader,
+  ): MinecraftDziPostProcessor | null {
     try {
-      return new MinecraftDziPostProcessor(host);
+      return new MinecraftDziPostProcessor(host, readAnchor);
     } catch {
       host.classList.add("minecraft-dzi-fallback");
       return null;
@@ -222,9 +235,14 @@ export class MinecraftDziPostProcessor {
       this.canvas.width,
       this.canvas.height,
     );
-    gl.uniform1f(gl.getUniformLocation(this.program, "time"), timestamp / 1000);
     const blockSize = voxelBaseCell(this.host.clientWidth < 769);
     gl.uniform1f(gl.getUniformLocation(this.program, "pixelScale"), blockSize);
+    const [offsetX, offsetY] = this.gridOffset(blockSize);
+    gl.uniform2f(
+      gl.getUniformLocation(this.program, "gridOffset"),
+      offsetX,
+      offsetY,
+    );
     gl.uniform1f(
       gl.getUniformLocation(this.program, "ditherStrength"),
       this.ditherStrength,
@@ -237,6 +255,23 @@ export class MinecraftDziPostProcessor {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     this.lastDrawnAt = timestamp;
   };
+
+  private gridOffset(blockSize: number): readonly [number, number] {
+    const anchor = this.readAnchor?.();
+    if (!anchor) {
+      return [0, 0];
+    }
+    const width = this.host.clientWidth || this.canvas.width;
+    const height = this.host.clientHeight || this.canvas.height;
+    const ratioX = this.canvas.width / Math.max(1, width);
+    const ratioY = this.canvas.height / Math.max(1, height);
+    // The shader samples the upload-flipped source, so its y origin is at
+    // the bottom of the canvas while OpenSeadragon reports y downward from
+    // the top — flip it here so a vertical pan shifts the grid the right way.
+    const pixelX = anchor.x * ratioX;
+    const pixelY = this.canvas.height - anchor.y * ratioY;
+    return voxelGridOffset(pixelX, pixelY, blockSize);
+  }
 
   private resize(): void {
     const { width, height } = this.host.getBoundingClientRect();

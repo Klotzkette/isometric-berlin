@@ -64,10 +64,9 @@ import {
   type Language,
   initialLanguage,
 } from "./localization";
-import { type VisualMode, isVisualMode, VISUAL_MODE_STORAGE_KEY } from "./visualMode";
+import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
 import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
 import { MinecraftDziPostProcessor } from "./visual-modes/minecraft/MinecraftDziPostProcessor";
-import { MinecraftLifeOverlay } from "./visual-modes/minecraft/MinecraftLifeOverlay";
 import {
   DOWNLOAD_URL,
   PROJECT_VERSION,
@@ -100,7 +99,6 @@ type LandmarkPayload = {
 type ViewerMode = "map" | "three";
 type MobileSheet = "compass" | "overflow" | null;
 
-const LEGACY_APPEARANCE_STORAGE_KEY = "isometric-berlin-lighting";
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
 const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
@@ -225,19 +223,14 @@ function initialViewerMode(): ViewerMode {
   }
 }
 
+// Day mode is the active visual mode on every (re)load. An explicit
+// `?theme=` query parameter is still honoured as a deliberate request, but
+// the previously-selected mode is never restored from localStorage — a
+// reload always starts in Day. (Music-mute persistence is unaffected.)
 function initialLightingMode(): VisualMode {
   try {
     const requested = new URLSearchParams(window.location.search).get("theme");
-    if (isVisualMode(requested)) {
-      return requested;
-    }
-    const stored = window.localStorage.getItem(VISUAL_MODE_STORAGE_KEY);
-    if (isVisualMode(stored)) {
-      return stored;
-    }
-    return window.localStorage.getItem(LEGACY_APPEARANCE_STORAGE_KEY) === "night"
-      ? "night"
-      : "day";
+    return resolveInitialVisualMode(requested);
   } catch {
     return "day";
   }
@@ -536,8 +529,6 @@ export function App() {
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
   const [showCoachMark, setShowCoachMark] = useState(() => !hasSeenCoachMark());
   const [showBrandTitle, setShowBrandTitle] = useState(false);
-  const [spawnResetToken, setSpawnResetToken] = useState(0);
-  const [zoomBucket, setZoomBucket] = useState(2);
   const [minecraftSpark, setMinecraftSpark] = useState<{
     id: number;
     x: number;
@@ -654,14 +645,6 @@ export function App() {
   useEffect(() => {
     flipRef.current = isFlipped;
   }, [isFlipped]);
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(VISUAL_MODE_STORAGE_KEY, lightingMode);
-    } catch {
-      // The viewer remains usable when storage is blocked.
-    }
-  }, [lightingMode]);
 
   // Minecraft decorations are strictly scoped to Minecraft mode: any pending
   // tap spark (DOM node and its timer) is discarded the moment the visual
@@ -1624,9 +1607,6 @@ export function App() {
         hashSyncFrameRef.current = null;
       });
     });
-    viewer.addHandler("zoom", (event) => {
-      setZoomBucket(Math.max(0, Math.round(event.zoom * 2)));
-    });
     viewer.addHandler("canvas-drag", (event) => {
       if (event.pointerType !== "mouse" || !event.shift) {
         return;
@@ -1673,10 +1653,24 @@ export function App() {
     ) {
       return;
     }
-    const processor = MinecraftDziPostProcessor.attach(host);
+    const viewer = viewerRef.current;
+    // Feed the voxel post-processor the on-screen position of a fixed map
+    // point so the block grid is anchored to the world and stays glued to
+    // the geometry while the user pans/zooms, instead of shimmering across
+    // a fixed screen-space grid.
+    const readAnchor = () => {
+      if (!viewer) {
+        return null;
+      }
+      const point = viewer.viewport.pixelFromPoint(
+        new OpenSeadragon.Point(0, 0),
+        true,
+      );
+      return { x: point.x, y: point.y };
+    };
+    const processor = MinecraftDziPostProcessor.attach(host, readAnchor);
     // Hard palette snap by default; ordered dithering fades in only at
     // the deepest zoom to avoid banding on large flat block faces.
-    const viewer = viewerRef.current;
     const applyDither = () => {
       if (!processor || !viewer) {
         return;
@@ -1819,11 +1813,6 @@ export function App() {
             }}
           />
         ) : null}
-        <MinecraftLifeOverlay
-          active={lightingMode === "minecraft"}
-          resetToken={spawnResetToken}
-          zoomBucket={zoomBucket}
-        />
       </section>
       {minecraftSpark ? (
         <span
@@ -2474,17 +2463,6 @@ export function App() {
             >
               <MapPinned size={19} aria-hidden="true" />
             </button>
-            {lightingMode === "minecraft" ? (
-              <button
-                type="button"
-                className="minecraft-reset"
-                aria-label="Minecraft-Leben zurücksetzen"
-                onClick={() => setSpawnResetToken((token) => token + 1)}
-              >
-                <MinecraftCubeIcon size={19} />
-                <span>Reset</span>
-              </button>
-            ) : null}
           </div>
         </aside>
       ) : null}

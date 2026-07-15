@@ -3,13 +3,19 @@ precision highp float;
 uniform sampler2D tDiffuse;
 uniform sampler2D paletteLut;
 uniform vec2 resolution;
-uniform float time;
 uniform float pixelScale;
 // 0.0 = hard palette snap (default); raised to 1.0 only at the deepest
 // zoom, where ordered dithering avoids banding on large flat faces.
 uniform float ditherStrength;
 // Outline mix from the shared crispness profile (minecraft entry).
 uniform float edgeMix;
+// World/scene anchor for the voxel grid, in device pixels wrapped into a
+// single block cell. The camera feeds the on-screen displacement of a fixed
+// world point here so the block lattice stays glued to the geometry while
+// the camera pans/zooms/rotates, instead of crawling across a fixed screen
+// grid (the "zerfällt beim Bewegen" shimmer). Defaults to (0, 0), which
+// reproduces the old screen-anchored behaviour.
+uniform vec2 gridOffset;
 varying vec2 vUv;
 
 /*__SHIMMER__*/
@@ -48,12 +54,17 @@ vec3 paletteLookup(vec3 color) {
 
 void main() {
   vec2 block = max(vec2(1.0), vec2(pixelScale));
-  vec2 snappedUv = (floor(vUv * resolution / block) + 0.5) * block / resolution;
+  // World-anchored snap: shift the lattice by the camera-supplied gridOffset
+  // so a block stays locked to the same piece of geometry as the view moves.
+  vec2 pixel = vUv * resolution;
+  vec2 snappedPixel = (floor((pixel - gridOffset) / block) + 0.5) * block + gridOffset;
+  vec2 snappedUv = snappedPixel / resolution;
   vec2 sampleStep = block / resolution;
   vec3 source = texture2D(tDiffuse, snappedUv).rgb;
   // Hard quantise: snap straight to the nearest palette colour. Ordered
-  // dithering only fades in via ditherStrength at the deepest zoom.
-  float dither = bayer4(gl_FragCoord.xy / block) - 0.5;
+  // dithering only fades in via ditherStrength at the deepest zoom. The
+  // dither cell rides the same world anchor so it does not crawl either.
+  float dither = bayer4((gl_FragCoord.xy - gridOffset) / block) - 0.5;
   vec3 colour = paletteLookup(source + dither * ditherStrength / 26.0);
 
   float here = ibLuminance(source);
@@ -93,7 +104,7 @@ void main() {
   vec3 bloom = texture2D(tDiffuse, snappedUv + sampleStep * 1.7).rgb +
     texture2D(tDiffuse, snappedUv - sampleStep * 1.7).rgb;
   colour += bloom * bright * 0.010;
-  colour = premiumShimmer(colour, snappedUv, time);
+  colour = premiumShimmer(colour, snappedUv);
   colour *= vec3(1.045, 1.02, 0.93);
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

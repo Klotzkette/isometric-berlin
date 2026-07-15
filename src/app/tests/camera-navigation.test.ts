@@ -91,6 +91,50 @@ describe("view-heading 3D flight", () => {
   });
 });
 
+describe("two-finger swipe moves the avatar (view-relative)", () => {
+  // v0.5.4: a two-finger swipe on the 3D view must MOVE the camera/avatar in
+  // the swiped, view-relative direction — never rotate or tilt. The pointer
+  // handler feeds the swipe center delta into flyCameraAlongViewHeading as
+  // (deltaX / 72, -deltaY / 72). These tests pin that mapping: swipe right
+  // strafes right, swipe up travels forward, and the orbit is untouched.
+  const swipeMove = (
+    camera: PerspectiveCamera,
+    target: Vector3,
+    deltaX: number,
+    deltaY: number,
+  ) => flyCameraAlongViewHeading(camera, target, deltaX / 72, -deltaY / 72);
+
+  test("swipe right strafes right without rotating the view", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(0, 100, 200);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+    const beforeOffset = camera.position.clone().sub(target);
+    const right = new Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+
+    const applied = swipeMove(camera, target, 120, 0);
+
+    expect(applied.dot(right)).toBeGreaterThan(0);
+    expect(camera.position.clone().sub(target).distanceTo(beforeOffset)).toBeLessThan(
+      1e-8,
+    );
+  });
+
+  test("swipe up travels forward along the heading, not vertically", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(0, 100, 200);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+
+    const applied = swipeMove(camera, target, 0, -120);
+
+    expect(applied.z).toBeLessThan(0);
+    expect(Math.abs(applied.y)).toBeLessThan(1e-8);
+  });
+});
+
 describe("forgiving 3D camera bounds", () => {
   test("restores the last safe pose after invalid camera input", () => {
     const camera = new PerspectiveCamera();

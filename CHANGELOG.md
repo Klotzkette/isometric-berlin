@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.5.4
+
+- Minecraft mode drops its "Dörfchen" entirely: no NPCs, animals or
+  village sprites spawn any more. The spawn/lifecycle/sprite modules and
+  the life overlay are removed along with their decoration CSS, so the
+  voxel world reads as pure blocky geometry. The v0.5.1 lifecycle
+  teardown contract no longer applies because nothing is spawned.
+- The Minecraft look is now temporally stable while the camera moves.
+  The voxel snap grid is anchored in world/scene space via a new
+  `gridOffset` uniform (fed from the projected content anchor in both
+  the 3D composer pass and the 2D DZI post-processor) so blocks stay
+  glued to the geometry instead of crawling across the screen during a
+  pan or zoom. The animated, `time`-driven sparkle on water and glass —
+  the main source of the "viel zu sparkly" flicker — is gone: the
+  `time` uniform is removed and `premiumShimmer` is now a purely
+  position-based, frame-stable sheen. Geometry, camera and landmark
+  anchors are untouched; the ≤1 px hero-centre contract still holds.
+- A two-finger swipe on the 3D view now MOVES the avatar in the swiped,
+  view-relative direction instead of twisting the camera — swipe right
+  while looking horizontally strafes right, swipe up travels forward
+  along the heading. Rotation stays on the on-screen buttons, the
+  keyboard and mouse-drag; a three-finger gesture still tilts. Pinch
+  keeps zooming. The 2D map keeps its v0.5.2 pan-on-swipe behaviour.
+- Day mode is now the active visual mode on every page (re)load. The
+  previously selected mode is no longer restored across reloads; only a
+  deliberate `?theme=` request selects night or minecraft at boot. The
+  music-mute preference still persists as before.
+
 ## v0.5.3
 
 - Much blockier Minecraft mode. The voxel base cell doubles (2.35→4.7 on
