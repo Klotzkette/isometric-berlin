@@ -1,0 +1,2871 @@
+{
+  "schema_version": 2,
+  "source": {
+    "name": "Berlin 3D Mesh Model 2025",
+    "provider": "Berlin Partner für Wirtschaft und Technologie GmbH",
+    "portal_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/",
+    "terms_url": "https://www.businesslocationcenter.de/berlin3d-downloadportal/resources/terms/terms.de.html",
+    "survey": "June 2025 aerial survey",
+    "attribution": "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
+  },
+  "coordinate_system": "EPSG:25833",
+  "world_axes": {
+    "x": "east",
+    "y": "up",
+    "z": "south"
+  },
+  "origin_epsg25833": [
+    389500.0,
+    5820000.0,
+    30.0
+  ],
+  "bounds_epsg25833": [
+    388784.931,
+    5818549.036,
+    390105.78,
+    5821029.824
+  ],
+  "base_tiles": [
+    {
+      "file": "tile-3887_58193.glb",
+      "bytes": 1213712,
+      "includes_normals": true,
+      "sha256": "8177429f4972fc4a011da123f0ddceb7f3dbbf5f8ceff3925ece986df06d2eff",
+      "vertices": 52911,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          388732.305,
+          5819309.243,
+          31.425
+        ],
+        [
+          389102.349,
+          5819672.837,
+          66.493
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3887_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 423421,
+      "source_material_segments": 6,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3887_58196.glb",
+      "bytes": 1201412,
+      "includes_normals": true,
+      "sha256": "c4103e276cf9310018526eacd24b79632634a7f3935473f3ea9f48844b9f9d59",
+      "vertices": 52201,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          388726.788,
+          5819667.34,
+          29.184
+        ],
+        [
+          389103.119,
+          5820045.159,
+          62.99
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3887_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 354654,
+      "source_material_segments": 7,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3887_58200.glb",
+      "bytes": 1211908,
+      "includes_normals": true,
+      "sha256": "9f5903f42e26dea9a75a413d9a8d4bf16fd7a8183194a5dbb436778cce5a69f7",
+      "vertices": 53543,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          388731.917,
+          5820017.74,
+          26.817
+        ],
+        [
+          389106.029,
+          5820394.883,
+          100.498
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3887_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 289286,
+      "source_material_segments": 6,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3887_58203.glb",
+      "bytes": 1223872,
+      "includes_normals": true,
+      "sha256": "04b845deca80601c0d77ca3864aeee41e70c106d40216364484414eddca98bcd",
+      "vertices": 54061,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          388731.753,
+          5820383.968,
+          32.193
+        ],
+        [
+          389110.641,
+          5820751.0,
+          88.861
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3887_58203",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 373150,
+      "source_material_segments": 8,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3890_58189.glb",
+      "bytes": 1211484,
+      "includes_normals": true,
+      "sha256": "68f0c1a1cdbf7a584f50cb18768520e64847afeb6d9501854496b04494b7695d",
+      "vertices": 52995,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389093.016,
+          5818945.233,
+          27.953
+        ],
+        [
+          389457.733,
+          5819310.94,
+          70.332
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3890_58189",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 358354,
+      "source_material_segments": 6,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3890_58193.glb",
+      "bytes": 1217152,
+      "includes_normals": true,
+      "sha256": "e21cc1cfc1c6c22c5220e58b1c700749da4ece3ff31a0ba341ae42f4cff453dd",
+      "vertices": 53315,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389095.011,
+          5819309.063,
+          30.385
+        ],
+        [
+          389457.661,
+          5819673.334,
+          63.76
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3890_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 407693,
+      "source_material_segments": 4,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3890_58196.glb",
+      "bytes": 1210016,
+      "includes_normals": true,
+      "sha256": "d19a39c5bd1ae874842723859d8cc9006fa000621cdff07261fab0d1878b426d",
+      "vertices": 52674,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389090.152,
+          5819666.398,
+          32.14
+        ],
+        [
+          389457.921,
+          5820035.647,
+          78.422
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3890_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 384419,
+      "source_material_segments": 4,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3890_58200.glb",
+      "bytes": 1204184,
+      "includes_normals": true,
+      "sha256": "4b9e21c8efa0fad45527d48c9da4f3129c45824420853010acf7b9ee1e5029f9",
+      "vertices": 52806,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389089.97,
+          5820025.371,
+          28.883
+        ],
+        [
+          389457.385,
+          5820396.943,
+          91.55
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3890_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 247359,
+      "source_material_segments": 2,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3890_58203.glb",
+      "bytes": 1201920,
+      "includes_normals": true,
+      "sha256": "58c67fca6ce354bb83c065c067178c100e0c5aca403173bb36e8023f83ec6f43",
+      "vertices": 52807,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389087.831,
+          5820381.46,
+          30.476
+        ],
+        [
+          389458.044,
+          5820751.388,
+          97.56
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3890_58203",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 204627,
+      "source_material_segments": 4,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3890_58207.glb",
+      "bytes": 1206536,
+      "includes_normals": true,
+      "sha256": "06a0a11a2ad650baa5a74e5a5cdf1bf65b8aae71a3170dc4b22bfa9ee15fbd90",
+      "vertices": 53289,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389091.828,
+          5820749.101,
+          28.489
+        ],
+        [
+          389457.971,
+          5821120.037,
+          119.512
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3890_58207",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 229352,
+      "source_material_segments": 5,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58182.glb",
+      "bytes": 1213316,
+      "includes_normals": true,
+      "sha256": "98366cdbdb368f476232666dbd13b0f6b4c92921d2d6ac959a9cc436166d71da",
+      "vertices": 53425,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389455.352,
+          5818223.992,
+          28.992
+        ],
+        [
+          389820.78,
+          5818595.467,
+          142.68
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58182",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 312139,
+      "source_material_segments": 3,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58185.glb",
+      "bytes": 1205452,
+      "includes_normals": true,
+      "sha256": "51f7092a6f56e4289d3358ad7d761d24dacf2d5e184cfcf03240cc0897bceae8",
+      "vertices": 52731,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389456.064,
+          5818582.246,
+          26.769
+        ],
+        [
+          389827.334,
+          5818957.405,
+          136.972
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58185",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 266659,
+      "source_material_segments": 5,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58189.glb",
+      "bytes": 1229084,
+      "includes_normals": true,
+      "sha256": "3259facd01ed3a28cfe94e1d73029fd46bfa54f01f018f892cc06990efc2f888",
+      "vertices": 54576,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389455.791,
+          5818945.62,
+          26.801
+        ],
+        [
+          389821.413,
+          5819311.023,
+          141.823
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58189",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 382205,
+      "source_material_segments": 2,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58193.glb",
+      "bytes": 1202892,
+      "includes_normals": true,
+      "sha256": "8b21ce50ce08bdf61ad936f1c68f72ccd0563800b4c656eeaea3f35c49b71bdb",
+      "vertices": 52235,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389448.835,
+          5819308.055,
+          31.852
+        ],
+        [
+          389820.391,
+          5819679.419,
+          62.625
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 370127,
+      "source_material_segments": 6,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58196.glb",
+      "bytes": 1197880,
+      "includes_normals": true,
+      "sha256": "1773016699c5dd6ae7be362b953d8f394cf1f3c33431dd6883deb22b849da069",
+      "vertices": 52153,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389452.579,
+          5819662.498,
+          32.65
+        ],
+        [
+          389822.268,
+          5820041.831,
+          89.939
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 292494,
+      "source_material_segments": 5,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58200.glb",
+      "bytes": 1195364,
+      "includes_normals": true,
+      "sha256": "a03984a758af1cda13537bcd46151b7df01ea828a2fadb82b5fc09fe2cb2a13a",
+      "vertices": 52558,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389446.103,
+          5820019.042,
+          30.004
+        ],
+        [
+          389827.826,
+          5820399.509,
+          62.96
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 173715,
+      "source_material_segments": 1,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58203.glb",
+      "bytes": 1196104,
+      "includes_normals": true,
+      "sha256": "1ae5cbf79d0cb6c5e3789f73a4d30694d2f517f4f488ded9fc4eca3597e44830",
+      "vertices": 52905,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389449.799,
+          5820373.036,
+          29.211
+        ],
+        [
+          389825.216,
+          5820758.796,
+          80.168
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58203",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 136640,
+      "source_material_segments": 1,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3894_58207.glb",
+      "bytes": 1203816,
+      "includes_normals": true,
+      "sha256": "bac8208c7b6fa37154b07bf37f8526102daf9e064f2f898f71d673795931eade",
+      "vertices": 52767,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389456.085,
+          5820749.215,
+          29.108
+        ],
+        [
+          389821.005,
+          5821119.541,
+          90.319
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3894_58207",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 229559,
+      "source_material_segments": 6,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3898_58185.glb",
+      "bytes": 1207756,
+      "includes_normals": true,
+      "sha256": "f23643630e7f41d15553e334ff6272cd078b53883ca0539757bb5d59c8e47413",
+      "vertices": 52841,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389811.328,
+          5818582.137,
+          28.778
+        ],
+        [
+          390188.833,
+          5818959.499,
+          82.448
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3898_58185",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 267698,
+      "source_material_segments": 4,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3898_58189.glb",
+      "bytes": 1208516,
+      "includes_normals": true,
+      "sha256": "650f787784bef08042624f42c4e45c59c96fe80a7337693654b564a65f4409b7",
+      "vertices": 53118,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389810.753,
+          5818943.184,
+          31.625
+        ],
+        [
+          390183.645,
+          5819310.789,
+          76.664
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3898_58189",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 268484,
+      "source_material_segments": 5,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3898_58193.glb",
+      "bytes": 1199220,
+      "includes_normals": true,
+      "sha256": "70013d788bb97c0fd1c99f323d2db076adde775dca192bc055d5f41356e36b5a",
+      "vertices": 53611,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389812.145,
+          5819304.151,
+          28.976
+        ],
+        [
+          390179.948,
+          5819675.138,
+          69.318
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3898_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 313468,
+      "source_material_segments": 3,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3898_58196.glb",
+      "bytes": 1213032,
+      "includes_normals": true,
+      "sha256": "3209c275c83af5d384084aa6596caae813a4c0c64f999e24bee204290c283efa",
+      "vertices": 53977,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          389806.467,
+          5819663.946,
+          26.933
+        ],
+        [
+          390185.838,
+          5820037.39,
+          89.933
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3898_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 286665,
+      "source_material_segments": 7,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3898_58200.glb",
+      "bytes": 1199240,
+      "includes_normals": true,
+      "sha256": "148bb4ed1cea0725e4df283ade53d54191186f87b4fe26db00ac5ba9bde3b5b8",
+      "vertices": 52430,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          389808.66,
+          5820013.262,
+          27.812
+        ],
+        [
+          390188.335,
+          5820395.169,
+          74.02
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3898_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 212199,
+      "source_material_segments": 6,
+      "target_faces": 100000
+    }
+  ],
+  "surface_detail_tiles": [
+    {
+      "file": "surface-detail-3887_58193.glb",
+      "bytes": 3625500,
+      "includes_normals": true,
+      "sha256": "d458fef7edf459d66fcf2f3f30e6b3c07a272338e95593adbd639c834819d6c4",
+      "vertices": 149499,
+      "faces": 289797,
+      "source_bounds_epsg25833": [
+        [
+          388729.703,
+          5819308.991,
+          31.305
+        ],
+        [
+          389107.264,
+          5819673.947,
+          66.518
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3887_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 423421,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3887_58196.glb",
+      "bytes": 3619296,
+      "includes_normals": true,
+      "sha256": "c3ccd0e4feff2cfebf46acbe41cebf1b9f7e1c4b06d946ec6cee40049696226d",
+      "vertices": 149446,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          388726.65,
+          5819666.519,
+          29.124
+        ],
+        [
+          389103.657,
+          5820045.159,
+          62.947
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3887_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 354654,
+      "source_material_segments": 7,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3887_58200.glb",
+      "bytes": 3640392,
+      "includes_normals": true,
+      "sha256": "72e012d4cba595c73203eeda649293d82ffe6b5dd2c8eddd4189b5b1f60e0143",
+      "vertices": 151654,
+      "faces": 289286,
+      "source_bounds_epsg25833": [
+        [
+          388725.985,
+          5820016.592,
+          26.793
+        ],
+        [
+          389110.869,
+          5820395.155,
+          100.477
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3887_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 289286,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3887_58203.glb",
+      "bytes": 3636544,
+      "includes_normals": true,
+      "sha256": "9c05fd934627e25f40e94affb09953ea84a98449729829bedd7fa4a2e46da7e6",
+      "vertices": 150012,
+      "faces": 289797,
+      "source_bounds_epsg25833": [
+        [
+          388731.207,
+          5820381.92,
+          32.146
+        ],
+        [
+          389110.641,
+          5820751.357,
+          88.837
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3887_58203",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 373150,
+      "source_material_segments": 8,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3890_58189.glb",
+      "bytes": 3632112,
+      "includes_normals": true,
+      "sha256": "242344b658ea3aee99c4b2fc1b5971ddf23f4af9f29d35b41d86ba403c6364b0",
+      "vertices": 150052,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389090.115,
+          5818942.244,
+          27.893
+        ],
+        [
+          389457.85,
+          5819311.205,
+          70.416
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3890_58189",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 358354,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3890_58193.glb",
+      "bytes": 3631548,
+      "includes_normals": true,
+      "sha256": "5b171adfe3d2ecd1fb37ddbe8006cea39b25936183bc769ace4844602f13705e",
+      "vertices": 150237,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389083.769,
+          5819309.063,
+          30.363
+        ],
+        [
+          389457.836,
+          5819674.444,
+          63.758
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3890_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 407693,
+      "source_material_segments": 4,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3890_58196.glb",
+      "bytes": 3626120,
+      "includes_normals": true,
+      "sha256": "6c9bcd3bf9d6e2d6bf095c3994a8966d46ed504862d7d9ef5a6e7234126c3ded",
+      "vertices": 149398,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389090.132,
+          5819660.905,
+          31.645
+        ],
+        [
+          389457.921,
+          5820035.892,
+          78.533
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3890_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 384419,
+      "source_material_segments": 4,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3890_58200.glb",
+      "bytes": 3094792,
+      "includes_normals": true,
+      "sha256": "01af25fe7851b55611c66a28927d6cef3097240f8df273b407f2e9345fec664d",
+      "vertices": 129383,
+      "faces": 247359,
+      "source_bounds_epsg25833": [
+        [
+          389086.078,
+          5820021.182,
+          28.898
+        ],
+        [
+          389457.647,
+          5820402.421,
+          91.436
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3890_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 247359,
+      "source_material_segments": 2,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3890_58203.glb",
+      "bytes": 2551576,
+      "includes_normals": true,
+      "sha256": "cac7bf3aeb54da85acc679b0ce07c69acc25842368a714ff1b967bfacb486b2a",
+      "vertices": 108057,
+      "faces": 204627,
+      "source_bounds_epsg25833": [
+        [
+          389080.415,
+          5820378.655,
+          30.431
+        ],
+        [
+          389458.256,
+          5820751.388,
+          97.581
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3890_58203",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 204627,
+      "source_material_segments": 4,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3890_58207.glb",
+      "bytes": 2866328,
+      "includes_normals": true,
+      "sha256": "69c9d9359de04dd777fa56e7085e5ef6d0dfd726da5e79c44f80fc2453bcecdc",
+      "vertices": 120406,
+      "faces": 229352,
+      "source_bounds_epsg25833": [
+        [
+          389088.914,
+          5820748.693,
+          28.458
+        ],
+        [
+          389458.393,
+          5821122.905,
+          119.57
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3890_58207",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 229352,
+      "source_material_segments": 5,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58182.glb",
+      "bytes": 3646716,
+      "includes_normals": true,
+      "sha256": "9c6310aa4e8742ee6c728209c52718cf60956bc2451bd95a3b0b37b97997d166",
+      "vertices": 152125,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389455.352,
+          5818219.21,
+          28.928
+        ],
+        [
+          389828.406,
+          5818598.877,
+          142.666
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58182",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 312139,
+      "source_material_segments": 3,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58185.glb",
+      "bytes": 3343536,
+      "includes_normals": true,
+      "sha256": "88c9fbd661f3072c14f4718e336ec400e12339e0032e59549c9ac37f2be8e649",
+      "vertices": 139230,
+      "faces": 266659,
+      "source_bounds_epsg25833": [
+        [
+          389455.385,
+          5818582.137,
+          26.735
+        ],
+        [
+          389832.585,
+          5818965.155,
+          136.968
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58185",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 266659,
+      "source_material_segments": 5,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58189.glb",
+      "bytes": 3639392,
+      "includes_normals": true,
+      "sha256": "745ca85a63cca96afe51e776b0acd590ddd757b012efe4bed3b82aa9e582b6d2",
+      "vertices": 150653,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389455.791,
+          5818942.33,
+          26.687
+        ],
+        [
+          389829.809,
+          5819311.023,
+          141.766
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58189",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 382205,
+      "source_material_segments": 2,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58193.glb",
+      "bytes": 3620544,
+      "includes_normals": true,
+      "sha256": "05c463a1de5522d4407d9af849e856f4cb54ff1184b235a48d8197f58377a511",
+      "vertices": 149505,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389448.835,
+          5819307.28,
+          31.884
+        ],
+        [
+          389821.232,
+          5819683.769,
+          62.612
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 370127,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58196.glb",
+      "bytes": 3636800,
+      "includes_normals": true,
+      "sha256": "af5526cb430696b3d916884f8e700dcd82da422fd70f54977f79163e9151e373",
+      "vertices": 151159,
+      "faces": 289797,
+      "source_bounds_epsg25833": [
+        [
+          389447.857,
+          5819656.656,
+          32.627
+        ],
+        [
+          389829.702,
+          5820042.691,
+          89.939
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 292494,
+      "source_material_segments": 5,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58200.glb",
+      "bytes": 2150312,
+      "includes_normals": true,
+      "sha256": "311ecdb05e77457d0714729cae2ae865d97085b5a53961e4a68b1664a60f9fd7",
+      "vertices": 91941,
+      "faces": 173715,
+      "source_bounds_epsg25833": [
+        [
+          389441.015,
+          5820013.602,
+          30.004
+        ],
+        [
+          389834.748,
+          5820407.567,
+          62.96
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 173715,
+      "source_material_segments": 1,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58203.glb",
+      "bytes": 1673464,
+      "includes_normals": true,
+      "sha256": "9afc0fe8f80c44dd27e303d73bd4a2ac2761790e3adee473ad1212397b62d7b0",
+      "vertices": 72961,
+      "faces": 136640,
+      "source_bounds_epsg25833": [
+        [
+          389448.863,
+          5820372.996,
+          29.211
+        ],
+        [
+          389830.411,
+          5820765.971,
+          80.529
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58203",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 136640,
+      "source_material_segments": 1,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3894_58207.glb",
+      "bytes": 2866760,
+      "includes_normals": true,
+      "sha256": "577a4f92743ca8d732a09ca58f8261f2019c4fc44d7e0c7736b7dd8420569174",
+      "vertices": 120149,
+      "faces": 229559,
+      "source_bounds_epsg25833": [
+        [
+          389455.724,
+          5820749.087,
+          29.018
+        ],
+        [
+          389823.137,
+          5821120.012,
+          90.373
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3894_58207",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 229559,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3898_58185.glb",
+      "bytes": 3362080,
+      "includes_normals": true,
+      "sha256": "c68d41ea9f5a3de202d045d2d9b4b2361bf64c64cd1c1e67617558f5faf9ed90",
+      "vertices": 139718,
+      "faces": 267698,
+      "source_bounds_epsg25833": [
+        [
+          389809.06,
+          5818579.379,
+          28.693
+        ],
+        [
+          390188.833,
+          5818960.157,
+          82.477
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3898_58185",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 267698,
+      "source_material_segments": 4,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3898_58189.glb",
+      "bytes": 3363052,
+      "includes_normals": true,
+      "sha256": "71bf907ada783497420dc1358355e6c362dc5e52a58bc4bbc4bf3ee58bbdb076",
+      "vertices": 139712,
+      "faces": 268484,
+      "source_bounds_epsg25833": [
+        [
+          389807.715,
+          5818935.604,
+          31.513
+        ],
+        [
+          390188.65,
+          5819310.972,
+          76.591
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3898_58189",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 268484,
+      "source_material_segments": 5,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3898_58193.glb",
+      "bytes": 3629976,
+      "includes_normals": true,
+      "sha256": "f358f804c1e19d7a0223f01892d3811cd89d7980a61b79fef11fbc5803bbe725",
+      "vertices": 151749,
+      "faces": 289796,
+      "source_bounds_epsg25833": [
+        [
+          389807.426,
+          5819299.706,
+          29.041
+        ],
+        [
+          390187.933,
+          5819681.957,
+          69.405
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3898_58193",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 313468,
+      "source_material_segments": 3,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3898_58196.glb",
+      "bytes": 3605284,
+      "includes_normals": true,
+      "sha256": "db369416140e21a897e88427872c0b91b1d0d8f42c68d3d0343f596862935cc6",
+      "vertices": 154827,
+      "faces": 286665,
+      "source_bounds_epsg25833": [
+        [
+          389802.863,
+          5819655.096,
+          26.884
+        ],
+        [
+          390190.427,
+          5820044.696,
+          89.939
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3898_58196",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 286665,
+      "source_material_segments": 7,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3898_58200.glb",
+      "bytes": 2654268,
+      "includes_normals": true,
+      "sha256": "73ee1b4d2199e51bf6ebf4dd2af6317406187b9102c60359186fc1ac0d5c9c52",
+      "vertices": 112419,
+      "faces": 212199,
+      "source_bounds_epsg25833": [
+        [
+          389801.745,
+          5820013.262,
+          27.844
+        ],
+        [
+          390190.427,
+          5820403.194,
+          74.02
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3898_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 212199,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    }
+  ],
+  "hero_details": [
+    {
+      "id": "reichstag",
+      "landmark_name": "Reichstagsgebäude",
+      "files": [
+        {
+          "file": "hero-reichstag-3894_58196-material-0.glb",
+          "bytes": 421020,
+          "includes_normals": true,
+          "sha256": "a4e064ce2b925929c6da0d58b89b1b6f4afd9c808cfda72266780ad335bbafb5",
+          "vertices": 117,
+          "faces": 39,
+          "source_bounds_epsg25833": [
+            [
+              389765.725,
+              5819891.888,
+              34.934
+            ],
+            [
+              389774.357,
+              5819962.664,
+              68.044
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389765.725,
+            5819891.888,
+            389774.357,
+            5819962.664
+          ],
+          "tile_id": "3894_58196",
+          "source_material_segment": "Mesh_3894_58196_-002-4"
+        },
+        {
+          "file": "hero-reichstag-3894_58196-material-1.glb",
+          "bytes": 898184,
+          "includes_normals": true,
+          "sha256": "7a79b26ceedbc7f36e25a9016a9e2629d54f384a0374f819871c2f80bd43105b",
+          "vertices": 303,
+          "faces": 101,
+          "source_bounds_epsg25833": [
+            [
+              389766.654,
+              5819892.948,
+              34.951
+            ],
+            [
+              389821.862,
+              5819985.17,
+              77.068
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389766.654,
+            5819892.948,
+            389821.862,
+            5819985.17
+          ],
+          "tile_id": "3894_58196",
+          "source_material_segment": "Mesh_3894_58196_-002-3"
+        },
+        {
+          "file": "hero-reichstag-3894_58196-material-2.glb",
+          "bytes": 2273404,
+          "includes_normals": true,
+          "sha256": "843ab6768c9f43144490fce9a391f93605b4560da95eb7005f5141a6ccaf7acc",
+          "vertices": 1413,
+          "faces": 471,
+          "source_bounds_epsg25833": [
+            [
+              389757.141,
+              5819890.359,
+              34.317
+            ],
+            [
+              389820.926,
+              5820031.533,
+              85.357
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389757.141,
+            5819890.359,
+            389820.926,
+            5820031.533
+          ],
+          "tile_id": "3894_58196",
+          "source_material_segment": "Mesh_3894_58196_-002-2"
+        },
+        {
+          "file": "hero-reichstag-3894_58196-material-3.glb",
+          "bytes": 4583696,
+          "includes_normals": true,
+          "sha256": "f0293731bc288993c73e29f51bb04fc0a7d8fdc975698bf70325b8e649539ea4",
+          "vertices": 3120,
+          "faces": 1040,
+          "source_bounds_epsg25833": [
+            [
+              389760.758,
+              5819891.661,
+              34.031
+            ],
+            [
+              389823.402,
+              5820033.148,
+              89.939
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389760.758,
+            5819891.661,
+            389823.402,
+            5820033.148
+          ],
+          "tile_id": "3894_58196",
+          "source_material_segment": "Mesh_3894_58196_-002-1"
+        },
+        {
+          "file": "hero-reichstag-3894_58196-material-4.glb",
+          "bytes": 4475268,
+          "includes_normals": true,
+          "sha256": "ca33d54d3f7e03223bd60547b4ad68d8d227f77ce072df2eef34ba4933a729c5",
+          "vertices": 68751,
+          "faces": 22917,
+          "source_bounds_epsg25833": [
+            [
+              389755.091,
+              5819879.92,
+              33.595
+            ],
+            [
+              389825.047,
+              5820034.006,
+              89.939
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389755.091,
+            5819879.92,
+            389825.047,
+            5820034.006
+          ],
+          "tile_id": "3894_58196",
+          "source_material_segment": "Mesh_3894_58196_-002-0"
+        },
+        {
+          "file": "hero-reichstag-3894_58200-material-0.glb",
+          "bytes": 3779400,
+          "includes_normals": true,
+          "sha256": "917f9f4b6eb36991e5a789c1529ee81a3eb81646a834bedf934c1f227a1e06f3",
+          "vertices": 1572,
+          "faces": 524,
+          "source_bounds_epsg25833": [
+            [
+              389759.296,
+              5820020.312,
+              34.833
+            ],
+            [
+              389818.774,
+              5820040.751,
+              62.485
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389759.296,
+            5820020.312,
+            389818.774,
+            5820040.751
+          ],
+          "tile_id": "3894_58200",
+          "source_material_segment": "Mesh_3894_58200_-002.obj"
+        },
+        {
+          "file": "hero-reichstag-3898_58196-material-3.glb",
+          "bytes": 436756,
+          "includes_normals": true,
+          "sha256": "9f89e79c35069038f0564ef2b907d71a375130aeb821d11c57fe1c9df9cafd48",
+          "vertices": 162,
+          "faces": 54,
+          "source_bounds_epsg25833": [
+            [
+              389813.712,
+              5819907.94,
+              35.39
+            ],
+            [
+              389855.033,
+              5820031.492,
+              76.898
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389813.712,
+            5819907.94,
+            389855.033,
+            5820031.492
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-3"
+        },
+        {
+          "file": "hero-reichstag-3898_58196-material-4.glb",
+          "bytes": 2271288,
+          "includes_normals": true,
+          "sha256": "b5e279baaa0195834236a1545169e5a3a3a4d132e41c5bfe3caa5aa3fde17b7a",
+          "vertices": 1167,
+          "faces": 389,
+          "source_bounds_epsg25833": [
+            [
+              389810.667,
+              5819888.742,
+              35.125
+            ],
+            [
+              389866.558,
+              5820031.274,
+              86.791
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389810.667,
+            5819888.742,
+            389866.558,
+            5820031.274
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-2"
+        },
+        {
+          "file": "hero-reichstag-3898_58196-material-5.glb",
+          "bytes": 2714660,
+          "includes_normals": true,
+          "sha256": "590b6d689e5cd5458db00655a505e076f93cd20c4704996f76cd1ae4c0012959",
+          "vertices": 5769,
+          "faces": 1923,
+          "source_bounds_epsg25833": [
+            [
+              389804.391,
+              5819888.911,
+              35.035
+            ],
+            [
+              389876.132,
+              5820033.198,
+              89.939
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389804.391,
+            5819888.911,
+            389876.132,
+            5820033.198
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-1"
+        },
+        {
+          "file": "hero-reichstag-3898_58196-material-6.glb",
+          "bytes": 4446808,
+          "includes_normals": true,
+          "sha256": "a70726f192e1cb470c0cfff4e542287610a43f9f601c6dfcebb3298e3a1ef4d5",
+          "vertices": 57552,
+          "faces": 19184,
+          "source_bounds_epsg25833": [
+            [
+              389802.863,
+              5819879.694,
+              34.685
+            ],
+            [
+              389876.162,
+              5820034.006,
+              89.915
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389802.863,
+            5819879.694,
+            389876.162,
+            5820034.006
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-0"
+        },
+        {
+          "file": "hero-reichstag-3898_58200-material-5.glb",
+          "bytes": 3915960,
+          "includes_normals": true,
+          "sha256": "339f25d136804433dac5de5ae57788bb5d3df4b121cc29fcd99e3147e7068a09",
+          "vertices": 645,
+          "faces": 215,
+          "source_bounds_epsg25833": [
+            [
+              389814.703,
+              5820025.083,
+              35.061
+            ],
+            [
+              389868.425,
+              5820035.736,
+              37.945
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389814.703,
+            5820025.083,
+            389868.425,
+            5820035.736
+          ],
+          "tile_id": "3898_58200",
+          "source_material_segment": "Mesh_3898_58200_-002-0"
+        }
+      ]
+    },
+    {
+      "id": "bundeskanzleramt",
+      "landmark_name": "Bundeskanzleramt",
+      "files": [
+        {
+          "file": "hero-bundeskanzleramt-3890_58200-material-0.glb",
+          "bytes": 4567836,
+          "includes_normals": true,
+          "sha256": "cc7c475feb2aef8f228f25e195a9cbe7177050a7755e2d9e15d7317567dce6d0",
+          "vertices": 4641,
+          "faces": 1547,
+          "source_bounds_epsg25833": [
+            [
+              389107.292,
+              5820086.147,
+              31.84
+            ],
+            [
+              389451.217,
+              5820204.09,
+              72.372
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389107.292,
+            5820086.147,
+            389451.217,
+            5820204.09
+          ],
+          "tile_id": "3890_58200",
+          "source_material_segment": "Mesh_3890_58200_-002-1"
+        },
+        {
+          "file": "hero-bundeskanzleramt-3890_58200-material-1.glb",
+          "bytes": 4980516,
+          "includes_normals": true,
+          "sha256": "448007688ddc261544108adf913e03272dd2385c8cc66d3601a9914fe7a7c129",
+          "vertices": 131808,
+          "faces": 43936,
+          "source_bounds_epsg25833": [
+            [
+              389099.985,
+              5820082.779,
+              31.554
+            ],
+            [
+              389456.958,
+              5820205.738,
+              74.485
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389099.985,
+            5820082.779,
+            389456.958,
+            5820205.738
+          ],
+          "tile_id": "3890_58200",
+          "source_material_segment": "Mesh_3890_58200_-002-0"
+        }
+      ]
+    },
+    {
+      "id": "hauptbahnhof",
+      "landmark_name": "Berlin Hauptbahnhof",
+      "files": [
+        {
+          "file": "hero-hauptbahnhof-3890_58203-material-2.glb",
+          "bytes": 2338844,
+          "includes_normals": true,
+          "sha256": "6caa457a03b275efda715a5676b595e14d9902f8c7480619742570bcd0d01d67",
+          "vertices": 2553,
+          "faces": 851,
+          "source_bounds_epsg25833": [
+            [
+              389317.409,
+              5820594.587,
+              34.918
+            ],
+            [
+              389443.611,
+              5820750.963,
+              84.772
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389317.409,
+            5820594.587,
+            389443.611,
+            5820750.963
+          ],
+          "tile_id": "3890_58203",
+          "source_material_segment": "Mesh_3890_58203_-002-1"
+        },
+        {
+          "file": "hero-hauptbahnhof-3890_58203-material-3.glb",
+          "bytes": 4638920,
+          "includes_normals": true,
+          "sha256": "a367568b5638dca6506aac5b4bc6458051bf9262279c796d6e91721d6c75ca4c",
+          "vertices": 77133,
+          "faces": 25711,
+          "source_bounds_epsg25833": [
+            [
+              389312.926,
+              5820591.444,
+              34.575
+            ],
+            [
+              389449.061,
+              5820751.339,
+              87.416
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389312.926,
+            5820591.444,
+            389449.061,
+            5820751.339
+          ],
+          "tile_id": "3890_58203",
+          "source_material_segment": "Mesh_3890_58203_-002-0"
+        },
+        {
+          "file": "hero-hauptbahnhof-3890_58207-material-2.glb",
+          "bytes": 1719496,
+          "includes_normals": true,
+          "sha256": "76a7cc50ef4a3c5461d5d48e52e21cf3f131f2252b180272500ce44b58d4afcc",
+          "vertices": 138,
+          "faces": 46,
+          "source_bounds_epsg25833": [
+            [
+              389327.385,
+              5820749.375,
+              58.551
+            ],
+            [
+              389374.547,
+              5820762.636,
+              73.87
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389327.385,
+            5820749.375,
+            389374.547,
+            5820762.636
+          ],
+          "tile_id": "3890_58207",
+          "source_material_segment": "Mesh_3890_58207_-002-2"
+        },
+        {
+          "file": "hero-hauptbahnhof-3890_58207-material-3.glb",
+          "bytes": 2317316,
+          "includes_normals": true,
+          "sha256": "12ff252faf255d85260154a619a7278e6d73c0425ff40a9b0de57e34eb47d223",
+          "vertices": 954,
+          "faces": 318,
+          "source_bounds_epsg25833": [
+            [
+              389315.049,
+              5820749.469,
+              34.796
+            ],
+            [
+              389391.493,
+              5820768.182,
+              81.532
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389315.049,
+            5820749.469,
+            389391.493,
+            5820768.182
+          ],
+          "tile_id": "3890_58207",
+          "source_material_segment": "Mesh_3890_58207_-002-1"
+        },
+        {
+          "file": "hero-hauptbahnhof-3890_58207-material-4.glb",
+          "bytes": 4139856,
+          "includes_normals": true,
+          "sha256": "52a2901245fe03926bb68e109f432d93907056e2aeb9a47696c65a2ee96406ee",
+          "vertices": 19665,
+          "faces": 6555,
+          "source_bounds_epsg25833": [
+            [
+              389311.895,
+              5820748.693,
+              34.583
+            ],
+            [
+              389393.323,
+              5820778.84,
+              84.795
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389311.895,
+            5820748.693,
+            389393.323,
+            5820778.84
+          ],
+          "tile_id": "3890_58207",
+          "source_material_segment": "Mesh_3890_58207_-002-0"
+        }
+      ]
+    },
+    {
+      "id": "brandenburger-tor",
+      "landmark_name": "Brandenburger Tor",
+      "files": [
+        {
+          "file": "hero-brandenburger-tor-3898_58193-material-2.glb",
+          "bytes": 3991044,
+          "includes_normals": true,
+          "sha256": "a494b905ad05d6e92d95db17bdcade6985c0ca963466090837168f3e13f86b11",
+          "vertices": 78,
+          "faces": 26,
+          "source_bounds_epsg25833": [
+            [
+              389903.647,
+              5819666.702,
+              34.933
+            ],
+            [
+              389924.894,
+              5819681.957,
+              45.886
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389903.647,
+            5819666.702,
+            389924.894,
+            5819681.957
+          ],
+          "tile_id": "3898_58193",
+          "source_material_segment": "Mesh_3898_58193_-002-0"
+        },
+        {
+          "file": "hero-brandenburger-tor-3898_58196-material-4.glb",
+          "bytes": 2263792,
+          "includes_normals": true,
+          "sha256": "f12f4514f84feaa51b7dfcf2600e4d8e4a9d31f9e7d1a39ad20bc60e0bf16535",
+          "vertices": 354,
+          "faces": 118,
+          "source_bounds_epsg25833": [
+            [
+              389911.547,
+              5819676.274,
+              35.045
+            ],
+            [
+              389922.886,
+              5819713.011,
+              55.018
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389911.547,
+            5819676.274,
+            389922.886,
+            5819713.011
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-2"
+        },
+        {
+          "file": "hero-brandenburger-tor-3898_58196-material-5.glb",
+          "bytes": 2680052,
+          "includes_normals": true,
+          "sha256": "774f9c4d0cc869c2c1f9d42c426e35b3fc7d5134c8d2a7a36073e24e5742a756",
+          "vertices": 1809,
+          "faces": 603,
+          "source_bounds_epsg25833": [
+            [
+              389909.852,
+              5819669.819,
+              34.958
+            ],
+            [
+              389925.767,
+              5819726.729,
+              56.622
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
+          "crop_bounds_epsg25833": [
+            389909.852,
+            5819669.819,
+            389925.767,
+            5819726.729
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-1"
+        },
+        {
+          "file": "hero-brandenburger-tor-3898_58196-material-6.glb",
+          "bytes": 4675336,
+          "includes_normals": true,
+          "sha256": "f00c68fbd301a5318693fd2d8d24aadba87d43820d30be8e74a49a420643b644",
+          "vertices": 111492,
+          "faces": 37164,
+          "source_bounds_epsg25833": [
+            [
+              389894.324,
+              5819666.702,
+              34.734
+            ],
+            [
+              389939.335,
+              5819731.04,
+              62.834
+            ]
+          ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
+          "crop_bounds_epsg25833": [
+            389894.324,
+            5819666.702,
+            389939.335,
+            5819731.04
+          ],
+          "tile_id": "3898_58196",
+          "source_material_segment": "Mesh_3898_58196_-002-0"
+        }
+      ]
+    }
+  ],
+  "architectural_signatures": [
+    {
+      "id": "reichstag-dome",
+      "kind": "reichstag_dome",
+      "landmark_name": "Reichstagsgebäude",
+      "geometry_status": "Procedural architectural signature aligned to the official Berlin 3D mesh ground and the Bundestag's 24 m roof-terrace datum",
+      "anchor_world": [
+        317.729,
+        27.595,
+        40.477
+      ],
+      "height_m": 23.5,
+      "base_height_above_ground_m": 24.0,
+      "diameter_m": 40.0,
+      "vertical_ribs": 24,
+      "horizontal_rings": 17,
+      "source_url": "https://www.bundestag.de/besuche/architektur/reichstag/kuppel"
+    },
+    {
+      "id": "reichstag-model",
+      "kind": "reichstag_model",
+      "landmark_name": "Reichstagsgebäude",
+      "geometry_status": "Metric recognition model aligned to the Berlin LoD2 footprint and official Bundestag plan dimensions",
+      "anchor_world": [
+        317.729,
+        3.595,
+        40.477
+      ],
+      "rotation_y_degrees": -1.676,
+      "width_m": 100.0,
+      "depth_m": 138.0,
+      "body_height_m": 28.055,
+      "focus_camera": {
+        "distance_m": 205.0,
+        "polar_degrees": 61.0,
+        "azimuth_degrees": -46.0,
+        "target_height_m": 18.0
+      },
+      "source_url": "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518"
+    },
+    {
+      "id": "bundeskanzleramt-model",
+      "kind": "chancellery_model",
+      "landmark_name": "Bundeskanzleramt",
+      "geometry_status": "Metric recognition model from Berlin LoD2 extents and the official 36 m cube / 18 m office-band heights",
+      "anchor_world": [
+        -220.236,
+        1.554,
+        -145.806
+      ],
+      "rotation_y_degrees": -1.337,
+      "overall_width_m": 342.676,
+      "overall_depth_m": 102.074,
+      "office_height_m": 18.0,
+      "cube_width_m": 55.211,
+      "cube_depth_m": 55.103,
+      "cube_height_m": 36.0,
+      "cube_offset_world": [
+        66.373,
+        0.0,
+        0.042
+      ],
+      "forecourt_offset_world": [
+        88.069,
+        0.0,
+        67.77
+      ],
+      "forecourt_sculpture_height_m": 5.5,
+      "office_segments": [
+        {
+          "width_m": 219.532,
+          "depth_m": 23.463,
+          "height_m": 18.0,
+          "offset_world": [
+            61.563,
+            0.0,
+            39.306
+          ]
+        },
+        {
+          "width_m": 203.2,
+          "depth_m": 23.536,
+          "height_m": 18.0,
+          "offset_world": [
+            69.738,
+            0.0,
+            -39.269
+          ]
+        },
+        {
+          "width_m": 135.151,
+          "depth_m": 21.027,
+          "height_m": 18.0,
+          "offset_world": [
+            -103.762,
+            0.0,
+            40.523
+          ]
+        }
+      ],
+      "focus_camera": {
+        "distance_m": 245.0,
+        "polar_degrees": 60.0,
+        "azimuth_degrees": 43.0,
+        "target_height_m": 17.0
+      },
+      "source_url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040"
+    },
+    {
+      "id": "hauptbahnhof-model",
+      "kind": "hauptbahnhof_model",
+      "landmark_name": "Berlin Hauptbahnhof",
+      "geometry_status": "Metric recognition model aligned to the official mesh and Deutsche Bahn published hall / track-roof / office-bridge dimensions",
+      "anchor_world": [
+        -119.936,
+        4.575,
+        -683.307
+      ],
+      "rotation_y_degrees": 21.82,
+      "east_west_roof_length_m": 321.0,
+      "east_west_roof_width_m": 40.0,
+      "north_south_hall_length_m": 180.0,
+      "north_south_hall_width_m": 42.0,
+      "office_bridge_height_m": 46.0,
+      "focus_camera": {
+        "distance_m": 370.0,
+        "polar_degrees": 42.0,
+        "azimuth_degrees": 52.0,
+        "target_height_m": 21.0
+      },
+      "source_url": "https://www.deutschebahn.com/de/architektur_bahnhof-6878040"
+    },
+    {
+      "id": "brandenburger-tor-model",
+      "kind": "brandenburg_gate_model",
+      "landmark_name": "Brandenburger Tor",
+      "geometry_status": "Metric recognition model aligned to the official mesh and Berlin's published gate, column and Quadriga dimensions",
+      "anchor_world": [
+        417.898,
+        4.734,
+        300.453
+      ],
+      "rotation_y_degrees": 5.083,
+      "width_m": 62.5,
+      "depth_m": 11.0,
+      "gate_height_m": 20.3,
+      "total_height_m": 26.0,
+      "column_height_m": 13.5,
+      "column_rows": 2,
+      "columns_per_row": 6,
+      "focus_camera": {
+        "distance_m": 98.0,
+        "polar_degrees": 64.0,
+        "azimuth_degrees": 73.0,
+        "target_height_m": 13.0
+      },
+      "source_url": "https://www.visitberlin.de/de/brandenburger-tor"
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "Berlin Hauptbahnhof",
+      "role": "hero_tile",
+      "world": [
+        -123.21922137145884,
+        8.0,
+        -693.353310582228
+      ]
+    },
+    {
+      "name": "Humboldthafen",
+      "role": "owner_added",
+      "world": [
+        52.44776696251938,
+        8.0,
+        -688.2861424600706
+      ]
+    },
+    {
+      "name": "Hugo-Preuß-Brücke",
+      "role": "owner_added",
+      "world": [
+        57.31531941657886,
+        8.0,
+        -517.7099883183837
+      ]
+    },
+    {
+      "name": "Rahel-Hirsch-Straße",
+      "role": "owner_added",
+      "world": [
+        -114.1443327361485,
+        8.0,
+        -472.5287918141112
+      ]
+    },
+    {
+      "name": "Gustav-Heinemann-Brücke",
+      "role": "owner_added",
+      "world": [
+        -38.05304210947361,
+        8.0,
+        -400.51641723513603
+      ]
+    },
+    {
+      "name": "Moltkebrücke",
+      "role": "owner_added",
+      "world": [
+        -207.29659404588165,
+        8.0,
+        -367.7180304117501
+      ]
+    },
+    {
+      "name": "Zollpackhof",
+      "role": "owner_added",
+      "world": [
+        -305.79196038277587,
+        8.0,
+        -272.6330947522074
+      ]
+    },
+    {
+      "name": "Schweizerische Botschaft",
+      "role": "owner_added",
+      "world": [
+        -5.654743424442131,
+        8.0,
+        -246.49457178730518
+      ]
+    },
+    {
+      "name": "Bundeskanzleramt",
+      "role": "must_be_visible",
+      "world": [
+        -153.99746311508352,
+        8.0,
+        -144.25260100793093
+      ]
+    },
+    {
+      "name": "Eduardo-Chillida-Skulptur Berlin",
+      "role": "owner_added",
+      "world": [
+        -133.7719432861195,
+        8.0,
+        -75.99966348707676
+      ]
+    },
+    {
+      "name": "Kanzlergarten / Non-Violence-Skulptur",
+      "role": "owner_added",
+      "world": [
+        -377.2615278236917,
+        8.0,
+        -114.88946119509637
+      ]
+    },
+    {
+      "name": "Spreebogen",
+      "role": "owner_added",
+      "world": [
+        -106.88599031011108,
+        8.0,
+        -214.4896215684712
+      ]
+    },
+    {
+      "name": "Marie-Elisabeth-Lüders-Haus",
+      "role": "must_be_visible",
+      "world": [
+        416.3747181443032,
+        8.0,
+        -205.89888461958617
+      ]
+    },
+    {
+      "name": "Paul-Löbe-Haus",
+      "role": "must_be_visible",
+      "world": [
+        230.68629906733986,
+        8.0,
+        -132.10176163353026
+      ]
+    },
+    {
+      "name": "Gedenkort für Polen 1939-1945",
+      "role": "owner_added",
+      "world": [
+        50.72236387064913,
+        8.0,
+        20.5249551711604
+      ]
+    },
+    {
+      "name": "Reichstagsgebäude",
+      "role": "hero_tile",
+      "world": [
+        315.0260471937945,
+        8.0,
+        39.83149326406419
+      ]
+    },
+    {
+      "name": "Fahne der Einheit",
+      "role": "owner_added",
+      "world": [
+        226.03977264190326,
+        8.0,
+        57.92545644566417
+      ]
+    },
+    {
+      "name": "Reichstagsvorfeld / Berlin-Pavillon",
+      "role": "owner_added",
+      "world": [
+        304.48787532007555,
+        8.0,
+        206.51050152163953
+      ]
+    },
+    {
+      "name": "Platz der Republik Heckenbosquets",
+      "role": "owner_added",
+      "world": [
+        193.4126034657238,
+        8.0,
+        165.0631400225684
+      ]
+    },
+    {
+      "name": "Haus der Kulturen der Welt (Schwangere Auster)",
+      "role": "must_be_visible",
+      "world": [
+        -505.17020793346455,
+        8.0,
+        -12.072751920670271
+      ]
+    },
+    {
+      "name": "TIPI am Kanzleramt",
+      "role": "owner_added",
+      "world": [
+        -297.2842786665424,
+        8.0,
+        52.50207979977131
+      ]
+    },
+    {
+      "name": "Carillon im Tiergarten",
+      "role": "owner_added",
+      "world": [
+        -326.8387224038015,
+        8.0,
+        140.63318439386785
+      ]
+    },
+    {
+      "name": "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+      "role": "owner_added",
+      "world": [
+        307.700225593755,
+        8.0,
+        186.2301389835775
+      ]
+    },
+    {
+      "name": "Sowjetisches Ehrenmal Tiergarten",
+      "role": "owner_added",
+      "world": [
+        26.57719945925055,
+        8.0,
+        245.32870413176715
+      ]
+    },
+    {
+      "name": "Brandenburger Tor",
+      "role": "must_be_visible",
+      "world": [
+        417.8984721060842,
+        8.0,
+        300.45274467766285
+      ]
+    },
+    {
+      "name": "Quadriga mit Victoria",
+      "role": "owner_added",
+      "world": [
+        417.90013405069476,
+        8.0,
+        301.42089431360364
+      ]
+    },
+    {
+      "name": "Pariser Platz",
+      "role": "owner_added",
+      "world": [
+        497.0499028667109,
+        8.0,
+        292.8503072652966
+      ]
+    },
+    {
+      "name": "Starbucks Pariser Platz",
+      "role": "owner_added",
+      "world": [
+        559.5734097249806,
+        8.0,
+        253.47099111787975
+      ]
+    },
+    {
+      "name": "Max-Liebermann-Haus",
+      "role": "owner_added",
+      "world": [
+        427.1056310250424,
+        8.0,
+        253.5449749538675
+      ]
+    },
+    {
+      "name": "Botschaft der Vereinigten Staaten von Amerika",
+      "role": "owner_added",
+      "world": [
+        447.00693236640655,
+        8.0,
+        410.90410274639726
+      ]
+    },
+    {
+      "name": "Denkmal für die ermordeten Juden Europas",
+      "role": "owner_added",
+      "world": [
+        462.88128157681786,
+        8.0,
+        557.3677023872733
+      ]
+    },
+    {
+      "name": "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
+      "role": "owner_added",
+      "world": [
+        304.16310529829934,
+        8.0,
+        634.0641316818073
+      ]
+    },
+    {
+      "name": "Goethe-Denkmal",
+      "role": "owner_added",
+      "world": [
+        321.5834092578152,
+        8.0,
+        574.3105936488137
+      ]
+    },
+    {
+      "name": "Beethoven-Haydn-Mozart-Denkmal",
+      "role": "owner_added",
+      "world": [
+        -88.23575241171056,
+        8.0,
+        570.9512711009011
+      ]
+    },
+    {
+      "name": "Venusbassin / Goldfischteich",
+      "role": "owner_added",
+      "world": [
+        -62.42698272125563,
+        8.0,
+        487.2546307714656
+      ]
+    },
+    {
+      "name": "Mahnmal für verfolgte Zeugen Jehovas",
+      "role": "owner_added",
+      "world": [
+        -112.55317433911841,
+        8.0,
+        648.4968814877793
+      ]
+    },
+    {
+      "name": "Großer Tiergarten",
+      "role": "owner_added",
+      "world": [
+        3.770585844409652,
+        8.0,
+        592.2006285823882
+      ]
+    },
+    {
+      "name": "Spielplatz an der Luiseninsel",
+      "role": "owner_added",
+      "world": [
+        -331.4490041086101,
+        8.0,
+        890.9276426956058
+      ]
+    },
+    {
+      "name": "Kemperplatz / Tiergartentunnel",
+      "role": "owner_added",
+      "world": [
+        -32.911855473183095,
+        8.0,
+        862.1781236995012
+      ]
+    },
+    {
+      "name": "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+      "role": "must_be_visible",
+      "world": [
+        170.3577520904946,
+        8.0,
+        1038.0715934131294
+      ]
+    }
+  ],
+  "park_details": {
+    "file": "park-details.json",
+    "source": "Additive OpenStreetMap and Geoportal Berlin detail fusion",
+    "geometry_status": "Bounded source-positioned paths, trees, public lights, Wall traces and playground details; missing dimensions are display approximations"
+  },
+  "tiergartentunnel": {
+    "name": "Tunnel Tiergarten Spreebogen / B96",
+    "geometry_status": "OSM-derived tunnel carriageway evidence plus engineered centreline, not official surveyed as-built geometry",
+    "depth_status": "schematic constant depth for cutaway rendering",
+    "tube_count": 2,
+    "clear_width_each_direction_m": 10.5,
+    "clear_height_m": 5.0,
+    "points": [
+      [
+        -240.43654283200158,
+        -8.5,
+        -845.0931663997471
+      ],
+      [
+        -225.91229202470277,
+        -8.5,
+        -696.230821473524
+      ],
+      [
+        -208.2537742391578,
+        -8.5,
+        -600.6888855779544
+      ],
+      [
+        -135.42149703833275,
+        -8.5,
+        -512.5576137118042
+      ],
+      [
+        -115.82663744164165,
+        -8.5,
+        -281.4582413993776
+      ],
+      [
+        -111.1360525454511,
+        -8.5,
+        -14.285607086494565
+      ],
+      [
+        -113.47191463876516,
+        -8.5,
+        335.9305500462651
+      ],
+      [
+        -99.10166815383127,
+        -8.5,
+        592.7611825242639
+      ],
+      [
+        -66.229313190619,
+        -8.5,
+        741.6471177376807
+      ],
+      [
+        -17.217340201721527,
+        -8.5,
+        928.1970621710643
+      ],
+      [
+        25.712653688213322,
+        -8.5,
+        1417.8067473564297
+      ]
+    ]
+  }
+}
