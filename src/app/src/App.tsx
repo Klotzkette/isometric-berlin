@@ -103,6 +103,7 @@ type MobileSheet = "compass" | "overflow" | null;
 const LEGACY_APPEARANCE_STORAGE_KEY = "isometric-berlin-lighting";
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
+const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
 const MOBILE_MEDIA_QUERY =
   "(max-width: 768px), (max-width: 1024px) and (pointer: coarse), (max-width: 900px) and (max-height: 500px) and (orientation: landscape)";
 
@@ -255,6 +256,22 @@ function hasSeenCoachMark(): boolean {
     return window.localStorage.getItem(COACH_STORAGE_KEY) === "true";
   } catch {
     return true;
+  }
+}
+
+function isMusicMutedByUser(): boolean {
+  try {
+    return window.localStorage.getItem(MUSIC_MUTED_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function rememberMusicMuted(muted: boolean): void {
+  try {
+    window.localStorage.setItem(MUSIC_MUTED_STORAGE_KEY, String(muted));
+  } catch {
+    // The viewer stays usable when storage is blocked.
   }
 }
 
@@ -691,43 +708,103 @@ export function App() {
     setLanguage((current) => (current === "de" ? "en" : "de"));
   }, []);
 
+  const startMusic = useCallback(
+    async (options: { rememberMute?: boolean; silent?: boolean } = {}) => {
+      const { rememberMute = true, silent = false } = options;
+      const unsupportedMessage =
+        language === "de"
+          ? "Audio wird von diesem Browser nicht unterstützt"
+          : "Audio is not supported by this browser";
+      if (!isAmbientAudioSupported()) {
+        if (!silent) {
+          setStatus(unsupportedMessage);
+        }
+        return false;
+      }
+      if (!silent) {
+        setStatus(copy.musicStarting);
+      }
+      const soundscape =
+        ambientSoundscapeRef.current ?? new AmbientSoundscape();
+      ambientSoundscapeRef.current = soundscape;
+      let started = false;
+      try {
+        started = await soundscape.start();
+      } catch {
+        soundscape.stop();
+      }
+      if (!started) {
+        soundscape.stop();
+        ambientSoundscapeRef.current = null;
+      }
+      setIsMusicEnabled(started);
+      if (rememberMute && started) {
+        rememberMusicMuted(false);
+      }
+      if (started && !silent) {
+        setStatus(copy.musicOn);
+      } else if (!started && !silent) {
+        setStatus(unsupportedMessage);
+      }
+      return started;
+    },
+    [copy.musicOn, copy.musicStarting, language],
+  );
+
   const toggleMusic = useCallback(async () => {
     if (isMusicEnabled) {
       ambientSoundscapeRef.current?.stop();
       setIsMusicEnabled(false);
+      // Remember explicit mute so the auto-start effect stays quiet on the
+      // next visit / interaction.
+      rememberMusicMuted(true);
       setStatus(copy.musicOff);
       return;
     }
-    const unsupportedMessage =
-      language === "de"
-        ? "Audio wird von diesem Browser nicht unterstützt"
-        : "Audio is not supported by this browser";
-    if (!isAmbientAudioSupported()) {
-      setStatus(unsupportedMessage);
+    await startMusic();
+  }, [copy.musicOff, isMusicEnabled, startMusic]);
+
+  // v0.5.2: iOS/Android Safari + Chrome refuse to create an AudioContext
+  // until the user has interacted with the page, so we auto-start the
+  // ambient soundscape the very first time the user touches / taps /
+  // presses a key — unless the user has explicitly muted it before.
+  useEffect(() => {
+    if (typeof window === "undefined") {
       return;
     }
-    setStatus(copy.musicStarting);
-    const soundscape = ambientSoundscapeRef.current ?? new AmbientSoundscape();
-    ambientSoundscapeRef.current = soundscape;
-    let started = false;
-    try {
-      started = await soundscape.start();
-    } catch {
-      soundscape.stop();
+    if (isMusicMutedByUser()) {
+      return;
     }
-    if (!started) {
-      soundscape.stop();
-      ambientSoundscapeRef.current = null;
+    if (!isAmbientAudioSupported()) {
+      return;
     }
-    setIsMusicEnabled(started);
-    setStatus(started ? copy.musicOn : unsupportedMessage);
-  }, [
-    copy.musicOff,
-    copy.musicOn,
-    copy.musicStarting,
-    isMusicEnabled,
-    language,
-  ]);
+    let cancelled = false;
+    const attempt = () => {
+      if (cancelled) {
+        return;
+      }
+      void startMusic({ rememberMute: false, silent: true });
+      teardown();
+    };
+    const teardown = () => {
+      window.removeEventListener("pointerdown", attempt);
+      window.removeEventListener("touchstart", attempt);
+      window.removeEventListener("keydown", attempt);
+    };
+    window.addEventListener("pointerdown", attempt, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("touchstart", attempt, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", attempt, { once: true });
+    return () => {
+      cancelled = true;
+      teardown();
+    };
+  }, [startMusic]);
 
   useEffect(() => {
     try {

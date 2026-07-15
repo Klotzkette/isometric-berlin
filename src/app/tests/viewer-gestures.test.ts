@@ -9,16 +9,23 @@ import {
 } from "../src/viewerGestures";
 
 describe("touch viewer gestures", () => {
-  test("enables pinch rotation, pinch zoom, pan, and controlled flicks", () => {
-    for (const settings of [TOUCH_GESTURE_SETTINGS, PEN_GESTURE_SETTINGS]) {
-      expect(settings.pinchRotate).toBe(true);
-      expect(settings.pinchToZoom).toBe(true);
-      expect(settings.dragToPan).toBe(true);
-      expect(settings.flickEnabled).toBe(true);
-      expect(settings.flickMinSpeed).toBe(60);
-      expect(settings.flickMomentum).toBe(0.5);
-    }
-  });
+  test(
+    "v0.5.2: two-finger swipe pans (no accidental rotation), pinch zooms, " +
+      "flicks are controlled",
+    () => {
+      for (const settings of [TOUCH_GESTURE_SETTINGS, PEN_GESTURE_SETTINGS]) {
+        // Rotation on two-finger swipe felt weird on iPhone (people expect
+        // pan). The rotate buttons and the mouse-drag rotation still cover
+        // rotation on desktop and via the on-screen controls.
+        expect(settings.pinchRotate).toBe(false);
+        expect(settings.pinchToZoom).toBe(true);
+        expect(settings.dragToPan).toBe(true);
+        expect(settings.flickEnabled).toBe(true);
+        expect(settings.flickMinSpeed).toBe(60);
+        expect(settings.flickMomentum).toBe(0.5);
+      }
+    },
+  );
 
   test("a two-touch twist advances rotation by more than 15 degrees", () => {
     const delta = rotationDeltaFromTouchPairs(

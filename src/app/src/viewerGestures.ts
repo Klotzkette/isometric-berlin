@@ -7,6 +7,11 @@ export type RotatableGestureSettings = OpenSeadragon.GestureSettings & {
   pinchRotate: boolean;
 };
 
+// Touch profile v0.5.2: two-finger swipe pans (does not rotate) and pinch
+// zoom automatically follows the pinch centre. Rotation stays reachable
+// through the on-screen rotate buttons and the keyboard shortcuts. This
+// matches the natural iPhone expectation that swiping fingers left moves
+// the map contents left along with the fingers, not spinning the map.
 export const TOUCH_GESTURE_SETTINGS: RotatableGestureSettings = {
   clickToZoom: false,
   dblClickToZoom: true,
@@ -14,7 +19,7 @@ export const TOUCH_GESTURE_SETTINGS: RotatableGestureSettings = {
   flickEnabled: true,
   flickMinSpeed: 60,
   flickMomentum: 0.5,
-  pinchRotate: true,
+  pinchRotate: false,
   pinchToZoom: true,
 };
 

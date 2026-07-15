@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.5.2
+
+- Two-finger swipe on touch devices now pans the map along with the
+  fingers instead of rotating it. Rotation stays reachable through the
+  on-screen rotate buttons, the keyboard shortcuts, and mouse-drag on
+  desktop. The change felt more natural on iPhone where users expect
+  "fingers left = map contents left", not a rotate. Pinch zoom keeps
+  its native OpenSeadragon behaviour of following the pinch centre, so
+  zooming in on the Reichstag while the pinch centre sits on the dome
+  also flies the view toward the dome. Test coverage updated so
+  `TOUCH_GESTURE_SETTINGS.pinchRotate === false` is a regression guard.
+- The ambient soundscape now auto-starts on the first user gesture
+  (touch, pointerdown, keydown) unless the user has explicitly muted
+  it before. iOS and Android browsers refuse to create an AudioContext
+  before the first interaction, which is why the music felt broken on
+  mobile in v0.5.1. Explicit taps on the music button still remember
+  the mute preference in `localStorage` under
+  `isometric-berlin.musicMuted`, so a manual mute survives reloads.
+
 ## v0.5.1
 
 - Remove the dark cloud over the Chancellery: the blob was a photogrammetry
