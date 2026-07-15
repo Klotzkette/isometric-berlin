@@ -1,7 +1,9 @@
 import {
+  AdditiveBlending,
   BoxGeometry,
   BufferGeometry,
   Color,
+  ConeGeometry,
   CylinderGeometry,
   DoubleSide,
   Float32BufferAttribute,
@@ -10,6 +12,7 @@ import {
   InstancedMesh,
   LineBasicMaterial,
   LineSegments,
+  MathUtils,
   Mesh,
   MeshStandardMaterial,
   Object3D,
@@ -27,12 +30,32 @@ export type ParkPath = {
 };
 
 export type ParkTree = {
+  catalogue?: string | null;
   crown_radius_m: number;
   height_m: number;
   id: string;
   leaf_type: string | null;
   position: [number, number, number];
+  source?: "berlin_official" | "osm";
+  species?: string | null;
+  tree_group?: string | null;
+  trunk_radius_m?: number;
   variant: number;
+};
+
+export type StreetLight = {
+  height_m: number;
+  id: string;
+  light_type: string | null;
+  position: [number, number, number];
+  rotation_degrees: number;
+  street: string | null;
+};
+
+export type WallTrace = {
+  id: string;
+  points: [number, number, number][];
+  wall_type: string | null;
 };
 
 export type PlaygroundEquipment = {
@@ -62,7 +85,9 @@ export type ParkDetailsPayload = {
     geometry_status: string;
     name: string;
   };
+  street_lights?: StreetLight[];
   trees: ParkTree[];
+  wall_traces?: WallTrace[];
 };
 
 type Transform = {
@@ -200,7 +225,7 @@ function addTrees(
   for (const tree of trees) {
     const [x, y, z] = tree.position;
     const trunkHeight = tree.height_m * 0.5;
-    const trunkRadius = Math.max(0.18, tree.crown_radius_m * 0.095);
+    const trunkRadius = tree.trunk_radius_m ?? Math.max(0.18, tree.crown_radius_m * 0.095);
     trunks.push({
       position: [x, y + trunkHeight / 2, z],
       scale: [trunkRadius, trunkHeight, trunkRadius],
@@ -289,6 +314,146 @@ function addTrees(
       group.add(mesh);
     }
   });
+}
+
+function lampHeadCount(lightType: string | null): number {
+  if (lightType?.includes("Dreifach")) {
+    return 3;
+  }
+  if (lightType?.includes("Doppel") || lightType?.includes("Zwillings")) {
+    return 2;
+  }
+  return 1;
+}
+
+function addStreetLights(group: Group, lights: StreetLight[]): void {
+  if (lights.length === 0) {
+    return;
+  }
+  const poles: Transform[] = [];
+  const heads: Transform[] = [];
+  const cones: Transform[] = [];
+  for (const light of lights) {
+    const [x, y, z] = light.position;
+    const height = light.height_m;
+    const yaw = MathUtils.degToRad(light.rotation_degrees);
+    poles.push({
+      position: [x, y + height / 2, z],
+      rotation: [0, yaw, 0],
+      scale: [0.095, height, 0.095],
+    });
+    const headCount = lampHeadCount(light.light_type);
+    for (let index = 0; index < headCount; index += 1) {
+      const offset = (index - (headCount - 1) / 2) * 0.72;
+      heads.push({
+        position: [
+          x + Math.cos(yaw) * offset,
+          y + height,
+          z - Math.sin(yaw) * offset,
+        ],
+        rotation: [0, yaw, 0],
+        scale: [0.42, 0.22, 0.28],
+      });
+    }
+    const coneHeight = Math.max(2.8, height * 0.86);
+    cones.push({
+      position: [x, y + height - coneHeight / 2, z],
+      rotation: [0, yaw, 0],
+      scale: [Math.min(4.6, height * 0.54), coneHeight, Math.min(4.6, height * 0.54)],
+    });
+  }
+
+  const poleMaterial = material(0x4b5759, 0.46);
+  const poleMesh = instanced(
+    "Geoportal Berlin official public-lighting masts",
+    new CylinderGeometry(1, 1.12, 1, 8),
+    poleMaterial,
+    poles,
+  );
+  poleMesh.castShadow = true;
+  group.add(poleMesh);
+
+  const headMaterial = material(0xf0dfae, 0.24);
+  headMaterial.userData.nightEmissive = 0xffdf91;
+  headMaterial.userData.nightEmissiveIntensity = 4.2;
+  group.add(
+    instanced(
+      "Geoportal Berlin public-lighting lamp heads",
+      new BoxGeometry(1, 1, 1),
+      headMaterial,
+      heads,
+    ),
+  );
+
+  const coneMaterial = new MeshStandardMaterial({
+    blending: AdditiveBlending,
+    color: 0xffd88a,
+    depthWrite: false,
+    emissive: 0xffc76a,
+    emissiveIntensity: 0.42,
+    opacity: 0.075,
+    roughness: 1,
+    transparent: true,
+  });
+  const coneMesh = instanced(
+    "Geoportal Berlin night-only instanced street-light cones",
+    new ConeGeometry(1, 1, 14, 1, false),
+    coneMaterial,
+    cones,
+  );
+  coneMesh.userData.nightOnly = true;
+  coneMesh.castShadow = false;
+  coneMesh.receiveShadow = false;
+  group.add(coneMesh);
+}
+
+function addWallTraces(group: Group, traces: WallTrace[]): number {
+  const stones: Transform[] = [];
+  const spacing = 0.34;
+  for (const trace of traces) {
+    for (let index = 1; index < trace.points.length; index += 1) {
+      const start = trace.points[index - 1];
+      const end = trace.points[index];
+      const dx = end[0] - start[0];
+      const dz = end[2] - start[2];
+      const length = Math.hypot(dx, dz);
+      if (length < 0.05) {
+        continue;
+      }
+      const stepCount = Math.max(1, Math.ceil(length / spacing));
+      const nx = -dz / length;
+      const nz = dx / length;
+      const yaw = -Math.atan2(dz, dx);
+      for (let step = 0; step < stepCount; step += 1) {
+        const fraction = (step + 0.5) / stepCount;
+        const centreX = start[0] + dx * fraction;
+        const centreY = start[1] + (end[1] - start[1]) * fraction + 0.075;
+        const centreZ = start[2] + dz * fraction;
+        for (const rowOffset of [-0.15, 0.15]) {
+          stones.push({
+            position: [
+              centreX + nx * rowOffset,
+              centreY,
+              centreZ + nz * rowOffset,
+            ],
+            rotation: [0, yaw, 0],
+          });
+        }
+      }
+    }
+  }
+  if (stones.length === 0) {
+    return 0;
+  }
+  const stoneMesh = instanced(
+    "Official Vorderlandmauer double row of individual granite setts",
+    new BoxGeometry(0.24, 0.07, 0.13),
+    material(0x713a31, 0.94),
+    stones,
+  );
+  stoneMesh.castShadow = false;
+  group.add(stoneMesh);
+  return stones.length;
 }
 
 function addHiddenEasterEggs(group: Group, trees: ParkTree[]): number {
@@ -648,20 +813,25 @@ function addPlaygrounds(group: Group, playgrounds: ParkPlayground[]): void {
 }
 
 export function createParkDetails(payload: ParkDetailsPayload): Group {
-  if (payload.schema_version !== 1) {
+  if (payload.schema_version !== 1 && payload.schema_version !== 2) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
   const group = new Group();
-  group.name = "OSM Tiergarten paths, trees and playground details";
+  group.name = "Additive open-data park and civic surface details";
+  const streetLights = payload.street_lights ?? [];
+  const wallTraces = payload.wall_traces ?? [];
   group.userData = {
     attribution: payload.source.attribution,
     geometryStatus: payload.source.geometry_status,
     pathCount: payload.paths.length,
     playgroundCount: payload.playgrounds.length,
+    streetLightCount: streetLights.length,
     treeCount: payload.trees.length,
   };
   addPaths(group, payload.paths);
   addTrees(group, payload.trees, treeCrownCutaway(payload.playgrounds));
+  addStreetLights(group, streetLights);
+  group.userData.wallStoneCount = addWallTraces(group, wallTraces);
   group.userData.eggCount = addHiddenEasterEggs(group, payload.trees);
   addPlaygrounds(group, payload.playgrounds);
   return group;

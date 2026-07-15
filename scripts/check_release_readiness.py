@@ -41,10 +41,10 @@ PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
 MAX_PACKAGE_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
 MIN_BASE_MESH_FACES = 2_250_000
-MIN_SETTLED_SURFACE_FACES = 4_000_000
+MIN_SETTLED_SURFACE_FACES = 6_000_000
 REQUIRED_BASE_TARGET_FACES = 100_000
-REQUIRED_SETTLED_TARGET_FACES = 175_700
-REQUIRED_BASE_NORMAL_CREASE_DEGREES = 72.0
+REQUIRED_SETTLED_TARGET_FACES = 289_797
+REQUIRED_BASE_NORMAL_CREASE_DEGREES = 58.0
 REQUIRED_BASE_SIMPLIFICATION_AGGRESSION = 5
 REQUIRED_MESHOPT_POSITION_BITS = 16
 REQUIRED_MESHOPT_NORMAL_BITS = 8
@@ -181,7 +181,7 @@ def webgl_manifest_failures(
     ]
     if invalid_quality_entries:
       failures.append(
-        "WebGL base tiles do not use the required 100k/72-degree/aggression-5 "
+        "WebGL base tiles do not use the required 100k/58-degree/aggression-5 "
         f"surface profile: {label} ({invalid_quality_entries[:3]})"
       )
     invalid_meshopt_entries = [
@@ -227,7 +227,7 @@ def webgl_manifest_failures(
     if invalid_surface_entries:
       failures.append(
         "WebGL settled tiles do not use the required "
-        "175700-face/72-degree/aggression-5/Meshopt profile: "
+        "289797-face/58-degree/aggression-5/Meshopt profile: "
         f"{label} ({invalid_surface_entries[:3]})"
       )
   hero_details = scene.get("hero_details")
@@ -243,6 +243,27 @@ def webgl_manifest_failures(
     failures.append(
       f"WebGL scene lacks required hero mesh groups: {label} "
       f"({sorted(REQUIRED_HERO_MESHES - hero_ids)})"
+    )
+  hero_files = [
+    file
+    for hero in hero_details
+    if isinstance(hero, dict)
+    for file in hero.get("files", [])
+    if isinstance(file, dict)
+  ]
+  invalid_hero_entries = [
+    str(entry.get("file", "<unknown>"))
+    for entry in hero_files
+    if entry.get("meshopt_compressed") is not True
+    or entry.get("quantize_position_bits") != REQUIRED_MESHOPT_POSITION_BITS
+    or entry.get("quantize_normal_bits") != REQUIRED_MESHOPT_NORMAL_BITS
+    or not isinstance(entry.get("texture_max_edge"), int)
+    or int(entry["texture_max_edge"]) > 1600
+  ]
+  if invalid_hero_entries:
+    failures.append(
+      "WebGL hero crops lack the required Meshopt/1600px texture profile: "
+      f"{label} ({invalid_hero_entries[:3]})"
     )
   tunnel = scene.get("tiergartentunnel")
   if not isinstance(tunnel, dict) or len(tunnel.get("points", [])) < 8:
@@ -499,7 +520,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "day/night scene lighting": "setSceneLighting(runtime, lightingMode)",
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
     "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
-    "four-million-face settled surface": "manifest.surface_detail_tiles",
+    "six-million-face settled surface": "manifest.surface_detail_tiles",
     "interaction surface swap": "setSurfacePresentation(runtime, isMoving)",
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",

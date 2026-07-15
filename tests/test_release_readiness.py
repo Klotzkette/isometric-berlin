@@ -88,7 +88,7 @@ def webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int | st
     "faces": 100_000,
     "includes_normals": True,
     "meshopt_compressed": True,
-    "normal_crease_degrees": 72.0,
+    "normal_crease_degrees": 58.0,
     "quantize_normal_bits": 8,
     "quantize_position_bits": 16,
     "sha256": hashlib.sha256(data).hexdigest(),
@@ -102,9 +102,15 @@ def surface_webgl_entry(
   filename: str, data: bytes
 ) -> dict[str, bool | float | int | str]:
   entry = webgl_entry(filename, data)
-  entry["faces"] = 175_700
-  entry["target_faces"] = 175_700
+  entry["faces"] = 289_797
+  entry["target_faces"] = 289_797
   entry["vertices"] = 90_000
+  return entry
+
+
+def hero_webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int | str]:
+  entry = webgl_entry(filename, data)
+  entry["texture_max_edge"] = 1600
   return entry
 
 
@@ -117,7 +123,7 @@ def minimal_webgl_scene(filename: str, data: bytes) -> dict[str, object]:
     "base_tiles": [dict(entry) for _ in range(23)],
     "surface_detail_tiles": [surface_webgl_entry(filename, data) for _ in range(23)],
     "hero_details": [
-      {"id": identifier, "files": [dict(entry)]}
+      {"id": identifier, "files": [hero_webgl_entry(filename, data)]}
       for identifier in (
         "reichstag",
         "bundeskanzleramt",
@@ -450,7 +456,7 @@ def test_webgl_integrity_matrix_rejects_100_corrupt_assets() -> None:
   scene = minimal_webgl_scene(names[0], assets[names[0]])
   scene["base_tiles"] = [webgl_entry(name, assets[name]) for name in names[:96]]
   scene["hero_details"] = [
-    {"id": identifier, "files": [webgl_entry(name, assets[name])]}
+    {"id": identifier, "files": [hero_webgl_entry(name, assets[name])]}
     for identifier, name in zip(
       ("reichstag", "bundeskanzleramt", "hauptbahnhof", "brandenburger-tor"),
       names[96:],
@@ -538,7 +544,7 @@ def test_webgl_manifest_rejects_coarse_base_surface() -> None:
   )
 
   assert any("face quality floor" in failure for failure in failures)
-  assert any("100k/72-degree/aggression-5" in failure for failure in failures)
+  assert any("100k/58-degree/aggression-5" in failure for failure in failures)
 
 
 def test_webgl_manifest_rejects_missing_settled_surface_tier() -> None:

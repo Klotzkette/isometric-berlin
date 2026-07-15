@@ -32,6 +32,9 @@ CHANCELLERY_ARCHITECTURE_URL = (
   "https://www.bundesregierung.de/breg-de/bundesregierung/"
   "bundeskanzleramt/geschichte-bundeskanzleramt-975040"
 )
+OFFICIAL_DETAILS_URL = (
+  "https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23"
+)
 
 
 def polygons(geometry: Any) -> list[Polygon]:
@@ -159,12 +162,62 @@ def load_alignment_summary(path: Path) -> dict[str, Any]:
   return {"available": True, **payload.get("summary", {})}
 
 
+def scene_surface_stats(path: Path | None) -> dict[str, Any]:
+  """Summarise committed official-mesh tiers from the browser manifest."""
+  if path is None or not path.exists():
+    return {"available": False, "reason": "missing_scene_manifest"}
+  scene = json.loads(path.read_text(encoding="utf-8"))
+  base = scene.get("base_tiles", [])
+  settled = scene.get("surface_detail_tiles", [])
+  heroes = [
+    file
+    for group in scene.get("hero_details", [])
+    if isinstance(group, dict)
+    for file in group.get("files", [])
+    if isinstance(file, dict)
+  ]
+
+  def total(rows: list[dict[str, Any]], key: str) -> int:
+    return sum(int(row.get(key, 0)) for row in rows)
+
+  all_assets = [*base, *settled, *heroes]
+  return {
+    "available": True,
+    "path": str(path),
+    "sha256": sha256_file(path),
+    "source_tiles": len(base),
+    "base_faces": total(base, "faces"),
+    "base_vertices": total(base, "vertices"),
+    "base_bytes": total(base, "bytes"),
+    "base_target_faces_per_tile": base[0].get("target_faces") if base else None,
+    "settled_faces": total(settled, "faces"),
+    "settled_vertices": total(settled, "vertices"),
+    "settled_bytes": total(settled, "bytes"),
+    "settled_target_faces_per_tile": (
+      settled[0].get("target_faces") if settled else None
+    ),
+    "normal_crease_degrees": base[0].get("normal_crease_degrees") if base else None,
+    "simplification_aggression": (
+      base[0].get("simplification_aggression") if base else None
+    ),
+    "hero_groups": len(scene.get("hero_details", [])),
+    "hero_files": len(heroes),
+    "hero_faces": total(heroes, "faces"),
+    "scene_glb_files": len(all_assets),
+    "scene_glb_bytes": total(all_assets, "bytes"),
+    "largest_glb_bytes": max(
+      (int(row.get("bytes", 0)) for row in all_assets), default=0
+    ),
+  }
+
+
 def build_precision_report(
   *,
   buildings_path: Path,
   alignment_path: Path,
   out_json: Path,
   out_markdown: Path,
+  scene_path: Path | None = None,
 ) -> dict[str, Any]:
   """Build and write JSON/Markdown precision evidence reports."""
   buildings = gpd.read_file(buildings_path, layer="buildings")
@@ -192,27 +245,35 @@ def build_precision_report(
         "metadata_url": ALKIS_METADATA_URL,
         "claim": "Official cadastral parcel context for geometry QA.",
       },
-      "berlin3d_mesh_future": {
+      "berlin3d_mesh": {
+        "path": str(scene_path) if scene_path is not None else None,
         "metadata_url": BERLIN_3D_MESH_URL,
         "claim": (
-          "Berlin 3D download portal offers free OBJ mesh tiles with "
-          "textures from the 2025 aerial survey; this should become the "
-          "future source for true photogrammetric facade texture/relief."
+          "The committed viewer renders bounded official photogrammetric OBJ "
+          "geometry and aerial textures from the June 2025 survey."
+        ),
+      },
+      "berlindetails": {
+        "metadata_url": OFFICIAL_DETAILS_URL,
+        "claim": (
+          "Official bounded tree catalogues, public-lighting points and "
+          "Vorderlandmauer traces support public-space detail."
         ),
       },
     },
     "buildings": building_precision_stats(buildings),
     "landmark_scale": landmark_scale_stats(buildings),
     "landmark_alignment": load_alignment_summary(alignment_path),
+    "photogrammetric_surface": scene_surface_stats(scene_path),
     "render_policy": {
       "geometry_anchor": "lod2",
       "semantic_context": "osm",
       "visual_material_cues": "wikimedia",
-      "not_claimed": (
-        "The current deterministic viewer is metric in planimetric LoD2/OSM "
-        "placement, but it is not yet a photogrammetric textured mesh. "
-        "Granular facade relief is stylised from LoD2 footprint complexity, "
-        "height, roof attributes, OSM semantics, and Wikimedia colour cues."
+      "limitations": (
+        "The official mesh provides photogrammetric surface relief and aerial "
+        "colour. Procedural landmark, window, train, tunnel and monument "
+        "recognition layers remain labelled display approximations and are not "
+        "surveyed as-built facade or interior geometry."
       ),
     },
   }
@@ -226,6 +287,7 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
   buildings = report["buildings"]
   alignment = report["landmark_alignment"]
   chancellery = report.get("landmark_scale", {}).get("bundeskanzleramt", {})
+  surface = report["photogrammetric_surface"]
   path.parent.mkdir(parents=True, exist_ok=True)
   path.write_text(
     "\n".join(
@@ -233,8 +295,8 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "# Metric precision and surface-detail QA",
         "",
         "This report documents what the current deterministic viewer can claim",
-        "from committed public/open data, and where it still needs a future",
-        "photogrammetric mesh pass.",
+        "from committed public/open data, including the official photogrammetric",
+        "surface, and which additions remain display approximations.",
         "",
         "## Source hierarchy",
         "",
@@ -246,7 +308,10 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "  - Official DOP 2025 metadata gives 0.20 m ground resolution and",
         "    approximately +/- 0.4 m positional accuracy.",
         f"- ALKIS parcel context: {report['sources']['alkis']['metadata_url']}",
-        f"- Future textured mesh candidate: {report['sources']['berlin3d_mesh_future']['metadata_url']}",
+        f"- Official textured surface: {report['sources']['berlin3d_mesh']['metadata_url']}",
+        "  - The committed scene uses bounded geometry and aerial texture colour",
+        "    from the June 2025 Berlin survey.",
+        f"- Official public-space details: {report['sources']['berlindetails']['metadata_url']}",
         "",
         "## Committed LoD2 geometry statistics",
         "",
@@ -279,6 +344,22 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         f"- Relative relationships checked: {alignment.get('relative_relationships_checked', 'n/a')}",
         f"- Review count: {alignment.get('review_count', 'n/a')}",
         "",
+        "## Committed photogrammetric surface statistics",
+        "",
+        f"- Status: {'available' if surface.get('available') else 'unavailable'}",
+        f"- Official source tiles: {surface.get('source_tiles', 'n/a')}",
+        f"- Interaction faces: {surface.get('base_faces', 'n/a')}",
+        f"- Interaction vertices: {surface.get('base_vertices', 'n/a')}",
+        f"- Interaction GLB size: {surface.get('base_bytes', 0) / 1024 / 1024:.1f} MiB",
+        f"- Settled desktop faces: {surface.get('settled_faces', 'n/a')}",
+        f"- Settled desktop vertices: {surface.get('settled_vertices', 'n/a')}",
+        f"- Settled desktop GLB size: {surface.get('settled_bytes', 0) / 1024 / 1024:.1f} MiB",
+        f"- Settled per-tile target: {surface.get('settled_target_faces_per_tile', 'n/a')} faces",
+        f"- Normal crease: {surface.get('normal_crease_degrees', 'n/a')}°",
+        f"- Simplification aggression: {surface.get('simplification_aggression', 'n/a')}",
+        f"- Separate high-detail hero groups: {surface.get('hero_groups', 'n/a')}",
+        f"- Complete scene: {surface.get('scene_glb_files', 'n/a')} GLBs / {surface.get('scene_glb_bytes', 0) / 1024 / 1024:.1f} MiB",
+        "",
         "## Current rendering claim",
         "",
         "The viewer is metric in planimetric placement because it renders",
@@ -286,12 +367,13 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "CityGML BuildingParts at their individual measured heights, LoD2",
         "interior rings as visible courtyards/cut-outs, and uses denser",
         "facade bays, roof ribs, and roof equipment marks from footprint size,",
-        "height, roof type, and landmark material cues.",
+        "height, roof type, and landmark material cues. The official Berlin 3D",
+        "Mesh adds genuine photogrammetric roof, facade, ground and canopy relief",
+        "at unchanged EPSG:25833 scale, with a six-million-face settled tier.",
         "",
-        "It does **not** yet claim true photogrammetric facade relief. For that,",
-        "the next major step should ingest the official Berlin 3D mesh/OBJ",
-        "texture tiles or another fully licensed textured 3D source, then render",
-        "from that mesh rather than stylising LoD2 footprints.",
+        "Procedural monument, window, train, tunnel and architectural-signature",
+        "layers remain labelled display geometry. They are not surveyed facade,",
+        "interior or as-built detail and do not replace LoD2/official-mesh anchors.",
         "",
         "## Tiergartentunnel precision claim",
         "",
@@ -316,6 +398,11 @@ def main() -> None:
     default=Path("geo_data/regierungsviertel/buildings.gpkg"),
   )
   parser.add_argument(
+    "--scene",
+    type=Path,
+    default=Path("src/app/public/mesh/regierungsviertel/scene.json"),
+  )
+  parser.add_argument(
     "--alignment",
     type=Path,
     default=Path("geo_data/regierungsviertel/landmark_alignment.json"),
@@ -336,6 +423,7 @@ def main() -> None:
     alignment_path=args.alignment,
     out_json=args.out_json,
     out_markdown=args.out_markdown,
+    scene_path=args.scene,
   )
   print(
     "Wrote metric precision report for "

@@ -28,10 +28,10 @@
   "base_tiles": [
     {
       "file": "tile-3887_58193.glb",
-      "bytes": 1191384,
+      "bytes": 1213712,
       "includes_normals": true,
-      "sha256": "91c93062144f660c3e28a98af0b07ab3b90bd6c0d17587a2caab4d0a45d4e392",
-      "vertices": 50770,
+      "sha256": "8177429f4972fc4a011da123f0ddceb7f3dbbf5f8ceff3925ece986df06d2eff",
+      "vertices": 52911,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -50,7 +50,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3887_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 423421,
       "source_material_segments": 6,
@@ -58,10 +61,10 @@
     },
     {
       "file": "tile-3887_58196.glb",
-      "bytes": 1184840,
+      "bytes": 1201412,
       "includes_normals": true,
-      "sha256": "52ad4e3b3f5a6da39694fd67bddd86ac8731974d1067a0273c91a7e48abb8f24",
-      "vertices": 50664,
+      "sha256": "c4103e276cf9310018526eacd24b79632634a7f3935473f3ea9f48844b9f9d59",
+      "vertices": 52201,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -80,7 +83,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3887_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 354654,
       "source_material_segments": 7,
@@ -88,10 +94,10 @@
     },
     {
       "file": "tile-3887_58200.glb",
-      "bytes": 1191908,
+      "bytes": 1211908,
       "includes_normals": true,
-      "sha256": "174533cbc7b990e08fba723f8c76748ad2d254216856b9d90e1ecaced7f1d7a9",
-      "vertices": 51505,
+      "sha256": "9f5903f42e26dea9a75a413d9a8d4bf16fd7a8183194a5dbb436778cce5a69f7",
+      "vertices": 53543,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -110,7 +116,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3887_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 289286,
       "source_material_segments": 6,
@@ -118,10 +127,10 @@
     },
     {
       "file": "tile-3887_58203.glb",
-      "bytes": 1197236,
+      "bytes": 1223872,
       "includes_normals": true,
-      "sha256": "1ae7596fad02c0728317554ae3afd34f20f0c6be95b7a9d7158e5ba7fb9346e0",
-      "vertices": 51441,
+      "sha256": "04b845deca80601c0d77ca3864aeee41e70c106d40216364484414eddca98bcd",
+      "vertices": 54061,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -140,7 +149,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3887_58203",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 373150,
       "source_material_segments": 8,
@@ -148,10 +160,10 @@
     },
     {
       "file": "tile-3890_58189.glb",
-      "bytes": 1191596,
+      "bytes": 1211484,
       "includes_normals": true,
-      "sha256": "0bd39b09cca110266690c26547264608b005269a9e0cbf321c64efa43f9da6aa",
-      "vertices": 51072,
+      "sha256": "68f0c1a1cdbf7a584f50cb18768520e64847afeb6d9501854496b04494b7695d",
+      "vertices": 52995,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -170,7 +182,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3890_58189",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 358354,
       "source_material_segments": 6,
@@ -178,10 +193,10 @@
     },
     {
       "file": "tile-3890_58193.glb",
-      "bytes": 1194292,
+      "bytes": 1217152,
       "includes_normals": true,
-      "sha256": "b0200d570ef15962258ccab857fa052c8dbd3ce6d1ffead8aba62c7ad8d0f6d2",
-      "vertices": 51134,
+      "sha256": "e21cc1cfc1c6c22c5220e58b1c700749da4ece3ff31a0ba341ae42f4cff453dd",
+      "vertices": 53315,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -200,7 +215,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3890_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 407693,
       "source_material_segments": 4,
@@ -208,10 +226,10 @@
     },
     {
       "file": "tile-3890_58196.glb",
-      "bytes": 1189468,
+      "bytes": 1210016,
       "includes_normals": true,
-      "sha256": "130b9112edc333042009db6a3e700bab3b19f31db3213a27e625071f5992efe1",
-      "vertices": 50674,
+      "sha256": "d19a39c5bd1ae874842723859d8cc9006fa000621cdff07261fab0d1878b426d",
+      "vertices": 52674,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -230,7 +248,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3890_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 384419,
       "source_material_segments": 4,
@@ -238,10 +259,10 @@
     },
     {
       "file": "tile-3890_58200.glb",
-      "bytes": 1189548,
+      "bytes": 1204184,
       "includes_normals": true,
-      "sha256": "6dfd571034436c0c45f7d78adb4edda6d1ef9ae87247f6473c941e2ab4cdb373",
-      "vertices": 51385,
+      "sha256": "4b9e21c8efa0fad45527d48c9da4f3129c45824420853010acf7b9ee1e5029f9",
+      "vertices": 52806,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -260,7 +281,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3890_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 247359,
       "source_material_segments": 2,
@@ -268,10 +292,10 @@
     },
     {
       "file": "tile-3890_58203.glb",
-      "bytes": 1189668,
+      "bytes": 1201920,
       "includes_normals": true,
-      "sha256": "29d10d14a6385595828840fc9850c3f7e7f64c9200766d49847cdb1b17c33724",
-      "vertices": 51609,
+      "sha256": "58c67fca6ce354bb83c065c067178c100e0c5aca403173bb36e8023f83ec6f43",
+      "vertices": 52807,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -290,7 +314,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3890_58203",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 204627,
       "source_material_segments": 4,
@@ -298,10 +325,10 @@
     },
     {
       "file": "tile-3890_58207.glb",
-      "bytes": 1191116,
+      "bytes": 1206536,
       "includes_normals": true,
-      "sha256": "5b903b2fade4bb4792cce1bec782948de21237a596a4469268c425531bc3599c",
-      "vertices": 51760,
+      "sha256": "06a0a11a2ad650baa5a74e5a5cdf1bf65b8aae71a3170dc4b22bfa9ee15fbd90",
+      "vertices": 53289,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -320,7 +347,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3890_58207",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 229352,
       "source_material_segments": 5,
@@ -328,10 +358,10 @@
     },
     {
       "file": "tile-3894_58182.glb",
-      "bytes": 1192168,
+      "bytes": 1213316,
       "includes_normals": true,
-      "sha256": "cb44644ce8a937d226b1927ef8901a9c4a0d462108163fcfab8b49602098b9f0",
-      "vertices": 51371,
+      "sha256": "98366cdbdb368f476232666dbd13b0f6b4c92921d2d6ac959a9cc436166d71da",
+      "vertices": 53425,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -350,7 +380,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58182",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 312139,
       "source_material_segments": 3,
@@ -358,10 +391,10 @@
     },
     {
       "file": "tile-3894_58185.glb",
-      "bytes": 1190368,
+      "bytes": 1205452,
       "includes_normals": true,
-      "sha256": "478cb911814ebef34ec21b500a46b037b00d677a8c4f4ae813c56d9514cf72fc",
-      "vertices": 51218,
+      "sha256": "51f7092a6f56e4289d3358ad7d761d24dacf2d5e184cfcf03240cc0897bceae8",
+      "vertices": 52731,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -380,7 +413,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58185",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 266659,
       "source_material_segments": 5,
@@ -388,10 +424,10 @@
     },
     {
       "file": "tile-3894_58189.glb",
-      "bytes": 1198592,
+      "bytes": 1229084,
       "includes_normals": true,
-      "sha256": "7638c2b38d81b8285bbc7302df72703d870e9bf8c75b51d93828cff00d6797d5",
-      "vertices": 51606,
+      "sha256": "3259facd01ed3a28cfe94e1d73029fd46bfa54f01f018f892cc06990efc2f888",
+      "vertices": 54576,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -410,7 +446,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58189",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 382205,
       "source_material_segments": 2,
@@ -418,10 +457,10 @@
     },
     {
       "file": "tile-3894_58193.glb",
-      "bytes": 1187576,
+      "bytes": 1202892,
       "includes_normals": true,
-      "sha256": "caa0f57816545b5413844dd4ec8471160d315c9de9cf6ec7cdc7c896d5204439",
-      "vertices": 50755,
+      "sha256": "8b21ce50ce08bdf61ad936f1c68f72ccd0563800b4c656eeaea3f35c49b71bdb",
+      "vertices": 52235,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -440,7 +479,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 370127,
       "source_material_segments": 6,
@@ -448,10 +490,10 @@
     },
     {
       "file": "tile-3894_58196.glb",
-      "bytes": 1184768,
+      "bytes": 1197880,
       "includes_normals": true,
-      "sha256": "fb88f064f5b528046a9216af98a42831f1145c1a49f5e319bb0d5164a258a867",
-      "vertices": 50850,
+      "sha256": "1773016699c5dd6ae7be362b953d8f394cf1f3c33431dd6883deb22b849da069",
+      "vertices": 52153,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -470,7 +512,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 292494,
       "source_material_segments": 5,
@@ -478,10 +523,10 @@
     },
     {
       "file": "tile-3894_58200.glb",
-      "bytes": 1186724,
+      "bytes": 1195364,
       "includes_normals": true,
-      "sha256": "9b6c245535737152f9512583b40f10fcbf8a926389b05b555ebbd77fc6bf2e11",
-      "vertices": 51748,
+      "sha256": "a03984a758af1cda13537bcd46151b7df01ea828a2fadb82b5fc09fe2cb2a13a",
+      "vertices": 52558,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -500,7 +545,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 173715,
       "source_material_segments": 1,
@@ -508,10 +556,10 @@
     },
     {
       "file": "tile-3894_58203.glb",
-      "bytes": 1184364,
+      "bytes": 1196104,
       "includes_normals": true,
-      "sha256": "acb8c4e148d6d91fcb9081ecef7f5ed0ced487ddf1275317503a4f716951f4c0",
-      "vertices": 51799,
+      "sha256": "1ae5cbf79d0cb6c5e3789f73a4d30694d2f517f4f488ded9fc4eca3597e44830",
+      "vertices": 52905,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -530,7 +578,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58203",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 136640,
       "source_material_segments": 1,
@@ -538,10 +589,10 @@
     },
     {
       "file": "tile-3894_58207.glb",
-      "bytes": 1189852,
+      "bytes": 1203816,
       "includes_normals": true,
-      "sha256": "50ccfbd75bf70b1903eb63531a2fc91ecf490f4867401d9414c9e855a0b53685",
-      "vertices": 51385,
+      "sha256": "bac8208c7b6fa37154b07bf37f8526102daf9e064f2f898f71d673795931eade",
+      "vertices": 52767,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -560,7 +611,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3894_58207",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 229559,
       "source_material_segments": 6,
@@ -568,10 +622,10 @@
     },
     {
       "file": "tile-3898_58185.glb",
-      "bytes": 1190620,
+      "bytes": 1207756,
       "includes_normals": true,
-      "sha256": "d319f6e63b829f75a3f921a9657b4b47f2aaa397d063cbe8a02c45203cf985e8",
-      "vertices": 51186,
+      "sha256": "f23643630e7f41d15553e334ff6272cd078b53883ca0539757bb5d59c8e47413",
+      "vertices": 52841,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -590,7 +644,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3898_58185",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 267698,
       "source_material_segments": 4,
@@ -598,10 +655,10 @@
     },
     {
       "file": "tile-3898_58189.glb",
-      "bytes": 1190416,
+      "bytes": 1208516,
       "includes_normals": true,
-      "sha256": "1af6e488a0104cb57bc3d8e25ae9f58d7cbd5b2d9c4701d3f26fa82b983bfb4d",
-      "vertices": 51296,
+      "sha256": "650f787784bef08042624f42c4e45c59c96fe80a7337693654b564a65f4409b7",
+      "vertices": 53118,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -620,7 +677,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3898_58189",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 268484,
       "source_material_segments": 5,
@@ -628,10 +688,10 @@
     },
     {
       "file": "tile-3898_58193.glb",
-      "bytes": 1176596,
+      "bytes": 1199220,
       "includes_normals": true,
-      "sha256": "43bab43f316f1fad19526768d1503589decc3be91c8a3d183d4cc879a6a9c124",
-      "vertices": 51412,
+      "sha256": "70013d788bb97c0fd1c99f323d2db076adde775dca192bc055d5f41356e36b5a",
+      "vertices": 53611,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -650,7 +710,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3898_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 313468,
       "source_material_segments": 3,
@@ -658,10 +721,10 @@
     },
     {
       "file": "tile-3898_58196.glb",
-      "bytes": 1196632,
+      "bytes": 1213032,
       "includes_normals": true,
-      "sha256": "c5e04f8325c602899ba3eacf8400f24ce1ea7df53ac337400b9405e1bee92f59",
-      "vertices": 52405,
+      "sha256": "3209c275c83af5d384084aa6596caae813a4c0c64f999e24bee204290c283efa",
+      "vertices": 53977,
       "faces": 99999,
       "source_bounds_epsg25833": [
         [
@@ -680,7 +743,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3898_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 286665,
       "source_material_segments": 7,
@@ -688,10 +754,10 @@
     },
     {
       "file": "tile-3898_58200.glb",
-      "bytes": 1187796,
+      "bytes": 1199240,
       "includes_normals": true,
-      "sha256": "8be6c6c9b3a52deb6e4e0d356be9c10b0d9e89a9ff93a83e8901cb247ad8397e",
-      "vertices": 51316,
+      "sha256": "148bb4ed1cea0725e4df283ade53d54191186f87b4fe26db00ac5ba9bde3b5b8",
+      "vertices": 52430,
       "faces": 100000,
       "source_bounds_epsg25833": [
         [
@@ -710,7 +776,10 @@
       "quantize_position_bits": 16,
       "quality_tier": "interaction",
       "tile_id": "3898_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 212199,
       "source_material_segments": 6,
@@ -720,21 +789,21 @@
   "surface_detail_tiles": [
     {
       "file": "surface-detail-3887_58193.glb",
-      "bytes": 2151472,
+      "bytes": 3625500,
       "includes_normals": true,
-      "sha256": "56bf612474c677d02b7e2c2509e81387bca8bfec58e7fa0a81949084fc512f4e",
-      "vertices": 89025,
-      "faces": 175699,
+      "sha256": "d458fef7edf459d66fcf2f3f30e6b3c07a272338e95593adbd639c834819d6c4",
+      "vertices": 149499,
+      "faces": 289797,
       "source_bounds_epsg25833": [
         [
-          388731.638,
+          388729.703,
           5819308.991,
           31.305
         ],
         [
           389107.264,
           5819673.947,
-          66.498
+          66.518
         ]
       ],
       "meshopt_compressed": true,
@@ -742,27 +811,30 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3887_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 423421,
       "source_material_segments": 6,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3887_58196.glb",
-      "bytes": 2145944,
+      "bytes": 3619296,
       "includes_normals": true,
-      "sha256": "3c6d4e066d00af71c169c008f04339bcffc137d3ec7941f7db605300206af23c",
-      "vertices": 89190,
-      "faces": 175699,
+      "sha256": "c3ccd0e4feff2cfebf46acbe41cebf1b9f7e1c4b06d946ec6cee40049696226d",
+      "vertices": 149446,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
-          388726.788,
-          5819667.34,
-          29.122
+          388726.65,
+          5819666.519,
+          29.124
         ],
         [
-          389103.119,
+          389103.657,
           5820045.159,
           62.947
         ]
@@ -772,29 +844,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3887_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 354654,
       "source_material_segments": 7,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3887_58200.glb",
-      "bytes": 2159344,
+      "bytes": 3640392,
       "includes_normals": true,
-      "sha256": "b3d357fc326f2e4a5f822b04ea58b960c4aed25e57c53576e8f4ade9dccc917e",
-      "vertices": 90273,
-      "faces": 175699,
+      "sha256": "72e012d4cba595c73203eeda649293d82ffe6b5dd2c8eddd4189b5b1f60e0143",
+      "vertices": 151654,
+      "faces": 289286,
       "source_bounds_epsg25833": [
         [
           388725.985,
-          5820017.74,
-          26.795
+          5820016.592,
+          26.793
         ],
         [
-          389106.029,
-          5820394.883,
-          100.506
+          389110.869,
+          5820395.155,
+          100.477
         ]
       ],
       "meshopt_compressed": true,
@@ -802,29 +877,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3887_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 289286,
       "source_material_segments": 6,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3887_58203.glb",
-      "bytes": 2158940,
+      "bytes": 3636544,
       "includes_normals": true,
-      "sha256": "b2745829356627f04b604208453c69f0ad471314ca1b0f560904b7214232ee9e",
-      "vertices": 89586,
-      "faces": 175699,
+      "sha256": "9c05fd934627e25f40e94affb09953ea84a98449729829bedd7fa4a2e46da7e6",
+      "vertices": 150012,
+      "faces": 289797,
       "source_bounds_epsg25833": [
         [
-          388731.753,
+          388731.207,
           5820381.92,
           32.146
         ],
         [
           389110.641,
-          5820751.299,
-          88.861
+          5820751.357,
+          88.837
         ]
       ],
       "meshopt_compressed": true,
@@ -832,29 +910,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3887_58203",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 373150,
       "source_material_segments": 8,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3890_58189.glb",
-      "bytes": 2153640,
+      "bytes": 3632112,
       "includes_normals": true,
-      "sha256": "1eb1447181fcb6bb51baeb2d7c24cc65767476cca6b21cac276df9b3ce826d4f",
-      "vertices": 89422,
-      "faces": 175700,
+      "sha256": "242344b658ea3aee99c4b2fc1b5971ddf23f4af9f29d35b41d86ba403c6364b0",
+      "vertices": 150052,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
-          389090.158,
-          5818943.661,
+          389090.115,
+          5818942.244,
           27.893
         ],
         [
           389457.85,
-          5819311.203,
-          70.367
+          5819311.205,
+          70.416
         ]
       ],
       "meshopt_compressed": true,
@@ -862,29 +943,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3890_58189",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 358354,
       "source_material_segments": 6,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3890_58193.glb",
-      "bytes": 2154924,
+      "bytes": 3631548,
       "includes_normals": true,
-      "sha256": "d906124082c74b623105b7117054095c674d752d1b693d569c710eda48804241",
-      "vertices": 89462,
-      "faces": 175699,
+      "sha256": "5b171adfe3d2ecd1fb37ddbe8006cea39b25936183bc769ace4844602f13705e",
+      "vertices": 150237,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
-          389088.136,
+          389083.769,
           5819309.063,
-          30.385
+          30.363
         ],
         [
           389457.836,
           5819674.444,
-          63.809
+          63.758
         ]
       ],
       "meshopt_compressed": true,
@@ -892,28 +976,31 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3890_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 407693,
       "source_material_segments": 4,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3890_58196.glb",
-      "bytes": 2150744,
+      "bytes": 3626120,
       "includes_normals": true,
-      "sha256": "4c0f06b0a71b00c3c63690ebf6c45228961de8e14e61ad4a99f1dc3da8741985",
-      "vertices": 89038,
-      "faces": 175699,
+      "sha256": "6c9bcd3bf9d6e2d6bf095c3994a8966d46ed504862d7d9ef5a6e7234126c3ded",
+      "vertices": 149398,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
-          389090.142,
+          389090.132,
           5819660.905,
-          32.11
+          31.645
         ],
         [
           389457.921,
-          5820035.816,
+          5820035.892,
           78.533
         ]
       ],
@@ -922,29 +1009,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3890_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 384419,
       "source_material_segments": 4,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3890_58200.glb",
-      "bytes": 2155844,
+      "bytes": 3094792,
       "includes_normals": true,
-      "sha256": "b175340957581c490a3ab3afdb88b8aaadf4469baa735558d4850f0e94f3c9e3",
-      "vertices": 90183,
-      "faces": 175699,
+      "sha256": "01af25fe7851b55611c66a28927d6cef3097240f8df273b407f2e9345fec664d",
+      "vertices": 129383,
+      "faces": 247359,
       "source_bounds_epsg25833": [
         [
-          389087.09,
-          5820022.627,
-          28.901
+          389086.078,
+          5820021.182,
+          28.898
         ],
         [
-          389457.385,
-          5820396.943,
-          91.55
+          389457.647,
+          5820402.421,
+          91.436
         ]
       ],
       "meshopt_compressed": true,
@@ -952,29 +1042,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3890_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 247359,
       "source_material_segments": 2,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3890_58203.glb",
-      "bytes": 2157656,
+      "bytes": 2551576,
       "includes_normals": true,
-      "sha256": "cd956c2a9e17a18ef0c50ea13e67c6231cfe79a82b0f687321356aa266caa5aa",
-      "vertices": 90660,
-      "faces": 175699,
+      "sha256": "cac7bf3aeb54da85acc679b0ce07c69acc25842368a714ff1b967bfacb486b2a",
+      "vertices": 108057,
+      "faces": 204627,
       "source_bounds_epsg25833": [
         [
           389080.415,
-          5820378.841,
-          30.427
+          5820378.655,
+          30.431
         ],
         [
           389458.256,
           5820751.388,
-          97.56
+          97.581
         ]
       ],
       "meshopt_compressed": true,
@@ -982,19 +1075,22 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3890_58203",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 204627,
       "source_material_segments": 4,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3890_58207.glb",
-      "bytes": 2157340,
+      "bytes": 2866328,
       "includes_normals": true,
-      "sha256": "37730175a7db46612d2857ba6ab1ec700b0a841e6c74696c7eb2f643f3ba39af",
-      "vertices": 90462,
-      "faces": 175699,
+      "sha256": "69c9d9359de04dd777fa56e7085e5ef6d0dfd726da5e79c44f80fc2453bcecdc",
+      "vertices": 120406,
+      "faces": 229352,
       "source_bounds_epsg25833": [
         [
           389088.914,
@@ -1002,8 +1098,8 @@
           28.458
         ],
         [
-          389458.306,
-          5821120.037,
+          389458.393,
+          5821122.905,
           119.57
         ]
       ],
@@ -1012,29 +1108,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3890_58207",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 229352,
       "source_material_segments": 5,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58182.glb",
-      "bytes": 2158408,
+      "bytes": 3646716,
       "includes_normals": true,
-      "sha256": "20c7ca5362f73446a4c918a4bdfb4508d6cbec18cd5359886486d2dc26d1cfe8",
-      "vertices": 90171,
-      "faces": 175700,
+      "sha256": "9c6310aa4e8742ee6c728209c52718cf60956bc2451bd95a3b0b37b97997d166",
+      "vertices": 152125,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
           389455.352,
-          5818221.978,
-          28.951
+          5818219.21,
+          28.928
         ],
         [
           389828.406,
-          5818598.018,
-          142.653
+          5818598.877,
+          142.666
         ]
       ],
       "meshopt_compressed": true,
@@ -1042,29 +1141,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58182",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 312139,
       "source_material_segments": 3,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58185.glb",
-      "bytes": 2156952,
+      "bytes": 3343536,
       "includes_normals": true,
-      "sha256": "e87f6eab691c6d9d002276bf48ae579484066bc0ad093575ba077f197d977d28",
-      "vertices": 89974,
-      "faces": 175699,
+      "sha256": "88c9fbd661f3072c14f4718e336ec400e12339e0032e59549c9ac37f2be8e649",
+      "vertices": 139230,
+      "faces": 266659,
       "source_bounds_epsg25833": [
         [
-          389455.987,
-          5818582.246,
-          26.769
+          389455.385,
+          5818582.137,
+          26.735
         ],
         [
-          389827.334,
-          5818960.418,
-          136.973
+          389832.585,
+          5818965.155,
+          136.968
         ]
       ],
       "meshopt_compressed": true,
@@ -1072,29 +1174,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58185",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 266659,
       "source_material_segments": 5,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58189.glb",
-      "bytes": 2160552,
+      "bytes": 3639392,
       "includes_normals": true,
-      "sha256": "7efac84c0ce9f3537e53e2e2e33a11533d1d8217d03e27114409b0d7381266ec",
-      "vertices": 89785,
-      "faces": 175699,
+      "sha256": "745ca85a63cca96afe51e776b0acd590ddd757b012efe4bed3b82aa9e582b6d2",
+      "vertices": 150653,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
           389455.791,
-          5818944.662,
-          26.705
+          5818942.33,
+          26.687
         ],
         [
-          389821.753,
+          389829.809,
           5819311.023,
-          141.823
+          141.766
         ]
       ],
       "meshopt_compressed": true,
@@ -1102,29 +1207,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58189",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 382205,
       "source_material_segments": 2,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58193.glb",
-      "bytes": 2147320,
+      "bytes": 3620544,
       "includes_normals": true,
-      "sha256": "1d87cfdb2d1183014b3851d2cb2b9f6d3b0393779cb40af445beced44d2b5ead",
-      "vertices": 89156,
-      "faces": 175699,
+      "sha256": "05c463a1de5522d4407d9af849e856f4cb54ff1184b235a48d8197f58377a511",
+      "vertices": 149505,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
           389448.835,
           5819307.28,
-          31.883
+          31.884
         ],
         [
-          389820.391,
+          389821.232,
           5819683.769,
-          62.625
+          62.612
         ]
       ],
       "meshopt_compressed": true,
@@ -1132,28 +1240,31 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 370127,
       "source_material_segments": 6,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58196.glb",
-      "bytes": 2150320,
+      "bytes": 3636800,
       "includes_normals": true,
-      "sha256": "76318b9630d01c4908abf96c4006038324a6600eb5e8c4a4ff1a1803632a347a",
-      "vertices": 89605,
-      "faces": 175700,
+      "sha256": "af5526cb430696b3d916884f8e700dcd82da422fd70f54977f79163e9151e373",
+      "vertices": 151159,
+      "faces": 289797,
       "source_bounds_epsg25833": [
         [
-          389451.045,
+          389447.857,
           5819656.656,
-          32.587
+          32.627
         ],
         [
-          389822.652,
-          5820041.831,
+          389829.702,
+          5820042.691,
           89.939
         ]
       ],
@@ -1162,18 +1273,21 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 292494,
       "source_material_segments": 5,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58200.glb",
-      "bytes": 2134336,
+      "bytes": 2150312,
       "includes_normals": true,
-      "sha256": "1b3fb02e3f85406819526d6037172ca9aad22eb4de1007ce431e10a5917c2e73",
-      "vertices": 90429,
+      "sha256": "311ecdb05e77457d0714729cae2ae865d97085b5a53961e4a68b1664a60f9fd7",
+      "vertices": 91941,
       "faces": 173715,
       "source_bounds_epsg25833": [
         [
@@ -1192,18 +1306,21 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 173715,
       "source_material_segments": 1,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58203.glb",
-      "bytes": 1658436,
+      "bytes": 1673464,
       "includes_normals": true,
-      "sha256": "028044a25fd935ac2bdaf8b39507d1690e8f274a76cda41717cd0f7b75808ed4",
-      "vertices": 71527,
+      "sha256": "9afc0fe8f80c44dd27e303d73bd4a2ac2761790e3adee473ad1212397b62d7b0",
+      "vertices": 72961,
       "faces": 136640,
       "source_bounds_epsg25833": [
         [
@@ -1222,27 +1339,30 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58203",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 136640,
       "source_material_segments": 1,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3894_58207.glb",
-      "bytes": 2158484,
+      "bytes": 2866760,
       "includes_normals": true,
-      "sha256": "dcb9e28cc92bec5945900081c21691ac88500177596e422e3cd2c3e7663bd77d",
-      "vertices": 90322,
-      "faces": 175699,
+      "sha256": "577a4f92743ca8d732a09ca58f8261f2019c4fc44d7e0c7736b7dd8420569174",
+      "vertices": 120149,
+      "faces": 229559,
       "source_bounds_epsg25833": [
         [
           389455.724,
-          5820749.105,
+          5820749.087,
           29.018
         ],
         [
-          389821.486,
+          389823.137,
           5821120.012,
           90.373
         ]
@@ -1252,23 +1372,26 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3894_58207",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 229559,
       "source_material_segments": 6,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3898_58185.glb",
-      "bytes": 2159940,
+      "bytes": 3362080,
       "includes_normals": true,
-      "sha256": "c31879d0c23b66dad0e2a9ba69f3fd171a0ab73851b34f927cee484c7934523c",
-      "vertices": 89987,
-      "faces": 175700,
+      "sha256": "c68d41ea9f5a3de202d045d2d9b4b2361bf64c64cd1c1e67617558f5faf9ed90",
+      "vertices": 139718,
+      "faces": 267698,
       "source_bounds_epsg25833": [
         [
-          389811.328,
-          5818581.637,
+          389809.06,
+          5818579.379,
           28.693
         ],
         [
@@ -1282,29 +1405,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3898_58185",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 267698,
       "source_material_segments": 4,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3898_58189.glb",
-      "bytes": 2156576,
+      "bytes": 3363052,
       "includes_normals": true,
-      "sha256": "9ed1c55ebc14eb62e65022e7bb086b77f63d700f3790c8dcb679e94c121dcefb",
-      "vertices": 89908,
-      "faces": 175699,
+      "sha256": "71bf907ada783497420dc1358355e6c362dc5e52a58bc4bbc4bf3ee58bbdb076",
+      "vertices": 139712,
+      "faces": 268484,
       "source_bounds_epsg25833": [
         [
-          389810.753,
-          5818940.682,
+          389807.715,
+          5818935.604,
           31.513
         ],
         [
           390188.65,
-          5819310.929,
-          76.6
+          5819310.972,
+          76.591
         ]
       ],
       "meshopt_compressed": true,
@@ -1312,29 +1438,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3898_58189",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 268484,
       "source_material_segments": 5,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3898_58193.glb",
-      "bytes": 2139880,
+      "bytes": 3629976,
       "includes_normals": true,
-      "sha256": "4306b65a2959e478065e8eb331a6f5cef169540bd4f5e0327e9f075adc0910de",
-      "vertices": 89832,
-      "faces": 175700,
+      "sha256": "f358f804c1e19d7a0223f01892d3811cd89d7980a61b79fef11fbc5803bbe725",
+      "vertices": 151749,
+      "faces": 289796,
       "source_bounds_epsg25833": [
         [
-          389811.166,
-          5819301.005,
-          29.01
+          389807.426,
+          5819299.706,
+          29.041
         ],
         [
-          390180.471,
+          390187.933,
           5819681.957,
-          69.356
+          69.405
         ]
       ],
       "meshopt_compressed": true,
@@ -1342,29 +1471,32 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3898_58193",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 313468,
       "source_material_segments": 3,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3898_58196.glb",
-      "bytes": 2171380,
+      "bytes": 3605284,
       "includes_normals": true,
-      "sha256": "27271d9ce29884800f4ded2492ad72e18f8c93a6f253d360fc270b75c1269dc7",
-      "vertices": 91960,
-      "faces": 175699,
+      "sha256": "db369416140e21a897e88427872c0b91b1d0d8f42c68d3d0343f596862935cc6",
+      "vertices": 154827,
+      "faces": 286665,
       "source_bounds_epsg25833": [
         [
-          389806.467,
-          5819660.988,
-          26.944
+          389802.863,
+          5819655.096,
+          26.884
         ],
         [
-          390186.683,
-          5820037.39,
-          89.933
+          390190.427,
+          5820044.696,
+          89.939
         ]
       ],
       "meshopt_compressed": true,
@@ -1372,28 +1504,31 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3898_58196",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 286665,
       "source_material_segments": 7,
-      "target_faces": 175700
+      "target_faces": 289797
     },
     {
       "file": "surface-detail-3898_58200.glb",
-      "bytes": 2162284,
+      "bytes": 2654268,
       "includes_normals": true,
-      "sha256": "ba81e76d185b85c758add9e4c1fe196b63701d141f5e14d50bf1ec4d5d4016af",
-      "vertices": 90856,
-      "faces": 175699,
+      "sha256": "73ee1b4d2199e51bf6ebf4dd2af6317406187b9102c60359186fc1ac0d5c9c52",
+      "vertices": 112419,
+      "faces": 212199,
       "source_bounds_epsg25833": [
         [
-          389806.286,
+          389801.745,
           5820013.262,
           27.844
         ],
         [
-          390188.335,
-          5820395.292,
+          390190.427,
+          5820403.194,
           74.02
         ]
       ],
@@ -1402,11 +1537,14 @@
       "quantize_position_bits": 16,
       "quality_tier": "settled",
       "tile_id": "3898_58200",
-      "normal_crease_degrees": 72.0,
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 212199,
       "source_material_segments": 6,
-      "target_faces": 175700
+      "target_faces": 289797
     }
   ],
   "hero_details": [
@@ -1416,9 +1554,9 @@
       "files": [
         {
           "file": "hero-reichstag-3894_58196-material-0.glb",
-          "bytes": 418188,
+          "bytes": 421020,
           "includes_normals": true,
-          "sha256": "f58bf0cad61fbb6bd10032bc7365e1611cff2a2244f203af1a3e6ca06b2f1c5d",
+          "sha256": "a4e064ce2b925929c6da0d58b89b1b6f4afd9c808cfda72266780ad335bbafb5",
           "vertices": 117,
           "faces": 39,
           "source_bounds_epsg25833": [
@@ -1433,7 +1571,10 @@
               68.044
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389765.725,
             5819891.888,
@@ -1445,9 +1586,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-1.glb",
-          "bytes": 897684,
+          "bytes": 898184,
           "includes_normals": true,
-          "sha256": "c9c6f6c05c33886a0e40d48dae716ffbb21aaf15e6f6f50149d374bf336f6f10",
+          "sha256": "7a79b26ceedbc7f36e25a9016a9e2629d54f384a0374f819871c2f80bd43105b",
           "vertices": 303,
           "faces": 101,
           "source_bounds_epsg25833": [
@@ -1462,7 +1603,10 @@
               77.068
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389766.654,
             5819892.948,
@@ -1474,9 +1618,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-2.glb",
-          "bytes": 3483776,
+          "bytes": 2273404,
           "includes_normals": true,
-          "sha256": "62b5a6f4fd34a46a183e3a8941536c0d5dd9d8956ba8127c67b075ccfba7051d",
+          "sha256": "843ab6768c9f43144490fce9a391f93605b4560da95eb7005f5141a6ccaf7acc",
           "vertices": 1413,
           "faces": 471,
           "source_bounds_epsg25833": [
@@ -1491,7 +1635,10 @@
               85.357
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389757.141,
             5819890.359,
@@ -1503,9 +1650,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-3.glb",
-          "bytes": 4315984,
+          "bytes": 4583696,
           "includes_normals": true,
-          "sha256": "0919b2d58647c60e9f4b192c4a4bd9cbaf4d991b35cbe2f5de58faf5b1851be6",
+          "sha256": "f0293731bc288993c73e29f51bb04fc0a7d8fdc975698bf70325b8e649539ea4",
           "vertices": 3120,
           "faces": 1040,
           "source_bounds_epsg25833": [
@@ -1520,7 +1667,10 @@
               89.939
             ]
           ],
-          "texture_max_edge": 1536,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389760.758,
             5819891.661,
@@ -1532,9 +1682,9 @@
         },
         {
           "file": "hero-reichstag-3894_58196-material-4.glb",
-          "bytes": 4954116,
+          "bytes": 4475268,
           "includes_normals": true,
-          "sha256": "2774a7921875229d64e37562d78ecd337223ba11d26f731483b8097f1616240b",
+          "sha256": "ca33d54d3f7e03223bd60547b4ad68d8d227f77ce072df2eef34ba4933a729c5",
           "vertices": 68751,
           "faces": 22917,
           "source_bounds_epsg25833": [
@@ -1549,7 +1699,10 @@
               89.939
             ]
           ],
-          "texture_max_edge": 1024,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389755.091,
             5819879.92,
@@ -1561,9 +1714,9 @@
         },
         {
           "file": "hero-reichstag-3894_58200-material-0.glb",
-          "bytes": 3803404,
+          "bytes": 3779400,
           "includes_normals": true,
-          "sha256": "0485446c7b059faccaafabf0d66b3a62438af249ce7cdf8a0ea97084266ca7ec",
+          "sha256": "917f9f4b6eb36991e5a789c1529ee81a3eb81646a834bedf934c1f227a1e06f3",
           "vertices": 1572,
           "faces": 524,
           "source_bounds_epsg25833": [
@@ -1578,6 +1731,9 @@
               62.485
             ]
           ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
           "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389759.296,
@@ -1590,9 +1746,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-3.glb",
-          "bytes": 436752,
+          "bytes": 436756,
           "includes_normals": true,
-          "sha256": "75f46e4a4fbb0f3ccfcbe8ebdf82e8e1245407f799ac2230acb618a4483d9d51",
+          "sha256": "9f89e79c35069038f0564ef2b907d71a375130aeb821d11c57fe1c9df9cafd48",
           "vertices": 162,
           "faces": 54,
           "source_bounds_epsg25833": [
@@ -1607,7 +1763,10 @@
               76.898
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389813.712,
             5819907.94,
@@ -1619,9 +1778,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-4.glb",
-          "bytes": 3434348,
+          "bytes": 2271288,
           "includes_normals": true,
-          "sha256": "008144216000b2441ef5eadbd98355a19d3216d0fd79854abd8ab231749e8035",
+          "sha256": "b5e279baaa0195834236a1545169e5a3a3a4d132e41c5bfe3caa5aa3fde17b7a",
           "vertices": 1167,
           "faces": 389,
           "source_bounds_epsg25833": [
@@ -1636,7 +1795,10 @@
               86.791
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389810.667,
             5819888.742,
@@ -1648,9 +1810,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-5.glb",
-          "bytes": 4347728,
+          "bytes": 2714660,
           "includes_normals": true,
-          "sha256": "c693f8a13c181837eb878eccff9a97eb972671f475df0df7e598791bd0a5ba90",
+          "sha256": "590b6d689e5cd5458db00655a505e076f93cd20c4704996f76cd1ae4c0012959",
           "vertices": 5769,
           "faces": 1923,
           "source_bounds_epsg25833": [
@@ -1665,7 +1827,10 @@
               89.939
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389804.391,
             5819888.911,
@@ -1677,9 +1842,9 @@
         },
         {
           "file": "hero-reichstag-3898_58196-material-6.glb",
-          "bytes": 4648668,
+          "bytes": 4446808,
           "includes_normals": true,
-          "sha256": "b57434f79a68dd00d0e21873a2b38972577cbab6cffa3e56bac885eae26be6e6",
+          "sha256": "a70726f192e1cb470c0cfff4e542287610a43f9f601c6dfcebb3298e3a1ef4d5",
           "vertices": 57552,
           "faces": 19184,
           "source_bounds_epsg25833": [
@@ -1694,7 +1859,10 @@
               89.915
             ]
           ],
-          "texture_max_edge": 1024,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389802.863,
             5819879.694,
@@ -1706,9 +1874,9 @@
         },
         {
           "file": "hero-reichstag-3898_58200-material-5.glb",
-          "bytes": 3916472,
+          "bytes": 3915960,
           "includes_normals": true,
-          "sha256": "4d176b788b30aaabe891beee50a0f8b89c373000bc16432cdbb765836156f3d0",
+          "sha256": "339f25d136804433dac5de5ae57788bb5d3df4b121cc29fcd99e3147e7068a09",
           "vertices": 645,
           "faces": 215,
           "source_bounds_epsg25833": [
@@ -1723,6 +1891,9 @@
               37.945
             ]
           ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
           "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389814.703,
@@ -1741,9 +1912,9 @@
       "files": [
         {
           "file": "hero-bundeskanzleramt-3890_58200-material-0.glb",
-          "bytes": 4352616,
+          "bytes": 4567836,
           "includes_normals": true,
-          "sha256": "0dae17bb6c4344cc0516e62ace66ac43aa00e3e847c6f97ed00d13e2ed372fb4",
+          "sha256": "cc7c475feb2aef8f228f25e195a9cbe7177050a7755e2d9e15d7317567dce6d0",
           "vertices": 4641,
           "faces": 1547,
           "source_bounds_epsg25833": [
@@ -1758,7 +1929,10 @@
               72.372
             ]
           ],
-          "texture_max_edge": 1536,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389107.292,
             5820086.147,
@@ -1770,9 +1944,9 @@
         },
         {
           "file": "hero-bundeskanzleramt-3890_58200-material-1.glb",
-          "bytes": 5135828,
+          "bytes": 4980516,
           "includes_normals": true,
-          "sha256": "420992697414f78738e2a7d0371f5d6c775ae4867ab28e0f7f06d09bfb744935",
+          "sha256": "448007688ddc261544108adf913e03272dd2385c8cc66d3601a9914fe7a7c129",
           "vertices": 131808,
           "faces": 43936,
           "source_bounds_epsg25833": [
@@ -1787,7 +1961,10 @@
               74.485
             ]
           ],
-          "texture_max_edge": 384,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389099.985,
             5820082.779,
@@ -1805,9 +1982,9 @@
       "files": [
         {
           "file": "hero-hauptbahnhof-3890_58203-material-2.glb",
-          "bytes": 3579784,
+          "bytes": 2338844,
           "includes_normals": true,
-          "sha256": "5c64f2a7c435dc3547436448f11479c160ccefb9e654e176e9b6e97081a8c22d",
+          "sha256": "6caa457a03b275efda715a5676b595e14d9902f8c7480619742570bcd0d01d67",
           "vertices": 2553,
           "faces": 851,
           "source_bounds_epsg25833": [
@@ -1822,7 +1999,10 @@
               84.772
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389317.409,
             5820594.587,
@@ -1834,9 +2014,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58203-material-3.glb",
-          "bytes": 4253156,
+          "bytes": 4638920,
           "includes_normals": true,
-          "sha256": "60fbd003f90abaad02b4d59d2848845e70fdd687aa2e2b54b4c8784806f6b377",
+          "sha256": "a367568b5638dca6506aac5b4bc6458051bf9262279c796d6e91721d6c75ca4c",
           "vertices": 77133,
           "faces": 25711,
           "source_bounds_epsg25833": [
@@ -1851,7 +2031,10 @@
               87.416
             ]
           ],
-          "texture_max_edge": 768,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389312.926,
             5820591.444,
@@ -1863,9 +2046,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-2.glb",
-          "bytes": 1708176,
+          "bytes": 1719496,
           "includes_normals": true,
-          "sha256": "4c3158b692e2c2f79f88c699b5cc5590b696c39dff40005fe9d50815508e23c5",
+          "sha256": "76a7cc50ef4a3c5461d5d48e52e21cf3f131f2252b180272500ce44b58d4afcc",
           "vertices": 138,
           "faces": 46,
           "source_bounds_epsg25833": [
@@ -1880,7 +2063,10 @@
               73.87
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389327.385,
             5820749.375,
@@ -1892,9 +2078,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-3.glb",
-          "bytes": 3533692,
+          "bytes": 2317316,
           "includes_normals": true,
-          "sha256": "ab0f863d3aba1ce232716840c2b23989a3852c77963de8864373be93a49c8772",
+          "sha256": "12ff252faf255d85260154a619a7278e6d73c0425ff40a9b0de57e34eb47d223",
           "vertices": 954,
           "faces": 318,
           "source_bounds_epsg25833": [
@@ -1909,7 +2095,10 @@
               81.532
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389315.049,
             5820749.469,
@@ -1921,9 +2110,9 @@
         },
         {
           "file": "hero-hauptbahnhof-3890_58207-material-4.glb",
-          "bytes": 4655800,
+          "bytes": 4139856,
           "includes_normals": true,
-          "sha256": "612ce0edc030735775800a95ef004147ae83bc0cb8aa42aeb796e48a256cd277",
+          "sha256": "52a2901245fe03926bb68e109f432d93907056e2aeb9a47696c65a2ee96406ee",
           "vertices": 19665,
           "faces": 6555,
           "source_bounds_epsg25833": [
@@ -1938,6 +2127,9 @@
               84.795
             ]
           ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
           "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389311.895,
@@ -1956,9 +2148,9 @@
       "files": [
         {
           "file": "hero-brandenburger-tor-3898_58193-material-2.glb",
-          "bytes": 3976512,
+          "bytes": 3991044,
           "includes_normals": true,
-          "sha256": "2fa9ec24135ac18f1d3b1fd6ed53aa36a3c0739610ea8afa9eb600712c5b95f1",
+          "sha256": "a494b905ad05d6e92d95db17bdcade6985c0ca963466090837168f3e13f86b11",
           "vertices": 78,
           "faces": 26,
           "source_bounds_epsg25833": [
@@ -1973,6 +2165,9 @@
               45.886
             ]
           ],
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
           "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389903.647,
@@ -1985,9 +2180,9 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-4.glb",
-          "bytes": 3405064,
+          "bytes": 2263792,
           "includes_normals": true,
-          "sha256": "b4daab1b2587e8759481f818140fdd6b1ea94d5a823823b65da35436be3e608b",
+          "sha256": "f12f4514f84feaa51b7dfcf2600e4d8e4a9d31f9e7d1a39ad20bc60e0bf16535",
           "vertices": 354,
           "faces": 118,
           "source_bounds_epsg25833": [
@@ -2002,7 +2197,10 @@
               55.018
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389911.547,
             5819676.274,
@@ -2014,9 +2212,9 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-5.glb",
-          "bytes": 4205160,
+          "bytes": 2680052,
           "includes_normals": true,
-          "sha256": "9d299ce2f373d31de29ef1c15a816b50e85de077d660798c32fc5b51e946009d",
+          "sha256": "774f9c4d0cc869c2c1f9d42c426e35b3fc7d5134c8d2a7a36073e24e5742a756",
           "vertices": 1809,
           "faces": 603,
           "source_bounds_epsg25833": [
@@ -2031,7 +2229,10 @@
               56.622
             ]
           ],
-          "texture_max_edge": 2048,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1600,
           "crop_bounds_epsg25833": [
             389909.852,
             5819669.819,
@@ -2043,9 +2244,9 @@
         },
         {
           "file": "hero-brandenburger-tor-3898_58196-material-6.glb",
-          "bytes": 4700216,
+          "bytes": 4675336,
           "includes_normals": true,
-          "sha256": "fa0f0f3b1c2cec91b06be1cf8d4f6999c09a1d7c6407a3596237ea4719eec586",
+          "sha256": "f00c68fbd301a5318693fd2d8d24aadba87d43820d30be8e74a49a420643b644",
           "vertices": 111492,
           "faces": 37164,
           "source_bounds_epsg25833": [
@@ -2060,7 +2261,10 @@
               62.834
             ]
           ],
-          "texture_max_edge": 512,
+          "meshopt_compressed": true,
+          "quantize_normal_bits": 8,
+          "quantize_position_bits": 16,
+          "texture_max_edge": 1280,
           "crop_bounds_epsg25833": [
             389894.324,
             5819666.702,
@@ -2596,8 +2800,8 @@
   ],
   "park_details": {
     "file": "park-details.json",
-    "source": "OpenStreetMap",
-    "geometry_status": "Bounded paths, trees and playground display details"
+    "source": "Additive OpenStreetMap and Geoportal Berlin detail fusion",
+    "geometry_status": "Bounded source-positioned paths, trees, public lights, Wall traces and playground details; missing dimensions are display approximations"
   },
   "tiergartentunnel": {
     "name": "Tunnel Tiergarten Spreebogen / B96",

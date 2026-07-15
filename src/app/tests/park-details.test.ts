@@ -8,7 +8,7 @@ import {
 } from "../src/ParkDetails";
 
 const payload: ParkDetailsPayload = {
-  schema_version: 1,
+  schema_version: 2,
   source: {
     attribution: "© OpenStreetMap contributors",
     geometry_status: "test geometry",
@@ -51,6 +51,26 @@ const payload: ParkDetailsPayload = {
       leaf_type: null,
       position: [8, 1.1, 4],
       variant: 2,
+    },
+  ],
+  street_lights: [
+    {
+      height_m: 7,
+      id: "lamp-1",
+      light_type: "Lichtmast mit Aufsatzleuchte",
+      position: [4, 1, 4],
+      rotation_degrees: 15,
+      street: "Testweg",
+    },
+  ],
+  wall_traces: [
+    {
+      id: "wall-1",
+      points: [
+        [0, 1, 0],
+        [2, 1, 0],
+      ],
+      wall_type: "Vorderlandmauer",
     },
   ],
   playgrounds: [
@@ -121,9 +141,28 @@ describe("OSM park details", () => {
     expect(park.getObjectByName("slide slide-1 chute")).toBeDefined();
   });
 
+  test("renders official lighting and the granular double-row Wall trace", () => {
+    const park = createParkDetails(payload);
+    expect(park.userData.streetLightCount).toBe(1);
+    expect(park.userData.wallStoneCount).toBeGreaterThan(8);
+    expect(
+      park.getObjectByName("Geoportal Berlin official public-lighting masts"),
+    ).toBeInstanceOf(InstancedMesh);
+    const cones = park.getObjectByName(
+      "Geoportal Berlin night-only instanced street-light cones",
+    );
+    expect(cones).toBeInstanceOf(InstancedMesh);
+    expect(cones?.userData.nightOnly).toBeTrue();
+    expect(
+      park.getObjectByName(
+        "Official Vorderlandmauer double row of individual granite setts",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
+  });
+
   test("rejects unknown payload schemas instead of partially rendering them", () => {
-    expect(() => createParkDetails({ ...payload, schema_version: 2 })).toThrow(
-      "Unsupported park-detail schema 2",
+    expect(() => createParkDetails({ ...payload, schema_version: 3 })).toThrow(
+      "Unsupported park-detail schema 3",
     );
   });
 

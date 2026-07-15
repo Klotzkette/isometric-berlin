@@ -42,9 +42,12 @@ SOURCE_CRS = "EPSG:25833"
 ORIGIN = np.array([389_500.0, 5_820_000.0, 30.0])
 MAX_ASSET_BYTES = 5 * 1024 * 1024
 BASE_TARGET_FACES = 100_000
-SURFACE_DETAIL_TARGET_FACES = 175_700
+SURFACE_DETAIL_TARGET_FACES = 289_797
 BASE_SIMPLIFICATION_AGGRESSION = 5
-BASE_NORMAL_CREASE_DEGREES = 72.0
+BASE_NORMAL_CREASE_DEGREES = 58.0
+BASE_COLOR_SATURATION = 1.24
+BASE_COLOR_CONTRAST = 1.08
+BASE_COLOR_GAMMA = 0.92
 MESHOPT_POSITION_BITS = 16
 MESHOPT_NORMAL_BITS = 8
 REICHSTAG_DOME_HEIGHT_M = 23.5
@@ -221,8 +224,9 @@ def colored_base_mesh(
     colours = uv_to_color(visual.uv, visual.material.image)
     rgb = colours[:, :3].astype(np.float32) / 255
     luminance = rgb[:, 0:1] * 0.2126 + rgb[:, 1:2] * 0.7152 + rgb[:, 2:3] * 0.0722
-    rgb = luminance + (rgb - luminance) * 1.18
-    rgb = np.power(np.clip(rgb, 0, 1), 0.9)
+    rgb = luminance + (rgb - luminance) * BASE_COLOR_SATURATION
+    rgb = (rgb - 0.5) * BASE_COLOR_CONTRAST + 0.5
+    rgb = np.power(np.clip(rgb, 0, 1), BASE_COLOR_GAMMA)
     colours[:, :3] = np.clip(rgb * 255, 0, 255).astype(np.uint8)
     mesh.visual = ColorVisuals(mesh=mesh, vertex_colors=colours)
     parts.append(mesh)
@@ -245,6 +249,9 @@ def colored_base_mesh(
   merged = split_surface_normals(merged)
   return merged, {
     "normal_crease_degrees": BASE_NORMAL_CREASE_DEGREES,
+    "color_saturation": BASE_COLOR_SATURATION,
+    "color_contrast": BASE_COLOR_CONTRAST,
+    "color_gamma": BASE_COLOR_GAMMA,
     "simplification_aggression": BASE_SIMPLIFICATION_AGGRESSION,
     "source_faces": source_faces,
     "source_material_segments": len(parts),
@@ -353,9 +360,9 @@ def resized_texture_visual(mesh: Any, max_edge: int) -> TextureVisuals:
   """Return the mesh UVs with an RGB texture bounded by ``max_edge``."""
   visual = mesh.visual
   image = visual.material.image.convert("RGB")
-  image = ImageEnhance.Color(image).enhance(1.16)
-  image = ImageEnhance.Contrast(image).enhance(1.07)
-  image = ImageEnhance.Brightness(image).enhance(1.05)
+  image = ImageEnhance.Color(image).enhance(1.2)
+  image = ImageEnhance.Contrast(image).enhance(1.1)
+  image = ImageEnhance.Brightness(image).enhance(1.04)
   if max(image.size) > max_edge:
     ratio = max_edge / max(image.size)
     size = (max(1, round(image.width * ratio)), max(1, round(image.height * ratio)))
@@ -379,7 +386,7 @@ def export_base_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
     candidate = mesh.copy()
     candidate.visual = resized_texture_visual(mesh, max_edge)
     try:
-      metadata = export_mesh(candidate, output_path)
+      metadata = export_mesh(candidate, output_path, compress_geometry=True)
     except ValueError:
       output_path.unlink(missing_ok=True)
       continue
@@ -435,12 +442,12 @@ def export_hero_mesh(mesh: Any, output_path: Path) -> dict[str, Any]:
   """Export a high-detail hero crop while respecting the repository cap."""
   source_vertices = np.asarray(mesh.vertices, dtype=float).copy()
   source_visual = mesh.visual
-  for max_edge in (2048, 1792, 1536, 1280, 1024, 768, 512, 384):
+  for max_edge in (1600, 1536, 1280, 1024, 768, 512, 384):
     candidate = mesh.copy()
     candidate.vertices = source_vertices.copy()
     candidate.visual = resized_texture_visual(mesh, max_edge)
     try:
-      metadata = export_mesh(candidate, output_path)
+      metadata = export_mesh(candidate, output_path, compress_geometry=True)
     except ValueError:
       output_path.unlink(missing_ok=True)
       continue
@@ -971,8 +978,11 @@ def build_webgl_scene(
     "landmarks": landmark_payload(landmarks),
     "park_details": {
       "file": "park-details.json",
-      "source": "OpenStreetMap",
-      "geometry_status": "Bounded paths, trees and playground display details",
+      "source": "Additive OpenStreetMap and Geoportal Berlin detail fusion",
+      "geometry_status": (
+        "Bounded source-positioned paths, trees, public lights, Wall traces and "
+        "playground details; missing dimensions are display approximations"
+      ),
     },
     "tiergartentunnel": tunnel_payload(),
   }

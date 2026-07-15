@@ -10,19 +10,26 @@ PAYLOAD = Path("src/app/public/mesh/regierungsviertel/park-details.json")
 
 def test_park_detail_payload_is_compact_and_specific() -> None:
   assert PAYLOAD.exists()
-  assert PAYLOAD.stat().st_size < 1024 * 1024
+  assert PAYLOAD.stat().st_size < 4 * 1024 * 1024
   raw = PAYLOAD.read_text(encoding="utf-8")
   assert "NaN" not in raw
   payload = json.loads(raw)
 
-  assert payload["schema_version"] == 1
-  assert payload["source"]["attribution"] == "© OpenStreetMap contributors"
+  assert payload["schema_version"] == 2
+  assert payload["source"]["attribution"] == (
+    "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)"
+  )
   assert len(payload["paths"]) >= 150
-  assert len(payload["trees"]) >= 2_500
+  assert len(payload["trees"]) >= 8_000
+  assert payload["tree_fusion"]["official"] >= 6_800
+  assert payload["tree_fusion"]["osm_matched"] >= 1_800
+  assert len(payload["street_lights"]) >= 1_200
+  assert len(payload["wall_traces"]) == 2
   assert len(payload["playgrounds"]) >= 5
   assert all(len(path["points"]) >= 2 for path in payload["paths"])
-  assert all(5.5 <= tree["height_m"] <= 18 for tree in payload["trees"])
+  assert all(3 <= tree["height_m"] <= 28 for tree in payload["trees"])
   assert max(tree["position"][1] for tree in payload["trees"]) < 8
+  assert max(light["position"][1] for light in payload["street_lights"]) < 8
 
 
 def test_luiseninsel_playground_retains_mapped_equipment() -> None:

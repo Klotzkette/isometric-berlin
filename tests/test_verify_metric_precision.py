@@ -12,6 +12,7 @@ from isometric_berlin.data.verify_metric_precision import (
   BERLIN_PROJECTED,
   build_precision_report,
   building_precision_stats,
+  scene_surface_stats,
 )
 
 
@@ -86,3 +87,39 @@ def test_build_precision_report_writes_json_and_markdown(tmp_path: Path) -> None
   assert report["buildings"]["building_count"] == 1
   assert out_json.exists()
   assert "Metric precision" in out_markdown.read_text(encoding="utf-8")
+
+
+def test_scene_surface_stats_reports_current_mesh_tiers(tmp_path: Path) -> None:
+  scene_path = tmp_path / "scene.json"
+  scene_path.write_text(
+    json.dumps(
+      {
+        "base_tiles": [
+          {
+            "faces": 100,
+            "vertices": 60,
+            "bytes": 1_000,
+            "target_faces": 100,
+            "normal_crease_degrees": 58,
+            "simplification_aggression": 5,
+          }
+        ],
+        "surface_detail_tiles": [
+          {"faces": 300, "vertices": 170, "bytes": 2_000, "target_faces": 300}
+        ],
+        "hero_details": [
+          {"id": "hero", "files": [{"faces": 50, "vertices": 40, "bytes": 500}]}
+        ],
+      }
+    ),
+    encoding="utf-8",
+  )
+
+  stats = scene_surface_stats(scene_path)
+
+  assert stats["available"] is True
+  assert stats["base_faces"] == 100
+  assert stats["settled_faces"] == 300
+  assert stats["hero_faces"] == 50
+  assert stats["scene_glb_files"] == 3
+  assert stats["scene_glb_bytes"] == 3_500

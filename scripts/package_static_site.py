@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.3.2"
+PACKAGE_VERSION = "0.3.3"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3347,7 +3347,7 @@ Diese Version verfeinert außerdem die metrisch-architektonische Darstellung:
 LoD2-Grundrisse bleiben der Metermaßstab. Zusätzlich liefert die Berliner
 Befliegung vom Juni 2025 echte photogrammetrische Dach-, Gelände- und
 Fassadenoberflächen. Reichstag, Kanzleramt, Hauptbahnhof und Brandenburger Tor
-haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 2048 px pro
+haben separate hochauflösende, LoD2-maskierte Texturmodelle bis 1600 px pro
 Materialsegment. Maßhaltige Erkennungsmodelle ergänzen das Fotomesh: Reichstag
 mit Westportal, Ecktürmen und 40 x 23,5 m Kuppel; Kanzleramt mit 36-m-Kubus und
 LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 160 x 45 m
@@ -3463,7 +3463,7 @@ inactive 3D when switching to the 2D map, cancel the remaining GLB queue and cap
 active rendering at 30 fps. Lost pointer capture or window focus cleanly resets
 three-finger gestures; global pointer release and a ten-second watchdog prevent
 stuck input. Desktop swaps from the fluid 2,299,987-face interaction surface to
-the official 4,000,039-face surface only after movement fully settles; touch
+the official 6,000,002-face surface only after movement fully settles; touch
 devices request only the lighter tier. Before opening the browser,
 serve-local.py checks all 68 GLB hashes. Its HTTP/1.1 cache reuses immutable
 models, map tiles and app assets
@@ -3473,7 +3473,7 @@ This version also refines the metric architectural rendering pass: LoD2
 footprints remain the metre-scale anchor. The June 2025 Berlin aerial survey
 now adds real photogrammetric roof, terrain and facade surfaces. Reichstag,
 Chancellery, Hauptbahnhof and Brandenburg Gate use separate high-resolution,
-LoD2-masked texture models up to 2048 px per material segment. Metre-scale
+LoD2-masked texture models up to 1600 px per material segment. Metre-scale
 recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 160 x 45 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m

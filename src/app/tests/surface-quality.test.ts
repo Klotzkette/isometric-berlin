@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { shouldUseSettledSurface } from "../src/surfaceQuality";
 
 describe("progressive official surface quality", () => {
-  test("shows four-million-face detail only after desktop loading settles", () => {
+  test("shows six-million-face detail only after desktop loading settles", () => {
     expect(
       shouldUseSettledSurface({
         coarsePointer: false,

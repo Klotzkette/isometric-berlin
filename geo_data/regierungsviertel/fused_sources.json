@@ -1,6 +1,6 @@
 {
   "bounds_ref": "geo_data/regierungsviertel/bounds.geojson",
-  "generated_at": "2026-07-10T07:25:57.361941+00:00",
+  "generated_at": "2026-07-15T13:18:36.388096+00:00",
   "fusion": "additive",
   "sources": {
     "lod2": {
@@ -32,6 +32,11 @@
       "available": true,
       "path": "geo_data/regierungsviertel/berlin_3d_mesh_sources.json",
       "license": "Berlin 3D Downloadportal terms; provider attribution required"
+    },
+    "berlindetails": {
+      "available": true,
+      "path": "geo_data/regierungsviertel/official_details.gpkg",
+      "license": "dl-de/zero-2-0"
     },
     "google3d": {
       "available": false,
@@ -2156,19 +2161,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=10652790813",
+          "ref": "osm.gpkg#pois=10616370270",
           "tags": {
-            "name": "Vincent Vegan",
-            "amenity": "fast_food"
+            "name": "Caffè e Gelato",
+            "amenity": "ice_cream"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=10652790814",
+          "ref": "osm.gpkg#pois=10652790813",
           "tags": {
-            "name": "Masti Indian Kitchen",
-            "amenity": "restaurant"
+            "name": "Vincent Vegan",
+            "amenity": "fast_food"
           }
         }
       ],
@@ -2641,19 +2646,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=12211856178",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "The Barn",
+            "amenity": "cafe"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=12211856178",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "The Barn",
-            "amenity": "cafe"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -2819,19 +2824,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=260769007",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Frederick‘s",
+            "amenity": "restaurant"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=260769007",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Frederick‘s",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -3147,18 +3152,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=419410232",
+          "ref": "osm.gpkg#pois=43723722",
           "tags": {
-            "amenity": "parking"
+            "name": "Kulturforum",
+            "tourism": "attraction"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=43723722",
+          "ref": "osm.gpkg#pois=419410232",
           "tags": {
-            "name": "Kulturforum",
-            "tourism": "attraction"
+            "amenity": "parking"
           }
         }
       ],
@@ -3447,19 +3452,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=12802906550",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Kerb Food Hall",
+            "amenity": "food_court"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=12802906550",
+          "ref": "osm.gpkg#pois=13245767494",
           "tags": {
-            "name": "Kerb Food Hall",
-            "amenity": "food_court"
+            "name": "Fräulein Kimchi",
+            "amenity": "restaurant"
           }
         }
       ],
@@ -3488,19 +3493,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13513482318",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Grindhouse Burgers",
+            "amenity": "fast_food"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13513482318",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Grindhouse Burgers",
-            "amenity": "fast_food"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -3529,19 +3534,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13261958095",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Pick & Cheese",
+            "amenity": "restaurant"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13261958095",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Pick & Cheese",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -3824,19 +3829,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3200536",
+          "ref": "osm.gpkg#pois=7390353734",
           "tags": {
-            "name": "Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Denkmal Giordano Bruno",
+            "historic": "memorial"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=7390353734",
+          "ref": "osm.gpkg#pois=3200536",
           "tags": {
-            "name": "Denkmal Giordano Bruno",
-            "historic": "memorial"
+            "name": "Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -4326,20 +4331,20 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3626485",
+          "ref": "osm.gpkg#pois=22990151",
           "tags": {
-            "name": "Philharmonie",
-            "amenity": "theatre",
-            "tourism": "attraction"
+            "name": "Musikinstrumenten-Museum",
+            "tourism": "museum"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=22990151",
+          "ref": "osm.gpkg#pois=3626485",
           "tags": {
-            "name": "Musikinstrumenten-Museum",
-            "tourism": "museum"
+            "name": "Philharmonie",
+            "amenity": "theatre",
+            "tourism": "attraction"
           }
         }
       ],
@@ -5028,20 +5033,20 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3626485",
+          "ref": "osm.gpkg#pois=22990151",
           "tags": {
-            "name": "Philharmonie",
-            "amenity": "theatre",
-            "tourism": "attraction"
+            "name": "Musikinstrumenten-Museum",
+            "tourism": "museum"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=22990151",
+          "ref": "osm.gpkg#pois=3626485",
           "tags": {
-            "name": "Musikinstrumenten-Museum",
-            "tourism": "museum"
+            "name": "Philharmonie",
+            "amenity": "theatre",
+            "tourism": "attraction"
           }
         }
       ],
@@ -7034,7 +7039,7 @@
           "confidence": 0.8,
           "ref": "osm.gpkg#pois=13261630546",
           "tags": {
-            "name": "Crunch Arepas",
+            "name": "Krunsch Arepas",
             "amenity": "fast_food"
           }
         }
@@ -7828,19 +7833,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13261958095",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Pick & Cheese",
+            "amenity": "restaurant"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13261958095",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Pick & Cheese",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -8362,18 +8367,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13245733731",
+          "ref": "osm.gpkg#pois=13261754622",
           "tags": {
-            "amenity": "fountain"
+            "name": "Kerb Berlin",
+            "amenity": "bar"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13261754622",
+          "ref": "osm.gpkg#pois=13245733731",
           "tags": {
-            "name": "Kerb Berlin",
-            "amenity": "bar"
+            "amenity": "fountain"
           }
         },
         {
@@ -8475,15 +8480,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
-          "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=12802906550",
           "tags": {
             "name": "Kerb Food Hall",
@@ -8497,6 +8493,15 @@
           "tags": {
             "name": "Fräulein Kimchi",
             "amenity": "restaurant"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=183272253",
+          "tags": {
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -8525,19 +8530,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13513482318",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Grindhouse Burgers",
+            "amenity": "fast_food"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13513482318",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Grindhouse Burgers",
-            "amenity": "fast_food"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -12797,19 +12802,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=172234733",
+          "ref": "osm.gpkg#pois=5534648615",
           "tags": {
-            "name": "Denkmal für die ermordeten Juden Europas",
-            "tourism": "attraction",
-            "historic": "monument"
+            "amenity": "waste_basket"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=5534648615",
+          "ref": "osm.gpkg#pois=172234733",
           "tags": {
-            "amenity": "waste_basket"
+            "name": "Denkmal für die ermordeten Juden Europas",
+            "tourism": "attraction",
+            "historic": "monument"
           }
         }
       ],
@@ -13020,14 +13025,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11248322879",
-          "tags": {
-            "historic": "memorial"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=489765078",
           "tags": {
             "name": "ML-20",
@@ -13038,6 +13035,14 @@
           "source": "osm",
           "confidence": 0.8,
           "ref": "osm.gpkg#pois=11248322875",
+          "tags": {
+            "historic": "memorial"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=11248322879",
           "tags": {
             "historic": "memorial"
           }
@@ -13077,15 +13082,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=489764929",
-          "tags": {
-            "name": "T-34-300",
-            "historic": "tank"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=489762789",
           "tags": {
             "name": "T-34-200",
@@ -13100,6 +13096,15 @@
             "name": "Sowjetisches Ehrenmal Tiergarten",
             "tourism": "attraction",
             "historic": "monument"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=489764929",
+          "tags": {
+            "name": "T-34-300",
+            "historic": "tank"
           }
         }
       ],
@@ -16025,18 +16030,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=13261692917",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "amenity": "bench"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=13261692917",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "amenity": "bench"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -19624,19 +19629,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=260769037",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Lindenbräu",
+            "amenity": "restaurant"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=260769037",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Lindenbräu",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -53135,23 +53140,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3773392706",
-          "tags": {
-            "name": "Käfer Dachgarten-Restaurant im Deutschen Bundestag",
-            "amenity": "restaurant"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11196414736",
-          "tags": {
-            "name": "Deutscher Bundestag"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=2432753840",
           "tags": {
             "name": "Reichstagskuppel",
@@ -53165,6 +53153,23 @@
           "tags": {
             "name": "Reichstagsgebäude",
             "tourism": "attraction"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=12365219350",
+          "tags": {
+            "amenity": "waste_basket"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=421851733",
+          "tags": {
+            "name": "Der Bevölkerung",
+            "tourism": "artwork"
           }
         }
       ],
@@ -76754,19 +76759,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=183272253",
+          "ref": "osm.gpkg#pois=260769037",
           "tags": {
-            "name": "Das Center am Potsdamer Platz",
-            "tourism": "attraction"
+            "name": "Lindenbräu",
+            "amenity": "restaurant"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=260769037",
+          "ref": "osm.gpkg#pois=183272253",
           "tags": {
-            "name": "Lindenbräu",
-            "amenity": "restaurant"
+            "name": "Das Center am Potsdamer Platz",
+            "tourism": "attraction"
           }
         }
       ],
@@ -80410,15 +80415,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=429271489",
-          "tags": {
-            "name": "DB Premium Lounge",
-            "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=2089374928",
           "tags": {
             "amenity": "clock"
@@ -80431,6 +80427,15 @@
           "tags": {
             "name": "DB Information",
             "tourism": "information"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=429271489",
+          "tags": {
+            "name": "DB Premium Lounge",
+            "amenity": "cafe"
           }
         },
         {
@@ -80467,6 +80472,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=169873605",
+          "tags": {
+            "name": "Parkhaus Berlin Hauptbahnhof",
+            "amenity": "parking"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=4530641640",
           "tags": {
             "amenity": "bicycle_parking"
@@ -80479,15 +80493,6 @@
           "tags": {
             "name": "Meininger Berlin Hauptbahnhof",
             "tourism": "hostel"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=169873605",
-          "tags": {
-            "name": "Parkhaus Berlin Hauptbahnhof",
-            "amenity": "parking"
           }
         }
       ],
@@ -80516,24 +80521,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403084932",
-          "tags": {
-            "name": "Station Food",
-            "amenity": "food_court"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=83809031",
-          "tags": {
-            "name": "DB Lounge",
-            "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=4294825321",
           "tags": {
             "name": "Reisebank",
@@ -80547,6 +80534,24 @@
           "tags": {
             "name": "Subway",
             "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=403084932",
+          "tags": {
+            "name": "Station Food",
+            "amenity": "food_court"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=83809031",
+          "tags": {
+            "name": "DB Lounge",
+            "amenity": "cafe"
           }
         }
       ],
@@ -80575,6 +80580,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=406994424",
+          "tags": {
+            "name": "Subway",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=403084932",
           "tags": {
             "name": "Station Food",
@@ -80588,15 +80602,6 @@
           "tags": {
             "name": "DB Lounge",
             "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=406994424",
-          "tags": {
-            "name": "Subway",
-            "amenity": "fast_food"
           }
         },
         {
@@ -80725,18 +80730,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403084932",
+          "ref": "osm.gpkg#pois=4283844732",
           "tags": {
-            "name": "Station Food",
-            "amenity": "food_court"
+            "name": "dean&david",
+            "amenity": "fast_food"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=4070598678",
+          "ref": "osm.gpkg#pois=406994424",
           "tags": {
-            "name": "Rice On!",
+            "name": "Subway",
             "amenity": "fast_food"
           }
         }
@@ -81120,14 +81125,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=10008684366",
-          "tags": {
-            "amenity": "toilets"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=8019483080",
           "tags": {
             "name": "Foodfactory",
@@ -81141,6 +81138,14 @@
           "tags": {
             "name": "Coffee Fellows",
             "amenity": "cafe"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=10008684366",
+          "tags": {
+            "amenity": "toilets"
           }
         }
       ],
@@ -81312,10 +81317,10 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403507722",
+          "ref": "osm.gpkg#pois=198853697",
           "tags": {
-            "name": "Fish&Chips",
-            "amenity": "fast_food"
+            "name": "Rolling Horse",
+            "tourism": "artwork"
           }
         }
       ],
@@ -82665,22 +82670,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11730708056",
-          "tags": {
-            "amenity": "waste_basket"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11730754470",
-          "tags": {
-            "amenity": "waste_basket"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=11730744255",
           "tags": {
             "amenity": "waste_basket"
@@ -82689,7 +82678,23 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=11730758510",
+          "ref": "osm.gpkg#pois=11730750799",
+          "tags": {
+            "amenity": "waste_basket"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=2089375247",
+          "tags": {
+            "amenity": "clock"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=11730754470",
           "tags": {
             "amenity": "waste_basket"
           }
@@ -83831,19 +83836,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=406983404",
+          "ref": "osm.gpkg#pois=976553355",
           "tags": {
-            "name": "McDonald's",
-            "amenity": "fast_food"
+            "name": "WC Center Berlin-Hauptbahnhof",
+            "amenity": "toilets"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=976553355",
+          "ref": "osm.gpkg#pois=4090296498",
           "tags": {
-            "name": "WC Center Berlin-Hauptbahnhof",
-            "amenity": "toilets"
+            "amenity": "waste_basket"
           }
         }
       ],
@@ -83890,19 +83894,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403084932",
+          "ref": "osm.gpkg#pois=406994424",
           "tags": {
-            "name": "Station Food",
-            "amenity": "food_court"
+            "name": "Subway",
+            "amenity": "fast_food"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=83809031",
+          "ref": "osm.gpkg#pois=403084932",
           "tags": {
-            "name": "DB Lounge",
-            "amenity": "cafe"
+            "name": "Station Food",
+            "amenity": "food_court"
           }
         }
       ],
@@ -83931,6 +83935,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=406994424",
+          "tags": {
+            "name": "Subway",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=403084932",
           "tags": {
             "name": "Station Food",
@@ -83944,15 +83957,6 @@
           "tags": {
             "name": "DB Lounge",
             "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=406994424",
-          "tags": {
-            "name": "Subway",
-            "amenity": "fast_food"
           }
         }
       ],
@@ -84159,15 +84163,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403084932",
-          "tags": {
-            "name": "Station Food",
-            "amenity": "food_court"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=4283844732",
           "tags": {
             "name": "dean&david",
@@ -84177,10 +84172,19 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=83809031",
+          "ref": "osm.gpkg#pois=406994424",
           "tags": {
-            "name": "DB Lounge",
-            "amenity": "cafe"
+            "name": "Subway",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=403084932",
+          "tags": {
+            "name": "Station Food",
+            "amenity": "food_court"
           }
         }
       ],
@@ -84267,24 +84271,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403084932",
-          "tags": {
-            "name": "Station Food",
-            "amenity": "food_court"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=83809031",
-          "tags": {
-            "name": "DB Lounge",
-            "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=4294825321",
           "tags": {
             "name": "Reisebank",
@@ -84298,6 +84284,24 @@
           "tags": {
             "name": "Subway",
             "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=403084932",
+          "tags": {
+            "name": "Station Food",
+            "amenity": "food_court"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=83809031",
+          "tags": {
+            "name": "DB Lounge",
+            "amenity": "cafe"
           }
         }
       ],
@@ -85464,18 +85468,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3806550974",
+          "ref": "osm.gpkg#pois=3343",
           "tags": {
-            "name": "Bibliothek des Deutschen Bundestages",
-            "amenity": "library"
+            "name": "Marie-Elisabeth-Lüders-Haus"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3343",
+          "ref": "osm.gpkg#pois=3806550974",
           "tags": {
-            "name": "Marie-Elisabeth-Lüders-Haus"
+            "name": "Bibliothek des Deutschen Bundestages",
+            "amenity": "library"
           }
         }
       ],
@@ -85766,7 +85770,7 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=1297774004",
+          "ref": "osm.gpkg#pois=1297774003",
           "tags": {
             "amenity": "bicycle_parking"
           }
@@ -85774,7 +85778,7 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=1297774003",
+          "ref": "osm.gpkg#pois=1297774004",
           "tags": {
             "amenity": "bicycle_parking"
           }
@@ -87711,6 +87715,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=3349",
+          "tags": {
+            "name": "Paul-Löbe-Haus",
+            "tourism": "attraction"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=1497028365",
           "tags": {
             "amenity": "bicycle_parking"
@@ -87722,15 +87735,6 @@
           "ref": "osm.gpkg#pois=1497028366",
           "tags": {
             "amenity": "bicycle_parking"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3349",
-          "tags": {
-            "name": "Paul-Löbe-Haus",
-            "tourism": "attraction"
           }
         }
       ],
@@ -87881,6 +87885,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=406994424",
+          "tags": {
+            "name": "Subway",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=403084932",
           "tags": {
             "name": "Station Food",
@@ -87894,15 +87907,6 @@
           "tags": {
             "name": "DB Lounge",
             "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=406994424",
-          "tags": {
-            "name": "Subway",
-            "amenity": "fast_food"
           }
         },
         {
@@ -87940,24 +87944,6 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=403084932",
-          "tags": {
-            "name": "Station Food",
-            "amenity": "food_court"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=83809031",
-          "tags": {
-            "name": "DB Lounge",
-            "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
           "ref": "osm.gpkg#pois=4294825321",
           "tags": {
             "name": "Reisebank",
@@ -87971,6 +87957,24 @@
           "tags": {
             "name": "Subway",
             "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=403084932",
+          "tags": {
+            "name": "Station Food",
+            "amenity": "food_court"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
+          "ref": "osm.gpkg#pois=83809031",
+          "tags": {
+            "name": "DB Lounge",
+            "amenity": "cafe"
           }
         }
       ],
@@ -87999,6 +88003,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=406994424",
+          "tags": {
+            "name": "Subway",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=403084932",
           "tags": {
             "name": "Station Food",
@@ -88012,15 +88025,6 @@
           "tags": {
             "name": "DB Lounge",
             "amenity": "cafe"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=406994424",
-          "tags": {
-            "name": "Subway",
-            "amenity": "fast_food"
           }
         },
         {
@@ -88058,6 +88062,15 @@
         {
           "source": "osm",
           "confidence": 0.8,
+          "ref": "osm.gpkg#pois=406994424",
+          "tags": {
+            "name": "Subway",
+            "amenity": "fast_food"
+          }
+        },
+        {
+          "source": "osm",
+          "confidence": 0.8,
           "ref": "osm.gpkg#pois=403084932",
           "tags": {
             "name": "Station Food",
@@ -88076,18 +88089,10 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=406994424",
+          "ref": "osm.gpkg#pois=169873605",
           "tags": {
-            "name": "Subway",
-            "amenity": "fast_food"
-          }
-        },
-        {
-          "source": "osm",
-          "confidence": 0.8,
-          "ref": "osm.gpkg#pois=4777548710",
-          "tags": {
-            "amenity": "waste_basket"
+            "name": "Parkhaus Berlin Hauptbahnhof",
+            "amenity": "parking"
           }
         }
       ],
@@ -89012,18 +89017,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3349",
+          "ref": "osm.gpkg#pois=3806550977",
           "tags": {
-            "name": "Paul-Löbe-Haus",
-            "tourism": "attraction"
+            "name": "Zentrale Besucherbetreuung des Deutschen Bundestags"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3806550977",
+          "ref": "osm.gpkg#pois=3349",
           "tags": {
-            "name": "Zentrale Besucherbetreuung des Deutschen Bundestags"
+            "name": "Paul-Löbe-Haus",
+            "tourism": "attraction"
           }
         }
       ],
@@ -89372,18 +89377,18 @@
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=3349",
+          "ref": "osm.gpkg#pois=10142210380",
           "tags": {
-            "name": "Paul-Löbe-Haus",
-            "tourism": "attraction"
+            "name": "Tourismusausschuss"
           }
         },
         {
           "source": "osm",
           "confidence": 0.8,
-          "ref": "osm.gpkg#pois=10142210380",
+          "ref": "osm.gpkg#pois=3349",
           "tags": {
-            "name": "Tourismusausschuss"
+            "name": "Paul-Löbe-Haus",
+            "tourism": "attraction"
           }
         }
       ],

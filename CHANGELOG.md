@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.3.3
+
+- Raise the settled desktop surface from 4,000,039 to 6,000,002 faces from the
+  same 23 metre-aligned Berlin 3D Mesh 2025 tiles. A sharper 58-degree normal
+  crease and bounded source-colour saturation/contrast lift improve facade,
+  roof, vegetation and water separation without moving source geometry.
+- Meshopt-compress all 22 hero crops and cap their material textures at 1600 px.
+  The 68-GLB scene remains below its 165 MiB budget at 163.5 MiB, every GLB
+  remains below 5 MiB, and the 2.30M interaction tier stays unchanged for
+  responsive camera movement and touch devices.
+- Add bounded official Berlin tree, public-lighting and Vorderlandmauer WFS
+  data. The instanced detail layer now contains 8,029 additively fused trees,
+  1,242 operating lights with night illumination and two granular double-row
+  Wall traces, with source provenance and approximation limits preserved.
+- Add an OSM-anchored LEGO giraffe recognition model at LEGOLAND near the
+  southern Sony Center edge, using a free Commons image only as a documented
+  visual reference and labelling its unsurveyed dimensions explicitly.
+- Fix out-of-coverage ground sampling that could place a southern lamp on a
+  remote roof, retain signed lamp rotations, and decode Meshopt node transforms
+  correctly before sampling detail heights.
+- Repair the metric-precision generator so JSON and Markdown describe the
+  currently committed photogrammetric scene rather than calling it future work.
+  Release QA now enforces the 6M tier, 58-degree profile, compressed hero crops,
+  source hashes, package integrity and existing desktop/mobile gesture tests.
+
 ## v0.3.2
 
 - Add a second, 4,000,039-face settled desktop surface from the same 23

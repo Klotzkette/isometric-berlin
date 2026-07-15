@@ -21,6 +21,8 @@ Inputs
 - ``geo_data/regierungsviertel/raw/dgm/`` (optional)
 - ``geo_data/regierungsviertel/berlin_3d_mesh_sources.json``
   (official photogrammetric mesh provenance)
+- ``geo_data/regierungsviertel/official_details.gpkg``
+  (official trees, public lighting and Berlin Wall route)
 - ``geo_data/regierungsviertel/raw/google_3d_tiles/manifest.json``
   (optional, opt-in)
 - ``geo_data/regierungsviertel/wikimedia_references.json``
@@ -66,6 +68,7 @@ SOURCE_LICENSES: dict[str, str] = {
   "dop": "dl-de/zero-2-0",
   "dgm": "dl-de/zero-2-0",
   "berlinmesh": "Berlin 3D Downloadportal terms; provider attribution required",
+  "berlindetails": "dl-de/zero-2-0",
   "google3d": "Google Maps Platform Terms",
   "wikimedia": "Various Wikimedia Commons free licenses; see manifest per image",
 }
@@ -155,6 +158,7 @@ def discover_sources(geo_dir: Path, env: dict[str, str]) -> dict[str, Any]:
     "dop": _support_source("dop", raw / "dop", geo_dir / "dop_preview.png"),
     "dgm": _support_source("dgm", raw / "dgm", geo_dir / "dgm_preview.png"),
     "berlinmesh": _file_source("berlinmesh", geo_dir / "berlin_3d_mesh_sources.json"),
+    "berlindetails": _file_source("berlindetails", geo_dir / "official_details.gpkg"),
     "google3d": _google_source(raw / "google_3d_tiles" / "manifest.json", env),
     "wikimedia": _file_source("wikimedia", geo_dir / "wikimedia_references.json"),
   }

@@ -5,7 +5,7 @@ city-wide dumps do **not** belong here; raw downloads and large source
 archives stay under gitignored `raw/` paths as described in
 [`docs/data.md`](../../docs/data.md).
 
-The current landmark layer contains 39 OSM/LoD2-checked points. v0.1.62 adds
+The current landmark layer contains 40 OSM/LoD2-checked points. v0.1.62 adds
 the Schweizerische Botschaft, Fahne der Einheit, Quadriga mit Victoria and the
 mapped Starbucks at Pariser Platz without changing the scene bounds. The
 Wikimedia manifest contains 110 freely licensed visual references across 37
@@ -22,6 +22,7 @@ motif groups; geometry still comes from Berlin LoD2/OSM/official support data.
 | `buildings.gpkg` | Berlin LoD2 buildings clipped to bounds. |
 | `osm.gpkg` | OSM streets, water, parks, rail, paths, POIs and semantics clipped to bounds. |
 | `alkis.gpkg` | ALKIS parcel/support layer for official alignment context. |
+| `official_details.gpkg` | Bounded official Berlin tree, public-lighting and Vorderlandmauer WFS layers. |
 | `fused_sources.json` | Additive source-fusion manifest. |
 | `wikimedia_references.json` | Free-license Wikimedia visual-reference manifest with per-file attribution metadata. |
 | `tiergartentunnel.geojson` | Open-data engineered Tiergartentunnel approximation with derived OSM B96 tunnel carriageway evidence for the under-surface cutaway cue; not official surveyed as-built geometry. |
@@ -44,5 +45,7 @@ motif groups; geometry still comes from Berlin LoD2/OSM/official support data.
   © OpenStreetMap contributors.
 - ALKIS / DOP / DGM support data: dl-de/zero-2-0 where fetched from
   Geoportal Berlin.
+- Official tree, public-lighting and Wall-route details: dl-de/zero-2-0
+  (Geoportal Berlin).
 - Wikimedia references: per-file licenses and credits in
   [`../../references/wikimedia/README.md`](../../references/wikimedia/README.md).

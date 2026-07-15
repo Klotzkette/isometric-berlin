@@ -1,8 +1,8 @@
 # Metric precision and surface-detail QA
 
-This report documents what the current deterministic viewer can claim from
-committed public/open data, including the official photogrammetric surface
-pass, and where procedural recognition geometry is still only a display aid.
+This report documents what the current deterministic viewer can claim
+from committed public/open data, including the official photogrammetric
+surface, and which additions remain display approximations.
 
 ## Source hierarchy
 
@@ -15,8 +15,9 @@ pass, and where procedural recognition geometry is still only a display aid.
     approximately +/- 0.4 m positional accuracy.
 - ALKIS parcel context: https://daten.berlin.de/datensaetze/alkis-berlin-flurstucke-wfs-1bc014d7
 - Official textured surface: https://www.businesslocationcenter.de/en/economic-atlas/download-portal
-  - The bounded Berlin 3D Mesh Model 2025 supplies the current viewer's roof,
-    facade, terrain and vegetation surface plus aerial texture colour.
+  - The committed scene uses bounded geometry and aerial texture colour
+    from the June 2025 Berlin survey.
+- Official public-space details: https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23
 
 ## Committed LoD2 geometry statistics
 
@@ -51,19 +52,19 @@ pass, and where procedural recognition geometry is still only a display aid.
 
 ## Committed photogrammetric surface statistics
 
+- Status: available
 - Official source tiles: 23
-- Base faces: 2,299,987
-- Base vertices: 1,180,361
-- Base GLB size: 26.1 MiB (Meshopt)
-- Per-tile target: 100,000 faces
-- Settled desktop faces: 4,000,039
-- Settled desktop vertices: 2,050,813
-- Settled desktop GLB size: 46.8 MiB (Meshopt)
-- Settled per-tile target: 175,700 faces
-- Normal crease: 72°
+- Interaction faces: 2299987
+- Interaction vertices: 1219929
+- Interaction GLB size: 26.5 MiB
+- Settled desktop faces: 6000002
+- Settled desktop vertices: 3134292
+- Settled desktop GLB size: 71.6 MiB
+- Settled per-tile target: 289797 faces
+- Normal crease: 58.0°
 - Simplification aggression: 5
-- Separate high-detail hero groups: Reichstag, Bundeskanzleramt,
-  Hauptbahnhof and Brandenburger Tor
+- Separate high-detail hero groups: 4
+- Complete scene: 68 GLBs / 163.5 MiB
 
 ## Current rendering claim
 
@@ -71,26 +72,20 @@ The viewer is metric in planimetric placement because it renders
 EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders
 CityGML BuildingParts at their individual measured heights, LoD2
 interior rings as visible courtyards/cut-outs, and uses denser
-facade bays, roof ribs, and roof equipment marks from footprint size, height,
-roof type, and landmark material cues. The official Berlin 3D Mesh 2025 now
-adds genuine photogrammetric roof, facade, ground and canopy relief. Its 23
-interaction tiles preserve EPSG:25833 scale and placement, retain 2.30 million
-faces, and use source-texture-derived vertex colours. An identically placed
-4.00-million-face tier preserves more of that official surface for settled
-desktop inspection; it is a denser simplification of the same evidence, not
-extrapolated geometry. Four LoD2-masked hero groups retain denser textured
-source geometry for close inspection.
+facade bays, roof ribs, and roof equipment marks from footprint size,
+height, roof type, and landmark material cues. The official Berlin 3D
+Mesh adds genuine photogrammetric roof, facade, ground and canopy relief
+at unchanged EPSG:25833 scale, with a six-million-face settled tier.
 
-Procedural monument, window, train, tunnel and architectural-signature layers
-remain labelled display geometry. They improve recognition where aerial
-photogrammetry is incomplete, but they are not surveyed facade, interior or
-as-built detail and do not replace the LoD2/official-mesh anchors.
+Procedural monument, window, train, tunnel and architectural-signature
+layers remain labelled display geometry. They are not surveyed facade,
+interior or as-built detail and do not replace LoD2/official-mesh anchors.
 
 ## Tiergartentunnel precision claim
 
-The Tiergartentunnel route is drawn below ground as an engineering cutaway
-that becomes visible only from the underside, using derived OpenStreetMap
-carriageway geometry, public portal coordinates, public route descriptions
-and published cross-section facts. Its rendered centreline and depth are still
-an approximation, not official surveyed as-built geometry. See
+The Tiergartentunnel route is drawn as a visible underground
+engineering cutaway using derived OpenStreetMap tunnel carriageway
+geometry, public portal coordinates, public route descriptions and
+published cross-section facts. Its rendered centreline and depth are
+still an approximation, not official surveyed as-built geometry. See
 [`tiergartentunnel-geometry.md`](tiergartentunnel-geometry.md).

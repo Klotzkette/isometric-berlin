@@ -16,6 +16,7 @@ for another. If sources disagree, the conflict is recorded; it is
 | `dop` | DOP digital orthophotos (Geoportal Berlin) | Orthophoto QA, texture reference | dl-de/zero-2-0 |
 | `dgm` | DGM digital terrain model (Geoportal Berlin) | Terrain where useful (Spree bank, station forecourt) | dl-de/zero-2-0 |
 | `berlinmesh` | [Berlin 3D Mesh Model 2025](https://www.businesslocationcenter.de/berlin3d-downloadportal/) | Official photogrammetric surface geometry and aerial textures for the true 3D viewer | Berlin 3D Downloadportal terms; Berlin Partner attribution required |
+| `berlindetails` | [Berlin tree catalogues](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23), public lighting and [1989 Wall route](https://daten.berlin.de/datensaetze/verlauf-der-berliner-mauer-1989-wfs-3dcda64c) | Individual tree positions/dimensions, lamp positions/types and the Vorderlandmauer trace | dl-de/zero-2-0 |
 | `google3d` | Google Maps Platform Photorealistic 3D Tiles | **Opt-in.** Photorealistic geometry, texture, alignment, visual reference | Google Maps Platform Terms |
 | `wikimedia` | Wikimedia Commons / Wikipedia media | Freely licensed landmark facade, roof, glass, stone, vegetation and colour references for visual QA / material cues | Per file: CC0, public domain, CC BY, CC BY-SA, etc.; see manifest |
 
@@ -97,6 +98,7 @@ writes `geo_data/regierungsviertel/fused_sources.json` with this shape:
     "dop":     { "available": false, "reason": "not_downloaded" },
     "dgm":     { "available": false, "reason": "not_downloaded" },
     "berlinmesh": { "available": true, "path": "geo_data/regierungsviertel/berlin_3d_mesh_sources.json", "license": "Berlin 3D Downloadportal terms; provider attribution required" },
+    "berlindetails": { "available": true, "path": "geo_data/regierungsviertel/official_details.gpkg", "license": "dl-de/zero-2-0" },
     "google3d":{ "available": false, "reason": "opt_in_env_missing" },
     "wikimedia": { "available": true, "path": "geo_data/regierungsviertel/wikimedia_references.json", "license": "Various Wikimedia Commons free licenses; see manifest per image" }
   },
@@ -133,6 +135,9 @@ hero/manual:
 | Streets, paths, rails | `osm` | `alkis` | — |
 | Water (Spree) | `osm` | `alkis` | `dop` |
 | Parks (Tiergarten) | `osm` | `dop` | — |
+| Individual trees | `berlindetails` | `osm` | `berlinmesh` (surface appearance) |
+| Public lighting | `berlindetails` | `osm` | — |
+| Berlin Wall ground trace | `berlindetails` | `osm` | `dop` |
 | Terrain | `dgm` | `berlinmesh` | `lod2` (ground vertices) |
 | Texture / colour reference | `berlinmesh` | `dop` | `wikimedia`, `google3d` |
 
@@ -163,6 +168,7 @@ geo_data/regierungsviertel/raw/
 ├── dop/               # DOP orthophoto tiles
 ├── dgm/               # DGM terrain grids
 ├── berlin_3d_mesh_2025/ # Official OBJ/texture ZIPs after terms acceptance
+├── official_details/  # Official bounded tree/light/Wall WFS responses
 └── google_3d_tiles/   # Google manifest + (opt-in) downloaded tile content
 ```
 
@@ -201,6 +207,11 @@ uv run python -m isometric_berlin.data.fetch_google_tiles \
 uv run python -m isometric_berlin.data.fetch_berlin_mesh \
   --accept-terms --download-content
 uv run python -m isometric_berlin.generation.prepare_webgl_mesh
+
+# 4b: official trees, public lighting and 1989 Wall trace
+uv run python -m isometric_berlin.data.fetch_official_details \
+  --bounds geo_data/regierungsviertel/bounds.geojson \
+  --out geo_data/regierungsviertel/official_details.gpkg
 
 # Wikimedia visual references (additive, free-license filtered)
 uv run python -m isometric_berlin.data.fetch_wikimedia \

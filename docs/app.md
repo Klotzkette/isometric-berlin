@@ -161,7 +161,7 @@ By default the viewer loads the mesh scene from
 `public/mesh/regierungsviertel/scene.json`; individual GLBs are ordered by
 distance from the selected landmark and loaded with bounded concurrency. The
 2.3M-face interaction tier opens first on every device. Desktop then loads the
-4M-face settled tier serially in the background, shows it only while idle and
+6M-face settled tier serially in the background, shows it only while idle and
 returns to the interaction tier for mouse, touch, keyboard or button movement.
 Touch/coarse-pointer devices never request the settled tier. Hero
 texture crops load only when selected. A failed model request is retried once,

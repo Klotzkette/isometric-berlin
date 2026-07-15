@@ -5,6 +5,7 @@ import trimesh
 from shapely.affinity import rotate
 from shapely.geometry import Point, box
 
+from isometric_berlin.generation import prepare_webgl_mesh as webgl
 from isometric_berlin.generation.prepare_webgl_mesh import (
   BASE_NORMAL_CREASE_DEGREES,
   BASE_SIMPLIFICATION_AGGRESSION,
@@ -86,6 +87,32 @@ def test_meshopt_export_records_decoder_contract(tmp_path, monkeypatch) -> None:
   assert metadata["quantize_normal_bits"] == 8
 
 
+def test_hero_export_uses_meshopt_compression(tmp_path, monkeypatch) -> None:
+  mesh = trimesh.creation.box(extents=(2.0, 3.0, 4.0))
+  output_path = tmp_path / "hero.glb"
+  compressed: list[bool] = []
+
+  monkeypatch.setattr(
+    webgl, "resized_texture_visual", lambda candidate, _edge: candidate.visual
+  )
+
+  def record_export(candidate, path, *, compress_geometry=False):
+    compressed.append(compress_geometry)
+    path.write_bytes(b"glb")
+    return {
+      "bytes": 3,
+      "faces": len(candidate.faces),
+      "vertices": len(candidate.vertices),
+    }
+
+  monkeypatch.setattr(webgl, "export_mesh", record_export)
+
+  metadata = webgl.export_hero_mesh(mesh, output_path)
+
+  assert metadata["texture_max_edge"] == 1600
+  assert compressed == [True]
+
+
 def test_oversized_vertex_colour_mesh_requests_spatial_split(
   tmp_path, monkeypatch
 ) -> None:
@@ -108,9 +135,9 @@ def test_oversized_vertex_colour_mesh_requests_spatial_split(
 
 def test_base_surface_budget_retains_finer_official_geometry() -> None:
   assert BASE_TARGET_FACES == 100_000
-  assert SURFACE_DETAIL_TARGET_FACES == 175_700
+  assert SURFACE_DETAIL_TARGET_FACES == 289_797
   assert BASE_SIMPLIFICATION_AGGRESSION == 5
-  assert BASE_NORMAL_CREASE_DEGREES == pytest.approx(72.0)
+  assert BASE_NORMAL_CREASE_DEGREES == pytest.approx(58.0)
   assert MESHOPT_POSITION_BITS == 16
   assert MESHOPT_NORMAL_BITS == 8
 

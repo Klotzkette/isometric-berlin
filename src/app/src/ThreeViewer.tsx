@@ -223,7 +223,7 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   runtime.interactionSurface.visible = !settled;
   runtime.settledSurface.visible = settled;
   runtime.renderer.domElement.dataset.surfaceQuality = settled
-    ? "settled-4m"
+    ? "settled-6m"
     : "interaction-2_3m";
 }
 
@@ -1234,7 +1234,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       interactionSurface.name = "Official interaction surface (2.3M faces)";
       scene.add(interactionSurface);
       const settledSurface = new Group();
-      settledSurface.name = "Official settled surface (4.0M faces)";
+      settledSurface.name = "Official settled surface (6.0M faces)";
       settledSurface.visible = false;
       scene.add(settledSurface);
       const marker = createSelectionMarker();

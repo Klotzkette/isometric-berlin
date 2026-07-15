@@ -131,6 +131,28 @@ describe("cultural and Spree recognition details", () => {
     ).toBeDefined();
   });
 
+  test("adds the OSM-anchored LEGO giraffe as an explicit approximation", () => {
+    const details = createCulturalLandmarks(landmarks);
+    const giraffe = details.getObjectByName(
+      "LEGOLAND Discovery Centre LEGO giraffe recognition model",
+    );
+    const spots = details.getObjectByName(
+      "LEGO giraffe thirty raised brown coat bricks",
+    ) as InstancedMesh;
+    const studs = details.getObjectByName(
+      "LEGO giraffe visible top studs",
+    ) as InstancedMesh;
+    expect(giraffe).toBeDefined();
+    expect(giraffe?.position.toArray()).toEqual([17.884, 4.12, 1023.63]);
+    expect(giraffe?.userData.geometryStatus).toContain("not surveyed");
+    expect(giraffe?.userData.sourceUrls).toHaveLength(3);
+    expect((spots as InstancedMesh).count).toBe(30);
+    expect((studs as InstancedMesh).count).toBe(12);
+    const bounds = new Box3().setFromObject(giraffe!);
+    expect(bounds.max.y - bounds.min.y).toBeGreaterThan(7);
+    expect(bounds.max.y - bounds.min.y).toBeLessThan(7.6);
+  });
+
   test("provides legible oblique cameras for the cultural landmarks", () => {
     const hkwCamera = culturalFocusCamera(
       "Haus der Kulturen der Welt (Schwangere Auster)",

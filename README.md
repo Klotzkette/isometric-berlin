@@ -5,7 +5,7 @@
 | What | Link |
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
-| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.2/isometric-berlin-regierungsviertel-local.zip |
+| **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.3.3/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | Public repository | https://github.com/Klotzkette/isometric-berlin |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -23,11 +23,11 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Local v0.3.2 open-data package, also deployed as the hosted viewer.
+**Status:** Local v0.3.3 open-data package, also deployed as the hosted viewer.
 
 ## Current Viewer
 
-The current public package is **v0.3.2**. Its full viewer is a progressively
+The current public package is **v0.3.3**. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -35,16 +35,18 @@ labelled compatibility fallback for browsers that cannot run local modules.
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale.
 - Each context tile retains up to 100,000 faces, raising the official base from
-  1,609,984 to 2,299,987 faces without moving its source coordinates. A 72°
+  1,609,984 to 2,299,987 faces without moving its source coordinates. A 58°
   normal crease keeps severe roof and facade folds crisp while preserving
   continuous terrain and vegetation. On desktop, a second background-loaded
-  tier retains 4,000,039 official faces while the camera is still; mouse,
+  tier retains 6,000,002 official faces while the camera is still; mouse,
   keyboard or UI movement switches immediately to the lighter tier and returns
   only after damping has ended. Touch devices retain the 2.3M interaction tier
-  and do not download the desktop-only 4M geometry. Reichstag,
+  and do not download the desktop-only 6M geometry. Source-texture vertex
+  colours receive a bounded saturation/contrast lift so grass, water, brick and
+  glass remain distinct without inventing textures. Reichstag,
   Bundeskanzleramt, Hauptbahnhof and Brandenburger Tor receive separate
   high-detail, textured photogrammetry crops masked by official LoD2
-  footprints, using up to 2048 px per material segment. Metric recognition
+  footprints, using up to 1600 px per material segment. Metric recognition
   models now sharpen the silhouettes without replacing that texture: the
   Reichstag has its 138 x 100 m body, west portico, four towers and 40 x 23.5 m
   24-sector dome at the official 24 m roof-terrace datum; its historic facade
@@ -123,20 +125,27 @@ labelled compatibility fallback for browsers that cannot run local modules.
   memorials preserve their defining source-documented forms while the official
   Berlin surface remains visible underneath.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. A
-  compact OSM display layer adds 167 park-path sections and 3,012 mapped
-  trees/tree-row samples as trunks, fork branches and five-part crowns in five
-  instanced draw calls. Five playground
+  compact additive layer combines 6,893 official Berlin tree-catalogue points
+  with unmatched OSM evidence into 8,029 individual trees, including measured
+  height, crown and trunk dimensions where published. It also adds 1,242
+  official public-light positions with night cones, two official
+  Vorderlandmauer traces as a granular double row of dark red-brown setts and
+  167 OSM park-path sections. Five playground
   footprints are retained; the selectable Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
   water-play point and excavator. Its oblique focus view keeps those small
   devices readable above the coarse source-mesh canopy and restores the normal
   tree presentation as soon as another landmark is selected. Exactly three
   tiny coloured Easter eggs are deterministically hidden beside mapped trees.
+- The southern edge now includes a small brick-built LEGO giraffe recognition
+  model at the OSM LEGOLAND Discovery Centre point. Its position source and
+  Commons visual reference are recorded; its footprint and dimensions are
+  explicitly labelled as a display approximation, not a survey.
 - The Spree carries a narrow translucent 3D wave surface aligned to the
   committed OSM centreline. Its 0.32 m relief and crest highlights are a
   procedural display treatment, not surveyed hydrodynamic data.
 - Assets load progressively with bounded concurrency and an adaptive pixel
-  ratio. The 147.4 MiB scene contains 23 interaction GLBs, 23 settled-detail
+  ratio. The 163.5 MiB scene contains 23 interaction GLBs, 23 settled-detail
   GLBs and 22 lazy hero parts; every individual public GLB remains below 5 MiB.
   Both official surface tiers use Meshopt compression with bundled normals.
   Existing GLB normals are reused
@@ -164,7 +173,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
   instead of two duplicated pairs.
 - The local package server uses HTTP/1.1, the correct GLB media type and
   immutable caching for heavy static assets. Reopening 3D reuses the local
-  browser cache instead of transferring the 147.4 MiB scene again.
+  browser cache instead of transferring the 163.5 MiB scene again.
 - Release QA verifies the exact byte length and SHA-256 of all 68 scene GLBs in
   the source tree, extracted package, ZIP and static tarball. Both archives now
   reject duplicate, linked, encrypted, hidden and oversized content. The local
@@ -374,6 +383,7 @@ replacement for Berlin open data or OSM):
 | 3D building geometry (LoD2) | [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin) | [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0) (effectively public domain) |
 | Streets, parks, water, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Individual trees, public lighting, 1989 Wall route | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
 | Landmark facade / material visual references | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Per file: CC0, public domain, CC BY, CC BY-SA; see `geo_data/regierungsviertel/wikimedia_references.json` |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
@@ -404,6 +414,7 @@ als Ersatz für Berliner Open Data oder OSM):
 | 3D-Gebäudegeometrie (LoD2) | [Geoportal Berlin / FIS-Broker](https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin) | [dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0) (faktisch gemeinfrei) |
 | Straßen, Parks, Wasser, POIs | [OpenStreetMap](https://www.openstreetmap.org) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) |
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
+| Einzelbäume, öffentliche Beleuchtung, Mauerverlauf 1989 | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
 | Fassaden-/Material-Referenzen für Landmarken | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Je Datei: CC0, Public Domain, CC BY, CC BY-SA; siehe `geo_data/regierungsviertel/wikimedia_references.json` |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
@@ -551,23 +562,26 @@ kann.
 <tr>
 <td valign="top">
 
-## Pipeline (planned)
+## Pipeline (implemented)
 
 1. **Bounds** — define the Regierungsviertel polygon
    (`geo_data/regierungsviertel/bounds.geojson`).
-2. **Geometry** — download LoD2 CityGML for the area, clip to bounds,
-   convert to a simple per-tile mesh.
+2. **Geometry** — clip official LoD2 and Berlin 3D Mesh 2025 evidence to
+   bounds; emit metric, progressively loaded WebGL surfaces.
 3. **OSM context** — extract streets, water, parks, rail (Hauptbahnhof
    tracks), POIs for the same bounds.
-4. **Quadrant grid** — define isometric quadrants
+4. **Official detail** — clip Berlin tree, public-lighting and Wall-route WFS
+   layers and additively fuse them with OSM.
+5. **Quadrant grid** — define isometric quadrants
    (target 512×512 px tile quadrants, same as NYC) over the area.
-5. **Render** — orthographic/isometric 3D render of each quadrant
+6. **Render** — orthographic/isometric 3D render of each quadrant
    → "whitebox" / textured render PNG.
-6. **AI tile generation** — feed each render into a fine-tuned
+7. **AI tile generation** — optionally feed each render into a fine-tuned
    `Qwen/Image-Edit` model to produce the pixel-art tile.
-7. **DZI export** — assemble tiles into a Deep Zoom pyramid
+8. **DZI export** — assemble tiles into a Deep Zoom pyramid
    (libvips / pyvips).
-8. **Viewer** — React + OpenSeadragon web app to pan/zoom.
+9. **Viewer** — React + Three.js/OpenSeadragon app for true 3D and the 2D
+   compatibility view.
 
 The NYC repo's `src/isometric_nyc/` layout is mirrored as
 `src/isometric_berlin/`.
@@ -575,23 +589,26 @@ The NYC repo's `src/isometric_nyc/` layout is mirrored as
 </td>
 <td valign="top">
 
-## Pipeline (geplant)
+## Pipeline (umgesetzt)
 
 1. **Bounds** — Polygon des Regierungsviertels definieren
    (`geo_data/regierungsviertel/bounds.geojson`).
-2. **Geometrie** — LoD2-CityGML für das Gebiet herunterladen, auf das
-   Polygon clippen, in ein einfaches Mesh pro Kachel umwandeln.
+2. **Geometrie** — amtliche LoD2- und Berlin-3D-Mesh-2025-Evidenz auf das
+   Polygon clippen und metrische, progressiv geladene WebGL-Flächen erzeugen.
 3. **OSM-Kontext** — Straßen, Wasser, Parks, Schienen (Hauptbahnhof),
    POIs für denselben Bereich extrahieren.
-4. **Quadrantenraster** — isometrische Quadranten (Ziel 512×512 px,
+4. **Amtliche Details** — Berliner Baum-, Beleuchtungs- und
+   Mauerverlaufs-WFS clippen und additiv mit OSM fusionieren.
+5. **Quadrantenraster** — isometrische Quadranten (Ziel 512×512 px,
    wie bei NYC) über das Gebiet legen.
-5. **Render** — orthographisch/isometrisches 3D-Rendering je Quadrant
+6. **Render** — orthographisch/isometrisches 3D-Rendering je Quadrant
    → „Whitebox"- bzw. texturiertes Render-PNG.
-6. **KI-Kachelgenerierung** — jedes Render in ein feingetuntes
+7. **KI-Kachelgenerierung** — optional jedes Render in ein feingetuntes
    `Qwen/Image-Edit`-Modell speisen, das die Pixel-Art-Kachel erzeugt.
-7. **DZI-Export** — Kacheln zu einer Deep-Zoom-Pyramide zusammenbauen
+8. **DZI-Export** — Kacheln zu einer Deep-Zoom-Pyramide zusammenbauen
    (libvips / pyvips).
-8. **Viewer** — React + OpenSeadragon Web-App zum Pan/Zoom.
+9. **Viewer** — React + Three.js/OpenSeadragon für echtes 3D und die
+   2D-Kompatibilitätsansicht.
 
 Das Layout `src/isometric_nyc/` aus dem NYC-Repo wird hier als
 `src/isometric_berlin/` gespiegelt.

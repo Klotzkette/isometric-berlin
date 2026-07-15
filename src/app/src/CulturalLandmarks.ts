@@ -51,6 +51,7 @@ const TIPI_GROUND_Y = 3.98;
 const CARILLON_GROUND_Y = 3.778;
 const BOAT_WORLD: [number, number, number] = [-259.21, 1.249, -219.53];
 const SPREE_WATER_Y = 1.31;
+const LEGO_GIRAFFE_WORLD: [number, number, number] = [17.884, 4.12, 1023.63];
 const SPREE_CENTERLINE_WORLD: Array<[number, number]> = [
   [513.9, -25.1],
   [471, -38.2],
@@ -929,6 +930,158 @@ function createSpreeWaveField(): Group {
   return group;
 }
 
+function createLegoGiraffe(): Group {
+  const group = new Group();
+  group.name = "LEGOLAND Discovery Centre LEGO giraffe recognition model";
+  group.position.set(...LEGO_GIRAFFE_WORLD);
+  group.rotation.y = MathUtils.degToRad(-18);
+  group.userData = {
+    heightM: 6.8,
+    geometryStatus:
+      "Display approximation anchored to the OSM LEGOLAND POI; the sculpture footprint is not surveyed",
+    sourceUrls: [
+      "https://www.openstreetmap.org/node/429567552",
+      "https://commons.wikimedia.org/wiki/File:Sony_Center_Giraffe.JPG",
+      "https://www.legolanddiscoverycentre.com/berlin/plane-deinen-besuch/vor-deinem-besuch/anfahrt/",
+    ],
+  };
+
+  const yellow = modelMaterial(0xf6b900, { roughness: 0.58 });
+  const ochre = modelMaterial(0xd98916, { roughness: 0.62 });
+  const brown = modelMaterial(0x5d341f, { roughness: 0.72 });
+  const black = modelMaterial(0x171717, { roughness: 0.5 });
+  const white = modelMaterial(0xf5f2df, { roughness: 0.48 });
+
+  for (const [x, z] of [
+    [-0.48, -0.8],
+    [0.48, -0.8],
+    [-0.48, 0.8],
+    [0.48, 0.8],
+  ] as Array<[number, number]>) {
+    addBox(
+      group,
+      "LEGO giraffe articulated block leg",
+      [0.34, 2.45, 0.34],
+      [x, 1.225, z],
+      yellow,
+    );
+    addBox(
+      group,
+      "LEGO giraffe dark hoof",
+      [0.42, 0.24, 0.58],
+      [x, 0.12, z - 0.08],
+      brown,
+    );
+  }
+  addBox(
+    group,
+    "LEGO giraffe brick body",
+    [1.35, 1.28, 2.25],
+    [0, 2.9, 0],
+    yellow,
+  );
+  addBox(
+    group,
+    "LEGO giraffe long brick neck",
+    [0.62, 3.25, 0.66],
+    [0, 4.72, -0.68],
+    yellow,
+  );
+  addBox(
+    group,
+    "LEGO giraffe brick head",
+    [0.92, 0.72, 1.34],
+    [0, 6.42, -0.98],
+    yellow,
+  );
+  addBox(
+    group,
+    "LEGO giraffe muzzle",
+    [0.78, 0.42, 0.72],
+    [0, 6.22, -1.83],
+    ochre,
+  );
+
+  for (const side of [-1, 1]) {
+    const eye = addMesh(
+      group,
+      "LEGO giraffe eye",
+      new SphereGeometry(0.105, 10, 6),
+      white,
+      [side * 0.39, 6.55, -1.42],
+    );
+    eye.scale.z = 0.42;
+    addMesh(
+      group,
+      "LEGO giraffe pupil",
+      new SphereGeometry(0.052, 8, 5),
+      black,
+      [side * 0.43, 6.56, -1.47],
+    );
+    const ear = addMesh(
+      group,
+      "LEGO giraffe ear",
+      new ConeGeometry(0.24, 0.65, 8),
+      yellow,
+      [side * 0.62, 6.68, -0.83],
+    );
+    ear.rotation.z = -side * Math.PI / 2;
+    addMesh(
+      group,
+      "LEGO giraffe ossicone",
+      new CylinderGeometry(0.075, 0.1, 0.55, 8),
+      ochre,
+      [side * 0.25, 7.01, -0.84],
+    );
+    addMesh(
+      group,
+      "LEGO giraffe ossicone cap",
+      new SphereGeometry(0.13, 8, 6),
+      brown,
+      [side * 0.25, 7.29, -0.84],
+    );
+  }
+
+  const spots: InstanceTransform[] = [];
+  for (let index = 0; index < 30; index += 1) {
+    const side = index % 2 === 0 ? -1 : 1;
+    const tier = Math.floor(index / 6);
+    spots.push({
+      position: [
+        side * 0.69,
+        2.46 + tier * 0.72,
+        -0.82 + (index % 3) * 0.82,
+      ],
+      rotation: [0, 0, side * 0.05],
+      scale: [0.78 + (index % 3) * 0.1, 0.75, 0.35],
+    });
+  }
+  addInstances(
+    group,
+    "LEGO giraffe thirty raised brown coat bricks",
+    new BoxGeometry(0.11, 0.34, 0.42),
+    brown,
+    spots,
+  );
+
+  const studs: InstanceTransform[] = [];
+  for (let row = 0; row < 3; row += 1) {
+    for (let column = 0; column < 4; column += 1) {
+      studs.push({
+        position: [-0.48 + column * 0.32, 3.57, -0.72 + row * 0.72],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "LEGO giraffe visible top studs",
+    new CylinderGeometry(0.105, 0.105, 0.08, 10),
+    yellow,
+    studs,
+  );
+  return group;
+}
+
 export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   const group = new Group();
   group.name = "Cultural venues, Carillon and Spree excursion detail";
@@ -943,6 +1096,7 @@ export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   }
   group.add(createSpreeWaveField());
   group.add(createExcursionSteamer());
+  group.add(createLegoGiraffe());
   return group;
 }
 

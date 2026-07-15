@@ -87,6 +87,10 @@ record the conflict and choose evidence according to
 3. **ALKIS / DOP / DGM (Berlin official data)** — official alignment,
    parcel context, orthophoto QA, terrain where useful. Geoportal
    Berlin, dl-de/zero-2-0.
+   The official Berlin tree catalogues, public-lighting WFS and 1989
+   Vorderlandmauer WFS additionally anchor individual trees, lamp positions
+   and the double-row Wall trace; unknown object dimensions remain labelled
+   display approximations.
 4. **Berlin 3D Mesh Model 2025** — official photogrammetric surface
    geometry and aerial texture from the June 2025 survey, downloaded
    tile-by-tile from the Berlin 3D Downloadportal after explicit terms
@@ -180,6 +184,11 @@ commit messages and PR titles (e.g. `step-4: …`).
    tiles intersecting the bounds. Raw OBJ/texture ZIPs remain
    gitignored. `isometric_berlin.generation.prepare_webgl_mesh` writes
    bounded, derived GLBs below 5 MiB each for the static Three.js viewer.
+4b. **Official public-space details (official, additive).**
+   `isometric_berlin.data.fetch_official_details` clips Berlin's tree,
+   public-lighting and Vorderlandmauer WFS layers into
+   `geo_data/regierungsviertel/official_details.gpkg`. Raw WFS responses stay
+   gitignored.
 5. **Google Photorealistic 3D Tiles (opt-in, additive).**
    `isometric_berlin.data.fetch_google_tiles` writes a key-free
    manifest to

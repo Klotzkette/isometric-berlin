@@ -60,6 +60,7 @@ def test_all_sources_present_in_inventory_even_when_absent(tmp_path: Path) -> No
     "dop",
     "dgm",
     "berlinmesh",
+    "berlindetails",
     "google3d",
     "wikimedia",
   }
@@ -99,6 +100,17 @@ def test_official_berlin_mesh_source_detected(tmp_path: Path) -> None:
   assert source["available"] is True
   assert source["path"].endswith("berlin_3d_mesh_sources.json")
   assert "Berlin 3D" in source["license"]
+
+
+def test_official_berlin_detail_source_detected(tmp_path: Path) -> None:
+  _write(tmp_path / "official_details.gpkg")
+
+  manifest = fs.build_fused_manifest(tmp_path / "bounds.geojson", tmp_path, {})
+
+  source = manifest["sources"]["berlindetails"]
+  assert source["available"] is True
+  assert source["path"].endswith("official_details.gpkg")
+  assert source["license"] == "dl-de/zero-2-0"
 
 
 def test_official_support_sources_detect_derived_artifacts(tmp_path: Path) -> None:

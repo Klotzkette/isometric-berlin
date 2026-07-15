@@ -30,6 +30,11 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
 - **ALKIS / DOP / DGM (optional support layers) — Berlin:**
   Geoportal Berlin, dl-de/zero-2-0.
 
+- **Berlin tree catalogues, public lighting and 1989 Wall route:**
+  bounded official WFS extracts from Geoportal Berlin, licensed under
+  dl-de/zero-2-0. These anchor individual tree dimensions where recorded,
+  lamp positions/types and the Vorderlandmauer trace.
+
 - **Berlin 3D Mesh Model 2025:** official photogrammetric geometry and
   aerial textures from the June 2025 survey, downloaded from the
   [Berlin 3D Downloadportal](https://www.businesslocationcenter.de/berlin3d-downloadportal/).
