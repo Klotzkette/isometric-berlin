@@ -139,6 +139,27 @@ export function viewHeadingFlightDelta(
     .add(right.multiplyScalar(strafe * step));
 }
 
+export const TWO_FINGER_PAN_PIXELS_PER_UNIT = 72;
+
+// Direct-manipulation two-finger pan: the content under the fingers must
+// follow them (finger right → content right, finger down → content down),
+// like Google Maps. Translating the whole camera rig by D makes the content
+// appear to move by −D, so the rig has to travel OPPOSITE the finger delta.
+// Screen-space right maps to +strafe and the into-scene heading projects
+// toward the top of the screen, hence the sign flips below. Both axes were
+// previously inverted (rig followed the fingers instead of the content),
+// which is the "immer noch konträr" complaint.
+export function twoFingerPanFlight(
+  deltaX: number,
+  deltaY: number,
+  pixelsPerUnit = TWO_FINGER_PAN_PIXELS_PER_UNIT,
+): { forward: number; strafe: number } {
+  return {
+    forward: deltaY / pixelsPerUnit,
+    strafe: -deltaX / pixelsPerUnit,
+  };
+}
+
 export function flyCameraAlongViewHeading(
   camera: PerspectiveCamera,
   target: Vector3,

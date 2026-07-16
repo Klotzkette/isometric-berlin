@@ -78,9 +78,10 @@ import {
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   stabilizeCameraRig,
+  twoFingerPanFlight,
 } from "./cameraNavigation";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
-import { applyDrawnFacade } from "./drawnBuildings";
+import { applyDrawnFacade, isDrawnFacadeCandidate } from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { renderPixelRatio } from "./renderQuality";
@@ -95,6 +96,7 @@ import {
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
 import { createPaletteLutData } from "./visual-modes/minecraft/palette";
+import { minecraftStabilityPolicy } from "./visual-modes/minecraft/stability";
 import { voxelBaseCell, voxelGridOffset } from "./visual-modes/minecraft/voxelGrid";
 import crispFragment from "./crisp.frag?raw";
 import postprocessFragment from "./visual-modes/minecraft/postprocess.frag?raw";
@@ -913,7 +915,12 @@ async function loadModel(
       // aerial texture and paint a flat facade colour derived from it; the
       // toon shading and the screen-space isometric edge pass supply the
       // NPR outlines. Geometry is untouched (≤ 1 px hero-centre contract).
-      applyDrawnFacade(material);
+      // Vegetation/cut-out cards are exempt (post-v0.5.6 fix): stripping their
+      // alpha texture turned trees into solid light-blue quads, so they keep
+      // their maps and stay recognisable.
+      if (isDrawnFacadeCandidate(material)) {
+        applyDrawnFacade(material);
+      }
       material.emissive.set(0x2b3130);
       material.emissiveIntensity = 0.07;
       material.userData.sourceMaterial = true;
@@ -1549,19 +1556,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!current) {
             return;
           }
-          // A two-finger swipe MOVES the camera/avatar in the swiped,
-          // view-relative direction (swipe right → strafe right, swipe up →
-          // travel forward along the heading), it never rotates or tilts the
-          // view. Rotation stays on the on-screen buttons, the keyboard and
-          // the mouse-drag; a three-finger gesture still tilts deliberately.
+          // A two-finger swipe pans with direct manipulation: the content
+          // under the fingers follows them (finger right → content right,
+          // finger down → content down), never rotating or tilting. The rig
+          // travels opposite the finger delta — see twoFingerPanFlight.
+          // Rotation stays on the on-screen buttons, the keyboard and the
+          // mouse-drag; a three-finger gesture still tilts deliberately.
           const deltaX = current.center.x - previousTwoFingerGesture.center.x;
           const deltaY = current.center.y - previousTwoFingerGesture.center.y;
-          flyCameraAlongViewHeading(
-            camera,
-            controls.target,
-            deltaX / 72,
-            -deltaY / 72,
-          );
+          const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
+          flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
           // Pinch still zooms; the twist component no longer rotates.
           const zoomFactor = MathUtils.clamp(
             current.distance / previousTwoFingerGesture.distance,
@@ -1822,16 +1826,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (stabilized.recovered) {
           resetTouchGesture();
         }
-        const isMoving =
+        const stability = minecraftStabilityPolicy(runtime.lightingMode);
+        // A still camera must let Minecraft settle to one calm frame instead
+        // of re-voxelising forever (the "Flirren"); motion still drives the
+        // active cadence through the terms below.
+        const cameraMoving =
           flying ||
           controlsInteracting ||
           controlsChanged ||
           stabilized.changed ||
           marker.visible ||
-          runtime.lightingMode === "minecraft" ||
           timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
-        setSurfacePresentation(runtime, isMoving);
+        const isMoving = cameraMoving || stability.forceContinuousRender;
+        // Minecraft keeps the chunky interaction surface at all times so the
+        // detail tier never swaps on settle (the visible "Zusammensetzen").
+        setSurfacePresentation(
+          runtime,
+          cameraMoving || stability.pinInteractionSurface,
+        );
         // The crisp/edge pass applies at full strength only once Day/Night has
         // settled (never in Minecraft, which owns the composer for its voxel
         // pass). This is the ramp *target*: crispBlend eases toward 1 here and
@@ -1868,7 +1881,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
           marker.scale.setScalar(pulse);
         }
-        const windTime = reducedMotion ? 0.9 : timestamp / 1000;
+        const windTime =
+          reducedMotion || !stability.animateWind ? 0.9 : timestamp / 1000;
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
         if (runtime.lightingMode === "minecraft") {

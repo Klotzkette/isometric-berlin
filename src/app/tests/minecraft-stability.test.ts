@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { minecraftStabilityPolicy } from "../src/visual-modes/minecraft/stability";
 import {
   VOXEL_BASE_CELL_CAP_DEVICE_PX,
   voxelCellForScale,
@@ -83,6 +84,29 @@ describe("Minecraft blocks stay glued under zoom", () => {
     expect(relIndexAt(1.5)).toBe(relIndexAt(3));
     expect(relIndexAt(2)).toBe(relIndexAt(2.7));
     expect(relIndexAt(1)).toBe(Math.floor(relWorld / base));
+  });
+});
+
+describe("Minecraft stability policy keeps a still view calm and complete", () => {
+  test("freezes wind, settles rendering, and pins the surface tier", () => {
+    const policy = minecraftStabilityPolicy("minecraft");
+    // No animated source ⇒ the voxel screen-pass has nothing to re-quantise
+    // while the camera is still (kills the residual "Flirren").
+    expect(policy.animateWind).toBe(false);
+    // A still camera must settle to one stable frame, not render forever.
+    expect(policy.forceContinuousRender).toBe(false);
+    // The chunky interaction surface stays put, so nothing "assembles" when
+    // motion stops.
+    expect(policy.pinInteractionSurface).toBe(true);
+  });
+
+  test("leaves Day and Night behaviour untouched", () => {
+    for (const mode of ["day", "night"] as const) {
+      const policy = minecraftStabilityPolicy(mode);
+      expect(policy.animateWind).toBe(true);
+      expect(policy.forceContinuousRender).toBe(false);
+      expect(policy.pinInteractionSurface).toBe(false);
+    }
   });
 });
 

@@ -1,10 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { MeshStandardMaterial } from "three";
+import { DataTexture, MeshStandardMaterial } from "three";
 
 import {
   applyDrawnFacade,
   averageColorFromPixels,
   drawnFacadeColor,
+  isDrawnFacadeCandidate,
   quantizeChannel,
 } from "../src/drawnBuildings";
 
@@ -50,5 +51,43 @@ describe("applyDrawnFacade", () => {
     expect(material.emissiveMap).toBeNull();
     expect(material.metalness).toBe(0);
     expect(material.roughness).toBeGreaterThanOrEqual(0.72);
+  });
+});
+
+describe("vegetation and cut-out materials are exempt from the drawn facade", () => {
+  const leafTexture = () => new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1);
+
+  test("opaque building materials qualify for the drawn facade", () => {
+    expect(isDrawnFacadeCandidate(new MeshStandardMaterial())).toBe(true);
+  });
+
+  test("alpha-tested cut-out cards (leaves) are skipped", () => {
+    const material = new MeshStandardMaterial();
+    material.alphaTest = 0.5;
+    expect(isDrawnFacadeCandidate(material)).toBe(false);
+  });
+
+  test("blended-transparent materials are skipped", () => {
+    const material = new MeshStandardMaterial();
+    material.transparent = true;
+    expect(isDrawnFacadeCandidate(material)).toBe(false);
+  });
+
+  test("materials carrying an alphaMap are skipped", () => {
+    const material = new MeshStandardMaterial();
+    material.alphaMap = leafTexture();
+    expect(isDrawnFacadeCandidate(material)).toBe(false);
+  });
+
+  test("a skipped tree keeps its texture instead of becoming a solid quad", () => {
+    // Reproduces the regression: an alpha-tested leaf card must keep its map,
+    // otherwise the cut-out fills in as a flat (sky-averaged) light-blue quad.
+    const tree = new MeshStandardMaterial();
+    tree.alphaTest = 0.5;
+    tree.map = leafTexture();
+    if (isDrawnFacadeCandidate(tree)) {
+      applyDrawnFacade(tree);
+    }
+    expect(tree.map).not.toBeNull();
   });
 });

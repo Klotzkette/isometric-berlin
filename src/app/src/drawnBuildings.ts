@@ -50,6 +50,27 @@ export function drawnFacadeColor(rgb: Rgb, steps = 6, desaturation = 0.32): Rgb 
   return [mix(r) * 255, mix(g) * 255, mix(b) * 255];
 }
 
+/**
+ * Whether a material should get the drawn flat-facade treatment. Only opaque
+ * building/ground facades qualify. Vegetation and other cut-out cards carve
+ * their shape out of an alpha channel (alphaTest, alphaMap, or blended
+ * transparency); stripping their texture turns a leaf card into a solid quad
+ * filled with a sky-averaged light-blue tone — the "trees vanish / flat
+ * light-blue fill" regression from v0.5.6. Those keep their textures.
+ */
+export function isDrawnFacadeCandidate(material: MeshStandardMaterial): boolean {
+  if (material.transparent) {
+    return false;
+  }
+  if ((material.alphaTest ?? 0) > 0) {
+    return false;
+  }
+  if (material.alphaMap) {
+    return false;
+  }
+  return true;
+}
+
 function sampleAverageTextureColor(texture: Texture): Rgb | null {
   const image = texture.image as
     | HTMLImageElement

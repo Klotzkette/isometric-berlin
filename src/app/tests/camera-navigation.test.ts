@@ -8,6 +8,7 @@ import {
   flyCameraInViewPlane,
   screenRelativeFlightDelta,
   stabilizeCameraRig,
+  twoFingerPanFlight,
   viewHeadingFlightDelta,
 } from "../src/cameraNavigation";
 
@@ -91,20 +92,39 @@ describe("view-heading 3D flight", () => {
   });
 });
 
-describe("two-finger swipe moves the avatar (view-relative)", () => {
-  // v0.5.4: a two-finger swipe on the 3D view must MOVE the camera/avatar in
-  // the swiped, view-relative direction — never rotate or tilt. The pointer
-  // handler feeds the swipe center delta into flyCameraAlongViewHeading as
-  // (deltaX / 72, -deltaY / 72). These tests pin that mapping: swipe right
-  // strafes right, swipe up travels forward, and the orbit is untouched.
+describe("two-finger swipe pans with direct manipulation", () => {
+  // Post-v0.5.6 fix: a two-finger swipe must make the content follow the
+  // fingers (finger right → content right, finger down → content down), like
+  // Google Maps. Since translating the rig by D moves the content by −D, the
+  // rig has to travel OPPOSITE the finger delta. twoFingerPanFlight owns the
+  // sign contract; the pointer handler feeds its output into
+  // flyCameraAlongViewHeading. Previously the mapping was (deltaX/72,
+  // −deltaY/72), which moved the rig WITH the fingers and inverted the
+  // content — the "immer noch konträr" report.
   const swipeMove = (
     camera: PerspectiveCamera,
     target: Vector3,
     deltaX: number,
     deltaY: number,
-  ) => flyCameraAlongViewHeading(camera, target, deltaX / 72, -deltaY / 72);
+  ) => {
+    const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
+    return flyCameraAlongViewHeading(camera, target, strafe, forward);
+  };
 
-  test("swipe right strafes right without rotating the view", () => {
+  test("sign contract: rig travels opposite the finger delta", () => {
+    // Finger +x ⇒ strafe negative (rig left ⇒ content right).
+    expect(twoFingerPanFlight(120, 0).strafe).toBeLessThan(0);
+    // Finger +y (downward) ⇒ forward positive (rig into scene ⇒ content down).
+    expect(twoFingerPanFlight(0, 120).forward).toBeGreaterThan(0);
+    // Opposite finger directions flip the signs symmetrically.
+    expect(twoFingerPanFlight(-120, 0).strafe).toBeGreaterThan(0);
+    expect(twoFingerPanFlight(0, -120).forward).toBeLessThan(0);
+    const idle = twoFingerPanFlight(0, 0);
+    expect(idle.forward).toBe(0);
+    expect(Math.abs(idle.strafe)).toBe(0);
+  });
+
+  test("swipe right moves the content right (rig strafes left)", () => {
     const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
     const target = new Vector3(0, 0, 0);
     camera.position.set(0, 100, 200);
@@ -115,20 +135,22 @@ describe("two-finger swipe moves the avatar (view-relative)", () => {
 
     const applied = swipeMove(camera, target, 120, 0);
 
-    expect(applied.dot(right)).toBeGreaterThan(0);
+    // Content follows the finger ⇒ rig moves the other way along screen right.
+    expect(applied.dot(right)).toBeLessThan(0);
     expect(camera.position.clone().sub(target).distanceTo(beforeOffset)).toBeLessThan(
       1e-8,
     );
   });
 
-  test("swipe up travels forward along the heading, not vertically", () => {
+  test("swipe down moves the content down (rig travels into the scene)", () => {
     const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
     const target = new Vector3(0, 0, 0);
     camera.position.set(0, 100, 200);
     camera.lookAt(target);
     camera.updateMatrixWorld();
 
-    const applied = swipeMove(camera, target, 0, -120);
+    // heading here is (0,0,-1); into-scene travel has negative z.
+    const applied = swipeMove(camera, target, 0, 120);
 
     expect(applied.z).toBeLessThan(0);
     expect(Math.abs(applied.y)).toBeLessThan(1e-8);
