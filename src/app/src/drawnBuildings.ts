@@ -103,16 +103,18 @@ export function stylizeFacadePixels(
     edgeHigh?: number;
   },
 ): Uint8ClampedArray {
-  // Aggressive drawing defaults (round-3): only a few flat tones, heavy
-  // desaturation, and bold near-black ink lines with a low trigger threshold.
-  // The round-2 values (5 tones, 0.3 desat, no threshold) left enough photo
-  // variation that — once the 256 px canvas was linearly filtered onto a
-  // distant facade — the tones reblended into what still read as a photo.
+  // Drawing defaults: a few flat gouache tones plus ink lines *only* on real
+  // structural edges. Round-3 inked with far too low a threshold (0.05) at high
+  // strength (0.92): a photographic facade has micro-gradients almost
+  // everywhere, so nearly every texel got darkened to near-black, leaving only
+  // smooth window panes light. The high threshold band here keeps brick/stone
+  // noise untouched and only draws window frames, cornices and storey lines,
+  // so ink coverage stays low and the facade keeps its own brightness.
   const steps = options?.steps ?? 4;
-  const edgeStrength = options?.edgeStrength ?? 0.92;
-  const desaturation = options?.desaturation ?? 0.5;
-  const edgeLow = options?.edgeLow ?? 0.05;
-  const edgeHigh = options?.edgeHigh ?? 0.2;
+  const edgeStrength = options?.edgeStrength ?? 0.7;
+  const desaturation = options?.desaturation ?? 0.35;
+  const edgeLow = options?.edgeLow ?? 0.14;
+  const edgeHigh = options?.edgeHigh ?? 0.4;
   const out = new Uint8ClampedArray(width * height * 4);
   const lum = new Float32Array(width * height);
   for (let i = 0, p = 0; p < width * height; i += 4, p += 1) {
@@ -275,20 +277,14 @@ export function applyDrawnFacade(material: MeshStandardMaterial): void {
     material.color = new Color(r / 255, g / 255, b / 255);
     material.map = null;
   }
-  // Strip every remaining photographic surface map. These are what produced the
-  // "still looks like a photo" facades: the normal/roughness/metalness maps give
-  // the glass/stone/concrete micro-relief and the photorealistic window
-  // reflections, and the env reflection adds the specular sheen. A drawing has
-  // none of that — flat matte tone plus the drawn map only.
+  // Matte, non-metallic. The photo look is removed by rendering the facade
+  // unlit in day mode (see applyMaterialLighting) rather than by stripping the
+  // PBR surface maps here — that keeps the praised night presentation, which
+  // still lights the drawn map, exactly as before. The contract flag marks the
+  // material as drawn for the unlit day switch and the release invariant.
   material.emissiveMap = null;
-  material.normalMap = null;
-  material.roughnessMap = null;
-  material.metalnessMap = null;
-  material.aoMap = null;
-  material.envMap = null;
-  material.envMapIntensity = 0;
   material.metalness = 0;
-  material.roughness = 1;
+  material.roughness = Math.max(0.72, material.roughness ?? 0.8);
   material.userData.drawnFacadeApplied = true;
   material.needsUpdate = true;
 }
