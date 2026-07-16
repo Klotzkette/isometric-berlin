@@ -139,6 +139,24 @@ describe("premium Minecraft visual mode", () => {
     disposeMinecraftMaterialState(state);
   });
 
+  test("builds the block look in world space (flat-shaded toon), not screen pixels", () => {
+    // Round-2 fix: the screen-space NEAREST voxel post-process flimmered when
+    // zoomed out. The block look now comes entirely from world-space flat-shaded
+    // toon materials, so it stays as calm as Day mode at every zoom level.
+    const scene = new Scene();
+    const mesh = new Mesh(
+      new BoxGeometry(20, 20, 20),
+      new MeshStandardMaterial({ color: 0xd4d4b7 }),
+    );
+    scene.add(mesh);
+    const state = createMinecraftMaterialState();
+    setMinecraftMaterialPresentation(scene, state, true);
+    const material = mesh.material as MeshToonMaterial & { flatShading: boolean };
+    expect(material).toBeInstanceOf(MeshToonMaterial);
+    expect(material.flatShading).toBe(true);
+    disposeMinecraftMaterialState(state);
+  });
+
   test("keeps the Reichstag dome centre on the same screen pixel", () => {
     const scene = new Scene();
     const dome = createOfficialReichstagDome(domeSignature);

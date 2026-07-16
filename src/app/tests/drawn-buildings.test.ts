@@ -7,6 +7,7 @@ import {
   drawnFacadeColor,
   isDrawnFacadeCandidate,
   quantizeChannel,
+  stylizeFacadePixels,
 } from "../src/drawnBuildings";
 
 describe("drawn facade colour derivation", () => {
@@ -39,6 +40,44 @@ describe("drawn facade colour derivation", () => {
     for (const channel of drawn) {
       expect(Math.round((channel / 255) * 5) / 5).toBeCloseTo(channel / 255, 6);
     }
+  });
+});
+
+describe("stylizeFacadePixels renders a drawing, not a photo", () => {
+  test("flat regions posterise onto drawn tones with no inking", () => {
+    // A uniform 2x2 patch has no luminance edges, so every texel becomes the
+    // plain posterised gouache tone — no photo gradient survives.
+    const value = 100;
+    const pixels = new Uint8ClampedArray(2 * 2 * 4);
+    for (let i = 0; i < pixels.length; i += 4) {
+      pixels[i] = value;
+      pixels[i + 1] = value;
+      pixels[i + 2] = value;
+      pixels[i + 3] = 255;
+    }
+    const styled = stylizeFacadePixels(pixels, 2, 2);
+    const [pr, pg, pb] = drawnFacadeColor([value, value, value], 5, 0.3);
+    expect(Math.abs(styled[0] - pr)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(styled[1] - pg)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(styled[2] - pb)).toBeLessThanOrEqual(0.5);
+    expect(styled[3]).toBe(255);
+  });
+
+  test("inks a thin dark line along a facade edge and preserves alpha", () => {
+    // Row: two mid-grey texels then two light texels. The texel straddling the
+    // luminance step gets darkened (an inked window/cornice line); the flat
+    // texel away from the edge keeps its plain posterised tone.
+    const pixels = new Uint8ClampedArray([
+      100, 100, 100, 255, 100, 100, 100, 255, 240, 240, 240, 200, 240, 240, 240,
+      200,
+    ]);
+    const styled = stylizeFacadePixels(pixels, 4, 1);
+    const flatDark = styled[0];
+    const edgeDark = styled[4];
+    expect(edgeDark).toBeLessThan(flatDark);
+    // Alpha is carried through untouched (cut-out edges stay intact).
+    expect(styled[3]).toBe(255);
+    expect(styled[11]).toBe(200);
   });
 });
 

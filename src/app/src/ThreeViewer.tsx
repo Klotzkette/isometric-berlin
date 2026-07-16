@@ -7,7 +7,6 @@ import {
   BufferGeometry,
   Color,
   CylinderGeometry,
-  DataTexture,
   DirectionalLight,
   DoubleSide,
   ExtrudeGeometry,
@@ -25,12 +24,10 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
-  NearestFilter,
   Object3D,
   PerspectiveCamera,
   PCFShadowMap,
   RingGeometry,
-  RGBAFormat,
   Scene,
   Shape,
   Spherical,
@@ -95,13 +92,9 @@ import {
   setMinecraftMaterialPresentation,
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
-import { createPaletteLutData } from "./visual-modes/minecraft/palette";
 import { minecraftStabilityPolicy } from "./visual-modes/minecraft/stability";
-import { voxelBaseCell, voxelGridOffset } from "./visual-modes/minecraft/voxelGrid";
 import crispFragment from "./crisp.frag?raw";
-import postprocessFragment from "./visual-modes/minecraft/postprocess.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
-import shimmerFragment from "./visual-modes/minecraft/shimmer.frag?raw";
 import {
   forwardRef,
   useEffect,
@@ -203,8 +196,6 @@ type Runtime = {
   marker: Group;
   markerTimer: number | null;
   minecraftMaterialState: MinecraftMaterialState;
-  minecraftPass: ShaderPass;
-  minecraftPaletteTexture: DataTexture;
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
   parkDetails: Group;
@@ -392,7 +383,6 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   runtime.crispPass.uniforms.saturation.value = crispness.saturation;
   runtime.crispPass.uniforms.contrast.value = crispness.contrast;
   runtime.crispPass.uniforms.edgeStrength.value = crispness.edgeStrength;
-  runtime.minecraftPass.enabled = isMinecraft;
   if (runtime.underwater) {
     runtime.underwater = false;
     setUnderwaterPresentation(runtime, true);
@@ -911,10 +901,11 @@ async function loadModel(
     for (const sourceMaterial of materials) {
       const material = sourceMaterial as MeshStandardMaterial;
       material.side = FrontSide;
-      // v0.5.6: buildings are drawn, never photographic. Strip the baked
-      // aerial texture and paint a flat facade colour derived from it; the
-      // toon shading and the screen-space isometric edge pass supply the
-      // NPR outlines. Geometry is untouched (≤ 1 px hero-centre contract).
+      // Buildings are drawn, never photographic. applyDrawnFacade turns the
+      // baked aerial photo into a rendered architectural drawing — posterised
+      // gouache tones plus inked window/cornice lines — so the facade keeps its
+      // articulation without any photo look; the crisp edge pass adds the clean
+      // silhouette outline. Geometry is untouched (≤ 1 px hero-centre contract).
       // Vegetation/cut-out cards are exempt (post-v0.5.6 fix): stripping their
       // alpha texture turned trees into solid light-blue quads, so they keep
       // their maps and stay recognisable.
@@ -1344,32 +1335,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       const camera = new PerspectiveCamera(39, 1, 0.25, 6000);
       camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
-      const minecraftPaletteTexture = new DataTexture(
-        createPaletteLutData(),
-        256,
-        16,
-        RGBAFormat,
-      );
-      minecraftPaletteTexture.minFilter = NearestFilter;
-      minecraftPaletteTexture.magFilter = NearestFilter;
-      minecraftPaletteTexture.needsUpdate = true;
-      const minecraftPass = new ShaderPass({
-        uniforms: {
-          ditherStrength: { value: 0 },
-          edgeMix: { value: CRISPNESS_PROFILES.minecraft.edgeStrength },
-          gridOffset: { value: new Vector2(0, 0) },
-          paletteLut: { value: minecraftPaletteTexture },
-          pixelScale: { value: voxelBaseCell(coarsePointer) },
-          resolution: { value: new Vector2(1, 1) },
-          tDiffuse: { value: null },
-        },
-        vertexShader: postprocessVertex,
-        fragmentShader: postprocessFragment.replace(
-          "/*__SHIMMER__*/",
-          shimmerFragment,
-        ),
-      });
-      minecraftPass.enabled = false;
+      // The Minecraft look is now built entirely in world space from the toon
+      // block materials + palette (setMinecraftMaterialPresentation). The old
+      // screen-space NEAREST voxel post-process was removed: when the camera
+      // zoomed out it re-sampled the scene into coarse screen pixels every
+      // frame, which flimmered/aliased badly in the distance. Minecraft now
+      // renders through the same composer path as Day, so it stays as calm as
+      // Day mode while zooming, panning and orbiting.
       const crispPass = new ShaderPass({
         uniforms: {
           contrast: { value: CRISPNESS_PROFILES.day.contrast },
@@ -1393,7 +1365,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
       composer.addPass(crispPass);
-      composer.addPass(minecraftPass);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
       controls.enableDamping = true;
@@ -1464,8 +1435,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         marker,
         markerTimer: null,
         minecraftMaterialState: createMinecraftMaterialState(),
-        minecraftPaletteTexture,
-        minecraftPass,
         modelMaterials: new Set(),
         monuments,
         parkDetails,
@@ -1682,13 +1651,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer.setSize(width, height, false);
         composer.setPixelRatio(renderer.getPixelRatio());
         composer.setSize(width, height);
-        const resolution = minecraftPass.uniforms.resolution.value;
-        if (resolution instanceof Vector2) {
-          resolution.set(
-            width * renderer.getPixelRatio(),
-            height * renderer.getPixelRatio(),
-          );
-        }
         const crispResolution = crispPass.uniforms.resolution.value;
         if (crispResolution instanceof Vector2) {
           crispResolution.set(
@@ -1746,8 +1708,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // to pop the image (v0.5.4 Day-mode flicker / momentary darkening).
       let crispBlend = 1;
       let lastCrispRampAt = Number.NEGATIVE_INFINITY;
-      // Reused each frame to project the voxel grid's world anchor.
-      const voxelAnchor = new Vector3();
       const flightVelocity = new Vector3();
       let wasFlying = false;
       const applyContinuousFlight = (dtSeconds: number): boolean => {
@@ -1886,23 +1846,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
         if (runtime.lightingMode === "minecraft") {
-          crispPass.enabled = false;
-          // World-anchor the voxel grid: project a fixed scene point to
-          // screen pixels and hand its wrapped offset to the shader so the
-          // blocks stay glued to the geometry while the camera orbits,
-          // pans and zooms, instead of crawling across a fixed screen grid.
-          const resolution = minecraftPass.uniforms.resolution.value;
-          const gridOffset = minecraftPass.uniforms.gridOffset.value;
-          if (resolution instanceof Vector2 && gridOffset instanceof Vector2) {
-            const anchor = voxelAnchor.set(0, 0, 0).project(camera);
-            const block = minecraftPass.uniforms.pixelScale.value as number;
-            const [offsetX, offsetY] = voxelGridOffset(
-              (anchor.x * 0.5 + 0.5) * resolution.x,
-              (anchor.y * 0.5 + 0.5) * resolution.y,
-              block,
-            );
-            gridOffset.set(offsetX, offsetY);
-          }
+          // Minecraft renders through the same composer path as Day/Night — no
+          // screen-space voxel grid to flimmer when zoomed out. The blocky look
+          // comes from the world-space toon materials; the crisp/edge pass adds
+          // the clean isometric block outline at a fixed strength (no settle
+          // ramp needed, since the world-space look is stable at every zoom).
+          const profile = CRISPNESS_PROFILES.minecraft;
+          crispPass.enabled = true;
+          crispPass.uniforms.strength.value = profile.strength;
+          crispPass.uniforms.edgeStrength.value = profile.edgeStrength;
+          crispPass.uniforms.saturation.value = profile.saturation;
+          crispPass.uniforms.contrast.value = profile.contrast;
           composer.render();
         } else {
           // Day/Night: always render through the composer so the colour and
@@ -2229,9 +2183,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         );
         disposeObject3D(runtime, scene);
         crispPass.dispose();
-        minecraftPass.dispose();
         composer.dispose();
-        minecraftPaletteTexture.dispose();
         disposeMinecraftMaterialState(runtime.minecraftMaterialState);
         renderer.dispose();
         renderer.domElement.remove();

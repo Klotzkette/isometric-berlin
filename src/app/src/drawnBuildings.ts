@@ -1,4 +1,4 @@
-import { Color, MeshStandardMaterial, type Texture } from "three";
+import { CanvasTexture, Color, MeshStandardMaterial, type Texture } from "three";
 
 export type Rgb = [number, number, number];
 
@@ -71,6 +71,112 @@ export function isDrawnFacadeCandidate(material: MeshStandardMaterial): boolean 
   return true;
 }
 
+function luminance255(r: number, g: number, b: number): number {
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/**
+ * Turn a photographic facade texture into a rendered architectural drawing:
+ * posterise every texel onto a few flat gouache tones (so the photo noise and
+ * soft gradients that read as "pastös" collapse into clean paint), then ink in
+ * thin dark lines wherever the photo has a strong luminance edge — window
+ * frames, cornices, storey divisions. The window grid and facade articulation
+ * survive as a drawn suggestion, but no photographic detail does. Pure and
+ * DOM-free so it can be unit-tested on a raw RGBA buffer.
+ */
+export function stylizeFacadePixels(
+  pixels: ArrayLike<number>,
+  width: number,
+  height: number,
+  options?: { steps?: number; edgeStrength?: number; desaturation?: number },
+): Uint8ClampedArray {
+  const steps = options?.steps ?? 5;
+  const edgeStrength = options?.edgeStrength ?? 0.85;
+  const desaturation = options?.desaturation ?? 0.3;
+  const out = new Uint8ClampedArray(width * height * 4);
+  const lum = new Float32Array(width * height);
+  for (let i = 0, p = 0; p < width * height; i += 4, p += 1) {
+    lum[p] = luminance255(pixels[i], pixels[i + 1], pixels[i + 2]);
+  }
+  const at = (x: number, y: number): number => {
+    const cx = Math.min(width - 1, Math.max(0, x));
+    const cy = Math.min(height - 1, Math.max(0, y));
+    return lum[cy * width + cx];
+  };
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const poster = drawnFacadeColor(
+        [pixels[index], pixels[index + 1], pixels[index + 2]],
+        steps,
+        desaturation,
+      );
+      // Sobel luminance gradient → thin ink lines along facade edges.
+      const gx =
+        at(x - 1, y - 1) +
+        2 * at(x - 1, y) +
+        at(x - 1, y + 1) -
+        at(x + 1, y - 1) -
+        2 * at(x + 1, y) -
+        at(x + 1, y + 1);
+      const gy =
+        at(x - 1, y - 1) +
+        2 * at(x, y - 1) +
+        at(x + 1, y - 1) -
+        at(x - 1, y + 1) -
+        2 * at(x, y + 1) -
+        at(x + 1, y + 1);
+      const magnitude = Math.min(1, Math.sqrt(gx * gx + gy * gy) / (4 * 255));
+      const ink = 1 - magnitude * edgeStrength;
+      out[index] = poster[0] * ink;
+      out[index + 1] = poster[1] * ink;
+      out[index + 2] = poster[2] * ink;
+      out[index + 3] = pixels[index + 3];
+    }
+  }
+  return out;
+}
+
+function drawnFacadeTexture(source: Texture): Texture | null {
+  const image = source.image as
+    | HTMLImageElement
+    | HTMLCanvasElement
+    | ImageBitmap
+    | undefined;
+  if (!image || typeof document === "undefined") {
+    return null;
+  }
+  const maxDim = 256;
+  const sourceWidth = (image as { width?: number }).width ?? maxDim;
+  const sourceHeight = (image as { height?: number }).height ?? maxDim;
+  const scale = Math.min(1, maxDim / Math.max(sourceWidth, sourceHeight));
+  const width = Math.max(1, Math.round(sourceWidth * scale));
+  const height = Math.max(1, Math.round(sourceHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) {
+    return null;
+  }
+  try {
+    context.drawImage(image, 0, 0, width, height);
+    const source2d = context.getImageData(0, 0, width, height);
+    source2d.data.set(stylizeFacadePixels(source2d.data, width, height));
+    context.putImageData(source2d, 0, 0);
+  } catch {
+    return null;
+  }
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = source.colorSpace;
+  texture.wrapS = source.wrapS;
+  texture.wrapT = source.wrapT;
+  texture.flipY = source.flipY;
+  texture.anisotropy = source.anisotropy;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function sampleAverageTextureColor(texture: Texture): Rgb | null {
   const image = texture.image as
     | HTMLImageElement
@@ -105,19 +211,30 @@ function sampleAverageTextureColor(texture: Texture): Rgb | null {
  * every lighting mode, so no building ever shows a photo texture.
  */
 export function applyDrawnFacade(material: MeshStandardMaterial): void {
-  let base: Rgb | null = material.map
-    ? sampleAverageTextureColor(material.map)
-    : null;
-  if (!base) {
-    base = [
-      material.color.r * 255,
-      material.color.g * 255,
-      material.color.b * 255,
-    ];
-  }
-  const [r, g, b] = drawnFacadeColor(base);
-  material.color = new Color(r / 255, g / 255, b / 255);
-  if (material.map) {
+  const drawnMap = material.map ? drawnFacadeTexture(material.map) : null;
+  if (drawnMap) {
+    // Keep a stylised architectural drawing of the facade — posterised tones
+    // plus inked window/cornice lines — so buildings read as a rendered
+    // isometric drawing rather than a single flat "pastös" blob. The map is a
+    // drawing, never the photo, so the no-photo-textures contract holds. Colour
+    // is neutral white so the drawn map shows through untinted.
+    material.map = drawnMap;
+    material.color = new Color(1, 1, 1);
+  } else {
+    // No 2D canvas (tests/SSR) or no source texture: fall back to a single flat
+    // gouache tone derived from the texture average (or the material colour).
+    let base: Rgb | null = material.map
+      ? sampleAverageTextureColor(material.map)
+      : null;
+    if (!base) {
+      base = [
+        material.color.r * 255,
+        material.color.g * 255,
+        material.color.b * 255,
+      ];
+    }
+    const [r, g, b] = drawnFacadeColor(base);
+    material.color = new Color(r / 255, g / 255, b / 255);
     material.map = null;
   }
   material.emissiveMap = null;
