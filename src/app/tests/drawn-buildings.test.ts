@@ -6,6 +6,7 @@ import {
   averageColorFromPixels,
   drawnFacadeColor,
   isDrawnFacadeCandidate,
+  isDrawnFacadeSatisfied,
   quantizeChannel,
   stylizeFacadePixels,
 } from "../src/drawnBuildings";
@@ -56,7 +57,7 @@ describe("stylizeFacadePixels renders a drawing, not a photo", () => {
       pixels[i + 3] = 255;
     }
     const styled = stylizeFacadePixels(pixels, 2, 2);
-    const [pr, pg, pb] = drawnFacadeColor([value, value, value], 5, 0.3);
+    const [pr, pg, pb] = drawnFacadeColor([value, value, value], 4, 0.5);
     expect(Math.abs(styled[0] - pr)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(styled[1] - pg)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(styled[2] - pb)).toBeLessThanOrEqual(0.5);
@@ -85,11 +86,53 @@ describe("applyDrawnFacade", () => {
   test("removes photo maps and sets matte, non-metallic shading", () => {
     const material = new MeshStandardMaterial({ color: 0x8899aa });
     material.metalness = 0.9;
+    material.normalMap = new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1);
+    material.roughnessMap = new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1);
     applyDrawnFacade(material);
     expect(material.map).toBeNull();
     expect(material.emissiveMap).toBeNull();
+    // Every photographic surface map must be stripped — these carried the
+    // glass/stone relief and the fotorealistic window reflections.
+    expect(material.normalMap).toBeNull();
+    expect(material.roughnessMap).toBeNull();
+    expect(material.metalnessMap).toBeNull();
+    expect(material.aoMap).toBeNull();
+    expect(material.envMap).toBeNull();
+    expect(material.envMapIntensity).toBe(0);
     expect(material.metalness).toBe(0);
-    expect(material.roughness).toBeGreaterThanOrEqual(0.72);
+    // Fully matte: no specular sheen that would read as a photo.
+    expect(material.roughness).toBe(1);
+  });
+
+  test("sets the drawn-facade contract flag and is idempotent", () => {
+    const material = new MeshStandardMaterial({ color: 0x8899aa });
+    applyDrawnFacade(material);
+    expect(material.userData.drawnFacadeApplied).toBe(true);
+    // Second call is a no-op guard (does not throw / re-process).
+    applyDrawnFacade(material);
+    expect(material.userData.drawnFacadeApplied).toBe(true);
+  });
+});
+
+describe("drawn-facade contract (no unstylised photo building survives)", () => {
+  const leafTexture = () => new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1);
+
+  test("an untouched candidate building violates the contract", () => {
+    expect(isDrawnFacadeSatisfied(new MeshStandardMaterial())).toBe(false);
+  });
+
+  test("a stylised candidate building satisfies the contract", () => {
+    const material = new MeshStandardMaterial();
+    applyDrawnFacade(material);
+    expect(isDrawnFacadeSatisfied(material)).toBe(true);
+  });
+
+  test("an exempt cut-out card (leaf) satisfies the contract untouched", () => {
+    const tree = new MeshStandardMaterial();
+    tree.alphaTest = 0.5;
+    tree.map = leafTexture();
+    expect(isDrawnFacadeSatisfied(tree)).toBe(true);
+    expect(tree.userData.drawnFacadeApplied).toBeUndefined();
   });
 });
 

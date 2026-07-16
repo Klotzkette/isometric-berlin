@@ -1,4 +1,11 @@
-import { CanvasTexture, Color, MeshStandardMaterial, type Texture } from "three";
+import {
+  CanvasTexture,
+  Color,
+  LinearMipmapLinearFilter,
+  MeshStandardMaterial,
+  NearestFilter,
+  type Texture,
+} from "three";
 
 export type Rgb = [number, number, number];
 
@@ -88,11 +95,24 @@ export function stylizeFacadePixels(
   pixels: ArrayLike<number>,
   width: number,
   height: number,
-  options?: { steps?: number; edgeStrength?: number; desaturation?: number },
+  options?: {
+    steps?: number;
+    edgeStrength?: number;
+    desaturation?: number;
+    edgeLow?: number;
+    edgeHigh?: number;
+  },
 ): Uint8ClampedArray {
-  const steps = options?.steps ?? 5;
-  const edgeStrength = options?.edgeStrength ?? 0.85;
-  const desaturation = options?.desaturation ?? 0.3;
+  // Aggressive drawing defaults (round-3): only a few flat tones, heavy
+  // desaturation, and bold near-black ink lines with a low trigger threshold.
+  // The round-2 values (5 tones, 0.3 desat, no threshold) left enough photo
+  // variation that — once the 256 px canvas was linearly filtered onto a
+  // distant facade — the tones reblended into what still read as a photo.
+  const steps = options?.steps ?? 4;
+  const edgeStrength = options?.edgeStrength ?? 0.92;
+  const desaturation = options?.desaturation ?? 0.5;
+  const edgeLow = options?.edgeLow ?? 0.05;
+  const edgeHigh = options?.edgeHigh ?? 0.2;
   const out = new Uint8ClampedArray(width * height * 4);
   const lum = new Float32Array(width * height);
   for (let i = 0, p = 0; p < width * height; i += 4, p += 1) {
@@ -111,7 +131,7 @@ export function stylizeFacadePixels(
         steps,
         desaturation,
       );
-      // Sobel luminance gradient → thin ink lines along facade edges.
+      // Sobel luminance gradient → ink lines along facade edges.
       const gx =
         at(x - 1, y - 1) +
         2 * at(x - 1, y) +
@@ -127,7 +147,13 @@ export function stylizeFacadePixels(
         2 * at(x, y + 1) -
         at(x + 1, y + 1);
       const magnitude = Math.min(1, Math.sqrt(gx * gx + gy * gy) / (4 * 255));
-      const ink = 1 - magnitude * edgeStrength;
+      // Threshold + ramp so even moderate window/cornice edges become bold,
+      // clearly visible dark lines instead of a faint tint.
+      const t = Math.min(
+        1,
+        Math.max(0, (magnitude - edgeLow) / Math.max(1e-6, edgeHigh - edgeLow)),
+      );
+      const ink = 1 - t * edgeStrength;
       out[index] = poster[0] * ink;
       out[index + 1] = poster[1] * ink;
       out[index + 2] = poster[2] * ink;
@@ -146,7 +172,7 @@ function drawnFacadeTexture(source: Texture): Texture | null {
   if (!image || typeof document === "undefined") {
     return null;
   }
-  const maxDim = 256;
+  const maxDim = 192;
   const sourceWidth = (image as { width?: number }).width ?? maxDim;
   const sourceHeight = (image as { height?: number }).height ?? maxDim;
   const scale = Math.min(1, maxDim / Math.max(sourceWidth, sourceHeight));
@@ -173,6 +199,12 @@ function drawnFacadeTexture(source: Texture): Texture | null {
   texture.wrapT = source.wrapT;
   texture.flipY = source.flipY;
   texture.anisotropy = source.anisotropy;
+  // Nearest magnification keeps the few flat tones and ink lines crisp up close
+  // (a drawing, not a smoothly-interpolated photo); mipmapped minification keeps
+  // distant facades calm without reblending the tones into a photo gradient.
+  texture.magFilter = NearestFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
   texture.needsUpdate = true;
   return texture;
 }
@@ -211,6 +243,12 @@ function sampleAverageTextureColor(texture: Texture): Rgb | null {
  * every lighting mode, so no building ever shows a photo texture.
  */
 export function applyDrawnFacade(material: MeshStandardMaterial): void {
+  if (material.userData.drawnFacadeApplied === true) {
+    // Idempotent: never re-stylise an already-drawn map (that would double the
+    // ink and posterise the posterised tones), so re-entrant load/upgrade paths
+    // are safe.
+    return;
+  }
   const drawnMap = material.map ? drawnFacadeTexture(material.map) : null;
   if (drawnMap) {
     // Keep a stylised architectural drawing of the facade — posterised tones
@@ -237,8 +275,34 @@ export function applyDrawnFacade(material: MeshStandardMaterial): void {
     material.color = new Color(r / 255, g / 255, b / 255);
     material.map = null;
   }
+  // Strip every remaining photographic surface map. These are what produced the
+  // "still looks like a photo" facades: the normal/roughness/metalness maps give
+  // the glass/stone/concrete micro-relief and the photorealistic window
+  // reflections, and the env reflection adds the specular sheen. A drawing has
+  // none of that — flat matte tone plus the drawn map only.
   material.emissiveMap = null;
+  material.normalMap = null;
+  material.roughnessMap = null;
+  material.metalnessMap = null;
+  material.aoMap = null;
+  material.envMap = null;
+  material.envMapIntensity = 0;
   material.metalness = 0;
-  material.roughness = Math.max(0.72, material.roughness ?? 0.8);
+  material.roughness = 1;
+  material.userData.drawnFacadeApplied = true;
   material.needsUpdate = true;
+}
+
+/**
+ * Contract check for the "no building shows a photo" invariant. A material
+ * satisfies the drawn-facade contract when it is either a non-candidate
+ * (vegetation/cut-out card, exempt) or a candidate that has been stylised
+ * (flag set by {@link applyDrawnFacade}). Used by tests and can be called after
+ * any load/upgrade path to assert no unstylised photo facade slipped through.
+ */
+export function isDrawnFacadeSatisfied(material: MeshStandardMaterial): boolean {
+  if (!isDrawnFacadeCandidate(material)) {
+    return true;
+  }
+  return material.userData.drawnFacadeApplied === true;
 }
