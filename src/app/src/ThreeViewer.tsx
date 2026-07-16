@@ -80,6 +80,7 @@ import {
   stabilizeCameraRig,
 } from "./cameraNavigation";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
+import { applyDrawnFacade } from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { renderPixelRatio } from "./renderQuality";
@@ -908,20 +909,13 @@ async function loadModel(
     for (const sourceMaterial of materials) {
       const material = sourceMaterial as MeshStandardMaterial;
       material.side = FrontSide;
-      material.roughness = Math.max(0.58, material.roughness ?? 0.75);
-      if (material.map) {
-        material.map.anisotropy = Math.min(
-          16,
-          runtime.renderer.capabilities.getMaxAnisotropy(),
-        );
-        material.map.needsUpdate = true;
-        material.emissive.set(0xffffff);
-        material.emissiveMap = material.map;
-        material.emissiveIntensity = 0.18;
-      } else {
-        material.emissive.set(0x2b3130);
-        material.emissiveIntensity = 0.07;
-      }
+      // v0.5.6: buildings are drawn, never photographic. Strip the baked
+      // aerial texture and paint a flat facade colour derived from it; the
+      // toon shading and the screen-space isometric edge pass supply the
+      // NPR outlines. Geometry is untouched (≤ 1 px hero-centre contract).
+      applyDrawnFacade(material);
+      material.emissive.set(0x2b3130);
+      material.emissiveIntensity = 0.07;
       material.userData.sourceMaterial = true;
       applyMaterialLighting(material, runtime.lightingMode);
       if (detail) {

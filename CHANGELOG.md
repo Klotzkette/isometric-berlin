@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.5.6
+
+- The generated ambient soundtrack no longer clicks or knacks. Every
+  voice — bass, chime, drone and the beat — is driven by an
+  `attackReleaseEnvelope` that is pinned to a hard 0 at note-on, ramps
+  linearly up to its peak and ramps linearly back to exactly 0 before the
+  oscillator stops. Linear ramps replace the old
+  `exponentialRampToValueAtTime` tails, which never reached true silence
+  and left a 0.0001 DC floor that ticked when the note ended. Oscillator
+  partials now fade in from 0 instead of snapping to level, the master
+  gain fades in from 0 on start and out to 0 before the context closes,
+  so no node ever starts or stops on a non-zero sample. Mute persistence
+  and the mobile first-touch autostart are unchanged.
+- The beat is rebuilt as a deep, breathing swell. It fires half as often
+  as before (one hit every four steps instead of every other step,
+  `BEAT_INTERVAL_STEPS = 4`), is tuned two octaves below the variant root
+  (`beatMidi`), and each hit is a symmetric crescendo→decrescendo
+  `swellEnvelope` through a 220 Hz low-pass rather than the old bright
+  percussive hi-hat. The white-noise hat buffer is gone.
+- Buildings are drawn everywhere, never photographic. The photogrammetric
+  Berlin 3D Mesh materials no longer sample their baked aerial texture:
+  `applyDrawnFacade` strips each material's `map`/`emissiveMap`, derives a
+  flat gouache facade colour from that texture's average (posterised and
+  desaturated toward its own luminance), and sets matte, non-metallic
+  shading. The toon materials of Minecraft mode and the screen-space
+  isometric edge pass then supply clean NPR outlines in Day, Night and
+  Minecraft alike. No geometry is moved, so the ≤1 px hero-centre contract
+  and the v0.5.5 `crispBlend` anti-flicker compositing are untouched, and
+  the landmarks stay recognisable by their surveyed form (Reichstag dome,
+  Hauptbahnhof glass roof, Brandenburger Tor). The 2D DZI pyramid was
+  already AI-drawn pixel art and needed no change.
+
 ## v0.5.5
 
 - Day mode is rock steady again. Since v0.5.4 it flickered and briefly
