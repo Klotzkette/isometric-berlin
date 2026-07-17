@@ -4,12 +4,15 @@ import { DataTexture, MeshStandardMaterial } from "three";
 import {
   applyDrawnFacade,
   averageColorFromPixels,
-  drawnFacadeColor,
+  harmonizeFacadeColor,
   isDrawnFacadeCandidate,
   isDrawnFacadeSatisfied,
   quantizeChannel,
-  stylizeFacadePixels,
+  type Rgb,
 } from "../src/drawnBuildings";
+
+const luma = ([r, g, b]: Rgb): number =>
+  (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 
 describe("drawn facade colour derivation", () => {
   test("averages opaque texels and ignores transparent ones", () => {
@@ -31,108 +34,54 @@ describe("drawn facade colour derivation", () => {
     // Six levels ⇒ steps of 0.2; 0.33 snaps to 0.4.
     expect(quantizeChannel(0.33, 6)).toBeCloseTo(0.4, 10);
   });
-
-  test("posterises and desaturates toward a drawn tone", () => {
-    const drawn = drawnFacadeColor([210, 40, 40]);
-    // Result stays reddish but is pulled toward luminance (less saturated).
-    const spread = Math.max(...drawn) - Math.min(...drawn);
-    expect(spread).toBeLessThan(210 - 40);
-    // Every channel lands on a posterised level (multiple of 255/5).
-    for (const channel of drawn) {
-      expect(Math.round((channel / 255) * 5) / 5).toBeCloseTo(channel / 255, 6);
-    }
-  });
 });
 
-describe("stylizeFacadePixels renders a drawing, not a photo", () => {
-  test("flat regions posterise onto drawn tones with no inking", () => {
-    // A uniform 2x2 patch has no luminance edges, so every texel becomes the
-    // plain posterised gouache tone — no photo gradient survives.
-    const value = 100;
-    const pixels = new Uint8ClampedArray(2 * 2 * 4);
-    for (let i = 0; i < pixels.length; i += 4) {
-      pixels[i] = value;
-      pixels[i + 1] = value;
-      pixels[i + 2] = value;
-      pixels[i + 3] = 255;
-    }
-    const styled = stylizeFacadePixels(pixels, 2, 2);
-    const [pr, pg, pb] = drawnFacadeColor([value, value, value], 4, 0.35);
-    expect(Math.abs(styled[0] - pr)).toBeLessThanOrEqual(0.5);
-    expect(Math.abs(styled[1] - pg)).toBeLessThanOrEqual(0.5);
-    expect(Math.abs(styled[2] - pb)).toBeLessThanOrEqual(0.5);
-    expect(styled[3]).toBe(255);
+describe("harmonizeFacadeColor keeps the palette coherent, warm and bright", () => {
+  test("a near-black roof photo is lifted to a bright warm stone, never black", () => {
+    const stone = harmonizeFacadeColor([12, 12, 14]);
+    // Round-4 failure was facades collapsing to ~0.08 luminance. The floor here
+    // guarantees a bright tone.
+    expect(luma(stone)).toBeGreaterThanOrEqual(0.55);
+    // Warm: red channel leads, blue trails.
+    expect(stone[0]).toBeGreaterThan(stone[2]);
   });
 
-  test("inks a thin dark line along a facade edge and preserves alpha", () => {
-    // Row: two mid-grey texels then two light texels. The texel straddling the
-    // luminance step gets darkened (an inked window/cornice line); the flat
-    // texel away from the edge keeps its plain posterised tone.
-    const pixels = new Uint8ClampedArray([
-      100, 100, 100, 255, 100, 100, 100, 255, 240, 240, 240, 200, 240, 240, 240,
-      200,
-    ]);
-    const styled = stylizeFacadePixels(pixels, 4, 1);
-    const flatDark = styled[0];
-    const edgeDark = styled[4];
-    expect(edgeDark).toBeLessThan(flatDark);
-    // Alpha is carried through untouched (cut-out edges stay intact).
-    expect(styled[3]).toBe(255);
-    expect(styled[11]).toBe(200);
+  test("a cyan sky-reflection photo is desaturated to the same warm stone", () => {
+    // Round-5 mosaic came from sky-reflection tiles staying cyan. After
+    // harmonising, the chroma is gone and the hue is warm (R >= G >= B).
+    const stone = harmonizeFacadeColor([70, 150, 190]);
+    expect(stone[0]).toBeGreaterThanOrEqual(stone[2]);
+    expect(stone[1]).toBeGreaterThanOrEqual(stone[2]);
+    // Blue no longer dominates.
+    expect(stone[2]).toBeLessThan(stone[0] + 1);
   });
 
-  test("keeps a photographic facade bright: ink is sparse, luminance preserved", () => {
-    // Round-4 contract: a real facade texture is brick/stone noise everywhere
-    // plus a few sharp window/cornice edges. The ink must fire only on the sharp
-    // edges (round-3 inked the noise too, darkening whole walls to near-black).
-    // So: ink coverage stays low and the mean luminance stays close to source.
-    const w = 32;
-    const h = 32;
-    const pixels = new Uint8ClampedArray(w * h * 4);
-    let seed = 1234;
-    const rand = (): number => {
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-      return seed / 0x7fffffff;
-    };
-    const lum = (r: number, g: number, b: number): number =>
-      0.2126 * r + 0.7152 * g + 0.0722 * b;
-    for (let y = 0; y < h; y += 1) {
-      for (let x = 0; x < w; x += 1) {
-        const i = (y * w + x) * 4;
-        // Fine brick noise (±10) on a mid tone, with two sharp vertical window
-        // lines at x=10 and x=22 (a Δ of ~90 → a genuine structural edge).
-        const edge = x === 10 || x === 22 ? 90 : 0;
-        const v = 150 + Math.round((rand() - 0.5) * 20) - edge;
-        pixels[i] = v;
-        pixels[i + 1] = v;
-        pixels[i + 2] = v;
-        pixels[i + 3] = 255;
-      }
+  test("every harmonised tone lands in the bright, unblown band", () => {
+    const samples: Rgb[] = [
+      [12, 12, 14],
+      [70, 150, 190],
+      [200, 40, 40],
+      [40, 160, 60],
+      [220, 220, 220],
+      [128, 120, 110],
+    ];
+    for (const sample of samples) {
+      const l = luma(harmonizeFacadeColor(sample));
+      // Floor 0.60 (×warm tint pulls the effective floor slightly lower) up to
+      // floor+span; assert a comfortably bright, non-blown range.
+      expect(l).toBeGreaterThanOrEqual(0.5);
+      expect(l).toBeLessThanOrEqual(0.92);
     }
-    const styled = stylizeFacadePixels(pixels, w, h);
+  });
 
-    let srcLumSum = 0;
-    let outLumSum = 0;
-    let inked = 0;
-    for (let p = 0; p < w * h; p += 1) {
-      const i = p * 4;
-      srcLumSum += lum(pixels[i], pixels[i + 1], pixels[i + 2]);
-      outLumSum += lum(styled[i], styled[i + 1], styled[i + 2]);
-      const [pr, pg, pb] = drawnFacadeColor(
-        [pixels[i], pixels[i + 1], pixels[i + 2]],
-        4,
-        0.35,
-      );
-      // A texel counts as inked when the edge pass darkened it clearly below its
-      // own posterised tone.
-      if (lum(styled[i], styled[i + 1], styled[i + 2]) < 0.85 * lum(pr, pg, pb)) {
-        inked += 1;
-      }
+  test("neighbouring photos snap onto the same shared tone (no patchwork)", () => {
+    // Two tiles whose photos differ only by fine noise must quantise to the
+    // identical facade colour, so adjacent buildings never form a mosaic.
+    const a = harmonizeFacadeColor([150, 148, 146]);
+    const b = harmonizeFacadeColor([156, 152, 150]);
+    for (let i = 0; i < 3; i += 1) {
+      expect(Math.abs(a[i] - b[i])).toBeLessThanOrEqual(2);
     }
-    const inkCoverage = inked / (w * h);
-    const luminanceRatio = outLumSum / srcLumSum;
-    expect(inkCoverage).toBeLessThan(0.15);
-    expect(luminanceRatio).toBeGreaterThanOrEqual(0.7);
   });
 });
 
@@ -145,6 +94,17 @@ describe("applyDrawnFacade", () => {
     expect(material.emissiveMap).toBeNull();
     expect(material.metalness).toBe(0);
     expect(material.roughness).toBeGreaterThanOrEqual(0.72);
+  });
+
+  test("sets a bright warm facade colour, never dark", () => {
+    const material = new MeshStandardMaterial({ color: 0x101012 });
+    applyDrawnFacade(material);
+    const l =
+      0.2126 * material.color.r +
+      0.7152 * material.color.g +
+      0.0722 * material.color.b;
+    expect(l).toBeGreaterThanOrEqual(0.5);
+    expect(material.color.r).toBeGreaterThanOrEqual(material.color.b);
   });
 
   test("sets the drawn-facade contract flag and is idempotent", () => {

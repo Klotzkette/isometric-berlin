@@ -1,11 +1,4 @@
-import {
-  CanvasTexture,
-  Color,
-  LinearMipmapLinearFilter,
-  MeshStandardMaterial,
-  NearestFilter,
-  type Texture,
-} from "three";
+import { Color, MeshStandardMaterial, type Texture } from "three";
 
 export type Rgb = [number, number, number];
 
@@ -43,18 +36,51 @@ export function quantizeChannel(value: number, steps: number): number {
   return Math.round(clamped * (levels - 1)) / (levels - 1);
 }
 
+// Warm sandstone tint (R > G > B) shared by every facade so the whole
+// Regierungsviertel reads as one coherent illustrated palette instead of a
+// per-tile photo patchwork.
+const WARM_TINT: Rgb = [1.0, 0.95, 0.85];
+// Bright band: the darkest a facade may become is LUMA_FLOOR, the lightest
+// LUMA_FLOOR + LUMA_SPAN. Nothing ever falls to black (the round-4 failure) and
+// nothing blows out. Four quantised bands keep tiles snapped onto shared tones.
+const LUMA_FLOOR = 0.6;
+const LUMA_SPAN = 0.26;
+const LUMA_BANDS = 4;
+
 /**
- * Turn a photographic average colour into a drawn, illustrated facade
- * tone: pull it gently toward its own luminance (so photo noise reads as
- * flat paint) and posterise each channel onto a few steps. The result is
- * a hand-shaded gouache colour, never a photo sample.
+ * Collapse one tile's noisy photographic average onto the shared, warm,
+ * illustrated facade palette. This is the fix for the round-5 "fragmented
+ * polygon mosaic": every tile was posterised on its own average and rendered
+ * unlit, so dark roof photos stayed near-black and sky-reflection photos turned
+ * cyan — a patchwork. Here the colour is (1) desaturated hard so blue/green/cyan
+ * casts die, (2) remapped onto one of a few bright luminance bands so no tile is
+ * dark and neighbours snap together, and (3) tinted warm sandstone. The result
+ * is a coherent hand-painted stone tone that the day lights then shade for
+ * plasticity (roofs/side faces step naturally), never a photo sample.
  */
-export function drawnFacadeColor(rgb: Rgb, steps = 6, desaturation = 0.32): Rgb {
+export function harmonizeFacadeColor(rgb: Rgb): Rgb {
   const [r, g, b] = rgb.map((channel) => channel / 255) as Rgb;
   const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  const mix = (channel: number): number =>
-    quantizeChannel(channel + (luma - channel) * desaturation, steps);
-  return [mix(r) * 255, mix(g) * 255, mix(b) * 255];
+  // 1. Kill the chroma of the source photo (sky reflections, vegetation bleed,
+  // dark shadow casts) so only a faint hint of the building's own tone remains.
+  const desaturation = 0.88;
+  const gr = r + (luma - r) * desaturation;
+  const gg = g + (luma - g) * desaturation;
+  const gb = b + (luma - b) * desaturation;
+  // 2. Remap the tile luminance onto a few bright, quantised bands. Dark
+  // (roof/shadow) photos land on the floor tone, not black; the palette stays
+  // coherent because every tile snaps to the same handful of levels.
+  const band = quantizeChannel(luma, LUMA_BANDS);
+  const targetLuma = LUMA_FLOOR + LUMA_SPAN * band;
+  const greyLuma = 0.2126 * gr + 0.7152 * gg + 0.0722 * gb;
+  const scale = targetLuma / Math.max(greyLuma, 1e-3);
+  // 3. Warm sandstone tint, clamped to a valid colour.
+  const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+  return [
+    clamp01(gr * scale * WARM_TINT[0]) * 255,
+    clamp01(gg * scale * WARM_TINT[1]) * 255,
+    clamp01(gb * scale * WARM_TINT[2]) * 255,
+  ];
 }
 
 /**
@@ -76,139 +102,6 @@ export function isDrawnFacadeCandidate(material: MeshStandardMaterial): boolean 
     return false;
   }
   return true;
-}
-
-function luminance255(r: number, g: number, b: number): number {
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-/**
- * Turn a photographic facade texture into a rendered architectural drawing:
- * posterise every texel onto a few flat gouache tones (so the photo noise and
- * soft gradients that read as "pastös" collapse into clean paint), then ink in
- * thin dark lines wherever the photo has a strong luminance edge — window
- * frames, cornices, storey divisions. The window grid and facade articulation
- * survive as a drawn suggestion, but no photographic detail does. Pure and
- * DOM-free so it can be unit-tested on a raw RGBA buffer.
- */
-export function stylizeFacadePixels(
-  pixels: ArrayLike<number>,
-  width: number,
-  height: number,
-  options?: {
-    steps?: number;
-    edgeStrength?: number;
-    desaturation?: number;
-    edgeLow?: number;
-    edgeHigh?: number;
-  },
-): Uint8ClampedArray {
-  // Drawing defaults: a few flat gouache tones plus ink lines *only* on real
-  // structural edges. Round-3 inked with far too low a threshold (0.05) at high
-  // strength (0.92): a photographic facade has micro-gradients almost
-  // everywhere, so nearly every texel got darkened to near-black, leaving only
-  // smooth window panes light. The high threshold band here keeps brick/stone
-  // noise untouched and only draws window frames, cornices and storey lines,
-  // so ink coverage stays low and the facade keeps its own brightness.
-  const steps = options?.steps ?? 4;
-  const edgeStrength = options?.edgeStrength ?? 0.7;
-  const desaturation = options?.desaturation ?? 0.35;
-  const edgeLow = options?.edgeLow ?? 0.14;
-  const edgeHigh = options?.edgeHigh ?? 0.4;
-  const out = new Uint8ClampedArray(width * height * 4);
-  const lum = new Float32Array(width * height);
-  for (let i = 0, p = 0; p < width * height; i += 4, p += 1) {
-    lum[p] = luminance255(pixels[i], pixels[i + 1], pixels[i + 2]);
-  }
-  const at = (x: number, y: number): number => {
-    const cx = Math.min(width - 1, Math.max(0, x));
-    const cy = Math.min(height - 1, Math.max(0, y));
-    return lum[cy * width + cx];
-  };
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width + x) * 4;
-      const poster = drawnFacadeColor(
-        [pixels[index], pixels[index + 1], pixels[index + 2]],
-        steps,
-        desaturation,
-      );
-      // Sobel luminance gradient → ink lines along facade edges.
-      const gx =
-        at(x - 1, y - 1) +
-        2 * at(x - 1, y) +
-        at(x - 1, y + 1) -
-        at(x + 1, y - 1) -
-        2 * at(x + 1, y) -
-        at(x + 1, y + 1);
-      const gy =
-        at(x - 1, y - 1) +
-        2 * at(x, y - 1) +
-        at(x + 1, y - 1) -
-        at(x - 1, y + 1) -
-        2 * at(x, y + 1) -
-        at(x + 1, y + 1);
-      const magnitude = Math.min(1, Math.sqrt(gx * gx + gy * gy) / (4 * 255));
-      // Threshold + ramp so even moderate window/cornice edges become bold,
-      // clearly visible dark lines instead of a faint tint.
-      const t = Math.min(
-        1,
-        Math.max(0, (magnitude - edgeLow) / Math.max(1e-6, edgeHigh - edgeLow)),
-      );
-      const ink = 1 - t * edgeStrength;
-      out[index] = poster[0] * ink;
-      out[index + 1] = poster[1] * ink;
-      out[index + 2] = poster[2] * ink;
-      out[index + 3] = pixels[index + 3];
-    }
-  }
-  return out;
-}
-
-function drawnFacadeTexture(source: Texture): Texture | null {
-  const image = source.image as
-    | HTMLImageElement
-    | HTMLCanvasElement
-    | ImageBitmap
-    | undefined;
-  if (!image || typeof document === "undefined") {
-    return null;
-  }
-  const maxDim = 192;
-  const sourceWidth = (image as { width?: number }).width ?? maxDim;
-  const sourceHeight = (image as { height?: number }).height ?? maxDim;
-  const scale = Math.min(1, maxDim / Math.max(sourceWidth, sourceHeight));
-  const width = Math.max(1, Math.round(sourceWidth * scale));
-  const height = Math.max(1, Math.round(sourceHeight * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (!context) {
-    return null;
-  }
-  try {
-    context.drawImage(image, 0, 0, width, height);
-    const source2d = context.getImageData(0, 0, width, height);
-    source2d.data.set(stylizeFacadePixels(source2d.data, width, height));
-    context.putImageData(source2d, 0, 0);
-  } catch {
-    return null;
-  }
-  const texture = new CanvasTexture(canvas);
-  texture.colorSpace = source.colorSpace;
-  texture.wrapS = source.wrapS;
-  texture.wrapT = source.wrapT;
-  texture.flipY = source.flipY;
-  texture.anisotropy = source.anisotropy;
-  // Nearest magnification keeps the few flat tones and ink lines crisp up close
-  // (a drawing, not a smoothly-interpolated photo); mipmapped minification keeps
-  // distant facades calm without reblending the tones into a photo gradient.
-  texture.magFilter = NearestFilter;
-  texture.minFilter = LinearMipmapLinearFilter;
-  texture.generateMipmaps = true;
-  texture.needsUpdate = true;
-  return texture;
 }
 
 function sampleAverageTextureColor(texture: Texture): Rgb | null {
@@ -237,52 +130,40 @@ function sampleAverageTextureColor(texture: Texture): Rgb | null {
 }
 
 /**
- * Replace a photogrammetric building material with a drawn facade: strip
- * the baked aerial photo texture, derive a flat gouache colour from that
- * texture's average (or the material's own colour as a fallback), and set
- * matte, non-metallic shading. Geometry is never touched, so the ≤1 px
- * hero-centre contract is unaffected. Called for every mesh material, in
- * every lighting mode, so no building ever shows a photo texture.
+ * Replace a photogrammetric building material with a drawn facade: strip the
+ * baked aerial photo texture entirely and set a single flat, harmonised
+ * gouache colour derived from that texture's average (or the material's own
+ * colour as a fallback). Because the tone is snapped onto the shared warm
+ * palette (see {@link harmonizeFacadeColor}) and the material is then lit
+ * normally in every mode, the buildings read as one coherent isometric
+ * illustration — no per-tile photo mosaic, no unlit dark blocks — while the day
+ * lights supply plasticity and the crisp edge pass supplies contours. Geometry
+ * is never touched, so the ≤1 px hero-centre contract is unaffected.
  */
 export function applyDrawnFacade(material: MeshStandardMaterial): void {
   if (material.userData.drawnFacadeApplied === true) {
-    // Idempotent: never re-stylise an already-drawn map (that would double the
-    // ink and posterise the posterised tones), so re-entrant load/upgrade paths
-    // are safe.
+    // Idempotent guard so re-entrant load/upgrade paths never double-process.
     return;
   }
-  const drawnMap = material.map ? drawnFacadeTexture(material.map) : null;
-  if (drawnMap) {
-    // Keep a stylised architectural drawing of the facade — posterised tones
-    // plus inked window/cornice lines — so buildings read as a rendered
-    // isometric drawing rather than a single flat "pastös" blob. The map is a
-    // drawing, never the photo, so the no-photo-textures contract holds. Colour
-    // is neutral white so the drawn map shows through untinted.
-    material.map = drawnMap;
-    material.color = new Color(1, 1, 1);
-  } else {
-    // No 2D canvas (tests/SSR) or no source texture: fall back to a single flat
-    // gouache tone derived from the texture average (or the material colour).
-    let base: Rgb | null = material.map
-      ? sampleAverageTextureColor(material.map)
-      : null;
-    if (!base) {
-      base = [
-        material.color.r * 255,
-        material.color.g * 255,
-        material.color.b * 255,
-      ];
-    }
-    const [r, g, b] = drawnFacadeColor(base);
-    material.color = new Color(r / 255, g / 255, b / 255);
-    material.map = null;
+  let base: Rgb | null = material.map
+    ? sampleAverageTextureColor(material.map)
+    : null;
+  if (!base) {
+    base = [
+      material.color.r * 255,
+      material.color.g * 255,
+      material.color.b * 255,
+    ];
   }
-  // Matte, non-metallic. The photo look is removed by rendering the facade
-  // unlit in day mode (see applyMaterialLighting) rather than by stripping the
-  // PBR surface maps here — that keeps the praised night presentation, which
-  // still lights the drawn map, exactly as before. The contract flag marks the
-  // material as drawn for the unlit day switch and the release invariant.
+  const [r, g, b] = harmonizeFacadeColor(base);
+  // Strip the photo maps: a drawn facade is a flat painted tone, never a
+  // photographic sample. Removing the map is also what guarantees the
+  // no-photo-textures contract holds.
+  material.map = null;
   material.emissiveMap = null;
+  material.color = new Color(r / 255, g / 255, b / 255);
+  // Matte, non-metallic so the day hemisphere/sun shade the flat tone into
+  // clean plastic faces rather than a glossy or washed-out surface.
   material.metalness = 0;
   material.roughness = Math.max(0.72, material.roughness ?? 0.8);
   material.userData.drawnFacadeApplied = true;

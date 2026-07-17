@@ -294,30 +294,12 @@ function applyMaterialLighting(
     material.userData.dayEmissive = material.emissive.getHex();
     material.userData.dayEmissiveIntensity = material.emissiveIntensity;
   }
-  const drawn = material.userData.drawnFacadeApplied === true;
-  if (drawn && mode !== "night") {
-    // Day (and the hidden standard copy under Minecraft): render the drawn
-    // facade UNLIT so the posterised drawing shows at its own full brightness,
-    // independent of the scene lights. Lit shading across a facade produced the
-    // soft, photo-like gradient; with color=black the lit map term is zero and
-    // the drawing comes entirely from the emissive map — a flat illustration.
-    material.emissiveMap = material.map;
-    material.emissive.setHex(0xffffff);
-    material.emissiveIntensity = 1;
-    material.color.setRGB(0, 0, 0);
-    material.needsUpdate = true;
-    return;
-  }
-  if (drawn) {
-    // Night: restore the lit presentation (the praised night look) — the drawn
-    // map is lit by the night lights, with no unlit emissive drawing on top.
-    // Reset the emissive hex that the day-unlit branch set to white, so the
-    // night glow keeps its captured warm tone (the night block below only sets
-    // the intensity, not the colour).
-    material.emissiveMap = null;
-    material.color.setRGB(1, 1, 1);
-    material.emissive.setHex((material.userData.dayEmissive as number) ?? 0x000000);
-  }
+  // Drawn facades are a flat harmonised colour that is lit by the scene in every
+  // mode (see applyDrawnFacade). Mode switching therefore only ever touches the
+  // emissive term below — a symmetric, lossless swap — so the day illustration
+  // and the warm night glow never leak into one another (round-5 fix: the old
+  // unlit-day branch set color=black / emissive=white and could strand the scene
+  // dark on the way back to night).
   if (mode === "night") {
     const nightEmissive = material.userData.nightEmissive;
     if (typeof nightEmissive === "number") {
