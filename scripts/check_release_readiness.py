@@ -508,7 +508,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "late-loaded underside materials": (
       "material.side = runtime.underside ? DoubleSide : FrontSide"
     ),
-    "drawn building facades (no photo textures)": "applyDrawnFacade(material)",
+    "drawn building facades (no photo textures)": "applyDrawnFacade(material, { anchor: facadeAnchor })",
     "hidden default marker": "marker.visible = false",
     "bounded hero-detail cache": "heroDetailEvictions",
     "GPU texture disposal": "texture.dispose()",

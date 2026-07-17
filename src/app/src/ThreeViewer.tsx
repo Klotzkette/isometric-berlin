@@ -78,7 +78,14 @@ import {
   twoFingerPanFlight,
 } from "./cameraNavigation";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
-import { applyDrawnFacade, isDrawnFacadeCandidate } from "./drawnBuildings";
+import {
+  applyDrawnFacade,
+  HERO_FACADE_ANCHORS,
+  installFlatUnlitShader,
+  isDrawnFacadeCandidate,
+  setFlatUnlit,
+  type Rgb,
+} from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import {
@@ -303,12 +310,27 @@ function applyMaterialLighting(
     material.userData.dayEmissive = material.emissive.getHex();
     material.userData.dayEmissiveIntensity = material.emissiveIntensity;
   }
-  // Drawn facades are a flat harmonised colour that is lit by the scene in every
-  // mode (see applyDrawnFacade). Mode switching therefore only ever touches the
-  // emissive term below — a symmetric, lossless swap — so the day illustration
-  // and the warm night glow never leak into one another (round-5 fix: the old
-  // unlit-day branch set color=black / emissive=white and could strand the scene
-  // dark on the way back to night).
+  // Round-6: drawn building facades render UNLIT in day mode via the flat-unlit
+  // shader (see installFlatUnlitShader). The shader outputs the material's own
+  // albedo directly — the baked per-vertex real colour for vertex-kind tiles,
+  // or the flat sampled tone for textured hero segments — so scene lights never
+  // shade a building: every face is one flat tone, no gradient, no blob-shadow
+  // from the lumpy photogrammetry. The albedo is preserved (never forced black),
+  // so each building keeps its real colour. Night/minecraft turn the unlit
+  // toggle off and light normally; the switch is lossless because it only flips
+  // a uniform plus the emissive term.
+  const isDrawn = material.userData.drawnFacadeApplied === true;
+  const drawnKind = material.userData.drawnKind as string | undefined;
+  const drawnFlat = material.userData.dayFlatColor as number | undefined;
+  if (isDrawn) {
+    setFlatUnlit(material, mode === "day");
+    // Flat-kind facades restore their stored flat tone as the albedo in every
+    // mode; vertex-kind facades keep the neutral white multiplier set at load
+    // so the baked per-vertex colour shows through untinted.
+    if (drawnKind === "flat" && typeof drawnFlat === "number") {
+      material.color.setHex(drawnFlat);
+    }
+  }
   if (mode === "night") {
     const nightEmissive = material.userData.nightEmissive;
     if (typeof nightEmissive === "number") {
@@ -316,14 +338,46 @@ function applyMaterialLighting(
       material.emissiveIntensity =
         material.userData.nightEmissiveIntensity ?? 1;
     } else if (material.userData.sourceMaterial) {
+      material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
       material.emissiveIntensity = material.map ? 0.035 : 0.015;
     }
   } else {
     material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
-    material.emissiveIntensity =
-      material.userData.dayEmissiveIntensity ?? 1;
+    material.emissiveIntensity = material.userData.dayEmissiveIntensity ?? 1;
   }
   material.needsUpdate = true;
+}
+
+/**
+ * Give a group of hand-authored landmark meshes the same flat-unlit day
+ * treatment as the photogrammetric buildings: keep each material's authored real
+ * colour as the albedo (drawnKind "vertex" → no colour rewrite) and render it
+ * unlit in day mode so it shows one flat tone with no directional shading, while
+ * the clean-up floor lifts near-black authored roofs into a readable dark grey.
+ * Night/minecraft toggle the unlit uniform off and light normally, so window
+ * emitters and the Minecraft look are untouched. Used for the civic-detail
+ * landmarks (e.g. the Schweizerische Botschaft) which are authored models, not
+ * photogrammetry, and would otherwise keep a shaded, near-black roof.
+ */
+function markAuthoredFlatUnlit(root: Object3D): void {
+  const seen = new Set<MeshStandardMaterial>();
+  root.traverse((object) => {
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) {
+      if (material instanceof MeshStandardMaterial && !seen.has(material)) {
+        seen.add(material);
+        installFlatUnlitShader(material);
+        material.userData.drawnKind = "vertex";
+        material.userData.flatClean = 1;
+        material.userData.drawnFacadeApplied = true;
+      }
+    }
+  });
 }
 
 function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
@@ -919,7 +973,7 @@ async function loadModel(
   runtime: Runtime,
   file: MeshFile,
   parent: Group | Scene,
-  { detail }: { detail: boolean },
+  { detail, facadeAnchor }: { detail: boolean; facadeAnchor?: Rgb },
 ): Promise<boolean> {
   if (runtime.disposed) {
     return false;
@@ -954,7 +1008,7 @@ async function loadModel(
       // alpha texture turned trees into solid light-blue quads, so they keep
       // their maps and stay recognisable.
       if (isDrawnFacadeCandidate(material)) {
-        applyDrawnFacade(material);
+        applyDrawnFacade(material, { anchor: facadeAnchor });
       }
       material.emissive.set(0x2b3130);
       material.emissiveIntensity = 0.07;
@@ -1000,7 +1054,7 @@ async function loadModelWithRetry(
   runtime: Runtime,
   file: MeshFile,
   parent: Group | Scene,
-  options: { detail: boolean },
+  options: { detail: boolean; facadeAnchor?: Rgb },
 ): Promise<boolean> {
   try {
     return await loadModel(runtime, file, parent, options);
@@ -1159,6 +1213,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       const detail = runtime.heroByName.get(name);
       if (detail && !runtime.detailGroups.has(name)) {
+        const facadeAnchor = HERO_FACADE_ANCHORS[detail.id];
         const group = new Group();
         group.name = `${name} high detail`;
         const entry: HeroDetailGroup = {
@@ -1181,6 +1236,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             if (
               (await loadModelWithRetry(runtime, file, group, {
                 detail: true,
+                facadeAnchor,
               })) &&
               !runtime.disposed
             ) {
@@ -2006,6 +2062,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.civicDetails.removeFromParent();
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
+          markAuthoredFlatUnlit(runtime.civicDetails);
           scene.add(runtime.civicDetails);
           applyLightingToRoot(runtime.civicDetails, runtime.lightingMode);
           if (runtime.lightingMode === "minecraft") {

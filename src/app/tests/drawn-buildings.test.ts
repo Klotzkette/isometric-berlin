@@ -4,10 +4,15 @@ import { DataTexture, MeshStandardMaterial } from "three";
 import {
   applyDrawnFacade,
   averageColorFromPixels,
-  harmonizeFacadeColor,
+  blendTowardAnchor,
+  dominantFacadeColor,
+  HERO_FACADE_ANCHORS,
+  installFlatUnlitShader,
   isDrawnFacadeCandidate,
   isDrawnFacadeSatisfied,
+  medianColorFromPixels,
   quantizeChannel,
+  setFlatUnlit,
   type Rgb,
 } from "../src/drawnBuildings";
 
@@ -26,6 +31,22 @@ describe("drawn facade colour derivation", () => {
     expect(averageColorFromPixels(new Uint8ClampedArray())).toEqual([
       176, 172, 160,
     ]);
+    expect(medianColorFromPixels(new Uint8ClampedArray())).toEqual([
+      176, 172, 160,
+    ]);
+  });
+
+  test("median reports the dominant tone, ignoring dark/outlier texels", () => {
+    // Four bright stone texels plus one near-black window texel: the mean would
+    // be dragged down, but the median stays on the dominant stone colour.
+    const pixels = new Uint8ClampedArray([
+      200, 190, 170, 255, 202, 192, 172, 255, 198, 188, 168, 255, 204, 194, 174,
+      255, 8, 8, 10, 255,
+    ]);
+    const [r, g, b] = medianColorFromPixels(pixels);
+    expect(r).toBeGreaterThanOrEqual(198);
+    expect(g).toBeGreaterThanOrEqual(188);
+    expect(b).toBeGreaterThanOrEqual(168);
   });
 
   test("quantises channels onto discrete flat levels", () => {
@@ -36,56 +57,56 @@ describe("drawn facade colour derivation", () => {
   });
 });
 
-describe("harmonizeFacadeColor keeps the palette coherent, warm and bright", () => {
-  test("a near-black roof photo is lifted to a bright warm stone, never black", () => {
-    const stone = harmonizeFacadeColor([12, 12, 14]);
-    // Round-4 failure was facades collapsing to ~0.08 luminance. The floor here
-    // guarantees a bright tone.
-    expect(luma(stone)).toBeGreaterThanOrEqual(0.55);
-    // Warm: red channel leads, blue trails.
-    expect(stone[0]).toBeGreaterThan(stone[2]);
+describe("dominantFacadeColor keeps the building's real colour (round-6)", () => {
+  test("a warm stone facade stays warm (R leads)", () => {
+    const [r, g, b] = dominantFacadeColor([180, 150, 100]);
+    expect(r).toBeGreaterThan(g);
+    expect(g).toBeGreaterThan(b);
   });
 
-  test("a cyan sky-reflection photo is desaturated to the same warm stone", () => {
-    // Round-5 mosaic came from sky-reflection tiles staying cyan. After
-    // harmonising, the chroma is gone and the hue is warm (R >= G >= B).
-    const stone = harmonizeFacadeColor([70, 150, 190]);
-    expect(stone[0]).toBeGreaterThanOrEqual(stone[2]);
-    expect(stone[1]).toBeGreaterThanOrEqual(stone[2]);
-    // Blue no longer dominates.
-    expect(stone[2]).toBeLessThan(stone[0] + 1);
+  test("a cool glass facade stays cool (B leads) — NOT recoloured warm", () => {
+    // The round-5 failure forced everything to warm sandstone. A glass tower
+    // must keep its own cool tone.
+    const [r, , b] = dominantFacadeColor([40, 90, 150]);
+    expect(b).toBeGreaterThan(r);
   });
 
-  test("every harmonised tone lands in the bright, unblown band", () => {
-    const samples: Rgb[] = [
-      [12, 12, 14],
-      [70, 150, 190],
-      [200, 40, 40],
-      [40, 160, 60],
-      [220, 220, 220],
-      [128, 120, 110],
-    ];
-    for (const sample of samples) {
-      const l = luma(harmonizeFacadeColor(sample));
-      // Floor 0.60 (×warm tint pulls the effective floor slightly lower) up to
-      // floor+span; assert a comfortably bright, non-blown range.
-      expect(l).toBeGreaterThanOrEqual(0.5);
-      expect(l).toBeLessThanOrEqual(0.92);
-    }
+  test("a dark facade is lifted to a readable mid tone, never black", () => {
+    expect(luma(dominantFacadeColor([12, 12, 14]))).toBeGreaterThanOrEqual(0.3);
   });
 
-  test("neighbouring photos snap onto the same shared tone (no patchwork)", () => {
-    // Two tiles whose photos differ only by fine noise must quantise to the
-    // identical facade colour, so adjacent buildings never form a mosaic.
-    const a = harmonizeFacadeColor([150, 148, 146]);
-    const b = harmonizeFacadeColor([156, 152, 150]);
-    for (let i = 0; i < 3; i += 1) {
-      expect(Math.abs(a[i] - b[i])).toBeLessThanOrEqual(2);
-    }
+  test("a bright white facade is kept bright but not blown out", () => {
+    const l = luma(dominantFacadeColor([240, 240, 240]));
+    expect(l).toBeGreaterThanOrEqual(0.75);
+    expect(l).toBeLessThanOrEqual(0.9);
+  });
+
+  test("hue is preserved for a saturated real colour", () => {
+    // A red-brick facade must not lose its identity — red still dominates.
+    const [r, g, b] = dominantFacadeColor([170, 70, 60]);
+    expect(r).toBeGreaterThan(g);
+    expect(r).toBeGreaterThan(b);
   });
 });
 
-describe("applyDrawnFacade", () => {
+describe("blendTowardAnchor", () => {
+  test("interpolates linearly toward the anchor", () => {
+    expect(blendTowardAnchor([0, 0, 0], [100, 200, 40], 0.5)).toEqual([
+      50, 100, 20,
+    ]);
+  });
+
+  test("clamps the blend amount to [0, 1]", () => {
+    expect(blendTowardAnchor([10, 10, 10], [200, 200, 200], 2)).toEqual([
+      200, 200, 200,
+    ]);
+    expect(blendTowardAnchor([10, 10, 10], [200, 200, 200], -1)).toEqual([
+      10, 10, 10,
+    ]);
+  });
+});
+
+describe("applyDrawnFacade renders an unlit flat real-colour facade", () => {
   test("removes photo maps and sets matte, non-metallic shading", () => {
     const material = new MeshStandardMaterial({ color: 0x8899aa });
     material.metalness = 0.9;
@@ -96,15 +117,31 @@ describe("applyDrawnFacade", () => {
     expect(material.roughness).toBeGreaterThanOrEqual(0.72);
   });
 
-  test("sets a bright warm facade colour, never dark", () => {
-    const material = new MeshStandardMaterial({ color: 0x101012 });
+  test("keeps the real hue (a cool material stays cool) and never goes black", () => {
+    const material = new MeshStandardMaterial({ color: 0x28425f });
     applyDrawnFacade(material);
+    expect(material.color.b).toBeGreaterThan(material.color.r);
     const l =
       0.2126 * material.color.r +
       0.7152 * material.color.g +
       0.0722 * material.color.b;
-    expect(l).toBeGreaterThanOrEqual(0.5);
-    expect(material.color.r).toBeGreaterThanOrEqual(material.color.b);
+    expect(l).toBeGreaterThanOrEqual(0.3);
+  });
+
+  test("stores the flat tone for the lossless day/night mode switch", () => {
+    const material = new MeshStandardMaterial({ color: 0x9a8f77 });
+    applyDrawnFacade(material);
+    expect(material.userData.dayFlatColor).toBe(material.color.getHex());
+  });
+
+  test("a hero anchor nudges the tone toward the curated colour", () => {
+    const plain = new MeshStandardMaterial({ color: 0x304050 });
+    applyDrawnFacade(plain);
+    const anchored = new MeshStandardMaterial({ color: 0x304050 });
+    applyDrawnFacade(anchored, { anchor: HERO_FACADE_ANCHORS.reichstag });
+    // The anchored copy is pulled toward warm sandstone: warmer (more red)
+    // than the un-anchored cool tone.
+    expect(anchored.color.r).toBeGreaterThan(plain.color.r);
   });
 
   test("sets the drawn-facade contract flag and is idempotent", () => {
@@ -114,6 +151,52 @@ describe("applyDrawnFacade", () => {
     // Second call is a no-op guard (does not throw / re-process).
     applyDrawnFacade(material);
     expect(material.userData.drawnFacadeApplied).toBe(true);
+  });
+});
+
+describe("applyDrawnFacade keeps a vertex-coloured building's real colour", () => {
+  test("keeps vertex colours and a neutral white multiplier (no flat tone)", () => {
+    const material = new MeshStandardMaterial({ color: 0x445566 });
+    material.vertexColors = true;
+    applyDrawnFacade(material);
+    // Real colour lives in the vertex-colour attribute; the diffuse multiplier
+    // must be neutral white so it survives untinted, and no single flat tone is
+    // baked in.
+    expect(material.vertexColors).toBe(true);
+    expect(material.color.r).toBeCloseTo(1, 5);
+    expect(material.color.g).toBeCloseTo(1, 5);
+    expect(material.color.b).toBeCloseTo(1, 5);
+    expect(material.userData.drawnKind).toBe("vertex");
+    expect(material.userData.dayFlatColor).toBeUndefined();
+  });
+
+  test("a textured/plain material still collapses to a flat tone", () => {
+    const material = new MeshStandardMaterial({ color: 0x9a8f77 });
+    applyDrawnFacade(material);
+    expect(material.userData.drawnKind).toBe("flat");
+    expect(material.userData.dayFlatColor).toBe(material.color.getHex());
+  });
+});
+
+describe("flat-unlit shader toggle", () => {
+  test("installFlatUnlitShader is idempotent and installs an onBeforeCompile", () => {
+    const material = new MeshStandardMaterial();
+    installFlatUnlitShader(material);
+    const first = material.onBeforeCompile;
+    expect(typeof first).toBe("function");
+    installFlatUnlitShader(material);
+    // Second call is a no-op guard — the hook is not re-wrapped.
+    expect(material.onBeforeCompile).toBe(first);
+    expect(material.userData.flatUnlitInstalled).toBe(true);
+  });
+
+  test("setFlatUnlit flips the userData toggle", () => {
+    const material = new MeshStandardMaterial();
+    installFlatUnlitShader(material);
+    setFlatUnlit(material, true);
+    expect(material.userData.flatUnlit).toBe(1);
+    setFlatUnlit(material, false);
+    expect(material.userData.flatUnlit).toBe(0);
   });
 });
 
@@ -174,31 +257,5 @@ describe("vegetation and cut-out materials are exempt from the drawn facade", ()
       applyDrawnFacade(tree);
     }
     expect(tree.map).not.toBeNull();
-  });
-});
-
-describe("vertex-colour posterisation (hard-edged drawn facades)", () => {
-  test("applyDrawnFacade installs the poster shader with a stable cache key", async () => {
-    const { MeshStandardMaterial } = await import("three");
-    const { applyDrawnFacade, VERTEX_POSTER_COLOR_FRAGMENT } = await import(
-      "../src/drawnBuildings"
-    );
-    const material = new MeshStandardMaterial({ vertexColors: true });
-    applyDrawnFacade(material);
-    expect(typeof material.onBeforeCompile).toBe("function");
-    expect(material.customProgramCacheKey()).toBe(
-      "drawn-facade-vertex-poster-v1",
-    );
-    const shader = {
-      fragmentShader: "prefix\n#include <color_fragment>\nsuffix",
-      uniforms: {},
-      vertexShader: "",
-    };
-    material.onBeforeCompile(shader as never, null as never);
-    expect(shader.fragmentShader).not.toContain("#include <color_fragment>");
-    expect(shader.fragmentShader).toContain("posterTone");
-    // Canopy exemption: green-dominant fragments keep their smooth tone.
-    expect(shader.fragmentShader).toContain("canopySoftness");
-    expect(VERTEX_POSTER_COLOR_FRAGMENT).toContain("floor(vertexLuma * 5.0");
   });
 });
