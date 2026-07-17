@@ -176,3 +176,29 @@ describe("vegetation and cut-out materials are exempt from the drawn facade", ()
     expect(tree.map).not.toBeNull();
   });
 });
+
+describe("vertex-colour posterisation (hard-edged drawn facades)", () => {
+  test("applyDrawnFacade installs the poster shader with a stable cache key", async () => {
+    const { MeshStandardMaterial } = await import("three");
+    const { applyDrawnFacade, VERTEX_POSTER_COLOR_FRAGMENT } = await import(
+      "../src/drawnBuildings"
+    );
+    const material = new MeshStandardMaterial({ vertexColors: true });
+    applyDrawnFacade(material);
+    expect(typeof material.onBeforeCompile).toBe("function");
+    expect(material.customProgramCacheKey()).toBe(
+      "drawn-facade-vertex-poster-v1",
+    );
+    const shader = {
+      fragmentShader: "prefix\n#include <color_fragment>\nsuffix",
+      uniforms: {},
+      vertexShader: "",
+    };
+    material.onBeforeCompile(shader as never, null as never);
+    expect(shader.fragmentShader).not.toContain("#include <color_fragment>");
+    expect(shader.fragmentShader).toContain("posterTone");
+    // Canopy exemption: green-dominant fragments keep their smooth tone.
+    expect(shader.fragmentShader).toContain("canopySoftness");
+    expect(VERTEX_POSTER_COLOR_FRAGMENT).toContain("floor(vertexLuma * 5.0");
+  });
+});

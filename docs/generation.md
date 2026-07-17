@@ -134,6 +134,56 @@ Heights are sampled locally from the packaged official mesh; a scene-ground
 fallback is used only outside mesh coverage. The resulting `park-details.json`
 is 2.6 MiB; raw WFS, OSM and mesh intermediates remain excluded.
 
+## Step 8b: Minecraft-mode voxel payload
+
+The viewer's Minecraft mode renders the quarter as axis-aligned 4 m blocks
+("eckig, klotzig, blockig"). The payload is derived from committed sources
+only — no network access — and regenerated with:
+
+```bash
+uv run python -m isometric_berlin.generation.build_minecraft_voxels \
+  --bounds geo_data/regierungsviertel/bounds.geojson \
+  --out src/app/public/mesh/regierungsviertel/minecraft-voxels.json
+```
+
+How it is built (all snapping is deterministic, `CELL_M = 4.0`):
+
+- **Coordinates.** Cells live in the scene frame verified against
+  `scene.json` `origin_epsg25833`: `world_x = easting − 389500`,
+  `world_z = 5820000 − northing`, `world_y` in metres. The builder fails
+  fast if the packaged scene origin ever changes. Output heights are
+  decimetre integers to keep the JSON compact.
+- **Buildings.** Every LoD2 footprint in `buildings.gpkg` (buildings and
+  building parts, additive) is rasterised by 4 m cell-centre containment.
+  Each covered cell becomes one column `[x_idx, z_idx, y0_dm, y1_dm, class]`
+  with the measured height snapped **up** to a 4 m multiple; the tallest
+  covering building wins a contested cell. ALKIS office (`31001_2020`) and
+  station-hall (`31001_3091`) functions map to `glass`, everything else to
+  `concrete` (LoD2 has no facade material — this is a display palette).
+  Gabled/hipped roof forms (ALKIS `3100/3200/3300/3400`) add a one-cell-inset
+  second tier 4 m higher as a simple stepped roof; flat (`1000`) and unknown
+  roofs stay flat.
+- **Ground height.** Inverse-distance interpolation (k=8) over the 9,271
+  committed tree and street-light y samples in `park-details.json`; a coarse
+  16 m height grid ships in the payload so the viewer can stack from real
+  terrain.
+- **Ground cover.** One class per cell inside the bounds polygon, run-length
+  encoded per row as `[x_start_col, run_length, class]`. Priority:
+  `water` (OSM water polygons, display top fixed at y = 1.31 m) over
+  `plazaBrick` (OSM paved pedestrian/footway polygons such as Pariser Platz)
+  over `asphalt` (6 m buffer around vehicular OSM road lines — footways are
+  excluded so the Tiergarten stays green) over the `grass` default.
+- **Trees.** One voxel tree per occupied cell (tallest wins) from the fused
+  `park-details.json` points: `[x_idx, z_idx, ground_y_dm, height_dm]` with
+  the height snapped up to a 4 m multiple (minimum 8 m); the viewer builds
+  trunk and crown procedurally.
+
+The committed `minecraft-voxels.json` is ~0.6 MiB (hard test budget 5 MB)
+and currently carries 17,113 building columns, 7,664 tree blocks and 120,302
+classified ground cells. The payload embeds the mandatory OSM + Geoportal
+Berlin attribution and per-source licences; `tests/test_build_minecraft_voxels.py`
+guards size, grid consistency and a 24 m+ Reichstag block cross-check.
+
 ## Step 10: DZI export and dual viewer
 
 `export_dzi` writes 256-pixel JPEG tiles with quality 85 and a real one-pixel

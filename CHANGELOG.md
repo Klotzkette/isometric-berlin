@@ -1,5 +1,42 @@
 # Changelog
 
+## v0.6.0
+
+- **Minecraft mode is now a true voxel world — "eckig, klotzig, blockig.
+  Mehr nicht."** A new pipeline step
+  (`isometric_berlin.generation.build_minecraft_voxels`) converts the
+  surveyed LoD2 footprints + measured heights into 17,113 building
+  columns on a 4 m grid (heights snapped to 4 m courses, stepped tiers
+  for gabled/hipped ALKIS roof forms, glass class for office/station
+  functions), OSM water/roads/plazas into 120,302 run-length ground
+  cells over a coarse interpolated terrain grid, and the 7,664 official
+  tree points into trunk+crown cubes — a deterministic 546 KiB payload
+  with embedded attribution. The viewer lazily loads it on the first
+  switch into Minecraft and then hides every photographic layer
+  (surfaces, hero crops, recognition models): the city is cubes,
+  nothing else, rendered as four instanced meshes with per-block shade
+  jitter from the 28-colour palette. Leaving Minecraft restores the
+  drawn scene losslessly; if the payload fails to load, the previous
+  toon presentation remains as fallback. Verified visually: the
+  Reichstag reads as a block massif with its two courtyards as voxel
+  holes; unit tests pin the instancing counts, the tall-column
+  placement at the surveyed Reichstag position, and grid containment.
+- **Pinch flies instead of zooming** (3D touch): spreading two fingers
+  flies INTO the picture along the view heading, steered toward where
+  the pinch centre sits on screen; pinching together flies back out.
+  Zoom stays on the +/− buttons, wheel and double-tap; the two-finger
+  swipe keeps panning; three fingers keep orbit/tilt. The 2D map keeps
+  its native pinch zoom. Help panel and docs updated.
+- **Day buildings are hard-edged drawings now.** v0.5.6 stripped the
+  photo textures but the photogrammetry keeps its photo colours as
+  VERTEX colours, which still washed a soft photographic sheen across
+  every facade. A shader patch (`installVertexPosterShader`) posterises
+  the vertex-colour LIGHTNESS onto 5 hard paint bands (hue preserved —
+  full-RGB posterisation shifted water purple) for every drawn facade,
+  while green-dominant fragments (tree canopy fused into the same tile
+  geometry) keep their smooth tone, per the "Natur darf weich bleiben"
+  rule.
+
 ## v0.5.6
 
 - The generated ambient soundtrack no longer clicks or knacks. Every

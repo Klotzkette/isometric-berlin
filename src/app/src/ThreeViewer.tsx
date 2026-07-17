@@ -81,6 +81,11 @@ import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import { applyDrawnFacade, isDrawnFacadeCandidate } from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
+import {
+  type VoxelPayload,
+  VOXEL_WORLD_FILE,
+  createMinecraftVoxelWorld,
+} from "./MinecraftVoxelWorld";
 import { renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
@@ -209,6 +214,8 @@ type Runtime = {
   sun: DirectionalLight;
   tunnel: Group;
   tunnelBounds: Box3 | null;
+  voxelWorld: Group | null;
+  voxelWorldState: "failed" | "idle" | "loading";
   lightingMode: LightingMode;
   underside: boolean;
   underwater: boolean;
@@ -251,8 +258,10 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
     detailReady: runtime.settledSurfaceReady,
     interacting,
   });
-  runtime.interactionSurface.visible = !settled;
-  runtime.settledSurface.visible = settled;
+  // The voxel block world fully replaces the photogrammetry surfaces.
+  const voxelMode = voxelModeActive(runtime);
+  runtime.interactionSurface.visible = !settled && !voxelMode;
+  runtime.settledSurface.visible = settled && !voxelMode;
   setParkSettledDetail(runtime.parkDetails, settled);
   runtime.renderer.domElement.dataset.surfaceQuality = settled
     ? "settled-7m-plus"
@@ -389,10 +398,31 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   runtime.crispPass.uniforms.saturation.value = crispness.saturation;
   runtime.crispPass.uniforms.contrast.value = crispness.contrast;
   runtime.crispPass.uniforms.edgeStrength.value = crispness.edgeStrength;
+  // True voxel Minecraft: once the LoD2 block world is loaded, it fully
+  // REPLACES the photogrammetry surfaces and the recognition layers —
+  // the city is cubes, nothing else. Until the payload arrives (or if it
+  // fails) the toon-material presentation stays as the fallback.
+  const voxelMode = voxelModeActive(runtime);
+  if (runtime.voxelWorld) {
+    runtime.voxelWorld.visible = voxelMode && !runtime.underside;
+  }
+  const recognitionVisible = !runtime.underside && !voxelMode;
+  runtime.signatures.visible = recognitionVisible;
+  runtime.civicDetails.visible = recognitionVisible;
+  runtime.monuments.visible = recognitionVisible;
+  runtime.culturalDetails.visible = recognitionVisible;
+  runtime.parkDetails.visible = recognitionVisible;
+  for (const detail of runtime.detailGroups.values()) {
+    detail.group.visible = recognitionVisible;
+  }
   if (runtime.underwater) {
     runtime.underwater = false;
     setUnderwaterPresentation(runtime, true);
   }
+}
+
+function voxelModeActive(runtime: Runtime): boolean {
+  return runtime.lightingMode === "minecraft" && runtime.voxelWorld !== null;
 }
 
 function segmentMesh(
@@ -757,11 +787,19 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     material.needsUpdate = true;
   }
   setTunnelPresentation(runtime.tunnel, underside);
-  runtime.signatures.visible = !underside;
-  runtime.civicDetails.visible = !underside;
-  runtime.monuments.visible = !underside;
-  runtime.culturalDetails.visible = !underside;
-  runtime.parkDetails.visible = !underside;
+  const voxelMode = voxelModeActive(runtime);
+  if (runtime.voxelWorld) {
+    runtime.voxelWorld.visible = voxelMode && !underside;
+  }
+  const recognitionVisible = !underside && !voxelMode;
+  runtime.signatures.visible = recognitionVisible;
+  runtime.civicDetails.visible = recognitionVisible;
+  runtime.monuments.visible = recognitionVisible;
+  runtime.culturalDetails.visible = recognitionVisible;
+  runtime.parkDetails.visible = recognitionVisible;
+  for (const detail of runtime.detailGroups.values()) {
+    detail.group.visible = recognitionVisible;
+  }
 }
 
 function notifyView(runtime: Runtime, callback: (angles: ViewAngles) => void): void {
@@ -1014,9 +1052,41 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useEffect(() => {
       lightingModeRef.current = lightingMode;
       const runtime = runtimeRef.current;
-      if (runtime) {
-        setSceneLighting(runtime, lightingMode);
+      if (!runtime) {
+        return;
       }
+      if (lightingMode === "minecraft" && runtime.voxelWorldState === "idle") {
+        // Lazy-load the LoD2 block world on the first switch into
+        // Minecraft; until it arrives the toon presentation is the
+        // fallback, and on failure it stays that way with a warning.
+        runtime.voxelWorldState = "loading";
+        const url = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
+        void fetch(url)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json() as Promise<VoxelPayload>;
+          })
+          .then((payload) => {
+            if (runtime.disposed) {
+              return;
+            }
+            runtime.voxelWorld = createMinecraftVoxelWorld(payload);
+            runtime.scene.add(runtime.voxelWorld);
+            setSceneLighting(runtime, lightingModeRef.current);
+            markSurfaceInteraction(runtime, 400);
+          })
+          .catch(() => {
+            if (!runtime.disposed) {
+              runtime.voxelWorldState = "failed";
+              onWarningRef.current(
+                "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
+              );
+            }
+          });
+      }
+      setSceneLighting(runtime, lightingMode);
     }, [lightingMode]);
 
     useEffect(() => {
@@ -1079,8 +1149,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       notifyView(runtime, onViewChangeRef.current);
 
       runtime.detailClock += 1;
+      // Hero photo crops never show in the voxel block world or underside.
+      const heroVisibleAllowed = !voxelModeActive(runtime) && !runtime.underside;
       for (const [heroName, entry] of runtime.detailGroups) {
-        entry.group.visible = heroName === name;
+        entry.group.visible = heroVisibleAllowed && heroName === name;
         if (heroName === name) {
           entry.lastUsed = runtime.detailClock;
         }
@@ -1454,6 +1526,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         sun,
         tunnel: new Group(),
         tunnelBounds: null,
+        voxelWorld: null,
+        voxelWorldState: "idle",
         lightingMode: lightingModeRef.current,
         underside: false,
         underwater: false,
@@ -1541,16 +1615,31 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const deltaY = current.center.y - previousTwoFingerGesture.center.y;
           const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
           flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
-          // Pinch still zooms; the twist component no longer rotates.
-          const zoomFactor = MathUtils.clamp(
+          // Pinch no longer zooms: spreading the fingers flies INTO the
+          // picture along the view heading (pinching together flies
+          // back), steered toward the pinch centre. Zoom stays on the
+          // +/- buttons, the wheel and double-tap.
+          const pinchRatio = MathUtils.clamp(
             current.distance / previousTwoFingerGesture.distance,
-            0.88,
-            1.14,
+            0.86,
+            1.16,
           );
-          const offset = camera.position.clone().sub(controls.target);
-          offset.multiplyScalar(1 / zoomFactor);
-          offset.clampLength(controls.minDistance, controls.maxDistance);
-          camera.position.copy(controls.target).add(offset);
+          const flyAmount = MathUtils.clamp((pinchRatio - 1) * 7.5, -1.3, 1.3);
+          if (Math.abs(flyAmount) > 0.004) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const steer = MathUtils.clamp(
+              ((current.center.x - rect.left) / Math.max(1, rect.width) - 0.5) *
+                2.4,
+              -1,
+              1,
+            );
+            flyCameraAlongViewHeading(
+              camera,
+              controls.target,
+              flyAmount * steer * 0.55,
+              flyAmount,
+            );
+          }
           controls.update();
           previousTwoFingerGesture = current;
           markSurfaceInteraction(runtime);

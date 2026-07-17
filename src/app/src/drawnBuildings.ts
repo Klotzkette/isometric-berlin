@@ -140,6 +140,57 @@ function sampleAverageTextureColor(texture: Texture): Rgb | null {
  * lights supply plasticity and the crisp edge pass supplies contours. Geometry
  * is never touched, so the ≤1 px hero-centre contract is unaffected.
  */
+// Hard posterisation levels for per-vertex photo colours on facades.
+export const VERTEX_POSTER_LEVELS = 5;
+
+// GLSL block replacing three's <color_fragment>: the official mesh keeps
+// its photo colours as VERTEX colours, so stripping the texture maps alone
+// still let a soft photographic wash bleed across every facade. This
+// snaps the vertex tone onto hard flat paint levels — the "drawing" look —
+// while green-dominant fragments (tree canopy baked into the same fused
+// tile geometry) keep their smooth tone, per the owner's "trees may stay
+// soft" rule.
+export const VERTEX_POSTER_COLOR_FRAGMENT = `
+#if defined( USE_COLOR_ALPHA ) || defined( USE_COLOR )
+{
+  vec3 vertexTone = vColor.rgb;
+  float canopySoftness = smoothstep(
+    0.02,
+    0.12,
+    vertexTone.g - max(vertexTone.r, vertexTone.b)
+  );
+  // Posterise LIGHTNESS only: quantised paint bands without the hue
+  // shifts full-RGB posterisation produced (purple water, magenta
+  // fringes). Hue and saturation stay true to the surveyed tone.
+  float vertexLuma = dot(vertexTone, vec3(0.2126, 0.7152, 0.0722));
+  float posterLuma =
+    floor(vertexLuma * ${VERTEX_POSTER_LEVELS.toFixed(1)} + 0.5) /
+    ${VERTEX_POSTER_LEVELS.toFixed(1)};
+  vec3 posterTone = vertexTone * (posterLuma / max(vertexLuma, 1e-4));
+  diffuseColor.rgb *= mix(posterTone, vertexTone, canopySoftness);
+}
+#endif
+#ifdef USE_COLOR_ALPHA
+  diffuseColor.a *= vColor.a;
+#endif
+`;
+
+/**
+ * Install the hard vertex-colour posterisation into the material's shader.
+ * Idempotent; shares one shader program via a stable cache key.
+ */
+export function installVertexPosterShader(
+  material: MeshStandardMaterial,
+): void {
+  material.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <color_fragment>",
+      VERTEX_POSTER_COLOR_FRAGMENT,
+    );
+  };
+  material.customProgramCacheKey = () => "drawn-facade-vertex-poster-v1";
+}
+
 export function applyDrawnFacade(material: MeshStandardMaterial): void {
   if (material.userData.drawnFacadeApplied === true) {
     // Idempotent guard so re-entrant load/upgrade paths never double-process.
@@ -166,6 +217,9 @@ export function applyDrawnFacade(material: MeshStandardMaterial): void {
   // clean plastic faces rather than a glossy or washed-out surface.
   material.metalness = 0;
   material.roughness = Math.max(0.72, material.roughness ?? 0.8);
+  // The photo lives on as vertex colours even after the maps are gone —
+  // posterise them hard so facades read as flat drawn paint, not a wash.
+  installVertexPosterShader(material);
   material.userData.drawnFacadeApplied = true;
   material.needsUpdate = true;
 }

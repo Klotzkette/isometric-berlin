@@ -3003,8 +3003,8 @@ export function App() {
             <p className="help-hint">
               {viewerMode === "three"
                 ? language === "de"
-                  ? "3D: Linke Maustaste dreht, Mausrad zoomt, rechte Maustaste verschiebt. Zwei Finger fliegen per Swipe, zoomen per Pinch und drehen per Twist; drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                  : "3D: Left-drag orbits, the wheel zooms, and right-drag pans. Two fingers fly by swiping, zoom by pinching, and rotate by twisting; three fingers control orbit and tilt into the underside."
+                  ? "3D: Linke Maustaste dreht, Mausrad zoomt, rechte Maustaste verschiebt. Zwei Finger verschieben per Swipe; Finger auseinanderziehen fliegt INS Bild hinein (Richtung Pinch-Mitte), zusammenziehen fliegt zurück — Zoom liegt auf den +/−-Tasten und Doppeltipp. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                  : "3D: Left-drag orbits, the wheel zooms, and right-drag pans. Two fingers pan by swiping; spreading them flies INTO the picture (toward the pinch centre), pinching together flies back — zoom lives on the +/− buttons and double-tap. Three fingers control orbit and tilt into the underside."
                 : language === "de"
                   ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger zoomen, verschieben und drehen gleichzeitig."
                   : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}
