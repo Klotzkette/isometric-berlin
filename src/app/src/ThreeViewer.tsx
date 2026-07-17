@@ -80,9 +80,11 @@ import {
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
   applyDrawnFacade,
+  flattenBuildingVertexColors,
   HERO_FACADE_ANCHORS,
   installFlatUnlitShader,
   isDrawnFacadeCandidate,
+  setBuildingColorMode,
   setFlatUnlit,
   type Rgb,
 } from "./drawnBuildings";
@@ -388,6 +390,12 @@ function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
     }
     if (!(object instanceof Mesh)) {
       return;
+    }
+    // Swap flattened building geometry between its flat day colours and the
+    // original per-vertex photogrammetry colours: day = piecewise-constant flat
+    // faces, night/minecraft = original lit look (lossless mode switch).
+    if (object.geometry?.userData?.flatColorsBuilt === true) {
+      setBuildingColorMode(object.geometry, mode === "day");
     }
     const materials = Array.isArray(object.material)
       ? object.material
@@ -996,6 +1004,7 @@ async function loadModel(
     const materials = Array.isArray(object.material)
       ? object.material
       : [object.material];
+    let flattenGeometry = false;
     for (const sourceMaterial of materials) {
       const material = sourceMaterial as MeshStandardMaterial;
       material.side = FrontSide;
@@ -1009,6 +1018,9 @@ async function loadModel(
       // their maps and stay recognisable.
       if (isDrawnFacadeCandidate(material)) {
         applyDrawnFacade(material, { anchor: facadeAnchor });
+        if (material.userData.drawnKind === "vertex") {
+          flattenGeometry = true;
+        }
       }
       material.emissive.set(0x2b3130);
       material.emissiveIntensity = 0.07;
@@ -1033,6 +1045,14 @@ async function loadModel(
       material.depthWrite = !runtime.underside;
       material.needsUpdate = true;
       runtime.modelMaterials.add(material);
+    }
+    // Flatten the baked per-vertex photogrammetry colours into piecewise-
+    // constant flat faces (zero gradient within a face) for the drawn day look,
+    // keeping the originals for the lossless night/minecraft restore. Applied
+    // once per mesh geometry; vegetation/water vertices are left soft inside.
+    if (flattenGeometry && object.geometry.getAttribute("color")) {
+      flattenBuildingVertexColors(object.geometry);
+      setBuildingColorMode(object.geometry, runtime.lightingMode === "day");
     }
   });
   if (detail) {

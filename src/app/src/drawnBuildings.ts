@@ -1,4 +1,10 @@
-import { Color, MeshStandardMaterial, type Texture } from "three";
+import {
+  type BufferGeometry,
+  Color,
+  Float32BufferAttribute,
+  MeshStandardMaterial,
+  type Texture,
+} from "three";
 
 export type Rgb = [number, number, number];
 
@@ -268,6 +274,220 @@ export function setFlatUnlit(
   }
 }
 
+// Per-vertex classification: a vertex baked into a photogrammetry tile is
+// either building/ground fabric (flatten it) or soft nature (leave it). Trees
+// read green-dominant; water reads blue-dominant and dark. Everything else is
+// stone/glass/asphalt that must become a flat drawn face.
+function isVegetationVertex(r: number, g: number, b: number): boolean {
+  // Only clearly saturated green (real foliage/grass) stays soft. A greyish or
+  // faintly-green building/roof texel (g barely above r/b) must NOT match, or it
+  // is left as an un-flattened raw-gradient vertex and renders as a smear — the
+  // round-6 marble. Trees read strongly green (g ≈ 1.3–2× r), so a firm ratio
+  // keeps nature soft while sending pale building texels to the flattener.
+  return g > r * 1.18 && g > b * 1.18 && g > 0.18;
+}
+function isWaterVertex(r: number, g: number, b: number): boolean {
+  // Real water is distinctly blue AND dark. A plain dark grey roof (r≈g≈b) must
+  // NOT match, or it would be left as an un-flattened smear, so require blue to
+  // clearly lead the other channels rather than merely tie them.
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return b > r * 1.2 && b > g * 1.2 && luma < 0.38;
+}
+
+// Bucket a surface by orientation so a wall, its neighbour wall and the roof
+// above never share a flat cell: horizontal surfaces (roof/ground) split by a
+// coarse height band, vertical walls split by their compass facing. Together
+// with the XZ cell this yields per-face planar patches — each patch collapses
+// to ONE flat colour, so any face is gradient-free (σ≈0) while adjacent faces
+// stay distinct and the city keeps its real per-building colour variety.
+function faceBucket(
+  y: number,
+  nx: number,
+  ny: number,
+  nz: number,
+  cellSize: number,
+): string {
+  if (Math.abs(ny) > 0.55) {
+    return `H${Math.round(y / (cellSize * 1.5))}`;
+  }
+  if (Math.abs(nx) >= Math.abs(nz)) {
+    return nx >= 0 ? "E" : "W";
+  }
+  return nz >= 0 ? "N" : "S";
+}
+
+/**
+ * Flatten a photogrammetry building geometry's baked per-vertex colours into
+ * piecewise-constant flat faces. The raw vertex colours carry the photographic
+ * lightness gradient (σ≈57 across a single tile) — rendering them unlit is not
+ * enough, the colour SOURCE itself smears. Here we bin building/ground vertices
+ * into per-face planar patches (XZ grid cell × orientation bucket), replace each
+ * patch's colours with a single cleaned dominant tone, and leave vegetation and
+ * water vertices untouched so nature stays soft. The result: every face is one
+ * uniform colour (zero gradient within a face, hard edges between faces) while
+ * each building keeps its own real colour.
+ *
+ * Both the original and the flat colour buffers are stashed on
+ * `geometry.userData` so the mode switch can restore the exact original colours
+ * (and thus the original per-vertex lit look) for night/minecraft losslessly.
+ * Returns true when a flat buffer was built (i.e. the geometry had colours).
+ */
+// Palette quantisation for the flat tones. Two smoothly-varying neighbouring
+// patches would otherwise carry slightly different medians and, tiled across a
+// large facade, read as a soft gradient again (the round-5 "mosaic"). Snapping
+// every cell tone onto a small shared palette collapses similar patches to the
+// SAME colour, so a building reads as one (or a few) large uniform flat faces
+// with hard steps only where the real colour genuinely changes — the clean
+// isometric look ("klare einheitliche Flächen"), never a smear.
+const FLAT_PALETTE_LEVELS = 5;
+
+// How many grid cells to lay across the widest horizontal span of a tile. The
+// photogrammetry tiles use quantised positions (local extent ≈ 2 units) blown
+// up ~185× by the node matrix to ≈ 370 m of real city, so a fixed metre-based
+// cell size would land entirely in one bucket and collapse the whole tile to a
+// single colour. Deriving the cell size from the geometry's own bounding box
+// makes the grid scale-invariant: ~48 cells across ≈ 370 m ⇒ ≈ 8 m facade
+// patches, small enough that each real building gets its own flat tone but
+// large enough that one wall stays a single uniform colour.
+const FLAT_GRID_CELLS = 48;
+
+export function flattenBuildingVertexColors(
+  geometry: BufferGeometry,
+  cellSize?: number,
+): boolean {
+  const colorAttr = geometry.getAttribute("color");
+  const posAttr = geometry.getAttribute("position");
+  if (!colorAttr || !posAttr) {
+    return false;
+  }
+  if (geometry.userData.flatColorsBuilt === true) {
+    return true;
+  }
+  const normalAttr = geometry.getAttribute("normal");
+  const count = colorAttr.count;
+
+  // Derive a scale-invariant cell size from the horizontal bounding box unless
+  // the caller pins one explicitly (tests do). Without this the grid is either
+  // far too coarse (one colour for the city) or wrong for a tile's real span.
+  let resolvedCell = cellSize;
+  if (resolvedCell === undefined) {
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (let i = 0; i < count; i += 1) {
+      const x = posAttr.getX(i);
+      const z = posAttr.getZ(i);
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
+    }
+    const span = Math.max(maxX - minX, maxZ - minZ);
+    resolvedCell = span > 0 ? span / FLAT_GRID_CELLS : 1;
+  }
+  cellSize = resolvedCell;
+
+  type Cell = { rs: number[]; gs: number[]; bs: number[]; members: number[] };
+  const cells = new Map<string, Cell>();
+  const skip = new Uint8Array(count); // 1 = soft nature vertex, keep original
+
+  for (let i = 0; i < count; i += 1) {
+    const r = colorAttr.getX(i);
+    const g = colorAttr.getY(i);
+    const b = colorAttr.getZ(i);
+    if (isVegetationVertex(r, g, b) || isWaterVertex(r, g, b)) {
+      skip[i] = 1;
+      continue;
+    }
+    const x = posAttr.getX(i);
+    const y = posAttr.getY(i);
+    const z = posAttr.getZ(i);
+    const nx = normalAttr ? normalAttr.getX(i) : 0;
+    const ny = normalAttr ? normalAttr.getY(i) : 1;
+    const nz = normalAttr ? normalAttr.getZ(i) : 0;
+    const cx = Math.floor(x / cellSize);
+    const cz = Math.floor(z / cellSize);
+    const key = `${cx},${cz},${faceBucket(y, nx, ny, nz, cellSize)}`;
+    let cell = cells.get(key);
+    if (!cell) {
+      cell = { rs: [], gs: [], bs: [], members: [] };
+      cells.set(key, cell);
+    }
+    cell.rs.push(r);
+    cell.gs.push(g);
+    cell.bs.push(b);
+    cell.members.push(i);
+  }
+
+  const median = (values: number[]): number => {
+    values.sort((a, b) => a - b);
+    const mid = values.length >> 1;
+    return values.length % 2 === 0
+      ? (values[mid - 1] + values[mid]) / 2
+      : values[mid];
+  };
+
+  const flat = new Float32Array(count * 3);
+  // Seed with the originals so skipped nature vertices are preserved verbatim.
+  for (let i = 0; i < count; i += 1) {
+    flat[i * 3] = colorAttr.getX(i);
+    flat[i * 3 + 1] = colorAttr.getY(i);
+    flat[i * 3 + 2] = colorAttr.getZ(i);
+  }
+  for (const cell of cells.values()) {
+    const dom: Rgb = [
+      median(cell.rs) * 255,
+      median(cell.gs) * 255,
+      median(cell.bs) * 255,
+    ];
+    const [cr, cg, cb] = dominantFacadeColor(dom);
+    const fr = quantizeChannel(cr / 255, FLAT_PALETTE_LEVELS);
+    const fg = quantizeChannel(cg / 255, FLAT_PALETTE_LEVELS);
+    const fb = quantizeChannel(cb / 255, FLAT_PALETTE_LEVELS);
+    for (const i of cell.members) {
+      flat[i * 3] = fr;
+      flat[i * 3 + 1] = fg;
+      flat[i * 3 + 2] = fb;
+    }
+  }
+
+  const origColorAttr = colorAttr.clone();
+  const flatColorAttr = new Float32BufferAttribute(flat, 3);
+  geometry.userData.origColorAttr = origColorAttr;
+  geometry.userData.flatColorAttr = flatColorAttr;
+  geometry.userData.flatColorsBuilt = true;
+  geometry.setAttribute("color", flatColorAttr);
+  // Force the GPU upload of the freshly-swapped buffer. Without this the
+  // renderer can keep serving the stale original colours it uploaded on the
+  // mesh's first frame, so the flat faces silently fall back to the smeared
+  // per-vertex photo colours until an unrelated mode switch marks them dirty.
+  flatColorAttr.needsUpdate = true;
+  return true;
+}
+
+/**
+ * Swap a flattened geometry between its flat day colours and its original
+ * per-vertex colours. Day uses the piecewise-constant flat buffer; night and
+ * minecraft restore the original photogrammetry colours so their lit look is
+ * exactly as before (lossless mode switch). No-op if never flattened.
+ */
+export function setBuildingColorMode(
+  geometry: BufferGeometry,
+  flat: boolean,
+): void {
+  if (geometry.userData.flatColorsBuilt !== true) {
+    return;
+  }
+  const next = flat
+    ? (geometry.userData.flatColorAttr as Float32BufferAttribute)
+    : (geometry.userData.origColorAttr as Float32BufferAttribute);
+  if (next) {
+    geometry.setAttribute("color", next);
+    next.needsUpdate = true;
+  }
+}
+
 /**
  * Turn a photogrammetric building material into a drawn facade. Two real
  * material kinds exist in this scene:
@@ -303,10 +523,13 @@ export function applyDrawnFacade(
   if (!material.map && material.vertexColors) {
     // Vertex-coloured building: keep the real per-vertex colour, just make the
     // diffuse multiplier neutral so the baked colour survives untinted. The
-    // flat-unlit shader supplies the flat look and the clean-up pass.
+    // per-vertex colours are flattened into piecewise-constant flat faces at
+    // load time (see flattenBuildingVertexColors) and already cleaned to a flat
+    // drawn tone, so the shader clean-up pass stays OFF to avoid double
+    // desaturation. The flat-unlit shader supplies the gradient-free look.
     material.color = new Color(1, 1, 1);
     material.userData.drawnKind = "vertex";
-    material.userData.flatClean = 1;
+    material.userData.flatClean = 0;
     material.userData.drawnFacadeApplied = true;
     material.needsUpdate = true;
     return;

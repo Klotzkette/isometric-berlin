@@ -1,17 +1,24 @@
 import { describe, expect, test } from "bun:test";
-import { DataTexture, MeshStandardMaterial } from "three";
+import {
+  BufferGeometry,
+  DataTexture,
+  Float32BufferAttribute,
+  MeshStandardMaterial,
+} from "three";
 
 import {
   applyDrawnFacade,
   averageColorFromPixels,
   blendTowardAnchor,
   dominantFacadeColor,
+  flattenBuildingVertexColors,
   HERO_FACADE_ANCHORS,
   installFlatUnlitShader,
   isDrawnFacadeCandidate,
   isDrawnFacadeSatisfied,
   medianColorFromPixels,
   quantizeChannel,
+  setBuildingColorMode,
   setFlatUnlit,
   type Rgb,
 } from "../src/drawnBuildings";
@@ -257,5 +264,105 @@ describe("vegetation and cut-out materials are exempt from the drawn facade", ()
       applyDrawnFacade(tree);
     }
     expect(tree.map).not.toBeNull();
+  });
+});
+
+describe("flattenBuildingVertexColors collapses faces to flat tones", () => {
+  // Build one wall (vertical, +X facing) whose baked vertex colours carry a
+  // strong lightness gradient (the photogrammetry smear), plus a roof patch
+  // (up-facing) and one green vegetation vertex, all in the same XZ cell.
+  const buildGeometry = () => {
+    const positions: number[] = [];
+    const normals: number[] = [];
+    const colors: number[] = [];
+    // 6 wall verts at the same XZ cell, gradient from dark to light grey.
+    for (let i = 0; i < 6; i += 1) {
+      positions.push(2, i * 3, 2);
+      normals.push(1, 0, 0);
+      const v = 0.2 + (i / 5) * 0.6; // 0.2 → 0.8 gradient
+      colors.push(v, v, v);
+    }
+    // 3 roof verts (up normal, high Y), warm sandstone with noise.
+    positions.push(3, 40, 3, 4, 40, 4, 5, 40, 5);
+    normals.push(0, 1, 0, 0, 1, 0, 0, 1, 0);
+    colors.push(0.7, 0.6, 0.45, 0.75, 0.62, 0.44, 0.68, 0.58, 0.46);
+    // 1 vegetation vert (green-dominant) — must stay soft (unchanged).
+    positions.push(6, 1, 6);
+    normals.push(0, 1, 0);
+    colors.push(0.15, 0.5, 0.12);
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    geometry.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    return geometry;
+  };
+
+  const channelStd = (
+    attr: { getX: (i: number) => number },
+    indices: number[],
+  ): number => {
+    const values = indices.map((i) => attr.getX(i));
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance =
+      values.reduce((a, b) => a + (b - mean) * (b - mean), 0) / values.length;
+    return Math.sqrt(variance);
+  };
+
+  test("a single wall face becomes one flat colour (zero gradient)", () => {
+    const geometry = buildGeometry();
+    expect(flattenBuildingVertexColors(geometry, 16)).toBe(true);
+    const color = geometry.getAttribute("color");
+    const wall = [0, 1, 2, 3, 4, 5];
+    // Every wall vertex now shares one flat tone: σ ≈ 0 within the face.
+    expect(channelStd(color, wall) * 255).toBeLessThan(1);
+  });
+
+  test("roof and wall in the same cell get distinct flat tones", () => {
+    const geometry = buildGeometry();
+    flattenBuildingVertexColors(geometry, 16);
+    const color = geometry.getAttribute("color");
+    const wallColor = [color.getX(0), color.getY(0), color.getZ(0)];
+    const roofColor = [color.getX(6), color.getY(6), color.getZ(6)];
+    const delta =
+      Math.abs(wallColor[0] - roofColor[0]) +
+      Math.abs(wallColor[1] - roofColor[1]) +
+      Math.abs(wallColor[2] - roofColor[2]);
+    expect(delta).toBeGreaterThan(0.05);
+  });
+
+  test("vegetation vertices are left soft (unchanged)", () => {
+    const geometry = buildGeometry();
+    flattenBuildingVertexColors(geometry, 16);
+    const color = geometry.getAttribute("color");
+    // The green vegetation vertex (index 9) keeps its original colour.
+    expect(color.getX(9)).toBeCloseTo(0.15, 5);
+    expect(color.getY(9)).toBeCloseTo(0.5, 5);
+    expect(color.getZ(9)).toBeCloseTo(0.12, 5);
+  });
+
+  test("setBuildingColorMode restores the exact original colours (lossless)", () => {
+    const geometry = buildGeometry();
+    flattenBuildingVertexColors(geometry, 16);
+    setBuildingColorMode(geometry, false);
+    const color = geometry.getAttribute("color");
+    // Original wall gradient is back byte-for-byte.
+    expect(color.getX(0)).toBeCloseTo(0.2, 5);
+    expect(color.getX(5)).toBeCloseTo(0.8, 5);
+    setBuildingColorMode(geometry, true);
+    // Day mode restores the flat buffer again.
+    expect(channelStd(geometry.getAttribute("color"), [0, 1, 2, 3, 4, 5]) * 255).toBeLessThan(1);
+  });
+
+  test("is idempotent and a no-op on colourless geometry", () => {
+    const geometry = buildGeometry();
+    expect(flattenBuildingVertexColors(geometry, 16)).toBe(true);
+    // Second call returns true without rebuilding (guard).
+    expect(flattenBuildingVertexColors(geometry, 16)).toBe(true);
+    const bare = new BufferGeometry();
+    bare.setAttribute(
+      "position",
+      new Float32BufferAttribute([0, 0, 0], 3),
+    );
+    expect(flattenBuildingVertexColors(bare, 16)).toBe(false);
   });
 });
