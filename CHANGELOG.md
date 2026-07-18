@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.9.0
+
+- **Real roof forms in the drawn city — "alles Flächen, aber genauer".**
+  The 508 buildings whose ALKIS roof code says gabled (3100), hipped
+  (3200) or shed (2100) no longer end in a flat cap: the viewer fits an
+  oriented minimum-area rectangle to each footprint (rotating calipers
+  over the convex hull) and, when the footprint is genuinely
+  rectangular (rectangularity ≥ 0.72), raises a procedural roof of hard
+  flat facets — two slopes plus vertical gable ends, a hip ridge inset,
+  or a single shed slope — with a 0.35 m eave overhang, ink lines on
+  every roof edge and a slightly darker paint than the facade. 465
+  buildings across the quarter gain true pitched roofs; irregular
+  footprints and squat annexes keep their exact flat cap. Night mode
+  inherits the roofs with moonlit contours automatically.
+- **Better Minecraft colours.** The block palette's greens and blues now
+  follow the classic game: plains-grass greens (0x74b043 family), oak-
+  leaf crowns, clear Minecraft water blue (0x3f76e4) instead of murky
+  teal. Each ground/building class mixes only close shades, so the old
+  harsh checkerboard becomes gentle block-noise; roads read as dark
+  slate instead of void-black, plazas as brick-and-earth, concrete and
+  sandstone as tight cream pairs.
+- **Deep links straight into Minecraft work now.** Loading the viewer
+  with `?theme=minecraft` never loaded the voxel world — the block
+  world only fetched on a mode *switch*, so a shared Minecraft link
+  showed the toon-shaded photogrammetry fallback forever. The scene
+  init now ensures the voxel world too (`ensureVoxelWorld`, idempotent,
+  shared with the mode-switch path).
+- Tests: rotating-calipers rectangle recovery, roof-facet generation
+  per ALKIS code (ridge reached, eave respected, flat/dome codes stay
+  flat), plausible-rise bounds, and a payload-wide count asserting >400
+  buildings actually receive roofs.
+
 ## v0.8.2
 
 - **The Brandenburg Gate is a gate again.** In the drawn city its LoD2

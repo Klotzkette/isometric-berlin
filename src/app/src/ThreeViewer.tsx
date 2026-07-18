@@ -577,6 +577,47 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
     });
 }
 
+/**
+ * Lazy-load and attach the LoD2 block world for Minecraft mode.
+ * Idempotent; until it arrives (or on failure) the toon presentation on
+ * the photographic mesh is the fallback. Called both on mode switches
+ * and at scene init, so a fresh `?theme=minecraft` load gets blocks too.
+ */
+function ensureVoxelWorld(
+  runtime: Runtime,
+  warn: (message: string) => void,
+): void {
+  if (runtime.voxelWorldState !== "idle") {
+    return;
+  }
+  runtime.voxelWorldState = "loading";
+  const url = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
+  void fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json() as Promise<VoxelPayload>;
+    })
+    .then((payload) => {
+      if (runtime.disposed) {
+        return;
+      }
+      runtime.voxelWorld = createMinecraftVoxelWorld(payload);
+      runtime.scene.add(runtime.voxelWorld);
+      setSceneLighting(runtime, runtime.lightingMode);
+      markSurfaceInteraction(runtime, 400);
+    })
+    .catch(() => {
+      if (!runtime.disposed) {
+        runtime.voxelWorldState = "failed";
+        warn(
+          "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
+        );
+      }
+    });
+}
+
 // Narrower FOV flattens the perspective toward a true isometric look
 // while the drawn city is active; the photographic modes keep 39°.
 const PHOTO_FOV_DEGREES = 39;
@@ -1231,36 +1272,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (lightingMode === "day" || lightingMode === "night") {
         ensureIsoWorld(runtime, onWarningRef.current);
       }
-      if (lightingMode === "minecraft" && runtime.voxelWorldState === "idle") {
-        // Lazy-load the LoD2 block world on the first switch into
-        // Minecraft; until it arrives the toon presentation is the
-        // fallback, and on failure it stays that way with a warning.
-        runtime.voxelWorldState = "loading";
-        const url = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
-        void fetch(url)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}`);
-            }
-            return response.json() as Promise<VoxelPayload>;
-          })
-          .then((payload) => {
-            if (runtime.disposed) {
-              return;
-            }
-            runtime.voxelWorld = createMinecraftVoxelWorld(payload);
-            runtime.scene.add(runtime.voxelWorld);
-            setSceneLighting(runtime, lightingModeRef.current);
-            markSurfaceInteraction(runtime, 400);
-          })
-          .catch(() => {
-            if (!runtime.disposed) {
-              runtime.voxelWorldState = "failed";
-              onWarningRef.current(
-                "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
-              );
-            }
-          });
+      if (lightingMode === "minecraft") {
+        ensureVoxelWorld(runtime, onWarningRef.current);
       }
       setSceneLighting(runtime, lightingMode);
     }, [lightingMode]);
@@ -2316,8 +2329,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             .setFromObject(runtime.tunnel)
             .expandByScalar(5);
           // Day is the default mode: bring the drawn isometric city in
-          // as soon as the scene manifest is known.
+          // as soon as the scene manifest is known. A `?theme=minecraft`
+          // deep link starts in Minecraft with no mode change ever
+          // firing, so the block world must load here as well.
           ensureIsoWorld(runtime, onWarningRef.current);
+          if (lightingModeRef.current === "minecraft") {
+            ensureVoxelWorld(runtime, onWarningRef.current);
+          }
           setModelMaterialState(runtime, runtime.underside);
           setProgress({ loaded: 0, total: manifest.base_tiles.length });
 

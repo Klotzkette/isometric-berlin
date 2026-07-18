@@ -1,4 +1,5 @@
 import {
+  BufferGeometry,
   Color,
   EdgesGeometry,
   ExtrudeGeometry,
@@ -154,6 +155,123 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   }
 }
 
+// ALKIS roof-form codes carried in the payload. 3100 Satteldach,
+// 3200 Walmdach, 2100 Pultdach; everything else stays a flat cap.
+export const ROOF_GABLED = 3100;
+export const ROOF_HIPPED = 3200;
+export const ROOF_SHED = 2100;
+// Only near-rectangular footprints get a fitted procedural roof.
+export const ROOF_MIN_RECTANGULARITY = 0.72;
+
+type FittedRect = {
+  axis: [number, number];
+  center: [number, number];
+  halfLength: number;
+  halfWidth: number;
+  rectangularity: number;
+};
+
+function convexHull(points: Array<[number, number]>): Array<[number, number]> {
+  const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (
+    o: [number, number],
+    a: [number, number],
+    b: [number, number],
+  ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower: Array<[number, number]> = [];
+  for (const p of sorted) {
+    while (
+      lower.length >= 2 &&
+      cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0
+    ) {
+      lower.pop();
+    }
+    lower.push(p);
+  }
+  const upper: Array<[number, number]> = [];
+  for (const p of [...sorted].reverse()) {
+    while (
+      upper.length >= 2 &&
+      cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0
+    ) {
+      upper.pop();
+    }
+    upper.push(p);
+  }
+  lower.pop();
+  upper.pop();
+  return [...lower, ...upper];
+}
+
+function ringArea(ring: Array<[number, number]>): number {
+  let area = 0;
+  for (let i = 0; i < ring.length; i += 1) {
+    const [x1, z1] = ring[i];
+    const [x2, z2] = ring[(i + 1) % ring.length];
+    area += x1 * z2 - x2 * z1;
+  }
+  return Math.abs(area) / 2;
+}
+
+/**
+ * Oriented minimum-area bounding rectangle via rotating calipers over
+ * the convex hull, plus how rectangular the footprint actually is.
+ */
+export function fitRectangle(
+  ring: Array<[number, number]>,
+): FittedRect | null {
+  if (ring.length < 3) {
+    return null;
+  }
+  const hull = convexHull(ring);
+  if (hull.length < 3) {
+    return null;
+  }
+  let best: FittedRect | null = null;
+  let bestArea = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < hull.length; i += 1) {
+    const [x1, z1] = hull[i];
+    const [x2, z2] = hull[(i + 1) % hull.length];
+    const length = Math.hypot(x2 - x1, z2 - z1);
+    if (length < 1e-6) {
+      continue;
+    }
+    const ax = (x2 - x1) / length;
+    const az = (z2 - z1) / length;
+    let minU = Infinity;
+    let maxU = -Infinity;
+    let minV = Infinity;
+    let maxV = -Infinity;
+    for (const [px, pz] of hull) {
+      const u = px * ax + pz * az;
+      const v = -px * az + pz * ax;
+      minU = Math.min(minU, u);
+      maxU = Math.max(maxU, u);
+      minV = Math.min(minV, v);
+      maxV = Math.max(maxV, v);
+    }
+    const area = (maxU - minU) * (maxV - minV);
+    if (area < bestArea) {
+      bestArea = area;
+      const cu = (minU + maxU) / 2;
+      const cv = (minV + maxV) / 2;
+      best = {
+        axis:
+          maxU - minU >= maxV - minV ? [ax, az] : [-az, ax],
+        center: [cu * ax - cv * az, cu * az + cv * ax],
+        halfLength: Math.max(maxU - minU, maxV - minV) / 2,
+        halfWidth: Math.min(maxU - minU, maxV - minV) / 2,
+        rectangularity: 0,
+      };
+    }
+  }
+  if (!best || bestArea < 1e-6) {
+    return null;
+  }
+  best.rectangularity = ringArea(ring) / bestArea;
+  return best;
+}
+
 function shapeFromRings(building: PrismBuilding): Shape {
   const shape = new Shape();
   building.ring.forEach(([xDm, zDm], index) => {
@@ -183,6 +301,88 @@ function shapeFromRings(building: PrismBuilding): Shape {
   return shape;
 }
 
+/**
+ * Procedural pitched roof (flat faces only) fitted to the footprint's
+ * oriented rectangle, for the ALKIS roof codes carried in the payload.
+ * Returns non-indexed triangles or null (flat cap stays). The roof rect
+ * gets a small 0.35 m eave overhang; the exact ring walls run to the
+ * eave and the flat cap underneath closes the body, so the building is
+ * visually watertight without cutting the true footprint.
+ */
+export function buildRoofGeometry(
+  rect: FittedRect,
+  eaveY: number,
+  ridgeY: number,
+  roofCode: number,
+): Float32Array | null {
+  const overhang = 0.35;
+  const [ax, az] = rect.axis;
+  const nx = -az;
+  const nz = ax;
+  const hl = rect.halfLength + overhang;
+  const hw = rect.halfWidth + overhang;
+  const [cx, cz] = rect.center;
+  const corner = (u: number, v: number, y: number): [number, number, number] => [
+    cx + ax * u + nx * v,
+    y,
+    cz + az * u + nz * v,
+  ];
+  const triangles: number[] = [];
+  const push = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c: [number, number, number],
+  ): void => {
+    triangles.push(...a, ...b, ...c);
+  };
+  const quad = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c: [number, number, number],
+    d: [number, number, number],
+  ): void => {
+    push(a, b, c);
+    push(a, c, d);
+  };
+  if (roofCode === ROOF_GABLED) {
+    const r1 = corner(-hl, 0, ridgeY);
+    const r2 = corner(hl, 0, ridgeY);
+    quad(corner(-hl, -hw, eaveY), corner(hl, -hw, eaveY), r2, r1);
+    quad(r1, r2, corner(hl, hw, eaveY), corner(-hl, hw, eaveY));
+    // Vertical gable-end triangles close the two open ends.
+    push(corner(-hl, hw, eaveY), r1, corner(-hl, -hw, eaveY));
+    push(corner(hl, -hw, eaveY), r2, corner(hl, hw, eaveY));
+  } else if (roofCode === ROOF_HIPPED) {
+    const inset = Math.min(hw, hl * 0.6);
+    const r1 = corner(-hl + inset, 0, ridgeY);
+    const r2 = corner(hl - inset, 0, ridgeY);
+    quad(corner(-hl, -hw, eaveY), corner(hl, -hw, eaveY), r2, r1);
+    quad(r1, r2, corner(hl, hw, eaveY), corner(-hl, hw, eaveY));
+    push(corner(-hl, hw, eaveY), r1, corner(-hl, -hw, eaveY));
+    push(corner(hl, -hw, eaveY), r2, corner(hl, hw, eaveY));
+  } else if (roofCode === ROOF_SHED) {
+    // Single slope across the short axis; deterministic high side.
+    const high1 = corner(-hl, -hw, ridgeY);
+    const high2 = corner(hl, -hw, ridgeY);
+    const low1 = corner(hl, hw, eaveY);
+    const low2 = corner(-hl, hw, eaveY);
+    quad(high1, high2, low1, low2);
+    // Vertical skirts close the slope: two side triangles + back face.
+    push(corner(-hl, -hw, eaveY), high1, low2);
+    push(low1, high2, corner(hl, -hw, eaveY));
+    quad(corner(hl, -hw, eaveY), high2, high1, corner(-hl, -hw, eaveY));
+  } else {
+    return null;
+  }
+  return new Float32Array(triangles);
+}
+
+/** The eave-to-ridge rise for a fitted roof, bounded to stay plausible. */
+export function roofRise(rect: FittedRect, totalHeight: number): number {
+  const rise = Math.min(5, Math.max(1.2, rect.halfWidth * 2 * 0.3));
+  return rise < totalHeight * 0.6 ? rise : 0;
+}
+
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
@@ -193,31 +393,82 @@ export function createIsometricCity(
   const bodyGeometries = [];
   const edgeGeometries = [];
   const color = new Color();
+  const bakeColor = (geometry: BufferGeometry, tone: Color): void => {
+    const positions = geometry.getAttribute("position");
+    const colors = new Float32Array(positions.count * 3);
+    for (let index = 0; index < positions.count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  };
   for (const building of prisms.buildings) {
     if (building.ring.length < 3 || PRISM_SUPPRESSED_IDS.has(building.id)) {
       continue;
     }
+    const y0 = building.y0_dm / 10;
+    const totalHeight = Math.max(2.5, building.h_dm / 10);
+    // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
+    // rise from the eave as fitted flat facets; everything else keeps
+    // the exact flat cap.
+    let bodyHeight = totalHeight;
+    let roofTriangles: Float32Array | null = null;
+    const roofCode = building.roof ?? 0;
+    if (
+      roofCode === ROOF_GABLED ||
+      roofCode === ROOF_HIPPED ||
+      roofCode === ROOF_SHED
+    ) {
+      const ringMeters = building.ring.map(
+        ([x, z]) => [x / 10, z / 10] as [number, number],
+      );
+      const rect = fitRectangle(ringMeters);
+      if (rect && rect.rectangularity >= ROOF_MIN_RECTANGULARITY) {
+        const rise = roofRise(rect, totalHeight);
+        if (rise > 0) {
+          roofTriangles = buildRoofGeometry(
+            rect,
+            y0 + totalHeight - rise,
+            y0 + totalHeight,
+            roofCode,
+          );
+          if (roofTriangles) {
+            bodyHeight = totalHeight - rise;
+          }
+        }
+      }
+    }
     const geometry = new ExtrudeGeometry(shapeFromRings(building), {
       bevelEnabled: false,
-      depth: Math.max(2.5, building.h_dm / 10),
+      depth: bodyHeight,
     });
     geometry.rotateX(-Math.PI / 2);
-    geometry.translate(0, building.y0_dm / 10, 0);
+    geometry.translate(0, y0, 0);
+    geometry.deleteAttribute("uv");
     // Ink lines first (edges of the un-coloured prism)…
     const edges = new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES);
     edgeGeometries.push(edges);
     // …then bake the flat facade tone as vertex colour so every
     // building can share one material in one merged mesh.
     color.copy(facadeColorFor(building, prisms.classes));
-    const positions = geometry.getAttribute("position");
-    const colors = new Float32Array(positions.count * 3);
-    for (let index = 0; index < positions.count; index += 1) {
-      colors[index * 3] = color.r;
-      colors[index * 3 + 1] = color.g;
-      colors[index * 3 + 2] = color.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bakeColor(geometry, color);
     bodyGeometries.push(geometry);
+    if (roofTriangles) {
+      const roofGeometry = new BufferGeometry();
+      roofGeometry.setAttribute(
+        "position",
+        new Float32BufferAttribute(roofTriangles, 3),
+      );
+      roofGeometry.computeVertexNormals();
+      edgeGeometries.push(
+        new EdgesGeometry(roofGeometry, ISO_EDGE_THRESHOLD_DEGREES),
+      );
+      // Roof paint reads slightly darker than the facade, like a
+      // drawn tiled surface.
+      bakeColor(roofGeometry, color.clone().multiplyScalar(0.82));
+      bodyGeometries.push(roofGeometry);
+    }
   }
 
   const bodies = mergeGeometries(bodyGeometries, false);

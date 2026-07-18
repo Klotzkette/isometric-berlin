@@ -45,20 +45,24 @@ const WATER_TOP_Y = 1.31;
 // Every shade comes from MINECRAFT_PALETTE (palette.ts); small
 // deterministic per-instance jitter between shades is what gives the
 // classic Minecraft block-noise without any texture.
+// Owner note "bessere Farben im Minecraft mode": each class now uses
+// two or three CLOSE shades (gentle block-noise instead of the harsh
+// checkerboard), greens follow classic plains grass/oak leaves, water is
+// the clear Minecraft blue and roads read as dark slate, not void-black.
 const CLASS_SHADES: Record<string, readonly number[]> = {
-  asphalt: [0x202923, 0x111815],
-  concrete: [0xd4d4b7, 0xf3efd0, 0xa4aa91],
-  glass: [0x72c5d2, 0xa4dfe2, 0xd6dfe0],
-  grass: [0x64a852, 0x8bc665, 0x438343],
-  plazaBrick: [0x994a35, 0xc18a4b],
+  asphalt: [0x40515c, 0x34443a],
+  concrete: [0xd4d4b7, 0xf3efd0],
+  glass: [0x72c5d2, 0xa4dfe2],
+  grass: [0x74b043, 0x5d9634, 0x74b043],
+  plazaBrick: [0x994a35, 0x715b4a],
   // Bridge decks over the Spree/Humboldthafen read as stone blocks.
   bridge: [0x8e9a9e, 0xa4aa91],
-  sandstone: [0xe8d1ae, 0xb69b83, 0xf5e3c5],
-  water: [0x2f7892, 0x24546a],
+  sandstone: [0xe8d1ae, 0xf5e3c5],
+  water: [0x3f76e4, 0x2e5aa8],
 };
 const FALLBACK_SHADES: readonly number[] = CLASS_SHADES.concrete;
 const TRUNK_SHADES: readonly number[] = [0x704a2d];
-const LEAF_SHADES: readonly number[] = [0x315d31, 0x438343, 0x64a852];
+const LEAF_SHADES: readonly number[] = [0x4c7f28, 0x5d9634];
 
 function shadeFor(
   shades: readonly number[],

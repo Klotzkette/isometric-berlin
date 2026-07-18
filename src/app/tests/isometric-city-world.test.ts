@@ -4,9 +4,16 @@ import { Box3, LineSegments, Mesh, Vector3 } from "three";
 
 import {
   type PrismPayload,
+  buildRoofGeometry,
   createIsometricCity,
+  fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
   ISO_INK_COLOR,
+  ROOF_GABLED,
+  ROOF_HIPPED,
+  ROOF_MIN_RECTANGULARITY,
+  ROOF_SHED,
+  roofRise,
 } from "../src/IsometricCityWorld";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 
@@ -49,6 +56,83 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(size.z).toBeGreaterThan(800);
     expect(bounds.min.y).toBeGreaterThan(-10);
     expect(bounds.max.y).toBeLessThan(200);
+  });
+});
+
+describe("procedural pitched roofs from ALKIS codes", () => {
+  // A 20 m × 10 m rectangle rotated 30° — fitRectangle must recover it.
+  const angle = Math.PI / 6;
+  const rotated: Array<[number, number]> = (
+    [
+      [-10, -5],
+      [10, -5],
+      [10, 5],
+      [-10, 5],
+    ] as Array<[number, number]>
+  ).map(([x, z]) => [
+    x * Math.cos(angle) - z * Math.sin(angle) + 100,
+    x * Math.sin(angle) + z * Math.cos(angle) + 200,
+  ]);
+
+  test("fitRectangle recovers an oriented rectangle exactly", () => {
+    const rect = fitRectangle(rotated);
+    expect(rect).not.toBeNull();
+    expect(rect!.halfLength).toBeCloseTo(10, 4);
+    expect(rect!.halfWidth).toBeCloseTo(5, 4);
+    expect(rect!.center[0]).toBeCloseTo(100, 4);
+    expect(rect!.center[1]).toBeCloseTo(200, 4);
+    expect(rect!.rectangularity).toBeCloseTo(1, 4);
+    // A perfect rectangle sails past the roofing threshold.
+    expect(rect!.rectangularity).toBeGreaterThanOrEqual(
+      ROOF_MIN_RECTANGULARITY,
+    );
+  });
+
+  test("gable, hip and shed codes produce flat-facet triangles; others stay flat", () => {
+    const rect = fitRectangle(rotated)!;
+    for (const code of [ROOF_GABLED, ROOF_HIPPED, ROOF_SHED]) {
+      const triangles = buildRoofGeometry(rect, 10, 13, code);
+      expect(triangles).not.toBeNull();
+      expect(triangles!.length % 9).toBe(0);
+      // Every vertex lies between eave and ridge.
+      for (let i = 1; i < triangles!.length; i += 3) {
+        expect(triangles![i]).toBeGreaterThanOrEqual(10);
+        expect(triangles![i]).toBeLessThanOrEqual(13);
+      }
+      // The ridge is actually reached.
+      let ridgeHit = false;
+      for (let i = 1; i < triangles!.length; i += 3) {
+        if (triangles![i] === 13) ridgeHit = true;
+      }
+      expect(ridgeHit).toBe(true);
+    }
+    // Flat (1000), unknown (9999) and dome (5000) codes keep the flat cap.
+    expect(buildRoofGeometry(rect, 10, 13, 1000)).toBeNull();
+    expect(buildRoofGeometry(rect, 10, 13, 9999)).toBeNull();
+    expect(buildRoofGeometry(rect, 10, 13, 5000)).toBeNull();
+  });
+
+  test("roofRise stays plausible and yields to squat buildings", () => {
+    const rect = fitRectangle(rotated)!;
+    // 10 m wide → 3 m rise, within [1.2, 5].
+    expect(roofRise(rect, 20)).toBeCloseTo(3, 4);
+    // A building barely taller than the rise keeps its flat cap.
+    expect(roofRise(rect, 4)).toBe(0);
+  });
+
+  test("hundreds of surveyed pitched-roof buildings actually get roofs", () => {
+    const codes = new Set([ROOF_GABLED, ROOF_HIPPED, ROOF_SHED]);
+    let roofed = 0;
+    for (const building of payload.buildings) {
+      if (!codes.has(building.roof ?? 0)) continue;
+      const ring = building.ring.map(
+        ([x, z]) => [x / 10, z / 10] as [number, number],
+      );
+      const rect = fitRectangle(ring);
+      if (!rect || rect.rectangularity < ROOF_MIN_RECTANGULARITY) continue;
+      if (roofRise(rect, Math.max(2.5, building.h_dm / 10)) > 0) roofed += 1;
+    }
+    expect(roofed).toBeGreaterThan(400);
   });
 });
 
