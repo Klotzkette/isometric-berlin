@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.8.0
+
+- **Night mode follows the drawn isometry.** The LoD2 prism city now
+  renders in Night as well: the same drawn prisms relit by the night
+  rig, the ink lines switch from near-black to a moonlit cool line
+  (black contours vanish on dark bodies), and the prism bodies get a
+  faint warm emissive floor so massing stays readable. The glowing
+  recognition layers (Reichstag dome, lit windows, TIPI bulbs, street
+  lights) sit on top. The photographic pipeline remains only as the
+  loading/failure fallback.
+- **Minecraft is isometric too**: the voxel world now uses the same
+  flattened 30° field of view as the drawn city; only the photographic
+  fallback keeps the 39° perspective. No decorative sprite clutter in
+  3D, no animated flicker — calm blocks.
+- **Bridges span the Spree.** A new `bridge` ground class (OSM
+  `bridge=yes` road AND rail lines over water, priority above water)
+  puts 897 deck cells back over the river — Moltkebrücke,
+  Hugo-Preuß-Brücke, Gustav-Heinemann-Brücke, Kronprinzenbrücke,
+  Marschallbrücke and the Hauptbahnhof S-Bahn viaduct — rendered as
+  light stone in the drawn city and stone blocks in the voxel world.
+  Deck height (IDW terrain, e.g. 2.84 m at the Moltkebrücke) sits
+  above the 1.31 m water level.
+- **Reichstag drawn right**: its prism carries the curated warm
+  sandstone tone (matching the hero anchor) instead of generic
+  concrete cream, over its true 28.055 m height and all six
+  courtyard/light-well holes.
+
 ## v0.7.0
 
 - **The big isometry revision: Day mode is a drawn city now.** Seven

@@ -17,8 +17,10 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 )
 
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/minecraft-voxels.json")
+SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
 BOUNDS = Path("geo_data/regierungsviertel/bounds.geojson")
 CELL_AREA_M2 = 4.0 * 4.0
+CELL_M = 4.0
 
 # Reichstag LoD2 footprint in world/scene coordinates (verified against the
 # scene.json landmark at world [315.0, 8.0, 39.8]): x 266.5..367.5, z -29.5..110.3.
@@ -46,6 +48,7 @@ def test_payload_is_small_and_versioned(payload: dict) -> None:
     "concrete",
     "glass",
     "plazaBrick",
+    "bridge",
   ]
   assert payload["origin"]["easting_offset"] == 389500.0
   assert payload["origin"]["northing_offset"] == 5820000.0
@@ -133,6 +136,45 @@ def test_ground_height_grid_matches_terrain_band(payload: dict) -> None:
   values = ground_height["y_dm"]
   assert len(values) == ground_height["cols"] * ground_height["rows"]
   assert all(-10 <= value <= 80 for value in values)
+
+
+def _landmark_world(name: str) -> tuple[float, float]:
+  scene = json.loads(SCENE.read_text(encoding="utf-8"))
+  for landmark in scene["landmarks"]:
+    if landmark["name"] == name:
+      return landmark["world"][0], landmark["world"][2]
+  raise KeyError(name)
+
+
+def _bridge_cell_centres(payload: dict) -> list[tuple[float, float]]:
+  grid = payload["grid"]
+  bridge_id = payload["classes"].index("bridge")
+  centres: list[tuple[float, float]] = []
+  for row_index, runs in enumerate(payload["ground_rows"]):
+    centre_z = (grid["min_z_idx"] + row_index + 0.5) * CELL_M
+    for x_start, run_length, class_id in runs:
+      if class_id != bridge_id:
+        continue
+      for offset in range(run_length):
+        centre_x = (grid["min_x_idx"] + x_start + offset + 0.5) * CELL_M
+        centres.append((centre_x, centre_z))
+  return centres
+
+
+def test_bridge_class_reclaims_spree_crossings(payload: dict) -> None:
+  assert "bridge" in payload["classes"]
+  bridge_cells = _bridge_cell_centres(payload)
+  assert len(bridge_cells) > 100, "Spree/Humboldthafen crossings must keep decks"
+  # Each landmark sits at the bank end of its OSM bridge line, so the deck
+  # cells over water lie within a 30 m box around the landmark position.
+  for name in ("Moltkebrücke", "Gustav-Heinemann-Brücke"):
+    landmark_x, landmark_z = _landmark_world(name)
+    nearby = [
+      (x, z)
+      for x, z in bridge_cells
+      if abs(x - landmark_x) <= 30.0 and abs(z - landmark_z) <= 30.0
+    ]
+    assert nearby, f"no bridge deck cells within 30 m of the {name} landmark"
 
 
 def test_snap_up_quantises_to_blocks() -> None:

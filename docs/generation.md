@@ -169,10 +169,17 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   terrain.
 - **Ground cover.** One class per cell inside the bounds polygon, run-length
   encoded per row as `[x_start_col, run_length, class]`. Priority:
-  `water` (OSM water polygons, display top fixed at y = 1.31 m) over
-  `plazaBrick` (OSM paved pedestrian/footway polygons such as Pariser Platz)
-  over `asphalt` (6 m buffer around vehicular OSM road lines — footways are
-  excluded so the Tiergarten stays green) over the `grass` default.
+  `bridge` over `water` (OSM water polygons, display top fixed at
+  y = 1.31 m) over `plazaBrick` (OSM paved pedestrian/footway polygons such
+  as Pariser Platz) over `asphalt` (6 m buffer around vehicular OSM road
+  lines — footways are excluded so the Tiergarten stays green) over the
+  `grass` default. `bridge` marks water cells within the same 6 m buffer of
+  an OSM road **or rail** line whose `bridge` tag is truthy (any value
+  except `no`), so the Spree/Humboldthafen crossings — Moltkebrücke,
+  Gustav-Heinemann-Brücke, Hugo-Preuß-Brücke, Kronprinzenbrücke and the
+  Hauptbahnhof S-Bahn viaduct — keep their decks instead of vanishing into
+  unbroken water. Bridge cells render at the IDW terrain height (roughly
+  bank height, e.g. 2.8 m at the Moltkebrücke, above the 1.31 m water top).
 - **Trees.** One voxel tree per occupied cell (tallest wins) from the fused
   `park-details.json` points: `[x_idx, z_idx, ground_y_dm, height_dm]` with
   the height snapped up to a 4 m multiple (minimum 8 m); the viewer builds

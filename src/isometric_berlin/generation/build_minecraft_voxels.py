@@ -4,7 +4,7 @@ The city is quantised onto a 4 m axis-aligned block grid ("eckig, klotzig,
 blockig") from the committed additive-fusion sources only:
 
 - LoD2 footprints + measured heights from ``buildings.gpkg`` (dl-de/zero-2-0)
-- OSM water/road/plaza context from ``osm.gpkg`` (ODbL 1.0)
+- OSM water/road/plaza/bridge context from ``osm.gpkg`` (ODbL 1.0)
 - Ground elevation interpolated from the committed tree and street-light
   samples in ``park-details.json`` (Geoportal Berlin, dl-de/zero-2-0)
 
@@ -46,13 +46,14 @@ IDW_POWER = 2.0
 TREE_MIN_HEIGHT_M = 8.0
 MAX_PAYLOAD_BYTES = 5 * 1024 * 1024
 
-CLASSES = ["grass", "asphalt", "water", "concrete", "glass", "plazaBrick"]
+CLASSES = ["grass", "asphalt", "water", "concrete", "glass", "plazaBrick", "bridge"]
 CLASS_GRASS = 0
 CLASS_ASPHALT = 1
 CLASS_WATER = 2
 CLASS_CONCRETE = 3
 CLASS_GLASS = 4
 CLASS_PLAZA_BRICK = 5
+CLASS_BRIDGE = 6
 
 # ALKIS function codes rendered as glass blocks: offices (Bürogebäude) and the
 # Hauptbahnhof station hall (Bahnhofshalle / Empfangsgebäude). Everything else
@@ -169,6 +170,18 @@ def cell_centres(grid: dict[str, int]) -> tuple[np.ndarray, np.ndarray]:
   return np.meshgrid(xs, zs)
 
 
+def bridge_line_geometries(frame: gpd.GeoDataFrame) -> list[BaseGeometry]:
+  """Line geometries whose OSM ``bridge`` tag is truthy (any value except "no")."""
+  if "bridge" not in frame.columns:
+    return []
+  tagged = frame[
+    frame["bridge"].notna()
+    & (frame["bridge"].astype(str).str.lower() != "no")
+    & frame.geometry.geom_type.isin(["LineString", "MultiLineString"])
+  ]
+  return list(tagged.geometry)
+
+
 def classify_ground(
   grid: dict[str, int], bounds_world: BaseGeometry, osm_path: Path
 ) -> np.ndarray:
@@ -206,6 +219,18 @@ def classify_ground(
     water_union = to_world(water_polygons.geometry.union_all())
     water_mask = shapely.contains_xy(water_union, flat_x[inside], flat_z[inside])
     classes[inside_positions[water_mask]] = CLASS_WATER
+
+  # Bridge decks: OSM road/rail lines tagged bridge (Moltkebrücke, Gustav-
+  # Heinemann-Brücke, S-Bahn viaduct, ...) reclaim the water cells they span
+  # so the Spree crossings do not vanish into unbroken water.
+  rail = gpd.read_file(osm_path, layer="rail")
+  bridge_lines = bridge_line_geometries(roads) + bridge_line_geometries(rail)
+  if bridge_lines:
+    bridge_tree = shapely.STRtree([to_world(g) for g in bridge_lines])
+    hits = bridge_tree.query(inside_points, predicate="dwithin", distance=ROAD_BUFFER_M)
+    near_bridge = inside_positions[np.unique(hits[0])]
+    over_water = near_bridge[classes[near_bridge] == CLASS_WATER]
+    classes[over_water] = CLASS_BRIDGE
 
   return classes.reshape(grid["rows"], grid["cols"])
 

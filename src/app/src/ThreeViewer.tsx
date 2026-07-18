@@ -94,6 +94,7 @@ import {
   type PrismPayload,
   PRISM_WORLD_FILE,
   createIsometricCity,
+  setIsoNightPresentation,
 } from "./IsometricCityWorld";
 import {
   type VoxelPayload,
@@ -493,10 +494,16 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   for (const detail of runtime.detailGroups.values()) {
     detail.group.visible = recognitionVisible && !isoMode;
   }
-  const targetFov = isoMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
+  // Both drawn worlds (prisms and voxels) use the flat isometric FOV;
+  // only the photographic fallback keeps the 39° perspective.
+  const targetFov =
+    isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
   if (runtime.camera.fov !== targetFov) {
     runtime.camera.fov = targetFov;
     runtime.camera.updateProjectionMatrix();
+  }
+  if (runtime.isoWorld) {
+    setIsoNightPresentation(runtime.isoWorld, isNight);
   }
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -509,12 +516,16 @@ function voxelModeActive(runtime: Runtime): boolean {
 }
 
 /**
- * The drawn isometric city replaces the photogrammetry in DAY mode once
- * its LoD2-prism payload has loaded. Night keeps the photographic
- * lit-window pipeline; Minecraft owns the voxel world.
+ * The drawn isometric city replaces the photogrammetry in DAY and NIGHT
+ * mode once its LoD2-prism payload has loaded (night simply relights the
+ * same drawn prisms and brightens the ink). Minecraft owns the voxel
+ * world.
  */
 function isoModeActive(runtime: Runtime): boolean {
-  return runtime.lightingMode === "day" && runtime.isoWorld !== null;
+  return (
+    (runtime.lightingMode === "day" || runtime.lightingMode === "night") &&
+    runtime.isoWorld !== null
+  );
 }
 
 /**
@@ -1211,7 +1222,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
-      if (lightingMode === "day") {
+      if (lightingMode === "day" || lightingMode === "night") {
         ensureIsoWorld(runtime, onWarningRef.current);
       }
       if (lightingMode === "minecraft" && runtime.voxelWorldState === "idle") {

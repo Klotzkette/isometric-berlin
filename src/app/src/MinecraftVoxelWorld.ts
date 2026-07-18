@@ -51,6 +51,8 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
   glass: [0x72c5d2, 0xa4dfe2, 0xd6dfe0],
   grass: [0x64a852, 0x8bc665, 0x438343],
   plazaBrick: [0x994a35, 0xc18a4b],
+  // Bridge decks over the Spree/Humboldthafen read as stone blocks.
+  bridge: [0x8e9a9e, 0xa4aa91],
   sandstone: [0xe8d1ae, 0xb69b83, 0xf5e3c5],
   water: [0x2f7892, 0x24546a],
 };

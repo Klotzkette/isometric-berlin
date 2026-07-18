@@ -43,7 +43,18 @@ export type PrismPayload = {
 
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
 export const ISO_INK_COLOR = 0x24211c;
+// At night black ink vanishes on dark prisms; a cool moonlit line keeps
+// the drawn contours readable.
+export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
 export const ISO_EDGE_THRESHOLD_DEGREES = 24;
+
+// Hand-pinned facade tones for hero prisms (payload building ids, last 8
+// chars of the LoD2 id). The Reichstag must read as warm sandstone, not
+// generic concrete cream — matching the curated anchor in
+// drawnBuildings.HERO_FACADE_ANCHORS.
+export const HERO_PRISM_TONES: Record<string, number> = {
+  K0002MCN: 0xd6c8aa,
+};
 
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
@@ -51,6 +62,8 @@ export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
   asphalt: [0x8f8f8a, 0x9a9a94],
   grass: [0x8fbf72, 0x9cc981, 0x86b96a],
   plazaBrick: [0xc9a084, 0xbf9478],
+  // Drawn bridge decks: light stone, clearly distinct from water below.
+  bridge: [0xb9b4a8, 0xc4bfb3],
   water: [0x7fb6cf, 0x74acca],
 };
 
@@ -63,6 +76,10 @@ const FACADE_SHADES: Record<string, readonly number[]> = {
 const FALLBACK_FACADE: readonly number[] = FACADE_SHADES.concrete;
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
+  const pinned = HERO_PRISM_TONES[building.id];
+  if (pinned !== undefined) {
+    return new Color(pinned);
+  }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
   let hash = 0;
@@ -70,6 +87,28 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
     hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   }
   return new Color(shades[hash % shades.length]);
+}
+
+/**
+ * Relight the drawn city for night: brighten the ink to a moonlit line
+ * (black contours disappear on dark prisms) and give the prism bodies a
+ * faint warm emissive floor so windowsill-height masses stay readable
+ * under the dim night rig. Day restores pure black ink and no emissive.
+ */
+export function setIsoNightPresentation(city: Group, night: boolean): void {
+  const ink = city.getObjectByName("LoD2 prism ink lines");
+  if (ink instanceof LineSegments) {
+    (ink.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const bodies = city.getObjectByName("LoD2 prism buildings");
+  if (bodies instanceof Mesh) {
+    const material = bodies.material as MeshStandardMaterial;
+    material.emissive.setHex(night ? 0x1a1608 : 0x000000);
+    material.emissiveIntensity = night ? 0.55 : 0;
+    material.needsUpdate = true;
+  }
 }
 
 function shapeFromRings(building: PrismBuilding): Shape {
