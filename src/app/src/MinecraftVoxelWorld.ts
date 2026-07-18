@@ -108,19 +108,14 @@ function instancedBoxes(name: string, count: number): InstanceWriter {
   };
 }
 
-export function createMinecraftVoxelWorld(payload: VoxelPayload): Group {
-  const group = new Group();
-  group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
-  const cell = payload.cell_m;
-  const { min_x_idx, min_z_idx } = payload.grid;
-  // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
-  // offsets (see the payload origin note): cell (x_idx, z_idx) spans
-  // world x in [x_idx*cell, x_idx*cell + cell).
-  const worldXAbs = (xIdx: number, span = 1): number =>
-    (xIdx + span / 2) * cell;
-  const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
+/**
+ * Sample the payload's coarse interpolated terrain grid at grid offsets.
+ */
+export function groundTopSampler(
+  payload: VoxelPayload,
+): (xOffset: number, zOffset: number) => number {
   const heights = payload.ground_height;
-  const groundTopY = (xOffset: number, zOffset: number): number => {
+  return (xOffset, zOffset) => {
     const col = Math.min(
       heights.cols - 1,
       Math.floor(xOffset / heights.stride_cells),
@@ -131,18 +126,36 @@ export function createMinecraftVoxelWorld(payload: VoxelPayload): Group {
     );
     return (heights.y_dm[row * heights.cols + col] ?? 40) / 10;
   };
+}
 
+/**
+ * Build the run-length ground slabs as one InstancedMesh. Shared between
+ * the Minecraft voxel world and the drawn isometric city (which reuses
+ * the same surveyed ground/water/road classes with its own palette).
+ */
+export function createGroundSlabs(
+  payload: VoxelPayload,
+  name: string,
+  shadeMap: Record<string, readonly number[]>,
+): InstancedMesh {
+  const cell = payload.cell_m;
+  const { min_x_idx, min_z_idx } = payload.grid;
+  const worldXAbs = (xIdx: number, span = 1): number =>
+    (xIdx + span / 2) * cell;
+  const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
+  const groundTopY = groundTopSampler(payload);
   const groundRunCount = payload.ground_rows.reduce(
     (sum, row) => sum + row.length,
     0,
   );
-  const ground = instancedBoxes("Voxel ground runs", groundRunCount);
+  const ground = instancedBoxes(name, groundRunCount);
   const center = new Vector3();
   const size = new Vector3();
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
-      const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
+      const shades =
+        shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
       const topY =
         className === "water"
           ? (payload.water_top_y_m ?? WATER_TOP_Y)
@@ -156,7 +169,22 @@ export function createMinecraftVoxelWorld(payload: VoxelPayload): Group {
       ground.write(center, size, shadeFor(shades, xStart, zOffset, run));
     }
   });
-  group.add(ground.mesh);
+  return ground.mesh;
+}
+
+export function createMinecraftVoxelWorld(payload: VoxelPayload): Group {
+  const group = new Group();
+  group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
+  const cell = payload.cell_m;
+  // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
+  // offsets (see the payload origin note): cell (x_idx, z_idx) spans
+  // world x in [x_idx*cell, x_idx*cell + cell).
+  const worldXAbs = (xIdx: number, span = 1): number =>
+    (xIdx + span / 2) * cell;
+  const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
+  const center = new Vector3();
+  const size = new Vector3();
+  group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
 
   const buildings = instancedBoxes(
     "Voxel building columns",

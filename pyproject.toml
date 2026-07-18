@@ -1,6 +1,6 @@
 [project]
 name = "isometric-berlin"
-version = "0.6.0"
+version = "0.7.0"
 description = "Generate isometric views of Berlin's Regierungsviertel from open city data, with an optional AI style pipeline."
 readme = "README.md"
 requires-python = ">=3.12"

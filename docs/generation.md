@@ -184,6 +184,53 @@ classified ground cells. The payload embeds the mandatory OSM + Geoportal
 Berlin attribution and per-source licences; `tests/test_build_minecraft_voxels.py`
 guards size, grid consistency and a 24 m+ Reichstag block cross-check.
 
+## Step 8c: drawn-isometric LoD2 prism payload
+
+The drawn-isometric mode ("gezeichnete Isometrie") extrudes every building
+as a hard-edged prism from its TRUE LoD2 footprint — the crisp LoD2 shapes
+replace the lumpy photogrammetry surface. Regenerated from committed sources
+only:
+
+```bash
+uv run python -m isometric_berlin.generation.build_isometric_prisms \
+  --bounds geo_data/regierungsviertel/bounds.geojson \
+  --out src/app/public/mesh/regierungsviertel/lod2-prisms.json
+```
+
+How it is built (deterministic, shares the Step 8b machinery):
+
+- **Coordinates.** Same scene frame as the voxel payload, verified against
+  `scene.json`: `world_x = easting − 389500`, `world_z = 5820000 − northing`.
+  Ring vertices ship as decimetre-integer `[x_dm, z_dm]` pairs with the
+  closing vertex omitted; heights are decimetre integers.
+- **Footprints.** One prism per LoD2 footprint polygon part (MultiPolygons
+  split). Exterior and interior rings are simplified with shapely
+  `simplify(0.15 m)` to remove collinear CityGML noise while preserving real
+  corners; winding is normalised (exterior CCW, holes CW in the x/z frame).
+  Courtyards survive as `holes` — the Reichstag keeps its interior rings.
+- **Heights.** `h_dm` is the TRUE measured LoD2 height in decimetres — never
+  snapped, unlike the 4 m voxel columns. `y0_dm` is the IDW ground sample
+  (same k=8 sampler over the committed `park-details.json` points) at the
+  part centroid.
+- **Palette.** Same display classes as Step 8b: ALKIS office (`31001_2020`)
+  and station-hall (`31001_3091`) functions map to `glass`, everything else
+  to `concrete`. The ALKIS roof-form code ships as an integer `roof` field
+  for later viewer use.
+- **Degeneracy.** Parts below 1 m² or 3 distinct vertices after
+  simplification/quantisation are dropped, as are rows whose height rounds
+  to 0 dm. The floor is deliberately 1 m² (not 4 m²): 2,323 of the 3,315
+  committed LoD2 rows are genuine small ALKIS `51009_1750` wall/bollard
+  structures around the government buildings that the voxel mode also
+  renders; a 4 m² cut would silently drop 70 % of the additive LoD2 source.
+
+The committed `lod2-prisms.json` is ~0.45 MiB (hard test budget 5 MB) and
+carries 3,254 prisms (61 sliver parts and 3 flat rows dropped), 19 of them
+with 30 courtyard holes. The payload embeds the mandatory OSM + Geoportal
+Berlin attribution and per-source licences;
+`tests/test_build_isometric_prisms.py` guards size, ring validity against
+the voxel grid bounds, the palette split, true (unsnapped) heights and the
+28 m Reichstag prism including its courtyards.
+
 ## Step 10: DZI export and dual viewer
 
 `export_dzi` writes 256-pixel JPEG tiles with quality 85 and a real one-pixel

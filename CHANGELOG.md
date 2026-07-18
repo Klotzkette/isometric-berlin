@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.7.0
+
+- **The big isometry revision: Day mode is a drawn city now.** Seven
+  rounds of facade shading (v0.5.3–step-18) could not fix what was
+  actually wrong — the photogrammetry *geometry* itself is lumpy and
+  wobbly, so buildings always read as mush. Day mode therefore replaces
+  the photographic buildings entirely: a new pipeline step
+  (`isometric_berlin.generation.build_isometric_prisms`) exports every
+  surveyed LoD2 footprint polygon (exact corners, courtyard holes —
+  the Reichstag keeps both courtyards) with its measured height and
+  ground elevation, and the viewer extrudes them into hard-edged prisms
+  merged into a single mesh with flat quantised facade tones, plus one
+  merged near-black ink-line layer from edge geometry (the drawn
+  outlines). Ground, water and roads reuse the surveyed run-length
+  slabs with a soft day palette; the OSM/official tree layer stays soft
+  ("Natur darf weich bleiben"). The recognition models (Reichstag dome,
+  Brandenburg Gate, memorials, TIPI, Carillon, park details) remain on
+  top of the prisms; photographic hero crops hide. The camera FOV
+  narrows 39°→30° while the drawn city is active, flattening the view
+  toward a true isometric presentation. Night keeps the photographic
+  lit-window pipeline, Minecraft keeps the voxel world, and if the
+  prism payload fails to load, day falls back to photographic with a
+  warning.
+
 ## v0.6.0
 
 - **Minecraft mode is now a true voxel world — "eckig, klotzig, blockig.

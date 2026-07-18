@@ -91,6 +91,11 @@ import {
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import {
+  type PrismPayload,
+  PRISM_WORLD_FILE,
+  createIsometricCity,
+} from "./IsometricCityWorld";
+import {
   type VoxelPayload,
   VOXEL_WORLD_FILE,
   createMinecraftVoxelWorld,
@@ -223,6 +228,8 @@ type Runtime = {
   sun: DirectionalLight;
   tunnel: Group;
   tunnelBounds: Box3 | null;
+  isoWorld: Group | null;
+  isoWorldState: "failed" | "idle" | "loading";
   voxelWorld: Group | null;
   voxelWorldState: "failed" | "idle" | "loading";
   lightingMode: LightingMode;
@@ -267,10 +274,11 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
     detailReady: runtime.settledSurfaceReady,
     interacting,
   });
-  // The voxel block world fully replaces the photogrammetry surfaces.
-  const voxelMode = voxelModeActive(runtime);
-  runtime.interactionSurface.visible = !settled && !voxelMode;
-  runtime.settledSurface.visible = settled && !voxelMode;
+  // The voxel block world (Minecraft) and the drawn isometric city
+  // (Day) each fully replace the photogrammetry surfaces.
+  const replaced = voxelModeActive(runtime) || isoModeActive(runtime);
+  runtime.interactionSurface.visible = !settled && !replaced;
+  runtime.settledSurface.visible = settled && !replaced;
   setParkSettledDetail(runtime.parkDetails, settled);
   runtime.renderer.domElement.dataset.surfaceQuality = settled
     ? "settled-7m-plus"
@@ -465,9 +473,17 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   // the city is cubes, nothing else. Until the payload arrives (or if it
   // fails) the toon-material presentation stays as the fallback.
   const voxelMode = voxelModeActive(runtime);
+  const isoMode = isoModeActive(runtime);
   if (runtime.voxelWorld) {
     runtime.voxelWorld.visible = voxelMode && !runtime.underside;
   }
+  if (runtime.isoWorld) {
+    runtime.isoWorld.visible = isoMode && !runtime.underside;
+  }
+  // Recognition models (dome, gate, memorials, park trees…) are drawn
+  // geometry — they stay ON in the drawn isometric city and complement
+  // the prisms; only the voxel world and the underside hide them. The
+  // photographic hero crops additionally hide in the drawn city.
   const recognitionVisible = !runtime.underside && !voxelMode;
   runtime.signatures.visible = recognitionVisible;
   runtime.civicDetails.visible = recognitionVisible;
@@ -475,7 +491,12 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
-    detail.group.visible = recognitionVisible;
+    detail.group.visible = recognitionVisible && !isoMode;
+  }
+  const targetFov = isoMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
+  if (runtime.camera.fov !== targetFov) {
+    runtime.camera.fov = targetFov;
+    runtime.camera.updateProjectionMatrix();
   }
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -486,6 +507,63 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
 function voxelModeActive(runtime: Runtime): boolean {
   return runtime.lightingMode === "minecraft" && runtime.voxelWorld !== null;
 }
+
+/**
+ * The drawn isometric city replaces the photogrammetry in DAY mode once
+ * its LoD2-prism payload has loaded. Night keeps the photographic
+ * lit-window pipeline; Minecraft owns the voxel world.
+ */
+function isoModeActive(runtime: Runtime): boolean {
+  return runtime.lightingMode === "day" && runtime.isoWorld !== null;
+}
+
+/**
+ * Load and attach the drawn isometric city (LoD2 prisms + shared ground
+ * slabs). Idempotent; on failure the photographic day pipeline stays.
+ */
+function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void {
+  if (runtime.isoWorldState !== "idle") {
+    return;
+  }
+  runtime.isoWorldState = "loading";
+  const prismUrl = new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl).toString();
+  const groundUrl = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
+  void Promise.all([
+    fetch(prismUrl).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json() as Promise<PrismPayload>;
+    }),
+    fetch(groundUrl)
+      .then((response) =>
+        response.ok ? (response.json() as Promise<VoxelPayload>) : null,
+      )
+      .catch(() => null),
+  ])
+    .then(([prisms, ground]) => {
+      if (runtime.disposed) {
+        return;
+      }
+      runtime.isoWorld = createIsometricCity(prisms, ground);
+      runtime.scene.add(runtime.isoWorld);
+      setSceneLighting(runtime, runtime.lightingMode);
+      markSurfaceInteraction(runtime, 400);
+    })
+    .catch(() => {
+      if (!runtime.disposed) {
+        runtime.isoWorldState = "failed";
+        warn(
+          "Die gezeichnete Isometrie konnte nicht geladen werden; die fotografische Tagesansicht bleibt aktiv.",
+        );
+      }
+    });
+}
+
+// Narrower FOV flattens the perspective toward a true isometric look
+// while the drawn city is active; the photographic modes keep 39°.
+const PHOTO_FOV_DEGREES = 39;
+const ISO_FOV_DEGREES = 30;
 
 function segmentMesh(
   geometry: BoxGeometry,
@@ -850,8 +928,12 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   }
   setTunnelPresentation(runtime.tunnel, underside);
   const voxelMode = voxelModeActive(runtime);
+  const isoMode = isoModeActive(runtime);
   if (runtime.voxelWorld) {
     runtime.voxelWorld.visible = voxelMode && !underside;
+  }
+  if (runtime.isoWorld) {
+    runtime.isoWorld.visible = isoMode && !underside;
   }
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = recognitionVisible;
@@ -860,7 +942,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
-    detail.group.visible = recognitionVisible;
+    detail.group.visible = recognitionVisible && !isoMode;
   }
 }
 
@@ -1129,6 +1211,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
+      if (lightingMode === "day") {
+        ensureIsoWorld(runtime, onWarningRef.current);
+      }
       if (lightingMode === "minecraft" && runtime.voxelWorldState === "idle") {
         // Lazy-load the LoD2 block world on the first switch into
         // Minecraft; until it arrives the toon presentation is the
@@ -1223,8 +1308,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       notifyView(runtime, onViewChangeRef.current);
 
       runtime.detailClock += 1;
-      // Hero photo crops never show in the voxel block world or underside.
-      const heroVisibleAllowed = !voxelModeActive(runtime) && !runtime.underside;
+      // Hero photo crops never show in the voxel block world, in the
+      // drawn isometric city, or from the underside.
+      const heroVisibleAllowed =
+        !voxelModeActive(runtime) &&
+        !isoModeActive(runtime) &&
+        !runtime.underside;
       for (const [heroName, entry] of runtime.detailGroups) {
         entry.group.visible = heroVisibleAllowed && heroName === name;
         if (heroName === name) {
@@ -1602,6 +1691,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         sun,
         tunnel: new Group(),
         tunnelBounds: null,
+        isoWorld: null,
+        isoWorldState: "idle",
         voxelWorld: null,
         voxelWorldState: "idle",
         lightingMode: lightingModeRef.current,
@@ -2207,6 +2298,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnelBounds = new Box3()
             .setFromObject(runtime.tunnel)
             .expandByScalar(5);
+          // Day is the default mode: bring the drawn isometric city in
+          // as soon as the scene manifest is known.
+          ensureIsoWorld(runtime, onWarningRef.current);
           setModelMaterialState(runtime, runtime.underside);
           setProgress({ loaded: 0, total: manifest.base_tiles.length });
 
