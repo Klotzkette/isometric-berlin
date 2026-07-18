@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.10.0
+
+- **Ligne-claire fenestration: 128,678 windows.** Every opaque prism
+  now carries flat drawn window panes derived from its surveyed
+  geometry — floor count from the measured LoD2 height at a 3.1 m
+  storey pitch, bay rhythm from each wall's true length, centred rows
+  like an architectural elevation. One instanced mesh, cool slate panes
+  tinted per facade by day; after dark a deterministic ~38 % of rooms
+  light up warm while the rest go night-blue — the night city finally
+  glows window by window. (Render gotcha for the record: the wall
+  basis dir/up/outward is left-handed, which mirrors the instanced
+  plane's winding — the panes need `DoubleSide` or front-face culling
+  silently hides all of them.)
+- **The Hauptbahnhof is a glass building at last.** The station's LoD2
+  prisms rendered as opaque slabs that half-buried the recognition
+  model's 321 m glass barrel. The 23 low slabs under the halls are now
+  suppressed (the model carries deck, barrel, halls and trains); the 24
+  tall Bügel tower prisms instead join a new transparent glass mesh, so
+  the model's mullion grids finally wrap a glassy body. All glass-class
+  prisms quarter-wide render in that transparent mesh too, in a cool
+  glass family with ink contours — transparency in the ligne-claire
+  sense.
+- **The Tiergartentunnel is findable again.** From the surface the
+  drawn city gave no hint of it. It is now marked the way a technical
+  drawing marks hidden edges: two dashed ink lines along the tube walls
+  across the quarter (clipped to the surveyed ground grid, moonlit at
+  night). The full cutaway below the horizon is unchanged.
+- Tests: window grid derivation, six-figure pane count with day/night
+  palettes, transparent glass material, station suppression/glassing
+  partition (disjoint sets, ids exist), tunnel trace geometry.
+
 ## v0.9.0
 
 - **Real roof forms in the drawn city — "alles Flächen, aber genauer".**

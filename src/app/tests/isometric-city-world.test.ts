@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { Box3, LineSegments, Mesh, Vector3 } from "three";
+import { Box3, InstancedMesh, LineSegments, Mesh, Vector3 } from "three";
 
 import {
   type PrismPayload,
@@ -9,11 +9,15 @@ import {
   fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
   ISO_INK_COLOR,
+  ISO_WINDOW_BAY_PITCH_M,
+  ISO_WINDOW_FLOOR_PITCH_M,
+  PRISM_GLASSED_IDS,
   ROOF_GABLED,
   ROOF_HIPPED,
   ROOF_MIN_RECTANGULARITY,
   ROOF_SHED,
   roofRise,
+  windowGrid,
 } from "../src/IsometricCityWorld";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 
@@ -56,6 +60,97 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(size.z).toBeGreaterThan(800);
     expect(bounds.min.y).toBeGreaterThan(-10);
     expect(bounds.max.y).toBeLessThan(200);
+  });
+});
+
+describe("ligne-claire fenestration", () => {
+  const city = createIsometricCity(payload, null);
+
+  test("windowGrid derives real floors and bays from surveyed geometry", () => {
+    // A 20 m wall on a 12 m body: bays span the wall, floors the height.
+    const grid = windowGrid(20, 12);
+    expect(grid).not.toBeNull();
+    expect(grid!.bays).toBeGreaterThanOrEqual(5);
+    expect(grid!.floors).toBe(3);
+    // The bay run stays centred inside the wall.
+    const lastOffset =
+      grid!.firstOffset + (grid!.bays - 1) * ISO_WINDOW_BAY_PITCH_M;
+    expect(grid!.firstOffset).toBeGreaterThan(0);
+    expect(lastOffset).toBeLessThan(20);
+    // Storey pitch is architectural, not decorative.
+    expect(ISO_WINDOW_FLOOR_PITCH_M).toBeGreaterThan(2.5);
+    expect(ISO_WINDOW_FLOOR_PITCH_M).toBeLessThan(4);
+    // Walls too short and bodies too low carry no windows.
+    expect(windowGrid(2, 12)).toBeNull();
+    expect(windowGrid(20, 2.5)).toBeNull();
+  });
+
+  test("the city carries a six-figure count of instanced window panes", () => {
+    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
+    expect(panes).toBeInstanceOf(InstancedMesh);
+    expect(panes.count).toBeGreaterThan(100_000);
+    // Both palettes are baked: cool drawn day panes, warm-lit night mix.
+    expect(panes.userData.dayColors).toBeInstanceOf(Float32Array);
+    expect(panes.userData.nightColors).toBeInstanceOf(Float32Array);
+    expect((panes.userData.dayColors as Float32Array).length).toBe(
+      panes.count * 3,
+    );
+    // The night palette actually contains lit (warm, r > g > b) panes.
+    const night = panes.userData.nightColors as Float32Array;
+    let lit = 0;
+    for (let index = 0; index < panes.count; index += 1) {
+      if (night[index * 3] > 0.8 && night[index * 3] > night[index * 3 + 2]) {
+        lit += 1;
+      }
+    }
+    expect(lit / panes.count).toBeGreaterThan(0.25);
+    expect(lit / panes.count).toBeLessThan(0.55);
+  });
+
+  test("glass-class prisms and the Hauptbahnhof towers render transparent", () => {
+    const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
+    expect(glass).toBeInstanceOf(Mesh);
+    const material = glass.material as { opacity: number; transparent: boolean };
+    expect(material.transparent).toBe(true);
+    expect(material.opacity).toBeGreaterThan(0.3);
+    expect(material.opacity).toBeLessThan(0.8);
+    // The 24 Bügel tower prisms are glassed, and all of them exist.
+    expect(PRISM_GLASSED_IDS.size).toBe(24);
+    for (const id of PRISM_GLASSED_IDS) {
+      expect(payload.buildings.some((b) => b.id === id)).toBe(true);
+    }
+  });
+
+  test("the station's low slabs are suppressed but stay in the payload", async () => {
+    const { PRISM_SUPPRESSED_IDS } = await import("../src/IsometricCityWorld");
+    for (const id of ["K0002KiE", "YK0000Cm", "q7Axk9GG"]) {
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(true);
+      expect(payload.buildings.some((b) => b.id === id)).toBe(true);
+    }
+    // No suppressed or glassed id overlaps the other set.
+    for (const id of PRISM_GLASSED_IDS) {
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(false);
+    }
+  });
+
+  test("the Tiergartentunnel leaves a dashed trace when ground is present", async () => {
+    const voxelPayload = (await import(
+      "../public/mesh/regierungsviertel/minecraft-voxels.json"
+    )) as { default: unknown };
+    const points: [number, number, number][] = [
+      [-115, -8.5, -280],
+      [-111, -8.5, -14],
+      [-113, -8.5, 336],
+    ];
+    const traced = createIsometricCity(
+      payload,
+      voxelPayload.default as never,
+      points,
+    );
+    const trace = traced.getObjectByName("Tiergartentunnel underground trace");
+    expect(trace).toBeInstanceOf(LineSegments);
+    const positions = (trace as LineSegments).geometry.getAttribute("position");
+    expect(positions.count).toBeGreaterThan(100);
   });
 });
 

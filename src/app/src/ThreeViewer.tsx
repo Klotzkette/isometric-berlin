@@ -229,6 +229,7 @@ type Runtime = {
   sun: DirectionalLight;
   tunnel: Group;
   tunnelBounds: Box3 | null;
+  tunnelPoints: TunnelPayload["points"] | null;
   isoWorld: Group | null;
   isoWorldState: "failed" | "idle" | "loading";
   voxelWorld: Group | null;
@@ -562,7 +563,7 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
       if (runtime.disposed) {
         return;
       }
-      runtime.isoWorld = createIsometricCity(prisms, ground);
+      runtime.isoWorld = createIsometricCity(prisms, ground, runtime.tunnelPoints);
       runtime.scene.add(runtime.isoWorld);
       setSceneLighting(runtime, runtime.lightingMode);
       markSurfaceInteraction(runtime, 400);
@@ -1721,6 +1722,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         sun,
         tunnel: new Group(),
         tunnelBounds: null,
+        tunnelPoints: null,
         isoWorld: null,
         isoWorldState: "idle",
         voxelWorld: null,
@@ -2324,6 +2326,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               });
           }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
+          runtime.tunnelPoints = manifest.tiergartentunnel.points;
           scene.add(runtime.tunnel);
           runtime.tunnelBounds = new Box3()
             .setFromObject(runtime.tunnel)

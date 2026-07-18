@@ -1,20 +1,29 @@
 import {
   BufferGeometry,
   Color,
+  DoubleSide,
   EdgesGeometry,
   ExtrudeGeometry,
   Float32BufferAttribute,
   Group,
+  InstancedMesh,
   LineBasicMaterial,
   LineSegments,
+  Matrix4,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   Path,
+  PlaneGeometry,
   Shape,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import { type VoxelPayload, createGroundSlabs } from "./MinecraftVoxelWorld";
+import {
+  type VoxelPayload,
+  createGroundSlabs,
+  groundTopSampler,
+} from "./MinecraftVoxelWorld";
 
 /**
  * The drawn isometric city for Day mode: every building extruded from
@@ -68,6 +77,29 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // Brandenburger Tor main body — the gate model has columns, passages,
   // attic and Quadriga; side pavilion prisms stay.
   "K0001xqy",
+  // Berlin Hauptbahnhof low structures — the metric recognition model
+  // draws the whole station (321 m glass barrel, north-south hall, both
+  // 46 m office bridges, track deck, trains). The low LoD2 prisms under
+  // the halls rendered as opaque slabs that half-buried the glass roof
+  // ("Glasdach beim Hbf"); every low prism fully inside the model's
+  // hall + bridge envelope is suppressed. The tall Bügel tower prisms
+  // are NOT suppressed — they render as transparent glass instead
+  // (PRISM_GLASSED_IDS) to give the mullioned bridges their mass.
+  "8hUNWvQf", "EKo6tjyY", "K0002KiE", "K0002UK0", "K0003TkC", "K0003TlE",
+  "K0003UWM", "K0003Vlz", "OXDNOQlg", "YK0000Ce", "YK0000Cg", "YK0000Ch",
+  "YK0000Ci", "YK0000Ck", "YK0000Cm", "YK0000Co", "YK0000Cq", "YK0000Cs",
+  "YK0000Cu", "ZoBdHJPp", "hSQsiPVL", "jacWOmHc", "q7Axk9GG",
+]);
+
+// Prisms forced into the transparent glass mesh regardless of their
+// LoD2 class: the Hauptbahnhof Bügel office-bridge towers, whose real
+// facades are full curtain-wall glazing. The recognition model draws
+// their mullion grid; these prisms give the grid its glassy body.
+export const PRISM_GLASSED_IDS: ReadonlySet<string> = new Set([
+  "3F1dLm24", "5gArGdou", "5v0mHg0p", "663NhxsM", "6ZJfG5j0", "D6fKsTRY",
+  "Fk2OkM8n", "LAz51fdP", "M7I6Afam", "QaGDo8NZ", "SLLM5yNi", "X2oOtd6Z",
+  "XpzUHc7R", "clykH08k", "gqQdZFTa", "hCFTFGrv", "hlYYwDX2", "iiRhAlr6",
+  "ldYGmtbR", "m3AE8zAD", "o0aS4DvM", "v3sN8WzM", "zTSJJzrL", "zUU5olBa",
 ]);
 
 /**
@@ -152,6 +184,31 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     material.emissive.setHex(night ? 0x1a1608 : 0x000000);
     material.emissiveIntensity = night ? 0.55 : 0;
     material.needsUpdate = true;
+  }
+  const glass = city.getObjectByName("LoD2 glass prisms");
+  if (glass instanceof Mesh) {
+    const material = glass.material as MeshStandardMaterial;
+    material.emissive.setHex(night ? 0x0e1a24 : 0x000000);
+    material.emissiveIntensity = night ? 0.7 : 0;
+    material.needsUpdate = true;
+  }
+  // Windows swap their whole baked palette: cool drawn panes by day, a
+  // deterministic scatter of warm-lit rooms after dark.
+  const panes = city.getObjectByName("LoD2 prism windows");
+  if (panes instanceof InstancedMesh && panes.instanceColor) {
+    const target = night
+      ? (panes.userData.nightColors as Float32Array | undefined)
+      : (panes.userData.dayColors as Float32Array | undefined);
+    if (target) {
+      (panes.instanceColor.array as Float32Array).set(target);
+      panes.instanceColor.needsUpdate = true;
+    }
+  }
+  const trace = city.getObjectByName("Tiergartentunnel underground trace");
+  if (trace instanceof LineSegments) {
+    (trace.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
   }
 }
 
@@ -383,15 +440,163 @@ export function roofRise(rect: FittedRect, totalHeight: number): number {
   return rise < totalHeight * 0.6 ? rise : 0;
 }
 
+// Ligne-claire fenestration: every opaque prism carries flat window
+// panes derived from its surveyed geometry — floors from the measured
+// LoD2 height at a 3.1 m storey pitch, bays from each wall's true
+// length. That is as close to "where the windows really are" as the
+// open data goes: the counts and rhythm are real, the exact panes are
+// drawn regularly like an architectural elevation.
+export const ISO_WINDOW_FLOOR_PITCH_M = 3.1;
+export const ISO_WINDOW_BAY_PITCH_M = 3.4;
+export const ISO_WINDOW_WIDTH_M = 1.25;
+export const ISO_WINDOW_HEIGHT_M = 1.55;
+const WINDOW_SILL_START_M = 1.05;
+const WINDOW_EAVE_CLEARANCE_M = 0.55;
+const WINDOW_MIN_WALL_M = 2.6;
+const WINDOW_MIN_BUILDING_M = 4;
+const WINDOW_FACE_OFFSET_M = 0.07;
+// Deterministic share of warm-lit windows after dark.
+const WINDOW_LIT_FRACTION = 0.38;
+const WINDOW_NIGHT_LIT_TONES = [0xffd28a, 0xffc36e, 0xf3dfa8] as const;
+const WINDOW_NIGHT_DARK_TONE = 0x18202c;
+
+/** Bay/floor grid for one wall; null when the wall carries no windows. */
+export function windowGrid(
+  wallLength: number,
+  bodyHeight: number,
+): { bays: number; floors: number; firstOffset: number } | null {
+  if (wallLength < WINDOW_MIN_WALL_M) {
+    return null;
+  }
+  const bays = Math.floor(
+    (wallLength - ISO_WINDOW_WIDTH_M - 0.9) / ISO_WINDOW_BAY_PITCH_M + 1,
+  );
+  const floors = Math.floor(
+    (bodyHeight -
+      WINDOW_SILL_START_M -
+      ISO_WINDOW_HEIGHT_M -
+      WINDOW_EAVE_CLEARANCE_M) /
+      ISO_WINDOW_FLOOR_PITCH_M + 1,
+  );
+  if (bays < 1 || floors < 1) {
+    return null;
+  }
+  return {
+    bays,
+    floors,
+    firstOffset: (wallLength - (bays - 1) * ISO_WINDOW_BAY_PITCH_M) / 2,
+  };
+}
+
+type WindowInstance = {
+  dirX: number;
+  dirZ: number;
+  lit: number;
+  nx: number;
+  nz: number;
+  px: number;
+  py: number;
+  pz: number;
+  tone: Color;
+};
+
+function hash32(seed: string, salt: number): number {
+  let hash = salt >>> 0;
+  for (const char of seed) {
+    hash = (Math.imul(hash, 31) + char.charCodeAt(0)) >>> 0;
+  }
+  return hash;
+}
+
+/**
+ * The Tiergartentunnel is real but invisible from the surface — so the
+ * drawn city marks it the way a technical drawing marks hidden edges:
+ * two dashed ink lines along the tube walls, clipped to the surveyed
+ * ground grid. The full cutaway still lives below the horizon.
+ */
+function createTunnelTrace(
+  points: readonly (readonly [number, number, number])[],
+  ground: VoxelPayload,
+): LineSegments | null {
+  const sample = groundTopSampler(ground);
+  const cell = ground.cell_m;
+  const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
+  const groundYAt = (x: number, z: number): number | null => {
+    const xOffset = x / cell - min_x_idx;
+    const zOffset = z / cell - min_z_idx;
+    if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
+      return null;
+    }
+    return sample(xOffset, zOffset);
+  };
+  const DASH_M = 7;
+  const GAP_M = 5;
+  const HALF_WIDTH_M = 10.5;
+  const positions: number[] = [];
+  let phase = 0;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const [x1, , z1] = points[index];
+    const [x2, , z2] = points[index + 1];
+    const length = Math.hypot(x2 - x1, z2 - z1);
+    if (length < 1e-6) {
+      continue;
+    }
+    const dx = (x2 - x1) / length;
+    const dz = (z2 - z1) / length;
+    for (let along = 0; along < length; along += 1) {
+      const on = phase < DASH_M;
+      phase += 1;
+      if (phase >= DASH_M + GAP_M) {
+        phase = 0;
+      }
+      if (!on) {
+        continue;
+      }
+      const step = Math.min(1, length - along);
+      for (const side of [-HALF_WIDTH_M, HALF_WIDTH_M]) {
+        const ax = x1 + dx * along - dz * side;
+        const az = z1 + dz * along + dx * side;
+        const bx = ax + dx * step;
+        const bz = az + dz * step;
+        const ya = groundYAt(ax, az);
+        const yb = groundYAt(bx, bz);
+        if (ya === null || yb === null) {
+          continue;
+        }
+        positions.push(ax, ya + 0.35, az, bx, yb + 0.35, bz);
+      }
+    }
+  }
+  if (positions.length === 0) {
+    return null;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const trace = new LineSegments(
+    geometry,
+    new LineBasicMaterial({
+      color: ISO_INK_COLOR,
+      opacity: 0.5,
+      transparent: true,
+    }),
+  );
+  trace.name = "Tiergartentunnel underground trace";
+  trace.renderOrder = 3;
+  return trace;
+}
+
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
+  tunnelPoints?: readonly (readonly [number, number, number])[] | null,
 ): Group {
   const group = new Group();
   group.name = "Drawn isometric city (LoD2 prisms + ink lines)";
 
   const bodyGeometries = [];
+  const glassGeometries = [];
   const edgeGeometries = [];
+  const windows: WindowInstance[] = [];
   const color = new Color();
   const bakeColor = (geometry: BufferGeometry, tone: Color): void => {
     const positions = geometry.getAttribute("position");
@@ -409,16 +614,20 @@ export function createIsometricCity(
     }
     const y0 = building.y0_dm / 10;
     const totalHeight = Math.max(2.5, building.h_dm / 10);
+    const isGlass =
+      (prisms.classes[building.class] ?? "concrete") === "glass" ||
+      PRISM_GLASSED_IDS.has(building.id);
     // Real roof forms from the ALKIS codes: gabled/hipped/shed roofs
     // rise from the eave as fitted flat facets; everything else keeps
-    // the exact flat cap.
+    // the exact flat cap. Glass volumes stay clean transparent boxes.
     let bodyHeight = totalHeight;
     let roofTriangles: Float32Array | null = null;
     const roofCode = building.roof ?? 0;
     if (
-      roofCode === ROOF_GABLED ||
-      roofCode === ROOF_HIPPED ||
-      roofCode === ROOF_SHED
+      !isGlass &&
+      (roofCode === ROOF_GABLED ||
+        roofCode === ROOF_HIPPED ||
+        roofCode === ROOF_SHED)
     ) {
       const ringMeters = building.ring.map(
         ([x, z]) => [x / 10, z / 10] as [number, number],
@@ -450,10 +659,71 @@ export function createIsometricCity(
     const edges = new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES);
     edgeGeometries.push(edges);
     // …then bake the flat facade tone as vertex colour so every
-    // building can share one material in one merged mesh.
+    // building can share one material in one merged mesh. Glass-class
+    // volumes go to their own transparent mesh in a cool glass family
+    // (their photo-sampled tones are muddy reflections, not paint).
+    if (isGlass) {
+      const glassShades = FACADE_SHADES.glass;
+      color.setHex(glassShades[hash32(building.id, 5) % glassShades.length]);
+      bakeColor(geometry, color);
+      glassGeometries.push(geometry);
+      continue;
+    }
     color.copy(facadeColorFor(building, prisms.classes));
     bakeColor(geometry, color);
     bodyGeometries.push(geometry);
+    // Ligne-claire windows: real floor count from the measured height,
+    // real bay rhythm from each surveyed wall, on the outer ring of
+    // every building tall enough to have storeys.
+    if (totalHeight >= WINDOW_MIN_BUILDING_M) {
+      const ring = building.ring;
+      let doubleArea = 0;
+      for (let index = 0; index < ring.length; index += 1) {
+        const [x1, z1] = ring[index];
+        const [x2, z2] = ring[(index + 1) % ring.length];
+        doubleArea += (x1 / 10) * (z2 / 10) - (x2 / 10) * (z1 / 10);
+      }
+      const windDay = color
+        .clone()
+        .multiplyScalar(0.5)
+        .lerp(new Color(0x46525e), 0.6);
+      for (let index = 0; index < ring.length; index += 1) {
+        const [x1dm, z1dm] = ring[index];
+        const [x2dm, z2dm] = ring[(index + 1) % ring.length];
+        const x1 = x1dm / 10;
+        const z1 = z1dm / 10;
+        const wallX = x2dm / 10 - x1;
+        const wallZ = z2dm / 10 - z1;
+        const length = Math.hypot(wallX, wallZ);
+        const grid = windowGrid(length, bodyHeight);
+        if (!grid) {
+          continue;
+        }
+        const dirX = wallX / length;
+        const dirZ = wallZ / length;
+        // Outward normal from the ring winding (shoelace sign).
+        const flip = doubleArea >= 0 ? 1 : -1;
+        const nx = dirZ * flip;
+        const nz = -dirX * flip;
+        for (let bay = 0; bay < grid.bays; bay += 1) {
+          const along = grid.firstOffset + bay * ISO_WINDOW_BAY_PITCH_M;
+          for (let floor = 0; floor < grid.floors; floor += 1) {
+            const sill = WINDOW_SILL_START_M + floor * ISO_WINDOW_FLOOR_PITCH_M;
+            windows.push({
+              dirX,
+              dirZ,
+              lit: hash32(building.id, index * 2801 + bay * 53 + floor) % 1000,
+              nx,
+              nz,
+              px: x1 + dirX * along + nx * WINDOW_FACE_OFFSET_M,
+              py: y0 + sill + ISO_WINDOW_HEIGHT_M / 2,
+              pz: z1 + dirZ * along + nz * WINDOW_FACE_OFFSET_M,
+              tone: windDay.clone(),
+            });
+          }
+        }
+      }
+    }
     if (roofTriangles) {
       const roofGeometry = new BufferGeometry();
       roofGeometry.setAttribute(
@@ -486,6 +756,82 @@ export function createIsometricCity(
     group.add(mesh);
     for (const geometry of bodyGeometries) {
       geometry.dispose();
+    }
+  }
+
+  const glass = mergeGeometries(glassGeometries, false);
+  if (glass) {
+    const mesh = new Mesh(
+      glass,
+      new MeshStandardMaterial({
+        flatShading: true,
+        metalness: 0,
+        opacity: 0.52,
+        roughness: 0.35,
+        transparent: true,
+        vertexColors: true,
+      }),
+    );
+    mesh.name = "LoD2 glass prisms";
+    // Transparent glass draws after the opaque city; the ink lines
+    // (renderOrder 2) still sit on top of it.
+    mesh.renderOrder = 1;
+    group.add(mesh);
+    for (const geometry of glassGeometries) {
+      geometry.dispose();
+    }
+  }
+
+  if (windows.length > 0) {
+    // DoubleSide: the wall basis (dir, up, outward) is left-handed, so
+    // the instanced plane's winding flips; culling front faces would
+    // hide every pane.
+    const pane = new InstancedMesh(
+      new PlaneGeometry(1, 1),
+      new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
+      windows.length,
+    );
+    pane.name = "LoD2 prism windows";
+    const matrix = new Matrix4();
+    const dayColors = new Float32Array(windows.length * 3);
+    const nightColors = new Float32Array(windows.length * 3);
+    const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
+    const night = new Color();
+    windows.forEach((spec, index) => {
+      matrix.set(
+        spec.dirX * ISO_WINDOW_WIDTH_M, 0, spec.nx, spec.px,
+        0, ISO_WINDOW_HEIGHT_M, 0, spec.py,
+        spec.dirZ * ISO_WINDOW_WIDTH_M, 0, spec.nz, spec.pz,
+        0, 0, 0, 1,
+      );
+      pane.setMatrixAt(index, matrix);
+      pane.setColorAt(index, spec.tone);
+      dayColors[index * 3] = spec.tone.r;
+      dayColors[index * 3 + 1] = spec.tone.g;
+      dayColors[index * 3 + 2] = spec.tone.b;
+      night.setHex(
+        spec.lit < litLimit
+          ? WINDOW_NIGHT_LIT_TONES[spec.lit % WINDOW_NIGHT_LIT_TONES.length]
+          : WINDOW_NIGHT_DARK_TONE,
+      );
+      nightColors[index * 3] = night.r;
+      nightColors[index * 3 + 1] = night.g;
+      nightColors[index * 3 + 2] = night.b;
+    });
+    pane.userData.dayColors = dayColors;
+    pane.userData.nightColors = nightColors;
+    pane.instanceMatrix.needsUpdate = true;
+    if (pane.instanceColor) {
+      pane.instanceColor.needsUpdate = true;
+    }
+    pane.frustumCulled = false;
+    group.add(pane);
+  }
+
+  if (tunnelPoints && tunnelPoints.length >= 2 && ground) {
+    const trace = createTunnelTrace(tunnelPoints, ground);
+    if (trace) {
+      group.add(trace);
     }
   }
 
