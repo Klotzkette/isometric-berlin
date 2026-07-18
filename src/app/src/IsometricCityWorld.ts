@@ -210,6 +210,12 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
+  const mullions = city.getObjectByName("LoD2 glass mullions");
+  if (mullions instanceof LineSegments) {
+    (mullions.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
 }
 
 // ALKIS roof-form codes carried in the payload. 3100 Satteldach,
@@ -460,23 +466,48 @@ const WINDOW_LIT_FRACTION = 0.38;
 const WINDOW_NIGHT_LIT_TONES = [0xffd28a, 0xffc36e, 0xf3dfa8] as const;
 const WINDOW_NIGHT_DARK_TONE = 0x18202c;
 
+// Monumental civic buildings (large surveyed footprint AND height) get
+// piano-nobile proportions instead of housing storeys: taller windows
+// on a wider floor/bay pitch, the way the Reichstag's elevation reads.
+export const CIVIC_FOOTPRINT_M2 = 2500;
+export const CIVIC_HEIGHT_M = 16;
+const CIVIC_WINDOW = { bayPitch: 4.4, floorPitch: 4.4, height: 2.6, width: 1.5 };
+const HOUSING_WINDOW = {
+  bayPitch: ISO_WINDOW_BAY_PITCH_M,
+  floorPitch: ISO_WINDOW_FLOOR_PITCH_M,
+  height: ISO_WINDOW_HEIGHT_M,
+  width: ISO_WINDOW_WIDTH_M,
+};
+type WindowFormat = typeof HOUSING_WINDOW;
+
+// One drawn entrance door per building, centred on its longest windowed
+// street wall; the ground-floor panes around it step aside.
+const DOOR_WIDTH_M = 1.15;
+const DOOR_HEIGHT_M = 2.35;
+const DOOR_MIN_WALL_M = 5;
+const DOOR_CLEARANCE_M = 1.6;
+const DOOR_DAY_TONE = 0x2f2b26;
+const DOOR_NIGHT_TONE = 0x1c232e;
+const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
+
 /** Bay/floor grid for one wall; null when the wall carries no windows. */
 export function windowGrid(
   wallLength: number,
   bodyHeight: number,
+  format: WindowFormat = HOUSING_WINDOW,
 ): { bays: number; floors: number; firstOffset: number } | null {
   if (wallLength < WINDOW_MIN_WALL_M) {
     return null;
   }
   const bays = Math.floor(
-    (wallLength - ISO_WINDOW_WIDTH_M - 0.9) / ISO_WINDOW_BAY_PITCH_M + 1,
+    (wallLength - format.width - 0.9) / format.bayPitch + 1,
   );
   const floors = Math.floor(
     (bodyHeight -
       WINDOW_SILL_START_M -
-      ISO_WINDOW_HEIGHT_M -
+      format.height -
       WINDOW_EAVE_CLEARANCE_M) /
-      ISO_WINDOW_FLOOR_PITCH_M + 1,
+      format.floorPitch + 1,
   );
   if (bays < 1 || floors < 1) {
     return null;
@@ -484,20 +515,22 @@ export function windowGrid(
   return {
     bays,
     floors,
-    firstOffset: (wallLength - (bays - 1) * ISO_WINDOW_BAY_PITCH_M) / 2,
+    firstOffset: (wallLength - (bays - 1) * format.bayPitch) / 2,
   };
 }
 
 type WindowInstance = {
   dirX: number;
   dirZ: number;
-  lit: number;
+  height: number;
+  night: Color;
   nx: number;
   nz: number;
   px: number;
   py: number;
   pz: number;
   tone: Color;
+  width: number;
 };
 
 function hash32(seed: string, salt: number): number {
@@ -506,6 +539,87 @@ function hash32(seed: string, salt: number): number {
     hash = (Math.imul(hash, 31) + char.charCodeAt(0)) >>> 0;
   }
   return hash;
+}
+
+type PrismWall = {
+  dirX: number;
+  dirZ: number;
+  index: number;
+  length: number;
+  nx: number;
+  nz: number;
+  x1: number;
+  z1: number;
+};
+
+/** Outer-ring walls in metres with outward normals (shoelace winding). */
+function wallsOf(building: PrismBuilding): PrismWall[] {
+  const ring = building.ring;
+  let doubleArea = 0;
+  for (let index = 0; index < ring.length; index += 1) {
+    const [x1, z1] = ring[index];
+    const [x2, z2] = ring[(index + 1) % ring.length];
+    doubleArea += (x1 / 10) * (z2 / 10) - (x2 / 10) * (z1 / 10);
+  }
+  const flip = doubleArea >= 0 ? 1 : -1;
+  const walls: PrismWall[] = [];
+  for (let index = 0; index < ring.length; index += 1) {
+    const [x1dm, z1dm] = ring[index];
+    const [x2dm, z2dm] = ring[(index + 1) % ring.length];
+    const x1 = x1dm / 10;
+    const z1 = z1dm / 10;
+    const wallX = x2dm / 10 - x1;
+    const wallZ = z2dm / 10 - z1;
+    const length = Math.hypot(wallX, wallZ);
+    if (length < 1e-6) {
+      continue;
+    }
+    const dirX = wallX / length;
+    const dirZ = wallZ / length;
+    walls.push({
+      dirX,
+      dirZ,
+      index,
+      length,
+      nx: dirZ * flip,
+      nz: -dirX * flip,
+      x1,
+      z1,
+    });
+  }
+  return walls;
+}
+
+/** Axis-aligned-to-`axis` box as non-indexed triangles (chimneys). */
+function boxTriangles(
+  cx: number,
+  cy: number,
+  cz: number,
+  axis: [number, number],
+  sizeAlong: number,
+  sizeUp: number,
+  sizeAcross: number,
+): Float32Array {
+  const [ax, az] = axis;
+  const nx = -az;
+  const nz = ax;
+  const corner = (u: number, y: number, v: number): [number, number, number] => [
+    cx + ax * u * sizeAlong * 0.5 + nx * v * sizeAcross * 0.5,
+    cy + y * sizeUp * 0.5,
+    cz + az * u * sizeAlong * 0.5 + nz * v * sizeAcross * 0.5,
+  ];
+  const quads: Array<[number, number, number][]> = [
+    [corner(-1, 1, -1), corner(1, 1, -1), corner(1, 1, 1), corner(-1, 1, 1)],
+    [corner(-1, -1, -1), corner(-1, 1, -1), corner(-1, 1, 1), corner(-1, -1, 1)],
+    [corner(1, -1, -1), corner(1, -1, 1), corner(1, 1, 1), corner(1, 1, -1)],
+    [corner(-1, -1, -1), corner(1, -1, -1), corner(1, 1, -1), corner(-1, 1, -1)],
+    [corner(-1, -1, 1), corner(-1, 1, 1), corner(1, 1, 1), corner(1, -1, 1)],
+  ];
+  const triangles: number[] = [];
+  for (const [a, b, c, d] of quads) {
+    triangles.push(...a, ...b, ...c, ...a, ...c, ...d);
+  }
+  return new Float32Array(triangles);
 }
 
 /**
@@ -597,6 +711,7 @@ export function createIsometricCity(
   const glassGeometries = [];
   const edgeGeometries = [];
   const windows: WindowInstance[] = [];
+  const mullionPositions: number[] = [];
   const color = new Color();
   const bakeColor = (geometry: BufferGeometry, tone: Color): void => {
     const positions = geometry.getAttribute("position");
@@ -622,6 +737,7 @@ export function createIsometricCity(
     // the exact flat cap. Glass volumes stay clean transparent boxes.
     let bodyHeight = totalHeight;
     let roofTriangles: Float32Array | null = null;
+    let roofRect: ReturnType<typeof fitRectangle> = null;
     const roofCode = building.roof ?? 0;
     if (
       !isGlass &&
@@ -644,6 +760,7 @@ export function createIsometricCity(
           );
           if (roofTriangles) {
             bodyHeight = totalHeight - rise;
+            roofRect = rect;
           }
         }
       }
@@ -667,6 +784,33 @@ export function createIsometricCity(
       color.setHex(glassShades[hash32(building.id, 5) % glassShades.length]);
       bakeColor(geometry, color);
       glassGeometries.push(geometry);
+      // Curtain-wall mullions: the transparent volume gets its drawn
+      // glazing grid — verticals on the bay pitch, horizontals on the
+      // storey pitch — as ink lines just outside each surveyed wall.
+      for (const wall of wallsOf(building)) {
+        if (wall.length < WINDOW_MIN_WALL_M || totalHeight < 5) {
+          continue;
+        }
+        const ox = wall.nx * WINDOW_FACE_OFFSET_M;
+        const oz = wall.nz * WINDOW_FACE_OFFSET_M;
+        const verticals = Math.floor(wall.length / ISO_WINDOW_BAY_PITCH_M);
+        const vStart = (wall.length - verticals * ISO_WINDOW_BAY_PITCH_M) / 2;
+        for (let step = 0; step <= verticals; step += 1) {
+          const along = vStart + step * ISO_WINDOW_BAY_PITCH_M;
+          const x = wall.x1 + wall.dirX * along + ox;
+          const z = wall.z1 + wall.dirZ * along + oz;
+          mullionPositions.push(x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z);
+        }
+        const storeys = Math.floor((totalHeight - 1) / ISO_WINDOW_FLOOR_PITCH_M);
+        for (let step = 1; step <= storeys; step += 1) {
+          const y = y0 + step * ISO_WINDOW_FLOOR_PITCH_M;
+          mullionPositions.push(
+            wall.x1 + ox, y, wall.z1 + oz,
+            wall.x1 + wall.dirX * wall.length + ox, y,
+            wall.z1 + wall.dirZ * wall.length + oz,
+          );
+        }
+      }
       continue;
     }
     color.copy(facadeColorFor(building, prisms.classes));
@@ -674,53 +818,91 @@ export function createIsometricCity(
     bodyGeometries.push(geometry);
     // Ligne-claire windows: real floor count from the measured height,
     // real bay rhythm from each surveyed wall, on the outer ring of
-    // every building tall enough to have storeys.
+    // every building tall enough to have storeys. Monumental civic
+    // footprints get piano-nobile formats; every building gets one
+    // drawn entrance door on its longest windowed wall.
     if (totalHeight >= WINDOW_MIN_BUILDING_M) {
-      const ring = building.ring;
-      let doubleArea = 0;
-      for (let index = 0; index < ring.length; index += 1) {
-        const [x1, z1] = ring[index];
-        const [x2, z2] = ring[(index + 1) % ring.length];
-        doubleArea += (x1 / 10) * (z2 / 10) - (x2 / 10) * (z1 / 10);
-      }
+      const ringMeters2 = building.ring.map(
+        ([x, z]) => [x / 10, z / 10] as [number, number],
+      );
+      const isCivic =
+        ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
+        totalHeight >= CIVIC_HEIGHT_M;
+      const format = isCivic ? CIVIC_WINDOW : HOUSING_WINDOW;
       const windDay = color
         .clone()
         .multiplyScalar(0.5)
         .lerp(new Color(0x46525e), 0.6);
-      for (let index = 0; index < ring.length; index += 1) {
-        const [x1dm, z1dm] = ring[index];
-        const [x2dm, z2dm] = ring[(index + 1) % ring.length];
-        const x1 = x1dm / 10;
-        const z1 = z1dm / 10;
-        const wallX = x2dm / 10 - x1;
-        const wallZ = z2dm / 10 - z1;
-        const length = Math.hypot(wallX, wallZ);
-        const grid = windowGrid(length, bodyHeight);
+      const nightLit = new Color();
+      const nightDark = new Color(WINDOW_NIGHT_DARK_TONE);
+      const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
+      const walls = wallsOf(building);
+      // The entrance door lives on the longest wall that carries
+      // windows and enough width to step around it.
+      let doorWall = -1;
+      let doorLength = DOOR_MIN_WALL_M;
+      for (const wall of walls) {
+        if (wall.length >= doorLength && windowGrid(wall.length, bodyHeight, format)) {
+          doorWall = wall.index;
+          doorLength = wall.length;
+        }
+      }
+      for (const wall of walls) {
+        const grid = windowGrid(wall.length, bodyHeight, format);
         if (!grid) {
           continue;
         }
-        const dirX = wallX / length;
-        const dirZ = wallZ / length;
-        // Outward normal from the ring winding (shoelace sign).
-        const flip = doubleArea >= 0 ? 1 : -1;
-        const nx = dirZ * flip;
-        const nz = -dirX * flip;
+        const hasDoor = wall.index === doorWall;
+        const doorAlong = wall.length / 2;
         for (let bay = 0; bay < grid.bays; bay += 1) {
-          const along = grid.firstOffset + bay * ISO_WINDOW_BAY_PITCH_M;
+          const along = grid.firstOffset + bay * format.bayPitch;
           for (let floor = 0; floor < grid.floors; floor += 1) {
-            const sill = WINDOW_SILL_START_M + floor * ISO_WINDOW_FLOOR_PITCH_M;
+            if (
+              hasDoor &&
+              floor === 0 &&
+              Math.abs(along - doorAlong) < DOOR_CLEARANCE_M
+            ) {
+              continue;
+            }
+            const sill = WINDOW_SILL_START_M + floor * format.floorPitch;
+            const roll = hash32(building.id, wall.index * 2801 + bay * 53 + floor) % 1000;
+            if (roll < litLimit) {
+              nightLit.setHex(
+                WINDOW_NIGHT_LIT_TONES[roll % WINDOW_NIGHT_LIT_TONES.length],
+              );
+            }
             windows.push({
-              dirX,
-              dirZ,
-              lit: hash32(building.id, index * 2801 + bay * 53 + floor) % 1000,
-              nx,
-              nz,
-              px: x1 + dirX * along + nx * WINDOW_FACE_OFFSET_M,
-              py: y0 + sill + ISO_WINDOW_HEIGHT_M / 2,
-              pz: z1 + dirZ * along + nz * WINDOW_FACE_OFFSET_M,
+              dirX: wall.dirX,
+              dirZ: wall.dirZ,
+              height: format.height,
+              night: (roll < litLimit ? nightLit : nightDark).clone(),
+              nx: wall.nx,
+              nz: wall.nz,
+              px: wall.x1 + wall.dirX * along + wall.nx * WINDOW_FACE_OFFSET_M,
+              py: y0 + sill + format.height / 2,
+              pz: wall.z1 + wall.dirZ * along + wall.nz * WINDOW_FACE_OFFSET_M,
               tone: windDay.clone(),
+              width: format.width,
             });
           }
+        }
+        if (hasDoor) {
+          const litDoor = hash32(building.id, 77) % 1000 < 200;
+          windows.push({
+            dirX: wall.dirX,
+            dirZ: wall.dirZ,
+            height: DOOR_HEIGHT_M,
+            night: new Color(litDoor ? DOOR_NIGHT_LIT_TONE : DOOR_NIGHT_TONE),
+            nx: wall.nx,
+            nz: wall.nz,
+            px:
+              wall.x1 + wall.dirX * doorAlong + wall.nx * WINDOW_FACE_OFFSET_M,
+            py: y0 + DOOR_HEIGHT_M / 2,
+            pz:
+              wall.z1 + wall.dirZ * doorAlong + wall.nz * WINDOW_FACE_OFFSET_M,
+            tone: new Color(DOOR_DAY_TONE),
+            width: DOOR_WIDTH_M,
+          });
         }
       }
     }
@@ -738,6 +920,37 @@ export function createIsometricCity(
       // drawn tiled surface.
       bakeColor(roofGeometry, color.clone().multiplyScalar(0.82));
       bodyGeometries.push(roofGeometry);
+      // Gabled houses get their chimneys back: small drawn stacks on
+      // the ridge (one, or two on long roofs), inked like everything.
+      if (roofCode === ROOF_GABLED && roofRect && roofRect.halfLength > 5) {
+        const ridgeY = y0 + totalHeight;
+        const stackOffsets =
+          roofRect.halfLength > 10 ? [-0.45, 0.45] : [0.4];
+        for (const offset of stackOffsets) {
+          const chimney = new BufferGeometry();
+          chimney.setAttribute(
+            "position",
+            new Float32BufferAttribute(
+              boxTriangles(
+                roofRect.center[0] + roofRect.axis[0] * roofRect.halfLength * offset,
+                ridgeY + 0.45,
+                roofRect.center[1] + roofRect.axis[1] * roofRect.halfLength * offset,
+                roofRect.axis,
+                0.9,
+                1.5,
+                0.9,
+              ),
+              3,
+            ),
+          );
+          chimney.computeVertexNormals();
+          edgeGeometries.push(
+            new EdgesGeometry(chimney, ISO_EDGE_THRESHOLD_DEGREES),
+          );
+          bakeColor(chimney, color.clone().multiplyScalar(0.66));
+          bodyGeometries.push(chimney);
+        }
+      }
     }
   }
 
@@ -795,13 +1008,11 @@ export function createIsometricCity(
     const matrix = new Matrix4();
     const dayColors = new Float32Array(windows.length * 3);
     const nightColors = new Float32Array(windows.length * 3);
-    const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
-    const night = new Color();
     windows.forEach((spec, index) => {
       matrix.set(
-        spec.dirX * ISO_WINDOW_WIDTH_M, 0, spec.nx, spec.px,
-        0, ISO_WINDOW_HEIGHT_M, 0, spec.py,
-        spec.dirZ * ISO_WINDOW_WIDTH_M, 0, spec.nz, spec.pz,
+        spec.dirX * spec.width, 0, spec.nx, spec.px,
+        0, spec.height, 0, spec.py,
+        spec.dirZ * spec.width, 0, spec.nz, spec.pz,
         0, 0, 0, 1,
       );
       pane.setMatrixAt(index, matrix);
@@ -809,14 +1020,9 @@ export function createIsometricCity(
       dayColors[index * 3] = spec.tone.r;
       dayColors[index * 3 + 1] = spec.tone.g;
       dayColors[index * 3 + 2] = spec.tone.b;
-      night.setHex(
-        spec.lit < litLimit
-          ? WINDOW_NIGHT_LIT_TONES[spec.lit % WINDOW_NIGHT_LIT_TONES.length]
-          : WINDOW_NIGHT_DARK_TONE,
-      );
-      nightColors[index * 3] = night.r;
-      nightColors[index * 3 + 1] = night.g;
-      nightColors[index * 3 + 2] = night.b;
+      nightColors[index * 3] = spec.night.r;
+      nightColors[index * 3 + 1] = spec.night.g;
+      nightColors[index * 3 + 2] = spec.night.b;
     });
     pane.userData.dayColors = dayColors;
     pane.userData.nightColors = nightColors;
@@ -826,6 +1032,25 @@ export function createIsometricCity(
     }
     pane.frustumCulled = false;
     group.add(pane);
+  }
+
+  if (mullionPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(mullionPositions, 3),
+    );
+    const mullions = new LineSegments(
+      geometry,
+      new LineBasicMaterial({
+        color: ISO_INK_COLOR,
+        opacity: 0.55,
+        transparent: true,
+      }),
+    );
+    mullions.name = "LoD2 glass mullions";
+    mullions.renderOrder = 2;
+    group.add(mullions);
   }
 
   if (tunnelPoints && tunnelPoints.length >= 2 && ground) {

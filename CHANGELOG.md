@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.11.0
+
+- **Curtain-wall mullions on every glass building.** The transparent
+  glass volumes (v0.10.0) now carry their drawn glazing grid: vertical
+  ink lines on the bay pitch, horizontals on the storey pitch, just
+  outside each surveyed wall. The Hauptbahnhof Bügel towers and every
+  glass-class prism quarter-wide read as gridded curtain walls instead
+  of bare glass boxes — ligne claire through and through. Moonlit ink
+  at night, like all contours.
+- **Piano-nobile windows for civic monuments.** Buildings with a
+  monumental surveyed footprint (≥ 2,500 m²) AND height (≥ 16 m) swap
+  the 3.1 m housing storey for a 4.4 m civic pitch with taller 2.6 m
+  windows — the Reichstag's elevation now reads as representative
+  architecture, not an apartment block.
+- **Every building gets its entrance.** One drawn door (1.15 × 2.35 m,
+  dark panel) per building, centred on its longest windowed wall; the
+  ground-floor panes around it step aside. After dark, a fifth of the
+  entrances keep a warm lamp on.
+- **Chimneys on the gabled roofs.** Long Satteldach ridges carry one or
+  two small drawn stacks, inked and slightly darker than the roof —
+  the skyline granularity of a real city drawing.
+
 ## v0.10.0
 
 - **Ligne-claire fenestration: 128,678 windows.** Every opaque prism

@@ -133,6 +133,48 @@ describe("ligne-claire fenestration", () => {
     }
   });
 
+  test("every sizeable building gets one drawn entrance door", () => {
+    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
+    const matrices = panes.instanceMatrix.array as Float32Array;
+    let doors = 0;
+    for (let index = 0; index < panes.count; index += 1) {
+      // Column-major element 5 is the pane's height scale; doors are
+      // the only 2.35 m panes.
+      if (Math.abs(matrices[index * 16 + 5] - 2.35) < 1e-3) {
+        doors += 1;
+      }
+    }
+    expect(doors).toBeGreaterThan(500);
+    expect(doors).toBeLessThan(payload.buildings.length);
+  });
+
+  test("civic monuments use taller piano-nobile window formats", async () => {
+    const { CIVIC_FOOTPRINT_M2, CIVIC_HEIGHT_M } = await import(
+      "../src/IsometricCityWorld"
+    );
+    expect(CIVIC_FOOTPRINT_M2).toBeGreaterThan(1000);
+    expect(CIVIC_HEIGHT_M).toBeGreaterThan(10);
+    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
+    const matrices = panes.instanceMatrix.array as Float32Array;
+    let tall = 0;
+    for (let index = 0; index < panes.count; index += 1) {
+      if (Math.abs(matrices[index * 16 + 5] - 2.6) < 1e-3) {
+        tall += 1;
+      }
+    }
+    // The Reichstag alone carries hundreds of monumental windows.
+    expect(tall).toBeGreaterThan(500);
+  });
+
+  test("transparent glass buildings carry drawn curtain-wall mullions", () => {
+    const mullions = city.getObjectByName("LoD2 glass mullions");
+    expect(mullions).toBeInstanceOf(LineSegments);
+    const positions = (mullions as LineSegments).geometry.getAttribute(
+      "position",
+    );
+    expect(positions.count).toBeGreaterThan(1000);
+  });
+
   test("the Tiergartentunnel leaves a dashed trace when ground is present", async () => {
     const voxelPayload = (await import(
       "../public/mesh/regierungsviertel/minecraft-voxels.json"
