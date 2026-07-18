@@ -231,10 +231,13 @@ function addMirrorConePanels(group: Group): void {
   const sectors = 24;
   const rows = 15;
   const panelGeometry = new PlaneGeometry(1, 1);
+  // Drawn silver, not physical metal: high metalness without an
+  // environment map renders nearly black in three.js, which made the
+  // mirror cone read as a dark shaft instead of the silvery funnel.
   const panelMaterial = new MeshPhysicalMaterial({
-    color: 0xe4ecee,
-    metalness: 0.94,
-    roughness: 0.06,
+    color: 0xe8eef0,
+    metalness: 0.22,
+    roughness: 0.42,
     side: DoubleSide,
   });
   panelMaterial.userData.nightEmissive = 0xffd99a;
@@ -406,10 +409,12 @@ export function createOfficialReichstagDome(
 
   const mirrorCone = new Mesh(
     new CylinderGeometry(7.8, 2.4, 18, 48, 1, true),
+    // Drawn silver (see addMirrorConePanels): low metalness so the cone
+    // shades as a bright silvery funnel under the scene lights.
     new MeshPhysicalMaterial({
-      color: 0xdde7ea,
-      metalness: 0.92,
-      roughness: 0.08,
+      color: 0xe2eaec,
+      metalness: 0.2,
+      roughness: 0.4,
       side: DoubleSide,
     }),
   );

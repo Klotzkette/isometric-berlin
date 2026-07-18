@@ -32,6 +32,8 @@ export type PrismBuilding = {
   id: string;
   ring: number[][];
   roof?: number;
+  /** Sampled real median colour of this building (0-255 RGB). */
+  tone?: [number, number, number];
   y0_dm: number;
 };
 
@@ -49,12 +51,37 @@ export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
 export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 
 // Hand-pinned facade tones for hero prisms (payload building ids, last 8
-// chars of the LoD2 id). The Reichstag must read as warm sandstone, not
-// generic concrete cream — matching the curated anchor in
-// drawnBuildings.HERO_FACADE_ANCHORS.
+// chars of the LoD2 id), matching the owner's colour direction: the
+// Reichstag reads as its real darker grey sandstone (not warm yellow),
+// the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
-  K0002MCN: 0xd6c8aa,
+  K0002MCN: 0x9c968a,
+  MLwG4KW9: 0xdadad6,
 };
+
+/**
+ * Clean a sampled real building colour into a flat illustration paint
+ * tone: mild desaturation kills photo chroma noise, the lightness is
+ * clamped to a readable band (dark grey stays possible — the Reichstag
+ * is grey — but never black) and quantised onto six shared paint levels
+ * so neighbouring buildings cohere as one drawing.
+ */
+export function cleanedTone(tone: [number, number, number]): Color {
+  const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+  let r = tone[0] / 255;
+  let g = tone[1] / 255;
+  let b = tone[2] / 255;
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const DESATURATION = 0.25;
+  r += (luma - r) * DESATURATION;
+  g += (luma - g) * DESATURATION;
+  b += (luma - b) * DESATURATION;
+  const clamped = Math.min(0.88, Math.max(0.34, luma));
+  const bands = 6;
+  const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
+  const scale = quantised / Math.max(luma, 1e-3);
+  return new Color(clamp01(r * scale), clamp01(g * scale), clamp01(b * scale));
+}
 
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
@@ -79,6 +106,12 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
     return new Color(pinned);
+  }
+  // Each building carries its sampled real colour ("den jeweiligen
+  // Gebäudetyp angleichen"); the shared class shades are only the
+  // fallback for footprints without a valid sample.
+  if (building.tone) {
+    return cleanedTone(building.tone);
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;

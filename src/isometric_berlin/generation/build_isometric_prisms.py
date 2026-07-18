@@ -9,6 +9,8 @@ committed additive-fusion artefacts only:
 - LoD2 footprints + measured heights from ``buildings.gpkg`` (dl-de/zero-2-0)
 - Ground elevation interpolated from the committed tree and street-light
   samples in ``park-details.json`` (Geoportal Berlin, dl-de/zero-2-0)
+- Per-prism real colour ``tone`` sampled from the committed drawn overview
+  raster ``overview_source.png`` (Step 8 render of the same open-data stack)
 
 Scene mapping (verified against ``scene.json`` ``origin_epsg25833``):
 ``world_x = easting − 389500``, ``world_z = 5820000 − northing``,
@@ -19,14 +21,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
 import numpy as np
+import shapely
+from PIL import Image
 from shapely.geometry import LinearRing, Polygon
 from shapely.geometry.polygon import orient
 
+from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.build_minecraft_voxels import (
   ATTRIBUTION,
   CELL_M,
@@ -37,14 +43,41 @@ from isometric_berlin.generation.build_minecraft_voxels import (
   GLASS_FUNCTIONS,
   MAX_PAYLOAD_BYTES,
   MESH_PUBLIC_DIR,
+  ORIGIN_EASTING,
+  ORIGIN_NORTHING,
+  REPO_ROOT,
   GroundSampler,
   compute_grid,
   load_bounds_world,
   to_world,
   verify_scene_origin,
 )
+from isometric_berlin.generation.render_quadrants import project_point
 
 DEFAULT_OUT = MESH_PUBLIC_DIR / "lod2-prisms.json"
+DEFAULT_OVERVIEW = (
+  REPO_ROOT / "src/app/public/dzi/regierungsviertel/overview_source.png"
+)
+
+# Projection of the render that produced the COMMITTED overview_source.png and
+# landmarks.json: render_overview geometry (project_point on a rectangular
+# 16384×11616 canvas with a 32768 px detail budget) with a 440 m bounds margin.
+# The 440 m margin is not today's CLI default (220 m) but is what the committed
+# artefacts were rendered with — pinned by re-projecting committed
+# landmarks.json records to 0 px agreement (see tests).
+OVERVIEW_RENDER_PX = 32_768
+OVERVIEW_CANVAS_WIDTH = 16_384
+OVERVIEW_CANVAS_HEIGHT = 11_616
+OVERVIEW_MARGIN_M = 440.0
+# landmarks.json markers were projected at 18 m elevation (landmark_records).
+OVERVIEW_LANDMARK_HEIGHT_M = 18.0
+
+# Tone sampling: interior grid roughly every 3 m, refined for small parts so at
+# least 5 points land inside, capped for the Tiergarten-scale footprints.
+TONE_SAMPLE_STEP_M = 3.0
+TONE_MIN_STEP_M = 0.375
+TONE_MIN_SAMPLES = 5
+TONE_MAX_SAMPLES = 200
 
 # Simplification kills collinear vertex noise from the CityGML footprints but
 # preserves real corners (Douglas-Peucker with topology preservation).
@@ -98,8 +131,123 @@ def simplify_part(part: Polygon) -> Polygon | None:
   return orient(simplified)
 
 
+def overview_projection(bounds_path: Path) -> dict[str, float]:
+  """Centre and px/m scale of the committed overview render.
+
+  Reproduces ``render_overview``/``render_quadrant`` exactly: the quad is
+  centred on the projected EPSG:25833 bounds and
+  ``scale = render_px / ((span_x + span_y) * 0.7)`` with the margin added to
+  every side.
+  """
+  bounds = project_geometry(load_bounds_polygon(bounds_path))
+  minx, miny, maxx, maxy = bounds.bounds
+  span_x = maxx - minx + OVERVIEW_MARGIN_M * 2
+  span_y = maxy - miny + OVERVIEW_MARGIN_M * 2
+  return {
+    "center_x": (minx + maxx) / 2,
+    "center_y": (miny + maxy) / 2,
+    "scale": OVERVIEW_RENDER_PX / ((span_x + span_y) * 0.7),
+  }
+
+
+def overview_canvas_px(
+  world_x: float,
+  world_z: float,
+  projection: dict[str, float],
+  *,
+  height_m: float = 0.0,
+) -> tuple[int, int]:
+  """Scene world (x, z) → pixel on the 16384×11616 overview canvas.
+
+  Delegates to the EXACT ``project_point`` the overview render used. The
+  overview draws every building's ground ring at elevation 0
+  (``draw_building`` projects the base at ``z=0``), so footprint tones are
+  sampled with the default ``height_m=0``.
+  """
+  return project_point(
+    world_x + ORIGIN_EASTING,
+    ORIGIN_NORTHING - world_z,
+    z=height_m,
+    center_x=projection["center_x"],
+    center_y=projection["center_y"],
+    scale=projection["scale"],
+    width=OVERVIEW_CANVAS_WIDTH,
+    height=OVERVIEW_CANVAS_HEIGHT,
+  )
+
+
+def footprint_sample_points(polygon: Polygon) -> np.ndarray:
+  """Deterministic interior sample grid for one footprint part.
+
+  The grid is anchored at world multiples of the step (not at the float
+  polygon bounds), so reruns are byte-identical. The step halves from 3 m
+  down to 0.375 m until at least ``TONE_MIN_SAMPLES`` points fall inside the
+  part (courtyard holes excluded); tiny slivers fall back to the
+  representative point. Large footprints are thinned to
+  ``TONE_MAX_SAMPLES`` by even index selection.
+  """
+  minx, minz, maxx, maxz = polygon.bounds
+  points = np.empty((0, 2))
+  step = TONE_SAMPLE_STEP_M
+  while step >= TONE_MIN_STEP_M:
+    xs = np.arange(math.ceil(minx / step), math.floor(maxx / step) + 1) * step
+    zs = np.arange(math.ceil(minz / step), math.floor(maxz / step) + 1) * step
+    if xs.size and zs.size:
+      grid_x, grid_z = np.meshgrid(xs, zs)
+      candidates = np.column_stack([grid_x.ravel(), grid_z.ravel()])
+      inside = shapely.contains_xy(polygon, candidates[:, 0], candidates[:, 1])
+      points = candidates[inside]
+      if len(points) >= TONE_MIN_SAMPLES:
+        break
+    step /= 2
+  if len(points) == 0:
+    anchor = polygon.representative_point()
+    points = np.asarray([[anchor.x, anchor.y]])
+  if len(points) > TONE_MAX_SAMPLES:
+    keep = np.linspace(0, len(points) - 1, TONE_MAX_SAMPLES).round().astype(int)
+    points = points[np.unique(keep)]
+  return points
+
+
+class OverviewToneSampler:
+  """Median RGB tone under each prism footprint in the committed overview.
+
+  Footprint-interior points projected at ground level land inside the
+  building's own drawn silhouette: prisms taller than the isometric wall
+  band show their facade there, flat structures their drawn roof. The
+  per-channel MEDIAN is robust against outline, window and shadow pixels —
+  the same rationale as the viewer's ``drawnBuildings.medianColorFromPixels``.
+  """
+
+  def __init__(self, overview_path: Path, bounds_path: Path) -> None:
+    image = Image.open(overview_path).convert("RGB")
+    self.pixels = np.asarray(image)
+    self.projection = overview_projection(bounds_path)
+    # The committed overview_source.png is the LANCZOS fit_preview of the
+    # full canvas (6144 px wide), so canvas pixels scale down uniformly.
+    self.ratio_x = image.width / OVERVIEW_CANVAS_WIDTH
+    self.ratio_y = image.height / OVERVIEW_CANVAS_HEIGHT
+
+  def tone(self, polygon: Polygon) -> list[int] | None:
+    """Per-channel median [r, g, b] or ``None`` when off-canvas."""
+    samples = []
+    for world_x, world_z in footprint_sample_points(polygon):
+      px, py = overview_canvas_px(world_x, world_z, self.projection)
+      if not (0 <= px < OVERVIEW_CANVAS_WIDTH and 0 <= py < OVERVIEW_CANVAS_HEIGHT):
+        continue
+      row = min(int(py * self.ratio_y), self.pixels.shape[0] - 1)
+      col = min(int(px * self.ratio_x), self.pixels.shape[1] - 1)
+      samples.append(self.pixels[row, col])
+    if not samples:
+      return None
+    median = np.median(np.asarray(samples, dtype=np.int64), axis=0)
+    return [int(round(float(channel))) for channel in median]
+
+
 def build_prisms(
-  buildings_path: Path, sampler: GroundSampler
+  buildings_path: Path,
+  sampler: GroundSampler,
+  tone_sampler: OverviewToneSampler | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
   """One prism entry per LoD2 footprint polygon part, plus drop statistics."""
   buildings = gpd.read_file(buildings_path, layer="buildings")
@@ -109,6 +257,7 @@ def build_prisms(
     "parts": 0,
     "dropped_parts": 0,
     "dropped_flat_rows": 0,
+    "toned_parts": 0,
   }
   for row in buildings.itertuples(index=False):
     height_m = float(row.measured_height_m or 0.0)
@@ -129,18 +278,22 @@ def build_prisms(
         continue
       holes = [quantise_ring(interior) for interior in simplified.interiors]
       centroid = simplified.centroid
-      entries.append(
-        {
-          "id": short_id,
-          "ring": ring,
-          "holes": [hole for hole in holes if hole is not None],
-          "y0_dm": 0,  # filled from the batch IDW sample below
-          "h_dm": h_dm,
-          "class": class_id,
-          "roof": roof,
-          "_centroid": (centroid.x, centroid.y),
-        }
-      )
+      entry: dict[str, Any] = {
+        "id": short_id,
+        "ring": ring,
+        "holes": [hole for hole in holes if hole is not None],
+        "y0_dm": 0,  # filled from the batch IDW sample below
+        "h_dm": h_dm,
+        "class": class_id,
+        "roof": roof,
+        "_centroid": (centroid.x, centroid.y),
+      }
+      if tone_sampler is not None:
+        tone = tone_sampler.tone(simplified)
+        if tone is not None:
+          entry["tone"] = tone
+          stats["toned_parts"] += 1
+      entries.append(entry)
   if entries:
     xs = np.asarray([entry["_centroid"][0] for entry in entries])
     zs = np.asarray([entry["_centroid"][1] for entry in entries])
@@ -170,11 +323,13 @@ def build_payload(
   buildings_path: Path,
   park_details_path: Path,
   scene_path: Path,
+  overview_path: Path = DEFAULT_OVERVIEW,
 ) -> tuple[dict[str, Any], dict[str, int]]:
   """Assemble the payload plus build statistics (stats are not shipped)."""
   verify_scene_origin(scene_path)
   sampler = GroundSampler.from_park_details(park_details_path)
-  entries, stats = build_prisms(buildings_path, sampler)
+  tone_sampler = OverviewToneSampler(overview_path, bounds_path)
+  entries, stats = build_prisms(buildings_path, sampler, tone_sampler)
   grid = compute_grid(load_bounds_world(bounds_path))
   verify_within_grid(entries, grid)
   payload = {
@@ -186,6 +341,11 @@ def build_payload(
       "mapping": "world_x = easting - 389500; world_z = 5820000 - northing; world_y = metres",
       "ring": "ring vertices are scene (x, z) pairs in decimetres; closing vertex omitted",
       "height_unit": "decimetres",
+      "tone": (
+        "optional per-prism [r, g, b] 0-255: per-channel median of the drawn "
+        "overview raster under the ground footprint; absent when no valid "
+        "raster sample exists (viewer falls back to class shades)"
+      ),
     },
     "source": {
       "name": "Berlin LoD2 building prisms (drawn-isometric mode)",
@@ -198,6 +358,11 @@ def build_payload(
         "True LoD2 footprint polygons simplified at 0.15 m to remove collinear "
         "noise; measured heights unsnapped; ground from IDW over committed "
         "detail samples"
+      ),
+      "tone_source": (
+        "Per-prism 'tone' sampled from the committed drawn overview "
+        "(overview_source.png, Step 8 render of the LoD2/OSM/Wikimedia-cue "
+        "stack) at the z=0 ground footprint via the exact overview projection"
       ),
     },
     "classes": CLASSES,
@@ -224,11 +389,12 @@ def main(argv: list[str] | None = None) -> None:
   parser.add_argument("--buildings", type=Path, default=DEFAULT_BUILDINGS)
   parser.add_argument("--park-details", type=Path, default=DEFAULT_PARK_DETAILS)
   parser.add_argument("--scene", type=Path, default=DEFAULT_SCENE)
+  parser.add_argument("--overview", type=Path, default=DEFAULT_OVERVIEW)
   parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
   args = parser.parse_args(argv)
 
   payload, stats = build_payload(
-    args.bounds, args.buildings, args.park_details, args.scene
+    args.bounds, args.buildings, args.park_details, args.scene, args.overview
   )
   size = write_payload(payload, args.out)
 
@@ -242,6 +408,10 @@ def main(argv: list[str] | None = None) -> None:
     f"{stats['dropped_flat_rows']} flat (<0.05 m) rows dropped"
   )
   print(f"{len(with_holes)} prisms carry {hole_count} courtyard holes")
+  print(
+    f"{stats['toned_parts']}/{len(entries)} prisms carry a sampled real-colour "
+    f"tone ({stats['toned_parts'] / max(1, len(entries)):.1%})"
+  )
 
 
 if __name__ == "__main__":

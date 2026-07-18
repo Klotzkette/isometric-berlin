@@ -6,16 +6,33 @@ import json
 from pathlib import Path
 
 import pytest
-from shapely.geometry import LinearRing
+from shapely.geometry import LinearRing, Point, Polygon
 
 from isometric_berlin.generation.build_isometric_prisms import (
   CLASSES,
   MIN_RING_POINTS,
+  OVERVIEW_LANDMARK_HEIGHT_M,
+  TONE_MAX_SAMPLES,
+  TONE_MIN_SAMPLES,
+  footprint_sample_points,
+  overview_canvas_px,
+  overview_projection,
   quantise_ring,
 )
 
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/lod2-prisms.json")
 VOXELS = Path("src/app/public/mesh/regierungsviertel/minecraft-voxels.json")
+BOUNDS = Path("geo_data/regierungsviertel/bounds.geojson")
+LANDMARKS_GEOJSON = Path("geo_data/regierungsviertel/landmarks.geojson")
+LANDMARKS_JSON = Path("src/app/public/dzi/regierungsviertel/landmarks.json")
+
+# LoD2 building id of the Reichstag main body (verified: single prism carrying
+# the courtyard holes, 28.1 m measured height).
+REICHSTAG_ID = "K0002MCN"
+# The Bundeskanzleramt Leadership Building cube: the one LoD2 prism containing
+# this scene world (x, z) point (id MLwG4KW9, 39.9 m measured height).
+KANZLERAMT_WORLD_XZ = (-153.9, -145.8)
+KANZLERAMT_ID = "MLwG4KW9"
 
 # Reichstag LoD2 footprint in world/scene coordinates (verified against the
 # scene.json landmark at world [315.0, 8.0, 39.8]): x 266.5..367.5,
@@ -108,6 +125,83 @@ def test_palette_split_matches_voxel_mode(payload: dict) -> None:
   concrete = sum(1 for b in payload["buildings"] if b["class"] == 0)
   glass = sum(1 for b in payload["buildings"] if b["class"] == 1)
   assert concrete > glass > 10
+
+
+def entry_polygon(building: dict) -> Polygon:
+  """Rebuild the world-metre footprint polygon from payload decimetres."""
+  return Polygon(
+    [(x_dm / 10.0, z_dm / 10.0) for x_dm, z_dm in building["ring"]],
+    [[(x_dm / 10.0, z_dm / 10.0) for x_dm, z_dm in hole] for hole in building["holes"]],
+  )
+
+
+def tone_luma(tone: list[int]) -> float:
+  return tone[0] * 0.2126 + tone[1] * 0.7152 + tone[2] * 0.0722
+
+
+def test_overview_projection_matches_committed_landmarks() -> None:
+  """The tone-sampling transform IS the transform of the committed overview.
+
+  Re-project known landmark world positions with the module's projection and
+  compare against the committed landmarks.json canvas pixels (which
+  landmark_records wrote at 18 m elevation).
+  """
+  gpd = pytest.importorskip("geopandas")
+  projection = overview_projection(BOUNDS)
+  committed = {
+    record["name"]: record
+    for record in json.loads(LANDMARKS_JSON.read_text(encoding="utf-8"))["landmarks"]
+  }
+  landmarks = gpd.read_file(LANDMARKS_GEOJSON).to_crs("EPSG:25833")
+  for name in ("Reichstagsgebäude", "Bundeskanzleramt", "Berlin Hauptbahnhof"):
+    row = landmarks[landmarks["name"] == name].iloc[0]
+    px, py = overview_canvas_px(
+      row.geometry.x - 389500.0,
+      5820000.0 - row.geometry.y,
+      projection,
+      height_m=OVERVIEW_LANDMARK_HEIGHT_M,
+    )
+    record = committed[name]
+    assert abs(px - record["x"]) <= 3, f"{name} x: {px} vs {record['x']}"
+    assert abs(py - record["y"]) <= 3, f"{name} y: {py} vs {record['y']}"
+
+
+def test_most_prisms_carry_a_real_colour_tone(payload: dict) -> None:
+  buildings = payload["buildings"]
+  toned = [b for b in buildings if "tone" in b]
+  assert len(toned) > 0.8 * len(buildings)
+  for building in toned:
+    tone = building["tone"]
+    assert len(tone) == 3
+    assert all(isinstance(channel, int) and 0 <= channel <= 255 for channel in tone)
+
+
+def test_reichstag_tone_is_greyish(payload: dict) -> None:
+  entries = [b for b in payload["buildings"] if b["id"] == REICHSTAG_ID]
+  assert entries, "Reichstag main body must ship"
+  tone = max(entries, key=lambda b: b["h_dm"])["tone"]
+  assert max(tone) - min(tone) < 60, f"channel spread too wide for grey: {tone}"
+  assert 60 < tone_luma(tone) < 190, f"luma outside grey band: {tone}"
+  assert tone[0] - tone[2] < 40, f"tone reads warm yellow, not stone grey: {tone}"
+
+
+def test_kanzleramt_tone_is_light(payload: dict) -> None:
+  target = Point(*KANZLERAMT_WORLD_XZ)
+  hits = [b for b in payload["buildings"] if entry_polygon(b).contains(target)]
+  assert [b["id"] for b in hits] == [KANZLERAMT_ID]
+  tone = hits[0]["tone"]
+  assert tone_luma(tone) > 140, f"Kanzleramt must read light: {tone}"
+
+
+def test_footprint_sample_points_refine_and_cap() -> None:
+  tiny = Polygon([(0.0, 0.0), (2.0, 0.0), (2.0, 1.0), (0.0, 1.0)])  # 2 m² sliver
+  tiny_points = footprint_sample_points(tiny)
+  assert len(tiny_points) >= TONE_MIN_SAMPLES
+  large = Polygon([(0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0)])
+  large_points = footprint_sample_points(large)
+  assert len(large_points) <= TONE_MAX_SAMPLES
+  # Deterministic: same polygon, same grid.
+  assert (footprint_sample_points(large) == large_points).all()
 
 
 def test_quantise_ring_drops_closing_vertex_and_duplicates() -> None:

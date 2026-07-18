@@ -229,14 +229,29 @@ How it is built (deterministic, shares the Step 8b machinery):
   committed LoD2 rows are genuine small ALKIS `51009_1750` wall/bollard
   structures around the government buildings that the voxel mode also
   renders; a 4 m² cut would silently drop 70 % of the additive LoD2 source.
+- **Real colour tones.** Each prism carries an optional `tone` `[r, g, b]`:
+  the per-channel median of the committed drawn overview raster
+  (`overview_source.png`) under its footprint, so the Kanzleramt reads light
+  and the Reichstag stone-grey instead of one shared cream palette. The
+  builder reproduces the exact projection of the committed overview
+  (`project_point`, 16384×11616 canvas, 32768 px budget, 440 m margin —
+  pinned by re-projecting committed `landmarks.json` records in the tests)
+  and samples a deterministic interior grid (~3 m spacing, refined to ≥5
+  points for small parts, capped at 200) at ground elevation, where the
+  overview draws each building's own facade band (roof for flat parts). The
+  median is robust against outline/window/shadow pixels — the same rationale
+  as the viewer's `drawnBuildings.medianColorFromPixels`. Parts without a
+  valid raster sample omit `tone` and fall back to the class shades.
 
-The committed `lod2-prisms.json` is ~0.45 MiB (hard test budget 5 MB) and
+The committed `lod2-prisms.json` is ~0.51 MiB (hard test budget 5 MB) and
 carries 3,254 prisms (61 sliver parts and 3 flat rows dropped), 19 of them
-with 30 courtyard holes. The payload embeds the mandatory OSM + Geoportal
-Berlin attribution and per-source licences;
+with 30 courtyard holes and 100 % with a sampled `tone`. The payload embeds
+the mandatory OSM + Geoportal Berlin attribution and per-source licences;
 `tests/test_build_isometric_prisms.py` guards size, ring validity against
-the voxel grid bounds, the palette split, true (unsnapped) heights and the
-28 m Reichstag prism including its courtyards.
+the voxel grid bounds, the palette split, true (unsnapped) heights, the
+28 m Reichstag prism including its courtyards, the overview projection
+against committed landmarks, tone coverage and the grey/light Reichstag and
+Kanzleramt tones.
 
 ## Step 10: DZI export and dual viewer
 

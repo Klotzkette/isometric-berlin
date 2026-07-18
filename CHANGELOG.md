@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.8.1
+
+- **Every building carries its real colour.** The prism payload now
+  samples a per-building median tone from the committed overview render
+  (projection fitted and pinned against the committed landmarks.json at
+  ≤3 px, 42/43 landmarks at ±0.5 px): 3,254/3,254 prisms carry a tone,
+  642 distinct tones across the quarter. The viewer cleans each sample
+  into flat illustration paint — mild desaturation, lightness clamped
+  to a readable band (dark grey stays possible, black never) and
+  quantised onto six shared paint levels — so the city keeps its drawn
+  coherence while every building matches its type: greys stay grey,
+  brick stays brick, white stays white. The former few-cream-tones
+  palette remains only as fallback for unsampled footprints.
+- **Hero pins per the owner's colour direction:** the Reichstag prism
+  is its real darker grey sandstone (0x9c968a) instead of warm yellow;
+  the Chancellery (id MLwG4KW9) is pinned light grey (0xdadad6).
+- **The dome is silvery now.** The mirror cone and its 360 panels used
+  metalness 0.92–0.94 — highly metallic materials without an
+  environment map render nearly black in three.js, which is why the
+  funnel read as a dark shaft. Rebuilt as drawn silver (low metalness,
+  mid roughness, bright silver tones), the cone shades as the bright
+  silvery funnel it is.
+
 ## v0.8.0
 
 - **Night mode follows the drawn isometry.** The LoD2 prism city now

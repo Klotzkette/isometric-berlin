@@ -51,3 +51,37 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(bounds.max.y).toBeLessThan(200);
   });
 });
+
+describe("real-colour facade tones", () => {
+  test("cleanedTone keeps grey grey and clamps lightness to paint bands", async () => {
+    const { cleanedTone, HERO_PRISM_TONES } = await import(
+      "../src/IsometricCityWorld"
+    );
+    // A dark grey sample stays a readable dark grey (never black, never warm).
+    const grey = cleanedTone([92, 90, 86]);
+    expect(grey.r).toBeGreaterThan(0.2);
+    expect(Math.abs(grey.r - grey.b)).toBeLessThan(0.06);
+    // A blown-out white sample is capped below pure white.
+    const bright = cleanedTone([250, 250, 250]);
+    expect(bright.r).toBeLessThanOrEqual(0.9);
+    // The Reichstag pin is the darker grey the owner asked for, not warm.
+    const reichstag = HERO_PRISM_TONES.K0002MCN;
+    const r = (reichstag >> 16) & 255;
+    const b = reichstag & 255;
+    expect(r - b).toBeLessThan(40);
+    expect(r).toBeLessThan(180);
+  });
+});
+
+describe("hero prism pins", () => {
+  test("the Chancellery is pinned light grey, per the owner's direction", async () => {
+    const { HERO_PRISM_TONES } = await import("../src/IsometricCityWorld");
+    const chancellery = HERO_PRISM_TONES.MLwG4KW9;
+    const r = (chancellery >> 16) & 255;
+    const g = (chancellery >> 8) & 255;
+    const b = chancellery & 255;
+    // Light (luma high) and neutral (channels close together).
+    expect((r + g + b) / 3).toBeGreaterThan(190);
+    expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThan(12);
+  });
+});
