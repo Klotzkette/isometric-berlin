@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.8.2
+
+- **The Brandenburg Gate is a gate again.** In the drawn city its LoD2
+  prism rendered as a solid dark box that buried the complete
+  recognition model — twelve columns, five passages, attic — with only
+  the Quadriga poking out. Buildings whose recognition model draws the
+  COMPLETE structure now suppress their prism
+  (`PRISM_SUPPRESSED_IDS`); the gate model carries the building alone,
+  its side-pavilion prisms stay. A geometry test asserts no prism
+  vertices remain above pavilion height inside the gate footprint.
+- **Underside cutaway restored in the drawn worlds.** Below the
+  horizon both the prism city and the voxel world hide — which left
+  the Tiergartentunnel floating in a void. The faded photogrammetry
+  shell (the designed cutaway context) now returns whenever the camera
+  goes underside.
+- Visual QA sweep across the heroes in the drawn city: Hauptbahnhof
+  (glass barrel over prism body) and the Swiss Embassy (recognition
+  windows/roof over its prism) verified healthy; screenshots in the
+  session log.
+
 ## v0.8.1
 
 - **Every building carries its real colour.** The prism payload now

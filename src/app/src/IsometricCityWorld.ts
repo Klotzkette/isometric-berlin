@@ -59,6 +59,16 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   MLwG4KW9: 0xdadad6,
 };
 
+// Buildings whose recognition model draws the COMPLETE structure. Their
+// LoD2 prism would swallow the model (the Brandenburg Gate rendered as a
+// solid box burying its twelve columns), so these prisms are skipped and
+// the model carries the building alone.
+export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Brandenburger Tor main body — the gate model has columns, passages,
+  // attic and Quadriga; side pavilion prisms stay.
+  "K0001xqy",
+]);
+
 /**
  * Clean a sampled real building colour into a flat illustration paint
  * tone: mild desaturation kills photo chroma noise, the lightness is
@@ -184,7 +194,7 @@ export function createIsometricCity(
   const edgeGeometries = [];
   const color = new Color();
   for (const building of prisms.buildings) {
-    if (building.ring.length < 3) {
+    if (building.ring.length < 3 || PRISM_SUPPRESSED_IDS.has(building.id)) {
       continue;
     }
     const geometry = new ExtrudeGeometry(shapeFromRings(building), {

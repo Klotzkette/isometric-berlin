@@ -85,3 +85,46 @@ describe("hero prism pins", () => {
     expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThan(12);
   });
 });
+
+describe("prism suppression for full recognition models", () => {
+  test("the Brandenburg Gate body prism is skipped (model carries it)", async () => {
+    const { PRISM_SUPPRESSED_IDS, createIsometricCity } = await import(
+      "../src/IsometricCityWorld"
+    );
+    const { Matrix4, Mesh, Vector3 } = await import("three");
+    const payloadModule = await import(
+      "../public/mesh/regierungsviertel/lod2-prisms.json"
+    );
+    const data = payloadModule.default as never as {
+      buildings: Array<{ id: string; ring: number[][] }>;
+      classes: string[];
+      schema_version: number;
+    };
+    expect(PRISM_SUPPRESSED_IDS.has("K0001xqy")).toBe(true);
+    // The suppressed building exists in the payload (data untouched)…
+    expect(data.buildings.some((b) => b.id === "K0001xqy")).toBe(true);
+    // …but produces no geometry at the gate anchor above pavilion height.
+    const city = createIsometricCity(data as never, null);
+    const bodies = city.getObjectByName("LoD2 prism buildings") as InstanceType<
+      typeof Mesh
+    >;
+    const position = bodies.geometry.getAttribute("position");
+    const matrix = new Matrix4();
+    void matrix;
+    const vertex = new Vector3();
+    let tallGateVertices = 0;
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        vertex.x > 407 &&
+        vertex.x < 429 &&
+        vertex.z > 290 &&
+        vertex.z < 312 &&
+        vertex.y > 18
+      ) {
+        tallGateVertices += 1;
+      }
+    }
+    expect(tallGateVertices).toBe(0);
+  });
+});

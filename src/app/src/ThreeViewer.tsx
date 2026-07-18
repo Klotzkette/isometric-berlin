@@ -276,8 +276,14 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
     interacting,
   });
   // The voxel block world (Minecraft) and the drawn isometric city
-  // (Day) each fully replace the photogrammetry surfaces.
-  const replaced = voxelModeActive(runtime) || isoModeActive(runtime);
+  // (Day/Night) each fully replace the photogrammetry surfaces — except
+  // from the underside, where the faded photo shell is the designed
+  // cutaway context around the Tiergartentunnel (both drawn worlds hide
+  // below the horizon, which otherwise left the tunnel floating in a
+  // void).
+  const replaced =
+    (voxelModeActive(runtime) || isoModeActive(runtime)) &&
+    !runtime.underside;
   runtime.interactionSurface.visible = !settled && !replaced;
   runtime.settledSurface.visible = settled && !replaced;
   setParkSettledDetail(runtime.parkDetails, settled);
