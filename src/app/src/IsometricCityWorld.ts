@@ -23,6 +23,7 @@ import {
   type VoxelPayload,
   createGroundSlabs,
   groundTopSampler,
+  worldGroundSampler,
 } from "./MinecraftVoxelWorld";
 
 /**
@@ -231,6 +232,18 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const kerbs = city.getObjectByName("drawn kerb lines");
   if (kerbs instanceof LineSegments) {
     (kerbs.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const monumentInk = city.getObjectByName("monument ink lines");
+  if (monumentInk instanceof LineSegments) {
+    (monumentInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const portalInk = city.getObjectByName("tunnel portal ink lines");
+  if (portalInk instanceof LineSegments) {
+    (portalInk.material as LineBasicMaterial).color.setHex(
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
@@ -806,6 +819,163 @@ function createKerbLines(ground: VoxelPayload): LineSegments | null {
   return kerbs;
 }
 
+/**
+ * The Tiergartentunnel's two portals ("dessen Eingänge"): open ramp
+ * trenches where the B96 surfaces at both ends of the engineered
+ * centreline — sloped deck, retaining walls, portal frame and the dark
+ * tube mouth, all drawn and inked like the rest of the city.
+ */
+function createTunnelPortals(
+  points: readonly (readonly [number, number, number])[],
+  ground: VoxelPayload,
+): Group | null {
+  const sample = worldGroundSampler(ground);
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const paint = new Color();
+  const pushTriangle = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c: [number, number, number],
+    tone: number,
+  ): void => {
+    paint.setHex(tone);
+    positions.push(...a, ...b, ...c);
+    for (let index = 0; index < 3; index += 1) {
+      colors.push(paint.r, paint.g, paint.b);
+    }
+  };
+  const pushQuad = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c: [number, number, number],
+    d: [number, number, number],
+    tone: number,
+  ): void => {
+    pushTriangle(a, b, c, tone);
+    pushTriangle(a, c, d, tone);
+  };
+  const RAMP_LENGTH = 78;
+  const HALF_WIDTH = 11;
+  const DECK_TONE = 0x54554e;
+  const WALL_TONE = 0x9a978c;
+  const FRAME_TONE = 0xa6a399;
+  const MOUTH_TONE = 0x0c0e10;
+  const ends: Array<[readonly [number, number, number], readonly [number, number, number]]> = [
+    [points[0], points[1]],
+    [points[points.length - 1], points[points.length - 2]],
+  ];
+  let built = 0;
+  for (const [end, inner] of ends) {
+    const dirX0 = end[0] - inner[0];
+    const dirZ0 = end[2] - inner[2];
+    const length = Math.hypot(dirX0, dirZ0);
+    if (length < 1e-6) {
+      continue;
+    }
+    const dx = dirX0 / length;
+    const dz = dirZ0 / length;
+    const nx = -dz;
+    const nz = dx;
+    const mouthGround = sample(end[0], end[2]);
+    if (mouthGround === null) {
+      continue;
+    }
+    const deckMouthY = end[1] + 1.4;
+    const steps = 6;
+    const at = (
+      along: number,
+      side: number,
+      y: number,
+    ): [number, number, number] => [
+      end[0] + dx * along + nx * side,
+      y,
+      end[2] + dz * along + nz * side,
+    ];
+    for (let step = 0; step < steps; step += 1) {
+      const a0 = (step / steps) * RAMP_LENGTH;
+      const a1 = ((step + 1) / steps) * RAMP_LENGTH;
+      const t0 = step / steps;
+      const t1 = (step + 1) / steps;
+      const g0 = sample(...([at(a0, 0, 0)[0], at(a0, 0, 0)[2]] as [number, number])) ?? mouthGround;
+      const g1 = sample(...([at(a1, 0, 0)[0], at(a1, 0, 0)[2]] as [number, number])) ?? mouthGround;
+      const y0 = deckMouthY + (g0 + 0.3 - deckMouthY) * t0;
+      const y1 = deckMouthY + (g1 + 0.3 - deckMouthY) * t1;
+      // Sloped deck.
+      pushQuad(
+        at(a0, -HALF_WIDTH + 1, y0),
+        at(a1, -HALF_WIDTH + 1, y1),
+        at(a1, HALF_WIDTH - 1, y1),
+        at(a0, HALF_WIDTH - 1, y0),
+        DECK_TONE,
+      );
+      // Retaining walls rise from the deck to just above ground.
+      for (const side of [-HALF_WIDTH, HALF_WIDTH]) {
+        pushQuad(
+          at(a0, side, y0),
+          at(a1, side, y1),
+          at(a1, side, g1 + 0.7),
+          at(a0, side, g0 + 0.7),
+          WALL_TONE,
+        );
+        // Wall coping reads as a drawn edge from above.
+        pushQuad(
+          at(a0, side - 0.4, g0 + 0.7),
+          at(a1, side - 0.4, g1 + 0.7),
+          at(a1, side + 0.4, g1 + 0.7),
+          at(a0, side + 0.4, g0 + 0.7),
+          FRAME_TONE,
+        );
+      }
+    }
+    // The dark tube mouth and its portal frame.
+    pushQuad(
+      at(0, -HALF_WIDTH + 1, deckMouthY),
+      at(0, HALF_WIDTH - 1, deckMouthY),
+      at(0, HALF_WIDTH - 1, deckMouthY + 5),
+      at(0, -HALF_WIDTH + 1, deckMouthY + 5),
+      MOUTH_TONE,
+    );
+    pushQuad(
+      at(-1.2, -HALF_WIDTH - 0.6, deckMouthY + 5),
+      at(-1.2, HALF_WIDTH + 0.6, deckMouthY + 5),
+      at(-1.2, HALF_WIDTH + 0.6, deckMouthY + 6.4),
+      at(-1.2, -HALF_WIDTH - 0.6, deckMouthY + 6.4),
+      FRAME_TONE,
+    );
+    built += 1;
+  }
+  if (built === 0) {
+    return null;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+  const group = new Group();
+  group.name = "Tiergartentunnel portals";
+  const mesh = new Mesh(
+    geometry,
+    new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.95,
+      side: DoubleSide,
+      vertexColors: true,
+    }),
+  );
+  mesh.name = "tunnel portal ramps";
+  group.add(mesh);
+  const ink = new LineSegments(
+    new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
+    new LineBasicMaterial({ color: ISO_INK_COLOR }),
+  );
+  ink.name = "tunnel portal ink lines";
+  ink.renderOrder = 2;
+  group.add(ink);
+  return group;
+}
+
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
@@ -1218,6 +1388,10 @@ export function createIsometricCity(
     const trace = createTunnelTrace(tunnelPoints, ground);
     if (trace) {
       group.add(trace);
+    }
+    const portals = createTunnelPortals(tunnelPoints, ground);
+    if (portals) {
+      group.add(portals);
     }
   }
 

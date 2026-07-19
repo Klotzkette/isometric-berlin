@@ -2,7 +2,7 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-07-15T17:49:40.413535+00:00`
+- Generated: `2026-07-19T03:16:57.682638+00:00`
 - Status: `ok`
 - Landmarks checked: `43`
 - Relative relationships checked: `26`
@@ -45,7 +45,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Reichstagsvorfeld / Berlin-Pavillon | `ok` | Simsonweg (roads) | 11.10 m | nearest DEBE01YYK0002KL4 at 3.46 m |
 | Platz der Republik Heckenbosquets | `ok` | Scheidemannstraße (roads) | 35.12 m | nearest DEBE3DdXH5BzPXTO at 25.46 m |
 | Kanzlergarten / Non-Violence-Skulptur | `ok` | Bettina-von-Arnim-Ufer (roads) | 4.88 m | nearest DEBE3DhkSa8wckKv at 9.0 m |
-| Carillon im Tiergarten | `ok` | John-Foster-Dulles-Allee (roads) | 13.70 m | nearest DEBE01YYK0002MQ0 at 23.33 m |
+| Carillon im Tiergarten | `ok` | Große Querallee (roads) | 18.01 m | inside DEBE01YYK0002MQ0 |
 | Mahnmal für verfolgte Zeugen Jehovas | `ok` | Mahnmal für die im Nationalsozialismus verfolgten und ermordeten Zeugen Jehovas (pois) | 0.00 m | nearest DEBE00YYT600005H at 130.41 m |
 | Gedenkort für Polen 1939-1945 | `ok` | Paul-Löbe-Allee (roads) | 75.92 m | nearest DEBE00YYWA00004m at 104.08 m |
 | Schweizerische Botschaft | `ok` | Schweizerische Botschaft (pois) | 0.00 m | inside DEBE3DNvokAngVCn |

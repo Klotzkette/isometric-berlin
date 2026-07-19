@@ -1737,15 +1737,15 @@
         "amenity": null,
         "bridge": null,
         "diplomatic": null,
-        "distance_m": 13.7,
+        "distance_m": 18.01,
         "element": "way",
         "geometry_type": "LineString",
         "government": null,
-        "highway": "tertiary",
+        "highway": "service",
         "historic": null,
-        "id": "1465078829",
+        "id": "4391593",
         "leisure": null,
-        "name": "John-Foster-Dulles-Allee",
+        "name": "Gro\u00dfe Querallee",
         "office": null,
         "playground": null,
         "railway": null,
@@ -1758,10 +1758,10 @@
         "tipi am kanzleramt"
       ],
       "lod2": {
-        "containing_building_id": null,
-        "contains_landmark": false,
+        "containing_building_id": "DEBE01YYK0002MQ0",
+        "contains_landmark": true,
         "nearest_building_id": "DEBE01YYK0002MQ0",
-        "nearest_distance_m": 23.33
+        "nearest_distance_m": 0.0
       },
       "name": "Carillon im Tiergarten",
       "nearest_named_osm": {
@@ -2259,7 +2259,7 @@
       "status": "ok"
     }
   ],
-  "generated_at": "2026-07-15T17:49:40.413535+00:00",
+  "generated_at": "2026-07-19T03:16:57.682638+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -2604,7 +2604,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "2f2dbc50ccd777cf16af51b2e2c39555074d809ef2c3a13ae5f54cb720f8f988"
+      "sha256": "bee750fcd4629dc7568dc784a867cf7834ab1253dbca8123a45929f64bfbb033"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",

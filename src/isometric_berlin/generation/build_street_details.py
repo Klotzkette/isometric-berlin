@@ -33,7 +33,12 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "street-details.json"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+
+# OSM `historic` kinds that become drawn monuments in the viewer.
+MONUMENT_KINDS = {"cannon", "memorial", "monument", "tank"}
+# Landmarks the recognition layer already models completely.
+MONUMENT_SKIP_NAMES = {"Brandenburger Tor"}
 
 
 def build_payload(
@@ -44,8 +49,7 @@ def build_payload(
   roads = gpd.read_file(osm_path, layer="roads")
   roads = roads.to_crs(epsg=25833)
   signals = roads[
-    (roads["highway"] == "traffic_signals")
-    & (roads.geometry.geom_type == "Point")
+    (roads["highway"] == "traffic_signals") & (roads.geometry.geom_type == "Point")
   ]
   positions: list[list[int]] = []
   for point in signals.geometry:
@@ -59,7 +63,41 @@ def build_payload(
       ]
     )
   positions.sort()
+
+  # Monuments and memorials ("alle Denkmäler im Tiergarten"): points and
+  # polygon footprints from the OSM POI layer. Polygons keep their bbox
+  # size so footprint-aware renderers (the Stelenfeld) know their field.
+  pois = gpd.read_file(osm_path, layer="pois").to_crs(epsg=25833)
+  monuments: list[dict[str, Any]] = []
+  for _, row in pois.iterrows():
+    kind = row.get("historic")
+    if not isinstance(kind, str) or kind not in MONUMENT_KINDS:
+      continue
+    name = row.get("name")
+    name = name if isinstance(name, str) else ""
+    if name in MONUMENT_SKIP_NAMES:
+      continue
+    geometry = row.geometry
+    if geometry is None or geometry.is_empty:
+      continue
+    centroid = geometry.centroid
+    if not bounds.contains(centroid):
+      continue
+    min_x, min_y, max_x, max_y = geometry.bounds
+    monuments.append(
+      {
+        "kind": kind,
+        "name": name,
+        "w_dm": round((max_x - min_x) * 10),
+        "d_dm": round((max_y - min_y) * 10),
+        "x_dm": round((centroid.x - ORIGIN_EASTING) * 10),
+        "z_dm": round((ORIGIN_NORTHING - centroid.y) * 10),
+      }
+    )
+  monuments.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
+
   return {
+    "monuments": monuments,
     "schema_version": SCHEMA_VERSION,
     "source": ATTRIBUTION,
     "traffic_signals_dm": positions,
@@ -82,7 +120,8 @@ def main(argv: list[str] | None = None) -> None:
     encoding="utf-8",
   )
   print(
-    f"Wrote {args.out} with {len(payload['traffic_signals_dm'])} traffic signals"
+    f"Wrote {args.out} with {len(payload['traffic_signals_dm'])} traffic "
+    f"signals and {len(payload['monuments'])} monuments"
   )
 
 

@@ -208,6 +208,15 @@ describe("ligne-claire fenestration", () => {
     expect(trace).toBeInstanceOf(LineSegments);
     const positions = (trace as LineSegments).geometry.getAttribute("position");
     expect(positions.count).toBeGreaterThan(100);
+    // Both portals ("dessen Eingänge") come along: ramps + ink.
+    const portals = traced.getObjectByName("Tiergartentunnel portals");
+    expect(portals).toBeDefined();
+    const ramps = traced.getObjectByName("tunnel portal ramps") as Mesh;
+    expect(ramps).toBeInstanceOf(Mesh);
+    expect(ramps.geometry.getAttribute("position").count).toBeGreaterThan(100);
+    expect(
+      traced.getObjectByName("tunnel portal ink lines"),
+    ).toBeInstanceOf(LineSegments);
   });
 });
 

@@ -1,7 +1,7 @@
 # Task 06 — Southern bounds expansion: Kulturforum strip
 
 **Pipeline step:** 1–8 (bounds → data → mesh → viewer; see `AGENTS.md` §5)
-**Status:** todo
+**Status:** superseded by task 09 (owner widened the scope 2026-07-19; network-blocked in the remote environment)
 **Owner-set scope (2026-06-14):** Extend the map southward so the
 following are inside the rendered area and recognisable:
 

@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.13.0
+
+- **Alle Denkmäler, drawn.** Street details schema v2 exports all 46
+  OSM monuments/memorials inside the bounds; a new drawn-monument
+  layer renders every one the recognition layer doesn't already carry:
+  the Potsdamer Platz **Verkehrsturm** replica (five-sided head, clock
+  band, red/amber/green lamps), the Euthanasie (T4) memorial's blue
+  glass wall, both ML-20 howitzers at the Soviet memorial, the Weiße
+  Kreuze row, the Fahne der Einheit, the Grundgesetz-49 glass panels,
+  plinth statues for Lessing, the Grimms, Giordano Bruno and Der
+  Rufer, and small stones for the quiet markers. The seven memorials
+  the verified layer already models in full (Holocaust stelae field,
+  Soviet memorial with T-34s, Sinti-und-Roma, Homosexuellen, Goethe,
+  the composers, Zeugen Jehovas) are skipped — no double geometry.
+- **The Tiergartentunnel has entrances now.** Two drawn portal ramps
+  at the ends of the engineered centreline: sloped deck, retaining
+  walls with coping, portal frame, dark tube mouth — inked like the
+  city, moonlit at night. The below-horizon cutaway is unchanged.
+- **Task 08 done: Carillon anchor corrected in the source data.**
+  `landmarks.geojson` now carries the mesh-verified tower position
+  (52.51776 N, 13.36696 E, from tile-3890_58196.glb) instead of the
+  Wikimedia photographer standpoint 29.4 m away; the scene manifest's
+  landmark block was regenerated with the pipeline's own
+  serialisation, and the alignment/precision/reference artefacts were
+  re-run. The viewer's mesh-verified constant stays (0.8 m finer than
+  the lat/lon-rounded payload).
+- **Task 06 superseded by task 09.** The owner widened the expansion
+  scope (full Kulturforum, Leipziger Platz with Mall of Berlin and
+  Kollhoff-Tower, Hamburger Bahnhof, Geschichtspark Moabit, the whole
+  Tiergarten with Siegessäule). The shipped LoD2/OSM extracts are
+  clipped exactly to the current bounds and the data services are
+  unreachable from this environment (egress 403), so task 09 documents
+  the full refetch/rebuild procedure for an environment with open
+  network; every viewer layer added since v0.10.0 is polygon-driven
+  and scales to the new data without code changes.
+
 ## v0.12.0
 
 - **Task 07 done: the real traffic lights, animated.** All 86 OSM

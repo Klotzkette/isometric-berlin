@@ -107,6 +107,7 @@ import {
   createTrafficSignals,
   updateTrafficSignals,
 } from "./TrafficSignals";
+import { createTiergartenMonuments } from "./TiergartenMonuments";
 import { renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
@@ -581,6 +582,11 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const signals = createTrafficSignals(street, ground);
         if (signals) {
           runtime.isoWorld.add(signals);
+        }
+        // Every OSM monument in the quarter, drawn ("alle Denkmäler").
+        const monuments = createTiergartenMonuments(street, ground);
+        if (monuments) {
+          runtime.isoWorld.add(monuments);
         }
       }
       runtime.scene.add(runtime.isoWorld);

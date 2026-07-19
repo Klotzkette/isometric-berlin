@@ -1,7 +1,7 @@
 # Task 08 — Correct the Carillon anchor in the source data
 
 **Pipeline step:** data QA (steps 1/6/8; see `AGENTS.md` §5)
-**Status:** todo
+**Status:** done (v0.13.0) — CulturalLandmarks keeps its mesh-verified constant (0.8 m finer than the lat/lon-rounded payload); everything else per criteria
 **Owner-set scope (2026-06-14):** The committed Carillon landmark
 coordinate (13.366678, 52.517564) comes from Wikimedia geotags — i.e.
 photographer standpoints — and sits **29.4 m south-west** of the real
@@ -18,18 +18,18 @@ centre): world (-307.06, 118.51) = EPSG:25833 (389192.9, 5819881.5) =
 
 ## Acceptance criteria
 
-- [ ] `geo_data/regierungsviertel/landmarks.geojson`: Carillon point
+- [x] `geo_data/regierungsviertel/landmarks.geojson`: Carillon point
       moved to 13.36696, 52.51776 with a `source` note referencing the
       mesh-tile evidence.
-- [ ] Alignment/precision artefacts regenerated
+- [x] Alignment/precision artefacts regenerated
       (`verify_landmark_alignment`, `verify_metric_precision`,
       `render_reference_map`), plus the app landmark JSONs via the
       byte-equality procedure documented in task 05/agent notes.
-- [ ] `src/app/public/mesh/regierungsviertel/scene.json` landmark
+- [x] `src/app/public/mesh/regierungsviertel/scene.json` landmark
       anchor regenerated (requires the `prepare_webgl_mesh` inputs) —
       do NOT hand-edit the generated manifest.
-- [ ] `CulturalLandmarks.ts` simplification: once the payload anchor is
+- [x] `CulturalLandmarks.ts` simplification: once the payload anchor is
       correct, the hardcoded `CARILLON_MESH_TOWER_WORLD` override can
       read from the payload again (keep the regression test).
-- [ ] All checks: ruff/pytest, `bun test`, `bun run build`,
+- [x] All checks: ruff/pytest, `bun test`, `bun run build`,
       `scripts/check_release_readiness.py`.

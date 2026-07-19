@@ -20,9 +20,11 @@ const ground = voxelPayload as unknown as VoxelPayload;
 
 describe("task 07: animated OSM traffic signals", () => {
   test("the payload carries every surveyed signal inside bounds", () => {
-    expect(street.schema_version).toBe(1);
+    expect(street.schema_version).toBe(2);
     expect(street.traffic_signals_dm.length).toBe(86);
     expect(street.source.toLowerCase()).toContain("openstreetmap");
+    // Schema v2 also carries the monuments ("alle Denkmäler").
+    expect(street.monuments!.length).toBeGreaterThan(40);
   });
 
   test("the German phase sequence cycles red → red+amber → green → amber", () => {

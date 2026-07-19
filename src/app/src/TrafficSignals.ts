@@ -23,6 +23,15 @@ import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 export const STREET_DETAILS_FILE = "street-details.json";
 
 export type StreetDetailsPayload = {
+  /** OSM monuments/memorials with bbox size (0 for point features). */
+  monuments?: Array<{
+    d_dm: number;
+    kind: string;
+    name: string;
+    w_dm: number;
+    x_dm: number;
+    z_dm: number;
+  }>;
   schema_version: number;
   source: string;
   /** [x_dm, z_dm] viewer world decimetres. */
