@@ -121,6 +121,9 @@ const PATH_STYLE: Record<string, { color: number; width: number }> = {
 function material(color: number, roughness = 0.82): MeshStandardMaterial {
   return new MeshStandardMaterial({
     color,
+    // Faceted flat shading: crowns read as drawn foliage lobes, not
+    // smooth dark blobs, matching the ligne-claire city.
+    flatShading: true,
     polygonOffset: true,
     polygonOffsetFactor: -2,
     polygonOffsetUnits: -2,
@@ -316,7 +319,8 @@ function addTrees(
       branches,
     ),
   );
-  const colors = [0x355b3b, 0x426642, 0x315238];
+  // Day-legible drawn greens (the old 0x35…/0x31… read as black).
+  const colors = [0x4d7c46, 0x5d8e4f, 0x487550];
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(

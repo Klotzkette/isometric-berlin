@@ -99,6 +99,7 @@ import {
 import {
   type VoxelPayload,
   VOXEL_WORLD_FILE,
+  buildColumnToneLookup,
   createMinecraftVoxelWorld,
 } from "./MinecraftVoxelWorld";
 import {
@@ -500,9 +501,13 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   // the prisms; only the voxel world and the underside hide them. The
   // photographic hero crops additionally hide in the drawn city.
   const recognitionVisible = !runtime.underside && !voxelMode;
-  runtime.signatures.visible = recognitionVisible;
+  // Landmarks must survive the block world ("nicht um Detailverlust
+  // gebeten"): architectural signatures and the memorial models stay
+  // visible in Minecraft too (they get the toon treatment); only the
+  // softer cultural/park layers and photo crops step aside there.
+  runtime.signatures.visible = !runtime.underside;
   runtime.civicDetails.visible = recognitionVisible;
-  runtime.monuments.visible = recognitionVisible;
+  runtime.monuments.visible = !runtime.underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -513,6 +518,17 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   const targetFov =
     isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
   if (runtime.camera.fov !== targetFov) {
+    // Dolly-zoom: pull the camera back exactly as much as the narrower
+    // FOV magnifies, so the framing survives the projection change.
+    const scale = fovDollyScale(runtime.camera.fov, targetFov);
+    const offset = runtime.camera.position
+      .clone()
+      .sub(runtime.controls.target)
+      .multiplyScalar(scale);
+    runtime.controls.maxDistance = 2600 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
+    runtime.controls.minDistance = 30 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
+    runtime.camera.position.copy(runtime.controls.target).add(offset);
+    runtime.camera.far = 16_000;
     runtime.camera.fov = targetFov;
     runtime.camera.updateProjectionMatrix();
   }
@@ -618,18 +634,31 @@ function ensureVoxelWorld(
   }
   runtime.voxelWorldState = "loading";
   const url = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
-  void fetch(url)
-    .then((response) => {
+  const prismUrl = new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl).toString();
+  void Promise.all([
+    fetch(url).then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
       return response.json() as Promise<VoxelPayload>;
-    })
-    .then((payload) => {
+    }),
+    // The prism payload carries each building's sampled real colour;
+    // the block city snaps those onto the Minecraft palette so it
+    // stops being one cream-coloured mass.
+    fetch(prismUrl)
+      .then((response) =>
+        response.ok ? (response.json() as Promise<PrismPayload>) : null,
+      )
+      .catch(() => null),
+  ])
+    .then(([payload, prisms]) => {
       if (runtime.disposed) {
         return;
       }
-      runtime.voxelWorld = createMinecraftVoxelWorld(payload);
+      runtime.voxelWorld = createMinecraftVoxelWorld(
+        payload,
+        prisms ? buildColumnToneLookup(prisms) : null,
+      );
       runtime.scene.add(runtime.voxelWorld);
       setSceneLighting(runtime, runtime.lightingMode);
       markSurfaceInteraction(runtime, 400);
@@ -647,7 +676,18 @@ function ensureVoxelWorld(
 // Narrower FOV flattens the perspective toward a true isometric look
 // while the drawn city is active; the photographic modes keep 39°.
 const PHOTO_FOV_DEGREES = 39;
-const ISO_FOV_DEGREES = 30;
+// 16° with dolly compensation: the drawn city reads near-axonometric —
+// verticals stay vertical-ish, blocks stop looking "gedrückt" — while
+// the perspective camera machinery (controls, fly, focus) stays.
+const ISO_FOV_DEGREES = 16;
+
+/** Dolly factor that keeps the framed view identical across FOVs. */
+function fovDollyScale(fromDegrees: number, toDegrees: number): number {
+  return (
+    Math.tan(MathUtils.degToRad(fromDegrees) / 2) /
+    Math.tan(MathUtils.degToRad(toDegrees) / 2)
+  );
+}
 
 function segmentMesh(
   geometry: BoxGeometry,
@@ -1020,9 +1060,9 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     runtime.isoWorld.visible = isoMode && !underside;
   }
   const recognitionVisible = !underside && !voxelMode;
-  runtime.signatures.visible = recognitionVisible;
+  runtime.signatures.visible = !underside;
   runtime.civicDetails.visible = recognitionVisible;
-  runtime.monuments.visible = recognitionVisible;
+  runtime.monuments.visible = !underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -1346,6 +1386,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           : (parkDetailFocusDistance(name) ?? memorialFocusDistance(name) ?? 190);
         cameraOffset = currentDirection.multiplyScalar(distance);
       }
+      // Focus distances were authored for the 39° photo lens; the
+      // narrow axonometric lens needs the same dolly compensation as
+      // the mode switch, or every preset frames far too tight.
+      cameraOffset.multiplyScalar(
+        fovDollyScale(PHOTO_FOV_DEGREES, runtime.camera.fov),
+      );
       runtime.controls.target.copy(target);
       runtime.camera.position.copy(target).add(cameraOffset);
       const markerHeight = markerHeightForLandmark(name);

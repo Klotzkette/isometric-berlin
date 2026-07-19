@@ -386,9 +386,12 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
     "Official composition, T-34/76 tank type and 8 m soldier height; local spacing remains a visual approximation";
   group.userData.sourceUrl =
     "https://www.berlin.de/sehenswuerdigkeiten/3561689-3558930-sowjetisches-ehrenmal-tiergarten.html";
-  const stone = modelMaterial(0xc2c1b7, { roughness: 0.78 });
-  const stoneDark = modelMaterial(0x777a73, { roughness: 0.84 });
+  const stone = modelMaterial(0xcfccc0, { roughness: 0.78 });
+  // The old 0x777a73 pylon read near-black under the day rig; the real
+  // memorial is warm light granite throughout.
+  const stoneDark = modelMaterial(0xa9a79b, { roughness: 0.84 });
   const bronze = modelMaterial(0x4f6657, { metalness: 0.38, roughness: 0.55 });
+  const gold = modelMaterial(0xc9a227, { metalness: 0.45, roughness: 0.4 });
   addBox(group, "Soviet memorial lower stair", [62, 0.5, 18], [0, 0.25, 0], stone);
   addBox(group, "Soviet memorial upper stair", [56, 0.55, 14], [0, 0.78, -1], stone);
   addBox(group, "Soviet memorial central pylon", [6, 12, 5], [0, 7.05, -3], stoneDark);
@@ -406,6 +409,21 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   );
   addBox(group, "Soviet memorial left colonnade beam", [23, 1.4, 3.2], [-17, 11.1, -1.8], stone);
   addBox(group, "Soviet memorial right colonnade beam", [23, 1.4, 3.2], [17, 11.1, -1.8], stone);
+  // Gilded inscriptions: a name plate on every side pylon and the
+  // dedication band on the central pylon, like the real memorial.
+  for (const x of [-24, -16, -8, 8, 16, 24]) {
+    addBox(
+      group,
+      "Soviet memorial gilded name plate",
+      [2.6, 3.4, 0.12],
+      [x, 6.4, -1.35 - Math.abs(x) * 0.075],
+      gold,
+    );
+  }
+  addBox(group, "Soviet memorial gilded dedication band", [5.2, 1.1, 0.12], [0, 11.6, -0.4], gold);
+  // Flower beds flank the stairs.
+  addBox(group, "Soviet memorial west flower bed", [10, 0.5, 4], [-20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
+  addBox(group, "Soviet memorial east flower bed", [10, 0.5, 4], [20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
   addMesh(
     group,
     "Soviet memorial eight metre soldier body",

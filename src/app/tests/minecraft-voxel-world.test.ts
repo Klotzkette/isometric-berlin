@@ -19,6 +19,36 @@ function instanced(name: string, root: ReturnType<typeof createMinecraftVoxelWor
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
 
+  test("columns take their building's real colour, snapped to the palette", async () => {
+    const { buildColumnToneLookup } = await import("../src/MinecraftVoxelWorld");
+    const { MINECRAFT_PALETTE } = await import(
+      "../src/visual-modes/minecraft/palette"
+    );
+    const prisms = (await import(
+      "../public/mesh/regierungsviertel/lod2-prisms.json"
+    )) as { default: { buildings: Array<{ ring: number[][]; tone?: [number, number, number] }> } };
+    const lookup = buildColumnToneLookup(prisms.default);
+    // Inside the Reichstag footprint (centre ~308, 41) the lookup
+    // returns a palette colour; far out in the Spree it returns null.
+    const reichstag = lookup(308, 41);
+    expect(reichstag).not.toBeNull();
+    expect(MINECRAFT_PALETTE.includes(reichstag as never)).toBe(true);
+    expect(lookup(-5000, -5000)).toBeNull();
+    // Coverage: most surveyed columns resolve to a real tone.
+    let hits = 0;
+    const sampleCount = Math.min(2000, payload.buildings.length);
+    for (let index = 0; index < sampleCount; index += 1) {
+      const [xIdx, , , ,] = payload.buildings[index];
+      const zIdx = payload.buildings[index][1];
+      const x = (xIdx + 0.5) * payload.cell_m;
+      const z = (zIdx + 0.5) * payload.cell_m;
+      if (lookup(x, z) !== null) {
+        hits += 1;
+      }
+    }
+    expect(hits / sampleCount).toBeGreaterThan(0.5);
+  });
+
   test("exterior column faces carry blocky window panes", async () => {
     const { InstancedMesh } = await import("three");
     const panes = world.getObjectByName("Voxel facade windows");

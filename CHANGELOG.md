@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.14.0
+
+- **True axonometry — nothing looks "gedrückt" any more.** The drawn
+  modes drop from a 30° to a 16° lens with exact dolly compensation
+  (the camera pulls back precisely as much as the narrower field
+  magnifies, so the framing survives the switch; focus presets get the
+  same compensation, distance limits and far plane scale along).
+  Verticals stay parallel, blocks keep their true proportions — the
+  Reichstag finally stands like an architectural drawing instead of a
+  squashed photo.
+- **Minecraft is no longer one cream-coloured mass.** The block world
+  now fetches the prism payload alongside its voxels and gives every
+  column its building's sampled real colour, snapped to the nearest
+  entry of the authored Minecraft palette (point-in-footprint lookup
+  over a spatial hash). Whole buildings read as one true hue — grey
+  Reichstag, brick reds, glass teals — with the class shades only as
+  fallback.
+- **No more Detailverlust in the block world.** The architectural
+  signatures (Reichstag dome, Brandenburg Gate, Hauptbahnhof barrel)
+  and the verified memorial models (stelae field, Soviet memorial…)
+  stay visible in Minecraft and take the toon treatment, so the
+  landmarks survive the voxelisation.
+- **Trees read as drawn foliage.** The crown palette rises from
+  near-black (0x355b3b…) to day-legible drawn greens with faceted flat
+  shading on the existing five-lobe geometry.
+- **The Soviet War Memorial is dignified now:** warm light granite
+  instead of a near-black pylon, gilded name plates on all six
+  side pylons, the dedication band in gold, flower beds flanking the
+  stairs.
+
 ## v0.13.0
 
 - **Alle Denkmäler, drawn.** Street details schema v2 exports all 46
