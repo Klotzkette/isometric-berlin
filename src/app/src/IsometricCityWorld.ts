@@ -69,6 +69,18 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   MLwG4KW9: 0xdadad6,
 };
 
+// Pinned roof-plate tones: the Reichstag's huge cap (and its corner
+// towers) read as the real light stone terrace instead of sun-warmed
+// facade brown; the Chancellery roof stays light.
+export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
+  K0002MCN: 0xb4b8b2,
+  K0003Ty1: 0xb4b8b2,
+  K0003VDk: 0xb4b8b2,
+  MLwG4KW9: 0xd2d5d0,
+  UbQkgNZe: 0xb4b8b2,
+  ycOYQRVL: 0xb4b8b2,
+};
+
 // Buildings whose recognition model draws the COMPLETE structure. Their
 // LoD2 prism would swallow the model (the Brandenburg Gate rendered as a
 // solid box burying its twelve columns), so these prisms are skipped and
@@ -213,6 +225,12 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const mullions = city.getObjectByName("LoD2 glass mullions");
   if (mullions instanceof LineSegments) {
     (mullions.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const kerbs = city.getObjectByName("drawn kerb lines");
+  if (kerbs instanceof LineSegments) {
+    (kerbs.material as LineBasicMaterial).color.setHex(
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
@@ -489,6 +507,9 @@ const DOOR_CLEARANCE_M = 1.6;
 const DOOR_DAY_TONE = 0x2f2b26;
 const DOOR_NIGHT_TONE = 0x1c232e;
 const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
+// Cool slate tint mixed into flat roof caps so they read as drawn
+// roof plates instead of sun-warmed facade paint.
+const ROOF_PLATE_TINT = new Color(0x8f989e);
 
 /** Bay/floor grid for one wall; null when the wall carries no windows. */
 export function windowGrid(
@@ -699,6 +720,92 @@ function createTunnelTrace(
   return trace;
 }
 
+// Ground-class pairs whose shared cell edge gets a drawn kerb line.
+const KERB_PAIRS = new Set([
+  "asphalt|grass",
+  "asphalt|plazaBrick",
+  "grass|plazaBrick",
+]);
+
+/**
+ * Kerb ink: the surveyed run-length ground grid knows exactly where
+ * roads meet lawns and plazas — draw those cell boundaries as thin ink
+ * lines, the ligne-claire ground the buildings already live on.
+ */
+function createKerbLines(ground: VoxelPayload): LineSegments | null {
+  const cell = ground.cell_m;
+  const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
+  const classGrid = new Int16Array(cols * rows).fill(-1);
+  ground.ground_rows.forEach((row, zOffset) => {
+    for (const [xStart, run, classId] of row) {
+      for (let step = 0; step < run; step += 1) {
+        const x = xStart + step;
+        if (x >= 0 && x < cols) {
+          classGrid[zOffset * cols + x] = classId;
+        }
+      }
+    }
+  });
+  const nameOf = (id: number): string | null =>
+    id >= 0 ? (ground.classes[id] ?? null) : null;
+  const kerbPair = (a: number, b: number): boolean => {
+    if (a === b) {
+      return false;
+    }
+    const nameA = nameOf(a);
+    const nameB = nameOf(b);
+    if (!nameA || !nameB) {
+      return false;
+    }
+    return KERB_PAIRS.has(
+      nameA < nameB ? `${nameA}|${nameB}` : `${nameB}|${nameA}`,
+    );
+  };
+  const sample = groundTopSampler(ground);
+  const positions: number[] = [];
+  const edge = (
+    x1: number,
+    z1: number,
+    x2: number,
+    z2: number,
+    xOffset: number,
+    zOffset: number,
+  ): void => {
+    const y = sample(xOffset, zOffset) + 0.22;
+    positions.push(
+      (min_x_idx + x1) * cell, y, (min_z_idx + z1) * cell,
+      (min_x_idx + x2) * cell, y, (min_z_idx + z2) * cell,
+    );
+  };
+  for (let z = 0; z < rows; z += 1) {
+    for (let x = 0; x < cols; x += 1) {
+      const here = classGrid[z * cols + x];
+      if (x + 1 < cols && kerbPair(here, classGrid[z * cols + x + 1])) {
+        edge(x + 1, z, x + 1, z + 1, x, z);
+      }
+      if (z + 1 < rows && kerbPair(here, classGrid[(z + 1) * cols + x])) {
+        edge(x, z + 1, x + 1, z + 1, x, z);
+      }
+    }
+  }
+  if (positions.length === 0) {
+    return null;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const kerbs = new LineSegments(
+    geometry,
+    new LineBasicMaterial({
+      color: ISO_INK_COLOR,
+      opacity: 0.32,
+      transparent: true,
+    }),
+  );
+  kerbs.name = "drawn kerb lines";
+  kerbs.renderOrder = 2;
+  return kerbs;
+}
+
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
@@ -815,7 +922,61 @@ export function createIsometricCity(
     }
     color.copy(facadeColorFor(building, prisms.classes));
     bakeColor(geometry, color);
+    // Flat caps read as drawn roof plates, not sun-baked facade paint:
+    // recolour up-facing cap vertices cooler and slightly darker (the
+    // Reichstag's huge roof was one warm brown slab).
+    const pinnedRoof = HERO_PRISM_ROOF_TONES[building.id];
+    const capTone =
+      pinnedRoof !== undefined
+        ? new Color(pinnedRoof)
+        : color.clone().multiplyScalar(0.9).lerp(ROOF_PLATE_TINT, 0.4);
+    const bodyNormals = geometry.getAttribute("normal");
+    const bodyPositions = geometry.getAttribute("position");
+    const bodyColors = geometry.getAttribute("color");
+    const capY = y0 + bodyHeight - 0.05;
+    for (let index = 0; index < bodyPositions.count; index += 1) {
+      if (bodyNormals.getY(index) > 0.7 && bodyPositions.getY(index) > capY) {
+        bodyColors.setXYZ(index, capTone.r, capTone.g, capTone.b);
+      }
+    }
     bodyGeometries.push(geometry);
+    // Monumental flat roofs carry a drawn parapet rim (the Reichstag's
+    // balustrade line), inked like every other edge.
+    if (
+      !roofTriangles &&
+      totalHeight >= CIVIC_HEIGHT_M &&
+      ringArea(
+        building.ring.map(([x, z]) => [x / 10, z / 10] as [number, number]),
+      ) >= CIVIC_FOOTPRINT_M2
+    ) {
+      for (const wall of wallsOf(building)) {
+        if (wall.length < 3) {
+          continue;
+        }
+        const parapet = new BufferGeometry();
+        parapet.setAttribute(
+          "position",
+          new Float32BufferAttribute(
+            boxTriangles(
+              wall.x1 + (wall.dirX * wall.length) / 2,
+              y0 + totalHeight + 0.35,
+              wall.z1 + (wall.dirZ * wall.length) / 2,
+              [wall.dirX, wall.dirZ],
+              wall.length,
+              0.7,
+              0.4,
+            ),
+            3,
+          ),
+        );
+        parapet.computeVertexNormals();
+        edgeGeometries.push(
+          new EdgesGeometry(parapet, ISO_EDGE_THRESHOLD_DEGREES),
+        );
+        bakeColor(parapet, capTone.clone().multiplyScalar(0.94));
+        bodyGeometries.push(parapet);
+      }
+    }
     // Ligne-claire windows: real floor count from the measured height,
     // real bay rhythm from each surveyed wall, on the outer ring of
     // every building tall enough to have storeys. Monumental civic
@@ -1082,6 +1243,10 @@ export function createIsometricCity(
       ISO_GROUND_SHADES,
     );
     group.add(slabs);
+    const kerbs = createKerbLines(ground);
+    if (kerbs) {
+      group.add(kerbs);
+    }
   }
   return group;
 }

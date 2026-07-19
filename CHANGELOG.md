@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.12.0
+
+- **Task 07 done: the real traffic lights, animated.** All 86 OSM
+  `highway=traffic_signals` nodes inside the bounds (new
+  `build_street_details.py` → `street-details.json`) become instanced
+  signals — pole, head, three lamps — cycling the German sequence
+  red → red+amber → green → amber on a 44 s loop with per-position
+  phase offsets, so junctions never blink in unison.
+  `prefers-reduced-motion` pins every signal to green. The lamps are
+  unlit materials, so the active one glows at night. Signals join the
+  drawn city group and inherit its day/night/voxel/underside
+  visibility.
+- **The Reichstag reads right now.** Its huge flat cap rendered as one
+  sun-warmed brown slab; every flat roof cap in the city is now
+  recoloured as a cool drawn roof plate, hero roofs are pinned (the
+  Reichstag ensemble gets its real light-stone terrace grey, the
+  Chancellery stays light), and monumental flat roofs carry a drawn
+  parapet rim — the balustrade line the elevation was missing.
+- **Kerb ink.** The surveyed ground grid knows exactly where roads
+  meet lawns and plazas; those cell boundaries are now thin ink lines —
+  the ligne-claire ground the buildings already live on, moonlit at
+  night like all contours.
+- **Minecraft windows.** Every ~4 m storey of an exterior voxel column
+  face carries a recessed dark pane (occasional teal shine), interior
+  faces skipped via neighbour occupancy — 54k blocky windows, straight
+  from the surveyed columns.
+- Tests: signal payload count/attribution, German phase sequence and
+  reduced-motion behaviour, instanced pole/lamp counts with distinct
+  phases, kerb-line geometry, voxel window pane counts.
+
 ## v0.11.0
 
 - **Curtain-wall mullions on every glass building.** The transparent

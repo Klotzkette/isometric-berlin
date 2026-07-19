@@ -19,6 +19,16 @@ function instanced(name: string, root: ReturnType<typeof createMinecraftVoxelWor
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
 
+  test("exterior column faces carry blocky window panes", async () => {
+    const { InstancedMesh } = await import("three");
+    const panes = world.getObjectByName("Voxel facade windows");
+    expect(panes).toBeInstanceOf(InstancedMesh);
+    const mesh = panes as InstanceType<typeof InstancedMesh>;
+    // ~54k faces on 17k surveyed columns; interior faces are skipped.
+    expect(mesh.count).toBeGreaterThan(30_000);
+    expect(mesh.count).toBeLessThan(80_000);
+  });
+
   test("builds one instanced box set per layer with full counts", () => {
     const groundRuns = payload.ground_rows.reduce(
       (sum, row) => sum + row.length,

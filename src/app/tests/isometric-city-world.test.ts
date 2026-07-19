@@ -175,6 +175,21 @@ describe("ligne-claire fenestration", () => {
     expect(positions.count).toBeGreaterThan(1000);
   });
 
+  test("the ground grid draws kerb ink where roads meet lawns and plazas", async () => {
+    const voxelPayload = (await import(
+      "../public/mesh/regierungsviertel/minecraft-voxels.json"
+    )) as { default: unknown };
+    const grounded = createIsometricCity(
+      payload,
+      voxelPayload.default as never,
+      null,
+    );
+    const kerbs = grounded.getObjectByName("drawn kerb lines");
+    expect(kerbs).toBeInstanceOf(LineSegments);
+    const positions = (kerbs as LineSegments).geometry.getAttribute("position");
+    expect(positions.count).toBeGreaterThan(2000);
+  });
+
   test("the Tiergartentunnel leaves a dashed trace when ground is present", async () => {
     const voxelPayload = (await import(
       "../public/mesh/regierungsviertel/minecraft-voxels.json"

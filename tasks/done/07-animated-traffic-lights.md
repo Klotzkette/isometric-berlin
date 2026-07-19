@@ -1,7 +1,7 @@
 # Task 07 — Animated traffic lights
 
 **Pipeline step:** viewer detail layer (step 8; see `AGENTS.md` §5)
-**Status:** todo
+**Status:** done (v0.12.0)
 **Owner-set scope (2026-06-14):** Show the real traffic lights inside
 the bounds as small recognisable models whose signal heads animate
 through the German phase sequence red → red+amber → green → amber →
@@ -25,12 +25,12 @@ red on a slow loop.
 
 ## Acceptance criteria
 
-- [ ] Every `highway=traffic_signals` node inside bounds gets exactly
+- [x] Every `highway=traffic_signals` node inside bounds gets exactly
       one instanced signal; no signals outside bounds.
-- [ ] Phase sequence and timing follow the German cycle; reduced
+- [x] Phase sequence and timing follow the German cycle; reduced
       motion shows a static state.
-- [ ] No measurable frame-rate regression on the touch tier (signals
+- [x] No measurable frame-rate regression on the touch tier (signals
       join the instanced budget, not per-object draw calls).
-- [ ] Attribution unchanged (OSM already covers the data).
-- [ ] `bun test`, `bun run build`, and
+- [x] Attribution unchanged (OSM already covers the data).
+- [x] `bun test`, `bun run build`, and
       `uv run python scripts/check_release_readiness.py` pass.

@@ -1,11 +1,14 @@
 import {
   BoxGeometry,
   Color,
+  DoubleSide,
   Group,
   InstancedMesh,
   Matrix4,
-  MeshStandardMaterial,
+  MeshBasicMaterial,
+  PlaneGeometry,
   Vector3,
+  MeshStandardMaterial,
 } from "three";
 
 /**
@@ -63,6 +66,10 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
 const FALLBACK_SHADES: readonly number[] = CLASS_SHADES.concrete;
 const TRUNK_SHADES: readonly number[] = [0x704a2d];
 const LEAF_SHADES: readonly number[] = [0x4c7f28, 0x5d9634];
+// Facade window cells on exterior column faces: mostly dark stone-glass
+// with an occasional teal pane, both from the master palette.
+const VOXEL_WINDOW_DARK = 0x40515c;
+const VOXEL_WINDOW_TEAL = 0x72c5d2;
 
 function shadeFor(
   shades: readonly number[],
@@ -131,6 +138,26 @@ export function groundTopSampler(
       Math.floor(zOffset / heights.stride_cells),
     );
     return (heights.y_dm[row * heights.cols + col] ?? 40) / 10;
+  };
+}
+
+/**
+ * World-coordinate ground sampler: metres in, terrain-top metres out,
+ * null outside the surveyed grid.
+ */
+export function worldGroundSampler(
+  payload: VoxelPayload,
+): (x: number, z: number) => number | null {
+  const sample = groundTopSampler(payload);
+  const cell = payload.cell_m;
+  const { cols, min_x_idx, min_z_idx, rows } = payload.grid;
+  return (x, z) => {
+    const xOffset = x / cell - min_x_idx;
+    const zOffset = z / cell - min_z_idx;
+    if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
+      return null;
+    }
+    return sample(xOffset, zOffset);
   };
 }
 
@@ -210,6 +237,76 @@ export function createMinecraftVoxelWorld(payload: VoxelPayload): Group {
     );
   }
   group.add(buildings.mesh);
+
+  // Window cells on exterior faces: every ~4 m storey of a column face
+  // that no neighbouring column covers gets a recessed dark pane —
+  // blocky fenestration, strictly from the surveyed columns.
+  const columnTops = new Map<number, number>();
+  const columnKey = (x: number, z: number): number => x * 65536 + z;
+  for (const [xIdx, zIdx, , y1dm] of payload.buildings) {
+    const key = columnKey(xIdx, zIdx);
+    columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
+  }
+  type WindowFace = { color: Color; nx: number; nz: number; x: number; y: number; z: number };
+  const faces: WindowFace[] = [];
+  const dark = new Color(VOXEL_WINDOW_DARK);
+  const teal = new Color(VOXEL_WINDOW_TEAL);
+  for (const [xIdx, zIdx, y0dm, y1dm] of payload.buildings) {
+    const top = y1dm / 10;
+    for (const [dx, dz] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const) {
+      const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
+      const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
+      const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
+      for (let yCenter = y0dm / 10 + 2; yCenter + 1.2 <= top; yCenter += cell) {
+        if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
+          continue;
+        }
+        const shine =
+          Math.abs(xIdx * 13 + zIdx * 7 + Math.round(yCenter)) % 7 === 0;
+        faces.push({
+          color: shine ? teal : dark,
+          nx: dx,
+          nz: dz,
+          x: faceX,
+          y: yCenter,
+          z: faceZ,
+        });
+      }
+    }
+  }
+  if (faces.length > 0) {
+    const panes = new InstancedMesh(
+      new PlaneGeometry(1, 1),
+      new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
+      faces.length,
+    );
+    panes.name = "Voxel facade windows";
+    const matrix = new Matrix4();
+    faces.forEach((face, index) => {
+      // Plane spans the face's tangent; dir = up × normal in the plane.
+      const dirX = -face.nz;
+      const dirZ = face.nx;
+      matrix.set(
+        dirX * 2.1, 0, face.nx, face.x,
+        0, 2.3, 0, face.y,
+        dirZ * 2.1, 0, face.nz, face.z,
+        0, 0, 0, 1,
+      );
+      panes.setMatrixAt(index, matrix);
+      panes.setColorAt(index, face.color);
+    });
+    panes.instanceMatrix.needsUpdate = true;
+    if (panes.instanceColor) {
+      panes.instanceColor.needsUpdate = true;
+    }
+    panes.frustumCulled = false;
+    group.add(panes);
+  }
 
   const trunks = instancedBoxes("Voxel tree trunks", payload.trees.length);
   const crowns = instancedBoxes("Voxel tree crowns", payload.trees.length);

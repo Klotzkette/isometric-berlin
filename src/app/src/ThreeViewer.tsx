@@ -101,6 +101,12 @@ import {
   VOXEL_WORLD_FILE,
   createMinecraftVoxelWorld,
 } from "./MinecraftVoxelWorld";
+import {
+  STREET_DETAILS_FILE,
+  type StreetDetailsPayload,
+  createTrafficSignals,
+  updateTrafficSignals,
+} from "./TrafficSignals";
 import { renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
@@ -558,12 +564,25 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         response.ok ? (response.json() as Promise<VoxelPayload>) : null,
       )
       .catch(() => null),
+    fetch(new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl).toString())
+      .then((response) =>
+        response.ok ? (response.json() as Promise<StreetDetailsPayload>) : null,
+      )
+      .catch(() => null),
   ])
-    .then(([prisms, ground]) => {
+    .then(([prisms, ground, street]) => {
       if (runtime.disposed) {
         return;
       }
       runtime.isoWorld = createIsometricCity(prisms, ground, runtime.tunnelPoints);
+      if (ground && street) {
+        // Task 07: the real OSM traffic signals join the drawn city, so
+        // they inherit its day/night/voxel/underside visibility.
+        const signals = createTrafficSignals(street, ground);
+        if (signals) {
+          runtime.isoWorld.add(signals);
+        }
+      }
       runtime.scene.add(runtime.isoWorld);
       setSceneLighting(runtime, runtime.lightingMode);
       markSurfaceInteraction(runtime, 400);
@@ -2139,6 +2158,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           reducedMotion || !stability.animateWind ? 0.9 : timestamp / 1000;
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
+        if (runtime.isoWorld?.visible) {
+          const signals = runtime.isoWorld.getObjectByName(
+            "OSM traffic signals",
+          );
+          if (signals instanceof Group) {
+            updateTrafficSignals(signals, timestamp / 1000, reducedMotion);
+          }
+        }
         if (runtime.lightingMode === "minecraft") {
           // Minecraft renders through the same composer path as Day/Night — no
           // screen-space voxel grid to flimmer when zoomed out. The blocky look
