@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.15.0
+
+- **Hyperdetail for the drawn city (day AND night).** Every wall now
+  carries a darker Sockel band at its base and a light protruding
+  Gesims (cornice, inked) under its flat roof edge; every window gets
+  a light sill ledge — the elevation's fine horizontal grain, ~257k
+  instanced pieces in one draw call. Large flat roofs grow rooftop
+  furniture: one to three drawn HVAC boxes plus a transparent glass
+  skylight strip, because the isometric view lives on its roofscape.
+- **Night gains light temperature.** Civic monuments burn cool office
+  white after dark; housing keeps its warm windows — the night city
+  reads zoned, like the real one.
+- **Minecraft, beautiful and differentiated.** Buildings wear a darker
+  roof-cap block row; every fifth tree is a birch (pale trunk), spruce
+  silhouettes stack a second crown; meadows scatter deterministic
+  flower blocks (dandelion gold, poppy, daisy) on the grass runs; a
+  small neutral emissive floor lifts shadow faces so the real building
+  colours stay readable all around.
+
 ## v0.14.0
 
 - **True axonometry — nothing looks "gedrückt" any more.** The drawn

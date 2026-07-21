@@ -65,15 +65,18 @@ describe("true voxel Minecraft world", () => {
       0,
     );
     expect(instanced("Voxel ground runs", world).count).toBe(groundRuns);
-    expect(instanced("Voxel building columns", world).count).toBe(
-      payload.buildings.length,
-    );
+    // Each column is a facade body plus (when tall enough) a darker
+    // roof-cap layer.
+    const columns = instanced("Voxel building columns", world).count;
+    expect(columns).toBeGreaterThanOrEqual(payload.buildings.length);
+    expect(columns).toBeLessThanOrEqual(payload.buildings.length * 2);
     expect(instanced("Voxel tree trunks", world).count).toBe(
       payload.trees.length,
     );
-    expect(instanced("Voxel tree crowns", world).count).toBe(
-      payload.trees.length,
-    );
+    // Crowns: one per tree plus a stacked spruce top on some species.
+    const crowns = instanced("Voxel tree crowns", world).count;
+    expect(crowns).toBeGreaterThanOrEqual(payload.trees.length);
+    expect(crowns).toBeLessThanOrEqual(payload.trees.length * 2);
     // Blocky by construction: thousands of surveyed building columns.
     expect(payload.buildings.length).toBeGreaterThan(10_000);
   });

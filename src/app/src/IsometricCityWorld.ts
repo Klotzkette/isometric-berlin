@@ -523,6 +523,19 @@ const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
 // Cool slate tint mixed into flat roof caps so they read as drawn
 // roof plates instead of sun-warmed facade paint.
 const ROOF_PLATE_TINT = new Color(0x8f989e);
+// Hyperdetail bands: a darker plinth (Sockel) at the base and a light
+// protruding cornice (Gesims) under the roof edge of every drawn wall.
+const SOCKEL_HEIGHT_M = 0.85;
+const SOCKEL_DEPTH_M = 0.5;
+const CORNICE_HEIGHT_M = 0.3;
+const CORNICE_DEPTH_M = 0.62;
+const DETAIL_MIN_WALL_M = 2.5;
+const DETAIL_MIN_BUILDING_M = 5;
+// Rooftop furniture on large flat roofs: HVAC boxes + a glass skylight.
+const ROOF_FURNITURE_MIN_AREA_M2 = 600;
+const ROOF_FURNITURE_MIN_HEIGHT_M = 8;
+// Night light temperature: offices burn cool white, homes warm.
+const WINDOW_NIGHT_CIVIC_TONES = [0xdfe8f2, 0xcfe0ee, 0xffd28a] as const;
 
 /** Bay/floor grid for one wall; null when the wall carries no windows. */
 export function windowGrid(
@@ -1164,9 +1177,14 @@ export function createIsometricCity(
         .clone()
         .multiplyScalar(0.5)
         .lerp(new Color(0x46525e), 0.6);
+      const sillDay = color.clone().multiplyScalar(1.07);
+      const sillNight = new Color(0x232a33);
       const nightLit = new Color();
       const nightDark = new Color(WINDOW_NIGHT_DARK_TONE);
       const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
+      const nightTones = isCivic
+        ? WINDOW_NIGHT_CIVIC_TONES
+        : WINDOW_NIGHT_LIT_TONES;
       const walls = wallsOf(building);
       // The entrance door lives on the longest wall that carries
       // windows and enough width to step around it.
@@ -1198,9 +1216,7 @@ export function createIsometricCity(
             const sill = WINDOW_SILL_START_M + floor * format.floorPitch;
             const roll = hash32(building.id, wall.index * 2801 + bay * 53 + floor) % 1000;
             if (roll < litLimit) {
-              nightLit.setHex(
-                WINDOW_NIGHT_LIT_TONES[roll % WINDOW_NIGHT_LIT_TONES.length],
-              );
+              nightLit.setHex(nightTones[roll % nightTones.length]);
             }
             windows.push({
               dirX: wall.dirX,
@@ -1214,6 +1230,23 @@ export function createIsometricCity(
               pz: wall.z1 + wall.dirZ * along + wall.nz * WINDOW_FACE_OFFSET_M,
               tone: windDay.clone(),
               width: format.width,
+            });
+            // A light sill ledge under every pane — the elevation's
+            // fine horizontal grain.
+            windows.push({
+              dirX: wall.dirX,
+              dirZ: wall.dirZ,
+              height: 0.1,
+              night: sillNight.clone(),
+              nx: wall.nx,
+              nz: wall.nz,
+              px:
+                wall.x1 + wall.dirX * along + wall.nx * (WINDOW_FACE_OFFSET_M + 0.03),
+              py: y0 + sill - 0.06,
+              pz:
+                wall.z1 + wall.dirZ * along + wall.nz * (WINDOW_FACE_OFFSET_M + 0.03),
+              tone: sillDay.clone(),
+              width: format.width + 0.34,
             });
           }
         }
@@ -1234,6 +1267,126 @@ export function createIsometricCity(
             tone: new Color(DOOR_DAY_TONE),
             width: DOOR_WIDTH_M,
           });
+        }
+      }
+    }
+    // Hyperdetail bands: darker Sockel at the base of every wall and a
+    // light protruding Gesims under the flat roof edge (pitched roofs
+    // already carry their eaves).
+    if (totalHeight >= DETAIL_MIN_BUILDING_M) {
+      const sockelTone = color.clone().multiplyScalar(0.8);
+      const corniceTone = color
+        .clone()
+        .multiplyScalar(0.95)
+        .lerp(ROOF_PLATE_TINT, 0.15);
+      for (const wall of wallsOf(building)) {
+        if (wall.length < DETAIL_MIN_WALL_M) {
+          continue;
+        }
+        const mx = wall.x1 + (wall.dirX * wall.length) / 2;
+        const mz = wall.z1 + (wall.dirZ * wall.length) / 2;
+        const sockel = new BufferGeometry();
+        sockel.setAttribute(
+          "position",
+          new Float32BufferAttribute(
+            boxTriangles(
+              mx, y0 + SOCKEL_HEIGHT_M / 2, mz,
+              [wall.dirX, wall.dirZ],
+              wall.length + 0.08, SOCKEL_HEIGHT_M, SOCKEL_DEPTH_M,
+            ),
+            3,
+          ),
+        );
+        sockel.computeVertexNormals();
+        bakeColor(sockel, sockelTone);
+        bodyGeometries.push(sockel);
+        if (!roofTriangles) {
+          const cornice = new BufferGeometry();
+          cornice.setAttribute(
+            "position",
+            new Float32BufferAttribute(
+              boxTriangles(
+                mx, y0 + bodyHeight - CORNICE_HEIGHT_M / 2, mz,
+                [wall.dirX, wall.dirZ],
+                wall.length + 0.1, CORNICE_HEIGHT_M, CORNICE_DEPTH_M,
+              ),
+              3,
+            ),
+          );
+          cornice.computeVertexNormals();
+          edgeGeometries.push(
+            new EdgesGeometry(cornice, ISO_EDGE_THRESHOLD_DEGREES),
+          );
+          bakeColor(cornice, corniceTone);
+          bodyGeometries.push(cornice);
+        }
+      }
+    }
+    // Rooftop furniture on large flat roofs: a couple of drawn HVAC
+    // boxes and a glass skylight strip — the isometric view lives on
+    // its roofscape.
+    if (!roofTriangles && totalHeight >= ROOF_FURNITURE_MIN_HEIGHT_M) {
+      const ringMeters3 = building.ring.map(
+        ([x, z]) => [x / 10, z / 10] as [number, number],
+      );
+      if (ringArea(ringMeters3) >= ROOF_FURNITURE_MIN_AREA_M2) {
+        const rect = fitRectangle(ringMeters3);
+        if (rect && rect.halfWidth > 5) {
+          const topY = y0 + totalHeight;
+          const across: [number, number] = [-rect.axis[1], rect.axis[0]];
+          const hvacTone = color.clone().multiplyScalar(0.88).lerp(ROOF_PLATE_TINT, 0.35);
+          const count = 1 + (hash32(building.id, 9) % 3);
+          for (let unit = 0; unit < count; unit += 1) {
+            const u =
+              (((hash32(building.id, 11 + unit) % 100) / 100) - 0.5) *
+              rect.halfLength * 1.05;
+            const v =
+              (((hash32(building.id, 31 + unit) % 100) / 100) - 0.5) *
+              rect.halfWidth * 0.85;
+            const hvac = new BufferGeometry();
+            hvac.setAttribute(
+              "position",
+              new Float32BufferAttribute(
+                boxTriangles(
+                  rect.center[0] + rect.axis[0] * u + across[0] * v,
+                  topY + 0.55,
+                  rect.center[1] + rect.axis[1] * u + across[1] * v,
+                  rect.axis,
+                  2.4, 1.1, 1.7,
+                ),
+                3,
+              ),
+            );
+            hvac.computeVertexNormals();
+            edgeGeometries.push(
+              new EdgesGeometry(hvac, ISO_EDGE_THRESHOLD_DEGREES),
+            );
+            bakeColor(hvac, hvacTone);
+            bodyGeometries.push(hvac);
+          }
+          // The skylight strip joins the transparent glass mesh.
+          const skylight = new BufferGeometry();
+          skylight.setAttribute(
+            "position",
+            new Float32BufferAttribute(
+              boxTriangles(
+                rect.center[0], topY + 0.3, rect.center[1],
+                rect.axis,
+                rect.halfLength * 0.9, 0.6, 1.7,
+              ),
+              3,
+            ),
+          );
+          skylight.computeVertexNormals();
+          edgeGeometries.push(
+            new EdgesGeometry(skylight, ISO_EDGE_THRESHOLD_DEGREES),
+          );
+          const glassShades = FACADE_SHADES.glass;
+          bakeColor(
+            skylight,
+            new Color(glassShades[hash32(building.id, 3) % glassShades.length]),
+          );
+          glassGeometries.push(skylight);
         }
       }
     }

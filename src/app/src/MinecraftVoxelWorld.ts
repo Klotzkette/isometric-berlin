@@ -86,6 +86,9 @@ function shadeFor(
 function voxelMaterial(): MeshStandardMaterial {
   return new MeshStandardMaterial({
     color: 0xffffff,
+    // A small neutral emissive floor lifts the shadow faces so block
+    // colours stay readable all around, like Minecraft's flat light.
+    emissive: 0x1f1f1f,
     flatShading: true,
     metalness: 0,
     roughness: 1,
@@ -335,7 +338,7 @@ export function createMinecraftVoxelWorld(
 
   const buildings = instancedBoxes(
     "Voxel building columns",
-    payload.buildings.length,
+    payload.buildings.length * 2,
   );
   const tonePaint = new Color();
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of payload.buildings) {
@@ -343,19 +346,25 @@ export function createMinecraftVoxelWorld(
     const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
     const y0 = y0dm / 10;
     const height = Math.max(cell, (y1dm - y0dm) / 10);
-    center.set(worldXAbs(xIdx), y0 + height / 2, worldZAbs(zIdx));
-    size.set(cell, height, cell);
     // Real building colour when the prism payload knows this footprint;
     // whole buildings read as one hue (no checkerboard), the class
     // shades stay as fallback for unknown columns.
     const tone = toneLookup?.(worldXAbs(xIdx), worldZAbs(zIdx)) ?? null;
-    buildings.write(
-      center,
-      size,
+    const facade =
       tone !== null
         ? tonePaint.setHex(tone).clone()
-        : shadeFor(shades, xIdx, zIdx, Math.round(height / cell)),
-    );
+        : shadeFor(shades, xIdx, zIdx, Math.round(height / cell));
+    // Minecraft buildings wear a darker roof layer — the top block row
+    // reads as roofing, like the game's slab-capped houses.
+    const capHeight = height > 3 ? 1 : 0;
+    center.set(worldXAbs(xIdx), y0 + (height - capHeight) / 2, worldZAbs(zIdx));
+    size.set(cell, height - capHeight, cell);
+    buildings.write(center, size, facade);
+    if (capHeight > 0) {
+      center.set(worldXAbs(xIdx), y0 + height - capHeight / 2, worldZAbs(zIdx));
+      size.set(cell, capHeight, cell);
+      buildings.write(center, size, facade.clone().multiplyScalar(0.72));
+    }
   }
   group.add(buildings.mesh);
 
@@ -430,14 +439,22 @@ export function createMinecraftVoxelWorld(
   }
 
   const trunks = instancedBoxes("Voxel tree trunks", payload.trees.length);
-  const crowns = instancedBoxes("Voxel tree crowns", payload.trees.length);
+  const crowns = instancedBoxes("Voxel tree crowns", payload.trees.length * 2);
   for (const [xIdx, zIdx, y0dm, hdm] of payload.trees) {
     const y0 = y0dm / 10;
     const height = Math.max(cell, hdm / 10);
     const trunkHeight = Math.max(cell / 2, height - cell * 1.5);
+    const species = Math.abs(xIdx * 7 + zIdx * 13) % 5;
     center.set(worldXAbs(xIdx), y0 + trunkHeight / 2, worldZAbs(zIdx));
     size.set(cell * 0.45, trunkHeight, cell * 0.45);
-    trunks.write(center, size, shadeFor(TRUNK_SHADES, xIdx, zIdx, 1));
+    // Every fifth tree is a birch (pale trunk), like a mixed park.
+    trunks.write(
+      center,
+      size,
+      species === 0
+        ? new Color(0xd6dfe0)
+        : shadeFor(TRUNK_SHADES, xIdx, zIdx, 1),
+    );
     const crownHeight = cell * 1.9;
     center.set(
       worldXAbs(xIdx),
@@ -446,9 +463,58 @@ export function createMinecraftVoxelWorld(
     );
     size.set(cell * 2.2, crownHeight, cell * 2.2);
     crowns.write(center, size, shadeFor(LEAF_SHADES, xIdx, zIdx, 2));
+    // Every third tree stacks a smaller crown — the spruce silhouette.
+    if (species === 1 || species === 3) {
+      center.set(
+        worldXAbs(xIdx),
+        y0 + trunkHeight + crownHeight + cell * 0.55,
+        worldZAbs(zIdx),
+      );
+      size.set(cell * 1.3, cell * 1.1, cell * 1.3);
+      crowns.write(center, size, shadeFor(LEAF_SHADES, xIdx, zIdx, 3));
+    }
   }
   group.add(trunks.mesh);
   group.add(crowns.mesh);
+
+  // Meadow flowers: sparse deterministic colour dots on grass runs —
+  // the small-scale life real Minecraft plains have.
+  const FLOWER_TONES = [0xe6bd4c, 0xe79a61, 0xf7fbf7] as const;
+  const grassClass = payload.classes.indexOf("grass");
+  const groundTopY = groundTopSampler(payload);
+  const flowerSpots: Array<[number, number, number]> = [];
+  payload.ground_rows.forEach((row, zOffset) => {
+    for (const [xStart, run, classId] of row) {
+      if (classId !== grassClass) {
+        continue;
+      }
+      for (let step = 0; step < run; step += 1) {
+        const xOffset = xStart + step;
+        const roll = Math.abs(xOffset * 2654435761 + zOffset * 40503) % 41;
+        if (roll === 0) {
+          flowerSpots.push([xOffset, zOffset, roll]);
+        }
+      }
+    }
+  });
+  const flowers = instancedBoxes("Voxel meadow flowers", flowerSpots.length);
+  for (const [xOffset, zOffset] of flowerSpots) {
+    const topY = groundTopY(xOffset, zOffset);
+    center.set(
+      worldXAbs(payload.grid.min_x_idx + xOffset),
+      topY + 0.3,
+      worldZAbs(payload.grid.min_z_idx + zOffset),
+    );
+    size.set(0.55, 0.6, 0.55);
+    flowers.write(
+      center,
+      size,
+      new Color(
+        FLOWER_TONES[Math.abs(xOffset * 31 + zOffset * 17) % FLOWER_TONES.length],
+      ),
+    );
+  }
+  group.add(flowers.mesh);
 
   for (const child of group.children) {
     if (child instanceof InstancedMesh) {

@@ -88,7 +88,8 @@ describe("ligne-claire fenestration", () => {
   test("the city carries a six-figure count of instanced window panes", () => {
     const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
     expect(panes).toBeInstanceOf(InstancedMesh);
-    expect(panes.count).toBeGreaterThan(100_000);
+    // Panes plus a sill ledge under every one of them.
+    expect(panes.count).toBeGreaterThan(200_000);
     // Both palettes are baked: cool drawn day panes, warm-lit night mix.
     expect(panes.userData.dayColors).toBeInstanceOf(Float32Array);
     expect(panes.userData.nightColors).toBeInstanceOf(Float32Array);
@@ -103,8 +104,9 @@ describe("ligne-claire fenestration", () => {
         lit += 1;
       }
     }
-    expect(lit / panes.count).toBeGreaterThan(0.25);
-    expect(lit / panes.count).toBeLessThan(0.55);
+    // Sills never glow, so the lit share halves against the pane+sill total.
+    expect(lit / panes.count).toBeGreaterThan(0.12);
+    expect(lit / panes.count).toBeLessThan(0.3);
   });
 
   test("glass-class prisms and the Hauptbahnhof towers render transparent", () => {
