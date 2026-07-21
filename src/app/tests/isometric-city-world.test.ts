@@ -222,6 +222,48 @@ describe("ligne-claire fenestration", () => {
   });
 });
 
+describe("west Tiergarten extrapolation and the recessed Spree", () => {
+  test("the extrapolated west carries lawn, axis road and a 67 m Siegessäule", async () => {
+    const { createWestTiergarten } = await import("../src/IsometricCityWorld");
+    const west = createWestTiergarten();
+    expect(west.userData.extrapolated).toBe(true);
+    const bounds = new Box3().setFromObject(west);
+    // The column with Viktoria tops out around 67 m over the park.
+    expect(bounds.max.y).toBeGreaterThan(60);
+    expect(bounds.max.y).toBeLessThan(85);
+    // The apron reaches the Großer Stern in the west.
+    expect(bounds.min.x).toBeLessThan(-1500);
+    expect(west.getObjectByName("extrapolated tree crowns")).toBeDefined();
+    expect(west.getObjectByName("extrapolated west ink lines")).toBeDefined();
+  });
+
+  test("quay walls drop from the banks wherever land meets water", async () => {
+    const voxelPayload = (await import(
+      "../public/mesh/regierungsviertel/minecraft-voxels.json"
+    )) as { default: unknown };
+    const city = createIsometricCity(
+      payload,
+      voxelPayload.default as never,
+      null,
+    );
+    const quays = city.getObjectByName("drawn quay walls") as Mesh;
+    expect(quays).toBeInstanceOf(Mesh);
+    // Thousands of embankment triangles along Spree + Humboldthafen.
+    expect(quays.geometry.getAttribute("position").count).toBeGreaterThan(3000);
+  });
+
+  test("the Reichstag wears its pinned stately window rhythm", async () => {
+    const { HERO_WINDOW_FORMATS } = await import("../src/IsometricCityWorld");
+    const format = HERO_WINDOW_FORMATS.K0002MCN;
+    expect(format.height).toBeGreaterThan(4);
+    expect(format.sillStart).toBeGreaterThan(4);
+    // Tall base + stately pitch → exactly 3 rows on the 28 m body.
+    const grid = windowGrid(30, 28.1, format);
+    expect(grid).not.toBeNull();
+    expect(grid!.floors).toBe(3);
+  });
+});
+
 describe("procedural pitched roofs from ALKIS codes", () => {
   // A 20 m × 10 m rectangle rotated 30° — fitRectangle must recover it.
   const angle = Math.PI / 6;

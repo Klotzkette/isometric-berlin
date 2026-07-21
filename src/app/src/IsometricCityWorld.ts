@@ -1,4 +1,5 @@
 import {
+  BoxGeometry,
   BufferGeometry,
   Color,
   DoubleSide,
@@ -502,14 +503,38 @@ const WINDOW_NIGHT_DARK_TONE = 0x18202c;
 // on a wider floor/bay pitch, the way the Reichstag's elevation reads.
 export const CIVIC_FOOTPRINT_M2 = 2500;
 export const CIVIC_HEIGHT_M = 16;
-const CIVIC_WINDOW = { bayPitch: 4.4, floorPitch: 4.4, height: 2.6, width: 1.5 };
+const CIVIC_WINDOW = {
+  bayPitch: 4.4,
+  floorPitch: 4.4,
+  height: 2.6,
+  sillStart: 1.05,
+  width: 1.5,
+};
 const HOUSING_WINDOW = {
   bayPitch: ISO_WINDOW_BAY_PITCH_M,
   floorPitch: ISO_WINDOW_FLOOR_PITCH_M,
   height: ISO_WINDOW_HEIGHT_M,
+  sillStart: 1.05,
   width: ISO_WINDOW_WIDTH_M,
 };
 type WindowFormat = typeof HOUSING_WINDOW;
+
+// Hand-pinned facade formats where the generic grid would be wrong
+// ("der Reichstag darf nicht falsche Fenster haben"): the Reichstag
+// ensemble carries its real rhythm — a high rusticated base, then tall
+// arched window rows on a stately pitch, on the towers too.
+export const HERO_WINDOW_FORMATS: Record<string, WindowFormat> = {
+  K0002MCN: { bayPitch: 5.4, floorPitch: 8.2, height: 4.8, sillStart: 5.2, width: 2.4 },
+  K0003Ty1: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
+  K0003VDk: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
+  UbQkgNZe: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
+  ycOYQRVL: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
+};
+// The Reichstag's entrance is its portico (drawn by the recognition
+// model); a generic drawn door on the plinth would be Quatsch.
+const DOOR_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  "K0002MCN", "K0003Ty1", "K0003VDk", "UbQkgNZe", "ycOYQRVL",
+]);
 
 // One drawn entrance door per building, centred on its longest windowed
 // street wall; the ground-floor panes around it step aside.
@@ -551,7 +576,7 @@ export function windowGrid(
   );
   const floors = Math.floor(
     (bodyHeight -
-      WINDOW_SILL_START_M -
+      format.sillStart -
       format.height -
       WINDOW_EAVE_CLEARANCE_M) /
       format.floorPitch + 1,
@@ -751,6 +776,10 @@ const KERB_PAIRS = new Set([
   "asphalt|grass",
   "asphalt|plazaBrick",
   "grass|plazaBrick",
+  // Quay lines: wherever land meets the Spree/Humboldthafen.
+  "asphalt|water",
+  "grass|water",
+  "plazaBrick|water",
 ]);
 
 /**
@@ -989,6 +1018,312 @@ function createTunnelPortals(
   return group;
 }
 
+/**
+ * Quay walls ("die Spree mit Vertiefung"): wherever the surveyed ground
+ * grid puts land next to water, a vertical stone wall drops from the
+ * bank down past the water line — the river reads as a real recessed
+ * channel with drawn embankments instead of a flat blue sheet.
+ */
+function createQuayWalls(ground: VoxelPayload): Mesh | null {
+  const cell = ground.cell_m;
+  const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
+  const classGrid = new Int16Array(cols * rows).fill(-1);
+  ground.ground_rows.forEach((row, zOffset) => {
+    for (const [xStart, run, classId] of row) {
+      for (let step = 0; step < run; step += 1) {
+        const x = xStart + step;
+        if (x >= 0 && x < cols) {
+          classGrid[zOffset * cols + x] = classId;
+        }
+      }
+    }
+  });
+  const waterClass = ground.classes.indexOf("water");
+  const landClasses = new Set(
+    ["asphalt", "grass", "plazaBrick"].map((name) =>
+      ground.classes.indexOf(name),
+    ),
+  );
+  if (waterClass < 0) {
+    return null;
+  }
+  const sample = groundTopSampler(ground);
+  const waterTop = ground.water_top_y_m ?? 1.31;
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const paint = new Color();
+  const wall = (
+    x1: number,
+    z1: number,
+    x2: number,
+    z2: number,
+    xOffset: number,
+    zOffset: number,
+  ): void => {
+    const top = sample(xOffset, zOffset) + 0.22;
+    const bottom = waterTop - 0.55;
+    if (top <= bottom) {
+      return;
+    }
+    const ax = (min_x_idx + x1) * cell;
+    const az = (min_z_idx + z1) * cell;
+    const bx = (min_x_idx + x2) * cell;
+    const bz = (min_z_idx + z2) * cell;
+    paint.setHex((xOffset * 31 + zOffset * 17) % 2 === 0 ? 0x8d897c : 0x969284);
+    for (const [px, py, pz] of [
+      [ax, bottom, az], [bx, bottom, bz], [bx, top, bz],
+      [ax, bottom, az], [bx, top, bz], [ax, top, az],
+    ] as const) {
+      positions.push(px, py, pz);
+      colors.push(paint.r, paint.g, paint.b);
+    }
+  };
+  for (let z = 0; z < rows; z += 1) {
+    for (let x = 0; x < cols; x += 1) {
+      const here = classGrid[z * cols + x];
+      if (!landClasses.has(here)) {
+        continue;
+      }
+      if (x + 1 < cols && classGrid[z * cols + x + 1] === waterClass) {
+        wall(x + 1, z, x + 1, z + 1, x, z);
+      }
+      if (x > 0 && classGrid[z * cols + x - 1] === waterClass) {
+        wall(x, z, x, z + 1, x, z);
+      }
+      if (z + 1 < rows && classGrid[(z + 1) * cols + x] === waterClass) {
+        wall(x, z + 1, x + 1, z + 1, x, z);
+      }
+      if (z > 0 && classGrid[(z - 1) * cols + x] === waterClass) {
+        wall(x, z, x + 1, z, x, z);
+      }
+    }
+  }
+  if (positions.length === 0) {
+    return null;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+  const mesh = new Mesh(
+    geometry,
+    new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.95,
+      side: DoubleSide,
+      vertexColors: true,
+    }),
+  );
+  mesh.name = "drawn quay walls";
+  return mesh;
+}
+
+/** N-gon prism (top fan + side quads) for round drawn structures. */
+function prismTriangles(
+  cx: number,
+  cy: number,
+  cz: number,
+  radius: number,
+  height: number,
+  segments: number,
+): Float32Array {
+  const triangles: number[] = [];
+  const top = cy + height / 2;
+  const bottom = cy - height / 2;
+  for (let index = 0; index < segments; index += 1) {
+    const a0 = (index / segments) * Math.PI * 2;
+    const a1 = ((index + 1) / segments) * Math.PI * 2;
+    const x0 = cx + Math.cos(a0) * radius;
+    const z0 = cz + Math.sin(a0) * radius;
+    const x1 = cx + Math.cos(a1) * radius;
+    const z1 = cz + Math.sin(a1) * radius;
+    triangles.push(cx, top, cz, x1, top, z1, x0, top, z0);
+    triangles.push(x0, bottom, z0, x1, bottom, z1, x1, top, z1);
+    triangles.push(x0, bottom, z0, x1, top, z1, x0, top, z0);
+  }
+  return new Float32Array(triangles);
+}
+
+/**
+ * The western Großer Tiergarten, EXTRAPOLATED (owner-approved): the
+ * shipped open data ends at the bounds polygon, but the park factually
+ * continues west to the Großer Stern. This group extends the lawn, the
+ * Straße des 17. Juni axis and a drawn Siegessäule (67 m column, gilded
+ * Viktoria, published dimensions) so the west horizon stops being a
+ * void. No buildings are invented — parkland and one documented
+ * monument only. Marked via userData.extrapolated.
+ */
+export function createWestTiergarten(): Group {
+  const group = new Group();
+  group.name = "extrapolated west Tiergarten (Siegessäule)";
+  group.userData.extrapolated = true;
+  const bodyGeometries: BufferGeometry[] = [];
+  const edgeGeometries: BufferGeometry[] = [];
+  const addPart = (
+    triangles: Float32Array,
+    tone: number,
+    inked = true,
+  ): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const paint = new Color(tone);
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = paint.r;
+      colors[index * 3 + 1] = paint.g;
+      colors[index * 3 + 2] = paint.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bodyGeometries.push(geometry);
+    if (inked) {
+      edgeGeometries.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+    }
+  };
+  const GROUND_TOP = 2.1;
+  // Lawn bands (alternating drawn greens like the surveyed ground).
+  const WEST = -1620;
+  const EAST = -658;
+  const NORTH = -160;
+  const SOUTH = 960;
+  const bands = 8;
+  for (let band = 0; band < bands; band += 1) {
+    const z0 = NORTH + ((SOUTH - NORTH) / bands) * band;
+    const z1 = NORTH + ((SOUTH - NORTH) / bands) * (band + 1);
+    addPart(
+      boxTriangles(
+        (WEST + EAST) / 2, GROUND_TOP - 1.5, (z0 + z1) / 2,
+        [1, 0], EAST - WEST, 3, z1 - z0,
+      ),
+      ISO_GROUND_SHADES.grass[band % 3],
+      false,
+    );
+  }
+  // Straße des 17. Juni: the real axis from the Gate to the Großer Stern.
+  const AXIS_FROM: [number, number] = [372, 292];
+  const AXIS_TO: [number, number] = [-1459, 456];
+  const axisDx = AXIS_TO[0] - AXIS_FROM[0];
+  const axisDz = AXIS_TO[1] - AXIS_FROM[1];
+  const axisLength = Math.hypot(axisDx, axisDz);
+  const axis: [number, number] = [axisDx / axisLength, axisDz / axisLength];
+  const roadCenterX = (EAST + AXIS_TO[0]) / 2;
+  const roadCenterZ =
+    AXIS_FROM[1] + ((roadCenterX - AXIS_FROM[0]) * axisDz) / axisDx;
+  addPart(
+    boxTriangles(
+      roadCenterX, GROUND_TOP - 1.35, roadCenterZ,
+      axis, Math.abs(AXIS_TO[0] - EAST) + 90, 3, 42,
+    ),
+    ISO_GROUND_SHADES.asphalt[0],
+    false,
+  );
+  // Großer Stern circle and the Siegessäule.
+  const SX = AXIS_TO[0];
+  const SZ = AXIS_TO[1];
+  addPart(prismTriangles(SX, GROUND_TOP - 1.3, SZ, 100, 3.2, 16), ISO_GROUND_SHADES.asphalt[1], false);
+  addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xb9b6ac);
+  addPart(boxTriangles(SX, GROUND_TOP + 4.9, SZ, axis, 23, 7, 23), 0x9a5f4c);
+  addPart(prismTriangles(SX, GROUND_TOP + 10.4, SZ, 9, 4, 12), 0xb9b6ac);
+  let columnBase = GROUND_TOP + 12.4;
+  for (const [radius, height] of [
+    [4.4, 14], [4.0, 13], [3.6, 12], [3.2, 11],
+  ] as const) {
+    addPart(prismTriangles(SX, columnBase + height / 2, SZ, radius, height, 12), 0xc9b98f);
+    columnBase += height;
+    addPart(prismTriangles(SX, columnBase + 0.4, SZ, radius + 0.5, 0.8, 12), 0xd4af37);
+    columnBase += 0.8;
+  }
+  addPart(prismTriangles(SX, columnBase + 1.1, SZ, 4.6, 2.2, 12), 0xb9b6ac);
+  // Gilded Viktoria: body, raised wreath arm, wings.
+  addPart(boxTriangles(SX, columnBase + 5.4, SZ, axis, 2.2, 6.4, 2.2), 0xd4af37);
+  addPart(boxTriangles(SX, columnBase + 9.2, SZ, axis, 0.7, 3.4, 0.7), 0xd4af37);
+  addPart(boxTriangles(SX, columnBase + 6.6, SZ, [axis[1], -axis[0]], 5.6, 2.6, 0.5), 0xd4af37);
+  // Park trees: deterministic scatter off the road and the star circle.
+  const trunkSpots: Array<[number, number]> = [];
+  for (let index = 0; index < 720; index += 1) {
+    const hx = (Math.imul(index + 1, 2654435761) >>> 9) % 10_000;
+    const hz = (Math.imul(index + 7, 40503) >>> 3) % 10_000;
+    const x = WEST + 20 + ((EAST - WEST - 40) * hx) / 10_000;
+    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34 || Math.hypot(x - SX, z - SZ) < 112) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  const trunks = new InstancedMesh(
+    new BoxGeometry(0.5, 3.4, 0.5),
+    new MeshStandardMaterial({ color: 0x6f5a41, flatShading: true, roughness: 0.9 }),
+    trunkSpots.length,
+  );
+  trunks.name = "extrapolated tree trunks";
+  const crowns = new InstancedMesh(
+    new BoxGeometry(1, 1, 1),
+    new MeshStandardMaterial({ color: 0xffffff, flatShading: true, roughness: 0.9 }),
+    trunkSpots.length * 2,
+  );
+  crowns.name = "extrapolated tree crowns";
+  const matrix = new Matrix4();
+  const crownPaint = new Color();
+  const CROWN_TONES = [0x4d7c46, 0x5d8e4f, 0x487550] as const;
+  trunkSpots.forEach(([x, z], index) => {
+    matrix.identity();
+    matrix.setPosition(x, GROUND_TOP + 1.7, z);
+    trunks.setMatrixAt(index, matrix);
+    const size = 3.6 + ((index * 37) % 5) * 0.55;
+    crownPaint.setHex(CROWN_TONES[index % CROWN_TONES.length]);
+    matrix.makeScale(size, size * 0.85, size);
+    matrix.setPosition(x, GROUND_TOP + 3.4 + size * 0.4, z);
+    crowns.setMatrixAt(index * 2, matrix);
+    matrix.makeScale(size * 0.6, size * 0.55, size * 0.6);
+    matrix.setPosition(x + size * 0.28, GROUND_TOP + 3.4 + size * 0.82, z - size * 0.2);
+    crowns.setMatrixAt(index * 2 + 1, matrix);
+    crowns.setColorAt(index * 2, crownPaint);
+    crowns.setColorAt(index * 2 + 1, crownPaint.clone().multiplyScalar(1.12));
+  });
+  trunks.instanceMatrix.needsUpdate = true;
+  crowns.instanceMatrix.needsUpdate = true;
+  if (crowns.instanceColor) {
+    crowns.instanceColor.needsUpdate = true;
+  }
+  trunks.frustumCulled = false;
+  crowns.frustumCulled = false;
+
+  const merged = mergeGeometries(bodyGeometries, false);
+  if (merged) {
+    const mesh = new Mesh(
+      merged,
+      new MeshStandardMaterial({
+        flatShading: true,
+        metalness: 0,
+        roughness: 0.9,
+        vertexColors: true,
+      }),
+    );
+    mesh.name = "extrapolated west ground and Siegessäule";
+    group.add(mesh);
+    for (const geometry of bodyGeometries) {
+      geometry.dispose();
+    }
+  }
+  const ink = mergeGeometries(edgeGeometries, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "extrapolated west ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+  }
+  group.add(trunks);
+  group.add(crowns);
+  return group;
+}
+
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
@@ -1172,7 +1507,9 @@ export function createIsometricCity(
       const isCivic =
         ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
         totalHeight >= CIVIC_HEIGHT_M;
-      const format = isCivic ? CIVIC_WINDOW : HOUSING_WINDOW;
+      const format =
+        HERO_WINDOW_FORMATS[building.id] ??
+        (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW);
       const windDay = color
         .clone()
         .multiplyScalar(0.5)
@@ -1189,7 +1526,9 @@ export function createIsometricCity(
       // The entrance door lives on the longest wall that carries
       // windows and enough width to step around it.
       let doorWall = -1;
-      let doorLength = DOOR_MIN_WALL_M;
+      let doorLength = DOOR_SUPPRESSED_IDS.has(building.id)
+        ? Number.POSITIVE_INFINITY
+        : DOOR_MIN_WALL_M;
       for (const wall of walls) {
         if (wall.length >= doorLength && windowGrid(wall.length, bodyHeight, format)) {
           doorWall = wall.index;
@@ -1213,7 +1552,7 @@ export function createIsometricCity(
             ) {
               continue;
             }
-            const sill = WINDOW_SILL_START_M + floor * format.floorPitch;
+            const sill = format.sillStart + floor * format.floorPitch;
             const roll = hash32(building.id, wall.index * 2801 + bay * 53 + floor) % 1000;
             if (roll < litLimit) {
               nightLit.setHex(nightTones[roll % nightTones.length]);
@@ -1325,7 +1664,56 @@ export function createIsometricCity(
     // Rooftop furniture on large flat roofs: a couple of drawn HVAC
     // boxes and a glass skylight strip — the isometric view lives on
     // its roofscape.
-    if (!roofTriangles && totalHeight >= ROOF_FURNITURE_MIN_HEIGHT_M) {
+    if (building.id === "K0002MCN") {
+      // The Reichstag roof at drawing quality: the two glass skylight
+      // bands flanking the dome over the plenary hall, and the
+      // roof-garden restaurant block at the south-west corner.
+      const domeX = 317.73;
+      const domeZ = 40.48;
+      const roofTop = y0 + totalHeight;
+      for (const side of [-26, 26]) {
+        const skylight = new BufferGeometry();
+        skylight.setAttribute(
+          "position",
+          new Float32BufferAttribute(
+            boxTriangles(domeX, roofTop + 0.35, domeZ + side, [1, 0], 38, 0.7, 7),
+            3,
+          ),
+        );
+        skylight.computeVertexNormals();
+        edgeGeometries.push(new EdgesGeometry(skylight, ISO_EDGE_THRESHOLD_DEGREES));
+        bakeColor(skylight, new Color(FACADE_SHADES.glass[0]));
+        glassGeometries.push(skylight);
+      }
+      const restaurant = new BufferGeometry();
+      restaurant.setAttribute(
+        "position",
+        new Float32BufferAttribute(
+          boxTriangles(284, roofTop + 1.8, 86, [1, 0], 16, 3.6, 10),
+          3,
+        ),
+      );
+      restaurant.computeVertexNormals();
+      edgeGeometries.push(new EdgesGeometry(restaurant, ISO_EDGE_THRESHOLD_DEGREES));
+      bakeColor(restaurant, new Color(0xb4b8b2).multiplyScalar(0.96));
+      bodyGeometries.push(restaurant);
+      const restaurantGlass = new BufferGeometry();
+      restaurantGlass.setAttribute(
+        "position",
+        new Float32BufferAttribute(
+          boxTriangles(284, roofTop + 2.4, 81.4, [1, 0], 15, 2, 0.4),
+          3,
+        ),
+      );
+      restaurantGlass.computeVertexNormals();
+      bakeColor(restaurantGlass, new Color(FACADE_SHADES.glass[1]));
+      glassGeometries.push(restaurantGlass);
+    }
+    if (
+      !roofTriangles &&
+      totalHeight >= ROOF_FURNITURE_MIN_HEIGHT_M &&
+      HERO_PRISM_ROOF_TONES[building.id] === undefined
+    ) {
       const ringMeters3 = building.ring.map(
         ([x, z]) => [x / 10, z / 10] as [number, number],
       );
@@ -1574,6 +1962,11 @@ export function createIsometricCity(
     if (kerbs) {
       group.add(kerbs);
     }
+    const quays = createQuayWalls(ground);
+    if (quays) {
+      group.add(quays);
+    }
   }
+  group.add(createWestTiergarten());
   return group;
 }

@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.16.0
+
+- **The Reichstag looks like the Reichstag.** Hand-pinned facade
+  formats for the whole ensemble ("keine falschen Fenster"): a high
+  rusticated base, then tall arched-window rows (4.8 m panes on a
+  5.4 m bay, 8.2 m storey pitch — exactly three stately rows on the
+  28 m body), the towers matched; the generic plinth door is gone (the
+  portico is the entrance). The roof gains its real programme at
+  drawing quality: the two glass skylight bands flanking the dome and
+  the roof-garden restaurant block with its glass band. Pinned hero
+  roofs no longer receive random HVAC scatter.
+- **Die Spree mit Vertiefung.** Wherever the surveyed ground grid puts
+  land beside water, a vertical stone quay wall now drops from the
+  bank past the water line, and the water edge carries kerb ink — the
+  river reads as a real recessed channel with drawn embankments.
+- **The western Tiergarten, extrapolated (owner-approved).** The
+  shipped data ends at the bounds polygon, but the park factually
+  continues: an extrapolated lawn apron with ~700 drawn trees, the
+  Straße des 17. Juni axis, the Großer Stern circle and a drawn
+  Siegessäule (67 m column on its colonnaded base, gilded rings and
+  Viktoria, published dimensions) end the void on the west horizon.
+  No buildings are invented — parkland and one documented monument
+  only, marked `userData.extrapolated`; flight bounds reach the star.
+  The true data expansion (Kulturforum, Leipziger Platz, Hamburger
+  Bahnhof — task 09) remains blocked in this environment: the data
+  services still answer CONNECT 403.
+
 ## v0.15.0
 
 - **Hyperdetail for the drawn city (day AND night).** Every wall now
