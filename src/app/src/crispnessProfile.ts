@@ -19,7 +19,9 @@ export const CRISPNESS_PROFILES: Record<
   "day" | "night" | "minecraft",
   CrispnessProfile
 > = {
-  day: { contrast: 1.05, edgeStrength: 0.25, saturation: 1.1, strength: 0.48 },
+  // Day reads as a light fine-line drawing: barely-there screen-space
+  // edges (the geometry ink carries the contours), gentle sharpening.
+  day: { contrast: 1.03, edgeStrength: 0.07, saturation: 1.08, strength: 0.32 },
   night: {
     contrast: 1.035,
     edgeStrength: 0.35,

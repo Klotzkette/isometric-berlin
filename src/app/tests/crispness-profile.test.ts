@@ -11,9 +11,9 @@ const crispFragment = readFileSync(
 
 describe("isometric crispness profile", () => {
   test("pins the settled sharpening and edge strengths per mode", () => {
-    expect(CRISPNESS_PROFILES.day.strength).toBe(0.48);
+    expect(CRISPNESS_PROFILES.day.strength).toBe(0.32);
     expect(CRISPNESS_PROFILES.night.strength).toBe(0.4);
-    expect(CRISPNESS_PROFILES.day.edgeStrength).toBe(0.25);
+    expect(CRISPNESS_PROFILES.day.edgeStrength).toBe(0.07);
     expect(CRISPNESS_PROFILES.night.edgeStrength).toBe(0.35);
     // Minecraft bypasses the crisp pass; its edgeStrength feeds the
     // edgeMix uniform of the minecraft postprocess shader (v0.5.3).

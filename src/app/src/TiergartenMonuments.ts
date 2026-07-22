@@ -30,7 +30,7 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * OSM (ODbL); the drawing is ours.
  */
 
-export const MONUMENT_INK = 0x24211c;
+export const MONUMENT_INK = 0x716c62;
 
 const STONE = 0x8f8a80;
 const STONE_LIGHT = 0xb9b6ac;

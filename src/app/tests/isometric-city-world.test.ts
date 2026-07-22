@@ -33,8 +33,9 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(bodies).toBeInstanceOf(Mesh);
     expect(ink).toBeInstanceOf(LineSegments);
     expect(ISO_EDGE_THRESHOLD_DEGREES).toBeGreaterThan(0);
-    // Near-black ink, flat vertex-coloured bodies.
-    expect(ISO_INK_COLOR).toBeLessThan(0x404040);
+    // Fine grey pencil ink — light lines, no black marker.
+    expect(ISO_INK_COLOR).toBeGreaterThan(0x404040);
+    expect(ISO_INK_COLOR).toBeLessThan(0x909090);
     expect(bodies.geometry.getAttribute("color")).toBeDefined();
   });
 

@@ -56,7 +56,9 @@ export type PrismPayload = {
 };
 
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
-export const ISO_INK_COLOR = 0x24211c;
+// Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
+// contours delineate the light panels without weighing them down.
+export const ISO_INK_COLOR = 0x716c62;
 // At night black ink vanishes on dark prisms; a cool moonlit line keeps
 // the drawn contours readable.
 export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
@@ -67,8 +69,8 @@ export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 // Reichstag reads as its real darker grey sandstone (not warm yellow),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
-  K0002MCN: 0x9c968a,
-  MLwG4KW9: 0xdadad6,
+  K0002MCN: 0xafaaa0,
+  MLwG4KW9: 0xe2e2de,
 };
 
 // Pinned roof-plate tones: the Reichstag's huge cap (and its corner
@@ -129,11 +131,13 @@ export function cleanedTone(tone: [number, number, number]): Color {
   let g = tone[1] / 255;
   let b = tone[2] / 255;
   const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  const DESATURATION = 0.25;
+  const DESATURATION = 0.45;
   r += (luma - r) * DESATURATION;
   g += (luma - g) * DESATURATION;
   b += (luma - b) * DESATURATION;
-  const clamped = Math.min(0.88, Math.max(0.34, luma));
+  // Light-panel city: lightness lives in a bright band ("alles in
+  // hellen Farben") — pale stone up to near-white, never murky.
+  const clamped = Math.min(0.88, Math.max(0.52, luma));
   const bands = 6;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
@@ -143,12 +147,12 @@ export function cleanedTone(tone: [number, number, number]): Color {
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
 export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
-  asphalt: [0x8f8f8a, 0x9a9a94],
-  grass: [0x8fbf72, 0x9cc981, 0x86b96a],
-  plazaBrick: [0xc9a084, 0xbf9478],
+  asphalt: [0xa2a39d, 0xadaea7],
+  grass: [0x9ecb82, 0xa9d48f, 0x95c47a],
+  plazaBrick: [0xd4b096, 0xcaa489],
   // Drawn bridge decks: light stone, clearly distinct from water below.
-  bridge: [0xb9b4a8, 0xc4bfb3],
-  water: [0x7fb6cf, 0x74acca],
+  bridge: [0xc6c1b5, 0xd0cbbf],
+  water: [0x92c4d9, 0x87bad4],
 };
 
 // Flat drawn facade tones per building class, with deterministic
@@ -159,10 +163,28 @@ const FACADE_SHADES: Record<string, readonly number[]> = {
 };
 const FALLBACK_FACADE: readonly number[] = FACADE_SHADES.concrete;
 
+// The Reichstag's LoD2 body is split into many parts whose photo
+// samples are muddy shadow tans; the whole ensemble is pinned to its
+// real light sandstone by region.
+function inReichstagRegion(building: PrismBuilding): boolean {
+  let cx = 0;
+  let cz = 0;
+  for (const [x, z] of building.ring) {
+    cx += x / 10;
+    cz += z / 10;
+  }
+  cx /= building.ring.length;
+  cz /= building.ring.length;
+  return cx >= 260 && cx <= 372 && cz >= -34 && cz <= 115;
+}
+
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
     return new Color(pinned);
+  }
+  if (inReichstagRegion(building)) {
+    return new Color(0xb3aea3);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
@@ -194,10 +216,15 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   }
   const bodies = city.getObjectByName("LoD2 prism buildings");
   if (bodies instanceof Mesh) {
-    const material = bodies.material as MeshStandardMaterial;
-    material.emissive.setHex(night ? 0x1a1608 : 0x000000);
-    material.emissiveIntensity = night ? 0.55 : 0;
-    material.needsUpdate = true;
+    // Day = unlit exact paint; night = the lit moonlight material.
+    bodies.material = night
+      ? (bodies.userData.nightMaterial as MeshStandardMaterial)
+      : (bodies.userData.dayMaterial as MeshBasicMaterial);
+    const nightMaterial = bodies.userData
+      .nightMaterial as MeshStandardMaterial;
+    nightMaterial.emissive.setHex(night ? 0x1a1608 : 0x000000);
+    nightMaterial.emissiveIntensity = night ? 0.55 : 0;
+    nightMaterial.needsUpdate = true;
   }
   const glass = city.getObjectByName("LoD2 glass prisms");
   if (glass instanceof Mesh) {
@@ -535,6 +562,12 @@ export const HERO_WINDOW_FORMATS: Record<string, WindowFormat> = {
 const DOOR_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "K0002MCN", "K0003Ty1", "K0003VDk", "UbQkgNZe", "ycOYQRVL",
 ]);
+// The recognition layer draws the Reichstag's REAL fenestration (tall
+// arched windows, transoms, mullions from references); generic prism
+// panes underneath would double it into mush ("keine falschen Fenster").
+const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  "K0002MCN", "K0003Ty1", "K0003VDk", "UbQkgNZe", "ycOYQRVL",
+]);
 
 // One drawn entrance door per building, centred on its longest windowed
 // street wall; the ground-floor panes around it step aside.
@@ -542,7 +575,7 @@ const DOOR_WIDTH_M = 1.15;
 const DOOR_HEIGHT_M = 2.35;
 const DOOR_MIN_WALL_M = 5;
 const DOOR_CLEARANCE_M = 1.6;
-const DOOR_DAY_TONE = 0x2f2b26;
+const DOOR_DAY_TONE = 0x5b564e;
 const DOOR_NIGHT_TONE = 0x1c232e;
 const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
 // Cool slate tint mixed into flat roof caps so they read as drawn
@@ -1500,7 +1533,10 @@ export function createIsometricCity(
     // every building tall enough to have storeys. Monumental civic
     // footprints get piano-nobile formats; every building gets one
     // drawn entrance door on its longest windowed wall.
-    if (totalHeight >= WINDOW_MIN_BUILDING_M) {
+    if (
+      totalHeight >= WINDOW_MIN_BUILDING_M &&
+      !WINDOWS_SUPPRESSED_IDS.has(building.id)
+    ) {
       const ringMeters2 = building.ring.map(
         ([x, z]) => [x / 10, z / 10] as [number, number],
       );
@@ -1510,11 +1546,11 @@ export function createIsometricCity(
       const format =
         HERO_WINDOW_FORMATS[building.id] ??
         (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW);
-      const windDay = color
-        .clone()
-        .multiplyScalar(0.5)
-        .lerp(new Color(0x46525e), 0.6);
-      const sillDay = color.clone().multiplyScalar(1.07);
+      // Windows read as light glass panels ("feine, weiße, helle
+      // Paneele"), a touch cooler and brighter than the facade — never
+      // as dark punched slits.
+      const windDay = new Color(0xe6eef4).lerp(color, 0.22);
+      const sillDay = color.clone().multiplyScalar(0.9);
       const sillNight = new Color(0x232a33);
       const nightLit = new Color();
       const nightDark = new Color(WINDOW_NIGHT_DARK_TONE);
@@ -1613,7 +1649,7 @@ export function createIsometricCity(
     // light protruding Gesims under the flat roof edge (pitched roofs
     // already carry their eaves).
     if (totalHeight >= DETAIL_MIN_BUILDING_M) {
-      const sockelTone = color.clone().multiplyScalar(0.8);
+      const sockelTone = color.clone().multiplyScalar(0.92);
       const corniceTone = color
         .clone()
         .multiplyScalar(0.95)
@@ -1828,15 +1864,20 @@ export function createIsometricCity(
 
   const bodies = mergeGeometries(bodyGeometries, false);
   if (bodies) {
-    const mesh = new Mesh(
-      bodies,
-      new MeshStandardMaterial({
-        flatShading: true,
-        metalness: 0,
-        roughness: 0.95,
-        vertexColors: true,
-      }),
-    );
+    // Day is TRUE ligne claire: facades render their exact baked paint,
+    // unlit (MeshBasic) — no sun-browning, no murky shadow sides;
+    // colour and the fine ink separate the planes ("Leichtigkeit").
+    // Night swaps to the lit material for the moonlit mood.
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.95,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(bodies, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
     mesh.name = "LoD2 prism buildings";
     group.add(mesh);
     for (const geometry of bodyGeometries) {

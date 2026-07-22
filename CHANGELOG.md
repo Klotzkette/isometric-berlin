@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.17.0
+
+- **Leichtigkeit: the light-panel redesign of Day mode.** Ink drops
+  from near-black marker to a fine grey pencil (0x716c62) everywhere
+  (prisms, monuments, kerbs); the screen-space edge pass is nearly off
+  (day edgeStrength 0.25 → 0.07) so the "Kratzer" scratch look is
+  gone. Facades render their exact baked paint UNLIT by day
+  (MeshBasic swap; night swaps back to the moonlit material) — no
+  sun-browning, no murky shadow sides; colour and fine line separate
+  the planes. Sampled tones are desaturated harder and clamped to a
+  bright band; ground, water, plaza and tree palettes all lift.
+- **Windows are light panels now, not arrow slits.** Drawn panes
+  switch from dark slate holes to pale sky-glass panels
+  ("feine, weiße, helle Paneele"); sills turn into subtle darker
+  ledges; doors soften; the day sun cools toward gallery light with a
+  higher ambient floor.
+- **The Reichstag carries only its REAL fenestration.** The generic
+  prism panes are suppressed on the whole ensemble — the verified
+  recognition layer's tall arched windows, transoms and mullions carry
+  the facade alone over the light-stone prism (whole ensemble pinned
+  by region, its photo-sample shadow tans overridden).
+- Minecraft lifts its shadow faces further (emissive floor 0x2c2c2c).
+
 ## v0.16.0
 
 - **The Reichstag looks like the Reichstag.** Hand-pinned facade

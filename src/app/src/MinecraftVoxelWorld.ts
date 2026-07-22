@@ -88,7 +88,7 @@ function voxelMaterial(): MeshStandardMaterial {
     color: 0xffffff,
     // A small neutral emissive floor lifts the shadow faces so block
     // colours stay readable all around, like Minecraft's flat light.
-    emissive: 0x1f1f1f,
+    emissive: 0x2c2c2c,
     flatShading: true,
     metalness: 0,
     roughness: 1,
