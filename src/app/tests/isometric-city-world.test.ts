@@ -161,7 +161,7 @@ describe("ligne-claire fenestration", () => {
     const matrices = panes.instanceMatrix.array as Float32Array;
     let tall = 0;
     for (let index = 0; index < panes.count; index += 1) {
-      if (Math.abs(matrices[index * 16 + 5] - 2.6) < 1e-3) {
+      if (Math.abs(matrices[index * 16 + 5] - 3.0) < 1e-3) {
         tall += 1;
       }
     }

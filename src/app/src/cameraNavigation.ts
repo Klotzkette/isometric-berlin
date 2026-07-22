@@ -11,9 +11,10 @@ export type CameraPose = {
 };
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
-  // West edge reaches the extrapolated Großer Stern / Siegessäule.
-  min: new Vector3(-1_650, -120, -1_100),
-  max: new Vector3(850, 280, 1_550),
+  // West reaches the extrapolated Großer Stern; the other sides gain
+  // the paper-margin ring.
+  min: new Vector3(-1_650, -120, -1_600),
+  max: new Vector3(1_180, 280, 2_020),
 };
 
 export function captureCameraPose(

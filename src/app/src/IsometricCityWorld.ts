@@ -131,13 +131,13 @@ export function cleanedTone(tone: [number, number, number]): Color {
   let g = tone[1] / 255;
   let b = tone[2] / 255;
   const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  const DESATURATION = 0.45;
+  const DESATURATION = 0.55;
   r += (luma - r) * DESATURATION;
   g += (luma - g) * DESATURATION;
   b += (luma - b) * DESATURATION;
   // Light-panel city: lightness lives in a bright band ("alles in
   // hellen Farben") — pale stone up to near-white, never murky.
-  const clamped = Math.min(0.88, Math.max(0.52, luma));
+  const clamped = Math.min(0.88, Math.max(0.56, luma));
   const bands = 6;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
@@ -512,9 +512,10 @@ export function roofRise(rect: FittedRect, totalHeight: number): number {
 // open data goes: the counts and rhythm are real, the exact panes are
 // drawn regularly like an architectural elevation.
 export const ISO_WINDOW_FLOOR_PITCH_M = 3.1;
-export const ISO_WINDOW_BAY_PITCH_M = 3.4;
-export const ISO_WINDOW_WIDTH_M = 1.25;
-export const ISO_WINDOW_HEIGHT_M = 1.55;
+export const ISO_WINDOW_BAY_PITCH_M = 3.6;
+// Slim, elongated panes ("schlanker, länglicher"): tall portrait glass.
+export const ISO_WINDOW_WIDTH_M = 1.05;
+export const ISO_WINDOW_HEIGHT_M = 1.9;
 const WINDOW_SILL_START_M = 1.05;
 const WINDOW_EAVE_CLEARANCE_M = 0.55;
 const WINDOW_MIN_WALL_M = 2.6;
@@ -531,11 +532,11 @@ const WINDOW_NIGHT_DARK_TONE = 0x18202c;
 export const CIVIC_FOOTPRINT_M2 = 2500;
 export const CIVIC_HEIGHT_M = 16;
 const CIVIC_WINDOW = {
-  bayPitch: 4.4,
+  bayPitch: 4.6,
   floorPitch: 4.4,
-  height: 2.6,
+  height: 3.0,
   sillStart: 1.05,
-  width: 1.5,
+  width: 1.3,
 };
 const HOUSING_WINDOW = {
   bayPitch: ISO_WINDOW_BAY_PITCH_M,
@@ -580,13 +581,13 @@ const DOOR_NIGHT_TONE = 0x1c232e;
 const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
 // Cool slate tint mixed into flat roof caps so they read as drawn
 // roof plates instead of sun-warmed facade paint.
-const ROOF_PLATE_TINT = new Color(0x8f989e);
+const ROOF_PLATE_TINT = new Color(0xbcc2c4);
 // Hyperdetail bands: a darker plinth (Sockel) at the base and a light
 // protruding cornice (Gesims) under the roof edge of every drawn wall.
-const SOCKEL_HEIGHT_M = 0.85;
-const SOCKEL_DEPTH_M = 0.5;
-const CORNICE_HEIGHT_M = 0.3;
-const CORNICE_DEPTH_M = 0.62;
+const SOCKEL_HEIGHT_M = 0.55;
+const SOCKEL_DEPTH_M = 0.32;
+const CORNICE_HEIGHT_M = 0.22;
+const CORNICE_DEPTH_M = 0.48;
 const DETAIL_MIN_WALL_M = 2.5;
 const DETAIL_MIN_BUILDING_M = 5;
 // Rooftop furniture on large flat roofs: HVAC boxes + a glass skylight.
@@ -1273,6 +1274,32 @@ export function createWestTiergarten(): Group {
   addPart(boxTriangles(SX, columnBase + 5.4, SZ, axis, 2.2, 6.4, 2.2), 0xd4af37);
   addPart(boxTriangles(SX, columnBase + 9.2, SZ, axis, 0.7, 3.4, 0.7), 0xd4af37);
   addPart(boxTriangles(SX, columnBase + 6.6, SZ, [axis[1], -axis[0]], 5.6, 2.6, 0.5), 0xd4af37);
+  // "Umkreis ausweiten": a calm paper-pale margin carries the map on
+  // the other three sides too — the drawing fades into light ground
+  // instead of a void. No buildings are invented; Unter den Linden
+  // continues east from the Gate as a drawn axis.
+  const MARGIN = 520;
+  const marginBands: Array<[number, number, number, number]> = [
+    // [centerX, centerZ, sizeX, sizeZ]
+    [(EAST + 1150) / 2 - 245, -1030 - MARGIN / 2, 1150 - WEST, MARGIN],
+    [(EAST + 1150) / 2 - 245, 1451 + MARGIN / 2, 1150 - WEST, MARGIN],
+    [601 + MARGIN / 2, (1451 - 1030) / 2, MARGIN, 1451 + 1030],
+  ];
+  const MARGIN_TONES = [0xd3dcc8, 0xdae2d0];
+  marginBands.forEach(([cx, cz, sx, sz], index) => {
+    addPart(
+      boxTriangles(cx, GROUND_TOP - 1.6, cz, [1, 0], sx, 2.6, sz),
+      MARGIN_TONES[index % 2],
+      false,
+    );
+  });
+  // Unter den Linden, continuing east from Pariser Platz.
+  addPart(
+    boxTriangles(601 + MARGIN / 2, GROUND_TOP - 1.35, 292, [1, 0], MARGIN, 3, 40),
+    ISO_GROUND_SHADES.asphalt[0],
+    false,
+  );
+
   // Park trees: deterministic scatter off the road and the star circle.
   const trunkSpots: Array<[number, number]> = [];
   for (let index = 0; index < 720; index += 1) {
@@ -1480,7 +1507,7 @@ export function createIsometricCity(
     const capTone =
       pinnedRoof !== undefined
         ? new Color(pinnedRoof)
-        : color.clone().multiplyScalar(0.9).lerp(ROOF_PLATE_TINT, 0.4);
+        : color.clone().multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, 0.45);
     const bodyNormals = geometry.getAttribute("normal");
     const bodyPositions = geometry.getAttribute("position");
     const bodyColors = geometry.getAttribute("color");
@@ -1759,7 +1786,7 @@ export function createIsometricCity(
           const topY = y0 + totalHeight;
           const across: [number, number] = [-rect.axis[1], rect.axis[0]];
           const hvacTone = color.clone().multiplyScalar(0.88).lerp(ROOF_PLATE_TINT, 0.35);
-          const count = 1 + (hash32(building.id, 9) % 3);
+          const count = 1 + (hash32(building.id, 9) % 2);
           for (let unit = 0; unit < count; unit += 1) {
             const u =
               (((hash32(building.id, 11 + unit) % 100) / 100) - 0.5) *
@@ -1826,7 +1853,7 @@ export function createIsometricCity(
       );
       // Roof paint reads slightly darker than the facade, like a
       // drawn tiled surface.
-      bakeColor(roofGeometry, color.clone().multiplyScalar(0.82));
+      bakeColor(roofGeometry, color.clone().multiplyScalar(0.9));
       bodyGeometries.push(roofGeometry);
       // Gabled houses get their chimneys back: small drawn stacks on
       // the ridge (one, or two on long roofs), inked like everything.

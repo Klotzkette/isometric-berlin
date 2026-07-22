@@ -449,14 +449,14 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   runtime.scene.fog = new Fog(sky, isNight ? 900 : isMinecraft ? 1450 : 1100, 2550);
   // Minecraft exposure compensates for the darker outline pass and the
   // wider light/dark contrast so mids stay readable, not muddy.
-  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.5 : 1.3;
+  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.62 : 1.33;
   runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
   runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x8e9589);
   // Minecraft wants strong shadow sides on cubes: ambient down, key up.
   // Day is gallery light ("weiße, helle Paneele"): softer, cooler sun
   // and a higher ambient floor, so facades read as pale stone panels
   // instead of sun-browned masses.
-  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 1.72 : 2.52;
+  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 1.95 : 2.52;
   runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xffdda3 : 0xfff8ea);
   runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.72 : 2.72;
   runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);

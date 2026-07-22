@@ -182,9 +182,9 @@ describe("forgiving 3D camera bounds", () => {
     const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
 
     expect(result.changed).toBe(true);
-    expect(target.x).toBeLessThanOrEqual(850);
+    expect(target.x).toBeLessThanOrEqual(1180);
     expect(target.y).toBeLessThanOrEqual(280);
-    expect(target.z).toBeGreaterThanOrEqual(-1100);
+    expect(target.z).toBeGreaterThanOrEqual(-1600);
     expect(camera.position.clone().sub(target).toArray()).toEqual(offset.toArray());
   });
 });

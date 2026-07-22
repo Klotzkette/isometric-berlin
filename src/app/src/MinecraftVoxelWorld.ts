@@ -88,7 +88,7 @@ function voxelMaterial(): MeshStandardMaterial {
     color: 0xffffff,
     // A small neutral emissive floor lifts the shadow faces so block
     // colours stay readable all around, like Minecraft's flat light.
-    emissive: 0x2c2c2c,
+    emissive: 0x3d3d3d,
     flatShading: true,
     metalness: 0,
     roughness: 1,
@@ -173,13 +173,24 @@ export function buildColumnToneLookup(prisms: {
     r: (hex >> 16) & 255,
   }));
   const snap = (tone: [number, number, number]): number => {
+    // Lighten and desaturate the raw photo sample toward the drawn
+    // city's bright band BEFORE matching ("heller"), so a building that
+    // is pale cream by day is not a dark block in Minecraft.
+    const luma = 0.2126 * tone[0] + 0.7152 * tone[1] + 0.0722 * tone[2];
+    const target = Math.min(232, Math.max(150, luma));
+    const scale = target / Math.max(luma, 1);
+    const lifted: [number, number, number] = [
+      Math.min(255, tone[0] * scale),
+      Math.min(255, tone[1] * scale),
+      Math.min(255, tone[2] * scale),
+    ];
     let best = palette[0].hex;
     let bestDistance = Number.POSITIVE_INFINITY;
     for (const entry of palette) {
       const distance =
-        (tone[0] - entry.r) ** 2 +
-        (tone[1] - entry.g) ** 2 +
-        (tone[2] - entry.b) ** 2;
+        (lifted[0] - entry.r) ** 2 +
+        (lifted[1] - entry.g) ** 2 +
+        (lifted[2] - entry.b) ** 2;
       if (distance < bestDistance) {
         bestDistance = distance;
         best = entry.hex;

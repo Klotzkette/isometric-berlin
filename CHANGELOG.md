@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.18.0
+
+- **Schlanker, länglicher, heller, glorioser.** Elegance pass across
+  all three modes: window panes go slim and portrait (1.05 × 1.9 m,
+  civic 1.3 × 3.0 m) for a taller, lighter rhythm; facade paint is
+  desaturated harder and lifted into a brighter band; the Sockel and
+  Gesims bands are slimmer; roof plates lighten from mid-grey to pale
+  slate. Minecraft column tones are lifted toward the bright band
+  before the palette snap (a pale-cream building is no longer a dark
+  block), and the block world's ambient, emissive floor and exposure
+  are raised — "heller" everywhere.
+- **"Umkreis ausweiten" round two.** Beyond the western Siegessäule
+  lobe, a calm paper-pale margin ring now carries the drawing on the
+  north, east and south sides too (two-tone bands, `userData`-marked
+  extrapolation), with Unter den Linden continuing east from the Gate;
+  flight bounds widen to the full ring. The map fades into light
+  ground instead of ending at a void.
+
 ## v0.17.0
 
 - **Leichtigkeit: the light-panel redesign of Day mode.** Ink drops
