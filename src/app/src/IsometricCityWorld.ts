@@ -77,12 +77,12 @@ export const HERO_PRISM_TONES: Record<string, number> = {
 // towers) read as the real light stone terrace instead of sun-warmed
 // facade brown; the Chancellery roof stays light.
 export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
-  K0002MCN: 0xb4b8b2,
-  K0003Ty1: 0xb4b8b2,
-  K0003VDk: 0xb4b8b2,
-  MLwG4KW9: 0xd2d5d0,
-  UbQkgNZe: 0xb4b8b2,
-  ycOYQRVL: 0xb4b8b2,
+  K0002MCN: 0xd0d2ca,
+  K0003Ty1: 0xd0d2ca,
+  K0003VDk: 0xd0d2ca,
+  MLwG4KW9: 0xe2e4de,
+  UbQkgNZe: 0xd0d2ca,
+  ycOYQRVL: 0xd0d2ca,
 };
 
 // Buildings whose recognition model draws the COMPLETE structure. Their
@@ -147,12 +147,13 @@ export function cleanedTone(tone: [number, number, number]): Color {
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
 export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
-  asphalt: [0xa2a39d, 0xadaea7],
-  grass: [0x9ecb82, 0xa9d48f, 0x95c47a],
-  plazaBrick: [0xd4b096, 0xcaa489],
+  asphalt: [0xaaaba3, 0xb4b5ad],
+  // Sage lawns, not neon stripes — the parkland of an ivory model.
+  grass: [0xa9c592, 0xb3cd9d, 0xa0bd88],
+  plazaBrick: [0xdcc3a9, 0xd2b898],
   // Drawn bridge decks: light stone, clearly distinct from water below.
-  bridge: [0xc6c1b5, 0xd0cbbf],
-  water: [0x92c4d9, 0x87bad4],
+  bridge: [0xcdc8bc, 0xd7d2c6],
+  water: [0x9fc7d8, 0x95bed1],
 };
 
 // Flat drawn facade tones per building class, with deterministic
@@ -178,19 +179,24 @@ function inReichstagRegion(building: PrismBuilding): boolean {
   return cx >= 260 && cx <= 372 && cz >= -34 && cz <= 115;
 }
 
+// The whole city leans toward one warm ivory register ("wie eine
+// wunderbare Elfenbeinpalastdarstellung") while each building keeps
+// enough of its own sampled hue to stay recognisably itself.
+const IVORY = new Color(0xf1ead9);
+
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
-    return new Color(pinned);
+    return new Color(pinned).lerp(IVORY, 0.18);
   }
   if (inReichstagRegion(building)) {
-    return new Color(0xb3aea3);
+    return new Color(0xb8b3a6).lerp(IVORY, 0.18);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone);
+    return cleanedTone(building.tone).lerp(IVORY, 0.3);
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -1340,7 +1346,7 @@ export function createWestTiergarten(): Group {
   crowns.name = "extrapolated tree crowns";
   const matrix = new Matrix4();
   const crownPaint = new Color();
-  const CROWN_TONES = [0x4d7c46, 0x5d8e4f, 0x487550] as const;
+  const CROWN_TONES = [0x7da371, 0x8db07e, 0x76996d] as const;
   trunkSpots.forEach(([x, z], index) => {
     matrix.identity();
     matrix.setPosition(x, GROUND_TOP + 1.7, z);
@@ -1529,7 +1535,9 @@ export function createIsometricCity(
     // Flat caps read as drawn roof plates, not sun-baked facade paint:
     // recolour up-facing cap vertices cooler and slightly darker (the
     // Reichstag's huge roof was one warm brown slab).
-    const pinnedRoof = HERO_PRISM_ROOF_TONES[building.id];
+    const pinnedRoof =
+      HERO_PRISM_ROOF_TONES[building.id] ??
+      (inReichstagRegion(building) ? 0xd0d2ca : undefined);
     const capTone =
       pinnedRoof !== undefined
         ? new Color(pinnedRoof)

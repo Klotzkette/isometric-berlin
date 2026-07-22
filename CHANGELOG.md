@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.20.0
+
+- **The ivory-palace refinement ("Elfenbeinpalastdarstellung").** The
+  whole day city settles into one warm ivory register: every sampled
+  facade tone leans toward ivory (0xf1ead9) while keeping enough of
+  its own hue to stay recognisably itself; the Reichstag ensemble is
+  region-pinned to light sandstone with a pale roof terrace. The last
+  loud spots are calmed — neon lawn stripes become sage parkland,
+  plaza orange softens to sand, water turns pastel, bridges pale
+  stone, tree crowns lift to light sage greens (drawn city, park
+  layer and the extrapolated west all matched). Nothing garish
+  remains; night and Minecraft keep their own registers.
+- **The Reichstag reads like the real Reichstag.** The recognition
+  model gains its missing signature elements: the gilded
+  "DEM DEUTSCHEN VOLKE" inscription band with letter-group blocks on
+  the architrave, the grand west stair rising to the portico, a square
+  roof podium under the dome, and projecting central risalits on the
+  north, east and south fronts — the elevation now projects on all
+  four sides as built.
+
 ## v0.19.0
 
 - **No more invented windows ("keine quadratischen Fenster, wo in

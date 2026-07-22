@@ -319,8 +319,8 @@ function addTrees(
       branches,
     ),
   );
-  // Day-legible drawn greens (the old 0x35…/0x31… read as black).
-  const colors = [0x4d7c46, 0x5d8e4f, 0x487550];
+  // Sage drawn greens, matching the ivory city's calm parkland.
+  const colors = [0x7da371, 0x8db07e, 0x76996d];
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(

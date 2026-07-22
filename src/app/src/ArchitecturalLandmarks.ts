@@ -816,6 +816,70 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   pediment.position.set(westX, 20.2, 0);
   pediment.castShadow = true;
   group.add(pediment);
+  // The gilded dedication on the architrave — the Reichstag's most
+  // famous line, read here as a gold band with letter-group blocks.
+  const gilded = modelMaterial(0xc9a227, { metalness: 0.45, roughness: 0.4 });
+  addBox(
+    group,
+    "Reichstag DEM DEUTSCHEN VOLKE inscription band",
+    [0.26, 1.15, 26],
+    [westX - 3.8, 18.55, 0],
+    gilded,
+  );
+  for (const [offset, width] of [
+    [-9.5, 5.4],
+    [-0.5, 10.6],
+    [9.8, 7.4],
+  ] as const) {
+    addBox(
+      group,
+      "Reichstag inscription letter group",
+      [0.3, 0.62, width],
+      [westX - 3.85, 18.55, offset],
+      stoneAccent,
+      0.92,
+    );
+  }
+  // The grand west stair rises to the portico floor.
+  for (let step = 0; step < 5; step += 1) {
+    addBox(
+      group,
+      "Reichstag west grand stair step",
+      [1.25, 0.45, 37 - step * 1.6],
+      [westX - 4.6 - step * 1.2, 3.55 - step * 0.75, 0],
+      stoneAccent,
+      0.9,
+    );
+  }
+  // The dome rises from a square roof podium, not bare terrace.
+  addBox(
+    group,
+    "Reichstag dome roof podium",
+    [46, 1.6, 46],
+    [0, signature.body_height_m + 0.8, 0],
+    stoneAccent,
+    0.88,
+  );
+  // Central risalits on the north, east and south fronts — the real
+  // elevation projects on all four sides, not only at the portico.
+  addBox(
+    group,
+    "Reichstag east central risalit",
+    [3.4, signature.body_height_m + 1.8, 30],
+    [signature.width_m / 2 + 0.9, (signature.body_height_m + 1.8) / 2, 0],
+    stoneAccent,
+    0.85,
+  );
+  for (const side of [-1, 1]) {
+    addBox(
+      group,
+      "Reichstag long-front central risalit",
+      [30, signature.body_height_m + 1.8, 3.4],
+      [0, (signature.body_height_m + 1.8) / 2, side * (signature.depth_m / 2 + 0.9)],
+      stoneAccent,
+      0.85,
+    );
+  }
   addEdges(group, pediment, 0.9);
   addReichstagWindowSets(group, signature);
   addReichstagMicroDetails(group, signature, stoneAccent);
