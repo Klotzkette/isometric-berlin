@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.19.0
+
+- **No more invented windows ("keine quadratischen Fenster, wo in
+  Wirklichkeit keine sind").** LoD2 carries no real window positions,
+  so the generic punched-pane grid was fabrication — it is gone.
+  Ordinary facades now read as clean pale panels articulated only by
+  slender floor-to-cornice glazing LINES on the surveyed bay rhythm
+  (fine grey ink, linienartig), plus one drawn entrance door. The
+  referenced hero fenestration (Reichstag arched windows) and the real
+  glass-curtain mullions stay — those are documented, not invented.
+- **Night reads like an elegant blueprint.** Instead of a lit window
+  grid, a deterministic ~38% of facade axes carry a slim warm vertical
+  light strip (cool office white on civic buildings, warm on housing),
+  hidden by day; the axis ink dims to a whisper so the strips carry the
+  reading. Cleaner, calmer, more glorious in all three modes.
+
 ## v0.18.0
 
 - **Schlanker, länglicher, heller, glorioser.** Elegance pass across

@@ -257,6 +257,18 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
+  // Facade axes: fine ink by day, dimmed to a whisper at night so the
+  // warm light strips carry the reading instead.
+  const axes = city.getObjectByName("LoD2 facade axes");
+  if (axes instanceof LineSegments) {
+    const material = axes.material as LineBasicMaterial;
+    material.color.setHex(night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR);
+    material.opacity = night ? 0.12 : 0.34;
+  }
+  const strips = city.getObjectByName("LoD2 facade night strips");
+  if (strips) {
+    strips.visible = night;
+  }
   const kerbs = city.getObjectByName("drawn kerb lines");
   if (kerbs instanceof LineSegments) {
     (kerbs.material as LineBasicMaterial).color.setHex(
@@ -1397,6 +1409,20 @@ export function createIsometricCity(
   const edgeGeometries = [];
   const windows: WindowInstance[] = [];
   const mullionPositions: number[] = [];
+  // Slender facade glazing axes: ink lines by day, warm strips by night.
+  const facadeAxisPositions: number[] = [];
+  const windowAxes: Array<{
+    dirX: number;
+    dirZ: number;
+    lit: boolean;
+    litTone: number;
+    nx: number;
+    nz: number;
+    x: number;
+    yTop: number;
+    yBottom: number;
+    z: number;
+  }> = [];
   const color = new Color();
   const bakeColor = (geometry: BufferGeometry, tone: Color): void => {
     const positions = geometry.getAttribute("position");
@@ -1555,11 +1581,14 @@ export function createIsometricCity(
         bodyGeometries.push(parapet);
       }
     }
-    // Ligne-claire windows: real floor count from the measured height,
-    // real bay rhythm from each surveyed wall, on the outer ring of
-    // every building tall enough to have storeys. Monumental civic
-    // footprints get piano-nobile formats; every building gets one
-    // drawn entrance door on its longest windowed wall.
+    // NO invented punched windows ("keine quadratischen Fenster, wo in
+    // Wirklichkeit keine sind"): LoD2 carries no real window positions,
+    // so any square-pane grid was fabrication. Instead every tall wall
+    // gets slender floor-to-cornice glazing LINES on the surveyed bay
+    // rhythm — pure facade articulation (linienartig, elegant), never a
+    // punched hole. At night a deterministic few of those axes carry a
+    // warm vertical light strip. One entrance door per building stays.
+    // Hero buildings (Reichstag) keep their referenced real windows.
     if (
       totalHeight >= WINDOW_MIN_BUILDING_M &&
       !WINDOWS_SUPPRESSED_IDS.has(building.id)
@@ -1570,105 +1599,76 @@ export function createIsometricCity(
       const isCivic =
         ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
         totalHeight >= CIVIC_HEIGHT_M;
-      const format =
-        HERO_WINDOW_FORMATS[building.id] ??
-        (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW);
-      // Windows read as light glass panels ("feine, weiße, helle
-      // Paneele"), a touch cooler and brighter than the facade — never
-      // as dark punched slits.
-      const windDay = new Color(0xe6eef4).lerp(color, 0.22);
-      const sillDay = color.clone().multiplyScalar(0.9);
-      const sillNight = new Color(0x232a33);
-      const nightLit = new Color();
-      const nightDark = new Color(WINDOW_NIGHT_DARK_TONE);
-      const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
-      const nightTones = isCivic
+      const bayPitch = isCivic ? 4.6 : 3.6;
+      const axisTop = y0 + bodyHeight - 0.9;
+      const axisBottom = y0 + 1.2;
+      const nightStrip = isCivic
         ? WINDOW_NIGHT_CIVIC_TONES
         : WINDOW_NIGHT_LIT_TONES;
+      const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
       const walls = wallsOf(building);
-      // The entrance door lives on the longest wall that carries
-      // windows and enough width to step around it.
       let doorWall = -1;
       let doorLength = DOOR_SUPPRESSED_IDS.has(building.id)
         ? Number.POSITIVE_INFINITY
         : DOOR_MIN_WALL_M;
       for (const wall of walls) {
-        if (wall.length >= doorLength && windowGrid(wall.length, bodyHeight, format)) {
+        if (wall.length >= doorLength) {
           doorWall = wall.index;
           doorLength = wall.length;
         }
       }
-      for (const wall of walls) {
-        const grid = windowGrid(wall.length, bodyHeight, format);
-        if (!grid) {
-          continue;
-        }
-        const hasDoor = wall.index === doorWall;
-        const doorAlong = wall.length / 2;
-        for (let bay = 0; bay < grid.bays; bay += 1) {
-          const along = grid.firstOffset + bay * format.bayPitch;
-          for (let floor = 0; floor < grid.floors; floor += 1) {
-            if (
-              hasDoor &&
-              floor === 0 &&
-              Math.abs(along - doorAlong) < DOOR_CLEARANCE_M
-            ) {
-              continue;
-            }
-            const sill = format.sillStart + floor * format.floorPitch;
-            const roll = hash32(building.id, wall.index * 2801 + bay * 53 + floor) % 1000;
-            if (roll < litLimit) {
-              nightLit.setHex(nightTones[roll % nightTones.length]);
-            }
-            windows.push({
+      if (axisTop > axisBottom + 1) {
+        for (const wall of walls) {
+          if (wall.length < WINDOW_MIN_WALL_M) {
+            continue;
+          }
+          const axes = Math.floor((wall.length - 1.2) / bayPitch);
+          if (axes < 1) {
+            continue;
+          }
+          const first = (wall.length - (axes - 1) * bayPitch) / 2;
+          const ox = wall.nx * WINDOW_FACE_OFFSET_M;
+          const oz = wall.nz * WINDOW_FACE_OFFSET_M;
+          for (let axis = 0; axis < axes; axis += 1) {
+            const along = first + axis * bayPitch;
+            const x = wall.x1 + wall.dirX * along + ox;
+            const z = wall.z1 + wall.dirZ * along + oz;
+            // Slender glazing line as ink (the facade axis).
+            facadeAxisPositions.push(x, axisBottom, z, x, axisTop, z);
+            // A warm-lit vertical strip on ~38% of axes at night.
+            const roll =
+              hash32(building.id, wall.index * 2801 + axis * 53) % 1000;
+            windowAxes.push({
               dirX: wall.dirX,
               dirZ: wall.dirZ,
-              height: format.height,
-              night: (roll < litLimit ? nightLit : nightDark).clone(),
+              lit: roll < litLimit,
+              litTone: nightStrip[roll % nightStrip.length],
               nx: wall.nx,
               nz: wall.nz,
-              px: wall.x1 + wall.dirX * along + wall.nx * WINDOW_FACE_OFFSET_M,
-              py: y0 + sill + format.height / 2,
-              pz: wall.z1 + wall.dirZ * along + wall.nz * WINDOW_FACE_OFFSET_M,
-              tone: windDay.clone(),
-              width: format.width,
+              x,
+              yTop: axisTop,
+              yBottom: axisBottom,
+              z,
             });
-            // A light sill ledge under every pane — the elevation's
-            // fine horizontal grain.
+          }
+          if (wall.index === doorWall) {
+            const doorAlong = wall.length / 2;
             windows.push({
               dirX: wall.dirX,
               dirZ: wall.dirZ,
-              height: 0.1,
-              night: sillNight.clone(),
+              height: DOOR_HEIGHT_M,
+              night: new Color(DOOR_NIGHT_LIT_TONE),
               nx: wall.nx,
               nz: wall.nz,
               px:
-                wall.x1 + wall.dirX * along + wall.nx * (WINDOW_FACE_OFFSET_M + 0.03),
-              py: y0 + sill - 0.06,
+                wall.x1 + wall.dirX * doorAlong + wall.nx * WINDOW_FACE_OFFSET_M,
+              py: y0 + DOOR_HEIGHT_M / 2,
               pz:
-                wall.z1 + wall.dirZ * along + wall.nz * (WINDOW_FACE_OFFSET_M + 0.03),
-              tone: sillDay.clone(),
-              width: format.width + 0.34,
+                wall.z1 + wall.dirZ * doorAlong + wall.nz * WINDOW_FACE_OFFSET_M,
+              tone: new Color(DOOR_DAY_TONE),
+              width: DOOR_WIDTH_M,
             });
           }
-        }
-        if (hasDoor) {
-          const litDoor = hash32(building.id, 77) % 1000 < 200;
-          windows.push({
-            dirX: wall.dirX,
-            dirZ: wall.dirZ,
-            height: DOOR_HEIGHT_M,
-            night: new Color(litDoor ? DOOR_NIGHT_LIT_TONE : DOOR_NIGHT_TONE),
-            nx: wall.nx,
-            nz: wall.nz,
-            px:
-              wall.x1 + wall.dirX * doorAlong + wall.nx * WINDOW_FACE_OFFSET_M,
-            py: y0 + DOOR_HEIGHT_M / 2,
-            pz:
-              wall.z1 + wall.dirZ * doorAlong + wall.nz * WINDOW_FACE_OFFSET_M,
-            tone: new Color(DOOR_DAY_TONE),
-            width: DOOR_WIDTH_M,
-          });
         }
       }
     }
@@ -1991,6 +1991,60 @@ export function createIsometricCity(
     mullions.name = "LoD2 glass mullions";
     mullions.renderOrder = 2;
     group.add(mullions);
+  }
+
+  // Facade glazing axes: fine ink lines (day). A subtle grey so they
+  // articulate without weighing the pale panels down.
+  if (facadeAxisPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(facadeAxisPositions, 3),
+    );
+    const axes = new LineSegments(
+      geometry,
+      new LineBasicMaterial({
+        color: ISO_INK_COLOR,
+        opacity: 0.34,
+        transparent: true,
+      }),
+    );
+    axes.name = "LoD2 facade axes";
+    axes.renderOrder = 2;
+    group.add(axes);
+  }
+  // Night light strips: thin warm vertical bars on the lit axes only,
+  // hidden by day. Instanced quads (0.28 m wide) facing outward.
+  if (windowAxes.length > 0) {
+    const lit = windowAxes.filter((axis) => axis.lit);
+    if (lit.length > 0) {
+      const strips = new InstancedMesh(
+        new PlaneGeometry(1, 1),
+        new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
+        lit.length,
+      );
+      strips.name = "LoD2 facade night strips";
+      strips.visible = false;
+      const matrix = new Matrix4();
+      const tone = new Color();
+      lit.forEach((axis, index) => {
+        const height = axis.yTop - axis.yBottom;
+        matrix.set(
+          axis.dirX * 0.28, 0, axis.nx, axis.x,
+          0, height, 0, (axis.yTop + axis.yBottom) / 2,
+          axis.dirZ * 0.28, 0, axis.nz, axis.z,
+          0, 0, 0, 1,
+        );
+        strips.setMatrixAt(index, matrix);
+        strips.setColorAt(index, tone.setHex(axis.litTone));
+      });
+      strips.instanceMatrix.needsUpdate = true;
+      if (strips.instanceColor) {
+        strips.instanceColor.needsUpdate = true;
+      }
+      strips.frustumCulled = false;
+      group.add(strips);
+    }
   }
 
   if (tunnelPoints && tunnelPoints.length >= 2 && ground) {

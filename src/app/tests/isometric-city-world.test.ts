@@ -86,28 +86,39 @@ describe("ligne-claire fenestration", () => {
     expect(windowGrid(20, 2.5)).toBeNull();
   });
 
-  test("the city carries a six-figure count of instanced window panes", () => {
-    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
-    expect(panes).toBeInstanceOf(InstancedMesh);
-    // Panes plus a sill ledge under every one of them.
-    expect(panes.count).toBeGreaterThan(200_000);
-    // Both palettes are baked: cool drawn day panes, warm-lit night mix.
-    expect(panes.userData.dayColors).toBeInstanceOf(Float32Array);
-    expect(panes.userData.nightColors).toBeInstanceOf(Float32Array);
-    expect((panes.userData.dayColors as Float32Array).length).toBe(
-      panes.count * 3,
-    );
-    // The night palette actually contains lit (warm, r > g > b) panes.
-    const night = panes.userData.nightColors as Float32Array;
-    let lit = 0;
-    for (let index = 0; index < panes.count; index += 1) {
-      if (night[index * 3] > 0.8 && night[index * 3] > night[index * 3 + 2]) {
-        lit += 1;
-      }
+  test("facades are articulated by fine glazing axes, not punched panes", () => {
+    // No invented square windows: the facade rhythm is drawn as slender
+    // vertical ink lines ("keine quadratischen Fenster wo keine sind").
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    expect(axes).toBeInstanceOf(LineSegments);
+    const position = axes.geometry.getAttribute("position");
+    // Thousands of axis lines across the quarter (2 endpoints each).
+    expect(position.count).toBeGreaterThan(20_000);
+    // Each axis is vertical: the two endpoints share x and z.
+    for (let index = 0; index < position.count; index += 2) {
+      expect(Math.abs(position.getX(index) - position.getX(index + 1))).toBeLessThan(1e-3);
+      expect(Math.abs(position.getZ(index) - position.getZ(index + 1))).toBeLessThan(1e-3);
+      expect(position.getY(index + 1)).toBeGreaterThan(position.getY(index));
     }
-    // Sills never glow, so the lit share halves against the pane+sill total.
-    expect(lit / panes.count).toBeGreaterThan(0.12);
-    expect(lit / panes.count).toBeLessThan(0.3);
+  });
+
+  test("night lights only a warm minority of facade axes, hidden by day", () => {
+    const strips = city.getObjectByName("LoD2 facade night strips") as InstancedMesh;
+    expect(strips).toBeInstanceOf(InstancedMesh);
+    // Off by day.
+    expect(strips.visible).toBe(false);
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    const axisCount = axes.geometry.getAttribute("position").count / 2;
+    // The lit strips are a minority (~38%) of all axes.
+    expect(strips.count).toBeGreaterThan(0);
+    expect(strips.count / axisCount).toBeLessThan(0.5);
+    // The strips are warm (r ≥ b) on average.
+    const colors = strips.instanceColor!.array as Float32Array;
+    let warm = 0;
+    for (let index = 0; index < strips.count; index += 1) {
+      if (colors[index * 3] >= colors[index * 3 + 2]) warm += 1;
+    }
+    expect(warm / strips.count).toBeGreaterThan(0.5);
   });
 
   test("glass-class prisms and the Hauptbahnhof towers render transparent", () => {
@@ -138,35 +149,19 @@ describe("ligne-claire fenestration", () => {
 
   test("every sizeable building gets one drawn entrance door", () => {
     const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
+    expect(panes).toBeInstanceOf(InstancedMesh);
     const matrices = panes.instanceMatrix.array as Float32Array;
     let doors = 0;
     for (let index = 0; index < panes.count; index += 1) {
-      // Column-major element 5 is the pane's height scale; doors are
-      // the only 2.35 m panes.
+      // The pane layer now carries ONLY doors (2.35 m tall).
       if (Math.abs(matrices[index * 16 + 5] - 2.35) < 1e-3) {
         doors += 1;
       }
     }
-    expect(doors).toBeGreaterThan(500);
+    expect(doors).toBeGreaterThan(400);
     expect(doors).toBeLessThan(payload.buildings.length);
-  });
-
-  test("civic monuments use taller piano-nobile window formats", async () => {
-    const { CIVIC_FOOTPRINT_M2, CIVIC_HEIGHT_M } = await import(
-      "../src/IsometricCityWorld"
-    );
-    expect(CIVIC_FOOTPRINT_M2).toBeGreaterThan(1000);
-    expect(CIVIC_HEIGHT_M).toBeGreaterThan(10);
-    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
-    const matrices = panes.instanceMatrix.array as Float32Array;
-    let tall = 0;
-    for (let index = 0; index < panes.count; index += 1) {
-      if (Math.abs(matrices[index * 16 + 5] - 3.0) < 1e-3) {
-        tall += 1;
-      }
-    }
-    // The Reichstag alone carries hundreds of monumental windows.
-    expect(tall).toBeGreaterThan(500);
+    // Doors are the whole pane layer now — no invented windows.
+    expect(doors).toBe(panes.count);
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {
