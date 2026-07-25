@@ -295,6 +295,7 @@ export function createGroundSlabs(
   payload: VoxelPayload,
   name: string,
   shadeMap: Record<string, readonly number[]>,
+  options?: { bridgeDecks?: boolean },
 ): InstancedMesh {
   const cell = payload.cell_m;
   const { min_x_idx, min_z_idx } = payload.grid;
@@ -318,12 +319,17 @@ export function createGroundSlabs(
         className === "water"
           ? (payload.water_top_y_m ?? WATER_TOP_Y)
           : groundTopY(xStart + run / 2, zOffset);
+      // Real bridge decks (drawn city): a thin plate at bank level with
+      // open air beneath, so the river visibly flows under the bridge
+      // instead of the deck being ironed flat onto the water.
+      const slabHeight =
+        options?.bridgeDecks && className === "bridge" ? 1.1 : GROUND_SLAB_M;
       center.set(
         worldXAbs(min_x_idx + xStart, run),
-        topY - GROUND_SLAB_M / 2,
+        topY - slabHeight / 2,
         worldZAbs(min_z_idx + zOffset),
       );
-      size.set(run * cell, GROUND_SLAB_M, cell);
+      size.set(run * cell, slabHeight, cell);
       ground.write(center, size, shadeFor(shades, xStart, zOffset, run));
     }
   });

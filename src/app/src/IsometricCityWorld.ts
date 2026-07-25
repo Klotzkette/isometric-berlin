@@ -137,7 +137,8 @@ export function cleanedTone(tone: [number, number, number]): Color {
   b += (luma - b) * DESATURATION;
   // Light-panel city: lightness lives in a bright band ("alles in
   // hellen Farben") — pale stone up to near-white, never murky.
-  const clamped = Math.min(0.88, Math.max(0.56, luma));
+  // Bright ivory band: no murky greys or dark yellows survive.
+  const clamped = Math.min(0.88, Math.max(0.64, luma));
   const bands = 6;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
@@ -196,7 +197,7 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone).lerp(IVORY, 0.3);
+    return cleanedTone(building.tone).lerp(IVORY, 0.42);
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -284,6 +285,12 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const monumentInk = city.getObjectByName("monument ink lines");
   if (monumentInk instanceof LineSegments) {
     (monumentInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const railingInk = city.getObjectByName("bridge railing ink lines");
+  if (railingInk instanceof LineSegments) {
+    (railingInk.material as LineBasicMaterial).color.setHex(
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
@@ -1111,6 +1118,8 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     z2: number,
     xOffset: number,
     zOffset: number,
+    towardWaterX: number,
+    towardWaterZ: number,
   ): void => {
     const top = sample(xOffset, zOffset) + 0.22;
     const bottom = waterTop - 0.55;
@@ -1129,6 +1138,34 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
       positions.push(px, py, pz);
       colors.push(paint.r, paint.g, paint.b);
     }
+    // The riverside promenade: a light boardwalk ledge just above the
+    // water, jutting from the quay wall — the "Weg zum Ufer".
+    const ledgeY = waterTop + 0.55;
+    const jut = 2.2;
+    paint.setHex(0xd3ccba);
+    for (const [px, py, pz] of [
+      [ax, ledgeY, az], [bx, ledgeY, bz],
+      [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
+      [ax, ledgeY, az],
+      [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
+      [ax + towardWaterX * jut, ledgeY, az + towardWaterZ * jut],
+    ] as const) {
+      positions.push(px, py, pz);
+      colors.push(paint.r, paint.g, paint.b);
+    }
+    // Its thin front face down to the water keeps the ledge readable.
+    paint.setHex(0xbdb6a4);
+    for (const [px, py, pz] of [
+      [ax + towardWaterX * jut, ledgeY, az + towardWaterZ * jut],
+      [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
+      [bx + towardWaterX * jut, waterTop - 0.3, bz + towardWaterZ * jut],
+      [ax + towardWaterX * jut, ledgeY, az + towardWaterZ * jut],
+      [bx + towardWaterX * jut, waterTop - 0.3, bz + towardWaterZ * jut],
+      [ax + towardWaterX * jut, waterTop - 0.3, az + towardWaterZ * jut],
+    ] as const) {
+      positions.push(px, py, pz);
+      colors.push(paint.r, paint.g, paint.b);
+    }
   };
   for (let z = 0; z < rows; z += 1) {
     for (let x = 0; x < cols; x += 1) {
@@ -1137,16 +1174,16 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
         continue;
       }
       if (x + 1 < cols && classGrid[z * cols + x + 1] === waterClass) {
-        wall(x + 1, z, x + 1, z + 1, x, z);
+        wall(x + 1, z, x + 1, z + 1, x, z, 1, 0);
       }
       if (x > 0 && classGrid[z * cols + x - 1] === waterClass) {
-        wall(x, z, x, z + 1, x, z);
+        wall(x, z, x, z + 1, x, z, -1, 0);
       }
       if (z + 1 < rows && classGrid[(z + 1) * cols + x] === waterClass) {
-        wall(x, z + 1, x + 1, z + 1, x, z);
+        wall(x, z + 1, x + 1, z + 1, x, z, 0, 1);
       }
       if (z > 0 && classGrid[(z - 1) * cols + x] === waterClass) {
-        wall(x, z, x + 1, z, x, z);
+        wall(x, z, x + 1, z, x, z, 0, -1);
       }
     }
   }
@@ -1206,6 +1243,124 @@ function prismTriangles(
  * void. No buildings are invented — parkland and one documented
  * monument only. Marked via userData.extrapolated.
  */
+/**
+ * Bridge railings: wherever a bridge deck cell borders water, a slim
+ * drawn parapet rises from the deck edge — the Gustav-Heinemann-Brücke
+ * and its siblings stop being flat strips ironed over the Spree.
+ */
+function createBridgeRailings(ground: VoxelPayload): Group | null {
+  const cell = ground.cell_m;
+  const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
+  const classGrid = new Int16Array(cols * rows).fill(-1);
+  ground.ground_rows.forEach((row, zOffset) => {
+    for (const [xStart, run, classId] of row) {
+      for (let step = 0; step < run; step += 1) {
+        const x = xStart + step;
+        if (x >= 0 && x < cols) {
+          classGrid[zOffset * cols + x] = classId;
+        }
+      }
+    }
+  });
+  const bridgeClass = ground.classes.indexOf("bridge");
+  const waterClass = ground.classes.indexOf("water");
+  if (bridgeClass < 0 || waterClass < 0) {
+    return null;
+  }
+  const sample = groundTopSampler(ground);
+  const parts: BufferGeometry[] = [];
+  const edges: BufferGeometry[] = [];
+  const tone = new Color(0xcfc9b9);
+  const rail = (
+    x1: number,
+    z1: number,
+    x2: number,
+    z2: number,
+    xOffset: number,
+    zOffset: number,
+  ): void => {
+    const deckTop = sample(xOffset, zOffset);
+    const midX = ((min_x_idx + x1) * cell + (min_x_idx + x2) * cell) / 2;
+    const midZ = ((min_z_idx + z1) * cell + (min_z_idx + z2) * cell) / 2;
+    const dirX = ((x2 - x1) * cell) / Math.hypot((x2 - x1) * cell, (z2 - z1) * cell);
+    const dirZ = ((z2 - z1) * cell) / Math.hypot((x2 - x1) * cell, (z2 - z1) * cell);
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        boxTriangles(midX, deckTop + 0.55, midZ, [dirX, dirZ], cell, 1.05, 0.16),
+        3,
+      ),
+    );
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+    edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+  };
+  for (let z = 0; z < rows; z += 1) {
+    for (let x = 0; x < cols; x += 1) {
+      if (classGrid[z * cols + x] !== bridgeClass) {
+        continue;
+      }
+      if (x + 1 >= cols || classGrid[z * cols + x + 1] === waterClass) {
+        rail(x + 1, z, x + 1, z + 1, x, z);
+      }
+      if (x === 0 || classGrid[z * cols + x - 1] === waterClass) {
+        rail(x, z, x, z + 1, x, z);
+      }
+      if (z + 1 >= rows || classGrid[(z + 1) * cols + x] === waterClass) {
+        rail(x, z + 1, x + 1, z + 1, x, z);
+      }
+      if (z === 0 || classGrid[(z - 1) * cols + x] === waterClass) {
+        rail(x, z, x + 1, z, x, z);
+      }
+    }
+  }
+  if (parts.length === 0) {
+    return null;
+  }
+  const group = new Group();
+  group.name = "drawn bridge railings";
+  const merged = mergeGeometries(parts, false);
+  if (merged) {
+    const mesh = new Mesh(
+      merged,
+      new MeshStandardMaterial({
+        flatShading: true,
+        metalness: 0,
+        roughness: 0.9,
+        vertexColors: true,
+      }),
+    );
+    mesh.name = "bridge railing bodies";
+    group.add(mesh);
+    for (const geometry of parts) {
+      geometry.dispose();
+    }
+  }
+  const ink = mergeGeometries(edges, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "bridge railing ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  return group;
+}
+
 export function createWestTiergarten(): Group {
   const group = new Group();
   group.name = "extrapolated west Tiergarten (Siegessäule)";
@@ -2086,6 +2241,7 @@ export function createIsometricCity(
       ground,
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
+      { bridgeDecks: true },
     );
     group.add(slabs);
     const kerbs = createKerbLines(ground);
@@ -2095,6 +2251,10 @@ export function createIsometricCity(
     const quays = createQuayWalls(ground);
     if (quays) {
       group.add(quays);
+    }
+    const railings = createBridgeRailings(ground);
+    if (railings) {
+      group.add(railings);
     }
   }
   group.add(createWestTiergarten());

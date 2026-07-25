@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.21.0
+
+- **Touch that anyone can use.** Two-finger gestures now LOCK to one
+  intent with hysteresis: a swipe is a pan (content follows the
+  fingers), a deliberate pinch is a straight fly along the view —
+  decided once per gesture and held until the fingers lift. The old
+  behaviour mixed both on every move and steered the flight toward the
+  pinch-centre x, which made panning drift left/right whenever finger
+  distance jittered. Steering is gone; flight is always straight.
+- **Bridges are bridges again.** In the drawn city, bridge cells render
+  as thin decks (1.1 m plates at bank level) with open air and water
+  beneath, and slim drawn parapets rise along every deck edge that
+  borders water — the Gustav-Heinemann-Brücke spans the Spree instead
+  of being ironed onto it.
+- **Der Weg zum Ufer.** Every quay wall now carries a light boardwalk
+  ledge just above the water line, jutting from the wall with its own
+  front face — the riverside promenade the banks were missing; the
+  Spree reads as a real recessed river with walkable edges.
+- **Brighter still, and no fog.** Facade lightness floor raised
+  (0.56 → 0.64 luma) with a stronger ivory lean — murky greys and dark
+  yellows are gone; the drawn modes drop distance fog entirely (only
+  Minecraft keeps its genre haze), so nothing dissolves when zooming
+  out. Verified: 210/840 sampled facade patches with colour std < 2
+  (many exactly 0) — flat drawn paint, as specified.
+
 ## v0.20.0
 
 - **The ivory-palace refinement ("Elfenbeinpalastdarstellung").** The

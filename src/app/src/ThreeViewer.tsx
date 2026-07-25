@@ -446,7 +446,10 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   }
   const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xc9eaf3;
   runtime.scene.background = new Color(sky);
-  runtime.scene.fog = new Fog(sky, isNight ? 900 : isMinecraft ? 1450 : 1100, 2550);
+  // No fog in the drawn modes ("verschwindet alles in einem Nebel …
+  // das will ich überhaupt nicht"): the ivory model stays crisp to the
+  // horizon. Only Minecraft keeps its genre haze.
+  runtime.scene.fog = isMinecraft ? new Fog(sky, 1450, 2550) : null;
   // Minecraft exposure compensates for the darker outline pass and the
   // wider light/dark contrast so mids stay readable, not muddy.
   runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.62 : 1.33;
@@ -1815,6 +1818,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         center: { x: number; y: number };
         distance: number;
       } | null = null;
+      // Gesture lock ("jeder Blödmann sofort bedienen"): a two-finger
+      // gesture is EITHER a pan OR a fly, decided once with hysteresis
+      // and held until the fingers lift. Mixing the two on every move
+      // made panning drift sideways whenever the finger distance
+      // jittered.
+      let twoFingerMode: "undecided" | "pan" | "fly" = "undecided";
+      let twoFingerStart: {
+        center: { x: number; y: number };
+        distance: number;
+      } | null = null;
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let lastTouchActivityAt = performance.now();
@@ -1849,6 +1862,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.enabled = false;
           markSurfaceInteraction(runtime);
           previousTwoFingerGesture = twoFingerGesture();
+          twoFingerStart = previousTwoFingerGesture;
+          twoFingerMode = "undecided";
           previousThreeFingerCenter = null;
           return;
         }
@@ -1858,6 +1873,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.enabled = false;
           markSurfaceInteraction(runtime);
           previousTwoFingerGesture = null;
+          twoFingerStart = null;
+          twoFingerMode = "undecided";
           const points = [...touchPoints.values()];
           previousThreeFingerCenter = {
             x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
@@ -1884,34 +1901,38 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // travels opposite the finger delta — see twoFingerPanFlight.
           // Rotation stays on the on-screen buttons, the keyboard and the
           // mouse-drag; a three-finger gesture still tilts deliberately.
-          const deltaX = current.center.x - previousTwoFingerGesture.center.x;
-          const deltaY = current.center.y - previousTwoFingerGesture.center.y;
-          const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
-          flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
-          // Pinch no longer zooms: spreading the fingers flies INTO the
-          // picture along the view heading (pinching together flies
-          // back), steered toward the pinch centre. Zoom stays on the
-          // +/- buttons, the wheel and double-tap.
-          const pinchRatio = MathUtils.clamp(
-            current.distance / previousTwoFingerGesture.distance,
-            0.86,
-            1.16,
-          );
-          const flyAmount = MathUtils.clamp((pinchRatio - 1) * 7.5, -1.3, 1.3);
-          if (Math.abs(flyAmount) > 0.004) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            const steer = MathUtils.clamp(
-              ((current.center.x - rect.left) / Math.max(1, rect.width) - 0.5) *
-                2.4,
-              -1,
-              1,
+          if (twoFingerStart && twoFingerMode === "undecided") {
+            const panTravel = Math.hypot(
+              current.center.x - twoFingerStart.center.x,
+              current.center.y - twoFingerStart.center.y,
             );
-            flyCameraAlongViewHeading(
-              camera,
-              controls.target,
-              flyAmount * steer * 0.55,
-              flyAmount,
+            const pinchTravel = Math.abs(
+              current.distance - twoFingerStart.distance,
             );
+            if (pinchTravel > 26 && pinchTravel > panTravel * 1.2) {
+              twoFingerMode = "fly";
+            } else if (panTravel > 14) {
+              twoFingerMode = "pan";
+            }
+          }
+          if (twoFingerMode !== "fly") {
+            // Direct-manipulation pan: content follows the fingers.
+            const deltaX = current.center.x - previousTwoFingerGesture.center.x;
+            const deltaY = current.center.y - previousTwoFingerGesture.center.y;
+            const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
+            flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
+          } else {
+            // Locked fly: spreading flies straight INTO the picture,
+            // pinching flies straight back — never sideways.
+            const pinchRatio = MathUtils.clamp(
+              current.distance / previousTwoFingerGesture.distance,
+              0.86,
+              1.16,
+            );
+            const flyAmount = MathUtils.clamp((pinchRatio - 1) * 7.5, -1.3, 1.3);
+            if (Math.abs(flyAmount) > 0.004) {
+              flyCameraAlongViewHeading(camera, controls.target, 0, flyAmount);
+            }
           }
           controls.update();
           previousTwoFingerGesture = current;
@@ -1952,9 +1973,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (touchPoints.size >= 2) {
             previousThreeFingerCenter = null;
             previousTwoFingerGesture = twoFingerGesture();
+          twoFingerStart = previousTwoFingerGesture;
+          twoFingerMode = "undecided";
             return;
           }
           previousTwoFingerGesture = null;
+          twoFingerStart = null;
+          twoFingerMode = "undecided";
           previousThreeFingerCenter = null;
           customTouchGestureActive = false;
           controlsInteracting = false;
