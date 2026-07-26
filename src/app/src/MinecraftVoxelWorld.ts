@@ -300,7 +300,7 @@ export function createGroundSlabs(
   payload: VoxelPayload,
   name: string,
   shadeMap: Record<string, readonly number[]>,
-  options?: { bridgeDecks?: boolean; emissive?: number },
+  options?: { bridgeDecks?: boolean; emissive?: number; skipWater?: boolean },
 ): InstancedMesh {
   const cell = payload.cell_m;
   const { min_x_idx, min_z_idx } = payload.grid;
@@ -318,6 +318,9 @@ export function createGroundSlabs(
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
+      if (options?.skipWater && className === "water") {
+        continue;
+      }
       const shades =
         shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
       const topY =

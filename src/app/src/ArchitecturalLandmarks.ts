@@ -107,7 +107,9 @@ export type ArchitecturalSignature =
   | HauptbahnhofModelSignature
   | BrandenburgGateModelSignature;
 
-const EDGE_COLOR = 0x26383d;
+// Hero-model ink follows the drawn city's fine grey pencil register
+// (was a dark blue-teal that clashed by day and vanished at night).
+const EDGE_COLOR = 0x716c62;
 
 type InstanceTransform = {
   position: [number, number, number];
@@ -154,14 +156,13 @@ function modelMaterial(
 }
 
 function addEdges(group: Group, mesh: Mesh, opacity = 0.78): LineSegments {
-  const edges = new LineSegments(
-    new EdgesGeometry(mesh.geometry, 24),
-    new LineBasicMaterial({
-      color: EDGE_COLOR,
-      opacity,
-      transparent: opacity < 1,
-    }),
-  );
+  const material = new LineBasicMaterial({
+    color: EDGE_COLOR,
+    opacity,
+    transparent: opacity < 1,
+  });
+  material.userData.modeInk = true;
+  const edges = new LineSegments(new EdgesGeometry(mesh.geometry, 24), material);
   edges.name = `${mesh.name} model edges`;
   edges.position.copy(mesh.position);
   edges.rotation.copy(mesh.rotation);
@@ -180,15 +181,16 @@ function addBoxOutline(
   color = EDGE_COLOR,
 ): LineSegments {
   const source = new BoxGeometry(...size);
-  const edges = new LineSegments(
-    new EdgesGeometry(source, 24),
-    new LineBasicMaterial({
-      color,
-      depthWrite: opacity >= 0.75,
-      opacity,
-      transparent: opacity < 1,
-    }),
-  );
+  const outlineMaterial = new LineBasicMaterial({
+    color,
+    depthWrite: opacity >= 0.75,
+    opacity,
+    transparent: opacity < 1,
+  });
+  if (color === EDGE_COLOR) {
+    outlineMaterial.userData.modeInk = true;
+  }
+  const edges = new LineSegments(new EdgesGeometry(source, 24), outlineMaterial);
   source.dispose();
   edges.name = name;
   edges.position.set(...position);

@@ -15,6 +15,7 @@ import {
   HalfFloatType,
   HemisphereLight,
   InstancedMesh,
+  LineBasicMaterial,
   LineSegments,
   Material,
   Matrix4,
@@ -94,6 +95,8 @@ import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { minecraftFogRange } from "./minecraftFog";
 import {
   type PrismPayload,
+  ISO_INK_COLOR,
+  ISO_NIGHT_INK_COLOR,
   PRISM_WORLD_FILE,
   createIsometricCity,
   setIsoNightPresentation,
@@ -430,6 +433,16 @@ function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
   root.traverse((object) => {
     if (object.userData.nightOnly === true) {
       object.visible = mode === "night";
+    }
+    // Hero-model ink follows the city ink: fine grey pencil by day,
+    // moonlit blue at night (materials tagged modeInk).
+    if (
+      object instanceof LineSegments &&
+      (object.material as LineBasicMaterial).userData?.modeInk === true
+    ) {
+      (object.material as LineBasicMaterial).color.setHex(
+        mode === "night" ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+      );
     }
     if (!(object instanceof Mesh)) {
       return;
@@ -1876,6 +1889,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const panVelocity = { x: 0, y: 0 };
       let panVelocitySampleAt = performance.now();
       const panMomentum = { x: 0, y: 0 };
+      // Double-tap zoom for touch: browsers don't reliably synthesise
+      // dblclick on a touch-action:none canvas, so we detect it from
+      // pointer timestamps/positions ourselves.
+      let lastTapAt = 0;
+      let lastTapX = 0;
+      let lastTapY = 0;
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let touchInteracting = false;
@@ -2034,6 +2053,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onPointerDown = (event: PointerEvent) => {
         panMomentum.x = 0;
         panMomentum.y = 0;
+        if (event.pointerType === "touch" && touchPoints.size === 0) {
+          const now = performance.now();
+          if (
+            now - lastTapAt < 340 &&
+            Math.hypot(event.clientX - lastTapX, event.clientY - lastTapY) < 32
+          ) {
+            lastTapAt = 0;
+            zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
+            controls.update();
+            markSurfaceInteraction(runtime);
+            notifyView(runtime, onViewChangeRef.current);
+          } else {
+            lastTapAt = now;
+            lastTapX = event.clientX;
+            lastTapY = event.clientY;
+          }
+        }
         if (event.pointerType !== "touch") {
           renderer.domElement.focus({ preventScroll: true });
           return;

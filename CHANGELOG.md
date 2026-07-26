@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.28.0
+
+- **Areal expansion (+100 m contract): visible radius 2410 m → 2510 m.**
+  The western lobe reaches −2320 m, the paper/park margin widens to
+  1220 m, flight bounds follow (z −2300…+2720). The v0.27.0 tree strip
+  is pinned to its release constant; a seventh deterministic population
+  fills only the new −2320…−2220 m strip.
+- **Hero-model ink joins the city ink.** The recognition models
+  (Reichstag, Gate, Hauptbahnhof, Chancellery …) drew their edges in a
+  dark blue-teal that clashed with the fine grey pencil by day and
+  stayed near-black at night. Their line materials are now the shared
+  ink colour and tagged for the mode swap — moonlit blue after dark,
+  exactly like the drawn city.
+- **Transparent rivers with a riverbed ("Flüsse müssen durchsichtig
+  sein mit Flussbett").** The drawn city's water is no longer an opaque
+  slab: a pale glass surface plate (45 % opacity, no depth-write)
+  floats over a sandy two-tone riverbed 2.2 m below, and the quay
+  walls now reach down to the bed so the embankments read correctly
+  through the water. At night the surface deepens to a dark glass
+  blue. Minecraft keeps its opaque genre water.
+- **Real double-tap zoom on touch.** Browsers don't reliably synthesise
+  `dblclick` on a `touch-action: none` canvas; a pointer-based detector
+  (340 ms / 32 px) now zooms toward the tapped point on every device,
+  matching what the help overlay promises.
+
 ## v0.27.0
 
 - **Areal expansion (+100 m contract): visible radius 2310 m → 2410 m.**

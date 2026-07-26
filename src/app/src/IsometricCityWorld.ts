@@ -61,9 +61,9 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520).
-export const VISIBLE_RADIUS_M = 2410;
-export const EXTRAPOLATED_WEST_M = -2220;
-export const EXTRAPOLATED_MARGIN_M = 1120;
+export const VISIBLE_RADIUS_M = 2510;
+export const EXTRAPOLATED_WEST_M = -2320;
+export const EXTRAPOLATED_MARGIN_M = 1220;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -331,6 +331,13 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const strips = city.getObjectByName("LoD2 facade night strips");
   if (strips) {
     strips.visible = night;
+  }
+  const waterSurface = city.getObjectByName("drawn water surface");
+  if (waterSurface instanceof InstancedMesh) {
+    (waterSurface.material as MeshBasicMaterial).color.setHex(
+      night ? 0x27435c : 0x9fc7d8,
+    );
+    (waterSurface.material as MeshBasicMaterial).opacity = night ? 0.6 : 0.45;
   }
   const kerbs = city.getObjectByName("drawn kerb lines");
   if (kerbs instanceof LineSegments) {
@@ -1184,7 +1191,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     towardWaterZ: number,
   ): void => {
     const top = sample(xOffset, zOffset) + 0.22;
-    const bottom = waterTop - 0.55;
+    const bottom = waterTop - 2.4;
     if (top <= bottom) {
       return;
     }
@@ -1465,6 +1472,7 @@ export function createWestTiergarten(): Group {
   const V024_WEST = -1920;
   const V025_WEST = -2020;
   const V026_WEST = -2120;
+  const V027_WEST = -2220;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1659,11 +1667,23 @@ export function createWestTiergarten(): Group {
     }
     trunkSpots.push([x, z]);
   }
-  // v0.27.0 grows only the new −2220…−2120 m strip with fresh avalanche
+  // v0.27.0 grows only the −2220…−2120 m strip with fresh avalanche
   // seeds; every previously published strip stays byte-stable.
   for (let index = 0; index < 84; index += 1) {
-    const x = WEST + 10 + (V026_WEST - WEST - 20) * stripUnit(index, 1249);
+    const x =
+      V027_WEST + 10 + (V026_WEST - V027_WEST - 20) * stripUnit(index, 1249);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 1361);
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.28.0 grows only the new −2320…−2220 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x = WEST + 10 + (V027_WEST - WEST - 20) * stripUnit(index, 1543);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 1667);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
@@ -2503,9 +2523,70 @@ export function createIsometricCity(
       ground,
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
-      { bridgeDecks: true, emissive: 0x000000 },
+      { bridgeDecks: true, emissive: 0x000000, skipWater: true },
     );
     group.add(slabs);
+    // Transparent rivers with a visible bed ("Flüsse müssen
+    // durchsichtig sein mit Flussbett"): a pale glass-like surface
+    // plate floats over a sandy riverbed ~2.2 m below.
+    const waterClass = ground.classes.indexOf("water");
+    if (waterClass >= 0) {
+      const cell = ground.cell_m;
+      const { min_x_idx, min_z_idx } = ground.grid;
+      const waterTop = ground.water_top_y_m ?? 1.31;
+      const waterRuns: Array<[number, number, number]> = [];
+      ground.ground_rows.forEach((row, zOffset) => {
+        for (const [xStart, run, classId] of row) {
+          if (classId === waterClass) {
+            waterRuns.push([xStart, zOffset, run]);
+          }
+        }
+      });
+      const bed = new InstancedMesh(
+        new BoxGeometry(1, 1, 1),
+        new MeshBasicMaterial({ vertexColors: false, color: 0xffffff }),
+        Math.max(1, waterRuns.length),
+      );
+      bed.name = "drawn river bed";
+      const surface = new InstancedMesh(
+        new BoxGeometry(1, 1, 1),
+        new MeshBasicMaterial({
+          color: 0x9fc7d8,
+          opacity: 0.45,
+          transparent: true,
+          depthWrite: false,
+        }),
+        Math.max(1, waterRuns.length),
+      );
+      surface.name = "drawn water surface";
+      surface.renderOrder = 1;
+      const matrix = new Matrix4();
+      const bedPaint = new Color();
+      const BED_TONES = [0xc7bda4, 0xbdb298] as const;
+      waterRuns.forEach(([xStart, zOffset, run], index) => {
+        const cx = (min_x_idx + xStart + run / 2) * cell;
+        const cz = (min_z_idx + zOffset + 0.5) * cell;
+        matrix.makeScale(run * cell, 0.5, cell);
+        matrix.setPosition(cx, waterTop - 2.2 - 0.25, cz);
+        bed.setMatrixAt(index, matrix);
+        bed.setColorAt(
+          index,
+          bedPaint.setHex(BED_TONES[(xStart * 31 + zOffset * 17) % 2]),
+        );
+        matrix.makeScale(run * cell, 0.14, cell);
+        matrix.setPosition(cx, waterTop - 0.07, cz);
+        surface.setMatrixAt(index, matrix);
+      });
+      bed.instanceMatrix.needsUpdate = true;
+      if (bed.instanceColor) {
+        bed.instanceColor.needsUpdate = true;
+      }
+      surface.instanceMatrix.needsUpdate = true;
+      bed.frustumCulled = false;
+      surface.frustumCulled = false;
+      group.add(bed);
+      group.add(surface);
+    }
     const kerbs = createKerbLines(ground);
     if (kerbs) {
       group.add(kerbs);
