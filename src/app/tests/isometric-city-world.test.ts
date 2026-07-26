@@ -1,9 +1,19 @@
 import { describe, expect, test } from "bun:test";
 
-import { Box3, InstancedMesh, LineSegments, Mesh, Vector3 } from "three";
+import {
+  Box3,
+  InstancedMesh,
+  LineSegments,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Vector3,
+} from "three";
 
 import {
+  EXTRAPOLATED_WEST_M,
   type PrismPayload,
+  VISIBLE_RADIUS_M,
   buildRoofGeometry,
   createIsometricCity,
   fitRectangle,
@@ -17,6 +27,7 @@ import {
   ROOF_MIN_RECTANGULARITY,
   ROOF_SHED,
   roofRise,
+  setIsoNightPresentation,
   windowGrid,
 } from "../src/IsometricCityWorld";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
@@ -37,6 +48,7 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(ISO_INK_COLOR).toBeGreaterThan(0x404040);
     expect(ISO_INK_COLOR).toBeLessThan(0x909090);
     expect(bodies.geometry.getAttribute("color")).toBeDefined();
+    expect(bodies.material).toBeInstanceOf(MeshBasicMaterial);
   });
 
   test("keeps the Reichstag as a tall prism with courtyard holes", () => {
@@ -125,6 +137,7 @@ describe("ligne-claire fenestration", () => {
     const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
     expect(glass).toBeInstanceOf(Mesh);
     const material = glass.material as { opacity: number; transparent: boolean };
+    expect(glass.material).toBeInstanceOf(MeshBasicMaterial);
     expect(material.transparent).toBe(true);
     expect(material.opacity).toBeGreaterThan(0.3);
     expect(material.opacity).toBeLessThan(0.8);
@@ -133,6 +146,27 @@ describe("ligne-claire fenestration", () => {
     for (const id of PRISM_GLASSED_IDS) {
       expect(payload.buildings.some((b) => b.id === id)).toBe(true);
     }
+  });
+
+  test("glass swaps losslessly between flat day and lit night materials", () => {
+    const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
+    const dayMaterial = glass.material;
+    setIsoNightPresentation(city, true);
+    expect(glass.material).toBeInstanceOf(MeshStandardMaterial);
+    setIsoNightPresentation(city, false);
+    expect(glass.material).toBe(dayMaterial);
+  });
+
+  test("the presentation paper closes distant camera views without data claims", () => {
+    const backdrop = city.getObjectByName("presentation paper backdrop") as Mesh;
+    expect(backdrop).toBeInstanceOf(Mesh);
+    expect(backdrop.material).toBeInstanceOf(MeshBasicMaterial);
+    expect(backdrop.userData.presentationOnly).toBe(true);
+    const dayMaterial = backdrop.material;
+    setIsoNightPresentation(city, true);
+    expect(backdrop.material).not.toBe(dayMaterial);
+    setIsoNightPresentation(city, false);
+    expect(backdrop.material).toBe(dayMaterial);
   });
 
   test("the station's low slabs are suppressed but stay in the payload", async () => {
@@ -228,9 +262,24 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(bounds.max.y).toBeGreaterThan(60);
     expect(bounds.max.y).toBeLessThan(85);
     // The apron reaches the Großer Stern in the west.
-    expect(bounds.min.x).toBeLessThan(-1500);
+    expect(bounds.min.x).toBeLessThanOrEqual(EXTRAPOLATED_WEST_M);
+    expect(bounds.min.x).toBeGreaterThan(EXTRAPOLATED_WEST_M - 10);
+    expect(west.userData.visibleRadiusM).toBe(VISIBLE_RADIUS_M);
+    const trunks = west.getObjectByName(
+      "extrapolated tree trunks",
+    ) as InstancedMesh;
+    expect(trunks.count).toBeGreaterThan(700);
     expect(west.getObjectByName("extrapolated tree crowns")).toBeDefined();
     expect(west.getObjectByName("extrapolated west ink lines")).toBeDefined();
+    const body = west.getObjectByName(
+      "extrapolated west ground and Siegessäule",
+    ) as Mesh;
+    expect(body.material).toBeInstanceOf(MeshBasicMaterial);
+    const bodyBounds = new Box3().setFromObject(body);
+    expect(bodyBounds.min.z).toBeLessThanOrEqual(-1800);
+    expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2220);
+    // Enlarging the ring and tree population adds no draw calls of its own.
+    expect(west.children.length).toBe(4);
   });
 
   test("quay walls drop from the banks wherever land meets water", async () => {

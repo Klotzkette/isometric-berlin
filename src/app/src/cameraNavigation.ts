@@ -12,9 +12,9 @@ export type CameraPose = {
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   // West reaches the extrapolated Großer Stern; the other sides gain
-  // the paper-margin ring (visible radius contract: 1910 m).
-  min: new Vector3(-1_750, -120, -1_700),
-  max: new Vector3(1_280, 280, 2_120),
+  // the paper-margin ring (visible radius contract: 2010 m).
+  min: new Vector3(-1_850, -120, -1_800),
+  max: new Vector3(1_380, 280, 2_220),
 };
 
 export function captureCameraPose(
@@ -198,4 +198,86 @@ export function flyCameraAlongViewHeading(
   camera.position.add(applied);
   camera.updateMatrixWorld();
   return applied;
+}
+
+function screenPointOnHorizontalPlane(
+  camera: PerspectiveCamera,
+  ndcX: number,
+  ndcY: number,
+  planeY: number,
+): Vector3 | null {
+  camera.updateMatrixWorld();
+  const direction = new Vector3(ndcX, ndcY, 0.5)
+    .unproject(camera)
+    .sub(camera.position);
+  if (Math.abs(direction.y) < 1e-8) {
+    return null;
+  }
+  const rayScale = (planeY - camera.position.y) / direction.y;
+  if (!Number.isFinite(rayScale) || rayScale <= 0) {
+    return null;
+  }
+  return camera.position.clone().add(direction.multiplyScalar(rayScale));
+}
+
+/**
+ * Perspective dolly anchored to the pointer/finger midpoint. The point where
+ * that screen coordinate intersects the target-height plane stays fixed while
+ * camera distance changes, so pinch and double-click never jump toward the
+ * screen centre.
+ */
+export function zoomCameraAtScreenPoint(
+  camera: PerspectiveCamera,
+  target: Vector3,
+  ndcX: number,
+  ndcY: number,
+  factor: number,
+  minDistance: number,
+  maxDistance: number,
+  bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+): { anchored: boolean; distance: number } {
+  const currentDistance = camera.position.distanceTo(target);
+  if (
+    !Number.isFinite(currentDistance) ||
+    currentDistance < 1e-6 ||
+    !Number.isFinite(factor) ||
+    factor <= 0
+  ) {
+    return { anchored: false, distance: currentDistance };
+  }
+  const planeY = target.y;
+  const anchorBefore = screenPointOnHorizontalPlane(
+    camera,
+    ndcX,
+    ndcY,
+    planeY,
+  );
+  const distance = MathUtils.clamp(
+    currentDistance / MathUtils.clamp(factor, 0.2, 5),
+    minDistance,
+    maxDistance,
+  );
+  const offset = camera.position.clone().sub(target).setLength(distance);
+  camera.position.copy(target).add(offset);
+  camera.updateMatrixWorld();
+
+  const anchorAfter = screenPointOnHorizontalPlane(
+    camera,
+    ndcX,
+    ndcY,
+    planeY,
+  );
+  const anchored = anchorBefore !== null && anchorAfter !== null;
+  if (anchorBefore && anchorAfter) {
+    const correction = anchorBefore.sub(anchorAfter);
+    correction.y = 0;
+    camera.position.add(correction);
+    target.add(correction);
+  }
+  const boundedTarget = target.clone().clamp(bounds.min, bounds.max);
+  const boundsCorrection = boundedTarget.sub(target);
+  target.add(boundsCorrection);
+  camera.position.add(boundsCorrection);
+  camera.updateMatrixWorld();
+  return { anchored, distance };
 }

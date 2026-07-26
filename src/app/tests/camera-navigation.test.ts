@@ -10,6 +10,7 @@ import {
   stabilizeCameraRig,
   twoFingerPanFlight,
   viewHeadingFlightDelta,
+  zoomCameraAtScreenPoint,
 } from "../src/cameraNavigation";
 
 describe("screen-relative 3D flight", () => {
@@ -182,10 +183,75 @@ describe("forgiving 3D camera bounds", () => {
     const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
 
     expect(result.changed).toBe(true);
-    expect(target.x).toBeLessThanOrEqual(1280);
+    expect(target.x).toBeLessThanOrEqual(1380);
     expect(target.y).toBeLessThanOrEqual(280);
-    expect(target.z).toBeGreaterThanOrEqual(-1700);
+    expect(target.z).toBeGreaterThanOrEqual(-1800);
     expect(camera.position.clone().sub(target).toArray()).toEqual(offset.toArray());
+  });
+});
+
+describe("cursor-anchored zoom", () => {
+  const pointOnTargetPlane = (
+    camera: PerspectiveCamera,
+    target: Vector3,
+    ndcX: number,
+    ndcY: number,
+  ): Vector3 => {
+    camera.updateMatrixWorld();
+    const direction = new Vector3(ndcX, ndcY, 0.5)
+      .unproject(camera)
+      .sub(camera.position);
+    const scale = (target.y - camera.position.y) / direction.y;
+    return camera.position.clone().add(direction.multiplyScalar(scale));
+  };
+
+  test("pinch keeps the world point below the finger midpoint fixed", () => {
+    const camera = new PerspectiveCamera(39, 16 / 9, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(160, 140, 260);
+    camera.lookAt(target);
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    const ndcX = 0.42;
+    const ndcY = -0.24;
+    const before = pointOnTargetPlane(camera, target, ndcX, ndcY);
+    const distanceBefore = camera.position.distanceTo(target);
+
+    const result = zoomCameraAtScreenPoint(
+      camera,
+      target,
+      ndcX,
+      ndcY,
+      1.35,
+      30,
+      2600,
+    );
+
+    const after = pointOnTargetPlane(camera, target, ndcX, ndcY);
+    expect(result.anchored).toBe(true);
+    expect(result.distance).toBeLessThan(distanceBefore);
+    expect(after.distanceTo(before)).toBeLessThan(1e-6);
+  });
+
+  test("rejects an invalid zoom factor without moving the rig", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(0, 100, 200);
+    camera.lookAt(target);
+    const before = camera.position.clone();
+
+    const result = zoomCameraAtScreenPoint(
+      camera,
+      target,
+      0,
+      0,
+      0,
+      30,
+      2600,
+    );
+
+    expect(result.anchored).toBe(false);
+    expect(camera.position.toArray()).toEqual(before.toArray());
   });
 });
 
@@ -216,12 +282,12 @@ describe("pan momentum glide", () => {
 });
 
 describe("visible-radius contract (+100 m per areal run)", () => {
-  test("v0.22.0 envelope spans the versioned 1910 m radius", async () => {
+  test("v0.23.0 envelope spans the versioned 2010 m radius", async () => {
     const { VISIBLE_RADIUS_M } = await import("../src/IsometricCityWorld");
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
       "../src/cameraNavigation"
     );
-    expect(VISIBLE_RADIUS_M).toBe(1910);
+    expect(VISIBLE_RADIUS_M).toBe(2010);
     const span =
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z -
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z;

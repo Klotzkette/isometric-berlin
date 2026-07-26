@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { MOUSE } from "three";
 
 import {
   PEN_GESTURE_SETTINGS,
+  THREE_MOUSE_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
   rotationDeltaFromMouseDrag,
   rotationDeltaFromTouchPairs,
@@ -9,6 +11,12 @@ import {
 } from "../src/viewerGestures";
 
 describe("touch viewer gestures", () => {
+  test("primary drag pans while secondary drag deliberately orbits", () => {
+    expect(THREE_MOUSE_GESTURE_SETTINGS.LEFT).toBe(MOUSE.PAN);
+    expect(THREE_MOUSE_GESTURE_SETTINGS.MIDDLE).toBe(MOUSE.DOLLY);
+    expect(THREE_MOUSE_GESTURE_SETTINGS.RIGHT).toBe(MOUSE.ROTATE);
+  });
+
   test(
     "v0.5.2: two-finger swipe pans (no accidental rotation), pinch zooms, " +
       "flicks are controlled",

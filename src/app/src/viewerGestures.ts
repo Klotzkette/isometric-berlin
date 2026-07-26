@@ -1,4 +1,5 @@
 import type OpenSeadragon from "openseadragon";
+import { MOUSE } from "three";
 
 export const CARDINAL_SNAP_TOLERANCE_DEGREES = 4;
 export const MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL = 0.28;
@@ -6,6 +7,14 @@ export const MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL = 0.28;
 export type RotatableGestureSettings = OpenSeadragon.GestureSettings & {
   pinchRotate: boolean;
 };
+
+// Desktop direct-manipulation contract: the primary button moves the map,
+// while the secondary button deliberately changes the camera orbit.
+export const THREE_MOUSE_GESTURE_SETTINGS = {
+  LEFT: MOUSE.PAN,
+  MIDDLE: MOUSE.DOLLY,
+  RIGHT: MOUSE.ROTATE,
+} as const;
 
 // Touch profile v0.5.2: two-finger swipe pans (does not rotate) and pinch
 // zoom automatically follows the pinch centre. Rotation stays reachable

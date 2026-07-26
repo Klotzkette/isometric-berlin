@@ -1,5 +1,4 @@
 import {
-  MOUSE,
   TOUCH,
   ACESFilmicToneMapping,
   Box3,
@@ -77,6 +76,7 @@ import {
   stabilizeCameraRig,
   decayPanMomentum,
   twoFingerPanFlight,
+  zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
@@ -113,6 +113,7 @@ import { createTiergartenMonuments } from "./TiergartenMonuments";
 import { renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
+import { THREE_MOUSE_GESTURE_SETTINGS } from "./viewerGestures";
 import type { VisualMode } from "./visualMode";
 import {
   createMinecraftMaterialState,
@@ -386,7 +387,7 @@ function applyMaterialLighting(
  * landmarks (e.g. the Schweizerische Botschaft) which are authored models, not
  * photogrammetry, and would otherwise keep a shaded, near-black roof.
  */
-function markAuthoredFlatUnlit(root: Object3D): void {
+export function markAuthoredFlatUnlit(root: Object3D): void {
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
     if (!(object instanceof Mesh)) {
@@ -400,7 +401,10 @@ function markAuthoredFlatUnlit(root: Object3D): void {
         seen.add(material);
         installFlatUnlitShader(material);
         material.userData.drawnKind = "vertex";
-        material.userData.flatClean = 1;
+        // Opaque stone receives the gentle ivory clean-up. Transparent hero
+        // glass keeps its authored colour/transmission and only drops the
+        // directional light gradient.
+        material.userData.flatClean = material.transparent ? 0 : 1;
         material.userData.drawnFacadeApplied = true;
       }
     }
@@ -1733,11 +1737,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       controls.minPolarAngle = 0.06;
       controls.maxPolarAngle = Math.PI - 0.06;
       controls.screenSpacePanning = true;
-      controls.mouseButtons = {
-        LEFT: MOUSE.ROTATE,
-        MIDDLE: MOUSE.DOLLY,
-        RIGHT: MOUSE.PAN,
-      };
+      controls.mouseButtons = THREE_MOUSE_GESTURE_SETTINGS;
       controls.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_ROTATE };
       controls.update();
 
@@ -1820,11 +1820,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         distance: number;
       } | null = null;
       // Gesture lock ("jeder Blödmann sofort bedienen"): a two-finger
-      // gesture is EITHER a pan OR a fly, decided once with hysteresis
+      // gesture is EITHER a pan OR a zoom, decided once with hysteresis
       // and held until the fingers lift. Mixing the two on every move
-      // made panning drift sideways whenever the finger distance
-      // jittered.
-      let twoFingerMode: "undecided" | "pan" | "fly" = "undecided";
+      // made panning zoom whenever the finger distance jittered.
+      let twoFingerMode: "undecided" | "pan" | "zoom" = "undecided";
       let twoFingerStart: {
         center: { x: number; y: number };
         distance: number;
@@ -1855,6 +1854,26 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           distance: Math.max(1, Math.hypot(dx, dy)),
         };
       };
+      const zoomAtClientPoint = (
+        point: { x: number; y: number },
+        factor: number,
+      ): void => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) {
+          return;
+        }
+        const ndcX = ((point.x - rect.left) / rect.width) * 2 - 1;
+        const ndcY = -((point.y - rect.top) / rect.height) * 2 + 1;
+        zoomCameraAtScreenPoint(
+          camera,
+          controls.target,
+          ndcX,
+          ndcY,
+          factor,
+          controls.minDistance,
+          controls.maxDistance,
+        );
+      };
       const onPointerDown = (event: PointerEvent) => {
         panMomentum.x = 0;
         panMomentum.y = 0;
@@ -1872,6 +1891,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           previousTwoFingerGesture = twoFingerGesture();
           twoFingerStart = previousTwoFingerGesture;
           twoFingerMode = "undecided";
+          panVelocity.x = 0;
+          panVelocity.y = 0;
+          panVelocitySampleAt = performance.now();
           previousThreeFingerCenter = null;
           return;
         }
@@ -1917,13 +1939,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const pinchTravel = Math.abs(
               current.distance - twoFingerStart.distance,
             );
-            if (pinchTravel > 26 && pinchTravel > panTravel * 1.2) {
-              twoFingerMode = "fly";
-            } else if (panTravel > 14) {
+            if (pinchTravel > 18 && pinchTravel > panTravel * 1.1) {
+              twoFingerMode = "zoom";
+            } else if (panTravel > 10) {
               twoFingerMode = "pan";
             }
           }
-          if (twoFingerMode !== "fly") {
+          if (twoFingerMode !== "zoom") {
             // Direct-manipulation pan: content follows the fingers.
             const deltaX = current.center.x - previousTwoFingerGesture.center.x;
             const deltaY = current.center.y - previousTwoFingerGesture.center.y;
@@ -1936,16 +1958,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             panVelocity.y = deltaY / dt;
             panVelocitySampleAt = now;
           } else {
-            // Locked fly: spreading flies straight INTO the picture,
-            // pinching flies straight back — never sideways.
+            // Locked pinch zoom: preserve the world point under the finger
+            // midpoint so the map never jumps toward the screen centre.
             const pinchRatio = MathUtils.clamp(
               current.distance / previousTwoFingerGesture.distance,
               0.86,
               1.16,
             );
-            const flyAmount = MathUtils.clamp((pinchRatio - 1) * 7.5, -1.3, 1.3);
-            if (Math.abs(flyAmount) > 0.004) {
-              flyCameraAlongViewHeading(camera, controls.target, 0, flyAmount);
+            if (Math.abs(pinchRatio - 1) > 0.002) {
+              zoomAtClientPoint(current.center, pinchRatio);
             }
           }
           controls.update();
@@ -1996,8 +2017,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (touchPoints.size >= 2) {
             previousThreeFingerCenter = null;
             previousTwoFingerGesture = twoFingerGesture();
-          twoFingerStart = previousTwoFingerGesture;
-          twoFingerMode = "undecided";
+            twoFingerStart = previousTwoFingerGesture;
+            twoFingerMode = "undecided";
+            panVelocity.x = 0;
+            panVelocity.y = 0;
+            panVelocitySampleAt = performance.now();
             return;
           }
           previousTwoFingerGesture = null;
@@ -2035,6 +2059,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
       };
+      const onDoubleClick = (event: MouseEvent) => {
+        if (event.button !== 0) {
+          return;
+        }
+        event.preventDefault();
+        renderer.domElement.focus({ preventScroll: true });
+        zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
+        controls.update();
+        markSurfaceInteraction(runtime);
+        notifyView(runtime, onViewChangeRef.current);
+      };
       renderer.domElement.addEventListener("pointerdown", onPointerDown, true);
       renderer.domElement.addEventListener("pointermove", onPointerMove, true);
       renderer.domElement.addEventListener("pointerup", onPointerUp, true);
@@ -2044,6 +2079,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         resetTouchGesture,
         true,
       );
+      renderer.domElement.addEventListener("dblclick", onDoubleClick);
       window.addEventListener("pointerup", onPointerUp, true);
       window.addEventListener("pointercancel", onPointerUp, true);
       window.addEventListener("blur", resetTouchGesture);
@@ -2387,6 +2423,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           for (const signature of manifest.architectural_signatures ?? []) {
             const model = createArchitecturalSignature(signature);
             if (model) {
+              markAuthoredFlatUnlit(model);
               runtime.signatures.add(model);
             }
             const focusCamera = focusCameraForSignature(signature);
@@ -2404,6 +2441,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
+          markAuthoredFlatUnlit(runtime.monuments);
           scene.add(runtime.monuments);
           applyLightingToRoot(runtime.monuments, runtime.lightingMode);
           runtime.culturalDetails.removeFromParent();
@@ -2611,6 +2649,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture,
           true,
         );
+        renderer.domElement.removeEventListener("dblclick", onDoubleClick);
         renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
         window.removeEventListener("pointerup", onPointerUp, true);
         window.removeEventListener("pointercancel", onPointerUp, true);

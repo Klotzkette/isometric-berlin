@@ -36,12 +36,10 @@ previous/next sight, `Space` start/pause the tour, `+`/`=`/`−` zoom,
 `Home`/`0` overview, `D` switch Day/Night, `M` toggle Minecraft, `B` toggle
 music, `L` copy a view link, and `Esc` close overlays.
 
-In true 3D, left-drag or one finger orbits, the wheel zooms, and right-drag
-pans. A two-finger centre swipe pans with direct manipulation. **Pinch flies,
-it does not zoom**: spreading two fingers flies INTO the picture along the
-view heading — steered toward where the pinch centre sits on screen — and
-pinching together flies back out. Zoom stays on the `+`/`−` buttons, the
-mouse wheel and double-tap. A three-finger gesture controls
+In true 3D, left-drag pans with direct manipulation, the wheel zooms at the
+pointer, right-drag orbits, and one finger orbits on touch. A two-finger centre
+swipe pans with direct manipulation; pinch zooms around the finger midpoint,
+and double-tap zooms around the tapped world point. A three-finger gesture controls
 azimuth and polar tilt continuously through 90 degrees into the real underside
 camera. The underside fades surface materials and strengthens the two-tube
 Tiergartentunnel cutaway; the tunnel is hidden in ordinary exterior views and

@@ -58,9 +58,11 @@ export type PrismPayload = {
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // Versioned visible-map radius (metres): half the larger span of the
 // drawn envelope incl. the extrapolated surround. The areal-expansion
-// contract grows this by exactly +100 m per run — v0.21.0 was 1810 m
-// (envelope z −1600…2020), v0.22.0 is 1910 m (z −1700…2120).
-export const VISIBLE_RADIUS_M = 1910;
+// contract grows this by exactly +100 m per run: v0.22.0 was 1910 m
+// (envelope z −1700…2120), v0.23.0 is 2010 m (z −1800…2220).
+export const VISIBLE_RADIUS_M = 2010;
+export const EXTRAPOLATED_WEST_M = -1820;
+export const EXTRAPOLATED_MARGIN_M = 720;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -220,6 +222,12 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
  * under the dim night rig. Day restores pure black ink and no emissive.
  */
 export function setIsoNightPresentation(city: Group, night: boolean): void {
+  const backdrop = city.getObjectByName("presentation paper backdrop");
+  if (backdrop instanceof Mesh) {
+    backdrop.material = night
+      ? (backdrop.userData.nightMaterial as MeshBasicMaterial)
+      : (backdrop.userData.dayMaterial as MeshBasicMaterial);
+  }
   const ink = city.getObjectByName("LoD2 prism ink lines");
   if (ink instanceof LineSegments) {
     (ink.material as LineBasicMaterial).color.setHex(
@@ -240,10 +248,22 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   }
   const glass = city.getObjectByName("LoD2 glass prisms");
   if (glass instanceof Mesh) {
-    const material = glass.material as MeshStandardMaterial;
-    material.emissive.setHex(night ? 0x0e1a24 : 0x000000);
-    material.emissiveIntensity = night ? 0.7 : 0;
-    material.needsUpdate = true;
+    glass.material = night
+      ? (glass.userData.nightMaterial as MeshStandardMaterial)
+      : (glass.userData.dayMaterial as MeshBasicMaterial);
+    const nightMaterial = glass.userData
+      .nightMaterial as MeshStandardMaterial;
+    nightMaterial.emissive.setHex(night ? 0x0e1a24 : 0x000000);
+    nightMaterial.emissiveIntensity = night ? 0.7 : 0;
+    nightMaterial.needsUpdate = true;
+  }
+  const surround = city.getObjectByName(
+    "extrapolated west ground and Siegessäule",
+  );
+  if (surround instanceof Mesh) {
+    surround.material = night
+      ? (surround.userData.nightMaterial as MeshStandardMaterial)
+      : (surround.userData.dayMaterial as MeshBasicMaterial);
   }
   // Windows swap their whole baked palette: cool drawn panes by day, a
   // deterministic scatter of warm-lit rooms after dark.
@@ -1370,6 +1390,7 @@ export function createWestTiergarten(): Group {
   const group = new Group();
   group.name = "extrapolated west Tiergarten (Siegessäule)";
   group.userData.extrapolated = true;
+  group.userData.visibleRadiusM = VISIBLE_RADIUS_M;
   const bodyGeometries: BufferGeometry[] = [];
   const edgeGeometries: BufferGeometry[] = [];
   const addPart = (
@@ -1396,10 +1417,31 @@ export function createWestTiergarten(): Group {
   };
   const GROUND_TOP = 2.1;
   // Lawn bands (alternating drawn greens like the surveyed ground).
-  const WEST = -1720;
+  const WEST = EXTRAPOLATED_WEST_M;
+  const PREVIOUS_WEST = -1720;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
+  // A recessed paper ground closes transparent gaps between the bounded
+  // official grid, the western park and the three margin bands. It sits below
+  // water and terrain, so it cannot move or cover surveyed geometry; it only
+  // prevents trees from appearing to float against the sky at maximum flight.
+  const PAPER_EAST = 1380;
+  const PAPER_NORTH = -1800;
+  const PAPER_SOUTH = 2220;
+  addPart(
+    boxTriangles(
+      (WEST + PAPER_EAST) / 2,
+      GROUND_TOP - 4.2,
+      (PAPER_NORTH + PAPER_SOUTH) / 2,
+      [1, 0],
+      PAPER_EAST - WEST,
+      1.2,
+      PAPER_SOUTH - PAPER_NORTH,
+    ),
+    0xd7e0d0,
+    false,
+  );
   const bands = 8;
   for (let band = 0; band < bands; band += 1) {
     const z0 = NORTH + ((SOUTH - NORTH) / bands) * band;
@@ -1456,11 +1498,16 @@ export function createWestTiergarten(): Group {
   // the other three sides too — the drawing fades into light ground
   // instead of a void. No buildings are invented; Unter den Linden
   // continues east from the Gate as a drawn axis.
-  const MARGIN = 620;
+  const MARGIN = EXTRAPOLATED_MARGIN_M;
+  const previousHorizontalCenter = (EAST + 1150) / 2 - 245;
+  const horizontalOuterEast =
+    previousHorizontalCenter + (1150 - WEST) / 2;
+  const horizontalCenter = (WEST + horizontalOuterEast) / 2;
+  const horizontalWidth = horizontalOuterEast - WEST;
   const marginBands: Array<[number, number, number, number]> = [
     // [centerX, centerZ, sizeX, sizeZ]
-    [(EAST + 1150) / 2 - 245, -1030 - MARGIN / 2, 1150 - WEST, MARGIN],
-    [(EAST + 1150) / 2 - 245, 1451 + MARGIN / 2, 1150 - WEST, MARGIN],
+    [horizontalCenter, -1030 - MARGIN / 2, horizontalWidth, MARGIN],
+    [horizontalCenter, 1451 + MARGIN / 2, horizontalWidth, MARGIN],
     [601 + MARGIN / 2, (1451 - 1030) / 2, MARGIN, 1451 + 1030],
   ];
   const MARGIN_TONES = [0xd3dcc8, 0xdae2d0];
@@ -1478,16 +1525,34 @@ export function createWestTiergarten(): Group {
     false,
   );
 
-  // Park trees: deterministic scatter off the road and the star circle.
+  // Park trees: keep every v0.22.0 tree fixed, then add a separate
+  // deterministic population only inside the new 100 m western strip.
+  // This grows vegetation without moving any previously rendered point.
   const trunkSpots: Array<[number, number]> = [];
   for (let index = 0; index < 720; index += 1) {
     const hx = (Math.imul(index + 1, 2654435761) >>> 9) % 10_000;
     const hz = (Math.imul(index + 7, 40503) >>> 3) % 10_000;
-    const x = WEST + 20 + ((EAST - WEST - 40) * hx) / 10_000;
+    const x =
+      PREVIOUS_WEST +
+      20 +
+      ((EAST - PREVIOUS_WEST - 40) * hx) / 10_000;
     const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34 || Math.hypot(x - SX, z - SZ) < 112) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  for (let index = 0; index < 84; index += 1) {
+    const hx = (Math.imul(index + 101, 2246822519) >>> 8) % 10_000;
+    const hz = (Math.imul(index + 211, 3266489917) >>> 7) % 10_000;
+    const x =
+      WEST + 10 + ((PREVIOUS_WEST - WEST - 20) * hx) / 10_000;
+    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
       continue;
     }
     trunkSpots.push([x, z]);
@@ -1532,15 +1597,16 @@ export function createWestTiergarten(): Group {
 
   const merged = mergeGeometries(bodyGeometries, false);
   if (merged) {
-    const mesh = new Mesh(
-      merged,
-      new MeshStandardMaterial({
-        flatShading: true,
-        metalness: 0,
-        roughness: 0.9,
-        vertexColors: true,
-      }),
-    );
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
     mesh.name = "extrapolated west ground and Siegessäule";
     group.add(mesh);
     for (const geometry of bodyGeometries) {
@@ -1560,6 +1626,28 @@ export function createWestTiergarten(): Group {
   group.add(trunks);
   group.add(crowns);
   return group;
+}
+
+/**
+ * Non-geographic presentation floor below the complete metric model. Camera
+ * targets are bounded to the published 2010 m data envelope, but a distant
+ * oblique lens can still see beyond that envelope. This unlit paper stage
+ * prevents the sky from showing through behind edge trees without pretending
+ * that the stage contains surveyed roads, buildings or vegetation.
+ */
+function createPresentationBackdrop(): Mesh {
+  const geometry = new PlaneGeometry(16_000, 16_000);
+  geometry.rotateX(-Math.PI / 2);
+  const dayMaterial = new MeshBasicMaterial({ color: 0xd7e0d0 });
+  const nightMaterial = new MeshBasicMaterial({ color: 0x07131f });
+  const backdrop = new Mesh(geometry, dayMaterial);
+  backdrop.name = "presentation paper backdrop";
+  backdrop.position.set(-220, -8, 210);
+  backdrop.receiveShadow = false;
+  backdrop.userData.dayMaterial = dayMaterial;
+  backdrop.userData.nightMaterial = nightMaterial;
+  backdrop.userData.presentationOnly = true;
+  return backdrop;
 }
 
 export function createIsometricCity(
@@ -2082,17 +2170,22 @@ export function createIsometricCity(
 
   const glass = mergeGeometries(glassGeometries, false);
   if (glass) {
-    const mesh = new Mesh(
-      glass,
-      new MeshStandardMaterial({
-        flatShading: true,
-        metalness: 0,
-        opacity: 0.52,
-        roughness: 0.35,
-        transparent: true,
-        vertexColors: true,
-      }),
-    );
+    const dayMaterial = new MeshBasicMaterial({
+      opacity: 0.52,
+      transparent: true,
+      vertexColors: true,
+    });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      opacity: 0.52,
+      roughness: 0.35,
+      transparent: true,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(glass, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
     mesh.name = "LoD2 glass prisms";
     // Transparent glass draws after the opaque city; the ink lines
     // (renderOrder 2) still sit on top of it.
@@ -2262,6 +2355,7 @@ export function createIsometricCity(
       group.add(railings);
     }
   }
+  group.add(createPresentationBackdrop());
   group.add(createWestTiergarten());
   return group;
 }

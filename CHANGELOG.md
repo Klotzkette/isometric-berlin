@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.23.0
+
+- **Areal expansion (+100 m contract): visible radius 1910 m → 2010 m.**
+  The extrapolated western Tiergarten lobe reaches −1820 m, the calm
+  paper/park margin widens to 720 m and the flight envelope follows at
+  z −1800…+2220. Existing geometry and the complete v0.22.0 tree population
+  stay fixed; a separate deterministic population fills only the new western
+  strip. A recessed unlit paper ground closes transparent seams between the
+  bounded official grid and the surround, so edge trees cannot float against
+  the sky. A single presentation-only floor below the metric model also closes
+  distant oblique camera views; it is explicitly non-geographic and has a
+  separate night tone. The ring remains marked as extrapolated and adds no
+  repeated draw calls or claim of surveyed geometry.
+- **One flat ivory drawing in daylight.** Procedural architectural signatures
+  and memorials now use the same lossless flat-unlit daytime shader as the
+  building fabric. LoD2 glass and the widened surround also use unlit day
+  materials, while transparent glass keeps its authored colour and night and
+  Minecraft restore their lit material paths without recompiling the scene.
+- **Direct manipulation at the point of intent.** Primary mouse drag pans,
+  secondary drag orbits, the wheel keeps Three.js cursor zoom, and a new
+  double-click zoom anchors to the clicked world point. Two-finger swipe pans
+  with the existing momentum, while pinch now zooms around the live finger
+  midpoint under a hysteresis lock instead of flying or jumping toward the
+  screen centre.
+- Added regression contracts for the 2010 m radius, fixed prior tree
+  positions, unchanged draw-call count, mouse mapping, midpoint-anchored zoom,
+  glass day/night restoration and flat-unlit landmark materials.
+
 ## v0.22.0
 
 - **Areal expansion (+100 m contract): visible radius 1810 m → 1910 m.**

@@ -554,7 +554,13 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "global pointer release recovery": 'window.addEventListener("pointerup"',
     "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
     "camera rig stabilization": "stabilizeCameraRig(",
-    "two-finger heading flight": "flyCameraAlongViewHeading(",
+    "two-finger direct pan": "twoFingerPanFlight(",
+    "midpoint-anchored pinch/double-click zoom": "zoomCameraAtScreenPoint(",
+    "direct primary-button pan mapping": (
+      "controls.mouseButtons = THREE_MOUSE_GESTURE_SETTINGS"
+    ),
+    "flat-unlit architectural signatures": "markAuthoredFlatUnlit(model)",
+    "flat-unlit memorials": "markAuthoredFlatUnlit(runtime.monuments)",
     "settled-only crisp pass": ('runtime.lightingMode !== "minecraft" && !isMoving'),
   }
   failures = [
@@ -650,6 +656,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "screen-relative flight": "screenRelativeFlightDelta",
     "bounded flight volume": "REGIERUNGSVIERTEL_FLIGHT_BOUNDS",
     "camera-target translation": "camera.position.add(applied)",
+    "cursor-anchored zoom": "zoomCameraAtScreenPoint",
     "last-safe camera capture": "captureCameraPose",
     "invalid camera recovery": "stabilizeCameraRig",
   }

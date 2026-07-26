@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.22.0"
+PACKAGE_VERSION = "0.23.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3342,11 +3342,12 @@ anderen Touch-Geräten nutzt der Viewer größere Buttons, sichere
 Viewport-Höhen und ein kompaktes unteres Bedienfeld.
 
 Der Advanced Viewer startet mit einem echten Three.js-3D-Modell aus dem
-amtlichen Berlin 3D Mesh 2025. Linke Maustaste oder ein Finger drehen frei,
-das Mausrad zoomt, die rechte Maustaste verschiebt. Zwei Finger fliegen per
-Swipe, zoomen per Pinch und drehen per Twist; drei Finger steuern Drehung und
-Neigung bis in die echte Untersicht. Shift plus Pfeiltasten fliegt entlang der
-Blickrichtung, Alt/Option plus Pfeiltasten dreht oder neigt.
+amtlichen Berlin 3D Mesh 2025. Die linke Maustaste verschiebt direkt, das
+Mausrad zoomt am Zeiger, die rechte Maustaste dreht; ein Finger dreht auf
+Touch-Geräten. Zwei Finger verschieben per Swipe und zoomen per Pinch am
+Fingermittelpunkt; drei Finger steuern Drehung und Neigung bis in die echte
+Untersicht. Shift plus Pfeiltasten fliegt entlang der Blickrichtung,
+Alt/Option plus Pfeiltasten dreht oder neigt.
 In der Untersicht wird die Oberfläche transparent und der technische
 Tiergartentunnel-Cutaway mit zwei Röhren, Beleuchtung und Lüftung sichtbar.
 Nur die ausgewählte Sehenswürdigkeit erhält kurz einen Leuchtring; permanente
@@ -3479,11 +3480,12 @@ the viewer uses larger controls, safe viewport heights and a compact lower
 control sheet.
 
 The Advanced Viewer starts with a true Three.js scene derived from the
-official Berlin 3D Mesh 2025. Left-drag or one finger orbits, the wheel zooms,
-and right-drag pans. Two-finger swipe flies along the view heading, pinch zooms
-and twist rotates; three fingers control azimuth and polar tilt into a real
-below-ground view. Shift plus arrows flies forward/back or strafes, while
-Alt/Option plus arrows orbits and tilts. In underside mode the
+official Berlin 3D Mesh 2025. Left-drag pans directly, the wheel zooms at the
+pointer, right-drag orbits, and one finger orbits on touch devices. A
+two-finger centre swipe pans while pinch zooms around that midpoint; three
+fingers control azimuth and polar tilt into a real below-ground view. Shift
+plus arrows flies forward/back or strafes, while Alt/Option plus arrows orbits
+and tilts. In underside mode the
 surface becomes transparent and reveals the two-tube Tiergartentunnel cutaway
 with lighting and ventilation. Only the selected landmark gets a brief focus
 ring; permanent coloured dots no longer cover the buildings. The Advanced
@@ -3592,7 +3594,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "mouse-rotate-swivel",
       "touch-pinch-pan-rotate",
       "touch-three-finger-underside-orbit",
-      "touch-two-finger-heading-flight-pinch-zoom-twist",
+      "touch-two-finger-direct-pan-midpoint-pinch-zoom",
       "true-threejs-3d-orbit",
       "cancelable-progressive-model-loading",
       "http11-immutable-heavy-asset-cache",
