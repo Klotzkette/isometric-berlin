@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.25.0
+
+- **Areal expansion (+100 m contract): visible radius 2110 m → 2210 m.**
+  The extrapolated western Tiergarten lobe reaches −2020 m, the calm
+  paper/park margin widens to 920 m and the flight envelope follows at
+  z −2000…+2420. Every v0.22.0–v0.24.0 tree remains pinned to its published
+  strip; a fourth deterministic population fills only the new
+  −2020…−1920 m strip. The surround remains explicitly non-geographic where
+  official source coverage ends and adds no new draw calls.
+- **Fluid high-DPI input instead of hidden full-resolution stalls.** Orbit,
+  custom two-/three-finger touch and native trackpad pan/pinch now hold
+  independent interaction states. Each input immediately engages the lighter
+  interaction pixel budget; full settled resolution returns only after the
+  gesture, trackpad sequence or touch momentum has ended. Simultaneous input
+  cannot prematurely restore the expensive tier, and a trackpad sequence
+  resizes render targets only once instead of once per wheel delta.
+- **Softer, more coherent outer-park vegetation.** Extrapolated tree crowns now
+  use the same low-poly faceted language as the detailed Tiergarten layer
+  instead of cube crowns. GPU instancing keeps the complete expanded west layer
+  at four draw calls.
+- Discovery notes now clear the mandatory attribution on desktop and the
+  bottom toolbar, attribution control and safe area on compact touch screens.
+  On the first compact-screen visit they wait until the one-time gesture coach
+  has been dismissed, avoiding two simultaneous overlays.
+- The compact control layout now applies consistently to every viewport up to
+  1024 px instead of depending on browser pointer classification. This removes
+  the crowded desktop rail/control stack on tablets, hybrid devices and small
+  laptops whose browsers report a fine pointer. Tablet-width title and action
+  bars are additionally width-bounded so the scene keeps most of the canvas.
+- Release hygiene remains strict for public/package trees and duplicate paths,
+  while transient `.DS_Store` files in Vite's gitignored `dist/` directory no
+  longer make macOS readiness nondeterministic; a regression test keeps that
+  exception narrowly scoped.
+- Added regression contracts for all three interaction sources, the 2210 m
+  envelope, immutable prior tree strips and the new western population.
+- Verified 179 frontend contracts, TypeScript and production build plus 198
+  Python contracts, release readiness and the real local-package smoke test.
+  Day, Night and Minecraft were inspected at 390×844, 1024×768 and 1600×900
+  across four hero sights and the new edge. In the four landmark crops, 13,919
+  sampled 12×12 patches measured colour σ < 2; browser logs remained clean.
+
 ## v0.24.0
 
 - **Areal expansion (+100 m contract): visible radius 2010 m → 2110 m.**

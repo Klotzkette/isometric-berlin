@@ -6,6 +6,20 @@ export type RenderQualityOptions = {
   width: number;
 };
 
+export type RenderInteractionSources = {
+  controls: boolean;
+  touch: boolean;
+  wheel: boolean;
+};
+
+export function renderInteractionActive({
+  controls,
+  touch,
+  wheel,
+}: RenderInteractionSources): boolean {
+  return controls || touch || wheel;
+}
+
 export function renderPixelRatio({
   coarsePointer,
   devicePixelRatio,

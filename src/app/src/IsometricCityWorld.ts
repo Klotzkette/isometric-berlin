@@ -7,6 +7,7 @@ import {
   ExtrudeGeometry,
   Float32BufferAttribute,
   Group,
+  IcosahedronGeometry,
   InstancedMesh,
   LineBasicMaterial,
   LineSegments,
@@ -58,11 +59,11 @@ export type PrismPayload = {
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // Versioned visible-map radius (metres): half the larger span of the
 // drawn envelope incl. the extrapolated surround. The areal-expansion
-// contract grows this by exactly +100 m per run: v0.23.0 was 2010 m
-// (envelope z −1800…2220), v0.24.0 is 2110 m (z −1900…2320).
-export const VISIBLE_RADIUS_M = 2110;
-export const EXTRAPOLATED_WEST_M = -1920;
-export const EXTRAPOLATED_MARGIN_M = 820;
+// contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
+// (envelope z −1900…2320), v0.25.0 is 2210 m (z −2000…2420).
+export const VISIBLE_RADIUS_M = 2210;
+export const EXTRAPOLATED_WEST_M = -2020;
+export const EXTRAPOLATED_MARGIN_M = 920;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -1421,6 +1422,7 @@ export function createWestTiergarten(): Group {
   const WEST = EXTRAPOLATED_WEST_M;
   const V022_WEST = -1720;
   const V023_WEST = -1820;
+  const V024_WEST = -1920;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1428,9 +1430,9 @@ export function createWestTiergarten(): Group {
   // official grid, the western park and the three margin bands. It sits below
   // water and terrain, so it cannot move or cover surveyed geometry; it only
   // prevents trees from appearing to float against the sky at maximum flight.
-  const PAPER_EAST = 1480;
-  const PAPER_NORTH = -1900;
-  const PAPER_SOUTH = 2320;
+  const PAPER_EAST = 1580;
+  const PAPER_NORTH = -2000;
+  const PAPER_SOUTH = 2420;
   addPart(
     boxTriangles(
       (WEST + PAPER_EAST) / 2,
@@ -1527,8 +1529,8 @@ export function createWestTiergarten(): Group {
     false,
   );
 
-  // Park trees: keep every v0.22.0 tree fixed, then add a separate
-  // deterministic population only inside the new 100 m western strip.
+  // Park trees: keep every published population fixed, then add a separate
+  // deterministic population only inside this release's 100 m western strip.
   // This grows vegetation without moving any previously rendered point.
   const trunkSpots: Array<[number, number]> = [];
   for (let index = 0; index < 720; index += 1) {
@@ -1566,7 +1568,24 @@ export function createWestTiergarten(): Group {
     const hx = (Math.imul(index + 307, 668265263) >>> 8) % 10_000;
     const hz = (Math.imul(index + 419, 374761393) >>> 7) % 10_000;
     const x =
-      WEST + 10 + ((V023_WEST - WEST - 20) * hx) / 10_000;
+      V024_WEST +
+      10 +
+      ((V023_WEST - V024_WEST - 20) * hx) / 10_000;
+    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.25.0 grows only the new −2020…−1920 m strip. Distinct hash seeds keep
+  // the added trees deterministic without repeating a previous distribution.
+  for (let index = 0; index < 84; index += 1) {
+    const hx = (Math.imul(index + 523, 1103515245) >>> 8) % 10_000;
+    const hz = (Math.imul(index + 631, 214013) >>> 7) % 10_000;
+    const x =
+      WEST + 10 + ((V024_WEST - WEST - 20) * hx) / 10_000;
     const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
@@ -1582,7 +1601,7 @@ export function createWestTiergarten(): Group {
   );
   trunks.name = "extrapolated tree trunks";
   const crowns = new InstancedMesh(
-    new BoxGeometry(1, 1, 1),
+    new IcosahedronGeometry(1, 1),
     new MeshStandardMaterial({ color: 0xffffff, flatShading: true, roughness: 0.9 }),
     trunkSpots.length * 2,
   );
@@ -1648,7 +1667,7 @@ export function createWestTiergarten(): Group {
 
 /**
  * Non-geographic presentation floor below the complete metric model. Camera
- * targets are bounded to the published 2110 m data envelope, but a distant
+ * targets are bounded to the published 2210 m data envelope, but a distant
  * oblique lens can still see beyond that envelope. This unlit paper stage
  * prevents the sky from showing through behind edge trees without pretending
  * that the stage contains surveyed roads, buildings or vegetation.

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.24.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.24.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.25.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.25.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.24.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.25.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,12 +42,12 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.24.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.25.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
-- The versioned visible presentation radius is now **2110 m** (2010 m →
-  2110 m). Existing metric geometry remains fixed. The additional 100 m ring
+- The versioned visible presentation radius is now **2210 m** (2110 m →
+  2210 m). Existing metric geometry remains fixed. The additional 100 m ring
   is explicitly marked as extrapolated paper/park surround and never presented
   as newly surveyed LoD2, ALKIS or OSM geometry.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
@@ -125,8 +125,8 @@ labelled compatibility fallback for browsers that cannot run local modules.
   market tents, fields, tiny people, animals and boats appear progressively
   only after 20–75 seconds of uninterrupted dwell time and remain under a
   strict mobile density budget.
-- Phones and coarse-pointer tablets up to 1024 px use a compact 40 px sight
-  status bar, a 56 px bottom action bar,
+- Phones, tablets and compact laptop viewports up to 1024 px use a compact
+  40 px sight status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with
   its chevron or a three-finger downward swipe; iPhone safe areas, landscape,
   44 px touch targets, reduced motion and momentum-rich pinch/pan/rotate are
@@ -139,6 +139,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   scroll pans while pinch zooms at its midpoint. On touchscreens, a two-finger
   centre swipe pans with momentum while pinch zooms around the finger midpoint;
   three fingers carry the camera continuously through a genuine underside view.
+  Orbit, direct touch and trackpad gestures now all engage the lighter
+  interaction-resolution tier immediately and restore full settled detail only
+  after the gesture or momentum glide ends, reducing high-DPI stalls without
+  sacrificing still-image sharpness.
   Plain arrows
   translate in the visible screen plane,
   `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows

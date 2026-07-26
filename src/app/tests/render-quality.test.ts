@@ -1,8 +1,26 @@
 import { describe, expect, test } from "bun:test";
 
-import { renderPixelRatio } from "../src/renderQuality";
+import {
+  renderInteractionActive,
+  renderPixelRatio,
+} from "../src/renderQuality";
 
 describe("adaptive 3D render quality", () => {
+  test("treats OrbitControls, direct touch and trackpad input as interaction", () => {
+    expect(
+      renderInteractionActive({ controls: true, touch: false, wheel: false }),
+    ).toBe(true);
+    expect(
+      renderInteractionActive({ controls: false, touch: true, wheel: false }),
+    ).toBe(true);
+    expect(
+      renderInteractionActive({ controls: false, touch: false, wheel: true }),
+    ).toBe(true);
+    expect(
+      renderInteractionActive({ controls: false, touch: false, wheel: false }),
+    ).toBe(false);
+  });
+
   test("raises settled phone detail without exceeding the mobile cap", () => {
     expect(
       renderPixelRatio({

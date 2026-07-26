@@ -110,7 +110,10 @@ import {
   updateTrafficSignals,
 } from "./TrafficSignals";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
-import { renderPixelRatio } from "./renderQuality";
+import {
+  renderInteractionActive,
+  renderPixelRatio,
+} from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
 import {
@@ -1838,9 +1841,61 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const panMomentum = { x: 0, y: 0 };
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
+      let touchInteracting = false;
+      let wheelInteracting = false;
       let lastTouchActivityAt = performance.now();
       let settleUntil = 0;
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
+      let qualityRestoreTimer: number | null = null;
+      const resize = () => {
+        const { width, height } = host.getBoundingClientRect();
+        if (width < 1 || height < 1) {
+          return;
+        }
+        renderer.setPixelRatio(
+          renderPixelRatio({
+            coarsePointer,
+            devicePixelRatio: window.devicePixelRatio,
+            height,
+            interacting: renderInteractionActive({
+              controls: controlsInteracting,
+              touch: touchInteracting,
+              wheel: wheelInteracting,
+            }),
+            width,
+          }),
+        );
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height, false);
+        composer.setPixelRatio(renderer.getPixelRatio());
+        composer.setSize(width, height);
+        const crispResolution = crispPass.uniforms.resolution.value;
+        if (crispResolution instanceof Vector2) {
+          crispResolution.set(
+            width * renderer.getPixelRatio(),
+            height * renderer.getPixelRatio(),
+          );
+        }
+      };
+      const useInteractiveResolution = (): void => {
+        if (qualityRestoreTimer !== null) {
+          window.clearTimeout(qualityRestoreTimer);
+          qualityRestoreTimer = null;
+        }
+        resize();
+      };
+      const restoreSettledResolution = (): void => {
+        if (qualityRestoreTimer !== null) {
+          window.clearTimeout(qualityRestoreTimer);
+        }
+        qualityRestoreTimer = window.setTimeout(() => {
+          if (!runtime.disposed) {
+            resize();
+          }
+          qualityRestoreTimer = null;
+        }, 140);
+      };
       const twoFingerGesture = () => {
         const points = [...touchPoints.values()].slice(0, 2);
         if (points.length !== 2) {
@@ -1891,6 +1946,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         event.preventDefault();
         event.stopImmediatePropagation();
         renderer.domElement.focus({ preventScroll: true });
+        const wheelSequenceStarting = !wheelInteracting;
+        wheelInteracting = true;
+        if (wheelSequenceStarting) {
+          useInteractiveResolution();
+        }
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (intent === "trackpad-pinch") {
@@ -1927,6 +1987,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         wheelEndTimer = window.setTimeout(() => {
           wheelEndTimer = null;
+          wheelInteracting = false;
+          restoreSettledResolution();
           if (!runtime.disposed) {
             notifyView(runtime, onViewChangeRef.current);
           }
@@ -1943,9 +2005,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (touchPoints.size === 2) {
           customTouchGestureActive = true;
-          controlsInteracting = true;
+          controlsInteracting = false;
+          touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
+          useInteractiveResolution();
           previousTwoFingerGesture = twoFingerGesture();
           twoFingerStart = previousTwoFingerGesture;
           twoFingerMode = "undecided";
@@ -1957,9 +2021,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         if (touchPoints.size >= 3) {
           customTouchGestureActive = true;
-          controlsInteracting = true;
+          controlsInteracting = false;
+          touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
+          useInteractiveResolution();
           previousTwoFingerGesture = null;
           twoFingerStart = null;
           twoFingerMode = "undecided";
@@ -2088,6 +2154,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           previousThreeFingerCenter = null;
           customTouchGestureActive = false;
           controlsInteracting = false;
+          if (panMomentum.x === 0 && panMomentum.y === 0) {
+            touchInteracting = false;
+            restoreSettledResolution();
+          }
           settleUntil = performance.now() + 650;
           controls.enabled = true;
           notifyView(runtime, onViewChangeRef.current);
@@ -2099,7 +2169,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const resetTouchGesture = () => {
-        if (touchPoints.size === 0 && !customTouchGestureActive) {
+        if (
+          touchPoints.size === 0 &&
+          !customTouchGestureActive &&
+          !touchInteracting &&
+          panMomentum.x === 0 &&
+          panMomentum.y === 0
+        ) {
           return;
         }
         touchPoints.clear();
@@ -2107,9 +2183,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         previousThreeFingerCenter = null;
         customTouchGestureActive = false;
         controlsInteracting = false;
+        touchInteracting = false;
+        panMomentum.x = 0;
+        panMomentum.y = 0;
         settleUntil = performance.now() + 650;
         controls.enabled = true;
         setSurfacePresentation(runtime, false);
+        restoreSettledResolution();
         notifyView(runtime, onViewChangeRef.current);
       };
       const onVisibilityChange = () => {
@@ -2146,54 +2226,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       window.addEventListener("pointercancel", onPointerUp, true);
       window.addEventListener("blur", resetTouchGesture);
       document.addEventListener("visibilitychange", onVisibilityChange);
-      const resize = () => {
-        const { width, height } = host.getBoundingClientRect();
-        if (width < 1 || height < 1) {
-          return;
-        }
-        renderer.setPixelRatio(
-          renderPixelRatio({
-            coarsePointer,
-            devicePixelRatio: window.devicePixelRatio,
-            height,
-            interacting: controlsInteracting,
-            width,
-          }),
-        );
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height, false);
-        composer.setPixelRatio(renderer.getPixelRatio());
-        composer.setSize(width, height);
-        const crispResolution = crispPass.uniforms.resolution.value;
-        if (crispResolution instanceof Vector2) {
-          crispResolution.set(
-            width * renderer.getPixelRatio(),
-            height * renderer.getPixelRatio(),
-          );
-        }
-      };
-      let qualityRestoreTimer: number | null = null;
       const onControlsStart = () => {
         controlsInteracting = true;
         markSurfaceInteraction(runtime);
-        if (qualityRestoreTimer !== null) {
-          window.clearTimeout(qualityRestoreTimer);
-          qualityRestoreTimer = null;
-        }
-        resize();
+        useInteractiveResolution();
       };
       const onControlsEnd = () => {
         controlsInteracting = false;
         settleUntil = performance.now() + 650;
         markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
-        qualityRestoreTimer = window.setTimeout(() => {
-          if (!runtime.disposed) {
-            resize();
-          }
-          qualityRestoreTimer = null;
-        }, 140);
+        restoreSettledResolution();
       };
       controls.addEventListener("start", onControlsStart);
       controls.addEventListener("end", onControlsEnd);
@@ -2306,7 +2349,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // active cadence through the terms below.
         const cameraMoving =
           flying ||
-          controlsInteracting ||
+          renderInteractionActive({
+            controls: controlsInteracting,
+            touch: touchInteracting,
+            wheel: wheelInteracting,
+          }) ||
           controlsChanged ||
           stabilized.changed ||
           marker.visible ||
@@ -2380,6 +2427,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const decayed = decayPanMomentum(panMomentum, dtSeconds);
           panMomentum.x = decayed.x;
           panMomentum.y = decayed.y;
+          if (
+            panMomentum.x === 0 &&
+            panMomentum.y === 0 &&
+            touchInteracting
+          ) {
+            touchInteracting = false;
+            restoreSettledResolution();
+          }
           markSurfaceInteraction(runtime, 220);
         }
         if (runtime.lightingMode === "minecraft") {

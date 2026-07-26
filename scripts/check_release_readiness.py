@@ -118,6 +118,25 @@ def has_forbidden_duplicate_name(path: Path) -> bool:
   )
 
 
+def package_source_hygiene_failures(root: Path) -> list[str]:
+  """Reject package-source cruft without making Finder metadata a flaky gate."""
+  failures: list[str] = []
+  scan_roots = [
+    (root / "src" / "app" / "public", False),
+    (root / "src" / "app" / "dist", True),
+  ]
+  for scan_root, generated_build in scan_roots:
+    if not scan_root.exists():
+      continue
+    for path in scan_root.rglob("*"):
+      relative = path.relative_to(scan_root)
+      if generated_build and path.name == ".DS_Store":
+        continue
+      if has_forbidden_duplicate_name(relative):
+        failures.append(f"Unwanted duplicate/hidden package path: {path}")
+  return failures
+
+
 def package_arcname(relative: str) -> str:
   return f"{PACKAGE_NAME}/{relative}"
 
@@ -1518,13 +1537,7 @@ def collect_failures(
   if require_static_tarball or tar_path.exists():
     failures.extend(static_tarball_failures(root))
 
-  scan_roots = [root / "src" / "app" / "public", root / "src" / "app" / "dist"]
-  for scan_root in scan_roots:
-    if not scan_root.exists():
-      continue
-    for path in scan_root.rglob("*"):
-      if has_forbidden_duplicate_name(path.relative_to(scan_root)):
-        failures.append(f"Unwanted duplicate/hidden package path: {path}")
+  failures.extend(package_source_hygiene_failures(root))
 
   return failures
 

@@ -193,6 +193,31 @@ def test_current_tree_is_release_ready() -> None:
   assert release_readiness.collect_failures(ROOT) == []
 
 
+def test_package_source_hygiene_ignores_only_generated_finder_metadata(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_source_hygiene",
+    "scripts/check_release_readiness.py",
+  )
+  public = tmp_path / "src" / "app" / "public"
+  dist = tmp_path / "src" / "app" / "dist"
+  public.mkdir(parents=True)
+  dist.mkdir(parents=True)
+  (dist / ".DS_Store").write_text("Finder metadata", encoding="utf-8")
+
+  assert release_readiness.package_source_hygiene_failures(tmp_path) == []
+
+  public_hidden = public / ".DS_Store"
+  public_hidden.write_text("must never ship", encoding="utf-8")
+  duplicate = dist / "index 2.js"
+  duplicate.write_text("duplicate", encoding="utf-8")
+  failures = release_readiness.package_source_hygiene_failures(tmp_path)
+
+  assert any(str(public_hidden) in failure for failure in failures)
+  assert any(str(duplicate) in failure for failure in failures)
+
+
 def write_tiny_dzi(public_dzi: Path) -> None:
   public_dzi.mkdir(parents=True, exist_ok=True)
   (public_dzi / "regierungsviertel.dzi").write_text(TINY_DZI_XML, encoding="utf-8")

@@ -183,9 +183,15 @@ describe("forgiving 3D camera bounds", () => {
     const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
 
     expect(result.changed).toBe(true);
-    expect(target.x).toBeLessThanOrEqual(1480);
-    expect(target.y).toBeLessThanOrEqual(280);
-    expect(target.z).toBeGreaterThanOrEqual(-1900);
+    expect(target.x).toBeLessThanOrEqual(
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x,
+    );
+    expect(target.y).toBeLessThanOrEqual(
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.y,
+    );
+    expect(target.z).toBeGreaterThanOrEqual(
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z,
+    );
     expect(camera.position.clone().sub(target).toArray()).toEqual(offset.toArray());
   });
 });
@@ -282,12 +288,12 @@ describe("pan momentum glide", () => {
 });
 
 describe("visible-radius contract (+100 m per areal run)", () => {
-  test("v0.24.0 envelope spans the versioned 2110 m radius", async () => {
+  test("v0.25.0 envelope spans the versioned 2210 m radius", async () => {
     const { VISIBLE_RADIUS_M } = await import("../src/IsometricCityWorld");
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
       "../src/cameraNavigation"
     );
-    expect(VISIBLE_RADIUS_M).toBe(2110);
+    expect(VISIBLE_RADIUS_M).toBe(2210);
     const span =
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z -
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z;

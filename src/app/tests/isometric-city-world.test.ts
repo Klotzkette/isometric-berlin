@@ -296,15 +296,20 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     }
     expect(treeXs.some((x) => x > -1810 && x < -1730)).toBe(true);
     expect(treeXs.some((x) => x > -1910 && x < -1830)).toBe(true);
-    expect(west.getObjectByName("extrapolated tree crowns")).toBeDefined();
+    expect(treeXs.some((x) => x > -2010 && x < -1930)).toBe(true);
+    const crowns = west.getObjectByName(
+      "extrapolated tree crowns",
+    ) as InstancedMesh;
+    expect(crowns).toBeDefined();
+    expect(crowns.geometry.getAttribute("position").count).toBeGreaterThan(100);
     expect(west.getObjectByName("extrapolated west ink lines")).toBeDefined();
     const body = west.getObjectByName(
       "extrapolated west ground and Siegessäule",
     ) as Mesh;
     expect(body.material).toBeInstanceOf(MeshBasicMaterial);
     const bodyBounds = new Box3().setFromObject(body);
-    expect(bodyBounds.min.z).toBeLessThanOrEqual(-1900);
-    expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2320);
+    expect(bodyBounds.min.z).toBeLessThanOrEqual(-2000);
+    expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2420);
     // Enlarging the ring and tree population adds no draw calls of its own.
     expect(west.children.length).toBe(4);
   });

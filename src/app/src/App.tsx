@@ -102,8 +102,7 @@ type MobileSheet = "compass" | "overflow" | null;
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
 const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
-const MOBILE_MEDIA_QUERY =
-  "(max-width: 768px), (max-width: 1024px) and (pointer: coarse), (max-width: 900px) and (max-height: 500px) and (orientation: landscape)";
+const MOBILE_MEDIA_QUERY = "(max-width: 1024px)";
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
@@ -550,6 +549,8 @@ export function App() {
   const [keepThreeWarm] = useState(
     () => !window.matchMedia("(pointer: coarse)").matches,
   );
+  const compactCoachActive =
+    showCoachMark && window.matchMedia(MOBILE_MEDIA_QUERY).matches;
 
   const tileSource = useMemo(() => regierungsviertelTileSource(), []);
   const sceneUrl = useMemo(
@@ -1830,6 +1831,7 @@ export function App() {
         />
       ) : null}
       {discoveryLandmark &&
+      !compactCoachActive &&
       mobileSheet === null &&
       !isHelpOpen &&
       !isReferenceOpen &&
