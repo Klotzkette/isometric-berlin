@@ -75,6 +75,7 @@ import {
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   stabilizeCameraRig,
+  decayPanMomentum,
   twoFingerPanFlight,
 } from "./cameraNavigation";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
@@ -1828,6 +1829,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         center: { x: number; y: number };
         distance: number;
       } | null = null;
+      // Pan momentum: finger velocity at release keeps the map gliding
+      // with an exponential ease-out (decayPanMomentum).
+      const panVelocity = { x: 0, y: 0 };
+      let panVelocitySampleAt = performance.now();
+      const panMomentum = { x: 0, y: 0 };
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let lastTouchActivityAt = performance.now();
@@ -1850,6 +1856,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         };
       };
       const onPointerDown = (event: PointerEvent) => {
+        panMomentum.x = 0;
+        panMomentum.y = 0;
         if (event.pointerType !== "touch") {
           renderer.domElement.focus({ preventScroll: true });
           return;
@@ -1921,6 +1929,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const deltaY = current.center.y - previousTwoFingerGesture.center.y;
             const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
             flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
+            // Remember the finger velocity so release can glide out.
+            const now = performance.now();
+            const dt = Math.max(1, now - panVelocitySampleAt) / 1000;
+            panVelocity.x = deltaX / dt;
+            panVelocity.y = deltaY / dt;
+            panVelocitySampleAt = now;
           } else {
             // Locked fly: spreading flies straight INTO the picture,
             // pinching flies straight back — never sideways.
@@ -1968,6 +1982,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastTouchActivityAt = performance.now();
+        // A finished two-finger pan hands its velocity to the glide.
+        if (
+          touchPoints.size === 2 &&
+          twoFingerMode === "pan" &&
+          performance.now() - panVelocitySampleAt < 120
+        ) {
+          panMomentum.x = panVelocity.x;
+          panMomentum.y = panVelocity.y;
+        }
         touchPoints.delete(event.pointerId);
         if (customTouchGestureActive) {
           if (touchPoints.size >= 2) {
@@ -2245,6 +2268,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (signals instanceof Group) {
             updateTrafficSignals(signals, timestamp / 1000, reducedMotion);
           }
+        }
+        // Momentum glide: the released pan eases out smoothly.
+        if (
+          (panMomentum.x !== 0 || panMomentum.y !== 0) &&
+          touchPoints.size === 0
+        ) {
+          const { strafe, forward } = twoFingerPanFlight(
+            panMomentum.x * dtSeconds,
+            panMomentum.y * dtSeconds,
+          );
+          flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
+          const decayed = decayPanMomentum(panMomentum, dtSeconds);
+          panMomentum.x = decayed.x;
+          panMomentum.y = decayed.y;
+          markSurfaceInteraction(runtime, 220);
         }
         if (runtime.lightingMode === "minecraft") {
           // Minecraft renders through the same composer path as Day/Night — no

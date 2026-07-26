@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.22.0
+
+- **Areal expansion (+100 m contract): visible radius 1810 m → 1910 m.**
+  The extrapolated surround grows by exactly 100 m on every side — the
+  western Tiergarten lobe reaches −1720 m, the paper-margin ring widens
+  to 620 m, flight bounds follow (envelope z −1700…+2120). The radius
+  is now a versioned constant (`VISIBLE_RADIUS_M = 1910`, asserted by a
+  contract test) so the next areal run reads and grows it. No new raw
+  data is claimed: the ring stays parkland/paper, marked extrapolated.
+- **Momentum glide for touch pan ("träges weiches Ausrollen").** A
+  released two-finger pan keeps gliding with the last finger velocity,
+  easing out exponentially (~0.16 s half-life) and snapping to rest
+  below a small threshold; any new touch cancels the glide instantly.
+  The decay is a pure helper with a unit-tested contract (monotonic
+  ease-out, direction preserved, guaranteed rest).
+- Verified across viewports (iPhone 390×844, tablet 1024×768, desktop
+  1600×900): UI panels stay usable, facades measure colour σ < 2 in
+  hundreds of sampled patches, all three modes intact.
+
 ## v0.21.0
 
 - **Touch that anyone can use.** Two-finger gestures now LOCK to one

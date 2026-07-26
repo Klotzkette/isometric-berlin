@@ -182,9 +182,49 @@ describe("forgiving 3D camera bounds", () => {
     const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
 
     expect(result.changed).toBe(true);
-    expect(target.x).toBeLessThanOrEqual(1180);
+    expect(target.x).toBeLessThanOrEqual(1280);
     expect(target.y).toBeLessThanOrEqual(280);
-    expect(target.z).toBeGreaterThanOrEqual(-1600);
+    expect(target.z).toBeGreaterThanOrEqual(-1700);
     expect(camera.position.clone().sub(target).toArray()).toEqual(offset.toArray());
+  });
+});
+
+describe("pan momentum glide", () => {
+  test("decays exponentially and snaps to rest below the threshold", async () => {
+    const { decayPanMomentum, PAN_MOMENTUM_REST_PX_PER_S } = await import(
+      "../src/cameraNavigation"
+    );
+    let velocity = { x: 900, y: -600 };
+    const speeds: number[] = [Math.hypot(velocity.x, velocity.y)];
+    for (let step = 0; step < 60; step += 1) {
+      velocity = decayPanMomentum(velocity, 1 / 60);
+      speeds.push(Math.hypot(velocity.x, velocity.y));
+    }
+    // Monotonically easing out…
+    for (let index = 1; index < speeds.length; index += 1) {
+      expect(speeds[index]).toBeLessThanOrEqual(speeds[index - 1]);
+    }
+    // …and fully at rest within a second, never creeping forever.
+    expect(speeds[speeds.length - 1]).toBe(0);
+    expect(PAN_MOMENTUM_REST_PX_PER_S).toBeGreaterThan(0);
+    // Direction is preserved while gliding.
+    const one = decayPanMomentum({ x: 900, y: -600 }, 1 / 60);
+    expect(one.x).toBeGreaterThan(0);
+    expect(one.y).toBeLessThan(0);
+    expect(one.x / -one.y).toBeCloseTo(1.5, 5);
+  });
+});
+
+describe("visible-radius contract (+100 m per areal run)", () => {
+  test("v0.22.0 envelope spans the versioned 1910 m radius", async () => {
+    const { VISIBLE_RADIUS_M } = await import("../src/IsometricCityWorld");
+    const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
+      "../src/cameraNavigation"
+    );
+    expect(VISIBLE_RADIUS_M).toBe(1910);
+    const span =
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z -
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z;
+    expect(span / 2).toBe(VISIBLE_RADIUS_M);
   });
 });

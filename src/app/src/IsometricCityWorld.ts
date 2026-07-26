@@ -56,6 +56,11 @@ export type PrismPayload = {
 };
 
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
+// Versioned visible-map radius (metres): half the larger span of the
+// drawn envelope incl. the extrapolated surround. The areal-expansion
+// contract grows this by exactly +100 m per run — v0.21.0 was 1810 m
+// (envelope z −1600…2020), v0.22.0 is 1910 m (z −1700…2120).
+export const VISIBLE_RADIUS_M = 1910;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -1391,7 +1396,7 @@ export function createWestTiergarten(): Group {
   };
   const GROUND_TOP = 2.1;
   // Lawn bands (alternating drawn greens like the surveyed ground).
-  const WEST = -1620;
+  const WEST = -1720;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1451,7 +1456,7 @@ export function createWestTiergarten(): Group {
   // the other three sides too — the drawing fades into light ground
   // instead of a void. No buildings are invented; Unter den Linden
   // continues east from the Gate as a drawn axis.
-  const MARGIN = 520;
+  const MARGIN = 620;
   const marginBands: Array<[number, number, number, number]> = [
     // [centerX, centerZ, sizeX, sizeZ]
     [(EAST + 1150) / 2 - 245, -1030 - MARGIN / 2, 1150 - WEST, MARGIN],

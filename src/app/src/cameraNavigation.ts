@@ -12,9 +12,9 @@ export type CameraPose = {
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   // West reaches the extrapolated Großer Stern; the other sides gain
-  // the paper-margin ring.
-  min: new Vector3(-1_650, -120, -1_600),
-  max: new Vector3(1_180, 280, 2_020),
+  // the paper-margin ring (visible radius contract: 1910 m).
+  min: new Vector3(-1_750, -120, -1_700),
+  max: new Vector3(1_280, 280, 2_120),
 };
 
 export function captureCameraPose(
@@ -160,6 +160,28 @@ export function twoFingerPanFlight(
     forward: deltaY / pixelsPerUnit,
     strafe: -deltaX / pixelsPerUnit,
   };
+}
+
+/**
+ * Exponential pan-momentum decay ("träges weiches Ausrollen"): a
+ * released two-finger pan keeps gliding with the last finger velocity
+ * (px/s), easing out over ~a third of a second and snapping to rest
+ * below a small threshold so the map never creeps forever.
+ */
+export const PAN_MOMENTUM_HALF_LIFE_S = 0.16;
+export const PAN_MOMENTUM_REST_PX_PER_S = 24;
+
+export function decayPanMomentum(
+  velocity: { x: number; y: number },
+  dtSeconds: number,
+): { x: number; y: number } {
+  const factor = Math.pow(0.5, dtSeconds / PAN_MOMENTUM_HALF_LIFE_S);
+  const x = velocity.x * factor;
+  const y = velocity.y * factor;
+  if (Math.hypot(x, y) < PAN_MOMENTUM_REST_PX_PER_S) {
+    return { x: 0, y: 0 };
+  }
+  return { x, y };
 }
 
 export function flyCameraAlongViewHeading(
