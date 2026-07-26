@@ -1123,6 +1123,14 @@ export function App() {
       if (event.pointerType !== "touch") {
         return;
       }
+      // A three-finger drag on the 3D canvas is the camera tilt; only
+      // swipes that start on the chrome may toggle the chrome.
+      if (
+        event.target instanceof Element &&
+        event.target.closest(".three-canvas, canvas")
+      ) {
+        return;
+      }
       points.set(event.pointerId, {
         currentX: event.clientX,
         currentY: event.clientY,
@@ -1270,6 +1278,11 @@ export function App() {
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Browser chords (Cmd+L, Ctrl+D, …) must never be hijacked by the
+      // single-letter shortcuts below.
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
       if (event.key === "Escape") {
         stopHeldFlight();
         closeReferenceMap();
@@ -1462,12 +1475,14 @@ export function App() {
         }
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    // Capture phase + preventDefault below beat OpenSeadragon's own
+    // canvas key handling, so arrows/+/- act exactly once.
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("keyup", handleKeyUp, true);
     window.addEventListener("blur", stopHeldFlight);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("keyup", handleKeyUp, true);
       window.removeEventListener("blur", stopHeldFlight);
       stopHeldFlight();
     };
@@ -1537,6 +1552,25 @@ export function App() {
     const timer = window.setInterval(() => focusLandmarkByOffset(1), 4200);
     return () => window.clearInterval(timer);
   }, [focusLandmarkByOffset, isReady, isTouring, landmarks.length]);
+
+  useEffect(() => {
+    if (!isTouring) {
+      return;
+    }
+    // A gesture on the map means the user took over — stop teleporting.
+    const stopTourOnGesture = (event: PointerEvent) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest(".three-canvas, canvas")
+      ) {
+        setIsTouring(false);
+      }
+    };
+    window.addEventListener("pointerdown", stopTourOnGesture, true);
+    return () => {
+      window.removeEventListener("pointerdown", stopTourOnGesture, true);
+    };
+  }, [isTouring]);
 
   useEffect(() => {
     if (viewerMode !== "map" || !containerRef.current || viewerRef.current) {
@@ -3031,7 +3065,7 @@ export function App() {
                   ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
                   : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."
                 : language === "de"
-                  ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger zoomen, verschieben und drehen gleichzeitig."
+                  ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger verschieben die Karte oder fliegen per Pinch hinein; drehen über die Pfeiltasten-Knöpfe."
                   : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}
             </p>
           </div>

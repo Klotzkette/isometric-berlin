@@ -83,12 +83,13 @@ function shadeFor(
   return new Color(shades[pick]);
 }
 
-function voxelMaterial(): MeshStandardMaterial {
+function voxelMaterial(emissive = 0x3d3d3d): MeshStandardMaterial {
   return new MeshStandardMaterial({
     color: 0xffffff,
     // A small neutral emissive floor lifts the shadow faces so block
     // colours stay readable all around, like Minecraft's flat light.
-    emissive: 0x3d3d3d,
+    // The drawn city passes 0 — its ground must not self-glow.
+    emissive,
     flatShading: true,
     metalness: 0,
     roughness: 1,
@@ -104,10 +105,14 @@ type InstanceWriter = {
   ) => void;
 };
 
-function instancedBoxes(name: string, count: number): InstanceWriter {
+function instancedBoxes(
+  name: string,
+  count: number,
+  emissive?: number,
+): InstanceWriter {
   const mesh = new InstancedMesh(
     new BoxGeometry(1, 1, 1),
-    voxelMaterial(),
+    voxelMaterial(emissive),
     Math.max(1, count),
   );
   mesh.name = name;
@@ -295,7 +300,7 @@ export function createGroundSlabs(
   payload: VoxelPayload,
   name: string,
   shadeMap: Record<string, readonly number[]>,
-  options?: { bridgeDecks?: boolean },
+  options?: { bridgeDecks?: boolean; emissive?: number },
 ): InstancedMesh {
   const cell = payload.cell_m;
   const { min_x_idx, min_z_idx } = payload.grid;
@@ -307,7 +312,7 @@ export function createGroundSlabs(
     (sum, row) => sum + row.length,
     0,
   );
-  const ground = instancedBoxes(name, groundRunCount);
+  const ground = instancedBoxes(name, groundRunCount, options?.emissive);
   const center = new Vector3();
   const size = new Vector3();
   payload.ground_rows.forEach((row, zOffset) => {

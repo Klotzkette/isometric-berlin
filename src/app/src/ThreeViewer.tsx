@@ -247,6 +247,10 @@ type Runtime = {
   tunnel: Group;
   tunnelBounds: Box3 | null;
   tunnelPoints: TunnelPayload["points"] | null;
+  prismPayloadPromise?: Promise<PrismPayload>;
+  voxelPayloadPromise?: Promise<VoxelPayload>;
+  trafficSignals?: Group | null;
+  cancelPanGlide?: () => void;
   isoWorld: Group | null;
   isoWorldState: "failed" | "idle" | "loading";
   voxelWorld: Group | null;
@@ -287,6 +291,7 @@ function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void 
   }
 }
 
+let lastSurfaceQualityDataset = "";
 function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   const settled = shouldUseSettledSurface({
     coarsePointer: runtime.coarsePointer,
@@ -305,9 +310,11 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   runtime.interactionSurface.visible = !settled && !replaced;
   runtime.settledSurface.visible = settled && !replaced;
   setParkSettledDetail(runtime.parkDetails, settled);
-  runtime.renderer.domElement.dataset.surfaceQuality = settled
-    ? "settled-7m-plus"
-    : "interaction-2_3m";
+  const surfaceQuality = settled ? "settled-7m-plus" : "interaction-2_3m";
+  if (surfaceQuality !== lastSurfaceQualityDataset) {
+    lastSurfaceQualityDataset = surfaceQuality;
+    runtime.renderer.domElement.dataset.surfaceQuality = surfaceQuality;
+  }
 }
 
 function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
@@ -583,25 +590,41 @@ function isoModeActive(runtime: Runtime): boolean {
  * Load and attach the drawn isometric city (LoD2 prisms + shared ground
  * slabs). Idempotent; on failure the photographic day pipeline stays.
  */
+// The multi-MB prism/voxel payloads are fetched and parsed exactly
+// once per session, shared by the drawn-city and block-world paths
+// (a ?theme=minecraft deep link used to download both files twice).
+function fetchPrismPayload(runtime: Runtime): Promise<PrismPayload> {
+  runtime.prismPayloadPromise ??= fetch(
+    new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl).toString(),
+  ).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json() as Promise<PrismPayload>;
+  });
+  return runtime.prismPayloadPromise;
+}
+
+function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
+  runtime.voxelPayloadPromise ??= fetch(
+    new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString(),
+  ).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json() as Promise<VoxelPayload>;
+  });
+  return runtime.voxelPayloadPromise;
+}
+
 function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void {
   if (runtime.isoWorldState !== "idle") {
     return;
   }
   runtime.isoWorldState = "loading";
-  const prismUrl = new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl).toString();
-  const groundUrl = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
   void Promise.all([
-    fetch(prismUrl).then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      return response.json() as Promise<PrismPayload>;
-    }),
-    fetch(groundUrl)
-      .then((response) =>
-        response.ok ? (response.json() as Promise<VoxelPayload>) : null,
-      )
-      .catch(() => null),
+    fetchPrismPayload(runtime),
+    fetchVoxelPayload(runtime).catch(() => null),
     fetch(new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl).toString())
       .then((response) =>
         response.ok ? (response.json() as Promise<StreetDetailsPayload>) : null,
@@ -619,6 +642,7 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const signals = createTrafficSignals(street, ground);
         if (signals) {
           runtime.isoWorld.add(signals);
+          runtime.trafficSignals = signals;
         }
         // Every OSM monument in the quarter, drawn ("alle Denkmäler").
         const monuments = createTiergartenMonuments(street, ground);
@@ -654,23 +678,12 @@ function ensureVoxelWorld(
     return;
   }
   runtime.voxelWorldState = "loading";
-  const url = new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString();
-  const prismUrl = new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl).toString();
   void Promise.all([
-    fetch(url).then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      return response.json() as Promise<VoxelPayload>;
-    }),
+    fetchVoxelPayload(runtime),
     // The prism payload carries each building's sampled real colour;
     // the block city snaps those onto the Minecraft palette so it
     // stops being one cream-coloured mass.
-    fetch(prismUrl)
-      .then((response) =>
-        response.ok ? (response.json() as Promise<PrismPayload>) : null,
-      )
-      .catch(() => null),
+    fetchPrismPayload(runtime).catch(() => null),
   ])
     .then(([payload, prisms]) => {
       if (runtime.disposed) {
@@ -718,7 +731,7 @@ function segmentMesh(
   offset: number,
 ): Mesh {
   const delta = end.clone().sub(start);
-  const length = Math.hypot(delta.x, delta.z);
+  const length = Math.hypot(delta.x, delta.z) || 1;
   const normal = new Vector3(-delta.z / length, 0, delta.x / length);
   const mesh = new Mesh(geometry, material);
   mesh.scale.z = length;
@@ -1145,7 +1158,19 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
     if (!(object instanceof Mesh) && !(object instanceof LineSegments)) {
       return;
     }
+    if (object instanceof InstancedMesh) {
+      // Releases instanceMatrix/instanceColor GPU buffers explicitly.
+      object.dispose();
+    }
     geometries.add(object.geometry);
+    // The drawn worlds keep a day/night material pair in userData; the
+    // inactive one must be disposed too, not only the assigned one.
+    for (const key of ["dayMaterial", "nightMaterial"] as const) {
+      const stored = object.userData[key];
+      if (stored instanceof Material) {
+        materials.add(stored);
+      }
+    }
     const objectMaterials = Array.isArray(object.material)
       ? object.material
       : [object.material];
@@ -1356,7 +1381,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
-      if (lightingMode === "day" || lightingMode === "night") {
+      if (
+        (lightingMode === "day" || lightingMode === "night") &&
+        runtime.tunnelPoints !== null
+      ) {
+        // Before the scene manifest has delivered the tunnel centreline
+        // we wait: the manifest handler calls ensureIsoWorld itself, and
+        // starting early would permanently miss the tunnel trace.
         ensureIsoWorld(runtime, onWarningRef.current);
       }
       if (lightingMode === "minecraft") {
@@ -1382,6 +1413,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return;
       }
       markSurfaceInteraction(runtime);
+      // A leftover glide would drift the camera off the fresh focus.
+      runtime.cancelPanGlide?.();
       setParkDetailsFocus(runtime.parkDetails, name);
       const cameraPreset = runtime.focusCameraByName.get(name);
       const target = new Vector3(
@@ -2123,7 +2156,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             (center.x - previousThreeFingerCenter.x) * 0.008,
           polar,
         });
-        setModelMaterialState(runtime, polar > Math.PI / 2);
+        if ((polar > Math.PI / 2) !== runtime.underside) {
+          setModelMaterialState(runtime, polar > Math.PI / 2);
+        }
         previousThreeFingerCenter = center;
       };
       const onPointerUp = (event: PointerEvent) => {
@@ -2172,6 +2207,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           notifyView(runtime, onViewChangeRef.current);
         }
       };
+      runtime.cancelPanGlide = () => {
+        panMomentum.x = 0;
+        panMomentum.y = 0;
+        panVelocity.x = 0;
+        panVelocity.y = 0;
+      };
       const resetTouchGesture = () => {
         if (
           touchPoints.size === 0 &&
@@ -2214,20 +2255,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       renderer.domElement.addEventListener("pointerdown", onPointerDown, true);
       renderer.domElement.addEventListener("pointermove", onPointerMove, true);
+      const onPointerCancel = (event: PointerEvent) => {
+        // A cancelled gesture (iOS system gesture) must not hand out
+        // flick momentum — zero the sampled velocity first.
+        panVelocity.x = 0;
+        panVelocity.y = 0;
+        onPointerUp(event);
+      };
       renderer.domElement.addEventListener("pointerup", onPointerUp, true);
-      renderer.domElement.addEventListener("pointercancel", onPointerUp, true);
-      renderer.domElement.addEventListener(
-        "lostpointercapture",
-        resetTouchGesture,
-        true,
-      );
+      renderer.domElement.addEventListener("pointercancel", onPointerCancel, true);
+      // NOTE deliberately no "lostpointercapture" listener: touch
+      // pointers get implicit capture, so it fires on EVERY normal
+      // finger lift and used to wipe the whole gesture state (killing
+      // pan momentum on real devices). pointerup/pointercancel plus the
+      // blur/visibility resets cover all genuine loss paths.
       renderer.domElement.addEventListener("dblclick", onDoubleClick);
       renderer.domElement.addEventListener("wheel", onWheelNavigation, {
         capture: true,
         passive: false,
       });
       window.addEventListener("pointerup", onPointerUp, true);
-      window.addEventListener("pointercancel", onPointerUp, true);
+      window.addEventListener("pointercancel", onPointerCancel, true);
       window.addEventListener("blur", resetTouchGesture);
       document.addEventListener("visibilitychange", onVisibilityChange);
       const onControlsStart = () => {
@@ -2410,13 +2458,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           reducedMotion || !stability.animateWind ? 0.9 : timestamp / 1000;
         updateWindFlags(runtime.signatures, windTime);
         updateWindFlags(runtime.civicDetails, windTime);
-        if (runtime.isoWorld?.visible) {
-          const signals = runtime.isoWorld.getObjectByName(
-            "OSM traffic signals",
+        if (runtime.isoWorld?.visible && runtime.trafficSignals) {
+          updateTrafficSignals(
+            runtime.trafficSignals,
+            timestamp / 1000,
+            reducedMotion,
           );
-          if (signals instanceof Group) {
-            updateTrafficSignals(signals, timestamp / 1000, reducedMotion);
-          }
         }
         // Momentum glide: the released pan eases out smoothly.
         if (
@@ -2764,7 +2811,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer.domElement.removeEventListener("pointerdown", onPointerDown, true);
         renderer.domElement.removeEventListener("pointermove", onPointerMove, true);
         renderer.domElement.removeEventListener("pointerup", onPointerUp, true);
-        renderer.domElement.removeEventListener("pointercancel", onPointerUp, true);
+        renderer.domElement.removeEventListener("pointercancel", onPointerCancel, true);
         renderer.domElement.removeEventListener(
           "lostpointercapture",
           resetTouchGesture,
@@ -2803,6 +2850,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         composer.dispose();
         disposeMinecraftMaterialState(runtime.minecraftMaterialState);
         renderer.dispose();
+      // Release the WebGL context immediately: iOS Safari's context
+      // pool is tiny, and repeated map<->3D toggles could otherwise
+      // exhaust it before GC runs.
+      renderer.forceContextLoss();
         renderer.domElement.remove();
         runtimeRef.current = null;
       };

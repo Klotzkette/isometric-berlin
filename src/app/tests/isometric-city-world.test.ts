@@ -298,6 +298,7 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(treeXs.some((x) => x > -1910 && x < -1830)).toBe(true);
     expect(treeXs.some((x) => x > -2010 && x < -1930)).toBe(true);
     expect(treeXs.some((x) => x > -2110 && x < -2030)).toBe(true);
+    expect(treeXs.some((x) => x > -2210 && x < -2130)).toBe(true);
     const crowns = west.getObjectByName(
       "extrapolated tree crowns",
     ) as InstancedMesh;
@@ -311,8 +312,11 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     const bodyBounds = new Box3().setFromObject(body);
     expect(bodyBounds.min.z).toBeLessThanOrEqual(-2100);
     expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2520);
-    // Enlarging the ring and tree population adds no draw calls of its own.
-    expect(west.children.length).toBe(4);
+    // v0.27.0 adds exactly two instanced lamp layers (poles + warm
+    // heads) along the axis; everything else stays merged.
+    expect(west.children.length).toBe(6);
+    expect(west.getObjectByName("extrapolated lamp poles")).toBeDefined();
+    expect(west.getObjectByName("extrapolated lamp heads")).toBeDefined();
   });
 
   test("quay walls drop from the banks wherever land meets water", async () => {

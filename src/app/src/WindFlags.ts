@@ -100,12 +100,17 @@ function updateFlagMesh(mesh: Mesh, data: WindFlagData, elapsedSeconds: number):
   positions.needsUpdate = true;
 }
 
+// Scratch objects for the per-frame flag update: allocating them per
+// instance per frame caused steady GC churn on mobile.
+const flagDummy = new Object3D();
+const flagOffset = new Vector3();
+
 function updateFlagInstances(
   mesh: InstancedMesh,
   data: WindFlagInstanceData,
   elapsedSeconds: number,
 ): void {
-  const dummy = new Object3D();
+  const dummy = flagDummy;
   data.instances.forEach((instance, index) => {
     const wave = waveAt(
       instance.xFromPoleM,
@@ -116,7 +121,7 @@ function updateFlagInstances(
     );
     dummy.position
       .fromArray(instance.position)
-      .add(new Vector3(0, wave.lift, wave.offset));
+      .add(flagOffset.set(0, wave.lift, wave.offset));
     dummy.rotation.set(...(instance.rotation ?? [0, 0, 0]));
     dummy.scale.set(...(instance.scale ?? [1, 1, 1]));
     dummy.updateMatrix();
@@ -126,6 +131,13 @@ function updateFlagInstances(
 }
 
 export function updateWindFlags(root: Object3D, elapsedSeconds: number): void {
+  // Frozen wind (Minecraft / reduced motion) means nothing moves; skip
+  // the whole re-upload instead of rewriting every vertex each frame.
+  const applied = root.userData.windFlagsAppliedAt as number | undefined;
+  if (applied === elapsedSeconds) {
+    return;
+  }
+  root.userData.windFlagsAppliedAt = elapsedSeconds;
   root.traverse((object) => {
     if (object instanceof InstancedMesh) {
       const data = object.userData.windFlagInstances as

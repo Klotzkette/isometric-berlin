@@ -360,7 +360,8 @@ button:active:not(:disabled) {
     position: absolute;
     z-index: 21;
     left: 14px;
-    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    /* Clear of the compact attribution toggle (44px at bottom 72px). */
+    bottom: calc(128px + env(safe-area-inset-bottom, 0px));
     display: block;
     pointer-events: auto;
   }
@@ -1700,8 +1701,7 @@ button:active:not(:disabled) {
 @media (pointer: coarse) {
   .toolbar button,
   .view-controls button,
-  .reference-button,
-  .reference-close,
+  .reference-header button,
   .landmark-list button {
     min-height: 44px;
   }

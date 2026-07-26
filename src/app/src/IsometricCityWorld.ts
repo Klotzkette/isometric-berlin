@@ -61,9 +61,9 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520).
-export const VISIBLE_RADIUS_M = 2310;
-export const EXTRAPOLATED_WEST_M = -2120;
-export const EXTRAPOLATED_MARGIN_M = 1020;
+export const VISIBLE_RADIUS_M = 2410;
+export const EXTRAPOLATED_WEST_M = -2220;
+export const EXTRAPOLATED_MARGIN_M = 1120;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -278,6 +278,35 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       (panes.instanceColor.array as Float32Array).set(target);
       panes.instanceColor.needsUpdate = true;
     }
+  }
+  // Accessory meshes share the prism convention: exact flat paint by
+  // day (unlit), the lit material only under the night rig.
+  for (const name of [
+    "drawn quay walls",
+    "bridge railing bodies",
+    "tunnel portal ramps",
+    "monument bodies",
+  ]) {
+    const accessory = city.getObjectByName(name);
+    if (accessory instanceof Mesh && accessory.userData.dayMaterial) {
+      accessory.material = night
+        ? (accessory.userData.nightMaterial as MeshStandardMaterial)
+        : (accessory.userData.dayMaterial as MeshBasicMaterial);
+    }
+  }
+  // The extrapolated west follows the same ink and lamp conventions.
+  const westInk = city.getObjectByName("extrapolated west ink lines");
+  if (westInk instanceof LineSegments) {
+    (westInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const lampHeads = city.getObjectByName("extrapolated lamp heads");
+  if (lampHeads instanceof InstancedMesh) {
+    // Neutral fixture by day, warm glow only after dark.
+    (lampHeads.material as MeshBasicMaterial).color.setHex(
+      night ? 0xffd9a0 : 0xb9b3a6,
+    );
   }
   const trace = city.getObjectByName("Tiergartentunnel underground trace");
   if (trace instanceof LineSegments) {
@@ -625,6 +654,8 @@ const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // One drawn entrance door per building, centred on its longest windowed
 // street wall; the ground-floor panes around it step aside.
 const DOOR_WIDTH_M = 1.15;
+// Doors sit proud of the Sockel band (0.16 m half-depth), never inside it.
+const DOOR_FACE_OFFSET_M = 0.26;
 const DOOR_HEIGHT_M = 2.35;
 const DOOR_MIN_WALL_M = 5;
 const DOOR_CLEARANCE_M = 1.6;
@@ -985,7 +1016,7 @@ function createTunnelPortals(
   };
   const RAMP_LENGTH = 78;
   const HALF_WIDTH = 11;
-  const DECK_TONE = 0x54554e;
+  const DECK_TONE = 0x9fa099;
   const WALL_TONE = 0x9a978c;
   const FRAME_TONE = 0xa6a399;
   const MOUTH_TONE = 0x0c0e10;
@@ -1082,16 +1113,20 @@ function createTunnelPortals(
   geometry.computeVertexNormals();
   const group = new Group();
   group.name = "Tiergartentunnel portals";
-  const mesh = new Mesh(
-    geometry,
-    new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.95,
-      side: DoubleSide,
-      vertexColors: true,
-    }),
-  );
+  const portalDay = new MeshBasicMaterial({
+    side: DoubleSide,
+    vertexColors: true,
+  });
+  const portalNight = new MeshStandardMaterial({
+    flatShading: true,
+    metalness: 0,
+    roughness: 0.95,
+    side: DoubleSide,
+    vertexColors: true,
+  });
+  const mesh = new Mesh(geometry, portalDay);
+  mesh.userData.dayMaterial = portalDay;
+  mesh.userData.nightMaterial = portalNight;
   mesh.name = "tunnel portal ramps";
   group.add(mesh);
   const ink = new LineSegments(
@@ -1221,16 +1256,20 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   geometry.computeVertexNormals();
-  const mesh = new Mesh(
-    geometry,
-    new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.95,
-      side: DoubleSide,
-      vertexColors: true,
-    }),
-  );
+  const quayDay = new MeshBasicMaterial({
+    side: DoubleSide,
+    vertexColors: true,
+  });
+  const quayNight = new MeshStandardMaterial({
+    flatShading: true,
+    metalness: 0,
+    roughness: 0.95,
+    side: DoubleSide,
+    vertexColors: true,
+  });
+  const mesh = new Mesh(geometry, quayDay);
+  mesh.userData.dayMaterial = quayDay;
+  mesh.userData.nightMaterial = quayNight;
   mesh.name = "drawn quay walls";
   return mesh;
 }
@@ -1357,15 +1396,16 @@ function createBridgeRailings(ground: VoxelPayload): Group | null {
   group.name = "drawn bridge railings";
   const merged = mergeGeometries(parts, false);
   if (merged) {
-    const mesh = new Mesh(
-      merged,
-      new MeshStandardMaterial({
-        flatShading: true,
-        metalness: 0,
-        roughness: 0.9,
-        vertexColors: true,
-      }),
-    );
+    const railDay = new MeshBasicMaterial({ vertexColors: true });
+    const railNight = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, railDay);
+    mesh.userData.dayMaterial = railDay;
+    mesh.userData.nightMaterial = railNight;
     mesh.name = "bridge railing bodies";
     group.add(mesh);
     for (const geometry of parts) {
@@ -1424,6 +1464,7 @@ export function createWestTiergarten(): Group {
   const V023_WEST = -1820;
   const V024_WEST = -1920;
   const V025_WEST = -2020;
+  const V026_WEST = -2120;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1608,9 +1649,21 @@ export function createWestTiergarten(): Group {
   };
   for (let index = 0; index < 84; index += 1) {
     const x =
-      WEST + 10 + (V025_WEST - WEST - 20) * stripUnit(index, 743);
+      V026_WEST + 10 + (V025_WEST - V026_WEST - 20) * stripUnit(index, 743);
     const z =
       NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 857);
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.27.0 grows only the new −2220…−2120 m strip with fresh avalanche
+  // seeds; every previously published strip stays byte-stable.
+  for (let index = 0; index < 84; index += 1) {
+    const x = WEST + 10 + (V026_WEST - WEST - 20) * stripUnit(index, 1249);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 1361);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
@@ -1655,6 +1708,56 @@ export function createWestTiergarten(): Group {
   }
   trunks.frustumCulled = false;
   crowns.frustumCulled = false;
+
+  // Candelabra rows along Straße des 17. Juni and a ring of lights
+  // around the Großer Stern — warm dots that carry the axis at night.
+  const lampSpots: Array<[number, number]> = [];
+  const lampCount = Math.floor(Math.abs(AXIS_TO[0] - EAST) / 42);
+  for (let index = 0; index <= lampCount; index += 1) {
+    const x = EAST + (AXIS_TO[0] - EAST) * (index / Math.max(1, lampCount));
+    const z = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.hypot(x - SX, z - SZ) < 118) {
+      continue;
+    }
+    const nx = -axis[1];
+    const nz = axis[0];
+    lampSpots.push([x + nx * 26, z + nz * 26]);
+    lampSpots.push([x - nx * 26, z - nz * 26]);
+  }
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI * 2;
+    lampSpots.push([SX + Math.cos(angle) * 112, SZ + Math.sin(angle) * 112]);
+  }
+  const lampPoles = new InstancedMesh(
+    new BoxGeometry(0.16, 4.6, 0.16),
+    new MeshStandardMaterial({
+      color: 0x565a5c,
+      flatShading: true,
+      roughness: 0.9,
+    }),
+    lampSpots.length,
+  );
+  lampPoles.name = "extrapolated lamp poles";
+  const lampHeads = new InstancedMesh(
+    new BoxGeometry(0.42, 0.5, 0.42),
+    new MeshBasicMaterial({ color: 0xb9b3a6 }),
+    lampSpots.length,
+  );
+  lampHeads.name = "extrapolated lamp heads";
+  const lampMatrix = new Matrix4();
+  lampSpots.forEach(([x, z], index) => {
+    lampMatrix.identity();
+    lampMatrix.setPosition(x, GROUND_TOP + 2.3, z);
+    lampPoles.setMatrixAt(index, lampMatrix);
+    lampMatrix.setPosition(x, GROUND_TOP + 4.85, z);
+    lampHeads.setMatrixAt(index, lampMatrix);
+  });
+  lampPoles.instanceMatrix.needsUpdate = true;
+  lampHeads.instanceMatrix.needsUpdate = true;
+  lampPoles.frustumCulled = false;
+  lampHeads.frustumCulled = false;
+  group.add(lampPoles);
+  group.add(lampHeads);
 
   const merged = mergeGeometries(bodyGeometries, false);
   if (merged) {
@@ -1978,10 +2081,10 @@ export function createIsometricCity(
               nx: wall.nx,
               nz: wall.nz,
               px:
-                wall.x1 + wall.dirX * doorAlong + wall.nx * WINDOW_FACE_OFFSET_M,
+                wall.x1 + wall.dirX * doorAlong + wall.nx * DOOR_FACE_OFFSET_M,
               py: y0 + DOOR_HEIGHT_M / 2,
               pz:
-                wall.z1 + wall.dirZ * doorAlong + wall.nz * WINDOW_FACE_OFFSET_M,
+                wall.z1 + wall.dirZ * doorAlong + wall.nz * DOOR_FACE_OFFSET_M,
               tone: new Color(DOOR_DAY_TONE),
               width: DOOR_WIDTH_M,
             });
@@ -2025,7 +2128,7 @@ export function createIsometricCity(
             "position",
             new Float32BufferAttribute(
               boxTriangles(
-                mx, y0 + bodyHeight - CORNICE_HEIGHT_M / 2, mz,
+                mx, y0 + bodyHeight - CORNICE_HEIGHT_M / 2 - 0.04, mz,
                 [wall.dirX, wall.dirZ],
                 wall.length + 0.1, CORNICE_HEIGHT_M, CORNICE_DEPTH_M,
               ),
@@ -2400,7 +2503,7 @@ export function createIsometricCity(
       ground,
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
-      { bridgeDecks: true },
+      { bridgeDecks: true, emissive: 0x000000 },
     );
     group.add(slabs);
     const kerbs = createKerbLines(ground);

@@ -1,5 +1,55 @@
 # Changelog
 
+## v0.27.0
+
+- **Areal expansion (+100 m contract): visible radius 2310 m → 2410 m.**
+  The western lobe reaches −2220 m, the paper/park margin widens to
+  1120 m, flight bounds follow (z −2200…+2620). The v0.26.0 tree strip
+  is pinned to its release constant (byte-stable) and a sixth
+  deterministic population fills only the new −2220…−2120 m strip.
+  Candelabra lamp rows now line the Straße des 17. Juni with a ring of
+  lights around the Großer Stern — two instanced draw calls, neutral
+  fixtures by day, warm glow at night.
+- **Bug sweep (three parallel code reviews, 40+ verified findings, the
+  worst 25 fixed):**
+  - *The gesture killer:* a `lostpointercapture` listener fired on
+    EVERY normal finger lift (touch pointers get implicit capture) and
+    wiped the whole two-finger gesture state — pan momentum was dead
+    code on real devices. Removed; `pointercancel` now zeroes flick
+    velocity so iOS system gestures can't hand out phantom glides, and
+    landmark focus cancels an active glide.
+  - *Double work:* the multi-MB prism/voxel payloads were fetched and
+    parsed twice on a `?theme=minecraft` deep link — now shared,
+    fetched exactly once per session. Traffic-signal animation no
+    longer name-searches the scene per frame; wind flags skip the full
+    vertex re-upload when frozen and stop allocating per instance per
+    frame; surface-quality dataset writes are deduplicated; tilt only
+    rebuilds materials when the underside flag actually flips.
+  - *Leaks and teardown:* dropped photo textures are disposed
+    immediately (iOS memory spike), `InstancedMesh` buffers and the
+    inactive day/night materials are included in disposal, the WebGL
+    context is force-released on unmount (Safari's context pool),
+    ambient audio clamps its catch-up after background throttling.
+  - *Visual nits:* the Gesims no longer z-fights the roof cap (the
+    shimmering band around every flat roof), the drawn city's ground no
+    longer inherits Minecraft's grey emissive glow (night streets/Spree
+    stopped self-lighting), entrance doors step clear of the Sockel,
+    portal ramp decks join the light asphalt register, monument tones
+    lift to the ivory band, west ink turns moonlit at night, and quay
+    walls/bridge railings/portals/monuments now share the prism
+    convention (exact flat paint by day, lit only at night).
+  - *Input contracts:* browser chords (Cmd+L, Ctrl+D…) are no longer
+    hijacked by single-letter shortcuts; arrows/+/− act exactly once
+    (capture phase beats OpenSeadragon's canvas keys); a gesture on the
+    map stops the running tour; the three-finger tilt no longer also
+    toggles the whole UI; the flight joystick clears the attribution
+    toggle; dead 44px CSS selectors fixed; help copy matches the real
+    gesture set.
+- Deliberately deferred (documented): chunking the synchronous drawn-
+  city build across frames, wheel-vs-trackpad classification tuning,
+  2→1-finger gesture continuation, modal focus traps, hero-model ink
+  night swap.
+
 ## v0.26.0
 
 - **Areal expansion (+100 m contract): visible radius 2210 m → 2310 m.**

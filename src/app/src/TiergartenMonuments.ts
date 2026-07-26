@@ -8,6 +8,7 @@ import {
   LineBasicMaterial,
   LineSegments,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -34,12 +35,12 @@ export const MONUMENT_INK = 0x716c62;
 
 const STONE = 0x8f8a80;
 const STONE_LIGHT = 0xb9b6ac;
-const BRONZE = 0x435247;
-const SOVIET_GREEN = 0x49543f;
-const DARK_CUBE = 0x3c4043;
+const BRONZE = 0x5d7264;
+const SOVIET_GREEN = 0x6b7a5c;
+const DARK_CUBE = 0x8f9497;
 const WHITE = 0xf2f2ee;
 const GLASS_BLUE = 0x5f9fc4;
-const TOWER_GREEN = 0x2c4033;
+const TOWER_GREEN = 0x4a6b52;
 
 type Builder = {
   edges: BufferGeometry[];
@@ -215,16 +216,17 @@ export function createTiergartenMonuments(
 
   const merged = mergeGeometries(builder.parts, false);
   if (merged) {
-    const mesh = new Mesh(
-      merged,
-      new MeshStandardMaterial({
-        flatShading: true,
-        metalness: 0,
-        roughness: 0.9,
-        vertexColors: true,
-      }),
-    );
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
     mesh.name = "monument bodies";
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.userData.dayMaterial = dayMaterial;
     group.add(mesh);
     for (const part of builder.parts) {
       part.dispose();

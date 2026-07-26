@@ -249,6 +249,12 @@ export class AmbientSoundscape {
     if (!context || !this.master || context.state === "closed") {
       return;
     }
+    // Catch-up clamp: after interval throttling (background tab) we
+    // resume from "now" instead of scheduling thousands of past-due
+    // oscillator nodes in one tick.
+    if (this.nextStepAt < context.currentTime - STEP_SECONDS) {
+      this.nextStepAt = context.currentTime;
+    }
     while (this.nextStepAt < context.currentTime + 0.28) {
       this.scheduleStep(context, this.nextStepAt, this.step);
       this.nextStepAt += STEP_SECONDS;

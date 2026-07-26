@@ -554,8 +554,24 @@ export function applyDrawnFacade(
   // Strip the photo maps: a drawn facade is a flat painted tone, never a
   // photographic sample. Removing the map is also what guarantees the
   // no-photo-textures contract holds.
+  const droppedMap = material.map;
+  const droppedEmissive = material.emissiveMap;
   material.map = null;
   material.emissiveMap = null;
+  // Free the decoded multi-MB photo bitmaps immediately — on iOS they
+  // otherwise linger until GC and spike memory during the first load.
+  if (droppedMap) {
+    const image = droppedMap.source?.data as { close?: () => void } | undefined;
+    droppedMap.dispose();
+    image?.close?.();
+  }
+  if (droppedEmissive && droppedEmissive !== droppedMap) {
+    const image = droppedEmissive.source?.data as
+      | { close?: () => void }
+      | undefined;
+    droppedEmissive.dispose();
+    image?.close?.();
+  }
   material.color = new Color(r / 255, g / 255, b / 255);
   // Remember the flat tone so the night branch can restore it as a lit base
   // colour; the flat-unlit shader reads the diffuse albedo directly for day.
