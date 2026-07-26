@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.24.0
+
+- **Areal expansion (+100 m contract): visible radius 2010 m → 2110 m.**
+  The extrapolated western Tiergarten lobe reaches −1920 m, the calm
+  paper/park margin widens to 820 m and the flight envelope follows at
+  z −1900…+2320. The v0.22.0 and v0.23.0 tree populations remain pinned to
+  their published coordinates; a third deterministic population fills only
+  the new −1920…−1820 m strip. The surrounding ring remains explicitly
+  non-geographic where official source coverage ends, and the complete west
+  layer still renders in four draw calls.
+- **Quieter, clearer daylight drawing.** Grass, asphalt, water, bridge and
+  plaza variants now sit within tightly controlled colour intervals; the
+  grass channels differ by at most two RGB levels. The recessed paper and
+  distant presentation floor share the brighter sage-ivory register, removing
+  the previous stripe-heavy edge without altering any metric building.
+- **Native trackpad navigation.** High-resolution two-finger scroll now pans
+  with the same direct-manipulation sign contract as touch, while trackpad
+  pinch keeps zoom anchored below the finger midpoint. A short sequence lock
+  prevents fast momentum deltas from changing into mouse-wheel zoom halfway
+  through a gesture; stepped mouse wheels continue to zoom at the pointer.
+- Verified 178 frontend contracts, TypeScript and production build; desktop,
+  tablet and iPhone visual passes covered Day, Night, Minecraft, four hero
+  sights and the new western strip. More than 8,000 neutral subject patches
+  measured colour σ < 2, and repeated keyboard flight remained bounded and
+  responsive.
+
 ## v0.23.0
 
 - **Areal expansion (+100 m contract): visible radius 1910 m → 2010 m.**

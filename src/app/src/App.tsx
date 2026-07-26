@@ -3003,8 +3003,8 @@ export function App() {
             <p className="help-hint">
               {viewerMode === "three"
                 ? language === "de"
-                  ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Zwei Finger verschieben per Swipe und zoomen per Pinch am Fingermittelpunkt; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                  : "3D: Left-drag pans directly, the wheel zooms at the pointer, and right-drag orbits. Two fingers pan by swiping and pinch-zoom at their midpoint; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."
+                  ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                  : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."
                 : language === "de"
                   ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger zoomen, verschieben und drehen gleichzeitig."
                   : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}

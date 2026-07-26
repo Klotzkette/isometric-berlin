@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.23.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.23.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.24.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.24.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.23.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.24.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,10 +42,14 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.23.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.24.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
+- The versioned visible presentation radius is now **2110 m** (2010 m →
+  2110 m). Existing metric geometry remains fixed. The additional 100 m ring
+  is explicitly marked as extrapolated paper/park surround and never presented
+  as newly surveyed LoD2, ALKIS or OSM geometry.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale.
@@ -130,10 +134,12 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The old always-visible coloured landmark dots are gone. Selecting a landmark
   briefly shows a small ring, which fades after 2.4 seconds so roofs and
   facades remain unobstructed.
-- Left mouse drag pans directly, the wheel zooms at the pointer, right mouse
-  drag orbits, and one finger orbits on touch. A two-finger centre swipe pans
-  with momentum while pinch zooms around the finger midpoint; three fingers
-  carry the camera continuously through a genuine underside view. Plain arrows
+- Left mouse drag pans directly, the mouse wheel zooms at the pointer, right
+  mouse drag orbits, and one finger orbits on touch. On a trackpad, two-finger
+  scroll pans while pinch zooms at its midpoint. On touchscreens, a two-finger
+  centre swipe pans with momentum while pinch zooms around the finger midpoint;
+  three fingers carry the camera continuously through a genuine underside view.
+  Plain arrows
   translate in the visible screen plane,
   `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows
   orbit and tilt. Camera and target move together, so flight never changes the

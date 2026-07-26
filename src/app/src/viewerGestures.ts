@@ -16,6 +16,50 @@ export const THREE_MOUSE_GESTURE_SETTINGS = {
   RIGHT: MOUSE.ROTATE,
 } as const;
 
+export type WheelNavigationIntent =
+  | "mouse-wheel-zoom"
+  | "trackpad-pan"
+  | "trackpad-pinch";
+
+export type WheelNavigationSample = {
+  ctrlKey: boolean;
+  deltaMode: number;
+  deltaX: number;
+  deltaY: number;
+};
+
+/**
+ * Separate a stepped mouse wheel from high-resolution trackpad input.
+ * Browsers expose trackpad pinch as ctrl+wheel, while two-finger scroll
+ * usually arrives as pixel-mode, fractional or horizontal wheel deltas.
+ * `recentTrackpadPan` keeps a fast swipe classified consistently after its
+ * first small delta, even when later momentum events become large integers.
+ */
+export function wheelNavigationIntent(
+  sample: WheelNavigationSample,
+  recentTrackpadPan = false,
+): WheelNavigationIntent {
+  if (sample.ctrlKey) {
+    return "trackpad-pinch";
+  }
+  if (sample.deltaMode !== 0) {
+    return "mouse-wheel-zoom";
+  }
+  if (recentTrackpadPan) {
+    return "trackpad-pan";
+  }
+  const hasHorizontalMotion = Math.abs(sample.deltaX) > 0.01;
+  const hasFractionalMotion =
+    !Number.isInteger(sample.deltaX) || !Number.isInteger(sample.deltaY);
+  const isFineMotion = Math.max(
+    Math.abs(sample.deltaX),
+    Math.abs(sample.deltaY),
+  ) < 50;
+  return hasHorizontalMotion || hasFractionalMotion || isFineMotion
+    ? "trackpad-pan"
+    : "mouse-wheel-zoom";
+}
+
 // Touch profile v0.5.2: two-finger swipe pans (does not rotate) and pinch
 // zoom automatically follows the pinch centre. Rotation stays reachable
 // through the on-screen rotate buttons and the keyboard shortcuts. This

@@ -4,6 +4,7 @@ import {
   Box3,
   InstancedMesh,
   LineSegments,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -18,6 +19,7 @@ import {
   createIsometricCity,
   fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
+  ISO_GROUND_SHADES,
   ISO_INK_COLOR,
   ISO_WINDOW_BAY_PITCH_M,
   ISO_WINDOW_FLOOR_PITCH_M,
@@ -253,6 +255,23 @@ describe("ligne-claire fenestration", () => {
 });
 
 describe("west Tiergarten extrapolation and the recessed Spree", () => {
+  test("the day park palette stays quiet, bright and closely spaced", () => {
+    const channels = ISO_GROUND_SHADES.grass.map((tone) => [
+      (tone >> 16) & 0xff,
+      (tone >> 8) & 0xff,
+      tone & 0xff,
+    ]);
+    for (let channel = 0; channel < 3; channel += 1) {
+      const values = channels.map((rgb) => rgb[channel]);
+      expect(Math.max(...values) - Math.min(...values)).toBeLessThanOrEqual(2);
+    }
+    for (const [red, green, blue] of channels) {
+      expect(green).toBeGreaterThan(red);
+      expect(green).toBeGreaterThan(blue);
+      expect((red + green + blue) / 3).toBeGreaterThan(170);
+    }
+  });
+
   test("the extrapolated west carries lawn, axis road and a 67 m Siegessäule", async () => {
     const { createWestTiergarten } = await import("../src/IsometricCityWorld");
     const west = createWestTiergarten();
@@ -268,7 +287,15 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     const trunks = west.getObjectByName(
       "extrapolated tree trunks",
     ) as InstancedMesh;
-    expect(trunks.count).toBeGreaterThan(700);
+    expect(trunks.count).toBeGreaterThan(780);
+    const matrix = new Matrix4();
+    const treeXs: number[] = [];
+    for (let index = 0; index < trunks.count; index += 1) {
+      trunks.getMatrixAt(index, matrix);
+      treeXs.push(matrix.elements[12]);
+    }
+    expect(treeXs.some((x) => x > -1810 && x < -1730)).toBe(true);
+    expect(treeXs.some((x) => x > -1910 && x < -1830)).toBe(true);
     expect(west.getObjectByName("extrapolated tree crowns")).toBeDefined();
     expect(west.getObjectByName("extrapolated west ink lines")).toBeDefined();
     const body = west.getObjectByName(
@@ -276,8 +303,8 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     ) as Mesh;
     expect(body.material).toBeInstanceOf(MeshBasicMaterial);
     const bodyBounds = new Box3().setFromObject(body);
-    expect(bodyBounds.min.z).toBeLessThanOrEqual(-1800);
-    expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2220);
+    expect(bodyBounds.min.z).toBeLessThanOrEqual(-1900);
+    expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2320);
     // Enlarging the ring and tree population adds no draw calls of its own.
     expect(west.children.length).toBe(4);
   });

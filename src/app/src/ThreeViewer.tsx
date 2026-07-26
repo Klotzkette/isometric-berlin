@@ -113,7 +113,10 @@ import { createTiergartenMonuments } from "./TiergartenMonuments";
 import { renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
-import { THREE_MOUSE_GESTURE_SETTINGS } from "./viewerGestures";
+import {
+  THREE_MOUSE_GESTURE_SETTINGS,
+  wheelNavigationIntent,
+} from "./viewerGestures";
 import type { VisualMode } from "./visualMode";
 import {
   createMinecraftMaterialState,
@@ -1874,6 +1877,61 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controls.maxDistance,
         );
       };
+      let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
+      let wheelEndTimer: number | null = null;
+      const onWheelNavigation = (event: WheelEvent): void => {
+        const now = performance.now();
+        const intent = wheelNavigationIntent(
+          event,
+          now < trackpadPanSequenceUntil,
+        );
+        if (intent === "mouse-wheel-zoom") {
+          return;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        renderer.domElement.focus({ preventScroll: true });
+        panMomentum.x = 0;
+        panMomentum.y = 0;
+        if (intent === "trackpad-pinch") {
+          const factor = MathUtils.clamp(
+            Math.exp(-event.deltaY * 0.012),
+            0.82,
+            1.22,
+          );
+          zoomAtClientPoint(
+            { x: event.clientX, y: event.clientY },
+            factor,
+          );
+        } else {
+          trackpadPanSequenceUntil = now + 180;
+          // Pixel wheel deltas run opposite to physical finger travel under
+          // natural scrolling. Invert them before applying the same direct-
+          // manipulation contract as a two-finger touch pan.
+          const { strafe, forward } = twoFingerPanFlight(
+            -event.deltaX,
+            -event.deltaY,
+          );
+          flyCameraAlongViewHeading(
+            camera,
+            controls.target,
+            strafe,
+            forward,
+          );
+        }
+        controls.update();
+        markSurfaceInteraction(runtime);
+        settleUntil = now + 650;
+        if (wheelEndTimer !== null) {
+          window.clearTimeout(wheelEndTimer);
+        }
+        wheelEndTimer = window.setTimeout(() => {
+          wheelEndTimer = null;
+          if (!runtime.disposed) {
+            notifyView(runtime, onViewChangeRef.current);
+          }
+        }, 180);
+      };
       const onPointerDown = (event: PointerEvent) => {
         panMomentum.x = 0;
         panMomentum.y = 0;
@@ -2080,6 +2138,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         true,
       );
       renderer.domElement.addEventListener("dblclick", onDoubleClick);
+      renderer.domElement.addEventListener("wheel", onWheelNavigation, {
+        capture: true,
+        passive: false,
+      });
       window.addEventListener("pointerup", onPointerUp, true);
       window.addEventListener("pointercancel", onPointerUp, true);
       window.addEventListener("blur", resetTouchGesture);
@@ -2650,6 +2712,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           true,
         );
         renderer.domElement.removeEventListener("dblclick", onDoubleClick);
+        renderer.domElement.removeEventListener(
+          "wheel",
+          onWheelNavigation,
+          true,
+        );
         renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
         window.removeEventListener("pointerup", onPointerUp, true);
         window.removeEventListener("pointercancel", onPointerUp, true);
@@ -2659,6 +2726,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls.removeEventListener("end", onControlsEnd);
         if (qualityRestoreTimer !== null) {
           window.clearTimeout(qualityRestoreTimer);
+        }
+        if (wheelEndTimer !== null) {
+          window.clearTimeout(wheelEndTimer);
         }
         if (runtime.markerTimer !== null) {
           window.clearTimeout(runtime.markerTimer);

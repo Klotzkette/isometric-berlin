@@ -58,11 +58,11 @@ export type PrismPayload = {
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // Versioned visible-map radius (metres): half the larger span of the
 // drawn envelope incl. the extrapolated surround. The areal-expansion
-// contract grows this by exactly +100 m per run: v0.22.0 was 1910 m
-// (envelope z −1700…2120), v0.23.0 is 2010 m (z −1800…2220).
-export const VISIBLE_RADIUS_M = 2010;
-export const EXTRAPOLATED_WEST_M = -1820;
-export const EXTRAPOLATED_MARGIN_M = 720;
+// contract grows this by exactly +100 m per run: v0.23.0 was 2010 m
+// (envelope z −1800…2220), v0.24.0 is 2110 m (z −1900…2320).
+export const VISIBLE_RADIUS_M = 2110;
+export const EXTRAPOLATED_WEST_M = -1920;
+export const EXTRAPOLATED_MARGIN_M = 820;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -155,13 +155,14 @@ export function cleanedTone(tone: [number, number, number]): Color {
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
 export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
-  asphalt: [0xaaaba3, 0xb4b5ad],
-  // Sage lawns, not neon stripes — the parkland of an ivory model.
-  grass: [0xa9c592, 0xb3cd9d, 0xa0bd88],
-  plazaBrick: [0xdcc3a9, 0xd2b898],
+  asphalt: [0xb7b8b1, 0xb9bab3],
+  // Closely spaced sage lawns avoid noisy stripes while retaining enough
+  // separation to read the park as a drawn surface.
+  grass: [0xb4caa5, 0xb5cba6, 0xb3c9a4],
+  plazaBrick: [0xdcc5ab, 0xdac2a8],
   // Drawn bridge decks: light stone, clearly distinct from water below.
-  bridge: [0xcdc8bc, 0xd7d2c6],
-  water: [0x9fc7d8, 0x95bed1],
+  bridge: [0xd4d0c5, 0xd6d2c7],
+  water: [0xa6cadb, 0xa4c9da],
 };
 
 // Flat drawn facade tones per building class, with deterministic
@@ -1418,7 +1419,8 @@ export function createWestTiergarten(): Group {
   const GROUND_TOP = 2.1;
   // Lawn bands (alternating drawn greens like the surveyed ground).
   const WEST = EXTRAPOLATED_WEST_M;
-  const PREVIOUS_WEST = -1720;
+  const V022_WEST = -1720;
+  const V023_WEST = -1820;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1426,9 +1428,9 @@ export function createWestTiergarten(): Group {
   // official grid, the western park and the three margin bands. It sits below
   // water and terrain, so it cannot move or cover surveyed geometry; it only
   // prevents trees from appearing to float against the sky at maximum flight.
-  const PAPER_EAST = 1380;
-  const PAPER_NORTH = -1800;
-  const PAPER_SOUTH = 2220;
+  const PAPER_EAST = 1480;
+  const PAPER_NORTH = -1900;
+  const PAPER_SOUTH = 2320;
   addPart(
     boxTriangles(
       (WEST + PAPER_EAST) / 2,
@@ -1439,7 +1441,7 @@ export function createWestTiergarten(): Group {
       1.2,
       PAPER_SOUTH - PAPER_NORTH,
     ),
-    0xd7e0d0,
+    0xdce4d7,
     false,
   );
   const bands = 8;
@@ -1510,7 +1512,7 @@ export function createWestTiergarten(): Group {
     [horizontalCenter, 1451 + MARGIN / 2, horizontalWidth, MARGIN],
     [601 + MARGIN / 2, (1451 - 1030) / 2, MARGIN, 1451 + 1030],
   ];
-  const MARGIN_TONES = [0xd3dcc8, 0xdae2d0];
+  const MARGIN_TONES = [0xd9e2d3, 0xdee6d9];
   marginBands.forEach(([cx, cz, sx, sz], index) => {
     addPart(
       boxTriangles(cx, GROUND_TOP - 1.6, cz, [1, 0], sx, 2.6, sz),
@@ -1533,9 +1535,9 @@ export function createWestTiergarten(): Group {
     const hx = (Math.imul(index + 1, 2654435761) >>> 9) % 10_000;
     const hz = (Math.imul(index + 7, 40503) >>> 3) % 10_000;
     const x =
-      PREVIOUS_WEST +
+      V022_WEST +
       20 +
-      ((EAST - PREVIOUS_WEST - 40) * hx) / 10_000;
+      ((EAST - V022_WEST - 40) * hx) / 10_000;
     const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
@@ -1548,7 +1550,23 @@ export function createWestTiergarten(): Group {
     const hx = (Math.imul(index + 101, 2246822519) >>> 8) % 10_000;
     const hz = (Math.imul(index + 211, 3266489917) >>> 7) % 10_000;
     const x =
-      WEST + 10 + ((PREVIOUS_WEST - WEST - 20) * hx) / 10_000;
+      V023_WEST + 10 + ((V022_WEST - V023_WEST - 20) * hx) / 10_000;
+    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.24.0 adds trees only to its own −1920…−1820 m strip. Keeping the
+  // preceding ranges anchored to their release constants prevents cumulative
+  // runs from silently moving previously published vegetation.
+  for (let index = 0; index < 84; index += 1) {
+    const hx = (Math.imul(index + 307, 668265263) >>> 8) % 10_000;
+    const hz = (Math.imul(index + 419, 374761393) >>> 7) % 10_000;
+    const x =
+      WEST + 10 + ((V023_WEST - WEST - 20) * hx) / 10_000;
     const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
@@ -1630,7 +1648,7 @@ export function createWestTiergarten(): Group {
 
 /**
  * Non-geographic presentation floor below the complete metric model. Camera
- * targets are bounded to the published 2010 m data envelope, but a distant
+ * targets are bounded to the published 2110 m data envelope, but a distant
  * oblique lens can still see beyond that envelope. This unlit paper stage
  * prevents the sky from showing through behind edge trees without pretending
  * that the stage contains surveyed roads, buildings or vegetation.
@@ -1638,7 +1656,7 @@ export function createWestTiergarten(): Group {
 function createPresentationBackdrop(): Mesh {
   const geometry = new PlaneGeometry(16_000, 16_000);
   geometry.rotateX(-Math.PI / 2);
-  const dayMaterial = new MeshBasicMaterial({ color: 0xd7e0d0 });
+  const dayMaterial = new MeshBasicMaterial({ color: 0xdce4d7 });
   const nightMaterial = new MeshBasicMaterial({ color: 0x07131f });
   const backdrop = new Mesh(geometry, dayMaterial);
   backdrop.name = "presentation paper backdrop";

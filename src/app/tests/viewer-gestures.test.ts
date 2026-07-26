@@ -8,6 +8,7 @@ import {
   rotationDeltaFromMouseDrag,
   rotationDeltaFromTouchPairs,
   snapRotationToCardinals,
+  wheelNavigationIntent,
 } from "../src/viewerGestures";
 
 describe("touch viewer gestures", () => {
@@ -64,5 +65,51 @@ describe("touch viewer gestures", () => {
   test("turns a deliberate shift-drag into a controlled free rotation", () => {
     expect(rotationDeltaFromMouseDrag(100)).toBeCloseTo(28);
     expect(rotationDeltaFromMouseDrag(-50)).toBeCloseTo(-14);
+  });
+
+  test("separates trackpad pan and pinch from a stepped mouse wheel", () => {
+    expect(
+      wheelNavigationIntent({
+        ctrlKey: true,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: -4.5,
+      }),
+    ).toBe("trackpad-pinch");
+    expect(
+      wheelNavigationIntent({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 7.25,
+        deltaY: 18.5,
+      }),
+    ).toBe("trackpad-pan");
+    expect(
+      wheelNavigationIntent({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: 100,
+      }),
+    ).toBe("mouse-wheel-zoom");
+    expect(
+      wheelNavigationIntent(
+        {
+          ctrlKey: false,
+          deltaMode: 0,
+          deltaX: 0,
+          deltaY: 96,
+        },
+        true,
+      ),
+    ).toBe("trackpad-pan");
+    expect(
+      wheelNavigationIntent({
+        ctrlKey: false,
+        deltaMode: 1,
+        deltaX: 0,
+        deltaY: 3,
+      }),
+    ).toBe("mouse-wheel-zoom");
   });
 });
