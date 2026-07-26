@@ -1,5 +1,38 @@
 # Changelog
 
+## v0.26.0
+
+- **Areal expansion (+100 m contract): visible radius 2210 m → 2310 m.**
+  The extrapolated western Tiergarten lobe reaches −2120 m, the calm
+  paper/park margin widens to 1020 m and the flight envelope follows at
+  z −2100…+2520. Every tree published through v0.25.0 stays pinned to its
+  original strip; a fifth deterministic population fills only the new
+  −2120…−2020 m strip. A stronger integer mix removes linear planting patterns,
+  while the seamless outer paper adds no draw call or claim of newly surveyed
+  geometry.
+- **Responsive state now follows the real viewport.** A shared 1024 px layout
+  contract observes media-query changes plus the iOS `visualViewport` resize
+  fallback. Rotating a phone/tablet, changing browser zoom or entering iPad
+  Split View immediately aligns React with the compact CSS, closes a stranded
+  desktop sight rail and clears incompatible sheets. Landmark focus offsets,
+  discovery coaching and post-selection rail closing all use that same state.
+- Added direct regression coverage for the inclusive 1024 px boundary,
+  rotation/Split-View subscriptions and cleanup, the immutable v0.25.0 tree
+  strip, the new v0.26.0 strip and the 2310 m flight envelope.
+- Minecraft's restrained distance haze now derives from the versioned radius
+  instead of ending at a fixed 2550 m plane. The full expanded block world
+  remains legible in wide views without changing Day or Night rendering.
+- Local packaging now retries a narrowly identified macOS Finder race where a
+  newly created `.DS_Store` made removal of the previous generated package fail
+  with `ENOTEMPTY`. Finder metadata remains excluded from every public archive.
+- Refreshed the local-package and version guidance for this release.
+- Verified 183 frontend contracts, TypeScript and the production build plus 199
+  Python contracts, release readiness and the real local-package smoke test.
+  Day, Night and Minecraft were inspected at 390×844, 1024×768 and 1600×900,
+  including four hero sights and the new western edge. Across the four hero
+  crops, 13,670 neutral 12×12 subject patches measured per-channel colour
+  σ < 2; browser logs remained clean.
+
 ## v0.25.0
 
 - **Areal expansion (+100 m contract): visible radius 2110 m → 2210 m.**

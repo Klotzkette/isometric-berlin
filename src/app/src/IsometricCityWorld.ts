@@ -60,10 +60,10 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // Versioned visible-map radius (metres): half the larger span of the
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
-// (envelope z −1900…2320), v0.25.0 is 2210 m (z −2000…2420).
-export const VISIBLE_RADIUS_M = 2210;
-export const EXTRAPOLATED_WEST_M = -2020;
-export const EXTRAPOLATED_MARGIN_M = 920;
+// (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520).
+export const VISIBLE_RADIUS_M = 2310;
+export const EXTRAPOLATED_WEST_M = -2120;
+export const EXTRAPOLATED_MARGIN_M = 1020;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -1423,6 +1423,7 @@ export function createWestTiergarten(): Group {
   const V022_WEST = -1720;
   const V023_WEST = -1820;
   const V024_WEST = -1920;
+  const V025_WEST = -2020;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1430,9 +1431,9 @@ export function createWestTiergarten(): Group {
   // official grid, the western park and the three margin bands. It sits below
   // water and terrain, so it cannot move or cover surveyed geometry; it only
   // prevents trees from appearing to float against the sky at maximum flight.
-  const PAPER_EAST = 1580;
-  const PAPER_NORTH = -2000;
-  const PAPER_SOUTH = 2420;
+  const PAPER_EAST = 1680;
+  const PAPER_NORTH = -2100;
+  const PAPER_SOUTH = 2520;
   addPart(
     boxTriangles(
       (WEST + PAPER_EAST) / 2,
@@ -1579,14 +1580,37 @@ export function createWestTiergarten(): Group {
     }
     trunkSpots.push([x, z]);
   }
-  // v0.25.0 grows only the new −2020…−1920 m strip. Distinct hash seeds keep
+  // v0.25.0 grows only the −2020…−1920 m strip. Distinct hash seeds keep
   // the added trees deterministic without repeating a previous distribution.
   for (let index = 0; index < 84; index += 1) {
     const hx = (Math.imul(index + 523, 1103515245) >>> 8) % 10_000;
     const hz = (Math.imul(index + 631, 214013) >>> 7) % 10_000;
     const x =
-      WEST + 10 + ((V024_WEST - WEST - 20) * hx) / 10_000;
+      V025_WEST +
+      10 +
+      ((V024_WEST - V025_WEST - 20) * hx) / 10_000;
     const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.26.0 adds a fifth immutable population only in the new
+  // −2120…−2020 m strip. An avalanche mix avoids the visible diagonal lattice
+  // produced by a linear integer sequence; prior strips remain byte-stable.
+  const stripUnit = (index: number, seed: number): number => {
+    let value = Math.imul(index + seed, 0x9e3779b1);
+    value = Math.imul(value ^ (value >>> 16), 0x85ebca6b);
+    value = Math.imul(value ^ (value >>> 13), 0xc2b2ae35);
+    return ((value ^ (value >>> 16)) >>> 0) / 0x1_0000_0000;
+  };
+  for (let index = 0; index < 84; index += 1) {
+    const x =
+      WEST + 10 + (V025_WEST - WEST - 20) * stripUnit(index, 743);
+    const z =
+      NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 857);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
@@ -1667,7 +1691,7 @@ export function createWestTiergarten(): Group {
 
 /**
  * Non-geographic presentation floor below the complete metric model. Camera
- * targets are bounded to the published 2210 m data envelope, but a distant
+ * targets are bounded to the published 2310 m data envelope, but a distant
  * oblique lens can still see beyond that envelope. This unlit paper stage
  * prevents the sky from showing through behind edge trees without pretending
  * that the stage contains surveyed roads, buildings or vegetation.

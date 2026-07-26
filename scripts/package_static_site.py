@@ -8,6 +8,7 @@ HTML entry point, and optional local-server fallbacks.
 from __future__ import annotations
 
 import argparse
+import errno
 import gzip
 import hashlib
 import json
@@ -19,7 +20,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.25.0"
+PACKAGE_VERSION = "0.26.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3093,10 +3094,25 @@ def file_digest(path: Path) -> dict[str, int | str]:
   return {"bytes": size, "sha256": digest.hexdigest()}
 
 
+def remove_generated_tree(path: Path, attempts: int = 5) -> None:
+  """Remove an old generated tree despite Finder metadata creation races."""
+  for attempt in range(attempts):
+    if not path.exists():
+      return
+    try:
+      shutil.rmtree(path)
+      return
+    except OSError as error:
+      if error.errno != errno.ENOTEMPTY or attempt == attempts - 1:
+        raise
+      for finder_metadata in path.rglob(".DS_Store"):
+        finder_metadata.unlink(missing_ok=True)
+
+
 def copy_static_site(source: Path, target: Path) -> None:
   """Copy the built static site, excluding development-only sourcemaps."""
   if target.exists():
-    shutil.rmtree(target)
+    remove_generated_tree(target)
   target.mkdir(parents=True)
   for path in source.rglob("*"):
     if not should_package_file(path):

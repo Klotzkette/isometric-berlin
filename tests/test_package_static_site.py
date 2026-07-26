@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import hashlib
 import importlib.util
 import json
@@ -396,6 +397,39 @@ def test_copy_static_site_skips_duplicate_and_dev_files(
   assert not (target / ".DS_Store").exists()
   assert not (target / "dzi 2").exists()
   assert not (target / "assets" / "index.js.map").exists()
+
+
+def test_copy_static_site_retries_finder_metadata_race(
+  tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_finder_race", "scripts/package_static_site.py"
+  )
+  source = tmp_path / "dist"
+  source.mkdir()
+  (source / "index.html").write_text("<html></html>", encoding="utf-8")
+  target = tmp_path / "package"
+  target.mkdir()
+  (target / "stale.html").write_text("old", encoding="utf-8")
+  real_rmtree = package_static_site.shutil.rmtree
+  calls = 0
+
+  def finder_race(path: Path) -> None:
+    nonlocal calls
+    calls += 1
+    if calls == 1:
+      (Path(path) / ".DS_Store").write_text("metadata", encoding="utf-8")
+      raise OSError(errno.ENOTEMPTY, "Directory not empty", path)
+    real_rmtree(path)
+
+  monkeypatch.setattr(package_static_site.shutil, "rmtree", finder_race)
+
+  package_static_site.copy_static_site(source, target)
+
+  assert calls == 2
+  assert (target / "index.html").exists()
+  assert not (target / "stale.html").exists()
+  assert not (target / ".DS_Store").exists()
 
 
 def test_copy_static_site_does_not_follow_symlinks(tmp_path: Path) -> None:

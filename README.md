@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.25.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.25.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.26.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.26.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.25.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.26.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,14 +42,16 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.25.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.26.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
-- The versioned visible presentation radius is now **2210 m** (2110 m →
-  2210 m). Existing metric geometry remains fixed. The additional 100 m ring
+- The versioned visible presentation radius is now **2310 m** (2210 m →
+  2310 m). Existing metric geometry remains fixed. The additional 100 m ring
   is explicitly marked as extrapolated paper/park surround and never presented
-  as newly surveyed LoD2, ALKIS or OSM geometry.
+  as newly surveyed LoD2, ALKIS or OSM geometry. A fifth deterministic,
+  de-latticed tree population fills only the new −2120…−2020 m western strip;
+  the pale outer paper remains seamless instead of drawing a distant frame.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale.
@@ -124,13 +126,17 @@ labelled compatibility fallback for browsers that cannot run local modules.
   single LoD2 anchor or changing camera framing. Deterministic villages,
   market tents, fields, tiny people, animals and boats appear progressively
   only after 20–75 seconds of uninterrupted dwell time and remain under a
-  strict mobile density budget.
+  strict mobile density budget. Its distant haze now scales with the versioned
+  visible radius, keeping the complete expanded model readable at overview
+  distance instead of fading the new ring at a fixed 2550 m plane.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact
   40 px sight status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with
   its chevron or a three-finger downward swipe; iPhone safe areas, landscape,
   44 px touch targets, reduced motion and momentum-rich pinch/pan/rotate are
-  handled explicitly.
+  handled explicitly. Rotation, browser zoom and iPad Split View now update the
+  compact React state live as well as the CSS, so desktop rails cannot remain
+  stranded over a newly compact canvas.
 - The old always-visible coloured landmark dots are gone. Selecting a landmark
   briefly shows a small ring, which fades after 2.4 seconds so roofs and
   facades remain unobstructed.

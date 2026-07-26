@@ -73,6 +73,10 @@ import {
   REPOSITORY_URL,
 } from "./projectMetadata";
 import {
+  COMPACT_LAYOUT_MEDIA_QUERY,
+  observeCompactLayout,
+} from "./responsiveLayout";
+import {
   PEN_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
   normalizeRotation,
@@ -102,7 +106,6 @@ type MobileSheet = "compass" | "overflow" | null;
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
 const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
-const MOBILE_MEDIA_QUERY = "(max-width: 1024px)";
 
 const ATTRIBUTION =
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
@@ -543,14 +546,16 @@ export function App() {
       return true;
     }
   });
+  const [isCompactLayout, setIsCompactLayout] = useState(
+    () => window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY).matches,
+  );
   const [isLandmarkRailOpen, setIsLandmarkRailOpen] = useState(
-    () => !window.matchMedia(MOBILE_MEDIA_QUERY).matches,
+    () => !window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY).matches,
   );
   const [keepThreeWarm] = useState(
     () => !window.matchMedia("(pointer: coarse)").matches,
   );
-  const compactCoachActive =
-    showCoachMark && window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+  const compactCoachActive = showCoachMark && isCompactLayout;
 
   const tileSource = useMemo(() => regierungsviertelTileSource(), []);
   const sceneUrl = useMemo(
@@ -606,7 +611,7 @@ export function App() {
         landmark.x,
         landmark.y,
       );
-      const mobileOffset = window.matchMedia(MOBILE_MEDIA_QUERY).matches
+      const mobileOffset = isCompactLayout
         ? viewer.viewport.deltaPointsFromPixels(new OpenSeadragon.Point(0, 32))
         : new OpenSeadragon.Point(0, 0);
       viewer.viewport.zoomTo(
@@ -619,7 +624,7 @@ export function App() {
         shouldMoveImmediately,
       );
     },
-    [copy.focus, viewerMode],
+    [copy.focus, isCompactLayout, viewerMode],
   );
 
   const focusLandmarkByOffset = useCallback(
@@ -797,6 +802,24 @@ export function App() {
       // The viewer remains usable when storage is blocked.
     }
   }, [isChromeHidden]);
+
+  useEffect(
+    () =>
+      observeCompactLayout(
+        window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY),
+        setIsCompactLayout,
+        window.visualViewport,
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    if (!isCompactLayout) {
+      return;
+    }
+    setIsLandmarkRailOpen(false);
+    setMobileSheet(null);
+  }, [isCompactLayout]);
 
   const applyRotation = useCallback((degrees: number) => {
     const next = normalizeRotation(degrees);
@@ -2680,7 +2703,7 @@ export function App() {
                 onClick={() => {
                   setIsTouring(false);
                   focusLandmark(landmark);
-                  if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+                  if (isCompactLayout) {
                     setIsLandmarkRailOpen(false);
                   }
                 }}

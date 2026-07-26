@@ -91,6 +91,7 @@ import {
 } from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
+import { minecraftFogRange } from "./minecraftFog";
 import {
   type PrismPayload,
   PRISM_WORLD_FILE,
@@ -460,7 +461,10 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
   // das will ich überhaupt nicht"): the ivory model stays crisp to the
   // horizon. Only Minecraft keeps its genre haze.
-  runtime.scene.fog = isMinecraft ? new Fog(sky, 1450, 2550) : null;
+  const voxelFog = minecraftFogRange();
+  runtime.scene.fog = isMinecraft
+    ? new Fog(sky, voxelFog.near, voxelFog.far)
+    : null;
   // Minecraft exposure compensates for the darker outline pass and the
   // wider light/dark contrast so mids stay readable, not muddy.
   runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.62 : 1.33;
