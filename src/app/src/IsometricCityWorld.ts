@@ -18,6 +18,7 @@ import {
   Path,
   PlaneGeometry,
   Shape,
+  ShapeGeometry,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
@@ -58,15 +59,35 @@ export type PrismPayload = {
 };
 
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
+export const SURFACE_WORLD_FILE = "surface-polygons.json";
+
+/**
+ * True OSM water and parkland polygons (decimetre rings). The voxel
+ * grid rasterises everything onto 4 m cells, which made the Spree banks
+ * and the Tiergarten lawns read as staircases; these smooth rings carry
+ * the drawn shoreline and lawn edges instead.
+ */
+export type SurfacePolygon = {
+  area_m2: number;
+  holes: number[][][];
+  name: string;
+  ring: number[][];
+};
+
+export type SurfacePayload = {
+  parks: SurfacePolygon[];
+  schema_version: number;
+  water: SurfacePolygon[];
+};
 // Versioned visible-map radius (metres): half the larger span of the
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520),
 // v0.31.0 was 2810 m (z −2600…3020), v0.32.0 was 2910 m (z −2700…3120),
 // v0.33.0 is 3010 m (z −2800…3220).
-export const VISIBLE_RADIUS_M = 3010;
-export const EXTRAPOLATED_WEST_M = -2720;
-export const EXTRAPOLATED_MARGIN_M = 1720;
+export const VISIBLE_RADIUS_M = 3110;
+export const EXTRAPOLATED_WEST_M = -2820;
+export const EXTRAPOLATED_MARGIN_M = 1820;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -350,6 +371,25 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const strips = city.getObjectByName("LoD2 facade night strips");
   if (strips) {
     strips.visible = night;
+  }
+  for (const name of [
+    "smooth water surface",
+    "smooth quay walls",
+    "smooth river bed",
+    "smooth parkland lawns",
+  ]) {
+    const smooth = city.getObjectByName(name);
+    if (smooth instanceof Mesh && smooth.userData.dayMaterial) {
+      smooth.material = night
+        ? (smooth.userData.nightMaterial as MeshBasicMaterial)
+        : (smooth.userData.dayMaterial as MeshBasicMaterial);
+    }
+  }
+  const shoreInk = city.getObjectByName("smooth shoreline ink");
+  if (shoreInk instanceof LineSegments) {
+    (shoreInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
   }
   const waterSurface = city.getObjectByName("drawn water surface");
   if (waterSurface instanceof InstancedMesh) {
@@ -2267,6 +2307,7 @@ export function createWestTiergarten(): Group {
   const V029_WEST = -2420;
   const V030_WEST = -2520;
   const V032_WEST = -2620;
+  const V033_WEST = -2720;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -2548,10 +2589,20 @@ export function createWestTiergarten(): Group {
   // v0.33.0 grows only the new −2720…−2620 m strip.
   for (let index = 0; index < 84; index += 1) {
     const x =
-      WEST + 10 + (V032_WEST - WEST - 20) * stripUnit(index, 3163);
+      V033_WEST + 10 + (V032_WEST - V033_WEST - 20) * stripUnit(index, 3163);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 3271);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.34.0 grows only the new −2820…−2720 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x = WEST + 10 + (V033_WEST - WEST - 20) * stripUnit(index, 3571);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 3701);
+    const axisZ = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
       continue;
     }
@@ -3406,10 +3457,211 @@ export function createLandmarkRefinements(): Group {
   return group;
 }
 
+/** Shape (with holes) from a decimetre polygon ring, in the XZ plane. */
+function shapeFromSurface(surface: SurfacePolygon): Shape {
+  const shape = new Shape();
+  surface.ring.forEach(([xDm, zDm], index) => {
+    const x = xDm / 10;
+    const y = -zDm / 10;
+    if (index === 0) {
+      shape.moveTo(x, y);
+    } else {
+      shape.lineTo(x, y);
+    }
+  });
+  for (const hole of surface.holes ?? []) {
+    const path = new Path();
+    hole.forEach(([xDm, zDm], index) => {
+      const x = xDm / 10;
+      const y = -zDm / 10;
+      if (index === 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    });
+    shape.holes.push(path);
+  }
+  return shape;
+}
+
+/**
+ * Smooth water bodies and parkland from the true OSM polygons: a
+ * transparent water plate over a sandy bed, a continuous drawn
+ * shoreline, soft quay walls following the real bank line, and lawn
+ * plates that cover the rasterised grass steps. This replaces the
+ * per-cell water/quay staircases entirely.
+ */
+export function createSmoothSurfaces(
+  surfaces: SurfacePayload,
+  waterTopY: number,
+  bankY: number,
+): Group {
+  const group = new Group();
+  group.name = "smooth OSM water and parkland";
+  const BED_DROP = 3.1;
+
+  const buildPlate = (
+    polygons: SurfacePolygon[],
+    y: number,
+    tone: number,
+  ): BufferGeometry | null => {
+    const parts: BufferGeometry[] = [];
+    for (const surface of polygons) {
+      if (surface.ring.length < 4) {
+        continue;
+      }
+      const geometry = new ShapeGeometry(shapeFromSurface(surface));
+      geometry.deleteAttribute("uv");
+      geometry.rotateX(-Math.PI / 2);
+      geometry.translate(0, y, 0);
+      const paint = new Color(tone);
+      const count = geometry.getAttribute("position").count;
+      const colors = new Float32Array(count * 3);
+      for (let index = 0; index < count; index += 1) {
+        colors[index * 3] = paint.r;
+        colors[index * 3 + 1] = paint.g;
+        colors[index * 3 + 2] = paint.b;
+      }
+      geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+      parts.push(geometry);
+    }
+    if (parts.length === 0) {
+      return null;
+    }
+    const merged = mergeGeometries(parts, false);
+    for (const part of parts) {
+      part.dispose();
+    }
+    return merged;
+  };
+
+  // Parkland lawns first: they sit just above the rasterised grass so
+  // the 4 m steps disappear under a smooth sage plate.
+  const lawns = buildPlate(surfaces.parks, bankY + 0.08, 0xffffff);
+  if (lawns) {
+    // Unlit plates ignore the night rig, so they carry explicit day and
+    // night tones — otherwise the lawns glow through the dark.
+    const dayMaterial = new MeshBasicMaterial({ color: 0xa9c592 });
+    const nightMaterial = new MeshBasicMaterial({ color: 0x1c2a20 });
+    const lawnMesh = new Mesh(lawns, dayMaterial);
+    lawnMesh.userData.dayMaterial = dayMaterial;
+    lawnMesh.userData.nightMaterial = nightMaterial;
+    lawnMesh.name = "smooth parkland lawns";
+    group.add(lawnMesh);
+  }
+
+  // Sandy riverbed, then the transparent water plate above it.
+  const bed = buildPlate(surfaces.water, waterTopY - BED_DROP, 0xffffff);
+  if (bed) {
+    const dayMaterial = new MeshBasicMaterial({ color: 0xd4cbb4 });
+    const nightMaterial = new MeshBasicMaterial({ color: 0x1a232b });
+    const bedMesh = new Mesh(bed, dayMaterial);
+    bedMesh.userData.dayMaterial = dayMaterial;
+    bedMesh.userData.nightMaterial = nightMaterial;
+    bedMesh.name = "smooth river bed";
+    group.add(bedMesh);
+  }
+  const water = buildPlate(surfaces.water, waterTopY, 0xffffff);
+  if (water) {
+    const dayMaterial = new MeshBasicMaterial({
+      color: 0x9fc7d8,
+      depthWrite: false,
+      opacity: 0.46,
+      transparent: true,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x27435c,
+      depthWrite: false,
+      opacity: 0.6,
+      transparent: true,
+    });
+    const waterMesh = new Mesh(water, dayMaterial);
+    waterMesh.userData.dayMaterial = dayMaterial;
+    waterMesh.userData.nightMaterial = nightMaterial;
+    waterMesh.name = "smooth water surface";
+    waterMesh.renderOrder = 1;
+    group.add(waterMesh);
+  }
+
+  // Quay walls + shoreline ink follow the REAL bank line, so the
+  // embankment is a smooth curve instead of a cell staircase.
+  const wallPositions: number[] = [];
+  const wallColors: number[] = [];
+  const shorePositions: number[] = [];
+  const stone = new Color(0xcdc5b2);
+  const stoneAlt = new Color(0xc2b9a5);
+  for (const surface of surfaces.water) {
+    if (surface.area_m2 < 400) {
+      continue;
+    }
+    const ring = surface.ring;
+    for (let index = 0; index < ring.length; index += 1) {
+      const [x1Dm, z1Dm] = ring[index];
+      const [x2Dm, z2Dm] = ring[(index + 1) % ring.length];
+      const ax = x1Dm / 10;
+      const az = z1Dm / 10;
+      const bx = x2Dm / 10;
+      const bz = z2Dm / 10;
+      if (Math.hypot(bx - ax, bz - az) < 0.2) {
+        continue;
+      }
+      const tone = index % 2 === 0 ? stone : stoneAlt;
+      for (const [px, py, pz] of [
+        [ax, waterTopY - BED_DROP, az],
+        [bx, waterTopY - BED_DROP, bz],
+        [bx, bankY + 0.12, bz],
+        [ax, waterTopY - BED_DROP, az],
+        [bx, bankY + 0.12, bz],
+        [ax, bankY + 0.12, az],
+      ] as const) {
+        wallPositions.push(px, py, pz);
+        wallColors.push(tone.r, tone.g, tone.b);
+      }
+      shorePositions.push(ax, bankY + 0.16, az, bx, bankY + 0.16, bz);
+    }
+  }
+  if (wallPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(wallPositions, 3));
+    geometry.setAttribute("color", new Float32BufferAttribute(wallColors, 3));
+    geometry.computeVertexNormals();
+    const dayMaterial = new MeshBasicMaterial({
+      side: DoubleSide,
+      vertexColors: true,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x2a3138,
+      side: DoubleSide,
+    });
+    const walls = new Mesh(geometry, dayMaterial);
+    walls.userData.dayMaterial = dayMaterial;
+    walls.userData.nightMaterial = nightMaterial;
+    walls.name = "smooth quay walls";
+    group.add(walls);
+  }
+  if (shorePositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(shorePositions, 3),
+    );
+    const shore = new LineSegments(
+      geometry,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    shore.name = "smooth shoreline ink";
+    shore.renderOrder = 2;
+    group.add(shore);
+  }
+  return group;
+}
+
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
   tunnelPoints?: readonly (readonly [number, number, number])[] | null,
+  surfaces?: SurfacePayload | null,
 ): Group {
   const group = new Group();
   group.name = "Drawn isometric city (LoD2 prisms + ink lines)";
@@ -4173,7 +4425,9 @@ export function createIsometricCity(
     // durchsichtig sein mit Flussbett"): a pale glass-like surface
     // plate floats over a sandy riverbed ~2.2 m below.
     const waterClass = ground.classes.indexOf("water");
-    if (waterClass >= 0) {
+    // With the true OSM polygons available the smooth layers own the
+    // river; the rasterised plates below stay as the fallback only.
+    if (waterClass >= 0 && !surfaces) {
       const cell = ground.cell_m;
       const { min_x_idx, min_z_idx } = ground.grid;
       const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
@@ -4234,9 +4488,23 @@ export function createIsometricCity(
     if (kerbs) {
       group.add(kerbs);
     }
-    const quays = createQuayWalls(ground);
-    if (quays) {
-      group.add(quays);
+    if (surfaces) {
+      // Smooth shoreline, bed, water plate and quay walls from the real
+      // OSM rings ("weiche Flussufer", no more 4 m staircases), plus
+      // lawn plates that cover the rasterised parkland steps.
+      const bankY = (ground.water_top_y_m ?? WATER_TOP_Y) + 5.35;
+      group.add(
+        createSmoothSurfaces(
+          surfaces,
+          ground.water_top_y_m ?? WATER_TOP_Y,
+          bankY,
+        ),
+      );
+    } else {
+      const quays = createQuayWalls(ground);
+      if (quays) {
+        group.add(quays);
+      }
     }
     const bridges = createBridgeStructures(ground);
     if (bridges) {

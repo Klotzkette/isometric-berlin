@@ -608,3 +608,49 @@ describe("real bridge structures", () => {
     expect(bounds.max.y).toBeGreaterThan(35);
   });
 });
+
+describe("smooth OSM water and parkland", () => {
+  test("real polygons replace the rasterised river with a continuous shoreline", async () => {
+    const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
+    const surfaces = (await import(
+      "../public/mesh/regierungsviertel/surface-polygons.json"
+    )) as { default: { parks: unknown[]; water: unknown[] } };
+    const payloadSurfaces = surfaces.default as never as Parameters<
+      typeof createSmoothSurfaces
+    >[0];
+    expect(payloadSurfaces.water.length).toBeGreaterThan(10);
+    expect(payloadSurfaces.parks.length).toBeGreaterThan(100);
+    const group = createSmoothSurfaces(payloadSurfaces, -1.15, 4.2);
+    // A transparent water plate over a sandy bed, plus smooth quay
+    // walls and one continuous shoreline ink run.
+    const water = group.getObjectByName("smooth water surface") as Mesh;
+    expect(water).toBeInstanceOf(Mesh);
+    expect((water.material as MeshBasicMaterial).transparent).toBe(true);
+    expect(group.getObjectByName("smooth river bed")).toBeInstanceOf(Mesh);
+    expect(group.getObjectByName("smooth parkland lawns")).toBeInstanceOf(Mesh);
+    const walls = group.getObjectByName("smooth quay walls") as Mesh;
+    expect(walls).toBeInstanceOf(Mesh);
+    const shore = group.getObjectByName("smooth shoreline ink") as LineSegments;
+    expect(shore).toBeInstanceOf(LineSegments);
+    // The shoreline follows the polygon rings, so its segments are NOT
+    // axis-aligned staircases: most have both dx and dz non-zero.
+    const position = shore.geometry.getAttribute("position");
+    let diagonal = 0;
+    let segments = 0;
+    for (let index = 0; index < position.count; index += 2) {
+      const dx = Math.abs(position.getX(index) - position.getX(index + 1));
+      const dz = Math.abs(position.getZ(index) - position.getZ(index + 1));
+      segments += 1;
+      if (dx > 0.15 && dz > 0.15) {
+        diagonal += 1;
+      }
+    }
+    expect(segments).toBeGreaterThan(200);
+    expect(diagonal / segments).toBeGreaterThan(0.3);
+    // The bank plate sits above the water plate: a real recessed river.
+    const waterBounds = new Box3().setFromObject(water);
+    const wallBounds = new Box3().setFromObject(walls);
+    expect(wallBounds.max.y).toBeGreaterThan(waterBounds.max.y + 3);
+    expect(wallBounds.min.y).toBeLessThan(waterBounds.max.y - 2);
+  });
+});

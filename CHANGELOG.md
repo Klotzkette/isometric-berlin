@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.34.0
+
+Iteration of the refinement loop. The ugliest spots this time were all
+the same root cause — everything ground-level came from a 4 m raster:
+
+- **The river banks were nonsense staircases.** Water, bed and quay
+  walls were assembled from 4 m grid cells, so every shoreline was a
+  flight of steps ("völlig bescheuerte Ufer, alles zu zackig"). A new
+  pipeline stage (`build_surface_polygons.py`) exports the TRUE OSM
+  water and parkland polygon rings (simplified to 0.6 m, decimetre
+  integers, 18 water + 172 park polygons, 54 KiB), and the drawn city
+  now builds from them: a transparent water plate over a sandy bed,
+  quay walls extruded along the real bank line, and one continuous
+  drawn shoreline. Most shoreline segments are diagonal now — asserted
+  by a contract test — instead of axis-aligned steps.
+- **The Tiergarten lawns were rasterised too.** Smooth sage lawn plates
+  from the same park polygons cover the grid steps, so the parkland
+  reads as continuous meadow rather than blocks with single trees.
+- **Night no longer glows through the ground.** The new unlit plates
+  (bed, lawns, quay walls) ignore the night rig by construction, so
+  each carries an explicit night tone — the river bed stopped shining
+  like a pale ribbon after dark.
+- **Areal expansion (+100 m contract): visible radius 3010 m → 3110 m.**
+  The western lobe reaches −2820 m, the paper/park margin widens to
+  1820 m, flight bounds follow (z −2900…+3320); the v0.33.0 tree strip
+  is pinned and a new population fills only −2820…−2720 m.
+- The rasterised water/quay path stays as the fallback for payloads
+  without the surface polygons, so nothing breaks if the file is absent.
+
 ## v0.33.0
 
 Iteration of the refinement loop, driven by a reference photograph of the

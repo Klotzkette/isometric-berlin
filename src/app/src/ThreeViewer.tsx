@@ -95,6 +95,8 @@ import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { minecraftFogRange } from "./minecraftFog";
 import {
   type PrismPayload,
+  type SurfacePayload,
+  SURFACE_WORLD_FILE,
   ISO_INK_COLOR,
   ISO_NIGHT_INK_COLOR,
   PRISM_WORLD_FILE,
@@ -642,12 +644,22 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         response.ok ? (response.json() as Promise<StreetDetailsPayload>) : null,
       )
       .catch(() => null),
+    fetch(new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString())
+      .then((response) =>
+        response.ok ? (response.json() as Promise<SurfacePayload>) : null,
+      )
+      .catch(() => null),
   ])
-    .then(([prisms, ground, street]) => {
+    .then(([prisms, ground, street, surfaces]) => {
       if (runtime.disposed) {
         return;
       }
-      runtime.isoWorld = createIsometricCity(prisms, ground, runtime.tunnelPoints);
+      runtime.isoWorld = createIsometricCity(
+        prisms,
+        ground,
+        runtime.tunnelPoints,
+        surfaces,
+      );
       if (ground && street) {
         // Task 07: the real OSM traffic signals join the drawn city, so
         // they inherit its day/night/voxel/underside visibility.

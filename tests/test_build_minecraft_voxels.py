@@ -52,7 +52,9 @@ def test_payload_is_small_and_versioned(payload: dict) -> None:
   ]
   assert payload["origin"]["easting_offset"] == 389500.0
   assert payload["origin"]["northing_offset"] == 5820000.0
-  assert payload["water_top_y_m"] == 1.31
+  # The Spree runs in a real cut since v0.33.0 (banks ~4.2 m, water
+  # −1.15 m), so the payload carries the sunken water table.
+  assert payload["water_top_y_m"] == -1.15
   assert "OpenStreetMap" in payload["source"]["attribution"]
   assert "Geoportal Berlin" in payload["source"]["attribution"]
 
