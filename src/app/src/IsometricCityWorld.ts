@@ -61,9 +61,9 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520).
-export const VISIBLE_RADIUS_M = 2610;
-export const EXTRAPOLATED_WEST_M = -2420;
-export const EXTRAPOLATED_MARGIN_M = 1320;
+export const VISIBLE_RADIUS_M = 2710;
+export const EXTRAPOLATED_WEST_M = -2520;
+export const EXTRAPOLATED_MARGIN_M = 1420;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -1101,6 +1101,56 @@ function createTunnelPortals(
         );
       }
     }
+    // Lane markings down the ramp: the B96 carries two lanes per bore,
+    // so a dashed centre line and two solid edge lines read as road.
+    const LANE_TONE = 0xeeeadd;
+    for (let step = 0; step < 26; step += 1) {
+      const a0 = (step / 26) * RAMP_LENGTH;
+      const a1 = ((step + 0.55) / 26) * RAMP_LENGTH;
+      const t0 = step / 26;
+      const g0 = sample(...([at(a0, 0, 0)[0], at(a0, 0, 0)[2]] as [number, number])) ?? mouthGround;
+      const y0 = deckMouthY + (g0 + 0.3 - deckMouthY) * t0 + 0.06;
+      // Dashed centre line.
+      pushQuad(
+        at(a0, -0.18, y0),
+        at(a1, -0.18, y0),
+        at(a1, 0.18, y0),
+        at(a0, 0.18, y0),
+        LANE_TONE,
+      );
+      // Solid edge lines.
+      for (const side of [-HALF_WIDTH + 1.6, HALF_WIDTH - 1.6]) {
+        const a2 = ((step + 1) / 26) * RAMP_LENGTH;
+        pushQuad(
+          at(a0, side - 0.15, y0),
+          at(a2, side - 0.15, y0),
+          at(a2, side + 0.15, y0),
+          at(a0, side + 0.15, y0),
+          LANE_TONE,
+        );
+      }
+    }
+    // Crash barriers along both retaining walls.
+    const BARRIER_TONE = 0xc9c3b4;
+    for (let step = 0; step < 8; step += 1) {
+      const a0 = (step / 8) * RAMP_LENGTH;
+      const a1 = ((step + 1) / 8) * RAMP_LENGTH;
+      const t0 = step / 8;
+      const t1 = (step + 1) / 8;
+      const g0 = sample(...([at(a0, 0, 0)[0], at(a0, 0, 0)[2]] as [number, number])) ?? mouthGround;
+      const g1 = sample(...([at(a1, 0, 0)[0], at(a1, 0, 0)[2]] as [number, number])) ?? mouthGround;
+      const y0 = deckMouthY + (g0 + 0.3 - deckMouthY) * t0 + 0.75;
+      const y1 = deckMouthY + (g1 + 0.3 - deckMouthY) * t1 + 0.75;
+      for (const side of [-HALF_WIDTH + 0.7, HALF_WIDTH - 0.7]) {
+        pushQuad(
+          at(a0, side, y0),
+          at(a1, side, y1),
+          at(a1, side, y1 + 0.42),
+          at(a0, side, y0 + 0.42),
+          BARRIER_TONE,
+        );
+      }
+    }
     // The dark tube mouth and its portal frame.
     pushQuad(
       at(0, -HALF_WIDTH + 1, deckMouthY),
@@ -1108,6 +1158,14 @@ function createTunnelPortals(
       at(0, HALF_WIDTH - 1, deckMouthY + 5),
       at(0, -HALF_WIDTH + 1, deckMouthY + 5),
       MOUTH_TONE,
+    );
+    // Portal cap above the mouth — the built structure, not a hole.
+    pushQuad(
+      at(-2.4, -HALF_WIDTH - 0.6, deckMouthY + 6.4),
+      at(-2.4, HALF_WIDTH + 0.6, deckMouthY + 6.4),
+      at(1.2, HALF_WIDTH + 0.6, deckMouthY + 6.4),
+      at(1.2, -HALF_WIDTH - 0.6, deckMouthY + 6.4),
+      FRAME_TONE,
     );
     pushQuad(
       at(-1.2, -HALF_WIDTH - 0.6, deckMouthY + 5),
@@ -1243,23 +1301,46 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
       colors.push(paint.r, paint.g, paint.b);
     }
   };
-  for (let z = 0; z < rows; z += 1) {
+  // Merge consecutive boundary cells into RUNS before building, so the
+  // quay reads as a continuous embankment line instead of a per-cell
+  // staircase ("nicht ausgefranst und zackig, sondern normal").
+  const isLand = (x: number, z: number): boolean =>
+    x >= 0 && z >= 0 && x < cols && z < rows && landClasses.has(classGrid[z * cols + x]);
+  const isWater = (x: number, z: number): boolean =>
+    x >= 0 && z >= 0 && x < cols && z < rows && classGrid[z * cols + x] === waterClass;
+  // Vertical faces (water east/west of land): merge along z.
+  for (const dir of [1, -1] as const) {
     for (let x = 0; x < cols; x += 1) {
-      const here = classGrid[z * cols + x];
-      if (!landClasses.has(here)) {
-        continue;
+      let z = 0;
+      while (z < rows) {
+        if (!(isLand(x, z) && isWater(x + dir, z))) {
+          z += 1;
+          continue;
+        }
+        const start = z;
+        while (z < rows && isLand(x, z) && isWater(x + dir, z)) {
+          z += 1;
+        }
+        const edgeX = dir === 1 ? x + 1 : x;
+        wall(edgeX, start, edgeX, z, x, start, dir, 0);
       }
-      if (x + 1 < cols && classGrid[z * cols + x + 1] === waterClass) {
-        wall(x + 1, z, x + 1, z + 1, x, z, 1, 0);
-      }
-      if (x > 0 && classGrid[z * cols + x - 1] === waterClass) {
-        wall(x, z, x, z + 1, x, z, -1, 0);
-      }
-      if (z + 1 < rows && classGrid[(z + 1) * cols + x] === waterClass) {
-        wall(x, z + 1, x + 1, z + 1, x, z, 0, 1);
-      }
-      if (z > 0 && classGrid[(z - 1) * cols + x] === waterClass) {
-        wall(x, z, x + 1, z, x, z, 0, -1);
+    }
+  }
+  // Horizontal faces (water north/south of land): merge along x.
+  for (const dir of [1, -1] as const) {
+    for (let z = 0; z < rows; z += 1) {
+      let x = 0;
+      while (x < cols) {
+        if (!(isLand(x, z) && isWater(x, z + dir))) {
+          x += 1;
+          continue;
+        }
+        const start = x;
+        while (x < cols && isLand(x, z) && isWater(x, z + dir)) {
+          x += 1;
+        }
+        const edgeZ = dir === 1 ? z + 1 : z;
+        wall(start, edgeZ, x, edgeZ, start, z, 0, dir);
       }
     }
   }
@@ -1728,6 +1809,7 @@ export function createWestTiergarten(): Group {
   const V026_WEST = -2120;
   const V027_WEST = -2220;
   const V028_WEST = -2320;
+  const V029_WEST = -2420;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1947,10 +2029,22 @@ export function createWestTiergarten(): Group {
     }
     trunkSpots.push([x, z]);
   }
-  // v0.29.0 grows only the new −2420…−2320 m strip.
+  // v0.29.0 grows only the −2420…−2320 m strip.
   for (let index = 0; index < 84; index += 1) {
-    const x = WEST + 10 + (V028_WEST - WEST - 20) * stripUnit(index, 1901);
+    const x =
+      V029_WEST + 10 + (V028_WEST - V029_WEST - 20) * stripUnit(index, 1901);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2029);
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.30.0 grows only the new −2520…−2420 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x = WEST + 10 + (V029_WEST - WEST - 20) * stripUnit(index, 2297);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2411);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {

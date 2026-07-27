@@ -301,6 +301,7 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(treeXs.some((x) => x > -2210 && x < -2130)).toBe(true);
     expect(treeXs.some((x) => x > -2310 && x < -2230)).toBe(true);
     expect(treeXs.some((x) => x > -2410 && x < -2330)).toBe(true);
+    expect(treeXs.some((x) => x > -2510 && x < -2430)).toBe(true);
     const crowns = west.getObjectByName(
       "extrapolated tree crowns",
     ) as InstancedMesh;

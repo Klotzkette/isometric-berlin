@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.30.0
+
+Iteration of the refinement loop. The three ugliest spots found in this
+iteration's screenshot survey, and what happened to them:
+
+- **Minecraft facades were punched full of black holes.** Every window
+  cell used a dark slate (0x40515c) and was scattered by a hash, so the
+  Chancellery and every other block read as a grid of black gaps. Window
+  cells are now genuine **Minecraft glass** — light glass, pale glass and
+  a teal accent every fourth bay, all from the master palette — and they
+  sit on a shared storey grid per column face, so the facades read as
+  designed window ROWS instead of random punches.
+- **The Spree banks were a frayed staircase.** The quay wall and its
+  promenade ledge were built per grid cell, so every 4 m step jutted out
+  on its own. Boundary cells are now merged into RUNS along each axis
+  before building, giving one continuous embankment line with a straight
+  promenade — the river keeps its recessed bed and visible depth.
+- **The Tiergartentunnel portals were bare ramps.** They now read as
+  real portals: a dashed centre line and two solid edge lines running
+  down the ramp deck, crash barriers along both retaining walls, and a
+  portal cap slab above the tube mouth.
+- **Areal expansion (+100 m contract): visible radius 2610 m → 2710 m.**
+  The western lobe reaches −2520 m, the paper/park margin widens to
+  1420 m, flight bounds follow (z −2500…+2920). The v0.29.0 tree strip
+  is pinned; a ninth deterministic population fills only the new
+  −2520…−2420 m strip.
+
 ## v0.29.0
 
 - **Areal expansion (+100 m contract): visible radius 2510 m → 2610 m.**

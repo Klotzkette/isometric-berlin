@@ -68,9 +68,11 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
 const FALLBACK_SHADES: readonly number[] = CLASS_SHADES.concrete;
 const TRUNK_SHADES: readonly number[] = [0x704a2d];
 const LEAF_SHADES: readonly number[] = [0x4c7f28, 0x5d9634];
-// Facade window cells on exterior column faces: mostly dark stone-glass
-// with an occasional teal pane, both from the master palette.
-const VOXEL_WINDOW_DARK = 0x40515c;
+// Facade window cells read as MINECRAFT GLASS — light, glassy blocks
+// from the master palette. The former dark slate (0x40515c) punched
+// black holes into every facade ("hässliche schwarze Fenster").
+const VOXEL_WINDOW_GLASS = 0xa4dfe2;
+const VOXEL_WINDOW_GLASS_PALE = 0xd6dfe0;
 const VOXEL_WINDOW_TEAL = 0x72c5d2;
 
 function shadeFor(
@@ -413,7 +415,8 @@ export function createMinecraftVoxelWorld(
   }
   type WindowFace = { color: Color; nx: number; nz: number; x: number; y: number; z: number };
   const faces: WindowFace[] = [];
-  const dark = new Color(VOXEL_WINDOW_DARK);
+  const glass = new Color(VOXEL_WINDOW_GLASS);
+  const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
   const teal = new Color(VOXEL_WINDOW_TEAL);
   for (const [xIdx, zIdx, y0dm, y1dm] of payload.buildings) {
     const top = y1dm / 10;
@@ -426,14 +429,22 @@ export function createMinecraftVoxelWorld(
       const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
       const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
       const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
-      for (let yCenter = y0dm / 10 + 2; yCenter + 1.2 <= top; yCenter += cell) {
+      // Storey-banded window rows: every column face carries its glass
+      // on the SAME storey grid, so the facade reads as designed rows
+      // rather than randomly punched holes.
+      const base = y0dm / 10;
+      const firstRow = Math.ceil((base + 2) / cell) * cell;
+      for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += cell) {
         if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
           continue;
         }
-        const shine =
-          Math.abs(xIdx * 13 + zIdx * 7 + Math.round(yCenter)) % 7 === 0;
+        // Two glass tones alternate along the row for gentle block
+        // variety; a teal accent every fourth bay keeps it lively.
+        const bay = Math.abs(xIdx + zIdx);
+        const color =
+          bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
         faces.push({
-          color: shine ? teal : dark,
+          color,
           nx: dx,
           nz: dz,
           x: faceX,
