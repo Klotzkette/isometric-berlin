@@ -319,8 +319,11 @@ function addTrees(
       branches,
     ),
   );
-  // Sage drawn greens, matching the ivory city's calm parkland.
-  const colors = [0x7da371, 0x8db07e, 0x76996d];
+  // Sage drawn greens, matching the ivory city's calm parkland. Kept
+  // light and desaturated: at quarter scale the crowns are the biggest
+  // colour mass in frame, and darker greens turned the park into a belt
+  // of heavy blobs around the pale city.
+  const colors = [0x9dbd8e, 0xaac89a, 0x93b485];
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(

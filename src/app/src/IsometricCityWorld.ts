@@ -60,10 +60,11 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // Versioned visible-map radius (metres): half the larger span of the
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
-// (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520).
-export const VISIBLE_RADIUS_M = 2710;
+// (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520),
+// v0.30.0 was 2710 m (z −2500…2920), v0.31.0 is 2810 m (z −2600…3020).
+export const VISIBLE_RADIUS_M = 2810;
 export const EXTRAPOLATED_WEST_M = -2520;
-export const EXTRAPOLATED_MARGIN_M = 1420;
+export const EXTRAPOLATED_MARGIN_M = 1520;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -620,6 +621,9 @@ const WINDOW_FACE_OFFSET_M = 0.07;
 const WINDOW_LIT_FRACTION = 0.38;
 const WINDOW_NIGHT_LIT_TONES = [0xffd28a, 0xffc36e, 0xf3dfa8] as const;
 const WINDOW_NIGHT_DARK_TONE = 0x18202c;
+// Warm grey joinery — dark enough to draw the opening, light enough not
+// to blacken the ivory facades when the whole quarter is in frame.
+const WINDOW_BAR_TONE = 0x8b8578;
 
 // Monumental civic buildings (large surveyed footprint AND height) get
 // piano-nobile proportions instead of housing storeys: taller windows
@@ -735,6 +739,48 @@ type WindowInstance = {
   tone: Color;
   width: number;
 };
+
+// Drawn window joinery in the unit pane's own space (x,y ∈ [-0.5, 0.5],
+// +z outward), so it can ride the very same instance matrices as the
+// panes: a reveal frame (Laibung) around the opening, one vertical
+// mullion and one transom in the upper third (Sprossen). Without these
+// a pane is a bare rectangle — the "hässliche Quadratfenster" the style
+// contract rules out.
+const WINDOW_REVEAL_T = 0.075;
+const WINDOW_MULLION_HALF = 0.032;
+const WINDOW_TRANSOM_Y = 0.17;
+const WINDOW_TRANSOM_HALF = 0.03;
+const WINDOW_BAR_OUT = 0.02;
+
+export function windowBarGeometry(): BufferGeometry {
+  const t = WINDOW_REVEAL_T;
+  const inner = 0.5 - t;
+  const quads: Array<[number, number, number, number]> = [
+    [-0.5, -0.5, -0.5 + t, 0.5],
+    [0.5 - t, -0.5, 0.5, 0.5],
+    [-inner, -0.5, inner, -0.5 + t],
+    [-inner, 0.5 - t, inner, 0.5],
+    [-WINDOW_MULLION_HALF, -inner, WINDOW_MULLION_HALF, inner],
+    [
+      -inner,
+      WINDOW_TRANSOM_Y - WINDOW_TRANSOM_HALF,
+      inner,
+      WINDOW_TRANSOM_Y + WINDOW_TRANSOM_HALF,
+    ],
+  ];
+  const positions: number[] = [];
+  for (const [x0, y0, x1, y1] of quads) {
+    for (const [px, py] of [
+      [x0, y0], [x1, y0], [x1, y1],
+      [x0, y0], [x1, y1], [x0, y1],
+    ] as const) {
+      positions.push(px, py, WINDOW_BAR_OUT);
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  return geometry;
+}
 
 function hash32(seed: string, salt: number): number {
   let hash = salt >>> 0;
@@ -1211,6 +1257,15 @@ function createTunnelPortals(
   return group;
 }
 
+// Embankment furniture: balustrade proportions and the shortest run
+// that still earns a flight of steps down to the water.
+const RAIL_HEIGHT_M = 1.05;
+const RAIL_BAR_M = 0.12;
+const RAIL_POST_SPACING_M = 3.2;
+const RAIL_POST_W_M = 0.11;
+export const STAIR_MIN_RUN_M = 26;
+const STAIR_WIDTH_M = 4.2;
+
 /**
  * Quay walls ("die Spree mit Vertiefung"): wherever the surveyed ground
  * grid puts land next to water, a vertical stone wall drops from the
@@ -1299,6 +1354,67 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     ] as const) {
       positions.push(px, py, pz);
       colors.push(paint.r, paint.g, paint.b);
+    }
+    const runLength = Math.hypot(bx - ax, bz - az);
+    if (runLength < 1e-3) {
+      return;
+    }
+    const ux = (bx - ax) / runLength;
+    const uz = (bz - az) / runLength;
+    const quad = (
+      x0: number, y0: number, z0: number,
+      x1v: number, y1v: number, z1v: number,
+      x2: number, y2: number, z2: number,
+      x3: number, y3: number, z3: number,
+    ): void => {
+      for (const [px, py, pz] of [
+        [x0, y0, z0], [x1v, y1v, z1v], [x2, y2, z2],
+        [x0, y0, z0], [x2, y2, z2], [x3, y3, z3],
+      ] as const) {
+        positions.push(px, py, pz);
+        colors.push(paint.r, paint.g, paint.b);
+      }
+    };
+    // Promenade balustrade: slim drawn posts on the embankment edge with
+    // a continuous top rail, so the quay is walkable instead of a bare
+    // drop into the Spree.
+    paint.setHex(0x9c9789);
+    const railTop = top + RAIL_HEIGHT_M;
+    quad(
+      ax, railTop, az,
+      bx, railTop, bz,
+      bx, railTop - RAIL_BAR_M, bz,
+      ax, railTop - RAIL_BAR_M, az,
+    );
+    const postCount = Math.max(1, Math.round(runLength / RAIL_POST_SPACING_M));
+    for (let index = 0; index <= postCount; index += 1) {
+      const t = (index / postCount) * runLength;
+      const sx = ax + ux * t;
+      const sz = az + uz * t;
+      const ex = sx + ux * RAIL_POST_W_M;
+      const ez = sz + uz * RAIL_POST_W_M;
+      quad(sx, top, sz, ex, top, ez, ex, railTop, ez, sx, railTop, sz);
+    }
+    // A drawn flight of steps down to the water wherever the embankment
+    // runs long enough to carry one ("Treppen ans Wasser").
+    if (runLength >= STAIR_MIN_RUN_M) {
+      paint.setHex(0xc6bfad);
+      const mid = runLength / 2 - STAIR_WIDTH_M / 2;
+      const steps = 5;
+      for (let step = 0; step < steps; step += 1) {
+        const y = top - ((top - waterTop) * (step + 1)) / steps;
+        const outset = ((step + 1) / steps) * jut;
+        const sx = ax + ux * mid;
+        const sz = az + uz * mid;
+        const ex = sx + ux * STAIR_WIDTH_M;
+        const ez = sz + uz * STAIR_WIDTH_M;
+        quad(
+          sx + towardWaterX * outset, y, sz + towardWaterZ * outset,
+          ex + towardWaterX * outset, y, ez + towardWaterZ * outset,
+          ex + towardWaterX * (outset - jut / steps), y, ez + towardWaterZ * (outset - jut / steps),
+          sx + towardWaterX * (outset - jut / steps), y, sz + towardWaterZ * (outset - jut / steps),
+        );
+      }
     }
   };
   // Merge consecutive boundary cells into RUNS before building, so the
@@ -2904,6 +3020,28 @@ export function createIsometricCity(
     }
     pane.frustumCulled = false;
     group.add(pane);
+
+    // The same matrices carry the drawn joinery, so every opening reads
+    // as a framed window with Sprossen instead of a flat rectangle.
+    const bars = new InstancedMesh(
+      windowBarGeometry(),
+      new MeshBasicMaterial({ color: WINDOW_BAR_TONE, side: DoubleSide }),
+      windows.length,
+    );
+    bars.name = "LoD2 prism window bars";
+    windows.forEach((spec, index) => {
+      matrix.set(
+        spec.dirX * spec.width, 0, spec.nx, spec.px,
+        0, spec.height, 0, spec.py,
+        spec.dirZ * spec.width, 0, spec.nz, spec.pz,
+        0, 0, 0, 1,
+      );
+      bars.setMatrixAt(index, matrix);
+    });
+    bars.instanceMatrix.needsUpdate = true;
+    bars.frustumCulled = false;
+    bars.renderOrder = 2;
+    group.add(bars);
   }
 
   if (mullionPositions.length > 0) {

@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.31.0
+
+Iteration of the refinement loop. The ugliest spots found in this
+iteration's screenshot survey, and what happened to them:
+
+- **Every LoD2 window was a bare rectangle.** The generic prism facades
+  drew each opening as a single flat pane, so at close range the
+  Chancellery wings and the Ministerien read as grids of dark squares.
+  Each opening now carries drawn joinery on the very same instance
+  matrices as the pane: a reveal (Laibung) on all four sides, a centre
+  mullion and a transom above the middle — thin warm-grey ink bars
+  (0x8b8578) that give the openings real proportions in day, night and
+  Minecraft alike.
+- **The Spree quay was a bare concrete slab.** The merged embankment
+  runs had a wall and a promenade ledge but nothing on them. Every run
+  now carries a drawn balustrade — a continuous top rail at 1.05 m on
+  posts every 3.2 m — and runs of 26 m or more get a five-step flight of
+  stairs down to the waterline, so the banks read as walkable
+  promenades instead of a poured edge.
+- **The parkland was a belt of heavy dark blobs.** Tiergarten and
+  Spreebogenpark crowns used saturated greens (0x7da371 and darker); at
+  quarter scale they were the largest colour mass in frame and fought
+  the ivory city. The crowns are now light sage (0x9dbd8e / 0xaac89a /
+  0x93b485), so the greenery settles behind the buildings the way it
+  does in the drawn reference.
+- **Areal expansion (+100 m contract): visible radius 2710 m → 2810 m.**
+  The paper/park margin widens to 1520 m and the flight bounds follow
+  (z −2600…+3020), so the newly exposed ring is drawn in the full ivory
+  style rather than clipped away.
+
 ## v0.30.0
 
 Iteration of the refinement loop. The three ugliest spots found in this
