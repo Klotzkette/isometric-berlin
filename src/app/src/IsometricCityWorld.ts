@@ -85,9 +85,9 @@ export type SurfacePayload = {
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520),
 // v0.31.0 was 2810 m (z −2600…3020), v0.32.0 was 2910 m (z −2700…3120),
 // v0.33.0 is 3010 m (z −2800…3220).
-export const VISIBLE_RADIUS_M = 3110;
-export const EXTRAPOLATED_WEST_M = -2820;
-export const EXTRAPOLATED_MARGIN_M = 1820;
+export const VISIBLE_RADIUS_M = 3210;
+export const EXTRAPOLATED_WEST_M = -2920;
+export const EXTRAPOLATED_MARGIN_M = 1920;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -741,6 +741,34 @@ const DOOR_CLEARANCE_M = 1.6;
 const DOOR_DAY_TONE = 0x5b564e;
 const DOOR_NIGHT_TONE = 0x1c232e;
 const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
+/**
+ * Isometric face shading ("mehr Shading, kompletter isometrischer
+ * Realismus"): every face keeps ONE constant tone, but its brightness
+ * depends on which way it faces — the classic axonometric drawing
+ * convention. Tops stay full, the two visible wall directions step down
+ * so volumes read plastically; still flat, still unlit, no gradients.
+ */
+export const ISO_FACE_SHADE = {
+  east: 0.9,
+  north: 0.955,
+  south: 0.845,
+  top: 1,
+  west: 0.795,
+} as const;
+
+export function isoFaceShade(nx: number, ny: number, nz: number): number {
+  if (ny > 0.55) {
+    return ISO_FACE_SHADE.top;
+  }
+  if (ny < -0.55) {
+    return ISO_FACE_SHADE.west;
+  }
+  if (Math.abs(nx) >= Math.abs(nz)) {
+    return nx > 0 ? ISO_FACE_SHADE.east : ISO_FACE_SHADE.west;
+  }
+  return nz > 0 ? ISO_FACE_SHADE.south : ISO_FACE_SHADE.north;
+}
+
 // Cool slate tint mixed into flat roof caps so they read as drawn
 // roof plates instead of sun-warmed facade paint.
 const ROOF_PLATE_TINT = new Color(0xcdd2d4);
@@ -2308,6 +2336,7 @@ export function createWestTiergarten(): Group {
   const V030_WEST = -2520;
   const V032_WEST = -2620;
   const V033_WEST = -2720;
+  const V034_WEST = -2820;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -2600,8 +2629,19 @@ export function createWestTiergarten(): Group {
   }
   // v0.34.0 grows only the new −2820…−2720 m strip.
   for (let index = 0; index < 84; index += 1) {
-    const x = WEST + 10 + (V033_WEST - WEST - 20) * stripUnit(index, 3571);
+    const x =
+      V034_WEST + 10 + (V033_WEST - V034_WEST - 20) * stripUnit(index, 3571);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 3701);
+    const axisZ = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.35.0 grows only the new −2920…−2820 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x = WEST + 10 + (V034_WEST - WEST - 20) * stripUnit(index, 4001);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 4127);
     const axisZ = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
       continue;
@@ -3806,6 +3846,20 @@ export function createIsometricCity(
       if (bodyNormals.getY(index) > 0.7 && bodyPositions.getY(index) > capY) {
         bodyColors.setXYZ(index, capTone.r, capTone.g, capTone.b);
       }
+      // Constant per-face brightness from the facing direction.
+      const shade = isoFaceShade(
+        bodyNormals.getX(index),
+        bodyNormals.getY(index),
+        bodyNormals.getZ(index),
+      );
+      if (shade !== 1) {
+        bodyColors.setXYZ(
+          index,
+          bodyColors.getX(index) * shade,
+          bodyColors.getY(index) * shade,
+          bodyColors.getZ(index) * shade,
+        );
+      }
     }
     bodyGeometries.push(geometry);
     // Monumental flat roofs carry a drawn parapet rim (the Reichstag's
@@ -3915,33 +3969,12 @@ export function createIsometricCity(
             const z = wall.z1 + wall.dirZ * along + oz;
             // Slender glazing line as ink (the facade axis).
             facadeAxisPositions.push(x, axisBottom, z, x, axisTop, z);
-            if (grid) {
-              for (let floor = 0; floor < grid.floors; floor += 1) {
-                const py = sillOf(floor) + format.height / 2;
-                const roll = hash32(
-                  building.id,
-                  wall.index * 9173 + axis * 131 + floor * 17,
-                );
-                windows.push({
-                  dirX: wall.dirX,
-                  dirZ: wall.dirZ,
-                  height: format.height,
-                  joinery: isCivic,
-                  night: new Color(
-                    roll % 1000 < litLimit
-                      ? nightStrip[roll % nightStrip.length]
-                      : WINDOW_NIGHT_DARK_TONE,
-                  ),
-                  nx: wall.nx,
-                  nz: wall.nz,
-                  px: x,
-                  py,
-                  pz: z,
-                  tone: new Color(WINDOW_DAY_TONE),
-                  width: format.width,
-                });
-              }
-            }
+            // NO invented panes: LoD2 carries no real window positions,
+            // so a pane per bay/floor was fabrication ("keine
+            // schwachsinnigen nichtexistierenden Quadratfenster"). The
+            // facade rhythm is carried by the drawn axes and storey
+            // bands above; only documented hero fenestration and the
+            // entrance doors are real geometry.
             // A warm-lit vertical strip on ~38% of axes at night.
             const roll =
               hash32(building.id, wall.index * 2801 + axis * 53) % 1000;
@@ -4162,6 +4195,24 @@ export function createIsometricCity(
       // Roof paint reads slightly darker than the facade, like a
       // drawn tiled surface.
       bakeColor(roofGeometry, color.clone().multiplyScalar(0.9));
+      // Pitched roof slopes step by facing too, so gables read plastic.
+      const roofNormals = roofGeometry.getAttribute("normal");
+      const roofColors = roofGeometry.getAttribute("color");
+      for (let index = 0; index < roofColors.count; index += 1) {
+        const shade = isoFaceShade(
+          roofNormals.getX(index),
+          roofNormals.getY(index),
+          roofNormals.getZ(index),
+        );
+        if (shade !== 1) {
+          roofColors.setXYZ(
+            index,
+            roofColors.getX(index) * shade,
+            roofColors.getY(index) * shade,
+            roofColors.getZ(index) * shade,
+          );
+        }
+      }
       bodyGeometries.push(roofGeometry);
       // Gabled houses get their chimneys back: small drawn stacks on
       // the ridge (one, or two on long roofs), inked like everything.

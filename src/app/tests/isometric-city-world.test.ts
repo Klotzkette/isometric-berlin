@@ -213,30 +213,26 @@ describe("ligne-claire fenestration", () => {
     }
     expect(doors).toBeGreaterThan(400);
     expect(doors).toBeLessThan(payload.buildings.length);
-    // Since v0.32.0 the pane layer also carries the window grid of every
-    // ordinary building, so the doors are a small minority of it.
-    expect(panes.count).toBeGreaterThan(doors * 20);
+    // The pane layer carries ONLY doors: LoD2 has no real window
+    // positions, so a generated pane grid would be invented geometry
+    // (owner: "keine schwachsinnigen nichtexistierenden Quadratfenster").
+    expect(panes.count).toBe(doors);
   });
 
-  test("ordinary blocks carry a fine window grid, not only landmarks", () => {
+  test("ordinary blocks are articulated by drawn axes, not invented panes", () => {
     const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
     const matrices = panes.instanceMatrix.array as Float32Array;
-    let housing = 0;
-    let civic = 0;
     for (let index = 0; index < panes.count; index += 1) {
       const height = matrices[index * 16 + 5];
-      const width = Math.hypot(matrices[index * 16], matrices[index * 16 + 2]);
-      if (Math.abs(height - ISO_WINDOW_HEIGHT_M) < 1e-3) {
-        // Slim portrait format, as drawn on housing walls.
-        expect(width).toBeLessThan(height);
-        housing += 1;
-      } else if (Math.abs(height - 3) < 1e-3) {
-        civic += 1;
-      }
+      // Nothing but entrance doors may exist as pane geometry.
+      expect(Math.abs(height - 2.35)).toBeLessThan(1e-3);
+      expect(Math.abs(height - ISO_WINDOW_HEIGHT_M)).toBeGreaterThan(0.1);
     }
-    // The quarter is thousands of buildings; both formats are in use.
-    expect(housing).toBeGreaterThan(20_000);
-    expect(civic).toBeGreaterThan(200);
+    // The facade rhythm instead comes from the drawn axis/band grid.
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    expect(
+      axes.geometry.getAttribute("position").count,
+    ).toBeGreaterThan(20_000);
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {
@@ -652,5 +648,45 @@ describe("smooth OSM water and parkland", () => {
     const wallBounds = new Box3().setFromObject(walls);
     expect(wallBounds.max.y).toBeGreaterThan(waterBounds.max.y + 3);
     expect(wallBounds.min.y).toBeLessThan(waterBounds.max.y - 2);
+  });
+});
+
+describe("isometric face shading", () => {
+  test("faces step by facing direction without gradients", async () => {
+    const { isoFaceShade, ISO_FACE_SHADE } = await import(
+      "../src/IsometricCityWorld"
+    );
+    // Tops stay full; the two visible wall directions step down.
+    expect(isoFaceShade(0, 1, 0)).toBe(ISO_FACE_SHADE.top);
+    expect(isoFaceShade(1, 0, 0)).toBe(ISO_FACE_SHADE.east);
+    expect(isoFaceShade(-1, 0, 0)).toBe(ISO_FACE_SHADE.west);
+    expect(isoFaceShade(0, 0, 1)).toBe(ISO_FACE_SHADE.south);
+    expect(isoFaceShade(0, 0, -1)).toBe(ISO_FACE_SHADE.north);
+    // A real drawing convention: top brightest, all sides below it,
+    // every step a constant (no interpolation between facings).
+    const sides = [
+      ISO_FACE_SHADE.east,
+      ISO_FACE_SHADE.north,
+      ISO_FACE_SHADE.south,
+      ISO_FACE_SHADE.west,
+    ];
+    for (const side of sides) {
+      expect(side).toBeLessThan(ISO_FACE_SHADE.top);
+      expect(side).toBeGreaterThan(0.7);
+    }
+    expect(new Set(sides).size).toBe(4);
+  });
+
+  test("no invented window panes remain — only real doors", () => {
+    const city = createIsometricCity(payload, null);
+    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
+    expect(panes).toBeInstanceOf(InstancedMesh);
+    const matrices = panes.instanceMatrix.array as Float32Array;
+    for (let index = 0; index < panes.count; index += 1) {
+      // Every pane is a 2.35 m entrance door; nothing else is invented.
+      expect(Math.abs(matrices[index * 16 + 5] - 2.35)).toBeLessThan(1e-3);
+    }
+    expect(panes.count).toBeGreaterThan(400);
+    expect(panes.count).toBeLessThan(2_000);
   });
 });

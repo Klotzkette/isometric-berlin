@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.35.0
+
+- **The invented window panes are gone for good.** v0.32.0 had added a
+  generated pane per bay and storey to every building — 82,014 housing
+  panes plus 5,747 civic panes, none of them backed by data, exactly the
+  "schwachsinnige nichtexistierende Quadratfenster" the owner has
+  rejected repeatedly. LoD2 carries no window positions, so the pane
+  layer now holds ONLY the 725 documented entrance doors; the facade
+  rhythm comes from the drawn bay axes and storey bands, and the
+  referenced hero fenestration (Reichstag arches, curtain-wall
+  mullions) stays untouched. Two tests that demanded the invented grid
+  were rewritten to enforce the opposite.
+- **Isometric face shading — 3D plasticity without gradients.** Every
+  face now keeps ONE constant tone whose brightness follows its facing
+  (top 100 %, north 95.5 %, east 90 %, south 84.5 %, west 79.5 %) — the
+  classic axonometric drawing convention. Prism walls, flat caps and
+  pitched roof facets all step by direction, so volumes read solid and
+  three-dimensional while staying flat, unlit and ivory. A contract test
+  pins the ladder (top brightest, four distinct side steps, no
+  interpolation).
+- **Areal expansion (+100 m contract): visible radius 3110 m → 3210 m.**
+  The western lobe reaches −2920 m, the paper/park margin widens to
+  1920 m, flight bounds follow (z −3000…+3420); the v0.34.0 tree strip
+  is pinned and a new population fills only −2920…−2820 m.
+
 ## v0.34.0
 
 Iteration of the refinement loop. The ugliest spots this time were all
