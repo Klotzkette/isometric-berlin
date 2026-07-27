@@ -22,8 +22,11 @@ import {
   ISO_GROUND_SHADES,
   ISO_INK_COLOR,
   ISO_WINDOW_BAY_PITCH_M,
+  ISO_WINDOW_HEIGHT_M,
   ISO_WINDOW_FLOOR_PITCH_M,
+  PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
+  createPaulLoebeCanopy,
   ROOF_GABLED,
   ROOF_HIPPED,
   ROOF_MIN_RECTANGULARITY,
@@ -100,20 +103,33 @@ describe("ligne-claire fenestration", () => {
     expect(windowGrid(20, 2.5)).toBeNull();
   });
 
-  test("facades are articulated by fine glazing axes, not punched panes", () => {
-    // No invented square windows: the facade rhythm is drawn as slender
-    // vertical ink lines ("keine quadratischen Fenster wo keine sind").
+  test("facades are articulated by glazing axes and storey bands", () => {
+    // The facade grid is drawn: slender vertical bay axes crossed by one
+    // horizontal hairline per storey, so walls stay legible when the
+    // panes themselves fall below a pixel.
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     expect(axes).toBeInstanceOf(LineSegments);
     const position = axes.geometry.getAttribute("position");
-    // Thousands of axis lines across the quarter (2 endpoints each).
     expect(position.count).toBeGreaterThan(20_000);
-    // Each axis is vertical: the two endpoints share x and z.
+    let verticals = 0;
+    let bands = 0;
     for (let index = 0; index < position.count; index += 2) {
-      expect(Math.abs(position.getX(index) - position.getX(index + 1))).toBeLessThan(1e-3);
-      expect(Math.abs(position.getZ(index) - position.getZ(index + 1))).toBeLessThan(1e-3);
-      expect(position.getY(index + 1)).toBeGreaterThan(position.getY(index));
+      const sameXZ =
+        Math.abs(position.getX(index) - position.getX(index + 1)) < 1e-3 &&
+        Math.abs(position.getZ(index) - position.getZ(index + 1)) < 1e-3;
+      if (sameXZ) {
+        expect(position.getY(index + 1)).toBeGreaterThan(position.getY(index));
+        verticals += 1;
+      } else {
+        // Storey bands run level along the wall.
+        expect(
+          Math.abs(position.getY(index) - position.getY(index + 1)),
+        ).toBeLessThan(1e-3);
+        bands += 1;
+      }
     }
+    expect(verticals).toBeGreaterThan(5_000);
+    expect(bands).toBeGreaterThan(5_000);
   });
 
   test("night lights only a warm minority of facade axes, hidden by day", () => {
@@ -196,8 +212,30 @@ describe("ligne-claire fenestration", () => {
     }
     expect(doors).toBeGreaterThan(400);
     expect(doors).toBeLessThan(payload.buildings.length);
-    // Doors are the whole pane layer now — no invented windows.
-    expect(doors).toBe(panes.count);
+    // Since v0.32.0 the pane layer also carries the window grid of every
+    // ordinary building, so the doors are a small minority of it.
+    expect(panes.count).toBeGreaterThan(doors * 20);
+  });
+
+  test("ordinary blocks carry a fine window grid, not only landmarks", () => {
+    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
+    const matrices = panes.instanceMatrix.array as Float32Array;
+    let housing = 0;
+    let civic = 0;
+    for (let index = 0; index < panes.count; index += 1) {
+      const height = matrices[index * 16 + 5];
+      const width = Math.hypot(matrices[index * 16], matrices[index * 16 + 2]);
+      if (Math.abs(height - ISO_WINDOW_HEIGHT_M) < 1e-3) {
+        // Slim portrait format, as drawn on housing walls.
+        expect(width).toBeLessThan(height);
+        housing += 1;
+      } else if (Math.abs(height - 3) < 1e-3) {
+        civic += 1;
+      }
+    }
+    // The quarter is thousands of buildings; both formats are in use.
+    expect(housing).toBeGreaterThan(20_000);
+    expect(civic).toBeGreaterThan(200);
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {
@@ -529,5 +567,24 @@ describe("real bridge structures", () => {
     const slabs = city.getObjectByName("Drawn ground slabs") as InstancedMesh;
     expect(slabs).toBeInstanceOf(InstancedMesh);
     expect(city.getObjectByName("bridge structure ink lines")).toBeDefined();
+  });
+
+  test("the Paul-Löbe-Haus carries a cantilevered west entrance canopy", () => {
+    const canopy = createPaulLoebeCanopy();
+    const bodies = canopy.getObjectByName("Paul-Löbe canopy bodies") as Mesh;
+    expect(bodies).toBeInstanceOf(Mesh);
+    const bounds = new Box3().setFromObject(bodies);
+    // It hangs off the west face and reaches out towards the Chancellery…
+    // (it tucks a metre into the wall so no seam opens at the junction)
+    expect(bounds.max.x).toBeLessThan(PAUL_LOEBE_WEST_FACE_X + 1);
+    expect(PAUL_LOEBE_WEST_FACE_X - bounds.min.x).toBeGreaterThan(10);
+    // …carried by columns that reach the forecourt, with the slab well above
+    // head height so the roof reads as a canopy rather than a porch wall.
+    expect(bounds.min.y).toBeLessThan(5);
+    expect(bounds.max.y).toBeGreaterThan(16);
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(25);
+    expect(
+      canopy.getObjectByName("Paul-Löbe canopy ink lines"),
+    ).toBeInstanceOf(LineSegments);
   });
 });

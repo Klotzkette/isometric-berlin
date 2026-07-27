@@ -28,6 +28,7 @@ import {
   Pause,
   Play,
   Plus,
+  RefreshCw,
   RotateCcw,
   RotateCw,
   Rotate3D,
@@ -65,6 +66,11 @@ import {
   initialLanguage,
 } from "./localization";
 import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
+import {
+  DEFAULT_FOCUS_LANDMARK,
+  NORTH_UP_ROTATION,
+  resolveResetView,
+} from "./resetView";
 import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
 import { MinecraftDziPostProcessor } from "./visual-modes/minecraft/MinecraftDziPostProcessor";
 import {
@@ -148,9 +154,7 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
   "Starbucks Pariser Platz": "Starbucks Pariser Platz",
 };
 
-const NORTH_UP_ROTATION = 296.565051177078;
 const THREE_NORTH_AZIMUTH = 40;
-const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
 const PRIORITY_LANDMARKS = new Set([
   "Bundeskanzleramt",
   "Reichstagsgebäude",
@@ -1032,6 +1036,28 @@ export function App() {
     );
   }, [copy]);
 
+  const resetToDefaultView = useCallback(() => {
+    const target = resolveResetView();
+    selectVisualMode(target.lightingMode);
+    setRotation(target.rotationDegrees);
+    setIsThreeUnderside(target.isUnderside);
+    setThreePolarDegrees(58);
+    if (viewerMode === "three") {
+      threeViewerRef.current?.reset();
+    } else {
+      viewerRef.current?.viewport.setRotation(target.rotationDegrees);
+      viewerRef.current?.viewport.setFlip(target.isFlipped);
+    }
+    setIsFlipped(target.isFlipped);
+    const hero = landmarks.find((entry) => entry.name === target.focus);
+    if (hero) {
+      focusLandmark(hero);
+    } else {
+      setSelected(target.focus);
+    }
+    setStatus(language === "de" ? "Standardansicht" : "Default view");
+  }, [focusLandmark, landmarks, language, selectVisualMode, viewerMode]);
+
   const toggleLightingMode = useCallback(() => {
     selectVisualMode(lightingMode === "day" ? "night" : "day");
   }, [lightingMode, selectVisualMode]);
@@ -1324,6 +1350,11 @@ export function App() {
         toggleMinecraftMode();
         return;
       }
+      if (event.key.toLowerCase() === "r") {
+        event.preventDefault();
+        resetToDefaultView();
+        return;
+      }
       if (event.key.toLowerCase() === "b") {
         event.preventDefault();
         void toggleMusic();
@@ -1500,6 +1531,7 @@ export function App() {
     isRepositoryOpen,
     language,
     panByViewport,
+    resetToDefaultView,
     rotateBy,
     setFlightInput,
     tiltBy,
@@ -1948,6 +1980,17 @@ export function App() {
             onClick={goHome}
           >
             <Home size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="toolbar-reset"
+            aria-label={copy.resetView}
+            disabled={!isReady}
+            title={`${copy.resetView} (R)`}
+            onClick={resetToDefaultView}
+          >
+            <RefreshCw size={18} aria-hidden="true" />
+            <span className="toolbar-reset-text">{copy.resetViewShort}</span>
           </button>
           <button
             type="button"
@@ -3041,6 +3084,12 @@ export function App() {
                 <dd>
                   {language === "de" ? "Minecraft-Modus ein- / ausschalten" : "Toggle Minecraft mode"}
                 </dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>R</kbd>
+                </dt>
+                <dd>{copy.resetView}</dd>
               </div>
               <div>
                 <dt>

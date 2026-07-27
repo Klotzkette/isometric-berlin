@@ -476,7 +476,7 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
       false,
     );
   }
-  const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xc9eaf3;
+  const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xdcf3f9;
   runtime.scene.background = new Color(sky);
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
   // das will ich überhaupt nicht"): the ivory model stays crisp to the
@@ -1726,8 +1726,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
-      scene.background = new Color(0xc9eaf3);
-      scene.fog = new Fog(0xc9eaf3, 1100, 2550);
+      scene.background = new Color(0xdcf3f9);
+      scene.fog = new Fog(0xdcf3f9, 1100, 2550);
       const hemisphere = new HemisphereLight(0xffffff, 0x57775b, 2.06);
       scene.add(hemisphere);
       const sun = new DirectionalLight(0xffefc9, 3.28);

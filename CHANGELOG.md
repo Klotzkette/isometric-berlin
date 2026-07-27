@@ -1,5 +1,52 @@
 # Changelog
 
+## v0.32.0
+
+Iteration driven by direct owner feedback. What was asked for, and what
+happened:
+
+- **One click back to the default view.** The toolbar carries a labelled
+  accent button ("Standardansicht", shortcut `R`, documented in the help
+  panel) that returns the viewer to the load-time hero shot from any
+  state: camera on the Bundeskanzleramt, daylight, north up, right way
+  round, no underside tilt. The contract lives in `src/resetView.ts` as
+  pure data so it can be asserted without rendering React;
+  `tests/reset-view.test.ts` drives it out of night mode, Minecraft,
+  orbited cameras and mirrored views.
+- **The Paul-Löbe-Haus was missing its west portico.** The LoD2 extract
+  carries the building as a plain 157 m bar, so the one feature that
+  makes the Chancellery-facing front recognisable — the wide flat canopy
+  cantilevering over the entrance forecourt on slender columns (Stephan
+  Braunfels, 2001) — simply was not there. It is now drawn as inked flat
+  elements: a 12.5 m × 31 m slab with a fascia edge, six square columns
+  and the entrance platform beneath; the cantilever is asserted in
+  `tests/isometric-city-world.test.ts`.
+- **The day palette is brighter again.** Ivory moves to 0xf8f3e6, the
+  cleaned-tone band lifts to 0.68…0.88 across ten paint levels instead
+  of six (the raised floor would otherwise collapse every facade onto
+  two shades), and ground, plazas, quays, bridges, tunnels and the sky
+  all move up with it. The ink stays at 0x716c62, so contours keep their
+  contrast against the lighter panels.
+- **Every building now carries a drawn window grid.** Until now only
+  landmarks had panes; ordinary blocks were articulated by vertical
+  glazing axes alone and read as blank at overview zoom. Each wall now
+  gets a pane at every bay/storey crossing on its own format — housing
+  proportions (1.05 × 1.9 m on a 3.6 / 3.1 m pitch) or piano-nobile for
+  civic monuments (1.3 × 3.0 m on 4.6 / 4.4 m) — plus one horizontal
+  storey band per floor, so facades stay finely textured when the panes
+  themselves fall below a pixel. Joinery (Laibung, mullion, transom) is
+  instanced only for the wide civic openings; Sprossen on all ~88k panes
+  would cost more triangles than the rest of the city together.
+- **The outskirts are drawn ground, not blank paper.** The three margin
+  bands were flat slabs next to the drawn centre; they now carry a 140 m
+  field grid of hairlines in the same ink, and the new western strip
+  grows its own deterministic tree population like every strip before
+  it. No buildings are invented out there — the ruling is cartographic,
+  not surveyed.
+- **Areal expansion (+100 m contract): visible radius 2810 m → 2910 m.**
+  The paper/park margin widens to 1620 m, the extrapolated west reaches
+  −2620 m and the flight bounds follow (z −2700…+3120).
+
 ## v0.31.0
 
 Iteration of the refinement loop. The ugliest spots found in this

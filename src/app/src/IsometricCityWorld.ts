@@ -61,10 +61,10 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520),
-// v0.30.0 was 2710 m (z −2500…2920), v0.31.0 is 2810 m (z −2600…3020).
-export const VISIBLE_RADIUS_M = 2810;
-export const EXTRAPOLATED_WEST_M = -2520;
-export const EXTRAPOLATED_MARGIN_M = 1520;
+// v0.31.0 was 2810 m (z −2600…3020), v0.32.0 is 2910 m (z −2700…3120).
+export const VISIBLE_RADIUS_M = 2910;
+export const EXTRAPOLATED_WEST_M = -2620;
+export const EXTRAPOLATED_MARGIN_M = 1620;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -78,20 +78,20 @@ export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 // Reichstag reads as its real darker grey sandstone (not warm yellow),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
-  K0002MCN: 0xafaaa0,
-  MLwG4KW9: 0xe2e2de,
+  K0002MCN: 0xb2ada2,
+  MLwG4KW9: 0xeeeeea,
 };
 
 // Pinned roof-plate tones: the Reichstag's huge cap (and its corner
 // towers) read as the real light stone terrace instead of sun-warmed
 // facade brown; the Chancellery roof stays light.
 export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
-  K0002MCN: 0xd0d2ca,
-  K0003Ty1: 0xd0d2ca,
-  K0003VDk: 0xd0d2ca,
-  MLwG4KW9: 0xe2e4de,
-  UbQkgNZe: 0xd0d2ca,
-  ycOYQRVL: 0xd0d2ca,
+  K0002MCN: 0xe1e3dc,
+  K0003Ty1: 0xe1e3dc,
+  K0003VDk: 0xe1e3dc,
+  MLwG4KW9: 0xeff1ec,
+  UbQkgNZe: 0xe1e3dc,
+  ycOYQRVL: 0xe1e3dc,
 };
 
 // Buildings whose recognition model draws the COMPLETE structure. Their
@@ -147,8 +147,10 @@ export function cleanedTone(tone: [number, number, number]): Color {
   // Light-panel city: lightness lives in a bright band ("alles in
   // hellen Farben") — pale stone up to near-white, never murky.
   // Bright ivory band: no murky greys or dark yellows survive.
-  const clamped = Math.min(0.88, Math.max(0.64, luma));
-  const bands = 6;
+  // Ten bands rather than six: the raised floor would otherwise collapse
+  // every facade onto two paint levels and flatten the drawing.
+  const clamped = Math.min(0.88, Math.max(0.68, luma));
+  const bands = 10;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
   return new Color(clamp01(r * scale), clamp01(g * scale), clamp01(b * scale));
@@ -157,21 +159,21 @@ export function cleanedTone(tone: [number, number, number]): Color {
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
 export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
-  asphalt: [0xb7b8b1, 0xb9bab3],
+  asphalt: [0xcbccc5, 0xcdcec7],
   // Closely spaced sage lawns avoid noisy stripes while retaining enough
   // separation to read the park as a drawn surface.
-  grass: [0xb4caa5, 0xb5cba6, 0xb3c9a4],
-  plazaBrick: [0xdcc5ab, 0xdac2a8],
+  grass: [0xc7dab9, 0xc8dbba, 0xc6d9b8],
+  plazaBrick: [0xecd9c3, 0xead6c0],
   // Drawn bridge decks: light stone, clearly distinct from water below.
-  bridge: [0xd4d0c5, 0xd6d2c7],
-  water: [0xa6cadb, 0xa4c9da],
+  bridge: [0xe3dfd5, 0xe5e1d7],
+  water: [0xb6d7e6, 0xb4d6e5],
 };
 
 // Flat drawn facade tones per building class, with deterministic
 // per-building jitter between shades (quantised paint, no gradients).
 const FACADE_SHADES: Record<string, readonly number[]> = {
-  concrete: [0xece5d4, 0xe3dbc8, 0xf2ecdd, 0xdcd2bd],
-  glass: [0xbfd7de, 0xcfe3e8, 0xafc9d3],
+  concrete: [0xf4eee0, 0xeee7d7, 0xf8f4ea, 0xe9e1cf],
+  glass: [0xd2e5ea, 0xdeedf1, 0xc6dbe3],
 };
 const FALLBACK_FACADE: readonly number[] = FACADE_SHADES.concrete;
 
@@ -193,7 +195,7 @@ function inReichstagRegion(building: PrismBuilding): boolean {
 // The whole city leans toward one warm ivory register ("wie eine
 // wunderbare Elfenbeinpalastdarstellung") while each building keeps
 // enough of its own sampled hue to stay recognisably itself.
-const IVORY = new Color(0xf1ead9);
+const IVORY = new Color(0xf8f3e6);
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
@@ -201,7 +203,7 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
     return new Color(pinned).lerp(IVORY, 0.18);
   }
   if (inReichstagRegion(building)) {
-    return new Color(0xb8b3a6).lerp(IVORY, 0.18);
+    return new Color(0xc2bdb0).lerp(IVORY, 0.2);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
@@ -286,6 +288,7 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     "drawn quay walls",
     "bridge structure bodies",
     "Adlon bodies",
+    "Paul-Löbe canopy bodies",
     "tunnel portal ramps",
     "monument bodies",
   ]) {
@@ -300,6 +303,12 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const adlonInk = city.getObjectByName("Adlon ink lines");
   if (adlonInk instanceof LineSegments) {
     (adlonInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const canopyInk = city.getObjectByName("Paul-Löbe canopy ink lines");
+  if (canopyInk instanceof LineSegments) {
+    (canopyInk.material as LineBasicMaterial).color.setHex(
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
@@ -624,6 +633,10 @@ const WINDOW_NIGHT_DARK_TONE = 0x18202c;
 // Warm grey joinery — dark enough to draw the opening, light enough not
 // to blacken the ivory facades when the whole quarter is in frame.
 const WINDOW_BAR_TONE = 0x8b8578;
+// Cool pale glass against the brightened ivory walls: light enough to
+// stay in the drawing's register, dark enough that a 1 px pane still
+// registers as an opening from the overview.
+const WINDOW_DAY_TONE = 0xb4c4cc;
 
 // Monumental civic buildings (large surveyed footprint AND height) get
 // piano-nobile proportions instead of housing storeys: taller windows
@@ -682,7 +695,7 @@ const DOOR_NIGHT_TONE = 0x1c232e;
 const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
 // Cool slate tint mixed into flat roof caps so they read as drawn
 // roof plates instead of sun-warmed facade paint.
-const ROOF_PLATE_TINT = new Color(0xbcc2c4);
+const ROOF_PLATE_TINT = new Color(0xcdd2d4);
 // Hyperdetail bands: a darker plinth (Sockel) at the base and a light
 // protruding cornice (Gesims) under the roof edge of every drawn wall.
 const SOCKEL_HEIGHT_M = 0.55;
@@ -730,6 +743,9 @@ type WindowInstance = {
   dirX: number;
   dirZ: number;
   height: number;
+  // Joinery is instanced separately: drawing Sprossen into all ~120k
+  // ordinary panes would cost more triangles than the whole city.
+  joinery: boolean;
   night: Color;
   nx: number;
   nz: number;
@@ -1076,9 +1092,9 @@ function createTunnelPortals(
   };
   const RAMP_LENGTH = 78;
   const HALF_WIDTH = 11;
-  const DECK_TONE = 0x9fa099;
-  const WALL_TONE = 0x9a978c;
-  const FRAME_TONE = 0xa6a399;
+  const DECK_TONE = 0xb6b7b0;
+  const WALL_TONE = 0xb2afa4;
+  const FRAME_TONE = 0xbbb8ae;
   const MOUTH_TONE = 0x0c0e10;
   const ends: Array<[readonly [number, number, number], readonly [number, number, number]]> = [
     [points[0], points[1]],
@@ -1177,7 +1193,7 @@ function createTunnelPortals(
       }
     }
     // Crash barriers along both retaining walls.
-    const BARRIER_TONE = 0xc9c3b4;
+    const BARRIER_TONE = 0xdbd5c6;
     for (let step = 0; step < 8; step += 1) {
       const a0 = (step / 8) * RAMP_LENGTH;
       const a1 = ((step + 1) / 8) * RAMP_LENGTH;
@@ -1319,7 +1335,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     const az = (min_z_idx + z1) * cell;
     const bx = (min_x_idx + x2) * cell;
     const bz = (min_z_idx + z2) * cell;
-    paint.setHex((xOffset * 31 + zOffset * 17) % 2 === 0 ? 0x8d897c : 0x969284);
+    paint.setHex((xOffset * 31 + zOffset * 17) % 2 === 0 ? 0xa5a193 : 0xadaa9c);
     for (const [px, py, pz] of [
       [ax, bottom, az], [bx, bottom, bz], [bx, top, bz],
       [ax, bottom, az], [bx, top, bz], [ax, top, az],
@@ -1331,7 +1347,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     // water, jutting from the quay wall — the "Weg zum Ufer".
     const ledgeY = waterTop + 0.55;
     const jut = 2.2;
-    paint.setHex(0xd3ccba);
+    paint.setHex(0xe4ddcb);
     for (const [px, py, pz] of [
       [ax, ledgeY, az], [bx, ledgeY, bz],
       [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
@@ -1343,7 +1359,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
       colors.push(paint.r, paint.g, paint.b);
     }
     // Its thin front face down to the water keeps the ledge readable.
-    paint.setHex(0xbdb6a4);
+    paint.setHex(0xd0c9b7);
     for (const [px, py, pz] of [
       [ax + towardWaterX * jut, ledgeY, az + towardWaterZ * jut],
       [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
@@ -1378,7 +1394,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     // Promenade balustrade: slim drawn posts on the embankment edge with
     // a continuous top rail, so the quay is walkable instead of a bare
     // drop into the Spree.
-    paint.setHex(0x9c9789);
+    paint.setHex(0xada89a);
     const railTop = top + RAIL_HEIGHT_M;
     quad(
       ax, railTop, az,
@@ -1398,7 +1414,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     // A drawn flight of steps down to the water wherever the embankment
     // runs long enough to carry one ("Treppen ans Wasser").
     if (runLength >= STAIR_MIN_RUN_M) {
-      paint.setHex(0xc6bfad);
+      paint.setHex(0xd8d1bf);
       const mid = runLength / 2 - STAIR_WIDTH_M / 2;
       const steps = 5;
       for (let step = 0; step < steps; step += 1) {
@@ -1607,9 +1623,9 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   const BED_Y = waterTop - 2.45;
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
-  const STONE = new Color(0xcfc9bb);
-  const STONE_DARK = new Color(0xbdb6a6);
-  const DECK = new Color(0xb0b1a9);
+  const STONE = new Color(0xdedacd);
+  const STONE_DARK = new Color(0xcdc7b7);
+  const DECK = new Color(0xc4c5bd);
   const addPart = (
     triangles: Float32Array,
     tone: Color,
@@ -1794,7 +1810,7 @@ function createBridgeRailings(ground: VoxelPayload): Group | null {
   const sample = groundTopSampler(ground);
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
-  const tone = new Color(0xcfc9b9);
+  const tone = new Color(0xdfdaca);
   const rail = (
     x1: number,
     z1: number,
@@ -1926,6 +1942,7 @@ export function createWestTiergarten(): Group {
   const V027_WEST = -2220;
   const V028_WEST = -2320;
   const V029_WEST = -2420;
+  const V030_WEST = -2520;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1946,7 +1963,7 @@ export function createWestTiergarten(): Group {
       1.2,
       PAPER_SOUTH - PAPER_NORTH,
     ),
-    0xdce4d7,
+    0xe9efe4,
     false,
   );
   const bands = 8;
@@ -1984,9 +2001,9 @@ export function createWestTiergarten(): Group {
   const SX = AXIS_TO[0];
   const SZ = AXIS_TO[1];
   addPart(prismTriangles(SX, GROUND_TOP - 1.3, SZ, 100, 3.2, 16), ISO_GROUND_SHADES.asphalt[1], false);
-  addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xb9b6ac);
+  addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xcbc8be);
   addPart(boxTriangles(SX, GROUND_TOP + 4.9, SZ, axis, 23, 7, 23), 0x9a5f4c);
-  addPart(prismTriangles(SX, GROUND_TOP + 10.4, SZ, 9, 4, 12), 0xb9b6ac);
+  addPart(prismTriangles(SX, GROUND_TOP + 10.4, SZ, 9, 4, 12), 0xcbc8be);
   let columnBase = GROUND_TOP + 12.4;
   for (const [radius, height] of [
     [4.4, 14], [4.0, 13], [3.6, 12], [3.2, 11],
@@ -1996,7 +2013,7 @@ export function createWestTiergarten(): Group {
     addPart(prismTriangles(SX, columnBase + 0.4, SZ, radius + 0.5, 0.8, 12), 0xd4af37);
     columnBase += 0.8;
   }
-  addPart(prismTriangles(SX, columnBase + 1.1, SZ, 4.6, 2.2, 12), 0xb9b6ac);
+  addPart(prismTriangles(SX, columnBase + 1.1, SZ, 4.6, 2.2, 12), 0xcbc8be);
   // Gilded Viktoria: body, raised wreath arm, wings.
   addPart(boxTriangles(SX, columnBase + 5.4, SZ, axis, 2.2, 6.4, 2.2), 0xd4af37);
   addPart(boxTriangles(SX, columnBase + 9.2, SZ, axis, 0.7, 3.4, 0.7), 0xd4af37);
@@ -2017,7 +2034,7 @@ export function createWestTiergarten(): Group {
     [horizontalCenter, 1451 + MARGIN / 2, horizontalWidth, MARGIN],
     [601 + MARGIN / 2, (1451 - 1030) / 2, MARGIN, 1451 + 1030],
   ];
-  const MARGIN_TONES = [0xd9e2d3, 0xdee6d9];
+  const MARGIN_TONES = [0xe6ece1, 0xebf0e6];
   marginBands.forEach(([cx, cz, sx, sz], index) => {
     addPart(
       boxTriangles(cx, GROUND_TOP - 1.6, cz, [1, 0], sx, 2.6, sz),
@@ -2025,6 +2042,29 @@ export function createWestTiergarten(): Group {
       false,
     );
   });
+  // The margin used to be three blank slabs, which read as unfinished
+  // paper next to the drawn centre. A 140 m field grid of hairlines gives
+  // it the same drawn surface quality without inventing buildings: it is
+  // cartographic ruling, not surveyed content.
+  const FIELD_PITCH_M = 140;
+  const fieldLines: number[] = [];
+  const fieldY = GROUND_TOP - 0.28;
+  for (const [cx, cz, sx, sz] of marginBands) {
+    const x0 = cx - sx / 2;
+    const z0 = cz - sz / 2;
+    for (let x = x0; x <= cx + sx / 2 + 1e-6; x += FIELD_PITCH_M) {
+      fieldLines.push(x, fieldY, z0, x, fieldY, cz + sz / 2);
+    }
+    for (let z = z0; z <= cz + sz / 2 + 1e-6; z += FIELD_PITCH_M) {
+      fieldLines.push(x0, fieldY, z, cx + sx / 2, fieldY, z);
+    }
+  }
+  const fieldGrid = new BufferGeometry();
+  fieldGrid.setAttribute(
+    "position",
+    new Float32BufferAttribute(fieldLines, 3),
+  );
+  edgeGeometries.push(fieldGrid);
   // Unter den Linden, continuing east from Pariser Platz.
   addPart(
     boxTriangles(601 + MARGIN / 2, GROUND_TOP - 1.35, 292, [1, 0], MARGIN, 3, 40),
@@ -2157,10 +2197,23 @@ export function createWestTiergarten(): Group {
     }
     trunkSpots.push([x, z]);
   }
-  // v0.30.0 grows only the new −2520…−2420 m strip.
+  // v0.30.0 grows only the −2520…−2420 m strip.
   for (let index = 0; index < 84; index += 1) {
-    const x = WEST + 10 + (V029_WEST - WEST - 20) * stripUnit(index, 2297);
+    const x =
+      V030_WEST + 10 + (V029_WEST - V030_WEST - 20) * stripUnit(index, 2297);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2411);
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.32.0 grows only the new −2620…−2520 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x =
+      WEST + 10 + (V030_WEST - WEST - 20) * stripUnit(index, 2749);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2861);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
@@ -2299,7 +2352,7 @@ export function createWestTiergarten(): Group {
 function createPresentationBackdrop(): Mesh {
   const geometry = new PlaneGeometry(16_000, 16_000);
   geometry.rotateX(-Math.PI / 2);
-  const dayMaterial = new MeshBasicMaterial({ color: 0xdce4d7 });
+  const dayMaterial = new MeshBasicMaterial({ color: 0xe9efe4 });
   const nightMaterial = new MeshBasicMaterial({ color: 0x07131f });
   const backdrop = new Mesh(geometry, dayMaterial);
   backdrop.name = "presentation paper backdrop";
@@ -2332,9 +2385,9 @@ export function createHotelAdlon(): Group {
   const EAVES = 31.5;
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
-  const FACADE = new Color(0xe8dfc9);
-  const SOCKEL = new Color(0xd8cfba);
-  const ROOF = new Color(0xbfc2bb);
+  const FACADE = new Color(0xf2ebda);
+  const SOCKEL = new Color(0xe6dfcd);
+  const ROOF = new Color(0xd3d6cf);
   const add = (
     triangles: Float32Array,
     tone: Color,
@@ -2428,6 +2481,144 @@ export function createHotelAdlon(): Group {
       new LineBasicMaterial({ color: ISO_INK_COLOR }),
     );
     lines.name = "Adlon ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  return group;
+}
+
+/**
+ * Paul-Löbe-Haus west portico. The LoD2 extract carries the building as a
+ * plain 157 m bar (prism 0sVYAxtY, x 154.6…312.1, z −153.0…−117.3), so the
+ * one feature that makes the west front recognisable from the Chancellery
+ * side is missing: the wide flat canopy that cantilevers over the entrance
+ * forecourt on slender columns. Drawn here after the built architecture
+ * (Stephan Braunfels, 2001) as flat inked elements.
+ */
+export const PAUL_LOEBE_WEST_FACE_X = 154.6;
+const PAUL_LOEBE_CANOPY_Z = -135.15;
+const PAUL_LOEBE_GROUND_Y = 4.2;
+const PAUL_LOEBE_CANOPY_SPAN_Z = 31;
+const PAUL_LOEBE_CANOPY_REACH_M = 12.5;
+const PAUL_LOEBE_CANOPY_TOP_Y = 17.4;
+const PAUL_LOEBE_CANOPY_SLAB_M = 0.75;
+const PAUL_LOEBE_COLUMN_COUNT = 6;
+const PAUL_LOEBE_COLUMN_W = 0.62;
+
+export function createPaulLoebeCanopy(): Group {
+  const group = new Group();
+  group.name = "Paul-Löbe-Haus west canopy";
+  const parts: BufferGeometry[] = [];
+  const edges: BufferGeometry[] = [];
+  const SLAB = new Color(0xf1ece0);
+  const FASCIA = new Color(0xe1dbcb);
+  const COLUMN = new Color(0xe8e2d5);
+  const add = (triangles: Float32Array, tone: Color): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+    edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+  };
+
+  const outerX = PAUL_LOEBE_WEST_FACE_X - PAUL_LOEBE_CANOPY_REACH_M;
+  const slabCenterX = PAUL_LOEBE_WEST_FACE_X - PAUL_LOEBE_CANOPY_REACH_M / 2;
+  add(
+    boxTriangles(
+      slabCenterX,
+      PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M / 2,
+      PAUL_LOEBE_CANOPY_Z,
+      [1, 0],
+      PAUL_LOEBE_CANOPY_REACH_M,
+      PAUL_LOEBE_CANOPY_SLAB_M,
+      PAUL_LOEBE_CANOPY_SPAN_Z,
+    ),
+    SLAB,
+  );
+  // A slim fascia along the free edge: the drawn shadow line that makes the
+  // cantilever legible from the isometric camera.
+  add(
+    boxTriangles(
+      outerX + 0.22,
+      PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - 0.22,
+      PAUL_LOEBE_CANOPY_Z,
+      [1, 0],
+      0.44,
+      0.44,
+      PAUL_LOEBE_CANOPY_SPAN_Z,
+    ),
+    FASCIA,
+  );
+
+  const columnHeight =
+    PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - PAUL_LOEBE_GROUND_Y;
+  const firstZ = PAUL_LOEBE_CANOPY_Z - PAUL_LOEBE_CANOPY_SPAN_Z / 2 + 2.6;
+  const stepZ = (PAUL_LOEBE_CANOPY_SPAN_Z - 5.2) / (PAUL_LOEBE_COLUMN_COUNT - 1);
+  for (let index = 0; index < PAUL_LOEBE_COLUMN_COUNT; index += 1) {
+    add(
+      boxTriangles(
+        outerX + 0.9,
+        PAUL_LOEBE_GROUND_Y + columnHeight / 2,
+        firstZ + stepZ * index,
+        [1, 0],
+        PAUL_LOEBE_COLUMN_W,
+        columnHeight,
+        PAUL_LOEBE_COLUMN_W,
+      ),
+      COLUMN,
+    );
+  }
+
+  // Entrance platform under the canopy, one drawn step above the forecourt.
+  add(
+    boxTriangles(
+      slabCenterX,
+      PAUL_LOEBE_GROUND_Y + 0.18,
+      PAUL_LOEBE_CANOPY_Z,
+      [1, 0],
+      PAUL_LOEBE_CANOPY_REACH_M + 1.6,
+      0.36,
+      PAUL_LOEBE_CANOPY_SPAN_Z + 1.6,
+    ),
+    FASCIA,
+  );
+
+  const merged = mergeGeometries(parts, false);
+  if (merged) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "Paul-Löbe canopy bodies";
+    group.add(mesh);
+    for (const geometry of parts) {
+      geometry.dispose();
+    }
+  }
+  const ink = mergeGeometries(edges, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "Paul-Löbe canopy ink lines";
     lines.renderOrder = 2;
     group.add(lines);
     for (const geometry of edges) {
@@ -2572,7 +2763,7 @@ export function createIsometricCity(
     // Reichstag's huge roof was one warm brown slab).
     const pinnedRoof =
       HERO_PRISM_ROOF_TONES[building.id] ??
-      (inReichstagRegion(building) ? 0xd0d2ca : undefined);
+      (inReichstagRegion(building) ? 0xe1e3dc : undefined);
     const capTone =
       pinnedRoof !== undefined
         ? new Color(pinnedRoof)
@@ -2624,13 +2815,12 @@ export function createIsometricCity(
         bodyGeometries.push(parapet);
       }
     }
-    // NO invented punched windows ("keine quadratischen Fenster, wo in
-    // Wirklichkeit keine sind"): LoD2 carries no real window positions,
-    // so any square-pane grid was fabrication. Instead every tall wall
-    // gets slender floor-to-cornice glazing LINES on the surveyed bay
-    // rhythm — pure facade articulation (linienartig, elegant), never a
-    // punched hole. At night a deterministic few of those axes carry a
-    // warm vertical light strip. One entrance door per building stays.
+    // Every wall carries slender floor-to-cornice glazing LINES on the
+    // surveyed bay rhythm, plus — since v0.32.0 — a drawn portrait pane
+    // at every bay/storey crossing, so ordinary blocks read as finely
+    // fenestrated instead of blank even in the overview. Formats follow
+    // the building's own kind: piano-nobile for civic monuments, housing
+    // proportions elsewhere. At night a deterministic share is lit.
     // Hero buildings (Reichstag) keep their referenced real windows.
     if (
       totalHeight >= WINDOW_MIN_BUILDING_M &&
@@ -2642,7 +2832,8 @@ export function createIsometricCity(
       const isCivic =
         ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
         totalHeight >= CIVIC_HEIGHT_M;
-      const bayPitch = isCivic ? 4.6 : 3.6;
+      const format = isCivic ? CIVIC_WINDOW : HOUSING_WINDOW;
+      const bayPitch = format.bayPitch;
       const axisTop = y0 + bodyHeight - 0.9;
       const axisBottom = y0 + 1.2;
       const nightStrip = isCivic
@@ -2672,12 +2863,55 @@ export function createIsometricCity(
           const first = (wall.length - (axes - 1) * bayPitch) / 2;
           const ox = wall.nx * WINDOW_FACE_OFFSET_M;
           const oz = wall.nz * WINDOW_FACE_OFFSET_M;
+          const grid = windowGrid(wall.length, bodyHeight, format);
+          const sillOf = (floor: number): number =>
+            y0 + format.sillStart + floor * format.floorPitch;
+          // Storey bands: one hairline per floor across the whole wall,
+          // so the facade keeps a legible horizontal rhythm at the zoom
+          // levels where individual panes fall below a pixel.
+          if (grid) {
+            for (let floor = 0; floor < grid.floors; floor += 1) {
+              const bandY = sillOf(floor) - 0.28;
+              facadeAxisPositions.push(
+                wall.x1 + ox, bandY, wall.z1 + oz,
+                wall.x1 + wall.dirX * wall.length + ox, bandY,
+                wall.z1 + wall.dirZ * wall.length + oz,
+              );
+            }
+          }
           for (let axis = 0; axis < axes; axis += 1) {
             const along = first + axis * bayPitch;
             const x = wall.x1 + wall.dirX * along + ox;
             const z = wall.z1 + wall.dirZ * along + oz;
             // Slender glazing line as ink (the facade axis).
             facadeAxisPositions.push(x, axisBottom, z, x, axisTop, z);
+            if (grid) {
+              for (let floor = 0; floor < grid.floors; floor += 1) {
+                const py = sillOf(floor) + format.height / 2;
+                const roll = hash32(
+                  building.id,
+                  wall.index * 9173 + axis * 131 + floor * 17,
+                );
+                windows.push({
+                  dirX: wall.dirX,
+                  dirZ: wall.dirZ,
+                  height: format.height,
+                  joinery: isCivic,
+                  night: new Color(
+                    roll % 1000 < litLimit
+                      ? nightStrip[roll % nightStrip.length]
+                      : WINDOW_NIGHT_DARK_TONE,
+                  ),
+                  nx: wall.nx,
+                  nz: wall.nz,
+                  px: x,
+                  py,
+                  pz: z,
+                  tone: new Color(WINDOW_DAY_TONE),
+                  width: format.width,
+                });
+              }
+            }
             // A warm-lit vertical strip on ~38% of axes at night.
             const roll =
               hash32(building.id, wall.index * 2801 + axis * 53) % 1000;
@@ -2700,6 +2934,7 @@ export function createIsometricCity(
               dirX: wall.dirX,
               dirZ: wall.dirZ,
               height: DOOR_HEIGHT_M,
+              joinery: true,
               night: new Color(DOOR_NIGHT_LIT_TONE),
               nx: wall.nx,
               nz: wall.nz,
@@ -2801,7 +3036,7 @@ export function createIsometricCity(
       );
       restaurant.computeVertexNormals();
       edgeGeometries.push(new EdgesGeometry(restaurant, ISO_EDGE_THRESHOLD_DEGREES));
-      bakeColor(restaurant, new Color(0xb4b8b2).multiplyScalar(0.96));
+      bakeColor(restaurant, new Color(0xc8ccc6).multiplyScalar(0.96));
       bodyGeometries.push(restaurant);
       const restaurantGlass = new BufferGeometry();
       restaurantGlass.setAttribute(
@@ -3021,27 +3256,32 @@ export function createIsometricCity(
     pane.frustumCulled = false;
     group.add(pane);
 
-    // The same matrices carry the drawn joinery, so every opening reads
-    // as a framed window with Sprossen instead of a flat rectangle.
-    const bars = new InstancedMesh(
-      windowBarGeometry(),
-      new MeshBasicMaterial({ color: WINDOW_BAR_TONE, side: DoubleSide }),
-      windows.length,
-    );
-    bars.name = "LoD2 prism window bars";
-    windows.forEach((spec, index) => {
-      matrix.set(
-        spec.dirX * spec.width, 0, spec.nx, spec.px,
-        0, spec.height, 0, spec.py,
-        spec.dirZ * spec.width, 0, spec.nz, spec.pz,
-        0, 0, 0, 1,
+    // The same matrices carry the drawn joinery, so the wide civic
+    // openings read as framed windows with Sprossen instead of flat
+    // rectangles. Housing panes stay bare: Sprossen on all of them would
+    // cost more triangles than the rest of the city together.
+    const framed = windows.filter((spec) => spec.joinery);
+    if (framed.length > 0) {
+      const bars = new InstancedMesh(
+        windowBarGeometry(),
+        new MeshBasicMaterial({ color: WINDOW_BAR_TONE, side: DoubleSide }),
+        framed.length,
       );
-      bars.setMatrixAt(index, matrix);
-    });
-    bars.instanceMatrix.needsUpdate = true;
-    bars.frustumCulled = false;
-    bars.renderOrder = 2;
-    group.add(bars);
+      bars.name = "LoD2 prism window bars";
+      framed.forEach((spec, index) => {
+        matrix.set(
+          spec.dirX * spec.width, 0, spec.nx, spec.px,
+          0, spec.height, 0, spec.py,
+          spec.dirZ * spec.width, 0, spec.nz, spec.pz,
+          0, 0, 0, 1,
+        );
+        bars.setMatrixAt(index, matrix);
+      });
+      bars.instanceMatrix.needsUpdate = true;
+      bars.frustumCulled = false;
+      bars.renderOrder = 2;
+      group.add(bars);
+    }
   }
 
   if (mullionPositions.length > 0) {
@@ -3187,7 +3427,7 @@ export function createIsometricCity(
       surface.renderOrder = 1;
       const matrix = new Matrix4();
       const bedPaint = new Color();
-      const BED_TONES = [0xc7bda4, 0xbdb298] as const;
+      const BED_TONES = [0xd8cfb8, 0xcdc3ac] as const;
       waterRuns.forEach(([xStart, zOffset, run], index) => {
         const cx = (min_x_idx + xStart + run / 2) * cell;
         const cz = (min_z_idx + zOffset + 0.5) * cell;
@@ -3228,5 +3468,6 @@ export function createIsometricCity(
   group.add(createPresentationBackdrop());
   group.add(createWestTiergarten());
   group.add(createHotelAdlon());
+  group.add(createPaulLoebeCanopy());
   return group;
 }
