@@ -39,7 +39,11 @@ DEFAULT_OUT = MESH_PUBLIC_DIR / "minecraft-voxels.json"
 CELL_M = 4.0
 ORIGIN_EASTING = 389500.0
 ORIGIN_NORTHING = 5820000.0
-WATER_TOP_Y_M = 1.31
+# Spree/Kanal water table. The banks in this extract sit at ~4.2 m and
+# the surveyed drop to the Spree (31.4 m NHN against ~35.9 m NHN at the
+# Kapelle- and Reichstagufer) is ~4.5 m, so the river runs in a real cut
+# behind high quay walls instead of level with the streets.
+WATER_TOP_Y_M = -1.15
 ROAD_BUFFER_M = 6.0
 IDW_NEIGHBOURS = 8
 IDW_POWER = 2.0

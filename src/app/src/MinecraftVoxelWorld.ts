@@ -45,7 +45,12 @@ export type VoxelPayload = {
 
 export const VOXEL_WORLD_FILE = "minecraft-voxels.json";
 const GROUND_SLAB_M = 3;
-const WATER_TOP_Y = 1.31;
+/**
+ * Spree/Kanal water table (fallback for payloads without the field).
+ * The banks sit at ~4.2 m, so the river runs in a real cut about 5.3 m
+ * below the city instead of level with the streets.
+ */
+export const WATER_TOP_Y = -1.15;
 
 // Every shade comes from MINECRAFT_PALETTE (palette.ts); small
 // deterministic per-instance jitter between shades is what gives the

@@ -104,6 +104,7 @@ import {
 import {
   type VoxelPayload,
   VOXEL_WORLD_FILE,
+  WATER_TOP_Y,
   buildColumnToneLookup,
   createMinecraftVoxelWorld,
 } from "./MinecraftVoxelWorld";
@@ -273,9 +274,7 @@ type HeroDetailGroup = {
 const DEFAULT_TARGET = new Vector3(-110, 12, -165);
 const DEFAULT_CAMERA_OFFSET = new Vector3(540, 430, 650);
 const DETAIL_RAISE_M = 0.035;
-// Spree surface height in scene metres; keep in sync with
-// SPREE_WATER_Y in CulturalLandmarks.ts.
-const WATER_LEVEL_Y = 1.31;
+const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
 
 function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void {

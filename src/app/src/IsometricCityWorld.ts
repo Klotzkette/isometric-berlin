@@ -23,6 +23,7 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 
 import {
   type VoxelPayload,
+  WATER_TOP_Y,
   createGroundSlabs,
   groundTopSampler,
   worldGroundSampler,
@@ -61,10 +62,11 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520),
-// v0.31.0 was 2810 m (z −2600…3020), v0.32.0 is 2910 m (z −2700…3120).
-export const VISIBLE_RADIUS_M = 2910;
-export const EXTRAPOLATED_WEST_M = -2620;
-export const EXTRAPOLATED_MARGIN_M = 1620;
+// v0.31.0 was 2810 m (z −2600…3020), v0.32.0 was 2910 m (z −2700…3120),
+// v0.33.0 is 3010 m (z −2800…3220).
+export const VISIBLE_RADIUS_M = 3010;
+export const EXTRAPOLATED_WEST_M = -2720;
+export const EXTRAPOLATED_MARGIN_M = 1720;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -371,6 +373,12 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   const railingInk = city.getObjectByName("bridge structure ink lines");
   if (railingInk instanceof LineSegments) {
     (railingInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
+  const quayInk = city.getObjectByName("quay ink lines");
+  if (quayInk instanceof LineSegments) {
+    (quayInk.material as LineBasicMaterial).color.setHex(
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
@@ -1282,13 +1290,19 @@ const RAIL_POST_W_M = 0.11;
 export const STAIR_MIN_RUN_M = 26;
 const STAIR_WIDTH_M = 4.2;
 
+// Wall joints are drawn every ~14 m so a 200 m embankment reads as
+// masonry courses rather than one endless grey band.
+const QUAY_JOINT_SPACING_M = 14;
+
 /**
  * Quay walls ("die Spree mit Vertiefung"): wherever the surveyed ground
  * grid puts land next to water, a vertical stone wall drops from the
  * bank down past the water line — the river reads as a real recessed
- * channel with drawn embankments instead of a flat blue sheet.
+ * channel with drawn embankments instead of a flat blue sheet. The wall
+ * carries its own ink: a top line along the bank edge, the water line
+ * where the masonry enters the Spree, and vertical joints between them.
  */
-function createQuayWalls(ground: VoxelPayload): Mesh | null {
+function createQuayWalls(ground: VoxelPayload): Group | null {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
   const classGrid = new Int16Array(cols * rows).fill(-1);
@@ -1303,8 +1317,11 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     }
   });
   const waterClass = ground.classes.indexOf("water");
+  // Every surveyed land class earns a wall: with the water table down in
+  // its cut, a concrete or brick bank without one would leave the ground
+  // slab floating over open air.
   const landClasses = new Set(
-    ["asphalt", "grass", "plazaBrick"].map((name) =>
+    ["asphalt", "grass", "plazaBrick", "concrete", "glass"].map((name) =>
       ground.classes.indexOf(name),
     ),
   );
@@ -1312,9 +1329,10 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     return null;
   }
   const sample = groundTopSampler(ground);
-  const waterTop = ground.water_top_y_m ?? 1.31;
+  const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
   const positions: number[] = [];
   const colors: number[] = [];
+  const inkLines: number[] = [];
   const paint = new Color();
   const wall = (
     x1: number,
@@ -1327,7 +1345,7 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     towardWaterZ: number,
   ): void => {
     const top = sample(xOffset, zOffset) + 0.22;
-    const bottom = waterTop - 2.4;
+    const bottom = waterTop - 3.1;
     if (top <= bottom) {
       return;
     }
@@ -1335,6 +1353,22 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     const az = (min_z_idx + z1) * cell;
     const bx = (min_x_idx + x2) * cell;
     const bz = (min_z_idx + z2) * cell;
+    // Drawn masonry: the bank edge, the water line where the wall enters
+    // the Spree, and vertical joints between the two.
+    const nudgeX = towardWaterX * 0.05;
+    const nudgeZ = towardWaterZ * 0.05;
+    inkLines.push(
+      ax + nudgeX, top, az + nudgeZ, bx + nudgeX, top, bz + nudgeZ,
+      ax + nudgeX, waterTop, az + nudgeZ, bx + nudgeX, waterTop, bz + nudgeZ,
+    );
+    const wallRun = Math.hypot(bx - ax, bz - az);
+    const joints = Math.floor(wallRun / QUAY_JOINT_SPACING_M);
+    for (let joint = 1; joint <= joints; joint += 1) {
+      const t = (joint / (joints + 1)) * wallRun;
+      const jx = ax + ((bx - ax) / (wallRun || 1)) * t + nudgeX;
+      const jz = az + ((bz - az) / (wallRun || 1)) * t + nudgeZ;
+      inkLines.push(jx, top, jz, jx, waterTop, jz);
+    }
     paint.setHex((xOffset * 31 + zOffset * 17) % 2 === 0 ? 0xa5a193 : 0xadaa9c);
     for (const [px, py, pz] of [
       [ax, bottom, az], [bx, bottom, bz], [bx, top, bz],
@@ -1416,7 +1450,9 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
     if (runLength >= STAIR_MIN_RUN_M) {
       paint.setHex(0xd8d1bf);
       const mid = runLength / 2 - STAIR_WIDTH_M / 2;
-      const steps = 5;
+      // ~0.42 m risers over the full drop, so a 5 m embankment gets a
+      // real flight instead of five giant blocks.
+      const steps = Math.max(5, Math.round((top - waterTop) / 0.42));
       for (let step = 0; step < steps; step += 1) {
         const y = top - ((top - waterTop) * (step + 1)) / steps;
         const outset = ((step + 1) / steps) * jut;
@@ -1498,7 +1534,22 @@ function createQuayWalls(ground: VoxelPayload): Mesh | null {
   mesh.userData.dayMaterial = quayDay;
   mesh.userData.nightMaterial = quayNight;
   mesh.name = "drawn quay walls";
-  return mesh;
+  const group = new Group();
+  group.name = "Spree embankment";
+  group.add(mesh);
+  const inkGeometry = new BufferGeometry();
+  inkGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(inkLines, 3),
+  );
+  const ink = new LineSegments(
+    inkGeometry,
+    new LineBasicMaterial({ color: ISO_INK_COLOR }),
+  );
+  ink.name = "quay ink lines";
+  ink.renderOrder = 2;
+  group.add(ink);
+  return group;
 }
 
 /** N-gon prism (top fan + side quads) for round drawn structures. */
@@ -1609,6 +1660,84 @@ function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
 
 export const BRIDGE_MIN_CLUSTER_CELLS = 12;
 
+export type BridgeKind = "beam" | "slender" | "steelArch" | "stoneArch";
+
+export type BridgeProfile = {
+  /** Deck half-width where the 4 m ground grid under-reports it. */
+  halfWidthM: number;
+  kind: BridgeKind;
+  matchRadiusM: number;
+  name: string;
+  /** Surveyed crossing centre in world metres. */
+  world: [number, number];
+};
+
+/**
+ * The Spree crossings are not interchangeable. OSM and the landmark
+ * anchors put each one at a known place, so each surveyed bridge cluster
+ * is matched to its real construction instead of every bridge getting
+ * the same generic deck.
+ */
+export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
+  {
+    // 1886–91, Otto Stahn: red sandstone, three segmental arches on
+    // massive cutwater piers, balustrade with sculpted pedestals.
+    halfWidthM: 11.5,
+    kind: "stoneArch",
+    matchRadiusM: 80,
+    name: "Moltkebrücke",
+    world: [-174.5, -336.5],
+  },
+  {
+    // 2005 pedestrian bridge to the Hauptbahnhof: a thin ribbon deck on
+    // two round columns, tubular handrails, no masonry at all.
+    halfWidthM: 5,
+    kind: "slender",
+    matchRadiusM: 80,
+    name: "Gustav-Heinemann-Brücke",
+    world: [-38.1, -448.6],
+  },
+  {
+    // Santiago Calatrava, 1996: a flat steel arch under a light deck,
+    // springing from the abutments with nothing standing in the river.
+    halfWidthM: 10.5,
+    kind: "steelArch",
+    matchRadiusM: 80,
+    name: "Kronprinzenbrücke",
+    world: [304.2, -323.5],
+  },
+  {
+    // "Sprung über die Spree": the twin parliament footbridges between
+    // Paul-Löbe-Haus and Marie-Elisabeth-Lüders-Haus.
+    halfWidthM: 5.5,
+    kind: "slender",
+    matchRadiusM: 60,
+    name: "Sprung über die Spree",
+    world: [342, -186],
+  },
+];
+
+export function bridgeProfileAt(
+  x: number,
+  z: number,
+): BridgeProfile | null {
+  let best: BridgeProfile | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const profile of BRIDGE_PROFILES) {
+    const distance = Math.hypot(x - profile.world[0], z - profile.world[1]);
+    if (distance <= profile.matchRadiusM && distance < bestDistance) {
+      best = profile;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+// Minimum headroom under a Spree crossing. The shipping profile of the
+// Spree in the government quarter is ~4.4 m, so the carriageway always
+// clears the water even where the surveyed banks are low.
+export const BRIDGE_MIN_CLEARANCE_M = 5.4;
+
 function createBridgeStructures(ground: VoxelPayload): Group | null {
   const clusters = bridgeClusters(ground).filter(
     (cluster) => cluster.length >= BRIDGE_MIN_CLUSTER_CELLS,
@@ -1619,13 +1748,14 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   const cell = ground.cell_m;
   const { min_x_idx, min_z_idx } = ground.grid;
   const sample = groundTopSampler(ground);
-  const waterTop = ground.water_top_y_m ?? 1.31;
+  const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
   const BED_Y = waterTop - 2.45;
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
   const STONE = new Color(0xdedacd);
   const STONE_DARK = new Color(0xcdc7b7);
   const DECK = new Color(0xc4c5bd);
+  const STEEL = new Color(0xb9bcbb);
   const addPart = (
     triangles: Float32Array,
     tone: Color,
@@ -1659,9 +1789,12 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     if (!rect) {
       continue;
     }
-    // Deck height: the highest surveyed ground under the bridge cells —
-    // that is the bank level the carriageway runs at.
-    let deckY = waterTop + 3.4;
+    const [cx, cz] = rect.center;
+    const profile = bridgeProfileAt(cx, cz);
+    const kind: BridgeKind = profile?.kind ?? "beam";
+    // Deck height: the carriageway runs at bank level, but never lower
+    // than the shipping clearance above the recessed water table.
+    let deckY = waterTop + BRIDGE_MIN_CLEARANCE_M;
     for (const [x, z] of cluster) {
       deckY = Math.max(deckY, sample(x, z) + 0.55);
     }
@@ -1671,81 +1804,271 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     // Road bridges over the Spree are 18–26 m wide and rest on both
     // banks: widen thin clusters and extend the span onto the abutments.
     const halfLength = Math.max(rect.halfLength, cell) + 5;
-    const halfWidth = Math.max(rect.halfWidth, 8.5);
-    const [cx, cz] = rect.center;
+    const halfWidth = Math.max(rect.halfWidth, profile?.halfWidthM ?? 8.5);
     const at = (u: number, v: number): [number, number] => [
       cx + ax * u + nx * v,
       cz + az * u + nz * v,
     ];
-    // Elevated deck plate.
-    addPart(
-      boxTriangles(cx, deckY - 0.35, cz, rect.axis, halfLength * 2, 0.7, halfWidth * 2),
-      DECK,
-    );
-    // Two longitudinal edge beams give the deck its drawn thickness,
-    // and a slim parapet rides each deck edge.
-    for (const side of [-1, 1]) {
-      const [bx, bz] = at(0, side * (halfWidth - 0.35));
+    // Every crossing rises slightly toward mid-span: the drawn camber is
+    // what makes a bridge read as going OVER something.
+    const camber =
+      kind === "stoneArch" ? 1.5 : kind === "steelArch" ? 1.2 : kind === "slender" ? 0.9 : 0.5;
+    const riseAt = (u: number): number =>
+      camber * Math.cos((u / halfLength) * (Math.PI / 2)) ** 2;
+    const deckThickness = kind === "slender" ? 0.5 : 0.7;
+    const DECK_SEGMENTS = 14;
+    const segmentLength = (halfLength * 2) / DECK_SEGMENTS;
+    for (let index = 0; index < DECK_SEGMENTS; index += 1) {
+      const u = -halfLength + segmentLength * (index + 0.5);
+      const y = deckY + riseAt(u);
+      const [sx, sz] = at(u, 0);
       addPart(
-        boxTriangles(bx, deckY - 0.95, bz, rect.axis, halfLength * 2, 0.6, 0.7),
-        STONE_DARK,
+        boxTriangles(
+          sx,
+          y - deckThickness / 2,
+          sz,
+          rect.axis,
+          segmentLength + 0.05,
+          deckThickness,
+          halfWidth * 2,
+        ),
+        DECK,
+        index === 0 || index === DECK_SEGMENTS - 1,
       );
-      const [rx, rz] = at(0, side * halfWidth);
-      addPart(
-        boxTriangles(rx, deckY + 0.55, rz, rect.axis, halfLength * 2, 1.1, 0.16),
-        STONE,
-      );
+      // Edge beam and parapet ride the same camber on both sides.
+      for (const side of [-1, 1]) {
+        const [bx, bz] = at(u, side * (halfWidth - 0.35));
+        addPart(
+          boxTriangles(
+            bx,
+            y - deckThickness - 0.3,
+            bz,
+            rect.axis,
+            segmentLength + 0.05,
+            0.6,
+            0.7,
+          ),
+          STONE_DARK,
+          false,
+        );
+        const [rx, rz] = at(u, side * halfWidth);
+        addPart(
+          boxTriangles(
+            rx,
+            y + (kind === "stoneArch" ? 0.6 : 0.62),
+            rz,
+            rect.axis,
+            segmentLength + 0.05,
+            kind === "stoneArch" ? 1.2 : 0.14,
+            kind === "stoneArch" ? 0.34 : 0.14,
+          ),
+          STONE,
+          false,
+        );
+      }
     }
-    // Piers every ~22 m, standing on the riverbed, plus segmental arch
-    // webs between them so the span reads as structure, not a slab.
-    const spanCount = Math.max(1, Math.round((halfLength * 2) / 22));
-    const pierHeight = deckY - 1.25 - BED_Y;
-    for (let index = 0; index <= spanCount; index += 1) {
-      const u = -halfLength + (index / spanCount) * halfLength * 2;
-      const inner = index > 0 && index < spanCount;
-      const [px, pz] = at(u, 0);
-      const pierWidth = inner ? 2.6 : 4.2;
+    // Railing uprights: sandstone pedestals on the Moltkebrücke, slim
+    // steel posts everywhere else.
+    const postSpacing = kind === "stoneArch" ? 5.5 : 2.6;
+    const postCount = Math.max(2, Math.round((halfLength * 2) / postSpacing));
+    for (let index = 0; index <= postCount; index += 1) {
+      const u = -halfLength + (index / postCount) * halfLength * 2;
+      const y = deckY + riseAt(u);
+      for (const side of [-1, 1]) {
+        const [px, pz] = at(u, side * halfWidth);
+        addPart(
+          boxTriangles(
+            px,
+            y + 0.55,
+            pz,
+            rect.axis,
+            kind === "stoneArch" ? 0.7 : 0.13,
+            1.1,
+            kind === "stoneArch" ? 0.7 : 0.13,
+          ),
+          kind === "stoneArch" ? STONE : STEEL,
+          kind === "stoneArch",
+        );
+      }
+      if (kind !== "stoneArch") {
+        // A second, lower rail turns the posts into a real balustrade.
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(px, y + 0.28, pz, rect.axis, postSpacing, 0.09, 0.09),
+            STEEL,
+            false,
+          );
+        }
+      }
+    }
+    // Abutments: both ends of the span sit on drawn blocks that reach
+    // the riverbed, so the deck never floats free of its banks.
+    for (const end of [-1, 1]) {
+      const [px, pz] = at(end * halfLength, 0);
+      const height = deckY + riseAt(end * halfLength) - 1.0 - BED_Y;
       addPart(
         boxTriangles(
           px,
-          BED_Y + pierHeight / 2,
+          BED_Y + height / 2,
           pz,
           rect.axis,
-          pierWidth,
-          pierHeight,
-          halfWidth * 2 - 0.6,
+          kind === "slender" ? 3.0 : 5.0,
+          height,
+          halfWidth * 2 - 0.4,
         ),
-        inner ? STONE : STONE_DARK,
+        STONE_DARK,
       );
-      if (index < spanCount) {
-        // Segmental arch drawn as two slender side girders that dip
-        // between the piers — visible from the side, never breaking
-        // through the deck plate above.
-        const spanLength = (halfLength * 2) / spanCount;
-        const steps = 5;
-        const maxDip = Math.min(2.4, pierHeight * 0.45);
+    }
+    if (kind === "stoneArch") {
+      // Three segmental arches on cutwater piers — the built
+      // Moltkebrücke. Each arch ring is drawn on both outer faces with a
+      // spandrel wall between them.
+      const arches = 3;
+      const pierSpacing = (halfLength * 2) / arches;
+      const springY = waterTop + 1.2;
+      for (let index = 1; index < arches; index += 1) {
+        const u = -halfLength + pierSpacing * index;
+        const [px, pz] = at(u, 0);
+        const height = deckY + riseAt(u) - 1.2 - BED_Y;
+        addPart(
+          boxTriangles(px, BED_Y + height / 2, pz, rect.axis, 4.6, height, halfWidth * 2 - 0.5),
+          STONE_DARK,
+        );
+        // Pointed cutwaters upstream and down.
+        for (const side of [-1, 1]) {
+          const [wx, wz] = at(u, side * (halfWidth - 0.2));
+          addPart(
+            prismTriangles(wx, springY + 1.4, wz, 2.3, height * 0.62, 3),
+            STONE_DARK,
+            false,
+          );
+        }
+      }
+      for (let arch = 0; arch < arches; arch += 1) {
+        const u0 = -halfLength + pierSpacing * arch;
+        const clear = pierSpacing - 4.6;
+        const steps = 9;
         for (let step = 0; step < steps; step += 1) {
           const t = (step + 0.5) / steps;
-          const dip = Math.sin(t * Math.PI) * maxDip;
-          const [wx, wz] = at(u + spanLength * t, 0);
+          const u = u0 + 2.3 + clear * t;
+          const crown = deckY + riseAt(u) - 1.6;
+          const rise = Math.sin(t * Math.PI) * (crown - springY);
+          const ringY = springY + rise;
+          const [wx, wz] = at(u, 0);
           for (const side of [-1, 1]) {
-            const gx = wx + nx * side * (halfWidth - 0.9);
-            const gz = wz + nz * side * (halfWidth - 0.9);
             addPart(
               boxTriangles(
-                gx,
-                deckY - 1.6 - dip / 2,
-                gz,
+                wx + nx * side * (halfWidth - 0.45),
+                ringY - 0.55,
+                wz + nz * side * (halfWidth - 0.45),
                 rect.axis,
-                spanLength / steps + 0.1,
-                0.9 + dip,
-                0.85,
+                clear / steps + 0.12,
+                1.1,
+                0.9,
               ),
               STONE,
               false,
             );
           }
+          // Spandrel: the wall above the ring up to the deck beams.
+          const spandrel = crown - ringY;
+          if (spandrel > 0.2) {
+            addPart(
+              boxTriangles(
+                wx,
+                ringY + spandrel / 2,
+                wz,
+                rect.axis,
+                clear / steps + 0.12,
+                spandrel,
+                halfWidth * 2 - 1.4,
+              ),
+              STONE_DARK,
+              false,
+            );
+          }
         }
+      }
+    } else if (kind === "steelArch") {
+      // A single flat arch rib per side springing from the abutments,
+      // with vertical spandrel posts carrying the deck. Nothing stands
+      // in the river.
+      const steps = 16;
+      const springY = deckY - 1.4;
+      const archDrop = Math.min(3.6, deckY - waterTop - 1.6);
+      for (let step = 0; step < steps; step += 1) {
+        const t = (step + 0.5) / steps;
+        const u = -halfLength + halfLength * 2 * t;
+        const dip = Math.sin(t * Math.PI) * archDrop;
+        const [wx, wz] = at(u, 0);
+        for (const side of [-1, 1]) {
+          addPart(
+            boxTriangles(
+              wx + nx * side * (halfWidth - 0.6),
+              springY - dip,
+              wz + nz * side * (halfWidth - 0.6),
+              rect.axis,
+              (halfLength * 2) / steps + 0.12,
+              0.8,
+              0.55,
+            ),
+            STEEL,
+            false,
+          );
+        }
+        if (step % 3 === 1) {
+          const hanger = deckY + riseAt(u) - 1.1 - (springY - dip);
+          if (hanger > 0.3) {
+            for (const side of [-1, 1]) {
+              addPart(
+                boxTriangles(
+                  wx + nx * side * (halfWidth - 0.6),
+                  springY - dip + hanger / 2,
+                  wz + nz * side * (halfWidth - 0.6),
+                  rect.axis,
+                  0.25,
+                  hanger,
+                  0.25,
+                ),
+                STEEL,
+                false,
+              );
+            }
+          }
+        }
+      }
+    } else if (kind === "slender") {
+      // Two round columns in the stream, nothing else: the footbridge
+      // must stay light.
+      for (const end of [-1, 1]) {
+        const u = end * halfLength * 0.42;
+        const [px, pz] = at(u, 0);
+        const height = deckY + riseAt(u) - 0.9 - BED_Y;
+        addPart(
+          prismTriangles(px, BED_Y + height / 2, pz, 1.1, height, 10),
+          STONE_DARK,
+        );
+      }
+    } else {
+      // Generic crossings keep the plain pier-and-web beam bridge.
+      const spanCount = Math.max(1, Math.round((halfLength * 2) / 22));
+      const pierHeight = deckY - 1.25 - BED_Y;
+      for (let index = 1; index < spanCount; index += 1) {
+        const u = -halfLength + (index / spanCount) * halfLength * 2;
+        const [px, pz] = at(u, 0);
+        addPart(
+          boxTriangles(
+            px,
+            BED_Y + pierHeight / 2,
+            pz,
+            rect.axis,
+            2.6,
+            pierHeight,
+            halfWidth * 2 - 0.6,
+          ),
+          STONE,
+        );
       }
     }
   }
@@ -1943,6 +2266,7 @@ export function createWestTiergarten(): Group {
   const V028_WEST = -2320;
   const V029_WEST = -2420;
   const V030_WEST = -2520;
+  const V032_WEST = -2620;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -2209,11 +2533,23 @@ export function createWestTiergarten(): Group {
     }
     trunkSpots.push([x, z]);
   }
-  // v0.32.0 grows only the new −2620…−2520 m strip.
+  // v0.32.0 grows only the −2620…−2520 m strip.
   for (let index = 0; index < 84; index += 1) {
     const x =
-      WEST + 10 + (V030_WEST - WEST - 20) * stripUnit(index, 2749);
+      V032_WEST + 10 + (V030_WEST - V032_WEST - 20) * stripUnit(index, 2749);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2861);
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.33.0 grows only the new −2720…−2620 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x =
+      WEST + 10 + (V032_WEST - WEST - 20) * stripUnit(index, 3163);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 3271);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
@@ -2491,31 +2827,48 @@ export function createHotelAdlon(): Group {
 }
 
 /**
- * Paul-Löbe-Haus west portico. The LoD2 extract carries the building as a
- * plain 157 m bar (prism 0sVYAxtY, x 154.6…312.1, z −153.0…−117.3), so the
- * one feature that makes the west front recognisable from the Chancellery
- * side is missing: the wide flat canopy that cantilevers over the entrance
- * forecourt on slender columns. Drawn here after the built architecture
+ * Paul-Löbe-Haus west front. The LoD2 extract carries the west wing as a
+ * plain 102 m bar (prism HA7mKuzG, x 129.8…157.2, z −188.5…−86.0), so the
+ * whole architecture of the Spreebogen-facing entrance is missing: the far
+ * cantilevering roof plate over the full facade width, the free-standing
+ * slender round columns in front of the glass, the recessed dark coffered
+ * ceiling of the entrance hall, the fully glazed front with its fine
+ * mullion grid and the stair runs behind it, and the forecourt with its
+ * fountain rows and paving bands. Drawn here after the built architecture
  * (Stephan Braunfels, 2001) as flat inked elements.
  */
-export const PAUL_LOEBE_WEST_FACE_X = 154.6;
-const PAUL_LOEBE_CANOPY_Z = -135.15;
-const PAUL_LOEBE_GROUND_Y = 4.2;
-const PAUL_LOEBE_CANOPY_SPAN_Z = 31;
-const PAUL_LOEBE_CANOPY_REACH_M = 12.5;
-const PAUL_LOEBE_CANOPY_TOP_Y = 17.4;
-const PAUL_LOEBE_CANOPY_SLAB_M = 0.75;
-const PAUL_LOEBE_COLUMN_COUNT = 6;
-const PAUL_LOEBE_COLUMN_W = 0.62;
+export const PAUL_LOEBE_WEST_FACE_X = 129.8;
+const PAUL_LOEBE_CANOPY_Z = -137.25;
+const PAUL_LOEBE_GROUND_Y = 5.1;
+/** Full facade width plus the small overhang the roof plate carries. */
+const PAUL_LOEBE_CANOPY_SPAN_Z = 106;
+const PAUL_LOEBE_CANOPY_REACH_M = 13.5;
+const PAUL_LOEBE_CANOPY_TOP_Y = 28.6;
+/** The plate reads as a thin board in the photo, not as a slab. */
+const PAUL_LOEBE_CANOPY_SLAB_M = 0.55;
+const PAUL_LOEBE_COLUMN_COUNT = 13;
+const PAUL_LOEBE_COLUMN_RADIUS = 0.42;
+const PAUL_LOEBE_GLASS_TOP_Y = 27.4;
+/** Mullion / transom pitch of the west glazing, measured off the photo. */
+const PAUL_LOEBE_MULLION_M = 2.7;
+const PAUL_LOEBE_TRANSOM_M = 4.35;
+/** The two fountain rows that cross the lawn in front of the building. */
+const PAUL_LOEBE_FOUNTAIN_ROWS = [15.5, 27.5] as const;
 
 export function createPaulLoebeCanopy(): Group {
   const group = new Group();
   group.name = "Paul-Löbe-Haus west canopy";
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
+  const inkLines: number[] = [];
   const SLAB = new Color(0xf1ece0);
   const FASCIA = new Color(0xe1dbcb);
   const COLUMN = new Color(0xe8e2d5);
+  const COFFER = new Color(0x8d8578);
+  const GLASS = new Color(0xd8e2e2);
+  const STAIR = new Color(0xe4ded0);
+  const PAVING = new Color(0xe6e0d1);
+  const WATER = new Color(0xc6d6d8);
   const add = (triangles: Float32Array, tone: Color): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
@@ -2534,6 +2887,10 @@ export function createPaulLoebeCanopy(): Group {
 
   const outerX = PAUL_LOEBE_WEST_FACE_X - PAUL_LOEBE_CANOPY_REACH_M;
   const slabCenterX = PAUL_LOEBE_WEST_FACE_X - PAUL_LOEBE_CANOPY_REACH_M / 2;
+  const northZ = PAUL_LOEBE_CANOPY_Z - PAUL_LOEBE_CANOPY_SPAN_Z / 2;
+  const southZ = PAUL_LOEBE_CANOPY_Z + PAUL_LOEBE_CANOPY_SPAN_Z / 2;
+
+  // The roof plate: one thin board across the entire facade width.
   add(
     boxTriangles(
       slabCenterX,
@@ -2550,34 +2907,122 @@ export function createPaulLoebeCanopy(): Group {
   // cantilever legible from the isometric camera.
   add(
     boxTriangles(
-      outerX + 0.22,
-      PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - 0.22,
+      outerX + 0.18,
+      PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - 0.18,
       PAUL_LOEBE_CANOPY_Z,
       [1, 0],
-      0.44,
-      0.44,
+      0.36,
+      0.36,
       PAUL_LOEBE_CANOPY_SPAN_Z,
     ),
     FASCIA,
   );
 
+  // Recessed dark coffered ceiling in the entrance zone: a panel set back
+  // behind the fascia, with its coffer grid drawn as ink.
+  const cofferY = PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - 0.34;
+  const cofferReach = PAUL_LOEBE_CANOPY_REACH_M - 1.4;
+  const cofferCenterX = PAUL_LOEBE_WEST_FACE_X - cofferReach / 2 - 0.3;
+  add(
+    boxTriangles(
+      cofferCenterX,
+      cofferY,
+      PAUL_LOEBE_CANOPY_Z,
+      [1, 0],
+      cofferReach,
+      0.3,
+      PAUL_LOEBE_CANOPY_SPAN_Z - 1.6,
+    ),
+    COFFER,
+  );
+  const cofferBottom = cofferY - 0.16;
+  const cofferMinX = cofferCenterX - cofferReach / 2;
+  const cofferMaxX = cofferCenterX + cofferReach / 2;
+  const cofferMinZ = PAUL_LOEBE_CANOPY_Z - (PAUL_LOEBE_CANOPY_SPAN_Z - 1.6) / 2;
+  const cofferMaxZ = PAUL_LOEBE_CANOPY_Z + (PAUL_LOEBE_CANOPY_SPAN_Z - 1.6) / 2;
+  for (let z = cofferMinZ; z <= cofferMaxZ + 1e-6; z += 3.4) {
+    inkLines.push(cofferMinX, cofferBottom, z, cofferMaxX, cofferBottom, z);
+  }
+  for (let x = cofferMinX; x <= cofferMaxX + 1e-6; x += 3.4) {
+    inkLines.push(x, cofferBottom, cofferMinZ, x, cofferBottom, cofferMaxZ);
+  }
+
+  // Free-standing slender round columns in front of the glass front.
   const columnHeight =
     PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - PAUL_LOEBE_GROUND_Y;
-  const firstZ = PAUL_LOEBE_CANOPY_Z - PAUL_LOEBE_CANOPY_SPAN_Z / 2 + 2.6;
-  const stepZ = (PAUL_LOEBE_CANOPY_SPAN_Z - 5.2) / (PAUL_LOEBE_COLUMN_COUNT - 1);
+  const firstZ = northZ + 3.2;
+  const stepZ = (PAUL_LOEBE_CANOPY_SPAN_Z - 6.4) / (PAUL_LOEBE_COLUMN_COUNT - 1);
   for (let index = 0; index < PAUL_LOEBE_COLUMN_COUNT; index += 1) {
     add(
-      boxTriangles(
-        outerX + 0.9,
+      prismTriangles(
+        outerX + 1.1,
         PAUL_LOEBE_GROUND_Y + columnHeight / 2,
         firstZ + stepZ * index,
-        [1, 0],
-        PAUL_LOEBE_COLUMN_W,
+        PAUL_LOEBE_COLUMN_RADIUS,
         columnHeight,
-        PAUL_LOEBE_COLUMN_W,
+        10,
       ),
       COLUMN,
     );
+  }
+
+  // Fully glazed west front: one pane plane just in front of the LoD2 bar,
+  // its mullion/transom grid drawn as ink so the facade reads as glass
+  // rather than as a blank wall.
+  const glassX = PAUL_LOEBE_WEST_FACE_X - 0.22;
+  add(
+    boxTriangles(
+      glassX,
+      (PAUL_LOEBE_GROUND_Y + PAUL_LOEBE_GLASS_TOP_Y) / 2,
+      PAUL_LOEBE_CANOPY_Z,
+      [1, 0],
+      0.18,
+      PAUL_LOEBE_GLASS_TOP_Y - PAUL_LOEBE_GROUND_Y,
+      PAUL_LOEBE_CANOPY_SPAN_Z - 2.4,
+    ),
+    GLASS,
+  );
+  const glassMinZ = PAUL_LOEBE_CANOPY_Z - (PAUL_LOEBE_CANOPY_SPAN_Z - 2.4) / 2;
+  const glassMaxZ = PAUL_LOEBE_CANOPY_Z + (PAUL_LOEBE_CANOPY_SPAN_Z - 2.4) / 2;
+  const inkX = glassX - 0.14;
+  for (let z = glassMinZ; z <= glassMaxZ + 1e-6; z += PAUL_LOEBE_MULLION_M) {
+    inkLines.push(
+      inkX, PAUL_LOEBE_GROUND_Y, z,
+      inkX, PAUL_LOEBE_GLASS_TOP_Y, z,
+    );
+  }
+  for (
+    let y = PAUL_LOEBE_GROUND_Y + PAUL_LOEBE_TRANSOM_M;
+    y <= PAUL_LOEBE_GLASS_TOP_Y + 1e-6;
+    y += PAUL_LOEBE_TRANSOM_M
+  ) {
+    inkLines.push(inkX, y, glassMinZ, inkX, y, glassMaxZ);
+  }
+
+  // Stair runs hinted behind the glass: two flights climbing the hall, the
+  // diagonal that gives the west front its depth in the photo.
+  for (const [runZ, direction] of [
+    [PAUL_LOEBE_CANOPY_Z - 21, 1],
+    [PAUL_LOEBE_CANOPY_Z + 21, -1],
+  ] as const) {
+    const runLength = 26;
+    const rise = PAUL_LOEBE_GLASS_TOP_Y - PAUL_LOEBE_GROUND_Y - 7;
+    const flights = 14;
+    for (let step = 0; step < flights; step += 1) {
+      const t = step / (flights - 1);
+      add(
+        boxTriangles(
+          PAUL_LOEBE_WEST_FACE_X + 1.9,
+          PAUL_LOEBE_GROUND_Y + 1.4 + rise * t,
+          runZ + direction * (t - 0.5) * runLength,
+          [0, 1],
+          runLength / flights + 0.4,
+          0.3,
+          3.1,
+        ),
+        STAIR,
+      );
+    }
   }
 
   // Entrance platform under the canopy, one drawn step above the forecourt.
@@ -2589,10 +3034,51 @@ export function createPaulLoebeCanopy(): Group {
       [1, 0],
       PAUL_LOEBE_CANOPY_REACH_M + 1.6,
       0.36,
-      PAUL_LOEBE_CANOPY_SPAN_Z + 1.6,
+      PAUL_LOEBE_CANOPY_SPAN_Z + 1.2,
     ),
     FASCIA,
   );
+
+  // Forecourt: paving bands running out from the entrance and the two
+  // fountain rows that cross the lawn.
+  for (const offset of [2.6, 6.4, 10.2]) {
+    add(
+      boxTriangles(
+        outerX - offset,
+        PAUL_LOEBE_GROUND_Y + 0.08,
+        PAUL_LOEBE_CANOPY_Z,
+        [1, 0],
+        1.9,
+        0.16,
+        PAUL_LOEBE_CANOPY_SPAN_Z,
+      ),
+      PAVING,
+    );
+  }
+  for (const rowOffset of PAUL_LOEBE_FOUNTAIN_ROWS) {
+    const rowX = outerX - rowOffset;
+    add(
+      boxTriangles(
+        rowX,
+        PAUL_LOEBE_GROUND_Y + 0.12,
+        PAUL_LOEBE_CANOPY_Z,
+        [1, 0],
+        2.4,
+        0.24,
+        PAUL_LOEBE_CANOPY_SPAN_Z + 8,
+      ),
+      PAVING,
+    );
+    const jets = 26;
+    for (let jet = 0; jet < jets; jet += 1) {
+      const jetZ =
+        northZ - 4 + ((PAUL_LOEBE_CANOPY_SPAN_Z + 8) * jet) / (jets - 1);
+      add(
+        prismTriangles(rowX, PAUL_LOEBE_GROUND_Y + 0.8, jetZ, 0.16, 1.3, 6),
+        WATER,
+      );
+    }
+  }
 
   const merged = mergeGeometries(parts, false);
   if (merged) {
@@ -2612,6 +3098,14 @@ export function createPaulLoebeCanopy(): Group {
       geometry.dispose();
     }
   }
+  if (inkLines.length > 0) {
+    const detail = new BufferGeometry();
+    detail.setAttribute(
+      "position",
+      new Float32BufferAttribute(new Float32Array(inkLines), 3),
+    );
+    edges.push(detail);
+  }
   const ink = mergeGeometries(edges, false);
   if (ink) {
     const lines = new LineSegments(
@@ -2619,6 +3113,290 @@ export function createPaulLoebeCanopy(): Group {
       new LineBasicMaterial({ color: ISO_INK_COLOR }),
     );
     lines.name = "Paul-Löbe canopy ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  return group;
+}
+
+/**
+ * Landmark refinements: the four coarsest LoD2 simplifications left on
+ * prominent buildings after the Paul-Löbe-Haus west front. The extract
+ * carries each of these as a plain extruded footprint, which drops the
+ * single feature that makes the building recognisable:
+ *
+ * - Haus der Kulturen der Welt: LoD2 has only 7 m flat boxes, so the
+ *   whole "Schwangere Auster" — the double-cantilever saddle shell roof
+ *   (Hugh Stubbins, 1957) and its reflecting pool — is missing.
+ * - Marie-Elisabeth-Lüders-Haus: one 116 × 105 m block without the
+ *   cylindrical library rotunda and the Spree-side colonnade.
+ * - Jakob-Kaiser-Haus: flat bars without the west arcade colonnade that
+ *   faces the Reichstag across Dorotheenstraße.
+ * - Schweizerische Botschaft: a bare 18 m box without the rusticated
+ *   base, cornice, roof balustrade and entrance portico of the 1871 villa.
+ */
+const HKW_CENTER: readonly [number, number] = [-449.5, -6.5];
+const HKW_HALF_X = 44;
+const HKW_HALF_Z = 48;
+const HKW_SADDLE_BASE_Y = 15.5;
+/** North/south tips lift, east/west edges dip: the hyperbolic paraboloid. */
+const HKW_SADDLE_RISE_M = 10.5;
+const HKW_SADDLE_DROP_M = 4.5;
+const MELH_ROTUNDA: readonly [number, number] = [406, -139];
+const MELH_ROTUNDA_RADIUS = 16.5;
+const JKH_ARCADE_X = 403.2;
+const BOTSCHAFT_MIN_X = -32.1;
+const BOTSCHAFT_MAX_X = 19.9;
+const BOTSCHAFT_MIN_Z = -256.4;
+const BOTSCHAFT_MAX_Z = -233.7;
+const BOTSCHAFT_GROUND_Y = 5.4;
+const BOTSCHAFT_CORNICE_Y = 21.6;
+
+export function createLandmarkRefinements(): Group {
+  const group = new Group();
+  group.name = "Landmark detail refinements";
+  const parts: BufferGeometry[] = [];
+  const edges: BufferGeometry[] = [];
+  const inkLines: number[] = [];
+  const SHELL = new Color(0xf2ede1);
+  const SHELL_EDGE = new Color(0xdfd8c7);
+  const STONE_TONE = new Color(0xeae4d6);
+  const COLUMN_TONE = new Color(0xf0ebde);
+  const POOL = new Color(0xc6d6d8);
+  const add = (triangles: Float32Array, tone: Color): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+    edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+  };
+
+  // --- Haus der Kulturen der Welt: the saddle shell roof ------------------
+  const [hkwX, hkwZ] = HKW_CENTER;
+  const saddleY = (u: number, v: number): number =>
+    HKW_SADDLE_BASE_Y + HKW_SADDLE_RISE_M * v * v - HKW_SADDLE_DROP_M * u * u;
+  const STEPS = 14;
+  const shell: number[] = [];
+  const shellPoint = (
+    ui: number,
+    vi: number,
+  ): [number, number, number] => {
+    const u = (ui / STEPS) * 2 - 1;
+    const v = (vi / STEPS) * 2 - 1;
+    return [hkwX + u * HKW_HALF_X, saddleY(u, v), hkwZ + v * HKW_HALF_Z];
+  };
+  for (let ui = 0; ui < STEPS; ui += 1) {
+    for (let vi = 0; vi < STEPS; vi += 1) {
+      const a = shellPoint(ui, vi);
+      const b = shellPoint(ui + 1, vi);
+      const c = shellPoint(ui + 1, vi + 1);
+      const d = shellPoint(ui, vi + 1);
+      shell.push(...a, ...b, ...c, ...a, ...c, ...d);
+      // Underside, so the cantilever reads as a shell and not as a sheet.
+      const lift = 0.6;
+      shell.push(
+        a[0], a[1] - lift, a[2],
+        c[0], c[1] - lift, c[2],
+        b[0], b[1] - lift, b[2],
+        a[0], a[1] - lift, a[2],
+        d[0], d[1] - lift, d[2],
+        c[0], c[1] - lift, c[2],
+      );
+    }
+  }
+  add(new Float32Array(shell), SHELL);
+  // The two free edges that give the oyster its silhouette.
+  for (const vi of [0, STEPS]) {
+    for (let ui = 0; ui < STEPS; ui += 1) {
+      const a = shellPoint(ui, vi);
+      const b = shellPoint(ui + 1, vi);
+      inkLines.push(a[0], a[1] + 0.05, a[2], b[0], b[1] + 0.05, b[2]);
+      inkLines.push(a[0], a[1] - 0.65, a[2], b[0], b[1] - 0.65, b[2]);
+    }
+  }
+  for (let vi = 0; vi <= STEPS; vi += 2) {
+    for (let ui = 0; ui < STEPS; ui += 1) {
+      const a = shellPoint(ui, vi);
+      const b = shellPoint(ui + 1, vi);
+      inkLines.push(a[0], a[1] + 0.05, a[2], b[0], b[1] + 0.05, b[2]);
+    }
+  }
+  // Abutments: the shell springs from two points on the east-west axis.
+  for (const side of [-1, 1]) {
+    const springX = hkwX + side * (HKW_HALF_X - 6);
+    const springY = saddleY(side * ((HKW_HALF_X - 6) / HKW_HALF_X), 0);
+    add(
+      boxTriangles(
+        springX,
+        (7.1 + springY) / 2,
+        hkwZ,
+        [1, 0],
+        7,
+        springY - 7.1,
+        13,
+      ),
+      STONE_TONE,
+    );
+  }
+  // Auditorium drum under the crown of the shell.
+  add(
+    prismTriangles(hkwX, 11.4, hkwZ, 19, 8.6, 20),
+    STONE_TONE,
+  );
+  // Reflecting pool on the west forecourt with its low kerb.
+  add(
+    boxTriangles(hkwX - 82, 3.5, hkwZ, [1, 0], 54, 0.5, 66),
+    POOL,
+  );
+  add(
+    boxTriangles(hkwX - 82, 3.95, hkwZ, [1, 0], 56, 0.4, 68),
+    SHELL_EDGE,
+  );
+
+  // --- Marie-Elisabeth-Lüders-Haus: library rotunda + Spree colonnade -----
+  const [melhX, melhZ] = MELH_ROTUNDA;
+  add(
+    prismTriangles(melhX, 21, melhZ, MELH_ROTUNDA_RADIUS, 34, 28),
+    STONE_TONE,
+  );
+  add(
+    prismTriangles(melhX, 38.6, melhZ, MELH_ROTUNDA_RADIUS + 1.1, 1.2, 28),
+    SHELL_EDGE,
+  );
+  // Storey rings on the drum: the reading-room galleries.
+  for (let ring = 1; ring <= 6; ring += 1) {
+    const ringY = 6 + (32 / 7) * ring;
+    for (let seg = 0; seg < 28; seg += 1) {
+      const a = (seg / 28) * Math.PI * 2;
+      const b = ((seg + 1) / 28) * Math.PI * 2;
+      const r = MELH_ROTUNDA_RADIUS + 0.05;
+      inkLines.push(
+        melhX + Math.cos(a) * r, ringY, melhZ + Math.sin(a) * r,
+        melhX + Math.cos(b) * r, ringY, melhZ + Math.sin(b) * r,
+      );
+    }
+  }
+  for (let z = -175; z <= -90; z += 5.4) {
+    add(prismTriangles(372.4, 16, z, 0.55, 22, 10), COLUMN_TONE);
+  }
+  add(
+    boxTriangles(373.2, 27.6, -132.5, [0, 1], 88, 1.4, 3.6),
+    STONE_TONE,
+  );
+
+  // --- Jakob-Kaiser-Haus: the west arcade facing the Reichstag ------------
+  for (let z = 26; z <= 186; z += 5.6) {
+    add(prismTriangles(JKH_ARCADE_X, 16.6, z, 0.5, 23, 10), COLUMN_TONE);
+  }
+  add(
+    boxTriangles(JKH_ARCADE_X + 0.8, 28.8, 106, [0, 1], 164, 1.3, 3.4),
+    STONE_TONE,
+  );
+  add(
+    boxTriangles(JKH_ARCADE_X + 0.8, 5.3, 106, [0, 1], 164, 0.5, 4.4),
+    SHELL_EDGE,
+  );
+
+  // --- Schweizerische Botschaft: base, cornice, balustrade, portico -------
+  const botX = (BOTSCHAFT_MIN_X + BOTSCHAFT_MAX_X) / 2;
+  const botZ = (BOTSCHAFT_MIN_Z + BOTSCHAFT_MAX_Z) / 2;
+  const botSpanX = BOTSCHAFT_MAX_X - BOTSCHAFT_MIN_X;
+  const botSpanZ = BOTSCHAFT_MAX_Z - BOTSCHAFT_MIN_Z;
+  add(
+    boxTriangles(
+      botX,
+      BOTSCHAFT_GROUND_Y + 1.9,
+      botZ,
+      [1, 0],
+      botSpanX + 1.1,
+      3.8,
+      botSpanZ + 1.1,
+      ),
+    STONE_TONE,
+  );
+  add(
+    boxTriangles(botX, BOTSCHAFT_CORNICE_Y, botZ, [1, 0], botSpanX + 1.6, 1, botSpanZ + 1.6),
+    SHELL_EDGE,
+  );
+  for (let x = BOTSCHAFT_MIN_X + 1.4; x <= BOTSCHAFT_MAX_X - 1.4; x += 2.1) {
+    for (const z of [BOTSCHAFT_MIN_Z - 0.5, BOTSCHAFT_MAX_Z + 0.5]) {
+      add(prismTriangles(x, BOTSCHAFT_CORNICE_Y + 1.4, z, 0.22, 1.8, 8), STONE_TONE);
+    }
+  }
+  add(
+    boxTriangles(botX, BOTSCHAFT_CORNICE_Y + 2.5, botZ, [1, 0], botSpanX + 1.6, 0.4, botSpanZ + 1.6),
+    SHELL_EDGE,
+  );
+  for (let index = 0; index < 4; index += 1) {
+    add(
+      prismTriangles(
+        botX - 4.8 + index * 3.2,
+        BOTSCHAFT_GROUND_Y + 7.4,
+        BOTSCHAFT_MAX_Z + 2.2,
+        0.5,
+        11,
+        10,
+      ),
+      COLUMN_TONE,
+    );
+  }
+  add(
+    boxTriangles(
+      botX,
+      BOTSCHAFT_GROUND_Y + 13.5,
+      BOTSCHAFT_MAX_Z + 2.2,
+      [0, 1],
+      13.4,
+      1.2,
+      3.2,
+    ),
+    STONE_TONE,
+  );
+
+  const merged = mergeGeometries(parts, false);
+  if (merged) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "Landmark refinement bodies";
+    group.add(mesh);
+    for (const geometry of parts) {
+      geometry.dispose();
+    }
+  }
+  if (inkLines.length > 0) {
+    const detail = new BufferGeometry();
+    detail.setAttribute(
+      "position",
+      new Float32BufferAttribute(new Float32Array(inkLines), 3),
+    );
+    edges.push(detail);
+  }
+  const ink = mergeGeometries(edges, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "Landmark refinement ink lines";
     lines.renderOrder = 2;
     group.add(lines);
     for (const geometry of edges) {
@@ -3398,7 +4176,7 @@ export function createIsometricCity(
     if (waterClass >= 0) {
       const cell = ground.cell_m;
       const { min_x_idx, min_z_idx } = ground.grid;
-      const waterTop = ground.water_top_y_m ?? 1.31;
+      const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
       const waterRuns: Array<[number, number, number]> = [];
       ground.ground_rows.forEach((row, zOffset) => {
         for (const [xStart, run, classId] of row) {
@@ -3432,7 +4210,7 @@ export function createIsometricCity(
         const cx = (min_x_idx + xStart + run / 2) * cell;
         const cz = (min_z_idx + zOffset + 0.5) * cell;
         matrix.makeScale(run * cell, 0.5, cell);
-        matrix.setPosition(cx, waterTop - 2.2 - 0.25, cz);
+        matrix.setPosition(cx, waterTop - 2.9 - 0.25, cz);
         bed.setMatrixAt(index, matrix);
         bed.setColorAt(
           index,
@@ -3469,5 +4247,6 @@ export function createIsometricCity(
   group.add(createWestTiergarten());
   group.add(createHotelAdlon());
   group.add(createPaulLoebeCanopy());
+  group.add(createLandmarkRefinements());
   return group;
 }

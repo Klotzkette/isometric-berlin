@@ -1,5 +1,62 @@
 # Changelog
 
+## v0.33.0
+
+Iteration of the refinement loop, driven by a reference photograph of the
+Paul-Löbe-Haus and by the standing "real riverbanks / real bridges"
+topics. What was asked for, and what happened:
+
+- **The Paul-Löbe-Haus west front was pinned to the wrong building.** The
+  v0.32.0 portico sat at x = 154.6 m with a 31 m span — inside the
+  east-west bar (prism `0sVYAxtY`), not on the Spreebogen-facing west
+  wing (prism `HA7mKuzG`, x 129.8…157.2, z −188.5…−86.0). It is now
+  rebuilt on the correct face and after the photograph: the thin 0.55 m
+  roof plate cantilevers 13.5 m across the **entire** 106 m facade width,
+  thirteen free-standing slender **round** columns (r = 0.42 m) carry it
+  in front of the glass, a recessed dark coffered ceiling with a 3.4 m
+  coffer grid closes the entrance zone, the fully glazed west front
+  carries a fine mullion/transom grid (2.7 m × 4.35 m) with two hinted
+  stair runs behind it, and the forecourt gains three paving bands and
+  the two fountain rows that cross the lawn.
+- **The Spree ran flat at city level.** The water table drops from
+  +1.31 m to **−1.15 m**, about 5.3 m below the ~4.2 m banks, so the
+  river sits in a real cut. The quay walls now run from the bank down
+  past the water line to −3.1 m, the water line itself is drawn as ink
+  on both faces, masonry joints break the embankment every 14 m instead
+  of one endless grey band, and the bank stairs step down on ~0.42 m
+  risers. The constant is now exported once from
+  `MinecraftVoxelWorld.ts` and consumed by the drawn city, the voxel
+  payload, the excursion steamer and the underwater camera trigger, so
+  day, night and Minecraft mode all share one water table.
+- **The bridges were planks lying on the water.** Every crossing now
+  clears the water by at least 5.4 m on a cambered deck with edge beams,
+  parapets and railing posts, and each named bridge gets its real
+  construction: the **Moltkebrücke** three segmental stone arches on
+  cutwater piers with drawn arch rings and spandrel walls, the
+  **Kronprinzenbrücke** a flat 16-step steel arch with hangers and no
+  river piers, the **Gustav-Heinemann-Brücke** and the Sprung über die
+  Spree slender round columns. Profiles are data
+  (`BRIDGE_PROFILES` / `bridgeProfileAt`), matched to the surveyed OSM
+  bridge clusters by position.
+- **Detail fidelity — the four coarsest remaining LoD2 blocks.** Beyond
+  the Paul-Löbe west front: the **Haus der Kulturen der Welt** had only
+  7 m flat boxes, so the whole "Schwangere Auster" was missing — it now
+  carries its double-cantilever saddle shell roof (a real hyperbolic
+  paraboloid surface, Hugh Stubbins 1957) on two abutments over the
+  auditorium drum, with the reflecting pool on the west forecourt. The
+  **Marie-Elisabeth-Lüders-Haus** was one 116 × 105 m block and now
+  carries the cylindrical library rotunda (Ø 33 m, gallery rings) and
+  the Spree-side colonnade with its cornice. The **Jakob-Kaiser-Haus**
+  gains the west arcade colonnade facing the Reichstag. The
+  **Schweizerische Botschaft** was a bare 18 m box and now has the
+  rusticated base, cornice, roof balustrade and four-column entrance
+  portico of the 1871 villa.
+- **Areal expansion (+100 m contract): visible radius 2910 m → 3010 m.**
+  The paper/park margin widens to 1720 m, the extrapolated west reaches
+  −2720 m, the new −2720…−2620 m strip grows its own deterministic tree
+  population like every strip before it, and the flight bounds follow
+  (z −2800…+3220, x from −2750).
+
 ## v0.32.0
 
 Iteration driven by direct owner feedback. What was asked for, and what

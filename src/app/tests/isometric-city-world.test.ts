@@ -26,6 +26,7 @@ import {
   ISO_WINDOW_FLOOR_PITCH_M,
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
+  createLandmarkRefinements,
   createPaulLoebeCanopy,
   ROOF_GABLED,
   ROOF_HIPPED,
@@ -574,17 +575,36 @@ describe("real bridge structures", () => {
     const bodies = canopy.getObjectByName("Paul-Löbe canopy bodies") as Mesh;
     expect(bodies).toBeInstanceOf(Mesh);
     const bounds = new Box3().setFromObject(bodies);
-    // It hangs off the west face and reaches out towards the Chancellery…
-    // (it tucks a metre into the wall so no seam opens at the junction)
-    expect(bounds.max.x).toBeLessThan(PAUL_LOEBE_WEST_FACE_X + 1);
-    expect(PAUL_LOEBE_WEST_FACE_X - bounds.min.x).toBeGreaterThan(10);
+    // Only the hinted stair runs sit behind the glass; everything else
+    // cantilevers west over the forecourt towards the Chancellery.
+    expect(bounds.max.x).toBeLessThan(PAUL_LOEBE_WEST_FACE_X + 4);
+    // Roof plate, columns, paving bands and both fountain rows.
+    expect(PAUL_LOEBE_WEST_FACE_X - bounds.min.x).toBeGreaterThan(38);
     // …carried by columns that reach the forecourt, with the slab well above
     // head height so the roof reads as a canopy rather than a porch wall.
-    expect(bounds.min.y).toBeLessThan(5);
-    expect(bounds.max.y).toBeGreaterThan(16);
-    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(25);
+    expect(bounds.min.y).toBeLessThan(6);
+    expect(bounds.max.y).toBeGreaterThan(26);
+    // The plate spans the full ~102 m west facade, not just the entrance bay.
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(100);
     expect(
       canopy.getObjectByName("Paul-Löbe canopy ink lines"),
     ).toBeInstanceOf(LineSegments);
+  });
+
+  test("the four coarsest LoD2 blocks carry their missing signatures", () => {
+    const refined = createLandmarkRefinements();
+    const bodies = refined.getObjectByName("Landmark refinement bodies") as Mesh;
+    expect(bodies).toBeInstanceOf(Mesh);
+    expect(
+      refined.getObjectByName("Landmark refinement ink lines"),
+    ).toBeInstanceOf(LineSegments);
+    const bounds = new Box3().setFromObject(bodies);
+    // West as far as the Haus-der-Kulturen reflecting pool, east to the
+    // Jakob-Kaiser-Haus arcade.
+    expect(bounds.min.x).toBeLessThan(-550);
+    expect(bounds.max.x).toBeGreaterThan(400);
+    // The saddle shell and the Lüders rotunda both rise well over the
+    // 7 m boxes LoD2 gives them.
+    expect(bounds.max.y).toBeGreaterThan(35);
   });
 });

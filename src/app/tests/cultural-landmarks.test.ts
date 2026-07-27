@@ -208,8 +208,9 @@ describe("cultural and Spree recognition details", () => {
     expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(20);
     expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(90);
     expect(culturalFocusCamera("Spreebogen")?.azimuth_degrees).toBe(130);
+    // The excursion steamer rides the deepened Spree water table.
     expect(culturalFocusCamera("Spreebogen")?.target_world).toEqual([
-      -259.21, 1.249, -219.53,
+      -259.21, -1.211, -219.53,
     ]);
     expect(culturalFocusCamera("Reichstagsgebäude")).toBeNull();
   });

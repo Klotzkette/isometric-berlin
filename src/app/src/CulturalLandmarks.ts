@@ -23,6 +23,7 @@ import {
   Vector2,
   Vector3,
 } from "three";
+import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
 export type CulturalLandmark = {
   name: string;
@@ -63,8 +64,14 @@ const CARILLON_MESH_TOWER_WORLD: [number, number] = [-307.06, 118.51];
 // verified tower footprint (the previous 3.778 was sampled around the
 // offset photo-geotag anchor).
 const CARILLON_GROUND_Y = 4.51;
-const BOAT_WORLD: [number, number, number] = [-259.21, 1.249, -219.53];
-const SPREE_WATER_Y = 1.31;
+const SPREE_WATER_Y = WATER_TOP_Y;
+// The excursion steamer floats on the Spree, so it rides the water
+// table down into the cut with everything else.
+const BOAT_WORLD: [number, number, number] = [
+  -259.21,
+  Number((SPREE_WATER_Y - 0.061).toFixed(3)),
+  -219.53,
+];
 const LEGO_GIRAFFE_WORLD: [number, number, number] = [17.884, 4.12, 1023.63];
 const SPREE_CENTERLINE_WORLD: Array<[number, number]> = [
   [513.9, -25.1],
