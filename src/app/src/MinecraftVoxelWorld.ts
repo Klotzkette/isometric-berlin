@@ -300,7 +300,12 @@ export function createGroundSlabs(
   payload: VoxelPayload,
   name: string,
   shadeMap: Record<string, readonly number[]>,
-  options?: { bridgeDecks?: boolean; emissive?: number; skipWater?: boolean },
+  options?: {
+    bridgeDecks?: boolean;
+    emissive?: number;
+    skipBridge?: boolean;
+    skipWater?: boolean;
+  },
 ): InstancedMesh {
   const cell = payload.cell_m;
   const { min_x_idx, min_z_idx } = payload.grid;
@@ -319,6 +324,10 @@ export function createGroundSlabs(
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
       if (options?.skipWater && className === "water") {
+        continue;
+      }
+      // The drawn city builds real elevated bridge structures instead.
+      if (options?.skipBridge && className === "bridge") {
         continue;
       }
       const shades =

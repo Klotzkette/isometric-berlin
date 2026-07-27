@@ -1,5 +1,48 @@
 # Changelog
 
+## v0.29.0
+
+- **Areal expansion (+100 m contract): visible radius 2510 m → 2610 m.**
+  The western lobe reaches −2420 m, the paper/park margin widens to
+  1320 m, flight bounds follow (z −2400…+2820) — the whole Großer
+  Tiergarten from the Gate to the Großer Stern is now inside the frame.
+  The v0.28.0 tree strip is pinned; an eighth deterministic population
+  fills only the new −2420…−2320 m strip.
+- **The bridges carry themselves through the air.** Moltkebrücke,
+  Gustav-Heinemann-Brücke, Hugo-Preuß-Brücke and their siblings are no
+  longer flat strips painted on the water: the surveyed bridge cells are
+  clustered into individual bridges (radius-2 dilation, so a carriageway
+  interrupted by water cells stays ONE bridge), each fitted to an
+  oriented rectangle and then built as a real structure — stone
+  abutments, piers standing on the riverbed, slender segmental side
+  girders dipping between the piers, an elevated deck plate with edge
+  beams and a parapet along each deck edge. Road bridges get their real
+  17–26 m width and rest on both banks; the flat bridge slabs are gone
+  from the ground layer (`skipBridge`).
+- **The Quadriga is right.** The four-horse team is now countable
+  (2.0 m spacing, faceted bodies and heads carrying ink lines like the
+  rest of the drawing), the chariot has its full 7.4 m car with a rail,
+  and Victoria carries her signature staff: pole, Iron-Cross transom,
+  Prussian eagle with spread wings — all kept inside the documented
+  26 m gate height.
+- **Hotel Adlon is visible.** The shipped LoD2 extract is clipped just
+  west of Unter den Linden 77, so the hotel is absent from the surveyed
+  data (verified: nearest data building is 11.5 m tall, 40 m away).
+  It is drawn as an owner-approved extrapolation at its documented
+  position (52.5161 N, 13.3800 E → world 573/324): a closed perimeter
+  block around a courtyard, ~31.5 m to the eaves with mansard attic,
+  Sockel and cornice bands and the Pariser-Platz corner risalit, in the
+  ivory register and marked `userData.extrapolated`.
+- **Better, more accurate glass roofs.** The Hauptbahnhof barrel had
+  disabled depth testing entirely (the roof floated in front of
+  everything) and a strong turquoise that clashed with the ivory city;
+  it now uses pale, properly depth-tested glazing with a finer grid
+  (ribs every ~6 m instead of 8 m, transverse seams every ~3 m instead
+  of 4 m) — the platforms read through the glass as they should.
+- Deferred and documented: another granularity pass on the individual
+  memorials, and the Reichstag skylight bands could still gain a
+  mullion grid of their own.
+
 ## v0.28.0
 
 - **Areal expansion (+100 m contract): visible radius 2410 m → 2510 m.**

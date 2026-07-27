@@ -1390,17 +1390,19 @@ function addBarrelRoof(
   baseY: number,
   alongX: boolean,
 ): void {
+  // Pale, properly depth-tested glazing: the old material disabled
+  // depth testing entirely (the roof floated in front of everything)
+  // and its strong turquoise clashed with the ivory register.
   const glass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0x72d0e3,
-      depthTest: false,
+      color: 0xc6e3ea,
       depthWrite: false,
-      metalness: 0.04,
-      opacity: 0.24,
-      roughness: 0.12,
+      metalness: 0.03,
+      opacity: 0.3,
+      roughness: 0.1,
       side: DoubleSide,
       transparent: true,
-      transmission: 0.28,
+      transmission: 0.34,
     }),
     0xaedfff,
     1.1,
@@ -1412,7 +1414,7 @@ function addBarrelRoof(
   roof.renderOrder = 6;
   group.add(roof);
 
-  const ribCount = Math.max(14, Math.round(length / 8));
+  const ribCount = Math.max(18, Math.round(length / 6));
   const ribPoints = Array.from({ length: 33 }, (_, index) => {
     const angle = (index / 32) * Math.PI;
     const lateral = Math.cos(angle) * (width / 2);
@@ -1459,7 +1461,7 @@ function addBarrelRoof(
   );
 
   const panelSegments: VectorSegment[] = [];
-  const transverseCount = Math.max(24, Math.round(length / 4));
+  const transverseCount = Math.max(30, Math.round(length / 3));
   const arcSegments = 28;
   for (let seam = 0; seam <= transverseCount; seam += 1) {
     const longitudinal = -length / 2 + (seam / transverseCount) * length;
@@ -2142,7 +2144,9 @@ function createBrandenburgGateModel(
     0.62,
   );
 
-  addBox(group, "Quadriga chariot", [3.4, 1.0, 5.8], [-1.1, 21.0, 0], bronze, 0.8);
+  addBox(group, "Quadriga chariot", [3.4, 1.0, 7.4], [-1.1, 21.0, 0], bronze, 0.8);
+  // Chariot rail, so the car reads as a vehicle from above.
+  addBox(group, "Quadriga chariot rail", [0.24, 1.2, 7.4], [-2.6, 22.0, 0], bronze, 0.9);
   for (const wheelZ of [-2.45, 2.45]) {
     const wheel = new Mesh(new TorusGeometry(0.92, 0.13, 8, 20), bronze);
     wheel.name = "Quadriga chariot wheel";
@@ -2151,19 +2155,23 @@ function createBrandenburgGateModel(
     group.add(wheel);
   }
   for (let index = 0; index < 4; index += 1) {
-    const z = -2.4 + index * 1.6;
-    const body = new Mesh(new SphereGeometry(1, 16, 10), bronze);
+    // Wider spacing plus faceted, inked bodies so the four-horse team
+    // is countable in the drawing instead of merging into one blob.
+    const z = -3.0 + index * 2.0;
+    const body = new Mesh(new SphereGeometry(1, 9, 6), bronze);
     body.name = `Quadriga horse ${index + 1}`;
-    body.scale.set(2.05, 0.76, 0.52);
+    body.scale.set(2.05, 0.76, 0.5);
     body.position.set(1.0, 22.2, z);
     body.castShadow = true;
     group.add(body);
-    const head = new Mesh(new SphereGeometry(0.62, 14, 8), bronze);
+    addEdges(group, body, 0.85);
+    const head = new Mesh(new SphereGeometry(0.62, 8, 5), bronze);
     head.name = `Quadriga horse head ${index + 1}`;
     head.scale.set(1.0, 1.2, 0.82);
     head.position.set(3.15, 23.35, z);
     head.castShadow = true;
     group.add(head);
+    addEdges(group, head, 0.85);
     const muzzle = new Mesh(new SphereGeometry(0.36, 12, 8), bronze);
     muzzle.name = `Quadriga horse muzzle ${index + 1}`;
     muzzle.scale.set(1.35, 0.72, 0.82);
@@ -2233,6 +2241,7 @@ function createBrandenburgGateModel(
   victoria.position.set(-1.6, 23.1, 0);
   victoria.castShadow = true;
   group.add(victoria);
+  addEdges(group, victoria, 0.85);
   const dress = new Mesh(new ConeGeometry(0.82, 3.2, 18, 1, true), bronze);
   dress.name = "Quadriga Victoria draped robe";
   dress.position.set(-1.6, 22.65, 0);
@@ -2271,6 +2280,27 @@ function createBrandenburgGateModel(
     bronze,
     8,
   );
+  // Victoria's staff: pole, oak wreath, Prussian eagle and the Iron
+  // Cross — the Quadriga's signature silhouette above the attic.
+  const staff = new Mesh(new CylinderGeometry(0.09, 0.09, 4.6, 8), bronze);
+  staff.name = "Quadriga Victoria eagle staff";
+  staff.position.set(-0.35, signature.total_height_m - 3.4, 0);
+  group.add(staff);
+  const crossBar = new Mesh(new BoxGeometry(0.62, 0.16, 0.16), bronze);
+  crossBar.name = "Quadriga Iron Cross transom";
+  crossBar.position.set(-0.35, signature.total_height_m - 1.6, 0);
+  group.add(crossBar);
+  const eagleBody = new Mesh(new BoxGeometry(0.34, 0.72, 0.34), bronze);
+  eagleBody.name = "Quadriga Prussian eagle body";
+  eagleBody.position.set(-0.35, signature.total_height_m - 0.72, 0);
+  group.add(eagleBody);
+  for (const side of [-1, 1]) {
+    const eagleWing = new Mesh(new BoxGeometry(0.16, 0.5, 0.9), bronze);
+    eagleWing.name = "Quadriga Prussian eagle wing";
+    eagleWing.position.set(-0.35, signature.total_height_m - 0.62, side * 0.55);
+    eagleWing.rotation.x = side * 0.42;
+    group.add(eagleWing);
+  }
   const wreath = new Mesh(new RingGeometry(0.65, 0.9, 24), bronze);
   wreath.name = "Quadriga victory wreath";
   wreath.rotation.y = Math.PI / 2;

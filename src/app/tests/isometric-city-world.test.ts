@@ -300,6 +300,7 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(treeXs.some((x) => x > -2110 && x < -2030)).toBe(true);
     expect(treeXs.some((x) => x > -2210 && x < -2130)).toBe(true);
     expect(treeXs.some((x) => x > -2310 && x < -2230)).toBe(true);
+    expect(treeXs.some((x) => x > -2410 && x < -2330)).toBe(true);
     const crowns = west.getObjectByName(
       "extrapolated tree crowns",
     ) as InstancedMesh;
@@ -498,5 +499,34 @@ describe("prism suppression for full recognition models", () => {
       }
     }
     expect(tallGateVertices).toBe(0);
+  });
+});
+
+describe("real bridge structures", () => {
+  test("bridges carry an elevated deck on piers that reach the riverbed", async () => {
+    const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } = await import(
+      "../src/IsometricCityWorld"
+    );
+    const voxelPayload = (await import(
+      "../public/mesh/regierungsviertel/minecraft-voxels.json"
+    )) as { default: { water_top_y_m: number } };
+    expect(BRIDGE_MIN_CLUSTER_CELLS).toBeGreaterThan(0);
+    const city = createIsometricCity(
+      payload,
+      voxelPayload.default as never,
+      null,
+    );
+    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+    expect(bodies).toBeInstanceOf(Mesh);
+    const bounds = new Box3().setFromObject(bodies);
+    const waterTop = voxelPayload.default.water_top_y_m;
+    // Piers stand in the riverbed…
+    expect(bounds.min.y).toBeLessThan(waterTop - 1.5);
+    // …and the deck with its parapets rides well above the water.
+    expect(bounds.max.y).toBeGreaterThan(waterTop + 3);
+    // The flat bridge slabs are gone from the ground layer.
+    const slabs = city.getObjectByName("Drawn ground slabs") as InstancedMesh;
+    expect(slabs).toBeInstanceOf(InstancedMesh);
+    expect(city.getObjectByName("bridge structure ink lines")).toBeDefined();
   });
 });

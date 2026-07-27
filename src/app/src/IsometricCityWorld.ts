@@ -61,9 +61,9 @@ export const PRISM_WORLD_FILE = "lod2-prisms.json";
 // drawn envelope incl. the extrapolated surround. The areal-expansion
 // contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
 // (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520).
-export const VISIBLE_RADIUS_M = 2510;
-export const EXTRAPOLATED_WEST_M = -2320;
-export const EXTRAPOLATED_MARGIN_M = 1220;
+export const VISIBLE_RADIUS_M = 2610;
+export const EXTRAPOLATED_WEST_M = -2420;
+export const EXTRAPOLATED_MARGIN_M = 1320;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -283,7 +283,8 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   // day (unlit), the lit material only under the night rig.
   for (const name of [
     "drawn quay walls",
-    "bridge railing bodies",
+    "bridge structure bodies",
+    "Adlon bodies",
     "tunnel portal ramps",
     "monument bodies",
   ]) {
@@ -295,6 +296,12 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     }
   }
   // The extrapolated west follows the same ink and lamp conventions.
+  const adlonInk = city.getObjectByName("Adlon ink lines");
+  if (adlonInk instanceof LineSegments) {
+    (adlonInk.material as LineBasicMaterial).color.setHex(
+      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    );
+  }
   const westInk = city.getObjectByName("extrapolated west ink lines");
   if (westInk instanceof LineSegments) {
     (westInk.material as LineBasicMaterial).color.setHex(
@@ -351,7 +358,7 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
-  const railingInk = city.getObjectByName("bridge railing ink lines");
+  const railingInk = city.getObjectByName("bridge structure ink lines");
   if (railingInk instanceof LineSegments) {
     (railingInk.material as LineBasicMaterial).color.setHex(
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
@@ -1321,6 +1328,253 @@ function prismTriangles(
  * drawn parapet rises from the deck edge — the Gustav-Heinemann-Brücke
  * and its siblings stop being flat strips ironed over the Spree.
  */
+/**
+ * Real bridge structures ("müssen durch die Luft gehen"): the surveyed
+ * bridge cells are clustered into individual bridges (Moltkebrücke,
+ * Gustav-Heinemann-Brücke, Hugo-Preuß-Brücke …), each one fitted to an
+ * oriented rectangle. Every bridge then gets drawn abutments at the
+ * banks, stone piers standing in the riverbed, segmental arch webs
+ * spanning between them and an elevated deck plate — so the bridge
+ * carries itself through the air instead of being painted onto the
+ * water. Positions and extents come from the ground grid; the drawing
+ * is ours.
+ */
+function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
+  const { cols, rows } = ground.grid;
+  const bridgeClass = ground.classes.indexOf("bridge");
+  if (bridgeClass < 0) {
+    return [];
+  }
+  const grid = new Int16Array(cols * rows).fill(-1);
+  ground.ground_rows.forEach((row, zOffset) => {
+    for (const [xStart, run, classId] of row) {
+      for (let step = 0; step < run; step += 1) {
+        const x = xStart + step;
+        if (x >= 0 && x < cols && zOffset < rows) {
+          grid[zOffset * cols + x] = classId;
+        }
+      }
+    }
+  });
+  const seen = new Uint8Array(cols * rows);
+  const clusters: Array<Array<[number, number]>> = [];
+  for (let z = 0; z < rows; z += 1) {
+    for (let x = 0; x < cols; x += 1) {
+      const index = z * cols + x;
+      if (grid[index] !== bridgeClass || seen[index]) {
+        continue;
+      }
+      const stack: Array<[number, number]> = [[x, z]];
+      seen[index] = 1;
+      const cluster: Array<[number, number]> = [];
+      while (stack.length > 0) {
+        const [cx, cz] = stack.pop() as [number, number];
+        cluster.push([cx, cz]);
+        // Radius 2: one carriageway interrupted by water cells must
+        // still form a SINGLE bridge, otherwise each fragment builds
+        // its own short deck and the span reads as zigzag steps.
+        for (let dz = -2; dz <= 2; dz += 1) {
+          for (let dx = -2; dx <= 2; dx += 1) {
+            const nx = cx + dx;
+            const nz = cz + dz;
+            if (nx < 0 || nz < 0 || nx >= cols || nz >= rows) {
+              continue;
+            }
+            const nIndex = nz * cols + nx;
+            if (grid[nIndex] === bridgeClass && !seen[nIndex]) {
+              seen[nIndex] = 1;
+              stack.push([nx, nz]);
+            }
+          }
+        }
+      }
+      clusters.push(cluster);
+    }
+  }
+  return clusters;
+}
+
+export const BRIDGE_MIN_CLUSTER_CELLS = 12;
+
+function createBridgeStructures(ground: VoxelPayload): Group | null {
+  const clusters = bridgeClusters(ground).filter(
+    (cluster) => cluster.length >= BRIDGE_MIN_CLUSTER_CELLS,
+  );
+  if (clusters.length === 0) {
+    return null;
+  }
+  const cell = ground.cell_m;
+  const { min_x_idx, min_z_idx } = ground.grid;
+  const sample = groundTopSampler(ground);
+  const waterTop = ground.water_top_y_m ?? 1.31;
+  const BED_Y = waterTop - 2.45;
+  const parts: BufferGeometry[] = [];
+  const edges: BufferGeometry[] = [];
+  const STONE = new Color(0xcfc9bb);
+  const STONE_DARK = new Color(0xbdb6a6);
+  const DECK = new Color(0xb0b1a9);
+  const addPart = (
+    triangles: Float32Array,
+    tone: Color,
+    inked = true,
+  ): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+    if (inked) {
+      edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+    }
+  };
+  for (const cluster of clusters) {
+    const points = cluster.map(
+      ([x, z]) =>
+        [(min_x_idx + x + 0.5) * cell, (min_z_idx + z + 0.5) * cell] as [
+          number,
+          number,
+        ],
+    );
+    const rect = fitRectangle(points);
+    if (!rect) {
+      continue;
+    }
+    // Deck height: the highest surveyed ground under the bridge cells —
+    // that is the bank level the carriageway runs at.
+    let deckY = waterTop + 3.4;
+    for (const [x, z] of cluster) {
+      deckY = Math.max(deckY, sample(x, z) + 0.55);
+    }
+    const [ax, az] = rect.axis;
+    const nx = -az;
+    const nz = ax;
+    // Road bridges over the Spree are 18–26 m wide and rest on both
+    // banks: widen thin clusters and extend the span onto the abutments.
+    const halfLength = Math.max(rect.halfLength, cell) + 5;
+    const halfWidth = Math.max(rect.halfWidth, 8.5);
+    const [cx, cz] = rect.center;
+    const at = (u: number, v: number): [number, number] => [
+      cx + ax * u + nx * v,
+      cz + az * u + nz * v,
+    ];
+    // Elevated deck plate.
+    addPart(
+      boxTriangles(cx, deckY - 0.35, cz, rect.axis, halfLength * 2, 0.7, halfWidth * 2),
+      DECK,
+    );
+    // Two longitudinal edge beams give the deck its drawn thickness,
+    // and a slim parapet rides each deck edge.
+    for (const side of [-1, 1]) {
+      const [bx, bz] = at(0, side * (halfWidth - 0.35));
+      addPart(
+        boxTriangles(bx, deckY - 0.95, bz, rect.axis, halfLength * 2, 0.6, 0.7),
+        STONE_DARK,
+      );
+      const [rx, rz] = at(0, side * halfWidth);
+      addPart(
+        boxTriangles(rx, deckY + 0.55, rz, rect.axis, halfLength * 2, 1.1, 0.16),
+        STONE,
+      );
+    }
+    // Piers every ~22 m, standing on the riverbed, plus segmental arch
+    // webs between them so the span reads as structure, not a slab.
+    const spanCount = Math.max(1, Math.round((halfLength * 2) / 22));
+    const pierHeight = deckY - 1.25 - BED_Y;
+    for (let index = 0; index <= spanCount; index += 1) {
+      const u = -halfLength + (index / spanCount) * halfLength * 2;
+      const inner = index > 0 && index < spanCount;
+      const [px, pz] = at(u, 0);
+      const pierWidth = inner ? 2.6 : 4.2;
+      addPart(
+        boxTriangles(
+          px,
+          BED_Y + pierHeight / 2,
+          pz,
+          rect.axis,
+          pierWidth,
+          pierHeight,
+          halfWidth * 2 - 0.6,
+        ),
+        inner ? STONE : STONE_DARK,
+      );
+      if (index < spanCount) {
+        // Segmental arch drawn as two slender side girders that dip
+        // between the piers — visible from the side, never breaking
+        // through the deck plate above.
+        const spanLength = (halfLength * 2) / spanCount;
+        const steps = 5;
+        const maxDip = Math.min(2.4, pierHeight * 0.45);
+        for (let step = 0; step < steps; step += 1) {
+          const t = (step + 0.5) / steps;
+          const dip = Math.sin(t * Math.PI) * maxDip;
+          const [wx, wz] = at(u + spanLength * t, 0);
+          for (const side of [-1, 1]) {
+            const gx = wx + nx * side * (halfWidth - 0.9);
+            const gz = wz + nz * side * (halfWidth - 0.9);
+            addPart(
+              boxTriangles(
+                gx,
+                deckY - 1.6 - dip / 2,
+                gz,
+                rect.axis,
+                spanLength / steps + 0.1,
+                0.9 + dip,
+                0.85,
+              ),
+              STONE,
+              false,
+            );
+          }
+        }
+      }
+    }
+  }
+  if (parts.length === 0) {
+    return null;
+  }
+  const group = new Group();
+  group.name = "drawn bridge structures";
+  const merged = mergeGeometries(parts, false);
+  if (merged) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "bridge structure bodies";
+    group.add(mesh);
+    for (const geometry of parts) {
+      geometry.dispose();
+    }
+  }
+  const ink = mergeGeometries(edges, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "bridge structure ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  return group;
+}
+
 function createBridgeRailings(ground: VoxelPayload): Group | null {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
@@ -1473,6 +1727,7 @@ export function createWestTiergarten(): Group {
   const V025_WEST = -2020;
   const V026_WEST = -2120;
   const V027_WEST = -2220;
+  const V028_WEST = -2320;
   const EAST = -658;
   const NORTH = -160;
   const SOUTH = 960;
@@ -1680,10 +1935,22 @@ export function createWestTiergarten(): Group {
     }
     trunkSpots.push([x, z]);
   }
-  // v0.28.0 grows only the new −2320…−2220 m strip.
+  // v0.28.0 grows only the −2320…−2220 m strip.
   for (let index = 0; index < 84; index += 1) {
-    const x = WEST + 10 + (V027_WEST - WEST - 20) * stripUnit(index, 1543);
+    const x =
+      V028_WEST + 10 + (V027_WEST - V028_WEST - 20) * stripUnit(index, 1543);
     const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 1667);
+    const axisZ =
+      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
+    if (Math.abs(z - axisZ) < 34) {
+      continue;
+    }
+    trunkSpots.push([x, z]);
+  }
+  // v0.29.0 grows only the new −2420…−2320 m strip.
+  for (let index = 0; index < 84; index += 1) {
+    const x = WEST + 10 + (V028_WEST - WEST - 20) * stripUnit(index, 1901);
+    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2029);
     const axisZ =
       AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
     if (Math.abs(z - axisZ) < 34) {
@@ -1832,6 +2099,132 @@ function createPresentationBackdrop(): Mesh {
   backdrop.userData.nightMaterial = nightMaterial;
   backdrop.userData.presentationOnly = true;
   return backdrop;
+}
+
+/**
+ * Hotel Adlon Kempinski, EXTRAPOLATED (owner-approved): the shipped
+ * LoD2 extract is clipped just west of Unter den Linden 77, so the
+ * hotel's block is absent from the surveyed data. It is drawn here at
+ * its documented position (52.5161 N, 13.3800 E → world 573/324) after
+ * published dimensions: a closed perimeter block around a courtyard,
+ * ~35 m to the eaves, sandstone-cream facade with a mansard attic and
+ * the Pariser-Platz corner risalit. Marked userData.extrapolated; no
+ * claim of surveyed geometry.
+ */
+export const ADLON_WORLD: [number, number] = [573.4, 323.8];
+
+export function createHotelAdlon(): Group {
+  const group = new Group();
+  group.name = "extrapolated Hotel Adlon";
+  group.userData.extrapolated = true;
+  const [ax, az] = ADLON_WORLD;
+  const GROUND = 3.2;
+  const EAVES = 31.5;
+  const parts: BufferGeometry[] = [];
+  const edges: BufferGeometry[] = [];
+  const FACADE = new Color(0xe8dfc9);
+  const SOCKEL = new Color(0xd8cfba);
+  const ROOF = new Color(0xbfc2bb);
+  const add = (
+    triangles: Float32Array,
+    tone: Color,
+    inked = true,
+  ): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+    if (inked) {
+      edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+    }
+  };
+  // Perimeter block: four wings around a courtyard (58 × 46 m outer).
+  const halfX = 29;
+  const halfZ = 23;
+  const wing = 13;
+  const wings: Array<[number, number, number, number]> = [
+    [0, -halfZ + wing / 2, halfX * 2, wing],
+    [0, halfZ - wing / 2, halfX * 2, wing],
+    [-halfX + wing / 2, 0, wing, halfZ * 2 - wing * 2],
+    [halfX - wing / 2, 0, wing, halfZ * 2 - wing * 2],
+  ];
+  for (const [ox, oz, sx, sz] of wings) {
+    add(
+      boxTriangles(
+        ax + ox,
+        GROUND + (EAVES - GROUND) / 2,
+        az + oz,
+        [1, 0],
+        sx,
+        EAVES - GROUND,
+        sz,
+      ),
+      FACADE,
+    );
+    // Sockel band and eaves cornice, matching the city convention.
+    add(
+      boxTriangles(ax + ox, GROUND + 0.35, az + oz, [1, 0], sx + 0.5, 0.7, sz + 0.5),
+      SOCKEL,
+    );
+    add(
+      boxTriangles(ax + ox, EAVES + 0.2, az + oz, [1, 0], sx + 0.9, 0.5, sz + 0.9),
+      SOCKEL,
+    );
+    // Mansard attic storey, stepped in.
+    add(
+      boxTriangles(ax + ox, EAVES + 2.1, az + oz, [1, 0], sx - 2.2, 3.4, sz - 2.2),
+      ROOF,
+    );
+  }
+  // The Pariser-Platz corner risalit rises one storey higher.
+  add(
+    boxTriangles(ax - halfX + 9, GROUND + (EAVES + 3 - GROUND) / 2, az - halfZ + 9, [1, 0], 18, EAVES + 3 - GROUND, 18),
+    FACADE,
+  );
+  add(
+    boxTriangles(ax - halfX + 9, EAVES + 5.4, az - halfZ + 9, [1, 0], 15.8, 3.8, 15.8),
+    ROOF,
+  );
+  const merged = mergeGeometries(parts, false);
+  if (merged) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "Adlon bodies";
+    group.add(mesh);
+    for (const geometry of parts) {
+      geometry.dispose();
+    }
+  }
+  const ink = mergeGeometries(edges, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "Adlon ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  return group;
 }
 
 export function createIsometricCity(
@@ -2523,7 +2916,7 @@ export function createIsometricCity(
       ground,
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
-      { bridgeDecks: true, emissive: 0x000000, skipWater: true },
+      { emissive: 0x000000, skipBridge: true, skipWater: true },
     );
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
@@ -2595,12 +2988,13 @@ export function createIsometricCity(
     if (quays) {
       group.add(quays);
     }
-    const railings = createBridgeRailings(ground);
-    if (railings) {
-      group.add(railings);
+    const bridges = createBridgeStructures(ground);
+    if (bridges) {
+      group.add(bridges);
     }
   }
   group.add(createPresentationBackdrop());
   group.add(createWestTiergarten());
+  group.add(createHotelAdlon());
   return group;
 }
