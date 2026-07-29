@@ -11,7 +11,7 @@ import {
   MeshStandardMaterial,
 } from "three";
 
-import { MINECRAFT_PALETTE } from "./visual-modes/minecraft/palette";
+import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
 import {
   AXIS_FROM,
   AXIS_TO,
@@ -93,6 +93,82 @@ const LEAF_SHADES: readonly number[] = [0x4c7f28, 0x5d9634];
 const VOXEL_WINDOW_GLASS = 0xa4dfe2;
 const VOXEL_WINDOW_GLASS_PALE = 0xd6dfe0;
 const VOXEL_WINDOW_TEAL = 0x72c5d2;
+export const VOXEL_WINDOW_WIDTH_M = 1.5;
+export const VOXEL_WINDOW_HEIGHT_M = 2.75;
+
+export type VoxelRecognitionArea = {
+  center: readonly [number, number];
+  depthM: number;
+  name: string;
+  paddingM: number;
+  rotationDegrees: number;
+  tone: number;
+  widthM: number;
+};
+
+// Metric envelopes copied from the versioned architectural signatures in
+// scene.json. The true voxel columns remain untouched; only their generic
+// square-window overlay yields to the more accurate recognition model.
+const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
+  {
+    center: [317.729, 40.477],
+    depthM: 138,
+    name: "Reichstag",
+    paddingM: 10,
+    rotationDegrees: -1.676,
+    tone: 0xd4d4b7,
+    widthM: 100,
+  },
+  {
+    center: [-220.236, -145.806],
+    depthM: 102.074,
+    name: "Bundeskanzleramt",
+    paddingM: 6,
+    rotationDegrees: -1.337,
+    tone: 0xf3efd0,
+    widthM: 342.676,
+  },
+  {
+    center: [-119.936, -683.307],
+    depthM: 200,
+    name: "Berlin Hauptbahnhof",
+    paddingM: 6,
+    rotationDegrees: 21.82,
+    tone: 0xd6dfe0,
+    widthM: 341,
+  },
+  {
+    center: [417.898, 300.453],
+    depthM: 18,
+    name: "Brandenburger Tor",
+    paddingM: 3,
+    rotationDegrees: 5.083,
+    tone: 0xe8d1ae,
+    widthM: 68,
+  },
+];
+
+export function voxelRecognitionAreaAt(
+  x: number,
+  z: number,
+): VoxelRecognitionArea | null {
+  for (const area of RECOGNITION_AREAS) {
+    const radians = (area.rotationDegrees * Math.PI) / 180;
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+    const dx = x - area.center[0];
+    const dz = z - area.center[1];
+    const localX = dx * cosine - dz * sine;
+    const localZ = dx * sine + dz * cosine;
+    if (
+      Math.abs(localX) <= area.widthM / 2 + area.paddingM &&
+      Math.abs(localZ) <= area.depthM / 2 + area.paddingM
+    ) {
+      return area;
+    }
+  }
+  return null;
+}
 
 function shadeFor(
   shades: readonly number[],
@@ -190,9 +266,13 @@ type TonedPrism = {
 };
 
 export function buildColumnToneLookup(prisms: {
-  buildings: Array<{ ring: number[][]; tone?: [number, number, number] }>;
+  buildings: Array<{
+    id?: string;
+    ring: number[][];
+    tone?: [number, number, number];
+  }>;
 }): ColumnToneLookup {
-  const palette = MINECRAFT_PALETTE.map((hex) => ({
+  const palette = MINECRAFT_BUILDING_PALETTE.map((hex) => ({
     b: hex & 255,
     g: (hex >> 8) & 255,
     hex,
@@ -275,6 +355,10 @@ export function buildColumnToneLookup(prisms: {
     return odd;
   };
   return (x, z) => {
+    const recognitionArea = voxelRecognitionAreaAt(x, z);
+    if (recognitionArea) {
+      return recognitionArea.tone;
+    }
     const list = buckets.get(`${Math.floor(x / BUCKET)},${Math.floor(z / BUCKET)}`);
     if (!list) {
       return null;
@@ -707,8 +791,9 @@ export function createMinecraftVoxelWorld(
   group.add(buildings.mesh);
 
   // Window cells on exterior faces: every ~4 m storey of a column face
-  // that no neighbouring column covers gets a recessed dark pane —
-  // blocky fenestration, strictly from the surveyed columns.
+  // that no neighbouring column covers gets a pale portrait pane. Hero
+  // envelopes yield to their referenced recognition fenestration instead of
+  // receiving a second grid of generic square holes.
   const columnTops = new Map<number, number>();
   const columnKey = (x: number, z: number): number => x * 65536 + z;
   for (const [xIdx, zIdx, , y1dm] of payload.buildings) {
@@ -721,6 +806,9 @@ export function createMinecraftVoxelWorld(
   const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
   const teal = new Color(VOXEL_WINDOW_TEAL);
   for (const [xIdx, zIdx, y0dm, y1dm] of payload.buildings) {
+    if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
+      continue;
+    }
     const top = y1dm / 10;
     for (const [dx, dz] of [
       [1, 0],
@@ -731,6 +819,9 @@ export function createMinecraftVoxelWorld(
       const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
       const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
       const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
+      if (voxelRecognitionAreaAt(faceX, faceZ)) {
+        continue;
+      }
       // Storey-banded window rows: every column face carries its glass
       // on the SAME storey grid, so the facade reads as designed rows
       // rather than randomly punched holes.
@@ -769,9 +860,9 @@ export function createMinecraftVoxelWorld(
       const dirX = -face.nz;
       const dirZ = face.nx;
       matrix.set(
-        dirX * 2.1, 0, face.nx, face.x,
-        0, 2.3, 0, face.y,
-        dirZ * 2.1, 0, face.nz, face.z,
+        dirX * VOXEL_WINDOW_WIDTH_M, 0, face.nx, face.x,
+        0, VOXEL_WINDOW_HEIGHT_M, 0, face.y,
+        dirZ * VOXEL_WINDOW_WIDTH_M, 0, face.nz, face.z,
         0, 0, 0, 1,
       );
       panes.setMatrixAt(index, matrix);

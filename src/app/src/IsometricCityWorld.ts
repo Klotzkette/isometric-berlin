@@ -108,10 +108,10 @@ export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 
 // Hand-pinned facade tones for hero prisms (payload building ids, last 8
 // chars of the LoD2 id), matching the owner's colour direction: the
-// Reichstag reads as its real darker grey sandstone (not warm yellow),
+// Reichstag reads as pale grey sandstone (not warm yellow or muddy),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
-  K0002MCN: 0xb2ada2,
+  K0002MCN: 0xcac6bd,
   MLwG4KW9: 0xeeeeea,
 };
 
@@ -236,7 +236,7 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
     return new Color(pinned).lerp(IVORY, 0.18);
   }
   if (inReichstagRegion(building)) {
-    return new Color(0xc2bdb0).lerp(IVORY, 0.2);
+    return new Color(0xc9c5ba).lerp(IVORY, 0.2);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
@@ -280,8 +280,10 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       : (bodies.userData.dayMaterial as MeshBasicMaterial);
     const nightMaterial = bodies.userData
       .nightMaterial as MeshStandardMaterial;
-    nightMaterial.emissive.setHex(night ? 0x1a1608 : 0x000000);
-    nightMaterial.emissiveIntensity = night ? 0.55 : 0;
+    // A cool moonlight floor keeps pale masonry readable without making
+    // the whole building self-luminous or warming it into muddy brown.
+    nightMaterial.emissive.setHex(night ? 0x252c39 : 0x000000);
+    nightMaterial.emissiveIntensity = night ? 0.68 : 0;
     nightMaterial.needsUpdate = true;
   }
   const glass = city.getObjectByName("LoD2 glass prisms");
@@ -759,11 +761,11 @@ const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
  * so volumes read plastically; still flat, still unlit, no gradients.
  */
 export const ISO_FACE_SHADE = {
-  east: 0.9,
-  north: 0.955,
-  south: 0.845,
+  east: 0.935,
+  north: 0.97,
+  south: 0.89,
   top: 1,
-  west: 0.795,
+  west: 0.86,
 } as const;
 
 export function isoFaceShade(nx: number, ny: number, nz: number): number {

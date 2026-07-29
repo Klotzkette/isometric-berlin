@@ -213,6 +213,16 @@ describe("metre-scale architectural recognition models", () => {
         "Chancellery instanced office-band window panes",
       ),
     ).toBeInstanceOf(InstancedMesh);
+    const darkOfficePanes = chancellery!.getObjectByName(
+      "Chancellery instanced office-band window panes",
+    ) as InstancedMesh;
+    const litOfficePanes = chancellery!.getObjectByName(
+      "Chancellery selectively lit office-band window panes",
+    ) as InstancedMesh;
+    expect(litOfficePanes).toBeInstanceOf(InstancedMesh);
+    expect(darkOfficePanes.material.userData.nightEmissiveIntensity).toBe(0.12);
+    expect(litOfficePanes.material.userData.nightEmissiveIntensity).toBe(0.82);
+    expect(litOfficePanes.count).toBeLessThan(darkOfficePanes.count);
     const police = chancellery!.getObjectByName(
       "Chancellery two Federal Police uniformed torsos",
     );
@@ -275,6 +285,7 @@ describe("metre-scale architectural recognition models", () => {
     ) as InstancedMesh;
     expect(darkArches).toBeInstanceOf(InstancedMesh);
     expect(litArches).toBeInstanceOf(InstancedMesh);
+    expect(darkArches.material.color.getHex()).toBe(0x7c9499);
     expect(darkArches.material.userData.nightEmissive).toBeUndefined();
     expect(litArches.material.userData.nightEmissive).toBe(0xffd28a);
     const towerWindows = reichstag!.children.filter((child) =>
@@ -295,8 +306,13 @@ describe("metre-scale architectural recognition models", () => {
     upperWindows.geometry.computeBoundingBox();
     const upperBounds = upperWindows.geometry.boundingBox!;
     expect(upperBounds.max.y - upperBounds.min.y).toBeGreaterThan(
-      upperBounds.max.x - upperBounds.min.x,
+      (upperBounds.max.x - upperBounds.min.x) * 2,
     );
+    const upperFrames = reichstag!.getObjectByName(
+      "Reichstag instanced upper-window 10 cm reveal frames",
+    );
+    expect(upperFrames).toBeInstanceOf(InstancedMesh);
+    expect((upperFrames as InstancedMesh).count).toBe(upperWindows.count);
     expect(
       reichstag!.children.filter((child) =>
         child.name.includes("west entrance tall glass pane"),

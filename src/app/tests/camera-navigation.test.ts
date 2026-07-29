@@ -288,7 +288,7 @@ describe("pan momentum glide", () => {
 });
 
 describe("visible-radius contract (+100 m per areal run)", () => {
-  test("v0.35.0 envelope spans the versioned 3210 m radius", async () => {
+  test("current envelope spans the versioned 3210 m radius", async () => {
     const { VISIBLE_RADIUS_M } = await import("../src/IsometricCityWorld");
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
       "../src/cameraNavigation"

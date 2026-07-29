@@ -19,6 +19,7 @@ import {
 import { CRISPNESS_PROFILES } from "../src/crispnessProfile";
 import {
   MATERIAL_PALETTES,
+  MINECRAFT_BUILDING_PALETTE,
   MINECRAFT_PALETTE,
 } from "../src/visual-modes/minecraft/palette";
 import {
@@ -63,6 +64,14 @@ describe("premium Minecraft visual mode", () => {
       for (const colour of family) {
         expect(master.has(colour)).toBe(true);
       }
+    }
+    for (const colour of MINECRAFT_BUILDING_PALETTE) {
+      expect(master.has(colour)).toBe(true);
+      const red = (colour >> 16) & 255;
+      const green = (colour >> 8) & 255;
+      const blue = colour & 255;
+      const luma = red * 0.2126 + green * 0.7152 + blue * 0.0722;
+      expect(luma).toBeGreaterThan(110);
     }
     // Roof-copper must stay varied so Reichstag dome and Chancellery
     // remain distinct at zoom-out.

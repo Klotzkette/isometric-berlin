@@ -176,6 +176,18 @@ describe("ligne-claire fenestration", () => {
     expect(glass.material).toBe(dayMaterial);
   });
 
+  test("night masonry keeps a cool readable floor instead of collapsing to black", () => {
+    const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;
+    const dayMaterial = bodies.material;
+    setIsoNightPresentation(city, true);
+    const nightMaterial = bodies.material as MeshStandardMaterial;
+    expect(nightMaterial).toBeInstanceOf(MeshStandardMaterial);
+    expect(nightMaterial.emissive.getHex()).toBe(0x252c39);
+    expect(nightMaterial.emissiveIntensity).toBeGreaterThanOrEqual(0.65);
+    setIsoNightPresentation(city, false);
+    expect(bodies.material).toBe(dayMaterial);
+  });
+
   test("the presentation paper closes distant camera views without data claims", () => {
     const backdrop = city.getObjectByName("presentation paper backdrop") as Mesh;
     expect(backdrop).toBeInstanceOf(Mesh);
@@ -473,12 +485,13 @@ describe("real-colour facade tones", () => {
     // A blown-out white sample is capped below pure white.
     const bright = cleanedTone([250, 250, 250]);
     expect(bright.r).toBeLessThanOrEqual(0.9);
-    // The Reichstag pin is the darker grey the owner asked for, not warm.
+    // The Reichstag pin is pale neutral sandstone, never yellow or muddy.
     const reichstag = HERO_PRISM_TONES.K0002MCN;
     const r = (reichstag >> 16) & 255;
     const b = reichstag & 255;
     expect(r - b).toBeLessThan(40);
-    expect(r).toBeLessThan(180);
+    expect(r).toBeGreaterThanOrEqual(195);
+    expect(r).toBeLessThanOrEqual(215);
   });
 });
 

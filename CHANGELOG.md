@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.36.0
+
+- **No more black square-window failure on the principal buildings.**
+  Minecraft building colours now snap only to a curated architectural palette,
+  never to asphalt, water, foliage or near-black world blocks. Metric,
+  orientation-aware envelopes around Reichstag, Bundeskanzleramt,
+  Hauptbahnhof and Brandenburger Tor suppress the generic voxel-window overlay
+  so each landmark keeps its authored recognition facade. The surveyed voxel
+  columns, LoD2 positions and scale remain unchanged.
+- **The Reichstag reads as pale stone with tall, framed glazing.** Dark holes
+  become cool blue-grey glass; upper panes change from squat rectangles to
+  1.25 x 2.65 m portrait openings, arched glazing doubles its curve resolution,
+  and a separately drawn 0.10 m reveal articulates each upper opening. These
+  facade details are reference-based presentation geometry, not claimed as
+  surveyed 10 cm building data. The official-dimension 40 x 23.5 m,
+  24-rib dome remains intact.
+- **The Chancellery and glass architecture become finer and calmer.** Office
+  bay pitch tightens from roughly 7.2 m to 2.65 m, clear panes replace broad
+  dark panels, and only a deterministic minority carries warm night light.
+  The leadership arch, Hauptbahnhof office bridges and train glazing, and the
+  Swiss Embassy use lighter glass rather than black-looking inserts.
+- **Night preserves architectural legibility.** A restrained cool moonlight
+  floor keeps pale masonry and ink contours readable while warm occupied rooms
+  remain selective. Day face steps are lifted without gradients, retaining the
+  flat, unlit ivory drawing convention.
+- **Radius and accuracy contract retained.** Day, Night and Minecraft still
+  cover the same versioned **3210 m** presentation radius. No geometry was
+  shifted and no extrapolated detail is relabelled as official measurement.
+  Close views were checked on phone and desktop; regression tests pin the
+  architectural palette, portrait-window proportions, hero-overlay exclusion,
+  selective night lighting and lossless mode swaps.
+
 ## v0.35.1
 
 - **The complete 3210 m presentation radius now exists in all three visual

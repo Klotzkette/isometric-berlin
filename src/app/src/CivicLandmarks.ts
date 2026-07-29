@@ -192,9 +192,9 @@ function createSwissEmbassy(): Group {
   const modernStone = material(0xe3e7e4, { roughness: 0.74 });
   const roof = material(0x657273, { metalness: 0.3, roughness: 0.52 });
   const glass = nightEmitter(
-    material(0x36545d, { metalness: 0.18, opacity: 0.56, roughness: 0.3 }),
+    material(0x70898d, { metalness: 0.1, opacity: 0.62, roughness: 0.34 }),
     0xffd58f,
-    1.15,
+    0.72,
   );
 
   addBox(

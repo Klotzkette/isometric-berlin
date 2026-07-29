@@ -4,7 +4,10 @@ import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
   type VoxelPayload,
+  VOXEL_WINDOW_HEIGHT_M,
+  VOXEL_WINDOW_WIDTH_M,
   createMinecraftVoxelWorld,
+  voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 
@@ -31,8 +34,9 @@ describe("true voxel Minecraft world", () => {
     // Inside the Reichstag footprint (centre ~308, 41) the lookup
     // returns a palette colour; far out in the Spree it returns null.
     const reichstag = lookup(308, 41);
-    expect(reichstag).not.toBeNull();
+    expect(reichstag).toBe(0xd4d4b7);
     expect(MINECRAFT_PALETTE.includes(reichstag as never)).toBe(true);
+    expect(lookup(-154, -146)).toBe(0xf3efd0);
     expect(lookup(-5000, -5000)).toBeNull();
     // Coverage: most surveyed columns resolve to a real tone.
     let hits = 0;
@@ -57,6 +61,24 @@ describe("true voxel Minecraft world", () => {
     // ~54k faces on 17k surveyed columns; interior faces are skipped.
     expect(mesh.count).toBeGreaterThan(30_000);
     expect(mesh.count).toBeLessThan(80_000);
+    const matrix = new Matrix4();
+    const scale = new Vector3();
+    const position = new Vector3();
+    let recognitionWindows = 0;
+    for (let index = 0; index < mesh.count; index += 1) {
+      mesh.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      if (voxelRecognitionAreaAt(position.x, position.z)) {
+        recognitionWindows += 1;
+      }
+      if (index % 97 === 0) {
+        scale.setFromMatrixScale(matrix);
+        expect(scale.x).toBeCloseTo(VOXEL_WINDOW_WIDTH_M, 5);
+        expect(scale.y).toBeCloseTo(VOXEL_WINDOW_HEIGHT_M, 5);
+        expect(scale.y / scale.x).toBeGreaterThan(1.7);
+      }
+    }
+    expect(recognitionWindows).toBe(0);
   });
 
   test("builds one instanced box set per layer with full counts", () => {

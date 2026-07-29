@@ -23,6 +23,24 @@ export const MINECRAFT_PALETTE = [
   0x704a2d, 0xc18a4b, 0x994a35, 0xe6bd4c,
 ] as const;
 
+// Architecture may only snap to materials that can plausibly read as a
+// facade, roof or curtain wall. Using the complete world palette here once
+// allowed pale source stone to become asphalt, water or near-black foliage.
+export const MINECRAFT_BUILDING_PALETTE = [
+  0x74806d,
+  0x8e9a9e,
+  0xa4aa91,
+  0xd4d4b7,
+  0xd6dfe0,
+  0xf3efd0,
+  0xb69b83,
+  0xe8d1ae,
+  0xf5e3c5,
+  0x72c5d2,
+  0xa4dfe2,
+  0xe79a61,
+] as const;
+
 export const MATERIAL_PALETTES = {
   concrete: [0xa4aa91, 0xd4d4b7, 0xf3efd0, 0xd6dfe0],
   domeGlass: [0x8e9a9e, 0xd6dfe0, 0xf7fbf7, 0xa4dfe2],

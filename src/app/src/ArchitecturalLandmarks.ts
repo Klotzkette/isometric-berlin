@@ -20,6 +20,7 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
+  Path,
   PlaneGeometry,
   RingGeometry,
   Shape,
@@ -431,30 +432,55 @@ function archedWindowGeometry(width: number, height: number): ShapeGeometry {
   shape.lineTo(radius, spring);
   shape.absarc(0, spring, radius, 0, Math.PI, false);
   shape.lineTo(-radius, bottom);
-  return new ShapeGeometry(shape, 12);
+  return new ShapeGeometry(shape, 24);
+}
+
+function rectangularWindowFrameGeometry(
+  width = 1.25,
+  height = 2.65,
+  frameM = 0.1,
+): ShapeGeometry {
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const outer = new Shape();
+  outer.moveTo(-halfWidth, -halfHeight);
+  outer.lineTo(halfWidth, -halfHeight);
+  outer.lineTo(halfWidth, halfHeight);
+  outer.lineTo(-halfWidth, halfHeight);
+  outer.closePath();
+  const insetX = halfWidth - frameM;
+  const insetY = halfHeight - frameM;
+  const opening = new Path();
+  opening.moveTo(-insetX, -insetY);
+  opening.lineTo(-insetX, insetY);
+  opening.lineTo(insetX, insetY);
+  opening.lineTo(insetX, -insetY);
+  opening.closePath();
+  outer.holes.push(opening);
+  return new ShapeGeometry(outer);
 }
 
 function addReichstagWindowSets(
   group: Group,
   signature: ReichstagModelSignature,
 ): void {
-  const darkGlass = modelMaterial(0x27393f, {
-    metalness: 0.18,
-    opacity: 0.48,
-    roughness: 0.3,
+  const darkGlass = modelMaterial(0x7c9499, {
+    metalness: 0.1,
+    opacity: 0.62,
+    roughness: 0.34,
   });
   const occupiedGlass = nightEmitter(
-    modelMaterial(0x4c4b40, {
-      metalness: 0.12,
-      opacity: 0.44,
-      roughness: 0.3,
+    modelMaterial(0x8d9893, {
+      metalness: 0.08,
+      opacity: 0.6,
+      roughness: 0.34,
     }),
     0xffd28a,
-    1.05,
+    0.78,
   );
-  const windowMetal = modelMaterial(0x8b8173, {
-    metalness: 0.24,
-    roughness: 0.48,
+  const windowMetal = modelMaterial(0xc1b6a4, {
+    metalness: 0.12,
+    roughness: 0.58,
   });
   const arched: InstanceTransform[] = [];
   const upper: InstanceTransform[] = [];
@@ -473,7 +499,6 @@ function addReichstagWindowSets(
       for (const y of [16.2, 20.6]) {
         upper.push({
           position: [x, y, side * (signature.depth_m / 2 + 0.14)],
-          scale: [1.85, 2.15, 1],
         });
       }
     }
@@ -489,7 +514,6 @@ function addReichstagWindowSets(
         upper.push({
           position: [side * (signature.width_m / 2 + 0.14), y, z],
           rotation: [0, Math.PI / 2, 0],
-          scale: [1.85, 2.15, 1],
         });
       }
     }
@@ -529,7 +553,7 @@ function addReichstagWindowSets(
   const mainSets = splitLighting(arched);
   const mainGeometry = archedWindowGeometry(2.35, 6.1);
   const towerGeometry = archedWindowGeometry(2.25, 6.8);
-  const upperGeometry = new PlaneGeometry(0.72, 1);
+  const upperGeometry = new PlaneGeometry(1.25, 2.65);
   addInstancedGeometry(
     group,
     "Reichstag dark tall arched facade windows",
@@ -549,6 +573,13 @@ function addReichstagWindowSets(
     "Reichstag dark upper rectangular facade windows",
     upperGeometry,
     darkGlass,
+    upper,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag instanced upper-window 10 cm reveal frames",
+    rectangularWindowFrameGeometry(),
+    windowMetal,
     upper,
   );
   addInstancedGeometry(
@@ -697,13 +728,13 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     roughness: 0.82,
   });
   const entranceGlass = nightEmitter(
-    modelMaterial(0x263f45, {
-      metalness: 0.18,
-      opacity: 0.58,
-      roughness: 0.28,
+    modelMaterial(0x6f8f94, {
+      metalness: 0.1,
+      opacity: 0.64,
+      roughness: 0.32,
     }),
     0xffd69a,
-    1.25,
+    0.85,
   );
   addBoxOutline(
     group,
@@ -898,26 +929,35 @@ function addChancelleryOfficeBand(
   height: number,
 ): void {
   const glass = nightEmitter(
-    modelMaterial(0x70bfd0, {
-      metalness: 0.12,
-      opacity: 0.18,
-      roughness: 0.22,
+    modelMaterial(0x9bc7cd, {
+      metalness: 0.08,
+      opacity: 0.26,
+      roughness: 0.28,
     }),
-    0xffd994,
-    1.25,
+    0x18343f,
+    0.18,
   );
-  const concrete = modelMaterial(0xe6ebe8, {
-    opacity: 0.74,
+  const concrete = modelMaterial(0xf0f2ef, {
+    opacity: 0.86,
     roughness: 0.76,
   });
-  const pane = nightEmitter(
-    modelMaterial(0x2e5964, {
-      metalness: 0.18,
-      opacity: 0.28,
-      roughness: 0.2,
+  const darkPane = nightEmitter(
+    modelMaterial(0x79aab3, {
+      metalness: 0.1,
+      opacity: 0.36,
+      roughness: 0.26,
     }),
-    0xffcf7c,
-    1.5,
+    0x1b3038,
+    0.12,
+  );
+  const litPane = nightEmitter(
+    modelMaterial(0x79aab3, {
+      metalness: 0.1,
+      opacity: 0.36,
+      roughness: 0.26,
+    }),
+    0xffd18b,
+    0.82,
   );
   addBox(
     group,
@@ -935,7 +975,7 @@ function addChancelleryOfficeBand(
     concrete,
     0.46,
   );
-  const columnCount = Math.max(12, Math.round(width / 7.2));
+  const columnCount = Math.max(18, Math.round(width / 2.65));
   const mullions: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let index = 0; index <= columnCount; index += 1) {
@@ -957,27 +997,37 @@ function addChancelleryOfficeBand(
     mullions,
   );
 
-  const bayWidth = Math.max(1.6, width / columnCount - 0.48);
-  const panes: InstanceTransform[] = [];
+  const bayWidth = Math.max(1.35, width / columnCount - 0.38);
+  const darkPanes: InstanceTransform[] = [];
+  const litPanes: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let floor = 0; floor < 5; floor += 1) {
       for (let bay = 0; bay < columnCount; bay += 1) {
-        panes.push({
+        const transform: InstanceTransform = {
           position: [
             x - width / 2 + ((bay + 0.5) / columnCount) * width,
             1.8 + floor * 3.6,
             z + side * (depth / 2 + 0.17),
           ],
-        });
+        };
+        const occupied = Math.abs(bay * 7 + floor * 11 + side * 3) % 9 < 3;
+        (occupied ? litPanes : darkPanes).push(transform);
       }
     }
   }
   addInstancedBoxes(
     group,
     "Chancellery instanced office-band window panes",
-    [bayWidth, 2.62, 0.12],
-    pane,
-    panes,
+    [bayWidth, 2.72, 0.12],
+    darkPane,
+    darkPanes,
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery selectively lit office-band window panes",
+    [bayWidth, 2.72, 0.12],
+    litPane,
+    litPanes,
   );
   for (const floorY of [3.6, 7.2, 10.8, 14.4]) {
     addBox(
@@ -1194,18 +1244,18 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   group.name = "Metre-scale Federal Chancellery recognition model";
   placeMetricGroup(group, signature);
 
-  const concrete = modelMaterial(0xe8ece9, {
-    opacity: 0.58,
+  const concrete = modelMaterial(0xf0f2ef, {
+    opacity: 0.78,
     roughness: 0.78,
   });
   const glass = nightEmitter(
-    modelMaterial(0x6fb9c8, {
-      metalness: 0.08,
-      opacity: 0.24,
-      roughness: 0.2,
+    modelMaterial(0x9ccbd0, {
+      metalness: 0.06,
+      opacity: 0.32,
+      roughness: 0.25,
     }),
-    0xffd994,
-    1.45,
+    0x274b57,
+    0.28,
   );
   const cubeX = signature.cube_offset_world[0];
   const cubeZ = signature.cube_offset_world[2];
@@ -1275,7 +1325,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
 
   const windowGlass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0x5fcce0,
+      color: 0x98d3da,
       depthWrite: false,
       metalness: 0.04,
       opacity: 0.42,
@@ -1285,7 +1335,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       transmission: 0.2,
     }),
     0xffcf78,
-    2.2,
+    0.82,
   );
   const archFrame = modelMaterial(0xf0f1ec, { roughness: 0.68 });
   const windowGrid: VectorSegment[] = [];
@@ -1517,13 +1567,13 @@ function addStationOfficeBridge(
   height: number,
 ): void {
   const glass = nightEmitter(
-    modelMaterial(0x75b4c4, {
-      metalness: 0.12,
-      opacity: 0.16,
-      roughness: 0.2,
+    modelMaterial(0xa7ccd3, {
+      metalness: 0.08,
+      opacity: 0.24,
+      roughness: 0.25,
     }),
     0xffdca0,
-    1.35,
+    0.72,
   );
   const frame = modelMaterial(0x60757c, {
     metalness: 0.42,
@@ -1849,7 +1899,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     length: 126,
     name: "Hauptbahnhof stationary ICE",
     stripeColor: 0xd63d3d,
-    windowColor: 0x173b4b,
+    windowColor: 0x4c7480,
     x: 130,
     z: -12,
   });
@@ -1858,7 +1908,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     length: 74,
     name: "Hauptbahnhof stationary Berlin S-Bahn",
     stripeColor: 0xb42f2f,
-    windowColor: 0x213f48,
+    windowColor: 0x567984,
     x: -155,
     z: 4,
   });
