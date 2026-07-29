@@ -36,6 +36,7 @@ import {
   SkipForward,
   Sun,
   Volume2,
+  Music,
   VolumeX,
   X,
 } from "lucide-react";
@@ -57,6 +58,7 @@ import {
   AmbientSoundscape,
   isAmbientAudioSupported,
 } from "./AmbientSoundscape";
+import { DuskChiptune, isChiptuneSupported } from "./DuskChiptune";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { discoveryNoteFor } from "./discoveryNotes";
 import {
@@ -492,6 +494,10 @@ function FlightJoystick({
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
+  // "Dusk Republic": the dark 8-bit soundtrack. Off unless the visitor
+  // asks for it — never auto-started.
+  const chiptuneRef = useRef<DuskChiptune | null>(null);
+  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(false);
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -756,6 +762,33 @@ export function App() {
     }
     await startMusic();
   }, [copy.musicOff, isMusicEnabled, startMusic]);
+
+  const toggleSoundtrack = useCallback(async () => {
+    if (isSoundtrackEnabled) {
+      chiptuneRef.current?.stop();
+      setIsSoundtrackEnabled(false);
+      setStatus(copy.soundtrackOff);
+      return;
+    }
+    if (!isChiptuneSupported()) {
+      return;
+    }
+    const player = chiptuneRef.current ?? new DuskChiptune();
+    chiptuneRef.current = player;
+    const started = await player.start();
+    if (started) {
+      setIsSoundtrackEnabled(true);
+      setStatus(copy.soundtrackOn);
+    }
+  }, [copy.soundtrackOff, copy.soundtrackOn, isSoundtrackEnabled]);
+
+  useEffect(
+    () => () => {
+      void chiptuneRef.current?.dispose();
+      chiptuneRef.current = null;
+    },
+    [],
+  );
 
   // v0.5.2: iOS/Android Safari + Chrome refuse to create an AudioContext
   // until the user has interacted with the page, so we auto-start the
@@ -1360,6 +1393,11 @@ export function App() {
         void toggleMusic();
         return;
       }
+      if (event.key.toLowerCase() === "t") {
+        event.preventDefault();
+        void toggleSoundtrack();
+        return;
+      }
       if (isReferenceOpen || isHelpOpen || isRepositoryOpen || !isReady) {
         return;
       }
@@ -1539,6 +1577,7 @@ export function App() {
     toggleLightingMode,
     toggleMinecraftMode,
     toggleMusic,
+    toggleSoundtrack,
     viewerMode,
     zoomBy,
   ]);
@@ -2064,6 +2103,20 @@ export function App() {
             ) : (
               <VolumeX size={18} aria-hidden="true" />
             )}
+          </button>
+          <button
+            type="button"
+            aria-label={
+              isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
+            }
+            aria-pressed={isSoundtrackEnabled}
+            className={isSoundtrackEnabled ? "is-active" : undefined}
+            title={`${
+              isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
+            } (T)`}
+            onClick={toggleSoundtrack}
+          >
+            <Music size={18} aria-hidden="true" />
           </button>
           <button
             type="button"
