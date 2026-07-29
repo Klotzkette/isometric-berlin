@@ -12,6 +12,20 @@ import {
 } from "three";
 
 import { MINECRAFT_PALETTE } from "./visual-modes/minecraft/palette";
+import {
+  AXIS_FROM,
+  AXIS_TO,
+  EXTRAPOLATED_MARGIN_M,
+  EXTRAPOLATED_WEST_M,
+  VISIBLE_RADIUS_M,
+  WEST_PARK_EAST_M,
+  WEST_PARK_NORTH_M,
+  WEST_PARK_SOUTH_M,
+  extrapolatedEnvelopeBounds,
+  extrapolatedLampSpots,
+  extrapolatedMarginBands,
+  extrapolatedTreeSpots,
+} from "./worldEnvelope";
 
 /**
  * True voxel world for the Minecraft mode: the city as axis-aligned
@@ -360,6 +374,288 @@ export function createGroundSlabs(
   return ground.mesh;
 }
 
+type ExtrapolatedBlock = {
+  color: number;
+  position: [number, number, number];
+  size: [number, number, number];
+};
+
+function addTiledBand(
+  blocks: ExtrapolatedBlock[],
+  band: readonly [number, number, number, number],
+  toneOffset: number,
+  centerY = 0.8,
+  height = 2.6,
+): void {
+  const [centerX, centerZ, sizeX, sizeZ] = band;
+  const tileM = 80;
+  const minX = centerX - sizeX / 2;
+  const minZ = centerZ - sizeZ / 2;
+  const columns = Math.ceil(sizeX / tileM);
+  const rows = Math.ceil(sizeZ / tileM);
+  for (let row = 0; row < rows; row += 1) {
+    const z0 = minZ + row * tileM;
+    const depth = Math.min(tileM, minZ + sizeZ - z0);
+    for (let column = 0; column < columns; column += 1) {
+      const x0 = minX + column * tileM;
+      const width = Math.min(tileM, minX + sizeX - x0);
+      blocks.push({
+        color: (column + row + toneOffset) % 2 === 0 ? 0x74b043 : 0x91bd59,
+        position: [x0 + width / 2, centerY, z0 + depth / 2],
+        size: [width, height, depth],
+      });
+    }
+  }
+}
+
+function addBlockRoad(
+  blocks: ExtrapolatedBlock[],
+  from: readonly [number, number],
+  to: readonly [number, number],
+  widthM: number,
+): void {
+  const cellM = 4;
+  const dx = to[0] - from[0];
+  const dz = to[1] - from[1];
+  const length = Math.hypot(dx, dz);
+  const ux = dx / length;
+  const uz = dz / length;
+  const nx = -uz;
+  const nz = ux;
+  const alongCount = Math.ceil(length / cellM);
+  const acrossCount = Math.ceil(widthM / cellM);
+  for (let along = 0; along < alongCount; along += 1) {
+    const distance = Math.min(length, along * cellM + cellM / 2);
+    for (let across = 0; across < acrossCount; across += 1) {
+      const lateral = (across + 0.5) * cellM - (acrossCount * cellM) / 2;
+      blocks.push({
+        color: (along + across) % 7 === 0 ? 0x40515c : 0x202923,
+        position: [
+          from[0] + ux * distance + nx * lateral,
+          0.9,
+          from[1] + uz * distance + nz * lateral,
+        ],
+        size: [cellM, 2.8, cellM],
+      });
+    }
+  }
+}
+
+/**
+ * Block counterpart of the versioned drawn surround. The official voxel
+ * payload remains untouched; everything outside its grid is explicitly
+ * marked as an extrapolated presentation layer.
+ */
+export function createMinecraftExtrapolatedWorld(): Group {
+  const group = new Group();
+  group.name = "Minecraft extrapolated radius surround";
+  group.userData.extrapolated = true;
+  group.userData.visibleRadiusM = VISIBLE_RADIUS_M;
+
+  const groundBlocks: ExtrapolatedBlock[] = [];
+  const envelope = extrapolatedEnvelopeBounds();
+  addTiledBand(
+    groundBlocks,
+    [
+      (envelope.minX + envelope.maxX) / 2,
+      (envelope.minZ + envelope.maxZ) / 2,
+      envelope.maxX - envelope.minX,
+      envelope.maxZ - envelope.minZ,
+    ],
+    1,
+    -6,
+    1,
+  );
+  extrapolatedMarginBands().forEach((band, index) => {
+    addTiledBand(groundBlocks, band, index);
+  });
+
+  const parkBands = 8;
+  for (let band = 0; band < parkBands; band += 1) {
+    const z0 =
+      WEST_PARK_NORTH_M +
+      ((WEST_PARK_SOUTH_M - WEST_PARK_NORTH_M) / parkBands) * band;
+    const z1 =
+      WEST_PARK_NORTH_M +
+      ((WEST_PARK_SOUTH_M - WEST_PARK_NORTH_M) / parkBands) * (band + 1);
+    groundBlocks.push({
+      color: band % 2 === 0 ? 0x74b043 : 0x91bd59,
+      position: [
+        (EXTRAPOLATED_WEST_M + WEST_PARK_EAST_M) / 2,
+        0.6,
+        (z0 + z1) / 2,
+      ],
+      size: [WEST_PARK_EAST_M - EXTRAPOLATED_WEST_M, 3, z1 - z0],
+    });
+  }
+
+  const axisDx = AXIS_TO[0] - AXIS_FROM[0];
+  const axisDz = AXIS_TO[1] - AXIS_FROM[1];
+  const axisZAtParkEdge =
+    AXIS_FROM[1] +
+    ((WEST_PARK_EAST_M - AXIS_FROM[0]) * axisDz) / axisDx;
+  const axisLength = Math.hypot(axisDx, axisDz);
+  const axisUx = axisDx / axisLength;
+  const axisUz = axisDz / axisLength;
+  addBlockRoad(
+    groundBlocks,
+    [
+      WEST_PARK_EAST_M - axisUx * 45,
+      axisZAtParkEdge - axisUz * 45,
+    ],
+    [AXIS_TO[0] + axisUx * 45, AXIS_TO[1] + axisUz * 45],
+    42,
+  );
+  addBlockRoad(
+    groundBlocks,
+    [601, AXIS_FROM[1]],
+    [601 + EXTRAPOLATED_MARGIN_M, AXIS_FROM[1]],
+    40,
+  );
+
+  const roundaboutCellM = 4;
+  for (let x = -100; x <= 100; x += roundaboutCellM) {
+    for (let z = -100; z <= 100; z += roundaboutCellM) {
+      if (x * x + z * z > 100 * 100) {
+        continue;
+      }
+      groundBlocks.push({
+        color: (x + z) % 12 === 0 ? 0x40515c : 0x202923,
+        position: [AXIS_TO[0] + x, 1, AXIS_TO[1] + z],
+        size: [roundaboutCellM, 3, roundaboutCellM],
+      });
+    }
+  }
+
+  const ground = instancedBoxes(
+    "Voxel extrapolated ground and roads",
+    groundBlocks.length,
+  );
+  for (const block of groundBlocks) {
+    ground.write(
+      new Vector3(...block.position),
+      new Vector3(...block.size),
+      new Color(block.color),
+    );
+  }
+  group.add(ground.mesh);
+
+  const treeSpots = extrapolatedTreeSpots();
+  const trunks = instancedBoxes(
+    "Voxel extrapolated tree trunks",
+    treeSpots.length,
+  );
+  const crowns = instancedBoxes(
+    "Voxel extrapolated tree crowns",
+    treeSpots.length * 2,
+  );
+  treeSpots.forEach(([x, z], index) => {
+    const size = 4 + ((index * 37) % 5);
+    trunks.write(
+      new Vector3(x, 4.1, z),
+      new Vector3(1.1, 4, 1.1),
+      new Color(0x704a2d),
+    );
+    crowns.write(
+      new Vector3(x, 6.2 + size * 0.32, z),
+      new Vector3(size, size * 0.78, size),
+      new Color(index % 3 === 0 ? 0x4c7f28 : 0x5d9634),
+    );
+    crowns.write(
+      new Vector3(x + size * 0.24, 8.2 + size * 0.35, z - size * 0.18),
+      new Vector3(size * 0.58, size * 0.48, size * 0.58),
+      new Color(index % 3 === 1 ? 0x74b043 : 0x5d9634),
+    );
+  });
+  group.add(trunks.mesh);
+  group.add(crowns.mesh);
+
+  const lampSpots = extrapolatedLampSpots();
+  const lampPoles = instancedBoxes(
+    "Voxel extrapolated lamp poles",
+    lampSpots.length,
+  );
+  const lampHeads = instancedBoxes(
+    "Voxel extrapolated lamp heads",
+    lampSpots.length,
+  );
+  lampSpots.forEach(([x, z]) => {
+    lampPoles.write(
+      new Vector3(x, 4.4, z),
+      new Vector3(0.45, 4.6, 0.45),
+      new Color(0x40515c),
+    );
+    lampHeads.write(
+      new Vector3(x, 7, z),
+      new Vector3(1, 1, 1),
+      new Color(0xe6bd4c),
+    );
+  });
+  group.add(lampPoles.mesh);
+  group.add(lampHeads.mesh);
+
+  const columnParts: ExtrapolatedBlock[] = [
+    {
+      color: 0x994a35,
+      position: [AXIS_TO[0], 5.6, AXIS_TO[1]],
+      size: [46, 7, 46],
+    },
+    {
+      color: 0xd4d4b7,
+      position: [AXIS_TO[0], 11.6, AXIS_TO[1]],
+      size: [18, 5, 18],
+    },
+    {
+      color: 0xe8d1ae,
+      position: [AXIS_TO[0], 36.1, AXIS_TO[1]],
+      size: [9, 44, 9],
+    },
+    {
+      color: 0xe6bd4c,
+      position: [AXIS_TO[0], 59.6, AXIS_TO[1]],
+      size: [12, 3, 12],
+    },
+    {
+      color: 0xe6bd4c,
+      position: [AXIS_TO[0], 64.1, AXIS_TO[1]],
+      size: [3, 6, 3],
+    },
+    {
+      color: 0xe6bd4c,
+      position: [AXIS_TO[0], 65.2, AXIS_TO[1]],
+      size: [9, 3, 1.5],
+    },
+    {
+      color: 0xe6bd4c,
+      position: [AXIS_TO[0], 68, AXIS_TO[1]],
+      size: [2, 2, 2],
+    },
+  ];
+  const column = instancedBoxes(
+    "Voxel extrapolated Siegessäule",
+    columnParts.length,
+  );
+  for (const part of columnParts) {
+    column.write(
+      new Vector3(...part.position),
+      new Vector3(...part.size),
+      new Color(part.color),
+    );
+  }
+  group.add(column.mesh);
+
+  for (const child of group.children) {
+    if (child instanceof InstancedMesh) {
+      child.instanceMatrix.needsUpdate = true;
+      if (child.instanceColor) {
+        child.instanceColor.needsUpdate = true;
+      }
+      child.frustumCulled = false;
+    }
+  }
+  return group;
+}
+
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -375,6 +671,7 @@ export function createMinecraftVoxelWorld(
   const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
   const center = new Vector3();
   const size = new Vector3();
+  group.add(createMinecraftExtrapolatedWorld());
   group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
 
   const buildings = instancedBoxes(

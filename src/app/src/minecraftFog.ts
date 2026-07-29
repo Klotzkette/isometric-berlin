@@ -1,4 +1,4 @@
-import { VISIBLE_RADIUS_M } from "./IsometricCityWorld";
+import { VISIBLE_RADIUS_M } from "./worldEnvelope";
 
 export type MinecraftFogRange = {
   far: number;
@@ -13,7 +13,7 @@ export function minecraftFogRange(
   visibleRadiusM = VISIBLE_RADIUS_M,
 ): MinecraftFogRange {
   return {
-    near: visibleRadiusM * 1.05,
-    far: visibleRadiusM * 1.85,
+    near: visibleRadiusM * 2.2,
+    far: visibleRadiusM * 3.4,
   };
 }

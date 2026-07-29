@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { InstancedMesh, Matrix4, Vector3 } from "three";
+import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
   type VoxelPayload,
@@ -121,5 +121,43 @@ describe("true voxel Minecraft world", () => {
       expect(position.z).toBeGreaterThanOrEqual(minZ);
       expect(position.z).toBeLessThanOrEqual(maxZ);
     }
+  });
+
+  test("fills the complete versioned radius with an explicit extrapolated surround", async () => {
+    const {
+      EXTRAPOLATED_WEST_M,
+      VISIBLE_RADIUS_M,
+      extrapolatedMarginBands,
+      extrapolatedTreeSpots,
+    } = await import("../src/worldEnvelope");
+    const surround = world.getObjectByName(
+      "Minecraft extrapolated radius surround",
+    );
+    expect(surround).toBeDefined();
+    expect(surround?.userData.extrapolated).toBe(true);
+    expect(surround?.userData.visibleRadiusM).toBe(VISIBLE_RADIUS_M);
+
+    const bounds = new Box3().setFromObject(surround!);
+    const bands = extrapolatedMarginBands();
+    const eastBand = bands[2];
+    expect(bounds.min.x).toBeLessThanOrEqual(EXTRAPOLATED_WEST_M);
+    expect(bounds.max.x).toBeGreaterThanOrEqual(
+      eastBand[0] + eastBand[2] / 2,
+    );
+    expect(bounds.min.z).toBeLessThanOrEqual(
+      bands[0][1] - bands[0][3] / 2,
+    );
+    expect(bounds.max.z).toBeGreaterThanOrEqual(
+      bands[1][1] + bands[1][3] / 2,
+    );
+
+    const extrapolatedTrunks = instanced(
+      "Voxel extrapolated tree trunks",
+      world,
+    );
+    expect(extrapolatedTrunks.count).toBe(extrapolatedTreeSpots().length);
+    expect(
+      instanced("Voxel extrapolated Siegessäule", world).count,
+    ).toBeGreaterThan(5);
   });
 });

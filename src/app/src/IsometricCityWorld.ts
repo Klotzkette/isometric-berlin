@@ -29,6 +29,25 @@ import {
   groundTopSampler,
   worldGroundSampler,
 } from "./MinecraftVoxelWorld";
+import {
+  AXIS_FROM,
+  AXIS_TO,
+  EXTRAPOLATED_MARGIN_M,
+  EXTRAPOLATED_WEST_M,
+  VISIBLE_RADIUS_M,
+  WEST_PARK_EAST_M,
+  WEST_PARK_NORTH_M,
+  WEST_PARK_SOUTH_M,
+  extrapolatedLampSpots,
+  extrapolatedMarginBands,
+  extrapolatedTreeSpots,
+} from "./worldEnvelope";
+
+export {
+  EXTRAPOLATED_MARGIN_M,
+  EXTRAPOLATED_WEST_M,
+  VISIBLE_RADIUS_M,
+} from "./worldEnvelope";
 
 /**
  * The drawn isometric city for Day mode: every building extruded from
@@ -79,15 +98,6 @@ export type SurfacePayload = {
   schema_version: number;
   water: SurfacePolygon[];
 };
-// Versioned visible-map radius (metres): half the larger span of the
-// drawn envelope incl. the extrapolated surround. The areal-expansion
-// contract grows this by exactly +100 m per run: v0.24.0 was 2110 m
-// (envelope z −2000…2420), v0.26.0 is 2310 m (z −2100…2520),
-// v0.31.0 was 2810 m (z −2600…3020), v0.32.0 was 2910 m (z −2700…3120),
-// v0.33.0 is 3010 m (z −2800…3220).
-export const VISIBLE_RADIUS_M = 3210;
-export const EXTRAPOLATED_WEST_M = -2920;
-export const EXTRAPOLATED_MARGIN_M = 1920;
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -2325,21 +2335,9 @@ export function createWestTiergarten(): Group {
   const GROUND_TOP = 2.1;
   // Lawn bands (alternating drawn greens like the surveyed ground).
   const WEST = EXTRAPOLATED_WEST_M;
-  const V022_WEST = -1720;
-  const V023_WEST = -1820;
-  const V024_WEST = -1920;
-  const V025_WEST = -2020;
-  const V026_WEST = -2120;
-  const V027_WEST = -2220;
-  const V028_WEST = -2320;
-  const V029_WEST = -2420;
-  const V030_WEST = -2520;
-  const V032_WEST = -2620;
-  const V033_WEST = -2720;
-  const V034_WEST = -2820;
-  const EAST = -658;
-  const NORTH = -160;
-  const SOUTH = 960;
+  const EAST = WEST_PARK_EAST_M;
+  const NORTH = WEST_PARK_NORTH_M;
+  const SOUTH = WEST_PARK_SOUTH_M;
   // A recessed paper ground closes transparent gaps between the bounded
   // official grid, the western park and the three margin bands. It sits below
   // water and terrain, so it cannot move or cover surveyed geometry; it only
@@ -2374,8 +2372,6 @@ export function createWestTiergarten(): Group {
     );
   }
   // Straße des 17. Juni: the real axis from the Gate to the Großer Stern.
-  const AXIS_FROM: [number, number] = [372, 292];
-  const AXIS_TO: [number, number] = [-1459, 456];
   const axisDx = AXIS_TO[0] - AXIS_FROM[0];
   const axisDz = AXIS_TO[1] - AXIS_FROM[1];
   const axisLength = Math.hypot(axisDx, axisDz);
@@ -2417,17 +2413,7 @@ export function createWestTiergarten(): Group {
   // instead of a void. No buildings are invented; Unter den Linden
   // continues east from the Gate as a drawn axis.
   const MARGIN = EXTRAPOLATED_MARGIN_M;
-  const previousHorizontalCenter = (EAST + 1150) / 2 - 245;
-  const horizontalOuterEast =
-    previousHorizontalCenter + (1150 - WEST) / 2;
-  const horizontalCenter = (WEST + horizontalOuterEast) / 2;
-  const horizontalWidth = horizontalOuterEast - WEST;
-  const marginBands: Array<[number, number, number, number]> = [
-    // [centerX, centerZ, sizeX, sizeZ]
-    [horizontalCenter, -1030 - MARGIN / 2, horizontalWidth, MARGIN],
-    [horizontalCenter, 1451 + MARGIN / 2, horizontalWidth, MARGIN],
-    [601 + MARGIN / 2, (1451 - 1030) / 2, MARGIN, 1451 + 1030],
-  ];
+  const marginBands = extrapolatedMarginBands();
   const MARGIN_TONES = [0xe6ece1, 0xebf0e6];
   marginBands.forEach(([cx, cz, sx, sz], index) => {
     addPart(
@@ -2466,188 +2452,9 @@ export function createWestTiergarten(): Group {
     false,
   );
 
-  // Park trees: keep every published population fixed, then add a separate
-  // deterministic population only inside this release's 100 m western strip.
-  // This grows vegetation without moving any previously rendered point.
-  const trunkSpots: Array<[number, number]> = [];
-  for (let index = 0; index < 720; index += 1) {
-    const hx = (Math.imul(index + 1, 2654435761) >>> 9) % 10_000;
-    const hz = (Math.imul(index + 7, 40503) >>> 3) % 10_000;
-    const x =
-      V022_WEST +
-      20 +
-      ((EAST - V022_WEST - 40) * hx) / 10_000;
-    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34 || Math.hypot(x - SX, z - SZ) < 112) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  for (let index = 0; index < 84; index += 1) {
-    const hx = (Math.imul(index + 101, 2246822519) >>> 8) % 10_000;
-    const hz = (Math.imul(index + 211, 3266489917) >>> 7) % 10_000;
-    const x =
-      V023_WEST + 10 + ((V022_WEST - V023_WEST - 20) * hx) / 10_000;
-    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.24.0 adds trees only to its own −1920…−1820 m strip. Keeping the
-  // preceding ranges anchored to their release constants prevents cumulative
-  // runs from silently moving previously published vegetation.
-  for (let index = 0; index < 84; index += 1) {
-    const hx = (Math.imul(index + 307, 668265263) >>> 8) % 10_000;
-    const hz = (Math.imul(index + 419, 374761393) >>> 7) % 10_000;
-    const x =
-      V024_WEST +
-      10 +
-      ((V023_WEST - V024_WEST - 20) * hx) / 10_000;
-    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.25.0 grows only the −2020…−1920 m strip. Distinct hash seeds keep
-  // the added trees deterministic without repeating a previous distribution.
-  for (let index = 0; index < 84; index += 1) {
-    const hx = (Math.imul(index + 523, 1103515245) >>> 8) % 10_000;
-    const hz = (Math.imul(index + 631, 214013) >>> 7) % 10_000;
-    const x =
-      V025_WEST +
-      10 +
-      ((V024_WEST - V025_WEST - 20) * hx) / 10_000;
-    const z = NORTH + 20 + ((SOUTH - NORTH - 40) * hz) / 10_000;
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.26.0 adds a fifth immutable population only in the new
-  // −2120…−2020 m strip. An avalanche mix avoids the visible diagonal lattice
-  // produced by a linear integer sequence; prior strips remain byte-stable.
-  const stripUnit = (index: number, seed: number): number => {
-    let value = Math.imul(index + seed, 0x9e3779b1);
-    value = Math.imul(value ^ (value >>> 16), 0x85ebca6b);
-    value = Math.imul(value ^ (value >>> 13), 0xc2b2ae35);
-    return ((value ^ (value >>> 16)) >>> 0) / 0x1_0000_0000;
-  };
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V026_WEST + 10 + (V025_WEST - V026_WEST - 20) * stripUnit(index, 743);
-    const z =
-      NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 857);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.27.0 grows only the −2220…−2120 m strip with fresh avalanche
-  // seeds; every previously published strip stays byte-stable.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V027_WEST + 10 + (V026_WEST - V027_WEST - 20) * stripUnit(index, 1249);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 1361);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.28.0 grows only the −2320…−2220 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V028_WEST + 10 + (V027_WEST - V028_WEST - 20) * stripUnit(index, 1543);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 1667);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.29.0 grows only the −2420…−2320 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V029_WEST + 10 + (V028_WEST - V029_WEST - 20) * stripUnit(index, 1901);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2029);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.30.0 grows only the −2520…−2420 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V030_WEST + 10 + (V029_WEST - V030_WEST - 20) * stripUnit(index, 2297);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2411);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.32.0 grows only the −2620…−2520 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V032_WEST + 10 + (V030_WEST - V032_WEST - 20) * stripUnit(index, 2749);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 2861);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.33.0 grows only the new −2720…−2620 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V033_WEST + 10 + (V032_WEST - V033_WEST - 20) * stripUnit(index, 3163);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 3271);
-    const axisZ =
-      AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.34.0 grows only the new −2820…−2720 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x =
-      V034_WEST + 10 + (V033_WEST - V034_WEST - 20) * stripUnit(index, 3571);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 3701);
-    const axisZ = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
-  // v0.35.0 grows only the new −2920…−2820 m strip.
-  for (let index = 0; index < 84; index += 1) {
-    const x = WEST + 10 + (V034_WEST - WEST - 20) * stripUnit(index, 4001);
-    const z = NORTH + 20 + (SOUTH - NORTH - 40) * stripUnit(index, 4127);
-    const axisZ = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.abs(z - axisZ) < 34) {
-      continue;
-    }
-    trunkSpots.push([x, z]);
-  }
+  // Park trees are generated once in the shared envelope module. Day, Night
+  // and Minecraft therefore use identical published positions.
+  const trunkSpots = extrapolatedTreeSpots();
   const trunks = new InstancedMesh(
     new BoxGeometry(0.5, 3.4, 0.5),
     new MeshStandardMaterial({ color: 0x6f5a41, flatShading: true, roughness: 0.9 }),
@@ -2688,23 +2495,7 @@ export function createWestTiergarten(): Group {
 
   // Candelabra rows along Straße des 17. Juni and a ring of lights
   // around the Großer Stern — warm dots that carry the axis at night.
-  const lampSpots: Array<[number, number]> = [];
-  const lampCount = Math.floor(Math.abs(AXIS_TO[0] - EAST) / 42);
-  for (let index = 0; index <= lampCount; index += 1) {
-    const x = EAST + (AXIS_TO[0] - EAST) * (index / Math.max(1, lampCount));
-    const z = AXIS_FROM[1] + ((x - AXIS_FROM[0]) * axisDz) / axisDx;
-    if (Math.hypot(x - SX, z - SZ) < 118) {
-      continue;
-    }
-    const nx = -axis[1];
-    const nz = axis[0];
-    lampSpots.push([x + nx * 26, z + nz * 26]);
-    lampSpots.push([x - nx * 26, z - nz * 26]);
-  }
-  for (let index = 0; index < 12; index += 1) {
-    const angle = (index / 12) * Math.PI * 2;
-    lampSpots.push([SX + Math.cos(angle) * 112, SZ + Math.sin(angle) * 112]);
-  }
+  const lampSpots = extrapolatedLampSpots();
   const lampPoles = new InstancedMesh(
     new BoxGeometry(0.16, 4.6, 0.16),
     new MeshStandardMaterial({

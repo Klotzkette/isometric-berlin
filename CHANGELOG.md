@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.35.1
+
+- **The complete 3210 m presentation radius now exists in all three visual
+  modes.** Day and Night already drew the versioned western Tiergarten and
+  outer paper surround, but Minecraft hid that scene and stopped at the much
+  smaller official voxel-payload grid. Minecraft now adds an explicitly
+  labelled extrapolated block surround with the same park bands, 1,613
+  deterministic tree positions, lamps, east/west axes, Großer Stern and
+  Siegessäule signature. The surveyed voxel payload remains untouched.
+- **One envelope contract replaces three drifting implementations.** Radius,
+  margin bands, west-park limits, tree populations and lamp positions now live
+  in `worldEnvelope.ts` and are consumed by both renderers. Contract tests pin
+  the exact published tree population and the complete
+  x −2920…2521 / z −2950…3371 m presentation envelope.
+- **Minecraft overview fog no longer erases the expanded map.** Its fade now
+  begins beyond the full navigable ring instead of covering most of the city at
+  maximum zoom. The result was visually checked in Day, Night and Minecraft at
+  phone, tablet and desktop sizes.
+- **Documentation coherence.** The README's stale 2310 m statement now matches
+  the actual 3210 m radius and clearly distinguishes the official metric core
+  from the extrapolated presentation surround.
+
 ## v0.35.0
 
 - **The invented window panes are gone for good.** v0.32.0 had added a
