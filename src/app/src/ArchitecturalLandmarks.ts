@@ -723,10 +723,14 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   group.name = "Metre-scale Reichstag recognition model";
   placeMetricGroup(group, signature);
 
-  const stoneAccent = modelMaterial(0xd8d0bf, {
-    opacity: 0.48,
-    roughness: 0.82,
-  });
+  const stoneAccent = nightEmitter(
+    modelMaterial(0xd8d0bf, {
+      opacity: 0.48,
+      roughness: 0.82,
+    }),
+    0x65778d,
+    0.5,
+  );
   const entranceGlass = nightEmitter(
     modelMaterial(0x6f8f94, {
       metalness: 0.1,
@@ -937,10 +941,14 @@ function addChancelleryOfficeBand(
     0x18343f,
     0.18,
   );
-  const concrete = modelMaterial(0xf0f2ef, {
-    opacity: 0.86,
-    roughness: 0.76,
-  });
+  const concrete = nightEmitter(
+    modelMaterial(0xf0f2ef, {
+      opacity: 0.86,
+      roughness: 0.76,
+    }),
+    0x55687b,
+    0.32,
+  );
   const darkPane = nightEmitter(
     modelMaterial(0x79aab3, {
       metalness: 0.1,
@@ -1244,10 +1252,14 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   group.name = "Metre-scale Federal Chancellery recognition model";
   placeMetricGroup(group, signature);
 
-  const concrete = modelMaterial(0xf0f2ef, {
-    opacity: 0.78,
-    roughness: 0.78,
-  });
+  const concrete = nightEmitter(
+    modelMaterial(0xf0f2ef, {
+      opacity: 0.78,
+      roughness: 0.78,
+    }),
+    0x55687b,
+    0.32,
+  );
   const glass = nightEmitter(
     modelMaterial(0x9ccbd0, {
       metalness: 0.06,
@@ -1953,8 +1965,16 @@ function createBrandenburgGateModel(
   group.name = "Metre-scale Brandenburg Gate recognition model";
   placeMetricGroup(group, signature);
 
-  const sandstone = modelMaterial(0xd9c79f, { roughness: 0.84 });
-  const sandstoneShadow = modelMaterial(0xbba77c, { roughness: 0.9 });
+  const sandstone = nightEmitter(
+    modelMaterial(0xd9c79f, { roughness: 0.84 }),
+    0xf0c184,
+    0.72,
+  );
+  const sandstoneShadow = nightEmitter(
+    modelMaterial(0xbba77c, { roughness: 0.9 }),
+    0x9a7650,
+    0.46,
+  );
   const recess = modelMaterial(0x4a4b45, { opacity: 0.74, roughness: 0.92 });
   const bronze = modelMaterial(0x2e826d, { metalness: 0.62, roughness: 0.38 });
   const passageInterior = new MeshStandardMaterial({

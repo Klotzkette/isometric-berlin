@@ -2024,7 +2024,9 @@ export function App() {
           <ThreeViewer
             ref={threeViewerRef}
             active={viewerMode === "three"}
+            canvasAriaLabel={copy.threeD}
             lightingMode={lightingMode}
+            progressLabel={copy.loadingMesh}
             sceneUrl={sceneUrl}
             selectedLandmark={selected}
             onReady={() => {
@@ -2140,11 +2142,11 @@ export function App() {
             type="button"
             aria-label={
               viewerMode === "three"
-                ? "Zur hochauflösenden Kartenansicht wechseln"
-                : "Zur freien amtlichen 3D-Ansicht wechseln"
+                ? copy.switchToMap
+                : copy.switchToThreeD
             }
             aria-pressed={viewerMode === "three"}
-            title={viewerMode === "three" ? "2D-Detailkarte" : "Echte 3D-Ansicht"}
+            title={viewerMode === "three" ? copy.map : copy.threeD}
             onClick={toggleViewerMode}
           >
             {viewerMode === "three" ? (
@@ -2467,7 +2469,11 @@ export function App() {
             </button>
           </div>
         ) : null}
-        <div className="control-row" role="group" aria-label="Ansicht umklappen">
+        <div
+          className="control-row"
+          role="group"
+          aria-label={copy.viewTransform}
+        >
           {viewerMode === "three" ? (
             <>
               <button
@@ -2511,11 +2517,17 @@ export function App() {
           <button
             type="button"
             aria-label={
-              viewerMode === "three" ? "3D-Gegenansicht" : "Horizontal spiegeln"
+              viewerMode === "three"
+                ? copy.oppositeView
+                : copy.flipHorizontal
             }
             aria-pressed={viewerMode === "map" && isFlipped}
             disabled={!isReady}
-            title={viewerMode === "three" ? "3D-Gegenansicht" : "Horizontal spiegeln"}
+            title={
+              viewerMode === "three"
+                ? copy.oppositeView
+                : copy.flipHorizontal
+            }
             onClick={toggleHorizontalFlip}
           >
             <FlipHorizontal2 size={17} aria-hidden="true" />
@@ -2524,15 +2536,15 @@ export function App() {
             type="button"
             aria-label={
               viewerMode === "three"
-                ? "Echte Untersicht mit Tiergartentunnel"
-                : "Vertikal klappen"
+                ? copy.trueUnderside
+                : copy.flipVertical
             }
             aria-pressed={viewerMode === "three" && isThreeUnderside}
             disabled={!isReady}
             title={
               viewerMode === "three"
-                ? "Untersicht und Tiergartentunnel"
-                : "Vertikal klappen"
+                ? copy.trueUnderside
+                : copy.flipVertical
             }
             onClick={flipVertical}
           >

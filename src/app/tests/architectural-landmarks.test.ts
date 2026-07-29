@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, LineSegments } from "three";
+import { Box3, InstancedMesh, LineSegments, Mesh } from "three";
 import {
   type BrandenburgGateModelSignature,
   type ChancelleryModelSignature,
@@ -75,6 +75,11 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       gate!.getObjectByName("Brandenburg Gate batched pavilion masonry joints"),
     ).toBeInstanceOf(LineSegments);
+    const gateStone = gate!.getObjectByName(
+      "Brandenburg Gate Doric column 1:1",
+    ) as Mesh;
+    expect(gateStone.material.userData.nightEmissive).toBe(0xf0c184);
+    expect(gateStone.material.userData.nightEmissiveIntensity).toBe(0.72);
     const triglyphs = gate!.getObjectByName(
       "Brandenburg Gate instanced frieze triglyphs",
     );
@@ -208,6 +213,15 @@ describe("metre-scale architectural recognition models", () => {
         "Chancellery batched central-cube curtain-wall grid",
       ),
     ).toBeInstanceOf(LineSegments);
+    const chancelleryConcrete = chancellery!.getObjectByName(
+      "Chancellery central concrete pylon",
+    ) as Mesh;
+    expect(chancelleryConcrete.material.userData.nightEmissive).toBe(
+      0x55687b,
+    );
+    expect(
+      chancelleryConcrete.material.userData.nightEmissiveIntensity,
+    ).toBe(0.32);
     expect(
       chancellery!.getObjectByName(
         "Chancellery instanced office-band window panes",
@@ -259,6 +273,11 @@ describe("metre-scale architectural recognition models", () => {
         /^Reichstag west portico column \d+$/.test(child.name),
       ),
     ).toHaveLength(6);
+    const reichstagStone = reichstag!.getObjectByName(
+      "Reichstag corner-tower roof cornice",
+    ) as Mesh;
+    expect(reichstagStone.material.userData.nightEmissive).toBe(0x65778d);
+    expect(reichstagStone.material.userData.nightEmissiveIntensity).toBe(0.5);
     const focusCamera = focusCameraForSignature(signature);
     expect(focusCamera?.distance_m).toBe(200);
     expect(focusCamera?.target_world).toEqual([0, 0, 0]);

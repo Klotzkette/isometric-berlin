@@ -7,7 +7,10 @@ import {
   MeshStandardMaterial,
 } from "three";
 
-import { markAuthoredFlatUnlit } from "../src/ThreeViewer";
+import {
+  applyMaterialLighting,
+  markAuthoredFlatUnlit,
+} from "../src/ThreeViewer";
 
 describe("flat-unlit authored landmark contract", () => {
   test("marks opaque architecture but preserves transparent glass cleanup", () => {
@@ -38,5 +41,20 @@ describe("flat-unlit authored landmark contract", () => {
     expect(glassMaterial.userData.flatClean).toBe(0);
     expect(glassMaterial.transparent).toBe(true);
     expect(glassMaterial.opacity).toBeCloseTo(0.42);
+  });
+
+  test("keeps official drawn facades readable at night without changing day", () => {
+    const material = new MeshStandardMaterial({ color: 0xd9d5cb });
+    material.userData.drawnFacadeApplied = true;
+    material.userData.drawnKind = "vertex";
+    material.userData.sourceMaterial = true;
+
+    applyMaterialLighting(material, "night");
+    expect(material.emissive.getHex()).toBe(0x7088a7);
+    expect(material.emissiveIntensity).toBe(0.34);
+
+    applyMaterialLighting(material, "day");
+    expect(material.emissive.getHex()).toBe(0x000000);
+    expect(material.emissiveIntensity).toBe(1);
   });
 });

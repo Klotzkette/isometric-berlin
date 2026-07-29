@@ -325,7 +325,9 @@ button:active:not(:disabled) {
 
 @media (max-width: 900px) {
   .toolbar button.toolbar-reset {
-    width: 36px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
     padding: 0;
   }
 

@@ -196,7 +196,9 @@ export type LightingMode = VisualMode;
 
 type ThreeViewerProps = {
   active: boolean;
+  canvasAriaLabel: string;
   lightingMode: LightingMode;
+  progressLabel: string;
   sceneUrl: string;
   selectedLandmark: string;
   onError: (message: string) => void;
@@ -279,6 +281,22 @@ const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
 
+export function shouldUseUnderwaterPresentation({
+  cameraY,
+  insideTunnel,
+  underside,
+}: {
+  cameraY: number;
+  insideTunnel: boolean;
+  underside: boolean;
+}): boolean {
+  return (
+    cameraY < WATER_LEVEL_Y - 0.2 &&
+    !insideTunnel &&
+    !underside
+  );
+}
+
 function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void {
   if (runtime.underwater === underwater) {
     return;
@@ -347,7 +365,7 @@ function createSelectionMarker(): Group {
   return group;
 }
 
-function applyMaterialLighting(
+export function applyMaterialLighting(
   material: MeshStandardMaterial,
   mode: LightingMode,
 ): void {
@@ -384,8 +402,16 @@ function applyMaterialLighting(
       material.emissiveIntensity =
         material.userData.nightEmissiveIntensity ?? 1;
     } else if (material.userData.sourceMaterial) {
-      material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
-      material.emissiveIntensity = material.map ? 0.035 : 0.015;
+      if (isDrawn) {
+        // A cool, restrained self-light floor keeps the official building
+        // surface legible after dark. It applies only to materials already
+        // classified as drawn facades, never to terrain, vegetation or water.
+        material.emissive.setHex(0x7088a7);
+        material.emissiveIntensity = material.map ? 0.38 : 0.34;
+      } else {
+        material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
+        material.emissiveIntensity = material.map ? 0.035 : 0.015;
+      }
     }
   } else {
     material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
@@ -1080,7 +1106,11 @@ export function setTunnelPresentation(tunnel: Group, underside: boolean): void {
     if (!(object instanceof Mesh)) {
       return;
     }
-    object.renderOrder = underside ? 14 : 10;
+    if (typeof object.userData.tunnelLayerOrder !== "number") {
+      object.userData.tunnelLayerOrder = object.renderOrder;
+    }
+    object.renderOrder =
+      (underside ? 14 : 10) + object.userData.tunnelLayerOrder;
     const materials = Array.isArray(object.material)
       ? object.material
       : [object.material];
@@ -1371,7 +1401,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
   function ThreeViewer(
     {
       active,
+      canvasAriaLabel,
       lightingMode,
+      progressLabel,
       sceneUrl,
       selectedLandmark,
       onError,
@@ -1398,6 +1430,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useEffect(() => {
       activeRef.current = active;
     }, [active]);
+
+    useEffect(() => {
+      runtimeRef.current?.renderer.domElement.setAttribute(
+        "aria-label",
+        canvasAriaLabel,
+      );
+    }, [canvasAriaLabel]);
 
     useEffect(() => {
       lightingModeRef.current = lightingMode;
@@ -1732,7 +1771,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.domElement.tabIndex = 0;
       renderer.domElement.setAttribute(
         "aria-label",
-        "Freie dreidimensionale Ansicht des Berliner Regierungsviertels",
+        canvasAriaLabel,
       );
       host.append(renderer.domElement);
 
@@ -2495,7 +2534,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         setUnderwaterPresentation(
           runtime,
-          camera.position.y < WATER_LEVEL_Y - 0.2 && !insideTunnel,
+          shouldUseUnderwaterPresentation({
+            cameraY: camera.position.y,
+            insideTunnel,
+            underside,
+          }),
         );
         if (marker.visible) {
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
@@ -2918,7 +2961,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       >
         {percentage < 100 ? (
           <div className="three-progress" role="status">
-            <span>Amtliches 3D-Mesh</span>
+            <span>{progressLabel}</span>
             <strong>{percentage}%</strong>
             <div aria-hidden="true">
               <span style={{ width: `${percentage}%` }} />

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.37.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.37.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.37.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.37.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.37.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.37.1** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,7 +42,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.37.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.37.1**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -120,7 +120,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - Day, Night and Minecraft now have separate direct controls. The true 3D scene
   changes sky, fog, directional light and exposure; only the Reichstag's tall
   arched occupied bays emit light at night, while its small upper and tower
-  windows remain dark. The 2D fallback receives a restrained night treatment.
+  windows remain dark. A restrained cool light floor keeps official drawn
+  facades legible without affecting terrain, vegetation or water, while the
+  Brandenburg Gate receives warm floodlighting. The 2D fallback receives a
+  restrained night treatment.
 - The `Minecraft` visual mode, also available with `M`,
   applies an original 48-colour premium voxel palette, ordered dithering,
   toon materials and restrained animated water/glass highlights without moving a
@@ -175,8 +178,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an
   orbit crosses below ground; the underside control remains a direct tunnel
-  preset. Its route is explicitly labelled as an OSM-derived engineering
-  approximation, not surveyed tunnel geometry.
+  preset. The underside no longer activates underwater fog, and its lamps,
+  markings, portals and ventilation cues preserve their drawing order instead
+  of disappearing behind the road deck. Its route is explicitly labelled as an
+  OSM-derived engineering approximation, not surveyed tunnel geometry.
 - Seven memorials now have close-range recognition geometry. The Holocaust
   field draws all 2,710 officially documented stelae in one instanced call with
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,

@@ -15,4 +15,17 @@ describe("bilingual viewer copy", () => {
       Object.keys(UI_COPY.de).sort(),
     );
   });
+
+  test("localizes the complete 3D view-switch and underside controls", () => {
+    expect(UI_COPY.en.switchToMap).toBe(
+      "Switch to the high-resolution detail map",
+    );
+    expect(UI_COPY.en.switchToThreeD).toBe(
+      "Switch to the free official 3D view",
+    );
+    expect(UI_COPY.en.viewTransform).toBe("Rotate and flip view");
+    expect(UI_COPY.en.trueUnderside).toContain("Tiergarten tunnel");
+    expect(UI_COPY.en.flipHorizontal).not.toBe(UI_COPY.de.flipHorizontal);
+    expect(UI_COPY.en.flipVertical).not.toBe(UI_COPY.de.flipVertical);
+  });
 });

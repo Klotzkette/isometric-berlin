@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.37.1
+
+- **The Tiergartentunnel underside is visible again instead of opening into a
+  black frame.** The below-ground camera no longer triggers the water fog
+  merely because it sits below the Spree level. The cutaway keeps its own
+  relative draw layers, so the two tubes, ceiling lamps, safety strips, lane
+  markings, portal frames and ventilation cues remain in front of the faded
+  ground shell rather than hiding behind the road deck.
+- **Night keeps the principal architecture readable.** Official drawn
+  facades receive a restrained cool self-light floor that never touches
+  terrain, vegetation or water. The Reichstag and Chancellery retain cool
+  masonry definition while the Brandenburg Gate gains warm, realistic
+  floodlighting; Day and Minecraft restore their original material state
+  losslessly.
+- **The 3D controls are now completely bilingual.** The viewer switch,
+  rotate/flip group, opposite view, true underside, canvas label and loading
+  progress no longer leak German labels into the English interface. Regression
+  tests pin both languages.
+- **Compact controls meet their touch contract.** The default-view control was
+  the lone 36 px mobile target; it is now 44 x 44 px like the rest of the phone
+  and tablet toolbar. Visual checks covered 390 x 844, 1024 x 768 and
+  1600 x 900 viewports in Day, Night, Minecraft, 2D and tunnel-underside views,
+  with no browser errors.
+- **Metric and source contracts remain unchanged.** No building, road, tree,
+  monument or camera anchor moved. The versioned presentation radius remains
+  **3210 m**, and the existing attribution and additive open-data policy are
+  untouched.
+
 ## v0.37.0
 
 - **`Dusk Republic` joins the viewer as a fully procedural soundtrack.** The

@@ -4,6 +4,7 @@ import { InstancedMesh, Material, Mesh } from "three";
 import {
   createTunnel,
   setTunnelPresentation,
+  shouldUseUnderwaterPresentation,
   type TunnelPayload,
 } from "../src/ThreeViewer";
 
@@ -56,6 +57,9 @@ describe("Tiergartentunnel rendering budget", () => {
   test("hides above ground and reveals its cutaway below ground", () => {
     const tunnel = createTunnel(payload);
     const casing = tunnel.children[0] as Mesh;
+    const lights = tunnel.getObjectByName(
+      "Tiergartentunnel instanced ceiling lights",
+    ) as Mesh;
     const material = casing.material as Material;
 
     expect(material.depthTest).toBe(false);
@@ -67,9 +71,35 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(tunnel.visible).toBe(true);
     expect(material.opacity).toBeCloseTo(0.58);
     expect(casing.renderOrder).toBe(14);
+    expect(lights.renderOrder).toBeGreaterThan(casing.renderOrder);
 
     setTunnelPresentation(tunnel, false);
     expect(tunnel.visible).toBe(false);
     expect(material.opacity).toBeCloseTo(0.19);
+    expect(lights.renderOrder).toBeGreaterThan(casing.renderOrder);
+  });
+
+  test("does not hide the underside cutaway behind underwater fog", () => {
+    expect(
+      shouldUseUnderwaterPresentation({
+        cameraY: -40,
+        insideTunnel: false,
+        underside: false,
+      }),
+    ).toBe(true);
+    expect(
+      shouldUseUnderwaterPresentation({
+        cameraY: -40,
+        insideTunnel: false,
+        underside: true,
+      }),
+    ).toBe(false);
+    expect(
+      shouldUseUnderwaterPresentation({
+        cameraY: -40,
+        insideTunnel: true,
+        underside: false,
+      }),
+    ).toBe(false);
   });
 });
