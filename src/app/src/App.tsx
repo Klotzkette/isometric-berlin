@@ -23,6 +23,7 @@ import {
   Map as MapIcon,
   MapPinned,
   Minus,
+  Music,
   Moon,
   MoreHorizontal,
   Pause,
@@ -36,7 +37,6 @@ import {
   SkipForward,
   Sun,
   Volume2,
-  Music,
   VolumeX,
   X,
 } from "lucide-react";
@@ -494,10 +494,12 @@ function FlightJoystick({
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
-  // "Dusk Republic": the dark 8-bit soundtrack. Off unless the visitor
-  // asks for it — never auto-started.
+  // "Dusk Republic": enabled on every load, but Web Audio starts only from
+  // the visitor's first gesture. Turning it off applies to this session.
   const chiptuneRef = useRef<DuskChiptune | null>(null);
-  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(false);
+  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(
+    () => isChiptuneSupported(),
+  );
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -690,10 +692,14 @@ export function App() {
       if (isMusicEnabled) {
         void ambientSoundscapeRef.current?.setSuspended(document.hidden);
       }
+      if (isSoundtrackEnabled) {
+        void chiptuneRef.current?.setSuspended(document.hidden);
+      }
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [isMusicEnabled]);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [isMusicEnabled, isSoundtrackEnabled]);
 
   useEffect(
     () => () => {
@@ -763,6 +769,39 @@ export function App() {
     await startMusic();
   }, [copy.musicOff, isMusicEnabled, startMusic]);
 
+  const startSoundtrack = useCallback(
+    async (
+      options: {
+        preserveIntentOnFailure?: boolean;
+        silent?: boolean;
+      } = {},
+    ) => {
+      const { preserveIntentOnFailure = false, silent = false } = options;
+      const unsupportedMessage =
+        language === "de"
+          ? "Soundtrack wird von diesem Browser nicht unterstützt"
+          : "Soundtrack is not supported by this browser";
+      if (!isChiptuneSupported()) {
+        setIsSoundtrackEnabled(false);
+        if (!silent) {
+          setStatus(unsupportedMessage);
+        }
+        return false;
+      }
+      const player = chiptuneRef.current ?? new DuskChiptune();
+      chiptuneRef.current = player;
+      const started = await player.start();
+      if (started || !preserveIntentOnFailure) {
+        setIsSoundtrackEnabled(started);
+      }
+      if (!silent) {
+        setStatus(started ? copy.soundtrackOn : unsupportedMessage);
+      }
+      return started;
+    },
+    [copy.soundtrackOn, language],
+  );
+
   const toggleSoundtrack = useCallback(async () => {
     if (isSoundtrackEnabled) {
       chiptuneRef.current?.stop();
@@ -770,17 +809,8 @@ export function App() {
       setStatus(copy.soundtrackOff);
       return;
     }
-    if (!isChiptuneSupported()) {
-      return;
-    }
-    const player = chiptuneRef.current ?? new DuskChiptune();
-    chiptuneRef.current = player;
-    const started = await player.start();
-    if (started) {
-      setIsSoundtrackEnabled(true);
-      setStatus(copy.soundtrackOn);
-    }
-  }, [copy.soundtrackOff, copy.soundtrackOn, isSoundtrackEnabled]);
+    await startSoundtrack();
+  }, [copy.soundtrackOff, isSoundtrackEnabled, startSoundtrack]);
 
   useEffect(
     () => () => {
@@ -805,12 +835,30 @@ export function App() {
       return;
     }
     let cancelled = false;
-    const attempt = () => {
-      if (cancelled) {
+    let attempting = false;
+    const attempt = (event: Event) => {
+      if (cancelled || attempting) {
         return;
       }
-      void startMusic({ rememberMute: false, silent: true });
-      teardown();
+      if (
+        event instanceof KeyboardEvent &&
+        ["b", "t"].includes(event.key.toLowerCase())
+      ) {
+        return;
+      }
+      if (
+        event.target instanceof Element &&
+        event.target.closest("[data-audio-toggle]")
+      ) {
+        return;
+      }
+      attempting = true;
+      void startMusic({ rememberMute: false, silent: true }).then((started) => {
+        attempting = false;
+        if (started) {
+          teardown();
+        }
+      });
     };
     const teardown = () => {
       window.removeEventListener("pointerdown", attempt);
@@ -818,19 +866,76 @@ export function App() {
       window.removeEventListener("keydown", attempt);
     };
     window.addEventListener("pointerdown", attempt, {
-      once: true,
       passive: true,
     });
     window.addEventListener("touchstart", attempt, {
-      once: true,
       passive: true,
     });
-    window.addEventListener("keydown", attempt, { once: true });
+    window.addEventListener("keydown", attempt);
     return () => {
       cancelled = true;
       teardown();
     };
   }, [startMusic]);
+
+  // Dusk Republic follows the same iOS-safe policy as the ambient layer:
+  // enabled by default, physically started only by the first ordinary user
+  // gesture. Audio-toggle gestures are left to their own click handlers.
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !isSoundtrackEnabled ||
+      chiptuneRef.current?.playing ||
+      !isChiptuneSupported()
+    ) {
+      return;
+    }
+    let cancelled = false;
+    let attempting = false;
+    const attempt = (event: Event) => {
+      if (cancelled || attempting) {
+        return;
+      }
+      if (
+        event instanceof KeyboardEvent &&
+        ["b", "t"].includes(event.key.toLowerCase())
+      ) {
+        return;
+      }
+      if (
+        event.target instanceof Element &&
+        event.target.closest("[data-audio-toggle]")
+      ) {
+        return;
+      }
+      attempting = true;
+      void startSoundtrack({
+        preserveIntentOnFailure: true,
+        silent: true,
+      }).then((started) => {
+        attempting = false;
+        if (started) {
+          teardown();
+        }
+      });
+    };
+    const teardown = () => {
+      window.removeEventListener("pointerdown", attempt);
+      window.removeEventListener("touchstart", attempt);
+      window.removeEventListener("keydown", attempt);
+    };
+    window.addEventListener("pointerdown", attempt, {
+      passive: true,
+    });
+    window.addEventListener("touchstart", attempt, {
+      passive: true,
+    });
+    window.addEventListener("keydown", attempt);
+    return () => {
+      cancelled = true;
+      teardown();
+    };
+  }, [isSoundtrackEnabled, startSoundtrack]);
 
   useEffect(() => {
     try {
@@ -2093,6 +2198,7 @@ export function App() {
           </button>
           <button
             type="button"
+            data-audio-toggle="ambient"
             aria-label={isMusicEnabled ? copy.musicOff : copy.musicOn}
             aria-pressed={isMusicEnabled}
             title={`${isMusicEnabled ? copy.musicOff : copy.musicOn} (B)`}
@@ -2106,11 +2212,14 @@ export function App() {
           </button>
           <button
             type="button"
+            data-audio-toggle="soundtrack"
             aria-label={
               isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
             }
             aria-pressed={isSoundtrackEnabled}
-            className={isSoundtrackEnabled ? "is-active" : undefined}
+            className={`soundtrack-toggle${
+              isSoundtrackEnabled ? " is-active" : ""
+            }`}
             title={`${
               isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
             } (T)`}
@@ -2778,6 +2887,7 @@ export function App() {
             </button>
             <button
               type="button"
+              data-audio-toggle="ambient"
               aria-pressed={isMusicEnabled}
               onClick={toggleMusic}
             >
@@ -2787,6 +2897,22 @@ export function App() {
                 <VolumeX size={20} aria-hidden="true" />
               )}
               <span>{isMusicEnabled ? copy.musicOff : copy.musicOn}</span>
+            </button>
+            <button
+              type="button"
+              data-audio-toggle="soundtrack"
+              aria-label={
+                isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
+              }
+              aria-pressed={isSoundtrackEnabled}
+              className="soundtrack-toggle"
+              onClick={() => {
+                setMobileSheet(null);
+                void toggleSoundtrack();
+              }}
+            >
+              <Music size={20} aria-hidden="true" />
+              <span>{copy.soundtrack}</span>
             </button>
             <button
               type="button"
@@ -3149,6 +3275,12 @@ export function App() {
                   <kbd>B</kbd>
                 </dt>
                 <dd>{isMusicEnabled ? copy.musicOff : copy.musicOn}</dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>T</kbd>
+                </dt>
+                <dd>{copy.soundtrackShortcut}</dd>
               </div>
               <div>
                 <dt>

@@ -4,7 +4,9 @@ import {
   AEOLIAN,
   CHIP_BPM,
   CHIP_CYCLE_SECTIONS,
+  CHIP_MAX_STEPS_PER_TICK,
   CHIP_MASTER_GAIN,
+  CHIP_SCHEDULE_RESUME_DELAY_SECONDS,
   CHIP_SECTIONS,
   CHIP_STEP_SECONDS,
   DuskChiptune,
@@ -15,6 +17,7 @@ import {
   LEAD_OCTAVES,
   PHRYGIAN,
   TRANSITION_STEPS,
+  chipScheduleBatch,
   chipLoopSeconds,
   contourAt,
   degreeToMidi,
@@ -31,6 +34,7 @@ import {
   sectionSteps,
   stepsPerEvent,
 } from "../src/DuskChiptune";
+import { AMBIENT_MASTER_GAIN } from "../src/AmbientSoundscape";
 
 const MOTORIK = CHIP_SECTIONS.filter((section) => section.movement === "motorik");
 const SLOW = CHIP_SECTIONS.filter((section) => section.movement === "slow");
@@ -78,6 +82,12 @@ describe("Dusk Republic — two movements, equal weight", () => {
     // Still minor, still dark.
     expect(AEOLIAN[2]).toBe(3);
     expect(PHRYGIAN[1]).toBe(1);
+  });
+
+  test("the two optional audio layers retain shared mobile headroom", () => {
+    expect(CHIP_MASTER_GAIN).toBe(0.03);
+    expect(AMBIENT_MASTER_GAIN).toBe(0.07);
+    expect(CHIP_MASTER_GAIN + AMBIENT_MASTER_GAIN).toBeLessThanOrEqual(0.1);
   });
 
   test("the loop is twice as long and recurs only after many hours", () => {
@@ -302,14 +312,76 @@ describe("Dusk Republic — pitch material", () => {
 });
 
 describe("Dusk Republic — player", () => {
+  test("a five-minute scheduler run stays bounded and chronological", () => {
+    let nextStepAt = 0.12;
+    let scheduled = 0;
+    let largestBatch = 0;
+    for (let currentTime = 0; currentTime <= 5 * 60; currentTime += 0.09) {
+      const batch = chipScheduleBatch(currentTime, nextStepAt);
+      largestBatch = Math.max(largestBatch, batch.times.length);
+      for (let index = 1; index < batch.times.length; index += 1) {
+        expect(batch.times[index]).toBeGreaterThan(batch.times[index - 1]);
+      }
+      scheduled += batch.times.length;
+      nextStepAt = batch.nextStepAt;
+    }
+    expect(scheduled).toBeGreaterThan(2_300);
+    expect(scheduled).toBeLessThan(2_500);
+    expect(largestBatch).toBeLessThanOrEqual(CHIP_MAX_STEPS_PER_TICK);
+  });
+
+  test("a throttled background timer resumes ahead of now without a burst", () => {
+    const batch = chipScheduleBatch(305, 4.2);
+    expect(batch.times).toHaveLength(3);
+    expect(batch.times[0]).toBeCloseTo(
+      305 + CHIP_SCHEDULE_RESUME_DELAY_SECONDS,
+      6,
+    );
+    expect(batch.times.length).toBeLessThanOrEqual(
+      CHIP_MAX_STEPS_PER_TICK,
+    );
+  });
+
   test("starts idle and reports unsupported environments instead of throwing", async () => {
     const player = new DuskChiptune();
     expect(player.playing).toBe(false);
+    expect(player.activeVoiceCount).toBe(0);
     const started = await player.start();
     expect(started).toBe(false);
     expect(player.playing).toBe(false);
     player.stop();
     await player.dispose();
     expect(player.playing).toBe(false);
+  });
+
+  test("disconnects every ended one-shot graph from the active registry", () => {
+    const player = new DuskChiptune();
+    let sourceDisconnects = 0;
+    let nodeDisconnects = 0;
+    const source = {
+      disconnect() {
+        sourceDisconnects += 1;
+      },
+      onended: null,
+    } as unknown as AudioScheduledSourceNode;
+    const node = {
+      disconnect() {
+        nodeDisconnects += 1;
+      },
+    } as unknown as AudioNode;
+    const trackedPlayer = player as unknown as {
+      trackSource(
+        trackedSource: AudioScheduledSourceNode,
+        nodes: AudioNode[],
+      ): void;
+    };
+
+    trackedPlayer.trackSource(source, [node]);
+    expect(player.activeVoiceCount).toBe(1);
+    (source.onended as unknown as () => void)();
+
+    expect(sourceDisconnects).toBe(1);
+    expect(nodeDisconnects).toBe(1);
+    expect(player.activeVoiceCount).toBe(0);
   });
 });

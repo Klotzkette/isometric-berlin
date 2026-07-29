@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.36.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.36.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.37.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.37.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.36.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.37.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,7 +42,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.36.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.37.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -161,7 +161,12 @@ labelled compatibility fallback for browsers that cannot run local modules.
   calls the German list `Sehenswürdigkeiten`. Optional music (`B`) starts only
   after an explicit click and synthesizes seven original slow 8-bit ambient
   variations locally with Web Audio; no recording, stream or external asset is
-  loaded. Seven brief bilingual discovery notes appear once per selected sight.
+  loaded. `Dusk Republic` (`T`) is a second procedural Web Audio layer with
+  slow and motorik movements on one 118 BPM grid. It is enabled again on every
+  page load, starts audibly only after the browser receives a user gesture and
+  can be switched off for the current session. Both layers may run together
+  within a fixed low-volume headroom budget. Seven brief bilingual discovery
+  notes appear once per selected sight.
 - A bounded sharpen/saturation pass runs only after camera motion stops, while
   movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
   and the Carillon layer now lets the official mesh carry its granite pylons

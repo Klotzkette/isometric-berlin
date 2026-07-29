@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.37.0
+
+- **`Dusk Republic` joins the viewer as a fully procedural soundtrack.** The
+  integrated side-branch composition alternates equal slow and motorik
+  movements on one 118 BPM sixteenth-note grid, passes through D Aeolian and
+  one Phrygian station per movement, and combines co-prime phrase cycles whose
+  exact section sequence repeats only after more than eight hours. It ships as
+  Web Audio code rather than an audio file and adds no download or streaming
+  dependency.
+- **The soundtrack is on by default without violating browser autoplay
+  policy.** Every reload restores the enabled intent; the AudioContext begins
+  only on the first ordinary pointer, touch or keyboard gesture. `T` and the
+  toolbar note button switch it off or on for the current session. Deliberately
+  no `localStorage` mute key is used, matching the owner's requirement that a
+  reload returns to on.
+- **Five hard integration failures are closed.** A cancellable, timeout-bounded
+  start prevents rapid off/on races; transient first-gesture failures preserve
+  the enabled intent and retry on the next gesture; hidden tabs suspend the
+  context and resume at most four fresh steps instead of emitting a note
+  backlog; every completed oscillator graph disconnects and leaves the active
+  source registry; and the shared Ambient + Dusk master ceiling is now exactly
+  0.10 (`0.07 + 0.03`) to prevent summed clipping or mud.
+- **The controls remain compact and accessible.** Desktop and mobile receive
+  labelled, pressed-state-aware note controls; the compact action-sheet target
+  is 54 px high at 390 px viewport width, `T` is documented in both languages,
+  and audio controls no longer trigger the other layer's gesture bootstrap.
+  The active soundtrack receives one restrained warm-gold flat accent without
+  changing the viewer's architectural palette.
+- **Duration and spatial contracts remain stable.** A deterministic five-minute
+  scheduler simulation stays bounded and chronological, background jumps are
+  regression-tested, and the complete TypeScript/Python/package gates remain
+  mandatory. No map geometry moved: Day, Night and Minecraft retain the same
+  versioned **3210 m** presentation radius.
+
 ## v0.36.0
 
 - **No more black square-window failure on the principal buildings.**

@@ -81,7 +81,12 @@ export const CHIP_ROOT_MIDI = 38; // D2
 /** Motorik tempo: fast enough to drive, slow enough to stay hypnotic. */
 export const CHIP_BPM = 118;
 export const CHIP_STEP_SECONDS = 60 / CHIP_BPM / 4; // sixteenth notes
-export const CHIP_MASTER_GAIN = 0.05;
+// Mixed with the optional ambient layer, so the two masters sum to 0.10
+// instead of competing for headroom in mobile speakers.
+export const CHIP_MASTER_GAIN = 0.03;
+export const CHIP_SCHEDULE_AHEAD_SECONDS = 0.4;
+export const CHIP_SCHEDULE_RESUME_DELAY_SECONDS = 0.06;
+export const CHIP_MAX_STEPS_PER_TICK = 4;
 
 /** The motorik spine: a click on every quarter, a hat on every eighth. */
 export const CLICK_EVERY_STEPS = 4;
@@ -504,12 +509,46 @@ export function midiFrequency(midi: number): number {
 export function isChiptuneSupported(): boolean {
   return (
     typeof window !== "undefined" &&
-    typeof (window.AudioContext ?? (window as never as Record<string, unknown>).webkitAudioContext) !==
-      "undefined"
+    typeof (
+      window.AudioContext ??
+      (window as never as Record<string, unknown>).webkitAudioContext
+    ) !== "undefined"
   );
 }
 
 type PulseDuty = 0.125 | 0.25 | 0.5;
+
+export type ChipScheduleBatch = {
+  nextStepAt: number;
+  times: readonly number[];
+};
+
+/**
+ * Build one bounded look-ahead batch. A background-tab jump restarts just
+ * ahead of "now"; it never emits a pile of past-due steps.
+ */
+export function chipScheduleBatch(
+  currentTime: number,
+  nextStepAt: number,
+): ChipScheduleBatch {
+  let cursor = nextStepAt;
+  if (
+    !Number.isFinite(cursor) ||
+    cursor < currentTime - CHIP_STEP_SECONDS
+  ) {
+    cursor = currentTime + CHIP_SCHEDULE_RESUME_DELAY_SECONDS;
+  }
+  const times: number[] = [];
+  const horizon = currentTime + CHIP_SCHEDULE_AHEAD_SECONDS;
+  while (
+    cursor < horizon &&
+    times.length < CHIP_MAX_STEPS_PER_TICK
+  ) {
+    times.push(cursor);
+    cursor += CHIP_STEP_SECONDS;
+  }
+  return { nextStepAt: cursor, times };
+}
 
 /**
  * A real pulse wave via Fourier series — the square-ish timbre of an
@@ -537,6 +576,9 @@ export class DuskChiptune {
   private lowpass: BiquadFilterNode | null = null;
   private pulseWaves: Map<PulseDuty, PeriodicWave> = new Map();
   private noiseBuffer: AudioBuffer | null = null;
+  private activeSources = new Map<AudioScheduledSourceNode, AudioNode[]>();
+  private startGeneration = 0;
+  private startPromise: Promise<boolean> | null = null;
   private timer: number | null = null;
   private nextStepAt = 0;
   private step = 0;
@@ -545,13 +587,33 @@ export class DuskChiptune {
     return this.timer !== null;
   }
 
+  get activeVoiceCount(): number {
+    return this.activeSources.size;
+  }
+
   async start(): Promise<boolean> {
     if (this.timer !== null) {
       return true;
     }
+    if (this.startPromise) {
+      return this.startPromise;
+    }
     if (!isChiptuneSupported()) {
       return false;
     }
+    const generation = ++this.startGeneration;
+    const pending = this.startInternal(generation);
+    this.startPromise = pending;
+    try {
+      return await pending;
+    } finally {
+      if (this.startPromise === pending) {
+        this.startPromise = null;
+      }
+    }
+  }
+
+  private async startInternal(generation: number): Promise<boolean> {
     try {
       const Ctor =
         window.AudioContext ??
@@ -559,8 +621,11 @@ export class DuskChiptune {
           .webkitAudioContext as typeof AudioContext);
       const context = this.context ?? new Ctor();
       this.context = context;
-      if (context.state === "suspended") {
-        await context.resume();
+      if (!(await this.resumeWithin(context))) {
+        return false;
+      }
+      if (generation !== this.startGeneration) {
+        return false;
       }
       if (!this.master) {
         // Gentle low-pass: chip waves are harsh up top, and this track
@@ -578,13 +643,17 @@ export class DuskChiptune {
       }
       // Fade in rather than clicking on.
       this.master.gain.cancelScheduledValues(context.currentTime);
-      this.master.gain.setValueAtTime(this.master.gain.value, context.currentTime);
+      this.master.gain.setValueAtTime(
+        this.master.gain.value,
+        context.currentTime,
+      );
       this.master.gain.linearRampToValueAtTime(
         CHIP_MASTER_GAIN,
         context.currentTime + 1.6,
       );
       if (this.nextStepAt < context.currentTime) {
-        this.nextStepAt = context.currentTime + 0.12;
+        this.nextStepAt =
+          context.currentTime + CHIP_SCHEDULE_RESUME_DELAY_SECONDS;
       }
       this.scheduleAhead();
       this.timer = window.setInterval(() => this.scheduleAhead(), 90);
@@ -594,8 +663,31 @@ export class DuskChiptune {
     }
   }
 
+  private resumeWithin(context: AudioContext): Promise<boolean> {
+    if (context.state === "running") {
+      return Promise.resolve(true);
+    }
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (resumed: boolean) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        window.clearTimeout(timer);
+        resolve(resumed);
+      };
+      const timer = window.setTimeout(() => finish(false), 1_500);
+      void context.resume().then(
+        () => finish(context.state === "running"),
+        () => finish(false),
+      );
+    });
+  }
+
   /** Fade out and stop scheduling; the context stays warm for restart. */
   stop(): void {
+    this.startGeneration += 1;
     if (this.timer !== null) {
       window.clearInterval(this.timer);
       this.timer = null;
@@ -607,7 +699,38 @@ export class DuskChiptune {
     }
     master.gain.cancelScheduledValues(context.currentTime);
     master.gain.setValueAtTime(master.gain.value, context.currentTime);
-    master.gain.linearRampToValueAtTime(0, context.currentTime + 0.9);
+    const silentAt = context.currentTime + 0.24;
+    master.gain.linearRampToValueAtTime(0, silentAt);
+    for (const source of this.activeSources.keys()) {
+      try {
+        source.stop(silentAt + 0.02);
+      } catch {
+        // A source that already ended has already left the audible graph.
+      }
+    }
+  }
+
+  async setSuspended(suspended: boolean): Promise<boolean> {
+    const context = this.context;
+    if (!context || context.state === "closed") {
+      return false;
+    }
+    try {
+      if (suspended) {
+        if (context.state === "running") {
+          await context.suspend();
+        }
+        return true;
+      }
+      if (!(await this.resumeWithin(context))) {
+        return false;
+      }
+      this.nextStepAt =
+        context.currentTime + CHIP_SCHEDULE_RESUME_DELAY_SECONDS;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async dispose(): Promise<void> {
@@ -618,6 +741,7 @@ export class DuskChiptune {
     this.lowpass = null;
     this.pulseWaves.clear();
     this.noiseBuffer = null;
+    this.activeSources.clear();
     if (context && context.state !== "closed") {
       try {
         await context.close();
@@ -657,18 +781,15 @@ export class DuskChiptune {
   private scheduleAhead(): void {
     const context = this.context;
     const lowpass = this.lowpass;
-    if (!context || !lowpass || context.state === "closed") {
+    if (!context || !lowpass || context.state !== "running") {
       return;
     }
-    // Catch-up clamp after timer throttling (background tab).
-    if (this.nextStepAt < context.currentTime - CHIP_STEP_SECONDS) {
-      this.nextStepAt = context.currentTime;
-    }
-    while (this.nextStepAt < context.currentTime + 0.4) {
-      this.scheduleStep(context, lowpass, this.nextStepAt, this.step);
-      this.nextStepAt += CHIP_STEP_SECONDS;
+    const batch = chipScheduleBatch(context.currentTime, this.nextStepAt);
+    for (const at of batch.times) {
+      this.scheduleStep(context, lowpass, at, this.step);
       this.step += 1;
     }
+    this.nextStepAt = batch.nextStepAt;
   }
 
   private scheduleStep(
@@ -783,6 +904,7 @@ export class DuskChiptune {
     gain.connect(destination);
     source.start(at);
     source.stop(at + spec.decay + 0.05);
+    this.trackSource(source, [bandpass, gain]);
   }
 
   private voice(
@@ -817,5 +939,28 @@ export class DuskChiptune {
     gain.connect(destination);
     oscillator.start(spec.at);
     oscillator.stop(spec.at + Math.max(0.14, spec.duration) + 0.02);
+    this.trackSource(oscillator, [gain]);
+  }
+
+  private trackSource(
+    source: AudioScheduledSourceNode,
+    nodes: AudioNode[],
+  ): void {
+    this.activeSources.set(source, nodes);
+    source.onended = () => {
+      try {
+        source.disconnect();
+      } catch {
+        // Disconnect is best-effort during AudioContext shutdown.
+      }
+      for (const node of nodes) {
+        try {
+          node.disconnect();
+        } catch {
+          // The node may already have been disconnected by context closure.
+        }
+      }
+      this.activeSources.delete(source);
+    };
   }
 }

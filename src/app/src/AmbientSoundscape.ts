@@ -55,6 +55,8 @@ export const AMBIENT_VARIANTS: readonly AmbientVariant[] = [
 const BPM = 72;
 const STEP_SECONDS = 60 / BPM / 4;
 const STEPS_PER_VARIANT = 64;
+// Leaves shared headroom for the optional 0.03 Dusk Republic layer.
+export const AMBIENT_MASTER_GAIN = 0.07;
 
 // The percussive beat used to fire on every odd step (eight hits per
 // sixteen-step bar). v0.5.6 halves that cadence — one swell every four
@@ -174,7 +176,10 @@ export class AmbientSoundscape {
     // Ramp the master gain up from a true 0 with a linear fade-in so the
     // very first sample is silent — no start-up thump.
     master.gain.setValueAtTime(0, context.currentTime);
-    master.gain.linearRampToValueAtTime(0.095, context.currentTime + 1.4);
+    master.gain.linearRampToValueAtTime(
+      AMBIENT_MASTER_GAIN,
+      context.currentTime + 1.4,
+    );
     compressor.threshold.value = -22;
     compressor.knee.value = 14;
     compressor.ratio.value = 4;
