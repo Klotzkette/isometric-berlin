@@ -182,7 +182,11 @@ export function cleanedTone(tone: [number, number, number]): Color {
   // Bright ivory band: no murky greys or dark yellows survive.
   // Ten bands rather than six: the raised floor would otherwise collapse
   // every facade onto two paint levels and flatten the drawing.
-  const clamped = Math.min(0.88, Math.max(0.68, luma));
+  // The floor is chosen AFTER quantisation matters: with ten bands the old
+  // 0.68 floor still snapped down to 6/9 = 0.667, so "bright band" was a
+  // claim the maths did not keep. 0.75 snaps up to 7/9 = 0.778 — a real
+  // 17 % lift for the darkest facades ("alle Gebäude heller, nicht grau").
+  const clamped = Math.min(0.93, Math.max(0.75, luma));
   const bands = 10;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
@@ -233,16 +237,16 @@ const IVORY = new Color(0xf8f3e6);
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
-    return new Color(pinned).lerp(IVORY, 0.18);
+    return new Color(pinned).lerp(IVORY, 0.26);
   }
   if (inReichstagRegion(building)) {
-    return new Color(0xc9c5ba).lerp(IVORY, 0.2);
+    return new Color(0xd6d2c7).lerp(IVORY, 0.28);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone).lerp(IVORY, 0.42);
+    return cleanedTone(building.tone).lerp(IVORY, 0.46);
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -320,6 +324,7 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   // Accessory meshes share the prism convention: exact flat paint by
   // day (unlit), the lit material only under the night rig.
   for (const name of [
+    "Drawn ground slabs",
     "drawn quay walls",
     "bridge structure bodies",
     "Adlon bodies",
@@ -2459,7 +2464,7 @@ export function createWestTiergarten(): Group {
   const trunkSpots = extrapolatedTreeSpots();
   const trunks = new InstancedMesh(
     new BoxGeometry(0.5, 3.4, 0.5),
-    new MeshStandardMaterial({ color: 0x6f5a41, flatShading: true, roughness: 0.9 }),
+    new MeshStandardMaterial({ color: 0x7b6549, flatShading: true, roughness: 0.9 }),
     trunkSpots.length,
   );
   trunks.name = "extrapolated tree trunks";
@@ -2471,7 +2476,10 @@ export function createWestTiergarten(): Group {
   crowns.name = "extrapolated tree crowns";
   const matrix = new Matrix4();
   const crownPaint = new Color();
-  const CROWN_TONES = [0x7da371, 0x8db07e, 0x76996d] as const;
+  // The same sage family as the OSM parkland crowns (ParkDetails). They
+  // used to be a visibly darker green, so the extrapolated west Tiergarten
+  // read as a different, heavier forest than the surveyed inner park.
+  const CROWN_TONES = [0x9dbd8e, 0xaac89a, 0x93b485] as const;
   trunkSpots.forEach(([x, z], index) => {
     matrix.identity();
     matrix.setPosition(x, GROUND_TOP + 1.7, z);
@@ -4264,6 +4272,16 @@ export function createIsometricCity(
       ISO_GROUND_SHADES,
       { emissive: 0x000000, skipBridge: true, skipWater: true },
     );
+    // The ground joins the prism convention: exact flat paint by day
+    // (unlit), the lit material only under the night rig. Until now the
+    // drawn ground was the ONE lit surface in an unlit drawing, so the
+    // authored sage lawn arrived on screen as whatever the day rig
+    // happened to multiply it by — never as the tone in ISO_GROUND_SHADES.
+    // The instance colours carry the paint; a white unlit base passes them
+    // through untouched.
+    slabs.userData.nightMaterial = slabs.material;
+    slabs.userData.dayMaterial = new MeshBasicMaterial({ color: 0xffffff });
+    slabs.material = slabs.userData.dayMaterial as MeshBasicMaterial;
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface

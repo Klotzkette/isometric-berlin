@@ -105,6 +105,11 @@ void main() {
     texture2D(tDiffuse, snappedUv - sampleStep * 1.7).rgb;
   colour += bloom * bright * 0.010;
   colour = premiumShimmer(colour, snappedUv);
-  colour *= vec3(1.045, 1.02, 0.93);
+  // No warm grade. The removed `vec3(1.045, 1.02, 0.93)` skewed red over
+  // blue by 12 % on EVERY pixel, which is what repainted the Chancellery's
+  // white concrete as a khaki-yellow block ("warum … diese hässlichen
+  // Fassaden"). Minecraft's warmth now comes only from the key light's own
+  // colour, so a white block stays white and a sandstone block stays
+  // sandstone — real building colours, not a global tint.
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

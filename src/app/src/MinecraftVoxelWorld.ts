@@ -125,7 +125,11 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     name: "Bundeskanzleramt",
     paddingM: 6,
     rotationDegrees: -1.337,
-    tone: 0xf3efd0,
+    // Pale cool concrete, not the warm cream 0xf3efd0 this pin used to
+    // carry. Cream has 31 units more green than blue, and once the voxel
+    // rig multiplied it the Chancellery — white concrete in reality —
+    // rendered as a khaki-yellow block across its whole 343 m envelope.
+    tone: 0xd6dfe0,
     widthM: 342.676,
   },
   {
@@ -272,31 +276,47 @@ export function buildColumnToneLookup(prisms: {
     tone?: [number, number, number];
   }>;
 }): ColumnToneLookup {
-  const palette = MINECRAFT_BUILDING_PALETTE.map((hex) => ({
-    b: hex & 255,
-    g: (hex >> 8) & 255,
-    hex,
-    r: (hex >> 16) & 255,
-  }));
+  // Chroma carries identity, brightness does not. Plain RGB distance let a
+  // near-neutral concrete sample land on the sandstone creams simply
+  // because they are the brightest entries — which is why the Chancellery,
+  // white concrete in reality, rendered as a khaki-yellow block. Matching
+  // on (luma, r−luma, b−luma) with the two chroma axes weighted four times
+  // keeps a grey building grey and a warm building warm.
+  const CHROMA_WEIGHT = 4;
+  const luminance = (r: number, g: number, b: number): number =>
+    0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const palette = MINECRAFT_BUILDING_PALETTE.map((hex) => {
+    const r = (hex >> 16) & 255;
+    const g = (hex >> 8) & 255;
+    const b = hex & 255;
+    const y = luminance(r, g, b);
+    return { b, cb: b - y, cr: r - y, g, hex, r, y };
+  });
   const snap = (tone: [number, number, number]): number => {
     // Lighten and desaturate the raw photo sample toward the drawn
     // city's bright band BEFORE matching ("heller"), so a building that
     // is pale cream by day is not a dark block in Minecraft.
-    const luma = 0.2126 * tone[0] + 0.7152 * tone[1] + 0.0722 * tone[2];
-    const target = Math.min(232, Math.max(150, luma));
+    const luma = luminance(tone[0], tone[1], tone[2]);
+    // Bright band, matching the drawn city's ivory register: the old floor
+    // of 150 left most Berlin samples (median luma 111) sitting on the two
+    // darkest stone entries, which is the grey-city look the owner rejected.
+    const target = Math.min(236, Math.max(168, luma));
     const scale = target / Math.max(luma, 1);
     const lifted: [number, number, number] = [
       Math.min(255, tone[0] * scale),
       Math.min(255, tone[1] * scale),
       Math.min(255, tone[2] * scale),
     ];
+    const liftedLuma = luminance(lifted[0], lifted[1], lifted[2]);
+    const liftedCr = lifted[0] - liftedLuma;
+    const liftedCb = lifted[2] - liftedLuma;
     let best = palette[0].hex;
     let bestDistance = Number.POSITIVE_INFINITY;
     for (const entry of palette) {
       const distance =
-        (lifted[0] - entry.r) ** 2 +
-        (lifted[1] - entry.g) ** 2 +
-        (lifted[2] - entry.b) ** 2;
+        (liftedLuma - entry.y) ** 2 +
+        CHROMA_WEIGHT *
+          ((liftedCr - entry.cr) ** 2 + (liftedCb - entry.cb) ** 2);
       if (distance < bestDistance) {
         bestDistance = distance;
         best = entry.hex;

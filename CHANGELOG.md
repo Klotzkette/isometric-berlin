@@ -1,5 +1,65 @@
 # Changelog
 
+## v0.38.0
+
+- **The film curve is gone from the drawn modes, and that fixes the palette
+  at the root.** Day and Night now render with no tone mapping at exposure 1,
+  so an authored paint tone reaches the screen bit-exact. v0.37.0 still ran
+  ACES at exposure 1.33 in front of a deliberately FLAT UNLIT drawing, and it
+  was measurably rewriting every colour: the ivory register `#f8f3e6` arrived
+  as a neutral grey `#e9e7e4` (warm r−b 18 collapsed to 5) while the calm sage
+  lawn `#a9c592` arrived as a fluorescent `#d0fea1`. Both complaints — "alle
+  Gebäude heller, nicht grau" and the loud green park — were the same defect
+  pulling in two directions, which is why repainting the palette never fixed
+  either. The crisp pass is now chroma- and contrast-neutral for the same
+  reason; its hue-free sharpening stays. New contract tests pin all of it so
+  the curve cannot return.
+- **One brightness world instead of two.** The drawn ground was the single
+  LIT surface in an unlit drawing, so the authored sage in `ISO_GROUND_SHADES`
+  never actually reached the screen — the day rig multiplied it by whatever it
+  happened to be set to. The ground slabs now join the prism convention with a
+  day/night material pair: exact flat paint by day, the lit material only
+  under the night rig. The remaining lit content (landmark models, trees, park
+  details) is calibrated so a lit up-facing surface reproduces its own paint
+  tone (≈1.07 at the top face, ≈0.78 on an unlit side), and the hemisphere's
+  ground half is nearly as bright as its sky half — that dark half is what had
+  dropped every lit landmark wall to a mid grey beside an ivory prism.
+- **Buildings brighter, not grey, at every source.** The photogrammetric
+  facade band moves from 0.48–0.82 to 0.66–0.94 and quantises onto nine levels
+  instead of five, so the pale stone range no longer collapses onto a single
+  mid grey (measured before: `#b1b4ad` over 33 000 px of the Chancellery).
+  Every drawn facade now also carries a 22 % nudge toward the ivory anchor, so
+  the photogrammetric heroes sit in the same register as the LoD2 prisms
+  instead of reading neutral beside them. `cleanedTone`'s floor moves to 0.75
+  — chosen after quantisation, because the old 0.68 still snapped down to
+  6/9 = 0.667 and the "bright band" was a claim the arithmetic did not keep.
+  The `isoFaceShade` ladder is compressed into the bright register (0.885 …
+  1.0) while keeping four distinct constant steps.
+- **Minecraft: real building colours, no khaki landmarks.** Three separate
+  causes are fixed. The Chancellery's recognition pin was a warm cream
+  (`0xf3efd0`, 31 units more green than blue) and rendered its whole 343 m
+  envelope khaki-yellow — it is now pale cool concrete, which is what the
+  building is. Hero facades restored their RAW photogrammetry colours in
+  Minecraft, painting a warm photo smear across each landmark (98 000 px of
+  `#b6b084`); they now use the flat quantised block colours, which is both
+  correct and more minecrafty. The screen-space warm grade
+  `vec3(1.045, 1.02, 0.93)` skewed red over blue on every pixel and is gone.
+  Column snapping is chroma-weighted so a grey building stays grey, and its
+  lift band moves up (168–236) because Berlin's median sample luma is 111 and
+  the old 150 floor left most of the city on the two darkest stone entries.
+  The voxel rig is recalibrated to match.
+- **Parkland reads as one calm sage.** The extrapolated west Tiergarten used a
+  visibly darker green than the surveyed inner park, so the two halves looked
+  like different forests; both now share the same sage crown family, lifted a
+  step, with lighter trunks.
+- **Areal expansion (+100 m contract): visible radius 3210 m → 3310 m.** The
+  western lobe reaches −3020 m, the paper/park margin widens to 2020 m, the
+  envelope spans x −3020…2621 / z −3050…3471 m and the flight bounds follow.
+  Exactly one new 100 m tree strip is added (79 trees, 1613 → 1692); every
+  previously published strip keeps its positions seed for seed, pinned by
+  test. No surveyed geometry moved and nothing extrapolated is relabelled as
+  measurement.
+
 ## v0.37.1
 
 - **The Tiergartentunnel underside is visible again instead of opening into a

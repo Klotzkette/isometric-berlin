@@ -307,7 +307,7 @@ function addTrees(
     instanced(
       "OSM instanced granular tree trunks",
       new CylinderGeometry(1, 1.18, 1, 7),
-      material(0x68533c),
+      material(0x7b6549),
       trunks,
     ),
   );
@@ -315,7 +315,7 @@ function addTrees(
     instanced(
       "OSM instanced granular tree fork branches",
       new CylinderGeometry(1, 1.18, 1, 6),
-      material(0x70583e),
+      material(0x836d50),
       branches,
     ),
   );
@@ -323,7 +323,7 @@ function addTrees(
   // light and desaturated: at quarter scale the crowns are the biggest
   // colour mass in frame, and darker greens turned the park into a belt
   // of heavy blobs around the pale city.
-  const colors = [0x9dbd8e, 0xaac89a, 0x93b485];
+  const colors = [0xa8c69a, 0xb4d0a6, 0x9dbf90];
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(

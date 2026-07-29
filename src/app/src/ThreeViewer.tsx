@@ -1,6 +1,5 @@
 import {
   TOUCH,
-  ACESFilmicToneMapping,
   Box3,
   BoxGeometry,
   BufferGeometry,
@@ -93,6 +92,7 @@ import {
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { minecraftFogRange } from "./minecraftFog";
+import { PRESENTATION_TONE } from "./presentationTone";
 import {
   type PrismPayload,
   type SurfacePayload,
@@ -306,8 +306,10 @@ function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void 
     const deep = new Color(UNDERWATER_COLOR);
     runtime.scene.background = deep;
     runtime.scene.fog = new Fog(deep.getHex(), 4, 240);
-    runtime.renderer.toneMappingExposure = 0.94;
-    runtime.hemisphere.intensity = 1.1;
+    // Underwater dims the whole plate a little; with no film curve this is
+    // a straight linear scale, not a curve shift.
+    runtime.renderer.toneMappingExposure = 0.82;
+    runtime.hemisphere.intensity = 0.9;
   } else {
     setSceneLighting(runtime, runtime.lightingMode);
   }
@@ -478,7 +480,14 @@ function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
     // original per-vertex photogrammetry colours: day = piecewise-constant flat
     // faces, night/minecraft = original lit look (lossless mode switch).
     if (object.geometry?.userData?.flatColorsBuilt === true) {
-      setBuildingColorMode(object.geometry, mode === "day");
+      // Flat quantised block colours in BOTH drawn day and Minecraft. Only
+      // night restores the raw photogrammetry colours, where the dim blue
+      // rig hides the photo grain anyway. Minecraft used to restore them
+      // too, which put a warm khaki PHOTO SMEAR across every hero facade —
+      // measured as 98 000 px of #b6b084 on the Chancellery, and the actual
+      // source of "warum … diese hässlichen Fassaden". Flat faces are also
+      // simply more minecrafty than a photograph.
+      setBuildingColorMode(object.geometry, mode !== "night");
     }
     const materials = Array.isArray(object.material)
       ? object.material
@@ -512,20 +521,40 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   runtime.scene.fog = isMinecraft
     ? new Fog(sky, voxelFog.near, voxelFog.far)
     : null;
-  // Minecraft exposure compensates for the darker outline pass and the
-  // wider light/dark contrast so mids stay readable, not muddy.
-  runtime.renderer.toneMappingExposure = isNight ? 0.82 : isMinecraft ? 1.62 : 1.33;
+  // Tone response per mode: the drawn modes reproduce authored paint with
+  // no film curve, Minecraft keeps ACES for its lit cubes. See
+  // presentationTone.ts for the measurements behind that split.
+  const tone = PRESENTATION_TONE[mode];
+  runtime.renderer.toneMapping = tone.toneMapping;
+  runtime.renderer.toneMappingExposure = tone.exposure;
   runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
-  runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x4f743f : 0x8e9589);
-  // Minecraft wants strong shadow sides on cubes: ambient down, key up.
-  // Day is gallery light ("weiße, helle Paneele"): softer, cooler sun
-  // and a higher ambient floor, so facades read as pale stone panels
-  // instead of sun-browned masses.
-  runtime.hemisphere.intensity = isNight ? 0.34 : isMinecraft ? 1.95 : 2.52;
-  runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xffdda3 : 0xfff8ea);
-  runtime.sun.intensity = isNight ? 0.62 : isMinecraft ? 3.72 : 2.72;
+  // Day's hemisphere ground half is nearly as bright as its sky half. A
+  // HemisphereLight weights a VERTICAL face at the midpoint of the two, so
+  // the old dark 0x8e9589 half was what dropped every lit landmark wall to
+  // a mid grey while the unlit prisms beside it stayed ivory. Two different
+  // brightness worlds in one drawing; now they agree.
+  runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x8ea084 : 0xe4e6e0);
+  // Without a film curve the drawn modes need light levels that land BELOW
+  // clipping on their own: the previous 2.52/2.72 rig relied on the ACES
+  // shoulder to pull an over-driven scene back into range, which is exactly
+  // what greyed the ivory. Minecraft keeps strong shadow sides on its cubes.
+  // Day is calibrated so a LIT up-facing surface reproduces its own paint
+  // tone: (hemisphere + sun · n·l) / π ≈ 1.07 for a top face, dropping to
+  // ≈ 0.76 on a shadow side. Lit content (trees, park details, monuments)
+  // therefore agrees tonally with the unlit prisms and ground instead of
+  // being multiplied by an arbitrary rig, and the face-to-face step reads
+  // as the same axonometric plasticity `isoFaceShade` draws by hand.
+  runtime.hemisphere.intensity = isNight ? 0.52 : isMinecraft ? 2.05 : 2.75;
+  // A near-white key: the old amber 0xffdda3 crushed the blue channel of
+  // every cream facade and turned the Chancellery lemon-yellow.
+  runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xfffaf0 : 0xfff8ea);
+  // Day's key is deliberately gentle. With the ambient half carrying the
+  // brightness, the sun only has to supply the direction of the light —
+  // the same job `isoFaceShade` does for the unlit prisms. A strong key
+  // would reintroduce the blob shadows the owner rejected.
+  runtime.sun.intensity = isNight ? 0.85 : isMinecraft ? 2.2 : 0.62;
   runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);
-  runtime.skyFill.intensity = isNight ? 0.18 : isMinecraft ? 0.44 : 0.24;
+  runtime.skyFill.intensity = isNight ? 0.2 : isMinecraft ? 0.5 : 0.12;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
@@ -1762,8 +1791,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         powerPreference: "high-performance",
       });
       renderer.outputColorSpace = SRGBColorSpace;
-      renderer.toneMapping = ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.23;
+      renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
+      renderer.toneMappingExposure = PRESENTATION_TONE.day.exposure;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = PCFShadowMap;
       renderer.setPixelRatio(1);
@@ -1778,9 +1807,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const scene = new Scene();
       scene.background = new Color(0xdcf3f9);
       scene.fog = new Fog(0xdcf3f9, 1100, 2550);
-      const hemisphere = new HemisphereLight(0xffffff, 0x57775b, 2.06);
+      // Day levels; setSceneLighting re-applies the per-mode rig on the
+      // first frame. Kept in range on their own — no film curve compresses
+      // an over-driven scene back down any more.
+      const hemisphere = new HemisphereLight(0xffffff, 0xe4e6e0, 2.75);
       scene.add(hemisphere);
-      const sun = new DirectionalLight(0xffefc9, 3.28);
+      const sun = new DirectionalLight(0xfff8ea, 0.62);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
       sun.shadow.mapSize.set(2048, 2048);

@@ -1,6 +1,6 @@
-export const VISIBLE_RADIUS_M = 3210;
-export const EXTRAPOLATED_WEST_M = -2920;
-export const EXTRAPOLATED_MARGIN_M = 1920;
+export const VISIBLE_RADIUS_M = 3310;
+export const EXTRAPOLATED_WEST_M = -3020;
+export const EXTRAPOLATED_MARGIN_M = 2020;
 
 export const WEST_PARK_EAST_M = -658;
 export const WEST_PARK_NORTH_M = -160;
@@ -109,6 +109,7 @@ export function extrapolatedTreeSpots(): Array<[number, number]> {
   const v032West = -2620;
   const v033West = -2720;
   const v034West = -2820;
+  const v035West = -2920;
 
   for (let index = 0; index < 720; index += 1) {
     const hx = (Math.imul(index + 1, 2654435761) >>> 9) % 10_000;
@@ -167,7 +168,8 @@ export function extrapolatedTreeSpots(): Array<[number, number]> {
     [v032West, v030West, 2749, 2861],
     [v033West, v032West, 3163, 3271],
     [v034West, v033West, 3571, 3701],
-    [EXTRAPOLATED_WEST_M, v034West, 4001, 4127],
+    [v035West, v034West, 4001, 4127],
+    [EXTRAPOLATED_WEST_M, v035West, 4483, 4621],
   ];
   for (const [west, east, xSeed, zSeed] of strips) {
     for (let index = 0; index < 84; index += 1) {

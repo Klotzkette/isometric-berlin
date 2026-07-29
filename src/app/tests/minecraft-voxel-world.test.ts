@@ -36,7 +36,10 @@ describe("true voxel Minecraft world", () => {
     const reichstag = lookup(308, 41);
     expect(reichstag).toBe(0xd4d4b7);
     expect(MINECRAFT_PALETTE.includes(reichstag as never)).toBe(true);
-    expect(lookup(-154, -146)).toBe(0xf3efd0);
+    // The Chancellery is white concrete, so its near-neutral sample must
+    // snap to the pale COOL entry, never to a warm sandstone cream — plain
+    // RGB distance used to pick the cream and rendered it khaki-yellow.
+    expect(lookup(-154, -146)).toBe(0xd6dfe0);
     expect(lookup(-5000, -5000)).toBeNull();
     // Coverage: most surveyed columns resolve to a real tone.
     let hits = 0;

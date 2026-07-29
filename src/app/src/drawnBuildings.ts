@@ -82,8 +82,21 @@ export function quantizeChannel(value: number, steps: number): number {
 // readable (never black) without washing bright buildings out.
 const DESATURATION = 0.3;
 const LIFT_GAMMA = 0.78;
-const MIN_LUMA = 0.48;
-const MAX_LUMA = 0.82;
+// Bright ivory band ("alle Gebäude heller, nicht grau"). The previous
+// 0.48 floor let a shadowed photo sample survive as a mid grey, and with
+// five quantisation levels it then snapped onto 0.5 exactly — measured on
+// the shipped v0.37.0 build, the Chancellery's dominant wall pixel was
+// #b1b4ad, a flat mid grey over 33 000 px. The floor now sits in the pale
+// stone register and the ceiling admits near-white masonry.
+const MIN_LUMA = 0.66;
+const MAX_LUMA = 0.94;
+
+// The whole drawn city leans toward one warm ivory register (the same
+// `IVORY` anchor the LoD2 prism city uses) while each building keeps its
+// own hue. Without this the photogrammetric heroes read neutral grey next
+// to ivory prisms — two different cities in one drawing.
+export const IVORY_ANCHOR: Rgb = [248, 243, 230];
+const IVORY_BLEND = 0.22;
 
 /**
  * Clean a facade's dominant real colour into a single flat illustrated tone,
@@ -109,11 +122,15 @@ export function dominantFacadeColor(rgb: Rgb): Rgb {
   );
   const scale = lifted / Math.max(luma, 1e-3);
   const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
-  return [
-    clamp01(r * scale) * 255,
-    clamp01(g * scale) * 255,
-    clamp01(b * scale) * 255,
-  ];
+  return blendTowardAnchor(
+    [
+      clamp01(r * scale) * 255,
+      clamp01(g * scale) * 255,
+      clamp01(b * scale) * 255,
+    ],
+    IVORY_ANCHOR,
+    IVORY_BLEND,
+  );
 }
 
 /** Linear blend of two colours, 0 = keep `color`, 1 = fully `anchor`. */
@@ -135,10 +152,13 @@ export function blendTowardAnchor(color: Rgb, anchor: Rgb, amount: number): Rgb 
 // overall colour family is pinned. The Schweizerische Botschaft lives only in a
 // shared base-tile atlas (no separate mesh id), so it relies on the natural
 // dominant-colour extraction — light natural stone falls out of that directly.
+// Lifted into the same bright band as the rest of the round: the anchors
+// used to sit a step below their real materials, which is what made the
+// hero models the greyest objects in the drawing.
 export const HERO_FACADE_ANCHORS: Record<string, Rgb> = {
-  reichstag: [214, 200, 170],
-  bundeskanzleramt: [227, 226, 222],
-  hauptbahnhof: [198, 209, 218],
+  reichstag: [228, 217, 191],
+  bundeskanzleramt: [240, 238, 232],
+  hauptbahnhof: [215, 224, 232],
 };
 const HERO_ANCHOR_BLEND = 0.55;
 
@@ -339,7 +359,12 @@ function faceBucket(
 // SAME colour, so a building reads as one (or a few) large uniform flat faces
 // with hard steps only where the real colour genuinely changes — the clean
 // isometric look ("klare einheitliche Flächen"), never a smear.
-const FLAT_PALETTE_LEVELS = 5;
+// Nine levels, not five. Five gave steps of 0.25, so the entire pale
+// stone range collapsed onto 0.5 or 0.75 — one coarse grey for half the
+// city. Nine keeps the faces strictly flat (still a quantised palette, no
+// gradients) while giving the ivory band four usable steps, so a light
+// facade stays light instead of falling a whole quarter of the range.
+const FLAT_PALETTE_LEVELS = 9;
 
 // How many grid cells to lay across the widest horizontal span of a tile. The
 // photogrammetry tiles use quantised positions (local extent ≈ 2 units) blown

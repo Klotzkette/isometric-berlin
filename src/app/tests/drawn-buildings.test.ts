@@ -84,8 +84,33 @@ describe("dominantFacadeColor keeps the building's real colour (round-6)", () =>
 
   test("a bright white facade is kept bright but not blown out", () => {
     const l = luma(dominantFacadeColor([240, 240, 240]));
-    expect(l).toBeGreaterThanOrEqual(0.75);
-    expect(l).toBeLessThanOrEqual(0.9);
+    // v0.38.0 raised the band ("alle Gebäude heller, nicht grau"): white
+    // masonry may now reach near-white, it just may not clip.
+    expect(l).toBeGreaterThanOrEqual(0.85);
+    expect(l).toBeLessThan(1);
+  });
+
+  test("no facade is left in the mid-grey register", () => {
+    // The failure this pins: a shadowed photo sample used to survive as a
+    // flat mid grey (measured #b1b4ad across the Chancellery). Every
+    // facade, however dark its sample, now lands in the bright band.
+    for (const sample of [
+      [12, 12, 14],
+      [64, 66, 61],
+      [110, 108, 104],
+      [140, 144, 137],
+    ] as const) {
+      expect(luma(dominantFacadeColor([...sample]))).toBeGreaterThanOrEqual(
+        0.72,
+      );
+    }
+  });
+
+  test("every facade carries a warm ivory cast, never neutral grey", () => {
+    // One register for the whole city: the photogrammetric heroes must not
+    // read neutral next to the ivory LoD2 prisms.
+    const [r, , b] = dominantFacadeColor([128, 128, 128]);
+    expect(r).toBeGreaterThan(b);
   });
 
   test("hue is preserved for a saturated real colour", () => {

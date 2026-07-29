@@ -685,7 +685,10 @@ describe("isometric face shading", () => {
     ];
     for (const side of sides) {
       expect(side).toBeLessThan(ISO_FACE_SHADE.top);
-      expect(side).toBeGreaterThan(0.7);
+      // Compressed into the bright ivory register (v0.38.0): with the film
+      // curve gone, a 0.795 west wall landed on a mid grey — the "alle
+      // Gebäude … grau" report. Four distinct steps survive, all bright.
+      expect(side).toBeGreaterThanOrEqual(0.86);
     }
     expect(new Set(sides).size).toBe(4);
   });

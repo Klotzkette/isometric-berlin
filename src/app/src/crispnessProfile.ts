@@ -21,11 +21,16 @@ export const CRISPNESS_PROFILES: Record<
 > = {
   // Day reads as a light fine-line drawing: barely-there screen-space
   // edges (the geometry ink carries the contours), gentle sharpening.
-  day: { contrast: 1.03, edgeStrength: 0.07, saturation: 1.08, strength: 0.32 },
+  // Saturation and contrast are exactly neutral: with the film curve gone
+  // (presentationTone.ts) the composited pixel equals the authored paint
+  // tone, and a 1.08 chroma lift here would re-introduce the loud green
+  // this round removed. The unsharp mask stays — it sharpens edges without
+  // touching hue.
+  day: { contrast: 1, edgeStrength: 0.07, saturation: 1, strength: 0.32 },
   night: {
-    contrast: 1.035,
+    contrast: 1,
     edgeStrength: 0.35,
-    saturation: 1.05,
+    saturation: 1,
     strength: 0.4,
   },
   minecraft: { contrast: 1, edgeStrength: 0.85, saturation: 1, strength: 0 },
