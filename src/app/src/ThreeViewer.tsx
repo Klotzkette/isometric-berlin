@@ -119,6 +119,8 @@ import {
 } from "./TrafficSignals";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
+  INTERACTION_COALESCE_MS,
+  nextPixelRatioMode,
   renderInteractionActive,
   renderPixelRatio,
 } from "./renderQuality";
@@ -1985,55 +1987,55 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastTouchActivityAt = performance.now();
       let settleUntil = 0;
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
-      let qualityRestoreTimer: number | null = null;
-      const resize = () => {
+      // Resolution mode currently applied to the canvas, plus the hysteresis
+      // clocks the governor in the frame loop reads. Never write the
+      // interaction flags straight into renderPixelRatio: see the governor
+      // comment in renderQuality.ts for why that flickers during a wheel zoom.
+      let pixelRatioInteracting = false;
+      let interactionDeadline = 0;
+      let inputActiveSince: number | null = null;
+      let inputIdleSince: number | null = 0;
+      let appliedWidth = 0;
+      let appliedHeight = 0;
+      let appliedPixelRatio = 0;
+      const resize = (force = false) => {
         const { width, height } = host.getBoundingClientRect();
         if (width < 1 || height < 1) {
           return;
         }
-        renderer.setPixelRatio(
-          renderPixelRatio({
-            coarsePointer,
-            devicePixelRatio: window.devicePixelRatio,
-            height,
-            interacting: renderInteractionActive({
-              controls: controlsInteracting,
-              touch: touchInteracting,
-              wheel: wheelInteracting,
-            }),
-            width,
-          }),
-        );
+        const pixelRatio = renderPixelRatio({
+          coarsePointer,
+          devicePixelRatio: window.devicePixelRatio,
+          height,
+          interacting: pixelRatioInteracting,
+          width,
+        });
+        if (
+          !force &&
+          width === appliedWidth &&
+          height === appliedHeight &&
+          pixelRatio === appliedPixelRatio
+        ) {
+          // Re-applying the same size still reallocates the composer's MSAA
+          // targets, which costs a frame. Nothing changed, so do nothing.
+          return;
+        }
+        appliedWidth = width;
+        appliedHeight = height;
+        appliedPixelRatio = pixelRatio;
+        renderer.setPixelRatio(pixelRatio);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height, false);
-        composer.setPixelRatio(renderer.getPixelRatio());
+        composer.setPixelRatio(pixelRatio);
         composer.setSize(width, height);
         const crispResolution = crispPass.uniforms.resolution.value;
         if (crispResolution instanceof Vector2) {
-          crispResolution.set(
-            width * renderer.getPixelRatio(),
-            height * renderer.getPixelRatio(),
-          );
+          crispResolution.set(width * pixelRatio, height * pixelRatio);
         }
       };
-      const useInteractiveResolution = (): void => {
-        if (qualityRestoreTimer !== null) {
-          window.clearTimeout(qualityRestoreTimer);
-          qualityRestoreTimer = null;
-        }
-        resize();
-      };
-      const restoreSettledResolution = (): void => {
-        if (qualityRestoreTimer !== null) {
-          window.clearTimeout(qualityRestoreTimer);
-        }
-        qualityRestoreTimer = window.setTimeout(() => {
-          if (!runtime.disposed) {
-            resize();
-          }
-          qualityRestoreTimer = null;
-        }, 140);
+      const noteInteractionInput = (): void => {
+        interactionDeadline = performance.now() + INTERACTION_COALESCE_MS;
       };
       const twoFingerGesture = () => {
         const points = [...touchPoints.values()].slice(0, 2);
@@ -2088,7 +2090,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const wheelSequenceStarting = !wheelInteracting;
         wheelInteracting = true;
         if (wheelSequenceStarting) {
-          useInteractiveResolution();
+          noteInteractionInput();
         }
         panMomentum.x = 0;
         panMomentum.y = 0;
@@ -2127,7 +2129,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         wheelEndTimer = window.setTimeout(() => {
           wheelEndTimer = null;
           wheelInteracting = false;
-          restoreSettledResolution();
+          noteInteractionInput();
           if (!runtime.disposed) {
             notifyView(runtime, onViewChangeRef.current);
           }
@@ -2165,7 +2167,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
-          useInteractiveResolution();
+          noteInteractionInput();
           previousTwoFingerGesture = twoFingerGesture();
           twoFingerStart = previousTwoFingerGesture;
           twoFingerMode = "undecided";
@@ -2181,7 +2183,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
-          useInteractiveResolution();
+          noteInteractionInput();
           previousTwoFingerGesture = null;
           twoFingerStart = null;
           twoFingerMode = "undecided";
@@ -2330,7 +2332,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controlsInteracting = false;
           if (panMomentum.x === 0 && panMomentum.y === 0) {
             touchInteracting = false;
-            restoreSettledResolution();
+            noteInteractionInput();
           }
           settleUntil = performance.now() + 650;
           controls.enabled = true;
@@ -2369,7 +2371,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         settleUntil = performance.now() + 650;
         controls.enabled = true;
         setSurfacePresentation(runtime, false);
-        restoreSettledResolution();
+        noteInteractionInput();
         notifyView(runtime, onViewChangeRef.current);
       };
       const onVisibilityChange = () => {
@@ -2416,18 +2418,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onControlsStart = () => {
         controlsInteracting = true;
         markSurfaceInteraction(runtime);
-        useInteractiveResolution();
+        noteInteractionInput();
       };
       const onControlsEnd = () => {
         controlsInteracting = false;
         settleUntil = performance.now() + 650;
         markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
-        restoreSettledResolution();
+        noteInteractionInput();
       };
       controls.addEventListener("start", onControlsStart);
       controls.addEventListener("end", onControlsEnd);
-      resizeObserver = new ResizeObserver(resize);
+      resizeObserver = new ResizeObserver(() => resize());
       resizeObserver.observe(host);
       resize();
 
@@ -2445,15 +2447,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
-      // Effective strength of the Day/Night crisp/edge pass. It follows camera
-      // DISTANCE (crispZoomScale), not camera motion: the picture must be the
-      // same whether the camera moves or stands still, otherwise every zoom
-      // step swaps a soft image for a hard one and the drawing flickers. The
-      // remaining easing only smooths the distance ramp itself across frames.
-      let crispBlend = crispZoomScale(
-        camera.position.distanceTo(controls.target),
-      );
-      let lastCrispRampAt = Number.NEGATIVE_INFINITY;
       const flightVelocity = new Vector3();
       let wasFlying = false;
       const applyContinuousFlight = (dtSeconds: number): boolean => {
@@ -2549,27 +2542,60 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
         const isMoving = cameraMoving || stability.forceContinuousRender;
+        // Resolution governor: one hysteretic decision per frame instead of a
+        // resize on every OrbitControls start/end pair. A wheel dolly fires
+        // both events per tick, so applying them directly swapped the canvas
+        // resolution twice per tick while zooming.
+        const inputActive =
+          timestamp < interactionDeadline ||
+          renderInteractionActive({
+            controls: controlsInteracting,
+            touch: touchInteracting,
+            wheel: wheelInteracting,
+          });
+        if (inputActive) {
+          inputActiveSince ??= timestamp;
+          inputIdleSince = null;
+        } else {
+          inputIdleSince ??= timestamp;
+          inputActiveSince = null;
+        }
+        const wantInteractingPixelRatio = nextPixelRatioMode({
+          activeSinceMs: inputActiveSince,
+          applied: pixelRatioInteracting,
+          idleSinceMs: inputIdleSince,
+          inputActive,
+          nowMs: timestamp,
+        });
+        if (wantInteractingPixelRatio !== pixelRatioInteracting) {
+          pixelRatioInteracting = wantInteractingPixelRatio;
+          resize();
+        }
         // Minecraft keeps the chunky interaction surface at all times so the
         // detail tier never swaps on settle (the visible "Zusammensetzen").
         setSurfacePresentation(
           runtime,
           cameraMoving || stability.pinInteractionSurface,
         );
-        // Target strength of the Day/Night crisp/edge pass: a function of how
-        // far the camera stands off, never of whether it is moving. Minecraft
-        // owns the composer for its voxel pass and keeps a fixed profile.
+        // Strength of the Day/Night crisp/edge pass: a pure function of how far
+        // the camera stands off, never of whether it is moving, and never
+        // time-eased. v0.39.0 made the *target* distance-driven but still let
+        // the applied value chase it with a ~143 ms time constant. A still
+        // camera reached the target, so static views looked calm — but during a
+        // zoom the applied strength permanently lagged the view and then
+        // snapped forward when the motion stopped, which is the sharpening pop
+        // users read as flicker. crispZoomScale is already a smoothstep, so
+        // reading it directly is smooth by construction and, more importantly,
+        // makes the picture identical for a given standoff no matter how the
+        // camera got there. Minecraft owns the composer for its voxel pass and
+        // keeps a fixed profile.
         const crispTargetScale =
           runtime.lightingMode === "minecraft"
             ? 0
             : crispZoomScale(camera.position.distanceTo(controls.target));
-        // Keep rendering at the active cadence while the crisp/edge pass is
-        // still easing toward its distance target, so the ramp stays smooth
-        // instead of stepping across sparse idle frames.
-        const crispRamping =
-          runtime.lightingMode !== "minecraft" &&
-          Math.abs(crispBlend - crispTargetScale) > 0.01;
-        const frameIntervalMs =
-          isMoving || crispRamping ? activeFrameIntervalMs : idleFrameIntervalMs;
+        const frameIntervalMs = isMoving
+          ? activeFrameIntervalMs
+          : idleFrameIntervalMs;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;
         }
@@ -2626,7 +2652,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             touchInteracting
           ) {
             touchInteracting = false;
-            restoreSettledResolution();
+            noteInteractionInput();
           }
           markSurfaceInteraction(runtime, 220);
         }
@@ -2646,22 +2672,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         } else {
           // Day/Night: always render through the composer so the colour and
           // anti-aliasing pipeline is identical whether the camera moves or
-          // settles. crispBlend eases toward the DISTANCE target, so a still
-          // camera and a moving camera at the same standoff produce the same
-          // pixels. At crispBlend === 0 the pass is a pure passthrough
+          // settles. At crispBlend === 0 the pass is a pure passthrough
           // (strength/edge 0, saturation/contrast 1), at 1 it applies the full
           // authored profile.
           const profile =
             CRISPNESS_PROFILES[runtime.lightingMode === "night" ? "night" : "day"];
-          const rampDt =
-            lastCrispRampAt === Number.NEGATIVE_INFINITY
-              ? 0.016
-              : MathUtils.clamp((timestamp - lastCrispRampAt) / 1000, 0, 0.25);
-          lastCrispRampAt = timestamp;
-          crispBlend += (crispTargetScale - crispBlend) * Math.min(1, rampDt * 7);
-          if (Math.abs(crispBlend - crispTargetScale) < 0.002) {
-            crispBlend = crispTargetScale;
-          }
+          const crispBlend = crispTargetScale;
           crispPass.enabled = true;
           crispPass.uniforms.strength.value = profile.strength * crispBlend;
           crispPass.uniforms.edgeStrength.value =
@@ -2968,9 +2984,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         document.removeEventListener("visibilitychange", onVisibilityChange);
         controls.removeEventListener("start", onControlsStart);
         controls.removeEventListener("end", onControlsEnd);
-        if (qualityRestoreTimer !== null) {
-          window.clearTimeout(qualityRestoreTimer);
-        }
         if (wheelEndTimer !== null) {
           window.clearTimeout(wheelEndTimer);
         }

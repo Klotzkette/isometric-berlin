@@ -34,6 +34,7 @@ import {
   type ArchitecturalSignature as ReichstagDomeSignature,
   createOfficialReichstagDome,
 } from "./ReichstagDome";
+import { createDedicationTexture } from "./reichstagInscription";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 
 export type FocusCamera = {
@@ -111,6 +112,44 @@ export type ArchitecturalSignature =
 // Hero-model ink follows the drawn city's fine grey pencil register
 // (was a dark blue-teal that clashed by day and vanished at night).
 const EDGE_COLOR = 0x716c62;
+
+// Corner-tower footprint read off the LoD2 prism K0002MCN (the Reichstag's own
+// footprint in the shipped lod2-prisms.json): the towers occupy a ~16 m band in
+// depth and reach the building's full width, so they sit almost flush with the
+// corner rather than inset by 2 m as they were modelled before.
+export const REICHSTAG_TOWER_SIZE_M = 16.5;
+export const REICHSTAG_TOWER_INSET_M = 0.9;
+
+/** Centre of a corner tower along one axis, given that axis' full extent. */
+function reichstagTowerCentre(side: number, extentM: number): number {
+  return (
+    side * (extentM / 2 - REICHSTAG_TOWER_SIZE_M / 2 - REICHSTAG_TOWER_INSET_M)
+  );
+}
+
+/**
+ * The six inner courtyards, measured off the same LoD2 prism: its ring carries
+ * six holes, and these are their centres and sizes in the model's local frame
+ * (metres, +x east, +z south). Two large pairs flank the north and south wings
+ * and a narrower light well sits at each eastern end. The model used to render
+ * the Reichstag as one solid block, which reads wrong from above — under an
+ * isometric camera the courtyards are the building's most legible plan feature.
+ */
+export const REICHSTAG_COURTYARDS: Array<{
+  depth_m: number;
+  width_m: number;
+  x_m: number;
+  z_m: number;
+}> = [
+  { depth_m: 15.5, width_m: 11.3, x_m: 6.0, z_m: -33.5 },
+  { depth_m: 15.6, width_m: 11.3, x_m: -11.1, z_m: -33.5 },
+  { depth_m: 17.0, width_m: 6.1, x_m: 26.0, z_m: -30.9 },
+  { depth_m: 15.5, width_m: 11.3, x_m: -11.1, z_m: 33.7 },
+  { depth_m: 15.6, width_m: 11.3, x_m: 6.0, z_m: 33.7 },
+  { depth_m: 16.9, width_m: 6.0, x_m: 25.9, z_m: 31.1 },
+];
+/** How far the courtyard floors sit below the main cornice. */
+export const REICHSTAG_COURTYARD_DEPTH_M = 9.5;
 
 type InstanceTransform = {
   position: [number, number, number];
@@ -519,11 +558,11 @@ function addReichstagWindowSets(
     }
   }
 
-  const towerSize = 19;
+  const towerSize = REICHSTAG_TOWER_SIZE_M;
   for (const xSide of [-1, 1]) {
     for (const zSide of [-1, 1]) {
-      const towerX = xSide * (signature.width_m / 2 - towerSize / 2 - 2);
-      const towerZ = zSide * (signature.depth_m / 2 - towerSize / 2 - 2);
+      const towerX = reichstagTowerCentre(xSide, signature.width_m);
+      const towerZ = reichstagTowerCentre(zSide, signature.depth_m);
       for (const offset of [-4.1, 0, 4.1]) {
         towerArches.push(
           {
@@ -693,15 +732,15 @@ function addReichstagDocumentedOrders(
   signature: ReichstagModelSignature,
   stone: MeshStandardMaterial,
 ): void {
-  const towerSize = 19;
+  const towerSize = REICHSTAG_TOWER_SIZE_M;
   const towerTop = signature.body_height_m + 2.35;
   const atticHeight = 2.7;
   const parapets: InstanceTransform[] = [];
   const pinnacles: InstanceTransform[] = [];
   for (const xSide of [-1, 1]) {
     for (const zSide of [-1, 1]) {
-      const cx = xSide * (signature.width_m / 2 - towerSize / 2 - 2);
-      const cz = zSide * (signature.depth_m / 2 - towerSize / 2 - 2);
+      const cx = reichstagTowerCentre(xSide, signature.width_m);
+      const cz = reichstagTowerCentre(zSide, signature.depth_m);
       // Parapet walls sit on the tower edges, so the flag mast keeps the
       // centre of every tower platform free.
       for (const edge of [-1, 1]) {
@@ -883,7 +922,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     0.58,
   );
 
-  const towerSize = 19;
+  const towerSize = REICHSTAG_TOWER_SIZE_M;
   for (const x of [-1, 1]) {
     for (const z of [-1, 1]) {
       addBoxOutline(
@@ -891,9 +930,9 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
         `Reichstag corner tower ${x}:${z}`,
         [towerSize, signature.body_height_m + 2.4, towerSize],
         [
-          x * (signature.width_m / 2 - towerSize / 2 - 2),
+          reichstagTowerCentre(x, signature.width_m),
           (signature.body_height_m + 2.4) / 2,
-          z * (signature.depth_m / 2 - towerSize / 2 - 2),
+          reichstagTowerCentre(z, signature.depth_m),
         ],
         0.76,
       );
@@ -902,17 +941,17 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
         "Reichstag corner-tower roof cornice",
         [towerSize + 1.2, 0.8, towerSize + 1.2],
         [
-          x * (signature.width_m / 2 - towerSize / 2 - 2),
+          reichstagTowerCentre(x, signature.width_m),
           signature.body_height_m + 1.95,
-          z * (signature.depth_m / 2 - towerSize / 2 - 2),
+          reichstagTowerCentre(z, signature.depth_m),
         ],
         stoneAccent,
         0.72,
       );
       const flagPosition: [number, number, number] = [
-        x * (signature.width_m / 2 - towerSize / 2 - 2),
+        reichstagTowerCentre(x, signature.width_m),
         signature.body_height_m + 2.35,
-        z * (signature.depth_m / 2 - towerSize / 2 - 2),
+        reichstagTowerCentre(z, signature.depth_m),
       ];
       if (x === 1 && z === 1) {
         addEuropeanFlag(group, `Reichstag tower ${x}:${z}`, flagPosition);
@@ -988,30 +1027,44 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   pediment.position.set(westX, 20.2, 0);
   pediment.castShadow = true;
   group.add(pediment);
-  // The gilded dedication on the architrave — the Reichstag's most
-  // famous line, read here as a gold band with letter-group blocks.
-  const gilded = modelMaterial(0xc9a227, { metalness: 0.45, roughness: 0.4 });
+  // The bronze dedication on the architrave — the Reichstag's most famous
+  // line, now spelled out instead of abstracted into three letter blocks.
+  const bandWidth = 26;
+  const bandHeight = 1.15;
   addBox(
     group,
     "Reichstag DEM DEUTSCHEN VOLKE inscription band",
-    [0.26, 1.15, 26],
+    [0.26, bandHeight, bandWidth],
     [westX - 3.8, 18.55, 0],
-    gilded,
+    modelMaterial(0xcfc6b3, { roughness: 0.72 }),
   );
-  for (const [offset, width] of [
-    [-9.5, 5.4],
-    [-0.5, 10.6],
-    [9.8, 7.4],
-  ] as const) {
-    addBox(
-      group,
-      "Reichstag inscription letter group",
-      [0.3, 0.62, width],
-      [westX - 3.85, 18.55, offset],
-      stoneAccent,
-      0.92,
-    );
-  }
+  const dedicationTexture = createDedicationTexture({
+    bandHeightM: bandHeight,
+    bandWidthM: bandWidth,
+    fieldColor: "#cfc6b3",
+    letterColor: "#6d4a1e",
+  });
+  const dedicationMaterial = nightEmitter(
+    modelMaterial(dedicationTexture ? 0xffffff : 0x6d4a1e, {
+      metalness: 0.34,
+      roughness: 0.46,
+    }),
+    0xffca7a,
+    0.22,
+  );
+  dedicationMaterial.map = dedicationTexture;
+  dedicationMaterial.side = FrontSide;
+  const dedication = new Mesh(
+    new PlaneGeometry(bandWidth, bandHeight),
+    dedicationMaterial,
+  );
+  dedication.name = "Reichstag DEM DEUTSCHEN VOLKE dedication lettering";
+  // Rotated so the plane's +Z normal points west (local -X) and its +X axis
+  // runs along +Z, which is left-to-right for a viewer standing in front of
+  // the portico.
+  dedication.rotation.y = -Math.PI / 2;
+  dedication.position.set(westX - 3.94, 18.55, 0);
+  group.add(dedication);
   // The grand west stair rises to the portico floor.
   for (let step = 0; step < 5; step += 1) {
     addBox(
@@ -1032,6 +1085,38 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     stoneAccent,
     0.88,
   );
+  // The six inner courtyards. The roof itself is the LoD2 prism's top face, so
+  // each well is drawn as a recessed floor plate (the material's polygon offset
+  // keeps it in front of the prism roof instead of z-fighting it) plus the
+  // outline of the shaft, which is what gives the opening depth close up.
+  const courtyardFloor = nightEmitter(
+    modelMaterial(0x8f8878, { roughness: 0.9 }),
+    0x2d3a4c,
+    0.35,
+  );
+  for (const court of REICHSTAG_COURTYARDS) {
+    const floorTop = signature.body_height_m - REICHSTAG_COURTYARD_DEPTH_M;
+    addBox(
+      group,
+      "Reichstag inner courtyard floor",
+      [court.width_m, 0.4, court.depth_m],
+      [court.x_m, floorTop - 0.2, court.z_m],
+      courtyardFloor,
+      0.7,
+    );
+    addBoxOutline(
+      group,
+      "Reichstag inner courtyard shaft",
+      [court.width_m, REICHSTAG_COURTYARD_DEPTH_M, court.depth_m],
+      [
+        court.x_m,
+        signature.body_height_m - REICHSTAG_COURTYARD_DEPTH_M / 2,
+        court.z_m,
+      ],
+      0.72,
+    );
+  }
+
   // Central risalits on the north, east and south fronts — the real
   // elevation projects on all four sides, not only at the portico.
   addBox(

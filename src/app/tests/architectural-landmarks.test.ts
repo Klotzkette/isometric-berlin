@@ -7,7 +7,10 @@ import {
   type ReichstagModelSignature,
   createArchitecturalSignature,
   focusCameraForSignature,
+  REICHSTAG_COURTYARDS,
+  REICHSTAG_COURTYARD_DEPTH_M,
 } from "../src/ArchitecturalLandmarks";
+import { dedicationLayout } from "../src/reichstagInscription";
 import { windFlagMatrixCount } from "../src/WindFlags";
 
 const base = {
@@ -345,5 +348,80 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       reichstag!.getObjectByName("Reichstag batched facade string courses"),
     ).toBeInstanceOf(LineSegments);
+  });
+
+  test("spells DEM DEUTSCHEN VOLKE across the west architrave", () => {
+    const signature: ReichstagModelSignature = {
+      ...base,
+      body_height_m: 28.06,
+      depth_m: 138,
+      id: "reichstag-model",
+      kind: "reichstag_model",
+      width_m: 100,
+    };
+    const reichstag = createArchitecturalSignature(signature)!;
+    const dedication = reichstag.getObjectByName(
+      "Reichstag DEM DEUTSCHEN VOLKE dedication lettering",
+    ) as Mesh;
+    expect(dedication).toBeInstanceOf(Mesh);
+    // Faces west, out over the grand stair, so the line reads from the square.
+    expect(dedication.rotation.y).toBeCloseTo(-Math.PI / 2, 6);
+    expect(dedication.position.x).toBeLessThan(-signature.width_m / 2);
+    // Sits on the architrave, between the capitals and the pediment.
+    expect(dedication.position.y).toBeGreaterThan(17.8);
+    expect(dedication.position.y).toBeLessThan(19.4);
+    dedication.geometry.computeBoundingBox();
+    const bounds = dedication.geometry.boundingBox!;
+    const bandWidth = bounds.max.x - bounds.min.x;
+    expect(bandWidth).toBeGreaterThan(dedicationLayout().totalWidthM);
+    expect(
+      reichstag.getObjectByName(
+        "Reichstag DEM DEUTSCHEN VOLKE inscription band",
+      ),
+    ).toBeInstanceOf(Mesh);
+  });
+
+  test("hollows out the six documented inner courtyards", () => {
+    const signature: ReichstagModelSignature = {
+      ...base,
+      body_height_m: 28.06,
+      depth_m: 138,
+      id: "reichstag-model",
+      kind: "reichstag_model",
+      width_m: 100,
+    };
+    const reichstag = createArchitecturalSignature(signature)!;
+    const floors = reichstag.children.filter(
+      (child) =>
+        child.name === "Reichstag inner courtyard floor" &&
+        child instanceof Mesh,
+    ) as Mesh[];
+    expect(floors).toHaveLength(6);
+    expect(REICHSTAG_COURTYARDS).toHaveLength(6);
+    const shafts = reichstag.children.filter(
+      (child) => child.name === "Reichstag inner courtyard shaft",
+    );
+    expect(shafts).toHaveLength(6);
+    for (const floor of floors) {
+      // Recessed below the cornice, never poking through the roof.
+      expect(floor.position.y).toBeLessThan(
+        signature.body_height_m - REICHSTAG_COURTYARD_DEPTH_M,
+      );
+      expect(floor.position.y).toBeGreaterThan(0);
+    }
+    // Every courtyard has to stay inside the LoD2 envelope.
+    for (const court of REICHSTAG_COURTYARDS) {
+      expect(Math.abs(court.x_m) + court.width_m / 2).toBeLessThan(
+        signature.width_m / 2,
+      );
+      expect(Math.abs(court.z_m) + court.depth_m / 2).toBeLessThan(
+        signature.depth_m / 2,
+      );
+    }
+    // The wings are symmetric about the cross axis, as the footprint is.
+    const north = REICHSTAG_COURTYARDS.filter((court) => court.z_m < 0);
+    const south = REICHSTAG_COURTYARDS.filter((court) => court.z_m > 0);
+    expect(north).toHaveLength(3);
+    expect(south).toHaveLength(3);
   });
 });

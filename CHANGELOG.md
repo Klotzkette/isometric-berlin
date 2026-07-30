@@ -1,5 +1,57 @@
 # Changelog
 
+## v0.42.0
+
+Three things the owner asked for: stop the flicker that happens *while* zooming,
+put "DEM DEUTSCHEN VOLKE" on the Reichstag where it belongs, and tighten the
+Reichstag's plan against its own LoD2 footprint.
+
+- **The zoom flicker is a resolution swap, and it is gone.** Three.js
+  `OrbitControls` dispatches `start` *and* `end` synchronously for every single
+  wheel tick, so the viewer read each tick as a separate interaction: it dropped
+  the canvas to the interaction pixel ratio, then restored the settled one
+  ~140 ms later, several times a second. On a HiDPI screen that is a full-canvas
+  1.4 ↔ 2.0 resolution swap mid-zoom, each one also reallocating the composer's
+  MSAA targets. (At `devicePixelRatio` 1 both branches clamp to 1, which is why
+  earlier desktop captures never reproduced it.) `nextPixelRatioMode` now gives
+  the switch hysteresis in both directions: input is coalesced over 220 ms,
+  dropping resolution needs the interaction to persist 260 ms, and restoring it
+  needs input to have really stopped for 420 ms. A whole zoom run costs at most
+  one downgrade and one upgrade; an isolated tick costs none. `resize()` also
+  returns early when nothing actually changed, so a redundant call no longer
+  burns a frame rebuilding render targets.
+- **The crisp pass no longer lags the zoom.** v0.39.0 made the sharpening
+  *target* distance-driven, but the applied value still chased it with a
+  ~143 ms time constant, so the strength trailed the camera during a zoom and
+  snapped forward the moment motion stopped — a sharpening pop that reads as
+  flicker. `crispZoomScale` is already a smoothstep, so the value is now read
+  straight from distance and is smooth by construction.
+- **"DEM DEUTSCHEN VOLKE" is legible on the west architrave.** Peter Behrens'
+  bronze dedication (cast 1916 by S. A. Loevy) is set in a monoline geometric
+  capital drawn as polylines in `reichstagInscription.ts` — not a system font,
+  so it renders identically everywhere and matches the scene's ink-line style.
+  Cap height is the real 62 cm. It is a mipmapped, anisotropically filtered
+  canvas texture rather than geometry on purpose: at ~10 cm stroke width on a
+  100 m building, real strokes would sit far below one screen pixel and shimmer
+  exactly the way this round is removing shimmer elsewhere. The mip chain fades
+  the line into a darker band on the architrave as you pull out, which is what
+  the real stone reads as from a distance.
+- **The Reichstag's six inner courtyards exist.** The shipped LoD2 prism
+  `K0002MCN` carries six holes; the model used to render the building as one
+  solid block, which is wrong from an isometric camera where the courtyards are
+  the most legible plan feature. Their centres and sizes are taken straight off
+  that footprint, and each is drawn as a recessed floor plus the ink outline of
+  its shaft.
+- **Corner towers match the measured footprint.** The same prism puts them in a
+  ~16 m band that reaches the building's full width, so they are now 16.5 m and
+  sit 0.9 m off the corner instead of 19 m inset by 2 m. The three places that
+  build tower geometry share one pair of constants, so they cannot drift apart.
+- **Tests.** New coverage for the pixel-ratio governor (a single wheel tick
+  causes zero switches; a full zoom run causes exactly two), for the dedication
+  layout (every character has a drawn glyph, the line fits the 26 m architrave
+  band, scaling is linear), and for the courtyards (six of them, inside the
+  envelope, recessed below the cornice).
+
 ## v0.41.0
 
 The task-09 bounds expansion. The scene polygon grows from the landmark-fitted
