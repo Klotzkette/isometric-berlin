@@ -1,5 +1,78 @@
 # Changelog
 
+## v0.40.0
+
+Documented building and monument detail. LoD2 delivers envelopes, so the
+features that make each elevation legible were missing entirely. Everything
+added here is a published, verifiable feature of the real building, drawn as
+flat elements with ink lines in the ivory style. **No window grid was
+invented**: all new facade articulation is ink `LineSegments`, never pane
+geometry, and the two tests that pin the absence of a window grid (every
+`LoD2 prism windows` instance still 2.35 m tall, `panes.count === doors`) are
+untouched. `NoToneMapping` at exposure 1 and the four-step `isoFaceShade`
+ladder are also untouched — no colour grading changed in this round.
+
+- **Reichstagsgebäude** — Wallot's classical apparatus on the west front, in
+  `addReichstagDocumentedOrders`: seven flutes per drum on the visible half of
+  the six portico shafts, the two architrave mouldings that frame the
+  dedication band, the tympanum as a relief field rather than blank ashlar,
+  the rusticated base storey with two deep beds and staggered vertical joints
+  on both long fronts, and the four corner towers given attic parapet walls
+  (set on the edges so the flag mast keeps each platform centre free) plus
+  four corner pinnacles each.
+- **Reichstag roof skylight bands** — the two 38 m bands flanking the dome
+  were blank blue-grey lids. They now carry the 1.9 m glazing bars plus a
+  longitudinal ridge bar. This closes open item (f) of the v0.38.0 handoff.
+  The dome itself already had its 24 steel ribs, diagonal bracing, horizontal
+  rings and oculus ring in `ReichstagDome.ts` — no change needed there.
+- **Bundeskanzleramt** — Schultes and Frank's articulation, in
+  `addChancelleryDocumentedDetail`: the round-window motif the building is
+  known for is delivered by giving the two *already documented* semicircular
+  leadership windows their radial spokes and two concentric arcs, so the
+  motif reads as tracery and not as a rectangular curtain wall; two-storey
+  winter-garden reveals cut into the office bands; structural joints dividing
+  those ~200 m bands into their ~33 m sections; and the eleven slender round
+  columns with a thin architrave that frame the Ehrenhof.
+- **Paul-Löbe-Haus** — the comb arrived as ten plain bars. The eight glazed
+  committee rotundas that stand in the courtyards (Stephan Braunfels, 2001)
+  are now drawn: 8.8 m radius, 24 m tall, four on the north courtyard heads
+  (z = -117) and four on the south (z = -153), each with a cornice band and
+  five gallery ink rings. The glazed spine hall gets its longitudinal
+  roof-light grid.
+- **Marie-Elisabeth-Lüders-Haus** — roof-light grid over the block, and the
+  seven-step Spree-side stair down to the quay beside the existing colonnade.
+  The library rotunda and its reading-room rings were already present.
+- **Jakob-Kaiser-Haus** — roof-light grids on both the west and the north bar,
+  at their true LoD2 roof heights (30.8 m and 35.1 m).
+- **Schweizerische Botschaft** — the 1871 villa's documented stonework: a
+  rusticated base storey with two beds and staggered joints on both long
+  fronts, a two-part cornice profile (fascia plus drip course) under the main
+  slab, an attica storey set back behind the roof balustrade, and a shallow
+  triangular pediment over the existing four-column portico.
+- **Siegessäule** — the cannon-barrel flutes now run up all four drums
+  (twelve per drum), the sandstone socle carries its relief band as a
+  two-course frame with five bays per side, and the Säulenhalle is drawn as a
+  ring of sixteen granite columns under a continuous ring slab. The gilded
+  Viktoria was already there.
+- **Bismarck-Nationaldenkmal** (Begas, 1901) — newly added to the
+  extrapolated west Tiergarten layer beside the Siegessäule, because it lies
+  outside the bounds polygon and is absent from the OSM payload: granite
+  stepped base, pedestal, the bronze chancellor with his mantle, and the four
+  allegorical bronze groups at the pedestal corners.
+- **Sowjetisches Ehrenmal Tiergarten** — the colonnade gets the projecting
+  cornice over its entablature and the continuous stylobate it stands on. The
+  six side pylons, gilded name plates, the 8 m soldier and both T-34/76 tanks
+  were already modelled.
+- **Kanzlergarten / Non-Violence-Skulptur** — the landmark had an entry but no
+  model anywhere. Reuterswärd's knotted revolver is now drawn on its low
+  granite plinth: grip, cylinder frame, the barrel looped into a knot over
+  fourteen segments, and the muzzle turned back up at the sky.
+- **Eduardo-Chillida-Skulptur** — checked; the plinth and the two interlocking
+  steel bodies on the Ehrenhof were already correct and were left alone.
+- **Carillon im Tiergarten** — checked; the 42 m tower with its 68 bronze
+  bells, clappers, player cabin at 33 m and overhanging roof was already
+  complete and was left alone.
+
 ## v0.39.0
 
 - **The zoom-out flicker was the crisp pass ramping on camera motion.** The

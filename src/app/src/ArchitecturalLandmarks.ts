@@ -680,6 +680,141 @@ function addReichstagMicroDetails(
   );
 }
 
+/**
+ * Wallot's documented classical apparatus on the west front and the four
+ * corner towers. LoD2 gives the envelope only, so the features that make
+ * the 1894 elevation legible are drawn here: the fluted Corinthian
+ * portico order, the tympanum relief field, the architrave mouldings
+ * that frame the dedication, the rusticated base storey, and the tower
+ * attics with their corner pinnacles.
+ */
+function addReichstagDocumentedOrders(
+  group: Group,
+  signature: ReichstagModelSignature,
+  stone: MeshStandardMaterial,
+): void {
+  const towerSize = 19;
+  const towerTop = signature.body_height_m + 2.35;
+  const atticHeight = 2.7;
+  const parapets: InstanceTransform[] = [];
+  const pinnacles: InstanceTransform[] = [];
+  for (const xSide of [-1, 1]) {
+    for (const zSide of [-1, 1]) {
+      const cx = xSide * (signature.width_m / 2 - towerSize / 2 - 2);
+      const cz = zSide * (signature.depth_m / 2 - towerSize / 2 - 2);
+      // Parapet walls sit on the tower edges, so the flag mast keeps the
+      // centre of every tower platform free.
+      for (const edge of [-1, 1]) {
+        parapets.push({
+          position: [cx, towerTop + atticHeight / 2, cz + edge * (towerSize / 2 - 0.5)],
+        });
+        parapets.push({
+          position: [cx + edge * (towerSize / 2 - 0.5), towerTop + atticHeight / 2, cz],
+          rotation: [0, Math.PI / 2, 0],
+        });
+      }
+      for (const cornerX of [-1, 1]) {
+        for (const cornerZ of [-1, 1]) {
+          pinnacles.push({
+            position: [
+              cx + cornerX * (towerSize / 2 - 1.1),
+              towerTop + 1.9,
+              cz + cornerZ * (towerSize / 2 - 1.1),
+            ],
+          });
+        }
+      }
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced corner-tower attic parapets",
+    [towerSize - 1.6, atticHeight, 0.8],
+    stone,
+    parapets,
+  );
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced corner-tower pinnacles",
+    [2.1, 3.8, 2.1],
+    stone,
+    pinnacles,
+  );
+
+  const westX = -signature.width_m / 2 - 3.6;
+  // Corinthian shafts: fluting on the visible west half of each drum.
+  const fluting: VectorSegment[] = [];
+  const FLUTES = 7;
+  for (let column = 0; column < 6; column += 1) {
+    const cz = -17.5 + column * 7;
+    for (let flute = 0; flute < FLUTES; flute += 1) {
+      const angle = Math.PI + ((flute / (FLUTES - 1)) - 0.5) * 2.2;
+      const fx = westX + Math.cos(angle) * 1.16;
+      const fz = cz + Math.sin(angle) * 1.16;
+      fluting.push([
+        [fx, 4.95, fz],
+        [fx, 17.85, fz],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Reichstag batched fluted portico shafts",
+    fluting,
+    EDGE_COLOR,
+    0.62,
+  );
+
+  // Architrave mouldings above and below the gilded dedication band.
+  for (const y of [17.78, 19.34]) {
+    addBox(
+      group,
+      "Reichstag portico architrave moulding",
+      [0.62, 0.34, 27.6],
+      [westX - 3.72, y, 0],
+      stone,
+      0.84,
+    );
+  }
+  // The tympanum carries a relief field, not blank ashlar.
+  addBox(
+    group,
+    "Reichstag west tympanum relief field",
+    [0.34, 3.1, 21.5],
+    [westX - 3.3, 22.05, 0],
+    stone,
+    0.86,
+  );
+
+  // Rusticated base storey: deep horizontal beds plus staggered joints
+  // on the two long fronts.
+  const rustication: VectorSegment[] = [];
+  const rx = signature.width_m / 2 + 0.18;
+  const rz = signature.depth_m / 2 + 0.18;
+  for (const y of [1.35, 2.7]) {
+    rustication.push(
+      [[-rx, y, -rz], [rx, y, -rz]],
+      [[-rx, y, rz], [rx, y, rz]],
+      [[-rx, y, -rz], [-rx, y, rz]],
+      [[rx, y, -rz], [rx, y, rz]],
+    );
+  }
+  for (const zSide of [-rz, rz]) {
+    for (let index = 0; index <= 24; index += 1) {
+      const x = -rx + (index / 24) * (rx * 2);
+      const yTop = index % 2 === 0 ? 2.7 : 4.05;
+      rustication.push([[x, 0.1, zSide], [x, yTop, zSide]]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Reichstag batched rusticated base joints",
+    rustication,
+    0x817665,
+    0.5,
+  );
+}
+
 function triangularPrism(width: number, height: number, depth: number): BufferGeometry {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
@@ -920,6 +1055,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   addEdges(group, pediment, 0.9);
   addReichstagWindowSets(group, signature);
   addReichstagMicroDetails(group, signature, stoneAccent);
+  addReichstagDocumentedOrders(group, signature, stoneAccent);
 
   return group;
 }
@@ -1047,6 +1183,229 @@ function addChancelleryOfficeBand(
       0.2,
     );
   }
+}
+
+/**
+ * Schultes and Frank's documented articulation, which the LoD2 extents
+ * cannot carry: the radial tracery of the two semicircular leadership
+ * windows (the round-window motif the building is known for), the
+ * two-storey winter-garden recesses cut into the office bands, the
+ * structural joints that divide those 200 m bands, and the column row
+ * that frames the Ehrenhof.
+ */
+function addChancelleryDocumentedDetail(
+  group: Group,
+  signature: ChancelleryModelSignature,
+): void {
+  const concrete = nightEmitter(
+    modelMaterial(0xf0f2ef, { opacity: 0.86, roughness: 0.76 }),
+    0x55687b,
+    0.32,
+  );
+  const recess = nightEmitter(
+    modelMaterial(0x8fb0b4, { opacity: 0.5, roughness: 0.42 }),
+    0x2a4650,
+    0.3,
+  );
+  const cubeX = signature.cube_offset_world[0];
+  const cubeZ = signature.cube_offset_world[2];
+
+  // The semicircular windows are glazed with radial spokes and
+  // concentric arcs, not with a rectangular curtain-wall grid.
+  const tracery: VectorSegment[] = [];
+  const RADIUS = 17.2;
+  const SPRING_Y = 10.5;
+  for (const xDirection of [-1, 1]) {
+    const faceX = cubeX + xDirection * (signature.cube_width_m / 2 + 0.26);
+    for (let spoke = 1; spoke < 9; spoke += 1) {
+      const angle = (spoke / 9) * Math.PI;
+      tracery.push([
+        [faceX, SPRING_Y, cubeZ],
+        [
+          faceX,
+          SPRING_Y + Math.sin(angle) * RADIUS,
+          cubeZ - Math.cos(angle) * RADIUS,
+        ],
+      ]);
+    }
+    for (const ringRadius of [5.9, 11.5]) {
+      const STEPS = 18;
+      for (let step = 0; step < STEPS; step += 1) {
+        const a0 = (step / STEPS) * Math.PI;
+        const a1 = ((step + 1) / STEPS) * Math.PI;
+        tracery.push([
+          [
+            faceX,
+            SPRING_Y + Math.sin(a0) * ringRadius,
+            cubeZ - Math.cos(a0) * ringRadius,
+          ],
+          [
+            faceX,
+            SPRING_Y + Math.sin(a1) * ringRadius,
+            cubeZ - Math.cos(a1) * ringRadius,
+          ],
+        ]);
+      }
+    }
+  }
+  addVectorSegments(
+    group,
+    "Chancellery batched semicircular window radial tracery",
+    tracery,
+    0xdce9e7,
+    0.7,
+  );
+
+  const loggiaFrames: InstanceTransform[] = [];
+  const loggiaVoids: InstanceTransform[] = [];
+  const joints: VectorSegment[] = [];
+  for (const segment of signature.office_segments) {
+    const x = segment.offset_world[0];
+    const z = segment.offset_world[2];
+    const { depth_m: depth, height_m: height, width_m: width } = segment;
+    const loggiaCount = Math.max(2, Math.round(width / 62));
+    for (const side of [-1, 1]) {
+      for (let index = 0; index < loggiaCount; index += 1) {
+        const loggiaX = x - width / 2 + ((index + 0.5) / loggiaCount) * width;
+        loggiaFrames.push({
+          position: [loggiaX, height / 2 + 1.1, z + side * (depth / 2 + 0.26)],
+        });
+        loggiaVoids.push({
+          position: [loggiaX, height / 2 + 1.1, z + side * (depth / 2 - 0.6)],
+        });
+      }
+    }
+    // Structural joints: the bands are built in roughly 33 m sections.
+    const jointCount = Math.max(2, Math.round(width / 33));
+    for (const side of [-1, 1]) {
+      const faceZ = z + side * (depth / 2 + 0.2);
+      for (let index = 1; index < jointCount; index += 1) {
+        const jointX = x - width / 2 + (index / jointCount) * width;
+        joints.push([
+          [jointX, 0.4, faceZ],
+          [jointX, height - 0.2, faceZ],
+        ]);
+      }
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Chancellery instanced office-band winter-garden reveals",
+    [7.6, 7.8, 0.5],
+    concrete,
+    loggiaFrames,
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery instanced office-band winter-garden voids",
+    [6.6, 6.9, 0.4],
+    recess,
+    loggiaVoids,
+  );
+  addVectorSegments(
+    group,
+    "Chancellery batched office-band structural joints",
+    joints,
+    EDGE_COLOR,
+    0.6,
+  );
+
+  if (!signature.forecourt_offset_world) {
+    return;
+  }
+  // The Ehrenhof is framed by a row of slender round columns carrying a
+  // thin architrave.
+  const [courtX, , courtZ] = signature.forecourt_offset_world;
+  const COLUMN_HEIGHT = 15.4;
+  const COLUMN_COUNT = 11;
+  const columnSpan = 46;
+  for (let index = 0; index < COLUMN_COUNT; index += 1) {
+    const columnX = courtX - columnSpan / 2 + (index / (COLUMN_COUNT - 1)) * columnSpan;
+    const column = new Mesh(
+      new CylinderGeometry(0.52, 0.6, COLUMN_HEIGHT, 12),
+      concrete,
+    );
+    column.name = `Chancellery Ehrenhof column ${index + 1}`;
+    column.position.set(columnX, COLUMN_HEIGHT / 2, courtZ - 17.5);
+    column.castShadow = true;
+    group.add(column);
+  }
+  addBox(
+    group,
+    "Chancellery Ehrenhof colonnade architrave",
+    [columnSpan + 2.4, 1.15, 1.5],
+    [courtX, COLUMN_HEIGHT + 0.58, courtZ - 17.5],
+    concrete,
+    0.78,
+  );
+
+  // Kanzlergarten: Reuterswärd's "Non-Violence" — the knotted .357
+  // revolver, a replica of the 1985 original, on a low granite plinth.
+  const westBand = signature.office_segments[signature.office_segments.length - 1];
+  const gardenX = westBand.offset_world[0] + 34;
+  const gardenZ = westBand.offset_world[2] + 27;
+  const granite = modelMaterial(0x8a8b86, { roughness: 0.88 });
+  const gunmetal = nightEmitter(
+    modelMaterial(0x555c60, { metalness: 0.52, roughness: 0.44 }),
+    0x2c3236,
+    0.2,
+  );
+  addBox(
+    group,
+    "Kanzlergarten Non-Violence sculpture plinth",
+    [2.2, 0.55, 2.2],
+    [gardenX, 0.28, gardenZ],
+    granite,
+    0.42,
+  );
+  // Grip and frame rise from the plinth; the barrel loops over into a
+  // knot and points its muzzle back at the sky.
+  addCylinderBetween(
+    group,
+    "Non-Violence revolver grip",
+    new Vector3(gardenX, 0.55, gardenZ),
+    new Vector3(gardenX - 0.18, 2.1, gardenZ),
+    0.26,
+    gunmetal,
+  );
+  addBox(
+    group,
+    "Non-Violence revolver cylinder frame",
+    [0.62, 0.7, 0.5],
+    [gardenX + 0.1, 2.4, gardenZ],
+    gunmetal,
+    0.5,
+  );
+  const KNOT_RADIUS = 0.72;
+  const KNOT_STEPS = 14;
+  const knotCenter = new Vector3(gardenX + 0.55, 3.25, gardenZ);
+  for (let step = 0; step < KNOT_STEPS; step += 1) {
+    const a0 = (step / KNOT_STEPS) * Math.PI * 1.85;
+    const a1 = ((step + 1) / KNOT_STEPS) * Math.PI * 1.85;
+    const point = (angle: number): Vector3 =>
+      new Vector3(
+        knotCenter.x + Math.sin(angle) * KNOT_RADIUS,
+        knotCenter.y - Math.cos(angle) * KNOT_RADIUS,
+        knotCenter.z + Math.sin(angle * 2) * 0.3,
+      );
+    addCylinderBetween(
+      group,
+      "Non-Violence knotted barrel",
+      point(a0),
+      point(a1),
+      0.19,
+      gunmetal,
+      8,
+    );
+  }
+  addCylinderBetween(
+    group,
+    "Non-Violence upturned muzzle",
+    knotCenter.clone().add(new Vector3(-0.3, 0.62, 0.1)),
+    knotCenter.clone().add(new Vector3(-0.5, 1.5, 0.16)),
+    0.17,
+    gunmetal,
+  );
 }
 
 function addChancelleryForecourt(
@@ -1402,6 +1761,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       segment.height_m,
     );
   }
+  addChancelleryDocumentedDetail(group, signature);
   addChancelleryForecourt(group, signature);
   addChancelleryPolice(group, signature);
   return group;

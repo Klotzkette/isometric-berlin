@@ -2431,6 +2431,85 @@ export function createWestTiergarten(): Group {
   addPart(boxTriangles(SX, columnBase + 5.4, SZ, axis, 2.2, 6.4, 2.2), 0xd4af37);
   addPart(boxTriangles(SX, columnBase + 9.2, SZ, axis, 0.7, 3.4, 0.7), 0xd4af37);
   addPart(boxTriangles(SX, columnBase + 6.6, SZ, [axis[1], -axis[0]], 5.6, 2.6, 0.5), 0xd4af37);
+  // Strack's documented apparatus: the cannon-barrel flutes that run up
+  // every drum, the relief band on the sandstone socle, and the ring of
+  // granite columns of the Säulenhalle around it.
+  const monumentInk: number[] = [];
+  let fluteBase = GROUND_TOP + 12.4;
+  for (const [radius, height] of [
+    [4.4, 14], [4.0, 13], [3.6, 12], [3.2, 11],
+  ] as const) {
+    for (let flute = 0; flute < 12; flute += 1) {
+      const angle = (flute / 12) * Math.PI * 2;
+      const fx = SX + Math.cos(angle) * (radius + 0.04);
+      const fz = SZ + Math.sin(angle) * (radius + 0.04);
+      monumentInk.push(fx, fluteBase + 0.4, fz, fx, fluteBase + height - 0.4, fz);
+    }
+    fluteBase += height + 0.8;
+  }
+  for (const y of [GROUND_TOP + 2.6, GROUND_TOP + 7.2]) {
+    for (const zSide of [-11.5, 11.5]) {
+      monumentInk.push(SX - 11.5, y, SZ + zSide, SX + 11.5, y, SZ + zSide);
+    }
+    for (const xSide of [-11.5, 11.5]) {
+      monumentInk.push(SX + xSide, y, SZ - 11.5, SX + xSide, y, SZ + 11.5);
+    }
+  }
+  for (let panel = 1; panel < 5; panel += 1) {
+    const t = -11.5 + (panel / 5) * 23;
+    for (const zSide of [-11.5, 11.5]) {
+      monumentInk.push(SX + t, GROUND_TOP + 2.6, SZ + zSide, SX + t, GROUND_TOP + 7.2, SZ + zSide);
+    }
+    for (const xSide of [-11.5, 11.5]) {
+      monumentInk.push(SX + xSide, GROUND_TOP + 2.6, SZ + t, SX + xSide, GROUND_TOP + 7.2, SZ + t);
+    }
+  }
+  for (let column = 0; column < 16; column += 1) {
+    const angle = (column / 16) * Math.PI * 2;
+    addPart(
+      prismTriangles(
+        SX + Math.cos(angle) * 17.4,
+        GROUND_TOP + 4.6,
+        SZ + Math.sin(angle) * 17.4,
+        0.85,
+        6.4,
+        8,
+      ),
+      0xcbc8be,
+    );
+  }
+  addPart(prismTriangles(SX, GROUND_TOP + 8.3, SZ, 19.2, 1, 16), 0xbfbcb2);
+
+  // Bismarck-Nationaldenkmal (Begas, 1901): granite pedestal, bronze
+  // chancellor, four allegorical bronze groups at the corners.
+  const BX = SX + 24;
+  const BZ = SZ - 118;
+  addPart(boxTriangles(BX, GROUND_TOP + 1.1, BZ, [1, 0], 22, 2.2, 22), 0xcbc8be);
+  addPart(boxTriangles(BX, GROUND_TOP + 6.2, BZ, [1, 0], 9.6, 8, 9.6), 0x9a5f4c);
+  addPart(boxTriangles(BX, GROUND_TOP + 13.4, BZ, [1, 0], 3.1, 6.4, 3.1), 0x5d7264);
+  addPart(boxTriangles(BX, GROUND_TOP + 17.4, BZ, [1, 0], 4.6, 1.8, 1.4), 0x5d7264);
+  for (const cornerX of [-1, 1]) {
+    for (const cornerZ of [-1, 1]) {
+      addPart(
+        boxTriangles(
+          BX + cornerX * 8.2,
+          GROUND_TOP + 4.1,
+          BZ + cornerZ * 8.2,
+          [1, 0],
+          3.6,
+          3.8,
+          3.6,
+        ),
+        0x5d7264,
+      );
+    }
+  }
+  const bismarckGeometry = new BufferGeometry();
+  bismarckGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(monumentInk, 3),
+  );
+  edgeGeometries.push(bismarckGeometry);
   // "Umkreis ausweiten": a calm paper-pale margin carries the map on
   // the other three sides too — the drawing fades into light ground
   // instead of a void. No buildings are invented; Unter den Linden
@@ -3056,6 +3135,26 @@ const HKW_SADDLE_DROP_M = 4.5;
 const MELH_ROTUNDA: readonly [number, number] = [406, -139];
 const MELH_ROTUNDA_RADIUS = 16.5;
 const JKH_ARCADE_X = 403.2;
+/**
+ * Paul-Löbe-Haus: the LoD2 extract carries the comb as ten plain bars,
+ * so the eight glazed committee rotundas that stand in the courtyards
+ * (Stephan Braunfels, 2001) are missing entirely. The courtyard heads
+ * are the spine faces at z = -117 (north side) and z = -153 (south).
+ */
+const PLH_ROTUNDA_RADIUS = 8.8;
+const PLH_ROTUNDA_HEIGHT = 24;
+const PLH_ROTUNDA_BASE_Y = 5.1;
+const PLH_NORTH_COURTYARD_X = [179.5, 213.5, 251, 286] as const;
+const PLH_SOUTH_COURTYARD_X = [180.5, 216, 252, 287.5] as const;
+/** Spine hall of the Paul-Löbe-Haus, glazed over its full length. */
+const PLH_SPINE_ROOF_Y = 33.2;
+/** Marie-Elisabeth-Lüders-Haus block roof (LoD2 y0 3.7 + h 29.9). */
+const MELH_ROOF_Y = 33.6;
+/** Jakob-Kaiser-Haus west and north bars. */
+const JKH_ROOF_BARS = [
+  [406, 532, 20, 113, 30.8],
+  [401, 571, 119, 191, 35.1],
+] as const;
 const BOTSCHAFT_MIN_X = -32.1;
 const BOTSCHAFT_MAX_X = 19.9;
 const BOTSCHAFT_MIN_Z = -256.4;
@@ -3216,6 +3315,93 @@ export function createLandmarkRefinements(): Group {
     SHELL_EDGE,
   );
 
+  // --- Paul-Löbe-Haus: the eight glazed committee rotundas ----------------
+  const plhRotundaY = PLH_ROTUNDA_BASE_Y + PLH_ROTUNDA_HEIGHT / 2;
+  const plhDrums: [number, number][] = [
+    ...PLH_NORTH_COURTYARD_X.map(
+      (x): [number, number] => [x, -117 + PLH_ROTUNDA_RADIUS],
+    ),
+    ...PLH_SOUTH_COURTYARD_X.map(
+      (x): [number, number] => [x, -153 - PLH_ROTUNDA_RADIUS],
+    ),
+  ];
+  for (const [drumX, drumZ] of plhDrums) {
+    add(
+      prismTriangles(
+        drumX,
+        plhRotundaY,
+        drumZ,
+        PLH_ROTUNDA_RADIUS,
+        PLH_ROTUNDA_HEIGHT,
+        24,
+      ),
+      STONE_TONE,
+    );
+    // Cornice band, so the drum reads as a finished cylinder from above.
+    add(
+      prismTriangles(
+        drumX,
+        PLH_ROTUNDA_BASE_Y + PLH_ROTUNDA_HEIGHT + 0.5,
+        drumZ,
+        PLH_ROTUNDA_RADIUS + 0.9,
+        1,
+        24,
+      ),
+      SHELL_EDGE,
+    );
+    // Five gallery levels drawn as ink rings — the documented storeys.
+    for (let ring = 1; ring <= 5; ring += 1) {
+      const ringY = PLH_ROTUNDA_BASE_Y + (PLH_ROTUNDA_HEIGHT / 6) * ring;
+      for (let seg = 0; seg < 24; seg += 1) {
+        const a = (seg / 24) * Math.PI * 2;
+        const b = ((seg + 1) / 24) * Math.PI * 2;
+        const r = PLH_ROTUNDA_RADIUS + 0.05;
+        inkLines.push(
+          drumX + Math.cos(a) * r, ringY, drumZ + Math.sin(a) * r,
+          drumX + Math.cos(b) * r, ringY, drumZ + Math.sin(b) * r,
+        );
+      }
+    }
+  }
+  // Spine hall: the glazed barrel is carried on a longitudinal roof grid.
+  for (let x = 158; x <= 310; x += 6) {
+    inkLines.push(x, PLH_SPINE_ROOF_Y, -152, x, PLH_SPINE_ROOF_Y, -118);
+  }
+  for (const z of [-148, -135, -122]) {
+    inkLines.push(158, PLH_SPINE_ROOF_Y, z, 310, PLH_SPINE_ROOF_Y, z);
+  }
+
+  // --- Roof light grids on the Lüders and Kaiser blocks -------------------
+  for (let x = 378; x <= 486; x += 6.4) {
+    inkLines.push(x, MELH_ROOF_Y, -179, x, MELH_ROOF_Y, -82);
+  }
+  for (let z = -179; z <= -82; z += 8) {
+    inkLines.push(378, MELH_ROOF_Y, z, 486, MELH_ROOF_Y, z);
+  }
+  // Spree-side stair down to the quay, beside the colonnade.
+  for (let step = 0; step < 7; step += 1) {
+    add(
+      boxTriangles(
+        369.4 - step * 1.3,
+        4.9 - step * 0.65,
+        -132.5,
+        [0, 1],
+        16,
+        0.65,
+        1.3,
+      ),
+      STONE_TONE,
+    );
+  }
+  for (const [x0, x1, z0, z1, roofY] of JKH_ROOF_BARS) {
+    for (let x = x0 + 4; x <= x1 - 4; x += 6.6) {
+      inkLines.push(x, roofY, z0 + 3, x, roofY, z1 - 3);
+    }
+    for (let z = z0 + 3; z <= z1 - 3; z += 9) {
+      inkLines.push(x0 + 4, roofY, z, x1 - 4, roofY, z);
+    }
+  }
+
   // --- Schweizerische Botschaft: base, cornice, balustrade, portico -------
   const botX = (BOTSCHAFT_MIN_X + BOTSCHAFT_MAX_X) / 2;
   const botZ = (BOTSCHAFT_MIN_Z + BOTSCHAFT_MAX_Z) / 2;
@@ -3271,6 +3457,90 @@ export function createLandmarkRefinements(): Group {
     ),
     STONE_TONE,
   );
+  // Portico pediment: a shallow triangular gable over the architrave.
+  const pedY = BOTSCHAFT_GROUND_Y + 14.1;
+  const pedZ = BOTSCHAFT_MAX_Z + 2.2;
+  const pedHalfX = 6.7;
+  const pedHalfZ = 1.6;
+  const pedApex = pedY + 2.4;
+  const gable: number[] = [];
+  for (const zSide of [-pedHalfZ, pedHalfZ]) {
+    gable.push(
+      botX - pedHalfX, pedY, pedZ + zSide,
+      botX + pedHalfX, pedY, pedZ + zSide,
+      botX, pedApex, pedZ + zSide,
+    );
+  }
+  for (const xSide of [-1, 1]) {
+    const ex = botX + xSide * pedHalfX;
+    gable.push(
+      ex, pedY, pedZ - pedHalfZ,
+      ex, pedY, pedZ + pedHalfZ,
+      botX, pedApex, pedZ + pedHalfZ,
+      ex, pedY, pedZ - pedHalfZ,
+      botX, pedApex, pedZ + pedHalfZ,
+      botX, pedApex, pedZ - pedHalfZ,
+    );
+  }
+  add(new Float32Array(gable), STONE_TONE);
+  // Rusticated base storey: deep beds with staggered vertical joints.
+  const botBaseTop = BOTSCHAFT_GROUND_Y + 3.8;
+  const rustX0 = BOTSCHAFT_MIN_X - 0.5;
+  const rustX1 = BOTSCHAFT_MAX_X + 0.5;
+  const rustZ0 = BOTSCHAFT_MIN_Z - 0.5;
+  const rustZ1 = BOTSCHAFT_MAX_Z + 0.5;
+  for (const y of [BOTSCHAFT_GROUND_Y + 1.25, BOTSCHAFT_GROUND_Y + 2.5]) {
+    inkLines.push(
+      rustX0, y, rustZ0, rustX1, y, rustZ0,
+      rustX0, y, rustZ1, rustX1, y, rustZ1,
+      rustX0, y, rustZ0, rustX0, y, rustZ1,
+      rustX1, y, rustZ0, rustX1, y, rustZ1,
+    );
+  }
+  for (let index = 0; index <= 20; index += 1) {
+    const x = rustX0 + (index / 20) * (rustX1 - rustX0);
+    const top =
+      index % 2 === 0 ? BOTSCHAFT_GROUND_Y + 2.5 : botBaseTop;
+    inkLines.push(
+      x, BOTSCHAFT_GROUND_Y, rustZ0, x, top, rustZ0,
+      x, BOTSCHAFT_GROUND_Y, rustZ1, x, top, rustZ1,
+    );
+  }
+  // Cornice profile: a fascia and a drip course under the main slab.
+  for (const [y, inset] of [
+    [BOTSCHAFT_CORNICE_Y - 0.9, 0.4],
+    [BOTSCHAFT_CORNICE_Y - 1.7, 0.9],
+  ]) {
+    add(
+      boxTriangles(
+        botX,
+        y,
+        botZ,
+        [1, 0],
+        botSpanX + 1.6 - inset,
+        0.42,
+        botSpanZ + 1.6 - inset,
+      ),
+      SHELL_EDGE,
+    );
+  }
+  // Attica: the solid parapet dado carrying the balustrade on the two long
+  // fronts. It stays on the cornice edge, so the hipped roof behind it is
+  // untouched.
+  for (const z of [BOTSCHAFT_MIN_Z - 0.3, BOTSCHAFT_MAX_Z + 0.3]) {
+    add(
+      boxTriangles(
+        botX,
+        BOTSCHAFT_CORNICE_Y + 1.35,
+        z,
+        [1, 0],
+        botSpanX + 1.4,
+        1.7,
+        1.3,
+      ),
+      STONE_TONE,
+    );
+  }
 
   const merged = mergeGeometries(parts, false);
   if (merged) {
@@ -3908,6 +4178,26 @@ export function createIsometricCity(
         edgeGeometries.push(new EdgesGeometry(skylight, ISO_EDGE_THRESHOLD_DEGREES));
         bakeColor(skylight, new Color(FACADE_SHADES.glass[0]));
         glassGeometries.push(skylight);
+        // The two bands are glazed in 1.9 m panels between steel bars —
+        // without the bars they read as blank blue-grey lids.
+        const bars: number[] = [];
+        const barY = roofTop + 0.72;
+        for (let offset = -19; offset <= 19; offset += 1.9) {
+          bars.push(
+            domeX + offset, barY, domeZ + side - 3.5,
+            domeX + offset, barY, domeZ + side + 3.5,
+          );
+        }
+        bars.push(
+          domeX - 19, barY, domeZ + side,
+          domeX + 19, barY, domeZ + side,
+        );
+        const barGeometry = new BufferGeometry();
+        barGeometry.setAttribute(
+          "position",
+          new Float32BufferAttribute(bars, 3),
+        );
+        edgeGeometries.push(barGeometry);
       }
       const restaurant = new BufferGeometry();
       restaurant.setAttribute(

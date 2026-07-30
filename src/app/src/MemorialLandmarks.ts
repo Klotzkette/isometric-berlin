@@ -409,6 +409,24 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   );
   addBox(group, "Soviet memorial left colonnade beam", [23, 1.4, 3.2], [-17, 11.1, -1.8], stone);
   addBox(group, "Soviet memorial right colonnade beam", [23, 1.4, 3.2], [17, 11.1, -1.8], stone);
+  // The colonnade carries a projecting cornice over the entablature and
+  // stands on a continuous stylobate, not directly on the paving.
+  for (const side of [-1, 1]) {
+    addBox(
+      group,
+      "Soviet memorial colonnade cornice",
+      [24.4, 0.55, 4.1],
+      [side * 17, 12.05, -1.75],
+      stoneDark,
+    );
+    addBox(
+      group,
+      "Soviet memorial colonnade stylobate",
+      [24.4, 1.1, 4.2],
+      [side * 17, 1.35, -2.4],
+      stone,
+    );
+  }
   // Gilded inscriptions: a name plate on every side pylon and the
   // dedication band on the central pylon, like the real memorial.
   for (const x of [-24, -16, -8, 8, 16, 24]) {
