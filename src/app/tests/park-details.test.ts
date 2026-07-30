@@ -3,6 +3,7 @@ import { InstancedMesh, Mesh } from "three";
 import {
   type ParkDetailsPayload,
   createParkDetails,
+  decodeTrees,
   parkDetailFocusDistance,
   setParkDetailsFocus,
   setParkSettledDetail,
@@ -198,8 +199,8 @@ describe("OSM park details", () => {
   });
 
   test("rejects unknown payload schemas instead of partially rendering them", () => {
-    expect(() => createParkDetails({ ...payload, schema_version: 3 })).toThrow(
-      "Unsupported park-detail schema 3",
+    expect(() => createParkDetails({ ...payload, schema_version: 4 })).toThrow(
+      "Unsupported park-detail schema 4",
     );
   });
 
@@ -275,5 +276,84 @@ describe("OSM park details", () => {
     expect((eggs as InstancedMesh).count).toBe(3);
     expect(eggs?.userData.eggHeightM).toBeLessThan(0.07);
     expect(park.userData.eggCount).toBe(3);
+  });
+});
+
+describe("schema-3 compact tree wire form", () => {
+  // The task-09 bounds carry 20,911 official catalogue points instead of
+  // 6,893. The verbose per-tree records went past the payload budget, so the
+  // shipped file interns the repeated strings and shortens the keys. Decoding
+  // must restore exactly what the viewer used to read, or measured species,
+  // catalogue and OSM-evidence provenance would silently disappear.
+  const vocabulary = {
+    catalogue: ["strassenbaum"],
+    leaf_type: ["broadleaved"],
+    source: ["berlin_official", "osm"],
+    species: ["Spitz-Ahorn"],
+    tree_group: ["Laubbäume"],
+  };
+  const compact = [
+    {
+      c: 0,
+      cm: 1,
+      cr: 2,
+      e: ["12077445781"],
+      g: 0,
+      h: 7,
+      hm: 1,
+      i: "a",
+      lt: 0,
+      position: [1, 2, 3] as [number, number, number],
+      s: 0,
+      sp: 0,
+      tr: 0.12,
+      v: 2,
+    },
+    {
+      cr: 3.33,
+      h: 9.8,
+      i: "b",
+      position: [4, 5, 6] as [number, number, number],
+      s: 1,
+      tr: 0.317,
+      v: 1,
+    },
+  ];
+
+  test("restores interned strings and leaves absent fields null", () => {
+    const [official, osm] = decodeTrees(compact, vocabulary);
+    expect(official.id).toBe("a");
+    expect(official.source).toBe("berlin_official");
+    expect(official.species).toBe("Spitz-Ahorn");
+    expect(official.tree_group).toBe("Laubbäume");
+    expect(official.catalogue).toBe("strassenbaum");
+    expect(official.leaf_type).toBe("broadleaved");
+    expect(official.position).toEqual([1, 2, 3]);
+    expect(osm.source).toBe("osm");
+    expect(osm.species).toBeNull();
+    expect(osm.catalogue).toBeNull();
+    expect(osm.leaf_type).toBeNull();
+    expect(osm.trunk_radius_m).toBe(0.317);
+  });
+
+  test("schema 1 and 2 payloads still pass through untouched", () => {
+    expect(decodeTrees(payload.trees)).toEqual(payload.trees);
+  });
+
+  test("createParkDetails builds the same trees from either form", () => {
+    const verbose = createParkDetails(payload);
+    const wire = createParkDetails({
+      ...payload,
+      schema_version: 3,
+      tree_vocabulary: { leaf_type: ["broadleaved"], source: ["berlin_official", "osm"] },
+      trees: [
+        { cr: 3.2, h: 11, i: "tree-1", lt: 0, position: [2, 1, 3], s: 0, v: 0 },
+        { cr: 4, h: 13, i: "tree-2", position: [8, 1.1, 4], s: 1, v: 2 },
+      ],
+    });
+    expect(wire.userData.treeCount).toBe(verbose.userData.treeCount);
+    expect(wire.userData.settledOfficialTreeDetailFaces).toBe(
+      verbose.userData.settledOfficialTreeDetailFaces,
+    );
   });
 });

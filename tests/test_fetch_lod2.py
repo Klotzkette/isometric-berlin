@@ -14,12 +14,21 @@ def test_tiles_for_regierungsviertel_bounds_are_minimal() -> None:
   bounds = Path("geo_data/regierungsviertel/bounds.geojson")
   tiles = lod2.tiles_for_bounds(bounds)
   assert [tile.tile_id for tile in tiles] == [
+    "386_5818",
+    "386_5819",
+    "386_5820",
+    "387_5818",
+    "387_5819",
+    "387_5820",
+    "388_5818",
     "388_5819",
     "388_5820",
+    "388_5821",
     "389_5818",
     "389_5819",
     "389_5820",
     "389_5821",
+    "390_5818",
     "390_5819",
     "390_5820",
   ]

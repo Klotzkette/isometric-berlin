@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.40.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.40.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.41.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.41.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.40.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.41.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,7 +42,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.40.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.41.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -57,13 +57,31 @@ labelled compatibility fallback for browsers that cannot run local modules.
   "Non-Violence" sculpture. **No window grid is ever invented** — LoD2 carries
   no window positions, so only documented hero fenestration and the surveyed
   entrance doors exist as panes, and two tests enforce that absence.
-- The versioned visible presentation radius is **3410 m** (expanded from
-  3310 m in v0.38.0). Existing metric geometry remains fixed. Everything
-  outside the official data footprint is explicitly marked as extrapolated
-  paper/park surround and is never presented as newly surveyed LoD2, ALKIS or
-  OSM geometry. Day, Night and Minecraft now consume the same versioned
-  envelope, tree and lamp positions, so switching modes cannot remove the
-  expanded western Tiergarten or outer ring.
+- The versioned visible presentation radius is **5030 m** (expanded from
+  3410 m in v0.40.0). Existing metric geometry remains fixed. The v0.41.0
+  bounds expansion fetched real LoD2 buildings, ALKIS parcels and the official
+  tree and public-lighting catalogues out to world x −2873, so the invented
+  western Tiergarten — lawn bands, a drawn Straße des 17. Juni and roughly
+  1774 generated trees — has been **removed** rather than left standing on top
+  of measured geometry. What remains extrapolated is a 1200 m blank paper ring
+  around the surveyed hull (world x −2880…690, z −1310…1620; envelope
+  x −4080…1890, z −2510…2820): flat tone plates and cartographic ruling only,
+  explicitly marked and never presented as surveyed geometry. Day, Night and
+  Minecraft consume the same envelope.
+- **The OSM layer has not caught up with the expanded bounds.** `osm.gpkg`
+  still holds the pre-expansion extract (E388785…390105 / N5818554…5821015),
+  because Overpass became unreachable from the build host part-way through
+  this round. The expansion areas therefore ship with buildings, terrain,
+  trees and lamps, but without OSM streets, water, park polygons or POIs.
+  Nothing was invented to cover the gap; the affected ground is drawn in the
+  plain paper tone. Refetching `osm.gpkg` is the first task of the next round.
+- **The 2D overview raster stays pinned to the pre-expansion polygon.** Its
+  DZI tiles and the landmark projection beside them
+  (`src/app/public/dzi/regierungsviertel/landmarks.json`) are projected from
+  `overview_bounds.geojson`, so the published prism tones remain byte-stable.
+  `landmarks.geojson` carries all 56 checked landmarks and the 3D scene uses
+  them; the 2D overview projection still shows the 43 that fit the pinned
+  polygon. Re-projecting it belongs with the OSM refetch in the next round.
 - Day and Night render with **no tone mapping at exposure 1**, so an authored
   paint tone reaches the screen bit-exact. The drawn city is a flat unlit
   drawing: plasticity comes from one constant brightness per face direction
@@ -75,7 +93,12 @@ labelled compatibility fallback for browsers that cannot run local modules.
   facades pale.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
-  EPSG:25833 without changing horizontal or vertical scale.
+  EPSG:25833 without changing horizontal or vertical scale. These tiles cover
+  the pre-v0.41.0 footprint only; the areas added by the task-09 bounds
+  expansion (Kulturforum, Leipziger Platz, Hamburger Bahnhof, Geschichtspark
+  Moabit, the western Tiergarten) carry LoD2, ALKIS and official point data
+  but no photogrammetric mesh, because refetching the mesh for 3.6× the area
+  would exceed the published WebGL scene budget.
 - Each context tile retains up to 100,000 faces, raising the official base from
   1,609,984 to 2,299,987 faces without moving its source coordinates. A 58°
   normal crease keeps severe roof and facade folds crisp while preserving
@@ -153,8 +176,8 @@ labelled compatibility fallback for browsers that cannot run local modules.
   strict mobile density budget. Its distant haze now scales with the versioned
   visible radius, keeping the complete expanded model readable at overview
   distance instead of fading the outer ring. Its official metric voxel payload
-  stays unchanged; the matching 3410 m block surround is explicitly tagged as
-  extrapolated presentation geometry.
+  grows with the expanded bounds; the matching 5030 m block surround is
+  explicitly tagged as extrapolated presentation geometry.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact
   40 px sight status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with

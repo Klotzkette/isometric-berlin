@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "name": "regierungsviertel_overview_bounds",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Projection anchor of the committed overview raster",
+        "description": "The polygon that was in bounds.geojson when src/app/public/dzi/regierungsviertel/overview_source.png was rendered. overview_projection() derives the render centre and px/m scale from the bounds extent, so the tone sampler in build_isometric_prisms must keep using THIS polygon, not the live bounds. Buildings in the task-09 expansion fall outside this raster and are written without a tone, which the viewer draws in the plain ivory isoFaceShade ladder.",
+        "source": "bounds.geojson as of v0.40.0 (commit 8b0728b) — the MVP polygon the overview render was projected from"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [13.3752, 52.5059],
+          [13.3654, 52.5100],
+          [13.36091, 52.5188],
+          [13.36902, 52.52812],
+          [13.3784, 52.52044],
+          [13.38047, 52.5163],
+          [13.3752, 52.5059]
+        ]]
+      }
+    }
+  ]
+}

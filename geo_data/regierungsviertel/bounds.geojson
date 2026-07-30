@@ -6,20 +6,30 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Regierungsviertel MVP bounds",
-        "description": "Landmark-fitted polygon covering Brandenburger Tor, Reichstag, Bundeskanzleramt, Paul-Löbe-Haus, Marie-Elisabeth-Lüders-Haus, Berlin Hauptbahnhof, Haus der Kulturen der Welt ('Schwangere Auster'), the eastern Tiergarten including Luiseninsel playground, and the Tiergartentunnel south entrance at Sony Center / Potsdamer Platz.",
-        "source": "Convex hull of landmarks.geojson + 180 m buffer, with the owner-requested Luiseninsel playground edge correction"
+        "name": "Regierungsviertel bounds — task-09 grand expansion",
+        "description": "Lobed polygon covering the original Regierungsviertel core (Brandenburger Tor, Reichstag, Bundeskanzleramt, Paul-Löbe-Haus, Marie-Elisabeth-Lüders-Haus, Berlin Hauptbahnhof, Haus der Kulturen der Welt, Tiergartentunnel south entrance) plus the task-09 expansion: the complete Großer Tiergarten including Siegessäule and Großer Stern, the Kulturforum (Philharmonie, St. Matthäus-Kirche, Gemäldegalerie, Neue Nationalgalerie, Staatsbibliothek), the Leipziger Platz octagon with Mall of Berlin and Kollhoff-Tower, Hamburger Bahnhof, and the Geschichtspark Ehemaliges Zellengefängnis Moabit.",
+        "source": "Owner-approved task-09 scope. West edge fitted to the OSM Großer Tiergarten relation 7643526 (minlon 13.33165), north edge above Geschichtspark Moabit, east edge east of Mall of Berlin, south edge on the Landwehrkanal below the Kulturforum. Kept lobed: the south-west quadrant below the park and the north-west quadrant beyond Moabit are cut away to hold payload sizes."
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [13.3752, 52.5059],
-          [13.3654, 52.5100],
-          [13.36091, 52.5188],
-          [13.36902, 52.52812],
-          [13.3784, 52.52044],
-          [13.38047, 52.5163],
-          [13.3752, 52.5059]
+          [13.3815, 52.5150],
+          [13.3815, 52.5090],
+          [13.3760, 52.5045],
+          [13.3650, 52.5045],
+          [13.3630, 52.5075],
+          [13.3560, 52.5080],
+          [13.3400, 52.5085],
+          [13.3295, 52.5082],
+          [13.3295, 52.5210],
+          [13.3450, 52.5215],
+          [13.3560, 52.5230],
+          [13.3600, 52.5265],
+          [13.3625, 52.5305],
+          [13.3770, 52.5305],
+          [13.3790, 52.5255],
+          [13.3815, 52.5195],
+          [13.3815, 52.5150]
         ]]
       }
     }

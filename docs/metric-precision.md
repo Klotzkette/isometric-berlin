@@ -21,16 +21,16 @@ surface, and which additions remain display approximations.
 
 ## Committed LoD2 geometry statistics
 
-- Buildings: 3315
-- Polygon parts: 3318
-- Total footprint area: 307467.91 m²
-- Footprint vertices rendered: 23555
-- Median vertices per polygon: 4.0
-- Interior rings / courtyards: 30
-- Median segment length: 1.57 m
-- Measured LoD2 heights: 3315 (100.0%)
-- Explicit CityGML BuildingParts: 848
-- Segmented parent ensembles: 142
+- Buildings: 9387
+- Polygon parts: 9393
+- Total footprint area: 1272202.4 m²
+- Footprint vertices rendered: 79641
+- Median vertices per polygon: 4
+- Interior rings / courtyards: 84
+- Median segment length: 2.42 m
+- Measured LoD2 heights: 9387 (100.0%)
+- Explicit CityGML BuildingParts: 4767
+- Segmented parent ensembles: 907
 - Latest source creation date: 2026-03-08
 
 ## Bundeskanzleramt scale check
@@ -45,10 +45,10 @@ surface, and which additions remain display approximations.
 
 ## Landmark placement QA
 
-- Status: ok
-- Landmarks checked: 43
+- Status: review
+- Landmarks checked: 56
 - Relative relationships checked: 26
-- Review count: 0
+- Review count: 12
 
 ## Committed photogrammetric surface statistics
 

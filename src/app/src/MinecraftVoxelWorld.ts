@@ -15,16 +15,11 @@ import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
 import {
   AXIS_FROM,
   AXIS_TO,
+  DATA_EAST_M,
   EXTRAPOLATED_MARGIN_M,
-  EXTRAPOLATED_WEST_M,
   VISIBLE_RADIUS_M,
-  WEST_PARK_EAST_M,
-  WEST_PARK_NORTH_M,
-  WEST_PARK_SOUTH_M,
   extrapolatedEnvelopeBounds,
-  extrapolatedLampSpots,
   extrapolatedMarginBands,
-  extrapolatedTreeSpots,
 } from "./worldEnvelope";
 
 /**
@@ -574,62 +569,12 @@ export function createMinecraftExtrapolatedWorld(): Group {
     addTiledBand(groundBlocks, band, index);
   });
 
-  const parkBands = 8;
-  for (let band = 0; band < parkBands; band += 1) {
-    const z0 =
-      WEST_PARK_NORTH_M +
-      ((WEST_PARK_SOUTH_M - WEST_PARK_NORTH_M) / parkBands) * band;
-    const z1 =
-      WEST_PARK_NORTH_M +
-      ((WEST_PARK_SOUTH_M - WEST_PARK_NORTH_M) / parkBands) * (band + 1);
-    groundBlocks.push({
-      color: band % 2 === 0 ? 0x74b043 : 0x91bd59,
-      position: [
-        (EXTRAPOLATED_WEST_M + WEST_PARK_EAST_M) / 2,
-        0.6,
-        (z0 + z1) / 2,
-      ],
-      size: [WEST_PARK_EAST_M - EXTRAPOLATED_WEST_M, 3, z1 - z0],
-    });
-  }
-
-  const axisDx = AXIS_TO[0] - AXIS_FROM[0];
-  const axisDz = AXIS_TO[1] - AXIS_FROM[1];
-  const axisZAtParkEdge =
-    AXIS_FROM[1] +
-    ((WEST_PARK_EAST_M - AXIS_FROM[0]) * axisDz) / axisDx;
-  const axisLength = Math.hypot(axisDx, axisDz);
-  const axisUx = axisDx / axisLength;
-  const axisUz = axisDz / axisLength;
   addBlockRoad(
     groundBlocks,
-    [
-      WEST_PARK_EAST_M - axisUx * 45,
-      axisZAtParkEdge - axisUz * 45,
-    ],
-    [AXIS_TO[0] + axisUx * 45, AXIS_TO[1] + axisUz * 45],
-    42,
-  );
-  addBlockRoad(
-    groundBlocks,
-    [601, AXIS_FROM[1]],
-    [601 + EXTRAPOLATED_MARGIN_M, AXIS_FROM[1]],
+    [DATA_EAST_M, AXIS_FROM[1]],
+    [DATA_EAST_M + EXTRAPOLATED_MARGIN_M, AXIS_FROM[1]],
     40,
   );
-
-  const roundaboutCellM = 4;
-  for (let x = -100; x <= 100; x += roundaboutCellM) {
-    for (let z = -100; z <= 100; z += roundaboutCellM) {
-      if (x * x + z * z > 100 * 100) {
-        continue;
-      }
-      groundBlocks.push({
-        color: (x + z) % 12 === 0 ? 0x40515c : 0x202923,
-        position: [AXIS_TO[0] + x, 1, AXIS_TO[1] + z],
-        size: [roundaboutCellM, 3, roundaboutCellM],
-      });
-    }
-  }
 
   const ground = instancedBoxes(
     "Voxel extrapolated ground and roads",
@@ -643,60 +588,6 @@ export function createMinecraftExtrapolatedWorld(): Group {
     );
   }
   group.add(ground.mesh);
-
-  const treeSpots = extrapolatedTreeSpots();
-  const trunks = instancedBoxes(
-    "Voxel extrapolated tree trunks",
-    treeSpots.length,
-  );
-  const crowns = instancedBoxes(
-    "Voxel extrapolated tree crowns",
-    treeSpots.length * 2,
-  );
-  treeSpots.forEach(([x, z], index) => {
-    const size = 4 + ((index * 37) % 5);
-    trunks.write(
-      new Vector3(x, 4.1, z),
-      new Vector3(1.1, 4, 1.1),
-      new Color(0x704a2d),
-    );
-    crowns.write(
-      new Vector3(x, 6.2 + size * 0.32, z),
-      new Vector3(size, size * 0.78, size),
-      new Color(index % 3 === 0 ? 0x4c7f28 : 0x5d9634),
-    );
-    crowns.write(
-      new Vector3(x + size * 0.24, 8.2 + size * 0.35, z - size * 0.18),
-      new Vector3(size * 0.58, size * 0.48, size * 0.58),
-      new Color(index % 3 === 1 ? 0x74b043 : 0x5d9634),
-    );
-  });
-  group.add(trunks.mesh);
-  group.add(crowns.mesh);
-
-  const lampSpots = extrapolatedLampSpots();
-  const lampPoles = instancedBoxes(
-    "Voxel extrapolated lamp poles",
-    lampSpots.length,
-  );
-  const lampHeads = instancedBoxes(
-    "Voxel extrapolated lamp heads",
-    lampSpots.length,
-  );
-  lampSpots.forEach(([x, z]) => {
-    lampPoles.write(
-      new Vector3(x, 4.4, z),
-      new Vector3(0.45, 4.6, 0.45),
-      new Color(0x40515c),
-    );
-    lampHeads.write(
-      new Vector3(x, 7, z),
-      new Vector3(1, 1, 1),
-      new Color(0xe6bd4c),
-    );
-  });
-  group.add(lampPoles.mesh);
-  group.add(lampHeads.mesh);
 
   const columnParts: ExtrapolatedBlock[] = [
     {

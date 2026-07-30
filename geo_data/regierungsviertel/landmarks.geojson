@@ -669,6 +669,214 @@
           52.510774284
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Siegessäule",
+        "role": "owner_added",
+        "tour_order": 44,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.350063,
+          52.514488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Großer Stern",
+        "role": "owner_added",
+        "tour_order": 45,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.350063,
+          52.514488
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bismarck-Nationaldenkmal",
+        "role": "owner_added",
+        "tour_order": 46,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3493,
+          52.51553
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berliner Philharmonie",
+        "role": "owner_added",
+        "tour_order": 47,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.36975,
+          52.51
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "St. Matthäus-Kirche",
+        "role": "owner_added",
+        "tour_order": 48,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3689,
+          52.5077
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gemäldegalerie",
+        "role": "owner_added",
+        "tour_order": 49,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3667,
+          52.5085
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Neue Nationalgalerie",
+        "role": "owner_added",
+        "tour_order": 50,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3672,
+          52.5065
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
+        "role": "owner_added",
+        "tour_order": 51,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3702,
+          52.5074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Leipziger Platz",
+        "role": "owner_added",
+        "tour_order": 52,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3781,
+          52.5094
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mall of Berlin",
+        "role": "owner_added",
+        "tour_order": 53,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3801,
+          52.5104
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kollhoff-Tower",
+        "role": "owner_added",
+        "tour_order": 54,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3757,
+          52.5093
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hamburger Bahnhof",
+        "role": "owner_added",
+        "tour_order": 55,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3722,
+          52.5285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Geschichtspark Ehemaliges Zellengefängnis Moabit",
+        "role": "owner_added",
+        "tour_order": 56,
+        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.366,
+          52.529
+        ]
+      }
     }
   ]
 }

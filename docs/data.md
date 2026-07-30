@@ -255,6 +255,12 @@ to the same polygon in EPSG:25833. The effective tag filter is:
 }
 ```
 
+Since the task-09 bounds expansion the polygon is fetched in roughly
+kilometre-wide tiles rather than in one request: asking Overpass for every tag
+across the whole area produces a response of hundreds of megabytes, which the
+connection does not survive. Tiles are clipped back to the polygon and
+deduplicated by element/id, so the result is identical to a single request.
+
 The normalized raw feature response is cached at
 `geo_data/regierungsviertel/raw/osm_overpass.json` (gitignored), and
 OSMnx's request cache lives under

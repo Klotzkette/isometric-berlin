@@ -1,32 +1,32 @@
 {
   "buildings": {
-    "building_count": 3315,
-    "building_footprint_area_m2": 307467.91,
-    "building_part_count": 848,
-    "footprint_vertex_count": 23555,
-    "interior_ring_count": 30,
+    "building_count": 9387,
+    "building_footprint_area_m2": 1272202.4,
+    "building_part_count": 4767,
+    "footprint_vertex_count": 79641,
+    "interior_ring_count": 84,
     "latest_source_creation_date": "2026-03-08",
-    "max_segment_length_m": 149.72,
-    "measured_height_count": 3315,
+    "max_segment_length_m": 224.71,
+    "measured_height_count": 9387,
     "measured_height_share": 1.0,
-    "median_measured_height_m": 3.0,
-    "median_segment_length_m": 1.57,
-    "median_vertices_per_polygon": 4.0,
+    "median_measured_height_m": 15.2,
+    "median_segment_length_m": 2.42,
+    "median_vertices_per_polygon": 4,
     "min_segment_length_m": 0.0,
-    "polygon_part_count": 3318,
-    "segmented_ensemble_count": 142,
+    "polygon_part_count": 9393,
+    "segmented_ensemble_count": 907,
     "source_precision_interpretation": "Footprints remain in EPSG:25833 metres and are rendered from LoD2 polygon coordinates; roof forms are official generalized standard roof forms, not photogrammetric facade relief."
   },
   "coordinate_reference_system": "EPSG:25833",
-  "generated_at": "2026-07-19T03:16:58.295719+00:00",
+  "generated_at": "2026-07-30T16:36:12.036918+00:00",
   "landmark_alignment": {
     "available": true,
-    "landmark_review_count": 0,
-    "landmarks_checked": 43,
+    "landmark_review_count": 12,
+    "landmarks_checked": 56,
     "relative_relationships_checked": 26,
     "relative_review_count": 0,
-    "review_count": 0,
-    "status": "ok"
+    "review_count": 12,
+    "status": "review"
   },
   "landmark_scale": {
     "bundeskanzleramt": {
@@ -62,7 +62,7 @@
     "settled_faces": 6000002,
     "settled_target_faces_per_tile": 289797,
     "settled_vertices": 3134292,
-    "sha256": "78044d86c606c2b7c1eb423d991caf88c5d4248fd3c2c9009c2f7c61bf7d59df",
+    "sha256": "939b1728ceef6c903218f0df5fe282392364a9da961139d9c9a87d7e77f31658",
     "simplification_aggression": 5,
     "source_tiles": 23
   },
@@ -94,7 +94,7 @@
       "claim": "Official Berlin LoD2; building footprints correspond exactly to cadastral building outlines, with generalized standard roof forms.",
       "metadata_url": "https://gdi.berlin.de/geonetwork/srv/api/records/3c7c49af-00a4-3bcd-bc00-20e7f0f1b7bf",
       "path": "geo_data/regierungsviertel/buildings.gpkg",
-      "sha256": "41ef1936ee0571571ae50465f13ce3fa7e6d2ba3c5f85d1808c6d94082927788"
+      "sha256": "efe680812f987d2dbbfe805db2058de2a43304ad255898d24fd9df8b5689e2f3"
     }
   }
 }

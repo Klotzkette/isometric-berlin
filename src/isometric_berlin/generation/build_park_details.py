@@ -334,6 +334,75 @@ def fuse_trees(
   }
 
 
+# Compact wire form for the tree array. The task-09 bounds carry 20,911
+# official catalogue points instead of 6,893, which pushed the verbose records
+# to 7.4 MiB — well past the 4 MiB payload budget. Shortening the keys and
+# interning the five repeated string vocabularies is lossless and brings the
+# payload back to 3.4 MiB. "position" deliberately keeps its long name: the
+# Python ground samplers in build_isometric_prisms and build_minecraft_voxels
+# read it straight off this file.
+TREE_VOCABULARY_KEYS = ("source", "catalogue", "leaf_type", "species", "tree_group")
+TREE_COMPACT_KEYS = {
+  "id": "i",
+  "source": "s",
+  "catalogue": "c",
+  "height_m": "h",
+  "height_measured": "hm",
+  "crown_radius_m": "cr",
+  "crown_measured": "cm",
+  "trunk_radius_m": "tr",
+  "leaf_type": "lt",
+  "species": "sp",
+  "tree_group": "g",
+  "variant": "v",
+  "osm_evidence_ids": "e",
+}
+
+
+def compact_trees(
+  trees: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, list[str]]]:
+  """Shorten keys, intern strings and drop empty fields. Fully reversible."""
+  vocabulary: dict[str, list[str]] = {key: [] for key in TREE_VOCABULARY_KEYS}
+  indexes: dict[str, dict[str, int]] = {key: {} for key in TREE_VOCABULARY_KEYS}
+  compact: list[dict[str, Any]] = []
+  for tree in trees:
+    record: dict[str, Any] = {}
+    for key, value in tree.items():
+      if value is None or value is False or value == []:
+        continue
+      if key in vocabulary:
+        table = indexes[key]
+        if value not in table:
+          table[value] = len(vocabulary[key])
+          vocabulary[key].append(value)
+        value = table[value]
+      elif value is True:
+        value = 1
+      record[TREE_COMPACT_KEYS.get(key, key)] = value
+    compact.append(record)
+  return compact, vocabulary
+
+
+def expand_trees(
+  compact: list[dict[str, Any]], vocabulary: dict[str, list[str]]
+) -> list[dict[str, Any]]:
+  """Inverse of :func:`compact_trees`, used by the payload tests."""
+  long_keys = {short: long for long, short in TREE_COMPACT_KEYS.items()}
+  expanded: list[dict[str, Any]] = []
+  for record in compact:
+    tree: dict[str, Any] = {}
+    for key, value in record.items():
+      long = long_keys.get(key, key)
+      if long in TREE_VOCABULARY_KEYS:
+        value = vocabulary[long][value]
+      elif long in ("height_measured", "crown_measured"):
+        value = bool(value)
+      tree[long] = value
+    expanded.append(tree)
+  return expanded
+
+
 def display_light_height(light_type: str | None) -> float:
   """Return a conservative visual mast height where the WFS has no height."""
   text = light_type or ""
@@ -494,8 +563,9 @@ def build_payload(
   osm_trees = build_trees(vegetation, origin, sampler)
   official_trees = build_official_trees(official_tree_frame, origin, sampler)
   trees, tree_fusion = fuse_trees(official_trees, osm_trees)
+  compact, tree_vocabulary = compact_trees(trees)
   return {
-    "schema_version": 2,
+    "schema_version": 3,
     "source": {
       "name": "Additive OSM and Geoportal Berlin detail fusion",
       "attribution": "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)",
@@ -515,7 +585,8 @@ def build_payload(
     },
     "tree_fusion": tree_fusion,
     "paths": build_paths(roads, tiergarten, origin, sampler),
-    "trees": trees,
+    "tree_vocabulary": tree_vocabulary,
+    "trees": compact,
     "street_lights": build_street_lights(official_light_frame, origin, sampler),
     "wall_traces": build_wall_traces(official_wall_frame, origin, sampler),
     "playgrounds": build_playgrounds(playgrounds, origin, sampler),

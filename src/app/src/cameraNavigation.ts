@@ -11,10 +11,10 @@ export type CameraPose = {
 };
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
-  // West reaches the extrapolated Großer Stern; the other sides gain
-  // the paper-margin ring (visible radius contract: 3410 m).
-  min: new Vector3(-3_150, -120, -3_200),
-  max: new Vector3(2_580, 280, 3_620),
+  // The surveyed task-09 hull (world x -2880..690, z -1310..1620) plus the
+  // 1200 m paper-margin ring (visible radius contract: 5030 m).
+  min: new Vector3(-4_080, -120, -2_510),
+  max: new Vector3(1_890, 280, 2_820),
 };
 
 export function captureCameraPose(

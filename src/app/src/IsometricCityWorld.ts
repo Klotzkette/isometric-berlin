@@ -32,20 +32,22 @@ import {
 import {
   AXIS_FROM,
   AXIS_TO,
+  DATA_EAST_M,
+  DATA_NORTH_M,
+  DATA_SOUTH_M,
+  DATA_WEST_M,
   EXTRAPOLATED_MARGIN_M,
-  EXTRAPOLATED_WEST_M,
   VISIBLE_RADIUS_M,
-  WEST_PARK_EAST_M,
-  WEST_PARK_NORTH_M,
-  WEST_PARK_SOUTH_M,
-  extrapolatedLampSpots,
+  extrapolatedEnvelopeBounds,
   extrapolatedMarginBands,
-  extrapolatedTreeSpots,
 } from "./worldEnvelope";
 
 export {
+  DATA_EAST_M,
+  DATA_NORTH_M,
+  DATA_SOUTH_M,
+  DATA_WEST_M,
   EXTRAPOLATED_MARGIN_M,
-  EXTRAPOLATED_WEST_M,
   VISIBLE_RADIUS_M,
 } from "./worldEnvelope";
 
@@ -147,6 +149,11 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "K0003UWM", "K0003Vlz", "OXDNOQlg", "YK0000Ce", "YK0000Cg", "YK0000Ch",
   "YK0000Ci", "YK0000Ck", "YK0000Cm", "YK0000Co", "YK0000Cq", "YK0000Cs",
   "YK0000Cu", "ZoBdHJPp", "hSQsiPVL", "jacWOmHc", "q7Axk9GG",
+  // Siegessäule at the Großer Stern. LoD2 stops at the socle and the
+  // Säulenhalle (25.0 m / 18.2 m / 8.4 m); createSiegessaeule draws the whole
+  // 67 m monument including the fluted drums and the gilded Viktoria, so the
+  // three concentric prisms would stand inside the column.
+  "3wUufHpn", "iHbVUwP0", "xzlowEa3",
 ]);
 
 // Prisms forced into the transparent glass mesh regardless of their
@@ -2326,9 +2333,19 @@ function createBridgeRailings(ground: VoxelPayload): Group | null {
   return group;
 }
 
-export function createWestTiergarten(): Group {
+/**
+ * Blank paper ring around the surveyed hull. Until v0.40.0 this function also
+ * carried an invented west Tiergarten — lawn bands, a drawn Straße des 17.
+ * Juni and ~1774 generated trees — because the shipped data stopped at world
+ * x -658. The task-09 bounds now fetch real LoD2, OSM parkland and official
+ * tree/lamp points out to x -2873, so all of that invented content has been
+ * removed rather than drawn on top of measured geometry. What remains is
+ * genuinely beyond the data: flat tone plates, cartographic ruling and the
+ * Unter-den-Linden stub continuing east off the extract.
+ */
+export function createExtrapolatedMargin(): Group {
   const group = new Group();
-  group.name = "extrapolated west Tiergarten (Siegessäule)";
+  group.name = "extrapolated paper margin";
   group.userData.extrapolated = true;
   group.userData.visibleRadiusM = VISIBLE_RADIUS_M;
   const bodyGeometries: BufferGeometry[] = [];
@@ -2356,60 +2373,143 @@ export function createWestTiergarten(): Group {
     }
   };
   const GROUND_TOP = 2.1;
-  // Lawn bands (alternating drawn greens like the surveyed ground).
-  const WEST = EXTRAPOLATED_WEST_M;
-  const EAST = WEST_PARK_EAST_M;
-  const NORTH = WEST_PARK_NORTH_M;
-  const SOUTH = WEST_PARK_SOUTH_M;
   // A recessed paper ground closes transparent gaps between the bounded
-  // official grid, the western park and the three margin bands. It sits below
-  // water and terrain, so it cannot move or cover surveyed geometry; it only
-  // prevents trees from appearing to float against the sky at maximum flight.
-  const PAPER_EAST = 1680;
-  const PAPER_NORTH = -2100;
-  const PAPER_SOUTH = 2520;
+  // official grid and the margin bands. It sits below water and terrain, so
+  // it cannot move or cover surveyed geometry; it only prevents the sky from
+  // showing through at maximum flight.
+  const envelope = extrapolatedEnvelopeBounds();
   addPart(
     boxTriangles(
-      (WEST + PAPER_EAST) / 2,
+      (envelope.minX + envelope.maxX) / 2,
       GROUND_TOP - 4.2,
-      (PAPER_NORTH + PAPER_SOUTH) / 2,
+      (envelope.minZ + envelope.maxZ) / 2,
       [1, 0],
-      PAPER_EAST - WEST,
+      envelope.maxX - envelope.minX,
       1.2,
-      PAPER_SOUTH - PAPER_NORTH,
+      envelope.maxZ - envelope.minZ,
     ),
     0xe9efe4,
     false,
   );
-  const bands = 8;
-  for (let band = 0; band < bands; band += 1) {
-    const z0 = NORTH + ((SOUTH - NORTH) / bands) * band;
-    const z1 = NORTH + ((SOUTH - NORTH) / bands) * (band + 1);
+  // "Umkreis ausweiten": a calm paper-pale margin carries the map on every
+  // side — the drawing fades into light ground instead of a void. No
+  // buildings are invented; Unter den Linden continues east from the Gate as
+  // a drawn axis.
+  const MARGIN = EXTRAPOLATED_MARGIN_M;
+  const marginBands = extrapolatedMarginBands();
+  const MARGIN_TONES = [0xe6ece1, 0xebf0e6];
+  marginBands.forEach(([cx, cz, sx, sz], index) => {
     addPart(
-      boxTriangles(
-        (WEST + EAST) / 2, GROUND_TOP - 1.5, (z0 + z1) / 2,
-        [1, 0], EAST - WEST, 3, z1 - z0,
-      ),
-      ISO_GROUND_SHADES.grass[band % 3],
+      boxTriangles(cx, GROUND_TOP - 1.6, cz, [1, 0], sx, 2.6, sz),
+      MARGIN_TONES[index % 2],
       false,
     );
+  });
+  // The margin used to be blank slabs, which read as unfinished paper next
+  // to the drawn centre. A 140 m field grid of hairlines gives it the same
+  // drawn surface quality without inventing buildings: it is cartographic
+  // ruling, not surveyed content.
+  const FIELD_PITCH_M = 140;
+  const fieldLines: number[] = [];
+  const fieldY = GROUND_TOP - 0.28;
+  for (const [cx, cz, sx, sz] of marginBands) {
+    const x0 = cx - sx / 2;
+    const z0 = cz - sz / 2;
+    for (let x = x0; x <= cx + sx / 2 + 1e-6; x += FIELD_PITCH_M) {
+      fieldLines.push(x, fieldY, z0, x, fieldY, cz + sz / 2);
+    }
+    for (let z = z0; z <= cz + sz / 2 + 1e-6; z += FIELD_PITCH_M) {
+      fieldLines.push(x0, fieldY, z, cx + sx / 2, fieldY, z);
+    }
   }
-  // Straße des 17. Juni: the real axis from the Gate to the Großer Stern.
-  const axisDx = AXIS_TO[0] - AXIS_FROM[0];
-  const axisDz = AXIS_TO[1] - AXIS_FROM[1];
-  const axisLength = Math.hypot(axisDx, axisDz);
-  const axis: [number, number] = [axisDx / axisLength, axisDz / axisLength];
-  const roadCenterX = (EAST + AXIS_TO[0]) / 2;
-  const roadCenterZ =
-    AXIS_FROM[1] + ((roadCenterX - AXIS_FROM[0]) * axisDz) / axisDx;
+  const fieldGrid = new BufferGeometry();
+  fieldGrid.setAttribute("position", new Float32BufferAttribute(fieldLines, 3));
+  edgeGeometries.push(fieldGrid);
+  // Unter den Linden, continuing east from Pariser Platz off the extract.
   addPart(
     boxTriangles(
-      roadCenterX, GROUND_TOP - 1.35, roadCenterZ,
-      axis, Math.abs(AXIS_TO[0] - EAST) + 90, 3, 42,
+      DATA_EAST_M + MARGIN / 2,
+      GROUND_TOP - 1.35,
+      292,
+      [1, 0],
+      MARGIN,
+      3,
+      40,
     ),
     ISO_GROUND_SHADES.asphalt[0],
     false,
   );
+  const marginBody = mergeGeometries(bodyGeometries, false);
+  if (marginBody) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(marginBody, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "extrapolated margin ground";
+    group.add(mesh);
+    for (const geometry of bodyGeometries) {
+      geometry.dispose();
+    }
+  }
+  const marginInk = mergeGeometries(edgeGeometries, false);
+  if (marginInk) {
+    const lines = new LineSegments(
+      marginInk,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "extrapolated margin field grid";
+    lines.renderOrder = 2;
+    group.add(lines);
+  }
+  return group;
+}
+
+/**
+ * Siegessäule (Strack, 1873) and the Bismarck-Nationaldenkmal (Begas, 1901)
+ * at the Großer Stern. Recognition models after published dimensions: the
+ * LoD2 extract carries only the 25 m socle block of the column, so the
+ * 67 m fluted shaft with the gilded Viktoria has to be modelled and the
+ * underlying prisms are suppressed (PRISM_SUPPRESSED_IDS).
+ */
+export function createSiegessaeule(): Group {
+  const group = new Group();
+  group.name = "Siegessäule and Bismarck-Nationaldenkmal";
+  group.userData.recognitionModel = true;
+  const bodyGeometries: BufferGeometry[] = [];
+  const edgeGeometries: BufferGeometry[] = [];
+  const addPart = (
+    triangles: Float32Array,
+    tone: number,
+    inked = true,
+  ): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const paint = new Color(tone);
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = paint.r;
+      colors[index * 3 + 1] = paint.g;
+      colors[index * 3 + 2] = paint.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    bodyGeometries.push(geometry);
+    if (inked) {
+      edgeGeometries.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+    }
+  };
+  const GROUND_TOP = 2.1;
+  const axisDx = AXIS_TO[0] - AXIS_FROM[0];
+  const axisDz = AXIS_TO[1] - AXIS_FROM[1];
+  const axisLength = Math.hypot(axisDx, axisDz);
+  const axis: [number, number] = [axisDx / axisLength, axisDz / axisLength];
   // Großer Stern circle and the Siegessäule.
   const SX = AXIS_TO[0];
   const SZ = AXIS_TO[1];
@@ -2510,128 +2610,6 @@ export function createWestTiergarten(): Group {
     new Float32BufferAttribute(monumentInk, 3),
   );
   edgeGeometries.push(bismarckGeometry);
-  // "Umkreis ausweiten": a calm paper-pale margin carries the map on
-  // the other three sides too — the drawing fades into light ground
-  // instead of a void. No buildings are invented; Unter den Linden
-  // continues east from the Gate as a drawn axis.
-  const MARGIN = EXTRAPOLATED_MARGIN_M;
-  const marginBands = extrapolatedMarginBands();
-  const MARGIN_TONES = [0xe6ece1, 0xebf0e6];
-  marginBands.forEach(([cx, cz, sx, sz], index) => {
-    addPart(
-      boxTriangles(cx, GROUND_TOP - 1.6, cz, [1, 0], sx, 2.6, sz),
-      MARGIN_TONES[index % 2],
-      false,
-    );
-  });
-  // The margin used to be three blank slabs, which read as unfinished
-  // paper next to the drawn centre. A 140 m field grid of hairlines gives
-  // it the same drawn surface quality without inventing buildings: it is
-  // cartographic ruling, not surveyed content.
-  const FIELD_PITCH_M = 140;
-  const fieldLines: number[] = [];
-  const fieldY = GROUND_TOP - 0.28;
-  for (const [cx, cz, sx, sz] of marginBands) {
-    const x0 = cx - sx / 2;
-    const z0 = cz - sz / 2;
-    for (let x = x0; x <= cx + sx / 2 + 1e-6; x += FIELD_PITCH_M) {
-      fieldLines.push(x, fieldY, z0, x, fieldY, cz + sz / 2);
-    }
-    for (let z = z0; z <= cz + sz / 2 + 1e-6; z += FIELD_PITCH_M) {
-      fieldLines.push(x0, fieldY, z, cx + sx / 2, fieldY, z);
-    }
-  }
-  const fieldGrid = new BufferGeometry();
-  fieldGrid.setAttribute(
-    "position",
-    new Float32BufferAttribute(fieldLines, 3),
-  );
-  edgeGeometries.push(fieldGrid);
-  // Unter den Linden, continuing east from Pariser Platz.
-  addPart(
-    boxTriangles(601 + MARGIN / 2, GROUND_TOP - 1.35, 292, [1, 0], MARGIN, 3, 40),
-    ISO_GROUND_SHADES.asphalt[0],
-    false,
-  );
-
-  // Park trees are generated once in the shared envelope module. Day, Night
-  // and Minecraft therefore use identical published positions.
-  const trunkSpots = extrapolatedTreeSpots();
-  const trunks = new InstancedMesh(
-    new BoxGeometry(0.5, 3.4, 0.5),
-    new MeshStandardMaterial({ color: 0x7b6549, flatShading: true, roughness: 0.9 }),
-    trunkSpots.length,
-  );
-  trunks.name = "extrapolated tree trunks";
-  const crowns = new InstancedMesh(
-    new IcosahedronGeometry(1, 1),
-    new MeshStandardMaterial({ color: 0xffffff, flatShading: true, roughness: 0.9 }),
-    trunkSpots.length * 2,
-  );
-  crowns.name = "extrapolated tree crowns";
-  const matrix = new Matrix4();
-  const crownPaint = new Color();
-  // The same sage family as the OSM parkland crowns (ParkDetails). They
-  // used to be a visibly darker green, so the extrapolated west Tiergarten
-  // read as a different, heavier forest than the surveyed inner park.
-  const CROWN_TONES = [0x9dbd8e, 0xaac89a, 0x93b485] as const;
-  trunkSpots.forEach(([x, z], index) => {
-    matrix.identity();
-    matrix.setPosition(x, GROUND_TOP + 1.7, z);
-    trunks.setMatrixAt(index, matrix);
-    const size = 3.6 + ((index * 37) % 5) * 0.55;
-    crownPaint.setHex(CROWN_TONES[index % CROWN_TONES.length]);
-    matrix.makeScale(size, size * 0.85, size);
-    matrix.setPosition(x, GROUND_TOP + 3.4 + size * 0.4, z);
-    crowns.setMatrixAt(index * 2, matrix);
-    matrix.makeScale(size * 0.6, size * 0.55, size * 0.6);
-    matrix.setPosition(x + size * 0.28, GROUND_TOP + 3.4 + size * 0.82, z - size * 0.2);
-    crowns.setMatrixAt(index * 2 + 1, matrix);
-    crowns.setColorAt(index * 2, crownPaint);
-    crowns.setColorAt(index * 2 + 1, crownPaint.clone().multiplyScalar(1.12));
-  });
-  trunks.instanceMatrix.needsUpdate = true;
-  crowns.instanceMatrix.needsUpdate = true;
-  if (crowns.instanceColor) {
-    crowns.instanceColor.needsUpdate = true;
-  }
-  trunks.frustumCulled = false;
-  crowns.frustumCulled = false;
-
-  // Candelabra rows along Straße des 17. Juni and a ring of lights
-  // around the Großer Stern — warm dots that carry the axis at night.
-  const lampSpots = extrapolatedLampSpots();
-  const lampPoles = new InstancedMesh(
-    new BoxGeometry(0.16, 4.6, 0.16),
-    new MeshStandardMaterial({
-      color: 0x565a5c,
-      flatShading: true,
-      roughness: 0.9,
-    }),
-    lampSpots.length,
-  );
-  lampPoles.name = "extrapolated lamp poles";
-  const lampHeads = new InstancedMesh(
-    new BoxGeometry(0.42, 0.5, 0.42),
-    new MeshBasicMaterial({ color: 0xb9b3a6 }),
-    lampSpots.length,
-  );
-  lampHeads.name = "extrapolated lamp heads";
-  const lampMatrix = new Matrix4();
-  lampSpots.forEach(([x, z], index) => {
-    lampMatrix.identity();
-    lampMatrix.setPosition(x, GROUND_TOP + 2.3, z);
-    lampPoles.setMatrixAt(index, lampMatrix);
-    lampMatrix.setPosition(x, GROUND_TOP + 4.85, z);
-    lampHeads.setMatrixAt(index, lampMatrix);
-  });
-  lampPoles.instanceMatrix.needsUpdate = true;
-  lampHeads.instanceMatrix.needsUpdate = true;
-  lampPoles.frustumCulled = false;
-  lampHeads.frustumCulled = false;
-  group.add(lampPoles);
-  group.add(lampHeads);
-
   const merged = mergeGeometries(bodyGeometries, false);
   if (merged) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
@@ -2644,7 +2622,7 @@ export function createWestTiergarten(): Group {
     const mesh = new Mesh(merged, dayMaterial);
     mesh.userData.dayMaterial = dayMaterial;
     mesh.userData.nightMaterial = nightMaterial;
-    mesh.name = "extrapolated west ground and Siegessäule";
+    mesh.name = "Siegessäule and Bismarck bodies";
     group.add(mesh);
     for (const geometry of bodyGeometries) {
       geometry.dispose();
@@ -2656,12 +2634,10 @@ export function createWestTiergarten(): Group {
       ink,
       new LineBasicMaterial({ color: ISO_INK_COLOR }),
     );
-    lines.name = "extrapolated west ink lines";
+    lines.name = "Siegessäule and Bismarck ink lines";
     lines.renderOrder = 2;
     group.add(lines);
   }
-  group.add(trunks);
-  group.add(crowns);
   return group;
 }
 
@@ -4683,7 +4659,8 @@ export function createIsometricCity(
     }
   }
   group.add(createPresentationBackdrop());
-  group.add(createWestTiergarten());
+  group.add(createExtrapolatedMargin());
+  group.add(createSiegessaeule());
   group.add(createHotelAdlon());
   group.add(createPaulLoebeCanopy());
   group.add(createLandmarkRefinements());

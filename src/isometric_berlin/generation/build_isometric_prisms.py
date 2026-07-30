@@ -58,6 +58,13 @@ DEFAULT_OUT = MESH_PUBLIC_DIR / "lod2-prisms.json"
 DEFAULT_OVERVIEW = (
   REPO_ROOT / "src/app/public/dzi/regierungsviertel/overview_source.png"
 )
+# The overview projection belongs to the raster, not to today's bounds: centre
+# and px/m scale come from the polygon the render was projected from. Keeping
+# this anchor pinned means published tones stay byte-stable when bounds grow;
+# footprints outside the raster sample nothing and ship without a tone.
+DEFAULT_OVERVIEW_BOUNDS = (
+  REPO_ROOT / "geo_data/regierungsviertel/overview_bounds.geojson"
+)
 
 # Projection of the render that produced the COMMITTED overview_source.png and
 # landmarks.json: render_overview geometry (project_point on a rectangular
@@ -324,11 +331,12 @@ def build_payload(
   park_details_path: Path,
   scene_path: Path,
   overview_path: Path = DEFAULT_OVERVIEW,
+  overview_bounds_path: Path = DEFAULT_OVERVIEW_BOUNDS,
 ) -> tuple[dict[str, Any], dict[str, int]]:
   """Assemble the payload plus build statistics (stats are not shipped)."""
   verify_scene_origin(scene_path)
   sampler = GroundSampler.from_park_details(park_details_path)
-  tone_sampler = OverviewToneSampler(overview_path, bounds_path)
+  tone_sampler = OverviewToneSampler(overview_path, overview_bounds_path)
   entries, stats = build_prisms(buildings_path, sampler, tone_sampler)
   grid = compute_grid(load_bounds_world(bounds_path))
   verify_within_grid(entries, grid)
@@ -390,11 +398,19 @@ def main(argv: list[str] | None = None) -> None:
   parser.add_argument("--park-details", type=Path, default=DEFAULT_PARK_DETAILS)
   parser.add_argument("--scene", type=Path, default=DEFAULT_SCENE)
   parser.add_argument("--overview", type=Path, default=DEFAULT_OVERVIEW)
+  parser.add_argument(
+    "--overview-bounds", type=Path, default=DEFAULT_OVERVIEW_BOUNDS
+  )
   parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
   args = parser.parse_args(argv)
 
   payload, stats = build_payload(
-    args.bounds, args.buildings, args.park_details, args.scene, args.overview
+    args.bounds,
+    args.buildings,
+    args.park_details,
+    args.scene,
+    args.overview,
+    args.overview_bounds,
   )
   size = write_payload(payload, args.out)
 

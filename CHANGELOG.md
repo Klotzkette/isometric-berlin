@@ -1,5 +1,80 @@
 # Changelog
 
+## v0.41.0
+
+The task-09 bounds expansion. The scene polygon grows from the landmark-fitted
+Regierungsviertel hull to a lobed polygon roughly 3.6× its area, and the
+official sources were refetched for it. The round is subtractive as much as
+additive: the western Tiergarten used to be *invented* presentation geometry,
+and it has been deleted now that measured data reaches that far.
+
+**Areas added** — the complete Großer Tiergarten with Siegessäule and Großer
+Stern; the Kulturforum (Philharmonie, St. Matthäus-Kirche, Gemäldegalerie,
+Neue Nationalgalerie, Staatsbibliothek Haus Potsdamer Straße); the Leipziger
+Platz octagon with Mall of Berlin and Kollhoff-Tower; Hamburger Bahnhof; and
+the Geschichtspark Ehemaliges Zellengefängnis Moabit. The south-west quadrant
+below the park and the north-west quadrant beyond Moabit are deliberately cut
+away to hold the payload sizes.
+
+- **Data refetched for the new polygon** — 9,387 LoD2 buildings (was 3,315),
+  1,567 ALKIS parcels, and from the Geoportal catalogues 20,911 trees (was
+  6,893), 4,009 public-lighting masts and 8 Vorderlandmauer traces. 13 new QA
+  landmarks bring the landmark layer to 56 points.
+- **The invented western Tiergarten is gone.** `createWestTiergarten` became
+  `createExtrapolatedMargin`: the lawn bands, the drawn Straße des 17. Juni
+  and the ~1,774 procedurally generated trees and lamps were removed together
+  with `extrapolatedTreeSpots` and `extrapolatedLampSpots`. Real LoD2, terrain
+  and official tree/lamp points now occupy that ground. This was the largest
+  remaining piece of non-surveyed content in the scene.
+- **New envelope.** The surveyed hull is world x −2880…690, z −1310…1620.
+  Around it sits a 1,200 m blank paper ring — flat tone plates and 140 m
+  cartographic ruling, no invented buildings — giving an envelope of
+  x −4080…1890, z −2510…2820 and a visible presentation radius of **5030 m**
+  (was 3410 m). Camera flight bounds follow the same numbers. Day, Night and
+  Minecraft consume one envelope, so no mode can lose the expansion.
+- **Prism tones stay honest outside the render.** The committed overview
+  raster only covers the pre-expansion polygon, so its projection is now
+  pinned to `geo_data/regierungsviertel/overview_bounds.geojson` instead of
+  the live bounds. 5,051 of 9,297 prisms sample a real colour; the rest ship
+  with no tone at all and fall back to the plain ivory `isoFaceShade` ladder
+  rather than borrowing a neighbour's pixels. A test enforces that absence.
+- **Compact tree wire form (park-detail schema 3).** Tripling the catalogue
+  pushed the verbose tree records to 7.4 MiB, past the 4 MiB payload budget.
+  Keys are shortened, the five repeated string vocabularies are interned and
+  empty fields are dropped, which is lossless and lands the payload at
+  3.4 MiB. `position` deliberately keeps its long name because the Python
+  ground samplers read it straight off the file.
+- **Payloads** — `park-details.json` 3.4 MiB (167 paths, 22,045 trees, 3,636
+  lamps, 8 wall traces, 5 playgrounds), `lod2-prisms.json` 1.5 MiB (9,297
+  prisms), `minecraft-voxels.json` 1.9 MiB (890×729 cells, 437,133 ground
+  cells, 75,620 building columns, 21,165 tree blocks), `surface-polygons.json`
+  with 18 water and 172 park polygons, `street-details.json` with 86 traffic
+  signals and 46 monuments. The Siegessäule's three LoD2 socle prisms are
+  suppressed because `createSiegessaeule` draws the full 67 m monument.
+- **Overpass is not yet refetched.** `osm.gpkg` still holds the pre-expansion
+  extract, because the build host lost access to overpass-api.de part-way
+  through the round. Streets, water, park polygons and POIs therefore stop at
+  the old boundary while buildings, terrain, trees and lamps continue to the
+  new one. Nothing was invented to hide the gap. `fused_sources.json` is
+  likewise still the pre-expansion manifest: regenerating it yields 6.3 MiB,
+  over the 5 MiB repository limit, so it needs a compaction pass of its own.
+  Both are the first tasks of the next round.
+- Pipeline step 3 now fetches Overpass in roughly kilometre-wide tiles with
+  per-tile retries and a gzip-only `Accept-Encoding`, because one request for
+  every tag across the expanded polygon returns hundreds of megabytes and the
+  connection does not survive it. Tiles are clipped back to the polygon and
+  deduplicated by element/id, so the result matches a single request.
+- **The 2D overview projection lags the 3D scene.** The DZI raster and the
+  landmark projection beside it are produced by one pass from
+  `overview_bounds.geojson`, so the viewer's overview still carries the 43
+  pre-expansion landmarks while `landmarks.geojson` and the 3D scene carry all
+  56. Re-projecting it would rebuild every tile and move the published tones,
+  so it waits for the OSM refetch.
+- Alignment QA now reports `review` rather than `ok`: the 12 landmarks added
+  outside the old OSM extract have no OSM counterpart to match against yet.
+  The test pins that exact set by name, so any *other* landmark drifting out
+  of alignment still fails the gate.
+
 ## v0.40.0
 
 Documented building and monument detail. LoD2 delivers envelopes, so the

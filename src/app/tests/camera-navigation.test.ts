@@ -399,15 +399,20 @@ describe("pan momentum glide", () => {
 });
 
 describe("visible-radius contract (+100 m per areal run)", () => {
-  test("current envelope spans the versioned 3410 m radius", async () => {
-    const { VISIBLE_RADIUS_M } = await import("../src/IsometricCityWorld");
+  test("flight bounds are exactly the published envelope", async () => {
+    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } = await import(
+      "../src/worldEnvelope"
+    );
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
       "../src/cameraNavigation"
     );
-    expect(VISIBLE_RADIUS_M).toBe(3410);
-    const span =
-      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z -
-      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z;
-    expect(span / 2).toBe(VISIBLE_RADIUS_M);
+    expect(VISIBLE_RADIUS_M).toBe(5030);
+    // The camera may travel to the paper edge but not past it, so the two
+    // constants can never drift apart in a later areal run.
+    const envelope = extrapolatedEnvelopeBounds();
+    expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.x).toBe(envelope.minX);
+    expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x).toBe(envelope.maxX);
+    expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z).toBe(envelope.minZ);
+    expect(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z).toBe(envelope.maxZ);
   });
 });

@@ -1068,8 +1068,8 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE3DKboxsGo8qm",
-        "nearest_distance_m": 249.35
+        "nearest_building_id": "DEBE01YYK0002QYw",
+        "nearest_distance_m": 80.52
       },
       "name": "Spielplatz an der Luiseninsel",
       "nearest_named_osm": {
@@ -2232,8 +2232,8 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE3DKboxsGo8qm",
-        "nearest_distance_m": 368.76
+        "nearest_building_id": "DEBE00YYSR00009f",
+        "nearest_distance_m": 121.46
       },
       "name": "K\u00f6nigin-Luise-Denkmal (Luiseninsel)",
       "nearest_named_osm": {
@@ -2257,9 +2257,469 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "siegessaule"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DOg3wUufHpn",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DOg3wUufHpn",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Siegess\u00e4ule",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 845.5,
+        "element": "relation",
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "7643526",
+        "leisure": "park",
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "grosser stern"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DOg3wUufHpn",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DOg3wUufHpn",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Gro\u00dfer Stern",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 845.5,
+        "element": "relation",
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "7643526",
+        "leisure": "park",
+        "name": "Gro\u00dfer Tiergarten",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "bismarck nationaldenkmal"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYMo00007L",
+        "nearest_distance_m": 23.5
+      },
+      "name": "Bismarck-Nationaldenkmal",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 860.46,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "120656052",
+        "leisure": "park",
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "berliner philharmonie"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DTtXzEkeXsu",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DTtXzEkeXsu",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Berliner Philharmonie",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "43723722",
+        "leisure": null,
+        "name": "Kulturforum",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "st matthaus kirche"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DIqVwTfAOLW",
+        "nearest_distance_m": 61.7
+      },
+      "name": "St. Matth\u00e4us-Kirche",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 76.7,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "43723722",
+        "leisure": null,
+        "name": "Kulturforum",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "gemaldegalerie"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DW2cNYkn9ac",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DW2cNYkn9ac",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Gem\u00e4ldegalerie",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 87.74,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "id": "719940220",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "neue nationalgalerie"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DWiMSMgX8rD",
+        "nearest_distance_m": 4.36
+      },
+      "name": "Neue Nationalgalerie",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 252.06,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "43723722",
+        "leisure": null,
+        "name": "Kulturforum",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "staatsbibliothek zu berlin haus potsdamer strasse"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DuhRz10dc4L",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DuhRz10dc4L",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Staatsbibliothek zu Berlin (Haus Potsdamer Stra\u00dfe)",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 54.32,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "43723722",
+        "leisure": null,
+        "name": "Kulturforum",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 73.07,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "primary",
+        "historic": null,
+        "id": "404598738",
+        "leisure": null,
+        "name": "Leipziger Platz",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "leipziger platz"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DOZuBxzaEDr",
+        "nearest_distance_m": 51.65
+      },
+      "name": "Leipziger Platz",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 73.07,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "primary",
+        "historic": null,
+        "id": "404598738",
+        "leisure": null,
+        "name": "Leipziger Platz",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "mall of berlin"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3Dpzh1IwtXlI",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3Dpzh1IwtXlI",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Mall of Berlin",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 169.91,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "service",
+        "historic": null,
+        "id": "1228769800",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "kollhoff tower"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DjvWtTpo3vD",
+        "nearest_distance_m": 12.02
+      },
+      "name": "Kollhoff-Tower",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "13391598",
+        "leisure": null,
+        "name": "Berlin Potsdamer Platz",
+        "office": null,
+        "playground": null,
+        "railway": "platform",
+        "source_layer": "rail",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "hamburger bahnhof"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DLmFvNUQ5iG",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DLmFvNUQ5iG",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Hamburger Bahnhof",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 198.29,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "service",
+        "historic": null,
+        "id": "431664614",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "geschichtspark ehemaliges zellengefangnis moabit"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002VJr",
+        "nearest_distance_m": 59.95
+      },
+      "name": "Geschichtspark Ehemaliges Zellengef\u00e4ngnis Moabit",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 229.91,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "191593802",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": "light_rail",
+        "source_layer": "rail",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
     }
   ],
-  "generated_at": "2026-07-19T03:16:57.682638+00:00",
+  "generated_at": "2026-07-30T16:36:11.398343+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -2604,11 +3064,11 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "bee750fcd4629dc7568dc784a867cf7834ab1253dbca8123a45929f64bfbb033"
+      "sha256": "e3ffacd4380aba9c8211847c6855a0a6abc3a575e5512f76b3ee08a8a77dff1b"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
-      "sha256": "41ef1936ee0571571ae50465f13ce3fa7e6d2ba3c5f85d1808c6d94082927788"
+      "sha256": "efe680812f987d2dbbfe805db2058de2a43304ad255898d24fd9df8b5689e2f3"
     },
     "osm": {
       "path": "geo_data/regierungsviertel/osm.gpkg",
@@ -2616,11 +3076,11 @@
     }
   },
   "summary": {
-    "landmark_review_count": 0,
-    "landmarks_checked": 43,
+    "landmark_review_count": 12,
+    "landmarks_checked": 56,
     "relative_relationships_checked": 26,
     "relative_review_count": 0,
-    "review_count": 0,
-    "status": "ok"
+    "review_count": 12,
+    "status": "review"
   }
 }

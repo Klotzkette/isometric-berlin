@@ -43,6 +43,38 @@ export type ParkTree = {
   variant: number;
 };
 
+/**
+ * Wire form of a tree since schema 3. The task-09 bounds carry 20,911 official
+ * catalogue points instead of 6,893, which pushed the verbose records past the
+ * payload budget, so keys are shortened, repeated strings are interned into
+ * `tree_vocabulary` and empty fields are omitted. `position` keeps its long
+ * name because the Python ground samplers read it straight off the file.
+ */
+export type CompactParkTree = {
+  c?: number;
+  cm?: number;
+  cr: number;
+  e?: string[];
+  g?: number;
+  h: number;
+  hm?: number;
+  i: string;
+  lt?: number;
+  position: [number, number, number];
+  s?: number;
+  sp?: number;
+  tr?: number;
+  v: number;
+};
+
+export type TreeVocabulary = {
+  catalogue?: string[];
+  leaf_type?: string[];
+  source?: string[];
+  species?: string[];
+  tree_group?: string[];
+};
+
 export type StreetLight = {
   height_m: number;
   id: string;
@@ -86,9 +118,48 @@ export type ParkDetailsPayload = {
     name: string;
   };
   street_lights?: StreetLight[];
-  trees: ParkTree[];
+  tree_vocabulary?: TreeVocabulary;
+  trees: (CompactParkTree | ParkTree)[];
   wall_traces?: WallTrace[];
 };
+
+function vocabularyEntry(
+  table: string[] | undefined,
+  index: number | undefined,
+): string | null {
+  if (index === undefined || table === undefined) {
+    return null;
+  }
+  return table[index] ?? null;
+}
+
+/** Expand the schema-3 wire form; schema 1 and 2 records pass through. */
+export function decodeTrees(
+  trees: (CompactParkTree | ParkTree)[],
+  vocabulary: TreeVocabulary = {},
+): ParkTree[] {
+  return trees.map((tree) => {
+    if (!("i" in tree)) {
+      return tree;
+    }
+    return {
+      catalogue: vocabularyEntry(vocabulary.catalogue, tree.c),
+      crown_radius_m: tree.cr,
+      height_m: tree.h,
+      id: tree.i,
+      leaf_type: vocabularyEntry(vocabulary.leaf_type, tree.lt),
+      position: tree.position,
+      source: (vocabularyEntry(vocabulary.source, tree.s) ?? undefined) as
+        | "berlin_official"
+        | "osm"
+        | undefined,
+      species: vocabularyEntry(vocabulary.species, tree.sp),
+      tree_group: vocabularyEntry(vocabulary.tree_group, tree.g),
+      trunk_radius_m: tree.tr,
+      variant: tree.v,
+    };
+  });
+}
 
 type Transform = {
   position: [number, number, number];
@@ -886,11 +957,12 @@ export function createParkDetails(
   payload: ParkDetailsPayload,
   options: ParkDetailOptions = {},
 ): Group {
-  if (payload.schema_version !== 1 && payload.schema_version !== 2) {
+  if (payload.schema_version < 1 || payload.schema_version > 3) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
   const group = new Group();
   group.name = "Additive open-data park and civic surface details";
+  const trees = decodeTrees(payload.trees, payload.tree_vocabulary);
   const streetLights = payload.street_lights ?? [];
   const wallTraces = payload.wall_traces ?? [];
   group.userData = {
@@ -899,18 +971,18 @@ export function createParkDetails(
     pathCount: payload.paths.length,
     playgroundCount: payload.playgrounds.length,
     streetLightCount: streetLights.length,
-    treeCount: payload.trees.length,
+    treeCount: trees.length,
   };
   addPaths(group, payload.paths);
   group.userData.settledOfficialTreeDetailFaces = addTrees(
     group,
-    payload.trees,
+    trees,
     treeCrownCutaway(payload.playgrounds),
     options.settledDetail ?? true,
   );
   addStreetLights(group, streetLights);
   group.userData.wallStoneCount = addWallTraces(group, wallTraces);
-  group.userData.eggCount = addHiddenEasterEggs(group, payload.trees);
+  group.userData.eggCount = addHiddenEasterEggs(group, trees);
   addPlaygrounds(group, payload.playgrounds);
   return group;
 }

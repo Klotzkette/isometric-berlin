@@ -12,7 +12,6 @@ import {
 } from "three";
 
 import {
-  EXTRAPOLATED_WEST_M,
   type PrismPayload,
   VISIBLE_RADIUS_M,
   buildRoofGeometry,
@@ -319,54 +318,54 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     }
   });
 
-  test("the extrapolated west carries lawn, axis road and a 67 m Siegessäule", async () => {
-    const { createWestTiergarten } = await import("../src/IsometricCityWorld");
-    const west = createWestTiergarten();
-    expect(west.userData.extrapolated).toBe(true);
-    const bounds = new Box3().setFromObject(west);
+  test("the paper margin rings the surveyed hull without inventing content", async () => {
+    const { createExtrapolatedMargin } = await import(
+      "../src/IsometricCityWorld"
+    );
+    const { extrapolatedEnvelopeBounds } = await import("../src/worldEnvelope");
+    const margin = createExtrapolatedMargin();
+    expect(margin.userData.extrapolated).toBe(true);
+    expect(margin.userData.visibleRadiusM).toBe(VISIBLE_RADIUS_M);
+    const envelope = extrapolatedEnvelopeBounds();
+    const bounds = new Box3().setFromObject(margin);
+    expect(bounds.min.x).toBeLessThanOrEqual(envelope.minX);
+    expect(bounds.max.x).toBeGreaterThanOrEqual(envelope.maxX);
+    expect(bounds.min.z).toBeLessThanOrEqual(envelope.minZ);
+    expect(bounds.max.z).toBeGreaterThanOrEqual(envelope.maxZ);
+    // Flat paper only: tone plates and cartographic ruling, nothing standing.
+    expect(bounds.max.y).toBeLessThan(6);
+    // Since task-09 the real Tiergarten is surveyed, so the generated trees
+    // and lamps that used to fill the west are gone for good.
+    expect(margin.getObjectByName("extrapolated tree trunks")).toBeUndefined();
+    expect(margin.getObjectByName("extrapolated lamp poles")).toBeUndefined();
+    expect(
+      margin.getObjectByName("extrapolated margin field grid"),
+    ).toBeDefined();
+    const body = margin.getObjectByName(
+      "extrapolated margin ground",
+    ) as Mesh;
+    expect(body.material).toBeInstanceOf(MeshBasicMaterial);
+  });
+
+  test("the Siegessäule model carries the full 67 m column", async () => {
+    const { PRISM_SUPPRESSED_IDS, createSiegessaeule } = await import(
+      "../src/IsometricCityWorld"
+    );
+    const { AXIS_TO } = await import("../src/worldEnvelope");
+    const column = createSiegessaeule();
+    expect(column.userData.recognitionModel).toBe(true);
+    const bounds = new Box3().setFromObject(column);
     // The column with Viktoria tops out around 67 m over the park.
     expect(bounds.max.y).toBeGreaterThan(60);
     expect(bounds.max.y).toBeLessThan(85);
-    // The apron reaches the Großer Stern in the west.
-    expect(bounds.min.x).toBeLessThanOrEqual(EXTRAPOLATED_WEST_M);
-    expect(bounds.min.x).toBeGreaterThan(EXTRAPOLATED_WEST_M - 10);
-    expect(west.userData.visibleRadiusM).toBe(VISIBLE_RADIUS_M);
-    const trunks = west.getObjectByName(
-      "extrapolated tree trunks",
-    ) as InstancedMesh;
-    expect(trunks.count).toBeGreaterThan(780);
-    const matrix = new Matrix4();
-    const treeXs: number[] = [];
-    for (let index = 0; index < trunks.count; index += 1) {
-      trunks.getMatrixAt(index, matrix);
-      treeXs.push(matrix.elements[12]);
+    // It sits on the surveyed Großer Stern, not on an invented apron.
+    expect(bounds.min.x).toBeGreaterThan(AXIS_TO[0] - 130);
+    expect(bounds.max.x).toBeLessThan(AXIS_TO[0] + 130);
+    // LoD2 stops at the 25 m socle; its three prisms must be suppressed so
+    // they cannot stand inside the modelled shaft.
+    for (const id of ["3wUufHpn", "iHbVUwP0", "xzlowEa3"]) {
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(true);
     }
-    expect(treeXs.some((x) => x > -1810 && x < -1730)).toBe(true);
-    expect(treeXs.some((x) => x > -1910 && x < -1830)).toBe(true);
-    expect(treeXs.some((x) => x > -2010 && x < -1930)).toBe(true);
-    expect(treeXs.some((x) => x > -2110 && x < -2030)).toBe(true);
-    expect(treeXs.some((x) => x > -2210 && x < -2130)).toBe(true);
-    expect(treeXs.some((x) => x > -2310 && x < -2230)).toBe(true);
-    expect(treeXs.some((x) => x > -2410 && x < -2330)).toBe(true);
-    expect(treeXs.some((x) => x > -2510 && x < -2430)).toBe(true);
-    const crowns = west.getObjectByName(
-      "extrapolated tree crowns",
-    ) as InstancedMesh;
-    expect(crowns).toBeDefined();
-    expect(crowns.geometry.getAttribute("position").count).toBeGreaterThan(100);
-    expect(west.getObjectByName("extrapolated west ink lines")).toBeDefined();
-    const body = west.getObjectByName(
-      "extrapolated west ground and Siegessäule",
-    ) as Mesh;
-    expect(body.material).toBeInstanceOf(MeshBasicMaterial);
-    const bodyBounds = new Box3().setFromObject(body);
-    expect(bodyBounds.min.z).toBeLessThanOrEqual(-2100);
-    expect(bodyBounds.max.z).toBeGreaterThanOrEqual(2520);
-    // v0.27.0 adds exactly two instanced lamp layers (poles + warm
-    // heads) along the axis; everything else stays merged.
-    expect(west.children.length).toBe(6);
-    expect(west.getObjectByName("extrapolated lamp poles")).toBeDefined();
-    expect(west.getObjectByName("extrapolated lamp heads")).toBeDefined();
   });
 
   test("quay walls drop from the banks wherever land meets water", async () => {
@@ -708,7 +707,7 @@ describe("isometric face shading", () => {
       // Every pane is a 2.35 m entrance door; nothing else is invented.
       expect(Math.abs(matrices[index * 16 + 5] - 2.35)).toBeLessThan(1e-3);
     }
-    expect(panes.count).toBeGreaterThan(400);
-    expect(panes.count).toBeLessThan(2_000);
+    expect(panes.count).toBeGreaterThan(1_500);
+    expect(panes.count).toBeLessThan(8_000);
   });
 });

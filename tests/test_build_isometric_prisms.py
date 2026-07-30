@@ -23,6 +23,7 @@ from isometric_berlin.generation.build_isometric_prisms import (
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/lod2-prisms.json")
 VOXELS = Path("src/app/public/mesh/regierungsviertel/minecraft-voxels.json")
 BOUNDS = Path("geo_data/regierungsviertel/bounds.geojson")
+OVERVIEW_BOUNDS = Path("geo_data/regierungsviertel/overview_bounds.geojson")
 LANDMARKS_GEOJSON = Path("geo_data/regierungsviertel/landmarks.geojson")
 LANDMARKS_JSON = Path("src/app/public/dzi/regierungsviertel/landmarks.json")
 
@@ -147,7 +148,7 @@ def test_overview_projection_matches_committed_landmarks() -> None:
   landmark_records wrote at 18 m elevation).
   """
   gpd = pytest.importorskip("geopandas")
-  projection = overview_projection(BOUNDS)
+  projection = overview_projection(OVERVIEW_BOUNDS)
   committed = {
     record["name"]: record
     for record in json.loads(LANDMARKS_JSON.read_text(encoding="utf-8"))["landmarks"]
@@ -167,13 +168,55 @@ def test_overview_projection_matches_committed_landmarks() -> None:
 
 
 def test_most_prisms_carry_a_real_colour_tone(payload: dict) -> None:
-  buildings = payload["buildings"]
-  toned = [b for b in buildings if "tone" in b]
-  assert len(toned) > 0.8 * len(buildings)
-  for building in toned:
+  """Inside the overview raster the tone pipeline must still cover everything.
+
+  Since the task-09 expansion the bounds reach far beyond the committed
+  overview render, so a plain ratio over ALL prisms would only measure how
+  much new ground was added. The guard that still means something is the
+  coverage inside the raster's own projection polygon.
+  """
+  gpd = pytest.importorskip("geopandas")
+  anchor = gpd.read_file(OVERVIEW_BOUNDS).to_crs("EPSG:25833").geometry.iloc[0]
+  inside = []
+  for building in payload["buildings"]:
+    ring = [(x / 10.0, z / 10.0) for x, z in building["ring"]]
+    centroid = Polygon(ring).centroid
+    easting = centroid.x + 389500.0
+    northing = 5820000.0 - centroid.y
+    if anchor.contains(Point(easting, northing)):
+      inside.append(building)
+
+  assert len(inside) > 500, f"only {len(inside)} prisms inside the overview"
+  toned = [b for b in inside if "tone" in b]
+  assert len(toned) > 0.8 * len(inside)
+  for building in payload["buildings"]:
+    if "tone" not in building:
+      continue
     tone = building["tone"]
     assert len(tone) == 3
     assert all(isinstance(channel, int) and 0 <= channel <= 255 for channel in tone)
+
+
+def test_expansion_prisms_ship_without_an_invented_tone(payload: dict) -> None:
+  """Prisms well outside the committed overview must carry no tone at all.
+
+  The render only covers the pre-expansion polygon (plus its 440 m margin);
+  anything further out has no measured colour, so it must fall back to the
+  plain ivory isoFaceShade ladder rather than borrow a neighbour's pixels.
+  """
+  gpd = pytest.importorskip("geopandas")
+  anchor = gpd.read_file(OVERVIEW_BOUNDS).to_crs("EPSG:25833").geometry.iloc[0]
+  far_outside = anchor.buffer(600.0)
+  checked = 0
+  for building in payload["buildings"]:
+    ring = [(x / 10.0, z / 10.0) for x, z in building["ring"]]
+    centroid = Polygon(ring).centroid
+    point = Point(centroid.x + 389500.0, 5820000.0 - centroid.y)
+    if far_outside.contains(point):
+      continue
+    checked += 1
+    assert "tone" not in building, f"{building['id']} invented a tone off-raster"
+  assert checked > 500, f"only {checked} prisms outside the overview margin"
 
 
 def test_reichstag_tone_is_greyish(payload: dict) -> None:

@@ -13,13 +13,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 BOUNDS = REPO_ROOT / "geo_data" / "regierungsviertel" / "bounds.geojson"
 LANDMARKS = REPO_ROOT / "geo_data" / "regierungsviertel" / "landmarks.geojson"
 
-# A small valid square around the centre of the quarter.
+# A valid square enclosing every committed landmark (lon 13.3493..13.3801,
+# lat 52.5065..52.5290 since the task-09 expansion), so the editor's
+# all_inside check accepts it.
 SQUARE = [
-  [13.36, 52.508],
-  [13.382, 52.508],
-  [13.382, 52.528],
-  [13.36, 52.528],
-  [13.36, 52.508],
+  [13.345, 52.504],
+  [13.385, 52.504],
+  [13.385, 52.531],
+  [13.345, 52.531],
+  [13.345, 52.504],
 ]
 
 
@@ -28,7 +30,7 @@ def test_outer_ring_and_properties() -> None:
   ring = cb.outer_ring(fc)
   assert ring[0] == ring[-1], "ring must be closed"
   props = cb.bounds_properties(fc)
-  assert props["name"] == "Regierungsviertel MVP bounds"
+  assert props["name"] == "Regierungsviertel bounds — task-09 grand expansion"
   assert props["description"]
 
 

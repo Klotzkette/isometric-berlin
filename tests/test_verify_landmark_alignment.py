@@ -13,6 +13,24 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data" / "regierungsviertel"
 VIEWER_LANDMARKS = ROOT / "src/app/public/dzi/regierungsviertel/landmarks.json"
 
+# Committed osm.gpkg is still the pre-task-09 extract (E388785…390105 /
+# N5818554…5821015), so landmarks added by the bounds expansion have no OSM
+# counterpart to match against yet. Their geometry comes from LoD2/official data.
+LANDMARKS_OUTSIDE_OSM_EXTRACT = {
+  "Siegessäule",
+  "Großer Stern",
+  "Bismarck-Nationaldenkmal",
+  "Berliner Philharmonie",
+  "St. Matthäus-Kirche",
+  "Gemäldegalerie",
+  "Neue Nationalgalerie",
+  "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
+  "Mall of Berlin",
+  "Kollhoff-Tower",
+  "Hamburger Bahnhof",
+  "Geschichtspark Ehemaliges Zellengefängnis Moabit",
+}
+
 
 def test_normalize_name_folds_berlin_landmark_names() -> None:
   assert vla.normalize_name("Marie-Elisabeth-Lüders-Haus") == (
@@ -29,12 +47,12 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   )
 
   assert report["summary"] == {
-    "status": "ok",
-    "landmarks_checked": 43,
+    "status": "review",
+    "landmarks_checked": 56,
     "relative_relationships_checked": 26,
-    "landmark_review_count": 0,
+    "landmark_review_count": 12,
     "relative_review_count": 0,
-    "review_count": 0,
+    "review_count": 12,
   }
   checks = {check["name"]: check for check in report["checks"]}
   assert checks["Paul-Löbe-Haus"]["best_osm_match"]["name"] == "Paul-Löbe-Haus"
@@ -71,7 +89,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert checks["Königin-Luise-Denkmal (Luiseninsel)"]["best_osm_match"]["id"] == (
     "28586183"
   )
-  assert all(check["status"] == "ok" for check in checks.values())
+  reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
+  assert reviewed == LANDMARKS_OUTSIDE_OSM_EXTRACT
   assert all(
     relation["status"] == "ok" for relation in report["relative_relationships"]
   )
@@ -91,9 +110,11 @@ def test_relative_relationship_reviews_affect_summary_status(
   )
 
   assert report["summary"]["status"] == "review"
-  assert report["summary"]["landmark_review_count"] == 0
+  assert report["summary"]["landmark_review_count"] == len(
+    LANDMARKS_OUTSIDE_OSM_EXTRACT
+  )
   assert report["summary"]["relative_review_count"] == 1
-  assert report["summary"]["review_count"] == 1
+  assert report["summary"]["review_count"] == len(LANDMARKS_OUTSIDE_OSM_EXTRACT) + 1
   assert any(
     relationship["status"] == "review"
     for relationship in report["relative_relationships"]

@@ -2,13 +2,13 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-07-19T03:16:57.682638+00:00`
-- Status: `ok`
-- Landmarks checked: `43`
+- Generated: `2026-07-30T16:36:11.398343+00:00`
+- Status: `review`
+- Landmarks checked: `56`
 - Relative relationships checked: `26`
-- Landmark review count: `0`
+- Landmark review count: `12`
 - Relative review count: `0`
-- Review count: `0`
+- Review count: `12`
 
 | Landmark | Status | Best OSM evidence | OSM distance | LoD2 evidence |
 |---|---:|---|---:|---|
@@ -32,7 +32,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Beethoven-Haydn-Mozart-Denkmal | `ok` | Beethoven-Haydn-Mozart-Denkmal (pois) | 0.00 m | nearest DEBE00YYT600005H at 54.64 m |
 | Venusbassin / Goldfischteich | `ok` | Venusbassin (water) | 0.00 m | nearest DEBE00YYT600005H at 46.3 m |
 | Goethe-Denkmal | `ok` | Johann Wolfgang von Goethe (pois) | 0.00 m | nearest DEBE01AL3Ib00000 at 60.79 m |
-| Spielplatz an der Luiseninsel | `ok` | OSM way 24911694 (parks) | 0.00 m | nearest DEBE3DKboxsGo8qm at 249.35 m |
+| Spielplatz an der Luiseninsel | `ok` | OSM way 24911694 (parks) | 0.00 m | nearest DEBE01YYK0002QYw at 80.52 m |
 | Kemperplatz / Tiergartentunnel | `ok` | Kemperplatz (roads) | 0.00 m | nearest DEBE3DEIvfRWreMo at 27.98 m |
 | Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz) | `ok` | Das Center am Potsdamer Platz (pois) | 0.00 m | nearest DEBE3DmKORetJTt6 at 0.37 m |
 | Max-Liebermann-Haus | `ok` | Max-Liebermann-Haus (pois) | 0.00 m | inside DEBE3DR4UJpsABDn |
@@ -54,7 +54,20 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Starbucks Pariser Platz | `ok` | Starbucks (pois) | 0.00 m | inside DEBE01YYK00005Hq |
 | Jakob-Kaiser-Haus | `ok` | Jakob-Kaiser-Haus (pois) | 0.00 m | inside DEBE3DZfZnvQ4nLq |
 | Lessing-Denkmal | `ok` | Gotthold Ephraim Lessing (pois) | 0.00 m | nearest DEBE3DmClxxhZDO8 at 45.02 m |
-| Königin-Luise-Denkmal (Luiseninsel) | `ok` | Luiseninsel (parks) | 0.00 m | nearest DEBE3DKboxsGo8qm at 368.76 m |
+| Königin-Luise-Denkmal (Luiseninsel) | `ok` | Luiseninsel (parks) | 0.00 m | nearest DEBE00YYSR00009f at 121.46 m |
+| Siegessäule | `review` | no expected-name hit; nearest: Großer Tiergarten | 845.50 m | inside DEBE3DOg3wUufHpn |
+| Großer Stern | `review` | no expected-name hit; nearest: Großer Tiergarten | 845.50 m | inside DEBE3DOg3wUufHpn |
+| Bismarck-Nationaldenkmal | `review` | no expected-name hit; nearest: None | 860.46 m | nearest DEBE00YYMo00007L at 23.5 m |
+| Berliner Philharmonie | `review` | no expected-name hit; nearest: Kulturforum | 0.00 m | inside DEBE3DTtXzEkeXsu |
+| St. Matthäus-Kirche | `review` | no expected-name hit; nearest: Kulturforum | 76.70 m | nearest DEBE3DIqVwTfAOLW at 61.7 m |
+| Gemäldegalerie | `review` | no expected-name hit; nearest: None | 87.74 m | inside DEBE3DW2cNYkn9ac |
+| Neue Nationalgalerie | `review` | no expected-name hit; nearest: Kulturforum | 252.06 m | nearest DEBE3DWiMSMgX8rD at 4.36 m |
+| Staatsbibliothek zu Berlin (Haus Potsdamer Straße) | `review` | no expected-name hit; nearest: Kulturforum | 54.32 m | inside DEBE3DuhRz10dc4L |
+| Leipziger Platz | `ok` | Leipziger Platz (roads) | 73.07 m | nearest DEBE3DOZuBxzaEDr at 51.65 m |
+| Mall of Berlin | `review` | no expected-name hit; nearest: None | 169.91 m | inside DEBE3Dpzh1IwtXlI |
+| Kollhoff-Tower | `review` | no expected-name hit; nearest: Berlin Potsdamer Platz | 0.00 m | nearest DEBE3DjvWtTpo3vD at 12.02 m |
+| Hamburger Bahnhof | `review` | no expected-name hit; nearest: None | 198.29 m | inside DEBE3DLmFvNUQ5iG |
+| Geschichtspark Ehemaliges Zellengefängnis Moabit | `review` | no expected-name hit; nearest: None | 229.91 m | nearest DEBE01YYK0002VJr at 59.95 m |
 
 ## Relative Placement
 

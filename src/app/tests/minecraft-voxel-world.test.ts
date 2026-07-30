@@ -41,19 +41,25 @@ describe("true voxel Minecraft world", () => {
     // RGB distance used to pick the cream and rendered it khaki-yellow.
     expect(lookup(-154, -146)).toBe(0xd6dfe0);
     expect(lookup(-5000, -5000)).toBeNull();
-    // Coverage: most surveyed columns resolve to a real tone.
+    // Coverage, sampled across the whole area rather than the first rows.
+    // The overview raster the tones come from is pinned to the pre-expansion
+    // polygon, so columns in the areas added by the bounds expansion stay
+    // untoned by design and fall back to palette shading.
     let hits = 0;
+    let taken = 0;
     const sampleCount = Math.min(2000, payload.buildings.length);
-    for (let index = 0; index < sampleCount; index += 1) {
-      const [xIdx, , , ,] = payload.buildings[index];
-      const zIdx = payload.buildings[index][1];
+    const stride = Math.max(1, Math.floor(payload.buildings.length / sampleCount));
+    for (let index = 0; index < payload.buildings.length && taken < sampleCount; ) {
+      const [xIdx, zIdx] = payload.buildings[index];
       const x = (xIdx + 0.5) * payload.cell_m;
       const z = (zIdx + 0.5) * payload.cell_m;
       if (lookup(x, z) !== null) {
         hits += 1;
       }
+      taken += 1;
+      index += stride;
     }
-    expect(hits / sampleCount).toBeGreaterThan(0.5);
+    expect(hits / taken).toBeGreaterThan(0.4);
   });
 
   test("exterior column faces carry blocky window panes", async () => {
@@ -61,9 +67,9 @@ describe("true voxel Minecraft world", () => {
     const panes = world.getObjectByName("Voxel facade windows");
     expect(panes).toBeInstanceOf(InstancedMesh);
     const mesh = panes as InstanceType<typeof InstancedMesh>;
-    // ~54k faces on 17k surveyed columns; interior faces are skipped.
-    expect(mesh.count).toBeGreaterThan(30_000);
-    expect(mesh.count).toBeLessThan(80_000);
+    // ~243k faces on 76k surveyed columns; interior faces are skipped.
+    expect(mesh.count).toBeGreaterThan(150_000);
+    expect(mesh.count).toBeLessThan(350_000);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();
@@ -149,12 +155,9 @@ describe("true voxel Minecraft world", () => {
   });
 
   test("fills the complete versioned radius with an explicit extrapolated surround", async () => {
-    const {
-      EXTRAPOLATED_WEST_M,
-      VISIBLE_RADIUS_M,
-      extrapolatedMarginBands,
-      extrapolatedTreeSpots,
-    } = await import("../src/worldEnvelope");
+    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } = await import(
+      "../src/worldEnvelope"
+    );
     const surround = world.getObjectByName(
       "Minecraft extrapolated radius surround",
     );
@@ -162,25 +165,22 @@ describe("true voxel Minecraft world", () => {
     expect(surround?.userData.extrapolated).toBe(true);
     expect(surround?.userData.visibleRadiusM).toBe(VISIBLE_RADIUS_M);
 
+    const envelope = extrapolatedEnvelopeBounds();
     const bounds = new Box3().setFromObject(surround!);
-    const bands = extrapolatedMarginBands();
-    const eastBand = bands[2];
-    expect(bounds.min.x).toBeLessThanOrEqual(EXTRAPOLATED_WEST_M);
-    expect(bounds.max.x).toBeGreaterThanOrEqual(
-      eastBand[0] + eastBand[2] / 2,
-    );
-    expect(bounds.min.z).toBeLessThanOrEqual(
-      bands[0][1] - bands[0][3] / 2,
-    );
-    expect(bounds.max.z).toBeGreaterThanOrEqual(
-      bands[1][1] + bands[1][3] / 2,
-    );
+    expect(bounds.min.x).toBeLessThanOrEqual(envelope.minX);
+    expect(bounds.max.x).toBeGreaterThanOrEqual(envelope.maxX);
+    expect(bounds.min.z).toBeLessThanOrEqual(envelope.minZ);
+    expect(bounds.max.z).toBeGreaterThanOrEqual(envelope.maxZ);
 
-    const extrapolatedTrunks = instanced(
-      "Voxel extrapolated tree trunks",
-      world,
-    );
-    expect(extrapolatedTrunks.count).toBe(extrapolatedTreeSpots().length);
+    // The generated west-park trees and lamps are gone since task-09 fetched
+    // the real Tiergarten; only the Siegessäule model remains, because LoD2
+    // carries just its 25 m socle.
+    expect(
+      world.getObjectByName("Voxel extrapolated tree trunks"),
+    ).toBeUndefined();
+    expect(
+      world.getObjectByName("Voxel extrapolated lamp poles"),
+    ).toBeUndefined();
     expect(
       instanced("Voxel extrapolated Siegessäule", world).count,
     ).toBeGreaterThan(5);
