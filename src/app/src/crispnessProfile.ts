@@ -35,3 +35,37 @@ export const CRISPNESS_PROFILES: Record<
   },
   minecraft: { contrast: 1, edgeStrength: 0.85, saturation: 1, strength: 0 },
 };
+
+/**
+ * Distance window over which the Day/Night crisp pass fades out as the camera
+ * pulls back. Below FULL the drawing is sharpened at the authored strength;
+ * above NONE the pass is a pure passthrough.
+ *
+ * Why a zoom fade instead of a motion fade: a 1 px unsharp mask amplifies
+ * whatever lands between pixels, so far out — where a screen pixel covers many
+ * metres of ink work — it amplifies aliasing rather than line quality. Ramping
+ * it with camera *motion* (as v0.38.0 did) meant every zoom step swapped
+ * between a soft and a hard image, which reads as flicker. Zoom is a property
+ * of the view, so the picture is now identical whether the camera moves or
+ * stands still. The default view (948 m) sits inside the FULL band, so the
+ * signed-off look at the standard framing is unchanged.
+ */
+export const CRISP_FULL_DISTANCE_M = 1050;
+export const CRISP_NONE_DISTANCE_M = 2100;
+
+export function crispZoomScale(distanceM: number): number {
+  if (!Number.isFinite(distanceM)) {
+    return 1;
+  }
+  if (distanceM <= CRISP_FULL_DISTANCE_M) {
+    return 1;
+  }
+  if (distanceM >= CRISP_NONE_DISTANCE_M) {
+    return 0;
+  }
+  const t =
+    (distanceM - CRISP_FULL_DISTANCE_M) /
+    (CRISP_NONE_DISTANCE_M - CRISP_FULL_DISTANCE_M);
+  // Smoothstep, so neither end of the window has a gradient step.
+  return 1 - t * t * (3 - 2 * t);
+}

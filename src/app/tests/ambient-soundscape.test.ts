@@ -68,12 +68,14 @@ describe("de-clicked envelopes", () => {
 });
 
 describe("deep swell beat cadence", () => {
-  test("fires exactly half as often as the old every-other-step hat", () => {
-    expect(BEAT_INTERVAL_STEPS).toBe(4);
+  test("fires twice per bar, a quarter of the original hat cadence", () => {
+    // v0.39.0 ("noch zu unruhig"): 4 → 8 steps between swells. Combined with
+    // the 72 → 54 BPM drop, a swell now lands roughly every 4.4 s instead of
+    // every 1.7 s.
+    expect(BEAT_INTERVAL_STEPS).toBe(8);
     const bar = Array.from({ length: 16 }, (_, step) => shouldScheduleBeat(step));
     const hits = bar.filter(Boolean).length;
-    // The old hat fired on all eight odd steps of a bar; the swell fires four.
-    expect(hits).toBe(4);
+    expect(hits).toBe(2);
   });
 
   test("is tuned two octaves below the variant root", () => {

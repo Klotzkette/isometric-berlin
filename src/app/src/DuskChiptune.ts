@@ -14,8 +14,8 @@
  *   of the shared grid — roughly the old 54 BPM procession — sparse,
  *   dark, almost no percussion. Eight sections of eight bars.
  * - **Motorik movement.** The same harmony at four times the event
- *   density: sixteenth-note sequencer bass, a click on every quarter,
- *   hats on the eighths, filter breathing. Eight sections of four bars.
+ *   density: sixteenth-note sequencer bass, a click on every half, hats
+ *   on the off-quarters, filter breathing. Eight sections of four bars.
  * Both run on ONE sixteenth-note grid, so switching movement is a
  * change of density and not a tempo jump — the classic krautrock
  * half-time/double-time move. Sixteen-step ramps at each boundary fade
@@ -48,6 +48,8 @@
  * hours at this tempo before the exact combination returns.
  */
 
+import { createReverbImpulse } from "./AmbientSoundscape";
+
 const REST = null;
 
 export type ChipMovement = "slow" | "motorik";
@@ -72,14 +74,28 @@ export function stepsPerEvent(movement: ChipMovement): number {
   return movement === "slow" ? 4 : 1;
 }
 
+/**
+ * How much of the chip layer goes through the hall. Slightly wetter than the
+ * ambient layer: the chip voices are the drier, more percussive of the two, so
+ * they need more tail to stop reading as restless.
+ */
+export const CHIP_REVERB_WET = 0.46;
+
 /** D natural minor (aeolian) — the darkest common chip scale. */
 export const AEOLIAN = [0, 2, 3, 5, 7, 8, 10] as const;
 /** Phrygian for the two most oppressive sections (flat second). */
 export const PHRYGIAN = [0, 1, 3, 5, 7, 8, 10] as const;
 
-export const CHIP_ROOT_MIDI = 38; // D2
-/** Motorik tempo: fast enough to drive, slow enough to stay hypnotic. */
-export const CHIP_BPM = 118;
+// v0.39.0 drops the root a perfect fourth, matching the ambient layer's
+// transposition, so both engines share one darker pitch centre ("mehr Tiefe").
+export const CHIP_ROOT_MIDI = 33; // A1
+/**
+ * Motorik tempo. 118 → 88 BPM in v0.39.0: "noch zu unruhig und ein bisschen zu
+ * schnell." A 25 % slowdown keeps the pulse hypnotic rather than driving, and
+ * because every event length is a multiple of CHIP_STEP_SECONDS the notes
+ * lengthen with the grid instead of leaving holes in the groove.
+ */
+export const CHIP_BPM = 88;
 export const CHIP_STEP_SECONDS = 60 / CHIP_BPM / 4; // sixteenth notes
 // Mixed with the optional ambient layer, so the two masters sum to 0.10
 // instead of competing for headroom in mobile speakers.
@@ -88,9 +104,15 @@ export const CHIP_SCHEDULE_AHEAD_SECONDS = 0.4;
 export const CHIP_SCHEDULE_RESUME_DELAY_SECONDS = 0.06;
 export const CHIP_MAX_STEPS_PER_TICK = 4;
 
-/** The motorik spine: a click on every quarter, a hat on every eighth. */
-export const CLICK_EVERY_STEPS = 4;
-export const HAT_EVERY_STEPS = 2;
+/**
+ * The motorik spine: a click on every half, a hat on the off-quarter between
+ * them. v0.39.0 halves the percussion density (click 4 → 8, hat 2 → 4): at the
+ * slower tempo the old four-on-the-floor plus off-eighth hat was the loudest
+ * remaining source of "zu unruhig". The alternation click–hat–click survives,
+ * there is simply twice as much air between the hits.
+ */
+export const CLICK_EVERY_STEPS = 8;
+export const HAT_EVERY_STEPS = 4;
 
 export function isClickStep(localStep: number): boolean {
   return localStep % CLICK_EVERY_STEPS === 0;
@@ -637,7 +659,18 @@ export class DuskChiptune {
         const master = context.createGain();
         master.gain.value = 0;
         lowpass.connect(master);
-        master.connect(context.destination);
+        // Parallel dry/wet hall, sharing the ambient layer's impulse response
+        // so both engines sit in the same room ("deutlich mehr Reverb"). The
+        // ConvolverNode normalises the response, so the master gain contract is
+        // unaffected.
+        const dry = context.createGain();
+        const wet = context.createGain();
+        const reverb = context.createConvolver();
+        reverb.buffer = createReverbImpulse(context);
+        dry.gain.value = 1 - CHIP_REVERB_WET;
+        wet.gain.value = CHIP_REVERB_WET;
+        master.connect(dry).connect(context.destination);
+        master.connect(reverb).connect(wet).connect(context.destination);
         this.lowpass = lowpass;
         this.master = master;
       }

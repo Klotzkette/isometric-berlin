@@ -71,6 +71,7 @@ import { runBoundedTasks } from "./boundedTaskPool";
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   captureCameraPose,
+  classifyTwoFingerGesture,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   stabilizeCameraRig,
@@ -78,7 +79,7 @@ import {
   twoFingerPanFlight,
   zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
-import { CRISPNESS_PROFILES } from "./crispnessProfile";
+import { CRISPNESS_PROFILES, crispZoomScale } from "./crispnessProfile";
 import {
   applyDrawnFacade,
   flattenBuildingVertexColors,
@@ -2211,20 +2212,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // Rotation stays on the on-screen buttons, the keyboard and the
           // mouse-drag; a three-finger gesture still tilts deliberately.
           if (twoFingerStart && twoFingerMode === "undecided") {
-            const panTravel = Math.hypot(
-              current.center.x - twoFingerStart.center.x,
-              current.center.y - twoFingerStart.center.y,
-            );
-            const pinchTravel = Math.abs(
-              current.distance - twoFingerStart.distance,
-            );
-            if (pinchTravel > 18 && pinchTravel > panTravel * 1.1) {
-              twoFingerMode = "zoom";
-            } else if (panTravel > 10) {
-              twoFingerMode = "pan";
-            }
+            twoFingerMode = classifyTwoFingerGesture({
+              panTravel: Math.hypot(
+                current.center.x - twoFingerStart.center.x,
+                current.center.y - twoFingerStart.center.y,
+              ),
+              pinchTravel: Math.abs(current.distance - twoFingerStart.distance),
+            });
+            // An unclassified gesture moves NOTHING. Applying the pan branch
+            // while still undecided dollied the rig forward at the start of
+            // every pinch ("geht nach vorne statt näher ran"), and the drift
+            // stayed even once the pinch was recognised. On decision the
+            // baseline restarts here, so the dead-zone travel that identified
+            // the gesture is not replayed as a jump.
+            previousTwoFingerGesture = current;
+            panVelocity.x = 0;
+            panVelocity.y = 0;
+            panVelocitySampleAt = performance.now();
+            markSurfaceInteraction(runtime);
+            return;
           }
-          if (twoFingerMode !== "zoom") {
+          if (twoFingerMode === "pan") {
             // Direct-manipulation pan: content follows the fingers.
             const deltaX = current.center.x - previousTwoFingerGesture.center.x;
             const deltaY = current.center.y - previousTwoFingerGesture.center.y;
@@ -2309,6 +2317,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           twoFingerStart = null;
           twoFingerMode = "undecided";
           previousThreeFingerCenter = null;
+          if (touchPoints.size >= 1) {
+            // 2→1 finger: fingers rarely leave the glass together, so the
+            // last one used to be handed straight to OrbitControls and
+            // spun the view at the end of every pinch. The gesture stays
+            // owned (controls disabled) until every finger has lifted;
+            // touching down again re-arms the two-finger path above.
+            markSurfaceInteraction(runtime);
+            return;
+          }
           customTouchGestureActive = false;
           controlsInteracting = false;
           if (panMomentum.x === 0 && panMomentum.y === 0) {
@@ -2428,12 +2445,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
-      // Smoothly ramped strength of the settled crisp/edge pass (0 while the
-      // camera moves, easing to 1 once it settles). Day/Night always render
-      // through the composer; only this factor changes, so there is no longer
-      // a hard switch between the direct-render and composer paths that used
-      // to pop the image (v0.5.4 Day-mode flicker / momentary darkening).
-      let crispBlend = 1;
+      // Effective strength of the Day/Night crisp/edge pass. It follows camera
+      // DISTANCE (crispZoomScale), not camera motion: the picture must be the
+      // same whether the camera moves or stands still, otherwise every zoom
+      // step swaps a soft image for a hard one and the drawing flickers. The
+      // remaining easing only smooths the distance ramp itself across frames.
+      let crispBlend = crispZoomScale(
+        camera.position.distanceTo(controls.target),
+      );
       let lastCrispRampAt = Number.NEGATIVE_INFINITY;
       const flightVelocity = new Vector3();
       let wasFlying = false;
@@ -2536,18 +2555,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime,
           cameraMoving || stability.pinInteractionSurface,
         );
-        // The crisp/edge pass applies at full strength only once Day/Night has
-        // settled (never in Minecraft, which owns the composer for its voxel
-        // pass). This is the ramp *target*: crispBlend eases toward 1 here and
-        // toward 0 while moving, rather than the pass being hard-toggled.
-        const crispSettled =
-          runtime.lightingMode !== "minecraft" && !isMoving;
+        // Target strength of the Day/Night crisp/edge pass: a function of how
+        // far the camera stands off, never of whether it is moving. Minecraft
+        // owns the composer for its voxel pass and keeps a fixed profile.
+        const crispTargetScale =
+          runtime.lightingMode === "minecraft"
+            ? 0
+            : crispZoomScale(camera.position.distanceTo(controls.target));
         // Keep rendering at the active cadence while the crisp/edge pass is
-        // still fading in or out, so the Day/Night settle ramp stays smooth
+        // still easing toward its distance target, so the ramp stays smooth
         // instead of stepping across sparse idle frames.
         const crispRamping =
           runtime.lightingMode !== "minecraft" &&
-          Math.abs(crispBlend - (crispSettled ? 1 : 0)) > 0.01;
+          Math.abs(crispBlend - crispTargetScale) > 0.01;
         const frameIntervalMs =
           isMoving || crispRamping ? activeFrameIntervalMs : idleFrameIntervalMs;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
@@ -2626,12 +2646,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         } else {
           // Day/Night: always render through the composer so the colour and
           // anti-aliasing pipeline is identical whether the camera moves or
-          // settles. Instead of hard-toggling the crisp pass on/off (which
-          // popped the image every time motion started or stopped), ramp its
-          // effective strength via crispBlend. At crispBlend === 0 the pass
-          // is a pure passthrough (strength/edge 0, saturation/contrast 1),
-          // at 1 it applies the full settled profile — so motion only fades
-          // the sharpening in and out smoothly, with no flicker or darkening.
+          // settles. crispBlend eases toward the DISTANCE target, so a still
+          // camera and a moving camera at the same standoff produce the same
+          // pixels. At crispBlend === 0 the pass is a pure passthrough
+          // (strength/edge 0, saturation/contrast 1), at 1 it applies the full
+          // authored profile.
           const profile =
             CRISPNESS_PROFILES[runtime.lightingMode === "night" ? "night" : "day"];
           const rampDt =
@@ -2639,12 +2658,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               ? 0.016
               : MathUtils.clamp((timestamp - lastCrispRampAt) / 1000, 0, 0.25);
           lastCrispRampAt = timestamp;
-          const crispTarget = crispSettled ? 1 : 0;
-          crispBlend += (crispTarget - crispBlend) * Math.min(1, rampDt * 7);
-          if (crispBlend < 0.002) {
-            crispBlend = 0;
-          } else if (crispBlend > 0.998) {
-            crispBlend = 1;
+          crispBlend += (crispTargetScale - crispBlend) * Math.min(1, rampDt * 7);
+          if (Math.abs(crispBlend - crispTargetScale) < 0.002) {
+            crispBlend = crispTargetScale;
           }
           crispPass.enabled = true;
           crispPass.uniforms.strength.value = profile.strength * crispBlend;

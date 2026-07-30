@@ -173,21 +173,25 @@ export function cleanedTone(tone: [number, number, number]): Color {
   let g = tone[1] / 255;
   let b = tone[2] / 255;
   const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  const DESATURATION = 0.55;
+  // v0.39.0: 0.55 was the main source of "alle Flächen der Gebäude sind noch
+  // zu grau". Measured on the shipped v0.38.0 frame, 34 % of the building
+  // surface pixels carried a chroma below 0.06 — light, but with no colour in
+  // them at all, which is exactly what reads as grey. Pulling each sample only
+  // a third of the way to its own luminance still kills JPEG chroma noise
+  // while leaving the sandstone/brick/glass hue visible.
+  const DESATURATION = 0.34;
   r += (luma - r) * DESATURATION;
   g += (luma - g) * DESATURATION;
   b += (luma - b) * DESATURATION;
   // Light-panel city: lightness lives in a bright band ("alles in
   // hellen Farben") — pale stone up to near-white, never murky.
-  // Bright ivory band: no murky greys or dark yellows survive.
-  // Ten bands rather than six: the raised floor would otherwise collapse
-  // every facade onto two paint levels and flatten the drawing.
-  // The floor is chosen AFTER quantisation matters: with ten bands the old
-  // 0.68 floor still snapped down to 6/9 = 0.667, so "bright band" was a
-  // claim the maths did not keep. 0.75 snaps up to 7/9 = 0.778 — a real
-  // 17 % lift for the darkest facades ("alle Gebäude heller, nicht grau").
-  const clamped = Math.min(0.93, Math.max(0.75, luma));
-  const bands = 10;
+  // The floor is chosen AFTER quantisation matters: with the old ten bands the
+  // 0.75 floor snapped to 7/9 = 0.778 and the 0.93 ceiling to 8/9 = 0.889, so
+  // the entire city owned just TWO paint levels — a large part of why it read
+  // as one flat grey mass. Sixteen bands over a slightly wider window give
+  // three usable levels (0.800 / 0.867 / 0.933) and lift both ends.
+  const clamped = Math.min(0.96, Math.max(0.8, luma));
+  const bands = 16;
   const quantised = Math.round(clamped * (bands - 1)) / (bands - 1);
   const scale = quantised / Math.max(luma, 1e-3);
   return new Color(clamp01(r * scale), clamp01(g * scale), clamp01(b * scale));
@@ -232,21 +236,26 @@ function inReichstagRegion(building: PrismBuilding): boolean {
 // The whole city leans toward one warm ivory register ("wie eine
 // wunderbare Elfenbeinpalastdarstellung") while each building keeps
 // enough of its own sampled hue to stay recognisably itself.
-const IVORY = new Color(0xf8f3e6);
+// v0.39.0 warms the anchor itself from #f8f3e6 to #fbf5e4: the ivory blend is
+// what carries the cream cast onto neutral samples, so a warmer anchor is the
+// most direct answer to "mehr Elfenbein/Creme/Warmweiß, weniger Grauanteil".
+const IVORY = new Color(0xfbf5e4);
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
-    return new Color(pinned).lerp(IVORY, 0.26);
+    // The pins stay neutral light stone (the owner's earlier direction for the
+    // Chancellery); the ivory blend is what stops them reading as grey paint.
+    return new Color(pinned).lerp(IVORY, 0.34);
   }
   if (inReichstagRegion(building)) {
-    return new Color(0xd6d2c7).lerp(IVORY, 0.28);
+    return new Color(0xdedacf).lerp(IVORY, 0.36);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone).lerp(IVORY, 0.46);
+    return cleanedTone(building.tone).lerp(IVORY, 0.52);
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -787,8 +796,15 @@ export function isoFaceShade(nx: number, ny: number, nz: number): number {
 }
 
 // Cool slate tint mixed into flat roof caps so they read as drawn
-// roof plates instead of sun-warmed facade paint.
-const ROOF_PLATE_TINT = new Color(0xcdd2d4);
+// roof plates instead of sun-warmed facade paint. Lifted in v0.39.0: roofs are
+// the single largest visible surface in an isometric view, so a neutral cool
+// grey here greyed out the whole drawing. Still clearly cooler than the
+// facades — the plate reads as a plate, just no longer as slate.
+const ROOF_PLATE_TINT = new Color(0xd9dee0);
+// How far a roof cap leans toward that tint. 0.45 buried the building's own
+// colour under a neutral grey; 0.34 keeps the plate distinct while the paint
+// underneath still shows through.
+const ROOF_PLATE_TINT_BLEND = 0.34;
 // Hyperdetail bands: a darker plinth (Sockel) at the base and a light
 // protruding cornice (Gesims) under the roof edge of every drawn wall.
 const SOCKEL_HEIGHT_M = 0.55;
@@ -3638,7 +3654,10 @@ export function createIsometricCity(
     const capTone =
       pinnedRoof !== undefined
         ? new Color(pinnedRoof)
-        : color.clone().multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, 0.45);
+        : color
+            .clone()
+            .multiplyScalar(0.97)
+            .lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
     const bodyNormals = geometry.getAttribute("normal");
     const bodyPositions = geometry.getAttribute("position");
     const bodyColors = geometry.getAttribute("color");

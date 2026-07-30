@@ -580,7 +580,13 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "flat-unlit architectural signatures": "markAuthoredFlatUnlit(model)",
     "flat-unlit memorials": "markAuthoredFlatUnlit(runtime.monuments)",
-    "settled-only crisp pass": ('runtime.lightingMode !== "minecraft" && !isMoving'),
+    # v0.39.0: the crisp pass follows camera DISTANCE, never camera motion.
+    # Ramping it with motion meant a moving and a resting camera at the same
+    # standoff rendered different pixels, which read as flicker on every zoom
+    # step. Pinning the distance call keeps the fix from silently regressing.
+    "zoom-faded crisp pass": (
+      "crispZoomScale(camera.position.distanceTo(controls.target))"
+    ),
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"

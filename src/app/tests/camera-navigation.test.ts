@@ -3,7 +3,9 @@ import { PerspectiveCamera, Vector3 } from "three";
 
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+  TWO_FINGER_DECISION_TRAVEL_PX,
   captureCameraPose,
+  classifyTwoFingerGesture,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   screenRelativeFlightDelta,
@@ -259,6 +261,115 @@ describe("cursor-anchored zoom", () => {
     expect(result.anchored).toBe(false);
     expect(camera.position.toArray()).toEqual(before.toArray());
   });
+
+  // v0.39.0: "Wenn man pincht, geht es nach vorne statt näher ran." A pinch
+  // must be a pure distance change anchored under the fingers — never a
+  // ground dolly along the view heading, and never a tilt.
+  test("pinch changes distance without rotating or tilting the rig", () => {
+    const camera = new PerspectiveCamera(39, 16 / 9, 0.25, 6_000);
+    const target = new Vector3(-110, 12, -165);
+    camera.position.set(430, 442, 485);
+    camera.lookAt(target);
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    const directionBefore = camera.position.clone().sub(target).normalize();
+    const distanceBefore = camera.position.distanceTo(target);
+
+    // Fingers spreading apart (factor > 1) must come CLOSER, not further.
+    const zoomIn = zoomCameraAtScreenPoint(
+      camera,
+      target,
+      0.18,
+      -0.1,
+      1.25,
+      30,
+      2_600,
+    );
+    expect(zoomIn.distance).toBeLessThan(distanceBefore);
+    // The orbit direction is untouched: same azimuth, same polar angle.
+    const directionAfter = camera.position.clone().sub(target).normalize();
+    expect(directionAfter.distanceTo(directionBefore)).toBeLessThan(1e-6);
+
+    // Fingers pinching together (factor < 1) must pull back out again.
+    const zoomOut = zoomCameraAtScreenPoint(
+      camera,
+      target,
+      0.18,
+      -0.1,
+      0.8,
+      30,
+      2_600,
+    );
+    expect(zoomOut.distance).toBeGreaterThan(zoomIn.distance);
+    expect(
+      camera.position
+        .clone()
+        .sub(target)
+        .normalize()
+        .distanceTo(directionBefore),
+    ).toBeLessThan(1e-6);
+  });
+});
+
+describe("two-finger gesture classification", () => {
+  // v0.39.0 fix for "wenn man pincht, geht es nach vorne statt näher ran":
+  // the old hysteresis let pan claim the gesture after 10 px of midpoint
+  // drift while a pinch needed 18 px of spread change plus 1.1× dominance,
+  // so an asymmetric phone pinch locked to "pan" and the pan branch flew the
+  // rig along the ground heading instead of zooming.
+  test("nothing is decided inside the dead zone", () => {
+    expect(classifyTwoFingerGesture({ panTravel: 0, pinchTravel: 0 })).toBe(
+      "undecided",
+    );
+    expect(
+      classifyTwoFingerGesture({
+        panTravel: TWO_FINGER_DECISION_TRAVEL_PX - 0.5,
+        pinchTravel: TWO_FINGER_DECISION_TRAVEL_PX - 0.5,
+      }),
+    ).toBe("undecided");
+  });
+
+  test("an asymmetric pinch classifies as zoom, never as pan", () => {
+    // The characteristic phone pinch: fingers converge 40 px while the
+    // midpoint drifts 30 px because one finger carries more of the motion.
+    // The old thresholds returned "pan" for exactly this input.
+    expect(classifyTwoFingerGesture({ panTravel: 30, pinchTravel: 40 })).toBe(
+      "zoom",
+    );
+    // Even a heavily drifting pinch stays a zoom.
+    expect(classifyTwoFingerGesture({ panTravel: 60, pinchTravel: 34 })).toBe(
+      "zoom",
+    );
+    // A pinch that only just clears the dead zone still wins.
+    expect(
+      classifyTwoFingerGesture({
+        panTravel: 4,
+        pinchTravel: TWO_FINGER_DECISION_TRAVEL_PX,
+      }),
+    ).toBe("zoom");
+  });
+
+  test("a flat two-finger swipe still classifies as pan", () => {
+    // A deliberate swipe holds the finger spread nearly constant.
+    expect(classifyTwoFingerGesture({ panTravel: 40, pinchTravel: 2 })).toBe(
+      "pan",
+    );
+    expect(classifyTwoFingerGesture({ panTravel: 120, pinchTravel: 12 })).toBe(
+      "pan",
+    );
+  });
+
+  test("survives non-finite travel without claiming a gesture", () => {
+    expect(
+      classifyTwoFingerGesture({ panTravel: Number.NaN, pinchTravel: 0 }),
+    ).toBe("undecided");
+    expect(
+      classifyTwoFingerGesture({
+        panTravel: Number.NaN,
+        pinchTravel: Number.NaN,
+      }),
+    ).toBe("undecided");
+  });
 });
 
 describe("pan momentum glide", () => {
@@ -288,12 +399,12 @@ describe("pan momentum glide", () => {
 });
 
 describe("visible-radius contract (+100 m per areal run)", () => {
-  test("current envelope spans the versioned 3310 m radius", async () => {
+  test("current envelope spans the versioned 3410 m radius", async () => {
     const { VISIBLE_RADIUS_M } = await import("../src/IsometricCityWorld");
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
       "../src/cameraNavigation"
     );
-    expect(VISIBLE_RADIUS_M).toBe(3310);
+    expect(VISIBLE_RADIUS_M).toBe(3410);
     const span =
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.z -
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z;

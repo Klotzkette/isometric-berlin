@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.38.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.38.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.39.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.39.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.38.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.39.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,12 +42,12 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.38.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.39.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
-- The versioned visible presentation radius is **3310 m** (expanded from
-  3210 m in v0.37.1). Existing metric geometry remains fixed. Everything
+- The versioned visible presentation radius is **3410 m** (expanded from
+  3310 m in v0.38.0). Existing metric geometry remains fixed. Everything
   outside the official data footprint is explicitly marked as extrapolated
   paper/park surround and is never presented as newly surveyed LoD2, ALKIS or
   OSM geometry. Day, Night and Minecraft now consume the same versioned
@@ -142,7 +142,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
   strict mobile density budget. Its distant haze now scales with the versioned
   visible radius, keeping the complete expanded model readable at overview
   distance instead of fading the outer ring. Its official metric voxel payload
-  stays unchanged; the matching 3310 m block surround is explicitly tagged as
+  stays unchanged; the matching 3410 m block surround is explicitly tagged as
   extrapolated presentation geometry.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact
   40 px sight status bar, a 56 px bottom action bar,

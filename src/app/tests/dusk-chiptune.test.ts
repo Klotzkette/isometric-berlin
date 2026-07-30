@@ -72,9 +72,11 @@ describe("Dusk Republic — two movements, equal weight", () => {
   });
 
   test("motorik tempo drives, and the whole thing stays quiet", () => {
-    // A real motorik pulse, not the old funeral march.
-    expect(CHIP_BPM).toBeGreaterThan(100);
-    expect(CHIP_BPM).toBeLessThan(130);
+    // Still a pulse, no longer a drive. v0.39.0 takes 118 → 88 BPM ("noch zu
+    // unruhig und ein bisschen zu schnell"); the floor keeps it clear of the
+    // old funeral march.
+    expect(CHIP_BPM).toBeGreaterThan(80);
+    expect(CHIP_BPM).toBeLessThan(100);
     expect(CHIP_STEP_SECONDS).toBeCloseTo(60 / CHIP_BPM / 4, 6);
     // Low key regardless of movement.
     expect(CHIP_MASTER_GAIN).toBeLessThan(0.1);
@@ -114,12 +116,15 @@ describe("Dusk Republic — two movements, equal weight", () => {
 });
 
 describe("Dusk Republic — motorik spine (NEU!/Kraftwerk)", () => {
-  test("a click on every quarter, a hat on every off-eighth", () => {
+  test("a click on every half, a hat on the off-quarter between them", () => {
+    // v0.39.0 halves the percussion density (click 4 → 8, hat 2 → 4). The
+    // click–hat–click alternation is what carries the motorik feel, so it is
+    // preserved exactly; only the air between the hits doubles.
     expect(isClickStep(0)).toBe(true);
-    expect(isClickStep(4)).toBe(true);
-    expect(isClickStep(2)).toBe(false);
-    expect(isHatStep(2)).toBe(true);
-    expect(isHatStep(6)).toBe(true);
+    expect(isClickStep(8)).toBe(true);
+    expect(isClickStep(4)).toBe(false);
+    expect(isHatStep(4)).toBe(true);
+    expect(isHatStep(12)).toBe(true);
     // A step is never both.
     for (let step = 0; step < 64; step += 1) {
       expect(isClickStep(step) && isHatStep(step)).toBe(false);
@@ -130,8 +135,8 @@ describe("Dusk Republic — motorik spine (NEU!/Kraftwerk)", () => {
       if (isClickStep(step)) clicks += 1;
       if (isHatStep(step)) hats += 1;
     }
-    expect(clicks).toBe(16); // one per quarter across four bars
-    expect(hats).toBe(16); // one per off-eighth
+    expect(clicks).toBe(8); // one per half across four bars
+    expect(hats).toBe(8); // one per off-quarter, interleaved
   });
 
   test("the motorik bass is a sequencer line hammering its tonic", () => {
@@ -325,14 +330,18 @@ describe("Dusk Republic — player", () => {
       scheduled += batch.times.length;
       nextStepAt = batch.nextStepAt;
     }
-    expect(scheduled).toBeGreaterThan(2_300);
-    expect(scheduled).toBeLessThan(2_500);
+    // 300 s at 88 BPM sixteenths (CHIP_STEP_SECONDS ≈ 0.1705 s) is ≈ 1760
+    // steps, down from ≈ 2360 at 118 BPM — the slowdown, counted.
+    expect(scheduled).toBeGreaterThan(1_700);
+    expect(scheduled).toBeLessThan(1_800);
     expect(largestBatch).toBeLessThanOrEqual(CHIP_MAX_STEPS_PER_TICK);
   });
 
   test("a throttled background timer resumes ahead of now without a burst", () => {
     const batch = chipScheduleBatch(305, 4.2);
-    expect(batch.times).toHaveLength(3);
+    // The 0.4 s lookahead holds two of the longer 88 BPM steps (three at the
+    // old tempo) — the window is fixed, the step count follows the tempo.
+    expect(batch.times).toHaveLength(2);
     expect(batch.times[0]).toBeCloseTo(
       305 + CHIP_SCHEDULE_RESUME_DELAY_SECONDS,
       6,

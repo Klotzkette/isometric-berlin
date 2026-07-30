@@ -1,5 +1,54 @@
 # Changelog
 
+## v0.39.0
+
+- **The zoom-out flicker was the crisp pass ramping on camera motion.** The
+  Day/Night unsharp pass used to fade in only once the camera settled, so a
+  moving and a resting camera at the same standoff rendered different pixels
+  and every zoom step visibly hardened the image. The pass now follows camera
+  DISTANCE (`crispZoomScale`, smoothstepped between 1050 m and 2100 m), which
+  is a property of the view rather than of the input, so the picture is
+  identical whether the camera moves or stands still. The default framing
+  (948 m) sits inside the full-strength band, so the signed-off look at the
+  standard view is unchanged. The release-readiness gate now pins the
+  distance call so the motion-based version cannot come back.
+- **Pinch on a phone zooms instead of flying forward.** Two-finger gestures
+  are now classified once, after 12 px of travel on either axis, and pinch
+  wins ties (`PINCH_DOMINANCE_RATIO` 0.55). Previously pan claimed the
+  gesture after 10 px of midpoint drift while a pinch needed 18 px of spread
+  change and 1.1x dominance; because real finger travel is asymmetric, the
+  pan branch won and flew the rig along its ground heading — the reported
+  "wenn man pincht, geht es nach vorne statt näher ran". A deliberate
+  two-finger swipe keeps the spread nearly constant and still reads as a pan.
+- **The facades are warmer and less grey, by repainting, not by re-grading.**
+  Day and Night keep `NoToneMapping` at exposure 1 and the four-step
+  `isoFaceShade` ladder is untouched; only authored colours moved. The
+  photogrammetric cleanup desaturates 0.30 -> 0.22 and the prism cleanup
+  0.55 -> 0.34, because the remaining greyness was a chroma deficit rather
+  than a brightness one. The luma band moves to 0.72-0.96 (photogrammetry)
+  and 0.80-0.96 over sixteen levels instead of ten (prisms) — the old ten
+  bands over a narrower window gave the entire city just two usable paint
+  levels, which is a large part of why it read as one flat mass. The shared
+  ivory anchor warms from `#f8f3e6` to `#fbf5e4` and the blends toward it
+  rise, and the roof plate tint lifts from `#cdd2d4` to `#d9dee0` at 0.34
+  instead of 0.45 blend, since roofs are the largest visible surface in an
+  isometric view and a neutral cool grey there greyed out the whole drawing.
+- **The dusk music is slower, deeper and roomier, without clicks.** 118 -> 88
+  BPM, root 38 -> 33 MIDI, and half the percussion density (click every 8
+  steps instead of 4, hat every 4 instead of 2); the click-hat-click
+  alternation that carries the motorik feel is preserved exactly, only the
+  air between the hits doubles. A parallel dry/wet hall at 0.46 wet shares
+  the ambient convolution impulse, and every voice keeps its attack/release
+  envelope so no gain change is a step discontinuity.
+- **Visible radius 3310 m -> 3410 m.** One regular +100 m areal step. The new
+  extrapolated strip covers -3120 m to -3020 m with the next two primes in
+  the published seed sequence (4967 / 5101), so the v0.38.0 tree population
+  remains an exact index-for-index prefix of the new one: the tree that used
+  to be last is still at index 1691, and the total goes 1692 -> 1774. Camera
+  flight bounds follow the ring. `tasks/09` (Kulturforum / Leipziger Platz /
+  Tiergarten grand expansion) remains OPEN — this is the routine step, not
+  that expansion.
+
 ## v0.38.0
 
 - **The film curve is gone from the drawn modes, and that fixes the palette

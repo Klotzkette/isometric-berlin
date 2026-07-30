@@ -80,7 +80,10 @@ export function quantizeChannel(value: number, steps: number): number {
 // building: a moderate desaturation calms JPEG chroma noise and sky/vegetation
 // bleed without changing the hue, and a gentle shadow lift keeps every facade
 // readable (never black) without washing bright buildings out.
-const DESATURATION = 0.3;
+// v0.39.0: less desaturation, because the greyness the owner still saw was a
+// chroma problem, not a brightness problem — 34 % of the building pixels in
+// the v0.38.0 frame sat below 0.06 chroma, i.e. visually neutral.
+const DESATURATION = 0.22;
 const LIFT_GAMMA = 0.78;
 // Bright ivory band ("alle Gebäude heller, nicht grau"). The previous
 // 0.48 floor let a shadowed photo sample survive as a mid grey, and with
@@ -88,15 +91,19 @@ const LIFT_GAMMA = 0.78;
 // the shipped v0.37.0 build, the Chancellery's dominant wall pixel was
 // #b1b4ad, a flat mid grey over 33 000 px. The floor now sits in the pale
 // stone register and the ceiling admits near-white masonry.
-const MIN_LUMA = 0.66;
-const MAX_LUMA = 0.94;
+const MIN_LUMA = 0.72;
+const MAX_LUMA = 0.96;
 
 // The whole drawn city leans toward one warm ivory register (the same
 // `IVORY` anchor the LoD2 prism city uses) while each building keeps its
 // own hue. Without this the photogrammetric heroes read neutral grey next
 // to ivory prisms — two different cities in one drawing.
-export const IVORY_ANCHOR: Rgb = [248, 243, 230];
-const IVORY_BLEND = 0.22;
+export const IVORY_ANCHOR: Rgb = [251, 245, 228];
+// Raised from 0.22 in v0.39.0: this blend is what turns a neutral sample into
+// cream rather than grey, and the prism city (facadeColorFor) leans on its own
+// anchor twice as hard, so the heroes were the cooler, greyer half of the
+// drawing.
+const IVORY_BLEND = 0.32;
 
 /**
  * Clean a facade's dominant real colour into a single flat illustrated tone,
@@ -156,9 +163,9 @@ export function blendTowardAnchor(color: Rgb, anchor: Rgb, amount: number): Rgb 
 // used to sit a step below their real materials, which is what made the
 // hero models the greyest objects in the drawing.
 export const HERO_FACADE_ANCHORS: Record<string, Rgb> = {
-  reichstag: [228, 217, 191],
-  bundeskanzleramt: [240, 238, 232],
-  hauptbahnhof: [215, 224, 232],
+  reichstag: [236, 226, 199],
+  bundeskanzleramt: [247, 245, 238],
+  hauptbahnhof: [226, 234, 241],
 };
 const HERO_ANCHOR_BLEND = 0.55;
 

@@ -2,7 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { CRISPNESS_PROFILES } from "../src/crispnessProfile";
+import {
+  CRISPNESS_PROFILES,
+  CRISP_FULL_DISTANCE_M,
+  CRISP_NONE_DISTANCE_M,
+  crispZoomScale,
+} from "../src/crispnessProfile";
 
 const crispFragment = readFileSync(
   join(import.meta.dir, "..", "src", "crisp.frag"),
@@ -35,5 +40,46 @@ describe("isometric crispness profile", () => {
     expect(crispFragment).not.toContain("modelViewMatrix");
     const samplerUses = crispFragment.match(/texture2D\(tDiffuse/g) ?? [];
     expect(samplerUses.length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("crisp pass fades with zoom, not with camera motion", () => {
+  // v0.39.0 anti-flicker contract ("Nichts darf jemals flackern"): the crisp
+  // strength is a function of camera DISTANCE only. In v0.38.0 it ramped with
+  // camera motion, so a moving and a resting camera at the same standoff
+  // produced measurably different pixels (mean |dLuma| 1.47, 15 % of pixels
+  // changed) and every zoom step swapped a soft image for a hard one.
+  test("is a pure function of distance across the whole ramp", () => {
+    for (const distance of [0, 400, 948, 1_200, 1_600, 2_000, 2_400, 9_000]) {
+      expect(crispZoomScale(distance)).toBe(crispZoomScale(distance));
+    }
+  });
+
+  test("full strength near, off far, monotonic in between", () => {
+    expect(crispZoomScale(CRISP_FULL_DISTANCE_M)).toBe(1);
+    expect(crispZoomScale(CRISP_NONE_DISTANCE_M)).toBe(0);
+    // The signed-off default framing (≈948 m) must keep the authored look.
+    expect(crispZoomScale(948)).toBe(1);
+    expect(crispZoomScale(30)).toBe(1);
+    expect(crispZoomScale(6_000)).toBe(0);
+    let previous = 1;
+    for (
+      let distance = CRISP_FULL_DISTANCE_M;
+      distance <= CRISP_NONE_DISTANCE_M;
+      distance += 25
+    ) {
+      const scale = crispZoomScale(distance);
+      expect(scale).toBeLessThanOrEqual(previous);
+      expect(scale).toBeGreaterThanOrEqual(0);
+      previous = scale;
+    }
+  });
+
+  test("smoothstep ends flat, so neither end of the window steps", () => {
+    const nearEdge = crispZoomScale(CRISP_FULL_DISTANCE_M + 5);
+    const farEdge = crispZoomScale(CRISP_NONE_DISTANCE_M - 5);
+    expect(1 - nearEdge).toBeLessThan(0.001);
+    expect(farEdge).toBeLessThan(0.001);
+    expect(crispZoomScale(Number.NaN)).toBe(1);
   });
 });

@@ -52,23 +52,72 @@ export const AMBIENT_VARIANTS: readonly AmbientVariant[] = [
   },
 ];
 
-const BPM = 72;
-const STEP_SECONDS = 60 / BPM / 4;
+// v0.39.0: "noch zu unruhig und ein bisschen zu schnell — langsamer, mehr
+// Tiefe und mehr Hall." 72 → 54 BPM is a 25 % slowdown; because every
+// envelope length is derived from STEP_SECONDS, the notes also get
+// proportionally longer rather than leaving gaps.
+export const AMBIENT_BPM = 54;
+const STEP_SECONDS = 60 / AMBIENT_BPM / 4;
 const STEPS_PER_VARIANT = 64;
 // Leaves shared headroom for the optional 0.03 Dusk Republic layer.
 export const AMBIENT_MASTER_GAIN = 0.07;
 
-// The percussive beat used to fire on every odd step (eight hits per
-// sixteen-step bar). v0.5.6 halves that cadence — one swell every four
-// steps — so the beat breathes instead of ticking.
-export const BEAT_INTERVAL_STEPS = 4;
+/**
+ * Downward transposition of the whole soundscape ("mehr Tiefe"). A perfect
+ * fourth moves every voice into a darker register without changing any
+ * interval, so the seven variants keep their character and their distinct
+ * roots — only the pitch centre drops.
+ */
+export const AMBIENT_TRANSPOSE_SEMITONES = -5;
+
+// Diffuse convolution tail. A four-second decay is long enough to read as a
+// hall rather than a room, which is what carries the "mehr Hall" request; the
+// dry/wet split keeps the note attacks legible instead of washing them out.
+export const AMBIENT_REVERB_SECONDS = 4.2;
+export const AMBIENT_REVERB_DECAY = 2.6;
+export const AMBIENT_REVERB_WET = 0.52;
+
+// The swell used to fire every four steps. v0.39.0 halves that again — one
+// swell per eight steps — because at 54 BPM the old cadence still read as a
+// pulse ("zu unruhig") rather than as breathing.
+export const BEAT_INTERVAL_STEPS = 8;
 
 /**
- * True on the steps that carry the deep swell beat. Firing once per four
- * steps is exactly half the old every-other-step cadence.
+ * True on the steps that carry the deep swell beat.
  */
 export function shouldScheduleBeat(step: number): boolean {
   return step % BEAT_INTERVAL_STEPS === 2;
+}
+
+// Event density: the chime used to be allowed on every second step and the
+// drone every sixteen. Thinning both is the other half of "weniger dichte
+// Ereignisfolge" — the patterns themselves are untouched, they are just
+// sampled more sparsely.
+export const CHIME_INTERVAL_STEPS = 4;
+export const DRONE_INTERVAL_STEPS = 32;
+
+/**
+ * Build a diffuse exponential-decay impulse response for the hall reverb.
+ * Generated rather than shipped as a file: an audio asset would be a binary
+ * blob in the repo, and a noise tail with an exponential envelope is exactly
+ * what a small convolution hall needs.
+ */
+export function createReverbImpulse(
+  context: BaseAudioContext,
+  seconds = AMBIENT_REVERB_SECONDS,
+  decay = AMBIENT_REVERB_DECAY,
+): AudioBuffer {
+  const rate = context.sampleRate;
+  const length = Math.max(1, Math.floor(rate * Math.max(0.05, seconds)));
+  const buffer = context.createBuffer(2, length, rate);
+  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+    const data = buffer.getChannelData(channel);
+    for (let index = 0; index < length; index += 1) {
+      const t = index / length;
+      data[index] = (Math.random() * 2 - 1) * (1 - t) ** decay;
+    }
+  }
+  return buffer;
 }
 
 /**
@@ -185,7 +234,18 @@ export class AmbientSoundscape {
     compressor.ratio.value = 4;
     compressor.attack.value = 0.012;
     compressor.release.value = 0.3;
-    master.connect(compressor).connect(context.destination);
+    // Parallel dry/wet hall. The ConvolverNode normalises its impulse
+    // response, so the wet path does not raise the overall level and the
+    // AMBIENT_MASTER_GAIN headroom contract still holds.
+    const dry = context.createGain();
+    const wet = context.createGain();
+    const reverb = context.createConvolver();
+    reverb.buffer = createReverbImpulse(context);
+    dry.gain.value = 1 - AMBIENT_REVERB_WET;
+    wet.gain.value = AMBIENT_REVERB_WET;
+    master.connect(dry).connect(compressor);
+    master.connect(reverb).connect(wet).connect(compressor);
+    compressor.connect(context.destination);
     this.context = context;
     this.master = master;
     this.step = 0;
@@ -273,19 +333,20 @@ export class AmbientSoundscape {
         Math.floor(step / STEPS_PER_VARIANT) % AMBIENT_VARIANTS.length
       ];
     const patternStep = step % variant.bass.length;
+    const root = variant.rootMidi + AMBIENT_TRANSPOSE_SEMITONES;
     const bassInterval = variant.bass[patternStep];
     if (bassInterval !== null) {
-      this.scheduleBass(context, at, variant.rootMidi + bassInterval);
+      this.scheduleBass(context, at, root + bassInterval);
     }
     const chimeInterval = variant.chime[patternStep];
-    if (chimeInterval !== null && step % 2 === 0) {
-      this.scheduleChime(context, at, variant.rootMidi + chimeInterval);
+    if (chimeInterval !== null && step % CHIME_INTERVAL_STEPS === 0) {
+      this.scheduleChime(context, at, root + chimeInterval);
     }
     if (shouldScheduleBeat(step)) {
-      this.scheduleBeat(context, at, beatMidi(variant.rootMidi));
+      this.scheduleBeat(context, at, beatMidi(root));
     }
-    if (step % 16 === 0) {
-      this.scheduleDrone(context, at, variant.rootMidi - 12);
+    if (step % DRONE_INTERVAL_STEPS === 0) {
+      this.scheduleDrone(context, at, root - 12);
     }
   }
 
@@ -293,25 +354,40 @@ export class AmbientSoundscape {
     if (!this.master) {
       return;
     }
-    const oscillator = context.createOscillator();
     const filter = context.createBiquadFilter();
     const gain = context.createGain();
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(midiFrequency(midi), at);
     filter.type = "lowpass";
     filter.frequency.setValueAtTime(340, at);
     filter.Q.value = 0.7;
+    // A longer attack than the old 0.03 s: at 54 BPM the note has room to
+    // swell in, and a soft entry is what makes the bass read as weight rather
+    // than as a pluck.
     const envelope = attackReleaseEnvelope(
       at,
-      0.11,
-      0.03,
+      0.12,
+      0.14,
       STEP_SECONDS * 0.9,
-      STEP_SECONDS * 0.9,
+      STEP_SECONDS * 1.4,
     );
     applyEnvelope(gain.gain, envelope);
-    oscillator.connect(filter).connect(gain).connect(this.master);
-    oscillator.start(at);
-    oscillator.stop(envelopeEnd(envelope) + 0.02);
+    filter.connect(gain).connect(this.master);
+    const stopAt = envelopeEnd(envelope) + 0.02;
+    // The sub-octave sine is the "mehr Bassgewicht" half: it adds body an
+    // octave below without muddying the triangle's fundamental.
+    for (const [type, ratio, level] of [
+      ["triangle", 1, 1],
+      ["sine", 0.5, 0.6],
+    ] as const) {
+      const oscillator = context.createOscillator();
+      const partial = context.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(midiFrequency(midi) * ratio, at);
+      partial.gain.setValueAtTime(0, at);
+      partial.gain.linearRampToValueAtTime(level, at + 0.14);
+      oscillator.connect(partial).connect(filter);
+      oscillator.start(at);
+      oscillator.stop(stopAt);
+    }
   }
 
   private scheduleChime(context: AudioContext, at: number, midi: number): void {

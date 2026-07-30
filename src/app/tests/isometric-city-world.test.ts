@@ -482,9 +482,15 @@ describe("real-colour facade tones", () => {
     const grey = cleanedTone([92, 90, 86]);
     expect(grey.r).toBeGreaterThan(0.2);
     expect(Math.abs(grey.r - grey.b)).toBeLessThan(0.06);
-    // A blown-out white sample is capped below pure white.
+    // A blown-out white sample is capped below pure white. v0.39.0 raised the
+    // ceiling from 8/9 to 14/15 ("alle Flächen sind noch zu grau"), so bright
+    // masonry reaches warm white — it still may not clip.
     const bright = cleanedTone([250, 250, 250]);
-    expect(bright.r).toBeLessThanOrEqual(0.9);
+    expect(bright.r).toBeLessThan(1);
+    expect(bright.r).toBeGreaterThan(0.9);
+    // Every facade now lands in the bright paint band, floor included: the
+    // darkest possible sample must not fall back into the mid register.
+    expect(cleanedTone([18, 18, 20]).r).toBeGreaterThan(0.72);
     // The Reichstag pin is pale neutral sandstone, never yellow or muddy.
     const reichstag = HERO_PRISM_TONES.K0002MCN;
     const r = (reichstag >> 16) & 255;

@@ -12,9 +12,9 @@ export type CameraPose = {
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   // West reaches the extrapolated Großer Stern; the other sides gain
-  // the paper-margin ring (visible radius contract: 3310 m).
-  min: new Vector3(-3_050, -120, -3_100),
-  max: new Vector3(2_480, 280, 3_520),
+  // the paper-margin ring (visible radius contract: 3410 m).
+  min: new Vector3(-3_150, -120, -3_200),
+  max: new Vector3(2_580, 280, 3_620),
 };
 
 export function captureCameraPose(
@@ -160,6 +160,48 @@ export function twoFingerPanFlight(
     forward: deltaY / pixelsPerUnit,
     strafe: -deltaX / pixelsPerUnit,
   };
+}
+
+export type TwoFingerGestureMode = "pan" | "undecided" | "zoom";
+
+/**
+ * Travel either axis of a two-finger gesture must accumulate before the
+ * gesture is classified. Until then NOTHING is applied to the camera.
+ */
+export const TWO_FINGER_DECISION_TRAVEL_PX = 12;
+
+/**
+ * How much spread change counts as a pinch relative to midpoint drift.
+ * A real pinch on a phone is never symmetric — one finger carries more of
+ * the motion, so the midpoint drifts while the fingers converge.
+ */
+export const PINCH_DOMINANCE_RATIO = 0.55;
+
+/**
+ * Decide once whether a two-finger gesture is a pinch-zoom or a pan.
+ *
+ * Why pinch wins ties: the previous thresholds let pan claim the gesture
+ * after 10 px of midpoint drift while a pinch needed 18 px of spread change
+ * *and* 1.1× dominance. On a phone the asymmetric finger travel reached the
+ * pan threshold first, the gesture locked to "pan", and the pan branch flew
+ * the rig along the ground heading — the "wenn man pincht, geht es nach
+ * vorne statt näher ran" report. A deliberate two-finger swipe keeps the
+ * finger spread nearly constant, so it still classifies as a pan.
+ */
+export function classifyTwoFingerGesture(travel: {
+  panTravel: number;
+  pinchTravel: number;
+}): TwoFingerGestureMode {
+  const panTravel = Number.isFinite(travel.panTravel)
+    ? Math.abs(travel.panTravel)
+    : 0;
+  const pinchTravel = Number.isFinite(travel.pinchTravel)
+    ? Math.abs(travel.pinchTravel)
+    : 0;
+  if (Math.max(panTravel, pinchTravel) < TWO_FINGER_DECISION_TRAVEL_PX) {
+    return "undecided";
+  }
+  return pinchTravel >= panTravel * PINCH_DOMINANCE_RATIO ? "zoom" : "pan";
 }
 
 /**
