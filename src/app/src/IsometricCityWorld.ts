@@ -22,6 +22,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import { densifyRing } from "./bankCurves";
 import { createGoldelseFigure } from "./goldelse";
 import {
   type VoxelPayload,
@@ -3614,27 +3615,32 @@ export function createLandmarkRefinements(): Group {
   return group;
 }
 
-/** Shape (with holes) from a decimetre polygon ring, in the XZ plane. */
+/**
+ * A decimetre ring as a smooth metre-space outline in world XZ. Everything
+ * that draws a bank goes through here, so the water plate, the quay wall and
+ * the shoreline ink cannot drift apart.
+ */
+export function smoothSurfaceRing(ring: number[][]): [number, number][] {
+  return densifyRing(ring.map(([xDm, zDm]) => [xDm / 10, zDm / 10] as const));
+}
+
+/** Shape (with holes) from a smoothed polygon ring, in the XZ plane. */
 function shapeFromSurface(surface: SurfacePolygon): Shape {
   const shape = new Shape();
-  surface.ring.forEach(([xDm, zDm], index) => {
-    const x = xDm / 10;
-    const y = -zDm / 10;
+  smoothSurfaceRing(surface.ring).forEach(([x, z], index) => {
     if (index === 0) {
-      shape.moveTo(x, y);
+      shape.moveTo(x, -z);
     } else {
-      shape.lineTo(x, y);
+      shape.lineTo(x, -z);
     }
   });
   for (const hole of surface.holes ?? []) {
     const path = new Path();
-    hole.forEach(([xDm, zDm], index) => {
-      const x = xDm / 10;
-      const y = -zDm / 10;
+    smoothSurfaceRing(hole).forEach(([x, z], index) => {
       if (index === 0) {
-        path.moveTo(x, y);
+        path.moveTo(x, -z);
       } else {
-        path.lineTo(x, y);
+        path.lineTo(x, -z);
       }
     });
     shape.holes.push(path);
@@ -3741,43 +3747,80 @@ export function createSmoothSurfaces(
     group.add(waterMesh);
   }
 
-  // Quay walls + shoreline ink follow the REAL bank line, so the
-  // embankment is a smooth curve instead of a cell staircase.
+  // Quay walls, coping and shoreline ink all walk the SAME smoothed bank
+  // line, so the embankment is one continuous curve rather than a set of
+  // facets that disagree with each other by a few centimetres.
   const wallPositions: number[] = [];
   const wallColors: number[] = [];
   const shorePositions: number[] = [];
+  const copingPositions: number[] = [];
   const stone = new Color(0xcdc5b2);
   const stoneAlt = new Color(0xc2b9a5);
+  const coping = new Color(0xe0d9c7);
+  const COPING_WIDTH_M = 1.6;
+  /** Masonry courses, in metres — tied to the bank, not to the subdivision. */
+  const COURSE_M = 7;
+  const wallTopY = bankY + 0.12;
   for (const surface of surfaces.water) {
     if (surface.area_m2 < 400) {
       continue;
     }
-    const ring = surface.ring;
+    const ring = smoothSurfaceRing(surface.ring);
+    // Winding is whatever OSM and the clip left behind, so it is measured
+    // rather than assumed: the coping has to land on the bank, not the water.
+    let signedArea = 0;
     for (let index = 0; index < ring.length; index += 1) {
-      const [x1Dm, z1Dm] = ring[index];
-      const [x2Dm, z2Dm] = ring[(index + 1) % ring.length];
-      const ax = x1Dm / 10;
-      const az = z1Dm / 10;
-      const bx = x2Dm / 10;
-      const bz = z2Dm / 10;
-      if (Math.hypot(bx - ax, bz - az) < 0.2) {
+      const [ax, az] = ring[index];
+      const [bx, bz] = ring[(index + 1) % ring.length];
+      signedArea += ax * bz - bx * az;
+    }
+    const outward = signedArea > 0 ? 1 : -1;
+    let travelled = 0;
+    for (let index = 0; index < ring.length; index += 1) {
+      const [ax, az] = ring[index];
+      const [bx, bz] = ring[(index + 1) % ring.length];
+      const run = Math.hypot(bx - ax, bz - az);
+      if (run < 0.2) {
         continue;
       }
-      const tone = index % 2 === 0 ? stone : stoneAlt;
+      const tone =
+        Math.floor(travelled / COURSE_M) % 2 === 0 ? stone : stoneAlt;
+      travelled += run;
       for (const [px, py, pz] of [
         [ax, waterTopY - BED_DROP, az],
         [bx, waterTopY - BED_DROP, bz],
-        [bx, bankY + 0.12, bz],
+        [bx, wallTopY, bz],
         [ax, waterTopY - BED_DROP, az],
-        [bx, bankY + 0.12, bz],
-        [ax, bankY + 0.12, az],
+        [bx, wallTopY, bz],
+        [ax, wallTopY, az],
       ] as const) {
         wallPositions.push(px, py, pz);
         wallColors.push(tone.r, tone.g, tone.b);
       }
+      // Coping band: the walkable lip on top of the wall, on the land side.
+      const outX = (((bz - az) / run) * COPING_WIDTH_M) * outward;
+      const outZ = ((-(bx - ax) / run) * COPING_WIDTH_M) * outward;
+      for (const [px, py, pz] of [
+        [ax, wallTopY, az],
+        [bx, wallTopY, bz],
+        [bx + outX, wallTopY, bz + outZ],
+        [ax, wallTopY, az],
+        [bx + outX, wallTopY, bz + outZ],
+        [ax + outX, wallTopY, az + outZ],
+      ] as const) {
+        wallPositions.push(px, py, pz);
+        wallColors.push(coping.r, coping.g, coping.b);
+      }
+      // The two inked lines stay in their own runs, so each reads as one
+      // continuous chain rather than alternating water line and kerb.
       shorePositions.push(ax, bankY + 0.16, az, bx, bankY + 0.16, bz);
+      copingPositions.push(
+        ax + outX, bankY + 0.16, az + outZ,
+        bx + outX, bankY + 0.16, bz + outZ,
+      );
     }
   }
+  const inkPositions = shorePositions.concat(copingPositions);
   if (wallPositions.length > 0) {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(wallPositions, 3));
@@ -3797,11 +3840,11 @@ export function createSmoothSurfaces(
     walls.name = "smooth quay walls";
     group.add(walls);
   }
-  if (shorePositions.length > 0) {
+  if (inkPositions.length > 0) {
     const geometry = new BufferGeometry();
     geometry.setAttribute(
       "position",
-      new Float32BufferAttribute(shorePositions, 3),
+      new Float32BufferAttribute(inkPositions, 3),
     );
     const shore = new LineSegments(
       geometry,

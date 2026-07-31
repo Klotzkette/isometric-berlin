@@ -7,8 +7,12 @@ bescheuerte Ufer"). This module exports the TRUE OSM polygon rings so
 the viewer can draw water bodies and parkland as smooth surfaces with a
 continuous shoreline.
 
-Rings are simplified to 0.6 m (well below a drawn line width) and stored
-as decimetre integers in viewer world coordinates:
+Water keeps a much tighter tolerance than parkland: at 0.6 m the Spree
+loses two thirds of its vertices, and every dropped vertex turns a bend
+into a 25 m chord that the viewer then has to draw as a straight facet.
+The bank line is the one edge the eye follows, so it is worth the bytes.
+
+Rings are stored as decimetre integers in viewer world coordinates:
 ``world_x = easting − 389500``, ``world_z = 5820000 − northing``.
 """
 
@@ -38,7 +42,8 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
 SCHEMA_VERSION = 1
-SIMPLIFY_M = 0.6
+WATER_SIMPLIFY_M = 0.15
+PARK_SIMPLIFY_M = 0.6
 MIN_WATER_AREA_M2 = 40.0
 MIN_PARK_AREA_M2 = 250.0
 
@@ -59,7 +64,11 @@ def polygon_parts(geometry: BaseGeometry) -> list[Polygon]:
 
 
 def collect(
-  osm_path: Path, layer: str, bounds: BaseGeometry, min_area: float
+  osm_path: Path,
+  layer: str,
+  bounds: BaseGeometry,
+  min_area: float,
+  simplify_m: float,
 ) -> list[dict[str, Any]]:
   frame = gpd.read_file(osm_path, layer=layer).to_crs(epsg=25833)
   surfaces: list[dict[str, Any]] = []
@@ -71,7 +80,7 @@ def collect(
     if clipped.is_empty:
       continue
     for part in polygon_parts(clipped):
-      simplified = part.simplify(SIMPLIFY_M, preserve_topology=True)
+      simplified = part.simplify(simplify_m, preserve_topology=True)
       if simplified.is_empty or simplified.area < min_area:
         continue
       ring = ring_to_dm(simplified.exterior.coords)
@@ -101,11 +110,16 @@ def build_payload(
   verify_scene_origin(scene_path)
   bounds = project_geometry(load_bounds_polygon(bounds_path))
   return {
-    "parks": collect(osm_path, "parks", bounds, MIN_PARK_AREA_M2),
+    "park_simplify_m": PARK_SIMPLIFY_M,
+    "parks": collect(
+      osm_path, "parks", bounds, MIN_PARK_AREA_M2, PARK_SIMPLIFY_M
+    ),
     "schema_version": SCHEMA_VERSION,
-    "simplify_m": SIMPLIFY_M,
+    "simplify_m": WATER_SIMPLIFY_M,
     "source": ATTRIBUTION,
-    "water": collect(osm_path, "water", bounds, MIN_WATER_AREA_M2),
+    "water": collect(
+      osm_path, "water", bounds, MIN_WATER_AREA_M2, WATER_SIMPLIFY_M
+    ),
   }
 
 

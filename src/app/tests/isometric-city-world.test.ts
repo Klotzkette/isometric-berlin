@@ -667,6 +667,90 @@ describe("smooth OSM water and parkland", () => {
     expect(wallBounds.max.y).toBeGreaterThan(waterBounds.max.y + 3);
     expect(wallBounds.min.y).toBeLessThan(waterBounds.max.y - 2);
   });
+
+  test("draws the shipped banks granularly, with no facets left", async () => {
+    const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
+    const { sharpestTurnDeg } = await import("../src/bankCurves");
+    const surfaces = (await import(
+      "../public/mesh/regierungsviertel/surface-polygons.json"
+    )) as { default: unknown };
+    const payload = surfaces.default as never as Parameters<
+      typeof createSmoothSurfaces
+    >[0];
+    const shore = createSmoothSurfaces(payload, -1.15, 4.2).getObjectByName(
+      "smooth shoreline ink",
+    ) as LineSegments;
+    const position = shore.geometry.getAttribute("position");
+    const runs: number[] = [];
+    const bends: number[] = [];
+    for (let index = 0; index + 3 < position.count; index += 2) {
+      const dx = position.getX(index + 1) - position.getX(index);
+      const dz = position.getZ(index + 1) - position.getZ(index);
+      const ex = position.getX(index + 3) - position.getX(index + 2);
+      const ez = position.getZ(index + 3) - position.getZ(index + 2);
+      const run = Math.hypot(dx, dz);
+      const next = Math.hypot(ex, ez);
+      if (run < 1e-6 || next < 1e-6) {
+        continue;
+      }
+      runs.push(run);
+      // Only where this segment ends exactly where the next begins: ring
+      // ends and jumps between water bodies are not visible facets.
+      const joined = Math.hypot(
+        position.getX(index + 2) - position.getX(index + 1),
+        position.getZ(index + 2) - position.getZ(index + 1),
+      );
+      if (joined < 1e-6) {
+        const dot = (dx * ex + dz * ez) / (run * next);
+        bends.push((Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI);
+      }
+    }
+    expect(bends.length).toBeGreaterThan(500);
+    runs.sort((a, b) => a - b);
+    bends.sort((a, b) => a - b);
+    // Roughly a drawn stroke per segment, and the typical bend a small
+    // fraction of the chords the raw OSM rings hand over.
+    expect(runs[runs.length >> 1]).toBeLessThan(6);
+    const rawBends: number[] = [];
+    for (const surface of payload.water) {
+      if (surface.area_m2 < 400) {
+        continue;
+      }
+      const points = surface.ring.map(
+        ([x, z]) => [x / 10, z / 10] as [number, number],
+      );
+      for (let index = 0; index < points.length; index += 1) {
+        const [ax, az] = points[(index + points.length - 1) % points.length];
+        const [bx, bz] = points[index];
+        const [cx, cz] = points[(index + 1) % points.length];
+        const inRun = Math.hypot(bx - ax, bz - az);
+        const outRun = Math.hypot(cx - bx, cz - bz);
+        if (inRun < 1e-6 || outRun < 1e-6) {
+          continue;
+        }
+        const dot =
+          ((bx - ax) * (cx - bx) + (bz - az) * (cz - bz)) / (inRun * outRun);
+        rawBends.push(
+          (Math.acos(Math.min(1, Math.max(-1, dot))) * 180) / Math.PI,
+        );
+      }
+    }
+    rawBends.sort((a, b) => a - b);
+    expect(bends[bends.length >> 1]).toBeLessThan(
+      rawBends[rawBends.length >> 1] / 2.5,
+    );
+    expect(bends[bends.length >> 1]).toBeLessThan(2);
+    // Built corners survive: the Humboldthafen basin keeps its right angles
+    // even though the bends along the Spree are gone.
+    const basin = payload.water.find(
+      (surface) => surface.name === "Humboldthafen",
+    );
+    expect(basin).toBeDefined();
+    const ring = (basin?.ring ?? []).map(
+      ([x, z]) => [x / 10, z / 10] as [number, number],
+    );
+    expect(sharpestTurnDeg(ring)).toBeGreaterThan(80);
+  });
 });
 
 describe("isometric face shading", () => {
