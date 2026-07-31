@@ -1,5 +1,69 @@
 # Changelog
 
+## v0.43.0
+
+The monuments round: the Goldelse becomes a real winged Viktoria, the other
+memorials get the attributes that make them recognisable, the Pariser Platz
+Starbucks gets its name on the fascia, both Tiergartentunnel mouths become real
+ramps, and the river banks stop being faceted.
+
+- **The Goldelse is a winged Viktoria, not a gold post.** `goldelse.ts` builds
+  the 8.32 m figure on top of the 67 m column as a drawn model in its own local
+  frame (`+x` faces, `+y` up from the soles, `+z` her own left): spread and
+  raised wings as strips between a leading and a trailing polyline, the robe
+  silhouette as a tapered prism, the laurel wreath in her raised hand as an
+  exact annulus, and the field standard with the Iron Cross in the other. The
+  cross is four convex trapezoids rather than one concave plate, because the fan
+  triangulation the rest of the figure uses cannot close a concave outline. Flat
+  gold (`0xd4af37`) with the scene's ink contours, so she reads the same in Day,
+  Night and Minecraft. The column below her gained its 60 gilded gun barrels
+  across the lower three drums, Doric capitals and bases on the Säulenhalle
+  colonnade, and the Salviati mosaic ring at radius 16.6 m — outside the
+  23 × 23 m socle, whose corners reach 16.26 m.
+- **The Soviet Memorial has its tanks *and* its howitzers.** Two T-34s and two
+  ML-20 152 mm howitzers, each on its own plinth (1.15 m for the tanks, 0.85 m
+  for the guns) flanking the colonnade, with cradle, gun shield, tube, muzzle
+  brake, split trails and carriage wheels.
+- **The Gedenkort für Polen 1939-1945 exists.** The memorial stone on its paved
+  field, at the surveyed OSM position and rotated onto the site. Its
+  `geometryStatus` records that the permanent Deutsch-Polnisches Haus is *not
+  built* and is deliberately not modelled — the scene does not invent buildings
+  that do not exist yet.
+- **The memorial to persecuted homosexuals actually leans.** Its body now sits
+  in a tilted sub-group, which is the whole point of the Elmgreen & Dragset
+  cuboid: a tipped-over Holocaust-memorial stele with a window cut into it.
+- **Sinti and Roma: the rim inscription is there.** A ring band around the basin
+  edge carrying Santino Spinelli's poem "Auschwitz".
+- **Goethe sharpened.** The cloak is a proper cone silhouette, the arms and the
+  scroll are drawn separately, and the three allegorical figures round the base
+  have heads.
+- **"STARBUCKS" is drawn on the Pariser Platz fascia.** The alphabet and the
+  canvas renderer moved out of `reichstagInscription.ts` into a shared
+  `drawnLettering.ts` (which gained A, B and R); the Reichstag module now holds
+  only the Reichstag's own facts. The shopfront is a glazed bay with mullions,
+  awning and pavement tables, and the fascia carries stroked capitals at 42 cm
+  cap height. No bitmap logo and no siren roundel — neither can be reproduced
+  from the open sources this project is allowed to use.
+- **Both Tiergartentunnel mouths are real ramps.** The tube itself is a cutaway
+  that is only visible from underneath, so the mouths are built as their own
+  always-visible surface group in `TunnelPortals.ts`: a 260 m open trough per
+  side (just under 5 %, which is what the real B 96 ramps are built to),
+  retaining walls and noise barriers that stay upright while the carriageway
+  slopes, dashed lane markings running down into the tube, and a portal frame
+  with jambs at the foot. The plan course is the committed OSM centreline; only
+  the vertical profile is engineered, because the manifest carries a single
+  schematic depth and no gradient.
+- **The river banks are granular.** Two causes, two fixes. The exporter was
+  simplifying water at 0.6 m, which threw away two thirds of the Spree's
+  surveyed vertices and turned every bend into a ~25 m chord; water now keeps a
+  0.15 m tolerance (parkland stays at 0.6 m). And the viewer drew whatever
+  vertices it got edge for edge, so `bankCurves.ts` now runs every ring through
+  a corner-preserving cubic Hermite subdivision — the curve passes *through* the
+  surveyed vertices, so no water body moves, and turns beyond 34° stay sharp so
+  the Humboldthafen basin keeps its right angles. The water plate, the quay
+  wall, the new coping band and the shoreline ink all walk that same smoothed
+  line. The median bend along the drawn bank drops from about 4° to under 2°.
+
 ## v0.42.0
 
 Three things the owner asked for: stop the flicker that happens *while* zooming,
