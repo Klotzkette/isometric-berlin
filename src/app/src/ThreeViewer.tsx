@@ -52,6 +52,7 @@ import {
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
 import { createCivicLandmarks } from "./CivicLandmarks";
+import { createTunnelPortals } from "./TunnelPortals";
 import {
   createMemorialLandmarks,
   memorialFocusDistance,
@@ -257,6 +258,7 @@ type Runtime = {
   sun: DirectionalLight;
   tunnel: Group;
   tunnelBounds: Box3 | null;
+  tunnelPortals: Group;
   tunnelPoints: TunnelPayload["points"] | null;
   prismPayloadPromise?: Promise<PrismPayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
@@ -1940,6 +1942,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         settledSurfaceReady: false,
         sun,
         tunnel: new Group(),
+        tunnelPortals: new Group(),
         tunnelBounds: null,
         tunnelPoints: null,
         isoWorld: null,
@@ -2833,6 +2836,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           runtime.tunnelPoints = manifest.tiergartentunnel.points;
           scene.add(runtime.tunnel);
+          runtime.tunnelPortals.removeFromParent();
+          runtime.tunnelPortals = createTunnelPortals(manifest.tiergartentunnel);
+          markAuthoredFlatUnlit(runtime.tunnelPortals);
+          scene.add(runtime.tunnelPortals);
+          applyLightingToRoot(runtime.tunnelPortals, runtime.lightingMode);
           runtime.tunnelBounds = new Box3()
             .setFromObject(runtime.tunnel)
             .expandByScalar(5);
