@@ -44,6 +44,9 @@ const MEMORIAL_GROUND_Y: Record<string, number> = {
   "Goethe-Denkmal": 4.69,
   "Mahnmal für verfolgte Zeugen Jehovas": 3.87,
   "Sowjetisches Ehrenmal Tiergarten": 4.79,
+  // Not a direct mesh sample: the Gedenkort sits on the Spreebogen lawn, so
+  // this is matched to the surrounding terrace rather than sampled per point.
+  "Gedenkort für Polen 1939-1945": 4.6,
 };
 
 function placeOnOfficialMesh(group: Group, anchor: MemorialLandmark): void {
@@ -257,6 +260,16 @@ function createSintiRomaMemorial(anchor: MemorialLandmark): Group {
     [0, 0.48, 0],
   );
   stone.rotation.y = Math.PI / 6;
+  // Santino Spinelli's poem "Auschwitz" runs round the rim of the basin in
+  // three languages; it reads as a darker inscription band from above.
+  const band = addMesh(
+    group,
+    "Sinti and Roma memorial rim inscription band",
+    new RingGeometry(7.62, 8.3, 72),
+    modelMaterial(0x2f3335, { roughness: 0.5 }),
+    [0, 0.3, 0],
+  );
+  band.rotation.x = -Math.PI / 2;
   const path = addMesh(
     group,
     "Sinti and Roma memorial remembrance path",
@@ -274,16 +287,23 @@ function createHomosexualMemorial(anchor: MemorialLandmark): Group {
   placeOnOfficialMesh(group, anchor);
   group.rotation.y = -0.18;
   group.userData.geometryStatus =
-    "Characteristic concrete cuboid and viewing window from official and licensed visual references";
+    "Characteristic tilted concrete cuboid and viewing window from official and licensed visual references";
+  // Elmgreen & Dragset's cuboid leans — it echoes a single skewed stele of
+  // the Holocaust memorial across the road, so the tilt is the whole point.
+  const tilted = new Group();
+  tilted.name = "Memorial to persecuted homosexuals tilted body";
+  tilted.rotation.z = 0.06;
+  tilted.rotation.x = -0.045;
+  group.add(tilted);
   addBox(
-    group,
+    tilted,
     "Memorial to persecuted homosexuals concrete cuboid",
     [3.7, 4.2, 2.55],
     [0, 2.1, 0],
     modelMaterial(0x555b5d, { roughness: 0.84 }),
   );
   const window = addMesh(
-    group,
+    tilted,
     "Memorial to persecuted homosexuals viewing window",
     new PlaneGeometry(1.28, 0.88),
     nightEmitter(modelMaterial(0x101819, { roughness: 0.18 }), 0xd7e6de, 0.5),
@@ -293,24 +313,85 @@ function createHomosexualMemorial(anchor: MemorialLandmark): Group {
   return group;
 }
 
-function addTank(group: Group, name: string, x: number): void {
+/**
+ * The Gedenkort für Polen 1939-1945 west of the Reichstag: a low inscribed
+ * memorial stone on a paved field, which is what stands there today while the
+ * Deutsch-Polnisches Haus is still being planned.
+ */
+function createPolishMemorial(anchor: MemorialLandmark): Group {
+  const group = new Group();
+  group.name = anchor.name;
+  placeOnOfficialMesh(group, anchor);
+  group.rotation.y = 0.22;
+  group.userData.geometryStatus =
+    "Memorial stone and paved field only; the permanent Deutsch-Polnisches Haus is not built and is deliberately not modelled";
+  const paving = addBox(
+    group,
+    "Polish memorial paved field",
+    [11, 0.12, 8],
+    [0, 0.06, 0],
+    modelMaterial(0xa9a496, { roughness: 0.94 }),
+  );
+  paving.castShadow = false;
+  const stone = addBox(
+    group,
+    "Polish memorial inscribed stone",
+    [2.9, 1.05, 0.9],
+    [0, 0.62, 0],
+    modelMaterial(0x8b8477, { roughness: 0.8 }),
+  );
+  stone.rotation.x = -0.09;
+  addBox(
+    group,
+    "Polish memorial bronze inscription plate",
+    [2.3, 0.62, 0.06],
+    [0, 0.68, 0.47],
+    modelMaterial(0x6d5a35, { metalness: 0.4, roughness: 0.52 }),
+  );
+  const border: InstanceTransform[] = [-1, 1].flatMap((side) => [
+    { position: [side * 5.2, 0.16, 0], scale: [0.3, 1, 8] },
+    { position: [0, 0.16, side * 3.8], scale: [11, 1, 0.3] },
+  ]);
+  addInstances(
+    group,
+    "Polish memorial field kerb",
+    new BoxGeometry(1, 0.2, 1),
+    modelMaterial(0x8e897c, { roughness: 0.9 }),
+    border,
+  );
+  return group;
+}
+
+function addTank(group: Group, name: string, x: number, lift = 0): void {
   const armor = modelMaterial(0x496451, { metalness: 0.28, roughness: 0.62 });
   const dark = modelMaterial(0x222a25, { metalness: 0.34, roughness: 0.68 });
   const hull = addBox(
     group,
     `${name} hull`,
     [3.05, 1.18, 5.45],
-    [x, 1.28, 8],
+    [x, 1.28 + lift, 8],
     armor,
   );
   hull.userData.vehicleType = "T-34/76";
-  addBox(group, `${name} left track`, [0.52, 0.78, 5.9], [x - 1.55, 0.62, 8], dark);
-  addBox(group, `${name} right track`, [0.52, 0.78, 5.9], [x + 1.55, 0.62, 8], dark);
+  addBox(
+    group,
+    `${name} left track`,
+    [0.52, 0.78, 5.9],
+    [x - 1.55, 0.62 + lift, 8],
+    dark,
+  );
+  addBox(
+    group,
+    `${name} right track`,
+    [0.52, 0.78, 5.9],
+    [x + 1.55, 0.62 + lift, 8],
+    dark,
+  );
   const wheelTransforms: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let index = 0; index < 5; index += 1) {
       wheelTransforms.push({
-        position: [x + side * 1.82, 0.62, 5.92 + index * 1.04],
+        position: [x + side * 1.82, 0.62 + lift, 5.92 + index * 1.04],
         rotation: [0, 0, Math.PI / 2],
       });
     }
@@ -326,7 +407,7 @@ function addTank(group: Group, name: string, x: number): void {
     group,
     `${name} sloped front glacis`,
     [2.78, 0.62, 1.18],
-    [x, 1.52, 5.38],
+    [x, 1.52 + lift, 5.38],
     armor,
   );
   glacis.rotation.x = -0.32;
@@ -334,7 +415,7 @@ function addTank(group: Group, name: string, x: number): void {
     group,
     `${name} engine deck`,
     [2.74, 0.28, 1.48],
-    [x, 1.91, 9.92],
+    [x, 1.91 + lift, 9.92],
     armor,
   );
   addMesh(
@@ -342,27 +423,27 @@ function addTank(group: Group, name: string, x: number): void {
     `${name} turret`,
     new CylinderGeometry(1.16, 1.4, 0.94, 12),
     armor,
-    [x, 2.33, 7.82],
+    [x, 2.33 + lift, 7.82],
   );
   addMesh(
     group,
     `${name} command hatch`,
     new CylinderGeometry(0.42, 0.46, 0.16, 12),
     dark,
-    [x + 0.34, 2.88, 7.94],
+    [x + 0.34, 2.88 + lift, 7.94],
   );
   addMesh(
     group,
     `${name} gun mantlet`,
     new SphereGeometry(0.43, 12, 8),
     armor,
-    [x, 2.36, 6.7],
+    [x, 2.36 + lift, 6.7],
   ).scale.set(1.35, 0.82, 0.58);
   addSegment(
     group,
     `${name} 76 mm barrel`,
-    new Vector3(x, 2.38, 6.62),
-    new Vector3(x, 2.45, 3.15),
+    new Vector3(x, 2.38 + lift, 6.62),
+    new Vector3(x, 2.45 + lift, 3.15),
     0.14,
     dark,
   );
@@ -372,9 +453,70 @@ function addTank(group: Group, name: string, x: number): void {
       `${name} front headlamp ${side < 0 ? "left" : "right"}`,
       new SphereGeometry(0.17, 10, 7),
       modelMaterial(0xe5d6a4, { metalness: 0.18, roughness: 0.32 }),
-      [x + side * 0.92, 1.72, 5.12],
+      [x + side * 0.92, 1.72 + lift, 5.12],
     );
   }
+}
+
+/**
+ * One of the two ML-20 152 mm gun-howitzers that stand beside the T-34s.
+ * Split-trail carriage, twin road wheels, shield and the long tube with its
+ * muzzle brake — the features that tell it apart from the tanks at a glance.
+ */
+function addHowitzer(
+  group: Group,
+  name: string,
+  x: number,
+  lift: number,
+): void {
+  const steel = modelMaterial(0x4c6555, { metalness: 0.3, roughness: 0.6 });
+  const dark = modelMaterial(0x242c26, { metalness: 0.34, roughness: 0.66 });
+  addBox(group, `${name} cradle`, [1.1, 0.62, 2.1], [x, 1.18 + lift, 8], steel);
+  const shield = addBox(
+    group,
+    `${name} gun shield`,
+    [2.5, 1.35, 0.12],
+    [x, 1.5 + lift, 7.15],
+    steel,
+  );
+  shield.rotation.x = 0.16;
+  addSegment(
+    group,
+    `${name} 152 mm tube`,
+    new Vector3(x, 1.42 + lift, 7.1),
+    new Vector3(x, 2.2 + lift, 2.6),
+    0.11,
+    dark,
+  );
+  addMesh(
+    group,
+    `${name} muzzle brake`,
+    new CylinderGeometry(0.19, 0.19, 0.5, 10),
+    dark,
+    [x, 2.24 + lift, 2.45],
+  ).rotation.x = Math.PI / 2;
+  // Split trails, spread the way the piece is displayed.
+  for (const side of [-1, 1]) {
+    addSegment(
+      group,
+      `${name} split trail ${side < 0 ? "left" : "right"}`,
+      new Vector3(x, 0.95 + lift, 8.4),
+      new Vector3(x + side * 1.5, 0.35 + lift, 12.4),
+      0.12,
+      steel,
+    );
+  }
+  const wheels: InstanceTransform[] = [-1, 1].map((side) => ({
+    position: [x + side * 1.16, 0.72 + lift, 8],
+    rotation: [0, 0, Math.PI / 2],
+  }));
+  addInstances(
+    group,
+    `${name} two carriage wheels`,
+    new CylinderGeometry(0.72, 0.72, 0.28, 14),
+    dark,
+    wheels,
+  );
 }
 
 function createSovietMemorial(anchor: MemorialLandmark): Group {
@@ -464,8 +606,30 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
     0.16,
     bronze,
   );
-  addTank(group, "Soviet memorial T-34 west", -25);
-  addTank(group, "Soviet memorial T-34 east", 25);
+  // Two T-34s and two ML-20 gun-howitzers, each raised on its own stone
+  // plinth the way they stand on the forecourt today.
+  const TANK_PLINTH = 1.15;
+  const GUN_PLINTH = 0.85;
+  for (const side of [-1, 1]) {
+    addBox(
+      group,
+      "Soviet memorial T-34 plinth",
+      [6.2, TANK_PLINTH, 9.4],
+      [side * 25, TANK_PLINTH / 2, 8],
+      stone,
+    );
+    addBox(
+      group,
+      "Soviet memorial howitzer plinth",
+      [5.2, GUN_PLINTH, 8.6],
+      [side * 36.5, GUN_PLINTH / 2, 8.6],
+      stone,
+    );
+  }
+  addTank(group, "Soviet memorial T-34 west", -25, TANK_PLINTH);
+  addTank(group, "Soviet memorial T-34 east", 25, TANK_PLINTH);
+  addHowitzer(group, "Soviet memorial ML-20 howitzer west", -36.5, GUN_PLINTH);
+  addHowitzer(group, "Soviet memorial ML-20 howitzer east", 36.5, GUN_PLINTH);
   return group;
 }
 
@@ -491,6 +655,16 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     marble,
     [0, 5.65, 0],
   );
+  // Schaper's Goethe wears a long cloak over the left shoulder and holds a
+  // scroll; the cloak is what gives the figure its wide, readable silhouette.
+  const cloak = addMesh(
+    group,
+    "Goethe standing figure cloak",
+    new ConeGeometry(0.98, 2.9, 14, 1, true),
+    marble,
+    [-0.08, 5.4, -0.06],
+  );
+  cloak.rotation.z = 0.05;
   addMesh(
     group,
     "Goethe standing figure head",
@@ -498,20 +672,51 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     marble,
     [0, 7.55, 0],
   );
-  const allegories: InstanceTransform[] = [0, 1, 2].map((index) => {
-    const angle = (index / 3) * Math.PI * 2;
-    return {
-      position: [Math.cos(angle) * 2.9, 1.45, Math.sin(angle) * 2.9],
-      rotation: [0, -angle, Math.PI / 2],
-      scale: [0.78, 1.1, 0.78],
-    };
-  });
+  addSegment(
+    group,
+    "Goethe standing figure right arm",
+    new Vector3(0.62, 6.5, 0.1),
+    new Vector3(0.78, 5.35, 0.62),
+    0.19,
+    marble,
+  );
+  addSegment(
+    group,
+    "Goethe standing figure left arm",
+    new Vector3(-0.62, 6.5, 0.05),
+    new Vector3(-0.5, 5.5, 0.5),
+    0.19,
+    marble,
+  );
+  addBox(
+    group,
+    "Goethe standing figure scroll",
+    [0.16, 0.16, 0.62],
+    [0.82, 5.28, 0.72],
+    marble,
+  );
+  // Lyrik, Forschung and Drama sit against the drum: seated bodies with
+  // separate heads, so each group reads as a figure and not a lump.
+  const allegoryAngles = [0, 1, 2].map((index) => (index / 3) * Math.PI * 2);
   addInstances(
     group,
     "Goethe memorial three allegorical figure groups",
     new CapsuleGeometry(0.62, 1.65, 4, 8),
     marble,
-    allegories,
+    allegoryAngles.map((angle) => ({
+      position: [Math.cos(angle) * 2.9, 1.45, Math.sin(angle) * 2.9],
+      rotation: [0, -angle, Math.PI / 2],
+      scale: [0.78, 1.1, 0.78],
+    })),
+  );
+  addInstances(
+    group,
+    "Goethe memorial allegorical figure heads",
+    new SphereGeometry(0.34, 12, 9),
+    marble,
+    allegoryAngles.map((angle) => ({
+      position: [Math.cos(angle) * 3.35, 2.28, Math.sin(angle) * 3.35],
+    })),
   );
   return group;
 }
@@ -640,6 +845,7 @@ const BUILDERS: Record<string, (landmark: MemorialLandmark) => Group> = {
     createSintiRomaMemorial,
   "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen":
     createHomosexualMemorial,
+  "Gedenkort für Polen 1939-1945": createPolishMemorial,
   "Goethe-Denkmal": createGoetheMemorial,
   "Mahnmal für verfolgte Zeugen Jehovas": createJehovahsWitnessesMemorial,
   "Sowjetisches Ehrenmal Tiergarten": createSovietMemorial,
@@ -670,6 +876,9 @@ export function memorialFocusDistance(name: string): number | null {
   }
   if (name === "Goethe-Denkmal") {
     return 58;
+  }
+  if (name === "Gedenkort für Polen 1939-1945") {
+    return 34;
   }
   if (
     name ===
