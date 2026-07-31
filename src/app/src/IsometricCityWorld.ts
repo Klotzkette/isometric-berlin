@@ -22,6 +22,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import { createGoldelseFigure } from "./goldelse";
 import {
   type VoxelPayload,
   WATER_TOP_Y,
@@ -2517,36 +2518,68 @@ export function createSiegessaeule(): Group {
   addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xcbc8be);
   addPart(boxTriangles(SX, GROUND_TOP + 4.9, SZ, axis, 23, 7, 23), 0x9a5f4c);
   addPart(prismTriangles(SX, GROUND_TOP + 10.4, SZ, 9, 4, 12), 0xcbc8be);
+  // Four sandstone drums (the fourth was added when the column was moved in
+  // 1938/39, taking it from 60.5 m to today's 67 m).
+  const DRUMS = [
+    [4.4, 14],
+    [4.0, 13],
+    [3.6, 12],
+    [3.2, 11],
+  ] as const;
   let columnBase = GROUND_TOP + 12.4;
-  for (const [radius, height] of [
-    [4.4, 14], [4.0, 13], [3.6, 12], [3.2, 11],
-  ] as const) {
+  for (const [radius, height] of DRUMS) {
     addPart(prismTriangles(SX, columnBase + height / 2, SZ, radius, height, 12), 0xc9b98f);
     columnBase += height;
     addPart(prismTriangles(SX, columnBase + 0.4, SZ, radius + 0.5, 0.8, 12), 0xd4af37);
     columnBase += 0.8;
   }
   addPart(prismTriangles(SX, columnBase + 1.1, SZ, 4.6, 2.2, 12), 0xcbc8be);
-  // Gilded Viktoria: body, raised wreath arm, wings.
-  addPart(boxTriangles(SX, columnBase + 5.4, SZ, axis, 2.2, 6.4, 2.2), 0xd4af37);
-  addPart(boxTriangles(SX, columnBase + 9.2, SZ, axis, 0.7, 3.4, 0.7), 0xd4af37);
-  addPart(boxTriangles(SX, columnBase + 6.6, SZ, [axis[1], -axis[0]], 5.6, 2.6, 0.5), 0xd4af37);
-  // Strack's documented apparatus: the cannon-barrel flutes that run up
-  // every drum, the relief band on the sandstone socle, and the ring of
-  // granite columns of the Säulenhalle around it.
-  const monumentInk: number[] = [];
+  // Drake's gilded Viktoria. She faces west along the Straße des 17. Juni
+  // axis towards Ernst-Reuter-Platz, as she has since the 1939 move from the
+  // Königsplatz; `axis` runs Pariser Platz -> Großer Stern, so it already
+  // points that way.
+  const goldelse = createGoldelseFigure({
+    base: [SX, columnBase + 2.2, SZ],
+    facing: axis,
+  });
+  for (const part of goldelse.parts) {
+    addPart(part.triangles, part.tone);
+  }
+  // Strack's documented apparatus: the gilded cannon barrels set into the
+  // flutes, the relief band on the sandstone socle, and the ring of granite
+  // columns of the Säulenhalle around it.
+  const monumentInk: number[] = [...goldelse.inkSegments];
+  // Sixty captured gun barrels are gilded into the flutes of the lower three
+  // drums; the fourth drum was added in 1938 and carries plain flutes.
+  const BARRELS_PER_DRUM = 20;
   let fluteBase = GROUND_TOP + 12.4;
-  for (const [radius, height] of [
-    [4.4, 14], [4.0, 13], [3.6, 12], [3.2, 11],
-  ] as const) {
-    for (let flute = 0; flute < 12; flute += 1) {
-      const angle = (flute / 12) * Math.PI * 2;
+  DRUMS.forEach(([radius, height], drum) => {
+    const gilded = drum < 3;
+    const count = gilded ? BARRELS_PER_DRUM : 12;
+    for (let flute = 0; flute < count; flute += 1) {
+      const angle = (flute / count) * Math.PI * 2;
       const fx = SX + Math.cos(angle) * (radius + 0.04);
       const fz = SZ + Math.sin(angle) * (radius + 0.04);
       monumentInk.push(fx, fluteBase + 0.4, fz, fx, fluteBase + height - 0.4, fz);
+      if (gilded) {
+        // The barrel itself, proud of the shaft: a slim gilded rod that reads
+        // as a highlight in the flute rather than as a drawn line only.
+        addPart(
+          prismTriangles(
+            SX + Math.cos(angle) * (radius + 0.12),
+            fluteBase + height / 2,
+            SZ + Math.sin(angle) * (radius + 0.12),
+            0.17,
+            height - 1.2,
+            5,
+          ),
+          0xd4af37,
+          false,
+        );
+      }
     }
     fluteBase += height + 0.8;
-  }
+  });
   for (const y of [GROUND_TOP + 2.6, GROUND_TOP + 7.2]) {
     for (const zSide of [-11.5, 11.5]) {
       monumentInk.push(SX - 11.5, y, SZ + zSide, SX + 11.5, y, SZ + zSide);
@@ -2566,19 +2599,40 @@ export function createSiegessaeule(): Group {
   }
   for (let column = 0; column < 16; column += 1) {
     const angle = (column / 16) * Math.PI * 2;
-    addPart(
-      prismTriangles(
-        SX + Math.cos(angle) * 17.4,
-        GROUND_TOP + 4.6,
-        SZ + Math.sin(angle) * 17.4,
-        0.85,
-        6.4,
-        8,
-      ),
-      0xcbc8be,
-    );
+    const cxx = SX + Math.cos(angle) * 17.4;
+    const czz = SZ + Math.sin(angle) * 17.4;
+    addPart(prismTriangles(cxx, GROUND_TOP + 4.6, czz, 0.85, 6.4, 8), 0xcbc8be);
+    // Doric capital and base, so the ring reads as a colonnade rather than
+    // as sixteen plain posts.
+    addPart(prismTriangles(cxx, GROUND_TOP + 7.95, czz, 1.05, 0.5, 8), 0xd6d2c7);
+    addPart(prismTriangles(cxx, GROUND_TOP + 1.6, czz, 1.02, 0.6, 8), 0xd6d2c7);
   }
   addPart(prismTriangles(SX, GROUND_TOP + 8.3, SZ, 19.2, 1, 16), 0xbfbcb2);
+  // Antonio Salviati's glass mosaic (1876, after Anton von Werner's cartoon
+  // of the founding of the Reich) lines the wall of the Säulenhalle behind
+  // the colonnade. Drawn as a gold-ground band with its panel divisions
+  // inked, which is what the mosaic reads as from outside the ring.
+  addPart(prismTriangles(SX, GROUND_TOP + 4.9, SZ, 16.6, 5.2, 32), 0xa8843c, false);
+  for (let panel = 0; panel < 16; panel += 1) {
+    const angle = ((panel + 0.5) / 16) * Math.PI * 2;
+    const mx = SX + Math.cos(angle) * 16.65;
+    const mz = SZ + Math.sin(angle) * 16.65;
+    monumentInk.push(mx, GROUND_TOP + 2.4, mz, mx, GROUND_TOP + 7.4, mz);
+  }
+  for (const y of [GROUND_TOP + 2.4, GROUND_TOP + 7.4]) {
+    for (let step = 0; step < 32; step += 1) {
+      const a0 = (step / 32) * Math.PI * 2;
+      const a1 = ((step + 1) / 32) * Math.PI * 2;
+      monumentInk.push(
+        SX + Math.cos(a0) * 16.65,
+        y,
+        SZ + Math.sin(a0) * 16.65,
+        SX + Math.cos(a1) * 16.65,
+        y,
+        SZ + Math.sin(a1) * 16.65,
+      );
+    }
+  }
 
   // Bismarck-Nationaldenkmal (Begas, 1901): granite pedestal, bronze
   // chancellor, four allegorical bronze groups at the corners.
