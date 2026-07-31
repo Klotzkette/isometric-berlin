@@ -14,6 +14,14 @@ const landmarks = [
     name: "Carillon im Tiergarten",
     world: [-326.839, 8, 140.633] as [number, number, number],
   },
+  {
+    name: "Pariser Platz",
+    world: [497.05, 8, 292.85] as [number, number, number],
+  },
+  {
+    name: "Starbucks Pariser Platz",
+    world: [559.573, 8, 253.471] as [number, number, number],
+  },
 ];
 
 describe("cultural and Spree recognition details", () => {
@@ -213,5 +221,19 @@ describe("cultural and Spree recognition details", () => {
       -259.21, -1.211, -219.53,
     ]);
     expect(culturalFocusCamera("Reichstagsgebäude")).toBeNull();
+  });
+
+  test("gives the Pariser Platz Starbucks a drawn fascia, not a bitmap logo", () => {
+    const details = createCulturalLandmarks(landmarks);
+    const shop = details.getObjectByName("Starbucks Pariser Platz")!;
+    expect(shop).not.toBeNull();
+    const fascia = details.getObjectByName("Starbucks fascia sign")!;
+    expect(fascia.userData.lettering).toBe("STARBUCKS");
+    expect(details.getObjectByName("Starbucks glazed shopfront")).not.toBeNull();
+    // Turned towards the square, not left on the default bearing.
+    expect(Math.abs(shop.rotation.y)).toBeGreaterThan(0.1);
+    const bounds = new Box3().setFromObject(shop);
+    expect(bounds.max.y - bounds.min.y).toBeGreaterThan(5);
+    expect(bounds.max.y - bounds.min.y).toBeLessThan(9);
   });
 });
