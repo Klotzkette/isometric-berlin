@@ -10,6 +10,7 @@ The viewer must show the attribution string defined in NOTICE.md.
 from __future__ import annotations
 
 import argparse
+import re
 import time
 from pathlib import Path
 from typing import Any
@@ -53,6 +54,49 @@ OSM_TAGS = {
   "usage": True,
 }
 USER_AGENT = "OSMnx/2.0 isometric-berlin/0.1 (Klotzkette)"
+
+# Every tag `split_layers` and `normalize_for_file` can read. The Overpass path
+# gets these as columns for free; the PBF path has to lift most of them out of
+# GDAL's `other_tags` hstore, so the list is named once here.
+TAG_COLUMNS = (
+  "highway",
+  "waterway",
+  "water",
+  "natural",
+  "leisure",
+  "playground",
+  "landuse",
+  "railway",
+  "amenity",
+  "tourism",
+  "historic",
+  "office",
+  "diplomatic",
+  "government",
+  "bridge",
+  "tunnel",
+  "covered",
+  "layer",
+  "service",
+  "usage",
+  "surface",
+  "material",
+  "height",
+  "circumference",
+  "leaf_type",
+  "leaf_cycle",
+  "species",
+  "genus",
+  "access",
+  "wheelchair",
+)
+
+# GDAL's OSM driver splits the extract across geometry types. `other_relations`
+# is skipped: it holds route/boundary relations that carry no surface geometry
+# this project draws.
+PBF_LAYERS = ("points", "lines", "multilinestrings", "multipolygons")
+
+_HSTORE_PAIR = re.compile(r'"((?:[^"\\]|\\.)*)"\s*=>\s*"((?:[^"\\]|\\.)*)"')
 
 # Overpass resets the connection when the whole task-09 polygon is asked for
 # every tag at once (the response runs to hundreds of megabytes). Fetching in
@@ -207,6 +251,67 @@ def fetch_osm_features(
   return features.to_crs(BERLIN_PROJECTED)
 
 
+def parse_hstore(value: object) -> dict[str, str]:
+  """GDAL's `other_tags` hstore into a plain dict.
+
+  Values can contain escaped quotes, so the pairs are matched rather than split.
+  """
+  if not isinstance(value, str) or not value:
+    return {}
+  return {
+    key.replace('\\"', '"').replace("\\\\", "\\"): val.replace('\\"', '"').replace(
+      "\\\\", "\\"
+    )
+    for key, val in _HSTORE_PAIR.findall(value)
+  }
+
+
+def read_pbf_layer(
+  pbf_path: Path, layer: str, bbox: tuple[float, float, float, float]
+) -> gpd.GeoDataFrame:
+  """One GDAL OSM layer, with `other_tags` lifted into real columns.
+
+  The driver promotes only a handful of tags to columns, and which ones differs
+  per layer — `railway` is a column on lines but lives in the hstore on
+  multipolygons. Reading the hstore for every layer keeps the result uniform.
+  """
+  frame = gpd.read_file(pbf_path, layer=layer, bbox=bbox, engine="pyogrio")
+  if frame.empty:
+    return gpd.GeoDataFrame(geometry=[], crs=WGS84)
+  tags = [parse_hstore(value) for value in frame.get("other_tags", [])]
+  for column in TAG_COLUMNS:
+    promoted = [tag.get(column) for tag in tags]
+    if column in frame.columns:
+      # A real column wins; the hstore only fills the gaps it left.
+      frame[column] = frame[column].where(frame[column].notna(), promoted)
+    else:
+      frame[column] = promoted
+  frame = frame.rename(columns={"osm_id": "id"})
+  frame["element"] = layer
+  return frame.drop(columns=["other_tags"], errors="ignore")
+
+
+def load_pbf_features(pbf_path: Path, bounds_path: Path) -> gpd.GeoDataFrame:
+  """The Geofabrik extract, restricted to the bounds and reprojected.
+
+  Overpass is the documented first choice, but it answers "server is probably
+  too busy" for the whole task-09 hull often enough that the extract is the
+  dependable path. Same tags, same schema — only the transport differs.
+  """
+  polygon = load_bounds_polygon(bounds_path)
+  bbox = polygon.bounds
+  frames: list[gpd.GeoDataFrame] = []
+  for layer in PBF_LAYERS:
+    part = read_pbf_layer(pbf_path, layer, bbox)
+    print(f"{layer}: {len(part)} features", flush=True)
+    if not part.empty:
+      frames.append(part)
+  if not frames:
+    return gpd.GeoDataFrame(geometry=[], crs=WGS84)
+  features = gpd.GeoDataFrame(concat(frames, ignore_index=True), crs=WGS84)
+  return features.to_crs(BERLIN_PROJECTED)
+
+
 def split_layers(
   features: gpd.GeoDataFrame, bounds_path: Path
 ) -> dict[str, gpd.GeoDataFrame]:
@@ -243,12 +348,30 @@ def split_layers(
 
 
 def write_layers(layers: dict[str, gpd.GeoDataFrame], out_path: Path) -> None:
+  """The seven layers as one GeoPackage, kept under the 5 MiB repository cap.
+
+  Two levers, both lossless for what the generators read. The rtree indexes
+  cost ~1.7 MB and nothing in this project queries the file spatially — every
+  consumer loads a whole layer. Columns that are entirely null in a layer cost
+  one SQLite header byte per row and carry no information; `_filter`,
+  `_has_value` and `_isin` already treat a missing column as all-null, so
+  dropping them is the same data.
+  """
   out_path.parent.mkdir(parents=True, exist_ok=True)
   if out_path.exists():
     out_path.unlink()
   for layer_name, gdf in layers.items():
-    normalized = normalize_for_file(gdf)
-    normalized.to_file(out_path, layer=layer_name, driver="GPKG")
+    normalized = drop_empty_columns(normalize_for_file(gdf))
+    normalized.to_file(out_path, layer=layer_name, driver="GPKG", SPATIAL_INDEX="NO")
+
+
+def drop_empty_columns(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+  empty = [
+    column
+    for column in gdf.columns
+    if column != "geometry" and not gdf[column].notna().any()
+  ]
+  return gdf.drop(columns=empty) if empty else gdf
 
 
 def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -332,15 +455,27 @@ def main() -> None:
   parser.add_argument("--timeout", type=int, default=180)
   parser.add_argument("--tile-span", type=float, default=OSM_TILE_SPAN_DEG)
   parser.add_argument(
+    "--pbf",
+    type=Path,
+    default=None,
+    help=(
+      "Read from a local Geofabrik .osm.pbf instead of Overpass. "
+      "The extract stays in the gitignored raw/ tree."
+    ),
+  )
+  parser.add_argument(
     "--raw-geojson",
     type=Path,
     default=Path("geo_data/regierungsviertel/raw/osm_overpass.json"),
   )
   args = parser.parse_args()
 
-  features = fetch_osm_features(
-    args.bounds, timeout=args.timeout, tile_span=args.tile_span
-  )
+  if args.pbf is not None:
+    features = load_pbf_features(args.pbf, args.bounds)
+  else:
+    features = fetch_osm_features(
+      args.bounds, timeout=args.timeout, tile_span=args.tile_span
+    )
   args.raw_geojson.parent.mkdir(parents=True, exist_ok=True)
   args.raw_geojson.write_text(
     normalize_for_file(features).to_crs(WGS84).to_json(), encoding="utf-8"
