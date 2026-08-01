@@ -286,9 +286,39 @@ def read_pbf_layer(
       frame[column] = frame[column].where(frame[column].notna(), promoted)
     else:
       frame[column] = promoted
-  frame = frame.rename(columns={"osm_id": "id"})
-  frame["element"] = layer
-  return frame.drop(columns=["other_tags"], errors="ignore")
+  identify_element(frame, layer)
+  return frame.drop(columns=["other_tags", "osm_id", "osm_way_id"], errors="ignore")
+
+
+# GDAL's layer names say which geometry the driver built, not which OSM element
+# it came from. Overpass reports node/way/relation, and `verify_landmark_alignment`
+# prints that word, so the layers are translated back.
+PBF_ELEMENTS = {
+  "points": "node",
+  "lines": "way",
+  "multilinestrings": "relation",
+}
+
+
+def identify_element(frame: gpd.GeoDataFrame, layer: str) -> None:
+  """Restore the Overpass `element`/`id` pair on a GDAL OSM layer.
+
+  In `multipolygons` the driver reports a closed way under `osm_way_id` and a
+  multipolygon relation under `osm_id`, so exactly one of the two is set per
+  row. Reading only `osm_id` left every way in that layer without an id, which
+  cost the landmark QA its matches against park and playground outlines.
+  """
+  way_ids = frame["osm_way_id"] if "osm_way_id" in frame.columns else None
+  ids = frame["osm_id"] if "osm_id" in frame.columns else None
+  if way_ids is None:
+    frame["id"] = ids
+    frame["element"] = PBF_ELEMENTS[layer]
+    return
+  frame["id"] = way_ids if ids is None else ids.where(ids.notna(), way_ids)
+  frame["element"] = Series(
+    ["way" if isinstance(value, str) else "relation" for value in way_ids],
+    index=frame.index,
+  )
 
 
 def load_pbf_features(pbf_path: Path, bounds_path: Path) -> gpd.GeoDataFrame:

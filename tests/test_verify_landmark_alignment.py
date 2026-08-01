@@ -13,22 +13,23 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "geo_data" / "regierungsviertel"
 VIEWER_LANDMARKS = ROOT / "src/app/public/dzi/regierungsviertel/landmarks.json"
 
-# Committed osm.gpkg is still the pre-task-09 extract (E388785…390105 /
-# N5818554…5821015), so landmarks added by the bounds expansion have no OSM
-# counterpart to match against yet. Their geometry comes from LoD2/official data.
-LANDMARKS_OUTSIDE_OSM_EXTRACT = {
-  "Siegessäule",
-  "Großer Stern",
+# Landmarks the committed extract cannot confirm. Since v0.45.0 osm.gpkg covers
+# the whole surveyed hull, so these are not coverage gaps any more: OSM carries
+# no feature under the name this project uses. Their geometry comes from
+# LoD2/official data, so a missing match is a QA note rather than a defect.
+LANDMARKS_WITHOUT_OSM_MATCH = {
   "Bismarck-Nationaldenkmal",
   "Berliner Philharmonie",
   "St. Matthäus-Kirche",
-  "Gemäldegalerie",
   "Neue Nationalgalerie",
   "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
   "Mall of Berlin",
   "Kollhoff-Tower",
-  "Hamburger Bahnhof",
   "Geschichtspark Ehemaliges Zellengefängnis Moabit",
+  # Way 106845803 carried the memorial's name and historic=memorial until it was
+  # replaced upstream by an untagged water=reservoir basin; the monument itself
+  # is modelled from official sources in MemorialLandmarks.ts.
+  "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
 }
 
 
@@ -50,9 +51,9 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     "status": "review",
     "landmarks_checked": 56,
     "relative_relationships_checked": 26,
-    "landmark_review_count": 12,
+    "landmark_review_count": 9,
     "relative_review_count": 0,
-    "review_count": 12,
+    "review_count": 9,
   }
   checks = {check["name"]: check for check in report["checks"]}
   assert checks["Paul-Löbe-Haus"]["best_osm_match"]["name"] == "Paul-Löbe-Haus"
@@ -89,8 +90,12 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert checks["Königin-Luise-Denkmal (Luiseninsel)"]["best_osm_match"]["id"] == (
     "28586183"
   )
+  # West of the pre-v0.45.0 extract, so these only match once the refetched
+  # osm.gpkg reaches the Großer Stern.
+  assert checks["Siegessäule"]["best_osm_match"]["name"] == "Siegessäule"
+  assert checks["Großer Stern"]["best_osm_match"]["name"] == "Großer Stern"
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
-  assert reviewed == LANDMARKS_OUTSIDE_OSM_EXTRACT
+  assert reviewed == LANDMARKS_WITHOUT_OSM_MATCH
   assert all(
     relation["status"] == "ok" for relation in report["relative_relationships"]
   )
@@ -110,11 +115,9 @@ def test_relative_relationship_reviews_affect_summary_status(
   )
 
   assert report["summary"]["status"] == "review"
-  assert report["summary"]["landmark_review_count"] == len(
-    LANDMARKS_OUTSIDE_OSM_EXTRACT
-  )
+  assert report["summary"]["landmark_review_count"] == len(LANDMARKS_WITHOUT_OSM_MATCH)
   assert report["summary"]["relative_review_count"] == 1
-  assert report["summary"]["review_count"] == len(LANDMARKS_OUTSIDE_OSM_EXTRACT) + 1
+  assert report["summary"]["review_count"] == len(LANDMARKS_WITHOUT_OSM_MATCH) + 1
   assert any(
     relationship["status"] == "review"
     for relationship in report["relative_relationships"]
