@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.45.1
+
+- **Constructed water basins were drawn 6 m underground, so the
+  Invalidenpark fountain read as flat lawn.** The basin was never a
+  classification problem: OSM way 28880840 carries `natural=water` +
+  `amenity=fountain`, it survives the clip, and the drawn city was dutifully
+  drawing it — at the single Spree water table (−1.15 m), because that is
+  where every water plate went. The terrain in the Invalidenpark is 5.30 m,
+  so the plate lay 6.45 m below the surface and the park's own opaque lawn
+  plate (21 576 m², no hole) covered it completely. This is the same class
+  of bug v0.44.0 fixed for lawns and carriageways when it made them follow
+  the terrain; water was simply never converted. Water now carries a `kind`
+  of `river` or `basin`: a river keeps the Spree table and its 3.1 m quay
+  walls, a basin gets one flat plate per basin set on the ground it was
+  built into. Twelve basins in the district were affected, among them the
+  Piano-See (10 792 m²), a 5 119 m² reflecting pool and the Phönix fountain
+  — all of them invisible until now.
+- **`water=pond` is deliberately NOT a basin.** The Neuer See, the See im
+  Englischen Garten and the other Tiergarten ponds are fed by the same
+  groundwater table as the Spree; perching them on local terrain would lift
+  them off their own banks. Only `amenity=fountain`, `man_made=water_basin`
+  and `water=basin|reflecting_pool|reservoir` are treated as constructed.
+- **Christophe Girot's *Sinkende Mauer* (1997) is drawn, and none of its
+  geometry is invented.** The mapper cut the wall's footprint out of the
+  water polygon because the wall stands where the water would be, so the
+  wall is exactly `artwork − water`: a 3.16 m × 39.0 m slot in the basin
+  rectangle, 123 m². The slab's top face ramps linearly along that slot from
+  1.5 m above the basin rim down to 0.55 m below the water line, which is
+  the artwork — a wall walking into the water and disappearing. It is a grey
+  flat tone with ink edges, and a narrow walkable crown in the park-path
+  tone runs along it from the rim to exactly the point where it dips under.
+- **Minecraft mode gets the same correction.** A new `basin` voxel class
+  keeps its cells at the local ground height instead of the river table, so
+  the fountain is a blue plate flush with the lawn rather than a 6.5 m pit,
+  and the sunken wall is painted as concrete over it.
+
 ## v0.45.0
 
 - **The OSM extract finally covers the city this project surveys.** Every
