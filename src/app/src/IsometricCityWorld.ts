@@ -93,12 +93,23 @@ export const SURFACE_WORLD_FILE = "surface-polygons.json";
 export type SurfacePolygon = {
   area_m2: number;
   holes: number[][][];
+  /** Drawn surface family for carriageways: asphalt, paving or sand. */
+  kind?: string;
   name: string;
   ring: number[][];
 };
 
+/** A marked carriageway centreline (decimetre points) for lane dashes. */
+export type LaneMarking = {
+  name: string;
+  points: number[][];
+  width_m: number;
+};
+
 export type SurfacePayload = {
+  lane_markings?: LaneMarking[];
   parks: SurfacePolygon[];
+  roads?: SurfacePolygon[];
   schema_version: number;
   water: SurfacePolygon[];
 };
@@ -412,6 +423,9 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     "smooth quay walls",
     "smooth river bed",
     "smooth parkland lawns",
+    "smooth paved paths",
+    "smooth park paths",
+    "smooth carriageways",
   ]) {
     const smooth = city.getObjectByName(name);
     if (smooth instanceof Mesh && smooth.userData.dayMaterial) {
@@ -419,6 +433,14 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
         ? (smooth.userData.nightMaterial as MeshBasicMaterial)
         : (smooth.userData.dayMaterial as MeshBasicMaterial);
     }
+  }
+  // Painted markings stay white by day and dim to a cool moonlit line at
+  // night — headlight-bright dashes would out-shout the whole night city.
+  const laneMarkings = city.getObjectByName("carriageway lane markings");
+  if (laneMarkings instanceof LineSegments) {
+    (laneMarkings.material as LineBasicMaterial).color.setHex(
+      night ? 0x4a5568 : 0xf2f0e8,
+    );
   }
   const shoreInk = city.getObjectByName("smooth shoreline ink");
   if (shoreInk instanceof LineSegments) {
@@ -2407,26 +2429,12 @@ export function createExtrapolatedMargin(): Group {
       false,
     );
   });
-  // The margin used to be blank slabs, which read as unfinished paper next
-  // to the drawn centre. A 140 m field grid of hairlines gives it the same
-  // drawn surface quality without inventing buildings: it is cartographic
-  // ruling, not surveyed content.
-  const FIELD_PITCH_M = 140;
-  const fieldLines: number[] = [];
-  const fieldY = GROUND_TOP - 0.28;
-  for (const [cx, cz, sx, sz] of marginBands) {
-    const x0 = cx - sx / 2;
-    const z0 = cz - sz / 2;
-    for (let x = x0; x <= cx + sx / 2 + 1e-6; x += FIELD_PITCH_M) {
-      fieldLines.push(x, fieldY, z0, x, fieldY, cz + sz / 2);
-    }
-    for (let z = z0; z <= cz + sz / 2 + 1e-6; z += FIELD_PITCH_M) {
-      fieldLines.push(x0, fieldY, z, cx + sx / 2, fieldY, z);
-    }
-  }
-  const fieldGrid = new BufferGeometry();
-  fieldGrid.setAttribute("position", new Float32BufferAttribute(fieldLines, 3));
-  edgeGeometries.push(fieldGrid);
+  // NO cartographic ruling on the margin. v0.40.0 filled it with a 140 m
+  // grid of hairlines to make the blank paper look "drawn"; at every zoom
+  // it read as a black square lattice laid over the whole scene around the
+  // model, which is the opposite of the calm paper the margin is for
+  // ("drumherum … ist so ein schwarzes Quadratgitter. Das kann bitte weg").
+  // The margin carries its two quiet paper tones and nothing else.
   // Unter den Linden, continuing east from Pariser Platz off the extract.
   addPart(
     boxTriangles(
@@ -2459,13 +2467,16 @@ export function createExtrapolatedMargin(): Group {
       geometry.dispose();
     }
   }
-  const marginInk = mergeGeometries(edgeGeometries, false);
+  // With the field grid gone every margin part is drawn uninked, so the
+  // edge list can legitimately be empty — mergeGeometries throws on [].
+  const marginInk =
+    edgeGeometries.length > 0 ? mergeGeometries(edgeGeometries, false) : null;
   if (marginInk) {
     const lines = new LineSegments(
       marginInk,
       new LineBasicMaterial({ color: ISO_INK_COLOR }),
     );
-    lines.name = "extrapolated margin field grid";
+    lines.name = "extrapolated margin ink lines";
     lines.renderOrder = 2;
     group.add(lines);
   }
@@ -3635,8 +3646,17 @@ function shapeFromSurface(surface: SurfacePolygon): Shape {
     }
   });
   for (const hole of surface.holes ?? []) {
+    const points = smoothSurfaceRing(hole);
+    // A hole that collapses to a sliver crashes three's earcut
+    // triangulator outright ("undefined is not an object (list.next)") and
+    // takes the WHOLE drawn city down with it — the buffered road network
+    // produces such slivers wherever two carriageways graze each other.
+    // Anything without three points spanning a real area is not a hole.
+    if (points.length < 3 || ringArea(points) < 0.05) {
+      continue;
+    }
     const path = new Path();
-    smoothSurfaceRing(hole).forEach(([x, z], index) => {
+    points.forEach(([x, z], index) => {
       if (index === 0) {
         path.moveTo(x, -z);
       } else {
@@ -3659,6 +3679,17 @@ export function createSmoothSurfaces(
   surfaces: SurfacePayload,
   waterTopY: number,
   bankY: number,
+  /**
+   * Local terrain height in metres at a world XZ point. Surfaces that lie
+   * ON the ground (lawns, carriageways, park paths) follow it; the water
+   * plate and its bed keep the water table instead.
+   *
+   * Without this every plate sat at the single constant `bankY` = 4.2 m
+   * while the surveyed terrain runs to a median of 5.2 m — the smooth
+   * lawns and every road surface were a metre UNDERGROUND across most of
+   * the map and simply never appeared.
+   */
+  terrainAt?: (x: number, z: number) => number,
 ): Group {
   const group = new Group();
   group.name = "smooth OSM water and parkland";
@@ -3668,16 +3699,38 @@ export function createSmoothSurfaces(
     polygons: SurfacePolygon[],
     y: number,
     tone: number,
+    followTerrain = false,
   ): BufferGeometry | null => {
     const parts: BufferGeometry[] = [];
     for (const surface of polygons) {
       if (surface.ring.length < 4) {
         continue;
       }
-      const geometry = new ShapeGeometry(shapeFromSurface(surface));
+      // One malformed ring must never cost the viewer its entire drawn
+      // city. Triangulation is the only step here that can throw, and a
+      // dropped plate is a missing puddle of colour — a thrown exception
+      // silently falls all the way back to the bare photogrammetry mesh.
+      let geometry: ShapeGeometry;
+      try {
+        geometry = new ShapeGeometry(shapeFromSurface(surface));
+      } catch {
+        continue;
+      }
       geometry.deleteAttribute("uv");
       geometry.rotateX(-Math.PI / 2);
       geometry.translate(0, y, 0);
+      if (followTerrain && terrainAt) {
+        // `y` becomes the LIFT above the ground rather than an absolute
+        // height, so a carriageway climbs with the street it lies in.
+        const position = geometry.getAttribute("position");
+        for (let index = 0; index < position.count; index += 1) {
+          position.setY(
+            index,
+            terrainAt(position.getX(index), position.getZ(index)) + y,
+          );
+        }
+        position.needsUpdate = true;
+      }
       const paint = new Color(tone);
       const count = geometry.getAttribute("position").count;
       const colors = new Float32Array(count * 3);
@@ -3701,7 +3754,12 @@ export function createSmoothSurfaces(
 
   // Parkland lawns first: they sit just above the rasterised grass so
   // the 4 m steps disappear under a smooth sage plate.
-  const lawns = buildPlate(surfaces.parks, bankY + 0.08, 0xffffff);
+  const lawns = buildPlate(
+    surfaces.parks,
+    terrainAt ? 0.06 : bankY + 0.08,
+    0xffffff,
+    true,
+  );
   if (lawns) {
     // Unlit plates ignore the night rig, so they carry explicit day and
     // night tones — otherwise the lawns glow through the dark.
@@ -3712,6 +3770,128 @@ export function createSmoothSurfaces(
     lawnMesh.userData.nightMaterial = nightMaterial;
     lawnMesh.name = "smooth parkland lawns";
     group.add(lawnMesh);
+  }
+
+  // Carriageways and park paths, drawn from the buffered OSM centrelines.
+  // OSM ships streets as lines, so before this the Straße des 17. Juni and
+  // the Großer Stern roundabout had no surface at all in the drawn city —
+  // only the 4 m voxel raster, which does not reach into the surveyed
+  // Tiergarten. Each family gets its own tone: asphalt grey for traffic,
+  // pale paving for squares and footways, Tiergarten sand for park paths.
+  const ROAD_SURFACES: ReadonlyArray<{
+    day: number;
+    kind: string;
+    lift: number;
+    name: string;
+    night: number;
+  }> = [
+    // Paving first, sand next, asphalt last: where two families overlap at
+    // a junction the more specific surface should win, and later plates
+    // sit fractionally higher.
+    {
+      day: 0xdcd8cc,
+      kind: "paving",
+      lift: 0.1,
+      name: "smooth paved paths",
+      night: 0x1b222b,
+    },
+    {
+      day: 0xd9c9a6,
+      kind: "sand",
+      lift: 0.12,
+      name: "smooth park paths",
+      night: 0x241f19,
+    },
+    {
+      day: 0xc4c5c0,
+      kind: "asphalt",
+      lift: 0.14,
+      name: "smooth carriageways",
+      night: 0x171c24,
+    },
+  ];
+  const roads = surfaces.roads ?? [];
+  for (const surface of ROAD_SURFACES) {
+    const plate = buildPlate(
+      roads.filter((entry) => entry.kind === surface.kind),
+      terrainAt ? surface.lift : bankY + surface.lift,
+      0xffffff,
+      true,
+    );
+    if (!plate) {
+      continue;
+    }
+    const dayMaterial = new MeshBasicMaterial({ color: surface.day });
+    const nightMaterial = new MeshBasicMaterial({ color: surface.night });
+    const mesh = new Mesh(plate, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = surface.name;
+    group.add(mesh);
+  }
+
+  // Painted lane markings on the classified carriageways: a broken white
+  // centre line, dashed 4 m on / 6 m off, sitting just above the asphalt.
+  const markings = surfaces.lane_markings ?? [];
+  if (markings.length > 0) {
+    const DASH_ON_M = 4;
+    const DASH_OFF_M = 6;
+    const points: number[] = [];
+    const markingY = bankY + 0.2;
+    const markingLift = 0.2;
+    for (const marking of markings) {
+      let carried = 0;
+      for (let index = 0; index + 1 < marking.points.length; index += 1) {
+        const [ax, az] = marking.points[index];
+        const [bx, bz] = marking.points[index + 1];
+        const x0 = ax / 10;
+        const z0 = az / 10;
+        const x1 = bx / 10;
+        const z1 = bz / 10;
+        const length = Math.hypot(x1 - x0, z1 - z0);
+        if (length < 1e-3) {
+          continue;
+        }
+        // Walk the segment in dash periods, carrying the phase across
+        // vertices so the dashes stay evenly spaced around bends.
+        let travelled = -carried;
+        while (travelled < length) {
+          const start = Math.max(0, travelled);
+          const end = Math.min(length, travelled + DASH_ON_M);
+          if (end > start) {
+            const t0 = start / length;
+            const t1 = end / length;
+            const sx = x0 + (x1 - x0) * t0;
+            const sz = z0 + (z1 - z0) * t0;
+            const ex = x0 + (x1 - x0) * t1;
+            const ez = z0 + (z1 - z0) * t1;
+            points.push(
+              sx,
+              terrainAt ? terrainAt(sx, sz) + markingLift : markingY,
+              sz,
+              ex,
+              terrainAt ? terrainAt(ex, ez) + markingLift : markingY,
+              ez,
+            );
+          }
+          travelled += DASH_ON_M + DASH_OFF_M;
+        }
+        carried = (carried + length) % (DASH_ON_M + DASH_OFF_M);
+      }
+    }
+    if (points.length > 0) {
+      const geometry = new BufferGeometry();
+      geometry.setAttribute(
+        "position",
+        new Float32BufferAttribute(points, 3),
+      );
+      const material = new LineBasicMaterial({ color: 0xf2f0e8 });
+      const lines = new LineSegments(geometry, material);
+      lines.name = "carriageway lane markings";
+      lines.renderOrder = 2;
+      lines.userData.laneMarking = true;
+      group.add(lines);
+    }
   }
 
   // Sandy riverbed, then the transparent water plate above it.
@@ -4737,11 +4917,22 @@ export function createIsometricCity(
       // OSM rings ("weiche Flussufer", no more 4 m staircases), plus
       // lawn plates that cover the rasterised parkland steps.
       const bankY = (ground.water_top_y_m ?? WATER_TOP_Y) + 5.35;
+      // Terrain lookup in world metres for the plates that lie ON the
+      // ground. The payload samples a coarse height grid at grid offsets,
+      // so world coordinates are converted back to offsets here.
+      const terrainSample = groundTopSampler(ground);
+      const terrainCell = ground.cell_m;
+      const terrainAt = (x: number, z: number): number =>
+        terrainSample(
+          x / terrainCell - ground.grid.min_x_idx,
+          z / terrainCell - ground.grid.min_z_idx,
+        );
       group.add(
         createSmoothSurfaces(
           surfaces,
           ground.water_top_y_m ?? WATER_TOP_Y,
           bankY,
+          terrainAt,
         ),
       );
     } else {

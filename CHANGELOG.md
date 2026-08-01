@@ -1,5 +1,56 @@
 # Changelog
 
+## v0.44.0
+
+- **Every street and park path is a real drawn surface now.** OSM ships
+  roads as CENTRELINES, so the drawn city had no carriageway geometry at all
+  beyond the 4 m voxel raster: the Straße des 17. Juni ran through the
+  Tiergarten as a pale green band and the park paths were hairline
+  scratches. `build_surface_polygons.py` now buffers every highway
+  centreline by its real cross-section and exports true polygons in three
+  families — asphalt for traffic, pale paving for squares and footways,
+  Tiergarten sand for park paths — plus the centrelines of the classified
+  roads so the viewer can stroke painted lane markings. A footway that runs
+  more than half its length inside parkland is reclassified as a sandy park
+  path regardless of its OSM tag, which is what makes the Tiergarten read as
+  the Tiergarten. Classified roads use the full paved cross-section (primary
+  17 m, trunk 20 m) because Berlin maps a 50 m boulevard as a single way.
+- **The smooth surfaces were a metre underground and nobody could see
+  them.** Every plate — the parkland lawns included, since v0.33 — sat at
+  one constant `bankY` of 4.2 m while the surveyed terrain runs to a median
+  of 5.2 m. The lawn plates and all new road surfaces now follow the
+  payload's terrain grid per vertex, so a carriageway climbs with the street
+  it lies in instead of being buried by the ground slabs above it.
+- **The black square grid around the model is gone.** v0.40.0 ruled the
+  paper margin with a 140 m hairline lattice to make the blank surround look
+  drawn; at every zoom it read as a black grid laid over the whole scene
+  ("drumherum … ist so ein schwarzes Quadratgitter. Das kann bitte weg").
+  The margin now carries its two quiet paper tones and nothing else, and a
+  test pins the ruling's absence.
+- **One malformed polygon can no longer destroy the drawn city.** A
+  buffered road network produces sliver holes wherever two carriageways
+  graze each other, and a hole without area makes three's ear-clipping
+  triangulator throw — which silently dropped the ENTIRE drawn city and fell
+  back to the bare photogrammetry mesh. Slivers are now filtered in the
+  generator and skipped in the viewer, and the plate builder isolates a
+  failed triangulation to that one plate.
+- **The contract suite was flaky and is now deterministic.** Several tests
+  build the complete city from the shipped payload, which costs about five
+  seconds each since the task-09 expansion — over Bun's 5 000 ms default. A
+  green run proved nothing and a red one pointed at no real defect. The test
+  budget is raised rather than the coverage reduced; all 283 tests pass
+  reliably.
+- **Known gap, stated plainly: the OSM extract still covers only the
+  ORIGINAL hull** (world x −707…605), while the surveyed city has reached
+  x −2873 since v0.41.0. Everything ground-level therefore stops at that
+  line: the Großer Stern roundabout has no carriageway, the Straße des
+  17. Juni loses its surface west of x −605, the Tiergarten paths thin out
+  and the Spree past the Gymnasium Tiergarten has no water polygon, which is
+  exactly why it reads green there. This needs an OSM refetch for the
+  expanded bounds; `overpass-api.de` is unreachable from the build
+  environment (CONNECT blocked), so it is handed on rather than guessed at.
+  No approximation was invented to paper over it.
+
 ## v0.43.0
 
 The monuments round: the Goldelse becomes a real winged Viktoria, the other

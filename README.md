@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.43.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.43.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.44.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.44.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.43.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.44.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## What this repository is / Was dieses Repository ist
@@ -42,7 +42,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.43.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.44.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -91,6 +91,19 @@ labelled compatibility fallback for browsers that cannot run local modules.
   of repainting could compensate for it. Minecraft keeps ACES because it is a
   genuinely lit world of cubes, at a calibrated exposure that leaves pale
   facades pale.
+- Streets and park paths are drawn as real surfaces, buffered from the OSM
+  highway centrelines by class: asphalt carriageways with painted lane
+  markings, pale paving for squares and footways, and Tiergarten sand for
+  park paths. Widths are the ordinary cross-section for each class, so they
+  are presentation geometry derived from an OSM classification and are not
+  claimed as surveyed kerb lines. The surfaces follow the payload's terrain
+  grid rather than one constant height.
+- The OSM extract currently covers only the original hull (world x −707…605)
+  while the surveyed city reaches x −2873. Ground-level OSM content — roads,
+  paths, water and park polygons — therefore stops at that line, which is why
+  the Großer Stern has no carriageway and the Spree loses its blue west of the
+  Gymnasium Tiergarten. An OSM refetch for the expanded bounds is the open
+  task; nothing is approximated in the meantime.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale. These tiles cover

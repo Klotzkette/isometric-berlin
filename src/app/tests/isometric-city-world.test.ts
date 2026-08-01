@@ -332,15 +332,18 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(bounds.max.x).toBeGreaterThanOrEqual(envelope.maxX);
     expect(bounds.min.z).toBeLessThanOrEqual(envelope.minZ);
     expect(bounds.max.z).toBeGreaterThanOrEqual(envelope.maxZ);
-    // Flat paper only: tone plates and cartographic ruling, nothing standing.
+    // Flat paper only: quiet tone plates, nothing standing.
     expect(bounds.max.y).toBeLessThan(6);
     // Since task-09 the real Tiergarten is surveyed, so the generated trees
     // and lamps that used to fill the west are gone for good.
     expect(margin.getObjectByName("extrapolated tree trunks")).toBeUndefined();
     expect(margin.getObjectByName("extrapolated lamp poles")).toBeUndefined();
+    // NO cartographic ruling. The v0.40.0 140 m hairline grid read as a
+    // black square lattice around the whole model at every zoom and was
+    // removed on the owner's instruction; it must not come back.
     expect(
       margin.getObjectByName("extrapolated margin field grid"),
-    ).toBeDefined();
+    ).toBeUndefined();
     const body = margin.getObjectByName(
       "extrapolated margin ground",
     ) as Mesh;
