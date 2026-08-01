@@ -74,6 +74,10 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
   glass: [0x72c5d2, 0xa4dfe2],
   grass: [0x74b043, 0x5d9634, 0x74b043],
   plazaBrick: [0x994a35, 0x715b4a],
+  // A constructed basin is the same blue as the river, but its cells keep
+  // the local ground height instead of the Spree table — an ornamental
+  // basin sits on the ground it was built into, not 6 m below it.
+  basin: [0x3f76e4, 0x2e5aa8],
   // Bridge decks over the Spree/Humboldthafen read as stone blocks.
   bridge: [0x8e9a9e, 0xa4aa91],
   sandstone: [0xe8d1ae, 0xf5e3c5],
@@ -443,7 +447,10 @@ export function createGroundSlabs(
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
-      if (options?.skipWater && className === "water") {
+      if (
+        options?.skipWater &&
+        (className === "water" || className === "basin")
+      ) {
         continue;
       }
       // The drawn city builds real elevated bridge structures instead.

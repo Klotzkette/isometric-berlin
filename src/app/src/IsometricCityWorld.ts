@@ -93,7 +93,11 @@ export const SURFACE_WORLD_FILE = "surface-polygons.json";
 export type SurfacePolygon = {
   area_m2: number;
   holes: number[][][];
-  /** Drawn surface family for carriageways: asphalt, paving or sand. */
+  /**
+   * Drawn surface family: asphalt, paving or sand for carriageways;
+   * river or basin for water. A river runs at the Spree table, a basin
+   * sits on the ground it was built into.
+   */
   kind?: string;
   name: string;
   ring: number[][];
@@ -106,11 +110,28 @@ export type LaneMarking = {
   width_m: number;
 };
 
+/**
+ * A wall slab running out into a basin and dipping below its surface, as
+ * OSM maps Christophe Girot's *Sinkende Mauer* (1997) in the Invalidenpark:
+ * the mapper cut the wall's footprint out of the water ring, so this ring is
+ * exactly that cut-out. `crest` stands on the basin rim, `sink` is the tip
+ * where the wall has descended under the water. Both are decimetre points.
+ */
+export type SunkenWall = {
+  area_m2: number;
+  crest: number[];
+  name: string;
+  ring: number[][];
+  sink: number[];
+  width_m: number;
+};
+
 export type SurfacePayload = {
   lane_markings?: LaneMarking[];
   parks: SurfacePolygon[];
   roads?: SurfacePolygon[];
   schema_version: number;
+  sunken_walls?: SunkenWall[];
   water: SurfacePolygon[];
 };
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
@@ -3894,8 +3915,15 @@ export function createSmoothSurfaces(
     }
   }
 
+  // A river runs at the Spree table; a constructed basin sits on the
+  // ground it was built into. Drawing both at the single table put the
+  // Invalidenpark fountain 6.5 m under its own lawn, where the lawn plate
+  // covered it and the basin read as flat grass.
+  const rivers = surfaces.water.filter((entry) => entry.kind !== "basin");
+  const basins = surfaces.water.filter((entry) => entry.kind === "basin");
+
   // Sandy riverbed, then the transparent water plate above it.
-  const bed = buildPlate(surfaces.water, waterTopY - BED_DROP, 0xffffff);
+  const bed = buildPlate(rivers, waterTopY - BED_DROP, 0xffffff);
   if (bed) {
     const dayMaterial = new MeshBasicMaterial({ color: 0xd4cbb4 });
     const nightMaterial = new MeshBasicMaterial({ color: 0x1a232b });
@@ -3905,7 +3933,7 @@ export function createSmoothSurfaces(
     bedMesh.name = "smooth river bed";
     group.add(bedMesh);
   }
-  const water = buildPlate(surfaces.water, waterTopY, 0xffffff);
+  const water = buildPlate(rivers, waterTopY, 0xffffff);
   if (water) {
     const dayMaterial = new MeshBasicMaterial({
       color: 0x9fc7d8,
@@ -3941,7 +3969,7 @@ export function createSmoothSurfaces(
   /** Masonry courses, in metres — tied to the bank, not to the subdivision. */
   const COURSE_M = 7;
   const wallTopY = bankY + 0.12;
-  for (const surface of surfaces.water) {
+  for (const surface of rivers) {
     if (surface.area_m2 < 400) {
       continue;
     }
@@ -4034,7 +4062,344 @@ export function createSmoothSurfaces(
     shore.renderOrder = 2;
     group.add(shore);
   }
+
+  addBasinsAndSunkenWalls(group, surfaces, basins, bankY, terrainAt);
   return group;
+}
+
+/** Highest surveyed ground touched by a ring, in metres. */
+function ringTerrainCeiling(
+  ring: number[][],
+  fallback: number,
+  terrainAt?: (x: number, z: number) => number,
+): number {
+  if (!terrainAt) {
+    return fallback;
+  }
+  let ceiling = -Infinity;
+  for (const [xDm, zDm] of ring) {
+    ceiling = Math.max(ceiling, terrainAt(xDm / 10, zDm / 10));
+  }
+  return Number.isFinite(ceiling) ? ceiling : fallback;
+}
+
+function ringContains(ring: number[][], x: number, z: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    const [ax, az] = ring[i];
+    const [bx, bz] = ring[j];
+    if (az > z !== bz > z && x < ((bx - ax) * (z - az)) / (bz - az) + ax) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/**
+ * Constructed basins and the walls that sink into them.
+ *
+ * A basin is drawn as one FLAT plate per basin, set just above the lawn
+ * that surrounds it: the lawn plate is opaque and covers the whole park
+ * polygon, so a basin sunk to its true rim depth would simply not be
+ * visible from above. The plate is nearly opaque over a pale bed so the
+ * water reads blue rather than as a green lawn seen through a tint.
+ *
+ * A sunken wall keeps the OSM ring the mapper cut out of the water and
+ * ramps its top face linearly along the crest→sink axis, from a slab
+ * standing on the rim to a tip below the water line. A narrow walkable
+ * crown runs along the ramp as far as the point where it dips under.
+ */
+function addBasinsAndSunkenWalls(
+  group: Group,
+  surfaces: SurfacePayload,
+  basins: SurfacePolygon[],
+  bankY: number,
+  terrainAt?: (x: number, z: number) => number,
+): void {
+  if (basins.length === 0) {
+    return;
+  }
+  /** Clear of the lawn plate (+0.06) and every park path (up to +0.14). */
+  const BASIN_LIFT_M = 0.22;
+  const BED_GAP_M = 0.06;
+  /** Height of the wall where it stands on the basin rim. */
+  const CREST_RISE_M = 1.5;
+  /** How far under the surface the sinking tip has gone. */
+  const SINK_DEPTH_M = 0.55;
+  const CROWN_WIDTH_FRACTION = 0.5;
+
+  const levelOf = new Map<SurfacePolygon, number>();
+  const bedParts: BufferGeometry[] = [];
+  const waterParts: BufferGeometry[] = [];
+  const rimInk: number[] = [];
+  for (const basin of basins) {
+    if (basin.ring.length < 4) {
+      continue;
+    }
+    const level =
+      ringTerrainCeiling(basin.ring, bankY, terrainAt) + BASIN_LIFT_M;
+    levelOf.set(basin, level);
+    let shape: Shape;
+    try {
+      shape = shapeFromSurface(basin);
+    } catch {
+      continue;
+    }
+    for (const [y, target] of [
+      [level - BED_GAP_M, bedParts],
+      [level, waterParts],
+    ] as const) {
+      let geometry: ShapeGeometry;
+      try {
+        geometry = new ShapeGeometry(shape);
+      } catch {
+        continue;
+      }
+      geometry.deleteAttribute("uv");
+      geometry.rotateX(-Math.PI / 2);
+      geometry.translate(0, y, 0);
+      target.push(geometry);
+    }
+    const ring = smoothSurfaceRing(basin.ring);
+    for (let index = 0; index < ring.length; index += 1) {
+      const [ax, az] = ring[index];
+      const [bx, bz] = ring[(index + 1) % ring.length];
+      rimInk.push(ax, level + 0.03, az, bx, level + 0.03, bz);
+    }
+  }
+
+  const addPlate = (
+    parts: BufferGeometry[],
+    name: string,
+    day: MeshBasicMaterial,
+    night: MeshBasicMaterial,
+    renderOrder = 0,
+  ): void => {
+    if (parts.length === 0) {
+      return;
+    }
+    const merged = mergeGeometries(parts, false);
+    for (const part of parts) {
+      part.dispose();
+    }
+    if (!merged) {
+      return;
+    }
+    const mesh = new Mesh(merged, day);
+    mesh.userData.dayMaterial = day;
+    mesh.userData.nightMaterial = night;
+    mesh.name = name;
+    mesh.renderOrder = renderOrder;
+    group.add(mesh);
+  };
+
+  addPlate(
+    bedParts,
+    "basin floors",
+    new MeshBasicMaterial({ color: 0xcfd9d3 }),
+    new MeshBasicMaterial({ color: 0x1a232b }),
+  );
+  addPlate(
+    waterParts,
+    "basin water",
+    new MeshBasicMaterial({
+      color: 0x9fc7d8,
+      depthWrite: false,
+      opacity: 0.88,
+      transparent: true,
+    }),
+    new MeshBasicMaterial({
+      color: 0x27435c,
+      depthWrite: false,
+      opacity: 0.92,
+      transparent: true,
+    }),
+    1,
+  );
+
+  const walls = surfaces.sunken_walls ?? [];
+  const slabPositions: number[] = [];
+  const slabColors: number[] = [];
+  const crownPositions: number[] = [];
+  const wallInk: number[] = [];
+  const slabTone = new Color(0xb7b3ab);
+  const slabSide = new Color(0xa6a29a);
+  for (const wall of walls) {
+    if (wall.ring.length < 4) {
+      continue;
+    }
+    const crestX = wall.crest[0] / 10;
+    const crestZ = wall.crest[1] / 10;
+    const sinkX = wall.sink[0] / 10;
+    const sinkZ = wall.sink[1] / 10;
+    const axisX = sinkX - crestX;
+    const axisZ = sinkZ - crestZ;
+    const axisLengthSq = axisX * axisX + axisZ * axisZ;
+    if (axisLengthSq < 1) {
+      continue;
+    }
+    // The basin this wall runs into decides the water line it disappears
+    // under; without one there is nothing for it to sink into.
+    const host = basins.find((basin) => ringContains(basin.ring, sinkX * 10, sinkZ * 10));
+    const level = host ? (levelOf.get(host) ?? bankY) : null;
+    if (level === null) {
+      continue;
+    }
+    const crestY =
+      (terrainAt ? terrainAt(crestX, crestZ) : bankY) + CREST_RISE_M;
+    const sinkY = level - SINK_DEPTH_M;
+    const floorY = level - SINK_DEPTH_M - 0.4;
+    const rampAt = (x: number, z: number): number => {
+      const t = Math.min(
+        1,
+        Math.max(0, ((x - crestX) * axisX + (z - crestZ) * axisZ) / axisLengthSq),
+      );
+      return crestY + (sinkY - crestY) * t;
+    };
+
+    let top: ShapeGeometry;
+    try {
+      top = new ShapeGeometry(
+        shapeFromSurface({
+          area_m2: wall.area_m2,
+          holes: [],
+          name: wall.name,
+          ring: wall.ring,
+        }),
+      );
+    } catch {
+      continue;
+    }
+    top.deleteAttribute("uv");
+    top.rotateX(-Math.PI / 2);
+    const position = top.getAttribute("position");
+    for (let index = 0; index < position.count; index += 1) {
+      position.setY(index, rampAt(position.getX(index), position.getZ(index)));
+    }
+    position.needsUpdate = true;
+    // ShapeGeometry is indexed; the slab is accumulated as raw triangles.
+    const flat = top.toNonIndexed();
+    const flatPosition = flat.getAttribute("position");
+    for (let index = 0; index < flatPosition.count; index += 1) {
+      slabPositions.push(
+        flatPosition.getX(index),
+        flatPosition.getY(index),
+        flatPosition.getZ(index),
+      );
+      slabColors.push(slabTone.r, slabTone.g, slabTone.b);
+    }
+    flat.dispose();
+    top.dispose();
+
+    // Skirt: the visible flank of the slab, from the ramped crown down
+    // past the water line so the wall reads as a solid scheibe standing
+    // in the basin rather than a grey decal on the surface.
+    const ring = smoothSurfaceRing(wall.ring);
+    for (let index = 0; index < ring.length; index += 1) {
+      const [ax, az] = ring[index];
+      const [bx, bz] = ring[(index + 1) % ring.length];
+      const ay = rampAt(ax, az);
+      const by = rampAt(bx, bz);
+      for (const [px, py, pz] of [
+        [ax, floorY, az],
+        [bx, floorY, bz],
+        [bx, by, bz],
+        [ax, floorY, az],
+        [bx, by, bz],
+        [ax, ay, az],
+      ] as const) {
+        slabPositions.push(px, py, pz);
+        slabColors.push(slabSide.r, slabSide.g, slabSide.b);
+      }
+      wallInk.push(ax, ay + 0.03, az, bx, by + 0.03, bz);
+    }
+
+    // Walkable crown: a narrow path along the ramp, ending exactly where
+    // the wall dips under the water.
+    const submerged = (crestY - level) / (crestY - sinkY);
+    const walkable = Math.min(1, Math.max(0, submerged));
+    if (walkable > 0.05) {
+      const axisLength = Math.sqrt(axisLengthSq);
+      const halfWidth = (wall.width_m * CROWN_WIDTH_FRACTION) / 2;
+      const sideX = (-axisZ / axisLength) * halfWidth;
+      const sideZ = (axisX / axisLength) * halfWidth;
+      const STEPS = 24;
+      for (let step = 0; step < STEPS; step += 1) {
+        const t0 = (walkable * step) / STEPS;
+        const t1 = (walkable * (step + 1)) / STEPS;
+        const p0x = crestX + axisX * t0;
+        const p0z = crestZ + axisZ * t0;
+        const p1x = crestX + axisX * t1;
+        const p1z = crestZ + axisZ * t1;
+        const y0 = rampAt(p0x, p0z) + 0.05;
+        const y1 = rampAt(p1x, p1z) + 0.05;
+        crownPositions.push(
+          p0x - sideX, y0, p0z - sideZ,
+          p1x - sideX, y1, p1z - sideZ,
+          p1x + sideX, y1, p1z + sideZ,
+          p0x - sideX, y0, p0z - sideZ,
+          p1x + sideX, y1, p1z + sideZ,
+          p0x + sideX, y0, p0z + sideZ,
+        );
+      }
+    }
+  }
+
+  if (slabPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(slabPositions, 3),
+    );
+    geometry.setAttribute("color", new Float32BufferAttribute(slabColors, 3));
+    const dayMaterial = new MeshBasicMaterial({
+      side: DoubleSide,
+      vertexColors: true,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x39424a,
+      side: DoubleSide,
+    });
+    const mesh = new Mesh(geometry, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "sunken walls";
+    mesh.renderOrder = 2;
+    group.add(mesh);
+  }
+  if (crownPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(crownPositions, 3),
+    );
+    const dayMaterial = new MeshBasicMaterial({
+      color: 0xdcd8cc,
+      side: DoubleSide,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x1b222b,
+      side: DoubleSide,
+    });
+    const mesh = new Mesh(geometry, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "sunken wall crown path";
+    mesh.renderOrder = 3;
+    group.add(mesh);
+  }
+  const ink = rimInk.concat(wallInk);
+  if (ink.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(ink, 3));
+    const lines = new LineSegments(
+      geometry,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "basin and sunken wall ink";
+    lines.renderOrder = 4;
+    group.add(lines);
+  }
 }
 
 export function createIsometricCity(

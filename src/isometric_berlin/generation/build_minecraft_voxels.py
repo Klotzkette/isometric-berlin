@@ -27,6 +27,11 @@ import shapely
 from scipy.spatial import cKDTree
 from shapely.geometry.base import BaseGeometry
 
+from isometric_berlin.generation.basin_features import (
+  derive_sunken_walls,
+  load_water_features,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MESH_PUBLIC_DIR = REPO_ROOT / "src/app/public/mesh/regierungsviertel"
 DEFAULT_BOUNDS = REPO_ROOT / "geo_data/regierungsviertel/bounds.geojson"
@@ -50,7 +55,16 @@ IDW_POWER = 2.0
 TREE_MIN_HEIGHT_M = 8.0
 MAX_PAYLOAD_BYTES = 5 * 1024 * 1024
 
-CLASSES = ["grass", "asphalt", "water", "concrete", "glass", "plazaBrick", "bridge"]
+CLASSES = [
+  "grass",
+  "asphalt",
+  "water",
+  "concrete",
+  "glass",
+  "plazaBrick",
+  "bridge",
+  "basin",
+]
 CLASS_GRASS = 0
 CLASS_ASPHALT = 1
 CLASS_WATER = 2
@@ -58,6 +72,9 @@ CLASS_CONCRETE = 3
 CLASS_GLASS = 4
 CLASS_PLAZA_BRICK = 5
 CLASS_BRIDGE = 6
+# A constructed basin is water that sits on the ground it was built into,
+# so its cells keep the local terrain height instead of the Spree table.
+CLASS_BASIN = 7
 
 # ALKIS function codes rendered as glass blocks: offices (Bürogebäude) and the
 # Hauptbahnhof station hall (Bahnhofshalle / Empfangsgebäude). Everything else
@@ -223,6 +240,21 @@ def classify_ground(
     water_union = to_world(water_polygons.geometry.union_all())
     water_mask = shapely.contains_xy(water_union, flat_x[inside], flat_z[inside])
     classes[inside_positions[water_mask]] = CLASS_WATER
+
+  # Constructed basins ride the terrain, so they are their own class; the
+  # sunken wall standing in one is concrete, and has to be painted after
+  # the basin or the basin would swallow it.
+  features = load_water_features(osm_path)
+  basins = [f.geometry for f in features if f.kind == "basin"]
+  if basins:
+    basin_union = to_world(shapely.union_all(basins))
+    basin_mask = shapely.contains_xy(basin_union, flat_x[inside], flat_z[inside])
+    classes[inside_positions[basin_mask]] = CLASS_BASIN
+  walls = derive_sunken_walls(osm_path, features)
+  if walls:
+    wall_union = to_world(shapely.union_all([wall.geometry for wall in walls]))
+    wall_mask = shapely.contains_xy(wall_union, flat_x[inside], flat_z[inside])
+    classes[inside_positions[wall_mask]] = CLASS_CONCRETE
 
   # Bridge decks: OSM road/rail lines tagged bridge (Moltkebrücke, Gustav-
   # Heinemann-Brücke, S-Bahn viaduct, ...) reclaim the water cells they span
