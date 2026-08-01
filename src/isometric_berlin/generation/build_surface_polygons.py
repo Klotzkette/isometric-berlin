@@ -12,6 +12,11 @@ loses two thirds of its vertices, and every dropped vertex turns a bend
 into a 25 m chord that the viewer then has to draw as a straight facet.
 The bank line is the one edge the eye follows, so it is worth the bytes.
 
+Water carries a ``kind`` of ``river`` or ``basin``: a river runs at the
+Spree table, a basin sits on the ground it was built into. Alongside it
+travel the sunken walls that run out into a basin and dip below its
+surface — see :mod:`isometric_berlin.generation.basin_features`.
+
 Rings are stored as decimetre integers in viewer world coordinates:
 ``world_x = easting − 389500``, ``world_z = 5820000 − northing``.
 """
@@ -34,6 +39,12 @@ from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
+from isometric_berlin.generation.basin_features import (
+  SunkenWall,
+  WaterFeature,
+  derive_sunken_walls,
+  load_water_features,
+)
 from isometric_berlin.generation.build_minecraft_voxels import (
   ATTRIBUTION,
   DEFAULT_BOUNDS,
@@ -47,7 +58,7 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 WATER_SIMPLIFY_M = 0.15
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
@@ -171,6 +182,79 @@ def collect(
       )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   return surfaces
+
+
+def collect_water(
+  osm_path: Path, bounds: BaseGeometry
+) -> list[dict[str, Any]]:
+  """Water polygons carrying the river/basin split the viewer draws with.
+
+  A river sits at the Spree table; a basin sits on the ground it was built
+  into. Without the split every basin is drawn 6 m underground and the lawn
+  plate over it hides it completely.
+  """
+  surfaces: list[dict[str, Any]] = []
+  for feature in load_water_features(osm_path):
+    clipped = feature.geometry.intersection(bounds)
+    if clipped.is_empty:
+      continue
+    for part in polygon_parts(clipped):
+      simplified = part.simplify(WATER_SIMPLIFY_M, preserve_topology=True)
+      if simplified.is_empty or simplified.area < MIN_WATER_AREA_M2:
+        continue
+      ring = ring_to_dm(simplified.exterior.coords)
+      if len(ring) < 4:
+        continue
+      holes = [
+        ring_to_dm(interior.coords)
+        for interior in simplified.interiors
+        if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
+      ]
+      surfaces.append(
+        {
+          "area_m2": round(simplified.area),
+          "holes": holes,
+          "kind": feature.kind,
+          "name": feature.name,
+          "ring": ring,
+        }
+      )
+  surfaces.sort(key=lambda entry: -entry["area_m2"])
+  return surfaces
+
+
+def wall_to_payload(wall: SunkenWall, bounds: BaseGeometry) -> dict[str, Any] | None:
+  """A sunken wall as a drawable ring plus the axis it sinks along."""
+  clipped = wall.geometry.intersection(bounds)
+  parts = polygon_parts(clipped)
+  if not parts:
+    return None
+  part = max(parts, key=lambda candidate: candidate.area)
+  ring = ring_to_dm(part.exterior.coords)
+  if len(ring) < 4:
+    return None
+  crest = ring_to_dm([wall.crest_end])[0]
+  sink = ring_to_dm([wall.sink_end])[0]
+  return {
+    "area_m2": round(part.area),
+    "crest": crest,
+    "name": wall.name,
+    "ring": ring,
+    "sink": sink,
+    "width_m": round(wall.width_m, 2),
+  }
+
+
+def collect_sunken_walls(
+  osm_path: Path, bounds: BaseGeometry, water: list[WaterFeature]
+) -> list[dict[str, Any]]:
+  walls = [
+    payload
+    for wall in derive_sunken_walls(osm_path, water)
+    if (payload := wall_to_payload(wall, bounds)) is not None
+  ]
+  walls.sort(key=lambda entry: -entry["area_m2"])
+  return walls
 
 
 def line_parts(geometry: BaseGeometry) -> list[LineString]:
@@ -298,9 +382,10 @@ def build_payload(
     "schema_version": SCHEMA_VERSION,
     "simplify_m": WATER_SIMPLIFY_M,
     "source": ATTRIBUTION,
-    "water": collect(
-      osm_path, "water", bounds, MIN_WATER_AREA_M2, WATER_SIMPLIFY_M
+    "sunken_walls": collect_sunken_walls(
+      osm_path, bounds, load_water_features(osm_path)
     ),
+    "water": collect_water(osm_path, bounds),
   }
 
 
@@ -323,10 +408,13 @@ def main(argv: list[str] | None = None) -> None:
   from collections import Counter
 
   kinds = Counter(entry["kind"] for entry in payload["roads"])
+  basins = sum(1 for entry in payload["water"] if entry["kind"] == "basin")
   print(
     f"Wrote {args.out} ({size / 1024:.0f} KiB) with "
-    f"{len(payload['water'])} water, {len(payload['parks'])} park, "
-    f"{len(payload['roads'])} road polygons ({dict(kinds)}) and "
+    f"{len(payload['water'])} water ({basins} basins), "
+    f"{len(payload['parks'])} park, "
+    f"{len(payload['roads'])} road polygons ({dict(kinds)}), "
+    f"{len(payload['sunken_walls'])} sunken walls and "
     f"{len(payload['lane_markings'])} lane markings"
   )
 
