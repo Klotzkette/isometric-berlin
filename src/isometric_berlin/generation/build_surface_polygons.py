@@ -49,7 +49,7 @@ DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
 SCHEMA_VERSION = 2
 WATER_SIMPLIFY_M = 0.15
-PARK_SIMPLIFY_M = 0.6
+PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
 MIN_PARK_AREA_M2 = 250.0
 
@@ -109,8 +109,8 @@ ROAD_KINDS: dict[str, str] = {
 }
 # Classes whose centreline earns a painted lane marking.
 MARKED_CLASSES = frozenset({"trunk", "primary", "secondary"})
-ROAD_SIMPLIFY_M = 0.35
-MIN_ROAD_AREA_M2 = 12.0
+ROAD_SIMPLIFY_M = 0.75
+MIN_ROAD_AREA_M2 = 25.0
 # A footway or cycleway that runs inside parkland is a park path and reads
 # sandy, wherever OSM classified it. This is what makes the Tiergarten look
 # like the Tiergarten instead of a grey street grid dropped on a lawn.

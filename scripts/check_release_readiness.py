@@ -39,7 +39,12 @@ DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
+# The download budget, raised from 200 MiB in v0.45.0. Refetching OSM for the
+# whole surveyed hull adds ~1.3 MB of payload and put the extracted package at
+# 201.3 MiB. The alternative was dropping feature classes from the very data
+# this release exists to add. The runtime budget that governs the hosted viewer
+# is MAX_WEBGL_SCENE_BYTES below and is unchanged.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 208 * 1024 * 1024
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
 REQUIRED_BASE_TARGET_FACES = 100_000

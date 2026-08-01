@@ -1,5 +1,58 @@
 # Changelog
 
+## v0.45.0
+
+- **The OSM extract finally covers the city this project surveys.** Every
+  OSM-derived surface stopped dead at world x −605 because `osm.gpkg` was
+  still the original Regierungsviertel window (x −707..605, z −1015..1451)
+  while the surveyed hull has reached x −2873..684, z −1305..1608 since
+  v0.41.0. The consequences were all visible from the viewer: the Großer
+  Stern had no carriageway at all, the Straße des 17. Juni lost its surface
+  and its lane markings halfway down the Tiergarten, the park paths ended in
+  mid-air, and the Spree behind the Gymnasium Tiergarten read GREEN because
+  there was no water polygon out there — only lawn. The extract is refetched
+  for the whole `bounds.geojson` hull and every derived payload rebuilt on
+  it. Layer counts, old → new: roads 4 397 → 13 042, water 34 → 129, parks
+  367 → 1 426, vegetation 2 942 → 8 986, playgrounds 16 → 140, rail 442 →
+  974, pois 1 847 → 5 855.
+- **Overpass could not deliver it, so `fetch_osm.py` learned to read a
+  Geofabrik extract.** Asking overpass-api.de for the full hull fails on the
+  first tile with "server is probably too busy" no matter how small the
+  tiles are cut, and the mirrors are gone. The new `--pbf` option reads
+  `berlin-latest.osm.pbf` through GDAL's OSM driver instead. Same tags, same
+  seven layers, same schema — only the transport differs. The driver
+  promotes only a handful of tags to real columns and hides the rest in an
+  `other_tags` hstore, and which ones differs per layer, so the hstore is
+  parsed back into the columns `split_layers` expects.
+- **GDAL splits the OSM element id across two columns and half the extract
+  had no id.** In the `multipolygons` layer a closed way is reported under
+  `osm_way_id` and a multipolygon relation under `osm_id`; reading only
+  `osm_id` left 11 305 of 11 657 rows without an identifier and wrote GDAL's
+  layer name into `element` where the rest of the project expects
+  node/way/relation. That silently cost the landmark QA every match made on
+  geometry rather than on name — the Luiseninsel playground among them.
+- **The refetched extract stays under the 5 MiB repository cap without
+  dropping data.** Four times the area is 5.2 MB of GeoPackage as written
+  before. Two lossless levers bring it to 4.4 MiB: the rtree spatial indexes
+  cost ~1.7 MB and nothing in this project queries the file spatially (every
+  consumer loads a whole layer), and columns that are entirely null within a
+  layer cost one SQLite header byte per row while carrying no information —
+  the layer filters already treat a missing column as all-null.
+- **The payloads grew with the area, not beyond it.** `surface-polygons.json`
+  237 → 786 KiB for 3.4× the roads, 4.3× the parks and 3× the lane markings;
+  `street-details.json` 6 → 32 KiB with 86 → 247 traffic signals and 46 → 324
+  monuments; `park-details.json` 3.4 → 3.8 MiB with 167 → 591 paths and 5 → 49
+  playgrounds; `minecraft-voxels.json` 1.9 → 2.2 MiB. `ROAD_SIMPLIFY_M` goes
+  0.35 → 0.75 m, `MIN_ROAD_AREA_M2` 12 → 25 m² and `PARK_SIMPLIFY_M` 0.6 → 1.2
+  m — coarser than before, but well under the metre the drawn city resolves,
+  and no feature class was dropped to pay for it.
+- **The download budget goes 200 → 208 MiB.** The extracted local package
+  landed at 201.3 MiB, 0.65% over a round-number guard set when the surveyed
+  area was a quarter of today's. Simplification recovered 100 KiB of the 1.3
+  MB; the rest would have had to come out of the very data this release adds.
+  `MAX_WEBGL_SCENE_BYTES`, the budget that actually governs what the hosted
+  viewer loads, is unchanged at 165 MiB and still passes.
+
 ## v0.44.0
 
 - **Every street and park path is a real drawn surface now.** OSM ships
