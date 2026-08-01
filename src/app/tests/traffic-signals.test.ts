@@ -21,7 +21,7 @@ const ground = voxelPayload as unknown as VoxelPayload;
 describe("task 07: animated OSM traffic signals", () => {
   test("the payload carries every surveyed signal inside bounds", () => {
     expect(street.schema_version).toBe(2);
-    expect(street.traffic_signals_dm.length).toBe(86);
+    expect(street.traffic_signals_dm.length).toBe(247);
     expect(street.source.toLowerCase()).toContain("openstreetmap");
     // Schema v2 also carries the monuments ("alle Denkmäler").
     expect(street.monuments!.length).toBeGreaterThan(40);
@@ -44,8 +44,8 @@ describe("task 07: animated OSM traffic signals", () => {
     expect(group).toBeInstanceOf(Group);
     const poles = group!.getObjectByName("traffic signal poles") as InstancedMesh;
     const lamps = group!.getObjectByName("traffic signal lamps") as InstancedMesh;
-    expect(poles.count).toBeGreaterThan(70);
-    expect(poles.count).toBeLessThanOrEqual(86);
+    expect(poles.count).toBeGreaterThan(200);
+    expect(poles.count).toBeLessThanOrEqual(street.traffic_signals_dm.length);
     expect(lamps.count).toBe(poles.count * 3);
     // Phase offsets differ across junctions (no unison blinking).
     const phases = group!.userData.phases as Float32Array;
