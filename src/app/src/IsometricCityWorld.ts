@@ -447,6 +447,10 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     "smooth paved paths",
     "smooth park paths",
     "smooth carriageways",
+    "basin floors",
+    "basin water",
+    "sunken walls",
+    "sunken wall crown path",
   ]) {
     const smooth = city.getObjectByName(name);
     if (smooth instanceof Mesh && smooth.userData.dayMaterial) {
@@ -463,11 +467,13 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       night ? 0x4a5568 : 0xf2f0e8,
     );
   }
-  const shoreInk = city.getObjectByName("smooth shoreline ink");
-  if (shoreInk instanceof LineSegments) {
-    (shoreInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
-    );
+  for (const name of ["smooth shoreline ink", "basin and sunken wall ink"]) {
+    const inkLines = city.getObjectByName(name);
+    if (inkLines instanceof LineSegments) {
+      (inkLines.material as LineBasicMaterial).color.setHex(
+        night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+      );
+    }
   }
   const waterSurface = city.getObjectByName("drawn water surface");
   if (waterSurface instanceof InstancedMesh) {
