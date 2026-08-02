@@ -133,7 +133,11 @@ export function finishDrawnGroup(
   const group = new Group();
   group.name = options.name;
 
-  const merged = mergeGeometries(builder.parts, false);
+  // mergeGeometries reads geometries[0] before checking the length, so an
+  // empty bucket throws rather than returning null. Most kits use only some
+  // of the three buckets.
+  const merged =
+    builder.parts.length > 0 ? mergeGeometries(builder.parts, false) : null;
   if (merged) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
     const nightMaterial = new MeshStandardMaterial({
@@ -151,7 +155,8 @@ export function finishDrawnGroup(
       part.dispose();
     }
   }
-  const lampGeometry = mergeGeometries(builder.lamps, false);
+  const lampGeometry =
+    builder.lamps.length > 0 ? mergeGeometries(builder.lamps, false) : null;
   if (lampGeometry) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
     const nightMaterial = new MeshStandardMaterial({
@@ -172,7 +177,8 @@ export function finishDrawnGroup(
       lamp.dispose();
     }
   }
-  const inkGeometry = mergeGeometries(builder.edges, false);
+  const inkGeometry =
+    builder.edges.length > 0 ? mergeGeometries(builder.edges, false) : null;
   if (inkGeometry) {
     const ink = new LineSegments(
       inkGeometry,

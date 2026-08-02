@@ -1,23 +1,21 @@
 import {
   BoxGeometry,
-  BufferGeometry,
-  Color,
   CylinderGeometry,
   EdgesGeometry,
-  Float32BufferAttribute,
   Group,
-  LineBasicMaterial,
-  LineSegments,
   Mesh,
   MeshBasicMaterial,
-  MeshStandardMaterial,
   PlaneGeometry,
 } from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import {
+  type Builder,
+  createBuilder,
+  finishDrawnGroup,
+  paintGeometry,
+} from "./drawnKit";
 import { createLetteringTexture } from "./drawnLettering";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
-import { MONUMENT_INK } from "./TiergartenMonuments";
 
 /**
  * Two boats on the water — staffage the owner asked for, not survey.
@@ -72,25 +70,6 @@ const STERN_NAME_WIDTH_M = 1.9;
 const STERN_NAME_HEIGHT_M = 0.34;
 const STERN_NAME_CAP_M = 0.16;
 
-type Builder = {
-  edges: BufferGeometry[];
-  lamps: BufferGeometry[];
-  parts: BufferGeometry[];
-};
-
-function paint(geometry: BufferGeometry, color: number): void {
-  geometry.deleteAttribute("uv");
-  const shade = new Color(color);
-  const positions = geometry.getAttribute("position");
-  const colors = new Float32Array(positions.count * 3);
-  for (let index = 0; index < positions.count; index += 1) {
-    colors[index * 3] = shade.r;
-    colors[index * 3 + 1] = shade.g;
-    colors[index * 3 + 2] = shade.b;
-  }
-  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
-}
-
 /** Frame of one boat: `along` runs bow-positive, `across` to starboard. */
 type Frame = {
   at: (along: number, across: number) => [number, number];
@@ -124,7 +103,7 @@ function box(
   geometry.rotateY(f.rotation);
   const [cx, cz] = f.at(along, across);
   geometry.translate(cx, y, cz);
-  paint(geometry, color);
+  paintGeometry(geometry, color);
   builder.parts.push(geometry);
   if (inked) {
     builder.edges.push(new EdgesGeometry(geometry, 24));
@@ -143,7 +122,7 @@ function lampion(
   const geometry = new CylinderGeometry(radius, radius, radius * 1.5, 6);
   const [cx, cz] = f.at(along, across);
   geometry.translate(cx, y, cz);
-  paint(geometry, LAMPION);
+  paintGeometry(geometry, LAMPION);
   builder.lamps.push(geometry);
 }
 
@@ -293,66 +272,20 @@ function sternNamePlate(f: Frame, water: number): Mesh | null {
 }
 
 export function createVessels(waterTopY: number = WATER_TOP_Y): Group {
-  const builder: Builder = { edges: [], lamps: [], parts: [] };
+  const builder = createBuilder();
   buildBarge(builder, waterTopY);
   const yacht = buildYacht(builder, waterTopY);
 
-  const group = new Group();
-  group.name = "drawn vessels";
+  const group = finishDrawnGroup(builder, {
+    name: "vessel",
+    lampEmissive: 0xffb457,
+    lampEmissiveIntensity: 1.15,
+  });
+  if (group === null) {
+    return new Group();
+  }
   // Owner-requested staffage: OSM maps no boats at all.
   group.userData.extrapolated = true;
-
-  const merged = mergeGeometries(builder.parts, false);
-  if (merged) {
-    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
-    const nightMaterial = new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.85,
-      vertexColors: true,
-    });
-    const mesh = new Mesh(merged, dayMaterial);
-    mesh.name = "vessel bodies";
-    mesh.userData.dayMaterial = dayMaterial;
-    mesh.userData.nightMaterial = nightMaterial;
-    group.add(mesh);
-    for (const part of builder.parts) {
-      part.dispose();
-    }
-  }
-  const lampGeometry = mergeGeometries(builder.lamps, false);
-  if (lampGeometry) {
-    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
-    const nightMaterial = new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.6,
-      vertexColors: true,
-    });
-    nightMaterial.userData.nightEmissive = 0xffb457;
-    nightMaterial.userData.nightEmissiveIntensity = 1.15;
-    const lamps = new Mesh(lampGeometry, dayMaterial);
-    lamps.name = "vessel lampions";
-    lamps.userData.dayMaterial = dayMaterial;
-    lamps.userData.nightMaterial = nightMaterial;
-    group.add(lamps);
-    for (const lamp of builder.lamps) {
-      lamp.dispose();
-    }
-  }
-  const inkGeometry = mergeGeometries(builder.edges, false);
-  if (inkGeometry) {
-    const ink = new LineSegments(
-      inkGeometry,
-      new LineBasicMaterial({ color: MONUMENT_INK }),
-    );
-    ink.name = "vessel ink lines";
-    ink.renderOrder = 2;
-    group.add(ink);
-    for (const edge of builder.edges) {
-      edge.dispose();
-    }
-  }
   const plate = sternNamePlate(yacht, waterTopY);
   if (plate) {
     group.add(plate);

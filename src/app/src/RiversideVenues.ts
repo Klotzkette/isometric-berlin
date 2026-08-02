@@ -1,21 +1,14 @@
-import {
-  BoxGeometry,
-  BufferGeometry,
-  Color,
-  CylinderGeometry,
-  EdgesGeometry,
-  Float32BufferAttribute,
-  Group,
-  LineBasicMaterial,
-  LineSegments,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-} from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { BoxGeometry, EdgesGeometry, type Group } from "three";
 
+import {
+  addBox,
+  addCone,
+  type Builder,
+  createBuilder,
+  finishDrawnGroup,
+  paintGeometry,
+} from "./drawnKit";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
-import { MONUMENT_INK } from "./TiergartenMonuments";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 
 /**
@@ -55,68 +48,6 @@ const TABLE_SPACING_M = 2.6;
 const TABLE_LENGTH_M = 2.0;
 const GARDEN_MARGIN_M = 3.0;
 
-type Builder = {
-  edges: BufferGeometry[];
-  parts: BufferGeometry[];
-};
-
-function paint(geometry: BufferGeometry, color: number): void {
-  geometry.deleteAttribute("uv");
-  const shade = new Color(color);
-  const positions = geometry.getAttribute("position");
-  const colors = new Float32Array(positions.count * 3);
-  for (let index = 0; index < positions.count; index += 1) {
-    colors[index * 3] = shade.r;
-    colors[index * 3 + 1] = shade.g;
-    colors[index * 3 + 2] = shade.b;
-  }
-  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
-}
-
-function box(
-  builder: Builder,
-  color: number,
-  cx: number,
-  cy: number,
-  cz: number,
-  sx: number,
-  sy: number,
-  sz: number,
-  rotationY: number,
-  inked = true,
-): void {
-  const geometry = new BoxGeometry(sx, sy, sz);
-  if (rotationY !== 0) {
-    geometry.rotateY(rotationY);
-  }
-  geometry.translate(cx, cy, cz);
-  paint(geometry, color);
-  builder.parts.push(geometry);
-  if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
-  }
-}
-
-function cone(
-  builder: Builder,
-  color: number,
-  cx: number,
-  cy: number,
-  cz: number,
-  radius: number,
-  height: number,
-  segments: number,
-  inked = true,
-): void {
-  const geometry = new CylinderGeometry(0, radius, height, segments);
-  geometry.translate(cx, cy, cz);
-  paint(geometry, color);
-  builder.parts.push(geometry);
-  if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
-  }
-}
-
 /** One deck chair: a slanted canvas between two low frame rails. */
 function deckChair(
   builder: Builder,
@@ -127,20 +58,20 @@ function deckChair(
   alternate: boolean,
 ): void {
   const canvas = alternate ? CHAIR_CANVAS_ALT : CHAIR_CANVAS;
-  box(builder, CHAIR_FRAME, cx, ground + 0.18, cz, 1.5, 0.1, 0.62, rotation);
+  addBox(builder, CHAIR_FRAME, cx, ground + 0.18, cz, 1.5, 0.1, 0.62, rotation);
   // The reclining back, tipped away from the water like the real rows.
   const back = new BoxGeometry(0.06, 0.86, 0.6);
   back.rotateZ(0.38);
   back.rotateY(rotation);
   back.translate(cx - Math.cos(rotation) * 0.5, ground + 0.6, cz - Math.sin(rotation) * 0.5);
-  paint(back, CHAIR_FRAME);
+  paintGeometry(back, CHAIR_FRAME);
   builder.parts.push(back);
   builder.edges.push(new EdgesGeometry(back, 24));
   const seat = new BoxGeometry(1.0, 0.08, 0.56);
   seat.rotateZ(-0.16);
   seat.rotateY(rotation);
   seat.translate(cx, ground + 0.36, cz);
-  paint(seat, canvas);
+  paintGeometry(seat, canvas);
   builder.parts.push(seat);
   builder.edges.push(new EdgesGeometry(seat, 24));
 }
@@ -154,9 +85,9 @@ function barHut(
   rotation: number,
   length: number,
 ): void {
-  box(builder, HUT_BODY, cx, ground + 1.35, cz, length, 2.7, 2.6, rotation);
-  box(builder, HUT_ROOF, cx, ground + 2.85, cz, length + 0.5, 0.3, 3.1, rotation);
-  box(
+  addBox(builder, HUT_BODY, cx, ground + 1.35, cz, length, 2.7, 2.6, rotation);
+  addBox(builder, HUT_ROOF, cx, ground + 2.85, cz, length + 0.5, 0.3, 3.1, rotation);
+  addBox(
     builder, HUT_COUNTER,
     cx + Math.sin(rotation) * 1.6, ground + 1.1, cz + Math.cos(rotation) * 1.6,
     length - 0.6, 0.16, 0.7,
@@ -170,8 +101,8 @@ function parasol(
   ground: number,
   cz: number,
 ): void {
-  box(builder, PARASOL_POST, cx, ground + 1.1, cz, 0.12, 2.2, 0.12, 0);
-  cone(builder, PARASOL_CANOPY, cx, ground + 2.5, cz, 1.7, 0.7, 8);
+  addBox(builder, PARASOL_POST, cx, ground + 1.1, cz, 0.12, 2.2, 0.12, 0);
+  addCone(builder, PARASOL_CANOPY, cx, ground + 2.5, cz, 1.7, 0.7, 8);
 }
 
 /** Table with its two benches, the unit a beer garden is measured in. */
@@ -182,16 +113,16 @@ function beerTable(
   cz: number,
   rotation: number,
 ): void {
-  box(builder, TABLE_TOP, cx, ground + 0.74, cz, TABLE_LENGTH_M, 0.08, 0.7, rotation);
+  addBox(builder, TABLE_TOP, cx, ground + 0.74, cz, TABLE_LENGTH_M, 0.08, 0.7, rotation);
   for (const end of [-1, 1]) {
-    box(
+    addBox(
       builder, TABLE_LEG,
       cx + Math.cos(rotation) * end * 0.8, ground + 0.37, cz + Math.sin(rotation) * end * 0.8,
       0.08, 0.74, 0.62,
       rotation,
       false,
     );
-    box(
+    addBox(
       builder, BENCH_SEAT,
       cx - Math.sin(rotation) * end * 0.78, ground + 0.46, cz + Math.cos(rotation) * end * 0.78,
       TABLE_LENGTH_M, 0.07, 0.28,
@@ -207,11 +138,11 @@ function chestnut(
   cz: number,
   height: number,
 ): void {
-  box(builder, TRUNK, cx, ground + height * 0.3, cz, 0.7, height * 0.6, 0.7, 0);
+  addBox(builder, TRUNK, cx, ground + height * 0.3, cz, 0.7, height * 0.6, 0.7, 0);
   const crown = new BoxGeometry(height * 0.62, height * 0.44, height * 0.62);
   crown.rotateY(Math.PI / 4);
   crown.translate(cx, ground + height * 0.72, cz);
-  paint(crown, CROWN);
+  paintGeometry(crown, CROWN);
   builder.parts.push(crown);
   builder.edges.push(new EdgesGeometry(crown, 24));
 }
@@ -280,7 +211,7 @@ function buildBeerGarden(
     if (length < 4) {
       continue;
     }
-    box(
+    addBox(
       builder, HEDGE,
       (x0 + x1) / 2, ground + 0.55, (z0 + z1) / 2,
       length, 1.1, 0.8,
@@ -365,7 +296,7 @@ export function createRiversideVenues(
     return null;
   }
   const sample = worldGroundSampler(ground);
-  const builder: Builder = { edges: [], parts: [] };
+  const builder: Builder = createBuilder();
   for (const garden of gardens) {
     const y = sample(garden.x_dm / 10, garden.z_dm / 10);
     if (y === null) {
@@ -375,13 +306,13 @@ export function createRiversideVenues(
     if (garden.name === "Zollpackhof") {
       const tapY = sample(ZOLLPACKHOF_TAP.x, ZOLLPACKHOF_TAP.z);
       if (tapY !== null) {
-        box(
+        addBox(
           builder, TAP_HOUSE,
           ZOLLPACKHOF_TAP.x, tapY + 1.6, ZOLLPACKHOF_TAP.z,
           9.0, 3.2, 7.0,
           0,
         );
-        box(
+        addBox(
           builder, TAP_ROOF,
           ZOLLPACKHOF_TAP.x, tapY + 3.6, ZOLLPACKHOF_TAP.z,
           9.6, 0.8, 7.6,
@@ -411,41 +342,10 @@ export function createRiversideVenues(
   if (builder.parts.length === 0) {
     return null;
   }
-  const group = new Group();
-  group.name = "riverside venues";
-  // Outlines, benches and the chestnut are surveyed; the furniture kit is not.
-  group.userData.extrapolated = true;
-
-  const merged = mergeGeometries(builder.parts, false);
-  if (merged) {
-    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
-    const nightMaterial = new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.9,
-      vertexColors: true,
-    });
-    const mesh = new Mesh(merged, dayMaterial);
-    mesh.name = "riverside venue bodies";
-    mesh.userData.dayMaterial = dayMaterial;
-    mesh.userData.nightMaterial = nightMaterial;
-    group.add(mesh);
-    for (const part of builder.parts) {
-      part.dispose();
-    }
-  }
-  const inkGeometry = mergeGeometries(builder.edges, false);
-  if (inkGeometry) {
-    const ink = new LineSegments(
-      inkGeometry,
-      new LineBasicMaterial({ color: MONUMENT_INK }),
-    );
-    ink.name = "riverside venue ink lines";
-    ink.renderOrder = 2;
-    group.add(ink);
-    for (const edge of builder.edges) {
-      edge.dispose();
-    }
+  const group = finishDrawnGroup(builder, { name: "riverside venue" });
+  if (group) {
+    // Outlines, benches and the chestnut are surveyed; the furniture is not.
+    group.userData.extrapolated = true;
   }
   return group;
 }

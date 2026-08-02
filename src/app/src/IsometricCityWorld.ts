@@ -401,7 +401,7 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     "filling station bodies",
     "riverside venue bodies",
     "vessel bodies",
-    "vessel lampions",
+    "vessel lamps",
     "Amtssitz am Spreebogen bodies",
   ]) {
     const accessory = city.getObjectByName(name);
