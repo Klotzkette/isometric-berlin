@@ -400,6 +400,10 @@ def sunken_wall_columns(
     np.asarray([(x + 0.5) * CELL_M for x, _ in cells]),
     np.asarray([(z + 0.5) * CELL_M for _, z in cells]),
   )
+  # One datum for the whole wedge. Seating every column on its own ground
+  # would notch the crown wherever the basin floor dips, and a wedge whose
+  # crown wanders up and down is no longer a wedge.
+  base_y = float(np.min(ground))
   columns: list[list[int]] = []
   for cell, ground_y in zip(cells, ground):
     # The entrance end is still essentially at grade, and the block world
@@ -407,8 +411,9 @@ def sunken_wall_columns(
     # rather than putting a 4 m step where you are meant to walk on.
     if per_cell[cell] < SUNKEN_WALL_ENTRANCE_M:
       continue
-    blocks = math.ceil(per_cell[cell] / CELL_M - 1e-9)
-    y0_dm = round(float(ground_y) * 10)
+    crown = float(ground_y) + per_cell[cell]
+    blocks = math.ceil((crown - base_y) / CELL_M - 1e-9)
+    y0_dm = round(base_y * 10)
     columns.append(
       [cell[0], cell[1], y0_dm, y0_dm + blocks * int(CELL_M) * 10, CLASS_WALL]
     )
