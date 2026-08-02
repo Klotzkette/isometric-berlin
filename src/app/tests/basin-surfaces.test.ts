@@ -45,7 +45,7 @@ describe("constructed basins", () => {
 });
 
 describe("the sunken wall", () => {
-  test("the slab ramps from the rim down under the water", () => {
+  test("the wedge climbs from grade to a high point over the water", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
     const slab = group.getObjectByName("sunken walls");
     expect(slab).toBeInstanceOf(Mesh);
@@ -53,13 +53,35 @@ describe("the sunken wall", () => {
       group.getObjectByName("basin water") as Mesh,
     ).max.y;
     const box = new Box3().setFromObject(slab as Mesh);
-    // It stands proud of the basin at the crest and disappears below the
-    // surface at the sinking tip — that descent IS the artwork.
-    expect(box.max.y).toBeGreaterThan(water + 0.5);
+    // Several metres proud of the water at the crest, and carried down
+    // through the surface by the plunge face — that drop IS the artwork.
+    expect(box.max.y).toBeGreaterThan(water + 4);
     expect(box.min.y).toBeLessThan(water);
   });
 
-  test("a walkable crown runs along the slab", () => {
+  test("the wedge is low in the north and high in the south", () => {
+    const wall = surfaces.sunken_walls?.[0];
+    expect(wall).toBeDefined();
+    // World z runs south, so the crest is the southern end.
+    expect(wall!.crest[1]).toBeGreaterThan(wall!.foot[1]);
+    const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
+    const slab = group.getObjectByName("sunken walls") as Mesh;
+    const position = slab.geometry.getAttribute("position");
+    let northTop = -Infinity;
+    let southTop = -Infinity;
+    const midZ = (wall!.crest[1] + wall!.foot[1]) / 20;
+    for (let index = 0; index < position.count; index += 1) {
+      const y = position.getY(index);
+      if (position.getZ(index) < midZ) {
+        northTop = Math.max(northTop, y);
+      } else {
+        southTop = Math.max(southTop, y);
+      }
+    }
+    expect(southTop).toBeGreaterThan(northTop + 2);
+  });
+
+  test("a walkable crown with rails runs the whole ramp", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
     const crown = group.getObjectByName("sunken wall crown path");
     expect(crown).toBeInstanceOf(Mesh);
@@ -67,11 +89,18 @@ describe("the sunken wall", () => {
       group.getObjectByName("sunken walls") as Mesh,
     );
     const crownBox = new Box3().setFromObject(crown as Mesh);
-    // The path stops where the wall dips under, so it is shorter than the
-    // slab, and it lies on top of it rather than beside it.
+    // The path lies on the slab and runs its full length, from the
+    // entrance at grade to the break at the crest.
     expect(crownBox.max.y).toBeLessThanOrEqual(slabBox.max.y + 0.1);
     expect(slabBox.containsBox(crownBox.clone().expandByScalar(-0.2))).toBe(
       true,
+    );
+    // The parapet rails are drawn as ink lines standing above the crown.
+    const ink = group.getObjectByName(
+      "basin and sunken wall ink",
+    ) as LineSegments;
+    expect(new Box3().setFromObject(ink).max.y).toBeGreaterThan(
+      crownBox.max.y + 0.5,
     );
   });
 

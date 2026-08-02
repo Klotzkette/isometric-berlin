@@ -20,8 +20,8 @@ the full basin rectangle, and the water way is that same rectangle with a
 narrow slot cut out of it. The slot IS the wall — the mapper cut the wall's
 footprint out of the water because the wall displaces it. So the wall needs
 no invented geometry at all: it is ``artwork − water``, and its long axis
-runs from the basin rim to the point where the wall disappears under the
-surface.
+runs from the basin rim out to the high point where the wall breaks off
+into the water.
 """
 
 from __future__ import annotations
@@ -124,16 +124,21 @@ def load_water_features(osm_path: Any) -> list[WaterFeature]:
 
 @dataclass(frozen=True)
 class SunkenWall:
-  """A wall slab running into a basin and dipping below its surface.
+  """A wedge-shaped wall slab rising out of the ground into a basin.
 
-  ``crest_end`` is the end standing on the rim; ``sink_end`` is the tip
-  inside the basin where the wall has descended under the water.
+  Girot's *Sinkende Mauer* is a wedge, not a slab of even height: it starts
+  flush with the paving on the rim, where you step onto the walkway on its
+  crown, and climbs steadily to a high point out in the basin, where it
+  breaks off in a near-vertical face and drops into the water.
+
+  ``foot_end`` is the end on the rim, at ground level; ``crest_end`` is the
+  high tip inside the basin.
   """
 
   crest_end: tuple[float, float]
+  foot_end: tuple[float, float]
   geometry: Polygon
   name: str
-  sink_end: tuple[float, float]
   width_m: float
 
 
@@ -209,9 +214,9 @@ def derive_sunken_walls(
       if width > MAX_WALL_WIDTH_M:
         continue
       # The end standing on the rim lies ON the artwork's outer ring; the
-      # sinking tip is out in the middle of the basin, far from it.
+      # high tip is out in the middle of the basin, far from it.
       rim = artwork.exterior
-      crest, sink = (
+      foot, crest = (
         (first, second)
         if rim.distance(Point(first)) <= rim.distance(Point(second))
         else (second, first)
@@ -219,9 +224,9 @@ def derive_sunken_walls(
       walls.append(
         SunkenWall(
           crest_end=crest,
+          foot_end=foot,
           geometry=part,
           name=tag(row, "name"),
-          sink_end=sink,
           width_m=width,
         )
       )

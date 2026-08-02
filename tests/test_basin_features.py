@@ -58,7 +58,7 @@ def test_the_invalidenpark_basin_is_water(surfaces: dict) -> None:
   assert hits[0]["area_m2"] > 2000
 
 
-def test_the_sunken_wall_runs_from_the_rim_into_the_basin(
+def test_the_sunken_wall_climbs_from_the_rim_into_the_basin(
   water_features: list,
 ) -> None:
   walls = derive_sunken_walls(OSM, water_features)
@@ -68,20 +68,41 @@ def test_the_sunken_wall_runs_from_the_rim_into_the_basin(
   assert 2.0 < wall.width_m < 6.0
   # A wall is long and thin, and it reaches well into the basin.
   length = (
-    (wall.crest_end[0] - wall.sink_end[0]) ** 2
-    + (wall.crest_end[1] - wall.sink_end[1]) ** 2
+    (wall.crest_end[0] - wall.foot_end[0]) ** 2
+    + (wall.crest_end[1] - wall.foot_end[1]) ** 2
   ) ** 0.5
   assert length > wall.width_m * 5
+  # The owner's photographs: ground level in the north, climbing south to
+  # the high point that breaks off into the water. Northing decreases
+  # southwards, so the foot is the northern end.
+  assert wall.foot_end[1] > wall.crest_end[1]
 
 
 def test_the_payload_carries_the_wall_axis(surfaces: dict) -> None:
-  assert surfaces["schema_version"] >= 3
+  assert surfaces["schema_version"] >= 4
   walls = surfaces["sunken_walls"]
   assert len(walls) == 1
   wall = walls[0]
   assert len(wall["ring"]) >= 4
-  assert len(wall["crest"]) == 2 and len(wall["sink"]) == 2
-  assert wall["crest"] != wall["sink"]
+  assert len(wall["crest"]) == 2 and len(wall["foot"]) == 2
+  assert wall["crest"] != wall["foot"]
+  # World z runs south, so the high crest carries the larger z.
+  assert wall["crest"][1] > wall["foot"][1]
+
+
+def test_voxel_wedge_steps_up_towards_the_crest() -> None:
+  payload = json.loads(VOXELS.read_text(encoding="utf-8"))
+  concrete = payload["classes"].index("concrete")
+  # The wall's own column of cells, well clear of any building.
+  wedge = sorted(
+    (z_idx, y1 - y0)
+    for x_idx, z_idx, y0, y1, cid in payload["buildings"]
+    if cid == concrete and x_idx == 89 and -296 <= z_idx <= -284
+  )
+  assert len(wedge) >= 6
+  heights = [height for _, height in wedge]
+  assert heights == sorted(heights)
+  assert heights[0] < heights[-1]
 
 
 def test_every_water_polygon_is_classified(surfaces: dict) -> None:

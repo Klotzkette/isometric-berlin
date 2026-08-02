@@ -75,6 +75,10 @@ CLASS_BRIDGE = 6
 # A constructed basin is water that sits on the ground it was built into,
 # so its cells keep the local terrain height instead of the Spree table.
 CLASS_BASIN = 7
+# Height of Girot's wedge at its high point, read off the owner's photographs
+# of the Sinkende Mauer; the drawn city uses the same figure.
+SUNKEN_WALL_RISE_M = 5.6
+SUNKEN_WALL_ENTRANCE_M = 1.0
 
 # ALKIS function codes rendered as glass blocks: offices (Bürogebäude) and the
 # Hauptbahnhof station hall (Bahnhofshalle / Empfangsgebäude). Everything else
@@ -350,6 +354,63 @@ def rasterise_buildings(
   return merged
 
 
+def sunken_wall_columns(
+  osm_path: Path, grid: dict[str, int], sampler: GroundSampler
+) -> list[list[int]]:
+  """Blocky wedges for the sunken walls: one column per cell along the axis.
+
+  Painting the wall's footprint concrete leaves it flat, so in the block
+  world Girot's wedge read as a grey stripe on the water. Stepping a column
+  up along the foot→crest axis gives back the ramp — coarsely, because the
+  4 m grid can only step it in 4 m tiers, which is what the block world is.
+  """
+  walls = derive_sunken_walls(osm_path, load_water_features(osm_path))
+  if not walls:
+    return []
+  x_hi = grid["min_x_idx"] + grid["cols"]
+  z_hi = grid["min_z_idx"] + grid["rows"]
+  per_cell: dict[tuple[int, int], float] = {}
+  for wall in walls:
+    foot_x = wall.foot_end[0] - ORIGIN_EASTING
+    foot_z = ORIGIN_NORTHING - wall.foot_end[1]
+    crest_x = wall.crest_end[0] - ORIGIN_EASTING
+    crest_z = ORIGIN_NORTHING - wall.crest_end[1]
+    length = math.hypot(crest_x - foot_x, crest_z - foot_z)
+    if length <= 0:
+      continue
+    steps = max(1, math.ceil(length / (CELL_M / 2)))
+    for step in range(steps + 1):
+      t = step / steps
+      x = foot_x + (crest_x - foot_x) * t
+      z = foot_z + (crest_z - foot_z) * t
+      x_idx = math.floor(x / CELL_M)
+      z_idx = math.floor(z / CELL_M)
+      if not (grid["min_x_idx"] <= x_idx < x_hi and grid["min_z_idx"] <= z_idx < z_hi):
+        continue
+      height = SUNKEN_WALL_RISE_M * t
+      per_cell[(x_idx, z_idx)] = max(per_cell.get((x_idx, z_idx), 0.0), height)
+  if not per_cell:
+    return []
+  cells = sorted(per_cell)
+  ground = sampler.sample(
+    np.asarray([(x + 0.5) * CELL_M for x, _ in cells]),
+    np.asarray([(z + 0.5) * CELL_M for _, z in cells]),
+  )
+  columns: list[list[int]] = []
+  for cell, ground_y in zip(cells, ground):
+    # The entrance end is still essentially at grade, and the block world
+    # cannot draw a column shorter than one cell, so leave it as paving
+    # rather than putting a 4 m step where you are meant to walk on.
+    if per_cell[cell] < SUNKEN_WALL_ENTRANCE_M:
+      continue
+    blocks = math.ceil(per_cell[cell] / CELL_M - 1e-9)
+    y0_dm = round(float(ground_y) * 10)
+    columns.append(
+      [cell[0], cell[1], y0_dm, y0_dm + blocks * int(CELL_M) * 10, CLASS_CONCRETE]
+    )
+  return columns
+
+
 def build_tree_blocks(park_details_path: Path, grid: dict[str, int]) -> list[list[int]]:
   """One voxel tree per occupied cell: [x_idx, z_idx, ground_y_dm, height_dm]."""
   payload = json.loads(park_details_path.read_text(encoding="utf-8"))
@@ -402,6 +463,8 @@ def build_payload(
       columns.append([x_idx, z_idx, y0_dm, y1_dm, class_id])
       if has_tier:
         columns.append([x_idx, z_idx, y1_dm, y1_dm + int(CELL_M * 10), class_id])
+
+  columns.extend(sunken_wall_columns(osm_path, grid, sampler))
 
   trees = build_tree_blocks(park_details_path, grid)
 

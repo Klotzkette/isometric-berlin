@@ -111,18 +111,19 @@ export type LaneMarking = {
 };
 
 /**
- * A wall slab running out into a basin and dipping below its surface, as
- * OSM maps Christophe Girot's *Sinkende Mauer* (1997) in the Invalidenpark:
- * the mapper cut the wall's footprint out of the water ring, so this ring is
- * exactly that cut-out. `crest` stands on the basin rim, `sink` is the tip
- * where the wall has descended under the water. Both are decimetre points.
+ * A wedge-shaped wall climbing out of the ground into a basin, as OSM maps
+ * Christophe Girot's *Sinkende Mauer* (1997) in the Invalidenpark: the
+ * mapper cut the wall's footprint out of the water ring, so this ring is
+ * exactly that cut-out. `foot` is the end flush with the paving on the rim,
+ * `crest` the high tip out in the basin where the wedge breaks off into the
+ * water. Both are decimetre points.
  */
 export type SunkenWall = {
   area_m2: number;
   crest: number[];
+  foot: number[];
   name: string;
   ring: number[][];
-  sink: number[];
   width_m: number;
 };
 
@@ -4111,9 +4112,10 @@ function ringContains(ring: number[][], x: number, z: number): boolean {
  * water reads blue rather than as a green lawn seen through a tint.
  *
  * A sunken wall keeps the OSM ring the mapper cut out of the water and
- * ramps its top face linearly along the crest→sink axis, from a slab
- * standing on the rim to a tip below the water line. A narrow walkable
- * crown runs along the ramp as far as the point where it dips under.
+ * ramps its top face linearly along the foot→crest axis, from ground level
+ * on the rim to a high point out in the basin where the slab breaks off in
+ * a near-vertical face and drops through the water. The walkable crown and
+ * its two parapet rails run the whole ramp, from the entrance to the break.
  */
 function addBasinsAndSunkenWalls(
   group: Group,
@@ -4128,11 +4130,14 @@ function addBasinsAndSunkenWalls(
   /** Clear of the lawn plate (+0.06) and every park path (up to +0.14). */
   const BASIN_LIFT_M = 0.22;
   const BED_GAP_M = 0.06;
-  /** Height of the wall where it stands on the basin rim. */
-  const CREST_RISE_M = 1.5;
-  /** How far under the surface the sinking tip has gone. */
-  const SINK_DEPTH_M = 0.55;
+  /** Height of the wedge at its high point, from the photographs. */
+  const WALL_RISE_M = 5.6;
+  /** How far the plunge face carries on below the water line. */
+  const PLUNGE_DROP_M = 1.1;
   const CROWN_WIDTH_FRACTION = 0.5;
+  /** Waist-high parapet either side of the walkway, drawn as ink lines. */
+  const RAIL_HEIGHT_M = 0.95;
+  const RAIL_POST_SPACING_M = 2.6;
 
   const levelOf = new Map<SurfacePolygon, number>();
   const bedParts: BufferGeometry[] = [];
@@ -4234,33 +4239,35 @@ function addBasinsAndSunkenWalls(
     if (wall.ring.length < 4) {
       continue;
     }
+    const footX = wall.foot[0] / 10;
+    const footZ = wall.foot[1] / 10;
     const crestX = wall.crest[0] / 10;
     const crestZ = wall.crest[1] / 10;
-    const sinkX = wall.sink[0] / 10;
-    const sinkZ = wall.sink[1] / 10;
-    const axisX = sinkX - crestX;
-    const axisZ = sinkZ - crestZ;
+    const axisX = crestX - footX;
+    const axisZ = crestZ - footZ;
     const axisLengthSq = axisX * axisX + axisZ * axisZ;
     if (axisLengthSq < 1) {
       continue;
     }
-    // The basin this wall runs into decides the water line it disappears
-    // under; without one there is nothing for it to sink into.
-    const host = basins.find((basin) => ringContains(basin.ring, sinkX * 10, sinkZ * 10));
+    // The basin the wedge climbs into decides the water line its plunge
+    // face drops through; without one there is nothing for it to sink into.
+    const host = basins.find((basin) =>
+      ringContains(basin.ring, crestX * 10, crestZ * 10),
+    );
     const level = host ? (levelOf.get(host) ?? bankY) : null;
     if (level === null) {
       continue;
     }
-    const crestY =
-      (terrainAt ? terrainAt(crestX, crestZ) : bankY) + CREST_RISE_M;
-    const sinkY = level - SINK_DEPTH_M;
-    const floorY = level - SINK_DEPTH_M - 0.4;
+    // Flush with the paving where you step on, climbing to the high point.
+    const footY = (terrainAt ? terrainAt(footX, footZ) : bankY) + 0.05;
+    const crestY = footY + WALL_RISE_M;
+    const floorY = Math.min(footY, level) - PLUNGE_DROP_M;
     const rampAt = (x: number, z: number): number => {
       const t = Math.min(
         1,
-        Math.max(0, ((x - crestX) * axisX + (z - crestZ) * axisZ) / axisLengthSq),
+        Math.max(0, ((x - footX) * axisX + (z - footZ) * axisZ) / axisLengthSq),
       );
-      return crestY + (sinkY - crestY) * t;
+      return footY + (crestY - footY) * t;
     };
 
     let top: ShapeGeometry;
@@ -4320,33 +4327,45 @@ function addBasinsAndSunkenWalls(
       wallInk.push(ax, ay + 0.03, az, bx, by + 0.03, bz);
     }
 
-    // Walkable crown: a narrow path along the ramp, ending exactly where
-    // the wall dips under the water.
-    const submerged = (crestY - level) / (crestY - sinkY);
-    const walkable = Math.min(1, Math.max(0, submerged));
-    if (walkable > 0.05) {
-      const axisLength = Math.sqrt(axisLengthSq);
-      const halfWidth = (wall.width_m * CROWN_WIDTH_FRACTION) / 2;
-      const sideX = (-axisZ / axisLength) * halfWidth;
-      const sideZ = (axisX / axisLength) * halfWidth;
-      const STEPS = 24;
-      for (let step = 0; step < STEPS; step += 1) {
-        const t0 = (walkable * step) / STEPS;
-        const t1 = (walkable * (step + 1)) / STEPS;
-        const p0x = crestX + axisX * t0;
-        const p0z = crestZ + axisZ * t0;
-        const p1x = crestX + axisX * t1;
-        const p1z = crestZ + axisZ * t1;
-        const y0 = rampAt(p0x, p0z) + 0.05;
-        const y1 = rampAt(p1x, p1z) + 0.05;
-        crownPositions.push(
-          p0x - sideX, y0, p0z - sideZ,
-          p1x - sideX, y1, p1z - sideZ,
-          p1x + sideX, y1, p1z + sideZ,
-          p0x - sideX, y0, p0z - sideZ,
-          p1x + sideX, y1, p1z + sideZ,
-          p0x + sideX, y0, p0z + sideZ,
-        );
+    // Walkable crown: the narrow stepped path you enter at the foot and
+    // ride all the way up to the break, with a parapet either side.
+    const axisLength = Math.sqrt(axisLengthSq);
+    const halfWidth = (wall.width_m * CROWN_WIDTH_FRACTION) / 2;
+    const sideX = (-axisZ / axisLength) * halfWidth;
+    const sideZ = (axisX / axisLength) * halfWidth;
+    const STEPS = 24;
+    for (let step = 0; step < STEPS; step += 1) {
+      const t0 = step / STEPS;
+      const t1 = (step + 1) / STEPS;
+      const p0x = footX + axisX * t0;
+      const p0z = footZ + axisZ * t0;
+      const p1x = footX + axisX * t1;
+      const p1z = footZ + axisZ * t1;
+      const y0 = rampAt(p0x, p0z) + 0.05;
+      const y1 = rampAt(p1x, p1z) + 0.05;
+      crownPositions.push(
+        p0x - sideX, y0, p0z - sideZ,
+        p1x - sideX, y1, p1z - sideZ,
+        p1x + sideX, y1, p1z + sideZ,
+        p0x - sideX, y0, p0z - sideZ,
+        p1x + sideX, y1, p1z + sideZ,
+        p0x + sideX, y0, p0z + sideZ,
+      );
+    }
+    for (const side of [-1, 1] as const) {
+      const railX = sideX * side;
+      const railZ = sideZ * side;
+      wallInk.push(
+        footX + railX, footY + 0.05 + RAIL_HEIGHT_M, footZ + railZ,
+        crestX + railX, crestY + 0.05 + RAIL_HEIGHT_M, crestZ + railZ,
+      );
+      const posts = Math.max(2, Math.round(axisLength / RAIL_POST_SPACING_M));
+      for (let post = 0; post <= posts; post += 1) {
+        const t = post / posts;
+        const px = footX + axisX * t + railX;
+        const pz = footZ + axisZ * t + railZ;
+        const deck = rampAt(px, pz) + 0.05;
+        wallInk.push(px, deck, pz, px, deck + RAIL_HEIGHT_M, pz);
       }
     }
   }

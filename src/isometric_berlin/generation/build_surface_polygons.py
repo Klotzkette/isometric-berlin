@@ -14,8 +14,8 @@ The bank line is the one edge the eye follows, so it is worth the bytes.
 
 Water carries a ``kind`` of ``river`` or ``basin``: a river runs at the
 Spree table, a basin sits on the ground it was built into. Alongside it
-travel the sunken walls that run out into a basin and dip below its
-surface — see :mod:`isometric_berlin.generation.basin_features`.
+travel the sunken walls that climb out of the ground into a basin and
+break off into it — see :mod:`isometric_berlin.generation.basin_features`.
 
 Rings are stored as decimetre integers in viewer world coordinates:
 ``world_x = easting − 389500``, ``world_z = 5820000 − northing``.
@@ -58,7 +58,7 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 WATER_SIMPLIFY_M = 0.15
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
@@ -224,7 +224,7 @@ def collect_water(
 
 
 def wall_to_payload(wall: SunkenWall, bounds: BaseGeometry) -> dict[str, Any] | None:
-  """A sunken wall as a drawable ring plus the axis it sinks along."""
+  """A sunken wall as a drawable ring plus the axis it rises along."""
   clipped = wall.geometry.intersection(bounds)
   parts = polygon_parts(clipped)
   if not parts:
@@ -233,14 +233,12 @@ def wall_to_payload(wall: SunkenWall, bounds: BaseGeometry) -> dict[str, Any] | 
   ring = ring_to_dm(part.exterior.coords)
   if len(ring) < 4:
     return None
-  crest = ring_to_dm([wall.crest_end])[0]
-  sink = ring_to_dm([wall.sink_end])[0]
   return {
     "area_m2": round(part.area),
-    "crest": crest,
+    "crest": ring_to_dm([wall.crest_end])[0],
+    "foot": ring_to_dm([wall.foot_end])[0],
     "name": wall.name,
     "ring": ring,
-    "sink": sink,
     "width_m": round(wall.width_m, 2),
   }
 
