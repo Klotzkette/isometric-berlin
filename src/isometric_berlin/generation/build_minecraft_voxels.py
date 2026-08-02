@@ -23,6 +23,7 @@ from typing import Any
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import shapely
 from scipy.spatial import cKDTree
 from shapely.geometry.base import BaseGeometry
@@ -211,6 +212,23 @@ def bridge_line_geometries(frame: gpd.GeoDataFrame) -> list[BaseGeometry]:
   return list(tagged.geometry)
 
 
+def aboveground(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+  """Drop ways that are tunnelled, roofed over or on a negative layer.
+
+  The block world paves from centrelines, so without this the
+  Tiergartentunnel gets an asphalt stripe across the park it runs under.
+  """
+  keep = np.ones(len(frame), dtype=bool)
+  for column in ("tunnel", "covered"):
+    if column in frame.columns:
+      values = frame[column].astype("string").str.lower()
+      keep &= ~(values.notna() & ~values.isin(["", "no"]))
+  if "layer" in frame.columns:
+    depth = pd.to_numeric(frame["layer"], errors="coerce")
+    keep &= ~(depth.notna() & (depth < 0))
+  return frame[keep]
+
+
 def classify_ground(
   grid: dict[str, int], bounds_world: BaseGeometry, osm_path: Path
 ) -> np.ndarray:
@@ -226,7 +244,7 @@ def classify_ground(
   inside_points = shapely.points(flat_x[inside], flat_z[inside])
   inside_positions = np.flatnonzero(inside)
 
-  roads = gpd.read_file(osm_path, layer="roads")
+  roads = aboveground(gpd.read_file(osm_path, layer="roads"))
   road_lines = roads[
     roads.geometry.geom_type.isin(["LineString", "MultiLineString"])
     & roads["highway"].isin(ASPHALT_HIGHWAYS)
@@ -267,7 +285,7 @@ def classify_ground(
   # Bridge decks: OSM road/rail lines tagged bridge (Moltkebrücke, Gustav-
   # Heinemann-Brücke, S-Bahn viaduct, ...) reclaim the water cells they span
   # so the Spree crossings do not vanish into unbroken water.
-  rail = gpd.read_file(osm_path, layer="rail")
+  rail = aboveground(gpd.read_file(osm_path, layer="rail"))
   bridge_lines = bridge_line_geometries(roads) + bridge_line_geometries(rail)
   if bridge_lines:
     bridge_tree = shapely.STRtree([to_world(g) for g in bridge_lines])

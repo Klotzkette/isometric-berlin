@@ -270,6 +270,24 @@ def line_to_dm(coords: Any) -> list[list[int]]:
   ]
 
 
+def runs_underground(row: Any) -> bool:
+  """True for a way that is roofed over or below grade at this point.
+
+  A buffered centreline knows nothing about the third dimension, so without
+  this the Tiergartentunnel is painted straight across the park between the
+  Swiss embassy and the Hauptbahnhof. Only the portals stay visible, and
+  those carry their own geometry.
+  """
+  for key in ("tunnel", "covered"):
+    value = row.get(key)
+    if isinstance(value, str) and value not in {"", "no"}:
+      return True
+  layer = row.get("layer")
+  if isinstance(layer, str) and layer.lstrip("-").isdigit():
+    return int(layer) < 0
+  return False
+
+
 def collect_roads(
   osm_path: Path, bounds: BaseGeometry, parkland: BaseGeometry | None
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -288,6 +306,8 @@ def collect_roads(
       continue
     width = ROAD_WIDTHS_M.get(highway)
     if width is None:
+      continue
+    if runs_underground(row):
       continue
     geometry = row.geometry
     if geometry is None or geometry.is_empty:
