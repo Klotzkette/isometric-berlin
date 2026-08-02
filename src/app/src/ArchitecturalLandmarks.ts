@@ -2662,12 +2662,14 @@ function createBrandenburgGateModel(
   addBox(group, "Quadriga chariot", [3.4, 1.0, 7.4], [-1.1, 21.0, 0], bronze, 0.8);
   // Chariot rail, so the car reads as a vehicle from above.
   addBox(group, "Quadriga chariot rail", [0.24, 1.2, 7.4], [-2.6, 22.0, 0], bronze, 0.9);
-  for (const wheelZ of [-2.45, 2.45]) {
-    const wheel = new Mesh(new TorusGeometry(0.92, 0.13, 8, 20), bronze);
+  // Outboard of the car body, or the wheels sit inside it and never show.
+  for (const wheelZ of [-3.78, 3.78]) {
+    const wheel = new Mesh(new TorusGeometry(0.92, 0.16, 8, 20), bronze);
     wheel.name = "Quadriga chariot wheel";
     wheel.position.set(-1.2, 21.25, wheelZ);
     wheel.castShadow = true;
     group.add(wheel);
+    addEdges(group, wheel, 0.85);
   }
   for (let index = 0; index < 4; index += 1) {
     // Wider spacing plus faceted, inked bodies so the four-horse team
@@ -2709,6 +2711,13 @@ function createBrandenburgGateModel(
       ear.rotation.z = -0.18;
       group.add(ear);
     }
+    // Crested mane along the neck: the cheapest mark that turns a pair of
+    // ellipsoids into a horse at presentation distance.
+    const mane = new Mesh(new BoxGeometry(1.15, 0.42, 0.16), bronze);
+    mane.name = `Quadriga horse mane ${index + 1}`;
+    mane.position.set(2.42, 23.05, z);
+    mane.rotation.z = -0.62;
+    group.add(mane);
     for (const legX of [0.1, 1.72]) {
       for (const legZ of [-0.22, 0.22]) {
         addCylinderBetween(
@@ -2716,7 +2725,7 @@ function createBrandenburgGateModel(
           `Quadriga horse leg ${index + 1}`,
           new Vector3(legX, 21.82, z + legZ),
           new Vector3(legX + (legX > 1 ? 0.36 : -0.18), 20.48, z + legZ),
-          0.13,
+          0.19,
           bronze,
           8,
         );
@@ -2778,13 +2787,14 @@ function createBrandenburgGateModel(
     );
   }
   for (const side of [-1, 1]) {
-    const wing = new Mesh(new ConeGeometry(0.9, 2.8, 3), bronze);
+    const wing = new Mesh(new ConeGeometry(1.15, 3.5, 3), bronze);
     wing.name = "Quadriga Victoria wing";
     wing.rotation.x = Math.PI / 2;
     wing.rotation.z = side * 0.42;
-    wing.position.set(-1.95, 24.1, side * 0.72);
+    wing.position.set(-1.95, 24.1, side * 0.86);
     wing.castShadow = true;
     group.add(wing);
+    addEdges(group, wing, 0.85);
   }
   addCylinderBetween(
     group,

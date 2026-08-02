@@ -2752,6 +2752,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 62,
             target_world: [-1459, 2.1, 456],
           });
+          // The team drives east over the attic, so a south-east three-quarter
+          // view at their own height is the one that lets you count four
+          // horses; the default overview reduces them to one bronze lump.
+          runtime.focusCameraByName.set("Quadriga mit Victoria", {
+            azimuth_degrees: 42,
+            distance_m: 52,
+            polar_degrees: 72,
+            target_height_m: 25,
+            target_world: [417.9, 4.73, 301.42],
+          });
           // South-east of the basin, looking back along the wedge: the plunge
           // face is nearest and the crown recedes to the low north entrance.
           runtime.focusCameraByName.set("Invalidenpark / Sinkende Mauer", {
