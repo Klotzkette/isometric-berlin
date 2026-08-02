@@ -34,7 +34,7 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "street-details.json"
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 # Roads a filling station can front. Service ways and footpaths run behind
 # and beside forecourts, so matching those would rotate the canopy at random.
@@ -55,6 +55,21 @@ FUEL_DEFAULT_DEPTH_DM = 140
 MONUMENT_KINDS = {"cannon", "memorial", "monument", "tank"}
 # Landmarks the recognition layer already models completely.
 MONUMENT_SKIP_NAMES = {"Brandenburger Tor"}
+
+# Beer-garden and bar outlines are traced node by node in OSM; at viewer
+# scale the extra vertices only add jitter to the ink outline.
+VENUE_SIMPLIFY_M = 0.5
+
+# Berlin's Spree beach bars are tagged as ordinary drinking venues — the
+# beach is in the name, never in the tags.
+RIVERSIDE_BAR_AMENITIES = {"bar", "biergarten", "pub"}
+# Far enough to include a bar set back on the promenade, close enough to
+# exclude the pubs on the far side of the parkland.
+RIVERSIDE_BAR_MAX_WATER_M = 60.0
+# Capital Beach's surveyed bench row runs about 100 m along the quay.
+RIVERSIDE_BAR_SEAT_RADIUS_M = 120.0
+# The quay is one bench deep; anything further back is park furniture.
+RIVERSIDE_BAR_SEAT_SHORE_M = 25.0
 
 
 def monument_kind(row: Any) -> str | None:
@@ -160,6 +175,148 @@ def build_fuel_stations(
   return stations
 
 
+def build_beer_gardens(pois: gpd.GeoDataFrame, bounds: Any) -> list[dict[str, Any]]:
+  """``amenity=biergarten`` areas with the ring the tables stand in.
+
+  A beer garden is one of the few things OSM maps as a true area, so the
+  bench rows can be laid out inside the surveyed outline instead of being
+  scattered over a guessed rectangle.
+  """
+  gardens: list[dict[str, Any]] = []
+  for _, row in pois[pois["amenity"] == "biergarten"].iterrows():
+    geometry = row.geometry
+    if geometry is None or geometry.is_empty:
+      continue
+    if geometry.geom_type not in ("Polygon", "MultiPolygon"):
+      continue
+    centroid = geometry.centroid
+    if not bounds.contains(centroid):
+      continue
+    outline = geometry
+    if outline.geom_type == "MultiPolygon":
+      outline = max(outline.geoms, key=lambda part: part.area)
+    outline = outline.simplify(VENUE_SIMPLIFY_M, preserve_topology=True)
+    axis, along_m, across_m = rectangle_axis(outline)
+    name = row.get("name")
+    gardens.append(
+      {
+        "area_m2": round(outline.area),
+        "axis": [round(axis[0], 4), round(axis[1], 4)],
+        "d_dm": round(across_m * 10),
+        "name": name if isinstance(name, str) else "",
+        "ring_dm": [
+          [
+            round((x - ORIGIN_EASTING) * 10),
+            round((ORIGIN_NORTHING - y) * 10),
+          ]
+          for x, y in outline.exterior.coords
+        ],
+        "w_dm": round(along_m * 10),
+        "x_dm": round((centroid.x - ORIGIN_EASTING) * 10),
+        "z_dm": round((ORIGIN_NORTHING - centroid.y) * 10),
+      }
+    )
+  gardens.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
+  return gardens
+
+
+def build_riverside_bars(
+  pois: gpd.GeoDataFrame, water: gpd.GeoDataFrame, parks: gpd.GeoDataFrame, bounds: Any
+) -> list[dict[str, Any]]:
+  """Summer beach bars: a drinks node standing in parkland at the water.
+
+  Berlin's Spree beach bars are mapped as a single ``amenity=pub`` node —
+  no outline, no sand, nothing to extrude. What IS surveyed is the row of
+  benches along the bank, so each bar carries its own bench lines and the
+  viewer seats the deck chairs on them rather than inventing a layout.
+  """
+  # A venue OSM gave an outline to is already drawn from that outline;
+  # only the node-only ones need a layout invented around them.
+  drinks = pois[
+    pois["amenity"].isin(RIVERSIDE_BAR_AMENITIES) & (pois.geometry.geom_type == "Point")
+  ]
+  benches = pois[
+    (pois["amenity"] == "bench") & pois.geometry.geom_type.isin(["LineString", "Point"])
+  ]
+  parkland = parks.geometry.union_all()
+  # Only mapped water *areas* have a bank to align to; the layer also
+  # carries centre lines, and mixing them yields a collection whose
+  # boundary shapely reports as ``None``.
+  shore = water[
+    water.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
+  ].geometry.union_all()
+  bars: list[dict[str, Any]] = []
+  for _, row in drinks.iterrows():
+    geometry = row.geometry
+    if geometry is None or geometry.is_empty:
+      continue
+    centroid = geometry.centroid
+    if not bounds.contains(centroid):
+      continue
+    if not parkland.contains(centroid):
+      continue
+    if shore.distance(centroid) > RIVERSIDE_BAR_MAX_WATER_M:
+      continue
+    name = row.get("name")
+    seats: list[dict[str, Any]] = []
+    for _, bench in benches.iterrows():
+      line = bench.geometry
+      if line.distance(centroid) > RIVERSIDE_BAR_SEAT_RADIUS_M:
+        continue
+      # Benches up in the park belong to the park, not to the bar; the
+      # ones the visitor sits on face the river from the quay.
+      if shore.distance(line) > RIVERSIDE_BAR_SEAT_SHORE_M:
+        continue
+      if line.geom_type == "Point":
+        seats.append(
+          {
+            "axis": [1.0, 0.0],
+            "len_dm": 0,
+            "x_dm": round((line.x - ORIGIN_EASTING) * 10),
+            "z_dm": round((ORIGIN_NORTHING - line.y) * 10),
+          }
+        )
+        continue
+      start, end = line.coords[0], line.coords[-1]
+      dx = end[0] - start[0]
+      dz = -(end[1] - start[1])
+      length = math.hypot(dx, dz)
+      if length == 0:
+        continue
+      middle = line.interpolate(0.5, normalized=True)
+      seats.append(
+        {
+          "axis": [round(dx / length, 4), round(dz / length, 4)],
+          "len_dm": round(length * 10),
+          "x_dm": round((middle.x - ORIGIN_EASTING) * 10),
+          "z_dm": round((ORIGIN_NORTHING - middle.y) * 10),
+        }
+      )
+    seats.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
+    # The bar faces the water; the bank tangent gives the row direction.
+    nearest = shore.exterior if shore.geom_type == "Polygon" else shore.boundary
+    offset = nearest.project(centroid)
+    before = nearest.interpolate(max(0.0, offset - 20.0))
+    after = nearest.interpolate(min(nearest.length, offset + 20.0))
+    dx = after.x - before.x
+    dz = -(after.y - before.y)
+    length = math.hypot(dx, dz)
+    axis = (dx / length, dz / length) if length else (1.0, 0.0)
+    bars.append(
+      {
+        "axis": [round(axis[0], 4), round(axis[1], 4)],
+        "name": name if isinstance(name, str) else "",
+        "seats": seats,
+        "shore_dist_m": round(shore.distance(centroid), 1),
+        "surveyed_outline": False,
+        "x_dm": round((centroid.x - ORIGIN_EASTING) * 10),
+        "z_dm": round((ORIGIN_NORTHING - centroid.y) * 10),
+      }
+    )
+  bars.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
+  return bars
+
+
 def build_payload(
   bounds_path: Path, osm_path: Path, scene_path: Path
 ) -> dict[str, Any]:
@@ -218,9 +375,14 @@ def build_payload(
     )
   monuments.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
 
+  water = gpd.read_file(osm_path, layer="water").to_crs(epsg=25833)
+  parks = gpd.read_file(osm_path, layer="parks").to_crs(epsg=25833)
+
   return {
+    "beer_gardens": build_beer_gardens(pois, bounds),
     "fuel_stations": build_fuel_stations(pois, roads, bounds),
     "monuments": monuments,
+    "riverside_bars": build_riverside_bars(pois, water, parks, bounds),
     "schema_version": SCHEMA_VERSION,
     "source": ATTRIBUTION,
     "traffic_signals_dm": positions,
@@ -244,7 +406,9 @@ def main(argv: list[str] | None = None) -> None:
   )
   print(
     f"Wrote {args.out} with {len(payload['traffic_signals_dm'])} traffic "
-    f"signals and {len(payload['monuments'])} monuments"
+    f"signals, {len(payload['monuments'])} monuments, "
+    f"{len(payload['beer_gardens'])} beer gardens and "
+    f"{len(payload['riverside_bars'])} riverside bars"
   )
 
 
