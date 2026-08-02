@@ -356,12 +356,25 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   }
 }
 
+/**
+ * Extends the interaction window. It deliberately does *not* switch the
+ * surfaces itself.
+ *
+ * v0.50.0 gave the settled-detail tier hysteresis in the frame loop, but this
+ * helper still called setSurfacePresentation(runtime, true) straight away, and
+ * every navigation button and load completion goes through here. So a single
+ * rotate or pan click forced the coarse interaction surface (and dropped the
+ * park microcrowns) that same instant, and the hysteretic decision in the
+ * frame loop put them back a frame or two later — one full blink of the ground
+ * and the whole Tiergarten canopy per click, which is exactly the "flackert
+ * wenn man hin und her bewegt" report. The frame loop is now the only writer;
+ * this only moves the deadline it reads.
+ */
 function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
   runtime.interactionUntil = Math.max(
     runtime.interactionUntil,
     performance.now() + durationMs,
   );
-  setSurfacePresentation(runtime, true);
 }
 
 function createSelectionMarker(): Group {
@@ -2084,7 +2097,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         composer.setSize(width, height);
         const crispResolution = crispPass.uniforms.resolution.value;
         if (crispResolution instanceof Vector2) {
-          crispResolution.set(width * pixelRatio, height * pixelRatio);
+          // Anchored to the settled resolution, never to the one currently
+          // applied. crisp.frag steps one texel (stepUv = 1/resolution), so
+          // feeding it the live ratio made the unsharp halo and the edge
+          // outline widen the instant the governor dropped resolution for a
+          // gesture and snap back when it restored — a sharpness pop at both
+          // ends of every drag, on top of the resampling itself. Anchored, the
+          // pass covers the same screen area at either resolution, so the
+          // switch changes only the sampling quality and stays invisible.
+          const settledPixelRatio = renderPixelRatio({
+            coarsePointer,
+            devicePixelRatio: window.devicePixelRatio,
+            height,
+            interacting: false,
+            width,
+          });
+          crispResolution.set(width * settledPixelRatio, height * settledPixelRatio);
         }
       };
       const noteInteractionInput = (): void => {

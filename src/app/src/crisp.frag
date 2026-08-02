@@ -30,7 +30,14 @@ void main() {
   // and roof lines get graphic edges while park canopy stays soft.
   float gradient = abs(crispLuminance(east) - crispLuminance(west)) +
     abs(crispLuminance(north) - crispLuminance(south));
-  float edge = smoothstep(0.09, 0.3, gradient);
+  // Wide ramp on purpose. A one-texel gradient is maximally sensitive to where
+  // a thin ink line happens to fall on the pixel grid, so a narrow window
+  // (0.09..0.3) behaved like a switch: while the camera moved, the sub-pixel
+  // wobble of a line carried the gradient across the whole window and back,
+  // and the outline blinked on and off with it. Stretching the ramp keeps the
+  // strong contours at full strength -- they sit well past the upper edge --
+  // while the marginal ones ease instead of snapping.
+  float edge = smoothstep(0.05, 0.46, gradient);
   float greenDominance = smoothstep(
     0.02,
     0.14,
