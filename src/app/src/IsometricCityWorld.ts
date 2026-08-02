@@ -150,6 +150,17 @@ export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 export const HERO_PRISM_TONES: Record<string, number> = {
   K0002MCN: 0xcac6bd,
   MLwG4KW9: 0xeeeeea,
+  // Gymnasium Tiergarten Neubau (1971, refurbished 2009-11). The overview
+  // raster stops short of the Hansaviertel, so every prism of the school
+  // fell back to the generic concrete shade and the white rendered slab
+  // was indistinguishable from the brick Altbau behind it.
+  ...Object.fromEntries(
+    [
+      "53jKTFyO", "DG5BSkf7", "N1k7CDwM", "Q5bFUgLl", "YBj4ULFf", "iJld3tAj",
+      "lnB9I8b8", "neNfHjtD", "oZu0k3gG", "ruAxvlwz", "uS796u1d", "w3EeFZtR",
+      "zAVU6kkn",
+    ].map((id) => [id, 0xe9e7e1]),
+  ),
 };
 
 // Pinned roof-plate tones: the Reichstag's huge cap (and its corner
@@ -189,6 +200,11 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // 67 m monument including the fluted drums and the gilded Viktoria, so the
   // three concentric prisms would stand inside the column.
   "3wUufHpn", "iHbVUwP0", "xzlowEa3",
+  // Gymnasium Tiergarten Altbau. Its LoD2 roof code is 5000 (Mischform),
+  // which the procedural roof fitter skips, so the 1902 brick school stood
+  // as a flat 32 m box. createGymnasiumTiergarten draws the whole block
+  // with its Steildach, stepped gables and rooftop observation platform.
+  "jBXhIsDK", "EHKONVCW",
 ]);
 
 // Prisms forced into the transparent glass mesh regardless of their
@@ -3246,6 +3262,295 @@ const BOTSCHAFT_MAX_Z = -233.7;
 const BOTSCHAFT_GROUND_Y = 5.4;
 const BOTSCHAFT_CORNICE_Y = 21.6;
 
+/**
+ * Gymnasium Tiergarten, Altonaer Straße 26 — the Altbau of 1901/02 by
+ * Ludwig Hoffmann and Vinzent von Dylewski (13. Gemeindeschule, later
+ * Menzelschule). Red Rathenow brick with sandstone banding over a stone
+ * base in Netherlandish Renaissance manner, a high slate Steildach, and
+ * on the ridge "ein rechteckiger Aufbau mit Plattform" built for
+ * astronomical observation. The LoD2 extract calls the main block a
+ * Mischform roof (code 5000), which the procedural roof fitter skips, so
+ * the whole building rendered as a flat 32 m grey box — no roof, no
+ * gables, no brick. Suppressed and drawn here after the LoD2 footprint
+ * and the two Commons photographs of the river and Lessingstraße fronts.
+ */
+const GYMNASIUM_TIERGARTEN_WORLD: [number, number] = [-2141.81, -159.47];
+/** Long axis of the LoD2 oriented rectangle (36.42 m × 18.62 m). */
+const GYMNASIUM_TIERGARTEN_AXIS: [number, number] = [-0.3986, 0.9171];
+const GYMNASIUM_TIERGARTEN_LENGTH_M = 36.42;
+const GYMNASIUM_TIERGARTEN_DEPTH_M = 18.62;
+const GYMNASIUM_TIERGARTEN_GROUND_Y = 5.2;
+/** LoD2 heights: 32.33 m to the ridge, 34.75 m to the observation deck. */
+const GYMNASIUM_TIERGARTEN_RIDGE_M = 32.33;
+const GYMNASIUM_TIERGARTEN_PLATFORM_M = 34.75;
+/** Four window storeys over the base carry the eaves (OSM building:levels). */
+const GYMNASIUM_TIERGARTEN_STOREYS = 4;
+const GYMNASIUM_TIERGARTEN_EAVES_M = 19;
+const GYMNASIUM_TIERGARTEN_BASE_M = 2.6;
+/** The rooftop observation structure, from LoD2 part DEBE3DhDEHKONVCW. */
+const GYMNASIUM_TIERGARTEN_TOWER_ACROSS_M = 11.65;
+const GYMNASIUM_TIERGARTEN_TOWER_ALONG_M = 5.76;
+
+export function createGymnasiumTiergarten(): Group {
+  const group = new Group();
+  group.name = "Gymnasium Tiergarten Altbau";
+  group.userData.recognitionModel = true;
+  const parts: BufferGeometry[] = [];
+  const edges: BufferGeometry[] = [];
+  const BRICK = new Color(0xa8503a);
+  const SANDSTONE = new Color(0xe0d6c1);
+  const SLATE = new Color(0x4a5058);
+  const FINIAL = new Color(0x6d6157);
+  const WINDOW = new Color(0xe8e6de);
+  const IRON = new Color(0x3c3f42);
+  const add = (triangles: Float32Array, tone: Color, inked = true): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+    if (inked) {
+      edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+    }
+  };
+  const [cx, cz] = GYMNASIUM_TIERGARTEN_WORLD;
+  const axis = GYMNASIUM_TIERGARTEN_AXIS;
+  const [ax, az] = axis;
+  const nx = -az;
+  const nz = ax;
+  /** Move off the block centre: `u` along the ridge, `v` across the depth. */
+  const at = (u: number, v: number): [number, number] => [
+    cx + ax * u + nx * v,
+    cz + az * u + nz * v,
+  ];
+  const length = GYMNASIUM_TIERGARTEN_LENGTH_M;
+  const depth = GYMNASIUM_TIERGARTEN_DEPTH_M;
+  const ground = GYMNASIUM_TIERGARTEN_GROUND_Y;
+  const base = ground + GYMNASIUM_TIERGARTEN_BASE_M;
+  const eaves = ground + GYMNASIUM_TIERGARTEN_EAVES_M;
+  const ridge = ground + GYMNASIUM_TIERGARTEN_RIDGE_M;
+
+  add(
+    boxTriangles(cx, (base + eaves) / 2, cz, axis, length, eaves - base, depth),
+    BRICK,
+  );
+  add(
+    boxTriangles(
+      cx,
+      (ground + base) / 2,
+      cz,
+      axis,
+      length + 0.5,
+      base - ground,
+      depth + 0.5,
+    ),
+    SANDSTONE,
+  );
+  // The sandstone runs as one band per floor across the whole facade; in the
+  // photographs they are the strongest horizontal accent on the brick.
+  const storey = (eaves - base) / GYMNASIUM_TIERGARTEN_STOREYS;
+  for (let index = 1; index <= GYMNASIUM_TIERGARTEN_STOREYS; index += 1) {
+    add(
+      boxTriangles(
+        cx,
+        base + index * storey - 0.3,
+        cz,
+        axis,
+        length + 0.24,
+        0.6,
+        depth + 0.24,
+      ),
+      SANDSTONE,
+      index === GYMNASIUM_TIERGARTEN_STOREYS,
+    );
+  }
+
+  // Tall windows: eight bays on each long front, four on each gable end.
+  const windowRise = storey * 0.56;
+  for (let floor = 0; floor < GYMNASIUM_TIERGARTEN_STOREYS; floor += 1) {
+    const y = base + floor * storey + storey * 0.52;
+    for (let bay = 0; bay < 8; bay += 1) {
+      const u = -length / 2 + length * ((bay + 0.5) / 8);
+      for (const side of [-1, 1]) {
+        const [wx, wz] = at(u, (side * depth) / 2);
+        add(
+          boxTriangles(wx, y, wz, axis, 1.9, windowRise, 0.3),
+          WINDOW,
+          false,
+        );
+      }
+    }
+    for (let bay = 0; bay < 4; bay += 1) {
+      const v = -depth / 2 + depth * ((bay + 0.5) / 4);
+      for (const side of [-1, 1]) {
+        const [wx, wz] = at((side * length) / 2, v);
+        add(
+          boxTriangles(wx, y, wz, [nx, nz], 1.9, windowRise, 0.3),
+          WINDOW,
+          false,
+        );
+      }
+    }
+  }
+  // Sandstone portal on the river front, under the central gable.
+  const [px, pz] = at(0, depth / 2);
+  add(boxTriangles(px, base + 1.9, pz, axis, 4.6, 3.8, 0.7), SANDSTONE);
+
+  // The Steildach: a gabled roof whose two slopes meet at the ridge.
+  const roofTriangles: number[] = [];
+  const quad = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c: [number, number, number],
+    d: [number, number, number],
+  ): void => {
+    roofTriangles.push(...a, ...b, ...c, ...a, ...c, ...d);
+  };
+  const halfLength = length / 2;
+  const halfDepth = depth / 2;
+  for (const side of [-1, 1]) {
+    const [e0x, e0z] = at(-halfLength, (side * depth) / 2);
+    const [e1x, e1z] = at(halfLength, (side * depth) / 2);
+    const [r0x, r0z] = at(-halfLength, 0);
+    const [r1x, r1z] = at(halfLength, 0);
+    if (side < 0) {
+      quad(
+        [e0x, eaves, e0z],
+        [e1x, eaves, e1z],
+        [r1x, ridge, r1z],
+        [r0x, ridge, r0z],
+      );
+    } else {
+      quad(
+        [e1x, eaves, e1z],
+        [e0x, eaves, e0z],
+        [r0x, ridge, r0z],
+        [r1x, ridge, r1z],
+      );
+    }
+  }
+  add(new Float32Array(roofTriangles), SLATE);
+
+  // Stepped Renaissance gables: both ends of the ridge, plus a wall dormer
+  // in the middle of each long front. Each step is one brick block carrying a
+  // dark stone finial, the way the photographs show them.
+  const steps = 6;
+  const addSteppedGable = (
+    u: number,
+    v: number,
+    faceAxis: [number, number],
+    width: number,
+  ): void => {
+    for (let index = 0; index < steps; index += 1) {
+      const t = index / steps;
+      const stepWidth = width * (1 - t * 0.82);
+      const y0 = eaves + (ridge - eaves) * t;
+      const y1 = eaves + (ridge - eaves) * ((index + 1) / steps);
+      const [sx, sz] = at(u, v);
+      add(
+        boxTriangles(sx, (y0 + y1) / 2, sz, faceAxis, stepWidth, y1 - y0, 0.9),
+        BRICK,
+      );
+      for (const edge of [-1, 1]) {
+        const fx = sx + faceAxis[0] * edge * (stepWidth / 2 - 0.35);
+        const fz = sz + faceAxis[1] * edge * (stepWidth / 2 - 0.35);
+        add(
+          boxTriangles(fx, y1 + 0.55, fz, faceAxis, 0.7, 1.1, 0.7),
+          FINIAL,
+          false,
+        );
+      }
+    }
+  };
+  for (const side of [-1, 1]) {
+    addSteppedGable((side * length) / 2, 0, [nx, nz], depth);
+    addSteppedGable(0, (side * depth) / 2, axis, 13.4);
+  }
+
+  // The observation structure on the ridge, with its open iron balustrade.
+  const platform = ground + GYMNASIUM_TIERGARTEN_PLATFORM_M;
+  const towerAcross = GYMNASIUM_TIERGARTEN_TOWER_ACROSS_M;
+  const towerAlong = GYMNASIUM_TIERGARTEN_TOWER_ALONG_M;
+  add(
+    boxTriangles(
+      cx,
+      (eaves + platform) / 2,
+      cz,
+      axis,
+      towerAlong,
+      platform - eaves,
+      towerAcross,
+    ),
+    BRICK,
+  );
+  add(
+    boxTriangles(
+      cx,
+      platform + 0.2,
+      cz,
+      axis,
+      towerAlong + 0.7,
+      0.4,
+      towerAcross + 0.7,
+    ),
+    SANDSTONE,
+  );
+  for (const side of [-1, 1]) {
+    const [bx, bz] = at((side * towerAlong) / 2, 0);
+    add(
+      boxTriangles(bx, platform + 1.2, bz, [nx, nz], towerAcross, 1.2, 0.2),
+      IRON,
+      false,
+    );
+    const [dx, dz] = at(0, (side * towerAcross) / 2);
+    add(
+      boxTriangles(dx, platform + 1.2, dz, axis, towerAlong, 1.2, 0.2),
+      IRON,
+      false,
+    );
+  }
+
+  const merged = mergeGeometries(parts, false);
+  if (merged) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.88,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.name = "Gymnasium Tiergarten bodies";
+    group.add(mesh);
+    for (const geometry of parts) {
+      geometry.dispose();
+    }
+  }
+  const ink = mergeGeometries(edges, false);
+  if (ink) {
+    const lines = new LineSegments(
+      ink,
+      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    );
+    lines.name = "Gymnasium Tiergarten ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  return group;
+}
+
 export function createLandmarkRefinements(): Group {
   const group = new Group();
   group.name = "Landmark detail refinements";
@@ -5409,5 +5714,6 @@ export function createIsometricCity(
   group.add(createHotelAdlon());
   group.add(createPaulLoebeCanopy());
   group.add(createLandmarkRefinements());
+  group.add(createGymnasiumTiergarten());
   return group;
 }

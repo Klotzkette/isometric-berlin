@@ -622,6 +622,32 @@ describe("real bridge structures", () => {
     expect(maxZ - minZ).toBeGreaterThan(88);
   });
 
+  test("the Gymnasium Tiergarten Altbau replaces its flat LoD2 prism", async () => {
+    const { createGymnasiumTiergarten, PRISM_SUPPRESSED_IDS } = await import(
+      "../src/IsometricCityWorld"
+    );
+    // The 1902 brick school carries ALKIS roof code 5000 (Mischform), which the
+    // procedural roof fitter skips, so the prism stood as a flat 32 m box.
+    expect(PRISM_SUPPRESSED_IDS.has("jBXhIsDK")).toBe(true);
+    expect(PRISM_SUPPRESSED_IDS.has("EHKONVCW")).toBe(true);
+    const school = createGymnasiumTiergarten();
+    const bodies = school.getObjectByName("Gymnasium Tiergarten bodies") as Mesh;
+    expect(bodies).toBeInstanceOf(Mesh);
+    expect(
+      school.getObjectByName("Gymnasium Tiergarten ink lines"),
+    ).toBeInstanceOf(LineSegments);
+    const bounds = new Box3().setFromObject(bodies);
+    // LoD2 gives 32.33 m to the ridge and 34.75 m to the observation deck on a
+    // 36.42 m × 18.62 m block; the balustrade stands above the deck.
+    expect(bounds.max.y).toBeGreaterThan(5.2 + 34.75);
+    expect(bounds.max.y).toBeLessThan(5.2 + 38);
+    const spanX = bounds.max.x - bounds.min.x;
+    const spanZ = bounds.max.z - bounds.min.z;
+    expect(Math.max(spanX, spanZ)).toBeGreaterThan(34);
+    expect(Math.max(spanX, spanZ)).toBeLessThan(45);
+    expect(bounds.min.x).toBeLessThan(-2130);
+  });
+
   test("the Paul-Löbe-Haus carries a cantilevered west entrance canopy", () => {
     const canopy = createPaulLoebeCanopy();
     const bodies = canopy.getObjectByName("Paul-Löbe canopy bodies") as Mesh;
