@@ -64,6 +64,7 @@ CLASSES = [
   "plazaBrick",
   "bridge",
   "basin",
+  "wall",
 ]
 CLASS_GRASS = 0
 CLASS_ASPHALT = 1
@@ -75,6 +76,9 @@ CLASS_BRIDGE = 6
 # A constructed basin is water that sits on the ground it was built into,
 # so its cells keep the local terrain height instead of the Spree table.
 CLASS_BASIN = 7
+# A freestanding wall is a building column with no interior, so the voxel
+# viewer must not punch its storey-banded window rows into it.
+CLASS_WALL = 8
 # Height of Girot's wedge at its high point, read off the owner's photographs
 # of the Sinkende Mauer; the drawn city uses the same figure.
 SUNKEN_WALL_RISE_M = 5.6
@@ -406,7 +410,7 @@ def sunken_wall_columns(
     blocks = math.ceil(per_cell[cell] / CELL_M - 1e-9)
     y0_dm = round(float(ground_y) * 10)
     columns.append(
-      [cell[0], cell[1], y0_dm, y0_dm + blocks * int(CELL_M) * 10, CLASS_CONCRETE]
+      [cell[0], cell[1], y0_dm, y0_dm + blocks * int(CELL_M) * 10, CLASS_WALL]
     )
   return columns
 

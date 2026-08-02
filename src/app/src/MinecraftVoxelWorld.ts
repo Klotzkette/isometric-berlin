@@ -81,8 +81,12 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
   // Bridge decks over the Spree/Humboldthafen read as stone blocks.
   bridge: [0x8e9a9e, 0xa4aa91],
   sandstone: [0xe8d1ae, 0xf5e3c5],
+  // Bare concrete for freestanding walls: no interior, so no windows.
+  wall: [0xb8b4a8, 0xc7c3b6],
   water: [0x3f76e4, 0x2e5aa8],
 };
+/** Column classes that are solid structures rather than inhabited floors. */
+const WINDOWLESS_CLASSES: ReadonlySet<string> = new Set(["wall"]);
 const FALLBACK_SHADES: readonly number[] = CLASS_SHADES.concrete;
 const TRUNK_SHADES: readonly number[] = [0x704a2d];
 const LEAF_SHADES: readonly number[] = [0x4c7f28, 0x5d9634];
@@ -723,7 +727,10 @@ export function createMinecraftVoxelWorld(
   const glass = new Color(VOXEL_WINDOW_GLASS);
   const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
   const teal = new Color(VOXEL_WINDOW_TEAL);
-  for (const [xIdx, zIdx, y0dm, y1dm] of payload.buildings) {
+  for (const [xIdx, zIdx, y0dm, y1dm, classId] of payload.buildings) {
+    if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
+      continue;
+    }
     if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
       continue;
     }

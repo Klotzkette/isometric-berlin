@@ -92,12 +92,13 @@ def test_the_payload_carries_the_wall_axis(surfaces: dict) -> None:
 
 def test_voxel_wedge_steps_up_towards_the_crest() -> None:
   payload = json.loads(VOXELS.read_text(encoding="utf-8"))
-  concrete = payload["classes"].index("concrete")
-  # The wall's own column of cells, well clear of any building.
+  # A freestanding wall gets its own class so the voxel viewer does not
+  # punch storey windows into it.
+  wall = payload["classes"].index("wall")
   wedge = sorted(
     (z_idx, y1 - y0)
     for x_idx, z_idx, y0, y1, cid in payload["buildings"]
-    if cid == concrete and x_idx == 89 and -296 <= z_idx <= -284
+    if cid == wall and x_idx == 89 and -296 <= z_idx <= -284
   )
   assert len(wedge) >= 6
   heights = [height for _, height in wedge]
