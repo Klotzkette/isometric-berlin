@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.46.0
+
+- **The *Sinkende Mauer* was drawn upside down.** v0.45.1 derived the wall
+  correctly as `artwork − water` but then guessed its profile, ramping the
+  top face from 1.5 m at the northern rim *down* to 0.55 m below the water
+  at the southern tip. The owner's photographs show the opposite, and the
+  opposite is what Girot built: a wedge that starts flush with the paving
+  at the northern end, where you step onto the walkway, climbs steadily
+  along its 39.0 m to a high point of about 5.6 m out in the basin, and
+  there breaks off in a near-vertical face that carries straight down
+  through the water. The OSM axis was already right — only the heights
+  were inverted. `sink` is gone from the payload; the axis is now
+  `foot` → `crest` and `surface-polygons.json` is at schema 4.
+- **The crown carries its walkway and parapet the whole way.** Previously
+  the path stopped where the slab dipped under the surface, which under the
+  old profile was a third of the way along. It now runs from the entrance
+  at grade to the break at the crest, with the two waist-high parapet rails
+  drawn as ink lines and posts every 2.6 m, so the ramp reads as something
+  you can walk up rather than a grey stripe on the water.
+- **Minecraft mode steps the wedge instead of painting it flat.** The wall
+  was a concrete stripe on the ground grid. It now emits its own block
+  columns along the axis, stepping 0 → 4 m → 8 m towards the crest; the
+  entrance cell, where the wedge is still under a metre tall, stays paving
+  because the block world cannot draw a column shorter than one 4 m cell.
+  All of its columns are seated on a single datum, so the crown steps up
+  once and never dips back down where the basin floor does.
+- **A freestanding wall is not a building, so it gets no windows.** The
+  wedge's columns first went in as `concrete`, the class every LoD2
+  building also uses, and the voxel viewer promptly punched its
+  storey-banded glass rows into all four faces of a 3 m thick garden wall.
+  Columns now carry a `wall` class that the window pass skips.
+- **Two owner-approved sights join the rail: the Siegessäule and the
+  Invalidenpark / Sinkende Mauer.** Both carry a focus camera. The
+  Siegessäule preset comes at the Goldelse from the west at her own height,
+  because she has faced down the Straße des 17. Juni since the 1939 move
+  and the default overhead framing showed her back; the Invalidenpark
+  preset stands south-east of the basin so the plunge face is nearest and
+  the wedge recedes to its low northern entrance. Both landmarks fall
+  outside the crop of the committed 2D overview image, so their markers
+  clamp to its edge — as the Königin-Luise-Denkmal marker already did.
+
 ## v0.45.1
 
 - **Constructed water basins were drawn 6 m underground, so the

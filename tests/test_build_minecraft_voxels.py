@@ -50,6 +50,7 @@ def test_payload_is_small_and_versioned(payload: dict) -> None:
     "plazaBrick",
     "bridge",
     "basin",
+    "wall",
   ]
   assert payload["origin"]["easting_offset"] == 389500.0
   assert payload["origin"]["northing_offset"] == 5820000.0
