@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, Vector3 } from "three";
+import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
   createMemorialLandmarks,
@@ -78,6 +78,39 @@ describe("granular memorial recognition models", () => {
     const bounds = new Box3().setFromObject(composer!);
     expect(bounds.max.y - bounds.min.y).toBeGreaterThan(9);
     expect(bounds.max.y - bounds.min.y).toBeLessThan(11);
+  });
+
+  test("the NS memorials carry their own detail", () => {
+    const root = createMemorialLandmarks(landmarks);
+    for (const name of [
+      "Sinti and Roma memorial camp name stones",
+      "Sinti and Roma memorial glass chronicle wall",
+      "Memorial to persecuted homosexuals window reveal",
+    ]) {
+      expect(root.getObjectByName(name)).not.toBeNull();
+    }
+    // Eisenman's floor rolls; a field whose stelae all sit on one cone has
+    // rows of identical feet, which is exactly what the place is not.
+    const stelae = root.getObjectByName(
+      "Holocaust Memorial 2710 instanced stelae",
+    ) as InstancedMesh;
+    // A pure funnel gives every stele at the same radius the same foot, so
+    // measuring the spread within one narrow ring is the real test.
+    const matrix = new Matrix4();
+    const scale = new Vector3();
+    const ring: number[] = [];
+    for (let index = 0; index < stelae.count; index += 1) {
+      stelae.getMatrixAt(index, matrix);
+      const x = matrix.elements[12];
+      const z = matrix.elements[14];
+      if (Math.abs(Math.hypot(x / 63.7, z / 73.9) - 0.55) > 0.02) {
+        continue;
+      }
+      scale.setFromMatrixScale(matrix);
+      ring.push(matrix.elements[13] - scale.y / 2);
+    }
+    expect(ring.length).toBeGreaterThan(20);
+    expect(Math.max(...ring) - Math.min(...ring)).toBeGreaterThan(0.6);
   });
 
   test("the composers and Goethe are built, not blocked out", () => {

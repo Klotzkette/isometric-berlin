@@ -211,7 +211,14 @@ function createHolocaustMemorial(anchor: MemorialLandmark): Group {
     }
     const normalizedX = (cell.column - 26) / 26;
     const normalizedZ = (cell.row - 25.5) / 25.5;
-    const depression = -1.55 * Math.max(0, 1 - Math.hypot(normalizedX, normalizedZ));
+    // Eisenman's floor is not one funnel. It rolls in long waves, so the
+    // alleys rise and fall as you walk them and the stele tops ripple with
+    // the ground. Two low-frequency sinusoids give that roll.
+    const roll =
+      0.44 * Math.sin(normalizedX * 2.3 + 0.7) * Math.cos(normalizedZ * 1.8) +
+      0.28 * Math.sin(normalizedZ * 3.1 + 1.4);
+    const depression =
+      roll - 1.55 * Math.max(0, 1 - Math.hypot(normalizedX, normalizedZ));
     const tilt = ((index * 13) % 17) / 16;
     return {
       position: [
@@ -299,6 +306,31 @@ function createSintiRomaMemorial(anchor: MemorialLandmark): Group {
     [0, 0.04, 0],
   );
   path.rotation.x = -Math.PI / 2;
+  // Around the basin lie the stones carrying the names of the extermination
+  // camps; they are the only relief on an otherwise flat, dark clearing.
+  addInstances(
+    group,
+    "Sinti and Roma memorial camp name stones",
+    new BoxGeometry(1.15, 0.16, 0.72),
+    modelMaterial(0x6d6a64, { roughness: 0.86 }),
+    Array.from({ length: 14 }, (_unused, index) => {
+      const angle = (index / 14) * Math.PI * 2 + 0.12;
+      return {
+        position: [Math.cos(angle) * 9.5, 0.12, Math.sin(angle) * 9.5],
+        rotation: [0, -angle, 0],
+      } as InstanceTransform;
+    }),
+  );
+  // The glass wall carrying the chronicle of the genocide stands at the
+  // Simsonweg approach, so the clearing is entered past it.
+  const chronicle = addBox(
+    group,
+    "Sinti and Roma memorial glass chronicle wall",
+    [9.2, 1.9, 0.16],
+    [0, 0.95, -13.4],
+    modelMaterial(0x7a8f96, { roughness: 0.3 }),
+  );
+  chronicle.rotation.y = 0.08;
   return group;
 }
 
@@ -322,6 +354,16 @@ function createHomosexualMemorial(anchor: MemorialLandmark): Group {
     [3.7, 4.2, 2.55],
     [0, 2.1, 0],
     modelMaterial(0x555b5d, { roughness: 0.84 }),
+  );
+  // The window is a hole cut through 30 cm of concrete, not a decal: the
+  // reveal is what you actually see from an angle, and the film inside it
+  // is the only light the cuboid gives off at night.
+  addBox(
+    tilted,
+    "Memorial to persecuted homosexuals window reveal",
+    [1.44, 1.04, 0.34],
+    [-0.38, 1.52, 1.19],
+    modelMaterial(0x3d4345, { roughness: 0.88 }),
   );
   const window = addMesh(
     tilted,
