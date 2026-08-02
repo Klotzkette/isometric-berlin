@@ -4,8 +4,11 @@ import {
   CapsuleGeometry,
   ConeGeometry,
   CylinderGeometry,
+  EdgesGeometry,
   Group,
   InstancedMesh,
+  LineBasicMaterial,
+  LineSegments,
   Material,
   Mesh,
   MeshPhysicalMaterial,
@@ -32,6 +35,7 @@ type InstanceTransform = {
 const CONCRETE = 0x8f9698;
 const MARBLE = 0xe5e3d8;
 const GOLD = 0xc89a32;
+const EDGE_COLOR = 0x716c62;
 
 // Fifth-percentile surface samples from the committed official Berlin mesh.
 // The manifest camera anchors use a uniform 38 m NHN and are not ground points.
@@ -132,6 +136,23 @@ function addInstances(
   mesh.computeBoundingSphere();
   group.add(mesh);
   return mesh;
+}
+
+function addEdges(group: Group, mesh: Mesh, opacity = 0.8): LineSegments {
+  const material = new LineBasicMaterial({
+    color: EDGE_COLOR,
+    opacity,
+    transparent: opacity < 1,
+  });
+  material.userData.modeInk = true;
+  const edges = new LineSegments(new EdgesGeometry(mesh.geometry, 24), material);
+  edges.name = `${mesh.name} model edges`;
+  edges.position.copy(mesh.position);
+  edges.rotation.copy(mesh.rotation);
+  edges.scale.copy(mesh.scale);
+  edges.renderOrder = 8;
+  group.add(edges);
+  return edges;
 }
 
 function addSegment(
@@ -363,8 +384,8 @@ function createPolishMemorial(anchor: MemorialLandmark): Group {
 }
 
 function addTank(group: Group, name: string, x: number, lift = 0): void {
-  const armor = modelMaterial(0x496451, { metalness: 0.28, roughness: 0.62 });
-  const dark = modelMaterial(0x222a25, { metalness: 0.34, roughness: 0.68 });
+  const armor = modelMaterial(0x3a5342, { metalness: 0.28, roughness: 0.62 });
+  const dark = modelMaterial(0x1b221d, { metalness: 0.34, roughness: 0.68 });
   const hull = addBox(
     group,
     `${name} hull`,
@@ -373,6 +394,7 @@ function addTank(group: Group, name: string, x: number, lift = 0): void {
     armor,
   );
   hull.userData.vehicleType = "T-34/76";
+  addEdges(group, hull);
   addBox(
     group,
     `${name} left track`,
@@ -411,6 +433,7 @@ function addTank(group: Group, name: string, x: number, lift = 0): void {
     armor,
   );
   glacis.rotation.x = -0.32;
+  addEdges(group, glacis);
   addBox(
     group,
     `${name} engine deck`,
@@ -418,12 +441,15 @@ function addTank(group: Group, name: string, x: number, lift = 0): void {
     [x, 1.91 + lift, 9.92],
     armor,
   );
-  addMesh(
+  addEdges(
     group,
-    `${name} turret`,
-    new CylinderGeometry(1.16, 1.4, 0.94, 12),
-    armor,
-    [x, 2.33 + lift, 7.82],
+    addMesh(
+      group,
+      `${name} turret`,
+      new CylinderGeometry(1.16, 1.4, 0.94, 12),
+      armor,
+      [x, 2.33 + lift, 7.82],
+    ),
   );
   addMesh(
     group,
@@ -469,8 +495,8 @@ function addHowitzer(
   x: number,
   lift: number,
 ): void {
-  const steel = modelMaterial(0x4c6555, { metalness: 0.3, roughness: 0.6 });
-  const dark = modelMaterial(0x242c26, { metalness: 0.34, roughness: 0.66 });
+  const steel = modelMaterial(0x3d5445, { metalness: 0.3, roughness: 0.6 });
+  const dark = modelMaterial(0x1d241f, { metalness: 0.34, roughness: 0.66 });
   addBox(group, `${name} cradle`, [1.1, 0.62, 2.1], [x, 1.18 + lift, 8], steel);
   const shield = addBox(
     group,
@@ -480,6 +506,7 @@ function addHowitzer(
     steel,
   );
   shield.rotation.x = 0.16;
+  addEdges(group, shield);
   addSegment(
     group,
     `${name} 152 mm tube`,
@@ -516,6 +543,84 @@ function addHowitzer(
     new CylinderGeometry(0.72, 0.72, 0.28, 14),
     dark,
     wheels,
+  );
+}
+
+/**
+ * Kerbel's eight-metre bronze soldier on the crown of the central portal.
+ * A capsule and a ball read as a grey pill from the presentation camera, so
+ * the parts that carry the silhouette are modelled: the flaring skirt of the
+ * greatcoat, the shoulders, the peaked cap and the slung rifle.
+ */
+function addSovietSoldier(group: Group, bronze: MeshStandardMaterial): void {
+  const base = 13.05;
+  const z = -3;
+  for (const side of [-1, 1]) {
+    const leg = addBox(
+      group,
+      `Soviet memorial soldier ${side < 0 ? "left" : "right"} boot`,
+      [0.66, 2.6, 0.98],
+      [side * 0.55, base + 1.3, z],
+      bronze,
+    );
+    addEdges(group, leg);
+  }
+  const coat = addMesh(
+    group,
+    "Soviet memorial eight metre soldier body",
+    new CylinderGeometry(1.12, 1.72, 4.1, 10),
+    bronze,
+    [0, base + 3.95, z],
+  );
+  addEdges(group, coat);
+  const shoulders = addBox(
+    group,
+    "Soviet memorial soldier shoulders",
+    [2.62, 0.92, 1.24],
+    [0, base + 6.32, z],
+    bronze,
+  );
+  addEdges(group, shoulders);
+  for (const side of [-1, 1]) {
+    addSegment(
+      group,
+      `Soviet memorial soldier ${side < 0 ? "left" : "right"} arm`,
+      new Vector3(side * 1.2, base + 6.2, z),
+      new Vector3(side * 1.42, base + 3.5, z + side * 0.2),
+      0.34,
+      bronze,
+    );
+  }
+  addMesh(
+    group,
+    "Soviet memorial soldier head",
+    new SphereGeometry(0.62, 14, 10),
+    bronze,
+    [0, base + 7.2, z],
+  );
+  const cap = addMesh(
+    group,
+    "Soviet memorial soldier peaked cap",
+    new CylinderGeometry(0.72, 0.66, 0.34, 12),
+    bronze,
+    [0, base + 7.72, z],
+  );
+  addEdges(group, cap);
+  addMesh(
+    group,
+    "Soviet memorial soldier cap visor",
+    new BoxGeometry(0.92, 0.1, 0.5),
+    bronze,
+    [0, base + 7.58, z + 0.62],
+  );
+  // Rifle slung muzzle-up across the right shoulder.
+  addSegment(
+    group,
+    "Soviet memorial soldier rifle",
+    new Vector3(1.46, base + 8.15, z - 0.55),
+    new Vector3(0.72, base + 2.5, z - 0.15),
+    0.15,
+    bronze,
   );
 }
 
@@ -584,46 +689,31 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   // Flower beds flank the stairs.
   addBox(group, "Soviet memorial west flower bed", [10, 0.5, 4], [-20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
   addBox(group, "Soviet memorial east flower bed", [10, 0.5, 4], [20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
-  addMesh(
-    group,
-    "Soviet memorial eight metre soldier body",
-    new CapsuleGeometry(1.35, 4.7, 5, 10),
-    bronze,
-    [0, 16.5, -3],
-  );
-  addMesh(
-    group,
-    "Soviet memorial soldier head",
-    new SphereGeometry(0.82, 14, 10),
-    bronze,
-    [0, 19.45, -3],
-  );
-  addSegment(
-    group,
-    "Soviet memorial soldier rifle",
-    new Vector3(0.85, 15.2, -3.2),
-    new Vector3(1.2, 20, -3.55),
-    0.16,
-    bronze,
-  );
+  addSovietSoldier(group, bronze);
   // Two T-34s and two ML-20 gun-howitzers, each raised on its own stone
   // plinth the way they stand on the forecourt today.
-  const TANK_PLINTH = 1.15;
-  const GUN_PLINTH = 0.85;
+  const TANK_PLINTH = 1.85;
+  const GUN_PLINTH = 1.25;
   for (const side of [-1, 1]) {
-    addBox(
+    addEdges(
       group,
-      "Soviet memorial T-34 plinth",
-      [6.2, TANK_PLINTH, 9.4],
-      [side * 25, TANK_PLINTH / 2, 8],
-      stone,
+      addBox(
+        group,
+        "Soviet memorial T-34 plinth",
+        [6.2, TANK_PLINTH, 9.4],
+        [side * 25, TANK_PLINTH / 2, 8],
+        stoneDark,
+      ),
     );
-    addBox(
+    addEdges(
       group,
-      "Soviet memorial howitzer plinth",
-      [5.2, GUN_PLINTH, 8.6],
-      [side * 36.5, GUN_PLINTH / 2, 8.6],
-      stone,
+      addBox(
+        group,
+        "Soviet memorial howitzer plinth",
+        [5.2, GUN_PLINTH, 8.6],
+        [side * 36.5, GUN_PLINTH / 2, 8.6],
+        stoneDark,
+      ),
     );
   }
   addTank(group, "Soviet memorial T-34 west", -25, TANK_PLINTH);
@@ -869,7 +959,9 @@ export function memorialFocusDistance(name: string): number | null {
     return 155;
   }
   if (name === "Sowjetisches Ehrenmal Tiergarten") {
-    return 145;
+    // The forecourt is 75 m wide; at the old 145 m the T-34s and the
+    // howitzers on the wings were two dark specks.
+    return 108;
   }
   if (name === "Beethoven-Haydn-Mozart-Denkmal") {
     return 72;
