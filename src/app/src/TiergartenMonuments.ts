@@ -226,6 +226,25 @@ function buildBismarckNationalDenkmal(
   }
 }
 
+/**
+ * The Luiseninsel figures — Encke's Königin Luise, Drake's Friedrich
+ * Wilhelm III, Wilhelm von Preußen. All three are standing white marble
+ * on a tall pedestal with a proud cornice, which is what separates them
+ * from the bronze-on-plinth statues elsewhere in the park.
+ */
+function buildMarbleFigure(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.25, z, 3.4, 0.5, 3.4);
+  box(builder, MARBLE, x, y + 1.9, z, 2, 2.8, 2);
+  box(builder, MARBLE, x, y + 3.45, z, 2.4, 0.3, 2.4);
+  box(builder, MARBLE, x, y + 5.1, z, 1.2, 3, 1.2);
+  box(builder, MARBLE, x, y + 6.9, z, 0.6, 0.6, 0.6);
+}
+
 /** Moltke and Roon: a bronze general on a tall granite pedestal. */
 function buildGeneralColumn(
   builder: Builder,
@@ -240,6 +259,9 @@ function buildGeneralColumn(
   box(builder, BRONZE, x, y + 9.6, z, 1.5, 3.9, 1.5);
   box(builder, BRONZE, x, y + 11.8, z, 0.8, 0.7, 0.8);
 }
+
+/** The white marble on the Luiseninsel's formal garden. */
+const LUISENINSEL_NAMES = /Königin Luise|Wilhelm( I+\.)? von Preußen/i;
 
 const STATUE_NAMES =
   /Lessing|Grimm|Bruno|Rufer|Lortzing|Moore|Reichstagsabgeordneten/i;
@@ -288,6 +310,8 @@ export function createTiergartenMonuments(
       buildBismarckNationalDenkmal(builder, x, y, z);
     } else if (/Moltke|Roon/i.test(name)) {
       buildGeneralColumn(builder, x, y, z);
+    } else if (LUISENINSEL_NAMES.test(name)) {
+      buildMarbleFigure(builder, x, y, z);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {

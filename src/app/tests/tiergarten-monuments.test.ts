@@ -131,4 +131,11 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(tallestNear("Moltke")).toBeGreaterThan(10);
     expect(tallestNear("Moltke")).toBeLessThan(13);
   });
+
+  test("the Luiseninsel carries its marble figures, not pebbles", () => {
+    for (const name of ["Königin Luise", "Wilhelm von Preußen"]) {
+      expect(tallestNear(name)).toBeGreaterThan(6);
+      expect(tallestNear(name)).toBeLessThan(8);
+    }
+  });
 });
