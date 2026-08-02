@@ -730,20 +730,40 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
   group.userData.geometryStatus =
     "Pedestal, standing Goethe and three allegorical groups from Berlin monument inventory and licensed references";
   const marble = modelMaterial(MARBLE, { roughness: 0.7 });
-  addBox(group, "Goethe memorial plinth", [7.2, 0.65, 7.2], [0, 0.33, 0], marble);
+  // The monument stands on a two-step stylobate; without the steps the
+  // plinth looks dropped on the lawn rather than built into the Großer Weg.
+  addBox(group, "Goethe memorial lower step", [9, 0.3, 9], [0, 0.15, 0], marble);
+  addBox(group, "Goethe memorial upper step", [8.1, 0.3, 8.1], [0, 0.45, 0], marble);
+  addBox(group, "Goethe memorial plinth", [7.2, 0.65, 7.2], [0, 0.93, 0], marble);
   addMesh(
     group,
     "Goethe memorial round pedestal",
     new CylinderGeometry(2.25, 2.6, 3.5, 20),
     marble,
-    [0, 2.4, 0],
+    [0, 3, 0],
+  );
+  // A cornice under the standing figure and a base moulding at the drum's
+  // foot: the two lines that read as a pedestal at isometric distance.
+  addMesh(
+    group,
+    "Goethe memorial pedestal cornice",
+    new CylinderGeometry(2.55, 2.35, 0.34, 20),
+    marble,
+    [0, 4.9, 0],
+  );
+  addMesh(
+    group,
+    "Goethe memorial pedestal base moulding",
+    new CylinderGeometry(2.85, 3, 0.4, 20),
+    marble,
+    [0, 1.45, 0],
   );
   addMesh(
     group,
     "Goethe standing figure body",
     new CapsuleGeometry(0.8, 2.55, 5, 10),
     marble,
-    [0, 5.65, 0],
+    [0, 6.25, 0],
   );
   // Schaper's Goethe wears a long cloak over the left shoulder and holds a
   // scroll; the cloak is what gives the figure its wide, readable silhouette.
@@ -752,7 +772,7 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     "Goethe standing figure cloak",
     new ConeGeometry(0.98, 2.9, 14, 1, true),
     marble,
-    [-0.08, 5.4, -0.06],
+    [-0.08, 6, -0.06],
   );
   cloak.rotation.z = 0.05;
   addMesh(
@@ -760,21 +780,21 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     "Goethe standing figure head",
     new SphereGeometry(0.58, 14, 10),
     marble,
-    [0, 7.55, 0],
+    [0, 8.15, 0],
   );
   addSegment(
     group,
     "Goethe standing figure right arm",
-    new Vector3(0.62, 6.5, 0.1),
-    new Vector3(0.78, 5.35, 0.62),
+    new Vector3(0.62, 7.1, 0.1),
+    new Vector3(0.78, 5.95, 0.62),
     0.19,
     marble,
   );
   addSegment(
     group,
     "Goethe standing figure left arm",
-    new Vector3(-0.62, 6.5, 0.05),
-    new Vector3(-0.5, 5.5, 0.5),
+    new Vector3(-0.62, 7.1, 0.05),
+    new Vector3(-0.5, 6.1, 0.5),
     0.19,
     marble,
   );
@@ -782,19 +802,31 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     group,
     "Goethe standing figure scroll",
     [0.16, 0.16, 0.62],
-    [0.82, 5.28, 0.72],
+    [0.82, 5.88, 0.72],
     marble,
   );
   // Lyrik, Forschung and Drama sit against the drum: seated bodies with
   // separate heads, so each group reads as a figure and not a lump.
   const allegoryAngles = [0, 1, 2].map((index) => (index / 3) * Math.PI * 2);
+  // Lyrik, Forschung and Drama each sit on a block that steps out of the
+  // drum, the way Schaper set them — otherwise they float against it.
+  addInstances(
+    group,
+    "Goethe memorial allegorical figure pedestals",
+    new BoxGeometry(1.9, 0.85, 1.6),
+    marble,
+    allegoryAngles.map((angle) => ({
+      position: [Math.cos(angle) * 3.1, 1.68, Math.sin(angle) * 3.1],
+      rotation: [0, -angle, 0],
+    })),
+  );
   addInstances(
     group,
     "Goethe memorial three allegorical figure groups",
     new CapsuleGeometry(0.62, 1.65, 4, 8),
     marble,
     allegoryAngles.map((angle) => ({
-      position: [Math.cos(angle) * 2.9, 1.45, Math.sin(angle) * 2.9],
+      position: [Math.cos(angle) * 2.9, 2.65, Math.sin(angle) * 2.9],
       rotation: [0, -angle, Math.PI / 2],
       scale: [0.78, 1.1, 0.78],
     })),
@@ -805,7 +837,7 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     new SphereGeometry(0.34, 12, 9),
     marble,
     allegoryAngles.map((angle) => ({
-      position: [Math.cos(angle) * 3.35, 2.28, Math.sin(angle) * 3.35],
+      position: [Math.cos(angle) * 3.35, 3.48, Math.sin(angle) * 3.35],
     })),
   );
   return group;
@@ -823,27 +855,64 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
     0xffc45f,
     0.82,
   );
+  // A round stone step ring under the triangular base, as on the Großer
+  // Weg: the monument is approached, it does not just stand on grass.
+  addMesh(
+    group,
+    "Composer memorial step ring",
+    new CylinderGeometry(6.2, 6.6, 0.34, 24),
+    marble,
+    [0, 0.17, 0],
+  );
   addMesh(
     group,
     "Composer memorial three-sided marble base",
     new CylinderGeometry(4.2, 4.7, 0.7, 3),
     marble,
-    [0, 0.35, 0],
+    [0, 0.69, 0],
   );
   addMesh(
     group,
     "Composer memorial three-sided coloured stele",
     new CylinderGeometry(2.9, 3.5, 6.2, 3),
     modelMaterial(0xd8d4c3, { roughness: 0.72 }),
-    [0, 3.8, 0],
+    [0, 4.14, 0],
   );
-  const busts: InstanceTransform[] = [0, 1, 2].map((index) => {
-    const angle = (index / 3) * Math.PI * 2 + Math.PI / 6;
-    return {
-      position: [Math.cos(angle) * 3.05, 4.3, Math.sin(angle) * 3.05],
-      scale: [1, 1.25, 0.72],
-    };
-  });
+  const faceAngles = [0, 1, 2].map(
+    (index) => (index / 3) * Math.PI * 2 + Math.PI / 6,
+  );
+  // Each composer's bust sits in a recessed niche. The frame around it is
+  // what makes the three faces read as faces rather than a plain cone.
+  addInstances(
+    group,
+    "Composer memorial three bust niches",
+    new BoxGeometry(2, 3.1, 0.3),
+    modelMaterial(0xbdb7a4, { roughness: 0.78 }),
+    faceAngles.map((angle) => ({
+      // A three-sided cylinder puts its faces at half the circumradius,
+      // so the niches sit at ~1.6 m, not out at the 3.1 m corners.
+      position: [Math.cos(angle) * 1.62, 4.5, Math.sin(angle) * 1.62],
+      rotation: [0, Math.PI / 2 - angle, 0],
+    })),
+  );
+  // The corners of the triangle are carried by slim marble piers.
+  addInstances(
+    group,
+    "Composer memorial corner piers",
+    new BoxGeometry(0.62, 6.2, 0.62),
+    marble,
+    [0, 1, 2].map((index) => {
+      const angle = (index / 3) * Math.PI * 2 + Math.PI / 2;
+      return {
+        position: [Math.cos(angle) * 3.1, 4.14, Math.sin(angle) * 3.1],
+        rotation: [0, -angle, 0],
+      };
+    }),
+  );
+  const busts: InstanceTransform[] = faceAngles.map((angle) => ({
+    position: [Math.cos(angle) * 2.05, 4.64, Math.sin(angle) * 2.05],
+    scale: [1, 1.25, 0.72],
+  }));
   addInstances(
     group,
     "Composer memorial Haydn Beethoven Mozart busts",
@@ -856,7 +925,7 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
     "Composer memorial gilded cupola",
     new SphereGeometry(2.25, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2),
     gold,
-    [0, 7.2, 0],
+    [0, 7.54, 0],
   );
   dome.scale.y = 0.7;
   addMesh(
@@ -864,12 +933,12 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
     "Composer memorial laurel crown",
     new TorusGeometry(1.65, 0.19, 8, 24),
     gold,
-    [0, 9.55, 0],
+    [0, 9.89, 0],
   ).rotation.x = Math.PI / 2;
   const putti: InstanceTransform[] = [0, 1, 2].map((index) => {
     const angle = (index / 3) * Math.PI * 2;
     return {
-      position: [Math.cos(angle) * 0.95, 8.55, Math.sin(angle) * 0.95],
+      position: [Math.cos(angle) * 0.95, 8.89, Math.sin(angle) * 0.95],
       rotation: [0, -angle, 0],
       scale: [0.72, 1.1, 0.72],
     };

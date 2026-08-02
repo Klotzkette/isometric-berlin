@@ -80,6 +80,28 @@ describe("granular memorial recognition models", () => {
     expect(bounds.max.y - bounds.min.y).toBeLessThan(11);
   });
 
+  test("the composers and Goethe are built, not blocked out", () => {
+    const root = createMemorialLandmarks(landmarks);
+    for (const name of [
+      "Composer memorial step ring",
+      "Composer memorial three bust niches",
+      "Composer memorial corner piers",
+      "Goethe memorial lower step",
+      "Goethe memorial pedestal cornice",
+      "Goethe memorial allegorical figure pedestals",
+    ]) {
+      expect(root.getObjectByName(name)).not.toBeNull();
+    }
+    // The busts belong on the three faces of the stele, which a three-sided
+    // cylinder puts at half its circumradius — not floating at the corners.
+    const niches = root.getObjectByName("Composer memorial three bust niches");
+    expect((niches as InstancedMesh).count).toBe(3);
+    const goethe = root.getObjectByName("Goethe-Denkmal")!;
+    const goetheHeight = new Box3().setFromObject(goethe).getSize(new Vector3()).y;
+    expect(goetheHeight).toBeGreaterThan(8);
+    expect(goetheHeight).toBeLessThan(10.5);
+  });
+
   test("shows two tanks and two howitzers, each on its own plinth", () => {
     const root = createMemorialLandmarks(landmarks);
     for (const side of ["west", "east"]) {
