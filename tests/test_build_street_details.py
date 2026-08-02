@@ -1,0 +1,50 @@
+"""Checks for the filling-station half of the street-details payload."""
+
+from __future__ import annotations
+
+import json
+import math
+from pathlib import Path
+
+from shapely.geometry import Polygon
+
+from isometric_berlin.generation.build_street_details import rectangle_axis
+
+PAYLOAD = Path("src/app/public/mesh/regierungsviertel/street-details.json")
+
+
+def test_rectangle_axis_flips_northing_into_world_z() -> None:
+  # Northing grows north but world_z grows south, so an easting/northing
+  # edge heading north-east has to come back as heading north-west.
+  axis, along, across = rectangle_axis(
+    Polygon([(0, 0), (10, 10), (8, 12), (-2, 2)])
+  )
+  assert along > across
+  assert axis[0] > 0
+  assert axis[1] < 0
+  assert math.isclose(math.hypot(*axis), 1.0, rel_tol=1e-9)
+
+
+def test_fuel_stations_are_exported_with_a_forecourt_axis() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  assert payload["schema_version"] == 3
+  stations = payload["fuel_stations"]
+  assert sorted(entry["name"] for entry in stations) == ["Aral", "Esso", "Shell"]
+  for entry in stations:
+    assert math.isclose(math.hypot(*entry["axis"]), 1.0, abs_tol=1e-3)
+    assert entry["w_dm"] > 0 and entry["d_dm"] > 0
+  # Only the Shell on Paulstraße is mapped as an area in OSM.
+  surveyed = [entry["name"] for entry in stations if entry["surveyed_outline"]]
+  assert surveyed == ["Shell"]
+
+
+def test_node_station_axis_matches_the_mapped_esso_canopy() -> None:
+  # OSM way 25780043 is the Esso roof on Lessingstraße. Its long side runs
+  # (0.859, 0.512) in world coordinates, which is exactly perpendicular to
+  # the street — the rule the exporter uses for node-only stations.
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  esso = next(
+    entry for entry in payload["fuel_stations"] if entry["name"] == "Esso"
+  )
+  dot = esso["axis"][0] * 0.859 + esso["axis"][1] * 0.512
+  assert abs(dot) > 0.99

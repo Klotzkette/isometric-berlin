@@ -123,6 +123,7 @@ import {
   createTrafficSignals,
   updateTrafficSignals,
 } from "./TrafficSignals";
+import { createFuelStations } from "./FuelStations";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   INTERACTION_COALESCE_MS,
@@ -742,6 +743,11 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const monuments = createTiergartenMonuments(street, ground);
         if (monuments) {
           runtime.isoWorld.add(monuments);
+        }
+        // The quarter's three filling stations, canopy and all.
+        const fuel = createFuelStations(street, ground);
+        if (fuel) {
+          runtime.isoWorld.add(fuel);
         }
       }
       if (ground && rail) {

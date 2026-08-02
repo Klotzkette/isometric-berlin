@@ -23,6 +23,18 @@ import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 export const STREET_DETAILS_FILE = "street-details.json";
 
 export type StreetDetailsPayload = {
+  /** `amenity=fuel` forecourts: centre, axis and the extent to draw on. */
+  fuel_stations?: Array<{
+    /** Unit vector the canopy's long side follows, in world [x, z]. */
+    axis: [number, number];
+    d_dm: number;
+    name: string;
+    /** False when the axis and extent come from the frontage road. */
+    surveyed_outline: boolean;
+    w_dm: number;
+    x_dm: number;
+    z_dm: number;
+  }>;
   /** OSM monuments/memorials with bbox size (0 for point features). */
   monuments?: Array<{
     d_dm: number;

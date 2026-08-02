@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -33,7 +34,22 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "street-details.json"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
+
+# Roads a filling station can front. Service ways and footpaths run behind
+# and beside forecourts, so matching those would rotate the canopy at random.
+FUEL_FRONTAGE_HIGHWAYS = {
+  "living_street",
+  "primary",
+  "residential",
+  "secondary",
+  "tertiary",
+  "unclassified",
+}
+# The forecourt of a German filling station that OSM records as a single
+# node. Both numbers are extrapolated and the payload says so.
+FUEL_DEFAULT_WIDTH_DM = 170
+FUEL_DEFAULT_DEPTH_DM = 140
 
 # OSM `historic` kinds that become drawn monuments in the viewer.
 MONUMENT_KINDS = {"cannon", "memorial", "monument", "tank"}
@@ -55,6 +71,93 @@ def monument_kind(row: Any) -> str | None:
   if row.get("tourism") == "artwork":
     return "artwork"
   return None
+
+
+def rectangle_axis(polygon: Any) -> tuple[tuple[float, float], float, float]:
+  """The long axis and side lengths of a footprint's tightest rectangle.
+
+  Returned in viewer world orientation: northing grows the opposite way to
+  ``world_z``, so the northing component of the easting/northing edge flips.
+  """
+  ring = polygon.minimum_rotated_rectangle.exterior.coords
+  edges = [
+    (ring[index + 1][0] - ring[index][0], ring[index + 1][1] - ring[index][1])
+    for index in range(4)
+  ]
+  lengths = [math.hypot(dx, dy) for dx, dy in edges]
+  long_index = max(range(4), key=lambda index: lengths[index])
+  dx, dy = edges[long_index]
+  length = lengths[long_index]
+  return (dx / length, -dy / length), length, lengths[(long_index + 1) % 4]
+
+
+def frontage_axis(point: Any, roads: gpd.GeoDataFrame) -> tuple[float, float]:
+  """The forecourt axis of a node-only filling station.
+
+  A canopy stands across the street it serves, not along it: the mapped
+  Esso roof on Lessingstraße runs exactly perpendicular to the street. So
+  take the bearing of the nearest frontage road and turn it a quarter turn.
+  """
+  distances = roads.distance(point)
+  road = roads.loc[distances.idxmin()].geometry
+  offset = road.project(point)
+  before = road.interpolate(max(0.0, offset - 8.0))
+  after = road.interpolate(min(road.length, offset + 8.0))
+  dx = after.x - before.x
+  dy = -(after.y - before.y)
+  length = math.hypot(dx, dy)
+  if length == 0:
+    return (1.0, 0.0)
+  # Quarter turn: (x, z) -> (-z, x).
+  return (-dy / length, dx / length)
+
+
+def build_fuel_stations(
+  pois: gpd.GeoDataFrame, roads: gpd.GeoDataFrame, bounds: Any
+) -> list[dict[str, Any]]:
+  """Filling stations with the axis their canopy and pump islands follow.
+
+  OSM maps the position, the brand and the fuel grades; only one of the
+  three sites in the bounds carries a footprint. The canopy, the islands
+  and the price totem are therefore drawn to a standard forecourt and
+  flagged, so the viewer can mark them as extrapolated.
+  """
+  frontage = roads[
+    roads["highway"].isin(FUEL_FRONTAGE_HIGHWAYS)
+    & roads.geometry.geom_type.isin(["LineString", "MultiLineString"])
+  ]
+  stations: list[dict[str, Any]] = []
+  for _, row in pois[pois["amenity"] == "fuel"].iterrows():
+    geometry = row.geometry
+    if geometry is None or geometry.is_empty:
+      continue
+    centroid = geometry.centroid
+    if not bounds.contains(centroid):
+      continue
+    if geometry.geom_type in ("Polygon", "MultiPolygon"):
+      axis, along_m, across_m = rectangle_axis(geometry)
+      surveyed = True
+      width_dm = round(along_m * 10)
+      depth_dm = round(across_m * 10)
+    else:
+      axis = frontage_axis(centroid, frontage)
+      surveyed = False
+      width_dm = FUEL_DEFAULT_WIDTH_DM
+      depth_dm = FUEL_DEFAULT_DEPTH_DM
+    name = row.get("name")
+    stations.append(
+      {
+        "axis": [round(axis[0], 4), round(axis[1], 4)],
+        "d_dm": depth_dm,
+        "name": name if isinstance(name, str) else "",
+        "surveyed_outline": surveyed,
+        "w_dm": width_dm,
+        "x_dm": round((centroid.x - ORIGIN_EASTING) * 10),
+        "z_dm": round((ORIGIN_NORTHING - centroid.y) * 10),
+      }
+    )
+  stations.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
+  return stations
 
 
 def build_payload(
@@ -116,6 +219,7 @@ def build_payload(
   monuments.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
 
   return {
+    "fuel_stations": build_fuel_stations(pois, roads, bounds),
     "monuments": monuments,
     "schema_version": SCHEMA_VERSION,
     "source": ATTRIBUTION,
