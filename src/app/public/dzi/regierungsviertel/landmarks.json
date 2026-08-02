@@ -390,6 +390,24 @@
       "y": 6356,
       "nx": 0.0,
       "ny": 0.547176
+    },
+    {
+      "name": "Siegessäule",
+      "role": "owner_added",
+      "tourOrder": 44,
+      "x": 0,
+      "y": 1010,
+      "nx": 0.0,
+      "ny": 0.086949
+    },
+    {
+      "name": "Invalidenpark / Sinkende Mauer",
+      "role": "owner_added",
+      "tourOrder": 57,
+      "x": 16384,
+      "y": 1796,
+      "nx": 1.0,
+      "ny": 0.154614
     }
   ]
 }

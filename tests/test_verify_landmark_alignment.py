@@ -49,7 +49,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 56,
+    "landmarks_checked": 57,
     "relative_relationships_checked": 26,
     "landmark_review_count": 9,
     "relative_review_count": 0,
@@ -94,6 +94,9 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   # osm.gpkg reaches the Großer Stern.
   assert checks["Siegessäule"]["best_osm_match"]["name"] == "Siegessäule"
   assert checks["Großer Stern"]["best_osm_match"]["name"] == "Großer Stern"
+  assert checks["Invalidenpark / Sinkende Mauer"]["best_osm_match"]["name"] == (
+    "Sinkende Mauer"
+  )
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
   assert reviewed == LANDMARKS_WITHOUT_OSM_MATCH
   assert all(

@@ -2823,6 +2823,24 @@
         8.0,
         893.2830181689933
       ]
+    },
+    {
+      "name": "Siegessäule",
+      "role": "owner_added",
+      "world": [
+        -1461.9665003244882,
+        8.0,
+        457.11010951176286
+      ]
+    },
+    {
+      "name": "Invalidenpark / Sinkende Mauer",
+      "role": "owner_added",
+      "world": [
+        357.99754346814007,
+        8.0,
+        -1150.7056127786636
+      ]
     }
   ],
   "park_details": {

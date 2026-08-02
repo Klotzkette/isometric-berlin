@@ -2742,6 +2742,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 0,
             target_world: [-324, 4.05, 886],
           });
+          // The Goldelse stands 67 m up and faces west down the Straße des
+          // 17. Juni, so the camera has to come at her from the west and stay
+          // near her own height; the default overhead framing shows her back.
+          runtime.focusCameraByName.set("Siegessäule", {
+            azimuth_degrees: -70,
+            distance_m: 104,
+            polar_degrees: 80,
+            target_height_m: 62,
+            target_world: [-1459, 2.1, 456],
+          });
+          // South-east of the basin, looking back along the wedge: the plunge
+          // face is nearest and the crown recedes to the low north entrance.
+          runtime.focusCameraByName.set("Invalidenpark / Sinkende Mauer", {
+            azimuth_degrees: 38,
+            distance_m: 78,
+            polar_degrees: 64,
+            target_height_m: 3,
+            target_world: [358, 5.3, -1150],
+          });
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
           );

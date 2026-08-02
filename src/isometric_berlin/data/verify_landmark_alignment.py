@@ -205,6 +205,13 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": ["luiseninsel"],
     "max_distance_m": 25.0,
   },
+  # The owner calls this the "Versunkene Mauer"; OSM and Girot's own title
+  # are "Sinkende Mauer". The landmark point sits at the centre of the basin
+  # the wall runs into, so it is one basin radius away from the artwork way.
+  "Invalidenpark / Sinkende Mauer": {
+    "aliases": ["sinkende mauer", "invalidenpark"],
+    "max_distance_m": 60.0,
+  },
 }
 
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (

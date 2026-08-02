@@ -877,6 +877,22 @@
           52.529
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Invalidenpark / Sinkende Mauer",
+        "role": "owner_added",
+        "tour_order": 57,
+        "source": "OpenStreetMap way 1065885229 (tourism=artwork, Sinkende Mauer) and way 28880840 (the fountain basin); centre of the basin the wall runs into"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3763385,
+          52.5293075
+        ]
+      }
     }
   ]
 }
