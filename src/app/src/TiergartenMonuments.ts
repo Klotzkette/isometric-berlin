@@ -41,6 +41,10 @@ const DARK_CUBE = 0x8f9497;
 const WHITE = 0xf2f2ee;
 const GLASS_BLUE = 0x5f9fc4;
 const TOWER_GREEN = 0x4a6b52;
+const MARBLE = 0xe8e5dc;
+const GRANITE_RED = 0x9d7a6e;
+const CANOPY_ROOF = 0xa8543f;
+const CANOPY_POST = 0x7d7a72;
 
 type Builder = {
   edges: BufferGeometry[];
@@ -161,8 +165,84 @@ function buildGlassPanels(builder: Builder, x: number, y: number, z: number): vo
   }
 }
 
+/**
+ * Eberlein's 1903 Carrara marble group under the flat reddish roof that
+ * was put over it to keep the weather off the marble. The roof is the
+ * thing you recognise the monument by from any distance, so it is drawn
+ * as its own element: four slim posts and a low overhanging canopy.
+ */
+function buildWagnerMemorial(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.35, z, 8, 0.7, 6.4);
+  box(builder, MARBLE, x, y + 1.5, z, 4.6, 1.6, 3.4);
+  // Wagner sits; the allegorical figures crouch around the base.
+  box(builder, MARBLE, x, y + 3.1, z - 0.3, 1.7, 1.8, 1.5);
+  box(builder, MARBLE, x, y + 4.3, z - 0.3, 1.1, 0.7, 1.1);
+  for (const [dx, dz] of [
+    [-1.7, 1.2],
+    [1.7, 1.2],
+  ]) {
+    box(builder, MARBLE, x + dx, y + 2.9, z + dz, 1, 1.2, 1);
+  }
+  for (const dx of [-3.6, 3.6]) {
+    for (const dz of [-2.8, 2.8]) {
+      box(builder, CANOPY_POST, x + dx, y + 3.4, z + dz, 0.24, 6.1, 0.24);
+    }
+  }
+  box(builder, CANOPY_ROOF, x, y + 6.7, z, 9.4, 0.45, 7.6);
+  box(builder, CANOPY_ROOF, x, y + 7.15, z, 6.6, 0.5, 5.2);
+}
+
+/**
+ * Begas' Bismarck-Nationaldenkmal at the Großer Stern: a 6.6 m bronze
+ * Bismarck on a red granite pedestal, with four allegorical bronze groups
+ * sitting around its foot.
+ */
+function buildBismarckNationalDenkmal(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.4, z, 14, 0.8, 14);
+  box(builder, GRANITE_RED, x, y + 1.5, z, 8.6, 1.4, 8.6);
+  box(builder, GRANITE_RED, x, y + 4.6, z, 4.8, 4.8, 4.8);
+  box(builder, GRANITE_RED, x, y + 7.2, z, 5.6, 0.5, 5.6);
+  // Bismarck himself, in the greatcoat, half again as tall as the pedestal.
+  box(builder, BRONZE, x, y + 10.6, z, 2.2, 6.4, 2.2);
+  box(builder, BRONZE, x, y + 14.2, z, 1.1, 1, 1.1);
+  for (const [dx, dz] of [
+    [-4.2, -4.2],
+    [4.2, -4.2],
+    [-4.2, 4.2],
+    [4.2, 4.2],
+  ]) {
+    box(builder, GRANITE_RED, x + dx, y + 1.1, z + dz, 3.2, 2.2, 3.2);
+    box(builder, BRONZE, x + dx, y + 3.4, z + dz, 1.9, 2.4, 1.9);
+  }
+}
+
+/** Moltke and Roon: a bronze general on a tall granite pedestal. */
+function buildGeneralColumn(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.35, z, 6, 0.7, 6);
+  box(builder, GRANITE_RED, x, y + 1.4, z, 3.6, 1.4, 3.6);
+  box(builder, GRANITE_RED, x, y + 4.6, z, 2.6, 5, 2.6);
+  box(builder, GRANITE_RED, x, y + 7.4, z, 3.2, 0.55, 3.2);
+  box(builder, BRONZE, x, y + 9.6, z, 1.5, 3.9, 1.5);
+  box(builder, BRONZE, x, y + 11.8, z, 0.8, 0.7, 0.8);
+}
+
 const STATUE_NAMES =
-  /Lessing|Grimm|Bruno|Rufer|Lortzing|Wagner|Bismarck|Moore|Reichstagsabgeordneten/i;
+  /Lessing|Grimm|Bruno|Rufer|Lortzing|Moore|Reichstagsabgeordneten/i;
 
 // Memorials the verified recognition layer (MemorialLandmarks) already
 // models completely — the Holocaust stelae field, the Soviet memorial
@@ -202,6 +282,12 @@ export function createTiergartenMonuments(
       buildUnityFlag(builder, x, y, z);
     } else if (/Grundgesetz/i.test(name)) {
       buildGlassPanels(builder, x, y, z);
+    } else if (/Richard Wagner|Wagner-Denkmal/i.test(name)) {
+      buildWagnerMemorial(builder, x, y, z);
+    } else if (/Bismarck/i.test(name)) {
+      buildBismarckNationalDenkmal(builder, x, y, z);
+    } else if (/Moltke|Roon/i.test(name)) {
+      buildGeneralColumn(builder, x, y, z);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {

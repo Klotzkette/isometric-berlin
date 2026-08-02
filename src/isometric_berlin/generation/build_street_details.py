@@ -41,6 +41,22 @@ MONUMENT_KINDS = {"cannon", "memorial", "monument", "tank"}
 MONUMENT_SKIP_NAMES = {"Brandenburger Tor"}
 
 
+def monument_kind(row: Any) -> str | None:
+  """The drawn class of an OSM POI, or ``None`` if it is not a monument.
+
+  Most of the Tiergarten's statuary is not tagged ``historic`` at all but
+  ``tourism=artwork`` — the Wagner memorial, the hunting groups, the
+  Luiseninsel figures. Leaving those out emptied whole lawns that in
+  reality are full of marble, so a named artwork counts too.
+  """
+  kind = row.get("historic")
+  if isinstance(kind, str) and kind in MONUMENT_KINDS:
+    return kind
+  if row.get("tourism") == "artwork":
+    return "artwork"
+  return None
+
+
 def build_payload(
   bounds_path: Path, osm_path: Path, scene_path: Path
 ) -> dict[str, Any]:
@@ -70,12 +86,15 @@ def build_payload(
   pois = gpd.read_file(osm_path, layer="pois").to_crs(epsg=25833)
   monuments: list[dict[str, Any]] = []
   for _, row in pois.iterrows():
-    kind = row.get("historic")
-    if not isinstance(kind, str) or kind not in MONUMENT_KINDS:
+    kind = monument_kind(row)
+    if kind is None:
       continue
     name = row.get("name")
     name = name if isinstance(name, str) else ""
     if name in MONUMENT_SKIP_NAMES:
+      continue
+    # An unnamed sculpture is a dot on a map with nothing to recognise.
+    if kind == "artwork" and not name:
       continue
     geometry = row.geometry
     if geometry is None or geometry.is_empty:

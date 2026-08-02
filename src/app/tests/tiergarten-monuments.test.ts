@@ -84,4 +84,51 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     const groundBounds = new Box3().setFromObject(bodies);
     expect(towerTop - groundBounds.min.y).toBeGreaterThan(7);
   });
+  test("the Tiergarten's marble is drawn, not just its historic= tags", () => {
+    // Most Tiergarten statuary is tagged tourism=artwork, not historic=*.
+    const kinds = street.monuments!.map((entry) => entry.kind);
+    expect(kinds.filter((kind) => kind === "artwork").length).toBeGreaterThan(60);
+    const names = street.monuments!.map((entry) => entry.name);
+    expect(names).toContain("Richard Wagner");
+    // An unnamed sculpture has nothing to recognise; it must not be exported.
+    // (Unnamed historic=memorial stones stay: they are surveyed markers.)
+    expect(
+      street
+        .monuments!.filter((entry) => entry.kind === "artwork")
+        .every((entry) => entry.name.length > 0),
+    ).toBe(true);
+  });
+
+  function tallestNear(name: string): number {
+    const entry = street.monuments!.find((candidate) =>
+      candidate.name.includes(name),
+    )!;
+    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    const vertex = new Vector3();
+    let top = -Infinity;
+    let foot = Infinity;
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        Math.abs(vertex.x - entry.x_dm / 10) < 9 &&
+        Math.abs(vertex.z - entry.z_dm / 10) < 9
+      ) {
+        top = Math.max(top, vertex.y);
+        foot = Math.min(foot, vertex.y);
+      }
+    }
+    return top - foot;
+  }
+
+  test("Wagner stands under his protective roof, Bismarck towers over both", () => {
+    // The canopy over Eberlein's marble reaches about 7.4 m.
+    expect(tallestNear("Richard Wagner")).toBeGreaterThan(6.5);
+    expect(tallestNear("Richard Wagner")).toBeLessThan(9);
+    // The Nationaldenkmal is roughly 15 m to the top of the bronze.
+    expect(tallestNear("Otto von Bismarck")).toBeGreaterThan(13);
+    // Moltke and Roon are generals on pedestals, not 15 m chancellors.
+    expect(tallestNear("Moltke")).toBeGreaterThan(10);
+    expect(tallestNear("Moltke")).toBeLessThan(13);
+  });
 });
