@@ -58,11 +58,17 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 WATER_SIMPLIFY_M = 0.15
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
 MIN_PARK_AREA_M2 = 250.0
+# A formal garden is drawn bed by bed, and the eleven beds of the Rosengarten
+# run from 27 to 196 m² — every one of them below the lawn floor, which is why
+# the Rosengarten arrived as an undifferentiated green patch. Beds are also
+# small enough that the 1.2 m lawn tolerance rounds their corners away.
+MIN_GARDEN_AREA_M2 = 20.0
+GARDEN_SIMPLIFY_M = 0.4
 
 # --- Carriageways and park paths -------------------------------------
 #
@@ -143,14 +149,14 @@ def polygon_parts(geometry: BaseGeometry) -> list[Polygon]:
   return []
 
 
-def collect(
-  osm_path: Path,
-  layer: str,
-  bounds: BaseGeometry,
-  min_area: float,
-  simplify_m: float,
-) -> list[dict[str, Any]]:
-  frame = gpd.read_file(osm_path, layer=layer).to_crs(epsg=25833)
+def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any]]:
+  """Parkland split into open lawn and planted garden.
+
+  A garden is drawn on top of the lawn in its own tone, so the beds of the
+  Rosengarten read as beds between their gravel walks instead of vanishing
+  into one green plate.
+  """
+  frame = gpd.read_file(osm_path, layer="parks").to_crs(epsg=25833)
   surfaces: list[dict[str, Any]] = []
   for _, row in frame.iterrows():
     geometry = row.geometry
@@ -159,6 +165,9 @@ def collect(
     clipped = geometry.intersection(bounds)
     if clipped.is_empty:
       continue
+    garden = row.get("leisure") == "garden"
+    min_area = MIN_GARDEN_AREA_M2 if garden else MIN_PARK_AREA_M2
+    simplify_m = GARDEN_SIMPLIFY_M if garden else PARK_SIMPLIFY_M
     for part in polygon_parts(clipped):
       simplified = part.simplify(simplify_m, preserve_topology=True)
       if simplified.is_empty or simplified.area < min_area:
@@ -176,6 +185,7 @@ def collect(
         {
           "area_m2": round(simplified.area),
           "holes": holes,
+          "kind": "garden" if garden else "lawn",
           "name": name if isinstance(name, str) else "",
           "ring": ring,
         }
@@ -391,9 +401,7 @@ def build_payload(
   return {
     "lane_markings": markings,
     "park_simplify_m": PARK_SIMPLIFY_M,
-    "parks": collect(
-      osm_path, "parks", bounds, MIN_PARK_AREA_M2, PARK_SIMPLIFY_M
-    ),
+    "parks": collect_parkland(osm_path, bounds),
     "road_simplify_m": ROAD_SIMPLIFY_M,
     "road_widths_m": ROAD_WIDTHS_M,
     "roads": roads,

@@ -3783,7 +3783,7 @@ export function createSmoothSurfaces(
   // Parkland lawns first: they sit just above the rasterised grass so
   // the 4 m steps disappear under a smooth sage plate.
   const lawns = buildPlate(
-    surfaces.parks,
+    surfaces.parks.filter((entry) => entry.kind !== "garden"),
     terrainAt ? 0.06 : bankY + 0.08,
     0xffffff,
     true,
@@ -3798,6 +3798,59 @@ export function createSmoothSurfaces(
     lawnMesh.userData.nightMaterial = nightMaterial;
     lawnMesh.name = "smooth parkland lawns";
     group.add(lawnMesh);
+  }
+
+  // Planted gardens over the lawn: the eleven beds of the Rosengarten, the
+  // Englischer Garten, the Kanonenhof. A bed is denser and warmer than mown
+  // grass, and it needs an outline — beds that touch each other along a
+  // gravel walk are only readable as separate beds if their edges are drawn.
+  const gardens = surfaces.parks.filter((entry) => entry.kind === "garden");
+  const gardenPlate = buildPlate(
+    gardens,
+    terrainAt ? 0.08 : bankY + 0.1,
+    0xffffff,
+    true,
+  );
+  if (gardenPlate) {
+    const dayMaterial = new MeshBasicMaterial({ color: 0x8fae72 });
+    const nightMaterial = new MeshBasicMaterial({ color: 0x1e2a1c });
+    const gardenMesh = new Mesh(gardenPlate, dayMaterial);
+    gardenMesh.userData.dayMaterial = dayMaterial;
+    gardenMesh.userData.nightMaterial = nightMaterial;
+    gardenMesh.name = "smooth garden beds";
+    group.add(gardenMesh);
+
+    const outline: number[] = [];
+    for (const bed of gardens) {
+      for (let index = 0; index < bed.ring.length; index += 1) {
+        const [ax, az] = bed.ring[index];
+        const [bx, bz] = bed.ring[(index + 1) % bed.ring.length];
+        const x0 = ax / 10;
+        const z0 = az / 10;
+        const x1 = bx / 10;
+        const z1 = bz / 10;
+        const lift = terrainAt ? 0.13 : 0;
+        outline.push(
+          x0,
+          (terrainAt ? terrainAt(x0, z0) : bankY) + lift,
+          z0,
+          x1,
+          (terrainAt ? terrainAt(x1, z1) : bankY) + lift,
+          z1,
+        );
+      }
+    }
+    if (outline.length > 0) {
+      const geometry = new BufferGeometry();
+      geometry.setAttribute("position", new Float32BufferAttribute(outline, 3));
+      const edges = new LineSegments(
+        geometry,
+        new LineBasicMaterial({ color: 0x6c7a58 }),
+      );
+      edges.name = "garden bed outlines";
+      edges.renderOrder = 3;
+      group.add(edges);
+    }
   }
 
   // Carriageways and park paths, drawn from the buffered OSM centrelines.
