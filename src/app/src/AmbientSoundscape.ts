@@ -211,6 +211,16 @@ export class AmbientSoundscape {
   private step = 0;
   private timer: number | null = null;
 
+  /**
+   * Whether the layer is actually reaching the speakers.
+   *
+   * A scheduler armed over a suspended context is silence, so the toggle
+   * must not read it as sound.
+   */
+  get audible(): boolean {
+    return this.timer !== null && this.context?.state === "running";
+  }
+
   async start(): Promise<boolean> {
     if (this.context) {
       return this.resumeWithin(this.context);

@@ -393,4 +393,24 @@ describe("Dusk Republic — player", () => {
     expect(nodeDisconnects).toBe(1);
     expect(player.activeVoiceCount).toBe(0);
   });
+
+  test("audible is false while the context is not running", () => {
+    // The autoplay block leaves the scheduler armed over a suspended
+    // context. Reporting that as playing is what made the toggle lie.
+    const player = new DuskChiptune();
+    expect(player.playing).toBe(false);
+    expect(player.audible).toBe(false);
+    const internals = player as unknown as {
+      context: { state: string } | null;
+      timer: number | null;
+    };
+    internals.timer = 1;
+    internals.context = { state: "suspended" };
+    expect(player.playing).toBe(true);
+    expect(player.audible).toBe(false);
+    internals.context = { state: "running" };
+    expect(player.audible).toBe(true);
+    internals.timer = null;
+    expect(player.audible).toBe(false);
+  });
 });

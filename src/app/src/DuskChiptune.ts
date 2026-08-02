@@ -609,6 +609,18 @@ export class DuskChiptune {
     return this.timer !== null;
   }
 
+  /**
+   * Whether the track is actually reaching the speakers.
+   *
+   * `playing` only says the scheduler is running. A browser that blocked
+   * autoplay, or that suspended the tab, leaves the context out of the
+   * `running` state with the scheduler still armed — which is how the
+   * toggle came to show "on" over silence.
+   */
+  get audible(): boolean {
+    return this.timer !== null && this.context?.state === "running";
+  }
+
   get activeVoiceCount(): number {
     return this.activeSources.size;
   }

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   AMBIENT_VARIANTS,
+  AmbientSoundscape,
   BEAT_INTERVAL_STEPS,
   attackReleaseEnvelope,
   beatMidi,
@@ -85,5 +86,21 @@ describe("deep swell beat cadence", () => {
         midiFrequency(variant.rootMidi),
       );
     }
+  });
+
+  test("audible is false while the context is not running", () => {
+    // Same contract as the chiptune layer: an armed scheduler over a
+    // suspended context is silence, and the toggle has to say so.
+    const soundscape = new AmbientSoundscape();
+    expect(soundscape.audible).toBe(false);
+    const internals = soundscape as unknown as {
+      context: { state: string } | null;
+      timer: number | null;
+    };
+    internals.timer = 1;
+    internals.context = { state: "suspended" };
+    expect(soundscape.audible).toBe(false);
+    internals.context = { state: "running" };
+    expect(soundscape.audible).toBe(true);
   });
 });

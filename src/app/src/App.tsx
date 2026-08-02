@@ -500,6 +500,10 @@ export function App() {
   const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(
     () => isChiptuneSupported(),
   );
+  // Intent is on from the first frame, but a browser that blocks autoplay
+  // leaves the page silent. The toggle follows this, not the intent, so it
+  // never claims to be playing over silence.
+  const [isSoundtrackAudible, setIsSoundtrackAudible] = useState(false);
   const threeViewerRef = useRef<ThreeViewerHandle | null>(null);
   const closeReferenceButtonRef = useRef<HTMLButtonElement | null>(null);
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -538,6 +542,7 @@ export function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isRepositoryOpen, setIsRepositoryOpen] = useState(false);
   const [isMusicEnabled, setIsMusicEnabled] = useState(false);
+  const [isMusicAudible, setIsMusicAudible] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
   const [isChromeHidden, setIsChromeHidden] = useState(initialChromeHidden);
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
@@ -802,6 +807,26 @@ export function App() {
     [copy.soundtrackOn, language],
   );
 
+  // Both engines can fall silent without us asking — autoplay blocks, tab
+  // suspension, a context the browser reclaims. Poll the truth rather than
+  // trusting the last thing we told the player to do.
+  useEffect(() => {
+    const sync = () => {
+      setIsSoundtrackAudible(chiptuneRef.current?.audible ?? false);
+      setIsMusicAudible(ambientSoundscapeRef.current?.audible ?? false);
+    };
+    sync();
+    const timer = window.setInterval(sync, 700);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // Intent without sound is the state the browser's autoplay block leaves
+  // us in: say "waiting for a click" rather than pretending to be off.
+  const isSoundtrackWaiting = isSoundtrackEnabled && !isSoundtrackAudible;
+  const soundtrackOnLabel = isSoundtrackWaiting
+    ? copy.soundtrackWaiting
+    : copy.soundtrackOn;
+
   const toggleSoundtrack = useCallback(async () => {
     if (isSoundtrackEnabled) {
       chiptuneRef.current?.stop();
@@ -819,6 +844,22 @@ export function App() {
     },
     [],
   );
+
+  // Try to play at once. Most browsers block this, which is exactly what
+  // the gesture listeners below are for — but the ones that allow it (a
+  // returning visitor whose autoplay permission is already granted) should
+  // not have to click first. A user who muted explicitly is left alone.
+  useEffect(() => {
+    if (typeof window === "undefined" || isMusicMutedByUser()) {
+      return;
+    }
+    if (isAmbientAudioSupported()) {
+      void startMusic({ rememberMute: false, silent: true });
+    }
+    if (isChiptuneSupported()) {
+      void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
+    }
+  }, [startMusic, startSoundtrack]);
 
   // v0.5.2: iOS/Android Safari + Chrome refuse to create an AudioContext
   // until the user has interacted with the page, so we auto-start the
@@ -885,7 +926,7 @@ export function App() {
     if (
       typeof window === "undefined" ||
       !isSoundtrackEnabled ||
-      chiptuneRef.current?.playing ||
+      chiptuneRef.current?.audible ||
       !isChiptuneSupported()
     ) {
       return;
@@ -2201,12 +2242,12 @@ export function App() {
           <button
             type="button"
             data-audio-toggle="ambient"
-            aria-label={isMusicEnabled ? copy.musicOff : copy.musicOn}
-            aria-pressed={isMusicEnabled}
-            title={`${isMusicEnabled ? copy.musicOff : copy.musicOn} (B)`}
+            aria-label={isMusicAudible ? copy.musicOff : copy.musicOn}
+            aria-pressed={isMusicAudible}
+            title={`${isMusicAudible ? copy.musicOff : copy.musicOn} (B)`}
             onClick={toggleMusic}
           >
-            {isMusicEnabled ? (
+            {isMusicAudible ? (
               <Volume2 size={18} aria-hidden="true" />
             ) : (
               <VolumeX size={18} aria-hidden="true" />
@@ -2216,14 +2257,14 @@ export function App() {
             type="button"
             data-audio-toggle="soundtrack"
             aria-label={
-              isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
+              isSoundtrackAudible ? copy.soundtrackOff : soundtrackOnLabel
             }
-            aria-pressed={isSoundtrackEnabled}
+            aria-pressed={isSoundtrackAudible}
             className={`soundtrack-toggle${
-              isSoundtrackEnabled ? " is-active" : ""
-            }`}
+              isSoundtrackAudible ? " is-active" : ""
+            }${isSoundtrackWaiting ? " is-waiting" : ""}`}
             title={`${
-              isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
+              isSoundtrackAudible ? copy.soundtrackOff : soundtrackOnLabel
             } (T)`}
             onClick={toggleSoundtrack}
           >
@@ -2900,23 +2941,23 @@ export function App() {
             <button
               type="button"
               data-audio-toggle="ambient"
-              aria-pressed={isMusicEnabled}
+              aria-pressed={isMusicAudible}
               onClick={toggleMusic}
             >
-              {isMusicEnabled ? (
+              {isMusicAudible ? (
                 <Volume2 size={20} aria-hidden="true" />
               ) : (
                 <VolumeX size={20} aria-hidden="true" />
               )}
-              <span>{isMusicEnabled ? copy.musicOff : copy.musicOn}</span>
+              <span>{isMusicAudible ? copy.musicOff : copy.musicOn}</span>
             </button>
             <button
               type="button"
               data-audio-toggle="soundtrack"
               aria-label={
-                isSoundtrackEnabled ? copy.soundtrackOff : copy.soundtrackOn
+                isSoundtrackAudible ? copy.soundtrackOff : soundtrackOnLabel
               }
-              aria-pressed={isSoundtrackEnabled}
+              aria-pressed={isSoundtrackAudible}
               className="soundtrack-toggle"
               onClick={() => {
                 setMobileSheet(null);
