@@ -570,7 +570,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "settled-only official-tree detail gate": (
       "setParkSettledDetail(runtime.parkDetails, settled)"
     ),
-    "interaction surface swap": "cameraMoving || stability.pinInteractionSurface",
+    "interaction surface swap": (
+      "surfaceInteracting || stability.pinInteractionSurface"
+    ),
+    "hysteretic settled-detail tier": "nextSettledDetailMode({",
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
     "damping-aware active rendering": "const controlsChanged = controls.update()",

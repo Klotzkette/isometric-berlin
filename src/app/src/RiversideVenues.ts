@@ -1,4 +1,9 @@
-import { BoxGeometry, EdgesGeometry, type Group } from "three";
+import {
+  BoxGeometry,
+  EdgesGeometry,
+  type Group,
+  SphereGeometry,
+} from "three";
 
 import {
   addBox,
@@ -139,12 +144,15 @@ function chestnut(
   height: number,
 ): void {
   addBox(builder, TRUNK, cx, ground + height * 0.3, cz, 0.7, height * 0.6, 0.7, 0);
-  const crown = new BoxGeometry(height * 0.62, height * 0.44, height * 0.62);
-  crown.rotateY(Math.PI / 4);
-  crown.translate(cx, ground + height * 0.72, cz);
+  // A coarse sphere, so the natural monument reads as the biggest tree on
+  // the bank rather than as a green box. Few enough segments that it stays
+  // faceted in the drawn register, and indexed like the rest of the kit —
+  // mergeGeometries refuses a mix of indexed and non-indexed parts.
+  const crown = new SphereGeometry(1, 7, 5);
+  crown.scale(height * 0.32, height * 0.24, height * 0.32);
+  crown.translate(cx, ground + height * 0.74, cz);
   paintGeometry(crown, CROWN);
   builder.parts.push(crown);
-  builder.edges.push(new EdgesGeometry(crown, 24));
 }
 
 /**

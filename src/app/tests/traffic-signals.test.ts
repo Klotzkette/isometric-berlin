@@ -20,8 +20,8 @@ const ground = voxelPayload as unknown as VoxelPayload;
 
 describe("task 07: animated OSM traffic signals", () => {
   test("the payload carries every surveyed signal inside bounds", () => {
-    // Schema 3 added the filling-station forecourts.
-    expect(street.schema_version).toBe(3);
+    // Schema 4 added the beer gardens and the node-only riverside bars.
+    expect(street.schema_version).toBe(4);
     expect(street.traffic_signals_dm.length).toBe(247);
     expect(street.source.toLowerCase()).toContain("openstreetmap");
     // Schema v2 also carries the monuments ("alle Denkmäler").
