@@ -662,8 +662,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "mobile-safe Holocaust shadow budget": "stelae.castShadow = false",
     "Soviet memorial T-34/76 tanks": 'vehicleType = "T-34/76"',
     "2026 Jehovah's Witnesses memorial": (
-      "Jehovahs Witnesses memorial fine vertical folds"
+      "Jehovahs Witnesses memorial stacked bronze discs"
     ),
+    "2025 Gedenkort für Polen erratic": "Polish memorial Findling",
   }
   failures.extend(
     f"Memorial models lack {label}: {memorial_path}"

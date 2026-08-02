@@ -26,6 +26,9 @@ from shapely.geometry import (
 )
 
 from isometric_berlin.data.common import BERLIN_PROJECTED
+from isometric_berlin.generation.building_corrections import (
+  apply_building_corrections,
+)
 from isometric_berlin.generation.create_grid import quadrant_db_path
 
 BACKGROUND = (235, 241, 237)
@@ -198,6 +201,12 @@ def load_layer(path: Path, layer: str) -> gpd.GeoDataFrame:
     gdf = gpd.read_file(path, layer=layer)
   except Exception:
     return gpd.GeoDataFrame(geometry=[], crs=BERLIN_PROJECTED)
+  if layer == "buildings":
+    # The 3D pipeline has always read the stock through
+    # ``load_current_buildings``, but the 2D renderers read it raw — which is
+    # why the demolished Landeslabor kept standing in the tile image long
+    # after it had gone from the drawn city.
+    gdf = apply_building_corrections(gdf)
   if gdf.crs is None:
     gdf = gdf.set_crs(BERLIN_PROJECTED)
   return gdf.to_crs(BERLIN_PROJECTED)

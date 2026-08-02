@@ -32,6 +32,10 @@ DEFAULT_CANVAS_WIDTH = 16_384
 DEFAULT_CANVAS_HEIGHT = 11_616
 DEFAULT_PREVIEW_MAX_WIDTH = 6_144
 PREVIEW_PALETTE_COLORS = 256
+# Palettes to try, largest first. The release gate rejects any committed
+# viewer asset over 5 MiB, so leave a margin for the PNG encoder.
+PREVIEW_PALETTE_STEPS = (256, 192, 128, 96, 64)
+MAX_PREVIEW_BYTES = 4_900_000
 
 
 def content_bbox(image: Image.Image, pad: int = 96) -> tuple[int, int, int, int]:
@@ -62,15 +66,38 @@ def fit_preview(image: Image.Image, max_width: int) -> Image.Image:
   return image.resize((max_width, height), Image.Resampling.LANCZOS)
 
 
-def compact_preview(
-  image: Image.Image, *, colors: int = PREVIEW_PALETTE_COLORS
-) -> Image.Image:
-  """Keep the high-resolution fallback below the repository binary limit."""
+def quantize_preview(image: Image.Image, colors: int) -> Image.Image:
   return image.convert("RGB").quantize(
     colors=colors,
     method=Image.Quantize.MEDIANCUT,
     dither=Image.Dither.NONE,
   )
+
+
+def encoded_size(image: Image.Image) -> int:
+  buffer = io.BytesIO()
+  image.save(buffer, format="PNG", optimize=True)
+  return buffer.tell()
+
+
+def compact_preview(
+  image: Image.Image, *, colors: int = PREVIEW_PALETTE_COLORS
+) -> Image.Image:
+  """Keep the high-resolution fallback below the repository binary limit.
+
+  A fixed 256-colour palette used to be enough, but the drawn city keeps
+  gaining detail and the encoded PNG crossed 5 MiB — which the release gate
+  rejects. So step the palette down until the file actually fits rather than
+  asserting a bound the function does not enforce.
+  """
+  for step in PREVIEW_PALETTE_STEPS:
+    candidate_colors = min(colors, step)
+    candidate = quantize_preview(image, candidate_colors)
+    if encoded_size(candidate) <= MAX_PREVIEW_BYTES:
+      return candidate
+    if candidate_colors == PREVIEW_PALETTE_STEPS[-1]:
+      break
+  return quantize_preview(image, min(colors, PREVIEW_PALETTE_STEPS[-1]))
 
 
 def landmark_records(

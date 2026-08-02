@@ -1,5 +1,85 @@
 # Changelog
 
+## v0.49.0
+
+A bridge that did not reach the far bank, a school that was a flat box, three
+filling stations, two memorials rebuilt from their documented form, and a
+music button that had been claiming to play over silence.
+
+- **The Gustav-Heinemann-Brücke stopped over the water.** The footbridge was
+  drawn from the surveyed deck only, so it broke off short of both banks and
+  connected to nothing. It now runs bank to bank and meets the riverside
+  paths at each end. The "strange rods" standing beside it were the picket
+  infill of the old handrail profile, drawn at full height along the
+  approaches where there is no deck to carry them; they are gone.
+- **The Gymnasium Tiergarten was a flat 32 m box.** The 1902 brick school on
+  Alt-Moabit carries ALKIS roof code 5000 (Mischform), which the procedural
+  roof fitter skips, so LoD2 extruded it as a slab. Its two prisms are now
+  suppressed and replaced by a drawn Altbau: red brick with sandstone storey
+  bands, a steep dark roof, stepped Renaissance gables at both ends of the
+  ridge and a wall dormer in the middle of each long front, and the rooftop
+  observation deck with its balustrade. Heights stay at the measured LoD2
+  values — 32.33 m to the ridge, 34.75 m to the deck.
+- **The quarter's three filling stations were empty tarmac.** `amenity=fuel`
+  is now exported by `build_street_details.py` (schema 3) with a forecourt
+  axis, and drawn as a canopy on four posts with a brand-coloured fascia,
+  two pump islands with two dispensers each, and a price totem. Only the
+  Shell on Paulstraße is mapped as an area in OSM; for the two node-only
+  sites the axis is derived from the nearest frontage road turned a quarter
+  turn. That rule is not guesswork — checked against OSM way 25780043, the
+  mapped Esso canopy on Lessingstraße, the derived axis lands within 3°.
+- **The Gedenkort für Polen 1939-1945 was the wrong memorial.** The model was
+  a low inscribed stone on a paved field. What was unveiled on 16 June 2025
+  at the former Kroll-Oper site is a roughly 30 t glacial erratic with a
+  weathering-steel plaque, two trilingual information panels and one wild
+  apple tree on an oval fine-gravel plaza. That is what is drawn now. No
+  dimensions are published, so the element sizes are photo-derived and say
+  so in `geometryStatus`; the Deutsch-Polnisches Haus is still unbuilt and
+  is still deliberately not modelled.
+- **The Zeugen-Jehovas stele was twice its height.** Matthias Leeck's trunk
+  stele at the Goldfischteich is about five metres and twelve tonnes,
+  assembled from a base plate and fifteen stacked bronze discs that flare at
+  the foot and the crown and pinch at the waist. The model stood 9.3 m and
+  flared only at the foot. It is now the documented five-metre stack.
+  Diameters and the inscription are undocumented and are recorded as such.
+- **The music button said "on" over silence.** On first load the soundtrack
+  toggle rendered as playing because it was bound to intent, not to sound,
+  while the browser's autoplay block kept the page quiet. Both engines now
+  expose `audible` (scheduler armed *and* `AudioContext` running), the
+  toggles follow that, and a blocked track reads "waiting for a click"
+  rather than "on". Playback is still attempted eagerly at mount and still
+  starts on the first gesture anywhere on the page — and anyone who muted
+  explicitly still gets no autostart.
+- **The 2D tile image kept the demolished Landeslabor standing.** The cause
+  was not the tiles: `render_quadrants.load_layer` — shared by the overview,
+  the quadrant renderer and the reference map — read the raw LoD2 snapshot,
+  while the 3D pipeline has always read it through
+  `load_current_buildings`. All three 2D renderers now see the corrected
+  stock. `compact_preview` also steps its palette down until the encoded PNG
+  actually fits the 5 MiB repository limit it promises. The tile pyramid
+  itself is **not** regenerated in this release; see the open items below.
+
+### Open in v0.49.0
+
+- **The DZI/overview rebuild is not run.** The code fix is in and unit
+  tested, but re-running
+  `uv run python -m isometric_berlin.generation.render_overview` against
+  today's data does not drop in cleanly: the committed pyramid dates from an
+  earlier round, and a fresh render rescales the projection so that the
+  eastern landmarks (Hauptbahnhof, Marie-Elisabeth-Lüders-Haus, Humboldthafen)
+  clamp to the right edge of the canvas, which breaks the committed
+  landmark-consistency contracts in `test_verify_landmark_alignment`,
+  `test_build_isometric_prisms`, `test_package_static_site` and
+  `test_release_readiness`. Verified: this rescale happens with and without
+  this round's correction fix, so it is pre-existing drift, not a regression
+  introduced here. Re-fitting the canvas and resyncing those four contracts
+  is its own piece of work.
+- **The reported ~220 m gap in the western railway does not exist in the
+  current data.** Measured across the exported corridor, coverage is
+  continuous from world_x −2655 m to +637 m with no gap over 20 m, and the
+  westernmost view confirms it on screen. Nothing was extrapolated, because
+  there was nothing to bridge.
+
 ## v0.48.0
 
 Seven objects this round: the railway that stopped in mid-air, the station

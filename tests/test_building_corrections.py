@@ -11,6 +11,7 @@ from isometric_berlin.generation.building_corrections import (
   apply_building_corrections,
   load_current_buildings,
 )
+from isometric_berlin.generation.render_quadrants import load_layer
 
 BUILDINGS = Path("geo_data/regierungsviertel/buildings.gpkg")
 PRISMS = Path("src/app/public/mesh/regierungsviertel/lod2-prisms.json")
@@ -45,3 +46,15 @@ def test_no_prism_stands_on_the_cleared_landeslabor_site() -> None:
     )
   ]
   assert not tall, f"{len(tall)} prisms still stand on the cleared site"
+
+
+def test_the_2d_renderers_read_the_same_corrected_stock_as_the_3d_ones() -> None:
+  # The tile image kept the Landeslabor standing because render_quadrants,
+  # render_overview and render_reference_map all share this one reader and it
+  # used to hand back the raw LoD2 snapshot.
+  drawn = load_layer(BUILDINGS, "buildings")
+  names = drawn["building_name"].astype(str)
+  assert (names == "Landeslabor Berlin-Brandenburg").sum() == 0
+  teehaus = drawn[names == "Teehaus"]
+  assert len(teehaus) == 4
+  assert teehaus["measured_height_m"].max() <= 2.4

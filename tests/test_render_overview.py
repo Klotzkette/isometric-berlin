@@ -54,3 +54,24 @@ def test_compact_preview_preserves_size_with_bounded_palette() -> None:
   assert compact.size == source.size
   assert compact.mode == "P"
   assert len(compact.getcolors(maxcolors=256) or []) <= 256
+
+
+def test_compact_preview_steps_the_palette_down_to_meet_the_binary_limit(
+  monkeypatch: MonkeyPatch,
+) -> None:
+  # The drawn city keeps gaining detail, and a fixed 256-colour palette pushed
+  # overview_source.png past the 5 MiB the release gate allows.
+  source = Image.new("RGB", (64, 64), (238, 244, 239))
+  for x in range(source.width):
+    for y in range(source.height):
+      source.putpixel((x, y), (x * 3 % 256, y * 5 % 256, (x + y) * 7 % 256))
+  monkeypatch.setattr(overview, "MAX_PREVIEW_BYTES", 1)
+
+  compact = overview.compact_preview(source)
+
+  # Nothing fits one byte, so it must fall back to the smallest palette rather
+  # than silently returning the 256-colour image it could not shrink.
+  assert (
+    len(compact.getcolors(maxcolors=256) or [])
+    <= overview.PREVIEW_PALETTE_STEPS[-1]
+  )
