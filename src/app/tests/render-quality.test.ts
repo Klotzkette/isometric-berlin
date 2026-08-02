@@ -52,6 +52,29 @@ describe("adaptive 3D render quality", () => {
     ).toBe(1);
   });
 
+  test("keeps the desktop interaction step small enough to hide", () => {
+    // One switch per gesture is still one visible resample, so the two desktop
+    // tiers have to land close together. A 1080p HiDPI canvas is the case the
+    // flicker was reported on.
+    const settings = { coarsePointer: false, devicePixelRatio: 2, height: 1080, width: 1920 };
+    const interacting = renderPixelRatio({ ...settings, interacting: true });
+    const settled = renderPixelRatio({ ...settings, interacting: false });
+    expect(interacting / settled).toBeGreaterThan(0.9);
+  });
+
+  test("still cuts the interaction cost on a 4K canvas", () => {
+    const settings = { coarsePointer: false, devicePixelRatio: 2, height: 2160, width: 3840 };
+    const interacting = renderPixelRatio({ ...settings, interacting: true });
+    const settled = renderPixelRatio({ ...settings, interacting: false });
+    expect(interacting).toBeLessThan(settled);
+  });
+
+  test("leaves the phone tiers alone", () => {
+    const settings = { coarsePointer: true, devicePixelRatio: 3, height: 844, width: 390 };
+    expect(renderPixelRatio({ ...settings, interacting: true })).toBe(1);
+    expect(renderPixelRatio({ ...settings, interacting: false })).toBe(2);
+  });
+
   test("bounds large desktop canvases by a fixed pixel budget", () => {
     const ratio = renderPixelRatio({
       coarsePointer: false,
@@ -125,6 +148,27 @@ describe("zoom-stable pixel-ratio governor", () => {
       frames.push({ inputActive: false, nowMs: t });
     }
     expect(run(frames)).toEqual({ applied: false, switches: 2 });
+  });
+
+  test("a back-and-forth drag costs one downgrade and one upgrade", () => {
+    // The v0.51.0 report case: bursts of input with short pauses between them,
+    // which is what "hin und her bewegen" actually looks like at the event
+    // level. Every pause used to outlast the restore hold, so the canvas swapped
+    // resolution roughly once per second for as long as the user kept moving.
+    const frames: Array<{ inputActive: boolean; nowMs: number }> = [];
+    for (let t = 0; t <= 8000; t += 16) {
+      frames.push({ inputActive: t % 1000 < 600, nowMs: t });
+    }
+    for (let t = 8016; t <= 12000; t += 16) {
+      frames.push({ inputActive: false, nowMs: t });
+    }
+    expect(run(frames)).toEqual({ applied: false, switches: 2 });
+  });
+
+  test("the restore hold outlasts the pauses inside a gesture", () => {
+    // 400 ms is a generous direction change; anything at or below it has to
+    // stay inside one interaction.
+    expect(PIXEL_RATIO_UPGRADE_HOLD_MS).toBeGreaterThan(400);
   });
 
   test("restoring full resolution waits for input to really stop", () => {
@@ -202,6 +246,17 @@ describe("settled detail tier", () => {
       frames.push({ moving: t % 650 > 50, nowMs: t });
     }
     for (let t = 4000; t <= 8000; t += 16) {
+      frames.push({ moving: false, nowMs: t });
+    }
+    expect(run(frames)).toEqual({ applied: false, switches: 2 });
+  });
+
+  test("a back-and-forth drag never blinks the canopy", () => {
+    const frames: Array<{ moving: boolean; nowMs: number }> = [];
+    for (let t = 0; t <= 8000; t += 16) {
+      frames.push({ moving: t % 1000 < 600, nowMs: t });
+    }
+    for (let t = 8016; t <= 12000; t += 16) {
       frames.push({ moving: false, nowMs: t });
     }
     expect(run(frames)).toEqual({ applied: false, switches: 2 });
