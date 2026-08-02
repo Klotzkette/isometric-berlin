@@ -2747,9 +2747,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // near her own height; the default overhead framing shows her back.
           runtime.focusCameraByName.set("Siegessäule", {
             azimuth_degrees: -70,
-            distance_m: 104,
+            distance_m: 66,
             polar_degrees: 80,
-            target_height_m: 62,
+            target_height_m: 63,
             target_world: [-1459, 2.1, 456],
           });
           // The team drives east over the attic, so a south-east three-quarter

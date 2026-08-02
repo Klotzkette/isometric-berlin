@@ -432,12 +432,18 @@ export function createGoldelseFigure({
   }
 
   // Spread wings, plus the drawn feather lines across each blade.
+  // Shaded gold on the blades: at the same tone as the torso the wings and
+  // the body fuse into one gold lump from the presentation camera.
   const leftWing = bladePlate(WING_LEADING, WING_TRAILING, 0, 0.34);
-  parts.push({ local: leftWing, name: "Goldelse wing", tone: GOLDELSE_GOLD });
+  parts.push({
+    local: leftWing,
+    name: "Goldelse wing",
+    tone: GOLDELSE_GOLD_SHADED,
+  });
   parts.push({
     local: mirrored(leftWing),
     name: "Goldelse wing",
-    tone: GOLDELSE_GOLD,
+    tone: GOLDELSE_GOLD_SHADED,
   });
   WING_LEADING.forEach(([leadZ, leadY], index) => {
     const [trailZ, trailY] = WING_TRAILING[index];
