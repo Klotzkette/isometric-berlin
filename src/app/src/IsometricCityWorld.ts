@@ -2267,6 +2267,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   }
   const group = new Group();
   group.name = "drawn bridge structures";
+
   const merged = mergeGeometries(parts, false);
   if (merged) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });

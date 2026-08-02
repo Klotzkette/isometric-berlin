@@ -59,6 +59,7 @@ import {
   isAmbientAudioSupported,
 } from "./AmbientSoundscape";
 import { DuskChiptune, isChiptuneSupported } from "./DuskChiptune";
+import { registerFirstGestureStart } from "./audioAutostart";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { discoveryNoteFor } from "./discoveryNotes";
 import {
@@ -861,122 +862,53 @@ export function App() {
     }
   }, [startMusic, startSoundtrack]);
 
-  // v0.5.2: iOS/Android Safari + Chrome refuse to create an AudioContext
-  // until the user has interacted with the page, so we auto-start the
-  // ambient soundscape the very first time the user touches / taps /
-  // presses a key — unless the user has explicitly muted it before.
+  // A phone never allows the load-time attempt above, so the real start is
+  // the visitor's FIRST gesture — including a map drag, which is why these
+  // listeners run in the capture phase (see audioAutostart.ts).
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !isAmbientAudioSupported()) {
       return;
     }
-    if (isMusicMutedByUser()) {
-      return;
-    }
-    if (!isAmbientAudioSupported()) {
-      return;
-    }
-    let cancelled = false;
-    let attempting = false;
-    const attempt = (event: Event) => {
-      if (cancelled || attempting) {
-        return;
-      }
-      if (
-        event instanceof KeyboardEvent &&
-        ["b", "t"].includes(event.key.toLowerCase())
-      ) {
-        return;
-      }
-      if (
-        event.target instanceof Element &&
-        event.target.closest("[data-audio-toggle]")
-      ) {
-        return;
-      }
-      attempting = true;
-      void startMusic({ rememberMute: false, silent: true }).then((started) => {
-        attempting = false;
-        if (started) {
-          teardown();
-        }
-      });
-    };
-    const teardown = () => {
-      window.removeEventListener("pointerdown", attempt);
-      window.removeEventListener("touchstart", attempt);
-      window.removeEventListener("keydown", attempt);
-    };
-    window.addEventListener("pointerdown", attempt, {
-      passive: true,
+    return registerFirstGestureStart({
+      isMuted: isMusicMutedByUser,
+      start: () => startMusic({ rememberMute: false, silent: true }),
+      target: window,
     });
-    window.addEventListener("touchstart", attempt, {
-      passive: true,
-    });
-    window.addEventListener("keydown", attempt);
-    return () => {
-      cancelled = true;
-      teardown();
-    };
   }, [startMusic]);
 
-  // Dusk Republic follows the same iOS-safe policy as the ambient layer:
-  // enabled by default, physically started only by the first ordinary user
-  // gesture. Audio-toggle gestures are left to their own click handlers.
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      !isSoundtrackEnabled ||
-      chiptuneRef.current?.audible ||
-      !isChiptuneSupported()
-    ) {
+    if (typeof window === "undefined" || !isChiptuneSupported()) {
       return;
     }
-    let cancelled = false;
-    let attempting = false;
-    const attempt = (event: Event) => {
-      if (cancelled || attempting) {
-        return;
-      }
-      if (
-        event instanceof KeyboardEvent &&
-        ["b", "t"].includes(event.key.toLowerCase())
-      ) {
-        return;
-      }
-      if (
-        event.target instanceof Element &&
-        event.target.closest("[data-audio-toggle]")
-      ) {
-        return;
-      }
-      attempting = true;
-      void startSoundtrack({
-        preserveIntentOnFailure: true,
-        silent: true,
-      }).then((started) => {
-        attempting = false;
-        if (started) {
-          teardown();
-        }
-      });
-    };
-    const teardown = () => {
-      window.removeEventListener("pointerdown", attempt);
-      window.removeEventListener("touchstart", attempt);
-      window.removeEventListener("keydown", attempt);
-    };
-    window.addEventListener("pointerdown", attempt, {
-      passive: true,
+    return registerFirstGestureStart({
+      isMuted: isMusicMutedByUser,
+      start: () =>
+        startSoundtrack({ preserveIntentOnFailure: true, silent: true }),
+      target: window,
     });
-    window.addEventListener("touchstart", attempt, {
-      passive: true,
-    });
-    window.addEventListener("keydown", attempt);
-    return () => {
-      cancelled = true;
-      teardown();
+  }, [startSoundtrack]);
+
+  // Coming back to the tab is a fresh chance: a context the browser
+  // reclaimed while we were hidden can be resumed without a new gesture,
+  // and a visitor who left before the autoplay prompt gets another try.
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const retry = () => {
+      if (document.hidden || isMusicMutedByUser()) {
+        return;
+      }
+      if (isAmbientAudioSupported() && !ambientSoundscapeRef.current?.audible) {
+        void startMusic({ rememberMute: false, silent: true });
+      }
+      if (isChiptuneSupported() && !chiptuneRef.current?.audible) {
+        void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
+      }
     };
-  }, [isSoundtrackEnabled, startSoundtrack]);
+    document.addEventListener("visibilitychange", retry);
+    return () => document.removeEventListener("visibilitychange", retry);
+  }, [startMusic, startSoundtrack]);
 
   useEffect(() => {
     try {

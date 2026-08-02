@@ -23,6 +23,19 @@ import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 export const STREET_DETAILS_FILE = "street-details.json";
 
 export type StreetDetailsPayload = {
+  /** `amenity=biergarten` areas, with the outline the tables stand in. */
+  beer_gardens?: Array<{
+    area_m2: number;
+    /** Unit vector of the outline's long side, in world [x, z]. */
+    axis: [number, number];
+    d_dm: number;
+    name: string;
+    /** Simplified exterior ring in world decimetres. */
+    ring_dm: Array<[number, number]>;
+    w_dm: number;
+    x_dm: number;
+    z_dm: number;
+  }>;
   /** `amenity=fuel` forecourts: centre, axis and the extent to draw on. */
   fuel_stations?: Array<{
     /** Unit vector the canopy's long side follows, in world [x, z]. */
@@ -41,6 +54,24 @@ export type StreetDetailsPayload = {
     kind: string;
     name: string;
     w_dm: number;
+    x_dm: number;
+    z_dm: number;
+  }>;
+  /** Node-only summer bars on the bank, with their surveyed bench rows. */
+  riverside_bars?: Array<{
+    /** Unit vector of the bank tangent, in world [x, z]. */
+    axis: [number, number];
+    name: string;
+    /** OSM benches near the quay; `len_dm` 0 means a point bench. */
+    seats: Array<{
+      axis: [number, number];
+      len_dm: number;
+      x_dm: number;
+      z_dm: number;
+    }>;
+    shore_dist_m: number;
+    /** Always false: OSM maps these bars as a single node. */
+    surveyed_outline: boolean;
     x_dm: number;
     z_dm: number;
   }>;

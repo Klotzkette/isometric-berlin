@@ -124,6 +124,7 @@ import {
   updateTrafficSignals,
 } from "./TrafficSignals";
 import { createFuelStations } from "./FuelStations";
+import { createRiversideVenues } from "./RiversideVenues";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   INTERACTION_COALESCE_MS,
@@ -748,6 +749,11 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const fuel = createFuelStations(street, ground);
         if (fuel) {
           runtime.isoWorld.add(fuel);
+        }
+        // Capital Beach on the Ludwig-Erhard-Ufer and the beer gardens.
+        const venues = createRiversideVenues(street, ground);
+        if (venues) {
+          runtime.isoWorld.add(venues);
         }
       }
       if (ground && rail) {
@@ -1834,6 +1840,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
+      (window as unknown as Record<string, unknown>).__diagScene = scene; // TEMP-DIAG
       scene.background = new Color(0xdcf3f9);
       scene.fog = new Fog(0xdcf3f9, 1100, 2550);
       // Day levels; setSceneLighting re-applies the per-mode rig on the
