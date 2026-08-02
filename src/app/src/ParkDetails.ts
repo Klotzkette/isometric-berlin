@@ -78,6 +78,8 @@ export type TreeVocabulary = {
 export type StreetLight = {
   height_m: number;
   id: string;
+  /** "light_band" where the run is continuous balustrade lighting. */
+  installation?: string | null;
   light_type: string | null;
   position: [number, number, number];
   rotation_degrees: number;
@@ -474,10 +476,22 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
   const poles: Transform[] = [];
   const heads: Transform[] = [];
   const cones: Transform[] = [];
+  const bandLamps: Transform[] = [];
   for (const light of lights) {
     const [x, y, z] = light.position;
     const height = light.height_m;
     const yaw = MathUtils.degToRad(light.rotation_degrees);
+    if (light.installation === "light_band") {
+      // Continuous balustrade lighting: a low luminaire on the handrail,
+      // no mast and no floodlight cone. Drawing a mast per point turned
+      // the Gustav-Heinemann-Brücke handrails into a picket fence.
+      bandLamps.push({
+        position: [x, y + height, z],
+        rotation: [0, yaw, 0],
+        scale: [0.16, 0.2, 0.16],
+      });
+      continue;
+    }
     poles.push({
       position: [x, y + height / 2, z],
       rotation: [0, yaw, 0],
@@ -525,6 +539,20 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
       heads,
     ),
   );
+
+  if (bandLamps.length > 0) {
+    const bandMaterial = material(0xf0dfae, 0.24);
+    bandMaterial.userData.nightEmissive = 0xffdf91;
+    bandMaterial.userData.nightEmissiveIntensity = 4.2;
+    group.add(
+      instanced(
+        "Geoportal Berlin balustrade light bands",
+        new BoxGeometry(1, 1, 1),
+        bandMaterial,
+        bandLamps,
+      ),
+    );
+  }
 
   const coneMaterial = new MeshStandardMaterial({
     blending: AdditiveBlending,

@@ -587,6 +587,41 @@ describe("real bridge structures", () => {
     expect(city.getObjectByName("bridge structure ink lines")).toBeDefined();
   });
 
+  test("the Gustav-Heinemann-Brücke reaches both banks of the Spree", async () => {
+    const { createIsometricCity, BRIDGE_PROFILES } = await import(
+      "../src/IsometricCityWorld"
+    );
+    const voxelPayload = (await import(
+      "../public/mesh/regierungsviertel/minecraft-voxels.json"
+    )) as { default: { water_top_y_m: number } };
+    const profile = BRIDGE_PROFILES.find(
+      (entry) => entry.name === "Gustav-Heinemann-Brücke",
+    );
+    expect(profile?.surveyedDeck?.halfLengthM).toBeGreaterThan(40);
+    const city = createIsometricCity(
+      payload,
+      voxelPayload.default as never,
+      null,
+    );
+    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    // The 4 m ground grid only caught 52 m of this narrow footbridge, so the
+    // deck used to stop over open water. Measure what is actually drawn in
+    // the crossing's own x band rather than trusting the cluster fit.
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (let index = 0; index < position.count; index += 1) {
+      if (Math.abs(position.getX(index) - (profile?.world[0] ?? 0)) > 12) {
+        continue;
+      }
+      const z = position.getZ(index);
+      if (z < -520 || z > -370) continue;
+      minZ = Math.min(minZ, z);
+      maxZ = Math.max(maxZ, z);
+    }
+    expect(maxZ - minZ).toBeGreaterThan(88);
+  });
+
   test("the Paul-Löbe-Haus carries a cantilevered west entrance canopy", () => {
     const canopy = createPaulLoebeCanopy();
     const bodies = canopy.getObjectByName("Paul-Löbe canopy bodies") as Mesh;

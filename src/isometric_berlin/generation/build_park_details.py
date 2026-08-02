@@ -417,6 +417,46 @@ def display_light_height(light_type: str | None) -> float:
   return 6.8
 
 
+LIGHT_BAND_MAX_SPACING_M = 4.0
+LIGHT_BAND_MIN_POINTS = 5
+LIGHT_BAND_HEIGHT_M = 1.1
+
+
+def light_band_runs(positions: list[list[float]]) -> list[list[int]]:
+  """Group lamp points into continuous installations rather than masts.
+
+  The Geoportal records integrated balustrade lighting as a dense run of
+  points: on the Gustav-Heinemann-Brücke the two handrails are 50 and 49
+  points at a 1.6 m median spacing. A 6.8 m mast every 1.6 m does not
+  exist, so any connected run this tight is a light band, not a row of
+  masts. Isolated masts and genuine mast pairs stay untouched.
+  """
+  if len(positions) < LIGHT_BAND_MIN_POINTS:
+    return []
+  flat = np.array([[point[0], point[2]] for point in positions])
+  pairs = cKDTree(flat).query_pairs(LIGHT_BAND_MAX_SPACING_M)
+  parent = list(range(len(positions)))
+
+  def find(node: int) -> int:
+    while parent[node] != node:
+      parent[node] = parent[parent[node]]
+      node = parent[node]
+    return node
+
+  for left, right in pairs:
+    a, b = find(left), find(right)
+    if a != b:
+      parent[a] = b
+  groups: dict[int, list[int]] = {}
+  for index in range(len(positions)):
+    groups.setdefault(find(index), []).append(index)
+  return [
+    sorted(members)
+    for members in groups.values()
+    if len(members) >= LIGHT_BAND_MIN_POINTS
+  ]
+
+
 def build_street_lights(
   lights: gpd.GeoDataFrame,
   origin: SceneOrigin,
@@ -442,6 +482,17 @@ def build_street_lights(
         "street": optional_text(row.get("street")),
       }
     )
+  for run in light_band_runs([entry["position"] for entry in result]):
+    # A balustrade is level; the ground under it is not. The run's own
+    # highest sampled point is its bank end, which is where the deck
+    # meets the shore, so the whole band is carried at that height
+    # instead of dipping into the riverbed with the terrain.
+    level = max(result[index]["position"][1] for index in run)
+    for index in run:
+      entry = result[index]
+      entry["position"] = [entry["position"][0], level, entry["position"][2]]
+      entry["height_m"] = LIGHT_BAND_HEIGHT_M
+      entry["installation"] = "light_band"
   return result
 
 

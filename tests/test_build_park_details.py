@@ -8,6 +8,7 @@ from pathlib import Path
 from isometric_berlin.generation.build_park_details import (
   compact_trees,
   expand_trees,
+  light_band_runs,
 )
 
 PAYLOAD = Path("src/app/public/mesh/regierungsviertel/park-details.json")
@@ -91,6 +92,37 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
   assert all(3 <= tree["height_m"] <= 28 for tree in trees)
   assert max(tree["position"][1] for tree in trees) < 8
   assert max(light["position"][1] for light in payload["street_lights"]) < 8
+
+
+def test_light_band_runs_separate_balustrades_from_masts() -> None:
+  # A run only counts as continuous lighting when the points are dense and
+  # connected; a pair of masts on a crossing must stay a pair of masts.
+  balustrade = [[0.0, 0.0, float(index) * 1.6] for index in range(12)]
+  mast_pair = [[40.0, 0.0, 0.0], [40.0, 0.0, 3.0]]
+  loner = [[80.0, 0.0, 0.0]]
+  runs = light_band_runs(balustrade + mast_pair + loner)
+  assert runs == [list(range(12))]
+
+
+def test_bridge_balustrade_lighting_is_not_drawn_as_masts() -> None:
+  # The Geoportal records the Gustav-Heinemann-Brücke handrails as 99 points
+  # at 1.6 m spacing. Drawn as 6.8 m masts they became a picket fence beside
+  # the deck, so the exporter demotes connected runs to handrail luminaires.
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  bands = [
+    light
+    for light in payload["street_lights"]
+    if light.get("installation") == "light_band"
+  ]
+  assert len(bands) >= 150
+  assert all(light["height_m"] < 1.5 for light in bands)
+  heinemann = [
+    light for light in bands if -500 < light["position"][2] < -390 and light["position"][0] < 0
+  ]
+  assert len(heinemann) >= 90
+  # A balustrade is level, so the whole run sits at one height.
+  levels = {round(light["position"][1], 2) for light in heinemann}
+  assert max(levels) - min(levels) < 0.5
 
 
 def test_luiseninsel_playground_retains_mapped_equipment() -> None:

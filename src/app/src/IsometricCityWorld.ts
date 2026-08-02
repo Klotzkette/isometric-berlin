@@ -1828,6 +1828,11 @@ export type BridgeProfile = {
   kind: BridgeKind;
   matchRadiusM: number;
   name: string;
+  /**
+   * Deck extent where an official survey fixes it more precisely than the
+   * 4 m ground grid, which clips a narrow deck at both ends.
+   */
+  surveyedDeck?: { halfLengthM: number; halfWidthM: number };
   /** Surveyed crossing centre in world metres. */
   world: [number, number];
 };
@@ -1850,12 +1855,17 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
   },
   {
     // 2005 pedestrian bridge to the Hauptbahnhof: a thin ribbon deck on
-    // two round columns, tubular handrails, no masonry at all.
-    halfWidthM: 5,
+    // two round columns, tubular handrails, no masonry at all. The 4 m
+    // ground grid only caught 52 m of it, leaving the deck ending over
+    // open water. The Geoportal balustrade lighting fixes the real
+    // extent: two handrail runs at x -39.19 and -34.67 (deck 4.5 m wide)
+    // spanning z -490.8 to -400.8, so the crossing is 90 m long.
+    halfWidthM: 2.8,
     kind: "slender",
     matchRadiusM: 80,
     name: "Gustav-Heinemann-Brücke",
-    world: [-38.1, -448.6],
+    surveyedDeck: { halfLengthM: 45, halfWidthM: 2.8 },
+    world: [-36.9, -445.8],
   },
   {
     // Santiago Calatrava, 1996: a flat steel arch under a light deck,
@@ -1949,8 +1959,8 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     if (!rect) {
       continue;
     }
-    const [cx, cz] = rect.center;
-    const profile = bridgeProfileAt(cx, cz);
+    const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
+    const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
     // Deck height: the carriageway runs at bank level, but never lower
     // than the shipping clearance above the recessed water table.
@@ -1963,8 +1973,12 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const nz = ax;
     // Road bridges over the Spree are 18–26 m wide and rest on both
     // banks: widen thin clusters and extend the span onto the abutments.
-    const halfLength = Math.max(rect.halfLength, cell) + 5;
-    const halfWidth = Math.max(rect.halfWidth, profile?.halfWidthM ?? 8.5);
+    // A surveyed deck replaces both, because the grid clips narrow decks.
+    const halfLength =
+      profile?.surveyedDeck?.halfLengthM ?? Math.max(rect.halfLength, cell) + 5;
+    const halfWidth =
+      profile?.surveyedDeck?.halfWidthM ??
+      Math.max(rect.halfWidth, profile?.halfWidthM ?? 8.5);
     const at = (u: number, v: number): [number, number] => [
       cx + ax * u + nx * v,
       cz + az * u + nz * v,
