@@ -1,5 +1,47 @@
 # Changelog
 
+## v0.51.0
+
+The whole movement matrix got measured this time — pan left and right and
+back again, both rotate buttons, wheel in and out, pinch — and the four
+mechanisms that were still blinking under it were taken out at the root.
+
+- **A navigation click no longer forces the coarse surface.** v0.50.0 gave
+  the settled-detail tier hysteresis in the frame loop, but
+  `markSurfaceInteraction` still switched the surfaces itself, and every
+  rotate button, pan button, fly-by and load completion goes through that
+  helper. So a single click dropped the ground surface and the whole
+  Tiergarten canopy that same instant and the hysteretic decision put them
+  back one or two frames later — one full blink per click, which is what the
+  rotate runs measured worst (`reversal_mean` 20.6 against a static floor of
+  0.0). The frame loop is now the only writer; the helper only moves the
+  deadline it reads.
+- **The restore holds now outlast the pauses inside a gesture.** "Hin und
+  her bewegen" is a burst of input, a pause of a few hundred milliseconds,
+  another burst. At a 420 ms restore hold every one of those pauses was long
+  enough to swap the canvas back to full resolution, so a back-and-forth pan
+  ran a downgrade/upgrade cycle about once a second for as long as the user
+  kept moving. The pixel-ratio and detail-tier restores are 1100 ms, which
+  covers a generous direction change; a whole gesture now costs one
+  downgrade and one upgrade.
+- **The two desktop resolution tiers sit close together.** One switch per
+  gesture is still one visible resample. Interaction moved from 1.4 / 5.2 Mpx
+  to 1.9 / 8.6 Mpx, so on a 1080p or 1440p HiDPI canvas the step is a few
+  percent instead of a third, while a 4K canvas is still cut back. The phone
+  tiers are untouched — the 1 / 2 split is what holds 60 fps there.
+- **The crisp kernel is anchored to the settled resolution.** `crisp.frag`
+  steps one texel, so feeding it the live pixel ratio widened the unsharp
+  halo and the edge outline the instant the governor dropped resolution and
+  snapped them back when it restored: a sharpness pop at both ends of every
+  drag, on top of the resampling. Anchored, the pass covers the same screen
+  area at either resolution.
+- **The edge detector ramps instead of switching.** A one-texel gradient is
+  maximally sensitive to where a thin ink line falls on the pixel grid, and
+  the old `smoothstep(0.09, 0.3)` window was narrow enough that the sub-pixel
+  wobble of a moving line carried the gradient across it and back, blinking
+  the outline. The ramp is now `0.05 .. 0.46`: strong contours keep full
+  strength, marginal ones ease.
+
 ## v0.50.0
 
 The second Gustav-Heinemann-Brücke turned out not to be a bridge, a beach
