@@ -2017,6 +2017,142 @@ function addBarrelRoof(
   );
 }
 
+/** A flat band tilted to run from one level to the next, i.e. an escalator. */
+function addEscalatorRun(
+  group: Group,
+  name: string,
+  from: [number, number, number],
+  to: [number, number, number],
+  width: number,
+  material: MeshStandardMaterial,
+): void {
+  const dy = to[1] - from[1];
+  const dz = to[2] - from[2];
+  const run = Math.hypot(dy, dz);
+  if (run < 0.5) {
+    return;
+  }
+  const band = new Mesh(new BoxGeometry(width, 0.55, run), material);
+  band.name = name;
+  band.position.set(
+    (from[0] + to[0]) / 2,
+    (from[1] + to[1]) / 2,
+    (from[2] + to[2]) / 2,
+  );
+  band.rotation.x = Math.atan2(-dy, dz);
+  band.castShadow = true;
+  band.receiveShadow = true;
+  group.add(band);
+  addEdges(group, band, 0.4);
+}
+
+/**
+ * What you see when you look down through the north–south hall's glass
+ * barrel: not one enormous empty room, but four stacked levels.
+ *
+ * The real Hauptbahnhof is a Turmbahnhof — the Stadtbahn crosses the top,
+ * the north–south main line runs 15 m under it at right angles, and the
+ * concourse levels in between are galleries with a long slot down the
+ * middle so daylight reaches the deep platforms. Only that slot is drawn
+ * out: the levels are flat plates with an open centre, joined by escalator
+ * bands. It is an indication, not a model of the interior.
+ *
+ * The plates live in the two arms of the north–south hall, north and south
+ * of the crossing, because that is the only place the barrel roof is not
+ * covered by the opaque upper track deck — everywhere else you could not
+ * see them anyway.
+ */
+function addStationInterior(
+  group: Group,
+  signature: HauptbahnhofModelSignature,
+): void {
+  const slab = modelMaterial(0xb4b8b2, { roughness: 0.9 });
+  const platform = modelMaterial(0xa7b0ad, { roughness: 0.84 });
+  const escalator = modelMaterial(0x8b9aa1, { metalness: 0.5, roughness: 0.4 });
+  const deepRail = modelMaterial(0x74868b, { metalness: 0.78, roughness: 0.26 });
+
+  const halfWidth = signature.north_south_hall_width_m / 2 - 1;
+  const halfLength = signature.north_south_hall_length_m / 2 - 2;
+  // The upper track deck covers the crossing, so the arms start beyond it.
+  const armNear = signature.east_west_roof_width_m / 2;
+  // Real levels: gallery +1, concourse, gallery −1, deep platforms at −15.
+  const levels = [
+    { openHalf: 7.5, y: 4.6 },
+    { openHalf: 9.5, y: 0 },
+    { openHalf: 12, y: -5.4 },
+  ];
+
+  for (const side of [-1, 1]) {
+    const near = side * armNear;
+    const far = side * halfLength;
+    for (const level of levels) {
+      for (const edge of [-1, 1]) {
+        const inner = edge * level.openHalf;
+        const outer = edge * halfWidth;
+        addBox(
+          group,
+          "Hauptbahnhof concourse gallery slab",
+          [Math.abs(outer - inner), 0.5, Math.abs(far - near)],
+          [(inner + outer) / 2, level.y, (near + far) / 2],
+          slab,
+          0.45,
+        );
+      }
+    }
+    // Two escalator runs per gap, flanking the slot the way the real ones do.
+    const gaps: Array<[number, number]> = [
+      [4.6, 0],
+      [0, -5.4],
+      [-5.4, -15],
+    ];
+    gaps.forEach(([top, bottom], index) => {
+      const zTop = side * (armNear + 14 + index * 21);
+      const zBottom = zTop + side * (top - bottom) * 1.9;
+      for (const edge of [-1, 1]) {
+        addEscalatorRun(
+          group,
+          "Hauptbahnhof escalator run",
+          [edge * 5.2, top, zTop],
+          [edge * 5.2, bottom, zBottom],
+          2.4,
+          escalator,
+        );
+      }
+    });
+  }
+
+  // The north–south deep station, crossing under the Stadtbahn at −15 m.
+  addBox(
+    group,
+    "Hauptbahnhof deep-level platform floor",
+    [signature.north_south_hall_width_m, 0.6, signature.north_south_hall_length_m],
+    [0, -15.3, 0],
+    slab,
+    0.4,
+  );
+  for (const platformX of [-13, -4.4, 4.4, 13]) {
+    addBox(
+      group,
+      "Hauptbahnhof deep-level platform",
+      [7.2, 0.5, signature.north_south_hall_length_m - 12],
+      [platformX, -14.75, 0],
+      platform,
+      0.35,
+    );
+  }
+  for (const trackX of [-8.7, 0, 8.7]) {
+    for (const railOffset of [-0.72, 0.72]) {
+      addBox(
+        group,
+        "Hauptbahnhof deep-level rail",
+        [0.14, 0.16, signature.north_south_hall_length_m - 12],
+        [trackX + railOffset, -14.9, 0],
+        deepRail,
+      );
+    }
+  }
+}
+
 function addStationOfficeBridge(
   group: Group,
   x: number,
@@ -2376,6 +2512,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     x: -155,
     z: 4,
   });
+  addStationInterior(group, signature);
   addBarrelRoof(
     group,
     "Hauptbahnhof 321 m east-west glass roof",
