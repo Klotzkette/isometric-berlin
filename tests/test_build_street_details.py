@@ -27,7 +27,7 @@ def test_rectangle_axis_flips_northing_into_world_z() -> None:
 
 def test_fuel_stations_are_exported_with_a_forecourt_axis() -> None:
   payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
-  assert payload["schema_version"] == 3
+  assert payload["schema_version"] == 4
   stations = payload["fuel_stations"]
   assert sorted(entry["name"] for entry in stations) == ["Aral", "Esso", "Shell"]
   for entry in stations:
@@ -36,6 +36,33 @@ def test_fuel_stations_are_exported_with_a_forecourt_axis() -> None:
   # Only the Shell on Paulstraße is mapped as an area in OSM.
   surveyed = [entry["name"] for entry in stations if entry["surveyed_outline"]]
   assert surveyed == ["Shell"]
+
+
+def test_zollpackhof_beer_garden_keeps_its_surveyed_ring() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  garden = next(
+    entry for entry in payload["beer_gardens"] if entry["name"] == "Zollpackhof"
+  )
+  # OSM way 422205278, measured at 1601 m² on the full planet extract.
+  assert 1550 <= garden["area_m2"] <= 1650
+  assert len(garden["ring_dm"]) >= 4
+  assert garden["ring_dm"][0] == garden["ring_dm"][-1]
+  assert math.isclose(math.hypot(*garden["axis"]), 1.0, abs_tol=1e-3)
+
+
+def test_capital_beach_is_the_only_node_only_riverside_bar() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  bars = payload["riverside_bars"]
+  # Every other drinking venue on the bank has an outline of its own and is
+  # drawn from it; a bar listed here has nothing but a node.
+  assert [entry["name"] for entry in bars] == ["Capital Beach"]
+  beach = bars[0]
+  assert beach["surveyed_outline"] is False
+  assert beach["shore_dist_m"] < 60
+  # The deck chairs stand on surveyed benches, not on an invented grid.
+  assert len(beach["seats"]) >= 10
+  for seat in beach["seats"]:
+    assert math.isclose(math.hypot(*seat["axis"]), 1.0, abs_tol=1e-3)
 
 
 def test_node_station_axis_matches_the_mapped_esso_canopy() -> None:

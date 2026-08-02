@@ -4354,7 +4354,46 @@ export function createSmoothSurfaces(
   /** Masonry courses, in metres — tied to the bank, not to the subdivision. */
   const COURSE_M = 7;
   const wallTopY = bankY + 0.12;
-  for (const surface of rivers) {
+  // OSM splits the Spree into separate riverbank polygons, and the cuts sit
+  // at the bridges: polygon 0 stops at x −35, the next starts at x −61, both
+  // at the Gustav-Heinemann-Brücke. Those shared edges are joins in the data,
+  // not banks — walling them raised a full-height wall with a coping band
+  // straight across the water, which read as a second bridge beside the real
+  // one. An edge whose landward side is another river is skipped.
+  const riverBounds = rivers.map((surface) => {
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (const [x, z] of surface.ring) {
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minZ = Math.min(minZ, z);
+      maxZ = Math.max(maxZ, z);
+    }
+    return { maxX, maxZ, minX, minZ };
+  });
+  const landwardIsWater = (
+    self: number,
+    xDm: number,
+    zDm: number,
+  ): boolean => {
+    for (let index = 0; index < rivers.length; index += 1) {
+      if (index === self) {
+        continue;
+      }
+      const box = riverBounds[index];
+      if (xDm < box.minX || xDm > box.maxX || zDm < box.minZ || zDm > box.maxZ) {
+        continue;
+      }
+      if (ringContains(rivers[index].ring, xDm, zDm)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  for (let riverIndex = 0; riverIndex < rivers.length; riverIndex += 1) {
+    const surface = rivers[riverIndex];
     if (surface.area_m2 < 400) {
       continue;
     }
@@ -4376,6 +4415,18 @@ export function createSmoothSurfaces(
       if (run < 0.2) {
         continue;
       }
+      // Coping band: the walkable lip on top of the wall, on the land side.
+      const outX = (((bz - az) / run) * COPING_WIDTH_M) * outward;
+      const outZ = ((-(bx - ax) / run) * COPING_WIDTH_M) * outward;
+      if (
+        landwardIsWater(
+          riverIndex,
+          ((ax + bx) / 2 + outX * 0.75) * 10,
+          ((az + bz) / 2 + outZ * 0.75) * 10,
+        )
+      ) {
+        continue;
+      }
       const tone =
         Math.floor(travelled / COURSE_M) % 2 === 0 ? stone : stoneAlt;
       travelled += run;
@@ -4390,9 +4441,6 @@ export function createSmoothSurfaces(
         wallPositions.push(px, py, pz);
         wallColors.push(tone.r, tone.g, tone.b);
       }
-      // Coping band: the walkable lip on top of the wall, on the land side.
-      const outX = (((bz - az) / run) * COPING_WIDTH_M) * outward;
-      const outZ = ((-(bx - ax) / run) * COPING_WIDTH_M) * outward;
       for (const [px, py, pz] of [
         [ax, wallTopY, az],
         [bx, wallTopY, bz],
