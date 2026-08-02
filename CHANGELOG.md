@@ -1,5 +1,58 @@
 # Changelog
 
+## v0.47.0
+
+Six objects this round. The monuments the owner called out as still
+unreadable, and three places where the drawn city no longer matched the
+city on the ground.
+
+- **The Soviet War Memorial's soldier was a grey pill.** Kerbel's eight-metre
+  bronze on the crown of the central portal was a capsule and a ball. It is
+  now modelled where the silhouette lives: the flaring skirt of the
+  greatcoat, boots, shoulders, arms, the peaked cap with its visor, and the
+  rifle slung muzzle-up across the right shoulder — all carrying ink
+  outlines.
+- **The two T-34s and the ML-20 howitzers were dark specks.** Three things
+  were wrong at once: the focus camera stood 145 m back from a 75 m
+  forecourt, the armour tone sat too close to the plaza stone, and none of
+  the vehicles had outlines. The camera is now at 108 m, armour and gun
+  steel are darker, hull, glacis, turret and shield are inked, and both
+  plinth types are built from the darker stone and raised (tanks 1.15 →
+  1.85 m, guns 0.85 → 1.25 m) so the vehicles no longer look as if they
+  float on the paving.
+- **The Quadriga read as one bronze lump.** The chariot wheels sat at
+  z ±2.45 inside a body 7.4 m deep and never showed; they are now outboard
+  at ±3.78 and inked. Each of the four horses gained a crested mane and
+  thicker legs, and Victoria's wings grew from 0.9 × 2.8 m to 1.15 × 3.5 m.
+  A new focus camera comes at the team from the south-east at their own
+  height, which is the view that lets you count four horses.
+- **The Goldelse fused into a single gold shape.** Her wings now carry the
+  shaded gold rather than the torso tone, so they separate from her body,
+  and her focus camera closed from 104 m to 66 m — at the old distance the
+  laurel wreath and the Iron Cross standard were below one screen pixel.
+- **The Tiergartentunnel was painted across the park it runs under.** A
+  buffered OSM centreline knows nothing about the third dimension, so the
+  road between the Swiss embassy and the Hauptbahnhof was drawn on the
+  surface. Ways tagged `tunnel`, `covered` or a negative `layer` are now
+  excluded from the carriageway polygons, from the painted lane markings
+  and from the Minecraft voxel road and rail layers. The open portal ramps
+  at Kemperplatz and on the Hauptbahnhof approach keep their markings, and
+  none of the 39 sampled tunnel midpoints is paved over any more.
+  `surface-polygons.json` is at schema 5.
+- **Two LoD2 records the city has outlived.** The Landeslabor
+  Berlin-Brandenburg at Invalidenstraße 60 was torn down in 2025/26 for the
+  ULAP-Quartier, but the tile still carried its 29 m slab — all 19 parts are
+  gone and the site is drawn cleared. The Teehaus im Englischen Garten burnt
+  out in September 2024; its four parts are capped at 2.4 m with a flat roof,
+  so it reads as standing ground walls rather than an intact reed-roof house.
+- **The Rosengarten was one undifferentiated green patch.** Its eleven OSM
+  beds run from 27 to 196 m², every one of them below the 250 m² lawn floor,
+  so none of them was drawn. `leisure=garden` polygons now form their own
+  surface kind with a 20 m² floor and a finer 0.4 m tolerance, drawn over the
+  lawn in a warmer planted tone with outlines so adjacent beds stay legible
+  across their gravel walks. 98 gardens gained geometry, among them the
+  Englischer Garten, the Kanonenhof and the Paradiesgarten.
+
 ## v0.46.0
 
 - **The *Sinkende Mauer* was drawn upside down.** v0.45.1 derived the wall
