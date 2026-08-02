@@ -124,7 +124,15 @@ describe("metre-scale architectural recognition models", () => {
       "Hauptbahnhof east-west elevated track deck",
     );
     const trackDeckBounds = new Box3().setFromObject(trackDeck!);
-    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeCloseTo(541, 1);
+    // 321 m shed plus a 110 m approach to the west only. The east approach
+    // is gone: the Stadtbahn curves towards Friedrichstraße the moment it
+    // leaves the shed, so a straight stub pointed at empty air over the
+    // Humboldthafen. The OSM viaduct carries the tracks on from the gable.
+    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeCloseTo(431, 1);
+    const roofBounds = new Box3().setFromObject(
+      station!.getObjectByName("Hauptbahnhof 321 m east-west glass roof")!,
+    );
+    expect(trackDeckBounds.max.x).toBeLessThanOrEqual(roofBounds.max.x + 1);
     expect(
       station!.children.filter(
         (child) => child.name === "Hauptbahnhof upper-level ballast bed",

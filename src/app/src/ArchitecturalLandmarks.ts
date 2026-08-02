@@ -2260,14 +2260,21 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   const deck = modelMaterial(0x42545b, { metalness: 0.34, roughness: 0.7 });
   const rail = modelMaterial(0x74868b, { metalness: 0.78, roughness: 0.26 });
   const platform = modelMaterial(0xaeb7b4, { roughness: 0.82 });
-  // Keep both complete trains and a legible stretch of approach viaduct on
-  // supported track beyond the 321 m station roof.
-  const trackLength = signature.east_west_roof_length_m + 220;
+  // The approach is straight only to the west, where the model deck stays
+  // within 6 m of the OSM alignment for its whole 110 m. Eastwards the
+  // Stadtbahn curves away towards Friedrichstraße — a straight stub was 46 m
+  // off the real tracks after 200 m and 84 m off at its tip, pointing at
+  // empty air over the Humboldthafen. So the deck now ends at the east
+  // gable and the OSM-derived viaduct carries the tracks on from there.
+  const trackWestX = -(signature.east_west_roof_length_m / 2 + 110);
+  const trackEastX = signature.east_west_roof_length_m / 2;
+  const trackLength = trackEastX - trackWestX;
+  const trackCentreX = (trackWestX + trackEastX) / 2;
   addBox(
     group,
     "Hauptbahnhof east-west elevated track deck",
     [trackLength, 1.1, signature.east_west_roof_width_m - 3],
-    [0, 9.8, 0],
+    [trackCentreX, 9.8, 0],
     deck,
     0.5,
   );
@@ -2276,7 +2283,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
       group,
       "Hauptbahnhof upper-level ballast bed",
       [trackLength, 0.1, 3.45],
-      [0, 10.34, trackZ],
+      [trackCentreX, 10.34, trackZ],
       modelMaterial(0x6e706a, { roughness: 0.96 }),
     );
     for (const railOffset of [-0.76, 0.76]) {
@@ -2284,13 +2291,13 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
         group,
         "Hauptbahnhof upper-level rail",
         [trackLength, 0.16, 0.14],
-        [0, 10.48, trackZ + railOffset],
+        [trackCentreX, 10.48, trackZ + railOffset],
         rail,
       );
     }
   }
   const approachPiers: InstanceTransform[] = [];
-  for (let x = -trackLength / 2 + 13; x <= trackLength / 2 - 13; x += 26) {
+  for (let x = trackWestX + 13; x <= trackEastX - 13; x += 26) {
     if (Math.abs(x) <= signature.east_west_roof_length_m / 2 - 18) {
       continue;
     }
@@ -2311,7 +2318,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     for (let index = 0; index <= sleeperCount; index += 1) {
       sleeperTransforms.push({
         position: [
-          -trackLength / 2 + (index / sleeperCount) * trackLength,
+          trackWestX + (index / sleeperCount) * trackLength,
           10.39,
           trackZ,
         ],

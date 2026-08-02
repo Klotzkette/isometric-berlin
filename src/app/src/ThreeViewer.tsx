@@ -113,6 +113,11 @@ import {
   createMinecraftVoxelWorld,
 } from "./MinecraftVoxelWorld";
 import {
+  RAIL_LINES_FILE,
+  type RailPayload,
+  createRailNetwork,
+} from "./RailNetwork";
+import {
   STREET_DETAILS_FILE,
   type StreetDetailsPayload,
   createTrafficSignals,
@@ -709,8 +714,13 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         response.ok ? (response.json() as Promise<SurfacePayload>) : null,
       )
       .catch(() => null),
+    fetch(new URL(RAIL_LINES_FILE, runtime.sceneRootUrl).toString())
+      .then((response) =>
+        response.ok ? (response.json() as Promise<RailPayload>) : null,
+      )
+      .catch(() => null),
   ])
-    .then(([prisms, ground, street, surfaces]) => {
+    .then(([prisms, ground, street, surfaces, rail]) => {
       if (runtime.disposed) {
         return;
       }
@@ -732,6 +742,14 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const monuments = createTiergartenMonuments(street, ground);
         if (monuments) {
           runtime.isoWorld.add(monuments);
+        }
+      }
+      if (ground && rail) {
+        // The Stadtbahn viaduct carries the tracks off both ends of the
+        // Hauptbahnhof instead of letting them stop in mid-air.
+        const railway = createRailNetwork(rail, ground);
+        if (railway) {
+          runtime.isoWorld.add(railway);
         }
       }
       runtime.scene.add(runtime.isoWorld);
