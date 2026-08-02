@@ -1,5 +1,68 @@
 # Changelog
 
+## v0.50.0
+
+The second Gustav-Heinemann-Brücke turned out not to be a bridge, a beach
+bar and a beer garden got their furniture, the interim seat of the
+Bundespräsidialamt arrived, and two boats went on the water.
+
+- **The "second bridge" was a quay wall built across the river.**
+  `surface-polygons.json` carries the Spree as several separate OSM
+  riverbank polygons, and the cut between two of them falls exactly at the
+  Gustav-Heinemann-Brücke: one polygon ends at x −35, the next begins at
+  x −61. The quay-wall builder walked every polygon's exterior ring, so at
+  that join it raised a full-height wall from the river bed plus its 1.6 m
+  coping band straight across the water — a wide, flat, railing-less tan
+  band with ink outlines, running parallel to the real footbridge. It read
+  as a second bridge because it looked like one. A ring edge whose landward
+  side lands inside another river polygon is now skipped: those edges are
+  joins in the data, not banks.
+- **Capital Beach is on the Ludwig-Erhard-Ufer.** OSM has the summer bar as
+  a bare `amenity=pub` node (`node/480747489`) — no outline, no sand, no
+  `leisure=beach_resort`; the ground under it is `landuse=grass`. What *is*
+  surveyed is the row of benches along the quay, so the double rows of red
+  and pink deck chairs stand on those rather than on an invented grid, with
+  the magenta bar huts and the parasols at the east end where the
+  photographs put them.
+- **The Zollpackhof beer garden has benches under the chestnut.**
+  `amenity=biergarten` areas are now exported by `build_street_details.py`
+  (schema 4) with their simplified ring, so the tables are laid out inside
+  the surveyed 1601 m² outline of `way/422205278` instead of around a
+  point. The hedges follow the mapped ring edges, the Schankhaus sits on
+  `way/217943823`, and the natural-monument horse chestnut
+  (`node/4219261197`, `height=20`, planted 1555) stands where OSM has it.
+- **The interim Bundespräsidialamt is built.** The "Amtssitz am
+  Spreebogen", Elisabeth-Abegg-Straße 2, occupied on 10 July 2026 while
+  Schloss Bellevue is refurbished, is `way/1535591727` — 93 × 74 m,
+  2776 m², west-north-west of the Moltkebrücke rather than north-west of
+  it. Concrete plinth, five timber-module storeys, a set-back state-room
+  floor, the convex corners and the dense multicoloured vertical ceramic
+  fins. No metre height is published for the building anywhere, so it is
+  derived from `building:levels=7` and the group is flagged
+  `extrapolated`.
+- **Two boats, and they are Staffage.** OSM maps no vessels in the
+  quarter, so neither boat is derived from data and the group says so: a
+  52 m cargo barge lying in the Humboldthafen on course for the
+  Berlin-Spandauer Schifffahrtskanal, and a small old excursion yacht on
+  the Spree off the Kanzleramt, white with a deck party aboard and warm
+  lampions that light after dark. Positions and headings are taken from
+  the surveyed waterway centre lines so the hulls float in the channel.
+  The name on her stern is the owner's joke.
+- **The last of the zoom flicker.** The official-tree microcrowns read the
+  `cameraMoving` flag straight, and that flag flaps frame to frame while a
+  wheel dolly or a rotate step plays out, so the whole Tiergarten canopy
+  blinked off and on several times per gesture. The detail tier now has
+  the same hysteresis the pixel-ratio governor got in v0.42.0: a short
+  gesture keeps the detail, a sustained one costs one drop and one
+  restore.
+- **The drawn accessory kits share one implementation.** The vessels and
+  the bank venues each carried their own copy of the flat-tone plumbing,
+  and the copies had drifted apart from `drawnKit`. Folding them back
+  surfaced a live crash: `mergeGeometries` reads `geometries[0]` before it
+  checks the length, so any kit that fills only some of the three geometry
+  buckets threw — which the lamp-less interim office did, taking the whole
+  drawn city down with it.
+
 ## v0.49.0
 
 A bridge that did not reach the far bank, a school that was a flat box, three
