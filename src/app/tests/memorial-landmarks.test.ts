@@ -3,6 +3,7 @@ import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
   createMemorialLandmarks,
+  jehovahDiscRadius,
   memorialFocusDistance,
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
@@ -162,16 +163,50 @@ describe("granular memorial recognition models", () => {
     expect(hull.position.y - 1.18 / 2).toBeGreaterThan(plinth.position.y);
   });
 
-  test("the Polish memorial is a stone on a field, not an unbuilt building", () => {
+  test("the Polish memorial is the 2025 Findling, not an unbuilt building", () => {
     const root = createMemorialLandmarks(landmarks);
     const site = root.getObjectByName("Gedenkort für Polen 1939-1945")!;
-    expect(root.getObjectByName("Polish memorial inscribed stone")).not.toBeNull();
-    expect(
-      root.getObjectByName("Polish memorial bronze inscription plate"),
-    ).not.toBeNull();
+    // Unveiled 16 June 2025: an erratic with a weathering steel plaque, two
+    // trilingual panels and one wild apple tree on an oval gravel plaza.
+    for (const part of [
+      "Polish memorial Findling",
+      "Polish memorial oval gravel plaza",
+      "Polish memorial weathering steel plaque",
+      "Polish memorial trilingual information panels",
+      "Polish memorial wild apple tree crown",
+    ]) {
+      expect(root.getObjectByName(part)).not.toBeNull();
+    }
+    const boulder = root.getObjectByName("Polish memorial Findling")!;
+    const boulderHeight = new Box3()
+      .setFromObject(boulder)
+      .getSize(new Vector3()).y;
+    expect(boulderHeight).toBeGreaterThan(1.2);
+    expect(boulderHeight).toBeLessThan(2.4);
+    // The tree is the only thing on the site that rises above head height.
     const height = new Box3().setFromObject(site).getSize(new Vector3()).y;
-    expect(height).toBeLessThan(2);
+    expect(height).toBeLessThan(6);
     expect(site.userData.geometryStatus).toContain("not built");
+    expect(site.userData.geometryStatus).toContain("photo-derived");
+  });
+
+  test("the Zeugen-Jehovas stele is a five-metre stack that pinches at the waist", () => {
+    // Matthias Leeck's trunk stele: a base plate plus fifteen discs, flaring at
+    // foot and crown and narrowest in between.
+    expect(jehovahDiscRadius(0.5)).toBeLessThan(jehovahDiscRadius(0.02));
+    expect(jehovahDiscRadius(0.5)).toBeLessThan(jehovahDiscRadius(0.98));
+    expect(jehovahDiscRadius(0.98)).toBeGreaterThan(jehovahDiscRadius(0.02));
+    const root = createMemorialLandmarks(landmarks);
+    const site = root.getObjectByName("Mahnmal für verfolgte Zeugen Jehovas")!;
+    expect(root.getObjectByName("Jehovahs Witnesses memorial base plate")).not
+      .toBeNull();
+    const discs = root.getObjectByName(
+      "Jehovahs Witnesses memorial stacked bronze discs",
+    ) as InstancedMesh;
+    expect(discs.count).toBe(15);
+    const height = new Box3().setFromObject(site).getSize(new Vector3()).y;
+    expect(height).toBeGreaterThan(4.6);
+    expect(height).toBeLessThan(5.4);
   });
 
   test("the persecuted-homosexuals cuboid actually leans", () => {

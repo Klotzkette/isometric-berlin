@@ -377,51 +377,83 @@ function createHomosexualMemorial(anchor: MemorialLandmark): Group {
 }
 
 /**
- * The Gedenkort für Polen 1939-1945 west of the Reichstag: a low inscribed
- * memorial stone on a paved field, which is what stands there today while the
- * Deutsch-Polnisches Haus is still being planned.
+ * The Gedenkort für Polen 1939-1945 at the former Kroll-Oper site, unveiled on
+ * 16 June 2025: a glacial erratic on an oval gravel plaza, with a weathering
+ * steel plaque, two trilingual information panels and a single wild apple tree.
  */
 function createPolishMemorial(anchor: MemorialLandmark): Group {
   const group = new Group();
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
   group.rotation.y = 0.22;
+  // The elements are documented; their measurements are not published, so the
+  // sizes here are read off photographs against the boulder and the panels.
   group.userData.geometryStatus =
-    "Memorial stone and paved field only; the permanent Deutsch-Polnisches Haus is not built and is deliberately not modelled";
-  const paving = addBox(
+    "Findling, steel plaque, two information panels and the wild apple tree of the 2025 Gedenkort; element sizes are photo-derived because no dimensions are published, and the permanent Deutsch-Polnisches Haus is not built and is deliberately not modelled";
+  const plaza = addMesh(
     group,
-    "Polish memorial paved field",
-    [11, 0.12, 8],
+    "Polish memorial oval gravel plaza",
+    new CylinderGeometry(1, 1, 0.12, 40),
+    modelMaterial(0xb0a893, { roughness: 0.96 }),
     [0, 0.06, 0],
-    modelMaterial(0xa9a496, { roughness: 0.94 }),
   );
-  paving.castShadow = false;
-  const stone = addBox(
+  plaza.scale.set(6.4, 1, 4.6);
+  plaza.castShadow = false;
+  // A roughly 30 t erratic: a sphere pushed out of round and sunk into the
+  // gravel, so it reads as a boulder rather than as a dressed block.
+  const findling = addMesh(
     group,
-    "Polish memorial inscribed stone",
-    [2.9, 1.05, 0.9],
-    [0, 0.62, 0],
-    modelMaterial(0x8b8477, { roughness: 0.8 }),
+    "Polish memorial Findling",
+    new SphereGeometry(1, 9, 6),
+    modelMaterial(0x8a8377, { roughness: 0.88 }),
+    [0, 0.78, 0],
   );
-  stone.rotation.x = -0.09;
-  addBox(
+  findling.scale.set(1.55, 0.92, 1.18);
+  findling.rotation.set(0.12, 0.6, -0.07);
+  const plaque = addBox(
     group,
-    "Polish memorial bronze inscription plate",
-    [2.3, 0.62, 0.06],
-    [0, 0.68, 0.47],
-    modelMaterial(0x6d5a35, { metalness: 0.4, roughness: 0.52 }),
+    "Polish memorial weathering steel plaque",
+    [1.35, 0.78, 0.05],
+    [0.1, 0.86, 1.02],
+    modelMaterial(0x7a4b30, { metalness: 0.5, roughness: 0.66 }),
   );
-  const border: InstanceTransform[] = [-1, 1].flatMap((side) => [
-    { position: [side * 5.2, 0.16, 0], scale: [0.3, 1, 8] },
-    { position: [0, 0.16, side * 3.8], scale: [11, 1, 0.3] },
-  ]);
+  plaque.rotation.x = -0.14;
+  const panelPosts: InstanceTransform[] = [-1, 1].map((side) => ({
+    position: [side * 3.5, 0.55, 1.5],
+  }));
   addInstances(
     group,
-    "Polish memorial field kerb",
-    new BoxGeometry(1, 0.2, 1),
-    modelMaterial(0x8e897c, { roughness: 0.9 }),
-    border,
+    "Polish memorial information panel posts",
+    new BoxGeometry(0.09, 1.1, 0.09),
+    modelMaterial(0x5c5a54, { metalness: 0.35, roughness: 0.6 }),
+    panelPosts,
   );
+  const panels: InstanceTransform[] = [-1, 1].map((side) => ({
+    position: [side * 3.5, 1.24, 1.5],
+    rotation: [-0.5, 0, 0],
+  }));
+  addInstances(
+    group,
+    "Polish memorial trilingual information panels",
+    new BoxGeometry(1.15, 0.72, 0.04),
+    modelMaterial(0x4a4f52, { metalness: 0.28, roughness: 0.5 }),
+    panels,
+  );
+  addMesh(
+    group,
+    "Polish memorial wild apple tree trunk",
+    new CylinderGeometry(0.11, 0.16, 2.3, 8),
+    modelMaterial(0x6b5b45, { roughness: 0.92 }),
+    [-4.1, 1.15, -1.1],
+  );
+  const crown = addMesh(
+    group,
+    "Polish memorial wild apple tree crown",
+    new SphereGeometry(1.55, 10, 7),
+    modelMaterial(0x6f8156, { roughness: 0.95 }),
+    [-4.1, 3.3, -1.1],
+  );
+  crown.scale.set(1, 0.82, 1);
   return group;
 }
 
@@ -995,12 +1027,31 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
   return group;
 }
 
+const JEHOVAH_DISC_COUNT = 15;
+const JEHOVAH_TOTAL_HEIGHT = 5;
+const JEHOVAH_BASE_HEIGHT = 0.15;
+
+/**
+ * Radius of the trunk stele at height fraction `t`. The documented silhouette
+ * is an hourglass: it flares at the foot, pinches near mid-height and opens
+ * out again into the crown.
+ */
+export function jehovahDiscRadius(t: number): number {
+  const waist = 0.42;
+  return t < 0.5
+    ? waist + 0.53 * ((0.5 - t) / 0.5) ** 1.7
+    : waist + 0.76 * ((t - 0.5) / 0.5) ** 1.9;
+}
+
 function createJehovahsWitnessesMemorial(anchor: MemorialLandmark): Group {
   const group = new Group();
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
+  // Matthias Leeck's stele, handed over on 24 June 2026: about five metres and
+  // twelve tonnes of golden bronze, assembled from a base plate and fifteen
+  // stacked discs. The diameters and the inscription are not published.
   group.userData.geometryStatus =
-    "2026 flared bronze sculpture from official description and licensed visual references; height is visual-reference derived";
+    "Five-metre bronze tree-trunk stele of a base plate and fifteen stacked discs, from the official description; disc diameters and the inscription are undocumented and the surface furrows are approximated by the offset facets";
   const gold = nightEmitter(
     modelMaterial(0xb8872d, { metalness: 0.72, roughness: 0.38 }),
     0xffc85c,
@@ -1008,33 +1059,37 @@ function createJehovahsWitnessesMemorial(anchor: MemorialLandmark): Group {
   );
   addMesh(
     group,
-    "Jehovahs Witnesses memorial textured rising column",
-    new CylinderGeometry(0.68, 1.15, 7.2, 18),
+    "Jehovahs Witnesses memorial base plate",
+    new CylinderGeometry(1.25, 1.32, JEHOVAH_BASE_HEIGHT, 20),
     gold,
-    [0, 3.6, 0],
+    [0, JEHOVAH_BASE_HEIGHT / 2, 0],
   );
-  const crown = addMesh(
-    group,
-    "Jehovahs Witnesses memorial flared crown",
-    new ConeGeometry(2.35, 2.25, 18, 2, true),
-    gold,
-    [0, 8.18, 0],
+  const trunk = JEHOVAH_TOTAL_HEIGHT - JEHOVAH_BASE_HEIGHT;
+  const discHeight = trunk / JEHOVAH_DISC_COUNT;
+  const discs: InstanceTransform[] = Array.from(
+    { length: JEHOVAH_DISC_COUNT },
+    (_, index) => {
+      const radius = jehovahDiscRadius((index + 0.5) / JEHOVAH_DISC_COUNT);
+      return {
+        position: [
+          0,
+          JEHOVAH_BASE_HEIGHT + (index + 0.5) * discHeight,
+          0,
+        ] as [number, number, number],
+        // Each disc is turned against the one below so the twelve facets never
+        // line up into a smooth wall: that offset is what reads as the deep
+        // vertical furrowing of the cast surface.
+        rotation: [0, index * 0.21, 0] as [number, number, number],
+        scale: [radius, discHeight, radius] as [number, number, number],
+      };
+    },
   );
-  crown.rotation.x = Math.PI;
-  const ribs: InstanceTransform[] = Array.from({ length: 18 }, (_, index) => {
-    const angle = (index / 18) * Math.PI * 2;
-    return {
-      position: [Math.cos(angle) * 0.82, 5.15, Math.sin(angle) * 0.82],
-      rotation: [0, -angle, 0],
-      scale: [0.38, 1, 0.38],
-    };
-  });
   addInstances(
     group,
-    "Jehovahs Witnesses memorial fine vertical folds",
-    new BoxGeometry(0.09, 5.8, 0.11),
+    "Jehovahs Witnesses memorial stacked bronze discs",
+    new CylinderGeometry(1, 1, 1, 12),
     gold,
-    ribs,
+    discs,
   );
   return group;
 }
