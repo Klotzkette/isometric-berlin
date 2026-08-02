@@ -125,6 +125,8 @@ import {
 } from "./TrafficSignals";
 import { createFuelStations } from "./FuelStations";
 import { createRiversideVenues } from "./RiversideVenues";
+import { createSpreebogenOffice } from "./SpreebogenOffice";
+import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   INTERACTION_COALESCE_MS,
@@ -754,6 +756,18 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const venues = createRiversideVenues(street, ground);
         if (venues) {
           runtime.isoWorld.add(venues);
+        }
+      }
+      if (ground) {
+        // Staffage the owner asked for: a barge in the Humboldthafen and
+        // an excursion yacht on the Spree. No OSM source for either.
+        runtime.isoWorld.add(
+          createVessels(ground.water_top_y_m ?? undefined),
+        );
+        // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
+        const office = createSpreebogenOffice(ground);
+        if (office) {
+          runtime.isoWorld.add(office);
         }
       }
       if (ground && rail) {

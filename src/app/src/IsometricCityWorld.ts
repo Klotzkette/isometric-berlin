@@ -398,6 +398,11 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
     "Paul-Löbe canopy bodies",
     "tunnel portal ramps",
     "monument bodies",
+    "filling station bodies",
+    "riverside venue bodies",
+    "vessel bodies",
+    "vessel lampions",
+    "Amtssitz am Spreebogen bodies",
   ]) {
     const accessory = city.getObjectByName(name);
     if (accessory instanceof Mesh && accessory.userData.dayMaterial) {
