@@ -1,5 +1,65 @@
 # Changelog
 
+## v0.48.0
+
+Seven objects this round: the railway that stopped in mid-air, the station
+that was hollow inside, and five rounds of monument work in the Tiergarten.
+
+- **The tracks stopped in mid-air over the Humboldthafen.** The Hauptbahnhof
+  model carried a straight 110 m stub off each gable and nothing beyond it,
+  so the Stadtbahn simply ended. Measuring the stub against the OSM
+  alignment showed the west approach is true (≤ 6 m out over its whole
+  length) but the east one is not: the line curves towards Friedrichstraße
+  the moment it leaves the shed, and the stub was 46 m off after 200 m and
+  84 m off at its tip. The east stub is gone, and a new pipeline stage
+  (`build_rail_lines.py` → `rail-lines.json`) exports the real OSM corridor
+  instead — two viaduct polygons, six at-grade embankments, 402 pier
+  positions and 42 track centrelines. The viewer draws it as a level deck
+  with a fascia band and ink outline, brick piers dropped onto the surveyed
+  ground, terrain-draped ballast where the line runs at grade, and a pair of
+  rails stroked along every centreline. The deck height is not invented: it
+  is read off the station model's own deck, minus 45 cm of clearance, so the
+  two meet inside the shed.
+- **The Hauptbahnhof's ground floor was one enormous empty room.** Looking
+  in through the glass showed a single hall five storeys high with nothing
+  in it. The two arms of the north-south hall now carry four stacked levels
+  — gallery +1, concourse, and two deep levels — as drawn flat elements with
+  openings cut through them, six escalator runs on the real tilt, four
+  platform edges and three track pairs at the bottom. The plates sit only in
+  the arms, because that is the only place the barrel roof is not covered by
+  the opaque upper track deck.
+- **Most of the Tiergarten's marble was not exported at all.** The monument
+  export only read `historic=*`, but the Wagner memorial, the hunting
+  groups, the Luiseninsel figures, Fontane and the bears are all tagged
+  `tourism=artwork`. Named artworks now count too: 316 → 449 monuments, of
+  which 125 are sculptures that had no drawn presence before. Unnamed
+  artworks stay out — a dot with no name has nothing to recognise.
+- **The Richard-Wagner-Denkmal had no roof.** Eberlein's Carrara group is
+  recognisable at any distance by the flat reddish canopy that was built
+  over it to keep the weather off the marble. It now has one: four slim
+  posts and a low overhanging roof over the seated figure and its
+  allegories.
+- **The Großer Stern was a scatter of pebbles.** Begas'
+  Bismarck-Nationaldenkmal is now a red granite pedestal with a 6.6 m bronze
+  on top and four allegorical groups round its foot, and Moltke and Roon get
+  the general-on-a-pedestal form that separates them from a garden statue.
+- **The Luiseninsel had three 70 cm stones on it.** Königin Luise, Friedrich
+  Wilhelm III and Wilhelm von Preußen are white marble standing figures on
+  tall pedestals with a proud cornice, which is what distinguishes them from
+  the bronze-on-plinth statues elsewhere in the park.
+- **The composer memorial and the Goethe-Denkmal were blocked out, not
+  built.** The composer stele gained a step ring, corner piers and three
+  bust niches, and its busts moved onto the faces of the three-sided shaft
+  instead of floating out at the corners. Goethe gained a two-step
+  stylobate, a base moulding and cornice on the drum, and projecting
+  pedestals under Lyrik, Forschung and Drama.
+- **Eisenman's floor was a single funnel.** Every stele at the same radius
+  stood at the same height, which is exactly what the Stelenfeld is not. The
+  field now rolls in long waves over the funnel. The Sinti-und-Roma memorial
+  gained the ring of camp-name stones and the glass chronicle wall at the
+  Simsonweg approach; the Homosexuellen cuboid's window gained the reveal
+  that shows it is a hole cut through 30 cm of concrete.
+
 ## v0.47.0
 
 Six objects this round. The monuments the owner called out as still
