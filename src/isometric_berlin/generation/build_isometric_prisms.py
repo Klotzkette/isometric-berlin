@@ -25,7 +25,6 @@ import math
 from pathlib import Path
 from typing import Any
 
-import geopandas as gpd
 import numpy as np
 import shapely
 from PIL import Image
@@ -52,6 +51,7 @@ from isometric_berlin.generation.build_minecraft_voxels import (
   to_world,
   verify_scene_origin,
 )
+from isometric_berlin.generation.building_corrections import load_current_buildings
 from isometric_berlin.generation.render_quadrants import project_point
 
 DEFAULT_OUT = MESH_PUBLIC_DIR / "lod2-prisms.json"
@@ -257,7 +257,7 @@ def build_prisms(
   tone_sampler: OverviewToneSampler | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
   """One prism entry per LoD2 footprint polygon part, plus drop statistics."""
-  buildings = gpd.read_file(buildings_path, layer="buildings")
+  buildings = load_current_buildings(buildings_path)
   entries: list[dict[str, Any]] = []
   stats = {
     "source_rows": len(buildings),

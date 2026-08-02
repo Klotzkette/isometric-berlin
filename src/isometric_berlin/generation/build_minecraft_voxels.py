@@ -32,6 +32,7 @@ from isometric_berlin.generation.basin_features import (
   derive_sunken_walls,
   load_water_features,
 )
+from isometric_berlin.generation.building_corrections import load_current_buildings
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MESH_PUBLIC_DIR = REPO_ROOT / "src/app/public/mesh/regierungsviertel"
@@ -355,7 +356,7 @@ def rasterise_buildings(
   Returns cell → (height_m_snapped, class_id, has_roof_tier); the tallest
   covering building wins a contested cell (stable source order breaks ties).
   """
-  buildings = gpd.read_file(buildings_path, layer="buildings")
+  buildings = load_current_buildings(buildings_path)
   merged: dict[tuple[int, int], tuple[int, int, bool]] = {}
   for row in buildings.itertuples(index=False):
     height = float(row.measured_height_m or 0.0)
