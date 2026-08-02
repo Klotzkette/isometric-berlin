@@ -43,6 +43,20 @@ export const INTERACTION_COALESCE_MS = 220;
 export const PIXEL_RATIO_DOWNGRADE_HOLD_MS = 260;
 export const PIXEL_RATIO_UPGRADE_HOLD_MS = 420;
 
+/**
+ * Hold times for the settled-detail tier (the official-tree microcrowns).
+ *
+ * Same shape of problem as the pixel ratio, different signal: the tier used to
+ * read `cameraMoving` straight, and that flag flaps frame to frame while a
+ * wheel dolly or a rotate step plays out, so the microcrowns blinked off and
+ * on again several times per gesture. With hysteresis a short gesture keeps
+ * them and a sustained one costs a single drop plus a single restore. The
+ * restore hold is longer than the pixel-ratio one because the camera keeps
+ * easing for a moment after the input stops.
+ */
+export const SETTLED_DETAIL_DROP_HOLD_MS = 320;
+export const SETTLED_DETAIL_RESTORE_HOLD_MS = 520;
+
 export type PixelRatioModeInput = {
   activeSinceMs: number | null;
   applied: boolean;
@@ -51,23 +65,46 @@ export type PixelRatioModeInput = {
   nowMs: number;
 };
 
-export function nextPixelRatioMode({
+export type HystereticModeInput = PixelRatioModeInput & {
+  downgradeHoldMs: number;
+  upgradeHoldMs: number;
+};
+
+export function nextHystereticMode({
   activeSinceMs,
   applied,
+  downgradeHoldMs,
   idleSinceMs,
   inputActive,
   nowMs,
-}: PixelRatioModeInput): boolean {
+  upgradeHoldMs,
+}: HystereticModeInput): boolean {
   if (inputActive) {
     if (applied || activeSinceMs === null) {
       return applied;
     }
-    return nowMs - activeSinceMs >= PIXEL_RATIO_DOWNGRADE_HOLD_MS;
+    return nowMs - activeSinceMs >= downgradeHoldMs;
   }
   if (!applied || idleSinceMs === null) {
     return applied;
   }
-  return nowMs - idleSinceMs < PIXEL_RATIO_UPGRADE_HOLD_MS;
+  return nowMs - idleSinceMs < upgradeHoldMs;
+}
+
+export function nextPixelRatioMode(input: PixelRatioModeInput): boolean {
+  return nextHystereticMode({
+    ...input,
+    downgradeHoldMs: PIXEL_RATIO_DOWNGRADE_HOLD_MS,
+    upgradeHoldMs: PIXEL_RATIO_UPGRADE_HOLD_MS,
+  });
+}
+
+export function nextSettledDetailMode(input: PixelRatioModeInput): boolean {
+  return nextHystereticMode({
+    ...input,
+    downgradeHoldMs: SETTLED_DETAIL_DROP_HOLD_MS,
+    upgradeHoldMs: SETTLED_DETAIL_RESTORE_HOLD_MS,
+  });
 }
 
 export function renderPixelRatio({

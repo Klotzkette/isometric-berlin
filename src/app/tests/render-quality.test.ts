@@ -3,8 +3,11 @@ import { describe, expect, test } from "bun:test";
 import {
   INTERACTION_COALESCE_MS,
   nextPixelRatioMode,
+  nextSettledDetailMode,
   PIXEL_RATIO_DOWNGRADE_HOLD_MS,
   PIXEL_RATIO_UPGRADE_HOLD_MS,
+  SETTLED_DETAIL_DROP_HOLD_MS,
+  SETTLED_DETAIL_RESTORE_HOLD_MS,
   renderInteractionActive,
   renderPixelRatio,
 } from "../src/renderQuality";
@@ -144,6 +147,83 @@ describe("zoom-stable pixel-ratio governor", () => {
         idleSinceMs,
         inputActive: false,
         nowMs: idleSinceMs + PIXEL_RATIO_UPGRADE_HOLD_MS,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("settled detail tier", () => {
+  const run = (frames: Array<{ moving: boolean; nowMs: number }>) => {
+    let applied = false;
+    let movingSince: number | null = null;
+    let stillSince: number | null = 0;
+    let switches = 0;
+    for (const frame of frames) {
+      if (frame.moving) {
+        movingSince ??= frame.nowMs;
+        stillSince = null;
+      } else {
+        stillSince ??= frame.nowMs;
+        movingSince = null;
+      }
+      const next = nextSettledDetailMode({
+        activeSinceMs: movingSince,
+        applied,
+        idleSinceMs: stillSince,
+        inputActive: frame.moving,
+        nowMs: frame.nowMs,
+      });
+      if (next !== applied) {
+        switches += 1;
+      }
+      applied = next;
+    }
+    return { applied, switches };
+  };
+
+  test("a single rotate step never drops the microcrowns", () => {
+    // One click eases the camera for about a quarter of a second; the tier has
+    // to sit that out or the whole canopy blinks for every step.
+    const frames: Array<{ moving: boolean; nowMs: number }> = [];
+    for (let t = 0; t < SETTLED_DETAIL_DROP_HOLD_MS - 20; t += 16) {
+      frames.push({ moving: true, nowMs: t });
+    }
+    for (let t = SETTLED_DETAIL_DROP_HOLD_MS; t <= 4000; t += 16) {
+      frames.push({ moving: false, nowMs: t });
+    }
+    expect(run(frames)).toEqual({ applied: false, switches: 0 });
+  });
+
+  test("a sustained zoom costs one drop and one restore, not a blink per tick", () => {
+    const frames: Array<{ moving: boolean; nowMs: number }> = [];
+    // cameraMoving flaps while a wheel dolly plays out: settle timers and the
+    // stabiliser each release on their own frame.
+    for (let t = 0; t < 4000; t += 16) {
+      frames.push({ moving: t % 650 > 50, nowMs: t });
+    }
+    for (let t = 4000; t <= 8000; t += 16) {
+      frames.push({ moving: false, nowMs: t });
+    }
+    expect(run(frames)).toEqual({ applied: false, switches: 2 });
+  });
+
+  test("restoring the detail waits longer than the camera keeps easing", () => {
+    expect(
+      nextSettledDetailMode({
+        activeSinceMs: null,
+        applied: true,
+        idleSinceMs: 1000,
+        inputActive: false,
+        nowMs: 1000 + SETTLED_DETAIL_RESTORE_HOLD_MS - 1,
+      }),
+    ).toBe(true);
+    expect(
+      nextSettledDetailMode({
+        activeSinceMs: null,
+        applied: true,
+        idleSinceMs: 1000,
+        inputActive: false,
+        nowMs: 1000 + SETTLED_DETAIL_RESTORE_HOLD_MS,
       }),
     ).toBe(false);
   });

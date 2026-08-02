@@ -131,6 +131,7 @@ import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   INTERACTION_COALESCE_MS,
   nextPixelRatioMode,
+  nextSettledDetailMode,
   renderInteractionActive,
   renderPixelRatio,
 } from "./renderQuality";
@@ -1854,7 +1855,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       host.append(renderer.domElement);
 
       const scene = new Scene();
-      (window as unknown as Record<string, unknown>).__diagScene = scene; // TEMP-DIAG
       scene.background = new Color(0xdcf3f9);
       scene.fog = new Fog(0xdcf3f9, 1100, 2550);
       // Day levels; setSceneLighting re-applies the per-mode rig on the
@@ -2043,6 +2043,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let interactionDeadline = 0;
       let inputActiveSince: number | null = null;
       let inputIdleSince: number | null = 0;
+      // Same idea for the settled-detail tier, on its own clocks because it
+      // follows camera motion rather than raw input.
+      let surfaceInteracting = false;
+      let movingSince: number | null = null;
+      let stillSince: number | null = 0;
       let appliedWidth = 0;
       let appliedHeight = 0;
       let appliedPixelRatio = 0;
@@ -2619,11 +2624,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           pixelRatioInteracting = wantInteractingPixelRatio;
           resize();
         }
+        if (cameraMoving) {
+          movingSince ??= timestamp;
+          stillSince = null;
+        } else {
+          stillSince ??= timestamp;
+          movingSince = null;
+        }
+        surfaceInteracting = nextSettledDetailMode({
+          activeSinceMs: movingSince,
+          applied: surfaceInteracting,
+          idleSinceMs: stillSince,
+          inputActive: cameraMoving,
+          nowMs: timestamp,
+        });
         // Minecraft keeps the chunky interaction surface at all times so the
         // detail tier never swaps on settle (the visible "Zusammensetzen").
         setSurfacePresentation(
           runtime,
-          cameraMoving || stability.pinInteractionSurface,
+          surfaceInteracting || stability.pinInteractionSurface,
         );
         // Strength of the Day/Night crisp/edge pass: a pure function of how far
         // the camera stands off, never of whether it is moving, and never
