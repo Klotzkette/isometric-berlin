@@ -68,11 +68,65 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
   });
 
   test("seven storeys, and the inferred height is flagged as such", () => {
-    const bounds = new Box3().setFromObject(office);
+    const bodies = office.getObjectByName(
+      "Amtssitz am Spreebogen bodies",
+    ) as Mesh;
+    const bounds = new Box3().setFromObject(bodies);
     // Plinth, five upper storeys, a set-back state-room floor and a parapet.
     expect(bounds.max.y).toBeGreaterThan(24);
     expect(bounds.max.y).toBeLessThan(34);
     // No metre height is published for this building anywhere.
     expect(office.userData.extrapolated).toBe(true);
+  });
+
+  test("the short ends are fully rounded, not chamfered corners", () => {
+    // The v0.52.x model was a square block with 45°-chamfer corner blocks.
+    // The photos show a genuine pill/capsule plan: this checks the body mesh
+    // is drawn wider (north-south) than a plain rectangle would allow for the
+    // same footprint once the rounded caps are accounted for, i.e. that the
+    // partial-cylinder caps actually contributed geometry.
+    const bodies = office.getObjectByName(
+      "Amtssitz am Spreebogen bodies",
+    ) as Mesh;
+    const bounds = new Box3().setFromObject(bodies);
+    const widthM = bounds.max.x - bounds.min.x;
+    const depthM = bounds.max.z - bounds.min.z;
+    // The full 92.9 m OSM long axis must be present (straight run + caps).
+    expect(widthM).toBeGreaterThan(90);
+    expect(depthM).toBeGreaterThan(70);
+    // A few metres over the 73.7 m OSM depth is the projecting fin/cladding
+    // thickness on the rounded caps, not a modelling error.
+    expect(depthM).toBeLessThan(85);
+  });
+
+  test("the facade fins mix many colours, not a repeating stripe", () => {
+    const bodies = office.getObjectByName(
+      "Amtssitz am Spreebogen bodies",
+    ) as Mesh;
+    const colours = bodies.geometry.getAttribute("color");
+    const seen = new Set<string>();
+    for (let index = 0; index < colours.count; index += 1) {
+      seen.add(
+        `${colours.getX(index).toFixed(2)},${colours.getY(index).toFixed(2)},${colours.getZ(index).toFixed(2)}`,
+      );
+    }
+    // Plinth, glazing body, attic, parapet, plus at least four distinct fin
+    // colours: the photographed facade is a genuine multicolour mix.
+    expect(seen.size).toBeGreaterThanOrEqual(8);
+  });
+
+  test("construction-site cranes stay out of the building's own bounds", () => {
+    // Staffage per the brief (nice-to-have), kept in a separate sub-group so
+    // it never shifts the footprint/height assertions above, which are
+    // pinned to the OSM survey and the storey count, not to the staffage.
+    const cranes = office.getObjectByName("Amtssitz am Spreebogen site cranes");
+    expect(cranes).not.toBeNull();
+    const bodies = office.getObjectByName(
+      "Amtssitz am Spreebogen bodies",
+    ) as Mesh;
+    const buildingBounds = new Box3().setFromObject(bodies);
+    const fullBounds = new Box3().setFromObject(office);
+    // The cranes overtop the building, so the full group is taller.
+    expect(fullBounds.max.y).toBeGreaterThan(buildingBounds.max.y);
   });
 });

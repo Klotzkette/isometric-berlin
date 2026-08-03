@@ -111,6 +111,48 @@ export function addCylinder(
   (lamp ? builder.lamps : builder.parts).push(geometry);
 }
 
+/**
+ * A partial (sliced) cylinder, for the rounded-corner "pill" massing seen
+ * on buildings like the Amtssitz am Spreebogen: a full drum sliced to the
+ * wedge needed to close off a straight run of wall. `rotationY` orients the
+ * slice; `thetaStart`/`thetaLength` pick which wedge of the drum is kept,
+ * in the same radians convention as `CylinderGeometry`.
+ */
+export function addPartialCylinder(
+  builder: Builder,
+  color: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  radius: number,
+  height: number,
+  segments: number,
+  thetaStart: number,
+  thetaLength: number,
+  rotationY = 0,
+  inked = true,
+): void {
+  const geometry = new CylinderGeometry(
+    radius,
+    radius,
+    height,
+    segments,
+    1,
+    true,
+    thetaStart,
+    thetaLength,
+  );
+  if (rotationY !== 0) {
+    geometry.rotateY(rotationY);
+  }
+  geometry.translate(cx, cy, cz);
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+  if (inked) {
+    builder.edges.push(new EdgesGeometry(geometry, 24));
+  }
+}
+
 export type DrawnGroupOptions = {
   /** Emissive colour for the `lamps` mesh after dark. */
   lampEmissive?: number;
