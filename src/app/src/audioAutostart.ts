@@ -30,7 +30,7 @@ export const FIRST_GESTURE_EVENTS = [
 ] as const;
 
 /** Keys bound to viewer shortcuts that must not double as an audio start. */
-const IGNORED_KEYS = new Set(["b", "t"]);
+const IGNORED_KEYS = new Set(["b", "t", "n"]);
 
 export interface FirstGestureTarget {
   addEventListener(

@@ -129,7 +129,7 @@ describe("first-gesture audio start", () => {
     expect(attempts).toBe(1);
   });
 
-  test("the audio buttons and the b/t shortcuts keep their own handlers", () => {
+  test("the audio buttons and the b/t/n shortcuts keep their own handlers", () => {
     const toggle = {
       closest: (selector: string) =>
         selector === "[data-audio-toggle]" ? {} : null,
@@ -141,7 +141,23 @@ describe("first-gesture audio start", () => {
       isIgnoredGesture({ key: "B", target: null, type: "keydown" } as never),
     ).toBe(true);
     expect(
+      isIgnoredGesture({ key: "T", target: null, type: "keydown" } as never),
+    ).toBe(true);
+    // Regression (v0.52.1): "N" toggles night lights via its own App.tsx
+    // handler. Before this fix it was missing from IGNORED_KEYS, so the
+    // capture-phase first-gesture listener also raced in and started the
+    // ambient music/soundtrack on the very first "N" press — a shortcut
+    // collision that looked like "N triggers the music toggle".
+    expect(
       isIgnoredGesture({ key: "n", target: null, type: "keydown" } as never),
+    ).toBe(true);
+    expect(
+      isIgnoredGesture({ key: "N", target: null, type: "keydown" } as never),
+    ).toBe(true);
+    // Keys without their own dedicated shortcut-vs-autostart guard still
+    // count as a valid first gesture (e.g. "d" day/night, "m" Minecraft).
+    expect(
+      isIgnoredGesture({ key: "d", target: null, type: "keydown" } as never),
     ).toBe(false);
   });
 });

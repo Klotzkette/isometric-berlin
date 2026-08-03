@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.52.1
+
+Mini-patch: fix a keyboard-shortcut collision reported straight after
+v0.52.0 shipped the night-lights toggle. Pressing `N` correctly toggled
+night lights via its own handler in `App.tsx`, but it also — unwantedly —
+kicked off the first-gesture ambient-music autostart in `audioAutostart.ts`,
+because that module's `IGNORED_KEYS` set only excluded `b` and `t` (the
+music/soundtrack shortcuts), not `n`. On a page where no audio had started
+yet, the very first `N` press both toggled the lights and silently started
+the music — indistinguishable, in a live test, from "`N` triggers the music
+toggle". `N` stays the night-lights shortcut (still only active in night
+mode) and `B`/`M`/`T` keep their existing bindings unchanged; the fix adds
+`"n"` to `IGNORED_KEYS` so the capture-phase autostart listener no longer
+races the dedicated App.tsx handler. Extended the existing
+`audio-autostart.test.ts` coverage with an explicit regression test for the
+case and a check that `B`/`T`/`N` (and their lowercase forms) are all
+ignored by the autostart listener while plain viewer shortcuts like `D`/`M`
+still count as a valid first gesture.
+
 ## v0.52.0
 
 Night mode gets a second switch. Until now "Nacht" meant one fixed look —
