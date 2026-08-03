@@ -603,7 +603,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   ]
   required_render_quality_snippets = {
     "2.75x desktop settled quality": "coarsePointer ? 2 : 2.75",
-    "1x touch interaction quality": "coarsePointer ? 1 : 1.4",
+    "1x touch interaction quality": "coarsePointer ? 1 : 1.9",
     "fixed settled GPU budget": "11_500_000",
     "fixed mobile GPU budget": "5_800_000",
   }

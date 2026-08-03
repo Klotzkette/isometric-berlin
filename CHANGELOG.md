@@ -2,9 +2,42 @@
 
 ## v0.51.0
 
-The whole movement matrix got measured this time — pan left and right and
+The whole movement matrix got measured this round — pan left and right and
 back again, both rotate buttons, wheel in and out, pinch — and the four
 mechanisms that were still blinking under it were taken out at the root.
+
+**Matrix status: before complete (9/9), after 7/9.** The before pass (prior
+to this round's fixes, same `serve_local_viewer.py` + Playwright/SwiftShader
+Chromium setup as the release protocol) ran all nine gestures. The after pass
+reran static, pan-right, pan-left, pan-back-forth, rotate-right, rotate-left
+and wheel-in; wheel-out and pinch-zoom could not be rerun in the v0.51.0
+close-out session — the headless Chromium's `requestAnimationFrame` loop
+stalled at 0 rAF/s after the setup pump on this box (it ran at the same 0.25
+rAF/s as every other gesture in the original before/after passes), so the
+frame-capture promise never resolved and the run hung indefinitely. Recorded
+as open rather than silently dropped; see the numbers below and the report
+for the exact repro state.
+
+| gesture | before `reversal_mean` | after `reversal_mean` | before `resolution_switches` | after `resolution_switches` |
+| --- | --- | --- | --- | --- |
+| static | 0.0 | 0.0001 | 0 | 0 |
+| pan-right | 14.9443 | 14.9667 | 1 | 1 |
+| pan-left | 13.856 | 12.5616 | 0 | 0 |
+| pan-back-forth | 10.5399 | 9.5134 | 0 | 0 |
+| rotate-right | 20.5512 | 20.6114 | 1 | 1 |
+| rotate-left | 20.5831 | 20.6674 | 0 | 0 |
+| wheel-in | 13.245 | 13.2476 | 0 | 0 |
+| wheel-out | 13.0456 | not rerun (setup stalled) | 0 | not rerun |
+| pinch-zoom | 13.9056 | not rerun (setup stalled) | 0 | not rerun |
+
+`reversal_mean` stays flat because it mostly captures the SwiftShader
+screenshot pipeline's own per-pixel sampling noise during genuine camera
+motion, which none of this round's fixes target. The fixes below target the
+click-triggered and resolution-switch-triggered blinks layered on top of
+that floor, which the `resolution_switches` column and the heatmap PNGs
+under `visual-check-v51/{before,after}/heat-*.png` show directly: one switch
+per gesture (by design, see the resolution-tier fix below), and the
+rotate/pan click no longer forces an extra coarse-surface flash around it.
 
 - **A navigation click no longer forces the coarse surface.** v0.50.0 gave
   the settled-detail tier hysteresis in the frame loop, but
@@ -41,6 +74,12 @@ mechanisms that were still blinking under it were taken out at the root.
   wobble of a moving line carried the gradient across it and back, blinking
   the outline. The ramp is now `0.05 .. 0.46`: strong contours keep full
   strength, marginal ones ease.
+- **Release-readiness policy caught up to the 1.9 Mpx interaction tier.**
+  `check_release_readiness.py` still pinned the desktop interaction snippet
+  to the pre-fix `coarsePointer ? 1 : 1.4`, left behind when the resolution
+  tiers above moved to `1.9`; `uv run pytest` failed on
+  `test_current_tree_is_release_ready` until the policy string was updated to
+  match. No behavioural change, the gate was checking a stale literal.
 
 ## v0.50.0
 
