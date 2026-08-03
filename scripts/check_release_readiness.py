@@ -562,7 +562,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "window-blur gesture recovery": 'window.addEventListener("blur"',
     "decoded texture-image disposal": "image.close()",
     "adaptive GPU-bounded pixel ratio": "renderPixelRatio({",
-    "day/night scene lighting": "setSceneLighting(runtime, lightingMode)",
+    "day/night scene lighting": (
+      "setSceneLighting(runtime, lightingMode, nightLightsOn)"
+    ),
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
     "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
     "six-million-face settled surface": "manifest.surface_detail_tiles",

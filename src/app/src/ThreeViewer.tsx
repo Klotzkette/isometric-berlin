@@ -212,6 +212,9 @@ type ThreeViewerProps = {
   active: boolean;
   canvasAriaLabel: string;
   lightingMode: LightingMode;
+  // Only meaningful while lightingMode === "night"; day/minecraft ignore it.
+  // See nightLighting.ts for the persisted preference this mirrors.
+  nightLightsOn: boolean;
   progressLabel: string;
   sceneUrl: string;
   selectedLandmark: string;
@@ -279,6 +282,7 @@ type Runtime = {
   voxelWorld: Group | null;
   voxelWorldState: "failed" | "idle" | "loading";
   lightingMode: LightingMode;
+  nightLightsOn: boolean;
   underside: boolean;
   underwater: boolean;
 };
@@ -326,7 +330,7 @@ function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void 
     runtime.renderer.toneMappingExposure = 0.82;
     runtime.hemisphere.intensity = 0.9;
   } else {
-    setSceneLighting(runtime, runtime.lightingMode);
+    setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
   }
 }
 
@@ -395,9 +399,17 @@ function createSelectionMarker(): Group {
   return group;
 }
 
+// The cool moonlight floor every artificial-light material falls back to
+// when "Licht aus" is active: no warm self-light, just enough of a flat,
+// bluish-silver emissive to keep the authored geometry legible without
+// reintroducing anything that reads as a lit window, lamp or sign.
+const MOONLIGHT_EMISSIVE = 0x1c2636;
+const MOONLIGHT_EMISSIVE_INTENSITY = 0.22;
+
 export function applyMaterialLighting(
   material: MeshStandardMaterial,
   mode: LightingMode,
+  lightsOn = true,
 ): void {
   if (!material.userData.appearanceCaptured) {
     material.userData.appearanceCaptured = true;
@@ -428,16 +440,31 @@ export function applyMaterialLighting(
   if (mode === "night") {
     const nightEmissive = material.userData.nightEmissive;
     if (typeof nightEmissive === "number") {
-      material.emissive.setHex(nightEmissive);
-      material.emissiveIntensity =
-        material.userData.nightEmissiveIntensity ?? 1;
+      if (lightsOn) {
+        material.emissive.setHex(nightEmissive);
+        material.emissiveIntensity =
+          material.userData.nightEmissiveIntensity ?? 1;
+      } else {
+        // "Licht aus": every material carrying an authored artificial-light
+        // emissive (window strips, lamp heads, lampions, dome glow, …) goes
+        // dark. This is the single choke point for "alle künstlichen
+        // Lichter aus" — nothing downstream needs its own lights-off branch.
+        material.emissive.setHex(0x000000);
+        material.emissiveIntensity = 0;
+      }
     } else if (material.userData.sourceMaterial) {
       if (isDrawn) {
         // A cool, restrained self-light floor keeps the official building
         // surface legible after dark. It applies only to materials already
         // classified as drawn facades, never to terrain, vegetation or water.
-        material.emissive.setHex(0x7088a7);
-        material.emissiveIntensity = material.map ? 0.38 : 0.34;
+        // Moonlight keeps a comparable but cooler, dimmer floor so the
+        // silhouette stays legible without reading as an artificial light.
+        material.emissive.setHex(lightsOn ? 0x7088a7 : MOONLIGHT_EMISSIVE);
+        material.emissiveIntensity = lightsOn
+          ? material.map
+            ? 0.38
+            : 0.34
+          : MOONLIGHT_EMISSIVE_INTENSITY;
       } else {
         material.emissive.setHex(material.userData.dayEmissive ?? 0x000000);
         material.emissiveIntensity = material.map ? 0.035 : 0.015;
@@ -485,11 +512,18 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
   });
 }
 
-function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
+function applyLightingToRoot(
+  root: Object3D,
+  mode: LightingMode,
+  lightsOn = true,
+): void {
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
     if (object.userData.nightOnly === true) {
-      object.visible = mode === "night";
+      // "Licht aus" turns every night-only artificial-light prop (uplights,
+      // point lights, glow cones) off along with the emissive materials
+      // above — the moonlit look keeps none of them.
+      object.visible = mode === "night" && lightsOn;
     }
     // Hero-model ink follows the city ink: fine grey pencil by day,
     // moonlit blue at night (materials tagged modeInk).
@@ -523,15 +557,21 @@ function applyLightingToRoot(root: Object3D, mode: LightingMode): void {
     for (const material of materials) {
       if (material instanceof MeshStandardMaterial && !seen.has(material)) {
         seen.add(material);
-        applyMaterialLighting(material, mode);
+        applyMaterialLighting(material, mode, lightsOn);
       }
     }
   });
 }
 
-function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
+function setSceneLighting(
+  runtime: Runtime,
+  mode: LightingMode,
+  lightsOn = true,
+): void {
   runtime.lightingMode = mode;
+  runtime.nightLightsOn = lightsOn;
   const isNight = mode === "night";
+  const isMoonlit = isNight && !lightsOn;
   const isMinecraft = mode === "minecraft";
   if (!isMinecraft) {
     setMinecraftMaterialPresentation(
@@ -540,6 +580,8 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
       false,
     );
   }
+  // Moonlight keeps the same dark register as ordinary night — the request
+  // was for the artificial lights to disappear, not for a different sky.
   const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xdcf3f9;
   runtime.scene.background = new Color(sky);
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
@@ -555,13 +597,23 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   const tone = PRESENTATION_TONE[mode];
   runtime.renderer.toneMapping = tone.toneMapping;
   runtime.renderer.toneMappingExposure = tone.exposure;
-  runtime.hemisphere.color.setHex(isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff);
+  // "Licht aus" keeps the authored-colour contract (NoToneMapping/exposure
+  // 1, see presentationTone.ts) and only recolours the ambient rig itself:
+  // a cooler, slightly dimmer hemisphere/key/fill so the whole city reads
+  // as lit by the moon alone, while staying comfortably above black so the
+  // isometric drawing (silhouettes, ink lines, isoFaceShade steps) stays
+  // legible — "man sieht nur noch die Isometrie".
+  runtime.hemisphere.color.setHex(
+    isMoonlit ? 0x4a6690 : isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff,
+  );
   // Day's hemisphere ground half is nearly as bright as its sky half. A
   // HemisphereLight weights a VERTICAL face at the midpoint of the two, so
   // the old dark 0x8e9589 half was what dropped every lit landmark wall to
   // a mid grey while the unlit prisms beside it stayed ivory. Two different
   // brightness worlds in one drawing; now they agree.
-  runtime.hemisphere.groundColor.setHex(isNight ? 0x08120f : isMinecraft ? 0x8ea084 : 0xe4e6e0);
+  runtime.hemisphere.groundColor.setHex(
+    isMoonlit ? 0x050b12 : isNight ? 0x08120f : isMinecraft ? 0x8ea084 : 0xe4e6e0,
+  );
   // Without a film curve the drawn modes need light levels that land BELOW
   // clipping on their own: the previous 2.52/2.72 rig relied on the ACES
   // shoulder to pull an over-driven scene back into range, which is exactly
@@ -572,30 +624,36 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
   // therefore agrees tonally with the unlit prisms and ground instead of
   // being multiplied by an arbitrary rig, and the face-to-face step reads
   // as the same axonometric plasticity `isoFaceShade` draws by hand.
-  runtime.hemisphere.intensity = isNight ? 0.52 : isMinecraft ? 2.05 : 2.75;
+  runtime.hemisphere.intensity = isMoonlit ? 0.4 : isNight ? 0.52 : isMinecraft ? 2.05 : 2.75;
   // A near-white key: the old amber 0xffdda3 crushed the blue channel of
-  // every cream facade and turned the Chancellery lemon-yellow.
-  runtime.sun.color.setHex(isNight ? 0x91b9ed : isMinecraft ? 0xfffaf0 : 0xfff8ea);
+  // every cream facade and turned the Chancellery lemon-yellow. Moonlight
+  // pushes the key further into cool silver-blue — authored colour, not a
+  // curve — consistent with a single distant moon instead of city glow.
+  runtime.sun.color.setHex(
+    isMoonlit ? 0xaecbef : isNight ? 0x91b9ed : isMinecraft ? 0xfffaf0 : 0xfff8ea,
+  );
   // Day's key is deliberately gentle. With the ambient half carrying the
   // brightness, the sun only has to supply the direction of the light —
   // the same job `isoFaceShade` does for the unlit prisms. A strong key
   // would reintroduce the blob shadows the owner rejected.
-  runtime.sun.intensity = isNight ? 0.85 : isMinecraft ? 2.2 : 0.62;
-  runtime.skyFill.color.setHex(isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff);
-  runtime.skyFill.intensity = isNight ? 0.2 : isMinecraft ? 0.5 : 0.12;
+  runtime.sun.intensity = isMoonlit ? 0.62 : isNight ? 0.85 : isMinecraft ? 2.2 : 0.62;
+  runtime.skyFill.color.setHex(
+    isMoonlit ? 0x53699a : isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff,
+  );
+  runtime.skyFill.intensity = isMoonlit ? 0.16 : isNight ? 0.2 : isMinecraft ? 0.5 : 0.12;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
     isMinecraft ? -720 : 720,
   );
   for (const material of runtime.modelMaterials) {
-    applyMaterialLighting(material, mode);
+    applyMaterialLighting(material, mode, lightsOn);
   }
-  applyLightingToRoot(runtime.signatures, mode);
-  applyLightingToRoot(runtime.civicDetails, mode);
-  applyLightingToRoot(runtime.monuments, mode);
-  applyLightingToRoot(runtime.culturalDetails, mode);
-  applyLightingToRoot(runtime.parkDetails, mode);
+  applyLightingToRoot(runtime.signatures, mode, lightsOn);
+  applyLightingToRoot(runtime.civicDetails, mode, lightsOn);
+  applyLightingToRoot(runtime.monuments, mode, lightsOn);
+  applyLightingToRoot(runtime.culturalDetails, mode, lightsOn);
+  applyLightingToRoot(runtime.parkDetails, mode, lightsOn);
   if (isMinecraft) {
     setMinecraftMaterialPresentation(
       runtime.scene,
@@ -658,7 +716,7 @@ function setSceneLighting(runtime: Runtime, mode: LightingMode): void {
     runtime.camera.updateProjectionMatrix();
   }
   if (runtime.isoWorld) {
-    setIsoNightPresentation(runtime.isoWorld, isNight);
+    setIsoNightPresentation(runtime.isoWorld, isNight, lightsOn);
   }
   if (runtime.underwater) {
     runtime.underwater = false;
@@ -793,7 +851,7 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         }
       }
       runtime.scene.add(runtime.isoWorld);
-      setSceneLighting(runtime, runtime.lightingMode);
+      setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400);
     })
     .catch(() => {
@@ -836,7 +894,7 @@ function ensureVoxelWorld(
         prisms ? buildColumnToneLookup(prisms) : null,
       );
       runtime.scene.add(runtime.voxelWorld);
-      setSceneLighting(runtime, runtime.lightingMode);
+      setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400);
     })
     .catch(() => {
@@ -1423,7 +1481,7 @@ async function loadModel(
       material.emissive.set(0x2b3130);
       material.emissiveIntensity = 0.07;
       material.userData.sourceMaterial = true;
-      applyMaterialLighting(material, runtime.lightingMode);
+      applyMaterialLighting(material, runtime.lightingMode, runtime.nightLightsOn);
       if (detail) {
         // Hero-detail tiles are a higher-resolution copy of the same building
         // that already exists in the base/surface tile beneath them. Two
@@ -1495,6 +1553,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       active,
       canvasAriaLabel,
       lightingMode,
+      nightLightsOn,
       progressLabel,
       sceneUrl,
       selectedLandmark,
@@ -1513,6 +1572,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     // integrated per frame in the animate loop with velocity smoothing.
     const flightInputRef = useRef(new Vector3());
     const lightingModeRef = useRef(lightingMode);
+    const nightLightsOnRef = useRef(nightLightsOn);
     const onErrorRef = useRef(onError);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
@@ -1532,6 +1592,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
     useEffect(() => {
       lightingModeRef.current = lightingMode;
+      nightLightsOnRef.current = nightLightsOn;
       const runtime = runtimeRef.current;
       if (!runtime) {
         return;
@@ -1548,8 +1609,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (lightingMode === "minecraft") {
         ensureVoxelWorld(runtime, onWarningRef.current);
       }
-      setSceneLighting(runtime, lightingMode);
-    }, [lightingMode]);
+      setSceneLighting(runtime, lightingMode, nightLightsOn);
+    }, [lightingMode, nightLightsOn]);
 
     useEffect(() => {
       onErrorRef.current = onError;
@@ -2008,11 +2069,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         voxelWorld: null,
         voxelWorldState: "idle",
         lightingMode: lightingModeRef.current,
+        nightLightsOn: nightLightsOnRef.current,
         underside: false,
         underwater: false,
       };
       runtimeRef.current = runtime;
-      setSceneLighting(runtime, lightingModeRef.current);
+      setSceneLighting(runtime, lightingModeRef.current, nightLightsOnRef.current);
 
       const touchPoints = new Map<number, { x: number; y: number }>();
       let customTouchGestureActive = false;
@@ -2726,6 +2788,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.trafficSignals,
             timestamp / 1000,
             reducedMotion,
+            runtime.lightingMode !== "night" || runtime.nightLightsOn,
           );
         }
         // Momentum glide: the released pan eases out smoothly.
@@ -2805,7 +2868,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
           markAuthoredFlatUnlit(runtime.civicDetails);
           scene.add(runtime.civicDetails);
-          applyLightingToRoot(runtime.civicDetails, runtime.lightingMode);
+          applyLightingToRoot(runtime.civicDetails, runtime.lightingMode, runtime.nightLightsOn);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.civicDetails,
@@ -2877,7 +2940,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.focusCameraByName.set(signature.landmark_name, focusCamera);
             }
           }
-          applyLightingToRoot(runtime.signatures, runtime.lightingMode);
+          applyLightingToRoot(runtime.signatures, runtime.lightingMode, runtime.nightLightsOn);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.signatures,
@@ -2889,11 +2952,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           markAuthoredFlatUnlit(runtime.monuments);
           scene.add(runtime.monuments);
-          applyLightingToRoot(runtime.monuments, runtime.lightingMode);
+          applyLightingToRoot(runtime.monuments, runtime.lightingMode, runtime.nightLightsOn);
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
           scene.add(runtime.culturalDetails);
-          applyLightingToRoot(runtime.culturalDetails, runtime.lightingMode);
+          applyLightingToRoot(runtime.culturalDetails, runtime.lightingMode, runtime.nightLightsOn);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               scene,
@@ -2931,7 +2994,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 details.visible = !runtime.underside;
                 setParkDetailsFocus(details, selectedRef.current);
                 scene.add(details);
-                applyLightingToRoot(details, runtime.lightingMode);
+                applyLightingToRoot(details, runtime.lightingMode, runtime.nightLightsOn);
                 if (runtime.lightingMode === "minecraft") {
                   setMinecraftMaterialPresentation(
                     details,
@@ -2961,7 +3024,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnelPortals = createTunnelPortals(manifest.tiergartentunnel);
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
-          applyLightingToRoot(runtime.tunnelPortals, runtime.lightingMode);
+          applyLightingToRoot(runtime.tunnelPortals, runtime.lightingMode, runtime.nightLightsOn);
           runtime.tunnelBounds = new Box3()
             .setFromObject(runtime.tunnel)
             .expandByScalar(5);

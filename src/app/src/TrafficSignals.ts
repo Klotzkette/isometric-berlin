@@ -210,6 +210,7 @@ export function updateTrafficSignals(
   group: Group,
   seconds: number,
   reducedMotion: boolean,
+  lightsOn = true,
 ): void {
   const lamps = group.getObjectByName("traffic signal lamps");
   if (!(lamps instanceof InstancedMesh) || !lamps.instanceColor) {
@@ -220,12 +221,17 @@ export function updateTrafficSignals(
   const color = new Color();
   let dirty = false;
   for (let index = 0; index < phases.length; index += 1) {
+    // "Ampeln gedimmt/aus": moonlight still runs the phase clock (so the
+    // junction resumes exactly where it should the moment lights come back
+    // on) but every lamp renders off regardless of phase, matching every
+    // other artificial light in the scene.
     const bucket = reducedMotion ? 2 : signalPhase(seconds + phases[index]);
-    if (lastBuckets[index] === bucket) {
+    const bucketKey = lightsOn ? bucket : -2;
+    if (lastBuckets[index] === bucketKey) {
       continue;
     }
-    lastBuckets[index] = bucket;
-    const lit = lampsLit(bucket);
+    lastBuckets[index] = bucketKey;
+    const lit = lightsOn ? lampsLit(bucket) : [false, false, false];
     for (let lamp = 0; lamp < 3; lamp += 1) {
       color.setHex(lit[lamp] ? LAMP_ON[lamp] : LAMP_OFF[lamp]);
       lamps.setColorAt(index * 3 + lamp, color);

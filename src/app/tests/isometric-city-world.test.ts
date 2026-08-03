@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   Box3,
+  Color,
   InstancedMesh,
   LineSegments,
   Matrix4,
@@ -36,8 +37,12 @@ import {
   windowGrid,
 } from "../src/IsometricCityWorld";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
+import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+import surfacePolygonPayload from "../public/mesh/regierungsviertel/surface-polygons.json";
+import type { SurfacePayload } from "../src/IsometricCityWorld";
 
 const payload = prismPayload as unknown as PrismPayload;
+const surfacesFixture = surfacePolygonPayload as unknown as SurfacePayload;
 
 describe("drawn isometric city (LoD2 prisms)", () => {
   const city = createIsometricCity(payload, null);
@@ -197,6 +202,175 @@ describe("ligne-claire fenestration", () => {
     expect(backdrop.material).not.toBe(dayMaterial);
     setIsoNightPresentation(city, false);
     expect(backdrop.material).toBe(dayMaterial);
+  });
+
+  describe('"Licht aus" moonlight (v0.52.0)', () => {
+    // Lamp heads and the water surface only get built when ground +
+    // surfaces payloads are supplied, so this block builds its own richer
+    // fixture rather than reusing the lighter `city` above. Every test
+    // restores day mode at the end so nothing here can bleed into other
+    // tests in this file.
+    const litCity = createIsometricCity(
+      payload,
+      voxelGroundPayload as never,
+      null,
+      surfacesFixture,
+    );
+
+    test("turns the facade night strips fully invisible, unlike lights-on night", () => {
+      const strips = litCity.getObjectByName(
+        "LoD2 facade night strips",
+      ) as InstancedMesh;
+      setIsoNightPresentation(litCity, true, true);
+      expect(strips.visible).toBe(true);
+      setIsoNightPresentation(litCity, true, false);
+      expect(strips.visible).toBe(false);
+      setIsoNightPresentation(litCity, false);
+      expect(strips.visible).toBe(false);
+    });
+
+    test("forces every window pane to the cool moonlit-off tone", () => {
+      const panes = litCity.getObjectByName(
+        "LoD2 prism windows",
+      ) as InstancedMesh;
+      const dayColors = (panes.instanceColor!.array as Float32Array).slice();
+      setIsoNightPresentation(litCity, true, true);
+      const litColors = (panes.instanceColor!.array as Float32Array).slice();
+      setIsoNightPresentation(litCity, true, false);
+      const moonlitColors = panes.instanceColor!.array as Float32Array;
+      const expected = new Color(0x1b2636);
+      for (let index = 0; index < moonlitColors.length; index += 3) {
+        expect(moonlitColors[index]).toBeCloseTo(expected.r, 5);
+        expect(moonlitColors[index + 1]).toBeCloseTo(expected.g, 5);
+        expect(moonlitColors[index + 2]).toBeCloseTo(expected.b, 5);
+      }
+      // The lights-on scatter is not uniformly the moonlit-off tone (doors
+      // include some non-trivial variety), so the two states differ.
+      expect(Array.from(litColors)).not.toEqual(Array.from(moonlitColors));
+      // Round-trip: lights back on restores the deterministic night scatter,
+      // and day restores the exact original day palette (lossless).
+      setIsoNightPresentation(litCity, true, true);
+      expect(Array.from(panes.instanceColor!.array as Float32Array)).toEqual(
+        Array.from(litColors),
+      );
+      setIsoNightPresentation(litCity, false);
+      expect(Array.from(panes.instanceColor!.array as Float32Array)).toEqual(
+        Array.from(dayColors),
+      );
+    });
+
+    test("street lamps (ParkDetails night-only cones + emissive heads) are unaffected here — they relight centrally", () => {
+      // The drawn-city group itself has no standalone streetlamp mesh; real
+      // street lighting is "Geoportal Berlin public-lighting lamp heads"
+      // and "… night-only instanced street-light cones" in ParkDetails.ts,
+      // which carry nightEmissive/nightOnly userData and are relit through
+      // applyMaterialLighting/applyLightingToRoot in ThreeViewer.tsx (see
+      // setSceneLighting's lightsOn threading). Nothing to assert on
+      // litCity directly — this is a documentation test so the absence of
+      // a local mesh is not mistaken for a gap.
+      expect(litCity.getObjectByName("extrapolated lamp heads")).toBeUndefined();
+    });
+
+    test("darkens the real (surfaces-backed) water plate further than ordinary lit night, without lighting it", () => {
+      const water = litCity.getObjectByName("smooth water surface") as Mesh;
+      expect(water).toBeInstanceOf(Mesh);
+      setIsoNightPresentation(litCity, true, true);
+      const litMaterial = water.material as MeshBasicMaterial;
+      const litHex = litMaterial.color.getHex();
+      const litOpacity = litMaterial.opacity;
+
+      setIsoNightPresentation(litCity, true, false);
+      const moonlitMaterial = water.material as MeshBasicMaterial;
+      expect(moonlitMaterial.color.getHex()).toBe(0x131f2c);
+      expect(moonlitMaterial.color.getHex()).not.toBe(litHex);
+      expect(moonlitMaterial.opacity).toBeGreaterThan(litOpacity);
+
+      // Round-trip: lights back on restores the exact lit-night material,
+      // day restores the exact original day material (lossless).
+      setIsoNightPresentation(litCity, true, true);
+      expect(water.material).toBe(litMaterial);
+      const dayMaterial = water.userData.dayMaterial;
+      setIsoNightPresentation(litCity, false);
+      expect(water.material).toBe(dayMaterial);
+    });
+
+    test("the drawn-water fallback mesh (no surfaces payload) also darkens under moonlight", () => {
+      // This is the OTHER water path: createIsometricCity falls back to a
+      // rasterised "drawn water surface" InstancedMesh only when no
+      // surfaces payload is supplied at all.
+      const fallbackCity = createIsometricCity(
+        payload,
+        voxelGroundPayload as never,
+        null,
+        null,
+      );
+      const water = fallbackCity.getObjectByName(
+        "drawn water surface",
+      ) as InstancedMesh;
+      expect(water).toBeInstanceOf(InstancedMesh);
+      setIsoNightPresentation(fallbackCity, true, true);
+      const litHex = (water.material as MeshBasicMaterial).color.getHex();
+      const litOpacity = (water.material as MeshBasicMaterial).opacity;
+      setIsoNightPresentation(fallbackCity, true, false);
+      const moonlitHex = (water.material as MeshBasicMaterial).color.getHex();
+      const moonlitOpacity = (water.material as MeshBasicMaterial).opacity;
+      expect(moonlitHex).toBe(0x131f2c);
+      expect(moonlitHex).not.toBe(litHex);
+      expect(moonlitOpacity).toBeGreaterThan(litOpacity);
+      setIsoNightPresentation(fallbackCity, false);
+    });
+
+    test("leaves masonry emissive, ink colour and facade axis opacity untouched by the lights toggle", () => {
+      // These are structural/self-visibility elements, not artificial
+      // lights, so "Licht aus" must not touch them (spec: silhouettes,
+      // outlines and isoFaceShade stay intact).
+      const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;
+      const ink = city.getObjectByName("LoD2 prism ink lines") as LineSegments;
+      const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+
+      setIsoNightPresentation(city, true, true);
+      const litEmissive = (bodies.material as MeshStandardMaterial).emissive.getHex();
+      const litInk = (ink.material as { color: { getHex(): number } }).color.getHex();
+      const litAxisOpacity = (axes.material as { opacity: number }).opacity;
+
+      setIsoNightPresentation(city, true, false);
+      expect((bodies.material as MeshStandardMaterial).emissive.getHex()).toBe(
+        litEmissive,
+      );
+      expect(
+        (ink.material as { color: { getHex(): number } }).color.getHex(),
+      ).toBe(litInk);
+      expect((axes.material as { opacity: number }).opacity).toBe(
+        litAxisOpacity,
+      );
+
+      setIsoNightPresentation(city, false);
+    });
+
+    test("round-trips losslessly through day \u2192 night-on \u2192 night-off \u2192 night-on \u2192 day", () => {
+      const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;
+      const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
+      const dayBodiesMaterial = bodies.material;
+      const dayGlassMaterial = glass.material;
+
+      setIsoNightPresentation(city, true, true);
+      const litBodiesMaterial = bodies.material;
+      const litGlassMaterial = glass.material;
+
+      setIsoNightPresentation(city, true, false);
+      // Material identity is unaffected by the lights toggle — only colour
+      // fields on the same night material change.
+      expect(bodies.material).toBe(litBodiesMaterial);
+      expect(glass.material).toBe(litGlassMaterial);
+
+      setIsoNightPresentation(city, true, true);
+      expect(bodies.material).toBe(litBodiesMaterial);
+      expect(glass.material).toBe(litGlassMaterial);
+
+      setIsoNightPresentation(city, false);
+      expect(bodies.material).toBe(dayBodiesMaterial);
+      expect(glass.material).toBe(dayGlassMaterial);
+    });
   });
 
   test("the station's low slabs are suppressed but stay in the payload", async () => {

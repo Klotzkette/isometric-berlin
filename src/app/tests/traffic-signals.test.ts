@@ -78,4 +78,52 @@ describe("task 07: animated OSM traffic signals", () => {
       expect(redR).toBeLessThan(0.4);
     }
   });
+
+  test("moonlight (lights off) dims every lamp regardless of phase, but keeps the clock running", () => {
+    const group = createTrafficSignals(street, ground)!;
+    const lamps = group.getObjectByName("traffic signal lamps") as InstancedMesh;
+    const colors = lamps.instanceColor!.array as Float32Array;
+
+    // Lights on first, so we know some lamp is genuinely bright beforehand.
+    updateTrafficSignals(group, 12.5, false, true);
+    let brightBefore = 0;
+    for (let index = 0; index < colors.length; index += 1) {
+      if (colors[index] > 0.7) {
+        brightBefore += 1;
+      }
+    }
+    expect(brightBefore).toBeGreaterThan(0);
+
+    // Licht aus: every lamp of every signal must render as off, no matter
+    // which phase its junction happens to be in.
+    updateTrafficSignals(group, 12.5, false, false);
+    for (let index = 0; index < colors.length; index += 1) {
+      expect(colors[index]).toBeLessThan(0.4);
+    }
+  });
+
+  test("turning the lights back on restores the exact phase the clock reached while dark", () => {
+    const group = createTrafficSignals(street, ground)!;
+    const lamps = group.getObjectByName("traffic signal lamps") as InstancedMesh;
+    const colors = lamps.instanceColor!.array as Float32Array;
+
+    // Establish the true phase configuration lights-on would show at t=40.
+    const reference = createTrafficSignals(street, ground)!;
+    const referenceLamps = reference.getObjectByName(
+      "traffic signal lamps",
+    ) as InstancedMesh;
+    updateTrafficSignals(reference, 40, false, true);
+    const referenceColors = referenceLamps.instanceColor!.array as Float32Array;
+
+    // Same group: lights off throughout, then back on at the same timestamp.
+    updateTrafficSignals(group, 12.5, false, false);
+    updateTrafficSignals(group, 40, false, false);
+    for (let index = 0; index < colors.length; index += 1) {
+      expect(colors[index]).toBeLessThan(0.4);
+    }
+    updateTrafficSignals(group, 40, false, true);
+    for (let index = 0; index < colors.length; index += 1) {
+      expect(colors[index]).toBeCloseTo(referenceColors[index], 5);
+    }
+  });
 });

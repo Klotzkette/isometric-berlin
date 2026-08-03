@@ -1,5 +1,48 @@
 # Changelog
 
+## v0.52.0
+
+Night mode gets a second switch. Until now "Nacht" meant one fixed look —
+warm windows, lit streetlamps, glowing signage. The user asked for a way to
+turn all of that off and see "nur noch die Isometrie, so wie wenn der Mond
+scheinen würde": a toggle, next to the night control, that swaps every
+artificial light for a cool moonlit read of the same drawing.
+
+**"Licht an" (default) / "Licht aus" (moonlight).** Only visible/active in
+night mode. "Licht aus" turns off every emissive/light-only element in the
+scene — facade window panes, the night-strip glow, traffic-signal lamps
+(dimmed to dead glass while the phase clock keeps running underneath so
+turning the lights back on restores the exact phase reached in the dark),
+vessel lampions, and every `nightOnly` fixture (ParkDetails' public-lighting
+lamp heads and street-light cones, Reichstag dome glow, cultural-landmark
+night washes). In their place: authored cool/blue-silver flat tones on the
+window panes and both water paths (the real surfaces-backed "smooth water
+surface" plate and the rasterised "drawn water surface" fallback used when
+no OSM surfaces payload is available), leaving silhouettes, ink outlines and
+isoFaceShade untouched so the isometric drawing stays fully legible — masonry
+emissive, ink colour and facade-axis opacity are explicitly not touched by
+the toggle, since those are structural/self-visibility, not artificial
+light.
+
+**Contracts held.** No new tone-mapping curve: moonlight is authored flat
+colour under the same NoToneMapping/exposure-1 rig as ordinary night, not a
+film-curve trick. The mode switch is lossless in every direction — day →
+night-on → night-off → night-on → day round-trips back to the exact original
+material references, verified by an explicit round-trip test alongside the
+new toggle-logic, material-restoration and persistence tests. State persists
+like mute (localStorage), with an aria-label/tooltip and a documented `N`
+keyboard shortcut; the existing "Standardansicht" reset still returns to day.
+
+**A latent bug surfaced and got fixed along the way:** the excursion
+yacht's "vessel lamps" mesh had never actually glowed at night. The drawn
+city's own accessory loop only ever swapped day/night materials by
+reference — it never read or applied a `nightEmissive`/`nightEmissiveIntensity`
+userData pair the way every other landmark file does, so the lampions sat
+dark regardless of mode. Building the moonlight toggle required giving that
+loop its own emissive choke point (isoWorld accessories never pass through
+the shared `applyMaterialLighting`), which fixed the glow for ordinary night
+as well as adding the new moonlit-off state.
+
 ## v0.51.0
 
 The whole movement matrix got measured this round — pan left and right and

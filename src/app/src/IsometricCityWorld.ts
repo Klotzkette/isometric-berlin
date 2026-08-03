@@ -324,13 +324,36 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   return new Color(shades[hash % shades.length]);
 }
 
+// The drawn city's own "lights off" floor: replaces every warm
+// artificial-light emissive/tint with a cool, dim, bluish-silver flat tone
+// so the moonlit look stays authored colour (no film curve) while every
+// window, lamp and lampion visibly goes dark. Kept close to the ink/paper
+// register so the isometric drawing — not a light source — carries the
+// read, per spec ("man sieht nur noch die Isometrie").
+const MOONLIT_WINDOW_OFF = 0x1b2636;
+const MOONLIT_LAMP_OFF = 0x39424f;
+const MOONLIT_WATER = 0x131f2c;
+
 /**
  * Relight the drawn city for night: brighten the ink to a moonlit line
  * (black contours disappear on dark prisms) and give the prism bodies a
  * faint warm emissive floor so windowsill-height masses stay readable
  * under the dim night rig. Day restores pure black ink and no emissive.
+ *
+ * `lightsOn` is only consulted while `night` is true (day and Minecraft
+ * never call this with lightsOn === false); it swaps every warm
+ * artificial-light source — lit window strips, lamp heads, lampions,
+ * vessel lamps — for the cool moonlit-off tones above, and dims the water
+ * further, while leaving ink, facade colour and isoFaceShade untouched so
+ * the mode switch stays lossless in every direction (day ↔
+ * night-lights-on ↔ night-lights-off ↔ minecraft).
  */
-export function setIsoNightPresentation(city: Group, night: boolean): void {
+export function setIsoNightPresentation(
+  city: Group,
+  night: boolean,
+  lightsOn = true,
+): void {
+  const moonlit = night && !lightsOn;
   const backdrop = city.getObjectByName("presentation paper backdrop");
   if (backdrop instanceof Mesh) {
     backdrop.material = night
@@ -353,6 +376,9 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       .nightMaterial as MeshStandardMaterial;
     // A cool moonlight floor keeps pale masonry readable without making
     // the whole building self-luminous or warming it into muddy brown.
+    // Moonlight keeps the same restrained floor — it is the building's own
+    // visibility under the night rig, not an artificial light, so "Licht
+    // aus" does not need to touch it.
     nightMaterial.emissive.setHex(night ? 0x252c39 : 0x000000);
     nightMaterial.emissiveIntensity = night ? 0.68 : 0;
     nightMaterial.needsUpdate = true;
@@ -380,16 +406,37 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   // deterministic scatter of warm-lit rooms after dark.
   const panes = city.getObjectByName("LoD2 prism windows");
   if (panes instanceof InstancedMesh && panes.instanceColor) {
-    const target = night
-      ? (panes.userData.nightColors as Float32Array | undefined)
-      : (panes.userData.dayColors as Float32Array | undefined);
+    // Doors are the only geometry riding this instanced mesh (ordinary
+    // panes are ink + the separately-toggled night strips below). "Licht
+    // aus" keeps the door recess dark rather than lit, same as every
+    // other artificial light.
+    const target = moonlit
+      ? undefined
+      : night
+        ? (panes.userData.nightColors as Float32Array | undefined)
+        : (panes.userData.dayColors as Float32Array | undefined);
     if (target) {
       (panes.instanceColor.array as Float32Array).set(target);
+      panes.instanceColor.needsUpdate = true;
+    } else if (moonlit) {
+      const off = new Color(MOONLIT_WINDOW_OFF);
+      const array = panes.instanceColor.array as Float32Array;
+      for (let index = 0; index < array.length; index += 3) {
+        array[index] = off.r;
+        array[index + 1] = off.g;
+        array[index + 2] = off.b;
+      }
       panes.instanceColor.needsUpdate = true;
     }
   }
   // Accessory meshes share the prism convention: exact flat paint by
-  // day (unlit), the lit material only under the night rig.
+  // day (unlit), the lit material only under the night rig. Any mesh
+  // named "… lamps" (drawnKit.finishDrawnGroup's lamp bucket — currently
+  // only the excursion yacht's lampions) additionally carries its own
+  // authored nightEmissive/nightEmissiveIntensity in userData, which this
+  // loop applies directly: isoWorld accessories never pass through
+  // applyMaterialLighting, so this is their one choke point for both
+  // turning the warm glow on at night and off again under moonlight.
   for (const name of [
     "Drawn ground slabs",
     "drawn quay walls",
@@ -409,6 +456,22 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       accessory.material = night
         ? (accessory.userData.nightMaterial as MeshStandardMaterial)
         : (accessory.userData.dayMaterial as MeshBasicMaterial);
+      const nightMaterial = accessory.userData
+        .nightMaterial as MeshStandardMaterial;
+      const lampEmissive = nightMaterial.userData.nightEmissive as
+        | number
+        | undefined;
+      if (night && typeof lampEmissive === "number") {
+        nightMaterial.emissive.setHex(
+          lightsOn ? lampEmissive : MOONLIT_LAMP_OFF,
+        );
+        nightMaterial.emissiveIntensity = lightsOn
+          ? ((nightMaterial.userData.nightEmissiveIntensity as
+              | number
+              | undefined) ?? 1.1)
+          : 0.12;
+        nightMaterial.needsUpdate = true;
+      }
     }
   }
   // The extrapolated west follows the same ink and lamp conventions.
@@ -430,13 +493,13 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
       night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
     );
   }
-  const lampHeads = city.getObjectByName("extrapolated lamp heads");
-  if (lampHeads instanceof InstancedMesh) {
-    // Neutral fixture by day, warm glow only after dark.
-    (lampHeads.material as MeshBasicMaterial).color.setHex(
-      night ? 0xffd9a0 : 0xb9b3a6,
-    );
-  }
+  // Note: the actual street lamps ("Geoportal Berlin public-lighting lamp
+  // heads" + "… night-only instanced street-light cones" in ParkDetails.ts)
+  // live in the parkDetails group, not here — they carry their own
+  // nightEmissive/nightOnly userData and are relit centrally by
+  // applyMaterialLighting/applyLightingToRoot in ThreeViewer.tsx, which
+  // already takes the lightsOn parameter (see setSceneLighting). There is
+  // no separate "extrapolated lamp heads" mesh in this drawn city group.
   const trace = city.getObjectByName("Tiergartentunnel underground trace");
   if (trace instanceof LineSegments) {
     (trace.material as LineBasicMaterial).color.setHex(
@@ -459,7 +522,9 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   }
   const strips = city.getObjectByName("LoD2 facade night strips");
   if (strips) {
-    strips.visible = night;
+    // Lit window strips only ever show with the lights on — the entire
+    // point of "Licht aus" is that every window goes dark.
+    strips.visible = night && lightsOn;
   }
   for (const name of [
     "smooth water surface",
@@ -476,8 +541,17 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   ]) {
     const smooth = city.getObjectByName(name);
     if (smooth instanceof Mesh && smooth.userData.dayMaterial) {
+      // The real (surfaces-backed) water plate has its own moonlit tone;
+      // every other smooth surface here is structural/ground, not an
+      // artificial light, so "Licht aus" leaves it at its ordinary night
+      // material.
+      const moonlitMaterial = smooth.userData.moonlitMaterial as
+        | MeshBasicMaterial
+        | undefined;
       smooth.material = night
-        ? (smooth.userData.nightMaterial as MeshBasicMaterial)
+        ? moonlit && moonlitMaterial
+          ? moonlitMaterial
+          : (smooth.userData.nightMaterial as MeshBasicMaterial)
         : (smooth.userData.dayMaterial as MeshBasicMaterial);
     }
   }
@@ -499,10 +573,17 @@ export function setIsoNightPresentation(city: Group, night: boolean): void {
   }
   const waterSurface = city.getObjectByName("drawn water surface");
   if (waterSurface instanceof InstancedMesh) {
+    // Moonlight keeps the water dark with a slightly cooler, slightly more
+    // opaque tone — "Wasser dunkel mit dezenter Mondspiegelung erlaubt":
+    // a subtle, authored-colour hint of a moonlit surface, not a light.
     (waterSurface.material as MeshBasicMaterial).color.setHex(
-      night ? 0x27435c : 0x9fc7d8,
+      moonlit ? MOONLIT_WATER : night ? 0x27435c : 0x9fc7d8,
     );
-    (waterSurface.material as MeshBasicMaterial).opacity = night ? 0.6 : 0.45;
+    (waterSurface.material as MeshBasicMaterial).opacity = moonlit
+      ? 0.68
+      : night
+        ? 0.6
+        : 0.45;
   }
   const kerbs = city.getObjectByName("drawn kerb lines");
   if (kerbs instanceof LineSegments) {
@@ -4332,9 +4413,20 @@ export function createSmoothSurfaces(
       opacity: 0.6,
       transparent: true,
     });
+    // "Wasser dunkel mit dezenter Mondspiegelung erlaubt": under "Licht
+    // aus" the real (surfaces-backed) water plate goes cooler and a touch
+    // more opaque than ordinary lit night, mirroring the drawn-water
+    // fallback's MOONLIT_WATER tone below.
+    const moonlitMaterial = new MeshBasicMaterial({
+      color: MOONLIT_WATER,
+      depthWrite: false,
+      opacity: 0.68,
+      transparent: true,
+    });
     const waterMesh = new Mesh(water, dayMaterial);
     waterMesh.userData.dayMaterial = dayMaterial;
     waterMesh.userData.nightMaterial = nightMaterial;
+    waterMesh.userData.moonlitMaterial = moonlitMaterial;
     waterMesh.name = "smooth water surface";
     waterMesh.renderOrder = 1;
     group.add(waterMesh);

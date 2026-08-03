@@ -17,6 +17,8 @@ import {
   Info,
   Keyboard,
   Languages,
+  Lightbulb,
+  LightbulbOff,
   Link2,
   List,
   LocateFixed,
@@ -69,6 +71,12 @@ import {
   initialLanguage,
 } from "./localization";
 import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
+import {
+  isNightLightsOnByUser,
+  rememberNightLightsOn,
+  resolveNightLightsOn,
+  supportsNightLightsToggle,
+} from "./nightLighting";
 import {
   DEFAULT_FOCUS_LANDMARK,
   NORTH_UP_ROTATION,
@@ -533,6 +541,12 @@ export function App() {
   const [viewerMode, setViewerMode] = useState<ViewerMode>(initialViewerMode);
   const [lightingMode, setLightingMode] =
     useState<VisualMode>(initialLightingMode);
+  // "Licht an/aus": persisted like mute (nightLighting.ts), independent of
+  // the visual mode itself. Only night reads it — day/minecraft ignore it
+  // entirely, see resolveNightLightsOn.
+  const [nightLightsOn, setNightLightsOn] = useState<boolean>(
+    isNightLightsOnByUser,
+  );
   const [isMapReady, setIsMapReady] = useState(false);
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
@@ -1178,6 +1192,24 @@ export function App() {
     selectVisualMode(next);
   }, [lightingMode, selectVisualMode]);
 
+  // "Licht an/aus": only meaningful in night mode (supportsNightLightsToggle
+  // guards the UI too), persisted exactly like music mute.
+  const toggleNightLights = useCallback(() => {
+    if (!supportsNightLightsToggle(lightingMode)) {
+      return;
+    }
+    setNightLightsOn((current) => {
+      const next = !current;
+      rememberNightLightsOn(next);
+      setStatus(
+        next
+          ? copy.nightLightsOn
+          : copy.nightLightsOff,
+      );
+      return next;
+    });
+  }, [copy, lightingMode]);
+
   const toggleViewerMode = useCallback(() => {
     const next = viewerMode === "three" ? "map" : "three";
     if (next === "map" && !keepThreeWarm) {
@@ -1461,6 +1493,11 @@ export function App() {
         toggleMinecraftMode();
         return;
       }
+      if (event.key.toLowerCase() === "n") {
+        event.preventDefault();
+        toggleNightLights();
+        return;
+      }
       if (event.key.toLowerCase() === "r") {
         event.preventDefault();
         resetToDefaultView();
@@ -1655,6 +1692,7 @@ export function App() {
     toggleLightingMode,
     toggleMinecraftMode,
     toggleMusic,
+    toggleNightLights,
     toggleSoundtrack,
     viewerMode,
     zoomBy,
@@ -1999,6 +2037,7 @@ export function App() {
             active={viewerMode === "three"}
             canvasAriaLabel={copy.threeD}
             lightingMode={lightingMode}
+            nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
             progressLabel={copy.loadingMesh}
             sceneUrl={sceneUrl}
             selectedLandmark={selected}
@@ -2151,6 +2190,22 @@ export function App() {
             >
               <Moon size={17} aria-hidden="true" />
             </button>
+            {supportsNightLightsToggle(lightingMode) ? (
+              <button
+                type="button"
+                className="night-lights-toggle"
+                aria-label={nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn}
+                aria-pressed={nightLightsOn}
+                title={`${nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn} (N)`}
+                onClick={toggleNightLights}
+              >
+                {nightLightsOn ? (
+                  <Lightbulb size={17} aria-hidden="true" />
+                ) : (
+                  <LightbulbOff size={17} aria-hidden="true" />
+                )}
+              </button>
+            ) : null}
             <button
               type="button"
               aria-label={copy.minecraft}
@@ -2795,6 +2850,21 @@ export function App() {
               <Moon size={20} aria-hidden="true" />
               <span>{copy.night}</span>
             </button>
+            {supportsNightLightsToggle(lightingMode) ? (
+              <button
+                type="button"
+                aria-pressed={nightLightsOn}
+                aria-label={nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn}
+                onClick={toggleNightLights}
+              >
+                {nightLightsOn ? (
+                  <Lightbulb size={20} aria-hidden="true" />
+                ) : (
+                  <LightbulbOff size={20} aria-hidden="true" />
+                )}
+                <span>{nightLightsOn ? copy.nightLightsOn : copy.nightLightsOff}</span>
+              </button>
+            ) : null}
             <button
               type="button"
               aria-pressed={lightingMode === "minecraft"}
@@ -3247,6 +3317,16 @@ export function App() {
                 </dt>
                 <dd>
                   {language === "de" ? "Minecraft-Modus ein- / ausschalten" : "Toggle Minecraft mode"}
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>N</kbd>
+                </dt>
+                <dd>
+                  {language === "de"
+                    ? "Licht an / aus im Nachtmodus (Mondlicht)"
+                    : "Toggle lights on / off in night mode (moonlight)"}
                 </dd>
               </div>
               <div>
