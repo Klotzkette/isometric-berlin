@@ -1,5 +1,57 @@
 # Changelog
 
+## v0.53.0: Interimsbau-Pill + Fern-Ink-Fade mit Hysterese
+
+Two user reports, two fixes.
+
+**Amtssitz am Spreebogen looked like a square block.** Site photographs
+(uploaded IMG_0146-0151) show the interim Bundespräsidialamt is a long bar
+with fully rounded short ends (a pill/capsule in plan, not 45° chamfer
+corners) and a busy multicoloured vertical-fin panel facade (red/blue/
+yellow/grey/brown/oxblood/green-grey) with ribbon windows between the
+fins, still under construction. Rebuilt `SpreebogenOffice.ts` on the same
+documented OSM footprint (`way/1535591727`, 93×74 m) and storey count
+(plinth + 5 + set-back attic), now using a new `addPartialCylinder`
+`drawnKit.ts` helper for the two half-drum end caps instead of chamfer
+blocks. The 7-colour fin set cycles on an irregular stride so no run reads
+as a repeating stripe, and wraps around the caps instead of stopping at
+the tangent. Light construction-site staffage (two tower cranes, a thin
+scaffold hint) lives in its own sub-group so it never perturbs the
+building's own footprint/height bounds. New test coverage in
+`riverside-venues.test.ts` pins the rounded caps, the multicolour facade,
+and the crane/footprint isolation.
+
+**"Flackert immer noch alles bei größerer Entfernung."** Far-zoomed views
+alias: thin ink lines, window-band seams, lane markings and railings cross
+sub-pixel projected size frame to frame, and the rasteriser's rounding of
+a 1px line to whichever pixel row/column it lands on this frame is exactly
+the alternating signal read as flicker. New pure module `fineDetailFade.ts`
+fades every ink-line `LineSegments` material's opacity by its projected
+pixel size (never resizing geometry — mip-safe, and it never touches a
+texture LOD) and hides small accessory layers (lane markings, LoD2 glass
+mullions/window bars, kerb lines, bridge railings) past a 900–1200 m
+hysteresis band, the same shape as `renderQuality.ts`'s existing time-based
+governors so a camera parked at the boundary cannot blink every frame.
+Calibrated against the viewer's own distance regime: ink stays fully
+opaque through the app's default 948 m framing and finishes fading out by
+`CRISP_NONE_DISTANCE_M` (2100 m), the point `crispnessProfile.ts`'s sharpen
+pass has already fully relaxed by. `ThreeViewer.tsx` applies both purely as
+a function of camera-to-target distance every frame, matching the existing
+`crispTargetScale` reasoning: the picture is identical for a given standoff
+no matter how the camera got there, and never pops when motion stops.
+
+*Verification note:* 14 new unit tests in `fine-detail-fade.test.ts` pin
+the thresholds, hysteresis band and distance calibration without needing a
+WebGL context; the full suite (368 tests, 48 files) passes. The local
+headless-Chromium/SwiftShader screenshot setup was repaired enough this
+round to capture real far-zoom frames (two consecutive frames at a
+zoomed-out view differed in only 12 of 120,000 sampled pixels), but a true
+pre-fix/post-fix side-by-side could not be completed in-session (disk
+space and per-shot render time made a second full build too costly). The
+before/after comparison is therefore verified live externally, not
+included as a shipped artifact — see `v53-report.md` for the full
+accounting and the frames that were captured.
+
 ## v0.52.1
 
 Mini-patch: fix a keyboard-shortcut collision reported straight after
