@@ -1,0 +1,157 @@
+/**
+ * Distance-driven anti-aliasing for the far-zoomed view.
+ *
+ * "Flackert immer noch alles bei größerer Entfernung": once the camera
+ * pulls back, three separate things alias at once —
+ *
+ *  1. Ink lines (EdgesGeometry `LineSegments`, 1 device pixel wide by
+ *     definition) end up sub-pixel in world terms, so they flicker on and
+ *     off between frames as the rasteriser rounds each segment to whichever
+ *     pixel row/column it happens to land on this frame.
+ *  2. Fine detail layers — lane markings, window-band seams, railings,
+ *     small accessories — are geometry that is only legible up close; far
+ *     out they contribute more aliasing than information.
+ *  3. Baked textures need real mips/anisotropy so a minified sample blends
+ *     instead of picking one texel per frame (already handled for the
+ *     lettering canvas textures in `drawnLettering.ts`; nothing else in the
+ *     viewer currently samples a `map` far enough out to matter).
+ *
+ * This module owns (1) and (2) as pure, unit-testable functions so the
+ * thresholds and hysteresis bands can be pinned in tests without a WebGL
+ * context. `ThreeViewer.tsx` wires them to the actual camera/viewport.
+ *
+ * Why fade opacity instead of resizing geometry: `LineBasicMaterial` line
+ * width is clamped to 1px on most GPUs anyway, so there is no "shrink the
+ * line" lever to pull. Once the *feature* an ink line traces projects to
+ * well under a device pixel, the rasteriser's per-frame rounding of which
+ * pixel row/column the 1px-wide line lands on is exactly the aliasing case
+ * users see as flicker; fading it to fully transparent before that happens
+ * removes the alternating signal instead of thinning it. This is mip-safe
+ * by construction: it never touches a texture LOD or geometry resolution,
+ * only a material's opacity uniform.
+ */
+
+/**
+ * The world-space feature size an ink line's fade is keyed to: not the
+ * line's own (undefined) physical thickness, but the closest spacing
+ * between adjacent authored ink strokes this drawing style commonly
+ * relies on to read as separate lines -- window-band seams, kerb
+ * segments, railing bars. Below this, adjacent strokes already visually
+ * merge before any single stroke goes sub-pixel, so it is the right unit
+ * to fade on.
+ *
+ * Calibrated against the viewer's own distance regime, not a literal
+ * building measurement: at the standard 948 m default framing (App.tsx)
+ * this keeps ink fully opaque (~0.74 px at a 1000 px-tall viewport, above
+ * INK_LINE_FULL_PX), and it reaches the fully-hidden threshold by
+ * CRISP_NONE_DISTANCE_M (crispnessProfile.ts, 2100 m) -- fine ink detail
+ * finishes fading out right as the overall sharpen pass has already fully
+ * relaxed, so a far view never shows a suddenly-soft picture full of
+ * still-crisp aliasing lines.
+ */
+export const INK_LINE_REFERENCE_FEATURE_M = 0.5;
+
+/** Projected pixel size of a world-space length at the given standoff. */
+export function projectedPixelSize(
+  worldSizeM: number,
+  distanceM: number,
+  viewportHeightPx: number,
+  verticalFovDegrees: number,
+): number {
+  if (
+    !Number.isFinite(distanceM) ||
+    distanceM <= 0 ||
+    !Number.isFinite(worldSizeM) ||
+    worldSizeM <= 0
+  ) {
+    return 0;
+  }
+  const fovRad = (verticalFovDegrees * Math.PI) / 180;
+  const pixelsPerMetreAtDistance =
+    viewportHeightPx / (2 * distanceM * Math.tan(fovRad / 2));
+  return worldSizeM * pixelsPerMetreAtDistance;
+}
+
+/**
+ * Ink-line opacity for a given projected size (in device pixels) of the
+ * reference feature above. Above `FULL_PX` the line is exactly as
+ * authored (opacity 1) — it does not need to reach a full device pixel
+ * first, only clear the point where sub-pixel rounding starts to matter.
+ * Below `HIDE_PX` it is fully transparent. Between the two, opacity ramps
+ * down with a smoothstep so the fade itself is not a second source of
+ * popping.
+ */
+export const INK_LINE_FULL_PX = 0.7;
+export const INK_LINE_HIDE_PX = 0.3;
+
+export function inkLineFadeOpacity(projectedWidthPx: number): number {
+  if (!Number.isFinite(projectedWidthPx) || projectedWidthPx <= INK_LINE_HIDE_PX) {
+    return 0;
+  }
+  if (projectedWidthPx >= INK_LINE_FULL_PX) {
+    return 1;
+  }
+  const t =
+    (projectedWidthPx - INK_LINE_HIDE_PX) / (INK_LINE_FULL_PX - INK_LINE_HIDE_PX);
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * Distance thresholds (world metres) for the fine-detail layers: lane
+ * markings, window-band seams, railings, and other small accessories that
+ * only read as detail up close and as aliasing noise far out.
+ *
+ * The gap between SHOW and HIDE is deliberate hysteresis, same shape as
+ * `renderQuality.ts`'s pixel-ratio/settled-detail governors: a camera
+ * sitting exactly on the boundary (e.g. gently orbiting at a fixed radius)
+ * must not have the layer blink on and off every frame. Entering the band
+ * from close in only hides past HIDE_DISTANCE_M; returning from far out
+ * only shows again once inside SHOW_DISTANCE_M, comfortably nearer.
+ */
+export const FINE_DETAIL_SHOW_DISTANCE_M = 900;
+export const FINE_DETAIL_HIDE_DISTANCE_M = 1200;
+
+export type FineDetailVisibilityInput = {
+  distanceM: number;
+  visible: boolean;
+};
+
+/**
+ * Hysteretic visibility decision for a fine-detail layer, given only the
+ * current camera standoff and the layer's own last-applied state. Unlike
+ * `renderQuality.ts`'s time-based hysteresis (which debounces *bursts of
+ * input*), this debounces *distance*: the camera can sit anywhere without
+ * a clock, so the band is defined in metres, not milliseconds, and the
+ * function is a pure step of distance and previous state rather than of
+ * elapsed time.
+ */
+export function nextFineDetailVisible({
+  distanceM,
+  visible,
+}: FineDetailVisibilityInput): boolean {
+  if (!Number.isFinite(distanceM)) {
+    return visible;
+  }
+  if (visible) {
+    return distanceM < FINE_DETAIL_HIDE_DISTANCE_M;
+  }
+  return distanceM <= FINE_DETAIL_SHOW_DISTANCE_M;
+}
+
+/**
+ * Object names (drawnKit's `finishDrawnGroup` / hand-built mesh names) that
+ * only read as fine detail up close: lane markings and window-band mullions
+ * are already `LineSegments` and get the ink-line fade above too, but this
+ * list also reaches the solid accessory *bodies* (e.g. bridge railings)
+ * that ink-line fading alone would leave as a flat silhouette once their
+ * outline vanished. Kept as plain data (no `three` import) so it stays
+ * testable without a scene graph.
+ */
+export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
+  "carriageway lane markings",
+  "LoD2 glass mullions",
+  "LoD2 prism window bars",
+  "drawn kerb lines",
+  "bridge railing bodies",
+  "bridge railing ink lines",
+];

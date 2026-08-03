@@ -82,6 +82,13 @@ import {
 } from "./cameraNavigation";
 import { CRISPNESS_PROFILES, crispZoomScale } from "./crispnessProfile";
 import {
+  FINE_DETAIL_LAYER_NAMES,
+  INK_LINE_REFERENCE_FEATURE_M,
+  inkLineFadeOpacity,
+  nextFineDetailVisible,
+  projectedPixelSize,
+} from "./fineDetailFade";
+import {
   applyDrawnFacade,
   flattenBuildingVertexColors,
   HERO_FACADE_ANCHORS,
@@ -279,6 +286,16 @@ type Runtime = {
   cancelPanGlide?: () => void;
   isoWorld: Group | null;
   isoWorldState: "failed" | "idle" | "loading";
+  // Far-zoom anti-flicker (v0.53.0): every ink-line LineSegments material
+  // drawn by drawnKit's finishDrawnGroup ("<name> ink lines") collected
+  // once per isoWorld (re)build, so its opacity can be dampened by
+  // projected pixel width every frame without re-walking the scene graph.
+  inkLineMaterials: Set<LineBasicMaterial>;
+  // Small accessory layers (lane markings, railings, window-band mullions)
+  // that only read as detail up close; hidden past FINE_DETAIL_HIDE_DISTANCE_M
+  // with hysteresis so they do not blink at the boundary.
+  fineDetailObjects: Object3D[];
+  fineDetailVisible: boolean;
   voxelWorld: Group | null;
   voxelWorldState: "failed" | "idle" | "loading";
   lightingMode: LightingMode;
@@ -510,6 +527,67 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
       }
     }
   });
+}
+
+/**
+ * Walk a freshly (re)built isoWorld once and collect the two ingredient
+ * lists the far-zoom anti-flicker pass needs every frame: every ink-line
+ * LineSegments material (so its opacity can be dampened by projected
+ * pixel width without a second scene walk) and every named fine-detail
+ * object (so its visibility can follow distance with hysteresis). See
+ * fineDetailFade.ts for why this is opacity/visibility, not geometry
+ * resizing or LOD swapping.
+ */
+function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
+  runtime.inkLineMaterials.clear();
+  runtime.fineDetailObjects = [];
+  if (!runtime.isoWorld) {
+    return;
+  }
+  const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
+  runtime.isoWorld.traverse((object) => {
+    if (
+      object instanceof LineSegments &&
+      object.material instanceof LineBasicMaterial
+    ) {
+      object.material.transparent = true;
+      runtime.inkLineMaterials.add(object.material);
+    }
+    if (fineDetailNames.has(object.name)) {
+      runtime.fineDetailObjects.push(object);
+    }
+  });
+}
+
+/**
+ * Per-frame far-zoom anti-flicker update: dampens every collected ink line
+ * by its own projected pixel width (mip-safe opacity fade, never a
+ * geometry change) and toggles the fine-detail layers with hysteresis so
+ * a camera parked at the boundary distance does not blink.
+ */
+function updateFarZoomAntiFlicker(
+  runtime: Runtime,
+  distanceM: number,
+  viewportHeightPx: number,
+): void {
+  const fovDegrees = runtime.camera.fov;
+  const px = projectedPixelSize(
+    INK_LINE_REFERENCE_FEATURE_M,
+    distanceM,
+    viewportHeightPx,
+    fovDegrees,
+  );
+  const opacity = inkLineFadeOpacity(px);
+  for (const material of runtime.inkLineMaterials) {
+    material.opacity = opacity;
+  }
+  runtime.fineDetailVisible = nextFineDetailVisible({
+    distanceM,
+    visible: runtime.fineDetailVisible,
+  });
+  for (const object of runtime.fineDetailObjects) {
+    object.visible = runtime.fineDetailVisible;
+  }
 }
 
 function applyLightingToRoot(
@@ -850,6 +928,7 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
           runtime.isoWorld.add(railway);
         }
       }
+      collectFarZoomAntiFlickerTargets(runtime);
       runtime.scene.add(runtime.isoWorld);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400);
@@ -2066,6 +2145,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         tunnelPoints: null,
         isoWorld: null,
         isoWorldState: "idle",
+        inkLineMaterials: new Set(),
+        fineDetailObjects: [],
+        fineDetailVisible: true,
         voxelWorld: null,
         voxelWorldState: "idle",
         lightingMode: lightingModeRef.current,
@@ -2750,6 +2832,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.lightingMode === "minecraft"
             ? 0
             : crispZoomScale(camera.position.distanceTo(controls.target));
+        // Far-zoom anti-flicker (v0.53.0): ink lines and small accessory
+        // layers are dampened by the same standoff-only reasoning as
+        // crispTargetScale above -- a pure function of distance, so the
+        // picture is identical for a given standoff no matter how the
+        // camera got there, and never re-pops when motion stops.
+        updateFarZoomAntiFlicker(
+          runtime,
+          camera.position.distanceTo(controls.target),
+          renderer.domElement.clientHeight || window.innerHeight,
+        );
         const frameIntervalMs = isMoving
           ? activeFrameIntervalMs
           : idleFrameIntervalMs;
