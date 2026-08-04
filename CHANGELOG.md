@@ -1,5 +1,49 @@
 # Changelog
 
+## v0.56.0: gebogener Glasschlauch entlang der Gleiskurve, komplette Glas-Hülle, Glas- und Krümmungs-Kontrakttests
+
+**Radikale Korrektur Hauptbahnhof.** Der Nutzer war zu Recht unzufrieden mit
+v0.55.0: der Ost-West-Glasschlauch lief gerade statt entlang der echten
+Gleiskurve zu biegen, und über dem Glasdach saß ein opaker grauer Kasten
+(die alte `spandrel`-Dachkappe der Bügelbauten). **Fix, in
+`ArchitecturalLandmarks.ts`:**
+
+1. **Echte Gleiskrümmung statt synthetischem Bogen.** `roofBowOffset`/
+   `barrelRoofGeometry`/`addBarrelRoof` wurden von einem symmetrischen
+   Sinus-Bogen (`bowM: number`) auf ein `curve: "none" | "rail"`-System
+   umgestellt. Für `"rail"` folgt das Ost-West-Dach der echten
+   Stadtbahn-Kurve: eine an `rail-lines.json` (Gleis 0, Stationslokal-
+   koordinaten) angepasste Quadratik (`HAUPTBAHNHOF_RAIL_CURVE_A = 0.000787`,
+   `HAUPTBAHNHOF_RAIL_CURVE_B = 0.2233`, Radius ≈ 635 m, Residuum < 2 m über
+   die volle Länge), neu zentriert auf die Kreuzung mit der Nord-Süd-Halle
+   (lokal x = 0). Das Dach, seine Rippen, Pfetten und Feldnähte sowie das
+   gesamte Gleisdeck (Schienen, Schotterbett, Schwellen, Bahnsteige,
+   Zufahrtsstützen) biegen sich jetzt gemeinsam entlang derselben Kurve
+   (Deck wurde in kurze gerade Segmente mit Gier-Rotation zerlegt statt
+   als ein einziger langer gerader Balken gebaut). Die Nord-Süd-Halle
+   bleibt bewusst gerade, quer zur gebogenen Ost-West-Halle, wie im echten
+   Bahnhof.
+2. **Komplett gläserne Hülle, keine grauen Kästen.** Die opake
+   `spandrel`-Dachkappe von `addStationOfficeBridge` (der genaue vom
+   Nutzer benannte Fehler) wurde durch dieselbe transparente hellblaue
+   Glasfamilie wie die Tonnendächer ersetzt. Zwei neue
+   `addStationHallEntranceFacade`-Aufrufe zeichnen die verglasten
+   Eingangsfronten Europaplatz (Nord) und Washingtonplatz (Süd) an den
+   Giebeln der Nord-Süd-Halle. Die beiden Bügelbauten (46 m, je
+   19 × 46 × 180 m, an der Kreuzung positioniert) bestehen jetzt komplett
+   aus transparentem Glas inklusive Dachabschluss; nur die Mullions/das
+   Stahltragwerk bleiben opak.
+3. **Neue Kontrakttests.** `tests/hauptbahnhof-curve.test.ts` leitet die
+   quadratische Kurvenanpassung unabhängig aus `rail-lines.json` ab und
+   prüft sie gegen die eingefrorenen `HAUPTBAHNHOF_RAIL_CURVE_A/B`-
+   Konstanten, prüft die tatsächlichen Vertex-Positionen des gebauten
+   Dachnetzes gegen die erwartete Kurve, und stellt sicher, dass das Dach
+   wirklich gekrümmt ist (kein gerader Schlauch) und die Nord-Süd-Halle
+   gerade bleibt. `tests/hauptbahnhof-glass.test.ts` stellt sicher, dass
+   über dem Bahnhofs-Footprint oberhalb der Dachbasis keine große opake
+   Masse existiert, dass Dach, Halle, Eingangsfronten und Dachkappen alle
+   transparentes Glas sind, und dass kein `spandrel`-Objekt mehr existiert.
+
 ## v0.55.0 — Hauptbahnhof-Neubau nach Referenzfotos, Mobile-Moiré-Milderung
 
 **1. Hauptbahnhof-Neubau.** Die bisherige Drei-Segment-Dachkonstruktion

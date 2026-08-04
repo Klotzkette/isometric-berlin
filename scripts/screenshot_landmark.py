@@ -6,6 +6,7 @@ Example: uv run python scripts/screenshot_landmark.py landmark=berlin-hauptbahnh
 
 from __future__ import annotations
 
+import base64
 import sys
 import time
 
@@ -17,22 +18,21 @@ def main() -> None:
     out_path = sys.argv[2]
     url = f"http://localhost:8821/#{hash_fragment}"
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = p.chromium.launch(
+            args=["--no-sandbox", "--disable-gpu", "--use-gl=swiftshader"]
+        )
         page = browser.new_page(
             viewport={"width": 1600, "height": 1000}, device_scale_factor=1
         )
-        page.goto(url, wait_until="networkidle")
-        time.sleep(4)
-        try:
-            page.evaluate(
-                "document.querySelectorAll('*').forEach(e => "
-                "e.style && (e.style.animationDuration = '0s', "
-                "e.style.transitionDuration = '0s'))"
-            )
-        except Exception:
-            pass
-        time.sleep(2)
-        page.screenshot(path=out_path, timeout=150000)
+        page.goto(url, wait_until="load", timeout=60000)
+        time.sleep(8)
+        client = page.context.new_cdp_session(page)
+        result = client.send(
+            "Page.captureScreenshot",
+            {"format": "png", "captureBeyondViewport": False},
+        )
+        with open(out_path, "wb") as fh:
+            fh.write(base64.b64decode(result["data"]))
         browser.close()
     print(f"Saved {out_path}")
 
