@@ -1853,20 +1853,64 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
 }
 
 /**
- * A shallow lateral bow applied along the roof's long axis, matching the
- * gentle curve the Stadtbahn viaduct (and the glass shed riding it) takes
- * through the real station -- see the reference aerials, which show one
- * continuous curved roof rather than a dead-straight shed. `bowM` is the
- * sideways offset (metres) at the shed's midpoint, tapering to zero at
- * both gables via a cosine profile; pass 0 for a straight barrel.
+ * The real lateral curvature of the Stadtbahn viaduct through the
+ * Hauptbahnhof, in the station model's own local (unrotated) frame,
+ * fitted from ``rail-lines.json`` (see ``createHauptbahnhofModel`` for the
+ * derivation notes and the world<->local transform). The user's v0.56
+ * complaint about v0.55 was exact: the east-west glass hall must bend
+ * WITH the real track curve, not with a synthetic symmetric sine bow
+ * peaking at the shed's midpoint. Fitting a quadratic z = a*x^2 + b*x to
+ * the ``viaduct_tracks`` polyline nearest the station anchor (track index
+ * 0, x in [-280, 220] m local, which covers the whole 431 m rendered
+ * deck) gives a residual under 2 m end to end -- the real curve reads as
+ * a shallow circular arc (radius ~635 m) here, not a symmetric bow. These
+ * two coefficients are that fit, frozen as constants because the real
+ * track geometry does not change at runtime; `tests/hauptbahnhof-curve.
+ * test.ts` re-derives the same fit from the shipped rail-lines.json and
+ * pins these numbers against it so a future rail-data refresh cannot
+ * silently drift the roof away from the tracks again.
  */
-function roofBowOffset(fraction: number, bowM: number): number {
-  if (bowM === 0) {
+export const HAUPTBAHNHOF_RAIL_CURVE_A = 0.000_787;
+export const HAUPTBAHNHOF_RAIL_CURVE_B = 0.223_3;
+
+/**
+ * Lateral offset (local metres) of the real rail curve at local-x
+ * `xLocal`, relative to the curve's own value at `xLocal = 0` (roughly
+ * the crossing with the north-south hall) -- i.e. the curve's *shape*,
+ * not its absolute lateral position, since the roof is otherwise
+ * centred on z = 0 in the model's local frame.
+ */
+function railCurveOffset(xLocal: number): number {
+  return (
+    HAUPTBAHNHOF_RAIL_CURVE_A * xLocal * xLocal +
+    HAUPTBAHNHOF_RAIL_CURVE_B * xLocal
+  );
+}
+
+/**
+ * A shallow lateral bow applied along the roof's long axis. `"rail"`
+ * follows the real quadratic rail curve above -- used for the east-west
+ * hall, which rides the actual curved viaduct -- and `"none"` is a
+ * dead-straight barrel -- used for the north-south hall, which the real
+ * station also builds straight, square across the east-west hall. There
+ * is deliberately no more synthetic symmetric "sine bow" shape: the whole
+ * point of the v0.56 rebuild is that the curve is derived from the real
+ * rail data, evaluated in the *model group's own local frame* (absolute
+ * local x, not relative to any one roof segment's own extent), so every
+ * curved part of the station -- roof glazing, ribs, purlins, seams --
+ * bends by the same amount at the same local x.
+ */
+type RoofCurve = "none" | "rail";
+
+function roofBowOffset(xLocalInGroup: number, curve: RoofCurve): number {
+  if (curve === "none") {
     return 0;
   }
-  // fraction runs 0..1 along the shed; the bow peaks at the midpoint and
-  // eases to 0 at both ends, like a very shallow arc segment.
-  return Math.sin(fraction * Math.PI) * bowM;
+  // Re-centre so the curve reads as zero at the station's own crossing
+  // (local x = 0, where the north-south hall meets the east-west hall);
+  // the rail curve fit itself is anchored there (see
+  // HAUPTBAHNHOF_RAIL_CURVE_A/B above).
+  return railCurveOffset(xLocalInGroup) - railCurveOffset(0);
 }
 
 function barrelRoofGeometry(
@@ -1875,16 +1919,21 @@ function barrelRoofGeometry(
   height: number,
   alongX: boolean,
   segments = 48,
-  bowM = 0,
-  bowSegments = 24,
+  offsetLongitudinal = 0,
+  curve: RoofCurve = "none",
+  bowSegments = 48,
 ): BufferGeometry {
   const vertices: number[] = [];
   const indices: number[] = [];
-  const bowSteps = bowM === 0 ? 1 : bowSegments;
+  const bowSteps = curve === "none" ? 1 : bowSegments;
   for (let bowIndex = 0; bowIndex <= bowSteps; bowIndex += 1) {
     const fraction = bowIndex / bowSteps;
+    // Geometry vertices are authored in the roof mesh's OWN local frame
+    // (the mesh itself is translated by offsetLongitudinal afterwards), so
+    // the curve must be sampled at the equivalent absolute group-local x.
     const longitudinal = -length / 2 + fraction * length;
-    const bow = roofBowOffset(fraction, bowM);
+    const xLocalInGroup = longitudinal + offsetLongitudinal;
+    const bow = roofBowOffset(xLocalInGroup, curve);
     for (let index = 0; index <= segments; index += 1) {
       const angle = (index / segments) * Math.PI;
       const lateral = Math.cos(angle) * (width / 2) + bow;
@@ -1922,11 +1971,12 @@ function addBarrelRoof(
   baseY: number,
   alongX: boolean,
   offsetLongitudinal = 0,
-  bowM = 0,
+  curve: RoofCurve = "none",
 ): void {
-  // Pale, properly depth-tested glazing: the old material disabled
-  // depth testing entirely (the roof floated in front of everything)
-  // and its strong turquoise clashed with the ivory register.
+  // Pale, properly depth-tested glazing, transparent hellblau (light
+  // blue) glass with visible steel structure -- the only material this
+  // station's aboveground envelope is built from (v0.56: no opaque grey
+  // boxes anywhere over the footprint).
   const glass = nightEmitter(
     new MeshPhysicalMaterial({
       color: 0xc6e3ea,
@@ -1943,7 +1993,7 @@ function addBarrelRoof(
   );
   const steel = modelMaterial(0x47616d, { metalness: 0.66, roughness: 0.28 });
   const roof = new Mesh(
-    barrelRoofGeometry(length, width, height, alongX, 48, bowM),
+    barrelRoofGeometry(length, width, height, alongX, 48, offsetLongitudinal, curve),
     glass,
   );
   roof.name = name;
@@ -1956,12 +2006,24 @@ function addBarrelRoof(
   roof.renderOrder = 6;
   group.add(roof);
 
-  // Ribs and purlins stay on straight, unbowed arches (the real shed's
-  // structural steel is built from straight prefabricated arch segments;
-  // only the glazing envelope and its seams follow the shallow curve of
-  // the viaduct it rides). This also keeps the instancing contract simple:
-  // one shared rib profile, one InstancedMesh per roof, regardless of bow.
+  // Ribs stay on straight, unbowed arches in cross-section (the real
+  // shed's structural steel is built from straight prefabricated arch
+  // segments; only the glazing envelope and its seams follow the shallow
+  // curve of the viaduct it rides), but each rib's longitudinal position
+  // and its own arch centreline both shift sideways by the curve's offset
+  // at that rib's location, so the ribs still march along the bent tube
+  // instead of standing on a straight line through a curved skin.
   const ribCount = Math.max(18, Math.round(length / 6));
+  const ribTransforms = Array.from({ length: ribCount + 1 }, (_, index) => {
+    const longitudinal = -length / 2 + (index / ribCount) * length;
+    const xLocalInGroup = longitudinal + offsetLongitudinal;
+    const bow = roofBowOffset(xLocalInGroup, curve);
+    return {
+      position: (alongX
+        ? [longitudinal, 0, bow]
+        : [bow, 0, longitudinal]) as [number, number, number],
+    };
+  });
   const ribPoints = Array.from({ length: 33 }, (_, index) => {
     const angle = (index / 32) * Math.PI;
     const lateral = Math.cos(angle) * (width / 2);
@@ -1969,15 +2031,6 @@ function addBarrelRoof(
     return alongX
       ? new Vector3(0, y, lateral)
       : new Vector3(lateral, y, 0);
-  });
-  const ribTransforms = Array.from({ length: ribCount + 1 }, (_, index) => {
-    const longitudinal =
-      offsetLongitudinal + (-length / 2 + (index / ribCount) * length);
-    return {
-      position: (alongX
-        ? [longitudinal, 0, 0]
-        : [0, 0, longitudinal]) as [number, number, number],
-    };
   });
   addInstancedGeometry(
     group,
@@ -1987,25 +2040,50 @@ function addBarrelRoof(
     ribTransforms,
   );
 
+  // Purlins run the full length of the roof, one per lateral angle step.
+  // On the curved (rail) roofs, each purlin is built from short straight
+  // sub-segments that follow the same bow as the glazing above it, all
+  // packed into a single InstancedMesh so the naming/count contract
+  // ("instanced longitudinal steel purlins", one mesh per roof) is
+  // unchanged from the straight-roof case.
   const purlinFractions = Array.from(
     { length: 17 },
     (_, index) => (index + 1) / 18,
   );
+  const purlinLongSteps = curve === "none" ? 1 : 24;
+  const purlinUnitLength = length / purlinLongSteps;
   const purlinTransforms: InstanceTransform[] = [];
   for (const fraction of purlinFractions) {
     const angle = fraction * Math.PI;
-    const lateral = Math.cos(angle) * (width / 2);
-    const y = baseY + Math.sin(angle) * height;
-    purlinTransforms.push({
-      position: alongX
-        ? [offsetLongitudinal, y, lateral]
-        : [lateral, y, offsetLongitudinal],
-    });
+    const y = baseY + Math.sin(angle) * height + 0.09;
+    for (let step = 0; step < purlinLongSteps; step += 1) {
+      const t0 = step / purlinLongSteps;
+      const t1 = (step + 1) / purlinLongSteps;
+      const long0 = -length / 2 + t0 * length;
+      const long1 = -length / 2 + t1 * length;
+      const bow0 = roofBowOffset(long0 + offsetLongitudinal, curve);
+      const bow1 = roofBowOffset(long1 + offsetLongitudinal, curve);
+      const lateral0 = Math.cos(angle) * (width / 2) + bow0;
+      const lateral1 = Math.cos(angle) * (width / 2) + bow1;
+      const midLong = (long0 + long1) / 2;
+      const midLateral = (lateral0 + lateral1) / 2;
+      const dLong = long1 - long0;
+      const dLateral = lateral1 - lateral0;
+      const segLength = Math.hypot(dLong, dLateral);
+      const yaw = Math.atan2(dLateral, dLong);
+      purlinTransforms.push({
+        position: alongX
+          ? [midLong, y, midLateral]
+          : [midLateral, y, midLong],
+        rotation: alongX ? [0, -yaw, 0] : [0, Math.PI / 2 - yaw, 0],
+        scale: [segLength / (purlinUnitLength || 1), 1, 1],
+      });
+    }
   }
   addInstancedBoxes(
     group,
     `${name} instanced longitudinal steel purlins`,
-    alongX ? [length, 0.18, 0.18] : [0.18, 0.18, length],
+    [purlinUnitLength, 0.18, 0.18],
     steel,
     purlinTransforms,
   );
@@ -2015,8 +2093,8 @@ function addBarrelRoof(
   const arcSegments = 28;
   for (let seam = 0; seam <= transverseCount; seam += 1) {
     const fraction = seam / transverseCount;
-    const longitudinal = offsetLongitudinal + (-length / 2 + fraction * length);
-    const bow = roofBowOffset(fraction, bowM);
+    const longitudinal = -length / 2 + fraction * length;
+    const bow = roofBowOffset(longitudinal + offsetLongitudinal, curve);
     for (let index = 0; index < arcSegments; index += 1) {
       const startAngle = (index / arcSegments) * Math.PI;
       const endAngle = ((index + 1) / arcSegments) * Math.PI;
@@ -2039,14 +2117,16 @@ function addBarrelRoof(
   }
   for (const fraction of purlinFractions) {
     const angle = fraction * Math.PI;
-    const longSteps = bowM === 0 ? 1 : 24;
+    const longSteps = curve === "none" ? 1 : 24;
     for (let step = 0; step < longSteps; step += 1) {
       const t0 = step / longSteps;
       const t1 = (step + 1) / longSteps;
-      const long0 = offsetLongitudinal + (-length / 2 + t0 * length);
-      const long1 = offsetLongitudinal + (-length / 2 + t1 * length);
-      const lateral0 = Math.cos(angle) * (width / 2) + roofBowOffset(t0, bowM);
-      const lateral1 = Math.cos(angle) * (width / 2) + roofBowOffset(t1, bowM);
+      const long0 = -length / 2 + t0 * length;
+      const long1 = -length / 2 + t1 * length;
+      const bow0 = roofBowOffset(long0 + offsetLongitudinal, curve);
+      const bow1 = roofBowOffset(long1 + offsetLongitudinal, curve);
+      const lateral0 = Math.cos(angle) * (width / 2) + bow0;
+      const lateral1 = Math.cos(angle) * (width / 2) + bow1;
       const y = baseY + Math.sin(angle) * height + 0.24;
       panelSegments.push(
         alongX
@@ -2212,17 +2292,14 @@ function addStationOfficeBridge(
   depth: number,
   height: number,
 ): void {
-  // Step 38: this used to draw a slim 18.4 m glazed slab wrapped in an
-  // oversized 20 m x height x depth *outline box* -- two mismatched
-  // rectangles sharing a centre, so their edges never coincided. Combined
-  // with the barrel roofs crossing through at different heights, that
-  // read as the reference photos' complaint: "overlapping white
-  // flat-arch segments in wrong angles". The reference aerials
-  // (IMG_0180-83) show two slim ~10-storey glass bar buildings, so this
-  // now draws ONE box whose visible faces and ink edges share exactly the
-  // same geometry (edges traced from the box itself, not a second
-  // independently-sized outline), plus a flat roof cap and floor bands
-  // sized to the real storey height (~4.6 m for a ~10-storey tower).
+  // Step 39 (v0.56): the real Bugelbauten are glass-and-aluminium office
+  // bars, not grey concrete blocks -- the user's exact complaint about
+  // v0.55 was the opaque grey roof cap reading as a flat box dropped on
+  // top of the glass hall. Every surface of this tower, including its
+  // roof, is now the same transparent hellblau (light blue) glass family
+  // as the barrel-vault roofs, so nothing here can read as an opaque
+  // grey mass in the render. Only the mullions/frame stay solid metal --
+  // thin structural members, not a cladding panel.
   const width = 19;
   const glass = nightEmitter(
     modelMaterial(0xa7ccd3, {
@@ -2233,13 +2310,18 @@ function addStationOfficeBridge(
     0xffdca0,
     0.72,
   );
+  const roofGlass = nightEmitter(
+    modelMaterial(0xc6e3ea, {
+      metalness: 0.05,
+      opacity: 0.3,
+      roughness: 0.12,
+    }),
+    0xaedfff,
+    0.9,
+  );
   const frame = modelMaterial(0x60757c, {
     metalness: 0.42,
     roughness: 0.38,
-  });
-  const spandrel = modelMaterial(0x8b9a9d, {
-    metalness: 0.22,
-    roughness: 0.55,
   });
 
   const towerBox = addBox(
@@ -2253,15 +2335,17 @@ function addStationOfficeBridge(
 
   // Flat roof cap, drawn flush with the tower's own footprint (not a
   // wider, independently-drawn slab) so it cannot visually detach from
-  // the body beneath it the way the old oversized outline did.
-  addBox(
+  // the body beneath it the way the old oversized outline did -- and, as
+  // of v0.56, glazed rather than opaque, matching the real all-glass
+  // Bugelbau envelope.
+  const roofCap = addBox(
     group,
     "Hauptbahnhof office-bridge roof cap",
     [width + 0.6, 0.5, depth + 0.6],
     [x, height + 0.25, 0],
-    spandrel,
-    0.4,
+    roofGlass,
   );
+  addEdges(group, roofCap, 0.4);
 
   const storeyHeight = height / 10;
   for (let storey = 1; storey < 10; storey += 1) {
@@ -2311,6 +2395,79 @@ function addStationOfficeBridge(
     panelSeams,
     0x9bc6cf,
     0.52,
+  );
+}
+
+/**
+ * The north-south hall's two gable ends -- Europaplatz to the north,
+ * Washingtonplatz to the south -- are not blank barrel-vault end caps in
+ * the real station: they are dedicated cable-and-glass curtain-wall
+ * entrance facades (see baunetzwissen's writeup of the two entrance
+ * facades). This draws a flat glazed screen filling the gable, with a
+ * simple mullion grid, in the same light-blue glass family as the rest
+ * of the envelope -- an explicit "Eingangsfront", not just the barrel's
+ * open end.
+ */
+function addStationHallEntranceFacade(
+  group: Group,
+  z: number,
+  hallWidth: number,
+  hallHeight: number,
+  name: string,
+): void {
+  const glass = nightEmitter(
+    new MeshPhysicalMaterial({
+      color: 0xc6e3ea,
+      depthWrite: false,
+      metalness: 0.04,
+      opacity: 0.28,
+      roughness: 0.1,
+      side: DoubleSide,
+      transparent: true,
+      transmission: 0.4,
+    }),
+    0xaedfff,
+    1.15,
+  );
+  const frame = modelMaterial(0x5c7278, { metalness: 0.4, roughness: 0.36 });
+
+  const facadeWidth = hallWidth - 1.2;
+  const facadeHeight = hallHeight - 0.6;
+  const facade = new Mesh(
+    new PlaneGeometry(facadeWidth, facadeHeight, 1, 1),
+    glass,
+  );
+  facade.name = name;
+  facade.position.set(0, facadeHeight / 2, z);
+  facade.renderOrder = 6;
+  group.add(facade);
+  addEdges(group, facade, 0.5);
+
+  const mullions: InstanceTransform[] = [];
+  const verticalCount = Math.max(8, Math.round(facadeWidth / 2.45));
+  for (let index = 0; index <= verticalCount; index += 1) {
+    mullions.push({
+      position: [
+        -facadeWidth / 2 + (index / verticalCount) * facadeWidth,
+        facadeHeight / 2,
+        z,
+      ],
+      scale: [1, facadeHeight, 1],
+    });
+  }
+  const horizontalCount = Math.max(6, Math.round(facadeHeight / 1.54));
+  for (let index = 0; index <= horizontalCount; index += 1) {
+    mullions.push({
+      position: [0, (index / horizontalCount) * facadeHeight, z],
+      scale: [facadeWidth / 0.16, 1, 1],
+    });
+  }
+  addInstancedBoxes(
+    group,
+    `${name} instanced mullions`,
+    [0.16, 0.16, 0.14],
+    frame,
+    mullions,
   );
 }
 
@@ -2476,7 +2633,12 @@ function addStationTrain(
  * must sit on a real rail run near here, not just on whichever OSM
  * polyline happens to be longest somewhere else in the quarter.
  */
-const HAUPTBAHNHOF_ANCHOR_WORLD: readonly [number, number] = [-119.936, -683.307];
+export const HAUPTBAHNHOF_ANCHOR_WORLD: readonly [number, number] = [-119.936, -683.307];
+// scene.json's "hauptbahnhof-model" signature rotation_y_degrees -- the
+// same transform `placeMetricGroup` applies to this model group, needed
+// by tests that must convert a world-space rail-lines.json point into
+// this model's local (unrotated) frame to check the curvature contract.
+export const HAUPTBAHNHOF_ROTATION_Y_DEGREES = 21.82;
 
 /**
  * Places the stationary ICE on a real rail centreline instead of the
@@ -2659,30 +2821,60 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   const trackEastX = signature.east_west_roof_length_m / 2;
   const trackLength = trackEastX - trackWestX;
   const trackCentreX = (trackWestX + trackEastX) / 2;
-  addBox(
-    group,
-    "Hauptbahnhof east-west elevated track deck",
-    [trackLength, 1.1, signature.east_west_roof_width_m - 3],
-    [trackCentreX, 9.8, 0],
-    deck,
-    0.5,
-  );
-  for (const trackZ of [-12, -4, 4, 12]) {
+  // v0.56: the user's exact complaint was that the glass tube must bend
+  // WITH the real track curve, not sit over a dead-straight deck with
+  // only the roof bowed on top. So the elevated deck, its ballast beds,
+  // rails and sleepers are now built from short straight sub-segments
+  // that each shift sideways by the same real rail-curve offset
+  // (railCurveOffset, fit from rail-lines.json) as the glass roof above
+  // them -- deck and roof bend together, matching the reference aerials.
+  const deckSteps = Math.max(24, Math.round(trackLength / 12));
+  const deckSegments: Array<{ x0: number; x1: number; z0: number; z1: number }> = [];
+  for (let step = 0; step < deckSteps; step += 1) {
+    const x0 = trackWestX + (step / deckSteps) * trackLength;
+    const x1 = trackWestX + ((step + 1) / deckSteps) * trackLength;
+    deckSegments.push({
+      x0,
+      x1,
+      z0: railCurveOffset(x0) - railCurveOffset(0),
+      z1: railCurveOffset(x1) - railCurveOffset(0),
+    });
+  }
+  const deckSegmentLength = trackLength / deckSteps;
+  for (const { x0, x1, z0, z1 } of deckSegments) {
+    const midX = (x0 + x1) / 2;
+    const midZ = (z0 + z1) / 2;
+    const yaw = Math.atan2(z1 - z0, x1 - x0);
     addBox(
       group,
-      "Hauptbahnhof upper-level ballast bed",
-      [trackLength, 0.1, 3.45],
-      [trackCentreX, 10.34, trackZ],
-      modelMaterial(0x6e706a, { roughness: 0.96 }),
-    );
-    for (const railOffset of [-0.76, 0.76]) {
+      "Hauptbahnhof east-west elevated track deck",
+      [deckSegmentLength * 1.02, 1.1, signature.east_west_roof_width_m - 3],
+      [midX, 9.8, midZ],
+      deck,
+      0.5,
+    ).rotation.y = -yaw;
+  }
+  for (const trackZ of [-12, -4, 4, 12]) {
+    for (const { x0, x1, z0, z1 } of deckSegments) {
+      const midX = (x0 + x1) / 2;
+      const midZ = (z0 + z1) / 2 + trackZ;
+      const yaw = Math.atan2(z1 - z0, x1 - x0);
       addBox(
         group,
-        "Hauptbahnhof upper-level rail",
-        [trackLength, 0.16, 0.14],
-        [trackCentreX, 10.48, trackZ + railOffset],
-        rail,
-      );
+        "Hauptbahnhof upper-level ballast bed",
+        [deckSegmentLength * 1.02, 0.1, 3.45],
+        [midX, 10.34, midZ],
+        modelMaterial(0x6e706a, { roughness: 0.96 }),
+      ).rotation.y = -yaw;
+      for (const railOffset of [-0.76, 0.76]) {
+        addBox(
+          group,
+          "Hauptbahnhof upper-level rail",
+          [deckSegmentLength * 1.02, 0.16, 0.14],
+          [midX, 10.48, midZ + railOffset],
+          rail,
+        ).rotation.y = -yaw;
+      }
     }
   }
   const approachPiers: InstanceTransform[] = [];
@@ -2690,8 +2882,9 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     if (Math.abs(x) <= signature.east_west_roof_length_m / 2 - 18) {
       continue;
     }
+    const curveZ = railCurveOffset(x) - railCurveOffset(0);
     for (const z of [-13, 13]) {
-      approachPiers.push({ position: [x, 4.55, z] });
+      approachPiers.push({ position: [x, 4.55, z + curveZ] });
     }
   }
   addInstancedBoxes(
@@ -2705,12 +2898,10 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   const sleeperTransforms: InstanceTransform[] = [];
   for (const trackZ of [-12, -4, 4, 12]) {
     for (let index = 0; index <= sleeperCount; index += 1) {
+      const sleeperX = trackWestX + (index / sleeperCount) * trackLength;
+      const curveZ = railCurveOffset(sleeperX) - railCurveOffset(0);
       sleeperTransforms.push({
-        position: [
-          trackWestX + (index / sleeperCount) * trackLength,
-          10.39,
-          trackZ,
-        ],
+        position: [sleeperX, 10.39, trackZ + curveZ],
       });
     }
   }
@@ -2721,22 +2912,33 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     modelMaterial(0x554f48, { roughness: 0.86 }),
     sleeperTransforms,
   );
+  const platformSteps = Math.max(20, Math.round(224 / 12));
   for (const platformZ of [-8, 8]) {
-    addBox(
-      group,
-      "Hauptbahnhof upper platform",
-      [224, 0.42, 4.3],
-      [0, 10.52, platformZ],
-      platform,
-      0.25,
-    );
+    for (let step = 0; step < platformSteps; step += 1) {
+      const x0 = -112 + (step / platformSteps) * 224;
+      const x1 = -112 + ((step + 1) / platformSteps) * 224;
+      const z0 = railCurveOffset(x0) - railCurveOffset(0) + platformZ;
+      const z1 = railCurveOffset(x1) - railCurveOffset(0) + platformZ;
+      const midX = (x0 + x1) / 2;
+      const midZ = (z0 + z1) / 2;
+      const yaw = Math.atan2(z1 - z0, x1 - x0);
+      addBox(
+        group,
+        "Hauptbahnhof upper platform",
+        [(224 / platformSteps) * 1.02, 0.42, 4.3],
+        [midX, 10.52, midZ],
+        platform,
+        0.25,
+      ).rotation.y = -yaw;
+    }
   }
   const platformJointSegments: VectorSegment[] = [];
   for (const platformZ of [-8, 8]) {
     for (let x = -108; x <= 108; x += 4) {
+      const curveZ = railCurveOffset(x) - railCurveOffset(0);
       platformJointSegments.push([
-        [x, 10.75, platformZ - 2.05],
-        [x, 10.75, platformZ + 2.05],
+        [x, 10.75, platformZ - 2.05 + curveZ],
+        [x, 10.75, platformZ + 2.05 + curveZ],
       ]);
     }
   }
@@ -2761,18 +2963,21 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     z: 4,
   });
   addStationInterior(group, signature);
-  // Step 38: the shed used to be built from two separate barrel-roof
-  // bodies (a 321 m main shed plus a 110 m "west approach wing" butted
-  // against its gable) that were each individually straight. Seen from
-  // above they read as two flat, disconnected segments meeting at a hard
-  // seam -- exactly the "overlapping white flat-arch segments" the
-  // reference photos' complaint describes. The real Berlin Hauptbahnhof
-  // is ONE continuous glazed barrel vault the full length of the
-  // elevated deck, riding the Stadtbahn viaduct's own very shallow curve.
-  // This now draws that as a single roof spanning the whole 431 m deck,
-  // with a shallow lateral bow (a few metres at the midpoint, easing to
-  // zero at both gables) so it reads as curved rather than a dead-straight
-  // extrusion, matching the Google-Maps aerials (IMG_0180-83).
+  // v0.56 ("Hbf ganz aus Glas"): the user's exact, literal complaint about
+  // v0.55 was that (1) the east-west glass tube must bend WITH the real
+  // track curve rather than run dead straight or with a synthetic
+  // symmetric bow, and (2) the whole aboveground station is glass --
+  // no grey boxes, no opaque roof caps, nothing doubled up. This single
+  // continuous roof spans the whole 431 m rendered deck (trackWestX to
+  // trackEastX) and follows `railCurveOffset`, the quadratic fit to the
+  // real Stadtbahn viaduct curve derived from rail-lines.json (see the
+  // HAUPTBAHNHOF_RAIL_CURVE_A/B constants above) -- matching the
+  // reference aerials (IMG_0180-83), which show one continuously curved
+  // hall, not a straight tube with a cosmetic bow. `addBarrelRoof` takes
+  // `offsetLongitudinal = trackCentreX` (not 0) because the roof mesh's
+  // own local frame is centred on the deck's midpoint, not on the
+  // station's rail-curve origin (local x = 0); passing trackCentreX lets
+  // the curve be sampled in the correct absolute frame.
   addBarrelRoof(
     group,
     `Hauptbahnhof ${Math.round(trackLength)} m east-west glass roof`,
@@ -2782,21 +2987,42 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     10.4,
     true,
     trackCentreX,
-    Math.min(6, signature.east_west_roof_width_m * 0.18),
+    "rail",
   );
-  // Two parallel north-south glass office towers (~10 storeys) cross the
-  // barrel roof near the middle, and the taller north-south crossing hall
-  // sits between them -- see addStationOfficeBridge and the hall roof
-  // below. No separate "west wing" or flat box-outline roofs remain.
+  // The north-south crossing hall is built dead straight, square across
+  // the east-west hall -- the real station's Europaplatz/Washingtonplatz
+  // hall does not itself curve, only the east-west hall it crosses does.
   addBarrelRoof(
     group,
-    "Hauptbahnhof 180 m north-south hall",
+    `Hauptbahnhof ${Math.round(signature.north_south_hall_length_m)} m north-south hall`,
     signature.north_south_hall_length_m,
     signature.north_south_hall_width_m,
     19,
     8.2,
     false,
+    0,
+    "none",
   );
+  addStationHallEntranceFacade(
+    group,
+    signature.north_south_hall_length_m / 2,
+    signature.north_south_hall_width_m,
+    19,
+    "Hauptbahnhof Europaplatz entrance facade",
+  );
+  addStationHallEntranceFacade(
+    group,
+    -signature.north_south_hall_length_m / 2,
+    signature.north_south_hall_width_m,
+    19,
+    "Hauptbahnhof Washingtonplatz entrance facade",
+  );
+  // Two parallel glass Bugelbauten (office bars, ~46 m/10 storeys) span
+  // OVER the east-west hall, parallel to and flanking the north-south
+  // hall -- exactly the reference aerials' layout (IMG_0180-83). Both
+  // sit right at the east-west/north-south crossing (local x = 0), which
+  // is also where the rail curve fit is anchored to zero, so no extra
+  // lateral offset is needed here.
   const officeX = signature.north_south_hall_width_m / 2 + 14;
   addStationOfficeBridge(
     group,

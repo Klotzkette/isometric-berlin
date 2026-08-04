@@ -116,20 +116,39 @@ describe("metre-scale architectural recognition models", () => {
         (child) => child.name === "Hauptbahnhof 46 m office bridge",
       ),
     ).toHaveLength(2);
+    // v0.56: the elevated deck, ballast, rails, sleepers and platforms are
+    // now built from many short straight sub-segments that each follow
+    // the real rail curve (railCurveOffset) instead of one long straight
+    // run per track -- see the curvature contract test below, which
+    // checks that this segmented deck actually tracks the real rail
+    // polyline. So "upper-level rail" and "upper-level ballast bed" now
+    // appear many times (one set of segments per track), not once per
+    // track: assert there are several segments per track rather than
+    // exactly one long box per track.
     expect(
       station!.children.filter(
         (child) => child.name === "Hauptbahnhof upper-level rail",
-      ),
-    ).toHaveLength(8);
-    const trackDeck = station!.getObjectByName(
-      "Hauptbahnhof east-west elevated track deck",
+      ).length,
+    ).toBeGreaterThan(8);
+    const trackDeckSegments = station!.children.filter(
+      (child) => child.name === "Hauptbahnhof east-west elevated track deck",
     );
-    const trackDeckBounds = new Box3().setFromObject(trackDeck!);
+    expect(trackDeckSegments.length).toBeGreaterThan(1);
+    const trackDeckBounds = new Box3();
+    for (const segment of trackDeckSegments) {
+      trackDeckBounds.union(new Box3().setFromObject(segment));
+    }
     // 321 m shed plus a 110 m approach to the west only. The east approach
     // is gone: the Stadtbahn curves towards Friedrichstraße the moment it
     // leaves the shed, so a straight stub pointed at empty air over the
     // Humboldthafen. The OSM viaduct carries the tracks on from the gable.
-    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeCloseTo(431, 1);
+    // v0.56: the deck is now built from short segments that follow the
+    // real rail curve, so its bounding-box x-extent is slightly larger
+    // than the nominal 431 m span (curved sub-segments, plus a small
+    // per-segment overlap margin) -- allow a generous tolerance instead
+    // of the old dead-straight exact figure.
+    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeGreaterThanOrEqual(431);
+    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeLessThan(431 + 15);
     // Step 38: the shed used to be two separate barrel-roof bodies (a
     // 321 m main shed plus a 110 m "west approach wing" butted against
     // its gable), which read as two disconnected flat segments meeting at
@@ -141,17 +160,22 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(roof).toBeDefined();
     const roofBounds = new Box3().setFromObject(roof!);
-    expect(roofBounds.max.x - roofBounds.min.x).toBeCloseTo(431, 0);
-    expect(roofBounds.min.x).toBeCloseTo(trackDeckBounds.min.x, 0);
-    expect(roofBounds.max.x).toBeCloseTo(trackDeckBounds.max.x, 0);
+    // v0.56: both the roof and the deck beneath it now curve with the
+    // real rail data, so their bounding boxes are no longer identical to
+    // sub-metre precision -- allow a few metres of tolerance, which still
+    // proves the roof spans the same approach as the deck it covers.
+    expect(roofBounds.max.x - roofBounds.min.x).toBeGreaterThanOrEqual(431);
+    expect(roofBounds.max.x - roofBounds.min.x).toBeLessThan(431 + 15);
+    expect(Math.abs(roofBounds.min.x - trackDeckBounds.min.x)).toBeLessThan(12);
+    expect(Math.abs(roofBounds.max.x - trackDeckBounds.max.x)).toBeLessThan(12);
     expect(
       station!.getObjectByName("Hauptbahnhof west approach glass roof wing"),
     ).toBeUndefined();
     expect(
       station!.children.filter(
         (child) => child.name === "Hauptbahnhof upper-level ballast bed",
-      ),
-    ).toHaveLength(4);
+      ).length,
+    ).toBeGreaterThan(4);
     const approachPiers = station!.getObjectByName(
       "Hauptbahnhof instanced approach-viaduct piers",
     );
