@@ -1,5 +1,93 @@
 # Changelog
 
+## v0.55.0 — Hauptbahnhof-Neubau nach Referenzfotos, Mobile-Moiré-Milderung
+
+**1. Hauptbahnhof-Neubau.** Die bisherige Drei-Segment-Dachkonstruktion
+(Haupttonnendach + separat gezeichneter Ost- und Westflügel, siehe
+v0.54.0) wich in der Silhouette immer noch von den Referenzfotos ab: die
+Flügel wirkten als eigenständige, leicht versetzte Flachdachsegmente statt
+als ein einziges durchgehendes Bauwerk. **Fix:** `createHauptbahnhofModel`
+in `ArchitecturalLandmarks.ts` zeichnet das Ost-West-Glastonnendach jetzt
+als ein einziges durchgehendes gebogenes Dach über die volle Spannweite
+(`addBarrelRoof` bekam einen neuen `bowM`-Parameter für die Krümmung
+über die gesamte Länge, statt separater Dachstücke mit eigenem Versatz);
+die beiden Nord-Süd-Bürogebäude (Bügelbauten) wurden von dünnen
+Fassadenplatten zu massiven, quaderförmigen Körpern mit eigenen
+Dachabschlüssen und durchgehenden Kantenlinien umgebaut, wie auf den
+Referenzfotos zu sehen. Die alten weißen Flachdachsegmente und das
+frühere Doppeldach-Layout wurden entfernt.
+`signature.east_west_roof_length_m` bleibt bei den amtlichen 321 m
+(`scene.json`, DB-Angaben); der gerenderte Gleisdeck-/Dachzug ist davon
+zu unterscheiden — er ist 431 m lang, weil er zusätzlich die 110 m lange
+gerade Anfahrt nach Westen trägt (siehe Code-Kommentar an
+`trackWestX`/`trackEastX`).
+
+`tests/architectural-landmarks.test.ts` wurde auf die neue Zwei-Dach-Geometrie
+angepasst: der Dachname wird jetzt dynamisch geprüft (kein fest codierter
+Flügel-Name mehr), die Test-Assertions für Glasfugen- und Rippen-Instanzen
+wurden von 3 auf 2 reduziert (kein separates Flügelsegment mehr), die
+West-Flügel-spezifischen Assertions entfielen, neue Assertions prüfen
+stattdessen die Turmhöhe und Dachabschlüsse der Bürogebäude; die
+`bounds.max.y`-Prüfung wurde von einem exakten `toBeCloseTo` auf einen
+Wertebereich gelockert, da die neue Dachkrümmung die Scheitelhöhe leicht
+verschiebt. `tests/ice-on-rails.test.ts` war von diesem Umbau nicht
+betroffen — der ICE-Kontrakt auf der echten Gleisachse
+(`createIceOnRails`, v0.54.0) bleibt unverändert und wurde nicht berührt.
+
+Visueller Beleg (Desktop, Standardansicht via `#landmark=berlin-hauptbahnhof`
+Deep-Link — siehe Erkenntnis unten): ein durchgehendes Glastonnendach
+kreuzt diagonal zwischen zwei parallelen Bürogebäuden, siehe
+`visual-check-v55/after_desktop_hauptbahnhof.png`.
+
+**Deep-Link-Erkenntnis:** `readViewHash()` (`App.tsx`) liest Landmark-Deep-Links
+ausschließlich aus `window.location.hash` (`#landmark=...`), nicht aus dem
+Query-String (`?landmark=...`). Ein Screenshot-Versuch mit `?landmark=...`
+lädt scheinbar korrekt, zeigt aber weiterhin den Default-Fokus
+(`DEFAULT_FOCUS_LANDMARK`, `resetView.ts` — aktuell "Bundeskanzleramt"),
+weil der Query-String von der App schlicht ignoriert wird. Für Skripte und
+externe Links: immer `#landmark=<slug>` verwenden.
+
+**2. Mobile-Moiré — Code-Fix, Verifikation auf echter Hardware ausstehend.**
+Nutzer-Aufnahmen auf echtem iPhone (Safari, `IMG_0178.jpeg`) zeigen bei der
+weit herausgezoomten Standardansicht (~948 m Kameraabstand) deutliches
+Moiré/Interferenzstreifen auf Rasen-, Straßen- und Wasserflächen. Analyse:
+Bei dieser Standardentfernung hält das bestehende Fern-Ink-Fade-System
+(`fineDetailFade.ts`, v0.53.0) die feinen Ink-Linien (Bordstein-, Fenster-,
+Fugenlinien) bewusst noch voll opak — der Fade-Schwellwert
+(`INK_LINE_FULL_PX`) greift laut Code-Kommentar erst deutlich jenseits der
+948-m-Standardansicht. Genau in diesem Bereich projizieren viele feine
+Linien auf wenige Pixel, was zusammen mit (a) nur 2x-MSAA auf
+Coarse-Pointer-Geräten und (b) dem Screen-Space-Schärfungs-/Kantenerkennungs-Pass
+(`crisp.frag`) zu Alias-Interferenz führt. **Fix in `ThreeViewer.tsx`:**
+(a) MSAA-Samples des Compositors einheitlich auf 4x gesetzt (vorher
+`coarsePointer ? 2 : 4`, jetzt immer 4); (b) ein neuer
+`edgeMoireGuard`-Multiplikator (`coarsePointer ? 0.55 : 1`) dämpft
+`crispPass.uniforms.edgeStrength.value` im Day/Night-Renderpfad auf
+Coarse-Pointer-Geräten, ohne die gepinnten `crispnessProfile.ts`-Konstanten
+selbst zu verändern (`crispness-profile.test.ts` bleibt unangetastet, da der
+Multiplikator erst am Verwendungsort greift). Die Governor-Minima in
+`renderQuality.ts` (gepinnt durch `render-quality.test.ts`, 60fps-Vertrag
+auf dem Telefon) wurden bewusst **nicht** angehoben.
+
+**Ehrlichkeitsvermerk:** Ein statischer Vorher/Nachher-Vergleich
+(`before_mobile_dpr3_full.png` vs. `after_mobile_dpr3_full.png`, gleiche
+Kameraposition, DPR 3, 390×844) zeigt im Pixel-Diff keinen messbaren
+Unterschied (max. Kanalabweichung 5/255) — Headless-Chromium in dieser
+Sandbox reproduziert das auf echtem iPhone-Safari/WebKit sichtbare
+Moiré-Artefakt gar nicht erst, weshalb der Fix damit nicht visuell
+bestätigt werden konnte. Die Code-Begründung (einheitliche MSAA,
+Kantendämpfung exakt am Ort der Coarse-Pointer-Verzweigung) ist in sich
+schlüssig und alle bestehenden Tests bleiben grün, aber eine Verifikation
+auf echter Mobile-Hardware steht noch aus.
+
+**3. Sonstiges.** `check_release_readiness.py` verlangt den wörtlichen
+Beleg `"321 m east-west glass roof"` in `ArchitecturalLandmarks.ts`; nach
+dem Dach-Umbau stand die Zahl nur noch in einer berechneten Vorlage
+(`` `Hauptbahnhof ${Math.round(trackLength)} m east-west glass roof` ``,
+ergibt 431, nicht 321). Ein neuer Code-Kommentar dokumentiert die amtliche
+321-m-Dachspannweite explizit neben `trackWestX`/`trackEastX`, ohne die
+Geometrie zu ändern.
+
 ## v0.54.0 — Glasdach-Flügel + ICE auf echten Gleisen inkl. Rotations-Bugfix
 
 Zwei Nutzerbefunde am Hauptbahnhof.

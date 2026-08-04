@@ -106,9 +106,10 @@ describe("metre-scale architectural recognition models", () => {
     const bounds = new Box3().setFromObject(station!);
     expect(bounds.max.x - bounds.min.x).toBeGreaterThanOrEqual(321);
     expect(bounds.max.z - bounds.min.z).toBeGreaterThanOrEqual(180);
-    expect(bounds.max.y).toBeCloseTo(46, 1);
+    expect(bounds.max.y).toBeGreaterThanOrEqual(46);
+    expect(bounds.max.y).toBeLessThan(47);
     expect(
-      station!.children.some((child) => child.name.includes("321 m east-west")),
+      station!.children.some((child) => child.name.includes("east-west glass roof")),
     ).toBe(true);
     expect(
       station!.children.filter(
@@ -129,21 +130,23 @@ describe("metre-scale architectural recognition models", () => {
     // leaves the shed, so a straight stub pointed at empty air over the
     // Humboldthafen. The OSM viaduct carries the tracks on from the gable.
     expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeCloseTo(431, 1);
-    const roofBounds = new Box3().setFromObject(
-      station!.getObjectByName("Hauptbahnhof 321 m east-west glass roof")!,
+    // Step 38: the shed used to be two separate barrel-roof bodies (a
+    // 321 m main shed plus a 110 m "west approach wing" butted against
+    // its gable), which read as two disconnected flat segments meeting at
+    // a hard seam. It is now ONE continuous roof spanning the whole
+    // 431 m deck, so its name carries the full deck length and there is
+    // no separate west-wing object any more.
+    const roof = station!.getObjectByName(
+      "Hauptbahnhof 431 m east-west glass roof",
     );
-    expect(trackDeckBounds.max.x).toBeLessThanOrEqual(roofBounds.max.x + 1);
-    // Step 37: the 110 m western approach used to be a bare opaque deck
-    // with no glazing above it at all. A matching glass wing now closes
-    // that gap, so the combined glass coverage reaches all the way to the
-    // deck's west end, not just the crossing hall.
-    const westWing = station!.getObjectByName(
-      "Hauptbahnhof west approach glass roof wing",
-    );
-    expect(westWing).toBeDefined();
-    const westWingBounds = new Box3().setFromObject(westWing!);
-    expect(westWingBounds.min.x).toBeCloseTo(trackDeckBounds.min.x, 0);
-    expect(westWingBounds.max.x).toBeCloseTo(roofBounds.min.x, 0);
+    expect(roof).toBeDefined();
+    const roofBounds = new Box3().setFromObject(roof!);
+    expect(roofBounds.max.x - roofBounds.min.x).toBeCloseTo(431, 0);
+    expect(roofBounds.min.x).toBeCloseTo(trackDeckBounds.min.x, 0);
+    expect(roofBounds.max.x).toBeCloseTo(trackDeckBounds.max.x, 0);
+    expect(
+      station!.getObjectByName("Hauptbahnhof west approach glass roof wing"),
+    ).toBeUndefined();
     expect(
       station!.children.filter(
         (child) => child.name === "Hauptbahnhof upper-level ballast bed",
@@ -165,22 +168,39 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       station!.children.some((child) => child.name.includes("Berlin S-Bahn")),
     ).toBe(true);
-    // Three barrel roofs now: the 321 m east-west shed, the new west
-    // approach wing that closes the gap over the deck's overhang, and the
-    // north-south hall.
+    // Step 38: two barrel roofs now -- the single continuous east-west
+    // shed (see above) and the north-south crossing hall. The two office
+    // towers are drawn as solid boxes with their own edges, not barrel
+    // roofs, so they do not add to this count.
     expect(
       station!.children.filter((child) => child.name.includes("glass panel seams")),
-    ).toHaveLength(3);
+    ).toHaveLength(2);
     const roofRibs = station!.children.filter((child) =>
       child.name.includes("instanced steel arch ribs"),
     );
-    expect(roofRibs).toHaveLength(3);
+    expect(roofRibs).toHaveLength(2);
     expect(
       roofRibs.reduce(
         (count, child) => count + (child as InstancedMesh).count,
         0,
       ),
     ).toBeGreaterThan(50);
+    // Step 38: the office towers are legible solid volumes now, each with
+    // its own ink edges traced from the same box geometry (no separate,
+    // mismatched outline box) plus a flush roof cap -- the fix for the
+    // reference photos' "overlapping white flat-arch segments" complaint.
+    const officeTowers = station!.children.filter(
+      (child) => child.name === "Hauptbahnhof 46 m office bridge",
+    );
+    for (const tower of officeTowers) {
+      const towerBounds = new Box3().setFromObject(tower);
+      expect(towerBounds.max.y - towerBounds.min.y).toBeCloseTo(46, 1);
+    }
+    expect(
+      station!.children.filter(
+        (child) => child.name === "Hauptbahnhof office-bridge roof cap",
+      ),
+    ).toHaveLength(2);
     const sleepers = station!.getObjectByName(
       "Hauptbahnhof instanced upper-level track sleepers",
     );

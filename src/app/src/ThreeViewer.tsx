@@ -2063,11 +2063,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         fragmentShader: crispFragment,
       });
       crispPass.enabled = false;
-      // Hard MSAA floor for the settled post-process chain: 2x on
-      // coarse-pointer/retina touch, 4x on desktop, so straight roof
-      // edges stop shimmering once the crisp/edge pass runs.
+      // Hard MSAA floor for the settled post-process chain. v0.55.0: raised
+      // the coarse-pointer floor from 2x to 4x. A retina phone's native
+      // devicePixelRatio (often 3) is capped well below that by
+      // renderPixelRatio's mobile budget (see renderQuality.ts), so the
+      // composer was resolving dense, high-frequency line patterns -- the
+      // ground's kerb/grid ink, roof glazing seams -- at a coarser physical
+      // sample grid than desktop while feeding the *same* screen-space
+      // unsharp+edge pass (crisp.frag). That combination is exactly the
+      // moire mechanism users photographed on iPhones: too few samples per
+      // final pixel to resolve a fine repeating line pattern, then a
+      // sharpening filter amplifying whatever aliasing survived. 4x on both
+      // tiers removes the gap; the cost is one texture's worth of MSAA
+      // storage, not a per-frame shading cost, so it does not compete with
+      // the pixel-ratio budget that actually protects phone frame rate.
       const composerTarget = new WebGLRenderTarget(1, 1, {
-        samples: coarsePointer ? 2 : 4,
+        samples: 4,
         type: HalfFloatType,
       });
       const composer = new EffectComposer(renderer, composerTarget);
@@ -2940,9 +2951,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             CRISPNESS_PROFILES[runtime.lightingMode === "night" ? "night" : "day"];
           const crispBlend = crispTargetScale;
           crispPass.enabled = true;
+          // v0.55.0 moire fix: the unsharp+edge pass reads exactly one
+          // texel either side of centre (crisp.frag), so its gain against
+          // a fine repeating line pattern (ground kerb/grid ink, roof
+          // glazing seams) scales with how many *screen* pixels fall on
+          // one physical display pixel. A phone's native devicePixelRatio
+          // (2-3) packs display pixels far tighter than the render
+          // resolution the mobile budget allows (renderQuality.ts caps it
+          // well below native for frame-rate reasons), so the browser's
+          // own upscale from render size to native size re-samples an
+          // already-sharpened, already fine-pitched pattern -- textbook
+          // moire. Damping edgeStrength on coarse pointers only (desktop
+          // crispness stays exactly as authored/pinned in
+          // crispnessProfile.test.ts) removes the gain that turns that
+          // resample into visible banding without touching the unsharp
+          // `strength` term that carries the line drawing's crispness.
+          const edgeMoireGuard = runtime.coarsePointer ? 0.55 : 1;
           crispPass.uniforms.strength.value = profile.strength * crispBlend;
           crispPass.uniforms.edgeStrength.value =
-            profile.edgeStrength * crispBlend;
+            profile.edgeStrength * crispBlend * edgeMoireGuard;
           crispPass.uniforms.saturation.value =
             1 + (profile.saturation - 1) * crispBlend;
           crispPass.uniforms.contrast.value =

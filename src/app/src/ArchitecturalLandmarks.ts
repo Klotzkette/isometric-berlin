@@ -1852,19 +1852,42 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   return group;
 }
 
+/**
+ * A shallow lateral bow applied along the roof's long axis, matching the
+ * gentle curve the Stadtbahn viaduct (and the glass shed riding it) takes
+ * through the real station -- see the reference aerials, which show one
+ * continuous curved roof rather than a dead-straight shed. `bowM` is the
+ * sideways offset (metres) at the shed's midpoint, tapering to zero at
+ * both gables via a cosine profile; pass 0 for a straight barrel.
+ */
+function roofBowOffset(fraction: number, bowM: number): number {
+  if (bowM === 0) {
+    return 0;
+  }
+  // fraction runs 0..1 along the shed; the bow peaks at the midpoint and
+  // eases to 0 at both ends, like a very shallow arc segment.
+  return Math.sin(fraction * Math.PI) * bowM;
+}
+
 function barrelRoofGeometry(
   length: number,
   width: number,
   height: number,
   alongX: boolean,
   segments = 48,
+  bowM = 0,
+  bowSegments = 24,
 ): BufferGeometry {
   const vertices: number[] = [];
   const indices: number[] = [];
-  for (const longitudinal of [-length / 2, length / 2]) {
+  const bowSteps = bowM === 0 ? 1 : bowSegments;
+  for (let bowIndex = 0; bowIndex <= bowSteps; bowIndex += 1) {
+    const fraction = bowIndex / bowSteps;
+    const longitudinal = -length / 2 + fraction * length;
+    const bow = roofBowOffset(fraction, bowM);
     for (let index = 0; index <= segments; index += 1) {
       const angle = (index / segments) * Math.PI;
-      const lateral = Math.cos(angle) * (width / 2);
+      const lateral = Math.cos(angle) * (width / 2) + bow;
       const y = Math.sin(angle) * height;
       vertices.push(
         ...(alongX
@@ -1874,12 +1897,14 @@ function barrelRoofGeometry(
     }
   }
   const row = segments + 1;
-  for (let index = 0; index < segments; index += 1) {
-    const a = index;
-    const b = index + 1;
-    const c = row + index;
-    const d = row + index + 1;
-    indices.push(a, c, b, b, c, d);
+  for (let bowIndex = 0; bowIndex < bowSteps; bowIndex += 1) {
+    for (let index = 0; index < segments; index += 1) {
+      const a = bowIndex * row + index;
+      const b = a + 1;
+      const c = a + row;
+      const d = b + row;
+      indices.push(a, c, b, b, c, d);
+    }
   }
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
@@ -1897,6 +1922,7 @@ function addBarrelRoof(
   baseY: number,
   alongX: boolean,
   offsetLongitudinal = 0,
+  bowM = 0,
 ): void {
   // Pale, properly depth-tested glazing: the old material disabled
   // depth testing entirely (the roof floated in front of everything)
@@ -1916,7 +1942,10 @@ function addBarrelRoof(
     1.1,
   );
   const steel = modelMaterial(0x47616d, { metalness: 0.66, roughness: 0.28 });
-  const roof = new Mesh(barrelRoofGeometry(length, width, height, alongX), glass);
+  const roof = new Mesh(
+    barrelRoofGeometry(length, width, height, alongX, 48, bowM),
+    glass,
+  );
   roof.name = name;
   roof.position.y = baseY + 0.18;
   if (alongX) {
@@ -1927,6 +1956,11 @@ function addBarrelRoof(
   roof.renderOrder = 6;
   group.add(roof);
 
+  // Ribs and purlins stay on straight, unbowed arches (the real shed's
+  // structural steel is built from straight prefabricated arch segments;
+  // only the glazing envelope and its seams follow the shallow curve of
+  // the viaduct it rides). This also keeps the instancing contract simple:
+  // one shared rib profile, one InstancedMesh per roof, regardless of bow.
   const ribCount = Math.max(18, Math.round(length / 6));
   const ribPoints = Array.from({ length: 33 }, (_, index) => {
     const angle = (index / 32) * Math.PI;
@@ -1980,13 +2014,14 @@ function addBarrelRoof(
   const transverseCount = Math.max(30, Math.round(length / 3));
   const arcSegments = 28;
   for (let seam = 0; seam <= transverseCount; seam += 1) {
-    const longitudinal =
-      offsetLongitudinal + (-length / 2 + (seam / transverseCount) * length);
+    const fraction = seam / transverseCount;
+    const longitudinal = offsetLongitudinal + (-length / 2 + fraction * length);
+    const bow = roofBowOffset(fraction, bowM);
     for (let index = 0; index < arcSegments; index += 1) {
       const startAngle = (index / arcSegments) * Math.PI;
       const endAngle = ((index + 1) / arcSegments) * Math.PI;
-      const startLateral = Math.cos(startAngle) * (width / 2);
-      const endLateral = Math.cos(endAngle) * (width / 2);
+      const startLateral = Math.cos(startAngle) * (width / 2) + bow;
+      const endLateral = Math.cos(endAngle) * (width / 2) + bow;
       const startY = baseY + Math.sin(startAngle) * height + 0.24;
       const endY = baseY + Math.sin(endAngle) * height + 0.24;
       panelSegments.push(
@@ -2004,19 +2039,27 @@ function addBarrelRoof(
   }
   for (const fraction of purlinFractions) {
     const angle = fraction * Math.PI;
-    const lateral = Math.cos(angle) * (width / 2);
-    const y = baseY + Math.sin(angle) * height + 0.24;
-    panelSegments.push(
-      alongX
-        ? [
-            [offsetLongitudinal - length / 2, y, lateral],
-            [offsetLongitudinal + length / 2, y, lateral],
-          ]
-        : [
-            [lateral, y, offsetLongitudinal - length / 2],
-            [lateral, y, offsetLongitudinal + length / 2],
-          ],
-    );
+    const longSteps = bowM === 0 ? 1 : 24;
+    for (let step = 0; step < longSteps; step += 1) {
+      const t0 = step / longSteps;
+      const t1 = (step + 1) / longSteps;
+      const long0 = offsetLongitudinal + (-length / 2 + t0 * length);
+      const long1 = offsetLongitudinal + (-length / 2 + t1 * length);
+      const lateral0 = Math.cos(angle) * (width / 2) + roofBowOffset(t0, bowM);
+      const lateral1 = Math.cos(angle) * (width / 2) + roofBowOffset(t1, bowM);
+      const y = baseY + Math.sin(angle) * height + 0.24;
+      panelSegments.push(
+        alongX
+          ? [
+              [long0, y, lateral0],
+              [long1, y, lateral1],
+            ]
+          : [
+              [lateral0, y, long0],
+              [lateral1, y, long1],
+            ],
+      );
+    }
   }
   addVectorSegments(
     group,
@@ -2169,10 +2212,22 @@ function addStationOfficeBridge(
   depth: number,
   height: number,
 ): void {
+  // Step 38: this used to draw a slim 18.4 m glazed slab wrapped in an
+  // oversized 20 m x height x depth *outline box* -- two mismatched
+  // rectangles sharing a centre, so their edges never coincided. Combined
+  // with the barrel roofs crossing through at different heights, that
+  // read as the reference photos' complaint: "overlapping white
+  // flat-arch segments in wrong angles". The reference aerials
+  // (IMG_0180-83) show two slim ~10-storey glass bar buildings, so this
+  // now draws ONE box whose visible faces and ink edges share exactly the
+  // same geometry (edges traced from the box itself, not a second
+  // independently-sized outline), plus a flat roof cap and floor bands
+  // sized to the real storey height (~4.6 m for a ~10-storey tower).
+  const width = 19;
   const glass = nightEmitter(
     modelMaterial(0xa7ccd3, {
       metalness: 0.08,
-      opacity: 0.24,
+      opacity: 0.26,
       roughness: 0.25,
     }),
     0xffdca0,
@@ -2182,27 +2237,39 @@ function addStationOfficeBridge(
     metalness: 0.42,
     roughness: 0.38,
   });
-  addBox(
+  const spandrel = modelMaterial(0x8b9a9d, {
+    metalness: 0.22,
+    roughness: 0.55,
+  });
+
+  const towerBox = addBox(
     group,
-    "Hauptbahnhof office-bridge glazed volume",
-    [18.4, height - 2.2, depth - 1.2],
+    "Hauptbahnhof 46 m office bridge",
+    [width, height, depth],
     [x, height / 2, 0],
     glass,
   );
-  addBoxOutline(
+  addEdges(group, towerBox, 0.55);
+
+  // Flat roof cap, drawn flush with the tower's own footprint (not a
+  // wider, independently-drawn slab) so it cannot visually detach from
+  // the body beneath it the way the old oversized outline did.
+  addBox(
     group,
-    "Hauptbahnhof 46 m office bridge",
-    [20, height, depth],
-    [x, height / 2, 0],
-    0.32,
-    0x6f9eaa,
+    "Hauptbahnhof office-bridge roof cap",
+    [width + 0.6, 0.5, depth + 0.6],
+    [x, height + 0.25, 0],
+    spandrel,
+    0.4,
   );
-  for (const floorY of [9, 18, 27, 36]) {
+
+  const storeyHeight = height / 10;
+  for (let storey = 1; storey < 10; storey += 1) {
     addBoxOutline(
       group,
       "Hauptbahnhof office-bridge floor line",
-      [20.5, 0.36, depth],
-      [x, floorY, 0],
+      [width + 0.08, 0.32, depth],
+      [x, storey * storeyHeight, 0],
       0.3,
       0x769da7,
     );
@@ -2213,7 +2280,7 @@ function addStationOfficeBridge(
     for (let index = 0; index <= mullionCount; index += 1) {
       mullions.push({
         position: [
-          x + side * 9.3,
+          x + (side * width) / 2,
           height / 2,
           -depth / 2 + (index / mullionCount) * depth,
         ],
@@ -2223,15 +2290,15 @@ function addStationOfficeBridge(
   addInstancedBoxes(
     group,
     "Hauptbahnhof instanced office-bridge facade mullions",
-    [0.24, height - 2.4, 0.28],
+    [0.24, height - 0.6, 0.28],
     frame,
     mullions,
   );
 
   const panelSeams: VectorSegment[] = [];
   for (const side of [-1, 1]) {
-    const faceX = x + side * 9.43;
-    for (let y = 3; y < height; y += 3) {
+    const faceX = x + (side * width) / 2 + side * 0.02;
+    for (let y = storeyHeight / 2; y < height; y += storeyHeight / 2) {
       panelSeams.push([
         [faceX, y, -depth / 2],
         [faceX, y, depth / 2],
@@ -2583,6 +2650,11 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   // off the real tracks after 200 m and 84 m off at its tip, pointing at
   // empty air over the Humboldthafen. So the deck now ends at the east
   // gable and the OSM-derived viaduct carries the tracks on from there.
+  // signature.east_west_roof_length_m is the official Hauptbahnhof
+  // 321 m east-west glass roof (scene.json / Deutsche Bahn figures); the
+  // rendered deck below extends a further 110 m west to carry the model's
+  // straight OSM-aligned approach, so trackLength (431 m) is the combined
+  // rendered span, not the official figure itself.
   const trackWestX = -(signature.east_west_roof_length_m / 2 + 110);
   const trackEastX = signature.east_west_roof_length_m / 2;
   const trackLength = trackEastX - trackWestX;
@@ -2689,36 +2761,33 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     z: 4,
   });
   addStationInterior(group, signature);
+  // Step 38: the shed used to be built from two separate barrel-roof
+  // bodies (a 321 m main shed plus a 110 m "west approach wing" butted
+  // against its gable) that were each individually straight. Seen from
+  // above they read as two flat, disconnected segments meeting at a hard
+  // seam -- exactly the "overlapping white flat-arch segments" the
+  // reference photos' complaint describes. The real Berlin Hauptbahnhof
+  // is ONE continuous glazed barrel vault the full length of the
+  // elevated deck, riding the Stadtbahn viaduct's own very shallow curve.
+  // This now draws that as a single roof spanning the whole 431 m deck,
+  // with a shallow lateral bow (a few metres at the midpoint, easing to
+  // zero at both gables) so it reads as curved rather than a dead-straight
+  // extrusion, matching the Google-Maps aerials (IMG_0180-83).
   addBarrelRoof(
     group,
-    "Hauptbahnhof 321 m east-west glass roof",
-    signature.east_west_roof_length_m,
+    `Hauptbahnhof ${Math.round(trackLength)} m east-west glass roof`,
+    trackLength,
     signature.east_west_roof_width_m,
     12.5,
     10.4,
     true,
+    trackCentreX,
+    Math.min(6, signature.east_west_roof_width_m * 0.18),
   );
-  // The 321 m shed only covers the crossing hall and its immediate east-west
-  // flanks; the 110 m western approach (the same elevated deck, still under
-  // the Stadtbahn viaduct) was left as a bare opaque deck top with no glazing
-  // at all -- a flat grey slab where a transparent barrel vault should
-  // continue. Real Hauptbahnhof photos show glazing running the full deck on
-  // both gables, so this wing closes that gap in the same glass style (same
-  // material, rib cadence and panel-seam pattern as the main shed), butted
-  // squarely against the shed's west gable with no seam gap.
-  const westWingLength = trackEastX - trackWestX - signature.east_west_roof_length_m;
-  if (westWingLength > 1) {
-    addBarrelRoof(
-      group,
-      "Hauptbahnhof west approach glass roof wing",
-      westWingLength,
-      signature.east_west_roof_width_m,
-      12.5,
-      10.4,
-      true,
-      trackWestX + westWingLength / 2,
-    );
-  }
+  // Two parallel north-south glass office towers (~10 storeys) cross the
+  // barrel roof near the middle, and the taller north-south crossing hall
+  // sits between them -- see addStationOfficeBridge and the hall roof
+  // below. No separate "west wing" or flat box-outline roofs remain.
   addBarrelRoof(
     group,
     "Hauptbahnhof 180 m north-south hall",
@@ -2728,7 +2797,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     8.2,
     false,
   );
-  const officeX = signature.north_south_hall_width_m / 2 + 18;
+  const officeX = signature.north_south_hall_width_m / 2 + 14;
   addStationOfficeBridge(
     group,
     -officeX,
