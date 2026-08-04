@@ -27,6 +27,14 @@ flat renderer cannot be mistaken for current 3D quality.
 **Status:** Public open-data project · **Local v0.53.1** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
+## Screenshots
+
+| Bundeskanzleramt (day) | Reichstag building (day) |
+|---|---|
+| ![Bundeskanzleramt in the isometric 3D viewer, day mode, showing the Chancellery's curved facade and the Spree river](docs/screenshots/kanzleramt-day.png) | ![Reichstag building in the isometric 3D viewer, day mode, showing the glass dome and the "Dem deutschen Volke" portico inscription](docs/screenshots/reichstag-day.png) |
+
+![Regierungsviertel at night in the isometric 3D viewer, warm window lights across the government district](docs/screenshots/night.png)
+
 ## What this repository is / Was dieses Repository ist
 
 | English | Deutsch |
