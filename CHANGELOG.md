@@ -1,5 +1,81 @@
 # Changelog
 
+## v0.54.0 — Glasdach-Flügel + ICE auf echten Gleisen inkl. Rotations-Bugfix
+
+Zwei Nutzerbefunde am Hauptbahnhof.
+
+**1. Hallendach links/rechts der Haupthalle wirkte opak/falsch.** Das
+Ost-West-Tonnendach des Hauptbahnhofs ist durchgehend Glas; nur die
+zentrale Kreuzungshalle mit dem Nord-Süd-Riegel war als transparentes
+Glasgewölbe gezeichnet, während der westliche ~110 m lange Streckenüberbau
+(Differenz aus Gleiskorridorbreite und dem 321 m messenden Haupt-Tonnendach)
+unbedacht blieb — die Trag-/Gleisdeck-Geometrie lief einfach als nackte
+Betonplatte weiter. **Fix:** `addBarrelRoof` in `ArchitecturalLandmarks.ts`
+bekam einen neuen `offsetLongitudinal`-Parameter (durchgereicht durch
+Dach-Mesh-Position, Rippen-, Pfetten- und Glasfugen-Segmente); ein neuer
+`addBarrelRoof(...)`-Aufruf in `createHauptbahnhofModel` zeichnet den
+westlichen Streckenüberbau als zusätzliches Tonnendach im selben Glasstil
+(gleicher Glaston, Sprossenraster, Transparenz), nahtlos an die
+Kreuzungshalle angeschlossen. Kontrakttests aktualisiert: Glasfugen- und
+Rippen-Instanzen-Zahl von 2 auf 3 erhöht (zusätzlicher Flügel), neue
+Assertions verankern die West-Flügel-Grenzen exakt an Gleisdeck- und
+Hauptdach-Rand.
+
+**2. ICE stand auf einem Stummelgleis Richtung Wasser.** Der
+Staffage-ICE wurde bisher direkt in `createHauptbahnhofModel` mit einer
+frei erfundenen Position/Rotation gebaut und stand auf einem Stummelgleis,
+das nicht an den echten Gleiskorridor (`rail-lines.json`, Stadtbahn-Viadukt)
+anschloss, sondern Richtung Spree/Humboldthafen ins Leere lief. **Fix:**
+Neue Funktion `createIceOnRails(rail)` baut den ICE jetzt lose in
+Welt-Koordinaten (nicht mehr als Kind der rotierten Bahnhofsgruppe) auf
+einer echten `viaduct_tracks`-Polylinie. `findIceTrackPlacement` sucht den
+Gleiszug mit dem geringsten Abstand zum Bahnhofsanker
+(`HAUPTBAHNHOF_ANCHOR_WORLD`), schneidet daraus einen zug-langen Abschnitt
+und berechnet Position sowie Ausrichtung aus dessen Tangente.
+
+**Rotations-Bugfix (vor dem Verdrahten gefunden):** Die erste Fassung
+berechnete `rotationY = Math.atan2(dx, dz)` aus der Tangente `(dx, dz)`
+zweier Polylinienpunkte. Eine Nachrechnung per Python-Simulation zeigte,
+dass diese Formel die lokale +X-Achse der Gruppe (Three.js-Konvention:
+`rotation.y = theta` bildet `(1,0,0)` auf Weltrichtung
+`(cos theta, -sin theta)` ab) um 90° falsch drehte — die gemappte Richtung
+`(0.149, 0.989)` passte nicht zur tatsächlichen normierten Tangente
+`(-0.989, 0.149)` des gewählten Gleisabschnitts. Korrekte Formel:
+`rotationY = Math.atan2(-dz, dx)`; damit stimmt die gemappte Weltrichtung
+exakt mit der Gleistangente überein (numerisch verifiziert). Ohne diese
+Korrektur hätte der ICE quer statt längs auf dem Gleis gestanden.
+
+Neuer Kontrakttest `tests/ice-on-rails.test.ts`: ICE-Position liegt
+< 2 m von einer `rail-lines.json`-Polylinie entfernt; Ausrichtung ist
+tangential (< 5° Abweichung, beide Fahrtrichtungen zulässig); Höhe liegt
+auf dem echten Gleiskorridor-Schienenkopf (`deck_top_y_m +
+rail_top_over_deck_m`), nicht auf dem lokalen Bahnhofsdeck; Abstand zum
+Bahnhofsanker bleibt < 120 m (Regressionsschutz gegen erneutes
+Abdriften Richtung offenes Wasser). Bestehender Test in
+`architectural-landmarks.test.ts` aktualisiert: der ICE ist jetzt kein
+Kind der Bahnhofsgruppe mehr (nur noch der S-Bahn-Zug und dessen
+Rad-Instanz bleiben dort); `addStationTrain` bekam einen `railTopY`-
+Parameter, damit dieselbe Zuggeometrie sowohl auf dem lokalen
+Bahnhofsdeck (S-Bahn) als auch auf der echten Gleiskorridorhöhe (ICE)
+aufsetzen kann.
+
+Verdrahtet in `ThreeViewer.tsx`: `createIceOnRails(rail)` wird in
+`ensureIsoWorld` direkt neben `createRailNetwork(rail, ground)` aufgerufen
+und der resultierenden Gruppe `runtime.isoWorld` hinzugefügt — bewusst
+nicht innerhalb der rotierten/verschobenen Hauptbahnhof-Modellgruppe, weil
+der ICE jetzt in echten Weltkoordinaten auf dem Gleiskorridor sitzt.
+
+Visuelle Prüfung: Vorher/Nachher-Screenshots des Dachs bestätigen den
+durchgängigen Glasstil ohne Bruch an der Kreuzungshalle. Für den ICE
+selbst lieferte die Playwright/SwiftShader-Kameraperspektive aus der
+Standardansicht keine eindeutig freistehende Zugsilhouette (vermutlich vom
+Dach verdeckt bzw. bei diesem Kamerawinkel zu klein aufgelöst); als
+Beleg für die korrekte Platzierung dienen die fünf grünen
+Kontrakttest-Assertions (Abstand, Tangentialität, Höhe,
+Anker-Abstand-Regressionsschutz) statt eines vollständig freien
+Screenshot-Nachweises. Screenshots unter
+`/home/user/workspace/visual-check-v54/`.
+
 ## v0.53.1 — Amtssitz-Platzierungsfix, Ursache CAP_RADIUS-Aufblähung auf ~142 m
 
 Live-Befund nach v0.53.0: der neu gebaute Pill-Riegel erschien nicht als

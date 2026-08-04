@@ -49,6 +49,7 @@ import {
   type ArchitecturalSignature,
   type FocusCamera,
   createArchitecturalSignature,
+  createIceOnRails,
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
 import { createCivicLandmarks } from "./CivicLandmarks";
@@ -926,6 +927,16 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
         const railway = createRailNetwork(rail, ground);
         if (railway) {
           runtime.isoWorld.add(railway);
+        }
+        // Task 37: the stationary ICE used to stand on the Hauptbahnhof
+        // model's own stub track, which pointed off the east gable at
+        // open water over the Humboldthafen. It now rides a real
+        // viaduct_tracks centreline near the station, in the same
+        // world-space frame as the railway above (not nested inside the
+        // rotated/translated station model group).
+        const ice = createIceOnRails(rail);
+        if (ice) {
+          runtime.isoWorld.add(ice);
         }
       }
       collectFarZoomAntiFlickerTargets(runtime);

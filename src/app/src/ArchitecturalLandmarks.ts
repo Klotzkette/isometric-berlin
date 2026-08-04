@@ -1896,6 +1896,7 @@ function addBarrelRoof(
   height: number,
   baseY: number,
   alongX: boolean,
+  offsetLongitudinal = 0,
 ): void {
   // Pale, properly depth-tested glazing: the old material disabled
   // depth testing entirely (the roof floated in front of everything)
@@ -1918,6 +1919,11 @@ function addBarrelRoof(
   const roof = new Mesh(barrelRoofGeometry(length, width, height, alongX), glass);
   roof.name = name;
   roof.position.y = baseY + 0.18;
+  if (alongX) {
+    roof.position.x = offsetLongitudinal;
+  } else {
+    roof.position.z = offsetLongitudinal;
+  }
   roof.renderOrder = 6;
   group.add(roof);
 
@@ -1931,7 +1937,8 @@ function addBarrelRoof(
       : new Vector3(lateral, y, 0);
   });
   const ribTransforms = Array.from({ length: ribCount + 1 }, (_, index) => {
-    const longitudinal = -length / 2 + (index / ribCount) * length;
+    const longitudinal =
+      offsetLongitudinal + (-length / 2 + (index / ribCount) * length);
     return {
       position: (alongX
         ? [longitudinal, 0, 0]
@@ -1956,7 +1963,9 @@ function addBarrelRoof(
     const lateral = Math.cos(angle) * (width / 2);
     const y = baseY + Math.sin(angle) * height;
     purlinTransforms.push({
-      position: alongX ? [0, y, lateral] : [lateral, y, 0],
+      position: alongX
+        ? [offsetLongitudinal, y, lateral]
+        : [lateral, y, offsetLongitudinal],
     });
   }
   addInstancedBoxes(
@@ -1971,7 +1980,8 @@ function addBarrelRoof(
   const transverseCount = Math.max(30, Math.round(length / 3));
   const arcSegments = 28;
   for (let seam = 0; seam <= transverseCount; seam += 1) {
-    const longitudinal = -length / 2 + (seam / transverseCount) * length;
+    const longitudinal =
+      offsetLongitudinal + (-length / 2 + (seam / transverseCount) * length);
     for (let index = 0; index < arcSegments; index += 1) {
       const startAngle = (index / arcSegments) * Math.PI;
       const endAngle = ((index + 1) / arcSegments) * Math.PI;
@@ -1999,12 +2009,12 @@ function addBarrelRoof(
     panelSegments.push(
       alongX
         ? [
-            [-length / 2, y, lateral],
-            [length / 2, y, lateral],
+            [offsetLongitudinal - length / 2, y, lateral],
+            [offsetLongitudinal + length / 2, y, lateral],
           ]
         : [
-            [lateral, y, -length / 2],
-            [lateral, y, length / 2],
+            [lateral, y, offsetLongitudinal - length / 2],
+            [lateral, y, offsetLongitudinal + length / 2],
           ],
     );
   }
@@ -2248,6 +2258,11 @@ function addStationTrain(
     x: number;
     z: number;
   },
+  // The station model's own local upper-level rail sits at y=10.48; every
+  // absolute height below is expressed as an offset from that so the same
+  // train can be rebuilt on a different rail-top height (e.g. the real
+  // OSM corridor's world-space rail top) without retuning each number.
+  railTopY = 10.48,
 ): void {
   const bodyMaterial = modelMaterial(options.bodyColor, {
     metalness: 0.16,
@@ -2272,21 +2287,21 @@ function addStationTrain(
   body.name = `${options.name} rounded body`;
   body.rotation.z = Math.PI / 2;
   body.scale.set(1, 1, 0.92);
-  body.position.set(options.x, 13.15, options.z);
+  body.position.set(options.x, railTopY + 2.67, options.z);
   body.castShadow = true;
   group.add(body);
   addBox(
     group,
     `${options.name} colour stripe`,
     [options.length - 4.6, 0.34, 3.05],
-    [options.x, 12.55, options.z],
+    [options.x, railTopY + 2.07, options.z],
     stripeMaterial,
   );
   addBox(
     group,
     `${options.name} dark roof equipment`,
     [options.length * 0.46, 0.18, 1.72],
-    [options.x, 14.75, options.z],
+    [options.x, railTopY + 4.27, options.z],
     windowMaterial,
   );
 
@@ -2297,7 +2312,7 @@ function addStationTrain(
       const windowX =
         -options.length / 2 + 5.5 + (index / (windowCount - 1)) * (options.length - 11);
       windows.push({
-        position: [options.x + windowX, 13.55, options.z + side * 1.5],
+        position: [options.x + windowX, railTopY + 3.07, options.z + side * 1.5],
       });
     }
   }
@@ -2316,7 +2331,7 @@ function addStationTrain(
       doors.push({
         position: [
           options.x - options.length / 2 + (index / (doorCount + 1)) * options.length,
-          13.05,
+          railTopY + 2.57,
           options.z + side * 1.56,
         ],
       });
@@ -2340,7 +2355,7 @@ function addStationTrain(
       wheels.push({
         position: [
           options.x - options.length / 2 + fraction * options.length,
-          11.04,
+          railTopY + 0.56,
           options.z + side * 1.58,
         ],
         rotation: [Math.PI / 2, 0, 0],
@@ -2361,8 +2376,8 @@ function addStationTrain(
     const seamX = options.x - options.length / 2 + (index / carriageCount) * options.length;
     for (const side of [-1, 1]) {
       carriageSeams.push([
-        [seamX, 11.9, options.z + side * 1.6],
-        [seamX, 14.25, options.z + side * 1.6],
+        [seamX, railTopY + 1.42, options.z + side * 1.6],
+        [seamX, railTopY + 3.77, options.z + side * 1.6],
       ]);
     }
   }
@@ -2380,12 +2395,178 @@ function addStationTrain(
       [0.1, 0.9, 1.9],
       [
         options.x + end * (options.length / 2 - 0.72),
-        13.66,
+        railTopY + 3.18,
         options.z,
       ],
       windowMaterial,
     );
   }
+}
+
+/**
+ * Where the Hauptbahnhof model itself is anchored (see the
+ * "hauptbahnhof-model" architectural signature in scene.json). The ICE
+ * must sit on a real rail run near here, not just on whichever OSM
+ * polyline happens to be longest somewhere else in the quarter.
+ */
+const HAUPTBAHNHOF_ANCHOR_WORLD: readonly [number, number] = [-119.936, -683.307];
+
+/**
+ * Places the stationary ICE on a real rail centreline instead of the
+ * station model's own local deck. The old placement stood the train on a
+ * stub track that ran off the model's east gable and pointed at open air
+ * over the Humboldthafen; this builds the same train geometry as
+ * `addStationTrain` but as a standalone world-space group, positioned and
+ * yawed to sit tangent to a real `viaduct_tracks` polyline from
+ * `rail-lines.json`, on the run that actually passes the station.
+ *
+ * Exported so `ThreeViewer.tsx` can add it straight to `isoWorld`, in the
+ * same world-space frame as `createRailNetwork`'s deck and rails, rather
+ * than nesting it inside the rotated/translated Hauptbahnhof model group.
+ */
+export function createIceOnRails(rail: {
+  deck_top_y_m: number;
+  rail_top_over_deck_m: number;
+  viaduct_tracks: number[][][];
+}): Group | null {
+  const placement = findIceTrackPlacement(
+    rail.viaduct_tracks,
+    126,
+    HAUPTBAHNHOF_ANCHOR_WORLD,
+  );
+  if (!placement) {
+    return null;
+  }
+  const group = new Group();
+  group.name = "Hauptbahnhof stationary ICE (on real rails)";
+  group.position.set(placement.x, 0, placement.z);
+  group.rotation.y = placement.rotationY;
+  const railTopY = rail.deck_top_y_m + rail.rail_top_over_deck_m;
+  addStationTrain(
+    group,
+    {
+      bodyColor: 0xf1f2ef,
+      length: 126,
+      name: "Hauptbahnhof stationary ICE",
+      stripeColor: 0xd63d3d,
+      windowColor: 0x4c7480,
+      x: 0,
+      z: 0,
+    },
+    railTopY,
+  );
+  return group;
+}
+
+/**
+ * Finds the `viaduct_tracks` polyline that actually passes closest to
+ * `anchor`, then a run of `length` metres centred on the point of closest
+ * approach, and returns that run's midpoint plus tangent heading, all in
+ * world metres. Tracks that never come within `MAX_ANCHOR_DISTANCE_M` of
+ * the anchor are ignored, so a long polyline elsewhere in the quarter can
+ * never outrank the short run that is actually under the station roof.
+ */
+const MAX_ANCHOR_DISTANCE_M = 60;
+
+function findIceTrackPlacement(
+  tracks: number[][][],
+  length: number,
+  anchor: readonly [number, number],
+): { rotationY: number; x: number; z: number } | null {
+  let best: {
+    anchorDistance: number;
+    x: number;
+    z: number;
+    rotationY: number;
+  } | null = null;
+  for (const track of tracks) {
+    const points = track.map(([x, z]) => [x / 10, z / 10] as [number, number]);
+    if (points.length < 2) {
+      continue;
+    }
+    const cumulative = [0];
+    for (let index = 1; index < points.length; index += 1) {
+      const [x0, z0] = points[index - 1];
+      const [x1, z1] = points[index];
+      cumulative.push(cumulative[index - 1] + Math.hypot(x1 - x0, z1 - z0));
+    }
+    const total = cumulative[cumulative.length - 1];
+
+    // Distance from the anchor to the closest point on this polyline, and
+    // the arclength at which that closest approach happens.
+    let closestDistance = Infinity;
+    let closestArclength = 0;
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const [x0, z0] = points[index];
+      const [x1, z1] = points[index + 1];
+      const dx = x1 - x0;
+      const dz = z1 - z0;
+      const segLenSq = dx * dx + dz * dz;
+      const t =
+        segLenSq > 0
+          ? Math.max(
+              0,
+              Math.min(
+                1,
+                ((anchor[0] - x0) * dx + (anchor[1] - z0) * dz) / segLenSq,
+              ),
+            )
+          : 0;
+      const cx = x0 + t * dx;
+      const cz = z0 + t * dz;
+      const distance = Math.hypot(anchor[0] - cx, anchor[1] - cz);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestArclength = cumulative[index] + t * Math.hypot(dx, dz);
+      }
+    }
+    if (closestDistance > MAX_ANCHOR_DISTANCE_M) {
+      continue;
+    }
+    if (best !== null && closestDistance >= best.anchorDistance) {
+      continue;
+    }
+
+    const targetStart = Math.max(
+      0,
+      Math.min(total - length, closestArclength - length / 2),
+    );
+    const targetEnd = Math.min(total, targetStart + length);
+    const start = pointAtDistance(points, cumulative, targetStart);
+    const end = pointAtDistance(points, cumulative, targetEnd);
+    const midX = (start.x + end.x) / 2;
+    const midZ = (start.z + end.z) / 2;
+    // Three.js's RotationY(theta) matrix maps a local +X axis (1, 0, 0)
+    // to world direction (cos(theta), -sin(theta)) in (x, z). Solving
+    // cos(theta) = dx/|d| and -sin(theta) = dz/|d| for theta gives
+    // atan2(-dz, dx) -- so the train's local length axis (+X, per
+    // addStationTrain) ends up tangent to the (dx, dz) run direction.
+    const dx = end.x - start.x;
+    const dz = end.z - start.z;
+    const rotationY = Math.atan2(-dz, dx);
+    best = { anchorDistance: closestDistance, x: midX, z: midZ, rotationY };
+  }
+  return best;
+}
+
+/** Walks a polyline's cumulative-arclength table to the point at `distance`. */
+function pointAtDistance(
+  points: Array<[number, number]>,
+  cumulative: number[],
+  distance: number,
+): { x: number; z: number } {
+  const clamped = Math.max(0, Math.min(cumulative[cumulative.length - 1], distance));
+  let index = 1;
+  while (index < cumulative.length && cumulative[index] < clamped) {
+    index += 1;
+  }
+  index = Math.min(index, cumulative.length - 1);
+  const segStart = cumulative[index - 1];
+  const segEnd = cumulative[index];
+  const t = segEnd > segStart ? (clamped - segStart) / (segEnd - segStart) : 0;
+  const [x0, z0] = points[index - 1];
+  const [x1, z1] = points[index];
+  return { x: x0 + (x1 - x0) * t, z: z0 + (z1 - z0) * t };
 }
 
 function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
@@ -2494,15 +2675,10 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     0x75817e,
     0.5,
   );
-  addStationTrain(group, {
-    bodyColor: 0xf1f2ef,
-    length: 126,
-    name: "Hauptbahnhof stationary ICE",
-    stripeColor: 0xd63d3d,
-    windowColor: 0x4c7480,
-    x: 130,
-    z: -12,
-  });
+  // The stationary ICE used to live here, on this model's own synthetic
+  // deck. Task 37 moves it into world space, riding the real OSM rail
+  // corridor (see createIceOnRails in RailNetwork.ts) instead of a local
+  // stub track that pointed off the east gable at the Humboldthafen.
   addStationTrain(group, {
     bodyColor: 0xe8c23d,
     length: 74,
@@ -2522,6 +2698,27 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     10.4,
     true,
   );
+  // The 321 m shed only covers the crossing hall and its immediate east-west
+  // flanks; the 110 m western approach (the same elevated deck, still under
+  // the Stadtbahn viaduct) was left as a bare opaque deck top with no glazing
+  // at all -- a flat grey slab where a transparent barrel vault should
+  // continue. Real Hauptbahnhof photos show glazing running the full deck on
+  // both gables, so this wing closes that gap in the same glass style (same
+  // material, rib cadence and panel-seam pattern as the main shed), butted
+  // squarely against the shed's west gable with no seam gap.
+  const westWingLength = trackEastX - trackWestX - signature.east_west_roof_length_m;
+  if (westWingLength > 1) {
+    addBarrelRoof(
+      group,
+      "Hauptbahnhof west approach glass roof wing",
+      westWingLength,
+      signature.east_west_roof_width_m,
+      12.5,
+      10.4,
+      true,
+      trackWestX + westWingLength / 2,
+    );
+  }
   addBarrelRoof(
     group,
     "Hauptbahnhof 180 m north-south hall",

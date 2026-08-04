@@ -133,6 +133,17 @@ describe("metre-scale architectural recognition models", () => {
       station!.getObjectByName("Hauptbahnhof 321 m east-west glass roof")!,
     );
     expect(trackDeckBounds.max.x).toBeLessThanOrEqual(roofBounds.max.x + 1);
+    // Step 37: the 110 m western approach used to be a bare opaque deck
+    // with no glazing above it at all. A matching glass wing now closes
+    // that gap, so the combined glass coverage reaches all the way to the
+    // deck's west end, not just the crossing hall.
+    const westWing = station!.getObjectByName(
+      "Hauptbahnhof west approach glass roof wing",
+    );
+    expect(westWing).toBeDefined();
+    const westWingBounds = new Box3().setFromObject(westWing!);
+    expect(westWingBounds.min.x).toBeCloseTo(trackDeckBounds.min.x, 0);
+    expect(westWingBounds.max.x).toBeCloseTo(roofBounds.min.x, 0);
     expect(
       station!.children.filter(
         (child) => child.name === "Hauptbahnhof upper-level ballast bed",
@@ -143,19 +154,27 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(approachPiers).toBeInstanceOf(InstancedMesh);
     expect((approachPiers as InstancedMesh).count).toBeGreaterThan(8);
+    // Step 37: the stationary ICE moved out of this local model group and
+    // onto a real rail-lines.json centreline in world space (see
+    // createIceOnRails and tests/ice-on-rails.test.ts) -- it must NOT be a
+    // child of the station group any more, or it would still be riding
+    // the station's own fictional stub track.
     expect(
       station!.children.some((child) => child.name.includes("stationary ICE")),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       station!.children.some((child) => child.name.includes("Berlin S-Bahn")),
     ).toBe(true);
+    // Three barrel roofs now: the 321 m east-west shed, the new west
+    // approach wing that closes the gap over the deck's overhang, and the
+    // north-south hall.
     expect(
       station!.children.filter((child) => child.name.includes("glass panel seams")),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     const roofRibs = station!.children.filter((child) =>
       child.name.includes("instanced steel arch ribs"),
     );
-    expect(roofRibs).toHaveLength(2);
+    expect(roofRibs).toHaveLength(3);
     expect(
       roofRibs.reduce(
         (count, child) => count + (child as InstancedMesh).count,
@@ -167,9 +186,12 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(sleepers).toBeInstanceOf(InstancedMesh);
     expect((sleepers as InstancedMesh).count).toBeGreaterThan(600);
+    // Step 37: only the S-Bahn is still built inside this local model
+    // group -- the ICE moved to a real rail centreline in world space, so
+    // only one train's wheel-instance mesh remains a child here.
     expect(
       station!.children.filter((child) => child.name.includes("instanced wheels")),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   test("preserves the LoD2 Chancellery envelope and official heights", () => {
