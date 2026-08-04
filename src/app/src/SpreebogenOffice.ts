@@ -90,9 +90,14 @@ const FINS = [
 const FIN_WIDTH_M = 0.6;
 const FIN_SPACING_M = 1.9;
 
-/** Half the short-end radius: the pill's rounded caps, per the photos. */
-const CAP_RADIUS_M = 12.5;
+/**
+ * The pill's rounded end caps are true semicircles matching the
+ * footprint's short axis: radius = depthM / 2 (see `straightLength`
+ * below). `CAP_SEGMENTS` only controls tessellation smoothness.
+ */
 const CAP_SEGMENTS = 20;
+/** Inset of the set-back attic storey's rounded caps from the body's. */
+const ATTIC_RADIUS_INSET_M = 2.5;
 
 /** Construction-site staffage: cranes and perimeter fencing (nice-to-have). */
 const CRANE_MAST = 0x8a1f1f;
@@ -110,9 +115,16 @@ export function createSpreebogenOffice(ground: VoxelPayload): Group | null {
   const bodyHeight = STOREY_HEIGHT_M * UPPER_STOREYS;
   const bodyBase = base + PLINTH_HEIGHT_M;
   const atticBase = bodyBase + bodyHeight;
-  // The straight run between the two rounded caps. The caps themselves
-  // consume `2 * CAP_RADIUS_M` of the footprint's long axis.
-  const straightLength = width - 2 * CAP_RADIUS_M;
+  // The straight run between the two rounded caps. Each cap is a true
+  // semicircle of radius `depth / 2` (see the `addPartialCylinder` calls
+  // below, which all draw the caps at that radius) wrapping the short
+  // axis, so the two caps together consume exactly `depth` of the
+  // footprint's long axis — not an independent, undersized constant.
+  // (v0.53.0 subtracted a stale 12.5 m `CAP_RADIUS_M` here while the caps
+  // themselves were already drawn at the correct `depth / 2` ≈ 36.85 m,
+  // so the assembled body came out ~142 m wide instead of the OSM 92.9 m
+  // and swallowed the neighbouring Zollpackhof/tower massing.)
+  const straightLength = width - depth;
 
   // Plinth: same pill outline as the body, just squat. Modelled as a
   // straight box plus two rounded caps rather than one rounded-rect
@@ -159,7 +171,7 @@ export function createSpreebogenOffice(ground: VoxelPayload): Group | null {
   // rounded-rect (box + half-cylinder caps) at reduced radius/width.
   const atticStraight = straightLength - 5.0;
   const atticDepth = depth - 5.0;
-  const atticRadius = CAP_RADIUS_M - 2.5;
+  const atticRadius = atticDepth / 2 - ATTIC_RADIUS_INSET_M;
   addBox(
     builder, ATTIC,
     cx, atticBase + ATTIC_HEIGHT_M / 2, cz,

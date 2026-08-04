@@ -291,7 +291,7 @@ function buildRiversideBar(
 }
 
 /** The Zollpackhof's Schankhaus and its 1555 chestnut natural monument. */
-const ZOLLPACKHOF_TAP = { x: -276.2, z: -284.6 };
+export const ZOLLPACKHOF_TAP = { x: -276.2, z: -284.6 };
 const ZOLLPACKHOF_CHESTNUT = { height: 20, x: -293.2, z: -255.0 };
 
 export function createRiversideVenues(

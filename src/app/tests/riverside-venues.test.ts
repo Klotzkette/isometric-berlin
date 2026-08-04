@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { Box3, LineSegments, Mesh } from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
-import { createRiversideVenues } from "../src/RiversideVenues";
+import { createRiversideVenues, ZOLLPACKHOF_TAP } from "../src/RiversideVenues";
 import { createSpreebogenOffice } from "../src/SpreebogenOffice";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
@@ -94,6 +94,11 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
     // The full 92.9 m OSM long axis must be present (straight run + caps).
     expect(widthM).toBeGreaterThan(90);
     expect(depthM).toBeGreaterThan(70);
+    // v0.53.0 regression: straightLength used a hard-coded cap radius that
+    // did not match the cap geometry's actual depth/2 radius, inflating the
+    // assembled body to ~142 m wide. Pin an upper bound a few metres over
+    // the 92.9 m OSM long axis so that bug cannot silently return.
+    expect(widthM).toBeLessThan(105);
     // A few metres over the 73.7 m OSM depth is the projecting fin/cladding
     // thickness on the rounded caps, not a modelling error.
     expect(depthM).toBeLessThan(85);
@@ -128,5 +133,41 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
     const fullBounds = new Box3().setFromObject(office);
     // The cranes overtop the building, so the full group is taller.
     expect(fullBounds.max.y).toBeGreaterThan(buildingBounds.max.y);
+  });
+
+  test("its footprint sits clear of the Zollpackhof tap house, not merged with it", () => {
+    // v0.53.0 regression: the oversized ~142 m body visually swallowed the
+    // one-storey Zollpackhof Schankhaus. Assert the two AABBs are disjoint
+    // on the ground plane and that the office's own centroid lands in the
+    // north-of-the-river, north-west-of-Moltkebruecke region rather than on
+    // top of the beer garden south of it.
+    const bodies = office.getObjectByName(
+      "Amtssitz am Spreebogen bodies",
+    ) as Mesh;
+    const officeBounds = new Box3().setFromObject(bodies);
+
+    // Zollpackhof's tap house footprint is a small building centred on
+    // ZOLLPACKHOF_TAP; a generous 40 m half-extent square is more than
+    // enough to cover the real (much smaller) one-storey structure while
+    // still proving the two are disjoint.
+    const tapHalfExtent = 40;
+    const tapMinX = ZOLLPACKHOF_TAP.x - tapHalfExtent;
+    const tapMaxX = ZOLLPACKHOF_TAP.x + tapHalfExtent;
+    const tapMinZ = ZOLLPACKHOF_TAP.z - tapHalfExtent;
+    const tapMaxZ = ZOLLPACKHOF_TAP.z + tapHalfExtent;
+
+    const disjointOnX =
+      officeBounds.max.x < tapMinX || officeBounds.min.x > tapMaxX;
+    const disjointOnZ =
+      officeBounds.max.z < tapMinZ || officeBounds.min.z > tapMaxZ;
+    expect(disjointOnX || disjointOnZ).toBe(true);
+
+    // The office sits north of the river (more negative world_z than the
+    // Moltkebruecke bridge deck) and west of the bridge's easting.
+    const centreX = (officeBounds.min.x + officeBounds.max.x) / 2;
+    const centreZ = (officeBounds.min.z + officeBounds.max.z) / 2;
+    const moltkebrueckeWorldZ = -367.7;
+    expect(centreZ).toBeLessThan(moltkebrueckeWorldZ + 5);
+    expect(centreX).toBeLessThan(ZOLLPACKHOF_TAP.x);
   });
 });

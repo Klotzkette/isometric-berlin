@@ -1,5 +1,59 @@
 # Changelog
 
+## v0.53.1 — Amtssitz-Platzierungsfix, Ursache CAP_RADIUS-Aufblähung auf ~142 m
+
+Live-Befund nach v0.53.0: der neu gebaute Pill-Riegel erschien nicht als
+eigener ~7-geschossiger Bau nordwestlich der Moltkebrücke; stattdessen wirkte
+das eingeschossige Zollpackhof-Schankhaus mit bunten Streifen und einer
+gerundeten Wandkurve überlagert, weil der Amtssitz-Baukörper massiv
+übergroß war und in dessen Richtung hineinragte.
+
+**Ursache:** In `SpreebogenOffice.ts` benutzte `straightLength` die Konstante
+`CAP_RADIUS_M = 12.5` zur Berechnung der geraden Mittelsektion
+(`width - 2 * CAP_RADIUS_M`), während die tatsächlichen `addPartialCylinder`-
+Aufrufe für die gerundeten Kappen an Sockel und Körper durchgehend
+`depth / 2` (≈36.85 m) als Kappenradius verwendeten — nie `CAP_RADIUS_M`.
+Dadurch wurde der zusammengesetzte Baukörper ca. 142 m statt der
+OSM-Vorgabe von 92,9 m breit (per Laufzeit-`Box3`-Debugging bestätigt:
+`size:[142.25, 27, 83]` statt der erwarteten ~93×27×74 m). Die übergroßen
+Kappen erzeugten eine gekippte, dominante Fläche, die visuell wie ein
+zusammengeschmolzenes Nachbargebäude mit Satteldach wirkte — exakt das
+gemeldete Symptom. Zusätzlich war `atticRadius = CAP_RADIUS_M - 2.5` (=10 m)
+aus demselben Grund inkonsistent mit der realen Footprint-Tiefe.
+Die Footprint-Koordinaten selbst (`centreX=-296.2, centreZ=-366.5,
+depthM=73.7, widthM=92.9`) waren bereits korrekt und blieben unverändert;
+der Bug lag ausschließlich in der abgeleiteten Kappen-/Mittelsektion-
+Geometrie.
+
+**Fix:** `CAP_RADIUS_M` entfernt; `straightLength` jetzt `width - depth`
+(=19,2 m statt 67,9 m); `atticRadius` jetzt `atticDepth / 2 -
+ATTIC_RADIUS_INSET_M` (neue, klar benannte Konstante für den
+Dachgeschoss-Einzug). Ergebnis laut `Box3`-Nachmessung: Baukörper jetzt
+`width=101.2 m, depth=83 m, height=27 m` (inklusive Bauzaun-Rand um die
+92,9×73,7 m OSM-Kernfläche), Zentrum unverändert bei (-296.2, -366.5).
+Zollpackhof (`RiversideVenues.ts`) war nie im Code verändert worden —
+das einstöckige Schankhaus mit rotem Satteldach und cremefarbenen Wänden
+blieb stets unangetastet; die visuelle Überlagerung kam allein von der
+Größe des Amtssitz-Körpers.
+
+Neue Testabdeckung in `riverside-venues.test.ts`: eine Obergrenze für die
+Breite (`< 105`, vorher unbegrenzt — der 142-m-Bug wäre sonst weiter durch
+die Tests gerutscht) sowie ein eigener Test, der beweist, dass die
+Amtssitz- und Zollpackhof-AABBs disjunkt sind und der Amtssitz-Mittelpunkt
+nordwestlich der Moltkebrücke liegt.
+
+Verifiziert mit SwiftShader-Playwright-Screenshots (Kamera auf
+Moltkebrücke/Nordufer): der Pill-Riegel erscheint jetzt korrekt
+dimensioniert und farbig nordwestlich der Brücke, das Zollpackhof-
+Schankhaus zeigt sich wieder einstöckig mit Satteldach ohne Streifen.
+Screenshots unter `visual-check-v531/`.
+
+Gates: `uv run ruff check .` (clean) und `uv run pytest -q` (236 passed);
+`bunx tsc -b` (clean), `bun test --timeout 60000` (369 passed, 0 failed,
+48 files) und `bun run build` (erfolgreich); `package_static_site.py`,
+`check_release_readiness.py` und `smoke_local_package.py` alle erfolgreich
+für v0.53.1.
+
 ## v0.53.0: Interimsbau-Pill + Fern-Ink-Fade mit Hysterese
 
 Two user reports, two fixes.
