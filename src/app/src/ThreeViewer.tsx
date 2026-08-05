@@ -3083,6 +3083,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 3.5,
             target_world: [-488.2, 5.2, 889.2],
           });
+          // Richard Wagner is an OSM artwork point with no dedicated sight
+          // entry, so it never had a focus preset at all and only ever
+          // showed at the generic ~190 m overview distance -- far too
+          // far to tell the canopy roof from the marble group under it.
+          runtime.focusCameraByName.set("Richard Wagner", {
+            azimuth_degrees: 20,
+            distance_m: 34,
+            polar_degrees: 66,
+            target_height_m: 4,
+            target_world: [-672.1, 5.2, 967.2],
+          });
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
           );

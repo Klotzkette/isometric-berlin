@@ -193,8 +193,23 @@ function buildWagnerMemorial(
       box(builder, CANOPY_POST, x + dx, y + 3.4, z + dz, 0.24, 6.1, 0.24);
     }
   }
-  box(builder, CANOPY_ROOF, x, y + 6.7, z, 9.4, 0.45, 7.6);
-  box(builder, CANOPY_ROOF, x, y + 7.15, z, 6.6, 0.5, 5.2);
+  // The real 1987/88 Schutzdach (Marianne Wagner, architect) is a steel
+  // barrel vault under plexiglass, not a flat gable -- five stepped
+  // slabs of shrinking width approximate the half-round cross-section
+  // running east-west over the monument, per
+  // https://bildhauerei-in-berlin.de/bildwerk/wagnerdenkmal-5372/ and
+  // https://de.wikipedia.org/wiki/Richard-Wagner-Denkmal_(Berlin) .
+  box(builder, CANOPY_ROOF, x, y + 6.55, z, 9.6, 0.4, 7.8);
+  const vaultSteps = [
+    { dy: 6.95, sx: 8.6, sy: 0.42, sz: 6.9 },
+    { dy: 7.35, sx: 7.2, sy: 0.42, sz: 5.7 },
+    { dy: 7.72, sx: 5.6, sy: 0.4, sz: 4.4 },
+    { dy: 8.06, sx: 3.8, sy: 0.36, sz: 2.9 },
+  ];
+  for (const step of vaultSteps) {
+    box(builder, CANOPY_ROOF, x, y + step.dy, z, step.sx, step.sy, step.sz);
+  }
+  box(builder, CANOPY_ROOF, x, y + 8.32, z, 1.6, 0.3, 1.2); // vault ridge cap
 }
 
 /**

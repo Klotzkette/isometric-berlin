@@ -138,4 +138,44 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
       expect(tallestNear(name)).toBeLessThan(8);
     }
   });
+
+  test("Wagner's canopy is a stepped vault above four posts, not a flat lid", () => {
+    // v0.58.0: the real 1987/88 Schutzdach is a barrel vault, so the
+    // highest vertices near the monument must come from a stack of at
+    // least four shrinking slabs (the vault steps) sitting above the
+    // four canopy posts, not a single flat roof plate.
+    const entry = street.monuments!.find(
+      (candidate) => candidate.name === "Richard Wagner",
+    )!;
+    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    const vertex = new Vector3();
+    const vaultTopYValues = new Set<number>();
+    let postTop = -Infinity;
+    let marbleGroupTop = -Infinity;
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        Math.abs(vertex.x - entry.x_dm / 10) < 6 &&
+        Math.abs(vertex.z - entry.z_dm / 10) < 6
+      ) {
+        if (vertex.y > 6) {
+          vaultTopYValues.add(Math.round(vertex.y * 100) / 100);
+        }
+        if (Math.abs(vertex.x - entry.x_dm / 10) < 0.3) {
+          marbleGroupTop = Math.max(marbleGroupTop, Math.min(vertex.y, 6));
+        }
+      }
+      if (
+        Math.abs(vertex.x - (entry.x_dm / 10 + 3.6)) < 0.3 &&
+        Math.abs(vertex.z - (entry.z_dm / 10 + 2.8)) < 0.3
+      ) {
+        postTop = Math.max(postTop, vertex.y);
+      }
+    }
+    // At least four distinct vault-step top elevations above y=6.
+    expect(vaultTopYValues.size).toBeGreaterThanOrEqual(4);
+    // The posts must reach up into the vault's height range.
+    expect(postTop).toBeGreaterThan(6);
+  });
 });
