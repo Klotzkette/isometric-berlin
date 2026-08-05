@@ -3056,16 +3056,32 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 3,
             target_world: [358, 5.3, -1150],
           });
-          // The forecourt is 84 m wide (T-34s at +/-25 m, ML-20 howitzers
-          // at +/-36.5 m); a straight-on south approach at 130 m is the
-          // only framing that keeps both wings in frame at once instead
-          // of cropping one tank and one gun off-screen.
+          // The forecourt is 94 m wide (T-34s at +/-33 m, ML-20 howitzers
+          // at +/-44.5 m); a south approach at 145 m with a steep polar
+          // angle is the framing that keeps both wings in frame at once
+          // instead of cropping one tank and one gun off-screen, which is
+          // what the generic distance-only fallback used to do.
           runtime.focusCameraByName.set("Sowjetisches Ehrenmal Tiergarten", {
             azimuth_degrees: 180,
             distance_m: 145,
             polar_degrees: 68,
             target_height_m: 3,
             target_world: [26.57719945925055, 4.79, 245.32870413176715],
+          });
+          // v0.58.0: the ensemble is three separate OSM points spread
+          // across ~55 m E-W and ~125 m N-S (Koenigin Luise at the south,
+          // Friedrich Wilhelm III across the water to the north-west,
+          // Jung-Wilhelm on the small island to the north-east), so a
+          // camera at the sight's own centroid used the generic distance
+          // fallback and left all three marble figures too small and
+          // half-hidden by trees to read. Pull back and look north from
+          // south of Luise's own pedestal so all three read in one frame.
+          runtime.focusCameraByName.set("Königin-Luise-Denkmal (Luiseninsel)", {
+            azimuth_degrees: 8,
+            distance_m: 95,
+            polar_degrees: 62,
+            target_height_m: 3.5,
+            target_world: [-488.2, 5.2, 889.2],
           });
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),

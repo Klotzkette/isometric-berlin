@@ -227,22 +227,66 @@ function buildBismarckNationalDenkmal(
 }
 
 /**
- * The Luiseninsel figures — Encke's Königin Luise, Drake's Friedrich
- * Wilhelm III, Wilhelm von Preußen. All three are standing white marble
- * on a tall pedestal with a proud cornice, which is what separates them
- * from the bronze-on-plinth statues elsewhere in the park.
+ * The Luiseninsel figures — Encke's Königin Luise (1880, cylindrical
+ * pedestal with a Befreiungskriege relief band, downcast standing
+ * queen), Drake's Friedrich Wilhelm III (1849, tall square pedestal,
+ * mantled king), and Brütt's Jung-Wilhelm (1904, low pedestal with a
+ * tree-stump prop, young Garde-Füsilier officer with sabre and
+ * gloves). They used to share one 5-box stack per the v0.57 marble
+ * blob; each now gets a shape that matches its real composition, with
+ * a head/torso/arm silhouette instead of a single body box, per
+ * https://de.wikipedia.org/wiki/Luiseninsel and
+ * https://bildhauerei-in-berlin.de/bildwerk/koenigin-luise-denkmal-6298/
+ * and https://bildhauerei-in-berlin.de/bildwerk/jung-wilhelm-4679/ .
+ * Presentation geometry approximating the documented composition —
+ * not a survey model (Vertrag 5).
  */
 function buildMarbleFigure(
   builder: Builder,
   x: number,
   y: number,
   z: number,
+  variant: "luise" | "friedrich-wilhelm" | "wilhelm" = "luise",
 ): void {
+  if (variant === "friedrich-wilhelm") {
+    // Drake's 1849 king: tall square granite-look pedestal, mantled
+    // standing figure with a crown-height head — the tallest of the
+    // three so he reads across the water from the queen's island.
+    box(builder, STONE_LIGHT, x, y + 0.3, z, 4.4, 0.6, 4.4);
+    box(builder, MARBLE, x, y + 1.5, z, 3, 2.4, 3);
+    box(builder, MARBLE, x, y + 2.85, z, 3.4, 0.3, 3.4);
+    box(builder, MARBLE, x, y + 4.55, z, 1.7, 3.1, 1.4); // mantled torso
+    box(builder, MARBLE, x, y + 6.35, z, 0.55, 0.55, 0.55); // head
+    for (const side of [-1, 1]) {
+      box(builder, MARBLE, x + side * 0.95, y + 4.9, z, 0.42, 2.2, 0.42);
+    }
+    return;
+  }
+  if (variant === "wilhelm") {
+    // Brütt's 1904 Jung-Wilhelm: low two-step pedestal, a tree-stump
+    // prop behind the figure, young officer in a peaked Garde cap with
+    // a sabre held to his side.
+    box(builder, STONE_LIGHT, x, y + 0.22, z, 2.6, 0.44, 2.2);
+    box(builder, STONE_LIGHT, x, y + 0.58, z, 2.2, 0.28, 1.9);
+    box(builder, MARBLE, x, y + 1.95, z, 1.5, 2.5, 1.3); // pedestal block
+    box(builder, MARBLE, x - 0.55, y + 3.8, z - 0.35, 0.42, 2.7, 0.42); // stump
+    box(builder, MARBLE, x, y + 4.15, z, 0.85, 2.3, 0.7); // torso
+    box(builder, MARBLE, x, y + 5.9, z, 0.42, 0.42, 0.42); // head
+    box(builder, MARBLE, x, y + 6.2, z, 0.5, 0.16, 0.5); // peaked cap
+    box(builder, MARBLE, x + 0.55, y + 3.9, z + 0.1, 0.2, 1.9, 0.2); // sabre arm
+    return;
+  }
+  // Encke's 1880 Königin Luise: cylindrical relief pedestal (the
+  // Befreiungskriege frieze), downcast standing figure in a long gown.
   box(builder, STONE_LIGHT, x, y + 0.25, z, 3.4, 0.5, 3.4);
-  box(builder, MARBLE, x, y + 1.9, z, 2, 2.8, 2);
-  box(builder, MARBLE, x, y + 3.45, z, 2.4, 0.3, 2.4);
-  box(builder, MARBLE, x, y + 5.1, z, 1.2, 3, 1.2);
-  box(builder, MARBLE, x, y + 6.9, z, 0.6, 0.6, 0.6);
+  box(builder, MARBLE, x, y + 1.25, z, 2.6, 1.6, 2.6); // relief drum
+  box(builder, MARBLE, x, y + 2.15, z, 2.9, 0.24, 2.9); // drum cap
+  box(builder, MARBLE, x, y + 3.85, z, 1.5, 3.2, 1.1); // gown/torso, tapers up
+  box(builder, MARBLE, x, y + 5.6, z, 0.95, 0.6, 0.75); // shoulders
+  box(builder, MARBLE, x, y + 6.22, z, 0.44, 0.44, 0.44); // downcast head
+  for (const side of [-1, 1]) {
+    box(builder, MARBLE, x + side * 0.55, y + 4.25, z + 0.15, 0.28, 1.7, 0.28);
+  }
 }
 
 /** Moltke and Roon: a bronze general on a tall granite pedestal. */
@@ -311,7 +355,12 @@ export function createTiergartenMonuments(
     } else if (/Moltke|Roon/i.test(name)) {
       buildGeneralColumn(builder, x, y, z);
     } else if (LUISENINSEL_NAMES.test(name)) {
-      buildMarbleFigure(builder, x, y, z);
+      const variant = /Friedrich Wilhelm/i.test(name)
+        ? "friedrich-wilhelm"
+        : /Königin Luise/i.test(name)
+          ? "luise"
+          : "wilhelm";
+      buildMarbleFigure(builder, x, y, z, variant);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {
@@ -323,6 +372,15 @@ export function createTiergartenMonuments(
   }
   const group = new Group();
   group.name = "OSM Tiergarten monuments";
+  // Vertrag 5: every figure in this file is referenced-based presentation
+  // geometry built from OSM point positions plus Wikipedia/Wikimedia
+  // photographs and Landesdenkmalamt/bildhauerei-in-berlin.de
+  // descriptions, not a survey or photogrammetry model. Individual
+  // monuments merge into one mesh for draw-call economy, so the label
+  // lives on the whole group rather than per-figure.
+  group.userData.geometryStatus =
+    "Reference-based presentation geometry from OSM point positions and " +
+    "Wikipedia/Wikimedia/Denkmaldatenbank descriptions - not a survey model";
 
   const merged = mergeGeometries(builder.parts, false);
   if (merged) {
