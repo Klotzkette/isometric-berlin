@@ -152,22 +152,28 @@ describe("metre-scale architectural recognition models", () => {
     // Step 38: the shed used to be two separate barrel-roof bodies (a
     // 321 m main shed plus a 110 m "west approach wing" butted against
     // its gable), which read as two disconnected flat segments meeting at
-    // a hard seam. It is now ONE continuous roof spanning the whole
-    // 431 m deck, so its name carries the full deck length and there is
-    // no separate west-wing object any more.
+    // a hard seam. Step 40 / v0.56.1: the roof is now ONE continuous body
+    // stuck to its real ~321 m length (the old "431 m" figure was the
+    // *deck's* length, wrongly copied onto the roof, which is why the old
+    // shed used to overhang the Humboldthafen at both ends with nothing
+    // underneath). The elevated deck below is still allowed to run past
+    // the shed as an open approach viaduct, so the roof is now shorter
+    // than the deck on purpose, not equal to it.
     const roof = station!.getObjectByName(
-      "Hauptbahnhof 431 m east-west glass roof",
+      "Hauptbahnhof 321 m east-west glass roof",
     );
     expect(roof).toBeDefined();
     const roofBounds = new Box3().setFromObject(roof!);
-    // v0.56: both the roof and the deck beneath it now curve with the
-    // real rail data, so their bounding boxes are no longer identical to
-    // sub-metre precision -- allow a few metres of tolerance, which still
-    // proves the roof spans the same approach as the deck it covers.
-    expect(roofBounds.max.x - roofBounds.min.x).toBeGreaterThanOrEqual(431);
-    expect(roofBounds.max.x - roofBounds.min.x).toBeLessThan(431 + 15);
-    expect(Math.abs(roofBounds.min.x - trackDeckBounds.min.x)).toBeLessThan(12);
-    expect(Math.abs(roofBounds.max.x - trackDeckBounds.max.x)).toBeLessThan(12);
+    expect(roofBounds.max.x - roofBounds.min.x).toBeGreaterThanOrEqual(321);
+    expect(roofBounds.max.x - roofBounds.min.x).toBeLessThan(321 + 15);
+    // The roof must stay within the deck's own span (never overhang past
+    // the last supported bit of track) and be strictly shorter than it,
+    // which is the whole point of the v0.56.1 fix.
+    expect(roofBounds.min.x).toBeGreaterThanOrEqual(trackDeckBounds.min.x - 1);
+    expect(roofBounds.max.x).toBeLessThanOrEqual(trackDeckBounds.max.x + 1);
+    expect(roofBounds.max.x - roofBounds.min.x).toBeLessThan(
+      trackDeckBounds.max.x - trackDeckBounds.min.x,
+    );
     expect(
       station!.getObjectByName("Hauptbahnhof west approach glass roof wing"),
     ).toBeUndefined();

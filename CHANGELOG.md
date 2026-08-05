@@ -1,5 +1,68 @@
 # Changelog
 
+## v0.56.1: Hbf-LoD2-Rest unterdrückt (Footprint statt ID), Glasdach auf echte 321 m gestutzt und an den Enden über den Gleisen geschlossen
+
+**Nacharbeit nach Nutzer-Screenshot (rote Markierungen).** Zwei konkrete
+Fehler im v0.56.0-Hauptbahnhof, beide in derselben Ursache verwurzelt --
+das Handmodell und die LoD2/Minecraft-Rohdaten liefen an zwei Stellen
+auseinander:
+
+1. **Beiger opaker Kasten über den Gleisen weg.** Am Ost-Ende ragte ein
+   LoD2-Gebäudeprisma-Rest des echten Hauptbahnhof-Footprints (u. a.
+   `DEBE3Dbzrg8J0PRu`, ALKIS-Funktion `51009_1610` "Bauwerk im
+   Gleisbereich", ein diagonal entlang der Gleise laufender Solitär, den
+   das Handmodell nie einzeln nachbildet) sichtbar neben/über der neuen
+   Glashalle weiter. Die alte Suppression war eine feste 3-ID-Liste
+   (`K0002KiE`, `YK0000Cm`, `q7Axk9GG`); das griff nur für exakt diese
+   IDs und ließ jeden weiteren Teilprisma-Rest mit anderer ID durch.
+   **Fix:** `PRISM_SUPPRESSED_IDS` verliert die drei Hbf-IDs; neue
+   Funktion `isHauptbahnhofFootprintSuppressed()` in
+   `IsometricCityWorld.ts` testet statt einer ID-Liste den tatsächlichen
+   Footprint jedes LoD2-Gebäudes gegen ein lokales Hüllen-Polygon, das
+   exakt die vom Handmodell gezeichneten Rechtecke nachbildet (Ost-West-
+   Dachband entlang der echten Gleiskurve, Nord-Süd-Hallenband, beide
+   Bügelbauten-Bänder), mit 15 m Außenrand und einer 30-%-Overlap-
+   Schwelle über die Polygon-Vertices. Das fängt jetzt ~40+ Prismen rund
+   um den Bahnhof ab (statt der alten 3), ohne irgendein Gebäude mehr als
+   ~100 m vom Bahnhofsanker zu berühren (an der vollen Payload geprüft).
+   Dieselbe Logik existiert gespiegelt in Python
+   (`is_hauptbahnhof_footprint_suppressed()` in
+   `build_minecraft_voxels.py`, angewandt in `rasterise_buildings()`),
+   damit LoD2-Prismen und Minecraft-Voxel nie wieder auseinanderlaufen;
+   `minecraft-voxels.json` wurde neu erzeugt. `lod2-prisms.json` selbst
+   bleibt unverändert -- die Unterdrückung ist eine Render-Zeit-
+   Entscheidung, die Rohdaten der unterdrückten Gebäude bleiben in der
+   Payload (Kontrakttest dafür).
+2. **Glasdach-Enden über den Gleisen statt über dem Wasser.** Das Ost-
+   West-Tonnendach benutzte fälschlich `trackLength` (431 m, die Länge
+   des gesamten Gleisdecks samt 110 m West-Zufahrtsstummel) statt der
+   realen Hallenlänge von 321 m, und war nicht auf x = 0 zentriert. Damit
+   kragte das Dach an beiden Enden frei über den Rand des eigentlichen
+   Bahnhofsdecks hinaus -- am Westende über den Humboldthafen. **Fix, in
+   `ArchitecturalLandmarks.ts`:** `addBarrelRoof` für das Ost-West-Dach
+   bekommt jetzt `signature.east_west_roof_length_m` (321 m) und
+   `offsetLongitudinal = 0`; das Gleisdeck darunter bleibt bewusst länger
+   (offene Zufahrtsviadukt-Strecke westlich der Halle). Zwei neue
+   Hilfsfunktionen `addBarrelRoofEndPortal` (verglaster Halbkreis-Giebel,
+   um den lokalen Tangentenwinkel der Gleiskurve rotiert, also senkrecht
+   zur tatsächlich gekrümmten Achse, nicht zur geraden Konstruktionsachse
+   der Halle) und `addBarrelRoofEndSupport` (zwei Stahl-Stützenpaare plus
+   Riegel, vom Deck bis zur Dachtraufe) schließen beide Dachenden über
+   dem Gleisbündel ab.
+3. **Verschärfter Krümmungs-Kontrakttest.** `tests/hauptbahnhof-curve.test.ts`
+   läuft jetzt in 1-m-Schritten über die volle ±160,5-m-Dachspanne und
+   prüft die maximale Querabweichung Dachachse↔Gleiskurve (< 4 m, > 300
+   Stichproben); neue Regressionswächter stellen sicher, dass keine
+   Dach-Geometrie über die 321-m-Hüllkurve hinausragt und dass an beiden
+   Enden benannte Portal-/Stützobjekte existieren.
+   `tests/isometric-city-world.test.ts` bekam einen neuen payload-weiten
+   Test, der die Footprint-Suppression gegen die reale Geometrie prüft
+   (bekannter Übeltäter muss unterdrückt sein, > 15 Gebäude insgesamt).
+
+Beide Fehler wurden über Screenshots vom West- und Ost-Ende gegen die
+vom Nutzer markierte Referenz (`IMG_0203.jpeg`) verifiziert; siehe
+`v561-report.md`.
+
 ## v0.56.0: gebogener Glasschlauch entlang der Gleiskurve, komplette Glas-Hülle, Glas- und Krümmungs-Kontrakttests
 
 **Radikale Korrektur Hauptbahnhof.** Der Nutzer war zu Recht unzufrieden mit

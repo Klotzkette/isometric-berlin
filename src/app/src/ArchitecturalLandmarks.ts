@@ -2150,6 +2150,128 @@ function addBarrelRoof(
   );
 }
 
+/**
+ * The barrel roof's end gable: a filled semicircular wall standing exactly
+ * at one end of the shed, cut perpendicular to the *local tangent* of the
+ * (possibly curved) rail axis at that end rather than perpendicular to the
+ * shed's own longitudinal (x or z) construction axis. On the curved
+ * east-west roof the rail axis is not parallel to that construction axis
+ * at the ends (the quadratic bow has a non-zero slope there), so a portal
+ * built square to x would lean away from the tracks it is meant to frame;
+ * rotating it by the curve's local tangent angle keeps the archway square
+ * across the rails themselves, exactly the "Portalbogen exakt ueber dem
+ * Gleisbuendel" the user asked for.
+ */
+function addBarrelRoofEndPortal(
+  group: Group,
+  name: string,
+  endLongitudinal: number,
+  width: number,
+  height: number,
+  baseY: number,
+  alongX: boolean,
+  offsetLongitudinal: number,
+  curve: RoofCurve,
+  outward: 1 | -1,
+): void {
+  const glass = nightEmitter(
+    new MeshPhysicalMaterial({
+      color: 0xc6e3ea,
+      depthWrite: false,
+      metalness: 0.03,
+      opacity: 0.3,
+      roughness: 0.1,
+      side: DoubleSide,
+      transparent: true,
+      transmission: 0.34,
+    }),
+    0xaedfff,
+    1.1,
+  );
+  const xLocalInGroup = endLongitudinal + offsetLongitudinal;
+  const bow = roofBowOffset(xLocalInGroup, curve);
+  // Local tangent slope of the bow curve at this end -- dz/dx for "rail",
+  // zero for "none" -- so the portal plane is perpendicular to the rails
+  // themselves, not to the shed's construction axis.
+  const tangentSlope =
+    curve === "none"
+      ? 0
+      : 2 * HAUPTBAHNHOF_RAIL_CURVE_A * xLocalInGroup + HAUPTBAHNHOF_RAIL_CURVE_B;
+  const tangentAngle = Math.atan(tangentSlope);
+  const shapePoints = 33;
+  const shape = new Shape();
+  shape.moveTo(-width / 2, 0);
+  for (let index = 0; index <= shapePoints; index += 1) {
+    const angle = (index / shapePoints) * Math.PI;
+    shape.lineTo(Math.cos(angle) * (width / 2), Math.sin(angle) * height);
+  }
+  shape.lineTo(width / 2, 0);
+  shape.closePath();
+  const portal = new Mesh(new ShapeGeometry(shape), glass);
+  portal.name = name;
+  const longitudinalPos = endLongitudinal + outward * 0.35;
+  if (alongX) {
+    portal.position.set(longitudinalPos, baseY + 0.18, bow);
+    portal.rotation.y = Math.PI / 2 - tangentAngle;
+  } else {
+    portal.position.set(bow, baseY + 0.18, longitudinalPos);
+    portal.rotation.y = -tangentAngle;
+  }
+  portal.renderOrder = 6;
+  group.add(portal);
+  addEdges(group, portal, 0.55);
+}
+
+/**
+ * The end support (Auflager) that carries the barrel roof's end portal
+ * down onto the elevated viaduct deck: without it the shed reads as
+ * floating free past its last rib, which is exactly the "wuerde
+ * abstuerzen" (over the Humboldthafen, on the west end) complaint from
+ * the reference screenshot. Twin steel piers sit under the portal's own
+ * rim, one on each side of the track bundle, following the same lateral
+ * bow as the roof so they land under the arch instead of beside it.
+ */
+function addBarrelRoofEndSupport(
+  group: Group,
+  name: string,
+  endLongitudinal: number,
+  width: number,
+  height: number,
+  baseY: number,
+  deckTopY: number,
+  alongX: boolean,
+  offsetLongitudinal: number,
+  curve: RoofCurve,
+): void {
+  const steel = modelMaterial(0x47616d, { metalness: 0.66, roughness: 0.28 });
+  const xLocalInGroup = endLongitudinal + offsetLongitudinal;
+  const bow = roofBowOffset(xLocalInGroup, curve);
+  const pierHeight = Math.max(0.5, baseY - deckTopY);
+  const pierCentreY = deckTopY + pierHeight / 2;
+  for (const side of [-1, 1]) {
+    const lateral = bow + side * (width / 2 - 1.2);
+    const position: [number, number, number] = alongX
+      ? [endLongitudinal, pierCentreY, lateral]
+      : [lateral, pierCentreY, endLongitudinal];
+    addBox(group, name, [1.4, pierHeight, 1.4], position, steel, 0.5);
+  }
+  // A horizontal transom along the portal's own foot ties the two piers
+  // together and gives the glazed gable something to visibly rest on.
+  const beamLength = width - 1.6;
+  const beamPosition: [number, number, number] = alongX
+    ? [endLongitudinal, baseY - 0.1, bow]
+    : [bow, baseY - 0.1, endLongitudinal];
+  const beam = addBox(
+    group,
+    `${name} transom`,
+    alongX ? [1.1, 0.7, beamLength] : [beamLength, 0.7, 1.1],
+    beamPosition,
+    steel,
+    0.5,
+  );
+  beam.rotation.y = 0;
+}
+
 /** A flat band tilted to run from one level to the next, i.e. an escalator. */
 function addEscalatorRun(
   group: Group,
@@ -2968,25 +3090,88 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   // track curve rather than run dead straight or with a synthetic
   // symmetric bow, and (2) the whole aboveground station is glass --
   // no grey boxes, no opaque roof caps, nothing doubled up. This single
-  // continuous roof spans the whole 431 m rendered deck (trackWestX to
-  // trackEastX) and follows `railCurveOffset`, the quadratic fit to the
+  // continuous roof follows `railCurveOffset`, the quadratic fit to the
   // real Stadtbahn viaduct curve derived from rail-lines.json (see the
   // HAUPTBAHNHOF_RAIL_CURVE_A/B constants above) -- matching the
   // reference aerials (IMG_0180-83), which show one continuously curved
-  // hall, not a straight tube with a cosmetic bow. `addBarrelRoof` takes
-  // `offsetLongitudinal = trackCentreX` (not 0) because the roof mesh's
-  // own local frame is centred on the deck's midpoint, not on the
-  // station's rail-curve origin (local x = 0); passing trackCentreX lets
-  // the curve be sampled in the correct absolute frame.
+  // hall, not a straight tube with a cosmetic bow.
+  //
+  // v0.56.1 ("Glasdach-Enden"): the roof used to span `trackLength`
+  // (431 m -- the rendered deck's full extent, including the 110 m
+  // straight west approach stub) instead of the official
+  // `east_west_roof_length_m` (321 m). That let the glazed tube run past
+  // its own last rib with nothing holding it up, reading as cantilevered
+  // free over the Humboldthafen at the west end and drifting off the rail
+  // curve towards the east end -- exactly the user's screenshot complaint
+  // on both ends. The roof itself must only cover the real 321 m shed,
+  // centred on the station crossing (`offsetLongitudinal = 0`, the same
+  // origin the rail-curve fit is anchored to), riding on the elevated
+  // deck the approach still extends 110 m further west underneath. The
+  // roof's own name keeps the rounded length so the curve-contract test
+  // can keep asserting against it.
+  const roofHalfLength = signature.east_west_roof_length_m / 2;
   addBarrelRoof(
     group,
-    `Hauptbahnhof ${Math.round(trackLength)} m east-west glass roof`,
-    trackLength,
+    `Hauptbahnhof ${Math.round(signature.east_west_roof_length_m)} m east-west glass roof`,
+    signature.east_west_roof_length_m,
     signature.east_west_roof_width_m,
     12.5,
     10.4,
     true,
-    trackCentreX,
+    0,
+    "rail",
+  );
+  // Each end of the 321 m shed gets a filled glazed gable, cut
+  // perpendicular to the rail curve's own local tangent (not to the
+  // shed's straight x-axis), plus twin steel piers and a transom tying
+  // the gable down onto the elevated deck below -- the "Auflager auf dem
+  // Viaduct" the roof was missing at both ends.
+  addBarrelRoofEndPortal(
+    group,
+    "Hauptbahnhof west end portal",
+    -roofHalfLength,
+    signature.east_west_roof_width_m,
+    12.5,
+    10.4,
+    true,
+    0,
+    "rail",
+    -1,
+  );
+  addBarrelRoofEndPortal(
+    group,
+    "Hauptbahnhof east end portal",
+    roofHalfLength,
+    signature.east_west_roof_width_m,
+    12.5,
+    10.4,
+    true,
+    0,
+    "rail",
+    1,
+  );
+  addBarrelRoofEndSupport(
+    group,
+    "Hauptbahnhof west end portal support",
+    -roofHalfLength,
+    signature.east_west_roof_width_m,
+    12.5,
+    10.4,
+    9.8,
+    true,
+    0,
+    "rail",
+  );
+  addBarrelRoofEndSupport(
+    group,
+    "Hauptbahnhof east end portal support",
+    roofHalfLength,
+    signature.east_west_roof_width_m,
+    12.5,
+    10.4,
+    9.8,
+    true,
+    0,
     "rail",
   );
   // The north-south crossing hall is built dead straight, square across

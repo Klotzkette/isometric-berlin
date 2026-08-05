@@ -104,7 +104,7 @@ describe("step-39: the aboveground Hauptbahnhof is built from glass, not grey bo
   test("the east-west roof, north-south hall, entrance facades and office-bridge roof caps are all transparent glass", () => {
     const station = createArchitecturalSignature(signature) as Group;
     const glassNames = [
-      "Hauptbahnhof 431 m east-west glass roof",
+      "Hauptbahnhof 321 m east-west glass roof",
       "Hauptbahnhof 180 m north-south hall",
       "Hauptbahnhof Europaplatz entrance facade",
       "Hauptbahnhof Washingtonplatz entrance facade",

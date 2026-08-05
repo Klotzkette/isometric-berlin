@@ -143,7 +143,7 @@ describe("step-39: the east-west glass hall bends with the real rail curve", () 
     const station = createArchitecturalSignature(signature) as Group;
     expect(station).not.toBeNull();
     const roof = station.getObjectByName(
-      "Hauptbahnhof 431 m east-west glass roof",
+      "Hauptbahnhof 321 m east-west glass roof",
     ) as Mesh;
     expect(roof).toBeDefined();
     const geometry = roof.geometry;
@@ -163,15 +163,15 @@ describe("step-39: the east-west glass hall bends with the real rail curve", () 
       xs.push(position.getX(i));
       zs.push(position.getZ(i));
     }
-    const sampleXs = [-260, -200, -140, -70, 0, 70, 140];
+    // v0.56.1: the roof now spans only the official 321 m shed
+    // (roofHalfLength = 160.5 m), centred on the station crossing
+    // (offsetLongitudinal = 0), so the roof mesh's own local x IS the
+    // group's own local x -- no trackCentreX offset any more. Sample
+    // points stay within +/-160.5 m so every slice actually lands on
+    // the roof mesh.
+    const sampleXs = [-155, -100, -50, 0, 50, 100, 155];
     for (const targetLocalX of sampleXs) {
-      // Roof mesh-local x is offset by trackCentreX from the group's own
-      // local x (see addBarrelRoof's offsetLongitudinal). trackCentreX =
-      // (trackWestX + trackEastX) / 2 for a 321 m shed + 110 m west
-      // approach: trackWestX = -(321/2+110) = -270.5, trackEastX = 160.5,
-      // so trackCentreX = -55.
-      const trackCentreX = -55;
-      const meshLocalX = targetLocalX - trackCentreX;
+      const meshLocalX = targetLocalX;
       let sumZ = 0;
       let count = 0;
       for (let i = 0; i < xs.length; i += 1) {
@@ -210,7 +210,7 @@ describe("step-39: the east-west glass hall bends with the real rail curve", () 
   test("the roof genuinely curves -- it is not a straight tube (regression guard)", () => {
     const station = createArchitecturalSignature(signature) as Group;
     const roof = station!.getObjectByName(
-      "Hauptbahnhof 431 m east-west glass roof",
+      "Hauptbahnhof 321 m east-west glass roof",
     ) as Mesh;
     const position = roof.geometry.getAttribute("position");
     const xs: number[] = [];
@@ -230,9 +230,9 @@ describe("step-39: the east-west glass hall bends with the real rail curve", () 
       }
       return (minZ + maxZ) / 2;
     };
-    const west = crownZAt(-270 - -55);
-    const centre = crownZAt(0 - -55);
-    const east = crownZAt(160 - -55);
+    const west = crownZAt(-160);
+    const centre = crownZAt(0);
+    const east = crownZAt(155);
     // A straight tube would have west === centre === east (all zero
     // offset). The real curve displaces the east end by tens of metres
     // relative to the centre -- assert a real, substantial bend exists.
@@ -255,5 +255,93 @@ describe("step-39: the east-west glass hall bends with the real rail curve", () 
     const bounds = new Box3().setFromObject(hall);
     const centreX = (bounds.max.x + bounds.min.x) / 2;
     expect(Math.abs(centreX)).toBeLessThan(0.5);
+  });
+
+  test("v0.56.1: the roof axis tracks the rail-curve axis within 4 m over the whole 321 m span", () => {
+    // The user's explicit request: tighten the curvature contract so the
+    // roof cannot silently drift away from the rails it is supposed to
+    // sit over, at ANY point along its length, not just at a few sample
+    // slices near the ends. This walks the roof crown line in 1 m steps
+    // across the full built mesh extent and compares it directly against
+    // HAUPTBAHNHOF_RAIL_CURVE_A/B -- the same source the deck, rails,
+    // sleepers and platform all bend by -- so roof and rails can never
+    // silently diverge again.
+    const station = createArchitecturalSignature(signature) as Group;
+    const roof = station!.getObjectByName(
+      "Hauptbahnhof 321 m east-west glass roof",
+    ) as Mesh;
+    expect(roof).toBeDefined();
+    const position = roof.geometry.getAttribute("position");
+    const xs: number[] = [];
+    const zs: number[] = [];
+    for (let i = 0; i < position.count; i += 1) {
+      xs.push(position.getX(i));
+      zs.push(position.getZ(i));
+    }
+    const roofHalfLength = signature.east_west_roof_length_m / 2;
+    let maxDeviation = 0;
+    let sampledSlices = 0;
+    for (let localX = -roofHalfLength; localX <= roofHalfLength; localX += 1) {
+      let minZ = Infinity;
+      let maxZ = -Infinity;
+      for (let i = 0; i < xs.length; i += 1) {
+        if (Math.abs(xs[i] - localX) < 4) {
+          minZ = Math.min(minZ, zs[i]);
+          maxZ = Math.max(maxZ, zs[i]);
+        }
+      }
+      if (!Number.isFinite(minZ) || !Number.isFinite(maxZ)) {
+        continue;
+      }
+      sampledSlices += 1;
+      const crownZ = (minZ + maxZ) / 2;
+      const expectedBow =
+        HAUPTBAHNHOF_RAIL_CURVE_A * localX * localX +
+        HAUPTBAHNHOF_RAIL_CURVE_B * localX -
+        (HAUPTBAHNHOF_RAIL_CURVE_A * 0 + HAUPTBAHNHOF_RAIL_CURVE_B * 0);
+      maxDeviation = Math.max(maxDeviation, Math.abs(crownZ - expectedBow));
+    }
+    // The whole point of walking every metre is that the contract only
+    // means something if it actually covered the span end to end.
+    expect(sampledSlices).toBeGreaterThan(300);
+    expect(maxDeviation).toBeLessThan(4);
+  });
+
+  test("v0.56.1: the roof ends exactly at +/-160.5 m, not past its own end supports", () => {
+    // Regression guard for the old trackLength (431 m) bug: the roof mesh
+    // must not extend past the official 321 m shed in either direction --
+    // any vertex found outside that span would be the glass tube
+    // cantilevering past its last rib again.
+    const station = createArchitecturalSignature(signature) as Group;
+    const roof = station!.getObjectByName(
+      "Hauptbahnhof 321 m east-west glass roof",
+    ) as Mesh;
+    const position = roof.geometry.getAttribute("position");
+    const roofHalfLength = signature.east_west_roof_length_m / 2;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    for (let i = 0; i < position.count; i += 1) {
+      minX = Math.min(minX, position.getX(i));
+      maxX = Math.max(maxX, position.getX(i));
+    }
+    expect(minX).toBeGreaterThanOrEqual(-roofHalfLength - 0.5);
+    expect(maxX).toBeLessThanOrEqual(roofHalfLength + 0.5);
+    expect(maxX - minX).toBeLessThan(signature.east_west_roof_length_m + 1);
+  });
+
+  test("v0.56.1: both roof ends have a portal and a support resting on the deck", () => {
+    // The reference screenshot's second complaint: the shed must end
+    // cleanly over the tracks at both ends, with something visibly
+    // holding it up, not just stop in mid-air. Assert the named portal
+    // and support objects this patch adds both exist.
+    const station = createArchitecturalSignature(signature) as Group;
+    for (const end of ["west", "east"]) {
+      expect(
+        station!.getObjectByName(`Hauptbahnhof ${end} end portal`),
+      ).toBeDefined();
+      expect(
+        station!.getObjectByName(`Hauptbahnhof ${end} end portal support`),
+      ).toBeDefined();
+    }
   });
 });

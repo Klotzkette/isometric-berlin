@@ -183,18 +183,6 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // Brandenburger Tor main body — the gate model has columns, passages,
   // attic and Quadriga; side pavilion prisms stay.
   "K0001xqy",
-  // Berlin Hauptbahnhof low structures — the metric recognition model
-  // draws the whole station (321 m glass barrel, north-south hall, both
-  // 46 m office bridges, track deck, trains). The low LoD2 prisms under
-  // the halls rendered as opaque slabs that half-buried the glass roof
-  // ("Glasdach beim Hbf"); every low prism fully inside the model's
-  // hall + bridge envelope is suppressed. The tall Bügel tower prisms
-  // are NOT suppressed — they render as transparent glass instead
-  // (PRISM_GLASSED_IDS) to give the mullioned bridges their mass.
-  "8hUNWvQf", "EKo6tjyY", "K0002KiE", "K0002UK0", "K0003TkC", "K0003TlE",
-  "K0003UWM", "K0003Vlz", "OXDNOQlg", "YK0000Ce", "YK0000Cg", "YK0000Ch",
-  "YK0000Ci", "YK0000Ck", "YK0000Cm", "YK0000Co", "YK0000Cq", "YK0000Cs",
-  "YK0000Cu", "ZoBdHJPp", "hSQsiPVL", "jacWOmHc", "q7Axk9GG",
   // Siegessäule at the Großer Stern. LoD2 stops at the socle and the
   // Säulenhalle (25.0 m / 18.2 m / 8.4 m); createSiegessaeule draws the whole
   // 67 m monument including the fluted drums and the gilded Viktoria, so the
@@ -206,6 +194,151 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // with its Steildach, stepped gables and rooftop observation platform.
   "jBXhIsDK", "EHKONVCW",
 ]);
+
+// v0.56.1 ("beiger Kasten ueber den Gleisen"): the Hauptbahnhof used to be
+// suppressed by a hand-picked LoD2 building-id list (PRISM_SUPPRESSED_IDS),
+// one entry per part-prism. The user's screenshot showed a large opaque
+// flat-roof box still rendering over/beside the glass hall at the east end
+// (DEBE3Dbzrg8J0PRu, an ALKIS "Bauwerk im Gleisbereich" prism the earlier
+// list never picked up) — proof that per-id lists silently miss part-
+// prisms whenever the LoD2 source gets re-tiled or a footprint splits.
+// isHauptbahnhofFootprintSuppressed replaces that list with a geometric
+// test: ANY LoD2 prism whose footprint substantially overlaps the model's
+// own hall+bridge envelope polygon (east-west curved roof, north-south
+// hall, both office bridges, built from the exact same constants
+// createHauptbahnhofModel uses) is suppressed, regardless of its id. The
+// Buegel office-bridge towers are the deliberate exception: those stay as
+// PRISM_GLASSED_IDS instead so the mullion grid keeps its glassy body.
+const HAUPTBAHNHOF_ENVELOPE_ANCHOR_WORLD: readonly [number, number] = [
+  -119.936, -683.307,
+];
+const HAUPTBAHNHOF_ENVELOPE_ROTATION_DEGREES = 21.82;
+// Kept in sync with ArchitecturalLandmarks.ts HAUPTBAHNHOF_RAIL_CURVE_A/B —
+// the real quadratic fit to the Stadtbahn viaduct, re-exported there and
+// re-derived from rail-lines.json by tests/hauptbahnhof-curve.test.ts.
+const HAUPTBAHNHOF_ENVELOPE_CURVE_A = 0.000_787;
+const HAUPTBAHNHOF_ENVELOPE_CURVE_B = 0.223_3;
+// The official 321 m glass roof (scene.json / Deutsche Bahn figures), NOT
+// the old 431 m rendered deck length — the roof envelope only needs to
+// cover the roof itself, not the western approach viaduct.
+const HAUPTBAHNHOF_ENVELOPE_ROOF_LENGTH_M = 321;
+const HAUPTBAHNHOF_ENVELOPE_ROOF_WIDTH_M = 40;
+const HAUPTBAHNHOF_ENVELOPE_HALL_LENGTH_M = 180;
+const HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M = 42;
+const HAUPTBAHNHOF_ENVELOPE_OFFICE_WIDTH_M = 19;
+// Outward pad (metres) so a footprint whose real edge sits just outside
+// the idealised rectangle still counts as part of the station rather than
+// slipping through. The real ALKIS "Bauwerk im Gleisbereich" parts under
+// the halls are not clean rectangles (they are the L-shaped, part-tiled
+// remnants of platform canopies, signal buildings and access structures
+// that the hand-built model does not reproduce individually) so a tight
+// pad missed several of them, including the exact building the user's
+// screenshot flagged (DEBE3Dbzrg8J0PRu, an ALKIS 51009_1610 "Bauwerk im
+// Gleisbereich" prism whose own footprint runs diagonally along the
+// tracks past the office bridge). 15 m was checked against the full
+// payload: it still leaves every unrelated building more than ~100 m
+// from the anchor untouched.
+const HAUPTBAHNHOF_ENVELOPE_MARGIN_M = 15;
+// A prism counts as "the station" once at least this fraction of its own
+// footprint vertices sample inside the envelope polygon — high enough that
+// an unrelated neighbouring building merely brushing the envelope edge
+// survives, low enough that every part-prism actually under the halls
+// (which can be split into many small ALKIS parts) is still caught.
+const HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION = 0.3;
+
+function hauptbahnhofRailCurveOffset(localX: number): number {
+  return (
+    HAUPTBAHNHOF_ENVELOPE_CURVE_A * localX * localX +
+    HAUPTBAHNHOF_ENVELOPE_CURVE_B * localX
+  );
+}
+
+/** World (x, z) metres -> the station model's own local (unrotated) frame. */
+function worldToHauptbahnhofLocal(x: number, z: number): [number, number] {
+  const [anchorX, anchorZ] = HAUPTBAHNHOF_ENVELOPE_ANCHOR_WORLD;
+  const theta = (HAUPTBAHNHOF_ENVELOPE_ROTATION_DEGREES * Math.PI) / 180;
+  const dx = x - anchorX;
+  const dz = z - anchorZ;
+  return [
+    dx * Math.cos(theta) - dz * Math.sin(theta),
+    dx * Math.sin(theta) + dz * Math.cos(theta),
+  ];
+}
+
+/**
+ * True once (localX, localZ) — the station model's own local frame — falls
+ * inside the built envelope: the curved east-west roof band, the straight
+ * north-south hall band, or either office-bridge band, each padded by
+ * HAUPTBAHNHOF_ENVELOPE_MARGIN_M. This mirrors the exact rectangles
+ * createHauptbahnhofModel builds (addBarrelRoof/addStationOfficeBridge),
+ * so the envelope can never drift out of sync with what is actually drawn.
+ */
+function insideHauptbahnhofEnvelopeLocal(localX: number, localZ: number): boolean {
+  const margin = HAUPTBAHNHOF_ENVELOPE_MARGIN_M;
+  const roofHalfLength = HAUPTBAHNHOF_ENVELOPE_ROOF_LENGTH_M / 2;
+  if (Math.abs(localX) <= roofHalfLength + margin) {
+    const bow = hauptbahnhofRailCurveOffset(localX);
+    if (
+      Math.abs(localZ - bow) <=
+      HAUPTBAHNHOF_ENVELOPE_ROOF_WIDTH_M / 2 + margin
+    ) {
+      return true;
+    }
+  }
+  // The north-south hall runs ALONG local Z (addBarrelRoof's alongX =
+  // false maps its own "longitudinal" extent to Z and its cross-section
+  // "lateral" extent to X -- see barrelRoofGeometry), so the length
+  // check is on |localZ| and the width check is on |localX|, the
+  // opposite of the east-west roof band above. Getting this backwards
+  // let large real station-adjacent slabs running mostly along Z slip
+  // through the old (pre-fix) version of this function entirely.
+  const hallHalfLength = HAUPTBAHNHOF_ENVELOPE_HALL_LENGTH_M / 2 + margin;
+  if (Math.abs(localZ) <= hallHalfLength) {
+    if (
+      Math.abs(localX) <=
+      HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + margin
+    ) {
+      return true;
+    }
+    // The office bridges flank the hall, offset sideways along X (see
+    // officeX = north_south_hall_width_m / 2 + 14 in
+    // createHauptbahnhofModel), running the same length along Z.
+    const officeHalfX =
+      HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + 14;
+    for (const side of [-1, 1]) {
+      const officeCentre = side * officeHalfX;
+      if (
+        Math.abs(localX - officeCentre) <=
+        HAUPTBAHNHOF_ENVELOPE_OFFICE_WIDTH_M / 2 + margin
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Footprint-overlap suppression test for LoD2 prisms near the Hauptbahnhof:
+ * true when enough of the prism's own ring vertices fall inside the
+ * station's hall+bridge envelope that it reads as part of the station
+ * rather than a neighbour merely close to it. Unlike PRISM_SUPPRESSED_IDS,
+ * this needs no per-id maintenance and catches every part-prism the LoD2
+ * source ever splits the station footprint into, present or future.
+ */
+export function isHauptbahnhofFootprintSuppressed(building: PrismBuilding): boolean {
+  if (building.ring.length < 3) {
+    return false;
+  }
+  let inside = 0;
+  for (const [xDm, zDm] of building.ring) {
+    const [localX, localZ] = worldToHauptbahnhofLocal(xDm / 10, zDm / 10);
+    if (insideHauptbahnhofEnvelopeLocal(localX, localZ)) {
+      inside += 1;
+    }
+  }
+  return inside / building.ring.length >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION;
+}
 
 // Prisms forced into the transparent glass mesh regardless of their
 // LoD2 class: the Hauptbahnhof Bügel office-bridge towers, whose real
@@ -4985,7 +5118,12 @@ export function createIsometricCity(
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   };
   for (const building of prisms.buildings) {
-    if (building.ring.length < 3 || PRISM_SUPPRESSED_IDS.has(building.id)) {
+    if (
+      building.ring.length < 3 ||
+      PRISM_SUPPRESSED_IDS.has(building.id) ||
+      (!PRISM_GLASSED_IDS.has(building.id) &&
+        isHauptbahnhofFootprintSuppressed(building))
+    ) {
       continue;
     }
     const y0 = building.y0_dm / 10;

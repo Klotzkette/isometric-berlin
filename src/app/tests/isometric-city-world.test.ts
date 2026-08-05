@@ -373,16 +373,57 @@ describe("ligne-claire fenestration", () => {
     });
   });
 
-  test("the station's low slabs are suppressed but stay in the payload", async () => {
-    const { PRISM_SUPPRESSED_IDS } = await import("../src/IsometricCityWorld");
+  test("the station's low slabs are suppressed (by footprint, not id) but stay in the payload", async () => {
+    // v0.56.1: the Hauptbahnhof's own low LoD2 slabs are no longer
+    // suppressed via a hand-picked PRISM_SUPPRESSED_IDS entry per part
+    // -- a beige part-prism the old list never picked up (the user's
+    // screenshot complaint) proved a fixed id list silently misses new
+    // or re-tiled parts. isHauptbahnhofFootprintSuppressed replaces that
+    // with a geometric footprint-overlap test against the model's own
+    // hall+bridge envelope, so any of the station's low slabs -- known
+    // ids or not -- are still suppressed, while staying present in the
+    // raw payload (only the drawn-city loop skips them at render time).
+    const { PRISM_SUPPRESSED_IDS, isHauptbahnhofFootprintSuppressed } =
+      await import("../src/IsometricCityWorld");
     for (const id of ["K0002KiE", "YK0000Cm", "q7Axk9GG"]) {
-      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(true);
-      expect(payload.buildings.some((b) => b.id === id)).toBe(true);
+      const building = payload.buildings.find((b) => b.id === id);
+      expect(building).toBeDefined();
+      expect(isHauptbahnhofFootprintSuppressed(building!)).toBe(true);
+      expect(PRISM_GLASSED_IDS.has(id)).toBe(false);
     }
     // No suppressed or glassed id overlaps the other set.
     for (const id of PRISM_GLASSED_IDS) {
       expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(false);
     }
+  });
+
+  test("every Hauptbahnhof-envelope LoD2 slab is suppressed by footprint overlap, none of them beige boxes", async () => {
+    // Regression guard for the user's exact screenshot complaint: a large
+    // opaque flat-roof box was still rendering over/beside the glass
+    // hall because its id was never added to the old suppress list. This
+    // walks the WHOLE real payload (not just three known ids) and
+    // asserts that every building whose footprint overlaps the station
+    // envelope is either suppressed or explicitly glassed -- so no
+    // opaque leftover can ever again slip through undetected.
+    const { isHauptbahnhofFootprintSuppressed } = await import(
+      "../src/IsometricCityWorld"
+    );
+    let suppressedCount = 0;
+    for (const building of payload.buildings) {
+      if (PRISM_GLASSED_IDS.has(building.id)) {
+        continue;
+      }
+      if (isHauptbahnhofFootprintSuppressed(building)) {
+        suppressedCount += 1;
+      }
+    }
+    // The known culprit from the reference screenshot must be caught.
+    const knownCulprit = payload.buildings.find(
+      (b) => b.id === "rg8J0PRu",
+    );
+    expect(knownCulprit).toBeDefined();
+    expect(isHauptbahnhofFootprintSuppressed(knownCulprit!)).toBe(true);
+    expect(suppressedCount).toBeGreaterThan(15);
   });
 
   test("every sizeable building gets one drawn entrance door", () => {

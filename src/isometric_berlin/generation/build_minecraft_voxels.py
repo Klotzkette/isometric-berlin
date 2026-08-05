@@ -116,6 +116,98 @@ ATTRIBUTION = (
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
 )
 
+# v0.56.1 ("beiger Kasten ueber den Gleisen"): the drawn-city viewer suppresses
+# the Hauptbahnhof's own LoD2 prisms via a geometric footprint-overlap test
+# against the hand-built model's envelope (IsometricCityWorld.ts,
+# isHauptbahnhofFootprintSuppressed) instead of a hand-picked building-id
+# list, because the LoD2 source splits the station footprint into many part
+# prisms and any fixed id list silently misses new/re-tiled parts. Minecraft
+# mode rasterises the same buildings.gpkg independently, so it inherited the
+# same opaque box; this mirrors the identical envelope here so both modes
+# agree on what "is the station" and neither shows a beige block over the
+# glass roof.
+HAUPTBAHNHOF_ENVELOPE_ANCHOR_WORLD = (-119.936, -683.307)
+HAUPTBAHNHOF_ENVELOPE_ROTATION_DEGREES = 21.82
+# Kept in sync with ArchitecturalLandmarks.ts HAUPTBAHNHOF_RAIL_CURVE_A/B.
+HAUPTBAHNHOF_ENVELOPE_CURVE_A = 0.000_787
+HAUPTBAHNHOF_ENVELOPE_CURVE_B = 0.223_3
+HAUPTBAHNHOF_ENVELOPE_ROOF_LENGTH_M = 321.0
+HAUPTBAHNHOF_ENVELOPE_ROOF_WIDTH_M = 40.0
+HAUPTBAHNHOF_ENVELOPE_HALL_LENGTH_M = 180.0
+HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M = 42.0
+HAUPTBAHNHOF_ENVELOPE_OFFICE_WIDTH_M = 19.0
+# 15 m outward pad: the real ALKIS "Bauwerk im Gleisbereich" parts under
+# the halls are not clean rectangles, so a tighter pad missed several,
+# including the exact building the user's screenshot flagged
+# (DEBE3Dbzrg8J0PRu). Checked against the full payload: still leaves every
+# unrelated building more than ~100 m from the anchor untouched.
+HAUPTBAHNHOF_ENVELOPE_MARGIN_M = 15.0
+HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION = 0.3
+
+
+def _hauptbahnhof_rail_curve_offset(local_x: np.ndarray) -> np.ndarray:
+  return (
+    HAUPTBAHNHOF_ENVELOPE_CURVE_A * local_x * local_x
+    + HAUPTBAHNHOF_ENVELOPE_CURVE_B * local_x
+  )
+
+
+def _world_to_hauptbahnhof_local(
+  xs: np.ndarray, zs: np.ndarray
+) -> tuple[np.ndarray, np.ndarray]:
+  anchor_x, anchor_z = HAUPTBAHNHOF_ENVELOPE_ANCHOR_WORLD
+  theta = math.radians(HAUPTBAHNHOF_ENVELOPE_ROTATION_DEGREES)
+  dx = xs - anchor_x
+  dz = zs - anchor_z
+  local_x = dx * math.cos(theta) - dz * math.sin(theta)
+  local_z = dx * math.sin(theta) + dz * math.cos(theta)
+  return local_x, local_z
+
+
+def _inside_hauptbahnhof_envelope_local(
+  local_x: np.ndarray, local_z: np.ndarray
+) -> np.ndarray:
+  margin = HAUPTBAHNHOF_ENVELOPE_MARGIN_M
+  inside = np.zeros(local_x.shape, dtype=bool)
+  roof_half_length = HAUPTBAHNHOF_ENVELOPE_ROOF_LENGTH_M / 2
+  roof_band = np.abs(local_x) <= roof_half_length + margin
+  bow = _hauptbahnhof_rail_curve_offset(local_x)
+  roof_band &= np.abs(local_z - bow) <= HAUPTBAHNHOF_ENVELOPE_ROOF_WIDTH_M / 2 + margin
+  inside |= roof_band
+  # The north-south hall runs ALONG local Z, its cross-section width
+  # spans local X (mirrors addBarrelRoof's alongX=False mapping in
+  # ArchitecturalLandmarks.ts -- longitudinal extent -> Z, lateral
+  # extent -> X). Getting this backwards let large real station slabs
+  # running mostly along Z slip through this envelope test entirely.
+  hall_half_length = HAUPTBAHNHOF_ENVELOPE_HALL_LENGTH_M / 2 + margin
+  hall_band = np.abs(local_z) <= hall_half_length
+  inside |= hall_band & (
+    np.abs(local_x) <= HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + margin
+  )
+  office_half_x = HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + 14.0
+  for side in (-1.0, 1.0):
+    office_centre = side * office_half_x
+    inside |= hall_band & (
+      np.abs(local_x - office_centre)
+      <= HAUPTBAHNHOF_ENVELOPE_OFFICE_WIDTH_M / 2 + margin
+    )
+  return inside
+
+
+def is_hauptbahnhof_footprint_suppressed(geometry_world: BaseGeometry) -> bool:
+  """Footprint-overlap suppression test mirroring IsometricCityWorld.ts.
+
+  True once enough of the footprint's own boundary vertices fall inside the
+  station model's hall+bridge envelope that the LoD2 prism reads as part of
+  the station rather than a neighbour merely close to it.
+  """
+  coords = np.asarray(shapely.get_coordinates(geometry_world), dtype=float)
+  if coords.shape[0] < 3:
+    return False
+  local_x, local_z = _world_to_hauptbahnhof_local(coords[:, 0], coords[:, 1])
+  inside = _inside_hauptbahnhof_envelope_local(local_x, local_z)
+  return bool(inside.mean() >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION)
+
 
 def to_world(geometry: BaseGeometry) -> BaseGeometry:
   """Map EPSG:25833 geometry into viewer scene coordinates (x=east, z=south)."""
@@ -364,7 +456,14 @@ def rasterise_buildings(
       continue
     snapped = snap_up(height)
     class_id = CLASS_GLASS if str(row.function) in GLASS_FUNCTIONS else CLASS_CONCRETE
-    cells = building_cells(to_world(row.geometry), grid)
+    world_geometry = to_world(row.geometry)
+    if class_id != CLASS_GLASS and is_hauptbahnhof_footprint_suppressed(world_geometry):
+      # Same rule as the drawn city: the hand-built Hauptbahnhof model draws
+      # the real glass roof; any LoD2 prism substantially inside its
+      # envelope is the beige box the model already replaces, not a
+      # separate building, so it is left out of the voxel merge entirely.
+      continue
+    cells = building_cells(world_geometry, grid)
     if not cells:
       continue
     tier = (
