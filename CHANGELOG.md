@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.57.0
+
+- **The Hauptbahnhof's deep level is the real station, not three tracks in
+  a slab.** Berlin Hbf's lower level carries eight tracks (Gleis 1–8) at
+  four island platforms; the model drew three tracks between four narrow
+  strips squeezed into the 42 m north–south hall above. The layout is now
+  built from the real module — an island platform between two tracks —
+  repeated four times, so the deep box is wider than the hall standing on
+  it, which is what the station box actually does underground. Ballast
+  beds, a proper 0.95 m platform edge and the tunnel's side walls turn the
+  floating slab into a room under the city, with the centre slot still open
+  so daylight and the eye reach it.
+- **Trains stand at the deep platforms, arriving from the north.** The two
+  innermost tracks — the ones visible through the daylight slot — carry
+  stock. A north–south train is built along the same axis as every other
+  and then turned a quarter, so one builder keeps every window, door and
+  bogie in step instead of two copies drifting apart.
+- **The trains are no longer flat end-on.** A bare capsule shows a flat
+  disc where the driving car should be. Each cab end now has a raked nose
+  built from three stacked slices of decreasing width and height, and each
+  vehicle carries two roof pantographs with their arms and contact strip —
+  the one piece of a mainline train that reads unmistakably solid from
+  above, which is exactly the angle an isometric drawing uses. The S-Bahn
+  standing on the upper level gains the same nose, because both come from
+  one builder.
+- **Verified, not asserted.** Five new contract tests pin the eight tracks,
+  the four islands, the tunnel box, the quarter turn that keeps a train
+  along its platforms rather than across them, and the nose and pantograph
+  counts. 391 viewer tests pass.
+
 ## v0.56.1: Hbf-LoD2-Rest unterdrückt (Footprint statt ID), Glasdach auf echte 321 m gestutzt und an den Enden über den Gleisen geschlossen
 
 **Nacharbeit nach Nutzer-Screenshot (rote Markierungen).** Zwei konkrete

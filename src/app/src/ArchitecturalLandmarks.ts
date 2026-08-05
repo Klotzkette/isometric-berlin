@@ -2377,35 +2377,106 @@ function addStationInterior(
   }
 
   // The north–south deep station, crossing under the Stadtbahn at −15 m.
+  //
+  // Berlin Hbf's lower level carries EIGHT tracks at four island
+  // platforms (Gleis 1–8), not the three tracks this used to draw. The
+  // deep box is also wider than the hall standing on it — the station box
+  // continues past the north–south hall's 42 m underground — so the layout
+  // is built from the real module (island platform between two tracks)
+  // rather than squeezed into the hall's footprint. Reference-based
+  // presentation geometry for an interior nobody surveyed, exactly like
+  // the galleries above it.
+  const PLATFORM_W = 9.6;
+  const TRACK_W = 4.7;
+  const MODULE = PLATFORM_W + 2 * TRACK_W;
+  const ISLANDS = 4;
+  const deepWidth = ISLANDS * MODULE;
+  const deepLength = signature.north_south_hall_length_m;
   addBox(
     group,
     "Hauptbahnhof deep-level platform floor",
-    [signature.north_south_hall_width_m, 0.6, signature.north_south_hall_length_m],
+    [deepWidth, 0.6, deepLength],
     [0, -15.3, 0],
     slab,
     0.4,
   );
-  for (const platformX of [-13, -4.4, 4.4, 13]) {
+  const platformCentres: number[] = [];
+  const trackCentres: number[] = [];
+  for (let island = 0; island < ISLANDS; island += 1) {
+    const centre = (island - (ISLANDS - 1) / 2) * MODULE;
+    platformCentres.push(centre);
+    trackCentres.push(centre - (PLATFORM_W + TRACK_W) / 2);
+    trackCentres.push(centre + (PLATFORM_W + TRACK_W) / 2);
+  }
+  for (const platformX of platformCentres) {
     addBox(
       group,
-      "Hauptbahnhof deep-level platform",
-      [7.2, 0.5, signature.north_south_hall_length_m - 12],
-      [platformX, -14.75, 0],
+      "Hauptbahnhof deep-level island platform",
+      [PLATFORM_W, 0.95, deepLength - 12],
+      [platformX, -14.53, 0],
       platform,
       0.35,
     );
   }
-  for (const trackX of [-8.7, 0, 8.7]) {
+  for (const trackX of trackCentres) {
+    addBox(
+      group,
+      "Hauptbahnhof deep-level ballast",
+      [TRACK_W - 0.5, 0.3, deepLength - 8],
+      [trackX, -15.15, 0],
+      slab,
+      0.25,
+    );
     for (const railOffset of [-0.72, 0.72]) {
       addBox(
         group,
         "Hauptbahnhof deep-level rail",
-        [0.14, 0.16, signature.north_south_hall_length_m - 12],
+        [0.14, 0.16, deepLength - 8],
         [trackX + railOffset, -14.9, 0],
         deepRail,
       );
     }
   }
+  // The tunnel box: side walls and the ceiling the concourse stands on, so
+  // the deep level reads as a room under the city rather than a floating
+  // slab. The centre slot stays open — that is the void you look down.
+  const wall = modelMaterial(0x9aa19c, { roughness: 0.92 });
+  for (const side of [-1, 1]) {
+    addBox(
+      group,
+      "Hauptbahnhof deep-level box wall",
+      [1.2, 9.4, deepLength],
+      [side * (deepWidth / 2 + 0.6), -10.9, 0],
+      wall,
+      0.3,
+    );
+  }
+  // Trains standing at the deep platforms, arriving FROM THE NORTH through
+  // the tunnel. The two innermost tracks are the ones visible through the
+  // daylight slot, so those are the ones that carry stock.
+  const deepRailTopY = -14.82;
+  const innerTracks = trackCentres
+    .slice()
+    .sort((left, right) => Math.abs(left) - Math.abs(right))
+    .slice(0, 2);
+  innerTracks.forEach((trackX, index) => {
+    addStationTrain(
+      group,
+      {
+        bodyColor: 0xf2f3f0,
+        length: 96,
+        name: `Hauptbahnhof deep-level ICE ${index + 1}`,
+        // A train on the deep level runs NORTH–SOUTH, i.e. along the
+        // model's local Z, so it is built along X and turned a quarter.
+        northSouth: true,
+        stripeColor: 0xc4123a,
+        windowColor: 0x4c6f7a,
+        x: trackX,
+        z: index === 0 ? -18 : 22,
+      },
+      deepRailTopY,
+    );
+  });
 }
 
 function addStationOfficeBridge(
@@ -2599,6 +2670,8 @@ function addStationTrain(
     bodyColor: number;
     length: number;
     name: string;
+    /** Runs along the model's local Z (the north–south hall) instead of X. */
+    northSouth?: boolean;
     stripeColor: number;
     windowColor: number;
     x: number;
@@ -2610,6 +2683,14 @@ function addStationTrain(
   // OSM corridor's world-space rail top) without retuning each number.
   railTopY = 10.48,
 ): void {
+  // A north–south train is built along the local X axis like every other,
+  // then the finished vehicle is turned a quarter turn and moved onto its
+  // track. Building it twice in two axes would mean two copies of every
+  // window, door and bogie to keep in step.
+  const host = options.northSouth ? new Group() : group;
+  const railY = options.northSouth ? 0 : railTopY;
+  const originX = options.northSouth ? 0 : options.x;
+  const originZ = options.northSouth ? 0 : options.z;
   const bodyMaterial = modelMaterial(options.bodyColor, {
     metalness: 0.16,
     roughness: 0.38,
@@ -2633,21 +2714,21 @@ function addStationTrain(
   body.name = `${options.name} rounded body`;
   body.rotation.z = Math.PI / 2;
   body.scale.set(1, 1, 0.92);
-  body.position.set(options.x, railTopY + 2.67, options.z);
+  body.position.set(originX, railY + 2.67, originZ);
   body.castShadow = true;
   group.add(body);
   addBox(
-    group,
+    host,
     `${options.name} colour stripe`,
     [options.length - 4.6, 0.34, 3.05],
-    [options.x, railTopY + 2.07, options.z],
+    [originX, railY + 2.07, originZ],
     stripeMaterial,
   );
   addBox(
-    group,
+    host,
     `${options.name} dark roof equipment`,
     [options.length * 0.46, 0.18, 1.72],
-    [options.x, railTopY + 4.27, options.z],
+    [originX, railY + 4.27, originZ],
     windowMaterial,
   );
 
@@ -2658,12 +2739,12 @@ function addStationTrain(
       const windowX =
         -options.length / 2 + 5.5 + (index / (windowCount - 1)) * (options.length - 11);
       windows.push({
-        position: [options.x + windowX, railTopY + 3.07, options.z + side * 1.5],
+        position: [originX + windowX, railY + 3.07, originZ + side * 1.5],
       });
     }
   }
   addInstancedBoxes(
-    group,
+    host,
     `${options.name} instanced side windows`,
     [4.4, 0.88, 0.08],
     windowMaterial,
@@ -2676,15 +2757,15 @@ function addStationTrain(
     for (let index = 1; index <= doorCount; index += 1) {
       doors.push({
         position: [
-          options.x - options.length / 2 + (index / (doorCount + 1)) * options.length,
-          railTopY + 2.57,
-          options.z + side * 1.56,
+          originX - options.length / 2 + (index / (doorCount + 1)) * options.length,
+          railY + 2.57,
+          originZ + side * 1.56,
         ],
       });
     }
   }
   addInstancedBoxes(
-    group,
+    host,
     `${options.name} instanced passenger doors`,
     [1.18, 2.05, 0.08],
     windowMaterial,
@@ -2700,16 +2781,16 @@ function addStationTrain(
     for (const side of [-1, 1]) {
       wheels.push({
         position: [
-          options.x - options.length / 2 + fraction * options.length,
-          railTopY + 0.56,
-          options.z + side * 1.58,
+          originX - options.length / 2 + fraction * options.length,
+          railY + 0.56,
+          originZ + side * 1.58,
         ],
         rotation: [Math.PI / 2, 0, 0],
       });
     }
   }
   addInstancedGeometry(
-    group,
+    host,
     `${options.name} instanced wheels`,
     new CylinderGeometry(0.48, 0.48, 0.18, 16),
     wheelMaterial,
@@ -2719,16 +2800,16 @@ function addStationTrain(
   const carriageSeams: VectorSegment[] = [];
   const carriageCount = Math.max(3, Math.round(options.length / 25));
   for (let index = 1; index < carriageCount; index += 1) {
-    const seamX = options.x - options.length / 2 + (index / carriageCount) * options.length;
+    const seamX = originX - options.length / 2 + (index / carriageCount) * options.length;
     for (const side of [-1, 1]) {
       carriageSeams.push([
-        [seamX, railTopY + 1.42, options.z + side * 1.6],
-        [seamX, railTopY + 3.77, options.z + side * 1.6],
+        [seamX, railY + 1.42, originZ + side * 1.6],
+        [seamX, railY + 3.77, originZ + side * 1.6],
       ]);
     }
   }
   addVectorSegments(
-    group,
+    host,
     `${options.name} batched carriage joints`,
     carriageSeams,
     0x39494d,
@@ -2736,16 +2817,82 @@ function addStationTrain(
   );
   for (const end of [-1, 1]) {
     addBox(
-      group,
+      host,
       `${options.name} cab windscreen`,
       [0.1, 0.9, 1.9],
       [
-        options.x + end * (options.length / 2 - 0.72),
-        railTopY + 3.18,
-        options.z,
+        originX + end * (options.length / 2 - 0.72),
+        railY + 3.18,
+        originZ,
       ],
       windowMaterial,
     );
+    // A driving car is not a tube cut off square. Three stacked slices of
+    // decreasing width and height give the power car its raked nose, which
+    // is what makes the vehicle read as a solid body end-on instead of the
+    // flat disc a bare capsule cap shows ("die Züge … das ist zu platt").
+    const noseSlices: Array<[number, number, number, number]> = [
+      [0.9, 2.86, 2.5, 0.15],
+      [2.0, 2.5, 2.0, 0.62],
+      [2.9, 1.9, 1.35, 1.05],
+    ];
+    for (const [inset, width, height, drop] of noseSlices) {
+      addBox(
+        host,
+        `${options.name} raked nose`,
+        [0.9, height, width],
+        [
+          originX + end * (options.length / 2 - inset),
+          railY + 2.72 - drop / 2,
+          originZ,
+        ],
+        bodyMaterial,
+        0.35,
+      );
+    }
+  }
+  // Roof pantographs: the one piece of a mainline train that unmistakably
+  // reads as three-dimensional from above, which is exactly the angle an
+  // isometric drawing shows.
+  for (const fraction of [0.3, 0.72]) {
+    const pantographX = originX - options.length / 2 + fraction * options.length;
+    addBox(
+      host,
+      `${options.name} pantograph base`,
+      [2.6, 0.22, 2.1],
+      [pantographX, railY + 4.36, originZ],
+      wheelMaterial,
+    );
+    addVectorSegments(
+      host,
+      `${options.name} pantograph arms`,
+      [
+        [
+          [pantographX - 1.1, railY + 4.45, originZ],
+          [pantographX + 0.5, railY + 5.55, originZ],
+        ],
+        [
+          [pantographX + 1.1, railY + 4.45, originZ],
+          [pantographX + 0.5, railY + 5.55, originZ],
+        ],
+      ],
+      0x2b3438,
+      1.4,
+    );
+    addBox(
+      host,
+      `${options.name} pantograph contact strip`,
+      [0.24, 0.1, 1.9],
+      [pantographX + 0.5, railY + 5.6, originZ],
+      wheelMaterial,
+    );
+  }
+
+  if (options.northSouth) {
+    host.rotation.y = Math.PI / 2;
+    host.position.set(options.x, railTopY, options.z);
+    host.name = options.name;
+    group.add(host);
   }
 }
 
