@@ -136,6 +136,29 @@ describe("granular memorial recognition models", () => {
     expect(goetheHeight).toBeLessThan(10.5);
   });
 
+  test("Goethe and the composers carry ink-line edges, not flat silhouettes", () => {
+    // v0.58.0: these two models built detailed geometry (cloak, head,
+    // scroll, bust niches, gilded cupola) but never called addEdges(),
+    // so at isometric camera distance they rendered as one flat pale
+    // silhouette with no facet lines, unlike every other memorial here.
+    const root = createMemorialLandmarks(landmarks);
+    for (const meshName of [
+      "Goethe memorial round pedestal",
+      "Goethe standing figure body",
+      "Goethe standing figure cloak",
+      "Goethe standing figure head",
+    ]) {
+      expect(root.getObjectByName(`${meshName} model edges`)).not.toBeNull();
+    }
+    for (const meshName of [
+      "Composer memorial step ring",
+      "Composer memorial three-sided coloured stele",
+      "Composer memorial gilded cupola",
+    ]) {
+      expect(root.getObjectByName(`${meshName} model edges`)).not.toBeNull();
+    }
+  });
+
   test("shows two tanks and two howitzers, each on its own plinth", () => {
     const root = createMemorialLandmarks(landmarks);
     for (const side of ["west", "east"]) {

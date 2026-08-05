@@ -811,39 +811,52 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
   const marble = modelMaterial(MARBLE, { roughness: 0.7 });
   // The monument stands on a two-step stylobate; without the steps the
   // plinth looks dropped on the lawn rather than built into the Großer Weg.
-  addBox(group, "Goethe memorial lower step", [9, 0.3, 9], [0, 0.15, 0], marble);
-  addBox(group, "Goethe memorial upper step", [8.1, 0.3, 8.1], [0, 0.45, 0], marble);
-  addBox(group, "Goethe memorial plinth", [7.2, 0.65, 7.2], [0, 0.93, 0], marble);
-  addMesh(
+  addEdges(
+    group,
+    addBox(group, "Goethe memorial lower step", [9, 0.3, 9], [0, 0.15, 0], marble),
+  );
+  addEdges(
+    group,
+    addBox(group, "Goethe memorial upper step", [8.1, 0.3, 8.1], [0, 0.45, 0], marble),
+  );
+  addEdges(
+    group,
+    addBox(group, "Goethe memorial plinth", [7.2, 0.65, 7.2], [0, 0.93, 0], marble),
+  );
+  const pedestal = addMesh(
     group,
     "Goethe memorial round pedestal",
     new CylinderGeometry(2.25, 2.6, 3.5, 20),
     marble,
     [0, 3, 0],
   );
+  addEdges(group, pedestal);
   // A cornice under the standing figure and a base moulding at the drum's
   // foot: the two lines that read as a pedestal at isometric distance.
-  addMesh(
+  const cornice = addMesh(
     group,
     "Goethe memorial pedestal cornice",
     new CylinderGeometry(2.55, 2.35, 0.34, 20),
     marble,
     [0, 4.9, 0],
   );
-  addMesh(
+  addEdges(group, cornice);
+  const baseMoulding = addMesh(
     group,
     "Goethe memorial pedestal base moulding",
     new CylinderGeometry(2.85, 3, 0.4, 20),
     marble,
     [0, 1.45, 0],
   );
-  addMesh(
+  addEdges(group, baseMoulding);
+  const body = addMesh(
     group,
     "Goethe standing figure body",
     new CapsuleGeometry(0.8, 2.55, 5, 10),
     marble,
     [0, 6.25, 0],
   );
+  addEdges(group, body);
   // Schaper's Goethe wears a long cloak over the left shoulder and holds a
   // scroll; the cloak is what gives the figure its wide, readable silhouette.
   const cloak = addMesh(
@@ -854,13 +867,15 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     [-0.08, 6, -0.06],
   );
   cloak.rotation.z = 0.05;
-  addMesh(
+  addEdges(group, cloak);
+  const head = addMesh(
     group,
     "Goethe standing figure head",
     new SphereGeometry(0.58, 14, 10),
     marble,
     [0, 8.15, 0],
   );
+  addEdges(group, head);
   addSegment(
     group,
     "Goethe standing figure right arm",
@@ -877,12 +892,15 @@ function createGoetheMemorial(anchor: MemorialLandmark): Group {
     0.19,
     marble,
   );
-  addBox(
+  addEdges(
     group,
-    "Goethe standing figure scroll",
-    [0.16, 0.16, 0.62],
-    [0.82, 5.88, 0.72],
-    marble,
+    addBox(
+      group,
+      "Goethe standing figure scroll",
+      [0.16, 0.16, 0.62],
+      [0.82, 5.88, 0.72],
+      marble,
+    ),
   );
   // Lyrik, Forschung and Drama sit against the drum: seated bodies with
   // separate heads, so each group reads as a figure and not a lump.
@@ -936,26 +954,35 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
   );
   // A round stone step ring under the triangular base, as on the Großer
   // Weg: the monument is approached, it does not just stand on grass.
-  addMesh(
+  addEdges(
     group,
-    "Composer memorial step ring",
-    new CylinderGeometry(6.2, 6.6, 0.34, 24),
-    marble,
-    [0, 0.17, 0],
+    addMesh(
+      group,
+      "Composer memorial step ring",
+      new CylinderGeometry(6.2, 6.6, 0.34, 24),
+      marble,
+      [0, 0.17, 0],
+    ),
   );
-  addMesh(
+  addEdges(
     group,
-    "Composer memorial three-sided marble base",
-    new CylinderGeometry(4.2, 4.7, 0.7, 3),
-    marble,
-    [0, 0.69, 0],
+    addMesh(
+      group,
+      "Composer memorial three-sided marble base",
+      new CylinderGeometry(4.2, 4.7, 0.7, 3),
+      marble,
+      [0, 0.69, 0],
+    ),
   );
-  addMesh(
+  addEdges(
     group,
-    "Composer memorial three-sided coloured stele",
-    new CylinderGeometry(2.9, 3.5, 6.2, 3),
-    modelMaterial(0xd8d4c3, { roughness: 0.72 }),
-    [0, 4.14, 0],
+    addMesh(
+      group,
+      "Composer memorial three-sided coloured stele",
+      new CylinderGeometry(2.9, 3.5, 6.2, 3),
+      modelMaterial(0xd8d4c3, { roughness: 0.72 }),
+      [0, 4.14, 0],
+    ),
   );
   const faceAngles = [0, 1, 2].map(
     (index) => (index / 3) * Math.PI * 2 + Math.PI / 6,
@@ -1007,6 +1034,7 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
     [0, 7.54, 0],
   );
   dome.scale.y = 0.7;
+  addEdges(group, dome);
   addMesh(
     group,
     "Composer memorial laurel crown",
