@@ -254,6 +254,7 @@ function addRamp(
   const dzh = head.z - before.z;
   const runh = Math.hypot(dxh, dzh) || 1;
   const headNormal = new Vector3(-dzh / runh, 0, dxh / runh);
+  const inward = new Vector3(dxh / runh, 0, dzh / runh);
   for (const tube of [-1, 1]) {
     const lateral = tube * (width / 2 + 0.85);
     const beam = new Mesh(
@@ -279,6 +280,93 @@ function addRamp(
       jamb.rotation.y = yaw;
       jamb.castShadow = true;
       group.add(jamb);
+    }
+  }
+
+  // The visible tube interior ("man muss … tief hineinschauen können"):
+  // each mouth continues past its portal frame as a real receding bore —
+  // dark road deck, side walls, ceiling with a row of warm lamps, and a
+  // near-black end cap that reads as the tunnel disappearing under the
+  // city rather than a painted-on hole. Everything sits BELOW street
+  // level, so it is only ever seen through the mouth itself.
+  const BORE_LENGTH_M = 46;
+  const boreWall = surfaceMaterial(0x4a4d4b, { roughness: 0.92 });
+  const boreDeck = surfaceMaterial(0x272c30, { roughness: 0.95 });
+  const boreCeiling = surfaceMaterial(0x3a3e3d, { roughness: 0.92 });
+  const boreEnd = surfaceMaterial(0x0a0c0d, { roughness: 1 });
+  const lampMaterial = new MeshStandardMaterial({
+    color: 0xffe2b0,
+    emissive: 0xffc678,
+    emissiveIntensity: 1.15,
+    roughness: 0.6,
+  });
+  for (const tube of [-1, 1]) {
+    const lateral = tube * (width / 2 + 0.85);
+    const mouth = head
+      .clone()
+      .addScaledVector(headNormal, lateral)
+      .addScaledVector(inward, 0.7);
+    const boreCentre = mouth
+      .clone()
+      .addScaledVector(inward, BORE_LENGTH_M / 2);
+    const place = (
+      mesh: Mesh,
+      name: string,
+      y: number,
+    ): void => {
+      mesh.name = name;
+      mesh.position.set(boreCentre.x, y, boreCentre.z);
+      mesh.rotation.y = yaw;
+      mesh.receiveShadow = true;
+      group.add(mesh);
+    };
+    place(
+      new Mesh(new BoxGeometry(width, 0.3, BORE_LENGTH_M), boreDeck),
+      `${label} bore deck`,
+      head.y - 0.15,
+    );
+    place(
+      new Mesh(new BoxGeometry(width + 1.0, 0.4, BORE_LENGTH_M), boreCeiling),
+      `${label} bore ceiling`,
+      head.y + height + 0.2,
+    );
+    for (const side of [-1, 1]) {
+      const wall = new Mesh(
+        new BoxGeometry(0.5, height, BORE_LENGTH_M),
+        boreWall,
+      );
+      wall.position
+        .set(boreCentre.x, head.y + height / 2, boreCentre.z)
+        .addScaledVector(headNormal, side * (width / 2 + 0.25));
+      wall.rotation.y = yaw;
+      wall.name = `${label} bore wall`;
+      wall.receiveShadow = true;
+      group.add(wall);
+    }
+    const endCap = new Mesh(
+      new BoxGeometry(width + 1.0, height + 0.6, 0.4),
+      boreEnd,
+    );
+    endCap.position
+      .copy(mouth)
+      .addScaledVector(inward, BORE_LENGTH_M - 0.4);
+    endCap.position.y = head.y + height / 2;
+    endCap.rotation.y = yaw;
+    endCap.name = `${label} bore depth cap`;
+    group.add(endCap);
+    // A row of ceiling lamps marching into the dark — the cue that makes
+    // the bore read as depth instead of a black rectangle.
+    const LAMP_SPACING_M = 7.5;
+    const lampCount = Math.floor((BORE_LENGTH_M - 4) / LAMP_SPACING_M);
+    for (let index = 0; index < lampCount; index += 1) {
+      const lamp = new Mesh(new BoxGeometry(1.6, 0.14, 0.5), lampMaterial);
+      lamp.position
+        .copy(mouth)
+        .addScaledVector(inward, 4 + index * LAMP_SPACING_M);
+      lamp.position.y = head.y + height - 0.12;
+      lamp.rotation.y = yaw;
+      lamp.name = `${label} bore ceiling lamp`;
+      group.add(lamp);
     }
   }
 }

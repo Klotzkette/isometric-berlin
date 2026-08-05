@@ -667,6 +667,7 @@ export function setIsoNightPresentation(
     "smooth paved paths",
     "smooth park paths",
     "smooth carriageways",
+    "smooth kerb upstands",
     "basin floors",
     "basin water",
     "sunken walls",
@@ -696,7 +697,11 @@ export function setIsoNightPresentation(
       night ? 0x4a5568 : 0xf2f0e8,
     );
   }
-  for (const name of ["smooth shoreline ink", "basin and sunken wall ink"]) {
+  for (const name of [
+    "smooth shoreline ink",
+    "smooth kerb ink",
+    "basin and sunken wall ink",
+  ]) {
     const inkLines = city.getObjectByName(name);
     if (inkLines instanceof LineSegments) {
       (inkLines.material as LineBasicMaterial).color.setHex(
@@ -4453,6 +4458,76 @@ export function createSmoothSurfaces(
     mesh.userData.nightMaterial = nightMaterial;
     mesh.name = surface.name;
     group.add(mesh);
+  }
+
+  // Kerbstones ("alle Straßen, die Bordsteine haben, müssen diese
+  // Bordsteine aufzeigen"): every asphalt carriageway gets a raised kerb
+  // band walking its real polygon outline — a small upstand wall from the
+  // asphalt top to kerb height plus a fine ink line along the arris. Park
+  // paths and sand stay kerbless, as they are in the Tiergarten.
+  {
+    const kerbPositions: number[] = [];
+    const kerbInk: number[] = [];
+    const KERB_RISE = 0.14;
+    const asphaltLift = ROAD_SURFACES.find(
+      (entry) => entry.kind === "asphalt",
+    )?.lift ?? 0.14;
+    const kerbRings = roads
+      .filter((entry) => entry.kind === "asphalt")
+      .flatMap((entry) => [entry.ring, ...(entry.holes ?? [])]);
+    for (const ring of kerbRings) {
+      const points = smoothSurfaceRing(ring);
+      for (let index = 0; index < points.length; index += 1) {
+        const [ax, az] = points[index];
+        const [bx, bz] = points[(index + 1) % points.length];
+        if (Math.hypot(bx - ax, bz - az) < 0.05) {
+          continue;
+        }
+        const aBase = (terrainAt ? terrainAt(ax, az) + asphaltLift : bankY + asphaltLift);
+        const bBase = (terrainAt ? terrainAt(bx, bz) + asphaltLift : bankY + asphaltLift);
+        const aTop = aBase + KERB_RISE;
+        const bTop = bBase + KERB_RISE;
+        // Two triangles of upstand between road level and kerb top.
+        kerbPositions.push(
+          ax, aBase, az, bx, bBase, bz, bx, bTop, bz,
+          ax, aBase, az, bx, bTop, bz, ax, aTop, az,
+        );
+        kerbInk.push(ax, aTop + 0.01, az, bx, bTop + 0.01, bz);
+      }
+    }
+    if (kerbPositions.length > 0) {
+      const kerbGeometry = new BufferGeometry();
+      kerbGeometry.setAttribute(
+        "position",
+        new Float32BufferAttribute(kerbPositions, 3),
+      );
+      kerbGeometry.computeVertexNormals();
+      const dayMaterial = new MeshBasicMaterial({
+        color: 0xd7d4c8,
+        side: DoubleSide,
+      });
+      const nightMaterial = new MeshBasicMaterial({
+        color: 0x232a31,
+        side: DoubleSide,
+      });
+      const kerbMesh = new Mesh(kerbGeometry, dayMaterial);
+      kerbMesh.userData.dayMaterial = dayMaterial;
+      kerbMesh.userData.nightMaterial = nightMaterial;
+      kerbMesh.name = "smooth kerb upstands";
+      group.add(kerbMesh);
+      const inkGeometry = new BufferGeometry();
+      inkGeometry.setAttribute(
+        "position",
+        new Float32BufferAttribute(kerbInk, 3),
+      );
+      const inkLines = new LineSegments(
+        inkGeometry,
+        new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      );
+      inkLines.name = "smooth kerb ink";
+      inkLines.renderOrder = 2;
+      group.add(inkLines);
+    }
   }
 
   // Painted lane markings on the classified carriageways: a broken white

@@ -51,6 +51,24 @@ describe("drawn carriageways and park paths", () => {
     expect(markings).toBeInstanceOf(LineSegments);
   });
 
+  test("asphalt carriageways carry raised kerbstones with an ink arris", () => {
+    // "Alle Straßen, die Bordsteine haben, müssen diese Bordsteine
+    // aufzeigen": every asphalt polygon outline gets a kerb upstand wall
+    // plus a fine ink line along its top edge. Park paths stay kerbless.
+    const group = createSmoothSurfaces(surfaces, -1.15, 4.2);
+    const upstands = group.getObjectByName("smooth kerb upstands");
+    expect(upstands).toBeInstanceOf(Mesh);
+    expect((upstands as Mesh).userData.dayMaterial).toBeDefined();
+    expect((upstands as Mesh).userData.nightMaterial).toBeDefined();
+    const geometry = (upstands as Mesh).geometry;
+    const positions = geometry.getAttribute("position");
+    // Two triangles per outline segment across the whole asphalt network:
+    // this has to be a substantial band, not a token.
+    expect(positions.count).toBeGreaterThan(3_000);
+    const ink = group.getObjectByName("smooth kerb ink");
+    expect(ink).toBeInstanceOf(LineSegments);
+  });
+
   test("surfaces follow the terrain instead of one constant height", () => {
     // The surveyed terrain runs to a median of 5.2 m while the single
     // constant this used to use is 4.2 m — every lawn and every road plate

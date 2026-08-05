@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.59.0
+
+- **The Hauptbahnhof escalators are a rideable path, not tilted planks.**
+  Every one of the twelve flights that chain the galleries down to the deep
+  station (+4.6 → 0 → −5.4 → −15 m) now carries transverse step ridges, a
+  glass balustrade with a dark handrail on both sides, and comb plates that
+  dock the run onto its floor at both ends. The deepest flights walk
+  outward as they descend so they land on the inner island platforms at
+  ±9.5 m — a flight that stayed at ±5.2 m would have delivered its
+  passengers onto a track. Presentation geometry, like the interior levels
+  it connects; contract tests pin twelve flights, forty-eight balustrade
+  panels and the platform landing.
+- **You can see deep into the Tiergartentunnel now.** Each mouth continues
+  past its portal frame as a real 46 m bore: dark road deck, side walls,
+  ceiling, a row of warm ceiling lamps marching into the dark, and a
+  near-black depth cap that reads as the tube disappearing under the city
+  ("man muss in die Eingänge … tief hineinschauen können"). Everything
+  sits below street level, so it is only ever visible through the mouth
+  itself. The tunnel contract test verifies all four tubes.
+- **Kerbstones on every kerbed street.** The asphalt carriageways get a
+  raised kerb band walking their real buffered polygon outlines — a 14 cm
+  upstand from road level plus a fine ink line along the arris, following
+  the terrain like the plates themselves. Park and sand paths stay
+  kerbless, as they are in the Tiergarten. Day and night tones swap with
+  the mode; a test pins the band's substance (thousands of segments, not a
+  token).
+- **Day mode measured still: no flicker.** At rest and in the seconds
+  right after a zoom-out — the moment detail tiers used to pop — at most
+  0.0039 % of pixels change across four frames. The monument accuracy
+  round shipped in v0.58.0 was verified on screen for the Soviet memorial
+  and the Luiseninsel figure; both stand and frame correctly.
+
 ## v0.58.0: Denkmal-Genauigkeitsrunde (Tiergarten-Denkmäler)
 
 Schwerpunkt dieser Version: die im Handoff (`claude-handoff-v0.57.0.md`, Task 1)

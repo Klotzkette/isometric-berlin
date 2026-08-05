@@ -153,6 +153,28 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(Math.min(...ys)).toBeLessThan(-7);
     expect(Math.max(...ys)).toBeGreaterThan(0);
     expect(RAMP_LENGTH_M).toBeGreaterThan(200);
+
+    // The mouths are genuinely OPEN ("man muss … tief hineinschauen
+    // können"): past each portal frame a real bore recedes — deck, walls,
+    // ceiling, a row of lamps marching into the dark and a near-black
+    // depth cap — one per tube, two tubes per mouth. All of it sits below
+    // street level so it can only be seen through the mouth.
+    for (const label of ["north", "south"]) {
+      const prefix = `Tiergartentunnel ${label} ramp bore`;
+      const parts = (suffix: string) =>
+        portals.children.filter(
+          (child) => child.name === `${prefix} ${suffix}`,
+        );
+      expect(parts("deck")).toHaveLength(2);
+      expect(parts("ceiling")).toHaveLength(2);
+      expect(parts("wall")).toHaveLength(4);
+      expect(parts("depth cap")).toHaveLength(2);
+      const lamps = parts("ceiling lamp");
+      expect(lamps.length).toBeGreaterThanOrEqual(8);
+      for (const piece of [...parts("deck"), ...parts("depth cap"), ...lamps]) {
+        expect(piece.position.y).toBeLessThan(0);
+      }
+    }
   });
 
   test("aims both ramps down the real course, not at each other", () => {

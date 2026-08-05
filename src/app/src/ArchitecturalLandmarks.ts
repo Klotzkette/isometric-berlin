@@ -2272,7 +2272,14 @@ function addBarrelRoofEndSupport(
   beam.rotation.y = 0;
 }
 
-/** A flat band tilted to run from one level to the next, i.e. an escalator. */
+/**
+ * An escalator that reads as a PATH into the depth, not as a tilted plank:
+ * the inclined band carries transverse step ridges, both sides get a glass
+ * balustrade with a dark handrail line above it, and each end lands on a
+ * short horizontal comb plate. All of it is presentation geometry — the
+ * point is that the eye can follow the descent from the daylight slot down
+ * to the deep platforms ("Rolltreppenwege in die Tiefe").
+ */
 function addEscalatorRun(
   group: Group,
   name: string,
@@ -2281,24 +2288,103 @@ function addEscalatorRun(
   width: number,
   material: MeshStandardMaterial,
 ): void {
+  const dx = to[0] - from[0];
   const dy = to[1] - from[1];
   const dz = to[2] - from[2];
-  const run = Math.hypot(dy, dz);
+  const run = Math.hypot(dx, dy, dz);
   if (run < 0.5) {
     return;
   }
-  const band = new Mesh(new BoxGeometry(width, 0.55, run), material);
-  band.name = name;
-  band.position.set(
+  const centre: [number, number, number] = [
     (from[0] + to[0]) / 2,
     (from[1] + to[1]) / 2,
     (from[2] + to[2]) / 2,
+  ];
+  const carrier = new Group();
+  carrier.name = name;
+  carrier.position.set(...centre);
+  // Point the carrier's local +Z along the run. A flight may also drift
+  // sideways (the deep flight walks outward to land on its platform), so
+  // the full 3D direction is used, not just the y/z tilt.
+  carrier.quaternion.setFromUnitVectors(
+    new Vector3(0, 0, 1),
+    new Vector3(dx, dy, dz).normalize(),
   );
-  band.rotation.x = Math.atan2(-dy, dz);
+
+  const band = new Mesh(new BoxGeometry(width, 0.55, run), material);
+  band.name = `${name} band`;
   band.castShadow = true;
   band.receiveShadow = true;
-  group.add(band);
-  addEdges(group, band, 0.4);
+  carrier.add(band);
+  addEdges(carrier, band, 0.4);
+
+  // Step ridges across the band: one thin bar roughly every 1.1 m of run.
+  const stepMaterial = modelMaterial(0x6d7a80, {
+    metalness: 0.42,
+    roughness: 0.5,
+  });
+  const ridges: InstanceTransform[] = [];
+  const ridgeCount = Math.max(4, Math.floor(run / 1.1));
+  for (let index = 1; index < ridgeCount; index += 1) {
+    ridges.push({
+      position: [0, 0.31, -run / 2 + (index / ridgeCount) * run],
+    });
+  }
+  addInstancedBoxes(
+    carrier,
+    `${name} instanced step ridges`,
+    [width - 0.3, 0.09, 0.16],
+    stepMaterial,
+    ridges,
+  );
+
+  // Glass balustrades with a dark handrail on top, one per side.
+  const balustrade = modelMaterial(0xbcd8de, {
+    metalness: 0.2,
+    opacity: 0.5,
+    roughness: 0.25,
+  });
+  balustrade.transparent = true;
+  const handrail = modelMaterial(0x2e3538, { roughness: 0.6 });
+  for (const side of [-1, 1]) {
+    addBox(
+      carrier,
+      `${name} glass balustrade`,
+      [0.08, 1.05, run - 0.3],
+      [side * (width / 2 + 0.04), 0.75, 0],
+      balustrade,
+      0.25,
+    );
+    addBox(
+      carrier,
+      `${name} handrail`,
+      [0.14, 0.12, run - 0.2],
+      [side * (width / 2 + 0.04), 1.34, 0],
+      handrail,
+    );
+  }
+  group.add(carrier);
+
+  // Comb plates: short horizontal landings at both ends, extending past
+  // the run, so it visibly docks onto its floor instead of knifing
+  // through it.
+  const zDirection = Math.sign(dz) || 1;
+  addBox(
+    group,
+    `${name} upper comb plate`,
+    [width + 0.5, 0.18, 2.2],
+    [from[0], from[1] + 0.09, from[2] - zDirection * 1.0],
+    material,
+    0.3,
+  );
+  addBox(
+    group,
+    `${name} lower comb plate`,
+    [width + 0.5, 0.18, 2.2],
+    [to[0], to[1] + 0.09, to[2] + zDirection * 1.0],
+    material,
+    0.3,
+  );
 }
 
 /**
@@ -2363,12 +2449,16 @@ function addStationInterior(
     gaps.forEach(([top, bottom], index) => {
       const zTop = side * (armNear + 14 + index * 21);
       const zBottom = zTop + side * (top - bottom) * 1.9;
+      // The gallery flights criss-cross the daylight slot; the deepest
+      // flight must LAND ON the inner island platforms (centres ±9.5 m),
+      // not between them on a track. So its lower end walks outward.
+      const landsOnPlatform = bottom <= -14;
       for (const edge of [-1, 1]) {
         addEscalatorRun(
           group,
           "Hauptbahnhof escalator run",
           [edge * 5.2, top, zTop],
-          [edge * 5.2, bottom, zBottom],
+          [edge * (landsOnPlatform ? 9.5 : 5.2), bottom, zBottom],
           2.4,
           escalator,
         );
