@@ -130,6 +130,33 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(tallestNear("Moltke")).toBeLessThan(13);
   });
 
+  test("Lessing stands on his own jointed granite pedestal, not a generic cube stack", () => {
+    // The real monument is a 3 m marble Lessing on a 4 m granite
+    // pedestal (~7 m total), with the bronze "Genius der Humanität"
+    // reclining at the front. https://de.wikipedia.org/wiki/Lessing-Denkmal_(Berlin)
+    expect(tallestNear("Gotthold Ephraim Lessing")).toBeGreaterThan(6);
+    expect(tallestNear("Gotthold Ephraim Lessing")).toBeLessThan(8);
+    const entry = street.monuments!.find(
+      (candidate) => candidate.name === "Gotthold Ephraim Lessing",
+    )!;
+    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    const vertex = new Vector3();
+    const figureYValues = new Set<number>();
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        Math.abs(vertex.x - entry.x_dm / 10) < 1 &&
+        Math.abs(vertex.z - entry.z_dm / 10) < 1 &&
+        vertex.y > 3.5
+      ) {
+        figureYValues.add(Math.round(vertex.y * 10) / 10);
+      }
+    }
+    // Coat/legs, torso, and head are three distinct elevations.
+    expect(figureYValues.size).toBeGreaterThanOrEqual(3);
+  });
+
   test("Bismarck is not drawn twice at the Großer Stern", () => {
     // createSiegessaeule() in IsometricCityWorld.ts already draws the
     // Bismarck-Nationaldenkmal as part of its verified recognition

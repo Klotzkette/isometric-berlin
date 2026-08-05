@@ -107,6 +107,36 @@ function buildStatue(
   );
 }
 
+/**
+ * Otto Lessing's 1890 Lessing-Denkmal: a 3 m white-marble Gotthold
+ * Ephraim Lessing on a 4 m reddish-granite pedestal, with the bronze
+ * "Genius der Humanität" -- a winged youth holding a flaming bowl and
+ * a laurel branch -- reclining against the front of the pedestal.
+ * Reference: https://de.wikipedia.org/wiki/Lessing-Denkmal_(Berlin)
+ * and https://bildhauerei-in-berlin.de/bildwerk/lessingdenkmal-4997/ .
+ */
+function buildLessingMemorial(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  // Stepped granite base, grey lower steps then the reddish pedestal.
+  box(builder, STONE_LIGHT, x, y + 0.25, z, 4.6, 0.5, 4.6);
+  box(builder, GRANITE_RED, x, y + 0.85, z, 3.6, 0.7, 3.6);
+  box(builder, GRANITE_RED, x, y + 2.0, z, 2.4, 1.6, 2.4);
+  box(builder, GRANITE_RED, x, y + 3.15, z, 2.9, 0.65, 2.9); // cornice
+  // Lessing himself: coat-draped torso, book-holding stance, head --
+  // three elevations rather than one bronze cuboid, in pale marble.
+  box(builder, STONE_LIGHT, x, y + 4.1, z, 1.0, 1.7, 0.9); // coat/legs
+  box(builder, STONE_LIGHT, x, y + 5.25, z, 0.85, 0.65, 0.75); // torso
+  box(builder, STONE_LIGHT, x, y + 5.85, z, 0.5, 0.45, 0.5); // head
+  // Genius der Humanität: a small winged bronze figure at the pedestal
+  // foot, reclining, holding its bowl up at chest height.
+  box(builder, BRONZE, x, y + 3.7, z + 1.7, 1.3, 0.6, 0.9); // reclining body
+  box(builder, BRONZE, x + 0.3, y + 4.15, z + 1.7, 0.4, 0.4, 0.4); // raised arm/bowl
+}
+
 function buildCannon(builder: Builder, x: number, y: number, z: number): void {
   box(builder, STONE, x, y + 0.5, z, 5.6, 1, 3);
   box(builder, SOVIET_GREEN, x, y + 1.5, z, 3.4, 1, 1.4);
@@ -354,6 +384,8 @@ export function createTiergartenMonuments(
           ? "luise"
           : "wilhelm";
       buildMarbleFigure(builder, x, y, z, variant);
+    } else if (/^Lessing-Denkmal$|Gotthold Ephraim Lessing/i.test(name)) {
+      buildLessingMemorial(builder, x, y, z);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {
