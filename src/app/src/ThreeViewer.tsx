@@ -3056,6 +3056,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 3,
             target_world: [358, 5.3, -1150],
           });
+          // The forecourt is 84 m wide (T-34s at +/-25 m, ML-20 howitzers
+          // at +/-36.5 m); a straight-on south approach at 130 m is the
+          // only framing that keeps both wings in frame at once instead
+          // of cropping one tank and one gun off-screen.
+          runtime.focusCameraByName.set("Sowjetisches Ehrenmal Tiergarten", {
+            azimuth_degrees: 180,
+            distance_m: 145,
+            polar_degrees: 68,
+            target_height_m: 3,
+            target_world: [26.57719945925055, 4.79, 245.32870413176715],
+          });
           runtime.heroByName = new Map(
             manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
           );

@@ -768,6 +768,11 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   // plinth the way they stand on the forecourt today.
   const TANK_PLINTH = 1.85;
   const GUN_PLINTH = 1.25;
+  // T-34 plinths at x=+/-33 (span 29.9-36.1) and howitzer plinths at
+  // x=+/-44.5 (span 41.9-47.1) clear the colonnade cornice, which ends
+  // at x=+/-29.2 -- the vehicles used to sit directly under the beams
+  // (plinth span 21.9-28.1 vs cornice up to 29.2) and were occluded from
+  // the presentation camera at every practical angle.
   for (const side of [-1, 1]) {
     addEdges(
       group,
@@ -775,7 +780,7 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
         group,
         "Soviet memorial T-34 plinth",
         [6.2, TANK_PLINTH, 9.4],
-        [side * 25, TANK_PLINTH / 2, 8],
+        [side * 33, TANK_PLINTH / 2, 8],
         stoneDark,
       ),
     );
@@ -785,15 +790,15 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
         group,
         "Soviet memorial howitzer plinth",
         [5.2, GUN_PLINTH, 8.6],
-        [side * 36.5, GUN_PLINTH / 2, 8.6],
+        [side * 44.5, GUN_PLINTH / 2, 8.6],
         stoneDark,
       ),
     );
   }
-  addTank(group, "Soviet memorial T-34 west", -25, TANK_PLINTH);
-  addTank(group, "Soviet memorial T-34 east", 25, TANK_PLINTH);
-  addHowitzer(group, "Soviet memorial ML-20 howitzer west", -36.5, GUN_PLINTH);
-  addHowitzer(group, "Soviet memorial ML-20 howitzer east", 36.5, GUN_PLINTH);
+  addTank(group, "Soviet memorial T-34 west", -33, TANK_PLINTH);
+  addTank(group, "Soviet memorial T-34 east", 33, TANK_PLINTH);
+  addHowitzer(group, "Soviet memorial ML-20 howitzer west", -44.5, GUN_PLINTH);
+  addHowitzer(group, "Soviet memorial ML-20 howitzer east", 44.5, GUN_PLINTH);
   return group;
 }
 

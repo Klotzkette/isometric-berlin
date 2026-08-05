@@ -163,6 +163,45 @@ describe("granular memorial recognition models", () => {
     expect(hull.position.y - 1.18 / 2).toBeGreaterThan(plinth.position.y);
   });
 
+  test("each T-34 carries its running gear and stays clear of the colonnade", () => {
+    // v0.58.0: the tanks sat directly under the colonnade beams (x in
+    // [21.9, 28.1] for the plinth vs [4.8, 29.2] for the cornice), so the
+    // hulls were always occluded from the presentation camera. Every
+    // vehicle must clear the colonnade footprint on the X axis.
+    const root = createMemorialLandmarks(landmarks);
+    for (const side of ["west", "east"]) {
+      const wheels = root.getObjectByName(
+        `Soviet memorial T-34 ${side} ten T-34 road wheels`,
+      );
+      expect(wheels).toBeInstanceOf(InstancedMesh);
+      expect((wheels as InstancedMesh).count).toBeGreaterThanOrEqual(10);
+      expect(
+        root.getObjectByName(`Soviet memorial T-34 ${side} turret`),
+      ).not.toBeNull();
+      expect(
+        root.getObjectByName(`Soviet memorial T-34 ${side} 76 mm barrel`),
+      ).not.toBeNull();
+      expect(
+        root.getObjectByName(`Soviet memorial T-34 ${side} left track`),
+      ).not.toBeNull();
+      expect(
+        root.getObjectByName(`Soviet memorial T-34 ${side} right track`),
+      ).not.toBeNull();
+    }
+    const soviet = root.getObjectByName("Sowjetisches Ehrenmal Tiergarten")!;
+    const cornice = soviet.children.find(
+      (child) => child.name === "Soviet memorial colonnade cornice",
+    )!;
+    const corniceBox = new Box3().setFromObject(cornice);
+    for (const side of ["west", "east"]) {
+      const hull = root.getObjectByName(`Soviet memorial T-34 ${side} hull`)!;
+      const hullBox = new Box3().setFromObject(hull);
+      const clearsOnLeft = hullBox.max.x < corniceBox.min.x;
+      const clearsOnRight = hullBox.min.x > corniceBox.max.x;
+      expect(clearsOnLeft || clearsOnRight).toBeTrue();
+    }
+  });
+
   test("the Polish memorial is the 2025 Findling, not an unbuilt building", () => {
     const root = createMemorialLandmarks(landmarks);
     const site = root.getObjectByName("Gedenkort für Polen 1939-1945")!;
