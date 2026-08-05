@@ -61,7 +61,10 @@ import {
   isAmbientAudioSupported,
 } from "./AmbientSoundscape";
 import { DuskChiptune, isChiptuneSupported } from "./DuskChiptune";
-import { registerFirstGestureStart } from "./audioAutostart";
+import {
+  registerFirstGestureStart,
+  shouldStopAudioOnToggleTap,
+} from "./audioAutostart";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { discoveryNoteFor } from "./discoveryNotes";
 import {
@@ -776,8 +779,13 @@ export function App() {
     [copy.musicOn, copy.musicStarting, language],
   );
 
+  // Branches on audibility (see shouldStopAudioOnToggleTap), not on the
+  // `isMusicEnabled` intent flag: consistent with the soundtrack toggle
+  // below and immune to the same first-gesture race, even though
+  // `isMusicEnabled` starts `false` here (see the useState above) and so
+  // was not actually exposed to it in practice.
   const toggleMusic = useCallback(async () => {
-    if (isMusicEnabled) {
+    if (shouldStopAudioOnToggleTap(isMusicAudible)) {
       ambientSoundscapeRef.current?.stop();
       setIsMusicEnabled(false);
       // Remember explicit mute so the auto-start effect stays quiet on the
@@ -787,7 +795,7 @@ export function App() {
       return;
     }
     await startMusic();
-  }, [copy.musicOff, isMusicEnabled, startMusic]);
+  }, [copy.musicOff, isMusicAudible, startMusic]);
 
   const startSoundtrack = useCallback(
     async (
@@ -842,15 +850,29 @@ export function App() {
     ? copy.soundtrackWaiting
     : copy.soundtrackOn;
 
+  // Mobile-only race (v0.56.2): the visitor's first tap anywhere on the
+  // page — e.g. the "…" overflow button that opens this very sheet — is
+  // itself a "first gesture" and can already have started the soundtrack
+  // via registerFirstGestureStart before the tap on THIS button lands.
+  // `isSoundtrackEnabled` reflects on-load INTENT (true from the first
+  // render, see the useState above) and can therefore already be `true`
+  // even though nothing has played yet. Branching on it here made that
+  // first real tap toggle straight back off — the reported "Dusk Republic
+  // can't be tapped on mobile" bug: audible went true→(tap)→false in one
+  // gesture. Branch on `isSoundtrackAudible` (what the visitor can
+  // actually hear) instead, so the very first tap always ends in "on",
+  // never a same-gesture double toggle, matching the desktop behaviour
+  // where the toggle button itself is the first gesture and no race
+  // exists.
   const toggleSoundtrack = useCallback(async () => {
-    if (isSoundtrackEnabled) {
+    if (shouldStopAudioOnToggleTap(isSoundtrackAudible)) {
       chiptuneRef.current?.stop();
       setIsSoundtrackEnabled(false);
       setStatus(copy.soundtrackOff);
       return;
     }
     await startSoundtrack();
-  }, [copy.soundtrackOff, isSoundtrackEnabled, startSoundtrack]);
+  }, [copy.soundtrackOff, isSoundtrackAudible, startSoundtrack]);
 
   useEffect(
     () => () => {

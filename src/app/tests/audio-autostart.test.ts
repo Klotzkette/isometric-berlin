@@ -4,6 +4,7 @@ import {
   FIRST_GESTURE_EVENTS,
   isIgnoredGesture,
   registerFirstGestureStart,
+  shouldStopAudioOnToggleTap,
 } from "../src/audioAutostart";
 
 type Registration = {
@@ -159,5 +160,55 @@ describe("first-gesture audio start", () => {
     expect(
       isIgnoredGesture({ key: "d", target: null, type: "keydown" } as never),
     ).toBe(false);
+  });
+
+  describe("shouldStopAudioOnToggleTap (v0.56.2 mobile tap fix)", () => {
+    test("a silent engine always starts, an audible one always stops", () => {
+      expect(shouldStopAudioOnToggleTap(false)).toBe(false);
+      expect(shouldStopAudioOnToggleTap(true)).toBe(true);
+    });
+
+    // Regression (v0.56.2): "Man kann auf mobil 'Dusk Republic' nicht
+    // anklicken/einschalten." On a phone the visitor's first tap is
+    // often the "…" overflow button (no [data-audio-toggle]), which
+    // registerFirstGestureStart legitimately treats as the first
+    // gesture and uses to start the soundtrack — before the visitor's
+    // very next tap lands on the actual "Dusk Republic" button inside
+    // the sheet that button just opened. The old toggle branched on
+    // stored on-load INTENT (true from first render, so the desktop
+    // toggle auto-plays without a race), which was therefore already
+    // `true` from that overflow tap and made the very next tap on the
+    // visible button turn straight back off in the same combined
+    // gesture — the exact shape of the N-shortcut collision in v0.52.1,
+    // here via a race instead of a missing ignore-list key. Branching on
+    // audibility instead means: whatever a first gesture elsewhere on
+    // the page already started, the next tap on the button itself is
+    // read from what the visitor can actually hear, so it reliably ends
+    // in "on", never a same-gesture double toggle.
+    test("an overflow-button first gesture no longer flips the very next toggle tap back off", () => {
+      // Step 1: the visitor's first-ever tap is the "…" overflow button.
+      // isIgnoredGesture is false for it (no data-audio-toggle), so
+      // registerFirstGestureStart legitimately starts the engine.
+      const overflowButtonGestureIgnored = isIgnoredGesture({
+        target: { closest: () => null },
+        type: "pointerdown",
+      } as never);
+      expect(overflowButtonGestureIgnored).toBe(false);
+      // What registerFirstGestureStart's start() achieves once it runs.
+      const isAudible = true;
+
+      // Step 2: the visitor's very next tap lands on the "Dusk Republic"
+      // button itself, inside the sheet the overflow tap just opened.
+      // The old code asked stored intent (already true pre-tap) and
+      // stopped the engine it had just started. The fixed toggle asks
+      // audibility instead and correctly leaves it playing.
+      expect(shouldStopAudioOnToggleTap(isAudible)).toBe(true);
+      // A tap that lands on the button as the TRUE first gesture (desktop,
+      // or a phone visitor who taps the visible toolbar button directly)
+      // never raced with the autostart listener in the first place
+      // (isIgnoredGesture caught it), so audible is still false and the
+      // toggle correctly starts rather than stops.
+      expect(shouldStopAudioOnToggleTap(false)).toBe(false);
+    });
   });
 });

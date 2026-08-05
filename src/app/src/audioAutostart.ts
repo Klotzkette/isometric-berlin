@@ -129,3 +129,28 @@ export function isIgnoredGesture(event: Event): boolean {
   }
   return false;
 }
+
+/**
+ * Whether a tap on an audio toggle button ("Dusk Republic" / ambient
+ * music) should STOP the engine rather than start it.
+ *
+ * v0.56.2 mobile bug: on a phone the visitor's very first gesture on the
+ * page is often something OTHER than the audio button itself — e.g. the
+ * "…" overflow button that opens the sheet the audio button lives in.
+ * `registerFirstGestureStart` above still treats that as "the first
+ * gesture" (correctly — `isIgnoredGesture` only special-cases taps that
+ * land ON a `[data-audio-toggle]` element or the reserved shortcut keys),
+ * so it can already have started the engine before the visitor's next
+ * tap lands on the visible toggle. A toggle that branches on "intent"
+ * state (true from first render, to auto-play on desktop where the
+ * button tap itself usually IS the first gesture and no race exists)
+ * then reads that pre-existing intent and immediately stops the engine
+ * again — the same shape of bug as the N-shortcut collision in v0.52.1,
+ * just via a race instead of a missing ignore-list entry. The fix is to
+ * always branch on whether the engine is actually AUDIBLE right now, not
+ * on stored intent: a silent engine always means "start", a sounding one
+ * always means "stop", regardless of how it got into that state.
+ */
+export function shouldStopAudioOnToggleTap(isAudibleNow: boolean): boolean {
+  return isAudibleNow;
+}

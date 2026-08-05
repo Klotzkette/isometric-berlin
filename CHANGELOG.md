@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.57.1: Mobiler Tipp-Fix für die Musiksteuerung ("Dusk Republic")
+
+**Nutzer-Meldung (iPhone):** "Man kann auf mobil 'Dusk Republic' nicht
+anklicken/einschalten." Der Touch-Ziel-Bereich war bereits konform
+(≥44px in allen mobilen Layout-Kontexten); der eigentliche Fehler lag in
+einer Race-Bedingung zwischen der Autostart-Logik und dem Toggle-Handler --
+familiennah zum v0.52.1-N-Shortcut-Fehler.
+
+- **Ursache.** `isSoundtrackEnabled` (und `isMusicEnabled`) speicherten die
+  *Absicht* des Nutzers (Musik soll laufen), nicht den *tatsächlichen*
+  Wiedergabestatus. Auf Mobilgeräten ist die allererste Berührung auf der
+  Seite typischerweise der "..."-Überlauf-Button, der laut
+  `audioAutostart.ts` legitim als erste Geste gilt und `startSoundtrack()`
+  asynchron anstößt (AudioContext-Erzeugung + `resume()`, noch nicht
+  abgeschlossen). Tippt der Nutzer im selben Moment auf den nun sichtbaren
+  "Dusk Republic"-Button im geöffneten Overflow-Sheet, prüfte der alte
+  `toggleSoundtrack()`-Handler die *Absicht* (`isSoundtrackEnabled`, seit
+  Seitenaufruf bereits `true`) statt den *Hörbarkeits*-Status
+  (`isSoundtrackAudible`, noch `false`) und stoppte die gerade erst
+  anlaufende Wiedergabe sofort wieder -- der Tipp auf "Dusk Republic" schien
+  wirkungslos oder schaltete die Musik direkt wieder aus.
+- **Fix.** Neue reine Hilfsfunktion `shouldStopAudioOnToggleTap()` in
+  `audioAutostart.ts`: Ein Tipp stoppt die Wiedergabe nur, wenn sie *bereits
+  hörbar* ist, und startet sie andernfalls immer. `toggleSoundtrack` und
+  `toggleMusic` in `App.tsx` branchen jetzt auf `isSoundtrackAudible` bzw.
+  `isMusicAudible` statt auf die Intent-Flags. `DuskChiptune.start()` ist
+  idempotent (dedupliziertes `startPromise`), daher ist ein doppelter
+  Start-Aufruf während der Race-Phase unbedenklich.
+- **Verifiziert.** Neue Unit-Tests in `audio-autostart.test.ts` decken das
+  Race-Szenario ab; ein Playwright-Mobile-Viewport-Test (390×844) mit
+  deterministisch verzögertem `AudioContext.resume()` reproduziert den Bug
+  gegen den alten Code (Endzustand bleibt aus) und bestätigt den Fix gegen
+  den neuen Code (Endzustand zuverlässig an), mit CDP-Screenshots als Beleg.
+
 ## v0.57.0
 
 - **The Hauptbahnhof's deep level is the real station, not three tracks in
