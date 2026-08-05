@@ -2925,27 +2925,32 @@ export function createSiegessaeule(): Group {
   }
 
   // Bismarck-Nationaldenkmal (Begas, 1901): granite pedestal, bronze
-  // chancellor, four allegorical bronze groups at the corners.
+  // chancellor in his cuirassier's coat resting on the Reichsschwert,
+  // four allegorical bronze groups at the corners (Kraft, Weisheit,
+  // Staatengruendung/Gesetzgebung -- represented as figure-bearing
+  // plinths rather than plain cubes). Reference:
+  // https://de.wikipedia.org/wiki/Bismarck-Nationaldenkmal_(Berlin)
   const BX = SX + 24;
   const BZ = SZ - 118;
   addPart(boxTriangles(BX, GROUND_TOP + 1.1, BZ, [1, 0], 22, 2.2, 22), 0xcbc8be);
   addPart(boxTriangles(BX, GROUND_TOP + 6.2, BZ, [1, 0], 9.6, 8, 9.6), 0x9a5f4c);
-  addPart(boxTriangles(BX, GROUND_TOP + 13.4, BZ, [1, 0], 3.1, 6.4, 3.1), 0x5d7264);
-  addPart(boxTriangles(BX, GROUND_TOP + 17.4, BZ, [1, 0], 4.6, 1.8, 1.4), 0x5d7264);
+  // Chancellor figure on the pedestal: long coat (wide at the hem,
+  // narrowing toward the shoulders), shoulder block, head, and the
+  // Reichsschwert he leans on at his side.
+  addPart(boxTriangles(BX, GROUND_TOP + 11.2, BZ, [1, 0], 3.6, 4.6, 2.4), 0x5d7264); // coat, hem-to-waist
+  addPart(boxTriangles(BX, GROUND_TOP + 13.9, BZ, [1, 0], 2.7, 1.2, 2.1), 0x5d7264); // chest/shoulders
+  addPart(boxTriangles(BX, GROUND_TOP + 14.75, BZ, [1, 0], 1.0, 1.0, 1.0), 0x5d7264); // head
+  addPart(
+    boxTriangles(BX + 1.5, GROUND_TOP + 10.6, BZ + 0.6, [1, 0], 0.32, 5.4, 0.32),
+    0x4a5b50,
+  ); // Reichsschwert, point resting near the feet
   for (const cornerX of [-1, 1]) {
     for (const cornerZ of [-1, 1]) {
-      addPart(
-        boxTriangles(
-          BX + cornerX * 8.2,
-          GROUND_TOP + 4.1,
-          BZ + cornerZ * 8.2,
-          [1, 0],
-          3.6,
-          3.8,
-          3.6,
-        ),
-        0x5d7264,
-      );
+      const cx = BX + cornerX * 8.2;
+      const cz = BZ + cornerZ * 8.2;
+      addPart(boxTriangles(cx, GROUND_TOP + 2.9, cz, [1, 0], 3.6, 1.6, 3.6), 0x5d7264); // plinth
+      addPart(boxTriangles(cx, GROUND_TOP + 4.7, cz, [1, 0], 1.6, 2.0, 1.4), 0x5d7264); // seated allegorical torso
+      addPart(boxTriangles(cx, GROUND_TOP + 5.85, cz, [1, 0], 0.7, 0.7, 0.7), 0x5d7264); // head
     }
   }
   const bismarckGeometry = new BufferGeometry();

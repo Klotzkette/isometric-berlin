@@ -213,35 +213,6 @@ function buildWagnerMemorial(
 }
 
 /**
- * Begas' Bismarck-Nationaldenkmal at the Großer Stern: a 6.6 m bronze
- * Bismarck on a red granite pedestal, with four allegorical bronze groups
- * sitting around its foot.
- */
-function buildBismarckNationalDenkmal(
-  builder: Builder,
-  x: number,
-  y: number,
-  z: number,
-): void {
-  box(builder, STONE_LIGHT, x, y + 0.4, z, 14, 0.8, 14);
-  box(builder, GRANITE_RED, x, y + 1.5, z, 8.6, 1.4, 8.6);
-  box(builder, GRANITE_RED, x, y + 4.6, z, 4.8, 4.8, 4.8);
-  box(builder, GRANITE_RED, x, y + 7.2, z, 5.6, 0.5, 5.6);
-  // Bismarck himself, in the greatcoat, half again as tall as the pedestal.
-  box(builder, BRONZE, x, y + 10.6, z, 2.2, 6.4, 2.2);
-  box(builder, BRONZE, x, y + 14.2, z, 1.1, 1, 1.1);
-  for (const [dx, dz] of [
-    [-4.2, -4.2],
-    [4.2, -4.2],
-    [-4.2, 4.2],
-    [4.2, 4.2],
-  ]) {
-    box(builder, GRANITE_RED, x + dx, y + 1.1, z + dz, 3.2, 2.2, 3.2);
-    box(builder, BRONZE, x + dx, y + 3.4, z + dz, 1.9, 2.4, 1.9);
-  }
-}
-
-/**
  * The Luiseninsel figures — Encke's Königin Luise (1880, cylindrical
  * pedestal with a Befreiungskriege relief band, downcast standing
  * queen), Drake's Friedrich Wilhelm III (1849, tall square pedestal,
@@ -329,8 +300,17 @@ const STATUE_NAMES =
 // models completely — the Holocaust stelae field, the Soviet memorial
 // with its T-34s and soldier, Sinti-und-Roma, the Homosexuellen cuboid,
 // Goethe and the composers. Drawing them twice doubles the geometry.
+// Bismarck is here too: createSiegessaeule() in IsometricCityWorld.ts
+// already draws the Bismarck-Nationaldenkmal as part of its verified
+// Großer Stern recognition model (fixed offset from the Siegessäule,
+// matching the real 1938/39 relocation next to the column) — v0.58.0
+// found this OSM "Otto von Bismarck" artwork point was drawing a
+// *second*, independently-positioned Bismarck about 58 m away from
+// the recognition model's placement, i.e. two chancellors at the same
+// intersection. Skipping it here removes the duplicate; the detailed
+// figure now lives solely in createSiegessaeule().
 export const MONUMENTS_ALREADY_MODELLED =
-  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas/i;
+  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$/i;
 
 export function createTiergartenMonuments(
   street: StreetDetailsPayload,
@@ -365,8 +345,6 @@ export function createTiergartenMonuments(
       buildGlassPanels(builder, x, y, z);
     } else if (/Richard Wagner|Wagner-Denkmal/i.test(name)) {
       buildWagnerMemorial(builder, x, y, z);
-    } else if (/Bismarck/i.test(name)) {
-      buildBismarckNationalDenkmal(builder, x, y, z);
     } else if (/Moltke|Roon/i.test(name)) {
       buildGeneralColumn(builder, x, y, z);
     } else if (LUISENINSEL_NAMES.test(name)) {

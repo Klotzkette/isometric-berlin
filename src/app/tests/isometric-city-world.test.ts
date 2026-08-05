@@ -586,6 +586,69 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     }
   });
 
+  test("Bismarck is a jointed figure with corner groups, not plain cubes", async () => {
+    // v0.58.0: the Bismarck-Nationaldenkmal used to be three stacked
+    // cuboids (pedestal, "torso" block, "head" block) plus four plain
+    // cubes at the corners. Verify the figure now has a distinct
+    // coat/waist section, shoulder section, and head, each a different
+    // size, and that the corner groups carry a separate plinth, torso,
+    // and head instead of one block.
+    // https://de.wikipedia.org/wiki/Bismarck-Nationaldenkmal_(Berlin)
+    const { createSiegessaeule } = await import("../src/IsometricCityWorld");
+    const { AXIS_TO } = await import("../src/worldEnvelope");
+    const column = createSiegessaeule();
+    const bodies = column.getObjectByName(
+      "Siegessäule and Bismarck bodies",
+    ) as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    const vertex = new Vector3();
+    const BX = AXIS_TO[0] + 24;
+    const BZ = AXIS_TO[1] - 118;
+    const figureYValues = new Set<number>();
+    let swordFound = false;
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        Math.abs(vertex.x - BX) < 2 &&
+        Math.abs(vertex.z - BZ) < 2 &&
+        vertex.y > 10
+      ) {
+        figureYValues.add(Math.round(vertex.y * 10) / 10);
+      }
+      // The Reichsschwert sits off-centre from the column's own axis.
+      if (
+        Math.abs(vertex.x - (BX + 1.5)) < 0.3 &&
+        Math.abs(vertex.z - (BZ + 0.6)) < 0.3 &&
+        vertex.y > 10
+      ) {
+        swordFound = true;
+      }
+    }
+    // Coat, shoulders, and head are three distinct elevations.
+    expect(figureYValues.size).toBeGreaterThanOrEqual(3);
+    expect(swordFound).toBe(true);
+    // Each corner group now has plinth + torso + head vertices at three
+    // distinct heights above the pedestal instead of two flat cubes.
+    for (const cornerX of [-1, 1]) {
+      for (const cornerZ of [-1, 1]) {
+        const cx = BX + cornerX * 8.2;
+        const cz = BZ + cornerZ * 8.2;
+        const cornerYValues = new Set<number>();
+        for (let index = 0; index < position.count; index += 1) {
+          vertex.fromBufferAttribute(position, index);
+          if (
+            Math.abs(vertex.x - cx) < 2 &&
+            Math.abs(vertex.z - cz) < 2 &&
+            vertex.y > 2
+          ) {
+            cornerYValues.add(Math.round(vertex.y * 10) / 10);
+          }
+        }
+        expect(cornerYValues.size).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
   test("quay walls drop from the banks wherever land meets water", async () => {
     const voxelPayload = (await import(
       "../public/mesh/regierungsviertel/minecraft-voxels.json"

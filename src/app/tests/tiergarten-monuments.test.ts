@@ -121,15 +121,22 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     return top - foot;
   }
 
-  test("Wagner stands under his protective roof, Bismarck towers over both", () => {
+  test("Wagner stands under his protective roof", () => {
     // The canopy over Eberlein's marble reaches about 7.4 m.
     expect(tallestNear("Richard Wagner")).toBeGreaterThan(6.5);
     expect(tallestNear("Richard Wagner")).toBeLessThan(9);
-    // The Nationaldenkmal is roughly 15 m to the top of the bronze.
-    expect(tallestNear("Otto von Bismarck")).toBeGreaterThan(13);
     // Moltke and Roon are generals on pedestals, not 15 m chancellors.
     expect(tallestNear("Moltke")).toBeGreaterThan(10);
     expect(tallestNear("Moltke")).toBeLessThan(13);
+  });
+
+  test("Bismarck is not drawn twice at the Großer Stern", () => {
+    // createSiegessaeule() in IsometricCityWorld.ts already draws the
+    // Bismarck-Nationaldenkmal as part of its verified recognition
+    // model; the OSM "Otto von Bismarck" artwork point must be skipped
+    // here so the two chancellors don't stand ~58 m apart.
+    expect(MONUMENTS_ALREADY_MODELLED.test("Otto von Bismarck")).toBe(true);
+    expect(tallestNear("Otto von Bismarck")).toBe(-Infinity);
   });
 
   test("the Luiseninsel carries its marble figures, not pebbles", () => {
