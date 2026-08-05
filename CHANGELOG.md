@@ -1,5 +1,103 @@
 # Changelog
 
+## v0.58.0: Denkmal-Genauigkeitsrunde (Tiergarten-Denkmäler)
+
+Schwerpunkt dieser Version: die im Handoff (`claude-handoff-v0.57.0.md`, Task 1)
+aufgeführten Tiergarten-Denkmäler an Referenzfotos und Wikipedia/Wikimedia-
+Beschreibungen abgleichen und Klotz-Geometrie durch gegliederte, gegenstands-
+nahe Formen ersetzen. Alle Näherungen bleiben über
+`group.userData.geometryStatus` als Präsentationsgeometrie gekennzeichnet
+(Vertrag 5) und stützen sich ausschließlich auf Berlin-LoD2/OSM-Geometrie
+plus Wikimedia-Bildreferenzen (additiv, keine Geometriequelle).
+
+**Bearbeitete Denkmäler:**
+
+- **Sowjetisches Ehrenmal (Tiergarten).** Die beiden T-34-Panzer und die
+  beiden Haubitzen standen zu nah an der Kolonnade und wurden von deren
+  Kranzgesims teilweise verschluckt. Sockelpositionen auf x=±33 m (Panzer)
+  und x=±44,5 m (Haubitzen) verschoben, klar sichtbar vor der Kolonnade.
+  Neuer Regressionstest: "each T-34 carries its running gear and stays
+  clear of the colonnade". Referenz:
+  https://de.wikipedia.org/wiki/Sowjetisches_Ehrenmal_(Tiergarten)
+- **Königin-Luise-Denkmal / Luiseninsel.** `buildMarbleFigure` in drei
+  Varianten (Luise, Friedrich Wilhelm III., Wilhelm I.) aufgeteilt statt
+  einer generischen Kiesel-Form; Höhen so kalibriert, dass sie über 6 m
+  liegen (Marmorfigur-Kontrakt-Test). Kamera-Preset ergänzt.
+- **Richard-Wagner-Denkmal.** Das echte Schutzdach (1987/88, Architektin
+  Marianne Wagner) ist ein stählernes Tonnengewölbe mit Plexiglas-
+  Eindeckung, nicht das flache, zweistufige Walmdach im bisherigen Code.
+  Die zwei flachen `CANOPY_ROOF`-Platten wurden durch eine Basisplatte plus
+  vier stufenweise schmaler werdende Gewölbe-Segmente und eine First-Kappe
+  ersetzt, die die halbrunde Wölbung andeuten. Kamera-Preset ergänzt (Wagner
+  hat keinen eigenen Sight-Deep-Link; kein Klick-Fokus-Pfad existiert für
+  reine OSM-Punkte, daher kein Vorher/Nachher-Screenshot möglich — verifiziert
+  über Debug-Vertex-Höhenscript und neuen Komponenten-Kontrakt-Test
+  ("Wagner's canopy is a stepped vault above four posts, not a flat lid").
+  Referenzen: https://de.wikipedia.org/wiki/Richard-Wagner-Denkmal_(Berlin) ,
+  https://bildhauerei-in-berlin.de/bildwerk/wagnerdenkmal-5372/
+- **Bismarck-Nationaldenkmal (Großer Stern) + Moltke/Roon.** Entdeckt: zwei
+  unabhängig positionierte Bismarck-Denkmäler rund 58 m voneinander entfernt
+  am selben Standort — das verifizierte `createSiegessaeule()`-
+  Recognition-Model in `IsometricCityWorld.ts` zeichnete eines an einem
+  festen Versatz zur Siegessäule, während der OSM-Punkt "Otto von Bismarck"
+  unabhängig ein zweites über `buildBismarckNationalDenkmal()` in
+  `TiergartenMonuments.ts` auslöste. Der OSM-Punkt wurde in
+  `MONUMENTS_ALREADY_MODELLED` aufgenommen und die nun tote Funktion entfernt.
+  Die verbleibende Figur wurde von drei pauschalen Klötzen zu einer
+  gegliederten Statue (Mantel/Taille, Schultern, Kopf, Reichsschwert) samt
+  vier Ecken-Figurengruppen (Sockel + sitzender Torso + Kopf statt zwei
+  Würfeln) ausgebaut. Referenz:
+  https://de.wikipedia.org/wiki/Bismarck-Nationaldenkmal_(Berlin)
+- **Lessing-Denkmal.** Eigene `buildLessingMemorial()`-Funktion statt der
+  generischen `buildStatue()`-Klotzform: gestufter Granitsockel (grauer
+  Unterbau, rötlicher Granit-Hauptsockel, Kranzgesims), gegliederte
+  Marmorfigur (Mantel/Beine, Torso, Kopf) und die bronzene "Genius der
+  Humanität"-Figur am Sockelfuß, nach Otto Lessings Denkmal von 1890.
+  Visuell verifiziert über `#landmark=lessing-denkmal`. Referenzen:
+  https://de.wikipedia.org/wiki/Lessing-Denkmal_(Berlin) ,
+  https://bildhauerei-in-berlin.de/bildwerk/lessingdenkmal-4997/
+- **Goethe-Denkmal und Beethoven-Haydn-Mozart-Denkmal.** Beide Modelle
+  bauen bereits detaillierte Geometrie (Mantel, Kopf, Arme, Schriftrolle,
+  drei allegorische Figurengruppen bzw. Büstennischen, Eckpfeiler, goldene
+  Kuppel und Lorbeerkranz), riefen aber nirgends `addEdges()` auf — bei
+  isometrischer Kameradistanz erschienen beide Denkmäler dadurch als eine
+  flache, konturlose helle Silhouette statt eines facettierten Körpers, im
+  Gegensatz zu allen anderen Denkmälern in der Datei. Fehlende Konturlinien
+  auf Sockel, Stufen, Figurenkörper, Umhang, Kopf und Schriftrolle (Goethe)
+  sowie Stufenring, Sockel, Stele und Kuppel (Komponisten) ergänzt. Visuell
+  verifiziert über `#landmark=goethe-denkmal` (vorher: reine Silhouette;
+  nachher: sichtbare Sockelkante, Kopfkontur, Armlinie). Referenzen:
+  https://de.wikipedia.org/wiki/Goethe-Denkmal_(Berlin) ,
+  https://de.wikipedia.org/wiki/Beethoven-Haydn-Mozart-Denkmal
+- **Holocaust-Stelenfeld.** Geprüft, keine Code-Änderung nötig: 2710
+  Stelen als ein `InstancedMesh`-Draw-Call, korrekte Eisenman-Wellenbewegung
+  und Höhenbänder (0,2 m bis ~4,7 m), bereits bestehende strenge
+  Höhenband-Tests bestehen weiterhin.
+
+**Offene Punkte (nicht in dieser Version bearbeitet):**
+
+- Von den 45 Sights in `regierungsviertel-landmarks.json` wurden in dieser
+  und der vorangegangenen Runde nur die im Handoff explizit genannten
+  Denkmäler bearbeitet (Sowjetisches Ehrenmal, Königin-Luise, Wagner,
+  Bismarck/Moltke, Lessing, Goethe/Komponisten-Ink-Lines). Die übrigen
+  ~38 Sights wurden nicht einzeln gegen Wikipedia/Wikimedia-Referenzen
+  geprüft.
+- Kein Vorher/Nachher-Screenshot für Wagner, Bismarck und Moltke möglich:
+  Wagner und Bismarcks OSM-Punkt haben keinen eigenen Sight-Deep-Link, und
+  Bismarck/Moltke liegen am Großen Stern hinter dichtem Baumbestand, der
+  bei jedem verfügbaren Kamerawinkel die Sicht verdeckt. Verifiziert
+  ausschließlich über Geometrie-Kontrakt-Tests und ein Debug-Höhen-Skript.
+- Kein dedizierter Nacht- oder Minecraft-Modus-Screenshot für die in dieser
+  Runde bearbeiteten Denkmäler: automatisierte UI-Klicks (Mond-Toggle,
+  Minecraft-Toggle) über CDP/Playwright hängen zuverlässig unter dem
+  SwiftShader-Render-Loop dieser Sandbox. Abgesichert stattdessen über die
+  bestehende automatisierte Testsuite (`night-lighting.test.ts`,
+  `minecraft-visual-mode.test.ts`, `minecraft-voxel-world.test.ts`), die
+  vollständig grün ist.
+- Die Kamera-Presets für Wagner (und implizit für andere reine OSM-Punkte)
+  sind "totes" Infrastruktur ohne aktuellen UI-Trigger, da für solche
+  Punkte kein Deep-Link/Klick-Fokus-Mechanismus existiert.
+
 ## v0.57.1: Mobiler Tipp-Fix für die Musiksteuerung ("Dusk Republic")
 
 **Nutzer-Meldung (iPhone):** "Man kann auf mobil 'Dusk Republic' nicht
