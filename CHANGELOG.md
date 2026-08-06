@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.61.0
+
+- **The OSM context now reaches the full surveyed hull.** The current
+  Geofabrik Berlin extract was clipped again to `bounds.geojson`, replacing
+  the old partial context with roads, water, parks, vegetation, playgrounds,
+  rail and POIs over E386626…390183 / N5818392…5821304. The Minecraft voxel
+  grid, surface polygons and street details were rebuilt from that bounded
+  source. Großer Stern, the continuous Straße des 17. Juni, Tiergarten sand
+  paths and the westward Spree are now sourced in the same OSM payload.
+- **The Tiergartentunnel mouths stay open at the approach.** Investigation
+  found no remaining asphalt plate on the untagged approach road; the south
+  mouth was instead overlain by an OSM `water=basin` surface. A narrow,
+  centreline-derived 260 m ramp corridor is therefore subtracted from both
+  road and water surface buffers at each end, without removing any OSM class.
+- **Both tunnel links now look through their own mouths.** The photographic
+  presets are calculated from the ramp midlines (39° lens, portal-local
+  target), use no focus dolly compensation, and keep the two bores, their
+  depth caps and warm lamp rows in frame. Their portal presentation geometry
+  explicitly renders above the uncut official-mesh shell; the tunnel remains
+  labelled as engineered presentation geometry rather than surveyed excavation.
+
 ## v0.60.0
 
 - **The Amazone rides and the lions recline.** Tuaillon's "Amazone zu
@@ -23,7 +44,7 @@
   to an oblique angle, so the sight line drops through the open cut
   instead of skimming 150 m of ground plane. Pinned by test.
 
-### Known gap
+### Known gap at v0.60.0 (resolved in v0.61.0)
 
 The bore geometry is verified by contract test — deck, walls, ceiling,
 lamp row and depth cap, all below street level — but the preset does not

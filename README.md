@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.60.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.60.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.61.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.61.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.60.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.61.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.60.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.61.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -76,20 +76,20 @@ labelled compatibility fallback for browsers that cannot run local modules.
   x −4080…1890, z −2510…2820): flat tone plates and cartographic ruling only,
   explicitly marked and never presented as surveyed geometry. Day, Night and
   Minecraft consume the same envelope.
-- **The OSM layer has not caught up with the expanded bounds.** `osm.gpkg`
-  still holds the pre-expansion extract (E388785…390105 / N5818554…5821015),
-  because Overpass became unreachable from the build host part-way through
-  this round. The expansion areas therefore ship with buildings, terrain,
-  trees and lamps, but without OSM streets, water, park polygons or POIs.
-  Nothing was invented to cover the gap; the affected ground is drawn in the
-  plain paper tone. Refetching `osm.gpkg` is the first task of the next round.
+- **The OSM layer covers the complete surveyed hull.** v0.61.0 re-clips the
+  Geofabrik Berlin extract to `bounds.geojson` (E386626…390183 /
+  N5818392…5821304), so the full westward Tiergarten extent carries surveyed
+  OSM streets, water, park polygons, paths and POIs. The resulting road,
+  water and park surfaces are regenerated from the same bounded source;
+  no replacement street or river geometry is invented.
 - **The 2D overview raster stays pinned to the pre-expansion polygon.** Its
   DZI tiles and the landmark projection beside them
   (`src/app/public/dzi/regierungsviertel/landmarks.json`) are projected from
   `overview_bounds.geojson`, so the published prism tones remain byte-stable.
   `landmarks.geojson` carries all 56 checked landmarks and the 3D scene uses
   them; the 2D overview projection still shows the 43 that fit the pinned
-  polygon. Re-projecting it belongs with the OSM refetch in the next round.
+  polygon. Re-projecting the 2D overview remains deliberately separate from
+  the OSM refetch because that raster is a versioned, pinned composition.
 - Day and Night render with **no tone mapping at exposure 1**, so an authored
   paint tone reaches the screen bit-exact. The drawn city is a flat unlit
   drawing: plasticity comes from one constant brightness per face direction
@@ -106,12 +106,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   are presentation geometry derived from an OSM classification and are not
   claimed as surveyed kerb lines. The surfaces follow the payload's terrain
   grid rather than one constant height.
-- The OSM extract currently covers only the original hull (world x −707…605)
-  while the surveyed city reaches x −2873. Ground-level OSM content — roads,
-  paths, water and park polygons — therefore stops at that line, which is why
-  the Großer Stern has no carriageway and the Spree loses its blue west of the
-  Gymnasium Tiergarten. An OSM refetch for the expanded bounds is the open
-  task; nothing is approximated in the meantime.
+- The refreshed OSM extract now spans the whole surveyed world-x interval
+  (−2873…684). Its Großer Stern carriageway, the continuous Straße des
+  17. Juni, Tiergarten sand paths and Spree water surfaces are all derived
+  from that bounded data rather than presentation substitutes.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale. These tiles cover
