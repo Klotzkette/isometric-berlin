@@ -7,14 +7,19 @@ from pathlib import Path
 
 import geopandas as gpd
 import pytest
+from shapely import make_valid
 from shapely.geometry import Point, Polygon
 from shapely.strtree import STRtree
 
 from isometric_berlin.generation.build_minecraft_voxels import aboveground
-from isometric_berlin.generation.build_surface_polygons import runs_underground
+from isometric_berlin.generation.build_surface_polygons import (
+  open_tunnel_ramp_corridors,
+  runs_underground,
+)
 
 OSM = Path("geo_data/regierungsviertel/osm.gpkg")
 SURFACES = Path("src/app/public/mesh/regierungsviertel/surface-polygons.json")
+SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
 
 
 def test_runs_underground_reads_tunnel_covered_and_layer() -> None:
@@ -65,6 +70,42 @@ def test_no_carriageway_polygon_covers_the_tiergartentunnel(
     point for point in tunnel_midpoints if len(tree.query(point, predicate="covers"))
   ]
   assert not buried, f"{len(buried)} tunnel points are paved over"
+
+
+def test_open_portal_corridors_are_not_covered_by_smooth_surfaces() -> None:
+  """The mouth view must not look at a road or a basin plate.
+
+  The southern OSM approach has an adjacent ``water=basin`` polygon. It was
+  not an asphalt issue after the full-hull refetch, but it still completely
+  covered the daylight trough until the corridor was subtracted from both
+  surface families.
+  """
+  corridors = open_tunnel_ramp_corridors(SCENE)
+  assert corridors is not None
+  payload = json.loads(SURFACES.read_text(encoding="utf-8"))
+
+  def payload_polygon(entry: dict[str, object]) -> Polygon:
+    def to_utm(point: list[int]) -> tuple[float, float]:
+      return (389_500 + point[0] / 10, 5_820_000 - point[1] / 10)
+
+    return Polygon(
+      [to_utm(point) for point in entry["ring"]],  # type: ignore[index]
+      [
+        [to_utm(point) for point in hole]
+        for hole in entry["holes"]  # type: ignore[index]
+      ],
+    )
+
+  covered = [
+    entry
+    for family in ("roads", "water")
+    for entry in payload[family]
+    if (
+      (polygon := make_valid(payload_polygon(entry))).intersects(corridors)
+      and polygon.intersection(corridors).area > 1.0
+    )
+  ]
+  assert not covered, "a smooth road or water plate still roofs a portal ramp"
 
 
 def test_the_portal_ramps_keep_their_lane_markings() -> None:

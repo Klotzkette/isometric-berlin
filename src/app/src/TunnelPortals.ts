@@ -62,6 +62,11 @@ function surfaceMaterial(
     polygonOffsetFactor: -1.2,
     polygonOffsetUnits: -1.2,
     roughness: options.roughness ?? 0.86,
+    // The official photogrammetry is an uncut ground shell. Portal geometry
+    // deliberately sits below that shell, so it must win the depth test just
+    // in its narrow ramp corridors instead of disappearing below the mesh.
+    depthTest: false,
+    depthWrite: false,
   });
 }
 
@@ -190,7 +195,7 @@ function addRamp(
         materials.road,
         deckFrom,
         deckTo,
-      );
+      ).renderOrder = 30;
       const deepest = Math.min(deckFrom.y, deckTo.y);
       const wallHeight = WALL_TOP_Y - deepest + 1.2;
       for (const edge of [-1, 1]) {
@@ -206,6 +211,7 @@ function addRamp(
           wallTo,
           WALL_TOP_Y - wallHeight / 2,
         );
+        wall.renderOrder = 35;
         wall.scale.y = wallHeight;
         uprightBox(
           group,
@@ -215,7 +221,7 @@ function addRamp(
           wallFrom,
           wallTo,
           WALL_TOP_Y + BARRIER_HEIGHT_M / 2,
-        );
+        ).renderOrder = 40;
       }
       // Dashed centre line running down into the tube.
       const dashCount = Math.max(1, Math.round(run / 14));
@@ -243,6 +249,7 @@ function addRamp(
     });
     marks.instanceMatrix.needsUpdate = true;
     marks.computeBoundingSphere();
+    marks.renderOrder = 45;
     group.add(marks);
   }
 
@@ -265,6 +272,7 @@ function addRamp(
     beam.position.copy(head).addScaledVector(headNormal, lateral);
     beam.position.y = head.y + height + 0.9;
     beam.rotation.y = yaw;
+    beam.renderOrder = 55;
     beam.castShadow = true;
     group.add(beam);
     for (const edge of [-1, 1]) {
@@ -278,6 +286,7 @@ function addRamp(
         .addScaledVector(headNormal, lateral + edge * (width / 2 + 0.65));
       jamb.position.y = head.y + (height + 1.6) / 2;
       jamb.rotation.y = yaw;
+      jamb.renderOrder = 55;
       jamb.castShadow = true;
       group.add(jamb);
     }
@@ -299,6 +308,8 @@ function addRamp(
     emissive: 0xffc678,
     emissiveIntensity: 1.15,
     roughness: 0.6,
+    depthTest: false,
+    depthWrite: false,
   });
   for (const tube of [-1, 1]) {
     const lateral = tube * (width / 2 + 0.85);
@@ -313,23 +324,24 @@ function addRamp(
       mesh: Mesh,
       name: string,
       y: number,
-    ): void => {
+    ): Mesh => {
       mesh.name = name;
       mesh.position.set(boreCentre.x, y, boreCentre.z);
       mesh.rotation.y = yaw;
       mesh.receiveShadow = true;
       group.add(mesh);
+      return mesh;
     };
     place(
       new Mesh(new BoxGeometry(width, 0.3, BORE_LENGTH_M), boreDeck),
       `${label} bore deck`,
       head.y - 0.15,
-    );
+    ).renderOrder = 30;
     place(
       new Mesh(new BoxGeometry(width + 1.0, 0.4, BORE_LENGTH_M), boreCeiling),
       `${label} bore ceiling`,
       head.y + height + 0.2,
-    );
+    ).renderOrder = 10;
     for (const side of [-1, 1]) {
       const wall = new Mesh(
         new BoxGeometry(0.5, height, BORE_LENGTH_M),
@@ -341,6 +353,7 @@ function addRamp(
       wall.rotation.y = yaw;
       wall.name = `${label} bore wall`;
       wall.receiveShadow = true;
+      wall.renderOrder = 20;
       group.add(wall);
     }
     const endCap = new Mesh(
@@ -353,6 +366,7 @@ function addRamp(
     endCap.position.y = head.y + height / 2;
     endCap.rotation.y = yaw;
     endCap.name = `${label} bore depth cap`;
+    endCap.renderOrder = 1;
     group.add(endCap);
     // A row of ceiling lamps marching into the dark — the cue that makes
     // the bore read as depth instead of a black rectangle.
@@ -366,6 +380,7 @@ function addRamp(
       lamp.position.y = head.y + height - 0.12;
       lamp.rotation.y = yaw;
       lamp.name = `${label} bore ceiling lamp`;
+      lamp.renderOrder = 50;
       group.add(lamp);
     }
   }
@@ -382,6 +397,7 @@ function addRamp(
 export type TunnelMouthView = {
   azimuth_degrees: number;
   distance_m: number;
+  fov_degrees: number;
   polar_degrees: number;
   target_height_m: number;
   target_world: [number, number, number];
@@ -416,13 +432,13 @@ export function tunnelMouthViews(
       .addScaledVector(normal, lateral);
     target.y = head.y + payload.clear_height_m / 2;
 
-    // The camera stands INSIDE THE OPEN CUT, walked back up the ramp's own
-    // centreline rather than parked on a fixed sphere around the target. A
-    // spherical preset put it out over the surrounding plaza, where the
-    // paving plate sits between the eye and the mouth and fills the whole
-    // frame — the reason the first two attempts showed nothing but paving.
-    // Walking the ramp keeps the sight line in the trough the whole way.
-    const STAND_BACK_M = 46;
+    // The camera stands up the ramp's own centreline rather than on a fixed
+    // sphere around the target. It must remain close: a 46 m stand became a
+    // 150 m stand after the isometric FOV's dolly compensation and landed
+    // over the Landwehrkanal instead of in front of the south mouth.
+    // Walking 32 m back keeps the portal frame beyond the basin-side ramp
+    // edge while a photographic frame still contains both bores.
+    const STAND_BACK_M = 32;
     let stand = head.clone();
     let walked = 0;
     for (let index = centreline.length - 1; index > 0; index -= 1) {
@@ -438,17 +454,12 @@ export function tunnelMouthViews(
       stand = previous.clone();
       walked += step;
     }
-    // An OBLIQUE look down into the open cut, which is the idiom this whole
-    // drawing uses. Two other stands were tried and both failed for the
-    // same reason: a near-horizontal eye — whether sunk into the trough or
-    // raised over the plaza — puts 150 m of ground plane between the
-    // viewer and a 5 m mouth, so the frame fills with paving. From 46 m
-    // back and 26 m up the sight line clears the near ground entirely and
-    // drops through the open trough onto the portal, with the bore's lamp
-    // row and depth cap behind it. Staying well above street level also
-    // keeps the viewer out of its underside presentation, which would show
-    // the cutaway instead of the mouth.
-    stand.y = Math.max(stand.y, SURFACE_Y) + 26;
+    // A close photographic lens can frame both bores without turning this
+    // dedicated portal sight into a distant map view. The eye remains 2 m
+    // above street level (well clear of the underside threshold) while the
+    // target sits halfway up the tube, so the ray clears the ramp lip and
+    // continues through the lit bore instead of looking down at paving.
+    stand.y = Math.max(stand.y, SURFACE_Y) + 2;
     stand.addScaledVector(normal, lateral);
 
     const offset = stand.clone().sub(target);
@@ -456,6 +467,7 @@ export function tunnelMouthViews(
     return {
       azimuth_degrees: Math.atan2(offset.x, offset.z) * (180 / Math.PI),
       distance_m: distance,
+      fov_degrees: 39,
       polar_degrees: Math.acos(offset.y / distance) * (180 / Math.PI),
       target_height_m: 0,
       target_world: [target.x, target.y, target.z],

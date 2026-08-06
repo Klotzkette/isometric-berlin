@@ -1729,6 +1729,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let cameraOffset: Vector3;
       if (cameraPreset) {
         target.y += cameraPreset.target_height_m;
+        if (
+          cameraPreset.fov_degrees !== undefined
+          && runtime.camera.fov !== cameraPreset.fov_degrees
+        ) {
+          runtime.camera.fov = cameraPreset.fov_degrees;
+          runtime.camera.updateProjectionMatrix();
+        }
         cameraOffset = new Vector3().setFromSpherical(
           new Spherical(
             cameraPreset.distance_m,
@@ -1746,12 +1753,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           : (parkDetailFocusDistance(name) ?? memorialFocusDistance(name) ?? 190);
         cameraOffset = currentDirection.multiplyScalar(distance);
       }
-      // Focus distances were authored for the 39° photo lens; the
-      // narrow axonometric lens needs the same dolly compensation as
-      // the mode switch, or every preset frames far too tight.
-      cameraOffset.multiplyScalar(
-        fovDollyScale(PHOTO_FOV_DEGREES, runtime.camera.fov),
-      );
+      // Focus distances are authored for the 39° photo lens. The narrow
+      // axonometric lens needs the same dolly compensation as the mode
+      // switch, except for an explicitly photographic close-up such as a
+      // tunnel mouth: scaling that stand would move it out over the canal.
+      if (cameraPreset?.fov_degrees === undefined) {
+        cameraOffset.multiplyScalar(
+          fovDollyScale(PHOTO_FOV_DEGREES, runtime.camera.fov),
+        );
+      }
       runtime.controls.target.copy(target);
       runtime.camera.position.copy(target).add(cameraOffset);
       const markerHeight = markerHeightForLandmark(name);
@@ -3204,6 +3214,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               "Kemperplatz / Tiergartentunnel",
               mouthViews.south,
             );
+            runtime.focusCameraByName.set("Spreebogen", mouthViews.north);
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);

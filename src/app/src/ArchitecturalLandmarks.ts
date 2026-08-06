@@ -40,6 +40,8 @@ import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 export type FocusCamera = {
   azimuth_degrees: number;
   distance_m: number;
+  /** Keep a close presentation view photographic rather than axonometric. */
+  fov_degrees?: number;
   polar_degrees: number;
   target_height_m: number;
   target_world?: [number, number, number];

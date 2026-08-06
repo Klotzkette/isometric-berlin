@@ -177,6 +177,11 @@ describe("Tiergartentunnel rendering budget", () => {
       expect(lamps.length).toBeGreaterThanOrEqual(8);
       for (const piece of [...parts("deck"), ...parts("depth cap"), ...lamps]) {
         expect(piece.position.y).toBeLessThan(0);
+        // The official mesh is a closed, uncut ground shell. Daylight portal
+        // pieces must render over that shell rather than vanish under it.
+        const material = piece.material as Material;
+        expect(material.depthTest).toBe(false);
+        expect(material.depthWrite).toBe(false);
       }
     }
   });
@@ -225,15 +230,18 @@ describe("Tiergartentunnel rendering budget", () => {
       // the tunnel floor.
       expect(view.target_world[1]).toBeCloseTo(-10 + 2.5, 1);
       expect(view.target_height_m).toBe(0);
+      // The tunnel is a close photographic view. Applying the drawn city's
+      // 16° FOV dolly factor would move the stand out over its forecourt.
+      expect(view.fov_degrees).toBe(39);
       // An oblique look down into the open cut: the camera is walked back
       // up the ramp's own axis and raised, so the polar angle falls out of
       // that stand rather than being a magic number.
-      expect(view.polar_degrees).toBeGreaterThan(40);
-      expect(view.polar_degrees).toBeLessThan(75);
+      expect(view.polar_degrees).toBeGreaterThan(45);
+      expect(view.polar_degrees).toBeLessThan(80);
       // It really does stand back up the ramp, not on the surrounding
       // plaza where the paving plate would block the view.
-      expect(view.distance_m).toBeGreaterThan(40);
-      expect(view.distance_m).toBeLessThan(90);
+      expect(view.distance_m).toBeGreaterThan(25);
+      expect(view.distance_m).toBeLessThan(50);
       // And it stays ABOVE street level: a camera sunk into the cut flips
       // the viewer into its underside presentation and shows the cutaway
       // instead of the mouth.

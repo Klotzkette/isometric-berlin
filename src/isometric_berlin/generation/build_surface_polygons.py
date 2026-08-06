@@ -36,7 +36,7 @@ from shapely.geometry import (
   Polygon,
 )
 from shapely.geometry.base import BaseGeometry
-from shapely.ops import unary_union
+from shapely.ops import substring, unary_union
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.basin_features import (
@@ -128,6 +128,9 @@ ROAD_KINDS: dict[str, str] = {
 MARKED_CLASSES = frozenset({"trunk", "primary", "secondary"})
 ROAD_SIMPLIFY_M = 0.75
 MIN_ROAD_AREA_M2 = 25.0
+# The visible Tiergartentunnel ramps are two 10.5 m bores plus their walls.
+# A small shoulder makes the cut robust to the 0.75 m surface simplification.
+OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M = 12.5
 # A footway or cycleway that runs inside parkland is a park path and reads
 # sandy, wherever OSM classified it. This is what makes the Tiergarten look
 # like the Tiergarten instead of a grey street grid dropped on a lawn.
@@ -194,8 +197,48 @@ def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any
   return surfaces
 
 
+def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
+  """The two daylight troughs which must remain open in smooth surfaces.
+
+  The Tiergartentunnel centreline stored in the scene is a presentation route,
+  but it is the same route :mod:`TunnelPortals` turns into the two visible
+  ramps. OSM marks the buried tube, while a few adjacent approach features
+  remain untagged; at the south mouth an OSM basin also crossed the ramp.
+  Subtracting only these two short engineered corridors keeps the real water,
+  park and road context while leaving the drawn daylight bores unobscured.
+  """
+  payload = json.loads(scene_path.read_text(encoding="utf-8"))
+  tunnel = payload.get("tiergartentunnel")
+  if not isinstance(tunnel, dict):
+    return None
+  raw_points = tunnel.get("points")
+  if not isinstance(raw_points, list) or len(raw_points) < 2:
+    return None
+  points = [
+    (ORIGIN_EASTING + float(point[0]), ORIGIN_NORTHING - float(point[2]))
+    for point in raw_points
+    if isinstance(point, list) and len(point) >= 3
+  ]
+  if len(points) < 2:
+    return None
+  centreline = LineString(points)
+  if centreline.length == 0:
+    return None
+  ramp_length = min(260.0, centreline.length / 2)
+  ramps = [
+    substring(centreline, 0, ramp_length),
+    substring(centreline, centreline.length - ramp_length, centreline.length),
+  ]
+  corridors = [
+    ramp.buffer(OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M, cap_style=2)
+    for ramp in ramps
+    if not ramp.is_empty
+  ]
+  return unary_union(corridors) if corridors else None
+
+
 def collect_water(
-  osm_path: Path, bounds: BaseGeometry
+  osm_path: Path, bounds: BaseGeometry, ramp_corridors: BaseGeometry | None
 ) -> list[dict[str, Any]]:
   """Water polygons carrying the river/basin split the viewer draws with.
 
@@ -206,6 +249,8 @@ def collect_water(
   surfaces: list[dict[str, Any]] = []
   for feature in load_water_features(osm_path):
     clipped = feature.geometry.intersection(bounds)
+    if ramp_corridors is not None:
+      clipped = clipped.difference(ramp_corridors)
     if clipped.is_empty:
       continue
     for part in polygon_parts(clipped):
@@ -299,7 +344,10 @@ def runs_underground(row: Any) -> bool:
 
 
 def collect_roads(
-  osm_path: Path, bounds: BaseGeometry, parkland: BaseGeometry | None
+  osm_path: Path,
+  bounds: BaseGeometry,
+  parkland: BaseGeometry | None,
+  ramp_corridors: BaseGeometry | None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
   """Buffer OSM highway centrelines into drawn carriageway polygons.
 
@@ -334,6 +382,8 @@ def collect_roads(
     if geometry is None or geometry.is_empty:
       continue
     clipped = geometry.intersection(bounds)
+    if ramp_corridors is not None:
+      clipped = clipped.difference(ramp_corridors)
     if clipped.is_empty:
       continue
     kind = ROAD_KINDS[highway]
@@ -351,6 +401,11 @@ def collect_roads(
       # flat caps: a buffered centreline must not bulge into a lollipop at
       # every junction, which is what round caps do on a 4 000-segment net.
       band = line.buffer(width / 2, cap_style=2, join_style=1)
+      # Subtract again after buffering: a nearby centreline can have its
+      # centre outside the corridor while its wide carriageway still reaches
+      # across the daylight trough.
+      if ramp_corridors is not None:
+        band = band.difference(ramp_corridors)
       if band.is_empty:
         continue
       by_kind.setdefault(resolved, []).append(band)
@@ -408,7 +463,8 @@ def build_payload(
   parkland = unary_union(
     [g for g in parks.geometry if g is not None and not g.is_empty]
   )
-  roads, markings = collect_roads(osm_path, bounds, parkland)
+  ramp_corridors = open_tunnel_ramp_corridors(scene_path)
+  roads, markings = collect_roads(osm_path, bounds, parkland, ramp_corridors)
   return {
     "lane_markings": markings,
     "park_simplify_m": PARK_SIMPLIFY_M,
@@ -422,7 +478,7 @@ def build_payload(
     "sunken_walls": collect_sunken_walls(
       osm_path, bounds, load_water_features(osm_path)
     ),
-    "water": collect_water(osm_path, bounds),
+    "water": collect_water(osm_path, bounds, ramp_corridors),
   }
 
 
