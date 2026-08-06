@@ -320,7 +320,77 @@ function buildGeneralColumn(
   box(builder, BRONZE, x, y + 11.8, z, 0.8, 0.7, 0.8);
 }
 
+/**
+ * Louis Tuaillon's "Amazone zu Pferde" (1895), the bronze amazon riding
+ * bareback on the Großer Weg: a granite plinth carrying a standing horse
+ * — barrel, arched neck, head, tail and four legs — with the upright
+ * rider sitting well back the way Tuaillon posed her. Reference:
+ * https://de.wikipedia.org/wiki/Amazone_zu_Pferde .
+ */
+function buildAmazone(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  // Granite pedestal with a stepped foot.
+  box(builder, STONE, x, y + 0.3, z, 4.2, 0.6, 2.2);
+  box(builder, GRANITE_RED, x, y + 1.35, z, 3.4, 1.5, 1.7);
+  const deck = y + 2.1;
+  // Horse: barrel, chest, croup, neck, head, tail, four legs.
+  box(builder, BRONZE, x, deck + 1.65, z, 2.6, 0.95, 0.85);
+  box(builder, BRONZE, x - 1.35, deck + 1.6, z, 0.6, 0.85, 0.8);
+  box(builder, BRONZE, x + 1.3, deck + 1.7, z, 0.55, 0.8, 0.8);
+  box(builder, BRONZE, x - 1.62, deck + 2.5, z, 0.5, 1.05, 0.55, 0.35);
+  box(builder, BRONZE, x - 1.95, deck + 3.06, z, 0.78, 0.42, 0.42);
+  box(builder, BRONZE, x + 1.68, deck + 1.2, z, 0.28, 0.9, 0.3, -0.3);
+  for (const [legX, legZ] of [
+    [-1.05, -0.28], [-1.05, 0.28], [1.05, -0.28], [1.05, 0.28],
+  ] as const) {
+    box(builder, BRONZE, x + legX, deck + 0.6, z + legZ, 0.24, 1.2, 0.24);
+  }
+  // Rider: upright torso seated well back, head, both legs along the flank.
+  box(builder, BRONZE, x + 0.35, deck + 2.75, z, 0.5, 1.25, 0.45);
+  box(builder, BRONZE, x + 0.35, deck + 3.62, z, 0.34, 0.42, 0.34);
+  for (const side of [-1, 1]) {
+    box(builder, BRONZE, x + 0.42, deck + 1.85, z + side * 0.5, 0.3, 0.95, 0.24);
+  }
+}
+
+/**
+ * Wilhelm Wolff's "Löwengruppe" (1872) at the Großer Weg: a lioness on a
+ * low rock bringing prey to her cubs. Drawn as the flat rock, the large
+ * reclining lioness — body, raised head with muzzle, forepaws — and two
+ * small cubs pressed against her flank. Reference:
+ * https://de.wikipedia.org/wiki/L%C3%B6wengruppe_(Berlin) .
+ */
+function buildLionGroup(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  // Low natural-rock base, two overlapping slabs.
+  box(builder, STONE, x, y + 0.35, z, 4.6, 0.7, 2.8);
+  box(builder, STONE_LIGHT, x - 0.3, y + 0.85, z + 0.1, 3.4, 0.35, 2.1, 0.12);
+  const deck = y + 1.0;
+  // Lioness: long reclining body, chest rising to the alert head.
+  box(builder, BRONZE, x - 0.2, deck + 0.55, z - 0.3, 2.9, 0.85, 1.05);
+  box(builder, BRONZE, x - 1.35, deck + 1.05, z - 0.3, 0.85, 1.0, 0.95);
+  box(builder, BRONZE, x - 1.55, deck + 1.85, z - 0.3, 0.62, 0.6, 0.58, 0.2);
+  box(builder, BRONZE, x - 1.92, deck + 1.7, z - 0.3, 0.45, 0.32, 0.4);
+  // Forepaws stretched ahead of the chest, tail along the rock.
+  for (const side of [-1, 1]) {
+    box(builder, BRONZE, x - 1.7, deck + 0.25, z - 0.3 + side * 0.32, 0.85, 0.4, 0.26);
+  }
+  box(builder, BRONZE, x + 1.45, deck + 0.3, z - 0.15, 0.9, 0.22, 0.22, -0.4);
+  // Two cubs against the flank.
+  box(builder, BRONZE, x + 0.35, deck + 0.32, z + 0.75, 1.05, 0.5, 0.5, 0.15);
+  box(builder, BRONZE, x - 0.75, deck + 0.3, z + 0.8, 0.9, 0.45, 0.45, -0.2);
+}
+
 /** The white marble on the Luiseninsel's formal garden. */
+
 const LUISENINSEL_NAMES = /Königin Luise|Wilhelm( I+\.)? von Preußen/i;
 
 const STATUE_NAMES =
@@ -386,6 +456,10 @@ export function createTiergartenMonuments(
       buildMarbleFigure(builder, x, y, z, variant);
     } else if (/^Lessing-Denkmal$|Gotthold Ephraim Lessing/i.test(name)) {
       buildLessingMemorial(builder, x, y, z);
+    } else if (/Amazone zu Pferde/i.test(name)) {
+      buildAmazone(builder, x, y, z);
+    } else if (/Löwengruppe/i.test(name)) {
+      buildLionGroup(builder, x, y, z);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {

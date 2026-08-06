@@ -314,6 +314,17 @@ def collect_roads(
     highway = row.get("highway")
     if not isinstance(highway, str):
       continue
+    # A tunnelled or covered way runs UNDER the city. Buffering it into a
+    # surface plate roofed the Tiergartentunnel troughs over and hid the
+    # portal bores behind flat paving — the exact opposite of "man muss
+    # tief hineinschauen können". The open ramps are their own drawn
+    # geometry (TunnelPortals.ts); the surface keeps only surface roads.
+    tunnel = row.get("tunnel")
+    covered = row.get("covered")
+    if (isinstance(tunnel, str) and tunnel not in ("", "no")) or (
+      isinstance(covered, str) and covered not in ("", "no")
+    ):
+      continue
     width = ROAD_WIDTHS_M.get(highway)
     if width is None:
       continue

@@ -53,7 +53,7 @@ import {
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
 import { createCivicLandmarks } from "./CivicLandmarks";
-import { createTunnelPortals } from "./TunnelPortals";
+import { createTunnelPortals, tunnelMouthViews } from "./TunnelPortals";
 import {
   createMemorialLandmarks,
   memorialFocusDistance,
@@ -3190,6 +3190,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           scene.add(runtime.tunnel);
           runtime.tunnelPortals.removeFromParent();
           runtime.tunnelPortals = createTunnelPortals(manifest.tiergartentunnel);
+          // Bore-view presets ("man muss … tief hineinschauen können"):
+          // both tunnel sights aim straight into their bore from a low,
+          // axis-near stand up the ramp, derived from the same centreline
+          // the ramps are built from.
+          const mouthViews = tunnelMouthViews(manifest.tiergartentunnel);
+          if (mouthViews) {
+            runtime.focusCameraByName.set(
+              "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)",
+              mouthViews.south,
+            );
+            runtime.focusCameraByName.set(
+              "Kemperplatz / Tiergartentunnel",
+              mouthViews.south,
+            );
+          }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
           applyLightingToRoot(runtime.tunnelPortals, runtime.lightingMode, runtime.nightLightsOn);

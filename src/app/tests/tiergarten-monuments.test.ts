@@ -121,6 +121,21 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     return top - foot;
   }
 
+  test("the Amazone rides her horse instead of being a stone block", () => {
+    // Tuaillon's bronze: pedestal + horse (barrel, neck, head, four legs)
+    // + upright rider — about 5.8 m overall, far taller than the generic
+    // 0.7 m stone it used to be.
+    expect(tallestNear("Amazone zu Pferde")).toBeGreaterThan(5);
+  });
+
+  test("the Löwengruppe is a reclining group on its rock, not a marker", () => {
+    // Wolff's lioness with her cubs: low and long — clearly taller than a
+    // stone marker but nowhere near a standing statue.
+    const height = tallestNear("Löwengruppe");
+    expect(height).toBeGreaterThan(2.5);
+    expect(height).toBeLessThan(5);
+  });
+
   test("Wagner stands under his protective roof", () => {
     // The canopy over Eberlein's marble reaches about 7.4 m.
     expect(tallestNear("Richard Wagner")).toBeGreaterThan(6.5);

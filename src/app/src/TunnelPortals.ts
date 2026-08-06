@@ -371,6 +371,100 @@ function addRamp(
   }
 }
 
+
+/**
+ * Camera stand for looking INTO a tunnel bore: a low, axis-near position
+ * up the ramp from the mouth, aimed a few metres inside the tube so the
+ * receding walls, the lamp row and the depth cap fill the frame. Derived
+ * from the same centreline the ramps are built from, so the view stays
+ * glued to the geometry if the course ever moves.
+ */
+export type TunnelMouthView = {
+  azimuth_degrees: number;
+  distance_m: number;
+  polar_degrees: number;
+  target_height_m: number;
+  target_world: [number, number, number];
+};
+
+export function tunnelMouthViews(
+  payload: TunnelPortalPayload,
+): { north: TunnelMouthView; south: TunnelMouthView } | null {
+  const points = payload.points.map((point) => new Vector3(...point));
+  if (points.length < 2) {
+    return null;
+  }
+  const tunnelY = points[0].y;
+  const build = (fromStart: boolean): TunnelMouthView => {
+    const centreline = rampCentreline(
+      points,
+      fromStart,
+      fromStart ? tunnelY : points[points.length - 1].y,
+    );
+    const head = centreline[centreline.length - 1];
+    const before = centreline[Math.max(0, centreline.length - 2)];
+    const inward = new Vector3(head.x - before.x, 0, head.z - before.z);
+    inward.normalize();
+    const normal = new Vector3(-inward.z, 0, inward.x);
+    // Aim INSIDE one bore, not at the median wall between the two: the
+    // tubes flank the centreline at ±(width/2 + 0.85), exactly where
+    // addRamp lays their decks.
+    const lateral = payload.clear_width_each_direction_m / 2 + 0.85;
+    const target = head
+      .clone()
+      .addScaledVector(inward, 4)
+      .addScaledVector(normal, lateral);
+    target.y = head.y + payload.clear_height_m / 2;
+
+    // The camera stands INSIDE THE OPEN CUT, walked back up the ramp's own
+    // centreline rather than parked on a fixed sphere around the target. A
+    // spherical preset put it out over the surrounding plaza, where the
+    // paving plate sits between the eye and the mouth and fills the whole
+    // frame — the reason the first two attempts showed nothing but paving.
+    // Walking the ramp keeps the sight line in the trough the whole way.
+    const STAND_BACK_M = 46;
+    let stand = head.clone();
+    let walked = 0;
+    for (let index = centreline.length - 1; index > 0; index -= 1) {
+      const current = centreline[index];
+      const previous = centreline[index - 1];
+      const step = Math.hypot(current.x - previous.x, current.z - previous.z);
+      if (walked + step >= STAND_BACK_M) {
+        const fraction = (STAND_BACK_M - walked) / (step || 1);
+        stand = current.clone().lerp(previous, fraction);
+        walked = STAND_BACK_M;
+        break;
+      }
+      stand = previous.clone();
+      walked += step;
+    }
+    // An OBLIQUE look down into the open cut, which is the idiom this whole
+    // drawing uses. Two other stands were tried and both failed for the
+    // same reason: a near-horizontal eye — whether sunk into the trough or
+    // raised over the plaza — puts 150 m of ground plane between the
+    // viewer and a 5 m mouth, so the frame fills with paving. From 46 m
+    // back and 26 m up the sight line clears the near ground entirely and
+    // drops through the open trough onto the portal, with the bore's lamp
+    // row and depth cap behind it. Staying well above street level also
+    // keeps the viewer out of its underside presentation, which would show
+    // the cutaway instead of the mouth.
+    stand.y = Math.max(stand.y, SURFACE_Y) + 26;
+    stand.addScaledVector(normal, lateral);
+
+    const offset = stand.clone().sub(target);
+    const distance = offset.length() || 1;
+    return {
+      azimuth_degrees: Math.atan2(offset.x, offset.z) * (180 / Math.PI),
+      distance_m: distance,
+      polar_degrees: Math.acos(offset.y / distance) * (180 / Math.PI),
+      target_height_m: 0,
+      target_world: [target.x, target.y, target.z],
+    };
+  };
+
+  return { north: build(true), south: build(false) };
+}
+
 /**
  * Both open approaches, ready to drop into the daylight scene.
  * The two mouths are named so the report and the tests can tell them apart.

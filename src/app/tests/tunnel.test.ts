@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Material, Mesh } from "three";
 
-import { createTunnelPortals, RAMP_LENGTH_M } from "../src/TunnelPortals";
+import {
+  createTunnelPortals,
+  RAMP_LENGTH_M,
+  tunnelMouthViews,
+} from "../src/TunnelPortals";
 import {
   createTunnel,
   setTunnelPresentation,
@@ -195,5 +199,56 @@ describe("Tiergartentunnel rendering budget", () => {
     // Each portal stands one ramp length in from its own end of the course.
     expect(north.position.z).toBeCloseTo(RAMP_LENGTH_M, 3);
     expect(south.position.z).toBeCloseTo(900 - RAMP_LENGTH_M, 3);
+  });
+
+  test("both bore views stand low on the axis and aim inside the tube", () => {
+    const course: [number, number, number][] = [
+      [0, -10, 0],
+      [0, -10, 100],
+      [0, -10, 200],
+      [0, -10, 400],
+      [0, -10, 600],
+      [0, -10, 700],
+      [0, -10, 800],
+    ];
+    const views = tunnelMouthViews({
+      clear_height_m: 5,
+      clear_width_each_direction_m: 10.5,
+      points: course,
+    })!;
+    expect(views).not.toBeNull();
+    for (const [view, inwardZ] of [
+      [views.north, 1],
+      [views.south, -1],
+    ] as const) {
+      // The target sits INSIDE the bore, at half its clear height above
+      // the tunnel floor.
+      expect(view.target_world[1]).toBeCloseTo(-10 + 2.5, 1);
+      expect(view.target_height_m).toBe(0);
+      // An oblique look down into the open cut: the camera is walked back
+      // up the ramp's own axis and raised, so the polar angle falls out of
+      // that stand rather than being a magic number.
+      expect(view.polar_degrees).toBeGreaterThan(40);
+      expect(view.polar_degrees).toBeLessThan(75);
+      // It really does stand back up the ramp, not on the surrounding
+      // plaza where the paving plate would block the view.
+      expect(view.distance_m).toBeGreaterThan(40);
+      expect(view.distance_m).toBeLessThan(90);
+      // And it stays ABOVE street level: a camera sunk into the cut flips
+      // the viewer into its underside presentation and shows the cutaway
+      // instead of the mouth.
+      const eyeY =
+        view.target_world[1] +
+        view.distance_m * Math.cos((view.polar_degrees * Math.PI) / 180);
+      expect(eyeY).toBeGreaterThan(4);
+      // The camera stands back UP the ramp, against the inward direction:
+      // for this straight north-south course that is azimuth 180 for the
+      // north bore (camera north of it) and 0 for the south bore.
+      const azimuthRad = (view.azimuth_degrees * Math.PI) / 180;
+      expect(Math.sign(Math.cos(azimuthRad))).toBe(-inwardZ);
+    }
+    // The two targets sit at the OPPOSITE deep ends of the course.
+    expect(views.north.target_world[2]).toBeLessThan(400);
+    expect(views.south.target_world[2]).toBeGreaterThan(400);
   });
 });

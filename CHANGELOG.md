@@ -1,5 +1,38 @@
 # Changelog
 
+## v0.60.0
+
+- **The Amazone rides and the lions recline.** Tuaillon's "Amazone zu
+  Pferde" and Wolff's "Löwengruppe" were two of the generic 0.7 m marker
+  stones the catch-all branch draws. The Amazone is now a granite pedestal
+  carrying a standing horse — barrel, arched neck, head, tail, four legs —
+  with the rider seated well back the way Tuaillon posed her, about 5.8 m
+  overall. The Löwengruppe is the lioness on her rock with raised head,
+  stretched forepaws and two cubs against her flank: long and low, clearly
+  a group rather than a plinth. Contract tests pin both silhouettes by
+  height band.
+- **Tunnelled ways no longer roof the tunnel.** `build_surface_polygons.py`
+  buffered every OSM highway into a surface plate, including the ways
+  tagged `tunnel=*` or `covered=*` — which paved straight over the
+  Tiergartentunnel troughs and hid the portal mouths behind flat ground.
+  Underground ways are now excluded; the open ramps remain their own drawn
+  geometry.
+- **A camera preset that looks into the bore.** Both tunnel sights now aim
+  at their own portal, derived from the same centreline the ramps are
+  built from: the stand is walked back up the ramp's own axis and raised
+  to an oblique angle, so the sight line drops through the open cut
+  instead of skimming 150 m of ground plane. Pinned by test.
+
+### Known gap
+
+The bore geometry is verified by contract test — deck, walls, ceiling,
+lamp row and depth cap, all below street level — but the preset does not
+yet frame it convincingly on screen: at the south mouth the view arrives
+by the Landwehrkanal with the trough out of shot. Three stands were tried
+(sunk in the cut, raised near-horizontal, oblique). The remaining suspect
+is that the approach road's surface buffer still covers the trough
+upstream of the portal, because only the tunnelled segment is tagged.
+
 ## v0.59.0
 
 - **The Hauptbahnhof escalators are a rideable path, not tilted planks.**
