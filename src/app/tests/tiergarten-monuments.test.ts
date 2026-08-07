@@ -5,6 +5,7 @@ import { Box3, Group, LineSegments, Mesh, Vector3 } from "three";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
+  ARTWORK_BUILDERS,
   MONUMENTS_ALREADY_MODELLED,
   createTiergartenMonuments,
 } from "../src/TiergartenMonuments";
@@ -99,9 +100,48 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     ).toBe(true);
   });
 
+  test("every named artwork has a dedicated presentation builder and a height band", () => {
+    // `buildStone` is intentionally retained only for quiet memorial
+    // markers/Stolpersteine. A named `tourism=artwork` must instead enter the
+    // explicit artwork dispatcher and lift clear of the marker's 0.7 m band.
+    for (const entry of street.monuments!.filter(
+      (candidate) =>
+        candidate.kind === "artwork" &&
+        !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
+    )) {
+      expect(ARTWORK_BUILDERS[entry.name]).toBeDefined();
+      const height = tallestAtArtwork(entry.name);
+      if (height <= 1.2) {
+        throw new Error(`${entry.name} remained in the marker height band (${height} m)`);
+      }
+    }
+  });
+
   function tallestNear(name: string): number {
     const entry = street.monuments!.find((candidate) =>
       candidate.name.includes(name),
+    )!;
+    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    const vertex = new Vector3();
+    let top = -Infinity;
+    let foot = Infinity;
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        Math.abs(vertex.x - entry.x_dm / 10) < 9 &&
+        Math.abs(vertex.z - entry.z_dm / 10) < 9
+      ) {
+        top = Math.max(top, vertex.y);
+        foot = Math.min(foot, vertex.y);
+      }
+    }
+    return top - foot;
+  }
+
+  function tallestAtArtwork(name: string): number {
+    const entry = street.monuments!.find(
+      (candidate) => candidate.kind === "artwork" && candidate.name === name,
     )!;
     const bodies = monuments.getObjectByName("monument bodies") as Mesh;
     const position = bodies.geometry.getAttribute("position");
