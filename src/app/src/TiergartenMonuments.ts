@@ -156,7 +156,12 @@ function buildAbstractArtwork(builder: Builder, x: number, y: number, z: number,
 
 /** Panzernashorn: reference-based presentation silhouette, not surveyed geometry. */
 function buildPanzernashorn(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+  // Rico Rensmeyer's Zoo Berlin bronze reads as a low, very broad Indian
+  // rhinoceros. The paired nose horns make it legible at city-view distance.
+  // Reference: https://danpearlman.com/news/zoo-berlin/
+  buildAnimalArtwork(builder, x, y, z, 1.45);
+  box(builder, BRONZE, x - 2.55, y + 3.25, z, 0.82, 0.24, 0.24, 0.32);
+  box(builder, BRONZE, x - 2.27, y + 2.98, z, 0.5, 0.18, 0.18, 0.32);
 }
 
 /** Blindenhund: reference-based presentation silhouette, not surveyed geometry. */
@@ -181,7 +186,14 @@ function buildStabUndScheibe2(builder: Builder, x: number, y: number, z: number)
 
 /** Schifferbrunnen: reference-based presentation silhouette, not surveyed geometry. */
 function buildSchifferbrunnen(builder: Builder, x: number, y: number, z: number): void {
-  buildFountainArtwork(builder, x, y, z, 1.20);
+  // Hosaeus's polygonal basin, central fountain stock and seated young
+  // boatman on a bollard; the water itself is now planted but the basin
+  // remains the work's unmistakable footprint.
+  // Reference: https://bildhauerei-in-berlin.de/bildwerk/schiffer-brunnen-6443/
+  buildFountainArtwork(builder, x, y, z, 1.2);
+  box(builder, BRONZE, x, y + 3.05, z, 0.56, 1.05, 0.5);
+  box(builder, BRONZE, x, y + 3.85, z, 0.38, 0.38, 0.38);
+  box(builder, BRONZE, x + 0.42, y + 2.62, z, 0.82, 0.25, 0.28);
 }
 
 /** Hand mit Uhr: reference-based presentation silhouette, not surveyed geometry. */
@@ -611,7 +623,19 @@ function buildRollingHorse(builder: Builder, x: number, y: number, z: number): v
 
 /** Berlin: reference-based presentation silhouette, not surveyed geometry. */
 function buildBerlin(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  // Matschinsky-Denninghoff's Berlin is a broken steel chain: four open,
+  // non-touching tube arcs rather than an upright marker block.
+  // Reference: https://en.wikipedia.org/wiki/Berlin_(sculpture)
+  box(builder, STONE, x, y + 0.25, z, 5.6, 0.5, 4.2);
+  for (const [dx, dz, turn] of [
+    [-1.35, -0.9, 0.45],
+    [1.35, -0.9, -0.45],
+    [-1.35, 0.9, -0.45],
+    [1.35, 0.9, 0.45],
+  ] as const) {
+    box(builder, BRONZE, x + dx, y + 2.0, z + dz, 0.5, 3.5, 0.5, turn);
+    box(builder, BRONZE, x + dx * 0.72, y + 3.62, z + dz * 0.72, 1.7, 0.46, 0.5, turn);
+  }
 }
 
 /** Boxers: reference-based presentation silhouette, not surveyed geometry. */
@@ -691,7 +715,23 @@ function buildWilhelmGriesinger(builder: Builder, x: number, y: number, z: numbe
 
 /** Sinkende Mauer: reference-based presentation silhouette, not surveyed geometry. */
 function buildSinkendeMauer(builder: Builder, x: number, y: number, z: number): void {
-  buildWallArtwork(builder, x, y, z, 1.15);
+  // Christophe Girot's Invalidenpark sculpture is a single walkable granite
+  // wall descending through a water basin, not a row of separate markers.
+  // Reference: https://www.berlin.de/mauer/orte/gedenkorte/die-sinkende-mauer-297836.php
+  box(builder, STONE_LIGHT, x, y + 0.12, z, 10.5, 0.24, 6.8);
+  box(builder, 0x608e9e, x, y + 0.28, z, 9.8, 0.14, 6.1);
+  const descending = [
+    [-3.6, 6.6],
+    [-2.35, 5.6],
+    [-1.1, 4.5],
+    [0.15, 3.35],
+    [1.4, 2.25],
+    [2.65, 1.25],
+    [3.75, 0.58],
+  ] as const;
+  for (const [dx, height] of descending) {
+    box(builder, STONE, x + dx, y + 0.35 + height / 2, z, 1.25, height, 0.72);
+  }
 }
 
 /** Herkules Musagetes: reference-based presentation silhouette, not surveyed geometry. */
@@ -1183,7 +1223,7 @@ const STATUE_NAMES =
 // intersection. Skipping it here removes the duplicate; the detailed
 // figure now lives solely in createSiegessaeule().
 export const MONUMENTS_ALREADY_MODELLED =
-  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$/i;
+  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$/i;
 
 export function createTiergartenMonuments(
   street: StreetDetailsPayload,
