@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.62.0
+
+- **Named artwork is no longer a field of pebbles.** All 117 unique named
+  `kind: "artwork"` entries in the bounded OSM street-detail payload now have
+  an explicit presentation-builder hook; `buildStone()` remains for quiet
+  memorial markers and Stolpersteine only. Animal, mounted, standing figure,
+  figure-group, fountain, wall, portal, vertical and abstract silhouettes keep
+  the one merged mesh economical while a regression test verifies every named
+  work enters a builder and clears the 0.7 m marker-height band. The shared
+  group retains its explicit reference-based, not-surveyed `geometryStatus`.
+- **Reference-specific key works received their own composition.** The Zoo
+  Berlin Panzernashorn has its broad bronze body and paired horns; the
+  Schifferbrunnen has its basin, fountain stock and seated boatman; the
+  Matschinsky-Denninghoff *Berlin* reads as a broken steel chain; and
+  Christophe Girot's *Sinkende Mauer* now descends as one walkable granite
+  wall through its water basin. The Brandenburg Gate's already detailed
+  Quadriga owns its coincident OSM artwork point, preventing a duplicate.
+- **Night/Minecraft flicker measurement (SwiftShader limitation documented).**
+  At 960×600, four captured *night-at-rest* frames differed by at most
+  **0.003125 %** of all pixels (or **0.000868 %** with a visible max-channel
+  delta >12), well below the 0.1 % idle threshold. Each headless screenshot
+  took around two minutes, so the required five-frame / ~0.9 s sequence, the
+  moving-zoom series and both Minecraft series could not be measured honestly
+  within the 630 s sandbox ceiling. They remain an explicit follow-up for a
+  GPU-backed run; this partial result is not presented as a completed
+  Minecraft/animation measurement.
+
 ## v0.61.0
 
 - **The OSM context now reaches the full surveyed hull.** The current
