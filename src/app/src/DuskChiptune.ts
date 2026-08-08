@@ -101,7 +101,8 @@ export const CHIP_STEP_SECONDS = 60 / CHIP_BPM / 4; // sixteenth notes
 // instead of competing for headroom in mobile speakers.
 export const CHIP_MASTER_GAIN = 0.03;
 export const CHIP_SCHEDULE_AHEAD_SECONDS = 0.4;
-export const CHIP_SCHEDULE_RESUME_DELAY_SECONDS = 0.06;
+export const CHIP_SCHEDULE_RESUME_DELAY_SECONDS = 0.015;
+export const CHIP_START_FADE_SECONDS = 0.18;
 export const CHIP_MAX_STEPS_PER_TICK = 4;
 
 /**
@@ -625,11 +626,46 @@ export class DuskChiptune {
     return this.activeSources.size;
   }
 
+  /**
+   * Prebuild the suspended audio graph and the procedural sound buffers.
+   * This intentionally does not call resume: browsers still own the autoplay
+   * decision, while the first permitted gesture no longer has allocation or
+   * buffer-generation work in front of its first audible sample.
+   */
+  prepare(): boolean {
+    if (!isChiptuneSupported()) {
+      return false;
+    }
+    try {
+      const Ctor =
+        window.AudioContext ??
+        ((window as never as Record<string, unknown>)
+          .webkitAudioContext as typeof AudioContext);
+      const context = this.context ?? new Ctor();
+      this.context = context;
+      this.ensureGraph(context);
+      this.noise(context);
+      this.waveFor(context, 0.125);
+      this.waveFor(context, 0.25);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async start(): Promise<boolean> {
     if (this.timer !== null) {
       return true;
     }
     if (this.startPromise) {
+      // A load-time attempt may still be waiting for a browser-blocked
+      // `resume()` when the visitor makes their first permitted gesture.
+      // Repeat it synchronously in this call frame: returning the old promise
+      // alone would move the actual resume outside that gesture and revive the
+      // v0.57.1 first-gesture race.
+      if (this.context?.state !== "running") {
+        void this.context?.resume();
+      }
       return this.startPromise;
     }
     if (!isChiptuneSupported()) {
@@ -649,42 +685,19 @@ export class DuskChiptune {
 
   private async startInternal(generation: number): Promise<boolean> {
     try {
-      const Ctor =
-        window.AudioContext ??
-        ((window as never as Record<string, unknown>)
-          .webkitAudioContext as typeof AudioContext);
-      const context = this.context ?? new Ctor();
-      this.context = context;
+      if (!this.prepare() || !this.context) {
+        return false;
+      }
+      const context = this.context;
       if (!(await this.resumeWithin(context))) {
         return false;
       }
       if (generation !== this.startGeneration) {
         return false;
       }
+      this.ensureGraph(context);
       if (!this.master) {
-        // Gentle low-pass: chip waves are harsh up top, and this track
-        // must sit far behind the interface.
-        const lowpass = context.createBiquadFilter();
-        lowpass.type = "lowpass";
-        lowpass.frequency.value = 2200;
-        lowpass.Q.value = 0.6;
-        const master = context.createGain();
-        master.gain.value = 0;
-        lowpass.connect(master);
-        // Parallel dry/wet hall, sharing the ambient layer's impulse response
-        // so both engines sit in the same room ("deutlich mehr Reverb"). The
-        // ConvolverNode normalises the response, so the master gain contract is
-        // unaffected.
-        const dry = context.createGain();
-        const wet = context.createGain();
-        const reverb = context.createConvolver();
-        reverb.buffer = createReverbImpulse(context);
-        dry.gain.value = 1 - CHIP_REVERB_WET;
-        wet.gain.value = CHIP_REVERB_WET;
-        master.connect(dry).connect(context.destination);
-        master.connect(reverb).connect(wet).connect(context.destination);
-        this.lowpass = lowpass;
-        this.master = master;
+        return false;
       }
       // Fade in rather than clicking on.
       this.master.gain.cancelScheduledValues(context.currentTime);
@@ -694,7 +707,7 @@ export class DuskChiptune {
       );
       this.master.gain.linearRampToValueAtTime(
         CHIP_MASTER_GAIN,
-        context.currentTime + 1.6,
+        context.currentTime + CHIP_START_FADE_SECONDS,
       );
       if (this.nextStepAt < context.currentTime) {
         this.nextStepAt =
@@ -706,6 +719,32 @@ export class DuskChiptune {
     } catch {
       return false;
     }
+  }
+
+  private ensureGraph(context: AudioContext): void {
+    if (this.master && this.lowpass) {
+      return;
+    }
+    // Gentle low-pass: chip waves are harsh up top, and this track must sit
+    // far behind the interface.
+    const lowpass = context.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 2200;
+    lowpass.Q.value = 0.6;
+    const master = context.createGain();
+    master.gain.value = 0;
+    lowpass.connect(master);
+    // Parallel dry/wet hall, sharing the ambient layer's generated impulse.
+    const dry = context.createGain();
+    const wet = context.createGain();
+    const reverb = context.createConvolver();
+    reverb.buffer = createReverbImpulse(context);
+    dry.gain.value = 1 - CHIP_REVERB_WET;
+    wet.gain.value = CHIP_REVERB_WET;
+    master.connect(dry).connect(context.destination);
+    master.connect(reverb).connect(wet).connect(context.destination);
+    this.lowpass = lowpass;
+    this.master = master;
   }
 
   private resumeWithin(context: AudioContext): Promise<boolean> {

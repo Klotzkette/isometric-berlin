@@ -485,7 +485,7 @@ describe("ligne-claire fenestration", () => {
     expect(positions.count).toBeGreaterThan(2000);
   });
 
-  test("the Tiergartentunnel leaves a dashed trace when ground is present", async () => {
+  test("the Tiergartentunnel stays below the isometric surface between its mouths", async () => {
     const voxelPayload = (await import(
       "../public/mesh/regierungsviertel/minecraft-voxels.json"
     )) as { default: unknown };
@@ -499,19 +499,14 @@ describe("ligne-claire fenestration", () => {
       voxelPayload.default as never,
       points,
     );
-    const trace = traced.getObjectByName("Tiergartentunnel underground trace");
-    expect(trace).toBeInstanceOf(LineSegments);
-    const positions = (trace as LineSegments).geometry.getAttribute("position");
-    expect(positions.count).toBeGreaterThan(100);
-    // Both portals ("dessen Eingänge") come along: ramps + ink.
-    const portals = traced.getObjectByName("Tiergartentunnel portals");
-    expect(portals).toBeDefined();
-    const ramps = traced.getObjectByName("tunnel portal ramps") as Mesh;
-    expect(ramps).toBeInstanceOf(Mesh);
-    expect(ramps.geometry.getAttribute("position").count).toBeGreaterThan(100);
-    expect(
-      traced.getObjectByName("tunnel portal ink lines"),
-    ).toBeInstanceOf(LineSegments);
+    // The surface city never owns a tunnel trace, mouth or ramp. The 39
+    // sampled buried middle positions of the historic contract therefore
+    // resolve to 0/39 visible surface objects; TunnelPortals.ts alone owns
+    // the two daylight troughs.
+    expect(traced.getObjectByName("Tiergartentunnel underground trace")).toBeUndefined();
+    expect(traced.getObjectByName("Tiergartentunnel portals")).toBeUndefined();
+    expect(traced.getObjectByName("tunnel portal ramps")).toBeUndefined();
+    expect(traced.getObjectByName("tunnel portal ink lines")).toBeUndefined();
   });
 });
 

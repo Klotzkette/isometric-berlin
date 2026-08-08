@@ -24,6 +24,18 @@ export function captureCameraPose(
   return { position: camera.position.clone(), target: target.clone() };
 }
 
+/**
+ * The largest component of an otherwise invisible camera nudge. OrbitControls'
+ * damping is asymptotic; without an explicit rest threshold it can keep
+ * reporting a change at floating-point scale and force endless redraws.
+ */
+export function cameraPoseDeltaM(previous: CameraPose, next: CameraPose): number {
+  return Math.max(
+    previous.position.distanceTo(next.position),
+    previous.target.distanceTo(next.target),
+  );
+}
+
 function vectorIsFinite(vector: Vector3): boolean {
   return [vector.x, vector.y, vector.z].every(Number.isFinite);
 }

@@ -20,6 +20,7 @@
 /** Gestures a browser accepts as "the user interacted with the page". */
 export const FIRST_GESTURE_EVENTS = [
   "pointerdown",
+  "pointermove",
   "touchstart",
   "touchend",
   "mousedown",

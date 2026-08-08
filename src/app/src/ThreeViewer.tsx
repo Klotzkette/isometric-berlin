@@ -73,6 +73,7 @@ import { runBoundedTasks } from "./boundedTaskPool";
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   captureCameraPose,
+  cameraPoseDeltaM,
   classifyTwoFingerGesture,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
@@ -270,6 +271,8 @@ type Runtime = {
   monuments: Group;
   parkDetails: Group;
   renderer: WebGLRenderer;
+  /** A visual mutation waiting for one deterministic on-demand render. */
+  renderInvalidated: boolean;
   scene: Scene;
   sceneRootUrl: URL;
   signatures: Group;
@@ -368,8 +371,16 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   const replaced =
     (voxelModeActive(runtime) || isoModeActive(runtime)) &&
     !runtime.underside;
-  runtime.interactionSurface.visible = !settled && !replaced;
-  runtime.settledSurface.visible = settled && !replaced;
+  const interactionVisible = !settled && !replaced;
+  const settledVisible = settled && !replaced;
+  const changed =
+    runtime.interactionSurface.visible !== interactionVisible ||
+    runtime.settledSurface.visible !== settledVisible;
+  runtime.interactionSurface.visible = interactionVisible;
+  runtime.settledSurface.visible = settledVisible;
+  if (changed) {
+    runtime.renderInvalidated = true;
+  }
   setParkSettledDetail(runtime.parkDetails, settled);
   const surfaceQuality = settled ? "settled-7m-plus" : "interaction-2_3m";
   if (surfaceQuality !== lastSurfaceQualityDataset) {
@@ -397,6 +408,7 @@ function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
     runtime.interactionUntil,
     performance.now() + durationMs,
   );
+  runtime.renderInvalidated = true;
 }
 
 function createSelectionMarker(): Group {
@@ -570,7 +582,7 @@ function updateFarZoomAntiFlicker(
   runtime: Runtime,
   distanceM: number,
   viewportHeightPx: number,
-): void {
+): boolean {
   const fovDegrees = runtime.camera.fov;
   const px = projectedPixelSize(
     INK_LINE_REFERENCE_FEATURE_M,
@@ -579,16 +591,28 @@ function updateFarZoomAntiFlicker(
     fovDegrees,
   );
   const opacity = inkLineFadeOpacity(px);
+  let changed = false;
   for (const material of runtime.inkLineMaterials) {
-    material.opacity = opacity;
+    if (Math.abs(material.opacity - opacity) > 1e-6) {
+      material.opacity = opacity;
+      changed = true;
+    }
   }
-  runtime.fineDetailVisible = nextFineDetailVisible({
+  const fineDetailVisible = nextFineDetailVisible({
     distanceM,
     visible: runtime.fineDetailVisible,
   });
-  for (const object of runtime.fineDetailObjects) {
-    object.visible = runtime.fineDetailVisible;
+  if (runtime.fineDetailVisible !== fineDetailVisible) {
+    runtime.fineDetailVisible = fineDetailVisible;
+    changed = true;
   }
+  for (const object of runtime.fineDetailObjects) {
+    if (object.visible !== fineDetailVisible) {
+      object.visible = fineDetailVisible;
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 function applyLightingToRoot(
@@ -647,6 +671,7 @@ function setSceneLighting(
   mode: LightingMode,
   lightsOn = true,
 ): void {
+  runtime.renderInvalidated = true;
   runtime.lightingMode = mode;
   runtime.nightLightsOn = lightsOn;
   const isNight = mode === "night";
@@ -758,6 +783,10 @@ function setSceneLighting(
   if (runtime.isoWorld) {
     runtime.isoWorld.visible = isoMode && !runtime.underside;
   }
+  // The approaches are the sole surface portal geometry. Never draw them
+  // through an underside/cutaway view, where their forced surface depth would
+  // otherwise make an underground tube look like it broke through the ground.
+  runtime.tunnelPortals.visible = !runtime.underside;
   // Recognition models (dome, gate, memorials, park trees…) are drawn
   // geometry — they stay ON in the drawn isometric city and complement
   // the prisms; only the voxel world and the underside hide them. The
@@ -1368,6 +1397,7 @@ export function setTunnelPresentation(tunnel: Group, underside: boolean): void {
 
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
+  runtime.renderInvalidated = true;
   if (underside) {
     runtime.marker.visible = false;
   }
@@ -1387,6 +1417,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   if (runtime.isoWorld) {
     runtime.isoWorld.visible = isoMode && !underside;
   }
+  runtime.tunnelPortals.visible = !underside;
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = !underside;
   runtime.civicDetails.visible = recognitionVisible;
@@ -1606,6 +1637,9 @@ async function loadModel(
   }
   stripSkyArtefacts(gltf.scene, skyArtefactsFor(file.file));
   parent.add(gltf.scene);
+  // Render-on-demand must also cover streaming geometry: after an otherwise
+  // quiet frame a completed loader is the event that makes the new tile visible.
+  runtime.renderInvalidated = true;
   if (runtime.lightingMode === "minecraft") {
     setMinecraftMaterialPresentation(
       gltf.scene,
@@ -1773,6 +1807,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtime.markerTimer = window.setTimeout(() => {
         if (!runtime.disposed) {
           runtime.marker.visible = false;
+          runtime.renderInvalidated = true;
         }
         runtime.markerTimer = null;
       }, 2400);
@@ -2164,6 +2199,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         monuments,
         parkDetails,
         renderer,
+        renderInvalidated: true,
         scene,
         sceneRootUrl: new URL(".", new URL(sceneUrl, window.location.href)),
         signatures,
@@ -2271,6 +2307,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer.setSize(width, height, false);
         composer.setPixelRatio(pixelRatio);
         composer.setSize(width, height);
+        runtime.renderInvalidated = true;
         const crispResolution = crispPass.uniforms.resolution.value;
         if (crispResolution instanceof Vector2) {
           // Anchored to the settled resolution, never to the one currently
@@ -2701,11 +2738,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
 
       const activeFrameIntervalMs = coarsePointer ? 1000 / 30 : 0;
-      const idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
       const flightVelocity = new Vector3();
       let wasFlying = false;
+      // OrbitControls damps exponentially and can report microscopic changes
+      // forever. Three tiny (< 1 mm) consecutive updates are sub-pixel at the
+      // widest permitted Day view, so flush the final damping state exactly
+      // once and let the renderer remain on that resolved frame.
+      const CAMERA_REST_EPSILON_M = 0.001;
+      const CAMERA_REST_FRAMES = 3;
+      let passiveDampingFrames = 0;
+      let previousCameraPose = captureCameraPose(camera, controls.target);
       const applyContinuousFlight = (dtSeconds: number): boolean => {
         const input = flightInputRef.current;
         flightVelocity.lerp(input, 1 - Math.exp(-dtSeconds * 7));
@@ -2770,7 +2814,34 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const flying = applyContinuousFlight(dtSeconds);
-        const controlsChanged = controls.update();
+        let controlsChanged = controls.update();
+        const afterControlsPose = captureCameraPose(camera, controls.target);
+        const directInputActive = renderInteractionActive({
+          controls: controlsInteracting,
+          touch: touchInteracting,
+          wheel: wheelInteracting,
+        });
+        if (
+          controlsChanged &&
+          !flying &&
+          !directInputActive &&
+          cameraPoseDeltaM(previousCameraPose, afterControlsPose) <=
+            CAMERA_REST_EPSILON_M
+        ) {
+          passiveDampingFrames += 1;
+          if (passiveDampingFrames >= CAMERA_REST_FRAMES) {
+            // A damping-disabled update commits OrbitControls' internal
+            // spherical state without another eased sub-pixel step.
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+            controlsChanged = false;
+            passiveDampingFrames = 0;
+          }
+        } else {
+          passiveDampingFrames = 0;
+        }
+        previousCameraPose = captureCameraPose(camera, controls.target);
         const stabilized = stabilizeCameraRig(
           camera,
           controls.target,
@@ -2869,14 +2940,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // crispTargetScale above -- a pure function of distance, so the
         // picture is identical for a given standoff no matter how the
         // camera got there, and never re-pops when motion stops.
-        updateFarZoomAntiFlicker(
+        const farDetailChanged = updateFarZoomAntiFlicker(
           runtime,
           camera.position.distanceTo(controls.target),
           renderer.domElement.clientHeight || window.innerHeight,
         );
-        const frameIntervalMs = isMoving
-          ? activeFrameIntervalMs
-          : idleFrameIntervalMs;
+        // Day/Night used to repaint at 12 fps while the view was still.
+        // That kept animated flags and signal buffers changing beneath a
+        // nominally fixed far camera, making fine ink edges shimmer. A static
+        // scene now receives one render for a real mutation and then holds its
+        // framebuffer exactly; RAF remains alive for input and loaders.
+        const renderRequired =
+          cameraMoving || runtime.renderInvalidated || farDetailChanged;
+        if (!renderRequired) {
+          return;
+        }
+        const frameIntervalMs = isMoving ? activeFrameIntervalMs : 0;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;
         }
@@ -2903,11 +2982,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
           marker.scale.setScalar(pulse);
         }
-        const windTime =
-          reducedMotion || !stability.animateWind ? 0.9 : timestamp / 1000;
-        updateWindFlags(runtime.signatures, windTime);
-        updateWindFlags(runtime.civicDetails, windTime);
-        if (runtime.isoWorld?.visible && runtime.trafficSignals) {
+        if (isMoving) {
+          const windTime =
+            reducedMotion || !stability.animateWind ? 0.9 : timestamp / 1000;
+          updateWindFlags(runtime.signatures, windTime);
+          updateWindFlags(runtime.civicDetails, windTime);
+        }
+        if (isMoving && runtime.isoWorld?.visible && runtime.trafficSignals) {
           updateTrafficSignals(
             runtime.trafficSignals,
             timestamp / 1000,
@@ -2986,6 +3067,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             1 + (profile.contrast - 1) * crispBlend;
           composer.render();
         }
+        runtime.renderInvalidated = false;
       };
       animate();
 

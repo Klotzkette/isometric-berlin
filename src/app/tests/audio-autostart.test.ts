@@ -67,7 +67,14 @@ describe("first-gesture audio start", () => {
   });
 
   test("covers the gestures a phone actually produces first", () => {
-    for (const type of ["pointerdown", "touchstart", "keydown", "scroll", "wheel"]) {
+    for (const type of [
+      "pointerdown",
+      "pointermove",
+      "touchstart",
+      "keydown",
+      "scroll",
+      "wheel",
+    ]) {
       expect(FIRST_GESTURE_EVENTS).toContain(type as never);
     }
   });

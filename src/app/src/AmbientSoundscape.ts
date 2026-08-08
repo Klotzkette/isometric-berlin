@@ -61,6 +61,9 @@ const STEP_SECONDS = 60 / AMBIENT_BPM / 4;
 const STEPS_PER_VARIANT = 64;
 // Leaves shared headroom for the optional 0.03 Dusk Republic layer.
 export const AMBIENT_MASTER_GAIN = 0.07;
+/** Short click-free attack so a permitted first gesture sounds immediate. */
+export const AMBIENT_START_FADE_SECONDS = 0.18;
+export const AMBIENT_START_DELAY_SECONDS = 0.015;
 
 /**
  * Downward transposition of the whole soundscape ("mehr Tiefe"). A perfect
@@ -221,9 +224,14 @@ export class AmbientSoundscape {
     return this.timer !== null && this.context?.state === "running";
   }
 
-  async start(): Promise<boolean> {
-    if (this.context) {
-      return this.resumeWithin(this.context);
+  /**
+   * Construct the suspended graph and its generated impulse before a gesture.
+   * There is no media file to decode here: the procedural buffers are the
+   * assets, and Web Audio keeps the new context suspended until a gesture.
+   */
+  prepare(): boolean {
+    if (this.context && this.master) {
+      return true;
     }
     const AudioContextClass = audioContextConstructor();
     if (!AudioContextClass) {
@@ -232,13 +240,9 @@ export class AmbientSoundscape {
     const context = new AudioContextClass();
     const master = context.createGain();
     const compressor = context.createDynamicsCompressor();
-    // Ramp the master gain up from a true 0 with a linear fade-in so the
-    // very first sample is silent — no start-up thump.
+    // Start silent. `start` applies the short gain ramp only after a browser
+    // has permitted resume, so graph preparation itself can never autoplay.
     master.gain.setValueAtTime(0, context.currentTime);
-    master.gain.linearRampToValueAtTime(
-      AMBIENT_MASTER_GAIN,
-      context.currentTime + 1.4,
-    );
     compressor.threshold.value = -22;
     compressor.knee.value = 14;
     compressor.ratio.value = 4;
@@ -259,16 +263,38 @@ export class AmbientSoundscape {
     this.context = context;
     this.master = master;
     this.step = 0;
-    this.nextStepAt = context.currentTime + 0.08;
-    if (!(await this.resumeWithin(context))) {
+    this.nextStepAt = context.currentTime + AMBIENT_START_DELAY_SECONDS;
+    return true;
+  }
+
+  async start(): Promise<boolean> {
+    if (!this.prepare()) {
       return false;
     }
+    const context = this.context;
+    const master = this.master;
+    if (!context || !master || !(await this.resumeWithin(context))) {
+      return false;
+    }
+    if (this.timer !== null) {
+      return true;
+    }
+    master.gain.cancelScheduledValues(context.currentTime);
+    master.gain.setValueAtTime(Math.max(0, master.gain.value), context.currentTime);
+    master.gain.linearRampToValueAtTime(
+      AMBIENT_MASTER_GAIN,
+      context.currentTime + AMBIENT_START_FADE_SECONDS,
+    );
+    this.nextStepAt = context.currentTime + AMBIENT_START_DELAY_SECONDS;
     this.scheduleAhead();
     this.timer = window.setInterval(() => this.scheduleAhead(), 70);
     return true;
   }
 
   private resumeWithin(context: AudioContext): Promise<boolean> {
+    if (context.state === "running") {
+      return Promise.resolve(true);
+    }
     return new Promise((resolve) => {
       let settled = false;
       const finish = (resumed: boolean) => {

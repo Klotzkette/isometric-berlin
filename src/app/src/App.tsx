@@ -882,6 +882,25 @@ export function App() {
     [],
   );
 
+  // Build both procedural graphs while they are suspended. There are no media
+  // files in this soundtrack; the generated reverb/noise/wave buffers are the
+  // assets to warm, leaving the first permitted gesture only the resume call.
+  useEffect(() => {
+    if (typeof window === "undefined" || isMusicMutedByUser()) {
+      return;
+    }
+    if (isAmbientAudioSupported()) {
+      const ambient = ambientSoundscapeRef.current ?? new AmbientSoundscape();
+      ambientSoundscapeRef.current = ambient;
+      ambient.prepare();
+    }
+    if (isChiptuneSupported()) {
+      const chiptune = chiptuneRef.current ?? new DuskChiptune();
+      chiptuneRef.current = chiptune;
+      chiptune.prepare();
+    }
+  }, []);
+
   // Try to play at once. Most browsers block this, which is exactly what
   // the gesture listeners below are for — but the ones that allow it (a
   // returning visitor whose autoplay permission is already granted) should
@@ -943,7 +962,11 @@ export function App() {
       }
     };
     document.addEventListener("visibilitychange", retry);
-    return () => document.removeEventListener("visibilitychange", retry);
+    window.addEventListener("focus", retry);
+    return () => {
+      document.removeEventListener("visibilitychange", retry);
+      window.removeEventListener("focus", retry);
+    };
   }, [startMusic, startSoundtrack]);
 
   useEffect(() => {

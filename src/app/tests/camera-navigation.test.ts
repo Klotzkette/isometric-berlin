@@ -4,6 +4,7 @@ import { PerspectiveCamera, Vector3 } from "three";
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   TWO_FINGER_DECISION_TRAVEL_PX,
+  cameraPoseDeltaM,
   captureCameraPose,
   classifyTwoFingerGesture,
   flyCameraAlongViewHeading,
@@ -16,6 +17,20 @@ import {
 } from "../src/cameraNavigation";
 
 describe("screen-relative 3D flight", () => {
+  test("measures the larger camera or target drift for damping rest detection", () => {
+    const camera = new PerspectiveCamera();
+    const target = new Vector3(1, 2, 3);
+    camera.position.set(10, 20, 30);
+    const before = captureCameraPose(camera, target);
+    camera.position.x += 0.0004;
+    target.z += 0.0008;
+
+    expect(cameraPoseDeltaM(before, captureCameraPose(camera, target))).toBeCloseTo(
+      0.0008,
+      9,
+    );
+  });
+
   test("moves camera and target together without changing the view orbit", () => {
     const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
     const target = new Vector3(0, 0, 0);
