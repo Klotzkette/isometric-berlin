@@ -16,10 +16,14 @@
 
 import {
   BoxGeometry,
+  BufferGeometry,
+  DoubleSide,
+  Float32BufferAttribute,
   Group,
   InstancedMesh,
   Material,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
   Vector3,
@@ -44,6 +48,14 @@ const SURFACE_Y = 2.4;
 const WALL_TOP_Y = SURFACE_Y + 0.4;
 const WALL_THICKNESS_M = 0.65;
 const BARRIER_HEIGHT_M = 1.45;
+/**
+ * Between the two canonical daylight troughs, the route passes beneath the
+ * western rail viaduct and Cube Berlin. The public surface must never expose
+ * that buried middle section through a transparent building or a gap in the
+ * sampled terrain.
+ */
+const BURIED_CAP_CLEARANCE_M = 0.55;
+const BURIED_CAP_MARGIN_M = 4.5;
 
 const CONCRETE = 0x8d8b83;
 const ASPHALT = 0x3c4247;
@@ -130,7 +142,11 @@ function rampCentreline(
   const ordered = fromStart ? points : [...points].reverse();
   const walked: Vector3[] = [ordered[0].clone()];
   let travelled = 0;
-  for (let index = 1; index < ordered.length && travelled < RAMP_LENGTH_M; index += 1) {
+  for (
+    let index = 1;
+    index < ordered.length && travelled < RAMP_LENGTH_M;
+    index += 1
+  ) {
     const previous = ordered[index - 1];
     const current = ordered[index];
     const step = Math.hypot(current.x - previous.x, current.z - previous.z);
@@ -155,6 +171,119 @@ function rampCentreline(
     graded.y = SURFACE_Y + (tunnelY - SURFACE_Y) * Math.min(1, along / total);
     return graded;
   });
+}
+
+function pathLength(points: readonly Vector3[]): number {
+  let total = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    total += points[index].distanceTo(points[index - 1]);
+  }
+  return total;
+}
+
+/** Slice a centreline by travelled metres, preserving exact end points. */
+function centrelineInterval(
+  points: readonly Vector3[],
+  fromM: number,
+  toM: number,
+): Vector3[] {
+  if (toM <= fromM || points.length < 2) {
+    return [];
+  }
+  const result: Vector3[] = [];
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
+    const length = start.distanceTo(end);
+    const segmentStart = travelled;
+    const segmentEnd = travelled + length;
+    if (segmentEnd < fromM || segmentStart > toM) {
+      travelled = segmentEnd;
+      continue;
+    }
+    const startAt = Math.max(fromM, segmentStart);
+    const endAt = Math.min(toM, segmentEnd);
+    const startFraction = (startAt - segmentStart) / (length || 1);
+    const endFraction = (endAt - segmentStart) / (length || 1);
+    const intervalStart = start.clone().lerp(end, startFraction);
+    const intervalEnd = start.clone().lerp(end, endFraction);
+    if (
+      result.length === 0 ||
+      !result[result.length - 1].equals(intervalStart)
+    ) {
+      result.push(intervalStart);
+    }
+    result.push(intervalEnd);
+    travelled = segmentEnd;
+  }
+  return result;
+}
+
+/**
+ * An opaque ground-depth ribbon seals the otherwise closed surface shell above
+ * every buried part of the middle tube. It deliberately leaves both canonical
+ * portal troughs uncovered: they remain the sole daylight surface owners and
+ * keep the Kemperplatz / Südeingang bore sights usable.
+ *
+ * The ribbon sits at a conservative surface-adjacent level. Normally the
+ * draped terrain wins the depth test and the cap is invisible; in an OSM/mesh
+ * gap it becomes a neutral ground backing that blocks the tunnel instead of
+ * letting its forced portal geometry shine through glass.
+ */
+function addBuriedTunnelOcclusionCap(
+  group: Group,
+  points: readonly Vector3[],
+  width: number,
+): void {
+  const totalLength = pathLength(points);
+  const coveredStart = RAMP_LENGTH_M;
+  const coveredEnd = Math.max(coveredStart, totalLength - RAMP_LENGTH_M);
+  const covered = centrelineInterval(points, coveredStart, coveredEnd);
+  if (covered.length < 2) {
+    return;
+  }
+  const halfWidth = width + BURIED_CAP_MARGIN_M;
+  const positions: number[] = [];
+  for (let index = 0; index < covered.length; index += 1) {
+    const current = covered[index];
+    const before = covered[Math.max(0, index - 1)];
+    const after = covered[Math.min(covered.length - 1, index + 1)];
+    const tangent = after.clone().sub(before);
+    const run = Math.hypot(tangent.x, tangent.z) || 1;
+    const normal = new Vector3(-tangent.z / run, 0, tangent.x / run);
+    for (const side of [-1, 1]) {
+      const point = current.clone().addScaledVector(normal, side * halfWidth);
+      positions.push(point.x, SURFACE_Y + BURIED_CAP_CLEARANCE_M, point.z);
+    }
+  }
+  const indices: number[] = [];
+  for (let index = 0; index < covered.length - 1; index += 1) {
+    const base = index * 2;
+    indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2);
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  const material = new MeshBasicMaterial({
+    color: 0xb8bbb7,
+    depthTest: true,
+    depthWrite: true,
+    side: DoubleSide,
+  });
+  const cap = new Mesh(geometry, material);
+  cap.name = "Tiergartentunnel buried ground occlusion cap";
+  cap.userData.geometryStatus =
+    "Engineered presentation occlusion cap derived from the OSM route centreline; not surveyed surface geometry";
+  cap.userData.coveredRouteRangeM = [coveredStart, coveredEnd];
+  cap.userData.exemptPortalTroughs = ["north", "south"];
+  // Portal decks, bores and lamps use forced surface depth to survive the
+  // official uncut mesh. Draw the cap after them so it remains a hard
+  // visibility boundary even when a transparent Cube facade is in front.
+  cap.renderOrder = 60;
+  cap.receiveShadow = true;
+  group.add(cap);
 }
 
 function addRamp(
@@ -227,7 +356,10 @@ function addRamp(
       const dashCount = Math.max(1, Math.round(run / 14));
       for (let dash = 0; dash < dashCount; dash += 1) {
         const at = (dash + 0.5) / dashCount;
-        dummy.position.copy(deckFrom).lerp(deckTo, at).add(new Vector3(0, 0.22, 0));
+        dummy.position
+          .copy(deckFrom)
+          .lerp(deckTo, at)
+          .add(new Vector3(0, 0.22, 0));
         dummy.rotation.set(0, Math.atan2(dx, dz), 0);
         dummy.scale.set(1, 1, Math.min(6, run / dashCount / 2));
         dummy.updateMatrix();
@@ -317,14 +449,8 @@ function addRamp(
       .clone()
       .addScaledVector(headNormal, lateral)
       .addScaledVector(inward, 0.7);
-    const boreCentre = mouth
-      .clone()
-      .addScaledVector(inward, BORE_LENGTH_M / 2);
-    const place = (
-      mesh: Mesh,
-      name: string,
-      y: number,
-    ): Mesh => {
+    const boreCentre = mouth.clone().addScaledVector(inward, BORE_LENGTH_M / 2);
+    const place = (mesh: Mesh, name: string, y: number): Mesh => {
       mesh.name = name;
       mesh.position.set(boreCentre.x, y, boreCentre.z);
       mesh.rotation.y = yaw;
@@ -360,9 +486,7 @@ function addRamp(
       new BoxGeometry(width + 1.0, height + 0.6, 0.4),
       boreEnd,
     );
-    endCap.position
-      .copy(mouth)
-      .addScaledVector(inward, BORE_LENGTH_M - 0.4);
+    endCap.position.copy(mouth).addScaledVector(inward, BORE_LENGTH_M - 0.4);
     endCap.position.y = head.y + height / 2;
     endCap.rotation.y = yaw;
     endCap.name = `${label} bore depth cap`;
@@ -385,7 +509,6 @@ function addRamp(
     }
   }
 }
-
 
 /**
  * Camera stand for looking INTO a tunnel bore: a low, axis-near position
@@ -512,6 +635,11 @@ export function createTunnelPortals(payload: TunnelPortalPayload): Group {
     payload.clear_width_each_direction_m,
     payload.clear_height_m,
     materials,
+  );
+  addBuriedTunnelOcclusionCap(
+    group,
+    points,
+    payload.clear_width_each_direction_m,
   );
   return group;
 }

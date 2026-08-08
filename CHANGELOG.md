@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.63.1
+
+- **The Tiergartentunnel cannot shine through Cube Berlin or the western
+  Hauptbahnhof rail viaduct.** The visible portal decks, lane markings and warm
+  bore lamps intentionally bypass the uncut official surface depth at the two
+  canonical daylight troughs; that forced-depth presentation could also appear
+  through a transparent facade or an incidental surface gap above the buried
+  middle route. A centreline-derived opaque, depth-writing ground cap now
+  covers that middle section after the forced portal pieces. It deliberately
+  excludes both troughs, so the Kemperplatz and Südeingang bore sights remain
+  open. The tunnel rendering contract now checks the cap's depth behaviour,
+  its two exempt troughs and an oblique above-ground ray.
+
 ## v0.63.0
 
 - **Static Day far views no longer keep repainting.** The final composited

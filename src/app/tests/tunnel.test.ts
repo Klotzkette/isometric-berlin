@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh, Material, Mesh } from "three";
+import { InstancedMesh, Material, Mesh, Raycaster, Vector3 } from "three";
 
 import {
   createTunnelPortals,
@@ -126,13 +126,16 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(portals.visible).toBe(true);
     for (const label of ["north", "south"]) {
       const deck = portals.children.filter(
-        (child) => child.name === `Tiergartentunnel ${label} ramp carriageway deck`,
+        (child) =>
+          child.name === `Tiergartentunnel ${label} ramp carriageway deck`,
       );
       const walls = portals.children.filter(
-        (child) => child.name === `Tiergartentunnel ${label} ramp retaining wall`,
+        (child) =>
+          child.name === `Tiergartentunnel ${label} ramp retaining wall`,
       );
       const barriers = portals.children.filter(
-        (child) => child.name === `Tiergartentunnel ${label} ramp noise barrier`,
+        (child) =>
+          child.name === `Tiergartentunnel ${label} ramp noise barrier`,
       );
       const frames = portals.children.filter(
         (child) => child.name === `Tiergartentunnel ${label} ramp portal frame`,
@@ -204,6 +207,47 @@ describe("Tiergartentunnel rendering budget", () => {
     // Each portal stands one ramp length in from its own end of the course.
     expect(north.position.z).toBeCloseTo(RAMP_LENGTH_M, 3);
     expect(south.position.z).toBeCloseTo(900 - RAMP_LENGTH_M, 3);
+  });
+
+  test("seals the buried middle tube below the Cube and rail viaduct", () => {
+    const portals = createTunnelPortals({
+      clear_height_m: 5,
+      clear_width_each_direction_m: 10.5,
+      points: [
+        [0, -10, 0],
+        [0, -10, 300],
+        [0, -10, 700],
+        [0, -10, 1000],
+      ],
+    });
+    const cap = portals.getObjectByName(
+      "Tiergartentunnel buried ground occlusion cap",
+    ) as Mesh;
+    const southBoreLamp = portals.getObjectByName(
+      "Tiergartentunnel south ramp bore ceiling lamp",
+    ) as Mesh;
+    const capMaterial = cap.material as Material;
+
+    expect(cap).toBeInstanceOf(Mesh);
+    expect(capMaterial.depthTest).toBe(true);
+    expect(capMaterial.depthWrite).toBe(true);
+    // It wins after all forced-depth bore/lamp pieces, but leaves both
+    // canonical portal troughs untouched.
+    expect(cap.renderOrder).toBeGreaterThan(southBoreLamp.renderOrder);
+    expect(cap.userData.coveredRouteRangeM[0]).toBe(RAMP_LENGTH_M);
+    expect(cap.userData.coveredRouteRangeM[1]).toBeCloseTo(740, 3);
+    expect(cap.userData.exemptPortalTroughs).toEqual(["north", "south"]);
+    expect(cap.userData.geometryStatus).toContain("not surveyed");
+
+    // An oblique above-ground ray over the former Hbf/Cube leak reaches the
+    // opaque cap before it could reach an underground lane marking or lamp.
+    const ray = new Raycaster(
+      new Vector3(-32, 42, 360),
+      new Vector3(32, -46, -60).normalize(),
+    );
+    const hit = ray.intersectObject(cap, false)[0];
+    expect(hit).toBeDefined();
+    expect(hit.point.y).toBeGreaterThan(2);
   });
 
   test("both bore views stand low on the axis and aim inside the tube", () => {

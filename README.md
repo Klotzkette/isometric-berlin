@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.63.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.63.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.63.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.63.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.63.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.63.1** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.63.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.63.1**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -252,7 +252,9 @@ labelled compatibility fallback for browsers that cannot run local modules.
   exterior geometry: the buried middle route and obsolete duplicate portal
   builder are absent from the isometric surface. Its route is explicitly
   labelled as an OSM-derived engineering approximation, not surveyed tunnel
-  geometry.
+  geometry. A centreline-derived, depth-writing ground cap seals the buried
+  middle route below Cube Berlin and the western rail viaduct, while leaving
+  both canonical portal troughs open for their dedicated bore views.
 - Seven memorials now have close-range recognition geometry. The Holocaust
   field draws all 2,710 officially documented stelae in one instanced call with
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,
