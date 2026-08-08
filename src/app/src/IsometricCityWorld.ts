@@ -20,6 +20,12 @@ import {
   Shape,
   ShapeGeometry,
 } from "three";
+import {
+  INTERIM_OFFICE_FOOTPRINT,
+  INTERIM_OFFICE_ROTATION_DEGREES,
+  INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
+  INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION,
+} from "./SpreebogenOffice";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { densifyRing } from "./bankCurves";
@@ -338,6 +344,45 @@ export function isHauptbahnhofFootprintSuppressed(building: PrismBuilding): bool
     }
   }
   return inside / building.ring.length >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION;
+}
+
+/**
+ * True when a LoD2 footprint substantially overlaps the capsule envelope of
+ * the hand-built Amtssitz am Spreebogen. The 2026 interim building postdates
+ * the LoD2 release, whose retained former-site prism otherwise renders as a
+ * rectangular box around the coloured pill. Keep this geometric rather than
+ * naming the current prism: source re-tiling must not bring the box back.
+ */
+export function isInterimOfficeFootprintSuppressed(
+  building: PrismBuilding,
+): boolean {
+  if (building.ring.length < 3) {
+    return false;
+  }
+  const theta = (INTERIM_OFFICE_ROTATION_DEGREES * Math.PI) / 180;
+  const cosine = Math.cos(theta);
+  const sine = Math.sin(theta);
+  const halfStraight = Math.max(
+    0,
+    (INTERIM_OFFICE_FOOTPRINT.widthM - INTERIM_OFFICE_FOOTPRINT.depthM) / 2,
+  );
+  const paddedRadius =
+    INTERIM_OFFICE_FOOTPRINT.depthM / 2 + INTERIM_OFFICE_SUPPRESSION_MARGIN_M;
+  let inside = 0;
+  for (const [xDm, zDm] of building.ring) {
+    const dx = xDm / 10 - INTERIM_OFFICE_FOOTPRINT.centreX;
+    const dz = zDm / 10 - INTERIM_OFFICE_FOOTPRINT.centreZ;
+    const localX = dx * cosine - dz * sine;
+    const localZ = dx * sine + dz * cosine;
+    const nearestX = Math.max(-halfStraight, Math.min(halfStraight, localX));
+    if (Math.hypot(localX - nearestX, localZ) <= paddedRadius) {
+      inside += 1;
+    }
+  }
+  return (
+    inside / building.ring.length >=
+    INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION
+  );
 }
 
 // Prisms forced into the transparent glass mesh regardless of their
@@ -4899,6 +4944,7 @@ export function createIsometricCity(
     if (
       building.ring.length < 3 ||
       PRISM_SUPPRESSED_IDS.has(building.id) ||
+      isInterimOfficeFootprintSuppressed(building) ||
       (!PRISM_GLASSED_IDS.has(building.id) &&
         isHauptbahnhofFootprintSuppressed(building))
     ) {

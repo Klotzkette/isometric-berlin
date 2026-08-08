@@ -7,11 +7,13 @@ from pathlib import Path
 
 import geopandas as gpd
 import pytest
+from shapely.geometry import Point, Polygon
 
 from isometric_berlin.generation.build_minecraft_voxels import (
   CLASSES,
   encode_ground_rows,
   inset_cells,
+  is_interim_office_footprint_suppressed,
   snap_up,
   to_world,
 )
@@ -203,3 +205,47 @@ def test_inset_cells_requires_all_four_neighbours() -> None:
   block = {(x, z) for x in range(3) for z in range(3)}
   assert inset_cells(block) == {(1, 1)}
   assert inset_cells({(0, 0), (1, 0)}) == set()
+
+
+def test_interim_office_suppression_uses_buffered_pill_footprint(
+  payload: dict,
+) -> None:
+  """The old former-site LoD2 solid must not reappear around the new pill."""
+
+  former_site_prism = Polygon(
+    [
+      (-341.3, -319.4),
+      (-356.1, -337.0),
+      (-362.9, -344.0),
+      (-363.4, -343.9),
+      (-373.8, -354.5),
+      (-358.9, -369.2),
+      (-348.1, -358.8),
+      (-350.4, -344.1),
+      (-334.4, -324.9),
+    ]
+  )
+  separate_neighbour = Polygon(
+    [
+      (-378.3, -351.6),
+      (-375.3, -357.1),
+      (-370.6, -341.6),
+      (-341.3, -319.4),
+      (-316.5, -302.6),
+      (-328.1, -292.5),
+    ]
+  )
+  assert is_interim_office_footprint_suppressed(former_site_prism)
+  assert not is_interim_office_footprint_suppressed(separate_neighbour)
+  # The regenerated Minecraft mirror must apply the same rule, not merely
+  # expose the helper above: neither the 24.9 m former-site prism nor its
+  # small overlapping LoD2 part may leave a voxel column in the known former
+  # footprint around the hand-built coloured pill.
+  residual_columns = [
+    column
+    for column in payload["buildings"]
+    if former_site_prism.covers(
+      Point((column[0] + 0.5) * CELL_M, (column[1] + 0.5) * CELL_M)
+    )
+  ]
+  assert not residual_columns

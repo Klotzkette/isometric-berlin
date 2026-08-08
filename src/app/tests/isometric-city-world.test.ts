@@ -426,6 +426,23 @@ describe("ligne-claire fenestration", () => {
     expect(suppressedCount).toBeGreaterThan(15);
   });
 
+  test("the interim-office former-site prism is suppressed by pill-footprint overlap, not id", async () => {
+    const { isInterimOfficeFootprintSuppressed } = await import(
+      "../src/IsometricCityWorld"
+    );
+    const formerSite = payload.buildings.find((building) => building.id === "fNQrO6eN");
+    const nearbyButSeparate = payload.buildings.find(
+      (building) => building.id === "K0002TYI",
+    );
+    expect(formerSite).toBeDefined();
+    expect(nearbyButSeparate).toBeDefined();
+    expect(isInterimOfficeFootprintSuppressed(formerSite!)).toBe(true);
+    // The adjacent building only brushes the conservative envelope and must
+    // remain in the city; this pins a geometric overlap threshold, not a
+    // blanket rectangular deletion around the Amtssitz.
+    expect(isInterimOfficeFootprintSuppressed(nearbyButSeparate!)).toBe(false);
+  });
+
   test("every sizeable building gets one drawn entrance door", () => {
     const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
     expect(panes).toBeInstanceOf(InstancedMesh);

@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.64.0
+
+- **The Tiergartentunnel is now sealed from every above-ground direction, not
+  only at a few previously reported positions.** The surface cap follows the
+  complete 2,304.5 m real centreline between the two 260 m portal troughs,
+  overlaps both joins by 2 m and adds a 12 m side skirt beyond the twin tubes.
+  It is opaque, writes depth and is deliberately drawn after the forced-depth
+  bore materials even through non-depth-writing water, bridge and glass
+  surfaces. The bore deck, walls, ceiling, lane material and lamps now precede
+  that final boundary. A permanent Bun regression walks all 10 centreline
+  segments at 22 reduced interior samples, both tubes, four isometric azimuths
+  plus top-down: **220/220 rays** meet the cap before any tunnel material.
+  Only the two genuine portal troughs remain open by design.
+- **The Amtssitz am Spreebogen no longer has a LoD2 rectangular box around its
+  hand-built Sauerbruch-Hutton pill.** Both the drawn city and the regenerated
+  Minecraft voxel mirror suppress every substantially overlapping LoD2 prism
+  by a buffered capsule-footprint test (20 m clearance, 30% vertex overlap),
+  not by a fragile source ID. The former-site prism `fNQrO6eN` is caught while
+  the neighbouring `K0002TYI` remains; the payload regression confirms zero
+  voxel columns within the former-site footprint.
+
 ## v0.63.1
 
 - **The Tiergartentunnel cannot shine through Cube Berlin or the western

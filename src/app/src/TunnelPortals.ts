@@ -55,7 +55,15 @@ const BARRIER_HEIGHT_M = 1.45;
  * sampled terrain.
  */
 const BURIED_CAP_CLEARANCE_M = 0.55;
-const BURIED_CAP_MARGIN_M = 4.5;
+// The twin-tube outside wall is already 11.35 m from the centreline. This
+// deliberately generous skirt also catches oblique above-ground rays through
+// Cube glass, water and the station viaduct before forced-depth bore meshes
+// can reach the framebuffer.
+const BURIED_CAP_MARGIN_M = 12;
+// Overlap the ramp's engineered end very slightly. A cap that began exactly
+// at its polyline vertex left a one-triangle seam at each trough-to-tube join.
+const BURIED_CAP_TROUGH_SEAM_OVERLAP_M = 2;
+const BURIED_CAP_RENDER_ORDER = 100;
 
 const CONCRETE = 0x8d8b83;
 const ASPHALT = 0x3c4247;
@@ -226,10 +234,12 @@ function centrelineInterval(
  * portal troughs uncovered: they remain the sole daylight surface owners and
  * keep the Kemperplatz / Südeingang bore sights usable.
  *
- * The ribbon sits at a conservative surface-adjacent level. Normally the
- * draped terrain wins the depth test and the cap is invisible; in an OSM/mesh
- * gap it becomes a neutral ground backing that blocks the tunnel instead of
- * letting its forced portal geometry shine through glass.
+ * The ribbon sits at a conservative surface-adjacent level. It deliberately
+ * bypasses the depth test while writing depth itself: the official terrain,
+ * water and glass surfaces do not reliably write a usable depth value, but
+ * the tunnel bore does deliberately bypass depth so it remains visible inside
+ * each portal. Drawing this opaque backing last is therefore the hard public
+ * visibility boundary outside the two trough openings.
  */
 function addBuriedTunnelOcclusionCap(
   group: Group,
@@ -237,8 +247,14 @@ function addBuriedTunnelOcclusionCap(
   width: number,
 ): void {
   const totalLength = pathLength(points);
-  const coveredStart = RAMP_LENGTH_M;
-  const coveredEnd = Math.max(coveredStart, totalLength - RAMP_LENGTH_M);
+  const coveredStart = Math.max(
+    0,
+    RAMP_LENGTH_M - BURIED_CAP_TROUGH_SEAM_OVERLAP_M,
+  );
+  const coveredEnd = Math.max(
+    coveredStart,
+    totalLength - RAMP_LENGTH_M + BURIED_CAP_TROUGH_SEAM_OVERLAP_M,
+  );
   const covered = centrelineInterval(points, coveredStart, coveredEnd);
   if (covered.length < 2) {
     return;
@@ -268,7 +284,7 @@ function addBuriedTunnelOcclusionCap(
   geometry.computeVertexNormals();
   const material = new MeshBasicMaterial({
     color: 0xb8bbb7,
-    depthTest: true,
+    depthTest: false,
     depthWrite: true,
     side: DoubleSide,
   });
@@ -278,10 +294,12 @@ function addBuriedTunnelOcclusionCap(
     "Engineered presentation occlusion cap derived from the OSM route centreline; not surveyed surface geometry";
   cap.userData.coveredRouteRangeM = [coveredStart, coveredEnd];
   cap.userData.exemptPortalTroughs = ["north", "south"];
+  cap.userData.occludesTunnelInteriorOutsidePortalTroughs = true;
   // Portal decks, bores and lamps use forced surface depth to survive the
-  // official uncut mesh. Draw the cap after them so it remains a hard
-  // visibility boundary even when a transparent Cube facade is in front.
-  cap.renderOrder = 60;
+  // official uncut mesh. Draw the cap after every forced-depth interior
+  // element, so it is a hard visibility boundary even behind transparent
+  // Cube glass or a non-depth-writing water/bridge surface.
+  cap.renderOrder = BURIED_CAP_RENDER_ORDER;
   cap.receiveShadow = true;
   group.add(cap);
 }
@@ -462,12 +480,12 @@ function addRamp(
       new Mesh(new BoxGeometry(width, 0.3, BORE_LENGTH_M), boreDeck),
       `${label} bore deck`,
       head.y - 0.15,
-    ).renderOrder = 30;
+    ).renderOrder = 4;
     place(
       new Mesh(new BoxGeometry(width + 1.0, 0.4, BORE_LENGTH_M), boreCeiling),
       `${label} bore ceiling`,
       head.y + height + 0.2,
-    ).renderOrder = 10;
+    ).renderOrder = 1;
     for (const side of [-1, 1]) {
       const wall = new Mesh(
         new BoxGeometry(0.5, height, BORE_LENGTH_M),
@@ -479,7 +497,7 @@ function addRamp(
       wall.rotation.y = yaw;
       wall.name = `${label} bore wall`;
       wall.receiveShadow = true;
-      wall.renderOrder = 20;
+      wall.renderOrder = 2;
       group.add(wall);
     }
     const endCap = new Mesh(
@@ -504,7 +522,7 @@ function addRamp(
       lamp.position.y = head.y + height - 0.12;
       lamp.rotation.y = yaw;
       lamp.name = `${label} bore ceiling lamp`;
-      lamp.renderOrder = 50;
+      lamp.renderOrder = 5;
       group.add(lamp);
     }
   }

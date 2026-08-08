@@ -116,16 +116,12 @@ ATTRIBUTION = (
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
 )
 
-# v0.56.1 ("beiger Kasten ueber den Gleisen"): the drawn-city viewer suppresses
-# the Hauptbahnhof's own LoD2 prisms via a geometric footprint-overlap test
-# against the hand-built model's envelope (IsometricCityWorld.ts,
-# isHauptbahnhofFootprintSuppressed) instead of a hand-picked building-id
-# list, because the LoD2 source splits the station footprint into many part
-# prisms and any fixed id list silently misses new/re-tiled parts. Minecraft
-# mode rasterises the same buildings.gpkg independently, so it inherited the
-# same opaque box; this mirrors the identical envelope here so both modes
-# agree on what "is the station" and neither shows a beige block over the
-# glass roof.
+# The drawn-city viewer suppresses LoD2 prisms that overlap hand-built
+# recognition models by footprint rather than a hand-picked building-id list:
+# v0.56.1 did this for the Hauptbahnhof and v0.64.0 does the same for the
+# Amtssitz am Spreebogen. Minecraft mode rasterises the same buildings.gpkg
+# independently, so it mirrors both geometric tests here; re-tiled source
+# parts cannot bring a rectangular residual box back in either presentation.
 HAUPTBAHNHOF_ENVELOPE_ANCHOR_WORLD = (-119.936, -683.307)
 HAUPTBAHNHOF_ENVELOPE_ROTATION_DEGREES = 21.82
 # Kept in sync with ArchitecturalLandmarks.ts HAUPTBAHNHOF_RAIL_CURVE_A/B.
@@ -143,6 +139,18 @@ HAUPTBAHNHOF_ENVELOPE_OFFICE_WIDTH_M = 19.0
 # unrelated building more than ~100 m from the anchor untouched.
 HAUPTBAHNHOF_ENVELOPE_MARGIN_M = 15.0
 HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION = 0.3
+
+# v0.64.0: The hand-built 2026 Amtssitz am Spreebogen (Sauerbruch Hutton's
+# colourful pill) postdates the LoD2 release. A retained former-site prism
+# therefore rendered as a rectangular box around it. This mirrors the drawn
+# city with an overlap test against a conservative buffered capsule, not a
+# hard-coded LoD2 id: re-tiled source parts are caught automatically.
+INTERIM_OFFICE_FOOTPRINT_CENTRE_WORLD = (-296.2, -366.5)
+INTERIM_OFFICE_FOOTPRINT_WIDTH_M = 92.9
+INTERIM_OFFICE_FOOTPRINT_DEPTH_M = 73.7
+INTERIM_OFFICE_ROTATION_DEGREES = 0.0
+INTERIM_OFFICE_SUPPRESSION_MARGIN_M = 20.0
+INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION = 0.3
 
 
 def _hauptbahnhof_rail_curve_offset(local_x: np.ndarray) -> np.ndarray:
@@ -207,6 +215,30 @@ def is_hauptbahnhof_footprint_suppressed(geometry_world: BaseGeometry) -> bool:
   local_x, local_z = _world_to_hauptbahnhof_local(coords[:, 0], coords[:, 1])
   inside = _inside_hauptbahnhof_envelope_local(local_x, local_z)
   return bool(inside.mean() >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION)
+
+
+def is_interim_office_footprint_suppressed(geometry_world: BaseGeometry) -> bool:
+  """Mirror the drawn city's buffered-pill LoD2 suppression test."""
+
+  coords = np.asarray(shapely.get_coordinates(geometry_world), dtype=float)
+  if coords.shape[0] < 3:
+    return False
+  centre_x, centre_z = INTERIM_OFFICE_FOOTPRINT_CENTRE_WORLD
+  theta = math.radians(INTERIM_OFFICE_ROTATION_DEGREES)
+  dx = coords[:, 0] - centre_x
+  dz = coords[:, 1] - centre_z
+  local_x = dx * math.cos(theta) - dz * math.sin(theta)
+  local_z = dx * math.sin(theta) + dz * math.cos(theta)
+  half_straight = max(
+    0.0,
+    (INTERIM_OFFICE_FOOTPRINT_WIDTH_M - INTERIM_OFFICE_FOOTPRINT_DEPTH_M) / 2,
+  )
+  nearest_x = np.clip(local_x, -half_straight, half_straight)
+  padded_radius = (
+    INTERIM_OFFICE_FOOTPRINT_DEPTH_M / 2 + INTERIM_OFFICE_SUPPRESSION_MARGIN_M
+  )
+  inside = np.hypot(local_x - nearest_x, local_z) <= padded_radius
+  return bool(inside.mean() >= INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION)
 
 
 def to_world(geometry: BaseGeometry) -> BaseGeometry:
@@ -457,7 +489,9 @@ def rasterise_buildings(
     snapped = snap_up(height)
     class_id = CLASS_GLASS if str(row.function) in GLASS_FUNCTIONS else CLASS_CONCRETE
     world_geometry = to_world(row.geometry)
-    if class_id != CLASS_GLASS and is_hauptbahnhof_footprint_suppressed(world_geometry):
+    if is_interim_office_footprint_suppressed(world_geometry) or (
+      class_id != CLASS_GLASS and is_hauptbahnhof_footprint_suppressed(world_geometry)
+    ):
       # Same rule as the drawn city: the hand-built Hauptbahnhof model draws
       # the real glass roof; any LoD2 prism substantially inside its
       # envelope is the beige box the model already replaces, not a

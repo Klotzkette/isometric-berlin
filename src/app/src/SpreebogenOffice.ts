@@ -49,14 +49,23 @@ import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
  */
 
 /** OSM bbox of way/1535591727, in viewer world metres. */
-const FOOTPRINT = {
+export const INTERIM_OFFICE_FOOTPRINT = {
   centreX: -296.2,
   centreZ: -366.5,
   depthM: 73.7,
   widthM: 92.9,
-};
+} as const;
 /** The long axis of the block runs roughly east-west along Alt-Moabit. */
-const ROTATION = 0;
+export const INTERIM_OFFICE_ROTATION_DEGREES = 0;
+const ROTATION = (INTERIM_OFFICE_ROTATION_DEGREES * Math.PI) / 180;
+/**
+ * LoD2 predates the 2026 building. Its former-site prism sits slightly west
+ * of the OSM outline, so the suppression envelope uses the same deliberately
+ * conservative clearance as other hand-built recognition models. It is still
+ * a footprint-overlap test, not a brittle LoD2 id list.
+ */
+export const INTERIM_OFFICE_SUPPRESSION_MARGIN_M = 20;
+export const INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION = 0.3;
 
 /** `building:min_level=1` over `building:levels=7`: plinth plus six. */
 const PLINTH_HEIGHT_M = 4.6;
@@ -106,12 +115,20 @@ const SCAFFOLD_INK = 0x9aa0a4;
 
 export function createSpreebogenOffice(ground: VoxelPayload): Group | null {
   const sample = worldGroundSampler(ground);
-  const base = sample(FOOTPRINT.centreX, FOOTPRINT.centreZ);
+  const base = sample(
+    INTERIM_OFFICE_FOOTPRINT.centreX,
+    INTERIM_OFFICE_FOOTPRINT.centreZ,
+  );
   if (base === null) {
     return null;
   }
   const builder = createBuilder();
-  const { centreX: cx, centreZ: cz, depthM: depth, widthM: width } = FOOTPRINT;
+  const {
+    centreX: cx,
+    centreZ: cz,
+    depthM: depth,
+    widthM: width,
+  } = INTERIM_OFFICE_FOOTPRINT;
   const bodyHeight = STOREY_HEIGHT_M * UPPER_STOREYS;
   const bodyBase = base + PLINTH_HEIGHT_M;
   const atticBase = bodyBase + bodyHeight;
