@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.62.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.62.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.63.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.63.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.62.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.63.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.62.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.63.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -223,27 +223,36 @@ labelled compatibility fallback for browsers that cannot run local modules.
   orbit and tilt. Camera and target move together, so flight never changes the
   orbit distance accidentally.
 - A persistent DE/EN switch translates the application chrome and correctly
-  calls the German list `Sehenswürdigkeiten`. Optional music (`B`) starts only
-  after an explicit click and synthesizes seven original slow 8-bit ambient
-  variations locally with Web Audio; no recording, stream or external asset is
-  loaded. `Dusk Republic` (`T`) is a second procedural Web Audio layer with
-  slow and motorik movements on one 118 BPM grid. It is enabled again on every
-  page load, starts audibly only after the browser receives a user gesture and
-  can be switched off for the current session. Both layers may run together
-  within a fixed low-volume headroom budget. Seven brief bilingual discovery
-  notes appear once per selected sight.
+  calls the German list `Sehenswürdigkeiten`. Optional music (`B`) synthesizes
+  seven original slow 8-bit ambient variations locally with Web Audio; no
+  recording, stream or external asset is loaded. `Dusk Republic` (`T`) is a
+  second procedural Web Audio layer with slow and motorik movements on one
+  118 BPM grid. Browser autoplay policy is respected: its suspended graphs and
+  procedural buffers are prepared at load, but audible playback begins only on
+  the first allowed click, pointer movement, touch, wheel or key gesture (or a
+  later focus/visibility retry). Both layers can be switched off for the
+  current session and may run together within a fixed low-volume headroom
+  budget. Seven brief bilingual discovery notes appear once per selected sight.
 - A bounded sharpen/saturation pass runs only after camera motion stops, while
   movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
   and the Carillon layer now lets the official mesh carry its granite pylons
   instead of drawing a second tower over them.
+- A settled Day or Night scene now holds its final framebuffer rather than
+  repainting at an idle cadence. The existing DPR/detail hysteresis remains
+  intact; fine ink, authored face shade and still-image sharpness are not
+  traded away to achieve stability. The v0.63 far-Day evidence sequence at
+  960×600 records 0 changed pixels across five consecutive 250 ms comparisons.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an
   orbit crosses below ground; the underside control remains a direct tunnel
   preset. The underside no longer activates underwater fog, and its lamps,
-  markings, portals and ventilation cues preserve their drawing order instead
-  of disappearing behind the road deck. Its route is explicitly labelled as an
-  OSM-derived engineering approximation, not surveyed tunnel geometry.
+  markings and ventilation cues preserve their drawing order instead of
+  disappearing behind the road deck. Only the two open portal troughs are
+  exterior geometry: the buried middle route and obsolete duplicate portal
+  builder are absent from the isometric surface. Its route is explicitly
+  labelled as an OSM-derived engineering approximation, not surveyed tunnel
+  geometry.
 - Seven memorials now have close-range recognition geometry. The Holocaust
   field draws all 2,710 officially documented stelae in one instanced call with
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,

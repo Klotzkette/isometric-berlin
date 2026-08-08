@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.63.0
+
+- **Static Day far views no longer keep repainting.** The final composited
+  framebuffer is now held after a genuine mutation instead of being redrawn at
+  12 fps while idle. The render loop hard-snaps asymptotic camera damping after
+  three sub-millimetre pose updates, keeps the existing DPR/detail hysteresis,
+  and only advances flags and traffic signals while the scene is moving. This
+  is a stability fix, not a resolution or ink-quality reduction: Day and Night
+  retain NoToneMapping, exposure 1 and the authored `isoFaceShade` contract.
+  At 960×600, six far-Day frames at 250 ms intervals have identical SHA-256
+  hashes: all five adjacent differences are **0 changed pixels (0.000000 %)**,
+  zero mean absolute delta and no diff bounding box. The frame sequence,
+  difference images and JSON are retained in `visual-check-v63/`.
+- **The Tiergartentunnel has one exterior owner.** A leftover city-world portal
+  builder was duplicating the canonical `TunnelPortals.ts` approach geometry;
+  the former surface tunnel trace also made the buried route read as an
+  above-ground line. Both are gone from the isometric city. The canonical two
+  open troughs remain, but their portals hide in underside views, so their
+  forced surface-depth materials cannot draw through the cutaway. The contract
+  test now pins **0/39** buried middle positions as surface tunnel objects and
+  rejects all former duplicate portal/ink object names.
+- **Music is prepared at load but never autoplayed.** Both procedural Web Audio
+  graphs and their short buffers are prebuilt while suspended; the first
+  permitted capture-phase `pointerdown`, `pointermove`, `touchstart`, `wheel`
+  or `keydown` resumes them without generation work and uses a 0.18 s fade.
+  Visibility/focus retries cover a browser that initially blocks audio. The
+  Dusk pending-start path repeats `resume()` synchronously in the first valid
+  gesture, preserving the v0.57.1 race guarantee. Browser autoplay policy
+  still controls whether sound may begin before a visitor gesture.
+
 ## v0.62.0
 
 - **Named artwork is no longer a field of pebbles.** All 117 unique named
