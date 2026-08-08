@@ -101,7 +101,7 @@ export const CHIP_STEP_SECONDS = 60 / CHIP_BPM / 4; // sixteenth notes
 // instead of competing for headroom in mobile speakers.
 export const CHIP_MASTER_GAIN = 0.03;
 export const CHIP_SCHEDULE_AHEAD_SECONDS = 0.4;
-export const CHIP_SCHEDULE_RESUME_DELAY_SECONDS = 0.015;
+export const CHIP_SCHEDULE_RESUME_DELAY_SECONDS = 0.06;
 export const CHIP_START_FADE_SECONDS = 0.18;
 export const CHIP_MAX_STEPS_PER_TICK = 4;
 

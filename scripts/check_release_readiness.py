@@ -542,9 +542,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "coarse-pointer frame budget": (
       "activeFrameIntervalMs = coarsePointer ? 1000 / 30"
     ),
-    "low-power idle frame budget": (
-      "idleFrameIntervalMs = coarsePointer ? 1000 / 10 : 1000 / 12"
-    ),
+    "resting framebuffer hold": "const renderRequired =",
     "reuse bundled mesh normals": (
       '!detail && !object.geometry.getAttribute("normal")'
     ),
@@ -578,7 +576,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "hysteretic settled-detail tier": "nextSettledDetailMode({",
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
-    "damping-aware active rendering": "const controlsChanged = controls.update()",
+    "damping-aware active rendering": (
+      "cameraPoseDeltaM(previousCameraPose, afterControlsPose)"
+    ),
     "stuck touch watchdog": "timestamp - lastTouchActivityAt > 10_000",
     "global pointer release recovery": 'window.addEventListener("pointerup"',
     "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
