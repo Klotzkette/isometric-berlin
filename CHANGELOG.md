@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.66.2
+
+- **The Tiergartentunnel is underground again in every ordinary exterior
+  view.** The former route-spanning grey "ground cap" was itself visible above
+  the city because it bypassed depth testing and rendered last. It has been
+  removed. Both real portal ramps remain surface geometry, while their short
+  forced-depth bore interiors now start hidden, appear only for an explicit
+  Kemperplatz, south-portal or Spreebogen tunnel-mouth focus, and disappear on
+  the first free camera movement. The complete cutaway tube remains available
+  from the underside and tunnel-flight views.
+- **Idle selection no longer looks like scene flicker.** The selected-sight
+  ring is now a static, temporary focus cue in both the Three.js view and DZI
+  fallback; it no longer pulses or keeps the WebGL render loop alive. A mobile
+  390 x 844 production check at the Kanzleramt, including the reported far
+  view, shows no grey tunnel strip. Six-frame checks at 350 ms intervals
+  measure exactly 0 changed pixels in Day and Night. Minecraft stays below the
+  0.1% perceptual threshold at a measured maximum of 0.0064%; its only changes
+  are the intentionally roaming creepers and zombies.
+- **Release readiness now guards this regression.** It rejects any return of
+  the route-spanning cap, default-visible portal bores, or selected-marker
+  pulse, and requires the explicit tunnel-focus reveal gate.
+
 ## v0.66.1
 
 - **Day, Night and Minecraft no longer resize the WebGL backing store during

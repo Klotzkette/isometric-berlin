@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh, Material, Mesh, Raycaster, Vector3 } from "three";
+import { InstancedMesh, Material, Mesh, Vector3 } from "three";
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 
 import {
@@ -217,7 +217,7 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(south.position.z).toBeCloseTo(900 - RAMP_LENGTH_M, 3);
   });
 
-  test("seals the buried middle tube below the Cube and rail viaduct", () => {
+  test("contains no route-spanning surface cap or default-visible bore", () => {
     const portals = createTunnelPortals({
       clear_height_m: 5,
       clear_width_each_direction_m: 10.5,
@@ -228,39 +228,19 @@ describe("Tiergartentunnel rendering budget", () => {
         [0, -10, 1000],
       ],
     });
-    const cap = portals.getObjectByName(
-      "Tiergartentunnel buried ground occlusion cap",
-    ) as Mesh;
-    const southBoreLamp = portals.getObjectByName(
-      "Tiergartentunnel south ramp bore ceiling lamp",
-    ) as Mesh;
-    const capMaterial = cap.material as Material;
-
-    expect(cap).toBeInstanceOf(Mesh);
-    // It must bypass water/glass/uncut-ground depth, which do not consistently
-    // write an occluding value. It still writes an opaque depth cap itself.
-    expect(capMaterial.depthTest).toBe(false);
-    expect(capMaterial.depthWrite).toBe(true);
-    // It wins after all forced-depth bore/lamp pieces, but leaves both
-    // canonical portal troughs untouched.
-    expect(cap.renderOrder).toBeGreaterThan(southBoreLamp.renderOrder);
-    expect(cap.userData.coveredRouteRangeM[0]).toBe(RAMP_LENGTH_M - 2);
-    expect(cap.userData.coveredRouteRangeM[1]).toBeCloseTo(742, 3);
-    expect(cap.userData.exemptPortalTroughs).toEqual(["north", "south"]);
-    expect(cap.userData.geometryStatus).toContain("not surveyed");
-
-    // An oblique above-ground ray over the former Hbf/Cube leak reaches the
-    // opaque cap before it could reach an underground lane marking or lamp.
-    const ray = new Raycaster(
-      new Vector3(-32, 42, 360),
-      new Vector3(32, -46, -60).normalize(),
+    expect(
+      portals.getObjectByName(
+        "Tiergartentunnel buried ground occlusion cap",
+      ),
+    ).toBeUndefined();
+    const bores = portals.children.filter((object) =>
+      object.name.includes(" ramp bore "),
     );
-    const hit = ray.intersectObject(cap, false)[0];
-    expect(hit).toBeDefined();
-    expect(hit.point.y).toBeGreaterThan(2);
+    expect(bores.length).toBeGreaterThan(20);
+    expect(bores.every((object) => object.visible === false)).toBe(true);
   });
 
-  test("keeps portal ramps but suppresses the forced-depth cap in Minecraft", () => {
+  test("reveals bore details only for an explicit tunnel-mouth focus", () => {
     const portals = createTunnelPortals({
       clear_height_m: 5,
       clear_width_each_direction_m: 10.5,
@@ -270,109 +250,47 @@ describe("Tiergartentunnel rendering budget", () => {
         [0, -10, 1000],
       ],
     });
-    const cap = portals.getObjectByName(
-      "Tiergartentunnel buried ground occlusion cap",
+    const bore = portals.getObjectByName(
+      "Tiergartentunnel south ramp bore ceiling lamp",
+    )!;
+    const ramp = portals.getObjectByName(
+      "Tiergartentunnel south ramp carriageway deck",
     )!;
 
     setTunnelPortalPresentation(portals, false, false);
     expect(portals.visible).toBe(true);
-    expect(cap.visible).toBe(true);
+    expect(ramp.visible).toBe(true);
+    expect(bore.visible).toBe(false);
 
-    setTunnelPortalPresentation(portals, false, true);
+    setTunnelPortalPresentation(portals, false, false, true);
     expect(portals.visible).toBe(true);
-    expect(cap.visible).toBe(false);
+    expect(ramp.visible).toBe(true);
+    expect(bore.visible).toBe(true);
 
-    setTunnelPortalPresentation(portals, true, false);
+    setTunnelPortalPresentation(portals, false, true, true);
+    expect(portals.visible).toBe(true);
+    expect(ramp.visible).toBe(true);
+    expect(bore.visible).toBe(false);
+
+    setTunnelPortalPresentation(portals, true, false, true);
     expect(portals.visible).toBe(false);
+    expect(bore.visible).toBe(false);
   });
 
-  test("sweeps every real-route segment and both tubes from four azimuths plus top-down", () => {
-    // Permanent reduced rendering sentinel for the v0.64.0 regression: sample
-    // every real centreline segment at three positions, the centre of BOTH
-    // tubes, four standard-isometric azimuths and one vertical camera. The
-    // first tunnel-material candidate on every forbidden ray MUST be the
-    // opaque surface cap, never dark bore asphalt, markings or warm lamps.
+  test("keeps every real-route bore hidden in an ordinary exterior view", () => {
     const realRoute = scenePayload.tiergartentunnel as TunnelPayload;
     const portals = createTunnelPortals(realRoute);
-    portals.updateMatrixWorld(true);
-    const cap = portals.getObjectByName(
-      "Tiergartentunnel buried ground occlusion cap",
-    ) as Mesh;
-    const [coveredStart, coveredEnd] = cap.userData.coveredRouteRangeM as [
-      number,
-      number,
-    ];
-    const points = realRoute.points.map((point) => new Vector3(...point));
-    const tubeOffset = realRoute.clear_width_each_direction_m / 2 + 0.85;
-    const azimuths = [0, 90, 180, 270];
-    let routeSamples = 0;
-    let checkedViews = 0;
-    let travelled = 0;
+    const bores = portals.children.filter((object) =>
+      object.name.includes(" ramp bore "),
+    );
 
-    for (
-      let segmentIndex = 1;
-      segmentIndex < points.length;
-      segmentIndex += 1
-    ) {
-      const from = points[segmentIndex - 1];
-      const to = points[segmentIndex];
-      const segment = to.clone().sub(from);
-      const segmentLength = Math.hypot(segment.x, segment.z);
-      const normal = new Vector3(-segment.z, 0, segment.x).normalize();
-      for (const fraction of [0.2, 0.5, 0.8]) {
-        const along = travelled + segmentLength * fraction;
-        if (along < coveredStart || along > coveredEnd) {
-          continue;
-        }
-        routeSamples += 1;
-        const centre = from.clone().lerp(to, fraction);
-        for (const tube of [-1, 1]) {
-          const target = centre
-            .clone()
-            .addScaledVector(normal, tube * tubeOffset);
-          for (const azimuth of azimuths) {
-            const radians = (azimuth * Math.PI) / 180;
-            const eye = target
-              .clone()
-              .add(
-                new Vector3(
-                  Math.cos(radians) * 95,
-                  115,
-                  Math.sin(radians) * 95,
-                ),
-              );
-            const ray = new Raycaster(eye, target.clone().sub(eye).normalize());
-            const firstTunnelSurface = ray
-              .intersectObjects(portals.children, true)
-              .find(
-                (intersection) =>
-                  intersection.object === cap ||
-                  intersection.object.name.includes("ramp bore"),
-              );
-            expect(firstTunnelSurface?.object).toBe(cap);
-            checkedViews += 1;
-          }
-          const topEye = target.clone().add(new Vector3(0, 130, 0));
-          const topDownRay = new Raycaster(
-            topEye,
-            target.clone().sub(topEye).normalize(),
-          );
-          const firstTunnelSurface = topDownRay
-            .intersectObjects(portals.children, true)
-            .find(
-              (intersection) =>
-                intersection.object === cap ||
-                intersection.object.name.includes("ramp bore"),
-            );
-          expect(firstTunnelSurface?.object).toBe(cap);
-          checkedViews += 1;
-        }
-      }
-      travelled += segmentLength;
-    }
-
-    expect(routeSamples).toBeGreaterThan(points.length);
-    expect(checkedViews).toBe(routeSamples * 2 * 5);
+    expect(bores.length).toBeGreaterThan(20);
+    expect(bores.every((object) => object.visible === false)).toBe(true);
+    expect(
+      portals.children.some((object) =>
+        object.name.includes("buried ground occlusion cap"),
+      ),
+    ).toBe(false);
   });
 
   test("both bore views stand low on the axis and aim inside the tube", () => {

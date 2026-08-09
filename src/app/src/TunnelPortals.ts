@@ -16,9 +16,6 @@
 
 import {
   BoxGeometry,
-  BufferGeometry,
-  DoubleSide,
-  Float32BufferAttribute,
   Group,
   InstancedMesh,
   Material,
@@ -48,23 +45,7 @@ const SURFACE_Y = 2.4;
 const WALL_TOP_Y = SURFACE_Y + 0.4;
 const WALL_THICKNESS_M = 0.65;
 const BARRIER_HEIGHT_M = 1.45;
-/**
- * Between the two canonical daylight troughs, the route passes beneath the
- * western rail viaduct and Cube Berlin. The public surface must never expose
- * that buried middle section through a transparent building or a gap in the
- * sampled terrain.
- */
-const BURIED_CAP_CLEARANCE_M = 0.55;
-// The twin-tube outside wall is already 11.35 m from the centreline. This
-// deliberately generous skirt also catches oblique above-ground rays through
-// Cube glass, water and the station viaduct before forced-depth bore meshes
-// can reach the framebuffer.
-const BURIED_CAP_MARGIN_M = 12;
-// Overlap the ramp's engineered end very slightly. A cap that began exactly
-// at its polyline vertex left a one-triangle seam at each trough-to-tube join.
-const BURIED_CAP_TROUGH_SEAM_OVERLAP_M = 2;
-const BURIED_CAP_RENDER_ORDER = 100;
-const BURIED_CAP_NAME = "Tiergartentunnel buried ground occlusion cap";
+const PORTAL_INTERIOR_FLAG = "tiergartentunnelPortalInterior";
 
 const CONCRETE = 0x8d8b83;
 const ASPHALT = 0x3c4247;
@@ -182,145 +163,24 @@ function rampCentreline(
   });
 }
 
-function pathLength(points: readonly Vector3[]): number {
-  let total = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    total += points[index].distanceTo(points[index - 1]);
-  }
-  return total;
-}
-
-/** Slice a centreline by travelled metres, preserving exact end points. */
-function centrelineInterval(
-  points: readonly Vector3[],
-  fromM: number,
-  toM: number,
-): Vector3[] {
-  if (toM <= fromM || points.length < 2) {
-    return [];
-  }
-  const result: Vector3[] = [];
-  let travelled = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const start = points[index - 1];
-    const end = points[index];
-    const length = start.distanceTo(end);
-    const segmentStart = travelled;
-    const segmentEnd = travelled + length;
-    if (segmentEnd < fromM || segmentStart > toM) {
-      travelled = segmentEnd;
-      continue;
-    }
-    const startAt = Math.max(fromM, segmentStart);
-    const endAt = Math.min(toM, segmentEnd);
-    const startFraction = (startAt - segmentStart) / (length || 1);
-    const endFraction = (endAt - segmentStart) / (length || 1);
-    const intervalStart = start.clone().lerp(end, startFraction);
-    const intervalEnd = start.clone().lerp(end, endFraction);
-    if (
-      result.length === 0 ||
-      !result[result.length - 1].equals(intervalStart)
-    ) {
-      result.push(intervalStart);
-    }
-    result.push(intervalEnd);
-    travelled = segmentEnd;
-  }
-  return result;
-}
-
 /**
- * An opaque ground-depth ribbon seals the otherwise closed surface shell above
- * every buried part of the middle tube. It deliberately leaves both canonical
- * portal troughs uncovered: they remain the sole daylight surface owners and
- * keep the Kemperplatz / Südeingang bore sights usable.
- *
- * The ribbon sits at a conservative surface-adjacent level. It deliberately
- * bypasses the depth test while writing depth itself: the official terrain,
- * water and glass surfaces do not reliably write a usable depth value, but
- * the tunnel bore does deliberately bypass depth so it remains visible inside
- * each portal. Drawing this opaque backing last is therefore the hard public
- * visibility boundary outside the two trough openings.
- */
-function addBuriedTunnelOcclusionCap(
-  group: Group,
-  points: readonly Vector3[],
-  width: number,
-): void {
-  const totalLength = pathLength(points);
-  const coveredStart = Math.max(
-    0,
-    RAMP_LENGTH_M - BURIED_CAP_TROUGH_SEAM_OVERLAP_M,
-  );
-  const coveredEnd = Math.max(
-    coveredStart,
-    totalLength - RAMP_LENGTH_M + BURIED_CAP_TROUGH_SEAM_OVERLAP_M,
-  );
-  const covered = centrelineInterval(points, coveredStart, coveredEnd);
-  if (covered.length < 2) {
-    return;
-  }
-  const halfWidth = width + BURIED_CAP_MARGIN_M;
-  const positions: number[] = [];
-  for (let index = 0; index < covered.length; index += 1) {
-    const current = covered[index];
-    const before = covered[Math.max(0, index - 1)];
-    const after = covered[Math.min(covered.length - 1, index + 1)];
-    const tangent = after.clone().sub(before);
-    const run = Math.hypot(tangent.x, tangent.z) || 1;
-    const normal = new Vector3(-tangent.z / run, 0, tangent.x / run);
-    for (const side of [-1, 1]) {
-      const point = current.clone().addScaledVector(normal, side * halfWidth);
-      positions.push(point.x, SURFACE_Y + BURIED_CAP_CLEARANCE_M, point.z);
-    }
-  }
-  const indices: number[] = [];
-  for (let index = 0; index < covered.length - 1; index += 1) {
-    const base = index * 2;
-    indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2);
-  }
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
-  const material = new MeshBasicMaterial({
-    color: 0xb8bbb7,
-    depthTest: false,
-    depthWrite: true,
-    side: DoubleSide,
-  });
-  const cap = new Mesh(geometry, material);
-  cap.name = BURIED_CAP_NAME;
-  cap.userData.geometryStatus =
-    "Engineered presentation occlusion cap derived from the OSM route centreline; not surveyed surface geometry";
-  cap.userData.coveredRouteRangeM = [coveredStart, coveredEnd];
-  cap.userData.exemptPortalTroughs = ["north", "south"];
-  cap.userData.occludesTunnelInteriorOutsidePortalTroughs = true;
-  // Portal decks, bores and lamps use forced surface depth to survive the
-  // official uncut mesh. Draw the cap after every forced-depth interior
-  // element, so it is a hard visibility boundary even behind transparent
-  // Cube glass or a non-depth-writing water/bridge surface.
-  cap.renderOrder = BURIED_CAP_RENDER_ORDER;
-  cap.receiveShadow = true;
-  group.add(cap);
-}
-
-/**
- * Keep the public ramps in every surface style, but hide their internal
- * forced-depth cap in the voxel world. The cap only seals transparent
- * photogrammetry; above opaque blocks it would become a kilometre-long grey
- * ribbon because Minecraft deliberately remaps every visible material.
+ * Keep the two public ramps in every surface style. Forced-depth bore pieces
+ * are a close-up aid, not surface geometry: reveal them only for an explicit
+ * tunnel-mouth focus and hide them again on the first free camera movement.
  */
 export function setTunnelPortalPresentation(
   group: Group,
   underside: boolean,
   voxelMode: boolean,
+  revealInterior = false,
 ): void {
   group.visible = !underside;
-  const cap = group.getObjectByName(BURIED_CAP_NAME);
-  if (cap) {
-    cap.visible = !voxelMode;
-  }
+  const interiorVisible = !underside && !voxelMode && revealInterior;
+  group.traverse((object) => {
+    if (object.userData[PORTAL_INTERIOR_FLAG] === true) {
+      object.visible = interiorVisible;
+    }
+  });
 }
 
 function addRamp(
@@ -545,6 +405,12 @@ function addRamp(
       group.add(lamp);
     }
   }
+  for (const object of group.children) {
+    if (object.name.startsWith(`${label} bore `)) {
+      object.userData[PORTAL_INTERIOR_FLAG] = true;
+      object.visible = false;
+    }
+  }
 }
 
 /**
@@ -673,10 +539,6 @@ export function createTunnelPortals(payload: TunnelPortalPayload): Group {
     payload.clear_height_m,
     materials,
   );
-  addBuriedTunnelOcclusionCap(
-    group,
-    points,
-    payload.clear_width_each_direction_m,
-  );
+  setTunnelPortalPresentation(group, false, false, false);
   return group;
 }

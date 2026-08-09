@@ -522,6 +522,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   render_quality_path = root / "src/app/src/renderQuality.ts"
   surface_quality_path = root / "src/app/src/surfaceQuality.ts"
   styles_path = root / "src/app/src/styles.css"
+  tunnel_portals_path = root / "src/app/src/TunnelPortals.ts"
   if (
     not viewer_path.exists()
     or not app_path.exists()
@@ -538,6 +539,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not render_quality_path.exists()
     or not surface_quality_path.exists()
     or not styles_path.exists()
+    or not tunnel_portals_path.exists()
   ):
     return ["Missing true-3D viewer sources"]
   viewer = viewer_path.read_text(encoding="utf-8")
@@ -555,6 +557,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   render_quality = render_quality_path.read_text(encoding="utf-8")
   surface_quality = surface_quality_path.read_text(encoding="utf-8")
   styles = styles_path.read_text(encoding="utf-8")
+  tunnel_portals = tunnel_portals_path.read_text(encoding="utf-8")
   required_viewer_snippets = {
     "two-finger rotate/zoom": "TWO: TOUCH.DOLLY_ROTATE",
     "three-finger gesture": "touchPoints.size >= 3",
@@ -597,6 +600,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       "setSceneLighting(runtime, lightingMode, nightLightsOn)"
     ),
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
+    "static selected marker": "marker.visible = false",
     "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
     "six-million-face settled surface": "manifest.surface_detail_tiles",
     "seven-million-plus official-source presentation": '"settled-7m-plus"',
@@ -660,6 +664,25 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
         "3D viewer contains a time/input-driven visual switch: "
         f"{forbidden_runtime_switch}"
       )
+  required_tunnel_portal_snippets = {
+    "selected-only tunnel bore interiors": "tiergartentunnelPortalInterior",
+    "default-hidden tunnel bore interiors": "object.visible = false",
+    "explicit tunnel bore reveal gate": ("!underside && !voxelMode && revealInterior"),
+  }
+  failures.extend(
+    f"Tunnel portal presentation lacks {label}: {tunnel_portals_path}"
+    for label, snippet in required_tunnel_portal_snippets.items()
+    if snippet not in tunnel_portals
+  )
+  if "Tiergartentunnel buried ground occlusion cap" in tunnel_portals:
+    failures.append(
+      "Tunnel portal presentation contains a route-spanning surface cap: "
+      f"{tunnel_portals_path}"
+    )
+  if "marker.scale.setScalar" in viewer or "marker-pulse" in styles:
+    failures.append(
+      "Selected sight marker contains an idle pulse that can look like flicker"
+    )
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:

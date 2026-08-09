@@ -322,6 +322,7 @@ type Runtime = {
   tunnelBounds: Box3 | null;
   tunnelPortals: Group;
   tunnelPoints: TunnelPayload["points"] | null;
+  tunnelPortalInteriorVisible: boolean;
   tunnelTubeOffsetM: number;
   tunnelFlight: { plan: TunnelFlightPlan; startedAt: number } | null;
   prismPayloadPromise?: Promise<PrismPayload>;
@@ -360,6 +361,10 @@ const DEFAULT_CAMERA_OFFSET = new Vector3(540, 430, 650);
 const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
+
+function isTunnelPortalFocus(name: string): boolean {
+  return name.includes("Tiergartentunnel") || name === "Spreebogen";
+}
 
 function setEnvironmentalPresentation(runtime: Runtime): void {
   const obstructed =
@@ -459,6 +464,15 @@ function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
     runtime.tunnelFlight = null;
     setTunnelPresentation(runtime.tunnel, runtime.underside);
     setEnvironmentalPresentation(runtime);
+  }
+  if (runtime.tunnelPortalInteriorVisible) {
+    runtime.tunnelPortalInteriorVisible = false;
+    setTunnelPortalPresentation(
+      runtime.tunnelPortals,
+      runtime.underside,
+      voxelModeActive(runtime),
+      false,
+    );
   }
   runtime.interactionUntil = Math.max(
     runtime.interactionUntil,
@@ -936,6 +950,7 @@ function setSceneLighting(
     runtime.tunnelPortals,
     runtime.underside,
     voxelMode,
+    runtime.tunnelPortalInteriorVisible,
   );
   // Recognition models (dome, gate, memorials, park trees…) are drawn
   // geometry — they stay ON in the drawn isometric city and complement
@@ -1634,7 +1649,12 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   if (runtime.isoWorld) {
     runtime.isoWorld.visible = isoMode && !underside;
   }
-  setTunnelPortalPresentation(runtime.tunnelPortals, underside, voxelMode);
+  setTunnelPortalPresentation(
+    runtime.tunnelPortals,
+    underside,
+    voxelMode,
+    runtime.tunnelPortalInteriorVisible,
+  );
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = !underside;
   runtime.centralDetails.visible = centralCivicDetailsVisible(underside);
@@ -2051,6 +2071,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       runtime.controls.target.copy(target);
       runtime.camera.position.copy(target).add(cameraOffset);
+      runtime.tunnelPortalInteriorVisible = isTunnelPortalFocus(name);
+      setTunnelPortalPresentation(
+        runtime.tunnelPortals,
+        runtime.underside,
+        voxelModeActive(runtime),
+        runtime.tunnelPortalInteriorVisible,
+      );
       const markerHeight = markerHeightForLandmark(name);
       runtime.marker.position.copy(target).setY(markerHeight);
       runtime.marker.visible = true;
@@ -2272,6 +2299,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.tunnelTubeOffsetM,
           );
           runtime.tunnelFlight = { plan, startedAt: performance.now() };
+          runtime.tunnelPortalInteriorVisible = false;
+          setTunnelPortalPresentation(
+            runtime.tunnelPortals,
+            runtime.underside,
+            voxelModeActive(runtime),
+            false,
+          );
           setTunnelPresentation(runtime.tunnel, false, true);
           setEnvironmentalPresentation(runtime);
           const pose = tunnelFlightPose(plan, 0);
@@ -2513,6 +2547,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         tunnelBounds: null,
         tunnelFlight: null,
         tunnelPoints: null,
+        tunnelPortalInteriorVisible: false,
         tunnelTubeOffsetM: 6.1,
         isoWorld: null,
         isoWorldState: "idle",
@@ -3164,7 +3199,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }) ||
           controlsChanged ||
           stabilized.changed ||
-          marker.visible ||
           timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
         const isMoving =
@@ -3254,10 +3288,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.minecraftMobs,
             reducedMotion ? dtSeconds * 0.35 : dtSeconds,
           );
-        }
-        if (marker.visible) {
-          const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
-          marker.scale.setScalar(pulse);
         }
         // Momentum glide: the released pan eases out smoothly.
         if (
@@ -3625,6 +3655,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
+          runtime.tunnelPortalInteriorVisible = isTunnelPortalFocus(
+            selectedRef.current,
+          );
+          setTunnelPortalPresentation(
+            runtime.tunnelPortals,
+            runtime.underside,
+            voxelModeActive(runtime),
+            runtime.tunnelPortalInteriorVisible,
+          );
           applyLightingToRoot(
             runtime.tunnelPortals,
             runtime.lightingMode,
