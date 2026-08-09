@@ -122,6 +122,12 @@ import {
   createMinecraftVoxelWorld,
 } from "./MinecraftVoxelWorld";
 import {
+  type MinecraftMobField,
+  createMinecraftMobs,
+  setMinecraftMobsVisible,
+  updateMinecraftMobs,
+} from "./MinecraftMobs";
+import {
   RAIL_LINES_FILE,
   type RailPayload,
   createRailNetwork,
@@ -146,6 +152,12 @@ import {
 } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
+import {
+  type ModerateRain,
+  createModerateRain,
+  setRainPresentation,
+  updateModerateRain,
+} from "./WeatherEffects";
 import {
   THREE_MOUSE_GESTURE_SETTINGS,
   wheelNavigationIntent,
@@ -224,6 +236,7 @@ type ThreeViewerProps = {
   // Only meaningful while lightingMode === "night"; day/minecraft ignore it.
   // See nightLighting.ts for the persisted preference this mirrors.
   nightLightsOn: boolean;
+  rainEnabled: boolean;
   progressLabel: string;
   sceneUrl: string;
   selectedLandmark: string;
@@ -267,9 +280,12 @@ type Runtime = {
   marker: Group;
   markerTimer: number | null;
   minecraftMaterialState: MinecraftMaterialState;
+  minecraftMobs: MinecraftMobField | null;
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
   parkDetails: Group;
+  rain: ModerateRain;
+  rainEnabled: boolean;
   renderer: WebGLRenderer;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
@@ -321,6 +337,22 @@ const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
 
+function setEnvironmentalPresentation(runtime: Runtime): void {
+  const obstructed = runtime.underside || runtime.underwater;
+  const rainChanged = setRainPresentation(runtime.rain, {
+    enabled: runtime.rainEnabled,
+    mode: runtime.lightingMode,
+    obstructed,
+  });
+  const mobsChanged = setMinecraftMobsVisible(
+    runtime.minecraftMobs,
+    runtime.lightingMode === "minecraft" && !obstructed,
+  );
+  if (rainChanged || mobsChanged) {
+    runtime.renderInvalidated = true;
+  }
+}
+
 export function shouldUseUnderwaterPresentation({
   cameraY,
   insideTunnel,
@@ -353,6 +385,7 @@ function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void 
   } else {
     setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
   }
+  setEnvironmentalPresentation(runtime);
 }
 
 let lastSurfaceQualityDataset = "";
@@ -830,6 +863,7 @@ function setSceneLighting(
     runtime.underwater = false;
     setUnderwaterPresentation(runtime, true);
   }
+  setEnvironmentalPresentation(runtime);
 }
 
 function voxelModeActive(runtime: Runtime): boolean {
@@ -1013,6 +1047,11 @@ function ensureVoxelWorld(
         prisms ? buildColumnToneLookup(prisms) : null,
       );
       runtime.scene.add(runtime.voxelWorld);
+      runtime.minecraftMobs = createMinecraftMobs(
+        payload,
+        !runtime.coarsePointer,
+      );
+      runtime.scene.add(runtime.minecraftMobs.group);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400);
     })
@@ -1427,6 +1466,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   for (const detail of runtime.detailGroups.values()) {
     detail.group.visible = recognitionVisible && !isoMode;
   }
+  setEnvironmentalPresentation(runtime);
 }
 
 function notifyView(runtime: Runtime, callback: (angles: ViewAngles) => void): void {
@@ -1678,6 +1718,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       canvasAriaLabel,
       lightingMode,
       nightLightsOn,
+      rainEnabled,
       progressLabel,
       sceneUrl,
       selectedLandmark,
@@ -1697,6 +1738,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const flightInputRef = useRef(new Vector3());
     const lightingModeRef = useRef(lightingMode);
     const nightLightsOnRef = useRef(nightLightsOn);
+    const rainEnabledRef = useRef(rainEnabled);
     const onErrorRef = useRef(onError);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
@@ -1735,6 +1777,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
     }, [lightingMode, nightLightsOn]);
+
+    useEffect(() => {
+      rainEnabledRef.current = rainEnabled;
+      const runtime = runtimeRef.current;
+      if (!runtime) {
+        return;
+      }
+      runtime.rainEnabled = rainEnabled;
+      setEnvironmentalPresentation(runtime);
+    }, [rainEnabled]);
 
     useEffect(() => {
       onErrorRef.current = onError;
@@ -2174,6 +2226,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const parkDetails = new Group();
       parkDetails.name = "Pending OSM park details";
       scene.add(parkDetails);
+      const rain = createModerateRain(coarsePointer);
+      scene.add(rain.group);
       const runtime: Runtime = {
         camera,
         civicDetails,
@@ -2195,9 +2249,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         marker,
         markerTimer: null,
         minecraftMaterialState: createMinecraftMaterialState(),
+        minecraftMobs: null,
         modelMaterials: new Set(),
         monuments,
         parkDetails,
+        rain,
+        rainEnabled: rainEnabledRef.current,
         renderer,
         renderInvalidated: true,
         scene,
@@ -2854,6 +2911,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
+        const environmentalMotion =
+          runtime.rain.group.visible ||
+          runtime.minecraftMobs?.group.visible === true;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
@@ -2869,7 +2929,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           marker.visible ||
           timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
-        const isMoving = cameraMoving || stability.forceContinuousRender;
+        const isMoving =
+          cameraMoving || stability.forceContinuousRender || environmentalMotion;
         // Resolution governor: one hysteretic decision per frame instead of a
         // resize on every OrbitControls start/end pair. A wheel dolly fires
         // both events per tick, so applying them directly swapped the canvas
@@ -2951,7 +3012,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // scene now receives one render for a real mutation and then holds its
         // framebuffer exactly; RAF remains alive for input and loaders.
         const renderRequired =
-          cameraMoving || runtime.renderInvalidated || farDetailChanged;
+          cameraMoving ||
+          runtime.renderInvalidated ||
+          farDetailChanged ||
+          environmentalMotion;
         if (!renderRequired) {
           return;
         }
@@ -2978,6 +3042,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             underside,
           }),
         );
+        updateModerateRain(
+          runtime.rain,
+          reducedMotion ? dtSeconds * 0.45 : dtSeconds,
+          controls.target,
+          runtime.lightingMode,
+        );
+        if (runtime.minecraftMobs?.group.visible) {
+          updateMinecraftMobs(
+            runtime.minecraftMobs,
+            reducedMotion ? dtSeconds * 0.35 : dtSeconds,
+          );
+        }
         if (marker.visible) {
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
           marker.scale.setScalar(pulse);

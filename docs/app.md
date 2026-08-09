@@ -69,6 +69,10 @@ the safe-area-aware bottom controls accessible.
 
 The toolbar exposes direct Day, Night and Minecraft buttons. `D` remains the
 fast Day/Night toggle and `M` enters or leaves Minecraft independently.
+A separate rain button adds moderate rain without changing the selected visual
+mode. True 3D renders it as one camera-following instanced field, with a lower
+drop budget on coarse pointers; the DZI fallback uses a lightweight screen
+layer. Rain is hidden automatically in underwater and underside views.
 
 **Day is a drawn isometric city** (v0.7.0): the lumpy photogrammetry
 buildings are replaced by prisms extruded from the surveyed LoD2 footprint
@@ -99,10 +103,12 @@ and lamp positions as Day and Night; it does not claim new surveyed geometry.
 GPU instancing keeps the complete world to a handful of draw calls. Until the
 payload arrives (or if it fails to load) the toon-material presentation is the
 fallback. Leaving Minecraft restores the drawn photogrammetry scene
-losslessly. A
-persistent DE/EN control translates all viewer chrome; official German place
-names remain unchanged, and the German UI uses `Sehenswürdigkeiten` rather than
-the English false friend.
+losslessly. Three Creepers and four Zombies roam deterministic, tree-cleared
+park routes while Minecraft is active. All of their block parts share one
+instanced draw call, and the group is removed from Day, Night, underwater and
+underside presentations. A persistent DE/EN control translates all viewer
+chrome; official German place names remain unchanged, and the German UI uses
+`Sehenswürdigkeiten` rather than the English false friend.
 
 Music is off by default and cannot autoplay. The music button or `B` starts a
 local Web Audio score with seven original 72 BPM variants built from triangle

@@ -6,6 +6,7 @@ import {
   Box as BoxIcon,
   ChevronDown,
   ChevronUp,
+  CloudRain,
   Compass,
   Copy,
   Download,
@@ -550,6 +551,7 @@ export function App() {
   const [nightLightsOn, setNightLightsOn] = useState<boolean>(
     isNightLightsOnByUser,
   );
+  const [rainEnabled, setRainEnabled] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
@@ -1254,6 +1256,14 @@ export function App() {
       return next;
     });
   }, [copy, lightingMode]);
+
+  const toggleRain = useCallback(() => {
+    setRainEnabled((current) => {
+      const next = !current;
+      setStatus(next ? copy.rainOn : copy.rainOff);
+      return next;
+    });
+  }, [copy.rainOff, copy.rainOn]);
 
   const toggleViewerMode = useCallback(() => {
     const next = viewerMode === "three" ? "map" : "three";
@@ -2083,6 +2093,7 @@ export function App() {
             canvasAriaLabel={copy.threeD}
             lightingMode={lightingMode}
             nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
+            rainEnabled={rainEnabled}
             progressLabel={copy.loadingMesh}
             sceneUrl={sceneUrl}
             selectedLandmark={selected}
@@ -2111,6 +2122,12 @@ export function App() {
               setThreePolarDegrees(polarDegrees);
               setIsThreeUnderside(underside);
             }}
+          />
+        ) : null}
+        {rainEnabled && viewerMode === "map" ? (
+          <div
+            className={`map-rain map-rain--${lightingMode}`}
+            aria-hidden="true"
           />
         ) : null}
       </section>
@@ -2261,6 +2278,16 @@ export function App() {
               <MinecraftCubeIcon size={18} />
             </button>
           </div>
+          <button
+            type="button"
+            className="rain-toggle"
+            aria-label={rainEnabled ? copy.rainOff : copy.rainOn}
+            aria-pressed={rainEnabled}
+            title={rainEnabled ? copy.rainOff : copy.rainOn}
+            onClick={toggleRain}
+          >
+            <CloudRain size={18} aria-hidden="true" />
+          </button>
           <button
             type="button"
             className="language-toggle"
@@ -2917,6 +2944,16 @@ export function App() {
             >
               <MinecraftCubeIcon size={20} />
               <span>{copy.minecraft}</span>
+            </button>
+            <button
+              type="button"
+              className="rain-toggle"
+              aria-pressed={rainEnabled}
+              aria-label={rainEnabled ? copy.rainOff : copy.rainOn}
+              onClick={toggleRain}
+            >
+              <CloudRain size={20} aria-hidden="true" />
+              <span>{rainEnabled ? copy.rainOff : copy.rain}</span>
             </button>
             <button
               type="button"
