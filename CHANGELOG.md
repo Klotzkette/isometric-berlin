@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.67.0
+
+- **Golda-Meir-Steg now follows its measured, unmistakable Europacity form.**
+  The pier-free crossing is pinned to 76.86 x 4.00 m at the OSM centre and
+  drawn as the documented shallow-camber steel trough with tall traffic-yellow
+  structural sides, a rounded upper rail, fine laser-cut slot cues and warm
+  integrated night lighting. The supplied photographs were used only for
+  visual comparison; no photograph or commercial-map material is bundled.
+- **The three neighbouring bridges no longer share generic proportions or
+  materials.** Berlin's June 2025 bridge inventory now fixes Moltkebrücke at
+  77.58 x 25.70 m, Gustav-Heinemann-Brücke at 87.76 x 4.00 m and
+  Sandkrugbrücke at 32.60 x 28.80 m. Moltkebrücke carries red Main-sandstone
+  masonry, separate sandstone pavements and an asphalt carriageway;
+  Gustav-Heinemann remains a light, narrow pedestrian ribbon; Sandkrug keeps
+  its broad open-frame road deck. A reversed procedural-box winding that hid
+  every bridge top under back-face culling is fixed and regression-tested.
+- **The interim Bundespräsidialamt is no longer a capsule inside a square.**
+  Its hand model now uses the current 37-point OSM footprint as a bent bar,
+  with the documented timber-module floors, curved ends, coloured vertical
+  facade fins and a restrained concrete plinth. The stale former-site LoD2
+  prism is suppressed geometrically, while nearby buildings remain untouched;
+  the corrected model persists through Day, Night, Minecraft and Snowstorm.
+- **Topography of Terror and Otto-Weidt-Platz receive location-specific
+  detail.** The approximately 200 m Wall ruin follows the mapped
+  Niederkirchnerstraße trace and carries irregular 1989/90 damage, surviving
+  round crown pipes, bounded graffiti-colour cues and a separate security
+  fence. The actual 180 m² Otto-Weidt-Platz fountain polygon retains its
+  source outline but now has the distinctly darker basin floor and water.
+- The versioned visible radius remains **5,230 m**; no bounds, existing
+  building positions, Google data, API credentials or raw photographs changed
+  in this focused accuracy release.
+
 ## v0.66.2
 
 - **The Tiergartentunnel is underground again in every ordinary exterior

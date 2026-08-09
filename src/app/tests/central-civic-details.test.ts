@@ -5,6 +5,9 @@ import {
   centralCivicDetailsVisible,
   centralCivicFocusCamera,
   createCentralCivicDetails,
+  TOPOGRAPHY_WALL_LENGTH_M,
+  TOPOGRAPHY_WALL_ROTATION_RAD,
+  TOPOGRAPHY_WALL_SECTION_COUNT,
 } from "../src/CentralCivicDetails";
 
 const names = [
@@ -61,6 +64,19 @@ describe("task-11 central transit and civic details", () => {
       details.getObjectByName("BERLINER ENSEMBLE civic lettering"),
     ).toBeDefined();
     expect(details.getObjectByName("S15 civic lettering")).toBeDefined();
+  });
+
+  test("keeps the Topography wall as the documented 200 m ruin", () => {
+    const details = createCentralCivicDetails(landmarks);
+    expect(TOPOGRAPHY_WALL_LENGTH_M).toBe(200);
+    expect(TOPOGRAPHY_WALL_SECTION_COUNT).toBe(20);
+    expect(TOPOGRAPHY_WALL_ROTATION_RAD).toBeCloseTo(0.0742, 4);
+    expect(details.userData.topographyWall).toMatchObject({
+      lengthM: 200,
+      sectionCount: 20,
+      state: "preserved 1989/90 ruin with security fence",
+      traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
+    });
   });
 
   test("provides contextual camera framing for the new QA anchors", () => {

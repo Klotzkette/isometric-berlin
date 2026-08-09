@@ -21,8 +21,7 @@ import {
   ShapeGeometry,
 } from "three";
 import {
-  INTERIM_OFFICE_FOOTPRINT,
-  INTERIM_OFFICE_ROTATION_DEGREES,
+  INTERIM_OFFICE_FOOTPRINT_RING,
   INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
   INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION,
 } from "./SpreebogenOffice";
@@ -109,6 +108,9 @@ export type SurfacePolygon = {
   ring: number[][];
 };
 
+/** OSM way/1313858079, the darker decorative basin on Otto-Weidt-Platz. */
+export const OTTO_WEIDT_FOUNTAIN_WORLD = [-278.45, -1611.02] as const;
+
 /** A marked carriageway centreline (decimetre points) for lane dashes. */
 export type LaneMarking = {
   name: string;
@@ -162,8 +164,18 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   // was indistinguishable from the brick Altbau behind it.
   ...Object.fromEntries(
     [
-      "53jKTFyO", "DG5BSkf7", "N1k7CDwM", "Q5bFUgLl", "YBj4ULFf", "iJld3tAj",
-      "lnB9I8b8", "neNfHjtD", "oZu0k3gG", "ruAxvlwz", "uS796u1d", "w3EeFZtR",
+      "53jKTFyO",
+      "DG5BSkf7",
+      "N1k7CDwM",
+      "Q5bFUgLl",
+      "YBj4ULFf",
+      "iJld3tAj",
+      "lnB9I8b8",
+      "neNfHjtD",
+      "oZu0k3gG",
+      "ruAxvlwz",
+      "uS796u1d",
+      "w3EeFZtR",
       "zAVU6kkn",
     ].map((id) => [id, 0xe9e7e1]),
   ),
@@ -193,12 +205,15 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // Säulenhalle (25.0 m / 18.2 m / 8.4 m); createSiegessaeule draws the whole
   // 67 m monument including the fluted drums and the gilded Viktoria, so the
   // three concentric prisms would stand inside the column.
-  "3wUufHpn", "iHbVUwP0", "xzlowEa3",
+  "3wUufHpn",
+  "iHbVUwP0",
+  "xzlowEa3",
   // Gymnasium Tiergarten Altbau. Its LoD2 roof code is 5000 (Mischform),
   // which the procedural roof fitter skips, so the 1902 brick school stood
   // as a flat 32 m box. createGymnasiumTiergarten draws the whole block
   // with its Steildach, stepped gables and rooftop observation platform.
-  "jBXhIsDK", "EHKONVCW",
+  "jBXhIsDK",
+  "EHKONVCW",
 ]);
 
 // v0.56.1 ("beiger Kasten ueber den Gleisen"): the Hauptbahnhof used to be
@@ -279,7 +294,10 @@ function worldToHauptbahnhofLocal(x: number, z: number): [number, number] {
  * createHauptbahnhofModel builds (addBarrelRoof/addStationOfficeBridge),
  * so the envelope can never drift out of sync with what is actually drawn.
  */
-function insideHauptbahnhofEnvelopeLocal(localX: number, localZ: number): boolean {
+function insideHauptbahnhofEnvelopeLocal(
+  localX: number,
+  localZ: number,
+): boolean {
   const margin = HAUPTBAHNHOF_ENVELOPE_MARGIN_M;
   const roofHalfLength = HAUPTBAHNHOF_ENVELOPE_ROOF_LENGTH_M / 2;
   if (Math.abs(localX) <= roofHalfLength + margin) {
@@ -300,17 +318,13 @@ function insideHauptbahnhofEnvelopeLocal(localX: number, localZ: number): boolea
   // through the old (pre-fix) version of this function entirely.
   const hallHalfLength = HAUPTBAHNHOF_ENVELOPE_HALL_LENGTH_M / 2 + margin;
   if (Math.abs(localZ) <= hallHalfLength) {
-    if (
-      Math.abs(localX) <=
-      HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + margin
-    ) {
+    if (Math.abs(localX) <= HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + margin) {
       return true;
     }
     // The office bridges flank the hall, offset sideways along X (see
     // officeX = north_south_hall_width_m / 2 + 14 in
     // createHauptbahnhofModel), running the same length along Z.
-    const officeHalfX =
-      HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + 14;
+    const officeHalfX = HAUPTBAHNHOF_ENVELOPE_HALL_WIDTH_M / 2 + 14;
     for (const side of [-1, 1]) {
       const officeCentre = side * officeHalfX;
       if (
@@ -332,7 +346,9 @@ function insideHauptbahnhofEnvelopeLocal(localX: number, localZ: number): boolea
  * this needs no per-id maintenance and catches every part-prism the LoD2
  * source ever splits the station footprint into, present or future.
  */
-export function isHauptbahnhofFootprintSuppressed(building: PrismBuilding): boolean {
+export function isHauptbahnhofFootprintSuppressed(
+  building: PrismBuilding,
+): boolean {
   if (building.ring.length < 3) {
     return false;
   }
@@ -343,15 +359,57 @@ export function isHauptbahnhofFootprintSuppressed(building: PrismBuilding): bool
       inside += 1;
     }
   }
-  return inside / building.ring.length >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION;
+  return (
+    inside / building.ring.length >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION
+  );
+}
+
+function distanceToSegment(
+  x: number,
+  z: number,
+  ax: number,
+  az: number,
+  bx: number,
+  bz: number,
+): number {
+  const dx = bx - ax;
+  const dz = bz - az;
+  const lengthSquared = dx * dx + dz * dz;
+  if (lengthSquared <= 1e-9) {
+    return Math.hypot(x - ax, z - az);
+  }
+  const t = Math.max(
+    0,
+    Math.min(1, ((x - ax) * dx + (z - az) * dz) / lengthSquared),
+  );
+  return Math.hypot(x - (ax + t * dx), z - (az + t * dz));
+}
+
+function insideInterimOfficeFootprint(x: number, z: number): boolean {
+  let inside = false;
+  for (
+    let index = 0;
+    index < INTERIM_OFFICE_FOOTPRINT_RING.length;
+    index += 1
+  ) {
+    const [ax, az] = INTERIM_OFFICE_FOOTPRINT_RING[index];
+    const [bx, bz] =
+      INTERIM_OFFICE_FOOTPRINT_RING[
+        (index + 1) % INTERIM_OFFICE_FOOTPRINT_RING.length
+      ];
+    if (az > z !== bz > z && x < ((bx - ax) * (z - az)) / (bz - az) + ax) {
+      inside = !inside;
+    }
+  }
+  return inside;
 }
 
 /**
- * True when a LoD2 footprint substantially overlaps the capsule envelope of
- * the hand-built Amtssitz am Spreebogen. The 2026 interim building postdates
- * the LoD2 release, whose retained former-site prism otherwise renders as a
- * rectangular box around the coloured pill. Keep this geometric rather than
- * naming the current prism: source re-tiling must not bring the box back.
+ * True when a LoD2 footprint substantially overlaps the exact OSM outline of
+ * the hand-built Amtssitz am Spreebogen. The 2026 building postdates the LoD2
+ * release, whose retained former-site prism otherwise draws a rectangular box
+ * around the new bent bar. Keep this geometric rather than naming the current
+ * prism: source re-tiling must not bring that box back.
  */
 export function isInterimOfficeFootprintSuppressed(
   building: PrismBuilding,
@@ -359,29 +417,28 @@ export function isInterimOfficeFootprintSuppressed(
   if (building.ring.length < 3) {
     return false;
   }
-  const theta = (INTERIM_OFFICE_ROTATION_DEGREES * Math.PI) / 180;
-  const cosine = Math.cos(theta);
-  const sine = Math.sin(theta);
-  const halfStraight = Math.max(
-    0,
-    (INTERIM_OFFICE_FOOTPRINT.widthM - INTERIM_OFFICE_FOOTPRINT.depthM) / 2,
-  );
-  const paddedRadius =
-    INTERIM_OFFICE_FOOTPRINT.depthM / 2 + INTERIM_OFFICE_SUPPRESSION_MARGIN_M;
   let inside = 0;
   for (const [xDm, zDm] of building.ring) {
-    const dx = xDm / 10 - INTERIM_OFFICE_FOOTPRINT.centreX;
-    const dz = zDm / 10 - INTERIM_OFFICE_FOOTPRINT.centreZ;
-    const localX = dx * cosine - dz * sine;
-    const localZ = dx * sine + dz * cosine;
-    const nearestX = Math.max(-halfStraight, Math.min(halfStraight, localX));
-    if (Math.hypot(localX - nearestX, localZ) <= paddedRadius) {
+    const x = xDm / 10;
+    const z = zDm / 10;
+    const nearOutline = INTERIM_OFFICE_FOOTPRINT_RING.some(
+      ([ax, az], index) => {
+        const [bx, bz] =
+          INTERIM_OFFICE_FOOTPRINT_RING[
+            (index + 1) % INTERIM_OFFICE_FOOTPRINT_RING.length
+          ];
+        return (
+          distanceToSegment(x, z, ax, az, bx, bz) <=
+          INTERIM_OFFICE_SUPPRESSION_MARGIN_M
+        );
+      },
+    );
+    if (insideInterimOfficeFootprint(x, z) || nearOutline) {
       inside += 1;
     }
   }
   return (
-    inside / building.ring.length >=
-    INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION
+    inside / building.ring.length >= INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION
   );
 }
 
@@ -390,10 +447,30 @@ export function isInterimOfficeFootprintSuppressed(
 // facades are full curtain-wall glazing. The recognition model draws
 // their mullion grid; these prisms give the grid its glassy body.
 export const PRISM_GLASSED_IDS: ReadonlySet<string> = new Set([
-  "3F1dLm24", "5gArGdou", "5v0mHg0p", "663NhxsM", "6ZJfG5j0", "D6fKsTRY",
-  "Fk2OkM8n", "LAz51fdP", "M7I6Afam", "QaGDo8NZ", "SLLM5yNi", "X2oOtd6Z",
-  "XpzUHc7R", "clykH08k", "gqQdZFTa", "hCFTFGrv", "hlYYwDX2", "iiRhAlr6",
-  "ldYGmtbR", "m3AE8zAD", "o0aS4DvM", "v3sN8WzM", "zTSJJzrL", "zUU5olBa",
+  "3F1dLm24",
+  "5gArGdou",
+  "5v0mHg0p",
+  "663NhxsM",
+  "6ZJfG5j0",
+  "D6fKsTRY",
+  "Fk2OkM8n",
+  "LAz51fdP",
+  "M7I6Afam",
+  "QaGDo8NZ",
+  "SLLM5yNi",
+  "X2oOtd6Z",
+  "XpzUHc7R",
+  "clykH08k",
+  "gqQdZFTa",
+  "hCFTFGrv",
+  "hlYYwDX2",
+  "iiRhAlr6",
+  "ldYGmtbR",
+  "m3AE8zAD",
+  "o0aS4DvM",
+  "v3sN8WzM",
+  "zTSJJzrL",
+  "zUU5olBa",
 ]);
 
 /**
@@ -550,8 +627,7 @@ export function setIsoNightPresentation(
     bodies.material = night
       ? (bodies.userData.nightMaterial as MeshStandardMaterial)
       : (bodies.userData.dayMaterial as MeshBasicMaterial);
-    const nightMaterial = bodies.userData
-      .nightMaterial as MeshStandardMaterial;
+    const nightMaterial = bodies.userData.nightMaterial as MeshStandardMaterial;
     // A cool moonlight floor keeps pale masonry readable without making
     // the whole building self-luminous or warming it into muddy brown.
     // Moonlight keeps the same restrained floor — it is the building's own
@@ -566,8 +642,7 @@ export function setIsoNightPresentation(
     glass.material = night
       ? (glass.userData.nightMaterial as MeshStandardMaterial)
       : (glass.userData.dayMaterial as MeshBasicMaterial);
-    const nightMaterial = glass.userData
-      .nightMaterial as MeshStandardMaterial;
+    const nightMaterial = glass.userData.nightMaterial as MeshStandardMaterial;
     nightMaterial.emissive.setHex(night ? 0x0e1a24 : 0x000000);
     nightMaterial.emissiveIntensity = night ? 0.7 : 0;
     nightMaterial.needsUpdate = true;
@@ -637,16 +712,14 @@ export function setIsoNightPresentation(
       const nightMaterial = accessory.userData
         .nightMaterial as MeshStandardMaterial;
       const lampEmissive = nightMaterial.userData.nightEmissive as
-        | number
-        | undefined;
+        number | undefined;
       if (night && typeof lampEmissive === "number") {
         nightMaterial.emissive.setHex(
           lightsOn ? lampEmissive : MOONLIT_LAMP_OFF,
         );
         nightMaterial.emissiveIntensity = lightsOn
           ? ((nightMaterial.userData.nightEmissiveIntensity as
-              | number
-              | undefined) ?? 1.1)
+              number | undefined) ?? 1.1)
           : 0.12;
         nightMaterial.needsUpdate = true;
       }
@@ -719,8 +792,7 @@ export function setIsoNightPresentation(
       // artificial light, so "Licht aus" leaves it at its ordinary night
       // material.
       const moonlitMaterial = smooth.userData.moonlitMaterial as
-        | MeshBasicMaterial
-        | undefined;
+        MeshBasicMaterial | undefined;
       smooth.material = night
         ? moonlit && moonlitMaterial
           ? moonlitMaterial
@@ -856,9 +928,7 @@ function ringArea(ring: Array<[number, number]>): number {
  * Oriented minimum-area bounding rectangle via rotating calipers over
  * the convex hull, plus how rectangular the footprint actually is.
  */
-export function fitRectangle(
-  ring: Array<[number, number]>,
-): FittedRect | null {
+export function fitRectangle(ring: Array<[number, number]>): FittedRect | null {
   if (ring.length < 3) {
     return null;
   }
@@ -895,8 +965,7 @@ export function fitRectangle(
       const cu = (minU + maxU) / 2;
       const cv = (minV + maxV) / 2;
       best = {
-        axis:
-          maxU - minU >= maxV - minV ? [ax, az] : [-az, ax],
+        axis: maxU - minU >= maxV - minV ? [ax, az] : [-az, ax],
         center: [cu * ax - cv * az, cu * az + cv * ax],
         halfLength: Math.max(maxU - minU, maxV - minV) / 2,
         halfWidth: Math.min(maxU - minU, maxV - minV) / 2,
@@ -961,7 +1030,11 @@ export function buildRoofGeometry(
   const hl = rect.halfLength + overhang;
   const hw = rect.halfWidth + overhang;
   const [cx, cz] = rect.center;
-  const corner = (u: number, v: number, y: number): [number, number, number] => [
+  const corner = (
+    u: number,
+    v: number,
+    y: number,
+  ): [number, number, number] => [
     cx + ax * u + nx * v,
     y,
     cz + az * u + nz * v,
@@ -1076,22 +1149,60 @@ type WindowFormat = typeof HOUSING_WINDOW;
 // ensemble carries its real rhythm — a high rusticated base, then tall
 // arched window rows on a stately pitch, on the towers too.
 export const HERO_WINDOW_FORMATS: Record<string, WindowFormat> = {
-  K0002MCN: { bayPitch: 5.4, floorPitch: 8.2, height: 4.8, sillStart: 5.2, width: 2.4 },
-  K0003Ty1: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
-  K0003VDk: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
-  UbQkgNZe: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
-  ycOYQRVL: { bayPitch: 5.2, floorPitch: 8.2, height: 4.4, sillStart: 6, width: 2.2 },
+  K0002MCN: {
+    bayPitch: 5.4,
+    floorPitch: 8.2,
+    height: 4.8,
+    sillStart: 5.2,
+    width: 2.4,
+  },
+  K0003Ty1: {
+    bayPitch: 5.2,
+    floorPitch: 8.2,
+    height: 4.4,
+    sillStart: 6,
+    width: 2.2,
+  },
+  K0003VDk: {
+    bayPitch: 5.2,
+    floorPitch: 8.2,
+    height: 4.4,
+    sillStart: 6,
+    width: 2.2,
+  },
+  UbQkgNZe: {
+    bayPitch: 5.2,
+    floorPitch: 8.2,
+    height: 4.4,
+    sillStart: 6,
+    width: 2.2,
+  },
+  ycOYQRVL: {
+    bayPitch: 5.2,
+    floorPitch: 8.2,
+    height: 4.4,
+    sillStart: 6,
+    width: 2.2,
+  },
 };
 // The Reichstag's entrance is its portico (drawn by the recognition
 // model); a generic drawn door on the plinth would be Quatsch.
 const DOOR_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
-  "K0002MCN", "K0003Ty1", "K0003VDk", "UbQkgNZe", "ycOYQRVL",
+  "K0002MCN",
+  "K0003Ty1",
+  "K0003VDk",
+  "UbQkgNZe",
+  "ycOYQRVL",
 ]);
 // The recognition layer draws the Reichstag's REAL fenestration (tall
 // arched windows, transoms, mullions from references); generic prism
 // panes underneath would double it into mush ("keine falschen Fenster").
 const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
-  "K0002MCN", "K0003Ty1", "K0003VDk", "UbQkgNZe", "ycOYQRVL",
+  "K0002MCN",
+  "K0003Ty1",
+  "K0003VDk",
+  "UbQkgNZe",
+  "ycOYQRVL",
 ]);
 
 // One drawn entrance door per building, centred on its longest windowed
@@ -1170,11 +1281,9 @@ export function windowGrid(
     (wallLength - format.width - 0.9) / format.bayPitch + 1,
   );
   const floors = Math.floor(
-    (bodyHeight -
-      format.sillStart -
-      format.height -
-      WINDOW_EAVE_CLEARANCE_M) /
-      format.floorPitch + 1,
+    (bodyHeight - format.sillStart - format.height - WINDOW_EAVE_CLEARANCE_M) /
+      format.floorPitch +
+      1,
   );
   if (bays < 1 || floors < 1) {
     return null;
@@ -1234,8 +1343,12 @@ export function windowBarGeometry(): BufferGeometry {
   const positions: number[] = [];
   for (const [x0, y0, x1, y1] of quads) {
     for (const [px, py] of [
-      [x0, y0], [x1, y0], [x1, y1],
-      [x0, y0], [x1, y1], [x0, y1],
+      [x0, y0],
+      [x1, y0],
+      [x1, y1],
+      [x0, y0],
+      [x1, y1],
+      [x0, y1],
     ] as const) {
       positions.push(px, py, WINDOW_BAR_OUT);
     }
@@ -1315,16 +1428,33 @@ function boxTriangles(
   const [ax, az] = axis;
   const nx = -az;
   const nz = ax;
-  const corner = (u: number, y: number, v: number): [number, number, number] => [
+  const corner = (
+    u: number,
+    y: number,
+    v: number,
+  ): [number, number, number] => [
     cx + ax * u * sizeAlong * 0.5 + nx * v * sizeAcross * 0.5,
     cy + y * sizeUp * 0.5,
     cz + az * u * sizeAlong * 0.5 + nz * v * sizeAcross * 0.5,
   ];
   const quads: Array<[number, number, number][]> = [
-    [corner(-1, 1, -1), corner(1, 1, -1), corner(1, 1, 1), corner(-1, 1, 1)],
-    [corner(-1, -1, -1), corner(-1, 1, -1), corner(-1, 1, 1), corner(-1, -1, 1)],
+    // Counter-clockwise from above. The previous order pointed the normal
+    // downward, so Three.js back-face culling removed every top surface and
+    // made segmented bridges look like open ladders.
+    [corner(-1, 1, -1), corner(-1, 1, 1), corner(1, 1, 1), corner(1, 1, -1)],
+    [
+      corner(-1, -1, -1),
+      corner(-1, 1, -1),
+      corner(-1, 1, 1),
+      corner(-1, -1, 1),
+    ],
     [corner(1, -1, -1), corner(1, -1, 1), corner(1, 1, 1), corner(1, 1, -1)],
-    [corner(-1, -1, -1), corner(1, -1, -1), corner(1, 1, -1), corner(-1, 1, -1)],
+    [
+      corner(-1, -1, -1),
+      corner(1, -1, -1),
+      corner(1, 1, -1),
+      corner(-1, 1, -1),
+    ],
     [corner(-1, -1, 1), corner(-1, 1, 1), corner(1, 1, 1), corner(1, -1, 1)],
   ];
   const triangles: number[] = [];
@@ -1391,8 +1521,12 @@ function createKerbLines(ground: VoxelPayload): LineSegments | null {
   ): void => {
     const y = sample(xOffset, zOffset) + 0.22;
     positions.push(
-      (min_x_idx + x1) * cell, y, (min_z_idx + z1) * cell,
-      (min_x_idx + x2) * cell, y, (min_z_idx + z2) * cell,
+      (min_x_idx + x1) * cell,
+      y,
+      (min_z_idx + z1) * cell,
+      (min_x_idx + x2) * cell,
+      y,
+      (min_z_idx + z2) * cell,
     );
   };
   for (let z = 0; z < rows; z += 1) {
@@ -1501,8 +1635,18 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     const nudgeX = towardWaterX * 0.05;
     const nudgeZ = towardWaterZ * 0.05;
     inkLines.push(
-      ax + nudgeX, top, az + nudgeZ, bx + nudgeX, top, bz + nudgeZ,
-      ax + nudgeX, waterTop, az + nudgeZ, bx + nudgeX, waterTop, bz + nudgeZ,
+      ax + nudgeX,
+      top,
+      az + nudgeZ,
+      bx + nudgeX,
+      top,
+      bz + nudgeZ,
+      ax + nudgeX,
+      waterTop,
+      az + nudgeZ,
+      bx + nudgeX,
+      waterTop,
+      bz + nudgeZ,
     );
     const wallRun = Math.hypot(bx - ax, bz - az);
     const joints = Math.floor(wallRun / QUAY_JOINT_SPACING_M);
@@ -1514,8 +1658,12 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     }
     paint.setHex((xOffset * 31 + zOffset * 17) % 2 === 0 ? 0xa5a193 : 0xadaa9c);
     for (const [px, py, pz] of [
-      [ax, bottom, az], [bx, bottom, bz], [bx, top, bz],
-      [ax, bottom, az], [bx, top, bz], [ax, top, az],
+      [ax, bottom, az],
+      [bx, bottom, bz],
+      [bx, top, bz],
+      [ax, bottom, az],
+      [bx, top, bz],
+      [ax, top, az],
     ] as const) {
       positions.push(px, py, pz);
       colors.push(paint.r, paint.g, paint.b);
@@ -1526,7 +1674,8 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     const jut = 2.2;
     paint.setHex(0xe4ddcb);
     for (const [px, py, pz] of [
-      [ax, ledgeY, az], [bx, ledgeY, bz],
+      [ax, ledgeY, az],
+      [bx, ledgeY, bz],
       [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
       [ax, ledgeY, az],
       [bx + towardWaterX * jut, ledgeY, bz + towardWaterZ * jut],
@@ -1555,14 +1704,26 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     const ux = (bx - ax) / runLength;
     const uz = (bz - az) / runLength;
     const quad = (
-      x0: number, y0: number, z0: number,
-      x1v: number, y1v: number, z1v: number,
-      x2: number, y2: number, z2: number,
-      x3: number, y3: number, z3: number,
+      x0: number,
+      y0: number,
+      z0: number,
+      x1v: number,
+      y1v: number,
+      z1v: number,
+      x2: number,
+      y2: number,
+      z2: number,
+      x3: number,
+      y3: number,
+      z3: number,
     ): void => {
       for (const [px, py, pz] of [
-        [x0, y0, z0], [x1v, y1v, z1v], [x2, y2, z2],
-        [x0, y0, z0], [x2, y2, z2], [x3, y3, z3],
+        [x0, y0, z0],
+        [x1v, y1v, z1v],
+        [x2, y2, z2],
+        [x0, y0, z0],
+        [x2, y2, z2],
+        [x3, y3, z3],
       ] as const) {
         positions.push(px, py, pz);
         colors.push(paint.r, paint.g, paint.b);
@@ -1574,10 +1735,18 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     paint.setHex(0xada89a);
     const railTop = top + RAIL_HEIGHT_M;
     quad(
-      ax, railTop, az,
-      bx, railTop, bz,
-      bx, railTop - RAIL_BAR_M, bz,
-      ax, railTop - RAIL_BAR_M, az,
+      ax,
+      railTop,
+      az,
+      bx,
+      railTop,
+      bz,
+      bx,
+      railTop - RAIL_BAR_M,
+      bz,
+      ax,
+      railTop - RAIL_BAR_M,
+      az,
     );
     const postCount = Math.max(1, Math.round(runLength / RAIL_POST_SPACING_M));
     for (let index = 0; index <= postCount; index += 1) {
@@ -1604,10 +1773,18 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
         const ex = sx + ux * STAIR_WIDTH_M;
         const ez = sz + uz * STAIR_WIDTH_M;
         quad(
-          sx + towardWaterX * outset, y, sz + towardWaterZ * outset,
-          ex + towardWaterX * outset, y, ez + towardWaterZ * outset,
-          ex + towardWaterX * (outset - jut / steps), y, ez + towardWaterZ * (outset - jut / steps),
-          sx + towardWaterX * (outset - jut / steps), y, sz + towardWaterZ * (outset - jut / steps),
+          sx + towardWaterX * outset,
+          y,
+          sz + towardWaterZ * outset,
+          ex + towardWaterX * outset,
+          y,
+          ez + towardWaterZ * outset,
+          ex + towardWaterX * (outset - jut / steps),
+          y,
+          ez + towardWaterZ * (outset - jut / steps),
+          sx + towardWaterX * (outset - jut / steps),
+          y,
+          sz + towardWaterZ * (outset - jut / steps),
         );
       }
     }
@@ -1616,9 +1793,17 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
   // quay reads as a continuous embankment line instead of a per-cell
   // staircase ("nicht ausgefranst und zackig, sondern normal").
   const isLand = (x: number, z: number): boolean =>
-    x >= 0 && z >= 0 && x < cols && z < rows && landClasses.has(classGrid[z * cols + x]);
+    x >= 0 &&
+    z >= 0 &&
+    x < cols &&
+    z < rows &&
+    landClasses.has(classGrid[z * cols + x]);
   const isWater = (x: number, z: number): boolean =>
-    x >= 0 && z >= 0 && x < cols && z < rows && classGrid[z * cols + x] === waterClass;
+    x >= 0 &&
+    z >= 0 &&
+    x < cols &&
+    z < rows &&
+    classGrid[z * cols + x] === waterClass;
   // Vertical faces (water east/west of land): merge along z.
   for (const dir of [1, -1] as const) {
     for (let x = 0; x < cols; x += 1) {
@@ -1681,10 +1866,7 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
   group.name = "Spree embankment";
   group.add(mesh);
   const inkGeometry = new BufferGeometry();
-  inkGeometry.setAttribute(
-    "position",
-    new Float32BufferAttribute(inkLines, 3),
-  );
+  inkGeometry.setAttribute("position", new Float32BufferAttribute(inkLines, 3));
   const ink = new LineSegments(
     inkGeometry,
     new LineBasicMaterial({ color: ISO_INK_COLOR }),
@@ -1803,7 +1985,15 @@ function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
 
 export const BRIDGE_MIN_CLUSTER_CELLS = 12;
 
-export type BridgeKind = "beam" | "slender" | "steelArch" | "stoneArch";
+export type BridgeKind =
+  "beam" | "golda" | "slender" | "steelArch" | "stoneArch";
+
+export type BridgePalette = {
+  abutment: number;
+  deck: number;
+  metal: number;
+  structure: number;
+};
 
 export type BridgeProfile = {
   /** Deck half-width where the 4 m ground grid under-reports it. */
@@ -1811,6 +2001,7 @@ export type BridgeProfile = {
   kind: BridgeKind;
   matchRadiusM: number;
   name: string;
+  palette?: BridgePalette;
   /**
    * Deck extent where an official survey fixes it more precisely than the
    * 4 m ground grid, which clips a narrow deck at both ends.
@@ -1834,6 +2025,19 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     kind: "stoneArch",
     matchRadiusM: 80,
     name: "Moltkebrücke",
+    palette: {
+      // Landesdenkmalamt Berlin: red Main sandstone facing, bronze lamps
+      // and sculpture on a warmer roadway slab.
+      abutment: 0x8a4f45,
+      deck: 0xc6a58f,
+      metal: 0x725d48,
+      structure: 0xb86c5a,
+    },
+    // Berlin's 2025 bridge inventory (BW 3446148) records the historic
+    // Spree crossing at 77.58 x 25.70 m. Pinning both dimensions prevents
+    // the coarse 4 m raster from turning the masonry road bridge into a
+    // narrow ladder-like crossing.
+    surveyedDeck: { halfLengthM: 38.79, halfWidthM: 12.85 },
     world: [-174.5, -336.5],
   },
   {
@@ -1841,13 +2045,19 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     // two round columns, tubular handrails, no masonry at all. The 4 m
     // ground grid only caught 52 m of it, leaving the deck ending over
     // open water. The Geoportal balustrade lighting fixes the real
-    // extent: two handrail runs at x -39.19 and -34.67 (deck 4.5 m wide)
-    // spanning z -490.8 to -400.8, so the crossing is 90 m long.
-    halfWidthM: 2.8,
+    // extent. Berlin's bridge inventory gives 87.76 x 4.00 m; the old
+    // model was 5.6 m wide and therefore read as a road bridge.
+    halfWidthM: 2,
     kind: "slender",
     matchRadiusM: 80,
     name: "Gustav-Heinemann-Brücke",
-    surveyedDeck: { halfLengthM: 45, halfWidthM: 2.8 },
+    palette: {
+      abutment: 0xc8c4b9,
+      deck: 0xeee9dc,
+      metal: 0xdde1de,
+      structure: 0xd4d3cc,
+    },
+    surveyedDeck: { halfLengthM: 43.88, halfWidthM: 2 },
     world: [-36.9, -445.8],
   },
   {
@@ -1868,12 +2078,43 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     name: "Sprung über die Spree",
     world: [342, -186],
   },
+  {
+    // Official Berlin dimensions: 76.86 m overall, 4.00 m clear width,
+    // 58.70 m pier-free clear span. The gold-lacquered U-girder rises in
+    // a shallow arch and carries laser-cut perforated side plates.
+    halfWidthM: 2,
+    kind: "golda",
+    matchRadiusM: 48,
+    name: "Golda-Meir-Steg",
+    palette: {
+      abutment: 0x3b3d3b,
+      deck: 0xe9e2d2,
+      metal: 0xffca20,
+      structure: 0xf2b600,
+    },
+    surveyedDeck: { halfLengthM: 38.43, halfWidthM: 2 },
+    world: [-170.5, -1647.1],
+  },
+  {
+    // Berlin bridge inventory BW 3446035: open frame, built 1994,
+    // 32.60 x 28.80 m. The broad road deck must not inherit a guessed
+    // generic span from the 4 m raster.
+    halfWidthM: 14.4,
+    kind: "beam",
+    matchRadiusM: 60,
+    name: "Sandkrugbrücke",
+    palette: {
+      abutment: 0xa6a8a5,
+      deck: 0xd0d1cb,
+      metal: 0xb9bfbd,
+      structure: 0xb3b6b3,
+    },
+    surveyedDeck: { halfLengthM: 16.3, halfWidthM: 14.4 },
+    world: [185.4, -989.8],
+  },
 ];
 
-export function bridgeProfileAt(
-  x: number,
-  z: number,
-): BridgeProfile | null {
+export function bridgeProfileAt(x: number, z: number): BridgeProfile | null {
   let best: BridgeProfile | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
   for (const profile of BRIDGE_PROFILES) {
@@ -1905,10 +2146,13 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   const BED_Y = waterTop - 2.45;
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
-  const STONE = new Color(0xdedacd);
-  const STONE_DARK = new Color(0xcdc7b7);
-  const DECK = new Color(0xc4c5bd);
-  const STEEL = new Color(0xb9bcbb);
+  const lampParts: BufferGeometry[] = [];
+  const DEFAULT_PALETTE: BridgePalette = {
+    abutment: 0xcdc7b7,
+    deck: 0xc4c5bd,
+    metal: 0xb9bcbb,
+    structure: 0xdedacd,
+  };
   const addPart = (
     triangles: Float32Array,
     tone: Color,
@@ -1930,6 +2174,20 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
     }
   };
+  const addLamp = (triangles: Float32Array, tone: Color): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    lampParts.push(geometry);
+  };
   for (const cluster of clusters) {
     const points = cluster.map(
       ([x, z]) =>
@@ -1945,9 +2203,23 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
     const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
+    const palette = profile?.palette ?? DEFAULT_PALETTE;
+    const STONE = new Color(palette.structure);
+    const STONE_DARK = new Color(palette.abutment);
+    const DECK = new Color(palette.deck);
+    const STEEL = new Color(palette.metal);
+    const GOLD_SLOT = new Color(0x8d6509);
+    const WARM_LIGHT = new Color(0xffd77b);
+    const ROAD_SURFACE = new Color(0x77746f);
+    const STONE_PAVING = new Color(0xd7b7a4);
+    const ROAD_MARKING = new Color(0xe9e4d8);
     // Deck height: the carriageway runs at bank level, but never lower
     // than the shipping clearance above the recessed water table.
-    let deckY = waterTop + BRIDGE_MIN_CLEARANCE_M;
+    let deckY =
+      waterTop +
+      (kind === "golda"
+        ? BRIDGE_MIN_CLEARANCE_M + 0.9
+        : BRIDGE_MIN_CLEARANCE_M);
     for (const [x, z] of cluster) {
       deckY = Math.max(deckY, sample(x, z) + 0.55);
     }
@@ -1969,11 +2241,20 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     // Every crossing rises slightly toward mid-span: the drawn camber is
     // what makes a bridge read as going OVER something.
     const camber =
-      kind === "stoneArch" ? 1.5 : kind === "steelArch" ? 1.2 : kind === "slender" ? 0.9 : 0.5;
+      kind === "stoneArch"
+        ? 0.42
+        : kind === "steelArch"
+          ? 1.2
+          : kind === "golda"
+            ? 0.82
+            : kind === "slender"
+              ? 0.9
+              : 0.5;
     const riseAt = (u: number): number =>
       camber * Math.cos((u / halfLength) * (Math.PI / 2)) ** 2;
-    const deckThickness = kind === "slender" ? 0.5 : 0.7;
-    const DECK_SEGMENTS = 14;
+    const deckThickness =
+      kind === "golda" ? 0.22 : kind === "slender" ? 0.5 : 0.7;
+    const DECK_SEGMENTS = kind === "golda" ? 28 : 14;
     const segmentLength = (halfLength * 2) / DECK_SEGMENTS;
     for (let index = 0; index < DECK_SEGMENTS; index += 1) {
       const u = -halfLength + segmentLength * (index + 0.5);
@@ -1992,70 +2273,190 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         DECK,
         index === 0 || index === DECK_SEGMENTS - 1,
       );
+      if (kind === "stoneArch") {
+        // Moltkebrücke is red sandstone architecture carrying an ordinary
+        // roadway, not a 25.7 m-wide red slab. Draw the asphalt carriageway
+        // and separate sandstone pavements over the surveyed masonry deck.
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.035,
+            sz,
+            rect.axis,
+            segmentLength + 0.04,
+            0.07,
+            13.2,
+          ),
+          ROAD_SURFACE,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [walkX, walkZ] = at(u, side * (halfWidth - 2.25));
+          addPart(
+            boxTriangles(
+              walkX,
+              y + 0.045,
+              walkZ,
+              rect.axis,
+              segmentLength + 0.04,
+              0.09,
+              4.0,
+            ),
+            STONE_PAVING,
+            false,
+          );
+        }
+        if (index % 2 === 0) {
+          addPart(
+            boxTriangles(
+              sx,
+              y + 0.078,
+              sz,
+              rect.axis,
+              Math.min(2.4, segmentLength * 0.58),
+              0.025,
+              0.14,
+            ),
+            ROAD_MARKING,
+            false,
+          );
+        }
+      }
       // Edge beam and parapet ride the same camber on both sides.
       for (const side of [-1, 1]) {
         const [bx, bz] = at(u, side * (halfWidth - 0.35));
         addPart(
           boxTriangles(
             bx,
-            y - deckThickness - 0.3,
+            y - deckThickness - (kind === "golda" ? 0.18 : 0.3),
             bz,
             rect.axis,
             segmentLength + 0.05,
-            0.6,
-            0.7,
+            kind === "golda" ? 0.36 : 0.6,
+            kind === "golda" ? 0.42 : 0.7,
           ),
-          STONE_DARK,
+          kind === "golda" ? STEEL : STONE_DARK,
           false,
         );
         const [rx, rz] = at(u, side * halfWidth);
-        addPart(
-          boxTriangles(
-            rx,
-            y + (kind === "stoneArch" ? 0.6 : 0.62),
-            rz,
-            rect.axis,
-            segmentLength + 0.05,
-            kind === "stoneArch" ? 1.2 : 0.14,
-            kind === "stoneArch" ? 0.34 : 0.14,
-          ),
-          STONE,
-          false,
-        );
+        if (kind === "golda") {
+          // The bridge is a structural U-girder: its high golden sides,
+          // not generic handrail posts, carry the span. A rounded top lip
+          // and warm inner light repeat the supplied day/night references.
+          addPart(
+            boxTriangles(
+              rx,
+              y + 0.72,
+              rz,
+              rect.axis,
+              segmentLength + 0.06,
+              1.48,
+              0.17,
+            ),
+            STONE,
+            false,
+          );
+          addPart(
+            boxTriangles(
+              rx,
+              y + 1.49,
+              rz,
+              rect.axis,
+              segmentLength + 0.08,
+              0.14,
+              0.3,
+            ),
+            STEEL,
+            false,
+          );
+          const [lx, lz] = at(u, side * (halfWidth - 0.18));
+          addLamp(
+            boxTriangles(
+              lx,
+              y + 1.27,
+              lz,
+              rect.axis,
+              segmentLength + 0.04,
+              0.055,
+              0.065,
+            ),
+            WARM_LIGHT,
+          );
+        } else {
+          addPart(
+            boxTriangles(
+              rx,
+              y + (kind === "stoneArch" ? 0.6 : 0.62),
+              rz,
+              rect.axis,
+              segmentLength + 0.05,
+              kind === "stoneArch" ? 1.2 : 0.14,
+              kind === "stoneArch" ? 0.34 : 0.14,
+            ),
+            STONE,
+            false,
+          );
+        }
       }
     }
     // Railing uprights: sandstone pedestals on the Moltkebrücke, slim
     // steel posts everywhere else.
     const postSpacing = kind === "stoneArch" ? 5.5 : 2.6;
     const postCount = Math.max(2, Math.round((halfLength * 2) / postSpacing));
-    for (let index = 0; index <= postCount; index += 1) {
-      const u = -halfLength + (index / postCount) * halfLength * 2;
-      const y = deckY + riseAt(u);
-      for (const side of [-1, 1]) {
-        const [px, pz] = at(u, side * halfWidth);
-        addPart(
-          boxTriangles(
-            px,
-            y + 0.55,
-            pz,
-            rect.axis,
-            kind === "stoneArch" ? 0.7 : 0.13,
-            1.1,
-            kind === "stoneArch" ? 0.7 : 0.13,
-          ),
-          kind === "stoneArch" ? STONE : STEEL,
-          kind === "stoneArch",
-        );
+    if (kind === "golda") {
+      const slotCount = 39;
+      for (let index = 1; index < slotCount; index += 1) {
+        const u = -halfLength + (index / slotCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const centreFactor = 1 - Math.abs(u / halfLength);
+        const slotHeight = 0.34 + centreFactor * 0.38;
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * (halfWidth + 0.091));
+          addPart(
+            boxTriangles(px, y + 0.74, pz, rect.axis, 0.13, slotHeight, 0.035),
+            GOLD_SLOT,
+            false,
+          );
+        }
       }
-      if (kind !== "stoneArch") {
-        // A second, lower rail turns the posts into a real balustrade.
+    } else {
+      for (let index = 0; index <= postCount; index += 1) {
+        const u = -halfLength + (index / postCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
         for (const side of [-1, 1]) {
           const [px, pz] = at(u, side * halfWidth);
           addPart(
-            boxTriangles(px, y + 0.28, pz, rect.axis, postSpacing, 0.09, 0.09),
-            STEEL,
-            false,
+            boxTriangles(
+              px,
+              y + 0.55,
+              pz,
+              rect.axis,
+              kind === "stoneArch" ? 0.7 : 0.13,
+              1.1,
+              kind === "stoneArch" ? 0.7 : 0.13,
+            ),
+            kind === "stoneArch" ? STONE : STEEL,
+            kind === "stoneArch",
           );
+        }
+        if (kind !== "stoneArch") {
+          // A second, lower rail turns the posts into a real balustrade.
+          for (const side of [-1, 1]) {
+            const [px, pz] = at(u, side * halfWidth);
+            addPart(
+              boxTriangles(
+                px,
+                y + 0.28,
+                pz,
+                rect.axis,
+                postSpacing,
+                0.09,
+                0.09,
+              ),
+              STEEL,
+              false,
+            );
+          }
         }
       }
     }
@@ -2089,7 +2490,15 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         const [px, pz] = at(u, 0);
         const height = deckY + riseAt(u) - 1.2 - BED_Y;
         addPart(
-          boxTriangles(px, BED_Y + height / 2, pz, rect.axis, 4.6, height, halfWidth * 2 - 0.5),
+          boxTriangles(
+            px,
+            BED_Y + height / 2,
+            pz,
+            rect.axis,
+            4.6,
+            height,
+            halfWidth * 2 - 0.5,
+          ),
           STONE_DARK,
         );
         // Pointed cutwaters upstream and down.
@@ -2128,22 +2537,27 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               false,
             );
           }
-          // Spandrel: the wall above the ring up to the deck beams.
+          // Spandrels belong to the two outer sandstone faces. Filling the
+          // whole bridge width here produced dark transverse slabs, which
+          // read as a broken steel ladder instead of a masonry road bridge.
           const spandrel = crown - ringY;
           if (spandrel > 0.2) {
-            addPart(
-              boxTriangles(
-                wx,
-                ringY + spandrel / 2,
-                wz,
-                rect.axis,
-                clear / steps + 0.12,
-                spandrel,
-                halfWidth * 2 - 1.4,
-              ),
-              STONE_DARK,
-              false,
-            );
+            for (const side of [-1, 1]) {
+              const [sx, sz] = at(u, side * (halfWidth - 0.5));
+              addPart(
+                boxTriangles(
+                  sx,
+                  ringY + spandrel / 2,
+                  sz,
+                  rect.axis,
+                  clear / steps + 0.12,
+                  spandrel,
+                  0.9,
+                ),
+                STONE_DARK,
+                false,
+              );
+            }
           }
         }
       }
@@ -2207,7 +2621,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           STONE_DARK,
         );
       }
-    } else {
+    } else if (kind !== "golda") {
       // Generic crossings keep the plain pier-and-web beam bridge.
       const spanCount = Math.max(1, Math.round((halfLength * 2) / 22));
       const pierHeight = deckY - 1.25 - BED_Y;
@@ -2234,6 +2648,13 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   }
   const group = new Group();
   group.name = "drawn bridge structures";
+  group.userData.bridgeProfiles = BRIDGE_PROFILES.map(
+    ({ name, surveyedDeck }) => ({
+      name,
+      surveyedDeck,
+    }),
+  );
+  group.userData.keepInMinecraft = true;
 
   const merged = mergeGeometries(parts, false);
   if (merged) {
@@ -2255,14 +2676,34 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   }
   const ink = mergeGeometries(edges, false);
   if (ink) {
-    const lines = new LineSegments(
-      ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
-    );
+    const inkMaterial = new LineBasicMaterial({ color: ISO_INK_COLOR });
+    inkMaterial.userData.modeInk = true;
+    const lines = new LineSegments(ink, inkMaterial);
     lines.name = "bridge structure ink lines";
     lines.renderOrder = 2;
     group.add(lines);
     for (const geometry of edges) {
+      geometry.dispose();
+    }
+  }
+  const lampGeometry =
+    lampParts.length > 0 ? mergeGeometries(lampParts, false) : null;
+  if (lampGeometry) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.45,
+      vertexColors: true,
+    });
+    nightMaterial.userData.nightEmissive = 0xffc75c;
+    nightMaterial.userData.nightEmissiveIntensity = 1.35;
+    const lamps = new Mesh(lampGeometry, dayMaterial);
+    lamps.name = "bridge structure lamps";
+    lamps.userData.dayMaterial = dayMaterial;
+    lamps.userData.nightMaterial = nightMaterial;
+    group.add(lamps);
+    for (const geometry of lampParts) {
       geometry.dispose();
     }
   }
@@ -2303,13 +2744,23 @@ function createBridgeRailings(ground: VoxelPayload): Group | null {
     const deckTop = sample(xOffset, zOffset);
     const midX = ((min_x_idx + x1) * cell + (min_x_idx + x2) * cell) / 2;
     const midZ = ((min_z_idx + z1) * cell + (min_z_idx + z2) * cell) / 2;
-    const dirX = ((x2 - x1) * cell) / Math.hypot((x2 - x1) * cell, (z2 - z1) * cell);
-    const dirZ = ((z2 - z1) * cell) / Math.hypot((x2 - x1) * cell, (z2 - z1) * cell);
+    const dirX =
+      ((x2 - x1) * cell) / Math.hypot((x2 - x1) * cell, (z2 - z1) * cell);
+    const dirZ =
+      ((z2 - z1) * cell) / Math.hypot((x2 - x1) * cell, (z2 - z1) * cell);
     const geometry = new BufferGeometry();
     geometry.setAttribute(
       "position",
       new Float32BufferAttribute(
-        boxTriangles(midX, deckTop + 0.55, midZ, [dirX, dirZ], cell, 1.05, 0.16),
+        boxTriangles(
+          midX,
+          deckTop + 0.55,
+          midZ,
+          [dirX, dirZ],
+          cell,
+          1.05,
+          0.16,
+        ),
         3,
       ),
     );
@@ -2419,7 +2870,9 @@ export function createExtrapolatedMargin(): Group {
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
     bodyGeometries.push(geometry);
     if (inked) {
-      edgeGeometries.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+      edgeGeometries.push(
+        new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
+      );
     }
   };
   const GROUND_TOP = 2.1;
@@ -2541,7 +2994,9 @@ export function createSiegessaeule(): Group {
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
     bodyGeometries.push(geometry);
     if (inked) {
-      edgeGeometries.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
+      edgeGeometries.push(
+        new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
+      );
     }
   };
   const GROUND_TOP = 2.1;
@@ -2552,7 +3007,11 @@ export function createSiegessaeule(): Group {
   // Großer Stern circle and the Siegessäule.
   const SX = AXIS_TO[0];
   const SZ = AXIS_TO[1];
-  addPart(prismTriangles(SX, GROUND_TOP - 1.3, SZ, 100, 3.2, 16), ISO_GROUND_SHADES.asphalt[1], false);
+  addPart(
+    prismTriangles(SX, GROUND_TOP - 1.3, SZ, 100, 3.2, 16),
+    ISO_GROUND_SHADES.asphalt[1],
+    false,
+  );
   addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xcbc8be);
   addPart(boxTriangles(SX, GROUND_TOP + 4.9, SZ, axis, 23, 7, 23), 0x9a5f4c);
   addPart(prismTriangles(SX, GROUND_TOP + 10.4, SZ, 9, 4, 12), 0xcbc8be);
@@ -2566,9 +3025,15 @@ export function createSiegessaeule(): Group {
   ] as const;
   let columnBase = GROUND_TOP + 12.4;
   for (const [radius, height] of DRUMS) {
-    addPart(prismTriangles(SX, columnBase + height / 2, SZ, radius, height, 12), 0xc9b98f);
+    addPart(
+      prismTriangles(SX, columnBase + height / 2, SZ, radius, height, 12),
+      0xc9b98f,
+    );
     columnBase += height;
-    addPart(prismTriangles(SX, columnBase + 0.4, SZ, radius + 0.5, 0.8, 12), 0xd4af37);
+    addPart(
+      prismTriangles(SX, columnBase + 0.4, SZ, radius + 0.5, 0.8, 12),
+      0xd4af37,
+    );
     columnBase += 0.8;
   }
   addPart(prismTriangles(SX, columnBase + 1.1, SZ, 4.6, 2.2, 12), 0xcbc8be);
@@ -2598,7 +3063,14 @@ export function createSiegessaeule(): Group {
       const angle = (flute / count) * Math.PI * 2;
       const fx = SX + Math.cos(angle) * (radius + 0.04);
       const fz = SZ + Math.sin(angle) * (radius + 0.04);
-      monumentInk.push(fx, fluteBase + 0.4, fz, fx, fluteBase + height - 0.4, fz);
+      monumentInk.push(
+        fx,
+        fluteBase + 0.4,
+        fz,
+        fx,
+        fluteBase + height - 0.4,
+        fz,
+      );
       if (gilded) {
         // The barrel itself, proud of the shaft: a slim gilded rod that reads
         // as a highlight in the flute rather than as a drawn line only.
@@ -2629,10 +3101,24 @@ export function createSiegessaeule(): Group {
   for (let panel = 1; panel < 5; panel += 1) {
     const t = -11.5 + (panel / 5) * 23;
     for (const zSide of [-11.5, 11.5]) {
-      monumentInk.push(SX + t, GROUND_TOP + 2.6, SZ + zSide, SX + t, GROUND_TOP + 7.2, SZ + zSide);
+      monumentInk.push(
+        SX + t,
+        GROUND_TOP + 2.6,
+        SZ + zSide,
+        SX + t,
+        GROUND_TOP + 7.2,
+        SZ + zSide,
+      );
     }
     for (const xSide of [-11.5, 11.5]) {
-      monumentInk.push(SX + xSide, GROUND_TOP + 2.6, SZ + t, SX + xSide, GROUND_TOP + 7.2, SZ + t);
+      monumentInk.push(
+        SX + xSide,
+        GROUND_TOP + 2.6,
+        SZ + t,
+        SX + xSide,
+        GROUND_TOP + 7.2,
+        SZ + t,
+      );
     }
   }
   for (let column = 0; column < 16; column += 1) {
@@ -2642,7 +3128,10 @@ export function createSiegessaeule(): Group {
     addPart(prismTriangles(cxx, GROUND_TOP + 4.6, czz, 0.85, 6.4, 8), 0xcbc8be);
     // Doric capital and base, so the ring reads as a colonnade rather than
     // as sixteen plain posts.
-    addPart(prismTriangles(cxx, GROUND_TOP + 7.95, czz, 1.05, 0.5, 8), 0xd6d2c7);
+    addPart(
+      prismTriangles(cxx, GROUND_TOP + 7.95, czz, 1.05, 0.5, 8),
+      0xd6d2c7,
+    );
     addPart(prismTriangles(cxx, GROUND_TOP + 1.6, czz, 1.02, 0.6, 8), 0xd6d2c7);
   }
   addPart(prismTriangles(SX, GROUND_TOP + 8.3, SZ, 19.2, 1, 16), 0xbfbcb2);
@@ -2650,7 +3139,11 @@ export function createSiegessaeule(): Group {
   // of the founding of the Reich) lines the wall of the Säulenhalle behind
   // the colonnade. Drawn as a gold-ground band with its panel divisions
   // inked, which is what the mosaic reads as from outside the ring.
-  addPart(prismTriangles(SX, GROUND_TOP + 4.9, SZ, 16.6, 5.2, 32), 0xa8843c, false);
+  addPart(
+    prismTriangles(SX, GROUND_TOP + 4.9, SZ, 16.6, 5.2, 32),
+    0xa8843c,
+    false,
+  );
   for (let panel = 0; panel < 16; panel += 1) {
     const angle = ((panel + 0.5) / 16) * Math.PI * 2;
     const mx = SX + Math.cos(angle) * 16.65;
@@ -2680,25 +3173,57 @@ export function createSiegessaeule(): Group {
   // https://de.wikipedia.org/wiki/Bismarck-Nationaldenkmal_(Berlin)
   const BX = SX + 24;
   const BZ = SZ - 118;
-  addPart(boxTriangles(BX, GROUND_TOP + 1.1, BZ, [1, 0], 22, 2.2, 22), 0xcbc8be);
-  addPart(boxTriangles(BX, GROUND_TOP + 6.2, BZ, [1, 0], 9.6, 8, 9.6), 0x9a5f4c);
+  addPart(
+    boxTriangles(BX, GROUND_TOP + 1.1, BZ, [1, 0], 22, 2.2, 22),
+    0xcbc8be,
+  );
+  addPart(
+    boxTriangles(BX, GROUND_TOP + 6.2, BZ, [1, 0], 9.6, 8, 9.6),
+    0x9a5f4c,
+  );
   // Chancellor figure on the pedestal: long coat (wide at the hem,
   // narrowing toward the shoulders), shoulder block, head, and the
   // Reichsschwert he leans on at his side.
-  addPart(boxTriangles(BX, GROUND_TOP + 11.2, BZ, [1, 0], 3.6, 4.6, 2.4), 0x5d7264); // coat, hem-to-waist
-  addPart(boxTriangles(BX, GROUND_TOP + 13.9, BZ, [1, 0], 2.7, 1.2, 2.1), 0x5d7264); // chest/shoulders
-  addPart(boxTriangles(BX, GROUND_TOP + 14.75, BZ, [1, 0], 1.0, 1.0, 1.0), 0x5d7264); // head
   addPart(
-    boxTriangles(BX + 1.5, GROUND_TOP + 10.6, BZ + 0.6, [1, 0], 0.32, 5.4, 0.32),
+    boxTriangles(BX, GROUND_TOP + 11.2, BZ, [1, 0], 3.6, 4.6, 2.4),
+    0x5d7264,
+  ); // coat, hem-to-waist
+  addPart(
+    boxTriangles(BX, GROUND_TOP + 13.9, BZ, [1, 0], 2.7, 1.2, 2.1),
+    0x5d7264,
+  ); // chest/shoulders
+  addPart(
+    boxTriangles(BX, GROUND_TOP + 14.75, BZ, [1, 0], 1.0, 1.0, 1.0),
+    0x5d7264,
+  ); // head
+  addPart(
+    boxTriangles(
+      BX + 1.5,
+      GROUND_TOP + 10.6,
+      BZ + 0.6,
+      [1, 0],
+      0.32,
+      5.4,
+      0.32,
+    ),
     0x4a5b50,
   ); // Reichsschwert, point resting near the feet
   for (const cornerX of [-1, 1]) {
     for (const cornerZ of [-1, 1]) {
       const cx = BX + cornerX * 8.2;
       const cz = BZ + cornerZ * 8.2;
-      addPart(boxTriangles(cx, GROUND_TOP + 2.9, cz, [1, 0], 3.6, 1.6, 3.6), 0x5d7264); // plinth
-      addPart(boxTriangles(cx, GROUND_TOP + 4.7, cz, [1, 0], 1.6, 2.0, 1.4), 0x5d7264); // seated allegorical torso
-      addPart(boxTriangles(cx, GROUND_TOP + 5.85, cz, [1, 0], 0.7, 0.7, 0.7), 0x5d7264); // head
+      addPart(
+        boxTriangles(cx, GROUND_TOP + 2.9, cz, [1, 0], 3.6, 1.6, 3.6),
+        0x5d7264,
+      ); // plinth
+      addPart(
+        boxTriangles(cx, GROUND_TOP + 4.7, cz, [1, 0], 1.6, 2.0, 1.4),
+        0x5d7264,
+      ); // seated allegorical torso
+      addPart(
+        boxTriangles(cx, GROUND_TOP + 5.85, cz, [1, 0], 0.7, 0.7, 0.7),
+        0x5d7264,
+      ); // head
     }
   }
   const bismarckGeometry = new BufferGeometry();
@@ -2784,11 +3309,7 @@ export function createHotelAdlon(): Group {
   const FACADE = new Color(0xf2ebda);
   const SOCKEL = new Color(0xe6dfcd);
   const ROOF = new Color(0xd3d6cf);
-  const add = (
-    triangles: Float32Array,
-    tone: Color,
-    inked = true,
-  ): void => {
+  const add = (triangles: Float32Array, tone: Color, inked = true): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
     geometry.computeVertexNormals();
@@ -2830,26 +3351,66 @@ export function createHotelAdlon(): Group {
     );
     // Sockel band and eaves cornice, matching the city convention.
     add(
-      boxTriangles(ax + ox, GROUND + 0.35, az + oz, [1, 0], sx + 0.5, 0.7, sz + 0.5),
+      boxTriangles(
+        ax + ox,
+        GROUND + 0.35,
+        az + oz,
+        [1, 0],
+        sx + 0.5,
+        0.7,
+        sz + 0.5,
+      ),
       SOCKEL,
     );
     add(
-      boxTriangles(ax + ox, EAVES + 0.2, az + oz, [1, 0], sx + 0.9, 0.5, sz + 0.9),
+      boxTriangles(
+        ax + ox,
+        EAVES + 0.2,
+        az + oz,
+        [1, 0],
+        sx + 0.9,
+        0.5,
+        sz + 0.9,
+      ),
       SOCKEL,
     );
     // Mansard attic storey, stepped in.
     add(
-      boxTriangles(ax + ox, EAVES + 2.1, az + oz, [1, 0], sx - 2.2, 3.4, sz - 2.2),
+      boxTriangles(
+        ax + ox,
+        EAVES + 2.1,
+        az + oz,
+        [1, 0],
+        sx - 2.2,
+        3.4,
+        sz - 2.2,
+      ),
       ROOF,
     );
   }
   // The Pariser-Platz corner risalit rises one storey higher.
   add(
-    boxTriangles(ax - halfX + 9, GROUND + (EAVES + 3 - GROUND) / 2, az - halfZ + 9, [1, 0], 18, EAVES + 3 - GROUND, 18),
+    boxTriangles(
+      ax - halfX + 9,
+      GROUND + (EAVES + 3 - GROUND) / 2,
+      az - halfZ + 9,
+      [1, 0],
+      18,
+      EAVES + 3 - GROUND,
+      18,
+    ),
     FACADE,
   );
   add(
-    boxTriangles(ax - halfX + 9, EAVES + 5.4, az - halfZ + 9, [1, 0], 15.8, 3.8, 15.8),
+    boxTriangles(
+      ax - halfX + 9,
+      EAVES + 5.4,
+      az - halfZ + 9,
+      [1, 0],
+      15.8,
+      3.8,
+      15.8,
+    ),
     ROOF,
   );
   const merged = mergeGeometries(parts, false);
@@ -3011,7 +3572,8 @@ export function createPaulLoebeCanopy(): Group {
   const columnHeight =
     PAUL_LOEBE_CANOPY_TOP_Y - PAUL_LOEBE_CANOPY_SLAB_M - PAUL_LOEBE_GROUND_Y;
   const firstZ = northZ + 3.2;
-  const stepZ = (PAUL_LOEBE_CANOPY_SPAN_Z - 6.4) / (PAUL_LOEBE_COLUMN_COUNT - 1);
+  const stepZ =
+    (PAUL_LOEBE_CANOPY_SPAN_Z - 6.4) / (PAUL_LOEBE_COLUMN_COUNT - 1);
   for (let index = 0; index < PAUL_LOEBE_COLUMN_COUNT; index += 1) {
     add(
       prismTriangles(
@@ -3047,8 +3609,12 @@ export function createPaulLoebeCanopy(): Group {
   const inkX = glassX - 0.14;
   for (let z = glassMinZ; z <= glassMaxZ + 1e-6; z += PAUL_LOEBE_MULLION_M) {
     inkLines.push(
-      inkX, PAUL_LOEBE_GROUND_Y, z,
-      inkX, PAUL_LOEBE_GLASS_TOP_Y, z,
+      inkX,
+      PAUL_LOEBE_GROUND_Y,
+      z,
+      inkX,
+      PAUL_LOEBE_GLASS_TOP_Y,
+      z,
     );
   }
   for (
@@ -3353,11 +3919,7 @@ export function createGymnasiumTiergarten(): Group {
       const u = -length / 2 + length * ((bay + 0.5) / 8);
       for (const side of [-1, 1]) {
         const [wx, wz] = at(u, (side * depth) / 2);
-        add(
-          boxTriangles(wx, y, wz, axis, 1.9, windowRise, 0.3),
-          WINDOW,
-          false,
-        );
+        add(boxTriangles(wx, y, wz, axis, 1.9, windowRise, 0.3), WINDOW, false);
       }
     }
     for (let bay = 0; bay < 4; bay += 1) {
@@ -3557,10 +4119,7 @@ export function createLandmarkRefinements(): Group {
     HKW_SADDLE_BASE_Y + HKW_SADDLE_RISE_M * v * v - HKW_SADDLE_DROP_M * u * u;
   const STEPS = 14;
   const shell: number[] = [];
-  const shellPoint = (
-    ui: number,
-    vi: number,
-  ): [number, number, number] => {
+  const shellPoint = (ui: number, vi: number): [number, number, number] => {
     const u = (ui / STEPS) * 2 - 1;
     const v = (vi / STEPS) * 2 - 1;
     return [hkwX + u * HKW_HALF_X, saddleY(u, v), hkwZ + v * HKW_HALF_Z];
@@ -3575,12 +4134,24 @@ export function createLandmarkRefinements(): Group {
       // Underside, so the cantilever reads as a shell and not as a sheet.
       const lift = 0.6;
       shell.push(
-        a[0], a[1] - lift, a[2],
-        c[0], c[1] - lift, c[2],
-        b[0], b[1] - lift, b[2],
-        a[0], a[1] - lift, a[2],
-        d[0], d[1] - lift, d[2],
-        c[0], c[1] - lift, c[2],
+        a[0],
+        a[1] - lift,
+        a[2],
+        c[0],
+        c[1] - lift,
+        c[2],
+        b[0],
+        b[1] - lift,
+        b[2],
+        a[0],
+        a[1] - lift,
+        a[2],
+        d[0],
+        d[1] - lift,
+        d[2],
+        c[0],
+        c[1] - lift,
+        c[2],
       );
     }
   }
@@ -3619,19 +4190,10 @@ export function createLandmarkRefinements(): Group {
     );
   }
   // Auditorium drum under the crown of the shell.
-  add(
-    prismTriangles(hkwX, 11.4, hkwZ, 19, 8.6, 20),
-    STONE_TONE,
-  );
+  add(prismTriangles(hkwX, 11.4, hkwZ, 19, 8.6, 20), STONE_TONE);
   // Reflecting pool on the west forecourt with its low kerb.
-  add(
-    boxTriangles(hkwX - 82, 3.5, hkwZ, [1, 0], 54, 0.5, 66),
-    POOL,
-  );
-  add(
-    boxTriangles(hkwX - 82, 3.95, hkwZ, [1, 0], 56, 0.4, 68),
-    SHELL_EDGE,
-  );
+  add(boxTriangles(hkwX - 82, 3.5, hkwZ, [1, 0], 54, 0.5, 66), POOL);
+  add(boxTriangles(hkwX - 82, 3.95, hkwZ, [1, 0], 56, 0.4, 68), SHELL_EDGE);
 
   // --- Marie-Elisabeth-Lüders-Haus: library rotunda + Spree colonnade -----
   const [melhX, melhZ] = MELH_ROTUNDA;
@@ -3651,18 +4213,19 @@ export function createLandmarkRefinements(): Group {
       const b = ((seg + 1) / 28) * Math.PI * 2;
       const r = MELH_ROTUNDA_RADIUS + 0.05;
       inkLines.push(
-        melhX + Math.cos(a) * r, ringY, melhZ + Math.sin(a) * r,
-        melhX + Math.cos(b) * r, ringY, melhZ + Math.sin(b) * r,
+        melhX + Math.cos(a) * r,
+        ringY,
+        melhZ + Math.sin(a) * r,
+        melhX + Math.cos(b) * r,
+        ringY,
+        melhZ + Math.sin(b) * r,
       );
     }
   }
   for (let z = -175; z <= -90; z += 5.4) {
     add(prismTriangles(372.4, 16, z, 0.55, 22, 10), COLUMN_TONE);
   }
-  add(
-    boxTriangles(373.2, 27.6, -132.5, [0, 1], 88, 1.4, 3.6),
-    STONE_TONE,
-  );
+  add(boxTriangles(373.2, 27.6, -132.5, [0, 1], 88, 1.4, 3.6), STONE_TONE);
 
   // --- Jakob-Kaiser-Haus: the west arcade facing the Reichstag ------------
   for (let z = 26; z <= 186; z += 5.6) {
@@ -3680,12 +4243,14 @@ export function createLandmarkRefinements(): Group {
   // --- Paul-Löbe-Haus: the eight glazed committee rotundas ----------------
   const plhRotundaY = PLH_ROTUNDA_BASE_Y + PLH_ROTUNDA_HEIGHT / 2;
   const plhDrums: [number, number][] = [
-    ...PLH_NORTH_COURTYARD_X.map(
-      (x): [number, number] => [x, -117 + PLH_ROTUNDA_RADIUS],
-    ),
-    ...PLH_SOUTH_COURTYARD_X.map(
-      (x): [number, number] => [x, -153 - PLH_ROTUNDA_RADIUS],
-    ),
+    ...PLH_NORTH_COURTYARD_X.map((x): [number, number] => [
+      x,
+      -117 + PLH_ROTUNDA_RADIUS,
+    ]),
+    ...PLH_SOUTH_COURTYARD_X.map((x): [number, number] => [
+      x,
+      -153 - PLH_ROTUNDA_RADIUS,
+    ]),
   ];
   for (const [drumX, drumZ] of plhDrums) {
     add(
@@ -3719,8 +4284,12 @@ export function createLandmarkRefinements(): Group {
         const b = ((seg + 1) / 24) * Math.PI * 2;
         const r = PLH_ROTUNDA_RADIUS + 0.05;
         inkLines.push(
-          drumX + Math.cos(a) * r, ringY, drumZ + Math.sin(a) * r,
-          drumX + Math.cos(b) * r, ringY, drumZ + Math.sin(b) * r,
+          drumX + Math.cos(a) * r,
+          ringY,
+          drumZ + Math.sin(a) * r,
+          drumX + Math.cos(b) * r,
+          ringY,
+          drumZ + Math.sin(b) * r,
         );
       }
     }
@@ -3778,20 +4347,39 @@ export function createLandmarkRefinements(): Group {
       botSpanX + 1.1,
       3.8,
       botSpanZ + 1.1,
-      ),
+    ),
     STONE_TONE,
   );
   add(
-    boxTriangles(botX, BOTSCHAFT_CORNICE_Y, botZ, [1, 0], botSpanX + 1.6, 1, botSpanZ + 1.6),
+    boxTriangles(
+      botX,
+      BOTSCHAFT_CORNICE_Y,
+      botZ,
+      [1, 0],
+      botSpanX + 1.6,
+      1,
+      botSpanZ + 1.6,
+    ),
     SHELL_EDGE,
   );
   for (let x = BOTSCHAFT_MIN_X + 1.4; x <= BOTSCHAFT_MAX_X - 1.4; x += 2.1) {
     for (const z of [BOTSCHAFT_MIN_Z - 0.5, BOTSCHAFT_MAX_Z + 0.5]) {
-      add(prismTriangles(x, BOTSCHAFT_CORNICE_Y + 1.4, z, 0.22, 1.8, 8), STONE_TONE);
+      add(
+        prismTriangles(x, BOTSCHAFT_CORNICE_Y + 1.4, z, 0.22, 1.8, 8),
+        STONE_TONE,
+      );
     }
   }
   add(
-    boxTriangles(botX, BOTSCHAFT_CORNICE_Y + 2.5, botZ, [1, 0], botSpanX + 1.6, 0.4, botSpanZ + 1.6),
+    boxTriangles(
+      botX,
+      BOTSCHAFT_CORNICE_Y + 2.5,
+      botZ,
+      [1, 0],
+      botSpanX + 1.6,
+      0.4,
+      botSpanZ + 1.6,
+    ),
     SHELL_EDGE,
   );
   for (let index = 0; index < 4; index += 1) {
@@ -3828,20 +4416,38 @@ export function createLandmarkRefinements(): Group {
   const gable: number[] = [];
   for (const zSide of [-pedHalfZ, pedHalfZ]) {
     gable.push(
-      botX - pedHalfX, pedY, pedZ + zSide,
-      botX + pedHalfX, pedY, pedZ + zSide,
-      botX, pedApex, pedZ + zSide,
+      botX - pedHalfX,
+      pedY,
+      pedZ + zSide,
+      botX + pedHalfX,
+      pedY,
+      pedZ + zSide,
+      botX,
+      pedApex,
+      pedZ + zSide,
     );
   }
   for (const xSide of [-1, 1]) {
     const ex = botX + xSide * pedHalfX;
     gable.push(
-      ex, pedY, pedZ - pedHalfZ,
-      ex, pedY, pedZ + pedHalfZ,
-      botX, pedApex, pedZ + pedHalfZ,
-      ex, pedY, pedZ - pedHalfZ,
-      botX, pedApex, pedZ + pedHalfZ,
-      botX, pedApex, pedZ - pedHalfZ,
+      ex,
+      pedY,
+      pedZ - pedHalfZ,
+      ex,
+      pedY,
+      pedZ + pedHalfZ,
+      botX,
+      pedApex,
+      pedZ + pedHalfZ,
+      ex,
+      pedY,
+      pedZ - pedHalfZ,
+      botX,
+      pedApex,
+      pedZ + pedHalfZ,
+      botX,
+      pedApex,
+      pedZ - pedHalfZ,
     );
   }
   add(new Float32Array(gable), STONE_TONE);
@@ -3853,19 +4459,48 @@ export function createLandmarkRefinements(): Group {
   const rustZ1 = BOTSCHAFT_MAX_Z + 0.5;
   for (const y of [BOTSCHAFT_GROUND_Y + 1.25, BOTSCHAFT_GROUND_Y + 2.5]) {
     inkLines.push(
-      rustX0, y, rustZ0, rustX1, y, rustZ0,
-      rustX0, y, rustZ1, rustX1, y, rustZ1,
-      rustX0, y, rustZ0, rustX0, y, rustZ1,
-      rustX1, y, rustZ0, rustX1, y, rustZ1,
+      rustX0,
+      y,
+      rustZ0,
+      rustX1,
+      y,
+      rustZ0,
+      rustX0,
+      y,
+      rustZ1,
+      rustX1,
+      y,
+      rustZ1,
+      rustX0,
+      y,
+      rustZ0,
+      rustX0,
+      y,
+      rustZ1,
+      rustX1,
+      y,
+      rustZ0,
+      rustX1,
+      y,
+      rustZ1,
     );
   }
   for (let index = 0; index <= 20; index += 1) {
     const x = rustX0 + (index / 20) * (rustX1 - rustX0);
-    const top =
-      index % 2 === 0 ? BOTSCHAFT_GROUND_Y + 2.5 : botBaseTop;
+    const top = index % 2 === 0 ? BOTSCHAFT_GROUND_Y + 2.5 : botBaseTop;
     inkLines.push(
-      x, BOTSCHAFT_GROUND_Y, rustZ0, x, top, rustZ0,
-      x, BOTSCHAFT_GROUND_Y, rustZ1, x, top, rustZ1,
+      x,
+      BOTSCHAFT_GROUND_Y,
+      rustZ0,
+      x,
+      top,
+      rustZ0,
+      x,
+      BOTSCHAFT_GROUND_Y,
+      rustZ1,
+      x,
+      top,
+      rustZ1,
     );
   }
   // Cornice profile: a fascia and a drip course under the main slab.
@@ -4212,9 +4847,8 @@ export function createSmoothSurfaces(
     const kerbPositions: number[] = [];
     const kerbInk: number[] = [];
     const KERB_RISE = 0.14;
-    const asphaltLift = ROAD_SURFACES.find(
-      (entry) => entry.kind === "asphalt",
-    )?.lift ?? 0.14;
+    const asphaltLift =
+      ROAD_SURFACES.find((entry) => entry.kind === "asphalt")?.lift ?? 0.14;
     const kerbRings = roads
       .filter((entry) => entry.kind === "asphalt")
       .flatMap((entry) => [entry.ring, ...(entry.holes ?? [])]);
@@ -4226,14 +4860,34 @@ export function createSmoothSurfaces(
         if (Math.hypot(bx - ax, bz - az) < 0.05) {
           continue;
         }
-        const aBase = (terrainAt ? terrainAt(ax, az) + asphaltLift : bankY + asphaltLift);
-        const bBase = (terrainAt ? terrainAt(bx, bz) + asphaltLift : bankY + asphaltLift);
+        const aBase = terrainAt
+          ? terrainAt(ax, az) + asphaltLift
+          : bankY + asphaltLift;
+        const bBase = terrainAt
+          ? terrainAt(bx, bz) + asphaltLift
+          : bankY + asphaltLift;
         const aTop = aBase + KERB_RISE;
         const bTop = bBase + KERB_RISE;
         // Two triangles of upstand between road level and kerb top.
         kerbPositions.push(
-          ax, aBase, az, bx, bBase, bz, bx, bTop, bz,
-          ax, aBase, az, bx, bTop, bz, ax, aTop, az,
+          ax,
+          aBase,
+          az,
+          bx,
+          bBase,
+          bz,
+          bx,
+          bTop,
+          bz,
+          ax,
+          aBase,
+          az,
+          bx,
+          bTop,
+          bz,
+          ax,
+          aTop,
+          az,
         );
         kerbInk.push(ax, aTop + 0.01, az, bx, bTop + 0.01, bz);
       }
@@ -4324,10 +4978,7 @@ export function createSmoothSurfaces(
     }
     if (points.length > 0) {
       const geometry = new BufferGeometry();
-      geometry.setAttribute(
-        "position",
-        new Float32BufferAttribute(points, 3),
-      );
+      geometry.setAttribute("position", new Float32BufferAttribute(points, 3));
       const material = new LineBasicMaterial({ color: 0xf2f0e8 });
       const lines = new LineSegments(geometry, material);
       lines.name = "carriageway lane markings";
@@ -4421,17 +5072,18 @@ export function createSmoothSurfaces(
     }
     return { maxX, maxZ, minX, minZ };
   });
-  const landwardIsWater = (
-    self: number,
-    xDm: number,
-    zDm: number,
-  ): boolean => {
+  const landwardIsWater = (self: number, xDm: number, zDm: number): boolean => {
     for (let index = 0; index < rivers.length; index += 1) {
       if (index === self) {
         continue;
       }
       const box = riverBounds[index];
-      if (xDm < box.minX || xDm > box.maxX || zDm < box.minZ || zDm > box.maxZ) {
+      if (
+        xDm < box.minX ||
+        xDm > box.maxX ||
+        zDm < box.minZ ||
+        zDm > box.maxZ
+      ) {
         continue;
       }
       if (ringContains(rivers[index].ring, xDm, zDm)) {
@@ -4464,8 +5116,8 @@ export function createSmoothSurfaces(
         continue;
       }
       // Coping band: the walkable lip on top of the wall, on the land side.
-      const outX = (((bz - az) / run) * COPING_WIDTH_M) * outward;
-      const outZ = ((-(bx - ax) / run) * COPING_WIDTH_M) * outward;
+      const outX = ((bz - az) / run) * COPING_WIDTH_M * outward;
+      const outZ = (-(bx - ax) / run) * COPING_WIDTH_M * outward;
       if (
         landwardIsWater(
           riverIndex,
@@ -4504,15 +5156,22 @@ export function createSmoothSurfaces(
       // continuous chain rather than alternating water line and kerb.
       shorePositions.push(ax, bankY + 0.16, az, bx, bankY + 0.16, bz);
       copingPositions.push(
-        ax + outX, bankY + 0.16, az + outZ,
-        bx + outX, bankY + 0.16, bz + outZ,
+        ax + outX,
+        bankY + 0.16,
+        az + outZ,
+        bx + outX,
+        bankY + 0.16,
+        bz + outZ,
       );
     }
   }
   const inkPositions = shorePositions.concat(copingPositions);
   if (wallPositions.length > 0) {
     const geometry = new BufferGeometry();
-    geometry.setAttribute("position", new Float32BufferAttribute(wallPositions, 3));
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(wallPositions, 3),
+    );
     geometry.setAttribute("color", new Float32BufferAttribute(wallColors, 3));
     geometry.computeVertexNormals();
     const dayMaterial = new MeshBasicMaterial({
@@ -4616,6 +5275,8 @@ function addBasinsAndSunkenWalls(
   const levelOf = new Map<SurfacePolygon, number>();
   const bedParts: BufferGeometry[] = [];
   const waterParts: BufferGeometry[] = [];
+  const ottoBedParts: BufferGeometry[] = [];
+  const ottoWaterParts: BufferGeometry[] = [];
   const rimInk: number[] = [];
   for (const basin of basins) {
     if (basin.ring.length < 4) {
@@ -4630,9 +5291,20 @@ function addBasinsAndSunkenWalls(
     } catch {
       continue;
     }
+    const basinCx =
+      basin.ring.reduce((sum, [x]) => sum + x / 10, 0) / basin.ring.length;
+    const basinCz =
+      basin.ring.reduce((sum, [, z]) => sum + z / 10, 0) / basin.ring.length;
+    const isOttoWeidtFountain =
+      basin.area_m2 > 150 &&
+      basin.area_m2 < 220 &&
+      Math.hypot(
+        basinCx - OTTO_WEIDT_FOUNTAIN_WORLD[0],
+        basinCz - OTTO_WEIDT_FOUNTAIN_WORLD[1],
+      ) < 8;
     for (const [y, target] of [
-      [level - BED_GAP_M, bedParts],
-      [level, waterParts],
+      [level - BED_GAP_M, isOttoWeidtFountain ? ottoBedParts : bedParts],
+      [level, isOttoWeidtFountain ? ottoWaterParts : waterParts],
     ] as const) {
       let geometry: ShapeGeometry;
       try {
@@ -4697,6 +5369,29 @@ function addBasinsAndSunkenWalls(
       color: 0x27435c,
       depthWrite: false,
       opacity: 0.92,
+      transparent: true,
+    }),
+    1,
+  );
+  addPlate(
+    ottoBedParts,
+    "Otto-Weidt-Platz fountain floor",
+    new MeshBasicMaterial({ color: 0x8c9692 }),
+    new MeshBasicMaterial({ color: 0x14242d }),
+  );
+  addPlate(
+    ottoWaterParts,
+    "Otto-Weidt-Platz fountain water",
+    new MeshBasicMaterial({
+      color: 0x628da1,
+      depthWrite: false,
+      opacity: 0.91,
+      transparent: true,
+    }),
+    new MeshBasicMaterial({
+      color: 0x18384d,
+      depthWrite: false,
+      opacity: 0.94,
       transparent: true,
     }),
     1,
@@ -4818,20 +5513,36 @@ function addBasinsAndSunkenWalls(
       const y0 = rampAt(p0x, p0z) + 0.05;
       const y1 = rampAt(p1x, p1z) + 0.05;
       crownPositions.push(
-        p0x - sideX, y0, p0z - sideZ,
-        p1x - sideX, y1, p1z - sideZ,
-        p1x + sideX, y1, p1z + sideZ,
-        p0x - sideX, y0, p0z - sideZ,
-        p1x + sideX, y1, p1z + sideZ,
-        p0x + sideX, y0, p0z + sideZ,
+        p0x - sideX,
+        y0,
+        p0z - sideZ,
+        p1x - sideX,
+        y1,
+        p1z - sideZ,
+        p1x + sideX,
+        y1,
+        p1z + sideZ,
+        p0x - sideX,
+        y0,
+        p0z - sideZ,
+        p1x + sideX,
+        y1,
+        p1z + sideZ,
+        p0x + sideX,
+        y0,
+        p0z + sideZ,
       );
     }
     for (const side of [-1, 1] as const) {
       const railX = sideX * side;
       const railZ = sideZ * side;
       wallInk.push(
-        footX + railX, footY + 0.05 + RAIL_HEIGHT_M, footZ + railZ,
-        crestX + railX, crestY + 0.05 + RAIL_HEIGHT_M, crestZ + railZ,
+        footX + railX,
+        footY + 0.05 + RAIL_HEIGHT_M,
+        footZ + railZ,
+        crestX + railX,
+        crestY + 0.05 + RAIL_HEIGHT_M,
+        crestZ + railZ,
       );
       const posts = Math.max(2, Math.round(axisLength / RAIL_POST_SPACING_M));
       for (let post = 0; post <= posts; post += 1) {
@@ -5024,12 +5735,17 @@ export function createIsometricCity(
           const z = wall.z1 + wall.dirZ * along + oz;
           mullionPositions.push(x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z);
         }
-        const storeys = Math.floor((totalHeight - 1) / ISO_WINDOW_FLOOR_PITCH_M);
+        const storeys = Math.floor(
+          (totalHeight - 1) / ISO_WINDOW_FLOOR_PITCH_M,
+        );
         for (let step = 1; step <= storeys; step += 1) {
           const y = y0 + step * ISO_WINDOW_FLOOR_PITCH_M;
           mullionPositions.push(
-            wall.x1 + ox, y, wall.z1 + oz,
-            wall.x1 + wall.dirX * wall.length + ox, y,
+            wall.x1 + ox,
+            y,
+            wall.z1 + oz,
+            wall.x1 + wall.dirX * wall.length + ox,
+            y,
             wall.z1 + wall.dirZ * wall.length + oz,
           );
         }
@@ -5170,8 +5886,11 @@ export function createIsometricCity(
             for (let floor = 0; floor < grid.floors; floor += 1) {
               const bandY = sillOf(floor) - 0.28;
               facadeAxisPositions.push(
-                wall.x1 + ox, bandY, wall.z1 + oz,
-                wall.x1 + wall.dirX * wall.length + ox, bandY,
+                wall.x1 + ox,
+                bandY,
+                wall.z1 + oz,
+                wall.x1 + wall.dirX * wall.length + ox,
+                bandY,
                 wall.z1 + wall.dirZ * wall.length + oz,
               );
             }
@@ -5246,9 +5965,13 @@ export function createIsometricCity(
           "position",
           new Float32BufferAttribute(
             boxTriangles(
-              mx, y0 + SOCKEL_HEIGHT_M / 2, mz,
+              mx,
+              y0 + SOCKEL_HEIGHT_M / 2,
+              mz,
               [wall.dirX, wall.dirZ],
-              wall.length + 0.08, SOCKEL_HEIGHT_M, SOCKEL_DEPTH_M,
+              wall.length + 0.08,
+              SOCKEL_HEIGHT_M,
+              SOCKEL_DEPTH_M,
             ),
             3,
           ),
@@ -5262,9 +5985,13 @@ export function createIsometricCity(
             "position",
             new Float32BufferAttribute(
               boxTriangles(
-                mx, y0 + bodyHeight - CORNICE_HEIGHT_M / 2 - 0.04, mz,
+                mx,
+                y0 + bodyHeight - CORNICE_HEIGHT_M / 2 - 0.04,
+                mz,
                 [wall.dirX, wall.dirZ],
-                wall.length + 0.1, CORNICE_HEIGHT_M, CORNICE_DEPTH_M,
+                wall.length + 0.1,
+                CORNICE_HEIGHT_M,
+                CORNICE_DEPTH_M,
               ),
               3,
             ),
@@ -5293,12 +6020,22 @@ export function createIsometricCity(
         skylight.setAttribute(
           "position",
           new Float32BufferAttribute(
-            boxTriangles(domeX, roofTop + 0.35, domeZ + side, [1, 0], 38, 0.7, 7),
+            boxTriangles(
+              domeX,
+              roofTop + 0.35,
+              domeZ + side,
+              [1, 0],
+              38,
+              0.7,
+              7,
+            ),
             3,
           ),
         );
         skylight.computeVertexNormals();
-        edgeGeometries.push(new EdgesGeometry(skylight, ISO_EDGE_THRESHOLD_DEGREES));
+        edgeGeometries.push(
+          new EdgesGeometry(skylight, ISO_EDGE_THRESHOLD_DEGREES),
+        );
         bakeColor(skylight, new Color(FACADE_SHADES.glass[0]));
         glassGeometries.push(skylight);
         // The two bands are glazed in 1.9 m panels between steel bars —
@@ -5307,13 +6044,21 @@ export function createIsometricCity(
         const barY = roofTop + 0.72;
         for (let offset = -19; offset <= 19; offset += 1.9) {
           bars.push(
-            domeX + offset, barY, domeZ + side - 3.5,
-            domeX + offset, barY, domeZ + side + 3.5,
+            domeX + offset,
+            barY,
+            domeZ + side - 3.5,
+            domeX + offset,
+            barY,
+            domeZ + side + 3.5,
           );
         }
         bars.push(
-          domeX - 19, barY, domeZ + side,
-          domeX + 19, barY, domeZ + side,
+          domeX - 19,
+          barY,
+          domeZ + side,
+          domeX + 19,
+          barY,
+          domeZ + side,
         );
         const barGeometry = new BufferGeometry();
         barGeometry.setAttribute(
@@ -5331,7 +6076,9 @@ export function createIsometricCity(
         ),
       );
       restaurant.computeVertexNormals();
-      edgeGeometries.push(new EdgesGeometry(restaurant, ISO_EDGE_THRESHOLD_DEGREES));
+      edgeGeometries.push(
+        new EdgesGeometry(restaurant, ISO_EDGE_THRESHOLD_DEGREES),
+      );
       bakeColor(restaurant, new Color(0xc8ccc6).multiplyScalar(0.96));
       bodyGeometries.push(restaurant);
       const restaurantGlass = new BufferGeometry();
@@ -5359,15 +6106,20 @@ export function createIsometricCity(
         if (rect && rect.halfWidth > 5) {
           const topY = y0 + totalHeight;
           const across: [number, number] = [-rect.axis[1], rect.axis[0]];
-          const hvacTone = color.clone().multiplyScalar(0.88).lerp(ROOF_PLATE_TINT, 0.35);
+          const hvacTone = color
+            .clone()
+            .multiplyScalar(0.88)
+            .lerp(ROOF_PLATE_TINT, 0.35);
           const count = 1 + (hash32(building.id, 9) % 2);
           for (let unit = 0; unit < count; unit += 1) {
             const u =
-              (((hash32(building.id, 11 + unit) % 100) / 100) - 0.5) *
-              rect.halfLength * 1.05;
+              ((hash32(building.id, 11 + unit) % 100) / 100 - 0.5) *
+              rect.halfLength *
+              1.05;
             const v =
-              (((hash32(building.id, 31 + unit) % 100) / 100) - 0.5) *
-              rect.halfWidth * 0.85;
+              ((hash32(building.id, 31 + unit) % 100) / 100 - 0.5) *
+              rect.halfWidth *
+              0.85;
             const hvac = new BufferGeometry();
             hvac.setAttribute(
               "position",
@@ -5377,7 +6129,9 @@ export function createIsometricCity(
                   topY + 0.55,
                   rect.center[1] + rect.axis[1] * u + across[1] * v,
                   rect.axis,
-                  2.4, 1.1, 1.7,
+                  2.4,
+                  1.1,
+                  1.7,
                 ),
                 3,
               ),
@@ -5395,9 +6149,13 @@ export function createIsometricCity(
             "position",
             new Float32BufferAttribute(
               boxTriangles(
-                rect.center[0], topY + 0.3, rect.center[1],
+                rect.center[0],
+                topY + 0.3,
+                rect.center[1],
                 rect.axis,
-                rect.halfLength * 0.9, 0.6, 1.7,
+                rect.halfLength * 0.9,
+                0.6,
+                1.7,
               ),
               3,
             ),
@@ -5451,17 +6209,18 @@ export function createIsometricCity(
       // the ridge (one, or two on long roofs), inked like everything.
       if (roofCode === ROOF_GABLED && roofRect && roofRect.halfLength > 5) {
         const ridgeY = y0 + totalHeight;
-        const stackOffsets =
-          roofRect.halfLength > 10 ? [-0.45, 0.45] : [0.4];
+        const stackOffsets = roofRect.halfLength > 10 ? [-0.45, 0.45] : [0.4];
         for (const offset of stackOffsets) {
           const chimney = new BufferGeometry();
           chimney.setAttribute(
             "position",
             new Float32BufferAttribute(
               boxTriangles(
-                roofRect.center[0] + roofRect.axis[0] * roofRect.halfLength * offset,
+                roofRect.center[0] +
+                  roofRect.axis[0] * roofRect.halfLength * offset,
                 ridgeY + 0.45,
-                roofRect.center[1] + roofRect.axis[1] * roofRect.halfLength * offset,
+                roofRect.center[1] +
+                  roofRect.axis[1] * roofRect.halfLength * offset,
                 roofRect.axis,
                 0.9,
                 1.5,
@@ -5547,10 +6306,22 @@ export function createIsometricCity(
     const nightColors = new Float32Array(windows.length * 3);
     windows.forEach((spec, index) => {
       matrix.set(
-        spec.dirX * spec.width, 0, spec.nx, spec.px,
-        0, spec.height, 0, spec.py,
-        spec.dirZ * spec.width, 0, spec.nz, spec.pz,
-        0, 0, 0, 1,
+        spec.dirX * spec.width,
+        0,
+        spec.nx,
+        spec.px,
+        0,
+        spec.height,
+        0,
+        spec.py,
+        spec.dirZ * spec.width,
+        0,
+        spec.nz,
+        spec.pz,
+        0,
+        0,
+        0,
+        1,
       );
       pane.setMatrixAt(index, matrix);
       pane.setColorAt(index, spec.tone);
@@ -5584,10 +6355,22 @@ export function createIsometricCity(
       bars.name = "LoD2 prism window bars";
       framed.forEach((spec, index) => {
         matrix.set(
-          spec.dirX * spec.width, 0, spec.nx, spec.px,
-          0, spec.height, 0, spec.py,
-          spec.dirZ * spec.width, 0, spec.nz, spec.pz,
-          0, 0, 0, 1,
+          spec.dirX * spec.width,
+          0,
+          spec.nx,
+          spec.px,
+          0,
+          spec.height,
+          0,
+          spec.py,
+          spec.dirZ * spec.width,
+          0,
+          spec.nz,
+          spec.pz,
+          0,
+          0,
+          0,
+          1,
         );
         bars.setMatrixAt(index, matrix);
       });
@@ -5654,10 +6437,22 @@ export function createIsometricCity(
       lit.forEach((axis, index) => {
         const height = axis.yTop - axis.yBottom;
         matrix.set(
-          axis.dirX * 0.28, 0, axis.nx, axis.x,
-          0, height, 0, (axis.yTop + axis.yBottom) / 2,
-          axis.dirZ * 0.28, 0, axis.nz, axis.z,
-          0, 0, 0, 1,
+          axis.dirX * 0.28,
+          0,
+          axis.nx,
+          axis.x,
+          0,
+          height,
+          0,
+          (axis.yTop + axis.yBottom) / 2,
+          axis.dirZ * 0.28,
+          0,
+          axis.nz,
+          axis.z,
+          0,
+          0,
+          0,
+          1,
         );
         strips.setMatrixAt(index, matrix);
         strips.setColorAt(index, tone.setHex(axis.litTone));

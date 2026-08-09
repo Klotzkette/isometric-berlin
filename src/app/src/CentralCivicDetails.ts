@@ -1,6 +1,8 @@
 import {
   BoxGeometry,
+  CylinderGeometry,
   DoubleSide,
+  EdgesGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -51,7 +53,7 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     polar_degrees: 58,
     target_height_m: 17,
   },
-  "Futurium": {
+  Futurium: {
     azimuth_degrees: 30,
     distance_m: 218,
     polar_degrees: 57,
@@ -116,6 +118,14 @@ const GARDEN_GREEN = 0x5e9b66;
 const FOLIAGE = 0x4f8a58;
 const LIGHT_GREEN = 0x95bd75;
 const TAXI_IVORY = 0xe9dfbd;
+const WALL_CONCRETE = 0xa8a69e;
+const WALL_CONCRETE_DARK = 0x87877f;
+const WALL_PIPE = 0x9a9992;
+const WALL_FENCE = 0x555d5e;
+
+export const TOPOGRAPHY_WALL_LENGTH_M = 200;
+export const TOPOGRAPHY_WALL_SECTION_COUNT = 20;
+export const TOPOGRAPHY_WALL_ROTATION_RAD = 0.0742;
 
 function anchor(
   byName: Map<string, CentralCivicLandmark>,
@@ -298,18 +308,7 @@ function addTram(
       rotationY,
     );
   }
-  localBox(
-    builder,
-    INK,
-    point,
-    0,
-    4.35,
-    lateral,
-    8,
-    0.18,
-    0.18,
-    rotationY,
-  );
+  localBox(builder, INK, point, 0, 4.35, lateral, 8, 0.18, 0.18, rotationY);
   localBox(
     builder,
     INK,
@@ -345,8 +344,30 @@ function addHauptbahnhofTransit(
     const rotation = -0.43;
     localBox(builder, GLASS, station, 0, 2.35, -13, 15, 4.2, 7.5, rotation);
     localBox(builder, STEEL, station, 0, 4.7, -13, 17, 0.32, 9, rotation);
-    localBox(builder, TRANSIT_BLUE, station, -8.5, 3.9, -13, 2.5, 2.5, 0.3, rotation);
-    localBox(builder, IVORY, station, -8.5, 3.9, -13.18, 1.15, 1.15, 0.12, rotation);
+    localBox(
+      builder,
+      TRANSIT_BLUE,
+      station,
+      -8.5,
+      3.9,
+      -13,
+      2.5,
+      2.5,
+      0.3,
+      rotation,
+    );
+    localBox(
+      builder,
+      IVORY,
+      station,
+      -8.5,
+      3.9,
+      -13.18,
+      1.15,
+      1.15,
+      0.12,
+      rotation,
+    );
     for (let step = 0; step < 7; step += 1) {
       localBox(
         builder,
@@ -373,7 +394,18 @@ function addOggiAndTaxis(
   if (oggi) {
     localBox(builder, IVORY, oggi, 0, 1.65, 0, 8.5, 3.1, 4.2, -0.42);
     localBox(builder, GARDEN_GREEN, oggi, 0, 3.42, 0, 9.1, 0.42, 4.6, -0.42);
-    localLampBox(builder, 0xf1eee4, oggi, 0, 2.25, -2.15, 6.9, 0.9, 0.18, -0.42);
+    localLampBox(
+      builder,
+      0xf1eee4,
+      oggi,
+      0,
+      2.25,
+      -2.15,
+      6.9,
+      0.9,
+      0.18,
+      -0.42,
+    );
   }
   const taxis = anchor(byName, "Taxistand Washingtonplatz");
   if (!taxis) return;
@@ -381,9 +413,42 @@ function addOggiAndTaxis(
   for (let index = 0; index < 5; index += 1) {
     const x = (index - 2) * 6.2;
     localBox(builder, TAXI_IVORY, taxis, x, 0.75, 0, 4.8, 1.18, 1.82, rotation);
-    localBox(builder, DARK_GLASS, taxis, x - 0.15, 1.58, 0, 2.65, 0.78, 1.65, rotation);
-    localLampBox(builder, 0xf8edc4, taxis, x - 2.42, 0.72, 0, 0.12, 0.34, 1.2, rotation);
-    localLampBox(builder, SIGNAL_RED, taxis, x + 2.42, 0.72, 0, 0.12, 0.3, 1.15, rotation);
+    localBox(
+      builder,
+      DARK_GLASS,
+      taxis,
+      x - 0.15,
+      1.58,
+      0,
+      2.65,
+      0.78,
+      1.65,
+      rotation,
+    );
+    localLampBox(
+      builder,
+      0xf8edc4,
+      taxis,
+      x - 2.42,
+      0.72,
+      0,
+      0.12,
+      0.34,
+      1.2,
+      rotation,
+    );
+    localLampBox(
+      builder,
+      SIGNAL_RED,
+      taxis,
+      x + 2.42,
+      0.72,
+      0,
+      0.12,
+      0.3,
+      1.15,
+      rotation,
+    );
   }
 }
 
@@ -396,8 +461,30 @@ function addFuturium(
   const rotation = -0.07;
   localBox(builder, IVORY, point, 0, 10.1, 0, 70, 19.6, 84, rotation);
   localBox(builder, STEEL, point, 0, 20.25, 0, 73, 0.7, 87, rotation);
-  localLampBox(builder, DARK_GLASS, point, 0, 10.3, -42.25, 28, 8, 0.36, rotation);
-  localLampBox(builder, DARK_GLASS, point, 0, 11.8, 42.25, 28, 11, 0.36, rotation);
+  localLampBox(
+    builder,
+    DARK_GLASS,
+    point,
+    0,
+    10.3,
+    -42.25,
+    28,
+    8,
+    0.36,
+    rotation,
+  );
+  localLampBox(
+    builder,
+    DARK_GLASS,
+    point,
+    0,
+    11.8,
+    42.25,
+    28,
+    11,
+    0.36,
+    rotation,
+  );
   localBox(builder, IVORY, point, 0, 18.2, -49, 40, 1.2, 18, rotation);
   localBox(builder, IVORY, point, 0, 18.2, 49, 40, 1.2, 18, rotation);
   for (let row = 0; row < 8; row += 1) {
@@ -434,7 +521,16 @@ function addFuturium(
       );
     }
   }
-  addCylinder(builder, STEEL, point.x + 30, point.y + 8, point.z - 52, 2.2, 15, 18);
+  addCylinder(
+    builder,
+    STEEL,
+    point.x + 30,
+    point.y + 8,
+    point.z - 52,
+    2.2,
+    15,
+    18,
+  );
 }
 
 function addGreenFederalCampus(
@@ -462,8 +558,26 @@ function addGreenFederalCampus(
       );
     }
     for (let x = -30; x <= 30; x += 12) {
-      addCylinder(builder, DARK_BRICK, point.x + x, point.y + 4.1, point.z + 14, 0.45, 8, 8);
-      addCone(builder, FOLIAGE, point.x + x, point.y + 10.2, point.z + 14, 3.4, 6.2, 10);
+      addCylinder(
+        builder,
+        DARK_BRICK,
+        point.x + x,
+        point.y + 4.1,
+        point.z + 14,
+        0.45,
+        8,
+        8,
+      );
+      addCone(
+        builder,
+        FOLIAGE,
+        point.x + x,
+        point.y + 10.2,
+        point.z + 14,
+        3.4,
+        6.2,
+        10,
+      );
     }
   }
   const education = anchor(
@@ -498,8 +612,26 @@ function addParliamentOfTrees(
     for (let column = -3; column <= 3; column += 1) {
       const x = column * 7.2 + (row % 2) * 1.6;
       const z = row * 11;
-      addCylinder(builder, DARK_BRICK, point.x + x, point.y + 3.4, point.z + z, 0.38, 6.4, 8);
-      addCone(builder, FOLIAGE, point.x + x, point.y + 8.6, point.z + z, 2.5, 5.2, 10);
+      addCylinder(
+        builder,
+        DARK_BRICK,
+        point.x + x,
+        point.y + 3.4,
+        point.z + z,
+        0.38,
+        6.4,
+        8,
+      );
+      addCone(
+        builder,
+        FOLIAGE,
+        point.x + x,
+        point.y + 8.6,
+        point.z + z,
+        2.5,
+        5.2,
+        10,
+      );
     }
   }
   for (let index = 0; index < 8; index += 1) {
@@ -529,7 +661,18 @@ function addBerlinerEnsemble(
   localBox(builder, IVORY, point, 0, 10, 0, 44, 19, 43, rotation);
   localBox(builder, SANDSTONE, point, 0, 20, 0, 48, 1.2, 47, rotation);
   for (const x of [-17, -11.3, -5.6, 0, 5.6, 11.3, 17]) {
-    localBox(builder, SANDSTONE, point, x, 10.5, 21.75, 0.72, 18, 0.65, rotation);
+    localBox(
+      builder,
+      SANDSTONE,
+      point,
+      x,
+      10.5,
+      21.75,
+      0.72,
+      18,
+      0.65,
+      rotation,
+    );
   }
   addFacadeGrid(builder, point, {
     bays: 7,
@@ -557,7 +700,18 @@ function addFriedrichstrasseStation(
     localBox(builder, STEEL, point, x, 23, 0, 0.42, 8, 72, rotation);
   }
   for (let z = -31; z <= 31; z += 6.2) {
-    localBox(builder, GLASS, point, 0, 24.2 - Math.abs(z) * 0.08, z, 144, 0.42, 5.4, rotation);
+    localBox(
+      builder,
+      GLASS,
+      point,
+      0,
+      24.2 - Math.abs(z) * 0.08,
+      z,
+      144,
+      0.42,
+      5.4,
+      rotation,
+    );
   }
   addFacadeGrid(builder, point, {
     bays: 18,
@@ -594,7 +748,18 @@ function addFinanceMinistry(
     width: 2.5,
   });
   for (let bay = -15; bay <= 15; bay += 1) {
-    localBox(builder, SANDSTONE, facade, bay * 5.75, 16, 3.9, 0.45, 29, 0.4, rotation);
+    localBox(
+      builder,
+      SANDSTONE,
+      facade,
+      bay * 5.75,
+      16,
+      3.9,
+      0.45,
+      29,
+      0.4,
+      rotation,
+    );
   }
 }
 
@@ -652,14 +817,102 @@ function addTopographyOfTerror(
   const pavilion = point.clone().add(new Vector3(-30, 0, -48));
   localBox(builder, DARK_GLASS, pavilion, 0, 4.9, 0, 59, 9.4, 58, 0.01);
   localBox(builder, STEEL, pavilion, 0, 9.8, 0, 62, 0.5, 61, 0.01);
-  for (let index = 0; index < 18; index += 1) {
-    const x = -96 + index * 11.2;
-    if (index === 4 || index === 11) continue;
-    const height = 2.6 + (index % 4) * 0.28;
-    localBox(builder, STEEL, point, x, height / 2, -117, 9.5, height, 0.62, 0.01);
-    if (index % 3 !== 1) {
-      localBox(builder, STEEL, point, x, height + 0.22, -117, 8.6, 0.44, 0.78, 0.01);
+  // Follow the official/OSM Wall trace between x=725.849 and 934.853 m:
+  // its surveyed z coordinate falls from 1317.754 to 1302.225 m. The former
+  // almost-horizontal approximation visibly drifted off Niederkirchnerstrasse.
+  const rotation = TOPOGRAPHY_WALL_ROTATION_RAD;
+  const wallZ = -117;
+  const pitch = TOPOGRAPHY_WALL_LENGTH_M / TOPOGRAPHY_WALL_SECTION_COUNT;
+  const heights = [3.28, 2.92, 3.46, 3.12, 2.58, 3.4, 3.02, 3.34] as const;
+  const graffiti = [0x3c6692, 0x9f3f38, 0xc89b2b, 0x506d4c] as const;
+  for (let index = 0; index < TOPOGRAPHY_WALL_SECTION_COUNT; index += 1) {
+    // The monument is intentionally retained in its 1989/90 overcome state:
+    // missing panels, broken top edges and chipped seams are historical
+    // evidence, not damage to be repaired into a pristine wall.
+    if (index === 4 || index === 12) continue;
+    const x = -TOPOGRAPHY_WALL_LENGTH_M / 2 + pitch * (index + 0.5);
+    const height = heights[index % heights.length];
+    const sectionLength = index % 5 === 2 ? 8.45 : 9.05;
+    localBox(
+      builder,
+      index % 3 === 0 ? WALL_CONCRETE_DARK : WALL_CONCRETE,
+      point,
+      x,
+      height / 2,
+      wallZ,
+      sectionLength,
+      height,
+      0.72,
+      rotation,
+    );
+
+    // The familiar rounded Berlin-Wall crown survives only on the less
+    // damaged panels. It is a true low-poly concrete tube, not a square cap.
+    if (index % 4 !== 1) {
+      const local = localPoint(point, x, wallZ, rotation);
+      const pipe = new CylinderGeometry(0.34, 0.34, sectionLength - 0.34, 10);
+      pipe.rotateZ(Math.PI / 2);
+      pipe.rotateY(rotation);
+      pipe.translate(local.x, point.y + height + 0.13, local.z);
+      paintGeometry(pipe, WALL_PIPE);
+      builder.parts.push(pipe);
+      builder.edges.push(new EdgesGeometry(pipe, 24));
     }
+
+    // Small, flat paint strokes recall the surviving graffiti without
+    // distributing a copied photograph or pretending to transcribe it.
+    if (index % 2 === 0) {
+      for (let stroke = 0; stroke < 3; stroke += 1) {
+        localBox(
+          builder,
+          graffiti[(index + stroke) % graffiti.length],
+          point,
+          x - 2.2 + stroke * 2.1,
+          0.75 + ((index + stroke) % 3) * 0.46,
+          wallZ - 0.375,
+          1.3 + (stroke % 2) * 0.55,
+          0.18,
+          0.055,
+          rotation,
+          false,
+        );
+      }
+    }
+  }
+
+  // Low security fence between the archaeological grounds and the ruin.
+  // Posts and three taut rails keep the 200 m line legible without creating
+  // a moire-prone wire mesh at the overview scale.
+  const fenceZ = -112.9;
+  for (let x = -100; x <= 100; x += 4) {
+    localBox(
+      builder,
+      WALL_FENCE,
+      point,
+      x,
+      1.15,
+      fenceZ,
+      0.1,
+      2.3,
+      0.1,
+      rotation,
+      false,
+    );
+  }
+  for (const y of [0.42, 1.12, 1.82]) {
+    localBox(
+      builder,
+      WALL_FENCE,
+      point,
+      0,
+      y,
+      fenceZ,
+      TOPOGRAPHY_WALL_LENGTH_M,
+      0.075,
+      0.075,
+      rotation,
+      false,
+    );
   }
   localBox(builder, LIMESTONE, point, 0, -0.15, -82, 198, 0.35, 31, 0.01);
 }
@@ -710,16 +963,49 @@ function addSigns(
 ): void {
   const oggi = anchor(byName, "Oggi's Gemüsekebab");
   if (oggi) {
-    group.add(createSign("OGGI", 6.8, 1.05, oggi, [0, 2.3, -2.23], -0.42, "#f1eee4", "#377553"));
+    group.add(
+      createSign(
+        "OGGI",
+        6.8,
+        1.05,
+        oggi,
+        [0, 2.3, -2.23],
+        -0.42,
+        "#f1eee4",
+        "#377553",
+      ),
+    );
   }
   const ensemble = anchor(byName, "Berliner Ensemble");
   if (ensemble) {
     const point = ensemble.clone().add(new Vector3(24, 0, 13));
-    group.add(createSign("BERLINER ENSEMBLE", 20, 1.55, point, [0, 18.3, 22.35], -0.12, "#75463c", "#f6e9ca"));
+    group.add(
+      createSign(
+        "BERLINER ENSEMBLE",
+        20,
+        1.55,
+        point,
+        [0, 18.3, 22.35],
+        -0.12,
+        "#75463c",
+        "#f6e9ca",
+      ),
+    );
   }
   const s15 = anchor(byName, "S15-Station Berlin Hauptbahnhof");
   if (s15) {
-    group.add(createSign("S15", 3.8, 1.45, s15, [-8.5, 3.9, -13.35], -0.43, "#2878b9", "#ffffff"));
+    group.add(
+      createSign(
+        "S15",
+        3.8,
+        1.45,
+        s15,
+        [-8.5, 3.9, -13.35],
+        -0.43,
+        "#2878b9",
+        "#ffffff",
+      ),
+    );
   }
 }
 
@@ -731,6 +1017,13 @@ export function createCentralCivicDetails(
   group.userData.geometryStatus =
     "Official LoD2 and OSM anchors with primary-source recognition details; vehicles, facade rhythms and damaged Wall crown are bounded display approximations";
   group.userData.keepInMinecraft = true;
+  group.userData.topographyWall = {
+    lengthM: TOPOGRAPHY_WALL_LENGTH_M,
+    sectionCount: TOPOGRAPHY_WALL_SECTION_COUNT,
+    source: "Topography of Terror / Niederkirchnerstrasse monument",
+    state: "preserved 1989/90 ruin with security fence",
+    traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
+  };
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );

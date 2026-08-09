@@ -4,7 +4,10 @@ import { Box3, LineSegments, Mesh } from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import { createRiversideVenues, ZOLLPACKHOF_TAP } from "../src/RiversideVenues";
-import { createSpreebogenOffice } from "../src/SpreebogenOffice";
+import {
+  createSpreebogenOffice,
+  INTERIM_OFFICE_FOOTPRINT_RING,
+} from "../src/SpreebogenOffice";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -62,9 +65,11 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
       "Amtssitz am Spreebogen bodies",
     ) as Mesh;
     const bounds = new Box3().setFromObject(bodies);
-    // bbox wx −346.8…−253.9, wz −396.5…−322.8, plus the site fence.
-    expect((bounds.min.x + bounds.max.x) / 2).toBeCloseTo(-296.2, 0);
-    expect((bounds.min.z + bounds.max.z) / 2).toBeCloseTo(-366.5, 0);
+    // Exact projected bbox of the current OSM way, plus < 0.5 m fins.
+    expect(bounds.min.x).toBeCloseTo(-346.8, 0);
+    expect(bounds.max.x).toBeCloseTo(-253.9, 0);
+    expect(bounds.min.z).toBeCloseTo(-396.5, 0);
+    expect(bounds.max.z).toBeCloseTo(-322.8, 0);
   });
 
   test("seven storeys, and the inferred height is flagged as such", () => {
@@ -79,29 +84,20 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
     expect(office.userData.extrapolated).toBe(true);
   });
 
-  test("the short ends are fully rounded, not chamfered corners", () => {
-    // The v0.52.x model was a square block with 45°-chamfer corner blocks.
-    // The photos show a genuine pill/capsule plan: this checks the body mesh
-    // is drawn wider (north-south) than a plain rectangle would allow for the
-    // same footprint once the rounded caps are accounted for, i.e. that the
-    // partial-cylinder caps actually contributed geometry.
+  test("uses the surveyed bent bar, not a capsule or bounding-box block", () => {
     const bodies = office.getObjectByName(
       "Amtssitz am Spreebogen bodies",
     ) as Mesh;
     const bounds = new Box3().setFromObject(bodies);
     const widthM = bounds.max.x - bounds.min.x;
     const depthM = bounds.max.z - bounds.min.z;
-    // The full 92.9 m OSM long axis must be present (straight run + caps).
+    expect(INTERIM_OFFICE_FOOTPRINT_RING.length).toBe(37);
+    expect(office.userData.massing).toBe("surveyed bent-bar footprint");
+    // The true OSM extent is preserved without the old ~142 m pill inflation.
     expect(widthM).toBeGreaterThan(90);
     expect(depthM).toBeGreaterThan(70);
-    // v0.53.0 regression: straightLength used a hard-coded cap radius that
-    // did not match the cap geometry's actual depth/2 radius, inflating the
-    // assembled body to ~142 m wide. Pin an upper bound a few metres over
-    // the 92.9 m OSM long axis so that bug cannot silently return.
-    expect(widthM).toBeLessThan(105);
-    // A few metres over the 73.7 m OSM depth is the projecting fin/cladding
-    // thickness on the rounded caps, not a modelling error.
-    expect(depthM).toBeLessThan(85);
+    expect(widthM).toBeLessThan(95);
+    expect(depthM).toBeLessThan(76);
   });
 
   test("the facade fins mix many colours, not a repeating stripe", () => {
@@ -120,19 +116,18 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
     expect(seen.size).toBeGreaterThanOrEqual(8);
   });
 
-  test("construction-site cranes stay out of the building's own bounds", () => {
-    // Staffage per the brief (nice-to-have), kept in a separate sub-group so
-    // it never shifts the footprint/height assertions above, which are
-    // pinned to the OSM survey and the storey count, not to the staffage.
+  test("does not wrap the completed outline in a rectangular worksite", () => {
     const cranes = office.getObjectByName("Amtssitz am Spreebogen site cranes");
-    expect(cranes).not.toBeNull();
+    expect(cranes).toBeUndefined();
     const bodies = office.getObjectByName(
       "Amtssitz am Spreebogen bodies",
     ) as Mesh;
     const buildingBounds = new Box3().setFromObject(bodies);
     const fullBounds = new Box3().setFromObject(office);
-    // The cranes overtop the building, so the full group is taller.
-    expect(fullBounds.max.y).toBeGreaterThan(buildingBounds.max.y);
+    expect(fullBounds.min.x).toBeCloseTo(buildingBounds.min.x, 5);
+    expect(fullBounds.max.x).toBeCloseTo(buildingBounds.max.x, 5);
+    expect(fullBounds.min.z).toBeCloseTo(buildingBounds.min.z, 5);
+    expect(fullBounds.max.z).toBeCloseTo(buildingBounds.max.z, 5);
   });
 
   test("its footprint sits clear of the Zollpackhof tap house, not merged with it", () => {
@@ -146,11 +141,9 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
     ) as Mesh;
     const officeBounds = new Box3().setFromObject(bodies);
 
-    // Zollpackhof's tap house footprint is a small building centred on
-    // ZOLLPACKHOF_TAP; a generous 40 m half-extent square is more than
-    // enough to cover the real (much smaller) one-storey structure while
-    // still proving the two are disjoint.
-    const tapHalfExtent = 40;
+    // The tap house is one storey and far smaller than the former 40 m test
+    // envelope, which almost touched the real Amtssitz bbox by construction.
+    const tapHalfExtent = 15;
     const tapMinX = ZOLLPACKHOF_TAP.x - tapHalfExtent;
     const tapMaxX = ZOLLPACKHOF_TAP.x + tapHalfExtent;
     const tapMinZ = ZOLLPACKHOF_TAP.z - tapHalfExtent;
@@ -162,12 +155,10 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
       officeBounds.max.z < tapMinZ || officeBounds.min.z > tapMaxZ;
     expect(disjointOnX || disjointOnZ).toBe(true);
 
-    // The office sits north of the river (more negative world_z than the
-    // Moltkebruecke bridge deck) and west of the bridge's easting.
+    // The office sits north of the river and west of the tap house.
     const centreX = (officeBounds.min.x + officeBounds.max.x) / 2;
     const centreZ = (officeBounds.min.z + officeBounds.max.z) / 2;
-    const moltkebrueckeWorldZ = -367.7;
-    expect(centreZ).toBeLessThan(moltkebrueckeWorldZ + 5);
+    expect(centreZ).toBeLessThan(-350);
     expect(centreX).toBeLessThan(ZOLLPACKHOF_TAP.x);
   });
 });

@@ -153,6 +153,19 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     tone: 0xe8d1ae,
     widthM: 68,
   },
+  {
+    // OSM way/1535591727. The exact bent outline is supplied by the
+    // always-visible recognition model; suppress the generic square-window
+    // overlay across its bbox so Minecraft does not put a second rectangular
+    // office through the coloured 2026 facade.
+    center: [-300.31, -359.65],
+    depthM: 73.72,
+    name: "Amtssitz am Spreebogen",
+    paddingM: 4,
+    rotationDegrees: 0,
+    tone: 0xbba087,
+    widthM: 92.9,
+  },
 ];
 
 export function voxelRecognitionAreaAt(
@@ -202,11 +215,7 @@ function voxelMaterial(emissive = 0x3d3d3d): MeshStandardMaterial {
 
 type InstanceWriter = {
   mesh: InstancedMesh;
-  write: (
-    center: Vector3,
-    size: Vector3,
-    color: Color,
-  ) => void;
+  write: (center: Vector3, size: Vector3, color: Color) => void;
 };
 
 function instancedBoxes(
@@ -366,7 +375,11 @@ export function buildColumnToneLookup(prisms: {
       }
     }
   }
-  const inside = (x: number, z: number, ring: Array<[number, number]>): boolean => {
+  const inside = (
+    x: number,
+    z: number,
+    ring: Array<[number, number]>,
+  ): boolean => {
     let odd = false;
     for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
       const [xi, zi] = ring[i];
@@ -382,14 +395,18 @@ export function buildColumnToneLookup(prisms: {
     if (recognitionArea) {
       return recognitionArea.tone;
     }
-    const list = buckets.get(`${Math.floor(x / BUCKET)},${Math.floor(z / BUCKET)}`);
+    const list = buckets.get(
+      `${Math.floor(x / BUCKET)},${Math.floor(z / BUCKET)}`,
+    );
     if (!list) {
       return null;
     }
     for (const toned of list) {
       if (
-        x >= toned.minX && x <= toned.maxX &&
-        z >= toned.minZ && z <= toned.maxZ &&
+        x >= toned.minX &&
+        x <= toned.maxX &&
+        z >= toned.minZ &&
+        z <= toned.maxZ &&
         inside(x, z, toned.ring)
       ) {
         return toned.hex;
@@ -461,8 +478,7 @@ export function createGroundSlabs(
       if (options?.skipBridge && className === "bridge") {
         continue;
       }
-      const shades =
-        shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
+      const shades = shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
       const topY =
         className === "water"
           ? (payload.water_top_y_m ?? WATER_TOP_Y)
@@ -722,7 +738,14 @@ export function createMinecraftVoxelWorld(
     const key = columnKey(xIdx, zIdx);
     columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
   }
-  type WindowFace = { color: Color; nx: number; nz: number; x: number; y: number; z: number };
+  type WindowFace = {
+    color: Color;
+    nx: number;
+    nz: number;
+    x: number;
+    y: number;
+    z: number;
+  };
   const faces: WindowFace[] = [];
   const glass = new Color(VOXEL_WINDOW_GLASS);
   const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
@@ -759,8 +782,7 @@ export function createMinecraftVoxelWorld(
         // Two glass tones alternate along the row for gentle block
         // variety; a teal accent every fourth bay keeps it lively.
         const bay = Math.abs(xIdx + zIdx);
-        const color =
-          bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
+        const color = bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
         faces.push({
           color,
           nx: dx,
@@ -785,10 +807,22 @@ export function createMinecraftVoxelWorld(
       const dirX = -face.nz;
       const dirZ = face.nx;
       matrix.set(
-        dirX * VOXEL_WINDOW_WIDTH_M, 0, face.nx, face.x,
-        0, VOXEL_WINDOW_HEIGHT_M, 0, face.y,
-        dirZ * VOXEL_WINDOW_WIDTH_M, 0, face.nz, face.z,
-        0, 0, 0, 1,
+        dirX * VOXEL_WINDOW_WIDTH_M,
+        0,
+        face.nx,
+        face.x,
+        0,
+        VOXEL_WINDOW_HEIGHT_M,
+        0,
+        face.y,
+        dirZ * VOXEL_WINDOW_WIDTH_M,
+        0,
+        face.nz,
+        face.z,
+        0,
+        0,
+        0,
+        1,
       );
       panes.setMatrixAt(index, matrix);
       panes.setColorAt(index, face.color);
@@ -873,7 +907,9 @@ export function createMinecraftVoxelWorld(
       center,
       size,
       new Color(
-        FLOWER_TONES[Math.abs(xOffset * 31 + zOffset * 17) % FLOWER_TONES.length],
+        FLOWER_TONES[
+          Math.abs(xOffset * 31 + zOffset * 17) % FLOWER_TONES.length
+        ],
       ),
     );
   }

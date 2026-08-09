@@ -624,22 +624,21 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
 function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   runtime.inkLineMaterials.clear();
   runtime.fineDetailObjects = [];
-  if (!runtime.isoWorld) {
-    return;
-  }
   const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
-  runtime.isoWorld.traverse((object) => {
-    if (
-      object instanceof LineSegments &&
-      object.material instanceof LineBasicMaterial
-    ) {
-      object.material.transparent = true;
-      runtime.inkLineMaterials.add(object.material);
-    }
-    if (fineDetailNames.has(object.name)) {
-      runtime.fineDetailObjects.push(object);
-    }
-  });
+  for (const root of [runtime.isoWorld, runtime.signatures]) {
+    root?.traverse((object) => {
+      if (
+        object instanceof LineSegments &&
+        object.material instanceof LineBasicMaterial
+      ) {
+        object.material.transparent = true;
+        runtime.inkLineMaterials.add(object.material);
+      }
+      if (fineDetailNames.has(object.name)) {
+        runtime.fineDetailObjects.push(object);
+      }
+    });
+  }
 }
 
 /**
@@ -962,7 +961,9 @@ function setSceneLighting(
   // visible in Minecraft too (they get the toon treatment); only the
   // softer cultural/park layers and photo crops step aside there.
   runtime.signatures.visible = !runtime.underside;
-  runtime.centralDetails.visible = centralCivicDetailsVisible(runtime.underside);
+  runtime.centralDetails.visible = centralCivicDetailsVisible(
+    runtime.underside,
+  );
   for (const signature of runtime.signatures.children) {
     // The real LoD2 voxel station remains in Minecraft; its fine curved-glass
     // recognition shell belongs to the drawn modes and looked implausibly
@@ -1097,6 +1098,16 @@ function ensureIsoWorld(
         runtime.tunnelPoints,
         surfaces,
       );
+      // Metric bridge profiles are recognition geometry, not a soft surface
+      // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
+      // Gustav-Heinemann and Sandkrug retain their real proportions in the
+      // block mode as well as in Day/Night/Snow.
+      const bridges = runtime.isoWorld.getObjectByName(
+        "drawn bridge structures",
+      );
+      if (bridges) {
+        runtime.signatures.add(bridges);
+      }
       if (ground && street) {
         // Task 07: the real OSM traffic signals join the drawn city, so
         // they inherit its day/night/voxel/underside visibility.
@@ -1132,9 +1143,11 @@ function ensureIsoWorld(
         // an excursion yacht on the Spree. No OSM source for either.
         runtime.isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
         // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
+        // Like the surveyed bridge signatures it remains visible in Minecraft,
+        // where the old LoD2/voxel mass cannot represent its new bent outline.
         const office = createSpreebogenOffice(ground);
         if (office) {
-          runtime.isoWorld.add(office);
+          runtime.signatures.add(office);
         }
       }
       if (ground && rail) {

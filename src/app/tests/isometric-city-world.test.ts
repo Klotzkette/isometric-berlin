@@ -70,7 +70,9 @@ describe("drawn isometric city (LoD2 prisms)", () => {
       return cx >= 260 && cx <= 372 && cz >= -34 && cz <= 115;
     });
     expect(reichstag.length).toBeGreaterThan(0);
-    expect(Math.max(...reichstag.map((b) => b.h_dm))).toBeGreaterThanOrEqual(240);
+    expect(Math.max(...reichstag.map((b) => b.h_dm))).toBeGreaterThanOrEqual(
+      240,
+    );
     expect(
       reichstag.some((building) => (building.holes ?? []).length >= 1),
     ).toBe(true);
@@ -138,7 +140,9 @@ describe("ligne-claire fenestration", () => {
   });
 
   test("night lights only a warm minority of facade axes, hidden by day", () => {
-    const strips = city.getObjectByName("LoD2 facade night strips") as InstancedMesh;
+    const strips = city.getObjectByName(
+      "LoD2 facade night strips",
+    ) as InstancedMesh;
     expect(strips).toBeInstanceOf(InstancedMesh);
     // Off by day.
     expect(strips.visible).toBe(false);
@@ -159,7 +163,10 @@ describe("ligne-claire fenestration", () => {
   test("glass-class prisms and the Hauptbahnhof towers render transparent", () => {
     const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
     expect(glass).toBeInstanceOf(Mesh);
-    const material = glass.material as { opacity: number; transparent: boolean };
+    const material = glass.material as {
+      opacity: number;
+      transparent: boolean;
+    };
     expect(glass.material).toBeInstanceOf(MeshBasicMaterial);
     expect(material.transparent).toBe(true);
     expect(material.opacity).toBeGreaterThan(0.3);
@@ -193,7 +200,9 @@ describe("ligne-claire fenestration", () => {
   });
 
   test("the presentation paper closes distant camera views without data claims", () => {
-    const backdrop = city.getObjectByName("presentation paper backdrop") as Mesh;
+    const backdrop = city.getObjectByName(
+      "presentation paper backdrop",
+    ) as Mesh;
     expect(backdrop).toBeInstanceOf(Mesh);
     expect(backdrop.material).toBeInstanceOf(MeshBasicMaterial);
     expect(backdrop.userData.presentationOnly).toBe(true);
@@ -268,7 +277,9 @@ describe("ligne-claire fenestration", () => {
       // setSceneLighting's lightsOn threading). Nothing to assert on
       // litCity directly — this is a documentation test so the absence of
       // a local mesh is not mistaken for a gap.
-      expect(litCity.getObjectByName("extrapolated lamp heads")).toBeUndefined();
+      expect(
+        litCity.getObjectByName("extrapolated lamp heads"),
+      ).toBeUndefined();
     });
 
     test("darkens the real (surfaces-backed) water plate further than ordinary lit night, without lighting it", () => {
@@ -329,8 +340,12 @@ describe("ligne-claire fenestration", () => {
       const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
 
       setIsoNightPresentation(city, true, true);
-      const litEmissive = (bodies.material as MeshStandardMaterial).emissive.getHex();
-      const litInk = (ink.material as { color: { getHex(): number } }).color.getHex();
+      const litEmissive = (
+        bodies.material as MeshStandardMaterial
+      ).emissive.getHex();
+      const litInk = (
+        ink.material as { color: { getHex(): number } }
+      ).color.getHex();
       const litAxisOpacity = (axes.material as { opacity: number }).opacity;
 
       setIsoNightPresentation(city, true, false);
@@ -405,9 +420,8 @@ describe("ligne-claire fenestration", () => {
     // asserts that every building whose footprint overlaps the station
     // envelope is either suppressed or explicitly glassed -- so no
     // opaque leftover can ever again slip through undetected.
-    const { isHauptbahnhofFootprintSuppressed } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { isHauptbahnhofFootprintSuppressed } =
+      await import("../src/IsometricCityWorld");
     let suppressedCount = 0;
     for (const building of payload.buildings) {
       if (PRISM_GLASSED_IDS.has(building.id)) {
@@ -418,19 +432,18 @@ describe("ligne-claire fenestration", () => {
       }
     }
     // The known culprit from the reference screenshot must be caught.
-    const knownCulprit = payload.buildings.find(
-      (b) => b.id === "rg8J0PRu",
-    );
+    const knownCulprit = payload.buildings.find((b) => b.id === "rg8J0PRu");
     expect(knownCulprit).toBeDefined();
     expect(isHauptbahnhofFootprintSuppressed(knownCulprit!)).toBe(true);
     expect(suppressedCount).toBeGreaterThan(15);
   });
 
-  test("the interim-office former-site prism is suppressed by pill-footprint overlap, not id", async () => {
-    const { isInterimOfficeFootprintSuppressed } = await import(
-      "../src/IsometricCityWorld"
+  test("the interim-office former-site prism is suppressed by OSM-footprint overlap, not id", async () => {
+    const { isInterimOfficeFootprintSuppressed } =
+      await import("../src/IsometricCityWorld");
+    const formerSite = payload.buildings.find(
+      (building) => building.id === "fNQrO6eN",
     );
-    const formerSite = payload.buildings.find((building) => building.id === "fNQrO6eN");
     const nearbyButSeparate = payload.buildings.find(
       (building) => building.id === "K0002TYI",
     );
@@ -473,9 +486,9 @@ describe("ligne-claire fenestration", () => {
     }
     // The facade rhythm instead comes from the drawn axis/band grid.
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
-    expect(
-      axes.geometry.getAttribute("position").count,
-    ).toBeGreaterThan(20_000);
+    expect(axes.geometry.getAttribute("position").count).toBeGreaterThan(
+      20_000,
+    );
   });
 
   test("transparent glass buildings carry drawn curtain-wall mullions", () => {
@@ -488,9 +501,10 @@ describe("ligne-claire fenestration", () => {
   });
 
   test("the ground grid draws kerb ink where roads meet lawns and plazas", async () => {
-    const voxelPayload = (await import(
-      "../public/mesh/regierungsviertel/minecraft-voxels.json"
-    )) as { default: unknown };
+    const voxelPayload =
+      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+        default: unknown;
+      };
     const grounded = createIsometricCity(
       payload,
       voxelPayload.default as never,
@@ -503,9 +517,10 @@ describe("ligne-claire fenestration", () => {
   });
 
   test("the Tiergartentunnel stays below the isometric surface between its mouths", async () => {
-    const voxelPayload = (await import(
-      "../public/mesh/regierungsviertel/minecraft-voxels.json"
-    )) as { default: unknown };
+    const voxelPayload =
+      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+        default: unknown;
+      };
     const points: [number, number, number][] = [
       [-115, -8.5, -280],
       [-111, -8.5, -14],
@@ -520,7 +535,9 @@ describe("ligne-claire fenestration", () => {
     // sampled buried middle positions of the historic contract therefore
     // resolve to 0/39 visible surface objects; TunnelPortals.ts alone owns
     // the two daylight troughs.
-    expect(traced.getObjectByName("Tiergartentunnel underground trace")).toBeUndefined();
+    expect(
+      traced.getObjectByName("Tiergartentunnel underground trace"),
+    ).toBeUndefined();
     expect(traced.getObjectByName("Tiergartentunnel portals")).toBeUndefined();
     expect(traced.getObjectByName("tunnel portal ramps")).toBeUndefined();
     expect(traced.getObjectByName("tunnel portal ink lines")).toBeUndefined();
@@ -546,9 +563,8 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
   });
 
   test("the paper margin rings the surveyed hull without inventing content", async () => {
-    const { createExtrapolatedMargin } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { createExtrapolatedMargin } =
+      await import("../src/IsometricCityWorld");
     const { extrapolatedEnvelopeBounds } = await import("../src/worldEnvelope");
     const margin = createExtrapolatedMargin();
     expect(margin.userData.extrapolated).toBe(true);
@@ -571,16 +587,13 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(
       margin.getObjectByName("extrapolated margin field grid"),
     ).toBeUndefined();
-    const body = margin.getObjectByName(
-      "extrapolated margin ground",
-    ) as Mesh;
+    const body = margin.getObjectByName("extrapolated margin ground") as Mesh;
     expect(body.material).toBeInstanceOf(MeshBasicMaterial);
   });
 
   test("the Siegessäule model carries the full 67 m column", async () => {
-    const { PRISM_SUPPRESSED_IDS, createSiegessaeule } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { PRISM_SUPPRESSED_IDS, createSiegessaeule } =
+      await import("../src/IsometricCityWorld");
     const { AXIS_TO } = await import("../src/worldEnvelope");
     const column = createSiegessaeule();
     expect(column.userData.recognitionModel).toBe(true);
@@ -662,9 +675,10 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
   });
 
   test("quay walls drop from the banks wherever land meets water", async () => {
-    const voxelPayload = (await import(
-      "../public/mesh/regierungsviertel/minecraft-voxels.json"
-    )) as { default: unknown };
+    const voxelPayload =
+      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+        default: unknown;
+      };
     const city = createIsometricCity(
       payload,
       voxelPayload.default as never,
@@ -767,9 +781,8 @@ describe("procedural pitched roofs from ALKIS codes", () => {
 
 describe("real-colour facade tones", () => {
   test("cleanedTone keeps grey grey and clamps lightness to paint bands", async () => {
-    const { cleanedTone, HERO_PRISM_TONES } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { cleanedTone, HERO_PRISM_TONES } =
+      await import("../src/IsometricCityWorld");
     // A dark grey sample stays a readable dark grey (never black, never warm).
     const grey = cleanedTone([92, 90, 86]);
     expect(grey.r).toBeGreaterThan(0.2);
@@ -808,13 +821,11 @@ describe("hero prism pins", () => {
 
 describe("prism suppression for full recognition models", () => {
   test("the Brandenburg Gate body prism is skipped (model carries it)", async () => {
-    const { PRISM_SUPPRESSED_IDS, createIsometricCity } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { PRISM_SUPPRESSED_IDS, createIsometricCity } =
+      await import("../src/IsometricCityWorld");
     const { Matrix4, Mesh, Vector3 } = await import("three");
-    const payloadModule = await import(
-      "../public/mesh/regierungsviertel/lod2-prisms.json"
-    );
+    const payloadModule =
+      await import("../public/mesh/regierungsviertel/lod2-prisms.json");
     const data = payloadModule.default as never as {
       buildings: Array<{ id: string; ring: number[][] }>;
       classes: string[];
@@ -851,12 +862,12 @@ describe("prism suppression for full recognition models", () => {
 
 describe("real bridge structures", () => {
   test("bridges carry an elevated deck on piers that reach the riverbed", async () => {
-    const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } = await import(
-      "../src/IsometricCityWorld"
-    );
-    const voxelPayload = (await import(
-      "../public/mesh/regierungsviertel/minecraft-voxels.json"
-    )) as { default: { water_top_y_m: number } };
+    const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } =
+      await import("../src/IsometricCityWorld");
+    const voxelPayload =
+      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+        default: { water_top_y_m: number };
+      };
     expect(BRIDGE_MIN_CLUSTER_CELLS).toBeGreaterThan(0);
     const city = createIsometricCity(
       payload,
@@ -878,12 +889,12 @@ describe("real bridge structures", () => {
   });
 
   test("the Gustav-Heinemann-Brücke reaches both banks of the Spree", async () => {
-    const { createIsometricCity, BRIDGE_PROFILES } = await import(
-      "../src/IsometricCityWorld"
-    );
-    const voxelPayload = (await import(
-      "../public/mesh/regierungsviertel/minecraft-voxels.json"
-    )) as { default: { water_top_y_m: number } };
+    const { createIsometricCity, BRIDGE_PROFILES } =
+      await import("../src/IsometricCityWorld");
+    const voxelPayload =
+      (await import("../public/mesh/regierungsviertel/minecraft-voxels.json")) as {
+        default: { water_top_y_m: number };
+      };
     const profile = BRIDGE_PROFILES.find(
       (entry) => entry.name === "Gustav-Heinemann-Brücke",
     );
@@ -912,16 +923,77 @@ describe("real bridge structures", () => {
     expect(maxZ - minZ).toBeGreaterThan(88);
   });
 
+  test("pins the four corrected bridges to published dimensions and finishes", async () => {
+    const { createIsometricCity, BRIDGE_PROFILES } =
+      await import("../src/IsometricCityWorld");
+    const ground = (
+      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+    ).default as never;
+    const profile = (name: string) =>
+      BRIDGE_PROFILES.find((entry) => entry.name === name)!;
+
+    expect(profile("Golda-Meir-Steg").surveyedDeck).toEqual({
+      halfLengthM: 38.43,
+      halfWidthM: 2,
+    });
+    expect(profile("Golda-Meir-Steg").kind).toBe("golda");
+    expect(profile("Golda-Meir-Steg").palette?.structure).toBe(0xf2b600);
+    expect(profile("Gustav-Heinemann-Brücke").surveyedDeck).toEqual({
+      halfLengthM: 43.88,
+      halfWidthM: 2,
+    });
+    expect(profile("Sandkrugbrücke").surveyedDeck).toEqual({
+      halfLengthM: 16.3,
+      halfWidthM: 14.4,
+    });
+    expect(profile("Moltkebrücke").surveyedDeck).toEqual({
+      halfLengthM: 38.79,
+      halfWidthM: 12.85,
+    });
+    expect(profile("Moltkebrücke").palette?.structure).toBe(0xb86c5a);
+
+    const city = createIsometricCity(payload, ground, null);
+    const lamps = city.getObjectByName("bridge structure lamps") as Mesh;
+    expect(lamps).toBeInstanceOf(Mesh);
+    const bounds = new Box3().setFromObject(lamps);
+    expect((bounds.min.x + bounds.max.x) / 2).toBeCloseTo(-170.5, 0);
+    expect((bounds.min.z + bounds.max.z) / 2).toBeCloseTo(-1647.1, 0);
+    expect(
+      Math.hypot(bounds.max.x - bounds.min.x, bounds.max.z - bounds.min.z),
+    ).toBeGreaterThan(76);
+
+    // Procedural boxes must expose their upward face. A reversed winding
+    // used to make every bridge deck disappear under back-face culling,
+    // leaving only transverse piers and producing a ladder-like Moltkebrücke.
+    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+    const positions = bodies.geometry.getAttribute("position");
+    const normals = bodies.geometry.getAttribute("normal");
+    let upwardMoltkeVertices = 0;
+    for (let index = 0; index < positions.count; index += 1) {
+      if (
+        Math.hypot(
+          positions.getX(index) - profile("Moltkebrücke").world[0],
+          positions.getZ(index) - profile("Moltkebrücke").world[1],
+        ) < 55 &&
+        normals.getY(index) > 0.9
+      ) {
+        upwardMoltkeVertices += 1;
+      }
+    }
+    expect(upwardMoltkeVertices).toBeGreaterThan(100);
+  });
+
   test("the Gymnasium Tiergarten Altbau replaces its flat LoD2 prism", async () => {
-    const { createGymnasiumTiergarten, PRISM_SUPPRESSED_IDS } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { createGymnasiumTiergarten, PRISM_SUPPRESSED_IDS } =
+      await import("../src/IsometricCityWorld");
     // The 1902 brick school carries ALKIS roof code 5000 (Mischform), which the
     // procedural roof fitter skips, so the prism stood as a flat 32 m box.
     expect(PRISM_SUPPRESSED_IDS.has("jBXhIsDK")).toBe(true);
     expect(PRISM_SUPPRESSED_IDS.has("EHKONVCW")).toBe(true);
     const school = createGymnasiumTiergarten();
-    const bodies = school.getObjectByName("Gymnasium Tiergarten bodies") as Mesh;
+    const bodies = school.getObjectByName(
+      "Gymnasium Tiergarten bodies",
+    ) as Mesh;
     expect(bodies).toBeInstanceOf(Mesh);
     expect(
       school.getObjectByName("Gymnasium Tiergarten ink lines"),
@@ -954,14 +1026,16 @@ describe("real bridge structures", () => {
     expect(bounds.max.y).toBeGreaterThan(26);
     // The plate spans the full ~102 m west facade, not just the entrance bay.
     expect(bounds.max.z - bounds.min.z).toBeGreaterThan(100);
-    expect(
-      canopy.getObjectByName("Paul-Löbe canopy ink lines"),
-    ).toBeInstanceOf(LineSegments);
+    expect(canopy.getObjectByName("Paul-Löbe canopy ink lines")).toBeInstanceOf(
+      LineSegments,
+    );
   });
 
   test("the four coarsest LoD2 blocks carry their missing signatures", () => {
     const refined = createLandmarkRefinements();
-    const bodies = refined.getObjectByName("Landmark refinement bodies") as Mesh;
+    const bodies = refined.getObjectByName(
+      "Landmark refinement bodies",
+    ) as Mesh;
     expect(bodies).toBeInstanceOf(Mesh);
     expect(
       refined.getObjectByName("Landmark refinement ink lines"),
@@ -980,9 +1054,10 @@ describe("real bridge structures", () => {
 describe("smooth OSM water and parkland", () => {
   test("real polygons replace the rasterised river with a continuous shoreline", async () => {
     const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
-    const surfaces = (await import(
-      "../public/mesh/regierungsviertel/surface-polygons.json"
-    )) as { default: { parks: unknown[]; water: unknown[] } };
+    const surfaces =
+      (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
+        default: { parks: unknown[]; water: unknown[] };
+      };
     const payloadSurfaces = surfaces.default as never as Parameters<
       typeof createSmoothSurfaces
     >[0];
@@ -996,6 +1071,13 @@ describe("smooth OSM water and parkland", () => {
     expect((water.material as MeshBasicMaterial).transparent).toBe(true);
     expect(group.getObjectByName("smooth river bed")).toBeInstanceOf(Mesh);
     expect(group.getObjectByName("smooth parkland lawns")).toBeInstanceOf(Mesh);
+    const ottoFountain = group.getObjectByName(
+      "Otto-Weidt-Platz fountain water",
+    ) as Mesh;
+    expect(ottoFountain).toBeInstanceOf(Mesh);
+    expect(
+      (ottoFountain.userData.dayMaterial as MeshBasicMaterial).color.getHex(),
+    ).toBe(0x628da1);
     const walls = group.getObjectByName("smooth quay walls") as Mesh;
     expect(walls).toBeInstanceOf(Mesh);
     const shore = group.getObjectByName("smooth shoreline ink") as LineSegments;
@@ -1025,9 +1107,10 @@ describe("smooth OSM water and parkland", () => {
   test("draws the shipped banks granularly, with no facets left", async () => {
     const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
     const { sharpestTurnDeg } = await import("../src/bankCurves");
-    const surfaces = (await import(
-      "../public/mesh/regierungsviertel/surface-polygons.json"
-    )) as { default: unknown };
+    const surfaces =
+      (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
+        default: unknown;
+      };
     const payload = surfaces.default as never as Parameters<
       typeof createSmoothSurfaces
     >[0];
@@ -1109,9 +1192,8 @@ describe("smooth OSM water and parkland", () => {
 
 describe("isometric face shading", () => {
   test("faces step by facing direction without gradients", async () => {
-    const { isoFaceShade, ISO_FACE_SHADE } = await import(
-      "../src/IsometricCityWorld"
-    );
+    const { isoFaceShade, ISO_FACE_SHADE } =
+      await import("../src/IsometricCityWorld");
     // Tops stay full; the two visible wall directions step down.
     expect(isoFaceShade(0, 1, 0)).toBe(ISO_FACE_SHADE.top);
     expect(isoFaceShade(1, 0, 0)).toBe(ISO_FACE_SHADE.east);
