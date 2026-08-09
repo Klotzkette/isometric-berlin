@@ -1520,10 +1520,7 @@ export function App() {
     }
     const applyHash = () => {
       const viewHash = parseViewHash(window.location.hash);
-      const hashLandmark = findSightBySlug(
-        landmarks,
-        viewHash.landmarkSlug,
-      );
+      const hashLandmark = findSightBySlug(landmarks, viewHash.landmarkSlug);
       const hashRotation = rotationFromHashValue(viewHash.rotationValue);
       if (hashRotation !== null) {
         rotationRef.current = hashRotation;
@@ -2144,6 +2141,7 @@ export function App() {
         "app-shell",
         isTouring ? "app-shell--touring" : "",
         `app-shell--${lightingMode}`,
+        `app-shell--viewer-${viewerMode}`,
         isChromeHidden ? "app-shell--chrome-hidden" : "",
         isPseudoFullscreen ? "app-shell--pseudo-fullscreen" : "",
       ]

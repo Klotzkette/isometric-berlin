@@ -227,6 +227,65 @@ button:active:not(:disabled) {
   transition: opacity 180ms ease;
 }
 
+/*
+ * WebKit may repeatedly recomposite a WebGL canvas when a second canvas, a
+ * viewport-sized inset shadow and several backdrop blurs sit above/below it.
+ * In 3D the map canvas is not visible and the blur contributes no map detail,
+ * so keep a single isolated compositor surface with opaque UI chrome. This is
+ * the same presentation in Day, Night and Minecraft and removes idle flashes.
+ */
+.app-shell--viewer-three .viewer {
+  visibility: hidden;
+  transition: none;
+}
+
+.app-shell--viewer-three .three-viewer {
+  isolation: isolate;
+  contain: strict;
+  transition: none;
+}
+
+.app-shell--viewer-three .map-stage::after {
+  display: none;
+}
+
+.app-shell--viewer-three .brand,
+.app-shell--viewer-three .toolbar,
+.app-shell--viewer-three .view-controls,
+.app-shell--viewer-three .landmark-rail,
+.app-shell--viewer-three .orientation-pill,
+.app-shell--viewer-three .selection-card,
+.app-shell--viewer-three .attribution,
+.app-shell--viewer-three .flight-joystick,
+.app-shell--viewer-three .reference-modal,
+.app-shell--viewer-three .chrome-toggle,
+.app-shell--viewer-three .mobile-compass-fab,
+.app-shell--viewer-three .mobile-sheet-backdrop,
+.app-shell--viewer-three .mobile-sheet {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.app-shell--viewer-three .brand,
+.app-shell--viewer-three .toolbar,
+.app-shell--viewer-three .view-controls,
+.app-shell--viewer-three .landmark-rail,
+.app-shell--viewer-three .orientation-pill,
+.app-shell--viewer-three .selection-card,
+.app-shell--viewer-three .attribution {
+  background: rgba(25, 31, 29, 0.96);
+}
+
+.app-shell--viewer-three.app-shell--minecraft .brand,
+.app-shell--viewer-three.app-shell--minecraft .toolbar,
+.app-shell--viewer-three.app-shell--minecraft .view-controls,
+.app-shell--viewer-three.app-shell--minecraft .landmark-rail,
+.app-shell--viewer-three.app-shell--minecraft .orientation-pill,
+.app-shell--viewer-three.app-shell--minecraft .selection-card,
+.app-shell--viewer-three.app-shell--minecraft .attribution {
+  background: rgba(24, 39, 26, 0.97);
+}
+
 .app-shell--night .three-viewer {
   background: #07131f;
 }

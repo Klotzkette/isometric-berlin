@@ -88,7 +88,6 @@ import { runBoundedTasks } from "./boundedTaskPool";
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   captureCameraPose,
-  cameraPoseDeltaM,
   classifyTwoFingerGesture,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
@@ -163,6 +162,7 @@ import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
   renderInteractionActive,
   renderPixelRatio,
+  stableViewportSize,
 } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
@@ -1087,9 +1087,7 @@ function setSceneLighting(
   // only the photographic fallback keeps the 39° perspective.
   const targetFov =
     runtime.focusedCameraFov ??
-    (isoMode || voxelMode
-      ? ISO_FOV_DEGREES
-      : PHOTO_FOV_DEGREES);
+    (isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES);
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
@@ -2591,11 +2589,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       composer.addPass(smaaPass);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
-      controls.enableDamping = true;
-      // v0.5.5: a lighter damping factor lets the orbit/tilt glide to rest
-      // (more inertia) and higher rotate/pan speeds make the one-finger tilt
-      // and two-finger drag feel effortless on touch.
-      controls.dampingFactor = 0.065;
+      // Direct orbiting stops on the exact pointer-up frame. OrbitControls'
+      // exponential damping kept changing the camera by sub-pixel amounts for
+      // several seconds after the visitor had stopped, so dense ink appeared
+      // to flicker in an otherwise still view. Touch panning keeps its bounded
+      // custom momentum below; mouse/pen rotation remains strictly 1:1.
+      controls.enableDamping = false;
       controls.zoomToCursor = true;
       controls.rotateSpeed = 0.82;
       controls.zoomSpeed = 0.9;
@@ -2736,18 +2735,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let touchInteracting = false;
-      let wheelInteracting = false;
       let lastTouchActivityAt = performance.now();
-      let settleUntil = 0;
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
       let appliedWidth = 0;
       let appliedHeight = 0;
       let appliedPixelRatio = 0;
       const resize = (force = false) => {
-        const { width, height } = host.getBoundingClientRect();
-        if (width < 1 || height < 1) {
+        const bounds = host.getBoundingClientRect();
+        if (bounds.width < 1 || bounds.height < 1) {
           return;
         }
+        const { width, height } = stableViewportSize(
+          bounds.width,
+          bounds.height,
+        );
         const pixelRatio = renderPixelRatio({
           coarsePointer,
           devicePixelRatio: window.devicePixelRatio,
@@ -2829,7 +2830,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         event.preventDefault();
         event.stopImmediatePropagation();
         renderer.domElement.focus({ preventScroll: true });
-        wheelInteracting = true;
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (intent === "trackpad-pinch") {
@@ -2852,13 +2852,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         controls.update();
         markSurfaceInteraction(runtime);
-        settleUntil = now + 650;
         if (wheelEndTimer !== null) {
           window.clearTimeout(wheelEndTimer);
         }
         wheelEndTimer = window.setTimeout(() => {
           wheelEndTimer = null;
-          wheelInteracting = false;
           if (!runtime.disposed) {
             notifyView(runtime, onViewChangeRef.current);
           }
@@ -3067,7 +3065,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (panMomentum.x === 0 && panMomentum.y === 0) {
             touchInteracting = false;
           }
-          settleUntil = performance.now() + 650;
           controls.enabled = true;
           notifyView(runtime, onViewChangeRef.current);
           return;
@@ -3101,7 +3098,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         touchInteracting = false;
         panMomentum.x = 0;
         panMomentum.y = 0;
-        settleUntil = performance.now() + 650;
         controls.enabled = true;
         notifyView(runtime, onViewChangeRef.current);
       };
@@ -3156,7 +3152,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       const onControlsEnd = () => {
         controlsInteracting = false;
-        settleUntil = performance.now() + 650;
         markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
       };
@@ -3180,14 +3175,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
       const flightVelocity = new Vector3();
       let wasFlying = false;
-      // OrbitControls damps exponentially and can report microscopic changes
-      // forever. Three tiny (< 1 mm) consecutive updates are sub-pixel at the
-      // widest permitted Day view, so flush the final damping state exactly
-      // once and let the renderer remain on that resolved frame.
-      const CAMERA_REST_EPSILON_M = 0.001;
-      const CAMERA_REST_FRAMES = 3;
-      let passiveDampingFrames = 0;
-      let previousCameraPose = captureCameraPose(camera, controls.target);
       const applyContinuousFlight = (dtSeconds: number): boolean => {
         const input = flightInputRef.current;
         flightVelocity.lerp(input, 1 - Math.exp(-dtSeconds * 7));
@@ -3280,34 +3267,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         const guidedFlying = applyGuidedTunnelFlight(timestamp);
         const flying = guidedFlying || applyContinuousFlight(dtSeconds);
-        let controlsChanged = controls.update();
-        const afterControlsPose = captureCameraPose(camera, controls.target);
+        const controlsChanged = controls.update();
         const directInputActive = renderInteractionActive({
           controls: controlsInteracting,
           touch: touchInteracting,
-          wheel: wheelInteracting,
+          // Every wheel event invalidates one frame itself. Keeping a virtual
+          // wheel interaction alive for 180 ms only redrew identical frames
+          // after the trackpad had stopped and reopened the shimmer window.
+          wheel: false,
         });
-        if (
-          controlsChanged &&
-          !flying &&
-          !directInputActive &&
-          cameraPoseDeltaM(previousCameraPose, afterControlsPose) <=
-            CAMERA_REST_EPSILON_M
-        ) {
-          passiveDampingFrames += 1;
-          if (passiveDampingFrames >= CAMERA_REST_FRAMES) {
-            // A damping-disabled update commits OrbitControls' internal
-            // spherical state without another eased sub-pixel step.
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-            controlsChanged = false;
-            passiveDampingFrames = 0;
-          }
-        } else {
-          passiveDampingFrames = 0;
-        }
-        previousCameraPose = captureCameraPose(camera, controls.target);
         const stabilized = stabilizeCameraRig(
           camera,
           controls.target,
@@ -3328,16 +3296,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
         const cameraMoving =
-          flying ||
-          renderInteractionActive({
-            controls: controlsInteracting,
-            touch: touchInteracting,
-            wheel: wheelInteracting,
-          }) ||
-          controlsChanged ||
-          stabilized.changed ||
-          timestamp < runtime.interactionUntil ||
-          timestamp < settleUntil;
+          flying || directInputActive || controlsChanged || stabilized.changed;
         const isMoving =
           cameraMoving ||
           stability.forceContinuousRender ||
@@ -3368,9 +3327,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!renderRequired) {
           return;
         }
-        const frameIntervalMs = isMoving
-          ? ACTIVE_MOTION_FRAME_INTERVAL_MS
-          : 0;
+        const frameIntervalMs = isMoving ? ACTIVE_MOTION_FRAME_INTERVAL_MS : 0;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;
         }
@@ -3461,9 +3418,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.civicDetails.removeFromParent();
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
-          runtime.civicDetails.visible = civicDetailsVisible(
-            runtime.underside,
-          );
+          runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
           markAuthoredFlatUnlit(runtime.civicDetails);
           scene.add(runtime.civicDetails);
           applyLightingToRoot(
@@ -3728,7 +3683,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   );
                 }
                 collectFarZoomAntiFlickerTargets(runtime);
-                settleUntil = performance.now() + 350;
               })
               .catch((error: unknown) => {
                 if (
@@ -3896,7 +3850,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 return;
               }
               runtime.settledSurfaceReady = true;
-              settleUntil = performance.now() + 180;
               markSurfaceInteraction(runtime, 180, true);
             });
           }

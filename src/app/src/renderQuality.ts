@@ -11,6 +11,29 @@ export type RenderInteractionSources = {
   wheel: boolean;
 };
 
+export type StableViewportSize = {
+  height: number;
+  width: number;
+};
+
+/**
+ * Keep the WebGL backing store on one integer CSS-pixel size.
+ *
+ * Safari can report fractional ResizeObserver rectangles that oscillate by a
+ * few hundredths of a pixel while its browser chrome settles. Passing those
+ * fractions to EffectComposer reallocates every multisampled render target,
+ * which presents as a full-canvas flash even though the layout did not change.
+ */
+export function stableViewportSize(
+  width: number,
+  height: number,
+): StableViewportSize {
+  return {
+    height: Number.isFinite(height) ? Math.max(1, Math.round(height)) : 1,
+    width: Number.isFinite(width) ? Math.max(1, Math.round(width)) : 1,
+  };
+}
+
 export function renderInteractionActive({
   controls,
   touch,

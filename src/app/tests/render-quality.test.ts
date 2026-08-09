@@ -8,6 +8,7 @@ import {
   STABLE_TOUCH_PIXEL_RATIO_CAP,
   renderInteractionActive,
   renderPixelRatio,
+  stableViewportSize,
 } from "../src/renderQuality";
 
 describe("stable 3D render quality", () => {
@@ -85,5 +86,20 @@ describe("stable 3D render quality", () => {
         width: 9000,
       }),
     ).toBe(1);
+  });
+
+  test("quantises fractional Safari viewport jitter to one backing size", () => {
+    expect(stableViewportSize(389.98, 843.99)).toEqual({
+      height: 844,
+      width: 390,
+    });
+    expect(stableViewportSize(390.02, 844.01)).toEqual({
+      height: 844,
+      width: 390,
+    });
+    expect(stableViewportSize(0, Number.NaN)).toEqual({
+      height: 1,
+      width: 1,
+    });
   });
 });

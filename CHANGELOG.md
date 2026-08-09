@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.70.11
+
+- **A released 3D view now becomes literally static when input stops.**
+  OrbitControls no longer applies an asymptotic, multi-second camera drift
+  after pointer-up, and stale 180-650 ms interaction windows no longer redraw
+  an unchanged scene. Direct mouse/pen rotation remains 1:1, while the existing
+  short, bounded two-finger touch-pan momentum is preserved.
+- Safari's fractional viewport measurements are quantised to one integer CSS
+  pixel size before the WebGL renderer and four-sample MSAA composer allocate
+  their buffers. In 3D, the invisible OpenSeadragon canvas, viewport vignette
+  and backdrop-blur compositor layers are also removed from WebKit's active
+  paint stack; the visible controls retain stable, more opaque backgrounds.
+- Browser verification recorded 16 consecutive full-page frames in each of
+  Day, Night and Minecraft plus 16 frames immediately after a keyboard camera
+  orbit. Every sequence measured **0 changed pixels** between every adjacent
+  pair. Unit tests pin the no-damping, single-compositor and viewport-size
+  contracts.
+- The visible radius remains **5,230 m**. No geometry, building placement,
+  source data, attribution, credentials, Google content or raw reference
+  material changed in this focused idle-stability release.
+
 ## v0.70.10
 
 - **Drawn roof and facade outlines no longer fight their carrier surfaces

@@ -608,9 +608,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
-    "damping-aware active rendering": (
-      "cameraPoseDeltaM(previousCameraPose, afterControlsPose)"
-    ),
+    "exact pointer-up camera rest": "controls.enableDamping = false",
     "stuck touch watchdog": "timestamp - lastTouchActivityAt > 10_000",
     "global pointer release recovery": 'window.addEventListener("pointerup"',
     "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
@@ -640,6 +638,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "stable 1.5x touch quality": "STABLE_TOUCH_PIXEL_RATIO_CAP = 1.5",
     "fixed desktop GPU budget": "STABLE_DESKTOP_PIXEL_BUDGET = 10_000_000",
     "fixed touch GPU budget": "STABLE_TOUCH_PIXEL_BUDGET = 4_400_000",
+    "integer-stable WebGL viewport": "export function stableViewportSize(",
   }
   failures.extend(
     f"3D render-quality policy lacks {label}: {render_quality_path}"
@@ -650,11 +649,27 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       f"3D surface quality policy lacks stable mode gating: {surface_quality_path}"
     )
+  if "`app-shell--viewer-${viewerMode}`" not in app:
+    failures.append(f"Viewer lacks a compositor-isolation mode class: {app_path}")
+  for compositor_contract in (
+    ".app-shell--viewer-three .viewer",
+    "visibility: hidden",
+    ".app-shell--viewer-three .map-stage::after",
+    "-webkit-backdrop-filter: none",
+    "contain: strict",
+  ):
+    if compositor_contract not in styles:
+      failures.append(
+        f"3D compositor isolation lacks {compositor_contract!r}: {styles_path}"
+      )
   for forbidden_runtime_switch in (
     "coarsePointer ? 1000 / 30 : 0",
     "nextPixelRatioMode(",
     "nextSettledDetailMode(",
     "timestamp / 1000",
+    "controls.enableDamping = true",
+    "timestamp < settleUntil",
+    "timestamp < runtime.interactionUntil",
   ):
     if forbidden_runtime_switch in viewer:
       failures.append(

@@ -11,11 +11,31 @@ import {
 const viewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
 ).text();
+const appSource = await Bun.file(
+  new URL("../src/App.tsx", import.meta.url),
+).text();
+const stylesSource = await Bun.file(
+  new URL("../src/styles.css", import.meta.url),
+).text();
 
 describe("idle-frame anti-flicker contract", () => {
   test("preserves the last settled WebGL frame for Safari compositing", () => {
     expect(viewerSource).toContain("preserveDrawingBuffer: true");
     expect(viewerSource).toContain("if (!renderRequired)");
+    expect(viewerSource).toContain("controls.enableDamping = false");
+    expect(viewerSource).not.toContain("timestamp < settleUntil");
+    expect(viewerSource).not.toContain("timestamp < runtime.interactionUntil");
+  });
+
+  test("isolates one compositor surface behind the 3D modes", () => {
+    expect(appSource).toContain("`app-shell--viewer-${viewerMode}`");
+    expect(stylesSource).toContain(".app-shell--viewer-three .viewer");
+    expect(stylesSource).toContain("visibility: hidden");
+    expect(stylesSource).toContain(
+      ".app-shell--viewer-three .map-stage::after",
+    );
+    expect(stylesSource).toContain("-webkit-backdrop-filter: none");
+    expect(stylesSource).toContain("contain: strict");
   });
 
   test("keeps transparent ink from fighting itself while the camera moves", () => {
