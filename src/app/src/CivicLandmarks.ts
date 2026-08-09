@@ -135,15 +135,18 @@ function hippedRoofGeometry(
 }
 
 function addSwissFlag(group: Group): void {
-  const poleX = 13.2;
-  const poleZ = 14.1;
+  // The flag belongs on the historic palace roof, not beside the building at
+  // terrain level. The hipped roof reaches 22.05 m over the local datum.
+  const poleX = -8.05;
+  const poleZ = 0;
+  const roofY = 22.15;
   const poleHeight = 8.5;
   const pole = new Mesh(
     new CylinderGeometry(0.1, 0.14, poleHeight, 12),
     material(0x7b8587, { metalness: 0.72, roughness: 0.28 }),
   );
   pole.name = "Swiss Embassy flagpole";
-  pole.position.set(poleX, poleHeight / 2, poleZ);
+  pole.position.set(poleX, roofY + poleHeight / 2, poleZ);
   pole.castShadow = true;
   group.add(pole);
 
@@ -159,7 +162,7 @@ function addSwissFlag(group: Group): void {
       new MeshBasicMaterial({ color, side: DoubleSide }),
     );
     mesh.name = name;
-    mesh.position.set(poleX, poleHeight - 1.8, poleZ + zOffset);
+    mesh.position.set(poleX, roofY + poleHeight - 1.8, poleZ + zOffset);
     markWindFlag(mesh, width, { amplitudeM: 0.22, phase: 0.42 });
     group.add(mesh);
   };

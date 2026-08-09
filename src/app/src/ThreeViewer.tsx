@@ -481,6 +481,11 @@ function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
   runtime.renderInvalidated = true;
 }
 
+/** Authored civic signatures remain available in every surface mode. */
+export function civicDetailsVisible(underside: boolean): boolean {
+  return !underside;
+}
+
 function createSelectionMarker(): Group {
   const group = new Group();
   const ring = new Mesh(
@@ -974,7 +979,7 @@ function setSceneLighting(
       signature.visible = !isMinecraft;
     }
   }
-  runtime.civicDetails.visible = recognitionVisible;
+  runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
   runtime.monuments.visible = !runtime.underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -1671,7 +1676,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = !underside;
   runtime.centralDetails.visible = centralCivicDetailsVisible(underside);
-  runtime.civicDetails.visible = recognitionVisible;
+  runtime.civicDetails.visible = civicDetailsVisible(underside);
   runtime.monuments.visible = !underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -2387,6 +2392,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const renderer = new WebGLRenderer({
         antialias: true,
         powerPreference: "high-performance",
+        // The viewer intentionally stops drawing once a still scene is
+        // settled. Safari/iOS may discard an unpreserved WebGL backbuffer
+        // between compositor passes, producing a blank/old-frame flash even
+        // though no scene state changed. Preserve the last complete frame.
+        preserveDrawingBuffer: true,
       });
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
@@ -3391,6 +3401,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.civicDetails.removeFromParent();
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
+          runtime.civicDetails.visible = civicDetailsVisible(
+            runtime.underside,
+          );
           markAuthoredFlatUnlit(runtime.civicDetails);
           scene.add(runtime.civicDetails);
           applyLightingToRoot(

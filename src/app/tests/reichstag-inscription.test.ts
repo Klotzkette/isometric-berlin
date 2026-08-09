@@ -40,9 +40,8 @@ describe("Reichstag west architrave dedication", () => {
   });
 
   test("fits the architrave band above the six portico columns", () => {
-    // The columns span 35 m of the 41 m entablature; the line must sit inside
-    // the 26 m band the model draws on that architrave.
-    expect(dedicationLayout().totalWidthM).toBeLessThan(26);
+    // The official line spans about 16 m on the 41 m entablature.
+    expect(dedicationLayout().totalWidthM).toBeLessThan(16);
     expect(dedicationLayout().totalWidthM).toBeGreaterThan(12);
   });
 

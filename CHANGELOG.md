@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.68.0
+
+- **The Reichstag again carries its defining west inscription and complete
+  permanent flags.** `DEM DEUTSCHEN VOLKE` now occupies the documented 16 m
+  architrave field on a physically separated, depth-stable drawing plane, so
+  it no longer disappears into the portico. Three 5 x 7 m German flags and
+  the southeast 5 x 7 m European flag use the Bundestag's published count and
+  dimensions and remain present in Day, Night, Minecraft and Snowstorm.
+- **A still camera now produces a deliberately persistent framebuffer.** The
+  WebGL renderer preserves its completed drawing buffer for browsers whose
+  compositor otherwise discards an idle canvas, while the established
+  fixed-resolution and deterministic-detail policies remain intact. Eight
+  production captures per mode at desktop size, plus eight Day captures at
+  390 x 844, were byte-identical; the canvas therefore changes only for an
+  explicit interaction or an enabled animated effect.
+- **The Swiss Embassy and Charite read as their actual civic landmarks.** The
+  Swiss flag has moved from terrain level to the historic palace roof and is
+  retained in every above-ground visual mode. Sixteen official LoD2 parts of
+  the renovated Charite tower now receive its narrow, regular facade rhythm,
+  pale metal envelope and source heights; the mapped campus bridge receives a
+  separate glass treatment. This also fixes the dormant hero-window dispatcher
+  that previously gave all named buildings a generic rhythm.
+- **Robert Koch is no longer a generic stone marker.** The official monument
+  anchor at Robert-Koch-Platz now carries a close-scale marble composition of
+  the high-backed chair and seated figure, with the Berlin monument record
+  retained as provenance.
+- The versioned visible presentation radius remains **5,230 m**. No bounds,
+  source coordinates, Google data, API credentials or raw photographs changed
+  in this focused landmark and temporal-stability release.
+
 ## v0.67.0
 
 - **Golda-Meir-Steg now follows its measured, unmistakable Europacity form.**

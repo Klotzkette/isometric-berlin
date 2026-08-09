@@ -9,6 +9,10 @@ import {
   focusCameraForSignature,
   REICHSTAG_COURTYARDS,
   REICHSTAG_COURTYARD_DEPTH_M,
+  REICHSTAG_FLAG_HEIGHT_M,
+  REICHSTAG_FLAG_WIDTH_M,
+  REICHSTAG_FLAGPOLE_HEIGHT_M,
+  REICHSTAG_INSCRIPTION_FIELD_WIDTH_M,
 } from "../src/ArchitecturalLandmarks";
 import { dedicationLayout } from "../src/reichstagInscription";
 import { windFlagMatrixCount } from "../src/WindFlags";
@@ -377,6 +381,33 @@ describe("metre-scale architectural recognition models", () => {
     ).toHaveLength(2);
     expect(windFlagMatrixCount(reichstag!)).toBe(11);
     expect(
+      reichstag!.children.filter((child) => child.name.endsWith("flagpole")),
+    ).toHaveLength(4);
+    const germanStripe = reichstag!.children.find((child) =>
+      child.name.includes("German flag stripe"),
+    ) as Mesh;
+    germanStripe.geometry.computeBoundingBox();
+    const germanStripeBounds = germanStripe.geometry.boundingBox!;
+    expect(germanStripeBounds.max.x - germanStripeBounds.min.x).toBeCloseTo(
+      REICHSTAG_FLAG_WIDTH_M,
+      5,
+    );
+    expect(germanStripeBounds.max.y - germanStripeBounds.min.y).toBeCloseTo(
+      REICHSTAG_FLAG_HEIGHT_M / 3,
+      5,
+    );
+    const flagpoles = reichstag!.children.filter((child) =>
+      child.name.endsWith("flagpole"),
+    ) as Mesh[];
+    for (const flagpole of flagpoles) {
+      flagpole.geometry.computeBoundingBox();
+      const poleBounds = flagpole.geometry.boundingBox!;
+      expect(poleBounds.max.y - poleBounds.min.y).toBeCloseTo(
+        REICHSTAG_FLAGPOLE_HEIGHT_M,
+        5,
+      );
+    }
+    expect(
       reichstag!.children.filter((child) => child.name.includes("facade windows")),
     ).toHaveLength(3);
     const darkArches = reichstag!.getObjectByName(
@@ -453,12 +484,17 @@ describe("metre-scale architectural recognition models", () => {
     dedication.geometry.computeBoundingBox();
     const bounds = dedication.geometry.boundingBox!;
     const bandWidth = bounds.max.x - bounds.min.x;
+    expect(bandWidth).toBeCloseTo(REICHSTAG_INSCRIPTION_FIELD_WIDTH_M, 5);
     expect(bandWidth).toBeGreaterThan(dedicationLayout().totalWidthM);
-    expect(
+    const band =
       reichstag.getObjectByName(
         "Reichstag DEM DEUTSCHEN VOLKE inscription band",
-      ),
-    ).toBeInstanceOf(Mesh);
+      );
+    expect(band).toBeInstanceOf(Mesh);
+    // A real depth separation prevents coplanar z-fighting at rest.
+    expect(band!.position.x - dedication.position.x).toBeGreaterThan(0.1);
+    expect(dedication.material.depthWrite).toBe(false);
+    expect(dedication.frustumCulled).toBe(false);
   });
 
   test("hollows out the six documented inner courtyards", () => {

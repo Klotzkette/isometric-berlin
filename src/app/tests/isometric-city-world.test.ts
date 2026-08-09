@@ -13,6 +13,8 @@ import {
 } from "three";
 
 import {
+  CHARITE_BETTENHOCHHAUS_IDS,
+  CHARITE_CAMPUS_BRIDGE_ID,
   type PrismPayload,
   VISIBLE_RADIUS_M,
   buildRoofGeometry,
@@ -35,6 +37,7 @@ import {
   roofRise,
   setIsoNightPresentation,
   windowGrid,
+  windowFormatForBuilding,
 } from "../src/IsometricCityWorld";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -171,8 +174,9 @@ describe("ligne-claire fenestration", () => {
     expect(material.transparent).toBe(true);
     expect(material.opacity).toBeGreaterThan(0.3);
     expect(material.opacity).toBeLessThan(0.8);
-    // The 24 Bügel tower prisms are glassed, and all of them exist.
-    expect(PRISM_GLASSED_IDS.size).toBe(24);
+    // The 24 Hauptbahnhof Bügel prisms plus the Charite campus bridge are
+    // glassed, and all of them exist in the official payload.
+    expect(PRISM_GLASSED_IDS.size).toBe(25);
     for (const id of PRISM_GLASSED_IDS) {
       expect(payload.buildings.some((b) => b.id === id)).toBe(true);
     }
@@ -699,6 +703,25 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     const grid = windowGrid(30, 28.1, format);
     expect(grid).not.toBeNull();
     expect(grid!.floors).toBe(3);
+  });
+
+  test("uses the renovated Charite tower rhythm and its LoD2 glass bridge", () => {
+    expect(CHARITE_BETTENHOCHHAUS_IDS.size).toBe(16);
+    for (const id of CHARITE_BETTENHOCHHAUS_IDS) {
+      const building = payload.buildings.find((candidate) => candidate.id === id);
+      expect(building).toBeDefined();
+      expect(building!.h_dm / 10).toBeGreaterThan(79);
+      const format = windowFormatForBuilding(id, true);
+      expect(format.bayPitch).toBeCloseTo(2.25, 5);
+      expect(format.floorPitch).toBeCloseTo(3.7, 5);
+    }
+    expect(PRISM_GLASSED_IDS.has(CHARITE_CAMPUS_BRIDGE_ID)).toBe(true);
+    const bridge = payload.buildings.find(
+      (candidate) => candidate.id === CHARITE_CAMPUS_BRIDGE_ID,
+    );
+    expect(bridge).toBeDefined();
+    expect(bridge!.h_dm / 10).toBeGreaterThan(8);
+    expect(bridge!.h_dm / 10).toBeLessThan(10);
   });
 });
 

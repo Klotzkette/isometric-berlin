@@ -121,6 +121,12 @@ const EDGE_COLOR = 0x716c62;
 // corner rather than inset by 2 m as they were modelled before.
 export const REICHSTAG_TOWER_SIZE_M = 16.5;
 export const REICHSTAG_TOWER_INSET_M = 0.9;
+/** Official Bundestag tower-flag dimensions: 5 m high by 7 m long. */
+export const REICHSTAG_FLAG_HEIGHT_M = 5;
+export const REICHSTAG_FLAG_WIDTH_M = 7;
+export const REICHSTAG_FLAGPOLE_HEIGHT_M = 12;
+/** Published overall length of the west-portal dedication. */
+export const REICHSTAG_INSCRIPTION_FIELD_WIDTH_M = 16;
 
 /** Centre of a corner tower along one axis, given that axis' full extent. */
 function reichstagTowerCentre(side: number, extentM: number): number {
@@ -365,7 +371,7 @@ function addGermanFlag(
   position: [number, number, number],
 ): void {
   const pole = modelMaterial(0x6f7675, { metalness: 0.62, roughness: 0.3 });
-  const poleHeight = 9;
+  const poleHeight = REICHSTAG_FLAGPOLE_HEIGHT_M;
   const poleMesh = new Mesh(new CylinderGeometry(0.12, 0.16, poleHeight, 10), pole);
   poleMesh.name = `${name} flagpole`;
   poleMesh.position.set(position[0], position[1] + poleHeight / 2, position[2]);
@@ -373,9 +379,11 @@ function addGermanFlag(
   group.add(poleMesh);
 
   const stripeColors = [0x151515, 0xc82f35, 0xe5b93f];
-  const flagWidth = 4.8;
+  const flagWidth = REICHSTAG_FLAG_WIDTH_M;
+  const stripeHeight = REICHSTAG_FLAG_HEIGHT_M / 3;
+  const flagTop = position[1] + poleHeight - 0.65;
   for (let index = 0; index < stripeColors.length; index += 1) {
-    const geometry = new PlaneGeometry(flagWidth, 0.76, 12, 2);
+    const geometry = new PlaneGeometry(flagWidth, stripeHeight, 18, 3);
     geometry.translate(flagWidth / 2, 0, 0);
     const stripe = new Mesh(
       geometry,
@@ -387,7 +395,7 @@ function addGermanFlag(
     stripe.name = `${name} German flag stripe ${index + 1}`;
     stripe.position.set(
       position[0],
-      position[1] + poleHeight - 0.5 - index * 0.76,
+      flagTop - stripeHeight / 2 - index * stripeHeight,
       position[2],
     );
     stripe.rotation.y = -0.06;
@@ -406,7 +414,7 @@ function addEuropeanFlag(
     metalness: 0.62,
     roughness: 0.3,
   });
-  const poleHeight = 9;
+  const poleHeight = REICHSTAG_FLAGPOLE_HEIGHT_M;
   const pole = new Mesh(
     new CylinderGeometry(0.12, 0.16, poleHeight, 10),
     poleMaterial,
@@ -416,21 +424,23 @@ function addEuropeanFlag(
   pole.castShadow = true;
   group.add(pole);
 
-  const flagWidth = 4.8;
-  const flagGeometry = new PlaneGeometry(flagWidth, 2.28, 12, 4);
+  const flagWidth = REICHSTAG_FLAG_WIDTH_M;
+  const flagHeight = REICHSTAG_FLAG_HEIGHT_M;
+  const flagCentreY = position[1] + poleHeight - 0.65 - flagHeight / 2;
+  const flagGeometry = new PlaneGeometry(flagWidth, flagHeight, 18, 8);
   flagGeometry.translate(flagWidth / 2, 0, 0);
   const flag = new Mesh(
     flagGeometry,
     new MeshBasicMaterial({ color: 0x174c9c, side: DoubleSide }),
   );
   flag.name = `${name} European Union flag`;
-  flag.position.set(position[0], position[1] + poleHeight - 1.25, position[2]);
+  flag.position.set(position[0], flagCentreY, position[2]);
   flag.rotation.y = -0.06;
   markWindFlag(flag, flagWidth, { phase: 0.42 });
   group.add(flag);
 
   const stars = new InstancedMesh(
-    new CircleGeometry(0.09, 5),
+    new CircleGeometry(0.16, 5),
     new MeshBasicMaterial({ color: 0xffd447, side: DoubleSide }),
     12,
   );
@@ -444,8 +454,8 @@ function addEuropeanFlag(
   for (let index = 0; index < 12; index += 1) {
     const angle = (index / 12) * Math.PI * 2;
     const starPosition: [number, number, number] = [
-      position[0] + 2.4 + Math.cos(angle) * 0.58,
-      position[1] + poleHeight - 1.25 + Math.sin(angle) * 0.58,
+      position[0] + flagWidth / 2 + Math.cos(angle) * 1.05,
+      flagCentreY + Math.sin(angle) * 1.05,
       position[2] - 0.015,
     ];
     dummy.position.set(...starPosition);
@@ -1031,7 +1041,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   group.add(pediment);
   // The bronze dedication on the architrave — the Reichstag's most famous
   // line, now spelled out instead of abstracted into three letter blocks.
-  const bandWidth = 26;
+  const bandWidth = REICHSTAG_INSCRIPTION_FIELD_WIDTH_M;
   const bandHeight = 1.15;
   addBox(
     group,
@@ -1065,7 +1075,15 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   // runs along +Z, which is left-to-right for a viewer standing in front of
   // the portico.
   dedication.rotation.y = -Math.PI / 2;
-  dedication.position.set(westX - 3.94, 18.55, 0);
+  // Keep a physical 23 cm standoff from the stone band. The previous 1 cm
+  // separation shared nearly the same depth values at overview scale, so the
+  // bronze letters could disappear or shimmer through z-fighting.
+  dedication.position.set(westX - 4.17, 18.55, 0);
+  dedication.frustumCulled = false;
+  dedication.renderOrder = 12;
+  dedicationMaterial.depthWrite = false;
+  dedicationMaterial.polygonOffsetFactor = -6;
+  dedicationMaterial.polygonOffsetUnits = -6;
   group.add(dedication);
   // The grand west stair rises to the portico floor.
   for (let step = 0; step < 5; step += 1) {

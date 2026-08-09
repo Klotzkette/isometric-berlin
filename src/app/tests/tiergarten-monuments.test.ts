@@ -185,6 +185,15 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(tallestNear("Moltke")).toBeLessThan(13);
   });
 
+  test("Robert Koch sits in marble on the surveyed Robert-Koch-Platz anchor", () => {
+    const height = tallestNear("Robert Koch");
+    expect(height).toBeGreaterThan(5);
+    expect(height).toBeLessThan(6.5);
+    expect(monuments.userData.sourceUrls).toContain(
+      "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
+    );
+  });
+
   test("Lessing stands on his own jointed granite pedestal, not a generic cube stack", () => {
     // The real monument is a 3 m marble Lessing on a 4 m granite
     // pedestal (~7 m total), with the bronze "Genius der Humanität"

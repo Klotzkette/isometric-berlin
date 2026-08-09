@@ -86,6 +86,29 @@ function buildStone(builder: Builder, x: number, y: number, z: number): void {
   box(builder, STONE, x, y + 0.35, z, 0.9, 0.7, 0.6);
 }
 
+/** Louis Tuaillon's 1916 seated marble Robert Koch monument. */
+function buildRobertKochMemorial(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  // Broad four-step marble base and inscribed pedestal.
+  box(builder, STONE_LIGHT, x, y + 0.12, z, 5.0, 0.24, 4.3);
+  box(builder, MARBLE, x, y + 0.34, z, 4.25, 0.22, 3.55);
+  box(builder, MARBLE, x, y + 0.64, z, 3.65, 0.38, 3.0);
+  box(builder, MARBLE, x, y + 1.58, z, 2.85, 1.5, 2.3);
+  box(builder, STONE_LIGHT, x, y + 2.4, z, 3.15, 0.2, 2.6);
+  // High-backed chair, seated coat, two separately readable legs and arms.
+  box(builder, MARBLE, x, y + 3.58, z + 0.28, 2.5, 2.2, 0.5);
+  box(builder, MARBLE, x, y + 3.65, z, 1.65, 1.85, 1.2);
+  box(builder, MARBLE, x - 0.52, y + 3.05, z - 0.2, 0.55, 1.35, 0.75, -0.12);
+  box(builder, MARBLE, x + 0.52, y + 3.05, z - 0.2, 0.55, 1.35, 0.75, 0.12);
+  box(builder, MARBLE, x - 0.92, y + 3.78, z, 0.38, 1.45, 0.42, -0.35);
+  box(builder, MARBLE, x + 0.92, y + 3.78, z, 0.38, 1.45, 0.42, 0.35);
+  box(builder, MARBLE, x, y + 5.0, z - 0.03, 0.72, 0.82, 0.68);
+}
+
 
 /**
  * The remaining named OSM artworks are not memorial markers.  These compact
@@ -1297,6 +1320,8 @@ export function createTiergartenMonuments(
       buildUnityFlag(builder, x, y, z);
     } else if (/Grundgesetz/i.test(name)) {
       buildGlassPanels(builder, x, y, z);
+    } else if (/^Robert Koch$/i.test(name)) {
+      buildRobertKochMemorial(builder, x, y, z);
     } else if (/Richard Wagner|Wagner-Denkmal/i.test(name)) {
       buildWagnerMemorial(builder, x, y, z);
     } else if (/Moltke|Roon/i.test(name)) {
@@ -1338,6 +1363,9 @@ export function createTiergartenMonuments(
   group.userData.geometryStatus =
     "Reference-based presentation geometry from OSM point positions and " +
     "Wikipedia/Wikimedia/Denkmaldatenbank descriptions - not a survey model";
+  group.userData.sourceUrls = [
+    "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
+  ];
 
   const merged = mergeGeometries(builder.parts, false);
   if (merged) {

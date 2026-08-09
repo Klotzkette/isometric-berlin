@@ -32,7 +32,19 @@ describe("metric civic landmark details", () => {
     expect(
       embassy!.getObjectByName("Swiss Embassy Diener and Diener modern extension"),
     ).toBeDefined();
-    expect(embassy!.getObjectByName("Swiss Embassy flagpole")).toBeDefined();
+    const flagpole = embassy!.getObjectByName("Swiss Embassy flagpole");
+    expect(flagpole).toBeDefined();
+    const flagpoleBounds = new Box3().setFromObject(flagpole!);
+    const embassyGroundY = embassy!.position.y;
+    expect(flagpoleBounds.min.y - embassyGroundY).toBeGreaterThan(22);
+    expect(flagpoleBounds.max.y - embassyGroundY).toBeGreaterThan(30);
+    const flag = embassy!.getObjectByName(
+      "Swiss Embassy animated red flag field",
+    );
+    expect(flag).toBeDefined();
+    expect(new Box3().setFromObject(flag!).min.y - embassyGroundY).toBeGreaterThan(
+      26,
+    );
     expect(windFlagMatrixCount(embassy!)).toBe(3);
   });
 

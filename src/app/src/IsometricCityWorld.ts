@@ -151,6 +151,28 @@ export const ISO_INK_COLOR = 0x716c62;
 export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
 export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 
+/** Official LoD2 parts of the renovated Charite Bettenhochhaus tower. */
+export const CHARITE_BETTENHOCHHAUS_IDS: ReadonlySet<string> = new Set([
+  "7b3ZwNAB",
+  "7zddOe6j",
+  "979qTCbp",
+  "CNtAYPkO",
+  "DQZmfONt",
+  "FurjqyeB",
+  "NDxiQ2xg",
+  "OVVpwBo2",
+  "RE3bNP55",
+  "SgItUCXH",
+  "Sorg80ps",
+  "X4o3aH3m",
+  "ZSiiyE0H",
+  "aOZAupOd",
+  "jwLw3UEy",
+  "zq8O5Jct",
+]);
+/** Two-storey steel-and-glass bridge across Luisenstrasse in the LoD2 set. */
+export const CHARITE_CAMPUS_BRIDGE_ID = "L2e097lj";
+
 // Hand-pinned facade tones for hero prisms (payload building ids, last 8
 // chars of the LoD2 id), matching the owner's colour direction: the
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
@@ -158,6 +180,10 @@ export const ISO_EDGE_THRESHOLD_DEGREES = 24;
 export const HERO_PRISM_TONES: Record<string, number> = {
   K0002MCN: 0xcac6bd,
   MLwG4KW9: 0xeeeeea,
+  // Renovated Charite tower: pale silver aluminium curtain-wall register.
+  ...Object.fromEntries(
+    [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [id, 0xdfe5e3]),
+  ),
   // Gymnasium Tiergarten Neubau (1971, refurbished 2009-11). The overview
   // raster stops short of the Hansaviertel, so every prism of the school
   // fell back to the generic concrete shade and the white rendered slab
@@ -191,6 +217,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   MLwG4KW9: 0xeff1ec,
   UbQkgNZe: 0xe1e3dc,
   ycOYQRVL: 0xe1e3dc,
+  ...Object.fromEntries(
+    [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [id, 0xd3d9d8]),
+  ),
 };
 
 // Buildings whose recognition model draws the COMPLETE structure. Their
@@ -471,6 +500,7 @@ export const PRISM_GLASSED_IDS: ReadonlySet<string> = new Set([
   "v3sN8WzM",
   "zTSJJzrL",
   "zUU5olBa",
+  CHARITE_CAMPUS_BRIDGE_ID,
 ]);
 
 /**
@@ -1184,7 +1214,30 @@ export const HERO_WINDOW_FORMATS: Record<string, WindowFormat> = {
     sillStart: 6,
     width: 2.2,
   },
+  // The 21-storey Charite tower's renewed curtain wall uses close, narrow
+  // vertical modules and a regular 3.7 m floor rhythm, not civic piano-nobile
+  // windows. All values are presentation rhythm over the exact LoD2 shells.
+  ...Object.fromEntries(
+    [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [
+      id,
+      {
+        bayPitch: 2.25,
+        floorPitch: 3.7,
+        height: 2.25,
+        sillStart: 1.05,
+        width: 1.05,
+      },
+    ]),
+  ),
 };
+
+export function windowFormatForBuilding(
+  buildingId: string,
+  isCivic: boolean,
+): WindowFormat {
+  return HERO_WINDOW_FORMATS[buildingId] ??
+    (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW);
+}
 // The Reichstag's entrance is its portico (drawn by the recognition
 // model); a generic drawn door on the plinth would be Quatsch.
 const DOOR_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
@@ -5845,7 +5898,7 @@ export function createIsometricCity(
       const isCivic =
         ringArea(ringMeters2) >= CIVIC_FOOTPRINT_M2 &&
         totalHeight >= CIVIC_HEIGHT_M;
-      const format = isCivic ? CIVIC_WINDOW : HOUSING_WINDOW;
+      const format = windowFormatForBuilding(building.id, isCivic);
       const bayPitch = format.bayPitch;
       const axisTop = y0 + bodyHeight - 0.9;
       const axisBottom = y0 + 1.2;
