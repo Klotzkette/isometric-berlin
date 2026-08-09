@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.70.1
+
+- Removed all seven unsolicited location quips in German and English,
+  including the washing-machine, parallel-universe, turn-signal and snooze
+  messages. The complete discovery-note component, timers, styles and source
+  module are gone rather than merely hidden.
+- Release readiness now rejects a return of this temporary slogan layer.
+  Selecting a sight therefore changes only the factual focus, navigation state
+  and map framing. Geometry, weather, audio controls and the 5,230 m visible
+  radius are unchanged.
+
 ## v0.70.0
 
 - **Navigation is shorter without losing the catalog.** The visible Sights

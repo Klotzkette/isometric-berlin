@@ -129,8 +129,8 @@ chrome; official German place names remain unchanged, and the German UI uses
 Music is off by default and cannot autoplay. The music button or `B` starts a
 local Web Audio score with seven original 72 BPM variants built from triangle
 bass, square/sine chimes, high-pass noise hats and quiet drones. It loads no
-audio file and suspends when the tab is hidden. Short bilingual discovery notes
-are tied to seven selected sights and appear only once per page session.
+audio file and suspends when the tab is hidden. Selecting a sight does not add
+temporary slogans or commentary over the map.
 
 The ordinary Day/Night pipeline applies a bounded crisp/saturation pass only
 after camera movement settles; direct rendering resumes during motion. The

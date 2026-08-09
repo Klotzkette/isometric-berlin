@@ -68,7 +68,6 @@ import {
 } from "./audioAutostart";
 import { registerPageExitAudioStop } from "./audioLifecycle";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
-import { discoveryNoteFor } from "./discoveryNotes";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import { isReservedBrowserChord } from "./keyboardShortcuts";
 import {
@@ -514,8 +513,6 @@ export function App() {
   const hashSyncFrameRef = useRef<number | null>(null);
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const brandRevealTimerRef = useRef<number | null>(null);
-  const discoveryTimerRef = useRef<number | null>(null);
-  const discoveredLandmarksRef = useRef<Set<string>>(new Set());
   const minecraftSparkTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
@@ -558,9 +555,6 @@ export function App() {
     x: number;
     y: number;
   } | null>(null);
-  const [discoveryLandmark, setDiscoveryLandmark] = useState<string | null>(
-    null,
-  );
   const [isAttributionOpen, setIsAttributionOpen] = useState(() => {
     try {
       const seen = window.sessionStorage.getItem(
@@ -1405,31 +1399,9 @@ export function App() {
       if (minecraftSparkTimerRef.current !== null) {
         window.clearTimeout(minecraftSparkTimerRef.current);
       }
-      if (discoveryTimerRef.current !== null) {
-        window.clearTimeout(discoveryTimerRef.current);
-      }
     },
     [],
   );
-
-  useEffect(() => {
-    if (
-      !isReady ||
-      !discoveryNoteFor(selected, language) ||
-      discoveredLandmarksRef.current.has(selected)
-    ) {
-      return;
-    }
-    discoveredLandmarksRef.current.add(selected);
-    setDiscoveryLandmark(selected);
-    if (discoveryTimerRef.current !== null) {
-      window.clearTimeout(discoveryTimerRef.current);
-    }
-    discoveryTimerRef.current = window.setTimeout(() => {
-      setDiscoveryLandmark(null);
-      discoveryTimerRef.current = null;
-    }, 3600);
-  }, [isReady, language, selected]);
 
   useEffect(() => {
     const points = new Map<
@@ -2275,17 +2247,6 @@ export function App() {
           aria-hidden="true"
         />
       ) : null}
-      {discoveryLandmark &&
-      !compactCoachActive &&
-      mobileSheet === null &&
-      !isHelpOpen &&
-      !isReferenceOpen &&
-      !isRepositoryOpen ? (
-        <aside className="discovery-note" role="status" aria-live="polite">
-          {discoveryNoteFor(discoveryLandmark, language)}
-        </aside>
-      ) : null}
-
       <header className="topbar">
         <button
           type="button"

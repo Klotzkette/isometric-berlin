@@ -513,7 +513,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   cultural_path = root / "src/app/src/CulturalLandmarks.ts"
   localization_path = root / "src/app/src/localization.ts"
   ambient_path = root / "src/app/src/AmbientSoundscape.ts"
-  discovery_path = root / "src/app/src/discoveryNotes.ts"
   crisp_path = root / "src/app/src/crisp.frag"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   park_path = root / "src/app/src/ParkDetails.ts"
@@ -530,7 +529,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not cultural_path.exists()
     or not localization_path.exists()
     or not ambient_path.exists()
-    or not discovery_path.exists()
     or not crisp_path.exists()
     or not memorial_path.exists()
     or not park_path.exists()
@@ -548,7 +546,6 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   cultural = cultural_path.read_text(encoding="utf-8")
   localization = localization_path.read_text(encoding="utf-8")
   ambient = ambient_path.read_text(encoding="utf-8")
-  discovery = discovery_path.read_text(encoding="utf-8")
   crisp = crisp_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
   park = park_path.read_text(encoding="utf-8")
@@ -717,12 +714,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(f"Viewer lacks seven original ambient variants: {ambient_path}")
   if "toggleMusic" not in app or "new AmbientSoundscape" not in app:
     failures.append(f"Viewer lacks an explicit music control: {app_path}")
+  discovery_path = root / "src/app/src/discoveryNotes.ts"
   if (
-    "discoveryNoteFor" not in app
-    or discovery.count("    de: ") != 7
-    or discovery.count("    en: ") != 7
+    discovery_path.exists() or "discoveryNoteFor" in app or ".discovery-note" in styles
   ):
-    failures.append(f"Viewer lacks bilingual location discoveries: {discovery_path}")
+    failures.append(f"Viewer still contains unsolicited location quips: {app_path}")
   if "neighbours * 0.25" not in crisp or "uniform float strength" not in crisp:
     failures.append(f"Viewer lacks the bounded settled-image crisp pass: {crisp_path}")
   required_memorial_snippets = {
