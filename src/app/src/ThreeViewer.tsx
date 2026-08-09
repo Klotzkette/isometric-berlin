@@ -156,13 +156,7 @@ import { createRiversideVenues } from "./RiversideVenues";
 import { createSpreebogenOffice } from "./SpreebogenOffice";
 import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
-import {
-  INTERACTION_COALESCE_MS,
-  nextPixelRatioMode,
-  nextSettledDetailMode,
-  renderInteractionActive,
-  renderPixelRatio,
-} from "./renderQuality";
+import { renderInteractionActive, renderPixelRatio } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
 import {
@@ -423,11 +417,14 @@ function setUnderwaterPresentation(
 }
 
 let lastSurfaceQualityDataset = "";
-function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
+function setSurfacePresentation(
+  runtime: Runtime,
+  interactionTierLocked: boolean,
+): void {
   const settled = shouldUseSettledSurface({
     coarsePointer: runtime.coarsePointer,
     detailReady: runtime.settledSurfaceReady,
-    interacting,
+    interactionTierLocked,
   });
   // The voxel block world (Minecraft) and the drawn isometric city
   // (Day/Night) each fully replace the photogrammetry surfaces — except
@@ -455,20 +452,6 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   }
 }
 
-/**
- * Extends the interaction window. It deliberately does *not* switch the
- * surfaces itself.
- *
- * v0.50.0 gave the settled-detail tier hysteresis in the frame loop, but this
- * helper still called setSurfacePresentation(runtime, true) straight away, and
- * every navigation button and load completion goes through here. So a single
- * rotate or pan click forced the coarse interaction surface (and dropped the
- * park microcrowns) that same instant, and the hysteretic decision in the
- * frame loop put them back a frame or two later — one full blink of the ground
- * and the whole Tiergarten canopy per click, which is exactly the "flackert
- * wenn man hin und her bewegt" report. The frame loop is now the only writer;
- * this only moves the deadline it reads.
- */
 function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
   // Any direct navigation immediately returns control to the visitor instead
   // of fighting the guided portal-to-portal tunnel camera.
@@ -908,6 +891,19 @@ function setSceneLighting(
   applyLightingToRoot(runtime.monuments, mode, lightsOn);
   applyLightingToRoot(runtime.culturalDetails, mode, lightsOn);
   applyLightingToRoot(runtime.parkDetails, mode, lightsOn);
+  // Incidental staffage has one authored pose. Updating flags or tiny signal
+  // lamps only while the camera moved made those sub-pixel details flash
+  // against otherwise deterministic geometry.
+  updateWindFlags(runtime.signatures, 0.9);
+  updateWindFlags(runtime.civicDetails, 0.9);
+  if (runtime.trafficSignals) {
+    updateTrafficSignals(
+      runtime.trafficSignals,
+      0,
+      false,
+      mode !== "night" || lightsOn,
+    );
+  }
   if (isMinecraft) {
     setMinecraftMaterialPresentation(
       runtime.scene,
@@ -1093,6 +1089,12 @@ function ensureIsoWorld(
         if (signals) {
           runtime.isoWorld.add(signals);
           runtime.trafficSignals = signals;
+          updateTrafficSignals(
+            signals,
+            0,
+            false,
+            runtime.lightingMode !== "night" || runtime.nightLightsOn,
+          );
         }
         // Every OSM monument in the quarter, drawn ("alle Denkmäler").
         const monuments = createTiergartenMonuments(street, ground);
@@ -2565,19 +2567,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastTouchActivityAt = performance.now();
       let settleUntil = 0;
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
-      // Resolution mode currently applied to the canvas, plus the hysteresis
-      // clocks the governor in the frame loop reads. Never write the
-      // interaction flags straight into renderPixelRatio: see the governor
-      // comment in renderQuality.ts for why that flickers during a wheel zoom.
-      let pixelRatioInteracting = false;
-      let interactionDeadline = 0;
-      let inputActiveSince: number | null = null;
-      let inputIdleSince: number | null = 0;
-      // Same idea for the settled-detail tier, on its own clocks because it
-      // follows camera motion rather than raw input.
-      let surfaceInteracting = false;
-      let movingSince: number | null = null;
-      let stillSince: number | null = 0;
       let appliedWidth = 0;
       let appliedHeight = 0;
       let appliedPixelRatio = 0;
@@ -2590,7 +2579,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           coarsePointer,
           devicePixelRatio: window.devicePixelRatio,
           height,
-          interacting: pixelRatioInteracting,
           width,
         });
         if (
@@ -2615,29 +2603,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.renderInvalidated = true;
         const crispResolution = crispPass.uniforms.resolution.value;
         if (crispResolution instanceof Vector2) {
-          // Anchored to the settled resolution, never to the one currently
-          // applied. crisp.frag steps one texel (stepUv = 1/resolution), so
-          // feeding it the live ratio made the unsharp halo and the edge
-          // outline widen the instant the governor dropped resolution for a
-          // gesture and snap back when it restored — a sharpness pop at both
-          // ends of every drag, on top of the resampling itself. Anchored, the
-          // pass covers the same screen area at either resolution, so the
-          // switch changes only the sampling quality and stays invisible.
-          const settledPixelRatio = renderPixelRatio({
-            coarsePointer,
-            devicePixelRatio: window.devicePixelRatio,
-            height,
-            interacting: false,
-            width,
-          });
-          crispResolution.set(
-            width * settledPixelRatio,
-            height * settledPixelRatio,
-          );
+          crispResolution.set(width * pixelRatio, height * pixelRatio);
         }
-      };
-      const noteInteractionInput = (): void => {
-        interactionDeadline = performance.now() + INTERACTION_COALESCE_MS;
       };
       const twoFingerGesture = () => {
         const points = [...touchPoints.values()].slice(0, 2);
@@ -2689,11 +2656,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         event.preventDefault();
         event.stopImmediatePropagation();
         renderer.domElement.focus({ preventScroll: true });
-        const wheelSequenceStarting = !wheelInteracting;
         wheelInteracting = true;
-        if (wheelSequenceStarting) {
-          noteInteractionInput();
-        }
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (intent === "trackpad-pinch") {
@@ -2723,7 +2686,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         wheelEndTimer = window.setTimeout(() => {
           wheelEndTimer = null;
           wheelInteracting = false;
-          noteInteractionInput();
           if (!runtime.disposed) {
             notifyView(runtime, onViewChangeRef.current);
           }
@@ -2764,7 +2726,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
-          noteInteractionInput();
           previousTwoFingerGesture = twoFingerGesture();
           twoFingerStart = previousTwoFingerGesture;
           twoFingerMode = "undecided";
@@ -2780,7 +2741,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           touchInteracting = true;
           controls.enabled = false;
           markSurfaceInteraction(runtime);
-          noteInteractionInput();
           previousTwoFingerGesture = null;
           twoFingerStart = null;
           twoFingerMode = "undecided";
@@ -2933,7 +2893,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controlsInteracting = false;
           if (panMomentum.x === 0 && panMomentum.y === 0) {
             touchInteracting = false;
-            noteInteractionInput();
           }
           settleUntil = performance.now() + 650;
           controls.enabled = true;
@@ -2971,8 +2930,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panMomentum.y = 0;
         settleUntil = performance.now() + 650;
         controls.enabled = true;
-        setSurfacePresentation(runtime, false);
-        noteInteractionInput();
         notifyView(runtime, onViewChangeRef.current);
       };
       const onVisibilityChange = () => {
@@ -3023,14 +2980,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onControlsStart = () => {
         controlsInteracting = true;
         markSurfaceInteraction(runtime);
-        noteInteractionInput();
       };
       const onControlsEnd = () => {
         controlsInteracting = false;
         settleUntil = performance.now() + 650;
         markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
-        noteInteractionInput();
       };
       controls.addEventListener("start", onControlsStart);
       controls.addEventListener("end", onControlsEnd);
@@ -3216,55 +3171,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           cameraMoving ||
           stability.forceContinuousRender ||
           environmentalMotion;
-        // Resolution governor: one hysteretic decision per frame instead of a
-        // resize on every OrbitControls start/end pair. A wheel dolly fires
-        // both events per tick, so applying them directly swapped the canvas
-        // resolution twice per tick while zooming.
-        const inputActive =
-          timestamp < interactionDeadline ||
-          renderInteractionActive({
-            controls: controlsInteracting,
-            touch: touchInteracting,
-            wheel: wheelInteracting,
-          });
-        if (inputActive) {
-          inputActiveSince ??= timestamp;
-          inputIdleSince = null;
-        } else {
-          inputIdleSince ??= timestamp;
-          inputActiveSince = null;
-        }
-        const wantInteractingPixelRatio = nextPixelRatioMode({
-          activeSinceMs: inputActiveSince,
-          applied: pixelRatioInteracting,
-          idleSinceMs: inputIdleSince,
-          inputActive,
-          nowMs: timestamp,
-        });
-        if (wantInteractingPixelRatio !== pixelRatioInteracting) {
-          pixelRatioInteracting = wantInteractingPixelRatio;
-          resize();
-        }
-        if (cameraMoving) {
-          movingSince ??= timestamp;
-          stillSince = null;
-        } else {
-          stillSince ??= timestamp;
-          movingSince = null;
-        }
-        surfaceInteracting = nextSettledDetailMode({
-          activeSinceMs: movingSince,
-          applied: surfaceInteracting,
-          idleSinceMs: stillSince,
-          inputActive: cameraMoving,
-          nowMs: timestamp,
-        });
-        // Minecraft keeps the chunky interaction surface at all times so the
-        // detail tier never swaps on settle (the visible "Zusammensetzen").
-        setSurfacePresentation(
-          runtime,
-          surfaceInteracting || stability.pinInteractionSurface,
-        );
+        // Resolution and official-surface tiers are fixed for a viewport and
+        // mode. Input must never resize the canvas or replace the complete
+        // city/tree surface underneath a moving camera.
+        setSurfacePresentation(runtime, stability.pinInteractionSurface);
         // Strength of the Day/Night crisp/edge pass: a pure function of how far
         // the camera stands off, never of whether it is moving, and never
         // time-eased. v0.39.0 made the *target* distance-driven but still let
@@ -3349,20 +3259,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const pulse = 1 + Math.sin(timestamp * 0.006) * 0.08;
           marker.scale.setScalar(pulse);
         }
-        if (isMoving) {
-          const windTime =
-            reducedMotion || !stability.animateWind ? 0.9 : timestamp / 1000;
-          updateWindFlags(runtime.signatures, windTime);
-          updateWindFlags(runtime.civicDetails, windTime);
-        }
-        if (isMoving && runtime.isoWorld?.visible && runtime.trafficSignals) {
-          updateTrafficSignals(
-            runtime.trafficSignals,
-            timestamp / 1000,
-            reducedMotion,
-            runtime.lightingMode !== "night" || runtime.nightLightsOn,
-          );
-        }
         // Momentum glide: the released pan eases out smoothly.
         if (
           (panMomentum.x !== 0 || panMomentum.y !== 0) &&
@@ -3378,7 +3274,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           panMomentum.y = decayed.y;
           if (panMomentum.x === 0 && panMomentum.y === 0 && touchInteracting) {
             touchInteracting = false;
-            noteInteractionInput();
           }
           markSurfaceInteraction(runtime, 220);
         }
@@ -3460,6 +3355,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          updateWindFlags(runtime.civicDetails, 0.9);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.civicDetails,
@@ -3600,6 +3496,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          updateWindFlags(runtime.signatures, 0.9);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.signatures,

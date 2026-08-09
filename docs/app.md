@@ -266,9 +266,9 @@ By default the viewer loads the mesh scene from
 `public/mesh/regierungsviertel/scene.json`; individual GLBs are ordered by
 distance from the selected landmark and loaded with bounded concurrency. The
 2.6M-face interaction tier opens first on every device. Desktop then loads the
-6.6M-face settled surface serially in the background, shows it only while idle and
-returns to the interaction tier for mouse, touch, keyboard or button movement.
-The idle presentation also enables two extra 80-triangle microcrowns for each
+6.6M-face settled surface serially in the background, switches to it once and
+keeps it during mouse, touch, keyboard or button movement. The settled
+presentation also enables two extra 80-triangle microcrowns for each
 of 25,305 official Berlin tree points, taking the displayed official-source
 surface equivalents to 10,672,385. This is an instanced rendering count, not a
 claim of 10.7 million independently surveyed polygons. Touch/coarse-pointer
@@ -281,8 +281,8 @@ textures are explicitly disposed to bound browser and GPU memory. A lost WebGL
 context switches to the DZI fallback and a later 3D selection creates a fresh
 context. On touch/coarse-pointer devices, switching to the 2D map unmounts the
 inactive WebGL scene and moving 3D rendering uses a 30 fps budget; desktop keeps
-the loaded scene warm and interaction at 60 fps. Static scenes settle to 10 fps
-on mobile and 12 fps on desktop. Existing GLB normals are reused, repeated
+the loaded scene warm and interaction at 60 fps. Static scenes hold the final
+framebuffer without a periodic redraw. Existing GLB normals are reused, repeated
 tunnel fixtures are instanced, and a stale mobile hero queue is stopped and
 disposed after a new landmark selection. Disposal also stops workers before
 they start another queued GLB, closes decoded image resources where the browser

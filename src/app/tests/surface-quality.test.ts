@@ -2,37 +2,47 @@ import { describe, expect, test } from "bun:test";
 
 import { shouldUseSettledSurface } from "../src/surfaceQuality";
 
-describe("progressive official surface quality", () => {
-  test("shows six-million-face detail only after desktop loading settles", () => {
+describe("stable official surface quality", () => {
+  test("shows six-million-face detail once desktop loading completes", () => {
     expect(
       shouldUseSettledSurface({
         coarsePointer: false,
         detailReady: true,
-        interacting: false,
+        interactionTierLocked: false,
       }),
     ).toBe(true);
     expect(
       shouldUseSettledSurface({
         coarsePointer: false,
         detailReady: false,
-        interacting: false,
+        interactionTierLocked: false,
       }),
     ).toBe(false);
   });
 
-  test("keeps the interaction surface while orbiting and on touch devices", () => {
+  test("does not replace the desktop surface during camera interaction", () => {
     expect(
       shouldUseSettledSurface({
         coarsePointer: false,
         detailReady: true,
-        interacting: true,
+        interactionTierLocked: false,
       }),
-    ).toBe(false);
+    ).toBe(true);
+  });
+
+  test("keeps the interaction surface on touch and in locked modes", () => {
     expect(
       shouldUseSettledSurface({
         coarsePointer: true,
         detailReady: true,
-        interacting: false,
+        interactionTierLocked: false,
+      }),
+    ).toBe(false);
+    expect(
+      shouldUseSettledSurface({
+        coarsePointer: false,
+        detailReady: true,
+        interactionTierLocked: true,
       }),
     ).toBe(false);
   });

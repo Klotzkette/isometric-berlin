@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.66.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.66.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.66.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.66.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.66.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.66.1** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.66.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.66.1**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -117,10 +117,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   1,609,984 to 2,599,985 faces without moving its source coordinates. A 58°
   normal crease keeps severe roof and facade folds crisp while preserving
   continuous terrain and vegetation. On desktop, a second background-loaded
-  tier retains 6,623,585 official mesh faces while the camera is still; mouse,
-  keyboard or UI movement switches immediately to the lighter tier and returns
-  only after damping has ended. Two additional 80-triangle crown microclusters
-  then appear for each of the 25,305 official Berlin tree points. This produces
+  tier retains 6,623,585 official mesh faces. It becomes visible once after its
+  background load and then stays selected during mouse, keyboard, trackpad and
+  UI movement. Two additional 80-triangle crown microclusters then remain for
+  each of the 25,305 official Berlin tree points. This produces
   10,672,385 rendered official-source face equivalents in the settled
   presentation. The figure transparently includes GPU instances; it does not
   claim 10.7 million unique surveyed polygons. Touch devices retain the 2.6M
@@ -160,7 +160,8 @@ labelled compatibility fallback for browsers that cannot run local modules.
   Quadriga; the Chancellery has floor plates, facade mullions and its arched
   leadership-window grid; the Reichstag adds roof cornices, portico bases and
   capitals, entrances, three German flags and one EU flag around the official
-  dome. All four flags share a subtle reduced-motion-aware wind animation.
+  dome. All four flags share one authored wind pose; their thin silhouettes do
+  not mutate while the camera moves.
 - The civic layer adds the LoD2-aligned Swiss Embassy with its historic palace,
   modern extension and Swiss flag, plus the Bundestag's official 28.5 m Unity
   Flag pole and 60 m² German flag. The TIPI uses its published 32 x 26 m
@@ -215,10 +216,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   scroll pans while pinch zooms at its midpoint. On touchscreens, a two-finger
   centre swipe pans with momentum while pinch zooms around the finger midpoint;
   three fingers carry the camera continuously through a genuine underside view.
-  Orbit, direct touch and trackpad gestures now all engage the lighter
-  interaction-resolution tier immediately and restore full settled detail only
-  after the gesture or momentum glide ends, reducing high-DPI stalls without
-  sacrificing still-image sharpness.
+  Orbit, direct touch and trackpad gestures keep one backing-store resolution
+  and one device/mode surface tier throughout the complete gesture and momentum
+  glide, so releasing an input cannot trigger a whole-frame resample or geometry
+  replacement.
   Plain arrows
   translate in the visible screen plane,
   `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows
@@ -244,11 +245,13 @@ labelled compatibility fallback for browsers that cannot run local modules.
   movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
   and the Carillon layer now lets the official mesh carry its granite pylons
   instead of drawing a second tower over them.
-- A settled Day or Night scene now holds its final framebuffer rather than
-  repainting at an idle cadence. The existing DPR/detail hysteresis remains
-  intact; fine ink, authored face shade and still-image sharpness are not
-  traded away to achieve stability. The v0.63 far-Day evidence sequence at
-  960×600 records 0 changed pixels across five consecutive 250 ms comparisons.
+- A settled Day, Night or Minecraft scene holds its final framebuffer rather
+  than repainting at an idle cadence. v0.66.1 also removes input-dependent DPR
+  and surface-detail hysteresis: a viewport keeps one stable sampling grid and
+  surface tier while moving and after release. Six-frame browser sequences in
+  all three modes record 0 changed pixels across every adjacent still-frame
+  comparison; the committed measurement tool independently enforces a bounded
+  perceptual-delta threshold.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an
@@ -290,8 +293,8 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The Spree carries a narrow translucent 3D wave surface aligned to the
   committed OSM centreline. Its 0.32 m relief and crest highlights are a
   procedural display treatment, not surveyed hydrodynamic data.
-- Assets load progressively with bounded concurrency and an adaptive pixel
-  ratio. The 174.3 MiB scene contains 26 interaction GLBs, 26 settled-detail
+- Assets load progressively with bounded concurrency and a stable,
+  device-class pixel ratio. The 174.3 MiB scene contains 26 interaction GLBs, 26 settled-detail
   GLBs and 22 lazy hero parts; every individual public GLB remains below 5 MiB.
   Both official surface tiers use Meshopt compression with bundled normals.
   Existing GLB normals are reused
@@ -308,12 +311,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
   reset three-finger state; global pointer release, hidden-tab recovery and a
   ten-second watchdog prevent a permanently disabled orbit control. Invalid or
   out-of-bounds camera poses recover to the last finite, bounded view.
-- Settled 3D uses up to 2.25x desktop / 1.75x mobile device pixels, bounded by
-  fixed eight- and 4.8-megapixel budgets so 4K screens and high-DPI phones do
-  not over-allocate GPU memory. Orbit gestures temporarily lower the render
-  ratio, then restore full sharpness after 140 ms.
-  Damping remains at the active frame rate until it has actually stopped; only
-  then do static scenes settle to 12 fps on desktop and 10 fps on mobile.
+- 3D uses one ratio per viewport: up to 2x desktop device pixels under a fixed
+  10.0-megapixel budget, or 1.5x touch device pixels under 4.4 megapixels. It
+  never changes that ratio because a gesture starts or ends. Damping remains at
+  the active frame rate until it has actually stopped; a static scene then
+  holds its final framebuffer until a real mutation invalidates it.
 - Repeated tunnel lamps, lane marks, ventilation shafts, fan rings and blades
   are instanced into five draw calls; each fan now has four distinct blades
   instead of two duplicated pairs.

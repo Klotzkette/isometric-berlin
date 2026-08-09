@@ -100,10 +100,10 @@ describe("Minecraft stability policy keeps a still view calm and complete", () =
     expect(policy.pinInteractionSurface).toBe(true);
   });
 
-  test("leaves Day and Night behaviour untouched", () => {
+  test("freezes incidental flag animation in Day and Night too", () => {
     for (const mode of ["day", "night"] as const) {
       const policy = minecraftStabilityPolicy(mode);
-      expect(policy.animateWind).toBe(true);
+      expect(policy.animateWind).toBe(false);
       expect(policy.forceContinuousRender).toBe(false);
       expect(policy.pinInteractionSurface).toBe(false);
     }

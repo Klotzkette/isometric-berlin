@@ -2,11 +2,9 @@ import type { VisualMode } from "../../visualMode";
 
 export type MinecraftStabilityPolicy = {
   /**
-   * Whether per-frame wind/flag motion should keep animating. Frozen in
-   * Minecraft: an animating source under the NEAREST screen-space voxel pass
-   * re-quantises those pixels every frame, which is the "Flirren" the user
-   * still saw. A frozen source lets a still camera resolve to one stable
-   * frame.
+   * Whether incidental flag motion may alter geometry while navigating.
+   * Frozen in every mode: the flags keep one authored wind pose, so moving the
+   * camera is the only changing transform and thin edges cannot flash.
    */
   animateWind: boolean;
   /**
@@ -30,7 +28,7 @@ export function minecraftStabilityPolicy(
 ): MinecraftStabilityPolicy {
   const minecraft = mode === "minecraft";
   return {
-    animateWind: !minecraft,
+    animateWind: false,
     forceContinuousRender: false,
     pinInteractionSurface: minecraft,
   };

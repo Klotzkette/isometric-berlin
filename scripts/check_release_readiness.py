@@ -592,7 +592,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "lost pointer-capture recovery": '"lostpointercapture"',
     "window-blur gesture recovery": 'window.addEventListener("blur"',
     "decoded texture-image disposal": "image.close()",
-    "adaptive GPU-bounded pixel ratio": "renderPixelRatio({",
+    "stable GPU-bounded pixel ratio": "renderPixelRatio({",
     "day/night scene lighting": (
       "setSceneLighting(runtime, lightingMode, nightLightsOn)"
     ),
@@ -603,10 +603,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "settled-only official-tree detail gate": (
       "setParkSettledDetail(runtime.parkDetails, settled)"
     ),
-    "interaction surface swap": (
-      "surfaceInteracting || stability.pinInteractionSurface"
+    "mode-locked surface tier": (
+      "setSurfacePresentation(runtime, stability.pinInteractionSurface)"
     ),
-    "hysteretic settled-detail tier": "nextSettledDetailMode({",
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
     "damping-aware active rendering": (
@@ -637,20 +636,30 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     if snippet not in viewer
   ]
   required_render_quality_snippets = {
-    "2.75x desktop settled quality": "coarsePointer ? 2 : 2.75",
-    "1x touch interaction quality": "coarsePointer ? 1 : 1.9",
-    "fixed settled GPU budget": "11_500_000",
-    "fixed mobile GPU budget": "5_800_000",
+    "stable 2x desktop quality": "STABLE_DESKTOP_PIXEL_RATIO_CAP = 2",
+    "stable 1.5x touch quality": "STABLE_TOUCH_PIXEL_RATIO_CAP = 1.5",
+    "fixed desktop GPU budget": "STABLE_DESKTOP_PIXEL_BUDGET = 10_000_000",
+    "fixed touch GPU budget": "STABLE_TOUCH_PIXEL_BUDGET = 4_400_000",
   }
   failures.extend(
     f"3D render-quality policy lacks {label}: {render_quality_path}"
     for label, snippet in required_render_quality_snippets.items()
     if snippet not in render_quality
   )
-  if "detailReady && !coarsePointer && !interacting" not in surface_quality:
+  if "detailReady && !coarsePointer && !interactionTierLocked" not in surface_quality:
     failures.append(
-      f"3D surface quality policy lacks idle-desktop gating: {surface_quality_path}"
+      f"3D surface quality policy lacks stable mode gating: {surface_quality_path}"
     )
+  for forbidden_runtime_switch in (
+    "nextPixelRatioMode(",
+    "nextSettledDetailMode(",
+    "timestamp / 1000",
+  ):
+    if forbidden_runtime_switch in viewer:
+      failures.append(
+        "3D viewer contains a time/input-driven visual switch: "
+        f"{forbidden_runtime_switch}"
+      )
   if 'marker.className = "map-marker map-marker--selected"' not in app:
     failures.append(f"DZI fallback lacks selected-only marker: {app_path}")
   if "isThreeReady && keepThreeWarm" not in app:

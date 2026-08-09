@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.66.0"
+PACKAGE_VERSION = "0.66.1"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3489,10 +3489,11 @@ frei und brechen die restliche GLB-Warteschlange ab; die aktive mobile
 3D-Ansicht nutzt ein begrenztes 30-fps-Budget. Verlorene Pointer-Captures oder
 ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück. Globale
 Pointer-Releases und ein zehnsekündiger Watchdog verhindern zusätzlich ein
-Festhängen. Am Desktop wird nach vollständigem Stillstand eine zweite amtliche
-{settled_faces_de}-Flächen-Stufe eingeblendet; bei Maus-, Tasten- oder Buttonbewegung
-bleibt die flüssige {base_faces_de}-Flächen-Stufe aktiv. Touchgeräte laden nur diese
-leichtere Stufe.
+Festhängen. Am Desktop wird nach dem einmaligen Hintergrundladen eine zweite
+amtliche {settled_faces_de}-Flächen-Stufe eingeblendet und auch bei Maus-,
+Tasten- oder Buttonbewegung beibehalten. Touchgeräte laden nur die leichtere
+{base_faces_de}-Flächen-Stufe. Die interne Renderauflösung bleibt vom Beginn
+einer Geste bis nach dem Ausrollen unverändert.
 Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
 {scene_counts["glb_files"]} GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
 Der lokale HTTP/1.1-Server cached unveränderliche GLBs, Kartenkacheln und
@@ -3634,9 +3635,10 @@ optional detail no longer disables the usable base scene. Touch devices release
 inactive 3D when switching to the 2D map, cancel the remaining GLB queue and cap
 active rendering at 30 fps. Lost pointer capture or window focus cleanly resets
 three-finger gestures; global pointer release and a ten-second watchdog prevent
-stuck input. Desktop swaps from the fluid {base_faces_en}-face interaction surface to
-the official {settled_faces_en}-face surface only after movement fully settles; touch
-devices request only the lighter tier. Before opening the browser,
+stuck input. Desktop switches once from the {base_faces_en}-face loading surface
+to the official {settled_faces_en}-face surface and keeps it during navigation;
+touch devices request only the lighter tier. The backing-store resolution
+likewise stays unchanged throughout input and momentum. Before opening the browser,
 serve-local.py checks all {scene_counts["glb_files"]} GLB hashes. Its HTTP/1.1 cache reuses immutable
 models, map tiles and app assets
 instead of transferring the complete scene again.

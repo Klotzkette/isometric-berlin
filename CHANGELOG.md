@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.66.1
+
+- **Day, Night and Minecraft no longer resize the WebGL backing store during
+  navigation.** The former interaction/settled DPR governor visibly
+  reallocated the complete canvas at 1280 x 720 as
+  `2560x1440 -> 2432x1368 -> 2560x1440`. Every viewport now receives one
+  GPU-bounded ratio for its lifetime: up to 2x / 10.0 megapixels on desktop
+  and 1.5x / 4.4 megapixels on touch devices. Mouse, wheel, keyboard, trackpad
+  and touch input therefore preserve one sampling grid from press through
+  momentum and release.
+- **The official city/tree surface also stays in one quality tier while the
+  camera moves.** Desktop upgrades once, after the 6.6M-face surface finishes
+  loading, and then keeps it; touch devices and Minecraft keep their bounded
+  interaction tier. The former per-gesture 2.6M/6.6M replacement and
+  microcrown visibility swap are removed, including a direct touch-reset write
+  that could expose one wrong Minecraft frame.
+- **Sub-pixel staffage is deterministic in every ordinary mode.** Flags retain
+  one authored wind pose and traffic lights retain one valid German phase
+  instead of changing their thin geometry or lamp pixels only while the camera
+  moved. Weather particles and Minecraft figures remain intentional animation;
+  with weather off, a still viewport holds its final framebuffer.
+- **Temporal stability is now measurable, not inferred.**
+  `isometric_berlin.generation.measure_temporal_stability` compares named PNG
+  sequences, reports exact and perceptual pixel deltas plus bounding boxes, and
+  fails automation when more than 0.1% of pixels change by over 12 RGB levels.
+  Unit tests cover exact stability, harmless capture noise and a deliberately
+  failing 4% flash. Production-browser verification captured six 1280 x 720
+  frames in each of Day, Night and Minecraft at 300 ms intervals: all 15
+  adjacent comparisons measured exactly 0 changed pixels, 0 visible pixels and
+  0 mean/maximum channel delta. Ten genuine wheel-zoom samples per mode kept
+  the canvas at 2560 x 1440 throughout; Day/Night retained
+  `settled-7m-plus`, while Minecraft retained `interaction-2_3m` before,
+  during and after input.
+
 ## v0.66.0
 
 - **The versioned presentation radius grows by exactly 100 m, from 5,130 m
