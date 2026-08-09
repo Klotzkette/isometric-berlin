@@ -4213,7 +4213,7 @@ export function createPaulLoebeCanopy(): Group {
  *   whole "Schwangere Auster" — the double-cantilever saddle shell roof
  *   (Hugh Stubbins, 1957) and its reflecting pool — is missing.
  * - Marie-Elisabeth-Lüders-Haus: one 116 × 105 m block without the
- *   cylindrical library rotunda and the Spree-side colonnade.
+ *   cylindrical library rotunda and its landward quayside canopy.
  * - Jakob-Kaiser-Haus: flat bars without the west arcade colonnade that
  *   faces the Reichstag across Dorotheenstraße.
  * - Schweizerische Botschaft: a bare 18 m box without the rusticated
@@ -4228,6 +4228,20 @@ const HKW_SADDLE_RISE_M = 10.5;
 const HKW_SADDLE_DROP_M = 4.5;
 const MELH_ROTUNDA: readonly [number, number] = [406, -139];
 const MELH_ROTUNDA_RADIUS = 16.5;
+/**
+ * Four source-informed canopy supports on the paved MELH quay.
+ *
+ * The former 16-column line continued north through eleven mapped-water
+ * positions and made a false colonnade stand in the Spree. These are
+ * presentation anchors, not surveyed support coordinates; their key contract
+ * is that every one remains landward of the mapped river edge.
+ */
+export const MELH_CANOPY_SUPPORTS = [
+  [372.4, -174],
+  [372.4, -168],
+  [372.4, -162],
+  [372.4, -156],
+] as const;
 const JKH_ARCADE_X = 403.2;
 /**
  * Paul-Löbe-Haus: the LoD2 extract carries the comb as ten plain bars,
@@ -4650,7 +4664,7 @@ export function createLandmarkRefinements(): Group {
   add(boxTriangles(hkwX - 82, 3.5, hkwZ, [1, 0], 54, 0.5, 66), POOL);
   add(boxTriangles(hkwX - 82, 3.95, hkwZ, [1, 0], 56, 0.4, 68), SHELL_EDGE);
 
-  // --- Marie-Elisabeth-Lüders-Haus: library rotunda + Spree colonnade -----
+  // --- Marie-Elisabeth-Lüders-Haus: library rotunda + quayside canopy -----
   const [melhX, melhZ] = MELH_ROTUNDA;
   add(
     prismTriangles(melhX, 21, melhZ, MELH_ROTUNDA_RADIUS, 34, 28),
@@ -4677,10 +4691,10 @@ export function createLandmarkRefinements(): Group {
       );
     }
   }
-  for (let z = -175; z <= -90; z += 5.4) {
-    add(prismTriangles(372.4, 16, z, 0.55, 22, 10), COLUMN_TONE);
+  for (const [x, z] of MELH_CANOPY_SUPPORTS) {
+    add(prismTriangles(x, 16, z, 0.48, 22, 12), COLUMN_TONE);
   }
-  add(boxTriangles(373.2, 27.6, -132.5, [0, 1], 88, 1.4, 3.6), STONE_TONE);
+  add(boxTriangles(373.2, 27.6, -165, [0, 1], 24, 1.4, 3.6), STONE_TONE);
 
   // --- Jakob-Kaiser-Haus: the west arcade facing the Reichstag ------------
   for (let z = 26; z <= 186; z += 5.6) {
@@ -5033,6 +5047,7 @@ export function createLandmarkRefinements(): Group {
       geometry.dispose();
     }
   }
+  group.userData.melhCanopySupports = MELH_CANOPY_SUPPORTS;
   return group;
 }
 

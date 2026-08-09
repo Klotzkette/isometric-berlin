@@ -27,6 +27,7 @@ import {
   ISO_WINDOW_BAY_PITCH_M,
   ISO_WINDOW_HEIGHT_M,
   ISO_WINDOW_FLOOR_PITCH_M,
+  MELH_CANOPY_SUPPORTS,
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
   createLandmarkRefinements,
@@ -1155,6 +1156,48 @@ describe("real bridge structures", () => {
     // The saddle shell and the Lüders rotunda both rise well over the
     // 7 m boxes LoD2 gives them.
     expect(bounds.max.y).toBeGreaterThan(35);
+  });
+
+  test("keeps every Lüders-Haus canopy support out of the Spree", () => {
+    const insideRing = (x: number, z: number, ring: number[][]): boolean => {
+      let inside = false;
+      for (
+        let index = 0, previous = ring.length - 1;
+        index < ring.length;
+        previous = index++
+      ) {
+        const [xDm, zDm] = ring[index];
+        const [previousXDm, previousZDm] = ring[previous];
+        const xi = xDm / 10;
+        const zi = zDm / 10;
+        const xj = previousXDm / 10;
+        const zj = previousZDm / 10;
+        if (
+          zi > z !== zj > z &&
+          x < ((xj - xi) * (z - zi)) / (zj - zi) + xi
+        ) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    };
+    const inMappedWater = (x: number, z: number): boolean =>
+      surfacesFixture.water.some(
+        (surface) =>
+          insideRing(x, z, surface.ring) &&
+          !surface.holes.some((hole) => insideRing(x, z, hole)),
+      );
+
+    expect(MELH_CANOPY_SUPPORTS).toHaveLength(4);
+    expect(MELH_CANOPY_SUPPORTS.map(([x, z]) => inMappedWater(x, z))).toEqual([
+      false,
+      false,
+      false,
+      false,
+    ]);
+    expect(createLandmarkRefinements().userData.melhCanopySupports).toEqual(
+      MELH_CANOPY_SUPPORTS,
+    );
   });
 });
 

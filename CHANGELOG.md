@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.70.5
+
+- **The Spree between the parliamentary buildings is clear again.** The
+  invented 16-column line beside the Marie-Elisabeth-Lüders-Haus, including
+  eleven supports that crossed mapped water and its false 88 m roof beam, is
+  gone. Four source-informed presentation supports remain only beneath the
+  landward quayside canopy; none is described as surveyed geometry.
+- A regression test now checks every retained support against the precise OSM
+  water polygons and also pins the coordinates used by the runtime model. The
+  real two-level *Sprung über die Spree* connection remains untouched.
+- Day, Night, Minecraft and Snowstorm were checked at the Lüders-Haus focus.
+  The versioned visible radius remains **5,230 m**; no bounds, source
+  coordinates, Google data, credentials or raw reference photographs changed.
+
 ## v0.70.4
 
 - **The Rieckhallen are one low freight hall again.** Five generic gabled-roof
