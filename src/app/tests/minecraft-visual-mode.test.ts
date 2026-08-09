@@ -88,9 +88,10 @@ describe("premium Minecraft visual mode", () => {
     expect(voxelBaseCell(false)).toBeLessThanOrEqual(VOXEL_BASE_CELL_CAP_DEVICE_PX);
   });
 
-  test("drives the near-black outline from the shared crispness profile", () => {
-    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0.85);
-    // Minecraft still bypasses the shared crisp pass entirely.
+  test("keeps the near-black outline in world space", () => {
+    // The block/toon materials own the outline. A screen-space edge changed
+    // coverage while the camera moved and is therefore forbidden.
+    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0);
     expect(CRISPNESS_PROFILES.minecraft.strength).toBe(0);
   });
 

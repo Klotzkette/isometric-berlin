@@ -41,7 +41,9 @@ describe("presentation tone response", () => {
       expect(CRISPNESS_PROFILES[mode].saturation).toBe(1);
       expect(CRISPNESS_PROFILES[mode].contrast).toBe(1);
     }
-    // Sharpening is hue-free and stays.
-    expect(CRISPNESS_PROFILES.day.strength).toBeGreaterThan(0);
+    // Neighbour-sampling sharpening is forbidden because it amplifies
+    // sub-pixel motion even when it is hue-neutral.
+    expect(CRISPNESS_PROFILES.day.strength).toBe(0);
+    expect(CRISPNESS_PROFILES.night.strength).toBe(0);
   });
 });

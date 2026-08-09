@@ -25,7 +25,7 @@ import {
   MeshStandardMaterial,
   Object3D,
   PerspectiveCamera,
-  PCFShadowMap,
+  PCFSoftShadowMap,
   RingGeometry,
   Scene,
   Shape,
@@ -158,7 +158,11 @@ import { createRiversideVenues } from "./RiversideVenues";
 import { createSpreebogenOffice } from "./SpreebogenOffice";
 import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
-import { renderInteractionActive, renderPixelRatio } from "./renderQuality";
+import {
+  ACTIVE_MOTION_FRAME_INTERVAL_MS,
+  renderInteractionActive,
+  renderPixelRatio,
+} from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { updateWindFlags } from "./WindFlags";
 import {
@@ -641,13 +645,25 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   runtime.inkLineMaterials.clear();
   runtime.fineDetailObjects = [];
   const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
-  for (const root of [runtime.isoWorld, runtime.signatures]) {
+  const roots: Array<Object3D | null> = [
+    runtime.isoWorld,
+    runtime.signatures,
+    runtime.civicDetails,
+    runtime.centralDetails,
+    runtime.monuments,
+    runtime.culturalDetails,
+    runtime.parkDetails,
+    runtime.tunnel,
+    runtime.tunnelPortals,
+    ...[...runtime.detailGroups.values()].map((entry) => entry.group),
+  ];
+  for (const root of roots) {
     root?.traverse((object) => {
       if (
         object instanceof LineSegments &&
         object.material instanceof LineBasicMaterial
       ) {
-        object.material.transparent = true;
+        stabilizeInkLineMaterial(object.material);
         runtime.inkLineMaterials.add(object.material);
       }
       if (fineDetailNames.has(object.name)) {
@@ -655,6 +671,27 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
       }
     });
   }
+}
+
+/**
+ * Make a drawn line temporally stable without letting it show through walls.
+ *
+ * Transparent LineBasicMaterial objects are depth-sorted every frame. Leaving
+ * depthWrite enabled made overlapping facade/roof strokes alternately occlude
+ * one another as the camera moved. They still depth-test against opaque city
+ * geometry, but no longer rewrite depth among themselves. Alpha-to-coverage
+ * lets the composer's four MSAA samples soften a one-pixel line edge.
+ */
+export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
+  if (material.userData.temporallyStableInk === true) {
+    return;
+  }
+  material.userData.temporallyStableInk = true;
+  material.transparent = true;
+  material.depthTest = true;
+  material.depthWrite = false;
+  material.alphaToCoverage = true;
+  material.needsUpdate = true;
 }
 
 /**
@@ -2433,7 +2470,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
       renderer.toneMappingExposure = PRESENTATION_TONE.day.exposure;
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = PCFShadowMap;
+      // Soft PCF removes the hard one-texel shadow crawl that otherwise reads
+      // as a second outline while the camera moves across detailed roofs.
+      renderer.shadowMap.type = PCFSoftShadowMap;
       renderer.setPixelRatio(1);
       renderer.domElement.className = "three-canvas";
       renderer.domElement.tabIndex = 0;
@@ -3093,7 +3132,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
 
-      const activeFrameIntervalMs = coarsePointer ? 1000 / 30 : 0;
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
       const flightVelocity = new Vector3();
@@ -3303,7 +3341,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!renderRequired) {
           return;
         }
-        const frameIntervalMs = isMoving ? activeFrameIntervalMs : 0;
+        const frameIntervalMs = isMoving
+          ? ACTIVE_MOTION_FRAME_INTERVAL_MS
+          : 0;
         if (timestamp - lastRenderedAt < frameIntervalMs) {
           return;
         }
@@ -3367,9 +3407,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (runtime.lightingMode === "minecraft") {
           // Minecraft renders through the same composer path as Day/Night — no
           // screen-space voxel grid to flimmer when zoomed out. The blocky look
-          // comes from the world-space toon materials; the crisp/edge pass adds
-          // the clean isometric block outline at a fixed strength (no settle
-          // ramp needed, since the world-space look is stable at every zoom).
+          // and its outline come entirely from world-space toon materials; the
+          // composer profile is a neutral passthrough at every zoom.
           const profile = CRISPNESS_PROFILES.minecraft;
           crispPass.enabled = true;
           crispPass.uniforms.strength.value = profile.strength;
@@ -3379,10 +3418,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           composer.render();
         } else {
           // Day/Night: always render through the composer so the colour and
-          // anti-aliasing pipeline is identical whether the camera moves or
-          // settles. At crispBlend === 0 the pass is a pure passthrough
-          // (strength/edge 0, saturation/contrast 1), at 1 it applies the full
-          // authored profile.
+          // MSAA resolve path is identical whether the camera moves or settles.
+          // The profile gains are zero: world-space ink carries the drawing,
+          // and no neighbour-sampling filter may amplify sub-pixel motion.
           const profile =
             CRISPNESS_PROFILES[
               runtime.lightingMode === "night" ? "night" : "day"
@@ -3701,6 +3739,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     true,
                   );
                 }
+                collectFarZoomAntiFlickerTargets(runtime);
                 settleUntil = performance.now() + 350;
               })
               .catch((error: unknown) => {

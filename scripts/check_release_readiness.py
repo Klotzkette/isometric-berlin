@@ -570,9 +570,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "retryable model loading": "loadModelWithRetry",
     "nonfatal detail warnings": "onWarningRef.current",
     "WebGL context-loss fallback": 'addEventListener("webglcontextlost"',
-    "coarse-pointer frame budget": (
-      "activeFrameIntervalMs = coarsePointer ? 1000 / 30"
-    ),
+    "full-rate camera movement": "ACTIVE_MOTION_FRAME_INTERVAL_MS",
+    "motion-stable transparent ink": "material.depthWrite = false",
     "resting framebuffer hold": "const renderRequired =",
     "reuse bundled mesh normals": (
       '!detail && !object.geometry.getAttribute("normal")'
@@ -637,6 +636,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     if snippet not in viewer
   ]
   required_render_quality_snippets = {
+    "uncapped interaction cadence": "ACTIVE_MOTION_FRAME_INTERVAL_MS = 0",
     "stable 2x desktop quality": "STABLE_DESKTOP_PIXEL_RATIO_CAP = 2",
     "stable 1.5x touch quality": "STABLE_TOUCH_PIXEL_RATIO_CAP = 1.5",
     "fixed desktop GPU budget": "STABLE_DESKTOP_PIXEL_BUDGET = 10_000_000",
@@ -652,6 +652,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       f"3D surface quality policy lacks stable mode gating: {surface_quality_path}"
     )
   for forbidden_runtime_switch in (
+    "coarsePointer ? 1000 / 30 : 0",
     "nextPixelRatioMode(",
     "nextSettledDetailMode(",
     "timestamp / 1000",

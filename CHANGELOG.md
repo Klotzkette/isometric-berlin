@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.70.6
+
+- **Camera movement no longer flashes dense city ink.** Touch navigation now
+  renders on every available animation frame instead of discarding alternate
+  frames behind a 30 fps coarse-pointer gate. Day, Night and Minecraft also
+  use a neutral composer pass: the former neighbour-sampling sharpen and
+  screen-space edge detector are both disabled, while the authored
+  world-space outlines remain intact.
+- Every drawn detail root now participates in the same motion-stability pass.
+  Transparent ink still depth-tests against opaque architecture, but no
+  longer writes into the depth buffer against other ink; four-sample
+  alpha-to-coverage and soft PCF shadows remove two further sources of
+  line/shadow crawl during orbit and pan.
+- Regression tests pin the uncapped movement cadence, neutral post-process,
+  complete detail-root inventory and stable line-material state. Browser
+  motion sweeps covered Day, Night and Minecraft; repeated post-settle
+  screenshots were pixel-identical. The visible radius remains **5,230 m**;
+  no bounds, source coordinates, Google data, credentials or raw reference
+  photographs changed.
+
 ## v0.70.5
 
 - **The Spree between the parliamentary buildings is clear again.** The

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  ACTIVE_MOTION_FRAME_INTERVAL_MS,
   STABLE_DESKTOP_PIXEL_BUDGET,
   STABLE_DESKTOP_PIXEL_RATIO_CAP,
   STABLE_TOUCH_PIXEL_BUDGET,
@@ -10,6 +11,10 @@ import {
 } from "../src/renderQuality";
 
 describe("stable 3D render quality", () => {
+  test("does not discard alternate touch frames during camera motion", () => {
+    expect(ACTIVE_MOTION_FRAME_INTERVAL_MS).toBe(0);
+  });
+
   test("recognises every direct interaction source", () => {
     expect(
       renderInteractionActive({ controls: true, touch: false, wheel: false }),

@@ -1,12 +1,10 @@
 /**
- * Central crispness profile for the settled post-process chain, next to
- * the day/night/minecraft lighting palettes. `strength` drives the
- * unsharp-mask, `edgeStrength` the screen-space "isometric edge" outline
- * (Roberts-cross on luminance in crisp.frag). Minecraft bypasses the
- * crisp pass entirely (strength 0): its `edgeStrength` feeds the
- * `edgeMix` uniform of the shared minecraft postprocess shader instead,
- * which draws the near-black block outline in both the 3D composer pass
- * and the 2D DZI post-processor.
+ * Central post-process profile next to the day/night/minecraft lighting
+ * palettes. Both screen-space gains are pinned to zero for the interactive
+ * 3D viewer: authored world-space ink and block materials carry every edge
+ * without sampling neighbouring pixels while the camera moves. The shader
+ * remains a neutral colour/composer pass and a compatibility surface for the
+ * static DZI tooling.
  */
 export type CrispnessProfile = {
   contrast: number;
@@ -19,36 +17,37 @@ export const CRISPNESS_PROFILES: Record<
   "day" | "night" | "minecraft",
   CrispnessProfile
 > = {
-  // Day reads as a light fine-line drawing: barely-there screen-space
-  // edges (the geometry ink carries the contours), gentle sharpening.
+  // Day reads as a light fine-line drawing. Geometry ink carries the
+  // contours; a second screen-space contour changed coverage whenever an
+  // edge crossed a pixel during camera motion, so it is deliberately off.
   // Saturation and contrast are exactly neutral: with the film curve gone
   // (presentationTone.ts) the composited pixel equals the authored paint
   // tone, and a 1.08 chroma lift here would re-introduce the loud green
-  // this round removed. The unsharp mask stays — it sharpens edges without
-  // touching hue.
-  day: { contrast: 1, edgeStrength: 0.07, saturation: 1, strength: 0.32 },
+  // this round removed. The authored world-space ink is already crisp; any
+  // neighbour-sampling sharpen term would amplify sub-pixel motion again.
+  day: { contrast: 1, edgeStrength: 0, saturation: 1, strength: 0 },
   night: {
     contrast: 1,
-    edgeStrength: 0.35,
+    edgeStrength: 0,
     saturation: 1,
-    strength: 0.4,
+    strength: 0,
   },
-  minecraft: { contrast: 1, edgeStrength: 0.85, saturation: 1, strength: 0 },
+  // Minecraft's block boundaries come from world-space geometry and toon
+  // materials. A 0.85 screen-space outline was the strongest remaining
+  // temporal aliasing source in that mode.
+  minecraft: { contrast: 1, edgeStrength: 0, saturation: 1, strength: 0 },
 };
 
 /**
- * Distance window over which the Day/Night crisp pass fades out as the camera
- * pulls back. Below FULL the drawing is sharpened at the authored strength;
- * above NONE the pass is a pure passthrough.
+ * Compatibility distance window for the Day/Night composer profile. The
+ * interactive gains are zero, so the pass is a pure passthrough at every
+ * distance; keeping the pure scale function avoids changing the view contract
+ * for static tooling that still consumes it.
  *
- * Why a zoom fade instead of a motion fade: a 1 px unsharp mask amplifies
- * whatever lands between pixels, so far out — where a screen pixel covers many
- * metres of ink work — it amplifies aliasing rather than line quality. Ramping
- * it with camera *motion* (as v0.38.0 did) meant every zoom step swapped
- * between a soft and a hard image, which reads as flicker. Zoom is a property
- * of the view, so the picture is now identical whether the camera moves or
- * stands still. The default view (948 m) sits inside the FULL band, so the
- * signed-off look at the standard framing is unchanged.
+ * A motion-driven gain is explicitly forbidden: it made every zoom step swap
+ * between soft and hard pixels. Any future non-zero static-export gain must be
+ * a pure function of distance so equal camera poses always produce equal
+ * pixels.
  */
 export const CRISP_FULL_DISTANCE_M = 1050;
 export const CRISP_NONE_DISTANCE_M = 2100;

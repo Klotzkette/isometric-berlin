@@ -16,13 +16,13 @@ const crispFragment = readFileSync(
 
 describe("isometric crispness profile", () => {
   test("pins the settled sharpening and edge strengths per mode", () => {
-    expect(CRISPNESS_PROFILES.day.strength).toBe(0.32);
-    expect(CRISPNESS_PROFILES.night.strength).toBe(0.4);
-    expect(CRISPNESS_PROFILES.day.edgeStrength).toBe(0.07);
-    expect(CRISPNESS_PROFILES.night.edgeStrength).toBe(0.35);
-    // Minecraft bypasses the crisp pass; its edgeStrength feeds the
-    // edgeMix uniform of the minecraft postprocess shader (v0.5.3).
-    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0.85);
+    expect(CRISPNESS_PROFILES.day.strength).toBe(0);
+    expect(CRISPNESS_PROFILES.night.strength).toBe(0);
+    // Geometry already carries the authored ink. Screen-space sharpening or
+    // a second edge crosses pixel thresholds during movement and is forbidden.
+    expect(CRISPNESS_PROFILES.day.edgeStrength).toBe(0);
+    expect(CRISPNESS_PROFILES.night.edgeStrength).toBe(0);
+    expect(CRISPNESS_PROFILES.minecraft.edgeStrength).toBe(0);
     expect(CRISPNESS_PROFILES.minecraft.strength).toBe(0);
   });
 
