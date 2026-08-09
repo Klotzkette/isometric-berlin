@@ -41,8 +41,21 @@ describe("idle-frame anti-flicker contract", () => {
     ]) {
       expect(viewerSource).toContain(root);
     }
-    expect(viewerSource).toContain("PCFSoftShadowMap");
+    expect(viewerSource).toContain("PCFShadowMap");
+    expect(viewerSource).not.toContain("PCFSoftShadowMap");
     expect(viewerSource).not.toContain("coarsePointer ? 1000 / 30 : 0");
+  });
+
+  test("runs the same final anti-aliasing pass in motion and at rest", () => {
+    expect(viewerSource).toContain(
+      'import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js"',
+    );
+    expect(viewerSource).toContain("const smaaPass = new SMAAPass()");
+    expect(viewerSource).toContain("smaaPass.enabled = true");
+    expect(viewerSource.indexOf("composer.addPass(smaaPass)")).toBeGreaterThan(
+      viewerSource.indexOf("composer.addPass(crispPass)"),
+    );
+    expect(viewerSource).toContain("smaaPass.dispose()");
   });
 
   test("keeps authored civic flags in every above-ground visual mode", () => {

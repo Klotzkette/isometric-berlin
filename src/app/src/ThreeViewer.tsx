@@ -25,7 +25,7 @@ import {
   MeshStandardMaterial,
   Object3D,
   PerspectiveCamera,
-  PCFSoftShadowMap,
+  PCFShadowMap,
   RingGeometry,
   Scene,
   Shape,
@@ -43,6 +43,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
@@ -2470,9 +2471,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
       renderer.toneMappingExposure = PRESENTATION_TONE.day.exposure;
       renderer.shadowMap.enabled = true;
-      // Soft PCF removes the hard one-texel shadow crawl that otherwise reads
-      // as a second outline while the camera moves across detailed roofs.
-      renderer.shadowMap.type = PCFSoftShadowMap;
+      // PCF filtering removes the hard one-texel shadow crawl that otherwise
+      // reads as a second outline while the camera moves across detailed roofs.
+      renderer.shadowMap.type = PCFShadowMap;
       renderer.setPixelRatio(1);
       renderer.domElement.className = "three-canvas";
       renderer.domElement.tabIndex = 0;
@@ -2545,6 +2546,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
       composer.addPass(crispPass);
+      // MSAA resolves polygon and line samples inside the scene render, while
+      // SMAA removes the remaining screen-space stair steps after that
+      // resolve. Keep it permanently last and enabled in every visual mode:
+      // motion and rest must use the exact same pixel pipeline, otherwise the
+      // anti-aliasing transition itself becomes a visible flash.
+      const smaaPass = new SMAAPass();
+      smaaPass.enabled = true;
+      composer.addPass(smaaPass);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.target.copy(DEFAULT_TARGET);
       controls.enableDamping = true;
@@ -3981,6 +3990,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         );
         disposeObject3D(runtime, scene);
         crispPass.dispose();
+        smaaPass.dispose();
         composer.dispose();
         disposeMinecraftMaterialState(runtime.minecraftMaterialState);
         renderer.dispose();

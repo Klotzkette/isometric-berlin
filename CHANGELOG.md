@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.70.7
+
+- **Camera motion now receives a real final anti-aliasing resolve.** The
+  existing four-sample MSAA still resolves scene geometry, and a permanently
+  enabled SMAA pass now removes the remaining screen-space stair steps and
+  high-frequency line crawl after that resolve. Day, Night and Minecraft use
+  the identical pass order during movement and at rest; there is no quality
+  switch when input begins or ends.
+- The pass is explicitly released with the rest of the WebGL pipeline, and a
+  regression test pins its position after the neutral colour pass, permanent
+  enabled state and cleanup. The renderer now also requests the current PCF
+  shadow mode directly instead of triggering Three.js's deprecated soft-PCF
+  fallback. Local browser measurements found byte-identical settled frames in
+  Day and Night and in the static Minecraft building region; a full 360-degree
+  camera sweep produced no blank, dark or recomposed frame.
+- The visible radius remains **5,230 m**. No geometry, source coordinates,
+  data-source policy, Google data, credentials or raw reference photographs
+  changed in this focused rendering fix.
+
 ## v0.70.6
 
 - **Camera movement no longer flashes dense city ink.** Touch navigation now

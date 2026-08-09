@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.6 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.6/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.7 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.7/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.6** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.7** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.6**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.70.7**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -70,7 +70,8 @@ labelled compatibility fallback for browsers that cannot run local modules.
   no screen-space sharpen or edge detector changes line brightness while the
   view moves. Transparent ink cannot overwrite other ink in the depth buffer,
   and all civic, cultural, park, monument and tunnel detail roots share the
-  same antialiasing policy.
+  same four-sample MSAA plus final SMAA antialiasing policy in motion and at
+  rest.
 
 - Beside the Marie-Elisabeth-Lüders-Haus, four landward canopy supports replace
   the former invented line of pillars through the Spree. A geometry test now
