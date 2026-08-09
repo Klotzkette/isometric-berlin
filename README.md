@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.2 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.2/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.3 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.3/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.2** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.3** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.2**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.70.3**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -64,6 +64,13 @@ labelled compatibility fallback for browsers that cannot run local modules.
   deliberately hidden as clearly labelled park Easter eggs. Boat wakes,
   bridge finishes and the Bundestag Kita recognition layer add visual context
   without claiming that unsurveyed staffage or pond bathymetry is official.
+
+- Hamburger Bahnhof now follows the 30-degree entrance line fixed by its two
+  official LoD2 tower parts instead of the hall's approximate sight point. Its
+  flat late-Neoclassical front has two measured-height towers, six upper
+  arcades, two lower hall arches, cornices, doors, steps and the axial Ehrenhof
+  path with rondel. Minecraft receives a separate stepped voxel interpretation
+  of the same hierarchy rather than generic office windows.
 
 - The recognisable buildings and monuments carry their **documented**
   architectural apparatus as drawn flat elements with ink lines: the Reichstag

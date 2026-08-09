@@ -4,6 +4,7 @@ import { Box3, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
+  HAMBURGER_BAHNHOF_PROFILE,
 } from "../src/ExpandedCityDetails";
 
 const landmarks = [
@@ -90,5 +91,71 @@ describe("task-10 expanded city recognition details", () => {
       distance_m: 232,
       target_height_m: 32,
     });
+  });
+
+  test("pins Hamburger Bahnhof to its measured tower facade", () => {
+    const profile = HAMBURGER_BAHNHOF_PROFILE;
+    expect(profile.facadeRotationY).toBeCloseTo(Math.PI / 6, 10);
+    expect(Math.hypot(...profile.facadeAxis)).toBeCloseTo(1, 3);
+    expect(Math.hypot(...profile.facadeNormal)).toBeCloseTo(1, 3);
+    expect(
+      profile.facadeAxis[0] * profile.facadeNormal[0] +
+        profile.facadeAxis[1] * profile.facadeNormal[1],
+    ).toBeCloseTo(0, 3);
+    expect(profile.sourceTowerIds).toEqual([
+      "DEBE3DIkXt8PMip6",
+      "DEBE3DlXyRYPJvcY",
+    ]);
+    expect(profile.towerHeightM).toBeCloseTo(26.25, 2);
+    expect(profile.towerCentresM).toEqual([-11.43, 11.43]);
+    expect(profile.roofForm).toBe("flat-cornice");
+    expect(profile.grounded).toBe(true);
+  });
+
+  test("focuses the real Hamburger Bahnhof facade instead of the hall POI", () => {
+    const hamburger = landmarks.find(
+      (landmark) => landmark.name === "Hamburger Bahnhof",
+    );
+    expect(hamburger).toBeDefined();
+    const camera = expandedCityFocusCamera(hamburger!);
+    expect(camera).toMatchObject({
+      azimuth_degrees: 10,
+      distance_m: 124,
+      polar_degrees: 58,
+      target_height_m: 11,
+    });
+    expect(camera?.target_world[0]).toBeCloseTo(
+      hamburger!.world[0] +
+        HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[0],
+      6,
+    );
+    expect(camera?.target_world[1]).toBe(hamburger!.world[1]);
+    expect(camera?.target_world[2]).toBeCloseTo(
+      hamburger!.world[2] +
+        HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[1],
+      6,
+    );
+  });
+
+  test("builds the documented flat front and inscription", () => {
+    const details = createExpandedCityDetails(landmarks);
+    expect(details.userData.hamburgerBahnhof).toEqual(
+      HAMBURGER_BAHNHOF_PROFILE,
+    );
+    expect(
+      details.getObjectByName("Hamburger Bahnhof facade inscription"),
+    ).toBeDefined();
+    expect(HAMBURGER_BAHNHOF_PROFILE.upperArcadeCount).toBe(6);
+    expect(HAMBURGER_BAHNHOF_PROFILE.lowerArchCount).toBe(2);
+    expect(HAMBURGER_BAHNHOF_PROFILE.forecourtTreatment).toBe(
+      "axial-path-and-rondel",
+    );
+    const litArches = details.getObjectByName(
+      "Expanded architecture and public-realm details lamps",
+    ) as Mesh;
+    expect(litArches).toBeInstanceOf(Mesh);
+    expect(litArches.userData.nightMaterial).toBeInstanceOf(
+      MeshStandardMaterial,
+    );
   });
 });

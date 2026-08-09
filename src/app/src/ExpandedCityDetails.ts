@@ -1,5 +1,7 @@
 import {
+  BoxGeometry,
   BufferGeometry,
+  CircleGeometry,
   DoubleSide,
   EdgesGeometry,
   Float32BufferAttribute,
@@ -9,6 +11,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  RingGeometry,
   SphereGeometry,
   TorusGeometry,
   Vector3,
@@ -30,6 +33,30 @@ export type ExpandedLandmark = {
   name: string;
   world: [number, number, number];
 };
+
+/**
+ * LoD2-anchored front of the Hamburger Bahnhof.
+ *
+ * The landmark point lies inside the former train hall, not on the entrance
+ * facade. The two 26 m LoD2 tower parts fix the facade line and its 30 degree
+ * bearing; keeping the offset here prevents a generic point marker from
+ * rotating or translating the whole historic head building again.
+ */
+export const HAMBURGER_BAHNHOF_PROFILE = {
+  facadeAxis: [0.8673, -0.4978] as const,
+  facadeNormal: [0.4978, 0.8673] as const,
+  facadeOffsetFromLandmarkM: [-2.399, 24.148] as const,
+  facadeRotationY: Math.PI / 6,
+  facadeWidthM: 62,
+  forecourtTreatment: "axial-path-and-rondel",
+  grounded: true,
+  lowerArchCount: 2,
+  roofForm: "flat-cornice",
+  sourceTowerIds: ["DEBE3DIkXt8PMip6", "DEBE3DlXyRYPJvcY"] as const,
+  towerCentresM: [-11.43, 11.43] as const,
+  towerHeightM: 26.25,
+  upperArcadeCount: 6,
+} as const;
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -54,10 +81,10 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 32,
   },
   "Hamburger Bahnhof": {
-    azimuth_degrees: 8,
-    distance_m: 150,
+    azimuth_degrees: 10,
+    distance_m: 124,
     polar_degrees: 58,
-    target_height_m: 10,
+    target_height_m: 11,
   },
   "KPMG Europacity": {
     azimuth_degrees: 12,
@@ -101,7 +128,18 @@ export function expandedCityFocusCamera(
   landmark: ExpandedLandmark,
 ): FocusCamera | null {
   const preset = EXPANDED_FOCUS_PRESETS[landmark.name];
-  return preset ? { ...preset, target_world: landmark.world } : null;
+  if (!preset) return null;
+  const target_world: [number, number, number] =
+    landmark.name === "Hamburger Bahnhof"
+      ? [
+          landmark.world[0] +
+            HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[0],
+          landmark.world[1],
+          landmark.world[2] +
+            HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[1],
+        ]
+      : landmark.world;
+  return { ...preset, target_world };
 }
 
 const IVORY = 0xeee9dc;
@@ -114,6 +152,12 @@ const DARK_FRAME = 0x29373a;
 const PARK_GREEN = 0x72aa68;
 const SNOW_WHITE = 0xf2f1eb;
 const BRONZE = 0x557e6d;
+const HAMBURGER_STUCCO = 0xe7dfcf;
+const HAMBURGER_CORNICE = 0xf4eddf;
+const HAMBURGER_SAGE = 0x93a982;
+const HAMBURGER_GLASS = 0x6b7f78;
+const HAMBURGER_DOOR = 0x75513e;
+const HAMBURGER_MULLION = 0x94775f;
 
 function transformGeometry(
   geometry: BufferGeometry,
@@ -131,13 +175,14 @@ function addCustomGeometry(
   geometry: BufferGeometry,
   color: number,
   inked = true,
+  lamp = false,
 ): void {
   if (!geometry.index) {
     const count = geometry.getAttribute("position").count;
     geometry.setIndex(Array.from({ length: count }, (_, index) => index));
   }
   paintGeometry(geometry, color);
-  builder.parts.push(geometry);
+  (lamp ? builder.lamps : builder.parts).push(geometry);
   if (inked) {
     builder.edges.push(new EdgesGeometry(geometry, 24));
   }
@@ -235,6 +280,99 @@ function addGabledRoof(
   geometry.computeVertexNormals();
   transformGeometry(geometry, x, y, z, rotationY);
   addCustomGeometry(builder, geometry, color);
+}
+
+function addArchedPanel(
+  builder: Builder,
+  color: number,
+  frameColor: number,
+  cx: number,
+  baseY: number,
+  cz: number,
+  width: number,
+  height: number,
+  rotationY: number,
+  lit = false,
+): void {
+  const radius = width / 2;
+  const rectangularHeight = Math.max(0.2, height - radius);
+  if (lit) {
+    const panel = new BoxGeometry(width, rectangularHeight, 0.14);
+    transformGeometry(
+      panel,
+      cx,
+      baseY + rectangularHeight / 2,
+      cz,
+      rotationY,
+    );
+    addCustomGeometry(builder, panel, color, false, true);
+  } else {
+    addBox(
+      builder,
+      color,
+      cx,
+      baseY + rectangularHeight / 2,
+      cz,
+      width,
+      rectangularHeight,
+      0.14,
+      rotationY,
+      false,
+    );
+  }
+  const cap = new CircleGeometry(
+    radius,
+    Math.max(12, Math.round(width * 6)),
+    0,
+    Math.PI,
+  );
+  transformGeometry(cap, cx, baseY + rectangularHeight, cz, rotationY);
+  addCustomGeometry(builder, cap, color, false, lit);
+
+  const arch = new TorusGeometry(
+    radius,
+    Math.min(0.16, width * 0.055),
+    4,
+    Math.max(12, Math.round(width * 6)),
+    Math.PI,
+  );
+  transformGeometry(arch, cx, baseY + rectangularHeight, cz + 0.01, rotationY);
+  addCustomGeometry(builder, arch, frameColor, false);
+
+  const axisX = Math.cos(rotationY);
+  const axisZ = -Math.sin(rotationY);
+  for (const side of [-1, 1]) {
+    addBox(
+      builder,
+      frameColor,
+      cx + axisX * side * radius,
+      baseY + rectangularHeight / 2,
+      cz + axisZ * side * radius,
+      Math.min(0.18, width * 0.06),
+      rectangularHeight,
+      0.18,
+      rotationY,
+      false,
+    );
+  }
+}
+
+function addFacadeDisc(
+  builder: Builder,
+  color: number,
+  frameColor: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  radius: number,
+  rotationY: number,
+): void {
+  const face = new CircleGeometry(radius, 28);
+  transformGeometry(face, cx, cy, cz, rotationY);
+  addCustomGeometry(builder, face, color, false);
+  const ring = new TorusGeometry(radius, 0.12, 4, 28);
+  transformGeometry(ring, cx, cy, cz + 0.01, rotationY);
+  addCustomGeometry(builder, ring, frameColor, false);
 }
 
 function addRamp(
@@ -385,44 +523,265 @@ function addHamburgerBahnhof(
 ): void {
   const point = anchor(byName, "Hamburger Bahnhof");
   if (!point) return;
-  const y = point.y + 15.5;
-  addBox(builder, IVORY, point.x, y, point.z + 44, 46, 12, 7, -0.04);
-  for (const offset of [-16, -8, 0, 8, 16]) {
-    addCylinder(
-      builder,
-      SANDSTONE,
-      point.x + offset,
-      point.y + 10.2,
-      point.z + 48,
-      0.72,
-      10,
-      12,
+  const profile = HAMBURGER_BAHNHOF_PROFILE;
+  const rotation = profile.facadeRotationY;
+  const axis = profile.facadeAxis;
+  const normal = profile.facadeNormal;
+  const facadeX = point.x + profile.facadeOffsetFromLandmarkM[0];
+  const facadeZ = point.z + profile.facadeOffsetFromLandmarkM[1];
+  const groundY = point.y;
+  const at = (u: number, outward: number): [number, number] => [
+    facadeX + axis[0] * u + normal[0] * outward,
+    facadeZ + axis[1] * u + normal[1] * outward,
+  ];
+  const facadeBox = (
+    color: number,
+    u: number,
+    y: number,
+    outward: number,
+    width: number,
+    height: number,
+    depth: number,
+    inked = true,
+  ): void => {
+    const [x, z] = at(u, outward);
+    addBox(builder, color, x, y, z, width, height, depth, rotation, inked);
+  };
+
+  // The historic front is flat-roofed. These three thin facade-backed masses
+  // sit on the LoD2 line; unlike the old generic block they do not cross the
+  // Ehrenhof or float above it.
+  facadeBox(HAMBURGER_STUCCO, 0, groundY + 10.35, -1.05, 23, 20.7, 2.1);
+  for (const side of [-1, 1]) {
+    facadeBox(
+      HAMBURGER_STUCCO,
+      side * 22.1,
+      groundY + 7.8,
+      -0.8,
+      18.2,
+      15.6,
+      1.6,
     );
   }
-  addGabledRoof(
-    builder,
-    SANDSTONE,
-    point.x,
-    point.y + 21.5,
-    point.z + 43,
-    51,
-    16,
-    8,
-    -0.04,
+
+  // The two LoD2 tower parts (26.15/26.37 m) are the reliable metric anchors.
+  for (const towerU of profile.towerCentresM) {
+    facadeBox(
+      HAMBURGER_STUCCO,
+      towerU,
+      groundY + profile.towerHeightM / 2,
+      -1.7,
+      5.5,
+      profile.towerHeightM,
+      3.4,
+    );
+    facadeBox(
+      HAMBURGER_CORNICE,
+      towerU,
+      groundY + profile.towerHeightM - 0.35,
+      0.05,
+      6.3,
+      0.7,
+      0.52,
+    );
+    for (const slotU of [-1.45, 0, 1.45]) {
+      const [slotX, slotZ] = at(towerU + slotU, 0.18);
+      addArchedPanel(
+        builder,
+        HAMBURGER_GLASS,
+        HAMBURGER_CORNICE,
+        slotX,
+        groundY + 21.65,
+        slotZ,
+        1.05,
+        3.2,
+        rotation,
+      );
+    }
+    const [poleX, poleZ] = at(towerU, -0.9);
+    addCylinder(
+      builder,
+      0x5e655f,
+      poleX,
+      groundY + profile.towerHeightM + 3.25,
+      poleZ,
+      0.07,
+      6.5,
+      8,
+    );
+  }
+
+  // Two large hall arches below six tall, sage-green upper arcades are the
+  // defining front elevation seen from Invalidenstrasse.
+  for (const u of [-4.45, 4.45]) {
+    const [x, z] = at(u, 0.2);
+    addArchedPanel(
+      builder,
+      HAMBURGER_GLASS,
+      HAMBURGER_CORNICE,
+      x,
+      groundY + 5.25,
+      z,
+      7.45,
+      7.55,
+      rotation,
+      true,
+    );
+    facadeBox(HAMBURGER_DOOR, u, groundY + 2.25, 0.28, 2.35, 4.5, 0.2);
+    const lowerBase = groundY + 5.25;
+    const lowerRadius = 7.45 / 2;
+    const lowerSpring = lowerBase + 7.55 - lowerRadius;
+    for (const mullionOffset of [-2.4, -1.2, 0, 1.2, 2.4]) {
+      const archRise = Math.sqrt(
+        Math.max(0, lowerRadius ** 2 - mullionOffset ** 2),
+      );
+      const top = lowerSpring + archRise - 0.16;
+      facadeBox(
+        HAMBURGER_MULLION,
+        u + mullionOffset,
+        (lowerBase + top) / 2,
+        0.34,
+        0.09,
+        top - lowerBase,
+        0.08,
+        false,
+      );
+    }
+    for (const height of [lowerBase + 1.55, lowerBase + 3.1]) {
+      facadeBox(
+        HAMBURGER_MULLION,
+        u,
+        height,
+        0.35,
+        7.1,
+        0.09,
+        0.08,
+        false,
+      );
+    }
+  }
+  for (const u of [-7.5, -4.5, -1.5, 1.5, 4.5, 7.5]) {
+    const [x, z] = at(u, 0.22);
+    addArchedPanel(
+      builder,
+      HAMBURGER_SAGE,
+      HAMBURGER_CORNICE,
+      x,
+      groundY + 13.25,
+      z,
+      2.45,
+      6.25,
+      rotation,
+      true,
+    );
+  }
+
+  // Rosette and clock occupy the tower faces below the belfry openings.
+  for (const [index, towerU] of profile.towerCentresM.entries()) {
+    const [x, z] = at(towerU, 0.25);
+    addFacadeDisc(
+      builder,
+      index === 0 ? HAMBURGER_GLASS : 0xb7c8bd,
+      HAMBURGER_CORNICE,
+      x,
+      groundY + 18.8,
+      z,
+      1.22,
+      rotation,
+    );
+  }
+
+  // Cornice/string courses and a restrained window rhythm continue into the
+  // two wings without inventing another roof volume.
+  facadeBox(
+    HAMBURGER_CORNICE,
+    0,
+    groundY + 20.35,
+    0.08,
+    24.2,
+    0.7,
+    0.48,
   );
-  // Forecourt paving and the two restrained tree rows absent from the old crop.
+  facadeBox(
+    HAMBURGER_CORNICE,
+    0,
+    groundY + 12.9,
+    0.12,
+    22.6,
+    0.42,
+    0.42,
+  );
+  for (const side of [-1, 1]) {
+    facadeBox(
+      HAMBURGER_CORNICE,
+      side * 22.1,
+      groundY + 15.35,
+      0.06,
+      19.1,
+      0.62,
+      0.45,
+    );
+    for (const offset of [-5.6, 0, 5.6]) {
+      facadeBox(
+        HAMBURGER_GLASS,
+        side * 22.1 + offset,
+        groundY + 8.4,
+        0.16,
+        1.45,
+        4.0,
+        0.18,
+        false,
+      );
+    }
+  }
+  for (let u = -29; u <= 29; u += 1.8) {
+    facadeBox(
+      HAMBURGER_CORNICE,
+      u,
+      groundY + (Math.abs(u) < 12 ? 19.9 : 14.9),
+      0.28,
+      0.62,
+      0.42,
+      0.38,
+      false,
+    );
+  }
+
+  // Entrance steps, axial path and the documented central rondel replace the
+  // former 72 x 40 m rectangular paving sheet across the whole garden.
+  for (let step = 0; step < 4; step += 1) {
+    const [x, z] = at(0, 1.2 + step * 0.72);
+    addBox(
+      builder,
+      0xc9c3b6,
+      x,
+      groundY + 0.1 + step * 0.1,
+      z,
+      19.5 - step * 0.7,
+      0.2,
+      0.86,
+      rotation,
+      step === 0,
+    );
+  }
+  const [pathX, pathZ] = at(0, 28);
   addBox(
     builder,
-    0xd9d5ca,
-    point.x,
-    point.y + 0.1,
-    point.z + 77,
-    72,
-    0.2,
-    40,
-    -0.04,
+    0xd2cec4,
+    pathX,
+    groundY + 0.07,
+    pathZ,
+    5.2,
+    0.14,
+    50,
+    rotation,
     false,
   );
+  const [rondelX, rondelZ] = at(0, 48);
+  const rondel = new RingGeometry(7.2, 9.2, 40);
+  rondel.rotateX(-Math.PI / 2);
+  rondel.translate(rondelX, groundY + 0.15, rondelZ);
+  addCustomGeometry(builder, rondel, 0xcac5ba, false);
 }
 
 function addRieckhallen(
@@ -980,6 +1339,31 @@ function addRooftopSigns(
   group: Group,
   byName: Map<string, ExpandedLandmark>,
 ): void {
+  const hamburger = anchor(byName, "Hamburger Bahnhof");
+  if (hamburger) {
+    const profile = HAMBURGER_BAHNHOF_PROFILE;
+    const facadeX =
+      hamburger.x +
+      profile.facadeOffsetFromLandmarkM[0] +
+      profile.facadeNormal[0] * 0.42;
+    const facadeZ =
+      hamburger.z +
+      profile.facadeOffsetFromLandmarkM[1] +
+      profile.facadeNormal[1] * 0.42;
+    const sign = createLetterSign(
+      "VERKEHRS UND BAUMUSEUM",
+      8.6,
+      0.72,
+      new Vector3(facadeX, hamburger.y + 13.0, facadeZ),
+      profile.facadeRotationY,
+      "#e7dfcf",
+      "#766c5f",
+    );
+    if (sign) {
+      sign.name = "Hamburger Bahnhof facade inscription";
+      group.add(sign);
+    }
+  }
   const kpmg = anchor(byName, "KPMG Europacity");
   if (kpmg) {
     const sign = createLetterSign(
@@ -1031,6 +1415,7 @@ export function createExpandedCityDetails(
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
+  group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
   addRieckhallen(builder, byName);

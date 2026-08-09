@@ -99,6 +99,15 @@ const VOXEL_WINDOW_TEAL = 0x72c5d2;
 export const VOXEL_WINDOW_WIDTH_M = 1.5;
 export const VOXEL_WINDOW_HEIGHT_M = 2.75;
 
+/** LoD2-tower-derived centre of the Hamburger Bahnhof entrance facade. */
+export const HAMBURGER_BAHNHOF_VOXEL_FACADE = {
+  axis: [0.8673, -0.4978] as const,
+  center: [72.855, -1043.07] as const,
+  groundY: 8,
+  normal: [0.4978, 0.8673] as const,
+  rotationDegrees: 30,
+} as const;
+
 export type VoxelRecognitionArea = {
   center: readonly [number, number];
   depthM: number;
@@ -143,6 +152,17 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     rotationDegrees: 21.82,
     tone: 0xd6dfe0,
     widthM: 341,
+  },
+  {
+    // The head building is not a generic office facade. A dedicated stepped
+    // voxel elevation below carries its two towers and arched hall front.
+    center: HAMBURGER_BAHNHOF_VOXEL_FACADE.center,
+    depthM: 8,
+    name: "Hamburger Bahnhof",
+    paddingM: 2,
+    rotationDegrees: HAMBURGER_BAHNHOF_VOXEL_FACADE.rotationDegrees,
+    tone: 0xe8d1ae,
+    widthM: 64,
   },
   {
     center: [417.898, 300.453],
@@ -678,6 +698,99 @@ export function createMinecraftExtrapolatedWorld(): Group {
   return group;
 }
 
+/**
+ * One stepped, block-native front for the Hamburger Bahnhof. The surveyed
+ * voxel columns remain the building mass; this single instanced overlay gives
+ * that mass its actual flat head-building hierarchy without importing the
+ * smooth Day/Night drawing into Minecraft mode.
+ */
+export function createMinecraftHamburgerBahnhofRecognition(): InstancedMesh {
+  const facade = HAMBURGER_BAHNHOF_VOXEL_FACADE;
+  const blocks: ExtrapolatedBlock[] = [];
+  const at = (u: number, outward: number): [number, number] => [
+    facade.center[0] + facade.axis[0] * u + facade.normal[0] * outward,
+    facade.center[1] + facade.axis[1] * u + facade.normal[1] * outward,
+  ];
+  const push = (
+    color: number,
+    u: number,
+    y: number,
+    outward: number,
+    size: readonly [number, number, number],
+  ): void => {
+    const [x, z] = at(u, outward);
+    blocks.push({ color, position: [x, y, z], size: [...size] });
+  };
+
+  // A two-metre stepped facade follows the real 30 degree line. The towers
+  // rise to the measured 26 m level; the main hall and wings remain lower.
+  for (let u = -30; u <= 30; u += 2) {
+    const tower = Math.abs(Math.abs(u) - 12) <= 2;
+    const centre = Math.abs(u) <= 10;
+    const top = tower ? 26 : centre ? 20 : 15;
+    for (let y = facade.groundY + 1; y < facade.groundY + top; y += 2) {
+      push(0xe8d1ae, u, y, -0.25, [1.82, 1.82, 1.3]);
+    }
+  }
+
+  // Cornice courses remain block rows rather than smooth mouldings.
+  for (let u = -30; u <= 30; u += 2) {
+    const y = facade.groundY + (Math.abs(u) <= 11 ? 20 : 15);
+    push(0xf3efd0, u, y, 0.48, [1.9, 0.72, 1.45]);
+  }
+
+  // Six green upper arcades, two large dark hall arches and two timber doors.
+  for (const u of [-7.5, -4.5, -1.5, 1.5, 4.5, 7.5]) {
+    for (const y of [14.2, 16.2, 18.2]) {
+      push(0x74b043, u, facade.groundY + y, 0.86, [1.35, 1.65, 0.68]);
+    }
+  }
+  for (const u of [-4.4, 4.4]) {
+    for (const du of [-2, 0, 2]) {
+      for (const y of [7.1, 9.1, 11.1]) {
+        push(0x40515c, u + du, facade.groundY + y, 0.9, [1.55, 1.6, 0.7]);
+      }
+    }
+    push(0x994a35, u, facade.groundY + 2.2, 0.96, [2.1, 4.1, 0.72]);
+  }
+
+  // Three belfry slots in each measured tower and a pale clock/rosette block.
+  for (const towerU of [-11.43, 11.43]) {
+    for (const du of [-1.35, 0, 1.35]) {
+      push(
+        0x40515c,
+        towerU + du,
+        facade.groundY + 23,
+        0.9,
+        [0.82, 2.8, 0.7],
+      );
+    }
+    push(0xd6dfe0, towerU, facade.groundY + 18.8, 0.94, [1.7, 1.7, 0.72]);
+  }
+
+  const writer = instancedBoxes(
+    "Voxel Hamburger Bahnhof recognition facade",
+    blocks.length,
+  );
+  for (const block of blocks) {
+    writer.write(
+      new Vector3(...block.position),
+      new Vector3(...block.size),
+      new Color(block.color),
+    );
+  }
+  writer.mesh.instanceMatrix.needsUpdate = true;
+  if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
+  writer.mesh.frustumCulled = false;
+  writer.mesh.userData.architecturalProfile = {
+    lowerHallArches: 2,
+    roofForm: "flat-cornice",
+    towerHeightM: 26,
+    upperArcades: 6,
+  };
+  return writer.mesh;
+}
+
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -695,6 +808,7 @@ export function createMinecraftVoxelWorld(
   const size = new Vector3();
   group.add(createMinecraftExtrapolatedWorld());
   group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
+  group.add(createMinecraftHamburgerBahnhofRecognition());
 
   const buildings = instancedBoxes(
     "Voxel building columns",

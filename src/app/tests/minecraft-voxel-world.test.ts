@@ -3,9 +3,11 @@ import { describe, expect, test } from "bun:test";
 import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
+  HAMBURGER_BAHNHOF_VOXEL_FACADE,
   type VoxelPayload,
   VOXEL_WINDOW_HEIGHT_M,
   VOXEL_WINDOW_WIDTH_M,
+  createMinecraftHamburgerBahnhofRecognition,
   createMinecraftVoxelWorld,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
@@ -112,6 +114,35 @@ describe("true voxel Minecraft world", () => {
     expect(crowns).toBeLessThanOrEqual(payload.trees.length * 2);
     // Blocky by construction: thousands of surveyed building columns.
     expect(payload.buildings.length).toBeGreaterThan(10_000);
+  });
+
+  test("gives Hamburger Bahnhof its own stepped historical front", () => {
+    const facade = createMinecraftHamburgerBahnhofRecognition();
+    expect(facade.count).toBeGreaterThan(250);
+    expect(facade.userData.architecturalProfile).toEqual({
+      lowerHallArches: 2,
+      roofForm: "flat-cornice",
+      towerHeightM: 26,
+      upperArcades: 6,
+    });
+    expect(
+      voxelRecognitionAreaAt(...HAMBURGER_BAHNHOF_VOXEL_FACADE.center)?.name,
+    ).toBe("Hamburger Bahnhof");
+    expect(
+      world.getObjectByName("Voxel Hamburger Bahnhof recognition facade"),
+    ).toBeDefined();
+
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    let highest = Number.NEGATIVE_INFINITY;
+    for (let index = 0; index < facade.count; index += 1) {
+      facade.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      highest = Math.max(highest, position.y);
+    }
+    expect(highest).toBeGreaterThanOrEqual(
+      HAMBURGER_BAHNHOF_VOXEL_FACADE.groundY + 25,
+    );
   });
 
   test("places tall Reichstag columns at the surveyed world position", () => {

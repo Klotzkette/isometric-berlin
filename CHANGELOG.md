@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.70.3
+
+- **Hamburger Bahnhof is no longer a floating, skewed fantasy gable.** The
+  entrance front is now anchored to the two official LoD2 tower parts
+  `DEBE3DIkXt8PMip6` and `DEBE3DlXyRYPJvcY` (26.15/26.37 m), which fix its
+  30-degree facade line and measured-height towers. The sight point inside the
+  former train hall is used only for navigation; the close camera now targets
+  the actual facade centre.
+- The rebuilt late-Neoclassical elevation is flat-roofed and carries its two
+  towers, six sage upper arcades, two large lower hall arches, belfry slots,
+  clock/rosette fields, doors, cornice courses, entrance steps and drawn
+  `VERKEHRS UND BAUMUSEUM` inscription. Its hall and upper arcade glazing now
+  stays legible as warm light at night. The Ehrenhof overlay is restricted to
+  its documented axial path and central rondel; the former giant rectangular
+  slab across the garden is gone.
+- Minecraft now has a dedicated stepped Hamburger-Bahnhof front with the same
+  tower/arcade hierarchy, and the generic office-window overlay yields only at
+  this facade. Regression tests pin the LoD2 IDs, axis, dimensions, camera,
+  flat roof and both Day/Night and voxel recognition contracts. The versioned
+  visible radius remains **5,230 m**; no bounds, source coordinates, Google
+  data, credentials or raw reference photographs changed.
+
 ## v0.70.2
 
 - **Gustav-Heinemann-Bruecke is no longer a pale generic strip.** The official
