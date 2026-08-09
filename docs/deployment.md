@@ -1,13 +1,15 @@
 # Deployment and release package
 
-The complete viewer is static after `bun run build`: React/Three.js assets, 45
+The complete viewer is static after `bun run build`: React/Three.js assets, 74
 bounded official-mesh GLBs and the OpenSeadragon DZI pyramid live below
 `src/app/dist/`. Runtime needs no AI service, API key or backend. Vite uses
 relative paths, so the directory can be served from a subpath or static host.
 
-GitHub Pages is intentionally offline at the owner's request. The supported
-public deliverable is the GitHub release ZIP linked at the top of `README.md`.
-Build it from a clean tree with:
+The same build is public at
+[klotzkette.github.io/isometric-berlin](https://klotzkette.github.io/isometric-berlin/).
+The GitHub release ZIP linked at the top of `README.md` is the supported
+offline deliverable for macOS and Windows. Build both outputs from a clean tree
+with:
 
 ```bash
 cd src/app
