@@ -622,13 +622,12 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "flat-unlit architectural signatures": "markAuthoredFlatUnlit(model)",
     "flat-unlit memorials": "markAuthoredFlatUnlit(runtime.monuments)",
-    # v0.39.0: the crisp pass follows camera DISTANCE, never camera motion.
-    # Ramping it with motion meant a moving and a resting camera at the same
-    # standoff rendered different pixels, which read as flicker on every zoom
-    # step. Pinning the distance call keeps the fix from silently regressing.
-    "zoom-faded crisp pass": (
-      "crispZoomScale(camera.position.distanceTo(controls.target))"
-    ),
+    # v0.70.10: every crisp profile is neutral, so running the pass only burns
+    # a full-screen half-float read/write. The disabled pass plus permanent
+    # SMAA final resolve keeps motion/rest pixels on one stable pipeline.
+    "disabled neutral crisp pass": "crispPass.enabled = false",
+    "permanent final SMAA resolve": "smaaPass.enabled = true",
+    "co-planar ink depth stabilization": "stableInkViewBias",
   }
   failures = [
     f"True-3D viewer lacks {label}: {viewer_path}"

@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.70.10
+
+- **Drawn roof and facade outlines no longer fight their carrier surfaces
+  during camera movement.** Every collected Tusch line now receives a fixed
+  3 cm view-space depth bias: enough to resolve co-planar depth ambiguity, but
+  too small to reveal an outline through a real wall. Existing depth testing,
+  four-sample alpha-to-coverage and the final SMAA resolve remain intact.
+- The neutral Crisp pass is now disabled instead of performing an ineffectual
+  full-screen half-float read/write on every rendered frame. Day, Night and
+  Minecraft all retain the same RenderPass-to-SMAA chain during interaction
+  and at rest, reducing GPU bandwidth without introducing a settle-time
+  quality switch.
+- Browser verification covered desktop and 390 x 844 mobile framing. Twelve
+  consecutive Day, Night and Minecraft desktop frames and eight mobile Day
+  frames were byte-identical at rest; a camera sweep completed without shader
+  warnings, blank frames or outlines showing through architecture.
+- The visible radius remains **5,230 m**. No geometry, landmark placement,
+  source coordinates, attribution, credentials, Google content or raw
+  reference material changed in this focused rendering release.
+
 ## v0.70.9
 
 - **The Memorial to the Sinti and Roma murdered under National Socialism now

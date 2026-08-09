@@ -97,7 +97,7 @@ import {
   twoFingerPanFlight,
   zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
-import { CRISPNESS_PROFILES, crispZoomScale } from "./crispnessProfile";
+import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
   FINE_DETAIL_LAYER_NAMES,
   INK_LINE_REFERENCE_FEATURE_M,
@@ -687,12 +687,47 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
   if (material.userData.temporallyStableInk === true) {
     return;
   }
+  const previousOnBeforeCompile = material.onBeforeCompile.bind(material);
+  const previousProgramCacheKey = material.customProgramCacheKey();
   material.userData.temporallyStableInk = true;
   material.transparent = true;
   material.depthTest = true;
   material.depthWrite = false;
   material.alphaToCoverage = true;
+  material.onBeforeCompile = (shader, renderer) => {
+    previousOnBeforeCompile(shader, renderer);
+    shader.vertexShader = stabilizeInkVertexShader(shader.vertexShader);
+  };
+  material.customProgramCacheKey = () =>
+    `${previousProgramCacheKey}|stable-ink-view-bias-v1`;
   material.needsUpdate = true;
+}
+
+/**
+ * Pull co-planar drawing ink three centimetres towards the camera in view
+ * space. EdgesGeometry shares its vertices with the facade or roof it traces;
+ * without this small physical bias, depth precision can make the carrier
+ * surface and its outline alternate while orbiting. A view-space metre value
+ * stays constant at every zoom and remains far too small to reveal ink through
+ * a real wall.
+ */
+export const STABLE_INK_VIEW_BIAS_M = 0.03;
+
+export function stabilizeInkVertexShader(vertexShader: string): string {
+  const projectVertex = "#include <project_vertex>";
+  if (
+    !vertexShader.includes(projectVertex) ||
+    vertexShader.includes("stableInkViewBias")
+  ) {
+    return vertexShader;
+  }
+  return vertexShader.replace(
+    projectVertex,
+    `${projectVertex}
+  float stableInkViewBias = ${STABLE_INK_VIEW_BIAS_M.toFixed(3)};
+  mvPosition.z += stableInkViewBias;
+  gl_Position = projectionMatrix * mvPosition;`,
+  );
 }
 
 /**
@@ -3311,27 +3346,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // mode. Input must never resize the canvas or replace the complete
         // city/tree surface underneath a moving camera.
         setSurfacePresentation(runtime, stability.pinInteractionSurface);
-        // Strength of the Day/Night crisp/edge pass: a pure function of how far
-        // the camera stands off, never of whether it is moving, and never
-        // time-eased. v0.39.0 made the *target* distance-driven but still let
-        // the applied value chase it with a ~143 ms time constant. A still
-        // camera reached the target, so static views looked calm — but during a
-        // zoom the applied strength permanently lagged the view and then
-        // snapped forward when the motion stopped, which is the sharpening pop
-        // users read as flicker. crispZoomScale is already a smoothstep, so
-        // reading it directly is smooth by construction and, more importantly,
-        // makes the picture identical for a given standoff no matter how the
-        // camera got there. Minecraft owns the composer for its voxel pass and
-        // keeps a fixed profile.
-        const crispTargetScale =
-          runtime.lightingMode === "minecraft"
-            ? 0
-            : crispZoomScale(camera.position.distanceTo(controls.target));
         // Far-zoom anti-flicker (v0.53.0): ink lines and small accessory
-        // layers are dampened by the same standoff-only reasoning as
-        // crispTargetScale above -- a pure function of distance, so the
-        // picture is identical for a given standoff no matter how the
-        // camera got there, and never re-pops when motion stops.
+        // layers are dampened by a pure function of distance, so the picture
+        // is identical for a given standoff no matter how the camera got
+        // there, and never re-pops when motion stops.
         const farDetailChanged = updateFarZoomAntiFlicker(
           runtime,
           camera.position.distanceTo(controls.target),
@@ -3413,54 +3431,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markSurfaceInteraction(runtime, 220);
         }
-        if (runtime.lightingMode === "minecraft") {
-          // Minecraft renders through the same composer path as Day/Night — no
-          // screen-space voxel grid to flimmer when zoomed out. The blocky look
-          // and its outline come entirely from world-space toon materials; the
-          // composer profile is a neutral passthrough at every zoom.
-          const profile = CRISPNESS_PROFILES.minecraft;
-          crispPass.enabled = true;
-          crispPass.uniforms.strength.value = profile.strength;
-          crispPass.uniforms.edgeStrength.value = profile.edgeStrength;
-          crispPass.uniforms.saturation.value = profile.saturation;
-          crispPass.uniforms.contrast.value = profile.contrast;
-          composer.render();
-        } else {
-          // Day/Night: always render through the composer so the colour and
-          // MSAA resolve path is identical whether the camera moves or settles.
-          // The profile gains are zero: world-space ink carries the drawing,
-          // and no neighbour-sampling filter may amplify sub-pixel motion.
-          const profile =
-            CRISPNESS_PROFILES[
-              runtime.lightingMode === "night" ? "night" : "day"
-            ];
-          const crispBlend = crispTargetScale;
-          crispPass.enabled = true;
-          // v0.55.0 moire fix: the unsharp+edge pass reads exactly one
-          // texel either side of centre (crisp.frag), so its gain against
-          // a fine repeating line pattern (ground kerb/grid ink, roof
-          // glazing seams) scales with how many *screen* pixels fall on
-          // one physical display pixel. A phone's native devicePixelRatio
-          // (2-3) packs display pixels far tighter than the render
-          // resolution the mobile budget allows (renderQuality.ts caps it
-          // well below native for frame-rate reasons), so the browser's
-          // own upscale from render size to native size re-samples an
-          // already-sharpened, already fine-pitched pattern -- textbook
-          // moire. Damping edgeStrength on coarse pointers only (desktop
-          // crispness stays exactly as authored/pinned in
-          // crispnessProfile.test.ts) removes the gain that turns that
-          // resample into visible banding without touching the unsharp
-          // `strength` term that carries the line drawing's crispness.
-          const edgeMoireGuard = runtime.coarsePointer ? 0.55 : 1;
-          crispPass.uniforms.strength.value = profile.strength * crispBlend;
-          crispPass.uniforms.edgeStrength.value =
-            profile.edgeStrength * crispBlend * edgeMoireGuard;
-          crispPass.uniforms.saturation.value =
-            1 + (profile.saturation - 1) * crispBlend;
-          crispPass.uniforms.contrast.value =
-            1 + (profile.contrast - 1) * crispBlend;
-          composer.render();
-        }
+        // Every profile is deliberately neutral: world-space ink carries the
+        // drawing, and screen-neighbour sharpening is forbidden because it
+        // amplifies sub-pixel motion. Keep this no-op pass disabled instead of
+        // spending one full-screen half-float read/write on every frame. Day,
+        // Night and Minecraft all use the same RenderPass -> SMAA chain during
+        // movement and at rest, so this performance win cannot create a
+        // quality-switch flash.
+        crispPass.enabled = false;
+        composer.render();
         runtime.renderInvalidated = false;
       };
       animate();

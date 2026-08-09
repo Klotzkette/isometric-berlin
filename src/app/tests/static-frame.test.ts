@@ -3,7 +3,9 @@ import { LineBasicMaterial } from "three";
 
 import {
   civicDetailsVisible,
+  STABLE_INK_VIEW_BIAS_M,
   stabilizeInkLineMaterial,
+  stabilizeInkVertexShader,
 } from "../src/ThreeViewer";
 
 const viewerSource = await Bun.file(
@@ -25,9 +27,22 @@ describe("idle-frame anti-flicker contract", () => {
     expect(material.depthWrite).toBeFalse();
     expect(material.alphaToCoverage).toBeTrue();
     expect(material.userData.temporallyStableInk).toBeTrue();
+    expect(material.customProgramCacheKey()).toContain(
+      "stable-ink-view-bias-v1",
+    );
 
     stabilizeInkLineMaterial(material);
     expect(material.userData.temporallyStableInk).toBeTrue();
+  });
+
+  test("biases co-planar ink towards the camera by a physical fixed distance", () => {
+    const source = "void main() {\n#include <project_vertex>\n}";
+    const stabilized = stabilizeInkVertexShader(source);
+
+    expect(STABLE_INK_VIEW_BIAS_M).toBe(0.03);
+    expect(stabilized).toContain("mvPosition.z += stableInkViewBias");
+    expect(stabilized).toContain("gl_Position = projectionMatrix * mvPosition");
+    expect(stabilizeInkVertexShader(stabilized)).toBe(stabilized);
   });
 
   test("registers every drawn detail root for motion-safe ink", () => {
@@ -55,6 +70,8 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource.indexOf("composer.addPass(smaaPass)")).toBeGreaterThan(
       viewerSource.indexOf("composer.addPass(crispPass)"),
     );
+    expect(viewerSource).toContain("crispPass.enabled = false");
+    expect(viewerSource).not.toContain("crispPass.enabled = true");
     expect(viewerSource).toContain("smaaPass.dispose()");
   });
 
