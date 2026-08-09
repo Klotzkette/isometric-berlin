@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.70.0
+
+- **Navigation is shorter without losing the catalog.** The visible Sights
+  rail now contains the five primary orientation points (Hauptbahnhof,
+  Bundeskanzleramt, Reichstag, Brandenburger Tor and Siegessäule), while all
+  87 source-positioned entries remain in previous/next navigation and tours.
+  Stable, diacritic-safe `#landmark=` links now apply on initial load and react
+  to later hash/history changes. Their authored camera runs after shared map
+  orientation, so a precise close-up is no longer overwritten by the URL.
+- **The Tiergartentunnel south-bore view is a real close presentation.** Its
+  camera follows the engineered ramp grade, stays outside generic
+  underwater/underside switching and keeps the lane, two reflector bands and
+  a deterministic warm lamp rhythm visible into the depth. Forced-depth bore
+  pieces remain hidden in every ordinary exterior view and disappear on the
+  first free camera movement.
+- **Water and park detail gain depth without false survey claims.** Local
+  Tiergarten ponds now use their own terrain level instead of the Spree table,
+  with recessed banks, explicit display-depth walls and static ripple ribbons.
+  Three tiny, deterministic beaver interpretations are hidden around mapped
+  ponds as Easter eggs. Their positions and the displayed pond depths are
+  documented presentation approximations, not surveyed bathymetry or fauna.
+- **Civic and river staffage is richer but traceable.** The Bundestag Kita is
+  anchored to its OSM/LoD2 footprint and receives the official building's
+  ship-like, colourful recognition cues. Both drawn vessels gain window bands,
+  navigation lights and static close-range wakes; the boats remain explicitly
+  labelled invented staffage because the source map contains no vessel survey.
+  Existing bridge dimensions, clearances and distinct material profiles remain
+  pinned by regression tests; no unsupported bollard rows were fabricated.
+- **Weather and audio lifecycle are calmer.** Rain receives deterministic
+  length and speed variation, snow uses a branched procedural flake mask and
+  selected park trees receive one batched winter-cap layer. Both audio engines
+  now cancel timers, silence active graphs and close their contexts on
+  `pagehide` and `beforeunload`, so closing or leaving the viewer cannot leave
+  music playing.
+- **Temporal stability was measured again after the full change.** Settled Day,
+  Night and Minecraft captures were byte-identical in each mode. The Quadriga
+  receives a clearer oxidised-bronze day palette and close lens; Luiseninsel
+  gains its ornamental flower beds and corrected local water level. The
+  versioned visible radius remains **5,230 m**; no bounds, metric source
+  coordinates, Google data, credentials or raw photographs changed.
+
 ## v0.69.0
 
 - **The Quadriga is a real sculpture now, not a stack of boxes.** Schadow's

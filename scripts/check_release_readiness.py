@@ -585,7 +585,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       "setTunnelPresentation(runtime.tunnel, runtime.underside)"
     ),
     "automatic orbit underside detection": (
-      "controls.getPolarAngle() > Math.PI / 2 || insideTunnel"
+      "controls.getPolarAngle() > Math.PI / 2 || physicallyInsideTunnel"
     ),
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "stale mobile hero cancellation": (

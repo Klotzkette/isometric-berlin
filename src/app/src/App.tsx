@@ -66,6 +66,7 @@ import {
   registerFirstGestureStart,
   shouldStopAudioOnToggleTap,
 } from "./audioAutostart";
+import { registerPageExitAudioStop } from "./audioLifecycle";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { discoveryNoteFor } from "./discoveryNotes";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
@@ -108,6 +109,13 @@ import {
   rotationDeltaFromMouseDrag,
   snapRotationToCardinals,
 } from "./viewerGestures";
+import {
+  FEATURED_SIGHT_NAMES,
+  featuredSights,
+  findSightBySlug,
+  parseViewHash,
+  sightSlug,
+} from "./viewNavigation";
 
 type Landmark = {
   name: string;
@@ -173,24 +181,12 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
 };
 
 const THREE_NORTH_AZIMUTH = 40;
-const PRIORITY_LANDMARKS = new Set([
-  "Bundeskanzleramt",
-  "Reichstagsgebäude",
-  "Berlin Hauptbahnhof",
-]);
-
 const ORIENTATIONS = [
   { degrees: NORTH_UP_ROTATION, short: "N", label: "Nord oben" },
   { degrees: NORTH_UP_ROTATION + 90, short: "O", label: "Ost oben" },
   { degrees: NORTH_UP_ROTATION + 180, short: "S", label: "Süd oben" },
   { degrees: NORTH_UP_ROTATION + 270, short: "W", label: "West oben" },
 ] as const;
-
-type ViewHashState = {
-  flipped: boolean | null;
-  landmarkSlug: string | null;
-  rotationDegrees: number | null;
-};
 
 let openSeadragonConsoleFilterInstalled = false;
 
@@ -326,8 +322,8 @@ function landmarkShortLabel(name: string): string {
   return LANDMARK_SHORT_LABELS[name] ?? name;
 }
 
-function isPriorityLandmark(name: string): boolean {
-  return PRIORITY_LANDMARKS.has(name);
+function isFeaturedSight(name: string): boolean {
+  return (FEATURED_SIGHT_NAMES as readonly string[]).includes(name);
 }
 
 function focusZoomForLandmark(name: string): number {
@@ -345,27 +341,6 @@ function mapPointForLandmark(
     contentSize?.y ?? bundledLandmarkPayload.image.height,
   );
   return viewer.viewport.imageToViewportCoordinates(x, y);
-}
-
-function landmarkSlug(name: string): string {
-  return name
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function findLandmarkBySlug(
-  landmarks: Landmark[],
-  slug: string | null,
-): Landmark | null {
-  if (!slug) {
-    return null;
-  }
-  return (
-    landmarks.find((landmark) => landmarkSlug(landmark.name) === slug) ?? null
-  );
 }
 
 function sortLandmarksForTour(landmarks: Landmark[]): Landmark[] {
@@ -406,22 +381,6 @@ function rotationFromHashValue(value: string | null): number | null {
   return Number.isFinite(numeric) ? normalizeRotation(numeric) : null;
 }
 
-function readViewHash(): ViewHashState {
-  const rawHash = window.location.hash.replace(/^#/, "");
-  if (!rawHash) {
-    return { flipped: null, landmarkSlug: null, rotationDegrees: null };
-  }
-  const params = new URLSearchParams(
-    rawHash.includes("=") ? rawHash : `landmark=${rawHash}`,
-  );
-  const flipValue = params.get("flip");
-  return {
-    flipped: flipValue === null ? null : flipValue === "1",
-    landmarkSlug: params.get("landmark"),
-    rotationDegrees: rotationFromHashValue(params.get("view")),
-  };
-}
-
 function viewUrlFor(
   landmark: Landmark,
   rotation: number,
@@ -431,7 +390,7 @@ function viewUrlFor(
   const orientation = ORIENTATIONS.find((candidate) =>
     isRotationActive(candidate.degrees, rotation),
   );
-  params.set("landmark", landmarkSlug(landmark.name));
+  params.set("landmark", sightSlug(landmark.name));
   params.set("view", orientation?.short ?? `${Math.round(rotation)}deg`);
   if (isFlipped) {
     params.set("flip", "1");
@@ -640,6 +599,10 @@ export function App() {
       null,
     [landmarks, selected],
   );
+  const featuredLandmarks = useMemo(
+    () => featuredSights(landmarks),
+    [landmarks],
+  );
   const selectedIndex = useMemo(
     () => landmarks.findIndex((landmark) => landmark.name === selected),
     [landmarks, selected],
@@ -736,6 +699,13 @@ export function App() {
     }
   }, [language]);
 
+  const disposeAllAudio = useCallback(() => {
+    ambientSoundscapeRef.current?.dispose();
+    ambientSoundscapeRef.current = null;
+    void chiptuneRef.current?.dispose();
+    chiptuneRef.current = null;
+  }, []);
+
   useEffect(() => {
     const onVisibilityChange = () => {
       if (isMusicEnabled) {
@@ -750,13 +720,13 @@ export function App() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [isMusicEnabled, isSoundtrackEnabled]);
 
-  useEffect(
-    () => () => {
-      ambientSoundscapeRef.current?.stop();
-      ambientSoundscapeRef.current = null;
-    },
-    [],
-  );
+  useEffect(() => {
+    const unregister = registerPageExitAudioStop(window, disposeAllAudio);
+    return () => {
+      unregister();
+      disposeAllAudio();
+    };
+  }, [disposeAllAudio]);
 
   const toggleLanguage = useCallback(() => {
     setLanguage((current) => (current === "de" ? "en" : "de"));
@@ -899,14 +869,6 @@ export function App() {
     }
     await startSoundtrack();
   }, [copy.soundtrackOff, isSoundtrackAudible, startSoundtrack]);
-
-  useEffect(
-    () => () => {
-      void chiptuneRef.current?.dispose();
-      chiptuneRef.current = null;
-    },
-    [],
-  );
 
   // Build both procedural graphs while they are suspended. There are no media
   // files in this soundtrack; the generated reverb/noise/wave buffers are the
@@ -1576,34 +1538,45 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
     const payload = bundledLandmarkPayload as LandmarkPayload;
-    if (!cancelled) {
-      const orderedLandmarks = sortLandmarksForTour(payload.landmarks);
-      const viewHash = readViewHash();
-      const hashLandmark = findLandmarkBySlug(
-        orderedLandmarks,
+    setLandmarks(sortLandmarksForTour(payload.landmarks));
+  }, []);
+
+  useEffect(() => {
+    if (landmarks.length === 0) {
+      return;
+    }
+    const applyHash = () => {
+      const viewHash = parseViewHash(window.location.hash);
+      const hashLandmark = findSightBySlug(
+        landmarks,
         viewHash.landmarkSlug,
       );
-      if (hashLandmark) {
-        setSelected(hashLandmark.name);
-      }
-      if (viewHash.rotationDegrees !== null) {
-        rotationRef.current = viewHash.rotationDegrees;
-        setRotation(viewHash.rotationDegrees);
-        viewerRef.current?.viewport.setRotation(viewHash.rotationDegrees);
+      const hashRotation = rotationFromHashValue(viewHash.rotationValue);
+      if (hashRotation !== null) {
+        rotationRef.current = hashRotation;
+        applyRotation(hashRotation);
       }
       if (viewHash.flipped !== null) {
         flipRef.current = viewHash.flipped;
         setIsFlipped(viewHash.flipped);
         viewerRef.current?.viewport.setFlip(viewHash.flipped);
       }
-      setLandmarks(orderedLandmarks);
-    }
-    return () => {
-      cancelled = true;
+      // Apply the shared map orientation first. A landmark may own a precise
+      // close-up camera (notably the Tiergartentunnel bore); applying the
+      // generic rotation afterwards used to destroy that framing.
+      if (hashLandmark) {
+        focusLandmark(hashLandmark, true);
+      }
     };
-  }, []);
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    window.addEventListener("popstate", applyHash);
+    return () => {
+      window.removeEventListener("hashchange", applyHash);
+      window.removeEventListener("popstate", applyHash);
+    };
+  }, [applyRotation, focusLandmark, landmarks]);
 
   useEffect(() => {
     const FLIGHT_KEYS = [
@@ -2055,7 +2028,7 @@ export function App() {
       }
       hashSyncFrameRef.current = window.requestAnimationFrame(() => {
         const params = new URLSearchParams();
-        params.set("landmark", landmarkSlug(selectedRef.current));
+        params.set("landmark", sightSlug(selectedRef.current));
         const activeOrientation = ORIENTATIONS.find((candidate) =>
           isRotationActive(candidate.degrees, rotationRef.current),
         );
@@ -3333,10 +3306,10 @@ export function App() {
           <div className="rail-heading">
             <LocateFixed aria-hidden="true" size={17} />
             <span>{copy.attractions}</span>
-            <small>{landmarks.length}</small>
+            <small>{featuredLandmarks.length}</small>
           </div>
           <div className="landmark-list">
-            {landmarks.map((landmark, index) => (
+            {featuredLandmarks.map((landmark) => (
               <button
                 key={landmark.name}
                 ref={(element) => {
@@ -3350,7 +3323,7 @@ export function App() {
                 aria-label={`${copy.attraction}: ${landmark.name}`}
                 className={[
                   landmark.name === selected ? "is-selected" : "",
-                  isPriorityLandmark(landmark.name) ? "is-priority" : "",
+                  "is-priority",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -3365,7 +3338,7 @@ export function App() {
               >
                 <span className="landmark-row">
                   <span className="landmark-index">
-                    {String(index + 1).padStart(2, "0")}
+                    {String(landmarks.indexOf(landmark) + 1).padStart(2, "0")}
                   </span>
                   <span className="landmark-name">{landmark.name}</span>
                 </span>
@@ -3379,7 +3352,7 @@ export function App() {
       {selectedLandmark ? (
         <aside
           className={
-            isPriorityLandmark(selectedLandmark.name)
+            isFeaturedSight(selectedLandmark.name)
               ? "selection-card selection-card--priority"
               : "selection-card"
           }

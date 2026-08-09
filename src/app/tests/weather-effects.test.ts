@@ -65,5 +65,6 @@ describe("moderate rain", () => {
     expect(rain.group.position.z).toBe(-456);
     expect(after.equals(before)).toBe(false);
     expect(rain.mesh.count).toBe(moderateRainDropCount(false));
+    expect(new Set(rain.drops.map(({ lengthScale }) => lengthScale)).size).toBeGreaterThan(100);
   });
 });

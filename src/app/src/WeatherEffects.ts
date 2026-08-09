@@ -16,7 +16,9 @@ const DROP_LENGTH_M = 4.1;
 const DROP_WIDTH_M = 0.105;
 
 type RainDrop = {
+  lengthScale: number;
   speedMps: number;
+  widthScale: number;
   x: number;
   y: number;
   z: number;
@@ -75,13 +77,16 @@ export function createModerateRain(coarsePointer: boolean): ModerateRain {
     const angle = deterministicUnit(index, 1) * Math.PI * 2;
     const radius = Math.sqrt(deterministicUnit(index, 2)) * RAIN_RADIUS_M;
     const drop = {
+      lengthScale: 0.62 + deterministicUnit(index, 6) * 0.78,
       speedMps: 42 + deterministicUnit(index, 5) * 24,
+      widthScale: 0.72 + deterministicUnit(index, 7) * 0.56,
       x: Math.cos(angle) * radius,
       y: deterministicUnit(index, 3) * RAIN_HEIGHT_M,
       z: Math.sin(angle) * radius,
     };
     drops.push(drop);
     dummy.position.set(drop.x, drop.y, drop.z);
+    dummy.scale.set(drop.widthScale, drop.lengthScale, drop.widthScale);
     dummy.updateMatrix();
     mesh.setMatrixAt(index, dummy.matrix);
   }
@@ -132,7 +137,7 @@ export function updateModerateRain(
     Math.max(-18, Math.min(24, focus.y - 24)),
     focus.z,
   );
-  const widthScale = mode === "minecraft" ? 2.25 : 1;
+  const modeWidthScale = mode === "minecraft" ? 2.25 : 1;
   const dummy = rain.matrixHelper;
   dummy.rotation.z = mode === "minecraft" ? -0.04 : -0.075;
   const elapsed = Math.min(Math.max(deltaSeconds, 0), 0.1);
@@ -143,7 +148,11 @@ export function updateModerateRain(
       drop.y += RAIN_HEIGHT_M;
     }
     dummy.position.set(drop.x, drop.y, drop.z);
-    dummy.scale.set(widthScale, 1, widthScale);
+    dummy.scale.set(
+      drop.widthScale * modeWidthScale,
+      drop.lengthScale,
+      drop.widthScale * modeWidthScale,
+    );
     dummy.updateMatrix();
     rain.mesh.setMatrixAt(index, dummy.matrix);
   }

@@ -3,6 +3,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   CircleGeometry,
+  DataTexture,
   DynamicDrawUsage,
   Group,
   InstancedMesh,
@@ -12,8 +13,10 @@ import {
   Object3D,
   Points,
   PointsMaterial,
+  RGBAFormat,
   SphereGeometry,
   Vector3,
+  LinearFilter,
 } from "three";
 
 import type { VisualMode } from "./visualMode";
@@ -23,6 +26,8 @@ const SNOW_HEIGHT_M = 260;
 const FLAKE_FALL_MPS = 22;
 
 type Snowflake = {
+  drift: number;
+  phase: number;
   speed: number;
   x: number;
   y: number;
@@ -30,6 +35,7 @@ type Snowflake = {
 };
 
 export type Snowstorm = {
+  ageSeconds: number;
   air: Group;
   flakes: Snowflake[];
   flakePositions: BufferAttribute;
@@ -45,6 +51,34 @@ export type SnowstormPresentation = {
 function deterministicUnit(index: number, salt: number): number {
   const value = Math.sin((index + 3) * 17.713 + salt * 91.117) * 24_631.438;
   return value - Math.floor(value);
+}
+
+function createSnowflakeTexture(): DataTexture {
+  const size = 24;
+  const data = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const nx = ((x + 0.5) / size) * 2 - 1;
+      const ny = ((y + 0.5) / size) * 2 - 1;
+      const radius = Math.hypot(nx, ny);
+      const angle = Math.atan2(ny, nx);
+      const armDistance = Math.abs(Math.sin(angle * 3)) * radius;
+      const alpha =
+        radius < 0.2 || (radius < 0.88 && armDistance < 0.105)
+          ? Math.round(255 * Math.max(0, 1 - radius * 0.42))
+          : 0;
+      const offset = (y * size + x) * 4;
+      data[offset] = 255;
+      data[offset + 1] = 255;
+      data[offset + 2] = 255;
+      data[offset + 3] = alpha;
+    }
+  }
+  const texture = new DataTexture(data, size, size, RGBAFormat);
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 export function snowflakeCount(coarsePointer: boolean): number {
@@ -63,6 +97,8 @@ function createFlakes(coarsePointer: boolean): {
     const angle = deterministicUnit(index, 1) * Math.PI * 2;
     const radius = Math.sqrt(deterministicUnit(index, 2)) * SNOW_RADIUS_M;
     const flake = {
+      drift: 0.45 + deterministicUnit(index, 7) * 1.15,
+      phase: deterministicUnit(index, 6) * Math.PI * 2,
       speed: FLAKE_FALL_MPS * (0.55 + deterministicUnit(index, 5) * 0.9),
       x: Math.cos(angle) * radius,
       y: deterministicUnit(index, 3) * SNOW_HEIGHT_M,
@@ -78,9 +114,11 @@ function createFlakes(coarsePointer: boolean): {
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", positions);
   const material = new PointsMaterial({
+    alphaTest: 0.06,
     color: 0xffffff,
     depthWrite: false,
     opacity: 0.96,
+    map: createSnowflakeTexture(),
     size: coarsePointer ? 2.35 : 2.05,
     sizeAttenuation: true,
     transparent: true,
@@ -256,7 +294,7 @@ export function createSnowstorm(coarsePointer: boolean): Snowstorm {
   group.name = "Super snowstorm presentation";
   group.visible = false;
   group.add(air, settled);
-  return { air, flakes, flakePositions: positions, group, settled };
+  return { ageSeconds: 0, air, flakes, flakePositions: positions, group, settled };
 }
 
 export function setSnowstormPresentation(
@@ -279,11 +317,13 @@ export function updateSnowstorm(
   }
   snow.air.position.set(focus.x, Math.max(-18, focus.y - 20), focus.z);
   const elapsed = Math.min(Math.max(deltaSeconds, 0), 0.1);
+  snow.ageSeconds += elapsed;
   const values = snow.flakePositions.array as Float32Array;
   snow.flakes.forEach((flake, index) => {
     flake.y -= flake.speed * elapsed;
-    flake.x += 5.4 * elapsed;
-    flake.z += 2.2 * elapsed;
+    const gust = 0.55 + 0.45 * Math.sin(snow.ageSeconds * 0.48 + flake.phase);
+    flake.x += (4.4 + gust * 4.8) * flake.drift * elapsed;
+    flake.z += (1.2 + gust * 2.7) * flake.drift * elapsed;
     if (flake.y < 0) flake.y += SNOW_HEIGHT_M;
     if (flake.x > SNOW_RADIUS_M) flake.x -= SNOW_RADIUS_M * 2;
     if (flake.z > SNOW_RADIUS_M) flake.z -= SNOW_RADIUS_M * 2;

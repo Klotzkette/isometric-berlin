@@ -143,6 +143,26 @@ export type SurfacePayload = {
   sunken_walls?: SunkenWall[];
   water: SurfacePolygon[];
 };
+
+function surfaceCentroidM(surface: SurfacePolygon): [number, number] {
+  return [
+    surface.ring.reduce((sum, [x]) => sum + x, 0) /
+      Math.max(1, surface.ring.length) /
+      10,
+    surface.ring.reduce((sum, [, z]) => sum + z, 0) /
+      Math.max(1, surface.ring.length) /
+      10,
+  ];
+}
+
+/** Park ponds use their local terrain rim, not the much lower Spree table. */
+export function isElevatedParkWater(surface: SurfacePolygon): boolean {
+  if (surface.kind === "basin") {
+    return true;
+  }
+  const [x, z] = surfaceCentroidM(surface);
+  return x < 350 && z > 120 && z < 1_350;
+}
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
 export const ISO_INK_COLOR = 0x716c62;
@@ -5045,8 +5065,10 @@ export function createSmoothSurfaces(
   // ground it was built into. Drawing both at the single table put the
   // Invalidenpark fountain 6.5 m under its own lawn, where the lawn plate
   // covered it and the basin read as flat grass.
-  const rivers = surfaces.water.filter((entry) => entry.kind !== "basin");
-  const basins = surfaces.water.filter((entry) => entry.kind === "basin");
+  const basins = surfaces.water.filter(isElevatedParkWater);
+  const rivers = surfaces.water.filter(
+    (entry) => entry.kind !== "basin" && !isElevatedParkWater(entry),
+  );
 
   // Sandy riverbed, then the transparent water plate above it.
   const bed = buildPlate(rivers, waterTopY - BED_DROP, 0xffffff);
@@ -5256,7 +5278,15 @@ export function createSmoothSurfaces(
     group.add(shore);
   }
 
-  addBasinsAndSunkenWalls(group, surfaces, basins, bankY, terrainAt);
+  const basinLevels = addBasinsAndSunkenWalls(
+    group,
+    surfaces,
+    basins,
+    bankY,
+    terrainAt,
+  );
+  addStaticWaterRipples(group, rivers, basins, basinLevels, waterTopY);
+  addBeaverEasterEggs(group, basins, basinLevels);
   return group;
 }
 
@@ -5288,6 +5318,175 @@ function ringContains(ring: number[][], x: number, z: number): boolean {
   return inside;
 }
 
+function addStaticWaterRipples(
+  group: Group,
+  rivers: SurfacePolygon[],
+  basins: SurfacePolygon[],
+  basinLevels: Map<SurfacePolygon, number>,
+  waterTopY: number,
+): void {
+  const positions: number[] = [];
+  const waters = [...rivers, ...basins];
+  waters.forEach((surface, surfaceIndex) => {
+    if (surface.area_m2 < 70 || surface.ring.length < 4) {
+      return;
+    }
+    const [cx, cz] = surfaceCentroidM(surface);
+    const level = basinLevels.get(surface) ?? waterTopY;
+    const rippleCount = Math.min(
+      9,
+      Math.max(2, Math.round(Math.sqrt(surface.area_m2) / 18)),
+    );
+    for (let index = 0; index < rippleCount; index += 1) {
+      const angle =
+        ((surfaceIndex * 0.71 + index * 1.93) % (Math.PI * 2)) - Math.PI;
+      const distance = 1.5 + index * Math.min(4.5, Math.sqrt(surface.area_m2) / 20);
+      const x = cx + Math.cos(angle * 1.7) * distance;
+      const z = cz + Math.sin(angle * 1.3) * distance;
+      if (!ringContains(surface.ring, x * 10, z * 10)) {
+        continue;
+      }
+      const length = 2.4 + ((surfaceIndex + index) % 5) * 0.7;
+      const halfWidth = 0.07;
+      const dx = Math.cos(angle) * (length / 2);
+      const dz = Math.sin(angle) * (length / 2);
+      const nx = -Math.sin(angle) * halfWidth;
+      const nz = Math.cos(angle) * halfWidth;
+      const y = level + 0.055 + (index % 2) * 0.012;
+      positions.push(
+        x - dx - nx,
+        y,
+        z - dz - nz,
+        x + dx - nx,
+        y,
+        z + dz - nz,
+        x + dx + nx,
+        y,
+        z + dz + nz,
+        x - dx - nx,
+        y,
+        z - dz - nz,
+        x + dx + nx,
+        y,
+        z + dz + nz,
+        x - dx + nx,
+        y,
+        z - dz + nz,
+      );
+    }
+  });
+  if (positions.length === 0) {
+    return;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(positions, 3),
+  );
+  const dayMaterial = new MeshBasicMaterial({
+    color: 0xd9edf2,
+    depthWrite: false,
+    opacity: 0.42,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+    transparent: true,
+  });
+  const nightMaterial = new MeshBasicMaterial({
+    color: 0x80a9c2,
+    depthWrite: false,
+    opacity: 0.34,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+    transparent: true,
+  });
+  const ripples = new Mesh(geometry, dayMaterial);
+  ripples.name = "static water ripple ribbons";
+  ripples.renderOrder = 3;
+  ripples.userData.dayMaterial = dayMaterial;
+  ripples.userData.nightMaterial = nightMaterial;
+  ripples.userData.staticAntiFlicker = true;
+  group.add(ripples);
+}
+
+export const BEAVER_EASTER_EGG_COUNT = 3;
+
+const BEAVER_ANCHORS: ReadonlyArray<[number, number]> = [
+  [-485, 869],
+  [-67, 485],
+  [-1_610, 912],
+];
+
+function addBeaverEasterEggs(
+  group: Group,
+  waters: SurfacePolygon[],
+  levels: Map<SurfacePolygon, number>,
+): void {
+  const beavers = new Group();
+  beavers.name = "three hidden Tiergarten beavers";
+  beavers.userData.easterEgg = true;
+  beavers.userData.geometryStatus =
+    "Decorative Easter eggs on OSM-derived park water; positions are display approximations";
+  const bodyMaterial = new MeshBasicMaterial({ color: 0x76523d });
+  const darkMaterial = new MeshBasicMaterial({ color: 0x332a25 });
+  const tailMaterial = new MeshBasicMaterial({ color: 0x4d382d });
+  const toothMaterial = new MeshBasicMaterial({ color: 0xf0e5c7 });
+  BEAVER_ANCHORS.forEach(([anchorX, anchorZ], index) => {
+    const host = [...waters].sort((left, right) => {
+      const [lx, lz] = surfaceCentroidM(left);
+      const [rx, rz] = surfaceCentroidM(right);
+      return (
+        Math.hypot(lx - anchorX, lz - anchorZ) -
+        Math.hypot(rx - anchorX, rz - anchorZ)
+      );
+    })[0];
+    if (!host) {
+      return;
+    }
+    const [hostX, hostZ] = surfaceCentroidM(host);
+    const x = ringContains(host.ring, anchorX * 10, anchorZ * 10)
+      ? anchorX
+      : hostX;
+    const z = ringContains(host.ring, anchorX * 10, anchorZ * 10)
+      ? anchorZ
+      : hostZ;
+    const y = (levels.get(host) ?? 4.2) + 0.18;
+    const yaw = 0.55 + index * 1.37;
+    const individual = new Group();
+    individual.name = `hidden beaver ${index + 1}`;
+    individual.position.set(x, y, z);
+    individual.rotation.y = yaw;
+
+    const body = new Mesh(new IcosahedronGeometry(0.44, 1), bodyMaterial);
+    body.name = "beaver body";
+    body.scale.set(1.6, 0.72, 0.78);
+    body.position.y = 0.12;
+    individual.add(body);
+    const head = new Mesh(new IcosahedronGeometry(0.29, 1), bodyMaterial);
+    head.name = "beaver head";
+    head.position.set(0.62, 0.2, 0);
+    individual.add(head);
+    const tail = new Mesh(new BoxGeometry(0.72, 0.08, 0.36), tailMaterial);
+    tail.name = "beaver paddle tail";
+    tail.position.set(-0.75, 0.03, 0);
+    tail.rotation.y = 0.14;
+    individual.add(tail);
+    for (const side of [-1, 1]) {
+      const eye = new Mesh(new IcosahedronGeometry(0.045, 1), darkMaterial);
+      eye.name = "beaver eye";
+      eye.position.set(0.84, 0.28, side * 0.14);
+      individual.add(eye);
+      const tooth = new Mesh(new BoxGeometry(0.12, 0.16, 0.055), toothMaterial);
+      tooth.name = "beaver incisor";
+      tooth.position.set(0.91, 0.08, side * 0.055);
+      individual.add(tooth);
+    }
+    beavers.add(individual);
+  });
+  group.add(beavers);
+}
+
 /**
  * Constructed basins and the walls that sink into them.
  *
@@ -5309,13 +5508,13 @@ function addBasinsAndSunkenWalls(
   basins: SurfacePolygon[],
   bankY: number,
   terrainAt?: (x: number, z: number) => number,
-): void {
+): Map<SurfacePolygon, number> {
   if (basins.length === 0) {
-    return;
+    return new Map();
   }
   /** Clear of the lawn plate (+0.06) and every park path (up to +0.14). */
   const BASIN_LIFT_M = 0.22;
-  const BED_GAP_M = 0.06;
+  const DISPLAY_DEPTH_M = 0.9;
   /** Height of the wedge at its high point, from the photographs. */
   const WALL_RISE_M = 5.6;
   /** How far the plunge face carries on below the water line. */
@@ -5330,6 +5529,7 @@ function addBasinsAndSunkenWalls(
   const waterParts: BufferGeometry[] = [];
   const ottoBedParts: BufferGeometry[] = [];
   const ottoWaterParts: BufferGeometry[] = [];
+  const depthWallPositions: number[] = [];
   const rimInk: number[] = [];
   for (const basin of basins) {
     if (basin.ring.length < 4) {
@@ -5356,7 +5556,10 @@ function addBasinsAndSunkenWalls(
         basinCz - OTTO_WEIDT_FOUNTAIN_WORLD[1],
       ) < 8;
     for (const [y, target] of [
-      [level - BED_GAP_M, isOttoWeidtFountain ? ottoBedParts : bedParts],
+      [
+        level - DISPLAY_DEPTH_M,
+        isOttoWeidtFountain ? ottoBedParts : bedParts,
+      ],
       [level, isOttoWeidtFountain ? ottoWaterParts : waterParts],
     ] as const) {
       let geometry: ShapeGeometry;
@@ -5375,6 +5578,26 @@ function addBasinsAndSunkenWalls(
       const [ax, az] = ring[index];
       const [bx, bz] = ring[(index + 1) % ring.length];
       rimInk.push(ax, level + 0.03, az, bx, level + 0.03, bz);
+      depthWallPositions.push(
+        ax,
+        level - DISPLAY_DEPTH_M,
+        az,
+        bx,
+        level - DISPLAY_DEPTH_M,
+        bz,
+        bx,
+        level,
+        bz,
+        ax,
+        level - DISPLAY_DEPTH_M,
+        az,
+        bx,
+        level,
+        bz,
+        ax,
+        level,
+        az,
+      );
     }
   }
 
@@ -5415,13 +5638,13 @@ function addBasinsAndSunkenWalls(
     new MeshBasicMaterial({
       color: 0x9fc7d8,
       depthWrite: false,
-      opacity: 0.88,
+      opacity: 0.68,
       transparent: true,
     }),
     new MeshBasicMaterial({
       color: 0x27435c,
       depthWrite: false,
-      opacity: 0.92,
+      opacity: 0.78,
       transparent: true,
     }),
     1,
@@ -5449,6 +5672,30 @@ function addBasinsAndSunkenWalls(
     }),
     1,
   );
+
+  if (depthWallPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(depthWallPositions, 3),
+    );
+    geometry.computeVertexNormals();
+    const dayMaterial = new MeshBasicMaterial({
+      color: 0x9baaa1,
+      side: DoubleSide,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x18242b,
+      side: DoubleSide,
+    });
+    const walls = new Mesh(geometry, dayMaterial);
+    walls.name = "pond display-depth walls";
+    walls.userData.dayMaterial = dayMaterial;
+    walls.userData.nightMaterial = nightMaterial;
+    walls.userData.depthStatus =
+      "0.9 m display approximation; not surveyed bathymetry";
+    group.add(walls);
+  }
 
   const walls = surfaces.sunken_walls ?? [];
   const slabPositions: number[] = [];
@@ -5663,6 +5910,7 @@ function addBasinsAndSunkenWalls(
     lines.renderOrder = 4;
     group.add(lines);
   }
+  return levelOf;
 }
 
 export function createIsometricCity(

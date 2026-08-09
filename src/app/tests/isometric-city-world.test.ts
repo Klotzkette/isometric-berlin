@@ -1076,7 +1076,11 @@ describe("real bridge structures", () => {
 
 describe("smooth OSM water and parkland", () => {
   test("real polygons replace the rasterised river with a continuous shoreline", async () => {
-    const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
+    const {
+      BEAVER_EASTER_EGG_COUNT,
+      createSmoothSurfaces,
+      isElevatedParkWater,
+    } = await import("../src/IsometricCityWorld");
     const surfaces =
       (await import("../public/mesh/regierungsviertel/surface-polygons.json")) as {
         default: { parks: unknown[]; water: unknown[] };
@@ -1094,6 +1098,29 @@ describe("smooth OSM water and parkland", () => {
     expect((water.material as MeshBasicMaterial).transparent).toBe(true);
     expect(group.getObjectByName("smooth river bed")).toBeInstanceOf(Mesh);
     expect(group.getObjectByName("smooth parkland lawns")).toBeInstanceOf(Mesh);
+    expect(
+      isElevatedParkWater(
+        payloadSurfaces.water.find(
+          (surface) => surface.name === "Venusbassin",
+        )!,
+      ),
+    ).toBe(true);
+    expect(
+      isElevatedParkWater(
+        payloadSurfaces.water.find(
+          (surface) => surface.name === "Humboldthafen",
+        )!,
+      ),
+    ).toBe(false);
+    expect(group.getObjectByName("basin water")).toBeInstanceOf(Mesh);
+    const depthWalls = group.getObjectByName("pond display-depth walls") as Mesh;
+    expect(depthWalls).toBeInstanceOf(Mesh);
+    expect(depthWalls.userData.depthStatus).toContain("not surveyed");
+    expect(group.getObjectByName("static water ripple ribbons")).toBeInstanceOf(
+      Mesh,
+    );
+    const beavers = group.getObjectByName("three hidden Tiergarten beavers");
+    expect(beavers?.children).toHaveLength(BEAVER_EASTER_EGG_COUNT);
     const ottoFountain = group.getObjectByName(
       "Otto-Weidt-Platz fountain water",
     ) as Mesh;

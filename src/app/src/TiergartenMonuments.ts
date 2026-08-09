@@ -45,6 +45,10 @@ const MARBLE = 0xe8e5dc;
 const GRANITE_RED = 0x9d7a6e;
 const CANOPY_ROOF = 0xa8543f;
 const CANOPY_POST = 0x7d7a72;
+const FLOWER_RED = 0xc95564;
+const FLOWER_GOLD = 0xe8bf4c;
+const FLOWER_PINK = 0xc77da4;
+const FLOWER_WHITE = 0xf0eee4;
 
 type Builder = {
   edges: BufferGeometry[];
@@ -1182,6 +1186,30 @@ function buildMarbleFigure(
   }
 }
 
+function buildLuiseninselFlowerBeds(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  const colors = [FLOWER_RED, FLOWER_GOLD, FLOWER_WHITE, FLOWER_PINK];
+  for (let index = 0; index < 16; index += 1) {
+    const angle = (index / 16) * Math.PI * 2;
+    const radius = index % 2 === 0 ? 8.2 : 6.3;
+    box(
+      builder,
+      colors[index % colors.length],
+      x + Math.cos(angle) * radius,
+      y + 0.13,
+      z + Math.sin(angle) * radius,
+      2.8,
+      0.16,
+      1.25,
+      -angle,
+    );
+  }
+}
+
 /** Moltke and Roon: a bronze general on a tall granite pedestal. */
 function buildGeneralColumn(
   builder: Builder,
@@ -1333,6 +1361,9 @@ export function createTiergartenMonuments(
           ? "luise"
           : "wilhelm";
       buildMarbleFigure(builder, x, y, z, variant);
+      if (variant === "luise") {
+        buildLuiseninselFlowerBeds(builder, x, y, z);
+      }
     } else if (/^Lessing-Denkmal$|Gotthold Ephraim Lessing/i.test(name)) {
       buildLessingMemorial(builder, x, y, z);
     } else if (/Amazone zu Pferde/i.test(name)) {
@@ -1363,6 +1394,8 @@ export function createTiergartenMonuments(
   group.userData.geometryStatus =
     "Reference-based presentation geometry from OSM point positions and " +
     "Wikipedia/Wikimedia/Denkmaldatenbank descriptions - not a survey model";
+  group.userData.luiseninselFormalGarden =
+    "Reference-based Schmuckbeete around the OSM-positioned Koenigin Luise figure";
   group.userData.sourceUrls = [
     "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
   ];

@@ -48,4 +48,10 @@ describe("drawn vessels (owner-requested staffage)", () => {
     expect(night.userData.nightEmissive).toBe(0xffb457);
     expect(night.userData.nightEmissiveIntensity).toBeGreaterThan(1);
   });
+
+  test("adds static close-range wake ribbons without animation shimmer", () => {
+    const wakes = vessels.getObjectByName("vessel wake ribbons");
+    expect(wakes).toBeDefined();
+    expect(wakes?.userData.staticAntiFlicker).toBe(true);
+  });
 });

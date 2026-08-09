@@ -328,10 +328,15 @@ function addRamp(
   // city rather than a painted-on hole. Everything sits BELOW street
   // level, so it is only ever seen through the mouth itself.
   const BORE_LENGTH_M = 46;
-  const boreWall = surfaceMaterial(0x4a4d4b, { roughness: 0.92 });
-  const boreDeck = surfaceMaterial(0x272c30, { roughness: 0.95 });
-  const boreCeiling = surfaceMaterial(0x3a3e3d, { roughness: 0.92 });
-  const boreEnd = surfaceMaterial(0x0a0c0d, { roughness: 1 });
+  const boreWall = surfaceMaterial(0x5d625f, { roughness: 0.92 });
+  const boreDeck = surfaceMaterial(0x30363a, { roughness: 0.95 });
+  const boreCeiling = surfaceMaterial(0x464a48, { roughness: 0.92 });
+  const boreEnd = surfaceMaterial(0x111416, { roughness: 1 });
+  const guideMaterial = new MeshBasicMaterial({
+    color: 0xd9cfad,
+    depthTest: false,
+    depthWrite: false,
+  });
   const lampMaterial = new MeshStandardMaterial({
     color: 0xffe2b0,
     emissive: 0xffc678,
@@ -359,12 +364,12 @@ function addRamp(
       new Mesh(new BoxGeometry(width, 0.3, BORE_LENGTH_M), boreDeck),
       `${label} bore deck`,
       head.y - 0.15,
-    ).renderOrder = 4;
+    ).renderOrder = 74;
     place(
       new Mesh(new BoxGeometry(width + 1.0, 0.4, BORE_LENGTH_M), boreCeiling),
       `${label} bore ceiling`,
       head.y + height + 0.2,
-    ).renderOrder = 1;
+    ).renderOrder = 71;
     for (const side of [-1, 1]) {
       const wall = new Mesh(
         new BoxGeometry(0.5, height, BORE_LENGTH_M),
@@ -376,8 +381,22 @@ function addRamp(
       wall.rotation.y = yaw;
       wall.name = `${label} bore wall`;
       wall.receiveShadow = true;
-      wall.renderOrder = 2;
+      wall.renderOrder = 72;
       group.add(wall);
+
+      // A calm, continuous reflector band makes the close bore view readable
+      // without animated lighting or depth-fighting decals.
+      const guide = new Mesh(
+        new BoxGeometry(0.08, 0.12, BORE_LENGTH_M),
+        guideMaterial,
+      );
+      guide.position
+        .set(boreCentre.x, head.y + 1.05, boreCentre.z)
+        .addScaledVector(headNormal, side * (width / 2 - 0.03));
+      guide.rotation.y = yaw;
+      guide.name = `${label} bore safety guide`;
+      guide.renderOrder = 77;
+      group.add(guide);
     }
     const endCap = new Mesh(
       new BoxGeometry(width + 1.0, height + 0.6, 0.4),
@@ -387,7 +406,7 @@ function addRamp(
     endCap.position.y = head.y + height / 2;
     endCap.rotation.y = yaw;
     endCap.name = `${label} bore depth cap`;
-    endCap.renderOrder = 1;
+    endCap.renderOrder = 70;
     group.add(endCap);
     // A row of ceiling lamps marching into the dark — the cue that makes
     // the bore read as depth instead of a black rectangle.
@@ -401,7 +420,7 @@ function addRamp(
       lamp.position.y = head.y + height - 0.12;
       lamp.rotation.y = yaw;
       lamp.name = `${label} bore ceiling lamp`;
-      lamp.renderOrder = 5;
+      lamp.renderOrder = 78;
       group.add(lamp);
     }
   }
@@ -452,9 +471,12 @@ export function tunnelMouthViews(
     // tubes flank the centreline at ±(width/2 + 0.85), exactly where
     // addRamp lays their decks.
     const lateral = payload.clear_width_each_direction_m / 2 + 0.85;
+    // The south view aims farther into its long, exposed approach so the lamp
+    // rhythm and both wall guides establish depth behind the portal frame.
+    const targetInM = fromStart ? 10 : 18;
     const target = head
       .clone()
-      .addScaledVector(inward, 4)
+      .addScaledVector(inward, targetInM)
       .addScaledVector(normal, lateral);
     target.y = head.y + payload.clear_height_m / 2;
 
@@ -462,30 +484,29 @@ export function tunnelMouthViews(
     // sphere around the target. It must remain close: a 46 m stand became a
     // 150 m stand after the isometric FOV's dolly compensation and landed
     // over the Landwehrkanal instead of in front of the south mouth.
-    // Walking 32 m back keeps the portal frame beyond the basin-side ramp
-    // edge while a photographic frame still contains both bores.
-    const STAND_BACK_M = 32;
+    // Each stand distance is tuned to the available open-ramp envelope; the
+    // south mouth must stay close enough to avoid seeing the uncut city shell.
+    const standBackM = fromStart ? 26 : 12;
     let stand = head.clone();
     let walked = 0;
     for (let index = centreline.length - 1; index > 0; index -= 1) {
       const current = centreline[index];
       const previous = centreline[index - 1];
       const step = Math.hypot(current.x - previous.x, current.z - previous.z);
-      if (walked + step >= STAND_BACK_M) {
-        const fraction = (STAND_BACK_M - walked) / (step || 1);
+      if (walked + step >= standBackM) {
+        const fraction = (standBackM - walked) / (step || 1);
         stand = current.clone().lerp(previous, fraction);
-        walked = STAND_BACK_M;
+        walked = standBackM;
         break;
       }
       stand = previous.clone();
       walked += step;
     }
-    // A close photographic lens can frame both bores without turning this
-    // dedicated portal sight into a distant map view. The eye remains 2 m
-    // above street level (well clear of the underside threshold) while the
-    // target sits halfway up the tube, so the ray clears the ramp lip and
-    // continues through the lit bore instead of looking down at paving.
-    stand.y = Math.max(stand.y, SURFACE_Y) + 2;
+    // Stay on the ramp's own grade. Forcing the eye back to surface level
+    // made it look steeply down through the head beam instead of horizontally
+    // into the bore. ThreeViewer explicitly exempts this authored portal shot
+    // from the generic underside/underwater switch until free navigation.
+    stand.y += fromStart ? 1.9 : 1.65;
     stand.addScaledVector(normal, lateral);
 
     const offset = stand.clone().sub(target);
@@ -493,7 +514,7 @@ export function tunnelMouthViews(
     return {
       azimuth_degrees: Math.atan2(offset.x, offset.z) * (180 / Math.PI),
       distance_m: distance,
-      fov_degrees: 39,
+      fov_degrees: fromStart ? 38 : 36,
       polar_degrees: Math.acos(offset.y / distance) * (180 / Math.PI),
       target_height_m: 0,
       target_world: [target.x, target.y, target.z],

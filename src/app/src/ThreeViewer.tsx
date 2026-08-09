@@ -80,6 +80,7 @@ import {
   createParkDetails,
   parkDetailFocusDistance,
   setParkDetailsFocus,
+  setParkSnowPresentation,
   setParkSettledDetail,
 } from "./ParkDetails";
 import { runBoundedTasks } from "./boundedTaskPool";
@@ -342,6 +343,8 @@ type Runtime = {
   // with hysteresis so they do not blink at the boundary.
   fineDetailObjects: Object3D[];
   fineDetailVisible: boolean;
+  /** Explicit lens owned by the active curated landmark close-up. */
+  focusedCameraFov: number | null;
   voxelWorld: Group | null;
   voxelWorldState: "failed" | "idle" | "loading";
   lightingMode: LightingMode;
@@ -458,7 +461,11 @@ function setSurfacePresentation(
   }
 }
 
-function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
+function markSurfaceInteraction(
+  runtime: Runtime,
+  durationMs = 650,
+  preserveTunnelFocus = false,
+): void {
   // Any direct navigation immediately returns control to the visitor instead
   // of fighting the guided portal-to-portal tunnel camera.
   if (runtime.tunnelFlight) {
@@ -466,7 +473,7 @@ function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
     setTunnelPresentation(runtime.tunnel, runtime.underside);
     setEnvironmentalPresentation(runtime);
   }
-  if (runtime.tunnelPortalInteriorVisible) {
+  if (runtime.tunnelPortalInteriorVisible && !preserveTunnelFocus) {
     runtime.tunnelPortalInteriorVisible = false;
     setTunnelPortalPresentation(
       runtime.tunnelPortals,
@@ -474,6 +481,9 @@ function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
       voxelModeActive(runtime),
       false,
     );
+  }
+  if (!preserveTunnelFocus) {
+    runtime.focusedCameraFov = null;
   }
   runtime.interactionUntil = Math.max(
     runtime.interactionUntil,
@@ -922,6 +932,7 @@ function setSceneLighting(
   applyLightingToRoot(runtime.monuments, mode, lightsOn);
   applyLightingToRoot(runtime.culturalDetails, mode, lightsOn);
   applyLightingToRoot(runtime.parkDetails, mode, lightsOn);
+  setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   // Incidental staffage has one authored pose. Updating flags or tiny signal
   // lamps only while the camera moved made those sub-pixel details flash
   // against otherwise deterministic geometry.
@@ -1001,7 +1012,11 @@ function setSceneLighting(
   }
   // Both drawn worlds (prisms and voxels) use the flat isometric FOV;
   // only the photographic fallback keeps the 39° perspective.
-  const targetFov = isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
+  const targetFov =
+    runtime.focusedCameraFov ??
+    (isoMode || voxelMode
+      ? ISO_FOV_DEGREES
+      : PHOTO_FOV_DEGREES);
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
@@ -1189,7 +1204,7 @@ function ensureIsoWorld(
       collectFarZoomAntiFlickerTargets(runtime);
       runtime.scene.add(runtime.isoWorld);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
-      markSurfaceInteraction(runtime, 400);
+      markSurfaceInteraction(runtime, 400, true);
     })
     .catch(() => {
       if (!runtime.disposed) {
@@ -1237,7 +1252,7 @@ function ensureVoxelWorld(
       );
       runtime.scene.add(runtime.minecraftMobs.group);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
-      markSurfaceInteraction(runtime, 400);
+      markSurfaceInteraction(runtime, 400, true);
     })
     .catch(() => {
       if (!runtime.disposed) {
@@ -2062,16 +2077,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const target = new Vector3(
         ...(cameraPreset?.target_world ?? landmark.world),
       );
+      const desiredFov =
+        cameraPreset?.fov_degrees ??
+        (isoModeActive(runtime) || voxelModeActive(runtime)
+          ? ISO_FOV_DEGREES
+          : PHOTO_FOV_DEGREES);
+      runtime.focusedCameraFov = cameraPreset?.fov_degrees ?? null;
+      if (runtime.camera.fov !== desiredFov) {
+        runtime.camera.fov = desiredFov;
+        runtime.camera.updateProjectionMatrix();
+      }
       let cameraOffset: Vector3;
       if (cameraPreset) {
         target.y += cameraPreset.target_height_m;
-        if (
-          cameraPreset.fov_degrees !== undefined &&
-          runtime.camera.fov !== cameraPreset.fov_degrees
-        ) {
-          runtime.camera.fov = cameraPreset.fov_degrees;
-          runtime.camera.updateProjectionMatrix();
-        }
         cameraOffset = new Vector3().setFromSpherical(
           new Spherical(
             cameraPreset.distance_m,
@@ -2590,6 +2608,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         inkLineMaterials: new Set(),
         fineDetailObjects: [],
         fineDetailVisible: true,
+        focusedCameraFov: null,
         voxelWorld: null,
         voxelWorldState: "idle",
         lightingMode: lightingModeRef.current,
@@ -3291,11 +3310,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         lastRenderedAt = timestamp;
         // The cutaway also engages when the camera itself flies into the
         // Tiergartentunnel tube, not only when orbiting below the horizon.
-        const insideTunnel =
+        const physicallyInsideTunnel =
           runtime.tunnelBounds !== null &&
           runtime.tunnelBounds.containsPoint(camera.position);
+        const framedPortal = runtime.tunnelPortalInteriorVisible;
         const underside =
-          controls.getPolarAngle() > Math.PI / 2 || insideTunnel;
+          !framedPortal &&
+          (controls.getPolarAngle() > Math.PI / 2 || physicallyInsideTunnel);
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
@@ -3304,7 +3325,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime,
           shouldUseUnderwaterPresentation({
             cameraY: camera.position.y,
-            insideTunnel,
+            insideTunnel: physicallyInsideTunnel || framedPortal,
             underside,
           }),
         );
@@ -3488,10 +3509,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // horses; the default overview reduces them to one bronze lump.
           runtime.focusCameraByName.set("Quadriga mit Victoria", {
             azimuth_degrees: 42,
-            distance_m: 52,
-            polar_degrees: 72,
+            distance_m: 32,
+            fov_degrees: 30,
+            polar_degrees: 78,
             target_height_m: 25,
             target_world: [417.9, 4.73, 301.42],
+          });
+          // The generic park camera leaves the Luiseninsel buried under a
+          // canopy at quarter scale. A high, close garden view reveals the
+          // water ring, Schmuckbeete and paired marble figures together.
+          runtime.focusCameraByName.set("Luiseninsel", {
+            azimuth_degrees: 24,
+            distance_m: 126,
+            fov_degrees: 34,
+            polar_degrees: 39,
+            target_height_m: 0,
+            target_world: [-495.66, 4.35, 879.81],
           });
           // South-east of the basin, looking back along the wedge: the plunge
           // face is nearest and the crown recedes to the low north entrance.
@@ -3819,7 +3852,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               }
               runtime.settledSurfaceReady = true;
               settleUntil = performance.now() + 180;
-              markSurfaceInteraction(runtime, 180);
+              markSurfaceInteraction(runtime, 180, true);
             });
           }
         })

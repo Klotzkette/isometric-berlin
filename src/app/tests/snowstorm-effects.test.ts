@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Vector3 } from "three";
+import { Points, PointsMaterial, Vector3 } from "three";
 
 import {
   createSnowstorm,
@@ -16,6 +16,8 @@ describe("snowstorm presentation", () => {
     expect(mobile.flakes).toHaveLength(snowflakeCount(true));
     expect(mobile.flakes.length).toBeLessThan(desktop.flakes.length);
     expect(desktop.air.children).toHaveLength(1);
+    const flakes = desktop.air.children[0] as Points;
+    expect((flakes.material as PointsMaterial).map).not.toBeNull();
     expect(
       desktop.settled.getObjectByName(
         "Continuous deep snow cover across the expanded city",
@@ -53,5 +55,7 @@ describe("snowstorm presentation", () => {
     expect(snow.air.position.z).toBe(-420);
     expect(snow.flakePositions.getY(0)).not.toBe(before);
     expect(snow.flakes).toHaveLength(snowflakeCount(false));
+    expect(snow.ageSeconds).toBeCloseTo(0.08, 6);
+    expect(new Set(snow.flakes.map(({ drift }) => drift)).size).toBeGreaterThan(1_000);
   });
 });

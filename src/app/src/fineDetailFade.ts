@@ -154,4 +154,7 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "drawn kerb lines",
   "bridge railing bodies",
   "bridge railing ink lines",
+  "static water ripple ribbons",
+  "three hidden Tiergarten beavers",
+  "vessel wake ribbons",
 ];

@@ -183,6 +183,7 @@ describe("Tiergartentunnel rendering budget", () => {
       expect(parts("deck")).toHaveLength(2);
       expect(parts("ceiling")).toHaveLength(2);
       expect(parts("wall")).toHaveLength(4);
+      expect(parts("safety guide")).toHaveLength(4);
       expect(parts("depth cap")).toHaveLength(2);
       const lamps = parts("ceiling lamp");
       expect(lamps.length).toBeGreaterThanOrEqual(8);
@@ -319,23 +320,23 @@ describe("Tiergartentunnel rendering budget", () => {
       expect(view.target_height_m).toBe(0);
       // The tunnel is a close photographic view. Applying the drawn city's
       // 16° FOV dolly factor would move the stand out over its forecourt.
-      expect(view.fov_degrees).toBe(39);
-      // An oblique look down into the open cut: the camera is walked back
-      // up the ramp's own axis and raised, so the polar angle falls out of
-      // that stand rather than being a magic number.
-      expect(view.polar_degrees).toBeGreaterThan(45);
-      expect(view.polar_degrees).toBeLessThan(80);
+      expect(view.fov_degrees).toBeGreaterThanOrEqual(36);
+      expect(view.fov_degrees).toBeLessThanOrEqual(38);
+      // A nearly horizontal sight line follows the ramp through the lamp row
+      // instead of looking down through the portal beam.
+      expect(view.polar_degrees).toBeGreaterThan(86);
+      expect(view.polar_degrees).toBeLessThan(91);
       // It really does stand back up the ramp, not on the surrounding
       // plaza where the paving plate would block the view.
-      expect(view.distance_m).toBeGreaterThan(25);
+      expect(view.distance_m).toBeGreaterThan(20);
       expect(view.distance_m).toBeLessThan(50);
-      // And it stays ABOVE street level: a camera sunk into the cut flips
-      // the viewer into its underside presentation and shows the cutaway
-      // instead of the mouth.
+      // The authored portal camera follows the ramp grade. ThreeViewer keeps
+      // this explicit bore shot out of the generic underside/underwater mode.
       const eyeY =
         view.target_world[1] +
         view.distance_m * Math.cos((view.polar_degrees * Math.PI) / 180);
-      expect(eyeY).toBeGreaterThan(4);
+      expect(eyeY).toBeGreaterThan(-9);
+      expect(eyeY).toBeLessThan(-6.5);
       // The camera stands back UP the ramp, against the inward direction:
       // for this straight north-south course that is azimuth 180 for the
       // north bore (camera north of it) and 0 for the south bore.
@@ -345,5 +346,6 @@ describe("Tiergartentunnel rendering budget", () => {
     // The two targets sit at the OPPOSITE deep ends of the course.
     expect(views.north.target_world[2]).toBeLessThan(400);
     expect(views.south.target_world[2]).toBeGreaterThan(400);
+    expect(views.south.fov_degrees).toBeLessThan(views.north.fov_degrees);
   });
 });

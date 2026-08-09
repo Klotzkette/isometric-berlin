@@ -334,6 +334,28 @@ export class AmbientSoundscape {
     window.setTimeout(() => void context.close(), 240);
   }
 
+  /** Close synchronously enough for pagehide/beforeunload to silence the tab. */
+  dispose(): void {
+    if (this.timer !== null) {
+      window.clearInterval(this.timer);
+      this.timer = null;
+    }
+    const context = this.context;
+    const master = this.master;
+    this.context = null;
+    this.master = null;
+    if (!context) {
+      return;
+    }
+    if (master) {
+      master.gain.cancelScheduledValues(context.currentTime);
+      master.gain.setValueAtTime(0, context.currentTime);
+    }
+    if (context.state !== "closed") {
+      void context.close();
+    }
+  }
+
   async setSuspended(suspended: boolean): Promise<void> {
     if (!this.context) {
       return;

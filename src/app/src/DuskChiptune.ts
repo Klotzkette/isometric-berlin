@@ -818,8 +818,24 @@ export class DuskChiptune {
   }
 
   async dispose(): Promise<void> {
-    this.stop();
     const context = this.context;
+    const master = this.master;
+    this.startGeneration += 1;
+    if (this.timer !== null) {
+      window.clearInterval(this.timer);
+      this.timer = null;
+    }
+    if (context && master) {
+      master.gain.cancelScheduledValues(context.currentTime);
+      master.gain.setValueAtTime(0, context.currentTime);
+      for (const source of this.activeSources.keys()) {
+        try {
+          source.stop(context.currentTime);
+        } catch {
+          // The source may already have ended during page teardown.
+        }
+      }
+    }
     this.context = null;
     this.master = null;
     this.lowpass = null;

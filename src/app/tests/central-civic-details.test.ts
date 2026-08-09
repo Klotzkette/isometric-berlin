@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
+  BUNDESTAG_KITA_SOURCE,
+  BUNDESTAG_KITA_WORLD,
   centralCivicDetailsVisible,
   centralCivicFocusCamera,
   createCentralCivicDetails,
@@ -76,6 +78,16 @@ describe("task-11 central transit and civic details", () => {
       sectionCount: 20,
       state: "preserved 1989/90 ruin with security fence",
       traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
+    });
+  });
+
+  test("anchors the Bundestag Kita to OSM and LoD2 evidence", () => {
+    const details = createCentralCivicDetails(landmarks);
+    expect(BUNDESTAG_KITA_WORLD).toEqual([255.8, 5.245, -250.4]);
+    expect(details.userData.bundestagKita).toEqual({
+      geometryAnchor: "OSM way 30349234 + Berlin LoD2",
+      source: BUNDESTAG_KITA_SOURCE,
+      world: BUNDESTAG_KITA_WORLD,
     });
   });
 

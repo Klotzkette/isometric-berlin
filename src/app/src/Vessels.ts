@@ -43,6 +43,10 @@ const RAIL = 0xb6b1a5;
 const AWNING = 0xe8e3d4;
 const NAMEPLATE = 0x1d2126;
 const LAMPION = 0xf3a94b;
+const NAV_RED = 0xd94945;
+const NAV_GREEN = 0x4ea56d;
+const WINDOW_BLUE = 0x315f70;
+const WAKE = 0xc9edf0;
 const PARTY = [0xd8455f, 0x5b8fb9, 0xe0c04a, 0x7ba05b] as const;
 
 /** Berlin-Spandauer Schifffahrtskanal centre line inside the harbour. */
@@ -126,6 +130,38 @@ function lampion(
   builder.lamps.push(geometry);
 }
 
+function markerLamp(
+  builder: Builder,
+  f: Frame,
+  color: number,
+  along: number,
+  y: number,
+  across: number,
+): void {
+  const geometry = new CylinderGeometry(0.13, 0.13, 0.32, 8);
+  const [cx, cz] = f.at(along, across);
+  geometry.translate(cx, y, cz);
+  paintGeometry(geometry, color);
+  builder.lamps.push(geometry);
+}
+
+function wakeRibbon(
+  builder: Builder,
+  f: Frame,
+  along: number,
+  across: number,
+  length: number,
+  angle: number,
+  water: number,
+): void {
+  const geometry = new BoxGeometry(length, 0.035, 0.16);
+  geometry.rotateY(f.rotation + angle);
+  const [cx, cz] = f.at(along, across);
+  geometry.translate(cx, water + 0.075, cz);
+  paintGeometry(geometry, WAKE);
+  builder.parts.push(geometry);
+}
+
 /**
  * A hull that tapers to a bow: five box sections, the forward ones
  * narrowing. Cheaper than a lofted shape and it keeps the flat-tone,
@@ -180,6 +216,15 @@ function buildBarge(builder: Builder, water: number): void {
     5.8, 0.24, width - 1.2,
   );
   box(builder, FUNNEL, f, -length / 2 + 2.2, water + 4.8, 1.4, 0.7, 1.8, 0.7);
+  // Wheelhouse glazing and navigation lamps distinguish bow, stern and
+  // direction at close range without applying a photographic texture.
+  for (const along of [-length / 2 + 2.8, -length / 2 + 4.2, -length / 2 + 5.6]) {
+    for (const across of [-(width / 2 - 0.72), width / 2 - 0.72]) {
+      box(builder, WINDOW_BLUE, f, along, water + 2.8, across, 0.9, 0.72, 0.12, false);
+    }
+  }
+  markerLamp(builder, f, NAV_RED, length / 2 - 1.6, water + 2.1, -width / 2 + 0.35);
+  markerLamp(builder, f, NAV_GREEN, length / 2 - 1.6, water + 2.1, width / 2 - 0.35);
   // Foredeck winch and a mast on the bow, both stubby.
   box(builder, COAMING, f, length / 2 - 3.4, water + 1.5, 0, 1.5, 0.8, 1.6);
   box(builder, RAIL, f, length / 2 - 4.6, water + 3.1, 0, 0.24, 3.0, 0.24);
@@ -203,6 +248,13 @@ function buildYacht(builder: Builder, water: number): Frame {
   box(builder, CABIN, f, 2.6, water + 2.5, 0, 3.0, 3.0, width - 1.4);
   box(builder, CABIN_ROOF, f, 2.6, water + 4.08, 0, 3.4, 0.22, width - 1.0);
   box(builder, FUNNEL, f, -3.6, water + 3.7, 0, 0.6, 1.5, 0.6);
+  for (const along of [-2.9, -1.7, -0.5, 1.9, 2.6, 3.3]) {
+    for (const across of [-(width / 2 - 0.56), width / 2 - 0.56]) {
+      box(builder, WINDOW_BLUE, f, along, water + 2.15, across, 0.68, 0.62, 0.1, false);
+    }
+  }
+  markerLamp(builder, f, NAV_RED, length / 2 - 1.2, water + 2.0, -width / 2 + 0.22);
+  markerLamp(builder, f, NAV_GREEN, length / 2 - 1.2, water + 2.0, width / 2 - 0.22);
   // Aft awning over the party deck, on four thin posts.
   for (const along of [-6.6, -3.2]) {
     for (const across of [-1.5, 1.5]) {
@@ -275,6 +327,19 @@ export function createVessels(waterTopY: number = WATER_TOP_Y): Group {
   const builder = createBuilder();
   buildBarge(builder, waterTopY);
   const yacht = buildYacht(builder, waterTopY);
+  const wakeBuilder = createBuilder();
+  const bargeFrame = frame(BARGE.x, BARGE.z, BARGE.headingX, BARGE.headingZ);
+  const yachtFrame = frame(YACHT.x, YACHT.z, YACHT.headingX, YACHT.headingZ);
+  for (let index = 0; index < 4; index += 1) {
+    const distance = 7 + index * 7;
+    wakeRibbon(wakeBuilder, bargeFrame, -BARGE.lengthM / 2 - distance, -1.6 - index * 0.7, 8 + index * 2.4, 0.28, waterTopY);
+    wakeRibbon(wakeBuilder, bargeFrame, -BARGE.lengthM / 2 - distance, 1.6 + index * 0.7, 8 + index * 2.4, -0.28, waterTopY);
+  }
+  for (let index = 0; index < 3; index += 1) {
+    const distance = 3 + index * 4.2;
+    wakeRibbon(wakeBuilder, yachtFrame, -YACHT.lengthM / 2 - distance, -0.8 - index * 0.45, 4.2 + index * 1.8, 0.34, waterTopY);
+    wakeRibbon(wakeBuilder, yachtFrame, -YACHT.lengthM / 2 - distance, 0.8 + index * 0.45, 4.2 + index * 1.8, -0.34, waterTopY);
+  }
 
   const group = finishDrawnGroup(builder, {
     name: "vessel",
@@ -289,6 +354,11 @@ export function createVessels(waterTopY: number = WATER_TOP_Y): Group {
   const plate = sternNamePlate(yacht, waterTopY);
   if (plate) {
     group.add(plate);
+  }
+  const wakes = finishDrawnGroup(wakeBuilder, { name: "vessel wake ribbons" });
+  if (wakes) {
+    wakes.userData.staticAntiFlicker = true;
+    group.add(wakes);
   }
   return group;
 }

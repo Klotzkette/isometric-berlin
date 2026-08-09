@@ -122,6 +122,14 @@ const WALL_CONCRETE = 0xa8a69e;
 const WALL_CONCRETE_DARK = 0x87877f;
 const WALL_PIPE = 0x9a9992;
 const WALL_FENCE = 0x555d5e;
+const KITA_BLUE = 0x3f78a8;
+const KITA_RED = 0xd65342;
+const KITA_YELLOW = 0xf0c73b;
+
+/** OSM way 30349234 / Berlin LoD2 centroid, in project-world metres. */
+export const BUNDESTAG_KITA_WORLD = [255.8, 5.245, -250.4] as const;
+export const BUNDESTAG_KITA_SOURCE =
+  "https://www.bundestag.de/besuche/architektur/gebaeude/kindertagesstaette/kindertagesstaette-198806";
 
 export const TOPOGRAPHY_WALL_LENGTH_M = 200;
 export const TOPOGRAPHY_WALL_SECTION_COUNT = 20;
@@ -650,6 +658,55 @@ function addParliamentOfTrees(
   }
 }
 
+function addBundestagKita(builder: Builder): void {
+  const point = new Vector3(...BUNDESTAG_KITA_WORLD);
+  const rotation = -0.12;
+  // Peichl's low, ship-like 1998/99 building is already present in LoD2.
+  // These restrained solids only recover its recognition cues at close zoom.
+  localBox(builder, IVORY, point, 0, 2.65, 0, 72, 4.8, 17, rotation);
+  localBox(builder, KITA_BLUE, point, -24, 2.8, 8.55, 18, 3.9, 0.3, rotation);
+  localBox(builder, KITA_RED, point, 0, 2.8, 8.55, 18, 3.9, 0.3, rotation);
+  localBox(builder, KITA_YELLOW, point, 24, 2.8, 8.55, 18, 3.9, 0.3, rotation);
+  localBox(builder, STEEL, point, 0, 5.2, 0, 76, 0.34, 19, rotation);
+  for (const along of [-17, 17]) {
+    const position = localPoint(point, along, 0, rotation);
+    addCylinder(
+      builder,
+      along < 0 ? KITA_RED : KITA_BLUE,
+      position.x,
+      point.y + 6.45,
+      position.z,
+      2.15,
+      2.4,
+      18,
+    );
+  }
+  const figures = [KITA_RED, KITA_YELLOW, KITA_BLUE, GARDEN_GREEN];
+  figures.forEach((color, index) => {
+    const position = localPoint(point, -13.5 + index * 9, -2.7, rotation);
+    addCylinder(
+      builder,
+      color,
+      position.x,
+      point.y + 7.2 + (index % 2) * 0.35,
+      position.z,
+      0.58,
+      3.5,
+      8,
+    );
+    addCone(
+      builder,
+      color,
+      position.x,
+      point.y + 9.55 + (index % 2) * 0.35,
+      position.z,
+      1.1,
+      1.4,
+      8,
+    );
+  });
+}
+
 function addBerlinerEnsemble(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
@@ -1024,6 +1081,11 @@ export function createCentralCivicDetails(
     state: "preserved 1989/90 ruin with security fence",
     traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
   };
+  group.userData.bundestagKita = {
+    geometryAnchor: "OSM way 30349234 + Berlin LoD2",
+    source: BUNDESTAG_KITA_SOURCE,
+    world: BUNDESTAG_KITA_WORLD,
+  };
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
@@ -1033,6 +1095,7 @@ export function createCentralCivicDetails(
   addFuturium(builder, byName);
   addGreenFederalCampus(builder, byName);
   addParliamentOfTrees(builder, byName);
+  addBundestagKita(builder);
   addBerlinerEnsemble(builder, byName);
   addFriedrichstrasseStation(builder, byName);
   addFinanceMinistry(builder, byName);

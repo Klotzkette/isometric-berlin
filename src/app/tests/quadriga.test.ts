@@ -157,11 +157,13 @@ describe("Quadriga model", () => {
         expect(value).toBeLessThanOrEqual(0xffffff);
       }
     }
-    // Winter is genuinely colder than day: less red than blue in the
-    // bronze, where day is warmer.
+    // Day reads as oxidised Berlin bronze (green is dominant), while winter
+    // remains genuinely colder with more blue than red.
     const dayBronze = QUADRIGA_PALETTES.day.bronze;
     const winterBronze = QUADRIGA_PALETTES.winter.bronze;
-    expect((dayBronze >> 16) & 255).toBeGreaterThan(dayBronze & 255);
+    expect((dayBronze >> 8) & 255).toBeGreaterThan(
+      Math.max((dayBronze >> 16) & 255, dayBronze & 255),
+    );
     expect((winterBronze >> 16) & 255).toBeLessThan(winterBronze & 255);
   });
 

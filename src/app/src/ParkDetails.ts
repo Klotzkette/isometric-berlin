@@ -305,6 +305,8 @@ function addTrees(
   const cutawayCrowns: Transform[][] = [[], [], []];
   const settledCrowns: Transform[][] = [[], [], []];
   const settledCutawayCrowns: Transform[][] = [[], [], []];
+  const snowCaps: Transform[] = [];
+  const cutawaySnowCaps: Transform[] = [];
   for (const tree of trees) {
     const [x, y, z] = tree.position;
     const trunkHeight = tree.height_m * 0.5;
@@ -338,6 +340,22 @@ function addTrees(
     const isInsideCutaway = cutaway
       ? Math.hypot(x - cutaway.x, z - cutaway.z) <= cutaway.radiusM
       : false;
+    if (Math.abs(tree.variant) % 3 === 0) {
+      const snowTarget = isInsideCutaway ? cutawaySnowCaps : snowCaps;
+      snowTarget.push({
+        position: [
+          x,
+          y + trunkHeight + tree.crown_radius_m * 1.02,
+          z,
+        ],
+        rotation: [0, branchYaw, 0],
+        scale: [
+          tree.crown_radius_m * 0.78,
+          tree.crown_radius_m * 0.12,
+          tree.crown_radius_m * 0.72,
+        ],
+      });
+    }
     for (let layer = 0; layer < offsets.length; layer += 1) {
       const [offsetX, offsetY, offsetZ] = offsets[(layer + variant) % offsets.length];
       const radius =
@@ -422,6 +440,26 @@ function addTrees(
       group.add(mesh);
     }
   });
+  const addSnowCaps = (transforms: Transform[], focusCutaway: boolean) => {
+    if (transforms.length === 0) {
+      return;
+    }
+    const mesh = instanced(
+      "Snowstorm-only tree crown snow caps",
+      new IcosahedronGeometry(1, 0),
+      material(0xf4f7f6, 0.98),
+      transforms,
+    );
+    mesh.visible = false;
+    mesh.userData.snowOnly = true;
+    mesh.userData.snowActive = false;
+    if (focusCutaway && cutaway) {
+      mesh.userData.focusCutawayFor = cutaway.focusName;
+    }
+    group.add(mesh);
+  };
+  addSnowCaps(snowCaps, false);
+  addSnowCaps(cutawaySnowCaps, true);
   let settledDetailFaces = 0;
   const addSettledCrownInstances = (
     transforms: Transform[],
@@ -1023,6 +1061,8 @@ export function setParkDetailsFocus(group: Group, name: string): void {
       object.userData.focusSuppressed = focusSuppressed;
       object.visible =
         !focusSuppressed &&
+        (object.userData.snowOnly !== true ||
+          object.userData.snowActive === true) &&
         (object.userData.settledOnly !== true ||
           object.userData.settledActive === true);
     }
@@ -1055,6 +1095,19 @@ export function setParkDetailsFocus(group: Group, name: string): void {
         : 0;
     });
   }
+}
+
+export function setParkSnowPresentation(
+  group: Group,
+  enabled: boolean,
+): void {
+  group.traverse((object) => {
+    if (object.userData.snowOnly !== true) {
+      return;
+    }
+    object.userData.snowActive = enabled;
+    object.visible = enabled && object.userData.focusSuppressed !== true;
+  });
 }
 
 export function setParkSettledDetail(group: Group, enabled: boolean): void {

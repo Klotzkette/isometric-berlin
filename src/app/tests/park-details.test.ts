@@ -6,6 +6,7 @@ import {
   decodeTrees,
   parkDetailFocusDistance,
   setParkDetailsFocus,
+  setParkSnowPresentation,
   setParkSettledDetail,
 } from "../src/ParkDetails";
 
@@ -162,6 +163,19 @@ describe("OSM park details", () => {
     expect(settledCrowns.every((crown) => !crown.visible)).toBeTrue();
   });
 
+  test("shows tree snow caps only during the snowstorm", () => {
+    const park = createParkDetails(payload);
+    const caps = park.children.filter(
+      (child) => child.userData.snowOnly === true,
+    );
+    expect(caps.length).toBeGreaterThan(0);
+    expect(caps.every((cap) => !cap.visible)).toBeTrue();
+    setParkSnowPresentation(park, true);
+    expect(caps.every((cap) => cap.visible)).toBeTrue();
+    setParkSnowPresentation(park, false);
+    expect(caps.every((cap) => !cap.visible)).toBeTrue();
+  });
+
   test("does not allocate settled-only tree geometry for touch profiles", () => {
     const park = createParkDetails(payload, { settledDetail: false });
     expect(
@@ -215,7 +229,8 @@ describe("OSM park details", () => {
     const cutawayCrowns = park.children.filter(
       (child) =>
         child.userData.focusCutawayFor === "Spielplatz an der Luiseninsel" &&
-        child.userData.settledOnly !== true,
+        child.userData.settledOnly !== true &&
+        child.userData.snowOnly !== true,
     );
     expect(cutawayCrowns.length).toBeGreaterThan(0);
 
