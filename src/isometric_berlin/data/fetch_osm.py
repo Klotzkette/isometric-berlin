@@ -89,6 +89,15 @@ TAG_COLUMNS = (
   "genus",
   "access",
   "wheelchair",
+  "width",
+  "est_width",
+  "lanes",
+  "lanes:forward",
+  "lanes:backward",
+  "sidewalk",
+  "cycleway",
+  "bridge:structure",
+  "maxheight",
 )
 
 # GDAL's OSM driver splits the extract across geometry types. `other_relations`
@@ -442,6 +451,15 @@ def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
       "genus",
       "access",
       "wheelchair",
+      "width",
+      "est_width",
+      "lanes",
+      "lanes:forward",
+      "lanes:backward",
+      "sidewalk",
+      "cycleway",
+      "bridge:structure",
+      "maxheight",
       "geometry",
     ]
     if column in gdf.columns

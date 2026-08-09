@@ -33,6 +33,7 @@ from isometric_berlin.generation.basin_features import (
   load_water_features,
 )
 from isometric_berlin.generation.building_corrections import load_current_buildings
+from isometric_berlin.generation.road_geometry import road_width_m
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MESH_PUBLIC_DIR = REPO_ROOT / "src/app/public/mesh/regierungsviertel"
@@ -52,6 +53,7 @@ ORIGIN_NORTHING = 5820000.0
 # behind high quay walls instead of level with the streets.
 WATER_TOP_Y_M = -1.15
 ROAD_BUFFER_M = 6.0
+MIN_BRIDGE_HALF_WIDTH_M = CELL_M / 2
 IDW_NEIGHBOURS = 8
 IDW_POWER = 2.0
 TREE_MIN_HEIGHT_M = 8.0
@@ -337,6 +339,35 @@ def bridge_line_geometries(frame: gpd.GeoDataFrame) -> list[BaseGeometry]:
   return list(tagged.geometry)
 
 
+def road_surface_bands(frame: gpd.GeoDataFrame) -> list[BaseGeometry]:
+  """World-space paved bands using mapped OSM width evidence per way."""
+  bands: list[BaseGeometry] = []
+  lines = frame[frame.geometry.geom_type.isin(["LineString", "MultiLineString"])]
+  for _, row in lines.iterrows():
+    width = road_width_m(row)
+    if width is None:
+      continue
+    bands.append(to_world(row.geometry).buffer(width / 2, cap_style=2, join_style=1))
+  return bands
+
+
+def bridge_deck_bands(frame: gpd.GeoDataFrame) -> list[BaseGeometry]:
+  """World-space bridge decks, retaining even mapped narrow park stegs."""
+  if "bridge" not in frame.columns:
+    return []
+  tagged = frame[
+    frame["bridge"].notna()
+    & (frame["bridge"].astype(str).str.lower() != "no")
+    & frame.geometry.geom_type.isin(["LineString", "MultiLineString"])
+  ]
+  bands: list[BaseGeometry] = []
+  for _, row in tagged.iterrows():
+    width = road_width_m(row)
+    half_width = max(MIN_BRIDGE_HALF_WIDTH_M, (width or ROAD_BUFFER_M) / 2)
+    bands.append(to_world(row.geometry).buffer(half_width, cap_style=2, join_style=1))
+  return bands
+
+
 def aboveground(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
   """Drop ways that are tunnelled, roofed over or on a negative layer.
 
@@ -366,7 +397,6 @@ def classify_ground(
   classes = np.full(flat_x.shape, -1, dtype=np.int8)
   classes[inside] = CLASS_GRASS
 
-  inside_points = shapely.points(flat_x[inside], flat_z[inside])
   inside_positions = np.flatnonzero(inside)
 
   roads = aboveground(gpd.read_file(osm_path, layer="roads"))
@@ -374,10 +404,11 @@ def classify_ground(
     roads.geometry.geom_type.isin(["LineString", "MultiLineString"])
     & roads["highway"].isin(ASPHALT_HIGHWAYS)
   ]
-  if len(road_lines):
-    line_tree = shapely.STRtree([to_world(g) for g in road_lines.geometry])
-    hits = line_tree.query(inside_points, predicate="dwithin", distance=ROAD_BUFFER_M)
-    classes[inside_positions[np.unique(hits[0])]] = CLASS_ASPHALT
+  road_bands = road_surface_bands(road_lines)
+  if road_bands:
+    road_union = shapely.union_all(road_bands)
+    road_mask = shapely.intersects_xy(road_union, flat_x[inside], flat_z[inside])
+    classes[inside_positions[road_mask]] = CLASS_ASPHALT
 
   plaza_polygons = roads[roads.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
   if len(plaza_polygons):
@@ -411,11 +442,17 @@ def classify_ground(
   # Heinemann-Brücke, S-Bahn viaduct, ...) reclaim the water cells they span
   # so the Spree crossings do not vanish into unbroken water.
   rail = aboveground(gpd.read_file(osm_path, layer="rail"))
-  bridge_lines = bridge_line_geometries(roads) + bridge_line_geometries(rail)
-  if bridge_lines:
-    bridge_tree = shapely.STRtree([to_world(g) for g in bridge_lines])
-    hits = bridge_tree.query(inside_points, predicate="dwithin", distance=ROAD_BUFFER_M)
-    near_bridge = inside_positions[np.unique(hits[0])]
+  bridge_bands = bridge_deck_bands(roads)
+  # Rail has no highway class; its long multi-track viaducts retain the
+  # previous conservative half-width while road/path decks use mapped width.
+  bridge_bands.extend(
+    to_world(geometry).buffer(ROAD_BUFFER_M, cap_style=2, join_style=1)
+    for geometry in bridge_line_geometries(rail)
+  )
+  if bridge_bands:
+    bridge_union = shapely.union_all(bridge_bands)
+    bridge_mask = shapely.intersects_xy(bridge_union, flat_x[inside], flat_z[inside])
+    near_bridge = inside_positions[bridge_mask]
     over_water = near_bridge[classes[near_bridge] == CLASS_WATER]
     classes[over_water] = CLASS_BRIDGE
 

@@ -911,6 +911,21 @@ describe("real bridge structures", () => {
     const slabs = city.getObjectByName("Drawn ground slabs") as InstancedMesh;
     expect(slabs).toBeInstanceOf(InstancedMesh);
     expect(city.getObjectByName("bridge structure ink lines")).toBeDefined();
+    const group = city.getObjectByName("drawn bridge structures") as Group;
+    expect(group.userData.bridgeClusterCount).toBeGreaterThan(50);
+    expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(0);
+  });
+
+  test("retains narrow one-cell park stegs without widening them into roads", async () => {
+    const { createIsometricCity, BRIDGE_MIN_CLUSTER_CELLS } =
+      await import("../src/IsometricCityWorld");
+    const ground = (
+      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+    ).default as never;
+    expect(BRIDGE_MIN_CLUSTER_CELLS).toBe(1);
+    const city = createIsometricCity(payload, ground, null);
+    const group = city.getObjectByName("drawn bridge structures") as Group;
+    expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(20);
   });
 
   test("the Gustav-Heinemann-Brücke reaches both banks of the Spree", async () => {

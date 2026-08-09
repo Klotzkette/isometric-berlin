@@ -88,3 +88,14 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
   playgrounds = gpd.read_file(OSM, layer="playgrounds")
   for column in ["playground", "surface", "material", "height", "wheelchair"]:
     assert column in playgrounds.columns
+
+  roads = gpd.read_file(OSM, layer="roads")
+  for column in [
+    "width",
+    "lanes",
+    "sidewalk",
+    "cycleway",
+  ]:
+    assert column in roads.columns
+  assert roads["width"].notna().sum() > 1_000
+  assert roads["lanes"].notna().sum() > 1_000

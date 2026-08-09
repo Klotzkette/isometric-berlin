@@ -10,9 +10,23 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+from pandas import Series, concat
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
+from shapely.geometry.base import BaseGeometry
 
 from isometric_berlin.data.common import BERLIN_PROJECTED, sha256_file, write_json
+from isometric_berlin.generation.build_isometric_prisms import (
+  DM_PER_M,
+  quantise_ring,
+  simplify_part,
+)
+from isometric_berlin.generation.build_minecraft_voxels import to_world
+from isometric_berlin.generation.building_corrections import load_current_buildings
+from isometric_berlin.generation.road_geometry import (
+  ROAD_WIDTHS_M,
+  road_width_m,
+  road_width_source,
+)
 
 LOD2_METADATA_URL = (
   "https://gdi.berlin.de/geonetwork/srv/api/records/"
@@ -35,6 +49,7 @@ CHANCELLERY_ARCHITECTURE_URL = (
 OFFICIAL_DETAILS_URL = (
   "https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23"
 )
+OSM_COPYRIGHT_URL = "https://www.openstreetmap.org/copyright"
 
 
 def polygons(geometry: Any) -> list[Polygon]:
@@ -61,7 +76,40 @@ def segment_lengths(poly: Polygon) -> list[float]:
   return lengths
 
 
-def building_precision_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
+def geometry_integrity_stats(
+  frame: gpd.GeoDataFrame, bounds: BaseGeometry | None = None
+) -> dict[str, Any]:
+  """Count invalid, empty and out-of-bounds source geometries."""
+  if frame.crs is None:
+    frame = frame.set_crs(BERLIN_PROJECTED)
+  frame = frame.to_crs(BERLIN_PROJECTED)
+  geometries = list(frame.geometry)
+  limit = bounds.buffer(0.02) if bounds is not None else None
+  return {
+    "geometry_count": len(geometries),
+    "invalid_geometry_count": sum(
+      geometry is not None and not geometry.is_empty and not geometry.is_valid
+      for geometry in geometries
+    ),
+    "empty_geometry_count": sum(
+      geometry is None or geometry.is_empty for geometry in geometries
+    ),
+    "outside_bounds_count": (
+      sum(
+        geometry is not None and not geometry.is_empty and not limit.covers(geometry)
+        for geometry in geometries
+      )
+      if limit is not None
+      else None
+    ),
+  }
+
+
+def building_precision_stats(
+  buildings: gpd.GeoDataFrame,
+  bounds: BaseGeometry | None = None,
+  source_building_count: int | None = None,
+) -> dict[str, Any]:
   """Return metric shape/detail stats from the committed LoD2 footprints."""
   if buildings.crs is None:
     buildings = buildings.set_crs(BERLIN_PROJECTED)
@@ -97,8 +145,13 @@ def building_precision_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
     for value in (measured.dropna().tolist() if measured is not None else [])
     if float(value) >= 2.5
   ]
+  integrity = geometry_integrity_stats(buildings, bounds)
   return {
     "building_count": int(len(buildings)),
+    "source_building_count": source_building_count or int(len(buildings)),
+    "excluded_historical_count": max(
+      0, (source_building_count or int(len(buildings))) - int(len(buildings))
+    ),
     "polygon_part_count": len(parts),
     "building_footprint_area_m2": round(float(buildings.geometry.area.sum()), 2),
     "footprint_vertex_count": int(sum(vertex_counts)),
@@ -120,6 +173,201 @@ def building_precision_stats(buildings: gpd.GeoDataFrame) -> dict[str, Any]:
       "polygon coordinates; roof forms are official generalized standard "
       "roof forms, not photogrammetric facade relief."
     ),
+    **integrity,
+  }
+
+
+def prism_coverage_stats(
+  buildings: gpd.GeoDataFrame, prism_path: Path | None
+) -> dict[str, Any]:
+  """Reproduce the drawn-prism inclusion policy and verify its payload."""
+  if prism_path is None or not prism_path.exists():
+    return {"available": False, "reason": "missing_lod2_prism_payload"}
+  if buildings.crs is None:
+    buildings = buildings.set_crs(BERLIN_PROJECTED)
+  buildings = buildings.to_crs(BERLIN_PROJECTED)
+  payload = json.loads(prism_path.read_text(encoding="utf-8"))
+  payload_parts = payload.get("buildings", [])
+  source_parts = 0
+  drawable_parts = 0
+  drawable_rows = 0
+  flat_rows = 0
+  flat_parts = 0
+  degenerate_parts = 0
+  omitted_nonflat_areas: list[float] = []
+  id_suffixes: list[str] = []
+  for row in buildings.itertuples(index=False):
+    id_suffixes.append(str(getattr(row, "building_id", ""))[-8:])
+    parts = polygons(to_world(row.geometry))
+    source_parts += len(parts)
+    height_m = float(getattr(row, "measured_height_m", 0.0) or 0.0)
+    if round(height_m * DM_PER_M) <= 0:
+      flat_rows += 1
+      flat_parts += len(parts)
+      continue
+    retained_in_row = 0
+    for part in parts:
+      simplified = simplify_part(part)
+      ring = quantise_ring(simplified.exterior) if simplified is not None else None
+      if simplified is None or ring is None:
+        degenerate_parts += 1
+        omitted_nonflat_areas.append(float(part.area))
+        continue
+      drawable_parts += 1
+      retained_in_row += 1
+    drawable_rows += retained_in_row > 0
+  payload_count = len(payload_parts)
+  return {
+    "available": True,
+    "status": "ok" if payload_count == drawable_parts else "review",
+    "path": str(prism_path),
+    "sha256": sha256_file(prism_path),
+    "current_source_row_count": int(len(buildings)),
+    "current_source_polygon_part_count": source_parts,
+    "drawable_source_row_count": drawable_rows,
+    "drawable_prism_part_count": drawable_parts,
+    "payload_prism_count": payload_count,
+    "omitted_source_row_count": int(len(buildings)) - drawable_rows,
+    "omitted_source_part_count": source_parts - drawable_parts,
+    "flat_source_row_count": flat_rows,
+    "flat_source_part_count": flat_parts,
+    "degenerate_source_part_count": degenerate_parts,
+    "median_omitted_nonflat_part_area_m2": (
+      round(statistics.median(omitted_nonflat_areas), 3)
+      if omitted_nonflat_areas
+      else None
+    ),
+    "max_omitted_nonflat_part_area_m2": (
+      round(max(omitted_nonflat_areas), 3) if omitted_nonflat_areas else None
+    ),
+    "source_id_suffix_collision_count": len(id_suffixes) - len(set(id_suffixes)),
+    "retention_policy": (
+      "Measured-height parts at least 1 m2 after 0.15 m topology-preserving "
+      "simplification; sub-5 cm flats and degenerate source slivers stay in "
+      "the audited GeoPackage but are not extruded."
+    ),
+  }
+
+
+def road_bridge_precision_stats(
+  osm_path: Path | None,
+  bounds: BaseGeometry | None,
+  voxel_path: Path | None = None,
+) -> dict[str, Any]:
+  """Summarise every committed OSM street and bridge geometry."""
+  if osm_path is None or not osm_path.exists():
+    return {"available": False, "reason": "missing_osm_geopackage"}
+  roads = gpd.read_file(osm_path, layer="roads").to_crs(BERLIN_PROJECTED)
+  line_mask = roads.geometry.geom_type.isin(["LineString", "MultiLineString"])
+  supported = roads[line_mask & roads["highway"].isin(ROAD_WIDTHS_M)].copy()
+  road_bridge_mask = (
+    roads.get("bridge", Series(index=roads.index, dtype="string")).notna()
+    & (
+      roads.get("bridge", Series(index=roads.index, dtype="string"))
+      .astype(str)
+      .str.lower()
+      != "no"
+    )
+    & line_mask
+  )
+  road_bridges = roads[road_bridge_mask].copy()
+  if "rail" in set(gpd.list_layers(osm_path)["name"]):
+    rail = gpd.read_file(osm_path, layer="rail").to_crs(BERLIN_PROJECTED)
+  else:
+    rail = gpd.GeoDataFrame(geometry=[], crs=BERLIN_PROJECTED)
+  rail_line_mask = rail.geometry.geom_type.isin(["LineString", "MultiLineString"])
+  rail_bridge_mask = (
+    rail.get("bridge", Series(index=rail.index, dtype="string")).notna()
+    & (
+      rail.get("bridge", Series(index=rail.index, dtype="string"))
+      .astype(str)
+      .str.lower()
+      != "no"
+    )
+    & rail_line_mask
+  )
+  rail_bridges = rail[rail_bridge_mask].copy()
+  bridges = gpd.GeoDataFrame(
+    concat([road_bridges, rail_bridges], ignore_index=True),
+    geometry="geometry",
+    crs=BERLIN_PROJECTED,
+  )
+  evidence = [road_width_source(row) for _, row in supported.iterrows()]
+  widths = [road_width_m(row) for _, row in supported.iterrows()]
+  integrity = geometry_integrity_stats(roads, bounds)
+  bridge_integrity = geometry_integrity_stats(bridges, bounds)
+  return {
+    "available": True,
+    "road_feature_count": int(len(roads)),
+    "supported_road_line_count": int(len(supported)),
+    "road_centerline_length_m": round(float(supported.geometry.length.sum()), 2),
+    "resolved_width_count": sum(width is not None for width in widths),
+    "width_evidence": {
+      source: evidence.count(source)
+      for source in ("width", "est_width", "lanes", "class_fallback")
+    },
+    "bridge_line_count": int(len(bridges)),
+    "road_bridge_line_count": int(len(road_bridges)),
+    "rail_bridge_line_count": int(len(rail_bridges)),
+    "named_bridge_line_count": int(
+      bridges.get("name", Series(dtype="string")).notna().sum()
+    ),
+    "bridge_centerline_length_m": round(float(bridges.geometry.length.sum()), 2),
+    "width_policy": "width > est_width > mapped lanes > highway-class fallback",
+    "status": (
+      "ok"
+      if all(
+        integrity[key] == 0 and bridge_integrity[key] == 0
+        for key in (
+          "invalid_geometry_count",
+          "empty_geometry_count",
+          "outside_bounds_count",
+        )
+      )
+      else "review"
+    ),
+    **{f"road_{key}": value for key, value in integrity.items()},
+    **{f"bridge_{key}": value for key, value in bridge_integrity.items()},
+    "rendered_water_crossings": voxel_bridge_stats(voxel_path),
+  }
+
+
+def voxel_bridge_stats(path: Path | None) -> dict[str, Any]:
+  """Count connected bridge-deck groups retained by the block/drawn worlds."""
+  if path is None or not path.exists():
+    return {"available": False, "reason": "missing_voxel_payload"}
+  payload = json.loads(path.read_text(encoding="utf-8"))
+  classes = payload.get("classes", [])
+  if "bridge" not in classes:
+    return {"available": False, "reason": "missing_bridge_class"}
+  bridge_class = classes.index("bridge")
+  cells: set[tuple[int, int]] = set()
+  for z, encoded_row in enumerate(payload.get("ground_rows", [])):
+    for x_start, run, class_id in encoded_row:
+      if class_id == bridge_class:
+        cells.update((x, z) for x in range(x_start, x_start + run))
+  clusters: list[int] = []
+  remaining = set(cells)
+  while remaining:
+    stack = [remaining.pop()]
+    size = 0
+    while stack:
+      x, z = stack.pop()
+      size += 1
+      for dz in range(-2, 3):
+        for dx in range(-2, 3):
+          neighbour = (x + dx, z + dz)
+          if neighbour in remaining:
+            remaining.remove(neighbour)
+            stack.append(neighbour)
+    clusters.append(size)
+  return {
+    "available": True,
+    "bridge_cell_count": len(cells),
+    "cluster_count": len(clusters),
+    "small_cluster_count": sum(size < 12 for size in clusters),
+    "minimum_cluster_cells": min(clusters, default=0),
+    "retention_policy": "all clusters, including one-cell narrow stegs",
   }
 
 
@@ -218,9 +466,32 @@ def build_precision_report(
   out_json: Path,
   out_markdown: Path,
   scene_path: Path | None = None,
+  osm_path: Path | None = None,
+  bounds_path: Path | None = None,
+  voxel_path: Path | None = None,
+  prism_path: Path | None = None,
 ) -> dict[str, Any]:
   """Build and write JSON/Markdown precision evidence reports."""
-  buildings = gpd.read_file(buildings_path, layer="buildings")
+  source_buildings = gpd.read_file(buildings_path, layer="buildings")
+  buildings = (
+    load_current_buildings(buildings_path)
+    if {"building_name", "building_id"}.issubset(source_buildings.columns)
+    else source_buildings.copy()
+  )
+  bounds = (
+    gpd.read_file(bounds_path).to_crs(BERLIN_PROJECTED).geometry.union_all()
+    if bounds_path is not None and bounds_path.exists()
+    else None
+  )
+  building_stats = building_precision_stats(
+    buildings,
+    bounds,
+    source_building_count=len(source_buildings),
+  )
+  building_stats["source_geometry_audit"] = geometry_integrity_stats(
+    source_buildings, bounds
+  )
+  building_stats["drawn_prism_coverage"] = prism_coverage_stats(buildings, prism_path)
   report = {
     "generated_at": datetime.now(tz=UTC).isoformat(),
     "coordinate_reference_system": BERLIN_PROJECTED,
@@ -260,8 +531,17 @@ def build_precision_report(
           "Vorderlandmauer traces support public-space detail."
         ),
       },
+      "osm": {
+        "path": str(osm_path) if osm_path is not None else None,
+        "sha256": sha256_file(osm_path)
+        if osm_path is not None and osm_path.exists()
+        else None,
+        "metadata_url": OSM_COPYRIGHT_URL,
+        "claim": "OSM centrelines, bridge tags and mapped width/lane evidence.",
+      },
     },
-    "buildings": building_precision_stats(buildings),
+    "buildings": building_stats,
+    "roads_and_bridges": road_bridge_precision_stats(osm_path, bounds, voxel_path),
     "landmark_scale": landmark_scale_stats(buildings),
     "landmark_alignment": load_alignment_summary(alignment_path),
     "photogrammetric_surface": scene_surface_stats(scene_path),
@@ -285,6 +565,8 @@ def build_precision_report(
 def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
   """Write a human-readable metric precision report."""
   buildings = report["buildings"]
+  prism_coverage = buildings["drawn_prism_coverage"]
+  roads = report["roads_and_bridges"]
   alignment = report["landmark_alignment"]
   chancellery = report.get("landmark_scale", {}).get("bundeskanzleramt", {})
   surface = report["photogrammetric_surface"]
@@ -315,10 +597,12 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "",
         "## Committed LoD2 geometry statistics",
         "",
-        f"- Buildings: {buildings['building_count']}",
+        f"- Official source building features audited: {buildings['source_building_count']}",
+        f"- Current source features after documented corrections: {buildings['building_count']}",
+        f"- Documented historical/demolished features excluded: {buildings['excluded_historical_count']}",
         f"- Polygon parts: {buildings['polygon_part_count']}",
         f"- Total footprint area: {buildings['building_footprint_area_m2']} m²",
-        f"- Footprint vertices rendered: {buildings['footprint_vertex_count']}",
+        f"- Current source footprint vertices audited: {buildings['footprint_vertex_count']}",
         f"- Median vertices per polygon: {buildings['median_vertices_per_polygon']}",
         f"- Interior rings / courtyards: {buildings['interior_ring_count']}",
         f"- Median segment length: {buildings['median_segment_length_m']} m",
@@ -326,6 +610,29 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         f"- Explicit CityGML BuildingParts: {buildings['building_part_count']}",
         f"- Segmented parent ensembles: {buildings['segmented_ensemble_count']}",
         f"- Latest source creation date: {buildings['latest_source_creation_date']}",
+        f"- Invalid / empty / outside-bounds geometries: {buildings['invalid_geometry_count']} / {buildings['empty_geometry_count']} / {buildings['outside_bounds_count']}",
+        f"- Full source invalid / empty / outside-bounds geometries: {buildings['source_geometry_audit']['invalid_geometry_count']} / {buildings['source_geometry_audit']['empty_geometry_count']} / {buildings['source_geometry_audit']['outside_bounds_count']}",
+        f"- Drawn-prism coverage status: {prism_coverage.get('status', 'unavailable')}",
+        f"- Drawn LoD2 prisms: {prism_coverage.get('payload_prism_count', 'n/a')} parts from {prism_coverage.get('drawable_source_row_count', 'n/a')} current source rows",
+        f"- Non-extruded source rows / parts: {prism_coverage.get('omitted_source_row_count', 'n/a')} / {prism_coverage.get('omitted_source_part_count', 'n/a')}",
+        f"  - Sub-5 cm flat rows: {prism_coverage.get('flat_source_row_count', 'n/a')}",
+        f"  - Degenerate non-flat parts: {prism_coverage.get('degenerate_source_part_count', 'n/a')} (maximum footprint {prism_coverage.get('max_omitted_nonflat_part_area_m2', 'n/a')} m²)",
+        "",
+        "## Complete street and bridge geometry audit",
+        "",
+        f"- Status: {roads.get('status', 'unavailable')}",
+        f"- OSM road features audited: {roads.get('road_feature_count', 'n/a')}",
+        f"- Supported road centrelines rendered: {roads.get('supported_road_line_count', 'n/a')}",
+        f"- Resolved full widths: {roads.get('resolved_width_count', 'n/a')}",
+        f"- Width evidence: {roads.get('width_evidence', {})}",
+        f"- OSM bridge centrelines audited: {roads.get('bridge_line_count', 'n/a')}",
+        f"  - Road/path bridges: {roads.get('road_bridge_line_count', 'n/a')}",
+        f"  - Rail bridges/viaduct lines: {roads.get('rail_bridge_line_count', 'n/a')}",
+        f"- Named bridge centrelines: {roads.get('named_bridge_line_count', 'n/a')}",
+        f"- Rendered water-crossing groups: {roads.get('rendered_water_crossings', {}).get('cluster_count', 'n/a')} ({roads.get('rendered_water_crossings', {}).get('small_cluster_count', 'n/a')} narrow groups retained)",
+        f"- Road invalid / empty / outside-bounds geometries: {roads.get('road_invalid_geometry_count', 'n/a')} / {roads.get('road_empty_geometry_count', 'n/a')} / {roads.get('road_outside_bounds_count', 'n/a')}",
+        f"- Bridge invalid / empty / outside-bounds geometries: {roads.get('bridge_invalid_geometry_count', 'n/a')} / {roads.get('bridge_empty_geometry_count', 'n/a')} / {roads.get('bridge_outside_bounds_count', 'n/a')}",
+        f"- Width policy: {roads.get('width_policy', 'n/a')}",
         "",
         "## Bundeskanzleramt scale check",
         "",
@@ -364,7 +671,10 @@ def write_precision_markdown(path: Path, report: dict[str, Any]) -> None:
         "",
         "The viewer is metric in planimetric placement because it renders",
         "EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders",
-        "CityGML BuildingParts at their individual measured heights, LoD2",
+        "all drawable CityGML BuildingParts at their individual measured",
+        "heights, while the report above exposes sub-5 cm flats and tiny",
+        "degenerate source slivers that are retained in the GeoPackage but not",
+        "extruded. LoD2",
         "interior rings as visible courtyards/cut-outs, and uses denser",
         "facade bays, roof ribs, and roof equipment marks from footprint size,",
         "height, roof type, and landmark material cues. The official Berlin 3D",
@@ -398,6 +708,26 @@ def main() -> None:
     default=Path("geo_data/regierungsviertel/buildings.gpkg"),
   )
   parser.add_argument(
+    "--voxel",
+    type=Path,
+    default=Path("src/app/public/mesh/regierungsviertel/minecraft-voxels.json"),
+  )
+  parser.add_argument(
+    "--prisms",
+    type=Path,
+    default=Path("src/app/public/mesh/regierungsviertel/lod2-prisms.json"),
+  )
+  parser.add_argument(
+    "--osm",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/osm.gpkg"),
+  )
+  parser.add_argument(
+    "--bounds",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/bounds.geojson"),
+  )
+  parser.add_argument(
     "--scene",
     type=Path,
     default=Path("src/app/public/mesh/regierungsviertel/scene.json"),
@@ -424,6 +754,10 @@ def main() -> None:
     out_json=args.out_json,
     out_markdown=args.out_markdown,
     scene_path=args.scene,
+    osm_path=args.osm,
+    bounds_path=args.bounds,
+    voxel_path=args.voxel,
+    prism_path=args.prisms,
   )
   print(
     "Wrote metric precision report for "

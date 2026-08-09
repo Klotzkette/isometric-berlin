@@ -1,24 +1,56 @@
 {
   "buildings": {
-    "building_count": 17091,
-    "building_footprint_area_m2": 2540108.45,
-    "building_part_count": 10626,
-    "footprint_vertex_count": 151548,
+    "building_count": 17072,
+    "building_footprint_area_m2": 2537112.21,
+    "building_part_count": 10607,
+    "drawn_prism_coverage": {
+      "available": true,
+      "current_source_polygon_part_count": 17089,
+      "current_source_row_count": 17072,
+      "degenerate_source_part_count": 127,
+      "drawable_prism_part_count": 16958,
+      "drawable_source_row_count": 16951,
+      "flat_source_part_count": 4,
+      "flat_source_row_count": 4,
+      "max_omitted_nonflat_part_area_m2": 1.132,
+      "median_omitted_nonflat_part_area_m2": 0.762,
+      "omitted_source_part_count": 131,
+      "omitted_source_row_count": 121,
+      "path": "src/app/public/mesh/regierungsviertel/lod2-prisms.json",
+      "payload_prism_count": 16958,
+      "retention_policy": "Measured-height parts at least 1 m2 after 0.15 m topology-preserving simplification; sub-5 cm flats and degenerate source slivers stay in the audited GeoPackage but are not extruded.",
+      "sha256": "7faa27f67e8473fd1a3b48da5e587757f633cf661970ff66560f6188c0810f68",
+      "source_id_suffix_collision_count": 0,
+      "status": "ok"
+    },
+    "empty_geometry_count": 0,
+    "excluded_historical_count": 19,
+    "footprint_vertex_count": 151410,
+    "geometry_count": 17072,
     "interior_ring_count": 166,
+    "invalid_geometry_count": 0,
     "latest_source_creation_date": "2026-03-08",
     "max_segment_length_m": 280.78,
-    "measured_height_count": 17091,
+    "measured_height_count": 17072,
     "measured_height_share": 1.0,
     "median_measured_height_m": 18.46,
     "median_segment_length_m": 2.43,
-    "median_vertices_per_polygon": 5.0,
+    "median_vertices_per_polygon": 5,
     "min_segment_length_m": 0.0,
-    "polygon_part_count": 17108,
-    "segmented_ensemble_count": 2012,
+    "outside_bounds_count": 0,
+    "polygon_part_count": 17089,
+    "segmented_ensemble_count": 2011,
+    "source_building_count": 17091,
+    "source_geometry_audit": {
+      "empty_geometry_count": 0,
+      "geometry_count": 17091,
+      "invalid_geometry_count": 0,
+      "outside_bounds_count": 0
+    },
     "source_precision_interpretation": "Footprints remain in EPSG:25833 metres and are rendered from LoD2 polygon coordinates; roof forms are official generalized standard roof forms, not photogrammetric facade relief."
   },
   "coordinate_reference_system": "EPSG:25833",
-  "generated_at": "2026-08-09T03:29:42.178706+00:00",
+  "generated_at": "2026-08-09T20:03:04.797177+00:00",
   "landmark_alignment": {
     "available": true,
     "landmark_review_count": 2,
@@ -72,6 +104,42 @@
     "semantic_context": "osm",
     "visual_material_cues": "wikimedia"
   },
+  "roads_and_bridges": {
+    "available": true,
+    "bridge_centerline_length_m": 34034.42,
+    "bridge_empty_geometry_count": 0,
+    "bridge_geometry_count": 402,
+    "bridge_invalid_geometry_count": 0,
+    "bridge_line_count": 402,
+    "bridge_outside_bounds_count": 0,
+    "named_bridge_line_count": 219,
+    "rail_bridge_line_count": 219,
+    "rendered_water_crossings": {
+      "available": true,
+      "bridge_cell_count": 2052,
+      "cluster_count": 56,
+      "minimum_cluster_cells": 1,
+      "retention_policy": "all clusters, including one-cell narrow stegs",
+      "small_cluster_count": 28
+    },
+    "resolved_width_count": 14417,
+    "road_bridge_line_count": 183,
+    "road_centerline_length_m": 573323.95,
+    "road_empty_geometry_count": 0,
+    "road_feature_count": 21068,
+    "road_geometry_count": 21068,
+    "road_invalid_geometry_count": 0,
+    "road_outside_bounds_count": 0,
+    "status": "ok",
+    "supported_road_line_count": 14417,
+    "width_evidence": {
+      "class_fallback": 11416,
+      "est_width": 8,
+      "lanes": 1417,
+      "width": 1576
+    },
+    "width_policy": "width > est_width > mapped lanes > highway-class fallback"
+  },
   "sources": {
     "alkis": {
       "claim": "Official cadastral parcel context for geometry QA.",
@@ -95,6 +163,12 @@
       "metadata_url": "https://gdi.berlin.de/geonetwork/srv/api/records/3c7c49af-00a4-3bcd-bc00-20e7f0f1b7bf",
       "path": "geo_data/regierungsviertel/buildings.gpkg",
       "sha256": "03d6c43bf4351728dc29ebcdb86b43c6f434df95e3c55615e4ad5e4de5e39573"
+    },
+    "osm": {
+      "claim": "OSM centrelines, bridge tags and mapped width/lane evidence.",
+      "metadata_url": "https://www.openstreetmap.org/copyright",
+      "path": "geo_data/regierungsviertel/osm.gpkg",
+      "sha256": "91eb41a196c6424fea7c4b45b9ccb70b4cfb5abf64c10d5608aec8ab95034a60"
     }
   }
 }

@@ -2077,7 +2077,10 @@ function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
   return clusters;
 }
 
-export const BRIDGE_MIN_CLUSTER_CELLS = 12;
+// A one-cell cluster can be a real narrow Tiergarten footbridge over a
+// four-metre ditch. Cell CORNERS (below) provide a measurable rectangle even
+// for that case, so no source bridge needs to be discarded by an area guess.
+export const BRIDGE_MIN_CLUSTER_CELLS = 1;
 
 export type BridgeKind =
   | "beam"
@@ -2314,13 +2317,19 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     lampParts.push(geometry);
   };
   for (const cluster of clusters) {
-    const points = cluster.map(
-      ([x, z]) =>
-        [(min_x_idx + x + 0.5) * cell, (min_z_idx + z + 0.5) * cell] as [
-          number,
-          number,
-        ],
-    );
+    // Fit the complete occupied cell envelope, not only cell centres. Besides
+    // measuring the deck's full raster width, this gives one- and two-cell
+    // stegs a real rectangle instead of an under-determined line that vanishes.
+    const points = cluster.flatMap(([x, z]) => {
+      const x0 = (min_x_idx + x) * cell;
+      const z0 = (min_z_idx + z) * cell;
+      return [
+        [x0, z0],
+        [x0 + cell, z0],
+        [x0 + cell, z0 + cell],
+        [x0, z0 + cell],
+      ] as Array<[number, number]>;
+    });
     const rect = fitRectangle(points);
     if (!rect) {
       continue;
@@ -2344,24 +2353,29 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const HUGO_ASPHALT = new Color(0x626565);
     const HUGO_PAVING = new Color(0xb9b8b1);
     const HUGO_RECESS = new Color(0x697174);
-    // Deck height: the carriageway runs at bank level, but never lower
-    // than the shipping clearance above the recessed water table.
-    let deckY =
-      waterTop +
-      (kind === "golda"
-        ? BRIDGE_MIN_CLEARANCE_M + 0.9
-        : BRIDGE_MIN_CLEARANCE_M);
-    for (const [x, z] of cluster) {
-      deckY = Math.max(deckY, sample(x, z) + 0.55);
-    }
-    // Road bridges over the Spree are 18–26 m wide and rest on both
-    // banks: widen thin clusters and extend the span onto the abutments.
-    // A surveyed deck replaces both, because the grid clips narrow decks.
+    // The occupied cell envelope now carries the full generic dimensions.
+    // Named profiles still replace both values with published survey figures.
     const halfLength =
-      profile?.surveyedDeck?.halfLengthM ?? Math.max(rect.halfLength, cell) + 5;
+      profile?.surveyedDeck?.halfLengthM ?? Math.max(rect.halfLength, cell / 2);
     const halfWidth =
       profile?.surveyedDeck?.halfWidthM ??
-      Math.max(rect.halfWidth, profile?.halfWidthM ?? 8.5);
+      Math.max(rect.halfWidth, profile?.halfWidthM ?? cell / 2);
+    const genericSmall = profile === null && halfLength <= 20 && halfWidth <= 6;
+    // Major river crossings preserve shipping clearance. Small park stegs sit
+    // just above their sampled local banks instead of floating 5.4 m over a
+    // shallow Tiergarten ditch.
+    let sampledDeckY = Number.NEGATIVE_INFINITY;
+    for (const [x, z] of cluster) {
+      sampledDeckY = Math.max(sampledDeckY, sample(x, z) + 0.55);
+    }
+    let deckY = genericSmall
+      ? sampledDeckY
+      : waterTop +
+        (kind === "golda"
+          ? BRIDGE_MIN_CLEARANCE_M + 0.9
+          : BRIDGE_MIN_CLEARANCE_M);
+    deckY = Math.max(deckY, sampledDeckY);
+    const bedY = genericSmall ? deckY - 2.2 : BED_Y;
     const rawAxis = profile?.axis ?? rect.axis;
     const axisLength = Math.hypot(rawAxis[0], rawAxis[1]) || 1;
     const ax = rawAxis[0] / axisLength;
@@ -2386,8 +2400,9 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     };
     // Every crossing rises slightly toward mid-span: the drawn camber is
     // what makes a bridge read as going OVER something.
-    const camber =
-      kind === "stoneArch"
+    const camber = genericSmall
+      ? 0.18
+      : kind === "stoneArch"
         ? 0.42
         : kind === "steelArch"
           ? 1.2
@@ -2397,13 +2412,14 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               ? 1.05
               : kind === "vierendeel"
                 ? 0.16
-            : kind === "slender"
-              ? 0.9
-              : 0.5;
+                : kind === "slender"
+                  ? 0.9
+                  : 0.5;
     const riseAt = (u: number): number =>
       camber * Math.cos((u / halfLength) * (Math.PI / 2)) ** 2;
-    const deckThickness =
-      kind === "golda"
+    const deckThickness = genericSmall
+      ? 0.28
+      : kind === "golda"
         ? 0.22
         : kind === "vierendeel"
           ? 0.24
@@ -2412,8 +2428,9 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             : kind === "slender"
               ? 0.5
               : 0.7;
-    const DECK_SEGMENTS =
-      kind === "vierendeel"
+    const DECK_SEGMENTS = genericSmall
+      ? Math.max(2, Math.min(8, Math.ceil((halfLength * 2) / cell)))
+      : kind === "vierendeel"
         ? 40
         : kind === "curvedBox"
           ? 32
@@ -2704,7 +2721,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     }
     // Railing uprights: sandstone pedestals on the Moltkebrücke, slim
     // steel posts everywhere else.
-    const postSpacing = kind === "stoneArch" ? 5.5 : 2.6;
+    const postSpacing = kind === "stoneArch" ? 5.5 : genericSmall ? 3.2 : 2.6;
     const postCount = Math.max(2, Math.round((halfLength * 2) / postSpacing));
     if (kind === "golda") {
       const slotCount = 39;
@@ -2908,13 +2925,18 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     for (const end of [-1, 1]) {
       const u = end * halfLength;
       const [px, pz] = at(u, 0);
-      const height = deckY + riseAt(u) - 1.0 - BED_Y;
-      const abutmentLength =
-        kind === "vierendeel" ? 2.8 : kind === "curvedBox" ? 7.0 : 5.0;
+      const height = deckY + riseAt(u) - 1.0 - bedY;
+      const abutmentLength = genericSmall
+        ? 1.4
+        : kind === "vierendeel"
+          ? 2.8
+          : kind === "curvedBox"
+            ? 7.0
+            : 5.0;
       addPart(
         boxTriangles(
           px,
-          BED_Y + height / 2,
+          bedY + height / 2,
           pz,
           tangentAt(u),
           kind === "slender" ? 3.0 : abutmentLength,
@@ -2934,11 +2956,11 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       for (let index = 1; index < arches; index += 1) {
         const u = -halfLength + pierSpacing * index;
         const [px, pz] = at(u, 0);
-        const height = deckY + riseAt(u) - 1.2 - BED_Y;
+        const height = deckY + riseAt(u) - 1.2 - bedY;
         addPart(
           boxTriangles(
             px,
-            BED_Y + height / 2,
+            bedY + height / 2,
             pz,
             tangentAt(u),
             4.6,
@@ -3062,11 +3084,11 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       for (const end of [-1, 1]) {
         const u = end * 33;
         const [px, pz] = at(u, 0);
-        const height = deckY + riseAt(u) - deckThickness - BED_Y;
+        const height = deckY + riseAt(u) - deckThickness - bedY;
         addPart(
           boxTriangles(
             px,
-            BED_Y + height / 2,
+            bedY + height / 2,
             pz,
             tangentAt(u),
             1.45,
@@ -3086,23 +3108,23 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       for (const end of [-1, 1]) {
         const u = end * halfLength * 0.42;
         const [px, pz] = at(u, 0);
-        const height = deckY + riseAt(u) - 0.9 - BED_Y;
+        const height = deckY + riseAt(u) - 0.9 - bedY;
         addPart(
-          prismTriangles(px, BED_Y + height / 2, pz, 1.1, height, 10),
+          prismTriangles(px, bedY + height / 2, pz, 1.1, height, 10),
           STONE_DARK,
         );
       }
     } else if (kind !== "golda") {
       // Generic crossings keep the plain pier-and-web beam bridge.
       const spanCount = Math.max(1, Math.round((halfLength * 2) / 22));
-      const pierHeight = deckY - 1.25 - BED_Y;
+      const pierHeight = deckY - 1.25 - bedY;
       for (let index = 1; index < spanCount; index += 1) {
         const u = -halfLength + (index / spanCount) * halfLength * 2;
         const [px, pz] = at(u, 0);
         addPart(
           boxTriangles(
             px,
-            BED_Y + pierHeight / 2,
+            bedY + pierHeight / 2,
             pz,
             tangentAt(u),
             2.6,
@@ -3130,6 +3152,10 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       world,
     }),
   );
+  group.userData.bridgeClusterCount = clusters.length;
+  group.userData.smallBridgeClusterCount = clusters.filter(
+    (cluster) => cluster.length < 12,
+  ).length;
   group.userData.keepInMinecraft = true;
 
   const merged = mergeGeometries(parts, false);
@@ -5144,24 +5170,23 @@ export function createSmoothSurfaces(
   const buildPlate = (
     polygons: SurfacePolygon[],
     y: number,
-    tone: number,
     followTerrain = false,
   ): BufferGeometry | null => {
-    const parts: BufferGeometry[] = [];
+    const shapes: Shape[] = [];
     for (const surface of polygons) {
       if (surface.ring.length < 4) {
         continue;
       }
-      // One malformed ring must never cost the viewer its entire drawn
-      // city. Triangulation is the only step here that can throw, and a
-      // dropped plate is a missing puddle of colour — a thrown exception
-      // silently falls all the way back to the bare photogrammetry mesh.
-      let geometry: ShapeGeometry;
       try {
-        geometry = new ShapeGeometry(shapeFromSurface(surface));
+        shapes.push(shapeFromSurface(surface));
       } catch {
         continue;
       }
+    }
+    if (shapes.length === 0) {
+      return null;
+    }
+    const placeGeometry = (geometry: ShapeGeometry): BufferGeometry => {
       geometry.deleteAttribute("uv");
       geometry.rotateX(-Math.PI / 2);
       geometry.translate(0, y, 0);
@@ -5177,25 +5202,33 @@ export function createSmoothSurfaces(
         }
         position.needsUpdate = true;
       }
-      const paint = new Color(tone);
-      const count = geometry.getAttribute("position").count;
-      const colors = new Float32Array(count * 3);
-      for (let index = 0; index < count; index += 1) {
-        colors[index * 3] = paint.r;
-        colors[index * 3 + 1] = paint.g;
-        colors[index * 3 + 2] = paint.b;
+      return geometry;
+    };
+    try {
+      // ShapeGeometry accepts an array. Building one family in a single pass
+      // avoids allocating and then copying hundreds of temporary geometries
+      // during viewer startup (roads alone previously created 674 of them).
+      return placeGeometry(new ShapeGeometry(shapes));
+    } catch {
+      // A malformed ring must never cost the viewer its entire drawn city.
+      // Retry one shape at a time so only the broken plate is skipped.
+      const parts: BufferGeometry[] = [];
+      for (const shape of shapes) {
+        try {
+          parts.push(placeGeometry(new ShapeGeometry(shape)));
+        } catch {
+          continue;
+        }
       }
-      geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
-      parts.push(geometry);
+      if (parts.length === 0) {
+        return null;
+      }
+      const merged = mergeGeometries(parts, false);
+      for (const part of parts) {
+        part.dispose();
+      }
+      return merged;
     }
-    if (parts.length === 0) {
-      return null;
-    }
-    const merged = mergeGeometries(parts, false);
-    for (const part of parts) {
-      part.dispose();
-    }
-    return merged;
   };
 
   // Parkland lawns first: they sit just above the rasterised grass so
@@ -5203,7 +5236,6 @@ export function createSmoothSurfaces(
   const lawns = buildPlate(
     surfaces.parks.filter((entry) => entry.kind !== "garden"),
     terrainAt ? 0.06 : bankY + 0.08,
-    0xffffff,
     true,
   );
   if (lawns) {
@@ -5223,12 +5255,7 @@ export function createSmoothSurfaces(
   // grass, and it needs an outline — beds that touch each other along a
   // gravel walk are only readable as separate beds if their edges are drawn.
   const gardens = surfaces.parks.filter((entry) => entry.kind === "garden");
-  const gardenPlate = buildPlate(
-    gardens,
-    terrainAt ? 0.08 : bankY + 0.1,
-    0xffffff,
-    true,
-  );
+  const gardenPlate = buildPlate(gardens, terrainAt ? 0.08 : bankY + 0.1, true);
   if (gardenPlate) {
     const dayMaterial = new MeshBasicMaterial({ color: 0x8fae72 });
     const nightMaterial = new MeshBasicMaterial({ color: 0x1e2a1c });
@@ -5314,7 +5341,6 @@ export function createSmoothSurfaces(
     const plate = buildPlate(
       roads.filter((entry) => entry.kind === surface.kind),
       terrainAt ? surface.lift : bankY + surface.lift,
-      0xffffff,
       true,
     );
     if (!plate) {
@@ -5491,7 +5517,7 @@ export function createSmoothSurfaces(
   );
 
   // Sandy riverbed, then the transparent water plate above it.
-  const bed = buildPlate(rivers, waterTopY - BED_DROP, 0xffffff);
+  const bed = buildPlate(rivers, waterTopY - BED_DROP);
   if (bed) {
     const dayMaterial = new MeshBasicMaterial({ color: 0xd4cbb4 });
     const nightMaterial = new MeshBasicMaterial({ color: 0x1a232b });
@@ -5501,7 +5527,7 @@ export function createSmoothSurfaces(
     bedMesh.name = "smooth river bed";
     group.add(bedMesh);
   }
-  const water = buildPlate(rivers, waterTopY, 0xffffff);
+  const water = buildPlate(rivers, waterTopY);
   if (water) {
     const dayMaterial = new MeshBasicMaterial({
       color: 0x9fc7d8,

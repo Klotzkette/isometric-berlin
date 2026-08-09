@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +35,7 @@ from shapely.geometry import (
   MultiLineString,
   MultiPolygon,
   Polygon,
+  box,
 )
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import substring, unary_union
@@ -54,6 +56,10 @@ from isometric_berlin.generation.build_minecraft_voxels import (
   ORIGIN_NORTHING,
   REPO_ROOT,
   verify_scene_origin,
+)
+from isometric_berlin.generation.road_geometry import (
+  ROAD_WIDTHS_M,
+  road_width_m,
 )
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
@@ -80,39 +86,22 @@ GARDEN_SIMPLIFY_M = 0.4
 # each centreline by half its real carriageway width turns them into true
 # polygons the viewer can draw exactly like the water and park plates.
 #
-# Widths are the ordinary German cross-sections for each class, not
-# per-street survey: they are presentation geometry derived from an OSM
-# classification, and the manifest labels them as such.
-ROAD_WIDTHS_M: dict[str, float] = {
-  # Berlin's classified roads are mapped as ONE centreline even where the
-  # street carries two carriageways and a central reservation — the Straße
-  # des 17. Juni is a single OSM way across a 50 m boulevard. A textbook
-  # 12 m lane width therefore drew it as a hairline through the park. These
-  # widths are the full paved cross-section for the class as it occurs in
-  # this district, so the axis reads as the avenue it is.
-  "trunk": 20.0,
-  "primary": 17.0,
-  "secondary": 12.0,
-  "tertiary": 9.5,
-  "residential": 8.0,
-  "unclassified": 7.5,
-  "living_street": 7.0,
-  "service": 5.0,
-  "pedestrian": 9.0,
-  "cycleway": 2.6,
-  "footway": 2.4,
-  "path": 2.2,
-  "track": 3.0,
-  "steps": 2.0,
-}
+# Mapped per-way widths and lane counts are resolved by ``road_geometry``;
+# class widths remain only the documented fallback where OSM has no measure.
 # Which drawn surface each class reads as. Park paths are the sandy
 # Tiergarten gravel; everything carrying traffic is asphalt; squares and
 # pedestrian zones are paving.
 ROAD_KINDS: dict[str, str] = {
   "trunk": "asphalt",
+  "trunk_link": "asphalt",
+  "motorway": "asphalt",
+  "motorway_link": "asphalt",
   "primary": "asphalt",
+  "primary_link": "asphalt",
   "secondary": "asphalt",
+  "secondary_link": "asphalt",
   "tertiary": "asphalt",
+  "tertiary_link": "asphalt",
   "residential": "asphalt",
   "unclassified": "asphalt",
   "living_street": "asphalt",
@@ -125,9 +114,16 @@ ROAD_KINDS: dict[str, str] = {
   "steps": "paving",
 }
 # Classes whose centreline earns a painted lane marking.
-MARKED_CLASSES = frozenset({"trunk", "primary", "secondary"})
+MARKED_CLASSES = frozenset({"motorway", "trunk", "primary", "secondary", "tertiary"})
 ROAD_SIMPLIFY_M = 0.75
 MIN_ROAD_AREA_M2 = 25.0
+# The merged pedestrian/cycle network can become one city-scale polygon with
+# more than a thousand holes. Earcut then blocks the browser for seconds even
+# though the geometry is valid. Split only that non-kerbed presentation family
+# on deterministic metric boundaries; the union and its visible outline stay
+# identical, while every triangulation remains bounded.
+ROAD_BROWSER_TILE_M = 400.0
+ROAD_BROWSER_HOLE_THRESHOLD = 128
 # The visible Tiergartentunnel ramps are two 10.5 m bores plus their walls.
 # A small shoulder makes the cut robust to the 0.75 m surface simplification.
 OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M = 12.5
@@ -142,6 +138,29 @@ def ring_to_dm(coords: Any) -> list[list[int]]:
     [round((x - ORIGIN_EASTING) * 10), round((ORIGIN_NORTHING - y) * 10)]
     for x, y in coords
   ]
+
+
+def partition_road_surface(polygon: Polygon, kind: str) -> list[Polygon]:
+  """Bound browser triangulation cost without changing the paved union."""
+  if kind != "paving" or len(polygon.interiors) < ROAD_BROWSER_HOLE_THRESHOLD:
+    return [polygon]
+  minx, miny, maxx, maxy = polygon.bounds
+  start_x = math.floor(minx / ROAD_BROWSER_TILE_M) * ROAD_BROWSER_TILE_M
+  start_y = math.floor(miny / ROAD_BROWSER_TILE_M) * ROAD_BROWSER_TILE_M
+  parts: list[Polygon] = []
+  x = start_x
+  while x < maxx:
+    y = start_y
+    while y < maxy:
+      clipped = polygon.intersection(
+        box(x, y, x + ROAD_BROWSER_TILE_M, y + ROAD_BROWSER_TILE_M)
+      )
+      parts.extend(
+        part for part in polygon_parts(clipped) if part.area >= MIN_ROAD_AREA_M2
+      )
+      y += ROAD_BROWSER_TILE_M
+    x += ROAD_BROWSER_TILE_M
+  return parts
 
 
 def polygon_parts(geometry: BaseGeometry) -> list[Polygon]:
@@ -373,7 +392,7 @@ def collect_roads(
       isinstance(covered, str) and covered not in ("", "no")
     ):
       continue
-    width = ROAD_WIDTHS_M.get(highway)
+    width = road_width_m(row)
     if width is None:
       continue
     if runs_underground(row):
@@ -428,27 +447,28 @@ def collect_roads(
       simplified = part.simplify(ROAD_SIMPLIFY_M, preserve_topology=True)
       if simplified.is_empty or simplified.area < MIN_ROAD_AREA_M2:
         continue
-      ring = ring_to_dm(simplified.exterior.coords)
-      if len(ring) < 4:
-        continue
-      # Sliver holes are what a buffered road network produces wherever
-      # two carriageways graze each other, and a hole with no real area
-      # makes the viewer's ear-clipping triangulator throw. Keep only
-      # holes that enclose at least a square metre.
-      holes = [
-        ring_to_dm(interior.coords)
-        for interior in simplified.interiors
-        if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
-      ]
-      surfaces.append(
-        {
-          "area_m2": round(simplified.area),
-          "holes": holes,
-          "kind": kind,
-          "name": "",
-          "ring": ring,
-        }
-      )
+      for browser_part in partition_road_surface(simplified, kind):
+        ring = ring_to_dm(browser_part.exterior.coords)
+        if len(ring) < 4:
+          continue
+        # Sliver holes are what a buffered road network produces wherever
+        # two carriageways graze each other, and a hole with no real area
+        # makes the viewer's ear-clipping triangulator throw. Keep only
+        # holes that enclose at least a square metre.
+        holes = [
+          ring_to_dm(interior.coords)
+          for interior in browser_part.interiors
+          if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
+        ]
+        surfaces.append(
+          {
+            "area_m2": round(browser_part.area),
+            "holes": holes,
+            "kind": kind,
+            "name": "",
+            "ring": ring,
+          }
+        )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   markings.sort(key=lambda entry: -len(entry["points"]))
   return surfaces, markings
@@ -470,6 +490,7 @@ def build_payload(
     "park_simplify_m": PARK_SIMPLIFY_M,
     "parks": collect_parkland(osm_path, bounds),
     "road_simplify_m": ROAD_SIMPLIFY_M,
+    "road_width_policy": "width > est_width > mapped lanes > highway-class fallback",
     "road_widths_m": ROAD_WIDTHS_M,
     "roads": roads,
     "schema_version": SCHEMA_VERSION,

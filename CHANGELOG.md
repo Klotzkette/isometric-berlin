@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.70.13
+
+- **Buildings, streets and bridges now have one complete, reproducible accuracy
+  audit.** The report checks all 17,091 committed LoD2 source features, all
+  21,068 OSM road geometries and all 402 road/path/rail bridge centrelines for
+  validity and bounds containment. It separately verifies the 16,958 shipped
+  drawn prisms and transparently records 121 non-extruded source rows: four
+  sub-5 cm flats and otherwise sub-1.14 m² source slivers, never relocated or
+  silently described as rendered.
+- OSM import now preserves `width`, `est_width`, lane, sidewalk, cycleway,
+  bridge-structure and clearance evidence. Every one of the 14,417 supported
+  road centrelines resolves its full width in the order mapped width → estimated
+  width → mapped lanes → documented class fallback, and both the smooth and
+  voxel surfaces consume that shared policy.
+- **No narrow bridge is discarded by a raster-size guess anymore.** All 56
+  water-crossing groups are retained, including 28 one-to-eleven-cell park
+  stegs; small generic decks follow their local banks instead of floating at
+  Spree shipping clearance. Named bridge profiles keep their published spans,
+  widths and finishes.
+- Browser startup no longer ear-clips one city-scale paving polygon with 1,390
+  holes. The exact same paved union is partitioned on deterministic 400 m
+  internal boundaries and each material family is triangulated in one pass.
+  Measured surface construction fell from roughly 4.2 s to 0.23–0.29 s; the
+  full 485-test viewer suite fell from 102 s to 48 s.
+- Desktop and 390 × 844 mobile checks found no visible partition seams, missing
+  surfaces, console errors or control overlap. Six consecutive settled frames
+  were byte-identical in Day, Night and Minecraft. The visible radius remains
+  **5,230 m**; no building coordinate, bounds, attribution, credentials, Google
+  content or raw source material changed.
+
 ## v0.70.12
 
 - **Navigation now responds at full speed on the first input frame.** Held

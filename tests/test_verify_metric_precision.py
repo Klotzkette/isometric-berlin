@@ -12,6 +12,8 @@ from isometric_berlin.data.verify_metric_precision import (
   BERLIN_PROJECTED,
   build_precision_report,
   building_precision_stats,
+  prism_coverage_stats,
+  road_bridge_precision_stats,
   scene_surface_stats,
 )
 
@@ -85,8 +87,76 @@ def test_build_precision_report_writes_json_and_markdown(tmp_path: Path) -> None
   )
 
   assert report["buildings"]["building_count"] == 1
+  assert report["buildings"]["invalid_geometry_count"] == 0
   assert out_json.exists()
   assert "Metric precision" in out_markdown.read_text(encoding="utf-8")
+
+
+def test_road_bridge_precision_audits_every_geometry_and_width_tier(
+  tmp_path: Path,
+) -> None:
+  osm_path = tmp_path / "osm.gpkg"
+  roads = gpd.GeoDataFrame(
+    {
+      "name": ["Measured bridge", "Lane road", "Footpath"],
+      "highway": ["footway", "primary", "footway"],
+      "bridge": ["yes", None, None],
+      "width": ["1.5", None, None],
+      "lanes": [None, "4", None],
+      "geometry": [
+        Polygon([(0, 0), (0, 0.5), (10, 0.5), (10, 0), (0, 0)]).boundary,
+        Polygon([(0, 10), (0, 10.5), (10, 10.5), (10, 10), (0, 10)]).boundary,
+        Polygon([(0, 20), (0, 20.5), (10, 20.5), (10, 20), (0, 20)]).boundary,
+      ],
+    },
+    geometry="geometry",
+    crs=BERLIN_PROJECTED,
+  )
+  roads.to_file(osm_path, layer="roads", driver="GPKG")
+  bounds = Polygon([(-1, -1), (12, -1), (12, 22), (-1, 22), (-1, -1)])
+
+  stats = road_bridge_precision_stats(osm_path, bounds)
+
+  assert stats["status"] == "ok"
+  assert stats["supported_road_line_count"] == 3
+  assert stats["resolved_width_count"] == 3
+  assert stats["width_evidence"] == {
+    "width": 1,
+    "est_width": 0,
+    "lanes": 1,
+    "class_fallback": 1,
+  }
+  assert stats["bridge_line_count"] == 1
+  assert stats["road_outside_bounds_count"] == 0
+
+
+def test_prism_coverage_exposes_flat_and_degenerate_source_parts(
+  tmp_path: Path,
+) -> None:
+  buildings = gpd.GeoDataFrame(
+    {
+      "building_id": ["solid", "flat", "sliver"],
+      "measured_height_m": [12.0, 0.02, 8.0],
+      "geometry": [
+        Polygon([(0, 0), (4, 0), (4, 4), (0, 4), (0, 0)]),
+        Polygon([(10, 0), (14, 0), (14, 4), (10, 4), (10, 0)]),
+        Polygon([(20, 0), (20.5, 0), (20.5, 0.5), (20, 0.5), (20, 0)]),
+      ],
+    },
+    geometry="geometry",
+    crs=BERLIN_PROJECTED,
+  )
+  prism_path = tmp_path / "lod2-prisms.json"
+  prism_path.write_text(json.dumps({"buildings": [{"id": "solid"}]}))
+
+  stats = prism_coverage_stats(buildings, prism_path)
+
+  assert stats["status"] == "ok"
+  assert stats["drawable_source_row_count"] == 1
+  assert stats["payload_prism_count"] == 1
+  assert stats["omitted_source_row_count"] == 2
+  assert stats["flat_source_row_count"] == 1
+  assert stats["degenerate_source_part_count"] == 1
 
 
 def test_scene_surface_stats_reports_current_mesh_tiers(tmp_path: Path) -> None:

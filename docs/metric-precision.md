@@ -21,17 +21,42 @@ surface, and which additions remain display approximations.
 
 ## Committed LoD2 geometry statistics
 
-- Buildings: 17091
-- Polygon parts: 17108
-- Total footprint area: 2540108.45 m²
-- Footprint vertices rendered: 151548
-- Median vertices per polygon: 5.0
+- Official source building features audited: 17091
+- Current source features after documented corrections: 17072
+- Documented historical/demolished features excluded: 19
+- Polygon parts: 17089
+- Total footprint area: 2537112.21 m²
+- Current source footprint vertices audited: 151410
+- Median vertices per polygon: 5
 - Interior rings / courtyards: 166
 - Median segment length: 2.43 m
-- Measured LoD2 heights: 17091 (100.0%)
-- Explicit CityGML BuildingParts: 10626
-- Segmented parent ensembles: 2012
+- Measured LoD2 heights: 17072 (100.0%)
+- Explicit CityGML BuildingParts: 10607
+- Segmented parent ensembles: 2011
 - Latest source creation date: 2026-03-08
+- Invalid / empty / outside-bounds geometries: 0 / 0 / 0
+- Full source invalid / empty / outside-bounds geometries: 0 / 0 / 0
+- Drawn-prism coverage status: ok
+- Drawn LoD2 prisms: 16958 parts from 16951 current source rows
+- Non-extruded source rows / parts: 121 / 131
+  - Sub-5 cm flat rows: 4
+  - Degenerate non-flat parts: 127 (maximum footprint 1.132 m²)
+
+## Complete street and bridge geometry audit
+
+- Status: ok
+- OSM road features audited: 21068
+- Supported road centrelines rendered: 14417
+- Resolved full widths: 14417
+- Width evidence: {'width': 1576, 'est_width': 8, 'lanes': 1417, 'class_fallback': 11416}
+- OSM bridge centrelines audited: 402
+  - Road/path bridges: 183
+  - Rail bridges/viaduct lines: 219
+- Named bridge centrelines: 219
+- Rendered water-crossing groups: 56 (28 narrow groups retained)
+- Road invalid / empty / outside-bounds geometries: 0 / 0 / 0
+- Bridge invalid / empty / outside-bounds geometries: 0 / 0 / 0
+- Width policy: width > est_width > mapped lanes > highway-class fallback
 
 ## Bundeskanzleramt scale check
 
@@ -70,8 +95,11 @@ surface, and which additions remain display approximations.
 
 The viewer is metric in planimetric placement because it renders
 EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders
-CityGML BuildingParts at their individual measured heights, LoD2
-interior rings as visible courtyards/cut-outs, and uses denser
+all drawable CityGML BuildingParts at their individual measured
+heights, while the report above exposes sub-5 cm flats and tiny
+degenerate source slivers that are retained in the GeoPackage but not
+extruded. It preserves LoD2 interior rings as visible courtyards/cut-outs
+and uses denser
 facade bays, roof ribs, and roof equipment marks from footprint size,
 height, roof type, and landmark material cues. The official Berlin 3D
 Mesh adds genuine photogrammetric roof, facade, ground and canopy relief
