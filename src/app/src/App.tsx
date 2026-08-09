@@ -2203,8 +2203,8 @@ export function App() {
               setIsThreeReady(true);
               setStatus(
                 language === "de"
-                  ? "Amtliches 3D-Mesh bereit"
-                  : "Official 3D mesh ready",
+                  ? "Isometrische Ansicht bereit"
+                  : "Isometric view ready",
               );
             }}
             onError={(message) => {

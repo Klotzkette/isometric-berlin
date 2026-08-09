@@ -288,6 +288,7 @@ export type ThreeViewerHandle = {
 };
 
 type Runtime = {
+  baseSurfaceReady: boolean;
   camera: PerspectiveCamera;
   centralDetails: Group;
   civicDetails: Group;
@@ -313,6 +314,8 @@ type Runtime = {
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
   parkDetails: Group;
+  presentationReady: boolean;
+  notifyPresentationReady: () => void;
   rain: ModerateRain;
   rainEnabled: boolean;
   snowstorm: Snowstorm;
@@ -358,6 +361,49 @@ type Runtime = {
   underside: boolean;
   underwater: boolean;
 };
+
+type WorldLoadState = "failed" | "idle" | "loading";
+export type StartupPresentationStatus = "fallback" | "pending" | "ready";
+
+/**
+ * Resolve what may be shown while the requested drawn world is loading.
+ *
+ * The photogrammetric Berlin mesh is an explicit failure fallback, never a
+ * startup placeholder. Returning ``pending`` keeps it behind the opaque
+ * startup curtain from the first WebGL frame; this prevents the old photo
+ * surface from flashing before Day/Night/Snow or Minecraft is ready.
+ */
+export function startupPresentationStatus({
+  isoWorldReady,
+  isoWorldState,
+  lightingMode,
+  voxelWorldReady,
+  voxelWorldState,
+}: {
+  isoWorldReady: boolean;
+  isoWorldState: WorldLoadState;
+  lightingMode: LightingMode;
+  voxelWorldReady: boolean;
+  voxelWorldState: WorldLoadState;
+}): StartupPresentationStatus {
+  if (lightingMode === "minecraft") {
+    if (voxelWorldReady) {
+      return "ready";
+    }
+    return voxelWorldState === "failed" ? "fallback" : "pending";
+  }
+  if (isoWorldReady) {
+    return "ready";
+  }
+  return isoWorldState === "failed" ? "fallback" : "pending";
+}
+
+export function startupCurtainMayOpen(
+  status: StartupPresentationStatus,
+  baseSurfaceReady: boolean,
+): boolean {
+  return status === "ready" || (status === "fallback" && baseSurfaceReady);
+}
 
 type HeroDetailGroup = {
   group: Group;
@@ -432,6 +478,34 @@ function setUnderwaterPresentation(
 }
 
 let lastSurfaceQualityDataset = "";
+
+function currentStartupPresentationStatus(
+  runtime: Runtime,
+): StartupPresentationStatus {
+  return startupPresentationStatus({
+    isoWorldReady: runtime.isoWorld !== null,
+    isoWorldState: runtime.isoWorldState,
+    lightingMode: runtime.lightingMode,
+    voxelWorldReady: runtime.voxelWorld !== null,
+    voxelWorldState: runtime.voxelWorldState,
+  });
+}
+
+function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
+  if (
+    runtime.disposed ||
+    runtime.presentationReady ||
+    !startupCurtainMayOpen(
+      currentStartupPresentationStatus(runtime),
+      runtime.baseSurfaceReady,
+    )
+  ) {
+    return;
+  }
+  runtime.presentationReady = true;
+  runtime.notifyPresentationReady();
+}
+
 function setSurfacePresentation(
   runtime: Runtime,
   interactionTierLocked: boolean,
@@ -442,13 +516,18 @@ function setSurfacePresentation(
     interactionTierLocked,
   });
   // The voxel block world (Minecraft) and the drawn isometric city
-  // (Day/Night) each fully replace the photogrammetry surfaces — except
+  // (Day/Night/Snow) each fully replace the photogrammetry surfaces. While
+  // either requested world is still pending, the old photo surface remains
+  // hidden as well: it is a failure fallback, not a startup placeholder.
+  // Once a drawn world is ready, the sole exception is
   // from the underside, where the faded photo shell is the designed
   // cutaway context around the Tiergartentunnel (both drawn worlds hide
   // below the horizon, which otherwise left the tunnel floating in a
   // void).
+  const startupStatus = currentStartupPresentationStatus(runtime);
   const replaced =
-    (voxelModeActive(runtime) || isoModeActive(runtime)) && !runtime.underside;
+    startupStatus === "pending" ||
+    (startupStatus === "ready" && !runtime.underside);
   const interactionVisible = !settled && !replaced;
   const settledVisible = settled && !replaced;
   const changed =
@@ -460,7 +539,12 @@ function setSurfacePresentation(
     runtime.renderInvalidated = true;
   }
   setParkSettledDetail(runtime.parkDetails, settled);
-  const surfaceQuality = settled ? "settled-7m-plus" : "interaction-2_3m";
+  const surfaceQuality =
+    startupStatus === "pending"
+      ? "startup-hidden"
+      : settled
+        ? "settled-7m-plus"
+        : "interaction-2_3m";
   if (surfaceQuality !== lastSurfaceQualityDataset) {
     lastSurfaceQualityDataset = surfaceQuality;
     runtime.renderer.domElement.dataset.surfaceQuality = surfaceQuality;
@@ -1277,10 +1361,13 @@ function ensureIsoWorld(
       runtime.scene.add(runtime.isoWorld);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400, true);
+      notifyPresentationReadyWhenPossible(runtime);
     })
     .catch(() => {
       if (!runtime.disposed) {
         runtime.isoWorldState = "failed";
+        runtime.renderInvalidated = true;
+        notifyPresentationReadyWhenPossible(runtime);
         warn(
           "Die gezeichnete Isometrie konnte nicht geladen werden; die fotografische Tagesansicht bleibt aktiv.",
         );
@@ -1325,10 +1412,13 @@ function ensureVoxelWorld(
       runtime.scene.add(runtime.minecraftMobs.group);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400, true);
+      notifyPresentationReadyWhenPossible(runtime);
     })
     .catch(() => {
       if (!runtime.disposed) {
         runtime.voxelWorldState = "failed";
+        runtime.renderInvalidated = true;
+        notifyPresentationReadyWhenPossible(runtime);
         warn(
           "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
         );
@@ -2079,6 +2169,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
     const [progress, setProgress] = useState({ loaded: 0, total: 1 });
+    const [presentationReady, setPresentationReady] = useState(false);
 
     useEffect(() => {
       activeRef.current = active;
@@ -2113,6 +2204,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ensureVoxelWorld(runtime, onWarningRef.current);
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
+      notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
 
     useEffect(() => {
@@ -2483,6 +2575,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!host) {
         return;
       }
+      setPresentationReady(false);
       let disposed = false;
       let frame = 0;
       let resizeObserver: ResizeObserver | null = null;
@@ -2642,6 +2735,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const snowstorm = createSnowstorm(coarsePointer);
       scene.add(snowstorm.group);
       const runtime: Runtime = {
+        baseSurfaceReady: false,
         camera,
         centralDetails,
         civicDetails,
@@ -2667,6 +2761,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         modelMaterials: new Set(),
         monuments,
         parkDetails,
+        presentationReady: false,
+        notifyPresentationReady: () => {
+          if (disposed) {
+            return;
+          }
+          setPresentationReady(true);
+          onReadyRef.current();
+        },
         rain,
         rainEnabled: rainEnabledRef.current,
         snowstorm,
@@ -3770,7 +3872,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               distanceFromSelection(left) - distanceFromSelection(right),
           );
           focusLandmark(selectedRef.current, true);
-          let readyNotified = false;
           let loadedBaseTiles = 0;
           const baseFailures = await runBoundedTasks(
             sortedTiles,
@@ -3786,14 +3887,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 return;
               }
               loadedBaseTiles += 1;
+              runtime.baseSurfaceReady = true;
+              notifyPresentationReadyWhenPossible(runtime);
               setProgress((current) => ({
                 ...current,
                 loaded: current.loaded + 1,
               }));
-              if (!readyNotified) {
-                readyNotified = true;
-                onReadyRef.current();
-              }
             },
             { shouldStop: () => runtime.disposed },
           );
@@ -3814,9 +3913,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             onWarningRef.current(
               `${baseFailures.length} Basiskachel(n) konnten nach zwei Versuchen nicht geladen werden.`,
             );
-          }
-          if (!disposed && !readyNotified) {
-            onReadyRef.current();
           }
           const surfaceTiles = manifest.surface_detail_tiles ?? [];
           if (!coarsePointer && surfaceTiles.length > 0) {
@@ -3940,9 +4036,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     return (
       <div
         ref={hostRef}
-        className={active ? "three-viewer is-active" : "three-viewer"}
+        className={`${active ? "three-viewer is-active" : "three-viewer"}${presentationReady ? " is-presentation-ready" : ""}`}
         aria-hidden={!active}
       >
+        {!presentationReady ? (
+          <div className="three-startup-curtain" aria-hidden="true" />
+        ) : null}
         {percentage < 100 ? (
           <div className="three-progress" role="status">
             <span>{progressLabel}</span>

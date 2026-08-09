@@ -303,6 +303,20 @@ button:active:not(:disabled) {
   pointer-events: auto;
 }
 
+/*
+ * Never expose the streaming photogrammetry as a placeholder. The curtain is
+ * a fully opaque copy of the active mode's background and disappears without
+ * a cross-fade only after the requested drawn world has rendered successfully
+ * (or after a real load failure makes the photo mesh the explicit fallback).
+ */
+.three-startup-curtain {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background-color: inherit;
+  pointer-events: none;
+}
+
 .three-canvas {
   display: block;
   width: 100%;

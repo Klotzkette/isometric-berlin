@@ -6,14 +6,14 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.13 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.13/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.14/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
 | Package manifest in the ZIP | `package-manifest.json` |
 
 The downloadable viewer is the built React + Three.js/OpenSeadragon app from
-`src/app/`. It defaults to the true 3D official-mesh view and works on modern
+`src/app/`. It defaults directly to the drawn isometric 3D view and works on modern
 desktop, phone and tablet browsers. No AI model, Google key or paid service is
 needed at runtime. The same functional viewer is deployed on GitHub Pages and
 bundled with all required local assets in the release ZIP.
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.13** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.14** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,9 +50,15 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.13**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.70.14**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
+
+- A cold start now keeps the official photogrammetric mesh behind a fully
+  opaque, mode-coloured loading curtain. Day, Night, Snow and Minecraft reveal
+  their first city frame only after the requested drawn world is ready; the old
+  photo surface is visible only as an explicit load-failure fallback or in the
+  designed underground cutaway context.
 
 - The compact Sights rail now presents the five primary orientation points:
   Hauptbahnhof, Bundeskanzleramt, Reichstag, Brandenburg Gate and Siegessäule.

@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.70.14
+
+- **The startup photo flash is gone.** The official photogrammetric surface is
+  no longer a visible placeholder while the LoD2 isometric city or Minecraft
+  voxel world loads. A fully opaque background in the active mode colour covers
+  every intermediate WebGL frame and disappears without a cross-fade only when
+  the requested presentation is complete.
+- Viewer controls now become ready with the requested drawn world rather than
+  with the first streamed photo tile. The old surface remains available only
+  after a genuine drawn-world load failure and as the intentional faded context
+  in an established underside/tunnel cutaway.
+- Cold-cache checks captured the loading and first-city frames on desktop and a
+  390 × 844 mobile viewport. Day, Night and Minecraft all held the correct solid
+  background before revealing their finished world; the browser reported no
+  errors or warnings. Six dedicated gate tests join the complete 491-test viewer
+  suite.
+- The visible radius remains **5,230 m**. No geometry, source data, attribution,
+  credentials, Google content or raw material changed.
+
 ## v0.70.13
 
 - **Buildings, streets and bridges now have one complete, reproducible accuracy
