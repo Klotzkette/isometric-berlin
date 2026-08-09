@@ -287,6 +287,18 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   package_static_site = load_script_module(
     "package_static_site", "scripts/package_static_site.py"
   )
+  mesh_dir = tmp_path / "mesh" / "regierungsviertel"
+  mesh_dir.mkdir(parents=True)
+  (mesh_dir / "scene.json").write_text(
+    json.dumps(
+      {
+        "base_tiles": [{"faces": 123_456}, {"faces": 10}],
+        "surface_detail_tiles": [{"faces": 654_321}, {"faces": 20}],
+        "hero_details": [{"files": [{"file": "hero.glb"}]}],
+      }
+    ),
+    encoding="utf-8",
+  )
 
   package_static_site.write_readme(tmp_path)
 
@@ -309,6 +321,9 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "Touchscreen" in readme
   assert "two fingers pinch-zoom" in readme
   assert "--no-open --port 8770" in readme
+  assert "123.466-Flächen-Stufe" in readme
+  assert "654,341-face surface" in readme
+  assert "5 GLB-Dateien" in readme
 
 
 def test_write_package_manifest_records_version_hashes_and_attribution(
@@ -492,6 +507,23 @@ def test_compact_packaged_dzi_reuses_lower_levels_and_keeps_3d_untouched(
     '<Size Width="16384" Height="11616" /></Image>',
     encoding="utf-8",
   )
+  dzi.joinpath("landmarks.json").write_text(
+    json.dumps(
+      {
+        "image": {"width": 16384, "height": 11616},
+        "landmarks": [
+          {
+            "name": "Bundeskanzleramt",
+            "x": 8698,
+            "y": 6772,
+            "nx": 0.530884,
+            "ny": 0.582989,
+          }
+        ],
+      }
+    ),
+    encoding="utf-8",
+  )
   mesh = package / "mesh" / "regierungsviertel" / "tile.glb"
   mesh.parent.mkdir(parents=True)
   mesh.write_bytes(b"unchanged-3d")
@@ -501,6 +533,10 @@ def test_compact_packaged_dzi_reuses_lower_levels_and_keeps_3d_untouched(
   descriptor = dzi.joinpath("regierungsviertel.dzi").read_text(encoding="utf-8")
   assert 'Width="8192"' in descriptor
   assert 'Height="5808"' in descriptor
+  landmarks = json.loads(dzi.joinpath("landmarks.json").read_text(encoding="utf-8"))
+  assert landmarks["image"] == {"width": 8192, "height": 5808}
+  assert landmarks["landmarks"][0]["x"] == 4349
+  assert landmarks["landmarks"][0]["y"] == 3386
   assert (tiles / "13" / "0_0.jpg").read_bytes() == b"level-13"
   assert not (tiles / "14").exists()
   assert mesh.read_bytes() == b"unchanged-3d"

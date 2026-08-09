@@ -421,7 +421,7 @@ describe("visible-radius contract (+100 m per areal run)", () => {
     const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
       "../src/cameraNavigation"
     );
-    expect(VISIBLE_RADIUS_M).toBe(5130);
+    expect(VISIBLE_RADIUS_M).toBe(5230);
     // The camera may travel to the paper edge but not past it, so the two
     // constants can never drift apart in a later areal run.
     const envelope = extrapolatedEnvelopeBounds();

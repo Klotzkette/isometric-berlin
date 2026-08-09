@@ -660,6 +660,132 @@
       "y": 11616,
       "nx": 0.506226,
       "ny": 1.0
+    },
+    {
+      "name": "Tramhaltestelle S+U Hauptbahnhof",
+      "role": "owner_added",
+      "tourOrder": 74,
+      "x": 11274,
+      "y": 5675,
+      "nx": 0.68811,
+      "ny": 0.48855
+    },
+    {
+      "name": "S15-Station Berlin Hauptbahnhof",
+      "role": "owner_added",
+      "tourOrder": 75,
+      "x": 11265,
+      "y": 5647,
+      "nx": 0.687561,
+      "ny": 0.48614
+    },
+    {
+      "name": "Oggi's Gemüsekebab",
+      "role": "owner_added",
+      "tourOrder": 76,
+      "x": 12180,
+      "y": 5042,
+      "nx": 0.743408,
+      "ny": 0.434056
+    },
+    {
+      "name": "Taxistand Washingtonplatz",
+      "role": "owner_added",
+      "tourOrder": 77,
+      "x": 10396,
+      "y": 6320,
+      "nx": 0.634521,
+      "ny": 0.544077
+    },
+    {
+      "name": "Futurium",
+      "role": "owner_added",
+      "tourOrder": 78,
+      "x": 11285,
+      "y": 6693,
+      "nx": 0.688782,
+      "ny": 0.576188
+    },
+    {
+      "name": "Bundesministerium für Forschung, Technologie und Raumfahrt",
+      "role": "owner_added",
+      "tourOrder": 79,
+      "x": 11281,
+      "y": 6965,
+      "nx": 0.688538,
+      "ny": 0.599604
+    },
+    {
+      "name": "Parlament der Bäume gegen Krieg und Gewalt",
+      "role": "owner_added",
+      "tourOrder": 80,
+      "x": 10968,
+      "y": 7538,
+      "nx": 0.669434,
+      "ny": 0.648933
+    },
+    {
+      "name": "Berliner Ensemble",
+      "role": "owner_added",
+      "tourOrder": 81,
+      "x": 13110,
+      "y": 8320,
+      "nx": 0.800171,
+      "ny": 0.716253
+    },
+    {
+      "name": "Bahnhof Berlin Friedrichstraße",
+      "role": "owner_added",
+      "tourOrder": 82,
+      "x": 12676,
+      "y": 8847,
+      "nx": 0.773682,
+      "ny": 0.761622
+    },
+    {
+      "name": "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus",
+      "role": "owner_added",
+      "tourOrder": 83,
+      "x": 7513,
+      "y": 10551,
+      "nx": 0.458557,
+      "ny": 0.908316
+    },
+    {
+      "name": "Gropius Bau",
+      "role": "owner_added",
+      "tourOrder": 84,
+      "x": 6384,
+      "y": 10733,
+      "nx": 0.389648,
+      "ny": 0.923984
+    },
+    {
+      "name": "Abgeordnetenhaus von Berlin",
+      "role": "owner_added",
+      "tourOrder": 85,
+      "x": 6762,
+      "y": 10453,
+      "nx": 0.41272,
+      "ny": 0.899879
+    },
+    {
+      "name": "Topographie des Terrors",
+      "role": "owner_added",
+      "tourOrder": 86,
+      "x": 6729,
+      "y": 11057,
+      "nx": 0.410706,
+      "ny": 0.951877
+    },
+    {
+      "name": "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
+      "role": "owner_added",
+      "tourOrder": 87,
+      "x": 10145,
+      "y": 10147,
+      "nx": 0.619202,
+      "ny": 0.873537
     }
   ]
 }

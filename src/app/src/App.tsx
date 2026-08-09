@@ -68,6 +68,7 @@ import {
 } from "./audioAutostart";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { discoveryNoteFor } from "./discoveryNotes";
+import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import { isReservedBrowserChord } from "./keyboardShortcuts";
 import {
   LANGUAGE_STORAGE_KEY,
@@ -331,6 +332,19 @@ function isPriorityLandmark(name: string): boolean {
 
 function focusZoomForLandmark(name: string): number {
   return name === "Bundeskanzleramt" ? 4.35 : 3.1;
+}
+
+function mapPointForLandmark(
+  viewer: OpenSeadragon.Viewer,
+  landmark: Landmark,
+): OpenSeadragon.Point {
+  const contentSize = viewer.world.getItemAt(0)?.getContentSize();
+  const { x, y } = landmarkPixelCoordinates(
+    landmark,
+    contentSize?.x ?? bundledLandmarkPayload.image.width,
+    contentSize?.y ?? bundledLandmarkPayload.image.height,
+  );
+  return viewer.viewport.imageToViewportCoordinates(x, y);
 }
 
 function landmarkSlug(name: string): string {
@@ -660,10 +674,7 @@ export function App() {
       if (!viewer || !viewer.viewport) {
         return;
       }
-      const point = viewer.viewport.imageToViewportCoordinates(
-        landmark.x,
-        landmark.y,
-      );
+      const point = mapPointForLandmark(viewer, landmark);
       const mobileOffset = isCompactLayout
         ? viewer.viewport.deltaPointsFromPixels(new OpenSeadragon.Point(0, 32))
         : new OpenSeadragon.Point(0, 0);
@@ -2159,10 +2170,7 @@ export function App() {
     marker.setAttribute("aria-hidden", "true");
     viewer.addOverlay({
       element: marker,
-      location: viewer.viewport.imageToViewportCoordinates(
-        selectedLandmark.x,
-        selectedLandmark.y,
-      ),
+      location: mapPointForLandmark(viewer, selectedLandmark),
       placement: OpenSeadragon.Placement.CENTER,
       rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION,
       checkResize: false,

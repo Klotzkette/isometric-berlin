@@ -31,7 +31,7 @@ def test_outer_ring_and_properties() -> None:
   assert ring[0] == ring[-1], "ring must be closed"
   props = cb.bounds_properties(fc)
   assert props["name"] == (
-    "Regierungsviertel bounds — task-10 Europacity and southern history expansion"
+    "Regierungsviertel bounds — task-11 Friedrichstraße civic expansion"
   )
   assert props["description"]
 

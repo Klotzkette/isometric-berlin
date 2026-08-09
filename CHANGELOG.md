@@ -1,5 +1,72 @@
 # Changelog
 
+## v0.66.0
+
+- **The versioned presentation radius grows by exactly 100 m, from 5,130 m
+  to 5,230 m.** The bounded polygon adds a tight north-east lobe for Berliner
+  Ensemble and Berlin Friedrichstraße without moving existing geometry or
+  opening an unbounded Mitte download. The same polygon now yields 17,091
+  LoD2 volumes, 21,068 OSM road features, 175 water features, 1,826 parks,
+  11,222 vegetation features, 1,548 rail features and 9,732 POIs.
+- **The release inventory grows from 73 to 87 source-positioned sights.** New
+  QA anchors cover the Hauptbahnhof tram stop, opened S15 station, Oggi's,
+  Washingtonplatz taxi rank, Futurium, both federal education/research-office
+  contexts, Parliament of Trees, Berliner Ensemble, Friedrichstraße station,
+  Detlev-Rohwedder-Haus, Gropius Bau, Abgeordnetenhaus and Topography of
+  Terror. All 38 relative-placement contracts pass; the only two review rows
+  are explicitly future/unmapped projects (DKB Campus Upbeat and berlin
+  modern), not detected east/west or north/south swaps.
+- **Three narrowly selected official Berlin 3D Mesh tiles complete the new
+  civic edge.** The additive scene now contains 26 interaction tiles with
+  2,599,985 faces, 26 settled tiles with 6,623,585 faces and 22 lazy hero parts:
+  74 GLBs / 174.3 MiB total, with every GLB below 5 MiB. Mobile still requests
+  only the 29.9 MiB interaction tier; desktop streams the 79.1 MiB settled tier
+  and retains at most two lazy hero groups.
+- **New flat-tone recognition geometry makes the added locations readable in
+  Day, Night, Minecraft and Snowstorm at identical coordinates.** It includes
+  two modern five-section trams and their platform canopy, the S15 entrance,
+  five taxis, Oggi's kiosk, Futurium's published massing/window/canopy cues,
+  green federal-campus accents, Parliament of Trees, Berliner Ensemble,
+  Friedrichstraße station and the southern government/museum ensemble.
+  Night-capable glazing and transit lights use the existing warm-light rig;
+  there are no permanent landmark dots. Contextual camera presets now keep
+  each complete Futurium, tram/S15 ensemble, theatre and memorial setting in
+  frame instead of clipping their roofs or platforms at the screen edge.
+- **The southern historical context is materially distinguishable instead of
+  generic blocks.** Detlev-Rohwedder-Haus receives its long 1935/36 facade
+  rhythm, Gropius Bau its brick/sandstone register, the former Prussian
+  Landtag its set-back Renaissance rhythm, and Topography of Terror a low
+  pavilion plus a deliberately irregular approximately 200 m Wall-fragment
+  cue. Vehicle dimensions, facade rhythms and damaged Wall-crown segments are
+  labelled display approximations over official LoD2/mesh/OSM anchors, not
+  as-built survey claims.
+- **Eight pipeline and viewer defects found during the sweep are fixed.** Exact mesh-tile
+  allowlisting prevents a bounded expansion from downloading every newly
+  intersecting archive; additive manifest merging preserves earlier evidence;
+  overview bounds and LoD2 tone sampling use the same projection; six newly
+  fetched named artworks now receive a presentation builder instead of
+  silently disappearing; and release readiness requires settled coverage for
+  every interaction tile rather than a stale hard-coded count of 23. The
+  shared geometric alphabet now includes the `I` required by Oggi's sign, so
+  one unsupported letter can no longer abort the complete Three.js scene.
+  Minecraft keeps both tunnel mouths and ramps but suppresses the internal
+  forced-depth occlusion cap that previously appeared as kilometre-long grey
+  strips over the voxel city. The compact offline DZI now rescales its focus
+  metadata, while the React viewer resolves every sight from normalized
+  coordinates against the actually loaded image size; this fixes the formerly
+  empty high-resolution map in the Mac/Windows package.
+- **Release claims now derive from generated artefacts.** The metric report is
+  regenerated for all 17,091 LoD2 rows, package instructions read GLB/face
+  counts from `scene.json`, and the current official-detail payload records
+  29,860 trees, 5,829 lights, 591 paths, 12 Wall traces and 101 playgrounds.
+  No Google content or credentials are used; commercial maps remain no-copy
+  plausibility checks only.
+- **The extracted-package ceiling moves narrowly from 208 to 210 MiB.** The
+  complete archive is 209 MiB extracted and approximately 154 MiB compressed;
+  preserving the 8192 px offline DZI is preferable to degrading the zero-server
+  map to save roughly one megabyte. The public download remains below the
+  repository's 200 MB compressed-bundle ceiling.
+
 ## v0.65.0
 
 - **The measured central-Berlin hull now reaches the complete requested

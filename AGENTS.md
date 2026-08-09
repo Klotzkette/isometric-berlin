@@ -36,11 +36,11 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.65)
+## 3. Hard scope rules (v0.66)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
-Its presentation radius is 5,130 m. Never generate or bundle geometry outside
+Its presentation radius is 5,230 m. Never generate or bundle geometry outside
 that polygon unless the owner explicitly approves another bounds revision.
 
 Must be inside the polygon and visible in the final map:
@@ -61,8 +61,11 @@ Must be inside the polygon and visible in the final map:
   WELT balloon
 - Both Tiergartentunnel portals and the explicitly labelled approximate
   underground route
+- Hauptbahnhof tram/S15 public realm, Futurium and the federal research campus
+- Berliner Ensemble and Berlin Friedrichstraße in the bounded north-east lobe
+- Detlev-Rohwedder-Haus, Gropius Bau, Abgeordnetenhaus and Topography of Terror
 
-The committed 73-place landmark catalogue is the release inventory. Keep all
+The committed 87-place landmark catalogue is the release inventory. Keep all
 data clipped to the polygon, avoid unbounded whole-city output, and record any
 future owner-approved bounds expansion in the changelog and data manifests.
 
@@ -301,7 +304,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.65)
+## 8. What success looks like (Definition of Done v0.66)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -320,7 +323,7 @@ isometric-berlin/
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
-  renders all 73 catalogued sights in the same coordinate frame.
+  renders all 87 catalogued sights in the same coordinate frame.
 - A true Three.js mode using the official Berlin 3D Mesh, with progressive
   loading, mouse/touch orbit, a real below-ground camera and a schematic
   Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.

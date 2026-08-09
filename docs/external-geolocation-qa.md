@@ -92,6 +92,34 @@ images without a clear free license may be inspected for orientation and
 visual plausibility only. Do not commit those images, screenshots,
 derived textures, or traced map geometry.
 
+## August 9, 2026 Task-11 Civic/Transit Sweep
+
+- [BVG Hauptbahnhof station information](https://www.bvg.de/de/verbindungen/stationsuebersicht/s-u-hauptbahnhof)
+  confirms the M5/M8/M10 tram context north of Berlin Hauptbahnhof. BVG's
+  current fleet documentation supplies the 50 m × 2.4 m Urbanliner envelope;
+  the two parked vehicles remain representative display models, not surveyed
+  rolling-stock poses.
+- [Deutsche Bahn](https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/aktuell/presseinformationen/Neue-S-Bahn-Linie-S15-faehrt-ab-jetzt-zwischen-Gesundbrunnen-und-Hauptbahnhof--13900884)
+  and [S-Bahn Berlin](https://sbahn.berlin/aktuelles/artikel/neue-s-bahn-linie-s15-geht-in-betrieb/)
+  confirm the S15 opening and temporary Hauptbahnhof terminus at track 22.
+- The [Futurium architecture page](https://futurium.de/en/about-us/architecture)
+  documents the roughly 4,000 m² footprint, about 8,000 facade cassettes,
+  north/south panoramic openings, 18 m cantilevered canopies and solar roof.
+  The viewer uses those facts as bounded recognition cues over official
+  LoD2/mesh geometry; it does not claim to draw 8,000 surveyed cassettes.
+- The [Federal Ministry of Finance building history](https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Video-Textfassungen/Geschichte/textfassung-detlev-rohwedder-haus.html)
+  confirms the 1935/36 former Reich Aviation Ministry, its long facade and
+  scale. The committed footprint and height remain official LoD2.
+- [Stiftung Berliner Mauer](https://www.stiftung-berliner-mauer.de/de/parlament-der-baeume),
+  [Berliner Ensemble](https://www.berliner-ensemble.de/node/386), the
+  Abgeordnetenhaus and Stiftung Topographie des Terrors official pages verify
+  the Parliament of Trees, 1892 neo-Baroque theatre, former Prussian Landtag
+  and approximately 200 m damaged Wall fragment. Their small facade/object
+  rhythms are labelled recognition geometry.
+- Google, Apple, Bing and Amap/Alibaba views were checked only for broad
+  north/east/south/west plausibility. No commercial imagery, geometry or
+  labels entered the source stack.
+
 ## July 10, 2026 Detail Sweep
 
 - The [Swiss Federal Department of Foreign Affairs building page](https://www.schweiz-deutschland.eda.admin.ch/de/das-botschaftsgebaeude)

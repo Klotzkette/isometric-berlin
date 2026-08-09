@@ -41,8 +41,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 73,
-    "relative_relationships_checked": 26,
+    "landmarks_checked": 87,
+    "relative_relationships_checked": 38,
     "landmark_review_count": 2,
     "relative_review_count": 0,
     "review_count": 2,
@@ -88,6 +88,26 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
   assert checks["Großer Stern"]["best_osm_match"]["name"] == "Großer Stern"
   assert checks["Invalidenpark / Sinkende Mauer"]["best_osm_match"]["name"] == (
     "Sinkende Mauer"
+  )
+  assert checks["Tramhaltestelle S+U Hauptbahnhof"]["best_osm_match"]["id"] == (
+    "1530833485"
+  )
+  assert checks["S15-Station Berlin Hauptbahnhof"]["best_osm_match"]["id"] == (
+    "21001950"
+  )
+  assert checks["Taxistand Washingtonplatz"]["best_osm_match"]["id"] == ("1221586319")
+  assert (
+    checks["Parlament der Bäume gegen Krieg und Gewalt"]["best_osm_match"]["id"]
+    == "208945077"
+  )
+  assert checks["Bahnhof Berlin Friedrichstraße"]["best_osm_match"]["name"] == (
+    "Berlin Friedrichstraße"
+  )
+  assert (
+    checks["Bundesministerium der Finanzen / Detlev-Rohwedder-Haus"]["best_osm_match"][
+      "name"
+    ]
+    == "Bundesministerium der Finanzen"
   )
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
   assert reviewed == LANDMARKS_WITHOUT_OSM_MATCH

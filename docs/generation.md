@@ -36,8 +36,8 @@ body wins. This prevents duplicate Reichstag domes and repeated station or
 chancellery roof treatments on small adjacent structures.
 
 Complex CityGML ensembles are rendered part by part at their official measured
-heights. The current clipped source contains 15,200 volumes: 6,066 buildings
-and 9,134 `BuildingPart` records in 1,734 parent ensembles. Every committed
+heights. The current clipped source contains 17,091 volumes: 6,465 buildings
+and 10,626 `BuildingPart` records in 2,012 parent ensembles. Every committed
 volume has a measured LoD2 height. Named OSM building polygons associate all parts in a
 landmark family with the same material cue; only the one part at the verified
 landmark anchor receives the singular dome, shell or facade signature.
@@ -45,8 +45,11 @@ landmark anchor receives the singular dome, shell or facade signature.
 ```bash
 uv run python -m isometric_berlin.generation.render_overview \
   --render-px 32768 --canvas-width 16384 --canvas-height 11616 \
-  --preview-max-width 6144
+  --preview-max-width 6144 --margin-m 440
 ```
+
+The 440 m argument is applied once to the overview quad and once by the shared
+quadrant renderer, yielding the documented 880 m paper ring on every side.
 
 The derived `overview_source.png` and `overview.png` are capped at 6144 pixels
 wide and use a bounded PNG palette for offline fallback/package size. The DZI
@@ -62,7 +65,7 @@ schematic in depth.
 
 The true 3D viewer uses the free Berlin 3D Mesh Model 2025 from the June 2025
 aerial survey. The fetcher intersects the official index with the committed
-bounds and selects 23 source tiles. Raw OBJ/MTL/JPEG ZIPs remain gitignored.
+bounds and selects 26 source tiles. Raw OBJ/MTL/JPEG ZIPs remain gitignored.
 
 ```bash
 uv run python -m isometric_berlin.data.fetch_berlin_mesh \
@@ -76,14 +79,14 @@ duplicate OBJ vertices and emits two scale-identical tiers: a 100,000-face-per-
 tile interaction/touch surface and a 289,797-face-per-tile settled desktop
 surface, both with quadric aggression 5. A 58° smoothing crease splits normals
 only at severe folds, sharpening roof and facade edges without introducing
-invented metric geometry. The 23 interaction tiles contain 2,299,987 faces and
-1,219,929 vertices in 26.5 MiB; the 23 settled tiles contain 6,000,002 faces and
-3,134,292 vertices in 71.6 MiB. Meshopt uses 16-bit positions and 8-bit normals;
+invented metric geometry. The 26 interaction tiles contain 2,599,985 faces and
+1,377,751 vertices in 29.9 MiB; the 26 settled tiles contain 6,623,585 faces and
+3,464,527 vertices in 79.1 MiB. Meshopt uses 16-bit positions and 8-bit normals;
 the viewer carries the interaction tier while moving and swaps to the settled
 tier only after desktop loading and camera damping complete. Touch devices do
 not request the settled tier. At rest, the frontend adds two 80-triangle crown
-microclusters for each of the 6,893 official tree-catalogue points. Together
-with the 6,000,002-face surface this yields 7,102,882 official-source rendered
+microclusters for each of the 25,305 official tree-catalogue points. Together
+with the 6,623,585-face surface this yields 10,672,385 official-source rendered
 face equivalents without tessellating unchanged triangles or describing the
 procedural crowns as surveyed shapes. Reichstag, Bundeskanzleramt, Hauptbahnhof and
 Brandenburger Tor receive
@@ -91,8 +94,8 @@ separate LoD2-footprint-masked texture crops. This preserves the Reichstag's
 real dome geometry while excluding surrounding tree noise. Hero material
 segments try 1600, 1536, 1280 and 1024 px textures before lower bounded
 fallbacks. Every GLB includes offline-generated vertex normals, so the browser
-does not recompute the 23 base tiles at startup.
-Every output GLB stays below 5 MiB; the complete 68-file scene is 163.5 MiB.
+does not recompute the 26 base tiles at startup.
+Every output GLB stays below 5 MiB; the complete 74-file scene is 174.3 MiB.
 The scene manifest records quality tier, face counts, quantization profile,
 source bounds, byte sizes and SHA-256 hashes.
 
@@ -127,10 +130,10 @@ uv run python -m isometric_berlin.generation.build_park_details
 Before that step, `fetch_official_details` clips the two official tree
 catalogues, public-lighting WFS and wall-trace WFS into the bounded
 GeoPackage. The task-10 builder additively fuses that evidence with OSM and
-emits 29,283 visible trees, 5,251 street lights, 12 wall traces, 591 path
-sections and 98 playground footprints. Heights are sampled locally from the
+emits 29,860 visible trees, 5,829 street lights, 12 wall traces, 591 path
+sections and 101 playground footprints. Heights are sampled locally from the
 packaged official mesh; a scene-ground fallback is used only outside mesh
-coverage. The resulting `park-details.json` is 4.8 MB; raw WFS, OSM and mesh
+coverage. The resulting `park-details.json` is 5.2 MB; raw WFS, OSM and mesh
 intermediates remain excluded.
 
 ## Step 8b: Minecraft-mode voxel payload
@@ -259,7 +262,8 @@ and 3,945 tiles. A clean `bun run build` contains both the full DZI and
 progressive WebGL assets. The release packager keeps every WebGL asset but
 reuses levels 0–13 as an 8192×5808 offline DZI, removing only the redundant
 highest fallback level so both extracted archives remain below their hard
-208 MiB ceiling. The browser loads hero crops only when their landmark is
+210 MiB ceiling; the compressed download remains below 200 MB. The browser
+loads hero crops only when their landmark is
 selected.
 
 Do not commit PNG quadrant intermediates. Commit only the DZI pyramid and the

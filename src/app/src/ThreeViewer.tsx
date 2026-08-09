@@ -53,7 +53,16 @@ import {
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
 import { createCivicLandmarks } from "./CivicLandmarks";
-import { createTunnelPortals, tunnelMouthViews } from "./TunnelPortals";
+import {
+  centralCivicDetailsVisible,
+  centralCivicFocusCamera,
+  createCentralCivicDetails,
+} from "./CentralCivicDetails";
+import {
+  createTunnelPortals,
+  setTunnelPortalPresentation,
+  tunnelMouthViews,
+} from "./TunnelPortals";
 import {
   createMemorialLandmarks,
   memorialFocusDistance,
@@ -278,6 +287,7 @@ export type ThreeViewerHandle = {
 
 type Runtime = {
   camera: PerspectiveCamera;
+  centralDetails: Group;
   civicDetails: Group;
   coarsePointer: boolean;
   controls: OrbitControls;
@@ -893,6 +903,7 @@ function setSceneLighting(
     applyMaterialLighting(material, mode, lightsOn);
   }
   applyLightingToRoot(runtime.signatures, mode, lightsOn);
+  applyLightingToRoot(runtime.centralDetails, mode, lightsOn);
   applyLightingToRoot(runtime.civicDetails, mode, lightsOn);
   applyLightingToRoot(runtime.monuments, mode, lightsOn);
   applyLightingToRoot(runtime.culturalDetails, mode, lightsOn);
@@ -925,7 +936,11 @@ function setSceneLighting(
   // The approaches are the sole surface portal geometry. Never draw them
   // through an underside/cutaway view, where their forced surface depth would
   // otherwise make an underground tube look like it broke through the ground.
-  runtime.tunnelPortals.visible = !runtime.underside;
+  setTunnelPortalPresentation(
+    runtime.tunnelPortals,
+    runtime.underside,
+    voxelMode,
+  );
   // Recognition models (dome, gate, memorials, park trees…) are drawn
   // geometry — they stay ON in the drawn isometric city and complement
   // the prisms; only the voxel world and the underside hide them. The
@@ -936,6 +951,7 @@ function setSceneLighting(
   // visible in Minecraft too (they get the toon treatment); only the
   // softer cultural/park layers and photo crops step aside there.
   runtime.signatures.visible = !runtime.underside;
+  runtime.centralDetails.visible = centralCivicDetailsVisible(runtime.underside);
   for (const signature of runtime.signatures.children) {
     // The real LoD2 voxel station remains in Minecraft; its fine curved-glass
     // recognition shell belongs to the drawn modes and looked implausibly
@@ -1616,9 +1632,10 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   if (runtime.isoWorld) {
     runtime.isoWorld.visible = isoMode && !underside;
   }
-  runtime.tunnelPortals.visible = !underside;
+  setTunnelPortalPresentation(runtime.tunnelPortals, underside, voxelMode);
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = !underside;
+  runtime.centralDetails.visible = centralCivicDetailsVisible(underside);
   runtime.civicDetails.visible = recognitionVisible;
   runtime.monuments.visible = !underside;
   runtime.culturalDetails.visible = recognitionVisible;
@@ -2435,6 +2452,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const civicDetails = new Group();
       civicDetails.name = "Pending civic landmark details";
       scene.add(civicDetails);
+      const centralDetails = new Group();
+      centralDetails.name = "Pending central transit and civic details";
+      scene.add(centralDetails);
       const monuments = new Group();
       monuments.name = "Verified memorial detail models";
       scene.add(monuments);
@@ -2450,6 +2470,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(snowstorm.group);
       const runtime: Runtime = {
         camera,
+        centralDetails,
         civicDetails,
         coarsePointer,
         composer,
@@ -3446,6 +3467,26 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               true,
             );
           }
+          runtime.centralDetails.removeFromParent();
+          runtime.centralDetails = createCentralCivicDetails(
+            manifest.landmarks,
+          );
+          runtime.centralDetails.visible = centralCivicDetailsVisible(
+            runtime.underside,
+          );
+          scene.add(runtime.centralDetails);
+          applyLightingToRoot(
+            runtime.centralDetails,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
+          );
+          if (runtime.lightingMode === "minecraft") {
+            setMinecraftMaterialPresentation(
+              runtime.centralDetails,
+              runtime.minecraftMaterialState,
+              true,
+            );
+          }
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
             distance_m: 88,
@@ -3601,6 +3642,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const expandedFocusCamera = expandedCityFocusCamera(landmark);
             if (expandedFocusCamera) {
               runtime.focusCameraByName.set(landmark.name, expandedFocusCamera);
+            }
+            const centralFocusCamera = centralCivicFocusCamera(landmark);
+            if (centralFocusCamera) {
+              runtime.focusCameraByName.set(landmark.name, centralFocusCamera);
             }
           }
           if (manifest.park_details?.file) {

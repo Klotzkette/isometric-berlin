@@ -1,0 +1,87 @@
+import { describe, expect, test } from "bun:test";
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
+
+import {
+  centralCivicDetailsVisible,
+  centralCivicFocusCamera,
+  createCentralCivicDetails,
+} from "../src/CentralCivicDetails";
+
+const names = [
+  "Tramhaltestelle S+U Hauptbahnhof",
+  "S15-Station Berlin Hauptbahnhof",
+  "Oggi's Gemüsekebab",
+  "Taxistand Washingtonplatz",
+  "Futurium",
+  "Bundesministerium für Forschung, Technologie und Raumfahrt",
+  "Parlament der Bäume gegen Krieg und Gewalt",
+  "Berliner Ensemble",
+  "Bahnhof Berlin Friedrichstraße",
+  "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus",
+  "Gropius Bau",
+  "Abgeordnetenhaus von Berlin",
+  "Topographie des Terrors",
+  "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
+];
+
+const landmarks = names.map((name, index) => ({
+  name,
+  world: [index * 280, 4, (index % 3) * 320] as [number, number, number],
+}));
+
+describe("task-11 central transit and civic details", () => {
+  test("batches official-anchor recognition details into one flat draw layer", () => {
+    const details = createCentralCivicDetails(landmarks);
+    const bodies = details.getObjectByName(
+      "Central transit and civic details bodies",
+    ) as Mesh;
+    expect(bodies).toBeInstanceOf(Mesh);
+    expect(bodies.geometry.getAttribute("color").count).toBeGreaterThan(8_000);
+    expect(bodies.userData.dayMaterial).toBeInstanceOf(MeshBasicMaterial);
+    expect(bodies.userData.nightMaterial).toBeInstanceOf(MeshStandardMaterial);
+    expect(details.userData.keepInMinecraft).toBe(true);
+    expect(details.userData.geometryStatus).toContain("LoD2");
+  });
+
+  test("ships night-capable windows and headlamps without landmark dots", () => {
+    const details = createCentralCivicDetails(landmarks);
+    const lamps = details.getObjectByName(
+      "Central transit and civic details lamps",
+    ) as Mesh;
+    expect(lamps).toBeInstanceOf(Mesh);
+    expect(lamps.geometry.getAttribute("color").count).toBeGreaterThan(4_000);
+    expect(lamps.userData.nightMaterial).toBeInstanceOf(MeshStandardMaterial);
+    expect(details.getObjectByName("landmark dots")).toBeUndefined();
+  });
+
+  test("adds transit, theatre and S15 lettering", () => {
+    const details = createCentralCivicDetails(landmarks);
+    expect(details.getObjectByName("OGGI civic lettering")).toBeDefined();
+    expect(
+      details.getObjectByName("BERLINER ENSEMBLE civic lettering"),
+    ).toBeDefined();
+    expect(details.getObjectByName("S15 civic lettering")).toBeDefined();
+  });
+
+  test("provides contextual camera framing for the new QA anchors", () => {
+    const futurium = landmarks.find(({ name }) => name === "Futurium")!;
+    const tram = landmarks.find(({ name }) =>
+      name.startsWith("Tramhaltestelle"),
+    )!;
+    expect(centralCivicFocusCamera(futurium)).toMatchObject({
+      distance_m: 218,
+      target_world: futurium.world,
+    });
+    expect(centralCivicFocusCamera(tram)).toMatchObject({
+      distance_m: 176,
+      target_world: tram.world,
+    });
+  });
+
+  test("keeps the same recognition coordinates in every surface mode", () => {
+    for (const mode of ["day", "night", "minecraft", "snowstorm"]) {
+      expect(centralCivicDetailsVisible(false), mode).toBe(true);
+    }
+    expect(centralCivicDetailsVisible(true)).toBe(false);
+  });
+});

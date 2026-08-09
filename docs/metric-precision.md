@@ -21,16 +21,16 @@ surface, and which additions remain display approximations.
 
 ## Committed LoD2 geometry statistics
 
-- Buildings: 9387
-- Polygon parts: 9393
-- Total footprint area: 1272202.4 m²
-- Footprint vertices rendered: 79641
-- Median vertices per polygon: 4
-- Interior rings / courtyards: 84
-- Median segment length: 2.42 m
-- Measured LoD2 heights: 9387 (100.0%)
-- Explicit CityGML BuildingParts: 4767
-- Segmented parent ensembles: 907
+- Buildings: 17091
+- Polygon parts: 17108
+- Total footprint area: 2540108.45 m²
+- Footprint vertices rendered: 151548
+- Median vertices per polygon: 5.0
+- Interior rings / courtyards: 166
+- Median segment length: 2.43 m
+- Measured LoD2 heights: 17091 (100.0%)
+- Explicit CityGML BuildingParts: 10626
+- Segmented parent ensembles: 2012
 - Latest source creation date: 2026-03-08
 
 ## Bundeskanzleramt scale check
@@ -46,25 +46,25 @@ surface, and which additions remain display approximations.
 ## Landmark placement QA
 
 - Status: review
-- Landmarks checked: 56
-- Relative relationships checked: 26
-- Review count: 12
+- Landmarks checked: 87
+- Relative relationships checked: 38
+- Review count: 2
 
 ## Committed photogrammetric surface statistics
 
 - Status: available
-- Official source tiles: 23
-- Interaction faces: 2299987
-- Interaction vertices: 1219929
-- Interaction GLB size: 26.5 MiB
-- Settled desktop faces: 6000002
-- Settled desktop vertices: 3134292
-- Settled desktop GLB size: 71.6 MiB
+- Official source tiles: 26
+- Interaction faces: 2599985
+- Interaction vertices: 1377751
+- Interaction GLB size: 29.9 MiB
+- Settled desktop faces: 6623585
+- Settled desktop vertices: 3464527
+- Settled desktop GLB size: 79.1 MiB
 - Settled per-tile target: 289797 faces
 - Normal crease: 58.0°
 - Simplification aggression: 5
 - Separate high-detail hero groups: 4
-- Complete scene: 68 GLBs / 163.5 MiB
+- Complete scene: 74 GLBs / 174.3 MiB
 
 ## Current rendering claim
 

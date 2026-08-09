@@ -6,17 +6,20 @@ The MVP polygon is stored at
 ## Landmarks (must be inside the polygon)
 
 The machine-readable catalogue in `landmarks.geojson` is canonical and
-currently contains 73 checked places. It includes the government core and
+currently contains 87 checked places. It includes the government core and
 Pariser Platz; Hauptbahnhof, Hamburger Bahnhof and Europacity; the full
 Tiergarten to Charlottenburger Tor; Kulturforum and Potsdamer/Leipziger Platz;
 and the southern extension to Anhalter Bahnhof, Kochstraße and the WELT
-balloon. The catalogue also carries both Tiergartentunnel portals and the
+balloon. The north-east lobe additionally reaches Berliner Ensemble and
+Berlin Friedrichstraße; transit/civic anchors cover the Hbf tram and S15,
+Futurium, the federal ministries, Gropius Bau, Abgeordnetenhaus and Topography
+of Terror. The catalogue also carries both Tiergartentunnel portals and the
 approximate underground reference route.
 
 The current WGS84 extent is approximately `13.3295,52.5022` to
 `13.3925,52.5420` (EPSG:25833 `386626.58,5818111.23` to
 `390908.90,5822592.07`). The corresponding versioned presentation radius is
-5,130 m; it is a viewer/camera envelope, not a claim that every point in that
+5,230 m; it is a viewer/camera envelope, not a claim that every point in that
 circle is surveyed.
 
 ## Editing
@@ -35,7 +38,7 @@ drag the polygon vertices, and saves back to
 as a single, closed, simple polygon (no holes, no multipolygons).
 
 The polygon began as a landmark-fitted Regierungsviertel hull and has since
-been expanded through explicitly versioned tasks. The current task-10 lobe
+been expanded through explicitly versioned tasks. The current task-11 lobe
 keeps the requested central-Berlin places while avoiding a blanket Berlin-wide
 rectangle. Every fetcher and generated payload clips back to this exact
 geometry.

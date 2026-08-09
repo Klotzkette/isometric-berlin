@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.65.0"
+PACKAGE_VERSION = "0.66.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3200,10 +3200,42 @@ def compact_packaged_dzi(package_dir: Path) -> None:
 
   size.set("Width", str((width + scale - 1) // scale))
   size.set("Height", str((height + scale - 1) // scale))
+  packaged_width = int(size.attrib["Width"])
+  packaged_height = int(size.attrib["Height"])
   namespace = image.tag.partition("}")[0].removeprefix("{")
   if namespace:
     ET.register_namespace("", namespace)
   tree.write(descriptor, encoding="utf-8", xml_declaration=True)
+
+  landmarks_path = root / "landmarks.json"
+  if landmarks_path.is_file():
+    try:
+      landmarks = json.loads(landmarks_path.read_text(encoding="utf-8"))
+      image_metadata = landmarks["image"]
+      entries = landmarks["landmarks"]
+    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+      raise SystemExit(
+        f"Invalid packaged landmark coordinates: {landmarks_path}: {exc}"
+      ) from exc
+    image_metadata["width"] = packaged_width
+    image_metadata["height"] = packaged_height
+    for landmark in entries:
+      nx = landmark.get("nx")
+      ny = landmark.get("ny")
+      landmark["x"] = round(
+        float(nx) * packaged_width
+        if isinstance(nx, int | float)
+        else float(landmark["x"]) / scale
+      )
+      landmark["y"] = round(
+        float(ny) * packaged_height
+        if isinstance(ny, int | float)
+        else float(landmark["y"]) / scale
+      )
+    landmarks_path.write_text(
+      json.dumps(landmarks, ensure_ascii=False, indent=2) + "\n",
+      encoding="utf-8",
+    )
 
   for level_dir in tiles.iterdir():
     if level_dir.is_dir() and level_dir.name.isdigit():
@@ -3335,7 +3367,33 @@ pause
   )
 
 
+def packaged_scene_counts(package_dir: Path) -> dict[str, int]:
+  """Read release-copy mesh counts so README claims cannot go stale."""
+  scene_path = package_dir / "mesh" / "regierungsviertel" / "scene.json"
+  scene = json.loads(scene_path.read_text(encoding="utf-8"))
+  base_tiles = scene.get("base_tiles", [])
+  settled_tiles = scene.get("surface_detail_tiles", [])
+  hero_files = [
+    file
+    for hero in scene.get("hero_details", [])
+    if isinstance(hero, dict)
+    for file in hero.get("files", [])
+    if isinstance(file, dict)
+  ]
+  return {
+    "base_faces": sum(int(tile.get("faces", 0)) for tile in base_tiles),
+    "base_files": len(base_tiles),
+    "glb_files": len(base_tiles) + len(settled_tiles) + len(hero_files),
+    "settled_faces": sum(int(tile.get("faces", 0)) for tile in settled_tiles),
+  }
+
+
 def write_readme(package_dir: Path) -> None:
+  scene_counts = packaged_scene_counts(package_dir)
+  base_faces_de = f"{scene_counts['base_faces']:,}".replace(",", ".")
+  settled_faces_de = f"{scene_counts['settled_faces']:,}".replace(",", ".")
+  base_faces_en = f"{scene_counts['base_faces']:,}"
+  settled_faces_en = f"{scene_counts['settled_faces']:,}"
   (package_dir / "README.txt").write_text(
     f"""Isometric Berlin - Regierungsviertel {PACKAGE_VERSION}
 ==============================================
@@ -3432,11 +3490,11 @@ frei und brechen die restliche GLB-Warteschlange ab; die aktive mobile
 ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück. Globale
 Pointer-Releases und ein zehnsekündiger Watchdog verhindern zusätzlich ein
 Festhängen. Am Desktop wird nach vollständigem Stillstand eine zweite amtliche
-6.000.002-Flächen-Stufe eingeblendet; bei Maus-, Tasten- oder Buttonbewegung
-bleibt die flüssige 2.299.987-Flächen-Stufe aktiv. Touchgeräte laden nur diese
+{settled_faces_de}-Flächen-Stufe eingeblendet; bei Maus-, Tasten- oder Buttonbewegung
+bleibt die flüssige {base_faces_de}-Flächen-Stufe aktiv. Touchgeräte laden nur diese
 leichtere Stufe.
 Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
-68 GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
+{scene_counts["glb_files"]} GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
 Der lokale HTTP/1.1-Server cached unveränderliche GLBs, Kartenkacheln und
 Programmdateien, sodass ein erneuter 3D-Start nicht wieder alle Modelldaten
 übertragen muss.
@@ -3451,6 +3509,16 @@ mit Westportal, Ecktürmen und 40 x 23,5 m Kuppel; Kanzleramt mit 36-m-Kubus und
 LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 180 x 42 m
 Querhalle und 46-m-Bügeln; Brandenburger Tor mit 62,5 x 11 x 26 m, zwölf Säulen
 und grün patinierter Quadriga. Die Fototextur bleibt darunter erhalten.
+
+Version {PACKAGE_VERSION} erweitert den sichtbaren Radius auf 5.230 m und
+ergänzt den Nordost-/Südkorridor mit {scene_counts["base_files"]} amtlichen
+Interaktionskacheln. Tram und Haltestelle am Hauptbahnhof, S15-Zugang,
+Washingtonplatz-Taxis, Futurium, die Bundesministerien, Parlament der Bäume,
+Berliner Ensemble, Bahnhof Friedrichstraße, Detlev-Rohwedder-Haus, Gropius
+Bau, Abgeordnetenhaus und Topographie des Terrors bleiben in allen
+Oberflächenmodi an denselben verifizierten Koordinaten. Fahrzeuge,
+Fassadenrhythmen und die beschädigte Mauerkronen-Lesart sind ausdrücklich
+maßstäbliche Darstellungsannäherungen.
 
 2D-Kompatibilitätsansicht ohne Terminal:
 
@@ -3566,10 +3634,10 @@ optional detail no longer disables the usable base scene. Touch devices release
 inactive 3D when switching to the 2D map, cancel the remaining GLB queue and cap
 active rendering at 30 fps. Lost pointer capture or window focus cleanly resets
 three-finger gestures; global pointer release and a ten-second watchdog prevent
-stuck input. Desktop swaps from the fluid 2,299,987-face interaction surface to
-the official 6,000,002-face surface only after movement fully settles; touch
+stuck input. Desktop swaps from the fluid {base_faces_en}-face interaction surface to
+the official {settled_faces_en}-face surface only after movement fully settles; touch
 devices request only the lighter tier. Before opening the browser,
-serve-local.py checks all 68 GLB hashes. Its HTTP/1.1 cache reuses immutable
+serve-local.py checks all {scene_counts["glb_files"]} GLB hashes. Its HTTP/1.1 cache reuses immutable
 models, map tiles and app assets
 instead of transferring the complete scene again.
 
@@ -3583,6 +3651,16 @@ the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
 photographic texture remains visible underneath.
+
+Version {PACKAGE_VERSION} expands the visible radius to 5,230 m and carries
+the north-east/south corridor in {scene_counts["base_files"]} official
+interaction tiles. Hauptbahnhof trams and stop, the S15 entrance,
+Washingtonplatz taxis, Futurium, the federal ministries, Parliament of Trees,
+Berliner Ensemble, Friedrichstraße station, Detlev-Rohwedder-Haus, Gropius
+Bau, the Berlin House of Representatives and Topography of Terror stay at the
+same verified coordinates in every surface mode. Vehicles, facade rhythms and
+the damaged Wall-crown treatment remain explicitly labelled metric display
+approximations.
 
 2D compatibility view without Terminal:
 

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.65.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.65.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.66.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.66.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.65.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.66.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.65.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.66.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -62,30 +62,30 @@ labelled compatibility fallback for browsers that cannot run local modules.
   grids on the Lüders and Kaiser blocks; the Swiss Embassy's rustication,
   cornice profiles, attica and portico pediment; Siegessäule flutings with the
   Säulenhalle ring, the Bismarck-Nationaldenkmal, and the Kanzlergarten
-  "Non-Violence" sculpture. **No window grid is ever invented** — LoD2 carries
-  no window positions, so only documented hero fenestration and the surveyed
-  entrance doors exist as panes, and two tests enforce that absence.
-- The versioned visible presentation radius is **5,130 m**, expanded by exactly
-  100 m in v0.65.0 without moving existing metric geometry. The task-10 data
+  "Non-Violence" sculpture. Ordinary LoD2 blocks receive no invented window
+  positions. Named recognition models may carry a source-informed bay rhythm;
+  those thin presentation details are explicitly not claimed as a facade survey.
+- The versioned visible presentation radius is **5,230 m**, expanded by exactly
+  100 m in v0.66.0 without moving existing metric geometry. The task-11 data
   hull reaches world x −2880…1410 and z −2600…1890, covering the full
   Tiergarten to Charlottenburger Tor, Europacity/DKB in the north and
   Anhalter Bahnhof/Kochstraße in the south. Its restrained 880 m paper margin
   yields envelope x −3760…2290 and z −3480…2770. Paper-only context is flat
   cartographic presentation and is never described as surveyed geometry. Day,
   Night, Minecraft and Snowstorm use the same envelope.
-- **The OSM layer covers the complete surveyed hull.** v0.65.0 re-clips the
+- **The OSM layer covers the complete surveyed hull.** v0.66.0 re-clips the
   Geofabrik Berlin extract to `bounds.geojson` (E386626.58…390908.90 /
   N5818111.23…5822592.07), so the expanded extent carries bounded OSM streets,
   water, park polygons, paths and POIs. The resulting road,
   water and park surfaces are regenerated from the same bounded source;
   no replacement street or river geometry is invented.
-- **The 2D overview and 3D scene share the same task-10 bounds.** The DZI,
+- **The 2D overview and 3D scene share the same task-11 bounds.** The DZI,
   reference image and bundled landmark projection were regenerated together;
-  all 73 checked sights use the same coordinate frame in both viewers. The
+  all 87 checked sights use the same coordinate frame in both viewers. The
   embedded and public landmark payloads are byte-identical and enforced by
   release tests. The hosted viewer keeps the full 16384×11616 DZI pyramid; the
   downloadable archive reuses its 8192×5808 lower levels to stay below the
-  offline size ceiling. All 68 3D GLBs remain byte-complete in both forms.
+  offline size ceiling. All 74 3D GLBs remain byte-complete in both forms.
 - Day and Night render with **no tone mapping at exposure 1**, so an authored
   paint tone reaches the screen bit-exact. The drawn city is a flat unlit
   drawing: plasticity comes from one constant brightness per face direction
@@ -102,30 +102,29 @@ labelled compatibility fallback for browsers that cannot run local modules.
   are presentation geometry derived from an OSM classification and are not
   claimed as surveyed kerb lines. The surfaces follow the payload's terrain
   grid rather than one constant height.
-- The refreshed OSM extract spans the full task-10 data hull. Großer Stern,
+- The refreshed OSM extract spans the full task-11 data hull. Großer Stern,
   Straße des 17. Juni, the Tiergarten paths, Spree and Landwehrkanal surfaces,
   Europacity and the southern extension are derived from that bounded source
   rather than presentation substitutes.
-- The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
+- The metric base comes from 26 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale. These tiles cover
-  the original photogrammetric footprint only. Task-09/task-10 additions carry
-  refreshed LoD2, OSM, ALKIS and official point data plus explicitly labelled
-  recognition geometry where documented, but no claimed photogrammetric
-  coverage outside those 23 tiles. This keeps the downloadable scene inside
-  its published WebGL memory budget.
+  the original footprint plus three tightly selected task-11 tiles at
+  Friedrichstraße/Berliner Ensemble and the southern civic edge. Remaining
+  additions carry refreshed LoD2, OSM, ALKIS and official point data plus
+  explicitly labelled recognition geometry where documented.
 - Each context tile retains up to 100,000 faces, raising the official base from
-  1,609,984 to 2,299,987 faces without moving its source coordinates. A 58°
+  1,609,984 to 2,599,985 faces without moving its source coordinates. A 58°
   normal crease keeps severe roof and facade folds crisp while preserving
   continuous terrain and vegetation. On desktop, a second background-loaded
-  tier retains 6,000,002 official mesh faces while the camera is still; mouse,
+  tier retains 6,623,585 official mesh faces while the camera is still; mouse,
   keyboard or UI movement switches immediately to the lighter tier and returns
   only after damping has ended. Two additional 80-triangle crown microclusters
-  then appear for each of the 6,893 official Berlin tree points. This produces
-  7,102,882 rendered official-source face equivalents in the settled
+  then appear for each of the 25,305 official Berlin tree points. This produces
+  10,672,385 rendered official-source face equivalents in the settled
   presentation. The figure transparently includes GPU instances; it does not
-  claim seven million unique surveyed polygons. Touch devices retain the 2.3M
-  interaction tier and do not download the desktop-only 6M geometry or render
+  claim 10.7 million unique surveyed polygons. Touch devices retain the 2.6M
+  interaction tier and do not download the desktop-only 6.6M geometry or render
   the settled-only microcrowns. Source-texture vertex
   colours receive a bounded saturation/contrast lift so grass, water, brick and
   glass remain distinct without inventing textures. A stronger south-west
@@ -195,7 +194,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
   strict mobile density budget. Its distant haze now scales with the versioned
   visible radius, keeping the complete expanded model readable at overview
   distance instead of fading the outer ring. Its official metric voxel payload
-  grows with the expanded bounds; the matching 5,130 m block surround is
+  grows with the expanded bounds; the matching 5,230 m block surround is
   explicitly tagged as extrapolated presentation geometry.
 - Three Creepers and four Zombies walk deterministic park routes only in
   Minecraft mode. They share one instanced rendering batch and disappear
@@ -274,10 +273,10 @@ labelled compatibility fallback for browsers that cannot run local modules.
   than transverse generic boxes; their local spacing remains an approximation.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. The
   expanded additive layer combines the official catalogues with unmatched OSM
-  evidence into 29,283 individual trees, including measured height, crown and
-  trunk dimensions where published. It also adds 5,251 public-light positions
+  evidence into 29,860 individual trees, including measured height, crown and
+  trunk dimensions where published. It also adds 5,829 public-light positions
   with night cones, 12 mapped wall traces as granular dark red-brown setts,
-  591 OSM park-path sections and 98 playground footprints. The selectable
+  591 OSM park-path sections and 101 playground footprints. The selectable
   Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
   water-play point and excavator. Its oblique focus view keeps those small
@@ -292,11 +291,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
   committed OSM centreline. Its 0.32 m relief and crest highlights are a
   procedural display treatment, not surveyed hydrodynamic data.
 - Assets load progressively with bounded concurrency and an adaptive pixel
-  ratio. The 163.5 MiB scene contains 23 interaction GLBs, 23 settled-detail
+  ratio. The 174.3 MiB scene contains 26 interaction GLBs, 26 settled-detail
   GLBs and 22 lazy hero parts; every individual public GLB remains below 5 MiB.
   Both official surface tiers use Meshopt compression with bundled normals.
   Existing GLB normals are reused
-  instead of recalculating roughly 2.3 million base triangles at startup.
+  instead of recalculating roughly 2.6 million base triangles at startup.
 - Mobile devices retain only the selected high-resolution hero group; desktop
   retains the two most recent. Evicted geometry, materials and textures are
   explicitly released from GPU memory. A failed detail file is retried once
@@ -320,8 +319,8 @@ labelled compatibility fallback for browsers that cannot run local modules.
   instead of two duplicated pairs.
 - The local package server uses HTTP/1.1, the correct GLB media type and
   immutable caching for heavy static assets. Reopening 3D reuses the local
-  browser cache instead of transferring the 163.5 MiB scene again.
-- Release QA verifies the exact byte length and SHA-256 of all 68 scene GLBs in
+  browser cache instead of transferring the 174.3 MiB scene again.
+- Release QA verifies the exact byte length and SHA-256 of all 74 scene GLBs in
   the source tree, extracted package, ZIP and static tarball. Both archives now
   reject duplicate, linked, encrypted, hidden and oversized content. The local
   server repeats model verification before opening the browser.
@@ -330,7 +329,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
-- LoD2, OSM, ALKIS/DOP/DGM inventories, 73 landmarks, 23 relative-placement
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 87 landmarks, 38 relative-placement
   checks and 110 accepted Wikimedia references remain part of the additive
   evidence pipeline and attribution chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is

@@ -10,12 +10,12 @@ export const DATA_SOUTH_M = 1890;
 // Width of the blank paper ring that carries the drawing past the surveyed
 // hull, so a maximum-altitude flight fades into light ground instead of a
 // void. It invents no content: flat tone plates plus cartographic ruling.
-// The larger task-10 surveyed hull needs less blank paper than task-09. At
-// 880 m every rectangular corner remains inside the versioned 5,130 m visible
+// The larger task-11 surveyed hull needs less blank paper than task-09. At
+// 880 m every rectangular corner remains inside the versioned 5,230 m visible
 // radius, while still leaving a broad clean fade beyond the last real feature.
 export const EXTRAPOLATED_MARGIN_M = 880;
 
-export const VISIBLE_RADIUS_M = 5130;
+export const VISIBLE_RADIUS_M = 5230;
 
 // Straße des 17. Juni from Pariser Platz to the Großer Stern. Both endpoints
 // are surveyed positions (the Großer Stern centre is EPSG:25833 E388041 /

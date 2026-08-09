@@ -185,6 +185,36 @@ def load_script_module(name: str, relative_path: str) -> ModuleType:
   return module
 
 
+def test_dzi_landmark_failures_rejects_unscaled_offline_coordinates() -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_dzi_landmarks", "scripts/check_release_readiness.py"
+  )
+  descriptor = TINY_DZI_XML.replace('Width="2"', 'Width="8192"').replace(
+    'Height="2"', 'Height="5808"'
+  )
+  stale = json.dumps(
+    {
+      "image": {"width": 16384, "height": 11616},
+      "landmarks": [
+        {
+          "name": "Bundeskanzleramt",
+          "x": 8698,
+          "y": 6772,
+          "nx": 0.530884,
+          "ny": 0.582989,
+        }
+      ],
+    }
+  ).encode()
+
+  failures = release_readiness.dzi_landmark_failures(
+    descriptor.encode(), stale, "offline package"
+  )
+
+  assert any("dimensions differ" in failure for failure in failures)
+  assert any("outside descriptor" in failure for failure in failures)
+
+
 def test_current_tree_is_release_ready() -> None:
   release_readiness = load_script_module(
     "check_release_readiness", "scripts/check_release_readiness.py"
@@ -337,7 +367,12 @@ def write_minimal_package_zip(
     "dzi/regierungsviertel/overview.png": b"png",
     "dzi/regierungsviertel/overview_source.png": b"png",
     "dzi/regierungsviertel/reference_map.png": b"png",
-    "dzi/regierungsviertel/landmarks.json": b"{}",
+    "dzi/regierungsviertel/landmarks.json": json.dumps(
+      {
+        "image": {"width": 2, "height": 2},
+        "landmarks": [{"name": "Fixture", "x": 1, "y": 1, "nx": 0.5, "ny": 0.5}],
+      }
+    ),
     "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
     "dzi/regierungsviertel/regierungsviertel.dzi": TINY_DZI_XML,
@@ -480,6 +515,9 @@ def test_webgl_integrity_matrix_rejects_100_corrupt_assets() -> None:
   names = list(assets)
   scene = minimal_webgl_scene(names[0], assets[names[0]])
   scene["base_tiles"] = [webgl_entry(name, assets[name]) for name in names[:96]]
+  scene["surface_detail_tiles"] = [
+    surface_webgl_entry(name, assets[name]) for name in names[:96]
+  ]
   scene["hero_details"] = [
     {"id": identifier, "files": [hero_webgl_entry(name, assets[name])]}
     for identifier, name in zip(
@@ -588,7 +626,10 @@ def test_webgl_manifest_rejects_missing_settled_surface_tier() -> None:
     actual_asset_names={"tile.glb"},
   )
 
-  assert any("all 23 settled surface-detail tiles" in failure for failure in failures)
+  assert any(
+    "one settled surface-detail tile for every bounded interaction tile" in failure
+    for failure in failures
+  )
 
 
 def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> None:

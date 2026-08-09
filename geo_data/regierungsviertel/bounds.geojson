@@ -6,9 +6,9 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Regierungsviertel bounds — task-10 Europacity and southern history expansion",
-        "description": "Lobed polygon covering the complete task-09 area plus Europacity to the DKB campus Upbeat in the north and the historic Anhalter Bahnhof, WELT balloon and Kochstraße in the south-east. The western lobe continues to cover the complete Großer Tiergarten through Charlottenburger Tor, Café am Neuen See and the Spanish Embassy.",
-        "source": "Owner-approved task-10 scope, fitted to verified OpenStreetMap positions (Geofabrik Berlin extract dated 2026-08-06). The north lobe follows Europacity instead of taking all of Moabit; the south-east lobe reaches Kochstraße and Anhalter Bahnhof while the south-west corner remains cut away to keep payloads bounded."
+        "name": "Regierungsviertel bounds — task-11 Friedrichstraße civic expansion",
+        "description": "Lobed polygon covering the complete task-10 area plus the Berliner Ensemble and Berlin Friedrichstraße station in the north-east. Europacity/DKB, Anhalter Bahnhof/Kochstraße and the complete Großer Tiergarten through Charlottenburger Tor remain inside the same bounded central-Berlin scene.",
+        "source": "Owner-approved task-11 scope, fitted to verified OpenStreetMap positions and official transport/civic sources checked in August 2026. The new north-east lobe follows the Spree and railway context tightly instead of taking an unbounded Mitte rectangle."
       },
       "geometry": {
         "type": "Polygon",
@@ -28,8 +28,9 @@
           [13.3570, 52.5420],
           [13.3755, 52.5420],
           [13.3795, 52.5310],
-          [13.3815, 52.5195],
-          [13.3850, 52.5160],
+          [13.3868, 52.5238],
+          [13.3900, 52.5215],
+          [13.3905, 52.5180],
           [13.3925, 52.5110]
         ]]
       }

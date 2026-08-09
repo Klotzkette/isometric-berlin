@@ -1053,6 +1053,146 @@
         "source": "OpenStreetMap position"
       },
       "geometry": { "type": "Point", "coordinates": [13.3904331, 52.5066718] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tramhaltestelle S+U Hauptbahnhof",
+        "role": "owner_added",
+        "tour_order": 74,
+        "source": "OpenStreetMap tram-stop/platform geometry and BVG station information"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.369730255, 52.526560305] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "S15-Station Berlin Hauptbahnhof",
+        "role": "owner_added",
+        "tour_order": 75,
+        "source": "OpenStreetMap station position and Deutsche Bahn/S-Bahn Berlin opening information dated 2026-06-15"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.369585101, 52.526621405] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Oggi's Gemüsekebab",
+        "role": "owner_added",
+        "tour_order": 76,
+        "source": "OpenStreetMap point position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.368830905, 52.529461799] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Taxistand Washingtonplatz",
+        "role": "owner_added",
+        "tour_order": 77,
+        "source": "OpenStreetMap mobility-hub context and Berlin-Mitte Hauptbahnhof mobility plan"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.370742055, 52.523669612] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Futurium",
+        "role": "owner_added",
+        "tour_order": 78,
+        "source": "OpenStreetMap position and Futurium official architecture documentation"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.374327187, 52.523910466] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bundesministerium für Forschung, Technologie und Raumfahrt",
+        "role": "owner_added",
+        "tour_order": 79,
+        "source": "OpenStreetMap government-office geometry at Kapelle-Ufer"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.375537943, 52.52319431] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Parlament der Bäume gegen Krieg und Gewalt",
+        "role": "owner_added",
+        "tour_order": 80,
+        "source": "OpenStreetMap memorial position and Stiftung Berliner Mauer documentation"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.377442438, 52.52126227] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berliner Ensemble",
+        "role": "owner_added",
+        "tour_order": 81,
+        "source": "OpenStreetMap building geometry and Berliner Ensemble official venue history"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.38555, 52.52215] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bahnhof Berlin Friedrichstraße",
+        "role": "owner_added",
+        "tour_order": 82,
+        "source": "OpenStreetMap station position and DB InfraGO station information"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.3869884, 52.5201744] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus",
+        "role": "owner_added",
+        "tour_order": 83,
+        "source": "OpenStreetMap government-office geometry and Bundesfinanzministerium official building history"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.383553467, 52.508637596] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gropius Bau",
+        "role": "owner_added",
+        "tour_order": 84,
+        "source": "OpenStreetMap museum geometry and Berlin monument data"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.381947981, 52.506615669] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Abgeordnetenhaus von Berlin",
+        "role": "owner_added",
+        "tour_order": 85,
+        "source": "OpenStreetMap government-office geometry and Abgeordnetenhaus/Denkmaldatenbank documentation"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.381504518, 52.507865347] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Topographie des Terrors",
+        "role": "owner_added",
+        "tour_order": 86,
+        "source": "OpenStreetMap museum geometry and Stiftung Topographie des Terrors site documentation"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.384141671, 52.50623855] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
+        "role": "owner_added",
+        "tour_order": 87,
+        "source": "OpenStreetMap government-office geometry"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.387390978, 52.513300417] }
     }
   ]
 }

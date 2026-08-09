@@ -47,7 +47,7 @@ describe("shared presentation envelope", () => {
       Math.max(Math.abs(bounds.minX), Math.abs(bounds.maxX)),
       Math.max(Math.abs(bounds.minZ), Math.abs(bounds.maxZ)),
     );
-    expect(VISIBLE_RADIUS_M).toBe(5130);
+    expect(VISIBLE_RADIUS_M).toBe(5230);
     expect(VISIBLE_RADIUS_M).toBeGreaterThanOrEqual(corner);
   });
 });

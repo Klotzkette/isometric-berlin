@@ -7,8 +7,8 @@
       "type": "Feature",
       "properties": {
         "name": "Projection anchor of the committed overview raster",
-        "description": "The polygon used to render src/app/public/dzi/regierungsviertel/overview_source.png for v0.65.0. overview_projection() derives the render centre and px/m scale from this exact extent, so the LoD2 prism tone sampler, DZI markers and offline overview stay metrically aligned.",
-        "source": "bounds.geojson as of v0.65.0 — task-10 Europacity, Tiergarten and southern-history expansion"
+        "description": "The polygon used to render src/app/public/dzi/regierungsviertel/overview_source.png for v0.66.0. overview_projection() derives the render centre and px/m scale from this exact extent, so the LoD2 prism tone sampler, DZI markers and offline overview stay metrically aligned.",
+        "source": "bounds.geojson as of v0.66.0 — task-11 Friedrichstraße civic expansion"
       },
       "geometry": {
         "type": "Polygon",
@@ -28,8 +28,9 @@
           [13.3570, 52.5420],
           [13.3755, 52.5420],
           [13.3795, 52.5310],
-          [13.3815, 52.5195],
-          [13.3850, 52.5160],
+          [13.3868, 52.5238],
+          [13.3900, 52.5215],
+          [13.3905, 52.5180],
           [13.3925, 52.5110]
         ]]
       }

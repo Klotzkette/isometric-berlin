@@ -784,6 +784,105 @@
       "source_faces": 212199,
       "source_material_segments": 6,
       "target_faces": 100000
+    },
+    {
+      "file": "tile-3901_58185.glb",
+      "bytes": 1192992,
+      "includes_normals": true,
+      "sha256": "6da3268ebb44ccc20aea11707cc5447d15afffdefe4fd616d62d3df25c3f887b",
+      "vertices": 52094,
+      "faces": 100000,
+      "source_bounds_epsg25833": [
+        [
+          390168.763,
+          5818579.286,
+          30.718
+        ],
+        [
+          390554.117,
+          5818958.616,
+          74.573
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3901_58185",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 190568,
+      "source_material_segments": 1,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3901_58200.glb",
+      "bytes": 1201436,
+      "includes_normals": true,
+      "sha256": "4da97323cb01d6c7d36e5eb26cdbfaef827421edab6829dec1a12a3ba729a862",
+      "vertices": 52638,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          390165.135,
+          5820017.443,
+          30.274
+        ],
+        [
+          390550.117,
+          5820398.384,
+          68.973
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3901_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 224154,
+      "source_material_segments": 5,
+      "target_faces": 100000
+    },
+    {
+      "file": "tile-3905_58200.glb",
+      "bytes": 1204740,
+      "includes_normals": true,
+      "sha256": "e74ef9a8146a4813ca837bb76f4670af1dd3b35c8c2aca673c4e895f0bc89b83",
+      "vertices": 53090,
+      "faces": 99999,
+      "source_bounds_epsg25833": [
+        [
+          390524.895,
+          5820021.32,
+          29.947
+        ],
+        [
+          390904.085,
+          5820395.889,
+          129.708
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "interaction",
+      "tile_id": "3905_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 208861,
+      "source_material_segments": 6,
+      "target_faces": 100000
     }
   ],
   "surface_detail_tiles": [
@@ -1543,6 +1642,105 @@
       "color_gamma": 0.92,
       "simplification_aggression": 5,
       "source_faces": 212199,
+      "source_material_segments": 6,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3901_58185.glb",
+      "bytes": 2359192,
+      "includes_normals": true,
+      "sha256": "619eddbffd384a1e164553d52aa503d53c05b7bbbb35e4b5484b8db87c39467b",
+      "vertices": 99373,
+      "faces": 190568,
+      "source_bounds_epsg25833": [
+        [
+          390168.48,
+          5818577.734,
+          30.656
+        ],
+        [
+          390555.395,
+          5818960.412,
+          74.573
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3901_58185",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 190568,
+      "source_material_segments": 1,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3901_58200.glb",
+      "bytes": 2813660,
+      "includes_normals": true,
+      "sha256": "d8e07155fe9669a96e4455a4602d1941a54d488f666396c98e0cf911f7ab981e",
+      "vertices": 119130,
+      "faces": 224154,
+      "source_bounds_epsg25833": [
+        [
+          390163.849,
+          5820017.135,
+          30.297
+        ],
+        [
+          390554.128,
+          5820398.563,
+          68.927
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3901_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 224154,
+      "source_material_segments": 5,
+      "target_faces": 289797
+    },
+    {
+      "file": "surface-detail-3905_58200.glb",
+      "bytes": 2619576,
+      "includes_normals": true,
+      "sha256": "a4ada1c1ea0bba2626dc0671fbd5f047a615217eec3031abddcb7ef41bbfc712",
+      "vertices": 111732,
+      "faces": 208861,
+      "source_bounds_epsg25833": [
+        [
+          390521.358,
+          5820016.394,
+          29.93
+        ],
+        [
+          390907.593,
+          5820400.696,
+          129.75
+        ]
+      ],
+      "meshopt_compressed": true,
+      "quantize_normal_bits": 8,
+      "quantize_position_bits": 16,
+      "quality_tier": "settled",
+      "tile_id": "3905_58200",
+      "normal_crease_degrees": 58.0,
+      "color_saturation": 1.24,
+      "color_contrast": 1.08,
+      "color_gamma": 0.92,
+      "simplification_aggression": 5,
+      "source_faces": 208861,
       "source_material_segments": 6,
       "target_faces": 289797
     }
@@ -3092,6 +3290,132 @@
         1257.9096563470666,
         8.0,
         1388.2814755709842
+      ]
+    },
+    {
+      "name": "Tramhaltestelle S+U Hauptbahnhof",
+      "role": "owner_added",
+      "world": [
+        -97.14700178155908,
+        8.0,
+        -855.2640199782327
+      ]
+    },
+    {
+      "name": "S15-Station Berlin Hauptbahnhof",
+      "role": "owner_added",
+      "world": [
+        -106.8400170202367,
+        8.0,
+        -862.2820549681783
+      ]
+    },
+    {
+      "name": "Oggi's Gemüsekebab",
+      "role": "owner_added",
+      "world": [
+        -150.86099801847013,
+        8.0,
+        -1179.349999458529
+      ]
+    },
+    {
+      "name": "Taxistand Washingtonplatz",
+      "role": "owner_added",
+      "world": [
+        -35.76899601815967,
+        8.0,
+        -532.2079668212682
+      ]
+    },
+    {
+      "name": "Futurium",
+      "role": "owner_added",
+      "world": [
+        208.04799936816562,
+        8.0,
+        -553.5120200132951
+      ]
+    },
+    {
+      "name": "Bundesministerium für Forschung, Technologie und Raumfahrt",
+      "role": "owner_added",
+      "world": [
+        288.3920042566024,
+        8.0,
+        -472.01099110301584
+      ]
+    },
+    {
+      "name": "Parlament der Bäume gegen Krieg und Gewalt",
+      "role": "owner_added",
+      "world": [
+        412.76297902391525,
+        8.0,
+        -254.22104062885046
+      ]
+    },
+    {
+      "name": "Berliner Ensemble",
+      "role": "owner_added",
+      "world": [
+        965.0152279052418,
+        8.0,
+        -340.62179546803236
+      ]
+    },
+    {
+      "name": "Bahnhof Berlin Friedrichstraße",
+      "role": "owner_added",
+      "world": [
+        1057.6888517069747,
+        8.0,
+        -118.71125632151961
+      ]
+    },
+    {
+      "name": "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus",
+      "role": "owner_added",
+      "world": [
+        795.9129793500178,
+        8.0,
+        1159.212027146481
+      ]
+    },
+    {
+      "name": "Gropius Bau",
+      "role": "owner_added",
+      "world": [
+        681.9200243872474,
+        8.0,
+        1381.652024061419
+      ]
+    },
+    {
+      "name": "Abgeordnetenhaus von Berlin",
+      "role": "owner_added",
+      "world": [
+        654.9400216324138,
+        8.0,
+        1241.9869748372585
+      ]
+    },
+    {
+      "name": "Topographie des Terrors",
+      "role": "owner_added",
+      "world": [
+        829.8579813517281,
+        8.0,
+        1426.930023255758
+      ]
+    },
+    {
+      "name": "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
+      "role": "owner_added",
+      "world": [
+        1067.922015547054,
+        8.0,
+        646.4319527000189
       ]
     }
   ],

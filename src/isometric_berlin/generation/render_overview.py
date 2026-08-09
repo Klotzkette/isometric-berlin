@@ -31,6 +31,10 @@ DEFAULT_RENDER_PX = 32_768
 DEFAULT_CANVAS_WIDTH = 16_384
 DEFAULT_CANVAS_HEIGHT = 11_616
 DEFAULT_PREVIEW_MAX_WIDTH = 6_144
+# `render_overview` expands the source bounds once and `render_quadrant` adds
+# the same context again. A 440 m argument therefore produces the versioned
+# 880 m paper ring used by the 2D and 3D presentations.
+DEFAULT_CONTEXT_M = 440.0
 PREVIEW_PALETTE_COLORS = 256
 # Palettes to try, largest first. The release gate rejects any committed
 # viewer asset over 5 MiB, so leave a margin for the PNG encoder.
@@ -326,7 +330,7 @@ def main() -> None:
   parser.add_argument(
     "--preview-max-width", type=int, default=DEFAULT_PREVIEW_MAX_WIDTH
   )
-  parser.add_argument("--margin-m", type=float, default=220)
+  parser.add_argument("--margin-m", type=float, default=DEFAULT_CONTEXT_M)
   args = parser.parse_args()
   render_overview(
     bounds_path=args.bounds,

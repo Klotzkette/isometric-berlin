@@ -55,15 +55,35 @@ def load_bounds_geometry(path: Path = BOUNDS_PATH) -> Any:
 
 
 def select_index_features(
-  payload: dict[str, Any], bounds_geometry: Any
+  payload: dict[str, Any],
+  bounds_geometry: Any,
+  tile_names: set[str] | None = None,
 ) -> list[dict[str, Any]]:
   """Select only source-tile index features intersecting project bounds."""
   selected = [
     feature
     for feature in payload.get("features", [])
     if shape(feature["geometry"]).intersects(bounds_geometry)
+    and (tile_names is None or str(feature["properties"]["url"]) in tile_names)
   ]
-  return sorted(selected, key=lambda feature: feature["properties"]["url"])
+  selected = sorted(selected, key=lambda feature: feature["properties"]["url"])
+  if tile_names is not None:
+    found = {str(feature["properties"]["url"]) for feature in selected}
+    missing = sorted(tile_names - found)
+    if missing:
+      raise ValueError(
+        "Requested Berlin 3D mesh tiles are absent or outside bounds: "
+        + ", ".join(missing)
+      )
+  return selected
+
+
+def merge_tile_records(
+  existing: list[dict[str, Any]], selected: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+  """Merge tile records by filename without discarding prior bounded evidence."""
+  by_filename = {str(tile["filename"]): tile for tile in [*existing, *selected]}
+  return [by_filename[name] for name in sorted(by_filename)]
 
 
 def sha256_file(path: Path) -> str:
@@ -98,6 +118,8 @@ def build_manifest(
   raw_dir: Path = RAW_DIR,
   manifest_path: Path = MANIFEST_PATH,
   session: requests.Session | None = None,
+  tile_names: set[str] | None = None,
+  merge_existing: bool = False,
 ) -> dict[str, Any]:
   """Select official mesh tiles, optionally download them, and write provenance."""
   if not terms_accepted(explicit=accept_terms):
@@ -110,7 +132,11 @@ def build_manifest(
   response = client.get(INDEX_URL, timeout=(20, 120))
   response.raise_for_status()
   index_payload = decode_index(response.content)
-  selected = select_index_features(index_payload, load_bounds_geometry(bounds_path))
+  selected = select_index_features(
+    index_payload,
+    load_bounds_geometry(bounds_path),
+    tile_names,
+  )
 
   tiles = []
   for feature in selected:
@@ -129,6 +155,10 @@ def build_manifest(
         "sha256": sha256_file(destination) if destination.exists() else None,
       }
     )
+
+  if merge_existing and manifest_path.exists():
+    existing_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    tiles = merge_tile_records(existing_manifest.get("tiles", []), tiles)
 
   manifest = {
     "schema_version": 1,
@@ -168,10 +198,26 @@ def main() -> None:
     action="store_true",
     help="Download the selected OBJ/texture ZIP archives into gitignored raw data.",
   )
+  parser.add_argument(
+    "--tile",
+    action="append",
+    default=None,
+    help=(
+      "Fetch one exact source-tile filename inside the bounds; repeat for more. "
+      "Without this option every intersecting tile is selected."
+    ),
+  )
+  parser.add_argument(
+    "--merge-existing",
+    action="store_true",
+    help="Merge selected tiles into the existing manifest by filename.",
+  )
   args = parser.parse_args()
   manifest = build_manifest(
     accept_terms=args.accept_terms,
     download_content=args.download_content,
+    tile_names=set(args.tile) if args.tile else None,
+    merge_existing=args.merge_existing,
   )
   print(
     f"Selected {manifest['tile_count']} Berlin 3D Mesh tiles; "

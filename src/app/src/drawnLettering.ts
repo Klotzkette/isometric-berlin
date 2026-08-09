@@ -33,6 +33,36 @@ type Polyline = [number, number][];
  * Curves are pre-flattened; at 60 cm cap height the segments are millimetres.
  */
 const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
+  "1": {
+    advance: 0.62,
+    strokes: [
+      [
+        [0.08, 0.72],
+        [0.34, 1],
+        [0.34, 0],
+      ],
+      [
+        [0.08, 0],
+        [0.58, 0],
+      ],
+    ],
+  },
+  "5": {
+    advance: 0.82,
+    strokes: [
+      [
+        [0.74, 1],
+        [0.12, 1],
+        [0.1, 0.54],
+        [0.58, 0.54],
+        [0.76, 0.42],
+        [0.76, 0.16],
+        [0.58, 0.02],
+        [0.26, 0],
+        [0.08, 0.14],
+      ],
+    ],
+  },
   A: {
     advance: 1,
     strokes: [
@@ -162,6 +192,23 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
       [
         [0.1, 0.52],
         [0.88, 0.52],
+      ],
+    ],
+  },
+  I: {
+    advance: 0.66,
+    strokes: [
+      [
+        [0.08, 1],
+        [0.58, 1],
+      ],
+      [
+        [0.33, 1],
+        [0.33, 0],
+      ],
+      [
+        [0.08, 0],
+        [0.58, 0],
       ],
     ],
   },

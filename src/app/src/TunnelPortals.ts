@@ -64,6 +64,7 @@ const BURIED_CAP_MARGIN_M = 12;
 // at its polyline vertex left a one-triangle seam at each trough-to-tube join.
 const BURIED_CAP_TROUGH_SEAM_OVERLAP_M = 2;
 const BURIED_CAP_RENDER_ORDER = 100;
+const BURIED_CAP_NAME = "Tiergartentunnel buried ground occlusion cap";
 
 const CONCRETE = 0x8d8b83;
 const ASPHALT = 0x3c4247;
@@ -289,7 +290,7 @@ function addBuriedTunnelOcclusionCap(
     side: DoubleSide,
   });
   const cap = new Mesh(geometry, material);
-  cap.name = "Tiergartentunnel buried ground occlusion cap";
+  cap.name = BURIED_CAP_NAME;
   cap.userData.geometryStatus =
     "Engineered presentation occlusion cap derived from the OSM route centreline; not surveyed surface geometry";
   cap.userData.coveredRouteRangeM = [coveredStart, coveredEnd];
@@ -302,6 +303,24 @@ function addBuriedTunnelOcclusionCap(
   cap.renderOrder = BURIED_CAP_RENDER_ORDER;
   cap.receiveShadow = true;
   group.add(cap);
+}
+
+/**
+ * Keep the public ramps in every surface style, but hide their internal
+ * forced-depth cap in the voxel world. The cap only seals transparent
+ * photogrammetry; above opaque blocks it would become a kilometre-long grey
+ * ribbon because Minecraft deliberately remaps every visible material.
+ */
+export function setTunnelPortalPresentation(
+  group: Group,
+  underside: boolean,
+  voxelMode: boolean,
+): void {
+  group.visible = !underside;
+  const cap = group.getObjectByName(BURIED_CAP_NAME);
+  if (cap) {
+    cap.visible = !voxelMode;
+  }
 }
 
 function addRamp(

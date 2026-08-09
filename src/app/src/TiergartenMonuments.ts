@@ -915,12 +915,16 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   // keep them above the marker band without claiming surveyed sculpture mesh.
   "0° Breite": presentationVariant(buildWallArtwork, 0.9),
   "Aufbau der Republik": presentationVariant(buildFigureGroupArtwork, 1.15),
+  "Berlin History": presentationVariant(buildWallArtwork, 1.05),
+  "Buddy Bear Friedrich": presentationVariant(buildAnimalArtwork, 1.0),
+  "Buddy Bear ISF 2004": presentationVariant(buildAnimalArtwork, 1.0),
   "Der Kopf": presentationVariant(buildAbstractArtwork, 0.95),
   "Die goldene Stunde": presentationVariant(buildVerticalArtwork, 1.05),
   "Felix-Mendelssohn-Bartholdy-Stein": presentationVariant(buildWallArtwork, 0.8),
   "Friede sei mit Dir": presentationVariant(buildVerticalArtwork, 1.25),
   "Genesung": presentationVariant(buildStandingArtwork, 1.0),
   "Houseball": presentationVariant(buildAbstractArtwork, 1.15),
+  "Helene Weigel": presentationVariant(buildStandingArtwork, 1.0),
   "Jakarta": presentationVariant(buildAbstractArtwork, 1.05),
   "Kaninchenfeld": presentationVariant(buildAnimalArtwork, 0.65),
   "Kreuzberg Tower": presentationVariant(buildVerticalArtwork, 1.15),
@@ -930,7 +934,9 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Mitte-Ndnn-Bar": presentationVariant(buildAbstractArtwork, 0.95),
   "Nie wieder Krieg": presentationVariant(buildWallArtwork, 0.9),
   "One World-Bär": presentationVariant(buildAnimalArtwork, 1.0),
+  "Theaterstele": presentationVariant(buildVerticalArtwork, 1.1),
   "Tilted Donut Wedge with Two Balls": presentationVariant(buildAbstractArtwork, 1.2),
+  "Walther Tell": presentationVariant(buildStandingArtwork, 1.0),
   "not caring is no option": presentationVariant(buildWallArtwork, 1.05),
 };
 

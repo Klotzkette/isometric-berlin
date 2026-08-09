@@ -5,6 +5,7 @@ import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 import {
   createTunnelPortals,
   RAMP_LENGTH_M,
+  setTunnelPortalPresentation,
   tunnelMouthViews,
 } from "../src/TunnelPortals";
 import {
@@ -257,6 +258,32 @@ describe("Tiergartentunnel rendering budget", () => {
     const hit = ray.intersectObject(cap, false)[0];
     expect(hit).toBeDefined();
     expect(hit.point.y).toBeGreaterThan(2);
+  });
+
+  test("keeps portal ramps but suppresses the forced-depth cap in Minecraft", () => {
+    const portals = createTunnelPortals({
+      clear_height_m: 5,
+      clear_width_each_direction_m: 10.5,
+      points: [
+        [0, -10, 0],
+        [0, -10, 500],
+        [0, -10, 1000],
+      ],
+    });
+    const cap = portals.getObjectByName(
+      "Tiergartentunnel buried ground occlusion cap",
+    )!;
+
+    setTunnelPortalPresentation(portals, false, false);
+    expect(portals.visible).toBe(true);
+    expect(cap.visible).toBe(true);
+
+    setTunnelPortalPresentation(portals, false, true);
+    expect(portals.visible).toBe(true);
+    expect(cap.visible).toBe(false);
+
+    setTunnelPortalPresentation(portals, true, false);
+    expect(portals.visible).toBe(false);
   });
 
   test("sweeps every real-route segment and both tubes from four azimuths plus top-down", () => {

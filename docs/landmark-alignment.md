@@ -2,10 +2,10 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-09T02:12:45.827827+00:00`
+- Generated: `2026-08-09T03:10:26.383094+00:00`
 - Status: `review`
-- Landmarks checked: `73`
-- Relative relationships checked: `26`
+- Landmarks checked: `87`
+- Relative relationships checked: `38`
 - Landmark review count: `2`
 - Relative review count: `0`
 - Review count: `2`
@@ -74,7 +74,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | KPMG Europacity | `ok` | KPMG (pois) | 0.00 m | inside DEBE3De9JUgwVTiy |
 | DKB Campus Upbeat | `review` | no expected-name hit; nearest: None | 20.35 m | nearest DEBE01YYK0002PFv at 164.14 m |
 | Kammermusiksaal | `ok` | Kammermusiksaal (pois) | 0.00 m | inside DEBE3DbyaJ0e8oAr |
-| Tilla-Durieux-Park | `ok` | Tilla-Durieux-Park (roads) | 0.00 m | nearest DEBE00YY24s0007E at 38.92 m |
+| Tilla-Durieux-Park | `ok` | Tilla-Durieux-Park (roads) | 0.00 m | nearest DEBE00YY24s00075 at 38.92 m |
 | berlin modern — Museum des 20. Jahrhunderts | `review` | no expected-name hit; nearest: Kulturforum | 0.00 m | nearest DEBE3DkIiO30Sz4V at 54.47 m |
 | Der Bogenschütze (Henry Moore) | `ok` | Der Bogenschütze (pois) | 0.00 m | nearest DEBE3DWiMSMgX8rD at 6.59 m |
 | Café am Neuen See | `ok` | Café am Neuen See (pois) | 0.00 m | inside DEBE3DFxyG0owFin |
@@ -85,6 +85,20 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Anhalter Bahnhof | `ok` | Anhalter Bahnhof (rail) | 0.00 m | nearest DEBE3DSoSMPGtuId at 11.25 m |
 | WELT Balloon | `ok` | Berlin Hi-Flyer (pois) | 0.00 m | nearest DEBE3DkxwhkVzBMj at 60.06 m |
 | Kochstraße | `ok` | Kochstraße (roads) | 3.90 m | nearest DEBE3DKf7Br738aj at 8.9 m |
+| Tramhaltestelle S+U Hauptbahnhof | `ok` | OSM way 1530833485 (rail) | 0.15 m | nearest DEBE01AL4mn0000L at 2.54 m |
+| S15-Station Berlin Hauptbahnhof | `ok` | OSM relation 21001950 (rail) | 0.00 m | nearest DEBE01AL4mn0000J at 1.72 m |
+| Oggi's Gemüsekebab | `ok` | Oggi's Gemüsekebab (pois) | 0.00 m | nearest DEBE3DsWyZ9x9wnT at 23.55 m |
+| Taxistand Washingtonplatz | `ok` | S+U Hauptbahnhof/Washingtonplatz (pois) | 0.00 m | nearest DEBE01YYK0002NAU at 30.35 m |
+| Futurium | `ok` | Futurium (pois) | 0.00 m | inside DEBE00YY20g0005J |
+| Bundesministerium für Forschung, Technologie und Raumfahrt | `ok` | Bundesministerium für Forschung, Technologie und Raumfahrt (pois) | 0.00 m | inside DEBE3DBlrT1zM4av |
+| Parlament der Bäume gegen Krieg und Gewalt | `ok` | Parlament der Bäume (pois) | 0.00 m | inside DEBE01YYK00007aT |
+| Berliner Ensemble | `ok` | Berliner Ensemble (pois) | 0.00 m | nearest DEBE01YYK00008HD at 8.76 m |
+| Bahnhof Berlin Friedrichstraße | `ok` | Berlin Friedrichstraße (rail) | 0.00 m | inside DEBE00YYpY0000Jk |
+| Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | `ok` | Bundesministerium der Finanzen (pois) | 0.00 m | inside DEBE3DSOWJjXsCQe |
+| Gropius Bau | `ok` | Gropius-Bau (pois) | 0.00 m | inside DEBE3DUNRQLhhnrF |
+| Abgeordnetenhaus von Berlin | `ok` | Abgeordnetenhaus von Berlin (pois) | 0.00 m | inside DEBE3DEXeaCxS2u2 |
+| Topographie des Terrors | `ok` | Topographie des Terrors (pois) | 0.00 m | inside DEBE3DB8G4JuQSIz |
+| Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend | `ok` | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend (pois) | 0.00 m | inside DEBE3DaRKFOzDWtk |
 
 ## Relative Placement
 
@@ -92,6 +106,18 @@ These checks compare landmark-to-landmark relationships in EPSG:25833 metres. Th
 
 | From | To | Status | East/West | North/South | Delta E | Delta N |
 |---|---|---:|---|---|---:|---:|
+| Berlin Hauptbahnhof | Tramhaltestelle S+U Hauptbahnhof | `ok` | east / east | north / north | 26.07 m | 161.91 m |
+| Tramhaltestelle S+U Hauptbahnhof | S15-Station Berlin Hauptbahnhof | `ok` | west / west | north / north | -9.69 m | 7.02 m |
+| Berlin Hauptbahnhof | Oggi's Gemüsekebab | `ok` | west / west | north / north | -27.64 m | 486.00 m |
+| Berlin Hauptbahnhof | Taxistand Washingtonplatz | `ok` | east / east | south / south | 87.45 m | -161.15 m |
+| Berlin Hauptbahnhof | Futurium | `ok` | east / east | south / south | 331.27 m | -139.84 m |
+| Marie-Elisabeth-Lüders-Haus | Parlament der Bäume gegen Krieg und Gewalt | `ok` | west / west | north / north | -3.61 m | 48.32 m |
+| Reichstagsgebäude | Berliner Ensemble | `ok` | east / east | north / north | 649.99 m | 380.45 m |
+| Berliner Ensemble | Bahnhof Berlin Friedrichstraße | `ok` | east / east | south / south | 92.67 m | -221.91 m |
+| Brandenburger Tor | Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | `ok` | east / east | south / south | 378.01 m | -858.76 m |
+| Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | Gropius Bau | `ok` | west / west | south / south | -113.99 m | -222.44 m |
+| Gropius Bau | Topographie des Terrors | `ok` | east / east | south / south | 147.94 m | -45.28 m |
+| Gropius Bau | Abgeordnetenhaus von Berlin | `ok` | west / west | north / north | -26.98 m | 139.67 m |
 | Berlin Hauptbahnhof | Hugo-Preuß-Brücke | `ok` | east / east | south / south | 180.53 m | -175.64 m |
 | Berlin Hauptbahnhof | Rahel-Hirsch-Straße | `ok` | east / east | south / south | 9.07 m | -220.82 m |
 | Berlin Hauptbahnhof | Moltkebrücke | `ok` | west / west | south / south | -84.08 m | -325.64 m |
