@@ -3535,6 +3535,24 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 3,
             target_world: [358, 5.3, -1150],
           });
+          // Both Hauptbahnhof crossings are long, low structures. The generic
+          // 190 m landmark framing made their construction unreadable, so use
+          // stable oblique views that show deck, side girder and supports at
+          // once without cropping either bank.
+          runtime.focusCameraByName.set("Gustav-Heinemann-Brücke", {
+            azimuth_degrees: 65,
+            distance_m: 122,
+            polar_degrees: 63,
+            target_height_m: 0,
+            target_world: [-36.9, 8, -445.17],
+          });
+          runtime.focusCameraByName.set("Hugo-Preuß-Brücke", {
+            azimuth_degrees: 35,
+            distance_m: 138,
+            polar_degrees: 61,
+            target_height_m: 0,
+            target_world: [57.3, 8, -517.71],
+          });
           // The forecourt is 94 m wide (T-34s at +/-33 m, ML-20 howitzers
           // at +/-44.5 m); a south approach at 145 m with a steep polar
           // angle is the framing that keeps both wings in frame at once

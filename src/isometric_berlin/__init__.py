@@ -2,4 +2,4 @@
 Regierungsviertel, inspired by isometric.nyc by Andy Coenen.
 """
 
-__version__ = "0.70.1"
+__version__ = "0.70.2"

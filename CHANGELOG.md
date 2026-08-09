@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.70.2
+
+- **Gustav-Heinemann-Bruecke is no longer a pale generic strip.** The official
+  Berlin inventory fixes the pedestrian bridge at 87.76 x 4.00 m. Its model
+  now carries the observed dark olive-green Vierendeel side frames, twenty
+  regular bays, horizontal handrails, a segmented timber deck, integrated
+  warm lights and two rectangular concrete blade supports around the 66 m
+  clear central span. The exact OSM course remains unchanged.
+- **Hugo-Preuss-Bruecke now has its own curved road-bridge construction.** Its
+  official 88.41 x 23.56 m envelope follows the mapped curved centreline with
+  a deep, haunched steel box, pale framed fascia, close vertical railing,
+  asphalt carriageway, lane mark, cycle margins, footways and substantial
+  stone abutments. It remains a single span: the renderer no longer invents a
+  central river pier.
+- Both bridges receive stable close-up camera presets and retain their distinct
+  structure in Day, Night, Minecraft and Snowstorm. Regression tests pin their
+  identity, dimensions, palette, framing and pier policy. The versioned visible
+  radius remains **5,230 m**; no bounds, source coordinates, Google data,
+  credentials or raw photographs changed.
+
 ## v0.70.1
 
 - Removed all seven unsolicited location quips in German and English,

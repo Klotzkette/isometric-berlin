@@ -2059,7 +2059,13 @@ function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
 export const BRIDGE_MIN_CLUSTER_CELLS = 12;
 
 export type BridgeKind =
-  "beam" | "golda" | "slender" | "steelArch" | "stoneArch";
+  | "beam"
+  | "curvedBox"
+  | "golda"
+  | "slender"
+  | "steelArch"
+  | "stoneArch"
+  | "vierendeel";
 
 export type BridgePalette = {
   abutment: number;
@@ -2069,6 +2075,10 @@ export type BridgePalette = {
 };
 
 export type BridgeProfile = {
+  /** Surveyed centreline direction, used where a coarse cluster skews it. */
+  axis?: [number, number];
+  /** Signed plan sagitta at mid-span; zero keeps a straight centreline. */
+  curveSagittaM?: number;
   /** Deck half-width where the 4 m ground grid under-reports it. */
   halfWidthM: number;
   kind: BridgeKind;
@@ -2114,24 +2124,45 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [-174.5, -336.5],
   },
   {
-    // 2005 pedestrian bridge to the Hauptbahnhof: a thin ribbon deck on
-    // two round columns, tubular handrails, no masonry at all. The 4 m
-    // ground grid only caught 52 m of it, leaving the deck ending over
-    // open water. The Geoportal balustrade lighting fixes the real
-    // extent. Berlin's bridge inventory gives 87.76 x 4.00 m; the old
-    // model was 5.6 m wide and therefore read as a road bridge.
+    // Max Dudler / Grassl, 2005: an olive-green Vierendeel steel girder
+    // around a riveted timber deck. The 66 m clear central span rests on
+    // two rectangular concrete blades near the banks. Berlin's bridge
+    // inventory gives 87.76 x 4.00 m; the old model was a generic ivory
+    // footbridge with round piers and therefore missed its whole identity.
+    axis: [-0.018, 0.99984],
     halfWidthM: 2,
-    kind: "slender",
+    kind: "vierendeel",
     matchRadiusM: 80,
     name: "Gustav-Heinemann-Brücke",
     palette: {
-      abutment: 0xc8c4b9,
-      deck: 0xeee9dc,
-      metal: 0xdde1de,
-      structure: 0xd4d3cc,
+      abutment: 0xb8b6ae,
+      deck: 0x715b45,
+      metal: 0x315246,
+      structure: 0x547766,
     },
     surveyedDeck: { halfLengthM: 43.88, halfWidthM: 2 },
-    world: [-36.9, -445.8],
+    world: [-36.9, -445.17],
+  },
+  {
+    // Oswald Mathias Ungers / Grassl, 2005. Official inventory dimensions:
+    // 88.41 x 23.56 m. The one-field orthotropic steel box is curved in
+    // plan (roughly 321-345 m radius), with a 3.3-4.1 m deep dark soffit,
+    // pale framed fascias and limestone-clad abutments. OSM supplies the
+    // surveyed centreline and its 2.98 m northward sagitta.
+    axis: [0.99998, 0.00702],
+    curveSagittaM: -2.98,
+    halfWidthM: 11.78,
+    kind: "curvedBox",
+    matchRadiusM: 80,
+    name: "Hugo-Preuß-Brücke",
+    palette: {
+      abutment: 0xc9c0ae,
+      deck: 0xbfc1bc,
+      metal: 0x444b4e,
+      structure: 0x9ca4a4,
+    },
+    surveyedDeck: { halfLengthM: 44.205, halfWidthM: 11.78 },
+    world: [57.3, -514.73],
   },
   {
     // Santiago Calatrava, 1996: a flat steel arch under a light deck,
@@ -2286,6 +2317,12 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const ROAD_SURFACE = new Color(0x77746f);
     const STONE_PAVING = new Color(0xd7b7a4);
     const ROAD_MARKING = new Color(0xe9e4d8);
+    const TIMBER_LIGHT = new Color(0x80694f);
+    const TIMBER_DARK = new Color(0x68523d);
+    const GALVANISED = new Color(0xc9ceca);
+    const HUGO_ASPHALT = new Color(0x626565);
+    const HUGO_PAVING = new Color(0xb9b8b1);
+    const HUGO_RECESS = new Color(0x697174);
     // Deck height: the carriageway runs at bank level, but never lower
     // than the shipping clearance above the recessed water table.
     let deckY =
@@ -2296,9 +2333,6 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     for (const [x, z] of cluster) {
       deckY = Math.max(deckY, sample(x, z) + 0.55);
     }
-    const [ax, az] = rect.axis;
-    const nx = -az;
-    const nz = ax;
     // Road bridges over the Spree are 18–26 m wide and rest on both
     // banks: widen thin clusters and extend the span onto the abutments.
     // A surveyed deck replaces both, because the grid clips narrow decks.
@@ -2307,10 +2341,28 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const halfWidth =
       profile?.surveyedDeck?.halfWidthM ??
       Math.max(rect.halfWidth, profile?.halfWidthM ?? 8.5);
-    const at = (u: number, v: number): [number, number] => [
-      cx + ax * u + nx * v,
-      cz + az * u + nz * v,
-    ];
+    const rawAxis = profile?.axis ?? rect.axis;
+    const axisLength = Math.hypot(rawAxis[0], rawAxis[1]) || 1;
+    const ax = rawAxis[0] / axisLength;
+    const az = rawAxis[1] / axisLength;
+    const nx = -az;
+    const nz = ax;
+    const curveSagitta = profile?.curveSagittaM ?? 0;
+    const curveOffsetAt = (u: number): number =>
+      curveSagitta * Math.max(0, 1 - (u / halfLength) ** 2);
+    const tangentAt = (u: number): [number, number] => {
+      const derivative = (-2 * curveSagitta * u) / halfLength ** 2;
+      const tx = ax + nx * derivative;
+      const tz = az + nz * derivative;
+      const length = Math.hypot(tx, tz) || 1;
+      return [tx / length, tz / length];
+    };
+    const at = (u: number, v: number): [number, number] => {
+      const centreX = cx + ax * u + nx * curveOffsetAt(u);
+      const centreZ = cz + az * u + nz * curveOffsetAt(u);
+      const [tx, tz] = tangentAt(u);
+      return [centreX - tz * v, centreZ + tx * v];
+    };
     // Every crossing rises slightly toward mid-span: the drawn camber is
     // what makes a bridge read as going OVER something.
     const camber =
@@ -2320,30 +2372,56 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           ? 1.2
           : kind === "golda"
             ? 0.82
+            : kind === "curvedBox"
+              ? 1.05
+              : kind === "vierendeel"
+                ? 0.16
             : kind === "slender"
               ? 0.9
               : 0.5;
     const riseAt = (u: number): number =>
       camber * Math.cos((u / halfLength) * (Math.PI / 2)) ** 2;
     const deckThickness =
-      kind === "golda" ? 0.22 : kind === "slender" ? 0.5 : 0.7;
-    const DECK_SEGMENTS = kind === "golda" ? 28 : 14;
+      kind === "golda"
+        ? 0.22
+        : kind === "vierendeel"
+          ? 0.24
+          : kind === "curvedBox"
+            ? 0.28
+            : kind === "slender"
+              ? 0.5
+              : 0.7;
+    const DECK_SEGMENTS =
+      kind === "vierendeel"
+        ? 40
+        : kind === "curvedBox"
+          ? 32
+          : kind === "golda"
+            ? 28
+            : 14;
     const segmentLength = (halfLength * 2) / DECK_SEGMENTS;
     for (let index = 0; index < DECK_SEGMENTS; index += 1) {
       const u = -halfLength + segmentLength * (index + 0.5);
       const y = deckY + riseAt(u);
       const [sx, sz] = at(u, 0);
+      const localAxis = tangentAt(u);
+      const deckTone =
+        kind === "vierendeel"
+          ? index % 2 === 0
+            ? TIMBER_LIGHT
+            : TIMBER_DARK
+          : DECK;
       addPart(
         boxTriangles(
           sx,
           y - deckThickness / 2,
           sz,
-          rect.axis,
+          localAxis,
           segmentLength + 0.05,
           deckThickness,
           halfWidth * 2,
         ),
-        DECK,
+        deckTone,
         index === 0 || index === DECK_SEGMENTS - 1,
       );
       if (kind === "stoneArch") {
@@ -2355,7 +2433,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             sx,
             y + 0.035,
             sz,
-            rect.axis,
+            localAxis,
             segmentLength + 0.04,
             0.07,
             13.2,
@@ -2370,7 +2448,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               walkX,
               y + 0.045,
               walkZ,
-              rect.axis,
+              localAxis,
               segmentLength + 0.04,
               0.09,
               4.0,
@@ -2385,7 +2463,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               sx,
               y + 0.078,
               sz,
-              rect.axis,
+              localAxis,
               Math.min(2.4, segmentLength * 0.58),
               0.025,
               0.14,
@@ -2394,23 +2472,154 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             false,
           );
         }
+      } else if (kind === "curvedBox") {
+        // Hugo-Preuß: broad road deck on one deep orthotropic steel box.
+        // The road, cycle margins and pavements stay separate flat tones,
+        // while the 3.3-4.1 m haunched box remains visible from the water.
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.035,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.07,
+            8.5,
+          ),
+          HUGO_ASPHALT,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [cycleX, cycleZ] = at(u, side * 5.4);
+          addPart(
+            boxTriangles(
+              cycleX,
+              y + 0.045,
+              cycleZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.09,
+              2.2,
+            ),
+            ROAD_SURFACE,
+            false,
+          );
+          const [walkX, walkZ] = at(u, side * 9.05);
+          addPart(
+            boxTriangles(
+              walkX,
+              y + 0.05,
+              walkZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.1,
+              4.55,
+            ),
+            HUGO_PAVING,
+            false,
+          );
+        }
+        if (index % 3 === 1) {
+          addPart(
+            boxTriangles(
+              sx,
+              y + 0.08,
+              sz,
+              localAxis,
+              segmentLength * 0.48,
+              0.025,
+              0.13,
+            ),
+            ROAD_MARKING,
+            false,
+          );
+        }
+        const boxDepth = 3.3 + 0.8 * Math.abs(u / halfLength) ** 1.35;
+        addPart(
+          boxTriangles(
+            sx,
+            y - deckThickness - boxDepth / 2,
+            sz,
+            localAxis,
+            segmentLength + 0.08,
+            boxDepth,
+            15.2,
+          ),
+          STEEL,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [fasciaX, fasciaZ] = at(u, side * (halfWidth - 0.24));
+          addPart(
+            boxTriangles(
+              fasciaX,
+              y - 0.58,
+              fasciaZ,
+              localAxis,
+              segmentLength - 0.18,
+              0.88,
+              0.14,
+            ),
+            HUGO_RECESS,
+            false,
+          );
+          for (const [level, height] of [
+            [-0.08, 0.2],
+            [-1.08, 0.18],
+          ] as const) {
+            addPart(
+              boxTriangles(
+                fasciaX,
+                y + level,
+                fasciaZ,
+                localAxis,
+                segmentLength + 0.06,
+                height,
+                0.34,
+              ),
+              STONE,
+              false,
+            );
+          }
+        }
+      } else if (kind === "vierendeel") {
+        // The footbridge has riveted timber boards with narrow galvanised
+        // service strips along the inside of its structural side girders.
+        for (const side of [-1, 1]) {
+          const [stripX, stripZ] = at(u, side * 1.56);
+          addPart(
+            boxTriangles(
+              stripX,
+              y + 0.025,
+              stripZ,
+              localAxis,
+              segmentLength + 0.04,
+              0.05,
+              0.3,
+            ),
+            GALVANISED,
+            false,
+          );
+        }
       }
       // Edge beam and parapet ride the same camber on both sides.
       for (const side of [-1, 1]) {
         const [bx, bz] = at(u, side * (halfWidth - 0.35));
-        addPart(
-          boxTriangles(
-            bx,
-            y - deckThickness - (kind === "golda" ? 0.18 : 0.3),
-            bz,
-            rect.axis,
-            segmentLength + 0.05,
-            kind === "golda" ? 0.36 : 0.6,
-            kind === "golda" ? 0.42 : 0.7,
-          ),
-          kind === "golda" ? STEEL : STONE_DARK,
-          false,
-        );
+        if (kind !== "curvedBox" && kind !== "vierendeel") {
+          addPart(
+            boxTriangles(
+              bx,
+              y - deckThickness - (kind === "golda" ? 0.18 : 0.3),
+              bz,
+              localAxis,
+              segmentLength + 0.05,
+              kind === "golda" ? 0.36 : 0.6,
+              kind === "golda" ? 0.42 : 0.7,
+            ),
+            kind === "golda" ? STEEL : STONE_DARK,
+            false,
+          );
+        }
         const [rx, rz] = at(u, side * halfWidth);
         if (kind === "golda") {
           // The bridge is a structural U-girder: its high golden sides,
@@ -2421,7 +2630,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               rx,
               y + 0.72,
               rz,
-              rect.axis,
+              localAxis,
               segmentLength + 0.06,
               1.48,
               0.17,
@@ -2434,7 +2643,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               rx,
               y + 1.49,
               rz,
-              rect.axis,
+              localAxis,
               segmentLength + 0.08,
               0.14,
               0.3,
@@ -2448,20 +2657,20 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               lx,
               y + 1.27,
               lz,
-              rect.axis,
+              localAxis,
               segmentLength + 0.04,
               0.055,
               0.065,
             ),
             WARM_LIGHT,
           );
-        } else {
+        } else if (kind !== "curvedBox" && kind !== "vierendeel") {
           addPart(
             boxTriangles(
               rx,
               y + (kind === "stoneArch" ? 0.6 : 0.62),
               rz,
-              rect.axis,
+              localAxis,
               segmentLength + 0.05,
               kind === "stoneArch" ? 1.2 : 0.14,
               kind === "stoneArch" ? 0.34 : 0.14,
@@ -2486,8 +2695,147 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [px, pz] = at(u, side * (halfWidth + 0.091));
           addPart(
-            boxTriangles(px, y + 0.74, pz, rect.axis, 0.13, slotHeight, 0.035),
+            boxTriangles(
+              px,
+              y + 0.74,
+              pz,
+              tangentAt(u),
+              0.13,
+              slotHeight,
+              0.035,
+            ),
             GOLD_SLOT,
+            false,
+          );
+        }
+      }
+    } else if (kind === "vierendeel") {
+      const bayCount = 20;
+      const bayLength = (halfLength * 2) / bayCount;
+      for (let index = 0; index <= bayCount; index += 1) {
+        const u = -halfLength + (index / bayCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(px, y + 0.72, pz, localAxis, 0.26, 1.44, 0.24),
+            STONE,
+            false,
+          );
+          const [rivetX, rivetZ] = at(u, side * (halfWidth + 0.13));
+          for (const level of [0.22, 0.72, 1.22]) {
+            addPart(
+              boxTriangles(
+                rivetX,
+                y + level,
+                rivetZ,
+                localAxis,
+                0.11,
+                0.11,
+                0.05,
+              ),
+              GALVANISED,
+              false,
+            );
+          }
+        }
+      }
+      for (let index = 0; index < bayCount; index += 1) {
+        const u = -halfLength + bayLength * (index + 0.5);
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          for (const [level, height, width] of [
+            [0.12, 0.24, 0.26],
+            [0.48, 0.07, 0.09],
+            [0.76, 0.07, 0.09],
+            [1.04, 0.07, 0.09],
+            [1.4, 0.24, 0.28],
+          ] as const) {
+            addPart(
+              boxTriangles(
+                px,
+                y + level,
+                pz,
+                localAxis,
+                bayLength + 0.04,
+                height,
+                width,
+              ),
+              index % 2 === 0 ? STONE : STEEL,
+              false,
+            );
+          }
+          if (index % 2 === 0) {
+            const [lampX, lampZ] = at(u, side * (halfWidth - 0.13));
+            addLamp(
+              boxTriangles(
+                lampX,
+                y + 1.22,
+                lampZ,
+                localAxis,
+                0.42,
+                0.11,
+                0.1,
+              ),
+              WARM_LIGHT,
+            );
+          }
+        }
+      }
+    } else if (kind === "curvedBox") {
+      const picketCount = 60;
+      const railLength = (halfLength * 2) / picketCount;
+      for (let index = 0; index <= picketCount; index += 1) {
+        const u = -halfLength + (index / picketCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(px, y + 0.54, pz, localAxis, 0.11, 1.08, 0.1),
+            STONE,
+            false,
+          );
+          if (index < picketCount) {
+            const railU = u + railLength / 2;
+            const railY = deckY + riseAt(railU);
+            const [railX, railZ] = at(railU, side * halfWidth);
+            addPart(
+              boxTriangles(
+                railX,
+                railY + 1.08,
+                railZ,
+                tangentAt(railU),
+                railLength + 0.04,
+                0.12,
+                0.14,
+              ),
+              STONE,
+              false,
+            );
+          }
+        }
+      }
+      for (let index = 0; index <= DECK_SEGMENTS; index += 1) {
+        const u = -halfLength + (index / DECK_SEGMENTS) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [ribX, ribZ] = at(u, side * (halfWidth - 0.24));
+          addPart(
+            boxTriangles(
+              ribX,
+              y - 0.58,
+              ribZ,
+              localAxis,
+              0.2,
+              1.2,
+              0.36,
+            ),
+            STONE,
             false,
           );
         }
@@ -2496,6 +2844,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       for (let index = 0; index <= postCount; index += 1) {
         const u = -halfLength + (index / postCount) * halfLength * 2;
         const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
         for (const side of [-1, 1]) {
           const [px, pz] = at(u, side * halfWidth);
           addPart(
@@ -2503,7 +2852,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               px,
               y + 0.55,
               pz,
-              rect.axis,
+              localAxis,
               kind === "stoneArch" ? 0.7 : 0.13,
               1.1,
               kind === "stoneArch" ? 0.7 : 0.13,
@@ -2521,7 +2870,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                 px,
                 y + 0.28,
                 pz,
-                rect.axis,
+                localAxis,
                 postSpacing,
                 0.09,
                 0.09,
@@ -2536,15 +2885,18 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     // Abutments: both ends of the span sit on drawn blocks that reach
     // the riverbed, so the deck never floats free of its banks.
     for (const end of [-1, 1]) {
-      const [px, pz] = at(end * halfLength, 0);
-      const height = deckY + riseAt(end * halfLength) - 1.0 - BED_Y;
+      const u = end * halfLength;
+      const [px, pz] = at(u, 0);
+      const height = deckY + riseAt(u) - 1.0 - BED_Y;
+      const abutmentLength =
+        kind === "vierendeel" ? 2.8 : kind === "curvedBox" ? 7.0 : 5.0;
       addPart(
         boxTriangles(
           px,
           BED_Y + height / 2,
           pz,
-          rect.axis,
-          kind === "slender" ? 3.0 : 5.0,
+          tangentAt(u),
+          kind === "slender" ? 3.0 : abutmentLength,
           height,
           halfWidth * 2 - 0.4,
         ),
@@ -2567,7 +2919,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             px,
             BED_Y + height / 2,
             pz,
-            rect.axis,
+            tangentAt(u),
             4.6,
             height,
             halfWidth * 2 - 0.5,
@@ -2601,7 +2953,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                 wx + nx * side * (halfWidth - 0.45),
                 ringY - 0.55,
                 wz + nz * side * (halfWidth - 0.45),
-                rect.axis,
+                tangentAt(u),
                 clear / steps + 0.12,
                 1.1,
                 0.9,
@@ -2622,7 +2974,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                   sx,
                   ringY + spandrel / 2,
                   sz,
-                  rect.axis,
+                  tangentAt(u),
                   clear / steps + 0.12,
                   spandrel,
                   0.9,
@@ -2652,7 +3004,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               wx + nx * side * (halfWidth - 0.6),
               springY - dip,
               wz + nz * side * (halfWidth - 0.6),
-              rect.axis,
+              tangentAt(u),
               (halfLength * 2) / steps + 0.12,
               0.8,
               0.55,
@@ -2670,7 +3022,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                   wx + nx * side * (halfWidth - 0.6),
                   springY - dip + hanger / 2,
                   wz + nz * side * (halfWidth - 0.6),
-                  rect.axis,
+                  tangentAt(u),
                   0.25,
                   hanger,
                   0.25,
@@ -2682,6 +3034,31 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           }
         }
       }
+    } else if (kind === "vierendeel") {
+      // The 66 m clear central span leaves two 10.88 m end fields. The
+      // real supports are rectangular concrete blades close to the banks,
+      // not round columns distributed through the river.
+      for (const end of [-1, 1]) {
+        const u = end * 33;
+        const [px, pz] = at(u, 0);
+        const height = deckY + riseAt(u) - deckThickness - BED_Y;
+        addPart(
+          boxTriangles(
+            px,
+            BED_Y + height / 2,
+            pz,
+            tangentAt(u),
+            1.45,
+            height,
+            halfWidth * 2 - 0.45,
+          ),
+          STONE_DARK,
+        );
+      }
+    } else if (kind === "curvedBox") {
+      // Hugo-Preuß is an 88 m one-field box girder. Its load reaches the
+      // two massive abutments above; no invented pier may stand in the
+      // mouth of the Humboldthafen.
     } else if (kind === "slender") {
       // Two round columns in the stream, nothing else: the footbridge
       // must stay light.
@@ -2706,7 +3083,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             px,
             BED_Y + pierHeight / 2,
             pz,
-            rect.axis,
+            tangentAt(u),
             2.6,
             pierHeight,
             halfWidth * 2 - 0.6,
@@ -2722,9 +3099,14 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   const group = new Group();
   group.name = "drawn bridge structures";
   group.userData.bridgeProfiles = BRIDGE_PROFILES.map(
-    ({ name, surveyedDeck }) => ({
+    ({ axis, curveSagittaM, kind, name, palette, surveyedDeck, world }) => ({
+      axis,
+      curveSagittaM,
+      kind,
       name,
+      palette,
       surveyedDeck,
+      world,
     }),
   );
   group.userData.keepInMinecraft = true;

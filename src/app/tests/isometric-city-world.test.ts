@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   Box3,
   Color,
+  Group,
   InstancedMesh,
   LineSegments,
   Matrix4,
@@ -946,7 +947,7 @@ describe("real bridge structures", () => {
     expect(maxZ - minZ).toBeGreaterThan(88);
   });
 
-  test("pins the four corrected bridges to published dimensions and finishes", async () => {
+  test("pins the corrected bridges to published dimensions and identities", async () => {
     const { createIsometricCity, BRIDGE_PROFILES } =
       await import("../src/IsometricCityWorld");
     const ground = (
@@ -965,6 +966,22 @@ describe("real bridge structures", () => {
       halfLengthM: 43.88,
       halfWidthM: 2,
     });
+    expect(profile("Gustav-Heinemann-Brücke").kind).toBe("vierendeel");
+    expect(profile("Gustav-Heinemann-Brücke").palette).toMatchObject({
+      deck: 0x715b45,
+      metal: 0x315246,
+      structure: 0x547766,
+    });
+    expect(profile("Hugo-Preuß-Brücke").surveyedDeck).toEqual({
+      halfLengthM: 44.205,
+      halfWidthM: 11.78,
+    });
+    expect(profile("Hugo-Preuß-Brücke").kind).toBe("curvedBox");
+    expect(profile("Hugo-Preuß-Brücke").curveSagittaM).toBeCloseTo(-2.98);
+    expect(profile("Hugo-Preuß-Brücke").palette).toMatchObject({
+      metal: 0x444b4e,
+      structure: 0x9ca4a4,
+    });
     expect(profile("Sandkrugbrücke").surveyedDeck).toEqual({
       halfLengthM: 16.3,
       halfWidthM: 14.4,
@@ -978,11 +995,21 @@ describe("real bridge structures", () => {
     const city = createIsometricCity(payload, ground, null);
     const lamps = city.getObjectByName("bridge structure lamps") as Mesh;
     expect(lamps).toBeInstanceOf(Mesh);
-    const bounds = new Box3().setFromObject(lamps);
-    expect((bounds.min.x + bounds.max.x) / 2).toBeCloseTo(-170.5, 0);
-    expect((bounds.min.z + bounds.max.z) / 2).toBeCloseTo(-1647.1, 0);
+    const lampPositions = lamps.geometry.getAttribute("position");
+    const goldaBounds = new Box3();
+    for (let index = 0; index < lampPositions.count; index += 1) {
+      const vertex = new Vector3().fromBufferAttribute(lampPositions, index);
+      if (vertex.z < -1550) {
+        goldaBounds.expandByPoint(vertex);
+      }
+    }
+    expect((goldaBounds.min.x + goldaBounds.max.x) / 2).toBeCloseTo(-170.5, 0);
+    expect((goldaBounds.min.z + goldaBounds.max.z) / 2).toBeCloseTo(-1647.1, 0);
     expect(
-      Math.hypot(bounds.max.x - bounds.min.x, bounds.max.z - bounds.min.z),
+      Math.hypot(
+        goldaBounds.max.x - goldaBounds.min.x,
+        goldaBounds.max.z - goldaBounds.min.z,
+      ),
     ).toBeGreaterThan(76);
 
     // Procedural boxes must expose their upward face. A reversed winding
@@ -1004,6 +1031,63 @@ describe("real bridge structures", () => {
       }
     }
     expect(upwardMoltkeVertices).toBeGreaterThan(100);
+  });
+
+  test("Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free", async () => {
+    const { createIsometricCity, BRIDGE_PROFILES } =
+      await import("../src/IsometricCityWorld");
+    const ground = (
+      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+    ).default as { water_top_y_m: number };
+    const city = createIsometricCity(payload, ground as never, null);
+    const group = city.getObjectByName("drawn bridge structures") as Group;
+    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+    const positions = bodies.geometry.getAttribute("position");
+    const colors = bodies.geometry.getAttribute("color");
+    expect(group.userData.bridgeProfiles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "vierendeel",
+          name: "Gustav-Heinemann-Brücke",
+        }),
+        expect.objectContaining({
+          curveSagittaM: -2.98,
+          kind: "curvedBox",
+          name: "Hugo-Preuß-Brücke",
+        }),
+      ]),
+    );
+
+    const gustavTone = new Color(
+      BRIDGE_PROFILES.find(
+        (entry) => entry.name === "Gustav-Heinemann-Brücke",
+      )!.palette!.structure,
+    );
+    let greenFrameVertices = 0;
+    let hugoCentralUnderwaterVertices = 0;
+    for (let index = 0; index < positions.count; index += 1) {
+      if (
+        Math.abs(colors.getX(index) - gustavTone.r) < 1e-5 &&
+        Math.abs(colors.getY(index) - gustavTone.g) < 1e-5 &&
+        Math.abs(colors.getZ(index) - gustavTone.b) < 1e-5
+      ) {
+        greenFrameVertices += 1;
+      }
+      const x = positions.getX(index);
+      const y = positions.getY(index);
+      const z = positions.getZ(index);
+      if (
+        x > 23 &&
+        x < 91 &&
+        z > -535 &&
+        z < -492 &&
+        y < ground.water_top_y_m + 0.2
+      ) {
+        hugoCentralUnderwaterVertices += 1;
+      }
+    }
+    expect(greenFrameVertices).toBeGreaterThan(4_000);
+    expect(hugoCentralUnderwaterVertices).toBe(0);
   });
 
   test("the Gymnasium Tiergarten Altbau replaces its flat LoD2 prism", async () => {
