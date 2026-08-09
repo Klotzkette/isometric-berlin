@@ -4,6 +4,7 @@ import { Points, PointsMaterial, Vector3 } from "three";
 import {
   createSnowstorm,
   setSnowstormPresentation,
+  snowFlurryIntensity,
   snowflakeCount,
   updateSnowstorm,
 } from "../src/SnowstormEffects";
@@ -18,11 +19,28 @@ describe("snowstorm presentation", () => {
     expect(desktop.air.children).toHaveLength(1);
     const flakes = desktop.air.children[0] as Points;
     expect((flakes.material as PointsMaterial).map).not.toBeNull();
+    expect(desktop.flakeMaterial.alphaToCoverage).toBeTrue();
+    expect(desktop.flakeMaterial.sizeAttenuation).toBeFalse();
+    expect(desktop.flakeMaterial.alphaTest).toBeLessThan(0.02);
+    expect(desktop.flakeMaterial.size).toBeLessThan(2.25);
     expect(
       desktop.settled.getObjectByName(
         "Continuous deep snow cover across the expanded city",
       ),
     ).toBeDefined();
+  });
+
+  test("moves through calm snow and a smooth intermittent mini-blizzard", () => {
+    expect(snowFlurryIntensity(0)).toBe(0);
+    expect(snowFlurryIntensity(1.9)).toBe(0);
+    expect(snowFlurryIntensity(6)).toBeGreaterThan(0.85);
+    expect(snowFlurryIntensity(13)).toBe(0);
+    const sampled = Array.from({ length: 265 }, (_, index) =>
+      snowFlurryIntensity(-2 + index * 0.25),
+    );
+    expect(Math.min(...sampled)).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...sampled)).toBeLessThanOrEqual(1);
+    expect(snowFlurryIntensity(Number.NaN)).toBe(0);
   });
 
   test("appears only in snowstorm mode above ground", () => {
@@ -50,6 +68,7 @@ describe("snowstorm presentation", () => {
       obstructed: false,
     });
     const before = snow.flakePositions.getY(0);
+    const calmOpacity = snow.flakeMaterial.opacity;
     updateSnowstorm(snow, 0.08, new Vector3(150, 10, -420));
     expect(snow.air.position.x).toBe(150);
     expect(snow.air.position.z).toBe(-420);
@@ -57,5 +76,10 @@ describe("snowstorm presentation", () => {
     expect(snow.flakes).toHaveLength(snowflakeCount(false));
     expect(snow.ageSeconds).toBeCloseTo(0.08, 6);
     expect(new Set(snow.flakes.map(({ drift }) => drift)).size).toBeGreaterThan(1_000);
+    snow.ageSeconds = 5.9;
+    updateSnowstorm(snow, 0.1, new Vector3(150, 10, -420));
+    expect(snow.flakeMaterial.opacity).toBeGreaterThan(
+      calmOpacity + 0.6,
+    );
   });
 });

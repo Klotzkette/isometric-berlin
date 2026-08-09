@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.70.8
+
+- **Snowstorm now breathes instead of drawing one constant curtain.** A
+  deterministic 16-second weather envelope moves from a few quiet flakes into
+  a short diagonal mini-blizzard and smoothly back to calm. Wind, fall speed
+  and opacity share the same eased pulse, so there is no abrupt on/off flash.
+- The existing single particle field retains its bounded 2,400 desktop / 1,100
+  touch-device budget. Fixed screen-space microflakes remain legible at the
+  wide isometric camera distance, while a denser antialiased sprite core and
+  alpha-to-coverage keep their edges clean without adding draw calls. Tests
+  pin the calm/gust cycle, particle bounds and mobile presentation contract.
+- The visible radius remains **5,230 m**. No geometry, building placement,
+  source data, credentials, Google content or settled-snow presentation
+  changed in this focused weather refinement.
+
 ## v0.70.7
 
 - **Camera motion now receives a real final anti-aliasing resolve.** The

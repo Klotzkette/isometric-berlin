@@ -24,6 +24,9 @@ import type { VisualMode } from "./visualMode";
 const SNOW_RADIUS_M = 360;
 const SNOW_HEIGHT_M = 260;
 const FLAKE_FALL_MPS = 22;
+const FLURRY_CYCLE_SECONDS = 16;
+const CALM_FLAKE_OPACITY = 0.08;
+const PEAK_FLAKE_OPACITY = 0.96;
 
 type Snowflake = {
   drift: number;
@@ -37,6 +40,7 @@ type Snowflake = {
 export type Snowstorm = {
   ageSeconds: number;
   air: Group;
+  flakeMaterial: PointsMaterial;
   flakes: Snowflake[];
   flakePositions: BufferAttribute;
   group: Group;
@@ -53,6 +57,28 @@ function deterministicUnit(index: number, salt: number): number {
   return value - Math.floor(value);
 }
 
+function smoothstep(minimum: number, maximum: number, value: number): number {
+  const t = Math.min(1, Math.max(0, (value - minimum) / (maximum - minimum)));
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * A calm-to-flurry envelope with no hard visibility boundary.
+ *
+ * Each cycle begins and ends with only a few faint flakes. A broad middle
+ * pulse increases opacity and wind for a short blizzard-like squall. The
+ * small deterministic flutter keeps consecutive squalls from reading as a
+ * mechanical on/off loop while remaining reproducible for tests and captures.
+ */
+export function snowFlurryIntensity(ageSeconds: number): number {
+  const safeAge = Number.isFinite(ageSeconds) ? Math.max(0, ageSeconds) : 0;
+  const phase = safeAge % FLURRY_CYCLE_SECONDS;
+  const rise = smoothstep(2.1, 4.2, phase);
+  const fall = 1 - smoothstep(8.8, 12.2, phase);
+  const flutter = 0.88 + 0.12 * (0.5 + 0.5 * Math.sin(safeAge * 2.3));
+  return rise * fall * flutter;
+}
+
 function createSnowflakeTexture(): DataTexture {
   const size = 24;
   const data = new Uint8Array(size * size * 4);
@@ -64,7 +90,7 @@ function createSnowflakeTexture(): DataTexture {
       const angle = Math.atan2(ny, nx);
       const armDistance = Math.abs(Math.sin(angle * 3)) * radius;
       const alpha =
-        radius < 0.2 || (radius < 0.88 && armDistance < 0.105)
+        radius < 0.3 || (radius < 0.88 && armDistance < 0.14)
           ? Math.round(255 * Math.max(0, 1 - radius * 0.42))
           : 0;
       const offset = (y * size + x) * 4;
@@ -87,6 +113,7 @@ export function snowflakeCount(coarsePointer: boolean): number {
 
 function createFlakes(coarsePointer: boolean): {
   air: Group;
+  material: PointsMaterial;
   flakes: Snowflake[];
   positions: BufferAttribute;
 } {
@@ -114,13 +141,19 @@ function createFlakes(coarsePointer: boolean): {
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", positions);
   const material = new PointsMaterial({
-    alphaTest: 0.06,
-    color: 0xffffff,
+    alphaToCoverage: true,
+    // Preserve the antialiased arms of sub-two-pixel flakes. A larger cutoff
+    // erased the sprite after minification in the wide isometric view.
+    alphaTest: 0.015,
+    color: 0xa7becb,
     depthWrite: false,
-    opacity: 0.96,
+    opacity: CALM_FLAKE_OPACITY,
     map: createSnowflakeTexture(),
-    size: coarsePointer ? 2.35 : 2.05,
-    sizeAttenuation: true,
+    // Keep the flakes genuinely tiny but legible in the wide isometric view.
+    // World-sized points fell below one screen pixel at the default camera
+    // distance and disappeared against the snow cover.
+    size: coarsePointer ? 2.4 : 2.15,
+    sizeAttenuation: false,
     transparent: true,
   });
   material.name = "Snowstorm flake material";
@@ -132,7 +165,7 @@ function createFlakes(coarsePointer: boolean): {
   const air = new Group();
   air.name = "Snowstorm air field";
   air.add(points);
-  return { air, flakes, positions };
+  return { air, material, flakes, positions };
 }
 
 function applyTransforms(
@@ -288,13 +321,21 @@ function createSettledSnow(): Group {
 }
 
 export function createSnowstorm(coarsePointer: boolean): Snowstorm {
-  const { air, flakes, positions } = createFlakes(coarsePointer);
+  const { air, material, flakes, positions } = createFlakes(coarsePointer);
   const settled = createSettledSnow();
   const group = new Group();
   group.name = "Super snowstorm presentation";
   group.visible = false;
   group.add(air, settled);
-  return { ageSeconds: 0, air, flakes, flakePositions: positions, group, settled };
+  return {
+    ageSeconds: 0,
+    air,
+    flakeMaterial: material,
+    flakes,
+    flakePositions: positions,
+    group,
+    settled,
+  };
 }
 
 export function setSnowstormPresentation(
@@ -318,12 +359,17 @@ export function updateSnowstorm(
   snow.air.position.set(focus.x, Math.max(-18, focus.y - 20), focus.z);
   const elapsed = Math.min(Math.max(deltaSeconds, 0), 0.1);
   snow.ageSeconds += elapsed;
+  const flurry = snowFlurryIntensity(snow.ageSeconds);
+  const windScale = 0.62 + flurry * 1.55;
+  snow.flakeMaterial.opacity =
+    CALM_FLAKE_OPACITY +
+    (PEAK_FLAKE_OPACITY - CALM_FLAKE_OPACITY) * flurry;
   const values = snow.flakePositions.array as Float32Array;
   snow.flakes.forEach((flake, index) => {
-    flake.y -= flake.speed * elapsed;
+    flake.y -= flake.speed * (0.88 + flurry * 0.34) * elapsed;
     const gust = 0.55 + 0.45 * Math.sin(snow.ageSeconds * 0.48 + flake.phase);
-    flake.x += (4.4 + gust * 4.8) * flake.drift * elapsed;
-    flake.z += (1.2 + gust * 2.7) * flake.drift * elapsed;
+    flake.x += (4.4 + gust * 4.8) * flake.drift * windScale * elapsed;
+    flake.z += (1.2 + gust * 2.7) * flake.drift * windScale * elapsed;
     if (flake.y < 0) flake.y += SNOW_HEIGHT_M;
     if (flake.x > SNOW_RADIUS_M) flake.x -= SNOW_RADIUS_M * 2;
     if (flake.z > SNOW_RADIUS_M) flake.z -= SNOW_RADIUS_M * 2;
