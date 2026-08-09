@@ -12,21 +12,28 @@ export type CameraPose = {
   target: Vector3;
 };
 
+export type ContinuousFlightSpeeds = {
+  horizontal: number;
+  vertical: number;
+};
+
 const presentationEnvelope = extrapolatedEnvelopeBounds();
+
+export const NAVIGATION_STEP_DISTANCE_RATIO = 0.075;
+export const NAVIGATION_STEP_MIN_M = 5;
+export const NAVIGATION_STEP_MAX_M = 78;
+export const CONTINUOUS_FLIGHT_SPEED_RATIO = 1.65;
+export const CONTINUOUS_FLIGHT_SPEED_MIN_MPS = 48;
+export const CONTINUOUS_FLIGHT_SPEED_MAX_MPS = 780;
+export const CONTINUOUS_VERTICAL_SPEED_RATIO = 1.1;
+export const CONTINUOUS_VERTICAL_SPEED_MIN_MPS = 24;
+export const CONTINUOUS_VERTICAL_SPEED_MAX_MPS = 320;
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   // Derive navigation limits from the same versioned envelope the renderers
   // use, so another data expansion cannot leave the camera contract stale.
-  min: new Vector3(
-    presentationEnvelope.minX,
-    -120,
-    presentationEnvelope.minZ,
-  ),
-  max: new Vector3(
-    presentationEnvelope.maxX,
-    280,
-    presentationEnvelope.maxZ,
-  ),
+  min: new Vector3(presentationEnvelope.minX, -120, presentationEnvelope.minZ),
+  max: new Vector3(presentationEnvelope.maxX, 280, presentationEnvelope.maxZ),
 };
 
 export function captureCameraPose(
@@ -41,7 +48,10 @@ export function captureCameraPose(
  * damping is asymptotic; without an explicit rest threshold it can keep
  * reporting a change at floating-point scale and force endless redraws.
  */
-export function cameraPoseDeltaM(previous: CameraPose, next: CameraPose): number {
+export function cameraPoseDeltaM(
+  previous: CameraPose,
+  next: CameraPose,
+): number {
   return Math.max(
     previous.position.distanceTo(next.position),
     previous.target.distanceTo(next.target),
@@ -113,9 +123,17 @@ export function screenRelativeFlightDelta(
 ): Vector3 {
   camera.updateMatrixWorld();
   const distance = camera.position.distanceTo(target);
-  const step = MathUtils.clamp(distance * 0.055, 3.5, 58);
-  const right = new Vector3().setFromMatrixColumn(camera.matrixWorld, 0).normalize();
-  const up = new Vector3().setFromMatrixColumn(camera.matrixWorld, 1).normalize();
+  const step = MathUtils.clamp(
+    distance * NAVIGATION_STEP_DISTANCE_RATIO,
+    NAVIGATION_STEP_MIN_M,
+    NAVIGATION_STEP_MAX_M,
+  );
+  const right = new Vector3()
+    .setFromMatrixColumn(camera.matrixWorld, 0)
+    .normalize();
+  const up = new Vector3()
+    .setFromMatrixColumn(camera.matrixWorld, 1)
+    .normalize();
   return right
     .multiplyScalar(horizontal * step)
     .add(up.multiplyScalar(vertical * step));
@@ -151,7 +169,11 @@ export function viewHeadingFlightDelta(
 ): Vector3 {
   camera.updateMatrixWorld();
   const distance = camera.position.distanceTo(target);
-  const step = MathUtils.clamp(distance * 0.055, 3.5, 58);
+  const step = MathUtils.clamp(
+    distance * NAVIGATION_STEP_DISTANCE_RATIO,
+    NAVIGATION_STEP_MIN_M,
+    NAVIGATION_STEP_MAX_M,
+  );
   const heading = target.clone().sub(camera.position);
   heading.y = 0;
   if (heading.lengthSq() < 1e-6) {
@@ -165,7 +187,7 @@ export function viewHeadingFlightDelta(
     .add(right.multiplyScalar(strafe * step));
 }
 
-export const TWO_FINGER_PAN_PIXELS_PER_UNIT = 72;
+export const TWO_FINGER_PAN_PIXELS_PER_UNIT = 56;
 
 // Direct-manipulation two-finger pan: the content under the fingers must
 // follow them (finger right → content right, finger down → content down),
@@ -192,7 +214,7 @@ export type TwoFingerGestureMode = "pan" | "undecided" | "zoom";
  * Travel either axis of a two-finger gesture must accumulate before the
  * gesture is classified. Until then NOTHING is applied to the camera.
  */
-export const TWO_FINGER_DECISION_TRAVEL_PX = 12;
+export const TWO_FINGER_DECISION_TRAVEL_PX = 6;
 
 /**
  * How much spread change counts as a pinch relative to midpoint drift.
@@ -258,12 +280,34 @@ export function flyCameraAlongViewHeading(
   bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
 ): Vector3 {
   const requested = viewHeadingFlightDelta(camera, target, strafe, forward);
-  const nextTarget = target.clone().add(requested).clamp(bounds.min, bounds.max);
+  const nextTarget = target
+    .clone()
+    .add(requested)
+    .clamp(bounds.min, bounds.max);
   const applied = nextTarget.sub(target);
   target.add(applied);
   camera.position.add(applied);
   camera.updateMatrixWorld();
   return applied;
+}
+
+/** Immediate, distance-aware flight speed with no acceleration ramp. */
+export function continuousFlightSpeeds(
+  distance: number,
+): ContinuousFlightSpeeds {
+  const safeDistance = Number.isFinite(distance) ? Math.max(0, distance) : 0;
+  return {
+    horizontal: MathUtils.clamp(
+      safeDistance * CONTINUOUS_FLIGHT_SPEED_RATIO,
+      CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
+      CONTINUOUS_FLIGHT_SPEED_MAX_MPS,
+    ),
+    vertical: MathUtils.clamp(
+      safeDistance * CONTINUOUS_VERTICAL_SPEED_RATIO,
+      CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
+      CONTINUOUS_VERTICAL_SPEED_MAX_MPS,
+    ),
+  };
 }
 
 function screenPointOnHorizontalPlane(
@@ -312,12 +356,7 @@ export function zoomCameraAtScreenPoint(
     return { anchored: false, distance: currentDistance };
   }
   const planeY = target.y;
-  const anchorBefore = screenPointOnHorizontalPlane(
-    camera,
-    ndcX,
-    ndcY,
-    planeY,
-  );
+  const anchorBefore = screenPointOnHorizontalPlane(camera, ndcX, ndcY, planeY);
   const distance = MathUtils.clamp(
     currentDistance / MathUtils.clamp(factor, 0.2, 5),
     minDistance,
@@ -327,12 +366,7 @@ export function zoomCameraAtScreenPoint(
   camera.position.copy(target).add(offset);
   camera.updateMatrixWorld();
 
-  const anchorAfter = screenPointOnHorizontalPlane(
-    camera,
-    ndcX,
-    ndcY,
-    planeY,
-  );
+  const anchorAfter = screenPointOnHorizontalPlane(camera, ndcX, ndcY, planeY);
   const anchored = anchorBefore !== null && anchorAfter !== null;
   if (anchorBefore && anchorAfter) {
     const correction = anchorBefore.sub(anchorAfter);

@@ -609,6 +609,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "keyboard and button quality swap": "markSurfaceInteraction(runtime)",
     "inspectable surface tier": "dataset.surfaceQuality",
     "exact pointer-up camera rest": "controls.enableDamping = false",
+    "immediate continuous keyboard flight": "continuousFlightSpeeds(distance)",
+    "faster direct orbit response": "controls.rotateSpeed = 1.08",
     "stuck touch watchdog": "timestamp - lastTouchActivityAt > 10_000",
     "global pointer release recovery": 'window.addEventListener("pointerup"',
     "hidden-tab gesture recovery": 'document.addEventListener("visibilitychange"',
@@ -670,6 +672,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "controls.enableDamping = true",
     "timestamp < settleUntil",
     "timestamp < runtime.interactionUntil",
+    "flightVelocity.lerp",
   ):
     if forbidden_runtime_switch in viewer:
       failures.append(
@@ -775,11 +778,27 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "cursor-anchored zoom": "zoomCameraAtScreenPoint",
     "last-safe camera capture": "captureCameraPose",
     "invalid camera recovery": "stabilizeCameraRig",
+    "faster distance-scaled navigation": ("NAVIGATION_STEP_DISTANCE_RATIO = 0.075"),
+    "low-latency two-finger gesture decision": ("TWO_FINGER_DECISION_TRAVEL_PX = 6"),
+    "faster direct two-finger pan": "TWO_FINGER_PAN_PIXELS_PER_UNIT = 56",
+    "ramp-free continuous flight": "export function continuousFlightSpeeds(",
   }
   failures.extend(
     f"Camera navigation lacks {label}: {camera_navigation_path}"
     for label, snippet in required_camera_snippets.items()
     if snippet not in camera_navigation
+  )
+  required_map_navigation_snippets = {
+    "immediate programmatic pan": "viewport.applyConstraints(true)",
+    "immediate programmatic zoom": "zoomBy(factor, undefined, true)",
+    "short fallback animation": "animationTime: 0.12",
+    "immediate tile presentation": "immediateRender: true",
+    "responsive map spring": "springStiffness: 18",
+  }
+  failures.extend(
+    f"Map navigation lacks {label}: {app_path}"
+    for label, snippet in required_map_navigation_snippets.items()
+    if snippet not in app
   )
   required_architecture_snippets = {
     "official-dimension Reichstag dome": "createOfficialReichstagDome",

@@ -89,6 +89,7 @@ import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   captureCameraPose,
   classifyTwoFingerGesture,
+  continuousFlightSpeeds,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   stabilizeCameraRig,
@@ -2596,9 +2597,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // custom momentum below; mouse/pen rotation remains strictly 1:1.
       controls.enableDamping = false;
       controls.zoomToCursor = true;
-      controls.rotateSpeed = 0.82;
-      controls.zoomSpeed = 0.9;
-      controls.panSpeed = 0.9;
+      controls.rotateSpeed = 1.08;
+      controls.zoomSpeed = 1.12;
+      controls.panSpeed = 1.16;
       controls.minDistance = 30;
       controls.maxDistance = 2600;
       controls.minPolarAngle = 0.06;
@@ -2834,9 +2835,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panMomentum.y = 0;
         if (intent === "trackpad-pinch") {
           const factor = MathUtils.clamp(
-            Math.exp(-event.deltaY * 0.012),
-            0.82,
-            1.22,
+            Math.exp(-event.deltaY * 0.016),
+            0.78,
+            1.28,
           );
           zoomAtClientPoint({ x: event.clientX, y: event.clientY }, factor);
         } else {
@@ -3173,13 +3174,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
-      const flightVelocity = new Vector3();
       let wasFlying = false;
       const applyContinuousFlight = (dtSeconds: number): boolean => {
         const input = flightInputRef.current;
-        flightVelocity.lerp(input, 1 - Math.exp(-dtSeconds * 7));
-        if (input.lengthSq() < 1e-6 && flightVelocity.lengthSq() < 1e-4) {
-          flightVelocity.set(0, 0, 0);
+        if (input.lengthSq() < 1e-6) {
           if (wasFlying) {
             wasFlying = false;
             notifyView(runtime, onViewChangeRef.current);
@@ -3188,8 +3186,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         wasFlying = true;
         const distance = camera.position.distanceTo(controls.target);
-        const speed = MathUtils.clamp(distance * 1.3, 36, 620);
-        const verticalSpeed = MathUtils.clamp(distance * 0.85, 16, 230);
+        const { horizontal: speed, vertical: verticalSpeed } =
+          continuousFlightSpeeds(distance);
         const heading = controls.target.clone().sub(camera.position);
         heading.y = 0;
         if (heading.lengthSq() < 1e-6) {
@@ -3201,9 +3199,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           .crossVectors(heading, camera.up)
           .normalize();
         const move = heading
-          .multiplyScalar(flightVelocity.z * speed * dtSeconds)
-          .add(right.multiplyScalar(flightVelocity.x * speed * dtSeconds));
-        move.y += flightVelocity.y * verticalSpeed * dtSeconds;
+          .multiplyScalar(input.z * speed * dtSeconds)
+          .add(right.multiplyScalar(input.x * speed * dtSeconds));
+        move.y += input.y * verticalSpeed * dtSeconds;
         const nextTarget = controls.target
           .clone()
           .add(move)

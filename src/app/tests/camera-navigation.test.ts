@@ -2,11 +2,18 @@ import { describe, expect, test } from "bun:test";
 import { PerspectiveCamera, Vector3 } from "three";
 
 import {
+  CONTINUOUS_FLIGHT_SPEED_MAX_MPS,
+  CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
+  CONTINUOUS_VERTICAL_SPEED_MAX_MPS,
+  CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
+  NAVIGATION_STEP_DISTANCE_RATIO,
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   TWO_FINGER_DECISION_TRAVEL_PX,
+  TWO_FINGER_PAN_PIXELS_PER_UNIT,
   cameraPoseDeltaM,
   captureCameraPose,
   classifyTwoFingerGesture,
+  continuousFlightSpeeds,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   screenRelativeFlightDelta,
@@ -17,6 +24,18 @@ import {
 } from "../src/cameraNavigation";
 
 describe("screen-relative 3D flight", () => {
+  test("uses a faster direct step without an animation ramp", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(0, 0, 0);
+    camera.position.set(0, 0, 200);
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+
+    expect(
+      screenRelativeFlightDelta(camera, target, 1, 0).length(),
+    ).toBeCloseTo(200 * NAVIGATION_STEP_DISTANCE_RATIO, 8);
+  });
+
   test("measures the larger camera or target drift for damping rest detection", () => {
     const camera = new PerspectiveCamera();
     const target = new Vector3(1, 2, 3);
@@ -25,10 +44,9 @@ describe("screen-relative 3D flight", () => {
     camera.position.x += 0.0004;
     target.z += 0.0008;
 
-    expect(cameraPoseDeltaM(before, captureCameraPose(camera, target))).toBeCloseTo(
-      0.0008,
-      9,
-    );
+    expect(
+      cameraPoseDeltaM(before, captureCameraPose(camera, target)),
+    ).toBeCloseTo(0.0008, 9);
   });
 
   test("moves camera and target together without changing the view orbit", () => {
@@ -44,9 +62,9 @@ describe("screen-relative 3D flight", () => {
 
     expect(applied.length()).toBeGreaterThan(3);
     expect(applied.dot(right)).toBeGreaterThan(0);
-    expect(camera.position.clone().sub(target).distanceTo(beforeOffset)).toBeLessThan(
-      1e-8,
-    );
+    expect(
+      camera.position.clone().sub(target).distanceTo(beforeOffset),
+    ).toBeLessThan(1e-8);
   });
 
   test("keeps underside flight aligned to the visible screen plane", () => {
@@ -78,6 +96,24 @@ describe("screen-relative 3D flight", () => {
 });
 
 describe("view-heading 3D flight", () => {
+  test("reaches full continuous-flight speed immediately", () => {
+    const cruising = continuousFlightSpeeds(200);
+    expect(cruising.horizontal).toBeCloseTo(330, 8);
+    expect(cruising.vertical).toBeCloseTo(220, 8);
+    expect(continuousFlightSpeeds(0)).toEqual({
+      horizontal: CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
+      vertical: CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
+    });
+    expect(continuousFlightSpeeds(Number.POSITIVE_INFINITY)).toEqual({
+      horizontal: CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
+      vertical: CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
+    });
+    expect(continuousFlightSpeeds(10_000)).toEqual({
+      horizontal: CONTINUOUS_FLIGHT_SPEED_MAX_MPS,
+      vertical: CONTINUOUS_VERTICAL_SPEED_MAX_MPS,
+    });
+  });
+
   test("flies forward on the horizontal camera heading without zooming", () => {
     const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
     const target = new Vector3(0, 0, 0);
@@ -90,9 +126,9 @@ describe("view-heading 3D flight", () => {
 
     expect(applied.z).toBeLessThan(0);
     expect(Math.abs(applied.y)).toBeLessThan(1e-8);
-    expect(camera.position.clone().sub(target).distanceTo(beforeOffset)).toBeLessThan(
-      1e-8,
-    );
+    expect(
+      camera.position.clone().sub(target).distanceTo(beforeOffset),
+    ).toBeLessThan(1e-8);
   });
 
   test("keeps strafe perpendicular to forward travel", () => {
@@ -111,6 +147,11 @@ describe("view-heading 3D flight", () => {
 });
 
 describe("two-finger swipe pans with direct manipulation", () => {
+  test("starts after a tiny travel and moves farther per finger pixel", () => {
+    expect(TWO_FINGER_DECISION_TRAVEL_PX).toBe(6);
+    expect(TWO_FINGER_PAN_PIXELS_PER_UNIT).toBe(56);
+  });
+
   // Post-v0.5.6 fix: a two-finger swipe must make the content follow the
   // fingers (finger right → content right, finger down → content down), like
   // Google Maps. Since translating the rig by D moves the content by −D, the
@@ -155,9 +196,9 @@ describe("two-finger swipe pans with direct manipulation", () => {
 
     // Content follows the finger ⇒ rig moves the other way along screen right.
     expect(applied.dot(right)).toBeLessThan(0);
-    expect(camera.position.clone().sub(target).distanceTo(beforeOffset)).toBeLessThan(
-      1e-8,
-    );
+    expect(
+      camera.position.clone().sub(target).distanceTo(beforeOffset),
+    ).toBeLessThan(1e-8);
   });
 
   test("swipe down moves the content down (rig travels into the scene)", () => {
@@ -200,16 +241,14 @@ describe("forgiving 3D camera bounds", () => {
     const result = stabilizeCameraRig(camera, target, safe, 20, 2000);
 
     expect(result.changed).toBe(true);
-    expect(target.x).toBeLessThanOrEqual(
-      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x,
-    );
-    expect(target.y).toBeLessThanOrEqual(
-      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.y,
-    );
+    expect(target.x).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.x);
+    expect(target.y).toBeLessThanOrEqual(REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max.y);
     expect(target.z).toBeGreaterThanOrEqual(
       REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min.z,
     );
-    expect(camera.position.clone().sub(target).toArray()).toEqual(offset.toArray());
+    expect(camera.position.clone().sub(target).toArray()).toEqual(
+      offset.toArray(),
+    );
   });
 });
 
@@ -263,15 +302,7 @@ describe("cursor-anchored zoom", () => {
     camera.lookAt(target);
     const before = camera.position.clone();
 
-    const result = zoomCameraAtScreenPoint(
-      camera,
-      target,
-      0,
-      0,
-      0,
-      30,
-      2600,
-    );
+    const result = zoomCameraAtScreenPoint(camera, target, 0, 0, 0, 30, 2600);
 
     expect(result.anchored).toBe(false);
     expect(camera.position.toArray()).toEqual(before.toArray());
@@ -389,9 +420,8 @@ describe("two-finger gesture classification", () => {
 
 describe("pan momentum glide", () => {
   test("decays exponentially and snaps to rest below the threshold", async () => {
-    const { decayPanMomentum, PAN_MOMENTUM_REST_PX_PER_S } = await import(
-      "../src/cameraNavigation"
-    );
+    const { decayPanMomentum, PAN_MOMENTUM_REST_PX_PER_S } =
+      await import("../src/cameraNavigation");
     let velocity = { x: 900, y: -600 };
     const speeds: number[] = [Math.hypot(velocity.x, velocity.y)];
     for (let step = 0; step < 60; step += 1) {
@@ -415,12 +445,10 @@ describe("pan momentum glide", () => {
 
 describe("visible-radius contract (+100 m per areal run)", () => {
   test("flight bounds are exactly the published envelope", async () => {
-    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } = await import(
-      "../src/worldEnvelope"
-    );
-    const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } = await import(
-      "../src/cameraNavigation"
-    );
+    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } =
+      await import("../src/worldEnvelope");
+    const { REGIERUNGSVIERTEL_FLIGHT_BOUNDS } =
+      await import("../src/cameraNavigation");
     expect(VISIBLE_RADIUS_M).toBe(5230);
     // The camera may travel to the paper edge but not past it, so the two
     // constants can never drift apart in a later areal run.

@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.70.12
+
+- **Navigation now responds at full speed on the first input frame.** Held
+  keyboard flight no longer passes through a hidden acceleration/deceleration
+  `lerp`; it applies a faster distance-aware speed immediately and stops on
+  key-up. One-shot keyboard/button movement also covers more useful ground,
+  while mouse orbit, pan, wheel/pinch zoom and two-finger pan use more direct
+  response curves.
+- The 2D detail map now applies programmatic pan and zoom immediately. Its
+  fallback animation is reduced from 0.72 s to 0.12 s, tile presentation is
+  immediate and the viewport spring is three times stiffer. Touch gesture
+  classification begins after 6 px instead of 12 px, removing the perceptible
+  pause before a deliberate two-finger pan or pinch.
+- Contract tests and release-readiness checks reject a returning flight
+  velocity ramp or slower navigation constants. Browser verification measured
+  twelve consecutive 3D frames after a camera step and twelve settled 2D map
+  frames with **0 changed pixels** between every adjacent pair: faster input
+  does not reintroduce drift or flicker.
+- The visible radius remains **5,230 m**. No geometry, building placement,
+  source data, attribution, credentials, Google content or raw reference
+  material changed in this focused interaction release.
+
 ## v0.70.11
 
 - **A released 3D view now becomes literally static when input stops.**

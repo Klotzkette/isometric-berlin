@@ -27,6 +27,15 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).not.toContain("timestamp < runtime.interactionUntil");
   });
 
+  test("responds at full speed without reintroducing idle damping", () => {
+    expect(viewerSource).toContain("continuousFlightSpeeds(distance)");
+    expect(viewerSource).not.toContain("flightVelocity.lerp");
+    expect(viewerSource).toContain("controls.rotateSpeed = 1.08");
+    expect(appSource).toContain("animationTime: 0.12");
+    expect(appSource).toContain("immediateRender: true");
+    expect(appSource).toContain("springStiffness: 18");
+  });
+
   test("isolates one compositor surface behind the 3D modes", () => {
     expect(appSource).toContain("`app-shell--viewer-${viewerMode}`");
     expect(stylesSource).toContain(".app-shell--viewer-three .viewer");

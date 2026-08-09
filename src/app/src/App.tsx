@@ -1080,8 +1080,9 @@ export function App() {
     const bounds = viewport.getBounds();
     viewport.panBy(
       new OpenSeadragon.Point(bounds.width * dx, bounds.height * dy),
+      true,
     );
-    viewport.applyConstraints();
+    viewport.applyConstraints(true);
   }, []);
 
   const flyBy = useCallback(
@@ -1142,7 +1143,7 @@ export function App() {
         threeViewerRef.current?.zoomBy(factor);
         return;
       }
-      viewerRef.current?.viewport.zoomBy(factor);
+      viewerRef.current?.viewport.zoomBy(factor, undefined, true);
     },
     [viewerMode],
   );
@@ -1943,10 +1944,10 @@ export function App() {
       },
       gestureSettingsTouch: TOUCH_GESTURE_SETTINGS,
       gestureSettingsPen: PEN_GESTURE_SETTINGS,
-      animationTime: prefersReducedMotion() ? 0.05 : 0.72,
-      blendTime: 0.1,
+      animationTime: 0.12,
+      blendTime: 0.06,
       constrainDuringPan: true,
-      immediateRender: false,
+      immediateRender: true,
       minPixelRatio: 0.5,
       minZoomImageRatio: 0.56,
       maxZoomPixelRatio: 6,
@@ -1954,9 +1955,8 @@ export function App() {
       showRotationControl: true,
       visibilityRatio: 1,
       homeFillsViewer: false,
-      // v0.5.5: a softer spring (was 8) glides pans/zooms to rest instead of
-      // snapping, which reads as effortless inertia on touch.
-      springStiffness: prefersReducedMotion() ? 8 : 6,
+      // Input must lead the picture, not wait behind a long camera spring.
+      springStiffness: 18,
     });
     viewerRef.current = viewer;
     if (import.meta.env.DEV) {
