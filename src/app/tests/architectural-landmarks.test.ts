@@ -70,12 +70,15 @@ describe("metre-scale architectural recognition models", () => {
     expect(bounds.max.x - bounds.min.x).toBeCloseTo(11, 1);
     expect(bounds.max.y).toBeGreaterThan(25);
     expect(bounds.max.y).toBeLessThan(27);
-    expect(
-      gate!.children.filter((child) => child.name.startsWith("Quadriga horse leg")),
-    ).toHaveLength(16);
-    expect(
-      gate!.children.filter((child) => child.name.startsWith("Quadriga horse ear")),
-    ).toHaveLength(8);
+    // The Quadriga is its own module now (Quadriga.ts), merged into a
+    // handful of meshes rather than a few dozen loose boxes, and scaled
+    // from the signature so the eagle lands exactly at total_height_m.
+    const quadriga = gate!.getObjectByName("Quadriga mit Victoria")!;
+    expect(quadriga).toBeDefined();
+    expect(quadriga.getObjectByName("Quadriga bodies")).toBeDefined();
+    const quadrigaBounds = new Box3().setFromObject(quadriga);
+    expect(quadrigaBounds.min.y).toBeCloseTo(signature.gate_height_m, 1);
+    expect(quadrigaBounds.max.y).toBeCloseTo(signature.total_height_m, 1);
     expect(
       gate!.getObjectByName("Brandenburg Gate batched Doric column fluting"),
     ).toBeInstanceOf(LineSegments);

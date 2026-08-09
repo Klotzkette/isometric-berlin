@@ -116,6 +116,7 @@ import {
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
 import { minecraftFogRange } from "./minecraftFog";
+import { setQuadrigaMode } from "./Quadriga";
 import { PRESENTATION_TONE } from "./presentationTone";
 import {
   type PrismPayload,
@@ -904,6 +905,18 @@ function setSceneLighting(
     applyMaterialLighting(material, mode, lightsOn);
   }
   applyLightingToRoot(runtime.signatures, mode, lightsOn);
+  // The Quadriga carries its own three palettes in one geometry (day,
+  // night and the winter set the snow mode will use), so it is switched
+  // by repainting vertices rather than by relighting a material. Voxel
+  // mode keeps the flat day paint: the block world has its own look and
+  // the toon pass leaves an unlit material alone anyway.
+  const quadriga = runtime.signatures.getObjectByName("Quadriga mit Victoria");
+  if (quadriga instanceof Group) {
+    setQuadrigaMode(
+      quadriga,
+      isNight ? "night" : isSnowstorm ? "winter" : "day",
+    );
+  }
   applyLightingToRoot(runtime.centralDetails, mode, lightsOn);
   applyLightingToRoot(runtime.civicDetails, mode, lightsOn);
   applyLightingToRoot(runtime.monuments, mode, lightsOn);
