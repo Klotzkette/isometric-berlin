@@ -17,7 +17,7 @@ monument foundation height.
 | Memorial | Retained recognition cues | Metric status |
 |---|---|---|
 | Memorial to the Murdered Jews of Europe | Complete field, depressed terrain cue, individually varied and slightly tilted stelae | The responsible foundation currently states 2,710 concrete stelae, 0.95 x 2.38 m each, 19,073 m² field area and four published height bands. Count, cross-section and height-band totals are exact; scene footprint/orientation is approximate. |
-| Memorial to the Sinti and Roma murdered under National Socialism | Dark circular reflecting basin, central triangular stone, surrounding remembrance path | Characteristic form follows the responsible foundation and licensed reference images; uncited radii are approximate. |
+| Memorial to the Sinti and Roma murdered under National Socialism | Black reflecting pool in a dark-coated steel pan, retractable triangular granite stone with daily flower, German/English rim poem, broken-granite apron, 69 crime-site stones, segmented glass/Corten chronology and nine-biography 2022 exhibition cues | The responsible foundation publishes the approximately 12 m pool diameter and 69 named places; Dani Karavan's catalogue publishes a 2.5 x 60 x 60 m overall artwork extent. Those figures are exact model contracts; uncited stone, panel and local-spacing dimensions remain visual-reference approximations. |
 | Memorial to Homosexuals Persecuted under Nazism | Tall concrete cuboid and inset viewing window | Characteristic form follows the responsible foundation and licensed reference images; uncited dimensions are approximate. |
 | Soviet War Memorial Tiergarten | Broad stair, six side pylons, central pylon, soldier, two T-34 silhouettes and rifle | Berlin's official pages document the composition and an 8 m soldier on a total height around 20 m. Local spacing and simplified vehicle dimensions are approximate. |
 | Goethe Monument | Standing Goethe, cylindrical pedestal and three allegorical groups | Composition follows the Berlin monument inventory and licensed references; uncited dimensions are approximate. |
@@ -31,6 +31,9 @@ monument foundation height.
 - Foundation pages for the Sinti/Roma, homosexual-victims and Jehovah's
   Witnesses memorials:
   <https://www.stiftung-denkmal.de/denkmaeler/>
+- Dani Karavan studio catalogue, Sinti & Roma Memorial materials and overall
+  dimensions:
+  <https://www.danikaravan.com/portfolio-item/germany-the-sinti-roma-memorial/>
 - Berlin Senate, Soviet War Memorial Tiergarten:
   <https://www.berlin.de/sen/uvk/natur-und-gruen/stadtgruen/friedhoefe-und-begraebnisstaetten/sowjetische-ehrenmale/tiergarten/>
 - Berlin monument inventory, Großer Tiergarten subobjects including Goethe and

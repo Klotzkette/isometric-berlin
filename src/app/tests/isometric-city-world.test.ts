@@ -1206,6 +1206,7 @@ describe("smooth OSM water and parkland", () => {
     const {
       BEAVER_EASTER_EGG_COUNT,
       createSmoothSurfaces,
+      isDedicatedSintiRomaPool,
       isElevatedParkWater,
     } = await import("../src/IsometricCityWorld");
     const surfaces =
@@ -1236,6 +1237,17 @@ describe("smooth OSM water and parkland", () => {
       isElevatedParkWater(
         payloadSurfaces.water.find(
           (surface) => surface.name === "Humboldthafen",
+        )!,
+      ),
+    ).toBe(false);
+    const sintiRomaPool = payloadSurfaces.water.find(
+      (surface) => surface.kind === "basin" && surface.area_m2 === 113,
+    )!;
+    expect(isDedicatedSintiRomaPool(sintiRomaPool)).toBe(true);
+    expect(
+      isDedicatedSintiRomaPool(
+        payloadSurfaces.water.find(
+          (surface) => surface.kind === "basin" && surface.area_m2 === 131,
         )!,
       ),
     ).toBe(false);

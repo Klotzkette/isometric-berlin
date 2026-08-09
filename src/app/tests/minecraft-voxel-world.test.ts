@@ -4,6 +4,8 @@ import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
   HAMBURGER_BAHNHOF_VOXEL_FACADE,
+  isFalseSintiRomaVoxelColumn,
+  SINTI_ROMA_VOXEL_CLEARING,
   type VoxelPayload,
   VOXEL_WINDOW_HEIGHT_M,
   VOXEL_WINDOW_WIDTH_M,
@@ -115,6 +117,46 @@ describe("true voxel Minecraft world", () => {
     expect(crowns).toBeLessThanOrEqual(payload.trees.length * 2);
     // Blocky by construction: thousands of surveyed building columns.
     expect(payload.buildings.length).toBeGreaterThan(10_000);
+  });
+
+  test("does not bury the Sinti and Roma memorial under false building columns", () => {
+    const falseColumns = payload.buildings.filter(
+      ([xIdx, zIdx, y0dm, y1dm]) =>
+        isFalseSintiRomaVoxelColumn(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+          (y1dm - y0dm) / 10,
+        ),
+    );
+    expect(falseColumns).toHaveLength(86);
+    expect(
+      isFalseSintiRomaVoxelColumn(
+        SINTI_ROMA_VOXEL_CLEARING.center[0],
+        SINTI_ROMA_VOXEL_CLEARING.center[1],
+        12,
+      ),
+    ).toBe(false);
+
+    const columns = instanced("Voxel building columns", world);
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    const scale = new Vector3();
+    let remainingFalseColumns = 0;
+    for (let index = 0; index < columns.count; index += 1) {
+      columns.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      scale.setFromMatrixScale(matrix);
+      if (
+        isFalseSintiRomaVoxelColumn(
+          position.x,
+          position.z,
+          scale.y,
+        )
+      ) {
+        remainingFalseColumns += 1;
+      }
+    }
+    expect(remainingFalseColumns).toBe(0);
   });
 
   test("gives Hamburger Bahnhof its own stepped historical front", () => {

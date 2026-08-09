@@ -11,6 +11,7 @@ import {
   LineSegments,
   Material,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
@@ -43,6 +44,12 @@ const CONCRETE = 0x8f9698;
 const MARBLE = 0xe5e3d8;
 const GOLD = 0xc89a32;
 const EDGE_COLOR = 0x716c62;
+
+export const SINTI_ROMA_MEMORIAL = {
+  overallExtentM: 60,
+  placeStoneCount: 69,
+  poolDiameterM: 12,
+} as const;
 
 // Fifth-percentile surface samples from the committed official Berlin mesh.
 // The manifest camera anchors use a uniform 38 m NHN and are not ground points.
@@ -185,6 +192,11 @@ function addSegment(
   return mesh;
 }
 
+function deterministicUnit(index: number, salt: number): number {
+  const value = Math.sin((index + 7) * 19.913 + salt * 73.117) * 31_337.219;
+  return value - Math.floor(value);
+}
+
 function createHolocaustMemorial(anchor: MemorialLandmark): Group {
   const group = new Group();
   group.name = anchor.name;
@@ -226,81 +238,327 @@ function createSintiRomaMemorial(anchor: MemorialLandmark): Group {
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
   group.userData.geometryStatus =
-    "Characteristic water basin, centre stone and remembrance path from official and licensed visual references";
+    "Published approximately 12 m pool and 69 place stones; 60 x 60 m published overall artwork extent; uncited local dimensions are visual-reference approximations";
+  group.userData.evidence = {
+    overallExtentM: SINTI_ROMA_MEMORIAL.overallExtentM,
+    placeStoneCount: SINTI_ROMA_MEMORIAL.placeStoneCount,
+    poolDiameterM: SINTI_ROMA_MEMORIAL.poolDiameterM,
+  };
+
+  // The group anchor is the fifth-percentile mesh sample, while the clearing
+  // itself sits on the locally raised Tiergarten surface. Keep this calibrated
+  // offset explicit so thin stones do not disappear inside the official mesh.
+  const clearingSurfaceY = 0.46;
+
+  // Dani Karavan's centre is an approximately 12 m black reflecting lake in
+  // a thin, dark-coated steel pan. The previous 15.2 m disk was 27 % too wide
+  // and consequently made every neighbouring element look too small.
   const rim = addMesh(
     group,
     "Sinti and Roma memorial dark circular basin",
-    new CylinderGeometry(7.6, 7.6, 0.28, 72),
-    modelMaterial(0x1a2224, { metalness: 0.2, roughness: 0.42 }),
-    [0, 0.14, 0],
+    new CylinderGeometry(6.2, 6.2, 0.24, 96),
+    modelMaterial(0x11191b, { metalness: 0.38, roughness: 0.3 }),
+    [0, clearingSurfaceY + 0.12, 0],
   );
   rim.receiveShadow = true;
+  rim.userData.poolDiameterM = SINTI_ROMA_MEMORIAL.poolDiameterM;
+  const waterMaterial = new MeshBasicMaterial({
+    color: 0x070d0d,
+    polygonOffset: true,
+    polygonOffsetFactor: -2.4,
+    polygonOffsetUnits: -2.4,
+  });
+  // An unlit material keeps the defining black mirror temporally stable. A
+  // glossy physical material produced a large cyan sky lobe in the isometric
+  // light rig and read as a second water body rather than a dark reflection.
   const water = addMesh(
     group,
     "Sinti and Roma memorial black reflecting water",
-    new CylinderGeometry(7.15, 7.15, 0.06, 72),
-    new MeshPhysicalMaterial({
-      color: 0x061318,
-      metalness: 0.18,
-      roughness: 0.12,
-      transparent: true,
-      opacity: 0.9,
-    }),
-    [0, 0.33, 0],
+    new CylinderGeometry(6, 6, 0.045, 96),
+    waterMaterial,
+    [0, clearingSurfaceY + 0.3, 0],
   );
-  water.userData.nightEmissive = 0x0c2730;
-  water.userData.nightEmissiveIntensity = 0.38;
+  water.castShadow = false;
+  water.renderOrder = 3;
+  water.userData.poolDiameterM = SINTI_ROMA_MEMORIAL.poolDiameterM;
+
+  // The retractable granite triangle barely clears the water; it is broad
+  // enough to remain recognisable from the close isometric camera without
+  // becoming a raised monument in its own right.
   const stone = addMesh(
     group,
     "Sinti and Roma memorial triangular centre stone",
-    new CylinderGeometry(0.88, 0.88, 0.18, 3),
-    modelMaterial(0x282d30, { roughness: 0.48 }),
-    [0, 0.48, 0],
+    new CylinderGeometry(1.62, 1.62, 0.14, 3),
+    modelMaterial(0x414547, { roughness: 0.34 }),
+    [0, clearingSurfaceY + 0.41, 0],
   );
   stone.rotation.y = Math.PI / 6;
-  // Santino Spinelli's poem "Auschwitz" runs round the rim of the basin in
-  // three languages; it reads as a darker inscription band from above.
-  const band = addMesh(
-    group,
-    "Sinti and Roma memorial rim inscription band",
-    new RingGeometry(7.62, 8.3, 72),
-    modelMaterial(0x2f3335, { roughness: 0.5 }),
-    [0, 0.3, 0],
-  );
-  band.rotation.x = -Math.PI / 2;
-  const path = addMesh(
-    group,
-    "Sinti and Roma memorial remembrance path",
-    new RingGeometry(8.35, 10.8, 72),
-    modelMaterial(0x9a9589, { roughness: 0.92 }),
-    [0, 0.04, 0],
-  );
-  path.rotation.x = -Math.PI / 2;
-  // Around the basin lie the stones carrying the names of the extermination
-  // camps; they are the only relief on an otherwise flat, dark clearing.
+  stone.userData.retractsDaily = true;
+  addEdges(group, stone, 0.58);
+
+  // One fresh flower lies on the stone every day. A small instanced rosette
+  // is much clearer than a coloured point and still costs one draw call.
+  const petalTransforms = Array.from({ length: 12 }, (_unused, index) => {
+    const angle = (index / 12) * Math.PI * 2;
+    return {
+      position: [
+        Math.cos(angle) * 0.2,
+        clearingSurfaceY + 0.53,
+        Math.sin(angle) * 0.2,
+      ] as [number, number, number],
+      rotation: [0, -angle, 0] as [number, number, number],
+      scale: [0.17, 0.035, 0.075] as [number, number, number],
+    };
+  });
   addInstances(
     group,
-    "Sinti and Roma memorial camp name stones",
-    new BoxGeometry(1.15, 0.16, 0.72),
-    modelMaterial(0x6d6a64, { roughness: 0.86 }),
-    Array.from({ length: 14 }, (_unused, index) => {
-      const angle = (index / 14) * Math.PI * 2 + 0.12;
-      return {
-        position: [Math.cos(angle) * 9.5, 0.12, Math.sin(angle) * 9.5],
-        rotation: [0, -angle, 0],
-      } as InstanceTransform;
-    }),
+    "Sinti and Roma memorial daily flower petals",
+    new SphereGeometry(1, 8, 5),
+    modelMaterial(0xd95b32, { roughness: 0.68 }),
+    petalTransforms,
   );
-  // The glass wall carrying the chronicle of the genocide stands at the
-  // Simsonweg approach, so the clearing is entered past it.
-  const chronicle = addBox(
+  addMesh(
+    group,
+    "Sinti and Roma memorial daily flower centre",
+    new CylinderGeometry(0.085, 0.085, 0.055, 12),
+    modelMaterial(0x64341f, { roughness: 0.78 }),
+    [0, clearingSurfaceY + 0.54, 0],
+  );
+
+  // Spinelli's poem surrounds the steel pan in German and English. At this
+  // scale the engraved letters resolve as short pewter strokes rather than a
+  // false solid band; the two Romanes versions belong to the chronology.
+  const poemStrokes: InstanceTransform[] = [];
+  for (let language = 0; language < 2; language += 1) {
+    for (let index = 0; index < 42; index += 1) {
+      const angle =
+        language * Math.PI +
+        0.18 +
+        (index / 41) * (Math.PI - 0.36);
+      poemStrokes.push({
+        position: [
+          Math.cos(angle) * 6.1,
+          clearingSurfaceY + 0.335,
+          Math.sin(angle) * 6.1,
+        ],
+        rotation: [0, -angle - Math.PI / 2, 0],
+        scale: [
+          0.055 + deterministicUnit(index, language + 1) * 0.04,
+          0.018,
+          0.028,
+        ],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "Sinti and Roma memorial German and English poem engraving",
+    new BoxGeometry(1, 1, 1),
+    modelMaterial(0x858989, { metalness: 0.45, roughness: 0.42 }),
+    poemStrokes,
+  );
+
+  // The narrow apron is made from individually broken granite pieces with
+  // grass joints, not a smooth grey annulus. A deterministic irregular field
+  // preserves the calm circle without turning the fragments into radial rays.
+  const apronTransforms = Array.from({ length: 168 }, (_unused, index) => {
+    const angle =
+      index * Math.PI * (3 - Math.sqrt(5)) +
+      deterministicUnit(index, 21) * 0.11;
+    const radius = 6.35 + deterministicUnit(index, 22) * 1.72;
+    return {
+      position: [
+        Math.cos(angle) * radius,
+        clearingSurfaceY + 0.07,
+        Math.sin(angle) * radius,
+      ] as [number, number, number],
+      rotation: [0, deterministicUnit(index, 23) * Math.PI * 2, 0] as [
+        number,
+        number,
+        number,
+      ],
+      scale: [
+        0.16 + deterministicUnit(index, 24) * 0.18,
+        0.045,
+        0.12 + deterministicUnit(index, 25) * 0.14,
+      ] as [number, number, number],
+    };
+  });
+  addInstances(
+    group,
+    "Sinti and Roma memorial fragmented granite apron",
+    new CylinderGeometry(1, 1, 1, 5),
+    modelMaterial(0xaaa99f, { roughness: 0.95 }),
+    apronTransforms,
+  );
+
+  // Exactly 69 irregular granite shards carry the documented crime-site
+  // names. Their individual dimensions and positions are visual-reference
+  // approximations; the official count and the broken-shard character are
+  // not. A separate dark groove per stone keeps the names readable as marks
+  // in an isometric close view without inventing letterforms.
+  const placeStoneTransforms = Array.from(
+    { length: SINTI_ROMA_MEMORIAL.placeStoneCount },
+    (_unused, index) => {
+      const progress = (index + 0.5) / SINTI_ROMA_MEMORIAL.placeStoneCount;
+      const angle =
+        index * Math.PI * (3 - Math.sqrt(5)) +
+        deterministicUnit(index, 31) * 0.18;
+      const radius =
+        8.1 + Math.sqrt(progress) * 10.2 + deterministicUnit(index, 32) * 0.8;
+      return {
+        position: [
+          Math.cos(angle) * radius,
+          clearingSurfaceY + 0.08,
+          Math.sin(angle) * radius,
+        ] as [number, number, number],
+        rotation: [0, deterministicUnit(index, 33) * Math.PI * 2, 0] as [
+          number,
+          number,
+          number,
+        ],
+        scale: [
+          0.28 + deterministicUnit(index, 34) * 0.28,
+          0.055,
+          0.2 + deterministicUnit(index, 35) * 0.22,
+        ] as [number, number, number],
+      };
+    },
+  );
+  const placeStones = addInstances(
+    group,
+    "Sinti and Roma memorial 69 camp name stones",
+    new CylinderGeometry(1, 1, 1, 5),
+    modelMaterial(0x74746f, { roughness: 0.9 }),
+    placeStoneTransforms,
+  );
+  placeStones.userData.placeCount = SINTI_ROMA_MEMORIAL.placeStoneCount;
+  addInstances(
+    group,
+    "Sinti and Roma memorial engraved place-name grooves",
+    new BoxGeometry(1, 1, 1),
+    modelMaterial(0x3d3c39, { roughness: 0.72 }),
+    placeStoneTransforms.map((transform, index) => ({
+      position: [
+        transform.position[0],
+        clearingSurfaceY + 0.14,
+        transform.position[2],
+      ],
+      rotation: transform.rotation,
+      scale: [
+        0.12 + deterministicUnit(index, 36) * 0.16,
+        0.012,
+        0.025,
+      ],
+    })),
+  );
+
+  // The chronology is a long, segmented glass and Corten-steel boundary,
+  // with one actual doorway. The 2022 outdoor exhibition added nine
+  // biographies and media stations. Restrained portrait rectangles are
+  // procedural display cues, not copied photographs.
+  const panelSlots = 22;
+  const gateSlot = 15;
+  const panelSpacing = 1.78;
+  const panelTransforms: InstanceTransform[] = [];
+  for (let slot = 0; slot < panelSlots; slot += 1) {
+    if (slot === gateSlot) continue;
+    panelTransforms.push({
+      position: [(slot - (panelSlots - 1) / 2) * panelSpacing, 1.22, -22],
+      scale: [1.66, 2.36, 0.1],
+    });
+  }
+  const glassMaterial = new MeshPhysicalMaterial({
+    color: 0x91a7a5,
+    metalness: 0.08,
+    opacity: 0.62,
+    roughness: 0.38,
+    transparent: true,
+  });
+  glassMaterial.depthWrite = false;
+  const chronology = addInstances(
     group,
     "Sinti and Roma memorial glass chronicle wall",
-    [9.2, 1.9, 0.16],
-    [0, 0.95, -13.4],
-    modelMaterial(0x7a8f96, { roughness: 0.3 }),
+    new BoxGeometry(1, 1, 1),
+    glassMaterial,
+    panelTransforms,
   );
-  chronicle.rotation.y = 0.08;
+  chronology.renderOrder = 4;
+
+  const frameMaterial = modelMaterial(0x5d4035, {
+    metalness: 0.32,
+    roughness: 0.72,
+  });
+  const wallHalfWidth = ((panelSlots - 1) * panelSpacing) / 2;
+  addInstances(
+    group,
+    "Sinti and Roma memorial Corten chronology frames",
+    new BoxGeometry(1, 1, 1),
+    frameMaterial,
+    Array.from({ length: panelSlots + 1 }, (_unused, index) => ({
+      position: [
+        -wallHalfWidth - panelSpacing / 2 + index * panelSpacing,
+        1.22,
+        -22,
+      ],
+      scale: [0.055, 2.48, 0.15],
+    })),
+  );
+  const gateX = (gateSlot - (panelSlots - 1) / 2) * panelSpacing;
+  addBox(
+    group,
+    "Sinti and Roma memorial Corten entrance lintel",
+    [panelSpacing + 0.12, 0.12, 0.2],
+    [gateX, 2.42, -22],
+    frameMaterial,
+  );
+  addInstances(
+    group,
+    "Sinti and Roma memorial chronology text lines",
+    new BoxGeometry(1, 1, 1),
+    modelMaterial(0x394544, { roughness: 0.78 }),
+    panelTransforms.flatMap((panel, panelIndex) =>
+      Array.from({ length: 4 }, (_unused, row) => ({
+        position: [
+          panel.position[0] -
+            0.2 +
+            deterministicUnit(panelIndex, row + 41) * 0.12,
+          0.62 + row * 0.32,
+          -21.93,
+        ] as [number, number, number],
+        scale: [
+          0.42 + deterministicUnit(panelIndex, row + 51) * 0.32,
+          0.025,
+          0.018,
+        ] as [number, number, number],
+      })),
+    ),
+  );
+
+  const biographyPanels = panelTransforms.filter(
+    (_panel, index) => index % 2 === 0,
+  ).slice(0, 9);
+  const portraits = addInstances(
+    group,
+    "Sinti and Roma memorial nine biography portraits",
+    new PlaneGeometry(1, 1),
+    modelMaterial(0xb8bbb6, { roughness: 0.86 }),
+    biographyPanels.map((panel, index) => ({
+      position: [panel.position[0], 1.66, -21.925],
+      scale: [0.42 + (index % 3) * 0.04, 0.58, 1],
+    })),
+  );
+  portraits.userData.biographyCount = 9;
+  addInstances(
+    group,
+    "Sinti and Roma memorial three exhibition benches",
+    new BoxGeometry(1, 1, 1),
+    modelMaterial(0x282c2d, { metalness: 0.18, roughness: 0.62 }),
+    [-6.2, 0, 6.2].map((x) => ({
+      position: [x, 0.34, -18.3],
+      scale: [3.2, 0.48, 0.82],
+    })),
+  );
   return group;
 }
 

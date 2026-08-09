@@ -5,6 +5,7 @@ import {
   createMemorialLandmarks,
   jehovahDiscRadius,
   memorialFocusDistance,
+  SINTI_ROMA_MEMORIAL,
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
 
@@ -82,7 +83,7 @@ describe("granular memorial recognition models", () => {
   test("the NS memorials carry their own detail", () => {
     const root = createMemorialLandmarks(landmarks);
     for (const name of [
-      "Sinti and Roma memorial camp name stones",
+      "Sinti and Roma memorial 69 camp name stones",
       "Sinti and Roma memorial glass chronicle wall",
       "Memorial to persecuted homosexuals window reveal",
     ]) {
@@ -110,6 +111,65 @@ describe("granular memorial recognition models", () => {
     }
     expect(ring.length).toBeGreaterThan(20);
     expect(Math.max(...ring) - Math.min(...ring)).toBeGreaterThan(0.6);
+  });
+
+  test("rebuilds Karavan's Sinti and Roma memorial from documented elements", () => {
+    const root = createMemorialLandmarks(landmarks);
+    const memorial = root.getObjectByName(names[1])!;
+    expect(memorial.userData.evidence).toEqual({
+      overallExtentM: 60,
+      placeStoneCount: 69,
+      poolDiameterM: 12,
+    });
+    expect(SINTI_ROMA_MEMORIAL.poolDiameterM).toBe(12);
+
+    const water = root.getObjectByName(
+      "Sinti and Roma memorial black reflecting water",
+    )!;
+    const waterSize = new Box3().setFromObject(water).getSize(new Vector3());
+    expect(waterSize.x).toBeCloseTo(12, 2);
+    expect(waterSize.z).toBeCloseTo(12, 2);
+
+    const stones = root.getObjectByName(
+      "Sinti and Roma memorial 69 camp name stones",
+    ) as InstancedMesh;
+    expect(stones.count).toBe(69);
+    const stoneMatrix = new Matrix4();
+    for (let index = 0; index < stones.count; index += 1) {
+      stones.getMatrixAt(index, stoneMatrix);
+      expect(
+        Math.hypot(stoneMatrix.elements[12], stoneMatrix.elements[14]),
+      ).toBeGreaterThan(6.2);
+    }
+
+    expect(
+      (
+        root.getObjectByName(
+          "Sinti and Roma memorial daily flower petals",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(12);
+    expect(
+      (
+        root.getObjectByName(
+          "Sinti and Roma memorial German and English poem engraving",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(84);
+    expect(
+      (
+        root.getObjectByName(
+          "Sinti and Roma memorial nine biography portraits",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(9);
+    expect(
+      (
+        root.getObjectByName(
+          "Sinti and Roma memorial three exhibition benches",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(3);
   });
 
   test("the composers and Goethe are built, not blocked out", () => {

@@ -100,6 +100,32 @@ const VOXEL_WINDOW_TEAL = 0x72c5d2;
 export const VOXEL_WINDOW_WIDTH_M = 1.5;
 export const VOXEL_WINDOW_HEIGHT_M = 2.75;
 
+/**
+ * The memorial clearing was rasterised into 86 four-metre "building" columns
+ * in the voxel payload. This documented 60 m artwork is open landscape, so the
+ * low false-positive mass must yield to the dedicated recognition model.
+ */
+export const SINTI_ROMA_VOXEL_CLEARING = {
+  center: [307.7, 186.23] as const,
+  halfDepthM: 38,
+  halfWidthM: 22,
+  maxFalseHeightM: 4.1,
+} as const;
+
+export function isFalseSintiRomaVoxelColumn(
+  worldX: number,
+  worldZ: number,
+  heightM: number,
+): boolean {
+  return (
+    heightM <= SINTI_ROMA_VOXEL_CLEARING.maxFalseHeightM &&
+    Math.abs(worldX - SINTI_ROMA_VOXEL_CLEARING.center[0]) <=
+      SINTI_ROMA_VOXEL_CLEARING.halfWidthM &&
+    Math.abs(worldZ - SINTI_ROMA_VOXEL_CLEARING.center[1]) <=
+      SINTI_ROMA_VOXEL_CLEARING.halfDepthM
+  );
+}
+
 /** LoD2-tower-derived centre of the Hamburger Bahnhof entrance facade. */
 export const HAMBURGER_BAHNHOF_VOXEL_FACADE = {
   axis: [0.8673, -0.4978] as const,
@@ -823,12 +849,21 @@ export function createMinecraftVoxelWorld(
   group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
   group.add(createMinecraftHamburgerBahnhofRecognition());
 
+  const visibleBuildingColumns = payload.buildings.filter(
+    ([xIdx, zIdx, y0dm, y1dm]) =>
+      !isFalseSintiRomaVoxelColumn(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        (y1dm - y0dm) / 10,
+      ),
+  );
+
   const buildings = instancedBoxes(
     "Voxel building columns",
-    payload.buildings.length * 2,
+    visibleBuildingColumns.length * 2,
   );
   const tonePaint = new Color();
-  for (const [xIdx, zIdx, y0dm, y1dm, classId] of payload.buildings) {
+  for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
     const className = payload.classes[classId] ?? "concrete";
     const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
     const y0 = y0dm / 10;
@@ -868,7 +903,7 @@ export function createMinecraftVoxelWorld(
   // receiving a second grid of generic square holes.
   const columnTops = new Map<number, number>();
   const columnKey = (x: number, z: number): number => x * 65536 + z;
-  for (const [xIdx, zIdx, , y1dm] of payload.buildings) {
+  for (const [xIdx, zIdx, , y1dm] of visibleBuildingColumns) {
     const key = columnKey(xIdx, zIdx);
     columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
   }
@@ -884,7 +919,7 @@ export function createMinecraftVoxelWorld(
   const glass = new Color(VOXEL_WINDOW_GLASS);
   const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
   const teal = new Color(VOXEL_WINDOW_TEAL);
-  for (const [xIdx, zIdx, y0dm, y1dm, classId] of payload.buildings) {
+  for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
     if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
       continue;
     }

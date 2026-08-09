@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.70.9
+
+- **The Memorial to the Sinti and Roma murdered under National Socialism now
+  follows the documented artwork instead of a generic park-water symbol.** Its
+  defining pool is fixed to the published approximately 12 m diameter and is
+  rendered as a stable black mirror in a thin dark steel pan. The retractable
+  triangular granite stone carries a procedural daily flower; the rim carries
+  a restrained German/English poem cue; 69 individually varied, low granite
+  stones mark the documented crime sites around a fragmented granite apron.
+- The long segmented glass/Corten chronology boundary now has a real entrance,
+  text-line detail, nine restrained biography-display cues and three benches.
+  Published values (12 m pool, 69 places, 60 x 60 m overall artwork extent)
+  are pinned in tests; uncited local dimensions remain explicitly documented
+  visual-reference approximations.
+- Two overlapping data artefacts are removed without deleting source evidence:
+  the generic cyan OSM basin no longer draws below the dedicated black pool,
+  and Minecraft suppresses 86 four-metre false-positive building columns that
+  previously buried the open memorial clearing under a 32 x 56 m concrete
+  block. Day, Night, Snowstorm and Minecraft were checked from the curated
+  landmark view.
+- The visible radius remains **5,230 m**. No unrelated geometry, source
+  coordinates, attribution, credentials, Google content or raw reference
+  photographs changed in this focused memorial refinement.
+
 ## v0.70.8
 
 - **Snowstorm now breathes instead of drawing one constant curtain.** A

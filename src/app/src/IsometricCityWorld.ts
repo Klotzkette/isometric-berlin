@@ -111,6 +111,9 @@ export type SurfacePolygon = {
 /** OSM way/1313858079, the darker decorative basin on Otto-Weidt-Platz. */
 export const OTTO_WEIDT_FOUNTAIN_WORLD = [-278.45, -1611.02] as const;
 
+/** Dedicated recognition model replaces this otherwise generic OSM basin. */
+export const SINTI_ROMA_POOL_WORLD = [307.7, 186.23] as const;
+
 /** A marked carriageway centreline (decimetre points) for lane dashes. */
 export type LaneMarking = {
   name: string;
@@ -162,6 +165,24 @@ export function isElevatedParkWater(surface: SurfacePolygon): boolean {
   }
   const [x, z] = surfaceCentroidM(surface);
   return x < 350 && z > 120 && z < 1_350;
+}
+
+/** Avoid drawing a second cyan basin under the exact memorial model. */
+export function isDedicatedSintiRomaPool(surface: SurfacePolygon): boolean {
+  if (
+    surface.kind !== "basin" ||
+    surface.area_m2 < 90 ||
+    surface.area_m2 > 130
+  ) {
+    return false;
+  }
+  const [x, z] = surfaceCentroidM(surface);
+  return (
+    Math.hypot(
+      x - SINTI_ROMA_POOL_WORLD[0],
+      z - SINTI_ROMA_POOL_WORLD[1],
+    ) < 8
+  );
 }
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
@@ -5462,7 +5483,9 @@ export function createSmoothSurfaces(
   // ground it was built into. Drawing both at the single table put the
   // Invalidenpark fountain 6.5 m under its own lawn, where the lawn plate
   // covered it and the basin read as flat grass.
-  const basins = surfaces.water.filter(isElevatedParkWater);
+  const basins = surfaces.water.filter(
+    (entry) => isElevatedParkWater(entry) && !isDedicatedSintiRomaPool(entry),
+  );
   const rivers = surfaces.water.filter(
     (entry) => entry.kind !== "basin" && !isElevatedParkWater(entry),
   );
