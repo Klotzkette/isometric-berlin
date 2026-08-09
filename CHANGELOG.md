@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.70.4
+
+- **The Rieckhallen are one low freight hall again.** Five generic gabled-roof
+  strips are gone. The replacement follows official LoD2 building
+  `DEBE01YYK0002SQl`: a 281.279 x 16.244 m envelope, 9.364 m measured height
+  and 21.39-degree long axis. Its restrained flat/mixed roof now has three low
+  longitudinal bands and the documented dark vertically ribbed elevations.
+- Minecraft no longer turns the coarse alternating 8/12 m source columns into
+  false roof peaks. Only columns inside the same rotated LoD2 envelope receive
+  one continuous surveyed top elevation; their footprint and deliberately
+  blocky edge remain unchanged. Regression tests pin the building ID,
+  dimensions, axis, height, focus framing and flat roof in both drawn and voxel
+  presentations.
+- Day, Night, Minecraft and Snowstorm were checked at the Rieckhallen focus.
+  The versioned visible radius remains **5,230 m**; no bounds, landmark
+  coordinates, Google data, credentials or raw reference photographs changed.
+
 ## v0.70.3
 
 - **Hamburger Bahnhof is no longer a floating, skewed fantasy gable.** The

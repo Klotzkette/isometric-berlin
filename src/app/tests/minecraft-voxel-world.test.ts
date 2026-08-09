@@ -12,6 +12,7 @@ import {
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+import { RIECKHALLEN_PROFILE } from "../src/ExpandedCityDetails";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 
@@ -142,6 +143,37 @@ describe("true voxel Minecraft world", () => {
     }
     expect(highest).toBeGreaterThanOrEqual(
       HAMBURGER_BAHNHOF_VOXEL_FACADE.groundY + 25,
+    );
+  });
+
+  test("keeps the Rieckhallen voxel roof flat instead of alternating peaks", () => {
+    expect(
+      voxelRecognitionAreaAt(...RIECKHALLEN_PROFILE.centerWorldM)?.name,
+    ).toBe("Rieckhallen");
+    const buildings = instanced("Voxel building columns", world);
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    const scale = new Vector3();
+    const roofTops: number[] = [];
+    for (let index = 0; index < buildings.count; index += 1) {
+      buildings.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      scale.setFromMatrixScale(matrix);
+      if (
+        scale.y <= 1.01 &&
+        voxelRecognitionAreaAt(position.x, position.z)?.name === "Rieckhallen"
+      ) {
+        roofTops.push(position.y + scale.y / 2);
+      }
+    }
+    expect(roofTops.length).toBeGreaterThan(250);
+    expect(Math.min(...roofTops)).toBeCloseTo(
+      RIECKHALLEN_PROFILE.minecraftRoofTopY,
+      5,
+    );
+    expect(Math.max(...roofTops)).toBeCloseTo(
+      RIECKHALLEN_PROFILE.minecraftRoofTopY,
+      5,
     );
   });
 

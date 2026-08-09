@@ -58,6 +58,22 @@ export const HAMBURGER_BAHNHOF_PROFILE = {
   upperArcadeCount: 6,
 } as const;
 
+/** LoD2-derived envelope of the protected 1960s Rieckhallen freight hall. */
+export const RIECKHALLEN_PROFILE = {
+  centerOffsetFromLandmarkM: [-2.1326, -1.5085] as const,
+  centerWorldM: [-72.289693, -1218.65614] as const,
+  crossAxis: [0.931102, -0.364759] as const,
+  lengthM: 281.279,
+  longAxis: [0.364759, 0.931102] as const,
+  measuredHeightM: 9.364,
+  minecraftRoofTopY: 17.2,
+  roofBandCount: 3,
+  roofForm: "flat-mixed-with-low-longitudinal-bands",
+  rotationY: 0.373374,
+  sourceBuildingId: "DEBE01YYK0002SQl",
+  widthM: 16.244,
+} as const;
+
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
   Omit<FocusCamera, "target_world">
@@ -94,7 +110,7 @@ const EXPANDED_FOCUS_PRESETS: Record<
   },
   Rieckhallen: {
     azimuth_degrees: 72,
-    distance_m: 190,
+    distance_m: 292,
     polar_degrees: 57,
     target_height_m: 8,
   },
@@ -790,17 +806,107 @@ function addRieckhallen(
 ): void {
   const point = anchor(byName, "Rieckhallen");
   if (!point) return;
-  for (let index = -2; index <= 2; index += 1) {
-    addGabledRoof(
+  const profile = RIECKHALLEN_PROFILE;
+  const centerX = point.x + profile.centerOffsetFromLandmarkM[0];
+  const centerZ = point.z + profile.centerOffsetFromLandmarkM[1];
+  const roofY = point.y + profile.measuredHeightM;
+  const at = (across: number, along: number): [number, number] => [
+    centerX +
+      profile.crossAxis[0] * across +
+      profile.longAxis[0] * along,
+    centerZ +
+      profile.crossAxis[1] * across +
+      profile.longAxis[1] * along,
+  ];
+
+  // The protected freight building is one 281 m-long, low hall. Its LoD2
+  // prism remains the metric body; this thin cap and three low roof bands
+  // replace the former five invented high gables.
+  addBox(
+    builder,
+    0xd8d8d1,
+    centerX,
+    roofY + 0.11,
+    centerZ,
+    profile.widthM - 0.2,
+    0.22,
+    profile.lengthM - 0.4,
+    profile.rotationY,
+    false,
+  );
+  for (const across of [-4.55, 0, 4.55]) {
+    const [x, z] = at(across, 0);
+    addBox(
       builder,
-      0xc8c4ba,
-      point.x + index * 17,
-      point.y + 10.5,
-      point.z,
-      15,
-      76,
-      5.4,
-      0.08,
+      0xc5cfcc,
+      x,
+      roofY + 0.34,
+      z,
+      2.15,
+      0.42,
+      profile.lengthM - 8,
+      profile.rotationY,
+      false,
+    );
+  }
+
+  // Both long elevations keep the dark, vertically ribbed goods-shed skin
+  // visible in the official monument photograph. The ribs are one merged draw
+  // layer and do not alter the surveyed footprint or height.
+  for (const side of [-1, 1]) {
+    const across = side * (profile.widthM / 2 + 0.04);
+    const [panelX, panelZ] = at(across, 0);
+    addBox(
+      builder,
+      0x586b6f,
+      panelX,
+      point.y + 4.25,
+      panelZ,
+      0.16,
+      7.8,
+      profile.lengthM - 2,
+      profile.rotationY,
+      false,
+    );
+    for (
+      let along = -profile.lengthM / 2 + 2.2;
+      along < profile.lengthM / 2 - 2;
+      along += 3.6
+    ) {
+      const [ribX, ribZ] = at(across + side * 0.08, along);
+      addBox(
+        builder,
+        0x8c9b9d,
+        ribX,
+        point.y + 4.25,
+        ribZ,
+        0.12,
+        7.65,
+        0.18,
+        profile.rotationY,
+        false,
+      );
+    }
+  }
+
+  // Quiet panel seams explain the roof scale without creating another peak.
+  for (
+    let along = -profile.lengthM / 2 + 7;
+    along < profile.lengthM / 2 - 7;
+    along += 7
+  ) {
+    const [seamX, seamZ] = at(0, along);
+    addBox(
+      builder,
+      0xaeb9b6,
+      seamX,
+      roofY + 0.245,
+      seamZ,
+      profile.widthM - 0.8,
+      0.055,
+      0.09,
+      profile.rotationY,
+      false,
     );
   }
 }
@@ -1416,6 +1522,7 @@ export function createExpandedCityDetails(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
+  group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
   addRieckhallen(builder, byName);

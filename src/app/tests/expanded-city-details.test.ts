@@ -5,6 +5,7 @@ import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
+  RIECKHALLEN_PROFILE,
 } from "../src/ExpandedCityDetails";
 
 const landmarks = [
@@ -157,5 +158,51 @@ describe("task-10 expanded city recognition details", () => {
     expect(litArches.userData.nightMaterial).toBeInstanceOf(
       MeshStandardMaterial,
     );
+  });
+
+  test("keeps Rieckhallen as one low flat goods shed without false peaks", () => {
+    const landmark = {
+      name: "Rieckhallen",
+      world: [10, 8, 20] as [number, number, number],
+    };
+    const details = createExpandedCityDetails([landmark]);
+    expect(details.userData.rieckhallen).toEqual(RIECKHALLEN_PROFILE);
+    expect(RIECKHALLEN_PROFILE.sourceBuildingId).toBe("DEBE01YYK0002SQl");
+    expect(RIECKHALLEN_PROFILE.roofForm).toBe(
+      "flat-mixed-with-low-longitudinal-bands",
+    );
+    expect(RIECKHALLEN_PROFILE.roofBandCount).toBe(3);
+    expect(Math.hypot(...RIECKHALLEN_PROFILE.longAxis)).toBeCloseTo(1, 5);
+    expect(Math.hypot(...RIECKHALLEN_PROFILE.crossAxis)).toBeCloseTo(1, 5);
+
+    const bodies = details.getObjectByName(
+      "Expanded architecture and public-realm details bodies",
+    ) as Mesh;
+    const positions = bodies.geometry.getAttribute("position");
+    const centerX =
+      landmark.world[0] + RIECKHALLEN_PROFILE.centerOffsetFromLandmarkM[0];
+    const centerZ =
+      landmark.world[2] + RIECKHALLEN_PROFILE.centerOffsetFromLandmarkM[1];
+    let maxY = Number.NEGATIVE_INFINITY;
+    let minAlong = Number.POSITIVE_INFINITY;
+    let maxAlong = Number.NEGATIVE_INFINITY;
+    for (let index = 0; index < positions.count; index += 1) {
+      const x = positions.getX(index);
+      const y = positions.getY(index);
+      const z = positions.getZ(index);
+      const along =
+        (x - centerX) * RIECKHALLEN_PROFILE.longAxis[0] +
+        (z - centerZ) * RIECKHALLEN_PROFILE.longAxis[1];
+      maxY = Math.max(maxY, y);
+      minAlong = Math.min(minAlong, along);
+      maxAlong = Math.max(maxAlong, along);
+    }
+    expect(maxY).toBeLessThan(landmark.world[1] + 10);
+    expect(maxAlong - minAlong).toBeGreaterThan(280);
+    expect(maxAlong - minAlong).toBeLessThan(282);
+    expect(expandedCityFocusCamera(landmark)).toMatchObject({
+      distance_m: 292,
+      target_world: landmark.world,
+    });
   });
 });

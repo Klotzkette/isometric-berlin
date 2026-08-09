@@ -12,6 +12,7 @@ import {
 } from "three";
 
 import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
+import { RIECKHALLEN_PROFILE } from "./ExpandedCityDetails";
 import {
   AXIS_FROM,
   AXIS_TO,
@@ -163,6 +164,18 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     rotationDegrees: HAMBURGER_BAHNHOF_VOXEL_FACADE.rotationDegrees,
     tone: 0xe8d1ae,
     widthM: 64,
+  },
+  {
+    // One low 281 m freight hall, not a row of alternating 8/12 m voxel
+    // peaks. The payload remains the footprint authority; this envelope only
+    // evens the coarse top row and suppresses generic office windows.
+    center: RIECKHALLEN_PROFILE.centerWorldM,
+    depthM: RIECKHALLEN_PROFILE.lengthM,
+    name: "Rieckhallen",
+    paddingM: 0.6,
+    rotationDegrees: (RIECKHALLEN_PROFILE.rotationY * 180) / Math.PI,
+    tone: 0x586b6f,
+    widthM: RIECKHALLEN_PROFILE.widthM,
   },
   {
     center: [417.898, 300.453],
@@ -819,11 +832,18 @@ export function createMinecraftVoxelWorld(
     const className = payload.classes[classId] ?? "concrete";
     const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
     const y0 = y0dm / 10;
-    const height = Math.max(cell, (y1dm - y0dm) / 10);
+    const worldX = worldXAbs(xIdx);
+    const worldZ = worldZAbs(zIdx);
+    const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
+    const roofTopY =
+      recognitionArea?.name === "Rieckhallen"
+        ? RIECKHALLEN_PROFILE.minecraftRoofTopY
+        : y1dm / 10;
+    const height = Math.max(cell, roofTopY - y0);
     // Real building colour when the prism payload knows this footprint;
     // whole buildings read as one hue (no checkerboard), the class
     // shades stay as fallback for unknown columns.
-    const tone = toneLookup?.(worldXAbs(xIdx), worldZAbs(zIdx)) ?? null;
+    const tone = toneLookup?.(worldX, worldZ) ?? recognitionArea?.tone ?? null;
     const facade =
       tone !== null
         ? tonePaint.setHex(tone).clone()
@@ -831,11 +851,11 @@ export function createMinecraftVoxelWorld(
     // Minecraft buildings wear a darker roof layer — the top block row
     // reads as roofing, like the game's slab-capped houses.
     const capHeight = height > 3 ? 1 : 0;
-    center.set(worldXAbs(xIdx), y0 + (height - capHeight) / 2, worldZAbs(zIdx));
+    center.set(worldX, y0 + (height - capHeight) / 2, worldZ);
     size.set(cell, height - capHeight, cell);
     buildings.write(center, size, facade);
     if (capHeight > 0) {
-      center.set(worldXAbs(xIdx), y0 + height - capHeight / 2, worldZAbs(zIdx));
+      center.set(worldX, y0 + height - capHeight / 2, worldZ);
       size.set(cell, capHeight, cell);
       buildings.write(center, size, facade.clone().multiplyScalar(0.72));
     }
