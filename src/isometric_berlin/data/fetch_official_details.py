@@ -181,7 +181,15 @@ def write_layers(
     for column in normalized.columns:
       if column != "geometry" and normalized[column].dtype == object:
         normalized[column] = normalized[column].astype("string")
-    normalized.to_file(output_path, layer=name, driver="GPKG")
+    # These bounded layers are read sequentially by the payload builder.  The
+    # optional per-layer RTree adds roughly 1.9 MiB for points alone and pushes
+    # the canonical GeoPackage over the repository's 5 MiB file ceiling.
+    normalized.to_file(
+      output_path,
+      layer=name,
+      driver="GPKG",
+      SPATIAL_INDEX="NO",
+    )
 
 
 def fetch_official_details(

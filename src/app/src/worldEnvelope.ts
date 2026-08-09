@@ -1,19 +1,21 @@
-// Hull of the SURVEYED data as fetched for the task-09 expanded
-// bounds.geojson (LoD2 buildings E386627..390182 / N5818392..5821304, OSM
-// layers and the official tree/lamp points inside the same polygon), rounded
-// out to whole decametres in scene world metres. Everything inside this box
-// is measured open data; the extrapolated paper margin starts outside it.
+// Hull of the SURVEYED task-10 data (LoD2/OSM/official details), rounded out
+// to whole decametres in scene world metres. It reaches Charlottenburger Tor
+// in the west, Europacity in the north and Kochstrasse/Anhalter Bahnhof in the
+// south-east. The extrapolated paper margin starts outside this measured box.
 export const DATA_WEST_M = -2880;
-export const DATA_EAST_M = 690;
-export const DATA_NORTH_M = -1310;
-export const DATA_SOUTH_M = 1620;
+export const DATA_EAST_M = 1410;
+export const DATA_NORTH_M = -2600;
+export const DATA_SOUTH_M = 1890;
 
 // Width of the blank paper ring that carries the drawing past the surveyed
 // hull, so a maximum-altitude flight fades into light ground instead of a
 // void. It invents no content: flat tone plates plus cartographic ruling.
-export const EXTRAPOLATED_MARGIN_M = 1200;
+// The larger task-10 surveyed hull needs less blank paper than task-09. At
+// 880 m every rectangular corner remains inside the versioned 5,130 m visible
+// radius, while still leaving a broad clean fade beyond the last real feature.
+export const EXTRAPOLATED_MARGIN_M = 880;
 
-export const VISIBLE_RADIUS_M = 5030;
+export const VISIBLE_RADIUS_M = 5130;
 
 // Straße des 17. Juni from Pariser Platz to the Großer Stern. Both endpoints
 // are surveyed positions (the Großer Stern centre is EPSG:25833 E388041 /

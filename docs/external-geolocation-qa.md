@@ -84,8 +84,8 @@ not permission to copy restricted material:
   lighting and ventilation cues, but is still not official surveyed
   as-built geometry.
 - Luiseninsel / Koenigin-Luise-Denkmal: public references and coordinates
-  place it west of the current v0.1 image frame; keep as a future bounds
-  expansion candidate rather than an off-canvas marker.
+  place it in the western Tiergarten. It is inside the current task-10 bounds
+  and represented by the measured park context plus recognition detail.
 
 Commercial maps, social-media posts, official press photos, and tourism
 images without a clear free license may be inspected for orientation and
@@ -124,7 +124,8 @@ derived textures, or traced map geometry.
 
 ## Placement Conclusions
 
-- Berlin Hauptbahnhof is the northern anchor of the v0.1 scene.
+- Berlin Hauptbahnhof remains the northern anchor of the government-quarter
+  core; the current bounded scene continues farther north into Europacity.
 - Moving south from Hauptbahnhof, the Bundeskanzleramt sits west of the
   Spree and west/north-west of the Reichstag area, not on the east bank.
 - Paul-Löbe-Haus and Marie-Elisabeth-Lüders-Haus form the Bundestag

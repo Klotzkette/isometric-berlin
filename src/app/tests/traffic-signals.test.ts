@@ -22,7 +22,10 @@ describe("task 07: animated OSM traffic signals", () => {
   test("the payload carries every surveyed signal inside bounds", () => {
     // Schema 4 added the beer gardens and the node-only riverside bars.
     expect(street.schema_version).toBe(4);
-    expect(street.traffic_signals_dm.length).toBe(247);
+    expect(street.traffic_signals_dm.length).toBeGreaterThan(350);
+    expect(
+      new Set(street.traffic_signals_dm.map(([x, z]) => `${x}:${z}`)).size,
+    ).toBe(street.traffic_signals_dm.length);
     expect(street.source.toLowerCase()).toContain("openstreetmap");
     // Schema v2 also carries the monuments ("alle Denkmäler").
     expect(street.monuments!.length).toBeGreaterThan(40);

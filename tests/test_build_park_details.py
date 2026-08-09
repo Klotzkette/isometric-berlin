@@ -71,7 +71,7 @@ def test_compact_tree_encoding_round_trips() -> None:
 
 def test_park_detail_payload_is_compact_and_specific() -> None:
   assert PAYLOAD.exists()
-  assert PAYLOAD.stat().st_size < 4 * 1024 * 1024
+  assert PAYLOAD.stat().st_size < 5 * 1024 * 1024
   raw = PAYLOAD.read_text(encoding="utf-8")
   assert "NaN" not in raw
   payload = json.loads(raw)
@@ -117,7 +117,9 @@ def test_bridge_balustrade_lighting_is_not_drawn_as_masts() -> None:
   assert len(bands) >= 150
   assert all(light["height_m"] < 1.5 for light in bands)
   heinemann = [
-    light for light in bands if -500 < light["position"][2] < -390 and light["position"][0] < 0
+    light
+    for light in bands
+    if -500 < light["position"][2] < -390 and light["position"][0] < 0
   ]
   assert len(heinemann) >= 90
   # A balustrade is level, so the whole run sits at one height.

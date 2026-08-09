@@ -1,4 +1,4 @@
-"""The aboveground railway must reach the map edges, not stop in mid-air."""
+"""The aboveground railway must reach every in-bounds OSM chain end."""
 
 from __future__ import annotations
 
@@ -7,9 +7,15 @@ from pathlib import Path
 
 import pytest
 
+from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.build_rail_lines import (
   DECK_CLEARANCE_M,
+  DEFAULT_BOUNDS,
+  DEFAULT_OSM,
+  ORIGIN_EASTING,
   SCHEMA_VERSION,
+  TRACK_HALF_WIDTH_M,
+  collect_tracks,
   is_carried,
   runs_underground,
   station_deck_top_m,
@@ -18,11 +24,13 @@ from isometric_berlin.generation.build_rail_lines import (
 RAIL = Path("src/app/public/mesh/regierungsviertel/rail-lines.json")
 SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
 
-# The drawn map runs from x −2880 to x 690 (see worldEnvelope.ts). The
+# The task-10 data hull runs from x −2880 to x 1410 (see worldEnvelope.ts). The
 # Stadtbahn crosses the whole of it, so a corridor that stops well short of
 # either edge means the export lost the line somewhere.
 WEST_EDGE_M = -2880
-EAST_EDGE_M = 690
+EAST_EDGE_M = 1410
+NORTH_EDGE_M = -2600
+SOUTH_EDGE_M = 1890
 
 
 @pytest.fixture(scope="module")
@@ -52,16 +60,21 @@ def test_schema_and_deck_height_come_from_the_station_model(
   assert payload["deck_top_y_m"] == pytest.approx(expected, abs=0.001)
 
 
-def test_the_viaduct_runs_out_to_the_east_edge(payload: dict) -> None:
+def test_the_viaduct_reaches_the_available_osm_chain_ends(payload: dict) -> None:
   xs = [x / 10 for surface in payload["viaduct"] for x, _ in surface["ring"]]
   assert xs, "no viaduct corridor was exported at all"
-  # East is the side that used to stop in mid-air over the Humboldthafen.
-  assert max(xs) > EAST_EDGE_M - 60
-  # West, the OSM extract's rail layer itself ends near Bahnhof Zoo at
-  # x −2654, well inside the bounds; the corridor must reach that limit
-  # rather than stopping short of it.
-  assert min(xs) < -2600
-  assert min(xs) > WEST_EDGE_M
+  bounds = project_geometry(load_bounds_polygon(DEFAULT_BOUNDS))
+  carried, _ = collect_tracks(DEFAULT_OSM, bounds)
+  source_xs = [x - ORIGIN_EASTING for line in carried for x, _ in line.coords]
+  assert source_xs, "no carried OSM railway was found inside the bounds"
+
+  # The task-10 bounds are an irregular hull, not the rectangular data
+  # envelope.  Compare with the actual clipped railway ends so an unrelated
+  # east/west hull extreme cannot demand a fictional extension of the line.
+  assert min(xs) <= min(source_xs)
+  assert max(xs) >= max(source_xs)
+  assert min(source_xs) - min(xs) <= TRACK_HALF_WIDTH_M + 1.5
+  assert max(xs) - max(source_xs) <= TRACK_HALF_WIDTH_M + 1.5
 
 
 def test_the_viaduct_stands_on_piers(payload: dict) -> None:
@@ -71,7 +84,7 @@ def test_the_viaduct_stands_on_piers(payload: dict) -> None:
   # far outside the map means the coordinates were converted twice.
   for x, z in piers:
     assert WEST_EDGE_M * 10 - 600 < x < EAST_EDGE_M * 10 + 600
-    assert -13_100 - 600 < z < 16_200 + 600
+    assert NORTH_EDGE_M * 10 - 600 < z < SOUTH_EDGE_M * 10 + 600
 
 
 def test_every_drawn_track_is_a_real_chain(payload: dict) -> None:

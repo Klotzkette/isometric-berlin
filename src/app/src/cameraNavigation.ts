@@ -1,5 +1,7 @@
 import { MathUtils, PerspectiveCamera, Vector3 } from "three";
 
+import { extrapolatedEnvelopeBounds } from "./worldEnvelope";
+
 export type CameraFlightBounds = {
   max: Vector3;
   min: Vector3;
@@ -10,11 +12,21 @@ export type CameraPose = {
   target: Vector3;
 };
 
+const presentationEnvelope = extrapolatedEnvelopeBounds();
+
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
-  // The surveyed task-09 hull (world x -2880..690, z -1310..1620) plus the
-  // 1200 m paper-margin ring (visible radius contract: 5030 m).
-  min: new Vector3(-4_080, -120, -2_510),
-  max: new Vector3(1_890, 280, 2_820),
+  // Derive navigation limits from the same versioned envelope the renderers
+  // use, so another data expansion cannot leave the camera contract stale.
+  min: new Vector3(
+    presentationEnvelope.minX,
+    -120,
+    presentationEnvelope.minZ,
+  ),
+  max: new Vector3(
+    presentationEnvelope.maxX,
+    280,
+    presentationEnvelope.maxZ,
+  ),
 };
 
 export function captureCameraPose(

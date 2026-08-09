@@ -10,13 +10,13 @@
 
 ## 1. Project mission (in one paragraph)
 
-Build a giant, zoomable, **SimCity-style isometric pixel-art map of the
-Berlin Regierungsviertel** (Government Quarter), generated tile-by-tile
-with AI from open and permitted city data. It is the Berlin equivalent
-of [isometric.nyc](https://isometric.nyc) by Andy Coenen, scoped down
-to a single neighbourhood for v0.1. Per owner policy this project uses
-**additive data fusion**: every permitted source contributes; the best
-evidence from each source is kept per tile.
+Build a giant, zoomable, freely orbitable **isometric model of central
+Berlin**, centred on the Regierungsviertel and derived from open and permitted
+city data. It is the Berlin equivalent of
+[isometric.nyc](https://isometric.nyc) by Andy Coenen, extended with a true
+Three.js scene, a high-resolution DZI map and downloadable offline packages.
+Per owner policy this project uses **additive data fusion**: every permitted
+source contributes; the best evidence from each source is kept per tile.
 
 The owner is **Klotzkette**. He intends to publish the finished
 viewer through **Perplexity** (likely via the Perplexity website
@@ -36,30 +36,35 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.1)
+## 3. Hard scope rules (v0.65)
 
-The MVP **only** covers the Berlin Regierungsviertel polygon
+The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
+Its presentation radius is 5,130 m. Never generate or bundle geometry outside
+that polygon unless the owner explicitly approves another bounds revision.
 
 Must be inside the polygon and visible in the final map:
 
-- Brandenburger Tor (south-east corner, Pariser Platz)
+- Brandenburger Tor and Pariser Platz
 - Reichstagsgebäude (incl. the glass dome — this is a hero tile)
 - Bundeskanzleramt
 - Paul-Löbe-Haus
 - Marie-Elisabeth-Lüders-Haus
-- Berlin Hauptbahnhof (north-west corner, incl. the glass roof — hero tile)
+- Berlin Hauptbahnhof (incl. the glass roof — hero tile), Hamburger Bahnhof,
+  Rieckhallen, Landessozialgericht, Europacity, KPMG and DKB
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
-- Eastern strip of the Tiergarten with the Spree
+- The complete Großer Tiergarten to Charlottenburger Tor, with Siegessäule,
+  Luiseninsel, Rosengarten, Café am Neuen See and the mapped path/tree network
 - Luiseninsel playground opposite the Philharmonie, including mapped paths,
   trees and playground equipment
-- Tiergartentunnel south entrance at Sony Center / Potsdamer Platz
-  (south edge — the tunnel mouth must be visible, the rest of
-  Potsdamer Platz does not need to be)
+- Kulturforum, Potsdamer/Leipziger Platz, Anhalter Bahnhof, Kochstraße and the
+  WELT balloon
+- Both Tiergartentunnel portals and the explicitly labelled approximate
+  underground route
 
-**Do not** expand bounds, add boroughs, pull whole-city LoD2 dumps,
-download full OSM Berlin pbf, or work on additional landmarks before
-v0.1 ships. If a task seems to require it, **stop and ask the owner**.
+The committed 73-place landmark catalogue is the release inventory. Keep all
+data clipped to the polygon, avoid unbounded whole-city output, and record any
+future owner-approved bounds expansion in the changelog and data manifests.
 
 A precise landmark list with coordinates lives in
 [`geo_data/regierungsviertel/landmarks.geojson`](geo_data/regierungsviertel/landmarks.geojson)
@@ -296,7 +301,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.1)
+## 8. What success looks like (Definition of Done v0.65)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -315,12 +320,13 @@ isometric-berlin/
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
-  renders the eight required landmarks recognisably.
+  renders all 73 catalogued sights in the same coordinate frame.
 - A true Three.js mode using the official Berlin 3D Mesh, with progressive
   loading, mouse/touch orbit, a real below-ground camera and a schematic
   Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.
-- All landmarks and required context details from §3 are visually identifiable (hero tiles
-  for Reichstag dome and Hauptbahnhof glass roof may be hand-touched).
+- All landmarks and required context details from §3 are navigable. Hero
+  recognition geometry may supplement, but never displace, the measured
+  LoD2/OSM anchors.
 
 ## 9. Hosting target: Perplexity
 
@@ -388,15 +394,19 @@ a task:
 - **Manifest files that contain API keys** — keys must be stripped
   before writing.
 - Committing raw `.gml`, `.citygml`, `.osm`, `.osm.pbf`, `.tif`,
-  `.tiff`, `.glb`, `.b3dm`, `.json` Google tile responses, or any
-  binary > 5 MB outside of `references/`. The only GLB exception is
+  `.tiff`, `.glb`, `.b3dm`, `.json` Google tile responses, or an
+  unbounded binary > 5 MiB outside of `references/`. The bounded canonical
+  `buildings.gpkg` and `osm.gpkg` may grow to 10 MiB and 8 MiB respectively
+  when an owner-approved bounds revision requires the complete clipped source;
+  release tests enforce those ceilings. The only GLB exception is
   the bounded, derived `src/app/public/mesh/regierungsviertel/*.glb`
   web asset set; every file must remain below 5 MiB and pass release QA.
 - **Removing or altering the required attribution string** — including
   failing to add Google attribution when Google content was used.
 - Changing the LICENSE without owner sign-off.
 - Replacing `uv` with `pip`/`poetry`, or `bun` with `npm`/`pnpm`.
-- Building anything outside the Regierungsviertel bounds in v0.1.
+- Building anything outside the currently committed bounds without explicit
+  owner approval and a documented bounds revision.
 - Hardcoding absolute URLs for the DZI tiles that break under
   Perplexity hosting.
 

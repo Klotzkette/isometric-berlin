@@ -40,6 +40,7 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "aliases": [
       "denkmal fur die im nationalsozialismus ermordeten sinti und roma europas",
     ],
+    "osm_ids": ["591200197"],
     "max_distance_m": 35.0,
   },
   "Reichstagsgebäude": {
@@ -204,6 +205,62 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
   "Königin-Luise-Denkmal (Luiseninsel)": {
     "aliases": ["luiseninsel"],
     "max_distance_m": 25.0,
+  },
+  "Bismarck-Nationaldenkmal": {
+    "aliases": ["bismarck nationaldenkmal", "otto von bismarck"],
+    "max_distance_m": 35.0,
+  },
+  "Berliner Philharmonie": {
+    "aliases": ["philharmonie"],
+    "max_distance_m": 25.0,
+  },
+  "St. Matthäus-Kirche": {
+    "aliases": ["sankt matthaus kirche"],
+    "max_distance_m": 20.0,
+  },
+  "Neue Nationalgalerie": {
+    "aliases": ["neue nationalgalerie"],
+    "max_distance_m": 25.0,
+    "allow_lod2_fallback": True,
+  },
+  "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)": {
+    "aliases": ["staatsbibliothek zu berlin"],
+    "max_distance_m": 25.0,
+  },
+  "Mall of Berlin": {
+    "aliases": ["mall of berlin"],
+    "max_distance_m": 130.0,
+    "allow_lod2_fallback": True,
+  },
+  "Kollhoff-Tower": {
+    "aliases": ["kollhoff tower"],
+    "max_distance_m": 25.0,
+    "allow_lod2_fallback": True,
+  },
+  "Geschichtspark Ehemaliges Zellengefängnis Moabit": {
+    "aliases": ["geschichtspark ehemaliges zellengefangnis moabit"],
+    "max_distance_m": 25.0,
+  },
+  "Rieckhallen": {
+    "aliases": ["rieckhallen"],
+    "max_distance_m": 25.0,
+    "allow_lod2_fallback": True,
+  },
+  "KPMG Europacity": {
+    "aliases": ["kpmg"],
+    "max_distance_m": 20.0,
+  },
+  "Der Bogenschütze (Henry Moore)": {
+    "aliases": ["der bogenschutze"],
+    "max_distance_m": 20.0,
+  },
+  "Rosengarten im Tiergarten": {
+    "aliases": ["rosengarten"],
+    "max_distance_m": 20.0,
+  },
+  "WELT Balloon": {
+    "aliases": ["berlin hi flyer"],
+    "max_distance_m": 20.0,
   },
   # The owner calls this the "Versunkene Mauer"; OSM and Girot's own title
   # are "Sinkende Mauer". The landmark point sits at the centre of the basin

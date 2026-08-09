@@ -22,12 +22,14 @@ describe("visual mode boot behaviour", () => {
     expect(resolveInitialVisualMode("day")).toBe("day");
     expect(resolveInitialVisualMode("night")).toBe("night");
     expect(resolveInitialVisualMode("minecraft")).toBe("minecraft");
+    expect(resolveInitialVisualMode("snowstorm")).toBe("snowstorm");
   });
 
-  test("recognises exactly the three supported modes", () => {
+  test("recognises exactly the four supported modes", () => {
     expect(isVisualMode("day")).toBe(true);
     expect(isVisualMode("night")).toBe(true);
     expect(isVisualMode("minecraft")).toBe(true);
+    expect(isVisualMode("snowstorm")).toBe(true);
     expect(isVisualMode("sepia")).toBe(false);
     expect(isVisualMode(null)).toBe(false);
   });

@@ -213,6 +213,9 @@ uv run python -m isometric_berlin.data.fetch_official_details \
   --bounds geo_data/regierungsviertel/bounds.geojson \
   --out geo_data/regierungsviertel/official_details.gpkg
 
+# The canonical file omits optional RTree indexes: its bounded layers are
+# scanned once by the payload build, and all source rows remain present.
+
 # Wikimedia visual references (additive, free-license filtered)
 uv run python -m isometric_berlin.data.fetch_wikimedia \
   --out geo_data/regierungsviertel/wikimedia_references.json \
@@ -255,7 +258,7 @@ to the same polygon in EPSG:25833. The effective tag filter is:
 }
 ```
 
-Since the task-09 bounds expansion the polygon is fetched in roughly
+Since the task-09 expansion, including the larger task-10 lobe, the polygon is fetched in roughly
 kilometre-wide tiles rather than in one request: asking Overpass for every tag
 across the whole area produces a response of hundreds of megabytes, which the
 connection does not survive. Tiles are clipped back to the polygon and

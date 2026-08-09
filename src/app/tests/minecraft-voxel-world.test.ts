@@ -67,9 +67,11 @@ describe("true voxel Minecraft world", () => {
     const panes = world.getObjectByName("Voxel facade windows");
     expect(panes).toBeInstanceOf(InstancedMesh);
     const mesh = panes as InstanceType<typeof InstancedMesh>;
-    // ~243k faces on 76k surveyed columns; interior faces are skipped.
+    // The task-10 expansion carries ~453k exposed faces on 133k surveyed
+    // columns; interior faces are still skipped and the complete facade stays
+    // in one instanced draw call.
     expect(mesh.count).toBeGreaterThan(150_000);
-    expect(mesh.count).toBeLessThan(350_000);
+    expect(mesh.count).toBeLessThan(550_000);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();

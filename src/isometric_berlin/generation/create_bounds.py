@@ -3,7 +3,7 @@
 Pipeline step 1 (see ``AGENTS.md`` §5). Analogous to the NYC project's
 ``create_bounds.py``: a small Flask server that loads
 ``geo_data/regierungsviertel/bounds.geojson``, shows it on an OSM map
-together with the eight required landmarks from ``landmarks.geojson``,
+together with all required landmarks from ``landmarks.geojson``,
 lets the owner drag the polygon vertices, and saves the result back to
 the same path.
 

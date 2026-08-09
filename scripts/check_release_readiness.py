@@ -547,9 +547,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       '!detail && !object.geometry.getAttribute("normal")'
     ),
     "instanced tunnel fixtures": ('"Tiergartentunnel instanced ceiling lights"'),
-    "always-on tunnel presentation": "setTunnelPresentation(runtime.tunnel, underside)",
+    "state-aware tunnel presentation": (
+      "setTunnelPresentation(runtime.tunnel, runtime.underside)"
+    ),
     "automatic orbit underside detection": (
-      "const underside = controls.getPolarAngle() > Math.PI / 2"
+      "controls.getPolarAngle() > Math.PI / 2 || insideTunnel"
     ),
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "stale mobile hero cancellation": (

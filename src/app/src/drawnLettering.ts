@@ -28,7 +28,6 @@ export const LETTERING_STROKE = 0.15;
 
 type Polyline = [number, number][];
 
-
 /**
  * Glyphs on a unit grid: x runs 0..advance, y runs 0 (baseline) to 1 (cap).
  * Curves are pre-flattened; at 60 cm cap height the segments are millimetres.
@@ -130,6 +129,25 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
       ],
     ],
   },
+  G: {
+    advance: 0.98,
+    strokes: [
+      [
+        [0.92, 0.82],
+        [0.72, 0.98],
+        [0.42, 1],
+        [0.18, 0.86],
+        [0.08, 0.62],
+        [0.08, 0.38],
+        [0.18, 0.14],
+        [0.42, 0],
+        [0.72, 0.02],
+        [0.9, 0.2],
+        [0.9, 0.48],
+        [0.56, 0.48],
+      ],
+    ],
+  },
   H: {
     advance: 0.98,
     strokes: [
@@ -215,6 +233,23 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
       ],
     ],
   },
+  P: {
+    advance: 0.9,
+    strokes: [
+      [
+        [0.1, 0],
+        [0.1, 1],
+      ],
+      [
+        [0.1, 1],
+        [0.56, 1],
+        [0.8, 0.88],
+        [0.8, 0.64],
+        [0.56, 0.52],
+        [0.1, 0.52],
+      ],
+    ],
+  },
   R: {
     advance: 0.94,
     strokes: [
@@ -290,6 +325,18 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
         [0.06, 1],
         [0.49, 0],
         [0.92, 1],
+      ],
+    ],
+  },
+  W: {
+    advance: 1.24,
+    strokes: [
+      [
+        [0.04, 1],
+        [0.28, 0],
+        [0.62, 0.62],
+        [0.92, 0],
+        [1.2, 1],
       ],
     ],
   },

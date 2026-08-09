@@ -72,6 +72,5 @@ def test_compact_preview_steps_the_palette_down_to_meet_the_binary_limit(
   # Nothing fits one byte, so it must fall back to the smallest palette rather
   # than silently returning the 256-colour image it could not shrink.
   assert (
-    len(compact.getcolors(maxcolors=256) or [])
-    <= overview.PREVIEW_PALETTE_STEPS[-1]
+    len(compact.getcolors(maxcolors=256) or []) <= overview.PREVIEW_PALETTE_STEPS[-1]
   )

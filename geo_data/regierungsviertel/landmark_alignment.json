@@ -130,7 +130,7 @@
       "lod2": {
         "containing_building_id": "DEBE3DeExMIcRZKx",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE3DeExMIcRZKx",
+        "nearest_building_id": "DEBE01YYK0001xm6",
         "nearest_distance_m": 0.0
       },
       "name": "Denkmal f\u00fcr die ermordeten Juden Europas",
@@ -209,7 +209,25 @@
       "status": "ok"
     },
     {
-      "best_osm_match": null,
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "591200197",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "water",
+        "tourism": null
+      },
       "expected_osm_aliases": [
         "denkmal fur die im nationalsozialismus ermordeten sinti und roma europas"
       ],
@@ -240,7 +258,7 @@
         "tourism": null
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
       "best_osm_match": {
@@ -640,21 +658,21 @@
       "name": "Hugo-Preu\u00df-Br\u00fccke",
       "nearest_named_osm": {
         "amenity": null,
-        "bridge": null,
+        "bridge": "yes",
         "diplomatic": null,
         "distance_m": 0.0,
         "element": "way",
-        "geometry_type": "Polygon",
+        "geometry_type": "LineString",
         "government": null,
-        "highway": null,
+        "highway": "tertiary",
         "historic": null,
-        "id": "4778344",
+        "id": "26109166",
         "leisure": null,
-        "name": null,
+        "name": "Hugo-Preu\u00df-Br\u00fccke",
         "office": null,
         "playground": null,
         "railway": null,
-        "source_layer": "water",
+        "source_layer": "roads",
         "tourism": null
       },
       "role": "owner_added",
@@ -744,7 +762,7 @@
       "name": "Moltkebr\u00fccke",
       "nearest_named_osm": {
         "amenity": null,
-        "bridge": "yes",
+        "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
         "element": "way",
@@ -752,7 +770,7 @@
         "government": null,
         "highway": "residential",
         "historic": null,
-        "id": "34833363",
+        "id": "44427657",
         "leisure": null,
         "name": "Moltkebr\u00fccke",
         "office": null,
@@ -851,14 +869,14 @@
         "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
-        "element": "way",
-        "geometry_type": "Polygon",
+        "element": "relation",
+        "geometry_type": "MultiPolygon",
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "231293193",
-        "leisure": null,
-        "name": null,
+        "id": "7643526",
+        "leisure": "park",
+        "name": "Gro\u00dfer Tiergarten",
         "office": null,
         "playground": null,
         "railway": null,
@@ -956,14 +974,14 @@
         "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
-        "element": "relation",
-        "geometry_type": "MultiPolygon",
+        "element": "way",
+        "geometry_type": "Polygon",
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "7643526",
-        "leisure": "park",
-        "name": "Gro\u00dfer Tiergarten",
+        "id": "668315445",
+        "leisure": null,
+        "name": null,
         "office": null,
         "playground": null,
         "railway": null,
@@ -1591,13 +1609,13 @@
         "diplomatic": null,
         "distance_m": 0.0,
         "element": "relation",
-        "geometry_type": "MultiPolygon",
+        "geometry_type": "Polygon",
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "7643526",
-        "leisure": "park",
-        "name": "Gro\u00dfer Tiergarten",
+        "id": "1653527",
+        "leisure": null,
+        "name": null,
         "office": null,
         "playground": null,
         "railway": null,
@@ -1643,14 +1661,14 @@
         "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
-        "element": "way",
-        "geometry_type": "Polygon",
+        "element": "relation",
+        "geometry_type": "MultiPolygon",
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "1189808043",
-        "leisure": null,
-        "name": null,
+        "id": "7643526",
+        "leisure": "park",
+        "name": "Gro\u00dfer Tiergarten",
         "office": null,
         "playground": null,
         "railway": null,
@@ -2223,14 +2241,14 @@
         "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
-        "element": "relation",
-        "geometry_type": "MultiPolygon",
+        "element": "way",
+        "geometry_type": "Polygon",
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "7643526",
+        "id": "28586183",
         "leisure": "park",
-        "name": "Gro\u00dfer Tiergarten",
+        "name": "Luiseninsel",
         "office": null,
         "playground": null,
         "railway": null,
@@ -2345,15 +2363,34 @@
       "status": "ok"
     },
     {
-      "best_osm_match": null,
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "id": "270687313",
+        "leisure": null,
+        "name": "Otto von Bismarck",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
       "expected_osm_aliases": [
-        "bismarck nationaldenkmal"
+        "bismarck nationaldenkmal",
+        "otto von bismarck"
       ],
       "lod2": {
-        "containing_building_id": null,
-        "contains_landmark": false,
-        "nearest_building_id": "DEBE00YYMo00007L",
-        "nearest_distance_m": 23.5
+        "containing_building_id": "DEBE00YY2iy0007y",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE00YY2iy0007y",
+        "nearest_distance_m": 0.0
       },
       "name": "Bismarck-Nationaldenkmal",
       "nearest_named_osm": {
@@ -2364,24 +2401,42 @@
         "element": "way",
         "geometry_type": "Polygon",
         "government": null,
-        "highway": null,
+        "highway": "footway",
         "historic": null,
-        "id": "1430148441",
+        "id": "532684957",
         "leisure": null,
         "name": null,
         "office": null,
         "playground": null,
         "railway": null,
-        "source_layer": "parks",
+        "source_layer": "roads",
         "tourism": null
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
-      "best_osm_match": null,
+      "best_osm_match": {
+        "amenity": "theatre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "3626485",
+        "leisure": null,
+        "name": "Philharmonie",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
       "expected_osm_aliases": [
-        "berliner philharmonie"
+        "philharmonie"
       ],
       "lod2": {
         "containing_building_id": "DEBE3DTtXzEkeXsu",
@@ -2391,7 +2446,30 @@
       },
       "name": "Berliner Philharmonie",
       "nearest_named_osm": {
-        "amenity": null,
+        "amenity": "theatre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "3626485",
+        "leisure": null,
+        "name": "Philharmonie",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "place_of_worship",
         "bridge": null,
         "diplomatic": null,
         "distance_m": 0.0,
@@ -2400,28 +2478,23 @@
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "43723722",
+        "id": "22990222",
         "leisure": null,
-        "name": "Kulturforum",
+        "name": "Sankt Matth\u00e4us-Kirche",
         "office": null,
         "playground": null,
         "railway": null,
         "source_layer": "pois",
-        "tourism": "attraction"
+        "tourism": null
       },
-      "role": "owner_added",
-      "status": "review"
-    },
-    {
-      "best_osm_match": null,
       "expected_osm_aliases": [
-        "st matthaus kirche"
+        "sankt matthaus kirche"
       ],
       "lod2": {
-        "containing_building_id": null,
-        "contains_landmark": false,
-        "nearest_building_id": "DEBE3DIqVwTfAOLW",
-        "nearest_distance_m": 61.7
+        "containing_building_id": "DEBE3DkIiO30Sz4V",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DkIiO30Sz4V",
+        "nearest_distance_m": 0.0
       },
       "name": "St. Matth\u00e4us-Kirche",
       "nearest_named_osm": {
@@ -2444,7 +2517,7 @@
         "tourism": "attraction"
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
       "best_osm_match": {
@@ -2504,10 +2577,10 @@
         "neue nationalgalerie"
       ],
       "lod2": {
-        "containing_building_id": null,
-        "contains_landmark": false,
-        "nearest_building_id": "DEBE3DWiMSMgX8rD",
-        "nearest_distance_m": 4.36
+        "containing_building_id": "DEBE3DoBzFlWN39S",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DoBzFlWN39S",
+        "nearest_distance_m": 0.0
       },
       "name": "Neue Nationalgalerie",
       "nearest_named_osm": {
@@ -2530,17 +2603,35 @@
         "tourism": "attraction"
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
-      "best_osm_match": null,
+      "best_osm_match": {
+        "amenity": "library",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "9261463",
+        "leisure": null,
+        "name": "Staatsbibliothek zu Berlin",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
       "expected_osm_aliases": [
-        "staatsbibliothek zu berlin haus potsdamer strasse"
+        "staatsbibliothek zu berlin"
       ],
       "lod2": {
-        "containing_building_id": "DEBE3DuhRz10dc4L",
+        "containing_building_id": "DEBE3DmkuL4bKIKU",
         "contains_landmark": true,
-        "nearest_building_id": "DEBE3DuhRz10dc4L",
+        "nearest_building_id": "DEBE3DmkuL4bKIKU",
         "nearest_distance_m": 0.0
       },
       "name": "Staatsbibliothek zu Berlin (Haus Potsdamer Stra\u00dfe)",
@@ -2564,7 +2655,7 @@
         "tourism": null
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
       "best_osm_match": {
@@ -2619,7 +2710,25 @@
       "status": "ok"
     },
     {
-      "best_osm_match": null,
+      "best_osm_match": {
+        "amenity": "parking",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 115.05,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "5969630218",
+        "leisure": null,
+        "name": "Parkhaus Mall of Berlin",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
       "expected_osm_aliases": [
         "mall of berlin"
       ],
@@ -2650,7 +2759,7 @@
         "tourism": null
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
       "best_osm_match": null,
@@ -2658,33 +2767,33 @@
         "kollhoff tower"
       ],
       "lod2": {
-        "containing_building_id": null,
-        "contains_landmark": false,
+        "containing_building_id": "DEBE3DjvWtTpo3vD",
+        "contains_landmark": true,
         "nearest_building_id": "DEBE3DjvWtTpo3vD",
-        "nearest_distance_m": 12.02
+        "nearest_distance_m": 0.0
       },
       "name": "Kollhoff-Tower",
       "nearest_named_osm": {
         "amenity": null,
         "bridge": null,
         "diplomatic": null,
-        "distance_m": 0.0,
-        "element": "relation",
-        "geometry_type": "Polygon",
+        "distance_m": 0.01,
+        "element": "way",
+        "geometry_type": "LineString",
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "13391598",
+        "id": "241574702",
         "leisure": null,
-        "name": "Berlin Potsdamer Platz",
+        "name": null,
         "office": null,
         "playground": null,
-        "railway": "platform",
+        "railway": "disused",
         "source_layer": "rail",
         "tourism": null
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
       "best_osm_match": {
@@ -2743,7 +2852,7 @@
         "amenity": null,
         "bridge": null,
         "diplomatic": null,
-        "distance_m": 104.18,
+        "distance_m": 0.0,
         "element": "way",
         "geometry_type": "Polygon",
         "government": null,
@@ -2764,8 +2873,8 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0002VJr",
-        "nearest_distance_m": 59.95
+        "nearest_building_id": "DEBE01AL2yz00000",
+        "nearest_distance_m": 50.09
       },
       "name": "Geschichtspark Ehemaliges Zellengef\u00e4ngnis Moabit",
       "nearest_named_osm": {
@@ -2778,9 +2887,9 @@
         "government": null,
         "highway": null,
         "historic": null,
-        "id": "185633562",
+        "id": "498278335",
         "leisure": "park",
-        "name": "D\u00f6beritzer Gr\u00fcnzug",
+        "name": "Geschichtspark Ehemaliges Zellengef\u00e4ngnis Moabit",
         "office": null,
         "playground": null,
         "railway": null,
@@ -2788,7 +2897,7 @@
         "tourism": null
       },
       "role": "owner_added",
-      "status": "review"
+      "status": "ok"
     },
     {
       "best_osm_match": {
@@ -2830,10 +2939,96 @@
         "geometry_type": "Polygon",
         "government": null,
         "highway": null,
-        "historic": "memorial",
-        "id": "40432523",
+        "historic": null,
+        "id": "176696872",
+        "leisure": "park",
+        "name": "Invalidenpark",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "rieckhallen"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE01YYK0002SQl",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE01YYK0002SQl",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Rieckhallen",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 17.37,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "service",
+        "historic": null,
+        "id": "500735912",
         "leisure": null,
-        "name": null,
+        "name": "Am Hamburger Bahnhof",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "courthouse",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "423490503",
+        "leisure": null,
+        "name": "Sozialgericht Berlin",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "sozialgericht berlin"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002Qys",
+        "nearest_distance_m": 7.65
+      },
+      "name": "Sozialgericht Berlin",
+      "nearest_named_osm": {
+        "amenity": "courthouse",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "423490503",
+        "leisure": null,
+        "name": "Sozialgericht Berlin",
         "office": null,
         "playground": null,
         "railway": null,
@@ -2842,9 +3037,701 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "11226443397",
+        "leisure": null,
+        "name": "KPMG",
+        "office": "consulting",
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "kpmg"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3De9JUgwVTiy",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3De9JUgwVTiy",
+        "nearest_distance_m": 0.0
+      },
+      "name": "KPMG Europacity",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "11226443397",
+        "leisure": null,
+        "name": "KPMG",
+        "office": "consulting",
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "dkb campus upbeat"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002PFv",
+        "nearest_distance_m": 164.14
+      },
+      "name": "DKB Campus Upbeat",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 20.35,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "construction",
+        "historic": null,
+        "id": "53191337",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "theatre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "305425477",
+        "leisure": null,
+        "name": "Kammermusiksaal",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "kammermusiksaal"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DbyaJ0e8oAr",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DbyaJ0e8oAr",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Kammermusiksaal",
+      "nearest_named_osm": {
+        "amenity": "theatre",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "305425477",
+        "leisure": null,
+        "name": "Kammermusiksaal",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "id": "11518845",
+        "leisure": null,
+        "name": "Tilla-Durieux-Park",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "tilla durieux park"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YY24s0007E",
+        "nearest_distance_m": 38.92
+      },
+      "name": "Tilla-Durieux-Park",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": "footway",
+        "historic": null,
+        "id": "11518845",
+        "leisure": null,
+        "name": "Tilla-Durieux-Park",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [
+        "berlin modern museum des 20 jahrhunderts"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DkIiO30Sz4V",
+        "nearest_distance_m": 54.47
+      },
+      "name": "berlin modern \u2014 Museum des 20. Jahrhunderts",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "43723722",
+        "leisure": null,
+        "name": "Kulturforum",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "review"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "1881346251",
+        "leisure": null,
+        "name": "Der Bogensch\u00fctze",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "artwork"
+      },
+      "expected_osm_aliases": [
+        "der bogenschutze"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DWiMSMgX8rD",
+        "nearest_distance_m": 6.59
+      },
+      "name": "Der Bogensch\u00fctze (Henry Moore)",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "43723722",
+        "leisure": null,
+        "name": "Kulturforum",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "attraction"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": "restaurant",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "46603834",
+        "leisure": null,
+        "name": "Caf\u00e9 am Neuen See",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "cafe am neuen see"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DFxyG0owFin",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DFxyG0owFin",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Caf\u00e9 am Neuen See",
+      "nearest_named_osm": {
+        "amenity": "restaurant",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "46603834",
+        "leisure": null,
+        "name": "Caf\u00e9 am Neuen See",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": "embassy",
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "121860160",
+        "leisure": null,
+        "name": "Spanische Botschaft",
+        "office": "diplomatic",
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "spanische botschaft"
+      ],
+      "lod2": {
+        "containing_building_id": "DEBE3DCzDC13dOb2",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DCzDC13dOb2",
+        "nearest_distance_m": 0.0
+      },
+      "name": "Spanische Botschaft",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": "embassy",
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "121860160",
+        "leisure": null,
+        "name": "Spanische Botschaft",
+        "office": "diplomatic",
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 17.14,
+        "element": "relation",
+        "geometry_type": "MultiPolygon",
+        "government": null,
+        "highway": null,
+        "historic": "city_gate",
+        "id": "13918836",
+        "leisure": null,
+        "name": "Charlottenburger Tor",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "charlottenburger tor"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE04YY500003qI",
+        "nearest_distance_m": 56.75
+      },
+      "name": "Charlottenburger Tor",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 7.56,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "primary",
+        "historic": null,
+        "id": "375759511",
+        "leisure": null,
+        "name": "Stra\u00dfe des 17. Juni",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "119369411",
+        "leisure": "garden",
+        "name": "Rosengarten",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "rosengarten"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DuA7zUTWjim",
+        "nearest_distance_m": 214.18
+      },
+      "name": "Rosengarten im Tiergarten",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "119369411",
+        "leisure": "garden",
+        "name": "Rosengarten",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "28586183",
+        "leisure": "park",
+        "name": "Luiseninsel",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "luiseninsel"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE01YYK0002Ufw",
+        "nearest_distance_m": 102.62
+      },
+      "name": "Luiseninsel",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "28586183",
+        "leisure": "park",
+        "name": "Luiseninsel",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "relation",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "11762769",
+        "leisure": null,
+        "name": "Anhalter Bahnhof",
+        "office": null,
+        "playground": null,
+        "railway": "platform",
+        "source_layer": "rail",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "anhalter bahnhof"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DSoSMPGtuId",
+        "nearest_distance_m": 11.25
+      },
+      "name": "Anhalter Bahnhof",
+      "nearest_named_osm": {
+        "amenity": "school",
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "321211413",
+        "leisure": null,
+        "name": "Fanny-Hensel-Grundschule",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "48124228",
+        "leisure": null,
+        "name": "Berlin Hi-Flyer",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": "viewpoint"
+      },
+      "expected_osm_aliases": [
+        "berlin hi flyer"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DkxwhkVzBMj",
+        "nearest_distance_m": 60.06
+      },
+      "name": "WELT Balloon",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "48124228",
+        "leisure": null,
+        "name": "Berlin Hi-Flyer",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": "viewpoint"
+      },
+      "role": "owner_added",
+      "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 3.9,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": "secondary",
+        "historic": null,
+        "id": "1421621496",
+        "leisure": null,
+        "name": "Kochstra\u00dfe",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "roads",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "kochstrasse"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DKf7Br738aj",
+        "nearest_distance_m": 8.9
+      },
+      "name": "Kochstra\u00dfe",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.03,
+        "element": "way",
+        "geometry_type": "LineString",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "387118472",
+        "leisure": null,
+        "name": "U6",
+        "office": null,
+        "playground": null,
+        "railway": "subway",
+        "source_layer": "rail",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
     }
   ],
-  "generated_at": "2026-08-02T01:14:29.839091+00:00",
+  "generated_at": "2026-08-09T02:12:45.827827+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -3189,23 +4076,23 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "a597b819198398462ce585473ea7f7f88f82002e17f36260730e3e740e7e1cff"
+      "sha256": "1f0fa3b72241b87a51d377009d31ce53158b6c49e0f629400d0c1d11807b888b"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
-      "sha256": "efe680812f987d2dbbfe805db2058de2a43304ad255898d24fd9df8b5689e2f3"
+      "sha256": "29c28ab1851a3b8e6ab5c7a803dcc82f475a2bf63d329ac1dc8e5ea9af75c1c8"
     },
     "osm": {
       "path": "geo_data/regierungsviertel/osm.gpkg",
-      "sha256": "a322eff64ba54d0f2e6ee3a323b434b56af6f293ec9dbc2b0f6bfc2933613ab0"
+      "sha256": "89c47f623179159f9ae7efea412e0915568d321f50b9ddf9e71adf637e22713d"
     }
   },
   "summary": {
-    "landmark_review_count": 9,
-    "landmarks_checked": 57,
+    "landmark_review_count": 2,
+    "landmarks_checked": 73,
     "relative_relationships_checked": 26,
     "relative_review_count": 0,
-    "review_count": 9,
+    "review_count": 2,
     "status": "review"
   }
 }

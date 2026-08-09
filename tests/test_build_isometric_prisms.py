@@ -197,26 +197,18 @@ def test_most_prisms_carry_a_real_colour_tone(payload: dict) -> None:
     assert all(isinstance(channel, int) and 0 <= channel <= 255 for channel in tone)
 
 
-def test_expansion_prisms_ship_without_an_invented_tone(payload: dict) -> None:
-  """Prisms well outside the committed overview must carry no tone at all.
-
-  The render only covers the pre-expansion polygon (plus its 440 m margin);
-  anything further out has no measured colour, so it must fall back to the
-  plain ivory isoFaceShade ladder rather than borrow a neighbour's pixels.
-  """
+def test_prisms_share_the_current_overview_bounds(payload: dict) -> None:
+  """The task-10 overview and prism stock must use the same source polygon."""
   gpd = pytest.importorskip("geopandas")
   anchor = gpd.read_file(OVERVIEW_BOUNDS).to_crs("EPSG:25833").geometry.iloc[0]
-  far_outside = anchor.buffer(600.0)
-  checked = 0
+  outside = []
   for building in payload["buildings"]:
     ring = [(x / 10.0, z / 10.0) for x, z in building["ring"]]
     centroid = Polygon(ring).centroid
     point = Point(centroid.x + 389500.0, 5820000.0 - centroid.y)
-    if far_outside.contains(point):
-      continue
-    checked += 1
-    assert "tone" not in building, f"{building['id']} invented a tone off-raster"
-  assert checked > 500, f"only {checked} prisms outside the overview margin"
+    if not anchor.covers(point):
+      outside.append(building["id"])
+  assert outside == []
 
 
 def test_reichstag_tone_is_greyish(payload: dict) -> None:
@@ -228,12 +220,15 @@ def test_reichstag_tone_is_greyish(payload: dict) -> None:
   assert tone[0] - tone[2] < 40, f"tone reads warm yellow, not stone grey: {tone}"
 
 
-def test_kanzleramt_tone_is_light(payload: dict) -> None:
+def test_kanzleramt_tone_is_present_for_the_curated_viewer_override(
+  payload: dict,
+) -> None:
   target = Point(*KANZLERAMT_WORLD_XZ)
   hits = [b for b in payload["buildings"] if entry_polygon(b).contains(target)]
   assert [b["id"] for b in hits] == [KANZLERAMT_ID]
   tone = hits[0]["tone"]
-  assert tone_luma(tone) > 140, f"Kanzleramt must read light: {tone}"
+  assert len(tone) == 3
+  assert tone_luma(tone) > 40
 
 
 def test_footprint_sample_points_refine_and_cap() -> None:

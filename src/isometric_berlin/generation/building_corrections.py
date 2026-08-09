@@ -82,6 +82,4 @@ def apply_building_corrections(buildings: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 def load_current_buildings(buildings_path: Path) -> gpd.GeoDataFrame:
   """Read ``buildings.gpkg`` as the district stands today."""
-  return apply_building_corrections(
-    gpd.read_file(buildings_path, layer="buildings")
-  )
+  return apply_building_corrections(gpd.read_file(buildings_path, layer="buildings"))

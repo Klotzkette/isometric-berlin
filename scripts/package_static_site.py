@@ -16,16 +16,18 @@ import re
 import shutil
 import stat
 import tarfile
+import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.64.0"
+PACKAGE_VERSION = "0.65.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
 ZIP_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
 ARCHIVE_MTIME = 1_767_225_600
+MAX_PACKAGED_DZI_DIMENSION = 8192
 SERVE_LOCAL_SCRIPT = """#!/usr/bin/env python3
 from __future__ import annotations
 
@@ -3164,6 +3166,51 @@ def ensure_public_dzi_metadata_copied(source: Path, target: Path) -> None:
     copy_file_contents(path, destination)
 
 
+def compact_packaged_dzi(package_dir: Path) -> None:
+  """Drop only redundant top DZI levels from downloadable archives.
+
+  The full hosted pyramid remains in ``src/app/dist``.  A power-of-two
+  descriptor reduction lets the package reuse the already generated lower
+  levels byte-for-byte, while retaining more fallback detail than the 6144 px
+  double-click overview and leaving the 3D mesh completely untouched.
+  """
+  root = package_dir / "dzi" / "regierungsviertel"
+  descriptor = root / "regierungsviertel.dzi"
+  tiles = root / "regierungsviertel_files"
+  if not descriptor.is_file() or not tiles.is_dir():
+    return
+
+  try:
+    tree = ET.parse(descriptor)
+    image = tree.getroot()
+    size = next(child for child in image if child.tag.endswith("Size"))
+    width = int(size.attrib["Width"])
+    height = int(size.attrib["Height"])
+  except (ET.ParseError, KeyError, StopIteration, ValueError) as exc:
+    raise SystemExit(f"Invalid packaged DZI descriptor: {descriptor}: {exc}") from exc
+
+  old_max_level = (max(width, height) - 1).bit_length()
+  new_max_level = old_max_level
+  scale = 1
+  while max(width, height) / scale > MAX_PACKAGED_DZI_DIMENSION:
+    scale *= 2
+    new_max_level -= 1
+  if scale == 1:
+    return
+
+  size.set("Width", str((width + scale - 1) // scale))
+  size.set("Height", str((height + scale - 1) // scale))
+  namespace = image.tag.partition("}")[0].removeprefix("{")
+  if namespace:
+    ET.register_namespace("", namespace)
+  tree.write(descriptor, encoding="utf-8", xml_declaration=True)
+
+  for level_dir in tiles.iterdir():
+    if level_dir.is_dir() and level_dir.name.isdigit():
+      if int(level_dir.name) > new_max_level:
+        shutil.rmtree(level_dir)
+
+
 def remove_unwanted_package_paths(package_dir: Path) -> None:
   for path in sorted(
     package_dir.rglob("*"), key=lambda item: len(item.parts), reverse=True
@@ -3623,7 +3670,11 @@ def write_package_manifest(package_dir: Path) -> None:
       "top-north-east-south-west-presets",
       "atlas-cinematic-lab-visual-profiles",
       "bilingual-de-en-ui",
-      "direct-day-night-minecraft-modes",
+      "direct-day-night-minecraft-snowstorm-modes",
+      "moderate-rain-toggle-in-all-surface-modes",
+      "native-and-ios-safe-pseudo-fullscreen",
+      "guided-tiergartentunnel-flight-both-directions",
+      "minecraft-roaming-creepers-and-zombies",
       "opt-in-seven-variant-procedural-audio",
       "persistent-offline-viewer-preferences",
       "persistent-last-landmark-and-view",
@@ -3727,6 +3778,7 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
   ensure_public_dzi_metadata_copied(public_source, package_dir)
   ensure_dzi_tiles_copied(source, package_dir)
   ensure_dzi_tiles_copied(public_source, package_dir)
+  compact_packaged_dzi(package_dir)
   write_start_here(package_dir)
   write_launchers(package_dir)
   write_readme(package_dir)
@@ -3735,7 +3787,7 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
   zip_path = out_dir / f"{PACKAGE_NAME}.zip"
   zip_package(package_dir, zip_path)
   static_archive = out_dir / STATIC_ARCHIVE_NAME
-  tar_static_site(source, static_archive)
+  tar_static_site(package_dir, static_archive)
   return package_dir, zip_path, static_archive
 
 

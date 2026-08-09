@@ -472,6 +472,40 @@ def test_ensure_dzi_tiles_copied_repairs_missing_package_level(tmp_path: Path) -
   assert repaired.read_bytes() == b"tile-level-8"
 
 
+def test_compact_packaged_dzi_reuses_lower_levels_and_keeps_3d_untouched(
+  tmp_path: Path,
+) -> None:
+  package_static_site = load_script_module(
+    "package_static_site_compact_dzi", "scripts/package_static_site.py"
+  )
+  package = tmp_path / "package"
+  dzi = package / "dzi" / "regierungsviertel"
+  tiles = dzi / "regierungsviertel_files"
+  for level in (13, 14):
+    level_dir = tiles / str(level)
+    level_dir.mkdir(parents=True)
+    (level_dir / "0_0.jpg").write_bytes(f"level-{level}".encode())
+  dzi.joinpath("regierungsviertel.dzi").write_text(
+    "<?xml version='1.0' encoding='utf-8'?>"
+    '<Image TileSize="256" Overlap="1" Format="jpg" '
+    'xmlns="http://schemas.microsoft.com/deepzoom/2008">'
+    '<Size Width="16384" Height="11616" /></Image>',
+    encoding="utf-8",
+  )
+  mesh = package / "mesh" / "regierungsviertel" / "tile.glb"
+  mesh.parent.mkdir(parents=True)
+  mesh.write_bytes(b"unchanged-3d")
+
+  package_static_site.compact_packaged_dzi(package)
+
+  descriptor = dzi.joinpath("regierungsviertel.dzi").read_text(encoding="utf-8")
+  assert 'Width="8192"' in descriptor
+  assert 'Height="5808"' in descriptor
+  assert (tiles / "13" / "0_0.jpg").read_bytes() == b"level-13"
+  assert not (tiles / "14").exists()
+  assert mesh.read_bytes() == b"unchanged-3d"
+
+
 def test_package_static_site_repairs_dzi_levels_from_public_source(
   tmp_path: Path,
 ) -> None:
@@ -493,7 +527,11 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
     "overview.png": b"overview",
     "overview_source.png": b"source",
     "reference_map.png": b"reference",
-    "regierungsviertel.dzi": b"dzi",
+    "regierungsviertel.dzi": (
+      b'<Image TileSize="256" Overlap="1" Format="jpg" '
+      b'xmlns="http://schemas.microsoft.com/deepzoom/2008">'
+      b'<Size Width="1" Height="1" /></Image>'
+    ),
     "tiergartentunnel.json": b'{"routes":[]}',
     "wikimedia_attribution.json": b"{}",
   }.items():

@@ -15,20 +15,22 @@ describe("drawn filling stations (OSM amenity=fuel)", () => {
   const stations = street.fuel_stations!;
   const drawn = createFuelStations(street, ground)!;
 
-  test("the payload carries the three mapped stations with an axis", () => {
+  test("the payload carries every mapped station in the expanded area with an axis", () => {
     expect(stations.map((entry) => entry.name).sort()).toEqual([
+      "Aral",
       "Aral",
       "Esso",
       "Shell",
+      "Total",
     ]);
     for (const station of stations) {
       const [ax, az] = station.axis;
       expect(Math.hypot(ax, az)).toBeCloseTo(1, 3);
     }
-    // Only the Shell on Paulstraße is a mapped area; the other two are
-    // nodes whose forecourt is derived from the frontage road.
+    // Shell and Total are mapped areas; the other three are nodes whose
+    // forecourt is derived from the frontage road.
     const surveyed = stations.filter((entry) => entry.surveyed_outline);
-    expect(surveyed.map((entry) => entry.name)).toEqual(["Shell"]);
+    expect(surveyed.map((entry) => entry.name).sort()).toEqual(["Shell", "Total"]);
   });
 
   test("the node-only Esso keeps the axis of its mapped canopy", () => {
@@ -46,10 +48,10 @@ describe("drawn filling stations (OSM amenity=fuel)", () => {
     expect(drawn.getObjectByName("filling station ink lines")).toBeInstanceOf(
       LineSegments,
     );
-    // Three canopies, four posts, two islands with two dispensers each and
+    // Every canopy has four posts, two islands with two dispensers each and
     // a totem: enough boxes that a bare row of pumps cannot pass this.
     const position = bodies.geometry.getAttribute("position");
-    expect(position.count).toBeGreaterThan(3 * 18 * 24);
+    expect(position.count).toBeGreaterThan(stations.length * 18 * 24);
     const bounds = new Box3().setFromObject(bodies);
     // The price totem is the tallest part of a forecourt, and no part of
     // one reaches the height of the buildings around it.

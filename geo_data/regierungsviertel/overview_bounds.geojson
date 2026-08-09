@@ -7,19 +7,30 @@
       "type": "Feature",
       "properties": {
         "name": "Projection anchor of the committed overview raster",
-        "description": "The polygon that was in bounds.geojson when src/app/public/dzi/regierungsviertel/overview_source.png was rendered. overview_projection() derives the render centre and px/m scale from the bounds extent, so the tone sampler in build_isometric_prisms must keep using THIS polygon, not the live bounds. Buildings in the task-09 expansion fall outside this raster and are written without a tone, which the viewer draws in the plain ivory isoFaceShade ladder.",
-        "source": "bounds.geojson as of v0.40.0 (commit 8b0728b) — the MVP polygon the overview render was projected from"
+        "description": "The polygon used to render src/app/public/dzi/regierungsviertel/overview_source.png for v0.65.0. overview_projection() derives the render centre and px/m scale from this exact extent, so the LoD2 prism tone sampler, DZI markers and offline overview stay metrically aligned.",
+        "source": "bounds.geojson as of v0.65.0 — task-10 Europacity, Tiergarten and southern-history expansion"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [13.3752, 52.5059],
-          [13.3654, 52.5100],
-          [13.36091, 52.5188],
-          [13.36902, 52.52812],
-          [13.3784, 52.52044],
-          [13.38047, 52.5163],
-          [13.3752, 52.5059]
+          [13.3925, 52.5110],
+          [13.3925, 52.5022],
+          [13.3770, 52.5022],
+          [13.3650, 52.5045],
+          [13.3630, 52.5075],
+          [13.3560, 52.5080],
+          [13.3400, 52.5085],
+          [13.3295, 52.5082],
+          [13.3295, 52.5210],
+          [13.3450, 52.5215],
+          [13.3560, 52.5230],
+          [13.3590, 52.5320],
+          [13.3570, 52.5420],
+          [13.3755, 52.5420],
+          [13.3795, 52.5310],
+          [13.3815, 52.5195],
+          [13.3850, 52.5160],
+          [13.3925, 52.5110]
         ]]
       }
     }

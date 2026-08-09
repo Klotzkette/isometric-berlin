@@ -5,17 +5,19 @@ The MVP polygon is stored at
 
 ## Landmarks (must be inside the polygon)
 
-| Landmark | Approx. lat, lng |
-|---|---|
-| Brandenburger Tor | 52.5163, 13.3777 |
-| Reichstagsgebäude | 52.5186, 13.3761 |
-| Bundeskanzleramt | 52.5200, 13.3692 |
-| Paul-Löbe-Haus | 52.5195, 13.3736 |
-| Marie-Elisabeth-Lüders-Haus | 52.5197, 13.3760 |
-| Berlin Hauptbahnhof | 52.5251, 13.3694 |
-| Haus der Kulturen der Welt ("Schwangere Auster") | 52.5189, 13.3640 |
-| Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz) | 52.5096, 13.3743 |
-| Spielplatz an der Luiseninsel | 52.5108, 13.3669 |
+The machine-readable catalogue in `landmarks.geojson` is canonical and
+currently contains 73 checked places. It includes the government core and
+Pariser Platz; Hauptbahnhof, Hamburger Bahnhof and Europacity; the full
+Tiergarten to Charlottenburger Tor; Kulturforum and Potsdamer/Leipziger Platz;
+and the southern extension to Anhalter Bahnhof, Kochstraße and the WELT
+balloon. The catalogue also carries both Tiergartentunnel portals and the
+approximate underground reference route.
+
+The current WGS84 extent is approximately `13.3295,52.5022` to
+`13.3925,52.5420` (EPSG:25833 `386626.58,5818111.23` to
+`390908.90,5822592.07`). The corresponding versioned presentation radius is
+5,130 m; it is a viewer/camera envelope, not a claim that every point in that
+circle is surveyed.
 
 ## Editing
 
@@ -27,12 +29,13 @@ uv run python -m isometric_berlin.generation.create_bounds
 ```
 
 It starts a local Flask server on `127.0.0.1:8765`, shows OSM raster
-tiles with the current polygon and the nine required context markers, lets you
+tiles with the current polygon and all required context markers, lets you
 drag the polygon vertices, and saves back to
 `geo_data/regierungsviertel/bounds.geojson`. The polygon is always kept
 as a single, closed, simple polygon (no holes, no multipolygons).
 
-The committed polygon was seeded from the convex hull of the original eight
-landmarks plus a ~180 m margin. Its south-west edge has one tightly scoped
-correction to include the owner-requested Luiseninsel playground without
-expanding into another district.
+The polygon began as a landmark-fitted Regierungsviertel hull and has since
+been expanded through explicitly versioned tasks. The current task-10 lobe
+keeps the requested central-Berlin places while avoiding a blanket Berlin-wide
+rectangle. Every fetcher and generated payload clips back to this exact
+geometry.

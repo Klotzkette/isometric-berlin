@@ -4,7 +4,13 @@ import { letteringLayout } from "../src/drawnLettering";
 
 describe("shared drawn alphabet", () => {
   test("covers every word the scene has to set", () => {
-    for (const text of ["DEM DEUTSCHEN VOLKE", "STARBUCKS"]) {
+    for (const text of [
+      "DEM DEUTSCHEN VOLKE",
+      "STARBUCKS",
+      "KPMG",
+      "DKB",
+      "WELT",
+    ]) {
       expect(() => letteringLayout(text, 0.5)).not.toThrow();
     }
   });

@@ -25,7 +25,9 @@ import {
   LocateFixed,
   Map as MapIcon,
   MapPinned,
+  Maximize2,
   Minus,
+  Minimize2,
   Music,
   Moon,
   MoreHorizontal,
@@ -38,6 +40,7 @@ import {
   Rotate3D,
   SkipBack,
   SkipForward,
+  Snowflake,
   Sun,
   Volume2,
   VolumeX,
@@ -53,10 +56,7 @@ import {
   useState,
 } from "react";
 
-import {
-  ThreeViewer,
-  type ThreeViewerHandle,
-} from "./ThreeViewer";
+import { ThreeViewer, type ThreeViewerHandle } from "./ThreeViewer";
 import {
   AmbientSoundscape,
   isAmbientAudioSupported,
@@ -68,6 +68,7 @@ import {
 } from "./audioAutostart";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { discoveryNoteFor } from "./discoveryNotes";
+import { isReservedBrowserChord } from "./keyboardShortcuts";
 import {
   LANGUAGE_STORAGE_KEY,
   UI_COPY,
@@ -75,6 +76,7 @@ import {
   initialLanguage,
 } from "./localization";
 import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
+import type { TunnelFlightDirection } from "./tunnelFlight";
 import {
   isNightLightsOnByUser,
   rememberNightLightsOn,
@@ -139,10 +141,10 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
   "Hugo-Preuß-Brücke": "Hugo-Preuß-Brücke",
   "Rahel-Hirsch-Straße": "Rahel-Hirsch-Straße",
   Moltkebrücke: "Moltkebrücke",
-  "Bundeskanzleramt": "Kanzleramt",
+  Bundeskanzleramt: "Kanzleramt",
   "Marie-Elisabeth-Lüders-Haus": "M.-E.-Lüders-Haus",
   "Paul-Löbe-Haus": "Paul-Löbe-Haus",
-  "Reichstagsgebäude": "Reichstag",
+  Reichstagsgebäude: "Reichstag",
   "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas":
     "Sinti/Roma-Denkmal",
   "Sowjetisches Ehrenmal Tiergarten": "Sowjetisches Ehrenmal",
@@ -158,7 +160,7 @@ const LANDMARK_SHORT_LABELS: Record<string, string> = {
   "Beethoven-Haydn-Mozart-Denkmal": "B/H/M-Denkmal",
   "Goethe-Denkmal": "Goethe-Denkmal",
   "Kemperplatz / Tiergartentunnel": "Kemperplatz",
-  "Zollpackhof": "Zollpackhof",
+  Zollpackhof: "Zollpackhof",
   "Gustav-Heinemann-Brücke": "Gustav-Heinemann-Brücke",
   Spreebogen: "Spreebogen",
   "Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)":
@@ -305,12 +307,14 @@ function roleLabel(role: string, language: Language): string {
 
 function orientationLabel(short: string, language: Language): string {
   const copy = UI_COPY[language];
-  return {
-    N: copy.northUp,
-    O: copy.eastUp,
-    S: copy.southUp,
-    W: copy.westUp,
-  }[short] ?? short;
+  return (
+    {
+      N: copy.northUp,
+      O: copy.eastUp,
+      S: copy.southUp,
+      W: copy.westUp,
+    }[short] ?? short
+  );
 }
 
 function orientationShort(short: string, language: Language): string {
@@ -345,7 +349,9 @@ function findLandmarkBySlug(
   if (!slug) {
     return null;
   }
-  return landmarks.find((landmark) => landmarkSlug(landmark.name) === slug) ?? null;
+  return (
+    landmarks.find((landmark) => landmarkSlug(landmark.name) === slug) ?? null
+  );
 }
 
 function sortLandmarksForTour(landmarks: Landmark[]): Landmark[] {
@@ -446,7 +452,8 @@ function FlightJoystick({
       const dx = event.clientX - (rect.left + rect.width / 2);
       const dy = event.clientY - (rect.top + rect.height / 2);
       const length = Math.hypot(dx, dy);
-      const scale = length > JOYSTICK_RADIUS_PX ? JOYSTICK_RADIUS_PX / length : 1;
+      const scale =
+        length > JOYSTICK_RADIUS_PX ? JOYSTICK_RADIUS_PX / length : 1;
       const x = dx * scale;
       const y = dy * scale;
       setKnob({ x, y });
@@ -505,13 +512,14 @@ function FlightJoystick({
 }
 
 export function App() {
+  const appShellRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
   // "Dusk Republic": enabled on every load, but Web Audio starts only from
   // the visitor's first gesture. Turning it off applies to this session.
   const chiptuneRef = useRef<DuskChiptune | null>(null);
-  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(
-    () => isChiptuneSupported(),
+  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(() =>
+    isChiptuneSupported(),
   );
   // Intent is on from the first frame, but a browser that blocks autoplay
   // leaves the page silent. The toggle follows this, not the intent, so it
@@ -552,6 +560,10 @@ export function App() {
     isNightLightsOnByUser,
   );
   const [rainEnabled, setRainEnabled] = useState(false);
+  const [pendingTunnelFlight, setPendingTunnelFlight] =
+    useState<TunnelFlightDirection | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
@@ -573,10 +585,14 @@ export function App() {
     x: number;
     y: number;
   } | null>(null);
-  const [discoveryLandmark, setDiscoveryLandmark] = useState<string | null>(null);
+  const [discoveryLandmark, setDiscoveryLandmark] = useState<string | null>(
+    null,
+  );
   const [isAttributionOpen, setIsAttributionOpen] = useState(() => {
     try {
-      const seen = window.sessionStorage.getItem("isometric-berlin.attributionSeen");
+      const seen = window.sessionStorage.getItem(
+        "isometric-berlin.attributionSeen",
+      );
       window.sessionStorage.setItem("isometric-berlin.attributionSeen", "true");
       return seen !== "true";
     } catch {
@@ -656,10 +672,7 @@ export function App() {
         undefined,
         shouldMoveImmediately,
       );
-      viewer.viewport.panTo(
-        point.plus(mobileOffset),
-        shouldMoveImmediately,
-      );
+      viewer.viewport.panTo(point.plus(mobileOffset), shouldMoveImmediately);
     },
     [copy.focus, isCompactLayout, viewerMode],
   );
@@ -997,29 +1010,35 @@ export function App() {
     setMobileSheet(null);
   }, [isCompactLayout]);
 
-  const applyRotation = useCallback((degrees: number) => {
-    const next = normalizeRotation(degrees);
-    if (viewerMode === "three") {
-      threeViewerRef.current?.setAzimuth(threeAzimuthForMapRotation(next));
-      setRotation(next);
-      return;
-    }
-    viewerRef.current?.viewport.setRotation(next);
-    setRotation(next);
-  }, [viewerMode]);
-
-  const rotateBy = useCallback((delta: number) => {
-    if (viewerMode === "three") {
-      threeViewerRef.current?.rotateBy(delta);
-      setRotation((current) => normalizeRotation(current + delta));
-      return;
-    }
-    setRotation((current) => {
-      const next = normalizeRotation(current + delta);
+  const applyRotation = useCallback(
+    (degrees: number) => {
+      const next = normalizeRotation(degrees);
+      if (viewerMode === "three") {
+        threeViewerRef.current?.setAzimuth(threeAzimuthForMapRotation(next));
+        setRotation(next);
+        return;
+      }
       viewerRef.current?.viewport.setRotation(next);
-      return next;
-    });
-  }, [viewerMode]);
+      setRotation(next);
+    },
+    [viewerMode],
+  );
+
+  const rotateBy = useCallback(
+    (delta: number) => {
+      if (viewerMode === "three") {
+        threeViewerRef.current?.rotateBy(delta);
+        setRotation((current) => normalizeRotation(current + delta));
+        return;
+      }
+      setRotation((current) => {
+        const next = normalizeRotation(current + delta);
+        viewerRef.current?.viewport.setRotation(next);
+        return next;
+      });
+    },
+    [viewerMode],
+  );
 
   const toggleHorizontalFlip = useCallback(() => {
     if (viewerMode === "three") {
@@ -1092,45 +1111,53 @@ export function App() {
       return;
     }
     const bounds = viewport.getBounds();
-    viewport.panBy(new OpenSeadragon.Point(bounds.width * dx, bounds.height * dy));
+    viewport.panBy(
+      new OpenSeadragon.Point(bounds.width * dx, bounds.height * dy),
+    );
     viewport.applyConstraints();
   }, []);
 
-  const flyBy = useCallback((horizontal: number, vertical: number) => {
-    setIsTouring(false);
-    threeViewerRef.current?.flyBy(horizontal, vertical);
-    setStatus(
-      language === "de"
-        ? horizontal < 0
-          ? "3D-Flug: links"
-          : horizontal > 0
-            ? "3D-Flug: rechts"
-            : vertical > 0
-              ? "3D-Flug: aufwärts"
-              : "3D-Flug: abwärts"
-        : horizontal < 0
-          ? "3D flight: left"
-          : horizontal > 0
-            ? "3D flight: right"
-            : vertical > 0
-              ? "3D flight: up"
-              : "3D flight: down",
-    );
-  }, [language]);
+  const flyBy = useCallback(
+    (horizontal: number, vertical: number) => {
+      setIsTouring(false);
+      threeViewerRef.current?.flyBy(horizontal, vertical);
+      setStatus(
+        language === "de"
+          ? horizontal < 0
+            ? "3D-Flug: links"
+            : horizontal > 0
+              ? "3D-Flug: rechts"
+              : vertical > 0
+                ? "3D-Flug: aufwärts"
+                : "3D-Flug: abwärts"
+          : horizontal < 0
+            ? "3D flight: left"
+            : horizontal > 0
+              ? "3D flight: right"
+              : vertical > 0
+                ? "3D flight: up"
+                : "3D flight: down",
+      );
+    },
+    [language],
+  );
 
-  const flyForwardBy = useCallback((strafe: number, forward: number) => {
-    setIsTouring(false);
-    threeViewerRef.current?.flyForwardBy(strafe, forward);
-    setStatus(
-      strafe < 0
-        ? copy.flyLeft
-        : strafe > 0
-          ? copy.flyRight
-          : forward > 0
-            ? copy.flyForward
-            : copy.flyBack,
-    );
-  }, [copy.flyBack, copy.flyForward, copy.flyLeft, copy.flyRight]);
+  const flyForwardBy = useCallback(
+    (strafe: number, forward: number) => {
+      setIsTouring(false);
+      threeViewerRef.current?.flyForwardBy(strafe, forward);
+      setStatus(
+        strafe < 0
+          ? copy.flyLeft
+          : strafe > 0
+            ? copy.flyRight
+            : forward > 0
+              ? copy.flyForward
+              : copy.flyBack,
+      );
+    },
+    [copy.flyBack, copy.flyForward, copy.flyLeft, copy.flyRight],
+  );
 
   const setFlightInput = useCallback(
     (strafe: number, forward: number, vertical: number) => {
@@ -1175,10 +1202,14 @@ export function App() {
     window.history.replaceState(null, "", url);
     try {
       await navigator.clipboard.writeText(url);
-      setStatus(language === "de" ? "Ansicht-Link kopiert" : "View link copied");
+      setStatus(
+        language === "de" ? "Ansicht-Link kopiert" : "View link copied",
+      );
     } catch {
       setStatus(
-        language === "de" ? "Ansicht-Link in Adresszeile" : "View link in address bar",
+        language === "de"
+          ? "Ansicht-Link in Adresszeile"
+          : "View link in address bar",
       );
     }
   }, [isFlipped, language, rotation, selectedLandmark]);
@@ -1189,24 +1220,38 @@ export function App() {
     }
     setIsTouring((current) => {
       const next = !current;
-      setStatus(next ? (language === "de" ? "Tour läuft" : "Tour running") : copy.ready);
+      setStatus(
+        next ? (language === "de" ? "Tour läuft" : "Tour running") : copy.ready,
+      );
       if (next && selectedIndex < 0) {
         focusLandmark(landmarks[0], true);
       }
       return next;
     });
-  }, [canNavigateLandmarks, copy.ready, focusLandmark, landmarks, language, selectedIndex]);
+  }, [
+    canNavigateLandmarks,
+    copy.ready,
+    focusLandmark,
+    landmarks,
+    language,
+    selectedIndex,
+  ]);
 
-  const selectVisualMode = useCallback((next: VisualMode) => {
-    setLightingMode(next);
-    setStatus(
-      next === "minecraft"
-        ? `${copy.minecraft} · Premium Voxel`
-        : next === "night"
-          ? copy.night
-          : copy.day,
-    );
-  }, [copy]);
+  const selectVisualMode = useCallback(
+    (next: VisualMode) => {
+      setLightingMode(next);
+      setStatus(
+        next === "minecraft"
+          ? `${copy.minecraft} · Premium Voxel`
+          : next === "night"
+            ? copy.night
+            : next === "snowstorm"
+              ? copy.snowstorm
+              : copy.day,
+      );
+    },
+    [copy],
+  );
 
   const resetToDefaultView = useCallback(() => {
     const target = resolveResetView();
@@ -1239,6 +1284,11 @@ export function App() {
     selectVisualMode(next);
   }, [lightingMode, selectVisualMode]);
 
+  const toggleSnowstormMode = useCallback(() => {
+    const next: VisualMode = lightingMode === "snowstorm" ? "day" : "snowstorm";
+    selectVisualMode(next);
+  }, [lightingMode, selectVisualMode]);
+
   // "Licht an/aus": only meaningful in night mode (supportsNightLightsToggle
   // guards the UI too), persisted exactly like music mute.
   const toggleNightLights = useCallback(() => {
@@ -1248,11 +1298,7 @@ export function App() {
     setNightLightsOn((current) => {
       const next = !current;
       rememberNightLightsOn(next);
-      setStatus(
-        next
-          ? copy.nightLightsOn
-          : copy.nightLightsOff,
-      );
+      setStatus(next ? copy.nightLightsOn : copy.nightLightsOff);
       return next;
     });
   }, [copy, lightingMode]);
@@ -1271,16 +1317,91 @@ export function App() {
       setIsThreeReady(false);
     }
     setViewerMode(next);
-    setStatus(
-      next === "three"
-        ? copy.loadingMesh
-        : copy.loadingMap,
-    );
+    setStatus(next === "three" ? copy.loadingMesh : copy.loadingMap);
   }, [copy.loadingMap, copy.loadingMesh, keepThreeWarm, viewerMode]);
 
   const toggleChrome = useCallback(() => {
     setMobileSheet(null);
     setIsChromeHidden((hidden) => !hidden);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    const shell = appShellRef.current;
+    if (!shell) {
+      return;
+    }
+    if (isPseudoFullscreen) {
+      setIsPseudoFullscreen(false);
+      return;
+    }
+    const mobileLike =
+      window.innerWidth <= 1_024 ||
+      window.matchMedia("(pointer: coarse)").matches;
+    if (mobileLike) {
+      setIsPseudoFullscreen(true);
+      return;
+    }
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+      if (shell.requestFullscreen) {
+        await Promise.race([
+          shell.requestFullscreen({ navigationUI: "hide" }),
+          new Promise<void>((resolve) => window.setTimeout(resolve, 450)),
+        ]);
+        if (document.fullscreenElement) {
+          return;
+        }
+      }
+    } catch {
+      // iOS Safari does not expose element fullscreen for ordinary pages.
+    }
+    setIsPseudoFullscreen(true);
+  }, [isPseudoFullscreen]);
+
+  const startTunnelFlight = useCallback(
+    (direction: TunnelFlightDirection) => {
+      setIsTouring(false);
+      setMobileSheet(null);
+      if (viewerMode !== "three" || !isThreeReady) {
+        setPendingTunnelFlight(direction);
+        setViewerMode("three");
+        return;
+      }
+      const started = threeViewerRef.current?.startTunnelFlight(direction);
+      if (started) {
+        setStatus(
+          direction === "north-to-south"
+            ? copy.tunnelSouthbound
+            : copy.tunnelNorthbound,
+        );
+      }
+    },
+    [copy.tunnelNorthbound, copy.tunnelSouthbound, isThreeReady, viewerMode],
+  );
+
+  useEffect(() => {
+    if (!pendingTunnelFlight || viewerMode !== "three" || !isThreeReady) {
+      return;
+    }
+    const direction = pendingTunnelFlight;
+    setPendingTunnelFlight(null);
+    const timer = window.setTimeout(() => startTunnelFlight(direction), 0);
+    return () => window.clearTimeout(timer);
+  }, [isThreeReady, pendingTunnelFlight, startTunnelFlight, viewerMode]);
+
+  useEffect(() => {
+    const update = () => {
+      const active = document.fullscreenElement !== null;
+      setIsFullscreen(active);
+      if (active) {
+        setIsPseudoFullscreen(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", update);
+    return () => document.removeEventListener("fullscreenchange", update);
   }, []);
 
   const dismissCoachMark = useCallback(() => {
@@ -1504,11 +1625,12 @@ export function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Browser chords (Cmd+L, Ctrl+D, …) must never be hijacked by the
       // single-letter shortcuts below.
-      if (event.ctrlKey || event.metaKey || event.altKey) {
+      if (isReservedBrowserChord(event)) {
         return;
       }
       if (event.key === "Escape") {
         stopHeldFlight();
+        setIsPseudoFullscreen(false);
         closeReferenceMap();
         setIsHelpOpen(false);
         setIsRepositoryOpen(false);
@@ -1546,6 +1668,26 @@ export function App() {
       if (event.key.toLowerCase() === "m") {
         event.preventDefault();
         toggleMinecraftMode();
+        return;
+      }
+      if (event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        toggleSnowstormMode();
+        return;
+      }
+      if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        void toggleFullscreen();
+        return;
+      }
+      if (event.key === "[") {
+        event.preventDefault();
+        startTunnelFlight("north-to-south");
+        return;
+      }
+      if (event.key === "]") {
+        event.preventDefault();
+        startTunnelFlight("south-to-north");
         return;
       }
       if (event.key.toLowerCase() === "n") {
@@ -1632,7 +1774,9 @@ export function App() {
         setIsTouring(false);
         if (viewerMode === "three" && event.altKey) {
           tiltBy(-6);
-          setStatus(language === "de" ? "3D-Neigung: höher" : "3D tilt: higher");
+          setStatus(
+            language === "de" ? "3D-Neigung: höher" : "3D tilt: higher",
+          );
         } else if (viewerMode === "three" && event.shiftKey) {
           flyForwardBy(0, 1);
         } else if (viewerMode === "three") {
@@ -1649,7 +1793,9 @@ export function App() {
         setIsTouring(false);
         if (viewerMode === "three" && event.altKey) {
           tiltBy(6);
-          setStatus(language === "de" ? "3D-Neigung: tiefer" : "3D tilt: lower");
+          setStatus(
+            language === "de" ? "3D-Neigung: tiefer" : "3D tilt: lower",
+          );
         } else if (viewerMode === "three" && event.shiftKey) {
           flyForwardBy(0, -1);
         } else if (viewerMode === "three") {
@@ -1742,10 +1888,13 @@ export function App() {
     resetToDefaultView,
     rotateBy,
     setFlightInput,
+    startTunnelFlight,
     tiltBy,
     toggleTour,
     toggleLightingMode,
     toggleMinecraftMode,
+    toggleSnowstormMode,
+    toggleFullscreen,
     toggleMusic,
     toggleNightLights,
     toggleSoundtrack,
@@ -1762,7 +1911,10 @@ export function App() {
       referenceReturnFocusRef.current = null;
       return;
     }
-    const timer = window.setTimeout(() => closeReferenceButtonRef.current?.focus(), 0);
+    const timer = window.setTimeout(
+      () => closeReferenceButtonRef.current?.focus(),
+      0,
+    );
     return () => window.clearTimeout(timer);
   }, [isReferenceOpen]);
 
@@ -1867,9 +2019,7 @@ export function App() {
         const average =
           frameTimes.reduce((sum, frameTime) => sum + frameTime, 0) /
           frameTimes.length;
-        console.debug(
-          `[viewer] touch momentum ${average.toFixed(1)} ms/frame`,
-        );
+        console.debug(`[viewer] touch momentum ${average.toFixed(1)} ms/frame`);
         frameTimes.length = 0;
       });
     }
@@ -1999,12 +2149,7 @@ export function App() {
   // an overlay. Navigation belongs to the landmark rail, not 39 map dots.
   useEffect(() => {
     const viewer = viewerRef.current;
-    if (
-      viewerMode !== "map" ||
-      !viewer ||
-      !isMapReady ||
-      !selectedLandmark
-    ) {
+    if (viewerMode !== "map" || !viewer || !isMapReady || !selectedLandmark) {
       return;
     }
     viewer.clearOverlays();
@@ -2041,11 +2186,13 @@ export function App() {
 
   return (
     <main
+      ref={appShellRef}
       className={[
         "app-shell",
         isTouring ? "app-shell--touring" : "",
         `app-shell--${lightingMode}`,
         isChromeHidden ? "app-shell--chrome-hidden" : "",
+        isPseudoFullscreen ? "app-shell--pseudo-fullscreen" : "",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -2062,7 +2209,11 @@ export function App() {
         if (lightingMode !== "minecraft") {
           return;
         }
-        setMinecraftSpark({ id: Date.now(), x: event.clientX, y: event.clientY });
+        setMinecraftSpark({
+          id: Date.now(),
+          x: event.clientX,
+          y: event.clientY,
+        });
         if (minecraftSparkTimerRef.current !== null) {
           window.clearTimeout(minecraftSparkTimerRef.current);
         }
@@ -2106,6 +2257,7 @@ export function App() {
               );
             }}
             onError={(message) => {
+              console.error(`Isometric Berlin 3D: ${message}`);
               setIsThreeReady(false);
               setStatus(
                 `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
@@ -2124,11 +2276,14 @@ export function App() {
             }}
           />
         ) : null}
-        {rainEnabled && viewerMode === "map" ? (
+        {rainEnabled && viewerMode === "map" && lightingMode !== "snowstorm" ? (
           <div
             className={`map-rain map-rain--${lightingMode}`}
             aria-hidden="true"
           />
+        ) : null}
+        {lightingMode === "snowstorm" && viewerMode === "map" ? (
+          <div className="map-snowstorm" aria-hidden="true" />
         ) : null}
       </section>
       {minecraftSpark ? (
@@ -2171,9 +2326,11 @@ export function App() {
                 : landmarkShortLabel(selectedLandmark?.name ?? status)}
             </strong>
             <small>
-              {selectedIndex >= 0 ? selectedIndex + 1 : 1}/{landmarks.length || 1}
+              {selectedIndex >= 0 ? selectedIndex + 1 : 1}/
+              {landmarks.length || 1}
               {` · ${viewerMode === "three" ? "3D" : "2D"}`}
               {lightingMode === "minecraft" ? " · Voxel" : ""}
+              {lightingMode === "snowstorm" ? " · Snow" : ""}
             </small>
           </span>
         </button>
@@ -2215,9 +2372,7 @@ export function App() {
           <button
             type="button"
             aria-label={
-              viewerMode === "three"
-                ? copy.switchToMap
-                : copy.switchToThreeD
+              viewerMode === "three" ? copy.switchToMap : copy.switchToThreeD
             }
             aria-pressed={viewerMode === "three"}
             title={viewerMode === "three" ? copy.map : copy.threeD}
@@ -2256,7 +2411,9 @@ export function App() {
               <button
                 type="button"
                 className="night-lights-toggle"
-                aria-label={nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn}
+                aria-label={
+                  nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn
+                }
                 aria-pressed={nightLightsOn}
                 title={`${nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn} (N)`}
                 onClick={toggleNightLights}
@@ -2277,12 +2434,22 @@ export function App() {
             >
               <MinecraftCubeIcon size={18} />
             </button>
+            <button
+              type="button"
+              aria-label={copy.snowstorm}
+              aria-pressed={lightingMode === "snowstorm"}
+              title={`${copy.snowstorm} (S)`}
+              onClick={() => selectVisualMode("snowstorm")}
+            >
+              <Snowflake size={18} aria-hidden="true" />
+            </button>
           </div>
           <button
             type="button"
             className="rain-toggle"
             aria-label={rainEnabled ? copy.rainOff : copy.rainOn}
             aria-pressed={rainEnabled}
+            disabled={lightingMode === "snowstorm"}
             title={rainEnabled ? copy.rainOff : copy.rainOn}
             onClick={toggleRain}
           >
@@ -2290,9 +2457,32 @@ export function App() {
           </button>
           <button
             type="button"
+            aria-label={
+              isFullscreen || isPseudoFullscreen
+                ? copy.fullscreenExit
+                : copy.fullscreenEnter
+            }
+            aria-pressed={isFullscreen || isPseudoFullscreen}
+            title={`${
+              isFullscreen || isPseudoFullscreen
+                ? copy.fullscreenExit
+                : copy.fullscreenEnter
+            } (F)`}
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen || isPseudoFullscreen ? (
+              <Minimize2 size={18} aria-hidden="true" />
+            ) : (
+              <Maximize2 size={18} aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
             className="language-toggle"
             aria-label={`${copy.language}: ${language === "de" ? "Deutsch" : "English"}`}
-            title={language === "de" ? "Switch to English" : "Auf Deutsch wechseln"}
+            title={
+              language === "de" ? "Switch to English" : "Auf Deutsch wechseln"
+            }
             onClick={toggleLanguage}
           >
             <Languages size={17} aria-hidden="true" />
@@ -2430,17 +2620,9 @@ export function App() {
         <button
           type="button"
           className="chrome-toggle"
-          aria-label={
-            isChromeHidden
-              ? copy.showControls
-              : copy.hideControls
-          }
+          aria-label={isChromeHidden ? copy.showControls : copy.hideControls}
           aria-pressed={isChromeHidden}
-          title={
-            isChromeHidden
-              ? copy.showControls
-              : copy.hideControls
-          }
+          title={isChromeHidden ? copy.showControls : copy.hideControls}
           onClick={toggleChrome}
         >
           {isChromeHidden ? (
@@ -2569,6 +2751,32 @@ export function App() {
             </button>
           </div>
         ) : null}
+        {viewerMode === "three" ? (
+          <div
+            className="control-row tunnel-flight-controls"
+            role="group"
+            aria-label="Tiergartentunnel"
+          >
+            <button
+              type="button"
+              aria-label={copy.tunnelSouthbound}
+              disabled={!isReady}
+              title={`${copy.tunnelSouthbound} ([)`}
+              onClick={() => startTunnelFlight("north-to-south")}
+            >
+              <ArrowDown size={17} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={copy.tunnelNorthbound}
+              disabled={!isReady}
+              title={`${copy.tunnelNorthbound} (])`}
+              onClick={() => startTunnelFlight("south-to-north")}
+            >
+              <ArrowUp size={17} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
         <div
           className="control-row"
           role="group"
@@ -2617,16 +2825,12 @@ export function App() {
           <button
             type="button"
             aria-label={
-              viewerMode === "three"
-                ? copy.oppositeView
-                : copy.flipHorizontal
+              viewerMode === "three" ? copy.oppositeView : copy.flipHorizontal
             }
             aria-pressed={viewerMode === "map" && isFlipped}
             disabled={!isReady}
             title={
-              viewerMode === "three"
-                ? copy.oppositeView
-                : copy.flipHorizontal
+              viewerMode === "three" ? copy.oppositeView : copy.flipHorizontal
             }
             onClick={toggleHorizontalFlip}
           >
@@ -2635,16 +2839,12 @@ export function App() {
           <button
             type="button"
             aria-label={
-              viewerMode === "three"
-                ? copy.trueUnderside
-                : copy.flipVertical
+              viewerMode === "three" ? copy.trueUnderside : copy.flipVertical
             }
             aria-pressed={viewerMode === "three" && isThreeUnderside}
             disabled={!isReady}
             title={
-              viewerMode === "three"
-                ? copy.trueUnderside
-                : copy.flipVertical
+              viewerMode === "three" ? copy.trueUnderside : copy.flipVertical
             }
             onClick={flipVertical}
           >
@@ -2726,7 +2926,9 @@ export function App() {
             ))}
             <button
               type="button"
-              aria-label={viewerMode === "three" ? copy.flyForward : copy.northUp}
+              aria-label={
+                viewerMode === "three" ? copy.flyForward : copy.northUp
+              }
               disabled={!isReady}
               onClick={() =>
                 viewerMode === "three"
@@ -2809,7 +3011,11 @@ export function App() {
               <ChevronDown size={20} aria-hidden="true" />
             </button>
           </div>
-          <div className="mobile-sheet-footer" role="group" aria-label={copy.mode}>
+          <div
+            className="mobile-sheet-footer"
+            role="group"
+            aria-label={copy.mode}
+          >
             <button
               type="button"
               aria-label={copy.oppositeView}
@@ -2926,7 +3132,9 @@ export function App() {
               <button
                 type="button"
                 aria-pressed={nightLightsOn}
-                aria-label={nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn}
+                aria-label={
+                  nightLightsOn ? copy.nightLightsOff : copy.nightLightsOn
+                }
                 onClick={toggleNightLights}
               >
                 {nightLightsOn ? (
@@ -2934,7 +3142,9 @@ export function App() {
                 ) : (
                   <LightbulbOff size={20} aria-hidden="true" />
                 )}
-                <span>{nightLightsOn ? copy.nightLightsOn : copy.nightLightsOff}</span>
+                <span>
+                  {nightLightsOn ? copy.nightLightsOn : copy.nightLightsOff}
+                </span>
               </button>
             ) : null}
             <button
@@ -2947,13 +3157,57 @@ export function App() {
             </button>
             <button
               type="button"
+              aria-pressed={lightingMode === "snowstorm"}
+              onClick={() => selectVisualMode("snowstorm")}
+            >
+              <Snowflake size={20} aria-hidden="true" />
+              <span>{copy.snowstorm}</span>
+            </button>
+            <button
+              type="button"
               className="rain-toggle"
               aria-pressed={rainEnabled}
               aria-label={rainEnabled ? copy.rainOff : copy.rainOn}
+              disabled={lightingMode === "snowstorm"}
               onClick={toggleRain}
             >
               <CloudRain size={20} aria-hidden="true" />
               <span>{rainEnabled ? copy.rainOff : copy.rain}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={isFullscreen || isPseudoFullscreen}
+              aria-label={
+                isFullscreen || isPseudoFullscreen
+                  ? copy.fullscreenExit
+                  : copy.fullscreenEnter
+              }
+              onClick={() => void toggleFullscreen()}
+            >
+              {isFullscreen || isPseudoFullscreen ? (
+                <Minimize2 size={20} aria-hidden="true" />
+              ) : (
+                <Maximize2 size={20} aria-hidden="true" />
+              )}
+              <span>
+                {isFullscreen || isPseudoFullscreen
+                  ? copy.fullscreenExit
+                  : copy.fullscreenEnter}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => startTunnelFlight("north-to-south")}
+            >
+              <ArrowDown size={20} aria-hidden="true" />
+              <span>{copy.tunnelSouthbound}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => startTunnelFlight("south-to-north")}
+            >
+              <ArrowUp size={20} aria-hidden="true" />
+              <span>{copy.tunnelNorthbound}</span>
             </button>
             <button
               type="button"
@@ -3146,7 +3400,10 @@ export function App() {
           aria-label={copy.reference}
           onClick={closeReferenceMap}
         >
-          <div className="reference-panel" onClick={(event) => event.stopPropagation()}>
+          <div
+            className="reference-panel"
+            onClick={(event) => event.stopPropagation()}
+          >
             <header className="reference-header">
               <div className="reference-title">
                 <MapPinned aria-hidden="true" size={18} />
@@ -3247,7 +3504,8 @@ export function App() {
                 </a>
               </div>
               <small>
-                {PROJECT_VERSION} · öffentlich / public · MIT-Code · Open-Data-Modell
+                {PROJECT_VERSION} · öffentlich / public · MIT-Code ·
+                Open-Data-Modell
               </small>
             </div>
           </div>
@@ -3363,13 +3621,19 @@ export function App() {
                 <dt>
                   <kbd>+</kbd> <kbd>=</kbd> <kbd>−</kbd>
                 </dt>
-                <dd>{language === "de" ? "Vergrößern / verkleinern" : "Zoom in / out"}</dd>
+                <dd>
+                  {language === "de"
+                    ? "Vergrößern / verkleinern"
+                    : "Zoom in / out"}
+                </dd>
               </div>
               <div>
                 <dt>
                   <kbd>Home</kbd> <kbd>0</kbd>
                 </dt>
-                <dd>{language === "de" ? "Gesamtansicht zeigen" : "Show overview"}</dd>
+                <dd>
+                  {language === "de" ? "Gesamtansicht zeigen" : "Show overview"}
+                </dd>
               </div>
               <div>
                 <dt>
@@ -3382,7 +3646,9 @@ export function App() {
                   <kbd>?</kbd>
                 </dt>
                 <dd>
-                  {language === "de" ? "Diese Hilfe ein- / ausblenden" : "Toggle this help"}
+                  {language === "de"
+                    ? "Diese Hilfe ein- / ausblenden"
+                    : "Toggle this help"}
                 </dd>
               </div>
               <div>
@@ -3390,7 +3656,9 @@ export function App() {
                   <kbd>D</kbd>
                 </dt>
                 <dd>
-                  {language === "de" ? "Tag- / Nachtbeleuchtung umschalten" : "Toggle day / night lighting"}
+                  {language === "de"
+                    ? "Tag- / Nachtbeleuchtung umschalten"
+                    : "Toggle day / night lighting"}
                 </dd>
               </div>
               <div>
@@ -3398,7 +3666,41 @@ export function App() {
                   <kbd>M</kbd>
                 </dt>
                 <dd>
-                  {language === "de" ? "Minecraft-Modus ein- / ausschalten" : "Toggle Minecraft mode"}
+                  {language === "de"
+                    ? "Minecraft-Modus ein- / ausschalten"
+                    : "Toggle Minecraft mode"}
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <kbd>S</kbd>
+                </dt>
+                <dd>
+                  {language === "de"
+                    ? "Schneesturm ein- / ausschalten"
+                    : "Toggle the snowstorm"}
+                </dd>
+              </div>
+              {viewerMode === "three" ? (
+                <div>
+                  <dt>
+                    <kbd>[</kbd> <kbd>]</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Tiergartentunnel nach Süden / Norden durchfliegen"
+                      : "Fly through the Tiergarten tunnel southbound / northbound"}
+                  </dd>
+                </div>
+              ) : null}
+              <div>
+                <dt>
+                  <kbd>F</kbd>
+                </dt>
+                <dd>
+                  {isFullscreen || isPseudoFullscreen
+                    ? copy.fullscreenExit
+                    : copy.fullscreenEnter}
                 </dd>
               </div>
               <div>
@@ -3461,11 +3763,7 @@ export function App() {
         <button
           type="button"
           className="attribution-toggle"
-          aria-label={
-            isAttributionOpen
-              ? copy.dataClose
-              : copy.dataOpen
-          }
+          aria-label={isAttributionOpen ? copy.dataClose : copy.dataOpen}
           aria-expanded={isAttributionOpen}
           onClick={() => setIsAttributionOpen((open) => !open)}
         >

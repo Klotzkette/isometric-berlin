@@ -41,6 +41,7 @@ export const PRESENTATION_TONE: Record<VisualMode, PresentationTone> = {
   day: { exposure: 1, toneMapping: NoToneMapping },
   night: { exposure: 1, toneMapping: NoToneMapping },
   minecraft: { exposure: 1.2, toneMapping: ACESFilmicToneMapping },
+  snowstorm: { exposure: 1, toneMapping: NoToneMapping },
 };
 
 /** True when a mode reproduces authored paint without a film curve. */

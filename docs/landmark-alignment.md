@@ -2,13 +2,13 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-02T01:14:29.839091+00:00`
+- Generated: `2026-08-09T02:12:45.827827+00:00`
 - Status: `review`
-- Landmarks checked: `57`
+- Landmarks checked: `73`
 - Relative relationships checked: `26`
-- Landmark review count: `9`
+- Landmark review count: `2`
 - Relative review count: `0`
-- Review count: `9`
+- Review count: `2`
 
 | Landmark | Status | Best OSM evidence | OSM distance | LoD2 evidence |
 |---|---:|---|---:|---|
@@ -16,7 +16,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Pariser Platz | `ok` | Pariser Platz (roads) | 0.00 m | nearest DEBE01YYK0001x9i at 58.52 m |
 | Denkmal für die ermordeten Juden Europas | `ok` | Denkmal für die ermordeten Juden Europas (pois) | 0.00 m | inside DEBE3DeExMIcRZKx |
 | Denkmal für die im Nationalsozialismus verfolgten Homosexuellen | `ok` | Denkmal für die im Nationalsozialismus verfolgten Homosexuellen (pois) | 0.00 m | inside DEBE01AL3Ib00000 |
-| Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas | `review` | no expected-name hit; nearest: None | 0.00 m | inside DEBE01YYK0002KL4 |
+| Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas | `ok` | OSM way 591200197 (water) | 0.00 m | inside DEBE01YYK0002KL4 |
 | Reichstagsgebäude | `ok` | Reichstagsgebäude (pois) | 0.00 m | inside DEBE01YYK0002MCN |
 | Sowjetisches Ehrenmal Tiergarten | `ok` | Sowjetisches Ehrenmal Tiergarten (pois) | 0.00 m | inside DEBE3DNvFubIvyI4 |
 | Bundeskanzleramt | `ok` | Bundeskanzleramt (pois) | 0.00 m | inside DEBE3DAJMLwG4KW9 |
@@ -57,18 +57,34 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Königin-Luise-Denkmal (Luiseninsel) | `ok` | Luiseninsel (parks) | 0.00 m | nearest DEBE00YYSR00009f at 121.46 m |
 | Siegessäule | `ok` | Siegessäule (pois) | 0.00 m | inside DEBE3DOg3wUufHpn |
 | Großer Stern | `ok` | Großer Stern (roads) | 66.53 m | inside DEBE3DOg3wUufHpn |
-| Bismarck-Nationaldenkmal | `review` | no expected-name hit; nearest: None | 0.00 m | nearest DEBE00YYMo00007L at 23.5 m |
-| Berliner Philharmonie | `review` | no expected-name hit; nearest: Kulturforum | 0.00 m | inside DEBE3DTtXzEkeXsu |
-| St. Matthäus-Kirche | `review` | no expected-name hit; nearest: Kulturforum | 0.00 m | nearest DEBE3DIqVwTfAOLW at 61.7 m |
+| Bismarck-Nationaldenkmal | `ok` | Otto von Bismarck (pois) | 0.00 m | inside DEBE00YY2iy0007y |
+| Berliner Philharmonie | `ok` | Philharmonie (pois) | 0.00 m | inside DEBE3DTtXzEkeXsu |
+| St. Matthäus-Kirche | `ok` | Sankt Matthäus-Kirche (pois) | 0.00 m | inside DEBE3DkIiO30Sz4V |
 | Gemäldegalerie | `ok` | Gemäldegalerie am Kulturforum (pois) | 50.32 m | inside DEBE3DW2cNYkn9ac |
-| Neue Nationalgalerie | `review` | no expected-name hit; nearest: Kulturforum | 0.00 m | nearest DEBE3DWiMSMgX8rD at 4.36 m |
-| Staatsbibliothek zu Berlin (Haus Potsdamer Straße) | `review` | no expected-name hit; nearest: Staatsbibliothek zu Berlin | 0.00 m | inside DEBE3DuhRz10dc4L |
+| Neue Nationalgalerie | `ok` | no expected-name hit; nearest: Kulturforum | 0.00 m | inside DEBE3DoBzFlWN39S |
+| Staatsbibliothek zu Berlin (Haus Potsdamer Straße) | `ok` | Staatsbibliothek zu Berlin (pois) | 0.00 m | inside DEBE3DmkuL4bKIKU |
 | Leipziger Platz | `ok` | Leipziger Platz (roads) | 23.87 m | nearest DEBE3DOZuBxzaEDr at 51.65 m |
-| Mall of Berlin | `review` | no expected-name hit; nearest: Fatih Servet | 13.59 m | inside DEBE3Dpzh1IwtXlI |
-| Kollhoff-Tower | `review` | no expected-name hit; nearest: Berlin Potsdamer Platz | 0.00 m | nearest DEBE3DjvWtTpo3vD at 12.02 m |
+| Mall of Berlin | `ok` | Parkhaus Mall of Berlin (pois) | 115.05 m | inside DEBE3Dpzh1IwtXlI |
+| Kollhoff-Tower | `ok` | no expected-name hit; nearest: None | 0.01 m | inside DEBE3DjvWtTpo3vD |
 | Hamburger Bahnhof | `ok` | Hamburger Bahnhof - Nationalgalerie der Gegenwart (pois) | 12.82 m | inside DEBE3DLmFvNUQ5iG |
-| Geschichtspark Ehemaliges Zellengefängnis Moabit | `review` | Geschichtspark Ehemaliges Zellengefängnis Moabit (parks) | 104.18 m | nearest DEBE01YYK0002VJr at 59.95 m |
+| Geschichtspark Ehemaliges Zellengefängnis Moabit | `ok` | Geschichtspark Ehemaliges Zellengefängnis Moabit (parks) | 0.00 m | nearest DEBE01AL2yz00000 at 50.09 m |
 | Invalidenpark / Sinkende Mauer | `ok` | Sinkende Mauer (pois) | 0.00 m | nearest DEBE01AL3qn0000s at 66.37 m |
+| Rieckhallen | `ok` | no expected-name hit; nearest: Am Hamburger Bahnhof | 17.37 m | inside DEBE01YYK0002SQl |
+| Sozialgericht Berlin | `ok` | Sozialgericht Berlin (pois) | 0.00 m | nearest DEBE01YYK0002Qys at 7.65 m |
+| KPMG Europacity | `ok` | KPMG (pois) | 0.00 m | inside DEBE3De9JUgwVTiy |
+| DKB Campus Upbeat | `review` | no expected-name hit; nearest: None | 20.35 m | nearest DEBE01YYK0002PFv at 164.14 m |
+| Kammermusiksaal | `ok` | Kammermusiksaal (pois) | 0.00 m | inside DEBE3DbyaJ0e8oAr |
+| Tilla-Durieux-Park | `ok` | Tilla-Durieux-Park (roads) | 0.00 m | nearest DEBE00YY24s0007E at 38.92 m |
+| berlin modern — Museum des 20. Jahrhunderts | `review` | no expected-name hit; nearest: Kulturforum | 0.00 m | nearest DEBE3DkIiO30Sz4V at 54.47 m |
+| Der Bogenschütze (Henry Moore) | `ok` | Der Bogenschütze (pois) | 0.00 m | nearest DEBE3DWiMSMgX8rD at 6.59 m |
+| Café am Neuen See | `ok` | Café am Neuen See (pois) | 0.00 m | inside DEBE3DFxyG0owFin |
+| Spanische Botschaft | `ok` | Spanische Botschaft (pois) | 0.00 m | inside DEBE3DCzDC13dOb2 |
+| Charlottenburger Tor | `ok` | Charlottenburger Tor (pois) | 17.14 m | nearest DEBE04YY500003qI at 56.75 m |
+| Rosengarten im Tiergarten | `ok` | Rosengarten (parks) | 0.00 m | nearest DEBE3DuA7zUTWjim at 214.18 m |
+| Luiseninsel | `ok` | Luiseninsel (parks) | 0.00 m | nearest DEBE01YYK0002Ufw at 102.62 m |
+| Anhalter Bahnhof | `ok` | Anhalter Bahnhof (rail) | 0.00 m | nearest DEBE3DSoSMPGtuId at 11.25 m |
+| WELT Balloon | `ok` | Berlin Hi-Flyer (pois) | 0.00 m | nearest DEBE3DkxwhkVzBMj at 60.06 m |
+| Kochstraße | `ok` | Kochstraße (roads) | 3.90 m | nearest DEBE3DKf7Br738aj at 8.9 m |
 
 ## Relative Placement
 

@@ -2,7 +2,12 @@
   color: #f5efe4;
   background: #242b28;
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
   font-synthesis: none;
   text-rendering: geometricPrecision;
@@ -43,6 +48,15 @@ button:active:not(:disabled) {
   height: 100dvh;
   overflow: hidden;
   background: #242b28;
+}
+
+.app-shell--pseudo-fullscreen {
+  position: fixed;
+  z-index: 2147483000;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
 }
 
 .map-stage,
@@ -150,6 +164,49 @@ button:active:not(:disabled) {
   }
 }
 
+.map-snowstorm {
+  position: absolute;
+  z-index: 4;
+  inset: -12%;
+  overflow: hidden;
+  background: rgba(222, 232, 237, 0.18);
+  pointer-events: none;
+}
+
+.map-snowstorm::before,
+.map-snowstorm::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  opacity: 0.9;
+  background-image:
+    radial-gradient(circle, #fff 0 1.3px, transparent 1.5px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 0.8px, transparent 1px);
+  background-position:
+    0 0,
+    19px 27px;
+  background-size:
+    43px 51px,
+    31px 37px;
+  animation: map-snow-fall 1.15s linear infinite;
+  transform: translate3d(-30px, -70px, 0);
+  will-change: transform;
+}
+
+.map-snowstorm::after {
+  opacity: 0.58;
+  background-size:
+    67px 73px,
+    49px 61px;
+  animation-duration: 1.75s;
+}
+
+@keyframes map-snow-fall {
+  to {
+    transform: translate3d(45px, 80px, 0);
+  }
+}
+
 .minecraft-dzi-fallback .openseadragon-canvas canvas {
   filter: saturate(1.24) contrast(1.16) brightness(1.06);
   image-rendering: pixelated;
@@ -176,6 +233,10 @@ button:active:not(:disabled) {
 
 .app-shell--minecraft .three-viewer {
   background: #aedaf0;
+}
+
+.app-shell--snowstorm .three-viewer {
+  background: #c9d5dc;
 }
 
 .three-viewer.is-active {
@@ -254,7 +315,9 @@ button:active:not(:disabled) {
   align-items: center;
   gap: 12px;
   pointer-events: none;
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .brand,
@@ -861,6 +924,20 @@ button:active:not(:disabled) {
     0 14px 42px rgba(10, 24, 12, 0.28);
 }
 
+.app-shell--snowstorm .brand,
+.app-shell--snowstorm .toolbar,
+.app-shell--snowstorm .view-controls,
+.app-shell--snowstorm .landmark-rail,
+.app-shell--snowstorm .orientation-pill,
+.app-shell--snowstorm .selection-card,
+.app-shell--snowstorm .attribution {
+  border-color: rgba(220, 235, 242, 0.38);
+  background: rgba(42, 56, 64, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.09),
+    0 14px 42px rgba(13, 28, 36, 0.27);
+}
+
 .app-shell--minecraft .toolbar button:hover,
 .app-shell--minecraft .toolbar button:focus-visible,
 .app-shell--minecraft .toolbar button[aria-pressed="true"],
@@ -1434,7 +1511,9 @@ button:active:not(:disabled) {
     gap: 6px;
     padding: 8px;
     border-radius: 8px;
-    transition: opacity 180ms ease, transform 180ms ease;
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
   }
 
   .toolbar button {
@@ -1481,7 +1560,9 @@ button:active:not(:disabled) {
     backdrop-filter: blur(14px);
     cursor: pointer;
     pointer-events: auto;
-    transition: opacity 180ms ease, transform 180ms ease;
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
   }
 
   .chrome-toggle {
@@ -1607,23 +1688,26 @@ button:active:not(:disabled) {
 
   .mobile-overflow-grid button {
     display: grid;
-    min-height: 54px;
+    min-height: 60px;
     place-items: center;
     gap: 2px;
     padding: 5px;
   }
 
   .mobile-overflow-grid button span {
+    display: -webkit-box;
     overflow: hidden;
     max-width: 100%;
     font-size: 9px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .reference-modal {
-    padding:
-      calc(8px + env(safe-area-inset-top, 0px))
+    padding: calc(8px + env(safe-area-inset-top, 0px))
       calc(8px + env(safe-area-inset-right, 0px))
       calc(8px + env(safe-area-inset-bottom, 0px))
       calc(8px + env(safe-area-inset-left, 0px));
@@ -1681,11 +1765,19 @@ button:active:not(:disabled) {
     padding: 0;
     border-radius: 8px;
     font-size: 9px;
-    transition: width 180ms ease, opacity 180ms ease;
+    transition:
+      width 180ms ease,
+      opacity 180ms ease;
   }
 
   .attribution.is-expanded {
-    width: min(560px, calc(100vw - 16px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+    width: min(
+      560px,
+      calc(
+        100vw - 16px - env(safe-area-inset-left, 0px) -
+          env(safe-area-inset-right, 0px)
+      )
+    );
     grid-template-columns: 44px minmax(0, 1fr);
     align-items: center;
     padding: 5px;
@@ -1839,5 +1931,4 @@ button:active:not(:disabled) {
   .map-marker--selected::before {
     animation: none;
   }
-
 }

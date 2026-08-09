@@ -29,6 +29,12 @@ describe("moderate rain", () => {
     }
     setRainPresentation(rain, {
       enabled: true,
+      mode: "snowstorm",
+      obstructed: false,
+    });
+    expect(rain.group.visible).toBe(false);
+    setRainPresentation(rain, {
+      enabled: true,
       mode: "day",
       obstructed: true,
     });
@@ -61,4 +67,3 @@ describe("moderate rain", () => {
     expect(rain.mesh.count).toBe(moderateRainDropCount(false));
   });
 });
-

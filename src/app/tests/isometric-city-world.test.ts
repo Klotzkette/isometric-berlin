@@ -1146,6 +1146,6 @@ describe("isometric face shading", () => {
       expect(Math.abs(matrices[index * 16 + 5] - 2.35)).toBeLessThan(1e-3);
     }
     expect(panes.count).toBeGreaterThan(1_500);
-    expect(panes.count).toBeLessThan(8_000);
+    expect(panes.count).toBeLessThan(payload.buildings.length);
   });
 });

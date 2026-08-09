@@ -58,7 +58,7 @@ def test_overpass_requests_never_offer_deflate() -> None:
 
 def test_generated_osm_gpkg_contains_required_layers() -> None:
   assert OSM.exists()
-  assert OSM.stat().st_size < 5 * 1024 * 1024
+  assert OSM.stat().st_size < 8 * 1024 * 1024
 
   counts: dict[str, int] = {}
   for layer in LAYERS:

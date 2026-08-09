@@ -98,7 +98,9 @@ export function setRainPresentation(
   rain: ModerateRain,
   { enabled, mode, obstructed }: RainPresentation,
 ): boolean {
-  const visible = enabled && !obstructed;
+  // Snowstorm owns the precipitation layer; keeping rain active underneath
+  // creates an incoherent mixed-weather mode and wastes a continuous draw.
+  const visible = enabled && !obstructed && mode !== "snowstorm";
   let changed = rain.group.visible !== visible;
   rain.group.visible = visible;
 

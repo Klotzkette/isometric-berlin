@@ -63,6 +63,10 @@ import {
   culturalFocusCamera,
 } from "./CulturalLandmarks";
 import {
+  createExpandedCityDetails,
+  expandedCityFocusCamera,
+} from "./ExpandedCityDetails";
+import {
   type ParkDetailsPayload,
   createParkDetails,
   parkDetailFocusDistance,
@@ -159,10 +163,22 @@ import {
   updateModerateRain,
 } from "./WeatherEffects";
 import {
+  type Snowstorm,
+  createSnowstorm,
+  setSnowstormPresentation,
+  updateSnowstorm,
+} from "./SnowstormEffects";
+import {
   THREE_MOUSE_GESTURE_SETTINGS,
   wheelNavigationIntent,
 } from "./viewerGestures";
 import type { VisualMode } from "./visualMode";
+import {
+  type TunnelFlightDirection,
+  type TunnelFlightPlan,
+  createTunnelFlightPlan,
+  tunnelFlightPose,
+} from "./tunnelFlight";
 import {
   createMinecraftMaterialState,
   disposeMinecraftMaterialState,
@@ -255,6 +271,7 @@ export type ThreeViewerHandle = {
   setAzimuth: (degrees: number) => void;
   setFlightInput: (strafe: number, forward: number, vertical: number) => void;
   setUnderside: (enabled: boolean) => void;
+  startTunnelFlight: (direction: TunnelFlightDirection) => boolean;
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
 };
@@ -286,6 +303,7 @@ type Runtime = {
   parkDetails: Group;
   rain: ModerateRain;
   rainEnabled: boolean;
+  snowstorm: Snowstorm;
   renderer: WebGLRenderer;
   /** A visual mutation waiting for one deterministic on-demand render. */
   renderInvalidated: boolean;
@@ -300,6 +318,8 @@ type Runtime = {
   tunnelBounds: Box3 | null;
   tunnelPortals: Group;
   tunnelPoints: TunnelPayload["points"] | null;
+  tunnelTubeOffsetM: number;
+  tunnelFlight: { plan: TunnelFlightPlan; startedAt: number } | null;
   prismPayloadPromise?: Promise<PrismPayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
   trafficSignals?: Group | null;
@@ -338,7 +358,8 @@ const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
 
 function setEnvironmentalPresentation(runtime: Runtime): void {
-  const obstructed = runtime.underside || runtime.underwater;
+  const obstructed =
+    runtime.underside || runtime.underwater || runtime.tunnelFlight !== null;
   const rainChanged = setRainPresentation(runtime.rain, {
     enabled: runtime.rainEnabled,
     mode: runtime.lightingMode,
@@ -348,7 +369,11 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.minecraftMobs,
     runtime.lightingMode === "minecraft" && !obstructed,
   );
-  if (rainChanged || mobsChanged) {
+  const snowChanged = setSnowstormPresentation(runtime.snowstorm, {
+    mode: runtime.lightingMode,
+    obstructed,
+  });
+  if (rainChanged || mobsChanged || snowChanged) {
     runtime.renderInvalidated = true;
   }
 }
@@ -362,14 +387,13 @@ export function shouldUseUnderwaterPresentation({
   insideTunnel: boolean;
   underside: boolean;
 }): boolean {
-  return (
-    cameraY < WATER_LEVEL_Y - 0.2 &&
-    !insideTunnel &&
-    !underside
-  );
+  return cameraY < WATER_LEVEL_Y - 0.2 && !insideTunnel && !underside;
 }
 
-function setUnderwaterPresentation(runtime: Runtime, underwater: boolean): void {
+function setUnderwaterPresentation(
+  runtime: Runtime,
+  underwater: boolean,
+): void {
   if (runtime.underwater === underwater) {
     return;
   }
@@ -402,8 +426,7 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
   // below the horizon, which otherwise left the tunnel floating in a
   // void).
   const replaced =
-    (voxelModeActive(runtime) || isoModeActive(runtime)) &&
-    !runtime.underside;
+    (voxelModeActive(runtime) || isoModeActive(runtime)) && !runtime.underside;
   const interactionVisible = !settled && !replaced;
   const settledVisible = settled && !replaced;
   const changed =
@@ -437,6 +460,13 @@ function setSurfacePresentation(runtime: Runtime, interacting: boolean): void {
  * this only moves the deadline it reads.
  */
 function markSurfaceInteraction(runtime: Runtime, durationMs = 650): void {
+  // Any direct navigation immediately returns control to the visitor instead
+  // of fighting the guided portal-to-portal tunnel camera.
+  if (runtime.tunnelFlight) {
+    runtime.tunnelFlight = null;
+    setTunnelPresentation(runtime.tunnel, runtime.underside);
+    setEnvironmentalPresentation(runtime);
+  }
   runtime.interactionUntil = Math.max(
     runtime.interactionUntil,
     performance.now() + durationMs,
@@ -492,7 +522,7 @@ export function applyMaterialLighting(
   const drawnKind = material.userData.drawnKind as string | undefined;
   const drawnFlat = material.userData.dayFlatColor as number | undefined;
   if (isDrawn) {
-    setFlatUnlit(material, mode === "day");
+    setFlatUnlit(material, mode === "day" || mode === "snowstorm");
     // Flat-kind facades restore their stored flat tone as the albedo in every
     // mode; vertex-kind facades keep the neutral white multiplier set at load
     // so the baked per-vertex colour shows through untinted.
@@ -674,6 +704,17 @@ function applyLightingToRoot(
     if (!(object instanceof Mesh)) {
       return;
     }
+    // Drawn accessory kits keep exact unlit paint for day/snow and a separate
+    // lit material for night. Most of those kits live under isoWorld and are
+    // switched there; expansion details are a sibling recognition layer, so
+    // the scene-wide lighting pass must honour the same contract as well.
+    const dayMaterial = object.userData.dayMaterial as
+      MeshBasicMaterial | MeshStandardMaterial | undefined;
+    const nightMaterial = object.userData.nightMaterial as
+      MeshBasicMaterial | MeshStandardMaterial | undefined;
+    if (dayMaterial && nightMaterial) {
+      object.material = mode === "night" ? nightMaterial : dayMaterial;
+    }
     // Swap flattened building geometry between its flat day colours and the
     // original per-vertex photogrammetry colours: day = piecewise-constant flat
     // faces, night/minecraft = original lit look (lossless mode switch).
@@ -710,6 +751,7 @@ function setSceneLighting(
   const isNight = mode === "night";
   const isMoonlit = isNight && !lightsOn;
   const isMinecraft = mode === "minecraft";
+  const isSnowstorm = mode === "snowstorm";
   if (!isMinecraft) {
     setMinecraftMaterialPresentation(
       runtime.scene,
@@ -719,7 +761,13 @@ function setSceneLighting(
   }
   // Moonlight keeps the same dark register as ordinary night — the request
   // was for the artificial lights to disappear, not for a different sky.
-  const sky = isNight ? 0x07131f : isMinecraft ? 0xaedaf0 : 0xdcf3f9;
+  const sky = isNight
+    ? 0x07131f
+    : isMinecraft
+      ? 0xaedaf0
+      : isSnowstorm
+        ? 0xc9d5dc
+        : 0xdcf3f9;
   runtime.scene.background = new Color(sky);
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
   // das will ich überhaupt nicht"): the ivory model stays crisp to the
@@ -727,7 +775,9 @@ function setSceneLighting(
   const voxelFog = minecraftFogRange();
   runtime.scene.fog = isMinecraft
     ? new Fog(sky, voxelFog.near, voxelFog.far)
-    : null;
+    : isSnowstorm
+      ? new Fog(sky, 540, 2_250)
+      : null;
   // Tone response per mode: the drawn modes reproduce authored paint with
   // no film curve, Minecraft keeps ACES for its lit cubes. See
   // presentationTone.ts for the measurements behind that split.
@@ -741,7 +791,15 @@ function setSceneLighting(
   // isometric drawing (silhouettes, ink lines, isoFaceShade steps) stays
   // legible — "man sieht nur noch die Isometrie".
   runtime.hemisphere.color.setHex(
-    isMoonlit ? 0x4a6690 : isNight ? 0x5877a4 : isMinecraft ? 0xeef9ff : 0xffffff,
+    isMoonlit
+      ? 0x4a6690
+      : isNight
+        ? 0x5877a4
+        : isMinecraft
+          ? 0xeef9ff
+          : isSnowstorm
+            ? 0xe7eef1
+            : 0xffffff,
   );
   // Day's hemisphere ground half is nearly as bright as its sky half. A
   // HemisphereLight weights a VERTICAL face at the midpoint of the two, so
@@ -749,7 +807,15 @@ function setSceneLighting(
   // a mid grey while the unlit prisms beside it stayed ivory. Two different
   // brightness worlds in one drawing; now they agree.
   runtime.hemisphere.groundColor.setHex(
-    isMoonlit ? 0x050b12 : isNight ? 0x08120f : isMinecraft ? 0x8ea084 : 0xe4e6e0,
+    isMoonlit
+      ? 0x050b12
+      : isNight
+        ? 0x08120f
+        : isMinecraft
+          ? 0x8ea084
+          : isSnowstorm
+            ? 0xc8d1d4
+            : 0xe4e6e0,
   );
   // Without a film curve the drawn modes need light levels that land BELOW
   // clipping on their own: the previous 2.52/2.72 rig relied on the ACES
@@ -761,23 +827,63 @@ function setSceneLighting(
   // therefore agrees tonally with the unlit prisms and ground instead of
   // being multiplied by an arbitrary rig, and the face-to-face step reads
   // as the same axonometric plasticity `isoFaceShade` draws by hand.
-  runtime.hemisphere.intensity = isMoonlit ? 0.4 : isNight ? 0.52 : isMinecraft ? 2.05 : 2.75;
+  runtime.hemisphere.intensity = isMoonlit
+    ? 0.4
+    : isNight
+      ? 0.52
+      : isMinecraft
+        ? 2.05
+        : isSnowstorm
+          ? 2.45
+          : 2.75;
   // A near-white key: the old amber 0xffdda3 crushed the blue channel of
   // every cream facade and turned the Chancellery lemon-yellow. Moonlight
   // pushes the key further into cool silver-blue — authored colour, not a
   // curve — consistent with a single distant moon instead of city glow.
   runtime.sun.color.setHex(
-    isMoonlit ? 0xaecbef : isNight ? 0x91b9ed : isMinecraft ? 0xfffaf0 : 0xfff8ea,
+    isMoonlit
+      ? 0xaecbef
+      : isNight
+        ? 0x91b9ed
+        : isMinecraft
+          ? 0xfffaf0
+          : isSnowstorm
+            ? 0xdce8ed
+            : 0xfff8ea,
   );
   // Day's key is deliberately gentle. With the ambient half carrying the
   // brightness, the sun only has to supply the direction of the light —
   // the same job `isoFaceShade` does for the unlit prisms. A strong key
   // would reintroduce the blob shadows the owner rejected.
-  runtime.sun.intensity = isMoonlit ? 0.62 : isNight ? 0.85 : isMinecraft ? 2.2 : 0.62;
+  runtime.sun.intensity = isMoonlit
+    ? 0.62
+    : isNight
+      ? 0.85
+      : isMinecraft
+        ? 2.2
+        : isSnowstorm
+          ? 0.24
+          : 0.62;
   runtime.skyFill.color.setHex(
-    isMoonlit ? 0x53699a : isNight ? 0x6c82ae : isMinecraft ? 0x9fd8f2 : 0xb6dcff,
+    isMoonlit
+      ? 0x53699a
+      : isNight
+        ? 0x6c82ae
+        : isMinecraft
+          ? 0x9fd8f2
+          : isSnowstorm
+            ? 0xb9ced8
+            : 0xb6dcff,
   );
-  runtime.skyFill.intensity = isMoonlit ? 0.16 : isNight ? 0.2 : isMinecraft ? 0.5 : 0.12;
+  runtime.skyFill.intensity = isMoonlit
+    ? 0.16
+    : isNight
+      ? 0.2
+      : isMinecraft
+        ? 0.5
+        : isSnowstorm
+          ? 0.28
+          : 0.12;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
@@ -830,6 +936,16 @@ function setSceneLighting(
   // visible in Minecraft too (they get the toon treatment); only the
   // softer cultural/park layers and photo crops step aside there.
   runtime.signatures.visible = !runtime.underside;
+  for (const signature of runtime.signatures.children) {
+    // The real LoD2 voxel station remains in Minecraft; its fine curved-glass
+    // recognition shell belongs to the drawn modes and looked implausibly
+    // exact beside the deliberately blocky station.
+    if (
+      signature.name === "Metre-scale Berlin Hauptbahnhof recognition model"
+    ) {
+      signature.visible = !isMinecraft;
+    }
+  }
   runtime.civicDetails.visible = recognitionVisible;
   runtime.monuments.visible = !runtime.underside;
   runtime.culturalDetails.visible = recognitionVisible;
@@ -839,8 +955,7 @@ function setSceneLighting(
   }
   // Both drawn worlds (prisms and voxels) use the flat isometric FOV;
   // only the photographic fallback keeps the 39° perspective.
-  const targetFov =
-    isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
+  const targetFov = isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES;
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
@@ -849,8 +964,10 @@ function setSceneLighting(
       .clone()
       .sub(runtime.controls.target)
       .multiplyScalar(scale);
-    runtime.controls.maxDistance = 2600 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
-    runtime.controls.minDistance = 30 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
+    runtime.controls.maxDistance =
+      2600 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
+    runtime.controls.minDistance =
+      30 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
     runtime.camera.position.copy(runtime.controls.target).add(offset);
     runtime.camera.far = 16_000;
     runtime.camera.fov = targetFov;
@@ -878,7 +995,9 @@ function voxelModeActive(runtime: Runtime): boolean {
  */
 function isoModeActive(runtime: Runtime): boolean {
   return (
-    (runtime.lightingMode === "day" || runtime.lightingMode === "night") &&
+    (runtime.lightingMode === "day" ||
+      runtime.lightingMode === "night" ||
+      runtime.lightingMode === "snowstorm") &&
     runtime.isoWorld !== null
   );
 }
@@ -914,7 +1033,10 @@ function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
   return runtime.voxelPayloadPromise;
 }
 
-function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void {
+function ensureIsoWorld(
+  runtime: Runtime,
+  warn: (message: string) => void,
+): void {
   if (runtime.isoWorldState !== "idle") {
     return;
   }
@@ -975,9 +1097,7 @@ function ensureIsoWorld(runtime: Runtime, warn: (message: string) => void): void
       if (ground) {
         // Staffage the owner asked for: a barge in the Humboldthafen and
         // an excursion yacht on the Spree. No OSM source for either.
-        runtime.isoWorld.add(
-          createVessels(ground.water_top_y_m ?? undefined),
-        );
+        runtime.isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
         // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
         const office = createSpreebogenOffice(ground);
         if (office) {
@@ -1093,7 +1213,11 @@ function segmentMesh(
   const normal = new Vector3(-delta.z / length, 0, delta.x / length);
   const mesh = new Mesh(geometry, material);
   mesh.scale.z = length;
-  mesh.position.copy(start).add(end).multiplyScalar(0.5).addScaledVector(normal, offset);
+  mesh.position
+    .copy(start)
+    .add(end)
+    .multiplyScalar(0.5)
+    .addScaledVector(normal, offset);
   mesh.rotation.y = Math.atan2(delta.x, delta.z);
   return mesh;
 }
@@ -1158,7 +1282,7 @@ export function createTunnel(payload: TunnelPayload): Group {
   const casingGeometry = new BoxGeometry(width, height, 1);
   const roadGeometry = new BoxGeometry(width - 0.7, 0.28, 1);
   const lightStripGeometry = new BoxGeometry(0.12, 0.1, 1);
-  const lampGeometry = new SphereGeometry(0.95, 12, 8);
+  const lampGeometry = new BoxGeometry(1.55, 0.12, 0.36);
   const laneMarkGeometry = new BoxGeometry(0.16, 0.06, 1);
   const laneMarkMaterial = tunnelMaterial(
     new MeshBasicMaterial({ color: 0xe8e4d4 }),
@@ -1176,15 +1300,15 @@ export function createTunnel(payload: TunnelPayload): Group {
     0.22,
     0.74,
   );
-  const fanGeometry = new TorusGeometry(1.65, 0.28, 10, 28);
+  const fanGeometry = new TorusGeometry(0.82, 0.12, 8, 20);
   const fanMaterial = tunnelMaterial(
-    new MeshBasicMaterial({ color: 0xffd978, side: DoubleSide }),
+    new MeshBasicMaterial({ color: 0xb8c3c8, side: DoubleSide }),
     0.25,
     0.96,
   );
-  const bladeGeometry = new BoxGeometry(1.3, 0.12, 0.3);
+  const bladeGeometry = new BoxGeometry(0.68, 0.08, 0.18);
   const bladeMaterial = tunnelMaterial(
-    new MeshBasicMaterial({ color: 0xffd978, side: DoubleSide }),
+    new MeshBasicMaterial({ color: 0xa5b1b7, side: DoubleSide }),
     0.25,
     0.96,
   );
@@ -1267,13 +1391,19 @@ export function createTunnel(payload: TunnelPayload): Group {
         group.add(strip);
       }
 
-      const lampCount = Math.max(1, Math.floor(segmentLength / 24));
-      const normal = new Vector3(-delta.z / segmentLength, 0, delta.x / segmentLength);
+      const lampCount = Math.max(1, Math.floor(segmentLength / 15));
+      const normal = new Vector3(
+        -delta.z / segmentLength,
+        0,
+        delta.x / segmentLength,
+      );
       for (let lamp = 1; lamp <= lampCount; lamp += 1) {
         const position = start.clone().lerp(end, lamp / (lampCount + 1));
-        position.addScaledVector(normal, offset).add(new Vector3(0, height / 2 - 0.35, 0));
+        position
+          .addScaledVector(normal, offset)
+          .add(new Vector3(0, height / 2 - 0.35, 0));
         instance.position.copy(position);
-        instance.rotation.set(0, 0, 0);
+        instance.rotation.set(0, Math.atan2(delta.x, delta.z), 0);
         instance.scale.set(1, 1, 1);
         instance.updateMatrix();
         lampMatrices.push(instance.matrix.clone());
@@ -1314,26 +1444,43 @@ export function createTunnel(payload: TunnelPayload): Group {
     11,
   );
 
-  for (const point of points.filter((_, index) => index % 2 === 0)) {
+  for (let pointIndex = 0; pointIndex < points.length; pointIndex += 2) {
+    const point = points[pointIndex];
+    const before = points[Math.max(0, pointIndex - 1)];
+    const after = points[Math.min(points.length - 1, pointIndex + 1)];
+    const direction = after.clone().sub(before);
+    const routeLength = Math.hypot(direction.x, direction.z) || 1;
+    const routeNormal = new Vector3(
+      -direction.z / routeLength,
+      0,
+      direction.x / routeLength,
+    );
+    const yaw = Math.atan2(direction.x, direction.z);
     instance.position.copy(point).add(new Vector3(0, 6, 0));
     instance.rotation.set(0, 0, 0);
     instance.scale.set(1, 1, 1);
     instance.updateMatrix();
     shaftMatrices.push(instance.matrix.clone());
 
-    const fanPosition = point.clone().add(new Vector3(0, 11.8, 0));
-    instance.position.copy(fanPosition);
-    instance.rotation.set(Math.PI / 2, 0, 0);
-    instance.updateMatrix();
-    fanMatrices.push(instance.matrix.clone());
-    for (let bladeIndex = 0; bladeIndex < 4; bladeIndex += 1) {
-      const angle = (bladeIndex / 4) * Math.PI * 2;
-      instance.position.copy(fanPosition).add(
-        new Vector3(Math.cos(angle) * 0.72, 0, Math.sin(angle) * 0.72),
-      );
-      instance.rotation.set(0, -angle, 0);
+    for (const side of [-1, 1]) {
+      const fanPosition = point
+        .clone()
+        .addScaledVector(routeNormal, side * (width / 2 + 0.85))
+        .add(new Vector3(0, height / 2 - 1.05, 0));
+      instance.position.copy(fanPosition);
+      instance.rotation.set(0, yaw, 0);
       instance.updateMatrix();
-      bladeMatrices.push(instance.matrix.clone());
+      fanMatrices.push(instance.matrix.clone());
+      for (let bladeIndex = 0; bladeIndex < 4; bladeIndex += 1) {
+        const angle = (bladeIndex / 4) * Math.PI * 2;
+        instance.position
+          .copy(fanPosition)
+          .addScaledVector(routeNormal, Math.cos(angle) * 0.34)
+          .add(new Vector3(0, Math.sin(angle) * 0.34, 0));
+        instance.rotation.set(0, yaw, angle);
+        instance.updateMatrix();
+        bladeMatrices.push(instance.matrix.clone());
+      }
     }
   }
   // Portal frames at the two visible endpoints (north/south mouths), one per
@@ -1405,11 +1552,16 @@ function tunnelMaterial<T extends Material>(
   material.transparent = true;
   material.userData.tunnelSurfaceOpacity = surfaceOpacity;
   material.userData.tunnelUndersideOpacity = undersideOpacity;
+  material.userData.tunnelInteriorOpacity = 1;
   return material;
 }
 
-export function setTunnelPresentation(tunnel: Group, underside: boolean): void {
-  tunnel.visible = underside;
+export function setTunnelPresentation(
+  tunnel: Group,
+  underside: boolean,
+  interior = false,
+): void {
+  tunnel.visible = underside || interior;
   tunnel.traverse((object) => {
     if (!(object instanceof Mesh)) {
       return;
@@ -1418,16 +1570,20 @@ export function setTunnelPresentation(tunnel: Group, underside: boolean): void {
       object.userData.tunnelLayerOrder = object.renderOrder;
     }
     object.renderOrder =
-      (underside ? 14 : 10) + object.userData.tunnelLayerOrder;
+      (interior ? 0 : underside ? 14 : 10) + object.userData.tunnelLayerOrder;
     const materials = Array.isArray(object.material)
       ? object.material
       : [object.material];
     for (const material of materials) {
-      const opacity = underside
-        ? material.userData.tunnelUndersideOpacity
-        : material.userData.tunnelSurfaceOpacity;
+      const opacity = interior
+        ? material.userData.tunnelInteriorOpacity
+        : underside
+          ? material.userData.tunnelUndersideOpacity
+          : material.userData.tunnelSurfaceOpacity;
       if (typeof opacity === "number") {
         material.opacity = opacity;
+        material.depthTest = interior;
+        material.depthWrite = interior && opacity >= 0.99;
         material.needsUpdate = true;
       }
     }
@@ -1447,7 +1603,11 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     material.depthWrite = !underside;
     material.needsUpdate = true;
   }
-  setTunnelPresentation(runtime.tunnel, underside);
+  setTunnelPresentation(
+    runtime.tunnel,
+    underside,
+    runtime.tunnelFlight !== null,
+  );
   const voxelMode = voxelModeActive(runtime);
   const isoMode = isoModeActive(runtime);
   if (runtime.voxelWorld) {
@@ -1469,7 +1629,10 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   setEnvironmentalPresentation(runtime);
 }
 
-function notifyView(runtime: Runtime, callback: (angles: ViewAngles) => void): void {
+function notifyView(
+  runtime: Runtime,
+  callback: (angles: ViewAngles) => void,
+): void {
   callback({
     azimuthDegrees: MathUtils.radToDeg(runtime.controls.getAzimuthalAngle()),
     polarDegrees: MathUtils.radToDeg(runtime.controls.getPolarAngle()),
@@ -1491,6 +1654,14 @@ function markerHeightForLandmark(name: string): number {
       return 23;
     case "Brandenburger Tor":
       return 34;
+    case "WELT Balloon":
+      return 104;
+    case "DKB Campus Upbeat":
+      return 76;
+    case "KPMG Europacity":
+      return 42;
+    case "Siegessäule":
+      return 72;
     default:
       return 18;
   }
@@ -1642,7 +1813,11 @@ async function loadModel(
       material.emissive.set(0x2b3130);
       material.emissiveIntensity = 0.07;
       material.userData.sourceMaterial = true;
-      applyMaterialLighting(material, runtime.lightingMode, runtime.nightLightsOn);
+      applyMaterialLighting(
+        material,
+        runtime.lightingMode,
+        runtime.nightLightsOn,
+      );
       if (detail) {
         // Hero-detail tiles are a higher-resolution copy of the same building
         // that already exists in the base/surface tile beneath them. Two
@@ -1669,7 +1844,10 @@ async function loadModel(
     // once per mesh geometry; vegetation/water vertices are left soft inside.
     if (flattenGeometry && object.geometry.getAttribute("color")) {
       flattenBuildingVertexColors(object.geometry);
-      setBuildingColorMode(object.geometry, runtime.lightingMode === "day");
+      setBuildingColorMode(
+        object.geometry,
+        runtime.lightingMode === "day" || runtime.lightingMode === "snowstorm",
+      );
     }
   });
   if (detail) {
@@ -1764,7 +1942,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return;
       }
       if (
-        (lightingMode === "day" || lightingMode === "night") &&
+        (lightingMode === "day" ||
+          lightingMode === "night" ||
+          lightingMode === "snowstorm") &&
         runtime.tunnelPoints !== null
       ) {
         // Before the scene manifest has delivered the tunnel centreline
@@ -1816,8 +1996,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (cameraPreset) {
         target.y += cameraPreset.target_height_m;
         if (
-          cameraPreset.fov_degrees !== undefined
-          && runtime.camera.fov !== cameraPreset.fov_degrees
+          cameraPreset.fov_degrees !== undefined &&
+          runtime.camera.fov !== cameraPreset.fov_degrees
         ) {
           runtime.camera.fov = cameraPreset.fov_degrees;
           runtime.camera.updateProjectionMatrix();
@@ -1836,7 +2016,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           .normalize();
         const distance = name.includes("Tiergartentunnel")
           ? 460
-          : (parkDetailFocusDistance(name) ?? memorialFocusDistance(name) ?? 190);
+          : (parkDetailFocusDistance(name) ??
+            memorialFocusDistance(name) ??
+            190);
         cameraOffset = currentDirection.multiplyScalar(distance);
       }
       // Focus distances are authored for the 39° photo lens. The narrow
@@ -2001,7 +2183,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markSurfaceInteraction(runtime);
           runtime.controls.target.copy(DEFAULT_TARGET);
-          runtime.camera.position.copy(DEFAULT_TARGET).add(DEFAULT_CAMERA_OFFSET);
+          runtime.camera.position
+            .copy(DEFAULT_TARGET)
+            .add(DEFAULT_CAMERA_OFFSET);
           setModelMaterialState(runtime, false);
           runtime.controls.update();
           notifyView(runtime, onViewChangeRef.current);
@@ -2014,11 +2198,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           markSurfaceInteraction(runtime);
           setOrbitAngles(runtime, {
             azimuth:
-              runtime.controls.getAzimuthalAngle() + MathUtils.degToRad(degrees),
+              runtime.controls.getAzimuthalAngle() +
+              MathUtils.degToRad(degrees),
           });
           notifyView(runtime, onViewChangeRef.current);
         },
         setFlightInput: (strafe, forward, vertical) => {
+          const runtime = runtimeRef.current;
+          if (
+            runtime &&
+            (Math.abs(strafe) > 1e-6 ||
+              Math.abs(forward) > 1e-6 ||
+              Math.abs(vertical) > 1e-6)
+          ) {
+            markSurfaceInteraction(runtime, 220);
+          }
           flightInputRef.current.set(
             MathUtils.clamp(strafe, -1, 1),
             MathUtils.clamp(vertical, -1, 1),
@@ -2046,6 +2240,28 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           });
           notifyView(runtime, onViewChangeRef.current);
         },
+        startTunnelFlight: (direction) => {
+          const runtime = runtimeRef.current;
+          if (!runtime?.tunnelPoints || runtime.tunnelPoints.length < 2) {
+            return false;
+          }
+          runtime.cancelPanGlide?.();
+          flightInputRef.current.set(0, 0, 0);
+          const plan = createTunnelFlightPlan(
+            runtime.tunnelPoints,
+            direction,
+            runtime.tunnelTubeOffsetM,
+          );
+          runtime.tunnelFlight = { plan, startedAt: performance.now() };
+          setTunnelPresentation(runtime.tunnel, false, true);
+          setEnvironmentalPresentation(runtime);
+          const pose = tunnelFlightPose(plan, 0);
+          runtime.camera.position.copy(pose.position);
+          runtime.controls.target.copy(pose.target);
+          runtime.controls.update();
+          runtime.renderInvalidated = true;
+          return true;
+        },
         tiltBy: (degrees) => {
           const runtime = runtimeRef.current;
           if (!runtime) {
@@ -2068,9 +2284,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
-          const offset = runtime.camera.position.clone().sub(runtime.controls.target);
+          const offset = runtime.camera.position
+            .clone()
+            .sub(runtime.controls.target);
           offset.multiplyScalar(1 / factor);
-          offset.clampLength(runtime.controls.minDistance, runtime.controls.maxDistance);
+          offset.clampLength(
+            runtime.controls.minDistance,
+            runtime.controls.maxDistance,
+          );
           runtime.camera.position.copy(runtime.controls.target).add(offset);
           runtime.controls.update();
         },
@@ -2109,10 +2330,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       renderer.setPixelRatio(1);
       renderer.domElement.className = "three-canvas";
       renderer.domElement.tabIndex = 0;
-      renderer.domElement.setAttribute(
-        "aria-label",
-        canvasAriaLabel,
-      );
+      renderer.domElement.setAttribute("aria-label", canvasAriaLabel);
       host.append(renderer.domElement);
 
       const scene = new Scene();
@@ -2228,6 +2446,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(parkDetails);
       const rain = createModerateRain(coarsePointer);
       scene.add(rain.group);
+      const snowstorm = createSnowstorm(coarsePointer);
+      scene.add(snowstorm.group);
       const runtime: Runtime = {
         camera,
         civicDetails,
@@ -2255,6 +2475,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         parkDetails,
         rain,
         rainEnabled: rainEnabledRef.current,
+        snowstorm,
         renderer,
         renderInvalidated: true,
         scene,
@@ -2267,7 +2488,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         tunnel: new Group(),
         tunnelPortals: new Group(),
         tunnelBounds: null,
+        tunnelFlight: null,
         tunnelPoints: null,
+        tunnelTubeOffsetM: 6.1,
         isoWorld: null,
         isoWorldState: "idle",
         inkLineMaterials: new Set(),
@@ -2281,7 +2504,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         underwater: false,
       };
       runtimeRef.current = runtime;
-      setSceneLighting(runtime, lightingModeRef.current, nightLightsOnRef.current);
+      setSceneLighting(
+        runtime,
+        lightingModeRef.current,
+        nightLightsOnRef.current,
+      );
 
       const touchPoints = new Map<number, { x: number; y: number }>();
       let customTouchGestureActive = false;
@@ -2382,7 +2609,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             interacting: false,
             width,
           });
-          crispResolution.set(width * settledPixelRatio, height * settledPixelRatio);
+          crispResolution.set(
+            width * settledPixelRatio,
+            height * settledPixelRatio,
+          );
         }
       };
       const noteInteractionInput = (): void => {
@@ -2451,10 +2681,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             0.82,
             1.22,
           );
-          zoomAtClientPoint(
-            { x: event.clientX, y: event.clientY },
-            factor,
-          );
+          zoomAtClientPoint({ x: event.clientX, y: event.clientY }, factor);
         } else {
           trackpadPanSequenceUntil = now + 180;
           // Pixel wheel deltas run opposite to physical finger travel under
@@ -2464,12 +2691,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             -event.deltaX,
             -event.deltaY,
           );
-          flyCameraAlongViewHeading(
-            camera,
-            controls.target,
-            strafe,
-            forward,
-          );
+          flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
         }
         controls.update();
         markSurfaceInteraction(runtime);
@@ -2511,7 +2733,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastTouchActivityAt = performance.now();
-        touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        touchPoints.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        });
         if (touchPoints.size === 2) {
           customTouchGestureActive = true;
           controlsInteracting = false;
@@ -2550,7 +2775,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         lastTouchActivityAt = performance.now();
-        touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        touchPoints.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        });
         if (touchPoints.size === 2 && previousTwoFingerGesture) {
           event.preventDefault();
           event.stopImmediatePropagation();
@@ -2625,7 +2853,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
         };
         const polar = MathUtils.clamp(
-          controls.getPolarAngle() + (center.y - previousThreeFingerCenter.y) * 0.006,
+          controls.getPolarAngle() +
+            (center.y - previousThreeFingerCenter.y) * 0.006,
           0.08,
           Math.PI - 0.08,
         );
@@ -2635,7 +2864,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             (center.x - previousThreeFingerCenter.x) * 0.008,
           polar,
         });
-        if ((polar > Math.PI / 2) !== runtime.underside) {
+        if (polar > Math.PI / 2 !== runtime.underside) {
           setModelMaterialState(runtime, polar > Math.PI / 2);
         }
         previousThreeFingerCenter = center;
@@ -2751,7 +2980,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         onPointerUp(event);
       };
       renderer.domElement.addEventListener("pointerup", onPointerUp, true);
-      renderer.domElement.addEventListener("pointercancel", onPointerCancel, true);
+      renderer.domElement.addEventListener(
+        "pointercancel",
+        onPointerCancel,
+        true,
+      );
       // NOTE deliberately no "lostpointercapture" listener: touch
       // pointers get implicit capture, so it fires on EVERY normal
       // finger lift and used to wipe the whole gesture state (killing
@@ -2829,7 +3062,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           heading.y = 0;
         }
         heading.normalize();
-        const right = new Vector3().crossVectors(heading, camera.up).normalize();
+        const right = new Vector3()
+          .crossVectors(heading, camera.up)
+          .normalize();
         const move = heading
           .multiplyScalar(flightVelocity.z * speed * dtSeconds)
           .add(right.multiplyScalar(flightVelocity.x * speed * dtSeconds));
@@ -2846,6 +3081,31 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         camera.position.add(applied);
         camera.updateMatrixWorld();
         markSurfaceInteraction(runtime, 220);
+        return true;
+      };
+      const applyGuidedTunnelFlight = (timestamp: number): boolean => {
+        const activeFlight = runtime.tunnelFlight;
+        if (!activeFlight) {
+          return false;
+        }
+        const pose = tunnelFlightPose(
+          activeFlight.plan,
+          timestamp - activeFlight.startedAt,
+        );
+        // The bore remains explicit for both portal approaches. Once inside,
+        // the usual underside cutaway also removes the overlying city plate.
+        setTunnelPresentation(runtime.tunnel, false, true);
+        camera.position.copy(pose.position);
+        controls.target.copy(pose.target);
+        camera.updateMatrixWorld();
+        runtime.renderInvalidated = true;
+        runtime.interactionUntil = timestamp + 120;
+        if (pose.done) {
+          runtime.tunnelFlight = null;
+          setModelMaterialState(runtime, false);
+          setEnvironmentalPresentation(runtime);
+          notifyView(runtime, onViewChangeRef.current);
+        }
         return true;
       };
       const animate = (timestamp = 0) => {
@@ -2870,7 +3130,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ) {
           resetTouchGesture();
         }
-        const flying = applyContinuousFlight(dtSeconds);
+        const guidedFlying = applyGuidedTunnelFlight(timestamp);
+        const flying = guidedFlying || applyContinuousFlight(dtSeconds);
         let controlsChanged = controls.update();
         const afterControlsPose = captureCameraPose(camera, controls.target);
         const directInputActive = renderInteractionActive({
@@ -2913,6 +3174,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
         const environmentalMotion =
           runtime.rain.group.visible ||
+          runtime.snowstorm.group.visible ||
           runtime.minecraftMobs?.group.visible === true;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
@@ -2930,7 +3192,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           timestamp < runtime.interactionUntil ||
           timestamp < settleUntil;
         const isMoving =
-          cameraMoving || stability.forceContinuousRender || environmentalMotion;
+          cameraMoving ||
+          stability.forceContinuousRender ||
+          environmentalMotion;
         // Resolution governor: one hysteretic decision per frame instead of a
         // resize on every OrbitControls start/end pair. A wheel dolly fires
         // both events per tick, so applying them directly swapped the canvas
@@ -3029,7 +3293,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const insideTunnel =
           runtime.tunnelBounds !== null &&
           runtime.tunnelBounds.containsPoint(camera.position);
-        const underside = controls.getPolarAngle() > Math.PI / 2 || insideTunnel;
+        const underside =
+          controls.getPolarAngle() > Math.PI / 2 || insideTunnel;
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
@@ -3047,6 +3312,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           reducedMotion ? dtSeconds * 0.45 : dtSeconds,
           controls.target,
           runtime.lightingMode,
+        );
+        updateSnowstorm(
+          runtime.snowstorm,
+          reducedMotion ? dtSeconds * 0.38 : dtSeconds,
+          controls.target,
         );
         if (runtime.minecraftMobs?.group.visible) {
           updateMinecraftMobs(
@@ -3085,11 +3355,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const decayed = decayPanMomentum(panMomentum, dtSeconds);
           panMomentum.x = decayed.x;
           panMomentum.y = decayed.y;
-          if (
-            panMomentum.x === 0 &&
-            panMomentum.y === 0 &&
-            touchInteracting
-          ) {
+          if (panMomentum.x === 0 && panMomentum.y === 0 && touchInteracting) {
             touchInteracting = false;
             noteInteractionInput();
           }
@@ -3115,7 +3381,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // (strength/edge 0, saturation/contrast 1), at 1 it applies the full
           // authored profile.
           const profile =
-            CRISPNESS_PROFILES[runtime.lightingMode === "night" ? "night" : "day"];
+            CRISPNESS_PROFILES[
+              runtime.lightingMode === "night" ? "night" : "day"
+            ];
           const crispBlend = crispTargetScale;
           crispPass.enabled = true;
           // v0.55.0 moire fix: the unsharp+edge pass reads exactly one
@@ -3166,7 +3434,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
           markAuthoredFlatUnlit(runtime.civicDetails);
           scene.add(runtime.civicDetails);
-          applyLightingToRoot(runtime.civicDetails, runtime.lightingMode, runtime.nightLightsOn);
+          applyLightingToRoot(
+            runtime.civicDetails,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
+          );
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.civicDetails,
@@ -3263,7 +3535,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_world: [-672.1, 5.2, 967.2],
           });
           runtime.heroByName = new Map(
-            manifest.hero_details.map((detail) => [detail.landmark_name, detail]),
+            manifest.hero_details.map((detail) => [
+              detail.landmark_name,
+              detail,
+            ]),
           );
           for (const signature of manifest.architectural_signatures ?? []) {
             const model = createArchitecturalSignature(signature);
@@ -3273,10 +3548,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
             const focusCamera = focusCameraForSignature(signature);
             if (focusCamera) {
-              runtime.focusCameraByName.set(signature.landmark_name, focusCamera);
+              runtime.focusCameraByName.set(
+                signature.landmark_name,
+                focusCamera,
+              );
             }
           }
-          applyLightingToRoot(runtime.signatures, runtime.lightingMode, runtime.nightLightsOn);
+          applyLightingToRoot(
+            runtime.signatures,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
+          );
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.signatures,
@@ -3288,11 +3570,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           markAuthoredFlatUnlit(runtime.monuments);
           scene.add(runtime.monuments);
-          applyLightingToRoot(runtime.monuments, runtime.lightingMode, runtime.nightLightsOn);
+          applyLightingToRoot(
+            runtime.monuments,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
+          );
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
+          runtime.culturalDetails.add(
+            createExpandedCityDetails(manifest.landmarks),
+          );
           scene.add(runtime.culturalDetails);
-          applyLightingToRoot(runtime.culturalDetails, runtime.lightingMode, runtime.nightLightsOn);
+          applyLightingToRoot(
+            runtime.culturalDetails,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
+          );
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               scene,
@@ -3304,6 +3597,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const focusCamera = culturalFocusCamera(landmark.name);
             if (focusCamera) {
               runtime.focusCameraByName.set(landmark.name, focusCamera);
+            }
+            const expandedFocusCamera = expandedCityFocusCamera(landmark);
+            if (expandedFocusCamera) {
+              runtime.focusCameraByName.set(landmark.name, expandedFocusCamera);
             }
           }
           if (manifest.park_details?.file) {
@@ -3330,7 +3627,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 details.visible = !runtime.underside;
                 setParkDetailsFocus(details, selectedRef.current);
                 scene.add(details);
-                applyLightingToRoot(details, runtime.lightingMode, runtime.nightLightsOn);
+                applyLightingToRoot(
+                  details,
+                  runtime.lightingMode,
+                  runtime.nightLightsOn,
+                );
                 if (runtime.lightingMode === "minecraft") {
                   setMinecraftMaterialPresentation(
                     details,
@@ -3343,7 +3644,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               .catch((error: unknown) => {
                 if (
                   !runtime.disposed &&
-                  !(error instanceof DOMException && error.name === "AbortError")
+                  !(
+                    error instanceof DOMException && error.name === "AbortError"
+                  )
                 ) {
                   onWarningRef.current(
                     error instanceof Error
@@ -3355,9 +3658,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           runtime.tunnelPoints = manifest.tiergartentunnel.points;
+          runtime.tunnelTubeOffsetM =
+            manifest.tiergartentunnel.clear_width_each_direction_m / 2 + 0.85;
           scene.add(runtime.tunnel);
           runtime.tunnelPortals.removeFromParent();
-          runtime.tunnelPortals = createTunnelPortals(manifest.tiergartentunnel);
+          runtime.tunnelPortals = createTunnelPortals(
+            manifest.tiergartentunnel,
+          );
           // Bore-view presets ("man muss … tief hineinschauen können"):
           // both tunnel sights aim straight into their bore from a low,
           // axis-near stand up the ramp, derived from the same centreline
@@ -3376,7 +3683,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
-          applyLightingToRoot(runtime.tunnelPortals, runtime.lightingMode, runtime.nightLightsOn);
+          applyLightingToRoot(
+            runtime.tunnelPortals,
+            runtime.lightingMode,
+            runtime.nightLightsOn,
+          );
           runtime.tunnelBounds = new Box3()
             .setFromObject(runtime.tunnel)
             .expandByScalar(5);
@@ -3445,7 +3756,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (baseFailures.length > 0) {
             setProgress((current) => ({
               ...current,
-              total: Math.max(current.loaded, current.total - baseFailures.length),
+              total: Math.max(
+                current.loaded,
+                current.total - baseFailures.length,
+              ),
             }));
             onWarningRef.current(
               `${baseFailures.length} Basiskachel(n) konnten nach zwei Versuchen nicht geladen werden.`,
@@ -3506,10 +3820,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         manifestController.abort();
         window.cancelAnimationFrame(frame);
         resizeObserver?.disconnect();
-        renderer.domElement.removeEventListener("pointerdown", onPointerDown, true);
-        renderer.domElement.removeEventListener("pointermove", onPointerMove, true);
+        renderer.domElement.removeEventListener(
+          "pointerdown",
+          onPointerDown,
+          true,
+        );
+        renderer.domElement.removeEventListener(
+          "pointermove",
+          onPointerMove,
+          true,
+        );
         renderer.domElement.removeEventListener("pointerup", onPointerUp, true);
-        renderer.domElement.removeEventListener("pointercancel", onPointerCancel, true);
+        renderer.domElement.removeEventListener(
+          "pointercancel",
+          onPointerCancel,
+          true,
+        );
         renderer.domElement.removeEventListener(
           "lostpointercapture",
           resetTouchGesture,
@@ -3521,7 +3847,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onWheelNavigation,
           true,
         );
-        renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+        renderer.domElement.removeEventListener(
+          "webglcontextlost",
+          onContextLost,
+        );
         window.removeEventListener("pointerup", onPointerUp, true);
         window.removeEventListener("pointercancel", onPointerUp, true);
         window.removeEventListener("blur", resetTouchGesture);
@@ -3545,10 +3874,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         composer.dispose();
         disposeMinecraftMaterialState(runtime.minecraftMaterialState);
         renderer.dispose();
-      // Release the WebGL context immediately: iOS Safari's context
-      // pool is tiny, and repeated map<->3D toggles could otherwise
-      // exhaust it before GC runs.
-      renderer.forceContextLoss();
+        // Release the WebGL context immediately: iOS Safari's context
+        // pool is tiny, and repeated map<->3D toggles could otherwise
+        // exhaust it before GC runs.
+        renderer.forceContextLoss();
         renderer.domElement.remove();
         runtimeRef.current = null;
       };

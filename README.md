@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.64.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.64.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.65.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.65.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.64.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.65.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.64.0**, built from `main`. Its full viewer is a progressively
+The current public package is **v0.65.0**, built from `main`. Its full viewer is a progressively
 loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
 labelled compatibility fallback for browsers that cannot run local modules.
 
@@ -65,31 +65,27 @@ labelled compatibility fallback for browsers that cannot run local modules.
   "Non-Violence" sculpture. **No window grid is ever invented** — LoD2 carries
   no window positions, so only documented hero fenestration and the surveyed
   entrance doors exist as panes, and two tests enforce that absence.
-- The versioned visible presentation radius is **5030 m** (expanded from
-  3410 m in v0.40.0). Existing metric geometry remains fixed. The v0.41.0
-  bounds expansion fetched real LoD2 buildings, ALKIS parcels and the official
-  tree and public-lighting catalogues out to world x −2873, so the invented
-  western Tiergarten — lawn bands, a drawn Straße des 17. Juni and roughly
-  1774 generated trees — has been **removed** rather than left standing on top
-  of measured geometry. What remains extrapolated is a 1200 m blank paper ring
-  around the surveyed hull (world x −2880…690, z −1310…1620; envelope
-  x −4080…1890, z −2510…2820): flat tone plates and cartographic ruling only,
-  explicitly marked and never presented as surveyed geometry. Day, Night and
-  Minecraft consume the same envelope.
-- **The OSM layer covers the complete surveyed hull.** v0.62.0 re-clips the
-  Geofabrik Berlin extract to `bounds.geojson` (E386626…390183 /
-  N5818392…5821304), so the full westward Tiergarten extent carries surveyed
-  OSM streets, water, park polygons, paths and POIs. The resulting road,
+- The versioned visible presentation radius is **5,130 m**, expanded by exactly
+  100 m in v0.65.0 without moving existing metric geometry. The task-10 data
+  hull reaches world x −2880…1410 and z −2600…1890, covering the full
+  Tiergarten to Charlottenburger Tor, Europacity/DKB in the north and
+  Anhalter Bahnhof/Kochstraße in the south. Its restrained 880 m paper margin
+  yields envelope x −3760…2290 and z −3480…2770. Paper-only context is flat
+  cartographic presentation and is never described as surveyed geometry. Day,
+  Night, Minecraft and Snowstorm use the same envelope.
+- **The OSM layer covers the complete surveyed hull.** v0.65.0 re-clips the
+  Geofabrik Berlin extract to `bounds.geojson` (E386626.58…390908.90 /
+  N5818111.23…5822592.07), so the expanded extent carries bounded OSM streets,
+  water, park polygons, paths and POIs. The resulting road,
   water and park surfaces are regenerated from the same bounded source;
   no replacement street or river geometry is invented.
-- **The 2D overview raster stays pinned to the pre-expansion polygon.** Its
-  DZI tiles and the landmark projection beside them
-  (`src/app/public/dzi/regierungsviertel/landmarks.json`) are projected from
-  `overview_bounds.geojson`, so the published prism tones remain byte-stable.
-  `landmarks.geojson` carries all 56 checked landmarks and the 3D scene uses
-  them; the 2D overview projection still shows the 43 that fit the pinned
-  polygon. Re-projecting the 2D overview remains deliberately separate from
-  the OSM refetch because that raster is a versioned, pinned composition.
+- **The 2D overview and 3D scene share the same task-10 bounds.** The DZI,
+  reference image and bundled landmark projection were regenerated together;
+  all 73 checked sights use the same coordinate frame in both viewers. The
+  embedded and public landmark payloads are byte-identical and enforced by
+  release tests. The hosted viewer keeps the full 16384×11616 DZI pyramid; the
+  downloadable archive reuses its 8192×5808 lower levels to stay below the
+  offline size ceiling. All 68 3D GLBs remain byte-complete in both forms.
 - Day and Night render with **no tone mapping at exposure 1**, so an authored
   paint tone reaches the screen bit-exact. The drawn city is a flat unlit
   drawing: plasticity comes from one constant brightness per face direction
@@ -106,18 +102,18 @@ labelled compatibility fallback for browsers that cannot run local modules.
   are presentation geometry derived from an OSM classification and are not
   claimed as surveyed kerb lines. The surfaces follow the payload's terrain
   grid rather than one constant height.
-- The refreshed OSM extract now spans the whole surveyed world-x interval
-  (−2873…684). Its Großer Stern carriageway, the continuous Straße des
-  17. Juni, Tiergarten sand paths and Spree water surfaces are all derived
-  from that bounded data rather than presentation substitutes.
+- The refreshed OSM extract spans the full task-10 data hull. Großer Stern,
+  Straße des 17. Juni, the Tiergarten paths, Spree and Landwehrkanal surfaces,
+  Europacity and the southern extension are derived from that bounded source
+  rather than presentation substitutes.
 - The metric base comes from 23 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale. These tiles cover
-  the pre-v0.41.0 footprint only; the areas added by the task-09 bounds
-  expansion (Kulturforum, Leipziger Platz, Hamburger Bahnhof, Geschichtspark
-  Moabit, the western Tiergarten) carry LoD2, ALKIS and official point data
-  but no photogrammetric mesh, because refetching the mesh for 3.6× the area
-  would exceed the published WebGL scene budget.
+  the original photogrammetric footprint only. Task-09/task-10 additions carry
+  refreshed LoD2, OSM, ALKIS and official point data plus explicitly labelled
+  recognition geometry where documented, but no claimed photogrammetric
+  coverage outside those 23 tiles. This keeps the downloadable scene inside
+  its published WebGL memory budget.
 - Each context tile retains up to 100,000 faces, raising the official base from
   1,609,984 to 2,299,987 faces without moving its source coordinates. A 58°
   normal crease keeps severe roof and facade folds crisp while preserving
@@ -179,13 +175,17 @@ labelled compatibility fallback for browsers that cannot run local modules.
   combined with batched glass seams, masonry courses, column fluting and
   entablature profiles. All additions remain inside the published metric
   envelopes of the four hero landmarks.
-- Day, Night and Minecraft now have separate direct controls. The true 3D scene
+- Day, Night, Minecraft and Snowstorm have separate direct controls. The true 3D scene
   changes sky, fog, directional light and exposure; only the Reichstag's tall
   arched occupied bays emit light at night, while its small upper and tower
   windows remain dark. A restrained cool light floor keeps official drawn
   facades legible without affecting terrain, vegetation or water, while the
   Brandenburg Gate receives warm floodlighting. The 2D fallback receives a
   restrained night treatment.
+- Snowstorm adds a shared white ground mantle, 2,400 bounded desktop flakes
+  (1,100 on touch devices), 168 wind-shaped drifts and three snowploughs while
+  preserving the same buildings and metric anchors. Moderate rain is an
+  independent toggle for Day, Night and Minecraft.
 - The `Minecraft` visual mode, also available with `M`,
   applies an original 48-colour premium voxel palette, ordered dithering,
   toon materials and restrained animated water/glass highlights without moving a
@@ -195,8 +195,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
   strict mobile density budget. Its distant haze now scales with the versioned
   visible radius, keeping the complete expanded model readable at overview
   distance instead of fading the outer ring. Its official metric voxel payload
-  grows with the expanded bounds; the matching 5030 m block surround is
+  grows with the expanded bounds; the matching 5,130 m block surround is
   explicitly tagged as extrapolated presentation geometry.
+- Three Creepers and four Zombies walk deterministic park routes only in
+  Minecraft mode. They share one instanced rendering batch and disappear
+  completely in Day, Night, Snowstorm, underwater and underside views.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact
   40 px sight status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with
@@ -222,6 +225,11 @@ labelled compatibility fallback for browsers that cannot run local modules.
   `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows
   orbit and tilt. Camera and target move together, so flight never changes the
   orbit distance accidentally.
+- Fullscreen works through the native browser API on desktop and a safe-area-
+  aware pseudo-fullscreen fallback on iOS. Guided northbound and southbound
+  tunnel flights follow the approximate route inside the correct traffic tube,
+  expose road markings, ceiling lights and paired ventilation fans, and return
+  to the ordinary exterior presentation when cancelled.
 - A persistent DE/EN switch translates the application chrome and correctly
   calls the German list `Sehenswürdigkeiten`. Optional music (`B`) synthesizes
   seven original slow 8-bit ambient variations locally with Web Audio; no
@@ -264,14 +272,13 @@ labelled compatibility fallback for browsers that cannot run local modules.
   Berlin.de-identified T-34/76 vehicles now use longitudinal hulls, sloped
   glacis plates, ten road wheels each, turrets, hatches and 76 mm barrels rather
   than transverse generic boxes; their local spacing remains an approximation.
-- Tiergarten detail is no longer only a coarse photogrammetric canopy. A
-  compact additive layer combines 6,893 official Berlin tree-catalogue points
-  with unmatched OSM evidence into 8,029 individual trees, including measured
-  height, crown and trunk dimensions where published. It also adds 1,242
-  official public-light positions with night cones, two official
-  Vorderlandmauer traces as a granular double row of dark red-brown setts and
-  167 OSM park-path sections. Five playground
-  footprints are retained; the selectable Luiseninsel playground opposite the
+- Tiergarten detail is no longer only a coarse photogrammetric canopy. The
+  expanded additive layer combines the official catalogues with unmatched OSM
+  evidence into 29,283 individual trees, including measured height, crown and
+  trunk dimensions where published. It also adds 5,251 public-light positions
+  with night cones, 12 mapped wall traces as granular dark red-brown setts,
+  591 OSM park-path sections and 98 playground footprints. The selectable
+  Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
   water-play point and excavator. Its oblique focus view keeps those small
   devices readable above the coarse source-mesh canopy and restores the normal
@@ -323,7 +330,7 @@ labelled compatibility fallback for browsers that cannot run local modules.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
-- LoD2, OSM, ALKIS/DOP/DGM inventories, 40 landmarks, 23 relative-placement
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 73 landmarks, 23 relative-placement
   checks and 110 accepted Wikimedia references remain part of the additive
   evidence pipeline and attribution chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is
@@ -363,6 +370,9 @@ the packaged viewer projection is
 | Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945 |
 | Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
+| Northern extension | Hamburger Bahnhof, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |
+| Kulturforum / Potsdamer Platz | Philharmonie, Kammermusiksaal, Staatsbibliothek, Neue Nationalgalerie, berlin modern, Henry-Moore-Plastik, Tilla-Durieux-Park, Kollhoff-Tower |
+| Western and southern extension | Siegessäule, Luiseninsel, Rosengarten, Café am Neuen See, Spanische Botschaft, Charlottenburger Tor, Anhalter Bahnhof, WELT Balloon, Kochstraße |
 
 ---
 
@@ -460,11 +470,11 @@ Kacheln für Berlin werden neu erzeugt.
 <tr>
 <td valign="top">
 
-## MVP Scope: Regierungsviertel
+## Current scope: central Berlin around the Regierungsviertel
 
-The bounded release covers only the **Government Quarter of Berlin** — a tight
-area around the heart of the federal government. The source polygon remains
-the hard spatial limit so releases stay reproducible and locally downloadable.
+The bounded release centres on the **Government Quarter of Berlin** and follows
+a lobed central-Berlin polygon. The source polygon remains the hard spatial
+limit so releases stay reproducible and locally downloadable.
 
 **Bounding area (approximate):**
 
@@ -473,23 +483,24 @@ the hard spatial limit so releases stay reproducible and locally downloadable.
 - **Bundeskanzleramt** (Federal Chancellery)
 - **Paul-Löbe-Haus** and **Marie-Elisabeth-Lüders-Haus**
   (the "Band des Bundes" along the Spree)
-- **Berlin Hauptbahnhof** (Berlin Central Station, north-west corner)
+- **Berlin Hauptbahnhof**, Hamburger Bahnhof and Europacity in the north
 - **Kongresshalle / Haus der Kulturen der Welt** ("Schwangere Auster")
-- Eastern strip of the **Tiergarten** down to the
-  **Tiergartentunnel entrance** at the **Sony Center / Potsdamer Platz**
+- The complete **Tiergarten** to Charlottenburger Tor in the west
+- Kulturforum, Potsdamer/Leipziger Platz, Anhalter Bahnhof and Kochstraße
+- Both **Tiergartentunnel** portals and the approximate underground route
 
-Roughly a 2.5 × 1.5 km rectangle (~4 km²). Expected tile count is in
-the low hundreds, not the ~40,000 of the NYC map.
+The bounding box is roughly 4.3 × 4.5 km, while the lobed polygon excludes
+unrequested surroundings. It remains far smaller than a whole-city build.
 
 </td>
 <td valign="top">
 
-## MVP-Umfang: Regierungsviertel
+## Aktueller Umfang: Berliner Zentrum rund um das Regierungsviertel
 
-Der begrenzte Release deckt ausschließlich das **Regierungsviertel Berlin**
-ab – einen engen Bereich rund um das Herz der Bundesregierung. Das
-Quellpolygon bleibt die feste räumliche Grenze, damit Releases reproduzierbar
-und lokal herunterladbar bleiben.
+Der begrenzte Release hat das **Regierungsviertel Berlin** als Mittelpunkt und
+folgt einem gelappten Polygon im Berliner Zentrum. Das Quellpolygon bleibt die
+feste räumliche Grenze, damit Releases reproduzierbar und lokal herunterladbar
+bleiben.
 
 **Ausschnitt (ungefähr):**
 
@@ -498,14 +509,15 @@ und lokal herunterladbar bleiben.
 - **Bundeskanzleramt**
 - **Paul-Löbe-Haus** und **Marie-Elisabeth-Lüders-Haus**
   (das „Band des Bundes" entlang der Spree)
-- **Berlin Hauptbahnhof** (Nordwest-Ecke)
+- **Berlin Hauptbahnhof**, Hamburger Bahnhof und Europacity im Norden
 - **Kongresshalle / Haus der Kulturen der Welt** („Schwangere Auster")
-- Östlicher Streifen des **Tiergartens** bis zum Eingang des
-  **Tiergartentunnels** am **Sony Center / Potsdamer Platz**
+- Der vollständige **Tiergarten** bis zum Charlottenburger Tor im Westen
+- Kulturforum, Potsdamer/Leipziger Platz, Anhalter Bahnhof und Kochstraße
+- Beide Portale des **Tiergartentunnels** und die angenäherte Untergrundroute
 
-Grob ein Rechteck von 2,5 × 1,5 km (~4 km²). Erwartete Kachelzahl
-liegt im niedrigen dreistelligen Bereich, nicht bei den ~40.000 der
-NYC-Karte.
+Die umschließende Box misst grob 4,3 × 4,5 km; das gelappte Polygon spart nicht
+angeforderte Umgebung aus. Es bleibt deutlich kleiner als ein Stadtmodell für
+ganz Berlin.
 
 </td>
 </tr>

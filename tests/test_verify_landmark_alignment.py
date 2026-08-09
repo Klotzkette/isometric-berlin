@@ -18,18 +18,10 @@ VIEWER_LANDMARKS = ROOT / "src/app/public/dzi/regierungsviertel/landmarks.json"
 # no feature under the name this project uses. Their geometry comes from
 # LoD2/official data, so a missing match is a QA note rather than a defect.
 LANDMARKS_WITHOUT_OSM_MATCH = {
-  "Bismarck-Nationaldenkmal",
-  "Berliner Philharmonie",
-  "St. Matthäus-Kirche",
-  "Neue Nationalgalerie",
-  "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
-  "Mall of Berlin",
-  "Kollhoff-Tower",
-  "Geschichtspark Ehemaliges Zellengefängnis Moabit",
-  # Way 106845803 carried the memorial's name and historic=memorial until it was
-  # replaced upstream by an untagged water=reservoir basin; the monument itself
-  # is modelled from official sources in MemorialLandmarks.ts.
-  "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas",
+  # Both are current/future construction projects without a matching named
+  # feature at their committed project anchors. Keep them as explicit reviews.
+  "DKB Campus Upbeat",
+  "berlin modern — Museum des 20. Jahrhunderts",
 }
 
 
@@ -49,11 +41,11 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 57,
+    "landmarks_checked": 73,
     "relative_relationships_checked": 26,
-    "landmark_review_count": 9,
+    "landmark_review_count": 2,
     "relative_review_count": 0,
-    "review_count": 9,
+    "review_count": 2,
   }
   checks = {check["name"]: check for check in report["checks"]}
   assert checks["Paul-Löbe-Haus"]["best_osm_match"]["name"] == "Paul-Löbe-Haus"

@@ -20,10 +20,10 @@
     30.0
   ],
   "bounds_epsg25833": [
-    388784.931,
-    5818549.036,
-    390105.78,
-    5821029.824
+    386626.581,
+    5818111.235,
+    390908.901,
+    5822592.066
   ],
   "base_tiles": [
     {
@@ -2524,7 +2524,7 @@
       "world": [
         -133.7719432861195,
         8.0,
-        -75.99966348800808
+        -75.99966348707676
       ]
     },
     {
@@ -2542,14 +2542,14 @@
       "world": [
         -106.88599031011108,
         8.0,
-        -214.48962156753987
+        -214.4896215684712
       ]
     },
     {
       "name": "Marie-Elisabeth-Lüders-Haus",
       "role": "must_be_visible",
       "world": [
-        416.374718144245,
+        416.3747181443032,
         8.0,
         -205.89888461958617
       ]
@@ -2596,7 +2596,7 @@
       "world": [
         304.48787532007555,
         8.0,
-        206.5105015207082
+        206.51050152163953
       ]
     },
     {
@@ -2738,9 +2738,9 @@
       "name": "Beethoven-Haydn-Mozart-Denkmal",
       "role": "owner_added",
       "world": [
-        -88.23575241165236,
+        -88.23575241171056,
         8.0,
-        570.9512711018324
+        570.9512711009011
       ]
     },
     {
@@ -2834,12 +2834,264 @@
       ]
     },
     {
+      "name": "Großer Stern",
+      "role": "owner_added",
+      "world": [
+        -1461.9665003244882,
+        8.0,
+        457.11010951176286
+      ]
+    },
+    {
+      "name": "Bismarck-Nationaldenkmal",
+      "role": "owner_added",
+      "world": [
+        -1479.688343576796,
+        8.0,
+        300.7366400724277
+      ]
+    },
+    {
+      "name": "Berliner Philharmonie",
+      "role": "owner_added",
+      "world": [
+        -137.40605979016982,
+        8.0,
+        986.6202232837677
+      ]
+    },
+    {
+      "name": "St. Matthäus-Kirche",
+      "role": "owner_added",
+      "world": [
+        -297.78488503419794,
+        8.0,
+        1211.6659429445863
+      ]
+    },
+    {
+      "name": "Gemäldegalerie",
+      "role": "owner_added",
+      "world": [
+        -348.1552436321508,
+        8.0,
+        1148.7730491105467
+      ]
+    },
+    {
+      "name": "Neue Nationalgalerie",
+      "role": "owner_added",
+      "world": [
+        -305.13579248450696,
+        8.0,
+        1322.372333274223
+      ]
+    },
+    {
+      "name": "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
+      "role": "owner_added",
+      "world": [
+        -69.96339433221146,
+        8.0,
+        1280.7803899990395
+      ]
+    },
+    {
+      "name": "Leipziger Platz",
+      "role": "owner_added",
+      "world": [
+        427.73070566693787,
+        8.0,
+        1066.1161428587511
+      ]
+    },
+    {
+      "name": "Mall of Berlin",
+      "role": "owner_added",
+      "world": [
+        565.9495522306534,
+        8.0,
+        957.9424914550036
+      ]
+    },
+    {
+      "name": "Kollhoff-Tower",
+      "role": "owner_added",
+      "world": [
+        240.09525723132538,
+        8.0,
+        1082.4644896388054
+      ]
+    },
+    {
+      "name": "Hamburger Bahnhof",
+      "role": "owner_added",
+      "world": [
+        75.2539564796025,
+        8.0,
+        -1067.2178547978401
+      ]
+    },
+    {
+      "name": "Geschichtspark Ehemaliges Zellengefängnis Moabit",
+      "role": "owner_added",
+      "world": [
+        -334.8525026703719,
+        8.0,
+        -905.1998181017116
+      ]
+    },
+    {
       "name": "Invalidenpark / Sinkende Mauer",
       "role": "owner_added",
       "world": [
         357.99754346814007,
         8.0,
         -1150.7056127786636
+      ]
+    },
+    {
+      "name": "Rieckhallen",
+      "role": "owner_added",
+      "world": [
+        -70.15710494911764,
+        8.0,
+        -1217.1476179100573
+      ]
+    },
+    {
+      "name": "Sozialgericht Berlin",
+      "role": "owner_added",
+      "world": [
+        -1.0383746132720262,
+        8.0,
+        -964.977599828504
+      ]
+    },
+    {
+      "name": "KPMG Europacity",
+      "role": "owner_added",
+      "world": [
+        -114.75442707189359,
+        8.0,
+        -952.072409953922
+      ]
+    },
+    {
+      "name": "DKB Campus Upbeat",
+      "role": "owner_added",
+      "world": [
+        -676.6322293399135,
+        8.0,
+        -1973.5433991597965
+      ]
+    },
+    {
+      "name": "Kammermusiksaal",
+      "role": "owner_added",
+      "world": [
+        -190.28947770851664,
+        8.0,
+        1057.730447428301
+      ]
+    },
+    {
+      "name": "Tilla-Durieux-Park",
+      "role": "owner_added",
+      "world": [
+        208.87388209230267,
+        8.0,
+        1417.9867905499414
+      ]
+    },
+    {
+      "name": "berlin modern — Museum des 20. Jahrhunderts",
+      "role": "owner_added",
+      "world": [
+        -228.4992078357609,
+        8.0,
+        1197.4917025165632
+      ]
+    },
+    {
+      "name": "Der Bogenschütze (Henry Moore)",
+      "role": "owner_added",
+      "world": [
+        -241.7248615444405,
+        8.0,
+        1290.5216721436009
+      ]
+    },
+    {
+      "name": "Café am Neuen See",
+      "role": "owner_added",
+      "world": [
+        -1851.38745916076,
+        8.0,
+        906.8525662589818
+      ]
+    },
+    {
+      "name": "Spanische Botschaft",
+      "role": "owner_added",
+      "world": [
+        -1783.1355788711226,
+        8.0,
+        914.2798178438097
+      ]
+    },
+    {
+      "name": "Charlottenburger Tor",
+      "role": "owner_added",
+      "world": [
+        -2731.1356797510525,
+        8.0,
+        568.2113939598203
+      ]
+    },
+    {
+      "name": "Rosengarten im Tiergarten",
+      "role": "owner_added",
+      "world": [
+        -995.3753303476842,
+        8.0,
+        543.4174076914787
+      ]
+    },
+    {
+      "name": "Luiseninsel",
+      "role": "owner_added",
+      "world": [
+        -495.6588648802717,
+        8.0,
+        879.8054425437003
+      ]
+    },
+    {
+      "name": "Anhalter Bahnhof",
+      "role": "owner_added",
+      "world": [
+        626.535023778677,
+        8.0,
+        1725.067353588529
+      ]
+    },
+    {
+      "name": "WELT Balloon",
+      "role": "owner_added",
+      "world": [
+        968.1457638457068,
+        8.0,
+        1241.5250578913838
+      ]
+    },
+    {
+      "name": "Kochstraße",
+      "role": "owner_added",
+      "world": [
+        1257.9096563470666,
+        8.0,
+        1388.2814755709842
       ]
     }
   ],

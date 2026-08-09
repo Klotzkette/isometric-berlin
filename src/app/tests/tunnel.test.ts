@@ -49,8 +49,8 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(fanBlades).toBeInstanceOf(InstancedMesh);
     expect((lamps as InstancedMesh).count).toBeGreaterThan(10);
     expect((laneMarks as InstancedMesh).count).toBeGreaterThan(10);
-    expect((fanRings as InstancedMesh).count).toBe(2);
-    expect((fanBlades as InstancedMesh).count).toBe(8);
+    expect((fanRings as InstancedMesh).count).toBe(4);
+    expect((fanBlades as InstancedMesh).count).toBe(16);
     const portals = tunnel.getObjectByName(
       "Tiergartentunnel instanced portal frames",
     );
@@ -78,6 +78,12 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(material.opacity).toBeCloseTo(0.58);
     expect(casing.renderOrder).toBe(14);
     expect(lights.renderOrder).toBeGreaterThan(casing.renderOrder);
+
+    setTunnelPresentation(tunnel, false, true);
+    expect(tunnel.visible).toBe(true);
+    expect(material.opacity).toBe(1);
+    expect(material.depthTest).toBe(true);
+    expect(material.depthWrite).toBe(true);
 
     setTunnelPresentation(tunnel, false);
     expect(tunnel.visible).toBe(false);
@@ -276,7 +282,11 @@ describe("Tiergartentunnel rendering budget", () => {
     let checkedViews = 0;
     let travelled = 0;
 
-    for (let segmentIndex = 1; segmentIndex < points.length; segmentIndex += 1) {
+    for (
+      let segmentIndex = 1;
+      segmentIndex < points.length;
+      segmentIndex += 1
+    ) {
       const from = points[segmentIndex - 1];
       const to = points[segmentIndex];
       const segment = to.clone().sub(from);
@@ -297,11 +307,14 @@ describe("Tiergartentunnel rendering budget", () => {
             const radians = (azimuth * Math.PI) / 180;
             const eye = target
               .clone()
-              .add(new Vector3(Math.cos(radians) * 95, 115, Math.sin(radians) * 95));
-            const ray = new Raycaster(
-              eye,
-              target.clone().sub(eye).normalize(),
-            );
+              .add(
+                new Vector3(
+                  Math.cos(radians) * 95,
+                  115,
+                  Math.sin(radians) * 95,
+                ),
+              );
+            const ray = new Raycaster(eye, target.clone().sub(eye).normalize());
             const firstTunnelSurface = ray
               .intersectObjects(portals.children, true)
               .find(

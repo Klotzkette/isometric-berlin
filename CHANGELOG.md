@@ -1,5 +1,70 @@
 # Changelog
 
+## v0.65.0
+
+- **The measured central-Berlin hull now reaches the complete requested
+  task-10 area.** The versioned presentation radius grows by exactly 100 m,
+  from **5,030 m to 5,130 m**, without moving existing geometry. The bounded
+  source polygon now reaches Europacity/DKB in the north, Anhalter Bahnhof and
+  Kochstraße/WELT Balloon in the south, and the full Tiergarten to
+  Charlottenburger Tor in the west. All generated context was rebuilt from the
+  same polygon: 15,200 LoD2 source volumes produce 15,076 hard-edged prisms;
+  OSM contributes 19,166 roads, 166 water features, 1,751 parks, 1,308 rail
+  features and 8,585 POIs; the compact park payload carries 29,283 trees,
+  5,251 lights, 591 paths and 98 playgrounds. Optional official ALKIS/DOP/DGM
+  refreshes that failed local certificate validation retained their previous
+  recorded evidence; TLS was not weakened and no source was silently dropped.
+- **All four visual modes cover one 73-sight coordinate frame.** Bounds,
+  overview bounds, DZI/reference map and both bundled landmark payloads were
+  regenerated together. New navigation targets include Hamburger Bahnhof and
+  Rieckhallen, Sozialgericht Berlin, Europacity/KPMG/DKB, Kulturforum and
+  `berlin modern`, Tilla-Durieux-Park, Café am Neuen See, Spanish Embassy,
+  Charlottenburger Tor, Anhalter Bahnhof and the WELT balloon. The 2D fallback
+  no longer remains pinned to an obsolete 43-sight extent.
+- **Snowstorm, rain and Minecraft weather now remain bounded and responsive.**
+  Snowstorm adds a shared snow mantle, 2,400 desktop / 1,100 mobile instanced
+  flakes, 168 deterministic drifts and three snowploughs. Moderate rain stays
+  an independent toggle for Day, Night and Minecraft. Three Creepers and four
+  Zombies walk deterministic park routes in one instanced group and disappear
+  outside Minecraft, including underwater and underside presentations.
+- **The Tiergartentunnel can be traversed in both directions.** Guided flights
+  follow the explicitly approximate OSM-derived route inside the correct
+  right-hand traffic tube, place the camera at road level, and expose lane
+  markings, flattened ceiling lights and paired ventilation fan rings. Manual
+  mouse, touch or keyboard navigation cancels the flight and restores the
+  ordinary presentation; the buried route remains sealed in above-ground
+  views.
+- **Fullscreen and controls are more resilient.** Desktop uses the browser
+  fullscreen API with a bounded fallback, while iPhone/tablet uses a
+  safe-area-aware pseudo-fullscreen path that cannot hang waiting for an API
+  Safari does not expose. Compact action labels wrap without shrinking below
+  the 44 px touch contract. A separate keyboard bug that rejected every
+  `Alt`/`Option` event before the orbit handler made `Alt` + arrows unreachable;
+  only those four documented arrow chords now bypass the browser-chord guard.
+- **The expanded edges receive mode-aware recognition detail without false
+  survey claims.** Hamburger Bahnhof, Rieckhallen, Sozialgericht, Kulturforum,
+  Henry Moore, Tilla-Durieux, Anhalter Bahnhof, Charlottenburger Tor, Spanish
+  Embassy, Café am Neuen See, KPMG/DKB and WELT receive flat ivory/brick/glass
+  apparatus anchored to LoD2/OSM. DKB future-project massing is explicitly
+  approximate. Floating facade panels were removed, and the missing drawn `P`
+  glyph that could crash the complete Three.js scene at KPMG is implemented.
+- **The generated scene remains release-sized and stable.** The 68 GLBs keep
+  23 interaction tiles, 23 settled tiles and 22 lazy hero files at 163.5 MiB;
+  every file stays below 5 MiB. The interaction tier has 2,299,987 faces and
+  the settled tier 6,000,002. The official-detail GeoPackage retains all
+  24,872 trees, 5,724 lights and 12 Wall segments but omits optional RTree
+  indexes that the sequential payload build never uses, shrinking from
+  6,213,632 to 4,345,856 bytes. A loaded static Day frame was compared 1.8 s
+  apart with zero differing bytes, providing an exact idle-flicker check for
+  this iteration.
+- **The offline archives stay below their hard extracted-size ceiling without
+  losing any 3D geometry.** Packaging preserves all 68 GLBs and compacts only
+  the redundant highest DZI fallback level: the downloadable descriptor is
+  8192×5808, still above the 6144×4356 double-click overview, while the hosted
+  viewer retains the complete 16384×11616 pyramid. Both release archives are
+  about 145 MiB compressed / 198 MiB extracted and pass manifest, tile-pyramid,
+  hash and local-start checks.
+
 ## v0.64.0
 
 - **The Tiergartentunnel is now sealed from every above-ground direction, not

@@ -13,15 +13,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 BOUNDS = REPO_ROOT / "geo_data" / "regierungsviertel" / "bounds.geojson"
 LANDMARKS = REPO_ROOT / "geo_data" / "regierungsviertel" / "landmarks.geojson"
 
-# A valid square enclosing every committed landmark (lon 13.3493..13.3801,
-# lat 52.5065..52.5290 since the task-09 expansion), so the editor's
+# A valid square enclosing every committed landmark (lon 13.3295..13.3905,
+# lat 52.5035..52.5365 since the task-10 expansion), so the editor's
 # all_inside check accepts it.
 SQUARE = [
-  [13.345, 52.504],
-  [13.385, 52.504],
-  [13.385, 52.531],
-  [13.345, 52.531],
-  [13.345, 52.504],
+  [13.325, 52.499],
+  [13.395, 52.499],
+  [13.395, 52.544],
+  [13.325, 52.544],
+  [13.325, 52.499],
 ]
 
 
@@ -30,7 +30,9 @@ def test_outer_ring_and_properties() -> None:
   ring = cb.outer_ring(fc)
   assert ring[0] == ring[-1], "ring must be closed"
   props = cb.bounds_properties(fc)
-  assert props["name"] == "Regierungsviertel bounds — task-09 grand expansion"
+  assert props["name"] == (
+    "Regierungsviertel bounds — task-10 Europacity and southern history expansion"
+  )
   assert props["description"]
 
 

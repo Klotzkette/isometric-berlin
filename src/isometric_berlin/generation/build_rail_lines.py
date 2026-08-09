@@ -188,9 +188,7 @@ def corridor_polygons(lines: list[LineString]) -> list[dict[str, Any]]:
   """Buffer a bundle of centrelines into the corridor it occupies."""
   if not lines:
     return []
-  bands = [
-    line.buffer(TRACK_HALF_WIDTH_M, cap_style=2, join_style=1) for line in lines
-  ]
+  bands = [line.buffer(TRACK_HALF_WIDTH_M, cap_style=2, join_style=1) for line in lines]
   merged = unary_union(bands)
   surfaces: list[dict[str, Any]] = []
   for part in polygon_parts(merged):

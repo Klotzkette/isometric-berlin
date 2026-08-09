@@ -142,7 +142,9 @@ class SunkenWall:
   width_m: float
 
 
-def _axis_and_width(part: Polygon) -> tuple[tuple[float, float], tuple[float, float], float] | None:
+def _axis_and_width(
+  part: Polygon,
+) -> tuple[tuple[float, float], tuple[float, float], float] | None:
   """Long-axis endpoints and short-side width of a thin slab."""
   rectangle = part.minimum_rotated_rectangle
   if not isinstance(rectangle, Polygon):
@@ -151,7 +153,11 @@ def _axis_and_width(part: Polygon) -> tuple[tuple[float, float], tuple[float, fl
   if len(corners) != 4:
     return None
   edges = [
-    (corners[index], corners[(index + 1) % 4], _distance(corners[index], corners[(index + 1) % 4]))
+    (
+      corners[index],
+      corners[(index + 1) % 4],
+      _distance(corners[index], corners[(index + 1) % 4]),
+    )
     for index in range(4)
   ]
   short = min(edges, key=lambda edge: edge[2])
@@ -186,9 +192,7 @@ def derive_sunken_walls(
   wall stands where the water would be, so the difference between the two
   rings recovers the wall exactly. Nothing here is invented geometry.
   """
-  basins = [
-    feature.geometry for feature in water_features if feature.kind == "basin"
-  ]
+  basins = [feature.geometry for feature in water_features if feature.kind == "basin"]
   if not basins:
     return []
   basin_union = unary_union(basins)

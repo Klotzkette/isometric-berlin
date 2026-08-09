@@ -1,7 +1,12 @@
-export type VisualMode = "day" | "night" | "minecraft";
+export type VisualMode = "day" | "night" | "minecraft" | "snowstorm";
 
 export function isVisualMode(value: string | null): value is VisualMode {
-  return value === "day" || value === "night" || value === "minecraft";
+  return (
+    value === "day" ||
+    value === "night" ||
+    value === "minecraft" ||
+    value === "snowstorm"
+  );
 }
 
 /**

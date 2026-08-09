@@ -8,9 +8,9 @@ three opt-in variables in `AGENTS.md` are explicitly set.
 
 ## Step 7: quadrant coverage
 
-The reproducible grid is 135 quadrants (15 rows × 9 columns), using 180 m map
-tiles with a 90 m margin. It covers EPSG:25833 bounds
-`388694.9307, 5818459.0360, 390314.9307, 5821159.0360` and is rebuilt with:
+The reproducible task-10 grid is 650 quadrants (26 rows × 25 columns), using
+180 m map tiles with a 90 m margin. It starts at approximately EPSG:25833
+`386536.58, 5818021.23` and is rebuilt with:
 
 ```bash
 uv run python -m isometric_berlin.generation.create_grid \
@@ -25,7 +25,7 @@ is inspected for coverage and remains available for per-quadrant/AI work.
 
 The public DZI uses the same `render_quadrant` LoD2/OSM scene code in one
 coherent global projection. This avoids stitching the contextual margins of
-the 135 working quadrants into visible duplicate geometry. The renderer uses
+the 650 working quadrants into visible duplicate geometry. The renderer uses
 a 32768-pixel internal detail budget on a 16384×11616 rectangular canvas;
 geometry, facade lines, landmark signatures and vertical extrusion are drawn
 at that resolution. Existing overview pixels are never upscaled.
@@ -36,9 +36,9 @@ body wins. This prevents duplicate Reichstag domes and repeated station or
 chancellery roof treatments on small adjacent structures.
 
 Complex CityGML ensembles are rendered part by part at their official measured
-heights. The current clipped source contains 3,315 volumes, including 848
-`BuildingPart` records in 142 parent ensembles, and every committed volume has
-a measured LoD2 height. Named OSM building polygons associate all parts in a
+heights. The current clipped source contains 15,200 volumes: 6,066 buildings
+and 9,134 `BuildingPart` records in 1,734 parent ensembles. Every committed
+volume has a measured LoD2 height. Named OSM building polygons associate all parts in a
 landmark family with the same material cue; only the one part at the verified
 landmark anchor receives the singular dome, shell or facade signature.
 
@@ -125,14 +125,13 @@ uv run python -m isometric_berlin.generation.build_park_details
 ```
 
 Before that step, `fetch_official_details` clips the two official tree
-catalogues, public-lighting WFS and Vorderlandmauer WFS into a 1.7 MiB
-GeoPackage. The builder additively fuses 6,893 official tree points with OSM:
-1,876 OSM samples match an official tree within 3 m and 1,136 unmatched OSM
-samples remain, yielding 8,029 visible trees. It also emits 1,242 operational
-lamp points, two Wall traces, 167 path sections and five playground footprints.
-Heights are sampled locally from the packaged official mesh; a scene-ground
-fallback is used only outside mesh coverage. The resulting `park-details.json`
-is 2.6 MiB; raw WFS, OSM and mesh intermediates remain excluded.
+catalogues, public-lighting WFS and wall-trace WFS into the bounded
+GeoPackage. The task-10 builder additively fuses that evidence with OSM and
+emits 29,283 visible trees, 5,251 street lights, 12 wall traces, 591 path
+sections and 98 playground footprints. Heights are sampled locally from the
+packaged official mesh; a scene-ground fallback is used only outside mesh
+coverage. The resulting `park-details.json` is 4.8 MB; raw WFS, OSM and mesh
+intermediates remain excluded.
 
 ## Step 8b: Minecraft-mode voxel payload
 
@@ -163,7 +162,7 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   Gabled/hipped roof forms (ALKIS `3100/3200/3300/3400`) add a one-cell-inset
   second tier 4 m higher as a simple stepped roof; flat (`1000`) and unknown
   roofs stay flat.
-- **Ground height.** Inverse-distance interpolation (k=8) over the 9,271
+- **Ground height.** Inverse-distance interpolation (k=8) over the 34,534
   committed tree and street-light y samples in `park-details.json`; a coarse
   16 m height grid ships in the payload so the viewer can stack from real
   terrain.
@@ -185,9 +184,9 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   the height snapped up to a 4 m multiple (minimum 8 m); the viewer builds
   trunk and crown procedurally.
 
-The committed `minecraft-voxels.json` is ~0.6 MiB (hard test budget 5 MB)
-and currently carries 17,113 building columns, 7,664 tree blocks and 120,302
-classified ground cells. The payload embeds the mandatory OSM + Geoportal
+The committed `minecraft-voxels.json` is 3.6 MB (hard test budget 5 MiB)
+and currently carries 133,060 building columns, 28,096 tree blocks and 641,397
+classified ground cells on a 1,072 × 1,122 grid. The payload embeds the mandatory OSM + Geoportal
 Berlin attribution and per-source licences; `tests/test_build_minecraft_voxels.py`
 guards size, grid consistency and a 24 m+ Reichstag block cross-check.
 
@@ -225,16 +224,14 @@ How it is built (deterministic, shares the Step 8b machinery):
   for later viewer use.
 - **Degeneracy.** Parts below 1 m² or 3 distinct vertices after
   simplification/quantisation are dropped, as are rows whose height rounds
-  to 0 dm. The floor is deliberately 1 m² (not 4 m²): 2,323 of the 3,315
-  committed LoD2 rows are genuine small ALKIS `51009_1750` wall/bollard
-  structures around the government buildings that the voxel mode also
-  renders; a 4 m² cut would silently drop 70 % of the additive LoD2 source.
+  to 0 dm. The deliberately small 1 m² floor retains legitimate wall,
+  bollard and service structures while removing only unusable slivers.
 - **Real colour tones.** Each prism carries an optional `tone` `[r, g, b]`:
   the per-channel median of the committed drawn overview raster
   (`overview_source.png`) under its footprint, so the Kanzleramt reads light
   and the Reichstag stone-grey instead of one shared cream palette. The
   builder reproduces the exact projection of the committed overview
-  (`project_point`, 16384×11616 canvas, 32768 px budget, 440 m margin —
+  (`project_point`, 16384×11616 canvas, 32768 px budget, 880 m effective margin —
   pinned by re-projecting committed `landmarks.json` records in the tests)
   and samples a deterministic interior grid (~3 m spacing, refined to ≥5
   points for small parts, capped at 200) at ground elevation, where the
@@ -243,9 +240,10 @@ How it is built (deterministic, shares the Step 8b machinery):
   as the viewer's `drawnBuildings.medianColorFromPixels`. Parts without a
   valid raster sample omit `tone` and fall back to the class shades.
 
-The committed `lod2-prisms.json` is ~0.51 MiB (hard test budget 5 MB) and
-carries 3,254 prisms (61 sliver parts and 3 flat rows dropped), 19 of them
-with 30 courtyard holes and 100 % with a sampled `tone`. The payload embeds
+The committed `lod2-prisms.json` is 2.5 MB (hard test budget 5 MiB) and
+carries 15,076 prisms; 90 retain a total of 142 courtyard holes and 12,950
+carry a sampled `tone`. Parts without a reliable raster sample use the
+documented class palette. The payload embeds
 the mandatory OSM + Geoportal Berlin attribution and per-source licences;
 `tests/test_build_isometric_prisms.py` guards size, ring validity against
 the voxel grid bounds, the palette split, true (unsnapped) heights, the
@@ -257,9 +255,12 @@ Kanzleramt tones.
 
 `export_dzi` writes 256-pixel JPEG tiles with quality 85 and a real one-pixel
 overlap on every internal tile edge. The current descriptor has levels 0–14
-and 3,945 tiles. A clean `bun run build` now contains both the DZI and
-progressive WebGL assets and remains below the hard 200 MB static-hosting
-ceiling. The browser loads hero crops only when their landmark is selected.
+and 3,945 tiles. A clean `bun run build` contains both the full DZI and
+progressive WebGL assets. The release packager keeps every WebGL asset but
+reuses levels 0–13 as an 8192×5808 offline DZI, removing only the redundant
+highest fallback level so both extracted archives remain below their hard
+208 MiB ceiling. The browser loads hero crops only when their landmark is
+selected.
 
 Do not commit PNG quadrant intermediates. Commit only the DZI pyramid and the
 derived overview files under `src/app/public/dzi/regierungsviertel/`.

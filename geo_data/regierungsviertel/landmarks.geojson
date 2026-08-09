@@ -676,7 +676,7 @@
         "name": "Siegessäule",
         "role": "owner_added",
         "tour_order": 44,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "OpenStreetMap Sankt Matthäus-Kirche way 22990222 representative point"
       },
       "geometry": {
         "type": "Point",
@@ -708,13 +708,13 @@
         "name": "Bismarck-Nationaldenkmal",
         "role": "owner_added",
         "tour_order": 46,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "OpenStreetMap memorial node 270687313 (Otto von Bismarck)"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.3493,
-          52.51553
+          13.3497493,
+          52.5158896
         ]
       }
     },
@@ -740,13 +740,13 @@
         "name": "St. Matthäus-Kirche",
         "role": "owner_added",
         "tour_order": 48,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "OpenStreetMap Sankt Matthäus-Kirche way 22990222 representative point"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.3689,
-          52.5077
+          13.367462805,
+          52.50794505
         ]
       }
     },
@@ -772,13 +772,13 @@
         "name": "Neue Nationalgalerie",
         "role": "owner_added",
         "tour_order": 50,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "Berlin LoD2 footprint DEBE3DWiMSMgX8rD representative point"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.3672,
-          52.5065
+          13.367391414,
+          52.50694869
         ]
       }
     },
@@ -788,13 +788,13 @@
         "name": "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
         "role": "owner_added",
         "tour_order": 51,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "OpenStreetMap Staatsbibliothek relation 9261463 representative point"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.3702,
-          52.5074
+          13.370841109,
+          52.5073702
         ]
       }
     },
@@ -836,13 +836,13 @@
         "name": "Kollhoff-Tower",
         "role": "owner_added",
         "tour_order": 54,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "Berlin LoD2 footprint DEBE3DjvWtTpo3vD representative point"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.3757,
-          52.5093
+          13.375341843,
+          52.509215169
         ]
       }
     },
@@ -868,13 +868,13 @@
         "name": "Geschichtspark Ehemaliges Zellengefängnis Moabit",
         "role": "owner_added",
         "tour_order": 56,
-        "source": "tasks/09 grand expansion (OpenStreetMap positions)"
+        "source": "OpenStreetMap Geschichtspark way 498278335 representative point"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.366,
-          52.529
+          13.366211222,
+          52.52696075
         ]
       }
     },
@@ -893,6 +893,166 @@
           52.5293075
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rieckhallen",
+        "role": "owner_added",
+        "tour_order": 58,
+        "source": "OpenStreetMap and Landesdenkmalamt Berlin"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.370007506, 52.529817853] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sozialgericht Berlin",
+        "role": "owner_added",
+        "tour_order": 59,
+        "source": "Official court address Invalidenstraße 52 and Berlin monument database; historic railway-administration building"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.371109849, 52.527565748] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "KPMG Europacity",
+        "role": "owner_added",
+        "tour_order": 60,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.3694386, 52.5274267] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "DKB Campus Upbeat",
+        "role": "owner_added",
+        "tour_order": 61,
+        "source": "OpenStreetMap building position and DKB official future-headquarters notice"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.360817841, 52.536491746] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kammermusiksaal",
+        "role": "owner_added",
+        "tour_order": 62,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.368994765, 52.509350231] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tilla-Durieux-Park",
+        "role": "owner_added",
+        "tour_order": 63,
+        "source": "OpenStreetMap park geometry"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.374993237, 52.506193662] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "berlin modern — Museum des 20. Jahrhunderts",
+        "role": "owner_added",
+        "tour_order": 64,
+        "source": "OpenStreetMap construction footprint and Stiftung Preußischer Kulturbesitz planning information"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.368478519, 52.508086503] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Der Bogenschütze (Henry Moore)",
+        "role": "owner_added",
+        "tour_order": 65,
+        "source": "OpenStreetMap artwork position at Neue Nationalgalerie"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.3683147, 52.5072478] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Café am Neuen See",
+        "role": "owner_added",
+        "tour_order": 66,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.344478792, 52.5103663] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Spanische Botschaft",
+        "role": "owner_added",
+        "tour_order": 67,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.345486549, 52.510313617] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Charlottenburger Tor",
+        "role": "owner_added",
+        "tour_order": 68,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.331406182, 52.513227439] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rosengarten im Tiergarten",
+        "role": "owner_added",
+        "tour_order": 69,
+        "source": "OpenStreetMap garden geometry"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.356964817, 52.513808041] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Luiseninsel",
+        "role": "owner_added",
+        "tour_order": 70,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.36443781, 52.510887071] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Anhalter Bahnhof",
+        "role": "owner_added",
+        "tour_order": 71,
+        "source": "OpenStreetMap historic station-portico position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.381245698, 52.503518377] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "WELT Balloon",
+        "role": "owner_added",
+        "tour_order": 72,
+        "source": "OpenStreetMap position and WELT visitor information"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.386117256, 52.50793251] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kochstraße",
+        "role": "owner_added",
+        "tour_order": 73,
+        "source": "OpenStreetMap position"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.3904331, 52.5066718] }
     }
   ]
 }

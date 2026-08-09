@@ -24,13 +24,16 @@ def test_tiles_for_regierungsviertel_bounds_are_minimal() -> None:
     "388_5819",
     "388_5820",
     "388_5821",
+    "388_5822",
     "389_5818",
     "389_5819",
     "389_5820",
     "389_5821",
+    "389_5822",
     "390_5818",
     "390_5819",
     "390_5820",
+    "390_5821",
   ]
 
 
@@ -147,7 +150,7 @@ def test_citygml_parser_uses_measured_building_parts_instead_of_parent_union(
 def test_generated_buildings_gpkg_contains_lod2_footprints() -> None:
   path = Path("geo_data/regierungsviertel/buildings.gpkg")
   assert path.exists()
-  assert path.stat().st_size < 5 * 1024 * 1024
+  assert path.stat().st_size < 10 * 1024 * 1024
 
   gdf = gpd.read_file(path, layer="buildings")
   assert len(gdf) > 100

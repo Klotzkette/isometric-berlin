@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import sqlite3
+from pathlib import Path
+
 import geopandas as gpd
-from shapely.geometry import MultiPoint, Point
+from shapely.geometry import LineString, MultiPoint, Point
 
 from isometric_berlin.data.fetch_official_details import (
   LIGHT_LAYER,
   normalized_lights,
   normalized_trees,
   wfs_params,
+  write_layers,
 )
 
 
@@ -65,3 +69,35 @@ def test_lighting_multipoints_are_exploded() -> None:
   assert len(result) == 2
   assert set(result["light_id"]) == {"42"}
   assert set(result.geom_type) == {"Point"}
+
+
+def test_canonical_package_omits_optional_spatial_indexes(tmp_path: Path) -> None:
+  trees = gpd.GeoDataFrame(
+    [{"tree_id": "1", "geometry": Point(389000, 5820000)}],
+    crs="EPSG:25833",
+  )
+  lights = gpd.GeoDataFrame(
+    [{"light_id": "1", "geometry": Point(389001, 5820001)}],
+    crs="EPSG:25833",
+  )
+  wall = gpd.GeoDataFrame(
+    [
+      {
+        "wall_id": "1",
+        "geometry": LineString([(389000, 5820000), (389010, 5820010)]),
+      }
+    ],
+    crs="EPSG:25833",
+  )
+  output = tmp_path / "details.gpkg"
+
+  write_layers(trees, lights, wall, output)
+
+  with sqlite3.connect(output) as connection:
+    spatial_indexes = connection.execute(
+      "SELECT name FROM sqlite_schema WHERE name LIKE 'rtree_%'"
+    ).fetchall()
+  assert spatial_indexes == []
+  assert len(gpd.read_file(output, layer="trees")) == 1
+  assert len(gpd.read_file(output, layer="street_lights")) == 1
+  assert len(gpd.read_file(output, layer="berlin_wall")) == 1

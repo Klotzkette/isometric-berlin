@@ -779,6 +779,19 @@ function buildWerdendes(builder: Builder, x: number, y: number, z: number): void
   buildWallArtwork(builder, x, y, z, 1.15);
 }
 
+function presentationVariant(
+  archetype: (
+    builder: Builder,
+    x: number,
+    y: number,
+    z: number,
+    scale: number,
+  ) => void,
+  scale: number,
+): ArtworkBuilder {
+  return (builder, x, y, z) => archetype(builder, x, y, z, scale);
+}
+
 export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Panzernashorn": buildPanzernashorn,
   "Blindenhund": buildBlindenhund,
@@ -897,6 +910,28 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Miracolo - L’idea di un’immagine": buildMiracoloLideaDiUnimmagine,
   "Mehr Licht": buildMehrLicht,
   "Werdendes": buildWerdendes,
+  // Named works introduced by the task-10 north/south expansion. OSM fixes
+  // their position; these deliberately modest, category-specific silhouettes
+  // keep them above the marker band without claiming surveyed sculpture mesh.
+  "0° Breite": presentationVariant(buildWallArtwork, 0.9),
+  "Aufbau der Republik": presentationVariant(buildFigureGroupArtwork, 1.15),
+  "Der Kopf": presentationVariant(buildAbstractArtwork, 0.95),
+  "Die goldene Stunde": presentationVariant(buildVerticalArtwork, 1.05),
+  "Felix-Mendelssohn-Bartholdy-Stein": presentationVariant(buildWallArtwork, 0.8),
+  "Friede sei mit Dir": presentationVariant(buildVerticalArtwork, 1.25),
+  "Genesung": presentationVariant(buildStandingArtwork, 1.0),
+  "Houseball": presentationVariant(buildAbstractArtwork, 1.15),
+  "Jakarta": presentationVariant(buildAbstractArtwork, 1.05),
+  "Kaninchenfeld": presentationVariant(buildAnimalArtwork, 0.65),
+  "Kreuzberg Tower": presentationVariant(buildVerticalArtwork, 1.15),
+  "Liegendes Pferd": presentationVariant(buildAnimalArtwork, 1.1),
+  "Mauern durchbrechen": presentationVariant(buildWallArtwork, 1.15),
+  "Memoria Urbana Berlin": presentationVariant(buildWallArtwork, 1.2),
+  "Mitte-Ndnn-Bar": presentationVariant(buildAbstractArtwork, 0.95),
+  "Nie wieder Krieg": presentationVariant(buildWallArtwork, 0.9),
+  "One World-Bär": presentationVariant(buildAnimalArtwork, 1.0),
+  "Tilted Donut Wedge with Two Balls": presentationVariant(buildAbstractArtwork, 1.2),
+  "not caring is no option": presentationVariant(buildWallArtwork, 1.05),
 };
 
 /** Statue on a plinth: the poets, philosophers and callers. */

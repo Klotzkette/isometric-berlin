@@ -68,14 +68,14 @@ DEFAULT_OVERVIEW_BOUNDS = (
 
 # Projection of the render that produced the COMMITTED overview_source.png and
 # landmarks.json: render_overview geometry (project_point on a rectangular
-# 16384×11616 canvas with a 32768 px detail budget) with a 440 m bounds margin.
-# The 440 m margin is not today's CLI default (220 m) but is what the committed
-# artefacts were rendered with — pinned by re-projecting committed
-# landmarks.json records to 0 px agreement (see tests).
+# 16384×11616 canvas with a 32768 px detail budget). The task-10 render used a
+# 440 m context both when creating its expanded quad and inside
+# render_quadrant, so the effective per-side projection margin is 880 m. Keep
+# the explicit effective value pinned to the committed landmark pixels.
 OVERVIEW_RENDER_PX = 32_768
 OVERVIEW_CANVAS_WIDTH = 16_384
 OVERVIEW_CANVAS_HEIGHT = 11_616
-OVERVIEW_MARGIN_M = 440.0
+OVERVIEW_MARGIN_M = 880.0
 # landmarks.json markers were projected at 18 m elevation (landmark_records).
 OVERVIEW_LANDMARK_HEIGHT_M = 18.0
 
@@ -398,9 +398,7 @@ def main(argv: list[str] | None = None) -> None:
   parser.add_argument("--park-details", type=Path, default=DEFAULT_PARK_DETAILS)
   parser.add_argument("--scene", type=Path, default=DEFAULT_SCENE)
   parser.add_argument("--overview", type=Path, default=DEFAULT_OVERVIEW)
-  parser.add_argument(
-    "--overview-bounds", type=Path, default=DEFAULT_OVERVIEW_BOUNDS
-  )
+  parser.add_argument("--overview-bounds", type=Path, default=DEFAULT_OVERVIEW_BOUNDS)
   parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
   args = parser.parse_args(argv)
 

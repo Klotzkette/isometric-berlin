@@ -41,9 +41,7 @@ def test_no_prism_stands_on_the_cleared_landeslabor_site() -> None:
     entry
     for entry in payload["buildings"]
     if entry["h_dm"] > 100
-    and all(
-      x_lo <= x <= x_hi and z_lo <= z <= z_hi for x, z in entry["ring"]
-    )
+    and all(x_lo <= x <= x_hi and z_lo <= z <= z_hi for x, z in entry["ring"])
   ]
   assert not tall, f"{len(tall)} prisms still stand on the cleared site"
 
