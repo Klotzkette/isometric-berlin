@@ -188,12 +188,18 @@ export const QUADRIGA_HISTORIC_CROSS = {
  * high and about six metres long, with over-life-size horses.
  */
 export const QUADRIGA_DIMENSIONS = {
-  /** Plinth to the top of the eagle. */
-  totalHeight: 6.0,
+  /**
+   * The model's own plinth-to-eagle height. Callers scale by this, so it
+   * has to be what the geometry actually measures, not the rounded
+   * reference: the documented figure for the sculpture is "about six
+   * metres", and scaling by 6.0 left the eagle 18 cm over the gate's
+   * published total height.
+   */
+  totalHeight: 6.19,
   /** Chariot tail to the horses' noses. */
   totalLength: 6.0,
   /** Outer flank to outer flank across the four-horse team. */
-  totalWidth: 3.62,
+  totalWidth: 4.14,
   wheelRadius: 0.92,
   chariotFloorY: 1.06,
   horseWithersY: 2.6,
@@ -201,7 +207,7 @@ export const QUADRIGA_DIMENSIONS = {
   ironCrossSpan: 0.86,
   horseCount: 4,
   /** Centre-to-centre spacing of the four horses across the team. */
-  horseSpacingZ: 0.94,
+  horseSpacingZ: 1.12,
 } as const;
 
 // --- builder -----------------------------------------------------------

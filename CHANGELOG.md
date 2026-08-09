@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.69.0
+
+- **The Quadriga is a real sculpture now, not a stack of boxes.** Schadow's
+  team is built in its own module at the finest granularity anything in
+  this drawing gets: four horses nose to tail — barrel, chest and croup as
+  three masses, a two-segment arched neck, skull, face and muzzle with two
+  flared **nostrils**, a mouth line, wide-set eyes, pricked ears, bridle,
+  mane and forelock, dock and three tail lengths, and four legs each with
+  shoulder, forearm, cannon, fetlock joint and hoof. The chariot rides on
+  two wheels of eight spokes with hub and tyre, behind a curved breastwork
+  with relief bands, a draught pole and a yoke. Victoria has a draped robe
+  of nine fold ridges, bound hair under a diadem, both arms and two wings
+  of three feather courses each. 12 280 triangles for one landmark.
+- **The Iron Cross is exact.** A cross pattée is a defined figure — four
+  equal arms widening from a narrow waist to a flat tip, with concave
+  flanks — so it is generated from pinned ratios and real Bézier flanks in
+  `quadrigaProfile.ts` instead of being faked with two crossed boxes.
+  Tests pin fourfold rotational symmetry to 1e-12, the exact tip-to-tip
+  span, the concavity that separates it from a plus sign, and exact linear
+  scaling. Schinkel's standard carries it inside an **oak** wreath of 22
+  individually tipped leaves, under the Prussian eagle with beak, spread
+  wings and tail fan.
+- **All three modes, one geometry.** Day is flat unlit bronze in the drawn
+  city's own convention; night is cool patina under the gate's warm
+  floodlighting; the snowstorm mode gets cold bronze plus a separate cap
+  mesh so snow lies on upward faces only. Switching repaints vertices — it
+  never rebuilds. Mane, tail and robe folds are their own meshes with
+  stated pivots and swing limits, so wind can lift them without dragging
+  the horse along. The sculpture is scaled from the gate's own published
+  figures: 20.3 m to the attic, 26.0 m over all, so the eagle lands exactly
+  at the documented total height.
+- **Three measurable errors gone from the Holocaust memorial.** The stele
+  field carried 2710 stelae where the documented count is **2711**, alleys
+  1.50 m wide across the field (58 % too wide) and 0.52 m along it (45 %
+  too narrow). Eisenman's alleys are 0.95 m in BOTH directions — wide
+  enough for one person, too narrow for two — and that single dimension is
+  the whole experience of the place; having it wrong in opposite
+  directions on the two axes turned a lattice of equal corridors into rows
+  of spaced blocks. The layout now derives everything from the documented
+  stele footprint and that one alley width, so the grid cannot drift
+  again: exactly 2711 stelae trimmed from the rim inward, the documented
+  0.2–4.7 m heights rising toward the middle, every stele leaning by at
+  most two degrees, and a ground that rolls in waves over a sunken centre.
+  Deterministic — the memorial never reshuffles itself between visits.
+
 ## v0.68.0
 
 - **The Reichstag again carries its defining west inscription and complete

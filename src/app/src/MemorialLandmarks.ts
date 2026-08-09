@@ -21,6 +21,13 @@ import {
   Vector3,
 } from "three";
 
+import {
+  HOLOCAUST_FIELD,
+  HOLOCAUST_GEOMETRY_STATUS,
+  HOLOCAUST_PALETTES,
+  holocaustStelePlacements,
+} from "./holocaustField";
+
 export type MemorialLandmark = {
   name: string;
   world: [number, number, number];
@@ -183,70 +190,33 @@ function createHolocaustMemorial(anchor: MemorialLandmark): Group {
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
   group.rotation.y = -0.105;
-  group.userData.geometryStatus =
-    "Official count, cross-section and height bands; scene placement remains approximate";
+  group.userData.geometryStatus = HOLOCAUST_GEOMETRY_STATUS;
 
-  const cells: Array<{ column: number; edge: number; row: number }> = [];
-  for (let row = 0; row < 52; row += 1) {
-    for (let column = 0; column < 53; column += 1) {
-      cells.push({
-        column,
-        edge: Math.min(row, 51 - row, column, 52 - column),
-        row,
-      });
-    }
-  }
-  const retained = cells.slice(23, cells.length - 23);
-  retained.sort((left, right) => left.edge - right.edge || left.row - right.row);
-  const transforms: InstanceTransform[] = retained.map((cell, index) => {
-    let height: number;
-    if (index < 112) {
-      height = 0.2;
-    } else if (index < 923) {
-      height = 0.35 + (((index * 47) % 997) / 996) * 1.6;
-    } else if (index < 1_838) {
-      height = 2 + (((index * 59) % 991) / 990) * 1.45;
-    } else {
-      height = 3.5 + (((index * 71) % 983) / 982) * 1.2;
-    }
-    const normalizedX = (cell.column - 26) / 26;
-    const normalizedZ = (cell.row - 25.5) / 25.5;
-    // Eisenman's floor is not one funnel. It rolls in long waves, so the
-    // alleys rise and fall as you walk them and the stele tops ripple with
-    // the ground. Two low-frequency sinusoids give that roll.
-    const roll =
-      0.44 * Math.sin(normalizedX * 2.3 + 0.7) * Math.cos(normalizedZ * 1.8) +
-      0.28 * Math.sin(normalizedZ * 3.1 + 1.4);
-    const depression =
-      roll - 1.55 * Math.max(0, 1 - Math.hypot(normalizedX, normalizedZ));
-    const tilt = ((index * 13) % 17) / 16;
-    return {
-      position: [
-        (cell.column - 26) * 2.45,
-        depression + height / 2 + 0.08,
-        (cell.row - 25.5) * 2.9,
-      ],
-      rotation: [
-        ((0.5 + tilt * 1.5) * Math.PI) / 180,
-        0,
-        ((0.5 + (1 - tilt) * 1.5) * Math.PI) / 180,
-      ],
-      scale: [1, height, 1],
-    };
-  });
+  // The layout now comes from `holocaustField.ts`, which derives the whole
+  // grid from the documented stele footprint and Eisenman's 0.95 m alley.
+  // The field that shipped before had three measurable errors: 2710 stelae
+  // instead of 2711, alleys 1.50 m wide across the field (58 % too wide)
+  // and 0.52 m along it (45 % too narrow). The alley is the memorial —
+  // wide enough for one person, too narrow for two, the same either way
+  // you turn — and having it wrong in opposite directions on the two axes
+  // turned a lattice of equal corridors into rows of spaced blocks.
+  const placements = holocaustStelePlacements();
+  const transforms: InstanceTransform[] = placements.map((stele) => ({
+    position: [stele.x, stele.ground + stele.height / 2, stele.z],
+    rotation: [stele.tiltX, 0, stele.tiltZ],
+    scale: [1, stele.height, 1],
+  }));
   const stelae = addInstances(
     group,
-    "Holocaust Memorial 2710 instanced stelae",
-    new BoxGeometry(0.95, 1, 2.38),
-    modelMaterial(CONCRETE, { roughness: 0.82 }),
+    `Holocaust Memorial ${HOLOCAUST_FIELD.steleCount} instanced stelae`,
+    new BoxGeometry(
+      HOLOCAUST_FIELD.steleWidth,
+      1,
+      HOLOCAUST_FIELD.steleLength,
+    ),
+    modelMaterial(HOLOCAUST_PALETTES.day.concrete, { roughness: 0.82 }),
     transforms,
   );
-  stelae.userData.heightBands = {
-    edge: 112,
-    high: 872,
-    low: 811,
-    medium: 915,
-  };
   stelae.castShadow = false;
   return group;
 }

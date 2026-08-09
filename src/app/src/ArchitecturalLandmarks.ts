@@ -34,6 +34,7 @@ import {
   type ArchitecturalSignature as ReichstagDomeSignature,
   createOfficialReichstagDome,
 } from "./ReichstagDome";
+import { QUADRIGA_DIMENSIONS, createQuadriga } from "./Quadriga";
 import { createDedicationTexture } from "./reichstagInscription";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 
@@ -3737,192 +3738,20 @@ function createBrandenburgGateModel(
     0.62,
   );
 
-  addBox(group, "Quadriga chariot", [3.4, 1.0, 7.4], [-1.1, 21.0, 0], bronze, 0.8);
-  // Chariot rail, so the car reads as a vehicle from above.
-  addBox(group, "Quadriga chariot rail", [0.24, 1.2, 7.4], [-2.6, 22.0, 0], bronze, 0.9);
-  // Outboard of the car body, or the wheels sit inside it and never show.
-  for (const wheelZ of [-3.78, 3.78]) {
-    const wheel = new Mesh(new TorusGeometry(0.92, 0.16, 8, 20), bronze);
-    wheel.name = "Quadriga chariot wheel";
-    wheel.position.set(-1.2, 21.25, wheelZ);
-    wheel.castShadow = true;
-    group.add(wheel);
-    addEdges(group, wheel, 0.85);
-  }
-  for (let index = 0; index < 4; index += 1) {
-    // Wider spacing plus faceted, inked bodies so the four-horse team
-    // is countable in the drawing instead of merging into one blob.
-    const z = -3.0 + index * 2.0;
-    const body = new Mesh(new SphereGeometry(1, 9, 6), bronze);
-    body.name = `Quadriga horse ${index + 1}`;
-    body.scale.set(2.05, 0.76, 0.5);
-    body.position.set(1.0, 22.2, z);
-    body.castShadow = true;
-    group.add(body);
-    addEdges(group, body, 0.85);
-    const head = new Mesh(new SphereGeometry(0.62, 8, 5), bronze);
-    head.name = `Quadriga horse head ${index + 1}`;
-    head.scale.set(1.0, 1.2, 0.82);
-    head.position.set(3.15, 23.35, z);
-    head.castShadow = true;
-    group.add(head);
-    addEdges(group, head, 0.85);
-    const muzzle = new Mesh(new SphereGeometry(0.36, 12, 8), bronze);
-    muzzle.name = `Quadriga horse muzzle ${index + 1}`;
-    muzzle.scale.set(1.35, 0.72, 0.82);
-    muzzle.position.set(3.68, 23.12, z);
-    muzzle.castShadow = true;
-    group.add(muzzle);
-    addCylinderBetween(
-      group,
-      `Quadriga horse neck ${index + 1}`,
-      new Vector3(2.0, 22.45, z),
-      new Vector3(2.85, 23.15, z),
-      0.36,
-      bronze,
-      10,
-    );
-    for (const earZ of [-0.22, 0.22]) {
-      const ear = new Mesh(new ConeGeometry(0.16, 0.55, 8), bronze);
-      ear.name = `Quadriga horse ear ${index + 1}`;
-      ear.position.set(3.08, 24.05, z + earZ);
-      ear.rotation.z = -0.18;
-      group.add(ear);
-    }
-    // Crested mane along the neck: the cheapest mark that turns a pair of
-    // ellipsoids into a horse at presentation distance.
-    const mane = new Mesh(new BoxGeometry(1.15, 0.42, 0.16), bronze);
-    mane.name = `Quadriga horse mane ${index + 1}`;
-    mane.position.set(2.42, 23.05, z);
-    mane.rotation.z = -0.62;
-    group.add(mane);
-    for (const legX of [0.1, 1.72]) {
-      for (const legZ of [-0.22, 0.22]) {
-        addCylinderBetween(
-          group,
-          `Quadriga horse leg ${index + 1}`,
-          new Vector3(legX, 21.82, z + legZ),
-          new Vector3(legX + (legX > 1 ? 0.36 : -0.18), 20.48, z + legZ),
-          0.19,
-          bronze,
-          8,
-        );
-      }
-    }
-    const tailPoints = [
-      new Vector3(-1.0, 22.35, z),
-      new Vector3(-1.55, 21.95, z),
-      new Vector3(-1.85, 21.15, z + 0.08),
-    ];
-    const tail = new Mesh(
-      new TubeGeometry(new CatmullRomCurve3(tailPoints), 12, 0.1, 6, false),
-      bronze,
-    );
-    tail.name = `Quadriga horse tail ${index + 1}`;
-    group.add(tail);
-    addCylinderBetween(
-      group,
-      `Quadriga rein ${index + 1}`,
-      new Vector3(-0.6, 23.1, 0),
-      new Vector3(3.45, 23.55, z),
-      0.035,
-      bronze,
-      6,
-    );
-  }
-  addBox(
-    group,
-    "Quadriga horse harness crossbar",
-    [0.2, 0.24, 6.7],
-    [0.05, 22.7, 0],
-    bronze,
-    0.5,
-  );
-  const victoria = new Mesh(new CylinderGeometry(0.3, 0.58, 3.6, 12), bronze);
-  victoria.name = "Quadriga Victoria";
-  victoria.position.set(-1.6, 23.1, 0);
-  victoria.castShadow = true;
-  group.add(victoria);
-  addEdges(group, victoria, 0.85);
-  const dress = new Mesh(new ConeGeometry(0.82, 3.2, 18, 1, true), bronze);
-  dress.name = "Quadriga Victoria draped robe";
-  dress.position.set(-1.6, 22.65, 0);
-  dress.castShadow = true;
-  group.add(dress);
-  const victoriaHead = new Mesh(new SphereGeometry(0.38, 14, 10), bronze);
-  victoriaHead.name = "Quadriga Victoria head";
-  victoriaHead.position.set(-1.6, 25.12, 0);
-  group.add(victoriaHead);
-  for (const side of [-1, 1]) {
-    addCylinderBetween(
-      group,
-      "Quadriga Victoria arm",
-      new Vector3(-1.58, 24.0, side * 0.18),
-      new Vector3(-0.92, 24.55, side * 0.52),
-      0.11,
-      bronze,
-      8,
-    );
-  }
-  for (const side of [-1, 1]) {
-    const wing = new Mesh(new ConeGeometry(1.15, 3.5, 3), bronze);
-    wing.name = "Quadriga Victoria wing";
-    wing.rotation.x = Math.PI / 2;
-    wing.rotation.z = side * 0.42;
-    wing.position.set(-1.95, 24.1, side * 0.86);
-    wing.castShadow = true;
-    group.add(wing);
-    addEdges(group, wing, 0.85);
-  }
-  addCylinderBetween(
-    group,
-    "Quadriga victory standard",
-    new Vector3(-1.2, 24.1, 0),
-    new Vector3(-0.45, 25.65, 0),
-    0.09,
-    bronze,
-    8,
-  );
-  // Victoria's staff: pole, oak wreath, Prussian eagle and the Iron
-  // Cross — the Quadriga's signature silhouette above the attic.
-  const staff = new Mesh(new CylinderGeometry(0.09, 0.09, 4.6, 8), bronze);
-  staff.name = "Quadriga Victoria eagle staff";
-  staff.position.set(-0.35, signature.total_height_m - 3.4, 0);
-  group.add(staff);
-  const crossBar = new Mesh(new BoxGeometry(0.62, 0.16, 0.16), bronze);
-  crossBar.name = "Quadriga Iron Cross transom";
-  crossBar.position.set(-0.35, signature.total_height_m - 1.6, 0);
-  group.add(crossBar);
-  const eagleBody = new Mesh(new BoxGeometry(0.34, 0.72, 0.34), bronze);
-  eagleBody.name = "Quadriga Prussian eagle body";
-  eagleBody.position.set(-0.35, signature.total_height_m - 0.72, 0);
-  group.add(eagleBody);
-  for (const side of [-1, 1]) {
-    const eagleWing = new Mesh(new BoxGeometry(0.16, 0.5, 0.9), bronze);
-    eagleWing.name = "Quadriga Prussian eagle wing";
-    eagleWing.position.set(-0.35, signature.total_height_m - 0.62, side * 0.55);
-    eagleWing.rotation.x = side * 0.42;
-    group.add(eagleWing);
-  }
-  const wreath = new Mesh(new RingGeometry(0.65, 0.9, 24), bronze);
-  wreath.name = "Quadriga victory wreath";
-  wreath.rotation.y = Math.PI / 2;
-  wreath.position.set(-0.35, signature.total_height_m - 0.55, 0);
-  group.add(wreath);
-  addBox(
-    group,
-    "Quadriga Iron Cross vertical",
-    [0.12, 0.68, 0.12],
-    [-0.32, signature.total_height_m - 0.56, 0],
-    bronze,
-  );
-  addBox(
-    group,
-    "Quadriga Iron Cross horizontal",
-    [0.12, 0.16, 0.62],
-    [-0.32, signature.total_height_m - 0.5, 0],
-    bronze,
-  );
+  // The Quadriga. Built in its own module at the finest granularity in
+  // this drawing — four horses modelled down to the nostrils, a spoked
+  // chariot, Victoria's wings, and Schinkel's standard whose Iron Cross
+  // is a real cross pattee generated from pinned ratios rather than two
+  // crossed boxes. It is authored in local metres with y = 0 at the
+  // plinth, so it is placed on the attic and scaled from the signature's
+  // own published figures: the gate is 20.3 m to the attic and 26.0 m
+  // over all, which leaves the sculpture exactly 5.7 m.
+  const quadriga = createQuadriga();
+  const quadrigaHeight = signature.total_height_m - signature.gate_height_m;
+  quadriga.scale.setScalar(quadrigaHeight / QUADRIGA_DIMENSIONS.totalHeight);
+  quadriga.position.set(-1.1, signature.gate_height_m, 0);
+  group.add(quadriga);
+
   return group;
 }
 

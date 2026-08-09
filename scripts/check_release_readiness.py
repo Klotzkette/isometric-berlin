@@ -726,8 +726,12 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   if "neighbours * 0.25" not in crisp or "uniform float strength" not in crisp:
     failures.append(f"Viewer lacks the bounded settled-image crisp pass: {crisp_path}")
   required_memorial_snippets = {
-    "complete Holocaust stela field": "Holocaust Memorial 2710 instanced stelae",
-    "official Holocaust height bands": "high: 872",
+    # v0.69.0: the field is generated from the documented figures in
+    # holocaustField.ts (2711 stelae, 0.95 m alleys in both directions),
+    # so the readiness gate checks that source instead of the old
+    # hand-banded lattice it replaced.
+    "complete Holocaust stela field": "holocaustStelePlacements()",
+    "documented Holocaust stele count": "HOLOCAUST_FIELD.steleCount",
     "official-mesh ground placement": "MEMORIAL_GROUND_Y",
     "mobile-safe Holocaust shadow budget": "stelae.castShadow = false",
     "Soviet memorial T-34/76 tanks": 'vehicleType = "T-34/76"',
