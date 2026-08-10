@@ -132,7 +132,10 @@ def world_position(
 ) -> list[float]:
   x = float(point.x) - origin.easting
   z = origin.northing - float(point.y)
-  return [round(x, 3), sampler.height(x, z), round(z, 3)]
+  # A centimetre is already finer than the rendering and source-position
+  # contracts. Avoid carrying meaningless millimetre digits across ~36k
+  # records so the complete additive detail layer remains distributable.
+  return [round(x, 2), sampler.height(x, z), round(z, 2)]
 
 
 def line_parts(geometry: BaseGeometry) -> Iterable[LineString]:
@@ -178,16 +181,27 @@ def optional_text(value: object) -> str | None:
 
 def build_paths(
   roads: gpd.GeoDataFrame,
-  tiergarten: BaseGeometry,
+  detail_areas: gpd.GeoDataFrame,
   origin: SceneOrigin,
   sampler: MeshGroundSampler,
 ) -> list[dict[str, Any]]:
   paths: list[dict[str, Any]] = []
   candidates = roads[roads["highway"].isin(PATH_HIGHWAYS)]
+  spatial_index = detail_areas.sindex
   for _, row in candidates.sort_values(["id", "highway"]).iterrows():
-    clipped = row.geometry.intersection(tiergarten)
+    area_indexes = spatial_index.query(row.geometry, predicate="intersects")
+    if len(area_indexes) == 0:
+      continue
+    # Union only the handful of parks touching this path. Intersecting every
+    # road with one citywide MultiPolygon made GEOS re-node thousands of
+    # unrelated boundaries for each feature and turned a deterministic export
+    # into a many-minute CPU loop.
+    local_areas = detail_areas.iloc[area_indexes].geometry.union_all()
+    clipped = row.geometry.intersection(local_areas)
     for part_index, line in enumerate(line_parts(clipped)):
-      simplified = line.simplify(0.8, preserve_topology=True)
+      # One metre stays below the visual width of the narrowest rendered path
+      # while keeping the complete bounded layer under its 5 MiB release cap.
+      simplified = line.simplify(1.0, preserve_topology=True)
       if simplified.length < 2.5:
         continue
       points = [
@@ -603,10 +617,13 @@ def build_payload(
   parks = gpd.read_file(osm_path, layer="parks")
   vegetation = gpd.read_file(osm_path, layer="vegetation")
   playgrounds = gpd.read_file(osm_path, layer="playgrounds")
-  tiergarten_rows = parks[parks["name"] == "Großer Tiergarten"]
-  if tiergarten_rows.empty:
-    raise ValueError("OSM park layer does not contain Großer Tiergarten")
-  tiergarten = tiergarten_rows.geometry.union_all()
+  park_rows = parks[parks.geometry.notna() & ~parks.geometry.is_empty]
+  if park_rows.empty:
+    raise ValueError("OSM park layer does not contain usable park geometry")
+  # The renderer used to clip detailed path ribbons to Großer Tiergarten
+  # alone. That silently discarded mapped walks through Spreebogenpark,
+  # Futurium's public realm and Nordhafenpark even though all three areas and
+  # their paths are already present in the bounded OSM GeoPackage.
   official_path = official_details_path or Path("__missing_official_details__")
   official_tree_frame = read_optional_layer(official_path, "trees")
   official_light_frame = read_optional_layer(official_path, "street_lights")
@@ -621,8 +638,8 @@ def build_payload(
       "name": "Additive OSM and Geoportal Berlin detail fusion",
       "attribution": "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)",
       "geometry_status": (
-        "Source-positioned detail clipped to the project bounds; missing tree "
-        "dimensions and lamp mast forms remain explicit display approximations"
+        "Source-positioned detail clipped to all bounded OSM park areas; missing "
+        "tree dimensions and lamp mast forms remain explicit display approximations"
       ),
     },
     "sources": {
@@ -635,7 +652,7 @@ def build_payload(
       },
     },
     "tree_fusion": tree_fusion,
-    "paths": build_paths(roads, tiergarten, origin, sampler),
+    "paths": build_paths(roads, park_rows, origin, sampler),
     "tree_vocabulary": tree_vocabulary,
     "trees": compact,
     "street_lights": build_street_lights(official_light_frame, origin, sampler),

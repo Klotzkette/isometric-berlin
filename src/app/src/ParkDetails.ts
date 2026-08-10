@@ -253,37 +253,73 @@ function pathCategory(kind: string): string {
   return kind in PATH_STYLE ? kind : "path";
 }
 
-function createPathGeometry(paths: ParkPath[], width: number): BufferGeometry {
+export function createPathGeometry(
+  paths: ParkPath[],
+  width: number,
+): BufferGeometry {
   const positions: number[] = [];
   const indices: number[] = [];
   for (const path of paths) {
-    for (let index = 1; index < path.points.length; index += 1) {
-      const start = path.points[index - 1];
-      const end = path.points[index];
-      const dx = end[0] - start[0];
-      const dz = end[2] - start[2];
-      const length = Math.hypot(dx, dz);
-      if (length < 0.05) {
-        continue;
+    const points = path.points.filter(
+      (point, index, entries) =>
+        index === 0 ||
+        Math.hypot(
+          point[0] - entries[index - 1][0],
+          point[2] - entries[index - 1][2],
+        ) >= 0.05,
+    );
+    if (points.length < 2) continue;
+    const offset = positions.length / 3;
+    const halfWidth = width / 2;
+    for (let index = 0; index < points.length; index += 1) {
+      const point = points[index];
+      const previous = points[Math.max(0, index - 1)];
+      const next = points[Math.min(points.length - 1, index + 1)];
+      const previousLength =
+        Math.hypot(point[0] - previous[0], point[2] - previous[2]) || 1;
+      const nextLength =
+        Math.hypot(next[0] - point[0], next[2] - point[2]) || 1;
+      const previousNormal: [number, number] = [
+        -(point[2] - previous[2]) / previousLength,
+        (point[0] - previous[0]) / previousLength,
+      ];
+      const nextNormal: [number, number] = [
+        -(next[2] - point[2]) / nextLength,
+        (next[0] - point[0]) / nextLength,
+      ];
+      if (index === 0) previousNormal.splice(0, 2, ...nextNormal);
+      if (index === points.length - 1)
+        nextNormal.splice(0, 2, ...previousNormal);
+      let mx = previousNormal[0] + nextNormal[0];
+      let mz = previousNormal[1] + nextNormal[1];
+      const miterLength = Math.hypot(mx, mz);
+      if (miterLength < 0.01) {
+        mx = nextNormal[0];
+        mz = nextNormal[1];
+      } else {
+        mx /= miterLength;
+        mz /= miterLength;
       }
-      const nx = (-dz / length) * (width / 2);
-      const nz = (dx / length) * (width / 2);
-      const offset = positions.length / 3;
-      positions.push(
-        start[0] + nx,
-        start[1] + 0.09,
-        start[2] + nz,
-        start[0] - nx,
-        start[1] + 0.09,
-        start[2] - nz,
-        end[0] - nx,
-        end[1] + 0.09,
-        end[2] - nz,
-        end[0] + nx,
-        end[1] + 0.09,
-        end[2] + nz,
+      const denominator = Math.max(
+        0.5,
+        Math.abs(mx * nextNormal[0] + mz * nextNormal[1]),
       );
-      indices.push(offset, offset + 1, offset + 2, offset, offset + 2, offset + 3);
+      const extension = Math.min(width, halfWidth / denominator);
+      positions.push(
+        point[0] + mx * extension,
+        point[1] + 0.12,
+        point[2] + mz * extension,
+        point[0] - mx * extension,
+        point[1] + 0.12,
+        point[2] - mz * extension,
+      );
+    }
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const left = offset + index * 2;
+      const right = left + 1;
+      const nextLeft = left + 2;
+      const nextRight = left + 3;
+      indices.push(left, right, nextRight, left, nextRight, nextLeft);
     }
   }
   const geometry = new BufferGeometry();
@@ -309,7 +345,7 @@ function addPaths(group: Group, paths: ParkPath[]): void {
       createPathGeometry(entries, style.width),
       pathMaterial,
     );
-    mesh.name = `Tiergarten ${kind} batched path ribbons`;
+    mesh.name = `Berlin park ${kind} batched path ribbons`;
     mesh.receiveShadow = true;
     group.add(mesh);
   }

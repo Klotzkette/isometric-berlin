@@ -1159,6 +1159,7 @@ describe("real bridge structures", () => {
       halfLengthM: 38.79,
       halfWidthM: 12.85,
     });
+    expect(profile("Moltkebrücke").axis).toEqual([-0.7174, -0.6967]);
     expect(profile("Moltkebrücke").palette?.structure).toBe(0xb86c5a);
 
     const city = createIsometricCity(payload, ground, null);

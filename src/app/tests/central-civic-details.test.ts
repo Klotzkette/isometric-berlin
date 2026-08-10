@@ -7,6 +7,10 @@ import {
   centralCivicDetailsVisible,
   centralCivicFocusCamera,
   createCentralCivicDetails,
+  FUTURIUM_BUILDING_ID,
+  FUTURIUM_DREHMOMENT_WORLD,
+  FUTURIUM_FOOTPRINT_WORLD,
+  FUTURIUM_HEIGHT_M,
   TOPOGRAPHY_WALL_LENGTH_M,
   TOPOGRAPHY_WALL_ROTATION_RAD,
   TOPOGRAPHY_WALL_SECTION_COUNT,
@@ -91,13 +95,27 @@ describe("task-11 central transit and civic details", () => {
     });
   });
 
+  test("rebuilds Futurium from its metric LoD2 footprint", () => {
+    const details = createCentralCivicDetails(landmarks);
+    expect(details.userData.futurium).toEqual({
+      buildingId: FUTURIUM_BUILDING_ID,
+      drehmomentWorld: FUTURIUM_DREHMOMENT_WORLD,
+      footprintAreaM2: 4034,
+      footprintWorld: FUTURIUM_FOOTPRINT_WORLD,
+      heightM: FUTURIUM_HEIGHT_M,
+      source: "Berlin LoD2 + OSM + Futurium architecture specification",
+    });
+    expect(FUTURIUM_HEIGHT_M).toBeCloseTo(19.9);
+    expect(FUTURIUM_FOOTPRINT_WORLD).toHaveLength(5);
+  });
+
   test("provides contextual camera framing for the new QA anchors", () => {
     const futurium = landmarks.find(({ name }) => name === "Futurium")!;
     const tram = landmarks.find(({ name }) =>
       name.startsWith("Tramhaltestelle"),
     )!;
     expect(centralCivicFocusCamera(futurium)).toMatchObject({
-      distance_m: 218,
+      distance_m: 168,
       target_world: futurium.world,
     });
     expect(centralCivicFocusCamera(tram)).toMatchObject({

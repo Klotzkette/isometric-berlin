@@ -297,6 +297,10 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // with its Steildach, stepped gables and rooftop observation platform.
   "jBXhIsDK",
   "EHKONVCW",
+  // Futurium. CentralCivicDetails reconstructs its complete irregular LoD2
+  // footprint, recessed glass foyer, cassette skin, panoramic end windows,
+  // roof basin and Skywalk. Keeping the source prism would bury those parts.
+  "20g0005J",
 ]);
 
 // v0.56.1 ("beiger Kasten ueber den Gleisen"): the Hauptbahnhof used to be
@@ -2169,6 +2173,10 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
   {
     // 1886–91, Otto Stahn: red sandstone, three segmental arches on
     // massive cutwater piers, balustrade with sculpted pedestals.
+    // OSM centreline 389358.897/5820303.439 → 389292.703/5820367.718.
+    // Pinning it prevents the 4 m bridge raster from rotating this broad
+    // diagonal road crossing into a disconnected east-west slab.
+    axis: [-0.7174, -0.6967],
     halfWidthM: 11.5,
     kind: "stoneArch",
     matchRadiusM: 80,
@@ -2743,16 +2751,46 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             ),
             WARM_LIGHT,
           );
+        } else if (kind === "stoneArch") {
+          // Otto Stahn's open sandstone balustrade has a low plinth,
+          // individual turned balusters and a broad coping. A continuous
+          // 1.2 m wall made the bridge read as one blunt red block.
+          addPart(
+            boxTriangles(
+              rx,
+              y + 0.18,
+              rz,
+              localAxis,
+              segmentLength + 0.05,
+              0.36,
+              0.38,
+            ),
+            STONE_DARK,
+            false,
+          );
+          addPart(
+            boxTriangles(
+              rx,
+              y + 1.01,
+              rz,
+              localAxis,
+              segmentLength + 0.05,
+              0.17,
+              0.5,
+            ),
+            STONE,
+            false,
+          );
         } else if (kind !== "curvedBox" && kind !== "vierendeel") {
           addPart(
             boxTriangles(
               rx,
-              y + (kind === "stoneArch" ? 0.6 : 0.62),
+              y + 0.62,
               rz,
               localAxis,
               segmentLength + 0.05,
-              kind === "stoneArch" ? 1.2 : 0.14,
-              kind === "stoneArch" ? 0.34 : 0.14,
+              0.14,
+              0.14,
             ),
             STONE,
             false,
@@ -2903,6 +2941,90 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           );
         }
       }
+    } else if (kind === "stoneArch") {
+      const balusterCount = 56;
+      for (let index = 0; index <= balusterCount; index += 1) {
+        const u = -halfLength + (index / balusterCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(px, y + 0.6, pz, localAxis, 0.18, 0.74, 0.2),
+            index % 2 === 0 ? STONE : STONE_DARK,
+            false,
+          );
+        }
+      }
+      // Large plinths articulate the abutments and both river piers. Four
+      // simplified bronze griffins mark the outer corners, while six historic
+      // standards carry warm globes after dark.
+      for (const fraction of [-1, -1 / 3, 1 / 3, 1]) {
+        const u = halfLength * fraction;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(px, y + 0.68, pz, localAxis, 1.05, 1.36, 1.0),
+            STONE_DARK,
+          );
+          addPart(
+            boxTriangles(px, y + 1.42, pz, localAxis, 1.24, 0.16, 1.18),
+            STONE,
+            false,
+          );
+          if (Math.abs(fraction) === 1) {
+            const sculptureY = y + 1.98;
+            addPart(
+              prismTriangles(px, sculptureY, pz, 0.34, 0.86, 7),
+              STEEL,
+              false,
+            );
+            addPart(
+              prismTriangles(
+                px + ax * 0.16 * -Math.sign(fraction),
+                sculptureY + 0.52,
+                pz + az * 0.16 * -Math.sign(fraction),
+                0.2,
+                0.36,
+                7,
+              ),
+              STEEL,
+              false,
+            );
+            for (const wingSide of [-1, 1]) {
+              addPart(
+                boxTriangles(
+                  px + nx * wingSide * 0.34,
+                  sculptureY + 0.12,
+                  pz + nz * wingSide * 0.34,
+                  localAxis,
+                  0.56,
+                  0.72,
+                  0.1,
+                ),
+                STEEL,
+                false,
+              );
+            }
+          }
+        }
+      }
+      for (const fraction of [-0.68, 0, 0.68]) {
+        const u = halfLength * fraction;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * (halfWidth - 0.1));
+          addPart(
+            boxTriangles(px, y + 2.05, pz, localAxis, 0.14, 3.15, 0.14),
+            STEEL,
+            false,
+          );
+          addLamp(prismTriangles(px, y + 3.7, pz, 0.25, 0.48, 10), WARM_LIGHT);
+        }
+      }
     } else {
       for (let index = 0; index <= postCount; index += 1) {
         const u = -halfLength + (index / postCount) * halfLength * 2;
@@ -2911,37 +3033,19 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [px, pz] = at(u, side * halfWidth);
           addPart(
-            boxTriangles(
-              px,
-              y + 0.55,
-              pz,
-              localAxis,
-              kind === "stoneArch" ? 0.7 : 0.13,
-              1.1,
-              kind === "stoneArch" ? 0.7 : 0.13,
-            ),
-            kind === "stoneArch" ? STONE : STEEL,
-            kind === "stoneArch",
+            boxTriangles(px, y + 0.55, pz, localAxis, 0.13, 1.1, 0.13),
+            STEEL,
+            false,
           );
         }
-        if (kind !== "stoneArch") {
-          // A second, lower rail turns the posts into a real balustrade.
-          for (const side of [-1, 1]) {
-            const [px, pz] = at(u, side * halfWidth);
-            addPart(
-              boxTriangles(
-                px,
-                y + 0.28,
-                pz,
-                localAxis,
-                postSpacing,
-                0.09,
-                0.09,
-              ),
-              STEEL,
-              false,
-            );
-          }
+        // A second, lower rail turns the posts into a real balustrade.
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(px, y + 0.28, pz, localAxis, postSpacing, 0.09, 0.09),
+            STEEL,
+            false,
+          );
         }
       }
     }
@@ -3007,7 +3111,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       for (let arch = 0; arch < arches; arch += 1) {
         const u0 = -halfLength + pierSpacing * arch;
         const clear = pierSpacing - 4.6;
-        const steps = 9;
+        const steps = 18;
         for (let step = 0; step < steps; step += 1) {
           const t = (step + 0.5) / steps;
           const u = u0 + 2.3 + clear * t;

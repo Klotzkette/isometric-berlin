@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.25 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.25/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.26 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.26/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.25** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.26** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,20 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.25**, built from `main`. Its full viewer
+The current public package is **v0.70.26**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Futurium and the northern Spree crossings now use their metric source
+  geometry.** Futurium follows Berlin LoD2 building `20g0005J` rather than a
+  rotated box and adds its recessed foyer, fine cassette skin, 28 m panorama
+  windows, bounded solar roof, Skywalk and source-positioned Drehmoment.
+  Moltkebrücke follows its OSM diagonal and published 77.58 x 25.70 m envelope,
+  with three finer sandstone arches, open balustrades, plinths and lamps.
+  Detailed OSM path ribbons cover all bounded park polygons, including the
+  Spreebogen approach to Gustav-Heinemann-Brücke, Futurium and Nordhafenpark;
+  curves share joined vertices instead of breaking into rectangular strips.
 
 - **Chrome gets the earliest browser-permitted music start.** Ambient audio
   and Dusk Republic request playback before the first painted frame and retry

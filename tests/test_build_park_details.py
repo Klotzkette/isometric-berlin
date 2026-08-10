@@ -80,7 +80,7 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
   assert payload["source"]["attribution"] == (
     "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)"
   )
-  assert len(payload["paths"]) >= 150
+  assert len(payload["paths"]) >= 1_500
   assert len(payload["trees"]) >= 20_000
   assert payload["tree_fusion"]["official"] >= 20_000
   assert payload["tree_fusion"]["osm_matched"] >= 1_800
@@ -92,6 +92,23 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
   assert all(3 <= tree["height_m"] <= 28 for tree in trees)
   assert max(tree["position"][1] for tree in trees) < 8
   assert max(light["position"][1] for light in payload["street_lights"]) < 8
+
+
+def test_paths_cover_spreebogen_futurium_and_nordhafen_parks() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  assert "all bounded OSM park areas" in payload["source"]["geometry_status"]
+  assert any(path["name"] == "Ludwig-Erhard-Ufer" for path in payload["paths"])
+
+  def reaches(x_min: float, x_max: float, z_min: float, z_max: float) -> bool:
+    return any(
+      x_min <= point[0] <= x_max and z_min <= point[2] <= z_max
+      for path in payload["paths"]
+      for point in path["points"]
+    )
+
+  assert reaches(-90, 30, -500, -370), "Spreebogen / Gustav-Heinemann approach"
+  assert reaches(150, 270, -650, -500), "Futurium public realm"
+  assert reaches(-650, -350, -2_000, -1_650), "Nordhafenpark"
 
 
 def test_light_band_runs_separate_balustrades_from_masts() -> None:

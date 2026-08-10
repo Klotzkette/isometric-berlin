@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Mesh } from "three";
 import {
   type ParkDetailsPayload,
+  createPathGeometry,
   createParkDetails,
   decodeTrees,
   parkDetailFocusDistance,
@@ -117,6 +118,15 @@ const payload: ParkDetailsPayload = {
 };
 
 describe("OSM park details", () => {
+  test("joins curved path segments into one continuous ribbon", () => {
+    const geometry = createPathGeometry([payload.paths[0]], 1.6);
+    expect(geometry.getAttribute("position").count).toBe(6);
+    expect(geometry.getIndex()?.count).toBe(12);
+    const positions = geometry.getAttribute("position");
+    expect(positions.getY(2)).toBeCloseTo(1.22);
+    expect(positions.getY(3)).toBeCloseTo(1.22);
+  });
+
   test("batches paths and granular tree crowns", () => {
     const park = createParkDetails(payload);
     expect(park.userData.pathCount).toBe(2);

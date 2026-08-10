@@ -3,13 +3,16 @@ import {
   CylinderGeometry,
   DoubleSide,
   EdgesGeometry,
+  ExtrudeGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  Shape,
   Vector3,
 } from "three";
+import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 import { createLetteringTexture } from "./drawnLettering";
@@ -54,10 +57,10 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     target_height_m: 17,
   },
   Futurium: {
-    azimuth_degrees: 30,
-    distance_m: 218,
-    polar_degrees: 57,
-    target_height_m: 10,
+    azimuth_degrees: 22,
+    distance_m: 168,
+    polar_degrees: 56,
+    target_height_m: 14,
   },
   "Gropius Bau": {
     azimuth_degrees: 18,
@@ -125,6 +128,23 @@ const WALL_FENCE = 0x555d5e;
 const KITA_BLUE = 0x3f78a8;
 const KITA_RED = 0xd65342;
 const KITA_YELLOW = 0xf0c73b;
+
+/** Berlin LoD2 building DEBE00YY20g0005J, in project-world metres. */
+export const FUTURIUM_BUILDING_ID = "20g0005J";
+export const FUTURIUM_BASE_Y_M = 5.4;
+export const FUTURIUM_HEIGHT_M = 19.9;
+export const FUTURIUM_FOOTPRINT_WORLD = [
+  [181.0, -531.7],
+  [182.3, -599.8],
+  [214.2, -607.0],
+  [252.7, -575.7],
+  [208.1, -520.9],
+] as const;
+export const FUTURIUM_DREHMOMENT_WORLD = [196.184, -505.856] as const;
+const FUTURIUM_CENTRE_WORLD = [209.2, -566.6] as const;
+const FUTURIUM_SILVER = 0xdde2df;
+const FUTURIUM_SILVER_ALT = 0xcbd2d0;
+const FUTURIUM_SOLAR = 0x315d69;
 
 /** OSM way 30349234 / Berlin LoD2 centroid, in project-world metres. */
 export const BUNDESTAG_KITA_WORLD = [255.8, 5.245, -250.4] as const;
@@ -203,6 +223,142 @@ function localLampBox(
   geometry.translate(local.x, point.y + y, local.z);
   paintGeometry(geometry, color);
   builder.lamps.push(geometry);
+}
+
+type FootprintPoint = readonly [number, number];
+
+function scaledFootprint(
+  ring: readonly FootprintPoint[],
+  scale: number,
+): [number, number][] {
+  return ring.map(([x, z]) => [
+    FUTURIUM_CENTRE_WORLD[0] + (x - FUTURIUM_CENTRE_WORLD[0]) * scale,
+    FUTURIUM_CENTRE_WORLD[1] + (z - FUTURIUM_CENTRE_WORLD[1]) * scale,
+  ]);
+}
+
+function addExtrudedFootprint(
+  builder: Builder,
+  color: number,
+  ring: readonly FootprintPoint[],
+  y0: number,
+  height: number,
+  inked = true,
+): void {
+  const shape = new Shape();
+  ring.forEach(([x, z], index) => {
+    if (index === 0) shape.moveTo(x, -z);
+    else shape.lineTo(x, -z);
+  });
+  const rawGeometry = new ExtrudeGeometry(shape, {
+    bevelEnabled: false,
+    depth: height,
+  });
+  rawGeometry.rotateX(-Math.PI / 2);
+  rawGeometry.translate(0, y0, 0);
+  rawGeometry.deleteAttribute("uv");
+  const geometry = mergeVertices(rawGeometry);
+  rawGeometry.dispose();
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+  if (inked) builder.edges.push(new EdgesGeometry(geometry, 24));
+}
+
+function addFacadePanel(
+  builder: Builder,
+  color: number,
+  start: FootprintPoint,
+  end: FootprintPoint,
+  along: number,
+  y: number,
+  width: number,
+  height: number,
+): void {
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const length = Math.hypot(dx, dz);
+  const tx = dx / length;
+  const tz = dz / length;
+  // The LoD2 ring is counter-clockwise; its right-hand normal faces out.
+  const nx = tz;
+  const nz = -tx;
+  const geometry = new BoxGeometry(width, height, 0.12);
+  geometry.rotateY(-Math.atan2(tz, tx));
+  geometry.translate(
+    start[0] + tx * along + nx * 0.12,
+    y,
+    start[1] + tz * along + nz * 0.12,
+  );
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+}
+
+function addFuturiumFacade(
+  builder: Builder,
+  ring: readonly FootprintPoint[],
+): void {
+  const facadeBottom = 10.6;
+  const facadeTop = FUTURIUM_BASE_Y_M + FUTURIUM_HEIGHT_M - 0.45;
+  const rowPitch = 1.72;
+  const rows = Math.floor((facadeTop - facadeBottom) / rowPitch);
+  for (let edgeIndex = 0; edgeIndex < ring.length; edgeIndex += 1) {
+    const start = ring[edgeIndex];
+    const end = ring[(edgeIndex + 1) % ring.length];
+    const length = Math.hypot(end[0] - start[0], end[1] - start[1]);
+    const columnPitch = 1.82;
+    const columns = Math.max(1, Math.floor(length / columnPitch));
+    const actualPitch = length / columns;
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        addFacadePanel(
+          builder,
+          (row + column + edgeIndex) % 3 === 0
+            ? FUTURIUM_SILVER_ALT
+            : FUTURIUM_SILVER,
+          start,
+          end,
+          actualPitch * (column + 0.5),
+          facadeBottom + rowPitch * (row + 0.5),
+          actualPitch - 0.13,
+          rowPitch - 0.13,
+        );
+      }
+    }
+  }
+}
+
+function addFuturiumPanorama(
+  builder: Builder,
+  start: FootprintPoint,
+  end: FootprintPoint,
+  width: number,
+  height: number,
+): void {
+  const edgeLength = Math.hypot(end[0] - start[0], end[1] - start[1]);
+  const centre = edgeLength / 2;
+  addFacadePanel(
+    builder,
+    DARK_GLASS,
+    start,
+    end,
+    centre,
+    FUTURIUM_BASE_Y_M + 8.2,
+    width,
+    height,
+  );
+  const mullionCount = 14;
+  for (let index = 0; index <= mullionCount; index += 1) {
+    addFacadePanel(
+      builder,
+      STEEL,
+      start,
+      end,
+      centre - width / 2 + (index / mullionCount) * width,
+      FUTURIUM_BASE_Y_M + 8.2,
+      0.09,
+      height + 0.08,
+    );
+  }
 }
 
 function addFacadeGrid(
@@ -464,81 +620,145 @@ function addFuturium(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
 ): void {
-  const point = anchor(byName, "Futurium");
-  if (!point) return;
-  const rotation = -0.07;
-  localBox(builder, IVORY, point, 0, 10.1, 0, 70, 19.6, 84, rotation);
-  localBox(builder, STEEL, point, 0, 20.25, 0, 73, 0.7, 87, rotation);
-  localLampBox(
+  if (!anchor(byName, "Futurium")) return;
+
+  // The old recognition object was a 70 x 84 m box turned almost north-
+  // south. The Berlin LoD2 polygon is an irregular 4,034 m² pentagon whose
+  // long axis runs about 51 degrees. Build from that polygon so the public
+  // forecourts, railway edge and neighbouring Cube no longer overlap it.
+  const footprint = FUTURIUM_FOOTPRINT_WORLD;
+  const lowerGlass = scaledFootprint(footprint, 0.9);
+  addExtrudedFootprint(builder, DARK_GLASS, lowerGlass, FUTURIUM_BASE_Y_M, 5.4);
+  addExtrudedFootprint(
     builder,
     DARK_GLASS,
-    point,
-    0,
-    10.3,
-    -42.25,
-    28,
-    8,
-    0.36,
-    rotation,
+    footprint,
+    FUTURIUM_BASE_Y_M + 5.2,
+    FUTURIUM_HEIGHT_M - 5.2,
   );
-  localLampBox(
+  addFuturiumFacade(builder, footprint);
+
+  // Futurium publishes two 28 m panoramic openings: 11 m high to the
+  // railway/north and 8 m high to the Spree/south.
+  addFuturiumPanorama(builder, footprint[1], footprint[2], 28, 11);
+  addFuturiumPanorama(builder, footprint[4], footprint[0], 28, 8);
+
+  const addEntranceCanopy = (
+    start: FootprintPoint,
+    end: FootprintPoint,
+    depth: number,
+  ): void => {
+    const dx = end[0] - start[0];
+    const dz = end[1] - start[1];
+    const length = Math.hypot(dx, dz);
+    const tx = dx / length;
+    const tz = dz / length;
+    const nx = tz;
+    const nz = -tx;
+    addBox(
+      builder,
+      FUTURIUM_SILVER,
+      (start[0] + end[0]) / 2 + nx * (depth / 2 - 0.4),
+      FUTURIUM_BASE_Y_M + 13.5,
+      (start[1] + end[1]) / 2 + nz * (depth / 2 - 0.4),
+      30,
+      0.72,
+      depth,
+      -Math.atan2(tz, tx),
+    );
+  };
+  addEntranceCanopy(footprint[1], footprint[2], 13.5);
+  addEntranceCanopy(footprint[4], footprint[0], 13.5);
+
+  // A pale roof basin, perimeter Skywalk and two restrained photovoltaic
+  // fields replace the former single oversized black roof plate.
+  addExtrudedFootprint(
     builder,
-    DARK_GLASS,
-    point,
-    0,
-    11.8,
-    42.25,
-    28,
-    11,
-    0.36,
-    rotation,
+    FUTURIUM_SILVER,
+    scaledFootprint(footprint, 0.985),
+    FUTURIUM_BASE_Y_M + FUTURIUM_HEIGHT_M - 0.18,
+    0.24,
   );
-  localBox(builder, IVORY, point, 0, 18.2, -49, 40, 1.2, 18, rotation);
-  localBox(builder, IVORY, point, 0, 18.2, 49, 40, 1.2, 18, rotation);
-  for (let row = 0; row < 8; row += 1) {
-    for (let bay = 0; bay < 14; bay += 1) {
+  const roofCentre = new Vector3(
+    FUTURIUM_CENTRE_WORLD[0],
+    0,
+    FUTURIUM_CENTRE_WORLD[1],
+  );
+  const roofRotation = 0.8876;
+  for (let row = -2; row <= 2; row += 1) {
+    for (let column = -4; column <= 4; column += 1) {
       localBox(
         builder,
-        (row + bay) % 2 === 0 ? LIMESTONE : IVORY,
-        point,
-        -32.5 + bay * 5,
-        2.5 + row * 2.1,
-        -42.48,
-        4.55,
-        1.72,
-        0.16,
-        rotation,
-        false,
-      );
-    }
-  }
-  for (let row = 0; row < 6; row += 1) {
-    for (let bay = 0; bay < 12; bay += 1) {
-      localBox(
-        builder,
-        DARK_GLASS,
-        point,
-        -29.7 + bay * 5.4,
-        20.75,
-        -27 + row * 10.8,
+        (row + column) % 2 === 0 ? FUTURIUM_SOLAR : 0x386b78,
+        roofCentre,
+        column * 5.1,
+        FUTURIUM_BASE_Y_M + FUTURIUM_HEIGHT_M + 0.2,
+        row * 5.8,
         4.6,
-        0.2,
-        9.7,
-        rotation,
+        0.16,
+        5.2,
+        roofRotation,
         false,
       );
     }
   }
+  for (let edgeIndex = 0; edgeIndex < footprint.length; edgeIndex += 1) {
+    const start = footprint[edgeIndex];
+    const end = footprint[(edgeIndex + 1) % footprint.length];
+    const dx = end[0] - start[0];
+    const dz = end[1] - start[1];
+    const length = Math.hypot(dx, dz);
+    const rotation = -Math.atan2(dz, dx);
+    addBox(
+      builder,
+      STEEL,
+      (start[0] + end[0]) / 2,
+      FUTURIUM_BASE_Y_M + FUTURIUM_HEIGHT_M + 0.65,
+      (start[1] + end[1]) / 2,
+      length,
+      0.12,
+      0.15,
+      rotation,
+      false,
+    );
+    const postCount = Math.max(2, Math.round(length / 2.8));
+    for (let post = 0; post <= postCount; post += 1) {
+      const t = post / postCount;
+      addBox(
+        builder,
+        STEEL,
+        start[0] + dx * t,
+        FUTURIUM_BASE_Y_M + FUTURIUM_HEIGHT_M + 0.34,
+        start[1] + dz * t,
+        0.08,
+        0.68,
+        0.08,
+        0,
+        false,
+      );
+    }
+  }
+
+  // realities:united's Drehmoment is source-positioned in the south court,
+  // 15 m tall and 4.3 m across. It is not a 15 m-wide vertical cylinder.
+  const [drehmomentX, drehmomentZ] = FUTURIUM_DREHMOMENT_WORLD;
   addCylinder(
     builder,
     STEEL,
-    point.x + 30,
-    point.y + 8,
-    point.z - 52,
-    2.2,
-    15,
-    18,
+    drehmomentX,
+    FUTURIUM_BASE_Y_M + 7.25,
+    drehmomentZ,
+    0.12,
+    14.5,
+    12,
   );
+  const disc = new CylinderGeometry(2.15, 2.15, 0.28, 32);
+  disc.rotateZ(Math.PI / 2 - 0.18);
+  disc.rotateY(0.35);
+  disc.translate(drehmomentX, FUTURIUM_BASE_Y_M + 12.65, drehmomentZ);
+  paintGeometry(disc, STEEL);
+  builder.parts.push(disc);
+  builder.edges.push(new EdgesGeometry(disc, 24));
 }
 
 function addGreenFederalCampus(
@@ -1085,6 +1305,14 @@ export function createCentralCivicDetails(
     geometryAnchor: "OSM way 30349234 + Berlin LoD2",
     source: BUNDESTAG_KITA_SOURCE,
     world: BUNDESTAG_KITA_WORLD,
+  };
+  group.userData.futurium = {
+    buildingId: FUTURIUM_BUILDING_ID,
+    drehmomentWorld: FUTURIUM_DREHMOMENT_WORLD,
+    footprintAreaM2: 4034,
+    footprintWorld: FUTURIUM_FOOTPRINT_WORLD,
+    heightM: FUTURIUM_HEIGHT_M,
+    source: "Berlin LoD2 + OSM + Futurium architecture specification",
   };
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),

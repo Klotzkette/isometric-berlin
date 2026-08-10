@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.70.25"
+PACKAGE_VERSION = "0.70.26"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3656,15 +3656,15 @@ glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
 photographic texture remains visible underneath.
 
-Version {PACKAGE_VERSION} expands the visible radius to 5,230 m and carries
-the north-east/south corridor in {scene_counts["base_files"]} official
-interaction tiles. Hauptbahnhof trams and stop, the S15 entrance,
-Washingtonplatz taxis, Futurium, the federal ministries, Parliament of Trees,
-Berliner Ensemble, Friedrichstraße station, Detlev-Rohwedder-Haus, Gropius
-Bau, the Berlin House of Representatives and Topography of Terror stay at the
-same verified coordinates in every surface mode. Vehicles, facade rhythms and
-the damaged Wall-crown treatment remain explicitly labelled metric display
-approximations.
+Version {PACKAGE_VERSION} keeps the visible radius at 5,230 m and carries the
+north-east/south corridor in {scene_counts["base_files"]} official interaction
+tiles. Futurium now follows its exact Berlin LoD2 footprint and height, while
+its cassette skin, panoramic end windows, roof basin, solar field, Skywalk and
+Drehmoment are source-bounded recognition details. Moltkebrücke follows its
+OSM centreline and published 77.58 x 25.70 m dimensions. Detailed OSM path
+ribbons now cover every bounded park area, including Spreebogenpark,
+Futurium's public realm and Nordhafenpark. Recognition details remain
+explicitly labelled metric display approximations.
 
 2D compatibility view without Terminal:
 

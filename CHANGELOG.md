@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.70.26
+
+- **Futurium is rebuilt from its actual Berlin LoD2 geometry instead of the
+  former 70 x 84 m placeholder box.** Building `20g0005J` supplies the
+  irregular 4,034 m² footprint, 5.4 m base and 19.9 m height. The complete
+  recognition model adds the recessed glass foyer, fine cast-glass cassette
+  field, published 28 m north/south panorama windows, projecting entrance
+  roofs, bounded photovoltaic field, roof Skywalk and OSM-positioned 15 m
+  Drehmoment. Its close camera now frames the building rather than its roof
+  and neighbouring Cube.
+- **Moltkebrücke no longer lies across the Spree as a disconnected red slab.**
+  Its model now follows the OSM centreline while preserving Berlin's published
+  77.58 x 25.70 m inventory dimensions. Three segmental sandstone arches use
+  twice the former curve resolution; the deck carries separate roadway and
+  pavements, open balusters, coping, pier plinths, warm historic lamps and
+  restrained corner-griffin recognition silhouettes.
+- **Detailed paths now cover every bounded OSM park polygon, not only Großer
+  Tiergarten.** The 1,651-path payload includes Spreebogenpark and
+  Ludwig-Erhard-Ufer toward Gustav-Heinemann-Brücke, Futurium's public realm
+  and Nordhafenpark. A spatial index keeps regeneration near ten seconds, and
+  continuous miter-limited ribbons remove gaps and blocky joins on curved
+  walks. Coordinates retain centimetre precision and the full additive detail
+  payload remains below its 5 MiB release ceiling.
+- Targeted browser QA inspected Futurium from both end orientations and
+  Moltkebrücke from roadway and cross-river views; metric bridge, civic-detail
+  and park-path tests pass. The visible radius remains **5,230 m**; no bounds,
+  unrelated building coordinates, attribution, Google content or credentials
+  changed.
+
 ## v0.70.25
 
 - **Permitted Chrome autoplay now starts before the first painted frame.** The
