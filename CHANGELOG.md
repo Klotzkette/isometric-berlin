@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.70.28
+
+- **A photo-reference pass corrects three prominent rail and theatre details
+  without moving their surveyed envelopes.** The Berliner Ensemble rooftop
+  mark is now the real open red ring with freestanding two-line lettering,
+  rather than a filled red disk. Its mobile focus follows the model's actual
+  24/13 m offset and higher roofline, so the complete sign and facade stay in
+  frame.
+- **Bahnhof Friedrichstrasse now reads as two historic train sheds from every
+  side.** Each 35.8 m hall has its own arched end glazing, the 146 m roofs meet
+  at a visible central valley gutter, both long brick facades carry the same
+  window, pilaster and belt-course rhythm, and the day palette uses the warmer
+  terracotta and lighter grey-green roof visible in Commons photographs. The
+  existing 146 x 72 m LoD2/OSM footprint is unchanged.
+- **Berlin Hauptbahnhof's four panoramic lifts are cylindrical glass shafts.**
+  The former square placeholders are replaced by open 20-segment cylinders
+  with a slim instanced frame and separately readable lift cars, matching
+  Deutsche Bahn interior views while adding only one shared frame draw call.
+- Browser QA covered 390 x 844, 1024 x 768 and 1600 x 900 views of the Berliner
+  Ensemble, Bahnhof Friedrichstrasse and Hauptbahnhof in Day and Night. Two
+  settled mobile Night captures were byte-identical; all geometry, navigation,
+  anti-flicker, build and packaging contracts pass. The visible radius remains
+  **5,230 m**; attribution and source policy are unchanged.
+
 ## v0.70.27
 
 - **The Swiss Embassy now reads as one historically layered complex.** Its

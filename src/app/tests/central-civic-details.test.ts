@@ -81,8 +81,18 @@ describe("task-11 central transit and civic details", () => {
       details.getObjectByName("Berliner Ensemble circular rooftop sign"),
     ).toBeDefined();
     expect(
-      details.getObjectByName("Berliner Ensemble red circular roof emblem"),
+      details.getObjectByName("Berliner Ensemble open red neon roof ring"),
     ).toBeDefined();
+    expect(
+      (
+        details.getObjectByName(
+          "Berliner Ensemble open red neon roof ring",
+        ) as Mesh
+      ).geometry.type,
+    ).toBe("TorusGeometry");
+    expect(
+      details.getObjectByName("Berliner Ensemble red circular roof emblem"),
+    ).toBeUndefined();
   });
 
   test("pins Pariser Platz, Cube and Tränenpalast to surveyed outlines", () => {
@@ -110,6 +120,8 @@ describe("task-11 central transit and civic details", () => {
     expect(details.userData.friedrichstrasseStation).toMatchObject({
       footprintM: [146, 72],
       roofCount: 2,
+      roofProfile:
+        "separate barrel vaults, central valley gutter and twin arched end walls",
     });
     expect(details.userData.economicsMinistry.source).toContain("Berlin LoD2");
   });
@@ -153,12 +165,24 @@ describe("task-11 central transit and civic details", () => {
 
   test("provides contextual camera framing for the new QA anchors", () => {
     const futurium = landmarks.find(({ name }) => name === "Futurium")!;
+    const ensemble = landmarks.find(
+      ({ name }) => name === "Berliner Ensemble",
+    )!;
     const tram = landmarks.find(({ name }) =>
       name.startsWith("Tramhaltestelle"),
     )!;
     expect(centralCivicFocusCamera(futurium)).toMatchObject({
       distance_m: 168,
       target_world: futurium.world,
+    });
+    expect(centralCivicFocusCamera(ensemble)).toMatchObject({
+      distance_m: 146,
+      target_height_m: 17,
+      target_world: [
+        ensemble.world[0] + 24,
+        ensemble.world[1],
+        ensemble.world[2] + 13,
+      ],
     });
     expect(centralCivicFocusCamera(tram)).toMatchObject({
       distance_m: 176,

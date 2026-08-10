@@ -1,7 +1,6 @@
 import {
   BoxGeometry,
   BufferGeometry,
-  CircleGeometry,
   CylinderGeometry,
   DoubleSide,
   EdgesGeometry,
@@ -13,6 +12,7 @@ import {
   MeshStandardMaterial,
   PlaneGeometry,
   Shape,
+  TorusGeometry,
   Vector3,
 } from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -49,9 +49,9 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
   },
   "Berliner Ensemble": {
     azimuth_degrees: 24,
-    distance_m: 138,
+    distance_m: 146,
     polar_degrees: 58,
-    target_height_m: 11,
+    target_height_m: 17,
   },
   "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus": {
     azimuth_degrees: -68,
@@ -101,7 +101,12 @@ export function centralCivicFocusCamera(
   landmark: CentralCivicLandmark,
 ): FocusCamera | null {
   const preset = FOCUS[landmark.name];
-  return preset ? { ...preset, target_world: landmark.world } : null;
+  if (!preset) return null;
+  const targetWorld: [number, number, number] =
+    landmark.name === "Berliner Ensemble"
+      ? [landmark.world[0] + 24, landmark.world[1], landmark.world[2] + 13]
+      : landmark.world;
+  return { ...preset, target_world: targetWorld };
 }
 
 export function centralCivicDetailsVisible(underside: boolean): boolean {
@@ -1532,8 +1537,35 @@ function addFriedrichstrasseStation(
   if (!point) return;
   point.y = 2.85;
   const rotation = -0.03;
-  localBox(builder, BRICK, point, 0, 8.7, 0, 143, 17.4, 72, rotation);
-  localBox(builder, SANDSTONE, point, 0, 1.25, 36.1, 143, 2.5, 0.8, rotation);
+  const stationBrick = 0xbc8068;
+  const stationBrickAccent = 0x8d594b;
+  const stationStone = 0xd6c5a7;
+  localBox(
+    builder,
+    stationBrick,
+    point,
+    0,
+    8.7,
+    0,
+    143,
+    17.4,
+    72,
+    rotation,
+  );
+  for (const facade of [-36.1, 36.1]) {
+    localBox(
+      builder,
+      stationStone,
+      point,
+      0,
+      1.25,
+      facade,
+      143,
+      2.5,
+      0.8,
+      rotation,
+    );
+  }
   // The 1919-25 rebuild is a twin train shed, not one oversized barrel.
   // Each steel-and-glass vault spans half the LoD2 station footprint and
   // meets its neighbour at the central valley gutter.
@@ -1541,50 +1573,86 @@ function addFriedrichstrasseStation(
     const roofCentre = localPoint(point, 0, across, rotation);
     addBarrelRoofGeometry(
       builder,
-      0x668286,
+      0x98aaab,
       new Vector3(roofCentre.x, point.y, roofCentre.z),
       146,
       35.8,
       17.4,
       10.6,
       rotation,
-      16,
+      20,
     );
   }
-  addFacadeGrid(builder, point, {
-    bays: 18,
-    baySpacing: 7.4,
-    floors: 3,
-    floorSpacing: 4.5,
-    frontZ: 36.15,
-    rotationY: rotation,
-    startY: 5.1,
-    width: 3.8,
-  });
+  localBox(builder, STEEL, point, 0, 17.7, 0, 145.2, 0.46, 0.72, rotation);
+  for (const facade of [-36.15, 36.15]) {
+    addFacadeGrid(builder, point, {
+      bays: 18,
+      baySpacing: 7.4,
+      floors: 3,
+      floorSpacing: 4.5,
+      frontZ: facade,
+      rotationY: rotation,
+      startY: 5.1,
+      width: 3.8,
+    });
+    for (let bay = 0; bay <= 18; bay += 1) {
+      localBox(
+        builder,
+        stationBrickAccent,
+        point,
+        -66.6 + bay * 7.4,
+        9.15,
+        facade + Math.sign(facade) * 0.18,
+        0.36,
+        15.3,
+        0.28,
+        rotation,
+      );
+    }
+    for (const y of [3.45, 16.15]) {
+      localBox(
+        builder,
+        stationStone,
+        point,
+        0,
+        y,
+        facade + Math.sign(facade) * 0.2,
+        142.2,
+        0.34,
+        0.32,
+        rotation,
+      );
+    }
+  }
   // The two end gables expose the arched train shed rather than closing it
   // with a featureless brick wall.
   for (const end of [-1, 1]) {
     const endPoint = localPoint(point, end * 71.55, 0, rotation);
-    for (let bay = -5; bay <= 5; bay += 1) {
-      const across = bay * 5.6;
-      const pane = localPoint(
-        new Vector3(endPoint.x, point.y, endPoint.z),
-        0,
-        across,
-        rotation,
-      );
-      addBox(
-        builder,
-        DARK_GLASS,
-        pane.x,
-        point.y + 19.2 + (1 - Math.abs(bay) / 6) * 4.2,
-        pane.z,
-        0.28,
-        5.6,
-        4.7,
-        rotation,
-        false,
-      );
+    for (const shedCentre of [-18, 18]) {
+      for (let bay = -3; bay <= 3; bay += 1) {
+        const across = shedCentre + bay * 5.05;
+        const pane = localPoint(
+          new Vector3(endPoint.x, point.y, endPoint.z),
+          0,
+          across,
+          rotation,
+        );
+        const archFactor = Math.sqrt(1 - (bay / 3.5) ** 2);
+        const paneBottom = point.y + 17.65;
+        const paneTop = point.y + 17.85 + archFactor * 10.2;
+        addBox(
+          builder,
+          DARK_GLASS,
+          pane.x,
+          (paneBottom + paneTop) / 2,
+          pane.z,
+          0.28,
+          paneTop - paneBottom,
+          4.25,
+          rotation,
+          false,
+        );
+      }
     }
   }
 }
@@ -1832,27 +1900,48 @@ function createSign(
   rotationY: number,
   fieldColor: string,
   letterColor: string,
+  transparentField = false,
 ): Mesh {
+  const resolvedFieldColor = transparentField ? "rgba(0,0,0,0)" : fieldColor;
   const texture = createLetteringTexture({
     bandHeightM: height,
     bandWidthM: width,
     capHeightM: height * 0.56,
-    fieldColor,
+    fieldColor: resolvedFieldColor,
     letterColor,
     text,
     texelsPerMetre: 180,
   });
   const dayMaterial = texture
-    ? new MeshBasicMaterial({ map: texture, side: DoubleSide })
-    : new MeshBasicMaterial({ color: fieldColor, side: DoubleSide });
-  const nightMaterial = texture
-    ? new MeshStandardMaterial({
-        emissive: 0xffd8a0,
-        emissiveIntensity: 0.7,
+    ? new MeshBasicMaterial({
+        alphaTest: transparentField ? 0.05 : 0,
+        depthWrite: !transparentField,
         map: texture,
         side: DoubleSide,
+        transparent: transparentField,
       })
-    : new MeshStandardMaterial({ color: fieldColor, side: DoubleSide });
+    : new MeshBasicMaterial({
+        color: transparentField ? letterColor : fieldColor,
+        opacity: transparentField ? 0 : 1,
+        side: DoubleSide,
+        transparent: transparentField,
+      });
+  const nightMaterial = texture
+    ? new MeshStandardMaterial({
+        alphaTest: transparentField ? 0.05 : 0,
+        depthWrite: !transparentField,
+        emissive: transparentField ? 0xfff1cf : 0xffd8a0,
+        emissiveIntensity: transparentField ? 1.05 : 0.7,
+        map: texture,
+        side: DoubleSide,
+        transparent: transparentField,
+      })
+    : new MeshStandardMaterial({
+        color: transparentField ? letterColor : fieldColor,
+        opacity: transparentField ? 0 : 1,
+        side: DoubleSide,
+        transparent: transparentField,
+      });
   const sign = new Mesh(new PlaneGeometry(width, height), dayMaterial);
   const position = localPoint(point, offset[0], offset[2], rotationY);
   sign.position.set(position.x, point.y + offset[1], position.z);
@@ -1866,6 +1955,10 @@ function createSign(
 function createBerlinerEnsembleRoofSign(point: Vector3): Group {
   const group = new Group();
   group.name = "Berliner Ensemble circular rooftop sign";
+  group.userData = {
+    geometryStatus: "official-photo-referenced open neon ring and lettering",
+    sourceUrl: "https://www.berliner-ensemble.de/magazin/berlin-leuchtet",
+  };
   const rotationY = -0.12;
   const centre = localPoint(point, 0, 0, rotationY);
   const dayMaterial = new MeshBasicMaterial({
@@ -1878,13 +1971,13 @@ function createBerlinerEnsembleRoofSign(point: Vector3): Group {
     emissiveIntensity: 0.82,
     side: DoubleSide,
   });
-  const disc = new Mesh(new CircleGeometry(7.2, 48), dayMaterial);
-  disc.name = "Berliner Ensemble red circular roof emblem";
-  disc.position.set(centre.x, point.y + 27.2, centre.z);
-  disc.rotation.y = rotationY;
-  disc.userData.dayMaterial = dayMaterial;
-  disc.userData.nightMaterial = nightMaterial;
-  group.add(disc);
+  const ring = new Mesh(new TorusGeometry(6.95, 0.2, 8, 72), dayMaterial);
+  ring.name = "Berliner Ensemble open red neon roof ring";
+  ring.position.set(centre.x, point.y + 27.2, centre.z);
+  ring.rotation.y = rotationY;
+  ring.userData.dayMaterial = dayMaterial;
+  ring.userData.nightMaterial = nightMaterial;
+  group.add(ring);
 
   for (const x of [-4.4, 4.4]) {
     const supportPoint = localPoint(point, x, 0.2, rotationY);
@@ -1904,8 +1997,9 @@ function createBerlinerEnsembleRoofSign(point: Vector3): Group {
       point,
       [0, 29, 0.08],
       rotationY,
-      "#a72e2e",
+      "rgba(0,0,0,0)",
       "#fff5df",
+      true,
     ),
     createSign(
       "ENSEMBLE",
@@ -1914,8 +2008,9 @@ function createBerlinerEnsembleRoofSign(point: Vector3): Group {
       point,
       [0, 25.9, 0.08],
       rotationY,
-      "#a72e2e",
+      "rgba(0,0,0,0)",
       "#fff5df",
+      true,
     ),
   );
   return group;
@@ -2022,7 +2117,11 @@ export function createCentralCivicDetails(
   };
   group.userData.friedrichstrasseStation = {
     footprintM: [146, 72],
+    photoReference:
+      "https://commons.wikimedia.org/wiki/File:Bahnhof_Berlin_Friedrichstra%C3%9Fe_-_Detailansicht.jpg",
     roofCount: 2,
+    roofProfile:
+      "separate barrel vaults, central valley gutter and twin arched end walls",
     source:
       "Berlin LoD2 + OSM station footprint + the listed 1919-25 twin train-shed profile",
   };

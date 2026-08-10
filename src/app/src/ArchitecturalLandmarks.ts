@@ -2699,19 +2699,31 @@ function addStationInterior(
     0.54,
   );
 
-  // Four glazed lift shafts make the vertical circulation legible through
-  // the station roof. Their lift cars are deliberately offset so the shafts
-  // do not read as opaque towers.
+  // The station's four panoramic lifts are cylindrical glazed shafts, not
+  // opaque square towers. A light four-post frame keeps each cylinder legible
+  // through the hall without creating another dense transparent layer.
+  const liftFrames: InstanceTransform[] = [];
   for (const x of [-14.8, 14.8]) {
     for (const z of [-33, 33]) {
-      addBox(
-        group,
-        "Hauptbahnhof glass lift shaft",
-        [3.2, 23.5, 3.2],
-        [x, -2.25, z],
+      const shaft = new Mesh(
+        new CylinderGeometry(1.72, 1.72, 23.5, 20, 1, true),
         retailGlass,
-        0.25,
       );
+      shaft.name = "Hauptbahnhof cylindrical glass lift shaft";
+      shaft.position.set(x, -2.25, z);
+      shaft.castShadow = false;
+      shaft.receiveShadow = true;
+      shaft.userData.sourceUrl =
+        "https://www.deutschebahn.com/de/architektur_bahnhof-6878040";
+      group.add(shaft);
+      for (const [dx, dz] of [
+        [-1.48, 0],
+        [1.48, 0],
+        [0, -1.48],
+        [0, 1.48],
+      ] as Array<[number, number]>) {
+        liftFrames.push({ position: [x + dx, -2.25, z + dz] });
+      }
       addBox(
         group,
         "Hauptbahnhof lift car",
@@ -2722,6 +2734,13 @@ function addStationInterior(
       );
     }
   }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced cylindrical lift frames",
+    [0.12, 23.5, 0.12],
+    escalator,
+    liftFrames,
+  );
 
   // The north–south deep station, crossing under the Stadtbahn at −15 m.
   //

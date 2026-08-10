@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.27 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.27/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.28 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.28/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.27** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.28** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.27**, built from `main`. Its full viewer
+The current public package is **v0.70.28**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -62,8 +62,8 @@ local modules.
   formal gardens, flower borders, fountains, bollards and the U/S-Bahn
   entrance alongside restrained US and French embassy facades. Cube Berlin
   follows its LoD2/OSM envelope with a faceted glass skin; Hauptbahnhof gains
-  concourse shopfronts, gallery balustrades, four lift shafts and the rust-red
-  steel supports on its eastern approach.
+  concourse shopfronts, gallery balustrades, four cylindrical glass lift shafts
+  and the rust-red steel supports on its eastern approach.
 
 - **The eastern Spree crossings and Friedrichstraße read as distinct
   structures.** Kronprinzenbrücke uses its measured deck orientation with

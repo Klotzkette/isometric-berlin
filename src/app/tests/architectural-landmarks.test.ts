@@ -287,11 +287,18 @@ describe("metre-scale architectural recognition models", () => {
         "Hauptbahnhof batched gallery glass balustrades",
       ),
     ).toBeInstanceOf(LineSegments);
+    const liftShafts = station!.children.filter(
+      (child) => child.name === "Hauptbahnhof cylindrical glass lift shaft",
+    );
+    expect(liftShafts).toHaveLength(4);
+    for (const shaft of liftShafts) {
+      expect((shaft as Mesh).geometry.type).toBe("CylinderGeometry");
+    }
     expect(
-      station!.children.filter(
-        (child) => child.name === "Hauptbahnhof glass lift shaft",
+      station!.getObjectByName(
+        "Hauptbahnhof instanced cylindrical lift frames",
       ),
-    ).toHaveLength(4);
+    ).toBeInstanceOf(InstancedMesh);
   });
 
   test("preserves the LoD2 Chancellery envelope and official heights", () => {
