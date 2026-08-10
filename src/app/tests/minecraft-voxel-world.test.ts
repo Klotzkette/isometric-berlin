@@ -17,6 +17,7 @@ import {
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   BERLIN_MODERN_PROFILE,
+  KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "../src/expandedCityProfiles";
 
@@ -58,6 +59,12 @@ describe("true voxel Minecraft world", () => {
     // snap to the pale COOL entry, never to a warm sandstone cream — plain
     // RGB distance used to pick the cream and rendered it khaki-yellow.
     expect(lookup(-154, -146)).toBe(0xd6dfe0);
+    expect(lookup(240.095, 1082.464)).toBe(
+      KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone,
+    );
+    expect(KOLLHOFF_TOWER_PROFILE.facadeMaterial).toBe(
+      "red-ceramic-cladding",
+    );
     expect(lookup(-5000, -5000)).toBeNull();
     // Coverage, sampled across the whole area rather than the first rows.
     // The overview raster the tones come from is pinned to the pre-expansion

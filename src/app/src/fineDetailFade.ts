@@ -189,6 +189,23 @@ export function nextFineDetailVisible({
   return distanceM <= FINE_DETAIL_SHOW_DISTANCE_M;
 }
 
+/** Sub-decimetre/brick-bond drawing only resolves in a real close-up. */
+export const MICRO_DETAIL_SHOW_DISTANCE_M = 230;
+export const MICRO_DETAIL_HIDE_DISTANCE_M = 310;
+
+export function nextMicroDetailVisible({
+  distanceM,
+  visible,
+}: FineDetailVisibilityInput): boolean {
+  if (!Number.isFinite(distanceM)) {
+    return visible;
+  }
+  if (visible) {
+    return distanceM < MICRO_DETAIL_HIDE_DISTANCE_M;
+  }
+  return distanceM <= MICRO_DETAIL_SHOW_DISTANCE_M;
+}
+
 /**
  * Object names (drawnKit's `finishDrawnGroup` / hand-built mesh names) that
  * only read as fine detail up close: lane markings and window-band mullions
@@ -202,10 +219,16 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "carriageway lane markings",
   "LoD2 glass mullions",
   "LoD2 prism window bars",
+  "Kollhoff recessed window panes",
   "drawn kerb lines",
   "bridge railing bodies",
   "bridge railing ink lines",
   "static water ripple ribbons",
   "three hidden Tiergarten beavers",
   "vessel wake ribbons",
+];
+
+/** Dense line layers that would alias in the overview even when faded. */
+export const MICRO_DETAIL_LAYER_NAMES: readonly string[] = [
+  "Kollhoff clinker mortar joints",
 ];

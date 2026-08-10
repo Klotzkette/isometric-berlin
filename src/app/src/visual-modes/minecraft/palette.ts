@@ -20,7 +20,7 @@ export const MINECRAFT_PALETTE = [
   // foliage + grass (oak-leaf dark -> plains grass light)
   0x4c7f28, 0x5d9634, 0x74b043, 0x91bd59,
   // dirt-brown + metallic copper + plaza-brick + marquee gold
-  0x704a2d, 0xc18a4b, 0x994a35, 0xe6bd4c,
+  0x704a2d, 0xc18a4b, 0xb9684f, 0xe6bd4c,
 ] as const;
 
 // Architecture may only snap to materials that can plausibly read as a
@@ -39,6 +39,7 @@ export const MINECRAFT_BUILDING_PALETTE = [
   0x72c5d2,
   0xa4dfe2,
   0xe79a61,
+  0xb9684f,
 ] as const;
 
 export const MATERIAL_PALETTES = {
@@ -48,7 +49,7 @@ export const MATERIAL_PALETTES = {
   glass: [0x40515c, 0x8e9a9e, 0x72c5d2, 0xd6dfe0],
   metal: [0x74806d, 0x8e9a9e, 0xd6dfe0, 0xf7fbf7],
   path: [0x202923, 0x715b4a, 0xb69b83],
-  plazaBrick: [0x994a35, 0xc18a4b, 0xe79a61],
+  plazaBrick: [0xb9684f, 0xc18a4b, 0xe79a61],
   roofCopper: [0x34443a, 0x74806d, 0xa4aa91, 0xe79a61],
   sandstone: [0xb69b83, 0xe8d1ae, 0xf5e3c5],
   water: [0x2e5aa8, 0x3f76e4, 0x72c5d2, 0xa4dfe2],

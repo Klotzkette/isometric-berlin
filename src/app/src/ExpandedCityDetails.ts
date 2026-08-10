@@ -22,6 +22,7 @@ import type { FocusCamera } from "./ArchitecturalLandmarks";
 import {
   BERLIN_MODERN_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
+  KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 import {
@@ -42,6 +43,7 @@ export type ExpandedLandmark = {
 export {
   BERLIN_MODERN_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
+  KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 
@@ -78,6 +80,12 @@ const EXPANDED_FOCUS_PRESETS: Record<
     distance_m: 122,
     polar_degrees: 62,
     target_height_m: 18,
+  },
+  "Kollhoff-Tower": {
+    azimuth_degrees: 18,
+    distance_m: 176,
+    polar_degrees: 61,
+    target_height_m: 48,
   },
   Rieckhallen: {
     azimuth_degrees: 72,
@@ -1642,23 +1650,6 @@ function addCivicAccents(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
 ): void {
-  const kollhoff = anchor(byName, "Kollhoff-Tower");
-  if (kollhoff) {
-    for (let level = 0; level < 7; level += 1) {
-      const size = 29 - level * 2.5;
-      addBox(
-        builder,
-        level % 2 ? BRICK : DARK_BRICK,
-        kollhoff.x,
-        kollhoff.y + 45 + level * 4.1,
-        kollhoff.z,
-        size,
-        1.1,
-        size,
-        -0.06,
-      );
-    }
-  }
   const spanish = anchor(byName, "Spanische Botschaft");
   if (spanish) {
     addBox(
@@ -1935,6 +1926,7 @@ export function createExpandedCityDetails(
   );
   group.userData.berlinModern = BERLIN_MODERN_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
+  group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);

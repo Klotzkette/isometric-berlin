@@ -6,6 +6,7 @@ import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
+  KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "../src/ExpandedCityDetails";
 
@@ -93,6 +94,33 @@ describe("task-10 expanded city recognition details", () => {
       distance_m: 232,
       target_height_m: 32,
     });
+    const kollhoff = landmarks.find(
+      (landmark) => landmark.name === "Kollhoff-Tower",
+    );
+    expect(expandedCityFocusCamera(kollhoff!)).toMatchObject({
+      distance_m: 176,
+      target_height_m: 48,
+      target_world: kollhoff?.world,
+    });
+  });
+
+  test("leaves Kollhoff massing to its complete LoD2 shell", () => {
+    const kollhoff = {
+      name: "Kollhoff-Tower",
+      world: [240.095, 8, 1082.464] as [number, number, number],
+    };
+    const details = createExpandedCityDetails([kollhoff]);
+    expect(details.userData.kollhoffTower).toEqual(KOLLHOFF_TOWER_PROFILE);
+    expect(
+      details.getObjectByName(
+        "Expanded architecture and public-realm details bodies",
+      ),
+    ).toBeUndefined();
+    expect(KOLLHOFF_TOWER_PROFILE.parentBuildingId).toBe(
+      "DEBE01YYK0002KM6",
+    );
+    expect(KOLLHOFF_TOWER_PROFILE.officialHeightM).toBe(103);
+    expect(KOLLHOFF_TOWER_PROFILE.storeyCount).toBe(25);
   });
 
   test("pins Hamburger Bahnhof to its measured tower facade", () => {

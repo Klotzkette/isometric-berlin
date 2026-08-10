@@ -15,6 +15,7 @@ import {
 } from "three";
 
 import {
+  appendKollhoffClinkerJoints,
   CHARITE_BETTENHOCHHAUS_IDS,
   CHARITE_CAMPUS_BRIDGE_ID,
   type PrismPayload,
@@ -28,6 +29,7 @@ import {
   ISO_INK_COLOR,
   ISO_WINDOW_BAY_PITCH_M,
   ISO_WINDOW_FLOOR_PITCH_M,
+  KOLLHOFF_TOWER_PRISM_IDS,
   MELH_CANOPY_SUPPORTS,
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
@@ -43,6 +45,7 @@ import {
   windowGrid,
   windowFormatForBuilding,
 } from "../src/IsometricCityWorld";
+import { KOLLHOFF_TOWER_PROFILE } from "../src/expandedCityProfiles";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import surfacePolygonPayload from "../public/mesh/regierungsviertel/surface-polygons.json";
@@ -50,9 +53,9 @@ import type { SurfacePayload } from "../src/IsometricCityWorld";
 
 const payload = prismPayload as unknown as PrismPayload;
 const surfacesFixture = surfacePolygonPayload as unknown as SurfacePayload;
+const city = createIsometricCity(payload, null);
 
 describe("drawn isometric city (LoD2 prisms)", () => {
-  const city = createIsometricCity(payload, null);
   const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;
   const ink = city.getObjectByName("LoD2 prism ink lines") as LineSegments;
 
@@ -899,6 +902,59 @@ describe("hero prism pins", () => {
     // Light (luma high) and neutral (channels close together).
     expect((r + g + b) / 3).toBeGreaterThan(190);
     expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThan(12);
+  });
+
+  test("treats all 16 Kollhoff parts as one red ceramic LoD2 tower", async () => {
+    const { HERO_PRISM_TONES, HERO_WINDOW_FORMATS } =
+      await import("../src/IsometricCityWorld");
+    expect(KOLLHOFF_TOWER_PRISM_IDS.size).toBe(16);
+    expect(KOLLHOFF_TOWER_PROFILE.sourceBuildingIds).toHaveLength(16);
+    let maxHeight = 0;
+    for (const id of KOLLHOFF_TOWER_PRISM_IDS) {
+      const building = payload.buildings.find(
+        (candidate) => candidate.id === id,
+      );
+      expect(building).toBeDefined();
+      maxHeight = Math.max(maxHeight, building!.h_dm / 10);
+      const tone = HERO_PRISM_TONES[id];
+      const red = (tone >> 16) & 255;
+      const green = (tone >> 8) & 255;
+      const blue = tone & 255;
+      expect(red).toBeGreaterThan(green);
+      expect(green).toBeGreaterThan(blue);
+      expect(HERO_WINDOW_FORMATS[id].floorPitch).toBeCloseTo(103 / 25, 6);
+    }
+    // The compact web payload stores decimetres (101.4 m); the GeoPackage
+    // profile retains the source value at centimetre precision (101.44 m).
+    expect(maxHeight).toBeCloseTo(KOLLHOFF_TOWER_PROFILE.lod2MaxHeightM, 1);
+
+    const joints = city.getObjectByName("Kollhoff clinker mortar joints");
+    expect(joints).toBeInstanceOf(LineSegments);
+    expect(
+      (joints as LineSegments).geometry.getAttribute("position").count,
+    ).toBeGreaterThan(400_000);
+    expect(joints!.userData.detailStatus).toContain("exact LoD2");
+
+    const panes = city.getObjectByName("Kollhoff recessed window panes");
+    const litPanes = city.getObjectByName("Kollhoff lit window panes");
+    expect(panes).toBeInstanceOf(InstancedMesh);
+    expect((panes as InstancedMesh).count).toBeGreaterThan(1_000);
+    expect(litPanes).toBeInstanceOf(InstancedMesh);
+    setIsoNightPresentation(city, true, true);
+    expect(litPanes!.visible).toBe(true);
+    setIsoNightPresentation(city, false, true);
+    expect(litPanes!.visible).toBe(false);
+
+    const target: number[] = [];
+    expect(
+      appendKollhoffClinkerJoints(
+        payload.buildings.find(
+          (candidate) => candidate.id === "WtTpo3vD",
+        )!,
+        target,
+      ),
+    ).toBeGreaterThan(10_000);
+    expect(target.length % 6).toBe(0);
   });
 });
 

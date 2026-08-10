@@ -60,3 +60,67 @@ export const BERLIN_MODERN_PROFILE = {
   source: "Herzog & de Meuron project data and OSM construction-boundary axis",
   totalHeightM: 18,
 } as const;
+
+/**
+ * Surveyed Kollhoff-Tower shell and source-backed facade register.
+ *
+ * Berlin LoD2 splits the one stepped tower into 16 building parts under the
+ * same parent id. The published 103 m / 25-storey figures and the ceramic
+ * facade material come from Berlin.de; the small clinker bond below is a
+ * screen-legible visual inference from the referenced facade photographs,
+ * not a surveyed masonry schedule.
+ */
+export const KOLLHOFF_TOWER_PROFILE = {
+  clinkerCourseM: 0.32,
+  clinkerModuleM: 0.64,
+  clinkerTone: 0xa6533f,
+  minecraftClinkerTone: 0xb9684f,
+  facadeMaterial: "red-ceramic-cladding",
+  facadeStatus:
+    "LoD2 metric shell; published height/storeys/material; inferred clinker bond",
+  floorPitchM: 103 / 25,
+  lod2MaxHeightM: 101.44,
+  mortarTone: 0xd2ad99,
+  officialHeightM: 103,
+  parentBuildingId: "DEBE01YYK0002KM6",
+  payloadIds: [
+    "gCPv6VJo",
+    "3MHnJM2V",
+    "DMYCgmHD",
+    "SEYrXCfh",
+    "6YHth8G0",
+    "5dgyjJOD",
+    "vkG81ZBV",
+    "WtTpo3vD",
+    "fu7WNAI1",
+    "t2xCWJL4",
+    "FanY3Jik",
+    "k2aYpkCT",
+    "glsd3lgz",
+    "ayPyDdQN",
+    "OImLDEpb",
+    "Jvj6kGqp",
+  ] as const,
+  sourceBuildingIds: [
+    "DEBE3DESgCPv6VJo",
+    "DEBE3DvL3MHnJM2V",
+    "DEBE3DVJDMYCgmHD",
+    "DEBE3DpdSEYrXCfh",
+    "DEBE3DeC6YHth8G0",
+    "DEBE3DpN5dgyjJOD",
+    "DEBE3DkxvkG81ZBV",
+    "DEBE3DjvWtTpo3vD",
+    "DEBE3DE2fu7WNAI1",
+    "DEBE3DuAt2xCWJL4",
+    "DEBE3DzsFanY3Jik",
+    "DEBE3DJ4k2aYpkCT",
+    "DEBE3DwNglsd3lgz",
+    "DEBE3DzoayPyDdQN",
+    "DEBE3DzEOImLDEpb",
+    "DEBE3DY8Jvj6kGqp",
+  ] as const,
+  storeyCount: 25,
+  windowBayPitchM: 3.15,
+  windowHeightM: 2.45,
+  windowWidthM: 1.08,
+} as const;

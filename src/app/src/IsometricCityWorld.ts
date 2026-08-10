@@ -28,6 +28,7 @@ import {
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { densifyRing } from "./bankCurves";
+import { KOLLHOFF_TOWER_PROFILE } from "./expandedCityProfiles";
 import { createGoldelseFigure } from "./goldelse";
 import {
   type VoxelPayload,
@@ -211,6 +212,11 @@ export const CHARITE_BETTENHOCHHAUS_IDS: ReadonlySet<string> = new Set([
 /** Two-storey steel-and-glass bridge across Luisenstrasse in the LoD2 set. */
 export const CHARITE_CAMPUS_BRIDGE_ID = "L2e097lj";
 
+/** Every LoD2 part belonging to parent building DEBE01YYK0002KM6. */
+export const KOLLHOFF_TOWER_PRISM_IDS: ReadonlySet<string> = new Set(
+  KOLLHOFF_TOWER_PROFILE.payloadIds,
+);
+
 // Hand-pinned facade tones for hero prisms (payload building ids, last 8
 // chars of the LoD2 id), matching the owner's colour direction: the
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
@@ -218,6 +224,13 @@ export const CHARITE_CAMPUS_BRIDGE_ID = "L2e097lj";
 export const HERO_PRISM_TONES: Record<string, number> = {
   K0002MCN: 0xcac6bd,
   MLwG4KW9: 0xeeeeea,
+  // One red ceramic tower, not neutral LoD2 parts plus floating brown slabs.
+  ...Object.fromEntries(
+    [...KOLLHOFF_TOWER_PRISM_IDS].map((id) => [
+      id,
+      KOLLHOFF_TOWER_PROFILE.clinkerTone,
+    ]),
+  ),
   // Renovated Charite tower: pale silver aluminium curtain-wall register.
   ...Object.fromEntries(
     [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [id, 0xdfe5e3]),
@@ -255,6 +268,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   MLwG4KW9: 0xeff1ec,
   UbQkgNZe: 0xe1e3dc,
   ycOYQRVL: 0xe1e3dc,
+  ...Object.fromEntries(
+    [...KOLLHOFF_TOWER_PRISM_IDS].map((id) => [id, 0x74483e]),
+  ),
   ...Object.fromEntries(
     [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [id, 0xd3d9d8]),
   ),
@@ -625,6 +641,11 @@ const IVORY = new Color(0xfbf5e4);
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
+    if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
+      // The clinker is the building's identity. Keep the shared ivory lift
+      // restrained here so the red ceramic does not wash back to beige.
+      return new Color(pinned).lerp(IVORY, 0.1);
+    }
     // The pins stay neutral light stone (the owner's earlier direction for the
     // Chancellery); the ivory blend is what stops them reading as grey paint.
     return new Color(pinned).lerp(IVORY, 0.34);
@@ -811,11 +832,31 @@ export function setIsoNightPresentation(
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
   }
+  const clinkerJoints = city.getObjectByName("Kollhoff clinker mortar joints");
+  if (clinkerJoints instanceof LineSegments) {
+    const material = clinkerJoints.material as LineBasicMaterial;
+    material.color.setHex(
+      night ? 0x80645f : KOLLHOFF_TOWER_PROFILE.mortarTone,
+    );
+    material.opacity = night ? 0.24 : 0.46;
+    material.userData.stableInkAuthoredOpacity = material.opacity;
+    material.userData.stableInkAppliedOpacity = null;
+  }
   const strips = city.getObjectByName("LoD2 facade night strips");
   if (strips) {
     // Lit window strips only ever show with the lights on — the entire
     // point of "Licht aus" is that every window goes dark.
     strips.visible = night && lightsOn;
+  }
+  const kollhoffWindows = city.getObjectByName("Kollhoff recessed window panes");
+  if (kollhoffWindows instanceof Mesh) {
+    kollhoffWindows.material = night
+      ? (kollhoffWindows.userData.nightMaterial as MeshBasicMaterial)
+      : (kollhoffWindows.userData.dayMaterial as MeshBasicMaterial);
+  }
+  const kollhoffLitWindows = city.getObjectByName("Kollhoff lit window panes");
+  if (kollhoffLitWindows) {
+    kollhoffLitWindows.visible = night && lightsOn;
   }
   for (const name of [
     "smooth water surface",
@@ -1227,6 +1268,21 @@ export const HERO_WINDOW_FORMATS: Record<string, WindowFormat> = {
     sillStart: 6,
     width: 2.2,
   },
+  // The 25-storey Kollhoff-Tower carries a close, portrait office-window
+  // register between its red ceramic piers. The shell remains the exact
+  // 16-part LoD2 staircase; this only fixes the elevation rhythm.
+  ...Object.fromEntries(
+    [...KOLLHOFF_TOWER_PRISM_IDS].map((id) => [
+      id,
+      {
+        bayPitch: KOLLHOFF_TOWER_PROFILE.windowBayPitchM,
+        floorPitch: KOLLHOFF_TOWER_PROFILE.floorPitchM,
+        height: KOLLHOFF_TOWER_PROFILE.windowHeightM,
+        sillStart: 1.05,
+        width: KOLLHOFF_TOWER_PROFILE.windowWidthM,
+      },
+    ]),
+  ),
   // The 21-storey Charite tower's renewed curtain wall uses close, narrow
   // vertical modules and a regular 3.7 m floor rhythm, not civic piano-nobile
   // windows. All values are presentation rhythm over the exact LoD2 shells.
@@ -1414,6 +1470,68 @@ export function facadeWallsOf(building: PrismBuilding): PrismWall[] {
     walls.push(...wallsFromRing(hole, true, walls.length));
   }
   return walls;
+}
+
+const KOLLHOFF_CLINKER_FACE_OFFSET_M = 0.12;
+const KOLLHOFF_WINDOW_FACE_OFFSET_M = 0.155;
+const KOLLHOFF_CLINKER_EDGE_INSET_M = 0.06;
+const KOLLHOFF_CLINKER_JOINT_GAP_M = 0.018;
+
+/**
+ * Append the close-view ceramic bond to the exact walls of one Kollhoff part.
+ *
+ * Horizontal bed joints use the inferred 32 cm facade module. Staggered head
+ * joints use the inferred 64 cm bond and stop short of each bed joint. The
+ * 12 cm face offset is deliberately larger than the generic facade-axis
+ * offset: the two line layers cannot occupy the same depth plane and flicker.
+ */
+export function appendKollhoffClinkerJoints(
+  building: PrismBuilding,
+  target: number[],
+  facadeHeightM = Math.max(2.5, building.h_dm / 10),
+): number {
+  if (!KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
+    return 0;
+  }
+  const before = target.length;
+  const y0 = building.y0_dm / 10;
+  const top = y0 + facadeHeightM;
+  const courseM = KOLLHOFF_TOWER_PROFILE.clinkerCourseM;
+  const moduleM = KOLLHOFF_TOWER_PROFILE.clinkerModuleM;
+  const firstY = y0 + courseM;
+  const lastY = top - courseM;
+  for (const wall of facadeWallsOf(building)) {
+    if (wall.length <= KOLLHOFF_CLINKER_EDGE_INSET_M * 2 + moduleM) {
+      continue;
+    }
+    const ox = wall.nx * KOLLHOFF_CLINKER_FACE_OFFSET_M;
+    const oz = wall.nz * KOLLHOFF_CLINKER_FACE_OFFSET_M;
+    const startX =
+      wall.x1 + wall.dirX * KOLLHOFF_CLINKER_EDGE_INSET_M + ox;
+    const startZ =
+      wall.z1 + wall.dirZ * KOLLHOFF_CLINKER_EDGE_INSET_M + oz;
+    const endAlong = wall.length - KOLLHOFF_CLINKER_EDGE_INSET_M;
+    const endX = wall.x1 + wall.dirX * endAlong + ox;
+    const endZ = wall.z1 + wall.dirZ * endAlong + oz;
+    let course = 0;
+    for (let y = firstY; y <= lastY + 1e-6; y += courseM) {
+      target.push(startX, y, startZ, endX, y, endZ);
+      const phase = course % 2 === 0 ? moduleM * 0.5 : moduleM;
+      const jointBottom = y - courseM + KOLLHOFF_CLINKER_JOINT_GAP_M;
+      const jointTop = y - KOLLHOFF_CLINKER_JOINT_GAP_M;
+      for (
+        let along = phase;
+        along < endAlong - KOLLHOFF_CLINKER_EDGE_INSET_M;
+        along += moduleM
+      ) {
+        const x = wall.x1 + wall.dirX * along + ox;
+        const z = wall.z1 + wall.dirZ * along + oz;
+        target.push(x, jointBottom, z, x, jointTop, z);
+      }
+      course += 1;
+    }
+  }
+  return (target.length - before) / 6;
 }
 
 /** Axis-aligned-to-`axis` box as non-indexed triangles (chimneys). */
@@ -6269,6 +6387,18 @@ export function createIsometricCity(
   const mullionPositions: number[] = [];
   // Slender facade glazing axes: ink lines by day, warm strips by night.
   const facadeAxisPositions: number[] = [];
+  const kollhoffClinkerJointPositions: number[] = [];
+  const kollhoffWindows: Array<{
+    dirX: number;
+    dirZ: number;
+    lit: boolean;
+    litTone: number;
+    nx: number;
+    nz: number;
+    x: number;
+    y: number;
+    z: number;
+  }> = [];
   const windowAxes: Array<{
     dirX: number;
     dirZ: number;
@@ -6433,6 +6563,11 @@ export function createIsometricCity(
       }
     }
     bodyGeometries.push(geometry);
+    appendKollhoffClinkerJoints(
+      building,
+      kollhoffClinkerJointPositions,
+      bodyHeight,
+    );
     // Monumental flat roofs carry a drawn parapet rim (the Reichstag's
     // balustrade line), inked like every other edge.
     if (
@@ -6524,6 +6659,32 @@ export function createIsometricCity(
                 wall.z1 + wall.dirZ * wall.length + oz,
               );
             }
+            if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
+              const paneOx = wall.nx * KOLLHOFF_WINDOW_FACE_OFFSET_M;
+              const paneOz = wall.nz * KOLLHOFF_WINDOW_FACE_OFFSET_M;
+              for (let floor = 0; floor < grid.floors; floor += 1) {
+                const y = sillOf(floor) + format.height / 2;
+                for (let bay = 0; bay < grid.bays; bay += 1) {
+                  const along = grid.firstOffset + bay * format.bayPitch;
+                  const roll =
+                    hash32(
+                      building.id,
+                      wall.index * 2801 + floor * 173 + bay * 53,
+                    ) % 1000;
+                  kollhoffWindows.push({
+                    dirX: wall.dirX,
+                    dirZ: wall.dirZ,
+                    lit: roll < litLimit,
+                    litTone: nightStrip[roll % nightStrip.length],
+                    nx: wall.nx,
+                    nz: wall.nz,
+                    x: wall.x1 + wall.dirX * along + paneOx,
+                    y,
+                    z: wall.z1 + wall.dirZ * along + paneOz,
+                  });
+                }
+              }
+            }
           }
           for (let axis = 0; axis < axes; axis += 1) {
             const along = first + axis * bayPitch;
@@ -6540,18 +6701,20 @@ export function createIsometricCity(
             // A warm-lit vertical strip on ~38% of axes at night.
             const roll =
               hash32(building.id, wall.index * 2801 + axis * 53) % 1000;
-            windowAxes.push({
-              dirX: wall.dirX,
-              dirZ: wall.dirZ,
-              lit: roll < litLimit,
-              litTone: nightStrip[roll % nightStrip.length],
-              nx: wall.nx,
-              nz: wall.nz,
-              x,
-              yTop: axisTop,
-              yBottom: axisBottom,
-              z,
-            });
+            if (!KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
+              windowAxes.push({
+                dirX: wall.dirX,
+                dirZ: wall.dirZ,
+                lit: roll < litLimit,
+                litTone: nightStrip[roll % nightStrip.length],
+                nx: wall.nx,
+                nz: wall.nz,
+                x,
+                yTop: axisTop,
+                yBottom: axisBottom,
+                z,
+              });
+            }
           }
         }
       }
@@ -6861,6 +7024,114 @@ export function createIsometricCity(
     axes.name = "LoD2 facade axes";
     axes.renderOrder = 2;
     group.add(axes);
+  }
+  if (kollhoffClinkerJointPositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(kollhoffClinkerJointPositions, 3),
+    );
+    const joints = new LineSegments(
+      geometry,
+      new LineBasicMaterial({
+        color: KOLLHOFF_TOWER_PROFILE.mortarTone,
+        opacity: 0.46,
+        transparent: true,
+      }),
+    );
+    joints.name = "Kollhoff clinker mortar joints";
+    joints.renderOrder = 2;
+    joints.userData.detailStatus =
+      "inferred close-view ceramic bond over exact LoD2 facade planes";
+    group.add(joints);
+  }
+  if (kollhoffWindows.length > 0) {
+    const dayMaterial = new MeshBasicMaterial({
+      color: 0xffffff,
+      side: DoubleSide,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x59636b,
+      side: DoubleSide,
+    });
+    const panes = new InstancedMesh(
+      new PlaneGeometry(1, 1),
+      dayMaterial,
+      kollhoffWindows.length,
+    );
+    panes.name = "Kollhoff recessed window panes";
+    panes.renderOrder = 3;
+    panes.userData.dayMaterial = dayMaterial;
+    panes.userData.nightMaterial = nightMaterial;
+    panes.userData.architecturalProfile = KOLLHOFF_TOWER_PROFILE;
+    const matrix = new Matrix4();
+    const paneTone = new Color();
+    const dayTones = [0x718189, 0x829399, 0x66777f] as const;
+    kollhoffWindows.forEach((pane, index) => {
+      matrix.set(
+        pane.dirX * KOLLHOFF_TOWER_PROFILE.windowWidthM,
+        0,
+        pane.nx,
+        pane.x,
+        0,
+        KOLLHOFF_TOWER_PROFILE.windowHeightM,
+        0,
+        pane.y,
+        pane.dirZ * KOLLHOFF_TOWER_PROFILE.windowWidthM,
+        0,
+        pane.nz,
+        pane.z,
+        0,
+        0,
+        0,
+        1,
+      );
+      panes.setMatrixAt(index, matrix);
+      panes.setColorAt(index, paneTone.setHex(dayTones[index % 3]));
+    });
+    panes.instanceMatrix.needsUpdate = true;
+    if (panes.instanceColor) panes.instanceColor.needsUpdate = true;
+    panes.frustumCulled = false;
+    group.add(panes);
+
+    const litWindows = kollhoffWindows.filter((pane) => pane.lit);
+    if (litWindows.length > 0) {
+      const litPanes = new InstancedMesh(
+        new PlaneGeometry(1, 1),
+        new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
+        litWindows.length,
+      );
+      litPanes.name = "Kollhoff lit window panes";
+      litPanes.visible = false;
+      litPanes.renderOrder = 4;
+      litPanes.userData.nightOnly = true;
+      litWindows.forEach((pane, index) => {
+        matrix.set(
+          pane.dirX * KOLLHOFF_TOWER_PROFILE.windowWidthM,
+          0,
+          pane.nx,
+          pane.x + pane.nx * 0.025,
+          0,
+          KOLLHOFF_TOWER_PROFILE.windowHeightM,
+          0,
+          pane.y,
+          pane.dirZ * KOLLHOFF_TOWER_PROFILE.windowWidthM,
+          0,
+          pane.nz,
+          pane.z + pane.nz * 0.025,
+          0,
+          0,
+          0,
+          1,
+        );
+        litPanes.setMatrixAt(index, matrix);
+        litPanes.setColorAt(index, paneTone.setHex(pane.litTone));
+      });
+      litPanes.instanceMatrix.needsUpdate = true;
+      if (litPanes.instanceColor) litPanes.instanceColor.needsUpdate = true;
+      litPanes.frustumCulled = false;
+      group.add(litPanes);
+    }
   }
   // Night light strips: thin warm vertical bars on the lit axes only,
   // hidden by day. Instanced quads (0.28 m wide) facing outward.

@@ -14,6 +14,7 @@ import {
 import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
 import {
   BERLIN_MODERN_PROFILE,
+  KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 import {
@@ -100,6 +101,9 @@ const LEAF_SHADES: readonly number[] = [0x4c7f28, 0x5d9634];
 const VOXEL_WINDOW_GLASS = 0xa4dfe2;
 const VOXEL_WINDOW_GLASS_PALE = 0xd6dfe0;
 const VOXEL_WINDOW_TEAL = 0x72c5d2;
+const KOLLHOFF_TOWER_PAYLOAD_IDS: ReadonlySet<string> = new Set(
+  KOLLHOFF_TOWER_PROFILE.payloadIds,
+);
 export const VOXEL_WINDOW_WIDTH_M = 1.5;
 export const VOXEL_WINDOW_HEIGHT_M = 2.75;
 
@@ -429,7 +433,10 @@ export function buildColumnToneLookup(prisms: {
     const xs = ring.map(([x]) => x);
     const zs = ring.map(([, z]) => z);
     const toned: TonedPrism = {
-      hex: snap(building.tone),
+      hex:
+        building.id && KOLLHOFF_TOWER_PAYLOAD_IDS.has(building.id)
+          ? KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
+          : snap(building.tone),
       maxX: Math.max(...xs),
       maxZ: Math.max(...zs),
       minX: Math.min(...xs),

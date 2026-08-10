@@ -6,9 +6,13 @@ import {
   INK_LINE_FULL_PX,
   INK_LINE_HIDE_PX,
   INK_LINE_REFERENCE_FEATURE_M,
+  MICRO_DETAIL_HIDE_DISTANCE_M,
+  MICRO_DETAIL_LAYER_NAMES,
+  MICRO_DETAIL_SHOW_DISTANCE_M,
   inkLineFadeOpacity,
   nextInkLineFadeState,
   nextFineDetailVisible,
+  nextMicroDetailVisible,
   projectedPixelSize,
 } from "../src/fineDetailFade";
 
@@ -78,6 +82,34 @@ describe("ink-line fade calibration against the viewer's own distance regime", (
       CAMERA_FOV_DEGREES,
     );
     expect(inkLineFadeOpacity(px)).toBeLessThan(0.05);
+  });
+});
+
+describe("micro-detail visibility", () => {
+  test("shows clinker bonds only in a stable close-view band", () => {
+    expect(MICRO_DETAIL_HIDE_DISTANCE_M).toBeGreaterThan(
+      MICRO_DETAIL_SHOW_DISTANCE_M,
+    );
+    expect(
+      nextMicroDetailVisible({ distanceM: 176, visible: false }),
+    ).toBe(true);
+    expect(
+      nextMicroDetailVisible({ distanceM: 948, visible: true }),
+    ).toBe(false);
+    const middle =
+      (MICRO_DETAIL_SHOW_DISTANCE_M + MICRO_DETAIL_HIDE_DISTANCE_M) / 2;
+    expect(nextMicroDetailVisible({ distanceM: middle, visible: true })).toBe(
+      true,
+    );
+    expect(nextMicroDetailVisible({ distanceM: middle, visible: false })).toBe(
+      false,
+    );
+  });
+
+  test("registers the Kollhoff mortar layer as micro detail", () => {
+    expect(MICRO_DETAIL_LAYER_NAMES).toContain(
+      "Kollhoff clinker mortar joints",
+    );
   });
 });
 

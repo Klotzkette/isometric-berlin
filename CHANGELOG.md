@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.70.23
+
+- **The Kollhoff-Tower is now one red ceramic building, not a neutral tower
+  with seven floating brown plates.** The plates are deleted. All 16 LoD2
+  parts sharing parent `DEBE01YYK0002KM6` retain their surveyed footprints and
+  stepped heights, receive one coherent red-ceramic facade family and keep the
+  source GeoPackage's 101.44 m LoD2 envelope alongside Berlin's published
+  103 m / 25-storey figure.
+- A referenced portrait-window register now follows every actual LoD2 wall.
+  Day uses recessed cool glass, Night lights a deterministic minority of the
+  same panes, and Minecraft snaps the exact building footprint to the authored
+  red-brick block colour instead of grey or cream.
+- Close views add a staggered ceramic bond with separate bed and head joints.
+  The inferred masonry module is explicitly distinguished from surveyed
+  geometry and sits 12 cm off the facade plane to prevent z-fighting. A new
+  230/310 m hysteresis band removes that dense micro-detail before it can alias
+  in the overview. Day, Night and Minecraft were checked in the real browser;
+  two settled facade captures were byte-identical. The visible radius remains
+  **5,230 m**; source data, bounds and attribution are unchanged.
+
 ## v0.70.22
 
 - **Music starts from the first interaction the browser actually accepts.** If

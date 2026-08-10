@@ -101,9 +101,11 @@ import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
   FINE_DETAIL_LAYER_NAMES,
   INK_LINE_REFERENCE_FEATURE_M,
+  MICRO_DETAIL_LAYER_NAMES,
   inkLineFadeOpacity,
   nextInkLineFadeState,
   nextFineDetailVisible,
+  nextMicroDetailVisible,
   projectedPixelSize,
 } from "./fineDetailFade";
 import {
@@ -354,6 +356,8 @@ type Runtime = {
   // with hysteresis so they do not blink at the boundary.
   fineDetailObjects: Object3D[];
   fineDetailVisible: boolean;
+  microDetailObjects: Object3D[];
+  microDetailVisible: boolean;
   /** Explicit lens owned by the active curated landmark close-up. */
   focusedCameraFov: number | null;
   voxelWorld: Group | null;
@@ -733,7 +737,9 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
 function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   runtime.inkLineMaterials.clear();
   runtime.fineDetailObjects = [];
+  runtime.microDetailObjects = [];
   const fineDetailNames = new Set(FINE_DETAIL_LAYER_NAMES);
+  const microDetailNames = new Set(MICRO_DETAIL_LAYER_NAMES);
   const roots: Array<Object3D | null> = [
     runtime.isoWorld,
     runtime.signatures,
@@ -759,6 +765,9 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
       }
       if (fineDetailNames.has(object.name)) {
         runtime.fineDetailObjects.push(object);
+      }
+      if (microDetailNames.has(object.name)) {
+        runtime.microDetailObjects.push(object);
       }
     });
   }
@@ -914,6 +923,20 @@ function updateFarZoomAntiFlicker(
   for (const object of runtime.fineDetailObjects) {
     if (object.visible !== fineDetailVisible) {
       object.visible = fineDetailVisible;
+      changed = true;
+    }
+  }
+  const microDetailVisible = nextMicroDetailVisible({
+    distanceM,
+    visible: runtime.microDetailVisible,
+  });
+  if (runtime.microDetailVisible !== microDetailVisible) {
+    runtime.microDetailVisible = microDetailVisible;
+    changed = true;
+  }
+  for (const object of runtime.microDetailObjects) {
+    if (object.visible !== microDetailVisible) {
+      object.visible = microDetailVisible;
       changed = true;
     }
   }
@@ -2855,6 +2878,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         inkLineMaterials: new Set(),
         fineDetailObjects: [],
         fineDetailVisible: true,
+        microDetailObjects: [],
+        microDetailVisible: false,
         focusedCameraFov: null,
         voxelWorld: null,
         voxelWorldState: "idle",
