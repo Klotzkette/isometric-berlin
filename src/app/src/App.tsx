@@ -52,6 +52,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -65,6 +66,7 @@ import {
 import { DuskChiptune, isChiptuneSupported } from "./DuskChiptune";
 import {
   registerFirstGestureStart,
+  registerVisibleAutoplayRetry,
   shouldStopAudioOnToggleTap,
 } from "./audioAutostart";
 import { registerAudioLifecycle } from "./audioLifecycle";
@@ -948,11 +950,11 @@ export function App() {
     }
   }, []);
 
-  // Try to play at once. Most browsers block this, which is exactly what
-  // the gesture listeners below are for — but the ones that allow it (a
-  // returning visitor whose autoplay permission is already granted) should
-  // not have to click first. A user who muted explicitly is left alone.
-  useEffect(() => {
+  // Try before the first paint and before ThreeViewer's passive loading work.
+  // Chrome origins with autoplay permission therefore hear the first scheduled
+  // note as soon as the UI appears. Fresh origins still require the gesture
+  // fallback below; no web application can override that browser policy.
+  useLayoutEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
@@ -963,6 +965,32 @@ export function App() {
       void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
     }
   }, [startMusic, startSoundtrack]);
+
+  // A page opened in a background tab is deliberately silent while hidden.
+  // Retry as soon as Chrome first exposes or restores it, while leaving a
+  // genuinely blocked fresh origin to the first-gesture path below.
+  useEffect(() => {
+    const unregisterAmbient = registerVisibleAutoplayRetry({
+      documentTarget: document,
+      isAudible: () => ambientSoundscapeRef.current?.audible ?? false,
+      isEnabled: () =>
+        !isMusicMutedByUser() && isAmbientAudioSupported(),
+      start: () => startMusic({ rememberMute: false, silent: true }),
+      windowTarget: window,
+    });
+    const unregisterSoundtrack = registerVisibleAutoplayRetry({
+      documentTarget: document,
+      isAudible: () => chiptuneRef.current?.audible ?? false,
+      isEnabled: () => isSoundtrackEnabled,
+      start: () =>
+        startSoundtrack({ preserveIntentOnFailure: true, silent: true }),
+      windowTarget: window,
+    });
+    return () => {
+      unregisterAmbient();
+      unregisterSoundtrack();
+    };
+  }, [isSoundtrackEnabled, startMusic, startSoundtrack]);
 
   // A phone never allows the load-time attempt above, so the real start is
   // the visitor's FIRST gesture — including a map drag, which is why these

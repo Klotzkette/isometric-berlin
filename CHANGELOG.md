@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.70.25
+
+- **Permitted Chrome autoplay now starts before the first painted frame.** The
+  ambient layer and Dusk Republic make their eager start attempt in React's
+  layout phase, ahead of ThreeViewer's passive scene loading, instead of
+  waiting until after the initial paint. Existing user mute intent remains
+  authoritative and neither engine reports audible until its AudioContext is
+  genuinely running.
+- **Background-opened and restored tabs no longer miss their automatic start
+  opportunity.** Enabled, inaudible audio retries on `visibilitychange`,
+  `pageshow`, and window focus as soon as the document is visible. Retries are
+  bounded to one pending attempt per layer, skip already audible or disabled
+  audio, and fully unregister on teardown.
+- Chrome's own autoplay policy is not bypassed: a fresh origin that has no
+  autoplay permission still starts both procedural layers synchronously on
+  the visitor's first accepted pointer, touch, wheel, or keyboard gesture.
+  The visible radius remains **5,230 m**; scene geometry, visual presentation,
+  source data and attribution are unchanged.
+
 ## v0.70.24
 
 - **The bright isometric city keeps more of each source-backed material.**

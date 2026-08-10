@@ -63,6 +63,74 @@ export interface FirstGestureOptions {
   target: FirstGestureTarget;
 }
 
+export interface VisibleAutoplayRetryOptions {
+  documentTarget: Pick<
+    Document,
+    "addEventListener" | "hidden" | "removeEventListener"
+  >;
+  isAudible: () => boolean;
+  isEnabled: () => boolean;
+  start: () => Promise<boolean>;
+  windowTarget: Pick<Window, "addEventListener" | "removeEventListener">;
+}
+
+/**
+ * Retry a permitted load-time start when Chrome first exposes the page.
+ *
+ * A tab opened in the background skips App's eager attempt because starting
+ * sound while hidden would be hostile and is rejected by browsers anyway.
+ * `visibilitychange`, `pageshow`, and window focus are the earliest later
+ * opportunities at which an origin with autoplay permission can begin. They
+ * do not bypass browser policy: a fresh origin still falls through to the
+ * first-gesture listener above.
+ */
+export function registerVisibleAutoplayRetry({
+  documentTarget,
+  isAudible,
+  isEnabled,
+  start,
+  windowTarget,
+}: VisibleAutoplayRetryOptions): () => void {
+  let cancelled = false;
+  let attempting = false;
+  const retry = () => {
+    if (
+      cancelled ||
+      attempting ||
+      documentTarget.hidden ||
+      !isEnabled() ||
+      isAudible()
+    ) {
+      return;
+    }
+    attempting = true;
+    let result: Promise<boolean>;
+    try {
+      result = start();
+    } catch {
+      attempting = false;
+      return;
+    }
+    void result.then(
+      () => {
+        attempting = false;
+      },
+      () => {
+        attempting = false;
+      },
+    );
+  };
+  documentTarget.addEventListener("visibilitychange", retry);
+  windowTarget.addEventListener("focus", retry);
+  windowTarget.addEventListener("pageshow", retry);
+  return () => {
+    cancelled = true;
+    documentTarget.removeEventListener("visibilitychange", retry);
+    windowTarget.removeEventListener("focus", retry);
+    windowTarget.removeEventListener("pageshow", retry);
+  };
+}
+
 /**
  * Arms the first-gesture start and returns the teardown.
  *

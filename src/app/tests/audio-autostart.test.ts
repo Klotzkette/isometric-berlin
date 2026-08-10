@@ -4,6 +4,7 @@ import {
   FIRST_GESTURE_EVENTS,
   isIgnoredGesture,
   registerFirstGestureStart,
+  registerVisibleAutoplayRetry,
   shouldStopAudioOnToggleTap,
 } from "../src/audioAutostart";
 
@@ -247,5 +248,99 @@ describe("first-gesture audio start", () => {
       // toggle correctly starts rather than stops.
       expect(shouldStopAudioOnToggleTap(false)).toBe(false);
     });
+  });
+});
+
+describe("visible-page autoplay retry", () => {
+  test("retries a permitted soundtrack when a background tab becomes visible", async () => {
+    const documentEvents = fakeTarget();
+    const windowEvents = fakeTarget();
+    const documentTarget = {
+      ...documentEvents.target,
+      hidden: true,
+    };
+    let attempts = 0;
+    registerVisibleAutoplayRetry({
+      documentTarget,
+      isAudible: () => false,
+      isEnabled: () => true,
+      start: async () => {
+        attempts += 1;
+        return true;
+      },
+      windowTarget: windowEvents.target,
+    });
+
+    fire(windowEvents.registered, "pageshow", {});
+    expect(attempts).toBe(0);
+    documentTarget.hidden = false;
+    fire(documentEvents.registered, "visibilitychange", {});
+    await Promise.resolve();
+    expect(attempts).toBe(1);
+  });
+
+  test("does not restart audible, disabled, or already-pending audio", async () => {
+    const documentEvents = fakeTarget();
+    const windowEvents = fakeTarget();
+    const documentTarget = {
+      ...documentEvents.target,
+      hidden: false,
+    };
+    let enabled = true;
+    let audible = true;
+    let attempts = 0;
+    let resolveStart: ((started: boolean) => void) | null = null;
+    const unregister = registerVisibleAutoplayRetry({
+      documentTarget,
+      isAudible: () => audible,
+      isEnabled: () => enabled,
+      start: () => {
+        attempts += 1;
+        return new Promise<boolean>((resolve) => {
+          resolveStart = resolve;
+        });
+      },
+      windowTarget: windowEvents.target,
+    });
+
+    fire(windowEvents.registered, "focus", {});
+    expect(attempts).toBe(0);
+    audible = false;
+    enabled = false;
+    fire(windowEvents.registered, "focus", {});
+    expect(attempts).toBe(0);
+    enabled = true;
+    fire(windowEvents.registered, "focus", {});
+    fire(windowEvents.registered, "pageshow", {});
+    expect(attempts).toBe(1);
+    resolveStart?.(true);
+    await Promise.resolve();
+
+    unregister();
+    expect(documentEvents.registered).toHaveLength(0);
+    expect(windowEvents.registered).toHaveLength(0);
+  });
+
+  test("recovers when an audio engine throws before returning its promise", () => {
+    const documentEvents = fakeTarget();
+    const windowEvents = fakeTarget();
+    let attempts = 0;
+    registerVisibleAutoplayRetry({
+      documentTarget: { ...documentEvents.target, hidden: false },
+      isAudible: () => false,
+      isEnabled: () => true,
+      start: () => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw new Error("temporary audio construction failure");
+        }
+        return Promise.resolve(true);
+      },
+      windowTarget: windowEvents.target,
+    });
+
+    fire(windowEvents.registered, "focus", {});
+    fire(windowEvents.registered, "focus", {});
+    expect(attempts).toBe(2);
   });
 });
