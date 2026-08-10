@@ -3696,13 +3696,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 0,
             target_world: [57.3, 8, -517.71],
           });
-          // The forecourt is 94 m wide (T-34s at +/-33 m, ML-20 howitzers
-          // at +/-44.5 m); a south approach at 145 m with a steep polar
+          // The forecourt wings span roughly 72 m (T-34 hulls at +/-33 m,
+          // ML-20 howitzers farther in at +/-24 m); a south approach at 145 m
+          // with a steep polar
           // angle is the framing that keeps both wings in frame at once
           // instead of cropping one tank and one gun off-screen, which is
           // what the generic distance-only fallback used to do.
           runtime.focusCameraByName.set("Sowjetisches Ehrenmal Tiergarten", {
-            azimuth_degrees: 180,
+            // Spherical azimuth 0 is +z: the Strasse des 17. Juni side.
+            azimuth_degrees: 0,
             distance_m: 145,
             polar_degrees: 68,
             target_height_m: 3,

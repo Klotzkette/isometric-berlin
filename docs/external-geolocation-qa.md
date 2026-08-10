@@ -75,7 +75,12 @@ not permission to copy restricted material:
   recognition model therefore uses a longitudinal hull, ten visible road
   wheels per vehicle, sloped glacis, turret, hatch and 76 mm barrel. Exact
   local vehicle dimensions and spacing remain a documented visual
-  approximation over the official surface.
+  approximation over the official surface. The Senate's site also fixes the
+  layout: the tanks frame the main entrance on Strasse des 17. Juni, while the
+  guns stand diagonally behind at the first stair. The scene treats
+  project-world +z as that southern street side and keeps west/east unmirrored.
+  Berlin's 2024 TrueDOP confirms that the tanks are the outer, road-parallel
+  vehicles and the guns are farther inward and back from the street.
 - Tunnel Tiergarten Spreebogen: v0.1.49 uses OpenStreetMap / Overpass
   `highway=trunk`, `tunnel=yes`, `layer=-2` carriageway geometries for
   the named B96 tunnel ways, plus public route descriptions, portal

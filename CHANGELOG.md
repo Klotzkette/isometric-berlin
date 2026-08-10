@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.70.17
+
+- **The Soviet Memorial now faces the Strasse des 17. Juni.** The former
+  180-degree scene rotation put the documented entrance ensemble on the park
+  side and mirrored east/west. The colonnade, forecourt and stairs now open
+  south toward the road, with one T-34/76 on each side of the entrance.
+- Both tanks are aligned parallel to the road on correctly oriented plinths
+  and use a readable restored olive finish. The two ML-20 gun-howitzers remain
+  diagonally behind at the first stair, matching the layout stated by the
+  Berlin Senate. The saved sight camera now approaches from the street rather
+  than from behind the memorial.
+- A regression test locks the street-side, west/east and tank-before-gun
+  relationships. Day, Night and Minecraft were visually checked with the same
+  corrected geometry. The visible radius remains **5,230 m**; source
+  attribution and data boundaries are unchanged.
+
 ## v0.70.16
 
 - **Music starts from the click that the browser actually permits.** Ambient

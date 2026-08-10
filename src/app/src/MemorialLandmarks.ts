@@ -685,103 +685,118 @@ function createPolishMemorial(anchor: MemorialLandmark): Group {
   return group;
 }
 
-function addTank(group: Group, name: string, x: number, lift = 0): void {
-  const armor = modelMaterial(0x3a5342, { metalness: 0.28, roughness: 0.62 });
+function addTank(
+  group: Group,
+  name: string,
+  x: number,
+  z: number,
+  lift = 0,
+): void {
+  const vehicle = new Group();
+  vehicle.name = `${name} vehicle`;
+  vehicle.position.set(x, 0, z);
+  // Both preserved tanks stand parallel to the Strasse des 17. Juni and face
+  // outward along it, rather than aiming through the memorial forecourt.
+  vehicle.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2;
+  group.add(vehicle);
+  // Restored display finish: pale Soviet olive, not the near-black green that
+  // made both vehicles disappear against the Tiergarten canopy.
+  const armor = modelMaterial(0x718264, { metalness: 0.24, roughness: 0.66 });
   const dark = modelMaterial(0x1b221d, { metalness: 0.34, roughness: 0.68 });
   const hull = addBox(
-    group,
+    vehicle,
     `${name} hull`,
     [3.05, 1.18, 5.45],
-    [x, 1.28 + lift, 8],
+    [0, 1.28 + lift, 0],
     armor,
   );
   hull.userData.vehicleType = "T-34/76";
-  addEdges(group, hull);
+  addEdges(vehicle, hull);
   addBox(
-    group,
+    vehicle,
     `${name} left track`,
     [0.52, 0.78, 5.9],
-    [x - 1.55, 0.62 + lift, 8],
+    [-1.55, 0.62 + lift, 0],
     dark,
   );
   addBox(
-    group,
+    vehicle,
     `${name} right track`,
     [0.52, 0.78, 5.9],
-    [x + 1.55, 0.62 + lift, 8],
+    [1.55, 0.62 + lift, 0],
     dark,
   );
   const wheelTransforms: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
     for (let index = 0; index < 5; index += 1) {
       wheelTransforms.push({
-        position: [x + side * 1.82, 0.62 + lift, 5.92 + index * 1.04],
+        position: [side * 1.82, 0.62 + lift, -2.08 + index * 1.04],
         rotation: [0, 0, Math.PI / 2],
       });
     }
   }
   addInstances(
-    group,
+    vehicle,
     `${name} ten T-34 road wheels`,
     new CylinderGeometry(0.46, 0.46, 0.24, 12),
     dark,
     wheelTransforms,
   );
   const glacis = addBox(
-    group,
+    vehicle,
     `${name} sloped front glacis`,
     [2.78, 0.62, 1.18],
-    [x, 1.52 + lift, 5.38],
+    [0, 1.52 + lift, -2.62],
     armor,
   );
   glacis.rotation.x = -0.32;
-  addEdges(group, glacis);
+  addEdges(vehicle, glacis);
   addBox(
-    group,
+    vehicle,
     `${name} engine deck`,
     [2.74, 0.28, 1.48],
-    [x, 1.91 + lift, 9.92],
+    [0, 1.91 + lift, 1.92],
     armor,
   );
   addEdges(
-    group,
+    vehicle,
     addMesh(
-      group,
+      vehicle,
       `${name} turret`,
       new CylinderGeometry(1.16, 1.4, 0.94, 12),
       armor,
-      [x, 2.33 + lift, 7.82],
+      [0, 2.33 + lift, -0.18],
     ),
   );
   addMesh(
-    group,
+    vehicle,
     `${name} command hatch`,
     new CylinderGeometry(0.42, 0.46, 0.16, 12),
     dark,
-    [x + 0.34, 2.88 + lift, 7.94],
+    [0.34, 2.88 + lift, -0.06],
   );
   addMesh(
-    group,
+    vehicle,
     `${name} gun mantlet`,
     new SphereGeometry(0.43, 12, 8),
     armor,
-    [x, 2.36 + lift, 6.7],
+    [0, 2.36 + lift, -1.3],
   ).scale.set(1.35, 0.82, 0.58);
   addSegment(
-    group,
+    vehicle,
     `${name} 76 mm barrel`,
-    new Vector3(x, 2.38 + lift, 6.62),
-    new Vector3(x, 2.45 + lift, 3.15),
+    new Vector3(0, 2.38 + lift, -1.38),
+    new Vector3(0, 2.45 + lift, -4.85),
     0.14,
     dark,
   );
   for (const side of [-1, 1]) {
     addMesh(
-      group,
+      vehicle,
       `${name} front headlamp ${side < 0 ? "left" : "right"}`,
       new SphereGeometry(0.17, 10, 7),
       modelMaterial(0xe5d6a4, { metalness: 0.18, roughness: 0.32 }),
-      [x + side * 0.92, 1.72 + lift, 5.12],
+      [side * 0.92, 1.72 + lift, -2.88],
     );
   }
 }
@@ -795,16 +810,17 @@ function addHowitzer(
   group: Group,
   name: string,
   x: number,
+  z: number,
   lift: number,
 ): void {
   const steel = modelMaterial(0x3d5445, { metalness: 0.3, roughness: 0.6 });
   const dark = modelMaterial(0x1d241f, { metalness: 0.34, roughness: 0.66 });
-  addBox(group, `${name} cradle`, [1.1, 0.62, 2.1], [x, 1.18 + lift, 8], steel);
+  addBox(group, `${name} cradle`, [1.1, 0.62, 2.1], [x, 1.18 + lift, z], steel);
   const shield = addBox(
     group,
     `${name} gun shield`,
     [2.5, 1.35, 0.12],
-    [x, 1.5 + lift, 7.15],
+    [x, 1.5 + lift, z - 0.85],
     steel,
   );
   shield.rotation.x = 0.16;
@@ -812,8 +828,8 @@ function addHowitzer(
   addSegment(
     group,
     `${name} 152 mm tube`,
-    new Vector3(x, 1.42 + lift, 7.1),
-    new Vector3(x, 2.2 + lift, 2.6),
+    new Vector3(x, 1.42 + lift, z - 0.9),
+    new Vector3(x, 2.2 + lift, z - 5.4),
     0.11,
     dark,
   );
@@ -822,21 +838,21 @@ function addHowitzer(
     `${name} muzzle brake`,
     new CylinderGeometry(0.19, 0.19, 0.5, 10),
     dark,
-    [x, 2.24 + lift, 2.45],
+    [x, 2.24 + lift, z - 5.55],
   ).rotation.x = Math.PI / 2;
   // Split trails, spread the way the piece is displayed.
   for (const side of [-1, 1]) {
     addSegment(
       group,
       `${name} split trail ${side < 0 ? "left" : "right"}`,
-      new Vector3(x, 0.95 + lift, 8.4),
-      new Vector3(x + side * 1.5, 0.35 + lift, 12.4),
+      new Vector3(x, 0.95 + lift, z + 0.4),
+      new Vector3(x + side * 1.5, 0.35 + lift, z + 4.4),
       0.12,
       steel,
     );
   }
   const wheels: InstanceTransform[] = [-1, 1].map((side) => ({
-    position: [x + side * 1.16, 0.72 + lift, 8],
+    position: [x + side * 1.16, 0.72 + lift, z],
     rotation: [0, 0, Math.PI / 2],
   }));
   addInstances(
@@ -930,11 +946,14 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   const group = new Group();
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
-  group.rotation.y = Math.PI;
+  // Project world +z points south here. Keep the entrance, tanks and broad
+  // forecourt on that side, toward the Strasse des 17. Juni; the former PI
+  // rotation put the ensemble on the park side and swapped east with west.
+  group.userData.streetFrontWorldAxis = "+z";
   group.userData.geometryStatus =
-    "Official composition, T-34/76 tank type and 8 m soldier height; local spacing remains a visual approximation";
+    "Official street-facing composition, T-34/76 tank type and 8 m soldier height; local spacing remains a visual approximation";
   group.userData.sourceUrl =
-    "https://www.berlin.de/sehenswuerdigkeiten/3561689-3558930-sowjetisches-ehrenmal-tiergarten.html";
+    "https://www.berlin.de/sen/uvk/natur-und-gruen/stadtgruen/friedhoefe-und-begraebnisstaetten/sowjetische-ehrenmale/tiergarten/";
   const stone = modelMaterial(0xcfccc0, { roughness: 0.78 });
   // The old 0x777a73 pylon read near-black under the day rig; the real
   // memorial is warm light granite throughout.
@@ -992,23 +1011,23 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   addBox(group, "Soviet memorial west flower bed", [10, 0.5, 4], [-20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
   addBox(group, "Soviet memorial east flower bed", [10, 0.5, 4], [20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
   addSovietSoldier(group, bronze);
-  // Two T-34s and two ML-20 gun-howitzers, each raised on its own stone
-  // plinth the way they stand on the forecourt today.
+  // The two T-34s frame the main entrance directly beside the road. The two
+  // ML-20 gun-howitzers stand diagonally behind them at the first stair.
   const TANK_PLINTH = 1.85;
   const GUN_PLINTH = 1.25;
-  // T-34 plinths at x=+/-33 (span 29.9-36.1) and howitzer plinths at
-  // x=+/-44.5 (span 41.9-47.1) clear the colonnade cornice, which ends
-  // at x=+/-29.2 -- the vehicles used to sit directly under the beams
-  // (plinth span 21.9-28.1 vs cornice up to 29.2) and were occluded from
-  // the presentation camera at every practical angle.
+  const TANK_Z = 11.5;
+  const GUN_Z = 4.5;
+  // The official TrueDOP shows the tanks outside the guns on both wings.
+  // Their hulls at x=+/-33 clear the colonnade cornice, which ends at
+  // x=+/-29.2; the guns sit farther in and behind at the first stair.
   for (const side of [-1, 1]) {
     addEdges(
       group,
       addBox(
         group,
         "Soviet memorial T-34 plinth",
-        [6.2, TANK_PLINTH, 9.4],
-        [side * 33, TANK_PLINTH / 2, 8],
+        [9.4, TANK_PLINTH, 6.2],
+        [side * 33, TANK_PLINTH / 2, TANK_Z],
         stoneDark,
       ),
     );
@@ -1018,15 +1037,27 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
         group,
         "Soviet memorial howitzer plinth",
         [5.2, GUN_PLINTH, 8.6],
-        [side * 44.5, GUN_PLINTH / 2, 8.6],
+        [side * 24, GUN_PLINTH / 2, GUN_Z],
         stoneDark,
       ),
     );
   }
-  addTank(group, "Soviet memorial T-34 west", -33, TANK_PLINTH);
-  addTank(group, "Soviet memorial T-34 east", 33, TANK_PLINTH);
-  addHowitzer(group, "Soviet memorial ML-20 howitzer west", -44.5, GUN_PLINTH);
-  addHowitzer(group, "Soviet memorial ML-20 howitzer east", 44.5, GUN_PLINTH);
+  addTank(group, "Soviet memorial T-34 west", -33, TANK_Z, TANK_PLINTH);
+  addTank(group, "Soviet memorial T-34 east", 33, TANK_Z, TANK_PLINTH);
+  addHowitzer(
+    group,
+    "Soviet memorial ML-20 howitzer west",
+    -24,
+    GUN_Z,
+    GUN_PLINTH,
+  );
+  addHowitzer(
+    group,
+    "Soviet memorial ML-20 howitzer east",
+    24,
+    GUN_Z,
+    GUN_PLINTH,
+  );
   return group;
 }
 

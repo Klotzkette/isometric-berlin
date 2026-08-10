@@ -283,6 +283,44 @@ describe("granular memorial recognition models", () => {
     }
   });
 
+  test("places both T-34s left and right of the street-facing entrance", () => {
+    // Berlin's official site places the two tanks at the main entrance on
+    // Strasse des 17. Juni, with the guns diagonally behind at the first stair.
+    // In project-world coordinates south/street is +z and east is +x.
+    const root = createMemorialLandmarks(landmarks);
+    const soviet = root.getObjectByName("Sowjetisches Ehrenmal Tiergarten")!;
+    const westTank = root.getObjectByName("Soviet memorial T-34 west hull")!;
+    const eastTank = root.getObjectByName("Soviet memorial T-34 east hull")!;
+    const westGun = root.getObjectByName(
+      "Soviet memorial ML-20 howitzer west cradle",
+    )!;
+    const eastGun = root.getObjectByName(
+      "Soviet memorial ML-20 howitzer east cradle",
+    )!;
+    const westTankWorld = westTank.getWorldPosition(new Vector3());
+    const eastTankWorld = eastTank.getWorldPosition(new Vector3());
+    const westGunWorld = westGun.getWorldPosition(new Vector3());
+    const eastGunWorld = eastGun.getWorldPosition(new Vector3());
+
+    expect(soviet.userData.streetFrontWorldAxis).toBe("+z");
+    expect(westTankWorld.x).toBeLessThan(soviet.position.x);
+    expect(eastTankWorld.x).toBeGreaterThan(soviet.position.x);
+    expect(westTankWorld.z).toBeGreaterThan(soviet.position.z);
+    expect(eastTankWorld.z).toBeGreaterThan(soviet.position.z);
+    expect(westTankWorld.z).toBeGreaterThan(westGunWorld.z);
+    expect(eastTankWorld.z).toBeGreaterThan(eastGunWorld.z);
+    expect(Math.abs(westTankWorld.x - soviet.position.x)).toBeGreaterThan(
+      Math.abs(westGunWorld.x - soviet.position.x),
+    );
+    expect(Math.abs(eastTankWorld.x - soviet.position.x)).toBeGreaterThan(
+      Math.abs(eastGunWorld.x - soviet.position.x),
+    );
+    expect(root.getObjectByName("Soviet memorial T-34 west vehicle")!.rotation.y)
+      .toBeCloseTo(Math.PI / 2);
+    expect(root.getObjectByName("Soviet memorial T-34 east vehicle")!.rotation.y)
+      .toBeCloseTo(-Math.PI / 2);
+  });
+
   test("the Polish memorial is the 2025 Findling, not an unbuilt building", () => {
     const root = createMemorialLandmarks(landmarks);
     const site = root.getObjectByName("Gedenkort für Polen 1939-1945")!;
