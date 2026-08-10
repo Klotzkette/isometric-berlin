@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.70.16
+
+- **Music starts from the click that the browser actually permits.** Ambient
+  music and Dusk Republic now supersede a still-pending load-time autoplay
+  attempt instead of returning its stale promise. The real gesture owns the
+  only scheduler, so the button no longer appears to accept a click and then
+  falls silent.
+- Concurrent start calls are ordered explicitly in the app. A late failure
+  from the blocked load attempt cannot stop, dispose or relabel the newer
+  audible engine; stopping or leaving the page invalidates every older result.
+- Hidden tabs still suspend all notes and voices. Freeze and back-forward-cache
+  transitions are now resumable pauses rather than destructive exits, while a
+  real navigation or tab close still disposes both audio engines. Regression
+  tests cover blocked-start takeover, one-scheduler ownership, BFCache restore
+  and duplicate lifecycle events. The visible radius remains **5,230 m**; no
+  geometry, source data, attribution or visual presentation changed.
+
 ## v0.70.15
 
 - **Ordinary architecture now stops where the open evidence stops.** Exact

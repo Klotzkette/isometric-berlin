@@ -95,6 +95,9 @@ function fakeAudioGraph(initialState: AudioContextState = "running") {
     context,
     counts,
     master: { gain } as unknown as GainNode,
+    setState(nextState: AudioContextState) {
+      state = nextState;
+    },
   };
 }
 
@@ -188,6 +191,44 @@ describe("deep swell beat cadence", () => {
     expect(soundscape.audible).toBe(false);
     internals.context = { state: "running" };
     expect(soundscape.audible).toBe(true);
+  });
+
+  test("a real gesture supersedes a still-pending autoplay attempt", async () => {
+    await withTimerWindow(async (timerCounts) => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("suspended");
+      let releaseBlockedResume: (() => void) | null = null;
+      graph.context.resume = () => {
+        graph.counts.resumes += 1;
+        if (graph.counts.resumes === 1) {
+          return new Promise<void>((resolve) => {
+            releaseBlockedResume = resolve;
+          });
+        }
+        graph.setState("running");
+        return Promise.resolve();
+      };
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        scheduleAhead(): void;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.scheduleAhead = () => undefined;
+
+      const blockedAutoplay = soundscape.start();
+      await Promise.resolve();
+      const clickedStart = soundscape.start();
+
+      expect(await clickedStart).toBe(true);
+      expect(soundscape.audible).toBe(true);
+      expect(timerCounts.intervalStarts).toBe(1);
+      releaseBlockedResume?.();
+      expect(await blockedAutoplay).toBe(false);
+      expect(timerCounts.intervalStarts).toBe(1);
+      soundscape.dispose();
+    });
   });
 
   test("hide stops the scheduler and voices, then resumes once from now", async () => {

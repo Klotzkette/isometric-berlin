@@ -658,21 +658,13 @@ export class DuskChiptune {
     if (this.timer !== null) {
       return true;
     }
-    if (this.startPromise) {
-      // A load-time attempt may still be waiting for a browser-blocked
-      // `resume()` when the visitor makes their first permitted gesture.
-      // Repeat it synchronously in this call frame: returning the old promise
-      // alone would move the actual resume outside that gesture and revive the
-      // v0.57.1 first-gesture race.
-      const context = this.context;
-      if (context && context.state !== "running") {
-        void context.resume().catch(() => undefined);
-      }
-      return this.startPromise;
-    }
     if (!isChiptuneSupported()) {
       return false;
     }
+    // A load-time resume can remain pending while the browser waits for a
+    // gesture. Never return that stale promise from the real click: starting a
+    // new generation reaches `resume()` synchronously in the gesture and lets
+    // the latest attempt own the scheduler.
     const generation = ++this.startGeneration;
     const pending = this.startInternal(generation);
     this.startPromise = pending;

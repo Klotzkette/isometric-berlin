@@ -7,7 +7,7 @@ import {
 
 type FakeTarget = {
   addEventListener(type: string, listener: EventListener): void;
-  fire(type: string): void;
+  fire(type: string, event?: Event): void;
   listenerCount(): number;
   removeEventListener(type: string, listener: EventListener): void;
 };
@@ -20,9 +20,9 @@ function fakeTarget(): FakeTarget {
       entries.add(listener);
       listeners.set(type, entries);
     },
-    fire(type) {
+    fire(type, event = new Event(type)) {
       for (const listener of [...(listeners.get(type) ?? [])]) {
-        listener(new Event(type));
+        listener(event);
       }
     },
     listenerCount() {
@@ -39,6 +39,12 @@ function fakeTarget(): FakeTarget {
       }
     },
   };
+}
+
+function pageTransitionEvent(type: string, persisted: boolean): Event {
+  const event = new Event(type);
+  Object.defineProperty(event, "persisted", { value: persisted });
+  return event;
 }
 
 function lifecycleHarness(initiallyHidden = false) {
@@ -92,18 +98,18 @@ describe("page audio lifecycle", () => {
     cleanup();
   });
 
-  test("an ordinary focus cannot swallow the matching visible transition", () => {
+  test("pageshow while still hidden cannot swallow the visible transition", () => {
     const { calls, cleanup, documentTarget, windowTarget } = lifecycleHarness();
     documentTarget.hidden = true;
     documentTarget.fire("visibilitychange");
+    windowTarget.fire("pageshow");
     documentTarget.hidden = false;
-    windowTarget.fire("focus");
     documentTarget.fire("visibilitychange");
     expect(calls).toEqual({ dispose: 0, resume: 1, suspend: 1 });
     cleanup();
   });
 
-  test("disposes once across exit signals and never auto-restarts on restore", () => {
+  test("disposes once across real exit signals and never restarts", () => {
     const { calls, cleanup, documentTarget, windowTarget } = lifecycleHarness();
     documentTarget.hidden = true;
     documentTarget.fire("visibilitychange");
@@ -117,32 +123,43 @@ describe("page audio lifecycle", () => {
     documentTarget.fire("visibilitychange");
     expect(calls.resume).toBe(0);
 
-    // A BFCache-restored page remains observable, but only a later ordinary
-    // hide/show cycle may resume audio created by a fresh user gesture.
+    // A real navigation cannot be revived by later synthetic lifecycle noise.
     documentTarget.hidden = true;
     documentTarget.fire("visibilitychange");
     documentTarget.hidden = false;
     documentTarget.fire("visibilitychange");
-    expect(calls).toEqual({ dispose: 1, resume: 1, suspend: 2 });
+    expect(calls).toEqual({ dispose: 1, resume: 0, suspend: 1 });
     cleanup();
   });
 
-  test("rearms after a freeze/resume without emitting a resume callback", () => {
+  test("freezes as a resumable pause instead of destroying the engines", () => {
     const { calls, cleanup, documentTarget } = lifecycleHarness();
     documentTarget.fire("freeze");
     documentTarget.fire("resume");
-    expect(calls).toEqual({ dispose: 1, resume: 0, suspend: 0 });
+    expect(calls).toEqual({ dispose: 0, resume: 1, suspend: 1 });
 
     documentTarget.hidden = true;
     documentTarget.fire("visibilitychange");
-    expect(calls.suspend).toBe(1);
+    expect(calls.suspend).toBe(2);
+    cleanup();
+  });
+
+  test("BFCache pagehide pauses and pageshow resumes exactly once", () => {
+    const { calls, cleanup, windowTarget } = lifecycleHarness();
+    windowTarget.fire("pagehide", pageTransitionEvent("pagehide", true));
+    windowTarget.fire("pagehide", pageTransitionEvent("pagehide", true));
+    expect(calls).toEqual({ dispose: 0, resume: 0, suspend: 1 });
+
+    windowTarget.fire("pageshow", pageTransitionEvent("pageshow", true));
+    windowTarget.fire("pageshow", pageTransitionEvent("pageshow", true));
+    expect(calls).toEqual({ dispose: 0, resume: 1, suspend: 1 });
     cleanup();
   });
 
   test("removes every window and document listener", () => {
     const { cleanup, documentTarget, windowTarget } = lifecycleHarness();
     expect(documentTarget.listenerCount()).toBe(3);
-    expect(windowTarget.listenerCount()).toBe(4);
+    expect(windowTarget.listenerCount()).toBe(3);
     cleanup();
     expect(documentTarget.listenerCount()).toBe(0);
     expect(windowTarget.listenerCount()).toBe(0);

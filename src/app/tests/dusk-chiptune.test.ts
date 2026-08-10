@@ -49,6 +49,7 @@ async function withFakeTimerWindow(
   Object.defineProperty(globalThis, "window", {
     configurable: true,
     value: {
+      AudioContext: class {},
       clearInterval() {
         counts.intervalClears += 1;
       },
@@ -110,6 +111,9 @@ function fakeChipGraph(initialState: AudioContextState = "running") {
     context,
     counts,
     master: { gain } as unknown as GainNode,
+    setState(nextState: AudioContextState) {
+      state = nextState;
+    },
   };
 }
 
@@ -489,6 +493,48 @@ describe("Dusk Republic — player", () => {
     expect(player.audible).toBe(true);
     internals.timer = null;
     expect(player.audible).toBe(false);
+  });
+
+  test("a real gesture supersedes a still-pending autoplay attempt", async () => {
+    await withFakeTimerWindow(async (timerCounts) => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("suspended");
+      let releaseBlockedResume: (() => void) | null = null;
+      graph.context.resume = () => {
+        graph.counts.resumes += 1;
+        if (graph.counts.resumes === 1) {
+          return new Promise<void>((resolve) => {
+            releaseBlockedResume = resolve;
+          });
+        }
+        graph.setState("running");
+        return Promise.resolve();
+      };
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        ensureGraph(context: AudioContext): void;
+        master: GainNode | null;
+        prepare(): boolean;
+        scheduleAhead(): void;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.prepare = () => true;
+      internals.ensureGraph = () => undefined;
+      internals.scheduleAhead = () => undefined;
+
+      const blockedAutoplay = player.start();
+      await Promise.resolve();
+      const clickedStart = player.start();
+
+      expect(await clickedStart).toBe(true);
+      expect(player.audible).toBe(true);
+      expect(timerCounts.intervalStarts).toBe(1);
+      releaseBlockedResume?.();
+      expect(await blockedAutoplay).toBe(false);
+      expect(timerCounts.intervalStarts).toBe(1);
+      await player.dispose();
+    });
   });
 
   test("hide clears the scheduler and voices, then resumes on a fresh step", async () => {

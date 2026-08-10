@@ -19,13 +19,15 @@ type AudioLifecycleOptions = AudioLifecycleCallbacks & {
   windowTarget: WindowLifecycleTarget;
 };
 
+type PageLifecycleEvent = Event & { persisted?: boolean };
+
 /**
  * Bind procedural audio to the browser page lifecycle.
  *
- * A hidden page is suspended but remains resumable. A real exit or page
- * freeze disposes every engine exactly once. Restoring a BFCache/frozen page
- * merely rearms lifecycle observation; it never starts audio without a new
- * visibility transition or explicit user gesture.
+ * A hidden, frozen or BFCache page is suspended but remains resumable. A real
+ * exit disposes every engine exactly once. A blocked autoplay attempt has no
+ * armed scheduler, so these resume callbacks cannot start it without a fresh
+ * user gesture.
  */
 export function registerAudioLifecycle({
   dispose,
@@ -37,18 +39,24 @@ export function registerAudioLifecycle({
   type State = "active" | "exited" | "hidden";
   let state: State = "active";
 
-  const onVisibilityChange = () => {
-    if (documentTarget.hidden) {
-      if (state === "active") {
-        state = "hidden";
-        suspend();
-      }
-      return;
+  const suspendActive = () => {
+    if (state === "active") {
+      state = "hidden";
+      suspend();
     }
+  };
+  const resumeHidden = () => {
     if (state === "hidden") {
       state = "active";
       resume();
     }
+  };
+  const onVisibilityChange = () => {
+    if (documentTarget.hidden) {
+      suspendActive();
+      return;
+    }
+    resumeHidden();
   };
   const onExit = () => {
     if (state === "exited") {
@@ -57,22 +65,25 @@ export function registerAudioLifecycle({
     state = "exited";
     dispose();
   };
-  const onRestore = () => {
-    if (state !== "exited") {
+  const onPageHide = (event: Event) => {
+    if ((event as PageLifecycleEvent).persisted === true) {
+      suspendActive();
       return;
     }
-    // `pagehide`/`freeze` may be followed by BFCache `pageshow`/`resume`.
-    // Do not restart here: a fresh gesture or visibility transition owns that.
-    state = documentTarget.hidden ? "hidden" : "active";
+    onExit();
+  };
+  const onRestore = () => {
+    if (!documentTarget.hidden) {
+      resumeHidden();
+    }
   };
 
   documentTarget.addEventListener("visibilitychange", onVisibilityChange);
-  documentTarget.addEventListener("freeze", onExit);
+  documentTarget.addEventListener("freeze", suspendActive);
   documentTarget.addEventListener("resume", onRestore);
-  windowTarget.addEventListener("pagehide", onExit);
+  windowTarget.addEventListener("pagehide", onPageHide);
   windowTarget.addEventListener("beforeunload", onExit);
   windowTarget.addEventListener("pageshow", onRestore);
-  windowTarget.addEventListener("focus", onRestore);
 
   // A page can mount in a background tab. Silence it immediately instead of
   // waiting for a visibility event that may never be dispatched.
@@ -80,12 +91,11 @@ export function registerAudioLifecycle({
 
   return () => {
     documentTarget.removeEventListener("visibilitychange", onVisibilityChange);
-    documentTarget.removeEventListener("freeze", onExit);
+    documentTarget.removeEventListener("freeze", suspendActive);
     documentTarget.removeEventListener("resume", onRestore);
-    windowTarget.removeEventListener("pagehide", onExit);
+    windowTarget.removeEventListener("pagehide", onPageHide);
     windowTarget.removeEventListener("beforeunload", onExit);
     windowTarget.removeEventListener("pageshow", onRestore);
-    windowTarget.removeEventListener("focus", onRestore);
   };
 }
 

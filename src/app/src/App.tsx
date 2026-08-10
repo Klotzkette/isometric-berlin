@@ -487,9 +487,11 @@ export function App() {
   const appShellRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
+  const ambientStartAttemptRef = useRef(0);
   // "Dusk Republic": enabled on every load, but Web Audio starts only from
   // the visitor's first gesture. Turning it off applies to this session.
   const chiptuneRef = useRef<DuskChiptune | null>(null);
+  const chiptuneStartAttemptRef = useRef(0);
   const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(() =>
     isChiptuneSupported(),
   );
@@ -694,6 +696,8 @@ export function App() {
   }, [language]);
 
   const disposeAllAudio = useCallback(() => {
+    ambientStartAttemptRef.current += 1;
+    chiptuneStartAttemptRef.current += 1;
     const ambient = ambientSoundscapeRef.current;
     ambientSoundscapeRef.current = null;
     const chiptune = chiptuneRef.current;
@@ -745,13 +749,24 @@ export function App() {
       if (!silent) {
         setStatus(copy.musicStarting);
       }
+      const attempt = ++ambientStartAttemptRef.current;
       const soundscape =
         ambientSoundscapeRef.current ?? new AmbientSoundscape();
       ambientSoundscapeRef.current = soundscape;
       let started = false;
+      let failed = false;
       try {
         started = await soundscape.start();
       } catch {
+        failed = true;
+      }
+      if (attempt !== ambientStartAttemptRef.current) {
+        if (started && ambientSoundscapeRef.current !== soundscape) {
+          soundscape.dispose();
+        }
+        return false;
+      }
+      if (failed) {
         soundscape.dispose();
       }
       if (ambientSoundscapeRef.current !== soundscape) {
@@ -787,6 +802,7 @@ export function App() {
   // was not actually exposed to it in practice.
   const toggleMusic = useCallback(async () => {
     if (shouldStopAudioOnToggleTap(isMusicAudible)) {
+      ambientStartAttemptRef.current += 1;
       ambientSoundscapeRef.current?.stop();
       setIsMusicEnabled(false);
       // Remember explicit mute so the auto-start effect stays quiet on the
@@ -820,12 +836,23 @@ export function App() {
       if (typeof document !== "undefined" && document.hidden) {
         return false;
       }
+      const attempt = ++chiptuneStartAttemptRef.current;
       const player = chiptuneRef.current ?? new DuskChiptune();
       chiptuneRef.current = player;
       let started = false;
+      let failed = false;
       try {
         started = await player.start();
       } catch {
+        failed = true;
+      }
+      if (attempt !== chiptuneStartAttemptRef.current) {
+        if (started && chiptuneRef.current !== player) {
+          await player.dispose();
+        }
+        return false;
+      }
+      if (failed) {
         await player.dispose();
       }
       if (chiptuneRef.current !== player) {
@@ -881,6 +908,7 @@ export function App() {
   // exists.
   const toggleSoundtrack = useCallback(async () => {
     if (shouldStopAudioOnToggleTap(isSoundtrackAudible)) {
+      chiptuneStartAttemptRef.current += 1;
       chiptuneRef.current?.stop();
       setIsSoundtrackEnabled(false);
       setStatus(copy.soundtrackOff);

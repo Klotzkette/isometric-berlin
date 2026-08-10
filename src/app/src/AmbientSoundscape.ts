@@ -284,13 +284,10 @@ export class AmbientSoundscape {
     if (this.timer !== null) {
       return true;
     }
-    if (this.startPromise) {
-      const context = this.context;
-      if (context && context.state !== "running") {
-        void context.resume().catch(() => undefined);
-      }
-      return this.startPromise;
-    }
+    // A load-time resume can remain pending while the browser waits for a
+    // gesture. Never return that stale promise from the real click: starting a
+    // new generation reaches `resume()` synchronously in the gesture and lets
+    // the latest attempt own the scheduler.
     const generation = ++this.startGeneration;
     const pending = this.startInternal(generation);
     this.startPromise = pending;
