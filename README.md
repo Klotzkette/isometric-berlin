@@ -1,7 +1,7 @@
-# isometric-berlin — live web viewer (v0.70.12)
+# isometric-berlin — live web viewer (v0.70.16)
 
 - Live URL: https://klotzkette.github.io/isometric-berlin/
 - Source: https://github.com/Klotzkette/isometric-berlin
-- Release: https://github.com/Klotzkette/isometric-berlin/releases/tag/v0.70.12
+- Release: https://github.com/Klotzkette/isometric-berlin/releases/tag/v0.70.16
 - Download: https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip
 - Inspired by [isometric.nyc](https://isometric.nyc) by Andy Coenen
