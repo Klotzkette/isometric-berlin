@@ -529,6 +529,7 @@ export function createGroundSlabs(
   options?: {
     bridgeDecks?: boolean;
     emissive?: number;
+    skipClasses?: readonly string[];
     skipBridge?: boolean;
     skipWater?: boolean;
   },
@@ -544,11 +545,15 @@ export function createGroundSlabs(
     0,
   );
   const ground = instancedBoxes(name, groundRunCount, options?.emissive);
+  const skippedClasses = new Set(options?.skipClasses ?? []);
   const center = new Vector3();
   const size = new Vector3();
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
+      if (skippedClasses.has(className)) {
+        continue;
+      }
       if (
         options?.skipWater &&
         (className === "water" || className === "basin")

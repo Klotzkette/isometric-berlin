@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.70.21
+
+- **Curved streets and paths are now genuinely curved citywide.** The road
+  pipeline interpolates moderate OSM direction changes with clamped cubic
+  Hermite segments through every original mapped node, samples those bends at
+  no more than 2.5 m, and reduces final edge simplification from 0.75 m to
+  0.20 m. Deliberate corners sharper than 72 degrees remain hard, so the pass
+  does not round buildings, plazas or engineered right-angle junctions.
+- Day, Night and Snowstorm no longer reveal the coarse 4 m asphalt cells or
+  their square kerb lines below the continuous OSM road surfaces. The smooth
+  carriageway, kerb and lane-marking layers now share one centreline;
+  Minecraft deliberately retains its block-native street grid.
+- A final 0.20 m portal exclusion absorbs decimetre payload quantisation, so
+  the smoother road and water edges cannot close either Tiergartentunnel
+  mouth. Geometry contracts cover curved sampling, preserved source nodes,
+  hard corners, duplicate OSM nodes and both tunnel approaches. Day, Night,
+  Minecraft and Snowstorm were visually checked around the Grosser Stern and
+  Spreebogen. The visible radius remains **5,230 m**; no bounds, building
+  placement, attribution or source-policy contract changed.
+
 ## v0.70.20
 
 - **The south Tiergartentunnel approach no longer shows through Potsdamer

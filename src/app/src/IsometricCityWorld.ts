@@ -1481,7 +1481,10 @@ const KERB_PAIRS = new Set([
  * roads meet lawns and plazas — draw those cell boundaries as thin ink
  * lines, the ligne-claire ground the buildings already live on.
  */
-function createKerbLines(ground: VoxelPayload): LineSegments | null {
+function createKerbLines(
+  ground: VoxelPayload,
+  skippedClasses: ReadonlySet<string> = new Set(),
+): LineSegments | null {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
   const classGrid = new Int16Array(cols * rows).fill(-1);
@@ -1504,6 +1507,12 @@ function createKerbLines(ground: VoxelPayload): LineSegments | null {
     const nameA = nameOf(a);
     const nameB = nameOf(b);
     if (!nameA || !nameB) {
+      return false;
+    }
+    // The high-resolution OSM surface layer owns these boundaries. Keeping
+    // their old 4 m grid ink underneath made a smooth road or river look
+    // square again wherever the coarse line protruded past the true curve.
+    if (skippedClasses.has(nameA) || skippedClasses.has(nameB)) {
       return false;
     }
     return KERB_PAIRS.has(
@@ -6919,7 +6928,15 @@ export function createIsometricCity(
       ground,
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
-      { emissive: 0x000000, skipBridge: true, skipWater: true },
+      {
+        emissive: 0x000000,
+        // Smooth OSM road polygons below replace this coarse class in the
+        // drawn modes. Minecraft calls createGroundSlabs without this filter
+        // and deliberately keeps its block-native road staircase.
+        skipClasses: surfaces ? ["asphalt"] : undefined,
+        skipBridge: true,
+        skipWater: true,
+      },
     );
     // The ground joins the prism convention: exact flat paint by day
     // (unlit), the lit material only under the night rig. Until now the
@@ -6995,7 +7012,10 @@ export function createIsometricCity(
       group.add(bed);
       group.add(surface);
     }
-    const kerbs = createKerbLines(ground);
+    const kerbs = createKerbLines(
+      ground,
+      surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
+    );
     if (kerbs) {
       group.add(kerbs);
     }

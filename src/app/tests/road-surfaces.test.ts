@@ -5,9 +5,15 @@ import {
   createSmoothSurfaces,
   type SurfacePayload,
 } from "../src/IsometricCityWorld";
+import {
+  createGroundSlabs,
+  type VoxelPayload,
+} from "../src/MinecraftVoxelWorld";
+import groundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import surfacePayload from "../public/mesh/regierungsviertel/surface-polygons.json";
 
 const surfaces = surfacePayload as unknown as SurfacePayload;
+const ground = groundPayload as unknown as VoxelPayload;
 
 describe("drawn carriageways and park paths", () => {
   test("the payload carries buffered road polygons and lane markings", () => {
@@ -89,5 +95,25 @@ describe("drawn carriageways and park paths", () => {
     expect(flatBox.max.y - flatBox.min.y).toBeLessThan(0.01);
     expect(followedBox.max.y - followedBox.min.y).toBeGreaterThan(0.5);
     expect(followedBox.min.y).toBeGreaterThan(flatBox.max.y);
+  });
+
+  test("the drawn base can omit coarse asphalt without changing Minecraft", () => {
+    const shades = {
+      asphalt: [0x777777],
+      grass: [0x77aa66],
+    };
+    const minecraft = createGroundSlabs(ground, "all ground", shades);
+    const drawn = createGroundSlabs(ground, "smooth-road base", shades, {
+      skipClasses: ["asphalt"],
+    });
+    const asphaltId = ground.classes.indexOf("asphalt");
+    const asphaltRuns = ground.ground_rows.reduce(
+      (count, row) =>
+        count + row.filter(([, , classId]) => classId === asphaltId).length,
+      0,
+    );
+
+    expect(asphaltRuns).toBeGreaterThan(1_000);
+    expect(minecraft.count - drawn.count).toBe(asphaltRuns);
   });
 });

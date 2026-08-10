@@ -64,7 +64,7 @@ from isometric_berlin.generation.road_geometry import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 WATER_SIMPLIFY_M = 0.15
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
@@ -115,7 +115,18 @@ ROAD_KINDS: dict[str, str] = {
 }
 # Classes whose centreline earns a painted lane marking.
 MARKED_CLASSES = frozenset({"motorway", "trunk", "primary", "secondary", "tertiary"})
-ROAD_SIMPLIFY_M = 0.75
+# A road edge is a primary visual line. The former 0.75 m tolerance could turn
+# a mapped curve into a row of obvious chords at close zoom. Twenty centimetres
+# stays below the drawn kerb width while keeping payload growth bounded.
+ROAD_SIMPLIFY_M = 0.2
+# OSM stores carriageways as surveyed polylines. Consecutive moderate turns are
+# samples of one road curve, not intended corners: interpolate through the
+# original nodes before buffering so surface, kerb and marking share the same
+# continuous centreline. Deliberate turns sharper than this remain untouched.
+ROAD_CURVE_CORNER_DEG = 72.0
+ROAD_CURVE_SEGMENT_M = 2.5
+ROAD_CURVE_MAX_STEPS_PER_EDGE = 24
+ROAD_BUFFER_QUAD_SEGS = 12
 MIN_ROAD_AREA_M2 = 25.0
 # The merged pedestrian/cycle network can become one city-scale polygon with
 # more than a thousand holes. Earcut then blocks the browser for seconds even
@@ -125,8 +136,11 @@ MIN_ROAD_AREA_M2 = 25.0
 ROAD_BROWSER_TILE_M = 400.0
 ROAD_BROWSER_HOLE_THRESHOLD = 128
 # The visible Tiergartentunnel ramps are two 10.5 m bores plus their walls.
-# A small shoulder makes the cut robust to the 0.75 m surface simplification.
+# A small shoulder keeps the cut robust through simplification and quantisation.
 OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M = 12.5
+# Payload rings are rounded to decimetres. Expand the final exclusion by two
+# decimetres so quantisation cannot move a long boundary back over the ramp.
+OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M = 0.2
 # A footway or cycleway that runs inside parkland is a park path and reads
 # sandy, wherever OSM classified it. This is what makes the Tiergarten look
 # like the Tiergarten instead of a grey street grid dropped on a lawn.
@@ -274,25 +288,33 @@ def collect_water(
       continue
     for part in polygon_parts(clipped):
       simplified = part.simplify(WATER_SIMPLIFY_M, preserve_topology=True)
-      if simplified.is_empty or simplified.area < MIN_WATER_AREA_M2:
-        continue
-      ring = ring_to_dm(simplified.exterior.coords)
-      if len(ring) < 4:
-        continue
-      holes = [
-        ring_to_dm(interior.coords)
-        for interior in simplified.interiors
-        if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
-      ]
-      surfaces.append(
-        {
-          "area_m2": round(simplified.area),
-          "holes": holes,
-          "kind": feature.kind,
-          "name": feature.name,
-          "ring": ring,
-        }
-      )
+      # Simplification may bridge a narrow cut by a few centimetres. Portal
+      # corridors are a hard visibility contract, so subtraction is the last
+      # topology-changing operation before integer quantisation.
+      if ramp_corridors is not None:
+        simplified = simplified.difference(
+          ramp_corridors.buffer(OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M)
+        )
+      for safe_part in polygon_parts(simplified):
+        if safe_part.is_empty or safe_part.area < MIN_WATER_AREA_M2:
+          continue
+        ring = ring_to_dm(safe_part.exterior.coords)
+        if len(ring) < 4:
+          continue
+        holes = [
+          ring_to_dm(interior.coords)
+          for interior in safe_part.interiors
+          if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
+        ]
+        surfaces.append(
+          {
+            "area_m2": round(safe_part.area),
+            "holes": holes,
+            "kind": feature.kind,
+            "name": feature.name,
+            "ring": ring,
+          }
+        )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   return surfaces
 
@@ -335,6 +357,118 @@ def line_parts(geometry: BaseGeometry) -> list[LineString]:
   if isinstance(geometry, MultiLineString):
     return list(geometry.geoms)
   return []
+
+
+def smooth_road_line(line: LineString) -> LineString:
+  """Interpolate a road through its mapped nodes without moving any node.
+
+  OSM curve nodes are sparse enough that buffering the raw chords leaves
+  visible elbows. A clamped cubic Hermite curve follows the angle bisector at
+  moderate turns and retains deliberate built corners. Tangent magnitudes use
+  the shorter adjacent edge, preventing a long segment beside a short one
+  from overshooting its mapped envelope.
+  """
+  raw = [(float(x), float(y)) for x, y, *_ in line.coords]
+  if len(raw) < 3:
+    return line
+  closed = math.hypot(raw[0][0] - raw[-1][0], raw[0][1] - raw[-1][1]) <= 1e-6
+  if closed:
+    raw.pop()
+  points: list[tuple[float, float]] = []
+  for point in raw:
+    if (
+      not points
+      or math.hypot(point[0] - points[-1][0], point[1] - points[-1][1]) > 1e-6
+    ):
+      points.append(point)
+  count = len(points)
+  if count < 2:
+    return line
+  if count < 3:
+    return LineString([*points, points[0]] if closed and points else points)
+
+  edge_count = count if closed else count - 1
+  lengths: list[float] = []
+  units: list[tuple[float, float]] = []
+  for index in range(edge_count):
+    ax, ay = points[index]
+    bx, by = points[(index + 1) % count]
+    run = math.hypot(bx - ax, by - ay)
+    if run <= 1e-9:
+      return line
+    lengths.append(run)
+    units.append(((bx - ax) / run, (by - ay) / run))
+
+  corner_cos = math.cos(math.radians(ROAD_CURVE_CORNER_DEG))
+  corners = [False] * count
+  tangents: list[tuple[float, float]] = [(0.0, 0.0)] * count
+  for index in range(count):
+    if not closed and index == 0:
+      tangents[index] = units[0]
+      continue
+    if not closed and index == count - 1:
+      tangents[index] = units[-1]
+      continue
+    previous = (index - 1) % edge_count
+    following = index % edge_count
+    ux0, uy0 = units[previous]
+    ux1, uy1 = units[following]
+    corners[index] = ux0 * ux1 + uy0 * uy1 < corner_cos
+    tx = ux0 + ux1
+    ty = uy0 + uy1
+    span = math.hypot(tx, ty)
+    tangents[index] = units[following] if span <= 1e-9 else (tx / span, ty / span)
+
+  output: list[tuple[float, float]] = []
+  for index in range(edge_count):
+    next_index = (index + 1) % count
+    ax, ay = points[index]
+    bx, by = points[next_index]
+    ux, uy = units[index]
+    output.append((ax, ay))
+    start_x, start_y = units[index] if corners[index] else tangents[index]
+    end_x, end_y = units[index] if corners[next_index] else tangents[next_index]
+    if (
+      abs(start_x - ux) < 1e-9
+      and abs(start_y - uy) < 1e-9
+      and abs(end_x - ux) < 1e-9
+      and abs(end_y - uy) < 1e-9
+    ):
+      continue
+    previous_length = (
+      lengths[(index - 1) % edge_count] if closed or index > 0 else lengths[index]
+    )
+    next_length = (
+      lengths[(index + 1) % edge_count]
+      if closed or index + 1 < edge_count
+      else lengths[index]
+    )
+    start_scale = min(lengths[index], previous_length)
+    end_scale = min(lengths[index], next_length)
+    steps = min(
+      ROAD_CURVE_MAX_STEPS_PER_EDGE,
+      max(1, math.ceil(lengths[index] / ROAD_CURVE_SEGMENT_M)),
+    )
+    for step in range(1, steps):
+      t = step / steps
+      tt = t * t
+      ttt = tt * t
+      h00 = 2 * ttt - 3 * tt + 1
+      h10 = ttt - 2 * tt + t
+      h01 = -2 * ttt + 3 * tt
+      h11 = ttt - tt
+      output.append(
+        (
+          h00 * ax + h10 * start_scale * start_x + h01 * bx + h11 * end_scale * end_x,
+          h00 * ay + h10 * start_scale * start_y + h01 * by + h11 * end_scale * end_y,
+        )
+      )
+  if not closed:
+    output.append(points[-1])
+  elif output:
+    output.append(output[0])
+  smoothed = LineString(output)
+  return smoothed if smoothed.is_simple else line
 
 
 def line_to_dm(coords: Any) -> list[list[int]]:
@@ -409,17 +543,23 @@ def collect_roads(
     for line in line_parts(clipped):
       if line.length < 2.0:
         continue
+      curved_line = smooth_road_line(line)
       resolved = kind
       if (
         kind in {"paving", "sand"}
         and parkland is not None
-        and parkland.intersects(line)
-        and line.intersection(parkland).length > line.length * 0.5
+        and parkland.intersects(curved_line)
+        and curved_line.intersection(parkland).length > curved_line.length * 0.5
       ):
         resolved = PARK_PATH_KIND
       # flat caps: a buffered centreline must not bulge into a lollipop at
       # every junction, which is what round caps do on a 4 000-segment net.
-      band = line.buffer(width / 2, cap_style=2, join_style=1)
+      band = curved_line.buffer(
+        width / 2,
+        cap_style=2,
+        join_style=1,
+        quad_segs=ROAD_BUFFER_QUAD_SEGS,
+      )
       # Subtract again after buffering: a nearby centreline can have its
       # centre outside the corridor while its wide carriageway still reaches
       # across the daylight trough.
@@ -428,8 +568,8 @@ def collect_roads(
       if band.is_empty:
         continue
       by_kind.setdefault(resolved, []).append(band)
-      if highway in MARKED_CLASSES and line.length >= 25.0:
-        simplified = line.simplify(ROAD_SIMPLIFY_M, preserve_topology=True)
+      if highway in MARKED_CLASSES and curved_line.length >= 25.0:
+        simplified = curved_line.simplify(ROAD_SIMPLIFY_M, preserve_topology=True)
         points = line_to_dm(simplified.coords)
         if len(points) >= 2:
           markings.append(
@@ -445,30 +585,35 @@ def collect_roads(
     merged = unary_union(bands)
     for part in polygon_parts(merged):
       simplified = part.simplify(ROAD_SIMPLIFY_M, preserve_topology=True)
-      if simplified.is_empty or simplified.area < MIN_ROAD_AREA_M2:
-        continue
-      for browser_part in partition_road_surface(simplified, kind):
-        ring = ring_to_dm(browser_part.exterior.coords)
-        if len(ring) < 4:
-          continue
-        # Sliver holes are what a buffered road network produces wherever
-        # two carriageways graze each other, and a hole with no real area
-        # makes the viewer's ear-clipping triangulator throw. Keep only
-        # holes that enclose at least a square metre.
-        holes = [
-          ring_to_dm(interior.coords)
-          for interior in browser_part.interiors
-          if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
-        ]
-        surfaces.append(
-          {
-            "area_m2": round(browser_part.area),
-            "holes": holes,
-            "kind": kind,
-            "name": "",
-            "ring": ring,
-          }
+      if ramp_corridors is not None:
+        simplified = simplified.difference(
+          ramp_corridors.buffer(OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M)
         )
+      for safe_part in polygon_parts(simplified):
+        if safe_part.is_empty or safe_part.area < MIN_ROAD_AREA_M2:
+          continue
+        for browser_part in partition_road_surface(safe_part, kind):
+          ring = ring_to_dm(browser_part.exterior.coords)
+          if len(ring) < 4:
+            continue
+          # Sliver holes are what a buffered road network produces wherever
+          # two carriageways graze each other, and a hole with no real area
+          # makes the viewer's ear-clipping triangulator throw. Keep only
+          # holes that enclose at least a square metre.
+          holes = [
+            ring_to_dm(interior.coords)
+            for interior in browser_part.interiors
+            if len(interior.coords) >= 4 and Polygon(interior).area >= 1.0
+          ]
+          surfaces.append(
+            {
+              "area_m2": round(browser_part.area),
+              "holes": holes,
+              "kind": kind,
+              "name": "",
+              "ring": ring,
+            }
+          )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   markings.sort(key=lambda entry: -len(entry["points"]))
   return surfaces, markings
@@ -490,6 +635,9 @@ def build_payload(
     "park_simplify_m": PARK_SIMPLIFY_M,
     "parks": collect_parkland(osm_path, bounds),
     "road_simplify_m": ROAD_SIMPLIFY_M,
+    "road_curve_corner_deg": ROAD_CURVE_CORNER_DEG,
+    "road_curve_segment_m": ROAD_CURVE_SEGMENT_M,
+    "road_buffer_quad_segs": ROAD_BUFFER_QUAD_SEGS,
     "road_width_policy": "width > est_width > mapped lanes > highway-class fallback",
     "road_widths_m": ROAD_WIDTHS_M,
     "roads": roads,

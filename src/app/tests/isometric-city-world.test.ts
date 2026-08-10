@@ -1316,7 +1316,7 @@ describe("smooth OSM water and parkland", () => {
     expect(
       isDedicatedSintiRomaPool(
         payloadSurfaces.water.find(
-          (surface) => surface.kind === "basin" && surface.area_m2 === 131,
+          (surface) => surface.kind === "basin" && surface.name === "Phönix",
         )!,
       ),
     ).toBe(false);

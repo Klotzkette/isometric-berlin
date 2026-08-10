@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.20 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.20/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.21/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.20** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.21** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.20**, built from `main`. Its full viewer
+The current public package is **v0.70.21**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -62,6 +62,13 @@ local modules.
   warm entrance glazing and Minecraft has a matching block-native model. Since
   completion is planned for 2030, this remains an explicitly labelled planning
   approximation rather than surveyed as-built geometry.
+
+- **Curved roads now read as curves at close zoom.** A metric Hermite pass
+  interpolates moderate OSM direction changes through every original mapped
+  node, samples bends at no more than 2.5 m and keeps deliberate sharp corners
+  hard. The drawn modes no longer expose the old 4 m asphalt cells or their
+  square kerb ink beneath the continuous OSM road layer; Minecraft retains its
+  intentionally block-native streets.
 
 - Source-faithful facade refinement now draws the exact outer and courtyard
   wall topology from LoD2, adds the official ALKIS tent-roof form, and removes
