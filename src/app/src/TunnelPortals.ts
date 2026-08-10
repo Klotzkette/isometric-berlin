@@ -46,6 +46,8 @@ const WALL_TOP_Y = TUNNEL_SURFACE_Y + 0.4;
 const WALL_THICKNESS_M = 0.65;
 const BARRIER_HEIGHT_M = 1.45;
 const PORTAL_INTERIOR_FLAG = "tiergartentunnelPortalInterior";
+const PORTAL_SURFACE_MATERIAL_FLAG =
+  "tiergartentunnelPortalSurfaceMaterial";
 
 const CONCRETE = 0x8d8b83;
 const ASPHALT = 0x3c4247;
@@ -56,7 +58,7 @@ function surfaceMaterial(
   color: number,
   options: { metalness?: number; roughness?: number } = {},
 ): MeshStandardMaterial {
-  return new MeshStandardMaterial({
+  const material = new MeshStandardMaterial({
     color,
     flatShading: true,
     metalness: options.metalness ?? 0.06,
@@ -64,12 +66,27 @@ function surfaceMaterial(
     polygonOffsetFactor: -1.2,
     polygonOffsetUnits: -1.2,
     roughness: options.roughness ?? 0.86,
-    // The official photogrammetry is an uncut ground shell. Portal geometry
-    // deliberately sits below that shell, so it must win the depth test just
-    // in its narrow ramp corridors instead of disappearing below the mesh.
-    depthTest: false,
-    depthWrite: false,
+    // Surface approaches must obey the city depth buffer. Turning depth tests
+    // off here made the long south ramp paint through the Potsdamer-Platz
+    // buildings from ordinary exterior views. The explicit mouth close-up may
+    // temporarily reveal these materials through the uncut ground shell; the
+    // first free camera movement restores normal occlusion.
+    depthTest: true,
+    depthWrite: true,
   });
+  material.userData[PORTAL_SURFACE_MATERIAL_FLAG] = true;
+  return material;
+}
+
+function interiorMaterial(
+  color: number,
+  options: { metalness?: number; roughness?: number } = {},
+): MeshStandardMaterial {
+  const material = surfaceMaterial(color, options);
+  delete material.userData[PORTAL_SURFACE_MATERIAL_FLAG];
+  material.depthTest = false;
+  material.depthWrite = false;
+  return material;
 }
 
 /** A unit box stretched and aimed along `from` → `to`, so it can slope. */
@@ -178,9 +195,26 @@ export function setTunnelPortalPresentation(
 ): void {
   group.visible = !underside;
   const interiorVisible = !underside && !voxelMode && revealInterior;
+  const surfaceMaterials = new Set<Material>();
   group.traverse((object) => {
     if (object.userData[PORTAL_INTERIOR_FLAG] === true) {
       object.visible = interiorVisible;
+    }
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) {
+      if (
+        material.userData[PORTAL_SURFACE_MATERIAL_FLAG] === true &&
+        !surfaceMaterials.has(material)
+      ) {
+        surfaceMaterials.add(material);
+        material.depthTest = !interiorVisible;
+        material.depthWrite = !interiorVisible;
+      }
     }
   });
 }
@@ -330,10 +364,10 @@ function addRamp(
   // city rather than a painted-on hole. Everything sits BELOW street
   // level, so it is only ever seen through the mouth itself.
   const BORE_LENGTH_M = 46;
-  const boreWall = surfaceMaterial(0x5d625f, { roughness: 0.92 });
-  const boreDeck = surfaceMaterial(0x30363a, { roughness: 0.95 });
-  const boreCeiling = surfaceMaterial(0x464a48, { roughness: 0.92 });
-  const boreEnd = surfaceMaterial(0x111416, { roughness: 1 });
+  const boreWall = interiorMaterial(0x5d625f, { roughness: 0.92 });
+  const boreDeck = interiorMaterial(0x30363a, { roughness: 0.95 });
+  const boreCeiling = interiorMaterial(0x464a48, { roughness: 0.92 });
+  const boreEnd = interiorMaterial(0x111416, { roughness: 1 });
   const guideMaterial = new MeshBasicMaterial({
     color: 0xd9cfad,
     depthTest: false,

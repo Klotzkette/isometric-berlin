@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.70.20
+
+- **The south Tiergartentunnel approach no longer shows through Potsdamer
+  Platz.** Ramp decks, retaining walls, barriers, markings and portal frames
+  now obey the city depth buffer in every ordinary above-ground view, so
+  terrain and buildings correctly occlude the underground geometry.
+- The deliberate bore-reading aid remains available only in the explicitly
+  selected north or south tunnel-mouth close-up. Leaving that view immediately
+  restores normal occlusion; underside and guided tunnel-flight rendering keep
+  their existing dedicated cutaway geometry.
+- A real-route regression guard rejects any default-visible portal mesh that
+  bypasses depth testing. Day, Night and Minecraft were checked at the same
+  wide Chancellery camera with no grey tunnel stripe. The visible radius
+  remains **5,230 m**; geometry evidence, attribution and source boundaries are
+  unchanged.
+
 ## v0.70.19
 
 - **`berlin modern` is a complete building instead of a floating roof.** The

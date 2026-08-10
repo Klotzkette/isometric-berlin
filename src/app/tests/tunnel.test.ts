@@ -336,11 +336,22 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(portals.visible).toBe(true);
     expect(ramp.visible).toBe(true);
     expect(bore.visible).toBe(false);
+    const rampMaterial = (ramp as Mesh).material as Material;
+    expect(rampMaterial.depthTest).toBe(true);
+    expect(rampMaterial.depthWrite).toBe(true);
 
     setTunnelPortalPresentation(portals, false, false, true);
     expect(portals.visible).toBe(true);
     expect(ramp.visible).toBe(true);
     expect(bore.visible).toBe(true);
+    expect(rampMaterial.depthTest).toBe(false);
+    expect(rampMaterial.depthWrite).toBe(false);
+
+    // Leaving the authored bore shot restores real occlusion. In particular,
+    // the south ramp can no longer paint through the Potsdamer-Platz ensemble.
+    setTunnelPortalPresentation(portals, false, false, false);
+    expect(rampMaterial.depthTest).toBe(true);
+    expect(rampMaterial.depthWrite).toBe(true);
 
     setTunnelPortalPresentation(portals, false, true, true);
     expect(portals.visible).toBe(true);
@@ -366,6 +377,19 @@ describe("Tiergartentunnel rendering budget", () => {
         object.name.includes("buried ground occlusion cap"),
       ),
     ).toBe(false);
+    const visibleDepthBypasses: string[] = [];
+    portals.traverse((object) => {
+      if (!(object instanceof Mesh) || !object.visible) {
+        return;
+      }
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      if (materials.some((material) => !material.depthTest)) {
+        visibleDepthBypasses.push(object.name);
+      }
+    });
+    expect(visibleDepthBypasses).toEqual([]);
   });
 
   test("both bore views stand low on the axis and aim inside the tube", () => {
