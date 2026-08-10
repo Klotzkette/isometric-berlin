@@ -102,6 +102,7 @@ import {
   FINE_DETAIL_LAYER_NAMES,
   INK_LINE_REFERENCE_FEATURE_M,
   inkLineFadeOpacity,
+  nextInkLineFadeState,
   nextFineDetailVisible,
   projectedPixelSize,
 } from "./fineDetailFade";
@@ -161,6 +162,7 @@ import { createVessels } from "./Vessels";
 import { createTiergartenMonuments } from "./TiergartenMonuments";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
+  renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
   stableViewportSize,
@@ -743,6 +745,7 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.tunnelPortals,
     ...[...runtime.detailGroups.values()].map((entry) => entry.group),
   ];
+  const inkLines: Array<LineSegments<BufferGeometry, LineBasicMaterial>> = [];
   for (const root of roots) {
     root?.traverse((object) => {
       if (
@@ -751,10 +754,53 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
       ) {
         stabilizeInkLineMaterial(object.material);
         runtime.inkLineMaterials.add(object.material);
+        inkLines.push(object);
       }
       if (fineDetailNames.has(object.name)) {
         runtime.fineDetailObjects.push(object);
       }
+    });
+  }
+  assignStableInkRenderOrder(inkLines);
+}
+
+/**
+ * Lock transparent ink to a deterministic order inside its authored layer.
+ *
+ * Three.js otherwise falls back to camera-space depth for objects sharing a
+ * renderOrder. Nearly co-planar facade and roof lines can exchange places
+ * while orbiting, changing blended pixels even though their geometry is
+ * static. The tiny rank stays inside the original layer and is independent of
+ * the camera; object ids are stable for the lifetime of the scene.
+ */
+export const STABLE_INK_RENDER_ORDER_SPAN = 1e-4;
+
+export function assignStableInkRenderOrder(
+  lines: ReadonlyArray<LineSegments<BufferGeometry, LineBasicMaterial>>,
+): void {
+  const layers = new Map<
+    number,
+    Array<LineSegments<BufferGeometry, LineBasicMaterial>>
+  >();
+  for (const line of lines) {
+    const storedOrder = line.userData.stableInkBaseRenderOrder;
+    const baseOrder =
+      typeof storedOrder === "number" && Number.isFinite(storedOrder)
+        ? storedOrder
+        : Number.isFinite(line.renderOrder)
+          ? line.renderOrder
+          : 0;
+    line.userData.stableInkBaseRenderOrder = baseOrder;
+    const layer = layers.get(baseOrder) ?? [];
+    layer.push(line);
+    layers.set(baseOrder, layer);
+  }
+  for (const [baseOrder, layer] of layers) {
+    layer.sort((left, right) => left.id - right.id);
+    const denominator = layer.length + 1;
+    layer.forEach((line, index) => {
+      line.renderOrder =
+        baseOrder + (STABLE_INK_RENDER_ORDER_SPAN * (index + 1)) / denominator;
     });
   }
 }
@@ -769,6 +815,10 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
  * lets the composer's four MSAA samples soften a one-pixel line edge.
  */
 export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
+  if (typeof material.userData.stableInkAuthoredOpacity !== "number") {
+    material.userData.stableInkAuthoredOpacity = material.opacity;
+    material.userData.stableInkAppliedOpacity = null;
+  }
   if (material.userData.temporallyStableInk === true) {
     return;
   }
@@ -836,8 +886,19 @@ function updateFarZoomAntiFlicker(
   const opacity = inkLineFadeOpacity(px);
   let changed = false;
   for (const material of runtime.inkLineMaterials) {
-    if (Math.abs(material.opacity - opacity) > 1e-6) {
-      material.opacity = opacity;
+    const state = nextInkLineFadeState({
+      authoredOpacity: material.userData.stableInkAuthoredOpacity as number,
+      currentOpacity: material.opacity,
+      fadeOpacity: opacity,
+      lastAppliedOpacity:
+        typeof material.userData.stableInkAppliedOpacity === "number"
+          ? material.userData.stableInkAppliedOpacity
+          : null,
+    });
+    material.userData.stableInkAuthoredOpacity = state.authoredOpacity;
+    material.userData.stableInkAppliedOpacity = state.appliedOpacity;
+    if (Math.abs(material.opacity - state.appliedOpacity) > 1e-6) {
+      material.opacity = state.appliedOpacity;
       changed = true;
     }
   }
@@ -3419,11 +3480,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // nominally fixed far camera, making fine ink edges shimmer. A static
         // scene now receives one render for a real mutation and then holds its
         // framebuffer exactly; RAF remains alive for input and loaders.
-        const renderRequired =
-          cameraMoving ||
-          runtime.renderInvalidated ||
-          farDetailChanged ||
-          environmentalMotion;
+        const renderRequired = renderFrameRequired({
+          cameraMoving,
+          environmentalMotion,
+          presentationChanged: farDetailChanged,
+          renderInvalidated: runtime.renderInvalidated,
+        });
         if (!renderRequired) {
           return;
         }

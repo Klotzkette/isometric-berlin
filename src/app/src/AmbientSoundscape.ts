@@ -208,9 +208,14 @@ export function midiFrequency(midi: number): number {
 }
 
 export class AmbientSoundscape {
+  private activeSources = new Map<AudioScheduledSourceNode, AudioNode[]>();
+  private closeTimer: number | null = null;
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
   private nextStepAt = 0;
+  private resumeAfterSuspension = false;
+  private startGeneration = 0;
+  private startPromise: Promise<boolean> | null = null;
   private step = 0;
   private timer: number | null = null;
 
@@ -224,13 +229,21 @@ export class AmbientSoundscape {
     return this.timer !== null && this.context?.state === "running";
   }
 
+  get activeVoiceCount(): number {
+    return this.activeSources.size;
+  }
+
   /**
    * Construct the suspended graph and its generated impulse before a gesture.
    * There is no media file to decode here: the procedural buffers are the
    * assets, and Web Audio keeps the new context suspended until a gesture.
    */
   prepare(): boolean {
-    if (this.context && this.master) {
+    if (this.closeTimer !== null) {
+      window.clearTimeout(this.closeTimer);
+      this.closeTimer = null;
+    }
+    if (this.context && this.master && this.context.state !== "closed") {
       return true;
     }
     const AudioContextClass = audioContextConstructor();
@@ -268,6 +281,29 @@ export class AmbientSoundscape {
   }
 
   async start(): Promise<boolean> {
+    if (this.timer !== null) {
+      return true;
+    }
+    if (this.startPromise) {
+      const context = this.context;
+      if (context && context.state !== "running") {
+        void context.resume().catch(() => undefined);
+      }
+      return this.startPromise;
+    }
+    const generation = ++this.startGeneration;
+    const pending = this.startInternal(generation);
+    this.startPromise = pending;
+    try {
+      return await pending;
+    } finally {
+      if (this.startPromise === pending) {
+        this.startPromise = null;
+      }
+    }
+  }
+
+  private async startInternal(generation: number): Promise<boolean> {
     if (!this.prepare()) {
       return false;
     }
@@ -276,11 +312,24 @@ export class AmbientSoundscape {
     if (!context || !master || !(await this.resumeWithin(context))) {
       return false;
     }
-    if (this.timer !== null) {
-      return true;
+    if (
+      generation !== this.startGeneration ||
+      context !== this.context ||
+      master !== this.master
+    ) {
+      return false;
     }
+    this.resumeAfterSuspension = false;
+    this.armScheduler(context, master);
+    return true;
+  }
+
+  private armScheduler(context: AudioContext, master: GainNode): void {
     master.gain.cancelScheduledValues(context.currentTime);
-    master.gain.setValueAtTime(Math.max(0, master.gain.value), context.currentTime);
+    master.gain.setValueAtTime(
+      Math.max(0, master.gain.value),
+      context.currentTime,
+    );
     master.gain.linearRampToValueAtTime(
       AMBIENT_MASTER_GAIN,
       context.currentTime + AMBIENT_START_FADE_SECONDS,
@@ -288,7 +337,6 @@ export class AmbientSoundscape {
     this.nextStepAt = context.currentTime + AMBIENT_START_DELAY_SECONDS;
     this.scheduleAhead();
     this.timer = window.setInterval(() => this.scheduleAhead(), 70);
-    return true;
   }
 
   private resumeWithin(context: AudioContext): Promise<boolean> {
@@ -306,22 +354,23 @@ export class AmbientSoundscape {
         resolve(resumed);
       };
       const timer = window.setTimeout(() => finish(false), 1_500);
-      void context.resume().then(
-        () => finish(context.state === "running"),
-        () => finish(false),
-      );
+      try {
+        void context.resume().then(
+          () => finish(context.state === "running"),
+          () => finish(false),
+        );
+      } catch {
+        finish(false);
+      }
     });
   }
 
   stop(): void {
-    if (this.timer !== null) {
-      window.clearInterval(this.timer);
-      this.timer = null;
-    }
+    this.startGeneration += 1;
+    this.resumeAfterSuspension = false;
+    this.clearScheduler();
     const context = this.context;
     const master = this.master;
-    this.context = null;
-    this.master = null;
     if (!context || !master) {
       return;
     }
@@ -331,19 +380,38 @@ export class AmbientSoundscape {
     master.gain.cancelScheduledValues(now);
     master.gain.setValueAtTime(Math.max(0, master.gain.value), now);
     master.gain.linearRampToValueAtTime(0, now + 0.2);
-    window.setTimeout(() => void context.close(), 240);
+    this.stopActiveSources(now + 0.22, false);
+    if (this.closeTimer !== null) {
+      window.clearTimeout(this.closeTimer);
+    }
+    this.closeTimer = window.setTimeout(() => {
+      this.closeTimer = null;
+      if (this.context === context) {
+        this.context = null;
+        this.master = null;
+      }
+      this.stopActiveSources(context.currentTime, true);
+      if (context.state !== "closed") {
+        void context.close().catch(() => undefined);
+      }
+    }, 240);
   }
 
   /** Close synchronously enough for pagehide/beforeunload to silence the tab. */
   dispose(): void {
-    if (this.timer !== null) {
-      window.clearInterval(this.timer);
-      this.timer = null;
+    this.startGeneration += 1;
+    this.startPromise = null;
+    this.resumeAfterSuspension = false;
+    this.clearScheduler();
+    if (this.closeTimer !== null) {
+      window.clearTimeout(this.closeTimer);
+      this.closeTimer = null;
     }
     const context = this.context;
     const master = this.master;
     this.context = null;
     this.master = null;
+    this.stopActiveSources(context?.currentTime ?? 0, true);
     if (!context) {
       return;
     }
@@ -352,24 +420,64 @@ export class AmbientSoundscape {
       master.gain.setValueAtTime(0, context.currentTime);
     }
     if (context.state !== "closed") {
-      void context.close();
+      void context.close().catch(() => undefined);
     }
   }
 
-  async setSuspended(suspended: boolean): Promise<void> {
-    if (!this.context) {
-      return;
+  async setSuspended(suspended: boolean): Promise<boolean> {
+    const context = this.context;
+    const master = this.master;
+    if (!context || !master || context.state === "closed") {
+      return false;
     }
-    if (suspended) {
-      await this.context.suspend();
-    } else {
-      await this.context.resume();
+    try {
+      if (suspended) {
+        // Only sound that was genuinely running may return automatically.
+        // A browser-blocked/pending autoplay attempt must wait for a fresh
+        // gesture after the page becomes visible again.
+        this.resumeAfterSuspension ||= this.timer !== null;
+        this.startGeneration += 1;
+        this.clearScheduler();
+        master.gain.cancelScheduledValues(context.currentTime);
+        master.gain.setValueAtTime(0, context.currentTime);
+        this.stopActiveSources(context.currentTime, true);
+        if (context.state === "running") {
+          await context.suspend();
+        }
+        return true;
+      }
+      if (!this.resumeAfterSuspension) {
+        return false;
+      }
+      this.resumeAfterSuspension = false;
+      const generation = ++this.startGeneration;
+      if (!(await this.resumeWithin(context))) {
+        return false;
+      }
+      if (
+        generation !== this.startGeneration ||
+        context !== this.context ||
+        master !== this.master
+      ) {
+        return false;
+      }
+      this.armScheduler(context, master);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private clearScheduler(): void {
+    if (this.timer !== null) {
+      window.clearInterval(this.timer);
+      this.timer = null;
     }
   }
 
   private scheduleAhead(): void {
     const context = this.context;
-    if (!context || !this.master || context.state === "closed") {
+    if (!context || !this.master || context.state !== "running") {
       return;
     }
     // Catch-up clamp: after interval throttling (background tab) we
@@ -445,6 +553,7 @@ export class AmbientSoundscape {
       oscillator.connect(partial).connect(filter);
       oscillator.start(at);
       oscillator.stop(stopAt);
+      this.trackSource(oscillator, [partial]);
     }
   }
 
@@ -472,6 +581,7 @@ export class AmbientSoundscape {
       oscillator.connect(partial).connect(gain);
       oscillator.start(at);
       oscillator.stop(stopAt);
+      this.trackSource(oscillator, [partial]);
     }
   }
 
@@ -507,6 +617,7 @@ export class AmbientSoundscape {
       oscillator.connect(partial).connect(filter);
       oscillator.start(at);
       oscillator.stop(stopAt);
+      this.trackSource(oscillator, [partial]);
     }
   }
 
@@ -526,6 +637,58 @@ export class AmbientSoundscape {
       oscillator.connect(gain);
       oscillator.start(at);
       oscillator.stop(stopAt);
+      this.trackSource(oscillator, []);
     }
+  }
+
+  private stopActiveSources(at: number, disconnect: boolean): void {
+    for (const [source, nodes] of this.activeSources) {
+      try {
+        source.stop(at);
+      } catch {
+        // A source that already ended has already left the audible graph.
+      }
+      if (!disconnect) {
+        continue;
+      }
+      source.onended = null;
+      try {
+        source.disconnect();
+      } catch {
+        // Disconnect is best-effort during AudioContext shutdown.
+      }
+      for (const node of nodes) {
+        try {
+          node.disconnect();
+        } catch {
+          // The node may already be detached by context shutdown.
+        }
+      }
+    }
+    if (disconnect) {
+      this.activeSources.clear();
+    }
+  }
+
+  private trackSource(
+    source: AudioScheduledSourceNode,
+    nodes: AudioNode[],
+  ): void {
+    this.activeSources.set(source, nodes);
+    source.onended = () => {
+      try {
+        source.disconnect();
+      } catch {
+        // Disconnect is best-effort during AudioContext shutdown.
+      }
+      for (const node of nodes) {
+        try {
+          node.disconnect();
+        } catch {
+          // The node may already be detached by context shutdown.
+        }
+      }
+      this.activeSources.delete(source);
+    };
   }
 }

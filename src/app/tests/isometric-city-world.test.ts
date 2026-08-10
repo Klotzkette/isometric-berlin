@@ -5,6 +5,7 @@ import {
   Color,
   Group,
   InstancedMesh,
+  LineBasicMaterial,
   LineSegments,
   Matrix4,
   Mesh,
@@ -20,12 +21,12 @@ import {
   VISIBLE_RADIUS_M,
   buildRoofGeometry,
   createIsometricCity,
+  facadeWallsOf,
   fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
   ISO_GROUND_SHADES,
   ISO_INK_COLOR,
   ISO_WINDOW_BAY_PITCH_M,
-  ISO_WINDOW_HEIGHT_M,
   ISO_WINDOW_FLOOR_PITCH_M,
   MELH_CANOPY_SUPPORTS,
   PAUL_LOEBE_WEST_FACE_X,
@@ -36,6 +37,7 @@ import {
   ROOF_HIPPED,
   ROOF_MIN_RECTANGULARITY,
   ROOF_SHED,
+  ROOF_TENT,
   roofRise,
   setIsoNightPresentation,
   windowGrid,
@@ -165,6 +167,21 @@ describe("ligne-claire fenestration", () => {
     expect(warm / strips.count).toBeGreaterThan(0.5);
   });
 
+  test("records facade-axis mode opacity as the distance-fade base", () => {
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    const material = axes.material as LineBasicMaterial;
+
+    setIsoNightPresentation(city, true);
+    expect(material.opacity).toBe(0.12);
+    expect(material.userData.stableInkAuthoredOpacity).toBe(0.12);
+    expect(material.userData.stableInkAppliedOpacity).toBeNull();
+
+    setIsoNightPresentation(city, false);
+    expect(material.opacity).toBe(0.34);
+    expect(material.userData.stableInkAuthoredOpacity).toBe(0.34);
+    expect(material.userData.stableInkAppliedOpacity).toBeNull();
+  });
+
   test("glass-class prisms and the Hauptbahnhof towers render transparent", () => {
     const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
     expect(glass).toBeInstanceOf(Mesh);
@@ -242,36 +259,6 @@ describe("ligne-claire fenestration", () => {
       expect(strips.visible).toBe(false);
       setIsoNightPresentation(litCity, false);
       expect(strips.visible).toBe(false);
-    });
-
-    test("forces every window pane to the cool moonlit-off tone", () => {
-      const panes = litCity.getObjectByName(
-        "LoD2 prism windows",
-      ) as InstancedMesh;
-      const dayColors = (panes.instanceColor!.array as Float32Array).slice();
-      setIsoNightPresentation(litCity, true, true);
-      const litColors = (panes.instanceColor!.array as Float32Array).slice();
-      setIsoNightPresentation(litCity, true, false);
-      const moonlitColors = panes.instanceColor!.array as Float32Array;
-      const expected = new Color(0x1b2636);
-      for (let index = 0; index < moonlitColors.length; index += 3) {
-        expect(moonlitColors[index]).toBeCloseTo(expected.r, 5);
-        expect(moonlitColors[index + 1]).toBeCloseTo(expected.g, 5);
-        expect(moonlitColors[index + 2]).toBeCloseTo(expected.b, 5);
-      }
-      // The lights-on scatter is not uniformly the moonlit-off tone (doors
-      // include some non-trivial variety), so the two states differ.
-      expect(Array.from(litColors)).not.toEqual(Array.from(moonlitColors));
-      // Round-trip: lights back on restores the deterministic night scatter,
-      // and day restores the exact original day palette (lossless).
-      setIsoNightPresentation(litCity, true, true);
-      expect(Array.from(panes.instanceColor!.array as Float32Array)).toEqual(
-        Array.from(litColors),
-      );
-      setIsoNightPresentation(litCity, false);
-      expect(Array.from(panes.instanceColor!.array as Float32Array)).toEqual(
-        Array.from(dayColors),
-      );
     });
 
     test("street lamps (ParkDetails night-only cones + emissive heads) are unaffected here — they relight centrally", () => {
@@ -462,34 +449,15 @@ describe("ligne-claire fenestration", () => {
     expect(isInterimOfficeFootprintSuppressed(nearbyButSeparate!)).toBe(false);
   });
 
-  test("every sizeable building gets one drawn entrance door", () => {
-    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
-    expect(panes).toBeInstanceOf(InstancedMesh);
-    const matrices = panes.instanceMatrix.array as Float32Array;
-    let doors = 0;
-    for (let index = 0; index < panes.count; index += 1) {
-      // The pane layer now carries ONLY doors (2.35 m tall).
-      if (Math.abs(matrices[index * 16 + 5] - 2.35) < 1e-3) {
-        doors += 1;
-      }
-    }
-    expect(doors).toBeGreaterThan(400);
-    expect(doors).toBeLessThan(payload.buildings.length);
-    // The pane layer carries ONLY doors: LoD2 has no real window
-    // positions, so a generated pane grid would be invented geometry
-    // (owner: "keine schwachsinnigen nichtexistierenden Quadratfenster").
-    expect(panes.count).toBe(doors);
+  test("does not invent entrance or window panes without source points", () => {
+    // The LoD2 payload carries shells, heights and roof forms, but no exact
+    // entrance/window coordinates. A former heuristic placed 9,837 doors at
+    // the centre of each longest wall; source-faithful prisms add none.
+    expect(city.getObjectByName("LoD2 prism windows")).toBeUndefined();
+    expect(city.getObjectByName("LoD2 prism window bars")).toBeUndefined();
   });
 
   test("ordinary blocks are articulated by drawn axes, not invented panes", () => {
-    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
-    const matrices = panes.instanceMatrix.array as Float32Array;
-    for (let index = 0; index < panes.count; index += 1) {
-      const height = matrices[index * 16 + 5];
-      // Nothing but entrance doors may exist as pane geometry.
-      expect(Math.abs(height - 2.35)).toBeLessThan(1e-3);
-      expect(Math.abs(height - ISO_WINDOW_HEIGHT_M)).toBeGreaterThan(0.1);
-    }
     // The facade rhythm instead comes from the drawn axis/band grid.
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     expect(axes.geometry.getAttribute("position").count).toBeGreaterThan(
@@ -710,7 +678,9 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
   test("uses the renovated Charite tower rhythm and its LoD2 glass bridge", () => {
     expect(CHARITE_BETTENHOCHHAUS_IDS.size).toBe(16);
     for (const id of CHARITE_BETTENHOCHHAUS_IDS) {
-      const building = payload.buildings.find((candidate) => candidate.id === id);
+      const building = payload.buildings.find(
+        (candidate) => candidate.id === id,
+      );
       expect(building).toBeDefined();
       expect(building!.h_dm / 10).toBeGreaterThan(79);
       const format = windowFormatForBuilding(id, true);
@@ -724,6 +694,77 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(bridge).toBeDefined();
     expect(bridge!.h_dm / 10).toBeGreaterThan(8);
     expect(bridge!.h_dm / 10).toBeLessThan(10);
+  });
+});
+
+describe("source-faithful facade topology", () => {
+  const courtyardBuilding = {
+    class: 0,
+    h_dm: 120,
+    holes: [
+      [
+        [20, 20],
+        [80, 20],
+        [80, 80],
+        [20, 80],
+      ],
+    ],
+    id: "courtyard-fixture",
+    ring: [
+      [0, 0],
+      [100, 0],
+      [100, 100],
+      [0, 100],
+    ],
+    roof: 1000,
+    tone: [220, 214, 198] as [number, number, number],
+    y0_dm: 0,
+  };
+
+  test("includes exact courtyard walls with normals into the void", () => {
+    const walls = facadeWallsOf(courtyardBuilding);
+    const outer = walls.filter((wall) => !wall.isCourtyard);
+    const courtyard = walls.filter((wall) => wall.isCourtyard);
+    expect(outer).toHaveLength(4);
+    expect(courtyard).toHaveLength(4);
+    expect(walls.reduce((sum, wall) => sum + wall.length, 0)).toBeCloseTo(
+      64,
+      6,
+    );
+    for (const wall of outer) {
+      const mx = wall.x1 + (wall.dirX * wall.length) / 2;
+      const mz = wall.z1 + (wall.dirZ * wall.length) / 2;
+      expect(wall.nx * (mx - 5) + wall.nz * (mz - 5)).toBeGreaterThan(0);
+    }
+    for (const wall of courtyard) {
+      const mx = wall.x1 + (wall.dirX * wall.length) / 2;
+      const mz = wall.z1 + (wall.dirZ * wall.length) / 2;
+      expect(wall.nx * (5 - mx) + wall.nz * (5 - mz)).toBeGreaterThan(0);
+    }
+    expect(facadeWallsOf(courtyardBuilding)).toEqual(walls);
+  });
+
+  test("courtyard rings add detail to the existing batched facade layer", () => {
+    const withCourtyard: PrismPayload = {
+      buildings: [courtyardBuilding],
+      classes: ["concrete"],
+      schema_version: 1,
+    };
+    const withoutCourtyard: PrismPayload = {
+      ...withCourtyard,
+      buildings: [{ ...courtyardBuilding, holes: undefined }],
+    };
+    const withAxes = createIsometricCity(withCourtyard, null).getObjectByName(
+      "LoD2 facade axes",
+    ) as LineSegments;
+    const withoutAxes = createIsometricCity(
+      withoutCourtyard,
+      null,
+    ).getObjectByName("LoD2 facade axes") as LineSegments;
+    expect(withAxes).toBeInstanceOf(LineSegments);
+    expect(withAxes.geometry.getAttribute("position").count).toBeGreaterThan(
+      withoutAxes.geometry.getAttribute("position").count,
+    );
   });
 });
 
@@ -756,9 +797,9 @@ describe("procedural pitched roofs from ALKIS codes", () => {
     );
   });
 
-  test("gable, hip and shed codes produce flat-facet triangles; others stay flat", () => {
+  test("official gable, hip, shed and tent codes produce bounded facets", () => {
     const rect = fitRectangle(rotated)!;
-    for (const code of [ROOF_GABLED, ROOF_HIPPED, ROOF_SHED]) {
+    for (const code of [ROOF_GABLED, ROOF_HIPPED, ROOF_SHED, ROOF_TENT]) {
       const triangles = buildRoofGeometry(rect, 10, 13, code);
       expect(triangles).not.toBeNull();
       expect(triangles!.length % 9).toBe(0);
@@ -774,6 +815,18 @@ describe("procedural pitched roofs from ALKIS codes", () => {
       }
       expect(ridgeHit).toBe(true);
     }
+    const tent = buildRoofGeometry(rect, 10, 13, ROOF_TENT)!;
+    const tentApexes = new Set<string>();
+    for (let index = 0; index < tent.length; index += 3) {
+      if (tent[index + 1] === 13) {
+        tentApexes.add(
+          `${tent[index].toFixed(4)},${tent[index + 2].toFixed(4)}`,
+        );
+      }
+    }
+    expect(tentApexes).toEqual(
+      new Set([`${rect.center[0].toFixed(4)},${rect.center[1].toFixed(4)}`]),
+    );
     // Flat (1000), unknown (9999) and dome (5000) codes keep the flat cap.
     expect(buildRoofGeometry(rect, 10, 13, 1000)).toBeNull();
     expect(buildRoofGeometry(rect, 10, 13, 9999)).toBeNull();
@@ -789,8 +842,9 @@ describe("procedural pitched roofs from ALKIS codes", () => {
   });
 
   test("hundreds of surveyed pitched-roof buildings actually get roofs", () => {
-    const codes = new Set([ROOF_GABLED, ROOF_HIPPED, ROOF_SHED]);
+    const codes = new Set([ROOF_GABLED, ROOF_HIPPED, ROOF_SHED, ROOF_TENT]);
     let roofed = 0;
+    let tentRoofed = 0;
     for (const building of payload.buildings) {
       if (!codes.has(building.roof ?? 0)) continue;
       const ring = building.ring.map(
@@ -798,9 +852,13 @@ describe("procedural pitched roofs from ALKIS codes", () => {
       );
       const rect = fitRectangle(ring);
       if (!rect || rect.rectangularity < ROOF_MIN_RECTANGULARITY) continue;
-      if (roofRise(rect, Math.max(2.5, building.h_dm / 10)) > 0) roofed += 1;
+      if (roofRise(rect, Math.max(2.5, building.h_dm / 10)) > 0) {
+        roofed += 1;
+        if (building.roof === ROOF_TENT) tentRoofed += 1;
+      }
     }
-    expect(roofed).toBeGreaterThan(400);
+    expect(roofed).toBeGreaterThan(5_200);
+    expect(tentRoofed).toBeGreaterThan(10);
   });
 });
 
@@ -1075,9 +1133,8 @@ describe("real bridge structures", () => {
     );
 
     const gustavTone = new Color(
-      BRIDGE_PROFILES.find(
-        (entry) => entry.name === "Gustav-Heinemann-Brücke",
-      )!.palette!.structure,
+      BRIDGE_PROFILES.find((entry) => entry.name === "Gustav-Heinemann-Brücke")!
+        .palette!.structure,
     );
     let greenFrameVertices = 0;
     let hugoCentralUnderwaterVertices = 0;
@@ -1187,10 +1244,7 @@ describe("real bridge structures", () => {
         const zi = zDm / 10;
         const xj = previousXDm / 10;
         const zj = previousZDm / 10;
-        if (
-          zi > z !== zj > z &&
-          x < ((xj - xi) * (z - zi)) / (zj - zi) + xi
-        ) {
+        if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) {
           inside = !inside;
         }
       }
@@ -1267,7 +1321,9 @@ describe("smooth OSM water and parkland", () => {
       ),
     ).toBe(false);
     expect(group.getObjectByName("basin water")).toBeInstanceOf(Mesh);
-    const depthWalls = group.getObjectByName("pond display-depth walls") as Mesh;
+    const depthWalls = group.getObjectByName(
+      "pond display-depth walls",
+    ) as Mesh;
     expect(depthWalls).toBeInstanceOf(Mesh);
     expect(depthWalls.userData.depthStatus).toContain("not surveyed");
     expect(group.getObjectByName("static water ripple ribbons")).toBeInstanceOf(
@@ -1422,16 +1478,40 @@ describe("isometric face shading", () => {
     expect(new Set(sides).size).toBe(4);
   });
 
-  test("no invented window panes remain — only real doors", () => {
-    const city = createIsometricCity(payload, null);
-    const panes = city.getObjectByName("LoD2 prism windows") as InstancedMesh;
-    expect(panes).toBeInstanceOf(InstancedMesh);
-    const matrices = panes.instanceMatrix.array as Float32Array;
-    for (let index = 0; index < panes.count; index += 1) {
-      // Every pane is a 2.35 m entrance door; nothing else is invented.
-      expect(Math.abs(matrices[index * 16 + 5] - 2.35)).toBeLessThan(1e-3);
-    }
-    expect(panes.count).toBeGreaterThan(1_500);
-    expect(panes.count).toBeLessThan(payload.buildings.length);
+  test("ordinary flat roofs stay inside their measured vertical envelope", () => {
+    const fixture: PrismPayload = {
+      buildings: [
+        {
+          class: 0,
+          h_dm: 120,
+          id: "metric-flat-roof",
+          ring: [
+            [0, 0],
+            [300, 0],
+            [300, 300],
+            [0, 300],
+          ],
+          roof: 1000,
+          tone: [220, 214, 198],
+          y0_dm: 0,
+        },
+      ],
+      classes: ["concrete"],
+      schema_version: 1,
+    };
+    const first = createIsometricCity(fixture, null);
+    const second = createIsometricCity(fixture, null);
+    const firstBody = first.getObjectByName("LoD2 prism buildings") as Mesh;
+    const secondBody = second.getObjectByName("LoD2 prism buildings") as Mesh;
+    const bounds = new Box3().setFromObject(firstBody);
+
+    // No generic HVAC box or skylight may rise above the 12.0 m LoD2 top.
+    expect(bounds.max.y).toBeCloseTo(12, 5);
+    expect(first.getObjectByName("LoD2 glass prisms")).toBeUndefined();
+    expect(first.getObjectByName("LoD2 prism windows")).toBeUndefined();
+    // All data-derived positions are stable across rebuilds.
+    expect(
+      Array.from(firstBody.geometry.getAttribute("position").array),
+    ).toEqual(Array.from(secondBody.geometry.getAttribute("position").array));
   });
 });

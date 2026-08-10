@@ -44,6 +44,21 @@ def test_subthreshold_capture_noise_is_not_visible_flicker(tmp_path: Path) -> No
   assert measurement.maximum_delta == 3
 
 
+def test_default_rejects_even_one_visibly_changed_pixel(tmp_path: Path) -> None:
+  left = np.zeros((20, 20, 3), dtype=np.uint8)
+  right = left.copy()
+  right[7, 11] = 255
+  paths = [tmp_path / "day-0.png", tmp_path / "day-1.png"]
+  write_frame(paths[0], left)
+  write_frame(paths[1], right)
+
+  report = measure_sequence("day", paths)
+
+  assert report["maximum_visible_percent_allowed"] == 0
+  assert report["maximum_visible_percent_measured"] == 0.25
+  assert report["passed"] is False
+
+
 def test_visible_change_fails_sequence_and_cli(tmp_path: Path) -> None:
   left = np.zeros((10, 10, 3), dtype=np.uint8)
   right = left.copy()

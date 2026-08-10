@@ -11,6 +11,13 @@ export type RenderInteractionSources = {
   wheel: boolean;
 };
 
+export type RenderFrameSources = {
+  cameraMoving: boolean;
+  environmentalMotion: boolean;
+  presentationChanged: boolean;
+  renderInvalidated: boolean;
+};
+
 export type StableViewportSize = {
   height: number;
   width: number;
@@ -40,6 +47,21 @@ export function renderInteractionActive({
   wheel,
 }: RenderInteractionSources): boolean {
   return controls || touch || wheel;
+}
+
+/** A frame is drawn only for a real visual mutation, never for elapsed time. */
+export function renderFrameRequired({
+  cameraMoving,
+  environmentalMotion,
+  presentationChanged,
+  renderInvalidated,
+}: RenderFrameSources): boolean {
+  return (
+    cameraMoving ||
+    environmentalMotion ||
+    presentationChanged ||
+    renderInvalidated
+  );
 }
 
 export const STABLE_DESKTOP_PIXEL_RATIO_CAP = 2;

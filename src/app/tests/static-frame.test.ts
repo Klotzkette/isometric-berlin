@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { LineBasicMaterial } from "three";
+import { BufferGeometry, LineBasicMaterial, LineSegments } from "three";
 
 import {
+  STABLE_INK_RENDER_ORDER_SPAN,
+  assignStableInkRenderOrder,
   civicDetailsVisible,
   STABLE_INK_VIEW_BIAS_M,
   stabilizeInkLineMaterial,
@@ -56,12 +58,38 @@ describe("idle-frame anti-flicker contract", () => {
     expect(material.depthWrite).toBeFalse();
     expect(material.alphaToCoverage).toBeTrue();
     expect(material.userData.temporallyStableInk).toBeTrue();
+    expect(material.userData.stableInkAuthoredOpacity).toBe(1);
     expect(material.customProgramCacheKey()).toContain(
       "stable-ink-view-bias-v1",
     );
 
     stabilizeInkLineMaterial(material);
     expect(material.userData.temporallyStableInk).toBeTrue();
+  });
+
+  test("gives co-layer transparent ink a camera-independent draw order", () => {
+    const lines = [
+      new LineSegments(new BufferGeometry(), new LineBasicMaterial()),
+      new LineSegments(new BufferGeometry(), new LineBasicMaterial()),
+      new LineSegments(new BufferGeometry(), new LineBasicMaterial()),
+    ];
+    for (const line of lines) {
+      line.renderOrder = 2;
+    }
+    assignStableInkRenderOrder(lines);
+    const firstOrders = lines.map((line) => line.renderOrder);
+    expect(new Set(firstOrders).size).toBe(lines.length);
+    for (const order of firstOrders) {
+      expect(order).toBeGreaterThan(2);
+      expect(order).toBeLessThan(2 + STABLE_INK_RENDER_ORDER_SPAN);
+    }
+
+    // Camera motion cannot enter this policy; collecting the same objects
+    // again must retain exact ranks rather than accumulating offsets.
+    lines.reverse();
+    assignStableInkRenderOrder(lines);
+    lines.reverse();
+    expect(lines.map((line) => line.renderOrder)).toEqual(firstOrders);
   });
 
   test("biases co-planar ink towards the camera by a physical fixed distance", () => {

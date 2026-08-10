@@ -8,6 +8,7 @@ import {
   setTunnelPortalPresentation,
   tunnelMouthViews,
 } from "../src/TunnelPortals";
+import { createTunnelFlightPlan } from "../src/tunnelFlight";
 import {
   createTunnel,
   setTunnelPresentation,
@@ -216,6 +217,79 @@ describe("Tiergartentunnel rendering budget", () => {
     // Each portal stands one ramp length in from its own end of the course.
     expect(north.position.z).toBeCloseTo(RAMP_LENGTH_M, 3);
     expect(south.position.z).toBeCloseTo(900 - RAMP_LENGTH_M, 3);
+  });
+
+  test("aligns both directional flight tubes with the rendered portal mouths", () => {
+    const course: [number, number, number][] = [
+      [0, -10, 0],
+      [0, -10, 400],
+      [0, -10, 900],
+    ];
+    const width = 10.5;
+    const offset = width / 2 + 0.85;
+    const portals = createTunnelPortals({
+      clear_height_m: 5,
+      clear_width_each_direction_m: width,
+      points: course,
+    });
+    const northFrames = portals.children.filter(
+      (child) => child.name === "Tiergartentunnel north ramp portal frame",
+    );
+    const southFrames = portals.children.filter(
+      (child) => child.name === "Tiergartentunnel south ramp portal frame",
+    );
+    const southbound = createTunnelFlightPlan(course, "north-to-south", offset);
+    const northbound = createTunnelFlightPlan(course, "south-to-north", offset);
+    const pointAtPortal = (
+      plan: ReturnType<typeof createTunnelFlightPlan>,
+      distanceM: number,
+    ) => {
+      const index = plan.cumulativeM.findIndex(
+        (distance) => Math.abs(distance - distanceM) < 1e-6,
+      );
+      return plan.points[index];
+    };
+
+    const southboundEntry = pointAtPortal(southbound, southbound.entryPortalM);
+    const southboundExit = pointAtPortal(southbound, southbound.exitPortalM);
+    const northboundEntry = pointAtPortal(northbound, northbound.entryPortalM);
+    const northboundExit = pointAtPortal(northbound, northbound.exitPortalM);
+    expect(
+      northFrames.some(
+        (frame) =>
+          Math.hypot(
+            frame.position.x - southboundEntry.x,
+            frame.position.z - southboundEntry.z,
+          ) < 1e-6,
+      ),
+    ).toBe(true);
+    expect(
+      southFrames.some(
+        (frame) =>
+          Math.hypot(
+            frame.position.x - southboundExit.x,
+            frame.position.z - southboundExit.z,
+          ) < 1e-6,
+      ),
+    ).toBe(true);
+    expect(
+      southFrames.some(
+        (frame) =>
+          Math.hypot(
+            frame.position.x - northboundEntry.x,
+            frame.position.z - northboundEntry.z,
+          ) < 1e-6,
+      ),
+    ).toBe(true);
+    expect(
+      northFrames.some(
+        (frame) =>
+          Math.hypot(
+            frame.position.x - northboundExit.x,
+            frame.position.z - northboundExit.z,
+          ) < 1e-6,
+      ),
+    ).toBe(true);
   });
 
   test("contains no route-spanning surface cap or default-visible bore", () => {

@@ -85,15 +85,66 @@ export const INK_LINE_FULL_PX = 0.7;
 export const INK_LINE_HIDE_PX = 0.3;
 
 export function inkLineFadeOpacity(projectedWidthPx: number): number {
-  if (!Number.isFinite(projectedWidthPx) || projectedWidthPx <= INK_LINE_HIDE_PX) {
+  if (
+    !Number.isFinite(projectedWidthPx) ||
+    projectedWidthPx <= INK_LINE_HIDE_PX
+  ) {
     return 0;
   }
   if (projectedWidthPx >= INK_LINE_FULL_PX) {
     return 1;
   }
   const t =
-    (projectedWidthPx - INK_LINE_HIDE_PX) / (INK_LINE_FULL_PX - INK_LINE_HIDE_PX);
+    (projectedWidthPx - INK_LINE_HIDE_PX) /
+    (INK_LINE_FULL_PX - INK_LINE_HIDE_PX);
   return t * t * (3 - 2 * t);
+}
+
+export type InkLineFadeState = {
+  appliedOpacity: number;
+  authoredOpacity: number;
+};
+
+export type InkLineFadeStateInput = {
+  authoredOpacity: number;
+  currentOpacity: number;
+  fadeOpacity: number;
+  lastAppliedOpacity: number | null;
+};
+
+const OPACITY_CHANGE_EPSILON = 1e-6;
+
+function safeOpacity(value: number, fallback: number): number {
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback;
+}
+
+/**
+ * Apply the distance fade without erasing an authored mode opacity.
+ *
+ * Some ink layers deliberately change their base opacity between Day and
+ * Night. The old camera update replaced that value with the global fade on
+ * the next frame, producing a visible brightness jump. A value that differs
+ * from our last applied result is an external mode update and becomes the new
+ * authored base; otherwise repeated frames are exactly idempotent.
+ */
+export function nextInkLineFadeState({
+  authoredOpacity,
+  currentOpacity,
+  fadeOpacity,
+  lastAppliedOpacity,
+}: InkLineFadeStateInput): InkLineFadeState {
+  const safeAuthored = safeOpacity(authoredOpacity, 1);
+  const safeCurrent = safeOpacity(currentOpacity, safeAuthored);
+  const safeFade = safeOpacity(fadeOpacity, 0);
+  const externalOpacityChange =
+    lastAppliedOpacity !== null &&
+    Number.isFinite(lastAppliedOpacity) &&
+    Math.abs(safeCurrent - lastAppliedOpacity) > OPACITY_CHANGE_EPSILON;
+  const nextAuthored = externalOpacityChange ? safeCurrent : safeAuthored;
+  return {
+    appliedOpacity: nextAuthored * safeFade,
+    authoredOpacity: nextAuthored,
+  };
 }
 
 /**

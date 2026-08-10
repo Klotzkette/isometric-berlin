@@ -36,6 +36,83 @@ import {
 } from "../src/DuskChiptune";
 import { AMBIENT_MASTER_GAIN } from "../src/AmbientSoundscape";
 
+async function withFakeTimerWindow(
+  run: (counts: {
+    intervalClears: number;
+    intervalStarts: number;
+  }) => Promise<void>,
+): Promise<void> {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const nativeClearTimeout = globalThis.clearTimeout.bind(globalThis);
+  const nativeSetTimeout = globalThis.setTimeout.bind(globalThis);
+  const counts = { intervalClears: 0, intervalStarts: 0 };
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      clearInterval() {
+        counts.intervalClears += 1;
+      },
+      clearTimeout(id: number) {
+        nativeClearTimeout(id);
+      },
+      setInterval() {
+        counts.intervalStarts += 1;
+        return 73;
+      },
+      setTimeout(callback: () => void, delay: number) {
+        return nativeSetTimeout(callback, delay);
+      },
+    },
+  });
+  try {
+    await run(counts);
+  } finally {
+    if (descriptor) {
+      Object.defineProperty(globalThis, "window", descriptor);
+    } else {
+      Reflect.deleteProperty(globalThis, "window");
+    }
+  }
+}
+
+function fakeChipGraph(initialState: AudioContextState = "running") {
+  let state = initialState;
+  const counts = { closes: 0, resumes: 0, suspends: 0 };
+  const gain = {
+    cancelScheduledValues() {},
+    linearRampToValueAtTime(value: number) {
+      this.value = value;
+    },
+    setValueAtTime(value: number) {
+      this.value = value;
+    },
+    value: CHIP_MASTER_GAIN,
+  };
+  const context = {
+    close: async () => {
+      counts.closes += 1;
+      state = "closed";
+    },
+    currentTime: 27,
+    resume: async () => {
+      counts.resumes += 1;
+      state = "running";
+    },
+    get state() {
+      return state;
+    },
+    suspend: async () => {
+      counts.suspends += 1;
+      state = "suspended";
+    },
+  } as unknown as AudioContext;
+  return {
+    context,
+    counts,
+    master: { gain } as unknown as GainNode,
+  };
+}
+
 const MOTORIK = CHIP_SECTIONS.filter((section) => section.movement === "motorik");
 const SLOW = CHIP_SECTIONS.filter((section) => section.movement === "slow");
 
@@ -412,5 +489,117 @@ describe("Dusk Republic — player", () => {
     expect(player.audible).toBe(true);
     internals.timer = null;
     expect(player.audible).toBe(false);
+  });
+
+  test("hide clears the scheduler and voices, then resumes on a fresh step", async () => {
+    await withFakeTimerWindow(async (timerCounts) => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph();
+      let nodeDisconnects = 0;
+      let scheduleCalls = 0;
+      let sourceDisconnects = 0;
+      let sourceStops = 0;
+      const source = {
+        disconnect() {
+          sourceDisconnects += 1;
+        },
+        onended: null,
+        stop() {
+          sourceStops += 1;
+        },
+      } as unknown as AudioScheduledSourceNode;
+      const node = {
+        disconnect() {
+          nodeDisconnects += 1;
+        },
+      } as unknown as AudioNode;
+      const internals = player as unknown as {
+        activeSources: Map<AudioScheduledSourceNode, AudioNode[]>;
+        context: AudioContext | null;
+        master: GainNode | null;
+        nextStepAt: number;
+        scheduleAhead(): void;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 8;
+      internals.activeSources.set(source, [node]);
+      internals.scheduleAhead = () => {
+        scheduleCalls += 1;
+      };
+
+      expect(await player.setSuspended(true)).toBe(true);
+      expect(player.playing).toBe(false);
+      expect(player.activeVoiceCount).toBe(0);
+      expect(sourceStops).toBe(1);
+      expect(sourceDisconnects).toBe(1);
+      expect(nodeDisconnects).toBe(1);
+      expect(graph.counts.suspends).toBe(1);
+      expect(timerCounts.intervalClears).toBe(1);
+
+      expect(await player.setSuspended(true)).toBe(true);
+      expect(await player.setSuspended(false)).toBe(true);
+      expect(graph.counts.resumes).toBe(1);
+      expect(scheduleCalls).toBe(1);
+      expect(timerCounts.intervalStarts).toBe(1);
+      expect(internals.nextStepAt).toBeCloseTo(
+        graph.context.currentTime + CHIP_SCHEDULE_RESUME_DELAY_SECONDS,
+        6,
+      );
+      expect(await player.setSuspended(false)).toBe(false);
+      expect(timerCounts.intervalStarts).toBe(1);
+      await player.dispose();
+    });
+  });
+
+  test("dispose wins a race with resume and cannot restart the sequencer", async () => {
+    await withFakeTimerWindow(async (timerCounts) => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("suspended");
+      let resolveResume: (() => void) | null = null;
+      graph.context.resume = () =>
+        new Promise<void>((resolve) => {
+          resolveResume = resolve;
+        });
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        resumeAfterSuspension: boolean;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.resumeAfterSuspension = true;
+
+      const pending = player.setSuspended(false);
+      await player.dispose();
+      resolveResume?.();
+
+      expect(await pending).toBe(false);
+      expect(internals.timer).toBeNull();
+      expect(timerCounts.intervalStarts).toBe(0);
+      expect(graph.counts.closes).toBe(1);
+    });
+  });
+
+  test("a hidden autoplay attempt cannot resume without a fresh gesture", async () => {
+    await withFakeTimerWindow(async (timerCounts) => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph();
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        startPromise: Promise<boolean> | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.startPromise = Promise.resolve(false);
+
+      expect(await player.setSuspended(true)).toBe(true);
+      expect(await player.setSuspended(false)).toBe(false);
+      expect(timerCounts.intervalStarts).toBe(0);
+      await player.dispose();
+    });
   });
 });

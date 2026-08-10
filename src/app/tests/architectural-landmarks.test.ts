@@ -54,7 +54,9 @@ describe("metre-scale architectural recognition models", () => {
       ),
     ).toHaveLength(12);
     expect(
-      gate!.children.filter((child) => child.name.includes("Doric capital")),
+      gate!.children.filter((child) =>
+        /^Brandenburg Gate Doric capital \d+:\d+$/.test(child.name),
+      ),
     ).toHaveLength(12);
     expect(
       gate!.children.filter(
@@ -95,6 +97,11 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(triglyphs).toBeInstanceOf(InstancedMesh);
     expect((triglyphs as InstancedMesh).count).toBe(50);
+    const abaci = gate!.getObjectByName(
+      "Brandenburg Gate instanced Doric capital abaci",
+    );
+    expect(abaci).toBeInstanceOf(InstancedMesh);
+    expect((abaci as InstancedMesh).count).toBe(12);
   });
 
   test("makes the Hauptbahnhof cross and office bridges legible", () => {
@@ -116,7 +123,9 @@ describe("metre-scale architectural recognition models", () => {
     expect(bounds.max.y).toBeGreaterThanOrEqual(46);
     expect(bounds.max.y).toBeLessThan(47);
     expect(
-      station!.children.some((child) => child.name.includes("east-west glass roof")),
+      station!.children.some((child) =>
+        child.name.includes("east-west glass roof"),
+      ),
     ).toBe(true);
     expect(
       station!.children.filter(
@@ -154,8 +163,12 @@ describe("metre-scale architectural recognition models", () => {
     // than the nominal 431 m span (curved sub-segments, plus a small
     // per-segment overlap margin) -- allow a generous tolerance instead
     // of the old dead-straight exact figure.
-    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeGreaterThanOrEqual(431);
-    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeLessThan(431 + 15);
+    expect(
+      trackDeckBounds.max.x - trackDeckBounds.min.x,
+    ).toBeGreaterThanOrEqual(431);
+    expect(trackDeckBounds.max.x - trackDeckBounds.min.x).toBeLessThan(
+      431 + 15,
+    );
     // Step 38: the shed used to be two separate barrel-roof bodies (a
     // 321 m main shed plus a 110 m "west approach wing" butted against
     // its gable), which read as two disconnected flat segments meeting at
@@ -210,7 +223,9 @@ describe("metre-scale architectural recognition models", () => {
     // towers are drawn as solid boxes with their own edges, not barrel
     // roofs, so they do not add to this count.
     expect(
-      station!.children.filter((child) => child.name.includes("glass panel seams")),
+      station!.children.filter((child) =>
+        child.name.includes("glass panel seams"),
+      ),
     ).toHaveLength(2);
     const roofRibs = station!.children.filter((child) =>
       child.name.includes("instanced steel arch ribs"),
@@ -238,6 +253,17 @@ describe("metre-scale architectural recognition models", () => {
         (child) => child.name === "Hauptbahnhof office-bridge roof cap",
       ),
     ).toHaveLength(2);
+    const officeEndGrids = station!.children.filter(
+      (child) =>
+        child.name === "Hauptbahnhof batched office-bridge end-facade grid",
+    );
+    expect(officeEndGrids).toHaveLength(2);
+    for (const grid of officeEndGrids) {
+      expect(grid).toBeInstanceOf(LineSegments);
+      expect(
+        (grid as LineSegments).geometry.getAttribute("position").count,
+      ).toBe(60);
+    }
     const sleepers = station!.getObjectByName(
       "Hauptbahnhof instanced upper-level track sleepers",
     );
@@ -247,7 +273,9 @@ describe("metre-scale architectural recognition models", () => {
     // group -- the ICE moved to a real rail centreline in world space, so
     // only one train's wheel-instance mesh remains a child here.
     expect(
-      station!.children.filter((child) => child.name.includes("instanced wheels")),
+      station!.children.filter((child) =>
+        child.name.includes("instanced wheels"),
+      ),
     ).toHaveLength(1);
   });
 
@@ -284,9 +312,7 @@ describe("metre-scale architectural recognition models", () => {
       ),
     ).toHaveLength(2);
     expect(focusCameraForSignature(signature)?.target_world).toEqual([
-      66.2,
-      0,
-      -0.3,
+      66.2, 0, -0.3,
     ]);
     expect(
       chancellery!.children.filter((child) =>
@@ -306,12 +332,10 @@ describe("metre-scale architectural recognition models", () => {
     const chancelleryConcrete = chancellery!.getObjectByName(
       "Chancellery central concrete pylon",
     ) as Mesh;
-    expect(chancelleryConcrete.material.userData.nightEmissive).toBe(
-      0x55687b,
+    expect(chancelleryConcrete.material.userData.nightEmissive).toBe(0x55687b);
+    expect(chancelleryConcrete.material.userData.nightEmissiveIntensity).toBe(
+      0.32,
     );
-    expect(
-      chancelleryConcrete.material.userData.nightEmissiveIntensity,
-    ).toBe(0.32);
     expect(
       chancellery!.getObjectByName(
         "Chancellery instanced office-band window panes",
@@ -327,6 +351,21 @@ describe("metre-scale architectural recognition models", () => {
     expect(darkOfficePanes.material.userData.nightEmissiveIntensity).toBe(0.12);
     expect(litOfficePanes.material.userData.nightEmissiveIntensity).toBe(0.82);
     expect(litOfficePanes.count).toBeLessThan(darkOfficePanes.count);
+    const leadershipColumns = chancellery!.getObjectByName(
+      "Chancellery instanced semicircular-hall columns",
+    );
+    expect(leadershipColumns).toBeInstanceOf(InstancedMesh);
+    expect((leadershipColumns as InstancedMesh).count).toBe(8);
+    const leadershipCapitals = chancellery!.getObjectByName(
+      "Chancellery instanced semicircular-hall capitals",
+    );
+    expect(leadershipCapitals).toBeInstanceOf(InstancedMesh);
+    expect((leadershipCapitals as InstancedMesh).count).toBe(8);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery batched semicircular-hall balcony rails",
+      ),
+    ).toBeInstanceOf(LineSegments);
     const police = chancellery!.getObjectByName(
       "Chancellery two Federal Police uniformed torsos",
     );
@@ -411,7 +450,9 @@ describe("metre-scale architectural recognition models", () => {
       );
     }
     expect(
-      reichstag!.children.filter((child) => child.name.includes("facade windows")),
+      reichstag!.children.filter((child) =>
+        child.name.includes("facade windows"),
+      ),
     ).toHaveLength(3);
     const darkArches = reichstag!.getObjectByName(
       "Reichstag dark tall arched facade windows",
@@ -428,8 +469,23 @@ describe("metre-scale architectural recognition models", () => {
       child.name.includes("three-bay tower arched windows"),
     ) as InstancedMesh[];
     expect(towerWindows).toHaveLength(1);
-    expect(towerWindows.reduce((sum, windows) => sum + windows.count, 0)).toBe(24);
+    expect(towerWindows.reduce((sum, windows) => sum + windows.count, 0)).toBe(
+      24,
+    );
     expect(towerWindows[0].material.userData.nightEmissive).toBeUndefined();
+    const upperTowerWindows = reichstag!.getObjectByName(
+      "Reichstag dark upper corner-tower windows",
+    );
+    expect(upperTowerWindows).toBeInstanceOf(InstancedMesh);
+    expect((upperTowerWindows as InstancedMesh).count).toBe(24);
+    expect(
+      (upperTowerWindows as InstancedMesh).material.userData.nightEmissive,
+    ).toBeUndefined();
+    const upperTowerFrames = reichstag!.getObjectByName(
+      "Reichstag instanced upper corner-tower window frames",
+    );
+    expect(upperTowerFrames).toBeInstanceOf(InstancedMesh);
+    expect((upperTowerFrames as InstancedMesh).count).toBe(24);
     const tallMullions = reichstag!.getObjectByName(
       "Reichstag instanced tall-window vertical mullions",
     );
@@ -489,10 +545,9 @@ describe("metre-scale architectural recognition models", () => {
     const bandWidth = bounds.max.x - bounds.min.x;
     expect(bandWidth).toBeCloseTo(REICHSTAG_INSCRIPTION_FIELD_WIDTH_M, 5);
     expect(bandWidth).toBeGreaterThan(dedicationLayout().totalWidthM);
-    const band =
-      reichstag.getObjectByName(
-        "Reichstag DEM DEUTSCHEN VOLKE inscription band",
-      );
+    const band = reichstag.getObjectByName(
+      "Reichstag DEM DEUTSCHEN VOLKE inscription band",
+    );
     expect(band).toBeInstanceOf(Mesh);
     // A real depth separation prevents coplanar z-fighting at rest.
     expect(band!.position.x - dedication.position.x).toBeGreaterThan(0.1);

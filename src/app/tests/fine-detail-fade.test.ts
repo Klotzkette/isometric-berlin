@@ -7,6 +7,7 @@ import {
   INK_LINE_HIDE_PX,
   INK_LINE_REFERENCE_FEATURE_M,
   inkLineFadeOpacity,
+  nextInkLineFadeState,
   nextFineDetailVisible,
   projectedPixelSize,
 } from "../src/fineDetailFade";
@@ -119,6 +120,46 @@ describe("inkLineFadeOpacity", () => {
   });
 });
 
+describe("nextInkLineFadeState", () => {
+  test("multiplies distance fade by the authored layer opacity", () => {
+    expect(
+      nextInkLineFadeState({
+        authoredOpacity: 0.34,
+        currentOpacity: 0.34,
+        fadeOpacity: 0.5,
+        lastAppliedOpacity: null,
+      }),
+    ).toEqual({ authoredOpacity: 0.34, appliedOpacity: 0.17 });
+  });
+
+  test("adopts a Day/Night opacity change instead of overwriting it", () => {
+    const changed = nextInkLineFadeState({
+      authoredOpacity: 0.34,
+      currentOpacity: 0.12,
+      fadeOpacity: 0.5,
+      lastAppliedOpacity: 0.17,
+    });
+    expect(changed.authoredOpacity).toBe(0.12);
+    expect(changed.appliedOpacity).toBeCloseTo(0.06, 8);
+  });
+
+  test("is exactly idempotent across identical settled frames", () => {
+    const first = nextInkLineFadeState({
+      authoredOpacity: 0.34,
+      currentOpacity: 0.17,
+      fadeOpacity: 0.5,
+      lastAppliedOpacity: 0.17,
+    });
+    const second = nextInkLineFadeState({
+      authoredOpacity: first.authoredOpacity,
+      currentOpacity: first.appliedOpacity,
+      fadeOpacity: 0.5,
+      lastAppliedOpacity: first.appliedOpacity,
+    });
+    expect(second).toEqual(first);
+  });
+});
+
 describe("nextFineDetailVisible", () => {
   test("hides once distance passes the hide threshold", () => {
     expect(
@@ -160,13 +201,13 @@ describe("nextFineDetailVisible", () => {
     const midBand =
       (FINE_DETAIL_SHOW_DISTANCE_M + FINE_DETAIL_HIDE_DISTANCE_M) / 2;
     // Once visible, staying in the band (below HIDE) keeps it visible...
-    expect(
-      nextFineDetailVisible({ distanceM: midBand, visible: true }),
-    ).toBe(true);
+    expect(nextFineDetailVisible({ distanceM: midBand, visible: true })).toBe(
+      true,
+    );
     // ...and once hidden, staying in the band (above SHOW) keeps it hidden.
-    expect(
-      nextFineDetailVisible({ distanceM: midBand, visible: false }),
-    ).toBe(false);
+    expect(nextFineDetailVisible({ distanceM: midBand, visible: false })).toBe(
+      false,
+    );
   });
 
   test("a full dolly in-and-out across the band costs exactly one drop and one restore", () => {

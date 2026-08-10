@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, Vector3 } from "three";
+import { Box3, InstancedMesh, Vector3 } from "three";
 import { createCivicLandmarks } from "../src/CivicLandmarks";
 import { windFlagMatrixCount } from "../src/WindFlags";
 
@@ -21,7 +21,9 @@ const landmarks = [
 describe("metric civic landmark details", () => {
   test("anchors the Swiss Embassy to its LoD2 envelope and adds its flag", () => {
     const root = createCivicLandmarks(landmarks);
-    const embassy = root.getObjectByName("Metric Swiss Embassy recognition model");
+    const embassy = root.getObjectByName(
+      "Metric Swiss Embassy recognition model",
+    );
     expect(embassy).toBeDefined();
     expect(embassy!.userData.footprintWidthM).toBe(50.927);
     expect(embassy!.userData.footprintDepthM).toBe(22.804);
@@ -30,21 +32,44 @@ describe("metric civic landmark details", () => {
     expect(size.x).toBeGreaterThan(49);
     expect(size.x).toBeLessThan(56);
     expect(
-      embassy!.getObjectByName("Swiss Embassy Diener and Diener modern extension"),
+      embassy!.getObjectByName(
+        "Swiss Embassy Diener and Diener modern extension",
+      ),
     ).toBeDefined();
+    expect(
+      embassy!.getObjectByName("Swiss Embassy historic hipped roof"),
+    ).toBeUndefined();
+    expect(
+      embassy!.getObjectByName("Swiss Embassy historic flat roof slab"),
+    ).toBeDefined();
+    const balusters = embassy!.getObjectByName(
+      "Swiss Embassy instanced historic roof balusters",
+    );
+    expect(balusters).toBeInstanceOf(InstancedMesh);
+    expect((balusters as InstancedMesh).count).toBe(60);
+    const pilasters = embassy!.getObjectByName(
+      "Swiss Embassy instanced historic facade pilasters",
+    );
+    expect(pilasters).toBeInstanceOf(InstancedMesh);
+    expect((pilasters as InstancedMesh).count).toBe(18);
+    const extensionSlots = embassy!.getObjectByName(
+      "Swiss Embassy instanced modern end-wall slot windows",
+    );
+    expect(extensionSlots).toBeInstanceOf(InstancedMesh);
+    expect((extensionSlots as InstancedMesh).count).toBe(12);
     const flagpole = embassy!.getObjectByName("Swiss Embassy flagpole");
     expect(flagpole).toBeDefined();
     const flagpoleBounds = new Box3().setFromObject(flagpole!);
     const embassyGroundY = embassy!.position.y;
-    expect(flagpoleBounds.min.y - embassyGroundY).toBeGreaterThan(22);
-    expect(flagpoleBounds.max.y - embassyGroundY).toBeGreaterThan(30);
+    expect(flagpoleBounds.min.y - embassyGroundY).toBeGreaterThan(20);
+    expect(flagpoleBounds.max.y - embassyGroundY).toBeGreaterThan(28);
     const flag = embassy!.getObjectByName(
       "Swiss Embassy animated red flag field",
     );
     expect(flag).toBeDefined();
-    expect(new Box3().setFromObject(flag!).min.y - embassyGroundY).toBeGreaterThan(
-      26,
-    );
+    expect(
+      new Box3().setFromObject(flag!).min.y - embassyGroundY,
+    ).toBeGreaterThan(24);
     expect(windFlagMatrixCount(embassy!)).toBe(3);
   });
 
@@ -61,5 +86,4 @@ describe("metric civic landmark details", () => {
     ).toHaveLength(3);
     expect(windFlagMatrixCount(flag!)).toBe(3);
   });
-
 });

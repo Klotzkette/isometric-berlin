@@ -84,7 +84,8 @@ function addRamps(group: Group, signature: ArchitecturalSignature): void {
       const t = index / 96;
       const verticalT = 0.08 + t * 0.7;
       const radius = domeRadius(verticalT, signature.diameter_m) - 1.7;
-      const angle = direction * t * Math.PI * 4.4 + (direction < 0 ? Math.PI : 0);
+      const angle =
+        direction * t * Math.PI * 4.4 + (direction < 0 ? Math.PI : 0);
       return new Vector3(
         Math.cos(angle) * radius,
         verticalT * signature.height_m,
@@ -180,6 +181,35 @@ function addDiagonalBracing(
   braces.name = "dome alternating diagonal glazing braces";
   braces.renderOrder = 7;
   group.add(braces);
+}
+
+function addBaseRadialBeams(
+  group: Group,
+  signature: ArchitecturalSignature,
+): void {
+  const positions: number[] = [];
+  const outerRadius = signature.diameter_m / 2 + 0.12;
+  const innerRadius = 8.15;
+  for (let sector = 0; sector < signature.vertical_ribs; sector += 1) {
+    const angle = (sector / signature.vertical_ribs) * Math.PI * 2;
+    positions.push(
+      Math.cos(angle) * innerRadius,
+      0.34,
+      Math.sin(angle) * innerRadius,
+      Math.cos(angle) * outerRadius,
+      0.34,
+      Math.sin(angle) * outerRadius,
+    );
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const beams = new LineSegments(
+    geometry,
+    new LineBasicMaterial({ color: 0x8fa4ab }),
+  );
+  beams.name = "dome batched base radial beams";
+  beams.renderOrder = 7;
+  group.add(beams);
 }
 
 function addMirrorConeFacets(group: Group): void {
@@ -349,25 +379,34 @@ export function createOfficialReichstagDome(
   });
   steel.userData.nightEmissive = 0xb5d5ea;
   steel.userData.nightEmissiveIntensity = 2.2;
+  const ribGeometry = new TubeGeometry(
+    new CatmullRomCurve3(domeCurvePoints(signature, 0)),
+    64,
+    0.075,
+    6,
+    false,
+  );
+  const ribs = new InstancedMesh(ribGeometry, steel, signature.vertical_ribs);
+  ribs.name = "main steel ribs instanced";
+  const ribTransform = new Object3D();
   for (let index = 0; index < signature.vertical_ribs; index += 1) {
-    const angle = (index / signature.vertical_ribs) * Math.PI * 2;
-    const rib = new Mesh(
-      new TubeGeometry(
-        new CatmullRomCurve3(domeCurvePoints(signature, angle)),
-        64,
-        0.075,
-        6,
-        false,
-      ),
-      steel,
+    ribTransform.rotation.set(
+      0,
+      -(index / signature.vertical_ribs) * Math.PI * 2,
+      0,
     );
-    rib.name = `main steel rib ${index + 1}`;
-    rib.castShadow = true;
-    rib.renderOrder = 7;
-    group.add(rib);
+    ribTransform.updateMatrix();
+    ribs.setMatrixAt(index, ribTransform.matrix);
   }
+  ribs.instanceMatrix.needsUpdate = true;
+  ribs.computeBoundingBox();
+  ribs.computeBoundingSphere();
+  ribs.castShadow = true;
+  ribs.renderOrder = 7;
+  group.add(ribs);
 
   addDiagonalBracing(group, signature);
+  addBaseRadialBeams(group, signature);
 
   for (let index = 1; index <= signature.horizontal_rings; index += 1) {
     const t = index / (signature.horizontal_rings + 1);

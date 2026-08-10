@@ -13,6 +13,8 @@ from typing import Sequence
 import numpy as np
 from PIL import Image
 
+DEFAULT_MAXIMUM_VISIBLE_PERCENT = 0.0
+
 
 @dataclass(frozen=True)
 class FramePairMeasurement:
@@ -73,7 +75,7 @@ def measure_sequence(
   mode: str,
   paths: Sequence[Path],
   visible_delta: int = 12,
-  maximum_visible_percent: float = 0.1,
+  maximum_visible_percent: float = DEFAULT_MAXIMUM_VISIBLE_PERCENT,
 ) -> dict[str, object]:
   """Measure consecutive frames and return a release-friendly mode report."""
   if len(paths) < 2:
@@ -124,7 +126,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     help="Named still-frame sequence; repeat for Day, Night and Minecraft.",
   )
   parser.add_argument("--visible-delta", type=int, default=12)
-  parser.add_argument("--maximum-visible-percent", type=float, default=0.1)
+  parser.add_argument(
+    "--maximum-visible-percent",
+    type=float,
+    default=DEFAULT_MAXIMUM_VISIBLE_PERCENT,
+    help=(
+      "Maximum share of visibly changed pixels. The zero default enforces "
+      "no visible change in still Day/Night/Minecraft captures; pass an "
+      "explicit tolerance only for intentional weather animation."
+    ),
+  )
   parser.add_argument("--output", type=Path)
   args = parser.parse_args(argv)
 

@@ -6,6 +6,7 @@ import {
   STABLE_DESKTOP_PIXEL_RATIO_CAP,
   STABLE_TOUCH_PIXEL_BUDGET,
   STABLE_TOUCH_PIXEL_RATIO_CAP,
+  renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
   stableViewportSize,
@@ -29,6 +30,31 @@ describe("stable 3D render quality", () => {
     expect(
       renderInteractionActive({ controls: false, touch: false, wheel: false }),
     ).toBe(false);
+  });
+
+  test("does not render an unchanged scene from elapsed time alone", () => {
+    expect(
+      renderFrameRequired({
+        cameraMoving: false,
+        environmentalMotion: false,
+        presentationChanged: false,
+        renderInvalidated: false,
+      }),
+    ).toBe(false);
+  });
+
+  test("renders each genuine visual mutation source", () => {
+    const idle = {
+      cameraMoving: false,
+      environmentalMotion: false,
+      presentationChanged: false,
+      renderInvalidated: false,
+    };
+    for (const source of Object.keys(idle) as Array<keyof typeof idle>) {
+      expect(renderFrameRequired({ ...idle, [source]: true }), source).toBe(
+        true,
+      );
+    }
   });
 
   test("keeps one desktop backing-store resolution for the whole gesture", () => {

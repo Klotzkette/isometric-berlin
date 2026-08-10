@@ -40,9 +40,9 @@ export type TunnelPortalPayload = {
 export const RAMP_LENGTH_M = 260;
 
 /** Street level the ramps come up to at the Spreebogen and the Tiergarten. */
-const SURFACE_Y = 2.4;
+export const TUNNEL_SURFACE_Y = 2.4;
 /** Top of the retaining walls, i.e. the kerb the barriers stand on. */
-const WALL_TOP_Y = SURFACE_Y + 0.4;
+const WALL_TOP_Y = TUNNEL_SURFACE_Y + 0.4;
 const WALL_THICKNESS_M = 0.65;
 const BARRIER_HEIGHT_M = 1.45;
 const PORTAL_INTERIOR_FLAG = "tiergartentunnelPortalInterior";
@@ -158,7 +158,9 @@ function rampCentreline(
       along += Math.hypot(point.x - previous.x, point.z - previous.z);
     }
     const graded = point.clone();
-    graded.y = SURFACE_Y + (tunnelY - SURFACE_Y) * Math.min(1, along / total);
+    graded.y =
+      TUNNEL_SURFACE_Y +
+      (tunnelY - TUNNEL_SURFACE_Y) * Math.min(1, along / total);
     return graded;
   });
 }

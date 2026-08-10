@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   Box3,
   InstancedMesh,
+  LineSegments,
   Mesh,
   MeshPhysicalMaterial,
   PointLight,
@@ -33,10 +34,10 @@ describe("official-dimension Reichstag dome", () => {
 
   test("builds every published rib and horizontal ring", () => {
     const dome = createOfficialReichstagDome(signature);
-    expect(dome.children.length).toBeGreaterThan(50);
-    expect(
-      dome.children.filter((child) => child.name.startsWith("main steel rib")),
-    ).toHaveLength(24);
+    expect(dome.children.length).toBeGreaterThan(30);
+    const ribs = dome.getObjectByName("main steel ribs instanced");
+    expect(ribs).toBeInstanceOf(InstancedMesh);
+    expect((ribs as InstancedMesh).count).toBe(24);
     expect(
       dome.children.filter((child) =>
         child.name.startsWith("horizontal steel ring"),
@@ -68,6 +69,11 @@ describe("official-dimension Reichstag dome", () => {
     expect(
       dome.getObjectByName("dome alternating diagonal glazing braces"),
     ).toBeDefined();
+    const baseBeams = dome.getObjectByName("dome batched base radial beams");
+    expect(baseBeams).toBeInstanceOf(LineSegments);
+    expect(
+      (baseBeams as LineSegments).geometry.getAttribute("position").count,
+    ).toBe(48);
     const nightGlow = dome.getObjectByName(
       "Reichstag dome 13-row interior night glow",
     );
@@ -86,8 +92,7 @@ describe("official-dimension Reichstag dome", () => {
     expect(mirrorPanels).toBeInstanceOf(InstancedMesh);
     expect((mirrorPanels as InstancedMesh).count).toBe(360);
     expect(
-      (mirrorPanels as InstancedMesh).material.userData
-        .nightEmissiveIntensity,
+      (mirrorPanels as InstancedMesh).material.userData.nightEmissiveIntensity,
     ).toBeGreaterThan(2);
     expect(
       dome.children.filter((child) => child.name.endsWith("visitor ramp deck")),

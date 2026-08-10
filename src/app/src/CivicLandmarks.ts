@@ -3,7 +3,6 @@ import {
   BufferGeometry,
   CylinderGeometry,
   DoubleSide,
-  Float32BufferAttribute,
   Group,
   InstancedMesh,
   Mesh,
@@ -101,45 +100,17 @@ function addInstances(
   return instances;
 }
 
-function hippedRoofGeometry(
-  width: number,
-  depth: number,
-  height: number,
-  inset: number,
-): BufferGeometry {
-  const bottomX = width / 2;
-  const bottomZ = depth / 2;
-  const topX = Math.max(0.5, bottomX - inset);
-  const topZ = Math.max(0.5, bottomZ - inset);
-  const vertices = [
-    -bottomX, 0, -bottomZ,
-    bottomX, 0, -bottomZ,
-    bottomX, 0, bottomZ,
-    -bottomX, 0, bottomZ,
-    -topX, height, -topZ,
-    topX, height, -topZ,
-    topX, height, topZ,
-    -topX, height, topZ,
-  ];
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-  geometry.setIndex([
-    0, 1, 5, 0, 5, 4,
-    1, 2, 6, 1, 6, 5,
-    2, 3, 7, 2, 7, 6,
-    3, 0, 4, 3, 4, 7,
-    4, 5, 6, 4, 6, 7,
-  ]);
-  geometry.computeVertexNormals();
-  return geometry;
-}
+// Preserve the former LoD2-derived 21.05 m total envelope while correcting
+// only its roof form from a hip to the documented flat parapet.
+const SWISS_HISTORIC_ROOF_Y_M = 21.05;
 
 function addSwissFlag(group: Group): void {
   // The flag belongs on the historic palace roof, not beside the building at
-  // terrain level. The hipped roof reaches 22.05 m over the local datum.
+  // terrain level. Its mast rises from the flat parapet roof visible in the
+  // embassy's own building documentation and the committed reference views.
   const poleX = -8.05;
   const poleZ = 0;
-  const roofY = 22.15;
+  const roofY = SWISS_HISTORIC_ROOF_Y_M;
   const poleHeight = 8.5;
   const pole = new Mesh(
     new CylinderGeometry(0.1, 0.14, poleHeight, 12),
@@ -171,10 +142,20 @@ function addSwissFlag(group: Group): void {
   makeFlagPart("Swiss Embassy animated red flag field", field, 0xd9272e, 0);
   const horizontal = new PlaneGeometry(2.15, 0.68, 8, 2);
   horizontal.translate(width / 2, 0, 0.02);
-  makeFlagPart("Swiss Embassy animated white flag cross horizontal", horizontal, 0xffffff, -0.03);
+  makeFlagPart(
+    "Swiss Embassy animated white flag cross horizontal",
+    horizontal,
+    0xffffff,
+    -0.03,
+  );
   const vertical = new PlaneGeometry(0.68, 2.15, 3, 6);
   vertical.translate(width / 2, 0, 0.025);
-  makeFlagPart("Swiss Embassy animated white flag cross vertical", vertical, 0xffffff, -0.035);
+  makeFlagPart(
+    "Swiss Embassy animated white flag cross vertical",
+    vertical,
+    0xffffff,
+    -0.035,
+  );
 }
 
 function createSwissEmbassy(): Group {
@@ -185,7 +166,8 @@ function createSwissEmbassy(): Group {
   group.userData = {
     footprintDepthM: 22.804,
     footprintWidthM: 50.927,
-    geometryStatus: "Berlin LoD2 footprint and heights with an official-history recognition overlay",
+    geometryStatus:
+      "Berlin LoD2 footprint and heights with an official-history recognition overlay",
     sourceUrls: [
       "https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin",
       "https://www.schweiz-deutschland.eda.admin.ch/de/das-botschaftsgebaeude",
@@ -193,7 +175,7 @@ function createSwissEmbassy(): Group {
   };
   const historicStone = material(0xd9cfb7, { roughness: 0.83 });
   const modernStone = material(0xe3e7e4, { roughness: 0.74 });
-  const roof = material(0x657273, { metalness: 0.3, roughness: 0.52 });
+  const roof = material(0x8f9794, { metalness: 0.16, roughness: 0.64 });
   const glass = nightEmitter(
     material(0x70898d, { metalness: 0.1, opacity: 0.62, roughness: 0.34 }),
     0xffd58f,
@@ -207,11 +189,61 @@ function createSwissEmbassy(): Group {
     [-8.05, 8.975, 0],
     historicStone,
   );
-  const roofMesh = new Mesh(hippedRoofGeometry(35.4, 23, 3.1, 4.1), roof);
-  roofMesh.name = "Swiss Embassy historic hipped roof";
-  roofMesh.position.set(-8.05, 17.95, 0);
-  roofMesh.castShadow = true;
-  group.add(roofMesh);
+  // The surviving 1871 palace has a low flat roof behind a balustraded
+  // parapet. The former hipped cap contradicted all three committed facade
+  // references and made the embassy read as a detached villa.
+  addBox(
+    group,
+    "Swiss Embassy historic flat roof slab",
+    [35.4, 0.42, 23],
+    [-8.05, 18.16, 0],
+    roof,
+  );
+  for (const y of [17.74, 18.42]) {
+    addBox(
+      group,
+      "Swiss Embassy historic projecting cornice",
+      [35.8, 0.34, 23.4],
+      [-8.05, y, 0],
+      historicStone,
+    );
+  }
+  const parapetPosts: Transform[] = [];
+  const longPostCount = 22;
+  for (const zSide of [-1, 1]) {
+    for (let index = 0; index <= longPostCount; index += 1) {
+      parapetPosts.push({
+        position: [
+          -25.25 + (index / longPostCount) * 34.4,
+          20.08,
+          zSide * 11.18,
+        ],
+      });
+    }
+  }
+  for (const xSide of [-1, 1]) {
+    for (let index = 1; index < 8; index += 1) {
+      parapetPosts.push({
+        position: [-8.05 + xSide * 17.2, 20.08, -10.6 + (index / 8) * 21.2],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced historic roof balusters",
+    new BoxGeometry(0.3, 1.3, 0.3),
+    historicStone,
+    parapetPosts,
+  );
+  for (const zSide of [-1, 1]) {
+    addBox(
+      group,
+      "Swiss Embassy historic parapet rail",
+      [35.2, 0.3, 0.42],
+      [-8.05, 20.8, zSide * 11.18],
+      historicStone,
+    );
+  }
   addBox(
     group,
     "Swiss Embassy Diener and Diener modern extension",
@@ -248,6 +280,37 @@ function createSwissEmbassy(): Group {
     historicWindows,
   );
 
+  const historicPilasters: Transform[] = [];
+  for (const zSide of [-1, 1]) {
+    for (let index = 0; index <= 8; index += 1) {
+      historicPilasters.push({
+        position: [-22.3 + index * 4.05, 10.7, zSide * 11.36],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced historic facade pilasters",
+    new BoxGeometry(0.34, 12.8, 0.42),
+    historicStone,
+    historicPilasters,
+  );
+  const historicSills = historicWindows.map((window) => ({
+    position: [
+      window.position[0],
+      window.position[1] - 1.52,
+      window.position[2],
+    ] as [number, number, number],
+    rotation: window.rotation,
+  }));
+  addInstances(
+    group,
+    "Swiss Embassy instanced historic window sills",
+    new BoxGeometry(1.82, 0.18, 0.34),
+    historicStone,
+    historicSills,
+  );
+
   const modernPanes: Transform[] = [];
   for (const zSide of [-1, 1]) {
     for (let floor = 0; floor < 4; floor += 1) {
@@ -278,6 +341,34 @@ function createSwissEmbassy(): Group {
     new BoxGeometry(0.2, 18.1, 0.46),
     modernStone,
     fins,
+  );
+  // The extension's east end is an opaque concrete screen punctured by
+  // staggered, narrow slots, rather than another regular curtain wall.
+  const modernEndSlots: Transform[] = [];
+  for (let floor = 0; floor < 4; floor += 1) {
+    for (let bay = 0; bay < 3; bay += 1) {
+      modernEndSlots.push({
+        position: [
+          25.48,
+          3.1 + floor * 4.05,
+          -5.2 + bay * 5.2 + (floor % 2 === 0 ? -0.65 : 0.65),
+        ],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced modern end-wall slot windows",
+    new BoxGeometry(0.16, 2.55, 1.05),
+    glass,
+    modernEndSlots,
+  );
+  addBox(
+    group,
+    "Swiss Embassy modern recessed entrance portal",
+    [0.18, 5.2, 3.3],
+    [25.5, 2.6, 5.45],
+    material(0x3d494a, { roughness: 0.82 }),
   );
   addSwissFlag(group);
   return group;
@@ -325,7 +416,10 @@ function createUnityFlag(anchor: CivicLandmark): Group {
   );
   for (let index = 0; index < 4; index += 1) {
     const angle = (index / 4) * Math.PI * 2;
-    const fixture = new Mesh(new CylinderGeometry(0.18, 0.28, 0.55, 10), lightMaterial);
+    const fixture = new Mesh(
+      new CylinderGeometry(0.18, 0.28, 0.55, 10),
+      lightMaterial,
+    );
     fixture.name = `Flag of Unity night spotlight ${index + 1}`;
     fixture.position.set(Math.cos(angle) * 1.4, 0.3, Math.sin(angle) * 1.4);
     fixture.rotation.z = Math.PI / 5;
@@ -338,7 +432,9 @@ export function createCivicLandmarks(landmarks: CivicLandmark[]): Group {
   const root = new Group();
   root.name = "Embassy and parliamentary civic recognition details";
   root.add(createSwissEmbassy());
-  const byName = new Map(landmarks.map((landmark) => [landmark.name, landmark]));
+  const byName = new Map(
+    landmarks.map((landmark) => [landmark.name, landmark]),
+  );
   const unityFlag = byName.get("Fahne der Einheit");
   if (unityFlag) {
     root.add(createUnityFlag(unityFlag));

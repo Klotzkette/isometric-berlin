@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.14/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.15 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.15/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.14** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.15** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,9 +50,26 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.14**, built from `main`. Its full viewer is a progressively
-loaded, freely orbitable 3D scene; the double-click HTML remains a clearly
-labelled compatibility fallback for browsers that cannot run local modules.
+The current public package is **v0.70.15**, built from `main`. Its full viewer
+is a progressively loaded, freely orbitable 3D scene; the double-click HTML
+remains a clearly labelled compatibility fallback for browsers that cannot run
+local modules.
+
+- Source-faithful facade refinement now draws the exact outer and courtyard
+  wall topology from LoD2, adds the official ALKIS tent-roof form, and removes
+  unsupported generic doors, roof boxes and skylights. Referenced civic models
+  gain finer Reichstag dome/tower work, Kanzleramt hall structure,
+  Hauptbahnhof end grids, Brandenburg Gate capitals and a corrected flat,
+  balustraded Swiss Embassy roof.
+- A hard still-frame contract prevents elapsed time from redrawing an unchanged
+  scene. Transparent ink has a deterministic camera-independent order, while
+  distance fades preserve their authored Day/Night opacity. Browser checks
+  produced byte-identical settled frames in Day, Night and Minecraft.
+- Procedural audio now suspends with a hidden tab and closes on page exit,
+  freeze or navigation, including active scheduled voices. The guided
+  Tiergartentunnel flight follows the correct directional bore in both
+  directions, begins and ends above the terrain shell, and uses continuous
+  portal ramps without a camera-speed snap.
 
 - A cold start now keeps the official photogrammetric mesh behind a fully
   opaque, mode-coloured loading curtain. Day, Night, Snow and Minecraft reveal

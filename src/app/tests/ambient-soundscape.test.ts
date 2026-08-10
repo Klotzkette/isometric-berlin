@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   AMBIENT_VARIANTS,
+  AMBIENT_START_DELAY_SECONDS,
   AmbientSoundscape,
   BEAT_INTERVAL_STEPS,
   attackReleaseEnvelope,
@@ -11,6 +12,91 @@ import {
   shouldScheduleBeat,
   swellEnvelope,
 } from "../src/AmbientSoundscape";
+
+type TimerWindow = {
+  clearInterval(id: number): void;
+  clearTimeout(id: number): void;
+  setInterval(callback: () => void, delay: number): number;
+  setTimeout(callback: () => void, delay: number): number;
+};
+
+async function withTimerWindow(
+  run: (counts: {
+    intervalClears: number;
+    intervalStarts: number;
+  }) => Promise<void>,
+): Promise<void> {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const nativeClearTimeout = globalThis.clearTimeout.bind(globalThis);
+  const nativeSetTimeout = globalThis.setTimeout.bind(globalThis);
+  const counts = { intervalClears: 0, intervalStarts: 0 };
+  const timerWindow: TimerWindow = {
+    clearInterval() {
+      counts.intervalClears += 1;
+    },
+    clearTimeout(id) {
+      nativeClearTimeout(id);
+    },
+    setInterval() {
+      counts.intervalStarts += 1;
+      return 41;
+    },
+    setTimeout(callback, delay) {
+      return nativeSetTimeout(callback, delay) as unknown as number;
+    },
+  };
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: timerWindow,
+  });
+  try {
+    await run(counts);
+  } finally {
+    if (descriptor) {
+      Object.defineProperty(globalThis, "window", descriptor);
+    } else {
+      Reflect.deleteProperty(globalThis, "window");
+    }
+  }
+}
+
+function fakeAudioGraph(initialState: AudioContextState = "running") {
+  let state = initialState;
+  const counts = { closes: 0, resumes: 0, suspends: 0 };
+  const gain = {
+    cancelScheduledValues() {},
+    linearRampToValueAtTime(value: number) {
+      this.value = value;
+    },
+    setValueAtTime(value: number) {
+      this.value = value;
+    },
+    value: 0.07,
+  };
+  const context = {
+    close: async () => {
+      counts.closes += 1;
+      state = "closed";
+    },
+    currentTime: 12,
+    resume: async () => {
+      counts.resumes += 1;
+      state = "running";
+    },
+    get state() {
+      return state;
+    },
+    suspend: async () => {
+      counts.suspends += 1;
+      state = "suspended";
+    },
+  } as unknown as AudioContext;
+  return {
+    context,
+    counts,
+    master: { gain } as unknown as GainNode,
+  };
+}
 
 describe("procedural ambient soundtrack", () => {
   test("contains seven distinct looping variants", () => {
@@ -102,5 +188,113 @@ describe("deep swell beat cadence", () => {
     expect(soundscape.audible).toBe(false);
     internals.context = { state: "running" };
     expect(soundscape.audible).toBe(true);
+  });
+
+  test("hide stops the scheduler and voices, then resumes once from now", async () => {
+    await withTimerWindow(async (timerCounts) => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph();
+      let scheduleCalls = 0;
+      let sourceDisconnects = 0;
+      let sourceStops = 0;
+      const source = {
+        disconnect() {
+          sourceDisconnects += 1;
+        },
+        onended: null,
+        stop() {
+          sourceStops += 1;
+        },
+      } as unknown as AudioScheduledSourceNode;
+      const internals = soundscape as unknown as {
+        activeSources: Map<AudioScheduledSourceNode, AudioNode[]>;
+        context: AudioContext | null;
+        master: GainNode | null;
+        nextStepAt: number;
+        scheduleAhead(): void;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 7;
+      internals.activeSources.set(source, []);
+      internals.scheduleAhead = () => {
+        scheduleCalls += 1;
+      };
+
+      expect(await soundscape.setSuspended(true)).toBe(true);
+      expect(soundscape.audible).toBe(false);
+      expect(soundscape.activeVoiceCount).toBe(0);
+      expect(sourceStops).toBe(1);
+      expect(sourceDisconnects).toBe(1);
+      expect(graph.counts.suspends).toBe(1);
+      expect(timerCounts.intervalClears).toBe(1);
+
+      // Repeated lifecycle notifications are harmless and preserve the
+      // already-playing intent.
+      expect(await soundscape.setSuspended(true)).toBe(true);
+      expect(graph.counts.suspends).toBe(1);
+      expect(await soundscape.setSuspended(false)).toBe(true);
+      expect(graph.counts.resumes).toBe(1);
+      expect(timerCounts.intervalStarts).toBe(1);
+      expect(scheduleCalls).toBe(1);
+      expect(internals.nextStepAt).toBeCloseTo(
+        graph.context.currentTime + AMBIENT_START_DELAY_SECONDS,
+        6,
+      );
+      expect(await soundscape.setSuspended(false)).toBe(false);
+      expect(timerCounts.intervalStarts).toBe(1);
+      soundscape.dispose();
+    });
+  });
+
+  test("dispose invalidates an in-flight resume before it can arm a timer", async () => {
+    await withTimerWindow(async (timerCounts) => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("suspended");
+      let resolveResume: (() => void) | null = null;
+      graph.context.resume = () =>
+        new Promise<void>((resolve) => {
+          resolveResume = resolve;
+        });
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        resumeAfterSuspension: boolean;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.resumeAfterSuspension = true;
+
+      const pending = soundscape.setSuspended(false);
+      soundscape.dispose();
+      resolveResume?.();
+
+      expect(await pending).toBe(false);
+      expect(internals.timer).toBeNull();
+      expect(timerCounts.intervalStarts).toBe(0);
+      expect(graph.counts.closes).toBe(1);
+    });
+  });
+
+  test("a hidden autoplay attempt cannot resume without a fresh gesture", async () => {
+    await withTimerWindow(async (timerCounts) => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph();
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        startPromise: Promise<boolean> | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.startPromise = Promise.resolve(false);
+
+      expect(await soundscape.setSuspended(true)).toBe(true);
+      expect(await soundscape.setSuspended(false)).toBe(false);
+      expect(timerCounts.intervalStarts).toBe(0);
+      soundscape.dispose();
+    });
   });
 });

@@ -1,5 +1,43 @@
 # Changelog
 
+## v0.70.15
+
+- **Ordinary architecture now stops where the open evidence stops.** Exact
+  LoD2 outer walls and courtyard rings carry the shared facade axes and storey
+  bands; ALKIS roof code 3500 adds source-backed tent roofs. The old heuristic
+  ordinary entrances, randomly positioned HVAC boxes and generic skylights are
+  removed because their coordinates were not present in the source payload.
+  Referenced hero details remain additive rather than being discarded.
+- **The principal civic models gain another recognition pass.** The Reichstag
+  has 24 upper corner-tower windows, an instanced 24-rib dome and radial base
+  beams; the Kanzleramt's monumental semicircular halls gain their columns,
+  capitals and balcony rails. Hauptbahnhof office-bar end facades, Brandenburg
+  Gate Doric abaci and the Swiss Embassy's flat balustraded roof, pilasters,
+  staggered end-wall slots and recessed entrance are now explicit geometry.
+- **An unchanged city is no longer redrawn merely because time passed.** Every
+  transparent ink layer receives a deterministic camera-independent order;
+  the distance fade multiplies rather than overwrites the authored Day/Night
+  opacity. The temporal-stability gate now rejects even one visibly changed
+  pixel by default. Six consecutive browser captures were byte-identical in
+  each of Day, Night and Minecraft, while camera sweeps produced no blank or
+  recomposed frames.
+- **Audio follows the page lifecycle completely.** Hiding the tab stops its
+  schedulers and active voices; page exit, navigation and freeze close both
+  procedural engines. Returning to the tab cannot release a catch-up burst or
+  revive a stale start, and a browser-blocked autoplay attempt still waits for
+  a new user gesture.
+- The guided Tiergartentunnel flight now starts and ends outside the portals
+  above the terrain shell, follows the correct right-hand bore in both
+  directions, grades continuously through both 260 m ramps and keeps a stable
+  look-ahead through entry, bore and emergence. The committed tunnel route
+  remains explicitly documented as an open-data approximation, not surveyed
+  bore geometry.
+- Desktop and 390 x 844 mobile visual checks covered Day, Night, Minecraft and
+  Snowstorm, close views of the Reichstag, Kanzleramt, Hauptbahnhof and
+  Brandenburg Gate, and the tunnel interior. The browser reported no errors or
+  warnings. The visible radius remains **5,230 m**; no bounds, attribution,
+  credentials, Google content or raw source material changed.
+
 ## v0.70.14
 
 - **The startup photo flash is gone.** The official photogrammetric surface is

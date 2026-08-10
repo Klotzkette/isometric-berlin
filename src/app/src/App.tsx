@@ -66,7 +66,7 @@ import {
   registerFirstGestureStart,
   shouldStopAudioOnToggleTap,
 } from "./audioAutostart";
-import { registerPageExitAudioStop } from "./audioLifecycle";
+import { registerAudioLifecycle } from "./audioLifecycle";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import { isReservedBrowserChord } from "./keyboardShortcuts";
@@ -694,28 +694,28 @@ export function App() {
   }, [language]);
 
   const disposeAllAudio = useCallback(() => {
-    ambientSoundscapeRef.current?.dispose();
+    const ambient = ambientSoundscapeRef.current;
     ambientSoundscapeRef.current = null;
-    void chiptuneRef.current?.dispose();
+    const chiptune = chiptuneRef.current;
     chiptuneRef.current = null;
+    ambient?.dispose();
+    void chiptune?.dispose();
   }, []);
 
   useEffect(() => {
-    const onVisibilityChange = () => {
-      if (isMusicEnabled) {
-        void ambientSoundscapeRef.current?.setSuspended(document.hidden);
-      }
-      if (isSoundtrackEnabled) {
-        void chiptuneRef.current?.setSuspended(document.hidden);
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [isMusicEnabled, isSoundtrackEnabled]);
-
-  useEffect(() => {
-    const unregister = registerPageExitAudioStop(window, disposeAllAudio);
+    const unregister = registerAudioLifecycle({
+      dispose: disposeAllAudio,
+      documentTarget: document,
+      resume: () => {
+        void ambientSoundscapeRef.current?.setSuspended(false);
+        void chiptuneRef.current?.setSuspended(false);
+      },
+      suspend: () => {
+        void ambientSoundscapeRef.current?.setSuspended(true);
+        void chiptuneRef.current?.setSuspended(true);
+      },
+      windowTarget: window,
+    });
     return () => {
       unregister();
       disposeAllAudio();
@@ -739,6 +739,9 @@ export function App() {
         }
         return false;
       }
+      if (typeof document !== "undefined" && document.hidden) {
+        return false;
+      }
       if (!silent) {
         setStatus(copy.musicStarting);
       }
@@ -749,11 +752,19 @@ export function App() {
       try {
         started = await soundscape.start();
       } catch {
-        soundscape.stop();
+        soundscape.dispose();
+      }
+      if (ambientSoundscapeRef.current !== soundscape) {
+        if (started) {
+          soundscape.dispose();
+        }
+        return false;
       }
       if (!started) {
         soundscape.stop();
-        ambientSoundscapeRef.current = null;
+        if (ambientSoundscapeRef.current === soundscape) {
+          ambientSoundscapeRef.current = null;
+        }
       }
       setIsMusicEnabled(started);
       if (rememberMute && started) {
@@ -806,9 +817,23 @@ export function App() {
         }
         return false;
       }
+      if (typeof document !== "undefined" && document.hidden) {
+        return false;
+      }
       const player = chiptuneRef.current ?? new DuskChiptune();
       chiptuneRef.current = player;
-      const started = await player.start();
+      let started = false;
+      try {
+        started = await player.start();
+      } catch {
+        await player.dispose();
+      }
+      if (chiptuneRef.current !== player) {
+        if (started) {
+          await player.dispose();
+        }
+        return false;
+      }
       if (started || !preserveIntentOnFailure) {
         setIsSoundtrackEnabled(started);
       }
@@ -868,7 +893,11 @@ export function App() {
   // files in this soundtrack; the generated reverb/noise/wave buffers are the
   // assets to warm, leaving the first permitted gesture only the resume call.
   useEffect(() => {
-    if (typeof window === "undefined" || isMusicMutedByUser()) {
+    if (
+      typeof window === "undefined" ||
+      document.hidden ||
+      isMusicMutedByUser()
+    ) {
       return;
     }
     if (isAmbientAudioSupported()) {
@@ -924,32 +953,6 @@ export function App() {
       target: window,
     });
   }, [startSoundtrack]);
-
-  // Coming back to the tab is a fresh chance: a context the browser
-  // reclaimed while we were hidden can be resumed without a new gesture,
-  // and a visitor who left before the autoplay prompt gets another try.
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-    const retry = () => {
-      if (document.hidden || isMusicMutedByUser()) {
-        return;
-      }
-      if (isAmbientAudioSupported() && !ambientSoundscapeRef.current?.audible) {
-        void startMusic({ rememberMute: false, silent: true });
-      }
-      if (isChiptuneSupported() && !chiptuneRef.current?.audible) {
-        void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
-      }
-    };
-    document.addEventListener("visibilitychange", retry);
-    window.addEventListener("focus", retry);
-    return () => {
-      document.removeEventListener("visibilitychange", retry);
-      window.removeEventListener("focus", retry);
-    };
-  }, [startMusic, startSoundtrack]);
 
   useEffect(() => {
     try {

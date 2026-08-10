@@ -604,6 +604,7 @@ export class DuskChiptune {
   private startPromise: Promise<boolean> | null = null;
   private timer: number | null = null;
   private nextStepAt = 0;
+  private resumeAfterSuspension = false;
   private step = 0;
 
   get playing(): boolean {
@@ -663,8 +664,9 @@ export class DuskChiptune {
       // Repeat it synchronously in this call frame: returning the old promise
       // alone would move the actual resume outside that gesture and revive the
       // v0.57.1 first-gesture race.
-      if (this.context?.state !== "running") {
-        void this.context?.resume();
+      const context = this.context;
+      if (context && context.state !== "running") {
+        void context.resume().catch(() => undefined);
       }
       return this.startPromise;
     }
@@ -699,6 +701,7 @@ export class DuskChiptune {
       if (!this.master) {
         return false;
       }
+      this.resumeAfterSuspension = false;
       // Fade in rather than clicking on.
       this.master.gain.cancelScheduledValues(context.currentTime);
       this.master.gain.setValueAtTime(
@@ -762,20 +765,22 @@ export class DuskChiptune {
         resolve(resumed);
       };
       const timer = window.setTimeout(() => finish(false), 1_500);
-      void context.resume().then(
-        () => finish(context.state === "running"),
-        () => finish(false),
-      );
+      try {
+        void context.resume().then(
+          () => finish(context.state === "running"),
+          () => finish(false),
+        );
+      } catch {
+        finish(false);
+      }
     });
   }
 
   /** Fade out and stop scheduling; the context stays warm for restart. */
   stop(): void {
     this.startGeneration += 1;
-    if (this.timer !== null) {
-      window.clearInterval(this.timer);
-      this.timer = null;
-    }
+    this.resumeAfterSuspension = false;
+    this.clearScheduler();
     const context = this.context;
     const master = this.master;
     if (!context || !master) {
@@ -796,21 +801,51 @@ export class DuskChiptune {
 
   async setSuspended(suspended: boolean): Promise<boolean> {
     const context = this.context;
-    if (!context || context.state === "closed") {
+    const master = this.master;
+    if (!context || !master || context.state === "closed") {
       return false;
     }
     try {
       if (suspended) {
+        // Only sound that was genuinely running may return automatically.
+        // A browser-blocked/pending autoplay attempt must wait for a fresh
+        // gesture after the page becomes visible again.
+        this.resumeAfterSuspension ||= this.timer !== null;
+        this.startGeneration += 1;
+        this.clearScheduler();
+        master.gain.cancelScheduledValues(context.currentTime);
+        master.gain.setValueAtTime(0, context.currentTime);
+        this.stopActiveSources(context.currentTime);
         if (context.state === "running") {
           await context.suspend();
         }
         return true;
       }
+      if (!this.resumeAfterSuspension) {
+        return false;
+      }
+      this.resumeAfterSuspension = false;
+      const generation = ++this.startGeneration;
       if (!(await this.resumeWithin(context))) {
+        return false;
+      }
+      if (
+        generation !== this.startGeneration ||
+        context !== this.context ||
+        master !== this.master
+      ) {
         return false;
       }
       this.nextStepAt =
         context.currentTime + CHIP_SCHEDULE_RESUME_DELAY_SECONDS;
+      master.gain.cancelScheduledValues(context.currentTime);
+      master.gain.setValueAtTime(0, context.currentTime);
+      master.gain.linearRampToValueAtTime(
+        CHIP_MASTER_GAIN,
+        context.currentTime + CHIP_START_FADE_SECONDS,
+      );
+      this.scheduleAhead();
+      this.timer = window.setInterval(() => this.scheduleAhead(), 90);
       return true;
     } catch {
       return false;
@@ -821,20 +856,13 @@ export class DuskChiptune {
     const context = this.context;
     const master = this.master;
     this.startGeneration += 1;
-    if (this.timer !== null) {
-      window.clearInterval(this.timer);
-      this.timer = null;
-    }
+    this.startPromise = null;
+    this.resumeAfterSuspension = false;
+    this.clearScheduler();
     if (context && master) {
       master.gain.cancelScheduledValues(context.currentTime);
       master.gain.setValueAtTime(0, context.currentTime);
-      for (const source of this.activeSources.keys()) {
-        try {
-          source.stop(context.currentTime);
-        } catch {
-          // The source may already have ended during page teardown.
-        }
-      }
+      this.stopActiveSources(context.currentTime);
     }
     this.context = null;
     this.master = null;
@@ -849,6 +877,37 @@ export class DuskChiptune {
         // A context that refuses to close is harmless here.
       }
     }
+  }
+
+  private clearScheduler(): void {
+    if (this.timer !== null) {
+      window.clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+
+  private stopActiveSources(at: number): void {
+    for (const [source, nodes] of this.activeSources) {
+      source.onended = null;
+      try {
+        source.stop(at);
+      } catch {
+        // The source may already have ended during page teardown.
+      }
+      try {
+        source.disconnect();
+      } catch {
+        // Disconnect is best-effort during AudioContext shutdown.
+      }
+      for (const node of nodes) {
+        try {
+          node.disconnect();
+        } catch {
+          // The node may already have been disconnected by context closure.
+        }
+      }
+    }
+    this.activeSources.clear();
   }
 
   private waveFor(context: AudioContext, duty: PulseDuty): PeriodicWave {

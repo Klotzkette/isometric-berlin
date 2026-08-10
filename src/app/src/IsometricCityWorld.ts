@@ -178,10 +178,7 @@ export function isDedicatedSintiRomaPool(surface: SurfacePolygon): boolean {
   }
   const [x, z] = surfaceCentroidM(surface);
   return (
-    Math.hypot(
-      x - SINTI_ROMA_POOL_WORLD[0],
-      z - SINTI_ROMA_POOL_WORLD[1],
-    ) < 8
+    Math.hypot(x - SINTI_ROMA_POOL_WORLD[0], z - SINTI_ROMA_POOL_WORLD[1]) < 8
   );
 }
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
@@ -653,10 +650,9 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
 // The drawn city's own "lights off" floor: replaces every warm
 // artificial-light emissive/tint with a cool, dim, bluish-silver flat tone
 // so the moonlit look stays authored colour (no film curve) while every
-// window, lamp and lampion visibly goes dark. Kept close to the ink/paper
+// window strip, lamp and lampion visibly goes dark. Kept close to the ink/paper
 // register so the isometric drawing — not a light source — carries the
 // read, per spec ("man sieht nur noch die Isometrie").
-const MOONLIT_WINDOW_OFF = 0x1b2636;
 const MOONLIT_LAMP_OFF = 0x39424f;
 const MOONLIT_WATER = 0x131f2c;
 
@@ -725,33 +721,6 @@ export function setIsoNightPresentation(
     surround.material = night
       ? (surround.userData.nightMaterial as MeshStandardMaterial)
       : (surround.userData.dayMaterial as MeshBasicMaterial);
-  }
-  // Windows swap their whole baked palette: cool drawn panes by day, a
-  // deterministic scatter of warm-lit rooms after dark.
-  const panes = city.getObjectByName("LoD2 prism windows");
-  if (panes instanceof InstancedMesh && panes.instanceColor) {
-    // Doors are the only geometry riding this instanced mesh (ordinary
-    // panes are ink + the separately-toggled night strips below). "Licht
-    // aus" keeps the door recess dark rather than lit, same as every
-    // other artificial light.
-    const target = moonlit
-      ? undefined
-      : night
-        ? (panes.userData.nightColors as Float32Array | undefined)
-        : (panes.userData.dayColors as Float32Array | undefined);
-    if (target) {
-      (panes.instanceColor.array as Float32Array).set(target);
-      panes.instanceColor.needsUpdate = true;
-    } else if (moonlit) {
-      const off = new Color(MOONLIT_WINDOW_OFF);
-      const array = panes.instanceColor.array as Float32Array;
-      for (let index = 0; index < array.length; index += 3) {
-        array[index] = off.r;
-        array[index + 1] = off.g;
-        array[index + 2] = off.b;
-      }
-      panes.instanceColor.needsUpdate = true;
-    }
   }
   // Accessory meshes share the prism convention: exact flat paint by
   // day (unlit), the lit material only under the night rig. Any mesh
@@ -835,6 +804,12 @@ export function setIsoNightPresentation(
     const material = axes.material as LineBasicMaterial;
     material.color.setHex(night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR);
     material.opacity = night ? 0.12 : 0.34;
+    // The camera-distance fade multiplies this authored mode opacity. Record
+    // the new base explicitly so an unlucky zoom level cannot make a Night
+    // value look identical to the previous faded Day value and later restore
+    // the wrong brightness when the camera moves again.
+    material.userData.stableInkAuthoredOpacity = material.opacity;
+    material.userData.stableInkAppliedOpacity = null;
   }
   const strips = city.getObjectByName("LoD2 facade night strips");
   if (strips) {
@@ -938,9 +913,11 @@ export function setIsoNightPresentation(
 }
 
 // ALKIS roof-form codes carried in the payload. 3100 Satteldach,
-// 3200 Walmdach, 2100 Pultdach; everything else stays a flat cap.
+// 3200 Walmdach, 3500 Zeltdach, 2100 Pultdach; ambiguous mixed/unknown
+// forms stay at the measured flat cap rather than receiving a guessed shape.
 export const ROOF_GABLED = 3100;
 export const ROOF_HIPPED = 3200;
+export const ROOF_TENT = 3500;
 export const ROOF_SHED = 2100;
 // Only near-rectangular footprints get a fitted procedural roof.
 export const ROOF_MIN_RECTANGULARITY = 0.72;
@@ -1154,6 +1131,12 @@ export function buildRoofGeometry(
     push(corner(-hl, -hw, eaveY), high1, low2);
     push(low1, high2, corner(hl, -hw, eaveY));
     quad(corner(hl, -hw, eaveY), high2, high1, corner(-hl, -hw, eaveY));
+  } else if (roofCode === ROOF_TENT) {
+    const apex = corner(0, 0, ridgeY);
+    push(corner(-hl, -hw, eaveY), corner(hl, -hw, eaveY), apex);
+    push(corner(hl, -hw, eaveY), corner(hl, hw, eaveY), apex);
+    push(corner(hl, hw, eaveY), corner(-hl, hw, eaveY), apex);
+    push(corner(-hl, hw, eaveY), corner(-hl, -hw, eaveY), apex);
   } else {
     return null;
   }
@@ -1166,18 +1149,15 @@ export function roofRise(rect: FittedRect, totalHeight: number): number {
   return rise < totalHeight * 0.6 ? rise : 0;
 }
 
-// Ligne-claire fenestration: every opaque prism carries flat window
-// panes derived from its surveyed geometry — floors from the measured
-// LoD2 height at a 3.1 m storey pitch, bays from each wall's true
-// length. That is as close to "where the windows really are" as the
-// open data goes: the counts and rhythm are real, the exact panes are
-// drawn regularly like an architectural elevation.
+// Ligne-claire facade rhythm: floors come from measured LoD2 height and
+// bays from each wall's true length. The open shell data supports those
+// bounded proportions, not exact opening coordinates, so ordinary prisms
+// receive only architectural axis/band strokes and never fabricated panes.
 export const ISO_WINDOW_FLOOR_PITCH_M = 3.1;
 export const ISO_WINDOW_BAY_PITCH_M = 3.6;
 // Slim, elongated panes ("schlanker, länglicher"): tall portrait glass.
 export const ISO_WINDOW_WIDTH_M = 1.05;
 export const ISO_WINDOW_HEIGHT_M = 1.9;
-const WINDOW_SILL_START_M = 1.05;
 const WINDOW_EAVE_CLEARANCE_M = 0.55;
 const WINDOW_MIN_WALL_M = 2.6;
 const WINDOW_MIN_BUILDING_M = 4;
@@ -1185,14 +1165,6 @@ const WINDOW_FACE_OFFSET_M = 0.07;
 // Deterministic share of warm-lit windows after dark.
 const WINDOW_LIT_FRACTION = 0.38;
 const WINDOW_NIGHT_LIT_TONES = [0xffd28a, 0xffc36e, 0xf3dfa8] as const;
-const WINDOW_NIGHT_DARK_TONE = 0x18202c;
-// Warm grey joinery — dark enough to draw the opening, light enough not
-// to blacken the ivory facades when the whole quarter is in frame.
-const WINDOW_BAR_TONE = 0x8b8578;
-// Cool pale glass against the brightened ivory walls: light enough to
-// stay in the drawing's register, dark enough that a 1 px pane still
-// registers as an opening from the overview.
-const WINDOW_DAY_TONE = 0xb4c4cc;
 
 // Monumental civic buildings (large surveyed footprint AND height) get
 // piano-nobile proportions instead of housing storeys: taller windows
@@ -1276,18 +1248,10 @@ export function windowFormatForBuilding(
   buildingId: string,
   isCivic: boolean,
 ): WindowFormat {
-  return HERO_WINDOW_FORMATS[buildingId] ??
-    (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW);
+  return (
+    HERO_WINDOW_FORMATS[buildingId] ?? (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW)
+  );
 }
-// The Reichstag's entrance is its portico (drawn by the recognition
-// model); a generic drawn door on the plinth would be Quatsch.
-const DOOR_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
-  "K0002MCN",
-  "K0003Ty1",
-  "K0003VDk",
-  "UbQkgNZe",
-  "ycOYQRVL",
-]);
 // The recognition layer draws the Reichstag's REAL fenestration (tall
 // arched windows, transoms, mullions from references); generic prism
 // panes underneath would double it into mush ("keine falschen Fenster").
@@ -1299,17 +1263,6 @@ const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "ycOYQRVL",
 ]);
 
-// One drawn entrance door per building, centred on its longest windowed
-// street wall; the ground-floor panes around it step aside.
-const DOOR_WIDTH_M = 1.15;
-// Doors sit proud of the Sockel band (0.16 m half-depth), never inside it.
-const DOOR_FACE_OFFSET_M = 0.26;
-const DOOR_HEIGHT_M = 2.35;
-const DOOR_MIN_WALL_M = 5;
-const DOOR_CLEARANCE_M = 1.6;
-const DOOR_DAY_TONE = 0x5b564e;
-const DOOR_NIGHT_TONE = 0x1c232e;
-const DOOR_NIGHT_LIT_TONE = 0xd9a45e;
 /**
  * Isometric face shading ("mehr Shading, kompletter isometrischer
  * Realismus"): every face keeps ONE constant tone, but its brightness
@@ -1356,9 +1309,6 @@ const CORNICE_HEIGHT_M = 0.22;
 const CORNICE_DEPTH_M = 0.48;
 const DETAIL_MIN_WALL_M = 2.5;
 const DETAIL_MIN_BUILDING_M = 5;
-// Rooftop furniture on large flat roofs: HVAC boxes + a glass skylight.
-const ROOF_FURNITURE_MIN_AREA_M2 = 600;
-const ROOF_FURNITURE_MIN_HEIGHT_M = 8;
 // Night light temperature: offices burn cool white, homes warm.
 const WINDOW_NIGHT_CIVIC_TONES = [0xdfe8f2, 0xcfe0ee, 0xffd28a] as const;
 
@@ -1389,69 +1339,6 @@ export function windowGrid(
   };
 }
 
-type WindowInstance = {
-  dirX: number;
-  dirZ: number;
-  height: number;
-  // Joinery is instanced separately: drawing Sprossen into all ~120k
-  // ordinary panes would cost more triangles than the whole city.
-  joinery: boolean;
-  night: Color;
-  nx: number;
-  nz: number;
-  px: number;
-  py: number;
-  pz: number;
-  tone: Color;
-  width: number;
-};
-
-// Drawn window joinery in the unit pane's own space (x,y ∈ [-0.5, 0.5],
-// +z outward), so it can ride the very same instance matrices as the
-// panes: a reveal frame (Laibung) around the opening, one vertical
-// mullion and one transom in the upper third (Sprossen). Without these
-// a pane is a bare rectangle — the "hässliche Quadratfenster" the style
-// contract rules out.
-const WINDOW_REVEAL_T = 0.075;
-const WINDOW_MULLION_HALF = 0.032;
-const WINDOW_TRANSOM_Y = 0.17;
-const WINDOW_TRANSOM_HALF = 0.03;
-const WINDOW_BAR_OUT = 0.02;
-
-export function windowBarGeometry(): BufferGeometry {
-  const t = WINDOW_REVEAL_T;
-  const inner = 0.5 - t;
-  const quads: Array<[number, number, number, number]> = [
-    [-0.5, -0.5, -0.5 + t, 0.5],
-    [0.5 - t, -0.5, 0.5, 0.5],
-    [-inner, -0.5, inner, -0.5 + t],
-    [-inner, 0.5 - t, inner, 0.5],
-    [-WINDOW_MULLION_HALF, -inner, WINDOW_MULLION_HALF, inner],
-    [
-      -inner,
-      WINDOW_TRANSOM_Y - WINDOW_TRANSOM_HALF,
-      inner,
-      WINDOW_TRANSOM_Y + WINDOW_TRANSOM_HALF,
-    ],
-  ];
-  const positions: number[] = [];
-  for (const [x0, y0, x1, y1] of quads) {
-    for (const [px, py] of [
-      [x0, y0],
-      [x1, y0],
-      [x1, y1],
-      [x0, y0],
-      [x1, y1],
-      [x0, y1],
-    ] as const) {
-      positions.push(px, py, WINDOW_BAR_OUT);
-    }
-  }
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  return geometry;
-}
-
 function hash32(seed: string, salt: number): number {
   let hash = salt >>> 0;
   for (const char of seed) {
@@ -1460,10 +1347,11 @@ function hash32(seed: string, salt: number): number {
   return hash;
 }
 
-type PrismWall = {
+export type PrismWall = {
   dirX: number;
   dirZ: number;
   index: number;
+  isCourtyard: boolean;
   length: number;
   nx: number;
   nz: number;
@@ -1471,16 +1359,22 @@ type PrismWall = {
   z1: number;
 };
 
-/** Outer-ring walls in metres with outward normals (shoelace winding). */
-function wallsOf(building: PrismBuilding): PrismWall[] {
-  const ring = building.ring;
+function wallsFromRing(
+  ring: number[][],
+  isCourtyard: boolean,
+  startIndex: number,
+): PrismWall[] {
   let doubleArea = 0;
   for (let index = 0; index < ring.length; index += 1) {
     const [x1, z1] = ring[index];
     const [x2, z2] = ring[(index + 1) % ring.length];
     doubleArea += (x1 / 10) * (z2 / 10) - (x2 / 10) * (z1 / 10);
   }
-  const flip = doubleArea >= 0 ? 1 : -1;
+  // `flip` makes the normal independent of ring winding. An outer normal
+  // points away from the footprint; a courtyard normal points into the void,
+  // which is also outward from the built volume.
+  const windingFlip = doubleArea >= 0 ? 1 : -1;
+  const flip = windingFlip * (isCourtyard ? -1 : 1);
   const walls: PrismWall[] = [];
   for (let index = 0; index < ring.length; index += 1) {
     const [x1dm, z1dm] = ring[index];
@@ -1498,13 +1392,26 @@ function wallsOf(building: PrismBuilding): PrismWall[] {
     walls.push({
       dirX,
       dirZ,
-      index,
+      index: startIndex + walls.length,
+      isCourtyard,
       length,
       nx: dirZ * flip,
       nz: -dirX * flip,
       x1,
       z1,
     });
+  }
+  return walls;
+}
+
+/**
+ * Every measured facade wall, including LoD2 courtyard rings, in metres.
+ * Normals always point out of the built volume regardless of source winding.
+ */
+export function facadeWallsOf(building: PrismBuilding): PrismWall[] {
+  const walls = wallsFromRing(building.ring, false, 0);
+  for (const hole of building.holes ?? []) {
+    walls.push(...wallsFromRing(hole, true, walls.length));
   }
   return walls;
 }
@@ -2809,15 +2716,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           if (index % 2 === 0) {
             const [lampX, lampZ] = at(u, side * (halfWidth - 0.13));
             addLamp(
-              boxTriangles(
-                lampX,
-                y + 1.22,
-                lampZ,
-                localAxis,
-                0.42,
-                0.11,
-                0.1,
-              ),
+              boxTriangles(lampX, y + 1.22, lampZ, localAxis, 0.42, 0.11, 0.1),
               WARM_LIGHT,
             );
           }
@@ -2864,15 +2763,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [ribX, ribZ] = at(u, side * (halfWidth - 0.24));
           addPart(
-            boxTriangles(
-              ribX,
-              y - 0.58,
-              ribZ,
-              localAxis,
-              0.2,
-              1.2,
-              0.36,
-            ),
+            boxTriangles(ribX, y - 0.58, ribZ, localAxis, 0.2, 1.2, 0.36),
             STONE,
             false,
           );
@@ -5786,7 +5677,8 @@ function addStaticWaterRipples(
     for (let index = 0; index < rippleCount; index += 1) {
       const angle =
         ((surfaceIndex * 0.71 + index * 1.93) % (Math.PI * 2)) - Math.PI;
-      const distance = 1.5 + index * Math.min(4.5, Math.sqrt(surface.area_m2) / 20);
+      const distance =
+        1.5 + index * Math.min(4.5, Math.sqrt(surface.area_m2) / 20);
       const x = cx + Math.cos(angle * 1.7) * distance;
       const z = cz + Math.sin(angle * 1.3) * distance;
       if (!ringContains(surface.ring, x * 10, z * 10)) {
@@ -5825,10 +5717,7 @@ function addStaticWaterRipples(
     return;
   }
   const geometry = new BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new Float32BufferAttribute(positions, 3),
-  );
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const dayMaterial = new MeshBasicMaterial({
     color: 0xd9edf2,
     depthWrite: false,
@@ -6002,10 +5891,7 @@ function addBasinsAndSunkenWalls(
         basinCz - OTTO_WEIDT_FOUNTAIN_WORLD[1],
       ) < 8;
     for (const [y, target] of [
-      [
-        level - DISPLAY_DEPTH_M,
-        isOttoWeidtFountain ? ottoBedParts : bedParts,
-      ],
+      [level - DISPLAY_DEPTH_M, isOttoWeidtFountain ? ottoBedParts : bedParts],
       [level, isOttoWeidtFountain ? ottoWaterParts : waterParts],
     ] as const) {
       let geometry: ShapeGeometry;
@@ -6371,7 +6257,6 @@ export function createIsometricCity(
   const bodyGeometries = [];
   const glassGeometries = [];
   const edgeGeometries = [];
-  const windows: WindowInstance[] = [];
   const mullionPositions: number[] = [];
   // Slender facade glazing axes: ink lines by day, warm strips by night.
   const facadeAxisPositions: number[] = [];
@@ -6424,6 +6309,7 @@ export function createIsometricCity(
       !isGlass &&
       (roofCode === ROOF_GABLED ||
         roofCode === ROOF_HIPPED ||
+        roofCode === ROOF_TENT ||
         roofCode === ROOF_SHED)
     ) {
       const ringMeters = building.ring.map(
@@ -6468,7 +6354,7 @@ export function createIsometricCity(
       // Curtain-wall mullions: the transparent volume gets its drawn
       // glazing grid — verticals on the bay pitch, horizontals on the
       // storey pitch — as ink lines just outside each surveyed wall.
-      for (const wall of wallsOf(building)) {
+      for (const wall of facadeWallsOf(building)) {
         if (wall.length < WINDOW_MIN_WALL_M || totalHeight < 5) {
           continue;
         }
@@ -6547,7 +6433,7 @@ export function createIsometricCity(
         building.ring.map(([x, z]) => [x / 10, z / 10] as [number, number]),
       ) >= CIVIC_FOOTPRINT_M2
     ) {
-      for (const wall of wallsOf(building)) {
+      for (const wall of facadeWallsOf(building)) {
         if (wall.length < 3) {
           continue;
         }
@@ -6575,13 +6461,11 @@ export function createIsometricCity(
         bodyGeometries.push(parapet);
       }
     }
-    // Every wall carries slender floor-to-cornice glazing LINES on the
-    // surveyed bay rhythm, plus — since v0.32.0 — a drawn portrait pane
-    // at every bay/storey crossing, so ordinary blocks read as finely
-    // fenestrated instead of blank even in the overview. Formats follow
-    // the building's own kind: piano-nobile for civic monuments, housing
-    // proportions elsewhere. At night a deterministic share is lit.
-    // Hero buildings (Reichstag) keep their referenced real windows.
+    // Every measured outer and courtyard wall carries slender
+    // floor-to-cornice axes plus storey bands. Formats follow the building's
+    // own kind: piano-nobile for civic monuments, housing proportions
+    // elsewhere. At night a deterministic share of axes is lit. Hero
+    // buildings (Reichstag) keep their separately referenced real windows.
     if (
       totalHeight >= WINDOW_MIN_BUILDING_M &&
       !WINDOWS_SUPPRESSED_IDS.has(building.id)
@@ -6600,17 +6484,7 @@ export function createIsometricCity(
         ? WINDOW_NIGHT_CIVIC_TONES
         : WINDOW_NIGHT_LIT_TONES;
       const litLimit = Math.round(WINDOW_LIT_FRACTION * 1000);
-      const walls = wallsOf(building);
-      let doorWall = -1;
-      let doorLength = DOOR_SUPPRESSED_IDS.has(building.id)
-        ? Number.POSITIVE_INFINITY
-        : DOOR_MIN_WALL_M;
-      for (const wall of walls) {
-        if (wall.length >= doorLength) {
-          doorWall = wall.index;
-          doorLength = wall.length;
-        }
-      }
+      const walls = facadeWallsOf(building);
       if (axisTop > axisBottom + 1) {
         for (const wall of walls) {
           if (wall.length < WINDOW_MIN_WALL_M) {
@@ -6652,8 +6526,8 @@ export function createIsometricCity(
             // so a pane per bay/floor was fabrication ("keine
             // schwachsinnigen nichtexistierenden Quadratfenster"). The
             // facade rhythm is carried by the drawn axes and storey
-            // bands above; only documented hero fenestration and the
-            // entrance doors are real geometry.
+            // bands above. Exact entrance coordinates are absent from
+            // this payload, so ordinary prisms deliberately add no doors.
             // A warm-lit vertical strip on ~38% of axes at night.
             const roll =
               hash32(building.id, wall.index * 2801 + axis * 53) % 1000;
@@ -6670,25 +6544,6 @@ export function createIsometricCity(
               z,
             });
           }
-          if (wall.index === doorWall) {
-            const doorAlong = wall.length / 2;
-            windows.push({
-              dirX: wall.dirX,
-              dirZ: wall.dirZ,
-              height: DOOR_HEIGHT_M,
-              joinery: true,
-              night: new Color(DOOR_NIGHT_LIT_TONE),
-              nx: wall.nx,
-              nz: wall.nz,
-              px:
-                wall.x1 + wall.dirX * doorAlong + wall.nx * DOOR_FACE_OFFSET_M,
-              py: y0 + DOOR_HEIGHT_M / 2,
-              pz:
-                wall.z1 + wall.dirZ * doorAlong + wall.nz * DOOR_FACE_OFFSET_M,
-              tone: new Color(DOOR_DAY_TONE),
-              width: DOOR_WIDTH_M,
-            });
-          }
         }
       }
     }
@@ -6701,7 +6556,7 @@ export function createIsometricCity(
         .clone()
         .multiplyScalar(0.95)
         .lerp(ROOF_PLATE_TINT, 0.15);
-      for (const wall of wallsOf(building)) {
+      for (const wall of facadeWallsOf(building)) {
         if (wall.length < DETAIL_MIN_WALL_M) {
           continue;
         }
@@ -6752,9 +6607,9 @@ export function createIsometricCity(
         }
       }
     }
-    // Rooftop furniture on large flat roofs: a couple of drawn HVAC
-    // boxes and a glass skylight strip — the isometric view lives on
-    // its roofscape.
+    // Referenced Reichstag roof details are retained below. Ordinary LoD2
+    // roofs deliberately stop at their measured envelope: the payload has no
+    // coordinates for generic HVAC units, roof hatches or skylights.
     if (building.id === "K0002MCN") {
       // The Reichstag roof at drawing quality: the two glass skylight
       // bands flanking the dome over the plenary hall, and the
@@ -6839,86 +6694,6 @@ export function createIsometricCity(
       restaurantGlass.computeVertexNormals();
       bakeColor(restaurantGlass, new Color(FACADE_SHADES.glass[1]));
       glassGeometries.push(restaurantGlass);
-    }
-    if (
-      !roofTriangles &&
-      totalHeight >= ROOF_FURNITURE_MIN_HEIGHT_M &&
-      HERO_PRISM_ROOF_TONES[building.id] === undefined
-    ) {
-      const ringMeters3 = building.ring.map(
-        ([x, z]) => [x / 10, z / 10] as [number, number],
-      );
-      if (ringArea(ringMeters3) >= ROOF_FURNITURE_MIN_AREA_M2) {
-        const rect = fitRectangle(ringMeters3);
-        if (rect && rect.halfWidth > 5) {
-          const topY = y0 + totalHeight;
-          const across: [number, number] = [-rect.axis[1], rect.axis[0]];
-          const hvacTone = color
-            .clone()
-            .multiplyScalar(0.88)
-            .lerp(ROOF_PLATE_TINT, 0.35);
-          const count = 1 + (hash32(building.id, 9) % 2);
-          for (let unit = 0; unit < count; unit += 1) {
-            const u =
-              ((hash32(building.id, 11 + unit) % 100) / 100 - 0.5) *
-              rect.halfLength *
-              1.05;
-            const v =
-              ((hash32(building.id, 31 + unit) % 100) / 100 - 0.5) *
-              rect.halfWidth *
-              0.85;
-            const hvac = new BufferGeometry();
-            hvac.setAttribute(
-              "position",
-              new Float32BufferAttribute(
-                boxTriangles(
-                  rect.center[0] + rect.axis[0] * u + across[0] * v,
-                  topY + 0.55,
-                  rect.center[1] + rect.axis[1] * u + across[1] * v,
-                  rect.axis,
-                  2.4,
-                  1.1,
-                  1.7,
-                ),
-                3,
-              ),
-            );
-            hvac.computeVertexNormals();
-            edgeGeometries.push(
-              new EdgesGeometry(hvac, ISO_EDGE_THRESHOLD_DEGREES),
-            );
-            bakeColor(hvac, hvacTone);
-            bodyGeometries.push(hvac);
-          }
-          // The skylight strip joins the transparent glass mesh.
-          const skylight = new BufferGeometry();
-          skylight.setAttribute(
-            "position",
-            new Float32BufferAttribute(
-              boxTriangles(
-                rect.center[0],
-                topY + 0.3,
-                rect.center[1],
-                rect.axis,
-                rect.halfLength * 0.9,
-                0.6,
-                1.7,
-              ),
-              3,
-            ),
-          );
-          skylight.computeVertexNormals();
-          edgeGeometries.push(
-            new EdgesGeometry(skylight, ISO_EDGE_THRESHOLD_DEGREES),
-          );
-          const glassShades = FACADE_SHADES.glass;
-          bakeColor(
-            skylight,
-            new Color(glassShades[hash32(building.id, 3) % glassShades.length]),
-          );
-          glassGeometries.push(skylight);
-        }
-      }
     }
     if (roofTriangles) {
       const roofGeometry = new BufferGeometry();
@@ -7010,7 +6785,8 @@ export function createIsometricCity(
     }
   }
 
-  const glass = mergeGeometries(glassGeometries, false);
+  const glass =
+    glassGeometries.length > 0 ? mergeGeometries(glassGeometries, false) : null;
   if (glass) {
     const dayMaterial = new MeshBasicMaterial({
       opacity: 0.52,
@@ -7035,96 +6811,6 @@ export function createIsometricCity(
     group.add(mesh);
     for (const geometry of glassGeometries) {
       geometry.dispose();
-    }
-  }
-
-  if (windows.length > 0) {
-    // DoubleSide: the wall basis (dir, up, outward) is left-handed, so
-    // the instanced plane's winding flips; culling front faces would
-    // hide every pane.
-    const pane = new InstancedMesh(
-      new PlaneGeometry(1, 1),
-      new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
-      windows.length,
-    );
-    pane.name = "LoD2 prism windows";
-    const matrix = new Matrix4();
-    const dayColors = new Float32Array(windows.length * 3);
-    const nightColors = new Float32Array(windows.length * 3);
-    windows.forEach((spec, index) => {
-      matrix.set(
-        spec.dirX * spec.width,
-        0,
-        spec.nx,
-        spec.px,
-        0,
-        spec.height,
-        0,
-        spec.py,
-        spec.dirZ * spec.width,
-        0,
-        spec.nz,
-        spec.pz,
-        0,
-        0,
-        0,
-        1,
-      );
-      pane.setMatrixAt(index, matrix);
-      pane.setColorAt(index, spec.tone);
-      dayColors[index * 3] = spec.tone.r;
-      dayColors[index * 3 + 1] = spec.tone.g;
-      dayColors[index * 3 + 2] = spec.tone.b;
-      nightColors[index * 3] = spec.night.r;
-      nightColors[index * 3 + 1] = spec.night.g;
-      nightColors[index * 3 + 2] = spec.night.b;
-    });
-    pane.userData.dayColors = dayColors;
-    pane.userData.nightColors = nightColors;
-    pane.instanceMatrix.needsUpdate = true;
-    if (pane.instanceColor) {
-      pane.instanceColor.needsUpdate = true;
-    }
-    pane.frustumCulled = false;
-    group.add(pane);
-
-    // The same matrices carry the drawn joinery, so the wide civic
-    // openings read as framed windows with Sprossen instead of flat
-    // rectangles. Housing panes stay bare: Sprossen on all of them would
-    // cost more triangles than the rest of the city together.
-    const framed = windows.filter((spec) => spec.joinery);
-    if (framed.length > 0) {
-      const bars = new InstancedMesh(
-        windowBarGeometry(),
-        new MeshBasicMaterial({ color: WINDOW_BAR_TONE, side: DoubleSide }),
-        framed.length,
-      );
-      bars.name = "LoD2 prism window bars";
-      framed.forEach((spec, index) => {
-        matrix.set(
-          spec.dirX * spec.width,
-          0,
-          spec.nx,
-          spec.px,
-          0,
-          spec.height,
-          0,
-          spec.py,
-          spec.dirZ * spec.width,
-          0,
-          spec.nz,
-          spec.pz,
-          0,
-          0,
-          0,
-          1,
-        );
-        bars.setMatrixAt(index, matrix);
-      });
-      bars.instanceMatrix.needsUpdate = true;
-      bars.frustumCulled = false;
-      bars.renderOrder = 2;
-      group.add(bars);
     }
   }
 

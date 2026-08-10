@@ -166,10 +166,7 @@ type InstanceTransform = {
   scale?: [number, number, number];
 };
 
-type VectorSegment = [
-  [number, number, number],
-  [number, number, number],
-];
+type VectorSegment = [[number, number, number], [number, number, number]];
 
 function nightEmitter<T extends MeshStandardMaterial>(
   material: T,
@@ -211,7 +208,10 @@ function addEdges(group: Group, mesh: Mesh, opacity = 0.78): LineSegments {
     transparent: opacity < 1,
   });
   material.userData.modeInk = true;
-  const edges = new LineSegments(new EdgesGeometry(mesh.geometry, 24), material);
+  const edges = new LineSegments(
+    new EdgesGeometry(mesh.geometry, 24),
+    material,
+  );
   edges.name = `${mesh.name} model edges`;
   edges.position.copy(mesh.position);
   edges.rotation.copy(mesh.rotation);
@@ -239,7 +239,10 @@ function addBoxOutline(
   if (color === EDGE_COLOR) {
     outlineMaterial.userData.modeInk = true;
   }
-  const edges = new LineSegments(new EdgesGeometry(source, 24), outlineMaterial);
+  const edges = new LineSegments(
+    new EdgesGeometry(source, 24),
+    outlineMaterial,
+  );
   source.dispose();
   edges.name = name;
   edges.position.set(...position);
@@ -373,7 +376,10 @@ function addGermanFlag(
 ): void {
   const pole = modelMaterial(0x6f7675, { metalness: 0.62, roughness: 0.3 });
   const poleHeight = REICHSTAG_FLAGPOLE_HEIGHT_M;
-  const poleMesh = new Mesh(new CylinderGeometry(0.12, 0.16, poleHeight, 10), pole);
+  const poleMesh = new Mesh(
+    new CylinderGeometry(0.12, 0.16, poleHeight, 10),
+    pole,
+  );
   poleMesh.name = `${name} flagpole`;
   poleMesh.position.set(position[0], position[1] + poleHeight / 2, position[2]);
   poleMesh.castShadow = true;
@@ -537,6 +543,7 @@ function addReichstagWindowSets(
   const arched: InstanceTransform[] = [];
   const upper: InstanceTransform[] = [];
   const towerArches: InstanceTransform[] = [];
+  const towerUpper: InstanceTransform[] = [];
   const longCount = 11;
   const longSpan = signature.width_m - 46;
   const shortCount = 15;
@@ -594,6 +601,23 @@ function addReichstagWindowSets(
             rotation: [0, Math.PI / 2, 0],
           },
         );
+        towerUpper.push(
+          {
+            position: [
+              towerX + offset,
+              20.55,
+              zSide * (signature.depth_m / 2 + 0.17),
+            ],
+          },
+          {
+            position: [
+              xSide * (signature.width_m / 2 + 0.17),
+              20.55,
+              towerZ + offset,
+            ],
+            rotation: [0, Math.PI / 2, 0],
+          },
+        );
       }
     }
   }
@@ -641,6 +665,20 @@ function addReichstagWindowSets(
     darkGlass,
     towerArches,
   );
+  addInstancedGeometry(
+    group,
+    "Reichstag dark upper corner-tower windows",
+    new PlaneGeometry(1.35, 3.4),
+    darkGlass,
+    towerUpper,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag instanced upper corner-tower window frames",
+    rectangularWindowFrameGeometry(1.35, 3.4, 0.11),
+    windowMetal,
+    towerUpper,
+  );
   addInstancedBoxes(
     group,
     "Reichstag instanced tall-window vertical mullions",
@@ -654,6 +692,13 @@ function addReichstagWindowSets(
     [0.11, 5.45, 0.1],
     windowMetal,
     towerArches,
+  );
+  addInstancedBoxes(
+    group,
+    "Reichstag instanced upper tower-window mullions",
+    [0.1, 2.78, 0.1],
+    windowMetal,
+    towerUpper,
   );
   const transoms = [...arched, ...towerArches].map((transform) => ({
     ...transform,
@@ -678,13 +723,20 @@ function addReichstagMicroDetails(
   stone: MeshStandardMaterial,
 ): void {
   const postTransforms: InstanceTransform[] = [];
-  const longPostCount = Math.max(16, Math.round((signature.width_m - 24) / 4.2));
-  const shortPostCount = Math.max(20, Math.round((signature.depth_m - 24) / 4.2));
+  const longPostCount = Math.max(
+    16,
+    Math.round((signature.width_m - 24) / 4.2),
+  );
+  const shortPostCount = Math.max(
+    20,
+    Math.round((signature.depth_m - 24) / 4.2),
+  );
   for (const zSide of [-1, 1]) {
     for (let index = 0; index <= longPostCount; index += 1) {
       postTransforms.push({
         position: [
-          -signature.width_m / 2 + 12 +
+          -signature.width_m / 2 +
+            12 +
             (index / longPostCount) * (signature.width_m - 24),
           signature.body_height_m + 1.05,
           zSide * (signature.depth_m / 2 - 2.2),
@@ -698,7 +750,8 @@ function addReichstagMicroDetails(
         position: [
           xSide * (signature.width_m / 2 - 2.2),
           signature.body_height_m + 1.05,
-          -signature.depth_m / 2 + 12 +
+          -signature.depth_m / 2 +
+            12 +
             (index / shortPostCount) * (signature.depth_m - 24),
         ],
       });
@@ -717,10 +770,22 @@ function addReichstagMicroDetails(
     const x = signature.width_m / 2 + 0.2;
     const z = signature.depth_m / 2 + 0.2;
     courses.push(
-      [[-x, y, -z], [x, y, -z]],
-      [[-x, y, z], [x, y, z]],
-      [[-x, y, -z], [-x, y, z]],
-      [[x, y, -z], [x, y, z]],
+      [
+        [-x, y, -z],
+        [x, y, -z],
+      ],
+      [
+        [-x, y, z],
+        [x, y, z],
+      ],
+      [
+        [-x, y, -z],
+        [-x, y, z],
+      ],
+      [
+        [x, y, -z],
+        [x, y, z],
+      ],
     );
   }
   addVectorSegments(
@@ -758,10 +823,18 @@ function addReichstagDocumentedOrders(
       // centre of every tower platform free.
       for (const edge of [-1, 1]) {
         parapets.push({
-          position: [cx, towerTop + atticHeight / 2, cz + edge * (towerSize / 2 - 0.5)],
+          position: [
+            cx,
+            towerTop + atticHeight / 2,
+            cz + edge * (towerSize / 2 - 0.5),
+          ],
         });
         parapets.push({
-          position: [cx + edge * (towerSize / 2 - 0.5), towerTop + atticHeight / 2, cz],
+          position: [
+            cx + edge * (towerSize / 2 - 0.5),
+            towerTop + atticHeight / 2,
+            cz,
+          ],
           rotation: [0, Math.PI / 2, 0],
         });
       }
@@ -800,7 +873,7 @@ function addReichstagDocumentedOrders(
   for (let column = 0; column < 6; column += 1) {
     const cz = -17.5 + column * 7;
     for (let flute = 0; flute < FLUTES; flute += 1) {
-      const angle = Math.PI + ((flute / (FLUTES - 1)) - 0.5) * 2.2;
+      const angle = Math.PI + (flute / (FLUTES - 1) - 0.5) * 2.2;
       const fx = westX + Math.cos(angle) * 1.16;
       const fz = cz + Math.sin(angle) * 1.16;
       fluting.push([
@@ -845,17 +918,32 @@ function addReichstagDocumentedOrders(
   const rz = signature.depth_m / 2 + 0.18;
   for (const y of [1.35, 2.7]) {
     rustication.push(
-      [[-rx, y, -rz], [rx, y, -rz]],
-      [[-rx, y, rz], [rx, y, rz]],
-      [[-rx, y, -rz], [-rx, y, rz]],
-      [[rx, y, -rz], [rx, y, rz]],
+      [
+        [-rx, y, -rz],
+        [rx, y, -rz],
+      ],
+      [
+        [-rx, y, rz],
+        [rx, y, rz],
+      ],
+      [
+        [-rx, y, -rz],
+        [-rx, y, rz],
+      ],
+      [
+        [rx, y, -rz],
+        [rx, y, rz],
+      ],
     );
   }
   for (const zSide of [-rz, rz]) {
     for (let index = 0; index <= 24; index += 1) {
       const x = -rx + (index / 24) * (rx * 2);
       const yTop = index % 2 === 0 ? 2.7 : 4.05;
-      rustication.push([[x, 0.1, zSide], [x, yTop, zSide]]);
+      rustication.push([
+        [x, 0.1, zSide],
+        [x, yTop, zSide],
+      ]);
     }
   }
   addVectorSegments(
@@ -867,7 +955,11 @@ function addReichstagDocumentedOrders(
   );
 }
 
-function triangularPrism(width: number, height: number, depth: number): BufferGeometry {
+function triangularPrism(
+  width: number,
+  height: number,
+  depth: number,
+): BufferGeometry {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
   const geometry = new BufferGeometry();
@@ -898,8 +990,7 @@ function triangularPrism(width: number, height: number, depth: number): BufferGe
     ),
   );
   geometry.setIndex([
-    0, 2, 1, 3, 4, 5, 0, 1, 4, 0, 4, 3, 0, 3, 5, 0, 5, 2, 1, 2, 5, 1, 5,
-    4,
+    0, 2, 1, 3, 4, 5, 0, 1, 4, 0, 4, 3, 0, 3, 5, 0, 5, 2, 1, 2, 5, 1, 5, 4,
   ]);
   geometry.computeVertexNormals();
   return geometry;
@@ -1006,7 +1097,10 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     column.position.set(westX, 4 + columnHeight / 2, -17.5 + index * 7);
     column.castShadow = true;
     group.add(column);
-    const base = new Mesh(new CylinderGeometry(1.55, 1.7, 0.55, 18), stoneAccent);
+    const base = new Mesh(
+      new CylinderGeometry(1.55, 1.7, 0.55, 18),
+      stoneAccent,
+    );
     base.name = `Reichstag west portico column base ${index + 1}`;
     base.position.set(westX, 4.28, -17.5 + index * 7);
     group.add(base);
@@ -1153,7 +1247,11 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
       group,
       "Reichstag long-front central risalit",
       [30, signature.body_height_m + 1.8, 3.4],
-      [0, (signature.body_height_m + 1.8) / 2, side * (signature.depth_m / 2 + 0.9)],
+      [
+        0,
+        (signature.body_height_m + 1.8) / 2,
+        side * (signature.depth_m / 2 + 0.9),
+      ],
       stoneAccent,
       0.85,
     );
@@ -1231,11 +1329,7 @@ function addChancelleryOfficeBand(
     for (let index = 0; index <= columnCount; index += 1) {
       const columnX = x - width / 2 + (index / columnCount) * width;
       mullions.push({
-        position: [
-          columnX,
-          height / 2 - 0.2,
-          z + side * (depth / 2 + 0.13),
-        ],
+        position: [columnX, height / 2 - 0.2, z + side * (depth / 2 + 0.13)],
       });
     }
   }
@@ -1362,6 +1456,61 @@ function addChancelleryDocumentedDetail(
     0.7,
   );
 
+  // Four freestanding supports are plainly visible behind each monumental
+  // semicircle. They are essential to Schultes and Frank's layered elevation:
+  // the circle frames a column hall rather than a flat glazed disc.
+  const leadershipColumns: InstanceTransform[] = [];
+  const leadershipCapitals: InstanceTransform[] = [];
+  for (const xDirection of [-1, 1]) {
+    const faceX = cubeX + xDirection * (signature.cube_width_m / 2 + 0.05);
+    for (const zOffset of [-10.2, -3.4, 3.4, 10.2]) {
+      leadershipColumns.push({
+        position: [faceX, 18.15, cubeZ + zOffset],
+      });
+      leadershipCapitals.push({
+        position: [faceX, 25.7, cubeZ + zOffset],
+      });
+    }
+  }
+  addInstancedGeometry(
+    group,
+    "Chancellery instanced semicircular-hall columns",
+    new CylinderGeometry(0.5, 0.58, 15.1, 12),
+    concrete,
+    leadershipColumns,
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery instanced semicircular-hall capitals",
+    new CylinderGeometry(0.92, 0.55, 0.72, 12),
+    concrete,
+    leadershipCapitals,
+  );
+  const balconyRails: VectorSegment[] = [];
+  for (const xDirection of [-1, 1]) {
+    const faceX = cubeX + xDirection * (signature.cube_width_m / 2 + 0.33);
+    for (const y of [11.75, 12.65]) {
+      balconyRails.push([
+        [faceX, y, cubeZ - 14.5],
+        [faceX, y, cubeZ + 14.5],
+      ]);
+    }
+    for (let index = 0; index <= 12; index += 1) {
+      const z = cubeZ - 14.5 + (index / 12) * 29;
+      balconyRails.push([
+        [faceX, 11.1, z],
+        [faceX, 12.7, z],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Chancellery batched semicircular-hall balcony rails",
+    balconyRails,
+    0x81979b,
+    0.82,
+  );
+
   const loggiaFrames: InstanceTransform[] = [];
   const loggiaVoids: InstanceTransform[] = [];
   const joints: VectorSegment[] = [];
@@ -1426,7 +1575,8 @@ function addChancelleryDocumentedDetail(
   const COLUMN_COUNT = 11;
   const columnSpan = 46;
   for (let index = 0; index < COLUMN_COUNT; index += 1) {
-    const columnX = courtX - columnSpan / 2 + (index / (COLUMN_COUNT - 1)) * columnSpan;
+    const columnX =
+      courtX - columnSpan / 2 + (index / (COLUMN_COUNT - 1)) * columnSpan;
     const column = new Mesh(
       new CylinderGeometry(0.52, 0.6, COLUMN_HEIGHT, 12),
       concrete,
@@ -1447,7 +1597,8 @@ function addChancelleryDocumentedDetail(
 
   // Kanzlergarten: Reuterswärd's "Non-Violence" — the knotted .357
   // revolver, a replica of the 1985 original, on a low granite plinth.
-  const westBand = signature.office_segments[signature.office_segments.length - 1];
+  const westBand =
+    signature.office_segments[signature.office_segments.length - 1];
   const gardenX = westBand.offset_world[0] + 34;
   const gardenZ = westBand.offset_world[2] + 27;
   const granite = modelMaterial(0x8a8b86, { roughness: 0.88 });
@@ -1663,10 +1814,7 @@ function addChancelleryPolice(
     "Chancellery four Federal Police boots",
     [0.22, 0.16, 0.34],
     black,
-    [
-      ...transformsAt(0.12, -0.13, 0.06),
-      ...transformsAt(0.12, 0.13, 0.06),
-    ],
+    [...transformsAt(0.12, -0.13, 0.06), ...transformsAt(0.12, 0.13, 0.06)],
   );
   addInstancedGeometry(
     group,
@@ -1817,7 +1965,10 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   const archFrame = modelMaterial(0xf0f1ec, { roughness: 0.68 });
   const windowGrid: VectorSegment[] = [];
   for (const xDirection of [-1, 1]) {
-    const glassWindow = new Mesh(new CircleGeometry(17.2, 64, 0, Math.PI), windowGlass);
+    const glassWindow = new Mesh(
+      new CircleGeometry(17.2, 64, 0, Math.PI),
+      windowGlass,
+    );
     glassWindow.name = "Chancellery semicircular leadership window";
     glassWindow.rotation.y = Math.PI / 2;
     glassWindow.position.set(
@@ -1826,12 +1977,15 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       cubeZ,
     );
     group.add(glassWindow);
-    const frame = new Mesh(new RingGeometry(16.5, 18.1, 64, 2, 0, Math.PI), archFrame);
+    const frame = new Mesh(
+      new RingGeometry(16.5, 18.1, 64, 2, 0, Math.PI),
+      archFrame,
+    );
     frame.name = "Chancellery semicircular window frame";
     frame.rotation.y = Math.PI / 2;
-    frame.position.copy(glassWindow.position).add(
-      new Vector3(xDirection * 0.08, 0, 0),
-    );
+    frame.position
+      .copy(glassWindow.position)
+      .add(new Vector3(xDirection * 0.08, 0, 0));
     group.add(frame);
     const faceX = cubeX + xDirection * (signature.cube_width_m / 2 + 0.22);
     for (const zOffset of [-13.5, -9, -4.5, 0, 4.5, 9, 13.5]) {
@@ -1960,9 +2114,7 @@ function barrelRoofGeometry(
       const lateral = Math.cos(angle) * (width / 2) + bow;
       const y = Math.sin(angle) * height;
       vertices.push(
-        ...(alongX
-          ? [longitudinal, y, lateral]
-          : [lateral, y, longitudinal]),
+        ...(alongX ? [longitudinal, y, lateral] : [lateral, y, longitudinal]),
       );
     }
   }
@@ -2014,7 +2166,15 @@ function addBarrelRoof(
   );
   const steel = modelMaterial(0x47616d, { metalness: 0.66, roughness: 0.28 });
   const roof = new Mesh(
-    barrelRoofGeometry(length, width, height, alongX, 48, offsetLongitudinal, curve),
+    barrelRoofGeometry(
+      length,
+      width,
+      height,
+      alongX,
+      48,
+      offsetLongitudinal,
+      curve,
+    ),
     glass,
   );
   roof.name = name;
@@ -2040,18 +2200,18 @@ function addBarrelRoof(
     const xLocalInGroup = longitudinal + offsetLongitudinal;
     const bow = roofBowOffset(xLocalInGroup, curve);
     return {
-      position: (alongX
-        ? [longitudinal, 0, bow]
-        : [bow, 0, longitudinal]) as [number, number, number],
+      position: (alongX ? [longitudinal, 0, bow] : [bow, 0, longitudinal]) as [
+        number,
+        number,
+        number,
+      ],
     };
   });
   const ribPoints = Array.from({ length: 33 }, (_, index) => {
     const angle = (index / 32) * Math.PI;
     const lateral = Math.cos(angle) * (width / 2);
     const y = baseY + Math.sin(angle) * height;
-    return alongX
-      ? new Vector3(0, y, lateral)
-      : new Vector3(lateral, y, 0);
+    return alongX ? new Vector3(0, y, lateral) : new Vector3(lateral, y, 0);
   });
   addInstancedGeometry(
     group,
@@ -2093,9 +2253,7 @@ function addBarrelRoof(
       const segLength = Math.hypot(dLong, dLateral);
       const yaw = Math.atan2(dLateral, dLong);
       purlinTransforms.push({
-        position: alongX
-          ? [midLong, y, midLateral]
-          : [midLateral, y, midLong],
+        position: alongX ? [midLong, y, midLateral] : [midLateral, y, midLong],
         rotation: alongX ? [0, -yaw, 0] : [0, Math.PI / 2 - yaw, 0],
         scale: [segLength / (purlinUnitLength || 1), 1, 1],
       });
@@ -2217,7 +2375,8 @@ function addBarrelRoofEndPortal(
   const tangentSlope =
     curve === "none"
       ? 0
-      : 2 * HAUPTBAHNHOF_RAIL_CURVE_A * xLocalInGroup + HAUPTBAHNHOF_RAIL_CURVE_B;
+      : 2 * HAUPTBAHNHOF_RAIL_CURVE_A * xLocalInGroup +
+        HAUPTBAHNHOF_RAIL_CURVE_B;
   const tangentAngle = Math.atan(tangentSlope);
   const shapePoints = 33;
   const shape = new Shape();
@@ -2431,7 +2590,10 @@ function addStationInterior(
   const slab = modelMaterial(0xb4b8b2, { roughness: 0.9 });
   const platform = modelMaterial(0xa7b0ad, { roughness: 0.84 });
   const escalator = modelMaterial(0x8b9aa1, { metalness: 0.5, roughness: 0.4 });
-  const deepRail = modelMaterial(0x74868b, { metalness: 0.78, roughness: 0.26 });
+  const deepRail = modelMaterial(0x74868b, {
+    metalness: 0.78,
+    roughness: 0.26,
+  });
 
   const halfWidth = signature.north_south_hall_width_m / 2 - 1;
   const halfLength = signature.north_south_hall_length_m / 2 - 2;
@@ -2700,6 +2862,35 @@ function addStationOfficeBridge(
     0x9bc6cf,
     0.52,
   );
+
+  // Washingtonplatz and Europaplatz look directly at the narrow ends of the
+  // two Buegelbauten. Give those end faces the same ten-storey curtain-wall
+  // order as their long sides instead of leaving two blank glass slabs.
+  const endFacadeGrid: VectorSegment[] = [];
+  const endBayCount = 5;
+  for (const zSide of [-1, 1]) {
+    const faceZ = zSide * (depth / 2 + 0.03);
+    for (let bay = 0; bay <= endBayCount; bay += 1) {
+      const faceX = x - width / 2 + (bay / endBayCount) * width;
+      endFacadeGrid.push([
+        [faceX, 0.35, faceZ],
+        [faceX, height - 0.35, faceZ],
+      ]);
+    }
+    for (let storey = 1; storey < 10; storey += 1) {
+      endFacadeGrid.push([
+        [x - width / 2, storey * storeyHeight, faceZ],
+        [x + width / 2, storey * storeyHeight, faceZ],
+      ]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof batched office-bridge end-facade grid",
+    endFacadeGrid,
+    0x7799a1,
+    0.72,
+  );
 }
 
 /**
@@ -2848,7 +3039,9 @@ function addStationTrain(
   for (const side of [-1, 1]) {
     for (let index = 0; index < windowCount; index += 1) {
       const windowX =
-        -options.length / 2 + 5.5 + (index / (windowCount - 1)) * (options.length - 11);
+        -options.length / 2 +
+        5.5 +
+        (index / (windowCount - 1)) * (options.length - 11);
       windows.push({
         position: [originX + windowX, railY + 3.07, originZ + side * 1.5],
       });
@@ -2868,7 +3061,9 @@ function addStationTrain(
     for (let index = 1; index <= doorCount; index += 1) {
       doors.push({
         position: [
-          originX - options.length / 2 + (index / (doorCount + 1)) * options.length,
+          originX -
+            options.length / 2 +
+            (index / (doorCount + 1)) * options.length,
           railY + 2.57,
           originZ + side * 1.56,
         ],
@@ -2911,7 +3106,8 @@ function addStationTrain(
   const carriageSeams: VectorSegment[] = [];
   const carriageCount = Math.max(3, Math.round(options.length / 25));
   for (let index = 1; index < carriageCount; index += 1) {
-    const seamX = originX - options.length / 2 + (index / carriageCount) * options.length;
+    const seamX =
+      originX - options.length / 2 + (index / carriageCount) * options.length;
     for (const side of [-1, 1]) {
       carriageSeams.push([
         [seamX, railY + 1.42, originZ + side * 1.6],
@@ -2931,11 +3127,7 @@ function addStationTrain(
       host,
       `${options.name} cab windscreen`,
       [0.1, 0.9, 1.9],
-      [
-        originX + end * (options.length / 2 - 0.72),
-        railY + 3.18,
-        originZ,
-      ],
+      [originX + end * (options.length / 2 - 0.72), railY + 3.18, originZ],
       windowMaterial,
     );
     // A driving car is not a tube cut off square. Three stacked slices of
@@ -2966,7 +3158,8 @@ function addStationTrain(
   // reads as three-dimensional from above, which is exactly the angle an
   // isometric drawing shows.
   for (const fraction of [0.3, 0.72]) {
-    const pantographX = originX - options.length / 2 + fraction * options.length;
+    const pantographX =
+      originX - options.length / 2 + fraction * options.length;
     addBox(
       host,
       `${options.name} pantograph base`,
@@ -3013,7 +3206,9 @@ function addStationTrain(
  * must sit on a real rail run near here, not just on whichever OSM
  * polyline happens to be longest somewhere else in the quarter.
  */
-export const HAUPTBAHNHOF_ANCHOR_WORLD: readonly [number, number] = [-119.936, -683.307];
+export const HAUPTBAHNHOF_ANCHOR_WORLD: readonly [number, number] = [
+  -119.936, -683.307,
+];
 // scene.json's "hauptbahnhof-model" signature rotation_y_degrees -- the
 // same transform `placeMetricGroup` applies to this model group, needed
 // by tests that must convert a world-space rail-lines.json point into
@@ -3164,7 +3359,10 @@ function pointAtDistance(
   cumulative: number[],
   distance: number,
 ): { x: number; z: number } {
-  const clamped = Math.max(0, Math.min(cumulative[cumulative.length - 1], distance));
+  const clamped = Math.max(
+    0,
+    Math.min(cumulative[cumulative.length - 1], distance),
+  );
   let index = 1;
   while (index < cumulative.length && cumulative[index] < clamped) {
     index += 1;
@@ -3209,7 +3407,12 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   // (railCurveOffset, fit from rail-lines.json) as the glass roof above
   // them -- deck and roof bend together, matching the reference aerials.
   const deckSteps = Math.max(24, Math.round(trackLength / 12));
-  const deckSegments: Array<{ x0: number; x1: number; z0: number; z1: number }> = [];
+  const deckSegments: Array<{
+    x0: number;
+    x1: number;
+    z0: number;
+    z1: number;
+  }> = [];
   for (let step = 0; step < deckSteps; step += 1) {
     const x0 = trackWestX + (step / deckSteps) * trackLength;
     const x1 = trackWestX + ((step + 1) / deckSteps) * trackLength;
@@ -3518,14 +3721,13 @@ function createBrandenburgGateModel(
         sandstone,
       );
       column.name = `Brandenburg Gate Doric column ${row + 1}:${index + 1}`;
-      column.position.set(
-        x,
-        signature.column_height_m / 2,
-        z,
-      );
+      column.position.set(x, signature.column_height_m / 2, z);
       column.castShadow = true;
       group.add(column);
-      const base = new Mesh(new CylinderGeometry(1.55, 1.68, 0.46, 20), sandstone);
+      const base = new Mesh(
+        new CylinderGeometry(1.55, 1.68, 0.46, 20),
+        sandstone,
+      );
       base.name = `Brandenburg Gate column base ${row + 1}:${index + 1}`;
       base.position.set(x, 0.23, column.position.z);
       group.add(base);
@@ -3534,10 +3736,23 @@ function createBrandenburgGateModel(
         sandstone,
       );
       capital.name = `Brandenburg Gate Doric capital ${row + 1}:${index + 1}`;
-      capital.position.set(x, signature.column_height_m - 0.25, column.position.z);
+      capital.position.set(
+        x,
+        signature.column_height_m - 0.25,
+        column.position.z,
+      );
       group.add(capital);
     }
   }
+  addInstancedBoxes(
+    group,
+    "Brandenburg Gate instanced Doric capital abaci",
+    [2.8, 0.3, 2.8],
+    sandstone,
+    columnCenters.map(([x, z]) => ({
+      position: [x, signature.column_height_m + 0.13, z],
+    })),
+  );
   const flutingSegments: VectorSegment[] = [];
   for (const [columnX, columnZ] of columnCenters) {
     for (let flute = 0; flute < 12; flute += 1) {
@@ -3565,7 +3780,8 @@ function createBrandenburgGateModel(
   );
 
   for (let passage = 0; passage < 5; passage += 1) {
-    const passageZ = -colonnadeWidth / 2 + ((passage + 0.5) / 5) * colonnadeWidth;
+    const passageZ =
+      -colonnadeWidth / 2 + ((passage + 0.5) / 5) * colonnadeWidth;
     addBox(
       group,
       "Brandenburg Gate passage paving shadow",
@@ -3590,11 +3806,7 @@ function createBrandenburgGateModel(
       group,
       "Brandenburg Gate side pavilion",
       [signature.depth_m, pavilionHeight, pavilionWidth],
-      [
-        0,
-        pavilionHeight / 2,
-        pavilionZ,
-      ],
+      [0, pavilionHeight / 2, pavilionZ],
       sandstoneShadow,
       0.88,
     );
@@ -3768,7 +3980,9 @@ export function createArchitecturalSignature(
     case "hauptbahnhof-model":
       return createHauptbahnhofModel(signature as HauptbahnhofModelSignature);
     case "brandenburger-tor-model":
-      return createBrandenburgGateModel(signature as BrandenburgGateModelSignature);
+      return createBrandenburgGateModel(
+        signature as BrandenburgGateModelSignature,
+      );
     default:
       return null;
   }
@@ -3784,9 +3998,11 @@ export function focusCameraForSignature(
   if (signature.kind === "chancellery_model") {
     const rotation = MathUtils.degToRad(signature.rotation_y_degrees);
     const [offsetX, offsetY, offsetZ] = signature.cube_offset_world;
-    targetWorld[0] += offsetX * Math.cos(rotation) + offsetZ * Math.sin(rotation);
+    targetWorld[0] +=
+      offsetX * Math.cos(rotation) + offsetZ * Math.sin(rotation);
     targetWorld[1] += offsetY;
-    targetWorld[2] += -offsetX * Math.sin(rotation) + offsetZ * Math.cos(rotation);
+    targetWorld[2] +=
+      -offsetX * Math.sin(rotation) + offsetZ * Math.cos(rotation);
   }
   return {
     ...signature.focus_camera,
