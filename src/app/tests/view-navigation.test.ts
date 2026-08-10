@@ -24,18 +24,25 @@ describe("view navigation", () => {
 
   test("normalizes German sight names for portable deep links", () => {
     expect(sightSlug("Reichstagsgebäude")).toBe("reichstagsgebaude");
+    expect(sightSlug("Bahnhof Berlin Friedrichstraße")).toBe(
+      "bahnhof-berlin-friedrichstrasse",
+    );
     expect(
       findSightBySlug(
         [{ name: "Reichstagsgebäude" }, { name: "Siegessäule" }],
         "siegessaule",
       )?.name,
     ).toBe("Siegessäule");
+    expect(
+      findSightBySlug(
+        [{ name: "Bahnhof Berlin Friedrichstraße" }],
+        "bahnhof-berlin-friedrichstra-e",
+      )?.name,
+    ).toBe("Bahnhof Berlin Friedrichstraße");
   });
 
   test("parses full and shorthand hashes", () => {
-    expect(
-      parseViewHash("#landmark=brandenburger-tor&view=N&flip=1"),
-    ).toEqual({
+    expect(parseViewHash("#landmark=brandenburger-tor&view=N&flip=1")).toEqual({
       flipped: true,
       landmarkSlug: "brandenburger-tor",
       rotationValue: "N",

@@ -56,7 +56,9 @@ describe("Hauptbahnhof escalator descent", () => {
     );
     expect(flights).toHaveLength(12);
     expect(named(root, "instanced step ridges")).toHaveLength(12);
-    expect(named(root, "glass balustrade")).toHaveLength(24);
+    expect(
+      named(root, "Hauptbahnhof escalator run glass balustrade"),
+    ).toHaveLength(24);
     expect(named(root, "handrail")).toHaveLength(24);
     expect(named(root, "upper comb plate")).toHaveLength(12);
     expect(named(root, "lower comb plate")).toHaveLength(12);
@@ -67,7 +69,9 @@ describe("Hauptbahnhof escalator descent", () => {
     // TRACK. The deep flights walk outward to the platform centres at
     // +-9.5 m, so the path ends where a passenger can stand.
     const deepFlights = named(root, "escalator run")
-      .filter((object) => object instanceof Group && object.name.endsWith("run"))
+      .filter(
+        (object) => object instanceof Group && object.name.endsWith("run"),
+      )
       .filter((flight) => {
         const box = new Box3().setFromObject(flight);
         return box.min.y < -12;

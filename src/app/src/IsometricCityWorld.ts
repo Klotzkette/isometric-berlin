@@ -301,6 +301,18 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // footprint, recessed glass foyer, cassette skin, panoramic end windows,
   // roof basin and Skywalk. Keeping the source prism would bury those parts.
   "20g0005J",
+  // Cube Berlin. The recognition model keeps the measured 43.6 m LoD2
+  // envelope but replaces these four overlapping parts with the building's
+  // faceted double-skin glass wrapper.
+  "FD4M9wox",
+  "VoiEX357",
+  "lXwHgFCt",
+  "MwfoOvua",
+  // Tränenpalast. Its low 1962 glass-and-steel pavilion is drawn from the
+  // complete OSM outline; the three source prisms would make it opaque.
+  "U4ubriIq",
+  "3z4aOJds",
+  "92ZtVVpI",
 ]);
 
 // v0.56.1 ("beiger Kasten ueber den Gleisen"): the Hauptbahnhof used to be
@@ -448,6 +460,42 @@ export function isHauptbahnhofFootprintSuppressed(
   }
   return (
     inside / building.ring.length >= HAUPTBAHNHOF_ENVELOPE_OVERLAP_FRACTION
+  );
+}
+
+const FRIEDRICHSTRASSE_STATION_ANCHOR_WORLD = [1057.69, -118.71] as const;
+const FRIEDRICHSTRASSE_STATION_ROTATION_RAD = -0.03;
+const FRIEDRICHSTRASSE_STATION_HALF_LENGTH_M = 73.5;
+const FRIEDRICHSTRASSE_STATION_HALF_DEPTH_M = 37.5;
+const FRIEDRICHSTRASSE_STATION_OVERLAP_FRACTION = 0.3;
+
+/**
+ * The dedicated Friedrichstraße train-shed model includes the whole brick
+ * base and barrel roof. Suppressing by footprint catches every LoD2 part in
+ * that envelope without swallowing the separate Tränenpalast to the north.
+ */
+export function isFriedrichstrasseStationFootprintSuppressed(
+  building: PrismBuilding,
+): boolean {
+  if (building.ring.length < 3) return false;
+  const [anchorX, anchorZ] = FRIEDRICHSTRASSE_STATION_ANCHOR_WORLD;
+  const cosine = Math.cos(FRIEDRICHSTRASSE_STATION_ROTATION_RAD);
+  const sine = Math.sin(FRIEDRICHSTRASSE_STATION_ROTATION_RAD);
+  let inside = 0;
+  for (const [xDm, zDm] of building.ring) {
+    const dx = xDm / 10 - anchorX;
+    const dz = zDm / 10 - anchorZ;
+    const localX = dx * cosine - dz * sine;
+    const localZ = dx * sine + dz * cosine;
+    if (
+      Math.abs(localX) <= FRIEDRICHSTRASSE_STATION_HALF_LENGTH_M &&
+      Math.abs(localZ) <= FRIEDRICHSTRASSE_STATION_HALF_DEPTH_M
+    ) {
+      inside += 1;
+    }
+  }
+  return (
+    inside / building.ring.length >= FRIEDRICHSTRASSE_STATION_OVERLAP_FRACTION
   );
 }
 
@@ -665,10 +713,7 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone).lerp(
-      IVORY,
-      SOURCE_FACADE_IVORY_BLEND,
-    );
+    return cleanedTone(building.tone).lerp(IVORY, SOURCE_FACADE_IVORY_BLEND);
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -846,9 +891,7 @@ export function setIsoNightPresentation(
   const clinkerJoints = city.getObjectByName("Kollhoff clinker mortar joints");
   if (clinkerJoints instanceof LineSegments) {
     const material = clinkerJoints.material as LineBasicMaterial;
-    material.color.setHex(
-      night ? 0x80645f : KOLLHOFF_TOWER_PROFILE.mortarTone,
-    );
+    material.color.setHex(night ? 0x80645f : KOLLHOFF_TOWER_PROFILE.mortarTone);
     material.opacity = night ? 0.24 : 0.46;
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
@@ -859,7 +902,9 @@ export function setIsoNightPresentation(
     // point of "Licht aus" is that every window goes dark.
     strips.visible = night && lightsOn;
   }
-  const kollhoffWindows = city.getObjectByName("Kollhoff recessed window panes");
+  const kollhoffWindows = city.getObjectByName(
+    "Kollhoff recessed window panes",
+  );
   if (kollhoffWindows instanceof Mesh) {
     kollhoffWindows.material = night
       ? (kollhoffWindows.userData.nightMaterial as MeshBasicMaterial)
@@ -1517,10 +1562,8 @@ export function appendKollhoffClinkerJoints(
     }
     const ox = wall.nx * KOLLHOFF_CLINKER_FACE_OFFSET_M;
     const oz = wall.nz * KOLLHOFF_CLINKER_FACE_OFFSET_M;
-    const startX =
-      wall.x1 + wall.dirX * KOLLHOFF_CLINKER_EDGE_INSET_M + ox;
-    const startZ =
-      wall.z1 + wall.dirZ * KOLLHOFF_CLINKER_EDGE_INSET_M + oz;
+    const startX = wall.x1 + wall.dirX * KOLLHOFF_CLINKER_EDGE_INSET_M + ox;
+    const startZ = wall.z1 + wall.dirZ * KOLLHOFF_CLINKER_EDGE_INSET_M + oz;
     const endAlong = wall.length - KOLLHOFF_CLINKER_EDGE_INSET_M;
     const endX = wall.x1 + wall.dirX * endAlong + ox;
     const endZ = wall.z1 + wall.dirZ * endAlong + oz;
@@ -2131,6 +2174,7 @@ export type BridgeKind =
   | "beam"
   | "curvedBox"
   | "golda"
+  | "ironArch"
   | "slender"
   | "steelArch"
   | "stoneArch"
@@ -2238,13 +2282,40 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [57.3, -514.73],
   },
   {
-    // Santiago Calatrava, 1996: a flat steel arch under a light deck,
-    // springing from the abutments with nothing standing in the river.
-    halfWidthM: 10.5,
+    // Santiago Calatrava, 1996: surveyed OSM outline 74.98 x 23.58 m.
+    // A 12.5 m carriageway is stepped up to cycle tracks and then again to
+    // the outer footways; the flat steel arches spring from the abutments.
+    axis: [0.87895, -0.47692],
+    halfWidthM: 11.7915,
     kind: "steelArch",
     matchRadiusM: 80,
     name: "Kronprinzenbrücke",
-    world: [304.2, -323.5],
+    palette: {
+      abutment: 0xb8b8b0,
+      deck: 0xd4d2ca,
+      metal: 0x7a8789,
+      structure: 0xe2dfd5,
+    },
+    surveyedDeck: { halfLengthM: 37.492, halfWidthM: 11.7915 },
+    world: [303.519, -323.32],
+  },
+  {
+    // Otto Stahn, 1895–96: three-opening iron arch bridge with two narrow
+    // granite-clad piers and its characteristic forged Prussian eagles.
+    // The OSM centreline fixes the nearly north-south deck orientation.
+    axis: [0.0852, 0.9964],
+    halfWidthM: 11.2,
+    kind: "ironArch",
+    matchRadiusM: 82,
+    name: "Weidendammer Brücke",
+    palette: {
+      abutment: 0x817c73,
+      deck: 0xa7a49d,
+      metal: 0x2f3637,
+      structure: 0xb8b4aa,
+    },
+    surveyedDeck: { halfLengthM: 35.15, halfWidthM: 11.2 },
+    world: [1128.12, -334.72],
   },
   {
     // "Sprung über die Spree": the twin parliament footbridges between
@@ -2453,17 +2524,19 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       ? 0.18
       : kind === "stoneArch"
         ? 0.42
-        : kind === "steelArch"
-          ? 1.2
-          : kind === "golda"
-            ? 0.82
-            : kind === "curvedBox"
-              ? 1.05
-              : kind === "vierendeel"
-                ? 0.16
-                : kind === "slender"
-                  ? 0.9
-                  : 0.5;
+        : kind === "ironArch"
+          ? 0.34
+          : kind === "steelArch"
+            ? 1.2
+            : kind === "golda"
+              ? 0.82
+              : kind === "curvedBox"
+                ? 1.05
+                : kind === "vierendeel"
+                  ? 0.16
+                  : kind === "slender"
+                    ? 0.9
+                    : 0.5;
     const riseAt = (u: number): number =>
       camber * Math.cos((u / halfLength) * (Math.PI / 2)) ** 2;
     const deckThickness = genericSmall
@@ -2472,20 +2545,24 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         ? 0.22
         : kind === "vierendeel"
           ? 0.24
-          : kind === "curvedBox"
-            ? 0.28
-            : kind === "slender"
-              ? 0.5
-              : 0.7;
+          : kind === "ironArch"
+            ? 0.52
+            : kind === "curvedBox"
+              ? 0.28
+              : kind === "slender"
+                ? 0.5
+                : 0.7;
     const DECK_SEGMENTS = genericSmall
       ? Math.max(2, Math.min(8, Math.ceil((halfLength * 2) / cell)))
       : kind === "vierendeel"
         ? 40
-        : kind === "curvedBox"
-          ? 32
-          : kind === "golda"
-            ? 28
-            : 14;
+        : kind === "ironArch"
+          ? 30
+          : kind === "curvedBox"
+            ? 32
+            : kind === "golda"
+              ? 28
+              : 14;
     const segmentLength = (halfLength * 2) / DECK_SEGMENTS;
     for (let index = 0; index < DECK_SEGMENTS; index += 1) {
       const u = -halfLength + segmentLength * (index + 0.5);
@@ -2668,6 +2745,84 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               false,
             );
           }
+        }
+      } else if (kind === "steelArch") {
+        // Calatrava's deck section steps outward from traffic to cycle lanes
+        // and then to the raised pedestrian paths on both edges.
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.035,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.07,
+            12.5,
+          ),
+          ROAD_SURFACE,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [cycleX, cycleZ] = at(u, side * 7.25);
+          addPart(
+            boxTriangles(
+              cycleX,
+              y + 0.095,
+              cycleZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.12,
+              2.0,
+            ),
+            HUGO_PAVING,
+            false,
+          );
+          const [walkX, walkZ] = at(u, side * 9.9);
+          addPart(
+            boxTriangles(
+              walkX,
+              y + 0.17,
+              walkZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.16,
+              3.1,
+            ),
+            STONE,
+            false,
+          );
+        }
+      } else if (kind === "ironArch") {
+        // Weidendammer Brücke keeps the carriageway and the broad stone
+        // pavements visually separate above the dark iron arches.
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.035,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.07,
+            13.0,
+          ),
+          ROAD_SURFACE,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [walkX, walkZ] = at(u, side * 8.8);
+          addPart(
+            boxTriangles(
+              walkX,
+              y + 0.075,
+              walkZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.11,
+              4.0,
+            ),
+            HUGO_PAVING,
+            false,
+          );
         }
       } else if (kind === "vierendeel") {
         // The footbridge has riveted timber boards with narrow galvanised
@@ -2941,6 +3096,120 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           );
         }
       }
+    } else if (kind === "steelArch" || kind === "ironArch") {
+      const picketCount = kind === "ironArch" ? 52 : 38;
+      const railLength = (halfLength * 2) / picketCount;
+      for (let index = 0; index <= picketCount; index += 1) {
+        const u = -halfLength + (index / picketCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(
+              px,
+              y + (kind === "ironArch" ? 0.57 : 0.62),
+              pz,
+              localAxis,
+              kind === "ironArch" ? 0.1 : 0.12,
+              kind === "ironArch" ? 1.14 : 1.24,
+              0.1,
+            ),
+            STEEL,
+            false,
+          );
+          if (index < picketCount) {
+            const railU = u + railLength / 2;
+            const [railX, railZ] = at(railU, side * halfWidth);
+            const railY = deckY + riseAt(railU);
+            for (const level of kind === "ironArch"
+              ? [0.34, 0.74, 1.14]
+              : [0.42, 1.24]) {
+              addPart(
+                boxTriangles(
+                  railX,
+                  railY + level,
+                  railZ,
+                  tangentAt(railU),
+                  railLength + 0.04,
+                  level > 1 ? 0.11 : 0.07,
+                  0.11,
+                ),
+                STEEL,
+                false,
+              );
+            }
+          }
+        }
+      }
+      const standards =
+        kind === "ironArch" ? [-0.76, -0.25, 0.25, 0.76] : [-0.62, 0, 0.62];
+      for (const fraction of standards) {
+        const u = halfLength * fraction;
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * (halfWidth - 0.08));
+          addPart(
+            boxTriangles(
+              px,
+              y + (kind === "ironArch" ? 2.0 : 1.45),
+              pz,
+              localAxis,
+              0.15,
+              kind === "ironArch" ? 3.0 : 2.0,
+              0.15,
+            ),
+            STEEL,
+            false,
+          );
+          addLamp(
+            prismTriangles(
+              px,
+              y + (kind === "ironArch" ? 3.62 : 2.55),
+              pz,
+              kind === "ironArch" ? 0.24 : 0.18,
+              0.38,
+              10,
+            ),
+            WARM_LIGHT,
+          );
+        }
+      }
+      if (kind === "ironArch") {
+        // The forged Prussian eagles at the arch crown are kept symbolic but
+        // volumetric: body, spread wings, head and crown are all separate.
+        for (const side of [-1, 1]) {
+          const [ex, ez] = at(0, side * (halfWidth + 0.16));
+          const eagleY = deckY + riseAt(0) + 1.45;
+          addPart(prismTriangles(ex, eagleY, ez, 0.28, 0.82, 8), STEEL, false);
+          for (const wing of [-1, 1]) {
+            addPart(
+              boxTriangles(
+                ex + ax * wing * 0.38,
+                eagleY + 0.1,
+                ez + az * wing * 0.38,
+                tangentAt(0),
+                0.72,
+                0.5,
+                0.1,
+              ),
+              STEEL,
+              false,
+            );
+          }
+          addPart(
+            prismTriangles(ex, eagleY + 0.62, ez, 0.16, 0.3, 7),
+            STEEL,
+            false,
+          );
+          addPart(
+            prismTriangles(ex, eagleY + 0.87, ez, 0.19, 0.18, 5),
+            STEEL,
+            false,
+          );
+        }
+      }
     } else if (kind === "stoneArch") {
       const balusterCount = 56;
       for (let index = 0; index <= balusterCount; index += 1) {
@@ -3154,6 +3423,82 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                 STONE_DARK,
                 false,
               );
+            }
+          }
+        }
+      }
+    } else if (kind === "ironArch") {
+      // Weidendammer Brücke has two narrow granite-clad piers and three
+      // iron arch openings. Their asymmetric historic span widths are kept.
+      for (const u of [-19.25, 19.25]) {
+        const [px, pz] = at(u, 0);
+        const height = deckY + riseAt(u) - deckThickness - bedY;
+        addPart(
+          boxTriangles(
+            px,
+            bedY + height / 2,
+            pz,
+            tangentAt(u),
+            2.6,
+            height,
+            halfWidth * 2 - 0.5,
+          ),
+          STONE_DARK,
+        );
+        for (const side of [-1, 1]) {
+          const [wx, wz] = at(u, side * (halfWidth - 0.15));
+          addPart(
+            prismTriangles(wx, waterTop + 2.0, wz, 1.4, 3.0, 3),
+            STONE,
+            false,
+          );
+        }
+      }
+      const spans = [
+        [-halfLength + 0.7, -20.65],
+        [-17.85, 17.85],
+        [20.65, halfLength - 0.7],
+      ] as const;
+      for (const [start, end] of spans) {
+        const steps = end - start > 25 ? 24 : 12;
+        for (let step = 0; step < steps; step += 1) {
+          const t = (step + 0.5) / steps;
+          const u = start + (end - start) * t;
+          const springY = waterTop + 1.1;
+          const crownY = deckY + riseAt(u) - 1.05;
+          const archY = springY + Math.sin(t * Math.PI) * (crownY - springY);
+          for (const side of [-1, 1]) {
+            const [rx, rz] = at(u, side * (halfWidth - 0.34));
+            addPart(
+              boxTriangles(
+                rx,
+                archY,
+                rz,
+                tangentAt(u),
+                (end - start) / steps + 0.12,
+                0.72,
+                0.46,
+              ),
+              STEEL,
+              false,
+            );
+            if (step % 3 === 1) {
+              const hangerHeight = deckY + riseAt(u) - 0.8 - archY;
+              if (hangerHeight > 0.25) {
+                addPart(
+                  boxTriangles(
+                    rx,
+                    archY + hangerHeight / 2,
+                    rz,
+                    tangentAt(u),
+                    0.16,
+                    hangerHeight,
+                    0.16,
+                  ),
+                  STEEL,
+                  false,
+                );
+              }
             }
           }
         }
@@ -4380,7 +4725,7 @@ export function createPaulLoebeCanopy(): Group {
 }
 
 /**
- * Landmark refinements: the four coarsest LoD2 simplifications left on
+ * Landmark refinements: three coarse LoD2 simplifications left on
  * prominent buildings after the Paul-Löbe-Haus west front. The extract
  * carries each of these as a plain extruded footprint, which drops the
  * single feature that makes the building recognisable:
@@ -4392,8 +4737,8 @@ export function createPaulLoebeCanopy(): Group {
  *   cylindrical library rotunda and its landward quayside canopy.
  * - Jakob-Kaiser-Haus: flat bars without the west arcade colonnade that
  *   faces the Reichstag across Dorotheenstraße.
- * - Schweizerische Botschaft: a bare 18 m box without the rusticated
- *   base, cornice, roof balustrade and entrance portico of the 1871 villa.
+ * The Swiss Embassy moved to CivicLandmarks, which owns its complete metric
+ * historic palace, Diener & Diener extension and roof flag in one layer.
  */
 const HKW_CENTER: readonly [number, number] = [-449.5, -6.5];
 const HKW_HALF_X = 44;
@@ -4445,6 +4790,10 @@ const BOTSCHAFT_MIN_Z = -256.4;
 const BOTSCHAFT_MAX_Z = -233.7;
 const BOTSCHAFT_GROUND_Y = 5.4;
 const BOTSCHAFT_CORNICE_Y = 21.6;
+// CivicLandmarks now owns the complete, metric embassy model. Retaining the
+// older geometry below for provenance is useful, but rendering both layers
+// produced coplanar cornices and the exact stationary shimmer users reported.
+const LEGACY_SWISS_REFINEMENT_ENABLED = false;
 
 /**
  * Gymnasium Tiergarten, Altonaer Straße 26 — the Altbau of 1901/02 by
@@ -4978,210 +5327,212 @@ export function createLandmarkRefinements(): Group {
     }
   }
 
-  // --- Schweizerische Botschaft: base, cornice, balustrade, portico -------
-  const botX = (BOTSCHAFT_MIN_X + BOTSCHAFT_MAX_X) / 2;
-  const botZ = (BOTSCHAFT_MIN_Z + BOTSCHAFT_MAX_Z) / 2;
-  const botSpanX = BOTSCHAFT_MAX_X - BOTSCHAFT_MIN_X;
-  const botSpanZ = BOTSCHAFT_MAX_Z - BOTSCHAFT_MIN_Z;
-  add(
-    boxTriangles(
-      botX,
-      BOTSCHAFT_GROUND_Y + 1.9,
-      botZ,
-      [1, 0],
-      botSpanX + 1.1,
-      3.8,
-      botSpanZ + 1.1,
-    ),
-    STONE_TONE,
-  );
-  add(
-    boxTriangles(
-      botX,
-      BOTSCHAFT_CORNICE_Y,
-      botZ,
-      [1, 0],
-      botSpanX + 1.6,
-      1,
-      botSpanZ + 1.6,
-    ),
-    SHELL_EDGE,
-  );
-  for (let x = BOTSCHAFT_MIN_X + 1.4; x <= BOTSCHAFT_MAX_X - 1.4; x += 2.1) {
-    for (const z of [BOTSCHAFT_MIN_Z - 0.5, BOTSCHAFT_MAX_Z + 0.5]) {
-      add(
-        prismTriangles(x, BOTSCHAFT_CORNICE_Y + 1.4, z, 0.22, 1.8, 8),
-        STONE_TONE,
-      );
-    }
-  }
-  add(
-    boxTriangles(
-      botX,
-      BOTSCHAFT_CORNICE_Y + 2.5,
-      botZ,
-      [1, 0],
-      botSpanX + 1.6,
-      0.4,
-      botSpanZ + 1.6,
-    ),
-    SHELL_EDGE,
-  );
-  for (let index = 0; index < 4; index += 1) {
-    add(
-      prismTriangles(
-        botX - 4.8 + index * 3.2,
-        BOTSCHAFT_GROUND_Y + 7.4,
-        BOTSCHAFT_MAX_Z + 2.2,
-        0.5,
-        11,
-        10,
-      ),
-      COLUMN_TONE,
-    );
-  }
-  add(
-    boxTriangles(
-      botX,
-      BOTSCHAFT_GROUND_Y + 13.5,
-      BOTSCHAFT_MAX_Z + 2.2,
-      [0, 1],
-      13.4,
-      1.2,
-      3.2,
-    ),
-    STONE_TONE,
-  );
-  // Portico pediment: a shallow triangular gable over the architrave.
-  const pedY = BOTSCHAFT_GROUND_Y + 14.1;
-  const pedZ = BOTSCHAFT_MAX_Z + 2.2;
-  const pedHalfX = 6.7;
-  const pedHalfZ = 1.6;
-  const pedApex = pedY + 2.4;
-  const gable: number[] = [];
-  for (const zSide of [-pedHalfZ, pedHalfZ]) {
-    gable.push(
-      botX - pedHalfX,
-      pedY,
-      pedZ + zSide,
-      botX + pedHalfX,
-      pedY,
-      pedZ + zSide,
-      botX,
-      pedApex,
-      pedZ + zSide,
-    );
-  }
-  for (const xSide of [-1, 1]) {
-    const ex = botX + xSide * pedHalfX;
-    gable.push(
-      ex,
-      pedY,
-      pedZ - pedHalfZ,
-      ex,
-      pedY,
-      pedZ + pedHalfZ,
-      botX,
-      pedApex,
-      pedZ + pedHalfZ,
-      ex,
-      pedY,
-      pedZ - pedHalfZ,
-      botX,
-      pedApex,
-      pedZ + pedHalfZ,
-      botX,
-      pedApex,
-      pedZ - pedHalfZ,
-    );
-  }
-  add(new Float32Array(gable), STONE_TONE);
-  // Rusticated base storey: deep beds with staggered vertical joints.
-  const botBaseTop = BOTSCHAFT_GROUND_Y + 3.8;
-  const rustX0 = BOTSCHAFT_MIN_X - 0.5;
-  const rustX1 = BOTSCHAFT_MAX_X + 0.5;
-  const rustZ0 = BOTSCHAFT_MIN_Z - 0.5;
-  const rustZ1 = BOTSCHAFT_MAX_Z + 0.5;
-  for (const y of [BOTSCHAFT_GROUND_Y + 1.25, BOTSCHAFT_GROUND_Y + 2.5]) {
-    inkLines.push(
-      rustX0,
-      y,
-      rustZ0,
-      rustX1,
-      y,
-      rustZ0,
-      rustX0,
-      y,
-      rustZ1,
-      rustX1,
-      y,
-      rustZ1,
-      rustX0,
-      y,
-      rustZ0,
-      rustX0,
-      y,
-      rustZ1,
-      rustX1,
-      y,
-      rustZ0,
-      rustX1,
-      y,
-      rustZ1,
-    );
-  }
-  for (let index = 0; index <= 20; index += 1) {
-    const x = rustX0 + (index / 20) * (rustX1 - rustX0);
-    const top = index % 2 === 0 ? BOTSCHAFT_GROUND_Y + 2.5 : botBaseTop;
-    inkLines.push(
-      x,
-      BOTSCHAFT_GROUND_Y,
-      rustZ0,
-      x,
-      top,
-      rustZ0,
-      x,
-      BOTSCHAFT_GROUND_Y,
-      rustZ1,
-      x,
-      top,
-      rustZ1,
-    );
-  }
-  // Cornice profile: a fascia and a drip course under the main slab.
-  for (const [y, inset] of [
-    [BOTSCHAFT_CORNICE_Y - 0.9, 0.4],
-    [BOTSCHAFT_CORNICE_Y - 1.7, 0.9],
-  ]) {
+  // --- Schweizerische Botschaft: legacy overlay, deliberately disabled ----
+  if (LEGACY_SWISS_REFINEMENT_ENABLED) {
+    const botX = (BOTSCHAFT_MIN_X + BOTSCHAFT_MAX_X) / 2;
+    const botZ = (BOTSCHAFT_MIN_Z + BOTSCHAFT_MAX_Z) / 2;
+    const botSpanX = BOTSCHAFT_MAX_X - BOTSCHAFT_MIN_X;
+    const botSpanZ = BOTSCHAFT_MAX_Z - BOTSCHAFT_MIN_Z;
     add(
       boxTriangles(
         botX,
-        y,
+        BOTSCHAFT_GROUND_Y + 1.9,
         botZ,
         [1, 0],
-        botSpanX + 1.6 - inset,
-        0.42,
-        botSpanZ + 1.6 - inset,
-      ),
-      SHELL_EDGE,
-    );
-  }
-  // Attica: the solid parapet dado carrying the balustrade on the two long
-  // fronts. It stays on the cornice edge, so the hipped roof behind it is
-  // untouched.
-  for (const z of [BOTSCHAFT_MIN_Z - 0.3, BOTSCHAFT_MAX_Z + 0.3]) {
-    add(
-      boxTriangles(
-        botX,
-        BOTSCHAFT_CORNICE_Y + 1.35,
-        z,
-        [1, 0],
-        botSpanX + 1.4,
-        1.7,
-        1.3,
+        botSpanX + 1.1,
+        3.8,
+        botSpanZ + 1.1,
       ),
       STONE_TONE,
     );
+    add(
+      boxTriangles(
+        botX,
+        BOTSCHAFT_CORNICE_Y,
+        botZ,
+        [1, 0],
+        botSpanX + 1.6,
+        1,
+        botSpanZ + 1.6,
+      ),
+      SHELL_EDGE,
+    );
+    for (let x = BOTSCHAFT_MIN_X + 1.4; x <= BOTSCHAFT_MAX_X - 1.4; x += 2.1) {
+      for (const z of [BOTSCHAFT_MIN_Z - 0.5, BOTSCHAFT_MAX_Z + 0.5]) {
+        add(
+          prismTriangles(x, BOTSCHAFT_CORNICE_Y + 1.4, z, 0.22, 1.8, 8),
+          STONE_TONE,
+        );
+      }
+    }
+    add(
+      boxTriangles(
+        botX,
+        BOTSCHAFT_CORNICE_Y + 2.5,
+        botZ,
+        [1, 0],
+        botSpanX + 1.6,
+        0.4,
+        botSpanZ + 1.6,
+      ),
+      SHELL_EDGE,
+    );
+    for (let index = 0; index < 4; index += 1) {
+      add(
+        prismTriangles(
+          botX - 4.8 + index * 3.2,
+          BOTSCHAFT_GROUND_Y + 7.4,
+          BOTSCHAFT_MAX_Z + 2.2,
+          0.5,
+          11,
+          10,
+        ),
+        COLUMN_TONE,
+      );
+    }
+    add(
+      boxTriangles(
+        botX,
+        BOTSCHAFT_GROUND_Y + 13.5,
+        BOTSCHAFT_MAX_Z + 2.2,
+        [0, 1],
+        13.4,
+        1.2,
+        3.2,
+      ),
+      STONE_TONE,
+    );
+    // Portico pediment: a shallow triangular gable over the architrave.
+    const pedY = BOTSCHAFT_GROUND_Y + 14.1;
+    const pedZ = BOTSCHAFT_MAX_Z + 2.2;
+    const pedHalfX = 6.7;
+    const pedHalfZ = 1.6;
+    const pedApex = pedY + 2.4;
+    const gable: number[] = [];
+    for (const zSide of [-pedHalfZ, pedHalfZ]) {
+      gable.push(
+        botX - pedHalfX,
+        pedY,
+        pedZ + zSide,
+        botX + pedHalfX,
+        pedY,
+        pedZ + zSide,
+        botX,
+        pedApex,
+        pedZ + zSide,
+      );
+    }
+    for (const xSide of [-1, 1]) {
+      const ex = botX + xSide * pedHalfX;
+      gable.push(
+        ex,
+        pedY,
+        pedZ - pedHalfZ,
+        ex,
+        pedY,
+        pedZ + pedHalfZ,
+        botX,
+        pedApex,
+        pedZ + pedHalfZ,
+        ex,
+        pedY,
+        pedZ - pedHalfZ,
+        botX,
+        pedApex,
+        pedZ + pedHalfZ,
+        botX,
+        pedApex,
+        pedZ - pedHalfZ,
+      );
+    }
+    add(new Float32Array(gable), STONE_TONE);
+    // Rusticated base storey: deep beds with staggered vertical joints.
+    const botBaseTop = BOTSCHAFT_GROUND_Y + 3.8;
+    const rustX0 = BOTSCHAFT_MIN_X - 0.5;
+    const rustX1 = BOTSCHAFT_MAX_X + 0.5;
+    const rustZ0 = BOTSCHAFT_MIN_Z - 0.5;
+    const rustZ1 = BOTSCHAFT_MAX_Z + 0.5;
+    for (const y of [BOTSCHAFT_GROUND_Y + 1.25, BOTSCHAFT_GROUND_Y + 2.5]) {
+      inkLines.push(
+        rustX0,
+        y,
+        rustZ0,
+        rustX1,
+        y,
+        rustZ0,
+        rustX0,
+        y,
+        rustZ1,
+        rustX1,
+        y,
+        rustZ1,
+        rustX0,
+        y,
+        rustZ0,
+        rustX0,
+        y,
+        rustZ1,
+        rustX1,
+        y,
+        rustZ0,
+        rustX1,
+        y,
+        rustZ1,
+      );
+    }
+    for (let index = 0; index <= 20; index += 1) {
+      const x = rustX0 + (index / 20) * (rustX1 - rustX0);
+      const top = index % 2 === 0 ? BOTSCHAFT_GROUND_Y + 2.5 : botBaseTop;
+      inkLines.push(
+        x,
+        BOTSCHAFT_GROUND_Y,
+        rustZ0,
+        x,
+        top,
+        rustZ0,
+        x,
+        BOTSCHAFT_GROUND_Y,
+        rustZ1,
+        x,
+        top,
+        rustZ1,
+      );
+    }
+    // Cornice profile: a fascia and a drip course under the main slab.
+    for (const [y, inset] of [
+      [BOTSCHAFT_CORNICE_Y - 0.9, 0.4],
+      [BOTSCHAFT_CORNICE_Y - 1.7, 0.9],
+    ]) {
+      add(
+        boxTriangles(
+          botX,
+          y,
+          botZ,
+          [1, 0],
+          botSpanX + 1.6 - inset,
+          0.42,
+          botSpanZ + 1.6 - inset,
+        ),
+        SHELL_EDGE,
+      );
+    }
+    // Attica: the solid parapet dado carrying the balustrade on the two long
+    // fronts. It stays on the cornice edge, so the hipped roof behind it is
+    // untouched.
+    for (const z of [BOTSCHAFT_MIN_Z - 0.3, BOTSCHAFT_MAX_Z + 0.3]) {
+      add(
+        boxTriangles(
+          botX,
+          BOTSCHAFT_CORNICE_Y + 1.35,
+          z,
+          [1, 0],
+          botSpanX + 1.4,
+          1.7,
+          1.3,
+        ),
+        STONE_TONE,
+      );
+    }
   }
 
   const merged = mergeGeometries(parts, false);
@@ -6538,6 +6889,7 @@ export function createIsometricCity(
       building.ring.length < 3 ||
       PRISM_SUPPRESSED_IDS.has(building.id) ||
       isInterimOfficeFootprintSuppressed(building) ||
+      isFriedrichstrasseStationFootprintSuppressed(building) ||
       (!PRISM_GLASSED_IDS.has(building.id) &&
         isHauptbahnhofFootprintSuppressed(building))
     ) {

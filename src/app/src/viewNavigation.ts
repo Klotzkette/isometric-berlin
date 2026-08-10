@@ -29,6 +29,16 @@ export function sightSlug(name: string): string {
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function legacySightSlug(name: string): string {
+  return name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -40,7 +50,12 @@ export function findSightBySlug<T extends NamedSight>(
   if (!slug) {
     return null;
   }
-  return sights.find((sight) => sightSlug(sight.name) === slug) ?? null;
+  return (
+    sights.find(
+      (sight) =>
+        sightSlug(sight.name) === slug || legacySightSlug(sight.name) === slug,
+    ) ?? null
+  );
 }
 
 export function parseViewHash(rawHash: string): ViewHashState {

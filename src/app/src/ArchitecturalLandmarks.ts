@@ -2600,6 +2600,15 @@ function addStationInterior(
     metalness: 0.78,
     roughness: 0.26,
   });
+  const retailGlass = nightEmitter(
+    modelMaterial(0x6f949c, {
+      metalness: 0.08,
+      opacity: 0.58,
+      roughness: 0.28,
+    }),
+    0xffd49a,
+    0.62,
+  );
 
   const halfWidth = signature.north_south_hall_width_m / 2 - 1;
   const halfLength = signature.north_south_hall_length_m / 2 - 2;
@@ -2611,6 +2620,8 @@ function addStationInterior(
     { openHalf: 9.5, y: 0 },
     { openHalf: 12, y: -5.4 },
   ];
+  const storefronts: InstanceTransform[] = [];
+  const galleryRailSegments: VectorSegment[] = [];
 
   for (const side of [-1, 1]) {
     const near = side * armNear;
@@ -2627,6 +2638,25 @@ function addStationInterior(
           slab,
           0.45,
         );
+      }
+      const armStart = Math.min(Math.abs(near), Math.abs(far));
+      const armEnd = Math.max(Math.abs(near), Math.abs(far));
+      for (let index = 0; index < 5; index += 1) {
+        const z =
+          side *
+          (armStart + 8 + (index / 4) * Math.max(0, armEnd - armStart - 16));
+        for (const edge of [-1, 1]) {
+          storefronts.push({
+            position: [edge * (halfWidth - 0.45), level.y + 1.75, z],
+            scale: [1, 1, 1],
+          });
+        }
+      }
+      for (const edge of [-1, 1]) {
+        galleryRailSegments.push([
+          [edge * level.openHalf, level.y + 0.9, near],
+          [edge * level.openHalf, level.y + 0.9, far],
+        ]);
       }
     }
     // Two escalator runs per gap, flanking the slot the way the real ones do.
@@ -2653,6 +2683,44 @@ function addStationInterior(
         );
       }
     });
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced concourse shopfronts",
+    [0.28, 3.5, 11.5],
+    retailGlass,
+    storefronts,
+  );
+  addVectorSegments(
+    group,
+    "Hauptbahnhof batched gallery glass balustrades",
+    galleryRailSegments,
+    0x7c999f,
+    0.54,
+  );
+
+  // Four glazed lift shafts make the vertical circulation legible through
+  // the station roof. Their lift cars are deliberately offset so the shafts
+  // do not read as opaque towers.
+  for (const x of [-14.8, 14.8]) {
+    for (const z of [-33, 33]) {
+      addBox(
+        group,
+        "Hauptbahnhof glass lift shaft",
+        [3.2, 23.5, 3.2],
+        [x, -2.25, z],
+        retailGlass,
+        0.25,
+      );
+      addBox(
+        group,
+        "Hauptbahnhof lift car",
+        [2.35, 3.15, 2.35],
+        [x, z > 0 ? 1.4 : -8.6, z],
+        escalator,
+        0.2,
+      );
+    }
   }
 
   // The north–south deep station, crossing under the Stadtbahn at −15 m.

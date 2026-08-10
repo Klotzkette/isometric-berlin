@@ -3,7 +3,11 @@ import { describe, expect, test } from "bun:test";
 import { Box3, Group, LineSegments, Mesh } from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
-import { type RailPayload, createRailNetwork } from "../src/RailNetwork";
+import {
+  HBF_EAST_STEEL_SUPPORT_BOUNDS,
+  type RailPayload,
+  createRailNetwork,
+} from "../src/RailNetwork";
 import railLines from "../public/mesh/regierungsviertel/rail-lines.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 
@@ -60,5 +64,16 @@ describe("C13: the aboveground railway", () => {
     );
     // The piers reach down to the surveyed ground.
     expect(bounds.min.y).toBeLessThan(5);
+  });
+
+  test("uses rust-red steel trestles on the east Hauptbahnhof approach", () => {
+    const group = createRailNetwork(rail, ground)!;
+    expect(group.userData.hbfEastSteelSupportCount).toBeGreaterThan(10);
+    expect(HBF_EAST_STEEL_SUPPORT_BOUNDS).toEqual({
+      maxX: 270,
+      maxZ: -580,
+      minX: -92,
+      minZ: -755,
+    });
   });
 });

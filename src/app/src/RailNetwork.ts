@@ -25,8 +25,10 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   Path,
+  Quaternion,
   Shape,
   ShapeGeometry,
+  Vector3,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
@@ -59,6 +61,8 @@ const PIER_TONE = 0xc9b7a1;
 const BALLAST_TONE = 0xc4bcac;
 const RAIL_TONE = 0x6f6a61;
 const RAIL_INK = 0x716c62;
+const HBF_EAST_STEEL = 0x8f614d;
+const HBF_EAST_STEEL_DARK = 0x68483d;
 
 const DECK_THICKNESS_M = 0.9;
 const FASCIA_THICKNESS_M = 0.4;
@@ -71,6 +75,13 @@ const RAIL_HEIGHT_M = 0.18;
 const BALLAST_LIFT_M = 0.35;
 /** Nothing shorter than this is worth a box of its own. */
 const MIN_SEGMENT_M = 0.4;
+
+export const HBF_EAST_STEEL_SUPPORT_BOUNDS = {
+  maxX: 270,
+  maxZ: -580,
+  minX: -92,
+  minZ: -755,
+} as const;
 
 type Builder = {
   edges: BufferGeometry[];
@@ -129,6 +140,41 @@ function addBeam(
     { x: width, y: height, z: run },
     { x: (from[0] + to[0]) / 2, y: centreY, z: (from[1] + to[1]) / 2 },
     Math.atan2(dx, dz),
+  );
+}
+
+function addStrut(
+  builder: Builder,
+  hex: number,
+  from: [number, number, number],
+  to: [number, number, number],
+  thickness: number,
+): void {
+  const start = new Vector3(...from);
+  const end = new Vector3(...to);
+  const direction = end.clone().sub(start);
+  const length = direction.length();
+  if (length < MIN_SEGMENT_M) return;
+  const geometry = new BoxGeometry(thickness, length, thickness);
+  geometry.deleteAttribute("uv");
+  const quaternion = new Quaternion().setFromUnitVectors(
+    new Vector3(0, 1, 0),
+    direction.normalize(),
+  );
+  geometry.applyQuaternion(quaternion);
+  geometry.translate(
+    (from[0] + to[0]) / 2,
+    (from[1] + to[1]) / 2,
+    (from[2] + to[2]) / 2,
+  );
+  paint(geometry, hex);
+  builder.parts.push(geometry);
+}
+
+function isHbfEastSteelSupport(x: number, z: number): boolean {
+  const bounds = HBF_EAST_STEEL_SUPPORT_BOUNDS;
+  return (
+    x >= bounds.minX && x <= bounds.maxX && z >= bounds.minZ && z <= bounds.maxZ
   );
 }
 
@@ -273,6 +319,7 @@ export function createRailNetwork(
   const builder: Builder = { edges: [], parts: [] };
   const deckTop = payload.deck_top_y_m;
   const deckBottom = deckTop - DECK_THICKNESS_M;
+  let hbfEastSteelSupportCount = 0;
 
   for (const surface of payload.viaduct) {
     addPlate(builder, surface, DECK_TONE, deckTop);
@@ -298,6 +345,37 @@ export function createRailNetwork(
     const z = zDm / 10;
     const foot = sample(x, z);
     if (foot === null || foot >= deckBottom) {
+      continue;
+    }
+    if (isHbfEastSteelSupport(x, z)) {
+      hbfEastSteelSupportCount += 1;
+      const height = deckBottom - foot;
+      addBox(
+        builder,
+        HBF_EAST_STEEL,
+        { x: 0.72, y: height, z: 0.72 },
+        { x, y: (foot + deckBottom) / 2, z },
+      );
+      addBox(
+        builder,
+        HBF_EAST_STEEL_DARK,
+        { x: 0.8, y: 0.42, z: 5.8 },
+        { x, y: deckBottom - 0.2, z },
+      );
+      addStrut(
+        builder,
+        HBF_EAST_STEEL_DARK,
+        [x, foot + 0.35, z - 2.1],
+        [x, deckBottom - 0.55, z],
+        0.28,
+      );
+      addStrut(
+        builder,
+        HBF_EAST_STEEL_DARK,
+        [x, foot + 0.35, z + 2.1],
+        [x, deckBottom - 0.55, z],
+        0.28,
+      );
       continue;
     }
     addBox(
@@ -332,6 +410,7 @@ export function createRailNetwork(
   group.name = "OSM aboveground railway";
   group.userData.geometryStatus =
     "OSM plan course; the deck runs level at the station model's own deck height because OSM carries no rail elevation";
+  group.userData.hbfEastSteelSupportCount = hbfEastSteelSupportCount;
 
   const merged = mergeGeometries(builder.parts, false);
   if (merged) {

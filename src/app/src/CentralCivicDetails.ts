@@ -1,9 +1,12 @@
 import {
   BoxGeometry,
+  BufferGeometry,
+  CircleGeometry,
   CylinderGeometry,
   DoubleSide,
   EdgesGeometry,
   ExtrudeGeometry,
+  Float32BufferAttribute,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -128,6 +131,46 @@ const WALL_FENCE = 0x555d5e;
 const KITA_BLUE = 0x3f78a8;
 const KITA_RED = 0xd65342;
 const KITA_YELLOW = 0xf0c73b;
+
+export const CUBE_BERLIN_FOOTPRINT_WORLD = [
+  [-167.14, -533.37],
+  [-151.44, -494.12],
+  [-111.77, -509.91],
+  [-127.47, -549.16],
+] as const;
+export const CUBE_BERLIN_HEIGHT_M = 43.6;
+export const CUBE_BERLIN_PRISM_IDS = [
+  "FD4M9wox",
+  "VoiEX357",
+  "lXwHgFCt",
+  "MwfoOvua",
+] as const;
+export const TEAR_PALACE_FOOTPRINT_WORLD = [
+  [1048.21, -183.39],
+  [1050.44, -187.52],
+  [1049.32, -188.34],
+  [1063.04, -213.1],
+  [1072.14, -210.04],
+  [1073.54, -212.54],
+  [1079.71, -208.2],
+  [1077.7, -206.02],
+  [1083.41, -198.58],
+  [1064.82, -177.35],
+  [1063.82, -178.14],
+  [1060.67, -174.51],
+] as const;
+export const TEAR_PALACE_PRISM_IDS = [
+  "U4ubriIq",
+  "3z4aOJds",
+  "92ZtVVpI",
+] as const;
+export const PARISER_PLATZ_GARDENS = [
+  { centre: [500.7, 334.1], size: [74.3, 22.6] },
+  { centre: [494.2, 254.9], size: [75, 23] },
+] as const;
+export const BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD = [
+  576.06, 4.8, 286.37,
+] as const;
 
 /** Berlin LoD2 building DEBE00YY20g0005J, in project-world metres. */
 export const FUTURIUM_BUILDING_ID = "20g0005J";
@@ -262,6 +305,119 @@ function addExtrudedFootprint(
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
   if (inked) builder.edges.push(new EdgesGeometry(geometry, 24));
+}
+
+function scaledRing(
+  ring: readonly FootprintPoint[],
+  scale: number,
+): [number, number][] {
+  const centreX = ring.reduce((sum, [x]) => sum + x, 0) / ring.length;
+  const centreZ = ring.reduce((sum, [, z]) => sum + z, 0) / ring.length;
+  return ring.map(([x, z]) => [
+    centreX + (x - centreX) * scale,
+    centreZ + (z - centreZ) * scale,
+  ]);
+}
+
+function addTriangle(
+  builder: Builder,
+  color: number,
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
+  c: readonly [number, number, number],
+): void {
+  // Both windings keep the ultra-thin outer-skin facets visible from every
+  // camera angle without creating a coplanar box that can shimmer.
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute([...a, ...b, ...c, ...a, ...c, ...b], 3),
+  );
+  geometry.setIndex([0, 1, 2, 3, 4, 5]);
+  geometry.computeVertexNormals();
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+}
+
+function addBarrelRoofGeometry(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  length: number,
+  width: number,
+  eavesY: number,
+  rise: number,
+  rotationY: number,
+  segments = 20,
+): void {
+  const vertices: number[] = [];
+  const gridLines: number[] = [];
+  const world = (along: number, across: number, y: number) => {
+    const position = localPoint(point, along, across, rotationY);
+    return [position.x, point.y + y, position.z] as const;
+  };
+  const profile = (index: number) => {
+    const angle = (index / segments) * Math.PI;
+    return {
+      across: -width / 2 + (index / segments) * width,
+      y: eavesY + Math.sin(angle) * rise,
+    };
+  };
+  for (let index = 0; index < segments; index += 1) {
+    const left = profile(index);
+    const right = profile(index + 1);
+    const a = world(-length / 2, left.across, left.y);
+    const b = world(length / 2, left.across, left.y);
+    const c = world(length / 2, right.across, right.y);
+    const d = world(-length / 2, right.across, right.y);
+    // Keep the thin glass shell visible from both the exterior and the train
+    // shed. The merged city kit deliberately uses FrontSide materials, so a
+    // single winding disappeared from half of the orbital camera positions.
+    vertices.push(
+      ...a,
+      ...b,
+      ...c,
+      ...a,
+      ...c,
+      ...d,
+      ...a,
+      ...c,
+      ...b,
+      ...a,
+      ...d,
+      ...c,
+    );
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(
+    Array.from({ length: vertices.length / 3 }, (_, index) => index),
+  );
+  geometry.computeVertexNormals();
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+
+  for (let alongIndex = 0; alongIndex <= 16; alongIndex += 1) {
+    const along = -length / 2 + (alongIndex / 16) * length;
+    for (let profileIndex = 0; profileIndex < segments; profileIndex += 1) {
+      const a = profile(profileIndex);
+      const b = profile(profileIndex + 1);
+      gridLines.push(
+        ...world(along, a.across, a.y),
+        ...world(along, b.across, b.y),
+      );
+    }
+  }
+  for (let profileIndex = 0; profileIndex <= segments; profileIndex += 2) {
+    const profilePoint = profile(profileIndex);
+    gridLines.push(
+      ...world(-length / 2, profilePoint.across, profilePoint.y),
+      ...world(length / 2, profilePoint.across, profilePoint.y),
+    );
+  }
+  const grid = new BufferGeometry();
+  grid.setAttribute("position", new Float32BufferAttribute(gridLines, 3));
+  builder.edges.push(grid);
 }
 
 function addFacadePanel(
@@ -927,6 +1083,407 @@ function addBundestagKita(builder: Builder): void {
   });
 }
 
+function addPariserPlatzDetails(builder: Builder): void {
+  const rotation = 0.087;
+  const gardenBaseY = 4.84;
+  const flowerPalette = [0x4f72af, 0xf1eee5, 0xb84946] as const;
+  PARISER_PLATZ_GARDENS.forEach(({ centre, size }, gardenIndex) => {
+    const point = new Vector3(centre[0], gardenBaseY, centre[1]);
+    const [width, depth] = size;
+    // The lawns and fountains already come from OSM. These raised strips are
+    // the narrow flower borders and granite rims documented by Berlin's
+    // Pariser-Platz plan, not a second ground surface.
+    for (const side of [-1, 1]) {
+      localBox(
+        builder,
+        LIMESTONE,
+        point,
+        0,
+        0.15,
+        side * (depth / 2 - 0.35),
+        width,
+        0.3,
+        0.7,
+        rotation,
+        false,
+      );
+      localBox(
+        builder,
+        LIMESTONE,
+        point,
+        side * (width / 2 - 0.35),
+        0.15,
+        0,
+        0.7,
+        0.3,
+        depth,
+        rotation,
+        false,
+      );
+    }
+    for (let index = 0; index < 18; index += 1) {
+      const along = -width / 2 + 3 + (index / 17) * (width - 6);
+      for (const side of [-1, 1]) {
+        const flower = localPoint(
+          point,
+          along,
+          side * (depth / 2 - 1.05),
+          rotation,
+        );
+        addCylinder(
+          builder,
+          flowerPalette[(index + gardenIndex) % flowerPalette.length],
+          flower.x,
+          gardenBaseY + 0.32,
+          flower.z,
+          0.26,
+          0.36,
+          7,
+        );
+      }
+    }
+    for (const x of [-width / 2 + 3.1, width / 2 - 3.1]) {
+      for (const z of [-depth / 2 + 3.1, depth / 2 - 3.1]) {
+        const topiary = localPoint(point, x, z, rotation);
+        addCylinder(
+          builder,
+          FOLIAGE,
+          topiary.x,
+          gardenBaseY + 1.15,
+          topiary.z,
+          1.45,
+          2.1,
+          14,
+        );
+      }
+    }
+    addCylinder(
+      builder,
+      LIMESTONE,
+      centre[0],
+      gardenBaseY + 0.12,
+      centre[1],
+      5.55,
+      0.24,
+      28,
+    );
+    addCylinder(
+      builder,
+      0x7fb8c5,
+      centre[0],
+      gardenBaseY + 0.26,
+      centre[1],
+      4.95,
+      0.12,
+      28,
+    );
+  });
+
+  // Low black bollards separate the pedestrian square from the vehicle
+  // approaches. Their 2.35 m rhythm comes from the mapped street edge.
+  for (const z of [247, 259, 323, 335]) {
+    for (let x = 438; x <= 548; x += 9.2) {
+      addCylinder(builder, INK, x, 5.35, z, 0.14, 1.1, 10);
+    }
+  }
+
+  const entrance = new Vector3(...BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD);
+  const entranceRotation = 0.087;
+  localBox(
+    builder,
+    DARK_GLASS,
+    entrance,
+    0,
+    0.08,
+    0,
+    10.4,
+    0.16,
+    5.4,
+    entranceRotation,
+  );
+  for (let step = 0; step < 7; step += 1) {
+    localBox(
+      builder,
+      STEEL,
+      entrance,
+      0,
+      0.18 + step * 0.11,
+      -1.9 + step * 0.52,
+      8.2,
+      0.18,
+      0.48,
+      entranceRotation,
+      false,
+    );
+  }
+  for (const side of [-1, 1]) {
+    localBox(
+      builder,
+      GLASS,
+      entrance,
+      side * 4.45,
+      1.2,
+      0,
+      0.18,
+      2.2,
+      5.4,
+      entranceRotation,
+    );
+  }
+  const pylon = localPoint(entrance, 6.5, -1.8, entranceRotation);
+  addCylinder(builder, STEEL, pylon.x, 6.7, pylon.z, 0.1, 3.8, 10);
+  addBox(builder, TRANSIT_BLUE, pylon.x, 8.7, pylon.z, 1.55, 1.55, 0.18);
+}
+
+function addPariserPlatzEmbassies(builder: Builder): void {
+  // US Embassy, Moore Ruble Yudell (OSM way 195257482): the north facade
+  // facing the square is a restrained limestone screen with deep windows.
+  const us = new Vector3(459.5, 4.9, 409.8);
+  const usRotation = 0.087;
+  for (let bay = 0; bay < 11; bay += 1) {
+    const x = -27.5 + bay * 5.5;
+    localBox(
+      builder,
+      LIMESTONE,
+      us,
+      x,
+      11,
+      -52.95,
+      0.52,
+      20.5,
+      0.55,
+      usRotation,
+    );
+    for (let floor = 0; floor < 4; floor += 1) {
+      localLampBox(
+        builder,
+        DARK_GLASS,
+        us,
+        x + 2.4,
+        4.1 + floor * 4.55,
+        -52.82,
+        3.65,
+        2.35,
+        0.3,
+        usRotation,
+      );
+    }
+  }
+  localBox(builder, 0x4b5556, us, 0, 4.2, -53.15, 7.2, 7.2, 0.48, usRotation);
+
+  // French Embassy, Christian de Portzamparc: a pale, horizontally layered
+  // Pariser-Platz facade with a deeper central entrance bay.
+  const france = new Vector3(539.7, 4.7, 201.3);
+  const franceRotation = 0.087;
+  for (let floor = 0; floor < 4; floor += 1) {
+    for (let bay = 0; bay < 13; bay += 1) {
+      localLampBox(
+        builder,
+        floor === 0 ? DARK_GLASS : 0x6f8588,
+        france,
+        -29.4 + bay * 4.9,
+        4.1 + floor * 4.45,
+        29.95,
+        2.85,
+        2.35,
+        0.3,
+        franceRotation,
+      );
+    }
+  }
+  for (let bay = 0; bay <= 13; bay += 1) {
+    localBox(
+      builder,
+      SANDSTONE,
+      france,
+      -31.85 + bay * 4.9,
+      11,
+      30.2,
+      0.34,
+      21,
+      0.42,
+      franceRotation,
+      false,
+    );
+  }
+  localBox(
+    builder,
+    DARK_GLASS,
+    france,
+    0,
+    4.3,
+    30.25,
+    8.6,
+    7.6,
+    0.44,
+    franceRotation,
+  );
+}
+
+function addCubeBerlin(builder: Builder): void {
+  const baseY = 5.4;
+  addExtrudedFootprint(
+    builder,
+    0xa9c9cf,
+    CUBE_BERLIN_FOOTPRINT_WORLD,
+    baseY,
+    CUBE_BERLIN_HEIGHT_M,
+  );
+  addExtrudedFootprint(
+    builder,
+    0xdbe4e2,
+    scaledRing(CUBE_BERLIN_FOOTPRINT_WORLD, 1.008),
+    baseY + CUBE_BERLIN_HEIGHT_M,
+    0.34,
+  );
+  const ring = CUBE_BERLIN_FOOTPRINT_WORLD;
+  const signedArea = ring.reduce((sum, [x0, z0], index) => {
+    const [x1, z1] = ring[(index + 1) % ring.length];
+    return sum + x0 * z1 - x1 * z0;
+  }, 0);
+  for (let edge = 0; edge < ring.length; edge += 1) {
+    const [x0, z0] = ring[edge];
+    const [x1, z1] = ring[(edge + 1) % ring.length];
+    const dx = x1 - x0;
+    const dz = z1 - z0;
+    const length = Math.hypot(dx, dz);
+    const nx = (signedArea > 0 ? dz : -dz) / length;
+    const nz = (signedArea > 0 ? -dx : dx) / length;
+    const bays = Math.max(5, Math.round(length / 7.2));
+    const floors = 9;
+    for (let bay = 0; bay < bays; bay += 1) {
+      const ta = bay / bays;
+      const tb = (bay + 1) / bays;
+      for (let floor = 0; floor < floors; floor += 1) {
+        const ya = baseY + 1.05 + (floor / floors) * 41.2;
+        const yb = baseY + 1.05 + ((floor + 1) / floors) * 41.2;
+        const a = [
+          x0 + dx * ta + nx * 0.07,
+          ya,
+          z0 + dz * ta + nz * 0.07,
+        ] as const;
+        const b = [
+          x0 + dx * tb + nx * 0.07,
+          ya,
+          z0 + dz * tb + nz * 0.07,
+        ] as const;
+        const c = [
+          x0 + dx * tb + nx * 0.07,
+          yb,
+          z0 + dz * tb + nz * 0.07,
+        ] as const;
+        const d = [
+          x0 + dx * ta + nx * 0.07,
+          yb,
+          z0 + dz * ta + nz * 0.07,
+        ] as const;
+        const firstTone = (bay + floor + edge) % 2 === 0 ? 0x7faab4 : 0xc4d9dc;
+        const secondTone = firstTone === 0x7faab4 ? 0x9bbbc2 : 0xe1e8e5;
+        if ((bay + floor) % 2 === 0) {
+          addTriangle(builder, firstTone, a, b, c);
+          addTriangle(builder, secondTone, a, c, d);
+        } else {
+          addTriangle(builder, firstTone, a, b, d);
+          addTriangle(builder, secondTone, b, c, d);
+        }
+      }
+    }
+  }
+}
+
+function addEconomicsMinistry(builder: Builder): void {
+  // Restored Invalidenstraße front: long pale facade, red-tiled mansard,
+  // and the rounded historic pavilion at its eastern end.
+  const historic = new Vector3(255.5, 5.2, -1044.4);
+  const rotation = 0.514;
+  localBox(builder, SANDSTONE, historic, 0, 1.25, 0.4, 116, 2.5, 0.7, rotation);
+  localBox(
+    builder,
+    LIMESTONE,
+    historic,
+    0,
+    20.3,
+    0.4,
+    118,
+    0.72,
+    0.8,
+    rotation,
+  );
+  addFacadeGrid(builder, historic, {
+    bays: 19,
+    baySpacing: 5.8,
+    floors: 4,
+    floorSpacing: 4.15,
+    frontZ: 0.65,
+    rotationY: rotation,
+    startY: 4.2,
+    width: 2.45,
+  });
+  for (const z of [-4.6, 4.6]) {
+    localBox(
+      builder,
+      0xa8644d,
+      historic,
+      0,
+      22.15,
+      z,
+      116,
+      0.42,
+      7.2,
+      rotation,
+      false,
+    );
+  }
+  const rotunda = new Vector3(201.5, 5.2, -1015.5);
+  addCylinder(builder, LIMESTONE, rotunda.x, 14.2, rotunda.z, 9.2, 18, 30);
+  addCone(builder, 0xa8644d, rotunda.x, 25.2, rotunda.z, 10.1, 4, 30);
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI * 2;
+    addBox(
+      builder,
+      DARK_GLASS,
+      rotunda.x + Math.cos(angle) * 9.18,
+      14,
+      rotunda.z + Math.sin(angle) * 9.18,
+      1.7,
+      5.8,
+      0.24,
+      -angle + Math.PI / 2,
+      false,
+    );
+  }
+
+  // The post-reunification extension keeps the old complex's courtyard
+  // scale but uses restrained pale stone and regular contemporary glazing.
+  const modern = new Vector3(112, 5.2, -1198);
+  addFacadeGrid(builder, modern, {
+    bays: 14,
+    baySpacing: 5.6,
+    color: 0x627d82,
+    floors: 4,
+    floorSpacing: 4,
+    frontZ: 0.35,
+    rotationY: rotation,
+    startY: 4,
+    width: 3.1,
+  });
+  for (let bay = 0; bay <= 14; bay += 1) {
+    localBox(
+      builder,
+      IVORY,
+      modern,
+      -39.2 + bay * 5.6,
+      10.5,
+      0.55,
+      0.28,
+      18.2,
+      0.35,
+      rotation,
+      false,
+    );
+  }
+}
+
 function addBerlinerEnsemble(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
@@ -934,19 +1491,22 @@ function addBerlinerEnsemble(
   const source = anchor(byName, "Berliner Ensemble");
   if (!source) return;
   const point = source.clone().add(new Vector3(24, 0, 13));
+  point.y = 4.05;
   const rotation = -0.12;
-  localBox(builder, IVORY, point, 0, 10, 0, 44, 19, 43, rotation);
-  localBox(builder, SANDSTONE, point, 0, 20, 0, 48, 1.2, 47, rotation);
+  // LoD2 keeps the complete theatre mass. This layer adds only the
+  // Schiffbauerdamm facade so it cannot fight a second full-size box.
+  localBox(builder, SANDSTONE, point, 0, 19.2, 21.75, 48, 1.0, 0.62, rotation);
+  localBox(builder, IVORY, point, 0, 2.2, 21.75, 46, 4.2, 0.6, rotation);
   for (const x of [-17, -11.3, -5.6, 0, 5.6, 11.3, 17]) {
     localBox(
       builder,
       SANDSTONE,
       point,
       x,
-      10.5,
+      10.1,
       21.75,
       0.72,
-      18,
+      16.8,
       0.65,
       rotation,
     );
@@ -958,10 +1518,10 @@ function addBerlinerEnsemble(
     floorSpacing: 4.6,
     frontZ: 21.98,
     rotationY: rotation,
-    startY: 5,
+    startY: 4.5,
     width: 2.5,
   });
-  localBox(builder, DARK_BRICK, point, 0, 18.4, 22.2, 22, 2.1, 0.2, rotation);
+  localBox(builder, DARK_BRICK, point, 0, 17.2, 22.2, 22, 1.7, 0.2, rotation);
 }
 
 function addFriedrichstrasseStation(
@@ -970,24 +1530,25 @@ function addFriedrichstrasseStation(
 ): void {
   const point = anchor(byName, "Bahnhof Berlin Friedrichstraße");
   if (!point) return;
+  point.y = 2.85;
   const rotation = -0.03;
-  localBox(builder, BRICK, point, 0, 9.5, 0, 143, 17.8, 72, rotation);
-  localBox(builder, DARK_GLASS, point, 0, 19.4, 0, 146, 1.2, 74, rotation);
-  for (let x = -68; x <= 68; x += 8.5) {
-    localBox(builder, STEEL, point, x, 23, 0, 0.42, 8, 72, rotation);
-  }
-  for (let z = -31; z <= 31; z += 6.2) {
-    localBox(
+  localBox(builder, BRICK, point, 0, 8.7, 0, 143, 17.4, 72, rotation);
+  localBox(builder, SANDSTONE, point, 0, 1.25, 36.1, 143, 2.5, 0.8, rotation);
+  // The 1919-25 rebuild is a twin train shed, not one oversized barrel.
+  // Each steel-and-glass vault spans half the LoD2 station footprint and
+  // meets its neighbour at the central valley gutter.
+  for (const across of [-18, 18]) {
+    const roofCentre = localPoint(point, 0, across, rotation);
+    addBarrelRoofGeometry(
       builder,
-      GLASS,
-      point,
-      0,
-      24.2 - Math.abs(z) * 0.08,
-      z,
-      144,
-      0.42,
-      5.4,
+      0x668286,
+      new Vector3(roofCentre.x, point.y, roofCentre.z),
+      146,
+      35.8,
+      17.4,
+      10.6,
       rotation,
+      16,
     );
   }
   addFacadeGrid(builder, point, {
@@ -1000,6 +1561,74 @@ function addFriedrichstrasseStation(
     startY: 5.1,
     width: 3.8,
   });
+  // The two end gables expose the arched train shed rather than closing it
+  // with a featureless brick wall.
+  for (const end of [-1, 1]) {
+    const endPoint = localPoint(point, end * 71.55, 0, rotation);
+    for (let bay = -5; bay <= 5; bay += 1) {
+      const across = bay * 5.6;
+      const pane = localPoint(
+        new Vector3(endPoint.x, point.y, endPoint.z),
+        0,
+        across,
+        rotation,
+      );
+      addBox(
+        builder,
+        DARK_GLASS,
+        pane.x,
+        point.y + 19.2 + (1 - Math.abs(bay) / 6) * 4.2,
+        pane.z,
+        0.28,
+        5.6,
+        4.7,
+        rotation,
+        false,
+      );
+    }
+  }
+}
+
+function addTearPalace(builder: Builder): void {
+  const baseY = 2.85;
+  addExtrudedFootprint(
+    builder,
+    0x91bcc4,
+    TEAR_PALACE_FOOTPRINT_WORLD,
+    baseY,
+    7.35,
+  );
+  addExtrudedFootprint(
+    builder,
+    0xd6dedc,
+    scaledRing(TEAR_PALACE_FOOTPRINT_WORLD, 1.055),
+    baseY + 7.28,
+    0.34,
+  );
+  const ring = TEAR_PALACE_FOOTPRINT_WORLD;
+  for (let edge = 0; edge < ring.length; edge += 1) {
+    const [x0, z0] = ring[edge];
+    const [x1, z1] = ring[(edge + 1) % ring.length];
+    const dx = x1 - x0;
+    const dz = z1 - z0;
+    const length = Math.hypot(dx, dz);
+    const posts = Math.max(1, Math.round(length / 2.35));
+    for (let index = 0; index <= posts; index += 1) {
+      const t = index / posts;
+      addBox(
+        builder,
+        0x7b9ba0,
+        x0 + dx * t,
+        baseY + 3.7,
+        z0 + dz * t,
+        0.16,
+        7.2,
+        0.16,
+        -Math.atan2(dz, dx),
+        false,
+      );
+    }
+  }
 }
 
 function addFinanceMinistry(
@@ -1234,6 +1863,64 @@ function createSign(
   return sign;
 }
 
+function createBerlinerEnsembleRoofSign(point: Vector3): Group {
+  const group = new Group();
+  group.name = "Berliner Ensemble circular rooftop sign";
+  const rotationY = -0.12;
+  const centre = localPoint(point, 0, 0, rotationY);
+  const dayMaterial = new MeshBasicMaterial({
+    color: 0xa72e2e,
+    side: DoubleSide,
+  });
+  const nightMaterial = new MeshStandardMaterial({
+    color: 0xa72e2e,
+    emissive: 0xdb3e31,
+    emissiveIntensity: 0.82,
+    side: DoubleSide,
+  });
+  const disc = new Mesh(new CircleGeometry(7.2, 48), dayMaterial);
+  disc.name = "Berliner Ensemble red circular roof emblem";
+  disc.position.set(centre.x, point.y + 27.2, centre.z);
+  disc.rotation.y = rotationY;
+  disc.userData.dayMaterial = dayMaterial;
+  disc.userData.nightMaterial = nightMaterial;
+  group.add(disc);
+
+  for (const x of [-4.4, 4.4]) {
+    const supportPoint = localPoint(point, x, 0.2, rotationY);
+    const support = new Mesh(
+      new BoxGeometry(0.28, 8.5, 0.28),
+      new MeshBasicMaterial({ color: 0x555b59 }),
+    );
+    support.name = "Berliner Ensemble roof-sign support";
+    support.position.set(supportPoint.x, point.y + 21.5, supportPoint.z);
+    group.add(support);
+  }
+  group.add(
+    createSign(
+      "BERLINER",
+      11.4,
+      2.1,
+      point,
+      [0, 29, 0.08],
+      rotationY,
+      "#a72e2e",
+      "#fff5df",
+    ),
+    createSign(
+      "ENSEMBLE",
+      11.4,
+      2.1,
+      point,
+      [0, 25.9, 0.08],
+      rotationY,
+      "#a72e2e",
+      "#fff5df",
+    ),
+  );
+  return group;
+}
+
 function addSigns(
   group: Group,
   byName: Map<string, CentralCivicLandmark>,
@@ -1256,6 +1943,7 @@ function addSigns(
   const ensemble = anchor(byName, "Berliner Ensemble");
   if (ensemble) {
     const point = ensemble.clone().add(new Vector3(24, 0, 13));
+    point.y = 4.05;
     group.add(
       createSign(
         "BERLINER ENSEMBLE",
@@ -1268,6 +1956,7 @@ function addSigns(
         "#f6e9ca",
       ),
     );
+    group.add(createBerlinerEnsembleRoofSign(point));
   }
   const s15 = anchor(byName, "S15-Station Berlin Hauptbahnhof");
   if (s15) {
@@ -1314,6 +2003,33 @@ export function createCentralCivicDetails(
     heightM: FUTURIUM_HEIGHT_M,
     source: "Berlin LoD2 + OSM + Futurium architecture specification",
   };
+  group.userData.pariserPlatz = {
+    gardens: PARISER_PLATZ_GARDENS,
+    subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
+    source:
+      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints",
+  };
+  group.userData.cubeBerlin = {
+    footprintWorld: CUBE_BERLIN_FOOTPRINT_WORLD,
+    heightM: CUBE_BERLIN_HEIGHT_M,
+    prismIds: CUBE_BERLIN_PRISM_IDS,
+    source: "Berlin LoD2 + OSM way 624737072 + 3XN published dimensions",
+  };
+  group.userData.tearPalace = {
+    footprintWorld: TEAR_PALACE_FOOTPRINT_WORLD,
+    prismIds: TEAR_PALACE_PRISM_IDS,
+    source: "Berlin LoD2 + OSM way 43173495 + Haus der Geschichte",
+  };
+  group.userData.friedrichstrasseStation = {
+    footprintM: [146, 72],
+    roofCount: 2,
+    source:
+      "Berlin LoD2 + OSM station footprint + the listed 1919-25 twin train-shed profile",
+  };
+  group.userData.economicsMinistry = {
+    source:
+      "Berlin LoD2 + OSM way 24911034 + BMWE official architecture history",
+  };
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
@@ -1324,8 +2040,13 @@ export function createCentralCivicDetails(
   addGreenFederalCampus(builder, byName);
   addParliamentOfTrees(builder, byName);
   addBundestagKita(builder);
+  addPariserPlatzDetails(builder);
+  addPariserPlatzEmbassies(builder);
+  addCubeBerlin(builder);
+  addEconomicsMinistry(builder);
   addBerlinerEnsemble(builder, byName);
   addFriedrichstrasseStation(builder, byName);
+  addTearPalace(builder);
   addFinanceMinistry(builder, byName);
   addGropiusAndParliament(builder, byName);
   addTopographyOfTerror(builder, byName);

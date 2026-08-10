@@ -1,5 +1,47 @@
 # Changelog
 
+## v0.70.27
+
+- **The Swiss Embassy now reads as one historically layered complex.** Its
+  existing metric envelope is retained while the 1870/71 palace receives a
+  nine-bay window rhythm, rusticated base, pilasters, Ionic entrance order,
+  frieze panels and roof flag. The distinct 2000 Diener & Diener extension
+  remains a restrained contemporary volume; the older overlapping refinement
+  is disabled so its cornices can no longer shimmer at rest.
+- **Pariser Platz, Cube Berlin and the federal economics campus gain bounded
+  recognition detail.** Both formal gardens have their surveyed dimensions,
+  flower borders, fountains, clipped planting and bollards; the mapped U/S-Bahn
+  entrance and restrained US/French embassy facades complete the square. Cube
+  Berlin replaces four overlapping source prisms with one 43.6 m LoD2/OSM
+  envelope and an alternating triangular double-skin pattern. The economics
+  ministry adds the historic Invalidenstraße facade, rotunda, roof bands and a
+  regular contemporary-wing register without moving the underlying campus.
+- **Berlin's rail interiors and eastern approach are more legible.** The
+  Hauptbahnhof now contains instanced concourse shopfronts, glass gallery
+  balustrades and four lift shafts, while rust-red steel trestles carry the
+  eastern tracks instead of leaving a visually unsupported deck. Bahnhof
+  Friedrichstraße replaces its opaque source shell with two adjacent
+  steel-and-glass train sheds above the brick base; a geometric suppression
+  guard keeps the neighbouring Tränenpalast separate. The canonical
+  `bahnhof-berlin-friedrichstrasse` deep link also works while preserving the
+  former malformed link as a compatibility alias.
+- **Kronprinzenbrücke and Weidendammer Brücke are now individual engineering
+  structures rather than generic decks.** The former follows its surveyed
+  74.98 x 23.58 m OSM outline and separates carriageway, raised cycle tracks
+  and pedestrian bands over shallow steel arches. The latter uses its 70.3 x
+  22.4 m protected envelope, two granite-clad piers, three iron arch openings,
+  fine railings, historic lamps and restrained volumetric eagle silhouettes.
+  The Berliner Ensemble also gains its circular red roof sign with two lines
+  of light lettering, and the Tränenpalast keeps its mapped glass-and-steel
+  pavilion footprint.
+- Full browser QA covered Day and Night at Swiss Embassy, Pariser Platz,
+  Hauptbahnhof, Cube, Berliner Ensemble and Friedrichstraße across 390 x 844,
+  1024 x 768 and 1600 x 900 viewports. Mobile overflow and fullscreen toggles
+  round-tripped correctly, the browser console stayed clean, and two settled
+  Night captures were byte-identical. The visible radius remains **5,230 m**;
+  attribution, Google opt-in policy and unrelated source geometry are
+  unchanged.
+
 ## v0.70.26
 
 - **Futurium is rebuilt from its actual Berlin LoD2 geometry instead of the

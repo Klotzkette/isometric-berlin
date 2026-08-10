@@ -51,7 +51,7 @@ describe("metric civic landmark details", () => {
       "Swiss Embassy instanced historic facade pilasters",
     );
     expect(pilasters).toBeInstanceOf(InstancedMesh);
-    expect((pilasters as InstancedMesh).count).toBe(18);
+    expect((pilasters as InstancedMesh).count).toBe(20);
     const extensionSlots = embassy!.getObjectByName(
       "Swiss Embassy instanced modern end-wall slot windows",
     );

@@ -438,6 +438,30 @@ describe("ligne-claire fenestration", () => {
     expect(suppressedCount).toBeGreaterThan(15);
   });
 
+  test("the Friedrichstraße twin shed replaces its source shell without swallowing the Tränenpalast", async () => {
+    const {
+      PRISM_SUPPRESSED_IDS,
+      isFriedrichstrasseStationFootprintSuppressed,
+    } = await import("../src/IsometricCityWorld");
+    for (const id of ["pY0000Jk", "cfqGVYyI"]) {
+      const stationShell = payload.buildings.find(
+        (building) => building.id === id,
+      );
+      expect(stationShell).toBeDefined();
+      expect(isFriedrichstrasseStationFootprintSuppressed(stationShell!)).toBe(
+        true,
+      );
+    }
+    const tearPalace = payload.buildings.find(
+      (building) => building.id === "U4ubriIq",
+    );
+    expect(tearPalace).toBeDefined();
+    expect(isFriedrichstrasseStationFootprintSuppressed(tearPalace!)).toBe(
+      false,
+    );
+    expect(PRISM_SUPPRESSED_IDS.has(tearPalace!.id)).toBe(true);
+  });
+
   test("the interim-office former-site prism is suppressed by OSM-footprint overlap, not id", async () => {
     const { isInterimOfficeFootprintSuppressed } =
       await import("../src/IsometricCityWorld");
@@ -897,9 +921,7 @@ describe("real-colour facade tones", () => {
 
   test("keeps a bright but materially distinct day palette", () => {
     expect(SOURCE_FACADE_IVORY_BLEND).toBeLessThanOrEqual(0.4);
-    expect(ISO_FACADE_AXIS_OPACITY).toBeLessThan(
-      ISO_GLASS_MULLION_OPACITY,
-    );
+    expect(ISO_FACADE_AXIS_OPACITY).toBeLessThan(ISO_GLASS_MULLION_OPACITY);
     expect(ISO_GLASS_MULLION_OPACITY).toBeLessThan(ISO_GLASS_DAY_OPACITY);
 
     const channels = (hex: number) => [
@@ -909,15 +931,15 @@ describe("real-colour facade tones", () => {
     ];
     const [grassRed, grassGreen] = channels(ISO_GROUND_SHADES.grass[0]);
     const [waterRed, , waterBlue] = channels(ISO_GROUND_SHADES.water[0]);
-    const [plazaRed, , plazaBlue] = channels(
-      ISO_GROUND_SHADES.plazaBrick[0],
-    );
+    const [plazaRed, , plazaBlue] = channels(ISO_GROUND_SHADES.plazaBrick[0]);
     expect(grassGreen - grassRed).toBeGreaterThan(18);
     expect(waterBlue - waterRed).toBeGreaterThan(35);
     expect(plazaRed - plazaBlue).toBeGreaterThan(30);
 
     const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
-    const mullions = city.getObjectByName("LoD2 glass mullions") as LineSegments;
+    const mullions = city.getObjectByName(
+      "LoD2 glass mullions",
+    ) as LineSegments;
     const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
     expect((glass.material as MeshBasicMaterial).opacity).toBe(
       ISO_GLASS_DAY_OPACITY,
@@ -987,9 +1009,7 @@ describe("hero prism pins", () => {
     const target: number[] = [];
     expect(
       appendKollhoffClinkerJoints(
-        payload.buildings.find(
-          (candidate) => candidate.id === "WtTpo3vD",
-        )!,
+        payload.buildings.find((candidate) => candidate.id === "WtTpo3vD")!,
         target,
       ),
     ).toBeGreaterThan(10_000);
@@ -1161,6 +1181,18 @@ describe("real bridge structures", () => {
     });
     expect(profile("Moltkebrücke").axis).toEqual([-0.7174, -0.6967]);
     expect(profile("Moltkebrücke").palette?.structure).toBe(0xb86c5a);
+    expect(profile("Kronprinzenbrücke")).toMatchObject({
+      axis: [0.87895, -0.47692],
+      kind: "steelArch",
+      surveyedDeck: { halfLengthM: 37.492, halfWidthM: 11.7915 },
+      world: [303.519, -323.32],
+    });
+    expect(profile("Weidendammer Brücke")).toMatchObject({
+      axis: [0.0852, 0.9964],
+      kind: "ironArch",
+      surveyedDeck: { halfLengthM: 35.15, halfWidthM: 11.2 },
+      world: [1128.12, -334.72],
+    });
 
     const city = createIsometricCity(payload, ground, null);
     const lamps = city.getObjectByName("bridge structure lamps") as Mesh;

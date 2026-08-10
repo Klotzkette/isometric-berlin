@@ -2,8 +2,15 @@ import { describe, expect, test } from "bun:test";
 import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
+  BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
   BUNDESTAG_KITA_SOURCE,
   BUNDESTAG_KITA_WORLD,
+  CUBE_BERLIN_FOOTPRINT_WORLD,
+  CUBE_BERLIN_HEIGHT_M,
+  CUBE_BERLIN_PRISM_IDS,
+  PARISER_PLATZ_GARDENS,
+  TEAR_PALACE_FOOTPRINT_WORLD,
+  TEAR_PALACE_PRISM_IDS,
   centralCivicDetailsVisible,
   centralCivicFocusCamera,
   createCentralCivicDetails,
@@ -70,6 +77,41 @@ describe("task-11 central transit and civic details", () => {
       details.getObjectByName("BERLINER ENSEMBLE civic lettering"),
     ).toBeDefined();
     expect(details.getObjectByName("S15 civic lettering")).toBeDefined();
+    expect(
+      details.getObjectByName("Berliner Ensemble circular rooftop sign"),
+    ).toBeDefined();
+    expect(
+      details.getObjectByName("Berliner Ensemble red circular roof emblem"),
+    ).toBeDefined();
+  });
+
+  test("pins Pariser Platz, Cube and Tränenpalast to surveyed outlines", () => {
+    const details = createCentralCivicDetails(landmarks);
+    expect(PARISER_PLATZ_GARDENS).toHaveLength(2);
+    expect(BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD).toEqual([
+      576.06, 4.8, 286.37,
+    ]);
+    expect(details.userData.pariserPlatz).toMatchObject({
+      gardens: PARISER_PLATZ_GARDENS,
+      subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
+    });
+    expect(CUBE_BERLIN_HEIGHT_M).toBe(43.6);
+    expect(CUBE_BERLIN_FOOTPRINT_WORLD).toHaveLength(4);
+    expect(details.userData.cubeBerlin).toMatchObject({
+      footprintWorld: CUBE_BERLIN_FOOTPRINT_WORLD,
+      heightM: CUBE_BERLIN_HEIGHT_M,
+      prismIds: CUBE_BERLIN_PRISM_IDS,
+    });
+    expect(TEAR_PALACE_FOOTPRINT_WORLD.length).toBeGreaterThan(10);
+    expect(details.userData.tearPalace).toMatchObject({
+      footprintWorld: TEAR_PALACE_FOOTPRINT_WORLD,
+      prismIds: TEAR_PALACE_PRISM_IDS,
+    });
+    expect(details.userData.friedrichstrasseStation).toMatchObject({
+      footprintM: [146, 72],
+      roofCount: 2,
+    });
+    expect(details.userData.economicsMinistry.source).toContain("Berlin LoD2");
   });
 
   test("keeps the Topography wall as the documented 200 m ruin", () => {

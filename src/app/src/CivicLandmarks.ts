@@ -255,9 +255,9 @@ function createSwissEmbassy(): Group {
   const historicWindows: Transform[] = [];
   for (const zSide of [-1, 1]) {
     for (const y of [5.1, 11.4]) {
-      for (let index = 0; index < 8; index += 1) {
+      for (let index = 0; index < 9; index += 1) {
         historicWindows.push({
-          position: [-22.3 + index * 4.05, y, zSide * 11.27],
+          position: [-22.05 + index * 3.5, y, zSide * 11.27],
         });
       }
     }
@@ -282,9 +282,9 @@ function createSwissEmbassy(): Group {
 
   const historicPilasters: Transform[] = [];
   for (const zSide of [-1, 1]) {
-    for (let index = 0; index <= 8; index += 1) {
+    for (let index = 0; index <= 9; index += 1) {
       historicPilasters.push({
-        position: [-22.3 + index * 4.05, 10.7, zSide * 11.36],
+        position: [-23.8 + index * 3.5, 10.7, zSide * 11.36],
       });
     }
   }
@@ -309,6 +309,101 @@ function createSwissEmbassy(): Group {
     new BoxGeometry(1.82, 0.18, 0.34),
     historicStone,
     historicSills,
+  );
+
+  // Deep rustication on the high base and the Ionic half-columns are the
+  // historic palace's strongest close-range recognition cues. They sit proud
+  // of the body by 12–20 cm, avoiding coplanar surfaces.
+  const baseCourses: Transform[] = [];
+  for (const zSide of [-1, 1]) {
+    for (const y of [0.8, 1.65, 2.5, 3.35]) {
+      baseCourses.push({ position: [-8.05, y, zSide * 11.43] });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced rusticated base courses",
+    new BoxGeometry(34.7, 0.16, 0.18),
+    material(0xc8bda5, { roughness: 0.9 }),
+    baseCourses,
+  );
+  const baseJoints: Transform[] = [];
+  for (const zSide of [-1, 1]) {
+    for (let index = 0; index <= 18; index += 1) {
+      baseJoints.push({
+        position: [-24.9 + index * 1.88, 2.05, zSide * 11.44],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced staggered base joints",
+    new BoxGeometry(0.1, 3.7, 0.14),
+    material(0xb9ae98, { roughness: 0.92 }),
+    baseJoints,
+  );
+  const ionicColumns: Transform[] = [];
+  for (const zSide of [-1, 1]) {
+    for (const x of [-18.55, -11.55, -4.55, 2.45]) {
+      ionicColumns.push({ position: [x, 11.3, zSide * 11.57] });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced Ionic half-columns",
+    new CylinderGeometry(0.34, 0.42, 9.3, 14),
+    historicStone,
+    ionicColumns,
+  );
+  const capitals = ionicColumns.map(({ position }) => ({
+    position: [position[0], 16.05, position[2]] as [number, number, number],
+  }));
+  addInstances(
+    group,
+    "Swiss Embassy instanced Ionic capitals",
+    new BoxGeometry(1.05, 0.42, 0.62),
+    historicStone,
+    capitals,
+  );
+  const friezePanels: Transform[] = [];
+  for (const zSide of [-1, 1]) {
+    for (let index = 0; index < 9; index += 1) {
+      friezePanels.push({
+        position: [-22.05 + index * 3.5, 16.72, zSide * 11.52],
+      });
+    }
+  }
+  addInstances(
+    group,
+    "Swiss Embassy instanced allegorical frieze panels",
+    new BoxGeometry(2.45, 0.62, 0.22),
+    material(0xc5b99e, { roughness: 0.88 }),
+    friezePanels,
+  );
+
+  addBox(
+    group,
+    "Swiss Embassy historic entrance architrave",
+    [8.6, 0.82, 1.8],
+    [-8.05, 13.4, 12.25],
+    historicStone,
+  );
+  const entranceColumns: Transform[] = [-3.15, -1.05, 1.05, 3.15].map(
+    (offset) => ({ position: [-8.05 + offset, 8.75, 12.18] }),
+  );
+  addInstances(
+    group,
+    "Swiss Embassy historic entrance portico columns",
+    new CylinderGeometry(0.34, 0.42, 8.7, 14),
+    historicStone,
+    entranceColumns,
+  );
+  addBox(
+    group,
+    "Swiss Embassy recessed historic entrance doors",
+    [4.2, 6.4, 0.2],
+    [-8.05, 6.1, 11.5],
+    material(0x415155, { roughness: 0.72 }),
   );
 
   const modernPanes: Transform[] = [];
