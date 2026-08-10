@@ -1449,7 +1449,10 @@ function ensureIsoWorld(
       markSurfaceInteraction(runtime, 400, true);
       notifyPresentationReadyWhenPossible(runtime);
     })
-    .catch(() => {
+    .catch((error: unknown) => {
+      if (import.meta.env.DEV) {
+        console.error("Failed to attach drawn isometric world", error);
+      }
       if (!runtime.disposed) {
         runtime.isoWorldState = "failed";
         runtime.renderInvalidated = true;

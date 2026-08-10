@@ -13,6 +13,7 @@ describe("shared drawn alphabet", () => {
       "OGGI",
       "S15",
       "BERLINER ENSEMBLE",
+      "ALBRECHT VON GRAEFE",
     ]) {
       expect(() => letteringLayout(text, 0.5)).not.toThrow();
     }

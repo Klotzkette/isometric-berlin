@@ -10,8 +10,8 @@
  * the words are legible, far out the mip chain fades them into a darker band,
  * which is the relief hint real lettering reads as from a distance.
  *
- * Two callers use it today: the Reichstag's bronze dedication and the
- * Starbucks fascia on the Pariser Platz.
+ * It is shared by the Reichstag dedication, civic signage and small monument
+ * inscriptions, so every scene label keeps the same measured ink character.
  */
 
 import {
@@ -156,6 +156,23 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
       [
         [0.1, 0],
         [0.78, 0],
+      ],
+    ],
+  },
+  F: {
+    advance: 0.82,
+    strokes: [
+      [
+        [0.1, 0],
+        [0.1, 1],
+      ],
+      [
+        [0.1, 1],
+        [0.78, 1],
+      ],
+      [
+        [0.1, 0.52],
+        [0.64, 0.52],
       ],
     ],
   },

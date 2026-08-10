@@ -218,6 +218,20 @@ export const CHARITE_BETTENHOCHHAUS_IDS: ReadonlySet<string> = new Set([
   "jwLw3UEy",
   "zq8O5Jct",
 ]);
+export const CHARITE_BETTENHOCHHAUS_PROFILE = {
+  basePanelPitchM: 4.2,
+  baseStoreys: 4,
+  facadeElementHeightM: 1.8,
+  floorPitchM: 3.7,
+  footprintM: [78, 36] as const,
+  publishedHeightM: 82,
+  storeys: 21,
+  upperPanelPitchM: 3.3,
+  sources: [
+    "https://www.dbz.de/artikel/dbz_Bettenhaus_Charite_Berlin-2883159.html",
+    "https://www.charite.de/service/pressemitteilung/artikel/detail/neue_bruecke_am_campus_charite_mitte",
+  ] as const,
+} as const;
 /** Two-storey steel-and-glass bridge across Luisenstrasse in the LoD2 set. */
 export const CHARITE_CAMPUS_BRIDGE_ID = "L2e097lj";
 
@@ -923,6 +937,20 @@ export function setIsoNightPresentation(
   if (kollhoffLitWindows) {
     kollhoffLitWindows.visible = night && lightsOn;
   }
+  const chariteWindows = city.getObjectByName(
+    "Charite aluminium facade window panes",
+  );
+  if (chariteWindows instanceof Mesh) {
+    chariteWindows.material = night
+      ? (chariteWindows.userData.nightMaterial as MeshBasicMaterial)
+      : (chariteWindows.userData.dayMaterial as MeshBasicMaterial);
+  }
+  const chariteLitWindows = city.getObjectByName(
+    "Charite lit facade window panes",
+  );
+  if (chariteLitWindows) {
+    chariteLitWindows.visible = night && lightsOn;
+  }
   for (const name of [
     "smooth water surface",
     "smooth quay walls",
@@ -1355,9 +1383,9 @@ export const HERO_WINDOW_FORMATS: Record<string, WindowFormat> = {
     [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [
       id,
       {
-        bayPitch: 2.25,
-        floorPitch: 3.7,
-        height: 2.25,
+        bayPitch: CHARITE_BETTENHOCHHAUS_PROFILE.upperPanelPitchM,
+        floorPitch: CHARITE_BETTENHOCHHAUS_PROFILE.floorPitchM,
+        height: CHARITE_BETTENHOCHHAUS_PROFILE.facadeElementHeightM,
         sillStart: 1.05,
         width: 1.05,
       },
@@ -1541,6 +1569,8 @@ const KOLLHOFF_CLINKER_FACE_OFFSET_M = 0.12;
 const KOLLHOFF_WINDOW_FACE_OFFSET_M = 0.155;
 const KOLLHOFF_CLINKER_EDGE_INSET_M = 0.06;
 const KOLLHOFF_CLINKER_JOINT_GAP_M = 0.018;
+const CHARITE_BASE_FACE_OFFSET_M = 0.13;
+const CHARITE_WINDOW_FACE_OFFSET_M = 0.175;
 
 /**
  * Append the close-view ceramic bond to the exact walls of one Kollhoff part.
@@ -6892,6 +6922,19 @@ export function createIsometricCity(
     y: number;
     z: number;
   }> = [];
+  const chariteWindows: Array<{
+    dirX: number;
+    dirZ: number;
+    height: number;
+    lit: boolean;
+    litTone: number;
+    nx: number;
+    nz: number;
+    width: number;
+    x: number;
+    y: number;
+    z: number;
+  }> = [];
   const windowAxes: Array<{
     dirX: number;
     dirZ: number;
@@ -7057,6 +7100,40 @@ export function createIsometricCity(
       }
     }
     bodyGeometries.push(geometry);
+    if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
+      const baseHeight = Math.min(
+        bodyHeight,
+        CHARITE_BETTENHOCHHAUS_PROFILE.baseStoreys *
+          CHARITE_BETTENHOCHHAUS_PROFILE.floorPitchM,
+      );
+      const baseTone = new Color(0x606a6d);
+      for (const wall of facadeWallsOf(building)) {
+        if (wall.length < 1.2) continue;
+        const basePanel = new BufferGeometry();
+        basePanel.setAttribute(
+          "position",
+          new Float32BufferAttribute(
+            boxTriangles(
+              wall.x1 +
+                (wall.dirX * wall.length) / 2 +
+                wall.nx * CHARITE_BASE_FACE_OFFSET_M,
+              y0 + baseHeight / 2,
+              wall.z1 +
+                (wall.dirZ * wall.length) / 2 +
+                wall.nz * CHARITE_BASE_FACE_OFFSET_M,
+              [wall.dirX, wall.dirZ],
+              wall.length,
+              baseHeight,
+              0.08,
+            ),
+            3,
+          ),
+        );
+        basePanel.computeVertexNormals();
+        bakeColor(basePanel, baseTone);
+        bodyGeometries.push(basePanel);
+      }
+    }
     appendKollhoffClinkerJoints(
       building,
       kollhoffClinkerJointPositions,
@@ -7126,6 +7203,85 @@ export function createIsometricCity(
       if (axisTop > axisBottom + 1) {
         for (const wall of walls) {
           if (wall.length < WINDOW_MIN_WALL_M) {
+            continue;
+          }
+          if (CHARITE_BETTENHOCHHAUS_IDS.has(building.id)) {
+            const profile = CHARITE_BETTENHOCHHAUS_PROFILE;
+            const floorCount = Math.min(
+              profile.storeys,
+              Math.max(
+                0,
+                Math.floor(
+                  (bodyHeight - format.sillStart - format.height) /
+                    profile.floorPitchM,
+                ) + 1,
+              ),
+            );
+            const paneOx = wall.nx * CHARITE_WINDOW_FACE_OFFSET_M;
+            const paneOz = wall.nz * CHARITE_WINDOW_FACE_OFFSET_M;
+            for (let floor = 0; floor < floorCount; floor += 1) {
+              const baseFloor = floor < profile.baseStoreys;
+              const pitch = baseFloor
+                ? profile.basePanelPitchM
+                : profile.upperPanelPitchM;
+              const bays = Math.floor((wall.length - 0.8) / pitch);
+              if (bays < 1) continue;
+              const first = (wall.length - (bays - 1) * pitch) / 2;
+              const paneHeight = baseFloor ? 1.42 : profile.facadeElementHeightM;
+              const paneWidth = baseFloor ? Math.min(2.85, pitch - 0.55) : 1.05;
+              const paneY =
+                y0 + format.sillStart + floor * profile.floorPitchM + paneHeight / 2;
+              facadeAxisPositions.push(
+                wall.x1 + paneOx,
+                paneY - paneHeight / 2 - 0.28,
+                wall.z1 + paneOz,
+                wall.x1 + wall.dirX * wall.length + paneOx,
+                paneY - paneHeight / 2 - 0.28,
+                wall.z1 + wall.dirZ * wall.length + paneOz,
+              );
+              for (let bay = 0; bay < bays; bay += 1) {
+                const along = first + bay * pitch;
+                const roll =
+                  hash32(
+                    building.id,
+                    wall.index * 2801 + floor * 173 + bay * 53,
+                  ) % 1000;
+                chariteWindows.push({
+                  dirX: wall.dirX,
+                  dirZ: wall.dirZ,
+                  height: paneHeight,
+                  lit: roll < litLimit,
+                  litTone: nightStrip[roll % nightStrip.length],
+                  nx: wall.nx,
+                  nz: wall.nz,
+                  width: paneWidth,
+                  x: wall.x1 + wall.dirX * along + paneOx,
+                  y: paneY,
+                  z: wall.z1 + wall.dirZ * along + paneOz,
+                });
+              }
+            }
+            const baseTop =
+              y0 + profile.baseStoreys * profile.floorPitchM - 0.15;
+            for (const [pitch, bottom, top] of [
+              [profile.basePanelPitchM, axisBottom, Math.min(baseTop, axisTop)],
+              [profile.upperPanelPitchM, Math.max(baseTop, axisBottom), axisTop],
+            ] as const) {
+              if (top <= bottom) continue;
+              const axes = Math.floor(wall.length / pitch);
+              const first = (wall.length - axes * pitch) / 2;
+              for (let axis = 0; axis <= axes; axis += 1) {
+                const along = first + axis * pitch;
+                facadeAxisPositions.push(
+                  wall.x1 + wall.dirX * along + paneOx,
+                  bottom,
+                  wall.z1 + wall.dirZ * along + paneOz,
+                  wall.x1 + wall.dirX * along + paneOx,
+                  top,
+                  wall.z1 + wall.dirZ * along + paneOz,
+                );
+              }
+            }
             continue;
           }
           const axes = Math.floor((wall.length - 1.2) / bayPitch);
@@ -7613,6 +7769,96 @@ export function createIsometricCity(
           0,
           pane.nz,
           pane.z + pane.nz * 0.025,
+          0,
+          0,
+          0,
+          1,
+        );
+        litPanes.setMatrixAt(index, matrix);
+        litPanes.setColorAt(index, paneTone.setHex(pane.litTone));
+      });
+      litPanes.instanceMatrix.needsUpdate = true;
+      if (litPanes.instanceColor) litPanes.instanceColor.needsUpdate = true;
+      litPanes.frustumCulled = false;
+      group.add(litPanes);
+    }
+  }
+  if (chariteWindows.length > 0) {
+    const dayMaterial = new MeshBasicMaterial({
+      color: 0xffffff,
+      side: DoubleSide,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x3e4a50,
+      side: DoubleSide,
+    });
+    const panes = new InstancedMesh(
+      new PlaneGeometry(1, 1),
+      dayMaterial,
+      chariteWindows.length,
+    );
+    panes.name = "Charite aluminium facade window panes";
+    panes.renderOrder = 3;
+    panes.userData.dayMaterial = dayMaterial;
+    panes.userData.nightMaterial = nightMaterial;
+    panes.userData.architecturalProfile = CHARITE_BETTENHOCHHAUS_PROFILE;
+    const matrix = new Matrix4();
+    const paneTone = new Color();
+    const upperTones = [0x718a94, 0x7f969e, 0x647e89] as const;
+    const baseTones = [0x53666e, 0x60747c, 0x485b63] as const;
+    chariteWindows.forEach((pane, index) => {
+      matrix.set(
+        pane.dirX * pane.width,
+        0,
+        pane.nx,
+        pane.x,
+        0,
+        pane.height,
+        0,
+        pane.y,
+        pane.dirZ * pane.width,
+        0,
+        pane.nz,
+        pane.z,
+        0,
+        0,
+        0,
+        1,
+      );
+      panes.setMatrixAt(index, matrix);
+      const tones = pane.width > 1.2 ? baseTones : upperTones;
+      panes.setColorAt(index, paneTone.setHex(tones[index % tones.length]));
+    });
+    panes.instanceMatrix.needsUpdate = true;
+    if (panes.instanceColor) panes.instanceColor.needsUpdate = true;
+    panes.frustumCulled = false;
+    group.add(panes);
+
+    const litWindows = chariteWindows.filter((pane) => pane.lit);
+    if (litWindows.length > 0) {
+      const litPanes = new InstancedMesh(
+        new PlaneGeometry(1, 1),
+        new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
+        litWindows.length,
+      );
+      litPanes.name = "Charite lit facade window panes";
+      litPanes.visible = false;
+      litPanes.renderOrder = 4;
+      litPanes.userData.nightOnly = true;
+      litWindows.forEach((pane, index) => {
+        matrix.set(
+          pane.dirX * pane.width,
+          0,
+          pane.nx,
+          pane.x,
+          0,
+          pane.height,
+          0,
+          pane.y,
+          pane.dirZ * pane.width,
+          0,
+          pane.nz,
+          pane.z,
           0,
           0,
           0,

@@ -6,6 +6,9 @@ import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
   ARTWORK_BUILDERS,
+  GRAEFE_CHARITE_OSM_WORLD,
+  GRAEFE_MONUMENT_SOURCE_URL,
+  GRAEFE_STATUE_HEIGHT_M,
   MONUMENTS_ALREADY_MODELLED,
   createTiergartenMonuments,
 } from "../src/TiergartenMonuments";
@@ -209,6 +212,49 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(monuments.userData.sourceUrls).toContain(
       "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
     );
+  });
+
+  test("the Charite Graefe memorial is the full three-axis 1882 screen", () => {
+    const entries = street.monuments!.filter(
+      (candidate) => candidate.name === "Albrecht von Graefe",
+    );
+    expect(entries).toHaveLength(2);
+    const charite = entries.find((candidate) => candidate.x_dm > 0)!;
+    expect([charite.x_dm / 10, charite.z_dm / 10]).toEqual(
+      GRAEFE_CHARITE_OSM_WORLD,
+    );
+    expect(GRAEFE_STATUE_HEIGHT_M).toBe(1.66);
+    expect(monuments.userData.graefeCharite).toMatchObject({
+      osmWorld: GRAEFE_CHARITE_OSM_WORLD,
+      statueHeightM: GRAEFE_STATUE_HEIGHT_M,
+    });
+    expect(monuments.userData.sourceUrls).toContain(
+      GRAEFE_MONUMENT_SOURCE_URL,
+    );
+    expect(
+      monuments.getObjectByName("ALBRECHT VON GRAEFE monument inscription"),
+    ).toBeInstanceOf(Mesh);
+
+    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
+    const position = bodies.geometry.getAttribute("position");
+    const vertex = new Vector3();
+    let top = -Infinity;
+    let foot = Infinity;
+    let nearbyVertices = 0;
+    for (let index = 0; index < position.count; index += 1) {
+      vertex.fromBufferAttribute(position, index);
+      if (
+        Math.abs(vertex.x - charite.x_dm / 10) < 5.2 &&
+        Math.abs(vertex.z - charite.z_dm / 10) < 2.4
+      ) {
+        nearbyVertices += 1;
+        top = Math.max(top, vertex.y);
+        foot = Math.min(foot, vertex.y);
+      }
+    }
+    expect(nearbyVertices).toBeGreaterThan(1_000);
+    expect(top - foot).toBeGreaterThan(5);
+    expect(top - foot).toBeLessThan(6);
   });
 
   test("Lessing stands on his own jointed granite pedestal, not a generic cube stack", () => {

@@ -17,6 +17,7 @@ import {
 import {
   appendKollhoffClinkerJoints,
   CHARITE_BETTENHOCHHAUS_IDS,
+  CHARITE_BETTENHOCHHAUS_PROFILE,
   CHARITE_CAMPUS_BRIDGE_ID,
   type PrismPayload,
   VISIBLE_RADIUS_M,
@@ -708,6 +709,15 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
 
   test("uses the renovated Charite tower rhythm and its LoD2 glass bridge", () => {
     expect(CHARITE_BETTENHOCHHAUS_IDS.size).toBe(16);
+    expect(CHARITE_BETTENHOCHHAUS_PROFILE).toMatchObject({
+      basePanelPitchM: 4.2,
+      baseStoreys: 4,
+      facadeElementHeightM: 1.8,
+      footprintM: [78, 36],
+      publishedHeightM: 82,
+      storeys: 21,
+      upperPanelPitchM: 3.3,
+    });
     for (const id of CHARITE_BETTENHOCHHAUS_IDS) {
       const building = payload.buildings.find(
         (candidate) => candidate.id === id,
@@ -715,9 +725,36 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
       expect(building).toBeDefined();
       expect(building!.h_dm / 10).toBeGreaterThan(79);
       const format = windowFormatForBuilding(id, true);
-      expect(format.bayPitch).toBeCloseTo(2.25, 5);
+      expect(format.bayPitch).toBeCloseTo(3.3, 5);
       expect(format.floorPitch).toBeCloseTo(3.7, 5);
+      expect(format.height).toBeCloseTo(1.8, 5);
     }
+    const windows = city.getObjectByName(
+      "Charite aluminium facade window panes",
+    ) as InstancedMesh;
+    const litWindows = city.getObjectByName(
+      "Charite lit facade window panes",
+    ) as InstancedMesh;
+    expect(windows).toBeInstanceOf(InstancedMesh);
+    expect(windows.count).toBeGreaterThan(2_000);
+    expect(windows.userData.architecturalProfile).toBe(
+      CHARITE_BETTENHOCHHAUS_PROFILE,
+    );
+    expect(litWindows).toBeInstanceOf(InstancedMesh);
+    expect(litWindows.visible).toBe(false);
+    const presentation = new Group();
+    const presentationWindows = windows.clone();
+    const presentationLights = litWindows.clone();
+    presentation.add(presentationWindows, presentationLights);
+    const dayMaterial = presentationWindows.userData.dayMaterial;
+    setIsoNightPresentation(presentation, true, true);
+    expect(presentationWindows.material).toBe(
+      presentationWindows.userData.nightMaterial,
+    );
+    expect(presentationLights.visible).toBe(true);
+    setIsoNightPresentation(presentation, false, true);
+    expect(presentationWindows.material).toBe(dayMaterial);
+    expect(presentationLights.visible).toBe(false);
     expect(PRISM_GLASSED_IDS.has(CHARITE_CAMPUS_BRIDGE_ID)).toBe(true);
     const bridge = payload.buildings.find(
       (candidate) => candidate.id === CHARITE_CAMPUS_BRIDGE_ID,

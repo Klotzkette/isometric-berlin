@@ -72,6 +72,13 @@ describe("task-11 central transit and civic details", () => {
 
   test("adds transit, theatre and S15 lettering", () => {
     const details = createCentralCivicDetails(landmarks);
+    expect(details.userData.hauptbahnhofTransit).toEqual({
+      taxiCount: 5,
+      taxiType: "Berlin ivory saloons with roof signs, lamps and four wheels",
+      tramCount: 1,
+      tramType:
+        "yellow five-section Flexity presentation model with articulated joints, doors, bogies and pantograph",
+    });
     expect(details.getObjectByName("OGGI civic lettering")).toBeDefined();
     expect(
       details.getObjectByName("BERLINER ENSEMBLE civic lettering"),

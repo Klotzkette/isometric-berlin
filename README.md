@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.30 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.30/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.31 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.31/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.30** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.31** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,24 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.30**, built from `main`. Its full viewer
+The current public package is **v0.70.31**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Charité Campus Mitte now carries its published renovated facade rhythm.**
+  The exact 16-part Berlin LoD2 tower envelope remains the metric anchor; its
+  21-storey, 82 m reading now distinguishes the dark four-storey aluminium
+  base from the light upper facade and lays out the published 4.2 m / 3.3 m
+  panel modules with more than 4,000 instanced panes. The existing LoD2
+  steel-and-glass bridge remains source-aligned.
+
+- **The Albrecht-von-Graefe monument is a dedicated OSM-positioned model.**
+  Its three-axis sandstone screen, pedimented round-arch niche, documented
+  1.66 m bronze figure, coloured majolica reliefs, two-line inscription,
+  clipped hedge and curved iron enclosure replace the generic marker. Berlin
+  Hauptbahnhof additionally has five ivory taxis and one clearly visible
+  five-section yellow tram with doors, bogies and pantograph.
 
 - **Walking and cycling detail now follows the complete bounded OSM network.**
   All 8,151 above-ground path line parts resolve through the same metric

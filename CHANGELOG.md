@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.70.31
+
+- **Charité Campus Mitte now uses the published renovated facade hierarchy on
+  its exact Berlin LoD2 envelope.** All 16 tower parts retain their source
+  footprints and heights while the 21-storey, 82 m building receives the
+  documented dark four-storey aluminium base, light upper facade, 4.2 m base
+  and 3.3 m upper panel modules, 1.8 m facade elements and more than 4,000
+  instanced day/night panes. The existing source-aligned steel-and-glass
+  Luisenstraße bridge remains intact.
+- **The 1882 Albrecht-von-Graefe monument is no longer a generic marker.** Its
+  Charité OSM node now carries a three-axis sandstone screen, shell niche,
+  pediment, documented 1.66 m bronze figure, paired polychrome majolica
+  reliefs, two-line name plate, hedge and curved iron enclosure. The separate
+  same-named modern steel stele in the Hansaviertel remains distinct. Overall
+  architectural dimensions are explicitly reference-proportioned rather than
+  claimed as a survey.
+- **Berlin Hauptbahnhof gains readable street-level transit staffage.** Five
+  ivory taxis now include segmented saloon bodies, glass cabins, roof signs,
+  lamps and wheels. One five-section yellow Flexity presentation tram includes
+  articulated joints, doors, bogies, lamps and pantograph and sits on the
+  visible side of the existing OSM-positioned stop.
+- **A browser-only lettering crash could no longer remove the entire drawn
+  city.** The Graefe name introduced the first `F` used by the vector alphabet;
+  headless tests returned before glyph layout and therefore missed it. The
+  alphabet now includes `F`, every shipped phrase is covered by a regression
+  test, and development builds log the original world-attachment error instead
+  of swallowing it. Browser QA confirmed the full LoD2 city, Charité, Graefe
+  model, taxis and tram after a cold reload. The visible radius remains
+  **5,230 m**; source geometry, attribution and additive-data policy are
+  unchanged.
+
 ## v0.70.30
 
 - **Every bounded footway, cycleway, step, track and desire path now carries

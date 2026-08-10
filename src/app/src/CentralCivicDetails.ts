@@ -11,6 +11,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  Quaternion,
   Shape,
   TorusGeometry,
   Vector3,
@@ -271,6 +272,35 @@ function localLampBox(
   geometry.translate(local.x, point.y + y, local.z);
   paintGeometry(geometry, color);
   builder.lamps.push(geometry);
+}
+
+function localWheel(
+  builder: Builder,
+  point: Vector3,
+  x: number,
+  y: number,
+  z: number,
+  radius: number,
+  width: number,
+  rotationY: number,
+): void {
+  const local = localPoint(point, x, z, rotationY);
+  const geometry = new CylinderGeometry(radius, radius, width, 12);
+  geometry.applyQuaternion(
+    new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2),
+  );
+  geometry.rotateY(rotationY);
+  geometry.translate(local.x, point.y + y, local.z);
+  paintGeometry(geometry, INK);
+  builder.parts.push(geometry);
+  builder.edges.push(new EdgesGeometry(geometry, 28));
+
+  const hub = new CylinderGeometry(radius * 0.42, radius * 0.42, width + 0.03, 12);
+  hub.rotateX(Math.PI / 2);
+  hub.rotateY(rotationY);
+  hub.translate(local.x, point.y + y, local.z);
+  paintGeometry(hub, STEEL);
+  builder.parts.push(hub);
 }
 
 type FootprintPoint = readonly [number, number];
@@ -569,6 +599,18 @@ function addTram(
   for (const offset of sectionOffsets) {
     localBox(
       builder,
+      0xe0b90c,
+      point,
+      offset * direction,
+      0.66,
+      lateral,
+      8.82,
+      0.82,
+      2.44,
+      rotationY,
+    );
+    localBox(
+      builder,
       BVG_YELLOW,
       point,
       offset * direction,
@@ -579,16 +621,48 @@ function addTram(
       2.38,
       rotationY,
     );
-    localLampBox(
+    for (const side of [-1, 1]) {
+      localLampBox(
+        builder,
+        DARK_GLASS,
+        point,
+        offset * direction,
+        2.25,
+        lateral + side * 1.21,
+        7.45,
+        1.05,
+        0.14,
+        rotationY,
+      );
+      for (const door of [-2.7, 2.7]) {
+        localBox(
+          builder,
+          0xc5a611,
+          point,
+          (offset + door) * direction,
+          1.62,
+          lateral + side * 1.225,
+          0.12,
+          2.15,
+          0.08,
+          rotationY,
+          false,
+        );
+      }
+    }
+    // Keep the tram recognisably BVG-yellow from the viewer's usual high
+    // isometric angle. A full-width grey roof previously hid almost the whole
+    // livery and made the vehicle read as another platform canopy.
+    localBox(
       builder,
-      DARK_GLASS,
+      BVG_YELLOW,
       point,
       offset * direction,
-      2.25,
-      lateral - 1.21,
-      7.5,
-      1.05,
-      0.16,
+      3.03,
+      lateral,
+      8.45,
+      0.24,
+      2.32,
       rotationY,
     );
     localBox(
@@ -596,11 +670,26 @@ function addTram(
       STEEL,
       point,
       offset * direction,
-      3.03,
+      3.28,
       lateral,
-      8.2,
-      0.24,
-      2.2,
+      3,
+      0.22,
+      0.72,
+      rotationY,
+      false,
+    );
+  }
+  for (const joint of [-14.25, -4.75, 4.75, 14.25]) {
+    localBox(
+      builder,
+      0x41484a,
+      point,
+      joint * direction,
+      1.73,
+      lateral,
+      0.72,
+      2.35,
+      2.28,
       rotationY,
     );
   }
@@ -617,6 +706,32 @@ function addTram(
       2.48,
       rotationY,
       false,
+    );
+    for (const side of [-1, 1]) {
+      localWheel(
+        builder,
+        point,
+        offset * direction,
+        0.72,
+        lateral + side * 1.2,
+        0.48,
+        0.18,
+        rotationY,
+      );
+    }
+  }
+  for (const end of [-23.72, 23.72]) {
+    localLampBox(
+      builder,
+      DARK_GLASS,
+      point,
+      end * direction,
+      2.22,
+      lateral,
+      0.12,
+      1.08,
+      1.72,
+      rotationY,
     );
   }
   for (const end of [-24, 24]) {
@@ -660,8 +775,10 @@ function addHauptbahnhofTransit(
       localBox(builder, STEEL, tram, x, 2.1, 0, 0.22, 4, 0.22, rotation);
     }
     localBox(builder, GLASS, tram, 0, 4.25, 0, 57, 0.24, 5.4, rotation);
-    addTram(builder, tram, -4.65, rotation, false);
-    addTram(builder, tram, 4.65, rotation, true);
+    addTram(builder, tram, 5, rotation, false);
+    // The opposite track stays clear, which makes the one requested yellow
+    // Flexity and the paired platforms legible instead of forming a yellow
+    // wall across Europaplatz.
   }
 
   const station = anchor(byName, "S15-Station Berlin Hauptbahnhof");
@@ -737,26 +854,67 @@ function addOggiAndTaxis(
   const rotation = -0.34;
   for (let index = 0; index < 5; index += 1) {
     const x = (index - 2) * 6.2;
-    localBox(builder, TAXI_IVORY, taxis, x, 0.75, 0, 4.8, 1.18, 1.82, rotation);
+    const z = index % 2 === 0 ? 0 : 0.12;
+    localBox(builder, TAXI_IVORY, taxis, x, 0.67, z, 4.9, 0.94, 1.86, rotation);
+    localBox(builder, TAXI_IVORY, taxis, x - 1.78, 1.05, z, 1.35, 0.38, 1.8, rotation);
+    localBox(builder, TAXI_IVORY, taxis, x + 1.82, 0.98, z, 1.15, 0.3, 1.8, rotation);
     localBox(
       builder,
       DARK_GLASS,
       taxis,
       x - 0.15,
+      1.43,
+      z,
+      2.45,
+      0.92,
       1.58,
-      0,
-      2.65,
-      0.78,
-      1.65,
       rotation,
     );
+    localBox(
+      builder,
+      TAXI_IVORY,
+      taxis,
+      x - 0.15,
+      1.92,
+      z,
+      2.18,
+      0.12,
+      1.48,
+      rotation,
+    );
+    localLampBox(
+      builder,
+      0xf2c925,
+      taxis,
+      x - 0.15,
+      2.09,
+      z,
+      0.72,
+      0.24,
+      0.28,
+      rotation,
+    );
+    for (const wheelX of [-1.52, 1.48]) {
+      for (const side of [-1, 1]) {
+        localWheel(
+          builder,
+          taxis,
+          x + wheelX,
+          0.5,
+          z + side * 0.93,
+          0.39,
+          0.15,
+          rotation,
+        );
+      }
+    }
     localLampBox(
       builder,
       0xf8edc4,
       taxis,
       x - 2.42,
       0.72,
-      0,
+      z,
       0.12,
       0.34,
       1.2,
@@ -768,13 +926,27 @@ function addOggiAndTaxis(
       taxis,
       x + 2.42,
       0.72,
-      0,
+      z,
       0.12,
       0.3,
       1.15,
       rotation,
     );
   }
+  // Berlin taxi-rank sign: blue field on a slender steel pole.
+  localBox(builder, STEEL, taxis, -15.1, 1.65, -2.4, 0.12, 3.3, 0.12, rotation);
+  localBox(
+    builder,
+    TRANSIT_BLUE,
+    taxis,
+    -15.1,
+    3.35,
+    -2.4,
+    0.86,
+    0.72,
+    0.12,
+    rotation,
+  );
 }
 
 function addFuturium(
@@ -2078,6 +2250,13 @@ export function createCentralCivicDetails(
   group.userData.geometryStatus =
     "Official LoD2 and OSM anchors with primary-source recognition details; vehicles, facade rhythms and damaged Wall crown are bounded display approximations";
   group.userData.keepInMinecraft = true;
+  group.userData.hauptbahnhofTransit = {
+    taxiCount: 5,
+    taxiType: "Berlin ivory saloons with roof signs, lamps and four wheels",
+    tramCount: 1,
+    tramType:
+      "yellow five-section Flexity presentation model with articulated joints, doors, bogies and pantograph",
+  };
   group.userData.topographyWall = {
     lengthM: TOPOGRAPHY_WALL_LENGTH_M,
     sectionCount: TOPOGRAPHY_WALL_SECTION_COUNT,
