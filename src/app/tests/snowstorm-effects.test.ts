@@ -5,6 +5,7 @@ import {
   createSnowstorm,
   setSnowstormPresentation,
   snowFlurryIntensity,
+  snowfallAnimationActive,
   snowflakeCount,
   updateSnowstorm,
 } from "../src/SnowstormEffects";
@@ -21,8 +22,9 @@ describe("snowstorm presentation", () => {
     expect((flakes.material as PointsMaterial).map).not.toBeNull();
     expect(desktop.flakeMaterial.alphaToCoverage).toBeTrue();
     expect(desktop.flakeMaterial.sizeAttenuation).toBeFalse();
-    expect(desktop.flakeMaterial.alphaTest).toBeLessThan(0.02);
-    expect(desktop.flakeMaterial.size).toBeLessThan(2.25);
+    expect(desktop.flakeMaterial.alphaTest).toBeLessThan(0.01);
+    expect(desktop.flakeMaterial.size).toBeGreaterThanOrEqual(5);
+    expect(desktop.flakeMaterial.opacity).toBeGreaterThanOrEqual(0.65);
     expect(
       desktop.settled.getObjectByName(
         "Continuous deep snow cover across the expanded city",
@@ -61,6 +63,7 @@ describe("snowstorm presentation", () => {
     expect(snow.group.visible).toBe(true);
     expect(snow.settled.visible).toBe(true);
     expect(snow.air.visible).toBe(false);
+    expect(snowfallAnimationActive(snow)).toBe(false);
     const pausedAge = snow.ageSeconds;
     updateSnowstorm(snow, 0.1, new Vector3());
     expect(snow.ageSeconds).toBe(pausedAge);
@@ -72,6 +75,7 @@ describe("snowstorm presentation", () => {
     expect(snow.group.visible).toBe(true);
     expect(snow.settled.visible).toBe(true);
     expect(snow.air.visible).toBe(true);
+    expect(snowfallAnimationActive(snow)).toBe(true);
     setSnowstormPresentation(snow, {
       enabled: true,
       mode: "snowstorm",
@@ -80,6 +84,7 @@ describe("snowstorm presentation", () => {
     expect(snow.group.visible).toBe(false);
     expect(snow.settled.visible).toBe(false);
     expect(snow.air.visible).toBe(false);
+    expect(snowfallAnimationActive(snow)).toBe(false);
   });
 
   test("falls around the current focus without changing particle count", () => {
@@ -102,6 +107,6 @@ describe("snowstorm presentation", () => {
     );
     snow.ageSeconds = 5.9;
     updateSnowstorm(snow, 0.1, new Vector3(150, 10, -420));
-    expect(snow.flakeMaterial.opacity).toBeGreaterThan(calmOpacity + 0.6);
+    expect(snow.flakeMaterial.opacity).toBeGreaterThan(calmOpacity + 0.25);
   });
 });

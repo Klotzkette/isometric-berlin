@@ -181,6 +181,7 @@ import {
   type Snowstorm,
   createSnowstorm,
   setSnowstormPresentation,
+  snowfallAnimationActive,
   updateSnowstorm,
 } from "./SnowstormEffects";
 import {
@@ -3477,7 +3478,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
         const environmentalMotion =
           runtime.rain.group.visible ||
-          runtime.snowstorm.air.visible ||
+          snowfallAnimationActive(runtime.snowstorm) ||
           runtime.minecraftMobs?.group.visible === true;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the

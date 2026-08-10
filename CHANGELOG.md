@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.70.29
+
+- **The Snowstorm weather control now produces clearly visible falling snow.**
+  The compact procedural flakes retain a bright centre and a restrained
+  blue-grey edge, start at a legible calm opacity, and use bounded desktop and
+  mobile particle budgets. The intermittent flurry envelope remains intact,
+  so the weather grows into a brief denser squall instead of becoming a
+  permanent wall of snow.
+- **Falling snow is an explicit continuous-animation source.** The render-on-
+  demand loop keeps drawing only while the air field is enabled; switching the
+  weather off leaves the settled winter surface in place and returns the
+  framebuffer to a bit-identical rest state. Browser QA confirmed differing
+  consecutive frames while snowfall is active and identical frames after it
+  is paused. The visible radius remains **5,230 m**; geometry, attribution and
+  source policy are unchanged.
+
 ## v0.70.28
 
 - **A photo-reference pass corrects three prominent rail and theatre details

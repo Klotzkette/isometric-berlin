@@ -25,8 +25,11 @@ const SNOW_RADIUS_M = 360;
 const SNOW_HEIGHT_M = 260;
 const FLAKE_FALL_MPS = 22;
 const FLURRY_CYCLE_SECONDS = 16;
-const CALM_FLAKE_OPACITY = 0.08;
-const PEAK_FLAKE_OPACITY = 0.96;
+// Snow must remain visible against the nearly white winter ground even in the
+// quiet part of the flurry cycle. The former 0.08 opacity made correctly
+// animated sub-pixel flakes indistinguishable from the background.
+const CALM_FLAKE_OPACITY = 0.7;
+const PEAK_FLAKE_OPACITY = 1;
 
 type Snowflake = {
   drift: number;
@@ -91,13 +94,14 @@ function createSnowflakeTexture(): DataTexture {
       const angle = Math.atan2(ny, nx);
       const armDistance = Math.abs(Math.sin(angle * 3)) * radius;
       const alpha =
-        radius < 0.3 || (radius < 0.88 && armDistance < 0.14)
+        radius < 0.42 || (radius < 0.9 && armDistance < 0.22)
           ? Math.round(255 * Math.max(0, 1 - radius * 0.42))
           : 0;
       const offset = (y * size + x) * 4;
-      data[offset] = 255;
-      data[offset + 1] = 255;
-      data[offset + 2] = 255;
+      const edgeTone = radius < 0.48 ? 255 : 128;
+      data[offset] = edgeTone;
+      data[offset + 1] = Math.min(255, edgeTone + 14);
+      data[offset + 2] = Math.min(255, edgeTone + 23);
       data[offset + 3] = alpha;
     }
   }
@@ -109,7 +113,7 @@ function createSnowflakeTexture(): DataTexture {
 }
 
 export function snowflakeCount(coarsePointer: boolean): number {
-  return coarsePointer ? 1_100 : 2_400;
+  return coarsePointer ? 1_500 : 3_200;
 }
 
 function createFlakes(coarsePointer: boolean): {
@@ -143,17 +147,17 @@ function createFlakes(coarsePointer: boolean): {
   geometry.setAttribute("position", positions);
   const material = new PointsMaterial({
     alphaToCoverage: true,
-    // Preserve the antialiased arms of sub-two-pixel flakes. A larger cutoff
+    // Preserve the antialiased arms of the compact flakes. A larger cutoff
     // erased the sprite after minification in the wide isometric view.
-    alphaTest: 0.015,
-    color: 0xa7becb,
+    alphaTest: 0.005,
+    color: 0xffffff,
     depthWrite: false,
     opacity: CALM_FLAKE_OPACITY,
     map: createSnowflakeTexture(),
-    // Keep the flakes genuinely tiny but legible in the wide isometric view.
-    // World-sized points fell below one screen pixel at the default camera
-    // distance and disappeared against the snow cover.
-    size: coarsePointer ? 2.4 : 2.15,
+    // Keep the flakes compact but legible in the wide isometric view.
+    // World-sized points disappeared against the snow cover at the default
+    // camera distance, so these retain a small screen-space footprint.
+    size: coarsePointer ? 5.8 : 5.2,
     sizeAttenuation: false,
     transparent: true,
   });
@@ -358,6 +362,11 @@ export function setSnowstormPresentation(
   snow.settled.visible = surfaceVisible;
   snow.air.visible = snowfallVisible;
   return changed;
+}
+
+/** Whether snowfall needs a continuously rendered frame sequence. */
+export function snowfallAnimationActive(snow: Snowstorm): boolean {
+  return snow.group.visible && snow.air.visible;
 }
 
 export function updateSnowstorm(
