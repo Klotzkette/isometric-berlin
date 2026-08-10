@@ -1,4 +1,4 @@
-# isometric-berlin — live web viewer (v0.70.27)
+# isometric-berlin — live web viewer (v0.70.28)
 
 - Live URL: https://klotzkette.github.io/isometric-berlin/
 - Source: https://github.com/Klotzkette/isometric-berlin
