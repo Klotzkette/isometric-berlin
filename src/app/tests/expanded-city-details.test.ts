@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { Box3, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
+  BERLIN_MODERN_PROFILE,
   createExpandedCityDetails,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
@@ -202,6 +203,65 @@ describe("task-10 expanded city recognition details", () => {
     expect(maxAlong - minAlong).toBeLessThan(282);
     expect(expandedCityFocusCamera(landmark)).toMatchObject({
       distance_m: 292,
+      target_world: landmark.world,
+    });
+  });
+
+  test("grounds berlin modern in its published 120 x 71 x 18 m envelope", () => {
+    const landmark = {
+      name: "berlin modern — Museum des 20. Jahrhunderts",
+      world: [30, 8, 40] as [number, number, number],
+    };
+    const details = createExpandedCityDetails([landmark]);
+    const profile = BERLIN_MODERN_PROFILE;
+    expect(details.userData.berlinModern).toEqual(profile);
+    expect(profile.geometryStatus).toBe(
+      "planning-envelope-not-surveyed-as-built",
+    );
+    expect(profile.grounded).toBe(true);
+    expect(profile.footprintLengthM).toBe(120);
+    expect(profile.footprintWidthM).toBe(71);
+    expect(profile.bodyHeightM + profile.roofRiseM).toBe(profile.totalHeightM);
+    expect(profile.totalHeightM).toBe(18);
+    expect(profile.rotationY).toBeCloseTo((-19.74 * Math.PI) / 180, 8);
+
+    const bodies = details.getObjectByName(
+      "Expanded architecture and public-realm details bodies",
+    ) as Mesh;
+    const positions = bodies.geometry.getAttribute("position");
+    const cosine = Math.cos(profile.rotationY);
+    const sine = Math.sin(profile.rotationY);
+    let minX = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+    let minZ = Number.POSITIVE_INFINITY;
+    let maxZ = Number.NEGATIVE_INFINITY;
+    for (let index = 0; index < positions.count; index += 1) {
+      const dx = positions.getX(index) - landmark.world[0];
+      const dz = positions.getZ(index) - landmark.world[2];
+      const localX = dx * cosine - dz * sine;
+      const localZ = dx * sine + dz * cosine;
+      minX = Math.min(minX, localX);
+      maxX = Math.max(maxX, localX);
+      minY = Math.min(minY, positions.getY(index));
+      maxY = Math.max(maxY, positions.getY(index));
+      minZ = Math.min(minZ, localZ);
+      maxZ = Math.max(maxZ, localZ);
+    }
+    expect(minY).toBeCloseTo(landmark.world[1], 3);
+    expect(maxY).toBeCloseTo(
+      landmark.world[1] + profile.totalHeightM + 0.26,
+      2,
+    );
+    expect(maxX - minX).toBeGreaterThanOrEqual(profile.footprintWidthM);
+    expect(maxX - minX).toBeLessThan(profile.footprintWidthM + 1);
+    expect(maxZ - minZ).toBeGreaterThanOrEqual(profile.footprintLengthM);
+    expect(maxZ - minZ).toBeLessThan(profile.footprintLengthM + 1);
+    expect(expandedCityFocusCamera(landmark)).toMatchObject({
+      azimuth_degrees: 160,
+      distance_m: 188,
+      target_height_m: 9,
       target_world: landmark.world,
     });
   });

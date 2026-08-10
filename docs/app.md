@@ -194,6 +194,16 @@ Café am Neuen See and the WELT balloon. All placement anchors come from the
 committed LoD2/OSM/landmark frame. Drawn labels and silhouette accents remain
 supplements to that evidence, never substitutes for it.
 
+`berlin modern` is handled as planning geometry because the museum is still
+under construction and therefore absent from the completed-building LoD2
+inventory. The model follows the architects' published 120 m length, 71 m
+width, 18 m height and three-level envelope, while the committed OSM
+construction boundary supplies the local site axis. It includes a grounded
+mineral masonry body, broad north glazing, east-side openings and a dark
+photovoltaic gable roof. The Day/Night drawing and block-native Minecraft model
+share that same contract. Sources: [Herzog & de Meuron project data](https://www.herzogdemeuron.com/projects/469-museum-der-moderne-berlin-modern/)
+and [Bundesbau project information](https://bundesbau.de/projekte/berlin-modern).
+
 The optional OSM park-detail request is deliberately non-blocking: a failed
 `park-details.json` request raises a warning but never delays or disables the
 23 official base meshes. When present, seven path material classes are batched,

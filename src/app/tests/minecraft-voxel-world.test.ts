@@ -9,16 +9,23 @@ import {
   type VoxelPayload,
   VOXEL_WINDOW_HEIGHT_M,
   VOXEL_WINDOW_WIDTH_M,
+  createMinecraftBerlinModernRecognition,
   createMinecraftHamburgerBahnhofRecognition,
   createMinecraftVoxelWorld,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
-import { RIECKHALLEN_PROFILE } from "../src/ExpandedCityDetails";
+import {
+  BERLIN_MODERN_PROFILE,
+  RIECKHALLEN_PROFILE,
+} from "../src/expandedCityProfiles";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 
-function instanced(name: string, root: ReturnType<typeof createMinecraftVoxelWorld>) {
+function instanced(
+  name: string,
+  root: ReturnType<typeof createMinecraftVoxelWorld>,
+) {
   const mesh = root.getObjectByName(name);
   expect(mesh).toBeInstanceOf(InstancedMesh);
   return mesh as InstancedMesh;
@@ -28,13 +35,19 @@ describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
 
   test("columns take their building's real colour, snapped to the palette", async () => {
-    const { buildColumnToneLookup } = await import("../src/MinecraftVoxelWorld");
-    const { MINECRAFT_PALETTE } = await import(
-      "../src/visual-modes/minecraft/palette"
-    );
-    const prisms = (await import(
-      "../public/mesh/regierungsviertel/lod2-prisms.json"
-    )) as { default: { buildings: Array<{ ring: number[][]; tone?: [number, number, number] }> } };
+    const { buildColumnToneLookup } =
+      await import("../src/MinecraftVoxelWorld");
+    const { MINECRAFT_PALETTE } =
+      await import("../src/visual-modes/minecraft/palette");
+    const prisms =
+      (await import("../public/mesh/regierungsviertel/lod2-prisms.json")) as {
+        default: {
+          buildings: Array<{
+            ring: number[][];
+            tone?: [number, number, number];
+          }>;
+        };
+      };
     const lookup = buildColumnToneLookup(prisms.default);
     // Inside the Reichstag footprint (centre ~308, 41) the lookup
     // returns a palette colour; far out in the Spree it returns null.
@@ -53,8 +66,14 @@ describe("true voxel Minecraft world", () => {
     let hits = 0;
     let taken = 0;
     const sampleCount = Math.min(2000, payload.buildings.length);
-    const stride = Math.max(1, Math.floor(payload.buildings.length / sampleCount));
-    for (let index = 0; index < payload.buildings.length && taken < sampleCount; ) {
+    const stride = Math.max(
+      1,
+      Math.floor(payload.buildings.length / sampleCount),
+    );
+    for (
+      let index = 0;
+      index < payload.buildings.length && taken < sampleCount;
+    ) {
       const [xIdx, zIdx] = payload.buildings[index];
       const x = (xIdx + 0.5) * payload.cell_m;
       const z = (zIdx + 0.5) * payload.cell_m;
@@ -120,13 +139,12 @@ describe("true voxel Minecraft world", () => {
   });
 
   test("does not bury the Sinti and Roma memorial under false building columns", () => {
-    const falseColumns = payload.buildings.filter(
-      ([xIdx, zIdx, y0dm, y1dm]) =>
-        isFalseSintiRomaVoxelColumn(
-          (xIdx + 0.5) * payload.cell_m,
-          (zIdx + 0.5) * payload.cell_m,
-          (y1dm - y0dm) / 10,
-        ),
+    const falseColumns = payload.buildings.filter(([xIdx, zIdx, y0dm, y1dm]) =>
+      isFalseSintiRomaVoxelColumn(
+        (xIdx + 0.5) * payload.cell_m,
+        (zIdx + 0.5) * payload.cell_m,
+        (y1dm - y0dm) / 10,
+      ),
     );
     expect(falseColumns).toHaveLength(86);
     expect(
@@ -146,13 +164,7 @@ describe("true voxel Minecraft world", () => {
       columns.getMatrixAt(index, matrix);
       position.setFromMatrixPosition(matrix);
       scale.setFromMatrixScale(matrix);
-      if (
-        isFalseSintiRomaVoxelColumn(
-          position.x,
-          position.z,
-          scale.y,
-        )
-      ) {
+      if (isFalseSintiRomaVoxelColumn(position.x, position.z, scale.y)) {
         remainingFalseColumns += 1;
       }
     }
@@ -219,6 +231,38 @@ describe("true voxel Minecraft world", () => {
     );
   });
 
+  test("keeps berlin modern present as a block-native planning envelope", () => {
+    const museum = createMinecraftBerlinModernRecognition();
+    expect(museum.count).toBeGreaterThan(1_000);
+    expect(museum.userData.architecturalProfile).toEqual(BERLIN_MODERN_PROFILE);
+    expect(
+      voxelRecognitionAreaAt(...BERLIN_MODERN_PROFILE.centerWorldM)?.name,
+    ).toBe("berlin modern");
+    expect(
+      world.getObjectByName("Voxel berlin modern planning envelope"),
+    ).toBeDefined();
+
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    const scale = new Vector3();
+    let minBottom = Number.POSITIVE_INFINITY;
+    let maxTop = Number.NEGATIVE_INFINITY;
+    for (let index = 0; index < museum.count; index += 1) {
+      museum.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      scale.setFromMatrixScale(matrix);
+      minBottom = Math.min(minBottom, position.y - scale.y / 2);
+      maxTop = Math.max(maxTop, position.y + scale.y / 2);
+    }
+    expect(minBottom).toBeCloseTo(BERLIN_MODERN_PROFILE.groundY, 5);
+    expect(maxTop).toBeGreaterThan(
+      BERLIN_MODERN_PROFILE.groundY + BERLIN_MODERN_PROFILE.totalHeightM - 0.5,
+    );
+    expect(maxTop).toBeLessThanOrEqual(
+      BERLIN_MODERN_PROFILE.groundY + BERLIN_MODERN_PROFILE.totalHeightM,
+    );
+  });
+
   test("places tall Reichstag columns at the surveyed world position", () => {
     const buildings = instanced("Voxel building columns", world);
     const matrix = new Matrix4();
@@ -262,9 +306,8 @@ describe("true voxel Minecraft world", () => {
   });
 
   test("fills the complete versioned radius with an explicit extrapolated surround", async () => {
-    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } = await import(
-      "../src/worldEnvelope"
-    );
+    const { VISIBLE_RADIUS_M, extrapolatedEnvelopeBounds } =
+      await import("../src/worldEnvelope");
     const surround = world.getObjectByName(
       "Minecraft extrapolated radius surround",
     );

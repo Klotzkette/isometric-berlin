@@ -20,6 +20,11 @@ import {
 import { createLetteringTexture } from "./drawnLettering";
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 import {
+  BERLIN_MODERN_PROFILE,
+  HAMBURGER_BAHNHOF_PROFILE,
+  RIECKHALLEN_PROFILE,
+} from "./expandedCityProfiles";
+import {
   type Builder,
   addBox,
   addCone,
@@ -34,45 +39,11 @@ export type ExpandedLandmark = {
   world: [number, number, number];
 };
 
-/**
- * LoD2-anchored front of the Hamburger Bahnhof.
- *
- * The landmark point lies inside the former train hall, not on the entrance
- * facade. The two 26 m LoD2 tower parts fix the facade line and its 30 degree
- * bearing; keeping the offset here prevents a generic point marker from
- * rotating or translating the whole historic head building again.
- */
-export const HAMBURGER_BAHNHOF_PROFILE = {
-  facadeAxis: [0.8673, -0.4978] as const,
-  facadeNormal: [0.4978, 0.8673] as const,
-  facadeOffsetFromLandmarkM: [-2.399, 24.148] as const,
-  facadeRotationY: Math.PI / 6,
-  facadeWidthM: 62,
-  forecourtTreatment: "axial-path-and-rondel",
-  grounded: true,
-  lowerArchCount: 2,
-  roofForm: "flat-cornice",
-  sourceTowerIds: ["DEBE3DIkXt8PMip6", "DEBE3DlXyRYPJvcY"] as const,
-  towerCentresM: [-11.43, 11.43] as const,
-  towerHeightM: 26.25,
-  upperArcadeCount: 6,
-} as const;
-
-/** LoD2-derived envelope of the protected 1960s Rieckhallen freight hall. */
-export const RIECKHALLEN_PROFILE = {
-  centerOffsetFromLandmarkM: [-2.1326, -1.5085] as const,
-  centerWorldM: [-72.289693, -1218.65614] as const,
-  crossAxis: [0.931102, -0.364759] as const,
-  lengthM: 281.279,
-  longAxis: [0.364759, 0.931102] as const,
-  measuredHeightM: 9.364,
-  minecraftRoofTopY: 17.2,
-  roofBandCount: 3,
-  roofForm: "flat-mixed-with-low-longitudinal-bands",
-  rotationY: 0.373374,
-  sourceBuildingId: "DEBE01YYK0002SQl",
-  widthM: 16.244,
-} as const;
+export {
+  BERLIN_MODERN_PROFILE,
+  HAMBURGER_BAHNHOF_PROFILE,
+  RIECKHALLEN_PROFILE,
+} from "./expandedCityProfiles";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -133,10 +104,10 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 53,
   },
   "berlin modern — Museum des 20. Jahrhunderts": {
-    azimuth_degrees: 28,
-    distance_m: 158,
+    azimuth_degrees: 160,
+    distance_m: 188,
     polar_degrees: 58,
-    target_height_m: 13,
+    target_height_m: 9,
   },
 };
 
@@ -174,6 +145,11 @@ const HAMBURGER_SAGE = 0x93a982;
 const HAMBURGER_GLASS = 0x6b7f78;
 const HAMBURGER_DOOR = 0x75513e;
 const HAMBURGER_MULLION = 0x94775f;
+const BERLIN_MODERN_MASONRY = 0xd9d0bc;
+const BERLIN_MODERN_MASONRY_LIGHT = 0xeee8dc;
+const BERLIN_MODERN_GLASS = 0x78979a;
+const BERLIN_MODERN_ROOF = 0x354346;
+const BERLIN_MODERN_PV_SEAM = 0x6d8587;
 
 function transformGeometry(
   geometry: BufferGeometry,
@@ -298,6 +274,184 @@ function addGabledRoof(
   addCustomGeometry(builder, geometry, color);
 }
 
+function rotatedLocalOffset(
+  localX: number,
+  localZ: number,
+  rotationY: number,
+): [number, number] {
+  const cosine = Math.cos(rotationY);
+  const sine = Math.sin(rotationY);
+  return [localX * cosine + localZ * sine, -localX * sine + localZ * cosine];
+}
+
+function addLocalBox(
+  builder: Builder,
+  color: number,
+  origin: Vector3,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  width: number,
+  height: number,
+  depth: number,
+  rotationY: number,
+  inked = true,
+): void {
+  const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotationY);
+  addBox(
+    builder,
+    color,
+    origin.x + offsetX,
+    centerY,
+    origin.z + offsetZ,
+    width,
+    height,
+    depth,
+    rotationY,
+    inked,
+  );
+}
+
+function addLocalLampBox(
+  builder: Builder,
+  color: number,
+  origin: Vector3,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  width: number,
+  height: number,
+  depth: number,
+  rotationY: number,
+): void {
+  const geometry = new BoxGeometry(width, height, depth);
+  geometry.applyMatrix4(new Matrix4().makeRotationY(rotationY));
+  const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotationY);
+  geometry.translate(origin.x + offsetX, centerY, origin.z + offsetZ);
+  addCustomGeometry(builder, geometry, color, false, true);
+}
+
+function addTiltedLocalBox(
+  builder: Builder,
+  color: number,
+  origin: Vector3,
+  localX: number,
+  centerY: number,
+  localZ: number,
+  width: number,
+  height: number,
+  depth: number,
+  rotationZ: number,
+  rotationY: number,
+  inked = false,
+): void {
+  const geometry = new BoxGeometry(width, height, depth);
+  geometry.applyMatrix4(new Matrix4().makeRotationZ(rotationZ));
+  geometry.applyMatrix4(new Matrix4().makeRotationY(rotationY));
+  const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotationY);
+  geometry.translate(origin.x + offsetX, centerY, origin.z + offsetZ);
+  addCustomGeometry(builder, geometry, color, inked);
+}
+
+function addGableRoofShell(
+  builder: Builder,
+  color: number,
+  origin: Vector3,
+  eaveY: number,
+  width: number,
+  depth: number,
+  rise: number,
+  rotationY: number,
+): void {
+  const halfWidth = width / 2;
+  const halfDepth = depth / 2;
+  const positions = new Float32Array([
+    -halfWidth,
+    0,
+    -halfDepth,
+    -halfWidth,
+    0,
+    halfDepth,
+    0,
+    rise,
+    -halfDepth,
+    0,
+    rise,
+    -halfDepth,
+    -halfWidth,
+    0,
+    halfDepth,
+    0,
+    rise,
+    halfDepth,
+    0,
+    rise,
+    -halfDepth,
+    0,
+    rise,
+    halfDepth,
+    halfWidth,
+    0,
+    -halfDepth,
+    halfWidth,
+    0,
+    -halfDepth,
+    0,
+    rise,
+    halfDepth,
+    halfWidth,
+    0,
+    halfDepth,
+  ]);
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.computeVertexNormals();
+  transformGeometry(geometry, origin.x, eaveY, origin.z, rotationY);
+  addCustomGeometry(builder, geometry, color);
+}
+
+function addGableFace(
+  builder: Builder,
+  color: number,
+  origin: Vector3,
+  eaveY: number,
+  localZ: number,
+  width: number,
+  rise: number,
+  rotationY: number,
+  northFacing: boolean,
+): void {
+  const halfWidth = width / 2;
+  const positions = northFacing
+    ? new Float32Array([
+        -halfWidth,
+        0,
+        localZ,
+        0,
+        rise,
+        localZ,
+        halfWidth,
+        0,
+        localZ,
+      ])
+    : new Float32Array([
+        -halfWidth,
+        0,
+        localZ,
+        halfWidth,
+        0,
+        localZ,
+        0,
+        rise,
+        localZ,
+      ]);
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.computeVertexNormals();
+  transformGeometry(geometry, origin.x, eaveY, origin.z, rotationY);
+  addCustomGeometry(builder, geometry, color);
+}
+
 function addArchedPanel(
   builder: Builder,
   color: number,
@@ -314,13 +468,7 @@ function addArchedPanel(
   const rectangularHeight = Math.max(0.2, height - radius);
   if (lit) {
     const panel = new BoxGeometry(width, rectangularHeight, 0.14);
-    transformGeometry(
-      panel,
-      cx,
-      baseY + rectangularHeight / 2,
-      cz,
-      rotationY,
-    );
+    transformGeometry(panel, cx, baseY + rectangularHeight / 2, cz, rotationY);
     addCustomGeometry(builder, panel, color, false, true);
   } else {
     addBox(
@@ -664,16 +812,7 @@ function addHamburgerBahnhof(
       );
     }
     for (const height of [lowerBase + 1.55, lowerBase + 3.1]) {
-      facadeBox(
-        HAMBURGER_MULLION,
-        u,
-        height,
-        0.35,
-        7.1,
-        0.09,
-        0.08,
-        false,
-      );
+      facadeBox(HAMBURGER_MULLION, u, height, 0.35, 7.1, 0.09, 0.08, false);
     }
   }
   for (const u of [-7.5, -4.5, -1.5, 1.5, 4.5, 7.5]) {
@@ -709,24 +848,8 @@ function addHamburgerBahnhof(
 
   // Cornice/string courses and a restrained window rhythm continue into the
   // two wings without inventing another roof volume.
-  facadeBox(
-    HAMBURGER_CORNICE,
-    0,
-    groundY + 20.35,
-    0.08,
-    24.2,
-    0.7,
-    0.48,
-  );
-  facadeBox(
-    HAMBURGER_CORNICE,
-    0,
-    groundY + 12.9,
-    0.12,
-    22.6,
-    0.42,
-    0.42,
-  );
+  facadeBox(HAMBURGER_CORNICE, 0, groundY + 20.35, 0.08, 24.2, 0.7, 0.48);
+  facadeBox(HAMBURGER_CORNICE, 0, groundY + 12.9, 0.12, 22.6, 0.42, 0.42);
   for (const side of [-1, 1]) {
     facadeBox(
       HAMBURGER_CORNICE,
@@ -811,12 +934,8 @@ function addRieckhallen(
   const centerZ = point.z + profile.centerOffsetFromLandmarkM[1];
   const roofY = point.y + profile.measuredHeightM;
   const at = (across: number, along: number): [number, number] => [
-    centerX +
-      profile.crossAxis[0] * across +
-      profile.longAxis[0] * along,
-    centerZ +
-      profile.crossAxis[1] * across +
-      profile.longAxis[1] * along,
+    centerX + profile.crossAxis[0] * across + profile.longAxis[0] * along,
+    centerZ + profile.crossAxis[1] * across + profile.longAxis[1] * along,
   ];
 
   // The protected freight building is one 281 m-long, low hall. Its LoD2
@@ -965,6 +1084,323 @@ function addSocialCourt(
   );
 }
 
+function addBerlinModern(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  const point = anchor(byName, "berlin modern — Museum des 20. Jahrhunderts");
+  if (!point) return;
+
+  const profile = BERLIN_MODERN_PROFILE;
+  const width = profile.footprintWidthM;
+  const depth = profile.footprintLengthM;
+  const halfWidth = width / 2;
+  const halfDepth = depth / 2;
+  const rotation = profile.rotationY;
+  const groundY = point.y;
+  const eaveY = groundY + profile.bodyHeightM;
+
+  // The previous placeholder had only a high floating roof. The published
+  // 120 x 71 x 18 m planning envelope is now a continuous, grounded body.
+  addLocalBox(
+    builder,
+    BERLIN_MODERN_MASONRY,
+    point,
+    0,
+    groundY + profile.bodyHeightM / 2,
+    0,
+    width,
+    profile.bodyHeightM,
+    depth,
+    rotation,
+  );
+
+  // Fine horizontal courses express the layered mineral masonry without
+  // photographic textures or coplanar surfaces that could shimmer.
+  for (let height = 1.1; height < profile.bodyHeightM; height += 1.1) {
+    addLocalBox(
+      builder,
+      BERLIN_MODERN_MASONRY_LIGHT,
+      point,
+      0,
+      groundY + height,
+      -halfDepth - 0.11,
+      width - 0.8,
+      0.07,
+      0.12,
+      rotation,
+      false,
+    );
+    addLocalBox(
+      builder,
+      BERLIN_MODERN_MASONRY_LIGHT,
+      point,
+      0,
+      groundY + height,
+      halfDepth + 0.11,
+      width - 0.8,
+      0.07,
+      0.12,
+      rotation,
+      false,
+    );
+    for (const side of [-1, 1]) {
+      addLocalBox(
+        builder,
+        BERLIN_MODERN_MASONRY_LIGHT,
+        point,
+        side * (halfWidth + 0.11),
+        groundY + height,
+        0,
+        0.12,
+        0.07,
+        depth - 0.8,
+        rotation,
+        false,
+      );
+    }
+  }
+
+  addGableRoofShell(
+    builder,
+    BERLIN_MODERN_ROOF,
+    point,
+    eaveY,
+    width,
+    depth,
+    profile.roofRiseM,
+    rotation,
+  );
+  addGableFace(
+    builder,
+    BERLIN_MODERN_MASONRY_LIGHT,
+    point,
+    eaveY,
+    -halfDepth,
+    width,
+    profile.roofRiseM,
+    rotation,
+    true,
+  );
+  addGableFace(
+    builder,
+    BERLIN_MODERN_MASONRY,
+    point,
+    eaveY,
+    halfDepth,
+    width,
+    profile.roofRiseM,
+    rotation,
+    false,
+  );
+
+  // Broad transparent north entrance facing Scharounplatz, plus the smaller
+  // south entrance. Both sit proud of the mineral wall to avoid z-fighting.
+  addLocalLampBox(
+    builder,
+    BERLIN_MODERN_GLASS,
+    point,
+    0,
+    groundY + 5.25,
+    -halfDepth - 0.19,
+    48,
+    9.5,
+    0.22,
+    rotation,
+  );
+  addGableFace(
+    builder,
+    BERLIN_MODERN_GLASS,
+    point,
+    eaveY,
+    -halfDepth - 0.2,
+    48,
+    profile.roofRiseM * (48 / width),
+    rotation,
+    true,
+  );
+  addLocalLampBox(
+    builder,
+    BERLIN_MODERN_GLASS,
+    point,
+    0,
+    groundY + 4.1,
+    halfDepth + 0.19,
+    20,
+    7.4,
+    0.22,
+    rotation,
+  );
+
+  // The east facade's upper glass band and transverse ground-level opening
+  // are defining features in the published design views.
+  addLocalLampBox(
+    builder,
+    BERLIN_MODERN_GLASS,
+    point,
+    halfWidth + 0.19,
+    groundY + 8.7,
+    -18,
+    0.22,
+    3.6,
+    62,
+    rotation,
+  );
+  addLocalLampBox(
+    builder,
+    BERLIN_MODERN_GLASS,
+    point,
+    halfWidth + 0.2,
+    groundY + 2.55,
+    21,
+    0.24,
+    4.6,
+    22,
+    rotation,
+  );
+  for (let localZ = 13; localZ <= 29; localZ += 4) {
+    addLocalBox(
+      builder,
+      BERLIN_MODERN_MASONRY_LIGHT,
+      point,
+      halfWidth + 0.34,
+      groundY + 2.55,
+      localZ,
+      0.24,
+      4.5,
+      0.18,
+      rotation,
+      false,
+    );
+  }
+  addLocalLampBox(
+    builder,
+    BERLIN_MODERN_GLASS,
+    point,
+    -halfWidth - 0.19,
+    groundY + 8.6,
+    -22,
+    0.22,
+    3.4,
+    44,
+    rotation,
+  );
+
+  // A restrained mullion grid keeps the broad north facade legible in close
+  // views while preserving the flat, inked illustration language.
+  for (let localX = -22; localX <= 22; localX += 5.5) {
+    addLocalBox(
+      builder,
+      BERLIN_MODERN_MASONRY_LIGHT,
+      point,
+      localX,
+      groundY + 5.35,
+      -halfDepth - 0.34,
+      0.28,
+      9.7,
+      0.24,
+      rotation,
+      false,
+    );
+  }
+  for (const height of [2.4, 5.2, 8]) {
+    addLocalBox(
+      builder,
+      BERLIN_MODERN_MASONRY_LIGHT,
+      point,
+      0,
+      groundY + height,
+      -halfDepth - 0.34,
+      48.2,
+      0.22,
+      0.24,
+      rotation,
+      false,
+    );
+  }
+
+  const roofSlope = Math.atan2(profile.roofRiseM, halfWidth);
+  const slopeLength = Math.hypot(halfWidth, profile.roofRiseM);
+  for (const side of [-1, 1]) {
+    const roofAngle = side > 0 ? -roofSlope : roofSlope;
+    for (let distance = 4; distance < halfWidth - 1; distance += 5.25) {
+      const localX = side * distance;
+      const roofY =
+        eaveY + profile.roofRiseM * (1 - distance / halfWidth) + 0.08;
+      addTiltedLocalBox(
+        builder,
+        BERLIN_MODERN_PV_SEAM,
+        point,
+        localX,
+        roofY,
+        0,
+        0.12,
+        0.07,
+        depth - 2,
+        roofAngle,
+        rotation,
+      );
+    }
+    for (let localZ = -halfDepth + 8; localZ < halfDepth; localZ += 10) {
+      addTiltedLocalBox(
+        builder,
+        BERLIN_MODERN_PV_SEAM,
+        point,
+        side * halfWidth * 0.5,
+        eaveY + profile.roofRiseM * 0.5 + 0.08,
+        localZ,
+        slopeLength - 1,
+        0.07,
+        0.12,
+        roofAngle,
+        rotation,
+      );
+    }
+  }
+
+  // Light fascia and ridge members make the correct 18 m silhouette explicit.
+  addLocalBox(
+    builder,
+    BERLIN_MODERN_MASONRY_LIGHT,
+    point,
+    0,
+    eaveY + profile.roofRiseM + 0.12,
+    0,
+    0.42,
+    0.28,
+    depth + 0.5,
+    rotation,
+  );
+  for (const side of [-1, 1]) {
+    addTiltedLocalBox(
+      builder,
+      BERLIN_MODERN_MASONRY_LIGHT,
+      point,
+      side * halfWidth * 0.5,
+      eaveY + profile.roofRiseM * 0.5,
+      -halfDepth - 0.35,
+      slopeLength,
+      0.34,
+      0.3,
+      side > 0 ? -roofSlope : roofSlope,
+      rotation,
+    );
+  }
+  addLocalBox(
+    builder,
+    BERLIN_MODERN_MASONRY_LIGHT,
+    point,
+    0,
+    groundY + profile.totalHeightM / 2,
+    -halfDepth - 0.36,
+    0.32,
+    profile.totalHeightM,
+    0.3,
+    rotation,
+    false,
+  );
+}
+
 function addKulturforum(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
@@ -1033,31 +1469,7 @@ function addKulturforum(
       );
     }
   }
-  const modern = anchor(byName, "berlin modern — Museum des 20. Jahrhunderts");
-  if (modern) {
-    addGabledRoof(
-      builder,
-      0xb59b76,
-      modern.x,
-      modern.y + 20,
-      modern.z,
-      88,
-      72,
-      20,
-      0.02,
-    );
-    addBox(
-      builder,
-      DARK_FRAME,
-      modern.x,
-      modern.y + 10,
-      modern.z + 36,
-      42,
-      8,
-      1.2,
-      0.02,
-    );
-  }
+  addBerlinModern(builder, byName);
   const national = anchor(byName, "Neue Nationalgalerie");
   if (national) {
     addBox(
@@ -1521,6 +1933,7 @@ export function createExpandedCityDetails(
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
+  group.userData.berlinModern = BERLIN_MODERN_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   const builder = createBuilder();

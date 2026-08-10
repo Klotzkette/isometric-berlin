@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.70.19
+
+- **`berlin modern` is a complete building instead of a floating roof.** The
+  Kulturforum model now follows Herzog & de Meuron's published 120 × 71 × 18 m
+  planning envelope, sits on its landmark ground plane and follows the OSM
+  construction-boundary axis. The previous 88 × 72 m placeholder rose roughly
+  40 m above its anchor and omitted the wall body entirely.
+- The pale mineral body now carries layered masonry courses, a broad framed
+  north entrance, east-side glass and transverse openings, a correctly aligned
+  dark gable roof and a fine photovoltaic grid. The saved sight camera faces
+  the characteristic north gable instead of the less informative rear edge.
+- Night gives the entrance and side glazing a restrained warm emission.
+  Minecraft receives its own stepped block-native 120 × 71 × 18 m planning
+  model, so the construction site no longer becomes an empty lawn when modes
+  change.
+- Pure dimensional profiles moved out of the renderer, removing a latent
+  `ExpandedCityDetails` ↔ `MinecraftVoxelWorld` module-initialisation cycle.
+  Contract tests lock footprint, height, grounding, site rotation, camera and
+  all-mode presence. Two settled Day captures were byte-identical. The visible
+  radius remains **5,230 m**; attribution and source boundaries are unchanged.
+
 ## v0.70.18
 
 - **The weather control now works in Snowstorm too.** Day, Night and Minecraft

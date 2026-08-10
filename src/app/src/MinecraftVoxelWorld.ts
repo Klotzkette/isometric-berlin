@@ -12,7 +12,10 @@ import {
 } from "three";
 
 import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
-import { RIECKHALLEN_PROFILE } from "./ExpandedCityDetails";
+import {
+  BERLIN_MODERN_PROFILE,
+  RIECKHALLEN_PROFILE,
+} from "./expandedCityProfiles";
 import {
   AXIS_FROM,
   AXIS_TO,
@@ -204,6 +207,15 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     widthM: RIECKHALLEN_PROFILE.widthM,
   },
   {
+    center: BERLIN_MODERN_PROFILE.centerWorldM,
+    depthM: BERLIN_MODERN_PROFILE.footprintLengthM,
+    name: "berlin modern",
+    paddingM: 1,
+    rotationDegrees: (BERLIN_MODERN_PROFILE.rotationY * 180) / Math.PI,
+    tone: 0xe8d1ae,
+    widthM: BERLIN_MODERN_PROFILE.footprintWidthM,
+  },
+  {
     center: [417.898, 300.453],
     depthM: 18,
     name: "Brandenburger Tor",
@@ -274,7 +286,12 @@ function voxelMaterial(emissive = 0x3d3d3d): MeshStandardMaterial {
 
 type InstanceWriter = {
   mesh: InstancedMesh;
-  write: (center: Vector3, size: Vector3, color: Color) => void;
+  write: (
+    center: Vector3,
+    size: Vector3,
+    color: Color,
+    rotationY?: number,
+  ) => void;
 };
 
 function instancedBoxes(
@@ -292,9 +309,14 @@ function instancedBoxes(
   const matrix = new Matrix4();
   return {
     mesh,
-    write: (center, size, color) => {
+    write: (center, size, color, rotationY = 0) => {
       const index = mesh.count;
-      matrix.makeScale(size.x, size.y, size.z);
+      if (rotationY === 0) {
+        matrix.makeScale(size.x, size.y, size.z);
+      } else {
+        matrix.makeRotationY(rotationY);
+        matrix.scale(size);
+      }
       matrix.setPosition(center.x, center.y, center.z);
       mesh.setMatrixAt(index, matrix);
       mesh.setColorAt(index, color);
@@ -796,13 +818,7 @@ export function createMinecraftHamburgerBahnhofRecognition(): InstancedMesh {
   // Three belfry slots in each measured tower and a pale clock/rosette block.
   for (const towerU of [-11.43, 11.43]) {
     for (const du of [-1.35, 0, 1.35]) {
-      push(
-        0x40515c,
-        towerU + du,
-        facade.groundY + 23,
-        0.9,
-        [0.82, 2.8, 0.7],
-      );
+      push(0x40515c, towerU + du, facade.groundY + 23, 0.9, [0.82, 2.8, 0.7]);
     }
     push(0xd6dfe0, towerU, facade.groundY + 18.8, 0.94, [1.7, 1.7, 0.72]);
   }
@@ -830,6 +846,90 @@ export function createMinecraftHamburgerBahnhofRecognition(): InstancedMesh {
   return writer.mesh;
 }
 
+/**
+ * Block-native planning envelope for berlin modern.
+ *
+ * The completed museum is absent from the surveyed LoD2 payload while it is
+ * under construction. This explicit approximation keeps Minecraft consistent
+ * with the Day/Night model without importing its smooth roof geometry.
+ */
+export function createMinecraftBerlinModernRecognition(): InstancedMesh {
+  const profile = BERLIN_MODERN_PROFILE;
+  const columns = 18;
+  const rows = 30;
+  const cellWidth = profile.footprintWidthM / columns;
+  const cellDepth = profile.footprintLengthM / rows;
+  const glassColumns = 12;
+  const glassRows = 3;
+  const writer = instancedBoxes(
+    "Voxel berlin modern planning envelope",
+    columns * rows * 2 + glassColumns * glassRows,
+  );
+  const center = new Vector3();
+  const size = new Vector3();
+  const [originX, originZ] = profile.centerWorldM;
+  const cosine = Math.cos(profile.rotationY);
+  const sine = Math.sin(profile.rotationY);
+  const at = (localX: number, localZ: number): [number, number] => [
+    originX + localX * cosine + localZ * sine,
+    originZ - localX * sine + localZ * cosine,
+  ];
+
+  for (let row = 0; row < rows; row += 1) {
+    const localZ = -profile.footprintLengthM / 2 + (row + 0.5) * cellDepth;
+    for (let column = 0; column < columns; column += 1) {
+      const localX = -profile.footprintWidthM / 2 + (column + 0.5) * cellWidth;
+      const roofTop =
+        profile.groundY +
+        profile.bodyHeightM +
+        profile.roofRiseM *
+          (1 - Math.abs(localX) / (profile.footprintWidthM / 2));
+      const roofCapHeight = 1.15;
+      const bodyHeight = roofTop - profile.groundY - roofCapHeight;
+      const [x, z] = at(localX, localZ);
+      center.set(x, profile.groundY + bodyHeight / 2, z);
+      size.set(cellWidth - 0.08, bodyHeight, cellDepth - 0.08);
+      writer.write(
+        center,
+        size,
+        new Color((row + column) % 5 === 0 ? 0xf3efd0 : 0xe8d1ae),
+        profile.rotationY,
+      );
+      center.set(x, roofTop - roofCapHeight / 2, z);
+      size.set(cellWidth - 0.08, roofCapHeight, cellDepth - 0.08);
+      writer.write(
+        center,
+        size,
+        new Color((row + column) % 4 === 0 ? 0x40515c : 0x34443a),
+        profile.rotationY,
+      );
+    }
+  }
+
+  // Three block rows reproduce the broad north entrance without generic
+  // black square windows.
+  for (let row = 0; row < glassRows; row += 1) {
+    for (let column = 0; column < glassColumns; column += 1) {
+      const localX = -24 + (column + 0.5) * 4;
+      const [x, z] = at(localX, -profile.footprintLengthM / 2 - 0.36);
+      center.set(x, profile.groundY + 1.8 + row * 3, z);
+      size.set(3.55, 2.55, 0.62);
+      writer.write(
+        center,
+        size,
+        new Color((column + row) % 3 === 0 ? 0xa4dfe2 : 0x72c5d2),
+        profile.rotationY,
+      );
+    }
+  }
+
+  writer.mesh.instanceMatrix.needsUpdate = true;
+  if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
+  writer.mesh.frustumCulled = false;
+  writer.mesh.userData.architecturalProfile = profile;
+  return writer.mesh;
+}
+
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -848,6 +948,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftExtrapolatedWorld());
   group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
   group.add(createMinecraftHamburgerBahnhofRecognition());
+  group.add(createMinecraftBerlinModernRecognition());
 
   const visibleBuildingColumns = payload.buildings.filter(
     ([xIdx, zIdx, y0dm, y1dm]) =>
