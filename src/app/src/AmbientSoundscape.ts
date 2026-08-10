@@ -282,7 +282,16 @@ export class AmbientSoundscape {
 
   async start(): Promise<boolean> {
     if (this.timer !== null) {
-      return true;
+      if (this.context?.state === "running") {
+        return true;
+      }
+      // Safari/iOS and power-saving browsers can suspend an AudioContext
+      // without dispatching a page lifecycle event. The scheduler survives,
+      // so treating its timer as proof of playback makes every later click a
+      // false success over silence. Retire that stale schedule and let this
+      // user gesture reach resume() synchronously below.
+      this.clearScheduler();
+      this.stopActiveSources(this.context?.currentTime ?? 0, true);
     }
     // A load-time resume can remain pending while the browser waits for a
     // gesture. Never return that stale promise from the real click: starting a

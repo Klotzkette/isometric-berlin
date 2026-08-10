@@ -744,6 +744,7 @@ export function App() {
           ? "Audio wird von diesem Browser nicht unterstützt"
           : "Audio is not supported by this browser";
       if (!isAmbientAudioSupported()) {
+        setIsMusicAudible(false);
         if (!silent) {
           setStatus(unsupportedMessage);
         }
@@ -788,6 +789,7 @@ export function App() {
         }
       }
       setIsMusicEnabled(started);
+      setIsMusicAudible(started && soundscape.audible);
       if (rememberMute && started) {
         rememberMusicMuted(false);
       }
@@ -811,6 +813,7 @@ export function App() {
       ambientStartAttemptRef.current += 1;
       ambientSoundscapeRef.current?.stop();
       setIsMusicEnabled(false);
+      setIsMusicAudible(false);
       // Remember explicit mute so the auto-start effect stays quiet on the
       // next visit / interaction.
       rememberMusicMuted(true);
@@ -834,6 +837,7 @@ export function App() {
           : "Soundtrack is not supported by this browser";
       if (!isChiptuneSupported()) {
         setIsSoundtrackEnabled(false);
+        setIsSoundtrackAudible(false);
         if (!silent) {
           setStatus(unsupportedMessage);
         }
@@ -870,6 +874,7 @@ export function App() {
       if (started || !preserveIntentOnFailure) {
         setIsSoundtrackEnabled(started);
       }
+      setIsSoundtrackAudible(started && player.audible);
       if (!silent) {
         setStatus(started ? copy.soundtrackOn : unsupportedMessage);
       }
@@ -917,6 +922,7 @@ export function App() {
       chiptuneStartAttemptRef.current += 1;
       chiptuneRef.current?.stop();
       setIsSoundtrackEnabled(false);
+      setIsSoundtrackAudible(false);
       setStatus(copy.soundtrackOff);
       return;
     }
@@ -927,14 +933,10 @@ export function App() {
   // files in this soundtrack; the generated reverb/noise/wave buffers are the
   // assets to warm, leaving the first permitted gesture only the resume call.
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      document.hidden ||
-      isMusicMutedByUser()
-    ) {
+    if (typeof window === "undefined" || document.hidden) {
       return;
     }
-    if (isAmbientAudioSupported()) {
+    if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
       const ambient = ambientSoundscapeRef.current ?? new AmbientSoundscape();
       ambientSoundscapeRef.current = ambient;
       ambient.prepare();
@@ -951,10 +953,10 @@ export function App() {
   // returning visitor whose autoplay permission is already granted) should
   // not have to click first. A user who muted explicitly is left alone.
   useEffect(() => {
-    if (typeof window === "undefined" || isMusicMutedByUser()) {
+    if (typeof window === "undefined") {
       return;
     }
-    if (isAmbientAudioSupported()) {
+    if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
       void startMusic({ rememberMute: false, silent: true });
     }
     if (isChiptuneSupported()) {
@@ -981,12 +983,14 @@ export function App() {
       return;
     }
     return registerFirstGestureStart({
-      isMuted: isMusicMutedByUser,
+      // Dusk Republic deliberately has no persisted mute key: turning the
+      // ambient layer off must never suppress the independent soundtrack.
+      isMuted: () => !isSoundtrackEnabled,
       start: () =>
         startSoundtrack({ preserveIntentOnFailure: true, silent: true }),
       target: window,
     });
-  }, [startSoundtrack]);
+  }, [isSoundtrackEnabled, startSoundtrack]);
 
   useEffect(() => {
     try {

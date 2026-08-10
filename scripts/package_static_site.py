@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.70.21"
+PACKAGE_VERSION = "0.70.22"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3625,8 +3625,10 @@ with lighting and ventilation. Only the selected landmark gets a brief focus
 ring; permanent coloured dots no longer cover the buildings. The Advanced
 Viewer has direct Day, Night and Minecraft controls and a complete DE/EN
 switch. B or the speaker button starts/stops seven locally synthesized 8-bit
-ambient variants; music is off by default. D toggles Day/Night and M toggles
-Minecraft.
+ambient variants. T or the note button controls the independent procedural
+`Dusk Republic` soundtrack, whose enabled intent resets on each reload. Modern
+browsers may require the first click, touch or key gesture before either layer
+becomes audible. D toggles Day/Night and M toggles Minecraft.
 
 Version {PACKAGE_VERSION} bounds high-resolution building-detail memory to one
 group on mobile and two groups on desktop. Evicted geometry, materials and

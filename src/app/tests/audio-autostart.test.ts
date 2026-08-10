@@ -116,6 +116,36 @@ describe("first-gesture audio start", () => {
     expect(registered.length).toBe(0);
   });
 
+  test("a click supersedes a pointerdown resume that never settles", async () => {
+    const { registered, target } = fakeTarget();
+    const resolvers: Array<(started: boolean) => void> = [];
+    let attempts = 0;
+    registerFirstGestureStart({
+      start: () => {
+        attempts += 1;
+        return new Promise<boolean>((resolve) => resolvers.push(resolve));
+      },
+      target,
+    });
+
+    fire(registered, "pointerdown", {});
+    fire(registered, "mousedown", {});
+    expect(attempts).toBe(1);
+
+    // Some browsers grant audio activation only to the completed click. It
+    // must get a fresh synchronous resume call even while pointerdown hangs.
+    fire(registered, "click", {});
+    expect(attempts).toBe(2);
+    resolvers[1](true);
+    await Promise.resolve();
+    expect(registered.length).toBe(0);
+
+    // A late result from the stale attempt cannot re-arm or alter the winner.
+    resolvers[0](false);
+    await Promise.resolve();
+    expect(registered.length).toBe(0);
+  });
+
   test("an explicit mute is respected on every gesture", async () => {
     const { registered, target } = fakeTarget();
     let attempts = 0;

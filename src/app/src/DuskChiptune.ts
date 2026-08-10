@@ -638,6 +638,14 @@ export class DuskChiptune {
       return false;
     }
     try {
+      if (this.context?.state === "closed") {
+        this.stopActiveSources(this.context.currentTime);
+        this.context = null;
+        this.master = null;
+        this.lowpass = null;
+        this.pulseWaves.clear();
+        this.noiseBuffer = null;
+      }
       const Ctor =
         window.AudioContext ??
         ((window as never as Record<string, unknown>)
@@ -656,7 +664,14 @@ export class DuskChiptune {
 
   async start(): Promise<boolean> {
     if (this.timer !== null) {
-      return true;
+      if (this.context?.state === "running") {
+        return true;
+      }
+      // A browser may interrupt the context while leaving JavaScript timers
+      // alive. Clear the stale scheduler and pending voices so this explicit
+      // gesture performs a real resume instead of reporting a silent success.
+      this.clearScheduler();
+      this.stopActiveSources(this.context?.currentTime ?? 0);
     }
     if (!isChiptuneSupported()) {
       return false;
@@ -704,7 +719,10 @@ export class DuskChiptune {
         CHIP_MASTER_GAIN,
         context.currentTime + CHIP_START_FADE_SECONDS,
       );
-      if (this.nextStepAt < context.currentTime) {
+      if (
+        !Number.isFinite(this.nextStepAt) ||
+        this.nextStepAt <= context.currentTime
+      ) {
         this.nextStepAt =
           context.currentTime + CHIP_SCHEDULE_RESUME_DELAY_SECONDS;
       }

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.21/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.22 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.22/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.21** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.22** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,18 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.21**, built from `main`. Its full viewer
+The current public package is **v0.70.22**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Music now starts reliably from an ordinary first interaction.** A pending
+  `pointerdown`/`touchstart` audio request can be superseded by the completed
+  click, touch or key gesture that the browser actually permits. A browser-
+  suspended Web Audio context is resumed with a fresh scheduler instead of
+  falsely reporting playback over silence. The persisted Ambient mute remains
+  independent: it no longer suppresses `Dusk Republic`, which keeps its
+  documented per-reload enabled intent and can still be turned off separately.
 
 - `berlin modern` at the Kulturforum now uses the architects' published
   120 × 71 × 18 m planning envelope instead of a floating placeholder roof.
@@ -339,7 +347,7 @@ local modules.
   seven original slow 8-bit ambient variations locally with Web Audio; no
   recording, stream or external asset is loaded. `Dusk Republic` (`T`) is a
   second procedural Web Audio layer with slow and motorik movements on one
-  118 BPM grid. Browser autoplay policy is respected: its suspended graphs and
+  88 BPM grid. Browser autoplay policy is respected: its suspended graphs and
   procedural buffers are prepared at load, but audible playback begins only on
   the first allowed click, pointer movement, touch, wheel or key gesture (or a
   later focus/visibility retry). Both layers can be switched off for the

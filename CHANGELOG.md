@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.70.22
+
+- **Music starts from the first interaction the browser actually accepts.** If
+  an early `pointerdown` or `touchstart` resume remains pending, the completed
+  click, touch or keyboard gesture now supersedes it synchronously instead of
+  leaving the soundtrack locked in its waiting state. Stale asynchronous
+  results cannot overwrite the winning attempt.
+- **A suspended AudioContext can no longer masquerade as playback.** Ambient
+  and Dusk Republic retire a scheduler left alive by Safari, tab interruption
+  or power saving, clear its queued voices, resume the context and arm exactly
+  one fresh scheduler. Their toolbar states update immediately from audible
+  engine truth rather than waiting for the periodic health check.
+- **The two audio controls are independent again.** The persisted Ambient mute
+  no longer blocks Dusk Republic's documented per-reload enabled intent. Engine
+  regression tests cover stale schedulers and pending first gestures; a real
+  browser run confirms that an ordinary map click starts Dusk while Ambient
+  remains muted, after which both layers can be enabled together. Audio remains
+  procedural and within the existing shared 0.10 gain budget. The visible
+  radius remains **5,230 m**; geometry, source data and attribution are
+  unchanged.
+
 ## v0.70.21
 
 - **Curved streets and paths are now genuinely curved citywide.** The road

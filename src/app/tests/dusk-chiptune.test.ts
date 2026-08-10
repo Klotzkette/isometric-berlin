@@ -537,6 +537,38 @@ describe("Dusk Republic — player", () => {
     });
   });
 
+  test("an explicit start repairs a stale scheduler over suspended audio", async () => {
+    await withFakeTimerWindow(async (timerCounts) => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("suspended");
+      let scheduleCalls = 0;
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        ensureGraph(context: AudioContext): void;
+        master: GainNode | null;
+        prepare(): boolean;
+        scheduleAhead(): void;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 8;
+      internals.prepare = () => true;
+      internals.ensureGraph = () => undefined;
+      internals.scheduleAhead = () => {
+        scheduleCalls += 1;
+      };
+
+      expect(await player.start()).toBe(true);
+      expect(graph.counts.resumes).toBe(1);
+      expect(timerCounts.intervalClears).toBe(1);
+      expect(timerCounts.intervalStarts).toBe(1);
+      expect(scheduleCalls).toBe(1);
+      expect(player.audible).toBe(true);
+      await player.dispose();
+    });
+  });
+
   test("hide clears the scheduler and voices, then resumes on a fresh step", async () => {
     await withFakeTimerWindow(async (timerCounts) => {
       const player = new DuskChiptune();

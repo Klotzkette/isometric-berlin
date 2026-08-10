@@ -231,6 +231,34 @@ describe("deep swell beat cadence", () => {
     });
   });
 
+  test("an explicit start repairs a stale scheduler over suspended audio", async () => {
+    await withTimerWindow(async (timerCounts) => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("suspended");
+      let scheduleCalls = 0;
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        scheduleAhead(): void;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 7;
+      internals.scheduleAhead = () => {
+        scheduleCalls += 1;
+      };
+
+      expect(await soundscape.start()).toBe(true);
+      expect(graph.counts.resumes).toBe(1);
+      expect(timerCounts.intervalClears).toBe(1);
+      expect(timerCounts.intervalStarts).toBe(1);
+      expect(scheduleCalls).toBe(1);
+      expect(soundscape.audible).toBe(true);
+      soundscape.dispose();
+    });
+  });
+
   test("hide stops the scheduler and voices, then resumes once from now", async () => {
     await withTimerWindow(async (timerCounts) => {
       const soundscape = new AmbientSoundscape();

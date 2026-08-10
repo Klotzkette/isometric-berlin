@@ -33,6 +33,12 @@ export const FIRST_GESTURE_EVENTS = [
 /** Keys bound to viewer shortcuts that must not double as an audio start. */
 const IGNORED_KEYS = new Set(["b", "t", "n"]);
 
+// A pointerdown/touchstart resume can remain pending in Safari and embedded
+// browsers even though the later click/touchend in the same physical gesture
+// is accepted. Let that stronger completion event supersede the stale attempt
+// instead of leaving the soundtrack locked in "waiting" forever.
+const RETRY_WHILE_PENDING_EVENTS = new Set(["click", "touchend", "keydown"]);
+
 export interface FirstGestureTarget {
   addEventListener(
     type: string,
@@ -69,8 +75,12 @@ export function registerFirstGestureStart(
   const { isMuted, start, target } = options;
   let cancelled = false;
   let attempting = false;
+  let attemptGeneration = 0;
   const attempt = (event: Event) => {
-    if (cancelled || attempting) {
+    if (
+      cancelled ||
+      (attempting && !RETRY_WHILE_PENDING_EVENTS.has(event.type))
+    ) {
       return;
     }
     if (isMuted?.()) {
@@ -80,16 +90,23 @@ export function registerFirstGestureStart(
       return;
     }
     attempting = true;
+    const generation = ++attemptGeneration;
     // No await before this call: the gesture must still be "active".
     const started = start();
     void started.then(
       (ok) => {
+        if (generation !== attemptGeneration) {
+          return;
+        }
         attempting = false;
         if (ok) {
           teardown();
         }
       },
       () => {
+        if (generation !== attemptGeneration) {
+          return;
+        }
         attempting = false;
       },
     );

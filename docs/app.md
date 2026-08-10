@@ -129,10 +129,14 @@ underside presentations. A persistent DE/EN control translates all viewer
 chrome; official German place names remain unchanged, and the German UI uses
 `Sehenswürdigkeiten` rather than the English false friend.
 
-Music is off by default and cannot autoplay. The music button or `B` starts a
-local Web Audio score with seven original 72 BPM variants built from triangle
-bass, square/sine chimes, high-pass noise hats and quiet drones. It loads no
-audio file and suspends when the tab is hidden. Selecting a sight does not add
+Both music layers are generated locally with Web Audio and load no recording,
+stream or external audio asset. The music button or `B` controls seven original
+54 BPM ambient variants; an explicit Ambient mute persists across reloads. The
+note button or `T` independently controls `Dusk Republic`, whose enabled intent
+resets on each reload. Browser autoplay rules still require the first permitted
+click, touch, wheel or key gesture before sound becomes audible. A suspended
+context is recovered on the next gesture, and both layers pause while the page
+is hidden and dispose on a real page exit. Selecting a sight does not add
 temporary slogans or commentary over the map.
 
 The ordinary Day/Night pipeline applies a bounded crisp/saturation pass only
