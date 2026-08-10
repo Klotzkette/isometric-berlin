@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.70.18
+
+- **The weather control now works in Snowstorm too.** Day, Night and Minecraft
+  keep their independent moderate-rain preference; in Snowstorm the same
+  button changes to a snow-cloud icon and pauses or resumes falling flakes.
+  German and English labels, pressed state, status text and the compact action
+  menu all follow the active precipitation type instead of disabling the
+  control.
+- Settled snow, 168 drifts and the three snowploughs remain visible when
+  snowfall is paused. Both the Three.js point field and the 2D fallback stop
+  only their airborne animation, so an inactive snowfall no longer drives
+  needless continuous rendering or reopens a still-frame shimmer window.
+- Unit coverage locks the independent settled/airborne visibility, paused
+  particle clock and bilingual labels. Desktop browser QA exercised both
+  switch directions in the rendered Snowstorm scene. The visible radius
+  remains **5,230 m**; geometry, attribution and source boundaries are
+  unchanged.
+
 ## v0.70.17
 
 - **The Soviet Memorial now faces the Strasse des 17. Juni.** The former

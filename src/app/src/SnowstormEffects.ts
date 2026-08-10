@@ -48,6 +48,7 @@ export type Snowstorm = {
 };
 
 export type SnowstormPresentation = {
+  enabled: boolean;
   mode: VisualMode;
   obstructed: boolean;
 };
@@ -323,6 +324,8 @@ function createSettledSnow(): Group {
 export function createSnowstorm(coarsePointer: boolean): Snowstorm {
   const { air, material, flakes, positions } = createFlakes(coarsePointer);
   const settled = createSettledSnow();
+  air.visible = false;
+  settled.visible = false;
   const group = new Group();
   group.name = "Super snowstorm presentation";
   group.visible = false;
@@ -340,11 +343,20 @@ export function createSnowstorm(coarsePointer: boolean): Snowstorm {
 
 export function setSnowstormPresentation(
   snow: Snowstorm,
-  { mode, obstructed }: SnowstormPresentation,
+  { enabled, mode, obstructed }: SnowstormPresentation,
 ): boolean {
-  const visible = mode === "snowstorm" && !obstructed;
-  const changed = snow.group.visible !== visible;
-  snow.group.visible = visible;
+  const surfaceVisible = mode === "snowstorm" && !obstructed;
+  const snowfallVisible = surfaceVisible && enabled;
+  const changed =
+    snow.group.visible !== surfaceVisible ||
+    snow.settled.visible !== surfaceVisible ||
+    snow.air.visible !== snowfallVisible;
+  // The winter mode and the active weather are deliberately separate: deep
+  // settled snow remains in place while the shared precipitation control
+  // pauses or resumes only the falling flakes.
+  snow.group.visible = surfaceVisible;
+  snow.settled.visible = surfaceVisible;
+  snow.air.visible = snowfallVisible;
   return changed;
 }
 
@@ -353,7 +365,7 @@ export function updateSnowstorm(
   deltaSeconds: number,
   focus: Vector3,
 ): void {
-  if (!snow.group.visible) {
+  if (!snow.group.visible || !snow.air.visible) {
     return;
   }
   snow.air.position.set(focus.x, Math.max(-18, focus.y - 20), focus.z);
@@ -362,8 +374,7 @@ export function updateSnowstorm(
   const flurry = snowFlurryIntensity(snow.ageSeconds);
   const windScale = 0.62 + flurry * 1.55;
   snow.flakeMaterial.opacity =
-    CALM_FLAKE_OPACITY +
-    (PEAK_FLAKE_OPACITY - CALM_FLAKE_OPACITY) * flurry;
+    CALM_FLAKE_OPACITY + (PEAK_FLAKE_OPACITY - CALM_FLAKE_OPACITY) * flurry;
   const values = snow.flakePositions.array as Float32Array;
   snow.flakes.forEach((flake, index) => {
     flake.y -= flake.speed * (0.88 + flurry * 0.34) * elapsed;

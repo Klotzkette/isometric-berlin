@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.17 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.17/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.18 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.18/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.17** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.18** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.17**, built from `main`. Its full viewer
+The current public package is **v0.70.18**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -272,8 +272,9 @@ local modules.
   restrained night treatment.
 - Snowstorm adds a shared white ground mantle, 2,400 bounded desktop flakes
   (1,100 on touch devices), 168 wind-shaped drifts and three snowploughs while
-  preserving the same buildings and metric anchors. Moderate rain is an
-  independent toggle for Day, Night and Minecraft.
+  preserving the same buildings and metric anchors. One contextual weather
+  control toggles moderate rain in Day, Night and Minecraft, and toggles the
+  falling flakes in Snowstorm without removing its settled snow.
 - The `Minecraft` visual mode, also available with `M`,
   applies an original 48-colour premium voxel palette, ordered dithering,
   toon materials and restrained animated water/glass highlights without moving a

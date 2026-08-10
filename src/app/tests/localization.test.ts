@@ -28,4 +28,12 @@ describe("bilingual viewer copy", () => {
     expect(UI_COPY.en.flipHorizontal).not.toBe(UI_COPY.de.flipHorizontal);
     expect(UI_COPY.en.flipVertical).not.toBe(UI_COPY.de.flipVertical);
   });
+
+  test("labels contextual rain and snowfall controls in both languages", () => {
+    expect(UI_COPY.de.rainOn).toContain("Regen");
+    expect(UI_COPY.de.snowfallOn).toContain("Schneefall");
+    expect(UI_COPY.en.rainOff).toBe("Turn rain off");
+    expect(UI_COPY.en.snowfallOff).toBe("Turn snowfall off");
+    expect(UI_COPY.en.snowfallActive).not.toBe(UI_COPY.en.snowfallOn);
+  });
 });

@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
   CloudRain,
+  CloudSnow,
   Compass,
   Copy,
   Download,
@@ -532,6 +533,11 @@ export function App() {
     isNightLightsOnByUser,
   );
   const [rainEnabled, setRainEnabled] = useState(false);
+  // Snowfall has its own preference so switching back to Day/Night/Minecraft
+  // never turns a previous rain choice into an unexpected shower. Snowstorm
+  // keeps its established falling-snow default, but the same weather control
+  // can now pause and resume it.
+  const [snowfallEnabled, setSnowfallEnabled] = useState(true);
   const [pendingTunnelFlight, setPendingTunnelFlight] =
     useState<TunnelFlightDirection | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -1302,13 +1308,27 @@ export function App() {
     });
   }, [copy, lightingMode]);
 
-  const toggleRain = useCallback(() => {
+  const togglePrecipitation = useCallback(() => {
+    if (lightingMode === "snowstorm") {
+      setSnowfallEnabled((current) => {
+        const next = !current;
+        setStatus(next ? copy.snowfallActive : copy.snowfallInactive);
+        return next;
+      });
+      return;
+    }
     setRainEnabled((current) => {
       const next = !current;
-      setStatus(next ? copy.rainOn : copy.rainOff);
+      setStatus(next ? copy.rainActive : copy.rainInactive);
       return next;
     });
-  }, [copy.rainOff, copy.rainOn]);
+  }, [
+    copy.rainActive,
+    copy.rainInactive,
+    copy.snowfallActive,
+    copy.snowfallInactive,
+    lightingMode,
+  ]);
 
   const toggleViewerMode = useCallback(() => {
     const next = viewerMode === "three" ? "map" : "three";
@@ -2165,6 +2185,12 @@ export function App() {
     focusLandmark(selectedLandmark ?? landmarks[0], true);
   }, [focusLandmark, isReady, landmarks, selectedLandmark, viewerMode]);
 
+  const snowfallMode = lightingMode === "snowstorm";
+  const precipitationEnabled = snowfallMode ? snowfallEnabled : rainEnabled;
+  const precipitationOnLabel = snowfallMode ? copy.snowfallOn : copy.rainOn;
+  const precipitationOffLabel = snowfallMode ? copy.snowfallOff : copy.rainOff;
+  const precipitationLabel = snowfallMode ? copy.snowfall : copy.rain;
+
   return (
     <main
       ref={appShellRef}
@@ -2226,7 +2252,7 @@ export function App() {
             canvasAriaLabel={copy.threeD}
             lightingMode={lightingMode}
             nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
-            rainEnabled={rainEnabled}
+            precipitationEnabled={precipitationEnabled}
             progressLabel={copy.loadingMesh}
             sceneUrl={sceneUrl}
             selectedLandmark={selected}
@@ -2265,7 +2291,12 @@ export function App() {
           />
         ) : null}
         {lightingMode === "snowstorm" && viewerMode === "map" ? (
-          <div className="map-snowstorm" aria-hidden="true" />
+          <div
+            className={
+              snowfallEnabled ? "map-snowstorm is-active" : "map-snowstorm"
+            }
+            aria-hidden="true"
+          />
         ) : null}
       </section>
       {minecraftSpark ? (
@@ -2417,14 +2448,25 @@ export function App() {
           </div>
           <button
             type="button"
-            className="rain-toggle"
-            aria-label={rainEnabled ? copy.rainOff : copy.rainOn}
-            aria-pressed={rainEnabled}
-            disabled={lightingMode === "snowstorm"}
-            title={rainEnabled ? copy.rainOff : copy.rainOn}
-            onClick={toggleRain}
+            className="weather-toggle"
+            aria-label={
+              precipitationEnabled
+                ? precipitationOffLabel
+                : precipitationOnLabel
+            }
+            aria-pressed={precipitationEnabled}
+            title={
+              precipitationEnabled
+                ? precipitationOffLabel
+                : precipitationOnLabel
+            }
+            onClick={togglePrecipitation}
           >
-            <CloudRain size={18} aria-hidden="true" />
+            {snowfallMode ? (
+              <CloudSnow size={18} aria-hidden="true" />
+            ) : (
+              <CloudRain size={18} aria-hidden="true" />
+            )}
           </button>
           <button
             type="button"
@@ -3136,14 +3178,25 @@ export function App() {
             </button>
             <button
               type="button"
-              className="rain-toggle"
-              aria-pressed={rainEnabled}
-              aria-label={rainEnabled ? copy.rainOff : copy.rainOn}
-              disabled={lightingMode === "snowstorm"}
-              onClick={toggleRain}
+              className="weather-toggle"
+              aria-pressed={precipitationEnabled}
+              aria-label={
+                precipitationEnabled
+                  ? precipitationOffLabel
+                  : precipitationOnLabel
+              }
+              onClick={togglePrecipitation}
             >
-              <CloudRain size={20} aria-hidden="true" />
-              <span>{rainEnabled ? copy.rainOff : copy.rain}</span>
+              {snowfallMode ? (
+                <CloudSnow size={20} aria-hidden="true" />
+              ) : (
+                <CloudRain size={20} aria-hidden="true" />
+              )}
+              <span>
+                {precipitationEnabled
+                  ? precipitationOffLabel
+                  : precipitationLabel}
+              </span>
             </button>
             <button
               type="button"

@@ -43,27 +43,49 @@ describe("snowstorm presentation", () => {
     expect(snowFlurryIntensity(Number.NaN)).toBe(0);
   });
 
-  test("appears only in snowstorm mode above ground", () => {
+  test("keeps settled snow while the weather toggle controls falling flakes", () => {
     const snow = createSnowstorm(false);
     for (const mode of ["day", "night", "minecraft"] as const) {
-      setSnowstormPresentation(snow, { mode, obstructed: false });
+      setSnowstormPresentation(snow, {
+        enabled: true,
+        mode,
+        obstructed: false,
+      });
       expect(snow.group.visible).toBe(false);
     }
     setSnowstormPresentation(snow, {
+      enabled: false,
       mode: "snowstorm",
       obstructed: false,
     });
     expect(snow.group.visible).toBe(true);
+    expect(snow.settled.visible).toBe(true);
+    expect(snow.air.visible).toBe(false);
+    const pausedAge = snow.ageSeconds;
+    updateSnowstorm(snow, 0.1, new Vector3());
+    expect(snow.ageSeconds).toBe(pausedAge);
     setSnowstormPresentation(snow, {
+      enabled: true,
+      mode: "snowstorm",
+      obstructed: false,
+    });
+    expect(snow.group.visible).toBe(true);
+    expect(snow.settled.visible).toBe(true);
+    expect(snow.air.visible).toBe(true);
+    setSnowstormPresentation(snow, {
+      enabled: true,
       mode: "snowstorm",
       obstructed: true,
     });
     expect(snow.group.visible).toBe(false);
+    expect(snow.settled.visible).toBe(false);
+    expect(snow.air.visible).toBe(false);
   });
 
   test("falls around the current focus without changing particle count", () => {
     const snow = createSnowstorm(false);
     setSnowstormPresentation(snow, {
+      enabled: true,
       mode: "snowstorm",
       obstructed: false,
     });
@@ -75,11 +97,11 @@ describe("snowstorm presentation", () => {
     expect(snow.flakePositions.getY(0)).not.toBe(before);
     expect(snow.flakes).toHaveLength(snowflakeCount(false));
     expect(snow.ageSeconds).toBeCloseTo(0.08, 6);
-    expect(new Set(snow.flakes.map(({ drift }) => drift)).size).toBeGreaterThan(1_000);
+    expect(new Set(snow.flakes.map(({ drift }) => drift)).size).toBeGreaterThan(
+      1_000,
+    );
     snow.ageSeconds = 5.9;
     updateSnowstorm(snow, 0.1, new Vector3(150, 10, -420));
-    expect(snow.flakeMaterial.opacity).toBeGreaterThan(
-      calmOpacity + 0.6,
-    );
+    expect(snow.flakeMaterial.opacity).toBeGreaterThan(calmOpacity + 0.6);
   });
 });

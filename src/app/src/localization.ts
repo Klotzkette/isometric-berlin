@@ -63,6 +63,8 @@ const DE = {
   previousAttraction: "Vorige Sehenswürdigkeit",
   projectAndCurrent: "Projektname und aktuelle Sehenswürdigkeit",
   rain: "Regen",
+  rainActive: "Regen eingeschaltet",
+  rainInactive: "Regen ausgeschaltet",
   rainOff: "Regen ausschalten",
   rainOn: "Mittelstarken Regen einschalten",
   ready: "Bereit",
@@ -80,6 +82,11 @@ const DE = {
   showAttractions: "Sehenswürdigkeiten ein- oder ausblenden",
   showControls: "Bedienelemente wieder einblenden",
   southUp: "Süd oben",
+  snowfall: "Schneefall",
+  snowfallActive: "Schneefall eingeschaltet",
+  snowfallInactive: "Schneefall ausgeschaltet",
+  snowfallOff: "Schneefall ausschalten",
+  snowfallOn: "Schneefall einschalten",
   snowstorm: "Schneesturm",
   startTour: "Sehenswürdigkeiten-Tour starten",
   stopTour: "Tour pausieren",
@@ -163,6 +170,8 @@ const EN: Record<CopyKey, string> = {
   previousAttraction: "Previous sight",
   projectAndCurrent: "Project name and current sight",
   rain: "Rain",
+  rainActive: "Rain on",
+  rainInactive: "Rain off",
   rainOff: "Turn rain off",
   rainOn: "Turn moderate rain on",
   ready: "Ready",
@@ -180,6 +189,11 @@ const EN: Record<CopyKey, string> = {
   showAttractions: "Show or hide sights",
   showControls: "Show controls",
   southUp: "South up",
+  snowfall: "Snowfall",
+  snowfallActive: "Snowfall on",
+  snowfallInactive: "Snowfall off",
+  snowfallOff: "Turn snowfall off",
+  snowfallOn: "Turn snowfall on",
   snowstorm: "Snowstorm",
   startTour: "Start sights tour",
   stopTour: "Pause tour",
@@ -215,7 +229,9 @@ export function initialLanguage(): Language {
     if (stored === "de" || stored === "en") {
       return stored;
     }
-    return window.navigator.language.toLowerCase().startsWith("en") ? "en" : "de";
+    return window.navigator.language.toLowerCase().startsWith("en")
+      ? "en"
+      : "de";
   } catch {
     return "de";
   }

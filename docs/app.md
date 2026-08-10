@@ -80,10 +80,13 @@ The toolbar exposes direct Day, Night, Minecraft and Snowstorm buttons. `D`
 remains the fast Day/Night toggle, `M` enters or leaves Minecraft independently
 and `S` enters or leaves Snowstorm. A fullscreen control uses the native API on
 desktop and a safe-area-aware pseudo-fullscreen fallback on iOS.
-A separate rain button adds moderate rain without changing the selected visual
-mode except Snowstorm. True 3D renders it as one camera-following instanced field, with a lower
-drop budget on coarse pointers; the DZI fallback uses a lightweight screen
-layer. Rain is hidden automatically in underwater and underside views.
+A separate weather button adds moderate rain without changing Day, Night or
+Minecraft. In Snowstorm the same button becomes a snowfall control: it pauses
+or resumes falling flakes while the settled snow, drifts and snowploughs remain
+in place. True 3D renders precipitation as one camera-following field, with a
+lower particle budget on coarse pointers; the DZI fallback uses a lightweight
+screen layer. Precipitation is hidden automatically in underwater and underside
+views.
 
 Snowstorm reuses the same measured geometry under a broad white mantle and
 adds a bounded camera-following field (2,400 flakes on desktop, 1,100 on touch

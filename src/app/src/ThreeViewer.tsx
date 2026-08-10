@@ -265,7 +265,7 @@ type ThreeViewerProps = {
   // Only meaningful while lightingMode === "night"; day/minecraft ignore it.
   // See nightLighting.ts for the persisted preference this mirrors.
   nightLightsOn: boolean;
-  rainEnabled: boolean;
+  precipitationEnabled: boolean;
   progressLabel: string;
   sceneUrl: string;
   selectedLandmark: string;
@@ -319,7 +319,7 @@ type Runtime = {
   presentationReady: boolean;
   notifyPresentationReady: () => void;
   rain: ModerateRain;
-  rainEnabled: boolean;
+  precipitationEnabled: boolean;
   snowstorm: Snowstorm;
   renderer: WebGLRenderer;
   /** A visual mutation waiting for one deterministic on-demand render. */
@@ -428,7 +428,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
   const obstructed =
     runtime.underside || runtime.underwater || runtime.tunnelFlight !== null;
   const rainChanged = setRainPresentation(runtime.rain, {
-    enabled: runtime.rainEnabled,
+    enabled: runtime.precipitationEnabled,
     mode: runtime.lightingMode,
     obstructed,
   });
@@ -437,6 +437,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.lightingMode === "minecraft" && !obstructed,
   );
   const snowChanged = setSnowstormPresentation(runtime.snowstorm, {
+    enabled: runtime.precipitationEnabled,
     mode: runtime.lightingMode,
     obstructed,
   });
@@ -2204,7 +2205,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       canvasAriaLabel,
       lightingMode,
       nightLightsOn,
-      rainEnabled,
+      precipitationEnabled,
       progressLabel,
       sceneUrl,
       selectedLandmark,
@@ -2224,7 +2225,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const flightInputRef = useRef(new Vector3());
     const lightingModeRef = useRef(lightingMode);
     const nightLightsOnRef = useRef(nightLightsOn);
-    const rainEnabledRef = useRef(rainEnabled);
+    const precipitationEnabledRef = useRef(precipitationEnabled);
     const onErrorRef = useRef(onError);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
@@ -2269,14 +2270,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     }, [lightingMode, nightLightsOn]);
 
     useEffect(() => {
-      rainEnabledRef.current = rainEnabled;
+      precipitationEnabledRef.current = precipitationEnabled;
       const runtime = runtimeRef.current;
       if (!runtime) {
         return;
       }
-      runtime.rainEnabled = rainEnabled;
+      runtime.precipitationEnabled = precipitationEnabled;
       setEnvironmentalPresentation(runtime);
-    }, [rainEnabled]);
+    }, [precipitationEnabled]);
 
     useEffect(() => {
       onErrorRef.current = onError;
@@ -2831,7 +2832,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onReadyRef.current();
         },
         rain,
-        rainEnabled: rainEnabledRef.current,
+        precipitationEnabled: precipitationEnabledRef.current,
         snowstorm,
         renderer,
         renderInvalidated: true,
@@ -3451,7 +3452,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
         const environmentalMotion =
           runtime.rain.group.visible ||
-          runtime.snowstorm.group.visible ||
+          runtime.snowstorm.air.visible ||
           runtime.minecraftMobs?.group.visible === true;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
