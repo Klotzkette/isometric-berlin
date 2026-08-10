@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.70.24
+
+- **The bright isometric city keeps more of each source-backed material.**
+  Valid facade samples now retain 62% of their measured hue instead of being
+  washed halfway into ivory. Roofs use a lighter mineral cap with less neutral
+  tint, directional face steps are gentler, and warm graphite ink is quieter
+  without becoming translucent or unstable. Fresh park, water, paving and
+  asphalt tones remain discrete flat colours with no photographic gradients.
+- **Berlin's official tree catalogue now changes the actual crown form.**
+  Broadleaf trees keep their clustered crowns and visible trunks; official
+  conifers use three tapered tiers, large shrubs stay low, and orchard trees
+  use a tighter crown. The distinctions remain instanced, source-backed and
+  bounded, adding only a small fixed number of draw calls rather than one mesh
+  per tree.
+- **Hauptbahnhof reads as glass architecture rather than a wireframe.** Its
+  existing 321 m surveyed rail-curve envelope is unchanged, but the continuous
+  pale-cyan glass skin is stronger than its now finer, lighter panel grid.
+  Entrance facades, roof portals and the two 46 m Buegelbauten share that
+  hierarchy while retaining transparent night illumination and all metric
+  rail, hall and support geometry.
+- Browser QA covered Chancellery, Hauptbahnhof and Reichstag in Day, Night and
+  Minecraft. Two one-second-separated settled Day captures and two settled
+  Night captures were byte-identical. The visible radius remains **5,230 m**;
+  bounds, coordinates, source data, attribution and Google opt-in policy are
+  unchanged.
+
 ## v0.70.23
 
 - **The Kollhoff-Tower is now one red ceramic building, not a neutral tower

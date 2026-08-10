@@ -43,6 +43,28 @@ export type ParkTree = {
   variant: number;
 };
 
+export type TreePresentationForm =
+  | "broadleaf"
+  | "conifer"
+  | "orchard"
+  | "shrub";
+
+/** Keep the official catalogue's botanical form visible in the 3D drawing. */
+export function treePresentationForm(tree: ParkTree): TreePresentationForm {
+  const leafType = tree.leaf_type?.toLowerCase() ?? "";
+  const group = tree.tree_group?.toLowerCase() ?? "";
+  if (leafType.includes("needle") || group.includes("nadel")) {
+    return "conifer";
+  }
+  if (group.includes("strauch") || group.includes("sträuch")) {
+    return "shrub";
+  }
+  if (group.includes("obst")) {
+    return "orchard";
+  }
+  return "broadleaf";
+}
+
 /**
  * Wire form of a tree since schema 3. The task-09 bounds carry 20,911 official
  * catalogue points instead of 6,893, which pushed the verbose records past the
@@ -303,31 +325,52 @@ function addTrees(
   const branches: Transform[] = [];
   const crowns: Transform[][] = [[], [], []];
   const cutawayCrowns: Transform[][] = [[], [], []];
+  const coniferCrowns: Transform[][] = [[], [], []];
+  const cutawayConiferCrowns: Transform[][] = [[], [], []];
+  const shrubCrowns: Transform[][] = [[], [], []];
+  const cutawayShrubCrowns: Transform[][] = [[], [], []];
   const settledCrowns: Transform[][] = [[], [], []];
   const settledCutawayCrowns: Transform[][] = [[], [], []];
   const snowCaps: Transform[] = [];
   const cutawaySnowCaps: Transform[] = [];
+  const formCounts: Record<TreePresentationForm, number> = {
+    broadleaf: 0,
+    conifer: 0,
+    orchard: 0,
+    shrub: 0,
+  };
   for (const tree of trees) {
     const [x, y, z] = tree.position;
-    const trunkHeight = tree.height_m * 0.5;
-    const trunkRadius = tree.trunk_radius_m ?? Math.max(0.18, tree.crown_radius_m * 0.095);
+    const form = treePresentationForm(tree);
+    formCounts[form] += 1;
+    const trunkHeight =
+      tree.height_m *
+      (form === "shrub" ? 0.24 : form === "conifer" ? 0.58 : 0.5);
+    const trunkRadius =
+      tree.trunk_radius_m ??
+      Math.max(
+        form === "shrub" ? 0.1 : 0.18,
+        tree.crown_radius_m * (form === "shrub" ? 0.055 : 0.095),
+      );
     trunks.push({
       position: [x, y + trunkHeight / 2, z],
       scale: [trunkRadius, trunkHeight, trunkRadius],
     });
-    const branchLength = trunkHeight * 0.44;
-    const branchRadius = Math.max(0.1, trunkRadius * 0.58);
     const branchYaw = ((tree.variant % 7) / 7) * Math.PI * 2;
-    for (const direction of [-1, 1]) {
-      branches.push({
-        position: [
-          x + Math.cos(branchYaw) * direction * branchLength * 0.12,
-          y + trunkHeight * 0.8,
-          z + Math.sin(branchYaw) * direction * branchLength * 0.12,
-        ],
-        rotation: [0, branchYaw, direction * 0.72],
-        scale: [branchRadius, branchLength, branchRadius],
-      });
+    if (form === "broadleaf" || form === "orchard") {
+      const branchLength = trunkHeight * 0.44;
+      const branchRadius = Math.max(0.1, trunkRadius * 0.58);
+      for (const direction of [-1, 1]) {
+        branches.push({
+          position: [
+            x + Math.cos(branchYaw) * direction * branchLength * 0.12,
+            y + trunkHeight * 0.8,
+            z + Math.sin(branchYaw) * direction * branchLength * 0.12,
+          ],
+          rotation: [0, branchYaw, direction * 0.72],
+          scale: [branchRadius, branchLength, branchRadius],
+        });
+      }
     }
     const variant = Math.abs(tree.variant) % 3;
     const offsets = [
@@ -340,6 +383,38 @@ function addTrees(
     const isInsideCutaway = cutaway
       ? Math.hypot(x - cutaway.x, z - cutaway.z) <= cutaway.radiusM
       : false;
+    if (form === "conifer") {
+      const target = isInsideCutaway
+        ? cutawayConiferCrowns
+        : coniferCrowns;
+      const crownHeight = Math.max(2.4, tree.height_m * 0.58);
+      for (let layer = 0; layer < 3; layer += 1) {
+        const radius = tree.crown_radius_m * (0.98 - layer * 0.18);
+        target[variant].push({
+          position: [
+            x,
+            y + tree.height_m * (0.43 + layer * 0.19),
+            z,
+          ],
+          rotation: [0, branchYaw + layer * 0.37, 0],
+          scale: [radius, crownHeight * (0.64 - layer * 0.08), radius],
+        });
+      }
+    } else if (form === "shrub") {
+      const target = isInsideCutaway ? cutawayShrubCrowns : shrubCrowns;
+      for (let lobe = 0; lobe < 2; lobe += 1) {
+        const radius = tree.crown_radius_m * (lobe === 0 ? 0.9 : 0.72);
+        target[variant].push({
+          position: [
+            x + (lobe === 0 ? -0.16 : 0.22) * tree.crown_radius_m,
+            y + Math.max(0.45, tree.height_m * (0.38 + lobe * 0.12)),
+            z + (lobe === 0 ? 0.12 : -0.18) * tree.crown_radius_m,
+          ],
+          rotation: [0, branchYaw + lobe * 0.61, 0],
+          scale: [radius, radius * 0.58, radius],
+        });
+      }
+    }
     if (Math.abs(tree.variant) % 3 === 0) {
       const snowTarget = isInsideCutaway ? cutawaySnowCaps : snowCaps;
       snowTarget.push({
@@ -356,23 +431,32 @@ function addTrees(
         ],
       });
     }
-    for (let layer = 0; layer < offsets.length; layer += 1) {
-      const [offsetX, offsetY, offsetZ] = offsets[(layer + variant) % offsets.length];
-      const radius =
-        tree.crown_radius_m *
-        (layer === offsets.length - 1 ? 0.56 : layer >= 2 ? 0.72 : 0.84);
-      const target = isInsideCutaway ? cutawayCrowns : crowns;
-      target[variant].push({
-        position: [
-          x + offsetX * tree.crown_radius_m,
-          y + trunkHeight + radius * (0.4 + offsetY),
-          z + offsetZ * tree.crown_radius_m,
-        ],
-        rotation: [0, ((tree.variant + layer) * Math.PI) / 7, 0],
-        scale: [radius, radius * (0.7 + layer * 0.045), radius],
-      });
+    if (form === "broadleaf" || form === "orchard") {
+      const lobeCount = form === "orchard" ? 4 : offsets.length;
+      for (let layer = 0; layer < lobeCount; layer += 1) {
+        const [offsetX, offsetY, offsetZ] =
+          offsets[(layer + variant) % offsets.length];
+        const radius =
+          tree.crown_radius_m *
+          (layer === offsets.length - 1 ? 0.56 : layer >= 2 ? 0.72 : 0.84) *
+          (form === "orchard" ? 0.88 : 1);
+        const target = isInsideCutaway ? cutawayCrowns : crowns;
+        target[variant].push({
+          position: [
+            x + offsetX * tree.crown_radius_m,
+            y + trunkHeight + radius * (0.4 + offsetY),
+            z + offsetZ * tree.crown_radius_m,
+          ],
+          rotation: [0, ((tree.variant + layer) * Math.PI) / 7, 0],
+          scale: [radius, radius * (0.7 + layer * 0.045), radius],
+        });
+      }
     }
-    if (includeSettledDetail && tree.source === "berlin_official") {
+    if (
+      includeSettledDetail &&
+      tree.source === "berlin_official" &&
+      (form === "broadleaf" || form === "orchard")
+    ) {
       const settledOffsets = [
         [-0.43, 0.45, -0.3],
         [0.42, 0.3, 0.34],
@@ -410,11 +494,9 @@ function addTrees(
       branches,
     ),
   );
-  // Sage drawn greens, matching the ivory city's calm parkland. Kept
-  // light and desaturated: at quarter scale the crowns are the biggest
-  // colour mass in frame, and darker greens turned the park into a belt
-  // of heavy blobs around the pale city.
-  const colors = [0xa8c69a, 0xb4d0a6, 0x9dbf90];
+  // Fresh but still light foliage separates individual source trees without
+  // turning the Tiergarten into one heavy green mass around the ivory city.
+  const colors = [0x97c98a, 0xaed8a0, 0x87ba7b];
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(
@@ -440,6 +522,54 @@ function addTrees(
       group.add(mesh);
     }
   });
+  const addSourceFormCrowns = (
+    transforms: Transform[][],
+    cutawayTransforms: Transform[][],
+    family: string,
+    formColors: readonly number[],
+    geometry: () => BufferGeometry,
+  ): void => {
+    transforms.forEach((entries, index) => {
+      if (entries.length === 0) {
+        return;
+      }
+      group.add(
+        instanced(
+          `Geoportal Berlin ${family} crowns variant ${index + 1}`,
+          geometry(),
+          material(formColors[index], 0.94),
+          entries,
+        ),
+      );
+    });
+    cutawayTransforms.forEach((entries, index) => {
+      if (entries.length === 0 || !cutaway) {
+        return;
+      }
+      const mesh = instanced(
+        `Geoportal Berlin ${family} crowns variant ${index + 1} focus cutaway`,
+        geometry(),
+        material(formColors[index], 0.94),
+        entries,
+      );
+      mesh.userData.focusCutawayFor = cutaway.focusName;
+      group.add(mesh);
+    });
+  };
+  addSourceFormCrowns(
+    coniferCrowns,
+    cutawayConiferCrowns,
+    "tiered conifer",
+    [0x6fa36b, 0x7eb175, 0x628f60],
+    () => new ConeGeometry(1, 1, 8),
+  );
+  addSourceFormCrowns(
+    shrubCrowns,
+    cutawayShrubCrowns,
+    "low shrub",
+    [0x8ebd74, 0x9bc984, 0x80ad68],
+    () => new IcosahedronGeometry(1, 1),
+  );
   const addSnowCaps = (transforms: Transform[], focusCutaway: boolean) => {
     if (transforms.length === 0) {
       return;
@@ -494,6 +624,7 @@ function addTrees(
   settledCutawayCrowns.forEach((transforms, index) => {
     addSettledCrownInstances(transforms, index, true);
   });
+  group.userData.treePresentationForms = formCounts;
   return settledDetailFaces;
 }
 

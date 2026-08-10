@@ -184,7 +184,7 @@ export function isDedicatedSintiRomaPool(surface: SurfacePolygon): boolean {
 }
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
-export const ISO_INK_COLOR = 0x716c62;
+export const ISO_INK_COLOR = 0x817b70;
 // At night black ink vanishes on dark prisms; a cool moonlit line keeps
 // the drawn contours readable.
 export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
@@ -597,21 +597,21 @@ export function cleanedTone(tone: [number, number, number]): Color {
 // Soft, flat illustration tones for the day ground (NOT the Minecraft
 // palette): calm park green, light asphalt, Spree blue, plaza brick.
 export const ISO_GROUND_SHADES: Record<string, readonly number[]> = {
-  asphalt: [0xcbccc5, 0xcdcec7],
+  asphalt: [0xc3c8c3, 0xc6cbc5],
   // Closely spaced sage lawns avoid noisy stripes while retaining enough
   // separation to read the park as a drawn surface.
-  grass: [0xc7dab9, 0xc8dbba, 0xc6d9b8],
-  plazaBrick: [0xecd9c3, 0xead6c0],
+  grass: [0xb9d9aa, 0xbadaab, 0xb8d8a9],
+  plazaBrick: [0xf0d6bb, 0xedcfb2],
   // Drawn bridge decks: light stone, clearly distinct from water below.
-  bridge: [0xe3dfd5, 0xe5e1d7],
-  water: [0xb6d7e6, 0xb4d6e5],
+  bridge: [0xe7e4da, 0xe9e6dd],
+  water: [0xa8d5e8, 0xa5d2e5],
 };
 
 // Flat drawn facade tones per building class, with deterministic
 // per-building jitter between shades (quantised paint, no gradients).
 const FACADE_SHADES: Record<string, readonly number[]> = {
-  concrete: [0xf4eee0, 0xeee7d7, 0xf8f4ea, 0xe9e1cf],
-  glass: [0xd2e5ea, 0xdeedf1, 0xc6dbe3],
+  concrete: [0xf5efe3, 0xeee7d8, 0xf9f5ed, 0xe9dfcb],
+  glass: [0xc5e3e8, 0xd9eff2, 0xb9d9e2],
 };
 const FALLBACK_FACADE: readonly number[] = FACADE_SHADES.concrete;
 
@@ -637,6 +637,10 @@ function inReichstagRegion(building: PrismBuilding): boolean {
 // what carries the cream cast onto neutral samples, so a warmer anchor is the
 // most direct answer to "mehr Elfenbein/Creme/Warmweiß, weniger Grauanteil".
 const IVORY = new Color(0xfbf5e4);
+export const SOURCE_FACADE_IVORY_BLEND = 0.38;
+export const ISO_GLASS_DAY_OPACITY = 0.62;
+export const ISO_GLASS_MULLION_OPACITY = 0.44;
+export const ISO_FACADE_AXIS_OPACITY = 0.26;
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   const pinned = HERO_PRISM_TONES[building.id];
@@ -657,7 +661,10 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   // Gebäudetyp angleichen"); the shared class shades are only the
   // fallback for footprints without a valid sample.
   if (building.tone) {
-    return cleanedTone(building.tone).lerp(IVORY, 0.52);
+    return cleanedTone(building.tone).lerp(
+      IVORY,
+      SOURCE_FACADE_IVORY_BLEND,
+    );
   }
   const className = classes[building.class] ?? "concrete";
   const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
@@ -1327,11 +1334,11 @@ const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
  * so volumes read plastically; still flat, still unlit, no gradients.
  */
 export const ISO_FACE_SHADE = {
-  east: 0.935,
-  north: 0.97,
-  south: 0.89,
+  east: 0.95,
+  north: 0.98,
+  south: 0.92,
   top: 1,
-  west: 0.86,
+  west: 0.89,
 } as const;
 
 export function isoFaceShade(nx: number, ny: number, nz: number): number {
@@ -1352,11 +1359,11 @@ export function isoFaceShade(nx: number, ny: number, nz: number): number {
 // the single largest visible surface in an isometric view, so a neutral cool
 // grey here greyed out the whole drawing. Still clearly cooler than the
 // facades — the plate reads as a plate, just no longer as slate.
-const ROOF_PLATE_TINT = new Color(0xd9dee0);
+const ROOF_PLATE_TINT = new Color(0xe4e7df);
 // How far a roof cap leans toward that tint. 0.45 buried the building's own
 // colour under a neutral grey; 0.34 keeps the plate distinct while the paint
 // underneath still shows through.
-const ROOF_PLATE_TINT_BLEND = 0.34;
+const ROOF_PLATE_TINT_BLEND = 0.24;
 // Hyperdetail bands: a darker plinth (Sockel) at the base and a light
 // protruding cornice (Gesims) under the roof edge of every drawn wall.
 const SOCKEL_HEIGHT_M = 0.55;
@@ -6961,14 +6968,14 @@ export function createIsometricCity(
     glassGeometries.length > 0 ? mergeGeometries(glassGeometries, false) : null;
   if (glass) {
     const dayMaterial = new MeshBasicMaterial({
-      opacity: 0.52,
+      opacity: ISO_GLASS_DAY_OPACITY,
       transparent: true,
       vertexColors: true,
     });
     const nightMaterial = new MeshStandardMaterial({
       flatShading: true,
       metalness: 0,
-      opacity: 0.52,
+      opacity: ISO_GLASS_DAY_OPACITY,
       roughness: 0.35,
       transparent: true,
       vertexColors: true,
@@ -6996,7 +7003,7 @@ export function createIsometricCity(
       geometry,
       new LineBasicMaterial({
         color: ISO_INK_COLOR,
-        opacity: 0.55,
+        opacity: ISO_GLASS_MULLION_OPACITY,
         transparent: true,
       }),
     );
@@ -7017,7 +7024,7 @@ export function createIsometricCity(
       geometry,
       new LineBasicMaterial({
         color: ISO_INK_COLOR,
-        opacity: 0.34,
+        opacity: ISO_FACADE_AXIS_OPACITY,
         transparent: true,
       }),
     );

@@ -25,6 +25,9 @@ import {
   facadeWallsOf,
   fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
+  ISO_FACADE_AXIS_OPACITY,
+  ISO_GLASS_DAY_OPACITY,
+  ISO_GLASS_MULLION_OPACITY,
   ISO_GROUND_SHADES,
   ISO_INK_COLOR,
   ISO_WINDOW_BAY_PITCH_M,
@@ -40,6 +43,7 @@ import {
   ROOF_MIN_RECTANGULARITY,
   ROOF_SHED,
   ROOF_TENT,
+  SOURCE_FACADE_IVORY_BLEND,
   roofRise,
   setIsoNightPresentation,
   windowGrid,
@@ -889,6 +893,41 @@ describe("real-colour facade tones", () => {
     expect(r - b).toBeLessThan(40);
     expect(r).toBeGreaterThanOrEqual(195);
     expect(r).toBeLessThanOrEqual(215);
+  });
+
+  test("keeps a bright but materially distinct day palette", () => {
+    expect(SOURCE_FACADE_IVORY_BLEND).toBeLessThanOrEqual(0.4);
+    expect(ISO_FACADE_AXIS_OPACITY).toBeLessThan(
+      ISO_GLASS_MULLION_OPACITY,
+    );
+    expect(ISO_GLASS_MULLION_OPACITY).toBeLessThan(ISO_GLASS_DAY_OPACITY);
+
+    const channels = (hex: number) => [
+      (hex >> 16) & 255,
+      (hex >> 8) & 255,
+      hex & 255,
+    ];
+    const [grassRed, grassGreen] = channels(ISO_GROUND_SHADES.grass[0]);
+    const [waterRed, , waterBlue] = channels(ISO_GROUND_SHADES.water[0]);
+    const [plazaRed, , plazaBlue] = channels(
+      ISO_GROUND_SHADES.plazaBrick[0],
+    );
+    expect(grassGreen - grassRed).toBeGreaterThan(18);
+    expect(waterBlue - waterRed).toBeGreaterThan(35);
+    expect(plazaRed - plazaBlue).toBeGreaterThan(30);
+
+    const glass = city.getObjectByName("LoD2 glass prisms") as Mesh;
+    const mullions = city.getObjectByName("LoD2 glass mullions") as LineSegments;
+    const axes = city.getObjectByName("LoD2 facade axes") as LineSegments;
+    expect((glass.material as MeshBasicMaterial).opacity).toBe(
+      ISO_GLASS_DAY_OPACITY,
+    );
+    expect((mullions.material as LineBasicMaterial).opacity).toBe(
+      ISO_GLASS_MULLION_OPACITY,
+    );
+    expect((axes.material as LineBasicMaterial).opacity).toBe(
+      ISO_FACADE_AXIS_OPACITY,
+    );
   });
 });
 

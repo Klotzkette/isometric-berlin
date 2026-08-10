@@ -1,9 +1,20 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, Group, InstancedMesh, Mesh, MeshStandardMaterial, Vector3 } from "three";
+import {
+  Box3,
+  Group,
+  InstancedMesh,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  MeshStandardMaterial,
+  Vector3,
+} from "three";
 
 import {
   createArchitecturalSignature,
   HAUPTBAHNHOF_ANCHOR_WORLD,
+  HAUPTBAHNHOF_GLASS_DAY_OPACITY,
+  HAUPTBAHNHOF_GLASS_GRID_OPACITY,
   HAUPTBAHNHOF_ROTATION_Y_DEGREES,
   type HauptbahnhofModelSignature,
 } from "../src/ArchitecturalLandmarks";
@@ -118,8 +129,26 @@ describe("step-39: the aboveground Hauptbahnhof is built from glass, not grey bo
         const mesh = match as Mesh;
         const material = mesh.material as MeshStandardMaterial;
         expect(material.transparent).toBe(true);
-        expect(material.opacity).toBeLessThan(0.9);
+        expect(material.opacity).toBe(HAUPTBAHNHOF_GLASS_DAY_OPACITY);
       }
+    }
+  });
+
+  test("the continuous glass envelope stays stronger than its drawn grid", () => {
+    expect(HAUPTBAHNHOF_GLASS_DAY_OPACITY).toBeGreaterThan(
+      HAUPTBAHNHOF_GLASS_GRID_OPACITY,
+    );
+    const station = createArchitecturalSignature(signature) as Group;
+    const roofSeams = station!.getObjectByName(
+      "Hauptbahnhof 321 m east-west glass roof batched glass panel seams",
+    );
+    const officeSeams = station!.getObjectByName(
+      "Hauptbahnhof batched office-bridge curtain-wall seams",
+    );
+    for (const seams of [roofSeams, officeSeams]) {
+      expect(seams).toBeDefined();
+      const material = (seams as LineSegments).material as LineBasicMaterial;
+      expect(material.opacity).toBe(HAUPTBAHNHOF_GLASS_GRID_OPACITY);
     }
   });
 
@@ -132,7 +161,7 @@ describe("step-39: the aboveground Hauptbahnhof is built from glass, not grey bo
     for (const tower of towers) {
       const material = (tower as Mesh).material as MeshStandardMaterial;
       expect(material.transparent).toBe(true);
-      expect(material.opacity).toBeLessThan(0.9);
+      expect(material.opacity).toBe(HAUPTBAHNHOF_GLASS_DAY_OPACITY);
     }
   });
 

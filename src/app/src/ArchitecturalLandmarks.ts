@@ -2047,6 +2047,12 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
  */
 export const HAUPTBAHNHOF_RAIL_CURVE_A = 0.000_787;
 export const HAUPTBAHNHOF_RAIL_CURVE_B = 0.223_3;
+// The glass skin must read as a continuous pale volume before its steel
+// lattice.  Lower envelope opacity plus stronger seams made the station look
+// like a wireframe at overview scale even though its metric geometry was
+// correct.  Keep this hierarchy explicit and covered by the glass contract.
+export const HAUPTBAHNHOF_GLASS_DAY_OPACITY = 0.5;
+export const HAUPTBAHNHOF_GLASS_GRID_OPACITY = 0.28;
 
 /**
  * Lateral offset (local metres) of the real rail curve at local-x
@@ -2152,10 +2158,10 @@ function addBarrelRoof(
   // boxes anywhere over the footprint).
   const glass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0xc6e3ea,
+      color: 0xcfe9ed,
       depthWrite: false,
       metalness: 0.03,
-      opacity: 0.3,
+      opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
       roughness: 0.1,
       side: DoubleSide,
       transparent: true,
@@ -2164,7 +2170,7 @@ function addBarrelRoof(
     0xaedfff,
     1.1,
   );
-  const steel = modelMaterial(0x47616d, { metalness: 0.66, roughness: 0.28 });
+  const steel = modelMaterial(0x718992, { metalness: 0.54, roughness: 0.32 });
   const roof = new Mesh(
     barrelRoofGeometry(
       length,
@@ -2324,8 +2330,8 @@ function addBarrelRoof(
     group,
     `${name} batched glass panel seams`,
     panelSegments,
-    0x3d6874,
-    0.64,
+    0x668892,
+    HAUPTBAHNHOF_GLASS_GRID_OPACITY,
   );
 }
 
@@ -2355,10 +2361,10 @@ function addBarrelRoofEndPortal(
 ): void {
   const glass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0xc6e3ea,
+      color: 0xcfe9ed,
       depthWrite: false,
       metalness: 0.03,
-      opacity: 0.3,
+      opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
       roughness: 0.1,
       side: DoubleSide,
       transparent: true,
@@ -2770,22 +2776,22 @@ function addStationOfficeBridge(
   const glass = nightEmitter(
     modelMaterial(0xa7ccd3, {
       metalness: 0.08,
-      opacity: 0.26,
+      opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
       roughness: 0.25,
     }),
     0xffdca0,
     0.72,
   );
   const roofGlass = nightEmitter(
-    modelMaterial(0xc6e3ea, {
+    modelMaterial(0xcfe9ed, {
       metalness: 0.05,
-      opacity: 0.3,
+      opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
       roughness: 0.12,
     }),
     0xaedfff,
     0.9,
   );
-  const frame = modelMaterial(0x60757c, {
+  const frame = modelMaterial(0x758b92, {
     metalness: 0.42,
     roughness: 0.38,
   });
@@ -2860,7 +2866,7 @@ function addStationOfficeBridge(
     "Hauptbahnhof batched office-bridge curtain-wall seams",
     panelSeams,
     0x9bc6cf,
-    0.52,
+    HAUPTBAHNHOF_GLASS_GRID_OPACITY,
   );
 
   // Washingtonplatz and Europaplatz look directly at the narrow ends of the
@@ -2889,7 +2895,7 @@ function addStationOfficeBridge(
     "Hauptbahnhof batched office-bridge end-facade grid",
     endFacadeGrid,
     0x7799a1,
-    0.72,
+    HAUPTBAHNHOF_GLASS_GRID_OPACITY,
   );
 }
 
@@ -2912,10 +2918,10 @@ function addStationHallEntranceFacade(
 ): void {
   const glass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0xc6e3ea,
+      color: 0xcfe9ed,
       depthWrite: false,
       metalness: 0.04,
-      opacity: 0.28,
+      opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
       roughness: 0.1,
       side: DoubleSide,
       transparent: true,
@@ -2924,7 +2930,7 @@ function addStationHallEntranceFacade(
     0xaedfff,
     1.15,
   );
-  const frame = modelMaterial(0x5c7278, { metalness: 0.4, roughness: 0.36 });
+  const frame = modelMaterial(0x728a91, { metalness: 0.4, roughness: 0.36 });
 
   const facadeWidth = hallWidth - 1.2;
   const facadeHeight = hallHeight - 0.6;

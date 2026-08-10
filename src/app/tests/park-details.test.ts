@@ -8,6 +8,7 @@ import {
   setParkDetailsFocus,
   setParkSnowPresentation,
   setParkSettledDetail,
+  treePresentationForm,
 } from "../src/ParkDetails";
 
 const payload: ParkDetailsPayload = {
@@ -135,6 +136,49 @@ describe("OSM park details", () => {
     );
     expect(branches).toBeInstanceOf(InstancedMesh);
     expect((branches as InstancedMesh).count).toBe(4);
+  });
+
+  test("keeps official conifers and shrubs distinct from broadleaf crowns", () => {
+    const conifer = {
+      ...payload.trees[0],
+      id: "tree-conifer",
+      leaf_type: "needleleaved",
+      tree_group: "Nadelbäume",
+    };
+    const shrub = {
+      ...payload.trees[0],
+      id: "tree-shrub",
+      leaf_type: "broadleaved",
+      tree_group: "Großsträucher",
+    };
+    const orchard = {
+      ...payload.trees[0],
+      id: "tree-orchard",
+      leaf_type: "broadleaved",
+      tree_group: "Obstbäume",
+    };
+    expect(treePresentationForm(conifer)).toBe("conifer");
+    expect(treePresentationForm(shrub)).toBe("shrub");
+    expect(treePresentationForm(orchard)).toBe("orchard");
+
+    const park = createParkDetails({
+      ...payload,
+      trees: [conifer, shrub, orchard],
+    });
+    const coniferCrowns = park.children
+      .filter((child) => child.name.includes("tiered conifer crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const shrubCrowns = park.children
+      .filter((child) => child.name.includes("low shrub crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    expect(coniferCrowns).toBe(3);
+    expect(shrubCrowns).toBe(2);
+    expect(park.userData.treePresentationForms).toEqual({
+      broadleaf: 0,
+      conifer: 1,
+      orchard: 1,
+      shrub: 1,
+    });
   });
 
   test("adds official-tree microcrowns only to settled desktop detail", () => {
