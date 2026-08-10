@@ -141,6 +141,15 @@ export type SunkenWall = {
 
 export type SurfacePayload = {
   lane_markings?: LaneMarking[];
+  path_inventory?: {
+    by_highway: Record<string, number>;
+    by_resolved_material: Record<string, number>;
+    by_surface: Record<string, number>;
+    line_parts: number;
+    mapped_surface_line_parts: number;
+    mapped_width_line_parts: number;
+    scope: string;
+  };
   parks: SurfacePolygon[];
   roads?: SurfacePolygon[];
   schema_version: number;
@@ -5783,7 +5792,8 @@ export function createSmoothSurfaces(
   // the Großer Stern roundabout had no surface at all in the drawn city —
   // only the 4 m voxel raster, which does not reach into the surveyed
   // Tiergarten. Each family gets its own tone: asphalt grey for traffic,
-  // pale paving for squares and footways, Tiergarten sand for park paths.
+  // pale paving for squares and footways, Tiergarten sand for compacted paths,
+  // plus separately sourced earth, timber and metal path surfaces.
   const ROAD_SURFACES: ReadonlyArray<{
     day: number;
     kind: string;
@@ -5807,6 +5817,27 @@ export function createSmoothSurfaces(
       lift: 0.12,
       name: "smooth park paths",
       night: 0x241f19,
+    },
+    {
+      day: 0xbca780,
+      kind: "earth",
+      lift: 0.125,
+      name: "smooth earth desire paths",
+      night: 0x211b15,
+    },
+    {
+      day: 0xc49c68,
+      kind: "wood",
+      lift: 0.13,
+      name: "smooth timber paths",
+      night: 0x241b14,
+    },
+    {
+      day: 0xaeb8b8,
+      kind: "metal",
+      lift: 0.135,
+      name: "smooth metal paths and steps",
+      night: 0x1b2225,
     },
     {
       day: 0xc4c5c0,

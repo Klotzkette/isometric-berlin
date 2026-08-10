@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+from pandas import isna
 from shapely.geometry import (
   LineString,
   MultiLineString,
@@ -64,7 +65,7 @@ from isometric_berlin.generation.road_geometry import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 WATER_SIMPLIFY_M = 0.15
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
@@ -88,9 +89,10 @@ GARDEN_SIMPLIFY_M = 0.4
 #
 # Mapped per-way widths and lane counts are resolved by ``road_geometry``;
 # class widths remain only the documented fallback where OSM has no measure.
-# Which drawn surface each class reads as. Park paths are the sandy
-# Tiergarten gravel; everything carrying traffic is asphalt; squares and
-# pedestrian zones are paving.
+# Fallback material where OSM has no explicit ``surface``. Explicit path
+# surfaces always win: an asphalt cycleway does not become sand merely because
+# it crosses a park, and a mapped earth desire line does not become paving at
+# the park edge.
 ROAD_KINDS: dict[str, str] = {
   "trunk": "asphalt",
   "trunk_link": "asphalt",
@@ -106,6 +108,7 @@ ROAD_KINDS: dict[str, str] = {
   "unclassified": "asphalt",
   "living_street": "asphalt",
   "service": "asphalt",
+  "bridleway": "sand",
   "pedestrian": "paving",
   "cycleway": "paving",
   "footway": "paving",
@@ -113,6 +116,43 @@ ROAD_KINDS: dict[str, str] = {
   "track": "sand",
   "steps": "paving",
 }
+PATH_HIGHWAYS = frozenset(
+  {"bridleway", "cycleway", "footway", "path", "pedestrian", "steps", "track"}
+)
+ASPHALT_PATH_SURFACES = frozenset({"asphalt", "chipseal"})
+PAVING_PATH_SURFACES = frozenset(
+  {
+    "bricks",
+    "cobblestone",
+    "concrete",
+    "concrete:lanes",
+    "concrete:plates",
+    "paved",
+    "paving_stones",
+    "pebblestone",
+    "sett",
+    "stone",
+    "stepping_stones",
+    "tactile_paving",
+    "unhewn_cobblestone",
+  }
+)
+SAND_PATH_SURFACES = frozenset({"compacted", "fine_gravel", "gravel", "sand", "shells"})
+EARTH_PATH_SURFACES = frozenset(
+  {
+    "clay",
+    "dirt",
+    "earth",
+    "grass",
+    "grass_paver",
+    "ground",
+    "mud",
+    "unpaved",
+    "woodchips",
+  }
+)
+WOOD_PATH_SURFACES = frozenset({"wood"})
+METAL_PATH_SURFACES = frozenset({"metal", "metal_grid", "steel"})
 # Classes whose centreline earns a painted lane marking.
 MARKED_CLASSES = frozenset({"motorway", "trunk", "primary", "secondary", "tertiary"})
 # A road edge is a primary visual line. The former 0.75 m tolerance could turn
@@ -145,6 +185,42 @@ OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M = 0.2
 # sandy, wherever OSM classified it. This is what makes the Tiergarten look
 # like the Tiergarten instead of a grey street grid dropped on a lawn.
 PARK_PATH_KIND = "sand"
+
+
+def optional_osm_text(value: object) -> str | None:
+  """Normalize one optional OSM tag without leaking pandas NaN strings."""
+  if value is None or bool(isna(value)):
+    return None
+  text = str(value).strip().lower()
+  return text if text and text not in {"nan", "none"} else None
+
+
+def road_surface_kind(row: Any, highway: str, in_park: bool) -> str:
+  """Resolve the drawn material for one OSM road or path.
+
+  Motor roads retain the established carriageway policy. For walking and
+  cycling infrastructure the mapped ``surface`` is stronger evidence than
+  land-use context; park context is only the fallback for an untagged path.
+  """
+  fallback = ROAD_KINDS[highway]
+  if highway not in PATH_HIGHWAYS:
+    return fallback
+  surface = optional_osm_text(row.get("surface"))
+  if surface in ASPHALT_PATH_SURFACES:
+    return "asphalt"
+  if surface in PAVING_PATH_SURFACES:
+    return "paving"
+  if surface in SAND_PATH_SURFACES:
+    return "sand"
+  if surface in EARTH_PATH_SURFACES:
+    return "earth"
+  if surface in WOOD_PATH_SURFACES:
+    return "wood"
+  if surface in METAL_PATH_SURFACES:
+    return "metal"
+  if surface is None and in_park:
+    return PARK_PATH_KIND
+  return fallback
 
 
 def ring_to_dm(coords: Any) -> list[list[int]]:
@@ -501,7 +577,7 @@ def collect_roads(
   bounds: BaseGeometry,
   parkland: BaseGeometry | None,
   ramp_corridors: BaseGeometry | None,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
   """Buffer OSM highway centrelines into drawn carriageway polygons.
 
   Returns the surface polygons and, separately, the centrelines of the
@@ -511,6 +587,12 @@ def collect_roads(
   frame = gpd.read_file(osm_path, layer="roads").to_crs(epsg=25833)
   by_kind: dict[str, list[Polygon]] = {}
   markings: list[dict[str, Any]] = []
+  path_by_highway: dict[str, int] = {}
+  path_by_surface: dict[str, int] = {}
+  path_by_material: dict[str, int] = {}
+  path_source_features = 0
+  path_surface_mapped = 0
+  path_width_mapped = 0
   for _, row in frame.iterrows():
     highway = row.get("highway")
     if not isinstance(highway, str):
@@ -539,19 +621,29 @@ def collect_roads(
       clipped = clipped.difference(ramp_corridors)
     if clipped.is_empty:
       continue
-    kind = ROAD_KINDS[highway]
     for line in line_parts(clipped):
       if line.length < 2.0:
         continue
       curved_line = smooth_road_line(line)
-      resolved = kind
-      if (
-        kind in {"paving", "sand"}
-        and parkland is not None
+      in_park = (
+        parkland is not None
         and parkland.intersects(curved_line)
         and curved_line.intersection(parkland).length > curved_line.length * 0.5
-      ):
-        resolved = PARK_PATH_KIND
+      )
+      resolved = road_surface_kind(row, highway, in_park)
+      if highway in PATH_HIGHWAYS:
+        path_source_features += 1
+        path_by_highway[highway] = path_by_highway.get(highway, 0) + 1
+        source_surface = optional_osm_text(row.get("surface"))
+        if source_surface is not None:
+          path_surface_mapped += 1
+          path_by_surface[source_surface] = path_by_surface.get(source_surface, 0) + 1
+        if (
+          optional_osm_text(row.get("width")) is not None
+          or optional_osm_text(row.get("est_width")) is not None
+        ):
+          path_width_mapped += 1
+        path_by_material[resolved] = path_by_material.get(resolved, 0) + 1
       # flat caps: a buffered centreline must not bulge into a lollipop at
       # every junction, which is what round caps do on a 4 000-segment net.
       band = curved_line.buffer(
@@ -616,7 +708,16 @@ def collect_roads(
           )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   markings.sort(key=lambda entry: -len(entry["points"]))
-  return surfaces, markings
+  path_inventory = {
+    "by_highway": dict(sorted(path_by_highway.items())),
+    "by_resolved_material": dict(sorted(path_by_material.items())),
+    "by_surface": dict(sorted(path_by_surface.items())),
+    "line_parts": path_source_features,
+    "mapped_surface_line_parts": path_surface_mapped,
+    "mapped_width_line_parts": path_width_mapped,
+    "scope": "bounded above-ground OSM path geometry",
+  }
+  return surfaces, markings, path_inventory
 
 
 def build_payload(
@@ -629,9 +730,12 @@ def build_payload(
     [g for g in parks.geometry if g is not None and not g.is_empty]
   )
   ramp_corridors = open_tunnel_ramp_corridors(scene_path)
-  roads, markings = collect_roads(osm_path, bounds, parkland, ramp_corridors)
+  roads, markings, path_inventory = collect_roads(
+    osm_path, bounds, parkland, ramp_corridors
+  )
   return {
     "lane_markings": markings,
+    "path_inventory": path_inventory,
     "park_simplify_m": PARK_SIMPLIFY_M,
     "parks": collect_parkland(osm_path, bounds),
     "road_simplify_m": ROAD_SIMPLIFY_M,
@@ -640,6 +744,9 @@ def build_payload(
     "road_buffer_quad_segs": ROAD_BUFFER_QUAD_SEGS,
     "road_width_policy": "width > est_width > mapped lanes > highway-class fallback",
     "road_widths_m": ROAD_WIDTHS_M,
+    "road_surface_policy": (
+      "explicit OSM path surface > park-context fallback > highway-class fallback"
+    ),
     "roads": roads,
     "schema_version": SCHEMA_VERSION,
     "simplify_m": WATER_SIMPLIFY_M,

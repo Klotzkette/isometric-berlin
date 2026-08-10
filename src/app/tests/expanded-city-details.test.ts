@@ -2,11 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { Box3, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
+  AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
   createExpandedCityDetails,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
+  MOABIT_PRISON_PARK_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "../src/ExpandedCityDetails";
 
@@ -29,6 +31,7 @@ const landmarks = [
   "Café am Neuen See",
   "KPMG Europacity",
   "DKB Campus Upbeat",
+  "Geschichtspark Ehemaliges Zellengefängnis Moabit",
 ].map((name, index) => ({
   name,
   world: [index * 120, 3.8, (index % 4) * 160] as [number, number, number],
@@ -56,6 +59,30 @@ describe("task-10 expanded city recognition details", () => {
     expect(details.getObjectByName("KPMG rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("DKB rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("WELT rooftop lettering")).toBeDefined();
+    expect(details.getObjectByName("AMANO Grand Central facade lettering")).toBeDefined();
+  });
+
+  test("anchors AMANO facade detail to OSM and the official LoD2 height", () => {
+    const details = createExpandedCityDetails(landmarks);
+    expect(details.userData.amanoGrandCentral).toEqual(AMANO_GRAND_CENTRAL_PROFILE);
+    expect(AMANO_GRAND_CENTRAL_PROFILE.osmWayId).toBe("237687062");
+    expect(AMANO_GRAND_CENTRAL_PROFILE.sourceBuildingPartId).toBe(
+      "DEBE3DLXM9FjJbtp",
+    );
+    expect(AMANO_GRAND_CENTRAL_PROFILE.officialHeightM).toBeCloseTo(27.819, 3);
+    expect(AMANO_GRAND_CENTRAL_PROFILE.storeysBelowSetback).toBe(6);
+    expect(AMANO_GRAND_CENTRAL_PROFILE.geometryStatus).toContain("LoD2 height");
+  });
+
+  test("reconstructs the documented Moabit prison-park reading", () => {
+    const details = createExpandedCityDetails(landmarks);
+    expect(details.userData.moabitPrisonPark).toEqual(MOABIT_PRISON_PARK_PROFILE);
+    expect(MOABIT_PRISON_PARK_PROFILE.sourceParkWayId).toBe("498278335");
+    expect(MOABIT_PRISON_PARK_PROFILE.wallSideCount).toBe(3);
+    expect(MOABIT_PRISON_PARK_PROFILE.entranceCount).toBe(3);
+    expect(MOABIT_PRISON_PARK_PROFILE.circularYardCount).toBe(3);
+    expect(MOABIT_PRISON_PARK_PROFILE.reconstructedCellCount).toBe(1);
+    expect(MOABIT_PRISON_PARK_PROFILE.preservedWallHeightM).toBe(5);
   });
 
   test("grounds both company signs on recognisable building masses", () => {

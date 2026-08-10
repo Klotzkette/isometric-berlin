@@ -25,6 +25,9 @@ from scipy.spatial import cKDTree
 from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
 from shapely.geometry.base import BaseGeometry
 
+from isometric_berlin.generation.build_surface_polygons import road_surface_kind
+from isometric_berlin.generation.road_geometry import road_width_m
+
 PATH_HIGHWAYS = {
   "bridleway",
   "cycleway",
@@ -38,6 +41,14 @@ PLAYGROUND_NAMES = {"24911694": "Spielplatz an der Luiseninsel"}
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MESHOPT_DECOMPRESSOR = REPO_ROOT / "src/app/scripts/decompress-meshopt.mjs"
 TREE_MATCH_DISTANCE_M = 3.0
+PATH_MATERIAL_CODES = {
+  "asphalt": "a",
+  "paving": "p",
+  "sand": "g",
+  "earth": "e",
+  "wood": "w",
+  "metal": "m",
+}
 
 
 @dataclass(frozen=True)
@@ -207,14 +218,18 @@ def build_paths(
       points = [
         world_position(Point(x, y), origin, sampler) for x, y in simplified.coords
       ]
-      paths.append(
-        {
-          "id": f"{row['id']}:{part_index}",
-          "kind": str(row["highway"]),
-          "name": optional_text(row.get("name")),
-          "points": points,
-        }
-      )
+      kind = str(row["highway"])
+      path = {
+        "id": f"{row['id']}:{part_index}",
+        "kind": kind,
+        "m": PATH_MATERIAL_CODES[road_surface_kind(row, kind, True)],
+        "points": points,
+        "w": round((road_width_m(row) or 1.35) * 10),
+      }
+      name = optional_text(row.get("name"))
+      if name is not None:
+        path["name"] = name
+      paths.append(path)
   return paths
 
 
@@ -633,7 +648,7 @@ def build_payload(
   trees, tree_fusion = fuse_trees(official_trees, osm_trees)
   compact, tree_vocabulary = compact_trees(trees)
   return {
-    "schema_version": 3,
+    "schema_version": 4,
     "source": {
       "name": "Additive OSM and Geoportal Berlin detail fusion",
       "attribution": "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)",

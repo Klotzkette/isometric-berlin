@@ -15,6 +15,7 @@ from isometric_berlin.generation.build_street_details import (
   DEFAULT_OSM,
   ORIGIN_EASTING,
   ORIGIN_NORTHING,
+  deduplicate_floraplatz_animals,
   rectangle_axis,
 )
 
@@ -102,3 +103,40 @@ def test_node_station_axis_matches_the_mapped_esso_canopy() -> None:
   esso = next(entry for entry in payload["fuel_stations"] if entry["name"] == "Esso")
   dot = esso["axis"][0] * 0.859 + esso["axis"][1] * 0.512
   assert abs(dot) > 0.99
+
+
+def test_floraplatz_exports_exactly_eight_restored_animals() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  animals = [
+    entry
+    for entry in payload["monuments"]
+    if -2_100 <= entry["x_dm"] <= -1_200
+    and 4_100 <= entry["z_dm"] <= 5_200
+    and entry["name"]
+    in {"Hirsch", "Bison", "Liegender Bison Ⅱ", "Elch", "Bär", "Stier"}
+  ]
+  assert len(animals) == 8
+  assert sorted(entry["name"] for entry in animals) == [
+    "Bison",
+    "Bär",
+    "Elch",
+    "Elch",
+    "Hirsch",
+    "Hirsch",
+    "Liegender Bison Ⅱ",
+    "Stier",
+  ]
+
+
+def test_floraplatz_deduplication_is_narrow_and_deterministic() -> None:
+  monuments = [
+    {"name": "Liegender Bison Ⅱ", "x_dm": 100, "z_dm": 100},
+    {"name": "Bison", "x_dm": 106, "z_dm": 102},
+    {"name": "Bison", "x_dm": 300, "z_dm": 300},
+    {"name": "Hirsch", "x_dm": 102, "z_dm": 103},
+  ]
+  assert deduplicate_floraplatz_animals(monuments) == [
+    monuments[0],
+    monuments[2],
+    monuments[3],
+  ]

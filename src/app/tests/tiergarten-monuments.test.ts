@@ -30,6 +30,23 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(kinds.filter((kind) => kind === "cannon").length).toBe(2);
   });
 
+  test("Floraplatz has exactly eight differentiated restored animals", () => {
+    const animals = street.monuments!.filter(
+      (entry) =>
+        /^(Hirsch|Bison|Liegender Bison Ⅱ|Elch|Bär|Stier)$/.test(entry.name) &&
+        entry.x_dm >= -2_100 &&
+        entry.x_dm <= -1_200 &&
+        entry.z_dm >= 4_100 &&
+        entry.z_dm <= 5_200,
+    );
+    expect(animals).toHaveLength(8);
+    expect(monuments.userData.floraplatzAnimalCount).toBe(8);
+    expect(monuments.userData.floraplatzGeometry).toContain("species-specific");
+    expect(monuments.userData.sourceUrls).toContain(
+      "https://bildhauerei-in-berlin.de/bildwerk/acht-tierfiguren-am-floraplatz/",
+    );
+  });
+
   test("landmarks the recognition layer already models are skipped here", () => {
     expect(MONUMENTS_ALREADY_MODELLED.test("Denkmal für die ermordeten Juden Europas")).toBe(true);
     expect(MONUMENTS_ALREADY_MODELLED.test("Sowjetisches Ehrenmal Tiergarten")).toBe(true);

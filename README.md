@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.29 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.29/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.30 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.30/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.29** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.30** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,30 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.29**, built from `main`. Its full viewer
+The current public package is **v0.70.30**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Walking and cycling detail now follows the complete bounded OSM network.**
+  All 8,151 above-ground path line parts resolve through the same metric
+  buffering and terrain sampling as the streets. Explicit OSM surfaces take
+  precedence over context, distinguishing asphalt, paving, compacted/gravel,
+  earth, timber and metal; 7,420 parts carry mapped surface evidence and 988
+  carry an explicit `width` or `est_width`. The separate raised park-detail
+  layer retains 1,651 joined path ribbons for close views and now shares those
+  resolved materials and per-way widths instead of covering them with a
+  generic park colour.
+
+- **Floraplatz, Hotel AMANO Grand Central and the former Moabit prison park
+  gain source-bounded recognition detail.** Floraplatz now contains the eight
+  documented life-size bronzes on granite plinths: paired deer, bison and elk,
+  plus bear and bull, with one duplicate OSM bison suppressed only at its
+  coincident plinth. AMANO keeps its OSM footprint and official 27.819 m LoD2
+  height while adding the documented clinker, staggered-window, glazed-ground-
+  floor and setback-storey reading. The prison park keeps its OSM envelope and
+  follows Berlin's published interpretive plan for three wall sides and
+  entrances, four wings, panopticon, three exercise yards and one walk-in cell.
 
 - **Central Berlin's civic and rail architecture has a finer recognition
   layer without moving its source geometry.** The Swiss Embassy now separates
@@ -249,13 +269,13 @@ local modules.
   of repainting could compensate for it. Minecraft keeps ACES because it is a
   genuinely lit world of cubes, at a calibrated exposure that leaves pale
   facades pale.
-- Streets and park paths are drawn as real surfaces, buffered from the OSM
-  highway centrelines by class: asphalt carriageways with painted lane
-  markings, pale paving for squares and footways, and Tiergarten sand for
-  park paths. Widths are the ordinary cross-section for each class, so they
-  are presentation geometry derived from an OSM classification and are not
-  claimed as surveyed kerb lines. The surfaces follow the payload's terrain
-  grid rather than one constant height.
+- Streets, footways, cycleways, steps, tracks and desire paths are drawn as
+  real surfaces buffered from OSM centrelines. Path material follows an
+  explicit OSM `surface` first (asphalt, paving, compacted/gravel, earth,
+  timber or metal), then a documented class/park fallback. Explicit OSM
+  `width` and `est_width` values win; class widths remain presentation
+  cross-sections where no measurement is mapped and are not claimed as
+  surveyed kerb lines. Every surface follows the payload's terrain grid.
 - The refreshed OSM extract spans the full task-11 data hull. Großer Stern,
   Straße des 17. Juni, the Tiergarten paths, Spree and Landwehrkanal surfaces,
   Europacity and the southern extension are derived from that bounded source
@@ -434,10 +454,12 @@ local modules.
   than transverse generic boxes; their local spacing remains an approximation.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. The
   expanded additive layer combines the official catalogues with unmatched OSM
-  evidence into 29,860 individual trees, including measured height, crown and
+  evidence into 29,861 individual trees, including measured height, crown and
   trunk dimensions where published. It also adds 5,829 public-light positions
   with night cones, 12 mapped wall traces as granular dark red-brown setts,
-  591 OSM park-path sections and 101 playground footprints. The selectable
+  1,651 OSM park-path sections and 101 playground footprints. The complete
+  bounded smooth-surface pass additionally records 8,151 walking/cycling path
+  line parts and their source-resolved materials. The selectable
   Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
   water-play point and excavator. Its oblique focus view keeps those small

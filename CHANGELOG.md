@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.70.30
+
+- **Every bounded footway, cycleway, step, track and desire path now carries
+  auditable material evidence.** The schema-7 surface pass resolves all 8,151
+  above-ground OSM path line parts through explicit `surface` tags before park
+  or highway fallbacks: 7,420 parts have mapped surface evidence and 988 have a
+  mapped `width`/`est_width`. Asphalt, paving, compacted/gravel, earth, timber
+  and metal receive separate flat materials; the existing 1,651 joined park
+  ribbons now carry the same compact material and per-way width evidence, so
+  they no longer cover the precise surface pass with generic park styling.
+  Tests lock material priority, terrain following, payload inventory and the
+  no-survey-claim fallback.
+- **Floraplatz carries the documented eight reconstructed animal bronzes.**
+  Paired deer, bison and elk plus bear and bull receive species-specific
+  reclining low-poly anatomy, horns/antlers and individual granite plinths at
+  their OSM positions. One coincident generic Bison node is narrowly suppressed
+  in favour of `Liegender Bison II`; tests prevent either a ninth duplicate or
+  loss of one of the eight restored figures.
+- **AMANO Grand Central and the former Moabit prison park gain bounded
+  recognition detail without moving source geometry.** AMANO retains OSM way
+  `237687062` and LoD2 part `DEBE3DLXM9FjJbtp` at 27.819 m, adding the published
+  beige-grey clinker, glazed ground floor, staggered windows and glazed setback
+  storey. The prison park retains OSM way `498278335` and follows Berlin's
+  published interpretive plan for three five-metre wall sides/entrances, four
+  wing traces, the panopticon frame, three exercise yards, blood-beech planting
+  and one walk-in cell. Desktop visual QA covered both source envelopes; all
+  path, monument and architecture contracts pass. The visible radius remains
+  **5,230 m**; existing geometry, attribution and source policy are unchanged.
+
 ## v0.70.29
 
 - **The Snowstorm weather control now produces clearly visible falling snow.**

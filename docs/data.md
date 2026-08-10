@@ -275,6 +275,31 @@ material, height, leaf and accessibility attributes. The public viewer does
 not ship the raw response: `build_park_details` simplifies this evidence into
 the compact `park-details.json` display payload.
 
+Walking/cycling infrastructure is audited separately from motor traffic.
+`surface-polygons.json` schema 7 contains 8,151 bounded above-ground line parts
+across `footway`, `cycleway`, `path`, `pedestrian`, `steps` and `track`; 7,420
+parts have an explicit OSM `surface` and 988 have `width` or `est_width`.
+Explicit surface tags resolve to six drawn families (asphalt, paving,
+compacted/gravel, earth, timber and metal) before any park/class fallback is
+considered. The payload's `path_inventory` preserves the source and resolution
+counts so missing width evidence is documented rather than presented as a
+surveyed kerb line.
+
+`park-details.json` schema 4 repeats only compact material codes and resolved
+decimetre widths for the 1,651 raised close-view ribbons. It omits null path
+names and batches by six materials, preserving both the source distinction and
+the 5 MiB public-payload ceiling.
+
+Floraplatz's animal inventory combines OSM monument positions with Berlin's
+restoration record: two deer, two bison, two elk, one bear and one bull. A
+generic Bison node coincident with the more specific `Liegender Bison II` is
+treated as one duplicate plinth; no other monument is discarded. Hotel AMANO
+Grand Central uses OSM way `237687062` for plan/axis and LoD2 part
+`DEBE3DLXM9FjJbtp` for the 27.819 m shell. The former Moabit prison park uses
+OSM way `498278335` for its current envelope and Berlin's published landscape-
+architecture description for its interpretive interior. These recognition
+details remain additive and do not override their source geometry.
+
 ## Berlin official support layers
 
 Pipeline step 4 keeps official support data additive and scoped to the

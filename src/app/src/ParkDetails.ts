@@ -25,8 +25,12 @@ import {
 export type ParkPath = {
   id: string;
   kind: string;
-  name: string | null;
+  /** Compact material code since schema 4: asphalt/paving/gravel/earth/wood/metal. */
+  m?: "a" | "p" | "g" | "e" | "w" | "m";
+  name?: string | null;
   points: [number, number, number][];
+  /** Full path width in decimetres since schema 4. */
+  w?: number;
 };
 
 export type ParkTree = {
@@ -212,6 +216,19 @@ const PATH_STYLE: Record<string, { color: number; width: number }> = {
   steps: { color: 0x71706b, width: 1.65 },
   track: { color: 0x6f6046, width: 2.25 },
 };
+const PATH_MATERIAL_STYLE: Record<
+  NonNullable<ParkPath["m"]>,
+  { color: number; label: string }
+> = {
+  // Match the all-area unlit plates: the close ribbon must sharpen a path,
+  // never cover it with a darker and apparently different surface.
+  a: { color: 0xc4c5c0, label: "asphalt" },
+  p: { color: 0xdcd8cc, label: "paving" },
+  g: { color: 0xd9c9a6, label: "gravel and compacted" },
+  e: { color: 0xbca780, label: "earth desire" },
+  w: { color: 0xc49c68, label: "timber" },
+  m: { color: 0xaeb8b8, label: "metal" },
+};
 
 function material(color: number, roughness = 0.82): MeshStandardMaterial {
   return new MeshStandardMaterial({
@@ -255,11 +272,12 @@ function pathCategory(kind: string): string {
 
 export function createPathGeometry(
   paths: ParkPath[],
-  width: number,
+  width: number | ((path: ParkPath) => number),
 ): BufferGeometry {
   const positions: number[] = [];
   const indices: number[] = [];
   for (const path of paths) {
+    const resolvedWidth = typeof width === "number" ? width : width(path);
     const points = path.points.filter(
       (point, index, entries) =>
         index === 0 ||
@@ -270,7 +288,7 @@ export function createPathGeometry(
     );
     if (points.length < 2) continue;
     const offset = positions.length / 3;
-    const halfWidth = width / 2;
+    const halfWidth = resolvedWidth / 2;
     for (let index = 0; index < points.length; index += 1) {
       const point = points[index];
       const previous = points[Math.max(0, index - 1)];
@@ -304,7 +322,7 @@ export function createPathGeometry(
         0.5,
         Math.abs(mx * nextNormal[0] + mz * nextNormal[1]),
       );
-      const extension = Math.min(width, halfWidth / denominator);
+      const extension = Math.min(resolvedWidth, halfWidth / denominator);
       positions.push(
         point[0] + mx * extension,
         point[1] + 0.12,
@@ -334,18 +352,29 @@ export function createPathGeometry(
 function addPaths(group: Group, paths: ParkPath[]): void {
   const byKind = new Map<string, ParkPath[]>();
   for (const path of paths) {
-    const kind = pathCategory(path.kind);
+    const kind = path.m ? `material:${path.m}` : pathCategory(path.kind);
     byKind.set(kind, [...(byKind.get(kind) ?? []), path]);
   }
   for (const [kind, entries] of byKind) {
-    const style = PATH_STYLE[kind];
-    const pathMaterial = material(style.color, 0.96);
+    const materialCode = kind.startsWith("material:")
+      ? (kind.slice(-1) as NonNullable<ParkPath["m"]>)
+      : null;
+    const materialStyle = materialCode
+      ? PATH_MATERIAL_STYLE[materialCode]
+      : null;
+    const semanticStyle = materialStyle ? null : PATH_STYLE[kind];
+    const pathMaterial = material(
+      materialStyle?.color ?? semanticStyle?.color ?? PATH_STYLE.path.color,
+      0.96,
+    );
     pathMaterial.side = DoubleSide;
     const mesh = new Mesh(
-      createPathGeometry(entries, style.width),
+      createPathGeometry(entries, (path) =>
+        path.w ? path.w / 10 : PATH_STYLE[pathCategory(path.kind)].width,
+      ),
       pathMaterial,
     );
-    mesh.name = `Berlin park ${kind} batched path ribbons`;
+    mesh.name = `Berlin park ${materialStyle?.label ?? kind} batched path ribbons`;
     mesh.receiveShadow = true;
     group.add(mesh);
   }
@@ -1190,7 +1219,7 @@ export function createParkDetails(
   payload: ParkDetailsPayload,
   options: ParkDetailOptions = {},
 ): Group {
-  if (payload.schema_version < 1 || payload.schema_version > 3) {
+  if (payload.schema_version < 1 || payload.schema_version > 4) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
   const group = new Group();

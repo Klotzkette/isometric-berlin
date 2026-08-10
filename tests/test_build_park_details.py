@@ -76,7 +76,7 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
   assert "NaN" not in raw
   payload = json.loads(raw)
 
-  assert payload["schema_version"] == 3
+  assert payload["schema_version"] == 4
   assert payload["source"]["attribution"] == (
     "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)"
   )
@@ -88,6 +88,9 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
   assert len(payload["wall_traces"]) >= 2
   assert len(payload["playgrounds"]) >= 5
   assert all(len(path["points"]) >= 2 for path in payload["paths"])
+  assert {path["m"] for path in payload["paths"]} == {"a", "p", "g", "e", "w", "m"}
+  assert all(4 <= path["w"] <= 600 for path in payload["paths"])
+  assert all("name" not in path for path in payload["paths"] if not path.get("name"))
   trees = payload_trees(payload)
   assert all(3 <= tree["height_m"] <= 28 for tree in trees)
   assert max(tree["position"][1] for tree in trees) < 8
@@ -97,7 +100,7 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
 def test_paths_cover_spreebogen_futurium_and_nordhafen_parks() -> None:
   payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
   assert "all bounded OSM park areas" in payload["source"]["geometry_status"]
-  assert any(path["name"] == "Ludwig-Erhard-Ufer" for path in payload["paths"])
+  assert any(path.get("name") == "Ludwig-Erhard-Ufer" for path in payload["paths"])
 
   def reaches(x_min: float, x_max: float, z_min: float, z_max: float) -> bool:
     return any(

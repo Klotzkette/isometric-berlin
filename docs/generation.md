@@ -130,11 +130,30 @@ uv run python -m isometric_berlin.generation.build_park_details
 Before that step, `fetch_official_details` clips the two official tree
 catalogues, public-lighting WFS and wall-trace WFS into the bounded
 GeoPackage. The task-10 builder additively fuses that evidence with OSM and
-emits 29,860 visible trees, 5,829 street lights, 12 wall traces, 591 path
-sections and 101 playground footprints. Heights are sampled locally from the
-packaged official mesh; a scene-ground fallback is used only outside mesh
-coverage. The resulting `park-details.json` is 5.2 MB; raw WFS, OSM and mesh
-intermediates remain excluded.
+emits 29,861 visible trees, 5,829 street lights, 12 wall traces, 1,651 joined
+park-path sections and 101 playground footprints. The separate all-area
+surface builder records 8,151 bounded above-ground walking/cycling line parts:
+7,420 have an explicit OSM `surface`, 988 have `width` or `est_width`, and
+every remaining width/material is marked as a class/context fallback. Heights
+are sampled locally from the packaged official mesh; a scene-ground fallback
+is used only outside mesh coverage. The resulting `park-details.json` is 5.2
+MB; raw WFS, OSM and mesh intermediates remain excluded.
+
+Regenerate the complete street and path surface payload with:
+
+```bash
+uv run python -m isometric_berlin.generation.build_surface_polygons
+```
+
+Schema 7 resolves path surfaces into asphalt, paving, compacted/gravel, earth,
+timber and metal. Explicit OSM tags win over park context, so a mapped asphalt
+cycleway remains asphalt through a park and a mapped earth desire path remains
+earth at its edge. The committed payload includes a `path_inventory` audit
+block with highway, source-surface, resolved-material and mapped-width counts.
+The compact `park-details.json` schema 4 stores the same material as a one-byte
+code and each resolved width in decimetres. Unnamed paths omit the optional
+name field; this keeps all six materials and 1,651 close-view ribbons below the
+5 MiB release ceiling without increasing the number of path draw calls.
 
 ## Step 8b: Minecraft-mode voxel payload
 

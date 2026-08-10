@@ -23,21 +23,25 @@ const payload: ParkDetailsPayload = {
     {
       id: "path-1",
       kind: "footway",
+      m: "g",
       name: "Parkweg",
       points: [
         [0, 1, 0],
         [5, 1.1, 5],
         [10, 1.2, 5],
       ],
+      w: 14,
     },
     {
       id: "path-2",
       kind: "cycleway",
+      m: "a",
       name: null,
       points: [
         [0, 1, 2],
         [8, 1, 2],
       ],
+      w: 28,
     },
   ],
   trees: [
@@ -118,6 +122,12 @@ const payload: ParkDetailsPayload = {
 };
 
 describe("OSM park details", () => {
+  test("accepts the schema-4 material and width wire form", () => {
+    expect(() =>
+      createParkDetails({ ...payload, schema_version: 4 }),
+    ).not.toThrow();
+  });
+
   test("joins curved path segments into one continuous ribbon", () => {
     const geometry = createPathGeometry([payload.paths[0]], 1.6);
     expect(geometry.getAttribute("position").count).toBe(6);
@@ -131,9 +141,14 @@ describe("OSM park details", () => {
     const park = createParkDetails(payload);
     expect(park.userData.pathCount).toBe(2);
     expect(park.userData.treeCount).toBe(2);
-    expect(
-      park.children.filter((child) => child.name.includes("batched path ribbons")),
-    ).toHaveLength(2);
+    const pathMeshes = park.children.filter((child) =>
+      child.name.includes("batched path ribbons"),
+    );
+    expect(pathMeshes).toHaveLength(2);
+    expect(pathMeshes.map((child) => child.name).sort()).toEqual([
+      "Berlin park asphalt batched path ribbons",
+      "Berlin park gravel and compacted batched path ribbons",
+    ]);
     const trunks = park.getObjectByName("OSM instanced granular tree trunks");
     expect(trunks).toBeInstanceOf(InstancedMesh);
     expect((trunks as InstancedMesh).count).toBe(2);
@@ -267,8 +282,8 @@ describe("OSM park details", () => {
   });
 
   test("rejects unknown payload schemas instead of partially rendering them", () => {
-    expect(() => createParkDetails({ ...payload, schema_version: 4 })).toThrow(
-      "Unsupported park-detail schema 4",
+    expect(() => createParkDetails({ ...payload, schema_version: 5 })).toThrow(
+      "Unsupported park-detail schema 5",
     );
   });
 

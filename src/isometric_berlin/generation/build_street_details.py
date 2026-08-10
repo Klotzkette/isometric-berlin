@@ -71,6 +71,32 @@ RIVERSIDE_BAR_SEAT_RADIUS_M = 120.0
 # The quay is one bench deep; anything further back is park furniture.
 RIVERSIDE_BAR_SEAT_SHORE_M = 25.0
 
+# OSM currently carries both the older generic ``Bison`` node 7650006206 and
+# the more specific ``Liegender Bison II`` node 1327995113 at the same eastern
+# Floraplatz plinth (0.65 m apart). The Berlin restoration documents eight
+# animals, not nine; retain the described node and suppress only that known
+# duplicate pair.
+FLORAPLATZ_DUPLICATE_DISTANCE_DM = 15
+
+
+def deduplicate_floraplatz_animals(
+  monuments: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+  """Return the eight Floraplatz animals without the duplicate bison node."""
+  specific = [entry for entry in monuments if entry["name"] == "Liegender Bison Ⅱ"]
+  if not specific:
+    return monuments
+  filtered: list[dict[str, Any]] = []
+  for entry in monuments:
+    is_duplicate = entry["name"] == "Bison" and any(
+      math.hypot(entry["x_dm"] - target["x_dm"], entry["z_dm"] - target["z_dm"])
+      <= FLORAPLATZ_DUPLICATE_DISTANCE_DM
+      for target in specific
+    )
+    if not is_duplicate:
+      filtered.append(entry)
+  return filtered
+
 
 def monument_kind(row: Any) -> str | None:
   """The drawn class of an OSM POI, or ``None`` if it is not a monument.
@@ -373,6 +399,7 @@ def build_payload(
         "z_dm": round((ORIGIN_NORTHING - centroid.y) * 10),
       }
     )
+  monuments = deduplicate_floraplatz_animals(monuments)
   monuments.sort(key=lambda entry: (entry["x_dm"], entry["z_dm"]))
 
   water = gpd.read_file(osm_path, layer="water").to_crs(epsg=25833)

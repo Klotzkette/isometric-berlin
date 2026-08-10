@@ -20,9 +20,11 @@ import {
 import { createLetteringTexture } from "./drawnLettering";
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 import {
+  AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
+  MOABIT_PRISON_PARK_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 import {
@@ -41,9 +43,11 @@ export type ExpandedLandmark = {
 };
 
 export {
+  AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
+  MOABIT_PRISON_PARK_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 
@@ -158,6 +162,12 @@ const BERLIN_MODERN_MASONRY_LIGHT = 0xeee8dc;
 const BERLIN_MODERN_GLASS = 0x78979a;
 const BERLIN_MODERN_ROOF = 0x354346;
 const BERLIN_MODERN_PV_SEAM = 0x6d8587;
+const AMANO_CLINKER = 0xd2cabd;
+const AMANO_CLINKER_DARK = 0xaaa196;
+const AMANO_GLASS = 0x86a9ab;
+const PRISON_BRICK = 0x9d634f;
+const PRISON_MORTAR = 0xd8b7a1;
+const BLOOD_BEECH = 0x665d49;
 
 function transformGeometry(
   geometry: BufferGeometry,
@@ -1693,6 +1703,321 @@ function addCivicAccents(
   }
 }
 
+function addAmanoGrandCentral(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  // The canonical scene always carries the adjacent Hamburger-Bahnhof anchor;
+  // isolated unit-test/model calls do not need a detached AMANO at world origin.
+  if (!byName.has("Hamburger Bahnhof")) return;
+  const profile = AMANO_GRAND_CENTRAL_PROFILE;
+  const origin = new Vector3(
+    profile.centerWorldM[0],
+    profile.groundY,
+    profile.centerWorldM[1],
+  );
+  const rotation = profile.rotationY;
+  const halfDepth = profile.footprintDepthM / 2;
+  const halfLength = profile.footprintLengthM / 2;
+
+  // Thin source-described facade overlays preserve the LoD2 body beneath.
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      AMANO_CLINKER,
+      origin,
+      0,
+      profile.groundY + 12.2,
+      side * (halfDepth + 0.06),
+      profile.footprintLengthM,
+      17.2,
+      0.16,
+      rotation,
+    );
+    addLocalBox(
+      builder,
+      AMANO_GLASS,
+      origin,
+      0,
+      profile.groundY + profile.glazedGroundFloorHeightM / 2,
+      side * (halfDepth + 0.15),
+      profile.footprintLengthM - 1.2,
+      profile.glazedGroundFloorHeightM,
+      0.16,
+      rotation,
+      false,
+    );
+    for (let bay = 0; bay < profile.windowBaysLongFacade; bay += 1) {
+      for (let floor = 0; floor < 5; floor += 1) {
+        const pitch = (profile.footprintLengthM - 3.2) / profile.windowBaysLongFacade;
+        const stagger = floor % 2 === 0 ? 0.36 : -0.36;
+        const localX =
+          -profile.footprintLengthM / 2 + 1.6 + (bay + 0.5) * pitch + stagger;
+        if (Math.abs(localX) > halfLength - 1) continue;
+        addLocalBox(
+          builder,
+          AMANO_GLASS,
+          origin,
+          localX,
+          profile.groundY + 5.25 + floor * 3.25,
+          side * (halfDepth + 0.16),
+          1.72,
+          2.28,
+          0.12,
+          rotation,
+          false,
+        );
+      }
+    }
+    for (let floor = 0; floor <= 5; floor += 1) {
+      addLocalBox(
+        builder,
+        AMANO_CLINKER_DARK,
+        origin,
+        0,
+        profile.groundY + 3.82 + floor * 3.25,
+        side * (halfDepth + 0.22),
+        profile.footprintLengthM,
+        0.12,
+        0.1,
+        rotation,
+        false,
+      );
+    }
+  }
+
+  // Short facades retain the same staggered full-height openings.
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      AMANO_CLINKER,
+      origin,
+      side * (halfLength + 0.06),
+      profile.groundY + 12.2,
+      0,
+      0.16,
+      17.2,
+      profile.footprintDepthM,
+      rotation,
+    );
+    addLocalBox(
+      builder,
+      AMANO_GLASS,
+      origin,
+      side * (halfLength + 0.15),
+      profile.groundY + profile.glazedGroundFloorHeightM / 2,
+      0,
+      0.16,
+      profile.glazedGroundFloorHeightM,
+      profile.footprintDepthM - 1.2,
+      rotation,
+      false,
+    );
+    for (let floor = 0; floor < 5; floor += 1) {
+      for (let bay = 0; bay < 6; bay += 1) {
+        addLocalBox(
+          builder,
+          AMANO_GLASS,
+          origin,
+          side * (halfLength + 0.16),
+          profile.groundY + 5.25 + floor * 3.25,
+          -halfDepth + 2.5 + bay * 4.1 + (floor % 2 ? 0.25 : -0.25),
+          0.12,
+          2.38,
+          1.45,
+          rotation,
+          false,
+        );
+      }
+    }
+  }
+
+  // More glass and less clinker in the setback sky-bar storey.
+  addLocalBox(
+    builder,
+    AMANO_GLASS,
+    origin,
+    0,
+    profile.groundY + 24.7,
+    0,
+    35.6,
+    4.8,
+    19.2,
+    rotation,
+  );
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      origin,
+      side * 17.55,
+      profile.groundY + 24.7,
+      0,
+      0.16,
+      4.8,
+      19.2,
+      rotation,
+      false,
+    );
+  }
+  addLocalBox(
+    builder,
+    AMANO_CLINKER_DARK,
+    origin,
+    0,
+    profile.groundY + profile.officialHeightM - 0.35,
+    0,
+    37.2,
+    0.7,
+    20.8,
+    rotation,
+  );
+  for (let index = -8; index <= 8; index += 1) {
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      origin,
+      index * 2.05,
+      profile.groundY + 24.7,
+      halfDepth - 3.25,
+      0.12,
+      4.8,
+      0.22,
+      rotation,
+      false,
+    );
+  }
+}
+
+function addMoabitPrisonPark(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (!byName.has("Geschichtspark Ehemaliges Zellengefängnis Moabit")) return;
+  const profile = MOABIT_PRISON_PARK_PROFILE;
+  const origin = new Vector3(
+    profile.centerWorldM[0],
+    profile.groundY,
+    profile.centerWorldM[1],
+  );
+  const rotation = profile.rotationY;
+
+  const wallSegment = (
+    localX: number,
+    localZ: number,
+    length: number,
+    alongX: boolean,
+  ): void => {
+    addLocalBox(
+      builder,
+      PRISON_BRICK,
+      origin,
+      localX,
+      profile.groundY + profile.preservedWallHeightM / 2,
+      localZ,
+      alongX ? length : 0.82,
+      profile.preservedWallHeightM,
+      alongX ? 0.82 : length,
+      rotation,
+    );
+    for (let course = 1; course < 10; course += 1) {
+      addLocalBox(
+        builder,
+        PRISON_MORTAR,
+        origin,
+        localX,
+        profile.groundY + course * 0.5,
+        localZ,
+        alongX ? length + 0.03 : 0.87,
+        0.035,
+        alongX ? 0.87 : length + 0.03,
+        rotation,
+        false,
+      );
+    }
+  };
+
+  // Three preserved five-metre wall sides, each interrupted by a documented
+  // present-day entrance rather than falsely closing the park as a box.
+  wallSegment(-55, -74, 82, true);
+  wallSegment(57, -74, 78, true);
+  wallSegment(-94, -35, 70, false);
+  wallSegment(-94, 49, 82, false);
+  wallSegment(-48, 78, 84, true);
+  wallSegment(55, 78, 70, true);
+
+  // Central observation area: open concrete cube inside the circular place.
+  const panopticon = new RingGeometry(10.4, 10.95, 42);
+  panopticon.rotateX(-Math.PI / 2);
+  const [panX, panZ] = rotatedLocalOffset(-6, 1, rotation);
+  panopticon.translate(
+    origin.x + panX,
+    profile.groundY + 0.11,
+    origin.z + panZ,
+  );
+  addCustomGeometry(builder, panopticon, 0xc6c2b8, false);
+  for (const [x, z] of [[-10, -3], [-2, -3], [-10, 5], [-2, 5]] as const) {
+    addLocalBox(builder, 0xaba9a2, origin, x, profile.groundY + 1.8, z, 0.65, 3.6, 0.65, rotation);
+  }
+  addLocalBox(builder, 0xaba9a2, origin, -6, profile.groundY + 3.35, 1, 8.7, 0.55, 8.7, rotation);
+
+  // Four former wings: three depressed/rising lawns and wing A as two clipped
+  // blood-beech hedges with a single walk-in cell at original scale.
+  for (const angle of [-0.78, 0.2, 1.18]) {
+    const localX = -6 + Math.cos(angle) * 38;
+    const localZ = 1 + Math.sin(angle) * 38;
+    addLocalBox(
+      builder,
+      0x86ad72,
+      origin,
+      localX,
+      profile.groundY + 0.14,
+      localZ,
+      68,
+      0.28,
+      11,
+      rotation + angle,
+      false,
+    );
+  }
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      BLOOD_BEECH,
+      origin,
+      31,
+      profile.groundY + 1.15,
+      1 + side * 3.4,
+      67,
+      2.3,
+      1.25,
+      rotation,
+    );
+  }
+  // One cell: 2.4 x 4.5 m interior, open at the path end.
+  addLocalBox(builder, 0xbbb8af, origin, 59, profile.groundY + 1.45, -1.4, 4.5, 2.9, 0.28, rotation);
+  addLocalBox(builder, 0xbbb8af, origin, 59, profile.groundY + 1.45, 3.4, 4.5, 2.9, 0.28, rotation);
+  addLocalBox(builder, 0xbbb8af, origin, 61.1, profile.groundY + 1.45, 1, 0.28, 2.9, 5.1, rotation);
+
+  // Three circular exercise yards, each a separate concrete trace.
+  for (const [localX, localZ, radius] of [[-48, 34, 12], [-17, 49, 10], [18, 51, 8]] as const) {
+    const ring = new RingGeometry(radius - 0.32, radius + 0.32, 36);
+    ring.rotateX(-Math.PI / 2);
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotation);
+    ring.translate(origin.x + offsetX, profile.groundY + 0.13, origin.z + offsetZ);
+    addCustomGeometry(builder, ring, 0xb8b4aa, false);
+  }
+  // The clipped blood-beech rectangle marks the former administration block.
+  for (const [localX, localZ, width, depth] of [
+    [-48, -35, 42, 1.4],
+    [-48, -55, 42, 1.4],
+    [-69, -45, 1.4, 20],
+    [-27, -45, 1.4, 20],
+  ] as const) {
+    addLocalBox(builder, BLOOD_BEECH, origin, localX, profile.groundY + 1.0, localZ, width, 2, depth, rotation);
+  }
+}
+
 function addEuropacityCompanyBuildings(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
@@ -1873,6 +2198,31 @@ function addRooftopSigns(
       group.add(sign);
     }
   }
+  if (byName.has("Hamburger Bahnhof")) {
+    const amano = AMANO_GRAND_CENTRAL_PROFILE;
+    const [amanoOffsetX, amanoOffsetZ] = rotatedLocalOffset(
+      0,
+      amano.footprintDepthM / 2 + 0.24,
+      amano.rotationY,
+    );
+    const amanoSign = createLetterSign(
+      "AMANO GRAND CENTRAL",
+      15.5,
+      1.35,
+      new Vector3(
+        amano.centerWorldM[0] + amanoOffsetX,
+        amano.groundY + 20.7,
+        amano.centerWorldM[1] + amanoOffsetZ,
+      ),
+      amano.rotationY,
+      "#c5bbab",
+      "#3f3c38",
+    );
+    if (amanoSign) {
+      amanoSign.name = "AMANO Grand Central facade lettering";
+      group.add(amanoSign);
+    }
+  }
   const kpmg = anchor(byName, "KPMG Europacity");
   if (kpmg) {
     const sign = createLetterSign(
@@ -1925,9 +2275,16 @@ export function createExpandedCityDetails(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
   group.userData.berlinModern = BERLIN_MODERN_PROFILE;
+  group.userData.amanoGrandCentral = AMANO_GRAND_CENTRAL_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
+  group.userData.moabitPrisonPark = MOABIT_PRISON_PARK_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
+  group.userData.sourceUrls = [
+    "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
+    "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
+    "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
+  ];
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
   addRieckhallen(builder, byName);
@@ -1938,6 +2295,8 @@ export function createExpandedCityDetails(
   addCharlottenburgerTor(builder, byName);
   addWeltBalloon(builder, byName);
   addCivicAccents(builder, byName);
+  addAmanoGrandCentral(builder, byName);
+  addMoabitPrisonPark(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);
   const bodies = finishDrawnGroup(builder, {
     lampEmissive: 0xffd69b,

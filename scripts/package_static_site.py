@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.70.29"
+PACKAGE_VERSION = "0.70.30"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3521,6 +3521,15 @@ Oberflächenmodi an denselben verifizierten Koordinaten. Fahrzeuge,
 Fassadenrhythmen und die beschädigte Mauerkronen-Lesart sind ausdrücklich
 maßstäbliche Darstellungsannäherungen.
 
+Der vollständige begrenzte OSM-Wegebestand wird als echte Geländeoberfläche
+gezeichnet: 8.151 Geh-, Rad-, Stufen-, Feld- und Trampelpfad-Abschnitte, davon
+7.420 mit eingetragener Oberfläche und 988 mit eingetragener Breite. Asphalt,
+Pflaster, Kies/Sand, Erde, Holz und Metall bleiben unterscheidbar. Am Floraplatz
+stehen genau die acht dokumentierten Tierbronzen auf Granitsockeln. Hotel AMANO
+Grand Central behält OSM-Grundriss und amtliche LoD2-Höhe; der Geschichtspark
+Zellengefängnis Moabit behält seinen OSM-Parkumriss und liest die dokumentierten
+Mauern, Flügel, Höfe, Panoptikum und Zelle als ergänzende Rekonstruktion.
+
 2D-Kompatibilitätsansicht ohne Terminal:
 
 1. ZIP entpacken.
@@ -3665,6 +3674,15 @@ OSM centreline and published 77.58 x 25.70 m dimensions. Detailed OSM path
 ribbons now cover every bounded park area, including Spreebogenpark,
 Futurium's public realm and Nordhafenpark. Recognition details remain
 explicitly labelled metric display approximations.
+
+The complete bounded OSM path network is also drawn as terrain-following
+surface geometry: 8,151 footway, cycleway, path, pedestrian, step and track
+parts, including 7,420 mapped surfaces and 988 mapped widths. Asphalt, paving,
+gravel/sand, earth, timber and metal remain distinct. Floraplatz contains the
+documented eight animal bronzes on granite plinths. Hotel AMANO Grand Central
+retains its OSM plan and official LoD2 height, while the former Moabit prison
+park retains its OSM envelope and uses the published walls, wings, yards,
+panopticon and cell only as an additive interpretive reconstruction.
 
 2D compatibility view without Terminal:
 

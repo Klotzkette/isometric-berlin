@@ -25,6 +25,11 @@ describe("drawn carriageways and park paths", () => {
     expect(kinds.has("asphalt")).toBe(true);
     expect(kinds.has("sand")).toBe(true);
     expect(kinds.has("paving")).toBe(true);
+    expect(kinds.has("earth")).toBe(true);
+    expect(kinds.has("wood")).toBe(true);
+    expect(kinds.has("metal")).toBe(true);
+    expect(surfaces.path_inventory?.line_parts ?? 0).toBeGreaterThan(8_000);
+    expect(surfaces.path_inventory?.mapped_surface_line_parts ?? 0).toBeGreaterThan(7_000);
     expect(surfaces.lane_markings?.length ?? 0).toBeGreaterThan(20);
     const named = (surfaces.lane_markings ?? []).map((entry) => entry.name);
     expect(named).toContain("Straße des 17. Juni");
@@ -47,6 +52,9 @@ describe("drawn carriageways and park paths", () => {
       "smooth carriageways",
       "smooth park paths",
       "smooth paved paths",
+      "smooth earth desire paths",
+      "smooth timber paths",
+      "smooth metal paths and steps",
     ]) {
       const plate = group.getObjectByName(name);
       expect(plate).toBeInstanceOf(Mesh);

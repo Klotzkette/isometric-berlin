@@ -2,6 +2,7 @@ import {
   BoxGeometry,
   BufferGeometry,
   Color,
+  CylinderGeometry,
   EdgesGeometry,
   Float32BufferAttribute,
   Group,
@@ -10,6 +11,9 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Quaternion,
+  SphereGeometry,
+  Vector3,
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
@@ -49,6 +53,8 @@ const FLOWER_RED = 0xc95564;
 const FLOWER_GOLD = 0xe8bf4c;
 const FLOWER_PINK = 0xc77da4;
 const FLOWER_WHITE = 0xf0eee4;
+const FLORAPLATZ_GRANITE = 0xaaa69d;
+const FLORAPLATZ_BRONZE = 0x344b43;
 
 type Builder = {
   edges: BufferGeometry[];
@@ -83,6 +89,188 @@ function box(
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   builder.parts.push(geometry);
   builder.edges.push(new EdgesGeometry(geometry, 24));
+}
+
+function addPaintedGeometry(
+  builder: Builder,
+  geometry: BufferGeometry,
+  color: number,
+  edgeThreshold = 28,
+): void {
+  geometry.deleteAttribute("uv");
+  const paint = new Color(color);
+  const positions = geometry.getAttribute("position");
+  const colors = new Float32Array(positions.count * 3);
+  for (let index = 0; index < positions.count; index += 1) {
+    colors[index * 3] = paint.r;
+    colors[index * 3 + 1] = paint.g;
+    colors[index * 3 + 2] = paint.b;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  builder.parts.push(geometry);
+  builder.edges.push(new EdgesGeometry(geometry, edgeThreshold));
+}
+
+function orientedPoint(
+  x: number,
+  y: number,
+  z: number,
+  local: readonly [number, number, number],
+  rotationY: number,
+): Vector3 {
+  const cosine = Math.cos(rotationY);
+  const sine = Math.sin(rotationY);
+  return new Vector3(
+    x + local[0] * cosine + local[2] * sine,
+    y + local[1],
+    z - local[0] * sine + local[2] * cosine,
+  );
+}
+
+function ellipsoid(
+  builder: Builder,
+  color: number,
+  x: number,
+  y: number,
+  z: number,
+  local: readonly [number, number, number],
+  scale: readonly [number, number, number],
+  rotationY: number,
+): void {
+  const centre = orientedPoint(x, y, z, local, rotationY);
+  const geometry = new SphereGeometry(1, 10, 6);
+  geometry.scale(...scale);
+  geometry.rotateY(rotationY);
+  geometry.translate(centre.x, centre.y, centre.z);
+  addPaintedGeometry(builder, geometry, color, 24);
+}
+
+function rod(
+  builder: Builder,
+  color: number,
+  x: number,
+  y: number,
+  z: number,
+  startLocal: readonly [number, number, number],
+  endLocal: readonly [number, number, number],
+  radius: number,
+  rotationY: number,
+  taper = 0.72,
+): void {
+  const start = orientedPoint(x, y, z, startLocal, rotationY);
+  const end = orientedPoint(x, y, z, endLocal, rotationY);
+  const direction = end.clone().sub(start);
+  const length = direction.length();
+  if (length < 0.01) return;
+  const geometry = new CylinderGeometry(radius * taper, radius, length, 7, 1);
+  geometry.applyQuaternion(
+    new Quaternion().setFromUnitVectors(
+      new Vector3(0, 1, 0),
+      direction.normalize(),
+    ),
+  );
+  const centre = start.clone().add(end).multiplyScalar(0.5);
+  geometry.translate(centre.x, centre.y, centre.z);
+  addPaintedGeometry(builder, geometry, color, 24);
+}
+
+function floraplatzPlinth(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+  rotationY: number,
+  length = 3.35,
+): number {
+  box(builder, STONE_LIGHT, x, y + 0.09, z, length + 0.3, 0.18, 1.85, rotationY);
+  box(
+    builder,
+    FLORAPLATZ_GRANITE,
+    x,
+    y + 0.55,
+    z,
+    length,
+    0.92,
+    1.58,
+    rotationY,
+  );
+  box(builder, STONE_LIGHT, x, y + 1.05, z, length + 0.12, 0.12, 1.7, rotationY);
+  return 1.11;
+}
+
+function foldedLegs(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+  rotationY: number,
+  deck: number,
+): void {
+  for (const side of [-0.34, 0.34]) {
+    rod(
+      builder,
+      FLORAPLATZ_BRONZE,
+      x,
+      y,
+      z,
+      [0.45, deck + 0.55, side],
+      [1.1, deck + 0.2, side],
+      0.12,
+      rotationY,
+      0.9,
+    );
+    rod(
+      builder,
+      FLORAPLATZ_BRONZE,
+      x,
+      y,
+      z,
+      [-0.45, deck + 0.48, side],
+      [-0.95, deck + 0.2, side],
+      0.11,
+      rotationY,
+      0.9,
+    );
+  }
+}
+
+function branchedAntlers(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+  rotationY: number,
+  base: readonly [number, number, number],
+  spread = 0.72,
+): void {
+  for (const side of [-1, 1]) {
+    const root: [number, number, number] = [base[0], base[1], side * 0.12];
+    const middle: [number, number, number] = [
+      base[0] - 0.08,
+      base[1] + 0.52,
+      side * spread * 0.55,
+    ];
+    const tip: [number, number, number] = [
+      base[0] + 0.08,
+      base[1] + 1.02,
+      side * spread,
+    ];
+    rod(builder, FLORAPLATZ_BRONZE, x, y, z, root, middle, 0.055, rotationY);
+    rod(builder, FLORAPLATZ_BRONZE, x, y, z, middle, tip, 0.045, rotationY);
+    for (const offset of [0.12, 0.42, 0.72]) {
+      rod(
+        builder,
+        FLORAPLATZ_BRONZE,
+        x,
+        y,
+        z,
+        [base[0], base[1] + offset, side * (spread * 0.32 + offset * 0.25)],
+        [base[0] - 0.28, base[1] + offset + 0.32, side * (spread * 0.46 + offset * 0.34)],
+        0.035,
+        rotationY,
+      );
+    }
+  }
 }
 
 /** Small stone marker for plaques and quiet memorials. */
@@ -548,9 +736,18 @@ function buildEchoIi(builder: Builder, x: number, y: number, z: number): void {
   buildVerticalArtwork(builder, x, y, z, 1.10);
 }
 
-/** Hirsch: reference-based presentation silhouette, not surveyed geometry. */
+/** One of Siemering's paired reclining Floraplatz deer. */
 function buildHirsch(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+  const rotationY = x < -180 ? 0.15 : Math.PI + 0.15;
+  const deck = floraplatzPlinth(builder, x, y, z, rotationY, 3.45);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.15, deck + 0.58, 0], [1.35, 0.55, 0.52], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.95, deck + 0.56, 0], [0.62, 0.58, 0.55], rotationY);
+  foldedLegs(builder, x, y, z, rotationY, deck);
+  rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-0.85, deck + 0.7, 0], [-1.3, deck + 1.62, 0], 0.22, rotationY, 0.8);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.48, deck + 1.82, 0], [0.46, 0.3, 0.28], rotationY);
+  rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.55, deck + 1.88, -0.12], [-1.75, deck + 2.18, -0.34], 0.065, rotationY);
+  rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.55, deck + 1.88, 0.12], [-1.75, deck + 2.18, 0.34], 0.065, rotationY);
+  branchedAntlers(builder, x, y, z, rotationY, [-1.38, deck + 2.02, 0], 0.62);
 }
 
 /** Große Knospe III/63: reference-based presentation silhouette, not surveyed geometry. */
@@ -568,9 +765,17 @@ function buildHimmelschlussel(builder: Builder, x: number, y: number, z: number)
   buildPortalArtwork(builder, x, y, z, 1.10);
 }
 
-/** Bär: reference-based presentation silhouette, not surveyed geometry. */
+/** Siemering's single reclining bear at Floraplatz. */
 function buildBar(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+  const rotationY = -0.18;
+  const deck = floraplatzPlinth(builder, x, y, z, rotationY, 3.2);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.25, deck + 0.65, 0], [1.35, 0.72, 0.65], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-0.9, deck + 0.82, 0], [0.68, 0.62, 0.58], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.35, deck + 0.75, 0], [0.43, 0.3, 0.32], rotationY);
+  for (const side of [-0.28, 0.28]) {
+    ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-0.92, deck + 1.31, side], [0.13, 0.16, 0.12], rotationY);
+  }
+  foldedLegs(builder, x, y, z, rotationY, deck);
 }
 
 /** Pferdekopf: reference-based presentation silhouette, not surveyed geometry. */
@@ -588,9 +793,15 @@ function buildContact(builder: Builder, x: number, y: number, z: number): void {
   buildVerticalArtwork(builder, x, y, z, 1.10);
 }
 
-/** Elch: reference-based presentation silhouette, not surveyed geometry. */
+/** One of the paired reclining Floraplatz elk. */
 function buildElch(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+  const rotationY = x < -150 ? -0.1 : Math.PI - 0.1;
+  const deck = floraplatzPlinth(builder, x, y, z, rotationY, 3.65);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.2, deck + 0.66, 0], [1.45, 0.6, 0.56], rotationY);
+  foldedLegs(builder, x, y, z, rotationY, deck);
+  rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-0.9, deck + 0.75, 0], [-1.24, deck + 1.82, 0], 0.24, rotationY, 0.78);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.48, deck + 2.02, 0], [0.5, 0.31, 0.3], rotationY);
+  branchedAntlers(builder, x, y, z, rotationY, [-1.4, deck + 2.18, 0], 0.96);
 }
 
 /** José de San Martín: reference-based presentation silhouette, not surveyed geometry. */
@@ -598,9 +809,17 @@ function buildJoseDeSanMartin(builder: Builder, x: number, y: number, z: number)
   buildStandingArtwork(builder, x, y, z, 1.15);
 }
 
-/** Stier: reference-based presentation silhouette, not surveyed geometry. */
+/** Siemering's single reclining bull at Floraplatz. */
 function buildStier(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+  const rotationY = Math.PI - 0.2;
+  const deck = floraplatzPlinth(builder, x, y, z, rotationY, 3.55);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.25, deck + 0.65, 0], [1.48, 0.67, 0.62], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-0.9, deck + 0.84, 0], [0.72, 0.62, 0.62], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.42, deck + 0.72, 0], [0.5, 0.34, 0.35], rotationY);
+  foldedLegs(builder, x, y, z, rotationY, deck);
+  for (const side of [-1, 1]) {
+    rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.45, deck + 0.87, side * 0.18], [-1.62, deck + 1.18, side * 0.62], 0.075, rotationY, 0.25);
+  }
 }
 
 /** Partenza: reference-based presentation silhouette, not surveyed geometry. */
@@ -613,14 +832,31 @@ function buildAmazoneZuPferde(builder: Builder, x: number, y: number, z: number)
   buildMountedArtwork(builder, x, y, z, 1.35);
 }
 
-/** Liegender Bison Ⅱ: reference-based presentation silhouette, not surveyed geometry. */
-function buildLiegenderBisonIi(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+function buildFloraplatzBison(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+  rotationY: number,
+): void {
+  const deck = floraplatzPlinth(builder, x, y, z, rotationY, 3.7);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.32, deck + 0.68, 0], [1.5, 0.69, 0.64], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-0.7, deck + 1.08, 0], [0.85, 0.86, 0.72], rotationY);
+  ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.42, deck + 0.78, 0], [0.57, 0.46, 0.45], rotationY);
+  foldedLegs(builder, x, y, z, rotationY, deck);
+  for (const side of [-1, 1]) {
+    rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.48, deck + 0.94, side * 0.2], [-1.62, deck + 1.17, side * 0.52], 0.065, rotationY, 0.22);
+  }
 }
 
-/** Bison: reference-based presentation silhouette, not surveyed geometry. */
+/** The eastern reclining bison, retained over its duplicate OSM node. */
+function buildLiegenderBisonIi(builder: Builder, x: number, y: number, z: number): void {
+  buildFloraplatzBison(builder, x, y, z, Math.PI + 0.05);
+}
+
+/** The western partner of the paired Floraplatz bison. */
 function buildBison(builder: Builder, x: number, y: number, z: number): void {
-  buildAnimalArtwork(builder, x, y, z, 1.25);
+  buildFloraplatzBison(builder, x, y, z, 0.05);
 }
 
 /** Buddy Bear Tierpark: reference-based presentation silhouette, not surveyed geometry. */
@@ -1326,6 +1562,7 @@ export function createTiergartenMonuments(
   }
   const sample = worldGroundSampler(ground);
   const builder: Builder = { edges: [], parts: [] };
+  let floraplatzAnimalCount = 0;
   for (const entry of street.monuments) {
     const x = entry.x_dm / 10;
     const z = entry.z_dm / 10;
@@ -1334,6 +1571,15 @@ export function createTiergartenMonuments(
       continue;
     }
     const name = entry.name;
+    if (
+      /^(Hirsch|Bison|Liegender Bison Ⅱ|Elch|Bär|Stier)$/.test(name) &&
+      x >= -210 &&
+      x <= -120 &&
+      z >= 410 &&
+      z <= 520
+    ) {
+      floraplatzAnimalCount += 1;
+    }
     if (MONUMENTS_ALREADY_MODELLED.test(name) || entry.kind === "tank") {
       // The verified recognition layer carries these (incl. both T-34s).
     } else if (entry.kind === "cannon") {
@@ -1396,8 +1642,14 @@ export function createTiergartenMonuments(
     "Wikipedia/Wikimedia/Denkmaldatenbank descriptions - not a survey model";
   group.userData.luiseninselFormalGarden =
     "Reference-based Schmuckbeete around the OSM-positioned Koenigin Luise figure";
+  group.userData.floraplatzAnimalCount = floraplatzAnimalCount;
+  group.userData.floraplatzGeometry =
+    "Eight species-specific life-size bronze presentation models on OSM-positioned granite plinths; paired species face opposite directions";
   group.userData.sourceUrls = [
     "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
+    "https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2020/pressemitteilung.939111.php",
+    "https://www.berlin.de/landesdenkmalamt/aktivitaeten/presse/2023/pressemitteilung.1375900.php",
+    "https://bildhauerei-in-berlin.de/bildwerk/acht-tierfiguren-am-floraplatz/",
   ];
 
   const merged = mergeGeometries(builder.parts, false);

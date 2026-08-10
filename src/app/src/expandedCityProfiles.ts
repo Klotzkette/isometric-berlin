@@ -124,3 +124,50 @@ export const KOLLHOFF_TOWER_PROFILE = {
   windowHeightM: 2.45,
   windowWidthM: 1.08,
 } as const;
+
+/**
+ * Survey-anchored facade register of Hotel AMANO Grand Central.
+ *
+ * The footprint and axis are OSM way 237687062; the height and shell remain
+ * Berlin LoD2 building part DEBE3DLXM9FjJbtp. Tchoban Voss supplies the
+ * six-storey plus setback-storey composition, clinker tone, glazed ground
+ * floor and staggered window character.
+ */
+export const AMANO_GRAND_CENTRAL_PROFILE = {
+  centerWorldM: [-51.580233, -927.88822] as const,
+  facadeMaterial: "beige-grey changing clinker",
+  footprintDepthM: 25.734,
+  footprintLengthM: 42.394,
+  geometryStatus: "OSM footprint and LoD2 height with source-described facade overlay",
+  glazedGroundFloorHeightM: 3.6,
+  groundY: 5.8,
+  officialHeightM: 27.819,
+  osmWayId: "237687062",
+  parentBuildingId: "DEBE01YYK0002L88",
+  rotationY: -1.1968,
+  sourceBuildingPartId: "DEBE3DLXM9FjJbtp",
+  storeysBelowSetback: 6,
+  windowBaysLongFacade: 11,
+} as const;
+
+/**
+ * Present-day Geschichtspark envelope and the official interpretive plan.
+ *
+ * The park extent/axis is OSM way 498278335. Internal traces are a documented
+ * landscape-architecture reconstruction (not surviving prison geometry): the
+ * official Berlin description identifies three five-metre walls, three
+ * entrances, four star wings, the central panopticon cube, three circular
+ * exercise yards, blood-beech hedges and one walk-in cell.
+ */
+export const MOABIT_PRISON_PARK_PROFILE = {
+  centerWorldM: [-329.097233, -906.302474] as const,
+  circularYardCount: 3,
+  entranceCount: 3,
+  geometryStatus: "OSM park envelope with official interpretive-plan reconstruction",
+  groundY: 5.9,
+  preservedWallHeightM: 5,
+  reconstructedCellCount: 1,
+  rotationY: 2.019,
+  sourceParkWayId: "498278335",
+  wallSideCount: 3,
+} as const;

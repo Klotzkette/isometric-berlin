@@ -198,6 +198,18 @@ Café am Neuen See and the WELT balloon. All placement anchors come from the
 committed LoD2/OSM/landmark frame. Drawn labels and silhouette accents remain
 supplements to that evidence, never substitutes for it.
 
+Three smaller places carry the same evidence boundary. Hotel AMANO Grand
+Central retains OSM way `237687062` and Berlin LoD2 building part
+`DEBE3DLXM9FjJbtp` (27.819 m), with a thin source-described clinker, glazing
+and setback-storey overlay. The Geschichtspark Ehemaliges Zellengefaengnis
+Moabit retains OSM park way `498278335`; its brick walls, three entrances, four
+wing traces, panopticon frame, three circular yards, blood-beech planting and
+one walk-in cell follow the published Berlin interpretive plan and are not
+labelled as surviving prison survey geometry. At Floraplatz, exactly eight
+OSM-positioned granite plinths carry differentiated bronze deer, bison, elk,
+bear and bull silhouettes. The duplicate generic Bison node at the same
+eastern plinth as `Liegender Bison II` is the only suppressed record.
+
 `berlin modern` is handled as planning geometry because the museum is still
 under construction and therefore absent from the completed-building LoD2
 inventory. The model follows the architects' published 120 m length, 71 m
@@ -210,9 +222,12 @@ and [Bundesbau project information](https://bundesbau.de/projekte/berlin-modern)
 
 The optional OSM park-detail request is deliberately non-blocking: a failed
 `park-details.json` request raises a warning but never delays or disables the
-23 official base meshes. When present, seven path material classes are batched,
-tree trunks, fork branches and five-part crowns are instanced, and only the
-small number of mapped playground devices use individual geometry. The
+23 official base meshes. When present, schema 4 batches park paths into six
+material groups while retaining an individual resolved width per way; tree
+trunks, fork branches and five-part crowns are instanced, and only the small
+number of mapped playground devices use individual geometry. The always-loaded
+smooth surface pass uses those same six families across the complete bounded
+walking and cycling network. The
 Luiseninsel landmark
 opens from an 82 m oblique camera preset centred on the main equipment cluster.
 Nearby OSM crowns step aside and only the mapped equipment receives a temporary
