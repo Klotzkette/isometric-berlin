@@ -248,8 +248,10 @@ export const NORTHERN_CITY_PROFILE = {
  * entries below only describe lightweight facade screens. Upbeat is newer
  * than the committed LoD2 cut, so its current OSM outline is the horizontal
  * anchor while the published 5/11/19-storey composition fixes its vertical
- * steps. The two clipping lines are a bounded interpretation of the
- * architects' plan and renders, not surveyed tier outlines.
+ * steps. Berlin DGM1 samples establish the cross-site elevation differences
+ * in the scene's DHHN2016-minus-30 m vertical datum. The two clipping lines
+ * are a bounded interpretation of the architects' plan and renders, not
+ * surveyed tier outlines.
  */
 export const EUROPACITY_PROFILE = {
   einz: {
@@ -266,6 +268,7 @@ export const EUROPACITY_PROFILE = {
     footprintLengthM: 42.59,
     geometryStatus:
       "Berlin LoD2 metric shell with source-described facade-screen overlay",
+    dgmSceneGroundY: 5.51,
     groundY: 5.6,
     measuredHeightM: 83.794,
     parentBuildingId: "DEBE01AL2TJ0000u",
@@ -275,15 +278,18 @@ export const EUROPACITY_PROFILE = {
   fiftyHertz: {
     centerWorldM: [-38.748, -1037.844] as const,
     facadeMaterial: "silver-exposed-diagrid",
+    floorCount: 13,
     footprintDepthM: 24.56,
     footprintLengthM: 37.47,
     geometryStatus:
       "Berlin LoD2 metric shell with official exposed-structure overlay",
-    groundY: 5.6,
+    dgmSceneGroundY: 4.57,
+    groundY: 4.7,
     measuredHeightM: 54.975,
     parentBuildingId: "DEBE00YY1AT000Ab",
     rotationY: (21.35 * Math.PI) / 180,
     sourceTowerPartId: "DEBE3Dyir4lZjw1O",
+    storeyTiers: [7, 13] as const,
   },
   upbeat: {
     centerWorldM: [-676.632229, -1973.543399] as const,
@@ -352,12 +358,19 @@ export const EUROPACITY_PROFILE = {
       [-704.76, -1959.29],
     ] as const,
     geometryStatus:
-      "current OSM footprint with published height/storeys and plan-derived tier clips",
-    groundY: 5.6,
+      "current OSM footprint with published height/storeys, DGM1 terrain datum and plan-derived tier clips",
+    groundY: 2.92,
     heightM: 82,
     midTierEastClipWorldX: -670,
     osmWayId: "1214009386",
     storeyTiers: [5, 11, 19] as const,
+    terrainDgm1: {
+      dhhn2016MedianM: 32.92,
+      sampleCount: 2905,
+      sceneRangeM: [1.62, 7.07] as const,
+      verticalOriginM: 30,
+    },
+    tierTopHeightsM: [21.579, 47.474, 82] as const,
     towerTierEastClipWorldX: -655,
   },
   sources: [
@@ -367,6 +380,7 @@ export const EUROPACITY_PROFILE = {
     "https://www.caimmo.com/de/portfolio/projekt/upbeat/",
     "https://kleihues.com/hochhaus-am-nordhafen-berlin/?lang=en",
     "https://www.50hertz.com/Portals/1/Dokumente/Medien/Pressemitteilungen/2023/20230510-50Hertz-PM-Spatenstich-in-der-Europacity-DE.pdf",
+    "https://gdi.berlin.de/data/dgm1/docs/dgm1.pdf",
   ] as const,
 } as const;
 

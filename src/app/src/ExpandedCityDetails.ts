@@ -747,7 +747,7 @@ function addFiftyHertzStructure(builder: Builder): void {
     profile.groundY,
     profile.centerWorldM[1],
   );
-  const floorCount = 16;
+  const floorCount = profile.floorCount;
   const floorPitch = profile.measuredHeightM / floorCount;
   for (const side of [-1, 1]) {
     for (let floor = 0; floor <= floorCount; floor += 1) {
@@ -767,15 +767,16 @@ function addFiftyHertzStructure(builder: Builder): void {
     }
     const bayCount = 4;
     const bayWidth = profile.footprintLengthM / bayCount;
-    const moduleHeight = floorPitch * 2;
-    const braceLength = Math.hypot(bayWidth, moduleHeight);
-    const braceAngle = Math.atan2(moduleHeight, bayWidth);
-    for (let module = 0; module < floorCount / 2; module += 1) {
+    for (let firstFloor = 0; firstFloor < floorCount; firstFloor += 2) {
+      const moduleFloors = Math.min(2, floorCount - firstFloor);
+      const moduleHeight = floorPitch * moduleFloors;
+      const braceLength = Math.hypot(bayWidth, moduleHeight);
+      const braceAngle = Math.atan2(moduleHeight, bayWidth);
       for (let bay = 0; bay < bayCount; bay += 1) {
         const localX =
           -profile.footprintLengthM / 2 + bayWidth * (bay + 0.5);
         const centerY =
-          profile.groundY + moduleHeight * (module + 0.5);
+          profile.groundY + floorPitch * (firstFloor + moduleFloors / 2);
         for (const direction of [-1, 1]) {
           addTiltedLocalBox(
             builder,
@@ -824,12 +825,10 @@ function addUpbeatCampus(builder: Builder): void {
     profile.towerTierEastClipWorldX,
   );
   const baseTop =
-    profile.groundY +
-    (profile.heightM * profile.storeyTiers[0]) / profile.storeyTiers[2];
+    profile.groundY + profile.tierTopHeightsM[0];
   const middleTop =
-    profile.groundY +
-    (profile.heightM * profile.storeyTiers[1]) / profile.storeyTiers[2];
-  const towerTop = profile.groundY + profile.heightM;
+    profile.groundY + profile.tierTopHeightsM[1];
+  const towerTop = profile.groundY + profile.tierTopHeightsM[2];
   addPolygonPrism(
     builder,
     EURO_GLASS,

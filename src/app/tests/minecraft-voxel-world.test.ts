@@ -286,7 +286,8 @@ describe("true voxel Minecraft world", () => {
     expect(bounds.max.z).toBeLessThan(-1937);
     expect(bounds.min.y).toBeCloseTo(EUROPACITY_PROFILE.upbeat.groundY, 5);
     expect(bounds.max.y).toBeCloseTo(
-      EUROPACITY_PROFILE.upbeat.groundY + EUROPACITY_PROFILE.upbeat.heightM,
+      EUROPACITY_PROFILE.upbeat.groundY +
+        EUROPACITY_PROFILE.upbeat.tierTopHeightsM[2],
       5,
     );
   });

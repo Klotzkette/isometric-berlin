@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.70.42
+
+- **Europacity now has a measured vertical datum, not one shared platform.**
+  Berlin's current 1 m DGM1 tile places the KPMG/EINZ site at 35.51 m,
+  50Hertz at 34.57 m and the Upbeat footprint at a 32.92 m median in
+  DHHN2016. Converted through the scene's documented 30 m origin, Upbeat moves
+  from the former blanket 5.60 m base to 2.92 m; its published 82 m tower now
+  finishes about 4.6 m below the measured KPMG roof instead of nearly tying
+  it. The unusually broad 1.62–7.07 m Upbeat site range remains recorded as
+  DGM evidence rather than being flattened or falsely described as a surveyed
+  finished floor.
+- **50Hertz follows the official 7/13-storey profile.** Its facade register
+  previously divided the measured 54.975 m LoD2 tower into 16 invented
+  levels. It now uses the Senate's documented 13-storey high point, starts on
+  the matching 4.7 m LoD2 base, and closes its final one-storey diagrid module
+  at the roof rather than allowing a two-storey brace to project above it.
+- **The three modes share one explicit height schedule.** Upbeat's 5/11/19
+  linked levels use the same derived 21.579/47.474/82 m tier tops in Day,
+  Night and Minecraft. Close desktop checks confirm clean roofs, entrances and
+  silhouettes with no new clipping; the visible radius remains **5,230 m**,
+  horizontal source geometry, source hierarchy and attribution are unchanged.
+
 ## v0.70.41
 
 - **Europacity now follows its real metric envelopes instead of generic

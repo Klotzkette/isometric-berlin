@@ -1004,12 +1004,10 @@ export function createMinecraftUpbeatRecognition(): InstancedMesh {
     return inside;
   };
   const baseTop =
-    profile.groundY +
-    (profile.heightM * profile.storeyTiers[0]) / profile.storeyTiers[2];
+    profile.groundY + profile.tierTopHeightsM[0];
   const middleTop =
-    profile.groundY +
-    (profile.heightM * profile.storeyTiers[1]) / profile.storeyTiers[2];
-  const towerTop = profile.groundY + profile.heightM;
+    profile.groundY + profile.tierTopHeightsM[1];
+  const towerTop = profile.groundY + profile.tierTopHeightsM[2];
   const blocks: ExtrapolatedBlock[] = [];
   for (let x = minimumX + cellM / 2; x < maximumX; x += cellM) {
     for (let z = minimumZ + cellM / 2; z < maximumZ; z += cellM) {

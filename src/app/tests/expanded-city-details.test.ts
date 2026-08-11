@@ -154,14 +154,30 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.einz.sourceTowerPartId).toBe("DEBE3De9JUgwVTiy");
     expect(profile.einz.measuredHeightM).toBeCloseTo(83.794, 3);
     expect(profile.einz.floorCount).toBe(22);
+    expect(profile.einz.dgmSceneGroundY).toBeCloseTo(5.51, 2);
     expect(profile.fiftyHertz.sourceTowerPartId).toBe("DEBE3Dyir4lZjw1O");
     expect(profile.fiftyHertz.measuredHeightM).toBeCloseTo(54.975, 3);
+    expect(profile.fiftyHertz.floorCount).toBe(13);
+    expect(profile.fiftyHertz.groundY).toBeCloseTo(4.7, 1);
+    expect(profile.fiftyHertz.dgmSceneGroundY).toBeCloseTo(4.57, 2);
+    expect(profile.fiftyHertz.storeyTiers).toEqual([7, 13]);
     expect(profile.upbeat.osmWayId).toBe("1214009386");
     expect(profile.upbeat.footprintWorldM).toHaveLength(61);
     expect(profile.upbeat.storeyTiers).toEqual([5, 11, 19]);
     expect(profile.upbeat.heightM).toBe(82);
+    expect(profile.upbeat.groundY).toBeCloseTo(2.92, 2);
+    expect(profile.upbeat.terrainDgm1).toEqual({
+      dhhn2016MedianM: 32.92,
+      sampleCount: 2905,
+      sceneRangeM: [1.62, 7.07],
+      verticalOriginM: 30,
+    });
+    expect(profile.upbeat.tierTopHeightsM).toEqual([21.579, 47.474, 82]);
+    expect(
+      profile.einz.groundY + profile.einz.measuredHeightM,
+    ).toBeGreaterThan(profile.upbeat.groundY + profile.upbeat.heightM);
     expect(profile.upbeat.geometryStatus).toContain("plan-derived tier clips");
-    expect(profile.sources).toHaveLength(6);
+    expect(profile.sources).toHaveLength(7);
   });
 
   test("keeps the WELT balloon tall but introduces no duplicate Carillon", () => {
