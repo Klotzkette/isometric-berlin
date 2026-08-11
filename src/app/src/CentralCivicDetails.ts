@@ -44,10 +44,10 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     target_height_m: 13,
   },
   "Bahnhof Berlin Friedrichstraße": {
-    azimuth_degrees: 36,
-    distance_m: 178,
-    polar_degrees: 61,
-    target_height_m: 16,
+    azimuth_degrees: -138,
+    distance_m: 224,
+    polar_degrees: 64,
+    target_height_m: 14,
   },
   "Berliner Ensemble": {
     azimuth_degrees: 24,
@@ -107,6 +107,12 @@ export function centralCivicFocusCamera(
   const targetWorld: [number, number, number] =
     landmark.name === "Berliner Ensemble"
       ? [landmark.world[0] + 24, landmark.world[1], landmark.world[2] + 13]
+      : landmark.name === "Bahnhof Berlin Friedrichstraße"
+        ? [
+            landmark.world[0] + 2.4,
+            landmark.world[1],
+            landmark.world[2] - 12.2,
+          ]
       : landmark.world;
   return { ...preset, target_world: targetWorld };
 }
@@ -138,6 +144,32 @@ const WALL_FENCE = 0x555d5e;
 const KITA_BLUE = 0x3f78a8;
 const KITA_RED = 0xd65342;
 const KITA_YELLOW = 0xf0c73b;
+
+/**
+ * Berlin LoD2 envelope and Landesdenkmalamt profile for Bahnhof
+ * Friedrichstraße. The model stays on the surveyed station anchor and uses
+ * the documented broad Stadtbahn curve instead of a generic straight shed.
+ */
+export const FRIEDRICHSTRASSE_STATION_LENGTH_M = 169;
+export const FRIEDRICHSTRASSE_STATION_WIDTH_M = 60;
+export const FRIEDRICHSTRASSE_STATION_HEIGHT_M = 27.928;
+export const FRIEDRICHSTRASSE_STATION_ROTATION_RAD = -0.31;
+export const FRIEDRICHSTRASSE_STATION_PLATFORM_COUNT = 3;
+export const FRIEDRICHSTRASSE_STATION_TRACK_COUNT = 6;
+export const FRIEDRICHSTRASSE_STATION_SOURCE =
+  "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080415";
+
+const FRIEDRICHSTRASSE_HALF_LENGTH_M =
+  FRIEDRICHSTRASSE_STATION_LENGTH_M / 2;
+const FRIEDRICHSTRASSE_HALF_WIDTH_M =
+  FRIEDRICHSTRASSE_STATION_WIDTH_M / 2;
+const FRIEDRICHSTRASSE_CURVE_CENTRE_Z_M = -10;
+const FRIEDRICHSTRASSE_CURVE_SAG_M = 6;
+const FRIEDRICHSTRASSE_PLATFORM_Y_M = 10.8;
+const FRIEDRICHSTRASSE_EAVES_Y_M = 18.2;
+const FRIEDRICHSTRASSE_STATION_GLASS = 0x45656a;
+const FRIEDRICHSTRASSE_ROOF_RISE_M =
+  FRIEDRICHSTRASSE_STATION_HEIGHT_M - FRIEDRICHSTRASSE_EAVES_Y_M;
 
 export const CUBE_BERLIN_FOOTPRINT_WORLD = [
   [-167.14, -533.37],
@@ -379,87 +411,6 @@ function addTriangle(
   geometry.computeVertexNormals();
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
-}
-
-function addBarrelRoofGeometry(
-  builder: Builder,
-  color: number,
-  point: Vector3,
-  length: number,
-  width: number,
-  eavesY: number,
-  rise: number,
-  rotationY: number,
-  segments = 20,
-): void {
-  const vertices: number[] = [];
-  const gridLines: number[] = [];
-  const world = (along: number, across: number, y: number) => {
-    const position = localPoint(point, along, across, rotationY);
-    return [position.x, point.y + y, position.z] as const;
-  };
-  const profile = (index: number) => {
-    const angle = (index / segments) * Math.PI;
-    return {
-      across: -width / 2 + (index / segments) * width,
-      y: eavesY + Math.sin(angle) * rise,
-    };
-  };
-  for (let index = 0; index < segments; index += 1) {
-    const left = profile(index);
-    const right = profile(index + 1);
-    const a = world(-length / 2, left.across, left.y);
-    const b = world(length / 2, left.across, left.y);
-    const c = world(length / 2, right.across, right.y);
-    const d = world(-length / 2, right.across, right.y);
-    // Keep the thin glass shell visible from both the exterior and the train
-    // shed. The merged city kit deliberately uses FrontSide materials, so a
-    // single winding disappeared from half of the orbital camera positions.
-    vertices.push(
-      ...a,
-      ...b,
-      ...c,
-      ...a,
-      ...c,
-      ...d,
-      ...a,
-      ...c,
-      ...b,
-      ...a,
-      ...d,
-      ...c,
-    );
-  }
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-  geometry.setIndex(
-    Array.from({ length: vertices.length / 3 }, (_, index) => index),
-  );
-  geometry.computeVertexNormals();
-  paintGeometry(geometry, color);
-  builder.parts.push(geometry);
-
-  for (let alongIndex = 0; alongIndex <= 16; alongIndex += 1) {
-    const along = -length / 2 + (alongIndex / 16) * length;
-    for (let profileIndex = 0; profileIndex < segments; profileIndex += 1) {
-      const a = profile(profileIndex);
-      const b = profile(profileIndex + 1);
-      gridLines.push(
-        ...world(along, a.across, a.y),
-        ...world(along, b.across, b.y),
-      );
-    }
-  }
-  for (let profileIndex = 0; profileIndex <= segments; profileIndex += 2) {
-    const profilePoint = profile(profileIndex);
-    gridLines.push(
-      ...world(-length / 2, profilePoint.across, profilePoint.y),
-      ...world(length / 2, profilePoint.across, profilePoint.y),
-    );
-  }
-  const grid = new BufferGeometry();
-  grid.setAttribute("position", new Float32BufferAttribute(gridLines, 3));
-  builder.edges.push(grid);
 }
 
 function addFacadePanel(
@@ -1710,6 +1661,397 @@ function addBerlinerEnsemble(
   localBox(builder, DARK_BRICK, point, 0, 17.2, 22.2, 22, 1.7, 0.2, rotation);
 }
 
+type StationPoint3 = readonly [number, number, number];
+
+function friedrichstrasseCurveZ(along: number): number {
+  const normalized = Math.max(
+    -1,
+    Math.min(1, along / FRIEDRICHSTRASSE_HALF_LENGTH_M),
+  );
+  return (
+    FRIEDRICHSTRASSE_CURVE_CENTRE_Z_M -
+    FRIEDRICHSTRASSE_CURVE_SAG_M * normalized * normalized
+  );
+}
+
+function friedrichstrasseTangentRotation(along: number): number {
+  const derivative =
+    (-2 * FRIEDRICHSTRASSE_CURVE_SAG_M * along) /
+    FRIEDRICHSTRASSE_HALF_LENGTH_M ** 2;
+  return FRIEDRICHSTRASSE_STATION_ROTATION_RAD - Math.atan(derivative);
+}
+
+function friedrichstrasseWorld(
+  point: Vector3,
+  along: number,
+  across: number,
+  y: number,
+): StationPoint3 {
+  const world = localPoint(
+    point,
+    along,
+    friedrichstrasseCurveZ(along) + across,
+    FRIEDRICHSTRASSE_STATION_ROTATION_RAD,
+  );
+  return [world.x, point.y + y, world.z];
+}
+
+function pushStationQuad(
+  vertices: number[],
+  a: StationPoint3,
+  b: StationPoint3,
+  c: StationPoint3,
+  d: StationPoint3,
+  reverse = false,
+): void {
+  if (reverse) {
+    vertices.push(...a, ...c, ...b, ...a, ...d, ...c);
+    return;
+  }
+  vertices.push(...a, ...b, ...c, ...a, ...c, ...d);
+}
+
+function addCurvedStationPrism(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  y0: number,
+  height: number,
+  segments: number,
+): void {
+  const vertices: number[] = [];
+  const outline: number[] = [];
+  const y1 = y0 + height;
+  const left = -FRIEDRICHSTRASSE_HALF_WIDTH_M;
+  const right = FRIEDRICHSTRASSE_HALF_WIDTH_M;
+  for (let index = 0; index < segments; index += 1) {
+    const along0 =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+      (index / segments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
+    const along1 =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+      ((index + 1) / segments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
+    const leftBottom0 = friedrichstrasseWorld(point, along0, left, y0);
+    const leftBottom1 = friedrichstrasseWorld(point, along1, left, y0);
+    const leftTop0 = friedrichstrasseWorld(point, along0, left, y1);
+    const leftTop1 = friedrichstrasseWorld(point, along1, left, y1);
+    const rightBottom0 = friedrichstrasseWorld(point, along0, right, y0);
+    const rightBottom1 = friedrichstrasseWorld(point, along1, right, y0);
+    const rightTop0 = friedrichstrasseWorld(point, along0, right, y1);
+    const rightTop1 = friedrichstrasseWorld(point, along1, right, y1);
+    pushStationQuad(
+      vertices,
+      leftBottom0,
+      leftBottom1,
+      leftTop1,
+      leftTop0,
+      true,
+    );
+    pushStationQuad(
+      vertices,
+      rightBottom1,
+      rightBottom0,
+      rightTop0,
+      rightTop1,
+      true,
+    );
+    pushStationQuad(
+      vertices,
+      leftTop0,
+      leftTop1,
+      rightTop1,
+      rightTop0,
+      true,
+    );
+    outline.push(
+      ...leftBottom0,
+      ...leftBottom1,
+      ...leftTop0,
+      ...leftTop1,
+      ...rightBottom0,
+      ...rightBottom1,
+      ...rightTop0,
+      ...rightTop1,
+    );
+  }
+  for (const along of [
+    -FRIEDRICHSTRASSE_HALF_LENGTH_M,
+    FRIEDRICHSTRASSE_HALF_LENGTH_M,
+  ]) {
+    const leftBottom = friedrichstrasseWorld(point, along, left, y0);
+    const rightBottom = friedrichstrasseWorld(point, along, right, y0);
+    const leftTop = friedrichstrasseWorld(point, along, left, y1);
+    const rightTop = friedrichstrasseWorld(point, along, right, y1);
+    pushStationQuad(
+      vertices,
+      leftBottom,
+      rightBottom,
+      rightTop,
+      leftTop,
+      along > 0,
+    );
+    outline.push(
+      ...leftBottom,
+      ...rightBottom,
+      ...leftTop,
+      ...rightTop,
+      ...leftBottom,
+      ...leftTop,
+      ...rightBottom,
+      ...rightTop,
+    );
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(
+    Array.from({ length: vertices.length / 3 }, (_, index) => index),
+  );
+  geometry.computeVertexNormals();
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+  const lines = new BufferGeometry();
+  lines.setAttribute("position", new Float32BufferAttribute(outline, 3));
+  builder.edges.push(lines);
+}
+
+function friedrichstrasseTudorHeight(across: number, width: number): number {
+  const normalized = Math.min(1, Math.abs(across) / (width / 2));
+  const roundArc = Math.sqrt(Math.max(0, 1 - normalized * normalized));
+  const shallowPoint = 1 - normalized;
+  return (
+    FRIEDRICHSTRASSE_EAVES_Y_M +
+    FRIEDRICHSTRASSE_ROOF_RISE_M *
+      (roundArc * 0.38 + shallowPoint * 0.62)
+  );
+}
+
+function addCurvedTudorRoof(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  hallCentre: number,
+  hallWidth: number,
+  pathSegments: number,
+  profileSegments: number,
+): void {
+  const vertices: number[] = [];
+  const gridLines: number[] = [];
+  const profilePoint = (along: number, index: number) => {
+    const across = -hallWidth / 2 + (index / profileSegments) * hallWidth;
+    return friedrichstrasseWorld(
+      point,
+      along,
+      hallCentre + across,
+      friedrichstrasseTudorHeight(across, hallWidth),
+    );
+  };
+  for (let pathIndex = 0; pathIndex < pathSegments; pathIndex += 1) {
+    const along0 =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+      (pathIndex / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
+    const along1 =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+      ((pathIndex + 1) / pathSegments) *
+        FRIEDRICHSTRASSE_STATION_LENGTH_M;
+    for (
+      let profileIndex = 0;
+      profileIndex < profileSegments;
+      profileIndex += 1
+    ) {
+      pushStationQuad(
+        vertices,
+        profilePoint(along0, profileIndex),
+        profilePoint(along1, profileIndex),
+        profilePoint(along1, profileIndex + 1),
+        profilePoint(along0, profileIndex + 1),
+        true,
+      );
+    }
+  }
+  for (let pathIndex = 0; pathIndex <= pathSegments; pathIndex += 2) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+      (pathIndex / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
+    for (
+      let profileIndex = 0;
+      profileIndex < profileSegments;
+      profileIndex += 1
+    ) {
+      gridLines.push(
+        ...profilePoint(along, profileIndex),
+        ...profilePoint(along, profileIndex + 1),
+      );
+    }
+  }
+  for (
+    let profileIndex = 0;
+    profileIndex <= profileSegments;
+    profileIndex += 2
+  ) {
+    for (let pathIndex = 0; pathIndex < pathSegments; pathIndex += 1) {
+      const along0 =
+        -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+        (pathIndex / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
+      const along1 =
+        -FRIEDRICHSTRASSE_HALF_LENGTH_M +
+        ((pathIndex + 1) / pathSegments) *
+          FRIEDRICHSTRASSE_STATION_LENGTH_M;
+      gridLines.push(
+        ...profilePoint(along0, profileIndex),
+        ...profilePoint(along1, profileIndex),
+      );
+    }
+  }
+  const roof = new BufferGeometry();
+  roof.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  roof.setIndex(
+    Array.from({ length: vertices.length / 3 }, (_, index) => index),
+  );
+  roof.computeVertexNormals();
+  paintGeometry(roof, color);
+  builder.parts.push(roof);
+  const grid = new BufferGeometry();
+  grid.setAttribute("position", new Float32BufferAttribute(gridLines, 3));
+  builder.edges.push(grid);
+}
+
+function addCurvedTudorGable(
+  builder: Builder,
+  point: Vector3,
+  along: number,
+  hallCentre: number,
+  hallWidth: number,
+  profileSegments: number,
+): void {
+  const vertices: number[] = [];
+  const gridLines: number[] = [];
+  const profilePoint = (index: number) => {
+    const across = -hallWidth / 2 + (index / profileSegments) * hallWidth;
+    return {
+      across,
+      bottom: friedrichstrasseWorld(
+        point,
+        along,
+        hallCentre + across,
+        FRIEDRICHSTRASSE_PLATFORM_Y_M,
+      ),
+      top: friedrichstrasseWorld(
+        point,
+        along,
+        hallCentre + across,
+        friedrichstrasseTudorHeight(across, hallWidth),
+      ),
+      topY: friedrichstrasseTudorHeight(across, hallWidth),
+    };
+  };
+  for (let index = 0; index < profileSegments; index += 1) {
+    const left = profilePoint(index);
+    const right = profilePoint(index + 1);
+    pushStationQuad(
+      vertices,
+      left.bottom,
+      right.bottom,
+      right.top,
+      left.top,
+      along > 0,
+    );
+    for (const fraction of [0.28, 0.54, 0.78]) {
+      const y =
+        FRIEDRICHSTRASSE_PLATFORM_Y_M +
+        (Math.min(left.topY, right.topY) -
+          FRIEDRICHSTRASSE_PLATFORM_Y_M) *
+          fraction;
+      gridLines.push(
+        ...friedrichstrasseWorld(point, along, hallCentre + left.across, y),
+        ...friedrichstrasseWorld(point, along, hallCentre + right.across, y),
+      );
+    }
+  }
+  for (let index = 0; index <= profileSegments; index += 1) {
+    const profile = profilePoint(index);
+    gridLines.push(...profile.bottom, ...profile.top);
+  }
+  const glass = new BufferGeometry();
+  glass.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  glass.setIndex(
+    Array.from({ length: vertices.length / 3 }, (_, index) => index),
+  );
+  glass.computeVertexNormals();
+  paintGeometry(glass, FRIEDRICHSTRASSE_STATION_GLASS);
+  builder.parts.push(glass);
+  const grid = new BufferGeometry();
+  grid.setAttribute("position", new Float32BufferAttribute(gridLines, 3));
+  builder.edges.push(grid);
+}
+
+function addFriedrichstrasseSegmentBox(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  along: number,
+  across: number,
+  y: number,
+  sx: number,
+  sy: number,
+  sz: number,
+  inked = true,
+): void {
+  const world = friedrichstrasseWorld(point, along, across, y);
+  addBox(
+    builder,
+    color,
+    world[0],
+    world[1],
+    world[2],
+    sx,
+    sy,
+    sz,
+    friedrichstrasseTangentRotation(along),
+    inked,
+  );
+}
+
+function addFriedrichstrasseLampBox(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  along: number,
+  across: number,
+  y: number,
+  sx: number,
+  sy: number,
+  sz: number,
+): void {
+  const world = friedrichstrasseWorld(point, along, across, y);
+  const geometry = new BoxGeometry(sx, sy, sz);
+  geometry.rotateY(friedrichstrasseTangentRotation(along));
+  geometry.translate(world[0], world[1], world[2]);
+  paintGeometry(geometry, color);
+  builder.lamps.push(geometry);
+}
+
+function addFriedrichstrasseVerticalDisc(
+  builder: Builder,
+  color: number,
+  point: Vector3,
+  along: number,
+  across: number,
+  y: number,
+  radius: number,
+  depth: number,
+): void {
+  const world = friedrichstrasseWorld(point, along, across, y);
+  const geometry = new CylinderGeometry(radius, radius, depth, 28);
+  geometry.rotateX(Math.PI / 2);
+  geometry.rotateY(friedrichstrasseTangentRotation(along));
+  geometry.translate(world[0], world[1], world[2]);
+  paintGeometry(geometry, color);
+  builder.parts.push(geometry);
+  builder.edges.push(
+    new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+  );
+}
+
 function addFriedrichstrasseStation(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
@@ -1717,124 +2059,422 @@ function addFriedrichstrasseStation(
   const point = anchor(byName, "Bahnhof Berlin Friedrichstraße");
   if (!point) return;
   point.y = 2.85;
-  const rotation = -0.03;
-  const stationBrick = 0xbc8068;
-  const stationBrickAccent = 0x8d594b;
-  const stationStone = 0xd6c5a7;
-  localBox(
+  const stationBrick = 0x9b5c4f;
+  const stationBrickAccent = 0x613d38;
+  const stationStone = 0xd8c9ad;
+  const roofMetal = 0xbfc7c3;
+  const segments = 20;
+  const segmentAlong = FRIEDRICHSTRASSE_STATION_LENGTH_M / segments;
+
+  // The official LoD2 outline bends through the broad Stadtbahn curve. The
+  // brick viaduct follows that curve continuously instead of approximating it
+  // with the former 143 x 72 m straight box.
+  addCurvedStationPrism(
     builder,
     stationBrick,
     point,
     0,
-    8.7,
-    0,
-    143,
-    17.4,
-    72,
-    rotation,
+    FRIEDRICHSTRASSE_PLATFORM_Y_M,
+    segments,
   );
-  for (const facade of [-36.1, 36.1]) {
-    localBox(
-      builder,
-      stationStone,
-      point,
-      0,
-      1.25,
-      facade,
-      143,
-      2.5,
-      0.8,
-      rotation,
-    );
-  }
-  // The 1919-25 rebuild is a twin train shed, not one oversized barrel.
-  // Each steel-and-glass vault spans half the LoD2 station footprint and
-  // meets its neighbour at the central valley gutter.
-  for (const across of [-18, 18]) {
-    const roofCentre = localPoint(point, 0, across, rotation);
-    addBarrelRoofGeometry(
-      builder,
-      0x98aaab,
-      new Vector3(roofCentre.x, point.y, roofCentre.z),
-      146,
-      35.8,
-      17.4,
-      10.6,
-      rotation,
-      20,
-    );
-  }
-  localBox(builder, STEEL, point, 0, 17.7, 0, 145.2, 0.46, 0.72, rotation);
-  for (const facade of [-36.15, 36.15]) {
-    addFacadeGrid(builder, point, {
-      bays: 18,
-      baySpacing: 7.4,
-      floors: 3,
-      floorSpacing: 4.5,
-      frontZ: facade,
-      rotationY: rotation,
-      startY: 5.1,
-      width: 3.8,
-    });
-    for (let bay = 0; bay <= 18; bay += 1) {
-      localBox(
+
+  for (let index = 0; index < segments; index += 1) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M + (index + 0.5) * segmentAlong;
+    const curveStep =
+      friedrichstrasseCurveZ(along + segmentAlong / 2) -
+      friedrichstrasseCurveZ(along - segmentAlong / 2);
+    const length = Math.hypot(segmentAlong, curveStep) + 0.08;
+    for (const side of [-1, 1]) {
+      const facade = side * (FRIEDRICHSTRASSE_HALF_WIDTH_M + 0.14);
+      addFriedrichstrasseSegmentBox(
         builder,
-        stationBrickAccent,
+        FRIEDRICHSTRASSE_STATION_GLASS,
         point,
-        -66.6 + bay * 7.4,
-        9.15,
-        facade + Math.sign(facade) * 0.18,
-        0.36,
-        15.3,
-        0.28,
-        rotation,
+        along,
+        facade,
+        6.1,
+        length - 1.0,
+        4.4,
+        0.24,
+        false,
       );
-    }
-    for (const y of [3.45, 16.15]) {
-      localBox(
-        builder,
-        stationStone,
-        point,
-        0,
-        y,
-        facade + Math.sign(facade) * 0.2,
-        142.2,
-        0.34,
-        0.32,
-        rotation,
-      );
-    }
-  }
-  // The two end gables expose the arched train shed rather than closing it
-  // with a featureless brick wall.
-  for (const end of [-1, 1]) {
-    const endPoint = localPoint(point, end * 71.55, 0, rotation);
-    for (const shedCentre of [-18, 18]) {
-      for (let bay = -3; bay <= 3; bay += 1) {
-        const across = shedCentre + bay * 5.05;
-        const pane = localPoint(
-          new Vector3(endPoint.x, point.y, endPoint.z),
-          0,
-          across,
-          rotation,
-        );
-        const archFactor = Math.sqrt(1 - (bay / 3.5) ** 2);
-        const paneBottom = point.y + 17.65;
-        const paneTop = point.y + 17.85 + archFactor * 10.2;
-        addBox(
+      if (index % 3 === 1) {
+        addFriedrichstrasseLampBox(
           builder,
-          DARK_GLASS,
-          pane.x,
-          (paneBottom + paneTop) / 2,
-          pane.z,
-          0.28,
-          paneTop - paneBottom,
-          4.25,
-          rotation,
+          FRIEDRICHSTRASSE_STATION_GLASS,
+          point,
+          along,
+          facade,
+          14.55,
+          length - 0.55,
+          6.9,
+          0.24,
+        );
+      } else {
+        addFriedrichstrasseSegmentBox(
+          builder,
+          FRIEDRICHSTRASSE_STATION_GLASS,
+          point,
+          along,
+          facade,
+          14.55,
+          length - 0.55,
+          6.9,
+          0.24,
+          false,
+        );
+      }
+      for (const y of [1.15, 10.45, 14.0, 18.02]) {
+        addFriedrichstrasseSegmentBox(
+          builder,
+          y < 11 ? stationStone : STEEL,
+          point,
+          along,
+          facade + side * 0.08,
+          y,
+          length,
+          y < 11 ? 0.32 : 0.18,
+          0.34,
           false,
         );
       }
     }
+  }
+  for (let index = 0; index <= segments; index += 1) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
+    for (const side of [-1, 1]) {
+      const facade = side * (FRIEDRICHSTRASSE_HALF_WIDTH_M + 0.28);
+      addFriedrichstrasseSegmentBox(
+        builder,
+        stationBrickAccent,
+        point,
+        along,
+        facade,
+        8.65,
+        0.42,
+        FRIEDRICHSTRASSE_EAVES_Y_M,
+        0.42,
+        false,
+      );
+    }
+  }
+
+  // Three island platforms and six rails follow the same measured curve. The
+  // rail bed is visible through both glazed end walls without becoming a
+  // second competing city layer at overview scale.
+  const platformOffsets = [-20.5, 0, 20.5];
+  const trackOffsets = [-27, -14.2, -6.2, 6.2, 14.2, 27];
+  for (let index = 0; index < segments; index += 1) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M + (index + 0.5) * segmentAlong;
+    const curveStep =
+      friedrichstrasseCurveZ(along + segmentAlong / 2) -
+      friedrichstrasseCurveZ(along - segmentAlong / 2);
+    const length = Math.hypot(segmentAlong, curveStep) + 0.12;
+    for (const platform of platformOffsets) {
+      addFriedrichstrasseSegmentBox(
+        builder,
+        0xc9c4b9,
+        point,
+        along,
+        platform,
+        FRIEDRICHSTRASSE_PLATFORM_Y_M + 0.22,
+        length,
+        0.44,
+        5.2,
+        false,
+      );
+    }
+    for (const track of trackOffsets) {
+      for (const rail of [-0.72, 0.72]) {
+        addFriedrichstrasseSegmentBox(
+          builder,
+          STEEL,
+          point,
+          along,
+          track + rail,
+          FRIEDRICHSTRASSE_PLATFORM_Y_M + 0.12,
+          length,
+          0.14,
+          0.12,
+          false,
+        );
+      }
+    }
+  }
+  for (let index = 1; index < segments; index += 2) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
+    for (const track of trackOffsets) {
+      addFriedrichstrasseSegmentBox(
+        builder,
+        DARK_BRICK,
+        point,
+        along,
+        track,
+        FRIEDRICHSTRASSE_PLATFORM_Y_M + 0.02,
+        0.24,
+        0.12,
+        2.45,
+        false,
+      );
+    }
+  }
+
+  // Brodführer's 1919-25 roof is explicitly a light two-aisled structure
+  // with shallow Tudor arches. A small ridge cusp and lower shoulders replace
+  // the previous semicircular barrels.
+  for (const hallCentre of [-15, 15]) {
+    addCurvedTudorRoof(
+      builder,
+      roofMetal,
+      point,
+      hallCentre,
+      30,
+      segments,
+      18,
+    );
+    for (const end of [-1, 1]) {
+      addCurvedTudorGable(
+        builder,
+        point,
+        end * FRIEDRICHSTRASSE_HALF_LENGTH_M,
+        hallCentre,
+        30,
+        18,
+      );
+    }
+  }
+  for (let index = 0; index <= segments; index += 2) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
+    for (const across of [-30, 0, 30]) {
+      const world = friedrichstrasseWorld(
+        point,
+        along,
+        across,
+        (FRIEDRICHSTRASSE_PLATFORM_Y_M + FRIEDRICHSTRASSE_EAVES_Y_M) /
+          2,
+      );
+      addCylinder(
+        builder,
+        STEEL,
+        world[0],
+        world[1],
+        world[2],
+        0.18,
+        FRIEDRICHSTRASSE_EAVES_Y_M - FRIEDRICHSTRASSE_PLATFORM_Y_M,
+        10,
+      );
+    }
+  }
+  for (let index = 0; index < segments; index += 1) {
+    const along =
+      -FRIEDRICHSTRASSE_HALF_LENGTH_M + (index + 0.5) * segmentAlong;
+    addFriedrichstrasseSegmentBox(
+      builder,
+      STEEL,
+      point,
+      along,
+      0,
+      FRIEDRICHSTRASSE_EAVES_Y_M + 0.22,
+      segmentAlong + 0.08,
+      0.42,
+      0.62,
+      false,
+    );
+  }
+
+  // North-west entrance: stepped dark-clinker portal, black terracotta
+  // pilasters and medallions, five-door vestibule, clock and cable-glass
+  // canopy. These are the persistent recognition details in the preserved
+  // 1925 entrance photographed from Dorothea-Schlegel-Platz.
+  const entranceAcross = -31.7;
+  addFriedrichstrasseSegmentBox(
+    builder,
+    stationBrick,
+    point,
+    0,
+    entranceAcross,
+    7.1,
+    54,
+    14.2,
+    3.2,
+  );
+  addFriedrichstrasseSegmentBox(
+    builder,
+    stationBrick,
+    point,
+    0,
+    entranceAcross - 0.1,
+    8.4,
+    27,
+    16.8,
+    3.35,
+  );
+  for (const x of [-21.5, 21.5]) {
+    addFriedrichstrasseSegmentBox(
+      builder,
+      stationBrick,
+      point,
+      x,
+      entranceAcross - 0.08,
+      7.65,
+      10.5,
+      15.3,
+      3.3,
+    );
+  }
+  for (const x of [-25.5, -16.2, -12.4, 12.4, 16.2, 25.5]) {
+    addFriedrichstrasseSegmentBox(
+      builder,
+      stationBrickAccent,
+      point,
+      x,
+      entranceAcross - 1.72,
+      8.25,
+      0.42,
+      15.5,
+      0.32,
+      false,
+    );
+  }
+  for (const x of [-8, -4, 0, 4, 8]) {
+    addFriedrichstrasseSegmentBox(
+      builder,
+      DARK_GLASS,
+      point,
+      x,
+      entranceAcross - 1.72,
+      3.05,
+      2.7,
+      5.6,
+      0.24,
+      false,
+    );
+    addFriedrichstrasseSegmentBox(
+      builder,
+      GLASS,
+      point,
+      x,
+      entranceAcross - 1.74,
+      10.55,
+      2.8,
+      4.25,
+      0.22,
+      false,
+    );
+  }
+  for (const x of [-21.5, 21.5]) {
+    addFriedrichstrasseSegmentBox(
+      builder,
+      GLASS,
+      point,
+      x,
+      entranceAcross - 1.74,
+      10.2,
+      3.7,
+      5.0,
+      0.22,
+      false,
+    );
+  }
+  for (const y of [6.25, 14.15]) {
+    addFriedrichstrasseSegmentBox(
+      builder,
+      stationStone,
+      point,
+      0,
+      entranceAcross - 1.82,
+      y,
+      54.6,
+      0.36,
+      0.36,
+      false,
+    );
+  }
+  addFriedrichstrasseSegmentBox(
+    builder,
+    GLASS,
+    point,
+    0,
+    entranceAcross - 4.55,
+    6.45,
+    55,
+    0.28,
+    5.5,
+  );
+  for (const x of [-22, -11, 0, 11, 22]) {
+    addFriedrichstrasseSegmentBox(
+      builder,
+      STEEL,
+      point,
+      x,
+      entranceAcross - 4.55,
+      6.62,
+      0.18,
+      0.18,
+      5.7,
+      false,
+    );
+  }
+  addFriedrichstrasseVerticalDisc(
+    builder,
+    stationBrickAccent,
+    point,
+    0,
+    entranceAcross - 1.98,
+    14.45,
+    1.78,
+    0.3,
+  );
+  addFriedrichstrasseVerticalDisc(
+    builder,
+    IVORY,
+    point,
+    0,
+    entranceAcross - 2.18,
+    14.45,
+    1.48,
+    0.12,
+  );
+  addFriedrichstrasseSegmentBox(
+    builder,
+    INK,
+    point,
+    0,
+    entranceAcross - 2.27,
+    14.85,
+    0.12,
+    0.8,
+    0.1,
+    false,
+  );
+  addFriedrichstrasseSegmentBox(
+    builder,
+    INK,
+    point,
+    0.38,
+    entranceAcross - 2.27,
+    14.45,
+    0.76,
+    0.12,
+    0.1,
+    false,
+  );
+  for (const x of [-21.5, 21.5]) {
+    addFriedrichstrasseVerticalDisc(
+      builder,
+      stationBrickAccent,
+      point,
+      x,
+      entranceAcross - 1.96,
+      12.9,
+      0.9,
+      0.18,
+    );
   }
 }
 
@@ -2306,14 +2946,27 @@ export function createCentralCivicDetails(
     source: "Berlin LoD2 + OSM way 43173495 + Haus der Geschichte",
   };
   group.userData.friedrichstrasseStation = {
-    footprintM: [146, 72],
-    photoReference:
+    curveSagM: FRIEDRICHSTRASSE_CURVE_SAG_M,
+    footprintM: [
+      FRIEDRICHSTRASSE_STATION_LENGTH_M,
+      FRIEDRICHSTRASSE_STATION_WIDTH_M,
+    ],
+    heightM: FRIEDRICHSTRASSE_STATION_HEIGHT_M,
+    photoReferences: [
       "https://commons.wikimedia.org/wiki/File:Bahnhof_Berlin_Friedrichstra%C3%9Fe_-_Detailansicht.jpg",
+      "https://commons.wikimedia.org/wiki/File:Berlin_Bahnhof_Friedrichstra%C3%9Fe_entry.jpg",
+      "https://commons.wikimedia.org/wiki/File:Bahnhof_Friedrichstra%C3%9Fe_Berlin.jpg",
+    ],
+    platformCount: FRIEDRICHSTRASSE_STATION_PLATFORM_COUNT,
     roofCount: 2,
     roofProfile:
-      "separate barrel vaults, central valley gutter and twin arched end walls",
+      "two shallow Tudor-arch sheds on the surveyed Stadtbahn curve",
     source:
-      "Berlin LoD2 + OSM station footprint + the listed 1919-25 twin train-shed profile",
+      "Berlin LoD2 + OSM station footprint + Landesdenkmalamt Berlin object 09080415",
+    sourceUrl: FRIEDRICHSTRASSE_STATION_SOURCE,
+    trackCount: FRIEDRICHSTRASSE_STATION_TRACK_COUNT,
+    entranceDetails:
+      "stepped clinker portal, black terracotta, five-door vestibule, clock and glass canopy",
   };
   group.userData.economicsMinistry = {
     source:

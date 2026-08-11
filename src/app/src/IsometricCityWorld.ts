@@ -505,15 +505,18 @@ export function isHauptbahnhofFootprintSuppressed(
 }
 
 const FRIEDRICHSTRASSE_STATION_ANCHOR_WORLD = [1057.69, -118.71] as const;
-const FRIEDRICHSTRASSE_STATION_ROTATION_RAD = -0.03;
-const FRIEDRICHSTRASSE_STATION_HALF_LENGTH_M = 73.5;
-const FRIEDRICHSTRASSE_STATION_HALF_DEPTH_M = 37.5;
+const FRIEDRICHSTRASSE_STATION_ROTATION_RAD = -0.31;
+const FRIEDRICHSTRASSE_STATION_HALF_LENGTH_M = 84.5;
+const FRIEDRICHSTRASSE_STATION_HALF_WIDTH_M = 30;
+const FRIEDRICHSTRASSE_STATION_CURVE_CENTRE_Z_M = -10;
+const FRIEDRICHSTRASSE_STATION_CURVE_SAG_M = 6;
 const FRIEDRICHSTRASSE_STATION_OVERLAP_FRACTION = 0.3;
 
 /**
- * The dedicated Friedrichstraße train-shed model includes the whole brick
- * base and barrel roof. Suppressing by footprint catches every LoD2 part in
- * that envelope without swallowing the separate Tränenpalast to the north.
+ * The dedicated Friedrichstraße model follows the broad curve documented by
+ * the Landesdenkmalamt and the source LoD2 outline. Testing the same curved
+ * 169 x 60 m envelope catches the station parts without swallowing the
+ * separate Tränenpalast or the office slabs beyond the eastern gable.
  */
 export function isFriedrichstrasseStationFootprintSuppressed(
   building: PrismBuilding,
@@ -528,9 +531,13 @@ export function isFriedrichstrasseStationFootprintSuppressed(
     const dz = zDm / 10 - anchorZ;
     const localX = dx * cosine - dz * sine;
     const localZ = dx * sine + dz * cosine;
+    const normalizedX = localX / FRIEDRICHSTRASSE_STATION_HALF_LENGTH_M;
+    const centreZ =
+      FRIEDRICHSTRASSE_STATION_CURVE_CENTRE_Z_M -
+      FRIEDRICHSTRASSE_STATION_CURVE_SAG_M * normalizedX * normalizedX;
     if (
       Math.abs(localX) <= FRIEDRICHSTRASSE_STATION_HALF_LENGTH_M &&
-      Math.abs(localZ) <= FRIEDRICHSTRASSE_STATION_HALF_DEPTH_M
+      Math.abs(localZ - centreZ) <= FRIEDRICHSTRASSE_STATION_HALF_WIDTH_M + 1
     ) {
       inside += 1;
     }

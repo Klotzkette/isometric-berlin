@@ -495,6 +495,15 @@ describe("ligne-claire fenestration", () => {
       false,
     );
     expect(PRISM_SUPPRESSED_IDS.has(tearPalace!.id)).toBe(true);
+    for (const id of ["oIIado5x", "wkZPVUnx"]) {
+      const officeBeyondEastGable = payload.buildings.find(
+        (building) => building.id === id,
+      );
+      expect(officeBeyondEastGable).toBeDefined();
+      expect(
+        isFriedrichstrasseStationFootprintSuppressed(officeBeyondEastGable!),
+      ).toBe(false);
+    }
   });
 
   test("the interim-office former-site prism is suppressed by OSM-footprint overlap, not id", async () => {

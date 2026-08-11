@@ -8,6 +8,13 @@ import {
   CUBE_BERLIN_FOOTPRINT_WORLD,
   CUBE_BERLIN_HEIGHT_M,
   CUBE_BERLIN_PRISM_IDS,
+  FRIEDRICHSTRASSE_STATION_HEIGHT_M,
+  FRIEDRICHSTRASSE_STATION_LENGTH_M,
+  FRIEDRICHSTRASSE_STATION_PLATFORM_COUNT,
+  FRIEDRICHSTRASSE_STATION_ROTATION_RAD,
+  FRIEDRICHSTRASSE_STATION_SOURCE,
+  FRIEDRICHSTRASSE_STATION_TRACK_COUNT,
+  FRIEDRICHSTRASSE_STATION_WIDTH_M,
   PARISER_PLATZ_GARDENS,
   TEAR_PALACE_FOOTPRINT_WORLD,
   TEAR_PALACE_PRISM_IDS,
@@ -125,11 +132,22 @@ describe("task-11 central transit and civic details", () => {
       prismIds: TEAR_PALACE_PRISM_IDS,
     });
     expect(details.userData.friedrichstrasseStation).toMatchObject({
-      footprintM: [146, 72],
+      curveSagM: 6,
+      entranceDetails:
+        "stepped clinker portal, black terracotta, five-door vestibule, clock and glass canopy",
+      footprintM: [
+        FRIEDRICHSTRASSE_STATION_LENGTH_M,
+        FRIEDRICHSTRASSE_STATION_WIDTH_M,
+      ],
+      heightM: FRIEDRICHSTRASSE_STATION_HEIGHT_M,
+      platformCount: FRIEDRICHSTRASSE_STATION_PLATFORM_COUNT,
       roofCount: 2,
       roofProfile:
-        "separate barrel vaults, central valley gutter and twin arched end walls",
+        "two shallow Tudor-arch sheds on the surveyed Stadtbahn curve",
+      sourceUrl: FRIEDRICHSTRASSE_STATION_SOURCE,
+      trackCount: FRIEDRICHSTRASSE_STATION_TRACK_COUNT,
     });
+    expect(FRIEDRICHSTRASSE_STATION_ROTATION_RAD).toBeCloseTo(-0.31);
     expect(details.userData.economicsMinistry.source).toContain("Berlin LoD2");
   });
 
@@ -178,6 +196,9 @@ describe("task-11 central transit and civic details", () => {
     const tram = landmarks.find(({ name }) =>
       name.startsWith("Tramhaltestelle"),
     )!;
+    const friedrichstrasse = landmarks.find(
+      ({ name }) => name === "Bahnhof Berlin Friedrichstraße",
+    )!;
     expect(centralCivicFocusCamera(futurium)).toMatchObject({
       distance_m: 168,
       target_world: futurium.world,
@@ -194,6 +215,15 @@ describe("task-11 central transit and civic details", () => {
     expect(centralCivicFocusCamera(tram)).toMatchObject({
       distance_m: 176,
       target_world: tram.world,
+    });
+    expect(centralCivicFocusCamera(friedrichstrasse)).toMatchObject({
+      azimuth_degrees: -138,
+      distance_m: 224,
+      target_world: [
+        friedrichstrasse.world[0] + 2.4,
+        friedrichstrasse.world[1],
+        friedrichstrasse.world[2] - 12.2,
+      ],
     });
   });
 

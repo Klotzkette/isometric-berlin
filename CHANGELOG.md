@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.70.40
+
+- **Bahnhof Friedrichstraße now follows its real Stadtbahn geometry.** The
+  former straight 143 x 72 m generic shell is replaced by a 169 m curved
+  station body derived from the committed Berlin LoD2 envelope. Its two halls
+  reach the official 27.928 m measured height and use the Landesdenkmalamt's
+  documented shallow Tudor-arch profile instead of semicircular barrels.
+- **The preserved 1925 identity is legible at close range.** Dark clinker and
+  black-terracotta articulation, the stepped north-west portal, five-door
+  vestibule, clock, medallions, cable-glass canopy, tall steel-glass side
+  grids, twin glazed gables and selected warm night windows replace the old
+  repeated generic facade grid. Three platforms and six curved tracks remain
+  visible through the end walls.
+- **Placement and presentation are guarded rather than guessed.** The LoD2
+  suppression test now follows the same curved 169 x 60 m envelope, removes
+  the source station shells, and explicitly preserves both the Tränenpalast
+  and the offices beyond the east gable. A north-west focus camera frames the
+  portal and both sheds. Day, Night, Minecraft, Snowstorm and 390 x 844 mobile
+  views were checked directly; the visible radius remains **5,230 m**, and no
+  source hierarchy, attribution or neighbouring geometry changed.
+
 ## v0.70.39
 
 - **Berlin Hauptbahnhof now reads as the real glass-and-steel crossing
