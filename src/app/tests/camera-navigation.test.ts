@@ -16,12 +16,43 @@ import {
   continuousFlightSpeeds,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
+  heldNavigationInput,
   screenRelativeFlightDelta,
   stabilizeCameraRig,
   twoFingerPanFlight,
   viewHeadingFlightDelta,
   zoomCameraAtScreenPoint,
 } from "../src/cameraNavigation";
+
+describe("held desktop navigation routing", () => {
+  test("routes plain arrows only to smooth screen-space pan", () => {
+    expect(heldNavigationInput(new Set(["ArrowLeft", "ArrowUp"]))).toEqual({
+      flight: { forward: 0, strafe: 0 },
+      orbit: { horizontal: 0, vertical: 0 },
+      pan: { horizontal: -1, vertical: 1 },
+    });
+  });
+
+  test("routes Shift arrows only to heading-relative flight", () => {
+    expect(
+      heldNavigationInput(new Set(["Shift", "ArrowRight", "ArrowDown"])),
+    ).toEqual({
+      flight: { forward: -1, strafe: 1 },
+      orbit: { horizontal: 0, vertical: 0 },
+      pan: { horizontal: 0, vertical: 0 },
+    });
+  });
+
+  test("gives Alt orbit precedence over Shift", () => {
+    expect(
+      heldNavigationInput(new Set(["Alt", "Shift", "ArrowLeft", "ArrowDown"])),
+    ).toEqual({
+      flight: { forward: 0, strafe: 0 },
+      orbit: { horizontal: -1, vertical: -1 },
+      pan: { horizontal: 0, vertical: 0 },
+    });
+  });
+});
 
 describe("screen-relative 3D flight", () => {
   test("uses a faster direct step without an animation ramp", () => {

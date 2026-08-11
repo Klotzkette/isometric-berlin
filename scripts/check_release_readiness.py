@@ -710,13 +710,18 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       f"Viewer lacks the complete public repository URL: {project_metadata_path}"
     )
-  if (
-    "flyBy(1, 0)" not in app
-    or "flyForwardBy(0, 1)" not in app
-    or "event.shiftKey" not in app
-    or "event.altKey" not in app
-  ):
-    failures.append(f"Viewer lacks direct and heading-relative flight: {app_path}")
+  held_navigation_contract = (
+    "heldNavigationInput(",
+    "setPanInput(pan.horizontal, pan.vertical)",
+    "setFlightInput(flight.strafe, flight.forward, 0)",
+    "setOrbitInput(orbit.horizontal, orbit.vertical)",
+    "event.shiftKey",
+    "event.altKey",
+  )
+  if any(snippet not in app for snippet in held_navigation_contract):
+    failures.append(
+      f"Viewer lacks continuous pan, heading-flight, or orbit input: {app_path}"
+    )
   for mode in ("day", "night", "minecraft"):
     if f'selectVisualMode("{mode}")' not in app:
       failures.append(f"Viewer lacks direct {mode} mode selection: {app_path}")

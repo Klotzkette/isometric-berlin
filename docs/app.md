@@ -60,15 +60,17 @@ heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 bracket keys start a guided flight through the appropriate traffic tube of the
 approximate Tiergartentunnel route; any manual navigation cancels it cleanly.
 
-**Continuous flight:** holding `Space` in 3D arms a smooth, velocity-damped
-flight mode — `Space`+`↑`/`↓` flies forward/backward along the current
-heading, `Space`+`←`/`→` strafes, `Space`+`Shift`+`↑`/`↓` changes altitude. A
-plain `Space` tap still toggles the sight tour. On coarse-pointer devices a
-bottom-left thumb joystick provides the same continuous flight (drag up =
-forward, sideways = strafe); the existing two-finger swipe remains. Flying
-below the Spree surface (scene water level 1.31 m) switches to an underwater
-presentation with deep-teal fog; it lifts as soon as the camera surfaces, and
-the Tiergartentunnel interior — which passes under the river — is exempt.
+**Continuous navigation:** held plain arrows pan in screen space; held
+`Shift`+arrows fly along the current heading; held `Alt`/`Option`+arrows orbit
+and tilt. The matching on-screen arrow controls also move continuously while
+the primary mouse button stays down, and desktop layouts expose an analogue
+orbit pad beside the control panel. A plain `Space` tap toggles the sight tour.
+On coarse-pointer devices a bottom-left thumb joystick provides continuous
+flight (drag up = forward, sideways = strafe); the existing two-finger swipe
+remains. Flying below the Spree surface (scene water level 1.31 m) switches to
+an underwater presentation with deep-teal fog; it lifts as soon as the camera
+surfaces, and the Tiergartentunnel interior — which passes under the river — is
+exempt.
 
 In DZI mode, ordinary drag pans and Shift-drag rotates. On phones and
 coarse-pointer tablets up to 1024 px, the sight rail starts closed and leaves

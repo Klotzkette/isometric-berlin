@@ -62,6 +62,186 @@ export const BERLIN_MODERN_PROFILE = {
 } as const;
 
 /**
+ * LoD2 parts and official monument description for St. Matthaeus.
+ *
+ * The main footprint supplies the 19.7 degree site bearing. Berlin LoD2
+ * separately records the nave, apses and 41.65 m tower, while the monument
+ * database documents the three parallel gables, dark-red horizontal brick
+ * bands, arcaded tower gallery, octagonal upper stage and copper spire.
+ */
+export const ST_MATTHAEUS_PROFILE = {
+  apsePartIds: [
+    "DEBE3DPsKasbHism",
+    "DEBE3DMkX1TTal7W",
+    "DEBE3DHn5IFj7sZX",
+  ] as const,
+  footprintLengthM: 32.4,
+  footprintWidthM: 20.8,
+  geometryStatus:
+    "LoD2-part-anchored with official monument facade description",
+  groundY: 8,
+  mainPartHeightM: 16.567,
+  mainPartId: "DEBE3DkIiO30Sz4V",
+  rotationY: (-19.55 * Math.PI) / 180,
+  source:
+    "Berlin LoD2 and Landesdenkmalamt object 09050277; facade detail is not a photogrammetric texture",
+  towerHeightM: 41.65,
+  towerPartId: "DEBE3DNKPmfUJcjM",
+} as const;
+
+/** Metric upper pavilion of Mies van der Rohe's Neue Nationalgalerie. */
+export const NEUE_NATIONALGALERIE_PROFILE = {
+  columnCount: 8,
+  glassInsetM: 7.2,
+  glassWidthM: 50.4,
+  geometryStatus: "LoD2 footprint axis with published pavilion dimensions",
+  groundY: 8,
+  roofGridM: 3.6,
+  roofWidthM: 64.8,
+  rotationY: (-19.58 * Math.PI) / 180,
+  source:
+    "Berlin LoD2 and Landesdenkmalamt: square gridded roof carried by eight anthracite steel columns",
+} as const;
+
+/**
+ * Metric Kulturforum register derived from the named Berlin LoD2 parts.
+ * World coordinates use the committed scene origin (389500, 5820000).
+ * The Gemäldegalerie navigation POI sits near the shared entrance; its metric
+ * building centre below deliberately remains independent from that POI.
+ */
+export const KULTURFORUM_PROFILE = {
+  gemaldegalerie: {
+    centerWorldM: [-473.956, 1138.208] as const,
+    heightM: 23.269,
+    lengthM: 135.66,
+    sourceBuildingIds: ["DEBE01YYK0002V5W", "DEBE01YYK0002Sq5"] as const,
+    widthM: 98.8,
+    rotationY: (-16.82 * Math.PI) / 180,
+  },
+  kammermusiksaal: {
+    centerWorldM: [-190.028, 1056.839] as const,
+    heightM: 26.347,
+    lengthM: 79.81,
+    rotationY: (-17.17 * Math.PI) / 180,
+    sourcePartCount: 18,
+    widthM: 73.23,
+  },
+  kunstbibliothek: {
+    centerWorldM: [-352.437, 1157.775] as const,
+    heightM: 20.141,
+    lengthM: 61.51,
+    rotationY: (-16.65 * Math.PI) / 180,
+    sourcePartCount: 15,
+    widthM: 61.46,
+  },
+  kunstgewerbemuseum: {
+    centerWorldM: [-301.106, 1009.605] as const,
+    heightM: 21.013,
+    lengthM: 79.27,
+    rotationY: (-25.49 * Math.PI) / 180,
+    sourceBuildingId: "DEBE01YYK0002QYw",
+    widthM: 76.46,
+  },
+  philharmonie: {
+    centerWorldM: [-139.863, 988.177] as const,
+    heightM: 35.665,
+    lengthM: 106.21,
+    rotationY: (-13.45 * Math.PI) / 180,
+    sourcePartCount: 7,
+    widthM: 84.48,
+  },
+  piazzetta: {
+    centerWorldM: [-331.0, 1091.5] as const,
+    geometryStatus:
+      "bounded presentation ramp between LoD2 museum envelopes; not surveyed paving",
+    lengthM: 82,
+    riseM: 5.4,
+    rotationY: (-17 * Math.PI) / 180,
+    widthM: 38,
+  },
+  staatsbibliothek: {
+    centerWorldM: [-86.883, 1304.211] as const,
+    heightM: 46.651,
+    lengthM: 279.65,
+    rotationY: (-13.81 * Math.PI) / 180,
+    sourcePartCount: 56,
+    widthM: 150.01,
+  },
+  geometryStatus:
+    "named Berlin LoD2 envelopes with source-described presentation details",
+  sources: [
+    "https://www.smb.museum/museen-einrichtungen/kulturforum/museumsgebaeude-sammlungen/ueberblick/",
+    "https://www.berliner-philharmoniker.de/en/about-us/philharmonie/architecture/",
+    "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte",
+  ] as const,
+} as const;
+
+/** Open-data anchors for the requested Potsdamer/Wilhelmstrasse details. */
+export const POTSDAMER_DETAIL_PROFILE = {
+  czechEmbassyWorldM: [854.635, 848.762] as const,
+  georgElserWorldM: [745.129, 750.639] as const,
+  hessenRepresentationWorldM: [455.937, 780.79] as const,
+  mallSouthFacadeOffsetM: -59.5,
+  northKoreanEmbassyWorldM: [946.346, 832.865] as const,
+  potsdamerStationWorldM: [291.008, 1091.994] as const,
+  spielbankWorldM: [10.472, 1250.269] as const,
+  taylorWessingWorldM: [368.684, 890.551] as const,
+  trafficTowerWorldM: [302.391, 1081.736] as const,
+  alterDessauerWorldM: [812.54, 838.495] as const,
+  geometryStatus:
+    "OSM/LoD2 anchored presentation details; underground station layout is schematic",
+} as const;
+
+/** OSM/official anchors for the northern corridor recognition layer. */
+export const NORTHERN_CITY_PROFILE = {
+  annaLindhHouse: {
+    centerWorldM: [-171.393, -992.811] as const,
+    floorCount: 7,
+    geometryStatus: "OSM construction footprint with published project storeys",
+    osmWayId: "1283287449",
+  },
+  bayerSchering: {
+    centerWorldM: [-270.888, -2570.283] as const,
+    geometryStatus: "OSM campus anchor with presentation facade register",
+    osmNodeId: "9848575363",
+  },
+  bundeswehrHelipad: {
+    centerWorldM: [-78.275, -1773.907] as const,
+    geometryStatus:
+      "OSM mobility-hub polygon; aircraft are presentation staffage",
+    osmWayId: "1469416747",
+  },
+  erikaHess: {
+    hallWorldM: [-60.301, -2075.04] as const,
+    outdoorRinkWorldM: [-106.705, -2028.517] as const,
+    osmHallWayId: "16183708",
+    osmRinkWayId: "32979869",
+  },
+  funbox: {
+    centerWorldM: [-102.823, -1189.993] as const,
+    geometryStatus: "temporary 2026 presentation object at geocoded address",
+    osmAddressNodeId: "7029312961",
+  },
+  invalidenfriedhof: {
+    boardWorldM: [80.888, -1466.868] as const,
+    geometryStatus:
+      "OSM board anchor with official cemetery and Wall interpretation",
+    osmNodeId: "3346038362",
+  },
+  pankeMouth: {
+    centerWorldM: [-281.0, -1954.0] as const,
+    geometryStatus:
+      "official mouth/fish-passage corridor; bounded visual approximation",
+  },
+  scharnhorstSubstation: {
+    centerWorldM: [-228.433, -2061.27] as const,
+    geometryStatus:
+      "OSM relation envelope with official monument facade description",
+    osmRelationId: "2728348",
+  },
+} as const;
+
+/**
  * Surveyed Kollhoff-Tower shell and source-backed facade register.
  *
  * Berlin LoD2 splits the one stepped tower into 16 building parts under the
@@ -138,7 +318,8 @@ export const AMANO_GRAND_CENTRAL_PROFILE = {
   facadeMaterial: "beige-grey changing clinker",
   footprintDepthM: 25.734,
   footprintLengthM: 42.394,
-  geometryStatus: "OSM footprint and LoD2 height with source-described facade overlay",
+  geometryStatus:
+    "OSM footprint and LoD2 height with source-described facade overlay",
   glazedGroundFloorHeightM: 3.6,
   groundY: 5.8,
   officialHeightM: 27.819,
@@ -163,7 +344,8 @@ export const MOABIT_PRISON_PARK_PROFILE = {
   centerWorldM: [-329.097233, -906.302474] as const,
   circularYardCount: 3,
   entranceCount: 3,
-  geometryStatus: "OSM park envelope with official interpretive-plan reconstruction",
+  geometryStatus:
+    "OSM park envelope with official interpretive-plan reconstruction",
   groundY: 5.9,
   preservedWallHeightM: 5,
   reconstructedCellCount: 1,

@@ -49,7 +49,9 @@ import {
 } from "lucide-react";
 import OpenSeadragon from "openseadragon";
 import {
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -70,6 +72,7 @@ import {
   shouldStopAudioOnToggleTap,
 } from "./audioAutostart";
 import { registerAudioLifecycle } from "./audioLifecycle";
+import { heldNavigationInput } from "./cameraNavigation";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import { isReservedBrowserChord } from "./keyboardShortcuts";
@@ -405,13 +408,15 @@ function viewUrlFor(
 const JOYSTICK_RADIUS_PX = 44;
 
 function FlightJoystick({
+  className = "",
   disabled,
   label,
   onInput,
 }: {
+  className?: string;
   disabled: boolean;
   label: string;
-  onInput: (strafe: number, forward: number, vertical: number) => void;
+  onInput: (horizontal: number, vertical: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
   const pointerIdRef = useRef<number | null>(null);
@@ -432,7 +437,7 @@ function FlightJoystick({
       const x = dx * scale;
       const y = dy * scale;
       setKnob({ x, y });
-      onInput(x / JOYSTICK_RADIUS_PX, -y / JOYSTICK_RADIUS_PX, 0);
+      onInput(x / JOYSTICK_RADIUS_PX, -y / JOYSTICK_RADIUS_PX);
     },
     [onInput],
   );
@@ -440,13 +445,13 @@ function FlightJoystick({
   const release = useCallback(() => {
     pointerIdRef.current = null;
     setKnob({ x: 0, y: 0 });
-    onInput(0, 0, 0);
+    onInput(0, 0);
   }, [onInput]);
 
   return (
     <div
       ref={baseRef}
-      className="flight-joystick"
+      className={`flight-joystick ${className}`.trim()}
       role="application"
       aria-label={label}
       data-disabled={disabled ? "true" : undefined}
@@ -486,6 +491,81 @@ function FlightJoystick({
   );
 }
 
+function HoldControlButton({
+  ariaLabel,
+  children,
+  disabled,
+  onActivate,
+  onHoldEnd,
+  onHoldStart,
+  title,
+}: {
+  ariaLabel: string;
+  children: ReactNode;
+  disabled: boolean;
+  onActivate: () => void;
+  onHoldEnd: () => void;
+  onHoldStart: () => void;
+  title: string;
+}) {
+  const pointerIdRef = useRef<number | null>(null);
+  const pointerStartedAtRef = useRef(0);
+  const onActivateRef = useRef(onActivate);
+  const onHoldEndRef = useRef(onHoldEnd);
+  const onHoldStartRef = useRef(onHoldStart);
+  onActivateRef.current = onActivate;
+  onHoldEndRef.current = onHoldEnd;
+  onHoldStartRef.current = onHoldStart;
+
+  const release = useCallback((pointerId?: number, activateTap = true) => {
+    if (
+      pointerIdRef.current === null ||
+      (pointerId !== undefined && pointerIdRef.current !== pointerId)
+    ) {
+      return;
+    }
+    const wasTap = performance.now() - pointerStartedAtRef.current < 90;
+    pointerIdRef.current = null;
+    onHoldEndRef.current();
+    if (activateTap && wasTap) {
+      onActivateRef.current();
+    }
+  }, []);
+
+  useEffect(() => () => release(undefined, false), [release]);
+
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      disabled={disabled}
+      title={title}
+      onPointerDown={(event) => {
+        if (disabled || event.button !== 0) {
+          return;
+        }
+        event.preventDefault();
+        pointerIdRef.current = event.pointerId;
+        pointerStartedAtRef.current = performance.now();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onHoldStartRef.current();
+      }}
+      onPointerUp={(event) => release(event.pointerId)}
+      onPointerCancel={(event) => release(event.pointerId)}
+      onLostPointerCapture={(event) => release(event.pointerId)}
+      onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
+        // Pointer activation is handled above so a held button never emits an
+        // extra step on release. Keyboard activation still gets one exact step.
+        if (event.detail === 0) {
+          onActivateRef.current();
+        }
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function App() {
   const appShellRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -508,10 +588,8 @@ export function App() {
   const closeRepositoryButtonRef = useRef<HTMLButtonElement | null>(null);
   const repositoryReturnFocusRef = useRef<HTMLElement | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
-  // Held-key state for continuous 3D flight (Space + arrows).
+  // Held-key state for continuous pan, flight and orbit.
   const heldFlightKeysRef = useRef(new Set<string>());
-  const spaceHeldRef = useRef(false);
-  const spaceUsedForFlightRef = useRef(false);
   const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
@@ -973,8 +1051,7 @@ export function App() {
     const unregisterAmbient = registerVisibleAutoplayRetry({
       documentTarget: document,
       isAudible: () => ambientSoundscapeRef.current?.audible ?? false,
-      isEnabled: () =>
-        !isMusicMutedByUser() && isAmbientAudioSupported(),
+      isEnabled: () => !isMusicMutedByUser() && isAmbientAudioSupported(),
       start: () => startMusic({ rememberMute: false, silent: true }),
       windowTarget: window,
     });
@@ -1205,6 +1282,20 @@ export function App() {
     },
     [],
   );
+
+  const setPanInput = useCallback((horizontal: number, vertical: number) => {
+    if (horizontal !== 0 || vertical !== 0) {
+      setIsTouring(false);
+    }
+    threeViewerRef.current?.setPanInput(horizontal, vertical);
+  }, []);
+
+  const setOrbitInput = useCallback((horizontal: number, vertical: number) => {
+    if (horizontal !== 0 || vertical !== 0) {
+      setIsTouring(false);
+    }
+    threeViewerRef.current?.setOrbitInput(horizontal, vertical);
+  }, []);
 
   const zoomBy = useCallback(
     (factor: number) => {
@@ -1632,31 +1723,28 @@ export function App() {
   }, [applyRotation, focusLandmark, landmarks]);
 
   useEffect(() => {
-    const FLIGHT_KEYS = [
+    const NAVIGATION_KEYS = [
       "ArrowUp",
       "ArrowDown",
       "ArrowLeft",
       "ArrowRight",
       "Shift",
+      "Alt",
     ];
-    const updateHeldFlight = () => {
-      const keys = heldFlightKeysRef.current;
-      const shift = keys.has("Shift");
-      const strafe =
-        (keys.has("ArrowRight") ? 1 : 0) - (keys.has("ArrowLeft") ? 1 : 0);
-      const forward =
-        (keys.has("ArrowUp") && !shift ? 1 : 0) -
-        (keys.has("ArrowDown") && !shift ? 1 : 0);
-      const vertical =
-        (keys.has("ArrowUp") && shift ? 1 : 0) -
-        (keys.has("ArrowDown") && shift ? 1 : 0);
-      setFlightInput(strafe, forward, vertical);
+    const updateHeldNavigation = () => {
+      const { flight, orbit, pan } = heldNavigationInput(
+        heldFlightKeysRef.current,
+      );
+      setPanInput(pan.horizontal, pan.vertical);
+      setFlightInput(flight.strafe, flight.forward, 0);
+      setOrbitInput(orbit.horizontal, orbit.vertical);
     };
-    const stopHeldFlight = () => {
-      if (spaceHeldRef.current || heldFlightKeysRef.current.size > 0) {
-        spaceHeldRef.current = false;
+    const stopHeldNavigation = () => {
+      if (heldFlightKeysRef.current.size > 0) {
         heldFlightKeysRef.current.clear();
         setFlightInput(0, 0, 0);
+        setPanInput(0, 0);
+        setOrbitInput(0, 0);
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1666,7 +1754,7 @@ export function App() {
         return;
       }
       if (event.key === "Escape") {
-        stopHeldFlight();
+        stopHeldNavigation();
         setIsPseudoFullscreen(false);
         closeReferenceMap();
         setIsHelpOpen(false);
@@ -1752,20 +1840,48 @@ export function App() {
       }
       if (
         viewerMode === "three" &&
-        spaceHeldRef.current &&
-        FLIGHT_KEYS.includes(event.key)
+        (event.key === "Shift" || event.key === "Alt") &&
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].some((key) =>
+          heldFlightKeysRef.current.has(key),
+        )
       ) {
         event.preventDefault();
         heldFlightKeysRef.current.add(event.key);
-        if (!spaceUsedForFlightRef.current) {
-          spaceUsedForFlightRef.current = true;
+        updateHeldNavigation();
+        return;
+      }
+      if (
+        viewerMode === "three" &&
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)
+      ) {
+        event.preventDefault();
+        if (event.shiftKey) {
+          heldFlightKeysRef.current.add("Shift");
+        } else {
+          heldFlightKeysRef.current.delete("Shift");
+        }
+        if (event.altKey) {
+          heldFlightKeysRef.current.add("Alt");
+        } else {
+          heldFlightKeysRef.current.delete("Alt");
+        }
+        heldFlightKeysRef.current.add(event.key);
+        if (!event.repeat) {
           setStatus(
-            language === "de"
-              ? "Flugmodus: Space halten + Pfeiltasten (Shift: Höhe)"
-              : "Flight mode: hold Space + arrow keys (Shift: altitude)",
+            event.altKey
+              ? language === "de"
+                ? "Stufenlos drehen und neigen"
+                : "Smooth orbit and tilt"
+              : event.shiftKey
+                ? language === "de"
+                  ? "Stufenlos entlang der Blickrichtung fliegen"
+                  : "Smooth flight along the view heading"
+                : language === "de"
+                  ? "Stufenlos in der Ansicht verschieben"
+                  : "Smooth screen-relative movement",
           );
         }
-        updateHeldFlight();
+        updateHeldNavigation();
         return;
       }
       if (event.key === "Home" || event.key === "0") {
@@ -1775,14 +1891,7 @@ export function App() {
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && event.altKey) {
-          rotateBy(8);
-          setStatus(language === "de" ? "Drehung: rechts" : "Orbit: right");
-        } else if (viewerMode === "three" && event.shiftKey) {
-          flyForwardBy(1, 0);
-        } else if (viewerMode === "three") {
-          flyBy(1, 0);
-        } else if (event.shiftKey) {
+        if (event.shiftKey) {
           rotateBy(8);
           setStatus(language === "de" ? "Drehung: rechts" : "Rotation: right");
         } else {
@@ -1792,14 +1901,7 @@ export function App() {
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && event.altKey) {
-          rotateBy(-8);
-          setStatus(language === "de" ? "Drehung: links" : "Orbit: left");
-        } else if (viewerMode === "three" && event.shiftKey) {
-          flyForwardBy(-1, 0);
-        } else if (viewerMode === "three") {
-          flyBy(-1, 0);
-        } else if (event.shiftKey) {
+        if (event.shiftKey) {
           rotateBy(-8);
           setStatus(language === "de" ? "Drehung: links" : "Rotation: left");
         } else {
@@ -1809,16 +1911,7 @@ export function App() {
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && event.altKey) {
-          tiltBy(-6);
-          setStatus(
-            language === "de" ? "3D-Neigung: höher" : "3D tilt: higher",
-          );
-        } else if (viewerMode === "three" && event.shiftKey) {
-          flyForwardBy(0, 1);
-        } else if (viewerMode === "three") {
-          flyBy(0, 1);
-        } else if (event.shiftKey) {
+        if (event.shiftKey) {
           zoomBy(1.16);
           setStatus(language === "de" ? "Zoom: näher" : "Zoom: closer");
         } else {
@@ -1828,16 +1921,7 @@ export function App() {
       } else if (event.key === "ArrowDown") {
         event.preventDefault();
         setIsTouring(false);
-        if (viewerMode === "three" && event.altKey) {
-          tiltBy(6);
-          setStatus(
-            language === "de" ? "3D-Neigung: tiefer" : "3D tilt: lower",
-          );
-        } else if (viewerMode === "three" && event.shiftKey) {
-          flyForwardBy(0, -1);
-        } else if (viewerMode === "three") {
-          flyBy(0, -1);
-        } else if (event.shiftKey) {
+        if (event.shiftKey) {
           zoomBy(0.86);
           setStatus(language === "de" ? "Zoom: weiter" : "Zoom: farther");
         } else {
@@ -1854,14 +1938,7 @@ export function App() {
         focusLandmarkByOffset(-1);
       } else if (event.key === " ") {
         event.preventDefault();
-        if (viewerMode === "three") {
-          // Held Space arms continuous flight; a plain tap still toggles
-          // the tour on key release (see handleKeyUp).
-          if (!spaceHeldRef.current && !event.repeat) {
-            spaceHeldRef.current = true;
-            spaceUsedForFlightRef.current = false;
-          }
-        } else {
+        if (!event.repeat) {
           toggleTour();
         }
       } else if (event.key.toLowerCase() === "l") {
@@ -1874,26 +1951,9 @@ export function App() {
       }
     };
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === " ") {
-        if (spaceHeldRef.current) {
-          const tapped = !spaceUsedForFlightRef.current;
-          stopHeldFlight();
-          if (
-            tapped &&
-            viewerMode === "three" &&
-            isReady &&
-            !isReferenceOpen &&
-            !isHelpOpen &&
-            !isRepositoryOpen
-          ) {
-            toggleTour();
-          }
-        }
-        return;
-      }
-      if (FLIGHT_KEYS.includes(event.key)) {
+      if (NAVIGATION_KEYS.includes(event.key)) {
         if (heldFlightKeysRef.current.delete(event.key)) {
-          updateHeldFlight();
+          updateHeldNavigation();
         }
       }
     };
@@ -1901,19 +1961,17 @@ export function App() {
     // canvas key handling, so arrows/+/- act exactly once.
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
-    window.addEventListener("blur", stopHeldFlight);
+    window.addEventListener("blur", stopHeldNavigation);
     return () => {
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp, true);
-      window.removeEventListener("blur", stopHeldFlight);
-      stopHeldFlight();
+      window.removeEventListener("blur", stopHeldNavigation);
+      stopHeldNavigation();
     };
   }, [
     closeReferenceMap,
     copy.home,
     copyViewLink,
-    flyBy,
-    flyForwardBy,
     focusLandmarkByOffset,
     goHome,
     isHelpOpen,
@@ -1925,8 +1983,9 @@ export function App() {
     resetToDefaultView,
     rotateBy,
     setFlightInput,
+    setOrbitInput,
+    setPanInput,
     startTunnelFlight,
-    tiltBy,
     toggleTour,
     toggleLightingMode,
     toggleMinecraftMode,
@@ -2711,7 +2770,22 @@ export function App() {
                 ? "Flug-Joystick: Daumen ziehen zum Fliegen"
                 : "Flight joystick: drag with your thumb to fly"
             }
-            onInput={setFlightInput}
+            onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
+          />
+        </div>
+      ) : null}
+
+      {viewerMode === "three" && !isChromeHidden ? (
+        <div className="orbit-joystick-wrap">
+          <FlightJoystick
+            className="orbit-joystick"
+            disabled={!isReady}
+            label={
+              language === "de"
+                ? "Orbit-Joystick: mit der Maus ziehen zum Drehen und Neigen"
+                : "Orbit joystick: drag with the mouse to orbit and tilt"
+            }
+            onInput={setOrbitInput}
           />
         </div>
       ) : null}
@@ -2758,42 +2832,46 @@ export function App() {
             role="group"
             aria-label={copy.flight}
           >
-            <button
-              type="button"
-              aria-label={copy.flyForward}
+            <HoldControlButton
+              ariaLabel={copy.flyForward}
               disabled={!isReady}
               title={`${copy.flyForward} (Shift + ↑)`}
-              onClick={() => flyForwardBy(0, 1)}
+              onActivate={() => flyForwardBy(0, 1)}
+              onHoldStart={() => setFlightInput(0, 1, 0)}
+              onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
               <ArrowUp size={17} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label={copy.flyLeft}
+            </HoldControlButton>
+            <HoldControlButton
+              ariaLabel={copy.flyLeft}
               disabled={!isReady}
               title={`${copy.flyLeft} (Shift + ←)`}
-              onClick={() => flyForwardBy(-1, 0)}
+              onActivate={() => flyForwardBy(-1, 0)}
+              onHoldStart={() => setFlightInput(-1, 0, 0)}
+              onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
               <ArrowLeft size={17} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label={copy.flyBack}
+            </HoldControlButton>
+            <HoldControlButton
+              ariaLabel={copy.flyBack}
               disabled={!isReady}
               title={`${copy.flyBack} (Shift + ↓)`}
-              onClick={() => flyForwardBy(0, -1)}
+              onActivate={() => flyForwardBy(0, -1)}
+              onHoldStart={() => setFlightInput(0, -1, 0)}
+              onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
               <ArrowDown size={17} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label={copy.flyRight}
+            </HoldControlButton>
+            <HoldControlButton
+              ariaLabel={copy.flyRight}
               disabled={!isReady}
               title={`${copy.flyRight} (Shift + →)`}
-              onClick={() => flyForwardBy(1, 0)}
+              onActivate={() => flyForwardBy(1, 0)}
+              onHoldStart={() => setFlightInput(1, 0, 0)}
+              onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
               <ArrowRight size={17} aria-hidden="true" />
-            </button>
+            </HoldControlButton>
           </div>
         ) : null}
         {viewerMode === "three" ? (
@@ -2829,44 +2907,48 @@ export function App() {
         >
           {viewerMode === "three" ? (
             <>
-              <button
-                type="button"
-                aria-label={copy.tiltUp}
+              <HoldControlButton
+                ariaLabel={copy.tiltUp}
                 disabled={!isReady}
                 title={`${copy.tiltUp} (Alt/Option + ↑)`}
-                onClick={() => tiltBy(-10)}
+                onActivate={() => tiltBy(-10)}
+                onHoldStart={() => setOrbitInput(0, 1)}
+                onHoldEnd={() => setOrbitInput(0, 0)}
               >
                 <ArrowUp size={17} aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                aria-label={copy.tiltDown}
+              </HoldControlButton>
+              <HoldControlButton
+                ariaLabel={copy.tiltDown}
                 disabled={!isReady}
                 title={`${copy.tiltDown} (Alt/Option + ↓)`}
-                onClick={() => tiltBy(10)}
+                onActivate={() => tiltBy(10)}
+                onHoldStart={() => setOrbitInput(0, -1)}
+                onHoldEnd={() => setOrbitInput(0, 0)}
               >
                 <ArrowDown size={17} aria-hidden="true" />
-              </button>
+              </HoldControlButton>
             </>
           ) : null}
-          <button
-            type="button"
-            aria-label={copy.rotateLeft}
+          <HoldControlButton
+            ariaLabel={copy.rotateLeft}
             disabled={!isReady}
-            title={copy.rotateLeft}
-            onClick={() => rotateBy(-90)}
+            title={`${copy.rotateLeft} (Alt/Option + ←)`}
+            onActivate={() => rotateBy(-15)}
+            onHoldStart={() => setOrbitInput(-1, 0)}
+            onHoldEnd={() => setOrbitInput(0, 0)}
           >
             <RotateCcw size={17} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            aria-label={copy.rotateRight}
+          </HoldControlButton>
+          <HoldControlButton
+            ariaLabel={copy.rotateRight}
             disabled={!isReady}
-            title={copy.rotateRight}
-            onClick={() => rotateBy(90)}
+            title={`${copy.rotateRight} (Alt/Option + →)`}
+            onActivate={() => rotateBy(15)}
+            onHoldStart={() => setOrbitInput(1, 0)}
+            onHoldEnd={() => setOrbitInput(0, 0)}
           >
             <RotateCw size={17} aria-hidden="true" />
-          </button>
+          </HoldControlButton>
           <button
             type="button"
             aria-label={
@@ -3603,8 +3685,8 @@ export function App() {
                 <dd>
                   {viewerMode === "three"
                     ? language === "de"
-                      ? "Bildschirmbezogen durch die 3D-Isometrie verschieben"
-                      : "Move through the 3D isometry in screen directions"
+                      ? "Gedrückt halten: gleichmäßig bildschirmbezogen durch die 3D-Isometrie verschieben"
+                      : "Hold: move smoothly through the 3D isometry in screen directions"
                     : language === "de"
                       ? "Karte in Meterlage verschieben"
                       : "Move the map in metric space"}
@@ -3618,8 +3700,8 @@ export function App() {
                 <dd>
                   {viewerMode === "three"
                     ? language === "de"
-                      ? "Entlang der Blickrichtung vorwärts / rückwärts fliegen und seitwärts versetzen"
-                      : "Fly forward / backward along the view heading and strafe sideways"
+                      ? "Gedrückt halten: entlang der Blickrichtung vorwärts / rückwärts fliegen und seitwärts versetzen"
+                      : "Hold: fly forward / backward along the view heading and strafe sideways"
                     : language === "de"
                       ? "Ansicht drehen oder zoomen"
                       : "Rotate or zoom the view"}
@@ -3662,14 +3744,11 @@ export function App() {
               </div>
               {viewerMode === "three" ? (
                 <div>
-                  <dt>
-                    <kbd>Leertaste</kbd> halten + <kbd>←</kbd> <kbd>→</kbd>
-                    <kbd>↑</kbd> <kbd>↓</kbd>
-                  </dt>
+                  <dt>{language === "de" ? "Steuerkreise" : "Control pads"}</dt>
                   <dd>
                     {language === "de"
-                      ? "Flugmodus: gleichmäßig fliegen (mit Shift: Höhe ändern); auf dem Handy übernimmt der Daumen-Joystick unten links"
-                      : "Flight mode: fly smoothly (with Shift: change altitude); on phones the bottom-left thumb joystick does the same"}
+                      ? "Mit der Maus am Orbit-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Flug-Joystick unten links"
+                      : "Drag the desktop orbit pad or hold the arrow buttons; on touch devices use the bottom-left flight joystick"}
                   </dd>
                 </div>
               ) : null}

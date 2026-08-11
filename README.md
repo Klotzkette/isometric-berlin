@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.31 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.31/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.32 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.32/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.31** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.32** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,24 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.31**, built from `main`. Its full viewer
+The current public package is **v0.70.32**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Desktop navigation is continuous rather than stepwise.** Held arrows pan,
+  `Shift`+arrows fly and `Alt`/`Option`+arrows orbit/tilt; the matching mouse
+  buttons keep moving while held. A collision-free analogue orbit pad sits
+  beside the desktop controls, while the existing compact touch controls stay
+  unchanged on phones and tablets.
+
+- **Kulturforum and Potsdamer Platz use stronger source-aligned recognition.**
+  Gemäldegalerie, Kunstbibliothek/Kupferstichkabinett,
+  Kunstgewerbemuseum/Piazzetta, Philharmonie, Kammermusiksaal and the
+  Staatsbibliothek retain named LoD2 envelopes, receive source-described
+  facade/roof cues and open with building-centred camera presets. The Mall
+  passages now sit on the LoD2 south facade; the below-grade Potsdamer Platz
+  platforms and distribution passage remain explicitly schematic.
 
 - **Charité Campus Mitte now carries its published renovated facade rhythm.**
   The exact 16-part Berlin LoD2 tower envelope remains the metric anchor; its
@@ -412,8 +426,10 @@ local modules.
   Plain arrows
   translate in the visible screen plane,
   `Shift` + arrows fly forward/backward or strafe, and `Alt`/`Option` + arrows
-  orbit and tilt. Camera and target move together, so flight never changes the
-  orbit distance accidentally.
+  orbit and tilt. All three chords are continuous while held; the desktop
+  arrow buttons behave the same way, and a separate mouse orbit pad provides
+  analogue rotation and tilt. Camera and target move together, so flight never
+  changes the orbit distance accidentally.
 - Fullscreen works through the native browser API on desktop and a safe-area-
   aware pseudo-fullscreen fallback on iOS. Guided northbound and southbound
   tunnel flights follow the approximate route inside the correct traffic tube,

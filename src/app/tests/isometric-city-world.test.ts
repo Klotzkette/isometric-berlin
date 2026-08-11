@@ -931,6 +931,23 @@ describe("procedural pitched roofs from ALKIS codes", () => {
 });
 
 describe("real-colour facade tones", () => {
+  test("pins Scharoun's measured Kulturforum envelopes to gold", async () => {
+    const { isScharounGoldPrism, SCHAROUN_ROOF_SEAM_IDS } =
+      await import("../src/IsometricCityWorld");
+    const at = (x: number, z: number) => ({
+      ring: [
+        [(x - 1) * 10, (z - 1) * 10],
+        [(x + 1) * 10, (z - 1) * 10],
+        [x * 10, (z + 2) * 10],
+      ] as [number, number][],
+    });
+    expect(isScharounGoldPrism(at(-139.9, 988.2))).toBe(true);
+    expect(isScharounGoldPrism(at(-190, 1056.8))).toBe(true);
+    expect(isScharounGoldPrism(at(-86.9, 1304.2))).toBe(true);
+    expect(isScharounGoldPrism(at(300, 1100))).toBe(false);
+    expect([...SCHAROUN_ROOF_SEAM_IDS]).toEqual(["XzEkeXsu", "aJ0e8oAr"]);
+  });
+
   test("cleanedTone keeps grey grey and clamps lightness to paint bands", async () => {
     const { cleanedTone, HERO_PRISM_TONES } =
       await import("../src/IsometricCityWorld");

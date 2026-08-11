@@ -7,9 +7,11 @@ import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
+  KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
   RIECKHALLEN_PROFILE,
+  POTSDAMER_DETAIL_PROFILE,
 } from "../src/ExpandedCityDetails";
 
 const landmarks = [
@@ -17,16 +19,19 @@ const landmarks = [
   "Rieckhallen",
   "Sozialgericht Berlin",
   "Berliner Philharmonie",
+  "Gemäldegalerie",
   "Kammermusiksaal",
   "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
   "berlin modern — Museum des 20. Jahrhunderts",
   "Neue Nationalgalerie",
+  "St. Matthäus-Kirche",
   "Der Bogenschütze (Henry Moore)",
   "Tilla-Durieux-Park",
   "Anhalter Bahnhof",
   "Charlottenburger Tor",
   "WELT Balloon",
   "Kollhoff-Tower",
+  "Mall of Berlin",
   "Spanische Botschaft",
   "Café am Neuen See",
   "KPMG Europacity",
@@ -38,6 +43,47 @@ const landmarks = [
 }));
 
 describe("task-10 expanded city recognition details", () => {
+  test("anchors the Kulturforum buildings independently from entrance POIs", () => {
+    const details = createExpandedCityDetails(landmarks);
+    expect(details.userData.kulturforum).toEqual(KULTURFORUM_PROFILE);
+    expect(KULTURFORUM_PROFILE.gemaldegalerie.centerWorldM).toEqual([
+      -473.956, 1138.208,
+    ]);
+    expect(KULTURFORUM_PROFILE.gemaldegalerie.sourceBuildingIds).toEqual([
+      "DEBE01YYK0002V5W",
+      "DEBE01YYK0002Sq5",
+    ]);
+    expect(KULTURFORUM_PROFILE.philharmonie.heightM).toBeCloseTo(35.665, 3);
+    expect(KULTURFORUM_PROFILE.staatsbibliothek.sourcePartCount).toBe(56);
+    expect(KULTURFORUM_PROFILE.piazzetta.geometryStatus).toContain(
+      "not surveyed paving",
+    );
+    expect(KULTURFORUM_PROFILE.sources).toHaveLength(3);
+  });
+
+  test("documents the source boundary of Potsdamer details", () => {
+    const details = createExpandedCityDetails(landmarks);
+    expect(details.userData.potsdamerDetails).toEqual(POTSDAMER_DETAIL_PROFILE);
+    expect(POTSDAMER_DETAIL_PROFILE.geometryStatus).toContain("schematic");
+    expect(POTSDAMER_DETAIL_PROFILE.mallSouthFacadeOffsetM).toBeCloseTo(
+      -59.5,
+      3,
+    );
+    expect(
+      details.getObjectByName("Spielbank Berlin facade lettering"),
+    ).toBeDefined();
+    expect(
+      details.getObjectByName("Taylor Wessing facade lettering"),
+    ).toBeDefined();
+    const mall = landmarks.find(
+      (landmark) => landmark.name === "Mall of Berlin",
+    );
+    expect(expandedCityFocusCamera(mall!)).toMatchObject({
+      azimuth_degrees: 180,
+      target_world: [mall!.world[0], mall!.world[1], mall!.world[2] - 48],
+    });
+  });
+
   test("merges the architecture into one outlined flat-paint draw layer", () => {
     const details = createExpandedCityDetails(landmarks);
     const bodies = details.getObjectByName(
@@ -59,12 +105,16 @@ describe("task-10 expanded city recognition details", () => {
     expect(details.getObjectByName("KPMG rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("DKB rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("WELT rooftop lettering")).toBeDefined();
-    expect(details.getObjectByName("AMANO Grand Central facade lettering")).toBeDefined();
+    expect(
+      details.getObjectByName("AMANO Grand Central facade lettering"),
+    ).toBeDefined();
   });
 
   test("anchors AMANO facade detail to OSM and the official LoD2 height", () => {
     const details = createExpandedCityDetails(landmarks);
-    expect(details.userData.amanoGrandCentral).toEqual(AMANO_GRAND_CENTRAL_PROFILE);
+    expect(details.userData.amanoGrandCentral).toEqual(
+      AMANO_GRAND_CENTRAL_PROFILE,
+    );
     expect(AMANO_GRAND_CENTRAL_PROFILE.osmWayId).toBe("237687062");
     expect(AMANO_GRAND_CENTRAL_PROFILE.sourceBuildingPartId).toBe(
       "DEBE3DLXM9FjJbtp",
@@ -76,7 +126,9 @@ describe("task-10 expanded city recognition details", () => {
 
   test("reconstructs the documented Moabit prison-park reading", () => {
     const details = createExpandedCityDetails(landmarks);
-    expect(details.userData.moabitPrisonPark).toEqual(MOABIT_PRISON_PARK_PROFILE);
+    expect(details.userData.moabitPrisonPark).toEqual(
+      MOABIT_PRISON_PARK_PROFILE,
+    );
     expect(MOABIT_PRISON_PARK_PROFILE.sourceParkWayId).toBe("498278335");
     expect(MOABIT_PRISON_PARK_PROFILE.wallSideCount).toBe(3);
     expect(MOABIT_PRISON_PARK_PROFILE.entranceCount).toBe(3);
@@ -143,9 +195,7 @@ describe("task-10 expanded city recognition details", () => {
         "Expanded architecture and public-realm details bodies",
       ),
     ).toBeUndefined();
-    expect(KOLLHOFF_TOWER_PROFILE.parentBuildingId).toBe(
-      "DEBE01YYK0002KM6",
-    );
+    expect(KOLLHOFF_TOWER_PROFILE.parentBuildingId).toBe("DEBE01YYK0002KM6");
     expect(KOLLHOFF_TOWER_PROFILE.officialHeightM).toBe(103);
     expect(KOLLHOFF_TOWER_PROFILE.storeyCount).toBe(25);
   });

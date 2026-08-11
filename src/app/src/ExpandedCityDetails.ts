@@ -23,9 +23,14 @@ import {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
+  KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
+  NEUE_NATIONALGALERIE_PROFILE,
+  NORTHERN_CITY_PROFILE,
+  POTSDAMER_DETAIL_PROFILE,
   RIECKHALLEN_PROFILE,
+  ST_MATTHAEUS_PROFILE,
 } from "./expandedCityProfiles";
 import {
   type Builder,
@@ -46,9 +51,14 @@ export {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
+  KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
+  NEUE_NATIONALGALERIE_PROFILE,
+  NORTHERN_CITY_PROFILE,
+  POTSDAMER_DETAIL_PROFILE,
   RIECKHALLEN_PROFILE,
+  ST_MATTHAEUS_PROFILE,
 } from "./expandedCityProfiles";
 
 const EXPANDED_FOCUS_PRESETS: Record<
@@ -67,6 +77,12 @@ const EXPANDED_FOCUS_PRESETS: Record<
     polar_degrees: 60,
     target_height_m: 10,
   },
+  "Berliner Philharmonie": {
+    azimuth_degrees: 24,
+    distance_m: 190,
+    polar_degrees: 57,
+    target_height_m: 16,
+  },
   "DKB Campus Upbeat": {
     azimuth_degrees: 18,
     distance_m: 232,
@@ -79,17 +95,35 @@ const EXPANDED_FOCUS_PRESETS: Record<
     polar_degrees: 58,
     target_height_m: 11,
   },
+  Gemäldegalerie: {
+    azimuth_degrees: 26,
+    distance_m: 232,
+    polar_degrees: 58,
+    target_height_m: 11,
+  },
   "KPMG Europacity": {
     azimuth_degrees: 12,
     distance_m: 122,
     polar_degrees: 62,
     target_height_m: 18,
   },
+  Kammermusiksaal: {
+    azimuth_degrees: 32,
+    distance_m: 164,
+    polar_degrees: 56,
+    target_height_m: 13,
+  },
   "Kollhoff-Tower": {
     azimuth_degrees: 18,
     distance_m: 176,
     polar_degrees: 61,
     target_height_m: 48,
+  },
+  "Mall of Berlin": {
+    azimuth_degrees: 180,
+    distance_m: 176,
+    polar_degrees: 61,
+    target_height_m: 8,
   },
   Rieckhallen: {
     azimuth_degrees: 72,
@@ -102,6 +136,12 @@ const EXPANDED_FOCUS_PRESETS: Record<
     distance_m: 118,
     polar_degrees: 58,
     target_height_m: 9,
+  },
+  "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)": {
+    azimuth_degrees: 24,
+    distance_m: 310,
+    polar_degrees: 59,
+    target_height_m: 20,
   },
   "Tilla-Durieux-Park": {
     azimuth_degrees: 28,
@@ -128,16 +168,27 @@ export function expandedCityFocusCamera(
 ): FocusCamera | null {
   const preset = EXPANDED_FOCUS_PRESETS[landmark.name];
   if (!preset) return null;
-  const target_world: [number, number, number] =
-    landmark.name === "Hamburger Bahnhof"
-      ? [
-          landmark.world[0] +
-            HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[0],
-          landmark.world[1],
-          landmark.world[2] +
-            HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[1],
-        ]
-      : landmark.world;
+  const metricTargetByName: Record<string, readonly [number, number]> = {
+    "Berliner Philharmonie": KULTURFORUM_PROFILE.philharmonie.centerWorldM,
+    Gemäldegalerie: KULTURFORUM_PROFILE.gemaldegalerie.centerWorldM,
+    Kammermusiksaal: KULTURFORUM_PROFILE.kammermusiksaal.centerWorldM,
+    "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)":
+      KULTURFORUM_PROFILE.staatsbibliothek.centerWorldM,
+  };
+  const metricTarget = metricTargetByName[landmark.name];
+  const target_world: [number, number, number] = metricTarget
+    ? [metricTarget[0], landmark.world[1], metricTarget[1]]
+    : landmark.name === "Mall of Berlin"
+      ? [landmark.world[0], landmark.world[1], landmark.world[2] - 48]
+      : landmark.name === "Hamburger Bahnhof"
+        ? [
+            landmark.world[0] +
+              HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[0],
+            landmark.world[1],
+            landmark.world[2] +
+              HAMBURGER_BAHNHOF_PROFILE.facadeOffsetFromLandmarkM[1],
+          ]
+        : landmark.world;
   return { ...preset, target_world };
 }
 
@@ -160,6 +211,9 @@ const HAMBURGER_MULLION = 0x94775f;
 const BERLIN_MODERN_MASONRY = 0xd9d0bc;
 const BERLIN_MODERN_MASONRY_LIGHT = 0xeee8dc;
 const BERLIN_MODERN_GLASS = 0x78979a;
+const KULTURFORUM_STONE = 0xe7dfd1;
+const KULTURFORUM_STONE_LIGHT = 0xf1ece2;
+const KULTURFORUM_SHADOW = 0xa89b86;
 const BERLIN_MODERN_ROOF = 0x354346;
 const BERLIN_MODERN_PV_SEAM = 0x6d8587;
 const AMANO_CLINKER = 0xd2cabd;
@@ -1419,103 +1473,802 @@ function addBerlinModern(
   );
 }
 
-function addKulturforum(
+function addStMatthaeusChurch(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
 ): void {
-  const phil = anchor(byName, "Berliner Philharmonie");
-  if (phil) {
-    for (const [dx, dz, width, depth, rise] of [
-      [-28, -5, 49, 44, 13],
-      [17, 8, 54, 51, 17],
-      [4, -28, 42, 34, 11],
-    ] as const) {
-      addGabledRoof(
+  const point = anchor(byName, "St. Matthäus-Kirche");
+  if (!point) return;
+  const profile = ST_MATTHAEUS_PROFILE;
+  const rotation = profile.rotationY;
+  const ground = point.y;
+
+  // The LoD2 main part fixes the metric envelope. The official monument
+  // record supplies the recognisable three-nave, striped Rundbogen facade.
+  addLocalBox(
+    builder,
+    0xd9a77e,
+    point,
+    0,
+    ground + 5.7,
+    0,
+    profile.footprintWidthM,
+    11.4,
+    profile.footprintLengthM,
+    rotation,
+  );
+  for (const height of [1.2, 4.0, 6.9, 9.8]) {
+    addLocalBox(
+      builder,
+      DARK_BRICK,
+      point,
+      0,
+      ground + height,
+      0,
+      profile.footprintWidthM + 0.28,
+      0.36,
+      profile.footprintLengthM + 0.28,
+      rotation,
+      false,
+    );
+  }
+  for (const localZ of [-12.5, -7.5, -2.5, 2.5, 7.5, 12.5]) {
+    for (const side of [-1, 1]) {
+      const [offsetX, offsetZ] = rotatedLocalOffset(
+        side * (profile.footprintWidthM / 2 + 0.12),
+        localZ,
+        rotation,
+      );
+      const faceRotation = rotation + side * (Math.PI / 2);
+      addArchedPanel(
         builder,
-        GOLD,
-        phil.x + dx,
-        phil.y + 24,
-        phil.z + dz,
-        width,
-        depth,
-        rise,
-        -0.24,
+        0x547078,
+        SANDSTONE,
+        point.x + offsetX,
+        ground + 1.7,
+        point.z + offsetZ,
+        1.45,
+        3.35,
+        faceRotation,
+        true,
+      );
+      addArchedPanel(
+        builder,
+        0x66818a,
+        SANDSTONE,
+        point.x + offsetX,
+        ground + 6.05,
+        point.z + offsetZ,
+        1.45,
+        3.65,
+        faceRotation,
+        true,
       );
     }
   }
-  const chamber = anchor(byName, "Kammermusiksaal");
-  if (chamber) {
+  for (const localX of [-7, 0, 7]) {
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, 0, rotation);
     addGabledRoof(
       builder,
-      0xcaa34c,
-      chamber.x,
-      chamber.y + 18,
-      chamber.z,
-      68,
-      58,
-      16,
-      0.22,
-    );
-    addBox(
-      builder,
-      0x8d6e38,
-      chamber.x,
-      chamber.y + 12,
-      chamber.z + 30,
-      52,
-      2,
-      1.2,
-      0.22,
+      0x876557,
+      point.x + offsetX,
+      ground + 11.35,
+      point.z + offsetZ,
+      6.55,
+      profile.footprintLengthM + 0.8,
+      5.15,
+      rotation,
     );
   }
-  const library = anchor(
-    byName,
-    "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)",
+
+  // South-facing main and side apses. Full shallow drums overlap the nave;
+  // only their source-backed semicircular outer halves remain visible.
+  for (const [localX, radius, height] of [
+    [0, 4.15, 10.2],
+    [-7, 3.05, 7.8],
+    [7, 3.05, 7.8],
+  ] as const) {
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, 16.0, rotation);
+    addCylinder(
+      builder,
+      0xd9a77e,
+      point.x + offsetX,
+      ground + height / 2,
+      point.z + offsetZ,
+      radius,
+      height,
+      24,
+    );
+  }
+
+  // The tower is a separate 41.65 m LoD2 part at the north end. Its arcade,
+  // corner turrets, octagonal stage and copper spire follow the monument text.
+  const [towerX, towerZ] = rotatedLocalOffset(0, -11.7, rotation);
+  const tower = new Vector3(point.x + towerX, ground, point.z + towerZ);
+  addLocalBox(
+    builder,
+    0xd3a078,
+    tower,
+    0,
+    ground + 13.0,
+    0,
+    7.6,
+    26,
+    7.6,
+    rotation,
   );
-  if (library) {
-    for (let index = -3; index <= 3; index += 1) {
-      addBox(
+  for (const height of [5.2, 12.0, 18.8, 25.2]) {
+    addLocalBox(
+      builder,
+      DARK_BRICK,
+      tower,
+      0,
+      ground + height,
+      0,
+      8.05,
+      0.42,
+      8.05,
+      rotation,
+      false,
+    );
+  }
+  addLocalBox(
+    builder,
+    SANDSTONE,
+    tower,
+    0,
+    ground + 27.6,
+    0,
+    9.1,
+    3.8,
+    9.1,
+    rotation,
+  );
+  for (const side of [-1, 1]) {
+    for (const localX of [-2.2, 0, 2.2]) {
+      const [offsetX, offsetZ] = rotatedLocalOffset(
+        localX,
+        side * 4.61,
+        rotation,
+      );
+      addArchedPanel(
         builder,
-        0xcca849,
-        library.x + index * 22,
-        library.y + 19,
-        library.z - 28,
-        18,
-        4,
-        3,
-        -0.07,
+        0x36454a,
+        SANDSTONE,
+        tower.x + offsetX,
+        ground + 26.25,
+        tower.z + offsetZ,
+        1.15,
+        2.45,
+        rotation + (side < 0 ? Math.PI : 0),
       );
     }
   }
-  addBerlinModern(builder, byName);
-  const national = anchor(byName, "Neue Nationalgalerie");
-  if (national) {
-    addBox(
+  addCylinder(
+    builder,
+    SANDSTONE,
+    tower.x,
+    ground + 31.2,
+    tower.z,
+    4.25,
+    3.4,
+    8,
+  );
+  for (const [localX, localZ] of [
+    [-3.7, -3.7],
+    [-3.7, 3.7],
+    [3.7, -3.7],
+    [3.7, 3.7],
+  ] as const) {
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotation);
+    addCone(
       builder,
-      0x252b2c,
-      national.x,
-      national.y + 9.1,
-      national.z,
-      66,
-      1.4,
-      66,
-      0,
+      0x789788,
+      tower.x + offsetX,
+      ground + 32.7,
+      tower.z + offsetZ,
+      0.75,
+      3.2,
+      8,
     );
-    for (const x of [-29, 29]) {
-      for (const z of [-29, 29]) {
-        addBox(
+  }
+  addCone(builder, 0x789788, tower.x, ground + 36.8, tower.z, 4.35, 10.1, 8);
+}
+
+function addNeueNationalgalerie(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  const point = anchor(byName, "Neue Nationalgalerie");
+  if (!point) return;
+  const profile = NEUE_NATIONALGALERIE_PROFILE;
+  const rotation = profile.rotationY;
+  const ground = point.y;
+  const glassHalf = profile.glassWidthM / 2;
+
+  // Granite podium and strict square terrace, aligned to the LoD2 footprint.
+  addLocalBox(
+    builder,
+    0xb8b4aa,
+    point,
+    0,
+    ground + 0.35,
+    0,
+    91,
+    0.7,
+    91,
+    rotation,
+  );
+  addLocalBox(
+    builder,
+    0x85888a,
+    point,
+    0,
+    ground + 0.82,
+    0,
+    65.6,
+    0.26,
+    65.6,
+    rotation,
+    false,
+  );
+  addLocalBox(
+    builder,
+    0x303638,
+    point,
+    0,
+    ground + 1.05,
+    0,
+    profile.glassWidthM,
+    0.34,
+    profile.glassWidthM,
+    rotation,
+    false,
+  );
+
+  // Recessed 50.4 m glass box: four thin facades rather than an opaque cube.
+  for (const side of [-1, 1]) {
+    addLocalLampBox(
+      builder,
+      0x86b9c3,
+      point,
+      0,
+      ground + 4.7,
+      side * glassHalf,
+      profile.glassWidthM,
+      7.1,
+      0.18,
+      rotation,
+    );
+    addLocalLampBox(
+      builder,
+      0x86b9c3,
+      point,
+      side * glassHalf,
+      ground + 4.7,
+      0,
+      0.18,
+      7.1,
+      profile.glassWidthM,
+      rotation,
+    );
+  }
+  for (let offset = -glassHalf; offset <= glassHalf; offset += 3.6) {
+    for (const side of [-1, 1]) {
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        point,
+        offset,
+        ground + 4.7,
+        side * (glassHalf + 0.12),
+        0.13,
+        7.1,
+        0.22,
+        rotation,
+        false,
+      );
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        point,
+        side * (glassHalf + 0.12),
+        ground + 4.7,
+        offset,
+        0.22,
+        7.1,
+        0.13,
+        rotation,
+        false,
+      );
+    }
+  }
+
+  // Eight cruciform steel columns: two centred along each roof side.
+  for (const along of [-14.4, 14.4]) {
+    for (const side of [-1, 1]) {
+      for (const [localX, localZ] of [
+        [along, side * 28.8],
+        [side * 28.8, along],
+      ] as const) {
+        addLocalBox(
           builder,
           DARK_FRAME,
-          national.x + x,
-          national.y + 5,
-          national.z + z,
-          0.8,
-          8,
-          0.8,
+          point,
+          localX,
+          ground + 4.7,
+          localZ,
+          0.62,
+          7.2,
+          1.45,
+          rotation,
+        );
+        addLocalBox(
+          builder,
+          DARK_FRAME,
+          point,
+          localX,
+          ground + 4.7,
+          localZ,
+          1.45,
+          7.2,
+          0.62,
+          rotation,
+          false,
         );
       }
     }
   }
+
+  // Floating 64.8 m plate and its visible 3.6 m structural/coffer grid.
+  addLocalBox(
+    builder,
+    0x252b2c,
+    point,
+    0,
+    ground + 8.75,
+    0,
+    profile.roofWidthM,
+    1.8,
+    profile.roofWidthM,
+    rotation,
+  );
+  for (let offset = -28.8; offset <= 28.8; offset += profile.roofGridM) {
+    addLocalBox(
+      builder,
+      0x171b1c,
+      point,
+      offset,
+      ground + 7.81,
+      0,
+      0.2,
+      0.22,
+      63.6,
+      rotation,
+      false,
+    );
+    addLocalBox(
+      builder,
+      0x171b1c,
+      point,
+      0,
+      ground + 7.81,
+      offset,
+      63.6,
+      0.22,
+      0.2,
+      rotation,
+      false,
+    );
+  }
+
+  // Broad entrance steps sit in the same site grid; no rotated substitute roof.
+  for (let step = 0; step < 6; step += 1) {
+    addLocalBox(
+      builder,
+      0xb8b4aa,
+      point,
+      0,
+      ground + 0.12 + step * 0.11,
+      45.5 - step * 1.15,
+      30,
+      0.22,
+      2.4,
+      rotation,
+      false,
+    );
+  }
+}
+
+function fixedWorldPoint(world: readonly [number, number]): Vector3 {
+  return new Vector3(world[0], 8, world[1]);
+}
+
+function addKulturforumMuseums(builder: Builder): void {
+  const galleryProfile = KULTURFORUM_PROFILE.gemaldegalerie;
+  const gallery = fixedWorldPoint(galleryProfile.centerWorldM);
+  const galleryRotation = galleryProfile.rotationY;
+  // The gallery's two long courtyard wings and connecting heads follow the
+  // full named LoD2 envelope rather than the entrance POI used by navigation.
+  for (const localZ of [-31, 31]) {
+    addLocalBox(
+      builder,
+      KULTURFORUM_STONE,
+      gallery,
+      0,
+      gallery.y + 9.2,
+      localZ,
+      129,
+      18.4,
+      27,
+      galleryRotation,
+    );
+    addLocalBox(
+      builder,
+      KULTURFORUM_STONE_LIGHT,
+      gallery,
+      0,
+      gallery.y + 18.7,
+      localZ,
+      131,
+      0.8,
+      29,
+      galleryRotation,
+    );
+  }
+  for (const localX of [-55, 55]) {
+    addLocalBox(
+      builder,
+      0xddd3c1,
+      gallery,
+      localX,
+      gallery.y + 8.7,
+      0,
+      21,
+      17.4,
+      42,
+      galleryRotation,
+    );
+  }
+  // Shallow roof lights and pale stone expansion joints preserve the calm,
+  // low museum profile while making the two long roof bars legible up close.
+  for (let localX = -57; localX <= 57; localX += 9.5) {
+    for (const localZ of [-31, 31]) {
+      addLocalBox(
+        builder,
+        localX % 19 === 0 ? 0x91aaab : KULTURFORUM_SHADOW,
+        gallery,
+        localX,
+        gallery.y + 19.22,
+        localZ,
+        0.34,
+        0.24,
+        23.6,
+        galleryRotation,
+        false,
+      );
+    }
+  }
+  // Calm, repeated stone bays and recessed dark glazing make the long facade
+  // read as the 1998 museum instead of one anonymous cream block.
+  for (let localX = -57; localX <= 57; localX += 6) {
+    for (const localZ of [-44.7, 44.7]) {
+      addLocalLampBox(
+        builder,
+        0x78999a,
+        gallery,
+        localX,
+        gallery.y + 10.2,
+        localZ,
+        3.5,
+        4.9,
+        0.18,
+        galleryRotation,
+      );
+      addLocalBox(
+        builder,
+        0xc7baa3,
+        gallery,
+        localX,
+        gallery.y + 13.1,
+        localZ + Math.sign(localZ) * 0.12,
+        0.18,
+        10.8,
+        0.2,
+        galleryRotation,
+        false,
+      );
+    }
+  }
+  for (let localZ = -15; localZ <= 15; localZ += 6) {
+    for (const localX of [-65.7, 65.7]) {
+      addLocalBox(
+        builder,
+        0x78999a,
+        gallery,
+        localX,
+        gallery.y + 10.2,
+        localZ,
+        0.18,
+        4.9,
+        3.5,
+        galleryRotation,
+        false,
+      );
+    }
+  }
+
+  const copperProfile = KULTURFORUM_PROFILE.kunstbibliothek;
+  const copper = fixedWorldPoint(copperProfile.centerWorldM);
+  addLocalBox(
+    builder,
+    KULTURFORUM_STONE,
+    copper,
+    0,
+    copper.y + 8.5,
+    0,
+    59,
+    17,
+    58,
+    copperProfile.rotationY,
+  );
+  addLocalBox(
+    builder,
+    KULTURFORUM_STONE_LIGHT,
+    copper,
+    0,
+    copper.y + 17.4,
+    0,
+    61,
+    0.7,
+    60,
+    copperProfile.rotationY,
+  );
+  for (const localZ of [-18, -6, 6, 18]) {
+    addLocalBox(
+      builder,
+      0x9aafb0,
+      copper,
+      0,
+      copper.y + 17.92,
+      localZ,
+      46,
+      0.32,
+      1.1,
+      copperProfile.rotationY,
+      false,
+    );
+  }
+  for (let localX = -24; localX <= 24; localX += 8) {
+    addLocalLampBox(
+      builder,
+      0x6d8c8d,
+      copper,
+      localX,
+      copper.y + 8.6,
+      -29.2,
+      4.9,
+      6.2,
+      0.18,
+      copperProfile.rotationY,
+    );
+  }
+
+  const craftProfile = KULTURFORUM_PROFILE.kunstgewerbemuseum;
+  const craft = fixedWorldPoint(craftProfile.centerWorldM);
+  // Gutbrod's museum steps down toward the Piazzetta in angular terraces.
+  for (const [localX, localZ, width, depth, height] of [
+    [-17, 12, 43, 56, 18.8],
+    [22, -8, 31, 49, 15.2],
+    [8, 25, 56, 20, 11.4],
+  ] as const) {
+    addLocalBox(
+      builder,
+      0xd9cfbd,
+      craft,
+      localX,
+      craft.y + height / 2,
+      localZ,
+      width,
+      height,
+      depth,
+      craftProfile.rotationY,
+    );
+    addLocalBox(
+      builder,
+      KULTURFORUM_STONE_LIGHT,
+      craft,
+      localX,
+      craft.y + height + 0.25,
+      localZ,
+      width + 0.7,
+      0.5,
+      depth + 0.7,
+      craftProfile.rotationY,
+    );
+  }
+  for (let index = -3; index <= 3; index += 1) {
+    addLocalLampBox(
+      builder,
+      0x708c8e,
+      craft,
+      index * 7.2,
+      craft.y + 7.2,
+      -33,
+      4.4,
+      5.8,
+      0.2,
+      craftProfile.rotationY,
+    );
+  }
+  for (const level of [4.2, 9.4, 14.6]) {
+    addLocalBox(
+      builder,
+      KULTURFORUM_SHADOW,
+      craft,
+      -17,
+      craft.y + level,
+      -16.2,
+      42,
+      0.18,
+      0.22,
+      craftProfile.rotationY,
+      false,
+    );
+  }
+
+  const piazzettaProfile = KULTURFORUM_PROFILE.piazzetta;
+  const piazzetta = fixedWorldPoint(piazzettaProfile.centerWorldM);
+  addRamp(
+    builder,
+    0xe2d9ca,
+    piazzetta.x,
+    piazzetta.y + 0.08,
+    piazzetta.z,
+    piazzettaProfile.widthM,
+    piazzettaProfile.lengthM,
+    piazzettaProfile.riseM,
+    piazzettaProfile.rotationY,
+  );
+  for (let localZ = -32; localZ <= 32; localZ += 8) {
+    const [offsetX, offsetZ] = rotatedLocalOffset(
+      0,
+      localZ,
+      piazzettaProfile.rotationY,
+    );
+    const progress =
+      (localZ + piazzettaProfile.lengthM / 2) / piazzettaProfile.lengthM;
+    addBox(
+      builder,
+      0xb9ad99,
+      piazzetta.x + offsetX,
+      piazzetta.y + 0.18 + progress * piazzettaProfile.riseM,
+      piazzetta.z + offsetZ,
+      piazzettaProfile.widthM - 1.2,
+      0.12,
+      0.28,
+      piazzettaProfile.rotationY,
+      false,
+    );
+  }
+}
+
+function addKulturforumConcertBuildings(builder: Builder): void {
+  const philProfile = KULTURFORUM_PROFILE.philharmonie;
+  const phil = fixedWorldPoint(philProfile.centerWorldM);
+  for (let index = -5; index <= 5; index += 1) {
+    addLocalLampBox(
+      builder,
+      0x506b6d,
+      phil,
+      index * 7.2,
+      phil.y + 7.7,
+      -35.2,
+      4.3,
+      5.1,
+      0.18,
+      philProfile.rotationY,
+    );
+  }
+
+  const chamberProfile = KULTURFORUM_PROFILE.kammermusiksaal;
+  const chamber = fixedWorldPoint(chamberProfile.centerWorldM);
+  for (let index = -4; index <= 4; index += 1) {
+    addLocalLampBox(
+      builder,
+      0x536d6f,
+      chamber,
+      index * 7,
+      chamber.y + 7.5,
+      30.7,
+      4.2,
+      5,
+      0.18,
+      chamberProfile.rotationY,
+    );
+  }
+}
+
+function addKulturforumLibrary(builder: Builder): void {
+  const profile = KULTURFORUM_PROFILE.staatsbibliothek;
+  const library = fixedWorldPoint(profile.centerWorldM);
+  // The 56-part LoD2 shell carries Scharoun's surveyed terraces. Keep this
+  // supplement to documented facade and roof motifs so a second block mass
+  // cannot intersect the authoritative geometry.
+  for (let localZ = -119; localZ <= 87; localZ += 11.5) {
+    addLocalLampBox(
+      builder,
+      0x59787a,
+      library,
+      -77,
+      library.y + 9.2,
+      localZ,
+      0.2,
+      4.2,
+      7.1,
+      profile.rotationY,
+    );
+  }
+  // Ship-like portholes and roof-light pyramids are documented Scharoun
+  // motifs; they break up the long gold envelope without invented textures.
+  for (const localZ of [-92, -68, -44, -20, 4, 28, 52]) {
+    const [offsetX, offsetZ] = rotatedLocalOffset(
+      -77.2,
+      localZ,
+      profile.rotationY,
+    );
+    addFacadeDisc(
+      builder,
+      0x789496,
+      0x4d6264,
+      library.x + offsetX,
+      library.y + 14.8,
+      library.z + offsetZ,
+      1.15,
+      profile.rotationY + Math.PI / 2,
+    );
+  }
+  for (const [localX, localZ, roofY] of [
+    [-38, -94, 19.5],
+    [8, -42, 23.5],
+    [-19, 12, 27.5],
+    [24, 62, 32.2],
+  ] as const) {
+    const [offsetX, offsetZ] = rotatedLocalOffset(
+      localX,
+      localZ,
+      profile.rotationY,
+    );
+    addCone(
+      builder,
+      GLASS,
+      library.x + offsetX,
+      library.y + roofY,
+      library.z + offsetZ,
+      3.4,
+      4.6,
+      4,
+    );
+  }
+}
+
+function addKulturforum(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (
+    byName.has("Gemäldegalerie") ||
+    byName.has("Berliner Philharmonie") ||
+    byName.has("Kammermusiksaal") ||
+    byName.has("Staatsbibliothek zu Berlin (Haus Potsdamer Straße)")
+  ) {
+    addKulturforumMuseums(builder);
+    addKulturforumConcertBuildings(builder);
+    addKulturforumLibrary(builder);
+  }
+  addBerlinModern(builder, byName);
+  addStMatthaeusChurch(builder, byName);
+  addNeueNationalgalerie(builder, byName);
   const archer = anchor(byName, "Der Bogenschütze (Henry Moore)");
   if (archer) {
     const torus = new TorusGeometry(4.2, 0.7, 8, 24, Math.PI * 1.35);
@@ -1524,6 +2277,396 @@ function addKulturforum(
     torus.translate(archer.x, archer.y + 4.8, archer.z);
     addCustomGeometry(builder, torus, BRONZE);
   }
+}
+
+function addPotsdamerUndergroundStation(builder: Builder): void {
+  const profile = POTSDAMER_DETAIL_PROFILE;
+  const station = fixedWorldPoint(profile.potsdamerStationWorldM);
+  const rotation = -0.035;
+  // A legible cutaway below grade: S-Bahn and regional platforms flank the
+  // shared distribution passage. It is intentionally schematic and remains
+  // hidden by the city plate from a normal surface view.
+  for (const localX of [-18, -6, 6, 18]) {
+    addLocalBox(
+      builder,
+      0x313a3d,
+      station,
+      localX,
+      -2.4,
+      0,
+      2.3,
+      0.45,
+      164,
+      rotation,
+      false,
+    );
+  }
+  for (const localX of [-12, 0, 12]) {
+    addLocalBox(
+      builder,
+      0xd0c4aa,
+      station,
+      localX,
+      -2.05,
+      0,
+      6.4,
+      0.7,
+      151,
+      rotation,
+    );
+  }
+  addLocalBox(builder, 0xb7aa90, station, 0, 1.1, 4, 51, 0.8, 10, rotation);
+  for (const localX of [-18, 18]) {
+    addRamp(
+      builder,
+      0xb6aa94,
+      station.x + localX,
+      -1.6,
+      station.z - 34,
+      5.2,
+      31,
+      8.9,
+      rotation,
+    );
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      station,
+      localX,
+      station.y + 1.15,
+      -48,
+      8.4,
+      2.3,
+      4.8,
+      rotation,
+    );
+    addLocalBox(
+      builder,
+      GLASS,
+      station,
+      localX,
+      station.y + 3.25,
+      -48,
+      9.4,
+      0.28,
+      5.8,
+      rotation,
+    );
+  }
+}
+
+function addPotsdamerWilhelmDetails(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (!byName.has("Mall of Berlin")) return;
+  addPotsdamerUndergroundStation(builder);
+  const profile = POTSDAMER_DETAIL_PROFILE;
+
+  const mall = anchor(byName, "Mall of Berlin");
+  if (mall) {
+    // Two deep-looking pedestrian passages and their restrained stone arcade
+    // identify the Leipziger-Platz block without pretending to subtract the
+    // openings from the authoritative LoD2 shell.
+    const facadeZ = mall.z + profile.mallSouthFacadeOffsetM;
+    for (const localX of [-25, 25]) {
+      addBox(
+        builder,
+        0x718b8b,
+        mall.x + localX,
+        mall.y + 5.2,
+        facadeZ,
+        13,
+        9.8,
+        0.35,
+        -0.04,
+        false,
+      );
+      for (const mullionX of [-4.2, 0, 4.2]) {
+        addBox(
+          builder,
+          DARK_FRAME,
+          mall.x + localX + mullionX,
+          mall.y + 5.2,
+          facadeZ - 0.22,
+          0.18,
+          9.1,
+          0.18,
+          -0.04,
+          false,
+        );
+      }
+      addBox(
+        builder,
+        0xb4c4bd,
+        mall.x + localX,
+        mall.y + 5.1,
+        facadeZ - 0.24,
+        12.5,
+        0.18,
+        0.18,
+        -0.04,
+        false,
+      );
+      for (const columnX of [-6.9, 6.9]) {
+        addBox(
+          builder,
+          SANDSTONE,
+          mall.x + localX + columnX,
+          mall.y + 5.4,
+          facadeZ - 0.4,
+          1.15,
+          10.8,
+          1.15,
+          -0.04,
+        );
+      }
+      addBox(
+        builder,
+        IVORY,
+        mall.x + localX,
+        mall.y + 10.7,
+        facadeZ - 0.4,
+        15.2,
+        1.2,
+        1.35,
+        -0.04,
+      );
+    }
+  }
+
+  const spielbank = fixedWorldPoint(profile.spielbankWorldM);
+  addBox(
+    builder,
+    0x382a28,
+    spielbank.x,
+    spielbank.y + 4.6,
+    spielbank.z - 0.8,
+    21,
+    8.7,
+    0.28,
+    -0.03,
+    false,
+  );
+  addBox(
+    builder,
+    0xc14e45,
+    spielbank.x,
+    spielbank.y + 8.9,
+    spielbank.z - 1.2,
+    22,
+    0.65,
+    2.8,
+    -0.03,
+  );
+
+  const hessen = fixedWorldPoint(profile.hessenRepresentationWorldM);
+  addLocalBox(
+    builder,
+    0xded7c8,
+    hessen,
+    0,
+    hessen.y + 10.6,
+    0,
+    38,
+    21.2,
+    35,
+    -0.079,
+  );
+  // The steel-and-glass conference volume visibly cantilevers over the garden.
+  addLocalBox(
+    builder,
+    0x596f73,
+    hessen,
+    -10.5,
+    hessen.y + 15.8,
+    -19.2,
+    24,
+    8.8,
+    13.5,
+    -0.079,
+  );
+  for (let bay = -3; bay <= 3; bay += 1) {
+    addLocalLampBox(
+      builder,
+      0x91b7ba,
+      hessen,
+      bay * 4.7,
+      hessen.y + 9.8,
+      -17.7,
+      3,
+      5.4,
+      0.18,
+      -0.079,
+    );
+  }
+
+  const taylor = fixedWorldPoint(profile.taylorWessingWorldM);
+  for (let floor = 0; floor < 6; floor += 1) {
+    for (let bay = -4; bay <= 4; bay += 1) {
+      addLocalLampBox(
+        builder,
+        0x6f979c,
+        taylor,
+        bay * 4.2,
+        taylor.y + 4.2 + floor * 3.35,
+        -15.1,
+        2.5,
+        2.15,
+        0.18,
+        -0.075,
+      );
+    }
+  }
+
+  const czech = fixedWorldPoint(profile.czechEmbassyWorldM);
+  addLocalBox(
+    builder,
+    0xb28d61,
+    czech,
+    0,
+    czech.y + 11.8,
+    0,
+    48,
+    23.6,
+    45,
+    0.29,
+  );
+  addLocalBox(
+    builder,
+    0x4f6668,
+    czech,
+    0,
+    czech.y + 13,
+    -22.8,
+    42,
+    9.4,
+    0.22,
+    0.29,
+  );
+  for (let bay = -4; bay <= 4; bay += 1) {
+    addLocalLampBox(
+      builder,
+      0x8eb3b4,
+      czech,
+      bay * 4.5,
+      czech.y + 13,
+      -23,
+      2.8,
+      6.8,
+      0.16,
+      0.29,
+    );
+  }
+  addLocalBox(
+    builder,
+    0xd4b77e,
+    czech,
+    0,
+    czech.y + 24.2,
+    0,
+    50.5,
+    0.8,
+    47.5,
+    0.29,
+  );
+
+  const northKorea = fixedWorldPoint(profile.northKoreanEmbassyWorldM);
+  addLocalBox(
+    builder,
+    0xd5d0c1,
+    northKorea,
+    0,
+    northKorea.y + 7.4,
+    0,
+    36,
+    14.8,
+    23,
+    0.12,
+  );
+  addGabledRoof(
+    builder,
+    0x6f7772,
+    northKorea.x,
+    northKorea.y + 14.7,
+    northKorea.z,
+    37,
+    24,
+    4.8,
+    0.12,
+  );
+  for (let bay = -3; bay <= 3; bay += 1) {
+    addLocalLampBox(
+      builder,
+      0x718b8b,
+      northKorea,
+      bay * 4.2,
+      northKorea.y + 8.4,
+      -11.7,
+      2.2,
+      3.1,
+      0.16,
+      0.12,
+    );
+  }
+
+  const elser = fixedWorldPoint(profile.georgElserWorldM);
+  // The memorial is a tall illuminated steel contour, not a conventional
+  // statue. Closely spaced segments keep the line readable at isometric scale.
+  for (const [dx, dy, angle, length] of [
+    [0, 2.2, -0.08, 4.4],
+    [-0.7, 5.6, 0.28, 3.6],
+    [0.1, 8.7, -0.34, 3.3],
+    [0.9, 11.8, 0.19, 3.4],
+    [0.2, 14.8, -0.22, 3.2],
+  ] as const) {
+    addTiltedLocalBox(
+      builder,
+      0xe7c477,
+      elser,
+      dx,
+      elser.y + dy,
+      0,
+      0.22,
+      length,
+      0.22,
+      angle,
+      0,
+      false,
+    );
+  }
+
+  const dessauer = fixedWorldPoint(profile.alterDessauerWorldM);
+  addBox(
+    builder,
+    SANDSTONE,
+    dessauer.x,
+    dessauer.y + 1.25,
+    dessauer.z,
+    4.2,
+    2.5,
+    4.2,
+  );
+  addCylinder(
+    builder,
+    BRONZE,
+    dessauer.x,
+    dessauer.y + 4.4,
+    dessauer.z,
+    0.72,
+    4.2,
+    10,
+  );
+  addCone(
+    builder,
+    BRONZE,
+    dessauer.x,
+    dessauer.y + 7.1,
+    dessauer.z,
+    1.05,
+    1.8,
+    10,
+  );
 }
 
 function addTillaDurieuxPark(
@@ -1749,7 +2892,8 @@ function addAmanoGrandCentral(
     );
     for (let bay = 0; bay < profile.windowBaysLongFacade; bay += 1) {
       for (let floor = 0; floor < 5; floor += 1) {
-        const pitch = (profile.footprintLengthM - 3.2) / profile.windowBaysLongFacade;
+        const pitch =
+          (profile.footprintLengthM - 3.2) / profile.windowBaysLongFacade;
         const stagger = floor % 2 === 0 ? 0.36 : -0.36;
         const localX =
           -profile.footprintLengthM / 2 + 1.6 + (bay + 0.5) * pitch + stagger;
@@ -1956,10 +3100,37 @@ function addMoabitPrisonPark(
     origin.z + panZ,
   );
   addCustomGeometry(builder, panopticon, 0xc6c2b8, false);
-  for (const [x, z] of [[-10, -3], [-2, -3], [-10, 5], [-2, 5]] as const) {
-    addLocalBox(builder, 0xaba9a2, origin, x, profile.groundY + 1.8, z, 0.65, 3.6, 0.65, rotation);
+  for (const [x, z] of [
+    [-10, -3],
+    [-2, -3],
+    [-10, 5],
+    [-2, 5],
+  ] as const) {
+    addLocalBox(
+      builder,
+      0xaba9a2,
+      origin,
+      x,
+      profile.groundY + 1.8,
+      z,
+      0.65,
+      3.6,
+      0.65,
+      rotation,
+    );
   }
-  addLocalBox(builder, 0xaba9a2, origin, -6, profile.groundY + 3.35, 1, 8.7, 0.55, 8.7, rotation);
+  addLocalBox(
+    builder,
+    0xaba9a2,
+    origin,
+    -6,
+    profile.groundY + 3.35,
+    1,
+    8.7,
+    0.55,
+    8.7,
+    rotation,
+  );
 
   // Four former wings: three depressed/rising lawns and wing A as two clipped
   // blood-beech hedges with a single walk-in cell at original scale.
@@ -1995,16 +3166,57 @@ function addMoabitPrisonPark(
     );
   }
   // One cell: 2.4 x 4.5 m interior, open at the path end.
-  addLocalBox(builder, 0xbbb8af, origin, 59, profile.groundY + 1.45, -1.4, 4.5, 2.9, 0.28, rotation);
-  addLocalBox(builder, 0xbbb8af, origin, 59, profile.groundY + 1.45, 3.4, 4.5, 2.9, 0.28, rotation);
-  addLocalBox(builder, 0xbbb8af, origin, 61.1, profile.groundY + 1.45, 1, 0.28, 2.9, 5.1, rotation);
+  addLocalBox(
+    builder,
+    0xbbb8af,
+    origin,
+    59,
+    profile.groundY + 1.45,
+    -1.4,
+    4.5,
+    2.9,
+    0.28,
+    rotation,
+  );
+  addLocalBox(
+    builder,
+    0xbbb8af,
+    origin,
+    59,
+    profile.groundY + 1.45,
+    3.4,
+    4.5,
+    2.9,
+    0.28,
+    rotation,
+  );
+  addLocalBox(
+    builder,
+    0xbbb8af,
+    origin,
+    61.1,
+    profile.groundY + 1.45,
+    1,
+    0.28,
+    2.9,
+    5.1,
+    rotation,
+  );
 
   // Three circular exercise yards, each a separate concrete trace.
-  for (const [localX, localZ, radius] of [[-48, 34, 12], [-17, 49, 10], [18, 51, 8]] as const) {
+  for (const [localX, localZ, radius] of [
+    [-48, 34, 12],
+    [-17, 49, 10],
+    [18, 51, 8],
+  ] as const) {
     const ring = new RingGeometry(radius - 0.32, radius + 0.32, 36);
     ring.rotateX(-Math.PI / 2);
     const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotation);
-    ring.translate(origin.x + offsetX, profile.groundY + 0.13, origin.z + offsetZ);
+    ring.translate(
+      origin.x + offsetX,
+      profile.groundY + 0.13,
+      origin.z + offsetZ,
+    );
     addCustomGeometry(builder, ring, 0xb8b4aa, false);
   }
   // The clipped blood-beech rectangle marks the former administration block.
@@ -2014,7 +3226,18 @@ function addMoabitPrisonPark(
     [-69, -45, 1.4, 20],
     [-27, -45, 1.4, 20],
   ] as const) {
-    addLocalBox(builder, BLOOD_BEECH, origin, localX, profile.groundY + 1.0, localZ, width, 2, depth, rotation);
+    addLocalBox(
+      builder,
+      BLOOD_BEECH,
+      origin,
+      localX,
+      profile.groundY + 1.0,
+      localZ,
+      width,
+      2,
+      depth,
+      rotation,
+    );
   }
 }
 
@@ -2262,6 +3485,41 @@ function addRooftopSigns(
     );
     if (sign) group.add(sign);
   }
+  if (!byName.has("Mall of Berlin")) return;
+  const spielbank = createLetterSign(
+    "SPIELBANK BERLIN",
+    15,
+    1.7,
+    new Vector3(
+      POTSDAMER_DETAIL_PROFILE.spielbankWorldM[0],
+      15.6,
+      POTSDAMER_DETAIL_PROFILE.spielbankWorldM[1] - 0.6,
+    ),
+    -0.03,
+    "#3b2724",
+    "#f2c36e",
+  );
+  if (spielbank) {
+    spielbank.name = "Spielbank Berlin facade lettering";
+    group.add(spielbank);
+  }
+  const taylor = createLetterSign(
+    "TAYLOR WESSING",
+    14,
+    1.45,
+    new Vector3(
+      POTSDAMER_DETAIL_PROFILE.taylorWessingWorldM[0],
+      29.2,
+      POTSDAMER_DETAIL_PROFILE.taylorWessingWorldM[1] - 15.4,
+    ),
+    -0.075,
+    "#e8e4da",
+    "#29596b",
+  );
+  if (taylor) {
+    taylor.name = "Taylor Wessing facade lettering";
+    group.add(taylor);
+  }
 }
 
 export function createExpandedCityDetails(
@@ -2277,19 +3535,28 @@ export function createExpandedCityDetails(
   group.userData.berlinModern = BERLIN_MODERN_PROFILE;
   group.userData.amanoGrandCentral = AMANO_GRAND_CENTRAL_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
+  group.userData.kulturforum = KULTURFORUM_PROFILE;
   group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
   group.userData.moabitPrisonPark = MOABIT_PRISON_PARK_PROFILE;
+  group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
+  group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
+  group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
   group.userData.sourceUrls = [
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
     "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
     "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
+    "https://www.smb.museum/museen-einrichtungen/kulturforum/museumsgebaeude-sammlungen/ueberblick/",
+    "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte",
+    "https://www.berliner-philharmoniker.de/ueber-uns/philharmonie/kammermusiksaal/der-bau-des-kammermusiksaals/",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
   ];
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
   addRieckhallen(builder, byName);
   addSocialCourt(builder, byName);
   addKulturforum(builder, byName);
+  addPotsdamerWilhelmDetails(builder, byName);
   addTillaDurieuxPark(builder, byName);
   addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);

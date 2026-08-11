@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.70.32
+
+- **Desktop 3D navigation is now genuinely continuous.** Plain held arrows pan
+  in the visible screen plane, `Shift`+arrows fly along the camera heading and
+  `Alt`/`Option`+arrows orbit and tilt through the underside. The matching
+  on-screen arrow controls use pointer capture and continue while the mouse is
+  held; a separate 96 px analogue orbit pad sits beside, rather than beneath,
+  the desktop control panel. Blur, cancellation and component cleanup clear
+  every input channel so a released control cannot leave the camera moving.
+- **The Kulturforum is anchored and coloured as one audited architectural
+  ensemble.** Named LoD2 envelopes now independently locate Gemäldegalerie,
+  Kunstbibliothek/Kupferstichkabinett, Kunstgewerbemuseum, Philharmonie,
+  Kammermusiksaal and the 56-part Staatsbibliothek instead of inheriting
+  entrance-POI centres. The museums gain restrained stone bays, roof lights
+  and the explicitly approximate sloping Piazzetta; Scharoun's three measured
+  envelopes receive gold-anodised flat tones, exact-polygon roof seams and
+  documented porthole/roof-light details without intersecting replacement
+  blocks. Official SMB, Philharmonie and Staatsbibliothek sources are stored
+  with the profile.
+- **Potsdamer Platz gains readable, bounded detail.** The Mall's two entrance
+  passages were moved from an invisible position 39 m inside the building to
+  the south facade derived from its shipped LoD2 footprint and receive a
+  glazed mullion register plus a dedicated south camera. Spielbank Berlin,
+  Taylor Wessing, the Hessian cantilever, Czech and North Korean embassies,
+  Georg Elser memorial and Alter Dessauer carry compact recognition cues. The
+  S-/regional-platform and distribution-passage cutaway stays labelled as a
+  schematic below-grade supplement, never as surveyed tunnel geometry.
+- **A hidden browser failure and responsive regressions are covered.** The
+  vector alphabet now includes `Y` for the Taylor Wessing facade instead of
+  aborting the complete drawn-city attachment. Targeted tests cover the new
+  key routing, source profiles, camera framing and glyph; browser QA covered
+  1600×900 desktop, 1024×768 tablet and 390×844 phone layouts. The visible
+  radius remains **5,230 m**; attribution, source geometry and additive-data
+  policy are unchanged.
+
 ## v0.70.31
 
 - **Charité Campus Mitte now uses the published renovated facade hierarchy on

@@ -17,6 +17,12 @@ export type ContinuousFlightSpeeds = {
   vertical: number;
 };
 
+export type HeldNavigationInput = {
+  flight: { forward: number; strafe: number };
+  orbit: { horizontal: number; vertical: number };
+  pan: { horizontal: number; vertical: number };
+};
+
 const presentationEnvelope = extrapolatedEnvelopeBounds();
 
 export const NAVIGATION_STEP_DISTANCE_RATIO = 0.075;
@@ -35,6 +41,37 @@ export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   min: new Vector3(presentationEnvelope.minX, -120, presentationEnvelope.minZ),
   max: new Vector3(presentationEnvelope.maxX, 280, presentationEnvelope.maxZ),
 };
+
+/**
+ * Routes held desktop arrow keys to exactly one continuous camera channel.
+ * Plain arrows pan in screen space, Shift flies along the view heading and
+ * Alt/Option orbits. Alt wins if both modifiers are down, avoiding two camera
+ * transforms fighting each other in the same animation frame.
+ */
+export function heldNavigationInput(
+  keys: ReadonlySet<string>,
+): HeldNavigationInput {
+  const shift = keys.has("Shift");
+  const alt = keys.has("Alt");
+  const horizontal =
+    (keys.has("ArrowRight") ? 1 : 0) - (keys.has("ArrowLeft") ? 1 : 0);
+  const vertical =
+    (keys.has("ArrowUp") ? 1 : 0) - (keys.has("ArrowDown") ? 1 : 0);
+  return {
+    flight: {
+      forward: shift && !alt ? vertical : 0,
+      strafe: shift && !alt ? horizontal : 0,
+    },
+    orbit: {
+      horizontal: alt ? horizontal : 0,
+      vertical: alt ? vertical : 0,
+    },
+    pan: {
+      horizontal: alt || shift ? 0 : horizontal,
+      vertical: alt || shift ? 0 : vertical,
+    },
+  };
+}
 
 export function captureCameraPose(
   camera: PerspectiveCamera,

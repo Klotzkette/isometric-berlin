@@ -28,7 +28,10 @@ import {
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { densifyRing } from "./bankCurves";
-import { KOLLHOFF_TOWER_PROFILE } from "./expandedCityProfiles";
+import {
+  KOLLHOFF_TOWER_PROFILE,
+  KULTURFORUM_PROFILE,
+} from "./expandedCityProfiles";
 import { createGoldelseFigure } from "./goldelse";
 import {
   type VoxelPayload,
@@ -705,6 +708,56 @@ function inReichstagRegion(building: PrismBuilding): boolean {
   return cx >= 260 && cx <= 372 && cz >= -34 && cz <= 115;
 }
 
+function prismCentroidM(
+  building: Pick<PrismBuilding, "ring">,
+): [number, number] {
+  let x = 0;
+  let z = 0;
+  for (const [ringX, ringZ] of building.ring) {
+    x += ringX / 10;
+    z += ringZ / 10;
+  }
+  return [x / building.ring.length, z / building.ring.length];
+}
+
+function centroidInsideProfile(
+  building: Pick<PrismBuilding, "ring">,
+  profile: {
+    centerWorldM: readonly [number, number];
+    lengthM: number;
+    rotationY: number;
+    widthM: number;
+  },
+): boolean {
+  const [x, z] = prismCentroidM(building);
+  const dx = x - profile.centerWorldM[0];
+  const dz = z - profile.centerWorldM[1];
+  const cosine = Math.cos(profile.rotationY);
+  const sine = Math.sin(profile.rotationY);
+  const localX = dx * cosine - dz * sine;
+  const localZ = dx * sine + dz * cosine;
+  return (
+    Math.abs(localX) <= profile.lengthM / 2 + 1.5 &&
+    Math.abs(localZ) <= profile.widthM / 2 + 1.5
+  );
+}
+
+/** True for LoD2 parts of Scharoun's three gold Kulturforum ensembles. */
+export function isScharounGoldPrism(
+  building: Pick<PrismBuilding, "ring">,
+): boolean {
+  return [
+    KULTURFORUM_PROFILE.philharmonie,
+    KULTURFORUM_PROFILE.kammermusiksaal,
+    KULTURFORUM_PROFILE.staatsbibliothek,
+  ].some((profile) => centroidInsideProfile(building, profile));
+}
+
+export const SCHAROUN_ROOF_SEAM_IDS: ReadonlySet<string> = new Set([
+  "XzEkeXsu", // Berliner Philharmonie main LoD2 part
+  "aJ0e8oAr", // Kammermusiksaal main LoD2 part
+]);
+
 // The whole city leans toward one warm ivory register ("wie eine
 // wunderbare Elfenbeinpalastdarstellung") while each building keeps
 // enough of its own sampled hue to stay recognisably itself.
@@ -731,6 +784,9 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
   }
   if (inReichstagRegion(building)) {
     return new Color(0xdedacf).lerp(IVORY, 0.36);
+  }
+  if (isScharounGoldPrism(building)) {
+    return new Color(0xf0cf7d).lerp(IVORY, 0.08);
   }
   // Each building carries its sampled real colour ("den jeweiligen
   // Gebäudetyp angleichen"); the shared class shades are only the
@@ -7018,6 +7074,27 @@ export function createIsometricCity(
     // Ink lines first (edges of the un-coloured prism)…
     const edges = new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES);
     edgeGeometries.push(edges);
+    if (SCHAROUN_ROOF_SEAM_IDS.has(building.id)) {
+      const [centroidX, centroidZ] = prismCentroidM(building);
+      const topY = y0 + totalHeight + 0.025;
+      const positions: number[] = [];
+      for (const [ringX, ringZ] of building.ring) {
+        positions.push(
+          centroidX,
+          topY,
+          centroidZ,
+          ringX / 10,
+          topY,
+          ringZ / 10,
+        );
+      }
+      const roofSeams = new BufferGeometry();
+      roofSeams.setAttribute(
+        "position",
+        new Float32BufferAttribute(positions, 3),
+      );
+      edgeGeometries.push(roofSeams);
+    }
     // …then bake the flat facade tone as vertex colour so every
     // building can share one material in one merged mesh. Glass-class
     // volumes go to their own transparent mesh in a cool glass family
@@ -7068,7 +7145,11 @@ export function createIsometricCity(
     // Reichstag's huge roof was one warm brown slab).
     const pinnedRoof =
       HERO_PRISM_ROOF_TONES[building.id] ??
-      (inReichstagRegion(building) ? 0xe1e3dc : undefined);
+      (inReichstagRegion(building)
+        ? 0xe1e3dc
+        : isScharounGoldPrism(building)
+          ? 0xf6e0a7
+          : undefined);
     const capTone =
       pinnedRoof !== undefined
         ? new Color(pinnedRoof)
@@ -7227,10 +7308,15 @@ export function createIsometricCity(
               const bays = Math.floor((wall.length - 0.8) / pitch);
               if (bays < 1) continue;
               const first = (wall.length - (bays - 1) * pitch) / 2;
-              const paneHeight = baseFloor ? 1.42 : profile.facadeElementHeightM;
+              const paneHeight = baseFloor
+                ? 1.42
+                : profile.facadeElementHeightM;
               const paneWidth = baseFloor ? Math.min(2.85, pitch - 0.55) : 1.05;
               const paneY =
-                y0 + format.sillStart + floor * profile.floorPitchM + paneHeight / 2;
+                y0 +
+                format.sillStart +
+                floor * profile.floorPitchM +
+                paneHeight / 2;
               facadeAxisPositions.push(
                 wall.x1 + paneOx,
                 paneY - paneHeight / 2 - 0.28,
@@ -7265,7 +7351,11 @@ export function createIsometricCity(
               y0 + profile.baseStoreys * profile.floorPitchM - 0.15;
             for (const [pitch, bottom, top] of [
               [profile.basePanelPitchM, axisBottom, Math.min(baseTop, axisTop)],
-              [profile.upperPanelPitchM, Math.max(baseTop, axisBottom), axisTop],
+              [
+                profile.upperPanelPitchM,
+                Math.max(baseTop, axisBottom),
+                axisTop,
+              ],
             ] as const) {
               if (top <= bottom) continue;
               const axes = Math.floor(wall.length / pitch);

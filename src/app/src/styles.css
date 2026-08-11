@@ -602,7 +602,28 @@ button:active:not(:disabled) {
   display: none;
 }
 
+.orbit-joystick-wrap {
+  position: absolute;
+  z-index: 18;
+  top: 136px;
+  /* The view panel can span roughly 320 px in German. Keep the analogue
+     orbit pad beside it instead of letting both pointer targets overlap. */
+  left: min(356px, calc(100vw - 112px));
+  display: block;
+  pointer-events: auto;
+}
+
+.orbit-joystick {
+  width: 96px;
+  height: 96px;
+  background: rgba(25, 31, 29, 0.96);
+}
+
 @media (pointer: coarse) {
+  .orbit-joystick-wrap {
+    display: none;
+  }
+
   .flight-joystick-wrap {
     position: absolute;
     z-index: 21;
@@ -611,6 +632,12 @@ button:active:not(:disabled) {
     bottom: calc(128px + env(safe-area-inset-bottom, 0px));
     display: block;
     pointer-events: auto;
+  }
+}
+
+@media (max-width: 1024px) {
+  .orbit-joystick-wrap {
+    display: none;
   }
 }
 

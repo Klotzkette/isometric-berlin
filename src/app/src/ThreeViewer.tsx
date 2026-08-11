@@ -286,6 +286,8 @@ export type ThreeViewerHandle = {
   rotateBy: (degrees: number) => void;
   setAzimuth: (degrees: number) => void;
   setFlightInput: (strafe: number, forward: number, vertical: number) => void;
+  setOrbitInput: (horizontal: number, vertical: number) => void;
+  setPanInput: (horizontal: number, vertical: number) => void;
   setUnderside: (enabled: boolean) => void;
   startTunnelFlight: (direction: TunnelFlightDirection) => boolean;
   tiltBy: (degrees: number) => void;
@@ -2250,6 +2252,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
     const flightInputRef = useRef(new Vector3());
+    // Desktop arrows/buttons use screen-plane pan, while Alt/Option and the
+    // orbit joystick feed a separate angular input. Keeping these distinct
+    // preserves direct movement without turning key-repeat into camera jumps.
+    const panInputRef = useRef(new Vector2());
+    const orbitInputRef = useRef(new Vector2());
     const lightingModeRef = useRef(lightingMode);
     const nightLightsOnRef = useRef(nightLightsOn);
     const precipitationEnabledRef = useRef(precipitationEnabled);
@@ -2567,6 +2574,32 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             MathUtils.clamp(forward, -1, 1),
           );
         },
+        setOrbitInput: (horizontal, vertical) => {
+          const runtime = runtimeRef.current;
+          if (
+            runtime &&
+            (Math.abs(horizontal) > 1e-6 || Math.abs(vertical) > 1e-6)
+          ) {
+            markSurfaceInteraction(runtime, 220);
+          }
+          orbitInputRef.current.set(
+            MathUtils.clamp(horizontal, -1, 1),
+            MathUtils.clamp(vertical, -1, 1),
+          );
+        },
+        setPanInput: (horizontal, vertical) => {
+          const runtime = runtimeRef.current;
+          if (
+            runtime &&
+            (Math.abs(horizontal) > 1e-6 || Math.abs(vertical) > 1e-6)
+          ) {
+            markSurfaceInteraction(runtime, 220);
+          }
+          panInputRef.current.set(
+            MathUtils.clamp(horizontal, -1, 1),
+            MathUtils.clamp(vertical, -1, 1),
+          );
+        },
         setAzimuth: (degrees) => {
           const runtime = runtimeRef.current;
           if (!runtime) {
@@ -2595,6 +2628,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.cancelPanGlide?.();
           flightInputRef.current.set(0, 0, 0);
+          panInputRef.current.set(0, 0);
+          orbitInputRef.current.set(0, 0);
           const plan = createTunnelFlightPlan(
             runtime.tunnelPoints,
             direction,
@@ -3368,6 +3403,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastRenderedAt = Number.NEGATIVE_INFINITY;
       let lastAnimateAt = Number.NEGATIVE_INFINITY;
       let wasFlying = false;
+      let wasPanning = false;
+      let wasOrbiting = false;
       const applyContinuousFlight = (dtSeconds: number): boolean => {
         const input = flightInputRef.current;
         if (input.lengthSq() < 1e-6) {
@@ -3406,6 +3443,71 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         controls.target.add(applied);
         camera.position.add(applied);
         camera.updateMatrixWorld();
+        markSurfaceInteraction(runtime, 220);
+        return true;
+      };
+      const applyContinuousPan = (dtSeconds: number): boolean => {
+        const input = panInputRef.current;
+        if (input.lengthSq() < 1e-6) {
+          if (wasPanning) {
+            wasPanning = false;
+            notifyView(runtime, onViewChangeRef.current);
+          }
+          return false;
+        }
+        wasPanning = true;
+        camera.updateMatrixWorld();
+        const distance = camera.position.distanceTo(controls.target);
+        const { horizontal: speed } = continuousFlightSpeeds(distance);
+        const right = new Vector3()
+          .setFromMatrixColumn(camera.matrixWorld, 0)
+          .normalize();
+        const up = new Vector3()
+          .setFromMatrixColumn(camera.matrixWorld, 1)
+          .normalize();
+        const move = right
+          .multiplyScalar(input.x * speed * dtSeconds)
+          .add(up.multiplyScalar(input.y * speed * dtSeconds));
+        const nextTarget = controls.target
+          .clone()
+          .add(move)
+          .clamp(
+            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min,
+            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max,
+          );
+        const applied = nextTarget.sub(controls.target);
+        controls.target.add(applied);
+        camera.position.add(applied);
+        camera.updateMatrixWorld();
+        markSurfaceInteraction(runtime, 220);
+        return true;
+      };
+      const applyContinuousOrbit = (dtSeconds: number): boolean => {
+        const input = orbitInputRef.current;
+        if (input.lengthSq() < 1e-6) {
+          if (wasOrbiting) {
+            wasOrbiting = false;
+            notifyView(runtime, onViewChangeRef.current);
+          }
+          return false;
+        }
+        wasOrbiting = true;
+        const nextPolar = MathUtils.clamp(
+          controls.getPolarAngle() -
+            MathUtils.degToRad(input.y * 38 * dtSeconds),
+          0.08,
+          Math.PI - 0.08,
+        );
+        setOrbitAngles(runtime, {
+          azimuth:
+            controls.getAzimuthalAngle() +
+            MathUtils.degToRad(input.x * 52 * dtSeconds),
+          polar: nextPolar,
+        });
+        const underside = nextPolar > Math.PI / 2;
+        if (underside !== runtime.underside) {
+          setModelMaterialState(runtime, underside);
+        }
         markSurfaceInteraction(runtime, 220);
         return true;
       };
@@ -3457,6 +3559,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const guidedFlying = applyGuidedTunnelFlight(timestamp);
+        const panning = guidedFlying ? false : applyContinuousPan(dtSeconds);
+        const orbiting = guidedFlying ? false : applyContinuousOrbit(dtSeconds);
         const flying = guidedFlying || applyContinuousFlight(dtSeconds);
         const controlsChanged = controls.update();
         const directInputActive = renderInteractionActive({
@@ -3487,7 +3591,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
         const cameraMoving =
-          flying || directInputActive || controlsChanged || stabilized.changed;
+          flying ||
+          panning ||
+          orbiting ||
+          directInputActive ||
+          controlsChanged ||
+          stabilized.changed;
         const isMoving =
           cameraMoving ||
           stability.forceContinuousRender ||
@@ -4103,6 +4212,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           window.clearTimeout(runtime.markerTimer);
         }
         controls.dispose();
+        flightInputRef.current.set(0, 0, 0);
+        panInputRef.current.set(0, 0);
+        orbitInputRef.current.set(0, 0);
         setMinecraftMaterialPresentation(
           scene,
           runtime.minecraftMaterialState,
