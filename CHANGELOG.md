@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.70.38
+
+- **Berlin's bridges now read as individual structures rather than variations
+  of one generic slab.** The Moltkebruecke carries its three documented red
+  sandstone arches, voussoir rhythm, relief fields and rebuilt sandstone
+  griffins. The Kronprinzenbruecke follows its 15.492 m / 44 m / 15.492 m
+  three-field system with shallow steel ribs, diagonal struts, longitudinal
+  girders and four prow-like supports. The Sandkrugbruecke is an open frame
+  with a separately drawn carriageway, footways, fascias, haunches and frame
+  heads; the Bundestag's Sprung ueber die Spree is explicitly two-storey and
+  remains pier-free in the river.
+- **The smaller identities and the complete bridge field gain useful detail.**
+  Golda-Meir-Steg follows its mapped axis and 76.86 x 4.00 m envelope with 39
+  perforation bays; Gustav-Heinemann-, Hugo-Preuss- and Weidendammer Bruecke
+  retain their timber/Vierendeel, curved box-girder and three-opening iron-arch
+  characters. Broad source-derived road crossings now separate asphalt,
+  footways, centre markings and expansion joints, while narrow rail and park
+  crossings remain deliberately restrained. Modern named bridges expose
+  compact bearings in underside views without adding unsupported river piers.
+- **Accuracy remains bounded and testable.** Official Berlin bridge inventory,
+  Deutscher Bundestag, Landesdenkmalamt Berlin and Santiago Calatrava project
+  evidence determine the corrected identities and dimensions; committed
+  OSM/raster evidence still determines placement. Contract tests cover the
+  named profiles, three-span and two-level structures, visible deck faces,
+  support placement and a bounded geometry budget. The visible radius remains
+  **5,230 m**; source hierarchy, attribution and the additive-data policy are
+  unchanged.
+
 ## v0.70.37
 
 - **A shared architectural-ink register now gives the complete model one

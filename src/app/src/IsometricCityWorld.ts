@@ -1784,6 +1784,79 @@ function boxTriangles(
   return new Float32Array(triangles);
 }
 
+/** Closed rectangular beam between arbitrary 3D endpoints. */
+function beamBetweenTriangles(
+  start: [number, number, number],
+  end: [number, number, number],
+  width: number,
+  depth = width,
+): Float32Array {
+  const centre: [number, number, number] = [
+    (start[0] + end[0]) / 2,
+    (start[1] + end[1]) / 2,
+    (start[2] + end[2]) / 2,
+  ];
+  const delta: [number, number, number] = [
+    end[0] - start[0],
+    end[1] - start[1],
+    end[2] - start[2],
+  ];
+  const length = Math.hypot(...delta);
+  if (length < 1e-6) {
+    return new Float32Array();
+  }
+  const w: [number, number, number] = delta.map(
+    (value) => value / length,
+  ) as [number, number, number];
+  const reference: [number, number, number] =
+    Math.abs(w[1]) < 0.95 ? [0, 1, 0] : [1, 0, 0];
+  const rawU: [number, number, number] = [
+    reference[1] * w[2] - reference[2] * w[1],
+    reference[2] * w[0] - reference[0] * w[2],
+    reference[0] * w[1] - reference[1] * w[0],
+  ];
+  const uLength = Math.hypot(...rawU) || 1;
+  const u: [number, number, number] = rawU.map(
+    (value) => value / uLength,
+  ) as [number, number, number];
+  const v: [number, number, number] = [
+    w[1] * u[2] - w[2] * u[1],
+    w[2] * u[0] - w[0] * u[2],
+    w[0] * u[1] - w[1] * u[0],
+  ];
+  const corner = (
+    uSign: number,
+    vSign: number,
+    wSign: number,
+  ): [number, number, number] => [
+    centre[0] +
+      u[0] * uSign * width * 0.5 +
+      v[0] * vSign * depth * 0.5 +
+      w[0] * wSign * length * 0.5,
+    centre[1] +
+      u[1] * uSign * width * 0.5 +
+      v[1] * vSign * depth * 0.5 +
+      w[1] * wSign * length * 0.5,
+    centre[2] +
+      u[2] * uSign * width * 0.5 +
+      v[2] * vSign * depth * 0.5 +
+      w[2] * wSign * length * 0.5,
+  ];
+  const faces: Array<[number, number, number][]> = [
+    [corner(1, -1, -1), corner(1, 1, -1), corner(1, 1, 1), corner(1, -1, 1)],
+    [corner(-1, -1, 1), corner(-1, 1, 1), corner(-1, 1, -1), corner(-1, -1, -1)],
+    [corner(-1, 1, -1), corner(-1, 1, 1), corner(1, 1, 1), corner(1, 1, -1)],
+    [corner(-1, -1, 1), corner(-1, -1, -1), corner(1, -1, -1), corner(1, -1, 1)],
+    [corner(-1, -1, 1), corner(1, -1, 1), corner(1, 1, 1), corner(-1, 1, 1)],
+    [corner(1, -1, -1), corner(-1, -1, -1), corner(-1, 1, -1), corner(1, 1, -1)],
+  ];
+  const triangles: number[] = [];
+  for (const [a, b, c, d] of faces) {
+    triangles.push(...a, ...b, ...c, ...a, ...c, ...d);
+  }
+  return new Float32Array(triangles);
+}
+
 // Ground-class pairs whose shared cell edge gets a drawn kerb line.
 const KERB_PAIRS = new Set([
   "asphalt|grass",
@@ -2216,13 +2289,14 @@ function prismTriangles(
   radius: number,
   height: number,
   segments: number,
+  rotationRad = 0,
 ): Float32Array {
   const triangles: number[] = [];
   const top = cy + height / 2;
   const bottom = cy - height / 2;
   for (let index = 0; index < segments; index += 1) {
-    const a0 = (index / segments) * Math.PI * 2;
-    const a1 = ((index + 1) / segments) * Math.PI * 2;
+    const a0 = (index / segments) * Math.PI * 2 + rotationRad;
+    const a1 = ((index + 1) / segments) * Math.PI * 2 + rotationRad;
     const x0 = cx + Math.cos(a0) * radius;
     const z0 = cz + Math.sin(a0) * radius;
     const x1 = cx + Math.cos(a1) * radius;
@@ -2324,6 +2398,8 @@ export type BridgeKind =
   | "curvedBox"
   | "golda"
   | "ironArch"
+  | "openFrame"
+  | "parliament"
   | "slender"
   | "steelArch"
   | "stoneArch"
@@ -2433,7 +2509,8 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
   {
     // Santiago Calatrava, 1996: surveyed OSM outline 74.98 x 23.58 m.
     // A 12.5 m carriageway is stepped up to cycle tracks and then again to
-    // the outer footways; the flat steel arches spring from the abutments.
+    // the outer footways. Berlin's 44 m main opening sits between two
+    // prow-shaped intermediate piers; 15.5 m side fields close the span.
     axis: [0.87895, -0.47692],
     halfWidthM: 11.7915,
     kind: "steelArch",
@@ -2467,10 +2544,12 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [1128.12, -334.72],
   },
   {
-    // "Sprung über die Spree": the twin parliament footbridges between
-    // Paul-Löbe-Haus and Marie-Elisabeth-Lüders-Haus.
+    // Deutscher Bundestag: the "Sprung über die Spree" is a two-storey
+    // internal footbridge between Paul-Löbe-Haus and
+    // Marie-Elisabeth-Lüders-Haus. The lower level is publicly accessible.
+    axis: [1, 0],
     halfWidthM: 5.5,
-    kind: "slender",
+    kind: "parliament",
     matchRadiusM: 60,
     name: "Sprung über die Spree",
     world: [342, -186],
@@ -2479,6 +2558,9 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     // Official Berlin dimensions: 76.86 m overall, 4.00 m clear width,
     // 58.70 m pier-free clear span. The gold-lacquered U-girder rises in
     // a shallow arch and carries laser-cut perforated side plates.
+    // Pin the OSM centreline: the 4 m raster otherwise overweights its broad
+    // approach cells and makes the 76.86 m yellow span visibly skewed.
+    axis: [0.85749, -0.5145],
     halfWidthM: 2,
     kind: "golda",
     matchRadiusM: 48,
@@ -2496,8 +2578,9 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     // Berlin bridge inventory BW 3446035: open frame, built 1994,
     // 32.60 x 28.80 m. The broad road deck must not inherit a guessed
     // generic span from the 4 m raster.
+    axis: [0.31623, 0.94868],
     halfWidthM: 14.4,
-    kind: "beam",
+    kind: "openFrame",
     matchRadiusM: 60,
     name: "Sandkrugbrücke",
     palette: {
@@ -2528,6 +2611,10 @@ export function bridgeProfileAt(x: number, z: number): BridgeProfile | null {
 // Spree in the government quarter is ~4.4 m, so the carriageway always
 // clears the water even where the surveyed banks are low.
 export const BRIDGE_MIN_CLEARANCE_M = 5.4;
+export const GOLDA_PERFORATION_BAYS = 39;
+export const KRONPRINZEN_SPAN_LAYOUT_M = [15.492, 44, 15.492] as const;
+export const MOLTKE_ARCH_COUNT = 3;
+export const PARLIAMENT_BRIDGE_LEVELS = 2;
 
 function createBridgeStructures(ground: VoxelPayload): Group | null {
   const clusters = bridgeClusters(ground).filter(
@@ -2622,6 +2709,11 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const HUGO_ASPHALT = new Color(0x626565);
     const HUGO_PAVING = new Color(0xb9b8b1);
     const HUGO_RECESS = new Color(0x697174);
+    const DECK_JOINT = new Color(0x696762);
+    const BEARING = new Color(0x4f5554);
+    const PARLIAMENT_GLASS = new Color(0x9eb9bc);
+    const MOLTKE_RELIEF = new Color(0x9b594c);
+    const parliamentUpperDeckM = 4.2 * (PARLIAMENT_BRIDGE_LEVELS - 1);
     // The occupied cell envelope now carries the full generic dimensions.
     // Named profiles still replace both values with published survey figures.
     const halfLength =
@@ -2683,6 +2775,8 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                 ? 1.05
                 : kind === "vierendeel"
                   ? 0.16
+                  : kind === "parliament" || kind === "openFrame"
+                    ? 0.12
                   : kind === "slender"
                     ? 0.9
                     : 0.5;
@@ -2694,24 +2788,32 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         ? 0.22
         : kind === "vierendeel"
           ? 0.24
-          : kind === "ironArch"
-            ? 0.52
-            : kind === "curvedBox"
-              ? 0.28
-              : kind === "slender"
-                ? 0.5
-                : 0.7;
+          : kind === "parliament"
+            ? 0.32
+            : kind === "openFrame"
+              ? 0.55
+              : kind === "ironArch"
+                ? 0.52
+                : kind === "curvedBox"
+                  ? 0.28
+                  : kind === "slender"
+                    ? 0.5
+                    : 0.7;
     const DECK_SEGMENTS = genericSmall
       ? Math.max(2, Math.min(8, Math.ceil((halfLength * 2) / cell)))
       : kind === "vierendeel"
         ? 40
-        : kind === "ironArch"
-          ? 30
-          : kind === "curvedBox"
-            ? 32
-            : kind === "golda"
-              ? 28
-              : 14;
+        : kind === "parliament"
+          ? 22
+          : kind === "ironArch"
+            ? 30
+            : kind === "curvedBox"
+              ? 32
+              : kind === "golda"
+                ? 28
+                : kind === "openFrame"
+                  ? 16
+                  : 14;
     const segmentLength = (halfLength * 2) / DECK_SEGMENTS;
     for (let index = 0; index < DECK_SEGMENTS; index += 1) {
       const u = -halfLength + segmentLength * (index + 0.5);
@@ -2973,6 +3075,171 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             false,
           );
         }
+      } else if (kind === "beam" && halfWidth >= 6.5) {
+        // Broad source-derived beam clusters are road bridges. Preserve the
+        // measured outer envelope while separating carriageway and footways;
+        // narrow rail and park crossings deliberately stay neutral.
+        const roadWidth = halfWidth * 2 - 4.4;
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.035,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.07,
+            roadWidth,
+          ),
+          ROAD_SURFACE,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [walkX, walkZ] = at(u, side * (halfWidth - 1.1));
+          addPart(
+            boxTriangles(
+              walkX,
+              y + 0.065,
+              walkZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.11,
+              1.8,
+            ),
+            HUGO_PAVING,
+            false,
+          );
+        }
+        if (index % 2 === 0) {
+          addPart(
+            boxTriangles(
+              sx,
+              y + 0.078,
+              sz,
+              localAxis,
+              Math.min(2.4, segmentLength * 0.58),
+              0.025,
+              0.13,
+            ),
+            ROAD_MARKING,
+            false,
+          );
+        }
+      } else if (kind === "openFrame") {
+        // Sandkrugbrücke: a broad Invalidenstraße road plate carried by an
+        // open concrete frame. Keep the asphalt, pale footways and outer
+        // fascia distinct instead of drawing one 28.8 m grey slab.
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.035,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.07,
+            16.4,
+          ),
+          ROAD_SURFACE,
+          false,
+        );
+        for (const side of [-1, 1]) {
+          const [walkX, walkZ] = at(u, side * 10.85);
+          addPart(
+            boxTriangles(
+              walkX,
+              y + 0.07,
+              walkZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.12,
+              5.0,
+            ),
+            HUGO_PAVING,
+            false,
+          );
+          const [fasciaX, fasciaZ] = at(u, side * (halfWidth - 0.25));
+          addPart(
+            boxTriangles(
+              fasciaX,
+              y - 0.45,
+              fasciaZ,
+              localAxis,
+              segmentLength + 0.05,
+              0.9,
+              0.42,
+            ),
+            STONE,
+            false,
+          );
+        }
+        if (index % 2 === 0) {
+          addPart(
+            boxTriangles(
+              sx,
+              y + 0.078,
+              sz,
+              localAxis,
+              Math.min(2.5, segmentLength * 0.58),
+              0.025,
+              0.14,
+            ),
+            ROAD_MARKING,
+            false,
+          );
+        }
+      } else if (kind === "parliament") {
+        // The Bundestag describes this as a two-storey footbridge. The
+        // lower public passage and upper internal passage share one precise
+        // structural grid rather than being collapsed into a single slab.
+        addPart(
+          boxTriangles(
+            sx,
+            y + 0.04,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.08,
+            halfWidth * 2 - 0.7,
+          ),
+          HUGO_PAVING,
+          false,
+        );
+        addPart(
+          boxTriangles(
+            sx,
+            y + parliamentUpperDeckM,
+            sz,
+            localAxis,
+            segmentLength + 0.05,
+            0.3,
+            halfWidth * 2,
+          ),
+          DECK,
+          index === 0 || index === DECK_SEGMENTS - 1,
+        );
+        for (const side of [-1, 1]) {
+          const [frameX, frameZ] = at(u, side * halfWidth);
+          for (const level of [
+            0.2,
+            parliamentUpperDeckM / 2 - 0.02,
+            parliamentUpperDeckM + 0.15,
+          ]) {
+            addPart(
+              boxTriangles(
+                frameX,
+                y + level,
+                frameZ,
+                localAxis,
+                segmentLength + 0.05,
+                Math.abs(level - parliamentUpperDeckM / 2) < 0.1 ? 0.12 : 0.2,
+                0.18,
+              ),
+              Math.abs(level - parliamentUpperDeckM / 2) < 0.1
+                ? PARLIAMENT_GLASS
+                : STEEL,
+              false,
+            );
+          }
+        }
       } else if (kind === "vierendeel") {
         // The footbridge has riveted timber boards with narrow galvanised
         // service strips along the inside of its structural side girders.
@@ -3102,12 +3369,66 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         }
       }
     }
+    if (
+      (profile || (kind === "beam" && halfWidth >= 6.5)) &&
+      kind !== "golda" &&
+      kind !== "parliament"
+    ) {
+      // Every measured road bridge terminates with a narrow expansion joint.
+      // One unoutlined strip per end is stable at overview scale and prevents
+      // the deck from visually melting into the approach surface.
+      for (const end of [-1, 1]) {
+        const u = end * (halfLength - 0.28);
+        const [jointX, jointZ] = at(u, 0);
+        addPart(
+          boxTriangles(
+            jointX,
+            deckY + riseAt(u) + 0.07,
+            jointZ,
+            tangentAt(u),
+            0.2,
+            0.035,
+            halfWidth * 2 - 0.45,
+          ),
+          DECK_JOINT,
+          false,
+        );
+      }
+    }
+    if (
+      kind === "curvedBox" ||
+      kind === "steelArch" ||
+      kind === "openFrame"
+    ) {
+      // Four compact bearing pads make the transfer from deck to abutment
+      // legible from below without adding thin, flicker-prone linework.
+      for (const end of [-1, 1]) {
+        const u = end * (halfLength - 1.05);
+        const y = deckY + riseAt(u) - deckThickness - 0.16;
+        for (const side of [-1, 1]) {
+          const [bearingX, bearingZ] = at(u, side * halfWidth * 0.56);
+          addPart(
+            boxTriangles(
+              bearingX,
+              y,
+              bearingZ,
+              tangentAt(u),
+              0.72,
+              0.32,
+              0.82,
+            ),
+            BEARING,
+            false,
+          );
+        }
+      }
+    }
     // Railing uprights: sandstone pedestals on the Moltkebrücke, slim
     // steel posts everywhere else.
     const postSpacing = kind === "stoneArch" ? 5.5 : genericSmall ? 3.2 : 2.6;
     const postCount = Math.max(2, Math.round((halfLength * 2) / postSpacing));
     if (kind === "golda") {
-      const slotCount = 39;
+      const slotCount = GOLDA_PERFORATION_BAYS;
       for (let index = 1; index < slotCount; index += 1) {
         const u = -halfLength + (index / slotCount) * halfLength * 2;
         const y = deckY + riseAt(u);
@@ -3126,6 +3447,26 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               0.035,
             ),
             GOLD_SLOT,
+            false,
+          );
+        }
+      }
+      for (const end of [-1, 1]) {
+        const u = end * (halfLength - 0.22);
+        const y = deckY + riseAt(u);
+        for (const side of [-1, 1]) {
+          const [capX, capZ] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(
+              capX,
+              y + 0.76,
+              capZ,
+              tangentAt(u),
+              0.44,
+              1.52,
+              0.38,
+            ),
+            STEEL,
             false,
           );
         }
@@ -3196,6 +3537,59 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               WARM_LIGHT,
             );
           }
+        }
+      }
+    } else if (kind === "parliament") {
+      const bayCount = 12;
+      const bayLength = (halfLength * 2) / bayCount;
+      for (let index = 0; index <= bayCount; index += 1) {
+        const u = -halfLength + (index / bayCount) * halfLength * 2;
+        const y = deckY + riseAt(u);
+        for (const side of [-1, 1]) {
+          const [postX, postZ] = at(u, side * halfWidth);
+          addPart(
+            boxTriangles(
+              postX,
+              y + 2.2,
+              postZ,
+              tangentAt(u),
+              0.2,
+              4.4,
+              0.2,
+            ),
+            STEEL,
+            false,
+          );
+        }
+      }
+      for (let index = 0; index < bayCount; index += 1) {
+        const u0 = -halfLength + index * bayLength + 0.12;
+        const u1 = u0 + bayLength - 0.24;
+        for (const side of [-1, 1]) {
+          const [x0, z0] = at(u0, side * halfWidth);
+          const [x1, z1] = at(u1, side * halfWidth);
+          const lowY = deckY + riseAt(u0) + 0.32;
+          const midY = deckY + riseAt(u1) + 2.0;
+          const upperY =
+            deckY + riseAt(u0) + parliamentUpperDeckM - 0.1;
+          addPart(
+            beamBetweenTriangles(
+              [x0, lowY, z0],
+              [x1, midY, z1],
+              0.12,
+            ),
+            index % 2 === 0 ? PARLIAMENT_GLASS : STEEL,
+            false,
+          );
+          addPart(
+            beamBetweenTriangles(
+              [x1, midY + 0.2, z1],
+              [x0, upperY, z0],
+              0.12,
+            ),
+            index % 2 === 0 ? PARLIAMENT_GLASS : STEEL,
+            false,
+          );
         }
       }
     } else if (kind === "curvedBox") {
@@ -3393,38 +3787,77 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             false,
           );
           if (Math.abs(fraction) === 1) {
-            const sculptureY = y + 1.98;
+            const facing = -Math.sign(fraction);
+            const sculptureY = y + 1.93;
+            const bodyStart: [number, number, number] = [
+              px - ax * facing * 0.36,
+              sculptureY,
+              pz - az * facing * 0.36,
+            ];
+            const bodyEnd: [number, number, number] = [
+              px + ax * facing * 0.54,
+              sculptureY + 0.08,
+              pz + az * facing * 0.54,
+            ];
             addPart(
-              prismTriangles(px, sculptureY, pz, 0.34, 0.86, 7),
-              STEEL,
+              beamBetweenTriangles(bodyStart, bodyEnd, 0.5, 0.58),
+              STONE,
+              false,
+            );
+            const neckEnd: [number, number, number] = [
+              px + ax * facing * 0.76,
+              sculptureY + 0.7,
+              pz + az * facing * 0.76,
+            ];
+            addPart(
+              beamBetweenTriangles(bodyEnd, neckEnd, 0.32, 0.38),
+              STONE,
               false,
             );
             addPart(
               prismTriangles(
-                px + ax * 0.16 * -Math.sign(fraction),
-                sculptureY + 0.52,
-                pz + az * 0.16 * -Math.sign(fraction),
-                0.2,
-                0.36,
+                neckEnd[0] + ax * facing * 0.12,
+                neckEnd[1] + 0.1,
+                neckEnd[2] + az * facing * 0.12,
+                0.23,
+                0.34,
                 7,
               ),
-              STEEL,
+              MOLTKE_RELIEF,
               false,
             );
             for (const wingSide of [-1, 1]) {
+              const wingEnd: [number, number, number] = [
+                px - ax * facing * 0.35 + nx * wingSide * 0.72,
+                sculptureY + 0.78,
+                pz - az * facing * 0.35 + nz * wingSide * 0.72,
+              ];
               addPart(
-                boxTriangles(
-                  px + nx * wingSide * 0.34,
-                  sculptureY + 0.12,
-                  pz + nz * wingSide * 0.34,
-                  localAxis,
-                  0.56,
-                  0.72,
-                  0.1,
-                ),
-                STEEL,
+                beamBetweenTriangles(bodyStart, wingEnd, 0.16, 0.32),
+                MOLTKE_RELIEF,
                 false,
               );
+            }
+            for (const legU of [-0.24, 0.24]) {
+              for (const legV of [-0.16, 0.16]) {
+                addPart(
+                  beamBetweenTriangles(
+                    [
+                      px + ax * legU + nx * legV,
+                      sculptureY - 0.12,
+                      pz + az * legU + nz * legV,
+                    ],
+                    [
+                      px + ax * (legU + facing * 0.08) + nx * legV,
+                      y + 1.55,
+                      pz + az * (legU + facing * 0.08) + nz * legV,
+                    ],
+                    0.14,
+                  ),
+                  STONE,
+                  false,
+                );
+              }
             }
           }
         }
@@ -3497,7 +3930,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       // Three segmental arches on cutwater piers — the built
       // Moltkebrücke. Each arch ring is drawn on both outer faces with a
       // spandrel wall between them.
-      const arches = 3;
+      const arches = MOLTKE_ARCH_COUNT;
       const pierSpacing = (halfLength * 2) / arches;
       const springY = waterTop + 1.2;
       for (let index = 1; index < arches; index += 1) {
@@ -3548,7 +3981,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                 1.1,
                 0.9,
               ),
-              STONE,
+              step % 3 === 0 ? MOLTKE_RELIEF : STONE,
               false,
             );
           }
@@ -3574,6 +4007,28 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
               );
             }
           }
+        }
+      }
+      // Three centred relief fields and a continuous string course repeat
+      // the historic sandstone facade without using a photographic texture.
+      for (let arch = 0; arch < arches; arch += 1) {
+        const u = -halfLength + pierSpacing * (arch + 0.5);
+        const y = deckY + riseAt(u) - 1.0;
+        for (const side of [-1, 1]) {
+          const [panelX, panelZ] = at(u, side * (halfWidth - 0.02));
+          addPart(
+            boxTriangles(
+              panelX,
+              y,
+              panelZ,
+              tangentAt(u),
+              3.2,
+              0.72,
+              0.12,
+            ),
+            MOLTKE_RELIEF,
+            false,
+          );
         }
       }
     } else if (kind === "ironArch") {
@@ -3653,51 +4108,108 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         }
       }
     } else if (kind === "steelArch") {
-      // A single flat arch rib per side springing from the abutments,
-      // with vertical spandrel posts carrying the deck. Nothing stands
-      // in the river.
-      const steps = 16;
-      const springY = deckY - 1.4;
-      const archDrop = Math.min(3.6, deckY - waterTop - 1.6);
-      for (let step = 0; step < steps; step += 1) {
-        const t = (step + 0.5) / steps;
-        const u = -halfLength + halfLength * 2 * t;
-        const dip = Math.sin(t * Math.PI) * archDrop;
-        const [wx, wz] = at(u, 0);
-        for (const side of [-1, 1]) {
+      // Calatrava's built bridge is a three-field system: 15.5 m side
+      // openings frame a 44 m main opening. Two longitudinal pipe girders
+      // receive sloping struts from shallow arches below the deck, all
+      // landing on prow-shaped intermediate piers.
+      const breakU = KRONPRINZEN_SPAN_LAYOUT_M[1] / 2;
+      const spans = [
+        [-halfLength, -breakU],
+        [-breakU, breakU],
+        [breakU, halfLength],
+      ] as const;
+      for (const side of [-1, 1]) {
+        for (let segment = 0; segment < DECK_SEGMENTS; segment += 1) {
+          const u0 = -halfLength + segmentLength * segment;
+          const u1 = u0 + segmentLength;
+          const [x0, z0] = at(u0, side * 6.35);
+          const [x1, z1] = at(u1, side * 6.35);
           addPart(
-            boxTriangles(
-              wx + nx * side * (halfWidth - 0.6),
-              springY - dip,
-              wz + nz * side * (halfWidth - 0.6),
-              tangentAt(u),
-              (halfLength * 2) / steps + 0.12,
-              0.8,
-              0.55,
+            beamBetweenTriangles(
+              [x0, deckY + riseAt(u0) - 0.92, z0],
+              [x1, deckY + riseAt(u1) - 0.92, z1],
+              0.86,
             ),
             STEEL,
             false,
           );
         }
-        if (step % 3 === 1) {
-          const hanger = deckY + riseAt(u) - 1.1 - (springY - dip);
-          if (hanger > 0.3) {
-            for (const side of [-1, 1]) {
+      }
+      for (const [spanStart, spanEnd] of spans) {
+        const isMain = spanEnd - spanStart > 30;
+        const steps = isMain ? 16 : 7;
+        const drop = isMain ? 3.25 : 1.55;
+        for (let step = 0; step < steps; step += 1) {
+          const t = (step + 0.5) / steps;
+          const u = spanStart + (spanEnd - spanStart) * t;
+          const archY =
+            deckY + riseAt(u) - 1.5 - Math.sin(t * Math.PI) * drop;
+          for (const side of [-1, 1]) {
+            const [ribX, ribZ] = at(u, side * (halfWidth - 1.15));
+            addPart(
+              boxTriangles(
+                ribX,
+                archY,
+                ribZ,
+                tangentAt(u),
+                (spanEnd - spanStart) / steps + 0.12,
+                0.68,
+                0.5,
+              ),
+              STEEL,
+              false,
+            );
+            if (step % 2 === 0) {
+              const [deckX, deckZ] = at(
+                u + ((step % 4 === 0 ? 1 : -1) * (spanEnd - spanStart)) /
+                  steps /
+                  3,
+                side * 6.35,
+              );
               addPart(
-                boxTriangles(
-                  wx + nx * side * (halfWidth - 0.6),
-                  springY - dip + hanger / 2,
-                  wz + nz * side * (halfWidth - 0.6),
-                  tangentAt(u),
-                  0.25,
-                  hanger,
-                  0.25,
+                beamBetweenTriangles(
+                  [ribX, archY + 0.22, ribZ],
+                  [deckX, deckY + riseAt(u) - 0.82, deckZ],
+                  0.2,
                 ),
                 STEEL,
                 false,
               );
             }
           }
+        }
+      }
+      const pierRotation = Math.atan2(az, ax);
+      for (const u of [-breakU, breakU]) {
+        const pierDeckY = deckY + riseAt(u) - 1.15;
+        const height = pierDeckY - bedY;
+        for (const side of [-1, 1]) {
+          const [pierX, pierZ] = at(u, side * (halfWidth - 1.2));
+          addPart(
+            prismTriangles(
+              pierX,
+              bedY + height / 2,
+              pierZ,
+              1.75,
+              height,
+              3,
+              pierRotation + (u < 0 ? Math.PI : 0),
+            ),
+            STONE_DARK,
+          );
+          addPart(
+            boxTriangles(
+              pierX,
+              pierDeckY + 0.1,
+              pierZ,
+              tangentAt(u),
+              2.2,
+              0.35,
+              2.4,
+            ),
+            BEARING,
+            false,
+          );
         }
       }
     } else if (kind === "vierendeel") {
@@ -3720,11 +4232,68 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           ),
           STONE_DARK,
         );
+        for (const side of [-1, 1]) {
+          const [bearingX, bearingZ] = at(u, side * 1.25);
+          addPart(
+            boxTriangles(
+              bearingX,
+              deckY + riseAt(u) - deckThickness - 0.14,
+              bearingZ,
+              tangentAt(u),
+              0.58,
+              0.28,
+              0.52,
+            ),
+            BEARING,
+            false,
+          );
+        }
       }
     } else if (kind === "curvedBox") {
       // Hugo-Preuß is an 88 m one-field box girder. Its load reaches the
       // two massive abutments above; no invented pier may stand in the
       // mouth of the Humboldthafen.
+    } else if (kind === "openFrame") {
+      // Sandkrugbrücke: the open frame keeps the navigation opening clear.
+      // Four inclined haunches transfer its wide deck into the bank frames.
+      for (const end of [-1, 1]) {
+        const deckU = end * (halfLength - 2.1);
+        const baseU = end * (halfLength - 5.4);
+        for (const side of [-1, 1]) {
+          const [deckX, deckZ] = at(deckU, side * (halfWidth - 1.1));
+          const [baseX, baseZ] = at(baseU, side * (halfWidth - 1.1));
+          addPart(
+            beamBetweenTriangles(
+              [baseX, bedY + 0.25, baseZ],
+              [
+                deckX,
+                deckY + riseAt(deckU) - deckThickness - 0.2,
+                deckZ,
+              ],
+              0.9,
+              1.15,
+            ),
+            STONE_DARK,
+          );
+        }
+        const frameU = end * (halfLength - 3.1);
+        const [frameX, frameZ] = at(frameU, 0);
+        addPart(
+          boxTriangles(
+            frameX,
+            deckY + riseAt(frameU) - 1.05,
+            frameZ,
+            tangentAt(frameU),
+            1.0,
+            1.1,
+            halfWidth * 2 - 1.2,
+          ),
+          STONE,
+        );
+      }
+    } else if (kind === "parliament") {
+      // The two-storey Bundestag bridge spans directly between the two
+      // parliamentary buildings; no invented support belongs in the Spree.
     } else if (kind === "slender") {
       // Two round columns in the stream, nothing else: the footbridge
       // must stay light.

@@ -1225,8 +1225,14 @@ describe("real bridge structures", () => {
   });
 
   test("pins the corrected bridges to published dimensions and identities", async () => {
-    const { createIsometricCity, BRIDGE_PROFILES } =
-      await import("../src/IsometricCityWorld");
+    const {
+      createIsometricCity,
+      BRIDGE_PROFILES,
+      GOLDA_PERFORATION_BAYS,
+      KRONPRINZEN_SPAN_LAYOUT_M,
+      MOLTKE_ARCH_COUNT,
+      PARLIAMENT_BRIDGE_LEVELS,
+    } = await import("../src/IsometricCityWorld");
     const ground = (
       await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
     ).default as never;
@@ -1238,7 +1244,9 @@ describe("real bridge structures", () => {
       halfWidthM: 2,
     });
     expect(profile("Golda-Meir-Steg").kind).toBe("golda");
+    expect(profile("Golda-Meir-Steg").axis).toEqual([0.85749, -0.5145]);
     expect(profile("Golda-Meir-Steg").palette?.structure).toBe(0xf2b600);
+    expect(GOLDA_PERFORATION_BAYS).toBe(39);
     expect(profile("Gustav-Heinemann-Brücke").surveyedDeck).toEqual({
       halfLengthM: 43.88,
       halfWidthM: 2,
@@ -1263,6 +1271,10 @@ describe("real bridge structures", () => {
       halfLengthM: 16.3,
       halfWidthM: 14.4,
     });
+    expect(profile("Sandkrugbrücke")).toMatchObject({
+      axis: [0.31623, 0.94868],
+      kind: "openFrame",
+    });
     expect(profile("Moltkebrücke").surveyedDeck).toEqual({
       halfLengthM: 38.79,
       halfWidthM: 12.85,
@@ -1275,6 +1287,13 @@ describe("real bridge structures", () => {
       surveyedDeck: { halfLengthM: 37.492, halfWidthM: 11.7915 },
       world: [303.519, -323.32],
     });
+    expect(KRONPRINZEN_SPAN_LAYOUT_M).toEqual([15.492, 44, 15.492]);
+    expect(MOLTKE_ARCH_COUNT).toBe(3);
+    expect(profile("Sprung über die Spree")).toMatchObject({
+      axis: [1, 0],
+      kind: "parliament",
+    });
+    expect(PARLIAMENT_BRIDGE_LEVELS).toBe(2);
     expect(profile("Weidendammer Brücke")).toMatchObject({
       axis: [0.0852, 0.9964],
       kind: "ironArch",
@@ -1321,6 +1340,65 @@ describe("real bridge structures", () => {
       }
     }
     expect(upwardMoltkeVertices).toBeGreaterThan(100);
+  });
+
+  test("draws the parliament levels and Kronprinzen prow supports without exceeding the bridge budget", async () => {
+    const {
+      createIsometricCity,
+      BRIDGE_MIN_CLEARANCE_M,
+      BRIDGE_PROFILES,
+      KRONPRINZEN_SPAN_LAYOUT_M,
+    } = await import("../src/IsometricCityWorld");
+    const ground = (
+      await import("../public/mesh/regierungsviertel/minecraft-voxels.json")
+    ).default as { water_top_y_m: number };
+    const city = createIsometricCity(payload, ground as never, null);
+    const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
+    const positions = bodies.geometry.getAttribute("position");
+    const parliament = BRIDGE_PROFILES.find(
+      (entry) => entry.name === "Sprung über die Spree",
+    )!;
+    const kronprinzen = BRIDGE_PROFILES.find(
+      (entry) => entry.name === "Kronprinzenbrücke",
+    )!;
+    const [ax, az] = kronprinzen.axis!;
+    const [nx, nz] = [-az, ax];
+    const breakU = KRONPRINZEN_SPAN_LAYOUT_M[1] / 2;
+    const pierTargets = [-breakU, breakU].flatMap((u) =>
+      [-1, 1].map((side) => [
+        kronprinzen.world[0] +
+          ax * u +
+          nx * side * (kronprinzen.surveyedDeck!.halfWidthM - 1.2),
+        kronprinzen.world[1] +
+          az * u +
+          nz * side * (kronprinzen.surveyedDeck!.halfWidthM - 1.2),
+      ]),
+    );
+    let upperParliamentVertices = 0;
+    let submergedProwVertices = 0;
+    for (let index = 0; index < positions.count; index += 1) {
+      const x = positions.getX(index);
+      const y = positions.getY(index);
+      const z = positions.getZ(index);
+      if (
+        Math.hypot(x - parliament.world[0], z - parliament.world[1]) < 30 &&
+        y > ground.water_top_y_m + BRIDGE_MIN_CLEARANCE_M + 3.5
+      ) {
+        upperParliamentVertices += 1;
+      }
+      if (
+        y < ground.water_top_y_m &&
+        pierTargets.some(([targetX, targetZ]) =>
+          Math.hypot(x - targetX, z - targetZ) < 2.2,
+        )
+      ) {
+        submergedProwVertices += 1;
+      }
+    }
+    expect(upperParliamentVertices).toBeGreaterThan(2_000);
+    expect(submergedProwVertices).toBeGreaterThan(24);
+    expect(positions.count).toBeGreaterThan(260_000);
+    expect(positions.count).toBeLessThan(320_000);
   });
 
   test("Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free", async () => {
