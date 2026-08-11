@@ -31,6 +31,11 @@ import {
   Vector3,
 } from "three";
 import {
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+  markArchitecturalAccentInk,
+  markArchitecturalInk,
+} from "./architecturalInk";
+import {
   type ArchitecturalSignature as ReichstagDomeSignature,
   createOfficialReichstagDome,
 } from "./ReichstagDome";
@@ -202,14 +207,16 @@ function modelMaterial(
 }
 
 function addEdges(group: Group, mesh: Mesh, opacity = 0.78): LineSegments {
-  const material = new LineBasicMaterial({
-    color: EDGE_COLOR,
-    opacity,
-    transparent: opacity < 1,
-  });
-  material.userData.modeInk = true;
+  const material = markArchitecturalInk(
+    new LineBasicMaterial({
+      color: EDGE_COLOR,
+      opacity,
+      transparent: opacity < 1,
+    }),
+    opacity >= 0.76 ? "silhouette" : "detail",
+  );
   const edges = new LineSegments(
-    new EdgesGeometry(mesh.geometry, 24),
+    new EdgesGeometry(mesh.geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
     material,
   );
   edges.name = `${mesh.name} model edges`;
@@ -237,10 +244,19 @@ function addBoxOutline(
     transparent: opacity < 1,
   });
   if (color === EDGE_COLOR) {
-    outlineMaterial.userData.modeInk = true;
+    markArchitecturalInk(
+      outlineMaterial,
+      opacity >= 0.76 ? "silhouette" : "detail",
+    );
+  } else {
+    markArchitecturalAccentInk(
+      outlineMaterial,
+      color,
+      opacity >= 0.76 ? "silhouette" : "detail",
+    );
   }
   const edges = new LineSegments(
-    new EdgesGeometry(source, 24),
+    new EdgesGeometry(source, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
     outlineMaterial,
   );
   source.dispose();
@@ -323,15 +339,17 @@ function addVectorSegments(
   const positions = segments.flatMap(([start, end]) => [...start, ...end]);
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  const lines = new LineSegments(
-    geometry,
-    new LineBasicMaterial({
-      color,
-      depthWrite: opacity >= 0.75,
-      opacity,
-      transparent: opacity < 1,
-    }),
-  );
+  const role = opacity >= 0.76 ? "detail" : "micro";
+  const baseMaterial = new LineBasicMaterial({
+    depthWrite: opacity >= 0.75,
+    opacity,
+    transparent: opacity < 1,
+  });
+  const material =
+    color === EDGE_COLOR
+      ? markArchitecturalInk(baseMaterial, role)
+      : markArchitecturalAccentInk(baseMaterial, color, role);
+  const lines = new LineSegments(geometry, material);
   lines.name = name;
   lines.renderOrder = 9;
   group.add(lines);

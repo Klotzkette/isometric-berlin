@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.70.37
+
+- **A shared architectural-ink register now gives the complete model one
+  deliberate hand.** Surveyed LoD2 buildings and hand-built recognition models
+  use separate silhouette, construction-detail and micro-detail tones. The
+  common edge threshold moves from 24° to 18°, revealing useful roof breaks,
+  cornices, glazing braces, facade joints and monument facets without changing
+  a single footprint, height or landmark coordinate.
+- **Previously isolated details now follow all four surface modes.** The
+  Reichstag dome, Brandenburg Gate, Kanzleramt, Hauptbahnhof, Adlon,
+  Paul-Löbe-Haus canopy, Siegessäule/Bismarck ensemble, Spreebogen office,
+  Kulturforum details, bridge railings, quays and Tiergarten monuments now
+  share mode-aware ink. Purposeful glass, bronze, clinker and planting colours
+  blend toward each mode's register and return exactly to their authored Day
+  colour; Night, Minecraft and Snowstorm no longer inherit stray dark Day
+  outlines.
+- **The line system is tested as a lossless presentation contract.** Day
+  facade-axis opacity now restores the canonical 0.26 value after a Night
+  round-trip. Unit tests cover the three-level palettes, accent restoration,
+  complete monument registration and Reichstag-dome linework. Browser checks
+  covered 1600×900 close views and the 390×844 layout; settled screenshots were
+  byte-identical in Day, Night, Minecraft and Snowstorm with snowfall paused,
+  and the console remained clean. The visible radius remains **5,230 m**;
+  source geometry, attribution and the additive-data policy are unchanged.
+
 ## v0.70.36
 
 - **The official Berlin Wall trace finally reads above the authored public

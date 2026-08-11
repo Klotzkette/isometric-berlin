@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, LineSegments, Mesh } from "three";
+import {
+  Box3,
+  InstancedMesh,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+} from "three";
 import {
   type BrandenburgGateModelSignature,
   type ChancelleryModelSignature,
@@ -81,9 +87,14 @@ describe("metre-scale architectural recognition models", () => {
     const quadrigaBounds = new Box3().setFromObject(quadriga);
     expect(quadrigaBounds.min.y).toBeCloseTo(signature.gate_height_m, 1);
     expect(quadrigaBounds.max.y).toBeCloseTo(signature.total_height_m, 1);
+    const fluting = gate!.getObjectByName(
+      "Brandenburg Gate batched Doric column fluting",
+    );
+    expect(fluting).toBeInstanceOf(LineSegments);
     expect(
-      gate!.getObjectByName("Brandenburg Gate batched Doric column fluting"),
-    ).toBeInstanceOf(LineSegments);
+      ((fluting as LineSegments).material as LineBasicMaterial).userData
+        .architecturalInkRole,
+    ).toBe("micro");
     expect(
       gate!.getObjectByName("Brandenburg Gate batched pavilion masonry joints"),
     ).toBeInstanceOf(LineSegments);

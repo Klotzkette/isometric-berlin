@@ -23,6 +23,10 @@ import {
 } from "three";
 
 import {
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+  markArchitecturalInk,
+} from "./architecturalInk";
+import {
   HOLOCAUST_FIELD,
   HOLOCAUST_GEOMETRY_STATUS,
   HOLOCAUST_PALETTES,
@@ -153,13 +157,18 @@ function addInstances(
 }
 
 function addEdges(group: Group, mesh: Mesh, opacity = 0.8): LineSegments {
-  const material = new LineBasicMaterial({
-    color: EDGE_COLOR,
-    opacity,
-    transparent: opacity < 1,
-  });
-  material.userData.modeInk = true;
-  const edges = new LineSegments(new EdgesGeometry(mesh.geometry, 24), material);
+  const material = markArchitecturalInk(
+    new LineBasicMaterial({
+      color: EDGE_COLOR,
+      opacity,
+      transparent: opacity < 1,
+    }),
+    opacity >= 0.76 ? "silhouette" : "detail",
+  );
+  const edges = new LineSegments(
+    new EdgesGeometry(mesh.geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    material,
+  );
   edges.name = `${mesh.name} model edges`;
   edges.position.copy(mesh.position);
   edges.rotation.copy(mesh.rotation);

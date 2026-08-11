@@ -1,6 +1,7 @@
 import { EdgesGeometry, ExtrudeGeometry, Shape } from "three";
 import type { Group } from "three";
 
+import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   addBox,
   createBuilder,
@@ -134,7 +135,9 @@ function addFootprint(
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
   if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 

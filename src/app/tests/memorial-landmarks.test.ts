@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
+import {
+  Box3,
+  InstancedMesh,
+  LineBasicMaterial,
+  LineSegments,
+  Matrix4,
+  Vector3,
+} from "three";
 
 import {
   createMemorialLandmarks,
@@ -31,6 +38,17 @@ describe("granular memorial recognition models", () => {
     expect(root.children).toHaveLength(8);
     expect(root.userData.modelCount).toBe(8);
     names.forEach((name) => expect(root.getObjectByName(name)).not.toBeNull());
+    const ink: LineSegments[] = [];
+    root.traverse((object) => {
+      if (object instanceof LineSegments) ink.push(object);
+    });
+    expect(ink.length).toBeGreaterThan(20);
+    expect(
+      ink.every(
+        (line) =>
+          (line.material as LineBasicMaterial).userData.modeInk === true,
+      ),
+    ).toBeTrue();
   });
 
   test("grounds every model on the sampled official mesh instead of the camera anchor", () => {

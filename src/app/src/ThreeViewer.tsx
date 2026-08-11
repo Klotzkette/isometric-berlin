@@ -46,6 +46,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { applyArchitecturalInkMode } from "./architecturalInk";
 import {
   type ArchitecturalSignature,
   type FocusCamera,
@@ -127,8 +128,6 @@ import {
   type PrismPayload,
   type SurfacePayload,
   SURFACE_WORLD_FILE,
-  ISO_INK_COLOR,
-  ISO_NIGHT_INK_COLOR,
   PRISM_WORLD_FILE,
   createIsometricCity,
   setIsoNightPresentation,
@@ -989,15 +988,13 @@ function applyLightingToRoot(
       // above — the moonlit look keeps none of them.
       object.visible = mode === "night" && lightsOn;
     }
-    // Hero-model ink follows the city ink: fine grey pencil by day,
-    // moonlit blue at night (materials tagged modeInk).
+    // Hero-model ink follows the shared three-level register in every surface
+    // mode; purposeful glass, bronze and masonry accents retain their identity.
     if (
       object instanceof LineSegments &&
       (object.material as LineBasicMaterial).userData?.modeInk === true
     ) {
-      (object.material as LineBasicMaterial).color.setHex(
-        mode === "night" ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
-      );
+      applyArchitecturalInkMode(object.material as LineBasicMaterial, mode);
     }
     if (!(object instanceof Mesh)) {
       return;
@@ -1324,7 +1321,7 @@ function setSceneLighting(
     runtime.camera.updateProjectionMatrix();
   }
   if (runtime.isoWorld) {
-    setIsoNightPresentation(runtime.isoWorld, isNight, lightsOn);
+    setIsoNightPresentation(runtime.isoWorld, isNight, lightsOn, mode);
   }
   if (runtime.underwater) {
     runtime.underwater = false;

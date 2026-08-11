@@ -55,6 +55,7 @@ import {
   Shape,
   TorusGeometry,
 } from "three";
+import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { ironCrossOutline, oakWreathLeaves } from "./quadrigaProfile";
@@ -270,7 +271,9 @@ function push(
     slot: placement.slot ?? "body",
   });
   if (placement.inked !== false) {
-    builder.edges.push(new EdgesGeometry(flattened, 26));
+    builder.edges.push(
+      new EdgesGeometry(flattened, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   Box3,
   InstancedMesh,
+  LineBasicMaterial,
   LineSegments,
   Mesh,
   MeshPhysicalMaterial,
@@ -110,6 +111,17 @@ describe("official-dimension Reichstag dome", () => {
         child.name.endsWith("batched guardrail balusters"),
       ),
     ).toHaveLength(2);
+    const drawingLines: LineSegments[] = [];
+    dome.traverse((object) => {
+      if (object instanceof LineSegments) drawingLines.push(object);
+    });
+    expect(drawingLines.length).toBeGreaterThanOrEqual(5);
+    expect(
+      drawingLines.every(
+        (line) =>
+          (line.material as LineBasicMaterial).userData.modeInk === true,
+      ),
+    ).toBeTrue();
   });
 
   test("anchors the complete structure at metre-scale scene coordinates", () => {

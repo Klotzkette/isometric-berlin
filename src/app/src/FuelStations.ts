@@ -13,8 +13,11 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import {
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+  markArchitecturalInk,
+} from "./architecturalInk";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
-import { MONUMENT_INK } from "./TiergartenMonuments";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 
 /**
@@ -86,7 +89,9 @@ function box(
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   builder.parts.push(geometry);
   if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 
@@ -249,7 +254,7 @@ export function createFuelStations(
   if (inkGeometry) {
     const ink = new LineSegments(
       inkGeometry,
-      new LineBasicMaterial({ color: MONUMENT_INK }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     ink.name = "filling station ink lines";
     ink.renderOrder = 2;

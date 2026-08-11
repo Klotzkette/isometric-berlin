@@ -19,6 +19,7 @@ import {
 
 import { createLetteringTexture } from "./drawnLettering";
 import type { FocusCamera } from "./ArchitecturalLandmarks";
+import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
@@ -248,7 +249,9 @@ function addCustomGeometry(
   paintGeometry(geometry, color);
   (lamp ? builder.lamps : builder.parts).push(geometry);
   if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 

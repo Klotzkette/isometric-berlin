@@ -51,6 +51,7 @@ import {
   windowGrid,
   windowFormatForBuilding,
 } from "../src/IsometricCityWorld";
+import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
 import { KOLLHOFF_TOWER_PROFILE } from "../src/expandedCityProfiles";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -75,6 +76,36 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(ISO_INK_COLOR).toBeLessThan(0x909090);
     expect(bodies.geometry.getAttribute("color")).toBeDefined();
     expect(bodies.material).toBeInstanceOf(MeshBasicMaterial);
+    expect(
+      (ink.material as LineBasicMaterial).userData.architecturalInkRole,
+    ).toBe("silhouette");
+  });
+
+  test("gives the complete building drawing its own ink in every mode", () => {
+    const material = ink.material as LineBasicMaterial;
+    for (const mode of ["snowstorm", "minecraft", "night", "day"] as const) {
+      setIsoNightPresentation(city, mode === "night", true, mode);
+      expect(material.color.getHex()).toBe(
+        ARCHITECTURAL_INK_PALETTE[mode].silhouette,
+      );
+    }
+  });
+
+  test("registers the authored landmark outlines in the shared drawing system", () => {
+    const expectedRoles = new Map([
+      ["Siegessäule and Bismarck ink lines", "detail"],
+      ["Adlon ink lines", "silhouette"],
+      ["Paul-Löbe canopy ink lines", "detail"],
+      ["Gymnasium Tiergarten ink lines", "silhouette"],
+      ["Landmark refinement ink lines", "detail"],
+    ]);
+    for (const [name, role] of expectedRoles) {
+      const lines = city.getObjectByName(name);
+      expect(lines).toBeInstanceOf(LineSegments);
+      const material = (lines as LineSegments).material as LineBasicMaterial;
+      expect(material.userData.modeInk).toBeTrue();
+      expect(material.userData.architecturalInkRole).toBe(role);
+    }
   });
 
   test("keeps the Reichstag as a tall prism with courtyard holes", () => {
@@ -186,8 +217,10 @@ describe("ligne-claire fenestration", () => {
     expect(material.userData.stableInkAppliedOpacity).toBeNull();
 
     setIsoNightPresentation(city, false);
-    expect(material.opacity).toBe(0.34);
-    expect(material.userData.stableInkAuthoredOpacity).toBe(0.34);
+    expect(material.opacity).toBe(ISO_FACADE_AXIS_OPACITY);
+    expect(material.userData.stableInkAuthoredOpacity).toBe(
+      ISO_FACADE_AXIS_OPACITY,
+    );
     expect(material.userData.stableInkAppliedOpacity).toBeNull();
   });
 

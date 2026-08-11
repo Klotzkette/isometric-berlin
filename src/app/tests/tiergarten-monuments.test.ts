@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
-import { Box3, Group, LineSegments, Mesh, Vector3 } from "three";
+import {
+  Box3,
+  Group,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  Vector3,
+} from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
@@ -82,6 +89,14 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(bodies).toBeInstanceOf(Mesh);
     expect(ink).toBeInstanceOf(LineSegments);
     expect((bodies as Mesh).geometry.getAttribute("color")).toBeDefined();
+    expect((ink as LineSegments).material).toBeInstanceOf(LineBasicMaterial);
+    expect(
+      ((ink as LineSegments).material as LineBasicMaterial).userData.modeInk,
+    ).toBeTrue();
+    expect(
+      ((ink as LineSegments).material as LineBasicMaterial).userData
+        .architecturalInkRole,
+    ).toBe("detail");
   });
 
   test("the Verkehrsturm rises at the surveyed Potsdamer Platz corner", () => {

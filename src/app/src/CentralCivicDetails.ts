@@ -20,6 +20,7 @@ import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 import { createLetteringTexture } from "./drawnLettering";
+import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   type Builder,
   addBox,
@@ -293,7 +294,9 @@ function localWheel(
   geometry.translate(local.x, point.y + y, local.z);
   paintGeometry(geometry, INK);
   builder.parts.push(geometry);
-  builder.edges.push(new EdgesGeometry(geometry, 28));
+  builder.edges.push(
+    new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+  );
 
   const hub = new CylinderGeometry(radius * 0.42, radius * 0.42, width + 0.03, 12);
   hub.rotateX(Math.PI / 2);
@@ -339,7 +342,11 @@ function addExtrudedFootprint(
   rawGeometry.dispose();
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
-  if (inked) builder.edges.push(new EdgesGeometry(geometry, 24));
+  if (inked) {
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
+  }
 }
 
 function scaledRing(
@@ -1091,7 +1098,9 @@ function addFuturium(
   disc.translate(drehmomentX, FUTURIUM_BASE_Y_M + 12.65, drehmomentZ);
   paintGeometry(disc, STEEL);
   builder.parts.push(disc);
-  builder.edges.push(new EdgesGeometry(disc, 24));
+  builder.edges.push(
+    new EdgesGeometry(disc, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+  );
 }
 
 function addGreenFederalCampus(
@@ -2002,7 +2011,9 @@ function addTopographyOfTerror(
       pipe.translate(local.x, point.y + height + 0.13, local.z);
       paintGeometry(pipe, WALL_PIPE);
       builder.parts.push(pipe);
-      builder.edges.push(new EdgesGeometry(pipe, 24));
+      builder.edges.push(
+        new EdgesGeometry(pipe, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+      );
     }
 
     // Small, flat paint strokes recall the surviving graffiti without

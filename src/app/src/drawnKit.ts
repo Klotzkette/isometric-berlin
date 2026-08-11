@@ -14,7 +14,10 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import { MONUMENT_INK } from "./TiergartenMonuments";
+import {
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+  markArchitecturalInk,
+} from "./architecturalInk";
 
 /**
  * The flat-tone + ink-line kit the drawn accessory layers share.
@@ -70,7 +73,9 @@ export function addBox(
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
   if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 
@@ -90,7 +95,9 @@ export function addCone(
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
   if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 
@@ -149,7 +156,9 @@ export function addPartialCylinder(
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
   if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
+    builder.edges.push(
+      new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
   }
 }
 
@@ -224,7 +233,7 @@ export function finishDrawnGroup(
   if (inkGeometry) {
     const ink = new LineSegments(
       inkGeometry,
-      new LineBasicMaterial({ color: MONUMENT_INK }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     ink.name = `${options.name} ink lines`;
     ink.renderOrder = 2;

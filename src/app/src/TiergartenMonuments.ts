@@ -21,6 +21,11 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import {
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+  ARCHITECTURAL_INK_PALETTE,
+  markArchitecturalInk,
+} from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "./TrafficSignals";
@@ -40,7 +45,7 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * OSM (ODbL); the drawing is ours.
  */
 
-export const MONUMENT_INK = 0x716c62;
+export const MONUMENT_INK = ARCHITECTURAL_INK_PALETTE.day.detail;
 
 const STONE = 0x8f8a80;
 const STONE_LIGHT = 0xb9b6ac;
@@ -110,14 +115,16 @@ function box(
   }
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   builder.parts.push(geometry);
-  builder.edges.push(new EdgesGeometry(geometry, 24));
+  builder.edges.push(
+    new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+  );
 }
 
 function addPaintedGeometry(
   builder: Builder,
   geometry: BufferGeometry,
   color: number,
-  edgeThreshold = 28,
+  edgeThreshold = ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
 ): void {
   geometry.deleteAttribute("uv");
   const paint = new Color(color);
@@ -2149,7 +2156,7 @@ export function createTiergartenMonuments(
   if (inkGeometry) {
     const ink = new LineSegments(
       inkGeometry,
-      new LineBasicMaterial({ color: MONUMENT_INK }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     ink.name = "monument ink lines";
     ink.renderOrder = 2;

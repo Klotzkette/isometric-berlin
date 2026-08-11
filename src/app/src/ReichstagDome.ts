@@ -23,6 +23,7 @@ import {
   Vector2,
   Vector3,
 } from "three";
+import { markArchitecturalAccentInk } from "./architecturalInk";
 
 export type ArchitecturalSignature = {
   anchor_world: [number, number, number];
@@ -140,7 +141,11 @@ function addRamps(group: Group, signature: ArchitecturalSignature): void {
     );
     const balusterLines = new LineSegments(
       balusterGeometry,
-      new LineBasicMaterial({ color: 0xaebbc0 }),
+      markArchitecturalAccentInk(
+        new LineBasicMaterial(),
+        0xaebbc0,
+        "detail",
+      ),
     );
     balusterLines.name = `${label} ramp batched guardrail balusters`;
     group.add(balusterLines);
@@ -176,7 +181,11 @@ function addDiagonalBracing(
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const braces = new LineSegments(
     geometry,
-    new LineBasicMaterial({ color: 0x9eb1b7, opacity: 0.4, transparent: true }),
+    markArchitecturalAccentInk(
+      new LineBasicMaterial({ opacity: 0.4, transparent: true }),
+      0x9eb1b7,
+      "micro",
+    ),
   );
   braces.name = "dome alternating diagonal glazing braces";
   braces.renderOrder = 7;
@@ -205,7 +214,11 @@ function addBaseRadialBeams(
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const beams = new LineSegments(
     geometry,
-    new LineBasicMaterial({ color: 0x8fa4ab }),
+    markArchitecturalAccentInk(
+      new LineBasicMaterial(),
+      0x8fa4ab,
+      "detail",
+    ),
   );
   beams.name = "dome batched base radial beams";
   beams.renderOrder = 7;
@@ -246,11 +259,14 @@ function addMirrorConeFacets(group: Group): void {
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const facets = new LineSegments(
     geometry,
-    new LineBasicMaterial({
-      color: 0xf1f5f4,
-      opacity: 0.72,
-      transparent: true,
-    }),
+    markArchitecturalAccentInk(
+      new LineBasicMaterial({
+        opacity: 0.72,
+        transparent: true,
+      }),
+      0xf1f5f4,
+      "micro",
+    ),
   );
   facets.name = "daylight mirror cone 24-sector facet grid";
   facets.renderOrder = 8;

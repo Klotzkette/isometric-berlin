@@ -31,6 +31,13 @@ import {
   mergeVertices,
 } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import {
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
+  ARCHITECTURAL_INK_PALETTE,
+  applyArchitecturalInkMode,
+  markArchitecturalAccentInk,
+  markArchitecturalInk,
+} from "./architecturalInk";
 import { densifyRing, type DensifyOptions } from "./bankCurves";
 import {
   KOLLHOFF_TOWER_PROFILE,
@@ -57,6 +64,7 @@ import {
   extrapolatedEnvelopeBounds,
   extrapolatedMarginBands,
 } from "./worldEnvelope";
+import type { VisualMode } from "./visualMode";
 
 export {
   DATA_EAST_M,
@@ -201,11 +209,13 @@ export function isDedicatedSintiRomaPool(surface: SurfacePolygon): boolean {
 }
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
-export const ISO_INK_COLOR = 0x746f67;
+export const ISO_INK_COLOR = ARCHITECTURAL_INK_PALETTE.day.silhouette;
 // At night black ink vanishes on dark prisms; a cool moonlit line keeps
 // the drawn contours readable.
-export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
-export const ISO_EDGE_THRESHOLD_DEGREES = 24;
+export const ISO_NIGHT_INK_COLOR =
+  ARCHITECTURAL_INK_PALETTE.night.silhouette;
+export const ISO_EDGE_THRESHOLD_DEGREES =
+  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES;
 
 /** Official LoD2 parts of the renovated Charite Bettenhochhaus tower. */
 export const CHARITE_BETTENHOCHHAUS_IDS: ReadonlySet<string> = new Set([
@@ -821,7 +831,7 @@ const MOONLIT_WATER = 0x131f2c;
  * Relight the drawn city for night: brighten the ink to a moonlit line
  * (black contours disappear on dark prisms) and give the prism bodies a
  * faint warm emissive floor so windowsill-height masses stay readable
- * under the dim night rig. Day restores pure black ink and no emissive.
+ * under the dim night rig. Day restores warm-grey drawing ink and no emissive.
  *
  * `lightsOn` is only consulted while `night` is true (day and Minecraft
  * never call this with lightsOn === false); it swaps every warm
@@ -829,14 +839,29 @@ const MOONLIT_WATER = 0x131f2c;
  * vessel lamps — for the cool moonlit-off tones above, and dims the water
  * further, while leaving ink, facade colour and isoFaceShade untouched so
  * the mode switch stays lossless in every direction (day ↔
- * night-lights-on ↔ night-lights-off ↔ minecraft).
+ * night-lights-on ↔ night-lights-off ↔ minecraft ↔ snowstorm).
  */
 export function setIsoNightPresentation(
   city: Group,
   night: boolean,
   lightsOn = true,
+  requestedMode: VisualMode = night ? "night" : "day",
 ): void {
+  const mode = night
+    ? "night"
+    : requestedMode === "night"
+      ? "day"
+      : requestedMode;
   const moonlit = night && !lightsOn;
+  city.traverse((object) => {
+    if (
+      object instanceof LineSegments &&
+      object.material instanceof LineBasicMaterial &&
+      object.material.userData.modeInk === true
+    ) {
+      applyArchitecturalInkMode(object.material, mode);
+    }
+  });
   const backdrop = city.getObjectByName("presentation paper backdrop");
   if (backdrop instanceof Mesh) {
     backdrop.material = night
@@ -845,8 +870,10 @@ export function setIsoNightPresentation(
   }
   const ink = city.getObjectByName("LoD2 prism ink lines");
   if (ink instanceof LineSegments) {
-    (ink.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      ink.material as LineBasicMaterial,
+      mode,
+      "silhouette",
     );
   }
   const bodies = city.getObjectByName("LoD2 prism buildings");
@@ -929,20 +956,26 @@ export function setIsoNightPresentation(
   // The extrapolated west follows the same ink and lamp conventions.
   const adlonInk = city.getObjectByName("Adlon ink lines");
   if (adlonInk instanceof LineSegments) {
-    (adlonInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      adlonInk.material as LineBasicMaterial,
+      mode,
+      "silhouette",
     );
   }
   const canopyInk = city.getObjectByName("Paul-Löbe canopy ink lines");
   if (canopyInk instanceof LineSegments) {
-    (canopyInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      canopyInk.material as LineBasicMaterial,
+      mode,
+      "detail",
     );
   }
   const westInk = city.getObjectByName("extrapolated west ink lines");
   if (westInk instanceof LineSegments) {
-    (westInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      westInk.material as LineBasicMaterial,
+      mode,
+      "silhouette",
     );
   }
   // Note: the actual street lamps ("Geoportal Berlin public-lighting lamp
@@ -954,8 +987,10 @@ export function setIsoNightPresentation(
   // no separate "extrapolated lamp heads" mesh in this drawn city group.
   const mullions = city.getObjectByName("LoD2 glass mullions");
   if (mullions instanceof LineSegments) {
-    (mullions.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      mullions.material as LineBasicMaterial,
+      mode,
+      "detail",
     );
   }
   // Facade axes: fine ink by day, dimmed to a whisper at night so the
@@ -963,8 +998,8 @@ export function setIsoNightPresentation(
   const axes = city.getObjectByName("LoD2 facade axes");
   if (axes instanceof LineSegments) {
     const material = axes.material as LineBasicMaterial;
-    material.color.setHex(night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR);
-    material.opacity = night ? 0.12 : 0.34;
+    applyArchitecturalInkMode(material, mode, "micro");
+    material.opacity = night ? 0.12 : ISO_FACADE_AXIS_OPACITY;
     // The camera-distance fade multiplies this authored mode opacity. Record
     // the new base explicitly so an unlucky zoom level cannot make a Night
     // value look identical to the previous faded Day value and later restore
@@ -975,7 +1010,7 @@ export function setIsoNightPresentation(
   const clinkerJoints = city.getObjectByName("Kollhoff clinker mortar joints");
   if (clinkerJoints instanceof LineSegments) {
     const material = clinkerJoints.material as LineBasicMaterial;
-    material.color.setHex(night ? 0x80645f : KOLLHOFF_TOWER_PROFILE.mortarTone);
+    applyArchitecturalInkMode(material, mode, "micro");
     material.opacity = night ? 0.24 : 0.46;
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
@@ -1056,8 +1091,10 @@ export function setIsoNightPresentation(
   ]) {
     const inkLines = city.getObjectByName(name);
     if (inkLines instanceof LineSegments) {
-      (inkLines.material as LineBasicMaterial).color.setHex(
-        night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+      applyArchitecturalInkMode(
+        inkLines.material as LineBasicMaterial,
+        mode,
+        "detail",
       );
     }
   }
@@ -1077,32 +1114,42 @@ export function setIsoNightPresentation(
   }
   const kerbs = city.getObjectByName("drawn kerb lines");
   if (kerbs instanceof LineSegments) {
-    (kerbs.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      kerbs.material as LineBasicMaterial,
+      mode,
+      "detail",
     );
   }
   const monumentInk = city.getObjectByName("monument ink lines");
   if (monumentInk instanceof LineSegments) {
-    (monumentInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      monumentInk.material as LineBasicMaterial,
+      mode,
+      "detail",
     );
   }
   const railingInk = city.getObjectByName("bridge structure ink lines");
   if (railingInk instanceof LineSegments) {
-    (railingInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      railingInk.material as LineBasicMaterial,
+      mode,
+      "detail",
     );
   }
   const quayInk = city.getObjectByName("quay ink lines");
   if (quayInk instanceof LineSegments) {
-    (quayInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      quayInk.material as LineBasicMaterial,
+      mode,
+      "silhouette",
     );
   }
   const portalInk = city.getObjectByName("tunnel portal ink lines");
   if (portalInk instanceof LineSegments) {
-    (portalInk.material as LineBasicMaterial).color.setHex(
-      night ? ISO_NIGHT_INK_COLOR : ISO_INK_COLOR,
+    applyArchitecturalInkMode(
+      portalInk.material as LineBasicMaterial,
+      mode,
+      "silhouette",
     );
   }
 }
@@ -1829,11 +1876,13 @@ function createKerbLines(
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const kerbs = new LineSegments(
     geometry,
-    new LineBasicMaterial({
-      color: ISO_INK_COLOR,
-      opacity: 0.32,
-      transparent: true,
-    }),
+    markArchitecturalInk(
+      new LineBasicMaterial({
+        opacity: 0.32,
+        transparent: true,
+      }),
+      "detail",
+    ),
   );
   kerbs.name = "drawn kerb lines";
   kerbs.renderOrder = 2;
@@ -2151,7 +2200,7 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
   inkGeometry.setAttribute("position", new Float32BufferAttribute(inkLines, 3));
   const ink = new LineSegments(
     inkGeometry,
-    new LineBasicMaterial({ color: ISO_INK_COLOR }),
+    markArchitecturalInk(new LineBasicMaterial(), "silhouette"),
   );
   ink.name = "quay ink lines";
   ink.renderOrder = 2;
@@ -3752,8 +3801,10 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   }
   const ink = mergeGeometries(edges, false);
   if (ink) {
-    const inkMaterial = new LineBasicMaterial({ color: ISO_INK_COLOR });
-    inkMaterial.userData.modeInk = true;
+    const inkMaterial = markArchitecturalInk(
+      new LineBasicMaterial(),
+      "detail",
+    );
     const lines = new LineSegments(ink, inkMaterial);
     lines.name = "bridge structure ink lines";
     lines.renderOrder = 2;
@@ -3898,7 +3949,7 @@ function createBridgeRailings(ground: VoxelPayload): Group | null {
   if (ink) {
     const lines = new LineSegments(
       ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     lines.name = "bridge railing ink lines";
     lines.renderOrder = 2;
@@ -4029,7 +4080,7 @@ export function createExtrapolatedMargin(): Group {
   if (marginInk) {
     const lines = new LineSegments(
       marginInk,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "silhouette"),
     );
     lines.name = "extrapolated margin ink lines";
     lines.renderOrder = 2;
@@ -4330,7 +4381,7 @@ export function createSiegessaeule(): Group {
   if (ink) {
     const lines = new LineSegments(
       ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     lines.name = "Siegessäule and Bismarck ink lines";
     lines.renderOrder = 2;
@@ -4511,7 +4562,7 @@ export function createHotelAdlon(): Group {
   if (ink) {
     const lines = new LineSegments(
       ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "silhouette"),
     );
     lines.name = "Adlon ink lines";
     lines.renderOrder = 2;
@@ -4812,7 +4863,7 @@ export function createPaulLoebeCanopy(): Group {
   if (ink) {
     const lines = new LineSegments(
       ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     lines.name = "Paul-Löbe canopy ink lines";
     lines.renderOrder = 2;
@@ -5168,7 +5219,7 @@ export function createGymnasiumTiergarten(): Group {
   if (ink) {
     const lines = new LineSegments(
       ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "silhouette"),
     );
     lines.name = "Gymnasium Tiergarten ink lines";
     lines.renderOrder = 2;
@@ -5665,7 +5716,7 @@ export function createLandmarkRefinements(): Group {
   if (ink) {
     const lines = new LineSegments(
       ink,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     lines.name = "Landmark refinement ink lines";
     lines.renderOrder = 2;
@@ -5927,7 +5978,11 @@ export function createSmoothSurfaces(
       geometry.setAttribute("position", new Float32BufferAttribute(outline, 3));
       const edges = new LineSegments(
         geometry,
-        new LineBasicMaterial({ color: 0x6c7a58 }),
+        markArchitecturalAccentInk(
+          new LineBasicMaterial(),
+          0x6c7a58,
+          "micro",
+        ),
       );
       edges.name = "garden bed outlines";
       edges.renderOrder = 3;
@@ -6101,7 +6156,7 @@ export function createSmoothSurfaces(
       rawInkGeometry.dispose();
       const inkLines = new LineSegments(
         inkGeometry,
-        new LineBasicMaterial({ color: ISO_INK_COLOR }),
+        markArchitecturalInk(new LineBasicMaterial(), "detail"),
       );
       inkLines.name = "smooth kerb ink";
       inkLines.renderOrder = 2;
@@ -6398,7 +6453,7 @@ export function createSmoothSurfaces(
     rawGeometry.dispose();
     const shore = new LineSegments(
       geometry,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     shore.name = "smooth shoreline ink";
     shore.renderOrder = 2;
@@ -7113,7 +7168,7 @@ function addBasinsAndSunkenWalls(
     geometry.setAttribute("position", new Float32BufferAttribute(ink, 3));
     const lines = new LineSegments(
       geometry,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
     );
     lines.name = "basin and sunken wall ink";
     lines.renderOrder = 4;
@@ -7905,11 +7960,13 @@ export function createIsometricCity(
     );
     const mullions = new LineSegments(
       geometry,
-      new LineBasicMaterial({
-        color: ISO_INK_COLOR,
-        opacity: ISO_GLASS_MULLION_OPACITY,
-        transparent: true,
-      }),
+      markArchitecturalInk(
+        new LineBasicMaterial({
+          opacity: ISO_GLASS_MULLION_OPACITY,
+          transparent: true,
+        }),
+        "detail",
+      ),
     );
     mullions.name = "LoD2 glass mullions";
     mullions.renderOrder = 2;
@@ -7926,11 +7983,13 @@ export function createIsometricCity(
     );
     const axes = new LineSegments(
       geometry,
-      new LineBasicMaterial({
-        color: ISO_INK_COLOR,
-        opacity: ISO_FACADE_AXIS_OPACITY,
-        transparent: true,
-      }),
+      markArchitecturalInk(
+        new LineBasicMaterial({
+          opacity: ISO_FACADE_AXIS_OPACITY,
+          transparent: true,
+        }),
+        "micro",
+      ),
     );
     axes.name = "LoD2 facade axes";
     axes.renderOrder = 2;
@@ -7944,11 +8003,14 @@ export function createIsometricCity(
     );
     const joints = new LineSegments(
       geometry,
-      new LineBasicMaterial({
-        color: KOLLHOFF_TOWER_PROFILE.mortarTone,
-        opacity: 0.46,
-        transparent: true,
-      }),
+      markArchitecturalAccentInk(
+        new LineBasicMaterial({
+          opacity: 0.46,
+          transparent: true,
+        }),
+        KOLLHOFF_TOWER_PROFILE.mortarTone,
+        "micro",
+      ),
     );
     joints.name = "Kollhoff clinker mortar joints";
     joints.renderOrder = 2;
@@ -8184,7 +8246,7 @@ export function createIsometricCity(
   if (edges) {
     const ink = new LineSegments(
       edges,
-      new LineBasicMaterial({ color: ISO_INK_COLOR }),
+      markArchitecturalInk(new LineBasicMaterial(), "silhouette"),
     );
     ink.name = "LoD2 prism ink lines";
     // Draw the ink after the bodies so lines sit on the surfaces.
