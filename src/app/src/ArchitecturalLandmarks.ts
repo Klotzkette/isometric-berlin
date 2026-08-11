@@ -35,6 +35,7 @@ import {
   markArchitecturalAccentInk,
   markArchitecturalInk,
 } from "./architecturalInk";
+import { createLetteringTexture } from "./drawnLettering";
 import {
   type ArchitecturalSignature as ReichstagDomeSignature,
   createOfficialReichstagDome,
@@ -2863,32 +2864,89 @@ function addStationInterior(
   });
 }
 
+const HAUPTBAHNHOF_OFFICE_BRIDGE_WIDTH_M = 19;
+const HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M = 5.6;
+
+function officeBridgeEnvelopeGeometry(
+  width: number,
+  depth: number,
+  outerHeight: number,
+  innerDrop: number,
+  outerSide: -1 | 1,
+): BufferGeometry {
+  const leftHeight = outerHeight - (outerSide === 1 ? innerDrop : 0);
+  const rightHeight = outerHeight - (outerSide === -1 ? innerDrop : 0);
+  const halfWidth = width / 2;
+  const halfDepth = depth / 2;
+  const vertices = [
+    -halfWidth,
+    0,
+    -halfDepth,
+    halfWidth,
+    0,
+    -halfDepth,
+    halfWidth,
+    0,
+    halfDepth,
+    -halfWidth,
+    0,
+    halfDepth,
+    -halfWidth,
+    leftHeight,
+    -halfDepth,
+    halfWidth,
+    rightHeight,
+    -halfDepth,
+    halfWidth,
+    rightHeight,
+    halfDepth,
+    -halfWidth,
+    leftHeight,
+    halfDepth,
+  ];
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setIndex([
+    0, 2, 1, 0, 3, 2,
+    4, 5, 6, 4, 6, 7,
+    0, 1, 5, 0, 5, 4,
+    3, 7, 6, 3, 6, 2,
+    0, 4, 7, 0, 7, 3,
+    1, 2, 6, 1, 6, 5,
+  ]);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 function addStationOfficeBridge(
   group: Group,
   x: number,
   depth: number,
   height: number,
 ): void {
-  // Step 39 (v0.56): the real Bugelbauten are glass-and-aluminium office
-  // bars, not grey concrete blocks -- the user's exact complaint about
-  // v0.55 was the opaque grey roof cap reading as a flat box dropped on
-  // top of the glass hall. Every surface of this tower, including its
-  // roof, is now the same transparent hellblau (light blue) glass family
-  // as the barrel-vault roofs, so nothing here can read as an opaque
-  // grey mass in the render. Only the mullions/frame stay solid metal --
-  // thin structural members, not a cladding panel.
-  const width = 19;
+  // gmp describes the two 46 m Buegelbauten as exposed steel structures
+  // standing in front of glass facades. Their entrance ends are not plain
+  // blue boxes: the outer corners rise above the inner corners, producing
+  // the mirrored raking crowns visible from Washingtonplatz and Europaplatz.
+  const width = HAUPTBAHNHOF_OFFICE_BRIDGE_WIDTH_M;
+  const outerSide: -1 | 1 = x < 0 ? -1 : 1;
+  const bodyOuterHeight = height;
+  const innerHeight = bodyOuterHeight - HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M;
+  const topAtLocalX = (localX: number): number => {
+    const outwardFraction = (outerSide * localX) / width + 0.5;
+    return innerHeight + outwardFraction * HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M;
+  };
   const glass = nightEmitter(
-    modelMaterial(0xa7ccd3, {
+    modelMaterial(0x789ea6, {
       metalness: 0.08,
       opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
-      roughness: 0.25,
+      roughness: 0.2,
     }),
     0xffdca0,
     0.72,
   );
   const roofGlass = nightEmitter(
-    modelMaterial(0xcfe9ed, {
+    modelMaterial(0xa9c1c4, {
       metalness: 0.05,
       opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
       roughness: 0.12,
@@ -2896,70 +2954,201 @@ function addStationOfficeBridge(
     0xaedfff,
     0.9,
   );
-  const frame = modelMaterial(0x758b92, {
-    metalness: 0.42,
-    roughness: 0.38,
+  const frame = modelMaterial(0x44545a, {
+    metalness: 0.5,
+    roughness: 0.36,
   });
 
-  const towerBox = addBox(
-    group,
-    "Hauptbahnhof 46 m office bridge",
-    [width, height, depth],
-    [x, height / 2, 0],
+  const tower = new Mesh(
+    officeBridgeEnvelopeGeometry(
+      width,
+      depth,
+      bodyOuterHeight,
+      HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M,
+      outerSide,
+    ),
     glass,
   );
-  addEdges(group, towerBox, 0.55);
+  tower.name = "Hauptbahnhof 46 m office bridge";
+  tower.position.x = x;
+  tower.castShadow = true;
+  tower.receiveShadow = true;
+  tower.userData.geometryStatus =
+    "official 46 m envelope with photo-referenced mirrored raking crown";
+  group.add(tower);
+  addEdges(group, tower, 0.58);
 
-  // Flat roof cap, drawn flush with the tower's own footprint (not a
-  // wider, independently-drawn slab) so it cannot visually detach from
-  // the body beneath it the way the old oversized outline did -- and, as
-  // of v0.56, glazed rather than opaque, matching the real all-glass
-  // Bugelbau envelope.
+  const crownLength = Math.hypot(
+    width,
+    HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M,
+  );
+  const crownAngle = Math.atan2(
+    outerSide * HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M,
+    width,
+  );
   const roofCap = addBox(
     group,
     "Hauptbahnhof office-bridge roof cap",
-    [width + 0.6, 0.5, depth + 0.6],
-    [x, height + 0.25, 0],
+    [crownLength + 0.5, 0.4, depth + 0.6],
+    [x, (bodyOuterHeight + innerHeight) / 2 + 0.2, 0],
     roofGlass,
   );
-  addEdges(group, roofCap, 0.4);
+  roofCap.rotation.z = crownAngle;
+  addEdges(group, roofCap, 0.42);
 
-  const storeyHeight = height / 10;
-  for (let storey = 1; storey < 10; storey += 1) {
-    addBoxOutline(
+  const roofPanelJoints: VectorSegment[] = [];
+  const roofSurfaceY = (localX: number): number => topAtLocalX(localX) + 0.42;
+  for (let z = -depth / 2 + 4; z < depth / 2; z += 6) {
+    roofPanelJoints.push([
+      [x - width / 2, roofSurfaceY(-width / 2), z],
+      [x + width / 2, roofSurfaceY(width / 2), z],
+    ]);
+  }
+  for (let localX = -width / 2 + 3.8; localX < width / 2; localX += 3.8) {
+    roofPanelJoints.push([
+      [x + localX, roofSurfaceY(localX), -depth / 2],
+      [x + localX, roofSurfaceY(localX), depth / 2],
+    ]);
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof batched office-bridge roof panel joints",
+    roofPanelJoints,
+    0x596d72,
+    0.46,
+  );
+
+  const louverMaterial = modelMaterial(0x56676a, {
+    metalness: 0.44,
+    roughness: 0.5,
+  });
+  for (const z of [-depth * 0.31, depth * 0.31]) {
+    const louver = addBox(
       group,
-      "Hauptbahnhof office-bridge floor line",
-      [width + 0.08, 0.32, depth],
-      [x, storey * storeyHeight, 0],
-      0.3,
-      0x769da7,
+      "Hauptbahnhof office-bridge rooftop louver bank",
+      [6.2, 0.56, 8.6],
+      [x, topAtLocalX(0) + 0.82, z],
+      louverMaterial,
+    );
+    louver.rotation.z = crownAngle;
+    addEdges(group, louver, 0.62);
+  }
+
+  // The coarse four-bay exoskeleton is deliberately stronger than the fine
+  // curtain-wall grid. It is the station's defining facade order in the
+  // source photographs and stops the long office bars reading as cyan slabs.
+  const majorLevels = [0.8, 11.4, 22.7, 34.0, 39.2];
+  const longBeams: InstanceTransform[] = [];
+  for (const localX of [-width / 2, width / 2]) {
+    const top = topAtLocalX(localX);
+    for (const level of majorLevels) {
+      if (level < top - 0.6) {
+        longBeams.push({ position: [x + localX, level, 0] });
+      }
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced office-bridge longitudinal exoskeleton beams",
+    [1.02, 0.94, depth + 0.8],
+    frame,
+    longBeams,
+  );
+
+  const longitudinalFrames = Math.max(8, Math.round(depth / 18));
+  const longColumns: InstanceTransform[] = [];
+  for (const localX of [-width / 2, width / 2]) {
+    const columnHeight = topAtLocalX(localX);
+    for (let index = 0; index <= longitudinalFrames; index += 1) {
+      longColumns.push({
+        position: [
+          x + localX,
+          columnHeight / 2,
+          -depth / 2 + (index / longitudinalFrames) * depth,
+        ],
+        scale: [1, columnHeight, 1],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced office-bridge exoskeleton columns",
+    [1.02, 1, 1.02],
+    frame,
+    longColumns,
+  );
+
+  const endFrameColumns: InstanceTransform[] = [];
+  const endFrameBeams: InstanceTransform[] = [];
+  for (const zSide of [-1, 1]) {
+    for (const localX of [-width / 2, 0, width / 2]) {
+      const columnHeight = topAtLocalX(localX);
+      endFrameColumns.push({
+        position: [x + localX, columnHeight / 2, zSide * depth / 2],
+        scale: [1, columnHeight, 1],
+      });
+    }
+    for (const level of majorLevels.slice(0, 4)) {
+      endFrameBeams.push({
+        position: [x, level, zSide * (depth / 2 + 0.02)],
+      });
+    }
+    addCylinderBetween(
+      group,
+      "Hauptbahnhof office-bridge raking crown beam",
+      new Vector3(x - width / 2, topAtLocalX(-width / 2) + 0.18, zSide * depth / 2),
+      new Vector3(x + width / 2, topAtLocalX(width / 2) + 0.18, zSide * depth / 2),
+      0.42,
+      frame,
+      8,
     );
   }
-  const mullionCount = Math.max(18, Math.round(depth / 6));
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced office-bridge end-frame columns",
+    [1.06, 1, 1.06],
+    frame,
+    endFrameColumns,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced office-bridge end-frame beams",
+    [width + 0.7, 0.96, 1.06],
+    frame,
+    endFrameBeams,
+  );
+
+  const storeyHeight = height / 10;
+  const mullionCount = Math.max(18, Math.round(depth / 5));
   const mullions: InstanceTransform[] = [];
   for (const side of [-1, 1]) {
+    const localX = (side * width) / 2;
+    const mullionHeight = topAtLocalX(localX) - 0.6;
     for (let index = 0; index <= mullionCount; index += 1) {
       mullions.push({
         position: [
-          x + (side * width) / 2,
-          height / 2,
+          x + localX,
+          mullionHeight / 2 + 0.3,
           -depth / 2 + (index / mullionCount) * depth,
         ],
+        scale: [1, mullionHeight, 1],
       });
     }
   }
   addInstancedBoxes(
     group,
     "Hauptbahnhof instanced office-bridge facade mullions",
-    [0.24, height - 0.6, 0.28],
+    [0.16, 1, 0.2],
     frame,
     mullions,
   );
 
   const panelSeams: VectorSegment[] = [];
   for (const side of [-1, 1]) {
-    const faceX = x + (side * width) / 2 + side * 0.02;
-    for (let y = storeyHeight / 2; y < height; y += storeyHeight / 2) {
+    const localX = (side * width) / 2;
+    const faceX = x + localX + side * 0.02;
+    const faceTop = topAtLocalX(localX);
+    for (let y = storeyHeight / 2; y < faceTop; y += storeyHeight / 2) {
       panelSeams.push([
         [faceX, y, -depth / 2],
         [faceX, y, depth / 2],
@@ -2970,28 +3159,29 @@ function addStationOfficeBridge(
     group,
     "Hauptbahnhof batched office-bridge curtain-wall seams",
     panelSeams,
-    0x9bc6cf,
+    0x73959c,
     HAUPTBAHNHOF_GLASS_GRID_OPACITY,
   );
 
-  // Washingtonplatz and Europaplatz look directly at the narrow ends of the
-  // two Buegelbauten. Give those end faces the same ten-storey curtain-wall
-  // order as their long sides instead of leaving two blank glass slabs.
   const endFacadeGrid: VectorSegment[] = [];
   const endBayCount = 5;
   for (const zSide of [-1, 1]) {
     const faceZ = zSide * (depth / 2 + 0.03);
     for (let bay = 0; bay <= endBayCount; bay += 1) {
-      const faceX = x - width / 2 + (bay / endBayCount) * width;
+      const localX = -width / 2 + (bay / endBayCount) * width;
       endFacadeGrid.push([
-        [faceX, 0.35, faceZ],
-        [faceX, height - 0.35, faceZ],
+        [x + localX, 0.35, faceZ],
+        [x + localX, topAtLocalX(localX) - 0.35, faceZ],
       ]);
     }
     for (let storey = 1; storey < 10; storey += 1) {
+      const y = storey * storeyHeight;
+      const taper = Math.max(0, Math.min(1, (y - innerHeight) / HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M));
+      const minX = outerSide === 1 ? -width / 2 + taper * width : -width / 2;
+      const maxX = outerSide === -1 ? width / 2 - taper * width : width / 2;
       endFacadeGrid.push([
-        [x - width / 2, storey * storeyHeight, faceZ],
-        [x + width / 2, storey * storeyHeight, faceZ],
+        [x + minX, y, faceZ],
+        [x + maxX, y, faceZ],
       ]);
     }
   }
@@ -2999,31 +3189,176 @@ function addStationOfficeBridge(
     group,
     "Hauptbahnhof batched office-bridge end-facade grid",
     endFacadeGrid,
-    0x7799a1,
+    0x6c858b,
     HAUPTBAHNHOF_GLASS_GRID_OPACITY,
+  );
+}
+
+function stationEntranceFacadeGeometry(
+  width: number,
+  barrelBaseY: number,
+  barrelHeight: number,
+): ShapeGeometry {
+  const halfWidth = width / 2;
+  const shape = new Shape();
+  shape.moveTo(-halfWidth, 0);
+  shape.lineTo(-halfWidth, barrelBaseY);
+  for (let index = 0; index <= 32; index += 1) {
+    const angle = Math.PI - (index / 32) * Math.PI;
+    shape.lineTo(
+      Math.cos(angle) * halfWidth,
+      barrelBaseY + Math.sin(angle) * barrelHeight,
+    );
+  }
+  shape.lineTo(halfWidth, 0);
+  shape.closePath();
+  return new ShapeGeometry(shape);
+}
+
+function addStationLetteringPanel(
+  group: Group,
+  name: string,
+  text: string,
+  width: number,
+  height: number,
+  position: [number, number, number],
+  fieldColor: string,
+  letterColor: string,
+  rotationY = 0,
+): Mesh {
+  const texture = createLetteringTexture({
+    bandHeightM: height,
+    bandWidthM: width,
+    capHeightM: height * 0.58,
+    fieldColor,
+    letterColor,
+    text,
+    texelsPerMetre: 220,
+  });
+  const dayMaterial = texture
+    ? new MeshBasicMaterial({ map: texture, side: DoubleSide })
+    : new MeshBasicMaterial({ color: fieldColor, side: DoubleSide });
+  const nightMaterial = texture
+    ? new MeshStandardMaterial({
+        emissive: 0xffd8a0,
+        emissiveIntensity: 0.72,
+        map: texture,
+        roughness: 0.55,
+        side: DoubleSide,
+      })
+    : new MeshStandardMaterial({ color: fieldColor, side: DoubleSide });
+  const panel = new Mesh(new PlaneGeometry(width, height), dayMaterial);
+  panel.name = name;
+  panel.position.set(...position);
+  panel.rotation.y = rotationY;
+  panel.renderOrder = 10;
+  panel.userData.dayMaterial = dayMaterial;
+  panel.userData.nightMaterial = nightMaterial;
+  panel.userData.lettering = text;
+  group.add(panel);
+  return panel;
+}
+
+function addStationEntranceCanopy(
+  group: Group,
+  facadeZ: number,
+  outward: -1 | 1,
+): void {
+  const width = 55;
+  const depth = 17;
+  const halfWidth = width / 2;
+  const acrossSteps = 18;
+  const depthSteps = 6;
+  const vertices: number[] = [];
+  const indices: number[] = [];
+  const point = (across: number, forward: number): [number, number, number] => {
+    const x = -halfWidth + (across / acrossSteps) * width;
+    const depthFraction = forward / depthSteps;
+    const crossRise = 1.45 * (1 - (x / halfWidth) ** 2);
+    return [
+      x,
+      20.8 + crossRise - 2.15 * depthFraction ** 1.35,
+      facadeZ + outward * (0.55 + depthFraction * depth),
+    ];
+  };
+  for (let forward = 0; forward <= depthSteps; forward += 1) {
+    for (let across = 0; across <= acrossSteps; across += 1) {
+      vertices.push(...point(across, forward));
+    }
+  }
+  const row = acrossSteps + 1;
+  for (let forward = 0; forward < depthSteps; forward += 1) {
+    for (let across = 0; across < acrossSteps; across += 1) {
+      const a = forward * row + across;
+      const b = a + 1;
+      const c = a + row;
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  const material = nightEmitter(
+    new MeshPhysicalMaterial({
+      color: 0x91b2b7,
+      depthWrite: false,
+      metalness: 0.08,
+      opacity: 0.56,
+      roughness: 0.12,
+      side: DoubleSide,
+      transparent: true,
+      transmission: 0.42,
+    }),
+    0xb9dcf4,
+    1.0,
+  );
+  const canopy = new Mesh(geometry, material);
+  canopy.name = "Hauptbahnhof entrance cantilevered glass canopy";
+  canopy.renderOrder = 7;
+  canopy.userData.geometryStatus =
+    "photo-referenced shallow cable-and-glass entrance canopy";
+  group.add(canopy);
+
+  const seams: VectorSegment[] = [];
+  for (let forward = 0; forward <= depthSteps; forward += 1) {
+    for (let across = 0; across < acrossSteps; across += 1) {
+      seams.push([point(across, forward), point(across + 1, forward)]);
+    }
+  }
+  for (let across = 0; across <= acrossSteps; across += 2) {
+    for (let forward = 0; forward < depthSteps; forward += 1) {
+      seams.push([point(across, forward), point(across, forward + 1)]);
+    }
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof batched entrance-canopy steel and glass grid",
+    seams,
+    0x52666c,
+    0.62,
   );
 }
 
 /**
  * The north-south hall's two gable ends -- Europaplatz to the north,
- * Washingtonplatz to the south -- are not blank barrel-vault end caps in
- * the real station: they are dedicated cable-and-glass curtain-wall
- * entrance facades (see baunetzwissen's writeup of the two entrance
- * facades). This draws a flat glazed screen filling the gable, with a
- * simple mullion grid, in the same light-blue glass family as the rest
- * of the envelope -- an explicit "Eingangsfront", not just the barrel's
- * open end.
+ * Washingtonplatz to the south -- are complete cable-and-glass entrance
+ * walls. The former rectangular plane stopped below the barrel apex; this
+ * version fills and grids the full arched gable, then adds the projecting
+ * canopy, doors and restrained station lettering visible in the references.
  */
 function addStationHallEntranceFacade(
   group: Group,
   z: number,
   hallWidth: number,
-  hallHeight: number,
+  barrelBaseY: number,
+  barrelHeight: number,
   name: string,
 ): void {
   const glass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0xcfe9ed,
+      color: 0x789da5,
       depthWrite: false,
       metalness: 0.04,
       opacity: HAUPTBAHNHOF_GLASS_DAY_OPACITY,
@@ -3038,13 +3373,17 @@ function addStationHallEntranceFacade(
   const frame = modelMaterial(0x728a91, { metalness: 0.4, roughness: 0.36 });
 
   const facadeWidth = hallWidth - 1.2;
-  const facadeHeight = hallHeight - 0.6;
+  const facadeApex = barrelBaseY + barrelHeight - 0.6;
   const facade = new Mesh(
-    new PlaneGeometry(facadeWidth, facadeHeight, 1, 1),
+    stationEntranceFacadeGeometry(
+      facadeWidth,
+      barrelBaseY,
+      barrelHeight - 0.6,
+    ),
     glass,
   );
   facade.name = name;
-  facade.position.set(0, facadeHeight / 2, z);
+  facade.position.set(0, 0, z);
   facade.renderOrder = 6;
   group.add(facade);
   addEdges(group, facade, 0.5);
@@ -3052,20 +3391,32 @@ function addStationHallEntranceFacade(
   const mullions: InstanceTransform[] = [];
   const verticalCount = Math.max(8, Math.round(facadeWidth / 2.45));
   for (let index = 0; index <= verticalCount; index += 1) {
+    const x = -facadeWidth / 2 + (index / verticalCount) * facadeWidth;
+    const normalized = x / (facadeWidth / 2);
+    const top =
+      barrelBaseY +
+      (barrelHeight - 0.6) * Math.sqrt(Math.max(0, 1 - normalized ** 2));
     mullions.push({
-      position: [
-        -facadeWidth / 2 + (index / verticalCount) * facadeWidth,
-        facadeHeight / 2,
-        z,
-      ],
-      scale: [1, facadeHeight, 1],
+      position: [x, top / 2, z],
+      scale: [1, top, 1],
     });
   }
-  const horizontalCount = Math.max(6, Math.round(facadeHeight / 1.54));
+  const horizontalCount = Math.max(10, Math.round(facadeApex / 1.65));
   for (let index = 0; index <= horizontalCount; index += 1) {
+    const y = (index / horizontalCount) * facadeApex;
+    const widthAtY =
+      y <= barrelBaseY
+        ? facadeWidth
+        : facadeWidth *
+          Math.sqrt(
+            Math.max(
+              0,
+              1 - ((y - barrelBaseY) / (barrelHeight - 0.6)) ** 2,
+            ),
+          );
     mullions.push({
-      position: [0, (index / horizontalCount) * facadeHeight, z],
-      scale: [facadeWidth / 0.16, 1, 1],
+      position: [0, y, z],
+      scale: [widthAtY / 0.16, 1, 1],
     });
   }
   addInstancedBoxes(
@@ -3075,6 +3426,173 @@ function addStationHallEntranceFacade(
     frame,
     mullions,
   );
+
+  const outward: -1 | 1 = z < 0 ? -1 : 1;
+  const doorGlass = nightEmitter(
+    modelMaterial(0x29454d, { metalness: 0.16, opacity: 0.68, roughness: 0.18 }),
+    0xffd18a,
+    1.25,
+  );
+  const doorTransforms: InstanceTransform[] = [];
+  const doorCount = 6;
+  const doorWidth = 3.15;
+  for (let index = 0; index < doorCount; index += 1) {
+    doorTransforms.push({
+      position: [
+        (index - (doorCount - 1) / 2) * (doorWidth + 0.34),
+        2.45,
+        z + outward * 0.18,
+      ],
+    });
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced entrance sliding doors",
+    [doorWidth, 4.9, 0.18],
+    doorGlass,
+    doorTransforms,
+  );
+
+  addStationLetteringPanel(
+    group,
+    "Hauptbahnhof entrance wordmark",
+    "BERLIN HAUPTBAHNHOF",
+    19,
+    1.15,
+    [0, 7.15, z + outward * 0.22],
+    "#31464c",
+    "#f5f2e9",
+  );
+  addStationLetteringPanel(
+    group,
+    "Hauptbahnhof entrance DB badge",
+    "DB",
+    4.3,
+    2.6,
+    [0, 10.25, z + outward * 0.23],
+    "#cf2f2f",
+    "#ffffff",
+  );
+  addStationEntranceCanopy(group, z, outward);
+}
+
+function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
+  const pylonX = -51;
+  const pylonZ = washingtonFacadeZ - 7.4;
+  const pylonHeight = 34;
+  const frame = modelMaterial(0x657278, { metalness: 0.55, roughness: 0.42 });
+  const screen = modelMaterial(0xaeb9b9, { metalness: 0.32, roughness: 0.58 });
+  const body = addBox(
+    group,
+    "Hauptbahnhof Washingtonplatz DB pylon",
+    [4.8, pylonHeight, 3.2],
+    [pylonX, pylonHeight / 2, pylonZ],
+    screen,
+    0.78,
+  );
+  body.userData.geometryStatus =
+    "photo-referenced Washingtonplatz station pylon";
+  const pylonGrid: VectorSegment[] = [];
+  for (let y = 3.2; y < pylonHeight - 4; y += 3.15) {
+    pylonGrid.push([
+      [pylonX - 2.42, y, pylonZ - 1.62],
+      [pylonX + 2.42, y, pylonZ - 1.62],
+    ]);
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof DB pylon facade grid",
+    pylonGrid,
+    0x4e5e63,
+    0.72,
+  );
+  for (const zSide of [-1, 1]) {
+    addStationLetteringPanel(
+      group,
+      "Hauptbahnhof Washingtonplatz pylon DB badge",
+      "DB",
+      4.1,
+      2.55,
+      [pylonX, pylonHeight - 4.5, pylonZ + zSide * 1.64],
+      "#cf2f2f",
+      "#ffffff",
+    );
+  }
+  for (const xSide of [-1, 1]) {
+    addStationLetteringPanel(
+      group,
+      "Hauptbahnhof Washingtonplatz pylon DB badge",
+      "DB",
+      2.65,
+      2.55,
+      [pylonX + xSide * 2.42, pylonHeight - 4.5, pylonZ],
+      "#cf2f2f",
+      "#ffffff",
+      Math.PI / 2,
+    );
+  }
+  addBox(
+    group,
+    "Hauptbahnhof DB pylon crown frame",
+    [5.3, 0.38, 3.7],
+    [pylonX, pylonHeight + 0.18, pylonZ],
+    frame,
+  );
+}
+
+function addStationPhotovoltaics(
+  group: Group,
+  roofLength: number,
+  roofWidth: number,
+  roofHeight: number,
+  roofBaseY: number,
+): void {
+  // Deutsche Bahn documents 780 photovoltaic modules integrated into the
+  // east-west roof. The render batches them as 260 larger visual cassettes:
+  // enough to retain the fine blue-cell rhythm without adding 780 draw calls.
+  const panelMaterial = modelMaterial(0x345b68, {
+    metalness: 0.34,
+    roughness: 0.28,
+  });
+  const longitudinalCount = 52;
+  const arcFractions = [0.3, 0.345, 0.39, 0.435, 0.48];
+  const panels: InstanceTransform[] = [];
+  for (let column = 0; column < longitudinalCount; column += 1) {
+    const x =
+      -roofLength / 2 +
+      10 +
+      (column / (longitudinalCount - 1)) * (roofLength - 20);
+    const bow = roofBowOffset(x, "rail");
+    const tangentSlope =
+      2 * HAUPTBAHNHOF_RAIL_CURVE_A * x + HAUPTBAHNHOF_RAIL_CURVE_B;
+    const yaw = Math.atan(tangentSlope);
+    for (const fraction of arcFractions) {
+      const angle = fraction * Math.PI;
+      const lateral = Math.cos(angle) * (roofWidth / 2) + bow;
+      const y = roofBaseY + Math.sin(angle) * roofHeight + 0.28;
+      const tilt = Math.atan(
+        (roofHeight * Math.cos(angle)) /
+          ((roofWidth / 2) * Math.sin(angle)),
+      );
+      panels.push({
+        position: [x, y, lateral],
+        rotation: [tilt, -yaw, 0],
+      });
+    }
+  }
+  const modules = addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced roof-integrated photovoltaic modules",
+    [5.25, 0.09, 1.12],
+    panelMaterial,
+    panels,
+  );
+  modules.userData = {
+    documentedModuleCount: 780,
+    geometryStatus:
+      "official module total represented by batched roof-integrated visual cassettes",
+    representedCassetteCount: panels.length,
+  };
 }
 
 function addStationTrain(
@@ -3693,6 +4211,13 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     0,
     "rail",
   );
+  addStationPhotovoltaics(
+    group,
+    signature.east_west_roof_length_m,
+    signature.east_west_roof_width_m,
+    12.5,
+    10.4,
+  );
   // Each end of the 321 m shed gets a filled glazed gable, cut
   // perpendicular to the rail curve's own local tangent (not to the
   // shed's straight x-axis), plus twin steel piers and a transom tying
@@ -3764,6 +4289,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     group,
     signature.north_south_hall_length_m / 2,
     signature.north_south_hall_width_m,
+    8.2,
     19,
     "Hauptbahnhof Europaplatz entrance facade",
   );
@@ -3771,9 +4297,11 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     group,
     -signature.north_south_hall_length_m / 2,
     signature.north_south_hall_width_m,
+    8.2,
     19,
     "Hauptbahnhof Washingtonplatz entrance facade",
   );
+  addStationDbPylon(group, -signature.north_south_hall_length_m / 2);
   // Two parallel glass Bugelbauten (office bars, ~46 m/10 storeys) span
   // OVER the east-west hall, parallel to and flanking the north-south
   // hall -- exactly the reference aerials' layout (IMG_0180-83). Both

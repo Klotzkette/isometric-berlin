@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.70.39
+
+- **Berlin Hauptbahnhof now reads as the real glass-and-steel crossing
+  station.** The two official 46 m Buegelbauten retain their metric 180 m
+  envelope but gain mirrored raking crowns, the documented external steel
+  structure, ten-storey curtain-wall order, roof-panel joints and restrained
+  louver banks. Their darker blue-green glass no longer reads as two blank
+  cyan blocks, while the 321 m curved east-west roof remains tied to the
+  committed rail alignment.
+- **Both city entrances finally have complete architectural faces.** The
+  Europaplatz and Washingtonplatz curtain walls now fill their arched gables
+  to the roof apex and carry sliding doors, station lettering and broad,
+  shallow cable-and-glass canopies. A four-sided DB pylon identifies the
+  Washingtonplatz forecourt, and the roof gains one batched field of visual
+  cassettes representing Deutsche Bahn's documented 780 integrated
+  photovoltaic modules.
+- **The close view is useful rather than accidental.** Selecting Hauptbahnhof
+  now opens a lower Washingtonplatz presentation angle instead of the old
+  near-plan view. New contracts cover the mirrored crowns, exposed frame,
+  complete gables, canopies, signs, rooftop detail and bounded 260-instance
+  solar batch. Desktop Day/Night/Minecraft/Snowstorm and 390 x 844 mobile
+  views were checked directly; the visible radius remains **5,230 m**, and no
+  mapped anchor, official dimension, source hierarchy or attribution changed.
+
 ## v0.70.38
 
 - **Berlin's bridges now read as individual structures rather than variations

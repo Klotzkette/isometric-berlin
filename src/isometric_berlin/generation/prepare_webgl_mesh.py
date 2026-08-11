@@ -796,9 +796,9 @@ def architectural_signature_payload(
       "north_south_hall_width_m": 42.0,
       "office_bridge_height_m": 46.0,
       "focus_camera": {
-        "distance_m": 370.0,
-        "polar_degrees": 42.0,
-        "azimuth_degrees": 52.0,
+        "distance_m": 340.0,
+        "polar_degrees": 58.0,
+        "azimuth_degrees": 220.0,
         "target_height_m": 21.0,
       },
       "source_url": HAUPTBAHNHOF_ARCHITECTURE_SOURCE_URL,
