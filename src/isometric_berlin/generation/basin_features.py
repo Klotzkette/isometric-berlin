@@ -1,18 +1,15 @@
-"""Constructed water basins, and the sunken walls that run into them.
+"""Classify Berlin water and recover the sunken walls that run into basins.
 
 Two builders need the same answer to the same two questions, so the answer
 lives here rather than in either of them.
 
-**Which water is perched?** OSM does not distinguish a river from an
-ornamental basin in any way the renderers were reading, so every water
-polygon was drawn at the single Spree water table (−1.15 m). That is right
-for the Spree, the Kanal and the Humboldthafen, which really do run in a cut
-behind high quay walls. It is wrong for a constructed basin, which sits at
-the level of the ground around it: the Invalidenpark fountain has terrain at
-5.3 m, so its water plate was drawn 6.5 m below the lawn and the lawn plate
-covered it. The basin read as flat green grass — the owner's report. A basin
-therefore carries ``kind="basin"`` and gets a water level derived from the
-local terrain instead of the river table.
+**Which water is where?** Rivers/canals use the Spree table, built basins use
+their local rim, and natural park ponds use a robust local low-bank level.
+Keeping those three classes separate prevents the Invalidenpark fountain from
+disappearing under its lawn and prevents Neuer See or Venusbassin from gaining
+invented vertical concrete walls. Narrow mapped Tiergarten streams and ditches
+are buffered only inside the OSM Großer-Tiergarten polygon; mapped widths win
+and conservative display widths are used only where OSM has none.
 
 **Where is the sunken wall?** Christophe Girot's *Sinkende Mauer* (1997) in
 the Invalidenpark is mapped as two overlapping OSM ways: the artwork way is
@@ -26,19 +23,25 @@ into the water.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
 import geopandas as gpd
-from shapely.geometry import MultiPolygon, Point, Polygon
+from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
 # `water=*` values that describe a built basin rather than a water body
 # sitting at the groundwater table. `pond` is deliberately NOT here: the
-# Neuer See and the Tiergarten ponds are real water bodies fed by the same
-# table as the Spree, and perching them would lift them off their banks.
+# Neuer See and the Tiergarten ponds are natural water bodies rather than
+# constructed architectural basins; their level must follow their own banks.
 BASIN_WATER_VALUES = frozenset({"basin", "reflecting_pool", "reservoir"})
+POND_WATER_VALUES = frozenset({"lake", "pond"})
+TIERGARTEN_LINEAR_WATERWAYS = frozenset({"ditch", "stream"})
+LINE_WATERWAY_WIDTH_M = {"ditch": 0.8, "stream": 1.4}
+MIN_LINE_WATERWAY_WIDTH_M = 0.4
+MAX_LINE_WATERWAY_WIDTH_M = 8.0
 # Below this a fountain is a drinking spout or a jet in a paved square, not
 # a basin with a readable water surface at this scale.
 MIN_FOUNTAIN_AREA_M2 = 40.0
@@ -66,6 +69,28 @@ def is_basin(row: Any) -> bool:
   )
 
 
+def is_pond(row: Any, geometry: BaseGeometry, tiergarten: BaseGeometry) -> bool:
+  """True for natural still water, including untyped water in Tiergarten."""
+  if tag(row, "water") in POND_WATER_VALUES:
+    return True
+  if tiergarten.is_empty or tag(row, "waterway") in {"canal", "river"}:
+    return False
+  return tag(row, "natural") == "water" and tiergarten.contains(
+    geometry.representative_point()
+  )
+
+
+def _mapped_width_m(row: Any, waterway: str) -> float:
+  """Mapped width, or a conservative display width for a line waterway."""
+  match = re.search(r"\d+(?:[.,]\d+)?", tag(row, "width"))
+  width = (
+    float(match.group(0).replace(",", "."))
+    if match
+    else LINE_WATERWAY_WIDTH_M[waterway]
+  )
+  return min(MAX_LINE_WATERWAY_WIDTH_M, max(MIN_LINE_WATERWAY_WIDTH_M, width))
+
+
 def polygon_parts(geometry: BaseGeometry) -> list[Polygon]:
   if isinstance(geometry, Polygon):
     return [geometry]
@@ -84,7 +109,7 @@ class WaterFeature:
 
 
 def load_water_features(osm_path: Any) -> list[WaterFeature]:
-  """Water polygons with a river/basin classification.
+  """Water surfaces classified as river, pond, stream or built basin.
 
   Documented fountain basins that OSM mapped only as ``amenity=fountain``
   under a POI — with no ``natural=water`` — are folded in here too, so a
@@ -92,21 +117,70 @@ def load_water_features(osm_path: Any) -> list[WaterFeature]:
   """
   features: list[WaterFeature] = []
   seen: set[str] = set()
+  parks = gpd.read_file(osm_path, layer="parks").to_crs(epsg=25833)
+  tiergarten_parts = [
+    row.geometry
+    for _, row in parks.iterrows()
+    if tag(row, "name") == "Großer Tiergarten"
+    and row.geometry is not None
+    and not row.geometry.is_empty
+  ]
+  tiergarten = unary_union(tiergarten_parts)
   water = gpd.read_file(osm_path, layer="water").to_crs(epsg=25833)
+  polygon_water: list[BaseGeometry] = []
   for _, row in water.iterrows():
     geometry = row.geometry
     if geometry is None or geometry.is_empty:
       continue
     if not polygon_parts(geometry):
       continue
+    polygon_water.append(geometry)
     seen.add(tag(row, "id"))
+    kind = (
+      "basin"
+      if is_basin(row)
+      else "pond"
+      if is_pond(row, geometry, tiergarten)
+      else "river"
+    )
     features.append(
       WaterFeature(
         geometry=geometry,
-        kind="basin" if is_basin(row) else "river",
+        kind=kind,
         name=tag(row, "name"),
       )
     )
+
+  # OSM's small Tiergarten drainage network is mapped as centrelines. It was
+  # previously discarded because only polygons reached the surface payload.
+  # Restrict buffering to the park polygon and remove already mapped water so
+  # this adds the missing links without widening ponds or the Spree.
+  polygon_union = unary_union(polygon_water)
+  if not tiergarten.is_empty:
+    for _, row in water.iterrows():
+      geometry = row.geometry
+      waterway = tag(row, "waterway")
+      if (
+        geometry is None
+        or geometry.is_empty
+        or not isinstance(geometry, (LineString, MultiLineString))
+        or waterway not in TIERGARTEN_LINEAR_WATERWAYS
+      ):
+        continue
+      clipped = geometry.intersection(tiergarten)
+      if clipped.is_empty:
+        continue
+      surface = clipped.buffer(
+        _mapped_width_m(row, waterway) / 2,
+        cap_style=1,
+        join_style=1,
+      ).difference(polygon_union)
+      for part in polygon_parts(surface):
+        if part.area < 2.0:
+          continue
+        features.append(
+          WaterFeature(geometry=part, kind="stream", name=tag(row, "name"))
+        )
   pois = gpd.read_file(osm_path, layer="pois").to_crs(epsg=25833)
   for _, row in pois.iterrows():
     if tag(row, "amenity") != "fountain" or tag(row, "id") in seen:

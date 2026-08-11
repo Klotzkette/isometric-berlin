@@ -1637,8 +1637,13 @@ describe("smooth OSM water and parkland", () => {
       ),
     ).toBe(false);
     expect(group.getObjectByName("basin water")).toBeInstanceOf(Mesh);
+    expect(group.getObjectByName("natural pond water")).toBeInstanceOf(Mesh);
+    expect(group.getObjectByName("natural pond floors")).toBeInstanceOf(Mesh);
+    expect(group.getObjectByName("natural pond bank slopes")).toBeInstanceOf(
+      Mesh,
+    );
     const depthWalls = group.getObjectByName(
-      "pond display-depth walls",
+      "basin display-depth walls",
     ) as Mesh;
     expect(depthWalls).toBeInstanceOf(Mesh);
     expect(depthWalls.userData.depthStatus).toContain("not surveyed");

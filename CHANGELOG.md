@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.70.43
+
+- **Tiergarten water is no longer one generic blue layer.** The committed
+  surface payload now distinguishes 45 river parts, 34 natural pond parts, 23
+  mapped stream/ditch parts and 18 constructed basins. Natural water follows
+  the exact OSM plan geometry, including Neuer See's islands, while parkland
+  is cut around every water polygon so Venusbassin, Neuer See and the small
+  Tiergarten channels cannot disappear beneath an opaque lawn again.
+- **Natural banks now have local relief and a readable cutaway.** Ponds and
+  streams use a robust local water level, a visible floor, gently sloped banks,
+  static shoreline ink and restrained transparent water in Day and Night.
+  Minecraft keeps those cells at local terrain height instead of forcing them
+  onto the Spree table. Horizontal outlines are source geometry; display depth
+  and unmapped line width remain explicitly documented presentation
+  reconstructions, not surveyed bathymetry. Retaining that decimetre payload
+  raises only the extracted-package guard from 210 to 211 MiB; the compressed
+  release remains under the unchanged 200 MB ceiling.
+- **Five previously generic Tiergarten artworks gain individual forms.** The
+  2.2 m Rousseau column, 6.5 m Lortzing monument, four-part Baumdank stele,
+  Flora/Pomona figure group and *Das deutsche Volkslied* now carry their
+  documented materials, proportions and distinguishing sculptural parts.
+  Desktop, tablet and phone checks cover Day, Night and Minecraft with no
+  browser warnings; the visible radius remains **5,230 m**, and no existing
+  source geometry, attribution or data hierarchy moved.
+
 ## v0.70.42
 
 - **Europacity now has a measured vertical datum, not one shared platform.**

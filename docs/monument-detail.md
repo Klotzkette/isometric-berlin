@@ -1,6 +1,6 @@
 # Monument Detail And Evidence Status
 
-The true-3D viewer adds small procedural recognition models for seven memorials
+The true-3D viewer adds small procedural recognition models for memorials
 whose defining shapes are easily lost in aerial photogrammetry. These models
 are additive cues over the official Berlin 3D Mesh, not replacements for it.
 They use the committed landmark coordinates and do not claim surveyed site
@@ -23,6 +23,10 @@ monument foundation height.
 | Goethe Monument | Standing Goethe, cylindrical pedestal and three allegorical groups | Composition follows the Berlin monument inventory and licensed references; uncited dimensions are approximate. |
 | Beethoven-Haydn-Mozart Monument | Three-sided marble stele, three busts, gilded dome, three putti and laurel wreath | Berlin's monument inventory states a 10 m monument and the characteristic three-composer, coloured-marble and gilded-crown composition. |
 | Memorial to Jehovah's Witnesses persecuted and murdered under National Socialism | Slender folded column with a broad flared crown | The responsible foundation documents Matthias Leeck's bronze sculpture and its public opening on 24 June 2026. Shape follows the committed licensed 2026 references; height is not claimed as surveyed. |
+| Rousseau Column | Three-zone sandstone/limestone column with spiral lower bossing, bowl-like middle and floral crown | Berlin's sculpture inventory documents the 2.2 m total height and three-zone carved composition; the OSM point fixes its position on Rousseau Island. |
+| Lortzing Monument | Two-step marble platform, apsidal pedestal, five opera putti, standing Lortzing with pen and musical score | Berlin's sculpture inventory documents 6.5 m total height, marble material and the five-putti composition; local part proportions are reference-based. |
+| Tree-donation memorial | Four-part shell-limestone pillar with inscription and incised-relief registers on three faces | Berlin's sculpture inventory documents material, four-part construction and relief/inscription programme; uncited section dimensions are approximate. |
+| Flora/Pomona and *Das deutsche Volkslied* | Flora with fruit, tree support and putto; separate seated embracing pair with lyre | Berlin's sculpture inventory documents each composition and material family. OSM fixes position; uncited dimensions remain reference-based presentation geometry. |
 
 ## Primary sources
 
@@ -39,6 +43,9 @@ monument foundation height.
 - Berlin monument inventory, Großer Tiergarten subobjects including Goethe and
   the Beethoven-Haydn-Mozart monument:
   <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046318>
+- Berlin public-sculpture inventory, Rousseau, Lortzing, Baumdank, Flora and
+  *Das deutsche Volkslied*:
+  <https://bildhauerei-in-berlin.de/>
 - Per-file licensed visual references and credits:
   [`../references/wikimedia/README.md`](../references/wikimedia/README.md)
 

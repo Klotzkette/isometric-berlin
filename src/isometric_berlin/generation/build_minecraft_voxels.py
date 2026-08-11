@@ -69,6 +69,7 @@ CLASSES = [
   "bridge",
   "basin",
   "wall",
+  "pond",
 ]
 CLASS_GRASS = 0
 CLASS_ASPHALT = 1
@@ -83,6 +84,10 @@ CLASS_BASIN = 7
 # A freestanding wall is a building column with no interior, so the voxel
 # viewer must not punch its storey-banded window rows into it.
 CLASS_WALL = 8
+# Natural ponds and narrow park streams keep local terrain height too, but use
+# a separate class so the drawn and voxel viewers can distinguish soft banks
+# from built basin rims without changing the stable ids above.
+CLASS_POND = 9
 # Height of Girot's wedge at its high point, read off the owner's photographs
 # of the Sinkende Mauer; the drawn city uses the same figure.
 SUNKEN_WALL_RISE_M = 5.6
@@ -423,15 +428,20 @@ def classify_ground(
     water_mask = shapely.contains_xy(water_union, flat_x[inside], flat_z[inside])
     classes[inside_positions[water_mask]] = CLASS_WATER
 
-  # Constructed basins ride the terrain, so they are their own class; the
-  # sunken wall standing in one is concrete, and has to be painted after
-  # the basin or the basin would swallow it.
+  # Constructed basins and natural park water ride local terrain rather than
+  # the Spree table. They remain distinct because only a built basin has a
+  # hard architectural rim. The sunken wall is painted after both.
   features = load_water_features(osm_path)
   basins = [f.geometry for f in features if f.kind == "basin"]
   if basins:
     basin_union = to_world(shapely.union_all(basins))
     basin_mask = shapely.contains_xy(basin_union, flat_x[inside], flat_z[inside])
     classes[inside_positions[basin_mask]] = CLASS_BASIN
+  ponds = [f.geometry for f in features if f.kind in {"pond", "stream"}]
+  if ponds:
+    pond_union = to_world(shapely.union_all(ponds))
+    pond_mask = shapely.contains_xy(pond_union, flat_x[inside], flat_z[inside])
+    classes[inside_positions[pond_mask]] = CLASS_POND
   walls = derive_sunken_walls(osm_path, features)
   if walls:
     wall_union = to_world(shapely.union_all([wall.geometry for wall in walls]))
@@ -453,7 +463,7 @@ def classify_ground(
     bridge_union = shapely.union_all(bridge_bands)
     bridge_mask = shapely.intersects_xy(bridge_union, flat_x[inside], flat_z[inside])
     near_bridge = inside_positions[bridge_mask]
-    over_water = near_bridge[classes[near_bridge] == CLASS_WATER]
+    over_water = near_bridge[np.isin(classes[near_bridge], [CLASS_WATER, CLASS_POND])]
     classes[over_water] = CLASS_BRIDGE
 
   return classes.reshape(grid["rows"], grid["cols"])

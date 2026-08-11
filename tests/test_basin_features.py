@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+from shapely.geometry import Polygon
 
 from isometric_berlin.generation.basin_features import (
   BASIN_WATER_VALUES,
@@ -30,8 +31,7 @@ def surfaces() -> dict:
 
 
 def test_pond_is_not_a_basin() -> None:
-  # The Neuer See and the Tiergarten ponds sit at the same groundwater
-  # table as the Spree; perching them would lift them off their banks.
+  # Natural ponds need a local soft-bank level, not a built basin rim.
   assert "pond" not in BASIN_WATER_VALUES
   assert not is_basin({"water": "pond"})
   assert is_basin({"amenity": "fountain"})
@@ -41,8 +41,21 @@ def test_pond_is_not_a_basin() -> None:
 def test_basins_are_a_minority_of_the_water(water_features: list) -> None:
   basins = [f for f in water_features if f.kind == "basin"]
   rivers = [f for f in water_features if f.kind == "river"]
+  ponds = [f for f in water_features if f.kind == "pond"]
+  streams = [f for f in water_features if f.kind == "stream"]
   assert basins, "the district has documented fountain basins"
+  assert ponds, "the Tiergarten's mapped ponds must retain natural banks"
+  assert streams, "mapped Tiergarten streams and ditches must not be discarded"
   assert len(rivers) > len(basins)
+
+
+def test_tiergarten_water_keeps_its_specific_class(water_features: list) -> None:
+  named = {(feature.name, feature.kind) for feature in water_features}
+  assert ("Venusbassin", "pond") in named
+  assert ("Neuer See", "pond") in named
+  assert all(
+    feature.geometry.area >= 2 for feature in water_features if feature.kind == "stream"
+  )
 
 
 def test_the_invalidenpark_basin_is_water(surfaces: dict) -> None:
@@ -108,8 +121,27 @@ def test_voxel_wedge_steps_up_towards_the_crest() -> None:
 
 def test_every_water_polygon_is_classified(surfaces: dict) -> None:
   kinds = {entry["kind"] for entry in surfaces["water"]}
-  assert kinds <= {"basin", "river"}
-  assert kinds == {"basin", "river"}
+  assert kinds <= {"basin", "pond", "river", "stream"}
+  assert kinds == {"basin", "pond", "river", "stream"}
+
+
+def test_parkland_does_not_cover_natural_tiergarten_water(surfaces: dict) -> None:
+  def polygon(entry: dict) -> Polygon:
+    shell = [(x / 10, z / 10) for x, z in entry["ring"]]
+    holes = [[(x / 10, z / 10) for x, z in ring] for ring in entry.get("holes", [])]
+    return Polygon(shell, holes)
+
+  ponds = [
+    polygon(entry)
+    for entry in surfaces["water"]
+    if entry.get("name") in {"Neuer See", "Venusbassin"}
+  ]
+  parks = [polygon(entry) for entry in surfaces["parks"]]
+  assert ponds
+  assert all(
+    not any(park.covers(pond.representative_point()) for park in parks)
+    for pond in ponds
+  )
 
 
 def test_voxels_keep_basins_off_the_river_table() -> None:
@@ -118,5 +150,15 @@ def test_voxels_keep_basins_off_the_river_table() -> None:
   basin_id = payload["classes"].index("basin")
   cells = sum(
     run for row in payload["ground_rows"] for _, run, cid in row if cid == basin_id
+  )
+  assert cells > 100
+
+
+def test_voxels_keep_park_water_on_local_terrain() -> None:
+  payload = json.loads(VOXELS.read_text(encoding="utf-8"))
+  assert "pond" in payload["classes"]
+  pond_id = payload["classes"].index("pond")
+  cells = sum(
+    run for row in payload["ground_rows"] for _, run, cid in row if cid == pond_id
   )
   assert cells > 100

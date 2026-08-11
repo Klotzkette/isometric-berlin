@@ -276,7 +276,7 @@ not ship the raw response: `build_park_details` simplifies this evidence into
 the compact `park-details.json` display payload.
 
 Walking/cycling infrastructure is audited separately from motor traffic.
-`surface-polygons.json` schema 8 contains 8,151 bounded above-ground line parts
+`surface-polygons.json` schema 9 contains 8,151 bounded above-ground line parts
 across `footway`, `cycleway`, `path`, `pedestrian`, `steps` and `track`; 7,420
 parts have an explicit OSM `surface` and 988 have `width` or `est_width`.
 Explicit surface tags resolve to six drawn families (asphalt, paving,
@@ -285,7 +285,18 @@ considered. The payload's `path_inventory` preserves the source and resolution
 counts so missing width evidence is documented rather than presented as a
 surveyed kerb line.
 
-Schema 8 reduces the water and road simplification tolerance to 0.1 m, samples
+Schema 9 keeps the 0.1 m water/road tolerance and separates four water roles:
+Spree/canal/harbour polygons (`river`), natural still water (`pond`), built
+fountains and reflecting pools (`basin`), and OSM-mapped Tiergarten streams or
+ditches (`stream`). Linear streams are clipped to the OSM Großer-Tiergarten
+polygon and buffered from mapped width; where width is absent, the payload
+records a conservative 1.4 m stream or 0.8 m ditch display width. Existing
+water polygons are subtracted so connecting lines cannot double or widen a
+pond. The renderer keeps every mapped shoreline and island ring, derives a
+robust local level from the official terrain-support samples, and labels its
+0.35-1.55 m visible pond depth as unsurveyed presentation geometry.
+
+Schema 9 also samples
 road curves at 1.5 m and uses 16 round-buffer segments per quadrant. The viewer
 inserts additional 2–2.5 m display points only between the retained exported
 vertices. Natural bends can therefore flow continuously while engineered

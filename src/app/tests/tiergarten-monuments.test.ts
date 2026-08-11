@@ -315,6 +315,35 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     }
   });
 
+  test("the New Partie memorials keep their documented individual forms", () => {
+    const rousseau = tallestNear("Rousseau-Säule");
+    expect(rousseau).toBeGreaterThan(2.05);
+    expect(rousseau).toBeLessThan(2.35);
+    const lortzing = tallestNear("Lortzing-Denkmal");
+    expect(lortzing).toBeGreaterThan(6.2);
+    expect(lortzing).toBeLessThan(6.8);
+    const baumdank = tallestNear("Baumdank-Denkmal");
+    expect(baumdank).toBeGreaterThan(3.1);
+    expect(baumdank).toBeLessThan(3.7);
+    expect(monuments.userData.tiergartenHeritageModels.rousseau).toContain(
+      "2.2 m",
+    );
+    expect(monuments.userData.tiergartenHeritageModels.lortzing).toContain(
+      "6.5 m",
+    );
+  });
+
+  test("Flora and the German song are figure groups, not generic steles", () => {
+    expect(tallestNear("Florastatue")).toBeGreaterThan(3);
+    expect(tallestNear("Das deutsche Volkslied")).toBeGreaterThan(2.4);
+    expect(monuments.userData.tiergartenHeritageModels.flora).toContain(
+      "putto",
+    );
+    expect(monuments.userData.tiergartenHeritageModels.volkslied).toContain(
+      "lyre",
+    );
+  });
+
   test("Wagner's canopy is a stepped vault above four posts, not a flat lid", () => {
     // v0.58.0: the real 1987/88 Schutzdach is a barrel vault, so the
     // highest vertices near the monument must come from a stack of at

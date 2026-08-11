@@ -116,9 +116,9 @@ export type SurfacePolygon = {
   area_m2: number;
   holes: number[][][];
   /**
-   * Drawn surface family: asphalt, paving or sand for carriageways;
-   * river or basin for water. A river runs at the Spree table, a basin
-   * sits on the ground it was built into.
+   * Drawn surface family: asphalt, paving or sand for carriageways; river,
+   * pond, stream or basin for water. Rivers use the Spree table, natural
+   * park water follows local terrain, and basins use their built rim.
    */
   kind?: string;
   name: string;
@@ -184,11 +184,15 @@ function surfaceCentroidM(surface: SurfacePolygon): [number, number] {
   ];
 }
 
-/** Park ponds use their local terrain rim, not the much lower Spree table. */
+/** Local water uses park terrain, not the much lower Spree table. */
 export function isElevatedParkWater(surface: SurfacePolygon): boolean {
-  if (surface.kind === "basin") {
+  if (["basin", "pond", "stream"].includes(surface.kind ?? "")) {
     return true;
   }
+  if (surface.kind === "river") {
+    return false;
+  }
+  // Compatibility for pre-schema-9 payloads, which had no pond class.
   const [x, z] = surfaceCentroidM(surface);
   return x < 350 && z > 120 && z < 1_350;
 }
@@ -6801,15 +6805,23 @@ export function createSmoothSurfaces(
     }
   }
 
-  // A river runs at the Spree table; a constructed basin sits on the
-  // ground it was built into. Drawing both at the single table put the
-  // Invalidenpark fountain 6.5 m under its own lawn, where the lawn plate
-  // covered it and the basin read as flat grass.
+  // Rivers/canals, natural park water and built basins are intentionally
+  // separate. The first uses the Spree table, ponds follow local low-bank
+  // terrain with soft slopes, and only built basins receive hard rims.
   const basins = surfaces.water.filter(
-    (entry) => isElevatedParkWater(entry) && !isDedicatedSintiRomaPool(entry),
+    (entry) => entry.kind === "basin" && !isDedicatedSintiRomaPool(entry),
+  );
+  const ponds = surfaces.water.filter(
+    (entry) =>
+      entry.kind === "pond" ||
+      entry.kind === "stream" ||
+      (!entry.kind && isElevatedParkWater(entry)),
   );
   const rivers = surfaces.water.filter(
-    (entry) => entry.kind !== "basin" && !isElevatedParkWater(entry),
+    (entry) =>
+      !isDedicatedSintiRomaPool(entry) &&
+      !basins.includes(entry) &&
+      !ponds.includes(entry),
   );
 
   // Sandy riverbed, then the transparent water plate above it.
@@ -7036,6 +7048,7 @@ export function createSmoothSurfaces(
     group.add(shore);
   }
 
+  const pondLevels = addNaturalPonds(group, ponds, bankY, terrainAt);
   const basinLevels = addBasinsAndSunkenWalls(
     group,
     surfaces,
@@ -7043,8 +7056,15 @@ export function createSmoothSurfaces(
     bankY,
     terrainAt,
   );
-  addStaticWaterRipples(group, rivers, basins, basinLevels, waterTopY);
-  addBeaverEasterEggs(group, basins, basinLevels);
+  const localLevels = new Map([...pondLevels, ...basinLevels]);
+  addStaticWaterRipples(
+    group,
+    rivers,
+    [...ponds, ...basins],
+    localLevels,
+    waterTopY,
+  );
+  addBeaverEasterEggs(group, ponds, pondLevels);
   return group;
 }
 
@@ -7062,6 +7082,33 @@ function ringTerrainCeiling(
     ceiling = Math.max(ceiling, terrainAt(xDm / 10, zDm / 10));
   }
   return Number.isFinite(ceiling) ? ceiling : fallback;
+}
+
+/**
+ * Stable local level for a natural pond.
+ *
+ * OSM fixes the shoreline but does not publish bathymetry. The lower-third
+ * boundary quantile is robust against one path or bridge point lifting an
+ * entire lake, while the 16 cm presentation lift keeps the flat plate clear
+ * of the terrain-draped lawn. This is explicitly display geometry, not a
+ * surveyed water gauge.
+ */
+export function naturalWaterLevel(
+  surface: SurfacePolygon,
+  fallback: number,
+  terrainAt?: (x: number, z: number) => number,
+): number {
+  if (!terrainAt || surface.ring.length === 0) {
+    return fallback + 0.16;
+  }
+  const samples = surface.ring
+    .map(([x, z]) => terrainAt(x / 10, z / 10))
+    .filter(Number.isFinite)
+    .sort((left, right) => left - right);
+  if (samples.length === 0) {
+    return fallback + 0.16;
+  }
+  return samples[Math.floor((samples.length - 1) * 0.33)] + 0.16;
 }
 
 function ringContains(ring: number[][], x: number, z: number): boolean {
@@ -7331,6 +7378,203 @@ function addBeaverEasterEggs(
 }
 
 /**
+ * Natural ponds and their connecting streams.
+ *
+ * Shorelines and islands are the committed OSM rings. The visible bed depth
+ * and short bank slope are restrained display approximations because no
+ * public bathymetric survey is present in the repository. Unlike a built
+ * fountain, a pond gets no vertical wall and no concrete rim.
+ */
+function addNaturalPonds(
+  group: Group,
+  ponds: SurfacePolygon[],
+  bankY: number,
+  terrainAt?: (x: number, z: number) => number,
+): Map<SurfacePolygon, number> {
+  const levels = new Map<SurfacePolygon, number>();
+  const floorParts: BufferGeometry[] = [];
+  const waterParts: BufferGeometry[] = [];
+  const slopePositions: number[] = [];
+  const shorelinePositions: number[] = [];
+
+  for (const pond of ponds) {
+    if (pond.ring.length < 4) {
+      continue;
+    }
+    const level = naturalWaterLevel(pond, bankY, terrainAt);
+    const depth =
+      pond.kind === "stream"
+        ? 0.35
+        : Math.min(
+            1.55,
+            Math.max(0.8, 0.5 + Math.log10(Math.max(10, pond.area_m2)) * 0.24),
+          );
+    const floorY = level - depth;
+    levels.set(pond, level);
+
+    let shape: Shape;
+    try {
+      shape = shapeFromSurface(pond);
+    } catch {
+      continue;
+    }
+    for (const [y, parts] of [
+      [floorY, floorParts],
+      [level, waterParts],
+    ] as const) {
+      try {
+        const geometry = new ShapeGeometry(shape);
+        geometry.deleteAttribute("uv");
+        geometry.rotateX(-Math.PI / 2);
+        geometry.translate(0, y, 0);
+        parts.push(geometry);
+      } catch {
+        continue;
+      }
+    }
+
+    const slopeRing = (source: number[][], isIsland: boolean): void => {
+      const ring = smoothSurfaceRing(source, surfaceCurveOptions(pond));
+      if (ring.length < 3) {
+        return;
+      }
+      const cx = ring.reduce((sum, [x]) => sum + x, 0) / ring.length;
+      const cz = ring.reduce((sum, [, z]) => sum + z, 0) / ring.length;
+      const inset =
+        pond.kind === "stream" ? 0.22 : Math.min(1.6, 0.7 + depth * 0.45);
+      const bottom = ring.map(([x, z]): [number, number] => {
+        const dx = cx - x;
+        const dz = cz - z;
+        const distance = Math.max(1e-6, Math.hypot(dx, dz));
+        const direction = isIsland ? -1 : 1;
+        return [
+          x + (dx / distance) * inset * direction,
+          z + (dz / distance) * inset * direction,
+        ];
+      });
+      for (let index = 0; index < ring.length; index += 1) {
+        const [ax, az] = ring[index];
+        const [bx, bz] = ring[(index + 1) % ring.length];
+        const [aFloorX, aFloorZ] = bottom[index];
+        const [bFloorX, bFloorZ] = bottom[(index + 1) % bottom.length];
+        const topY = level - 0.018;
+        const bottomY = floorY + 0.018;
+        slopePositions.push(
+          ax, topY, az,
+          aFloorX, bottomY, aFloorZ,
+          bFloorX, bottomY, bFloorZ,
+          ax, topY, az,
+          bFloorX, bottomY, bFloorZ,
+          bx, topY, bz,
+        );
+        shorelinePositions.push(
+          ax, level + 0.035, az,
+          bx, level + 0.035, bz,
+        );
+      }
+    };
+    slopeRing(pond.ring, false);
+    for (const hole of pond.holes ?? []) {
+      slopeRing(hole, true);
+    }
+  }
+
+  const addMergedPlate = (
+    parts: BufferGeometry[],
+    name: string,
+    dayMaterial: MeshBasicMaterial,
+    nightMaterial: MeshBasicMaterial,
+    renderOrder = 0,
+  ): void => {
+    if (parts.length === 0) {
+      return;
+    }
+    const geometry = mergeGeometries(parts, false);
+    parts.forEach((part) => part.dispose());
+    if (!geometry) {
+      return;
+    }
+    const mesh = new Mesh(geometry, dayMaterial);
+    mesh.name = name;
+    mesh.renderOrder = renderOrder;
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.userData.sourceGeometry = "OSM shoreline and island rings";
+    mesh.userData.depthStatus =
+      "0.35-1.55 m display depth scaled by area; not surveyed bathymetry";
+    mesh.userData.levelStatus =
+      "Lower-third local terrain rim plus 0.16 m presentation clearance";
+    group.add(mesh);
+  };
+
+  addMergedPlate(
+    floorParts,
+    "natural pond floors",
+    new MeshBasicMaterial({ color: 0x87998c }),
+    new MeshBasicMaterial({ color: 0x15242a }),
+  );
+  if (slopePositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(slopePositions, 3),
+    );
+    const dayMaterial = new MeshBasicMaterial({
+      color: 0x718a73,
+      side: DoubleSide,
+    });
+    const nightMaterial = new MeshBasicMaterial({
+      color: 0x162821,
+      side: DoubleSide,
+    });
+    const slopes = new Mesh(geometry, dayMaterial);
+    slopes.name = "natural pond bank slopes";
+    slopes.userData.dayMaterial = dayMaterial;
+    slopes.userData.nightMaterial = nightMaterial;
+    slopes.userData.geometryStatus =
+      "OSM shoreline with a restrained display-depth inward slope";
+    group.add(slopes);
+  }
+  addMergedPlate(
+    waterParts,
+    "natural pond water",
+    new MeshBasicMaterial({
+      color: 0x85b9ca,
+      depthWrite: false,
+      opacity: 0.58,
+      transparent: true,
+    }),
+    new MeshBasicMaterial({
+      color: 0x24465a,
+      depthWrite: false,
+      opacity: 0.72,
+      transparent: true,
+    }),
+    1,
+  );
+  if (shorelinePositions.length > 0) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(shorelinePositions, 3),
+    );
+    const shoreline = new LineSegments(
+      geometry,
+      markArchitecturalAccentInk(
+        new LineBasicMaterial(),
+        0x557467,
+        "micro",
+      ),
+    );
+    shoreline.name = "natural pond shoreline ink";
+    shoreline.renderOrder = 3;
+    shoreline.userData.staticAntiFlicker = true;
+    group.add(shoreline);
+  }
+  return levels;
+}
+
+/**
  * Constructed basins and the walls that sink into them.
  *
  * A basin is drawn as one FLAT plate per basin, set just above the lawn
@@ -7529,7 +7773,7 @@ function addBasinsAndSunkenWalls(
       side: DoubleSide,
     });
     const walls = new Mesh(geometry, dayMaterial);
-    walls.name = "pond display-depth walls";
+    walls.name = "basin display-depth walls";
     walls.userData.dayMaterial = dayMaterial;
     walls.userData.nightMaterial = nightMaterial;
     walls.userData.depthStatus =

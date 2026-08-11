@@ -75,6 +75,9 @@ const GRAEFE_MAJOLICA_OCHRE = 0xb38a58;
 const GRAEFE_MAJOLICA_TERRACOTTA = 0xa8664e;
 const GRAEFE_HEDGE = 0x3f724b;
 const GRAEFE_IRON = 0x4f5755;
+const MUSCHELKALK = 0xb8b2a4;
+const WEATHERED_MUSCHELKALK = 0x77786f;
+const ROUSSEAU_SANDSTONE = 0xb89262;
 
 export const GRAEFE_CHARITE_OSM_WORLD = [539.4, -512.9] as const;
 export const GRAEFE_STATUE_HEIGHT_M = 1.66;
@@ -138,6 +141,28 @@ function addPaintedGeometry(
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   builder.parts.push(geometry);
   builder.edges.push(new EdgesGeometry(geometry, edgeThreshold));
+}
+
+function cylinder(
+  builder: Builder,
+  color: number,
+  x: number,
+  baseY: number,
+  z: number,
+  bottomRadius: number,
+  topRadius: number,
+  height: number,
+  segments = 16,
+): void {
+  const geometry = new CylinderGeometry(
+    topRadius,
+    bottomRadius,
+    height,
+    segments,
+    1,
+  );
+  geometry.translate(x, baseY + height / 2, z);
+  addPaintedGeometry(builder, geometry, color, 22);
 }
 
 function orientedPoint(
@@ -305,6 +330,123 @@ function branchedAntlers(
 /** Small stone marker for plaques and quiet memorials. */
 function buildStone(builder: Builder, x: number, y: number, z: number): void {
   box(builder, STONE, x, y + 0.35, z, 0.9, 0.7, 0.6);
+}
+
+/** Günter Anlauf's documented 2.2 m three-zone Rousseau column (1987). */
+function buildRousseauColumn(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, ROUSSEAU_SANDSTONE, x, y + 0.08, z, 1.25, 0.16, 1.25);
+  cylinder(builder, ROUSSEAU_SANDSTONE, x, y + 0.16, z, 0.43, 0.4, 1.0, 18);
+  // The lower zone's shallow spiral bossing, then the contracted neck and
+  // bowl-like middle described by Berlin's sculpture inventory.
+  for (let index = 0; index < 9; index += 1) {
+    const angle = index * 1.9;
+    ellipsoid(
+      builder,
+      0xc6a579,
+      x,
+      y,
+      z,
+      [Math.cos(angle) * 0.4, 0.3 + index * 0.09, Math.sin(angle) * 0.4],
+      [0.12, 0.075, 0.08],
+      angle,
+    );
+  }
+  cylinder(builder, ROUSSEAU_SANDSTONE, x, y + 1.16, z, 0.36, 0.3, 0.18, 18);
+  cylinder(builder, ROUSSEAU_SANDSTONE, x, y + 1.34, z, 0.32, 0.5, 0.34, 18);
+  cylinder(builder, ROUSSEAU_SANDSTONE, x, y + 1.68, z, 0.46, 0.44, 0.38, 16);
+  for (let index = 0; index < 8; index += 1) {
+    const angle = (index / 8) * Math.PI * 2;
+    ellipsoid(
+      builder,
+      0xd0b083,
+      x,
+      y,
+      z,
+      [Math.cos(angle) * 0.43, 1.94, Math.sin(angle) * 0.43],
+      [0.17, 0.15, 0.09],
+      angle,
+    );
+  }
+  cylinder(builder, ROUSSEAU_SANDSTONE, x, y + 2.06, z, 0.47, 0.38, 0.12, 16);
+}
+
+/** Gustav Eberlein's 6.5 m marble Lortzing monument (1904-06). */
+function buildLortzingMemorial(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, MARBLE, x, y + 0.1, z, 4.6, 0.2, 3.7);
+  box(builder, MARBLE, x, y + 0.28, z, 4.05, 0.16, 3.2);
+  box(builder, STONE_LIGHT, x, y + 0.48, z, 3.55, 0.24, 2.75);
+  box(builder, MARBLE, x, y + 1.68, z, 1.75, 2.16, 1.62);
+  cylinder(builder, MARBLE, x, y + 0.6, z + 0.76, 0.88, 0.88, 2.02, 18);
+
+  // Five putti on the apsidal front refer to Lortzing's principal operas.
+  for (let index = 0; index < 5; index += 1) {
+    const px = x + (index - 2) * 0.55;
+    ellipsoid(
+      builder, MARBLE, px, y, z,
+      [0, 1.45 + (index % 2) * 0.08, 1.35],
+      [0.22, 0.33, 0.2], 0,
+    );
+    ellipsoid(
+      builder, MARBLE, px, y, z,
+      [0, 1.86 + (index % 2) * 0.08, 1.35],
+      [0.16, 0.17, 0.16], 0,
+    );
+  }
+
+  // Contemporary coat, separate legs/head, pen in the right hand and score
+  // in the left. The tree-stump support is partly covered by the coat.
+  rod(builder, MARBLE, x, y, z, [-0.28, 2.75, 0], [-0.32, 4.25, 0], 0.2, 0, 0.9);
+  rod(builder, MARBLE, x, y, z, [0.28, 2.75, 0], [0.3, 4.25, 0], 0.2, 0, 0.9);
+  const coat = new CylinderGeometry(0.48, 0.68, 1.9, 10);
+  coat.scale(1, 1, 0.72);
+  coat.translate(x, y + 4.65, z);
+  addPaintedGeometry(builder, coat, MARBLE, 24);
+  ellipsoid(builder, MARBLE, x, y, z, [0, 5.92, 0], [0.33, 0.39, 0.31], 0);
+  rod(builder, MARBLE, x, y, z, [-0.38, 5.05, 0], [-0.73, 5.55, 0.12], 0.1, 0);
+  rod(builder, MARBLE, x, y, z, [0.38, 5.05, 0], [0.72, 4.73, 0.18], 0.1, 0);
+  rod(builder, 0xb6aa94, x, y, z, [-0.73, 5.55, 0.12], [-0.9, 6.28, 0.12], 0.025, 0, 1);
+  box(builder, 0xe7e2d8, x + 0.74, y + 4.74, z + 0.19, 0.62, 0.08, 0.78, -0.15);
+  cylinder(builder, STONE_LIGHT, x - 0.6, y + 2.65, z - 0.28, 0.24, 0.2, 1.65, 10);
+}
+
+/** Karl Wenke's four-part shell-limestone tree-donation stele (1951/52). */
+function buildTreeDonationStele(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, MUSCHELKALK, x, y + 0.1, z, 1.65, 0.2, 1.65);
+  const courses = [0.72, 0.8, 0.8, 0.8];
+  let base = 0.2;
+  courses.forEach((height, index) => {
+    box(
+      builder,
+      index % 2 === 0 ? WEATHERED_MUSCHELKALK : 0x85857b,
+      x,
+      y + base + height / 2,
+      z,
+      0.92 - index * 0.015,
+      height,
+      0.92 - index * 0.015,
+    );
+    base += height;
+  });
+  // Fine raised text/relief registers on three faces, not a blank cuboid.
+  for (const height of [0.65, 1.0, 1.35, 1.7, 2.05, 2.4, 2.75]) {
+    box(builder, 0xc2bdae, x, y + height, z + 0.466, 0.58, 0.025, 0.025);
+    box(builder, 0xc2bdae, x + 0.466, y + height, z, 0.025, 0.025, 0.58);
+  }
 }
 
 /** Louis Tuaillon's 1916 seated marble Robert Koch monument. */
@@ -966,7 +1108,24 @@ function buildEberjagd(builder: Builder, x: number, y: number, z: number): void 
 
 /** Das deutsche Volkslied: reference-based presentation silhouette, not surveyed geometry. */
 function buildDasDeutscheVolkslied(builder: Builder, x: number, y: number, z: number): void {
-  buildStandingArtwork(builder, x, y, z, 1.15);
+  // Three-step shell-limestone pedestal and the close seated pair: the older
+  // music muse with lyre and laurel, embracing the younger braided "Lied".
+  box(builder, STONE, x, y + 0.08, z, 3.8, 0.16, 3.25);
+  box(builder, MUSCHELKALK, x, y + 0.24, z, 3.25, 0.16, 2.75);
+  box(builder, MUSCHELKALK, x, y + 0.44, z, 2.8, 0.24, 2.35);
+  box(builder, MARBLE, x, y + 0.78, z, 2.35, 0.44, 1.9);
+  for (const [dx, height] of [[-0.48, 1.35], [0.48, 1.18]] as const) {
+    ellipsoid(builder, MARBLE, x, y, z, [dx, 1.55, 0], [0.48, 0.68, 0.43], 0);
+    ellipsoid(builder, MARBLE, x, y, z, [dx, 2.25 + height * 0.05, 0], [0.27, 0.31, 0.25], 0);
+  }
+  rod(builder, MARBLE, x, y, z, [-0.2, 1.82, 0], [0.4, 1.72, 0], 0.1, 0);
+  for (const side of [-1, 1]) {
+    rod(builder, 0xb39b70, x, y, z, [-0.86 + side * 0.12, 1.1, 0.48], [-0.82 + side * 0.18, 2.0, 0.48], 0.045, 0, 1);
+  }
+  rod(builder, 0xb39b70, x, y, z, [-1.0, 1.98, 0.48], [-0.63, 1.98, 0.48], 0.045, 0, 1);
+  for (const offset of [-0.1, 0, 0.1]) {
+    rod(builder, 0xcbb995, x, y, z, [-0.82 + offset, 1.2, 0.49], [-0.82 + offset, 1.94, 0.49], 0.012, 0, 1);
+  }
 }
 
 /** Viktoria: reference-based presentation silhouette, not surveyed geometry. */
@@ -1006,7 +1165,24 @@ function buildAnnaElisabethLouise(builder: Builder, x: number, y: number, z: num
 
 /** Florastatue: reference-based presentation silhouette, not surveyed geometry. */
 function buildFlorastatue(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  // Rosengarten copy of Flora/Pomona: multipart rectangular plinth, full
+  // draped goddess with fruit/flower garlands, tree support and small putto.
+  box(builder, STONE_LIGHT, x, y + 0.11, z, 2.7, 0.22, 2.25);
+  box(builder, ROUSSEAU_SANDSTONE, x, y + 0.38, z, 2.25, 0.32, 1.85);
+  box(builder, STONE_LIGHT, x, y + 0.64, z, 1.9, 0.2, 1.55);
+  const drapery = new CylinderGeometry(0.45, 0.66, 1.75, 10);
+  drapery.scale(1, 1, 0.75);
+  drapery.translate(x - 0.2, y + 1.75, z);
+  addPaintedGeometry(builder, drapery, ROUSSEAU_SANDSTONE, 24);
+  ellipsoid(builder, ROUSSEAU_SANDSTONE, x, y, z, [-0.2, 2.88, 0], [0.3, 0.36, 0.28], -0.25);
+  rod(builder, ROUSSEAU_SANDSTONE, x, y, z, [-0.54, 2.25, 0], [-0.7, 1.35, 0.16], 0.11, 0);
+  rod(builder, ROUSSEAU_SANDSTONE, x, y, z, [0.2, 2.28, 0], [0.48, 2.72, 0.18], 0.11, 0);
+  ellipsoid(builder, 0xb77f51, x, y, z, [0.52, 2.79, 0.18], [0.12, 0.13, 0.12], 0);
+  cylinder(builder, 0x8a6c4f, x - 0.72, y + 0.74, z - 0.18, 0.16, 0.12, 1.35, 9);
+  ellipsoid(builder, ROUSSEAU_SANDSTONE, x, y, z, [0.76, 1.3, 0.12], [0.27, 0.38, 0.25], 0);
+  ellipsoid(builder, ROUSSEAU_SANDSTONE, x, y, z, [0.76, 1.8, 0.12], [0.2, 0.22, 0.19], 0);
+  rod(builder, ROUSSEAU_SANDSTONE, x, y, z, [0.9, 1.5, 0.12], [1.02, 2.25, 0.12], 0.07, 0);
+  ellipsoid(builder, 0xb77f51, x, y, z, [1.03, 2.35, 0.12], [0.1, 0.11, 0.1], 0);
 }
 
 /** Waffen: reference-based presentation silhouette, not surveyed geometry. */
@@ -2068,6 +2244,12 @@ export function createTiergartenMonuments(
     } else if (/^Albrecht von Graefe$/i.test(name) && x > 0) {
       buildGraefeChariteMemorial(builder, x, y, z);
       graefeChariteAnchor = [x, y, z];
+    } else if (/^Lortzing-Denkmal$/i.test(name)) {
+      buildLortzingMemorial(builder, x, y, z);
+    } else if (/^Rousseau-Säule$/i.test(name)) {
+      buildRousseauColumn(builder, x, y, z);
+    } else if (/^Baumdank-Denkmal$/i.test(name)) {
+      buildTreeDonationStele(builder, x, y, z);
     } else if (/Richard Wagner|Wagner-Denkmal/i.test(name)) {
       buildWagnerMemorial(builder, x, y, z);
     } else if (/Moltke|Roon/i.test(name)) {
@@ -2117,6 +2299,18 @@ export function createTiergartenMonuments(
   group.userData.floraplatzAnimalCount = floraplatzAnimalCount;
   group.userData.floraplatzGeometry =
     "Eight species-specific life-size bronze presentation models on OSM-positioned granite plinths; paired species face opposite directions";
+  group.userData.tiergartenHeritageModels = {
+    baumdank:
+      "Four-part shell-limestone pillar with relief/text registers at the OSM point",
+    flora:
+      "Draped Flora/Pomona with fruit, tree support and putto on a multipart plinth",
+    lortzing:
+      "Documented 6.5 m marble monument with apsidal pedestal, five putti, pen and score",
+    rousseau:
+      "Documented 2.2 m three-zone carved column with spiral bossing and floral crown",
+    volkslied:
+      "Seated embracing pair with lyre on a three-step shell-limestone pedestal",
+  };
   group.userData.graefeCharite = {
     architecture:
       "three-axis sandstone screen with pedimented round-arch niche, paired polychrome majolica reliefs, curved iron enclosure and hedges",
@@ -2130,6 +2324,11 @@ export function createTiergartenMonuments(
     "https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2020/pressemitteilung.939111.php",
     "https://www.berlin.de/landesdenkmalamt/aktivitaeten/presse/2023/pressemitteilung.1375900.php",
     "https://bildhauerei-in-berlin.de/bildwerk/acht-tierfiguren-am-floraplatz/",
+    "https://bildhauerei-in-berlin.de/bildwerk/gedenkstein-als-dank-fuer-baumspenden-5350/",
+    "https://bildhauerei-in-berlin.de/bildwerk/das-deutsche-volkslied-6305/",
+    "https://bildhauerei-in-berlin.de/bildwerk/flora-mit-putto-6302/",
+    "https://bildhauerei-in-berlin.de/bildwerk/lortzingdenkmal-4548/",
+    "https://bildhauerei-in-berlin.de/bildwerk/rousseau-saeule-4593/",
     GRAEFE_CHARITE_SOURCE_URL,
     GRAEFE_MONUMENT_SOURCE_URL,
   ];

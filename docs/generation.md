@@ -119,6 +119,12 @@ excursion-boat display model and remains labelled as such in its metadata.
 The translucent 3D water ribbon follows 45 m samples of the committed OSM
 Spree centreline. Its 30 m display width and 0.32 m wave relief are procedural,
 not assertions about the river's measured cross-section or instantaneous state.
+The drawn ground layer separately uses exact OSM polygon rings for Spree,
+canals, ponds and built basins. Natural Tiergarten ponds retain island holes,
+use soft sloped banks and a robust local low-bank level; mapped streams and
+ditches are included only inside the Großer Tiergarten polygon. Their visible
+bed depth is explicitly a display approximation because the open source bundle
+does not contain pond bathymetry.
 
 Tiergarten paths, tree points/tree rows and playground equipment are rebuilt
 after an OSM refresh with:
@@ -194,8 +200,9 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   the landward side of that same grid and follows its longitudinal grade.
 - **Ground cover.** One class per cell inside the bounds polygon, run-length
   encoded per row as `[x_start_col, run_length, class]`. Priority:
-  `bridge` over `water` (OSM water polygons, display top fixed at
-  y = 1.31 m) over `plazaBrick` (OSM paved pedestrian/footway polygons such
+  `bridge` over `water` (Spree/canal/harbour at the display table
+  y = -1.15 m), with `pond` and `basin` classes retaining local terrain,
+  over `plazaBrick` (OSM paved pedestrian/footway polygons such
   as Pariser Platz) over `asphalt` (6 m buffer around vehicular OSM road
   lines — footways are excluded so the Tiergarten stays green) over the
   `grass` default. `bridge` marks water cells within the same 6 m buffer of
@@ -285,7 +292,7 @@ and 3,945 tiles. A clean `bun run build` contains both the full DZI and
 progressive WebGL assets. The release packager keeps every WebGL asset but
 reuses levels 0–13 as an 8192×5808 offline DZI, removing only the redundant
 highest fallback level so both extracted archives remain below their hard
-210 MiB ceiling; the compressed download remains below 200 MB. The browser
+211 MiB ceiling; the compressed download remains below 200 MB. The browser
 loads hero crops only when their landmark is
 selected.
 

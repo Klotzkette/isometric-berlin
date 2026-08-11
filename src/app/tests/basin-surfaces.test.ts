@@ -3,6 +3,7 @@ import { Box3, LineSegments, Mesh } from "three";
 
 import {
   createSmoothSurfaces,
+  naturalWaterLevel,
   setIsoNightPresentation,
   type SurfacePayload,
 } from "../src/IsometricCityWorld";
@@ -14,9 +15,9 @@ const TERRAIN_M = 5.3;
 const terrainAt = () => TERRAIN_M;
 
 describe("constructed basins", () => {
-  test("water is split into rivers and basins", () => {
+  test("water is split into rivers, natural park water and basins", () => {
     const kinds = new Set(surfaces.water.map((entry) => entry.kind));
-    expect(kinds).toEqual(new Set(["basin", "river"]));
+    expect(kinds).toEqual(new Set(["basin", "pond", "river", "stream"]));
     const basins = surfaces.water.filter((entry) => entry.kind === "basin");
     expect(basins.length).toBeGreaterThan(0);
     expect(basins.length).toBeLessThan(surfaces.water.length / 2);
@@ -41,6 +42,45 @@ describe("constructed basins", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
     const river = group.getObjectByName("smooth water surface") as Mesh;
     expect(new Box3().setFromObject(river).max.y).toBeCloseTo(-1.15, 5);
+  });
+
+  test("natural ponds have local flat water, a visible floor and sloped banks", () => {
+    const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
+    const water = group.getObjectByName("natural pond water") as Mesh;
+    const floor = group.getObjectByName("natural pond floors") as Mesh;
+    const slopes = group.getObjectByName("natural pond bank slopes") as Mesh;
+    expect(water).toBeInstanceOf(Mesh);
+    expect(floor).toBeInstanceOf(Mesh);
+    expect(slopes).toBeInstanceOf(Mesh);
+    expect(new Box3().setFromObject(water).min.y).toBeGreaterThan(5.3);
+    expect(new Box3().setFromObject(floor).max.y).toBeLessThan(
+      new Box3().setFromObject(water).min.y,
+    );
+    expect(floor.userData.depthStatus).toContain("not surveyed bathymetry");
+    expect(group.getObjectByName("natural pond shoreline ink")).toBeInstanceOf(
+      LineSegments,
+    );
+  });
+});
+
+describe("natural pond level", () => {
+  test("one high bank sample cannot lift an entire pond", () => {
+    const pond = {
+      area_m2: 500,
+      holes: [],
+      kind: "pond",
+      name: "test pond",
+      ring: [
+        [0, 0], [10, 0], [20, 10], [30, 10], [40, 20], [50, 20],
+      ],
+    };
+    const level = naturalWaterLevel(
+      pond,
+      4.2,
+      (x) => (x === 5 ? 12 : 5 + x * 0.02),
+    );
+    expect(level).toBeGreaterThan(5.15);
+    expect(level).toBeLessThan(5.3);
   });
 });
 

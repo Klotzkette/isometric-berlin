@@ -84,6 +84,9 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
   // the local ground height instead of the Spree table — an ornamental
   // basin sits on the ground it was built into, not 6 m below it.
   basin: [0x3f76e4, 0x2e5aa8],
+  // Tiergarten ponds/streams use the same calm block-water palette while
+  // remaining on their local park terrain instead of the lower Spree table.
+  pond: [0x4b8fc4, 0x3576a8],
   // Bridge decks over the Spree/Humboldthafen read as stone blocks.
   bridge: [0x8e9a9e, 0xa4aa91],
   sandstone: [0xe8d1ae, 0xf5e3c5],
@@ -596,7 +599,9 @@ export function createGroundSlabs(
       }
       if (
         options?.skipWater &&
-        (className === "water" || className === "basin")
+        (className === "water" ||
+          className === "basin" ||
+          className === "pond")
       ) {
         continue;
       }

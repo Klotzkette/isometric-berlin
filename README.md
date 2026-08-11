@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.42 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.42/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.43 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.43/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.42** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.43** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,19 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.42**, built from `main`. Its full viewer
+The current public package is **v0.70.43**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Tiergarten water now follows its mapped character.** The renderer keeps
+  rivers, natural ponds, small streams/ditches and constructed basins separate;
+  parkland can no longer cover Neuer See or Venusbassin. Natural water gains
+  local banks, visible floors, islands and a restrained transparent surface in
+  Day and Night, while Minecraft keeps ponds on their local terrain. Plan
+  outlines are OSM-derived; illustrative depth is not claimed as bathymetry.
+  Rousseau, Lortzing, Baumdank, Flora/Pomona and *Das deutsche Volkslied* also
+  use individual documented monument forms instead of generic markers.
 
 - **Europacity now uses its real silhouettes.** EINZ/KPMG retains the complete
   official LoD2 tower and base while adding its folded pale-aluminium facade

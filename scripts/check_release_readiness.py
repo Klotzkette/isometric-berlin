@@ -40,11 +40,12 @@ PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
 # The compressed download must remain below AGENTS.md's 200 MB ceiling. The
-# extracted offline copy has a separate 210 MiB integrity ceiling: task 11's
-# three bounded mesh pairs bring it to 209 MiB while the ZIP remains ~154 MiB.
-# Keeping the 8192 px DZI fallback is more useful than degrading the only
-# zero-server high-resolution map to save one extracted megabyte.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 210 * 1024 * 1024
+# extracted offline copy has a separate 211 MiB integrity ceiling: task 11's
+# bounded mesh pairs plus the decimetre Tiergarten water network remain below
+# it while the ZIP stays ~154 MiB. Keeping the 8192 px DZI fallback and the
+# mapped stream geometry is more useful than degrading either to save one
+# extracted megabyte.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 211 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

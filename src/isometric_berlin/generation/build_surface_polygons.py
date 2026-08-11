@@ -12,10 +12,11 @@ loses two thirds of its vertices, and every dropped vertex turns a bend
 into a 25 m chord that the viewer then has to draw as a straight facet.
 The bank line is the one edge the eye follows, so it is worth the bytes.
 
-Water carries a ``kind`` of ``river`` or ``basin``: a river runs at the
-Spree table, a basin sits on the ground it was built into. Alongside it
-travel the sunken walls that climb out of the ground into a basin and
-break off into it — see :mod:`isometric_berlin.generation.basin_features`.
+Water carries a ``kind`` of ``river``, ``pond``, ``stream`` or ``basin``.
+Rivers/canals run at the Spree table, natural park water follows a robust
+local level and soft bank, and built basins sit at their architectural rim.
+Alongside it travel the sunken walls that climb out of a basin — see
+:mod:`isometric_berlin.generation.basin_features`.
 
 Rings are stored as decimetre integers in viewer world coordinates:
 ``world_x = easting − 389500``, ``world_z = 5820000 − northing``.
@@ -65,10 +66,11 @@ from isometric_berlin.generation.road_geometry import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 WATER_SIMPLIFY_M = 0.1
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
+MIN_STREAM_AREA_M2 = 2.0
 MIN_PARK_AREA_M2 = 250.0
 # A formal garden is drawn bed by bed, and the eleven beds of the Rosengarten
 # run from 27 to 196 m² — every one of them below the lawn floor, which is why
@@ -269,6 +271,9 @@ def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any
   into one green plate.
   """
   frame = gpd.read_file(osm_path, layer="parks").to_crs(epsg=25833)
+  water_union = unary_union(
+    [feature.geometry for feature in load_water_features(osm_path)]
+  )
   surfaces: list[dict[str, Any]] = []
   for _, row in frame.iterrows():
     geometry = row.geometry
@@ -281,27 +286,32 @@ def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any
     min_area = MIN_GARDEN_AREA_M2 if garden else MIN_PARK_AREA_M2
     simplify_m = GARDEN_SIMPLIFY_M if garden else PARK_SIMPLIFY_M
     for part in polygon_parts(clipped):
+      # Simplify the broad park perimeter first, then carve exact water. Doing
+      # this in the opposite order lets the 1.2 m lawn tolerance close narrow
+      # streams again and makes the opaque grass plate cover their water.
       simplified = part.simplify(simplify_m, preserve_topology=True)
-      if simplified.is_empty or simplified.area < min_area:
-        continue
-      ring = ring_to_dm(simplified.exterior.coords)
-      if len(ring) < 4:
-        continue
-      holes = [
-        ring_to_dm(interior.coords)
-        for interior in simplified.interiors
-        if len(interior.coords) >= 4
-      ]
-      name = row.get("name")
-      surfaces.append(
-        {
-          "area_m2": round(simplified.area),
-          "holes": holes,
-          "kind": "garden" if garden else "lawn",
-          "name": name if isinstance(name, str) else "",
-          "ring": ring,
-        }
-      )
+      carved = simplified.difference(water_union)
+      for dry_part in polygon_parts(carved):
+        if dry_part.is_empty or dry_part.area < min_area:
+          continue
+        ring = ring_to_dm(dry_part.exterior.coords)
+        if len(ring) < 4:
+          continue
+        holes = [
+          ring_to_dm(interior.coords)
+          for interior in dry_part.interiors
+          if len(interior.coords) >= 4
+        ]
+        name = row.get("name")
+        surfaces.append(
+          {
+            "area_m2": round(dry_part.area),
+            "holes": holes,
+            "kind": "garden" if garden else "lawn",
+            "name": name if isinstance(name, str) else "",
+            "ring": ring,
+          }
+        )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   return surfaces
 
@@ -349,11 +359,11 @@ def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
 def collect_water(
   osm_path: Path, bounds: BaseGeometry, ramp_corridors: BaseGeometry | None
 ) -> list[dict[str, Any]]:
-  """Water polygons carrying the river/basin split the viewer draws with.
+  """Water polygons carrying the renderer's source-backed water class.
 
-  A river sits at the Spree table; a basin sits on the ground it was built
-  into. Without the split every basin is drawn 6 m underground and the lawn
-  plate over it hides it completely.
+  A river sits at the Spree table; ponds/streams and basins use local terrain,
+  but only basins get architectural rims. Without the split park water either
+  sinks to the Spree table or acquires invented concrete walls.
   """
   surfaces: list[dict[str, Any]] = []
   for feature in load_water_features(osm_path):
@@ -372,7 +382,8 @@ def collect_water(
           ramp_corridors.buffer(OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M)
         )
       for safe_part in polygon_parts(simplified):
-        if safe_part.is_empty or safe_part.area < MIN_WATER_AREA_M2:
+        min_area = MIN_STREAM_AREA_M2 if feature.kind == "stream" else MIN_WATER_AREA_M2
+        if safe_part.is_empty or safe_part.area < min_area:
           continue
         ring = ring_to_dm(safe_part.exterior.coords)
         if len(ring) < 4:
