@@ -41,14 +41,15 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * the Euthanasie memorial's blue glass wall, the ML-20 howitzers, the
  * Weiße Kreuze, the Fahne der Einheit, the Grundgesetz-49 glass
  * panels, statues on plinths for Lessing/Grimm/Bruno/Der Rufer, and
- * small stones for the quiet markers. Positions and footprints are
- * OSM (ODbL); the drawing is ours.
+ * subtype-aware quiet markers. Positions, footprints and memorial types
+ * are OSM (ODbL); the drawing is ours.
  */
 
 export const MONUMENT_INK = ARCHITECTURAL_INK_PALETTE.day.detail;
 
 const STONE = 0x8f8a80;
 const STONE_LIGHT = 0xb9b6ac;
+const MEMORIAL_BRASS = 0xc49a36;
 const BRONZE = 0x5d7264;
 const SOVIET_GREEN = 0x6b7a5c;
 const DARK_CUBE = 0x8f9497;
@@ -121,6 +122,32 @@ function box(
   builder.edges.push(
     new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
   );
+}
+
+/** A sub-pixel ground insert must not grow a competing ink silhouette. */
+function boxWithoutInk(
+  builder: Builder,
+  color: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  sx: number,
+  sy: number,
+  sz: number,
+): void {
+  const geometry = new BoxGeometry(sx, sy, sz);
+  geometry.translate(cx, cy, cz);
+  geometry.deleteAttribute("uv");
+  const paint = new Color(color);
+  const positions = geometry.getAttribute("position");
+  const colors = new Float32Array(positions.count * 3);
+  for (let index = 0; index < positions.count; index += 1) {
+    colors[index * 3] = paint.r;
+    colors[index * 3 + 1] = paint.g;
+    colors[index * 3 + 2] = paint.b;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  builder.parts.push(geometry);
 }
 
 function addPaintedGeometry(
@@ -327,9 +354,129 @@ function branchedAntlers(
   }
 }
 
-/** Small stone marker for plaques and quiet memorials. */
-function buildStone(builder: Builder, x: number, y: number, z: number): void {
-  box(builder, STONE, x, y + 0.35, z, 0.9, 0.7, 0.6);
+/** Berlin's documented 10 x 10 cm pavement memorial, with no false ink halo. */
+function buildStolperstein(builder: Builder, x: number, y: number, z: number): void {
+  boxWithoutInk(builder, MEMORIAL_BRASS, x, y + 0.0125, z, 0.1, 0.025, 0.1);
+}
+
+/** Conservative presentation for an OSM plaque whose supporting wall is unknown. */
+function buildPlaque(builder: Builder, x: number, y: number, z: number): void {
+  boxWithoutInk(builder, MEMORIAL_BRASS, x, y + 0.015, z, 0.36, 0.03, 0.24);
+}
+
+function buildMemorialStele(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+  height = 1.65,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.06, z, 0.72, 0.12, 0.52);
+  box(builder, STONE, x, y + 0.12 + height / 2, z, 0.5, height, 0.24);
+}
+
+function buildMemorialBust(builder: Builder, x: number, y: number, z: number): void {
+  box(builder, STONE_LIGHT, x, y + 0.48, z, 0.54, 0.96, 0.48);
+  ellipsoid(builder, BRONZE, x, y, z, [0, 1.13, 0], [0.34, 0.25, 0.23], 0);
+  ellipsoid(builder, BRONZE, x, y, z, [0, 1.49, 0], [0.19, 0.23, 0.18], 0);
+}
+
+function buildMemorialStatue(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.36, z, 0.82, 0.72, 0.68);
+  rod(builder, BRONZE, x, y, z, [-0.16, 0.72, 0], [-0.16, 1.45, 0], 0.1, 0);
+  rod(builder, BRONZE, x, y, z, [0.16, 0.72, 0], [0.16, 1.45, 0], 0.1, 0);
+  ellipsoid(builder, BRONZE, x, y, z, [0, 1.72, 0], [0.3, 0.48, 0.2], 0);
+  ellipsoid(builder, BRONZE, x, y, z, [0, 2.2, 0], [0.18, 0.22, 0.17], 0);
+}
+
+function buildMemorialObelisk(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  box(builder, STONE_LIGHT, x, y + 0.18, z, 1.0, 0.36, 1.0);
+  cylinder(builder, STONE, x, y + 0.36, z, 0.42, 0.14, 2.65, 4);
+}
+
+function buildMemorialBench(builder: Builder, x: number, y: number, z: number): void {
+  box(builder, STONE, x, y + 0.48, z, 1.6, 0.12, 0.48);
+  box(builder, STONE, x, y + 0.83, z + 0.2, 1.6, 0.58, 0.1);
+  for (const dx of [-0.58, 0.58]) {
+    box(builder, STONE, x + dx, y + 0.24, z, 0.1, 0.48, 0.38);
+  }
+}
+
+function buildGhostBike(builder: Builder, x: number, y: number, z: number): void {
+  for (const dx of [-0.52, 0.52]) {
+    const wheel = new TorusGeometry(0.34, 0.035, 5, 14);
+    wheel.translate(x + dx, y + 0.36, z);
+    addPaintedGeometry(builder, wheel, WHITE, 28);
+  }
+  rod(builder, WHITE, x, y, z, [-0.5, 0.36, 0], [0, 0.72, 0], 0.035, 0, 1);
+  rod(builder, WHITE, x, y, z, [0, 0.72, 0], [0.5, 0.36, 0], 0.035, 0, 1);
+  rod(builder, WHITE, x, y, z, [-0.5, 0.36, 0], [0.2, 0.36, 0], 0.035, 0, 1);
+  rod(builder, WHITE, x, y, z, [0.2, 0.36, 0], [0, 0.72, 0], 0.035, 0, 1);
+  rod(builder, WHITE, x, y, z, [0.2, 0.36, 0], [0.18, 0.93, 0], 0.03, 0, 1);
+}
+
+/** Preserve the OSM subtype without inventing a landmark-sized replacement. */
+function buildTypedMemorial(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+  memorialType: string,
+): void {
+  switch (memorialType) {
+    case "stolperstein":
+      buildStolperstein(builder, x, y, z);
+      return;
+    case "plaque":
+    case "pavement_plaque":
+      buildPlaque(builder, x, y, z);
+      return;
+    case "statue":
+      buildMemorialStatue(builder, x, y, z);
+      return;
+    case "bust":
+      buildMemorialBust(builder, x, y, z);
+      return;
+    case "stele":
+      buildMemorialStele(builder, x, y, z);
+      return;
+    case "war_memorial":
+      buildMemorialStele(builder, x, y, z, 2.2);
+      return;
+    case "obelisk":
+      buildMemorialObelisk(builder, x, y, z);
+      return;
+    case "bench":
+      buildMemorialBench(builder, x, y, z);
+      return;
+    case "ghost_bike":
+      buildGhostBike(builder, x, y, z);
+      return;
+    case "headstone":
+      buildMemorialStele(builder, x, y, z, 1.05);
+      return;
+    case "sculpture":
+      box(builder, STONE_LIGHT, x, y + 0.12, z, 0.8, 0.24, 0.68);
+      ellipsoid(builder, BRONZE, x, y, z, [0, 1.0, 0], [0.42, 0.78, 0.3], 0.35);
+      return;
+    case "stone":
+      box(builder, STONE, x, y + 0.28, z, 0.68, 0.56, 0.5);
+      return;
+    default:
+      // The source says only `historic=memorial`: keep a low marker instead
+      // of asserting the former universal 0.7 m upright block.
+      boxWithoutInk(builder, STONE, x, y + 0.04, z, 0.32, 0.08, 0.24);
+  }
 }
 
 /** Günter Anlauf's documented 2.2 m three-zone Rousseau column (1987). */
@@ -917,7 +1064,7 @@ function createGraefeNamePlate(x: number, y: number, z: number): Mesh {
  * presentation archetypes give each its documented reading (animal, mounted
  * figure, statue, fountain, wall, portal or abstract vertical) while keeping
  * one merged draw-call-friendly mesh.  They are deliberately larger and more
- * articulated than `buildStone`, which remains reserved for quiet markers.
+ * articulated than the conservative subtype-aware quiet-marker fallbacks.
  * Reference basis: Wikimedia Commons/Wikipedia and the Berlin sculpture
  * database; all are reference-based presentation geometry, never survey data.
  */
@@ -2208,6 +2355,7 @@ export function createTiergartenMonuments(
   const builder: Builder = { edges: [], parts: [] };
   let floraplatzAnimalCount = 0;
   let graefeChariteAnchor: [number, number, number] | null = null;
+  const memorialTypeCounts: Record<string, number> = {};
   for (const entry of street.monuments) {
     const x = entry.x_dm / 10;
     const z = entry.z_dm / 10;
@@ -2216,6 +2364,8 @@ export function createTiergartenMonuments(
       continue;
     }
     const name = entry.name;
+    const memorialType = entry.memorial_type || "unclassified";
+    memorialTypeCounts[memorialType] = (memorialTypeCounts[memorialType] ?? 0) + 1;
     if (
       /^(Hirsch|Bison|Liegender Bison Ⅱ|Elch|Bär|Stier)$/.test(name) &&
       x >= -210 &&
@@ -2272,12 +2422,12 @@ export function createTiergartenMonuments(
       buildLionGroup(builder, x, y, z);
     } else if (entry.kind === "artwork") {
       // Every named artwork has its own builder hook. Quiet OSM memorial
-      // markers alone may use the small `buildStone` fallback below.
+      // markers alone may use the subtype-aware fallback below.
       ARTWORK_BUILDERS[name]?.(builder, x, y, z);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {
-      buildStone(builder, x, y, z);
+      buildTypedMemorial(builder, x, y, z, memorialType);
     }
   }
   if (builder.parts.length === 0) {
@@ -2299,6 +2449,9 @@ export function createTiergartenMonuments(
   group.userData.floraplatzAnimalCount = floraplatzAnimalCount;
   group.userData.floraplatzGeometry =
     "Eight species-specific life-size bronze presentation models on OSM-positioned granite plinths; paired species face opposite directions";
+  group.userData.memorialTypeCounts = memorialTypeCounts;
+  group.userData.quietMemorialGeometry =
+    "OSM memorial subtypes preserved; Stolpersteine use Berlin's documented 0.10 m brass top, while unclassified points stay conservative low markers";
   group.userData.tiergartenHeritageModels = {
     baumdank:
       "Four-part shell-limestone pillar with relief/text registers at the OSM point",
@@ -2329,6 +2482,8 @@ export function createTiergartenMonuments(
     "https://bildhauerei-in-berlin.de/bildwerk/flora-mit-putto-6302/",
     "https://bildhauerei-in-berlin.de/bildwerk/lortzingdenkmal-4548/",
     "https://bildhauerei-in-berlin.de/bildwerk/rousseau-saeule-4593/",
+    "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/geschichte/stolpersteine/",
+    "https://wiki.openstreetmap.org/wiki/Key:memorial",
     GRAEFE_CHARITE_SOURCE_URL,
     GRAEFE_MONUMENT_SOURCE_URL,
   ];
@@ -2351,7 +2506,8 @@ export function createTiergartenMonuments(
       part.dispose();
     }
   }
-  const inkGeometry = mergeGeometries(builder.edges, false);
+  const inkGeometry =
+    builder.edges.length > 0 ? mergeGeometries(builder.edges, false) : null;
   if (inkGeometry) {
     const ink = new LineSegments(
       inkGeometry,

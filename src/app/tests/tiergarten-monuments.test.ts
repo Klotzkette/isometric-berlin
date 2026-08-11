@@ -136,9 +136,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
   });
 
   test("every named artwork has a dedicated presentation builder and a height band", () => {
-    // `buildStone` is intentionally retained only for quiet memorial
-    // markers/Stolpersteine. A named `tourism=artwork` must instead enter the
-    // explicit artwork dispatcher and lift clear of the marker's 0.7 m band.
+    // Quiet memorials use subtype-aware presentation geometry. A named
+    // `tourism=artwork` must instead enter the explicit artwork dispatcher and
+    // lift clear of every low marker band.
     for (const entry of street.monuments!.filter(
       (candidate) =>
         candidate.kind === "artwork" &&
@@ -195,6 +195,30 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     }
     return top - foot;
   }
+
+  function boundsForSingleMemorial(name: string): Box3 {
+    const entry = street.monuments!.find((candidate) => candidate.name === name)!;
+    const single = createTiergartenMonuments(
+      { ...street, monuments: [entry] },
+      ground,
+    )!;
+    const bodies = single.getObjectByName("monument bodies") as Mesh;
+    return new Box3().setFromObject(bodies);
+  }
+
+  test("OSM memorial subtypes replace the universal grey block", () => {
+    expect(monuments.userData.memorialTypeCounts.stolperstein).toBeGreaterThan(200);
+    expect(monuments.userData.quietMemorialGeometry).toContain("0.10 m");
+
+    const stolperstein = boundsForSingleMemorial("Martha Gabali");
+    expect(stolperstein.max.x - stolperstein.min.x).toBeCloseTo(0.1, 4);
+    expect(stolperstein.max.y - stolperstein.min.y).toBeCloseTo(0.025, 4);
+    expect(stolperstein.max.z - stolperstein.min.z).toBeCloseTo(0.1, 4);
+
+    const statue = boundsForSingleMemorial("Sophie Charlotte");
+    expect(statue.max.y - statue.min.y).toBeGreaterThan(2.3);
+    expect(statue.max.y - statue.min.y).toBeLessThan(2.6);
+  });
 
   test("the Amazone rides her horse instead of being a stone block", () => {
     // Tuaillon's bronze: pedestal + horse (barrel, neck, head, four legs)

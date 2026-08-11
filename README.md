@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.43 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.43/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.44 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.44/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.43** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.44** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,24 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.43**, built from `main`. Its full viewer
+The current public package is **v0.70.44**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Small memorials now keep their mapped identity.** The OSM extraction
+  preserves `memorial` subtypes instead of turning every quiet memorial into
+  the same upright grey block. It includes 232 mapped Stolpersteine as exact
+  10 x 10 cm brass pavement inserts, plus restrained forms for plaques,
+  stelae, busts, statues, stones, benches and ghost bikes. Unclassified points
+  stay low and conservative rather than claiming invented architecture.
+
+- **Minecraft keeps the Brandenburg Gate recognisable.** Its complete metric
+  recognition model now replaces the 24 coarse voxel columns in the same
+  envelope, so the passages, columns, entablature and Quadriga are no longer
+  buried inside a second block wall. A 50-point visual and accuracy audit
+  covered five principal sights in Day, Night and Minecraft; settled scene
+  pixels remained stable and the visible radius stays **5,230 m**.
 
 - **Tiergarten water now follows its mapped character.** The renderer keeps
   rivers, natural ponds, small streams/ditches and constructed basins separate;

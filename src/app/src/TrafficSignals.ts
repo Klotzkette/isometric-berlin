@@ -52,6 +52,8 @@ export type StreetDetailsPayload = {
   monuments?: Array<{
     d_dm: number;
     kind: string;
+    /** OSM `memorial=*` subtype; empty only where the source has none. */
+    memorial_type: string;
     name: string;
     w_dm: number;
     x_dm: number;

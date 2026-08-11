@@ -52,7 +52,7 @@ def test_every_in_bounds_osm_traffic_signal_is_exported() -> None:
 
 def test_fuel_stations_are_exported_with_a_forecourt_axis() -> None:
   payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
-  assert payload["schema_version"] == 4
+  assert payload["schema_version"] == 5
   stations = payload["fuel_stations"]
   assert sorted(entry["name"] for entry in stations) == [
     "Aral",
@@ -126,6 +126,20 @@ def test_floraplatz_exports_exactly_eight_restored_animals() -> None:
     "Liegender Bison Ⅱ",
     "Stier",
   ]
+
+
+def test_memorial_subtypes_survive_the_osm_pipeline() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  monuments = payload["monuments"]
+  stolpersteine = [
+    entry for entry in monuments if entry["memorial_type"] == "stolperstein"
+  ]
+  assert len(stolpersteine) > 200
+  assert any(entry["name"] == "Martha Gabali" for entry in stolpersteine)
+  assert any(
+    entry["memorial_type"] == "statue" and entry["name"] == "Sophie Charlotte"
+    for entry in monuments
+  )
 
 
 def test_floraplatz_deduplication_is_narrow_and_deterministic() -> None:

@@ -4,6 +4,7 @@ import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
   HAMBURGER_BAHNHOF_VOXEL_FACADE,
+  isCompleteRecognitionVoxelColumn,
   isFalseSintiRomaVoxelColumn,
   SINTI_ROMA_VOXEL_CLEARING,
   type VoxelPayload,
@@ -178,6 +179,29 @@ describe("true voxel Minecraft world", () => {
       }
     }
     expect(remainingFalseColumns).toBe(0);
+  });
+
+  test("does not bury the complete Brandenburg Gate model inside a voxel wall", () => {
+    const hiddenGateColumns = payload.buildings.filter(([xIdx, zIdx]) =>
+      isCompleteRecognitionVoxelColumn(
+        (xIdx + 0.5) * payload.cell_m,
+        (zIdx + 0.5) * payload.cell_m,
+      ),
+    );
+    expect(hiddenGateColumns).toHaveLength(24);
+
+    const columns = instanced("Voxel building columns", world);
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    let remainingGateColumns = 0;
+    for (let index = 0; index < columns.count; index += 1) {
+      columns.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      if (isCompleteRecognitionVoxelColumn(position.x, position.z)) {
+        remainingGateColumns += 1;
+      }
+    }
+    expect(remainingGateColumns).toBe(0);
   });
 
   test("gives Hamburger Bahnhof its own stepped historical front", () => {

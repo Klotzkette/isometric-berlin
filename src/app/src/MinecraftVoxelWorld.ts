@@ -269,6 +269,15 @@ export function voxelRecognitionAreaAt(
   return null;
 }
 
+/**
+ * Complete recognition models replace their coarse voxel mass rather than
+ * sitting hidden inside it. This is intentionally narrower than the generic
+ * recognition-area window suppression: only the fully modelled Gate qualifies.
+ */
+export function isCompleteRecognitionVoxelColumn(x: number, z: number): boolean {
+  return voxelRecognitionAreaAt(x, z)?.name === "Brandenburger Tor";
+}
+
 function shadeFor(
   shades: readonly number[],
   xIdx: number,
@@ -1082,7 +1091,7 @@ export function createMinecraftVoxelWorld(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
         (y1dm - y0dm) / 10,
-      ),
+      ) && !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)),
   );
 
   const buildings = instancedBoxes(

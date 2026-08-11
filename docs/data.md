@@ -246,6 +246,8 @@ to the same polygon in EPSG:25833. The effective tag filter is:
   "amenity": True,
   "tourism": True,
   "historic": True,
+  "memorial": True,
+  "memorial:type": True,
   "office": ["diplomatic", "government"],
   "diplomatic": True,
   "government": True,
@@ -317,6 +319,14 @@ Grand Central uses OSM way `237687062` for plan/axis and LoD2 part
 OSM way `498278335` for its current envelope and Berlin's published landscape-
 architecture description for its interpretive interior. These recognition
 details remain additive and do not override their source geometry.
+
+`street-details.json` schema 5 also preserves `memorial=*` (and the deprecated
+`memorial:type=*` fallback) instead of flattening every `historic=memorial`
+point into one object. The viewer therefore distinguishes Stolpersteine,
+plaques, statues, sculptures, steles, busts, stones, war memorials, obelisks,
+ghost bikes, headstones, benches and pavement plaques. Stolpersteine use the
+documented 0.10 m brass top without an ink halo; a missing subtype yields only
+a conservative low marker, never a falsely asserted landmark-sized block.
 
 ## Berlin official support layers
 

@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.70.44
+
+- **Quiet memorials no longer become one field of generic grey blocks.** The
+  OSM fetch and committed street-detail schema now retain `memorial` and
+  deprecated `memorial:type` values. The viewer distinguishes plaques,
+  stelae, busts, statues, obelisks, stones, benches and ghost bikes, while 232
+  mapped Stolpersteine use Berlin's documented 0.10 x 0.10 m brass top without
+  a false ink halo. Unknown subtypes remain deliberately low and conservative;
+  OSM supplies location and class, not invented surveyed object dimensions.
+- **The Brandenburg Gate survives Minecraft conversion intact.** The complete
+  metric recognition model now replaces the 24 coarse building-voxel columns
+  in its envelope instead of occupying the same space. Columns, six passages,
+  entablature and Quadriga therefore remain legible without moving the mapped
+  gate or weakening Minecraft's block language elsewhere.
+- **A 50-point coherence audit closes the release.** Five principal sights
+  were inspected in Day, Night and Minecraft, stationary frames were compared
+  byte-for-byte, and the full 582 TypeScript and 282 Python contracts passed.
+  The scene itself remained stable; one tiny image-compression variation was
+  isolated to browser chrome rather than geometry. The visible radius remains
+  **5,230 m**, and no building footprint, attribution or source hierarchy was
+  changed. A terrain-draping contract now uses a compact metric fixture instead
+  of rebuilding the whole road network twice, removing its intermittent
+  five-second timeout and shortening the suite without weakening the check.
+
 ## v0.70.43
 
 - **Tiergarten water is no longer one generic blue layer.** The committed

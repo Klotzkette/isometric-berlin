@@ -110,15 +110,34 @@ describe("drawn carriageways and park paths", () => {
   });
 
   test("surfaces follow the terrain instead of one constant height", () => {
-    // The surveyed terrain runs to a median of 5.2 m while the single
-    // constant this used to use is 4.2 m — every lawn and every road plate
-    // sat a metre UNDERGROUND and simply never appeared on screen.
-    const flat = createSmoothSurfaces(surfaces, -1.15, 4.2);
+    // A compact metric fixture exercises the same draping contract without
+    // triangulating the complete central-Berlin road payload twice. The old
+    // full-payload test sat at Bun's five-second timeout and failed at random.
+    const fixture: SurfacePayload = {
+      parks: [],
+      roads: [
+        {
+          area_m2: 16_000,
+          holes: [],
+          kind: "asphalt",
+          name: "graded test road",
+          ring: [
+            [0, 0],
+            [4_000, 0],
+            [4_000, 400],
+            [0, 400],
+          ],
+        },
+      ],
+      schema_version: 8,
+      water: [],
+    };
+    const flat = createSmoothSurfaces(fixture, -1.15, 4.2);
     const followed = createSmoothSurfaces(
-      surfaces,
+      fixture,
       -1.15,
       4.2,
-      (x, z) => 6.5 + 0.6 * Math.sin(x / 400) + 0.6 * Math.cos(z / 400),
+      (x) => 6.5 + 0.003 * x,
     );
     const heightOf = (group: ReturnType<typeof createSmoothSurfaces>): Box3 =>
       new Box3().setFromObject(

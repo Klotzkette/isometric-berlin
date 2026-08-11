@@ -34,7 +34,7 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "street-details.json"
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 # Roads a filling station can front. Service ways and footpaths run behind
 # and beside forecourts, so matching those would rotate the canopy at random.
@@ -392,6 +392,14 @@ def build_payload(
     monuments.append(
       {
         "kind": kind,
+        "memorial_type": next(
+          (
+            value
+            for value in (row.get("memorial"), row.get("memorial:type"))
+            if isinstance(value, str) and value
+          ),
+          "",
+        ),
         "name": name,
         "w_dm": round((max_x - min_x) * 10),
         "d_dm": round((max_y - min_y) * 10),
