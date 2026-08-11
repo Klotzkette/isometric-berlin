@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.35 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.35/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.36 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.36/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.35** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.36** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,26 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.35**, built from `main`. Its full viewer
+The current public package is **v0.70.36**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Berlin's former Wall line is now legible where the official data places
+  it.** The 1989 Vorderlandmauer WFS remains the plan anchor; its two rows of
+  individually instanced dark granite setts now clear the drawn road and plaza
+  plates instead of being buried below them. At Platz des 18. März this makes
+  the documented semicircle immediately west of Brandenburger Tor visible,
+  while one unlit, shadow-free draw call keeps the detail inexpensive and
+  absolutely static.
+
+- **The civic drawing is crisper without becoming harsh.** Slightly firmer
+  warm-grey ink gives ivory silhouettes and facade grids more definition.
+  Recessed water gains deterministic bowed engraving strokes rather than
+  disconnected rectangles; every stroke stays inside its mapped water polygon
+  and contains no animation phase. Controls add restrained tactile feedback,
+  a clear keyboard focus ring and honest grab cursors without changing the 3D
+  camera response.
 
 - **Desktop navigation is continuous rather than stepwise.** Held arrows pan,
   `Shift`+arrows fly and `Alt`/`Option`+arrows orbit/tilt; the matching mouse

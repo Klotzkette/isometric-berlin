@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.70.36
+
+- **The official Berlin Wall trace finally reads above the authored public
+  realm.** The existing 1989 Vorderlandmauer WFS geometry is unchanged, but its
+  double row of individually instanced dark granite setts now clears the drawn
+  road/plaza lift. This exposes the documented semicircle at Platz des 18. März
+  immediately west of Brandenburger Tor instead of leaving the complete row
+  buried below the pavement. A single unlit, shadow-free instanced material
+  reduces per-stone GPU work and remains static in every visual mode.
+- **Water and linework gain a quiet illustrative finish.** Warm-grey drawing
+  ink is slightly firmer against the ivory palette. Deterministic, indexed
+  parabolic water ribbons replace disconnected straight dashes; every ribbon
+  is admitted only when all of its vertices remain inside the mapped water
+  polygon. No clock, screen-space phase or new transparent animation is
+  introduced.
+- **Small interaction details feel faster and more deliberate.** The canvas
+  advertises grab/grabbing directly, controls use short restrained hover/press
+  feedback and keyboard focus has a high-contrast double ring. Targeted
+  geometry tests cover stone clearance, row separation, unlit batching and
+  curved water topology. Browser checks covered desktop Day, Night and
+  Minecraft plus the 390×844 layout; repeated settled screenshots were
+  byte-identical in all three tested modes. The visible radius remains
+  **5,230 m**; source geometry, hierarchy and attribution are unchanged.
+
 ## v0.70.35
 
 - **Waterways and streets now flow without sacrificing mapped geometry.** The

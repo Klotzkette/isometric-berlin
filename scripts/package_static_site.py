@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.70.35"
+PACKAGE_VERSION = "0.70.36"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3511,6 +3511,13 @@ LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 180 x 42 m
 Querhalle und 46-m-Bügeln; Brandenburger Tor mit 62,5 x 11 x 26 m, zwölf Säulen
 und grün patinierter Quadriga. Die Fototextur bleibt darunter erhalten.
 
+Die amtliche Berliner Vorderlandmauer-Geometrie bleibt unverändert, wird aber
+als zwei sichtbare Reihen einzelner dunkler Granitsteine über den gezeichneten
+Straßen- und Platzflächen geführt. So ist insbesondere der dokumentierte
+Halbkreis westlich des Brandenburger Tors lesbar. Gebogene, vollständig in den
+kartierten Wasserflächen liegende Linien ersetzen zugleich die früheren geraden
+Wasserstriche; beide Details sind statisch und erzeugen kein Flackern.
+
 Version {PACKAGE_VERSION} erweitert den sichtbaren Radius auf 5.230 m und
 ergänzt den Nordost-/Südkorridor mit {scene_counts["base_files"]} amtlichen
 Interaktionskacheln. Tram und Haltestelle am Hauptbahnhof, S15-Zugang,
@@ -3673,6 +3680,13 @@ the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
 photographic texture remains visible underneath.
+
+The official Berlin Vorderlandmauer geometry remains unchanged but now reads
+as two visible rows of individual dark granite setts above the drawn road and
+plaza plates. This makes the documented semicircle west of Brandenburg Gate
+legible. Curved strokes that remain wholly inside mapped water polygons also
+replace the former straight water dashes; both details are static and cannot
+introduce shimmer.
 
 Version {PACKAGE_VERSION} keeps the visible radius at 5,230 m and carries the
 north-east/south corridor in {scene_counts["base_files"]} official interaction

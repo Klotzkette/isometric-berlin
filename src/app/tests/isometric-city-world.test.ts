@@ -23,6 +23,7 @@ import {
   VISIBLE_RADIUS_M,
   buildRoofGeometry,
   createIsometricCity,
+  curvedWaterRipple,
   facadeWallsOf,
   fitRectangle,
   ISO_EDGE_THRESHOLD_DEGREES,
@@ -1453,6 +1454,19 @@ describe("real bridge structures", () => {
 });
 
 describe("smooth OSM water and parkland", () => {
+  test("draws static curved wave ribbons instead of straight water dashes", () => {
+    const ripple = curvedWaterRipple([0, 0], 4.2, 0, 6, 0.6);
+    expect(ripple).toHaveLength(6 * 18);
+    expect(ripple.every(Number.isFinite)).toBeTrue();
+    for (let index = 1; index < ripple.length; index += 3) {
+      expect(ripple[index]).toBeCloseTo(4.2);
+    }
+    const zValues = ripple.filter((_, index) => index % 3 === 2);
+    expect(Math.max(...zValues)).toBeGreaterThan(0.6);
+    expect(Math.min(...zValues)).toBeLessThan(0.1);
+    expect(curvedWaterRipple([0, 0], 0, 0, -1, 0.2)).toEqual([]);
+  });
+
   test("real polygons replace the rasterised river with a continuous shoreline", async () => {
     const {
       BEAVER_EASTER_EGG_COUNT,

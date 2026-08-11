@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh, Mesh } from "three";
+import { InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Vector3 } from "three";
 import {
   type ParkDetailsPayload,
+  WALL_TRACE_PROFILE,
   createPathGeometry,
   createParkDetails,
   decodeTrees,
@@ -274,11 +275,28 @@ describe("OSM park details", () => {
     );
     expect(cones).toBeInstanceOf(InstancedMesh);
     expect(cones?.userData.nightOnly).toBeTrue();
-    expect(
-      park.getObjectByName(
-        "Official Vorderlandmauer double row of individual granite setts",
-      ),
-    ).toBeInstanceOf(InstancedMesh);
+    const trace = park.getObjectByName(
+      "Official Vorderlandmauer double row of individual granite setts",
+    ) as InstancedMesh;
+    expect(trace).toBeInstanceOf(InstancedMesh);
+    expect(trace.material).toBeInstanceOf(MeshBasicMaterial);
+    expect(trace.receiveShadow).toBeFalse();
+    expect(trace.instanceColor).toBeDefined();
+    expect(trace.userData.sourceUrl).toContain("berlin.de/mauer/");
+
+    const matrix = new Matrix4();
+    const first = new Vector3();
+    const second = new Vector3();
+    trace.getMatrixAt(0, matrix);
+    first.setFromMatrixPosition(matrix);
+    trace.getMatrixAt(1, matrix);
+    second.setFromMatrixPosition(matrix);
+    expect(first.y).toBeCloseTo(1 + WALL_TRACE_PROFILE.centreLiftM);
+    expect(first.distanceTo(second)).toBeCloseTo(
+      WALL_TRACE_PROFILE.rowOffsetM * 2,
+    );
+    // Even the stone bottom clears the highest drawn road-plate lift (0.14 m).
+    expect(first.y - WALL_TRACE_PROFILE.heightM / 2).toBeGreaterThan(1.14);
   });
 
   test("rejects unknown payload schemas instead of partially rendering them", () => {

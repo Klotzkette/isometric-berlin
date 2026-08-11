@@ -201,7 +201,7 @@ export function isDedicatedSintiRomaPool(surface: SurfacePolygon): boolean {
 }
 // Fine grey pencil, not black marker ("feine, abgegrenzte Linien"):
 // contours delineate the light panels without weighing them down.
-export const ISO_INK_COLOR = 0x817b70;
+export const ISO_INK_COLOR = 0x746f67;
 // At night black ink vanishes on dark prisms; a cool moonlit line keeps
 // the drawn contours readable.
 export const ISO_NIGHT_INK_COLOR = 0x8ea3bd;
@@ -6445,6 +6445,85 @@ function ringContains(ring: number[][], x: number, z: number): boolean {
   return inside;
 }
 
+export const WATER_RIPPLE_SEGMENTS = 6;
+
+/**
+ * One static, gently bowed water stroke in world space.
+ *
+ * The returned triangles form a continuous ribbon with shared end positions;
+ * there is no clock or screen-space phase, so the line cannot shimmer while
+ * the camera moves. A curved centreline reads like an engraved map wave
+ * instead of the former set of unrelated rectangular dashes.
+ */
+export function curvedWaterRipple(
+  center: readonly [number, number],
+  y: number,
+  angle: number,
+  lengthM: number,
+  curvatureM: number,
+  halfWidthM = 0.065,
+  segments = WATER_RIPPLE_SEGMENTS,
+): number[] {
+  if (
+    ![...center, y, angle, lengthM, curvatureM, halfWidthM, segments].every(
+      Number.isFinite,
+    ) ||
+    lengthM <= 0 ||
+    halfWidthM <= 0 ||
+    segments < 1
+  ) {
+    return [];
+  }
+  const count = Math.max(1, Math.floor(segments));
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const left: Array<[number, number]> = [];
+  const right: Array<[number, number]> = [];
+  for (let index = 0; index <= count; index += 1) {
+    const u = index / count;
+    const centred = u - 0.5;
+    const along = centred * lengthM;
+    const bow = curvatureM * (1 - 4 * centred * centred);
+    const x = center[0] + cos * along - sin * bow;
+    const z = center[1] + sin * along + cos * bow;
+    // Analytic tangent of the parabolic centreline. Keeping the width normal
+    // continuous closes every join without mitre spikes or overlapping caps.
+    const localTangentX = lengthM;
+    const localTangentZ = -8 * curvatureM * centred;
+    const tangentX = cos * localTangentX - sin * localTangentZ;
+    const tangentZ = sin * localTangentX + cos * localTangentZ;
+    const tangentLength = Math.max(1e-6, Math.hypot(tangentX, tangentZ));
+    const normalX = -tangentZ / tangentLength;
+    const normalZ = tangentX / tangentLength;
+    left.push([x + normalX * halfWidthM, z + normalZ * halfWidthM]);
+    right.push([x - normalX * halfWidthM, z - normalZ * halfWidthM]);
+  }
+  const positions: number[] = [];
+  for (let index = 0; index < count; index += 1) {
+    positions.push(
+      left[index][0],
+      y,
+      left[index][1],
+      right[index][0],
+      y,
+      right[index][1],
+      right[index + 1][0],
+      y,
+      right[index + 1][1],
+      left[index][0],
+      y,
+      left[index][1],
+      right[index + 1][0],
+      y,
+      right[index + 1][1],
+      left[index + 1][0],
+      y,
+      left[index + 1][1],
+    );
+  }
+  return positions;
+}
+
 function addStaticWaterRipples(
   group: Group,
   rivers: SurfacePolygon[],
@@ -6475,39 +6554,45 @@ function addStaticWaterRipples(
         continue;
       }
       const length = 2.4 + ((surfaceIndex + index) % 5) * 0.7;
-      const halfWidth = 0.07;
-      const dx = Math.cos(angle) * (length / 2);
-      const dz = Math.sin(angle) * (length / 2);
-      const nx = -Math.sin(angle) * halfWidth;
-      const nz = Math.cos(angle) * halfWidth;
       const y = level + 0.055 + (index % 2) * 0.012;
-      positions.push(
-        x - dx - nx,
+      const ribbon = curvedWaterRipple(
+        [x, z],
         y,
-        z - dz - nz,
-        x + dx - nx,
-        y,
-        z + dz - nz,
-        x + dx + nx,
-        y,
-        z + dz + nz,
-        x - dx - nx,
-        y,
-        z - dz - nz,
-        x + dx + nx,
-        y,
-        z + dz + nz,
-        x - dx + nx,
-        y,
-        z - dz + nz,
+        angle,
+        length,
+        (index % 2 === 0 ? 1 : -1) * (0.2 + (index % 3) * 0.08),
       );
+      // Keep the whole decorative stroke within the mapped water polygon.
+      // Testing every generated vertex is cheap at six segments and avoids a
+      // glint crossing a quay or island edge.
+      let inside = true;
+      for (let vertex = 0; vertex < ribbon.length; vertex += 3) {
+        if (
+          !ringContains(
+            surface.ring,
+            ribbon[vertex] * 10,
+            ribbon[vertex + 2] * 10,
+          )
+        ) {
+          inside = false;
+          break;
+        }
+      }
+      if (inside) {
+        positions.push(...ribbon);
+      }
     }
   });
   if (positions.length === 0) {
     return;
   }
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  const rawGeometry = new BufferGeometry();
+  rawGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(positions, 3),
+  );
+  const geometry = mergeVertices(rawGeometry, 1e-4);
+  rawGeometry.dispose();
   const dayMaterial = new MeshBasicMaterial({
     color: 0xd9edf2,
     depthWrite: false,
@@ -6532,6 +6617,8 @@ function addStaticWaterRipples(
   ripples.userData.dayMaterial = dayMaterial;
   ripples.userData.nightMaterial = nightMaterial;
   ripples.userData.staticAntiFlicker = true;
+  ripples.userData.presentation =
+    "Static world-space curved engraving; no animation or screen-space phase";
   group.add(ripples);
 }
 

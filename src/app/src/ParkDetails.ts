@@ -14,6 +14,7 @@ import {
   LineSegments,
   MathUtils,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
   ShapeUtils,
@@ -246,7 +247,7 @@ function material(color: number, roughness = 0.82): MeshStandardMaterial {
 function instanced(
   name: string,
   geometry: BufferGeometry,
-  surface: MeshStandardMaterial,
+  surface: MeshBasicMaterial | MeshStandardMaterial,
   transforms: Transform[],
 ): InstancedMesh {
   const mesh = new InstancedMesh(geometry, surface, transforms.length);
@@ -262,7 +263,7 @@ function instanced(
   mesh.instanceMatrix.needsUpdate = true;
   mesh.computeBoundingBox();
   mesh.computeBoundingSphere();
-  mesh.receiveShadow = true;
+  mesh.receiveShadow = surface instanceof MeshStandardMaterial;
   return mesh;
 }
 
@@ -810,9 +811,18 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
   group.add(coneMesh);
 }
 
+export const WALL_TRACE_PROFILE = {
+  /** Large granite setts, drawn flush-proud of the road plate. */
+  centreLiftM: 0.205,
+  heightM: 0.055,
+  lengthM: 0.26,
+  rowOffsetM: 0.13,
+  spacingM: 0.3,
+  widthM: 0.16,
+} as const;
+
 function addWallTraces(group: Group, traces: WallTrace[]): number {
   const stones: Transform[] = [];
-  const spacing = 0.34;
   for (const trace of traces) {
     for (let index = 1; index < trace.points.length; index += 1) {
       const start = trace.points[index - 1];
@@ -823,16 +833,29 @@ function addWallTraces(group: Group, traces: WallTrace[]): number {
       if (length < 0.05) {
         continue;
       }
-      const stepCount = Math.max(1, Math.ceil(length / spacing));
+      const stepCount = Math.max(
+        1,
+        Math.ceil(length / WALL_TRACE_PROFILE.spacingM),
+      );
       const nx = -dz / length;
       const nz = dx / length;
       const yaw = -Math.atan2(dz, dx);
       for (let step = 0; step < stepCount; step += 1) {
         const fraction = (step + 0.5) / stepCount;
         const centreX = start[0] + dx * fraction;
-        const centreY = start[1] + (end[1] - start[1]) * fraction + 0.075;
+        // The official trace payload follows the ground itself, while drawn
+        // roads and plazas sit 0.10-0.14 m above it. The old +0.075 m centre
+        // put the complete 0.07 m stone below that plate, so the historic
+        // double row existed in the scene but disappeared in the pavement.
+        const centreY =
+          start[1] +
+          (end[1] - start[1]) * fraction +
+          WALL_TRACE_PROFILE.centreLiftM;
         const centreZ = start[2] + dz * fraction;
-        for (const rowOffset of [-0.15, 0.15]) {
+        for (const rowOffset of [
+          -WALL_TRACE_PROFILE.rowOffsetM,
+          WALL_TRACE_PROFILE.rowOffsetM,
+        ]) {
           stones.push({
             position: [
               centreX + nx * rowOffset,
@@ -848,13 +871,51 @@ function addWallTraces(group: Group, traces: WallTrace[]): number {
   if (stones.length === 0) {
     return 0;
   }
+  // One unlit instanced draw call is both calmer and substantially cheaper
+  // than running tens of thousands of tiny setts through PBR + shadow maps.
+  // Individual flat colours keep the granite varied without a texture or a
+  // time-dependent effect.
+  const dayMaterial = new MeshBasicMaterial({
+    color: 0xffffff,
+    polygonOffset: true,
+    polygonOffsetFactor: -3,
+    polygonOffsetUnits: -3,
+  });
+  const nightMaterial = new MeshBasicMaterial({
+    color: 0xc7b9b2,
+    polygonOffset: true,
+    polygonOffsetFactor: -3,
+    polygonOffsetUnits: -3,
+  });
   const stoneMesh = instanced(
     "Official Vorderlandmauer double row of individual granite setts",
-    new BoxGeometry(0.24, 0.07, 0.13),
-    material(0x713a31, 0.94),
+    new BoxGeometry(
+      WALL_TRACE_PROFILE.lengthM,
+      WALL_TRACE_PROFILE.heightM,
+      WALL_TRACE_PROFILE.widthM,
+    ),
+    dayMaterial,
     stones,
   );
+  const graniteTones = [0x79483d, 0x6f3f37, 0x845044];
+  stones.forEach((_, index) => {
+    stoneMesh.setColorAt(
+      index,
+      new Color(graniteTones[Math.floor(index / 2) % graniteTones.length]),
+    );
+  });
+  if (stoneMesh.instanceColor) {
+    stoneMesh.instanceColor.needsUpdate = true;
+  }
   stoneMesh.castShadow = false;
+  stoneMesh.receiveShadow = false;
+  stoneMesh.renderOrder = 7;
+  stoneMesh.userData.dayMaterial = dayMaterial;
+  stoneMesh.userData.nightMaterial = nightMaterial;
+  stoneMesh.userData.geometryStatus =
+    "Official 1989 Vorderlandmauer centreline; double granite-sett presentation";
+  stoneMesh.userData.sourceUrl =
+    "https://www.berlin.de/mauer/geschichte/geschichtsmeile/geschichtsmeile-berliner-mauer-am-brandenburger-tor-148630.php";
   group.add(stoneMesh);
   return stones.length;
 }
