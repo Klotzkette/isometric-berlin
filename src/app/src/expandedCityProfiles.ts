@@ -242,6 +242,135 @@ export const NORTHERN_CITY_PROFILE = {
 } as const;
 
 /**
+ * Metric recognition register for Europacity's three northern skyline anchors.
+ *
+ * EINZ/KPMG and 50Hertz retain their complete Berlin LoD2 shells. Their
+ * entries below only describe lightweight facade screens. Upbeat is newer
+ * than the committed LoD2 cut, so its current OSM outline is the horizontal
+ * anchor while the published 5/11/19-storey composition fixes its vertical
+ * steps. The two clipping lines are a bounded interpretation of the
+ * architects' plan and renders, not surveyed tier outlines.
+ */
+export const EUROPACITY_PROFILE = {
+  einz: {
+    basePartIds: [
+      "DEBE3DkE869uphiB",
+      "DEBE3DY9gOlqzSfm",
+      "DEBE3DMnbuS0Za6I",
+      "DEBE3DThjS2NFDB6",
+    ] as const,
+    centerWorldM: [-119.51, -946.392] as const,
+    facadeMaterial: "light-aluminium-rod-screen-over-folded-glass-shell",
+    floorCount: 22,
+    footprintDepthM: 24.77,
+    footprintLengthM: 42.59,
+    geometryStatus:
+      "Berlin LoD2 metric shell with source-described facade-screen overlay",
+    groundY: 5.6,
+    measuredHeightM: 83.794,
+    parentBuildingId: "DEBE01AL2TJ0000u",
+    rotationY: (51.06 * Math.PI) / 180,
+    sourceTowerPartId: "DEBE3De9JUgwVTiy",
+  },
+  fiftyHertz: {
+    centerWorldM: [-38.748, -1037.844] as const,
+    facadeMaterial: "silver-exposed-diagrid",
+    footprintDepthM: 24.56,
+    footprintLengthM: 37.47,
+    geometryStatus:
+      "Berlin LoD2 metric shell with official exposed-structure overlay",
+    groundY: 5.6,
+    measuredHeightM: 54.975,
+    parentBuildingId: "DEBE00YY1AT000Ab",
+    rotationY: (21.35 * Math.PI) / 180,
+    sourceTowerPartId: "DEBE3Dyir4lZjw1O",
+  },
+  upbeat: {
+    centerWorldM: [-676.632229, -1973.543399] as const,
+    facadeMaterial: "warm-brick-grid-with-floor-to-ceiling-glazing",
+    footprintWorldM: [
+      [-703.63, -1960.28],
+      [-697.41, -1969.98],
+      [-695.92, -1971.35],
+      [-694.1, -1972.19],
+      [-675.7, -1971.26],
+      [-674.01, -1970.67],
+      [-672.57, -1969.31],
+      [-665.88, -1961.67],
+      [-665.65, -1959.91],
+      [-665.75, -1957.3],
+      [-670.09, -1950.6],
+      [-670.5, -1948.95],
+      [-669.81, -1947.05],
+      [-668.82, -1945.46],
+      [-659.85, -1939.43],
+      [-657.97, -1939.02],
+      [-655.47, -1939.37],
+      [-654.16, -1940.31],
+      [-650.02, -1946.57],
+      [-648.42, -1947.63],
+      [-646.06, -1948.07],
+      [-644.37, -1947.76],
+      [-629.73, -1943.02],
+      [-627.49, -1942.69],
+      [-625.78, -1942.93],
+      [-624.05, -1943.9],
+      [-623.38, -1944.75],
+      [-619.79, -1955.11],
+      [-619.71, -1956.67],
+      [-620.22, -1958.6],
+      [-621.84, -1960.21],
+      [-624.08, -1961.26],
+      [-645.1, -1968.08],
+      [-647.5, -1969.62],
+      [-662.95, -1987.05],
+      [-663.99, -1988.17],
+      [-665.53, -1989.09],
+      [-667.13, -1989.76],
+      [-692.89, -1991.45],
+      [-694.24, -1992.35],
+      [-695.61, -1993.71],
+      [-705.55, -2013.79],
+      [-706.8, -2015.29],
+      [-709.18, -2016.17],
+      [-711.21, -2016.03],
+      [-720.99, -2011.2],
+      [-722.39, -2010.04],
+      [-723.18, -2008.04],
+      [-723.13, -2006.11],
+      [-712.64, -1985.37],
+      [-712.4, -1983.9],
+      [-712.53, -1982.15],
+      [-712.93, -1980.78],
+      [-719.7, -1970.56],
+      [-720.1, -1969.01],
+      [-719.86, -1967.34],
+      [-719, -1965.21],
+      [-709.1, -1958.93],
+      [-707.72, -1958.71],
+      [-706.34, -1958.77],
+      [-704.76, -1959.29],
+    ] as const,
+    geometryStatus:
+      "current OSM footprint with published height/storeys and plan-derived tier clips",
+    groundY: 5.6,
+    heightM: 82,
+    midTierEastClipWorldX: -670,
+    osmWayId: "1214009386",
+    storeyTiers: [5, 11, 19] as const,
+    towerTierEastClipWorldX: -655,
+  },
+  sources: [
+    "https://www.berlin.de/sen/stadtentwicklung/staedtebau/umfeld-hauptbahnhof/europacity/",
+    "https://www.caimmo.com/de/presse/news/artikel/ca-immo-stellt-hochhaus-am-europaplatz-in-berlin-fertig/",
+    "https://www.allmannwappner.com/de/projekte/11953/hochhaus-am-europaplatz-berlin",
+    "https://www.caimmo.com/de/portfolio/projekt/upbeat/",
+    "https://kleihues.com/hochhaus-am-nordhafen-berlin/?lang=en",
+    "https://www.50hertz.com/Portals/1/Dokumente/Medien/Pressemitteilungen/2023/20230510-50Hertz-PM-Spatenstich-in-der-Europacity-DE.pdf",
+  ] as const,
+} as const;
+
+/**
  * Surveyed Kollhoff-Tower shell and source-backed facade register.
  *
  * Berlin LoD2 splits the one stepped tower into 16 building parts under the

@@ -14,6 +14,7 @@ import {
 import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
 import {
   BERLIN_MODERN_PROFILE,
+  EUROPACITY_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
@@ -974,6 +975,83 @@ export function createMinecraftBerlinModernRecognition(): InstancedMesh {
   return writer.mesh;
 }
 
+/**
+ * Block-native Upbeat volume from the same current OSM outline and published
+ * 5/11/19-storey height register as the drawn model. The current LoD2 payload
+ * predates this building, so without this fill the Minecraft focus lands on an
+ * empty plot.
+ */
+export function createMinecraftUpbeatRecognition(): InstancedMesh {
+  const profile = EUROPACITY_PROFILE.upbeat;
+  const ring = profile.footprintWorldM;
+  const minimumX = Math.min(...ring.map(([x]) => x));
+  const maximumX = Math.max(...ring.map(([x]) => x));
+  const minimumZ = Math.min(...ring.map(([, z]) => z));
+  const maximumZ = Math.max(...ring.map(([, z]) => z));
+  const cellM = 3;
+  const contains = (x: number, z: number): boolean => {
+    let inside = false;
+    for (let index = 0, previous = ring.length - 1; index < ring.length; ) {
+      const [x1, z1] = ring[index];
+      const [x2, z2] = ring[previous];
+      const crosses =
+        z1 > z !== z2 > z &&
+        x < ((x2 - x1) * (z - z1)) / (z2 - z1) + x1;
+      if (crosses) inside = !inside;
+      previous = index;
+      index += 1;
+    }
+    return inside;
+  };
+  const baseTop =
+    profile.groundY +
+    (profile.heightM * profile.storeyTiers[0]) / profile.storeyTiers[2];
+  const middleTop =
+    profile.groundY +
+    (profile.heightM * profile.storeyTiers[1]) / profile.storeyTiers[2];
+  const towerTop = profile.groundY + profile.heightM;
+  const blocks: ExtrapolatedBlock[] = [];
+  for (let x = minimumX + cellM / 2; x < maximumX; x += cellM) {
+    for (let z = minimumZ + cellM / 2; z < maximumZ; z += cellM) {
+      if (!contains(x, z)) continue;
+      const top =
+        x >= profile.towerTierEastClipWorldX
+          ? towerTop
+          : x >= profile.midTierEastClipWorldX
+            ? middleTop
+            : baseTop;
+      const bodyHeight = top - profile.groundY - 1;
+      const cellIndex =
+        Math.round((x - minimumX) / cellM) +
+        Math.round((z - minimumZ) / cellM);
+      blocks.push({
+        color: cellIndex % 5 === 0 ? 0x72c5d2 : 0xa4dfe2,
+        position: [x, profile.groundY + bodyHeight / 2, z],
+        size: [cellM - 0.12, bodyHeight, cellM - 0.12],
+      });
+      blocks.push({
+        color: cellIndex % 4 === 0 ? 0xd4d4b7 : 0xf3efd0,
+        position: [x, top - 0.5, z],
+        size: [cellM - 0.08, 1, cellM - 0.08],
+      });
+    }
+  }
+  const writer = instancedBoxes("Voxel Upbeat Europacity", blocks.length);
+  for (const block of blocks) {
+    writer.write(
+      new Vector3(...block.position),
+      new Vector3(...block.size),
+      new Color(block.color),
+    );
+  }
+  writer.mesh.instanceMatrix.needsUpdate = true;
+  if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
+  writer.mesh.frustumCulled = false;
+  writer.mesh.userData.architecturalProfile = profile;
+  writer.mesh.userData.sourceRole = "OSM-footprint-published-height";
+  return writer.mesh;
+}
+
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -993,6 +1071,7 @@ export function createMinecraftVoxelWorld(
   group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
+  group.add(createMinecraftUpbeatRecognition());
 
   const visibleBuildingColumns = payload.buildings.filter(
     ([xIdx, zIdx, y0dm, y1dm]) =>

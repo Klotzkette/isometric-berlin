@@ -4,6 +4,7 @@ import {
   CircleGeometry,
   DoubleSide,
   EdgesGeometry,
+  ExtrudeGeometry,
   Float32BufferAttribute,
   Group,
   Matrix4,
@@ -12,6 +13,7 @@ import {
   MeshStandardMaterial,
   PlaneGeometry,
   RingGeometry,
+  Shape,
   SphereGeometry,
   TorusGeometry,
   Vector3,
@@ -23,6 +25,7 @@ import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
+  EUROPACITY_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
@@ -51,6 +54,7 @@ export type ExpandedLandmark = {
 export {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
+  EUROPACITY_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
@@ -85,10 +89,10 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 16,
   },
   "DKB Campus Upbeat": {
-    azimuth_degrees: 18,
-    distance_m: 232,
-    polar_degrees: 64,
-    target_height_m: 32,
+    azimuth_degrees: 206,
+    distance_m: 244,
+    polar_degrees: 59,
+    target_height_m: 38,
   },
   "Hamburger Bahnhof": {
     azimuth_degrees: 10,
@@ -103,10 +107,10 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 11,
   },
   "KPMG Europacity": {
-    azimuth_degrees: 12,
-    distance_m: 122,
-    polar_degrees: 62,
-    target_height_m: 18,
+    azimuth_degrees: 222,
+    distance_m: 214,
+    polar_degrees: 59,
+    target_height_m: 42,
   },
   Kammermusiksaal: {
     azimuth_degrees: 32,
@@ -171,10 +175,12 @@ export function expandedCityFocusCamera(
   if (!preset) return null;
   const metricTargetByName: Record<string, readonly [number, number]> = {
     "Berliner Philharmonie": KULTURFORUM_PROFILE.philharmonie.centerWorldM,
+    "DKB Campus Upbeat": EUROPACITY_PROFILE.upbeat.centerWorldM,
     Gemäldegalerie: KULTURFORUM_PROFILE.gemaldegalerie.centerWorldM,
     Kammermusiksaal: KULTURFORUM_PROFILE.kammermusiksaal.centerWorldM,
     "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)":
       KULTURFORUM_PROFILE.staatsbibliothek.centerWorldM,
+    "KPMG Europacity": EUROPACITY_PROFILE.einz.centerWorldM,
   };
   const metricTarget = metricTargetByName[landmark.name];
   const target_world: [number, number, number] = metricTarget
@@ -223,6 +229,15 @@ const AMANO_GLASS = 0x86a9ab;
 const PRISON_BRICK = 0x9d634f;
 const PRISON_MORTAR = 0xd8b7a1;
 const BLOOD_BEECH = 0x665d49;
+const EURO_GLASS = 0x789da4;
+const EURO_GLASS_LIGHT = 0x94b6b8;
+const EURO_ALUMINIUM = 0xe2e0d7;
+const EURO_ALUMINIUM_SHADOW = 0xb9bcb7;
+const UPBEAT_GRID = 0xb6906c;
+const UPBEAT_GRID_LIGHT = 0xd4baa0;
+const UPBEAT_ROOF = 0xdedbd2;
+const EURO_TERRACE_GREEN = 0x5f8e69;
+const EURO_WINDOW_LIGHT = 0x91aaa7;
 
 function transformGeometry(
   geometry: BufferGeometry,
@@ -426,6 +441,477 @@ function addTiltedLocalBox(
   const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotationY);
   geometry.translate(origin.x + offsetX, centerY, origin.z + offsetZ);
   addCustomGeometry(builder, geometry, color, inked);
+}
+
+type WorldRing = readonly (readonly [number, number])[];
+
+function polygonPrismGeometry(
+  ring: WorldRing,
+  bottomY: number,
+  height: number,
+): BufferGeometry {
+  const shape = new Shape();
+  ring.forEach(([x, z], index) => {
+    if (index === 0) shape.moveTo(x, -z);
+    else shape.lineTo(x, -z);
+  });
+  shape.closePath();
+  const geometry = new ExtrudeGeometry(shape, {
+    bevelEnabled: false,
+    curveSegments: 1,
+    depth: height,
+    steps: 1,
+  });
+  geometry.rotateX(-Math.PI / 2);
+  geometry.translate(0, bottomY, 0);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function addPolygonPrism(
+  builder: Builder,
+  color: number,
+  ring: WorldRing,
+  bottomY: number,
+  height: number,
+  inked = true,
+): void {
+  if (ring.length < 3 || height <= 0) return;
+  addCustomGeometry(
+    builder,
+    polygonPrismGeometry(ring, bottomY, height),
+    color,
+    inked,
+  );
+}
+
+function clipRingEast(ring: WorldRing, minimumX: number): [number, number][] {
+  const clipped: [number, number][] = [];
+  for (let index = 0; index < ring.length; index += 1) {
+    const current = ring[index];
+    const previous = ring[(index + ring.length - 1) % ring.length];
+    const currentInside = current[0] >= minimumX;
+    const previousInside = previous[0] >= minimumX;
+    if (currentInside !== previousInside) {
+      const fraction =
+        (minimumX - previous[0]) / (current[0] - previous[0]);
+      clipped.push([
+        minimumX,
+        previous[1] + (current[1] - previous[1]) * fraction,
+      ]);
+    }
+    if (currentInside) clipped.push([current[0], current[1]]);
+  }
+  return clipped;
+}
+
+function addFacadeSegment(
+  builder: Builder,
+  color: number,
+  start: readonly [number, number],
+  end: readonly [number, number],
+  centerY: number,
+  height: number,
+  depth = 0.22,
+  lamp = false,
+): void {
+  const deltaX = end[0] - start[0];
+  const deltaZ = end[1] - start[1];
+  const length = Math.hypot(deltaX, deltaZ);
+  if (length < 0.08 || height <= 0) return;
+  const geometry = new BoxGeometry(length + 0.08, height, depth);
+  geometry.rotateY(-Math.atan2(deltaZ, deltaX));
+  geometry.translate(
+    (start[0] + end[0]) / 2,
+    centerY,
+    (start[1] + end[1]) / 2,
+  );
+  addCustomGeometry(builder, geometry, color, false, lamp);
+}
+
+function addTierFacadeGrid(
+  builder: Builder,
+  ring: WorldRing,
+  bottomY: number,
+  topY: number,
+  floorCount: number,
+  frameColor: number,
+): void {
+  const floorPitch = (topY - bottomY) / floorCount;
+  for (let edgeIndex = 0; edgeIndex < ring.length; edgeIndex += 1) {
+    const start = ring[edgeIndex];
+    const end = ring[(edgeIndex + 1) % ring.length];
+    const deltaX = end[0] - start[0];
+    const deltaZ = end[1] - start[1];
+    const length = Math.hypot(deltaX, deltaZ);
+    if (length < 0.7) continue;
+    for (let floor = 0; floor <= floorCount; floor += 1) {
+      addFacadeSegment(
+        builder,
+        frameColor,
+        start,
+        end,
+        bottomY + floorPitch * floor,
+        0.14,
+        0.3,
+      );
+    }
+    const bayCount = Math.max(1, Math.round(length / 2.7));
+    const rotationY = -Math.atan2(deltaZ, deltaX);
+    for (let bay = 0; bay <= bayCount; bay += 1) {
+      const fraction = bay / bayCount;
+      const geometry = new BoxGeometry(0.16, topY - bottomY, 0.28);
+      geometry.rotateY(rotationY);
+      geometry.translate(
+        start[0] + deltaX * fraction,
+        (bottomY + topY) / 2,
+        start[1] + deltaZ * fraction,
+      );
+      addCustomGeometry(builder, geometry, frameColor, false);
+    }
+    if (length < 4) continue;
+    for (let floor = 0; floor < floorCount; floor += 1) {
+      for (let bay = 0; bay < bayCount; bay += 1) {
+        if ((edgeIndex * 7 + floor * 3 + bay * 5) % 11 > 2) continue;
+        const startFraction = (bay + 0.12) / bayCount;
+        const endFraction = (bay + 0.88) / bayCount;
+        addFacadeSegment(
+          builder,
+          EURO_WINDOW_LIGHT,
+          [
+            start[0] + deltaX * startFraction,
+            start[1] + deltaZ * startFraction,
+          ],
+          [
+            start[0] + deltaX * endFraction,
+            start[1] + deltaZ * endFraction,
+          ],
+          bottomY + floorPitch * (floor + 0.5),
+          Math.max(0.5, floorPitch - 0.62),
+          0.12,
+          true,
+        );
+      }
+    }
+  }
+}
+
+function addEinzFacadeScreen(builder: Builder): void {
+  const profile = EUROPACITY_PROFILE.einz;
+  const origin = new Vector3(
+    profile.centerWorldM[0],
+    profile.groundY,
+    profile.centerWorldM[1],
+  );
+  const floorPitch = profile.measuredHeightM / profile.floorCount;
+  const longBayCount = 22;
+  const shortBayCount = 13;
+  for (const side of [-1, 1]) {
+    for (let floor = 0; floor <= profile.floorCount; floor += 1) {
+      const centerY = profile.groundY + floor * floorPitch;
+      addLocalBox(
+        builder,
+        EURO_ALUMINIUM_SHADOW,
+        origin,
+        0,
+        centerY,
+        side * (profile.footprintDepthM / 2 + 0.18),
+        profile.footprintLengthM + 0.5,
+        0.13,
+        0.3,
+        profile.rotationY,
+        false,
+      );
+      addLocalBox(
+        builder,
+        EURO_ALUMINIUM_SHADOW,
+        origin,
+        side * (profile.footprintLengthM / 2 + 0.18),
+        centerY,
+        0,
+        0.3,
+        0.13,
+        profile.footprintDepthM + 0.5,
+        profile.rotationY,
+        false,
+      );
+    }
+    for (let bay = 0; bay <= longBayCount; bay += 1) {
+      const localX =
+        -profile.footprintLengthM / 2 +
+        (profile.footprintLengthM * bay) / longBayCount;
+      for (let floor = 0; floor < 8; floor += 1) {
+        const fold =
+          0.18 +
+          (bay % 2 === 0 ? 0.62 : 0.08) * (1 - floor / 8);
+        addLocalBox(
+          builder,
+          EURO_ALUMINIUM,
+          origin,
+          localX,
+          profile.groundY + floorPitch * (floor + 0.5),
+          side * (profile.footprintDepthM / 2 + fold),
+          0.16,
+          floorPitch - 0.18,
+          0.18,
+          profile.rotationY,
+          false,
+        );
+      }
+      addLocalBox(
+        builder,
+        EURO_ALUMINIUM,
+        origin,
+        localX,
+        profile.groundY + floorPitch * 15,
+        side * (profile.footprintDepthM / 2 + 0.18),
+        0.16,
+        floorPitch * 14 - 0.18,
+        0.18,
+        profile.rotationY,
+        false,
+      );
+    }
+    for (let bay = 0; bay <= shortBayCount; bay += 1) {
+      const localZ =
+        -profile.footprintDepthM / 2 +
+        (profile.footprintDepthM * bay) / shortBayCount;
+      addLocalBox(
+        builder,
+        EURO_ALUMINIUM,
+        origin,
+        side * (profile.footprintLengthM / 2 + 0.18),
+        profile.groundY + profile.measuredHeightM / 2,
+        localZ,
+        0.18,
+        profile.measuredHeightM - 0.2,
+        0.16,
+        profile.rotationY,
+        false,
+      );
+    }
+    for (let floor = 1; floor < profile.floorCount; floor += 1) {
+      if (floor % 3 === 0) continue;
+      for (let bay = 0; bay < longBayCount; bay += 1) {
+        if ((floor * 5 + bay * 3 + (side > 0 ? 1 : 4)) % 13 > 3) continue;
+        addLocalLampBox(
+          builder,
+          EURO_WINDOW_LIGHT,
+          origin,
+          -profile.footprintLengthM / 2 +
+            (profile.footprintLengthM * (bay + 0.5)) / longBayCount,
+          profile.groundY + floorPitch * (floor + 0.5),
+          side * (profile.footprintDepthM / 2 + 0.05),
+          (profile.footprintLengthM / longBayCount) * 0.7,
+          floorPitch - 0.7,
+          0.1,
+          profile.rotationY,
+        );
+      }
+    }
+  }
+  // The double-height Europaplatz entrance remains legible beneath the rods.
+  for (const localX of [-5.3, 5.3]) {
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      origin,
+      localX,
+      profile.groundY + floorPitch,
+      profile.footprintDepthM / 2 + 0.38,
+      0.32,
+      floorPitch * 2,
+      0.32,
+      profile.rotationY,
+      false,
+    );
+  }
+  addLocalBox(
+    builder,
+    EURO_ALUMINIUM,
+    origin,
+    0,
+    profile.groundY + floorPitch * 2,
+    profile.footprintDepthM / 2 + 0.5,
+    11,
+    0.28,
+    1.2,
+    profile.rotationY,
+  );
+}
+
+function addFiftyHertzStructure(builder: Builder): void {
+  const profile = EUROPACITY_PROFILE.fiftyHertz;
+  const origin = new Vector3(
+    profile.centerWorldM[0],
+    profile.groundY,
+    profile.centerWorldM[1],
+  );
+  const floorCount = 16;
+  const floorPitch = profile.measuredHeightM / floorCount;
+  for (const side of [-1, 1]) {
+    for (let floor = 0; floor <= floorCount; floor += 1) {
+      addLocalBox(
+        builder,
+        EURO_ALUMINIUM_SHADOW,
+        origin,
+        0,
+        profile.groundY + floorPitch * floor,
+        side * (profile.footprintDepthM / 2 + 0.2),
+        profile.footprintLengthM + 0.5,
+        0.16,
+        0.32,
+        profile.rotationY,
+        false,
+      );
+    }
+    const bayCount = 4;
+    const bayWidth = profile.footprintLengthM / bayCount;
+    const moduleHeight = floorPitch * 2;
+    const braceLength = Math.hypot(bayWidth, moduleHeight);
+    const braceAngle = Math.atan2(moduleHeight, bayWidth);
+    for (let module = 0; module < floorCount / 2; module += 1) {
+      for (let bay = 0; bay < bayCount; bay += 1) {
+        const localX =
+          -profile.footprintLengthM / 2 + bayWidth * (bay + 0.5);
+        const centerY =
+          profile.groundY + moduleHeight * (module + 0.5);
+        for (const direction of [-1, 1]) {
+          addTiltedLocalBox(
+            builder,
+            EURO_ALUMINIUM,
+            origin,
+            localX,
+            centerY,
+            side * (profile.footprintDepthM / 2 + 0.34),
+            braceLength,
+            0.3,
+            0.24,
+            direction * braceAngle,
+            profile.rotationY,
+          );
+        }
+      }
+    }
+    for (let floor = 1; floor < floorCount; floor += 1) {
+      if (floor % 4 !== 1) continue;
+      for (let bay = 0; bay < 8; bay += 1) {
+        if ((floor + bay * 2 + (side > 0 ? 1 : 3)) % 5 > 1) continue;
+        addLocalLampBox(
+          builder,
+          EURO_WINDOW_LIGHT,
+          origin,
+          -profile.footprintLengthM / 2 +
+            (profile.footprintLengthM * (bay + 0.5)) / 8,
+          profile.groundY + floorPitch * (floor + 0.5),
+          side * (profile.footprintDepthM / 2 + 0.04),
+          (profile.footprintLengthM / 8) * 0.7,
+          floorPitch - 0.62,
+          0.1,
+          profile.rotationY,
+        );
+      }
+    }
+  }
+}
+
+function addUpbeatCampus(builder: Builder): void {
+  const profile = EUROPACITY_PROFILE.upbeat;
+  const fullRing = profile.footprintWorldM;
+  const middleRing = clipRingEast(fullRing, profile.midTierEastClipWorldX);
+  const towerRing = clipRingEast(
+    fullRing,
+    profile.towerTierEastClipWorldX,
+  );
+  const baseTop =
+    profile.groundY +
+    (profile.heightM * profile.storeyTiers[0]) / profile.storeyTiers[2];
+  const middleTop =
+    profile.groundY +
+    (profile.heightM * profile.storeyTiers[1]) / profile.storeyTiers[2];
+  const towerTop = profile.groundY + profile.heightM;
+  addPolygonPrism(
+    builder,
+    EURO_GLASS,
+    fullRing,
+    profile.groundY,
+    baseTop - profile.groundY,
+  );
+  addPolygonPrism(
+    builder,
+    EURO_GLASS_LIGHT,
+    middleRing,
+    baseTop,
+    middleTop - baseTop,
+  );
+  addPolygonPrism(
+    builder,
+    EURO_GLASS,
+    towerRing,
+    middleTop,
+    towerTop - middleTop,
+  );
+  addTierFacadeGrid(
+    builder,
+    fullRing,
+    profile.groundY,
+    baseTop,
+    profile.storeyTiers[0],
+    UPBEAT_GRID,
+  );
+  addTierFacadeGrid(
+    builder,
+    middleRing,
+    baseTop,
+    middleTop,
+    profile.storeyTiers[1] - profile.storeyTiers[0],
+    UPBEAT_GRID_LIGHT,
+  );
+  addTierFacadeGrid(
+    builder,
+    towerRing,
+    middleTop,
+    towerTop,
+    profile.storeyTiers[2] - profile.storeyTiers[1],
+    UPBEAT_GRID,
+  );
+  for (const [ring, top] of [
+    [fullRing, baseTop],
+    [middleRing, middleTop],
+    [towerRing, towerTop],
+  ] as const) {
+    addPolygonPrism(builder, UPBEAT_ROOF, ring, top, 0.28, false);
+  }
+  // Source-visible roof terraces: restrained planted strips and glass rails.
+  for (const [x, y, z, width, depth] of [
+    [-696, baseTop + 0.65, -1983, 22, 1.2],
+    [-683, baseTop + 0.65, -1976, 15, 1.1],
+    [-662, middleTop + 0.65, -1969, 12, 1.1],
+  ] as const) {
+    addBox(
+      builder,
+      EURO_TERRACE_GREEN,
+      x,
+      y,
+      z,
+      width,
+      1.1,
+      depth,
+      -0.18,
+      false,
+    );
+  }
+  addBox(
+    builder,
+    EURO_ALUMINIUM,
+    -621.2,
+    profile.groundY + 3.2,
+    -1957.1,
+    8.8,
+    0.3,
+    3.2,
+    -0.44,
+  );
 }
 
 function addGableRoofShell(
@@ -3249,150 +3735,11 @@ function addEuropacityCompanyBuildings(
   byName: Map<string, ExpandedLandmark>,
 ): void {
   const kpmg = anchor(byName, "KPMG Europacity");
-  if (kpmg) {
-    addBox(builder, IVORY, kpmg.x, kpmg.y + 7, kpmg.z, 72, 14, 48, 0.05);
-    addBox(
-      builder,
-      0xe5e0d4,
-      kpmg.x - 17,
-      kpmg.y + 23,
-      kpmg.z,
-      34,
-      32,
-      42,
-      0.05,
-    );
-    addBox(
-      builder,
-      SANDSTONE,
-      kpmg.x + 22,
-      kpmg.y + 18,
-      kpmg.z - 2,
-      36,
-      22,
-      38,
-      0.05,
-    );
-    for (const level of [12, 17.5, 23, 28.5, 34]) {
-      addBox(
-        builder,
-        GLASS,
-        kpmg.x - 17,
-        kpmg.y + level,
-        kpmg.z + 21.3,
-        30,
-        1.8,
-        0.5,
-        0.05,
-      );
-    }
-  }
   const dkb = anchor(byName, "DKB Campus Upbeat");
-  if (dkb) {
-    // The future DKB campus is not yet part of the authoritative LoD2 cut.
-    // These stepped volumes are a labelled project approximation at the OSM
-    // site anchor, kept separate from the metric inventory in buildings.gpkg.
-    addBox(builder, IVORY, dkb.x, dkb.y + 7, dkb.z, 112, 14, 64, -0.18);
-    addBox(
-      builder,
-      0xe4dfd3,
-      dkb.x - 35,
-      dkb.y + 36,
-      dkb.z - 3,
-      34,
-      58,
-      44,
-      -0.18,
-    );
-    addBox(
-      builder,
-      0xeee9dc,
-      dkb.x + 4,
-      dkb.y + 40,
-      dkb.z + 1,
-      38,
-      66,
-      48,
-      -0.18,
-    );
-    addBox(
-      builder,
-      SANDSTONE,
-      dkb.x + 43,
-      dkb.y + 30,
-      dkb.z - 5,
-      32,
-      46,
-      40,
-      -0.18,
-    );
-    const towerBands = [
-      { x: dkb.x - 35, z: dkb.z + 19.35, width: 30, top: 64 },
-      { x: dkb.x + 4, z: dkb.z + 25.35, width: 34, top: 72 },
-      { x: dkb.x + 43, z: dkb.z + 15.35, width: 28, top: 52 },
-    ];
-    for (const tower of towerBands) {
-      for (let level = 14; level < tower.top; level += 5.5) {
-        addBox(
-          builder,
-          GLASS,
-          tower.x,
-          dkb.y + level,
-          tower.z,
-          tower.width,
-          1.75,
-          0.5,
-          -0.18,
-        );
-      }
-      for (const offset of [-0.34, -0.17, 0, 0.17, 0.34]) {
-        addBox(
-          builder,
-          DARK_FRAME,
-          tower.x + tower.width * offset,
-          dkb.y + (tower.top + 10) / 2,
-          tower.z + 0.31,
-          0.3,
-          tower.top - 10,
-          0.26,
-          -0.18,
-        );
-      }
-    }
-    addBox(
-      builder,
-      IVORY,
-      dkb.x - 35,
-      dkb.y + 65.2,
-      dkb.z - 3,
-      36,
-      1.4,
-      46,
-      -0.18,
-    );
-    addBox(
-      builder,
-      IVORY,
-      dkb.x + 4,
-      dkb.y + 73.2,
-      dkb.z + 1,
-      40,
-      1.4,
-      50,
-      -0.18,
-    );
-    addBox(
-      builder,
-      SANDSTONE,
-      dkb.x + 43,
-      dkb.y + 53.2,
-      dkb.z - 5,
-      34,
-      1.4,
-      42,
-      -0.18,
-    );
-  }
+  if (!kpmg && !dkb) return;
+  if (kpmg) addEinzFacadeScreen(builder);
+  addFiftyHertzStructure(builder);
+  if (dkb) addUpbeatCampus(builder);
 }
 
 function addRooftopSigns(
@@ -3451,12 +3798,22 @@ function addRooftopSigns(
   }
   const kpmg = anchor(byName, "KPMG Europacity");
   if (kpmg) {
+    const profile = EUROPACITY_PROFILE.einz;
+    const [offsetX, offsetZ] = rotatedLocalOffset(
+      0,
+      -(profile.footprintDepthM / 2 + 0.42),
+      profile.rotationY,
+    );
     const sign = createLetterSign(
       "KPMG",
       14,
       3.8,
-      new Vector3(kpmg.x, kpmg.y + 35, kpmg.z + 17),
-      0.05,
+      new Vector3(
+        profile.centerWorldM[0] + offsetX,
+        profile.groundY + profile.measuredHeightM - 5.3,
+        profile.centerWorldM[1] + offsetZ,
+      ),
+      profile.rotationY + Math.PI,
       "#edf2f3",
       "#245ca8",
     );
@@ -3464,12 +3821,17 @@ function addRooftopSigns(
   }
   const dkb = anchor(byName, "DKB Campus Upbeat");
   if (dkb) {
+    const profile = EUROPACITY_PROFILE.upbeat;
     const sign = createLetterSign(
       "DKB",
       17,
       4.6,
-      new Vector3(dkb.x + 4, dkb.y + 70, dkb.z + 25.72),
-      -0.18,
+      new Vector3(
+        -636.87,
+        profile.groundY + profile.heightM - 5.8,
+        -1945.96,
+      ),
+      2.828,
       "#f2f6f6",
       "#1479b8",
     );
@@ -3531,12 +3893,13 @@ export function createExpandedCityDetails(
   const group = new Group();
   group.name = "Task-10 expanded city recognition details";
   group.userData.geometryStatus =
-    "Open-data-positioned recognition details; LoD2 remains the metric building anchor; future-project massing is explicitly approximate";
+    "Open-data-positioned recognition details; LoD2 remains the metric building anchor; Upbeat uses its current OSM outline and published tier heights";
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
   group.userData.berlinModern = BERLIN_MODERN_PROFILE;
   group.userData.amanoGrandCentral = AMANO_GRAND_CENTRAL_PROFILE;
+  group.userData.europacity = EUROPACITY_PROFILE;
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   group.userData.kulturforum = KULTURFORUM_PROFILE;
   group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
@@ -3553,6 +3916,7 @@ export function createExpandedCityDetails(
     "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte",
     "https://www.berliner-philharmoniker.de/ueber-uns/philharmonie/kammermusiksaal/der-bau-des-kammermusiksaals/",
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
+    ...EUROPACITY_PROFILE.sources,
   ];
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);

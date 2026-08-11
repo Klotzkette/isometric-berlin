@@ -5,6 +5,7 @@ import {
   AMANO_GRAND_CENTRAL_PROFILE,
   BERLIN_MODERN_PROFILE,
   createExpandedCityDetails,
+  EUROPACITY_PROFILE,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
   KULTURFORUM_PROFILE,
@@ -145,6 +146,22 @@ describe("task-10 expanded city recognition details", () => {
     const bounds = new Box3().setFromObject(bodies);
     expect(bounds.max.y).toBeGreaterThan(65);
     expect(details.userData.geometryStatus).toContain("Open-data-positioned");
+    expect(details.userData.europacity).toEqual(EUROPACITY_PROFILE);
+  });
+
+  test("keeps Europacity geometry tied to metric and published sources", () => {
+    const profile = EUROPACITY_PROFILE;
+    expect(profile.einz.sourceTowerPartId).toBe("DEBE3De9JUgwVTiy");
+    expect(profile.einz.measuredHeightM).toBeCloseTo(83.794, 3);
+    expect(profile.einz.floorCount).toBe(22);
+    expect(profile.fiftyHertz.sourceTowerPartId).toBe("DEBE3Dyir4lZjw1O");
+    expect(profile.fiftyHertz.measuredHeightM).toBeCloseTo(54.975, 3);
+    expect(profile.upbeat.osmWayId).toBe("1214009386");
+    expect(profile.upbeat.footprintWorldM).toHaveLength(61);
+    expect(profile.upbeat.storeyTiers).toEqual([5, 11, 19]);
+    expect(profile.upbeat.heightM).toBe(82);
+    expect(profile.upbeat.geometryStatus).toContain("plan-derived tier clips");
+    expect(profile.sources).toHaveLength(6);
   });
 
   test("keeps the WELT balloon tall but introduces no duplicate Carillon", () => {
@@ -170,8 +187,25 @@ describe("task-10 expanded city recognition details", () => {
       target_world: welt?.world,
     });
     expect(expandedCityFocusCamera(dkb!)).toMatchObject({
-      distance_m: 232,
-      target_height_m: 32,
+      distance_m: 244,
+      target_height_m: 38,
+      target_world: [
+        EUROPACITY_PROFILE.upbeat.centerWorldM[0],
+        dkb!.world[1],
+        EUROPACITY_PROFILE.upbeat.centerWorldM[1],
+      ],
+    });
+    const kpmg = landmarks.find(
+      (landmark) => landmark.name === "KPMG Europacity",
+    );
+    expect(expandedCityFocusCamera(kpmg!)).toMatchObject({
+      distance_m: 214,
+      target_height_m: 42,
+      target_world: [
+        EUROPACITY_PROFILE.einz.centerWorldM[0],
+        kpmg!.world[1],
+        EUROPACITY_PROFILE.einz.centerWorldM[1],
+      ],
     });
     const kollhoff = landmarks.find(
       (landmark) => landmark.name === "Kollhoff-Tower",

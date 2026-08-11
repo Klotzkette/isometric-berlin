@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.70.41
+
+- **Europacity now follows its real metric envelopes instead of generic
+  boxes.** EINZ/KPMG again relies exclusively on its complete Berlin LoD2
+  shell: the 83.794 m, 22-storey tower and four measured base parts are no
+  longer covered by three invented blocks. A lightweight register adds the
+  source-described folded lower facade, pale aluminium rods, double-height
+  entrance and correctly placed rooftop lettering without moving the official
+  footprint.
+- **Upbeat is rebuilt from the current open map geometry.** Its 61-point OSM
+  outline replaces the former 112 x 64 m rectangle, while CA Immo's published
+  82 m and 5/11/19-storey composition determines the three connected height
+  steps. The warm slender facade grid, floor-to-ceiling glazing, individual
+  night windows, pale roof terraces and planted strips follow the official
+  project descriptions and architects' plan; the tier clips remain explicitly
+  documented as plan-derived rather than surveyed.
+- **The northern skyline remains coherent in every mode.** 50Hertz keeps its
+  measured LoD2 body and gains the official exposed diagrid character. KPMG
+  and Upbeat now open with metric, unclipped focus cameras, and Minecraft gains
+  its own block-native Upbeat volume instead of focusing an empty site. Day,
+  Night and Minecraft views were checked directly; the visible radius remains
+  **5,230 m**, source hierarchy and attribution are unchanged, and the added
+  detail remains merged/instanced rather than increasing draw calls per bay.
+
 ## v0.70.40
 
 - **Bahnhof Friedrichstraße now follows its real Stadtbahn geometry.** The

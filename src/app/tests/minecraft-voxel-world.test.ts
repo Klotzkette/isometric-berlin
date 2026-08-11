@@ -11,12 +11,14 @@ import {
   VOXEL_WINDOW_WIDTH_M,
   createMinecraftBerlinModernRecognition,
   createMinecraftHamburgerBahnhofRecognition,
+  createMinecraftUpbeatRecognition,
   createMinecraftVoxelWorld,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   BERLIN_MODERN_PROFILE,
+  EUROPACITY_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "../src/expandedCityProfiles";
@@ -267,6 +269,25 @@ describe("true voxel Minecraft world", () => {
     );
     expect(maxTop).toBeLessThanOrEqual(
       BERLIN_MODERN_PROFILE.groundY + BERLIN_MODERN_PROFILE.totalHeightM,
+    );
+  });
+
+  test("keeps Upbeat present as a block-native Europacity volume", () => {
+    const upbeat = createMinecraftUpbeatRecognition();
+    expect(upbeat.count).toBeGreaterThan(400);
+    expect(upbeat.userData.architecturalProfile).toEqual(
+      EUROPACITY_PROFILE.upbeat,
+    );
+    expect(world.getObjectByName("Voxel Upbeat Europacity")).toBeDefined();
+    const bounds = new Box3().setFromObject(upbeat);
+    expect(bounds.min.x).toBeGreaterThan(-725);
+    expect(bounds.max.x).toBeLessThan(-618);
+    expect(bounds.min.z).toBeGreaterThan(-2018);
+    expect(bounds.max.z).toBeLessThan(-1937);
+    expect(bounds.min.y).toBeCloseTo(EUROPACITY_PROFILE.upbeat.groundY, 5);
+    expect(bounds.max.y).toBeCloseTo(
+      EUROPACITY_PROFILE.upbeat.groundY + EUROPACITY_PROFILE.upbeat.heightM,
+      5,
     );
   });
 
