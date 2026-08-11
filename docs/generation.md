@@ -187,7 +187,11 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
 - **Ground height.** Inverse-distance interpolation (k=8) over the 34,534
   committed tree and street-light y samples in `park-details.json`; a coarse
   16 m height grid ships in the payload so the viewer can stack from real
-  terrain.
+  terrain. Minecraft deliberately keeps nearest-cell steps. The drawn city
+  reads the same samples bilinearly and tessellates long ground-bound surface
+  triangles to a 64 m maximum edge, so roads, paths and lawns retain broad
+  local rises without claiming a denser elevation survey. River coping samples
+  the landward side of that same grid and follows its longitudinal grade.
 - **Ground cover.** One class per cell inside the bounds polygon, run-length
   encoded per row as `[x_start_col, run_length, class]`. Priority:
   `bridge` over `water` (OSM water polygons, display top fixed at

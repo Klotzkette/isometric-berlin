@@ -276,7 +276,7 @@ not ship the raw response: `build_park_details` simplifies this evidence into
 the compact `park-details.json` display payload.
 
 Walking/cycling infrastructure is audited separately from motor traffic.
-`surface-polygons.json` schema 7 contains 8,151 bounded above-ground line parts
+`surface-polygons.json` schema 8 contains 8,151 bounded above-ground line parts
 across `footway`, `cycleway`, `path`, `pedestrian`, `steps` and `track`; 7,420
 parts have an explicit OSM `surface` and 988 have `width` or `est_width`.
 Explicit surface tags resolve to six drawn families (asphalt, paving,
@@ -284,6 +284,13 @@ compacted/gravel, earth, timber and metal) before any park/class fallback is
 considered. The payload's `path_inventory` preserves the source and resolution
 counts so missing width evidence is documented rather than presented as a
 surveyed kerb line.
+
+Schema 8 reduces the water and road simplification tolerance to 0.1 m, samples
+road curves at 1.5 m and uses 16 round-buffer segments per quadrant. The viewer
+inserts additional 2–2.5 m display points only between the retained exported
+vertices. Natural bends can therefore flow continuously while engineered
+basin/quay corners remain sharp; the display interpolation does not move a
+retained centreline or shoreline vertex and stays inside the mapped extent.
 
 `park-details.json` schema 4 repeats only compact material codes and resolved
 decimetre widths for the 1,651 raised close-view ribbons. It omits null path

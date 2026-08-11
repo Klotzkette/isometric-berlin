@@ -2,11 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { Box3, LineSegments, Mesh } from "three";
 
 import {
+  DRAPED_SURFACE_MAX_EDGE_M,
   createSmoothSurfaces,
   type SurfacePayload,
 } from "../src/IsometricCityWorld";
 import {
   createGroundSlabs,
+  smoothGroundTopSampler,
   type VoxelPayload,
 } from "../src/MinecraftVoxelWorld";
 import groundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -16,6 +18,30 @@ const surfaces = surfacePayload as unknown as SurfacePayload;
 const ground = groundPayload as unknown as VoxelPayload;
 
 describe("drawn carriageways and park paths", () => {
+  test("bilinearly interpolates the measured terrain samples for drawn grades", () => {
+    const fixture: VoxelPayload = {
+      buildings: [],
+      cell_m: 4,
+      classes: [],
+      grid: { cols: 8, min_x_idx: 0, min_z_idx: 0, rows: 8 },
+      ground_height: {
+        cols: 2,
+        rows: 2,
+        stride_cells: 4,
+        y_dm: [40, 80, 120, 160],
+      },
+      ground_rows: [],
+      schema_version: 1,
+      trees: [],
+      water_top_y_m: -1.15,
+    };
+    const sample = smoothGroundTopSampler(fixture);
+    expect(sample(2, 2)).toBeCloseTo(4, 6);
+    expect(sample(6, 2)).toBeCloseTo(8, 6);
+    expect(sample(4, 4)).toBeCloseTo(10, 6);
+    expect(sample(6, 6)).toBeCloseTo(16, 6);
+  });
+
   test("the payload carries buffered road polygons and lane markings", () => {
     // OSM ships streets as centrelines. Until v0.44.0 the drawn city had no
     // road surface at all beyond the 4 m voxel raster, so the Straße des
@@ -103,6 +129,97 @@ describe("drawn carriageways and park paths", () => {
     expect(flatBox.max.y - flatBox.min.y).toBeLessThan(0.01);
     expect(followedBox.max.y - followedBox.min.y).toBeGreaterThan(0.5);
     expect(followedBox.min.y).toBeGreaterThan(flatBox.max.y);
+  });
+
+  test("subdivides long road triangles so interior terrain rises survive", () => {
+    const fixture: SurfacePayload = {
+      parks: [],
+      roads: [
+        {
+          area_m2: 8_000,
+          holes: [],
+          kind: "asphalt",
+          name: "terrain test road",
+          ring: [
+            [0, 0],
+            [4_000, 0],
+            [4_000, 200],
+            [0, 200],
+          ],
+        },
+      ],
+      schema_version: 8,
+      water: [],
+    };
+    const group = createSmoothSurfaces(
+      fixture,
+      -1.15,
+      4.2,
+      (x) => 5 + 2 * Math.sin((Math.PI * x) / 400),
+    );
+    const road = group.getObjectByName("smooth carriageways") as Mesh;
+    const positions = road.geometry.getAttribute("position");
+    let minY = Number.POSITIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+    for (let index = 0; index < positions.count; index += 1) {
+      minY = Math.min(minY, positions.getY(index));
+      maxY = Math.max(maxY, positions.getY(index));
+    }
+    expect(maxY - minY).toBeGreaterThan(1.5);
+
+    const indices = road.geometry.index;
+    expect(indices).not.toBeNull();
+    let maxEdge = 0;
+    for (let index = 0; index < (indices?.count ?? 0); index += 3) {
+      for (const [from, to] of [
+        [index, index + 1],
+        [index + 1, index + 2],
+        [index + 2, index],
+      ]) {
+        const a = indices!.getX(from);
+        const b = indices!.getX(to);
+        maxEdge = Math.max(
+          maxEdge,
+          Math.hypot(
+            positions.getX(a) - positions.getX(b),
+            positions.getZ(a) - positions.getZ(b),
+          ),
+        );
+      }
+    }
+    expect(maxEdge).toBeLessThanOrEqual(DRAPED_SURFACE_MAX_EDGE_M + 1e-4);
+  });
+
+  test("quay coping follows the local landward grade", () => {
+    const fixture: SurfacePayload = {
+      parks: [],
+      roads: [],
+      schema_version: 8,
+      water: [
+        {
+          area_m2: 5_000,
+          holes: [],
+          kind: "river",
+          name: "graded river",
+          ring: [
+            [0, 0],
+            [1_000, 0],
+            [1_000, 500],
+            [0, 500],
+          ],
+        },
+      ],
+    };
+    const group = createSmoothSurfaces(
+      fixture,
+      -1.15,
+      4.2,
+      (x) => 4 + x / 40,
+    );
+    const walls = group.getObjectByName("smooth quay walls") as Mesh;
+    const bounds = new Box3().setFromObject(walls);
+    expect(bounds.max.y).toBeGreaterThan(6.3);
+    expect(bounds.min.y).toBeCloseTo(-4.25, 4);
   });
 
   test("the drawn base can omit coarse asphalt without changing Minecraft", () => {

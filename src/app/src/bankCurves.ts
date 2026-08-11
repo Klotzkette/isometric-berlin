@@ -8,11 +8,11 @@
  * path, shoreline ink), so the smoothing happens once here and the result is
  * handed to all of them.
  *
- * The curve is a cubic Hermite through the original vertices, so no vertex
- * moves and the water body keeps its surveyed extent — only intermediate
+ * The curve is a cubic Hermite through the exported mapped vertices, so no
+ * retained vertex moves and the water body keeps its mapped extent — only intermediate
  * points are inserted. Tangents are the angle bisector at each vertex, scaled
- * by the edge length, which is Catmull-Rom without the overshoot a long edge
- * next to a short one would otherwise produce.
+ * by the shorter adjacent edge, which is Catmull-Rom without the overshoot a
+ * long edge next to a short one would otherwise produce.
  *
  * Sharp vertices are exempt: a harbour basin corner or the straight edge of a
  * quay is real, and rounding it off would be as wrong as faceting the bends.
@@ -21,17 +21,17 @@
 export type RingPoint = readonly [number, number];
 
 /**
- * Turns beyond this are treated as built corners and stay sharp. 34° sits
- * above the bends OSM traces along the Spree and below the chamfers on the
- * Humboldthafen basin.
+ * Turns beyond this are treated as built corners and stay sharp. Natural OSM
+ * banks can legitimately turn by 40–60° between sparse survey nodes, while a
+ * built quay or basin corner is normally close to 90°.
  */
-export const BANK_CORNER_DEG = 34;
+export const BANK_CORNER_DEG = 68;
 
-/** Target spacing of the subdivided line. Roughly a drawn stroke width. */
-export const BANK_SEGMENT_M = 5;
+/** Target spacing of the subdivided line at close architectural zoom. */
+export const BANK_SEGMENT_M = 2.5;
 
 /** Ceiling per edge, so one 900 m park boundary cannot flood the buffer. */
-const MAX_STEPS_PER_EDGE = 24;
+const MAX_STEPS_PER_EDGE = 48;
 
 export type DensifyOptions = {
   cornerDeg?: number;
@@ -69,6 +69,16 @@ export function densifyRing(
   const count = points.length;
   if (count < 3) {
     return points;
+  }
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minZ = Number.POSITIVE_INFINITY;
+  let maxZ = Number.NEGATIVE_INFINITY;
+  for (const [x, z] of points) {
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minZ = Math.min(minZ, z);
+    maxZ = Math.max(maxZ, z);
   }
   const cornerCos = Math.cos(((options.cornerDeg ?? BANK_CORNER_DEG) * Math.PI) / 180);
   const maxSegment = options.maxSegmentM ?? BANK_SEGMENT_M;
@@ -131,7 +141,10 @@ export function densifyRing(
       MAX_STEPS_PER_EDGE,
       Math.max(1, Math.ceil(length[index] / maxSegment)),
     );
-    const scale = length[index];
+    const previousLength = length[(index + count - 1) % count];
+    const nextLength = length[next];
+    const startScale = Math.min(length[index], previousLength);
+    const endScale = Math.min(length[index], nextLength);
     for (let step = 1; step < steps; step += 1) {
       const t = step / steps;
       const tt = t * t;
@@ -140,9 +153,31 @@ export function densifyRing(
       const h10 = ttt - 2 * tt + t;
       const h01 = -2 * ttt + 3 * tt;
       const h11 = ttt - tt;
+      // Never expand the mapped footprint. Even a clamped tangent can
+      // overshoot a global extremum by a few centimetres on a highly uneven
+      // trace; clipping only inserted points to the source bounds preserves
+      // the exact mapped envelope while retaining the curved interpolation.
       out.push([
-        h00 * ax + h10 * scale * startX + h01 * bx + h11 * scale * endX,
-        h00 * az + h10 * scale * startZ + h01 * bz + h11 * scale * endZ,
+        Math.max(
+          minX,
+          Math.min(
+            maxX,
+            h00 * ax +
+              h10 * startScale * startX +
+              h01 * bx +
+              h11 * endScale * endX,
+          ),
+        ),
+        Math.max(
+          minZ,
+          Math.min(
+            maxZ,
+            h00 * az +
+              h10 * startScale * startZ +
+              h01 * bz +
+              h11 * endScale * endZ,
+          ),
+        ),
       ]);
     }
   }

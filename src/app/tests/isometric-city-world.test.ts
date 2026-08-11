@@ -1560,13 +1560,21 @@ describe("smooth OSM water and parkland", () => {
       "smooth shoreline ink",
     ) as LineSegments;
     const position = shore.geometry.getAttribute("position");
+    const indexBuffer = shore.geometry.index;
+    const sequenceCount = indexBuffer?.count ?? position.count;
+    const vertexIndex = (sequenceIndex: number): number =>
+      indexBuffer?.getX(sequenceIndex) ?? sequenceIndex;
     const runs: number[] = [];
     const bends: number[] = [];
-    for (let index = 0; index + 3 < position.count; index += 2) {
-      const dx = position.getX(index + 1) - position.getX(index);
-      const dz = position.getZ(index + 1) - position.getZ(index);
-      const ex = position.getX(index + 3) - position.getX(index + 2);
-      const ez = position.getZ(index + 3) - position.getZ(index + 2);
+    for (let index = 0; index + 3 < sequenceCount; index += 2) {
+      const a = vertexIndex(index);
+      const b = vertexIndex(index + 1);
+      const c = vertexIndex(index + 2);
+      const d = vertexIndex(index + 3);
+      const dx = position.getX(b) - position.getX(a);
+      const dz = position.getZ(b) - position.getZ(a);
+      const ex = position.getX(d) - position.getX(c);
+      const ez = position.getZ(d) - position.getZ(c);
       const run = Math.hypot(dx, dz);
       const next = Math.hypot(ex, ez);
       if (run < 1e-6 || next < 1e-6) {
@@ -1576,8 +1584,8 @@ describe("smooth OSM water and parkland", () => {
       // Only where this segment ends exactly where the next begins: ring
       // ends and jumps between water bodies are not visible facets.
       const joined = Math.hypot(
-        position.getX(index + 2) - position.getX(index + 1),
-        position.getZ(index + 2) - position.getZ(index + 1),
+        position.getX(c) - position.getX(b),
+        position.getZ(c) - position.getZ(b),
       );
       if (joined < 1e-6) {
         const dot = (dx * ex + dz * ez) / (run * next);

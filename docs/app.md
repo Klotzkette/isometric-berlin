@@ -125,9 +125,15 @@ polygons (`lod2-prisms.json`, built by
 `isometric_berlin.generation.build_isometric_prisms`) — exact corners,
 planar walls, courtyard holes (the Reichstag keeps its two courtyards) —
 with hard near-black ink lines from edge geometry and flat quantised
-facade tones. Ground/water/roads reuse the surveyed run-length slabs with
-a soft day palette; the OSM/official tree layer stays soft ("Natur darf
-weich bleiben"). The recognition models (Reichstag dome, Brandenburg
+facade tones. Water, roads and paths use the bounded OSM polygons and retain
+every exported mapped vertex; natural bends receive 2–2.5 m display
+subdivisions while engineered corners stay sharp. Ground-bound plates
+interpolate the committed
+16 m IDW terrain support and bounded interior tessellation carries broad rises
+through long polygons; quay coping follows the local landward grade. These are
+presentation interpolations, not new survey observations. The OSM/official
+tree layer stays soft ("Natur darf weich bleiben"). The recognition models
+(Reichstag dome, Brandenburg
 Gate, memorials, TIPI, Carillon…) remain visible on top of the prisms;
 the photographic hero crops are hidden. The camera FOV narrows from 39°
 to 30° in this mode to flatten the view toward a true isometric look.

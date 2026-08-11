@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.70.35
+
+- **Waterways and streets now flow without sacrificing mapped geometry.** The
+  bounded surface payload moves to schema 8: water and road simplification are
+  0.1 m, road interpolation is 1.5 m and round buffer joins use 16 segments per
+  quadrant. The viewer retains every exported OSM vertex, inserts 2–2.5 m
+  display points through natural bends and clamps interpolation to the mapped
+  envelope;
+  deliberate 90° basin, quay and junction corners remain sharp.
+- **Ground-bound surfaces now express local relief continuously.** Day, Night
+  and Snowstorm bilinearly read the existing 16 m IDW terrain support instead
+  of stepping at cell boundaries. Bounded, indexed tessellation prevents long
+  road, path and lawn triangles from flattening interior rises. Quay walls and
+  coping follow the local landward grade while water tables and beds remain
+  level. This is a documented interpolation of committed point evidence, not
+  a denser elevation survey; Minecraft intentionally keeps its block steps.
+- **The additional detail stays bounded.** Indexed kerb and quay buffers remove
+  about 747,000 duplicate vertices from the fine implementation; the complete
+  smooth-surface group builds locally in about 2.2 seconds. Contract tests cover
+  sparse 45° banks, uneven-edge overshoot, bilinear terrain, interior road
+  relief and graded coping. Browser QA covered Day, Night, Minecraft,
+  Snowstorm and the 390×844 mobile layout with a clean console. The visible
+  radius remains **5,230 m**; bounds, source hierarchy and attribution are
+  unchanged.
+
 ## v0.70.34
 
 - **Brandenburger Tor is now the single start and reset focus.** The React

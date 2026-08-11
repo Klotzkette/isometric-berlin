@@ -350,6 +350,38 @@ export function groundTopSampler(
 }
 
 /**
+ * Continuous counterpart to {@link groundTopSampler} for drawn surfaces.
+ *
+ * The committed height samples sit at the centres of 16 m terrain cells.
+ * Nearest-cell lookup is correct for Minecraft blocks, but it made a road or
+ * lawn jump vertically at every cell boundary. Bilinear interpolation keeps
+ * the same measured samples and extrema while producing a continuous grade
+ * for the isometric plates, kerbs and quay coping.
+ */
+export function smoothGroundTopSampler(
+  payload: VoxelPayload,
+): (xOffset: number, zOffset: number) => number {
+  const heights = payload.ground_height;
+  const valueAt = (col: number, row: number): number =>
+    (heights.y_dm[row * heights.cols + col] ?? 40) / 10;
+  return (xOffset, zOffset) => {
+    const sampleX = xOffset / heights.stride_cells - 0.5;
+    const sampleZ = zOffset / heights.stride_cells - 0.5;
+    const rawCol = Math.floor(sampleX);
+    const rawRow = Math.floor(sampleZ);
+    const col0 = Math.max(0, Math.min(heights.cols - 1, rawCol));
+    const row0 = Math.max(0, Math.min(heights.rows - 1, rawRow));
+    const col1 = Math.max(0, Math.min(heights.cols - 1, rawCol + 1));
+    const row1 = Math.max(0, Math.min(heights.rows - 1, rawRow + 1));
+    const tx = col0 === col1 ? 0 : Math.max(0, Math.min(1, sampleX - rawCol));
+    const tz = row0 === row1 ? 0 : Math.max(0, Math.min(1, sampleZ - rawRow));
+    const north = valueAt(col0, row0) * (1 - tx) + valueAt(col1, row0) * tx;
+    const south = valueAt(col0, row1) * (1 - tx) + valueAt(col1, row1) * tx;
+    return north * (1 - tz) + south * tz;
+  };
+}
+
+/**
  * Per-column real-colour lookup: point-in-footprint against the LoD2
  * prism payload, each building's sampled tone snapped to the nearest
  * Minecraft palette entry. Kills the one-colour-city ("einfarbig")

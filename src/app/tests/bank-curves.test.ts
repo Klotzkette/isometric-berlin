@@ -8,10 +8,10 @@ import {
 } from "../src/bankCurves";
 
 /** A quarter of a 60 m circle, sampled as sparsely as OSM traces a bank. */
-function coarseArc(): RingPoint[] {
+function coarseArc(steps = 12): RingPoint[] {
   const points: RingPoint[] = [];
-  for (let step = 0; step < 12; step += 1) {
-    const angle = (step / 12) * Math.PI * 2;
+  for (let step = 0; step < steps; step += 1) {
+    const angle = (step / steps) * Math.PI * 2;
     points.push([60 * Math.cos(angle), 60 * Math.sin(angle)]);
   }
   return points;
@@ -44,6 +44,30 @@ describe("bank curve subdivision", () => {
     // Radius is preserved to well under a drawn line width.
     for (const [x, z] of smooth) {
       expect(Math.abs(Math.hypot(x, z) - 60)).toBeLessThan(0.3);
+    }
+  });
+
+  test("rounds sparse 45-degree natural bends but retains engineered corners", () => {
+    const raw = coarseArc(8);
+    const smooth = densifyRing(raw);
+    expect(smooth.length).toBeGreaterThan(raw.length * 2);
+    expect(sharpestTurnDeg(smooth)).toBeLessThan(15);
+  });
+
+  test("clamps tangents beside short survey edges to prevent bank overshoot", () => {
+    const uneven: RingPoint[] = [
+      [0, 0],
+      [70, 0],
+      [73, 2],
+      [74, 50],
+      [0, 50],
+    ];
+    const smooth = densifyRing(uneven);
+    for (const [x, z] of smooth) {
+      expect(x).toBeGreaterThanOrEqual(-0.1);
+      expect(x).toBeLessThanOrEqual(74.1);
+      expect(z).toBeGreaterThanOrEqual(-0.1);
+      expect(z).toBeLessThanOrEqual(50.1);
     }
   });
 

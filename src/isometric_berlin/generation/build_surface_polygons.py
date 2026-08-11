@@ -65,8 +65,8 @@ from isometric_berlin.generation.road_geometry import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 7
-WATER_SIMPLIFY_M = 0.15
+SCHEMA_VERSION = 8
+WATER_SIMPLIFY_M = 0.1
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
 MIN_PARK_AREA_M2 = 250.0
@@ -156,17 +156,17 @@ METAL_PATH_SURFACES = frozenset({"metal", "metal_grid", "steel"})
 # Classes whose centreline earns a painted lane marking.
 MARKED_CLASSES = frozenset({"motorway", "trunk", "primary", "secondary", "tertiary"})
 # A road edge is a primary visual line. The former 0.75 m tolerance could turn
-# a mapped curve into a row of obvious chords at close zoom. Twenty centimetres
+# a mapped curve into a row of obvious chords at close zoom. Ten centimetres
 # stays below the drawn kerb width while keeping payload growth bounded.
-ROAD_SIMPLIFY_M = 0.2
+ROAD_SIMPLIFY_M = 0.1
 # OSM stores carriageways as surveyed polylines. Consecutive moderate turns are
 # samples of one road curve, not intended corners: interpolate through the
 # original nodes before buffering so surface, kerb and marking share the same
 # continuous centreline. Deliberate turns sharper than this remain untouched.
 ROAD_CURVE_CORNER_DEG = 72.0
-ROAD_CURVE_SEGMENT_M = 2.5
-ROAD_CURVE_MAX_STEPS_PER_EDGE = 24
-ROAD_BUFFER_QUAD_SEGS = 12
+ROAD_CURVE_SEGMENT_M = 1.5
+ROAD_CURVE_MAX_STEPS_PER_EDGE = 48
+ROAD_BUFFER_QUAD_SEGS = 16
 MIN_ROAD_AREA_M2 = 25.0
 # The merged pedestrian/cycle network can become one city-scale polygon with
 # more than a thousand holes. Earcut then blocks the browser for seconds even

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.34 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.34/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.35 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.35/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.34** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.35** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.34**, built from `main`. Its full viewer
+The current public package is **v0.70.35**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -325,7 +325,15 @@ local modules.
   timber or metal), then a documented class/park fallback. Explicit OSM
   `width` and `est_width` values win; class widths remain presentation
   cross-sections where no measurement is mapped and are not claimed as
-  surveyed kerb lines. Every surface follows the payload's terrain grid.
+  surveyed kerb lines. Natural bends are interpolated through every retained
+  mapped vertex at 2–2.5 m display spacing; engineered 90° corners remain
+  sharp. The
+  source export keeps water and road simplification at 0.1 m, road curves at
+  1.5 m and round joins at 16 segments per quadrant. Ground-bound surfaces
+  follow a bilinear reading of the committed 16 m IDW terrain support, with
+  bounded interior tessellation so rises do not flatten across long triangles.
+  River coping follows the local landward grade. These heights remain an
+  interpolation of the documented point support, not a new elevation survey.
 - The refreshed OSM extract spans the full task-11 data hull. Großer Stern,
   Straße des 17. Juni, the Tiergarten paths, Spree and Landwehrkanal surfaces,
   Europacity and the southern extension are derived from that bounded source

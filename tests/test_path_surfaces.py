@@ -5,7 +5,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from isometric_berlin.generation.build_surface_polygons import road_surface_kind
+from isometric_berlin.generation.build_surface_polygons import (
+  SCHEMA_VERSION,
+  road_surface_kind,
+)
 
 SURFACES = Path("src/app/public/mesh/regierungsviertel/surface-polygons.json")
 
@@ -29,7 +32,7 @@ def test_untagged_park_paths_keep_the_sandy_fallback() -> None:
 
 def test_payload_documents_every_bounded_path_family_and_material() -> None:
   payload = json.loads(SURFACES.read_text(encoding="utf-8"))
-  assert payload["schema_version"] == 7
+  assert payload["schema_version"] == SCHEMA_VERSION
   inventory = payload["path_inventory"]
   assert inventory["scope"] == "bounded above-ground OSM path geometry"
   assert inventory["line_parts"] >= 8_000

@@ -20,14 +20,18 @@ import {
   Shape,
   ShapeGeometry,
 } from "three";
+import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 import {
   INTERIM_OFFICE_FOOTPRINT_RING,
   INTERIM_OFFICE_SUPPRESSION_MARGIN_M,
   INTERIM_OFFICE_SUPPRESSION_OVERLAP_FRACTION,
 } from "./SpreebogenOffice";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import {
+  mergeGeometries,
+  mergeVertices,
+} from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import { densifyRing } from "./bankCurves";
+import { densifyRing, type DensifyOptions } from "./bankCurves";
 import {
   KOLLHOFF_TOWER_PROFILE,
   KULTURFORUM_PROFILE,
@@ -38,6 +42,7 @@ import {
   WATER_TOP_Y,
   createGroundSlabs,
   groundTopSampler,
+  smoothGroundTopSampler,
   worldGroundSampler,
 } from "./MinecraftVoxelWorld";
 import {
@@ -5673,19 +5678,61 @@ export function createLandmarkRefinements(): Group {
   return group;
 }
 
+/** Maximum edge retained inside a terrain-following surface triangle. */
+export const DRAPED_SURFACE_MAX_EDGE_M = 64;
+export const DRAPED_SURFACE_MAX_ITERATIONS = 12;
+
+const NATURAL_CURVE: DensifyOptions = {
+  cornerDeg: 68,
+  maxSegmentM: 2.5,
+};
+const ROAD_CURVE: DensifyOptions = {
+  cornerDeg: 74,
+  maxSegmentM: 2,
+};
+const BUILT_WATER_CURVE: DensifyOptions = {
+  cornerDeg: 34,
+  maxSegmentM: 2,
+};
+
+/** Natural banks bend freely; engineered basins retain their built corners. */
+export function surfaceCurveOptions(surface: SurfacePolygon): DensifyOptions {
+  if (surface.kind === "basin") {
+    return BUILT_WATER_CURVE;
+  }
+  if (
+    surface.kind === "asphalt" ||
+    surface.kind === "paving" ||
+    surface.kind === "sand" ||
+    surface.kind === "earth" ||
+    surface.kind === "wood" ||
+    surface.kind === "metal"
+  ) {
+    return ROAD_CURVE;
+  }
+  return NATURAL_CURVE;
+}
+
 /**
  * A decimetre ring as a smooth metre-space outline in world XZ. Everything
  * that draws a bank goes through here, so the water plate, the quay wall and
  * the shoreline ink cannot drift apart.
  */
-export function smoothSurfaceRing(ring: number[][]): [number, number][] {
-  return densifyRing(ring.map(([xDm, zDm]) => [xDm / 10, zDm / 10] as const));
+export function smoothSurfaceRing(
+  ring: number[][],
+  options: DensifyOptions = NATURAL_CURVE,
+): [number, number][] {
+  return densifyRing(
+    ring.map(([xDm, zDm]) => [xDm / 10, zDm / 10] as const),
+    options,
+  );
 }
 
 /** Shape (with holes) from a smoothed polygon ring, in the XZ plane. */
 function shapeFromSurface(surface: SurfacePolygon): Shape {
   const shape = new Shape();
-  smoothSurfaceRing(surface.ring).forEach(([x, z], index) => {
+  const curveOptions = surfaceCurveOptions(surface);
+  smoothSurfaceRing(surface.ring, curveOptions).forEach(([x, z], index) => {
     if (index === 0) {
       shape.moveTo(x, -z);
     } else {
@@ -5693,7 +5740,7 @@ function shapeFromSurface(surface: SurfacePolygon): Shape {
     }
   });
   for (const hole of surface.holes ?? []) {
-    const points = smoothSurfaceRing(hole);
+    const points = smoothSurfaceRing(hole, curveOptions);
     // A hole that collapses to a sliver crashes three's earcut
     // triangulator outright ("undefined is not an object (list.next)") and
     // takes the WHOLE drawn city down with it — the buffered road network
@@ -5741,6 +5788,12 @@ export function createSmoothSurfaces(
   const group = new Group();
   group.name = "smooth OSM water and parkland";
   const BED_DROP = 3.1;
+  const terrainTessellator = terrainAt
+    ? new TessellateModifier(
+        DRAPED_SURFACE_MAX_EDGE_M,
+        DRAPED_SURFACE_MAX_ITERATIONS,
+      )
+    : null;
 
   const buildPlate = (
     polygons: SurfacePolygon[],
@@ -5761,8 +5814,20 @@ export function createSmoothSurfaces(
     if (shapes.length === 0) {
       return null;
     }
-    const placeGeometry = (geometry: ShapeGeometry): BufferGeometry => {
-      geometry.deleteAttribute("uv");
+    const placeGeometry = (source: ShapeGeometry): BufferGeometry => {
+      source.deleteAttribute("uv");
+      let geometry: BufferGeometry = source;
+      if (followTerrain && terrainTessellator) {
+        // Earcut is free to span a kilometre-long park or road union with one
+        // triangle. Its three boundary heights then flatten every rise and
+        // dip inside that triangle. Bounded tessellation adds only the
+        // vertices needed for the 16 m sampled terrain; merge them back into
+        // an indexed buffer before the height lookup to keep memory stable.
+        const tessellated = terrainTessellator.modify(source);
+        geometry = mergeVertices(tessellated, 1e-4);
+        tessellated.dispose();
+        source.dispose();
+      }
       geometry.rotateX(-Math.PI / 2);
       geometry.translate(0, y, 0);
       if (followTerrain && terrainAt) {
@@ -5842,13 +5907,10 @@ export function createSmoothSurfaces(
 
     const outline: number[] = [];
     for (const bed of gardens) {
-      for (let index = 0; index < bed.ring.length; index += 1) {
-        const [ax, az] = bed.ring[index];
-        const [bx, bz] = bed.ring[(index + 1) % bed.ring.length];
-        const x0 = ax / 10;
-        const z0 = az / 10;
-        const x1 = bx / 10;
-        const z1 = bz / 10;
+      const ring = smoothSurfaceRing(bed.ring, surfaceCurveOptions(bed));
+      for (let index = 0; index < ring.length; index += 1) {
+        const [x0, z0] = ring[index];
+        const [x1, z1] = ring[(index + 1) % ring.length];
         const lift = terrainAt ? 0.13 : 0;
         outline.push(
           x0,
@@ -5963,55 +6025,59 @@ export function createSmoothSurfaces(
     const KERB_RISE = 0.14;
     const asphaltLift =
       ROAD_SURFACES.find((entry) => entry.kind === "asphalt")?.lift ?? 0.14;
-    const kerbRings = roads
-      .filter((entry) => entry.kind === "asphalt")
-      .flatMap((entry) => [entry.ring, ...(entry.holes ?? [])]);
-    for (const ring of kerbRings) {
-      const points = smoothSurfaceRing(ring);
-      for (let index = 0; index < points.length; index += 1) {
-        const [ax, az] = points[index];
-        const [bx, bz] = points[(index + 1) % points.length];
-        if (Math.hypot(bx - ax, bz - az) < 0.05) {
-          continue;
-        }
-        const aBase = terrainAt
-          ? terrainAt(ax, az) + asphaltLift
-          : bankY + asphaltLift;
-        const bBase = terrainAt
-          ? terrainAt(bx, bz) + asphaltLift
-          : bankY + asphaltLift;
-        const aTop = aBase + KERB_RISE;
-        const bTop = bBase + KERB_RISE;
-        // Two triangles of upstand between road level and kerb top.
-        kerbPositions.push(
-          ax,
-          aBase,
-          az,
-          bx,
-          bBase,
-          bz,
-          bx,
-          bTop,
-          bz,
-          ax,
-          aBase,
-          az,
-          bx,
-          bTop,
-          bz,
-          ax,
-          aTop,
-          az,
+    for (const road of roads.filter((entry) => entry.kind === "asphalt")) {
+      for (const rawRing of [road.ring, ...(road.holes ?? [])]) {
+        const points = smoothSurfaceRing(
+          rawRing,
+          surfaceCurveOptions(road),
         );
-        kerbInk.push(ax, aTop + 0.01, az, bx, bTop + 0.01, bz);
+        for (let index = 0; index < points.length; index += 1) {
+          const [ax, az] = points[index];
+          const [bx, bz] = points[(index + 1) % points.length];
+          if (Math.hypot(bx - ax, bz - az) < 0.05) {
+            continue;
+          }
+          const aBase = terrainAt
+            ? terrainAt(ax, az) + asphaltLift
+            : bankY + asphaltLift;
+          const bBase = terrainAt
+            ? terrainAt(bx, bz) + asphaltLift
+            : bankY + asphaltLift;
+          const aTop = aBase + KERB_RISE;
+          const bTop = bBase + KERB_RISE;
+          // Two triangles of upstand between road level and kerb top.
+          kerbPositions.push(
+            ax,
+            aBase,
+            az,
+            bx,
+            bBase,
+            bz,
+            bx,
+            bTop,
+            bz,
+            ax,
+            aBase,
+            az,
+            bx,
+            bTop,
+            bz,
+            ax,
+            aTop,
+            az,
+          );
+          kerbInk.push(ax, aTop + 0.01, az, bx, bTop + 0.01, bz);
+        }
       }
     }
     if (kerbPositions.length > 0) {
-      const kerbGeometry = new BufferGeometry();
-      kerbGeometry.setAttribute(
+      const rawKerbGeometry = new BufferGeometry();
+      rawKerbGeometry.setAttribute(
         "position",
         new Float32BufferAttribute(kerbPositions, 3),
       );
+      const kerbGeometry = mergeVertices(rawKerbGeometry, 1e-4);
+      rawKerbGeometry.dispose();
       kerbGeometry.computeVertexNormals();
       const dayMaterial = new MeshBasicMaterial({
         color: 0xd7d4c8,
@@ -6026,11 +6092,13 @@ export function createSmoothSurfaces(
       kerbMesh.userData.nightMaterial = nightMaterial;
       kerbMesh.name = "smooth kerb upstands";
       group.add(kerbMesh);
-      const inkGeometry = new BufferGeometry();
-      inkGeometry.setAttribute(
+      const rawInkGeometry = new BufferGeometry();
+      rawInkGeometry.setAttribute(
         "position",
         new Float32BufferAttribute(kerbInk, 3),
       );
+      const inkGeometry = mergeVertices(rawInkGeometry, 1e-4);
+      rawInkGeometry.dispose();
       const inkLines = new LineSegments(
         inkGeometry,
         new LineBasicMaterial({ color: ISO_INK_COLOR }),
@@ -6170,7 +6238,8 @@ export function createSmoothSurfaces(
   const COPING_WIDTH_M = 1.6;
   /** Masonry courses, in metres — tied to the bank, not to the subdivision. */
   const COURSE_M = 7;
-  const wallTopY = bankY + 0.12;
+  const bankTopAt = (x: number, z: number): number =>
+    Math.max(bankY - 0.8, terrainAt ? terrainAt(x, z) : bankY) + 0.12;
   // OSM splits the Spree into separate riverbank polygons, and the cuts sit
   // at the bridges: polygon 0 stops at x −35, the next starts at x −61, both
   // at the Gustav-Heinemann-Brücke. Those shared edges are joins in the data,
@@ -6215,7 +6284,10 @@ export function createSmoothSurfaces(
     if (surface.area_m2 < 400) {
       continue;
     }
-    const ring = smoothSurfaceRing(surface.ring);
+    const ring = smoothSurfaceRing(
+      surface.ring,
+      surfaceCurveOptions(surface),
+    );
     // Winding is whatever OSM and the clip left behind, so it is measured
     // rather than assumed: the coping has to land on the bank, not the water.
     let signedArea = 0;
@@ -6248,49 +6320,59 @@ export function createSmoothSurfaces(
       const tone =
         Math.floor(travelled / COURSE_M) % 2 === 0 ? stone : stoneAlt;
       travelled += run;
+      // The coping follows the landward sampled grade. Sampling three
+      // quarters across the lip avoids taking the water table from the river
+      // side while keeping each 1.6 m coping cross-section level.
+      const aTop = bankTopAt(ax + outX * 0.75, az + outZ * 0.75);
+      const bTop = bankTopAt(bx + outX * 0.75, bz + outZ * 0.75);
       for (const [px, py, pz] of [
         [ax, waterTopY - BED_DROP, az],
         [bx, waterTopY - BED_DROP, bz],
-        [bx, wallTopY, bz],
+        [bx, bTop, bz],
         [ax, waterTopY - BED_DROP, az],
-        [bx, wallTopY, bz],
-        [ax, wallTopY, az],
+        [bx, bTop, bz],
+        [ax, aTop, az],
       ] as const) {
         wallPositions.push(px, py, pz);
         wallColors.push(tone.r, tone.g, tone.b);
       }
       for (const [px, py, pz] of [
-        [ax, wallTopY, az],
-        [bx, wallTopY, bz],
-        [bx + outX, wallTopY, bz + outZ],
-        [ax, wallTopY, az],
-        [bx + outX, wallTopY, bz + outZ],
-        [ax + outX, wallTopY, az + outZ],
+        [ax, aTop, az],
+        [bx, bTop, bz],
+        [bx + outX, bTop, bz + outZ],
+        [ax, aTop, az],
+        [bx + outX, bTop, bz + outZ],
+        [ax + outX, aTop, az + outZ],
       ] as const) {
         wallPositions.push(px, py, pz);
         wallColors.push(coping.r, coping.g, coping.b);
       }
       // The two inked lines stay in their own runs, so each reads as one
       // continuous chain rather than alternating water line and kerb.
-      shorePositions.push(ax, bankY + 0.16, az, bx, bankY + 0.16, bz);
+      shorePositions.push(ax, aTop + 0.04, az, bx, bTop + 0.04, bz);
       copingPositions.push(
         ax + outX,
-        bankY + 0.16,
+        aTop + 0.04,
         az + outZ,
         bx + outX,
-        bankY + 0.16,
+        bTop + 0.04,
         bz + outZ,
       );
     }
   }
   const inkPositions = shorePositions.concat(copingPositions);
   if (wallPositions.length > 0) {
-    const geometry = new BufferGeometry();
-    geometry.setAttribute(
+    const rawGeometry = new BufferGeometry();
+    rawGeometry.setAttribute(
       "position",
       new Float32BufferAttribute(wallPositions, 3),
     );
-    geometry.setAttribute("color", new Float32BufferAttribute(wallColors, 3));
+    rawGeometry.setAttribute(
+      "color",
+      new Float32BufferAttribute(wallColors, 3),
+    );
+    const geometry = mergeVertices(rawGeometry, 1e-4);
+    rawGeometry.dispose();
     geometry.computeVertexNormals();
     const dayMaterial = new MeshBasicMaterial({
       side: DoubleSide,
@@ -6307,11 +6389,13 @@ export function createSmoothSurfaces(
     group.add(walls);
   }
   if (inkPositions.length > 0) {
-    const geometry = new BufferGeometry();
-    geometry.setAttribute(
+    const rawGeometry = new BufferGeometry();
+    rawGeometry.setAttribute(
       "position",
       new Float32BufferAttribute(inkPositions, 3),
     );
+    const geometry = mergeVertices(rawGeometry, 1e-4);
+    rawGeometry.dispose();
     const shore = new LineSegments(
       geometry,
       new LineBasicMaterial({ color: ISO_INK_COLOR }),
@@ -8125,10 +8209,11 @@ export function createIsometricCity(
       // OSM rings ("weiche Flussufer", no more 4 m staircases), plus
       // lawn plates that cover the rasterised parkland steps.
       const bankY = (ground.water_top_y_m ?? WATER_TOP_Y) + 5.35;
-      // Terrain lookup in world metres for the plates that lie ON the
-      // ground. The payload samples a coarse height grid at grid offsets,
-      // so world coordinates are converted back to offsets here.
-      const terrainSample = groundTopSampler(ground);
+      // Continuous terrain lookup in world metres for plates that lie ON the
+      // ground. The payload retains its measured coarse samples; bilinear
+      // interpolation removes their 16 m staircase without inventing a new
+      // elevation or changing the blocky Minecraft ground.
+      const terrainSample = smoothGroundTopSampler(ground);
       const terrainCell = ground.cell_m;
       const terrainAt = (x: number, z: number): number =>
         terrainSample(
