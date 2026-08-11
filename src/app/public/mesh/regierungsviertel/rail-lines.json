@@ -4057,10 +4057,9578 @@
   ]
  ],
  "rail_top_over_deck_m": 0.2,
- "schema_version": 1,
+ "route_evidence": {
+  "north_south_sbahn": {
+   "official_sequence": [
+    "Friedrichstraße",
+    "Brandenburger Tor",
+    "Potsdamer Platz",
+    "Anhalter Bahnhof"
+   ],
+   "services": [
+    "S1",
+    "S2",
+    "S25",
+    "S26"
+   ],
+   "source": "https://sbahn.berlin/fahren/s1/"
+  },
+  "u5": {
+   "official_sequence": [
+    "Hauptbahnhof",
+    "Bundestag",
+    "Brandenburger Tor",
+    "Unter den Linden"
+   ],
+   "services": [
+    "U5"
+   ],
+   "source": "https://www.bvg.de/dam/jcr%3A1a9bdb27-dd81-45ab-b552-26ebb6cefaf4/U5_2025-12-14.pdf"
+  }
+ },
+ "schema_version": 2,
  "simplify_m": 1.0,
  "source": "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)",
  "track_half_width_m": 3.4,
+ "tram_catenary": {
+  "geometry_status": "OSM tram plan courses; 5.8 m contact-wire height and 35 m mast spacing are presentation approximations",
+  "tracks": [
+   {
+    "id": "way/104669627:0",
+    "points": [
+     [
+      11243,
+      -3694
+     ],
+     [
+      11295,
+      -2984
+     ]
+    ]
+   },
+   {
+    "id": "way/1047472699:0",
+    "points": [
+     [
+      1699,
+      -9845
+     ],
+     [
+      -252,
+      -8914
+     ]
+    ]
+   },
+   {
+    "id": "way/1049638123:0",
+    "points": [
+     [
+      -7311,
+      -5468
+     ],
+     [
+      -5756,
+      -6209
+     ],
+     [
+      -5037,
+      -6588
+     ],
+     [
+      -3133,
+      -7510
+     ]
+    ]
+   },
+   {
+    "id": "way/1049894512:0",
+    "points": [
+     [
+      6229,
+      -11945
+     ],
+     [
+      6511,
+      -12075
+     ]
+    ]
+   },
+   {
+    "id": "way/1049894513:0",
+    "points": [
+     [
+      6211,
+      -11971
+     ],
+     [
+      5736,
+      -11751
+     ],
+     [
+      5390,
+      -11566
+     ]
+    ]
+   },
+   {
+    "id": "way/1049894514:0",
+    "points": [
+     [
+      -1989,
+      -8053
+     ],
+     [
+      -239,
+      -8890
+     ]
+    ]
+   },
+   {
+    "id": "way/1049894515:0",
+    "points": [
+     [
+      -252,
+      -8914
+     ],
+     [
+      -3477,
+      -7380
+     ]
+    ]
+   },
+   {
+    "id": "way/1049894516:0",
+    "points": [
+     [
+      -6985,
+      -5705
+     ],
+     [
+      -7241,
+      -5582
+     ]
+    ]
+   },
+   {
+    "id": "way/1078998337:0",
+    "points": [
+     [
+      4204,
+      -10952
+     ],
+     [
+      5343,
+      -11475
+     ],
+     [
+      5750,
+      -11725
+     ],
+     [
+      6229,
+      -11945
+     ]
+    ]
+   },
+   {
+    "id": "way/1078998338:0",
+    "points": [
+     [
+      4113,
+      -10906
+     ],
+     [
+      4204,
+      -10952
+     ]
+    ]
+   },
+   {
+    "id": "way/1164628142:0",
+    "points": [
+     [
+      -7950,
+      -5290
+     ],
+     [
+      -8230,
+      -5294
+     ],
+     [
+      -9334,
+      -5466
+     ],
+     [
+      -9418,
+      -5492
+     ],
+     [
+      -9527,
+      -5567
+     ],
+     [
+      -9563,
+      -5619
+     ],
+     [
+      -9596,
+      -5738
+     ],
+     [
+      -9520,
+      -6242
+     ],
+     [
+      -9543,
+      -6526
+     ],
+     [
+      -9607,
+      -6727
+     ],
+     [
+      -9831,
+      -7202
+     ]
+    ]
+   },
+   {
+    "id": "way/1164628143:0",
+    "points": [
+     [
+      -7942,
+      -5217
+     ],
+     [
+      -7747,
+      -5248
+     ],
+     [
+      -7311,
+      -5468
+     ]
+    ]
+   },
+   {
+    "id": "way/1206365297:0",
+    "points": [
+     [
+      -3376,
+      -7038
+     ],
+     [
+      -3364,
+      -7241
+     ],
+     [
+      -3328,
+      -7347
+     ],
+     [
+      -3260,
+      -7428
+     ],
+     [
+      -3133,
+      -7510
+     ]
+    ]
+   },
+   {
+    "id": "way/1206365298:0",
+    "points": [
+     [
+      -6985,
+      -5705
+     ],
+     [
+      -7163,
+      -5592
+     ],
+     [
+      -7269,
+      -5459
+     ],
+     [
+      -7300,
+      -5315
+     ],
+     [
+      -7288,
+      -5219
+     ],
+     [
+      -7251,
+      -5134
+     ],
+     [
+      -7156,
+      -5030
+     ],
+     [
+      -7065,
+      -4983
+     ],
+     [
+      -6464,
+      -4835
+     ]
+    ]
+   },
+   {
+    "id": "way/1221036040:0",
+    "points": [
+     [
+      -9852,
+      -7111
+     ],
+     [
+      -9637,
+      -6701
+     ],
+     [
+      -9580,
+      -6517
+     ],
+     [
+      -9559,
+      -6242
+     ],
+     [
+      -9647,
+      -5732
+     ],
+     [
+      -9611,
+      -5583
+     ],
+     [
+      -9530,
+      -5477
+     ],
+     [
+      -9449,
+      -5428
+     ],
+     [
+      -9344,
+      -5396
+     ],
+     [
+      -8249,
+      -5229
+     ],
+     [
+      -7942,
+      -5217
+     ]
+    ]
+   },
+   {
+    "id": "way/122463699:0",
+    "points": [
+     [
+      -3133,
+      -7510
+     ],
+     [
+      -1989,
+      -8053
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133924:0",
+    "points": [
+     [
+      12221,
+      394
+     ],
+     [
+      11816,
+      418
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133925:0",
+    "points": [
+     [
+      12409,
+      378
+     ],
+     [
+      12221,
+      394
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133926:0",
+    "points": [
+     [
+      11219,
+      -4301
+     ],
+     [
+      11210,
+      -4395
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133927:0",
+    "points": [
+     [
+      11351,
+      -2787
+     ],
+     [
+      11334,
+      -3010
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133928:0",
+    "points": [
+     [
+      11295,
+      -2984
+     ],
+     [
+      11306,
+      -2822
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133929:0",
+    "points": [
+     [
+      11220,
+      -3915
+     ],
+     [
+      11243,
+      -3694
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133931:0",
+    "points": [
+     [
+      11272,
+      -3713
+     ],
+     [
+      11219,
+      -4301
+     ]
+    ]
+   },
+   {
+    "id": "way/1340133932:0",
+    "points": [
+     [
+      11169,
+      -4446
+     ],
+     [
+      11220,
+      -3915
+     ]
+    ]
+   },
+   {
+    "id": "way/144529199:0",
+    "points": [
+     [
+      5390,
+      -11566
+     ],
+     [
+      2716,
+      -10346
+     ],
+     [
+      1999,
+      -9981
+     ]
+    ]
+   },
+   {
+    "id": "way/161710634:0",
+    "points": [
+     [
+      -5010,
+      -5186
+     ],
+     [
+      -4667,
+      -5523
+     ]
+    ]
+   },
+   {
+    "id": "way/161710636:0",
+    "points": [
+     [
+      -5208,
+      -4955
+     ],
+     [
+      -5010,
+      -5186
+     ]
+    ]
+   },
+   {
+    "id": "way/165409970:0",
+    "points": [
+     [
+      11334,
+      -3010
+     ],
+     [
+      11272,
+      -3713
+     ]
+    ]
+   },
+   {
+    "id": "way/165409971:0",
+    "points": [
+     [
+      11496,
+      -844
+     ],
+     [
+      11351,
+      -2787
+     ]
+    ]
+   },
+   {
+    "id": "way/165443668:0",
+    "points": [
+     [
+      -4667,
+      -5523
+     ],
+     [
+      -4481,
+      -5765
+     ]
+    ]
+   },
+   {
+    "id": "way/167272512:0",
+    "points": [
+     [
+      12835,
+      203
+     ],
+     [
+      12786,
+      281
+     ],
+     [
+      12709,
+      336
+     ],
+     [
+      12623,
+      359
+     ],
+     [
+      12409,
+      378
+     ]
+    ]
+   },
+   {
+    "id": "way/195411594:0",
+    "points": [
+     [
+      11816,
+      418
+     ],
+     [
+      11718,
+      394
+     ],
+     [
+      11650,
+      346
+     ],
+     [
+      11600,
+      279
+     ],
+     [
+      11574,
+      204
+     ],
+     [
+      11496,
+      -844
+     ]
+    ]
+   },
+   {
+    "id": "way/22820560:0",
+    "points": [
+     [
+      11306,
+      -2822
+     ],
+     [
+      11548,
+      233
+     ],
+     [
+      11607,
+      348
+     ],
+     [
+      11681,
+      411
+     ],
+     [
+      11746,
+      439
+     ],
+     [
+      11858,
+      451
+     ],
+     [
+      12223,
+      423
+     ]
+    ]
+   },
+   {
+    "id": "way/291670883:0",
+    "points": [
+     [
+      1999,
+      -9981
+     ],
+     [
+      1699,
+      -9845
+     ]
+    ]
+   },
+   {
+    "id": "way/291670884:0",
+    "points": [
+     [
+      -239,
+      -8890
+     ],
+     [
+      1708,
+      -9816
+     ]
+    ]
+   },
+   {
+    "id": "way/291670885:0",
+    "points": [
+     [
+      6496,
+      -12101
+     ],
+     [
+      6211,
+      -11971
+     ]
+    ]
+   },
+   {
+    "id": "way/291670886:0",
+    "points": [
+     [
+      -3477,
+      -7380
+     ],
+     [
+      -6985,
+      -5705
+     ]
+    ]
+   },
+   {
+    "id": "way/291670888:0",
+    "points": [
+     [
+      1708,
+      -9816
+     ],
+     [
+      2010,
+      -9952
+     ]
+    ]
+   },
+   {
+    "id": "way/291670890:0",
+    "points": [
+     [
+      2010,
+      -9952
+     ],
+     [
+      4113,
+      -10906
+     ]
+    ]
+   },
+   {
+    "id": "way/320292165:0",
+    "points": [
+     [
+      -5208,
+      -4955
+     ],
+     [
+      -4077,
+      -6049
+     ],
+     [
+      -3907,
+      -6185
+     ],
+     [
+      -3583,
+      -6380
+     ]
+    ]
+   },
+   {
+    "id": "way/320292166:0",
+    "points": [
+     [
+      -4481,
+      -5765
+     ],
+     [
+      -4198,
+      -6042
+     ],
+     [
+      -4060,
+      -6153
+     ],
+     [
+      -3731,
+      -6311
+     ]
+    ]
+   },
+   {
+    "id": "way/320292167:0",
+    "points": [
+     [
+      -3731,
+      -6311
+     ],
+     [
+      -3583,
+      -6380
+     ]
+    ]
+   },
+   {
+    "id": "way/320292168:0",
+    "points": [
+     [
+      -5010,
+      -5186
+     ],
+     [
+      -4865,
+      -5383
+     ],
+     [
+      -4481,
+      -5765
+     ]
+    ]
+   },
+   {
+    "id": "way/320292169:0",
+    "points": [
+     [
+      -4667,
+      -5523
+     ],
+     [
+      -4034,
+      -6132
+     ],
+     [
+      -3731,
+      -6311
+     ]
+    ]
+   },
+   {
+    "id": "way/320292170:0",
+    "points": [
+     [
+      -3583,
+      -6380
+     ],
+     [
+      -3466,
+      -6464
+     ],
+     [
+      -3421,
+      -6528
+     ],
+     [
+      -3389,
+      -6622
+     ],
+     [
+      -3381,
+      -6778
+     ]
+    ]
+   },
+   {
+    "id": "way/802255082:0",
+    "points": [
+     [
+      -6464,
+      -4835
+     ],
+     [
+      -5935,
+      -4713
+     ],
+     [
+      -5651,
+      -4706
+     ],
+     [
+      -5489,
+      -4735
+     ],
+     [
+      -5424,
+      -4768
+     ],
+     [
+      -5208,
+      -4955
+     ]
+    ]
+   },
+   {
+    "id": "way/803941136:0",
+    "points": [
+     [
+      -3381,
+      -6778
+     ],
+     [
+      -3376,
+      -7038
+     ]
+    ]
+   },
+   {
+    "id": "way/911257057:0",
+    "points": [
+     [
+      -7241,
+      -5582
+     ],
+     [
+      -7664,
+      -5377
+     ],
+     [
+      -7785,
+      -5328
+     ],
+     [
+      -7950,
+      -5290
+     ]
+    ]
+   },
+   {
+    "id": "way/93584121:0",
+    "points": [
+     [
+      12223,
+      423
+     ],
+     [
+      12670,
+      384
+     ],
+     [
+      12760,
+      359
+     ],
+     [
+      12843,
+      315
+     ]
+    ]
+   }
+  ]
+ },
+ "underground": {
+  "entrances": [
+   {
+    "connects_to": "",
+    "id": "node/12578919573",
+    "line_family": "mainline",
+    "name": "",
+    "point": [
+     1660,
+     10297
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/13513492556",
+    "line_family": "mainline",
+    "name": "",
+    "point": [
+     1689,
+     10400
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/1868387196",
+    "line_family": "subway",
+    "name": "Mendelssohn-Bartholdy-Park",
+    "point": [
+     2013,
+     16419
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/2491871589",
+    "line_family": "mainline",
+    "name": "S+U Potsdamer Platz",
+    "point": [
+     2233,
+     11202
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/390962614",
+    "line_family": "s_bahn",
+    "name": "Hauptbahnhof",
+    "point": [
+     -1177,
+     -8813
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/4598036443",
+    "line_family": "subway",
+    "name": "Mendelssohn-Bartholdy-Park",
+    "point": [
+     2193,
+     16484
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/4598036460",
+    "line_family": "subway",
+    "name": "Mendelssohn-Bartholdy-Park",
+    "point": [
+     1908,
+     17363
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "",
+    "id": "node/4598036463",
+    "line_family": "subway",
+    "name": "Mendelssohn-Bartholdy-Park",
+    "point": [
+     1794,
+     17335
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/2460456033",
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "point": [
+     6457,
+     17333
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/2460456035",
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "point": [
+     6302,
+     17268
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/2460456099",
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "point": [
+     6395,
+     16232
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/2460456166",
+    "line_family": "s_bahn",
+    "name": "",
+    "point": [
+     6660,
+     16088
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/2460456167",
+    "line_family": "s_bahn",
+    "name": "Anhalter Bahnhof",
+    "point": [
+     7007,
+     15985
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/414950979",
+    "line_family": "s_bahn",
+    "name": "Anhalter Bahnhof",
+    "point": [
+     5997,
+     18304
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anhalter Bahnhof",
+    "id": "node/4164984673",
+    "line_family": "s_bahn",
+    "name": "",
+    "point": [
+     7016,
+     16500
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anton-Wilhelm-Amo-Straße",
+    "id": "node/13099102499",
+    "line_family": "subway",
+    "name": "Anton-Wilhelm-Amo-Straße",
+    "point": [
+     8461,
+     8319
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Anton-Wilhelm-Amo-Straße",
+    "id": "node/3073854012",
+    "line_family": "subway",
+    "name": "Anton-Wilhelm-Amo-Straße",
+    "point": [
+     8227,
+     8371
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Anton-Wilhelm-Amo-Straße",
+    "id": "node/3073855693",
+    "line_family": "subway",
+    "name": "Anton-Wilhelm-Amo-Straße",
+    "point": [
+     9915,
+     8002
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Berlin Friedrichstraße",
+    "id": "node/2792266237",
+    "line_family": "subway",
+    "name": "Friedrichstraße",
+    "point": [
+     11686,
+     -910
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Berlin Friedrichstraße",
+    "id": "node/541118047",
+    "line_family": "subway",
+    "name": "S+U Friedrichstraße",
+    "point": [
+     10974,
+     -827
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Berlin Hauptbahnhof (Tief)",
+    "id": "node/2088354767",
+    "line_family": "u5",
+    "name": "Hauptbahnhof",
+    "point": [
+     -206,
+     -5815
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Berlin Potsdamer Platz",
+    "id": "node/1576240058",
+    "line_family": "mainline",
+    "name": "S+U Potsdamer Platz",
+    "point": [
+     2866,
+     11264
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Berlin Potsdamer Platz",
+    "id": "node/2491792013",
+    "line_family": "mainline",
+    "name": "S+U Potsdamer Platz",
+    "point": [
+     3041,
+     11247
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Berlin Potsdamer Platz",
+    "id": "node/2491824683",
+    "line_family": "mainline",
+    "name": "Potsdamer Platz",
+    "point": [
+     2910,
+     10268
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Berlin Potsdamer Platz",
+    "id": "node/2491871593",
+    "line_family": "mainline",
+    "name": "S+U Potsdamer Platz",
+    "point": [
+     2589,
+     10957
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Brandenburger Tor",
+    "id": "node/2400549234",
+    "line_family": "u5",
+    "name": "S+U Brandenburger Tor",
+    "point": [
+     7953,
+     2427
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Brandenburger Tor",
+    "id": "node/3767875666",
+    "line_family": "s_bahn",
+    "name": "S+U Brandenburger Tor",
+    "point": [
+     5761,
+     2864
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Brandenburger Tor",
+    "id": "node/5234611317",
+    "line_family": "u5",
+    "name": "S+U Brandenburger Tor",
+    "point": [
+     7268,
+     2742
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Brandenburger Tor",
+    "id": "node/539321761",
+    "line_family": "u5",
+    "name": "S+U Brandenburger Tor",
+    "point": [
+     6015,
+     2592
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Brandenburger Tor",
+    "id": "node/539321774",
+    "line_family": "s_bahn",
+    "name": "S+U Brandenburger Tor",
+    "point": [
+     6091,
+     3081
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Bundestag",
+    "id": "node/619603708",
+    "line_family": "mainline",
+    "name": "Bundestag",
+    "point": [
+     585,
+     -1967
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Bundestag",
+    "id": "node/619610292",
+    "line_family": "mainline",
+    "name": "Bundestag",
+    "point": [
+     867,
+     -812
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Bundestag",
+    "id": "node/619610295",
+    "line_family": "subway",
+    "name": "Bundestag",
+    "point": [
+     1727,
+     -795
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Bundestag",
+    "id": "node/619610296",
+    "line_family": "u5",
+    "name": "Bundestag",
+    "point": [
+     1264,
+     -1956
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Friedrichstraße",
+    "id": "node/2057396468",
+    "line_family": "north_south_sbahn",
+    "name": "Friedrichstraße",
+    "point": [
+     9508,
+     -707
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Friedrichstraße",
+    "id": "node/2792266238",
+    "line_family": "subway",
+    "name": "Friedrichstraße",
+    "point": [
+     11684,
+     -1101
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Friedrichstraße",
+    "id": "node/541114814",
+    "line_family": "subway",
+    "name": "Friedrichstraße",
+    "point": [
+     11454,
+     -1964
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Friedrichstraße",
+    "id": "node/541115408",
+    "line_family": "subway",
+    "name": "Friedrichstraße",
+    "point": [
+     11241,
+     -2072
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Friedrichstraße",
+    "id": "node/541118892",
+    "line_family": "subway",
+    "name": "Friedrichstraße",
+    "point": [
+     11624,
+     -496
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Hansaplatz",
+    "id": "node/1739767003",
+    "line_family": "subway",
+    "name": "Hansaplatz",
+    "point": [
+     -19873,
+     1507
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Hauptbahnhof",
+    "id": "node/4294764767",
+    "line_family": "u5",
+    "name": "Hauptbahnhof",
+    "point": [
+     -864,
+     -7601
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Kochstraße/Checkpoint Charlie",
+    "id": "node/1814134274",
+    "line_family": "subway",
+    "name": "Kochstraße/Checkpoint Charlie",
+    "point": [
+     12736,
+     15249
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Kochstraße/Checkpoint Charlie",
+    "id": "node/3904484935",
+    "line_family": "subway",
+    "name": "Kochstraße/Checkpoint Charlie",
+    "point": [
+     12750,
+     15411
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Kochstraße/Checkpoint Charlie",
+    "id": "node/3904484936",
+    "line_family": "subway",
+    "name": "Kochstraße/Checkpoint Charlie",
+    "point": [
+     12645,
+     13986
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/1573193317",
+    "line_family": "s_bahn",
+    "name": "S+U Potsdamer Platz",
+    "point": [
+     3525,
+     11152
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2451831603",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "point": [
+     3233,
+     9510
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2451831708",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "point": [
+     3276,
+     9238
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2454155640",
+    "line_family": "s_bahn",
+    "name": "S+U Potsdamer Platz",
+    "point": [
+     3340,
+     11445
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2456291607",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "point": [
+     3754,
+     10301
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2491846871",
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "point": [
+     3781,
+     10631
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2491848735",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "point": [
+     3522,
+     9267
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/2491872658",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "point": [
+     3473,
+     9537
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/394948618",
+    "line_family": "subway",
+    "name": "Potsdamer Platz",
+    "point": [
+     4799,
+     10563
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/394948620",
+    "line_family": "subway",
+    "name": "Potsdamer Platz",
+    "point": [
+     5116,
+     10106
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Potsdamer Platz",
+    "id": "node/396004773",
+    "line_family": "subway",
+    "name": "Potsdamer Platz",
+    "point": [
+     3596,
+     11917
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Reinickendorfer Straße",
+    "id": "node/269414689",
+    "line_family": "subway",
+    "name": "Reinickendorfer Straße",
+    "point": [
+     39,
+     -23150
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Reinickendorfer Straße",
+    "id": "node/5070906545",
+    "line_family": "subway",
+    "name": "Reinickendorfer Straße",
+    "point": [
+     -851,
+     -24156
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "S+U Hauptbahnhof",
+    "id": "node/4398651551",
+    "line_family": "s_bahn",
+    "name": "Hauptbahnhof",
+    "point": [
+     -1030,
+     -8476
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "S+U Hauptbahnhof",
+    "id": "node/4398651552",
+    "line_family": "s_bahn",
+    "name": "Hauptbahnhof",
+    "point": [
+     -1072,
+     -8572
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "connects_to": "Schwartzkopffstraße",
+    "id": "node/3906729687",
+    "line_family": "subway",
+    "name": "Schwartzkopffstraße",
+    "point": [
+     4492,
+     -17869
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Schwartzkopffstraße",
+    "id": "node/671063430",
+    "line_family": "subway",
+    "name": "Schwartzkopffstraße",
+    "point": [
+     3834,
+     -18779
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/2098466202",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     12294,
+     9572
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/2098466209",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     12265,
+     9181
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/2098466215",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     12254,
+     9039
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/2098466241",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     12332,
+     7809
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/2968729036",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     12368,
+     10512
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/2968729038",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     12354,
+     10345
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/3073855707",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     11790,
+     7849
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/3073855709",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     11964,
+     7835
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/3922684837",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     13672,
+     7707
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Stadtmitte",
+    "id": "node/4605728258",
+    "line_family": "subway",
+    "name": "",
+    "point": [
+     13840,
+     7695
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/13280671539",
+    "line_family": "u5",
+    "name": "",
+    "point": [
+     12169,
+     2396
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/13291147284",
+    "line_family": "u5",
+    "name": "",
+    "point": [
+     11307,
+     2469
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/8196141610",
+    "line_family": "u5",
+    "name": "Unter den Linden",
+    "point": [
+     11550,
+     2390
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/8196190732",
+    "line_family": "u5",
+    "name": "Unter den Linden",
+    "point": [
+     11898,
+     2359
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/8196190741",
+    "line_family": "u5",
+    "name": "Unter den Linden",
+    "point": [
+     12808,
+     2287
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/8196202085",
+    "line_family": "subway",
+    "name": "Unter den Linden",
+    "point": [
+     11895,
+     3530
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "connects_to": "Unter den Linden",
+    "id": "node/8198930782",
+    "line_family": "subway",
+    "name": "Unter den Linden",
+    "point": [
+     11768,
+     3539
+    ],
+    "track_y_m": -2.8
+   }
+  ],
+  "geometry_status": "Track, platform and entrance plan positions are from committed OSM; depths, tunnel cross-sections and straight vertical entrance connections are schematic layer-based approximations, not survey data",
+  "platforms": [
+   {
+    "centre": [
+     -1087,
+     -8640
+    ],
+    "id": "relation/21001950:0",
+    "line_family": "s_bahn",
+    "name": "",
+    "ring": [
+     [
+      -1275,
+      -8945
+     ],
+     [
+      -1208,
+      -8974
+     ],
+     [
+      -1230,
+      -9024
+     ],
+     [
+      -1208,
+      -9033
+     ],
+     [
+      -895,
+      -8334
+     ],
+     [
+      -994,
+      -8293
+     ],
+     [
+      -1275,
+      -8945
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     -1052,
+     -8684
+    ],
+    "id": "way/1530712880:0",
+    "line_family": "s_bahn",
+    "name": "",
+    "ring": [
+     [
+      -915,
+      -8325
+     ],
+     [
+      -1228,
+      -9024
+     ],
+     [
+      -1188,
+      -9042
+     ],
+     [
+      -875,
+      -8343
+     ],
+     [
+      -915,
+      -8325
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     2867,
+     10705
+    ],
+    "id": "way/241574875:0",
+    "line_family": "mainline",
+    "name": "",
+    "ring": [
+     [
+      2343,
+      10771
+     ],
+     [
+      2340,
+      10727
+     ],
+     [
+      3391,
+      10639
+     ],
+     [
+      3395,
+      10683
+     ],
+     [
+      2343,
+      10771
+     ]
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "centre": [
+     2878,
+     10825
+    ],
+    "id": "way/241574876:0",
+    "line_family": "mainline",
+    "name": "",
+    "ring": [
+     [
+      3403,
+      10758
+     ],
+     [
+      3407,
+      10802
+     ],
+     [
+      2353,
+      10891
+     ],
+     [
+      2350,
+      10847
+     ],
+     [
+      3403,
+      10758
+     ]
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "centre": [
+     6265,
+     17251
+    ],
+    "id": "relation/11762769:0",
+    "line_family": "north_south_sbahn",
+    "name": "Anhalter Bahnhof",
+    "ring": [
+     [
+      5908,
+      17996
+     ],
+     [
+      6238,
+      17183
+     ],
+     [
+      6460,
+      16498
+     ],
+     [
+      6556,
+      16515
+     ],
+     [
+      6493,
+      16844
+     ],
+     [
+      6321,
+      17345
+     ],
+     [
+      6022,
+      17971
+     ],
+     [
+      5988,
+      18032
+     ],
+     [
+      5908,
+      17996
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     6432,
+     17319
+    ],
+    "id": "relation/11762770:0",
+    "line_family": "s_bahn",
+    "name": "Anhalter Bahnhof",
+    "ring": [
+     [
+      6060,
+      18065
+     ],
+     [
+      6085,
+      17997
+     ],
+     [
+      6382,
+      17367
+     ],
+     [
+      6521,
+      16991
+     ],
+     [
+      6563,
+      16855
+     ],
+     [
+      6629,
+      16527
+     ],
+     [
+      6729,
+      16545
+     ],
+     [
+      6665,
+      16878
+     ],
+     [
+      6611,
+      17048
+     ],
+     [
+      6478,
+      17406
+     ],
+     [
+      6341,
+      17716
+     ],
+     [
+      6136,
+      18100
+     ],
+     [
+      6060,
+      18065
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     9021,
+     8161
+    ],
+    "id": "way/383734259:0",
+    "line_family": "subway",
+    "name": "Anton-Wilhelm-Amo-Straße",
+    "ring": [
+     [
+      8672,
+      8195
+     ],
+     [
+      9094,
+      8087
+     ],
+     [
+      9346,
+      8039
+     ],
+     [
+      9584,
+      8005
+     ],
+     [
+      9586,
+      8017
+     ],
+     [
+      9791,
+      7995
+     ],
+     [
+      9793,
+      8027
+     ],
+     [
+      9759,
+      8042
+     ],
+     [
+      9595,
+      8069
+     ],
+     [
+      9595,
+      8078
+     ],
+     [
+      8923,
+      8217
+     ],
+     [
+      8311,
+      8380
+     ],
+     [
+      8299,
+      8367
+     ],
+     [
+      8289,
+      8334
+     ],
+     [
+      8297,
+      8325
+     ],
+     [
+      8391,
+      8293
+     ],
+     [
+      8496,
+      8247
+     ],
+     [
+      8672,
+      8195
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     10613,
+     -1149
+    ],
+    "id": "relation/3407405:0",
+    "line_family": "north_south_sbahn",
+    "name": "Berlin Friedrichstraße",
+    "ring": [
+     [
+      10031,
+      -1376
+     ],
+     [
+      10272,
+      -1267
+     ],
+     [
+      10638,
+      -1135
+     ],
+     [
+      10802,
+      -1091
+     ],
+     [
+      11078,
+      -1025
+     ],
+     [
+      11341,
+      -982
+     ],
+     [
+      11869,
+      -945
+     ],
+     [
+      11870,
+      -916
+     ],
+     [
+      11720,
+      -902
+     ],
+     [
+      11363,
+      -895
+     ],
+     [
+      11088,
+      -917
+     ],
+     [
+      10776,
+      -975
+     ],
+     [
+      10606,
+      -1027
+     ],
+     [
+      10310,
+      -1142
+     ],
+     [
+      10230,
+      -1174
+     ],
+     [
+      10050,
+      -1261
+     ],
+     [
+      9900,
+      -1342
+     ],
+     [
+      9360,
+      -1672
+     ],
+     [
+      9376,
+      -1700
+     ],
+     [
+      10031,
+      -1376
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     10157,
+     -1479
+    ],
+    "id": "relation/3407406:0",
+    "line_family": "north_south_sbahn",
+    "name": "Berlin Friedrichstraße",
+    "ring": [
+     [
+      8950,
+      -2052
+     ],
+     [
+      10326,
+      -1428
+     ],
+     [
+      10696,
+      -1296
+     ],
+     [
+      11267,
+      -1121
+     ],
+     [
+      11259,
+      -1067
+     ],
+     [
+      11034,
+      -1107
+     ],
+     [
+      10663,
+      -1203
+     ],
+     [
+      10535,
+      -1243
+     ],
+     [
+      10286,
+      -1336
+     ],
+     [
+      10066,
+      -1435
+     ],
+     [
+      8935,
+      -2019
+     ],
+     [
+      8950,
+      -2052
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -1650,
+     -6649
+    ],
+    "id": "relation/918697:0",
+    "line_family": "mainline",
+    "name": "Berlin Hauptbahnhof",
+    "ring": [
+     [
+      375,
+      -6872
+     ],
+     [
+      -119,
+      -6861
+     ],
+     [
+      -586,
+      -6835
+     ],
+     [
+      -1083,
+      -6785
+     ],
+     [
+      -1626,
+      -6688
+     ],
+     [
+      -2000,
+      -6603
+     ],
+     [
+      -2702,
+      -6359
+     ],
+     [
+      -3004,
+      -6229
+     ],
+     [
+      -3188,
+      -6138
+     ],
+     [
+      -3364,
+      -6043
+     ],
+     [
+      -3554,
+      -5931
+     ],
+     [
+      -3726,
+      -5822
+     ],
+     [
+      -3772,
+      -5894
+     ],
+     [
+      -3498,
+      -6078
+     ],
+     [
+      -3323,
+      -6183
+     ],
+     [
+      -3032,
+      -6337
+     ],
+     [
+      -2473,
+      -6588
+     ],
+     [
+      -2036,
+      -6745
+     ],
+     [
+      -1771,
+      -6817
+     ],
+     [
+      -1508,
+      -6873
+     ],
+     [
+      -1225,
+      -6918
+     ],
+     [
+      -666,
+      -6973
+     ],
+     [
+      -355,
+      -6991
+     ],
+     [
+      -144,
+      -6995
+     ],
+     [
+      377,
+      -6988
+     ],
+     [
+      375,
+      -6872
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -1650,
+     -6438
+    ],
+    "id": "relation/929443:0",
+    "line_family": "mainline",
+    "name": "Berlin Hauptbahnhof",
+    "ring": [
+     [
+      346,
+      -6678
+     ],
+     [
+      -94,
+      -6666
+     ],
+     [
+      -521,
+      -6629
+     ],
+     [
+      -1069,
+      -6560
+     ],
+     [
+      -1556,
+      -6486
+     ],
+     [
+      -1742,
+      -6448
+     ],
+     [
+      -1943,
+      -6399
+     ],
+     [
+      -2405,
+      -6262
+     ],
+     [
+      -2564,
+      -6203
+     ],
+     [
+      -2916,
+      -6060
+     ],
+     [
+      -3131,
+      -5962
+     ],
+     [
+      -3293,
+      -5879
+     ],
+     [
+      -3737,
+      -5624
+     ],
+     [
+      -3779,
+      -5693
+     ],
+     [
+      -3444,
+      -5908
+     ],
+     [
+      -3160,
+      -6063
+     ],
+     [
+      -2971,
+      -6157
+     ],
+     [
+      -2336,
+      -6411
+     ],
+     [
+      -1981,
+      -6533
+     ],
+     [
+      -1732,
+      -6606
+     ],
+     [
+      -1302,
+      -6686
+     ],
+     [
+      -1001,
+      -6730
+     ],
+     [
+      -582,
+      -6767
+     ],
+     [
+      -99,
+      -6790
+     ],
+     [
+      350,
+      -6794
+     ],
+     [
+      346,
+      -6678
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -1635,
+     -7086
+    ],
+    "id": "relation/13392152:0",
+    "line_family": "mainline",
+    "name": "Berlin Hauptbahnhof (Tief)",
+    "ring": [
+     [
+      -1111,
+      -5624
+     ],
+     [
+      -1533,
+      -6667
+     ],
+     [
+      -2471,
+      -9010
+     ],
+     [
+      -2360,
+      -9052
+     ],
+     [
+      -762,
+      -5067
+     ],
+     [
+      -830,
+      -5036
+     ],
+     [
+      -963,
+      -5301
+     ],
+     [
+      -1111,
+      -5624
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -1415,
+     -7092
+    ],
+    "id": "relation/13392159:0",
+    "line_family": "mainline",
+    "name": "Berlin Hauptbahnhof (Tief)",
+    "ring": [
+     [
+      -2169,
+      -9128
+     ],
+     [
+      -566,
+      -5142
+     ],
+     [
+      -682,
+      -5097
+     ],
+     [
+      -1134,
+      -6225
+     ],
+     [
+      -1292,
+      -6639
+     ],
+     [
+      -1673,
+      -7572
+     ],
+     [
+      -2280,
+      -9086
+     ],
+     [
+      -2169,
+      -9128
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -1247,
+     -7226
+    ],
+    "id": "relation/13392160:0",
+    "line_family": "mainline",
+    "name": "Berlin Hauptbahnhof (Tief)",
+    "ring": [
+     [
+      -721,
+      -5789
+     ],
+     [
+      -927,
+      -6308
+     ],
+     [
+      -1092,
+      -6675
+     ],
+     [
+      -2090,
+      -9163
+     ],
+     [
+      -1977,
+      -9203
+     ],
+     [
+      -380,
+      -5220
+     ],
+     [
+      -489,
+      -5172
+     ],
+     [
+      -600,
+      -5447
+     ],
+     [
+      -721,
+      -5789
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -1047,
+     -7272
+    ],
+    "id": "relation/13392161:0",
+    "line_family": "mainline",
+    "name": "Berlin Hauptbahnhof (Tief)",
+    "ring": [
+     [
+      -299,
+      -5248
+     ],
+     [
+      -1551,
+      -8373
+     ],
+     [
+      -1900,
+      -9239
+     ],
+     [
+      -1810,
+      -9272
+     ],
+     [
+      -1619,
+      -8853
+     ],
+     [
+      -557,
+      -6227
+     ],
+     [
+      -371,
+      -5748
+     ],
+     [
+      -227,
+      -5277
+     ],
+     [
+      -299,
+      -5248
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     2634,
+     11114
+    ],
+    "id": "relation/13391598:0",
+    "line_family": "mainline",
+    "name": "Berlin Potsdamer Platz",
+    "ring": [
+     [
+      2745,
+      10628
+     ],
+     [
+      2681,
+      11439
+     ],
+     [
+      2643,
+      11776
+     ],
+     [
+      2601,
+      12051
+     ],
+     [
+      2551,
+      12330
+     ],
+     [
+      2441,
+      12288
+     ],
+     [
+      2503,
+      11934
+     ],
+     [
+      2564,
+      11428
+     ],
+     [
+      2602,
+      10966
+     ],
+     [
+      2653,
+      9905
+     ],
+     [
+      2757,
+      9907
+     ],
+     [
+      2745,
+      10628
+     ]
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "centre": [
+     2858,
+     11150
+    ],
+    "id": "relation/13391599:0",
+    "line_family": "mainline",
+    "name": "Berlin Potsdamer Platz",
+    "ring": [
+     [
+      2923,
+      10985
+     ],
+     [
+      2887,
+      11796
+     ],
+     [
+      2833,
+      12364
+     ],
+     [
+      2713,
+      12350
+     ],
+     [
+      2769,
+      11789
+     ],
+     [
+      2816,
+      10979
+     ],
+     [
+      2867,
+      9910
+     ],
+     [
+      2983,
+      9910
+     ],
+     [
+      2923,
+      10985
+     ]
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "centre": [
+     -25856,
+     10675
+    ],
+    "id": "relation/3641994:0",
+    "line_family": "subway",
+    "name": "Berlin Zoologischer Garten",
+    "ring": [
+     [
+      -25514,
+      9935
+     ],
+     [
+      -25866,
+      10827
+     ],
+     [
+      -26038,
+      11180
+     ],
+     [
+      -26153,
+      11182
+     ],
+     [
+      -25740,
+      10357
+     ],
+     [
+      -25543,
+      9923
+     ],
+     [
+      -25514,
+      9935
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     6864,
+     2907
+    ],
+    "id": "relation/11762778:0",
+    "line_family": "s_bahn",
+    "name": "Brandenburger Tor",
+    "ring": [
+     [
+      6079,
+      3020
+     ],
+     [
+      6070,
+      2920
+     ],
+     [
+      7682,
+      2786
+     ],
+     [
+      7687,
+      2869
+     ],
+     [
+      7035,
+      2955
+     ],
+     [
+      6079,
+      3020
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     6456,
+     2702
+    ],
+    "id": "relation/18138761:0",
+    "line_family": "subway",
+    "name": "Brandenburger Tor",
+    "ring": [
+     [
+      6888,
+      2642
+     ],
+     [
+      6901,
+      2641
+     ],
+     [
+      6912,
+      2696
+     ],
+     [
+      6892,
+      2697
+     ],
+     [
+      6893,
+      2704
+     ],
+     [
+      7187,
+      2679
+     ],
+     [
+      7189,
+      2700
+     ],
+     [
+      6679,
+      2743
+     ],
+     [
+      5954,
+      2787
+     ],
+     [
+      5952,
+      2767
+     ],
+     [
+      6009,
+      2762
+     ],
+     [
+      6009,
+      2753
+     ],
+     [
+      5965,
+      2756
+     ],
+     [
+      5963,
+      2697
+     ],
+     [
+      6011,
+      2693
+     ],
+     [
+      6011,
+      2685
+     ],
+     [
+      5915,
+      2683
+     ],
+     [
+      5914,
+      2656
+     ],
+     [
+      6163,
+      2661
+     ],
+     [
+      6538,
+      2644
+     ],
+     [
+      6886,
+      2616
+     ],
+     [
+      6888,
+      2642
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     1057,
+     -1382
+    ],
+    "id": "relation/18138760:0",
+    "line_family": "u5",
+    "name": "Bundestag",
+    "ring": [
+     [
+      889,
+      -1768
+     ],
+     [
+      1002,
+      -1800
+     ],
+     [
+      1225,
+      -996
+     ],
+     [
+      1113,
+      -964
+     ],
+     [
+      889,
+      -1768
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     10142,
+     -1529
+    ],
+    "id": "relation/11762779:0",
+    "line_family": "north_south_sbahn",
+    "name": "Friedrichstraße",
+    "ring": [
+     [
+      10693,
+      -2137
+     ],
+     [
+      10169,
+      -1491
+     ],
+     [
+      9949,
+      -1184
+     ],
+     [
+      9730,
+      -854
+     ],
+     [
+      9634,
+      -911
+     ],
+     [
+      9851,
+      -1255
+     ],
+     [
+      10073,
+      -1561
+     ],
+     [
+      10247,
+      -1775
+     ],
+     [
+      10608,
+      -2198
+     ],
+     [
+      10693,
+      -2137
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     10765,
+     -1441
+    ],
+    "id": "relation/3409969:0",
+    "line_family": "north_south_sbahn",
+    "name": "Friedrichstraße",
+    "ring": [
+     [
+      10182,
+      -1706
+     ],
+     [
+      11344,
+      -1273
+     ],
+     [
+      11596,
+      -1196
+     ],
+     [
+      11829,
+      -1135
+     ],
+     [
+      11821,
+      -1091
+     ],
+     [
+      11649,
+      -1128
+     ],
+     [
+      10821,
+      -1356
+     ],
+     [
+      10577,
+      -1435
+     ],
+     [
+      10329,
+      -1526
+     ],
+     [
+      10074,
+      -1629
+     ],
+     [
+      9961,
+      -1683
+     ],
+     [
+      9992,
+      -1768
+     ],
+     [
+      10182,
+      -1706
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     11453,
+     -1224
+    ],
+    "id": "way/43185748:0",
+    "line_family": "subway",
+    "name": "Friedrichstraße",
+    "ring": [
+     [
+      11476,
+      -1458
+     ],
+     [
+      11522,
+      -636
+     ],
+     [
+      11473,
+      -633
+     ],
+     [
+      11372,
+      -1742
+     ],
+     [
+      11445,
+      -1747
+     ],
+     [
+      11476,
+      -1458
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -19956,
+     663
+    ],
+    "id": "way/271846980:0",
+    "line_family": "subway",
+    "name": "Hansaplatz",
+    "ring": [
+     [
+      -19942,
+      1251
+     ],
+     [
+      -20063,
+      50
+     ],
+     [
+      -20036,
+      47
+     ],
+     [
+      -20029,
+      89
+     ],
+     [
+      -19977,
+      84
+     ],
+     [
+      -19973,
+      124
+     ],
+     [
+      -19963,
+      123
+     ],
+     [
+      -19854,
+      1242
+     ],
+     [
+      -19942,
+      1251
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     -1238,
+     -7037
+    ],
+    "id": "relation/930922:0",
+    "line_family": "mainline",
+    "name": "Hauptbahnhof",
+    "ring": [
+     [
+      -1919,
+      -6989
+     ],
+     [
+      -1591,
+      -7071
+     ],
+     [
+      -1310,
+      -7127
+     ],
+     [
+      -1132,
+      -7147
+     ],
+     [
+      -396,
+      -7180
+     ],
+     [
+      -391,
+      -7056
+     ],
+     [
+      -783,
+      -7031
+     ],
+     [
+      -1221,
+      -6988
+     ],
+     [
+      -1419,
+      -6962
+     ],
+     [
+      -1707,
+      -6907
+     ],
+     [
+      -2053,
+      -6818
+     ],
+     [
+      -2085,
+      -6941
+     ],
+     [
+      -1919,
+      -6989
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -739,
+     -7152
+    ],
+    "id": "way/86379623:0",
+    "line_family": "subway",
+    "name": "Hauptbahnhof",
+    "ring": [
+     [
+      -549,
+      -6529
+     ],
+     [
+      -1021,
+      -7693
+     ],
+     [
+      -914,
+      -7736
+     ],
+     [
+      -441,
+      -6573
+     ],
+     [
+      -479,
+      -6557
+     ],
+     [
+      -547,
+      -6724
+     ],
+     [
+      -561,
+      -6719
+     ],
+     [
+      -574,
+      -6713
+     ],
+     [
+      -507,
+      -6546
+     ],
+     [
+      -549,
+      -6529
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     12691,
+     14699
+    ],
+    "id": "way/387118471:0",
+    "line_family": "subway",
+    "name": "Kochstraße/Checkpoint Charlie",
+    "ring": [
+     [
+      12772,
+      15181
+     ],
+     [
+      12684,
+      15187
+     ],
+     [
+      12610,
+      14217
+     ],
+     [
+      12697,
+      14210
+     ],
+     [
+      12772,
+      15181
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     3416,
+     10138
+    ],
+    "id": "relation/3198309:0",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "ring": [
+     [
+      3457,
+      10926
+     ],
+     [
+      3366,
+      10938
+     ],
+     [
+      3335,
+      10537
+     ],
+     [
+      3336,
+      10148
+     ],
+     [
+      3353,
+      9895
+     ],
+     [
+      3374,
+      9717
+     ],
+     [
+      3415,
+      9444
+     ],
+     [
+      3445,
+      9302
+     ],
+     [
+      3519,
+      9312
+     ],
+     [
+      3471,
+      9951
+     ],
+     [
+      3455,
+      10541
+     ],
+     [
+      3457,
+      10926
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     3218,
+     10184
+    ],
+    "id": "relation/3200537:0",
+    "line_family": "north_south_sbahn",
+    "name": "Potsdamer Platz",
+    "ring": [
+     [
+      3277,
+      10975
+     ],
+     [
+      3153,
+      10994
+     ],
+     [
+      3121,
+      10654
+     ],
+     [
+      3121,
+      10537
+     ],
+     [
+      3136,
+      10149
+     ],
+     [
+      3146,
+      10043
+     ],
+     [
+      3223,
+      9540
+     ],
+     [
+      3283,
+      9279
+     ],
+     [
+      3357,
+      9289
+     ],
+     [
+      3321,
+      9553
+     ],
+     [
+      3255,
+      10186
+     ],
+     [
+      3242,
+      10651
+     ],
+     [
+      3277,
+      10975
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     4160,
+     11122
+    ],
+    "id": "relation/6865726:0",
+    "line_family": "subway",
+    "name": "Potsdamer Platz",
+    "ring": [
+     [
+      3947,
+      11246
+     ],
+     [
+      4109,
+      11067
+     ],
+     [
+      4223,
+      10963
+     ],
+     [
+      4566,
+      10692
+     ],
+     [
+      4628,
+      10763
+     ],
+     [
+      4228,
+      11090
+     ],
+     [
+      4125,
+      11190
+     ],
+     [
+      4055,
+      11265
+     ],
+     [
+      3943,
+      11406
+     ],
+     [
+      3816,
+      11613
+     ],
+     [
+      3734,
+      11575
+     ],
+     [
+      3864,
+      11357
+     ],
+     [
+      3947,
+      11246
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     -355,
+     -23629
+    ],
+    "id": "way/242650415:0",
+    "line_family": "subway",
+    "name": "Reinickendorfer Straße",
+    "ring": [
+     [
+      80,
+      -23193
+     ],
+     [
+      34,
+      -23150
+     ],
+     [
+      -366,
+      -23602
+     ],
+     [
+      -784,
+      -24029
+     ],
+     [
+      -735,
+      -24082
+     ],
+     [
+      -324,
+      -23657
+     ],
+     [
+      80,
+      -23193
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     -969,
+     -8620
+    ],
+    "id": "relation/6809883:0",
+    "line_family": "s_bahn",
+    "name": "S+U Hauptbahnhof",
+    "ring": [
+     [
+      -1341,
+      -8463
+     ],
+     [
+      -663,
+      -8790
+     ],
+     [
+      -645,
+      -8752
+     ],
+     [
+      -1323,
+      -8426
+     ],
+     [
+      -1341,
+      -8463
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     -925,
+     -8527
+    ],
+    "id": "relation/6809884:0",
+    "line_family": "s_bahn",
+    "name": "S+U Hauptbahnhof",
+    "ring": [
+     [
+      -604,
+      -8661
+     ],
+     [
+      -1280,
+      -8331
+     ],
+     [
+      -1298,
+      -8368
+     ],
+     [
+      -622,
+      -8698
+     ],
+     [
+      -604,
+      -8661
+     ]
+    ],
+    "track_y_m": -12.8
+   },
+   {
+    "centre": [
+     4111,
+     -18395
+    ],
+    "id": "way/387370675:0",
+    "line_family": "subway",
+    "name": "Schwartzkopffstraße",
+    "ring": [
+     [
+      3798,
+      -18862
+     ],
+     [
+      4458,
+      -17953
+     ],
+     [
+      4424,
+      -17929
+     ],
+     [
+      3764,
+      -18837
+     ],
+     [
+      3798,
+      -18862
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     12772,
+     7787
+    ],
+    "id": "way/199847300:0",
+    "line_family": "subway",
+    "name": "Stadtmitte",
+    "ring": [
+     [
+      12275,
+      7861
+     ],
+     [
+      12270,
+      7786
+     ],
+     [
+      13317,
+      7717
+     ],
+     [
+      13322,
+      7775
+     ],
+     [
+      12275,
+      7861
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     12303,
+     9742
+    ],
+    "id": "way/525823530:0",
+    "line_family": "subway",
+    "name": "Stadtmitte",
+    "ring": [
+     [
+      12296,
+      9244
+     ],
+     [
+      12342,
+      9915
+     ],
+     [
+      12369,
+      10288
+     ],
+     [
+      12329,
+      10290
+     ],
+     [
+      12287,
+      9927
+     ],
+     [
+      12238,
+      9248
+     ],
+     [
+      12296,
+      9244
+     ]
+    ],
+    "track_y_m": -7.8
+   },
+   {
+    "centre": [
+     11918,
+     2418
+    ],
+    "id": "relation/18138762:0",
+    "line_family": "subway",
+    "name": "Unter den Linden",
+    "ring": [
+     [
+      12514,
+      2308
+     ],
+     [
+      12524,
+      2437
+     ],
+     [
+      11323,
+      2528
+     ],
+     [
+      11310,
+      2400
+     ],
+     [
+      12514,
+      2308
+     ]
+    ],
+    "track_y_m": -2.8
+   },
+   {
+    "centre": [
+     11837,
+     2778
+    ],
+    "id": "way/881245035:0",
+    "line_family": "u5",
+    "name": "Unter den Linden",
+    "ring": [
+     [
+      11859,
+      3424
+     ],
+     [
+      11757,
+      2135
+     ],
+     [
+      11814,
+      2130
+     ],
+     [
+      11917,
+      3420
+     ],
+     [
+      11859,
+      3424
+     ]
+    ],
+    "track_y_m": -17.8
+   },
+   {
+    "centre": [
+     11703,
+     2788
+    ],
+    "id": "way/881245036:0",
+    "line_family": "u5",
+    "name": "Unter den Linden",
+    "ring": [
+     [
+      11784,
+      3425
+     ],
+     [
+      11732,
+      3430
+     ],
+     [
+      11622,
+      2156
+     ],
+     [
+      11675,
+      2151
+     ],
+     [
+      11784,
+      3425
+     ]
+    ],
+    "track_y_m": -17.8
+   }
+  ],
+  "surface_reference_y_m": 5.2,
+  "tracks": [
+   {
+    "depth_m": 13.0,
+    "id": "way/12702400:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2851,
+      9910
+     ],
+     [
+      2919,
+      8441
+     ],
+     [
+      2915,
+      7990
+     ],
+     [
+      2898,
+      7535
+     ],
+     [
+      2856,
+      7072
+     ],
+     [
+      2743,
+      6236
+     ],
+     [
+      2614,
+      5535
+     ],
+     [
+      1617,
+      2031
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1319007315:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1750,
+      1754
+     ],
+     [
+      1422,
+      615
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1319007316:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1100,
+      1085
+     ],
+     [
+      1117,
+      1281
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1321668872:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      634,
+      -1770
+     ],
+     [
+      306,
+      -2645
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1387494146:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3031,
+      -11203
+     ],
+     [
+      -3237,
+      -11542
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/140478324:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2499,
+      -9046
+     ],
+     [
+      -1074,
+      -5513
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/140478326:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -1074,
+      -5513
+     ],
+     [
+      -847,
+      -5042
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1459422974:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -173,
+      -3725
+     ],
+     [
+      59,
+      -3252
+     ],
+     [
+      221,
+      -2874
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1459422975:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -198,
+      -3907
+     ],
+     [
+      -159,
+      -3827
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1459625525:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -750,
+      -5079
+     ],
+     [
+      -738,
+      -5048
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1459625526:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -274,
+      -5155
+     ],
+     [
+      -303,
+      -5230
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/191589508:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3377,
+      -11468
+     ],
+     [
+      -3199,
+      -11144
+     ],
+     [
+      -3077,
+      -10885
+     ],
+     [
+      -2345,
+      -9059
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/191591508:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      555,
+      -2333
+     ],
+     [
+      53,
+      -4119
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/191591509:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3323,
+      -11493
+     ],
+     [
+      -2970,
+      -10869
+     ],
+     [
+      -2661,
+      -10279
+     ],
+     [
+      -2296,
+      -9484
+     ],
+     [
+      -2168,
+      -9170
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/191591510:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      146,
+      -3980
+     ],
+     [
+      -212,
+      -5270
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/191591511:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -361,
+      -5218
+     ],
+     [
+      -1958,
+      -9203
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/200229908:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -303,
+      -5230
+     ],
+     [
+      -1911,
+      -9239
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/200229909:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -695,
+      -5100
+     ],
+     [
+      -404,
+      -4373
+     ],
+     [
+      -198,
+      -3907
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/200229910:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -710,
+      -4776
+     ],
+     [
+      -173,
+      -3725
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/207993047:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -1911,
+      -9239
+     ],
+     [
+      -2098,
+      -9642
+     ],
+     [
+      -2480,
+      -10295
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/23714888:0",
+    "layer": -1,
+    "line_family": "mainline",
+    "name": "Berliner Ringbahn",
+    "points": [
+     [
+      -6348,
+      -23613
+     ],
+     [
+      -5547,
+      -24037
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237729330:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1017,
+      17861
+     ],
+     [
+      1371,
+      16629
+     ],
+     [
+      2354,
+      13886
+     ],
+     [
+      2544,
+      13182
+     ],
+     [
+      2690,
+      12348
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237729331:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2573,
+      12338
+     ],
+     [
+      2385,
+      13150
+     ],
+     [
+      2176,
+      13830
+     ],
+     [
+      1665,
+      15198
+     ],
+     [
+      1195,
+      16568
+     ],
+     [
+      872,
+      17812
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237729332:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2422,
+      12276
+     ],
+     [
+      2225,
+      13114
+     ],
+     [
+      2009,
+      13793
+     ],
+     [
+      1470,
+      15145
+     ],
+     [
+      999,
+      16524
+     ],
+     [
+      838,
+      17182
+     ],
+     [
+      723,
+      17761
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237729333:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2998,
+      9911
+     ],
+     [
+      3075,
+      8432
+     ],
+     [
+      3074,
+      7501
+     ],
+     [
+      3044,
+      7057
+     ],
+     [
+      2912,
+      5832
+     ],
+     [
+      2753,
+      5056
+     ],
+     [
+      2240,
+      3325
+     ],
+     [
+      1750,
+      1754
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/237729334:0",
+    "layer": -4,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2850,
+      12361
+     ],
+     [
+      2898,
+      11796
+     ],
+     [
+      2998,
+      9911
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/237729335:0",
+    "layer": -4,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2631,
+      9905
+     ],
+     [
+      2603,
+      10715
+     ],
+     [
+      2547,
+      11426
+     ],
+     [
+      2484,
+      11929
+     ],
+     [
+      2422,
+      12276
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/237729336:0",
+    "layer": -4,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2690,
+      12348
+     ],
+     [
+      2747,
+      11789
+     ],
+     [
+      2851,
+      9910
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/237729337:0",
+    "layer": -4,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      2781,
+      9908
+     ],
+     [
+      2734,
+      10974
+     ],
+     [
+      2696,
+      11439
+     ],
+     [
+      2573,
+      12338
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526027:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2345,
+      -9059
+     ],
+     [
+      -750,
+      -5079
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526028:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2286,
+      -9073
+     ],
+     [
+      -695,
+      -5100
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526029:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2168,
+      -9170
+     ],
+     [
+      -561,
+      -5158
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526030:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -212,
+      -5270
+     ],
+     [
+      -337,
+      -5667
+     ],
+     [
+      -548,
+      -6235
+     ],
+     [
+      -1540,
+      -8709
+     ],
+     [
+      -1814,
+      -9318
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526031:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -561,
+      -5158
+     ],
+     [
+      -161,
+      -4128
+     ],
+     [
+      3,
+      -3745
+     ],
+     [
+      147,
+      -3339
+     ],
+     [
+      448,
+      -2373
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526032:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -1814,
+      -9318
+     ],
+     [
+      -2036,
+      -9742
+     ],
+     [
+      -2408,
+      -10373
+     ],
+     [
+      -3233,
+      -11544
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526033:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -1911,
+      -9239
+     ],
+     [
+      -2168,
+      -9828
+     ],
+     [
+      -2344,
+      -10174
+     ],
+     [
+      -2597,
+      -10575
+     ],
+     [
+      -3031,
+      -11203
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526034:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2480,
+      -10295
+     ],
+     [
+      -3143,
+      -11289
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/240526035:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2114,
+      -9194
+     ],
+     [
+      -2462,
+      -10025
+     ],
+     [
+      -2609,
+      -10334
+     ],
+     [
+      -2947,
+      -10965
+     ],
+     [
+      -3143,
+      -11289
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/255562643:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1283,
+      1269
+     ],
+     [
+      1402,
+      1988
+     ],
+     [
+      1585,
+      2785
+     ],
+     [
+      2152,
+      4694
+     ],
+     [
+      2395,
+      5607
+     ],
+     [
+      2501,
+      6124
+     ],
+     [
+      2653,
+      7091
+     ],
+     [
+      2748,
+      7996
+     ],
+     [
+      2790,
+      8898
+     ],
+     [
+      2781,
+      9908
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/255562644:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3324,
+      -11491
+     ],
+     [
+      -3164,
+      -11203
+     ],
+     [
+      -3027,
+      -10914
+     ],
+     [
+      -2691,
+      -10081
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/271420275:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -847,
+      -5042
+     ],
+     [
+      -710,
+      -4776
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/357555809:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3143,
+      -11289
+     ],
+     [
+      -3282,
+      -11513
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/357555812:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      555,
+      -2333
+     ],
+     [
+      322,
+      -3045
+     ],
+     [
+      63,
+      -3750
+     ],
+     [
+      -503,
+      -5172
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/406935575:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -738,
+      -5048
+     ],
+     [
+      -404,
+      -4217
+     ],
+     [
+      -173,
+      -3725
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/406935576:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2345,
+      -9059
+     ],
+     [
+      -2691,
+      -10081
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/406994079:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -738,
+      -5048
+     ],
+     [
+      -635,
+      -4808
+     ],
+     [
+      -198,
+      -3907
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421230282:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -2691,
+      -10081
+     ],
+     [
+      -2286,
+      -9073
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421230285:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -1958,
+      -9203
+     ],
+     [
+      -2241,
+      -9853
+     ],
+     [
+      -2480,
+      -10295
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/4440336:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -503,
+      -5172
+     ],
+     [
+      -2114,
+      -9194
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/4440358:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1159,
+      17909
+     ],
+     [
+      1540,
+      16677
+     ],
+     [
+      2318,
+      14623
+     ],
+     [
+      2552,
+      13923
+     ],
+     [
+      2722,
+      13214
+     ],
+     [
+      2850,
+      12361
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/459344273:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      146,
+      -3980
+     ],
+     [
+      22,
+      -4391
+     ],
+     [
+      -274,
+      -5155
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/460364209:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      946,
+      -652
+     ],
+     [
+      1050,
+      -194
+     ],
+     [
+      1169,
+      466
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/460364211:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      221,
+      -2874
+     ],
+     [
+      443,
+      -2245
+     ],
+     [
+      612,
+      -1693
+     ],
+     [
+      780,
+      -1118
+     ],
+     [
+      893,
+      -660
+     ],
+     [
+      999,
+      -38
+     ],
+     [
+      1100,
+      1085
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/460364212:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1422,
+      615
+     ],
+     [
+      146,
+      -3980
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/460364213:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1617,
+      2031
+     ],
+     [
+      1474,
+      1435
+     ],
+     [
+      1270,
+      351
+     ],
+     [
+      1144,
+      -209
+     ],
+     [
+      555,
+      -2333
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/47385149:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3398,
+      -11454
+     ],
+     [
+      -3146,
+      -10912
+     ],
+     [
+      -3007,
+      -10555
+     ],
+     [
+      -2736,
+      -9691
+     ],
+     [
+      -2499,
+      -9046
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/628028609:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1117,
+      1281
+     ],
+     [
+      1299,
+      2550
+     ],
+     [
+      1391,
+      2997
+     ],
+     [
+      1555,
+      3618
+     ],
+     [
+      1969,
+      5006
+     ],
+     [
+      2328,
+      6411
+     ],
+     [
+      2462,
+      7107
+     ],
+     [
+      2526,
+      7590
+     ],
+     [
+      2602,
+      8440
+     ],
+     [
+      2625,
+      8893
+     ],
+     [
+      2631,
+      9905
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/628028610:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1169,
+      466
+     ],
+     [
+      1283,
+      1269
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739812068:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -159,
+      -3827
+     ],
+     [
+      141,
+      -3196
+     ],
+     [
+      268,
+      -2889
+     ],
+     [
+      448,
+      -2373
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739812069:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -159,
+      -3827
+     ],
+     [
+      -43,
+      -3567
+     ],
+     [
+      221,
+      -2874
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739812070:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      53,
+      -4119
+     ],
+     [
+      -36,
+      -4387
+     ],
+     [
+      -361,
+      -5218
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739812071:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      53,
+      -4119
+     ],
+     [
+      -135,
+      -4760
+     ],
+     [
+      -274,
+      -5155
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739812072:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      475,
+      -2798
+     ],
+     [
+      178,
+      -3704
+     ]
+    ],
+    "railway": "rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860375:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      448,
+      -2373
+     ],
+     [
+      659,
+      -1691
+     ],
+     [
+      946,
+      -652
+     ]
+    ],
+    "railway": "rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860376:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      1394,
+      504
+     ],
+     [
+      1057,
+      -549
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860377:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      946,
+      -652
+     ],
+     [
+      1005,
+      -376
+     ],
+     [
+      1060,
+      20
+     ],
+     [
+      1100,
+      1085
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860378:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      736,
+      -1712
+     ],
+     [
+      929,
+      -720
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860379:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      659,
+      -1691
+     ],
+     [
+      741,
+      -1443
+     ],
+     [
+      958,
+      -901
+     ],
+     [
+      1005,
+      -740
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860381:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      494,
+      -2730
+     ],
+     [
+      716,
+      -1782
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860382:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3199,
+      -11144
+     ],
+     [
+      -2888,
+      -10527
+     ],
+     [
+      -2718,
+      -10146
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/739860383:0",
+    "layer": -2,
+    "line_family": "mainline",
+    "name": "",
+    "points": [
+     [
+      -3031,
+      -11203
+     ],
+     [
+      -2516,
+      -10354
+     ]
+    ],
+    "railway": "rail",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1236950985:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3515,
+      9538
+     ],
+     [
+      3532,
+      9314
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1348263187:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3573,
+      8418
+     ],
+     [
+      3585,
+      8321
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/1348263192:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3349,
+      8876
+     ],
+     [
+      3273,
+      9278
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325278:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3454,
+      9025
+     ],
+     [
+      3499,
+      8748
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325280:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3389,
+      9028
+     ],
+     [
+      3413,
+      8700
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325282:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3386,
+      9180
+     ],
+     [
+      3573,
+      8418
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325283:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3421,
+      9182
+     ],
+     [
+      3413,
+      8700
+     ],
+     [
+      3445,
+      8303
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/200192175:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "Anhalter Vorortbahn",
+    "points": [
+     [
+      6480,
+      16412
+     ],
+     [
+      6224,
+      17177
+     ],
+     [
+      5818,
+      18167
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237751545:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3310,
+      10999
+     ],
+     [
+      3422,
+      11455
+     ],
+     [
+      3470,
+      11572
+     ],
+     [
+      3541,
+      11700
+     ],
+     [
+      3736,
+      11929
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/237751547:0",
+    "layer": -3,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3273,
+      9278
+     ],
+     [
+      3214,
+      9535
+     ],
+     [
+      3123,
+      10190
+     ],
+     [
+      3110,
+      10606
+     ],
+     [
+      3136,
+      11040
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/237751548:0",
+    "layer": -3,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3470,
+      10828
+     ],
+     [
+      3484,
+      9958
+     ],
+     [
+      3515,
+      9538
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/237751550:0",
+    "layer": -3,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3421,
+      9182
+     ],
+     [
+      3326,
+      9977
+     ],
+     [
+      3305,
+      10574
+     ],
+     [
+      3342,
+      10907
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/237751552:0",
+    "layer": -3,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3386,
+      9180
+     ],
+     [
+      3305,
+      9826
+     ],
+     [
+      3272,
+      10375
+     ],
+     [
+      3277,
+      10776
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192692:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "Anhalter Vorortbahn",
+    "points": [
+     [
+      6150,
+      18106
+     ],
+     [
+      6355,
+      17723
+     ],
+     [
+      6492,
+      17412
+     ],
+     [
+      6679,
+      16885
+     ],
+     [
+      6721,
+      16675
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192694:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      6060,
+      18023
+     ],
+     [
+      6367,
+      17361
+     ],
+     [
+      6505,
+      16984
+     ],
+     [
+      6547,
+      16851
+     ],
+     [
+      6636,
+      16419
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192696:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      6586,
+      16420
+     ],
+     [
+      6508,
+      16846
+     ],
+     [
+      6335,
+      17350
+     ],
+     [
+      6024,
+      18001
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/394320751:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      9624,
+      -607
+     ],
+     [
+      9753,
+      -844
+     ],
+     [
+      10185,
+      -1479
+     ],
+     [
+      10708,
+      -2126
+     ],
+     [
+      10930,
+      -2445
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/394320752:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      10857,
+      -2510
+     ],
+     [
+      10049,
+      -1570
+     ],
+     [
+      9830,
+      -1271
+     ],
+     [
+      9546,
+      -811
+     ],
+     [
+      9472,
+      -647
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/406994080:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3277,
+      10776
+     ],
+     [
+      3310,
+      10999
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421644828:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3389,
+      9028
+     ],
+     [
+      3386,
+      9180
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421644829:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3454,
+      9025
+     ],
+     [
+      3421,
+      9182
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/465161746:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn",
+    "name": "",
+    "points": [
+     [
+      3532,
+      9314
+     ],
+     [
+      3537,
+      8929
+     ],
+     [
+      3573,
+      8418
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325276:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn_service",
+    "name": "",
+    "points": [
+     [
+      3411,
+      9022
+     ],
+     [
+      3451,
+      8705
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325279:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn_service",
+    "name": "",
+    "points": [
+     [
+      3428,
+      9029
+     ],
+     [
+      3476,
+      8715
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/253086398:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn_service",
+    "name": "",
+    "points": [
+     [
+      3476,
+      8715
+     ],
+     [
+      3454,
+      9025
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/253086399:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn_service",
+    "name": "",
+    "points": [
+     [
+      3451,
+      8705
+     ],
+     [
+      3389,
+      9028
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/494016701:0",
+    "layer": -2,
+    "line_family": "north_south_sbahn_service",
+    "name": "",
+    "points": [
+     [
+      3524,
+      8412
+     ],
+     [
+      3537,
+      8929
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/1494616461:0",
+    "layer": -3,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -2097,
+      -10651
+     ],
+     [
+      -2383,
+      -11116
+     ],
+     [
+      -2817,
+      -11607
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/1494616462:0",
+    "layer": -3,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -2355,
+      -10978
+     ],
+     [
+      -2097,
+      -10651
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "crossover",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/1494616463:0",
+    "layer": -3,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -2846,
+      -11582
+     ],
+     [
+      -2355,
+      -10978
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/1530833485:0",
+    "layer": -3,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -719,
+      -7976
+     ],
+     [
+      -1048,
+      -8733
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/181603776:0",
+    "layer": -1,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -7019,
+      -23114
+     ],
+     [
+      -6723,
+      -23450
+     ],
+     [
+      -6314,
+      -23852
+     ],
+     [
+      -5785,
+      -24266
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/191593802:0",
+    "layer": -3,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -1048,
+      -8733
+     ],
+     [
+      -1643,
+      -9890
+     ],
+     [
+      -2097,
+      -10651
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/199325270:0",
+    "layer": -1,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3957,
+      4160
+     ],
+     [
+      3872,
+      4930
+     ],
+     [
+      3676,
+      7094
+     ],
+     [
+      3524,
+      8412
+     ],
+     [
+      3476,
+      8715
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/199325271:0",
+    "layer": -1,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3930,
+      4158
+     ],
+     [
+      3832,
+      4922
+     ],
+     [
+      3638,
+      7090
+     ],
+     [
+      3451,
+      8705
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325272:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5781,
+      18638
+     ],
+     [
+      5918,
+      18248
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325274:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5734,
+      18619
+     ],
+     [
+      5938,
+      18260
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325281:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5734,
+      18619
+     ],
+     [
+      5698,
+      18705
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199325284:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5781,
+      18638
+     ],
+     [
+      5752,
+      18706
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/230976796:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5743,
+      2929
+     ],
+     [
+      5329,
+      2976
+     ],
+     [
+      5088,
+      3022
+     ],
+     [
+      4916,
+      3066
+     ],
+     [
+      4741,
+      3137
+     ],
+     [
+      4527,
+      3257
+     ],
+     [
+      4360,
+      3384
+     ],
+     [
+      4160,
+      3590
+     ],
+     [
+      4059,
+      3722
+     ],
+     [
+      4026,
+      3790
+     ],
+     [
+      3959,
+      3983
+     ],
+     [
+      3852,
+      4708
+     ],
+     [
+      3445,
+      8303
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237751546:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3136,
+      11040
+     ],
+     [
+      3230,
+      11369
+     ],
+     [
+      3385,
+      11652
+     ],
+     [
+      3595,
+      11889
+     ],
+     [
+      4019,
+      12238
+     ],
+     [
+      4141,
+      12371
+     ],
+     [
+      4883,
+      13416
+     ],
+     [
+      6229,
+      15101
+     ],
+     [
+      6416,
+      15362
+     ],
+     [
+      6464,
+      15456
+     ],
+     [
+      6572,
+      15842
+     ],
+     [
+      6604,
+      16178
+     ],
+     [
+      6586,
+      16420
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237751549:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3342,
+      10907
+     ],
+     [
+      3444,
+      11277
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/237751551:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      8096,
+      2824
+     ],
+     [
+      8528,
+      2711
+     ],
+     [
+      8730,
+      2638
+     ],
+     [
+      8999,
+      2474
+     ],
+     [
+      9111,
+      2378
+     ],
+     [
+      9235,
+      2232
+     ],
+     [
+      9345,
+      2079
+     ],
+     [
+      9497,
+      1802
+     ],
+     [
+      9559,
+      1613
+     ],
+     [
+      9595,
+      1304
+     ],
+     [
+      9584,
+      1014
+     ],
+     [
+      9496,
+      125
+     ],
+     [
+      9493,
+      -57
+     ],
+     [
+      9530,
+      -333
+     ],
+     [
+      9624,
+      -607
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192690:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "Anhalter Vorortbahn",
+    "points": [
+     [
+      6721,
+      16675
+     ],
+     [
+      6754,
+      16390
+     ],
+     [
+      6740,
+      16179
+     ],
+     [
+      6640,
+      15791
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192691:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "Anhalter Vorortbahn",
+    "points": [
+     [
+      5818,
+      18167
+     ],
+     [
+      5586,
+      18702
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192693:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      6024,
+      18001
+     ],
+     [
+      5794,
+      18374
+     ],
+     [
+      5651,
+      18704
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/238192695:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      6636,
+      16419
+     ],
+     [
+      6666,
+      16068
+     ],
+     [
+      6640,
+      15791
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/29326643:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      6640,
+      15791
+     ],
+     [
+      6567,
+      15565
+     ],
+     [
+      6494,
+      15395
+     ],
+     [
+      6283,
+      15074
+     ],
+     [
+      4927,
+      13413
+     ],
+     [
+      4061,
+      12188
+     ],
+     [
+      3783,
+      11876
+     ],
+     [
+      3657,
+      11687
+     ],
+     [
+      3526,
+      11371
+     ],
+     [
+      3480,
+      11138
+     ],
+     [
+      3469,
+      10918
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/394320749:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      12156,
+      -3229
+     ],
+     [
+      11699,
+      -3159
+     ],
+     [
+      11444,
+      -3054
+     ],
+     [
+      11284,
+      -2944
+     ],
+     [
+      11026,
+      -2700
+     ],
+     [
+      10857,
+      -2510
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/394320750:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      10930,
+      -2445
+     ],
+     [
+      11137,
+      -2710
+     ],
+     [
+      11372,
+      -2919
+     ],
+     [
+      11488,
+      -2993
+     ],
+     [
+      11707,
+      -3076
+     ],
+     [
+      12219,
+      -3151
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/406994081:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3736,
+      11929
+     ],
+     [
+      4019,
+      12238
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/459344269:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5757,
+      3045
+     ],
+     [
+      7036,
+      2971
+     ],
+     [
+      8096,
+      2824
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/459344270:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      8072,
+      2749
+     ],
+     [
+      5743,
+      2929
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/459344271:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3585,
+      8321
+     ],
+     [
+      3778,
+      6625
+     ],
+     [
+      3922,
+      4517
+     ],
+     [
+      3976,
+      4073
+     ],
+     [
+      4017,
+      3920
+     ],
+     [
+      4083,
+      3799
+     ],
+     [
+      4335,
+      3496
+     ],
+     [
+      4566,
+      3307
+     ],
+     [
+      4763,
+      3200
+     ],
+     [
+      4941,
+      3134
+     ],
+     [
+      5105,
+      3096
+     ],
+     [
+      5757,
+      3045
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/459344272:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      9472,
+      -647
+     ],
+     [
+      9418,
+      -449
+     ],
+     [
+      9397,
+      -258
+     ],
+     [
+      9481,
+      576
+     ],
+     [
+      9527,
+      1300
+     ],
+     [
+      9507,
+      1530
+     ],
+     [
+      9439,
+      1774
+     ],
+     [
+      9289,
+      2042
+     ],
+     [
+      9183,
+      2195
+     ],
+     [
+      8964,
+      2418
+     ],
+     [
+      8833,
+      2507
+     ],
+     [
+      8525,
+      2643
+     ],
+     [
+      8072,
+      2749
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/463841062:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3469,
+      10918
+     ],
+     [
+      3470,
+      10828
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/465161747:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      3445,
+      8303
+     ],
+     [
+      3349,
+      8876
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/494015528:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      6024,
+      18001
+     ],
+     [
+      5918,
+      18248
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/494015529:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      6060,
+      18023
+     ],
+     [
+      5938,
+      18260
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/494022020:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "Anhalter Vorortbahn",
+    "points": [
+     [
+      5860,
+      18708
+     ],
+     [
+      6150,
+      18106
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/494022024:0",
+    "layer": -2,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      5806,
+      18707
+     ],
+     [
+      6060,
+      18023
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/51012882:0",
+    "layer": -1,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -5806,
+      -24296
+     ],
+     [
+      -6079,
+      -24098
+     ],
+     [
+      -6337,
+      -23883
+     ],
+     [
+      -6758,
+      -23475
+     ],
+     [
+      -7054,
+      -23142
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/705288682:0",
+    "layer": -3,
+    "line_family": "s_bahn",
+    "name": "",
+    "points": [
+     [
+      -2355,
+      -10978
+     ],
+     [
+      -2142,
+      -10630
+     ],
+     [
+      -1690,
+      -9776
+     ],
+     [
+      -861,
+      -7917
+     ]
+    ],
+    "railway": "light_rail",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/11685868:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      2690,
+      14860
+     ],
+     [
+      2896,
+      14291
+     ],
+     [
+      2992,
+      13795
+     ],
+     [
+      3679,
+      11939
+     ],
+     [
+      3808,
+      11650
+     ],
+     [
+      3954,
+      11415
+     ],
+     [
+      4136,
+      11201
+     ],
+     [
+      4686,
+      10732
+     ],
+     [
+      4952,
+      10439
+     ],
+     [
+      5662,
+      9304
+     ],
+     [
+      5778,
+      9152
+     ],
+     [
+      5885,
+      9054
+     ],
+     [
+      6005,
+      8975
+     ],
+     [
+      6130,
+      8919
+     ],
+     [
+      6257,
+      8884
+     ],
+     [
+      7238,
+      8701
+     ],
+     [
+      8133,
+      8444
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/1449681094:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -25674,
+      11171
+     ],
+     [
+      -25606,
+      11015
+     ]
+    ],
+    "railway": "subway",
+    "service": "yard",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/1449681095:1",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -25729,
+      11172
+     ],
+     [
+      -25653,
+      10998
+     ]
+    ],
+    "railway": "subway",
+    "service": "yard",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/169724406:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12166,
+      7449
+     ],
+     [
+      12116,
+      7088
+     ],
+     [
+      12023,
+      5889
+     ],
+     [
+      12015,
+      5387
+     ],
+     [
+      11913,
+      4124
+     ],
+     [
+      11850,
+      3676
+     ],
+     [
+      11611,
+      541
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/176339603:1",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      -2555,
+      -25770
+     ],
+     [
+      -981,
+      -24216
+     ],
+     [
+      83,
+      -23044
+     ],
+     [
+      680,
+      -22443
+     ],
+     [
+      3031,
+      -19791
+     ],
+     [
+      3383,
+      -19382
+     ],
+     [
+      3505,
+      -19211
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199847307:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      11034,
+      7924
+     ],
+     [
+      11509,
+      7843
+     ]
+    ],
+    "railway": "subway",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199847311:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      11509,
+      7904
+     ],
+     [
+      11030,
+      7889
+     ]
+    ],
+    "railway": "subway",
+    "service": "crossover",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/199847315:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      8111,
+      8367
+     ],
+     [
+      7603,
+      8547
+     ],
+     [
+      7231,
+      8660
+     ],
+     [
+      6842,
+      8749
+     ],
+     [
+      6250,
+      8842
+     ],
+     [
+      6113,
+      8881
+     ],
+     [
+      5939,
+      8955
+     ],
+     [
+      5816,
+      9039
+     ],
+     [
+      5696,
+      9141
+     ],
+     [
+      5581,
+      9274
+     ],
+     [
+      5085,
+      10076
+     ],
+     [
+      4855,
+      10392
+     ],
+     [
+      4767,
+      10492
+     ],
+     [
+      4557,
+      10680
+     ],
+     [
+      4081,
+      11073
+     ],
+     [
+      3936,
+      11236
+     ],
+     [
+      3788,
+      11450
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/199847319:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      13870,
+      7656
+     ],
+     [
+      12264,
+      7772
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199847326:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      3634,
+      11910
+     ],
+     [
+      3699,
+      11652
+     ],
+     [
+      3753,
+      11511
+     ]
+    ],
+    "railway": "subway",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/199847347:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      11559,
+      7904
+     ],
+     [
+      11931,
+      7895
+     ],
+     [
+      13885,
+      7753
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/199847349:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      3146,
+      13240
+     ],
+     [
+      3445,
+      12456
+     ],
+     [
+      3634,
+      11910
+     ],
+     [
+      3808,
+      11650
+     ]
+    ],
+    "railway": "subway",
+    "service": "siding",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/207993048:0",
+    "layer": -3,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -848,
+      -7631
+     ],
+     [
+      -921,
+      -7807
+     ],
+     [
+      -1551,
+      -9082
+     ],
+     [
+      -1871,
+      -9807
+     ],
+     [
+      -2014,
+      -10090
+     ],
+     [
+      -2316,
+      -10609
+     ],
+     [
+      -2821,
+      -11214
+     ],
+     [
+      -3132,
+      -11435
+     ],
+     [
+      -3662,
+      -11695
+     ]
+    ],
+    "railway": "subway",
+    "service": "yard",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/207993050:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      12264,
+      7772
+     ],
+     [
+      11544,
+      7838
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/207993053:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -909,
+      -7779
+     ],
+     [
+      -1177,
+      -8058
+     ],
+     [
+      -1266,
+      -8215
+     ]
+    ],
+    "railway": "subway",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/26477684:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      3788,
+      11450
+     ],
+     [
+      3657,
+      11704
+     ],
+     [
+      3520,
+      12114
+     ],
+     [
+      3102,
+      13223
+     ],
+     [
+      3037,
+      13429
+     ],
+     [
+      2954,
+      13792
+     ],
+     [
+      2861,
+      14285
+     ],
+     [
+      2659,
+      14846
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/274269224:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -25557,
+      10653
+     ],
+     [
+      -25772,
+      11173
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/274269226:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -25445,
+      10688
+     ],
+     [
+      -25189,
+      10203
+     ],
+     [
+      -24907,
+      9725
+     ],
+     [
+      -24703,
+      9431
+     ],
+     [
+      -24469,
+      9141
+     ],
+     [
+      -24049,
+      8682
+     ],
+     [
+      -23399,
+      8104
+     ],
+     [
+      -22213,
+      7104
+     ],
+     [
+      -21720,
+      6636
+     ],
+     [
+      -21469,
+      6354
+     ],
+     [
+      -21184,
+      5996
+     ],
+     [
+      -20972,
+      5685
+     ],
+     [
+      -20752,
+      5321
+     ],
+     [
+      -20498,
+      4827
+     ],
+     [
+      -20275,
+      4312
+     ],
+     [
+      -20125,
+      3886
+     ],
+     [
+      -19978,
+      3339
+     ],
+     [
+      -19905,
+      2952
+     ],
+     [
+      -19820,
+      2248
+     ],
+     [
+      -19812,
+      1641
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/295250358:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12674,
+      15188
+     ],
+     [
+      12755,
+      15761
+     ],
+     [
+      12956,
+      18867
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/295255789:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      11468,
+      -600
+     ],
+     [
+      11513,
+      -268
+     ],
+     [
+      11827,
+      3886
+     ],
+     [
+      11837,
+      4347
+     ],
+     [
+      11985,
+      5892
+     ],
+     [
+      12077,
+      7100
+     ],
+     [
+      12083,
+      7391
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/295255792:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12130,
+      8195
+     ],
+     [
+      12267,
+      9928
+     ],
+     [
+      12378,
+      10873
+     ],
+     [
+      12477,
+      12145
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/295255796:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12711,
+      14211
+     ],
+     [
+      12517,
+      12140
+     ],
+     [
+      12417,
+      10867
+     ],
+     [
+      12394,
+      10285
+     ],
+     [
+      12332,
+      9425
+     ],
+     [
+      12227,
+      8187
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/295376548:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      11611,
+      541
+     ],
+     [
+      11532,
+      -606
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/300288110:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      13052,
+      18869
+     ],
+     [
+      12964,
+      17781
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/330839874:0",
+    "layer": 1,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      1919,
+      17052
+     ],
+     [
+      2146,
+      16285
+     ],
+     [
+      2690,
+      14860
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/330839875:0",
+    "layer": 1,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      2659,
+      14846
+     ],
+     [
+      2117,
+      16277
+     ],
+     [
+      1888,
+      17040
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/335043669:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      11322,
+      -2213
+     ],
+     [
+      11415,
+      -1019
+     ],
+     [
+      11468,
+      -600
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/335043672:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      11532,
+      -606
+     ],
+     [
+      11533,
+      -795
+     ],
+     [
+      11458,
+      -1751
+     ],
+     [
+      11364,
+      -2525
+     ],
+     [
+      11205,
+      -4401
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/360588975:0",
+    "layer": -3,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      1109,
+      -866
+     ],
+     [
+      1265,
+      -304
+     ],
+     [
+      1385,
+      56
+     ],
+     [
+      1573,
+      473
+     ],
+     [
+      1803,
+      873
+     ],
+     [
+      1977,
+      1117
+     ],
+     [
+      2306,
+      1492
+     ],
+     [
+      2616,
+      1775
+     ],
+     [
+      2984,
+      2047
+     ],
+     [
+      3224,
+      2193
+     ],
+     [
+      3633,
+      2396
+     ],
+     [
+      4202,
+      2592
+     ],
+     [
+      4803,
+      2709
+     ],
+     [
+      5159,
+      2753
+     ],
+     [
+      5641,
+      2788
+     ],
+     [
+      6119,
+      2789
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/378659153:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      11163,
+      -4454
+     ],
+     [
+      11297,
+      -2796
+     ],
+     [
+      11322,
+      -2213
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/378664956:0",
+    "layer": 0,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      4569,
+      -17837
+     ],
+     [
+      3556,
+      -19242
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/380967342:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U9",
+    "points": [
+     [
+      -19979,
+      -139
+     ],
+     [
+      -20058,
+      -611
+     ],
+     [
+      -20325,
+      -3233
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/382211951:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      3556,
+      -19242
+     ],
+     [
+      3419,
+      -19415
+     ],
+     [
+      701,
+      -22474
+     ],
+     [
+      -353,
+      -23697
+     ],
+     [
+      -717,
+      -24093
+     ],
+     [
+      -926,
+      -24276
+     ],
+     [
+      -2477,
+      -25768
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/387106269:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      9792,
+      7975
+     ],
+     [
+      9392,
+      8023
+     ],
+     [
+      8969,
+      8105
+     ],
+     [
+      8492,
+      8238
+     ],
+     [
+      8111,
+      8367
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/387106270:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      11544,
+      7838
+     ],
+     [
+      11030,
+      7889
+     ],
+     [
+      9792,
+      7975
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387106271:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      10198,
+      7998
+     ],
+     [
+      11034,
+      7924
+     ],
+     [
+      11559,
+      7904
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387106272:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U2",
+    "points": [
+     [
+      8133,
+      8444
+     ],
+     [
+      8987,
+      8211
+     ],
+     [
+      9892,
+      8042
+     ],
+     [
+      10198,
+      7998
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387118472:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12477,
+      12145
+     ],
+     [
+      12598,
+      14219
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387118473:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12783,
+      15180
+     ],
+     [
+      12711,
+      14211
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387118474:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12598,
+      14219
+     ],
+     [
+      12674,
+      15188
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387118475:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12964,
+      17781
+     ],
+     [
+      12799,
+      15759
+     ],
+     [
+      12783,
+      15180
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/387370685:0",
+    "layer": 0,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      4990,
+      -17257
+     ],
+     [
+      4569,
+      -17837
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/387370686:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      4487,
+      -17793
+     ],
+     [
+      4839,
+      -17409
+     ],
+     [
+      5008,
+      -17166
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/392577192:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "Linie G",
+    "points": [
+     [
+      -19918,
+      1645
+     ],
+     [
+      -19894,
+      1952
+     ],
+     [
+      -19902,
+      2531
+     ],
+     [
+      -19954,
+      2943
+     ],
+     [
+      -20026,
+      3327
+     ],
+     [
+      -20174,
+      3865
+     ],
+     [
+      -20425,
+      4550
+     ],
+     [
+      -20792,
+      5289
+     ],
+     [
+      -21017,
+      5660
+     ],
+     [
+      -21226,
+      5964
+     ],
+     [
+      -21501,
+      6315
+     ],
+     [
+      -21761,
+      6606
+     ],
+     [
+      -22247,
+      7069
+     ],
+     [
+      -24088,
+      8623
+     ],
+     [
+      -24544,
+      9046
+     ],
+     [
+      -24790,
+      9349
+     ],
+     [
+      -25014,
+      9668
+     ],
+     [
+      -25292,
+      10136
+     ],
+     [
+      -25557,
+      10653
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/392577193:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "Linie G",
+    "points": [
+     [
+      -19812,
+      1641
+     ],
+     [
+      -19979,
+      -139
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/392577194:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U9",
+    "points": [
+     [
+      -20366,
+      -3232
+     ],
+     [
+      -20106,
+      -604
+     ],
+     [
+      -20088,
+      -137
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421618248:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -1266,
+      -8215
+     ],
+     [
+      -1078,
+      -7746
+     ]
+    ],
+    "railway": "subway",
+    "service": "yard",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/438426582:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      3505,
+      -19211
+     ],
+     [
+      3725,
+      -18834
+     ],
+     [
+      4487,
+      -17793
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/438860778:1",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      -25621,
+      11170
+     ],
+     [
+      -25445,
+      10688
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/463418761:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "Linie G",
+    "points": [
+     [
+      -20088,
+      -137
+     ],
+     [
+      -19918,
+      1645
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/465637628:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12227,
+      8187
+     ],
+     [
+      12166,
+      7449
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/465637630:0",
+    "layer": -2,
+    "line_family": "subway",
+    "name": "U6",
+    "points": [
+     [
+      12083,
+      7391
+     ],
+     [
+      12130,
+      8195
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/526093501:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      11658,
+      1633
+     ],
+     [
+      11718,
+      1932
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 8.0,
+    "id": "way/526093505:0",
+    "layer": -1,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      11682,
+      1931
+     ],
+     [
+      11696,
+      1628
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -2.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/70268945:0",
+    "layer": -3,
+    "line_family": "subway",
+    "name": "",
+    "points": [
+     [
+      6002,
+      2653
+     ],
+     [
+      5306,
+      2614
+     ],
+     [
+      4946,
+      2572
+     ],
+     [
+      4465,
+      2485
+     ],
+     [
+      4071,
+      2376
+     ],
+     [
+      3750,
+      2259
+     ],
+     [
+      3334,
+      2059
+     ],
+     [
+      3105,
+      1925
+     ],
+     [
+      2764,
+      1678
+     ],
+     [
+      2442,
+      1387
+     ],
+     [
+      2246,
+      1175
+     ],
+     [
+      2066,
+      954
+     ],
+     [
+      1748,
+      450
+     ],
+     [
+      1543,
+      2
+     ],
+     [
+      1274,
+      -906
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/1098837663:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -180,
+      -5941
+     ],
+     [
+      -42,
+      -5016
+     ]
+    ],
+    "railway": "subway",
+    "service": "crossover",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/1098837664:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -385,
+      -5990
+     ],
+     [
+      52,
+      -5053
+     ]
+    ],
+    "railway": "subway",
+    "service": "crossover",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/23439780:0",
+    "layer": -4,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      8015,
+      2496
+     ],
+     [
+      7161,
+      2574
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/248099627:0",
+    "layer": -4,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      7444,
+      2686
+     ],
+     [
+      8315,
+      2623
+     ],
+     [
+      9190,
+      2596
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618229:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      995,
+      -1917
+     ],
+     [
+      815,
+      -2480
+     ],
+     [
+      588,
+      -3004
+     ],
+     [
+      428,
+      -3467
+     ],
+     [
+      171,
+      -4417
+     ],
+     [
+      -9,
+      -5316
+     ],
+     [
+      -285,
+      -6283
+     ],
+     [
+      -420,
+      -6580
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618230:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      7161,
+      2574
+     ],
+     [
+      6714,
+      2614
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421618231:0",
+    "layer": -2,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -420,
+      -6580
+     ],
+     [
+      -627,
+      -7097
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618232:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      832,
+      -1870
+     ],
+     [
+      1109,
+      -866
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/421618233:0",
+    "layer": -2,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -1078,
+      -7746
+     ],
+     [
+      -767,
+      -6970
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618234:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      6537,
+      2629
+     ],
+     [
+      6002,
+      2653
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618235:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      1274,
+      -906
+     ],
+     [
+      995,
+      -1917
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618236:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      6119,
+      2789
+     ],
+     [
+      7444,
+      2686
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/421618237:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -576,
+      -6517
+     ],
+     [
+      -122,
+      -5290
+     ],
+     [
+      832,
+      -1870
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/70270903:0",
+    "layer": -2,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -627,
+      -7097
+     ],
+     [
+      -848,
+      -7631
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 23.0,
+    "id": "way/71326270:0",
+    "layer": -4,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      13049,
+      2231
+     ],
+     [
+      10666,
+      2431
+     ],
+     [
+      10216,
+      2450
+     ],
+     [
+      9192,
+      2448
+     ],
+     [
+      8015,
+      2496
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -17.8
+   },
+   {
+    "depth_m": 18.0,
+    "id": "way/806903759:0",
+    "layer": -3,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      6714,
+      2614
+     ],
+     [
+      6537,
+      2629
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -12.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/871673626:0",
+    "layer": -2,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      -767,
+      -6970
+     ],
+     [
+      -576,
+      -6517
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   },
+   {
+    "depth_m": 13.0,
+    "id": "way/942849696:0",
+    "layer": -2,
+    "line_family": "u5",
+    "name": "",
+    "points": [
+     [
+      9190,
+      2596
+     ],
+     [
+      10252,
+      2612
+     ],
+     [
+      10824,
+      2597
+     ],
+     [
+      13076,
+      2409
+     ]
+    ],
+    "railway": "subway",
+    "service": "",
+    "track_y_m": -7.8
+   }
+  ],
+  "utility_networks_included": false
+ },
  "viaduct": [
   {
    "area_m2": 115050,

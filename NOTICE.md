@@ -48,6 +48,12 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
 
+- **Passenger-rail route validation:** official BVG and S-Bahn Berlin route
+  pages are used only to validate the displayed U5 and shared North-South
+  S-Bahn station sequence. Track, platform and entrance plan geometry remains
+  the attributed OSM extract; inferred depths and sections are marked as
+  schematic in `docs/underground-network.md`.
+
 - **Google Maps Platform / Photorealistic 3D Tiles (opt-in, additive):**
   Only used when the three opt-in env vars are set
   (`GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_3D_TILES_ENABLED=true`,

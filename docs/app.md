@@ -90,6 +90,26 @@ lower particle budget on coarse pointers; the DZI fallback uses a lightweight
 screen layer. Precipitation is hidden automatically in underwater and underside
 views.
 
+## Underground passenger cutaway
+
+Crossing below the surface reveals a separate, stable passenger-rail cutaway:
+real committed OSM courses for underground mainline, S-Bahn and U-Bahn tracks,
+real platform plan shapes and mapped subway entrances. U5 and the shared
+S1/S2/S25/S26 North-South corridor receive restrained route-colour cues. OSM
+does not carry surveyed depths or tunnel sections, so vertical levels, open
+frames and straight entrance shafts are explicitly schematic and contain no
+invented utility pipes. The layer is fully hidden from every above-ground
+camera and is documented in
+[`underground-network.md`](underground-network.md).
+
+Above ground, tram contact wires follow the mapped OSM tram courses; wire
+height and mast rhythm are presentation approximations. Existing lamp posts
+remain anchored to the official Geoportal Berlin public-lighting extract.
+Eighteen static, diverse figures, two BVG buses, three cars, two bicycles, two
+e-scooters and two strollers provide sparse scale cues without animation or
+survey claims. Snowstorm adds one tiny ice fisher on a mapped Tiergarten pond;
+the existing three snowploughs remain the only winter service vehicles.
+
 Snowstorm reuses the same measured geometry under a broad white mantle and
 adds a bounded camera-following field (2,400 flakes on desktop, 1,100 on touch
 devices), 168 deterministic drifts and three snowploughs. It never moves a

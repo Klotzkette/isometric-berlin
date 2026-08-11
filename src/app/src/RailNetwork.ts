@@ -42,13 +42,69 @@ export type RailSurface = {
   ring: number[][];
 };
 
+export type UndergroundLineFamily =
+  | "mainline"
+  | "north_south_sbahn"
+  | "north_south_sbahn_service"
+  | "s_bahn"
+  | "subway"
+  | "u5";
+
+export type UndergroundTrack = {
+  depth_m: number;
+  id: string;
+  layer: number;
+  line_family: UndergroundLineFamily;
+  name: string;
+  points: number[][];
+  railway: "light_rail" | "rail" | "subway";
+  service: string;
+  track_y_m: number;
+};
+
+export type UndergroundPlatform = {
+  centre: number[];
+  id: string;
+  line_family: UndergroundLineFamily;
+  name: string;
+  ring: number[][];
+  track_y_m: number;
+};
+
+export type UndergroundEntrance = {
+  connects_to: string;
+  id: string;
+  line_family: UndergroundLineFamily;
+  name: string;
+  point: number[];
+  track_y_m: number;
+};
+
+export type TramTrack = { id: string; points: number[][] };
+
 export type RailPayload = {
   deck_top_y_m: number;
   embankment: RailSurface[];
   embankment_tracks: number[][][];
   piers: number[][];
   rail_top_over_deck_m: number;
+  route_evidence: Record<
+    string,
+    { official_sequence: string[]; services: string[]; source: string }
+  >;
   schema_version: number;
+  tram_catenary: {
+    geometry_status: string;
+    tracks: TramTrack[];
+  };
+  underground: {
+    entrances: UndergroundEntrance[];
+    geometry_status: string;
+    platforms: UndergroundPlatform[];
+    surface_reference_y_m: number;
+    tracks: UndergroundTrack[];
+    utility_networks_included: boolean;
+  };
   viaduct: RailSurface[];
   viaduct_tracks: number[][][];
 };

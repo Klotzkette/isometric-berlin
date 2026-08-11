@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.70.33
+
+- **The underside becomes a real passenger-network cutaway instead of a single
+  road-tunnel close-up.** Schema 2 of `rail-lines.json` exports 207 real OSM
+  underground rail/U-/S-Bahn parts, 40 mapped platform shapes and 78 mapped
+  entrances with source ids. The U5 and shared S1/S2/S25/S26 North-South
+  corridor are classified against official station sequences without snapping
+  or replacing their OSM geometry. Layer-derived depths, open tunnel sections
+  and straight entrance shafts are marked as schematic; the payload explicitly
+  excludes invented utility networks.
+- **The cutaway is fast, stable and legible in every visual mode.** Track beds
+  are batched by route family, platforms and shafts are merged, and the complete
+  network remains under 16 draw objects. Pale structural ink, ivory planes and
+  restrained route colours switch losslessly through Day, Night, Minecraft and
+  Snowstorm with no animation or transparent shell. The underside button now
+  frames the U5/S-Bahn crossing and Tiergartentunnel together; dedicated tunnel
+  flights remain unchanged. Repeated idle screenshots in Day and Night were
+  byte-identical.
+- **Mapped tram infrastructure and sparse city life add scale without claiming
+  survey traffic.** Contact wires follow all 49 committed OSM tram parts; their
+  5.8 m height and 35 m mast rhythm are explicit approximations, while lamp
+  positions remain the official Geoportal Berlin public-lighting layer. A
+  static batched layer adds 18 diverse figures, two BVG buses, three cars, two
+  bicycles, two e-scooters and two strollers. Snowstorm adds one tiny ice fisher
+  on a mapped Tiergarten pond beside the existing three snowploughs.
+- **Accuracy and usability remain explicit.** New documentation separates real
+  plan evidence from vertical presentation geometry, records the BVG/S-Bahn
+  route checks and states that no utility pipes are drawn. Browser QA covered
+  desktop 1600×900, tablet 1024×768 and phone 390×844 above and below ground.
+  The visible radius remains **5,230 m**; attribution, source hierarchy and
+  additive-data policy are unchanged.
+
 ## v0.70.32
 
 - **Desktop 3D navigation is now genuinely continuous.** Plain held arrows pan

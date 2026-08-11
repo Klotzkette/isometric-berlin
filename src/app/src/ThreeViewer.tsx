@@ -152,6 +152,12 @@ import {
   createRailNetwork,
 } from "./RailNetwork";
 import {
+  createTramCatenary,
+  createUndergroundNetwork,
+  setUndergroundPresentation,
+} from "./UndergroundNetwork";
+import { createCityStaffage } from "./CityStaffage";
+import {
   STREET_DETAILS_FILE,
   type StreetDetailsPayload,
   createTrafficSignals,
@@ -298,6 +304,7 @@ type Runtime = {
   baseSurfaceReady: boolean;
   camera: PerspectiveCamera;
   centralDetails: Group;
+  cityStaffage: Group;
   civicDetails: Group;
   coarsePointer: boolean;
   controls: OrbitControls;
@@ -346,6 +353,7 @@ type Runtime = {
   prismPayloadPromise?: Promise<PrismPayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
   trafficSignals?: Group | null;
+  tramCatenary: Group;
   cancelPanGlide?: () => void;
   isoWorld: Group | null;
   isoWorldState: "failed" | "idle" | "loading";
@@ -368,6 +376,7 @@ type Runtime = {
   lightingMode: LightingMode;
   nightLightsOn: boolean;
   underside: boolean;
+  undergroundNetwork: Group;
   underwater: boolean;
 };
 
@@ -751,6 +760,9 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
     runtime.monuments,
     runtime.culturalDetails,
     runtime.parkDetails,
+    runtime.cityStaffage,
+    runtime.tramCatenary,
+    runtime.undergroundNetwork,
     runtime.tunnel,
     runtime.tunnelPortals,
     ...[...runtime.detailGroups.values()].map((entry) => entry.group),
@@ -1178,6 +1190,9 @@ function setSceneLighting(
   applyLightingToRoot(runtime.monuments, mode, lightsOn);
   applyLightingToRoot(runtime.culturalDetails, mode, lightsOn);
   applyLightingToRoot(runtime.parkDetails, mode, lightsOn);
+  applyLightingToRoot(runtime.cityStaffage, mode, lightsOn);
+  applyLightingToRoot(runtime.tramCatenary, mode, lightsOn);
+  setUndergroundPresentation(runtime.undergroundNetwork, mode);
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   // Incidental staffage has one authored pose. Updating flags or tiny signal
   // lamps only while the camera moved made those sub-pixel details flash
@@ -1426,6 +1441,10 @@ function ensureIsoWorld(
         if (office) {
           runtime.signatures.add(office);
         }
+        const staffage = createCityStaffage(ground);
+        if (staffage) {
+          runtime.cityStaffage.add(staffage);
+        }
       }
       if (ground && rail) {
         // The Stadtbahn viaduct carries the tracks off both ends of the
@@ -1443,6 +1462,14 @@ function ensureIsoWorld(
         const ice = createIceOnRails(rail);
         if (ice) {
           runtime.isoWorld.add(ice);
+        }
+        const underground = createUndergroundNetwork(rail);
+        if (underground) {
+          runtime.undergroundNetwork.add(underground);
+        }
+        const catenary = createTramCatenary(rail, ground);
+        if (catenary) {
+          runtime.tramCatenary.add(catenary);
         }
       }
       collectFarZoomAntiFlickerTargets(runtime);
@@ -1948,6 +1975,9 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   if (runtime.isoWorld) {
     runtime.isoWorld.visible = isoMode && !underside;
   }
+  runtime.undergroundNetwork.visible = underside;
+  runtime.cityStaffage.visible = !underside;
+  runtime.tramCatenary.visible = !underside;
   setTunnelPortalPresentation(
     runtime.tunnelPortals,
     underside,
@@ -2616,9 +2646,29 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           markSurfaceInteraction(runtime);
           setModelMaterialState(runtime, enabled);
-          setOrbitAngles(runtime, {
-            polar: MathUtils.degToRad(enabled ? 122 : 58),
-          });
+          if (enabled) {
+            // The old button first focused the south road-tunnel portal, so
+            // the underside opened inside one bore and the wider U-/S-Bahn
+            // cutaway was effectively undiscoverable. Frame the central
+            // underground network from below; the dedicated bracket/buttons
+            // still own the close Tiergartentunnel flights.
+            const theta = runtime.controls.getAzimuthalAngle();
+            // Brandenburg Gate is where the U5 and the North-South S-Bahn
+            // cross; centring just west of it puts both source routes, their
+            // stations and the Tiergartentunnel in one readable cutaway.
+            runtime.controls.target.set(430, -8, 360);
+            const offset = new Vector3().setFromSpherical(
+              new Spherical(2_150, MathUtils.degToRad(128), theta),
+            );
+            runtime.camera.position.copy(runtime.controls.target).add(offset);
+            runtime.controls.update();
+          } else {
+            runtime.controls.target.copy(DEFAULT_TARGET);
+            runtime.camera.position
+              .copy(DEFAULT_TARGET)
+              .add(DEFAULT_CAMERA_OFFSET);
+            runtime.controls.update();
+          }
           notifyView(runtime, onViewChangeRef.current);
         },
         startTunnelFlight: (direction) => {
@@ -2854,6 +2904,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const parkDetails = new Group();
       parkDetails.name = "Pending OSM park details";
       scene.add(parkDetails);
+      const cityStaffage = new Group();
+      cityStaffage.name = "Sparse city life presentation layer";
+      scene.add(cityStaffage);
+      const tramCatenary = new Group();
+      tramCatenary.name = "Mapped tram overhead layer";
+      scene.add(tramCatenary);
+      const undergroundNetwork = new Group();
+      undergroundNetwork.name = "Underground passenger cutaway layer";
+      undergroundNetwork.visible = false;
+      scene.add(undergroundNetwork);
       const rain = createModerateRain(coarsePointer);
       scene.add(rain.group);
       const snowstorm = createSnowstorm(coarsePointer);
@@ -2862,6 +2922,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         baseSurfaceReady: false,
         camera,
         centralDetails,
+        cityStaffage,
         civicDetails,
         coarsePointer,
         composer,
@@ -2912,6 +2973,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         tunnelPoints: null,
         tunnelPortalInteriorVisible: false,
         tunnelTubeOffsetM: 6.1,
+        tramCatenary,
         isoWorld: null,
         isoWorldState: "idle",
         inkLineMaterials: new Set(),
@@ -2925,6 +2987,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         lightingMode: lightingModeRef.current,
         nightLightsOn: nightLightsOnRef.current,
         underside: false,
+        undergroundNetwork,
         underwater: false,
       };
       runtimeRef.current = runtime;

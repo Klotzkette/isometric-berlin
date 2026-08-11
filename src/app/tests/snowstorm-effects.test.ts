@@ -45,6 +45,18 @@ describe("snowstorm presentation", () => {
     expect(snowFlurryIntensity(Number.NaN)).toBe(0);
   });
 
+  test("includes one tiny ice fisher on a mapped Tiergarten pond", () => {
+    const snow = createSnowstorm(false);
+    const fisher = snow.settled.getObjectByName(
+      "Tiergarten pond ice fisher easter egg",
+    );
+    expect(fisher).toBeDefined();
+    expect(fisher!.position.toArray()).toEqual([-931, 6.03, 700]);
+    expect(
+      fisher!.getObjectByName("sawn fishing hole in frozen Tiergarten pond"),
+    ).toBeDefined();
+  });
+
   test("keeps settled snow while the weather toggle controls falling flakes", () => {
     const snow = createSnowstorm(false);
     for (const mode of ["day", "night", "minecraft"] as const) {

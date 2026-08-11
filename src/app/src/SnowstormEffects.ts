@@ -5,6 +5,7 @@ import {
   CircleGeometry,
   DataTexture,
   DynamicDrawUsage,
+  Float32BufferAttribute,
   Group,
   InstancedMesh,
   Mesh,
@@ -15,6 +16,8 @@ import {
   PointsMaterial,
   RGBAFormat,
   SphereGeometry,
+  LineBasicMaterial,
+  LineSegments,
   Vector3,
   LinearFilter,
 } from "three";
@@ -194,6 +197,50 @@ function applyTransforms(
   mesh.computeBoundingSphere();
 }
 
+function createIceFisher(): Group {
+  const group = new Group();
+  group.name = "Tiergarten pond ice fisher easter egg";
+  // The pond plan position comes from the committed OSM water polygon. The
+  // person, cut hole and pose are deliberately tiny illustrative staffage.
+  group.position.set(-931, 6.03, 700);
+  const hole = new Mesh(
+    new CircleGeometry(0.78, 16),
+    new MeshBasicMaterial({ color: 0x24495b }),
+  );
+  hole.name = "sawn fishing hole in frozen Tiergarten pond";
+  hole.rotation.x = -Math.PI / 2;
+  hole.position.y = 0.01;
+  group.add(hole);
+  const coat = new Mesh(
+    new BoxGeometry(0.62, 0.9, 0.42),
+    new MeshStandardMaterial({ color: 0x8b3f38, flatShading: true }),
+  );
+  coat.name = "ice fisher red winter coat";
+  coat.position.set(1.25, 0.54, 0.25);
+  group.add(coat);
+  const head = new Mesh(
+    new SphereGeometry(0.18, 8, 6),
+    new MeshStandardMaterial({ color: 0x9b6848, flatShading: true }),
+  );
+  head.position.set(1.25, 1.12, 0.25);
+  group.add(head);
+  const rodGeometry = new BufferGeometry();
+  rodGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(
+      [1.08, 0.92, 0.22, 0.2, 0.28, 0.05, 0.2, 0.28, 0.05, 0, 0.02, 0],
+      3,
+    ),
+  );
+  const rod = new LineSegments(
+    rodGeometry,
+    new LineBasicMaterial({ color: 0x45413b }),
+  );
+  rod.name = "ice fishing rod and line";
+  group.add(rod);
+  return group;
+}
+
 function createSettledSnow(): Group {
   const group = new Group();
   group.name = "Deep snowdrifts and snowploughs";
@@ -322,6 +369,7 @@ function createSettledSnow(): Group {
     );
     group.add(mesh);
   }
+  group.add(createIceFisher());
   return group;
 }
 

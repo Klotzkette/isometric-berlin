@@ -15,6 +15,7 @@ local ZIP starts, and which legal/attribution rules apply.
 | Metric precision and expected limits | [metric-precision.md](metric-precision.md) |
 | Monument recognition geometry and evidence status | [monument-detail.md](monument-detail.md) |
 | Tiergartentunnel geometry status and cutaway rules | [tiergartentunnel-geometry.md](tiergartentunnel-geometry.md) |
+| U-/S-Bahn passenger-network cutaway and accuracy limits | [underground-network.md](underground-network.md) |
 | Known correctness checks | [correctness-crosscheck.md](correctness-crosscheck.md) |
 
 ## Build And Viewer

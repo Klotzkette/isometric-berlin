@@ -16,7 +16,7 @@ const ground = voxelPayload as unknown as VoxelPayload;
 
 describe("C13: the aboveground railway", () => {
   test("the payload carries a viaduct, piers and drawn tracks", () => {
-    expect(rail.schema_version).toBe(1);
+    expect(rail.schema_version).toBe(2);
     expect(rail.viaduct.length).toBeGreaterThan(0);
     expect(rail.piers.length).toBeGreaterThan(100);
     expect(rail.viaduct_tracks.length).toBeGreaterThan(0);

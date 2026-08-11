@@ -1170,21 +1170,13 @@ export function App() {
   const flipVertical = useCallback(() => {
     if (viewerMode === "three") {
       const next = !isThreeUnderside;
-      if (next) {
-        const tunnelLandmark = landmarks.find(
-          (landmark) => landmark.name === "Kemperplatz / Tiergartentunnel",
-        );
-        if (tunnelLandmark) {
-          focusLandmark(tunnelLandmark, true);
-        }
-      }
       setIsThreeUnderside(next);
       threeViewerRef.current?.setUnderside(next);
       setStatus(
         next
           ? language === "de"
-            ? "Echte Untersicht · Tunnel sichtbar"
-            : "True underside · tunnel visible"
+            ? "Untergrundübersicht · Bahn und Straßentunnel sichtbar"
+            : "Underground overview · rail and road tunnels visible"
           : language === "de"
             ? "3D-Oberansicht"
             : "3D surface view",
@@ -1201,7 +1193,7 @@ export function App() {
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, [focusLandmark, isThreeUnderside, landmarks, language, viewerMode]);
+  }, [isThreeUnderside, language, viewerMode]);
 
   const resetOrientation = useCallback(() => {
     if (viewerMode === "three") {

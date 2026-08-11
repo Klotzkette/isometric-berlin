@@ -93,3 +93,66 @@ def test_every_drawn_track_is_a_real_chain(payload: dict) -> None:
     assert paths, f"{key} is empty"
     for path in paths:
       assert len(path) >= 2
+
+
+def test_underground_cutaway_keeps_real_osm_plan_geometry(payload: dict) -> None:
+  underground = payload["underground"]
+  assert underground["utility_networks_included"] is False
+  assert "not survey data" in underground["geometry_status"]
+  assert len(underground["tracks"]) > 150
+  assert len(underground["platforms"]) > 20
+  assert len(underground["entrances"]) > 40
+  for track in underground["tracks"]:
+    assert track["id"].startswith(("way/", "relation/"))
+    assert len(track["points"]) >= 2
+    assert track["depth_m"] > 0
+    assert track["track_y_m"] < underground["surface_reference_y_m"]
+
+
+def test_u5_and_north_south_sbahn_are_identified_without_snapping(
+  payload: dict,
+) -> None:
+  families = [track["line_family"] for track in payload["underground"]["tracks"]]
+  assert families.count("u5") >= 12
+  assert families.count("north_south_sbahn") >= 15
+  assert payload["route_evidence"]["u5"]["official_sequence"] == [
+    "Hauptbahnhof",
+    "Bundestag",
+    "Brandenburger Tor",
+    "Unter den Linden",
+  ]
+  assert payload["route_evidence"]["north_south_sbahn"]["official_sequence"] == [
+    "Friedrichstraße",
+    "Brandenburger Tor",
+    "Potsdamer Platz",
+    "Anhalter Bahnhof",
+  ]
+  assert payload["route_evidence"]["north_south_sbahn"]["services"] == [
+    "S1",
+    "S2",
+    "S25",
+    "S26",
+  ]
+  names = {
+    platform["name"]
+    for platform in payload["underground"]["platforms"]
+    if platform["name"]
+  }
+  for expected in {
+    "Hauptbahnhof",
+    "Bundestag",
+    "Brandenburger Tor",
+    "Friedrichstraße",
+    "Potsdamer Platz",
+    "Anhalter Bahnhof",
+  }:
+    assert expected in names
+
+
+def test_tram_catenary_is_tied_to_osm_tracks(payload: dict) -> None:
+  catenary = payload["tram_catenary"]
+  assert "approximation" in catenary["geometry_status"]
+  assert len(catenary["tracks"]) > 20
+  for track in catenary["tracks"]:
+    assert track["id"].startswith(("way/", "relation/"))
+    assert len(track["points"]) >= 2

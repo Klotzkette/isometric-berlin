@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.70.32"
+PACKAGE_VERSION = "0.70.33"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3521,6 +3521,15 @@ Oberflächenmodi an denselben verifizierten Koordinaten. Fahrzeuge,
 Fassadenrhythmen und die beschädigte Mauerkronen-Lesart sind ausdrücklich
 maßstäbliche Darstellungsannäherungen.
 
+Die Untersicht zeigt zusätzlich das reale OSM-Plannetz der unterirdischen
+Fern-, S- und U-Bahn-Gleise, Bahnsteige und Zugänge. U5 sowie der gemeinsame
+Nord-Süd-Korridor von S1/S2/S25/S26 sind farblich lesbar; Tiefen,
+Tunnelquerschnitte und gerade Zugangsschächte bleiben ausdrücklich schematisch.
+Es werden keine erfundenen Versorgungsleitungen dargestellt. Oberirdische
+Tram-Fahrdrähte folgen OSM-Trassen; ihre Höhe und Mastteilung sind angenähert.
+Wenige statische Personen, BVG-Busse, Autos, Fahrräder, E-Scooter und
+Kinderwagen geben Maßstab, ohne beobachteten Verkehr zu behaupten.
+
 Der vollständige begrenzte OSM-Wegebestand wird als echte Geländeoberfläche
 gezeichnet: 8.151 Geh-, Rad-, Stufen-, Feld- und Trampelpfad-Abschnitte, davon
 7.420 mit eingetragener Oberfläche und 988 mit eingetragener Breite. Asphalt,
@@ -3674,6 +3683,15 @@ OSM centreline and published 77.58 x 25.70 m dimensions. Detailed OSM path
 ribbons now cover every bounded park area, including Spreebogenpark,
 Futurium's public realm and Nordhafenpark. Recognition details remain
 explicitly labelled metric display approximations.
+
+The underside also reveals the real OSM plan network of underground mainline,
+S-Bahn and U-Bahn tracks, platforms and entrances. U5 and the shared
+S1/S2/S25/S26 North-South corridor carry restrained route colours; depths,
+tunnel sections and straight entrance shafts remain explicitly schematic. No
+invented utility pipes are shown. Surface tram contact wires follow OSM
+courses, with approximate height and mast rhythm. A few static people, BVG
+buses, cars, bicycles, e-scooters and strollers provide scale without claiming
+observed traffic.
 
 The complete bounded OSM path network is also drawn as terrain-following
 surface geometry: 8,151 footway, cycleway, path, pedestrian, step and track

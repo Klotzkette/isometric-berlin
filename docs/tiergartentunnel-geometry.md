@@ -74,9 +74,12 @@ In the true Three.js viewer the tunnel group remains loaded but is hidden in
 the normal exterior view. Crossing 90 degrees of polar orbit by mouse, touch,
 keyboard or the underside preset automatically fades the official surface and
 reveals the tunnel casings, roads, lights, lane marks and ventilation cues. The
-zero-server fallback follows the same visibility rule, and its Tunnel focus
-control enters underside mode before centring the route. The mode therefore
-follows the real camera angle instead of depending on one special button path.
+same underside camera also reveals the separately documented mapped passenger-
+rail cutaway and now frames their central crossing rather than forcing a close
+south-portal shot. Dedicated northbound/southbound controls still centre and
+fly through the Tiergartentunnel. The zero-server fallback follows the same
+visibility rule. The mode therefore follows the real camera angle instead of
+depending on one special button path.
 
 If a future agent finds official tunnel-survey geometry, keep the same
 public viewer semantics but replace only the approximate centreline /

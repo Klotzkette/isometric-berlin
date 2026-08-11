@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.70.32 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.32/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.70.33 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.70.33/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.70.32** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.70.33** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.70.32**, built from `main`. Its full viewer
+The current public package is **v0.70.33**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -60,6 +60,22 @@ local modules.
   buttons keep moving while held. A collision-free analogue orbit pad sits
   beside the desktop controls, while the existing compact touch controls stay
   unchanged on phones and tablets.
+
+- **The underside now reveals Berlin's mapped passenger-rail structure as an
+  architectural cutaway.** All 207 underground rail, S-Bahn and U-Bahn track
+  parts, 40 platform shapes and 78 subway entrances retain their committed OSM
+  plan geometry and source ids. U5 and the shared S1/S2/S25/S26 North-South
+  corridor carry restrained route cues; inferred depth levels, sections and
+  entrance shafts are explicitly schematic, and no utility pipe network is
+  invented. The dedicated underside control frames this network together with
+  the Tiergartentunnel instead of forcing an extreme portal close-up.
+
+- **Transit and scale cues stay sparse and stable.** Tram contact wires follow
+  all 49 mapped surface-tram parts while their height/mast rhythm is documented
+  as approximate; lamp posts remain the official Berlin lighting extract.
+  Eighteen static people, two yellow BVG buses, three cars, bikes, e-scooters
+  and two strollers add scale without animation. Snowstorm gains one tiny ice
+  fisher on a mapped Tiergarten pond alongside the existing snowploughs.
 
 - **Kulturforum and Potsdamer Platz use stronger source-aligned recognition.**
   Gemäldegalerie, Kunstbibliothek/Kupferstichkabinett,
@@ -462,8 +478,10 @@ local modules.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an
-  orbit crosses below ground; the underside control remains a direct tunnel
-  preset. The underside no longer activates underwater fog, and its lamps,
+  orbit crosses below ground; the underside control now frames the mapped
+  passenger-rail network and Tiergartentunnel together. The dedicated bracket
+  controls retain the direct road-tunnel flights. The underside no longer
+  activates underwater fog, and its lamps,
   markings and ventilation cues preserve their drawing order instead of
   disappearing behind the road deck. Only the two open portal troughs are
   exterior geometry: the buried middle route and obsolete duplicate portal

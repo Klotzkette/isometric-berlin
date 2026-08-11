@@ -226,6 +226,10 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "static water ripple ribbons",
   "three hidden Tiergarten beavers",
   "vessel wake ribbons",
+  "tram contact wires",
+  "tram catenary masts",
+  "sparse city life bodies",
+  "sparse city life ink lines",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */
