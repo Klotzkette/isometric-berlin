@@ -423,6 +423,20 @@ export function startupCurtainMayOpen(
   return status === "ready" || (status === "fallback" && baseSurfaceReady);
 }
 
+export function presentationFogRange(
+  mode: LightingMode,
+  underside: boolean,
+): { far: number; near: number } | null {
+  // Weather and horizon haze belong to the exterior. Reusing them below the
+  // city made the Snowstorm cutaway nearly blank and unnecessarily softened
+  // Minecraft's route lines. The underground keeps one clear spatial
+  // contract in every mode; route palettes still carry the mode distinction.
+  if (underside) return null;
+  if (mode === "minecraft") return minecraftFogRange();
+  if (mode === "snowstorm") return { near: 540, far: 2_250 };
+  return null;
+}
+
 type HeroDetailGroup = {
   group: Group;
   lastUsed: number;
@@ -430,8 +444,12 @@ type HeroDetailGroup = {
   loading: boolean;
 };
 
-const DEFAULT_TARGET = new Vector3(-110, 12, -165);
-const DEFAULT_CAMERA_OFFSET = new Vector3(540, 430, 650);
+// Match the pre-manifest camera to the public default focus. The regular
+// landmark-focus path replaces this with the gate's authored camera as soon as
+// scene.json is available, but keeping the bootstrap camera on the same anchor
+// prevents a one-frame Chancellery detour when the startup curtain opens.
+const DEFAULT_TARGET = new Vector3(417.898, 21, 300.453);
+const DEFAULT_CAMERA_OFFSET = new Vector3(111, 57, 34);
 const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
@@ -1052,12 +1070,10 @@ function setSceneLighting(
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
   // das will ich überhaupt nicht"): the ivory model stays crisp to the
   // horizon. Only Minecraft keeps its genre haze.
-  const voxelFog = minecraftFogRange();
-  runtime.scene.fog = isMinecraft
-    ? new Fog(sky, voxelFog.near, voxelFog.far)
-    : isSnowstorm
-      ? new Fog(sky, 540, 2_250)
-      : null;
+  const fogRange = presentationFogRange(mode, runtime.underside);
+  runtime.scene.fog = fogRange
+    ? new Fog(sky, fogRange.near, fogRange.far)
+    : null;
   // Tone response per mode: the drawn modes reproduce authored paint with
   // no film curve, Minecraft keeps ACES for its lit cubes. See
   // presentationTone.ts for the measurements behind that split.
@@ -1213,6 +1229,20 @@ function setSceneLighting(
       runtime.minecraftMaterialState,
       true,
     );
+    if (runtime.underside) {
+      // Keep the contextual underside shell photographic and quiet. Toon
+      // shading on its double-sided 13% surfaces reads as metallic shards.
+      setMinecraftMaterialPresentation(
+        runtime.interactionSurface,
+        runtime.minecraftMaterialState,
+        false,
+      );
+      setMinecraftMaterialPresentation(
+        runtime.settledSurface,
+        runtime.minecraftMaterialState,
+        false,
+      );
+    }
   }
   runtime.crispPass.enabled = false;
   const crispness = CRISPNESS_PROFILES[isNight ? "night" : "day"];
@@ -1952,6 +1982,14 @@ export function setTunnelPresentation(
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
   runtime.renderInvalidated = true;
+  const fogRange = presentationFogRange(runtime.lightingMode, underside);
+  const fogColor =
+    runtime.scene.background instanceof Color
+      ? runtime.scene.background.getHex()
+      : 0xdcf3f9;
+  runtime.scene.fog = fogRange
+    ? new Fog(fogColor, fogRange.near, fogRange.far)
+    : null;
   if (underside) {
     runtime.marker.visible = false;
   }
@@ -1978,6 +2016,20 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.undergroundNetwork.visible = underside;
   runtime.cityStaffage.visible = !underside;
   runtime.tramCatenary.visible = !underside;
+  if (voxelMode && underside) {
+    // Entering the underside without changing mode must apply the same shell
+    // exception as setSceneLighting above.
+    setMinecraftMaterialPresentation(
+      runtime.interactionSurface,
+      runtime.minecraftMaterialState,
+      false,
+    );
+    setMinecraftMaterialPresentation(
+      runtime.settledSurface,
+      runtime.minecraftMaterialState,
+      false,
+    );
+  }
   setTunnelPortalPresentation(
     runtime.tunnelPortals,
     underside,

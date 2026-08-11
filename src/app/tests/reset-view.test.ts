@@ -42,8 +42,8 @@ const WRECKED_STATES: Array<[string, ViewState]> = [
 ];
 
 describe("reset returns to the default view", () => {
-  test("the default view is the Chancellery in daylight, north up", () => {
-    expect(DEFAULT_VIEW.focus).toBe("Bundeskanzleramt");
+  test("the default view is Brandenburg Gate in daylight, north up", () => {
+    expect(DEFAULT_VIEW.focus).toBe("Brandenburger Tor");
     expect(DEFAULT_VIEW.focus).toBe(DEFAULT_FOCUS_LANDMARK);
     expect(DEFAULT_VIEW.lightingMode).toBe("day");
     expect(DEFAULT_VIEW.rotationDegrees).toBe(NORTH_UP_ROTATION);
@@ -56,7 +56,7 @@ describe("reset returns to the default view", () => {
     const target = resolveResetView();
     expect(isDefaultView(target)).toBe(true);
     expect(target.lightingMode).toBe("day");
-    expect(target.focus).toBe("Bundeskanzleramt");
+    expect(target.focus).toBe("Brandenburger Tor");
   });
 
   test("resetting an already-default view is a no-op", () => {

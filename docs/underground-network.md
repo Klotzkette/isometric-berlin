@@ -49,6 +49,11 @@ texture and no transparent shell, avoiding both visual clutter and alpha-layer
 flicker. Day, Night, Minecraft and Snowstorm recolour the same geometry without
 rebuilding or moving it.
 
+Exterior horizon and snow fog are always disabled after the camera enters the
+underside. Minecraft retains the same subdued mapped context shell as the other
+modes instead of applying its opaque toon material to that transparent shell.
+This keeps every mode legible and makes a settled underground frame static.
+
 Surface tram contact wires follow committed OSM tram courses. Their 5.8 m wire
 height and 35 m mast rhythm are explicit presentation approximations. Street
 lamp locations and types remain the official Geoportal Berlin public-lighting

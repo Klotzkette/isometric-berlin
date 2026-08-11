@@ -10,6 +10,7 @@ import {
 } from "../src/UndergroundNetwork";
 import railJson from "../public/mesh/regierungsviertel/rail-lines.json";
 import groundJson from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+import type { VisualMode } from "../src/visualMode";
 
 const rail = railJson as unknown as RailPayload;
 const ground = groundJson as unknown as VoxelPayload;
@@ -52,20 +53,39 @@ describe("the mapped underground passenger cutaway", () => {
     ).toBeInstanceOf(LineSegments);
   });
 
-  test("changes its restrained route palette losslessly by mode", () => {
+  test("changes its restrained route palette losslessly in all four modes", () => {
     const group = createUndergroundNetwork(rail)!;
     const u5 = group.getObjectByName("underground u5 track beds") as Mesh;
-    const day = u5.material;
-    expect(Array.isArray(day)).toBe(false);
-    setUndergroundPresentation(group, "night");
-    const nightHex = !Array.isArray(u5.material)
-      ? (u5.material as { color: { getHex: () => number } }).color.getHex()
-      : 0;
+    const drawObjects: Array<Mesh | LineSegments> = [];
+    group.traverse((object) => {
+      if (object instanceof Mesh || object instanceof LineSegments) {
+        drawObjects.push(object);
+      }
+    });
+    const geometries = drawObjects.map((object) => object.geometry);
+    const modes: VisualMode[] = ["day", "night", "minecraft", "snowstorm"];
+
+    for (const mode of modes) {
+      setUndergroundPresentation(group, mode);
+      for (const object of drawObjects) {
+        const material = object.material;
+        expect(Array.isArray(material)).toBe(false);
+        if (Array.isArray(material)) continue;
+        const palette = material.userData.modePalette as Record<
+          VisualMode,
+          number
+        >;
+        expect(Object.keys(palette).sort()).toEqual([...modes].sort());
+        expect(material.color.getHex()).toBe(palette[mode]);
+      }
+      expect(drawObjects.map((object) => object.geometry)).toEqual(geometries);
+      expect(group.visible).toBe(true);
+    }
+
     setUndergroundPresentation(group, "day");
     const dayHex = !Array.isArray(u5.material)
       ? (u5.material as { color: { getHex: () => number } }).color.getHex()
       : 0;
-    expect(nightHex).not.toBe(dayHex);
     expect(dayHex).toBe(0xc99b32);
   });
 

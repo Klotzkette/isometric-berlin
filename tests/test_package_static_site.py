@@ -105,6 +105,7 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "Reichstag" in html
   assert "Bundeskanzleramt" in html
   assert "DEFAULT_FOCUS_LANDMARK" in html
+  assert 'const DEFAULT_FOCUS_LANDMARK = "Brandenburger Tor"' in html
   assert "PRIORITY_LANDMARKS" in html
   assert "addLandmarkList" in html
   assert 'className = "marker"' not in html

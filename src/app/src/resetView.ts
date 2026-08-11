@@ -1,10 +1,10 @@
 import type { VisualMode } from "./visualMode";
 
-// The one view the app promises to come back to: the Chancellery hero shot
-// in daylight, north up, right way round. Kept here rather than in App so
+// The one view the app promises to come back to: the Brandenburg Gate hero
+// shot in daylight, north up, right way round. Kept here rather than in App so
 // the contract can be asserted without rendering React.
 export const NORTH_UP_ROTATION = 296.565051177078;
-export const DEFAULT_FOCUS_LANDMARK = "Bundeskanzleramt";
+export const DEFAULT_FOCUS_LANDMARK = "Brandenburger Tor";
 
 export type ViewState = {
   focus: string;

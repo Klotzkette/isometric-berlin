@@ -115,6 +115,10 @@ adds a bounded camera-following field (2,400 flakes on desktop, 1,100 on touch
 devices), 168 deterministic drifts and three snowploughs. It never moves a
 building anchor and does not cover the tunnel interior or underside cutaway.
 
+A fresh session and the Reset command both focus Brandenburger Tor in Day mode.
+Explicit landmark deep links still override that default. The zero-server
+fallback uses the same start landmark.
+
 **Day is a drawn isometric city**: the lumpy photogrammetry
 buildings are replaced by prisms extruded from the surveyed LoD2 footprint
 polygons (`lod2-prisms.json`, built by

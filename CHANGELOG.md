@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.70.34
+
+- **Brandenburger Tor is now the single start and reset focus.** The React
+  viewer, pre-manifest Three.js camera, bilingual Reset label and double-click
+  offline fallback no longer detour through the Bundeskanzleramt. Explicit
+  landmark deep links remain authoritative.
+- **All four underground modes now remain clear and coherent.** Exterior
+  Minecraft/snow horizon fog is disabled below ground, fixing a Snowstorm
+  cutaway that was almost blank. Minecraft restores the quiet mapped context
+  shell instead of applying toon shading that produced bright fragments; route
+  geometry and palettes remain unchanged.
+- **Cross-mode QA is now contractual.** Tests cover all four underground
+  palettes without geometry rebuilds, the fog boundary and both online/offline
+  defaults. Browser checks covered Day, Night, Minecraft and Snowstorm above
+  and below ground at 1600×900, plus 1024×768 and 390×844 starts. Every settled
+  underground pair was byte-identical and the browser console stayed clean.
+  The visible radius remains **5,230 m**; data, geometry and attribution are
+  unchanged.
+
 ## v0.70.33
 
 - **The underside becomes a real passenger-network cutaway instead of a single

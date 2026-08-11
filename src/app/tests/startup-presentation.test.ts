@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  presentationFogRange,
   startupCurtainMayOpen,
   startupPresentationStatus,
 } from "../src/ThreeViewer";
@@ -92,5 +93,19 @@ describe("startup presentation gate", () => {
     expect(curtainRule).toContain("background-color: inherit");
     expect(curtainRule).not.toContain("opacity");
     expect(curtainRule).not.toContain("transition");
+  });
+
+  test("keeps every underground mode clear of exterior weather and horizon fog", () => {
+    const modes: VisualMode[] = ["day", "night", "minecraft", "snowstorm"];
+    for (const mode of modes) {
+      expect(presentationFogRange(mode, true), mode).toBeNull();
+    }
+    expect(presentationFogRange("minecraft", false)).not.toBeNull();
+    expect(presentationFogRange("snowstorm", false)).toEqual({
+      near: 540,
+      far: 2_250,
+    });
+    expect(presentationFogRange("day", false)).toBeNull();
+    expect(presentationFogRange("night", false)).toBeNull();
   });
 });

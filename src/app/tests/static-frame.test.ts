@@ -138,4 +138,11 @@ describe("idle-frame anti-flicker contract", () => {
     }
     expect(civicDetailsVisible(true)).toBe(false);
   });
+
+  test("keeps the Minecraft underground shell out of the toon-material pass", () => {
+    expect(viewerSource).toContain("if (voxelMode && underside)");
+    expect(viewerSource).toContain("runtime.interactionSurface");
+    expect(viewerSource).toContain("runtime.settledSurface");
+    expect(viewerSource).toContain("metallic shards");
+  });
 });
