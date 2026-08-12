@@ -18,6 +18,7 @@ import {
   createMinecraftVoxelWorld,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
+import { isChancelleryExtensionConstructionPoint } from "../src/chancelleryExtensionProfile";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   BERLIN_MODERN_PROFILE,
@@ -138,13 +139,18 @@ describe("true voxel Minecraft world", () => {
     const columns = instanced("Voxel building columns", world).count;
     expect(columns).toBeGreaterThanOrEqual(payload.buildings.length);
     expect(columns).toBeLessThanOrEqual(payload.buildings.length * 2);
-    expect(instanced("Voxel tree trunks", world).count).toBe(
-      payload.trees.length,
-    );
+    const visibleTreeCount = payload.trees.filter(
+      ([xIdx, zIdx]) =>
+        !isChancelleryExtensionConstructionPoint(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+        ),
+    ).length;
+    expect(instanced("Voxel tree trunks", world).count).toBe(visibleTreeCount);
     // Crowns: one per tree plus a stacked spruce top on some species.
     const crowns = instanced("Voxel tree crowns", world).count;
-    expect(crowns).toBeGreaterThanOrEqual(payload.trees.length);
-    expect(crowns).toBeLessThanOrEqual(payload.trees.length * 2);
+    expect(crowns).toBeGreaterThanOrEqual(visibleTreeCount);
+    expect(crowns).toBeLessThanOrEqual(visibleTreeCount * 2);
     // Blocky by construction: thousands of surveyed building columns.
     expect(payload.buildings.length).toBeGreaterThan(10_000);
   });

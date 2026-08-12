@@ -22,6 +22,7 @@ import {
   Vector2,
   Vector3,
 } from "three";
+import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 
 export type ParkPath = {
   id: string;
@@ -1285,8 +1286,22 @@ export function createParkDetails(
   }
   const group = new Group();
   group.name = "Additive open-data park and civic surface details";
-  const trees = decodeTrees(payload.trees, payload.tree_vocabulary);
-  const streetLights = payload.street_lights ?? [];
+  const sourceTrees = decodeTrees(payload.trees, payload.tree_vocabulary);
+  const trees = sourceTrees.filter(
+    (tree) =>
+      !isChancelleryExtensionConstructionPoint(
+        tree.position[0],
+        tree.position[2],
+      ),
+  );
+  const sourceStreetLights = payload.street_lights ?? [];
+  const streetLights = sourceStreetLights.filter(
+    (light) =>
+      !isChancelleryExtensionConstructionPoint(
+        light.position[0],
+        light.position[2],
+      ),
+  );
   const wallTraces = payload.wall_traces ?? [];
   group.userData = {
     attribution: payload.source.attribution,
@@ -1294,6 +1309,9 @@ export function createParkDetails(
     pathCount: payload.paths.length,
     playgroundCount: payload.playgrounds.length,
     streetLightCount: streetLights.length,
+    suppressedConstructionStreetLightCount:
+      sourceStreetLights.length - streetLights.length,
+    suppressedConstructionTreeCount: sourceTrees.length - trees.length,
     treeCount: trees.length,
   };
   addPaths(group, payload.paths);

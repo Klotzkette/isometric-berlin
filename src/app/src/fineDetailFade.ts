@@ -242,6 +242,9 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Swiss Embassy historic roof fine detail",
   "Amtssitz presidential standard eagle red details front",
   "Amtssitz presidential standard eagle red details back",
+  "Chancellery extension construction details bodies",
+  "Chancellery extension construction details lamps",
+  "Chancellery extension construction details ink lines",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

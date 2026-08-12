@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.71.13
+
+- **The current Federal Chancellery extension is now represented at its real
+  construction position across the Spree.** OSM ways `1434663371` and
+  `1315319770` fix the curved office shell and low service wing without moving
+  their footprints; way `1357789475` bounds the worksite. The official six-storey
+  programme and the Federal Government's 10 April 2026 status update define a
+  largely completed shell under technical fit-out rather than a fictional
+  finished building.
+- **The installed South Bridge and a restrained active worksite make the phase
+  legible.** OSM way `1357796197` fixes bridge bearing and midpoint, while the
+  officially published 180 m span fixes its displayed structural length.
+  Partial scaffold, two tower cranes, perimeter fencing, barriers, gravel
+  aprons and material stacks are static, source-bounded presentation estimates;
+  they are not described as surveyed temporary positions. Obsolete park trees
+  and lamps are removed only inside the mapped construction polygon.
+- **The new detail remains stable in every surface mode.** Cool glazing replaces
+  occupied-looking orange day bands, sparse fit-out panes become warm only at
+  night, and dense scaffold detail uses the existing hysteretic fade before it
+  can shimmer in overview. Focused contracts pin every source way, footprint,
+  bridge rule, material state and worksite suppression. Day, Night and Minecraft
+  visual checks preserve the same metre-scale site. The visible radius remains
+  **5,230 m**; bounds, attribution and source hierarchy are unchanged.
+
 ## v0.71.12
 
 - **The Swiss Embassy's Otto-von-Bismarck-Allee front now follows the supplied

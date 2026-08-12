@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.12 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.12/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.13 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.13/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.12** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.13** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,22 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.12**, built from `main`. Its full viewer
+The current public package is **v0.71.13**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The current Federal Chancellery extension work is now visible across the
+  Spree instead of leaving an obsolete park surface.** Current OSM construction
+  ways fix the curved six-storey office shell, low service wing, complete site
+  boundary and the South Bridge axis. The Federal Government's April 2026
+  project update fixes the displayed stage as a largely completed shell under
+  technical fit-out, while the published 180 m bridge length controls the
+  installed crossing. Two restrained work aprons, partial scaffold, cranes,
+  fencing, barriers and material stacks communicate that active phase without
+  claiming temporary equipment as surveyed. Old trees and lamps are suppressed
+  only within the mapped worksite; Day, Night and Minecraft share the same
+  metre-scale placement.
 
 - **The Swiss Embassy now has its photographed historic street front.** Its
   measured LoD2 envelope remains fixed, while the 1870/71 palace adds the

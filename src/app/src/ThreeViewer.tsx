@@ -56,6 +56,7 @@ import {
 } from "./ArchitecturalLandmarks";
 import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
 import { createMeiningerHotel } from "./MeiningerHotel";
+import { createChancelleryExtension } from "./ChancelleryExtension";
 import { createCivicLandmarks } from "./CivicLandmarks";
 import {
   centralCivicDetailsVisible,
@@ -1631,6 +1632,13 @@ function ensureIsoWorld(
         const office = createSpreebogenOffice(ground);
         if (office) {
           runtime.signatures.add(office);
+        }
+        // Current OSM footprints and the installed South Bridge define the
+        // western Kanzlerpark extension; temporary site detail stays labelled.
+        const extension = createChancelleryExtension(ground);
+        if (extension) {
+          markAuthoredFlatUnlit(extension);
+          runtime.signatures.add(extension);
         }
         // The hotel's exact LoD2 shell is suppressed from the generic prism
         // batch and rebuilt with its current OSM ten-storey facade plus the

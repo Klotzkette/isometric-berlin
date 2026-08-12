@@ -227,6 +227,18 @@ crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
 Quadriga. These models sharpen silhouettes without replacing the aligned
 Berlin Mesh texture beneath them.
 
+Across the Spree, the Chancellery extension is a separate present-day
+construction layer. OSM construction ways `1434663371`, `1315319770` and
+`1357789475` fix the two shell footprints and complete worksite boundary; OSM
+way `1357796197` fixes the South Bridge axis. The Federal Government's published
+six-storey programme and 10 April 2026 update fix the represented stage as a
+largely completed shell in technical fit-out, and the official 180 m bridge
+length controls the displayed crossing. Storey rhythm, sparse lit fit-out
+panes, partial scaffold, cranes, fencing, barriers, gravel aprons and stored
+materials are bounded recognition details rather than surveyed temporary
+positions. Trees and street lamps from older source snapshots are suppressed
+only inside the current construction polygon.
+
 The cultural recognition layer keeps similarly small features readable without
 altering the official base mesh. The 32 x 26 m TIPI has twenty structural ribs,
 220 warm rib bulbs, a night-only four-colour show wash and the requested golden

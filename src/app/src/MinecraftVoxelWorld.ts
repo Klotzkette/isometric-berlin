@@ -19,6 +19,7 @@ import {
   NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
+import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import {
   AXIS_FROM,
   AXIS_TO,
@@ -1799,9 +1800,16 @@ export function createMinecraftVoxelWorld(
     group.add(panes);
   }
 
-  const trunks = instancedBoxes("Voxel tree trunks", payload.trees.length);
-  const crowns = instancedBoxes("Voxel tree crowns", payload.trees.length * 2);
-  for (const [xIdx, zIdx, y0dm, hdm] of payload.trees) {
+  const visibleTrees = payload.trees.filter(
+    ([xIdx, zIdx]) =>
+      !isChancelleryExtensionConstructionPoint(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+      ),
+  );
+  const trunks = instancedBoxes("Voxel tree trunks", visibleTrees.length);
+  const crowns = instancedBoxes("Voxel tree crowns", visibleTrees.length * 2);
+  for (const [xIdx, zIdx, y0dm, hdm] of visibleTrees) {
     const y0 = y0dm / 10;
     const height = Math.max(cell, hdm / 10);
     const trunkHeight = Math.max(cell / 2, height - cell * 1.5);

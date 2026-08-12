@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.71.12"
+PACKAGE_VERSION = "0.71.13"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3528,6 +3528,12 @@ Oberflächenmodi an denselben verifizierten Koordinaten. Fahrzeuge,
 Fassadenrhythmen und die beschädigte Mauerkronen-Lesart sind ausdrücklich
 maßstäbliche Darstellungsannäherungen.
 
+Der aktuelle Erweiterungsbau des Bundeskanzleramts auf der anderen Spreeseite
+folgt seinen OSM-Baugrundrissen und der amtlich veröffentlichten Bauphase vom
+April 2026. Der weitgehend fertige Rohbau, die installierte Südbrücke und der
+technische Ausbau sind quellengebunden; Gerüst, Kräne, Zäune, Sperren und
+Materiallager bleiben ausdrücklich statische Darstellungsannäherungen.
+
 Die Untersicht zeigt zusätzlich das reale OSM-Plannetz der unterirdischen
 Fern-, S- und U-Bahn-Gleise, Bahnsteige und Zugänge. U5 sowie der gemeinsame
 Nord-Süd-Korridor von S1/S2/S25/S26 sind farblich lesbar; Tiefen,
@@ -3697,6 +3703,12 @@ OSM centreline and published 77.58 x 25.70 m dimensions. Detailed OSM path
 ribbons now cover every bounded park area, including Spreebogenpark,
 Futurium's public realm and Nordhafenpark. Recognition details remain
 explicitly labelled metric display approximations.
+
+The current Federal Chancellery extension across the Spree follows its OSM
+construction footprints and the officially published April 2026 stage. The
+largely completed shell, installed South Bridge and technical fit-out are
+source-bounded; scaffold, cranes, fencing, barriers and material storage remain
+explicitly labelled static display approximations.
 
 The underside also reveals the real OSM plan network of underground mainline,
 S-Bahn and U-Bahn tracks, platforms and entrances. U5 and the shared
