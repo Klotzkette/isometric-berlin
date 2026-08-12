@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.15 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.15/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.16 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.16/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.15** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.16** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,17 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.15**, built from `main`. Its full viewer
+The current public package is **v0.71.16**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The opening view now starts above the Platz der Republik lawn in front of
+  the Reichstag.** The elevated camera frames the west facade, flags and glass
+  dome immediately; Reset returns to the same view. The bootstrap camera and
+  the final landmark focus share one pose, preventing a visible jump while the
+  scene loads. The pedestrian mode remains at realistic eye height and is not
+  affected.
 
 - **Brandenburg Gate and Pariser Platz now carry a photograph-bounded close
   detail pass.** The published 62.5 x 11 x 26 m gate envelope and official

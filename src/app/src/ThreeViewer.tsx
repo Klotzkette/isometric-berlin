@@ -118,6 +118,10 @@ import {
   type PedestrianInput,
   type PedestrianState,
 } from "./pedestrianNavigation";
+import {
+  DEFAULT_THREE_CAMERA_OFFSET,
+  DEFAULT_THREE_TARGET_WORLD,
+} from "./resetView";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
   FINE_DETAIL_LAYER_NAMES,
@@ -481,11 +485,11 @@ type HeroDetailGroup = {
 };
 
 // Match the pre-manifest camera to the public default focus. The regular
-// landmark-focus path replaces this with the gate's authored camera as soon as
-// scene.json is available, but keeping the bootstrap camera on the same anchor
-// prevents a one-frame Chancellery detour when the startup curtain opens.
-const DEFAULT_TARGET = new Vector3(417.898, 21, 300.453);
-const DEFAULT_CAMERA_OFFSET = new Vector3(111, 57, 34);
+// landmark-focus path replaces this with the Reichstag's authored camera as
+// soon as scene.json is available; both poses stand over the Platz der
+// Republik lawn, so the startup curtain cannot reveal a framing jump.
+const DEFAULT_TARGET = new Vector3(...DEFAULT_THREE_TARGET_WORLD);
+const DEFAULT_CAMERA_OFFSET = new Vector3(...DEFAULT_THREE_CAMERA_OFFSET);
 const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;

@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.71.16
+
+- **The viewer now opens above the Platz der Republik lawn in front of the
+  Reichstag.** Its default and reset focus changes from Brandenburg Gate to the
+  Reichstag, using the existing surveyed Reichstag anchor and its authored
+  elevated west-front camera. The camera footprint lies within roughly five
+  metres of the committed lawn/bosquet reference point, while the higher
+  roughly 60 m eye position frames the west facade, flags and glass dome
+  together without leaving the lawn footprint.
+- **Startup, reset and offline fallback now agree.** The pre-manifest Three.js
+  camera uses the same target and bearing as the final Reichstag focus, so the
+  loading curtain cannot reveal an intermediate landmark jump. German and
+  English control labels, the React reset contract and `START-HERE.html` all
+  identify the Reichstag as the default. Pedestrian mode intentionally keeps
+  its realistic 1.8 m eye-height spawn on Pariser Platz. The visible radius
+  remains **5,230 m**; geometry, attribution and source hierarchy are unchanged.
+
 ## v0.71.15
 
 - **Brandenburg Gate now reproduces the architectural hierarchy visible in

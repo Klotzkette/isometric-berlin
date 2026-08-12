@@ -257,6 +257,13 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
 
   assert by_id["reichstag-model"]["depth_m"] == 138.0
   assert by_id["reichstag-model"]["rotation_y_degrees"] == 0.0
+  assert by_id["reichstag-model"]["focus_camera"] == {
+    "distance_m": 183.0,
+    "polar_degrees": 78.0,
+    "azimuth_degrees": -46.0,
+    "target_height_m": 18.0,
+    "fov_degrees": 39.0,
+  }
   assert by_id["bundeskanzleramt-model"]["cube_height_m"] == 36.0
   assert by_id["bundeskanzleramt-model"]["office_height_m"] == 18.0
   assert by_id["bundeskanzleramt-model"]["forecourt_offset_world"] is not None

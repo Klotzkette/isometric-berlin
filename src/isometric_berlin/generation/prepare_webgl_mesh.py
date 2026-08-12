@@ -684,10 +684,11 @@ def architectural_signature_payload(
       "depth_m": 138.0,
       "body_height_m": round(reichstag_height, 3),
       "focus_camera": {
-        "distance_m": 205.0,
-        "polar_degrees": 61.0,
+        "distance_m": 183.0,
+        "polar_degrees": 78.0,
         "azimuth_degrees": -46.0,
         "target_height_m": 18.0,
+        "fov_degrees": 39.0,
       },
       "source_url": REICHSTAG_ARCHITECTURE_SOURCE_URL,
     }

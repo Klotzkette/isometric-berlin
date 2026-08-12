@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.71.15"
+PACKAGE_VERSION = "0.71.16"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -1491,7 +1491,7 @@ START_HERE_HTML = """<!doctype html>
     }
     const savedPreferences = readPreferences();
     const startParams = readStartParams();
-    const DEFAULT_FOCUS_LANDMARK = "Brandenburger Tor";
+    const DEFAULT_FOCUS_LANDMARK = "Reichstagsgebäude";
     const PRIORITY_LANDMARKS = new Set([
       "Bundeskanzleramt",
       "Reichstagsgebäude",

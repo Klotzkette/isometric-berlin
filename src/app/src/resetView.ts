@@ -1,10 +1,17 @@
 import type { VisualMode } from "./visualMode";
 
-// The one view the app promises to come back to: the Brandenburg Gate hero
-// shot in daylight, north up, right way round. Kept here rather than in App so
-// the contract can be asserted without rendering React.
+// The one view the app promises to come back to: an elevated Reichstag hero
+// shot from above the Platz der Republik lawn in daylight. The bootstrap
+// camera mirrors the authored Reichstag focus camera so loading never detours
+// through a different landmark before the scene manifest is ready.
 export const NORTH_UP_ROTATION = 296.565051177078;
-export const DEFAULT_FOCUS_LANDMARK = "Brandenburger Tor";
+export const DEFAULT_FOCUS_LANDMARK = "Reichstagsgebäude";
+export const DEFAULT_THREE_TARGET_WORLD = [317.729, 21.595, 40.477] as const;
+export const DEFAULT_THREE_CAMERA_OFFSET = [
+  -128.763,
+  38.048,
+  124.345,
+] as const;
 
 export type ViewState = {
   focus: string;
