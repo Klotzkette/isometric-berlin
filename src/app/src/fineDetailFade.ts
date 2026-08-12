@@ -226,6 +226,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Moltkebrücke ornamental stone bodies",
   "Moltkebrücke ornamental stone lamps",
   "Moltkebrücke ornamental stone ink lines",
+  "Löwenbrücke bodies",
+  "Löwenbrücke ink lines",
   "static water ripple ribbons",
   "three hidden Tiergarten beavers",
   "vessel wake ribbons",

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.10 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.10/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.11 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.11/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.10** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.11** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,21 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.10**, built from `main`. Its full viewer
+The current public package is **v0.71.11**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Löwenbrücke is now Berlin's delicate historic suspension bridge, not
+  a four-cell grey park slab.** OSM way `1411957328` fixes its centre and
+  bearing; the published 17.3 m length and 2.0 m timber-deck width fix its
+  scale. The new recognition model draws the longitudinal deck boards,
+  nine-bay timber lattice, paired suspension cables, 22 vertical hangers,
+  light sandstone approaches and all four inward-facing bronzed lions. The
+  construction and colour register follows the official Berlin monument
+  record and the supplied current photographs. Those photographs remain
+  non-bundled visual references; small sculptural and joinery dimensions are
+  explicitly reconstructed rather than described as surveyed.
 
 - **The Federal Chancellery now follows its measured and published hierarchy
   instead of reading as a pale glass block.** Berlin LoD2 retains the 18 m
@@ -202,7 +213,8 @@ local modules.
   Upbeat no longer stand on one invented common platform, and the 50Hertz
   facade follows its official 13-storey high point instead of 16 generic rows.
 
-- **Bridges now carry their real structural identities.** Moltkebruecke,
+- **Bridges now carry their real structural identities.** Loewenbruecke,
+  Moltkebruecke,
   Kronprinzenbruecke, Sandkrugbruecke, Gustav-Heinemann-Bruecke,
   Hugo-Preuss-Bruecke, Weidendammer Bruecke, Golda-Meir-Steg and the Bundestag
   crossing each use a dedicated measured profile and recognisable construction
@@ -465,7 +477,8 @@ local modules.
   4.00 m dark olive-green, timber-decked Vierendeel Gustav-Heinemann footbridge;
   the curved, single-span 88.41 x 23.56 m steel-box Hugo-Preuss road bridge;
   the broad Sandkrug road bridge; and the 25.7 m-wide red-sandstone
-  Moltkebruecke. The interim Bundespräsidialamt uses
+  Moltkebruecke; and the 17.3 x 2.0 m timber suspension Loewenbruecke with its
+  four bronzed lions. The interim Bundespräsidialamt uses
   its current OSM bent-bar footprint instead of the former capsule/rectangle
   approximation. Topography of Terror carries a 200 m damaged Wall-fragment
   treatment aligned to the mapped trace, and Otto-Weidt-Platz keeps its actual

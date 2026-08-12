@@ -44,6 +44,7 @@ import {
   KULTURFORUM_PROFILE,
 } from "./expandedCityProfiles";
 import { createGoldelseFigure } from "./goldelse";
+import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
 import {
   type VoxelPayload,
   WATER_TOP_Y,
@@ -966,6 +967,7 @@ export function setIsoNightPresentation(
     "drawn quay walls",
     "bridge structure bodies",
     "bridge structure lamps",
+    "Löwenbrücke bodies",
     "Moltkebrücke ornamental stone bodies",
     "Moltkebrücke ornamental stone lamps",
     "Adlon bodies",
@@ -2478,6 +2480,7 @@ export type BridgeKind =
   | "slender"
   | "steelArch"
   | "stoneArch"
+  | "suspension"
   | "vierendeel";
 
 export type BridgePalette = {
@@ -2667,6 +2670,19 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     surveyedDeck: { halfLengthM: 16.3, halfWidthM: 14.4 },
     world: [185.4, -989.8],
   },
+  {
+    // Berlin's oldest suspension bridge: the published timber envelope is
+    // 17.3 x 2.0 m. OSM way 1411957328 fixes its centre and bearing across
+    // the Tiergarten watercourse; createLoewenBridge supplies the four
+    // historic lions, timber lattice, hangers and paired wire ropes.
+    axis: [...LOEWEN_BRIDGE_PROFILE.axis],
+    halfWidthM: LOEWEN_BRIDGE_PROFILE.surveyedDeck.halfWidthM,
+    kind: "suspension",
+    matchRadiusM: 18,
+    name: LOEWEN_BRIDGE_PROFILE.name,
+    surveyedDeck: { ...LOEWEN_BRIDGE_PROFILE.surveyedDeck },
+    world: [...LOEWEN_BRIDGE_PROFILE.world],
+  },
 ];
 
 export function bridgeProfileAt(x: number, z: number): BridgeProfile | null {
@@ -2842,6 +2858,12 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
     const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
+    // Its dedicated recognition model replaces this four-cell raster cluster.
+    // Drawing the generic bridge as well would leave a grey slab and duplicate
+    // rails directly beneath the historic timber suspension structure.
+    if (kind === "suspension") {
+      continue;
+    }
     const palette = profile?.palette ?? DEFAULT_PALETTE;
     const STONE = new Color(palette.structure);
     const STONE_DARK = new Color(palette.abutment);
@@ -4944,6 +4966,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       geometry.dispose();
     }
   }
+  group.add(createLoewenBridge(ground));
   return group;
 }
 

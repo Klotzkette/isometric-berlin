@@ -258,6 +258,18 @@ OSM-positioned granite plinths carry differentiated bronze deer, bison, elk,
 bear and bull silhouettes. The duplicate generic Bison node at the same
 eastern plinth as `Liegender Bison II` is the only suppressed record.
 
+The Löwenbrücke is a dedicated metre-scale recognition model at OSM way
+`1411957328`, replacing the former four-cell generic bridge raster rather than
+overdrawing it. Its published 17.3 m length and 2.0 m timber-deck width control
+the envelope; the official Berlin monument record controls the 1838 suspension
+principle, light-yellow timber, bronzed lions and pale sandstone bases. Nine
+lattice bays, ten longitudinal board runs, paired cables, 22 hangers and the
+four inward-facing lions reproduce the supplied current views. Exact lion,
+cable, railing and joinery dimensions remain labelled photo-bounded
+reconstruction, not survey geometry. The fine members use the shared
+distance-hysteresis and ink fade so the close view stays intricate without
+shimmering in the overview.
+
 `berlin modern` is handled as planning geometry because the museum is still
 under construction and therefore absent from the completed-building LoD2
 inventory. The model follows the architects' published 120 m length, 71 m

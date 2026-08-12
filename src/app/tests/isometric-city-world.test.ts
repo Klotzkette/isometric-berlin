@@ -1313,6 +1313,12 @@ describe("real bridge structures", () => {
       axis: [0.31623, 0.94868],
       kind: "openFrame",
     });
+    expect(profile("Löwenbrücke")).toMatchObject({
+      axis: [0.894279, 0.447511],
+      kind: "suspension",
+      surveyedDeck: { halfLengthM: 8.65, halfWidthM: 1 },
+      world: [-1766.908, 680.6395],
+    });
     expect(profile("Moltkebrücke").surveyedDeck).toEqual({
       halfLengthM: 38.79,
       halfWidthM: 12.85,
@@ -1373,7 +1379,9 @@ describe("real bridge structures", () => {
     expect(moltkeInk).toBeInstanceOf(LineSegments);
     const detailDayMaterial = moltkeDetails.material;
     const lampDayMaterial = moltkeLamps.material;
-    const inkDayColor = (moltkeInk.material as LineBasicMaterial).color.getHex();
+    const inkDayColor = (
+      moltkeInk.material as LineBasicMaterial
+    ).color.getHex();
     const { setIsoNightPresentation } =
       await import("../src/IsometricCityWorld");
     setIsoNightPresentation(city, true, true, "night");
@@ -1382,9 +1390,9 @@ describe("real bridge structures", () => {
     expect(
       (moltkeLamps.material as MeshStandardMaterial).emissive.getHex(),
     ).toBe(0xffc75c);
-    expect(
-      (moltkeInk.material as LineBasicMaterial).color.getHex(),
-    ).not.toBe(inkDayColor);
+    expect((moltkeInk.material as LineBasicMaterial).color.getHex()).not.toBe(
+      inkDayColor,
+    );
     setIsoNightPresentation(city, false, true, "day");
     expect(moltkeDetails.material).toBe(detailDayMaterial);
     expect(moltkeLamps.material).toBe(lampDayMaterial);
@@ -1421,6 +1429,30 @@ describe("real bridge structures", () => {
     const bodies = city.getObjectByName("bridge structure bodies") as Mesh;
     const positions = bodies.geometry.getAttribute("position");
     const normals = bodies.geometry.getAttribute("normal");
+    const loewenBridge = city.getObjectByName(
+      "Löwenbrücke recognition model",
+    ) as Group;
+    expect(loewenBridge).toBeInstanceOf(Group);
+    expect(loewenBridge.userData).toMatchObject({
+      hangerCount: 22,
+      lionCount: 4,
+      mainCableCount: 4,
+      osmWayId: "1411957328",
+    });
+    // The dedicated timber model replaces, rather than overlays, the old
+    // four-cell grey raster slab at the same coordinate.
+    let genericLoewenVertices = 0;
+    for (let index = 0; index < positions.count; index += 1) {
+      if (
+        Math.hypot(
+          positions.getX(index) - profile("Löwenbrücke").world[0],
+          positions.getZ(index) - profile("Löwenbrücke").world[1],
+        ) < 18
+      ) {
+        genericLoewenVertices += 1;
+      }
+    }
+    expect(genericLoewenVertices).toBe(0);
     let upwardMoltkeVertices = 0;
     for (let index = 0; index < positions.count; index += 1) {
       if (

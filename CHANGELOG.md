@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.71.11
+
+- **The Löwenbrücke now reads as Berlin's oldest suspension bridge instead of
+  a grey four-cell park crossing.** OSM way `1411957328` fixes its centre and
+  bearing over the Tiergarten watercourse. The published 17.3 m overall length
+  and 2.0 m timber-deck width fix the model envelope, while the official Berlin
+  monument record fixes the 1838 Hesse/Tieck construction, light-yellow wooden
+  superstructure, pale sandstone bases and four bronzed lions holding the
+  suspension ropes.
+- **The supplied current photographs now inform a bounded, texture-free
+  recognition pass.** Ten longitudinal board runs, a nine-bay crossed timber
+  lattice, four main cable strands, 22 vertical hangers, approach walls and
+  four individually articulated inward-facing lions replace the old generic
+  slab and rails. The photographs are not bundled or projected. Exact mane,
+  paw, cable-sag, railing and timber-section dimensions remain explicitly
+  reconstructed visual estimates rather than claimed survey geometry.
+- **The small bridge stays stable across scale and presentation.** Its flat day
+  paint and cool night material round-trip losslessly; Minecraft retains the
+  same metric recognition position. Fine bodies and ink use the existing
+  hysteretic distance fade before centimetre-scale members can alias in an
+  overview. Focused tests pin dimensions, OSM axis, four lions, suspension
+  counts, mode switching and complete removal of the duplicate grey raster
+  bridge. The visible radius remains **5,230 m**; bounds, attribution and the
+  additive source hierarchy are unchanged.
+
 ## v0.71.10
 
 - **The Bundeskanzleramt now reads as Schultes and Frank's layered government
