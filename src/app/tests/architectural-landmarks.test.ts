@@ -325,7 +325,7 @@ describe("metre-scale architectural recognition models", () => {
       cube_height_m: 36,
       cube_offset_world: [66.2, 0, -0.3],
       cube_width_m: 56.472,
-      forecourt_offset_world: [88, 0, 68],
+      forecourt_offset_world: [158.4, 0, -7.5],
       forecourt_sculpture_height_m: 5.5,
       id: "bundeskanzleramt-model",
       kind: "chancellery_model",
@@ -368,6 +368,19 @@ describe("metre-scale architectural recognition models", () => {
         "Chancellery batched central-cube curtain-wall grid",
       ),
     ).toBeInstanceOf(LineSegments);
+    expect(
+      chancellery!.children.filter(
+        (child) => child.name === "Chancellery central side curtain wall",
+      ),
+    ).toHaveLength(2);
+    expect(
+      chancellery!.children.filter(
+        (child) => child.name === "Chancellery central open floor plate",
+      ),
+    ).toHaveLength(8);
+    expect(
+      chancellery!.getObjectByName("Chancellery central glass cube"),
+    ).toBeUndefined();
     const chancelleryConcrete = chancellery!.getObjectByName(
       "Chancellery central concrete pylon",
     ) as Mesh;
@@ -415,6 +428,94 @@ describe("metre-scale architectural recognition models", () => {
         "Chancellery two Federal Police reflective chest bands",
       ),
     ).toBeInstanceOf(InstancedMesh);
+    expect(
+      chancellery!.getObjectByName("Chancellery monumental concave roof shell"),
+    ).toBeInstanceOf(Mesh);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery monumental concave roof shell drawn perimeter",
+      ),
+    ).toBeInstanceOf(LineSegments);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery Ehrenhof lower tensile entrance canopy",
+      ),
+    ).toBeInstanceOf(Mesh);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery batched Ehrenhof entrance glazing grid",
+      ),
+    ).toBeInstanceOf(LineSegments);
+    const ivyPanels = chancellery!.getObjectByName(
+      "Chancellery instanced Ehrenhof ivy wall patches",
+    );
+    expect(ivyPanels).toBeInstanceOf(InstancedMesh);
+    expect((ivyPanels as InstancedMesh).count).toBeGreaterThanOrEqual(32);
+    const guardhouse = chancellery!.getObjectByName(
+      "Chancellery rounded street security pavilion",
+    ) as Mesh;
+    expect(guardhouse).toBeInstanceOf(Mesh);
+    expect(guardhouse.geometry.type).toBe("CylinderGeometry");
+    expect(guardhouse.position.x).toBeGreaterThan(
+      signature.forecourt_offset_world![0],
+    );
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery street pavilion wraparound window band",
+      ),
+    ).toBeInstanceOf(Mesh);
+    const streetLamps = chancellery!.getObjectByName(
+      "Chancellery instanced oval street entrance lamp heads",
+    );
+    expect(streetLamps).toBeInstanceOf(InstancedMesh);
+    expect((streetLamps as InstancedMesh).count).toBe(5);
+    const fenceBars = chancellery!.getObjectByName(
+      "Chancellery instanced street security fence bars",
+    );
+    expect(fenceBars).toBeInstanceOf(InstancedMesh);
+    expect((fenceBars as InstancedMesh).count).toBe(41);
+    expect(
+      chancellery!.children.filter((child) =>
+        child.name.startsWith("Chancellery Ehrenhof German German flag stripe"),
+      ),
+    ).toHaveLength(3);
+    const courtyardStripe = chancellery!.children.find((child) =>
+      child.name.startsWith("Chancellery Ehrenhof German German flag stripe"),
+    ) as Mesh;
+    courtyardStripe.geometry.computeBoundingBox();
+    expect(
+      courtyardStripe.geometry.boundingBox!.max.x -
+        courtyardStripe.geometry.boundingBox!.min.x,
+    ).toBeCloseTo(3.8, 5);
+    expect(
+      courtyardStripe.geometry.boundingBox!.max.y -
+        courtyardStripe.geometry.boundingBox!.min.y,
+    ).toBeCloseTo(2.6 / 3, 5);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery Ehrenhof EU European Union flag",
+      ),
+    ).toBeInstanceOf(Mesh);
+    expect(
+      chancellery!.children.filter((child) =>
+        child.name.startsWith("Chancellery central roof frame"),
+      ),
+    ).toHaveLength(8);
+    const entranceHall = chancellery!.getObjectByName(
+      "Chancellery Ehrenhof glazed entrance hall",
+    ) as Mesh;
+    const entranceHallEdges = chancellery!.getObjectByName(
+      "Chancellery Ehrenhof glazed entrance hall model edges",
+    ) as LineSegments;
+    expect(entranceHallEdges.rotation.y).toBeCloseTo(
+      entranceHall.rotation.y,
+      8,
+    );
+    const grassIslands = chancellery!.getObjectByName(
+      "Chancellery instanced Ehrenhof organic grass islands",
+    );
+    expect(grassIslands).toBeInstanceOf(InstancedMesh);
+    expect((grassIslands as InstancedMesh).count).toBe(5);
   });
 
   test("adds the Reichstag's four towers and west portico", () => {

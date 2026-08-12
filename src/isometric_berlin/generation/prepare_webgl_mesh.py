@@ -765,9 +765,9 @@ def architectural_signature_payload(
       "forecourt_sculpture_height_m": 5.5,
       "office_segments": office_segments,
       "focus_camera": {
-        "distance_m": 245.0,
-        "polar_degrees": 60.0,
-        "azimuth_degrees": 43.0,
+        "distance_m": 220.0,
+        "polar_degrees": 67.0,
+        "azimuth_degrees": 88.0,
         "target_height_m": 17.0,
       },
       "source_url": CHANCELLERY_ARCHITECTURE_SOURCE_URL,

@@ -260,6 +260,31 @@ export const KOLLHOFF_TOWER_PRISM_IDS: ReadonlySet<string> = new Set(
   KOLLHOFF_TOWER_PROFILE.payloadIds,
 );
 
+/**
+ * The 13 LoD2 parts forming the Chancellery's 36 m leadership cube.
+ *
+ * The recognition model reconstructs this complete central volume as an open
+ * concrete frame with glass halls, semicircular windows and the two canopies.
+ * Keeping these source prisms as well would turn the open Ehrenhof elevation
+ * into one opaque pale wall. The measured 18 m office-band prisms deliberately
+ * remain outside this set and continue to anchor the surrounding wings.
+ */
+export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
+  "XCNI3jr6",
+  "n02sJgK0",
+  "3Gfqy8sI",
+  "ttJFXdbg",
+  "SDUXI5wB",
+  "bP7AjElp",
+  "kJtNoSnl",
+  "MLwG4KW9",
+  "X6sFDl1v",
+  "xIEMuFtk",
+  "JC1pzD9P",
+  "DV754o6F",
+  "wgTapoMe",
+]);
+
 // Hand-pinned facade tones for hero prisms (payload building ids, last 8
 // chars of the LoD2 id), matching the owner's colour direction: the
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
@@ -360,6 +385,11 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // recognition model with the current ten-storey facade, entrance and roof
   // frame; retaining this generic prism would double every edge and window.
   "K0002MxA",
+  // Bundeskanzleramt leadership cube. The dedicated model retains the official
+  // 36 m height and measured footprint while exposing its open frame, glass,
+  // semicircular halls and Ehrenhof canopies. Only the central high-rise parts
+  // are replaced; all measured 18 m office-band prisms remain authoritative.
+  ...CHANCELLERY_CENTRAL_PRISM_IDS,
 ]);
 
 // v0.56.1 ("beiger Kasten ueber den Gleisen"): the Hauptbahnhof used to be

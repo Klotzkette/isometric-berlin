@@ -1051,6 +1051,28 @@ describe("real-colour facade tones", () => {
 });
 
 describe("hero prism pins", () => {
+  test("replaces only the Chancellery leadership cube, not its office bands", async () => {
+    const { CHANCELLERY_CENTRAL_PRISM_IDS, PRISM_SUPPRESSED_IDS } =
+      await import("../src/IsometricCityWorld");
+
+    expect(CHANCELLERY_CENTRAL_PRISM_IDS.size).toBe(13);
+    for (const id of CHANCELLERY_CENTRAL_PRISM_IDS) {
+      expect(payload.buildings.some((building) => building.id === id)).toBe(
+        true,
+      );
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(true);
+    }
+
+    // The 21.8 m LoD2 office bands surrounding the 36 m central cube stay as
+    // surveyed geometry and must never disappear with the replacement shell.
+    for (const id of ["o2mpm3tp", "EUNWDW97", "qroWLJfL"]) {
+      expect(payload.buildings.some((building) => building.id === id)).toBe(
+        true,
+      );
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(false);
+    }
+  });
+
   test("the Chancellery is pinned light grey, per the owner's direction", async () => {
     const { HERO_PRISM_TONES } = await import("../src/IsometricCityWorld");
     const chancellery = HERO_PRISM_TONES.MLwG4KW9;

@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.71.10
+
+- **The Bundeskanzleramt now reads as Schultes and Frank's layered government
+  building rather than an opaque pale block.** The published 55 m leadership
+  building, 36 m height and 18 m side wings remain fixed to Berlin LoD2 and
+  the official architecture record. Thirteen overlapping high-rise prisms are
+  replaced only inside the complete central recognition model; the measured
+  office-band prisms stay authoritative. The former full transparent cube is
+  split into thin north/south curtain walls, eight visible floor plates, an
+  open concrete roof frame, two semicircular leadership halls and finely drawn
+  glazing, eliminating the stacked transparency that obscured the elevation.
+- **The supplied Ehrenhof and street-side photographs now inform a bounded
+  procedural detail pass.** A gridded entrance hall, monumental concave upper
+  shell, lower tensile canopy with masts, colonnade, ivy-clad side wings,
+  louvred windows, German/EU protocol flags, rounded street security pavilion,
+  oval lamps, fence, paved court and five organic lawn islands reproduce the
+  visible architectural cues. OSM artwork node `4329873408` corrects the
+  5.5 m/90 t Chillida `Berlin` sculpture from the old south-side approximation
+  to the real eastern Ehrenhof. Photos remain non-bundled visual references;
+  unsurveyed fixture spacing and small dimensions are presentation estimates.
+- **A scene-start regression is fixed at its source.** The geometric lettering
+  alphabet lacked `Z`, so the existing `GLEISS LUTZ` Cube Berlin sign could
+  throw while the Three.js scene was built and expose the lower-resolution
+  compatibility map. A native line-drawn `Z` and a whole-scene alphabet test
+  keep the viewer in 3D. Focused contracts also pin the Chancellery's selective
+  LoD2 replacement, office-band retention, canopy contours, entrance details,
+  flags and corrected artwork relationship. Day, Night and Minecraft browser
+  checks pass without current errors. The visible radius remains **5,230 m**;
+  attribution and the additive source hierarchy are unchanged.
+
 ## v0.71.9
 
 - **The completed Amtssitz am Spreebogen now follows the supplied current

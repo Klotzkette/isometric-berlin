@@ -214,9 +214,14 @@ The four hero landmarks carry metre-scale recognition models over the official
 photogrammetry. The Reichstag combines its four corner towers and west portico
 with a transparent 40 m by 23.5 m dome anchored to the published 24 m terrace
 datum, 24 main ribs, 17 horizontal rings, two counter-rotating ramps and a
-mirror cone. The Chancellery separates its 36 m central cube, semicircular
-windows and 18 m office bands and locates the 5.5 m Chillida sculpture from its
-verified landmark point. Hauptbahnhof exposes the 321 m glass roof, 180 x 42 m
+mirror cone. The Chancellery keeps the published 36 m by 55 m leadership
+building and 18 m office bands, but opens the central east/west elevations into
+their concrete frame, semicircular halls, visible floor plates, concave roof
+shell and lower tensile canopy. Its 5.5 m Chillida sculpture is fixed by OSM
+artwork node `4329873408` in the eastern Ehrenhof; the entrance glazing, ivy
+wings, protocol flags, rounded security pavilion, lamps, fence and landscaped
+approach are bounded recognition details derived from supplied visual
+references rather than surveyed fixture measurements. Hauptbahnhof exposes the 321 m glass roof, 180 x 42 m
 crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
 62.5 x 11 x 26 m envelope, twelve Doric columns and articulated bronze-green
 Quadriga. These models sharpen silhouettes without replacing the aligned

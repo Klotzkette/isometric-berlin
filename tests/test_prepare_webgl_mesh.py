@@ -1,3 +1,5 @@
+import json
+
 import geopandas as gpd
 import numpy as np
 import pytest
@@ -270,3 +272,20 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
   }
   assert by_id["brandenburger-tor-model"]["columns_per_row"] == 6
   assert by_id["brandenburger-tor-model"]["total_height_m"] == 26.0
+
+
+def test_chancellery_forecourt_uses_the_surveyed_east_side_artwork() -> None:
+  landmarks = webgl.projected_landmarks()
+  buildings = gpd.read_file("geo_data/regierungsviertel/buildings.gpkg")
+  scene = json.loads(
+    webgl.OUTPUT_DIR.joinpath("scene.json").read_text(encoding="utf-8")
+  )
+  hero_details = {item["id"]: item["files"] for item in scene["hero_details"]}
+
+  signatures = architectural_signature_payload(landmarks, hero_details, buildings)
+  chancellery = next(
+    signature for signature in signatures if signature["id"] == "bundeskanzleramt-model"
+  )
+
+  assert chancellery["forecourt_offset_world"][0] > 150.0
+  assert abs(chancellery["forecourt_offset_world"][2]) < 10.0

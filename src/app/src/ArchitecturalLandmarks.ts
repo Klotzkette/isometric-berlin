@@ -174,6 +174,12 @@ type InstanceTransform = {
 
 type VectorSegment = [[number, number, number], [number, number, number]];
 
+type FlagDimensions = {
+  flagHeightM?: number;
+  flagWidthM?: number;
+  poleHeightM?: number;
+};
+
 function nightEmitter<T extends MeshStandardMaterial>(
   material: T,
   color: number,
@@ -288,6 +294,23 @@ function addBox(
   return mesh;
 }
 
+function addOrientedBox(
+  group: Group,
+  name: string,
+  size: [number, number, number],
+  position: [number, number, number],
+  rotationY: number,
+  material: MeshStandardMaterial | MeshPhysicalMaterial,
+  edgeOpacity = 0,
+): Mesh {
+  const mesh = addBox(group, name, size, position, material);
+  mesh.rotation.y = rotationY;
+  if (edgeOpacity > 0) {
+    addEdges(group, mesh, edgeOpacity);
+  }
+  return mesh;
+}
+
 function addInstancedGeometry(
   group: Group,
   name: string,
@@ -388,13 +411,99 @@ function addCylinderBetween(
   return mesh;
 }
 
+function addChancellerySaddleCanopy(
+  group: Group,
+  name: string,
+  centre: Vector3,
+  lateral: Vector3,
+  forward: Vector3,
+  width: number,
+  depth: number,
+  height: number,
+  material: MeshStandardMaterial | MeshPhysicalMaterial,
+): Mesh {
+  const ACROSS_STEPS = 16;
+  const DEPTH_STEPS = 8;
+  const vertices: number[] = [];
+  const indices: number[] = [];
+  const point = (across: number, longitudinal: number): Vector3 => {
+    const u = (across / ACROSS_STEPS) * 2 - 1;
+    const v = (longitudinal / DEPTH_STEPS) * 2 - 1;
+    return centre
+      .clone()
+      .addScaledVector(lateral, (u * width) / 2)
+      .addScaledVector(forward, (v * depth) / 2)
+      .add(new Vector3(0, height * (u * u - v * v), 0));
+  };
+  for (let longitudinal = 0; longitudinal <= DEPTH_STEPS; longitudinal += 1) {
+    for (let across = 0; across <= ACROSS_STEPS; across += 1) {
+      vertices.push(...point(across, longitudinal).toArray());
+    }
+  }
+  const row = ACROSS_STEPS + 1;
+  for (let longitudinal = 0; longitudinal < DEPTH_STEPS; longitudinal += 1) {
+    for (let across = 0; across < ACROSS_STEPS; across += 1) {
+      const a = longitudinal * row + across;
+      const b = a + 1;
+      const c = a + row;
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  const canopy = new Mesh(geometry, material);
+  canopy.name = name;
+  canopy.castShadow = true;
+  canopy.receiveShadow = true;
+  group.add(canopy);
+  const perimeter: VectorSegment[] = [];
+  const edgePoint = (across: number, longitudinal: number): Vector3 =>
+    point(across, longitudinal).add(new Vector3(0, 0.035, 0));
+  for (let across = 0; across < ACROSS_STEPS; across += 1) {
+    perimeter.push([
+      edgePoint(across, 0).toArray(),
+      edgePoint(across + 1, 0).toArray(),
+    ]);
+    perimeter.push([
+      edgePoint(across, DEPTH_STEPS).toArray(),
+      edgePoint(across + 1, DEPTH_STEPS).toArray(),
+    ]);
+  }
+  for (
+    let longitudinal = 0;
+    longitudinal < DEPTH_STEPS;
+    longitudinal += 1
+  ) {
+    perimeter.push([
+      edgePoint(0, longitudinal).toArray(),
+      edgePoint(0, longitudinal + 1).toArray(),
+    ]);
+    perimeter.push([
+      edgePoint(ACROSS_STEPS, longitudinal).toArray(),
+      edgePoint(ACROSS_STEPS, longitudinal + 1).toArray(),
+    ]);
+  }
+  addVectorSegments(
+    group,
+    `${name} drawn perimeter`,
+    perimeter,
+    EDGE_COLOR,
+    0.74,
+  );
+  return canopy;
+}
+
 function addGermanFlag(
   group: Group,
   name: string,
   position: [number, number, number],
+  dimensions: FlagDimensions = {},
 ): void {
   const pole = modelMaterial(0x6f7675, { metalness: 0.62, roughness: 0.3 });
-  const poleHeight = REICHSTAG_FLAGPOLE_HEIGHT_M;
+  const poleHeight = dimensions.poleHeightM ?? REICHSTAG_FLAGPOLE_HEIGHT_M;
   const poleMesh = new Mesh(
     new CylinderGeometry(0.12, 0.16, poleHeight, 10),
     pole,
@@ -405,9 +514,10 @@ function addGermanFlag(
   group.add(poleMesh);
 
   const stripeColors = [0x151515, 0xc82f35, 0xe5b93f];
-  const flagWidth = REICHSTAG_FLAG_WIDTH_M;
-  const stripeHeight = REICHSTAG_FLAG_HEIGHT_M / 3;
-  const flagTop = position[1] + poleHeight - 0.65;
+  const flagWidth = dimensions.flagWidthM ?? REICHSTAG_FLAG_WIDTH_M;
+  const flagHeight = dimensions.flagHeightM ?? REICHSTAG_FLAG_HEIGHT_M;
+  const stripeHeight = flagHeight / 3;
+  const flagTop = position[1] + poleHeight - flagHeight * 0.13;
   for (let index = 0; index < stripeColors.length; index += 1) {
     const geometry = new PlaneGeometry(flagWidth, stripeHeight, 18, 3);
     geometry.translate(flagWidth / 2, 0, 0);
@@ -435,12 +545,13 @@ function addEuropeanFlag(
   group: Group,
   name: string,
   position: [number, number, number],
+  dimensions: FlagDimensions = {},
 ): void {
   const poleMaterial = modelMaterial(0x6f7675, {
     metalness: 0.62,
     roughness: 0.3,
   });
-  const poleHeight = REICHSTAG_FLAGPOLE_HEIGHT_M;
+  const poleHeight = dimensions.poleHeightM ?? REICHSTAG_FLAGPOLE_HEIGHT_M;
   const pole = new Mesh(
     new CylinderGeometry(0.12, 0.16, poleHeight, 10),
     poleMaterial,
@@ -450,9 +561,10 @@ function addEuropeanFlag(
   pole.castShadow = true;
   group.add(pole);
 
-  const flagWidth = REICHSTAG_FLAG_WIDTH_M;
-  const flagHeight = REICHSTAG_FLAG_HEIGHT_M;
-  const flagCentreY = position[1] + poleHeight - 0.65 - flagHeight / 2;
+  const flagWidth = dimensions.flagWidthM ?? REICHSTAG_FLAG_WIDTH_M;
+  const flagHeight = dimensions.flagHeightM ?? REICHSTAG_FLAG_HEIGHT_M;
+  const flagCentreY =
+    position[1] + poleHeight - flagHeight * 0.13 - flagHeight / 2;
   const flagGeometry = new PlaneGeometry(flagWidth, flagHeight, 18, 8);
   flagGeometry.translate(flagWidth / 2, 0, 0);
   const flag = new Mesh(
@@ -466,7 +578,7 @@ function addEuropeanFlag(
   group.add(flag);
 
   const stars = new InstancedMesh(
-    new CircleGeometry(0.16, 5),
+    new CircleGeometry(flagHeight * 0.032, 5),
     new MeshBasicMaterial({ color: 0xffd447, side: DoubleSide }),
     12,
   );
@@ -480,8 +592,8 @@ function addEuropeanFlag(
   for (let index = 0; index < 12; index += 1) {
     const angle = (index / 12) * Math.PI * 2;
     const starPosition: [number, number, number] = [
-      position[0] + flagWidth / 2 + Math.cos(angle) * 1.05,
-      flagCentreY + Math.sin(angle) * 1.05,
+      position[0] + flagWidth / 2 + Math.cos(angle) * flagHeight * 0.21,
+      flagCentreY + Math.sin(angle) * flagHeight * 0.21,
       position[2] - 0.015,
     ];
     dummy.position.set(...starPosition);
@@ -1404,6 +1516,348 @@ function addChancelleryOfficeBand(
   }
 }
 
+function addChancelleryCourtyardArchitecture(
+  group: Group,
+  signature: ChancelleryModelSignature,
+): void {
+  if (!signature.forecourt_offset_world) {
+    return;
+  }
+  const cube = new Vector3(
+    signature.cube_offset_world[0],
+    0,
+    signature.cube_offset_world[2],
+  );
+  const court = new Vector3(
+    signature.forecourt_offset_world[0],
+    0,
+    signature.forecourt_offset_world[2],
+  );
+  const forward = court.clone().sub(cube).normalize();
+  const lateral = new Vector3(-forward.z, 0, forward.x);
+  const concrete = nightEmitter(
+    modelMaterial(0xf3f1e9, { roughness: 0.78 }),
+    0x6d7480,
+    0.28,
+  );
+  const glass = nightEmitter(
+    modelMaterial(0x91b5ba, {
+      metalness: 0.08,
+      opacity: 0.48,
+      roughness: 0.25,
+    }),
+    0xffd69a,
+    0.86,
+  );
+  const canopyMaterial = nightEmitter(
+    modelMaterial(0xe9e7df, { roughness: 0.66 }),
+    0xffe0a3,
+    0.48,
+  );
+  const ivy = modelMaterial(0x526d45, { roughness: 0.95 });
+  const metal = modelMaterial(0x6c7474, {
+    metalness: 0.52,
+    roughness: 0.4,
+  });
+  const facadeHeading = Math.atan2(forward.x, forward.z);
+
+  const facadeCentre = cube.clone().addScaledVector(forward, 29.1);
+  addOrientedBox(
+    group,
+    "Chancellery Ehrenhof glazed entrance hall",
+    [29, 12.4, 0.7],
+    [facadeCentre.x, 8.4, facadeCentre.z],
+    facadeHeading,
+    glass,
+    0.5,
+  );
+  const entranceGrid: VectorSegment[] = [];
+  for (let bay = -6; bay <= 6; bay += 1) {
+    const point = facadeCentre.clone().addScaledVector(lateral, bay * 2.15);
+    entranceGrid.push([
+      [point.x, 2.2, point.z],
+      [point.x, 14.6, point.z],
+    ]);
+  }
+  for (const y of [5.2, 8.4, 11.6, 14.6]) {
+    const left = facadeCentre.clone().addScaledVector(lateral, -14.5);
+    const right = facadeCentre.clone().addScaledVector(lateral, 14.5);
+    entranceGrid.push([
+      [left.x, y, left.z],
+      [right.x, y, right.z],
+    ]);
+  }
+  addVectorSegments(
+    group,
+    "Chancellery batched Ehrenhof entrance glazing grid",
+    entranceGrid,
+    0x697f82,
+    0.72,
+  );
+
+  const upperCanopy = addChancellerySaddleCanopy(
+    group,
+    "Chancellery monumental concave roof shell",
+    cube
+      .clone()
+      .addScaledVector(forward, 2.4)
+      .add(new Vector3(0, 31.8, 0)),
+    lateral,
+    forward,
+    51,
+    36,
+    3.8,
+    concrete,
+  );
+  upperCanopy.renderOrder = 5;
+  addChancellerySaddleCanopy(
+    group,
+    "Chancellery Ehrenhof lower tensile entrance canopy",
+    cube
+      .clone()
+      .addScaledVector(forward, 35)
+      .add(new Vector3(0, 7.8, 0)),
+    lateral,
+    forward,
+    29,
+    13.5,
+    1.25,
+    canopyMaterial,
+  );
+  for (const side of [-1, 1]) {
+    const support = cube
+      .clone()
+      .addScaledVector(forward, 38)
+      .addScaledVector(lateral, side * 11.8);
+    addCylinderBetween(
+      group,
+      "Chancellery Ehrenhof tensile-canopy mast",
+      new Vector3(support.x, 0.2, support.z),
+      new Vector3(support.x, 9.2, support.z),
+      0.16,
+      metal,
+      12,
+    );
+  }
+
+  const wingCentre = cube.clone().addScaledVector(forward, 62);
+  const ivyPatches: InstanceTransform[] = [];
+  const wingWindows: InstanceTransform[] = [];
+  const wingHeading = Math.atan2(-forward.z, forward.x);
+  for (const side of [-1, 1]) {
+    const sideCentre = wingCentre.clone().addScaledVector(lateral, side * 27.4);
+    for (const offset of [-18, -6, 6, 18]) {
+      const pane = sideCentre.clone().addScaledVector(forward, offset);
+      wingWindows.push({
+        position: [pane.x, 9.1, pane.z],
+        rotation: [0, wingHeading, 0],
+      });
+    }
+    for (let patch = -11; patch <= 11; patch += 1) {
+      if (patch % 6 === 0) {
+        continue;
+      }
+      const point = sideCentre.clone().addScaledVector(forward, patch * 2.2);
+      ivyPatches.push({
+        position: [point.x, 8.6 + (Math.abs(patch) % 3) * 0.3, point.z],
+        rotation: [0, wingHeading, 0],
+        scale: [1, 0.82 + (Math.abs(patch * 7) % 5) * 0.04, 1],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Chancellery instanced Ehrenhof ivy wall patches",
+    [1.5, 14.6, 0.38],
+    ivy,
+    ivyPatches,
+  );
+  addInstancedBoxes(
+    group,
+    "Chancellery instanced Ehrenhof wing louvred windows",
+    [5.8, 5.2, 0.5],
+    glass,
+    wingWindows,
+  );
+
+  const courtyardFlagDimensions: FlagDimensions = {
+    flagHeightM: 2.6,
+    flagWidthM: 3.8,
+    poleHeightM: 12,
+  };
+  addGermanFlag(
+    group,
+    "Chancellery Ehrenhof German",
+    [court.x + lateral.x * -7.2, 0, court.z + lateral.z * -7.2],
+    courtyardFlagDimensions,
+  );
+  addEuropeanFlag(
+    group,
+    "Chancellery Ehrenhof EU",
+    [court.x + lateral.x * 7.2, 0, court.z + lateral.z * 7.2],
+    courtyardFlagDimensions,
+  );
+  addCylinderBetween(
+    group,
+    "Chancellery Ehrenhof empty protocol flagpole",
+    court.clone().addScaledVector(forward, -1.5),
+    court
+      .clone()
+      .addScaledVector(forward, -1.5)
+      .add(new Vector3(0, 12, 0)),
+    0.12,
+    metal,
+    10,
+  );
+}
+
+function addChancelleryStreetEntrance(
+  group: Group,
+  signature: ChancelleryModelSignature,
+): void {
+  if (!signature.forecourt_offset_world) {
+    return;
+  }
+  const cube = new Vector3(
+    signature.cube_offset_world[0],
+    0,
+    signature.cube_offset_world[2],
+  );
+  const court = new Vector3(
+    signature.forecourt_offset_world[0],
+    0,
+    signature.forecourt_offset_world[2],
+  );
+  const streetDirection = court.clone().sub(cube).normalize();
+  const lateral = new Vector3(-streetDirection.z, 0, streetDirection.x);
+  const entrance = court.clone().addScaledVector(streetDirection, 24);
+  const heading = Math.atan2(streetDirection.x, streetDirection.z);
+  const concrete = nightEmitter(
+    modelMaterial(0xf1efe7, { roughness: 0.8 }),
+    0x657181,
+    0.3,
+  );
+  const glass = nightEmitter(
+    modelMaterial(0x77969a, {
+      metalness: 0.08,
+      opacity: 0.58,
+      roughness: 0.22,
+    }),
+    0xffd28a,
+    0.9,
+  );
+  const metal = modelMaterial(0x6f7778, {
+    metalness: 0.55,
+    roughness: 0.38,
+  });
+
+  const guardhouse = new Mesh(
+    new CylinderGeometry(9.6, 9.6, 7.1, 64),
+    concrete,
+  );
+  guardhouse.name = "Chancellery rounded street security pavilion";
+  guardhouse.position.set(entrance.x, 5.1, entrance.z);
+  guardhouse.castShadow = true;
+  group.add(guardhouse);
+  addEdges(group, guardhouse, 0.62);
+  const windowBand = new Mesh(
+    new CylinderGeometry(9.72, 9.72, 2.55, 64, 1, true),
+    glass,
+  );
+  windowBand.name = "Chancellery street pavilion wraparound window band";
+  windowBand.position.set(entrance.x, 5.4, entrance.z);
+  windowBand.renderOrder = 7;
+  group.add(windowBand);
+  const glazedBase = new Mesh(
+    new CylinderGeometry(9.28, 9.28, 2.1, 64, 1, true),
+    glass,
+  );
+  glazedBase.name = "Chancellery street pavilion glazed security base";
+  glazedBase.position.set(entrance.x, 1.35, entrance.z);
+  glazedBase.renderOrder = 7;
+  group.add(glazedBase);
+  const roof = new Mesh(new CylinderGeometry(10.4, 10.4, 0.45, 64), concrete);
+  roof.name = "Chancellery street pavilion cantilevered round roof";
+  roof.position.set(entrance.x, 8.82, entrance.z);
+  group.add(roof);
+  addOrientedBox(
+    group,
+    "Chancellery street pavilion flat entrance canopy",
+    [29, 0.38, 7.5],
+    [
+      entrance.x + streetDirection.x * 6.2,
+      3.25,
+      entrance.z + streetDirection.z * 6.2,
+    ],
+    heading,
+    concrete,
+    0.5,
+  );
+
+  const lampPosts: InstanceTransform[] = [];
+  const lampHeads: InstanceTransform[] = [];
+  for (const offset of [-28, -14, 0, 14, 28]) {
+    const base = entrance
+      .clone()
+      .addScaledVector(lateral, offset)
+      .addScaledVector(streetDirection, 13.5);
+    lampPosts.push({ position: [base.x, 3.7, base.z] });
+    lampHeads.push({
+      position: [
+        base.x + streetDirection.x * 0.7,
+        7.4,
+        base.z + streetDirection.z * 0.7,
+      ],
+      rotation: [Math.PI / 2, heading, 0],
+      scale: [1, 0.35, 1.6],
+    });
+  }
+  addInstancedGeometry(
+    group,
+    "Chancellery instanced street entrance lamp posts",
+    new CylinderGeometry(0.12, 0.17, 7.4, 10),
+    metal,
+    lampPosts,
+  );
+  addInstancedGeometry(
+    group,
+    "Chancellery instanced oval street entrance lamp heads",
+    new SphereGeometry(0.72, 16, 10),
+    nightEmitter(modelMaterial(0xe4e0d2, { roughness: 0.5 }), 0xffd590, 0.95),
+    lampHeads,
+  );
+
+  const fencePosts: InstanceTransform[] = [];
+  const fenceRails: VectorSegment[] = [];
+  const fenceCentre = entrance.clone().addScaledVector(streetDirection, 11.2);
+  for (let index = -20; index <= 20; index += 1) {
+    const point = fenceCentre.clone().addScaledVector(lateral, index * 1.55);
+    fencePosts.push({ position: [point.x, 1.25, point.z] });
+  }
+  for (const y of [0.55, 2.35]) {
+    const left = fenceCentre.clone().addScaledVector(lateral, -31);
+    const right = fenceCentre.clone().addScaledVector(lateral, 31);
+    fenceRails.push([
+      [left.x, y, left.z],
+      [right.x, y, right.z],
+    ]);
+  }
+  addInstancedGeometry(
+    group,
+    "Chancellery instanced street security fence bars",
+    new CylinderGeometry(0.045, 0.045, 2.5, 6),
+    metal,
+    fencePosts,
+  );
+  addVectorSegments(
+    group,
+    "Chancellery batched street security fence rails",
+    fenceRails,
+    0x687273,
+    0.82,
+  );
+}
+
 /**
  * Schultes and Frank's documented articulation, which the LoD2 extents
  * cannot carry: the radial tracery of the two semicircular leadership
@@ -1589,27 +2043,37 @@ function addChancelleryDocumentedDetail(
   }
   // The Ehrenhof is framed by a row of slender round columns carrying a
   // thin architrave.
-  const [courtX, , courtZ] = signature.forecourt_offset_world;
+  const court = new Vector3(
+    signature.forecourt_offset_world[0],
+    0,
+    signature.forecourt_offset_world[2],
+  );
+  const cube = new Vector3(cubeX, 0, cubeZ);
+  const forward = court.clone().sub(cube).normalize();
+  const lateral = new Vector3(-forward.z, 0, forward.x);
+  const colonnadeCentre = cube.clone().addScaledVector(forward, 27.2);
+  const facadeHeading = Math.atan2(forward.x, forward.z);
   const COLUMN_HEIGHT = 15.4;
   const COLUMN_COUNT = 11;
   const columnSpan = 46;
   for (let index = 0; index < COLUMN_COUNT; index += 1) {
-    const columnX =
-      courtX - columnSpan / 2 + (index / (COLUMN_COUNT - 1)) * columnSpan;
+    const offset = -columnSpan / 2 + (index / (COLUMN_COUNT - 1)) * columnSpan;
+    const position = colonnadeCentre.clone().addScaledVector(lateral, offset);
     const column = new Mesh(
       new CylinderGeometry(0.52, 0.6, COLUMN_HEIGHT, 12),
       concrete,
     );
     column.name = `Chancellery Ehrenhof column ${index + 1}`;
-    column.position.set(columnX, COLUMN_HEIGHT / 2, courtZ - 17.5);
+    column.position.set(position.x, COLUMN_HEIGHT / 2, position.z);
     column.castShadow = true;
     group.add(column);
   }
-  addBox(
+  addOrientedBox(
     group,
     "Chancellery Ehrenhof colonnade architrave",
     [columnSpan + 2.4, 1.15, 1.5],
-    [courtX, COLUMN_HEIGHT + 0.58, courtZ - 17.5],
+    [colonnadeCentre.x, COLUMN_HEIGHT + 0.58, colonnadeCentre.z],
+    facadeHeading,
     concrete,
     0.78,
   );
@@ -1692,39 +2156,92 @@ function addChancelleryForecourt(
     return;
   }
   const [x, , z] = signature.forecourt_offset_world;
+  const cube = new Vector3(
+    signature.cube_offset_world[0],
+    0,
+    signature.cube_offset_world[2],
+  );
+  const court = new Vector3(x, 0, z);
+  const forward = court.clone().sub(cube).normalize();
+  const lateral = new Vector3(-forward.z, 0, forward.x);
+  const plazaStart = cube.clone().addScaledVector(forward, 31);
+  const plazaEnd = court.clone().addScaledVector(forward, 21);
+  const plazaCentre = plazaStart.clone().add(plazaEnd).multiplyScalar(0.5);
+  const plazaLength = plazaStart.distanceTo(plazaEnd);
+  const plazaWidth = 76;
+  const plazaHeading = Math.atan2(-forward.z, forward.x);
   const paving = modelMaterial(0xcfd3cf, {
-    opacity: 0.34,
+    opacity: 0.7,
     roughness: 0.86,
   });
-  const joint = modelMaterial(0x7f8b89, {
-    opacity: 0.55,
-    roughness: 0.9,
-  });
-  addBox(
+  addOrientedBox(
     group,
     "Chancellery Ehrenhof paving",
-    [76, 0.16, 52],
-    [x, 0.08, z],
+    [plazaLength, 0.16, plazaWidth],
+    [plazaCentre.x, 0.08, plazaCentre.z],
+    plazaHeading,
     paving,
   );
-  for (let index = -4; index <= 4; index += 1) {
-    addBox(
-      group,
-      "Chancellery Ehrenhof east-west paving joint",
-      [76, 0.025, 0.08],
-      [x, 0.18, z + index * 5.6],
-      joint,
-    );
+  const pavingJoints: VectorSegment[] = [];
+  for (
+    let longitudinal = -plazaLength / 2 + 4.8;
+    longitudinal < plazaLength / 2;
+    longitudinal += 5.6
+  ) {
+    const centre = plazaCentre.clone().addScaledVector(forward, longitudinal);
+    const left = centre.clone().addScaledVector(lateral, -plazaWidth / 2);
+    const right = centre.clone().addScaledVector(lateral, plazaWidth / 2);
+    pavingJoints.push([
+      [left.x, 0.18, left.z],
+      [right.x, 0.18, right.z],
+    ]);
   }
-  for (let index = -6; index <= 6; index += 1) {
-    addBox(
-      group,
-      "Chancellery Ehrenhof north-south paving joint",
-      [0.08, 0.025, 52],
-      [x + index * 5.6, 0.18, z],
-      joint,
-    );
+  for (
+    let transverse = -plazaWidth / 2 + 4.8;
+    transverse < plazaWidth / 2;
+    transverse += 5.6
+  ) {
+    const centre = plazaCentre.clone().addScaledVector(lateral, transverse);
+    const start = centre.clone().addScaledVector(forward, -plazaLength / 2);
+    const end = centre.clone().addScaledVector(forward, plazaLength / 2);
+    pavingJoints.push([
+      [start.x, 0.18, start.z],
+      [end.x, 0.18, end.z],
+    ]);
   }
+  addVectorSegments(
+    group,
+    "Chancellery batched Ehrenhof stone paving joints",
+    pavingJoints,
+    0x7f8b89,
+    0.55,
+  );
+
+  const grass = modelMaterial(0x668a55, { roughness: 0.96 });
+  const grassIslandTransforms: InstanceTransform[] = [
+    [-12, -18, 5.6, 2.2],
+    [-4, 20, 7.2, 2.6],
+    [8, -22, 5.2, 2.1],
+    [13, 18, 6.4, 2.4],
+    [20, -8, 4.6, 2],
+  ].map(([along, across, width, depth]) => {
+    const centre = court
+      .clone()
+      .addScaledVector(forward, along)
+      .addScaledVector(lateral, across);
+    return {
+      position: [centre.x, 0.25, centre.z],
+      rotation: [0, plazaHeading, 0],
+      scale: [width, 1, depth],
+    };
+  });
+  addInstancedGeometry(
+    group,
+    "Chancellery instanced Ehrenhof organic grass islands",
+    new CylinderGeometry(1, 1, 0.18, 32),
+    grass,
+    grassIslandTransforms,
+  );
 
   const sculptureHeight = signature.forecourt_sculpture_height_m ?? 5.5;
   const steel = modelMaterial(0x8d4938, {
@@ -1908,14 +2425,35 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   const glassDepth = signature.cube_depth_m - 7;
   const glassMinY = signature.cube_height_m / 2 - glassHeight / 2;
   const glassMaxY = glassMinY + glassHeight;
-  addBox(
-    group,
-    "Chancellery central glass cube",
-    [glassWidth, glassHeight, glassDepth],
-    [cubeX, signature.cube_height_m / 2, cubeZ],
-    glass,
-    0.7,
-  );
+  // The leadership building is not a translucent aquarium. Its 55 m square
+  // envelope is broken open on the Ehrenhof and garden elevations by the two
+  // monumental semicircular halls. Draw only the thin north/south curtain
+  // walls and the real floor plates; a full glass box used to stack four
+  // transparent faces and read as a cyan slab from every oblique view.
+  for (const zSide of [-1, 1]) {
+    addBox(
+      group,
+      "Chancellery central side curtain wall",
+      [glassWidth, glassHeight, 0.42],
+      [
+        cubeX,
+        signature.cube_height_m / 2,
+        cubeZ + zSide * (glassDepth / 2 - 0.21),
+      ],
+      glass,
+      0.55,
+    );
+  }
+  for (const y of [3.5, 7, 10.5, 14, 17.5, 21, 24.5, 28]) {
+    addBox(
+      group,
+      "Chancellery central open floor plate",
+      [glassWidth - 1.2, 0.24, glassDepth - 1.2],
+      [cubeX, y, cubeZ],
+      concrete,
+      0.18,
+    );
+  }
   const cubeGrid: VectorSegment[] = [];
   const verticalBays = Math.max(10, Math.round(glassWidth / 3.8));
   for (const zSide of [-1, 1]) {
@@ -1958,14 +2496,35 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       );
     }
   }
-  addBox(
-    group,
-    "Chancellery central roof frame",
-    [signature.cube_width_m, 2.1, signature.cube_depth_m],
-    [cubeX, signature.cube_height_m - 1.05, cubeZ],
-    concrete,
-    0.84,
-  );
+  // The upper rectangle is an open structural frame around the concave roof,
+  // not a solid slab. Keeping the centre open also avoids coincident surfaces
+  // with the saddle canopy, a former source of shimmer in orbit views.
+  for (const side of [-1, 1]) {
+    addBox(
+      group,
+      "Chancellery central roof frame side beam",
+      [2.1, 2.1, signature.cube_depth_m],
+      [
+        cubeX + side * (signature.cube_width_m / 2 - 1.05),
+        signature.cube_height_m - 1.05,
+        cubeZ,
+      ],
+      concrete,
+      0.84,
+    );
+    addBox(
+      group,
+      "Chancellery central roof frame end beam",
+      [signature.cube_width_m - 4.2, 2.1, 2.1],
+      [
+        cubeX,
+        signature.cube_height_m - 1.05,
+        cubeZ + side * (signature.cube_depth_m / 2 - 1.05),
+      ],
+      concrete,
+      0.84,
+    );
+  }
 
   const windowGlass = nightEmitter(
     new MeshPhysicalMaterial({
@@ -2040,6 +2599,8 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       segment.height_m,
     );
   }
+  addChancelleryCourtyardArchitecture(group, signature);
+  addChancelleryStreetEntrance(group, signature);
   addChancelleryDocumentedDetail(group, signature);
   addChancelleryForecourt(group, signature);
   addChancelleryPolice(group, signature);
