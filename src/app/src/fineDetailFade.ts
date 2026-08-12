@@ -230,6 +230,9 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "tram catenary masts",
   "sparse city life bodies",
   "sparse city life ink lines",
+  "MEININGER Hotel facade details bodies",
+  "MEININGER Hotel facade details lamps",
+  "MEININGER Hotel facade details ink lines",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

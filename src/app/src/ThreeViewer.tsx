@@ -55,6 +55,7 @@ import {
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
 import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
+import { createMeiningerHotel } from "./MeiningerHotel";
 import { createCivicLandmarks } from "./CivicLandmarks";
 import {
   centralCivicDetailsVisible,
@@ -1436,7 +1437,9 @@ function setSceneLighting(
     // recognition shell belongs to the drawn modes and looked implausibly
     // exact beside the deliberately blocky station.
     if (
-      signature.name === "Metre-scale Berlin Hauptbahnhof recognition model"
+      signature.name === "Metre-scale Berlin Hauptbahnhof recognition model" ||
+      signature.name ===
+        "Measured MEININGER Hotel Hauptbahnhof recognition model"
     ) {
       signature.visible = !isMinecraft;
     }
@@ -1629,6 +1632,12 @@ function ensureIsoWorld(
         if (office) {
           runtime.signatures.add(office);
         }
+        // The hotel's exact LoD2 shell is suppressed from the generic prism
+        // batch and rebuilt with its current OSM ten-storey facade plus the
+        // owner-photographed entrance. Minecraft retains the source voxels.
+        const meininger = createMeiningerHotel(ground);
+        markAuthoredFlatUnlit(meininger);
+        runtime.signatures.add(meininger);
         const staffage = createCityStaffage(ground);
         if (staffage) {
           runtime.cityStaffage.add(staffage);

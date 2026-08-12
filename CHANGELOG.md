@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.71.7
+
+- **MEININGER Hotel Hauptbahnhof now occupies its exact measured shell.** The
+  Berlin LoD2 polygon `DEBE01YYK0002MxA`, its 31.082 m measured height and the
+  current OSM ten-storey hotel semantics replace the anonymous generic prism
+  at Ella-Trebe-Strasse 9. The stepped footprint is retained instead of being
+  simplified to a rectangle, and the recognition model stays inside the
+  surveyed vertical envelope.
+- **The two owner photographs now define a recognisable but source-honest
+  facade.** A procedural reconstruction adds the pale rendered upper storeys,
+  smooth panelled podium, 252 tall graphite-framed window fields, restrained
+  warm night rooms, glazed entrance and corner shop, black illuminated canopy,
+  entrance and rooftop lettering, open roof frame and eight stainless-steel
+  bollards. Neither photograph is bundled or projected as a texture; exact
+  window and fixture positions remain labelled unsurveyed estimates.
+- **One geometry owner prevents doubled edges and shimmer.** The generic drawn
+  prism is suppressed while the measured recognition shell is active, fine
+  hotel details fade before they alias at overview distance, and Minecraft
+  keeps its existing block-native source form instead of the detailed drawing.
+  Focused metric contracts cover source IDs, footprint, height, levels, detail
+  counts and day/night material states; settled Night frames were byte-identical.
+  The visible radius remains **5,230 m**; attribution and the additive source
+  hierarchy are unchanged.
+
 ## v0.71.6
 
 - **Grillstand HBF now occupies its mapped place beneath the western rail

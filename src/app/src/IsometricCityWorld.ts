@@ -358,6 +358,10 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "U4ubriIq",
   "3z4aOJds",
   "92ZtVVpI",
+  // MEININGER Hotel Hauptbahnhof. Its exact LoD2 shell is rebuilt by the
+  // recognition model with the current ten-storey facade, entrance and roof
+  // frame; retaining this generic prism would double every edge and window.
+  "K0002MxA",
 ]);
 
 // v0.56.1 ("beiger Kasten ueber den Gleisen"): the Hauptbahnhof used to be
