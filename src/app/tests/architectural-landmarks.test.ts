@@ -8,6 +8,7 @@ import {
 } from "three";
 import {
   type BrandenburgGateModelSignature,
+  BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE,
   type ChancelleryModelSignature,
   type HauptbahnhofModelSignature,
   type ReichstagModelSignature,
@@ -114,6 +115,65 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(abaci).toBeInstanceOf(InstancedMesh);
     expect((abaci as InstancedMesh).count).toBe(12);
+    const photoDetails = gate!.getObjectByName(
+      "Brandenburg Gate photo-bounded fine detail",
+    );
+    expect(photoDetails).toBeDefined();
+    expect(gate!.userData.photoDetailProfile).toEqual(
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE,
+    );
+    expect(
+      (
+        photoDetails!.getObjectByName(
+          "Brandenburg Gate passage ceiling coffers",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.ceilingCofferCount);
+    expect(
+      (
+        photoDetails!.getObjectByName(
+          "Brandenburg Gate passage round relief medallions",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.passageMedallionCount);
+    expect(
+      photoDetails!.children
+        .filter(
+          (child) => child.name === "Brandenburg Gate pavilion portico columns",
+        )
+        .reduce((sum, child) => sum + (child as InstancedMesh).count, 0),
+    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionPorticoColumnCount);
+    const pavilionColumns = photoDetails!.children.filter(
+      (child) => child.name === "Brandenburg Gate pavilion portico columns",
+    ) as InstancedMesh[];
+    const pavilionColumnBounds = new Box3();
+    for (const columns of pavilionColumns) {
+      pavilionColumnBounds.union(new Box3().setFromObject(columns));
+    }
+    expect(pavilionColumnBounds.min.y).toBeCloseTo(0, 2);
+    expect(pavilionColumnBounds.max.y).toBeCloseTo(8.35, 2);
+    const pavilionPediments = photoDetails!.children.filter(
+      (child) => child.name === "Brandenburg Gate pavilion triangular pediment",
+    ) as Mesh[];
+    expect(pavilionPediments).toHaveLength(4);
+    const pedimentNormalDirections = pavilionPediments.map((pediment) => {
+      const normals = pediment.geometry.getAttribute("normal");
+      return Math.sign(normals.getX(0));
+    });
+    expect(pedimentNormalDirections.filter((direction) => direction < 0)).toHaveLength(
+      2,
+    );
+    expect(pedimentNormalDirections.filter((direction) => direction > 0)).toHaveLength(
+      2,
+    );
+    expect(
+      photoDetails!.getObjectByName(
+        "Brandenburg Gate central attic relief figures",
+      ),
+    ).toBeDefined();
+    expect(
+      photoDetails!.getObjectByName("Brandenburg Gate passage masonry divider"),
+    ).toBeDefined();
   });
 
   test("makes the Hauptbahnhof cross and office bridges legible", () => {

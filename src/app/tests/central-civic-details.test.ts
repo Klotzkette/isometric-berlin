@@ -3,6 +3,7 @@ import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
+  PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
   BUNDESTAG_KITA_SOURCE,
   BUNDESTAG_KITA_WORLD,
   CUBE_BERLIN_FACADE_PROFILE,
@@ -46,6 +47,7 @@ const names = [
   "Abgeordnetenhaus von Berlin",
   "Topographie des Terrors",
   "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
+  "Pariser Platz",
 ];
 
 const landmarks = names.map((name, index) => ({
@@ -118,8 +120,22 @@ describe("task-11 central transit and civic details", () => {
     ]);
     expect(details.userData.pariserPlatz).toMatchObject({
       gardens: PARISER_PLATZ_GARDENS,
+      photoDetailProfile: PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
       subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
     });
+    const pariserPlatzDetails = details.getObjectByName(
+      "Pariser Platz photo-bounded fine detail",
+    );
+    expect(pariserPlatzDetails).toBeDefined();
+    expect(pariserPlatzDetails!.userData).toMatchObject({
+      ...PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
+      photographsBundled: false,
+    });
+    expect(
+      pariserPlatzDetails!.getObjectByName(
+        "Pariser Platz photo-bounded fine detail lamps",
+      ),
+    ).toBeDefined();
     expect(CUBE_BERLIN_HEIGHT_M).toBe(43.6);
     expect(CUBE_BERLIN_FOOTPRINT_WORLD).toHaveLength(4);
     expect(CUBE_BERLIN_FACADE_PROFILE).toEqual({
@@ -133,7 +149,9 @@ describe("task-11 central transit and civic details", () => {
       sourceUrl: "https://3xn.com/project/cube-berlin",
       storeyBands: 10,
     });
-    expect(details.getObjectByName("GLEISS LUTZ civic lettering")).toBeDefined();
+    expect(
+      details.getObjectByName("GLEISS LUTZ civic lettering"),
+    ).toBeDefined();
     expect(details.userData.cubeBerlin).toMatchObject({
       facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
       footprintWorld: CUBE_BERLIN_FOOTPRINT_WORLD,
@@ -204,6 +222,9 @@ describe("task-11 central transit and civic details", () => {
 
   test("provides contextual camera framing for the new QA anchors", () => {
     const futurium = landmarks.find(({ name }) => name === "Futurium")!;
+    const pariserPlatz = landmarks.find(
+      ({ name }) => name === "Pariser Platz",
+    )!;
     const ensemble = landmarks.find(
       ({ name }) => name === "Berliner Ensemble",
     )!;
@@ -216,6 +237,13 @@ describe("task-11 central transit and civic details", () => {
     expect(centralCivicFocusCamera(futurium)).toMatchObject({
       distance_m: 168,
       target_world: futurium.world,
+    });
+    expect(centralCivicFocusCamera(pariserPlatz)).toEqual({
+      azimuth_degrees: 88,
+      distance_m: 128,
+      polar_degrees: 72,
+      target_height_m: 7,
+      target_world: pariserPlatz.world,
     });
     expect(centralCivicFocusCamera(ensemble)).toMatchObject({
       distance_m: 146,

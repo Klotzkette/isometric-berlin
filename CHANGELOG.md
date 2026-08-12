@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.71.15
+
+- **Brandenburg Gate now reproduces the architectural hierarchy visible in
+  five supplied public-space views without changing its surveyed placement or
+  published dimensions.** The 62.5 x 11 m footprint, 20.3 m attic datum and
+  26 m total height remain fixed. All 12 Doric columns now use 32-sided shafts,
+  20-line fluting, stepped plinths, base courses and necking. Four passage
+  dividers carry eight round medallions and eight rectangular relief panels;
+  all five openings gain a 25-coffer ceiling register. The entablature receives
+  stepped profiles, a central attic relief and metope figures, while the two
+  side houses gain 16 portico columns, triangular pediments and restrained
+  patinated roof caps. The existing four-horse Quadriga and its published
+  overall height are unchanged.
+- **Pariser Platz now reads as a designed civic square rather than a bare
+  terrain patch.** Its two mapped garden strips and U-Bahn entrance remain the
+  anchors; eight timber benches, 16 tree grates, eight Schupmann-style twin
+  lanterns, six dark paving/drainage bands and 192 stainless access bollards
+  reproduce the stable furniture and surface hierarchy visible in the supplied
+  views. The former sparse 9.2 m bollard interval is replaced by a roughly
+  2.35 m presentation rhythm inferred from those views. Temporary scaffolding,
+  event fences, cars and site
+  barriers are intentionally omitted.
+- **Close detail remains stable and discoverable.** Gate and square detail are
+  separate instanced/merged layers governed by the existing 900/1,200 m
+  hysteretic anti-flicker band; photographs are reference-only and are not
+  bundled or projected. The Brandenburg-Gate focus changes from 98 m / 64° to
+  94 m / 78°, and Pariser Platz gains its own 128 m focus, so the passages,
+  Quadriga and formal square axis can be inspected directly in Day, Night and
+  Minecraft. The visible radius remains **5,230 m**; attribution and source
+  hierarchy are unchanged.
+
 ## v0.71.14
 
 - **The Federal Chancellery's leadership building is now visibly open behind

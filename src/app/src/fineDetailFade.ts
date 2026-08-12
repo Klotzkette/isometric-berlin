@@ -248,6 +248,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Chancellery exterior-visible interior fine detail",
   "Chancellery monumental roof soffit downlights",
   "Chancellery Ehrenhof lobby ceiling lights",
+  "Brandenburg Gate photo-bounded fine detail",
+  "Pariser Platz photo-bounded fine detail",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

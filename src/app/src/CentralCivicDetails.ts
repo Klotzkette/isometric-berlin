@@ -79,6 +79,12 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     polar_degrees: 48,
     target_height_m: 5,
   },
+  "Pariser Platz": {
+    azimuth_degrees: 88,
+    distance_m: 128,
+    polar_degrees: 72,
+    target_height_m: 7,
+  },
   "S15-Station Berlin Hauptbahnhof": {
     azimuth_degrees: -25,
     distance_m: 148,
@@ -108,12 +114,8 @@ export function centralCivicFocusCamera(
     landmark.name === "Berliner Ensemble"
       ? [landmark.world[0] + 24, landmark.world[1], landmark.world[2] + 13]
       : landmark.name === "Bahnhof Berlin Friedrichstraße"
-        ? [
-            landmark.world[0] + 2.4,
-            landmark.world[1],
-            landmark.world[2] - 12.2,
-          ]
-      : landmark.world;
+        ? [landmark.world[0] + 2.4, landmark.world[1], landmark.world[2] - 12.2]
+        : landmark.world;
   return { ...preset, target_world: targetWorld };
 }
 
@@ -159,10 +161,8 @@ export const FRIEDRICHSTRASSE_STATION_TRACK_COUNT = 6;
 export const FRIEDRICHSTRASSE_STATION_SOURCE =
   "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080415";
 
-const FRIEDRICHSTRASSE_HALF_LENGTH_M =
-  FRIEDRICHSTRASSE_STATION_LENGTH_M / 2;
-const FRIEDRICHSTRASSE_HALF_WIDTH_M =
-  FRIEDRICHSTRASSE_STATION_WIDTH_M / 2;
+const FRIEDRICHSTRASSE_HALF_LENGTH_M = FRIEDRICHSTRASSE_STATION_LENGTH_M / 2;
+const FRIEDRICHSTRASSE_HALF_WIDTH_M = FRIEDRICHSTRASSE_STATION_WIDTH_M / 2;
 const FRIEDRICHSTRASSE_CURVE_CENTRE_Z_M = -10;
 const FRIEDRICHSTRASSE_CURVE_SAG_M = 6;
 const FRIEDRICHSTRASSE_PLATFORM_Y_M = 10.8;
@@ -221,6 +221,15 @@ export const PARISER_PLATZ_GARDENS = [
 export const BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD = [
   576.06, 4.8, 286.37,
 ] as const;
+export const PARISER_PLATZ_PHOTO_DETAIL_PROFILE = {
+  benchCount: 8,
+  drainageStripCount: 6,
+  historicalTwinLampCount: 8,
+  permanentBollardCount: 192,
+  sourceViewCount: 5,
+  temporaryBarrierCount: 0,
+  treeGrateCount: 16,
+} as const;
 
 /** Berlin LoD2 building DEBE00YY20g0005J, in project-world metres. */
 export const FUTURIUM_BUILDING_ID = "20g0005J";
@@ -341,7 +350,12 @@ function localWheel(
     new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
   );
 
-  const hub = new CylinderGeometry(radius * 0.42, radius * 0.42, width + 0.03, 12);
+  const hub = new CylinderGeometry(
+    radius * 0.42,
+    radius * 0.42,
+    width + 0.03,
+    12,
+  );
   hub.rotateX(Math.PI / 2);
   hub.rotateY(rotationY);
   hub.translate(local.x, point.y + y, local.z);
@@ -825,8 +839,30 @@ function addOggiAndTaxis(
     const x = (index - 2) * 6.2;
     const z = index % 2 === 0 ? 0 : 0.12;
     localBox(builder, TAXI_IVORY, taxis, x, 0.67, z, 4.9, 0.94, 1.86, rotation);
-    localBox(builder, TAXI_IVORY, taxis, x - 1.78, 1.05, z, 1.35, 0.38, 1.8, rotation);
-    localBox(builder, TAXI_IVORY, taxis, x + 1.82, 0.98, z, 1.15, 0.3, 1.8, rotation);
+    localBox(
+      builder,
+      TAXI_IVORY,
+      taxis,
+      x - 1.78,
+      1.05,
+      z,
+      1.35,
+      0.38,
+      1.8,
+      rotation,
+    );
+    localBox(
+      builder,
+      TAXI_IVORY,
+      taxis,
+      x + 1.82,
+      0.98,
+      z,
+      1.15,
+      0.3,
+      1.8,
+      rotation,
+    );
     localBox(
       builder,
       DARK_GLASS,
@@ -1327,14 +1363,6 @@ function addPariserPlatzDetails(builder: Builder): void {
     );
   });
 
-  // Low black bollards separate the pedestrian square from the vehicle
-  // approaches. Their 2.35 m rhythm comes from the mapped street edge.
-  for (const z of [247, 259, 323, 335]) {
-    for (let x = 438; x <= 548; x += 9.2) {
-      addCylinder(builder, INK, x, 5.35, z, 0.14, 1.1, 10);
-    }
-  }
-
   const entrance = new Vector3(...BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD);
   const entranceRotation = 0.087;
   localBox(
@@ -1381,6 +1409,238 @@ function addPariserPlatzDetails(builder: Builder): void {
   const pylon = localPoint(entrance, 6.5, -1.8, entranceRotation);
   addCylinder(builder, STEEL, pylon.x, 6.7, pylon.z, 0.1, 3.8, 10);
   addBox(builder, TRANSIT_BLUE, pylon.x, 8.7, pylon.z, 1.55, 1.55, 0.18);
+}
+
+function addPariserPlatzPhotoDetails(builder: Builder): void {
+  const rotation = 0.087;
+  const squareBaseY = 4.84;
+  const squareCentre = new Vector3(499.1, squareBaseY, 294.5);
+  const cobble = 0x8f8c83;
+  const darkCobble = 0x6d6c67;
+  const benchTimber = 0x725a43;
+  const lampIron = 0x343a39;
+  const lampGlass = 0xf2e1b2;
+
+  // The photographs show a quiet field of rectangular setts bounded by dark
+  // granite/cobble ribbons. These six strips sit slightly above the general
+  // terrain fill, so they do not create a second coplanar ground surface.
+  for (const z of [-52, -39.5, 39.5, 52]) {
+    localBox(
+      builder,
+      darkCobble,
+      squareCentre,
+      0,
+      0.045,
+      z,
+      145,
+      0.07,
+      0.72,
+      rotation,
+      false,
+    );
+  }
+  for (const x of [-57, 57]) {
+    localBox(
+      builder,
+      cobble,
+      squareCentre,
+      x,
+      0.04,
+      0,
+      0.66,
+      0.065,
+      102,
+      rotation,
+      false,
+    );
+  }
+
+  // Tree grates and benches follow the outer edge of the two formal garden
+  // strips. Existing OSM vegetation remains authoritative; this adds only the
+  // publicly visible furniture around it and never duplicates the trees.
+  PARISER_PLATZ_GARDENS.forEach(({ centre, size }, gardenIndex) => {
+    const point = new Vector3(centre[0], squareBaseY, centre[1]);
+    const [width, depth] = size;
+    const outerSide = gardenIndex === 0 ? 1 : -1;
+    for (let index = 0; index < 8; index += 1) {
+      const along = -width / 2 + 4.5 + (index / 7) * (width - 9);
+      localBox(
+        builder,
+        darkCobble,
+        point,
+        along,
+        0.055,
+        outerSide * (depth / 2 + 3.3),
+        2.25,
+        0.08,
+        2.25,
+        rotation,
+        false,
+      );
+      localBox(
+        builder,
+        STEEL,
+        point,
+        along,
+        0.105,
+        outerSide * (depth / 2 + 3.3),
+        2.05,
+        0.035,
+        0.11,
+        rotation,
+        false,
+      );
+      localBox(
+        builder,
+        STEEL,
+        point,
+        along,
+        0.108,
+        outerSide * (depth / 2 + 3.3),
+        0.11,
+        0.035,
+        2.05,
+        rotation,
+        false,
+      );
+    }
+    for (const along of [-27, -9, 9, 27]) {
+      const z = outerSide * (depth / 2 + 6.1);
+      localBox(
+        builder,
+        benchTimber,
+        point,
+        along,
+        0.55,
+        z,
+        3.05,
+        0.18,
+        0.68,
+        rotation,
+      );
+      localBox(
+        builder,
+        benchTimber,
+        point,
+        along,
+        1.02,
+        z + outerSide * 0.28,
+        3.05,
+        0.58,
+        0.12,
+        rotation,
+      );
+      for (const leg of [-1.05, 1.05]) {
+        localBox(
+          builder,
+          STEEL,
+          point,
+          along + leg,
+          0.29,
+          z,
+          0.11,
+          0.5,
+          0.5,
+          rotation,
+          false,
+        );
+      }
+    }
+  });
+
+  // Schupmann-style twin lanterns visible around the gate and square. Their
+  // filigree arms are intentionally simplified to stable, inked metre-scale
+  // members; the warm bulbs alone join the night-emissive mesh.
+  const lampPositions = [
+    [-56, -47],
+    [-18, -47],
+    [18, -47],
+    [56, -47],
+    [-56, 47],
+    [-18, 47],
+    [18, 47],
+    [56, 47],
+  ] as const;
+  for (const [x, z] of lampPositions) {
+    const pole = localPoint(squareCentre, x, z, rotation);
+    addCylinder(
+      builder,
+      lampIron,
+      pole.x,
+      squareBaseY + 3.35,
+      pole.z,
+      0.12,
+      6.7,
+      12,
+    );
+    addCylinder(
+      builder,
+      lampIron,
+      pole.x,
+      squareBaseY + 0.35,
+      pole.z,
+      0.25,
+      0.7,
+      12,
+    );
+    addCylinder(
+      builder,
+      lampIron,
+      pole.x,
+      squareBaseY + 5.7,
+      pole.z,
+      0.2,
+      0.28,
+      10,
+    );
+    for (const side of [-1, 1]) {
+      localBox(
+        builder,
+        lampIron,
+        squareCentre,
+        x + side * 0.68,
+        6.34,
+        z,
+        1.35,
+        0.1,
+        0.1,
+        rotation,
+        false,
+      );
+      const bulb = localPoint(squareCentre, x + side * 1.3, z, rotation);
+      addCylinder(
+        builder,
+        lampGlass,
+        bulb.x,
+        squareBaseY + 6.08,
+        bulb.z,
+        0.29,
+        0.48,
+        12,
+        true,
+      );
+      addCone(
+        builder,
+        lampIron,
+        bulb.x,
+        squareBaseY + 6.48,
+        bulb.z,
+        0.42,
+        0.35,
+        12,
+      );
+    }
+  }
+
+  // Permanent stainless-steel access bollards at a regular street-edge rhythm
+  // inferred from the supplied views. Temporary event barriers visible in one
+  // photograph are deliberately excluded from the permanent city model.
+  for (const z of [247, 259, 323, 335]) {
+    for (let index = 0; index < 48; index += 1) {
+      const x = 438 + (index / 47) * 110;
+      addCylinder(builder, STEEL, x, 5.35, z, 0.1, 1.1, 10);
+    }
+  }
 }
 
 function addPariserPlatzEmbassies(builder: Builder): void {
@@ -1866,14 +2126,7 @@ function addCurvedStationPrism(
       rightTop1,
       true,
     );
-    pushStationQuad(
-      vertices,
-      leftTop0,
-      leftTop1,
-      rightTop1,
-      rightTop0,
-      true,
-    );
+    pushStationQuad(vertices, leftTop0, leftTop1, rightTop1, rightTop0, true);
     outline.push(
       ...leftBottom0,
       ...leftBottom1,
@@ -1931,8 +2184,7 @@ function friedrichstrasseTudorHeight(across: number, width: number): number {
   const shallowPoint = 1 - normalized;
   return (
     FRIEDRICHSTRASSE_EAVES_Y_M +
-    FRIEDRICHSTRASSE_ROOF_RISE_M *
-      (roundArc * 0.38 + shallowPoint * 0.62)
+    FRIEDRICHSTRASSE_ROOF_RISE_M * (roundArc * 0.38 + shallowPoint * 0.62)
   );
 }
 
@@ -1962,8 +2214,7 @@ function addCurvedTudorRoof(
       (pathIndex / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
     const along1 =
       -FRIEDRICHSTRASSE_HALF_LENGTH_M +
-      ((pathIndex + 1) / pathSegments) *
-        FRIEDRICHSTRASSE_STATION_LENGTH_M;
+      ((pathIndex + 1) / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
     for (
       let profileIndex = 0;
       profileIndex < profileSegments;
@@ -2005,8 +2256,7 @@ function addCurvedTudorRoof(
         (pathIndex / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
       const along1 =
         -FRIEDRICHSTRASSE_HALF_LENGTH_M +
-        ((pathIndex + 1) / pathSegments) *
-          FRIEDRICHSTRASSE_STATION_LENGTH_M;
+        ((pathIndex + 1) / pathSegments) * FRIEDRICHSTRASSE_STATION_LENGTH_M;
       gridLines.push(
         ...profilePoint(along0, profileIndex),
         ...profilePoint(along1, profileIndex),
@@ -2069,8 +2319,7 @@ function addCurvedTudorGable(
     for (const fraction of [0.28, 0.54, 0.78]) {
       const y =
         FRIEDRICHSTRASSE_PLATFORM_Y_M +
-        (Math.min(left.topY, right.topY) -
-          FRIEDRICHSTRASSE_PLATFORM_Y_M) *
+        (Math.min(left.topY, right.topY) - FRIEDRICHSTRASSE_PLATFORM_Y_M) *
           fraction;
       gridLines.push(
         ...friedrichstrasseWorld(point, along, hallCentre + left.across, y),
@@ -2253,8 +2502,7 @@ function addFriedrichstrasseStation(
     }
   }
   for (let index = 0; index <= segments; index += 1) {
-    const along =
-      -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
+    const along = -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
     for (const side of [-1, 1]) {
       const facade = side * (FRIEDRICHSTRASSE_HALF_WIDTH_M + 0.28);
       addFriedrichstrasseSegmentBox(
@@ -2316,8 +2564,7 @@ function addFriedrichstrasseStation(
     }
   }
   for (let index = 1; index < segments; index += 2) {
-    const along =
-      -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
+    const along = -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
     for (const track of trackOffsets) {
       addFriedrichstrasseSegmentBox(
         builder,
@@ -2338,15 +2585,7 @@ function addFriedrichstrasseStation(
   // with shallow Tudor arches. A small ridge cusp and lower shoulders replace
   // the previous semicircular barrels.
   for (const hallCentre of [-15, 15]) {
-    addCurvedTudorRoof(
-      builder,
-      roofMetal,
-      point,
-      hallCentre,
-      30,
-      segments,
-      18,
-    );
+    addCurvedTudorRoof(builder, roofMetal, point, hallCentre, 30, segments, 18);
     for (const end of [-1, 1]) {
       addCurvedTudorGable(
         builder,
@@ -2359,15 +2598,13 @@ function addFriedrichstrasseStation(
     }
   }
   for (let index = 0; index <= segments; index += 2) {
-    const along =
-      -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
+    const along = -FRIEDRICHSTRASSE_HALF_LENGTH_M + index * segmentAlong;
     for (const across of [-30, 0, 30]) {
       const world = friedrichstrasseWorld(
         point,
         along,
         across,
-        (FRIEDRICHSTRASSE_PLATFORM_Y_M + FRIEDRICHSTRASSE_EAVES_Y_M) /
-          2,
+        (FRIEDRICHSTRASSE_PLATFORM_Y_M + FRIEDRICHSTRASSE_EAVES_Y_M) / 2,
       );
       addCylinder(
         builder,
@@ -3060,9 +3297,10 @@ export function createCentralCivicDetails(
   };
   group.userData.pariserPlatz = {
     gardens: PARISER_PLATZ_GARDENS,
+    photoDetailProfile: PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
     subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
     source:
-      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints",
+      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints + five owner-supplied public-space reference views",
   };
   group.userData.cubeBerlin = {
     facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
@@ -3091,8 +3329,7 @@ export function createCentralCivicDetails(
     ],
     platformCount: FRIEDRICHSTRASSE_STATION_PLATFORM_COUNT,
     roofCount: 2,
-    roofProfile:
-      "two shallow Tudor-arch sheds on the surveyed Stadtbahn curve",
+    roofProfile: "two shallow Tudor-arch sheds on the surveyed Stadtbahn curve",
     source:
       "Berlin LoD2 + OSM station footprint + Landesdenkmalamt Berlin object 09080415",
     sourceUrl: FRIEDRICHSTRASSE_STATION_SOURCE,
@@ -3130,6 +3367,20 @@ export function createCentralCivicDetails(
     name: "Central transit and civic details",
   });
   if (drawn) group.add(drawn);
+  const pariserPlatzBuilder = createBuilder();
+  addPariserPlatzPhotoDetails(pariserPlatzBuilder);
+  const pariserPlatzFineDetail = finishDrawnGroup(pariserPlatzBuilder, {
+    lampEmissive: 0xffd58c,
+    lampEmissiveIntensity: 1.05,
+    name: "Pariser Platz photo-bounded fine detail",
+  });
+  if (pariserPlatzFineDetail) {
+    pariserPlatzFineDetail.userData = {
+      ...PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
+      photographsBundled: false,
+    };
+    group.add(pariserPlatzFineDetail);
+  }
   addSigns(group, byName);
   return group;
 }

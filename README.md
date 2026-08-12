@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.14/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.15 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.15/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.14** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.15** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,30 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.14**, built from `main`. Its full viewer
+The current public package is **v0.71.15**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Brandenburg Gate and Pariser Platz now carry a photograph-bounded close
+  detail pass.** The published 62.5 x 11 x 26 m gate envelope and official
+  placement remain fixed, while the 12 Doric columns receive 20-line fluting,
+  stepped plinths and necking; the five passages gain masonry divisions,
+  medallions, relief panels and 25 ceiling coffers. Stepped cornices, attic and
+  metope reliefs, side-pavilion porticos, triangular pediments and muted copper
+  roofs make the gate read as architecture rather than a single block. The
+  existing four-horse Quadriga retains its detailed Victoria, wreath, eagle,
+  reins, chariot and published overall height.
+
+- **The Pariser Platz foreground now follows its formal public-space
+  hierarchy.** Eight historic twin lanterns, eight benches, 16 tree grates,
+  six dark paving/drainage bands and 192 permanent stainless access bollards
+  sit around the two existing mapped gardens and U-Bahn entrance. Temporary
+  scaffolding and event barriers in the supplied views are deliberately not
+  frozen into the city model, and the photographs themselves are neither
+  bundled nor projected as textures. Both new layers use the existing
+  hysteretic near-detail band, so the added articulation cannot shimmer in the
+  far overview. The visible radius remains **5,230 m**.
 
 - **The current Federal Chancellery extension work is now visible across the
   Spree instead of leaving an obsolete park surface.** Current OSM construction

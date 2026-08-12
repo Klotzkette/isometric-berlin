@@ -236,6 +236,15 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
+  test("keeps Brandenburg Gate reliefs and Pariser Platz furniture out of the far overview", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Brandenburg Gate photo-bounded fine detail",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Pariser Platz photo-bounded fine detail",
+    );
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({
