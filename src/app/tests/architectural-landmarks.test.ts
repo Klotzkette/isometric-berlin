@@ -377,10 +377,63 @@ describe("metre-scale architectural recognition models", () => {
       chancellery!.children.filter(
         (child) => child.name === "Chancellery central open floor plate",
       ),
-    ).toHaveLength(8);
+    ).toHaveLength(0);
     expect(
       chancellery!.getObjectByName("Chancellery central glass cube"),
     ).toBeUndefined();
+    const visibleInterior = chancellery!.getObjectByName(
+      "Chancellery exterior-visible interior",
+    );
+    expect(visibleInterior).not.toBeUndefined();
+    expect(visibleInterior!.userData.geometryStatus).toContain(
+      "not a surveyed",
+    );
+    expect(visibleInterior!.userData.sourceBoundary).toContain(
+      "externally visible",
+    );
+    const splitGalleryPlates = chancellery!.getObjectByName(
+      "Chancellery central split gallery floor plates",
+    );
+    expect(splitGalleryPlates).toBeInstanceOf(InstancedMesh);
+    expect((splitGalleryPlates as InstancedMesh).count).toBe(16);
+    expect(splitGalleryPlates!.userData.atriumClearWidthM).toBe(14.4);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery externally visible atrium bridges",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery exterior-visible gallery rails",
+      ),
+    ).toBeInstanceOf(LineSegments);
+    const stairTreads = chancellery!.getObjectByName(
+      "Chancellery visible atrium stair treads",
+    );
+    expect(stairTreads).toBeInstanceOf(InstancedMesh);
+    expect((stairTreads as InstancedMesh).count).toBe(24);
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery exterior-visible meeting chairs",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
+    const interiorLights = chancellery!.getObjectByName(
+      "Chancellery exterior-visible interior ceiling lights",
+    ) as InstancedMesh;
+    expect(interiorLights).toBeInstanceOf(InstancedMesh);
+    expect(interiorLights.count).toBe(70);
+    expect(interiorLights.material.userData.nightEmissive).toBe(0xffc66d);
+    expect(interiorLights.material.userData.nightEmissiveIntensity).toBe(1.55);
+    const linearInteriorLights = chancellery!.getObjectByName(
+      "Chancellery exterior-visible linear interior lights",
+    );
+    expect(linearInteriorLights).toBeInstanceOf(InstancedMesh);
+    expect((linearInteriorLights as InstancedMesh).count).toBe(48);
+    const warmInteriorPanels = chancellery!.getObjectByName(
+      "Chancellery sparse exterior-visible warm interior panels",
+    );
+    expect(warmInteriorPanels).toBeInstanceOf(InstancedMesh);
+    expect((warmInteriorPanels as InstancedMesh).count).toBe(12);
     const chancelleryConcrete = chancellery!.getObjectByName(
       "Chancellery central concrete pylon",
     ) as Mesh;
@@ -431,6 +484,16 @@ describe("metre-scale architectural recognition models", () => {
     expect(
       chancellery!.getObjectByName("Chancellery monumental concave roof shell"),
     ).toBeInstanceOf(Mesh);
+    const soffitLights = chancellery!.getObjectByName(
+      "Chancellery monumental roof soffit downlights",
+    );
+    expect(soffitLights).toBeInstanceOf(InstancedMesh);
+    expect((soffitLights as InstancedMesh).count).toBe(45);
+    const lobbyLights = chancellery!.getObjectByName(
+      "Chancellery Ehrenhof lobby ceiling lights",
+    );
+    expect(lobbyLights).toBeInstanceOf(InstancedMesh);
+    expect((lobbyLights as InstancedMesh).count).toBe(27);
     expect(
       chancellery!.getObjectByName(
         "Chancellery monumental concave roof shell drawn perimeter",

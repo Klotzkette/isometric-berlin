@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.71.13"
+PACKAGE_VERSION = "0.71.14"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3511,6 +3511,16 @@ LoD2-ausgerichteten 18-m-Bändern; Hauptbahnhof mit 321-m-Glasdach, 180 x 42 m
 Querhalle und 46-m-Bügeln; Brandenburger Tor mit 62,5 x 11 x 26 m, zwölf Säulen
 und grün patinierter Quadriga. Die Fototextur bleibt darunter erhalten.
 
+Das zentrale Kanzleramtsgebäude zeigt jetzt hinter seinen kühlen, transparenten
+Glasflächen die von außen erkennbare Raumfolge: geteilte Galerieplatten um ein
+14,4 m breites Atrium, drei Brücken, eine zweiläufige Treppe, Geländer sowie
+wenige abstrahierte Möbel- und Pflanzengruppen. Nachts leuchten nur einzelne
+Innenfelder, lineare Galerie-, Lobby-, Decken- und Dachuntersichtsleuchten warm;
+das Glas selbst bleibt dunkel und durchsichtig. Diese Innendetails folgen den
+sechs gelieferten Außenansichten, sind aber keine vermessene oder
+sicherheitsrelevante Grundrissdarstellung. Die Fotos sind nicht im Paket und
+werden nicht als Textur projiziert.
+
 Die amtliche Berliner Vorderlandmauer-Geometrie bleibt unverändert, wird aber
 als zwei sichtbare Reihen einzelner dunkler Granitsteine über den gezeichneten
 Straßen- und Platzflächen geführt. So ist insbesondere der dokumentierte
@@ -3686,6 +3696,15 @@ the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
 photographic texture remains visible underneath.
+
+The central Chancellery building now reveals its externally visible spatial
+sequence behind cool transparent glass: split gallery plates around a 14.4 m
+atrium, three bridges, a two-flight stair, rails and a few abstract furniture
+and planting groups. At night, only sparse interior panels plus linear gallery,
+lobby, ceiling and roof-soffit lights glow warm; the glass itself remains dark
+and transparent. These cues follow the six supplied exterior views but are not
+a surveyed or security-relevant floor plan. The photographs are neither
+bundled nor projected as textures.
 
 The official Berlin Vorderlandmauer geometry remains unchanged but now reads
 as two visible rows of individual dark granite setts above the drawn road and

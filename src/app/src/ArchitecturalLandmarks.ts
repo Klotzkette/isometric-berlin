@@ -472,11 +472,7 @@ function addChancellerySaddleCanopy(
       edgePoint(across + 1, DEPTH_STEPS).toArray(),
     ]);
   }
-  for (
-    let longitudinal = 0;
-    longitudinal < DEPTH_STEPS;
-    longitudinal += 1
-  ) {
+  for (let longitudinal = 0; longitudinal < DEPTH_STEPS; longitudinal += 1) {
     perimeter.push([
       edgePoint(0, longitudinal).toArray(),
       edgePoint(0, longitudinal + 1).toArray(),
@@ -1516,6 +1512,310 @@ function addChancelleryOfficeBand(
   }
 }
 
+function addChancelleryVisibleInterior(
+  group: Group,
+  signature: ChancelleryModelSignature,
+  concrete: MeshStandardMaterial,
+): void {
+  const interior = new Group();
+  interior.name = "Chancellery exterior-visible interior";
+  interior.userData = {
+    geometryStatus:
+      "Photo-bounded exterior-visible recognition detail; not a surveyed or security-relevant floor plan",
+    sourceBoundary:
+      "Only externally visible galleries, circulation, sparse generic furniture and lighting are represented",
+    suppliedReferenceViews: 6,
+  };
+  group.add(interior);
+
+  const cubeX = signature.cube_offset_world[0];
+  const cubeZ = signature.cube_offset_world[2];
+  const glassWidth = signature.cube_width_m - 7;
+  const glassDepth = signature.cube_depth_m - 7;
+  const plateWidth = glassWidth - 1.2;
+  const atriumWidth = 14.4;
+  const galleryDepth = (glassDepth - 1.2 - atriumWidth) / 2;
+  const storeyLevels = [3.5, 7, 10.5, 14, 17.5, 21, 24.5, 28];
+
+  // The public east/west views show an open central hall, not eight opaque
+  // slabs running wall to wall. Two gallery strips at each storey preserve
+  // the published floor cadence while leaving the long sight line open.
+  const galleryPlates: InstanceTransform[] = [];
+  for (const y of storeyLevels) {
+    for (const side of [-1, 1]) {
+      galleryPlates.push({
+        position: [
+          cubeX,
+          y,
+          cubeZ + side * (atriumWidth / 2 + galleryDepth / 2),
+        ],
+      });
+    }
+  }
+  const plates = addInstancedBoxes(
+    interior,
+    "Chancellery central split gallery floor plates",
+    [plateWidth, 0.24, galleryDepth],
+    concrete,
+    galleryPlates,
+  );
+  plates.userData.storeyLevelsM = storeyLevels;
+  plates.userData.atriumClearWidthM = atriumWidth;
+  addBox(
+    interior,
+    "Chancellery central atrium stone floor",
+    [plateWidth, 0.18, atriumWidth - 0.9],
+    [cubeX, 0.1, cubeZ],
+    concrete,
+    0.22,
+  );
+
+  const bridgeMaterial = modelMaterial(0xd6d7d2, { roughness: 0.72 });
+  const bridges: InstanceTransform[] = [
+    { position: [cubeX - 8.5, 10.5, cubeZ] },
+    { position: [cubeX + 7.2, 17.5, cubeZ] },
+    { position: [cubeX - 4.1, 24.5, cubeZ] },
+  ];
+  addInstancedBoxes(
+    interior,
+    "Chancellery externally visible atrium bridges",
+    [6.2, 0.28, atriumWidth + 0.45],
+    bridgeMaterial,
+    bridges,
+  );
+
+  const fine = new Group();
+  fine.name = "Chancellery exterior-visible interior fine detail";
+  interior.add(fine);
+
+  const galleryRails: VectorSegment[] = [];
+  const railMinX = cubeX - plateWidth / 2 + 0.8;
+  const railMaxX = cubeX + plateWidth / 2 - 0.8;
+  for (const y of storeyLevels.slice(1)) {
+    for (const side of [-1, 1]) {
+      const z = cubeZ + side * (atriumWidth / 2 + 0.08);
+      for (const railHeight of [0.46, 1.15]) {
+        galleryRails.push([
+          [railMinX, y + railHeight, z],
+          [railMaxX, y + railHeight, z],
+        ]);
+      }
+      for (let bay = 0; bay <= 12; bay += 1) {
+        const x = railMinX + (bay / 12) * (railMaxX - railMinX);
+        galleryRails.push([
+          [x, y + 0.25, z],
+          [x, y + 1.18, z],
+        ]);
+      }
+    }
+  }
+  addVectorSegments(
+    fine,
+    "Chancellery exterior-visible gallery rails",
+    galleryRails,
+    0x778587,
+    0.78,
+  );
+
+  // A restrained two-flight public-hall stair gives the glazing real depth.
+  // Its exact tread dimensions are a visual reconstruction, not a floor-plan
+  // claim; the whole assembly remains inside the published LoD2 envelope.
+  const stairMaterial = modelMaterial(0xe3e2dc, { roughness: 0.76 });
+  const stairTreads: InstanceTransform[] = [];
+  const stairRailSegments: VectorSegment[] = [];
+  const addStairFlight = (
+    startX: number,
+    direction: number,
+    startY: number,
+    z: number,
+  ): void => {
+    const stepCount = 12;
+    for (let step = 0; step < stepCount; step += 1) {
+      const x = startX + direction * step * 0.62;
+      const y = startY + step * 0.285;
+      stairTreads.push({ position: [x, y, z] });
+      if (step % 2 === 0) {
+        for (const side of [-1, 1]) {
+          stairRailSegments.push([
+            [x, y + 0.12, z + side * 2.54],
+            [x, y + 1.04, z + side * 2.54],
+          ]);
+        }
+      }
+    }
+    for (const side of [-1, 1]) {
+      stairRailSegments.push([
+        [startX, startY + 1.02, z + side * 2.54],
+        [
+          startX + direction * (stepCount - 1) * 0.62,
+          startY + (stepCount - 1) * 0.285 + 1.02,
+          z + side * 2.54,
+        ],
+      ]);
+    }
+  };
+  addStairFlight(cubeX - 7.1, 1, 3.66, cubeZ - 2.75);
+  addStairFlight(cubeX - 0.28, -1, 7.08, cubeZ + 2.75);
+  addInstancedBoxes(
+    fine,
+    "Chancellery visible atrium stair treads",
+    [0.72, 0.18, 5.05],
+    stairMaterial,
+    stairTreads,
+  );
+  addBox(
+    fine,
+    "Chancellery visible atrium stair landing",
+    [2.1, 0.22, 6.15],
+    [cubeX + 0.4, 6.94, cubeZ],
+    stairMaterial,
+    0.34,
+  );
+  addVectorSegments(
+    fine,
+    "Chancellery visible atrium stair balustrades",
+    stairRailSegments,
+    0x708083,
+    0.8,
+  );
+
+  const furniture = modelMaterial(0x776e62, { roughness: 0.82 });
+  const timber = modelMaterial(0xb09067, { roughness: 0.78 });
+  const planting = modelMaterial(0x527052, { roughness: 0.94 });
+  const tables: InstanceTransform[] = [];
+  const tableBases: InstanceTransform[] = [];
+  const chairs: InstanceTransform[] = [];
+  const planters: InstanceTransform[] = [];
+  const foliage: InstanceTransform[] = [];
+  const furnitureCentres: Array<[number, number, number]> = [
+    [cubeX - 13.2, 7.82, cubeZ - 12.1],
+    [cubeX + 13.4, 14.82, cubeZ + 12.1],
+    [cubeX - 11.1, 21.82, cubeZ + 12.1],
+  ];
+  for (const [x, y, z] of furnitureCentres) {
+    tables.push({ position: [x, y, z] });
+    tableBases.push({ position: [x, y - 0.4, z] });
+    for (const [dx, dz, rotation] of [
+      [-1.55, 0, Math.PI / 2],
+      [1.55, 0, Math.PI / 2],
+      [0, -1.55, 0],
+      [0, 1.55, 0],
+    ] as Array<[number, number, number]>) {
+      chairs.push({
+        position: [x + dx, y - 0.28, z + dz],
+        rotation: [0, rotation, 0],
+      });
+    }
+    planters.push({ position: [x + 3.15, y - 0.48, z] });
+    foliage.push({ position: [x + 3.15, y + 0.12, z] });
+  }
+  addInstancedGeometry(
+    fine,
+    "Chancellery exterior-visible meeting table tops",
+    new CylinderGeometry(1.12, 1.12, 0.13, 20),
+    timber,
+    tables,
+  );
+  addInstancedGeometry(
+    fine,
+    "Chancellery exterior-visible meeting table bases",
+    new CylinderGeometry(0.14, 0.22, 0.72, 10),
+    furniture,
+    tableBases,
+  );
+  addInstancedBoxes(
+    fine,
+    "Chancellery exterior-visible meeting chairs",
+    [0.48, 0.76, 0.5],
+    furniture,
+    chairs,
+  );
+  addInstancedGeometry(
+    fine,
+    "Chancellery exterior-visible interior planters",
+    new CylinderGeometry(0.48, 0.38, 0.62, 12),
+    furniture,
+    planters,
+  );
+  addInstancedGeometry(
+    fine,
+    "Chancellery exterior-visible interior planting",
+    new SphereGeometry(0.62, 10, 7),
+    planting,
+    foliage,
+  );
+
+  const warmPanel = nightEmitter(
+    modelMaterial(0xd8d4c8, { opacity: 0.52, roughness: 0.48 }),
+    0xffc56f,
+    0.58,
+  );
+  const warmPanels: InstanceTransform[] = [];
+  for (const [levelIndex, y] of storeyLevels.slice(1, 7).entries()) {
+    for (const xDirection of [-1, 1]) {
+      warmPanels.push({
+        position: [
+          cubeX + xDirection * 16.4,
+          y + 1.5,
+          cubeZ + (levelIndex % 2 === 0 ? -11.9 : 11.9),
+        ],
+      });
+    }
+  }
+  addInstancedBoxes(
+    fine,
+    "Chancellery sparse exterior-visible warm interior panels",
+    [0.08, 1.75, 3.1],
+    warmPanel,
+    warmPanels,
+  );
+
+  const lampMaterial = nightEmitter(
+    modelMaterial(0xe6dfcf, { roughness: 0.38 }),
+    0xffc66d,
+    1.55,
+  );
+  const ceilingLights: InstanceTransform[] = [];
+  for (const y of storeyLevels.slice(1)) {
+    for (const zSide of [-1, 1]) {
+      for (const xOffset of [-14, -7, 0, 7, 14]) {
+        ceilingLights.push({
+          position: [
+            cubeX + xOffset,
+            y - 0.16,
+            cubeZ + zSide * (atriumWidth / 2 + galleryDepth / 2),
+          ],
+        });
+      }
+    }
+  }
+  const lights = addInstancedGeometry(
+    fine,
+    "Chancellery exterior-visible interior ceiling lights",
+    new CylinderGeometry(0.14, 0.14, 0.06, 10),
+    lampMaterial,
+    ceilingLights,
+  );
+  lights.userData.publiclyVisibleLightingOnly = true;
+  const linearLights: InstanceTransform[] = [];
+  for (const y of storeyLevels.slice(1, 7)) {
+    for (const xSide of [-1, 1]) {
+      for (const zOffset of [-16.1, -10.4, 10.4, 16.1]) {
+        linearLights.push({
+          position: [cubeX + xSide * 16.8, y - 0.18, cubeZ + zOffset],
+        });
+      }
+    }
+  }
+  addInstancedBoxes(
+    fine,
+    "Chancellery exterior-visible linear interior lights",
+    [0.09, 0.055, 2.35],
+    lampMaterial,
+    linearLights,
+  );
+}
+
 function addChancelleryCourtyardArchitecture(
   group: Group,
   signature: ChancelleryModelSignature,
@@ -1541,13 +1841,13 @@ function addChancelleryCourtyardArchitecture(
     0.28,
   );
   const glass = nightEmitter(
-    modelMaterial(0x91b5ba, {
+    modelMaterial(0xaec8c9, {
       metalness: 0.08,
-      opacity: 0.48,
-      roughness: 0.25,
+      opacity: 0.34,
+      roughness: 0.2,
     }),
-    0xffd69a,
-    0.86,
+    0x31545c,
+    0.24,
   );
   const canopyMaterial = nightEmitter(
     modelMaterial(0xe9e7df, { roughness: 0.66 }),
@@ -1610,6 +1910,53 @@ function addChancelleryCourtyardArchitecture(
     concrete,
   );
   upperCanopy.renderOrder = 5;
+  upperCanopy.userData.referenceDetail =
+    "Publicly visible perforated soffit and corner cut-outs";
+  const soffitLampMaterial = nightEmitter(
+    modelMaterial(0xe8e2d5, { roughness: 0.36 }),
+    0xffc76f,
+    1.65,
+  );
+  const soffitLights: InstanceTransform[] = [];
+  for (let across = -4; across <= 4; across += 1) {
+    const acrossOffset = across * 4.65;
+    const u = acrossOffset / (51 / 2);
+    for (let longitudinal = -2; longitudinal <= 2; longitudinal += 1) {
+      const longitudinalOffset = longitudinal * 5.7;
+      const v = longitudinalOffset / (36 / 2);
+      const position = cube
+        .clone()
+        .addScaledVector(forward, 2.4 + longitudinalOffset)
+        .addScaledVector(lateral, acrossOffset);
+      soffitLights.push({
+        position: [position.x, 31.66 + 3.8 * (u * u - v * v), position.z],
+      });
+    }
+  }
+  addInstancedGeometry(
+    group,
+    "Chancellery monumental roof soffit downlights",
+    new CylinderGeometry(0.16, 0.16, 0.055, 10),
+    soffitLampMaterial,
+    soffitLights,
+  );
+  const lobbyLights: InstanceTransform[] = [];
+  for (const y of [5.35, 9.15, 12.9]) {
+    for (let bay = -4; bay <= 4; bay += 1) {
+      const position = facadeCentre
+        .clone()
+        .addScaledVector(forward, -1.05)
+        .addScaledVector(lateral, bay * 3.05);
+      lobbyLights.push({ position: [position.x, y, position.z] });
+    }
+  }
+  addInstancedGeometry(
+    group,
+    "Chancellery Ehrenhof lobby ceiling lights",
+    new CylinderGeometry(0.13, 0.13, 0.055, 10),
+    soffitLampMaterial,
+    lobbyLights,
+  );
   addChancellerySaddleCanopy(
     group,
     "Chancellery Ehrenhof lower tensile entrance canopy",
@@ -2403,17 +2750,16 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
 
   const concrete = nightEmitter(
     modelMaterial(0xf0f2ef, {
-      opacity: 0.78,
       roughness: 0.78,
     }),
     0x55687b,
     0.32,
   );
   const glass = nightEmitter(
-    modelMaterial(0x9ccbd0, {
+    modelMaterial(0xb2cfd0, {
       metalness: 0.06,
-      opacity: 0.32,
-      roughness: 0.25,
+      opacity: 0.24,
+      roughness: 0.2,
     }),
     0x274b57,
     0.28,
@@ -2444,16 +2790,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
       0.55,
     );
   }
-  for (const y of [3.5, 7, 10.5, 14, 17.5, 21, 24.5, 28]) {
-    addBox(
-      group,
-      "Chancellery central open floor plate",
-      [glassWidth - 1.2, 0.24, glassDepth - 1.2],
-      [cubeX, y, cubeZ],
-      concrete,
-      0.18,
-    );
-  }
+  addChancelleryVisibleInterior(group, signature, concrete);
   const cubeGrid: VectorSegment[] = [];
   const verticalBays = Math.max(10, Math.round(glassWidth / 3.8));
   for (const zSide of [-1, 1]) {
@@ -2528,17 +2865,17 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
 
   const windowGlass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0x98d3da,
+      color: 0xb7d6d8,
       depthWrite: false,
       metalness: 0.04,
-      opacity: 0.42,
-      roughness: 0.12,
+      opacity: 0.28,
+      roughness: 0.09,
       side: DoubleSide,
       transparent: true,
-      transmission: 0.2,
+      transmission: 0.34,
     }),
-    0xffcf78,
-    0.82,
+    0x2b4a55,
+    0.22,
   );
   const archFrame = modelMaterial(0xf0f1ec, { roughness: 0.68 });
   const windowGrid: VectorSegment[] = [];

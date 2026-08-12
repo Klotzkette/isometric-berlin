@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.13 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.13/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.14/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.13** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.14** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.13**, built from `main`. Its full viewer
+The current public package is **v0.71.14**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -66,6 +66,17 @@ local modules.
   claiming temporary equipment as surveyed. Old trees and lamps are suppressed
   only within the mapped worksite; Day, Night and Minecraft share the same
   metre-scale placement.
+
+- **The original Federal Chancellery now has an exterior-visible interior.**
+  Its official LoD2 position and published 55 x 55 x 36 m leadership-building
+  envelope remain fixed. Six supplied exterior views bound split gallery
+  plates around an open 14.4 m atrium, three cross-bridges, a two-flight stair,
+  gallery rails, sparse generic meeting groups and planting. Cool transparent
+  glazing now reveals those layers by day and night; only separate ceiling,
+  lobby, linear gallery and roof-soffit lights glow warm after dark. The
+  supplied photographs are not bundled or used as textures. Interior fixtures
+  are an exterior-visible recognition reconstruction, not a surveyed or
+  security-relevant floor plan.
 
 - **The Swiss Embassy now has its photographed historic street front.** Its
   measured LoD2 envelope remains fixed, while the 1870/71 palace adds the
@@ -92,7 +103,8 @@ local modules.
   instead of reading as a pale glass block.** Berlin LoD2 retains the 18 m
   office bands; the fully reconstructed 36 m leadership cube alone replaces
   its 13 overlapping high-rise prisms. It now has open east/west elevations,
-  thin side curtain walls, eight floor plates, the monumental semicircular
+  thin side curtain walls, split gallery plates around an open atrium, the
+  visible stair and bridges, the monumental semicircular
   halls, Schultes and Frank's concave roof shell, the lower tensile canopy,
   Ehrenhof glazing, ivy wings, protocol flags, entrance pavilion, lamps,
   security fence and the long paved approach. OSM node `4329873408` fixes

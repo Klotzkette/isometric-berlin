@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.71.14
+
+- **The Federal Chancellery's leadership building is now visibly open behind
+  its monumental glazing instead of reading as a pale shell.** The official
+  Berlin LoD2 envelope, published 55 m cube, 36 m height and 18 m office bands
+  remain unchanged. Six supplied exterior photographs bound a new
+  exterior-visible interior pass: 16 split gallery plates leave a 14.4 m
+  central atrium clear, while three cross-bridges, a restrained two-flight
+  stair, gallery rails and sparse planting/furniture give the east/west
+  through-view architectural depth.
+- **Day glass and night light now have separate jobs.** The two semicircular
+  leadership windows, side curtain walls and Ehrenhof entrance glazing stay
+  cool, thin and transparent after dark; only 12 small interior panels, 70
+  ceiling points, 48 linear gallery lights, 27 lobby lights and 45 roof-soffit
+  downlights become warm. This removes the former orange self-lit glass planes
+  and reproduces the photographed hierarchy of dark structure, transparent
+  glass and sparse occupied light.
+- **The added interior is explicitly bounded and stable.** It represents only
+  circulation, furnishings and lights visible from public exterior viewpoints;
+  it is not a surveyed floor plan and contains no restricted room layout. Fine
+  furniture, rail and lamp geometry uses the existing 900/1,200 m hysteretic
+  detail band, while the structural galleries remain legible in overview. The
+  Chancellery focus camera is tightened from 220 to 190 m and lowered from 67°
+  to 77° polar angle so selection presents the arch and atrium rather than
+  mostly roof. The supplied photographs are not bundled or projected as
+  textures. The visible radius remains **5,230 m**; bounds, attribution and
+  source hierarchy are unchanged.
+
 ## v0.71.13
 
 - **The current Federal Chancellery extension is now represented at its real

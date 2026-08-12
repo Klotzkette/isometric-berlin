@@ -216,8 +216,13 @@ with a transparent 40 m by 23.5 m dome anchored to the published 24 m terrace
 datum, 24 main ribs, 17 horizontal rings, two counter-rotating ramps and a
 mirror cone. The Chancellery keeps the published 36 m by 55 m leadership
 building and 18 m office bands, but opens the central east/west elevations into
-their concrete frame, semicircular halls, visible floor plates, concave roof
-shell and lower tensile canopy. Its 5.5 m Chillida sculpture is fixed by OSM
+their concrete frame, semicircular halls, split gallery plates around a 14.4 m
+open atrium, three bridges, a visible two-flight stair, concave roof shell and
+lower tensile canopy. Separate sparse furnishings, planting, gallery rails and
+warm night luminaires remain visible through cool transparent glazing instead
+of making the glass itself glow. These interior cues are bounded to what the
+six supplied public exterior views reveal; they are not a surveyed or
+security-relevant floor plan. Its 5.5 m Chillida sculpture is fixed by OSM
 artwork node `4329873408` in the eastern Ehrenhof; the entrance glazing, ivy
 wings, protocol flags, rounded security pavilion, lamps, fence and landscaped
 approach are bounded recognition details derived from supplied visual

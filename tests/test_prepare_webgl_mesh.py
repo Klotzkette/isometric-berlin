@@ -261,6 +261,12 @@ def test_architecture_signatures_keep_published_dimensions() -> None:
   assert by_id["bundeskanzleramt-model"]["office_height_m"] == 18.0
   assert by_id["bundeskanzleramt-model"]["forecourt_offset_world"] is not None
   assert by_id["bundeskanzleramt-model"]["forecourt_sculpture_height_m"] == 5.5
+  assert by_id["bundeskanzleramt-model"]["focus_camera"] == {
+    "distance_m": 190.0,
+    "polar_degrees": 77.0,
+    "azimuth_degrees": 88.0,
+    "target_height_m": 15.5,
+  }
   assert by_id["hauptbahnhof-model"]["east_west_roof_length_m"] == 321.0
   assert by_id["hauptbahnhof-model"]["office_bridge_height_m"] == 46.0
   assert by_id["hauptbahnhof-model"]["rotation_y_degrees"] == 0.0

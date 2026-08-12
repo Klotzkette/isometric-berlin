@@ -224,6 +224,18 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
+  test("keeps the Chancellery's exterior-visible interior stable at overview distance", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Chancellery exterior-visible interior fine detail",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Chancellery monumental roof soffit downlights",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Chancellery Ehrenhof lobby ceiling lights",
+    );
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({

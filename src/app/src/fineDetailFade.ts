@@ -245,6 +245,9 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Chancellery extension construction details bodies",
   "Chancellery extension construction details lamps",
   "Chancellery extension construction details ink lines",
+  "Chancellery exterior-visible interior fine detail",
+  "Chancellery monumental roof soffit downlights",
+  "Chancellery Ehrenhof lobby ceiling lights",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */
