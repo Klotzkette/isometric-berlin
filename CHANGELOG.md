@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.71.17
+
+- **The Tiergartentunnel entrances no longer dissolve into or continue across
+  the city surface.** North of Hauptbahnhof and at Kemperplatz, each direction
+  is now one watertight, continuously joined road ribbon from a 32 m surface
+  overlap through the open cut. Joined wedge retaining walls, outer noise
+  barriers, shoulder lines and lane markings follow every bend without box
+  seams or triangular gaps. The smooth ground, kerbs, trees, street furniture
+  and Minecraft terrain all share the same 29 m-wide exclusion corridor.
+- **Kemperplatz now follows mapped plan geometry rather than the old synthetic
+  endpoint.** The data build selects the two non-tunnel OSM carriageways named
+  `Tunnel Tiergarten Spreebogen`, orients them from street to bore and averages
+  their sampled courses. The committed scene and regenerated surface cut are
+  checked against that source in CI; stale or implausibly long courses are
+  rejected before they can punch a false opening through the city.
+- **Both mouths now read as engineered portals.** A low 1.4 m head beam and
+  jambs frame each 5 m opening; a shared coping, lane-control gantry and green
+  signals mark the threshold. Behind it, each bore continues for 46 m while
+  descending from the plausible portal deck to the explicitly schematic
+  tunnel depth, with walls, ceiling, safety bands and lights. Normal exterior
+  views keep the buried body occluded; focused portal and underside views can
+  see inside. The corridor tester now accepts both legacy point arrays and the
+  richer portal payload, and broad-phase bounds make city generation faster.
+  The visible radius remains **5,230 m**; attribution and source hierarchy are
+  unchanged.
+
 ## v0.71.16
 
 - **The viewer now opens above the Platz der Republik lawn in front of the

@@ -177,9 +177,11 @@ MIN_ROAD_AREA_M2 = 25.0
 # identical, while every triangulation remains bounded.
 ROAD_BROWSER_TILE_M = 400.0
 ROAD_BROWSER_HOLE_THRESHOLD = 128
-# The visible Tiergartentunnel ramps are two 10.5 m bores plus their walls.
-# A small shoulder keeps the cut robust through simplification and quantisation.
-OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M = 12.5
+# The visible Tiergartentunnel ramps are two 10.5 m carriageways, a centre
+# reserve, retaining walls and outer noise barriers. Keep a real shoulder
+# around the authored geometry rather than cutting exactly on its outer face.
+OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M = 14.5
+OPEN_TUNNEL_RAMP_APPROACH_M = 32.0
 # Payload rings are rounded to decimetres. Expand the final exclusion by two
 # decimetres so quantisation cannot move a long boundary back over the ramp.
 OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M = 0.2
@@ -317,7 +319,7 @@ def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any
 
 
 def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
-  """The two daylight troughs which must remain open in smooth surfaces.
+  """The daylight troughs which must remain open in smooth surfaces.
 
   The Tiergartentunnel centreline stored in the scene is a presentation route,
   but it is the same route :mod:`TunnelPortals` turns into the two visible
@@ -344,10 +346,42 @@ def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
   if centreline.length == 0:
     return None
   ramp_length = min(260.0, centreline.length / 2)
-  ramps = [
-    substring(centreline, 0, ramp_length),
-    substring(centreline, centreline.length - ramp_length, centreline.length),
+  north_ramp = substring(centreline, 0, ramp_length)
+  south_ramp = substring(centreline, centreline.length - ramp_length, centreline.length)
+
+  def extend_surface_end(ramp: LineString, at_start: bool) -> LineString:
+    coords = list(ramp.coords)
+    first, second = (coords[0], coords[1]) if at_start else (coords[-1], coords[-2])
+    dx = first[0] - second[0]
+    dy = first[1] - second[1]
+    length = math.hypot(dx, dy) or 1.0
+    extension = (
+      first[0] + dx / length * OPEN_TUNNEL_RAMP_APPROACH_M,
+      first[1] + dy / length * OPEN_TUNNEL_RAMP_APPROACH_M,
+    )
+    return LineString([extension, *coords] if at_start else [*coords, extension])
+
+  ramps: list[LineString] = [
+    extend_surface_end(north_ramp, True),
+    extend_surface_end(south_ramp, False),
   ]
+  approaches = tunnel.get("portal_approaches")
+  if isinstance(approaches, dict):
+    kemperplatz = approaches.get("kemperplatz")
+    if isinstance(kemperplatz, list) and len(kemperplatz) >= 2:
+      branch = LineString(
+        [
+          (
+            ORIGIN_EASTING + float(point[0]),
+            ORIGIN_NORTHING - float(point[2]),
+          )
+          for point in kemperplatz
+          if isinstance(point, list) and len(point) >= 3
+        ]
+      )
+      # A stale or malformed course must never punch a cross-city hole.
+      if 25.0 <= branch.length <= 180.0:
+        ramps.append(extend_surface_end(branch, True))
   corridors = [
     ramp.buffer(OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M, cap_style=2)
     for ramp in ramps

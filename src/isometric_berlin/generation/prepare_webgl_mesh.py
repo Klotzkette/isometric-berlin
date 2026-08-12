@@ -26,7 +26,9 @@ from pyproj import Transformer
 from scipy.spatial import cKDTree
 from shapely import contains_xy
 from shapely.affinity import rotate
+from shapely.geometry import LineString
 from shapely.geometry.base import BaseGeometry
+from shapely.ops import linemerge, unary_union
 from trimesh.visual.color import ColorVisuals, uv_to_color
 from trimesh.visual.material import SimpleMaterial
 from trimesh.visual.texture import TextureVisuals
@@ -36,6 +38,7 @@ RAW_DIR = REPO_ROOT / "geo_data/regierungsviertel/raw/berlin_3d_mesh_2025"
 BOUNDS_PATH = REPO_ROOT / "geo_data/regierungsviertel/bounds.geojson"
 LANDMARKS_PATH = REPO_ROOT / "geo_data/regierungsviertel/landmarks.geojson"
 TUNNEL_PATH = REPO_ROOT / "geo_data/regierungsviertel/tiergartentunnel.geojson"
+OSM_PATH = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 OUTPUT_DIR = REPO_ROOT / "src/app/public/mesh/regierungsviertel"
 MESHOPT_SCRIPT = REPO_ROOT / "src/app/scripts/compress-meshopt.mjs"
 SOURCE_CRS = "EPSG:25833"
@@ -843,7 +846,50 @@ def architectural_signature_payload(
   return signatures
 
 
-def tunnel_payload() -> dict[str, Any]:
+def kemperplatz_portal_approach(
+  landmarks: gpd.GeoDataFrame,
+) -> list[list[float]]:
+  """Average the two mapped Kemperplatz ramp carriageways into one course."""
+  matches = landmarks[landmarks["name"] == "Kemperplatz / Tiergartentunnel"]
+  if len(matches) != 1:
+    raise ValueError("Missing unique Kemperplatz / Tiergartentunnel landmark")
+  anchor = matches.geometry.iloc[0]
+  roads = gpd.read_file(OSM_PATH, layer="roads").to_crs(SOURCE_CRS)
+  names = roads["name"].fillna("").astype(str)
+  tunnel = roads["tunnel"].fillna("").astype(str).str.lower()
+  candidates = roads[
+    (names == "Tunnel Tiergarten Spreebogen")
+    & (~tunnel.isin(["1", "true", "yes"]))
+    & (roads.geometry.distance(anchor) <= 160)
+  ]
+  merged = linemerge(unary_union(list(candidates.geometry)))
+  lines = list(merged.geoms) if merged.geom_type == "MultiLineString" else [merged]
+  lanes: list[LineString] = []
+  for geometry in lines:
+    if not isinstance(geometry, LineString) or not 90 <= geometry.length <= 170:
+      continue
+    coords = list(geometry.coords)
+    if anchor.distance(geometry.boundary.geoms[-1]) < anchor.distance(
+      geometry.boundary.geoms[0]
+    ):
+      coords.reverse()
+    lanes.append(LineString(coords))
+  if len(lanes) != 2:
+    raise ValueError(
+      f"Expected two mapped Kemperplatz ramp carriageways, found {len(lanes)}"
+    )
+  sample_count = max(2, math.ceil(max(lane.length for lane in lanes) / 8) + 1)
+  course: list[list[float]] = []
+  for index in range(sample_count):
+    fraction = index / (sample_count - 1)
+    samples = [lane.interpolate(fraction, normalized=True) for lane in lanes]
+    x = sum(point.x for point in samples) / len(samples)
+    y = sum(point.y for point in samples) / len(samples)
+    course.append(point_to_world(x, y, elevation=32.4))
+  return course
+
+
+def tunnel_payload(landmarks: gpd.GeoDataFrame) -> dict[str, Any]:
   """Serialize the documented OSM-derived tunnel centreline for WebGL."""
   payload = json.loads(TUNNEL_PATH.read_text(encoding="utf-8"))
   feature = payload["features"][0]
@@ -853,6 +899,10 @@ def tunnel_payload() -> dict[str, Any]:
     x, y = transformer.transform(lon, lat)
     points.append(point_to_world(x, y, elevation=21.5))
   properties = feature["properties"]
+  kemperplatz = landmarks[landmarks["name"] == "Kemperplatz / Tiergartentunnel"]
+  if len(kemperplatz) != 1:
+    raise ValueError("Missing unique Kemperplatz / Tiergartentunnel landmark")
+  kemperplatz_point = kemperplatz.geometry.iloc[0]
   return {
     "name": properties["name"],
     "geometry_status": properties["geometry_status"],
@@ -860,6 +910,16 @@ def tunnel_payload() -> dict[str, Any]:
     "tube_count": properties["tube_count"],
     "clear_width_each_direction_m": properties["clear_width_each_direction_m"],
     "clear_height_m": properties["clear_height_m"],
+    "portal_surface_anchors": {
+      "kemperplatz": point_to_world(
+        kemperplatz_point.x,
+        kemperplatz_point.y,
+        elevation=32.4,
+      )
+    },
+    "portal_approaches": {
+      "kemperplatz": kemperplatz_portal_approach(landmarks),
+    },
     "points": points,
   }
 
@@ -984,7 +1044,7 @@ def build_webgl_scene(
         "playground details; missing dimensions are display approximations"
       ),
     },
-    "tiergartentunnel": tunnel_payload(),
+    "tiergartentunnel": tunnel_payload(landmarks),
   }
   scene_path = output_dir / "scene.json"
   scene_path.parent.mkdir(parents=True, exist_ok=True)

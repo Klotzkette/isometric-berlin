@@ -2,7 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { Vector3 } from "three";
 
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
-import { RAMP_LENGTH_M, TUNNEL_SURFACE_Y } from "../src/TunnelPortals";
+import {
+  RAMP_LENGTH_M,
+  TUNNEL_SURFACE_Y,
+  tunnelPortalDeckY,
+} from "../src/TunnelPortals";
 import {
   createTunnelFlightPlan,
   TUNNEL_EXTERIOR_EYE_Y,
@@ -50,6 +54,7 @@ describe("guided Tiergarten tunnel flight", () => {
       TUBE_OFFSET_M,
     );
     const rampEyeY = TUNNEL_SURFACE_Y + 1.55;
+    const portalEyeY = tunnelPortalDeckY(5) + 1.55;
     const boreEyeY = ROUTE[0][1] - 0.8;
 
     expect(southbound.points[0].z).toBeCloseTo(-46, 6);
@@ -57,10 +62,7 @@ describe("guided Tiergarten tunnel flight", () => {
     expect(northbound.points[0].z).toBeCloseTo(1_046, 6);
     expect(northbound.points.at(-1)?.z).toBeCloseTo(-46, 6);
     expect(southbound.points[0].y).toBeCloseTo(TUNNEL_EXTERIOR_EYE_Y, 6);
-    expect(southbound.points.at(-1)?.y).toBeCloseTo(
-      TUNNEL_EXTERIOR_EYE_Y,
-      6,
-    );
+    expect(southbound.points.at(-1)?.y).toBeCloseTo(TUNNEL_EXTERIOR_EYE_Y, 6);
     expect(southbound.points[1].y).toBeCloseTo(rampEyeY, 6);
     expect(southbound.points.at(-2)?.y).toBeCloseTo(rampEyeY, 6);
 
@@ -68,30 +70,25 @@ describe("guided Tiergarten tunnel flight", () => {
     const southExit = planPointAt(southbound, southbound.exitPortalM);
     const northEntry = planPointAt(northbound, northbound.entryPortalM);
     const northExit = planPointAt(northbound, northbound.exitPortalM);
-    expect(southEntry.toArray()).toEqual([
-      -TUBE_OFFSET_M,
-      boreEyeY,
-      RAMP_LENGTH_M,
-    ]);
-    expect(southExit.toArray()).toEqual([
-      -TUBE_OFFSET_M,
-      boreEyeY,
-      1_000 - RAMP_LENGTH_M,
-    ]);
-    expect(northEntry.toArray()).toEqual([
-      TUBE_OFFSET_M,
-      boreEyeY,
-      1_000 - RAMP_LENGTH_M,
-    ]);
-    expect(northExit.toArray()).toEqual([
-      TUBE_OFFSET_M,
-      boreEyeY,
-      RAMP_LENGTH_M,
-    ]);
-    expect(southbound.exitPortalM - southbound.entryPortalM).toBeCloseTo(
+    expect(southEntry.x).toBeCloseTo(-TUBE_OFFSET_M, 8);
+    expect(southEntry.y).toBeCloseTo(portalEyeY, 8);
+    expect(southEntry.z).toBeCloseTo(RAMP_LENGTH_M, 8);
+    expect(southExit.x).toBeCloseTo(-TUBE_OFFSET_M, 8);
+    expect(southExit.y).toBeCloseTo(portalEyeY, 8);
+    expect(southExit.z).toBeCloseTo(1_000 - RAMP_LENGTH_M, 8);
+    expect(northEntry.x).toBeCloseTo(TUBE_OFFSET_M, 8);
+    expect(northEntry.y).toBeCloseTo(portalEyeY, 8);
+    expect(northEntry.z).toBeCloseTo(1_000 - RAMP_LENGTH_M, 8);
+    expect(northExit.x).toBeCloseTo(TUBE_OFFSET_M, 8);
+    expect(northExit.y).toBeCloseTo(portalEyeY, 8);
+    expect(northExit.z).toBeCloseTo(RAMP_LENGTH_M, 8);
+    // The 46 m transition behind each portal now contributes its real vertical
+    // fall to travelled distance, so the 3D bore run is slightly longer than
+    // its 480 m plan projection.
+    expect(southbound.exitPortalM - southbound.entryPortalM).toBeGreaterThan(
       1_000 - RAMP_LENGTH_M * 2,
-      6,
     );
+    expect(southbound.exitPortalM - southbound.entryPortalM).toBeLessThan(482);
     expect(southbound.totalM).toBeCloseTo(northbound.totalM, 8);
   });
 
@@ -106,15 +103,11 @@ describe("guided Tiergarten tunnel flight", () => {
     );
     const start = plan.points[0];
     const end = plan.points.at(-1)!;
-    expect(Math.hypot(start.x - plan.points[1].x, start.z - plan.points[1].z)).toBeCloseTo(
-      46,
-      6,
-    );
     expect(
-      Math.hypot(
-        end.x - plan.points.at(-2)!.x,
-        end.z - plan.points.at(-2)!.z,
-      ),
+      Math.hypot(start.x - plan.points[1].x, start.z - plan.points[1].z),
+    ).toBeCloseTo(46, 6);
+    expect(
+      Math.hypot(end.x - plan.points.at(-2)!.x, end.z - plan.points.at(-2)!.z),
     ).toBeCloseTo(46, 6);
     expect(start.y).toBeCloseTo(TUNNEL_EXTERIOR_EYE_Y, 6);
     expect(end.y).toBeCloseTo(TUNNEL_EXTERIOR_EYE_Y, 6);
@@ -128,7 +121,9 @@ describe("guided Tiergarten tunnel flight", () => {
 
     const borePoints = plan.points.filter((_, index) => {
       const distance = plan.cumulativeM[index];
-      return distance >= plan.entryPortalM && distance <= plan.exitPortalM;
+      return (
+        distance >= plan.entryPortalM + 46 && distance <= plan.exitPortalM - 46
+      );
     });
     expect(borePoints.length).toBeGreaterThan(8);
     for (const point of borePoints) {

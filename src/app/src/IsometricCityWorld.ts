@@ -61,11 +61,16 @@ import {
   DATA_SOUTH_M,
   DATA_WEST_M,
   EXTRAPOLATED_MARGIN_M,
+  PRESENTATION_FLOOR_Y_M,
   VISIBLE_RADIUS_M,
   extrapolatedEnvelopeBounds,
   extrapolatedMarginBands,
 } from "./worldEnvelope";
 import type { VisualMode } from "./visualMode";
+import {
+  createTunnelPortalApproachTester,
+  type TunnelPortalCourseInput,
+} from "./TunnelPortals";
 
 export {
   DATA_EAST_M,
@@ -1953,6 +1958,7 @@ const KERB_PAIRS = new Set([
 function createKerbLines(
   ground: VoxelPayload,
   skippedClasses: ReadonlySet<string> = new Set(),
+  skipAtWorld?: (x: number, z: number) => boolean,
 ): LineSegments | null {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
@@ -2010,11 +2016,24 @@ function createKerbLines(
   };
   for (let z = 0; z < rows; z += 1) {
     for (let x = 0; x < cols; x += 1) {
+      const worldX = (min_x_idx + x + 0.5) * cell;
+      const worldZ = (min_z_idx + z + 0.5) * cell;
+      if (skipAtWorld?.(worldX, worldZ)) {
+        continue;
+      }
       const here = classGrid[z * cols + x];
-      if (x + 1 < cols && kerbPair(here, classGrid[z * cols + x + 1])) {
+      if (
+        x + 1 < cols &&
+        !skipAtWorld?.(worldX + cell, worldZ) &&
+        kerbPair(here, classGrid[z * cols + x + 1])
+      ) {
         edge(x + 1, z, x + 1, z + 1, x, z);
       }
-      if (z + 1 < rows && kerbPair(here, classGrid[(z + 1) * cols + x])) {
+      if (
+        z + 1 < rows &&
+        !skipAtWorld?.(worldX, worldZ + cell) &&
+        kerbPair(here, classGrid[(z + 1) * cols + x])
+      ) {
         edge(x, z + 1, x + 1, z + 1, x, z);
       }
     }
@@ -5144,7 +5163,7 @@ export function createExtrapolatedMargin(): Group {
   addPart(
     boxTriangles(
       (envelope.minX + envelope.maxX) / 2,
-      GROUND_TOP - 4.2,
+      PRESENTATION_FLOOR_Y_M - 0.6,
       (envelope.minZ + envelope.maxZ) / 2,
       [1, 0],
       envelope.maxX - envelope.minX,
@@ -5537,7 +5556,7 @@ function createPresentationBackdrop(): Mesh {
   const nightMaterial = new MeshBasicMaterial({ color: 0x07131f });
   const backdrop = new Mesh(geometry, dayMaterial);
   backdrop.name = "presentation paper backdrop";
-  backdrop.position.set(-220, -8, 210);
+  backdrop.position.set(-220, PRESENTATION_FLOOR_Y_M, 210);
   backdrop.receiveShadow = false;
   backdrop.userData.dayMaterial = dayMaterial;
   backdrop.userData.nightMaterial = nightMaterial;
@@ -8548,7 +8567,7 @@ function addBasinsAndSunkenWalls(
 export function createIsometricCity(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
-  tunnelPoints?: readonly (readonly [number, number, number])[] | null,
+  tunnel?: TunnelPortalCourseInput | null,
   surfaces?: SurfacePayload | null,
 ): Group {
   const group = new Group();
@@ -9626,6 +9645,9 @@ export function createIsometricCity(
   }
 
   if (ground) {
+    const insideTunnelApproach = tunnel
+      ? createTunnelPortalApproachTester(tunnel)
+      : null;
     const slabs = createGroundSlabs(
       ground,
       "Drawn ground slabs",
@@ -9637,6 +9659,7 @@ export function createIsometricCity(
         // and deliberately keeps its block-native road staircase.
         skipClasses: surfaces ? ["asphalt"] : undefined,
         skipBridge: true,
+        skipAtWorld: insideTunnelApproach ?? undefined,
         skipWater: true,
       },
     );
@@ -9717,6 +9740,7 @@ export function createIsometricCity(
     const kerbs = createKerbLines(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
+      insideTunnelApproach ?? undefined,
     );
     if (kerbs) {
       group.add(kerbs);

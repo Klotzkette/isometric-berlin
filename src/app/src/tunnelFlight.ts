@@ -1,6 +1,10 @@
 import { MathUtils, Vector3 } from "three";
 
-import { RAMP_LENGTH_M, TUNNEL_SURFACE_Y } from "./TunnelPortals";
+import {
+  RAMP_LENGTH_M,
+  TUNNEL_SURFACE_Y,
+  tunnelPortalDeckY,
+} from "./TunnelPortals";
 
 export type TunnelFlightDirection = "north-to-south" | "south-to-north";
 
@@ -22,6 +26,7 @@ export type TunnelFlightPose = {
 };
 
 const PORTAL_APPROACH_M = 46;
+const PORTAL_TO_BORE_M = 46;
 // The payload line follows the tube centre, not the carriageway. A driver's
 // eye is roughly 0.8 m below that centre in the 5 m clear-height bore.
 const CAMERA_EYE_FROM_TUBE_CENTRE_M = -0.8;
@@ -152,13 +157,24 @@ function profilePortalRamps(points: Vector3[]): ProfiledRoute {
   const rampLengthM = Math.min(RAMP_LENGTH_M, totalM * 0.45);
   const entryPortalAtM = rampLengthM;
   const exitPortalAtM = totalM - rampLengthM;
-  const sampleDistances = [...sourceCumulativeM, entryPortalAtM, exitPortalAtM]
+  const availableHalfBoreM = Math.max(0, (exitPortalAtM - entryPortalAtM) / 2);
+  const portalToBoreM = Math.min(PORTAL_TO_BORE_M, availableHalfBoreM);
+  const entryBoreAtM = entryPortalAtM + portalToBoreM;
+  const exitBoreAtM = exitPortalAtM - portalToBoreM;
+  const sampleDistances = [
+    ...sourceCumulativeM,
+    entryPortalAtM,
+    entryBoreAtM,
+    exitBoreAtM,
+    exitPortalAtM,
+  ]
     .sort((first, second) => first - second)
     .filter(
       (distance, index, distances) =>
         index === 0 || Math.abs(distance - distances[index - 1]) > 1e-6,
     );
   const surfaceEyeY = TUNNEL_SURFACE_Y + CAMERA_EYE_ABOVE_RAMP_CENTRE_M;
+  const portalEyeY = tunnelPortalDeckY(5) + CAMERA_EYE_ABOVE_RAMP_CENTRE_M;
   const profiled = sampleDistances.map((distanceM) => {
     const point = pointAtHorizontalDistance(
       points,
@@ -169,17 +185,29 @@ function profilePortalRamps(points: Vector3[]): ProfiledRoute {
     if (distanceM <= entryPortalAtM) {
       point.y = MathUtils.lerp(
         surfaceEyeY,
-        boreEyeY,
+        portalEyeY,
         distanceM / (entryPortalAtM || 1),
+      );
+    } else if (distanceM < entryBoreAtM) {
+      point.y = MathUtils.lerp(
+        portalEyeY,
+        boreEyeY,
+        (distanceM - entryPortalAtM) / (portalToBoreM || 1),
+      );
+    } else if (distanceM <= exitBoreAtM) {
+      point.y = boreEyeY;
+    } else if (distanceM < exitPortalAtM) {
+      point.y = MathUtils.lerp(
+        boreEyeY,
+        portalEyeY,
+        (distanceM - exitBoreAtM) / (portalToBoreM || 1),
       );
     } else if (distanceM >= exitPortalAtM) {
       point.y = MathUtils.lerp(
-        boreEyeY,
+        portalEyeY,
         surfaceEyeY,
         (distanceM - exitPortalAtM) / (rampLengthM || 1),
       );
-    } else {
-      point.y = boreEyeY;
     }
     return point;
   });
@@ -302,10 +330,6 @@ export function tunnelFlightPose(
     LOOK_AHEAD_M,
     MathUtils.smoothstep(entryBlend, 0, 1),
   );
-  const target = targetAt(
-    plan.points,
-    plan.cumulativeM,
-    distance + lookAheadM,
-  );
+  const target = targetAt(plan.points, plan.cumulativeM, distance + lookAheadM);
   return { done: raw >= 1, position, progress: raw, target };
 }

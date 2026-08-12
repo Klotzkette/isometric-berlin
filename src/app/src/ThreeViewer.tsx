@@ -67,6 +67,7 @@ import {
   createTunnelPortals,
   setTunnelPortalPresentation,
   tunnelMouthViews,
+  type TunnelPortalCourse,
 } from "./TunnelPortals";
 import {
   createMemorialLandmarks,
@@ -264,6 +265,12 @@ export type TunnelPayload = {
   clear_width_each_direction_m: number;
   depth_status: string;
   geometry_status: string;
+  portal_surface_anchors?: {
+    kemperplatz?: [number, number, number];
+  };
+  portal_approaches?: {
+    kemperplatz?: [number, number, number][];
+  };
   points: [number, number, number][];
 };
 
@@ -387,6 +394,7 @@ type Runtime = {
   tunnelBounds: Box3 | null;
   tunnelPortals: Group;
   tunnelPoints: TunnelPayload["points"] | null;
+  tunnelPortalCourse: TunnelPortalCourse | null;
   tunnelPortalInteriorVisible: boolean;
   tunnelTubeOffsetM: number;
   tunnelFlight: { plan: TunnelFlightPlan; startedAt: number } | null;
@@ -1458,11 +1466,10 @@ function setSceneLighting(
   }
   // Both drawn worlds (prisms and voxels) use the flat isometric FOV;
   // only the photographic fallback keeps the 39° perspective.
-  const targetFov =
-    runtime.pedestrian.enabled
-      ? PEDESTRIAN_FOV_DEGREES
-      : (runtime.focusedCameraFov ??
-        (isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES));
+  const targetFov = runtime.pedestrian.enabled
+    ? PEDESTRIAN_FOV_DEGREES
+    : (runtime.focusedCameraFov ??
+      (isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES));
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
@@ -1583,7 +1590,7 @@ function ensureIsoWorld(
       runtime.isoWorld = createIsometricCity(
         prisms,
         ground,
-        runtime.tunnelPoints,
+        runtime.tunnelPortalCourse,
         surfaces,
       );
       // Metric bridge profiles are recognition geometry, not a soft surface
@@ -1721,7 +1728,13 @@ function ensureVoxelWorld(
   runtime: Runtime,
   warn: (message: string) => void,
 ): void {
-  if (runtime.voxelWorldState !== "idle") {
+  // The portal cut is part of the voxel world's immutable instance layout.
+  // Wait for scene.json instead of constructing a Minecraft deep-link frame
+  // without the tunnel course and permanently roofing both approaches.
+  if (
+    runtime.tunnelPortalCourse === null ||
+    runtime.voxelWorldState !== "idle"
+  ) {
     return;
   }
   runtime.voxelWorldState = "loading";
@@ -1739,6 +1752,7 @@ function ensureVoxelWorld(
       runtime.voxelWorld = createMinecraftVoxelWorld(
         payload,
         prisms ? buildColumnToneLookup(prisms) : null,
+        runtime.tunnelPortalCourse,
       );
       runtime.scene.add(runtime.voxelWorld);
       runtime.minecraftMobs = createMinecraftMobs(
@@ -2597,7 +2611,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // starting early would permanently miss the tunnel trace.
         ensureIsoWorld(runtime, onWarningRef.current);
       }
-      if (lightingMode === "minecraft") {
+      if (lightingMode === "minecraft" && runtime.tunnelPoints !== null) {
         ensureVoxelWorld(runtime, onWarningRef.current);
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
@@ -3378,6 +3392,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         tunnelBounds: null,
         tunnelFlight: null,
         tunnelPoints: null,
+        tunnelPortalCourse: null,
         tunnelPortalInteriorVisible: false,
         tunnelTubeOffsetM: 6.1,
         tramCatenary,
@@ -4559,6 +4574,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 }
                 const details = createParkDetails(payload, {
                   settledDetail: !runtime.coarsePointer,
+                  tunnel: manifest.tiergartentunnel ?? null,
                 });
                 runtime.parkDetails.removeFromParent();
                 runtime.parkDetails = details;
@@ -4596,6 +4612,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           runtime.tunnelPoints = manifest.tiergartentunnel.points;
+          runtime.tunnelPortalCourse = manifest.tiergartentunnel;
           runtime.tunnelTubeOffsetM =
             manifest.tiergartentunnel.clear_width_each_direction_m / 2 + 0.85;
           scene.add(runtime.tunnel);
@@ -4615,7 +4632,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
             runtime.focusCameraByName.set(
               "Kemperplatz / Tiergartentunnel",
-              mouthViews.south,
+              mouthViews.kemperplatz ?? mouthViews.south,
             );
             runtime.focusCameraByName.set("Spreebogen", mouthViews.north);
           }

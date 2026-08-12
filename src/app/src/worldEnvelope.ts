@@ -17,6 +17,12 @@ export const EXTRAPOLATED_MARGIN_M = 880;
 
 export const VISIBLE_RADIUS_M = 5230;
 
+// Presentation-only backing planes must sit below every authored underground
+// structure. The Tiergartentunnel road reaches about -8.5 m; older -5.5/-8 m
+// backdrops became visible as soon as its entrance cut was opened and looked
+// like grass or paper roofing the descending carriageway.
+export const PRESENTATION_FLOOR_Y_M = -24;
+
 // Straße des 17. Juni from Pariser Platz to the Großer Stern. Both endpoints
 // are surveyed positions (the Großer Stern centre is EPSG:25833 E388041 /
 // N5819544), used by the Siegessäule recognition model.

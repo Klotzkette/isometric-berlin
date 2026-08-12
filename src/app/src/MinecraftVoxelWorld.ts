@@ -25,10 +25,15 @@ import {
   AXIS_TO,
   DATA_EAST_M,
   EXTRAPOLATED_MARGIN_M,
+  PRESENTATION_FLOOR_Y_M,
   VISIBLE_RADIUS_M,
   extrapolatedEnvelopeBounds,
   extrapolatedMarginBands,
 } from "./worldEnvelope";
+import {
+  createTunnelPortalApproachTester,
+  type TunnelPortalCourseInput,
+} from "./TunnelPortals";
 
 /**
  * True voxel world for the Minecraft mode: the city as axis-aligned
@@ -597,6 +602,7 @@ export function createGroundSlabs(
     emissive?: number;
     skipClasses?: readonly string[];
     skipBridge?: boolean;
+    skipAtWorld?: (x: number, z: number) => boolean;
     skipWater?: boolean;
   },
 ): InstancedMesh {
@@ -606,49 +612,89 @@ export function createGroundSlabs(
     (xIdx + span / 2) * cell;
   const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
   const groundTopY = groundTopSampler(payload);
-  const groundRunCount = payload.ground_rows.reduce(
-    (sum, row) => sum + row.length,
-    0,
-  );
-  const ground = instancedBoxes(name, groundRunCount, options?.emissive);
   const skippedClasses = new Set(options?.skipClasses ?? []);
-  const center = new Vector3();
-  const size = new Vector3();
+  const visibleRuns: Array<{
+    classId: number;
+    run: number;
+    xStart: number;
+    zOffset: number;
+  }> = [];
+  let skippedByWorldPredicateCells = 0;
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
-      if (skippedClasses.has(className)) {
-        continue;
-      }
       if (
-        options?.skipWater &&
-        (className === "water" || className === "basin" || className === "pond")
+        skippedClasses.has(className) ||
+        (options?.skipWater &&
+          (className === "water" ||
+            className === "basin" ||
+            className === "pond")) ||
+        (options?.skipBridge && className === "bridge")
       ) {
         continue;
       }
-      // The drawn city builds real elevated bridge structures instead.
-      if (options?.skipBridge && className === "bridge") {
+      if (!options?.skipAtWorld) {
+        visibleRuns.push({ classId, run, xStart, zOffset });
         continue;
       }
-      const shades = shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
-      const topY =
-        className === "water"
-          ? (payload.water_top_y_m ?? WATER_TOP_Y)
-          : groundTopY(xStart + run / 2, zOffset);
-      // Real bridge decks (drawn city): a thin plate at bank level with
-      // open air beneath, so the river visibly flows under the bridge
-      // instead of the deck being ironed flat onto the water.
-      const slabHeight =
-        options?.bridgeDecks && className === "bridge" ? 1.1 : GROUND_SLAB_M;
-      center.set(
-        worldXAbs(min_x_idx + xStart, run),
-        topY - slabHeight / 2,
-        worldZAbs(min_z_idx + zOffset),
-      );
-      size.set(run * cell, slabHeight, cell);
-      ground.write(center, size, shadeFor(shades, xStart, zOffset, run));
+      let visibleStart = -1;
+      for (let step = 0; step < run; step += 1) {
+        const xOffset = xStart + step;
+        const hidden = options.skipAtWorld(
+          worldXAbs(min_x_idx + xOffset),
+          worldZAbs(min_z_idx + zOffset),
+        );
+        if (!hidden && visibleStart < 0) {
+          visibleStart = xOffset;
+        }
+        if (hidden) {
+          skippedByWorldPredicateCells += 1;
+          if (visibleStart >= 0) {
+            visibleRuns.push({
+              classId,
+              run: xOffset - visibleStart,
+              xStart: visibleStart,
+              zOffset,
+            });
+            visibleStart = -1;
+          }
+        }
+      }
+      if (visibleStart >= 0) {
+        visibleRuns.push({
+          classId,
+          run: xStart + run - visibleStart,
+          xStart: visibleStart,
+          zOffset,
+        });
+      }
     }
   });
+  const ground = instancedBoxes(name, visibleRuns.length, options?.emissive);
+  ground.mesh.userData.skippedByWorldPredicateCells =
+    skippedByWorldPredicateCells;
+  const center = new Vector3();
+  const size = new Vector3();
+  for (const { classId, run, xStart, zOffset } of visibleRuns) {
+    const className = payload.classes[classId] ?? "grass";
+    const shades = shadeMap[className] ?? shadeMap.grass ?? FALLBACK_SHADES;
+    const topY =
+      className === "water"
+        ? (payload.water_top_y_m ?? WATER_TOP_Y)
+        : groundTopY(xStart + run / 2, zOffset);
+    // Real bridge decks (drawn city): a thin plate at bank level with
+    // open air beneath, so the river visibly flows under the bridge
+    // instead of the deck being ironed flat onto the water.
+    const slabHeight =
+      options?.bridgeDecks && className === "bridge" ? 1.1 : GROUND_SLAB_M;
+    center.set(
+      worldXAbs(min_x_idx + xStart, run),
+      topY - slabHeight / 2,
+      worldZAbs(min_z_idx + zOffset),
+    );
+    size.set(run * cell, slabHeight, cell);
+    ground.write(center, size, shadeFor(shades, xStart, zOffset, run));
+  }
   return ground.mesh;
 }
 
@@ -741,7 +787,7 @@ export function createMinecraftExtrapolatedWorld(): Group {
       envelope.maxZ - envelope.minZ,
     ],
     1,
-    -6,
+    PRESENTATION_FLOOR_Y_M - 0.5,
     1,
   );
   extrapolatedMarginBands().forEach((band, index) => {
@@ -1316,15 +1362,7 @@ export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
     size.set(width, height, depth);
     writer.write(center, size, color.setHex(tone), rotationY);
   };
-  campusBox(
-    -260,
-    campus.groundY + 0.45,
-    -714,
-    28,
-    0.9,
-    61,
-    0xa9aaa6,
-  );
+  campusBox(-260, campus.groundY + 0.45, -714, 28, 0.9, 61, 0xa9aaa6);
   campusBox(
     -260,
     campus.groundY + campus.currentSlabTopM - 0.35,
@@ -1361,24 +1399,8 @@ export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
     }
   }
   for (const y of [1.4, 4, 6.6, 9.2]) {
-    campusBox(
-      -246.5,
-      campus.groundY + y,
-      -714,
-      0.35,
-      0.35,
-      56,
-      0x59615f,
-    );
-    campusBox(
-      -274.5,
-      campus.groundY + y,
-      -714,
-      0.35,
-      0.35,
-      56,
-      0x59615f,
-    );
+    campusBox(-246.5, campus.groundY + y, -714, 0.35, 0.35, 56, 0x59615f);
+    campusBox(-274.5, campus.groundY + y, -714, 0.35, 0.35, 56, 0x59615f);
   }
   campusBox(-260.5, campus.groundY + 1.5, -745, 26, 3, 0.65, 0x252d2d);
   campusBox(-246, campus.groundY + 1.5, -714, 0.65, 3, 58, 0x252d2d);
@@ -1625,6 +1647,7 @@ export function createMinecraftFunboxRecognition(): InstancedMesh {
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
+  tunnel?: TunnelPortalCourseInput | null,
 ): Group {
   const group = new Group();
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
@@ -1637,8 +1660,15 @@ export function createMinecraftVoxelWorld(
   const worldZAbs = (zIdx: number): number => (zIdx + 0.5) * cell;
   const center = new Vector3();
   const size = new Vector3();
+  const insideTunnelApproach = tunnel
+    ? createTunnelPortalApproachTester(tunnel)
+    : null;
   group.add(createMinecraftExtrapolatedWorld());
-  group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
+  group.add(
+    createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES, {
+      skipAtWorld: insideTunnelApproach ?? undefined,
+    }),
+  );
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());
@@ -1651,7 +1681,10 @@ export function createMinecraftVoxelWorld(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
         (y1dm - y0dm) / 10,
-      ) && !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)),
+      ) &&
+      !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
+      (!insideTunnelApproach ||
+        !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx))),
   );
 
   const buildings = instancedBoxes(
@@ -1805,7 +1838,9 @@ export function createMinecraftVoxelWorld(
       !isChancelleryExtensionConstructionPoint(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
-      ),
+      ) &&
+      (!insideTunnelApproach ||
+        !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx), cell * 1.1)),
   );
   const trunks = instancedBoxes("Voxel tree trunks", visibleTrees.length);
   const crowns = instancedBoxes("Voxel tree crowns", visibleTrees.length * 2);

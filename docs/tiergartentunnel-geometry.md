@@ -24,7 +24,7 @@ for the tunnel body is found and committed as a derived clipped artefact.
 | Portals / route anchors | Public portal coordinates and route description for Tunnel Tiergarten Spreebogen | Centreline simplification and portal sanity check |
 | Length | Published length around 2.4 km / 2392 m | Metadata and QA sanity check |
 | Cross section | Published two-tube rectangular road tunnel facts: 10.5 m clear width per direction, 5.0 m clear height, 23.4 m total width | Schematic two-tube cutaway volume |
-| Surface context | OSM roads, tunnels, footways, station passages and portals clipped to the Regierungsviertel | Alignment sanity check only |
+| Surface context | OSM roads, tunnels, footways, station passages and portals clipped to the Regierungsviertel | Alignment and open-ramp plan geometry; the two separate Kemperplatz carriageways are averaged into the rendered centre course |
 | Depth | Not found as licensed official geometry in this repo | Schematic -12 m visual depth |
 
 ## Committed Artefacts
@@ -49,12 +49,25 @@ for the tunnel body is found and committed as a derived clipped artefact.
 
 Draw the tunnel below the surface as a readable engineering cutaway:
 
+- two continuous, joined carriageway ribbons at every authored entrance. The
+  north and far-south approaches follow the route endpoints; the Kemperplatz
+  entrance follows the averaged course of its two mapped OSM surface
+  carriageways. Each begins with a flat 32 m overlap, then descends through an
+  open cut to the twin portal frames;
+- a shallow, structurally readable head beam above each 5 m opening, followed
+  by a 46 m enclosed transition to the schematic tunnel depth. Both vertical
+  profiles are presentation geometry, not surveyed gradients;
+- a shared 29 m-wide surface-clearance corridor for the exact ground polygons,
+  extrapolated background ground, Minecraft ground cells, kerbs, trees and
+  street furniture, so none of those layers can roof or block an approach;
+- wedge-shaped retaining walls, outer noise barriers, shoulder and lane marks,
+  portal jambs, head beams and a lane-control gantry at both mouths;
 - interrupted twin-tube outlines in the global DZI, so the route cannot be
   mistaken for an elevated road and does not cover water, paths or vegetation;
 - dark rectangular tunnel body in the dedicated local underside overlay;
 - two separated tubes with a visible centre wall;
 - side walls / floor guide lines;
-- portal frames at the north and south visible endpoints;
+- portal frames at the north, Kemperplatz and far-south visible approaches;
 - ceiling ribs and lane / tube guide marks for the underside view;
 - small service-bay / emergency-cue boxes along the route;
 - warm light points along the route;
@@ -76,10 +89,13 @@ keyboard or the underside preset automatically fades the official surface and
 reveals the tunnel casings, roads, lights, lane marks and ventilation cues. The
 same underside camera also reveals the separately documented mapped passenger-
 rail cutaway and now frames their central crossing rather than forcing a close
-south-portal shot. Dedicated northbound/southbound controls still centre and
-fly through the Tiergartentunnel. The zero-server fallback follows the same
-visibility rule. The mode therefore follows the real camera angle instead of
-depending on one special button path.
+south-portal shot. The open north, Kemperplatz and far-south approaches remain
+ordinary surface features in Day, Night and Minecraft; only their short interior bore aids are
+temporarily revealed when a tunnel-mouth sight is selected. Dedicated
+northbound/southbound controls still centre and fly through the
+Tiergartentunnel. The zero-server fallback follows the same visibility rule.
+The mode therefore follows the real camera angle instead of depending on one
+special button path.
 
 If a future agent finds official tunnel-survey geometry, keep the same
 public viewer semantics but replace only the approximate centreline /

@@ -11,7 +11,9 @@ import {
   smoothGroundTopSampler,
   type VoxelPayload,
 } from "../src/MinecraftVoxelWorld";
+import { createTunnelPortalApproachTester } from "../src/TunnelPortals";
 import groundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 import surfacePayload from "../public/mesh/regierungsviertel/surface-polygons.json";
 
 const surfaces = surfacePayload as unknown as SurfacePayload;
@@ -55,7 +57,9 @@ describe("drawn carriageways and park paths", () => {
     expect(kinds.has("wood")).toBe(true);
     expect(kinds.has("metal")).toBe(true);
     expect(surfaces.path_inventory?.line_parts ?? 0).toBeGreaterThan(8_000);
-    expect(surfaces.path_inventory?.mapped_surface_line_parts ?? 0).toBeGreaterThan(7_000);
+    expect(
+      surfaces.path_inventory?.mapped_surface_line_parts ?? 0,
+    ).toBeGreaterThan(7_000);
     expect(surfaces.lane_markings?.length ?? 0).toBeGreaterThan(20);
     const named = (surfaces.lane_markings ?? []).map((entry) => entry.name);
     expect(named).toContain("Straße des 17. Juni");
@@ -229,12 +233,7 @@ describe("drawn carriageways and park paths", () => {
         },
       ],
     };
-    const group = createSmoothSurfaces(
-      fixture,
-      -1.15,
-      4.2,
-      (x) => 4 + x / 40,
-    );
+    const group = createSmoothSurfaces(fixture, -1.15, 4.2, (x) => 4 + x / 40);
     const walls = group.getObjectByName("smooth quay walls") as Mesh;
     const bounds = new Box3().setFromObject(walls);
     expect(bounds.max.y).toBeGreaterThan(6.3);
@@ -259,5 +258,24 @@ describe("drawn carriageways and park paths", () => {
 
     expect(asphaltRuns).toBeGreaterThan(1_000);
     expect(minecraft.count - drawn.count).toBe(asphaltRuns);
+  });
+
+  test("cuts the measured ground raster around both authored tunnel ramps", () => {
+    const insideApproach = createTunnelPortalApproachTester({
+      clear_height_m: scenePayload.tiergartentunnel.clear_height_m,
+      portal_surface_anchors:
+        scenePayload.tiergartentunnel.portal_surface_anchors,
+      points: scenePayload.tiergartentunnel.points as Array<
+        [number, number, number]
+      >,
+    });
+    const cut = createGroundSlabs(
+      ground,
+      "portal-cut ground",
+      { asphalt: [0x777777], grass: [0x77aa66] },
+      { skipAtWorld: insideApproach },
+    );
+
+    expect(cut.userData.skippedByWorldPredicateCells).toBeGreaterThan(500);
   });
 });

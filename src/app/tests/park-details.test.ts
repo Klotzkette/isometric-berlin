@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Vector3 } from "three";
+import {
+  InstancedMesh,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3,
+} from "three";
 import {
   type ParkDetailsPayload,
   WALL_TRACE_PROFILE,
@@ -164,6 +170,36 @@ describe("OSM park details", () => {
     expect((branches as InstancedMesh).count).toBe(4);
   });
 
+  test("keeps tree crowns out of both open Tiergartentunnel approaches", () => {
+    const tunnel = {
+      clear_height_m: 5,
+      clear_width_each_direction_m: 10.5,
+      points: [
+        [0, -10, 0],
+        [0, -10, 400],
+        [0, -10, 900],
+      ] as [number, number, number][],
+    };
+    const park = createParkDetails(
+      {
+        ...payload,
+        trees: [
+          { ...payload.trees[0], id: "north-ramp", position: [0, 1, 80] },
+          { ...payload.trees[0], id: "south-ramp", position: [0, 1, 820] },
+          { ...payload.trees[0], id: "beside-ramp", position: [45, 1, 80] },
+        ],
+      },
+      { tunnel },
+    );
+    const trunks = park.getObjectByName(
+      "OSM instanced granular tree trunks",
+    ) as InstancedMesh;
+    expect(trunks.count).toBe(1);
+    expect(park.userData.treeCount).toBe(1);
+    expect(park.userData.suppressedTunnelApproachTreeCount).toBe(2);
+    expect(park.userData.suppressedConstructionTreeCount).toBe(0);
+  });
+
   test("keeps official conifers and shrubs distinct from broadleaf crowns", () => {
     const conifer = {
       ...payload.trees[0],
@@ -259,7 +295,9 @@ describe("OSM park details", () => {
     expect(
       park.getObjectByName("Spielplatz an der Luiseninsel OSM footprint"),
     ).toBeDefined();
-    expect(park.getObjectByName("climbingframe climb-1 climbing net")).toBeDefined();
+    expect(
+      park.getObjectByName("climbingframe climb-1 climbing net"),
+    ).toBeDefined();
     expect(park.getObjectByName("slide slide-1 chute")).toBeDefined();
   });
 
@@ -447,7 +485,10 @@ describe("schema-3 compact tree wire form", () => {
     const wire = createParkDetails({
       ...payload,
       schema_version: 3,
-      tree_vocabulary: { leaf_type: ["broadleaved"], source: ["berlin_official", "osm"] },
+      tree_vocabulary: {
+        leaf_type: ["broadleaved"],
+        source: ["berlin_official", "osm"],
+      },
       trees: [
         { cr: 3.2, h: 11, i: "tree-1", lt: 0, position: [2, 1, 3], s: 0, v: 0 },
         { cr: 4, h: 13, i: "tree-2", position: [8, 1.1, 4], s: 1, v: 2 },

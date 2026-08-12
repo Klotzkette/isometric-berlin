@@ -19,6 +19,7 @@ import {
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
 import { isChancelleryExtensionConstructionPoint } from "../src/chancelleryExtensionProfile";
+import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   BERLIN_MODERN_PROFILE,
@@ -155,6 +156,27 @@ describe("true voxel Minecraft world", () => {
     expect(payload.buildings.length).toBeGreaterThan(10_000);
   });
 
+  test("keeps both portal approaches open in a direct Minecraft load", () => {
+    const tunnelWorld = createMinecraftVoxelWorld(
+      payload,
+      null,
+      scenePayload.tiergartentunnel,
+    );
+    const fullGround = instanced("Voxel ground runs", world);
+    const cutGround = instanced("Voxel ground runs", tunnelWorld);
+    const skipped = cutGround.userData.skippedByWorldPredicateCells as number;
+
+    expect(skipped).toBeGreaterThan(500);
+    // Cutting a diagonal course can split retained RLE runs, so instance count
+    // alone is not a valid measure. The explicit cell counter is the contract.
+    expect(cutGround.count).toBeGreaterThan(0);
+    expect(fullGround.userData.skippedByWorldPredicateCells).toBe(0);
+
+    const fullTrees = instanced("Voxel tree trunks", world).count;
+    const cutTrees = instanced("Voxel tree trunks", tunnelWorld).count;
+    expect(cutTrees).toBeLessThan(fullTrees);
+  });
+
   test("keeps KPMG and its current north forecourt recognisable in blocks", () => {
     const recognition = createMinecraftEinzEuropaplatzRecognition();
     const profile = recognition.userData.architecturalProfile as {
@@ -165,7 +187,9 @@ describe("true voxel Minecraft world", () => {
     expect(recognition.count).toBeGreaterThan(200);
     expect(profile.tower.facadeGridM).toBe(1.35);
     expect(profile.plaza.currentState).toContain("temporary 2026");
-    expect(profile.campus.currentState).toContain("ground-floor concrete frame");
+    expect(profile.campus.currentState).toContain(
+      "ground-floor concrete frame",
+    );
     expect(profile.campus.currentSlabTopM).toBeLessThan(
       profile.campus.plannedEnvelopeHeightM,
     );

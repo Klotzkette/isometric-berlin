@@ -23,6 +23,10 @@ import {
   Vector3,
 } from "three";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
+import {
+  createTunnelPortalApproachTester,
+  type TunnelPortalPayload,
+} from "./TunnelPortals";
 
 export type ParkPath = {
   id: string;
@@ -50,10 +54,7 @@ export type ParkTree = {
 };
 
 export type TreePresentationForm =
-  | "broadleaf"
-  | "conifer"
-  | "orchard"
-  | "shrub";
+  "broadleaf" | "conifer" | "orchard" | "shrub";
 
 /** Keep the official catalogue's botanical form visible in the 3D drawing. */
 export function treePresentationForm(tree: ParkTree): TreePresentationForm {
@@ -180,9 +181,7 @@ export function decodeTrees(
       leaf_type: vocabularyEntry(vocabulary.leaf_type, tree.lt),
       position: tree.position,
       source: (vocabularyEntry(vocabulary.source, tree.s) ?? undefined) as
-        | "berlin_official"
-        | "osm"
-        | undefined,
+        "berlin_official" | "osm" | undefined,
       species: vocabularyEntry(vocabulary.species, tree.sp),
       tree_group: vocabularyEntry(vocabulary.tree_group, tree.g),
       trunk_radius_m: tree.tr,
@@ -206,6 +205,7 @@ type TreeCrownCutaway = {
 
 export type ParkDetailOptions = {
   settledDetail?: boolean;
+  tunnel?: TunnelPortalPayload | null;
 };
 
 const UP = new Vector3(0, 1, 0);
@@ -451,18 +451,12 @@ function addTrees(
       ? Math.hypot(x - cutaway.x, z - cutaway.z) <= cutaway.radiusM
       : false;
     if (form === "conifer") {
-      const target = isInsideCutaway
-        ? cutawayConiferCrowns
-        : coniferCrowns;
+      const target = isInsideCutaway ? cutawayConiferCrowns : coniferCrowns;
       const crownHeight = Math.max(2.4, tree.height_m * 0.58);
       for (let layer = 0; layer < 3; layer += 1) {
         const radius = tree.crown_radius_m * (0.98 - layer * 0.18);
         target[variant].push({
-          position: [
-            x,
-            y + tree.height_m * (0.43 + layer * 0.19),
-            z,
-          ],
+          position: [x, y + tree.height_m * (0.43 + layer * 0.19), z],
           rotation: [0, branchYaw + layer * 0.37, 0],
           scale: [radius, crownHeight * (0.64 - layer * 0.08), radius],
         });
@@ -485,11 +479,7 @@ function addTrees(
     if (Math.abs(tree.variant) % 3 === 0) {
       const snowTarget = isInsideCutaway ? cutawaySnowCaps : snowCaps;
       snowTarget.push({
-        position: [
-          x,
-          y + trunkHeight + tree.crown_radius_m * 1.02,
-          z,
-        ],
+        position: [x, y + trunkHeight + tree.crown_radius_m * 1.02, z],
         rotation: [0, branchYaw, 0],
         scale: [
           tree.crown_radius_m * 0.78,
@@ -528,9 +518,7 @@ function addTrees(
         [-0.43, 0.45, -0.3],
         [0.42, 0.3, 0.34],
       ];
-      const target = isInsideCutaway
-        ? settledCutawayCrowns
-        : settledCrowns;
+      const target = isInsideCutaway ? settledCutawayCrowns : settledCrowns;
       settledOffsets.forEach(([offsetX, offsetY, offsetZ], index) => {
         const radius = tree.crown_radius_m * (index === 0 ? 0.54 : 0.58);
         target[variant].push({
@@ -750,7 +738,11 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
     cones.push({
       position: [x, y + height - coneHeight / 2, z],
       rotation: [0, yaw, 0],
-      scale: [Math.min(4.6, height * 0.54), coneHeight, Math.min(4.6, height * 0.54)],
+      scale: [
+        Math.min(4.6, height * 0.54),
+        coneHeight,
+        Math.min(4.6, height * 0.54),
+      ],
     });
   }
 
@@ -963,15 +955,18 @@ function addHiddenEasterEggs(group: Group, trees: ParkTree[]): number {
   return eggCount;
 }
 
-function treeCrownCutaway(playgrounds: ParkPlayground[]): TreeCrownCutaway | null {
+function treeCrownCutaway(
+  playgrounds: ParkPlayground[],
+): TreeCrownCutaway | null {
   const focusName = "Spielplatz an der Luiseninsel";
   const playground = playgrounds.find((entry) => entry.name === focusName);
   if (!playground) {
     return null;
   }
-  const points = playground.equipment.length > 0
-    ? playground.equipment.map((item) => item.position)
-    : playground.outline;
+  const points =
+    playground.equipment.length > 0
+      ? playground.equipment.map((item) => item.position)
+      : playground.outline;
   if (points.length === 0) {
     return null;
   }
@@ -1020,10 +1015,14 @@ function addCylinderBetween(
   return mesh;
 }
 
-function footprintGeometry(outline: [number, number, number][]): BufferGeometry {
+function footprintGeometry(
+  outline: [number, number, number][],
+): BufferGeometry {
   const unique = outline.filter(
     (point, index) =>
-      index === 0 || point[0] !== outline[index - 1][0] || point[2] !== outline[index - 1][2],
+      index === 0 ||
+      point[0] !== outline[index - 1][0] ||
+      point[2] !== outline[index - 1][2],
   );
   if (
     unique.length > 2 &&
@@ -1094,7 +1093,10 @@ function addClimbingFrame(group: Group, item: PlaygroundEquipment): void {
     );
   }
   const netGeometry = new BufferGeometry();
-  netGeometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  netGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(positions, 3),
+  );
   const net = new LineSegments(netGeometry, rope);
   net.name = `${item.kind} ${item.id} climbing net`;
   group.add(net);
@@ -1102,13 +1104,14 @@ function addClimbingFrame(group: Group, item: PlaygroundEquipment): void {
 
 function addSlide(group: Group, item: PlaygroundEquipment): void {
   const [x, y, z] = item.position;
-  const direction = item.points.length >= 2
-    ? new Vector3(
-        item.points.at(-1)![0] - item.points[0][0],
-        0,
-        item.points.at(-1)![2] - item.points[0][2],
-      ).normalize()
-    : new Vector3(0, 0, 1);
+  const direction =
+    item.points.length >= 2
+      ? new Vector3(
+          item.points.at(-1)![0] - item.points[0][0],
+          0,
+          item.points.at(-1)![2] - item.points[0][2],
+        ).normalize()
+      : new Vector3(0, 0, 1);
   const chute = addBox(
     group,
     `slide ${item.id} chute`,
@@ -1286,21 +1289,38 @@ export function createParkDetails(
   }
   const group = new Group();
   group.name = "Additive open-data park and civic surface details";
+  const insideTunnelApproach = options.tunnel
+    ? createTunnelPortalApproachTester(options.tunnel)
+    : null;
   const sourceTrees = decodeTrees(payload.trees, payload.tree_vocabulary);
-  const trees = sourceTrees.filter(
+  const constructionFilteredTrees = sourceTrees.filter(
     (tree) =>
       !isChancelleryExtensionConstructionPoint(
         tree.position[0],
         tree.position[2],
       ),
   );
+  const trees = constructionFilteredTrees.filter(
+    (tree) =>
+      !insideTunnelApproach ||
+      !insideTunnelApproach(
+        tree.position[0],
+        tree.position[2],
+        tree.crown_radius_m + 1.5,
+      ),
+  );
   const sourceStreetLights = payload.street_lights ?? [];
-  const streetLights = sourceStreetLights.filter(
+  const constructionFilteredStreetLights = sourceStreetLights.filter(
     (light) =>
       !isChancelleryExtensionConstructionPoint(
         light.position[0],
         light.position[2],
       ),
+  );
+  const streetLights = constructionFilteredStreetLights.filter(
+    (light) =>
+      !insideTunnelApproach ||
+      !insideTunnelApproach(light.position[0], light.position[2], 0.8),
   );
   const wallTraces = payload.wall_traces ?? [];
   group.userData = {
@@ -1310,8 +1330,13 @@ export function createParkDetails(
     playgroundCount: payload.playgrounds.length,
     streetLightCount: streetLights.length,
     suppressedConstructionStreetLightCount:
-      sourceStreetLights.length - streetLights.length,
-    suppressedConstructionTreeCount: sourceTrees.length - trees.length,
+      sourceStreetLights.length - constructionFilteredStreetLights.length,
+    suppressedConstructionTreeCount:
+      sourceTrees.length - constructionFilteredTrees.length,
+    suppressedTunnelApproachStreetLightCount:
+      constructionFilteredStreetLights.length - streetLights.length,
+    suppressedTunnelApproachTreeCount:
+      constructionFilteredTrees.length - trees.length,
     treeCount: trees.length,
   };
   addPaths(group, payload.paths);
@@ -1372,10 +1397,7 @@ export function setParkDetailsFocus(group: Group, name: string): void {
   }
 }
 
-export function setParkSnowPresentation(
-  group: Group,
-  enabled: boolean,
-): void {
+export function setParkSnowPresentation(group: Group, enabled: boolean): void {
   group.traverse((object) => {
     if (object.userData.snowOnly !== true) {
       return;
