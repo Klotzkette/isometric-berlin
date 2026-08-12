@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.71.8
+
+- **Moltkebrücke now reads as Otto Stahn's red-sandstone monument rather than
+  a generic post rail.** The published 77.58 x 25.70 m bridge envelope, three
+  segmental arches and OSM centreline remain unchanged. Twelve alternating
+  recessed-panel and open-baluster bays give the parapet its real cadence;
+  turned balusters, layered coping, garlanded plinths and river-pier reliefs
+  replace the former uniform row of small rectangular posts.
+- **The documented sculptural programme is represented at source-counted
+  scale.** Four Carl Piper griffins now have faceted bodies, feathered wings,
+  beaked heads and dark heraldic shields; eight pointed bronze candelabra carry
+  the documented 24 Roman-soldier figures. Four weapon trophies, six keystone
+  heads, pedestal garlands and warm night lanterns complete the procedural
+  reconstruction. Supplied photos and licensed Wikimedia views are visual
+  references only: none is bundled or projected as a texture, and unsurveyed
+  micro-dimensions remain explicit presentation estimates.
+- **Fine bridge ornament stays stable instead of aliasing at map scale.** Its
+  bodies, lamps and ink form one named detail layer governed by the existing
+  900/1,200 m visibility hysteresis; the quiet bridge silhouette remains at
+  every distance. Tests pin all ornament counts, geometry density and
+  lossless Day/Night material swaps. Browser checks cover close Day and Night
+  views without warnings. The Moltkebrücke photograph also contributes the
+  small `GLEISS LUTZ` sign to Cube Berlin without moving or rescaling its
+  measured 42.5 m shell. The visible radius remains **5,230 m**; attribution
+  and the additive source hierarchy are unchanged.
+
 ## v0.71.7
 
 - **MEININGER Hotel Hauptbahnhof now occupies its exact measured shell.** The

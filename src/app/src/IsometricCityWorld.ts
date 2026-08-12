@@ -216,10 +216,8 @@ export function isDedicatedSintiRomaPool(surface: SurfacePolygon): boolean {
 export const ISO_INK_COLOR = ARCHITECTURAL_INK_PALETTE.day.silhouette;
 // At night black ink vanishes on dark prisms; a cool moonlit line keeps
 // the drawn contours readable.
-export const ISO_NIGHT_INK_COLOR =
-  ARCHITECTURAL_INK_PALETTE.night.silhouette;
-export const ISO_EDGE_THRESHOLD_DEGREES =
-  ARCHITECTURAL_EDGE_THRESHOLD_DEGREES;
+export const ISO_NIGHT_INK_COLOR = ARCHITECTURAL_INK_PALETTE.night.silhouette;
+export const ISO_EDGE_THRESHOLD_DEGREES = ARCHITECTURAL_EDGE_THRESHOLD_DEGREES;
 
 /** Official LoD2 parts of the renovated Charite Bettenhochhaus tower. */
 export const CHARITE_BETTENHOCHHAUS_IDS: ReadonlySet<string> = new Set([
@@ -937,6 +935,9 @@ export function setIsoNightPresentation(
     "Drawn ground slabs",
     "drawn quay walls",
     "bridge structure bodies",
+    "bridge structure lamps",
+    "Moltkebrücke ornamental stone bodies",
+    "Moltkebrücke ornamental stone lamps",
     "Adlon bodies",
     "Paul-Löbe canopy bodies",
     "tunnel portal ramps",
@@ -1147,6 +1148,16 @@ export function setIsoNightPresentation(
   if (railingInk instanceof LineSegments) {
     applyArchitecturalInkMode(
       railingInk.material as LineBasicMaterial,
+      mode,
+      "detail",
+    );
+  }
+  const moltkeInk = city.getObjectByName(
+    "Moltkebrücke ornamental stone ink lines",
+  );
+  if (moltkeInk instanceof LineSegments) {
+    applyArchitecturalInkMode(
+      moltkeInk.material as LineBasicMaterial,
       mode,
       "detail",
     );
@@ -1820,9 +1831,11 @@ function beamBetweenTriangles(
   if (length < 1e-6) {
     return new Float32Array();
   }
-  const w: [number, number, number] = delta.map(
-    (value) => value / length,
-  ) as [number, number, number];
+  const w: [number, number, number] = delta.map((value) => value / length) as [
+    number,
+    number,
+    number,
+  ];
   const reference: [number, number, number] =
     Math.abs(w[1]) < 0.95 ? [0, 1, 0] : [1, 0, 0];
   const rawU: [number, number, number] = [
@@ -1831,9 +1844,11 @@ function beamBetweenTriangles(
     reference[0] * w[1] - reference[1] * w[0],
   ];
   const uLength = Math.hypot(...rawU) || 1;
-  const u: [number, number, number] = rawU.map(
-    (value) => value / uLength,
-  ) as [number, number, number];
+  const u: [number, number, number] = rawU.map((value) => value / uLength) as [
+    number,
+    number,
+    number,
+  ];
   const v: [number, number, number] = [
     w[1] * u[2] - w[2] * u[1],
     w[2] * u[0] - w[0] * u[2],
@@ -1859,11 +1874,26 @@ function beamBetweenTriangles(
   ];
   const faces: Array<[number, number, number][]> = [
     [corner(1, -1, -1), corner(1, 1, -1), corner(1, 1, 1), corner(1, -1, 1)],
-    [corner(-1, -1, 1), corner(-1, 1, 1), corner(-1, 1, -1), corner(-1, -1, -1)],
+    [
+      corner(-1, -1, 1),
+      corner(-1, 1, 1),
+      corner(-1, 1, -1),
+      corner(-1, -1, -1),
+    ],
     [corner(-1, 1, -1), corner(-1, 1, 1), corner(1, 1, 1), corner(1, 1, -1)],
-    [corner(-1, -1, 1), corner(-1, -1, -1), corner(1, -1, -1), corner(1, -1, 1)],
+    [
+      corner(-1, -1, 1),
+      corner(-1, -1, -1),
+      corner(1, -1, -1),
+      corner(1, -1, 1),
+    ],
     [corner(-1, -1, 1), corner(1, -1, 1), corner(1, 1, 1), corner(-1, 1, 1)],
-    [corner(1, -1, -1), corner(-1, -1, -1), corner(-1, 1, -1), corner(1, 1, -1)],
+    [
+      corner(1, -1, -1),
+      corner(-1, -1, -1),
+      corner(-1, 1, -1),
+      corner(1, 1, -1),
+    ],
   ];
   const triangles: number[] = [];
   for (const [a, b, c, d] of faces) {
@@ -2629,6 +2659,13 @@ export const BRIDGE_MIN_CLEARANCE_M = 5.4;
 export const GOLDA_PERFORATION_BAYS = 39;
 export const KRONPRINZEN_SPAN_LAYOUT_M = [15.492, 44, 15.492] as const;
 export const MOLTKE_ARCH_COUNT = 3;
+export const MOLTKE_BALUSTRADE_BAY_COUNT = 12;
+export const MOLTKE_BALUSTERS_PER_OPEN_BAY = 7;
+export const MOLTKE_CANDELABRA_COUNT = 8;
+export const MOLTKE_CANDELABRA_FIGURE_COUNT = 24;
+export const MOLTKE_GRIFFIN_COUNT = 4;
+export const MOLTKE_KEYSTONE_HEAD_COUNT = 6;
+export const MOLTKE_TROPHY_COUNT = 4;
 export const PARLIAMENT_BRIDGE_LEVELS = 2;
 
 function createBridgeStructures(ground: VoxelPayload): Group | null {
@@ -2646,6 +2683,9 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
   const lampParts: BufferGeometry[] = [];
+  const moltkeDetailParts: BufferGeometry[] = [];
+  const moltkeDetailEdges: BufferGeometry[] = [];
+  const moltkeDetailLampParts: BufferGeometry[] = [];
   const DEFAULT_PALETTE: BridgePalette = {
     abutment: 0xcdc7b7,
     deck: 0xc4c5bd,
@@ -2686,6 +2726,70 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     }
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
     lampParts.push(geometry);
+  };
+  const addMoltkeDetail = (
+    triangles: Float32Array,
+    tone: Color,
+    inked = true,
+  ): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    moltkeDetailParts.push(geometry);
+    if (inked) {
+      moltkeDetailEdges.push(
+        new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
+      );
+    }
+  };
+  const addMoltkeDetailGeometry = (
+    source: BufferGeometry,
+    tone: Color,
+    inked = true,
+  ): void => {
+    const geometry = source.index ? source.toNonIndexed() : source.clone();
+    // This renderer is deliberately texture-free. Primitive geometries such
+    // as the griffin's faceted body bring UVs by default; stripping them keeps
+    // their attribute contract compatible with the hand-built bridge meshes.
+    geometry.deleteAttribute("uv");
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    moltkeDetailParts.push(geometry);
+    if (inked) {
+      moltkeDetailEdges.push(
+        new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
+      );
+    }
+    source.dispose();
+  };
+  const addMoltkeDetailLamp = (triangles: Float32Array, tone: Color): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
+    geometry.computeVertexNormals();
+    const count = geometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    for (let index = 0; index < count; index += 1) {
+      colors[index * 3] = tone.r;
+      colors[index * 3 + 1] = tone.g;
+      colors[index * 3 + 2] = tone.b;
+    }
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    moltkeDetailLampParts.push(geometry);
   };
   for (const cluster of clusters) {
     // Fit the complete occupied cell envelope, not only cell centres. Besides
@@ -2792,9 +2896,9 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
                   ? 0.16
                   : kind === "parliament" || kind === "openFrame"
                     ? 0.12
-                  : kind === "slender"
-                    ? 0.9
-                    : 0.5;
+                    : kind === "slender"
+                      ? 0.9
+                      : 0.5;
     const riseAt = (u: number): number =>
       camber * Math.cos((u / halfLength) * (Math.PI / 2)) ** 2;
     const deckThickness = genericSmall
@@ -3410,11 +3514,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         );
       }
     }
-    if (
-      kind === "curvedBox" ||
-      kind === "steelArch" ||
-      kind === "openFrame"
-    ) {
+    if (kind === "curvedBox" || kind === "steelArch" || kind === "openFrame") {
       // Four compact bearing pads make the transfer from deck to abutment
       // legible from below without adding thin, flicker-prone linework.
       for (const end of [-1, 1]) {
@@ -3423,15 +3523,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [bearingX, bearingZ] = at(u, side * halfWidth * 0.56);
           addPart(
-            boxTriangles(
-              bearingX,
-              y,
-              bearingZ,
-              tangentAt(u),
-              0.72,
-              0.32,
-              0.82,
-            ),
+            boxTriangles(bearingX, y, bearingZ, tangentAt(u), 0.72, 0.32, 0.82),
             BEARING,
             false,
           );
@@ -3472,15 +3564,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [capX, capZ] = at(u, side * halfWidth);
           addPart(
-            boxTriangles(
-              capX,
-              y + 0.76,
-              capZ,
-              tangentAt(u),
-              0.44,
-              1.52,
-              0.38,
-            ),
+            boxTriangles(capX, y + 0.76, capZ, tangentAt(u), 0.44, 1.52, 0.38),
             STEEL,
             false,
           );
@@ -3563,15 +3647,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [postX, postZ] = at(u, side * halfWidth);
           addPart(
-            boxTriangles(
-              postX,
-              y + 2.2,
-              postZ,
-              tangentAt(u),
-              0.2,
-              4.4,
-              0.2,
-            ),
+            boxTriangles(postX, y + 2.2, postZ, tangentAt(u), 0.2, 4.4, 0.2),
             STEEL,
             false,
           );
@@ -3585,23 +3661,14 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           const [x1, z1] = at(u1, side * halfWidth);
           const lowY = deckY + riseAt(u0) + 0.32;
           const midY = deckY + riseAt(u1) + 2.0;
-          const upperY =
-            deckY + riseAt(u0) + parliamentUpperDeckM - 0.1;
+          const upperY = deckY + riseAt(u0) + parliamentUpperDeckM - 0.1;
           addPart(
-            beamBetweenTriangles(
-              [x0, lowY, z0],
-              [x1, midY, z1],
-              0.12,
-            ),
+            beamBetweenTriangles([x0, lowY, z0], [x1, midY, z1], 0.12),
             index % 2 === 0 ? PARLIAMENT_GLASS : STEEL,
             false,
           );
           addPart(
-            beamBetweenTriangles(
-              [x1, midY + 0.2, z1],
-              [x0, upperY, z0],
-              0.12,
-            ),
+            beamBetweenTriangles([x1, midY + 0.2, z1], [x0, upperY, z0], 0.12),
             index % 2 === 0 ? PARLIAMENT_GLASS : STEEL,
             false,
           );
@@ -3769,126 +3836,500 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         }
       }
     } else if (kind === "stoneArch") {
-      const balusterCount = 56;
-      for (let index = 0; index <= balusterCount; index += 1) {
-        const u = -halfLength + (index / balusterCount) * halfLength * 2;
+      // Otto Stahn alternates recessed sandstone panels with genuinely open
+      // baluster fields. The former all-post approximation made the historic
+      // balustrade look like a cheap picket fence and lost its broad rhythm.
+      const bayLength = (halfLength * 2) / MOLTKE_BALUSTRADE_BAY_COUNT;
+      for (let bay = 0; bay < MOLTKE_BALUSTRADE_BAY_COUNT; bay += 1) {
+        const u = -halfLength + bayLength * (bay + 0.5);
         const y = deckY + riseAt(u);
         const localAxis = tangentAt(u);
         for (const side of [-1, 1]) {
-          const [px, pz] = at(u, side * halfWidth);
-          addPart(
-            boxTriangles(px, y + 0.6, pz, localAxis, 0.18, 0.74, 0.2),
-            index % 2 === 0 ? STONE : STONE_DARK,
-            false,
-          );
-        }
-      }
-      // Large plinths articulate the abutments and both river piers. Four
-      // simplified bronze griffins mark the outer corners, while six historic
-      // standards carry warm globes after dark.
-      for (const fraction of [-1, -1 / 3, 1 / 3, 1]) {
-        const u = halfLength * fraction;
-        const y = deckY + riseAt(u);
-        const localAxis = tangentAt(u);
-        for (const side of [-1, 1]) {
-          const [px, pz] = at(u, side * halfWidth);
-          addPart(
-            boxTriangles(px, y + 0.68, pz, localAxis, 1.05, 1.36, 1.0),
-            STONE_DARK,
-          );
-          addPart(
-            boxTriangles(px, y + 1.42, pz, localAxis, 1.24, 0.16, 1.18),
-            STONE,
-            false,
-          );
-          if (Math.abs(fraction) === 1) {
-            const facing = -Math.sign(fraction);
-            const sculptureY = y + 1.93;
-            const bodyStart: [number, number, number] = [
-              px - ax * facing * 0.36,
-              sculptureY,
-              pz - az * facing * 0.36,
-            ];
-            const bodyEnd: [number, number, number] = [
-              px + ax * facing * 0.54,
-              sculptureY + 0.08,
-              pz + az * facing * 0.54,
-            ];
-            addPart(
-              beamBetweenTriangles(bodyStart, bodyEnd, 0.5, 0.58),
+          if (bay % 2 === 0) {
+            const [panelX, panelZ] = at(u, side * halfWidth);
+            addMoltkeDetail(
+              boxTriangles(
+                panelX,
+                y + 0.65,
+                panelZ,
+                localAxis,
+                bayLength - 0.48,
+                0.58,
+                0.36,
+              ),
               STONE,
-              false,
             );
-            const neckEnd: [number, number, number] = [
-              px + ax * facing * 0.76,
-              sculptureY + 0.7,
-              pz + az * facing * 0.76,
-            ];
-            addPart(
-              beamBetweenTriangles(bodyEnd, neckEnd, 0.32, 0.38),
-              STONE,
-              false,
-            );
-            addPart(
-              prismTriangles(
-                neckEnd[0] + ax * facing * 0.12,
-                neckEnd[1] + 0.1,
-                neckEnd[2] + az * facing * 0.12,
-                0.23,
-                0.34,
-                7,
+            const [insetX, insetZ] = at(u, side * (halfWidth + 0.205));
+            addMoltkeDetail(
+              boxTriangles(
+                insetX,
+                y + 0.65,
+                insetZ,
+                localAxis,
+                bayLength - 1.0,
+                0.32,
+                0.055,
               ),
               MOLTKE_RELIEF,
               false,
             );
-            for (const wingSide of [-1, 1]) {
-              const wingEnd: [number, number, number] = [
-                px - ax * facing * 0.35 + nx * wingSide * 0.72,
-                sculptureY + 0.78,
-                pz - az * facing * 0.35 + nz * wingSide * 0.72,
-              ];
-              addPart(
-                beamBetweenTriangles(bodyStart, wingEnd, 0.16, 0.32),
-                MOLTKE_RELIEF,
+          } else {
+            for (
+              let baluster = 0;
+              baluster < MOLTKE_BALUSTERS_PER_OPEN_BAY;
+              baluster += 1
+            ) {
+              const balusterU =
+                u +
+                ((baluster + 0.5) / MOLTKE_BALUSTERS_PER_OPEN_BAY - 0.5) *
+                  (bayLength - 0.58);
+              const balusterY = deckY + riseAt(balusterU);
+              const [balusterX, balusterZ] = at(balusterU, side * halfWidth);
+              addMoltkeDetail(
+                prismTriangles(
+                  balusterX,
+                  balusterY + 0.43,
+                  balusterZ,
+                  0.17,
+                  0.14,
+                  8,
+                ),
+                STONE_DARK,
                 false,
               );
-            }
-            for (const legU of [-0.24, 0.24]) {
-              for (const legV of [-0.16, 0.16]) {
-                addPart(
-                  beamBetweenTriangles(
-                    [
-                      px + ax * legU + nx * legV,
-                      sculptureY - 0.12,
-                      pz + az * legU + nz * legV,
-                    ],
-                    [
-                      px + ax * (legU + facing * 0.08) + nx * legV,
-                      y + 1.55,
-                      pz + az * (legU + facing * 0.08) + nz * legV,
-                    ],
-                    0.14,
-                  ),
-                  STONE,
-                  false,
-                );
-              }
+              addMoltkeDetail(
+                prismTriangles(
+                  balusterX,
+                  balusterY + 0.62,
+                  balusterZ,
+                  0.16,
+                  0.28,
+                  10,
+                ),
+                STONE,
+                false,
+              );
+              addMoltkeDetail(
+                prismTriangles(
+                  balusterX,
+                  balusterY + 0.85,
+                  balusterZ,
+                  0.1,
+                  0.22,
+                  8,
+                ),
+                STONE_DARK,
+                false,
+              );
             }
           }
         }
       }
-      for (const fraction of [-0.68, 0, 0.68]) {
+      for (
+        let boundary = 0;
+        boundary <= MOLTKE_BALUSTRADE_BAY_COUNT;
+        boundary += 1
+      ) {
+        const u = -halfLength + bayLength * boundary;
+        const y = deckY + riseAt(u);
+        for (const side of [-1, 1]) {
+          const [postX, postZ] = at(u, side * halfWidth);
+          addMoltkeDetail(
+            boxTriangles(
+              postX,
+              y + 0.66,
+              postZ,
+              tangentAt(u),
+              0.32,
+              0.86,
+              0.44,
+            ),
+            boundary % 2 === 0 ? STONE_DARK : STONE,
+            false,
+          );
+        }
+      }
+
+      // Eight bronze candelabra are carried by sculpted red-sandstone
+      // pedestals. Each base retains the documented group of three small
+      // Roman-soldier figures; the pointed lantern crown follows the supplied
+      // close-up instead of using a generic glowing globe.
+      const candelabraFractions = [-0.84, -0.28, 0.28, 0.84];
+      for (const fraction of candelabraFractions) {
         const u = halfLength * fraction;
         const y = deckY + riseAt(u);
         const localAxis = tangentAt(u);
         for (const side of [-1, 1]) {
-          const [px, pz] = at(u, side * (halfWidth - 0.1));
-          addPart(
-            boxTriangles(px, y + 2.05, pz, localAxis, 0.14, 3.15, 0.14),
+          const [px, pz] = at(u, side * halfWidth);
+          for (const [level, width, height, depth, tone] of [
+            [0.32, 1.34, 0.28, 1.12, STONE_DARK],
+            [0.83, 1.08, 0.82, 0.92, STONE],
+            [1.3, 1.28, 0.14, 1.06, STONE_DARK],
+            [1.43, 0.92, 0.12, 0.82, STONE],
+          ] as const) {
+            addMoltkeDetail(
+              boxTriangles(px, y + level, pz, localAxis, width, height, depth),
+              tone,
+              level < 1.4,
+            );
+          }
+          for (const reliefU of [-0.3, -0.15, 0, 0.15, 0.3]) {
+            const [reliefX, reliefZ] = at(
+              u + reliefU,
+              side * (halfWidth + 0.49),
+            );
+            addMoltkeDetail(
+              prismTriangles(
+                reliefX,
+                y + 0.85 + Math.cos(reliefU * 7) * 0.11,
+                reliefZ,
+                0.095,
+                0.15,
+                8,
+              ),
+              MOLTKE_RELIEF,
+              false,
+            );
+          }
+          for (let figure = 0; figure < 3; figure += 1) {
+            const angle =
+              figure * ((Math.PI * 2) / 3) + (side < 0 ? Math.PI / 3 : 0);
+            const figureU = u + Math.cos(angle) * 0.34;
+            const figureV = side * halfWidth + Math.sin(angle) * 0.34;
+            const [figureX, figureZ] = at(figureU, figureV);
+            addMoltkeDetail(
+              prismTriangles(figureX, y + 1.87, figureZ, 0.15, 0.48, 8),
+              STEEL,
+              false,
+            );
+            addMoltkeDetail(
+              prismTriangles(figureX, y + 2.18, figureZ, 0.13, 0.2, 9),
+              STEEL,
+              false,
+            );
+            for (const leg of [-1, 1]) {
+              addMoltkeDetail(
+                beamBetweenTriangles(
+                  [
+                    figureX + ax * leg * 0.06,
+                    y + 1.68,
+                    figureZ + az * leg * 0.06,
+                  ],
+                  [
+                    figureX + ax * leg * 0.1,
+                    y + 1.46,
+                    figureZ + az * leg * 0.1,
+                  ],
+                  0.065,
+                ),
+                STEEL,
+                false,
+              );
+            }
+            const implementDirection = figure === 1 ? -1 : 1;
+            addMoltkeDetail(
+              beamBetweenTriangles(
+                [figureX, y + 1.98, figureZ],
+                [
+                  figureX + ax * implementDirection * 0.22,
+                  y + 2.2,
+                  figureZ + az * implementDirection * 0.22,
+                ],
+                0.055,
+              ),
+              STEEL,
+              false,
+            );
+          }
+          for (const [level, radius, height] of [
+            [2.3, 0.21, 0.15],
+            [2.45, 0.12, 0.18],
+            [3.25, 0.09, 1.6],
+            [4.08, 0.17, 0.13],
+          ] as const) {
+            addMoltkeDetail(
+              prismTriangles(px, y + level, pz, radius, height, 10),
+              STEEL,
+              false,
+            );
+          }
+          addMoltkeDetailLamp(
+            prismTriangles(px, y + 4.47, pz, 0.27, 0.58, 8),
+            WARM_LIGHT,
+          );
+          for (let corner = 0; corner < 4; corner += 1) {
+            const angle = Math.PI / 4 + corner * (Math.PI / 2);
+            const dx = Math.cos(angle) * 0.28;
+            const dz = Math.sin(angle) * 0.28;
+            addMoltkeDetail(
+              beamBetweenTriangles(
+                [px + dx * 0.62, y + 4.15, pz + dz * 0.62],
+                [px + dx, y + 4.78, pz + dz],
+                0.045,
+              ),
+              STEEL,
+              false,
+            );
+            addMoltkeDetail(
+              beamBetweenTriangles(
+                [px + dx, y + 4.78, pz + dz],
+                [px + dx * 1.38, y + 4.98, pz + dz * 1.38],
+                0.04,
+              ),
+              STEEL,
+              false,
+            );
+          }
+          addMoltkeDetail(
+            prismTriangles(px, y + 4.85, pz, 0.34, 0.12, 8),
             STEEL,
             false,
           );
-          addLamp(prismTriangles(px, y + 3.7, pz, 0.25, 0.48, 10), WARM_LIGHT);
+          addMoltkeDetail(
+            prismTriangles(px, y + 5.04, pz, 0.1, 0.28, 8),
+            STEEL,
+            false,
+          );
+        }
+      }
+
+      // Carl Piper's four sandstone griffins sit at the outer corners. They
+      // face into the bridge, spread feathered wings and hold a dark heraldic
+      // shield above a garlanded pedestal.
+      for (const fraction of [-0.975, 0.975]) {
+        const u = halfLength * fraction;
+        const facing = -Math.sign(fraction);
+        const y = deckY + riseAt(u);
+        const localAxis = tangentAt(u);
+        for (const side of [-1, 1]) {
+          const [px, pz] = at(u, side * halfWidth);
+          for (const [level, width, height, depth, tone] of [
+            [0.28, 1.7, 0.3, 1.45, STONE_DARK],
+            [0.82, 1.45, 0.78, 1.25, STONE],
+            [1.3, 1.7, 0.18, 1.45, STONE_DARK],
+            [1.48, 1.42, 0.18, 1.2, STONE],
+          ] as const) {
+            addMoltkeDetail(
+              boxTriangles(px, y + level, pz, localAxis, width, height, depth),
+              tone,
+              level < 1.4,
+            );
+          }
+          for (const garlandU of [-0.42, -0.21, 0, 0.21, 0.42]) {
+            const [garlandX, garlandZ] = at(
+              u + garlandU,
+              side * (halfWidth + 0.65),
+            );
+            addMoltkeDetail(
+              prismTriangles(
+                garlandX,
+                y + 0.82 + Math.cos(garlandU * 6) * 0.13,
+                garlandZ,
+                0.12,
+                0.19,
+                9,
+              ),
+              MOLTKE_RELIEF,
+              false,
+            );
+          }
+          const rear: [number, number, number] = [
+            px - ax * facing * 0.45,
+            y + 1.98,
+            pz - az * facing * 0.45,
+          ];
+          const chest: [number, number, number] = [
+            px + ax * facing * 0.42,
+            y + 2.12,
+            pz + az * facing * 0.42,
+          ];
+          const bridgeRotation = Math.atan2(-az, ax);
+          const bodyGeometry = new IcosahedronGeometry(1, 1);
+          bodyGeometry.scale(0.72, 0.5, 0.43);
+          bodyGeometry.rotateY(bridgeRotation);
+          bodyGeometry.translate(
+            (rear[0] + chest[0]) / 2,
+            (rear[1] + chest[1]) / 2,
+            (rear[2] + chest[2]) / 2,
+          );
+          addMoltkeDetailGeometry(bodyGeometry, STONE, false);
+          const haunchGeometry = new IcosahedronGeometry(1, 1);
+          haunchGeometry.scale(0.45, 0.48, 0.4);
+          haunchGeometry.rotateY(bridgeRotation);
+          haunchGeometry.translate(rear[0], y + 1.94, rear[2]);
+          addMoltkeDetailGeometry(haunchGeometry, STONE_DARK, false);
+          const neck: [number, number, number] = [
+            px + ax * facing * 0.66,
+            y + 2.82,
+            pz + az * facing * 0.66,
+          ];
+          addMoltkeDetail(
+            beamBetweenTriangles(chest, neck, 0.3, 0.38),
+            STONE,
+            false,
+          );
+          const head: [number, number, number] = [
+            px + ax * facing * 0.82,
+            y + 2.95,
+            pz + az * facing * 0.82,
+          ];
+          const headGeometry = new IcosahedronGeometry(1, 1);
+          headGeometry.scale(0.3, 0.3, 0.26);
+          headGeometry.rotateY(bridgeRotation);
+          headGeometry.translate(head[0], head[1], head[2]);
+          addMoltkeDetailGeometry(headGeometry, STONE, false);
+          addMoltkeDetail(
+            beamBetweenTriangles(
+              head,
+              [
+                head[0] + ax * facing * 0.2,
+                head[1] - 0.05,
+                head[2] + az * facing * 0.2,
+              ],
+              0.16,
+              0.2,
+            ),
+            MOLTKE_RELIEF,
+            false,
+          );
+          for (const wingSide of [-1, 1]) {
+            const wingRoot: [number, number, number] = [
+              rear[0] + nx * wingSide * 0.1,
+              rear[1] + 0.12,
+              rear[2] + nz * wingSide * 0.1,
+            ];
+            const wingCrown: [number, number, number] = [
+              rear[0] - ax * facing * 0.35 + nx * wingSide * 0.18,
+              rear[1] + 0.9,
+              rear[2] - az * facing * 0.35 + nz * wingSide * 0.18,
+            ];
+            addMoltkeDetail(
+              beamBetweenTriangles(wingRoot, wingCrown, 0.24, 0.34),
+              STONE,
+              false,
+            );
+            for (let feather = 0; feather < 5; feather += 1) {
+              const spread = 0.1 + feather * 0.035;
+              const wingTip: [number, number, number] = [
+                rear[0] -
+                  ax * facing * (0.2 + feather * 0.085) +
+                  nx * wingSide * spread,
+                rear[1] + 0.48 + feather * 0.105,
+                rear[2] -
+                  az * facing * (0.2 + feather * 0.085) +
+                  nz * wingSide * spread,
+              ];
+              addMoltkeDetail(
+                beamBetweenTriangles(
+                  wingRoot,
+                  wingTip,
+                  0.22 - feather * 0.018,
+                  0.3,
+                ),
+                feather % 2 === 0 ? STONE : MOLTKE_RELIEF,
+                false,
+              );
+            }
+          }
+          for (const legU of [-0.3, 0.3]) {
+            for (const legV of [-0.18, 0.18]) {
+              addMoltkeDetail(
+                beamBetweenTriangles(
+                  [
+                    px + ax * legU + nx * legV,
+                    y + 1.92,
+                    pz + az * legU + nz * legV,
+                  ],
+                  [
+                    px + ax * (legU + facing * 0.08) + nx * legV,
+                    y + 1.55,
+                    pz + az * (legU + facing * 0.08) + nz * legV,
+                  ],
+                  0.13,
+                ),
+                STONE_DARK,
+                false,
+              );
+            }
+          }
+          const shieldU = u + facing * 0.5;
+          const shieldV = side * (halfWidth + 0.48);
+          const [shieldX, shieldZ] = at(shieldU, shieldV);
+          const shieldGeometry = new IcosahedronGeometry(1, 1);
+          shieldGeometry.scale(0.43, 0.55, 0.1);
+          shieldGeometry.rotateY(bridgeRotation);
+          shieldGeometry.translate(shieldX, y + 2.0, shieldZ);
+          addMoltkeDetailGeometry(shieldGeometry, STEEL);
+          addMoltkeDetail(
+            boxTriangles(
+              shieldX,
+              y + 2.05,
+              shieldZ,
+              localAxis,
+              0.16,
+              0.62,
+              0.13,
+            ),
+            MOLTKE_RELIEF,
+            false,
+          );
+        }
+      }
+
+      // The two river piers carry a trophy on each water face; all three
+      // arch crowns receive a portrait keystone on both elevations.
+      for (const fraction of [-1 / 3, 1 / 3]) {
+        const u = halfLength * fraction;
+        const y = deckY + riseAt(u) - 1.72;
+        for (const side of [-1, 1]) {
+          const [trophyX, trophyZ] = at(u, side * (halfWidth + 0.48));
+          const crossA: [number, number, number] = [
+            trophyX - ax * 0.5,
+            y - 0.48,
+            trophyZ - az * 0.5,
+          ];
+          const crossB: [number, number, number] = [
+            trophyX + ax * 0.5,
+            y + 0.48,
+            trophyZ + az * 0.5,
+          ];
+          addMoltkeDetail(
+            beamBetweenTriangles(crossA, crossB, 0.11),
+            MOLTKE_RELIEF,
+            false,
+          );
+          addMoltkeDetail(
+            beamBetweenTriangles(
+              [crossA[0], crossB[1], crossA[2]],
+              [crossB[0], crossA[1], crossB[2]],
+              0.11,
+            ),
+            MOLTKE_RELIEF,
+            false,
+          );
+          addMoltkeDetail(
+            boxTriangles(trophyX, y, trophyZ, tangentAt(u), 0.58, 0.68, 0.12),
+            STEEL,
+            false,
+          );
+        }
+      }
+      const archSpacing = (halfLength * 2) / MOLTKE_ARCH_COUNT;
+      for (let arch = 0; arch < MOLTKE_ARCH_COUNT; arch += 1) {
+        const u = -halfLength + archSpacing * (arch + 0.5);
+        const y = deckY + riseAt(u) - 1.52;
+        for (const side of [-1, 1]) {
+          const [headX, headZ] = at(u, side * (halfWidth + 0.49));
+          addMoltkeDetail(
+            prismTriangles(headX, y, headZ, 0.25, 0.46, 10),
+            MOLTKE_RELIEF,
+            false,
+          );
+          addMoltkeDetail(
+            prismTriangles(headX, y - 0.3, headZ, 0.19, 0.22, 8),
+            STONE_DARK,
+            false,
+          );
         }
       }
     } else {
@@ -4032,15 +4473,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (const side of [-1, 1]) {
           const [panelX, panelZ] = at(u, side * (halfWidth - 0.02));
           addPart(
-            boxTriangles(
-              panelX,
-              y,
-              panelZ,
-              tangentAt(u),
-              3.2,
-              0.72,
-              0.12,
-            ),
+            boxTriangles(panelX, y, panelZ, tangentAt(u), 3.2, 0.72, 0.12),
             MOLTKE_RELIEF,
             false,
           );
@@ -4157,8 +4590,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
         for (let step = 0; step < steps; step += 1) {
           const t = (step + 0.5) / steps;
           const u = spanStart + (spanEnd - spanStart) * t;
-          const archY =
-            deckY + riseAt(u) - 1.5 - Math.sin(t * Math.PI) * drop;
+          const archY = deckY + riseAt(u) - 1.5 - Math.sin(t * Math.PI) * drop;
           for (const side of [-1, 1]) {
             const [ribX, ribZ] = at(u, side * (halfWidth - 1.15));
             addPart(
@@ -4176,9 +4608,10 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
             );
             if (step % 2 === 0) {
               const [deckX, deckZ] = at(
-                u + ((step % 4 === 0 ? 1 : -1) * (spanEnd - spanStart)) /
-                  steps /
-                  3,
+                u +
+                  ((step % 4 === 0 ? 1 : -1) * (spanEnd - spanStart)) /
+                    steps /
+                    3,
                 side * 6.35,
               );
               addPart(
@@ -4280,11 +4713,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
           addPart(
             beamBetweenTriangles(
               [baseX, bedY + 0.25, baseZ],
-              [
-                deckX,
-                deckY + riseAt(deckU) - deckThickness - 0.2,
-                deckZ,
-              ],
+              [deckX, deckY + riseAt(deckU) - deckThickness - 0.2, deckZ],
               0.9,
               1.15,
             ),
@@ -4363,6 +4792,16 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   group.userData.smallBridgeClusterCount = clusters.filter(
     (cluster) => cluster.length < 12,
   ).length;
+  group.userData.moltkeOrnamentCounts = {
+    balustradeBays: MOLTKE_BALUSTRADE_BAY_COUNT,
+    balusters:
+      (MOLTKE_BALUSTRADE_BAY_COUNT / 2) * MOLTKE_BALUSTERS_PER_OPEN_BAY * 2,
+    candelabra: MOLTKE_CANDELABRA_COUNT,
+    candelabraFigures: MOLTKE_CANDELABRA_FIGURE_COUNT,
+    griffins: MOLTKE_GRIFFIN_COUNT,
+    keystoneHeads: MOLTKE_KEYSTONE_HEAD_COUNT,
+    trophies: MOLTKE_TROPHY_COUNT,
+  };
   group.userData.keepInMinecraft = true;
 
   const merged = mergeGeometries(parts, false);
@@ -4385,10 +4824,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
   }
   const ink = mergeGeometries(edges, false);
   if (ink) {
-    const inkMaterial = markArchitecturalInk(
-      new LineBasicMaterial(),
-      "detail",
-    );
+    const inkMaterial = markArchitecturalInk(new LineBasicMaterial(), "detail");
     const lines = new LineSegments(ink, inkMaterial);
     lines.name = "bridge structure ink lines";
     lines.renderOrder = 2;
@@ -4415,6 +4851,66 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     lamps.userData.nightMaterial = nightMaterial;
     group.add(lamps);
     for (const geometry of lampParts) {
+      geometry.dispose();
+    }
+  }
+  const moltkeDetailGeometry =
+    moltkeDetailParts.length > 0
+      ? mergeGeometries(moltkeDetailParts, false)
+      : null;
+  if (moltkeDetailGeometry) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.88,
+      vertexColors: true,
+    });
+    const details = new Mesh(moltkeDetailGeometry, dayMaterial);
+    details.name = "Moltkebrücke ornamental stone bodies";
+    details.userData.dayMaterial = dayMaterial;
+    details.userData.nightMaterial = nightMaterial;
+    group.add(details);
+    for (const geometry of moltkeDetailParts) {
+      geometry.dispose();
+    }
+  }
+  const moltkeDetailInk =
+    moltkeDetailEdges.length > 0
+      ? mergeGeometries(moltkeDetailEdges, false)
+      : null;
+  if (moltkeDetailInk) {
+    const lines = new LineSegments(
+      moltkeDetailInk,
+      markArchitecturalInk(new LineBasicMaterial(), "detail"),
+    );
+    lines.name = "Moltkebrücke ornamental stone ink lines";
+    lines.renderOrder = 2;
+    group.add(lines);
+    for (const geometry of moltkeDetailEdges) {
+      geometry.dispose();
+    }
+  }
+  const moltkeDetailLampGeometry =
+    moltkeDetailLampParts.length > 0
+      ? mergeGeometries(moltkeDetailLampParts, false)
+      : null;
+  if (moltkeDetailLampGeometry) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.35,
+      vertexColors: true,
+    });
+    nightMaterial.userData.nightEmissive = 0xffc75c;
+    nightMaterial.userData.nightEmissiveIntensity = 1.45;
+    const lamps = new Mesh(moltkeDetailLampGeometry, dayMaterial);
+    lamps.name = "Moltkebrücke ornamental stone lamps";
+    lamps.userData.dayMaterial = dayMaterial;
+    lamps.userData.nightMaterial = nightMaterial;
+    group.add(lamps);
+    for (const geometry of moltkeDetailLampParts) {
       geometry.dispose();
     }
   }
@@ -6562,11 +7058,7 @@ export function createSmoothSurfaces(
       geometry.setAttribute("position", new Float32BufferAttribute(outline, 3));
       const edges = new LineSegments(
         geometry,
-        markArchitecturalAccentInk(
-          new LineBasicMaterial(),
-          0x6c7a58,
-          "micro",
-        ),
+        markArchitecturalAccentInk(new LineBasicMaterial(), 0x6c7a58, "micro"),
       );
       edges.name = "garden bed outlines";
       edges.renderOrder = 3;
@@ -6666,10 +7158,7 @@ export function createSmoothSurfaces(
       ROAD_SURFACES.find((entry) => entry.kind === "asphalt")?.lift ?? 0.14;
     for (const road of roads.filter((entry) => entry.kind === "asphalt")) {
       for (const rawRing of [road.ring, ...(road.holes ?? [])]) {
-        const points = smoothSurfaceRing(
-          rawRing,
-          surfaceCurveOptions(road),
-        );
+        const points = smoothSurfaceRing(rawRing, surfaceCurveOptions(road));
         for (let index = 0; index < points.length; index += 1) {
           const [ax, az] = points[index];
           const [bx, bz] = points[(index + 1) % points.length];
@@ -6931,10 +7420,7 @@ export function createSmoothSurfaces(
     if (surface.area_m2 < 400) {
       continue;
     }
-    const ring = smoothSurfaceRing(
-      surface.ring,
-      surfaceCurveOptions(surface),
-    );
+    const ring = smoothSurfaceRing(surface.ring, surfaceCurveOptions(surface));
     // Winding is whatever OSM and the clip left behind, so it is measured
     // rather than assumed: the coping has to land on the bank, not the water.
     let signedArea = 0;
@@ -7464,17 +7950,26 @@ function addNaturalPonds(
         const topY = level - 0.018;
         const bottomY = floorY + 0.018;
         slopePositions.push(
-          ax, topY, az,
-          aFloorX, bottomY, aFloorZ,
-          bFloorX, bottomY, bFloorZ,
-          ax, topY, az,
-          bFloorX, bottomY, bFloorZ,
-          bx, topY, bz,
+          ax,
+          topY,
+          az,
+          aFloorX,
+          bottomY,
+          aFloorZ,
+          bFloorX,
+          bottomY,
+          bFloorZ,
+          ax,
+          topY,
+          az,
+          bFloorX,
+          bottomY,
+          bFloorZ,
+          bx,
+          topY,
+          bz,
         );
-        shorelinePositions.push(
-          ax, level + 0.035, az,
-          bx, level + 0.035, bz,
-        );
+        shorelinePositions.push(ax, level + 0.035, az, bx, level + 0.035, bz);
       }
     };
     slopeRing(pond.ring, false);
@@ -7564,11 +8059,7 @@ function addNaturalPonds(
     );
     const shoreline = new LineSegments(
       geometry,
-      markArchitecturalAccentInk(
-        new LineBasicMaterial(),
-        0x557467,
-        "micro",
-      ),
+      markArchitecturalAccentInk(new LineBasicMaterial(), 0x557467, "micro"),
     );
     shoreline.name = "natural pond shoreline ink";
     shoreline.renderOrder = 3;

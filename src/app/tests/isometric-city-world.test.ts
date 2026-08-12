@@ -1240,6 +1240,13 @@ describe("real bridge structures", () => {
       GOLDA_PERFORATION_BAYS,
       KRONPRINZEN_SPAN_LAYOUT_M,
       MOLTKE_ARCH_COUNT,
+      MOLTKE_BALUSTERS_PER_OPEN_BAY,
+      MOLTKE_BALUSTRADE_BAY_COUNT,
+      MOLTKE_CANDELABRA_COUNT,
+      MOLTKE_CANDELABRA_FIGURE_COUNT,
+      MOLTKE_GRIFFIN_COUNT,
+      MOLTKE_KEYSTONE_HEAD_COUNT,
+      MOLTKE_TROPHY_COUNT,
       PARLIAMENT_BRIDGE_LEVELS,
     } = await import("../src/IsometricCityWorld");
     const ground = (
@@ -1298,6 +1305,13 @@ describe("real bridge structures", () => {
     });
     expect(KRONPRINZEN_SPAN_LAYOUT_M).toEqual([15.492, 44, 15.492]);
     expect(MOLTKE_ARCH_COUNT).toBe(3);
+    expect(MOLTKE_BALUSTRADE_BAY_COUNT).toBe(12);
+    expect(MOLTKE_BALUSTERS_PER_OPEN_BAY).toBe(7);
+    expect(MOLTKE_CANDELABRA_COUNT).toBe(8);
+    expect(MOLTKE_CANDELABRA_FIGURE_COUNT).toBe(24);
+    expect(MOLTKE_GRIFFIN_COUNT).toBe(4);
+    expect(MOLTKE_KEYSTONE_HEAD_COUNT).toBe(6);
+    expect(MOLTKE_TROPHY_COUNT).toBe(4);
     expect(profile("Sprung über die Spree")).toMatchObject({
       axis: [1, 0],
       kind: "parliament",
@@ -1311,6 +1325,55 @@ describe("real bridge structures", () => {
     });
 
     const city = createIsometricCity(payload, ground, null);
+    const bridgeGroup = city.getObjectByName(
+      "drawn bridge structures",
+    ) as Group;
+    expect(bridgeGroup.userData.moltkeOrnamentCounts).toEqual({
+      balustradeBays: 12,
+      balusters: 84,
+      candelabra: 8,
+      candelabraFigures: 24,
+      griffins: 4,
+      keystoneHeads: 6,
+      trophies: 4,
+    });
+    const moltkeDetails = city.getObjectByName(
+      "Moltkebrücke ornamental stone bodies",
+    ) as Mesh;
+    const moltkeLamps = city.getObjectByName(
+      "Moltkebrücke ornamental stone lamps",
+    ) as Mesh;
+    const moltkeInk = city.getObjectByName(
+      "Moltkebrücke ornamental stone ink lines",
+    ) as LineSegments;
+    expect(moltkeDetails).toBeInstanceOf(Mesh);
+    expect(moltkeLamps).toBeInstanceOf(Mesh);
+    expect(moltkeInk).toBeInstanceOf(LineSegments);
+    const detailDayMaterial = moltkeDetails.material;
+    const lampDayMaterial = moltkeLamps.material;
+    const inkDayColor = (moltkeInk.material as LineBasicMaterial).color.getHex();
+    const { setIsoNightPresentation } =
+      await import("../src/IsometricCityWorld");
+    setIsoNightPresentation(city, true, true, "night");
+    expect(moltkeDetails.material).toBe(moltkeDetails.userData.nightMaterial);
+    expect(moltkeLamps.material).toBe(moltkeLamps.userData.nightMaterial);
+    expect(
+      (moltkeLamps.material as MeshStandardMaterial).emissive.getHex(),
+    ).toBe(0xffc75c);
+    expect(
+      (moltkeInk.material as LineBasicMaterial).color.getHex(),
+    ).not.toBe(inkDayColor);
+    setIsoNightPresentation(city, false, true, "day");
+    expect(moltkeDetails.material).toBe(detailDayMaterial);
+    expect(moltkeLamps.material).toBe(lampDayMaterial);
+    expect((moltkeInk.material as LineBasicMaterial).color.getHex()).toBe(
+      inkDayColor,
+    );
+    const moltkeBounds = new Box3().setFromObject(moltkeDetails);
+    expect(moltkeBounds.max.y - moltkeBounds.min.y).toBeGreaterThan(4.5);
+    expect(
+      moltkeDetails.geometry.getAttribute("position").count,
+    ).toBeGreaterThan(25_000);
     const lamps = city.getObjectByName("bridge structure lamps") as Mesh;
     expect(lamps).toBeInstanceOf(Mesh);
     const lampPositions = lamps.geometry.getAttribute("position");
@@ -1397,8 +1460,8 @@ describe("real bridge structures", () => {
       }
       if (
         y < ground.water_top_y_m &&
-        pierTargets.some(([targetX, targetZ]) =>
-          Math.hypot(x - targetX, z - targetZ) < 2.2,
+        pierTargets.some(
+          ([targetX, targetZ]) => Math.hypot(x - targetX, z - targetZ) < 2.2,
         )
       ) {
         submergedProwVertices += 1;

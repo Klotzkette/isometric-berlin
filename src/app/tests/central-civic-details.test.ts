@@ -129,9 +129,11 @@ describe("task-11 central transit and civic details", () => {
       nightWindowCount: 28,
       officialCubeSideM: 42.5,
       panelColumnsPerFacade: 22,
+      roofTenantSign: "GLEISS LUTZ",
       sourceUrl: "https://3xn.com/project/cube-berlin",
       storeyBands: 10,
     });
+    expect(details.getObjectByName("GLEISS LUTZ civic lettering")).toBeDefined();
     expect(details.userData.cubeBerlin).toMatchObject({
       facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
       footprintWorld: CUBE_BERLIN_FOOTPRINT_WORLD,

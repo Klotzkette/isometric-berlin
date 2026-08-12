@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   FINE_DETAIL_HIDE_DISTANCE_M,
+  FINE_DETAIL_LAYER_NAMES,
   FINE_DETAIL_SHOW_DISTANCE_M,
   INK_LINE_FULL_PX,
   INK_LINE_HIDE_PX,
@@ -90,12 +91,12 @@ describe("micro-detail visibility", () => {
     expect(MICRO_DETAIL_HIDE_DISTANCE_M).toBeGreaterThan(
       MICRO_DETAIL_SHOW_DISTANCE_M,
     );
-    expect(
-      nextMicroDetailVisible({ distanceM: 176, visible: false }),
-    ).toBe(true);
-    expect(
-      nextMicroDetailVisible({ distanceM: 948, visible: true }),
-    ).toBe(false);
+    expect(nextMicroDetailVisible({ distanceM: 176, visible: false })).toBe(
+      true,
+    );
+    expect(nextMicroDetailVisible({ distanceM: 948, visible: true })).toBe(
+      false,
+    );
     const middle =
       (MICRO_DETAIL_SHOW_DISTANCE_M + MICRO_DETAIL_HIDE_DISTANCE_M) / 2;
     expect(nextMicroDetailVisible({ distanceM: middle, visible: true })).toBe(
@@ -193,6 +194,18 @@ describe("nextInkLineFadeState", () => {
 });
 
 describe("nextFineDetailVisible", () => {
+  test("keeps Moltkebrücke ornament in the anti-flicker detail layer", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Moltkebrücke ornamental stone bodies",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Moltkebrücke ornamental stone lamps",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Moltkebrücke ornamental stone ink lines",
+    );
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({

@@ -191,6 +191,7 @@ export const CUBE_BERLIN_FACADE_PROFILE = {
   nightWindowCount: 28,
   officialCubeSideM: 42.5,
   panelColumnsPerFacade: 22,
+  roofTenantSign: "GLEISS LUTZ",
   storeyBands: 10,
   sourceUrl: "https://3xn.com/project/cube-berlin",
 } as const;
@@ -3001,6 +3002,25 @@ function addSigns(
       ),
     );
   }
+  // The owner's Moltkebrücke view shows the small white tenant lettering on
+  // the Spree-facing upper dark fold. It is a recognition accent, not a new
+  // building owner: geometry, footprint and 43.6 m LoD2 height stay fixed.
+  const cubeSouthEdge = CUBE_BERLIN_FOOTPRINT_WORLD[3];
+  const cubeSouthRotation = -2.7627824432498915;
+  const cubeSignPoint = new Vector3(cubeSouthEdge[0], 5.4, cubeSouthEdge[1]);
+  group.add(
+    createSign(
+      CUBE_BERLIN_FACADE_PROFILE.roofTenantSign,
+      7.4,
+      0.86,
+      cubeSignPoint,
+      [20.1, CUBE_BERLIN_HEIGHT_M - 5.2, 0.28],
+      cubeSouthRotation,
+      "rgba(0,0,0,0)",
+      "#f4f5ee",
+      true,
+    ),
+  );
 }
 
 export function createCentralCivicDetails(
