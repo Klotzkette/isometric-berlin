@@ -2576,10 +2576,10 @@
         }
       ],
       "focus_camera": {
-        "distance_m": 220.0,
-        "polar_degrees": 67.0,
+        "distance_m": 190.0,
+        "polar_degrees": 77.0,
         "azimuth_degrees": 88.0,
-        "target_height_m": 17.0
+        "target_height_m": 15.5
       },
       "source_url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040"
     },
