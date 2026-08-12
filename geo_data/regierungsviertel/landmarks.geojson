@@ -1193,6 +1193,16 @@
         "source": "OpenStreetMap government-office geometry"
       },
       "geometry": { "type": "Point", "coordinates": [13.387390978, 52.513300417] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Denkzeichen Georg Elser",
+        "role": "owner_added",
+        "tour_order": 88,
+        "source": "OpenStreetMap node 1986458966 and Berlin.de memorial documentation"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.3827365, 52.5123071] }
     }
   ]
 }

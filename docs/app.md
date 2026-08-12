@@ -192,12 +192,22 @@ tile load via `meshArtefacts.ts` (evidence notes inline). Minecraft
 uses its separate palette pass with reduced bloom and sparse shimmer. This keeps
 controls responsive while improving stationary facade and roof definition.
 
-Seven memorial recognition models supplement the official mesh at normal
+Nine memorial recognition models supplement the official mesh at normal
 selection distances. Repeated Holocaust stelae use GPU instancing, as do the
 Soviet colonnade and fine folds of the 2026 Jehovah's Witnesses memorial; this
 adds close-range granularity without loading another texture set or creating
 thousands of draw calls. Evidence and approximation boundaries are documented
 in [`monument-detail.md`](monument-detail.md).
+
+The Georg Elser memorial at Wilhelmstrasse is an additional independent
+recognition model at OSM sculpture node `1986458966`. Its published 17 m height,
+steel material and exact point anchor are source facts; the continuous profile,
+three visible steel laminae and pavement-plaque proportions are a
+photograph-bounded reconstruction rather than a survey. The inset carries the
+complete documented quotation and attribution. A dedicated close camera keeps
+the profile and plaque together in frame, while mipmapped lettering disappears
+before it can shimmer at overview distance. The model lives in the shared
+memorial layer, so Day, Night, Minecraft and Snowstorm all retain it.
 
 Only the selected landmark receives a small focus ring, and that ring fades
 again after 2.4 seconds. Permanently visible coloured map dots

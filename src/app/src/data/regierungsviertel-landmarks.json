@@ -786,6 +786,15 @@
       "y": 10147,
       "nx": 0.619202,
       "ny": 0.873537
+    },
+    {
+      "name": "Denkzeichen Georg Elser",
+      "role": "owner_added",
+      "tourOrder": 88,
+      "x": 8730,
+      "y": 9787,
+      "nx": 0.532837,
+      "ny": 0.842545
     }
   ]
 }

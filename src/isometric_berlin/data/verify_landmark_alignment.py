@@ -299,6 +299,11 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "osm_ids": ["280070"],
     "max_distance_m": 5.0,
   },
+  "Denkzeichen Georg Elser": {
+    "aliases": ["denkzeichen georg elser"],
+    "osm_ids": ["1986458966"],
+    "max_distance_m": 1.0,
+  },
 }
 
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (

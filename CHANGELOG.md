@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.71.18
+
+- **The Georg Elser memorial is no longer five disconnected placeholder
+  rods.** Its anchor moves from an averaged information-board position to exact
+  OpenStreetMap sculpture node `1986458966`; the alignment report records a
+  0.00 m match. The model keeps the published 17 m height and steel material,
+  then reconstructs the supplied views as one continuous profile with three
+  closely spaced dark-steel laminae, visible silver cut edges and a grounded
+  steel shoe. The profile outline and lamination are explicitly labelled
+  photograph-bounded display geometry, not surveyed sculpture geometry.
+- **The pavement quotation is complete and inspectable.** A flush dark inset
+  with steel rim reads `Ich habe den Krieg verhindern wollen.` and `Georg
+  Elser, Ende November 1939`; the shared geometric alphabet now covers the
+  punctuation and date. Mipmapped text drops out with the fine-detail distance
+  policy instead of aliasing in overview. A dedicated oblique focus frames
+  sculpture and plaque on desktop and a 390 px mobile viewport, while the
+  three-dimensional profile remains legible in Day, Night, Minecraft and
+  Snowstorm. A final cross-mode check moved it into the shared memorial layer,
+  fixing the block-mode disappearance that affected the first implementation.
+- **All navigation artefacts agree on the new place.** The canonical catalogue,
+  3D manifest, bundled/public DZI payloads, top-down reference map and metric
+  reports now carry 88 sights. Direct `#landmark=denkzeichen-georg-elser`
+  navigation resolves to sight 88/88. Two settled mobile frames captured 1.2 s
+  apart were byte-identical, providing a direct no-idle-flicker check for the
+  new geometry. The visible radius remains **5,230 m**; attribution and source
+  hierarchy are unchanged.
+
 ## v0.71.17
 
 - **The Tiergartentunnel entrances no longer dissolve into or continue across

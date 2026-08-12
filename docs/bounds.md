@@ -6,7 +6,7 @@ The MVP polygon is stored at
 ## Landmarks (must be inside the polygon)
 
 The machine-readable catalogue in `landmarks.geojson` is canonical and
-currently contains 87 checked places. It includes the government core and
+currently contains 88 checked places. It includes the government core and
 Pariser Platz; Hauptbahnhof, Hamburger Bahnhof and Europacity; the full
 Tiergarten to Charlottenburger Tor; Kulturforum and Potsdamer/Leipziger Platz;
 and the southern extension to Anhalter Bahnhof, Kochstraße and the WELT

@@ -179,7 +179,31 @@ export const KULTURFORUM_PROFILE = {
 /** Open-data anchors for the requested Potsdamer/Wilhelmstrasse details. */
 export const POTSDAMER_DETAIL_PROFILE = {
   czechEmbassyWorldM: [854.635, 848.762] as const,
-  georgElserWorldM: [745.129, 750.639] as const,
+  georgElser: {
+    artist: "Ulrich Klages",
+    geometryStatus:
+      "OSM sculpture node and material; published 17 m height; owner-photo-bounded profile, lamination and pavement-plaque reconstruction",
+    heightM: 17,
+    informationNodeId: "11395350229",
+    inscription:
+      "Ich habe den Krieg verhindern wollen. / Georg Elser, Ende November 1939",
+    layerCount: 3,
+    material: "steel",
+    osmNodeId: "1986458966",
+    plaqueDepthM: 0.78,
+    plaqueWidthM: 4.45,
+    rotationY: Math.PI / 2,
+    sourceEpsg25833: [390249.614475, 5819250.155827] as const,
+    sourceUrls: [
+      "https://www.openstreetmap.org/node/1986458966",
+      "https://www.berlin.de/sehenswuerdigkeiten/3561913-3558930-georg-elser-denkmal.html",
+      "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/index.php/detail/2334",
+    ] as const,
+    worldM: [749.614475, 749.844173] as const,
+  },
+  // Kept as a compatibility alias for consumers written before the measured
+  // memorial profile was introduced.
+  georgElserWorldM: [749.614475, 749.844173] as const,
   hessenRepresentationWorldM: [455.937, 780.79] as const,
   mallSouthFacadeOffsetM: -59.5,
   northKoreanEmbassyWorldM: [946.346, 832.865] as const,

@@ -41,7 +41,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 87,
+    "landmarks_checked": 88,
     "relative_relationships_checked": 38,
     "landmark_review_count": 2,
     "relative_review_count": 0,
@@ -109,6 +109,7 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     ]
     == "Bundesministerium der Finanzen"
   )
+  assert checks["Denkzeichen Georg Elser"]["best_osm_match"]["id"] == "1986458966"
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
   assert reviewed == LANDMARKS_WITHOUT_OSM_MATCH
   assert all(

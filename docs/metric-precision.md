@@ -53,7 +53,7 @@ surface, and which additions remain display approximations.
   - Road/path bridges: 183
   - Rail bridges/viaduct lines: 219
 - Named bridge centrelines: 219
-- Rendered water-crossing groups: 56 (28 narrow groups retained)
+- Rendered water-crossing groups: 64 (36 narrow groups retained)
 - Road invalid / empty / outside-bounds geometries: 0 / 0 / 0
 - Bridge invalid / empty / outside-bounds geometries: 0 / 0 / 0
 - Width policy: width > est_width > mapped lanes > highway-class fallback
@@ -71,7 +71,7 @@ surface, and which additions remain display approximations.
 ## Landmark placement QA
 
 - Status: review
-- Landmarks checked: 87
+- Landmarks checked: 88
 - Relative relationships checked: 38
 - Review count: 2
 
@@ -98,8 +98,8 @@ EPSG:25833 LoD2/OSM/ALKIS geometries in metres. It now also renders
 all drawable CityGML BuildingParts at their individual measured
 heights, while the report above exposes sub-5 cm flats and tiny
 degenerate source slivers that are retained in the GeoPackage but not
-extruded. It preserves LoD2 interior rings as visible courtyards/cut-outs
-and uses denser
+extruded. It preserves LoD2 interior rings as visible
+courtyards/cut-outs and uses denser
 facade bays, roof ribs, and roof equipment marks from footprint size,
 height, roof type, and landmark material cues. The official Berlin 3D
 Mesh adds genuine photogrammetric roof, facade, ground and canopy relief

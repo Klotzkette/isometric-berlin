@@ -17,6 +17,8 @@ describe("shared drawn alphabet", () => {
       "TAYLOR WESSING",
       "FUNBOX",
       "GLEISS LUTZ",
+      "ICH HABE DEN KRIEG VERHINDERN WOLLEN.",
+      "GEORG ELSER, ENDE NOVEMBER 1939",
     ]) {
       expect(() => letteringLayout(text, 0.5)).not.toThrow();
     }

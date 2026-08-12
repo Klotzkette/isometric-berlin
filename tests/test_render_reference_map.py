@@ -75,3 +75,4 @@ def test_reference_map_numbers_follow_viewer_tour_order() -> None:
   assert (
     names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 40
   )
+  assert names.index("Denkzeichen Georg Elser") + 1 == 88

@@ -2,9 +2,9 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-09T03:10:26.383094+00:00`
+- Generated: `2026-08-12T18:20:11.925176+00:00`
 - Status: `review`
-- Landmarks checked: `87`
+- Landmarks checked: `88`
 - Relative relationships checked: `38`
 - Landmark review count: `2`
 - Relative review count: `0`
@@ -41,7 +41,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Gustav-Heinemann-Brücke | `ok` | Gustav-Heinemann-Brücke (roads) | 0.00 m | nearest DEBE01YYK0002NAU at 110.35 m |
 | Spreebogen | `ok` | Spreebogenpark (parks) | 55.36 m | nearest DEBE01YYK0002N6A at 0.92 m |
 | TIPI am Kanzleramt | `ok` | Tipi am Kanzleramt (pois) | 0.00 m | nearest DEBE01YYK0002MQ0 at 61.74 m |
-| Eduardo-Chillida-Skulptur Berlin | `ok` | Bundeskanzleramt (pois) | 17.30 m | nearest DEBE3DZEo2mpm3tp at 17.14 m |
+| Eduardo-Chillida-Skulptur Berlin | `ok` | Bundeskanzleramt (pois) | 20.73 m | nearest DEBE01YYK0003VUK at 20.03 m |
 | Reichstagsvorfeld / Berlin-Pavillon | `ok` | Simsonweg (roads) | 11.10 m | nearest DEBE01YYK0002KL4 at 3.46 m |
 | Platz der Republik Heckenbosquets | `ok` | Scheidemannstraße (roads) | 35.12 m | nearest DEBE3DdXH5BzPXTO at 25.46 m |
 | Kanzlergarten / Non-Violence-Skulptur | `ok` | Bettina-von-Arnim-Ufer (roads) | 4.88 m | nearest DEBE3DhkSa8wckKv at 9.0 m |
@@ -99,6 +99,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Abgeordnetenhaus von Berlin | `ok` | Abgeordnetenhaus von Berlin (pois) | 0.00 m | inside DEBE3DEXeaCxS2u2 |
 | Topographie des Terrors | `ok` | Topographie des Terrors (pois) | 0.00 m | inside DEBE3DB8G4JuQSIz |
 | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend | `ok` | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend (pois) | 0.00 m | inside DEBE3DaRKFOzDWtk |
+| Denkzeichen Georg Elser | `ok` | Denkzeichen Georg Elser (pois) | 0.00 m | nearest DEBE3DGM02OGdTwB at 16.28 m |
 
 ## Relative Placement
 

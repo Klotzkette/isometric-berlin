@@ -1523,7 +1523,7 @@
         "amenity": null,
         "bridge": null,
         "diplomatic": null,
-        "distance_m": 17.3,
+        "distance_m": 20.73,
         "element": "way",
         "geometry_type": "Polygon",
         "government": "ministry",
@@ -1545,28 +1545,28 @@
       "lod2": {
         "containing_building_id": null,
         "contains_landmark": false,
-        "nearest_building_id": "DEBE3DZEo2mpm3tp",
-        "nearest_distance_m": 17.14
+        "nearest_building_id": "DEBE01YYK0003VUK",
+        "nearest_distance_m": 20.03
       },
       "name": "Eduardo-Chillida-Skulptur Berlin",
       "nearest_named_osm": {
         "amenity": null,
         "bridge": null,
         "diplomatic": null,
-        "distance_m": 2.21,
-        "element": "way",
-        "geometry_type": "LineString",
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
         "government": null,
-        "highway": "service",
+        "highway": null,
         "historic": null,
-        "id": "273805105",
+        "id": "4329873408",
         "leisure": null,
-        "name": null,
+        "name": "Berlin",
         "office": null,
         "playground": null,
         "railway": null,
-        "source_layer": "roads",
-        "tourism": null
+        "source_layer": "pois",
+        "tourism": "artwork"
       },
       "role": "owner_added",
       "status": "ok"
@@ -4453,9 +4453,61 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "id": "1986458966",
+        "leisure": null,
+        "name": "Denkzeichen Georg Elser",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "expected_osm_aliases": [
+        "denkzeichen georg elser"
+      ],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE3DGM02OGdTwB",
+        "nearest_distance_m": 16.28
+      },
+      "name": "Denkzeichen Georg Elser",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "node",
+        "geometry_type": "Point",
+        "government": null,
+        "highway": null,
+        "historic": "memorial",
+        "id": "1986458966",
+        "leisure": null,
+        "name": "Denkzeichen Georg Elser",
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "pois",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "ok"
     }
   ],
-  "generated_at": "2026-08-09T03:10:26.383094+00:00",
+  "generated_at": "2026-08-12T18:20:11.925176+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -4956,7 +5008,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "66243fe97b60122ba161f2a054070d2ea44b8109db4433f5a9dc3068bfa3cee7"
+      "sha256": "56f6ef6e18eff8e1bb33167137304853e4145f335253afdee6fb726ba93371d6"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
@@ -4964,12 +5016,12 @@
     },
     "osm": {
       "path": "geo_data/regierungsviertel/osm.gpkg",
-      "sha256": "83e7a56f03274c2f04d48a73a84ca103d1f3f2a18d70941106240d2235b727c7"
+      "sha256": "7277777554c77be465978390d6b9e4f17e993167229858bccbb893cb08e7da8a"
     }
   },
   "summary": {
     "landmark_review_count": 2,
-    "landmarks_checked": 87,
+    "landmarks_checked": 88,
     "relative_relationships_checked": 38,
     "relative_review_count": 0,
     "review_count": 2,

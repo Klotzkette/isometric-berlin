@@ -250,6 +250,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Chancellery Ehrenhof lobby ceiling lights",
   "Brandenburg Gate photo-bounded fine detail",
   "Pariser Platz photo-bounded fine detail",
+  "Georg Elser pavement inscription quote",
+  "Georg Elser pavement inscription attribution",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

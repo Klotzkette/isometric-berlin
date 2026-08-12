@@ -95,6 +95,13 @@ const EXPANDED_FOCUS_PRESETS: Record<
     polar_degrees: 59,
     target_height_m: 38,
   },
+  "Denkzeichen Georg Elser": {
+    azimuth_degrees: 68,
+    distance_m: 44,
+    fov_degrees: 32,
+    polar_degrees: 66,
+    target_height_m: 8.8,
+  },
   "Hamburger Bahnhof": {
     azimuth_degrees: 10,
     distance_m: 124,
@@ -3798,32 +3805,6 @@ function addPotsdamerWilhelmDetails(
     );
   }
 
-  const elser = fixedWorldPoint(profile.georgElserWorldM);
-  // The memorial is a tall illuminated steel contour, not a conventional
-  // statue. Closely spaced segments keep the line readable at isometric scale.
-  for (const [dx, dy, angle, length] of [
-    [0, 2.2, -0.08, 4.4],
-    [-0.7, 5.6, 0.28, 3.6],
-    [0.1, 8.7, -0.34, 3.3],
-    [0.9, 11.8, 0.19, 3.4],
-    [0.2, 14.8, -0.22, 3.2],
-  ] as const) {
-    addTiltedLocalBox(
-      builder,
-      0xe7c477,
-      elser,
-      dx,
-      elser.y + dy,
-      0,
-      0.22,
-      length,
-      0.22,
-      angle,
-      0,
-      false,
-    );
-  }
-
   const dessauer = fixedWorldPoint(profile.alterDessauerWorldM);
   addBox(
     builder,
@@ -5009,6 +4990,7 @@ export function createExpandedCityDetails(
     "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte",
     "https://www.berliner-philharmoniker.de/ueber-uns/philharmonie/kammermusiksaal/der-bau-des-kammermusiksaals/",
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
+    ...POTSDAMER_DETAIL_PROFILE.georgElser.sourceUrls,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...EUROPACITY_PROFILE.sources,
   ];

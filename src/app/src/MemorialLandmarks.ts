@@ -32,6 +32,7 @@ import {
   HOLOCAUST_PALETTES,
   holocaustStelePlacements,
 } from "./holocaustField";
+import { createGeorgElserMemorial } from "./GeorgElserMemorial";
 
 export type MemorialLandmark = {
   name: string;
@@ -1397,6 +1398,7 @@ function createJehovahsWitnessesMemorial(anchor: MemorialLandmark): Group {
 
 const BUILDERS: Record<string, (landmark: MemorialLandmark) => Group> = {
   "Beethoven-Haydn-Mozart-Denkmal": createComposerMemorial,
+  "Denkzeichen Georg Elser": createGeorgElserMemorial,
   "Denkmal für die ermordeten Juden Europas": createHolocaustMemorial,
   "Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas":
     createSintiRomaMemorial,

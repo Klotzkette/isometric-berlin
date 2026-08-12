@@ -25,6 +25,7 @@ const names = [
   "Beethoven-Haydn-Mozart-Denkmal",
   "Mahnmal für verfolgte Zeugen Jehovas",
   "Gedenkort für Polen 1939-1945",
+  "Denkzeichen Georg Elser",
 ];
 
 const landmarks: MemorialLandmark[] = names.map((name, index) => ({
@@ -33,10 +34,10 @@ const landmarks: MemorialLandmark[] = names.map((name, index) => ({
 }));
 
 describe("granular memorial recognition models", () => {
-  test("creates all eight documented monument models", () => {
+  test("creates all nine documented monument models", () => {
     const root = createMemorialLandmarks(landmarks);
-    expect(root.children).toHaveLength(8);
-    expect(root.userData.modelCount).toBe(8);
+    expect(root.children).toHaveLength(9);
+    expect(root.userData.modelCount).toBe(9);
     names.forEach((name) => expect(root.getObjectByName(name)).not.toBeNull());
     const ink: LineSegments[] = [];
     root.traverse((object) => {
@@ -53,12 +54,14 @@ describe("granular memorial recognition models", () => {
 
   test("grounds every model on the sampled official mesh instead of the camera anchor", () => {
     const root = createMemorialLandmarks(landmarks);
-    names.forEach((name) => {
-      const model = root.getObjectByName(name);
-      expect(model?.position.y).toBeGreaterThan(3.5);
-      expect(model?.position.y).toBeLessThan(5);
-      expect(model?.position.y).not.toBe(8);
-    });
+    names
+      .filter((name) => name !== "Denkzeichen Georg Elser")
+      .forEach((name) => {
+        const model = root.getObjectByName(name);
+        expect(model?.position.y).toBeGreaterThan(3.5);
+        expect(model?.position.y).toBeLessThan(5);
+        expect(model?.position.y).not.toBe(8);
+      });
   });
 
   test("renders the documented 2711 Holocaust stelae in one draw call", () => {
