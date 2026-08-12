@@ -236,6 +236,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "MEININGER Hotel facade details bodies",
   "MEININGER Hotel facade details lamps",
   "MEININGER Hotel facade details ink lines",
+  "Amtssitz presidential standard eagle red details front",
+  "Amtssitz presidential standard eagle red details back",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

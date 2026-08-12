@@ -206,6 +206,15 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
+  test("keeps the presidential standard's minute red eagle details stable", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Amtssitz presidential standard eagle red details front",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Amtssitz presidential standard eagle red details back",
+    );
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({

@@ -1,13 +1,15 @@
 import { describe, expect, test } from "bun:test";
 
-import { Box3, LineSegments, Mesh } from "three";
+import { Box3, InstancedMesh, LineSegments, Mesh } from "three";
 
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import { createRiversideVenues, ZOLLPACKHOF_TAP } from "../src/RiversideVenues";
 import {
   createSpreebogenOffice,
   INTERIM_OFFICE_FOOTPRINT_RING,
+  PRESIDENTIAL_STANDARD_PROFILE,
 } from "../src/SpreebogenOffice";
+import { updateWindFlags, windFlagMatrixCount } from "../src/WindFlags";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -100,7 +102,7 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
     expect(depthM).toBeLessThan(76);
   });
 
-  test("the facade fins mix many colours, not a repeating stripe", () => {
+  test("the facade uses a staggered five-storey module grid", () => {
     const bodies = office.getObjectByName(
       "Amtssitz am Spreebogen bodies",
     ) as Mesh;
@@ -111,9 +113,80 @@ describe("Amtssitz am Spreebogen (interim Bundespräsidialamt)", () => {
         `${colours.getX(index).toFixed(2)},${colours.getY(index).toFixed(2)},${colours.getZ(index).toFixed(2)}`,
       );
     }
-    // Plinth, glazing body, attic, parapet, plus at least four distinct fin
-    // colours: the photographed facade is a genuine multicolour mix.
+    // Plinth, glazing body, attic, parapet, windows and the restrained
+    // grey/silver ceramic-panel range all remain discrete flat colours.
     expect(seen.size).toBeGreaterThanOrEqual(8);
+    expect(office.userData.facadeCadence).toBe(
+      "staggered five-storey modular grid",
+    );
+    expect(bodies.geometry.getAttribute("position").count).toBeGreaterThan(
+      20_000,
+    );
+  });
+
+  test("carries the official small square presidential standard on its roof", () => {
+    const pole = office.getObjectByName(
+      "Amtssitz presidential standard flagpole",
+    ) as Mesh;
+    const redBorder = office.getObjectByName(
+      "Amtssitz presidential standard red border",
+    ) as Mesh;
+    const goldField = office.getObjectByName(
+      "Amtssitz presidential standard gold field",
+    ) as Mesh;
+    const eagleFront = office.getObjectByName(
+      "Amtssitz presidential standard federal eagle front",
+    ) as Mesh;
+    const eagleBack = office.getObjectByName(
+      "Amtssitz presidential standard federal eagle back",
+    ) as Mesh;
+    const redDetailsFront = office.getObjectByName(
+      "Amtssitz presidential standard eagle red details front",
+    ) as InstancedMesh;
+    const redDetailsBack = office.getObjectByName(
+      "Amtssitz presidential standard eagle red details back",
+    ) as InstancedMesh;
+
+    expect(pole).toBeInstanceOf(Mesh);
+    expect(redBorder).toBeInstanceOf(Mesh);
+    expect(goldField).toBeInstanceOf(Mesh);
+    expect(eagleFront).toBeInstanceOf(Mesh);
+    expect(eagleBack).toBeInstanceOf(Mesh);
+    expect(redDetailsFront).toBeInstanceOf(InstancedMesh);
+    expect(redDetailsBack).toBeInstanceOf(InstancedMesh);
+    expect(redDetailsFront.count).toBe(
+      PRESIDENTIAL_STANDARD_PROFILE.eaglePartCount,
+    );
+    expect(redDetailsBack.count).toBe(
+      PRESIDENTIAL_STANDARD_PROFILE.eaglePartCount,
+    );
+    expect(PRESIDENTIAL_STANDARD_PROFILE.redBorderRatio).toBeCloseTo(1 / 12);
+    expect(PRESIDENTIAL_STANDARD_PROFILE.eagleFacesPole).toBe(true);
+    expect(PRESIDENTIAL_STANDARD_PROFILE.flagSideM).toBeLessThan(3);
+    expect(pole.position.y).toBeGreaterThan(30);
+    expect(windFlagMatrixCount(office)).toBe(6);
+
+    const positions = redBorder.geometry.getAttribute("position");
+    let freeEdgeIndex = 0;
+    for (let index = 1; index < positions.count; index += 1) {
+      if (positions.getX(index) > positions.getX(freeEdgeIndex)) {
+        freeEdgeIndex = index;
+      }
+    }
+    const before = positions.getZ(freeEdgeIndex);
+    updateWindFlags(office, 0.9);
+    const after = positions.getZ(freeEdgeIndex);
+    expect(after).not.toBe(before);
+    expect(office.userData.presidentialStandardSource).toBe(
+      PRESIDENTIAL_STANDARD_PROFILE.sourceUrl,
+    );
+  });
+
+  test("adds only the four slender roof antennae visible in the supplied view", () => {
+    const antennae = office.children.filter(
+      (child) => child.name === "Amtssitz slender roof antenna",
+    );
+    expect(antennae).toHaveLength(4);
   });
 
   test("does not wrap the completed outline in a rectangular worksite", () => {

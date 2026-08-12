@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.71.9
+
+- **The completed Amtssitz am Spreebogen now follows the supplied current
+  views without abandoning its measured plan.** The exact 37-point OSM
+  outline, bent-bar massing and 92.9 x 73.72 m envelope stay fixed. The former
+  continuous brightly coloured fins are replaced by five staggered storeys of
+  restrained silver-grey facade modules, narrow reveals and windows, followed
+  by the architects' documented free-form timber-frame top floor, parapet and
+  the four slender roof antennae visible in the current view.
+- **A small presidential standard now flies from the roof in a stable unfolded
+  pose.** Its square gold field, red border at the official 1:12 ratio and
+  mast-facing black federal eagle with restrained red beak and claw details
+  follow the federal Flag Order. The cloth uses the existing deterministic
+  wind-fold system: it reads as wind-filled but never advances while the scene
+  is still, so it cannot introduce idle shimmer.
+- **Source certainty remains explicit.** The OSM outline and legal flag
+  proportions are source-backed; the architects' published storey structure
+  bounds the massing. Exact facade-module spacing, roof mast point, flag size
+  and antenna heights are non-surveyed presentation estimates inferred from
+  the owner-supplied photographs. Those photographs are not bundled or
+  projected as textures. Focused tests pin the footprint, module density,
+  flag construction, roof details and anti-flicker hysteresis. The visible
+  radius remains **5,230 m**; attribution and the additive source hierarchy
+  are unchanged.
+
 ## v0.71.8
 
 - **Moltkebrücke now reads as Otto Stahn's red-sandstone monument rather than
