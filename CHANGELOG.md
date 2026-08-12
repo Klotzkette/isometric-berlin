@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.71.0
+
+- **A real pedestrian camera complements the free-flight viewer.** The new
+  bilingual `Walk` / `Spaziergang` control is independent of Day, Night,
+  Minecraft and Snowstorm and starts on Pariser Platz facing the Brandenburg
+  Gate at a 1.80 m eye height. It follows the existing smooth metric terrain;
+  flight, zoom, underside and guided tunnel controls remain unavailable while
+  walking, so the camera cannot accidentally leave the ground-bound mode.
+- **Desktop and touch controls now cover the complete on-foot workflow.**
+  `W`/`S` or up/down walk, `A`/`D` strafe, left/right or `Q`/`E` turn, mouse or
+  one-finger drag controls head look, and `Space` or a 52 px mobile button
+  performs one bounded jump to a 5.4 m apex. The restored overview camera is
+  preserved when entering and leaving the mode, and all held inputs are
+  cancelled on mode changes, blur and unmount.
+- **Water and lifecycle handling are deterministic.** OSM water polygons and
+  their island holes are compiled once in the same metric coordinate frame;
+  landing in water returns the walker to Pariser Platz. A stale window-level
+  `pointercancel` listener is now removed with the exact callback that created
+  it, avoiding duplicate touch cleanup after remounts. Six focused navigation
+  contracts join the full frontend suite. The visible radius remains
+  **5,230 m**; no source geometry, building placement, attribution or additive
+  data hierarchy changed.
+
 ## v0.70.44
 
 - **Quiet memorials no longer become one field of generic grey blocks.** The

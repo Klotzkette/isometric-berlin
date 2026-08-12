@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  ArrowUpFromLine,
   Box as BoxIcon,
   ChevronDown,
   ChevronUp,
@@ -14,6 +15,7 @@ import {
   ExternalLink,
   FlipHorizontal2,
   FlipVertical2,
+  Footprints,
   Github,
   Home,
   Info,
@@ -73,6 +75,7 @@ import {
 } from "./audioAutostart";
 import { registerAudioLifecycle } from "./audioLifecycle";
 import { heldNavigationInput } from "./cameraNavigation";
+import { heldPedestrianInput } from "./pedestrianNavigation";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import { isReservedBrowserChord } from "./keyboardShortcuts";
@@ -625,6 +628,7 @@ export function App() {
   const [isMapReady, setIsMapReady] = useState(false);
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
+  const [isPedestrianMode, setIsPedestrianMode] = useState(false);
   const [threePolarDegrees, setThreePolarDegrees] = useState(58);
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -703,9 +707,15 @@ export function App() {
       ? ((selectedIndex + 1) / landmarks.length) * 100
       : 0;
 
+  const disablePedestrianMode = useCallback(() => {
+    setIsPedestrianMode(false);
+    threeViewerRef.current?.setPedestrianMode(false);
+  }, []);
+
   const focusLandmark = useCallback(
     (landmark: Landmark, immediate = false) => {
       const shouldMoveImmediately = immediate || prefersReducedMotion();
+      disablePedestrianMode();
       setSelected(landmark.name);
       setStatus(`${copy.focus}: ${landmarkShortLabel(landmark.name)}`);
       if (viewerMode === "three") {
@@ -730,7 +740,7 @@ export function App() {
       );
       viewer.viewport.panTo(point.plus(mobileOffset), shouldMoveImmediately);
     },
-    [copy.focus, isCompactLayout, viewerMode],
+    [copy.focus, disablePedestrianMode, isCompactLayout, viewerMode],
   );
 
   const focusLandmarkByOffset = useCallback(
@@ -1169,6 +1179,7 @@ export function App() {
 
   const flipVertical = useCallback(() => {
     if (viewerMode === "three") {
+      disablePedestrianMode();
       const next = !isThreeUnderside;
       setIsThreeUnderside(next);
       threeViewerRef.current?.setUnderside(next);
@@ -1193,10 +1204,11 @@ export function App() {
       viewerRef.current?.viewport.setFlip(next);
       return next;
     });
-  }, [isThreeUnderside, language, viewerMode]);
+  }, [disablePedestrianMode, isThreeUnderside, language, viewerMode]);
 
   const resetOrientation = useCallback(() => {
     if (viewerMode === "three") {
+      disablePedestrianMode();
       threeViewerRef.current?.reset();
       setRotation(NORTH_UP_ROTATION);
       setIsThreeUnderside(false);
@@ -1208,7 +1220,7 @@ export function App() {
     viewerRef.current?.viewport.setFlip(false);
     setRotation(NORTH_UP_ROTATION);
     setIsFlipped(false);
-  }, [language, viewerMode]);
+  }, [disablePedestrianMode, language, viewerMode]);
 
   const panByViewport = useCallback((dx: number, dy: number) => {
     const viewport = viewerRef.current?.viewport;
@@ -1302,13 +1314,14 @@ export function App() {
 
   const goHome = useCallback(() => {
     if (viewerMode === "three") {
+      disablePedestrianMode();
       threeViewerRef.current?.reset();
       setRotation(NORTH_UP_ROTATION);
       setIsThreeUnderside(false);
       return;
     }
     viewerRef.current?.viewport.goHome();
-  }, [viewerMode]);
+  }, [disablePedestrianMode, viewerMode]);
 
   const tiltBy = useCallback((degrees: number) => {
     threeViewerRef.current?.tiltBy(degrees);
@@ -1340,6 +1353,9 @@ export function App() {
     }
     setIsTouring((current) => {
       const next = !current;
+      if (next) {
+        disablePedestrianMode();
+      }
       setStatus(
         next ? (language === "de" ? "Tour läuft" : "Tour running") : copy.ready,
       );
@@ -1351,6 +1367,7 @@ export function App() {
   }, [
     canNavigateLandmarks,
     copy.ready,
+    disablePedestrianMode,
     focusLandmark,
     landmarks,
     language,
@@ -1374,6 +1391,7 @@ export function App() {
   );
 
   const resetToDefaultView = useCallback(() => {
+    disablePedestrianMode();
     const target = resolveResetView();
     selectVisualMode(target.lightingMode);
     setRotation(target.rotationDegrees);
@@ -1393,7 +1411,14 @@ export function App() {
       setSelected(target.focus);
     }
     setStatus(language === "de" ? "Standardansicht" : "Default view");
-  }, [focusLandmark, landmarks, language, selectVisualMode, viewerMode]);
+  }, [
+    disablePedestrianMode,
+    focusLandmark,
+    landmarks,
+    language,
+    selectVisualMode,
+    viewerMode,
+  ]);
 
   const toggleLightingMode = useCallback(() => {
     selectVisualMode(lightingMode === "day" ? "night" : "day");
@@ -1408,6 +1433,30 @@ export function App() {
     const next: VisualMode = lightingMode === "snowstorm" ? "day" : "snowstorm";
     selectVisualMode(next);
   }, [lightingMode, selectVisualMode]);
+
+  const togglePedestrianMode = useCallback(() => {
+    const next = !isPedestrianMode;
+    heldFlightKeysRef.current.clear();
+    setFlightInput(0, 0, 0);
+    setPanInput(0, 0);
+    setOrbitInput(0, 0);
+    setIsTouring(false);
+    setMobileSheet(null);
+    setIsPedestrianMode(next);
+    if (next) {
+      setViewerMode("three");
+      setIsThreeUnderside(false);
+    }
+    threeViewerRef.current?.setPedestrianMode(next);
+    setStatus(next ? copy.pedestrianOn : copy.pedestrianOff);
+  }, [
+    copy.pedestrianOff,
+    copy.pedestrianOn,
+    isPedestrianMode,
+    setFlightInput,
+    setOrbitInput,
+    setPanInput,
+  ]);
 
   // "Licht an/aus": only meaningful in night mode (supportsNightLightsToggle
   // guards the UI too), persisted exactly like music mute.
@@ -1447,12 +1496,21 @@ export function App() {
 
   const toggleViewerMode = useCallback(() => {
     const next = viewerMode === "three" ? "map" : "three";
+    if (next === "map") {
+      disablePedestrianMode();
+    }
     if (next === "map" && !keepThreeWarm) {
       setIsThreeReady(false);
     }
     setViewerMode(next);
     setStatus(next === "three" ? copy.loadingMesh : copy.loadingMap);
-  }, [copy.loadingMap, copy.loadingMesh, keepThreeWarm, viewerMode]);
+  }, [
+    copy.loadingMap,
+    copy.loadingMesh,
+    disablePedestrianMode,
+    keepThreeWarm,
+    viewerMode,
+  ]);
 
   const toggleChrome = useCallback(() => {
     setMobileSheet(null);
@@ -1497,6 +1555,7 @@ export function App() {
 
   const startTunnelFlight = useCallback(
     (direction: TunnelFlightDirection) => {
+      disablePedestrianMode();
       setIsTouring(false);
       setMobileSheet(null);
       if (viewerMode !== "three" || !isThreeReady) {
@@ -1513,7 +1572,13 @@ export function App() {
         );
       }
     },
-    [copy.tunnelNorthbound, copy.tunnelSouthbound, isThreeReady, viewerMode],
+    [
+      copy.tunnelNorthbound,
+      copy.tunnelSouthbound,
+      disablePedestrianMode,
+      isThreeReady,
+      viewerMode,
+    ],
   );
 
   useEffect(() => {
@@ -1722,8 +1787,23 @@ export function App() {
       "ArrowRight",
       "Shift",
       "Alt",
+      "w",
+      "a",
+      "s",
+      "d",
+      "q",
+      "e",
     ];
+    const navigationKey = (key: string): string =>
+      key.length === 1 ? key.toLowerCase() : key;
     const updateHeldNavigation = () => {
+      if (isPedestrianMode) {
+        const input = heldPedestrianInput(heldFlightKeysRef.current);
+        setPanInput(0, 0);
+        setFlightInput(input.strafe, input.forward, 0);
+        setOrbitInput(input.turn, input.look);
+        return;
+      }
       const { flight, orbit, pan } = heldNavigationInput(
         heldFlightKeysRef.current,
       );
@@ -1776,6 +1856,54 @@ export function App() {
         event.preventDefault();
         setIsHelpOpen((open) => !open);
         return;
+      }
+      if (event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        togglePedestrianMode();
+        return;
+      }
+      if (
+        isPedestrianMode &&
+        viewerMode === "three" &&
+        !isReferenceOpen &&
+        !isHelpOpen &&
+        !isRepositoryOpen &&
+        isReady
+      ) {
+        if (event.key === " ") {
+          event.preventDefault();
+          if (!event.repeat && threeViewerRef.current?.jumpPedestrian()) {
+            setStatus(copy.pedestrianJump);
+          }
+          return;
+        }
+        const key = navigationKey(event.key);
+        if (
+          [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "w",
+            "a",
+            "s",
+            "d",
+            "q",
+            "e",
+          ].includes(key)
+        ) {
+          event.preventDefault();
+          heldFlightKeysRef.current.add(key);
+          if (!event.repeat) {
+            setStatus(
+              language === "de"
+                ? "Zu Fuß · bewegen und umschauen"
+                : "On foot · move and look around",
+            );
+          }
+          updateHeldNavigation();
+          return;
+        }
       }
       if (event.key.toLowerCase() === "d") {
         event.preventDefault();
@@ -1943,8 +2071,9 @@ export function App() {
       }
     };
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (NAVIGATION_KEYS.includes(event.key)) {
-        if (heldFlightKeysRef.current.delete(event.key)) {
+      const key = navigationKey(event.key);
+      if (NAVIGATION_KEYS.includes(key)) {
+        if (heldFlightKeysRef.current.delete(key)) {
           updateHeldNavigation();
         }
       }
@@ -1967,6 +2096,7 @@ export function App() {
     focusLandmarkByOffset,
     goHome,
     isHelpOpen,
+    isPedestrianMode,
     isReady,
     isReferenceOpen,
     isRepositoryOpen,
@@ -1985,6 +2115,7 @@ export function App() {
     toggleFullscreen,
     toggleMusic,
     toggleNightLights,
+    togglePedestrianMode,
     toggleSoundtrack,
     viewerMode,
     zoomBy,
@@ -2259,6 +2390,7 @@ export function App() {
   useEffect(() => {
     if (
       !isReady ||
+      isPedestrianMode ||
       landmarks.length === 0 ||
       initialFocusModeRef.current === viewerMode
     ) {
@@ -2266,7 +2398,14 @@ export function App() {
     }
     initialFocusModeRef.current = viewerMode;
     focusLandmark(selectedLandmark ?? landmarks[0], true);
-  }, [focusLandmark, isReady, landmarks, selectedLandmark, viewerMode]);
+  }, [
+    focusLandmark,
+    isPedestrianMode,
+    isReady,
+    landmarks,
+    selectedLandmark,
+    viewerMode,
+  ]);
 
   const snowfallMode = lightingMode === "snowstorm";
   const precipitationEnabled = snowfallMode ? snowfallEnabled : rainEnabled;
@@ -2282,6 +2421,7 @@ export function App() {
         isTouring ? "app-shell--touring" : "",
         `app-shell--${lightingMode}`,
         `app-shell--viewer-${viewerMode}`,
+        isPedestrianMode ? "app-shell--pedestrian" : "",
         isChromeHidden ? "app-shell--chrome-hidden" : "",
         isPseudoFullscreen ? "app-shell--pseudo-fullscreen" : "",
       ]
@@ -2332,9 +2472,12 @@ export function App() {
           <ThreeViewer
             ref={threeViewerRef}
             active={viewerMode === "three"}
-            canvasAriaLabel={copy.threeD}
+            canvasAriaLabel={
+              isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
+            }
             lightingMode={lightingMode}
             nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
+            pedestrianMode={isPedestrianMode}
             precipitationEnabled={precipitationEnabled}
             progressLabel={copy.loadingMesh}
             sceneUrl={sceneUrl}
@@ -2349,11 +2492,19 @@ export function App() {
             }}
             onError={(message) => {
               console.error(`Isometric Berlin 3D: ${message}`);
+              setIsPedestrianMode(false);
               setIsThreeReady(false);
               setStatus(
                 `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
               );
               setViewerMode("map");
+            }}
+            onPedestrianRespawn={() => {
+              setStatus(
+                language === "de"
+                  ? "Wasser betreten · zurück am Pariser Platz"
+                  : "Entered water · back at Pariser Platz",
+              );
             }}
             onWarning={(message) => {
               setStatus(
@@ -2414,6 +2565,11 @@ export function App() {
               {selectedIndex >= 0 ? selectedIndex + 1 : 1}/
               {landmarks.length || 1}
               {` · ${viewerMode === "three" ? "3D" : "2D"}`}
+              {isPedestrianMode
+                ? language === "de"
+                  ? " · Zu Fuß"
+                  : " · Walk"
+                : ""}
               {lightingMode === "minecraft" ? " · Voxel" : ""}
               {lightingMode === "snowstorm" ? " · Snow" : ""}
             </small>
@@ -2468,6 +2624,16 @@ export function App() {
             ) : (
               <BoxIcon size={18} aria-hidden="true" />
             )}
+          </button>
+          <button
+            type="button"
+            className="pedestrian-mode-toggle"
+            aria-label={copy.pedestrian}
+            aria-pressed={isPedestrianMode}
+            title={`${copy.pedestrian} (P)`}
+            onClick={togglePedestrianMode}
+          >
+            <Footprints size={18} aria-hidden="true" />
           </button>
           <div
             className="visual-mode-switch"
@@ -2628,7 +2794,7 @@ export function App() {
             type="button"
             className="zoom-action"
             aria-label={copy.zoomIn}
-            disabled={!isReady}
+            disabled={!isReady || isPedestrianMode}
             title={copy.zoomIn}
             onClick={() => zoomBy(1.6)}
           >
@@ -2638,7 +2804,7 @@ export function App() {
             type="button"
             className="zoom-action"
             aria-label={copy.zoomOut}
-            disabled={!isReady}
+            disabled={!isReady || isPedestrianMode}
             title={copy.zoomOut}
             onClick={() => zoomBy(0.625)}
           >
@@ -2758,9 +2924,13 @@ export function App() {
           <FlightJoystick
             disabled={!isReady}
             label={
-              language === "de"
-                ? "Flug-Joystick: Daumen ziehen zum Fliegen"
-                : "Flight joystick: drag with your thumb to fly"
+              isPedestrianMode
+                ? language === "de"
+                  ? "Geh-Joystick: Daumen ziehen zum Laufen"
+                  : "Walking joystick: drag with your thumb to walk"
+                : language === "de"
+                  ? "Flug-Joystick: Daumen ziehen zum Fliegen"
+                  : "Flight joystick: drag with your thumb to fly"
             }
             onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
           />
@@ -2773,27 +2943,49 @@ export function App() {
             className="orbit-joystick"
             disabled={!isReady}
             label={
-              language === "de"
-                ? "Orbit-Joystick: mit der Maus ziehen zum Drehen und Neigen"
-                : "Orbit joystick: drag with the mouse to orbit and tilt"
+              isPedestrianMode
+                ? language === "de"
+                  ? "Blick-Joystick: mit der Maus Kopf drehen und heben"
+                  : "Look joystick: drag to turn and raise your head"
+                : language === "de"
+                  ? "Orbit-Joystick: mit der Maus ziehen zum Drehen und Neigen"
+                  : "Orbit joystick: drag with the mouse to orbit and tilt"
             }
             onInput={setOrbitInput}
           />
         </div>
       ) : null}
 
+      {viewerMode === "three" && isPedestrianMode && !isChromeHidden ? (
+        <button
+          type="button"
+          className="pedestrian-jump-button"
+          aria-label={copy.pedestrianJump}
+          title={`${copy.pedestrianJump} (Space)`}
+          onClick={() => threeViewerRef.current?.jumpPedestrian()}
+        >
+          <ArrowUpFromLine size={22} aria-hidden="true" />
+        </button>
+      ) : null}
+
       <aside className="orientation-pill" aria-label={copy.orientation}>
         <Compass aria-hidden="true" size={16} />
         <span>
           {viewerMode === "three"
-            ? `${Math.round(threePolarDegrees)}°`
+            ? isPedestrianMode
+              ? language === "de"
+                ? "1,80 m"
+                : "1.80 m"
+              : `${Math.round(threePolarDegrees)}°`
             : (orientation?.short ?? `${Math.round(rotation)}°`)}
         </span>
         <small>
           {viewerMode === "three"
-            ? `${orientation ? orientationLabel(orientation.short, language) : copy.freelyRotated} · ${
-                isThreeUnderside ? copy.underside : "3D"
-              }`
+            ? isPedestrianMode
+              ? `${copy.pedestrian} · ${language === "de" ? "1,80 m" : "1.80 m"}`
+              : `${orientation ? orientationLabel(orientation.short, language) : copy.freelyRotated} · ${
+                  isThreeUnderside ? copy.underside : "3D"
+                }`
             : isFlipped
               ? `${orientation ? orientationLabel(orientation.short, language) : copy.freelyRotated} · ${language === "de" ? "gespiegelt" : "mirrored"}`
               : orientation
@@ -2822,12 +3014,24 @@ export function App() {
           <div
             className="control-row movement-controls"
             role="group"
-            aria-label={copy.flight}
+            aria-label={isPedestrianMode ? copy.pedestrian : copy.flight}
           >
             <HoldControlButton
-              ariaLabel={copy.flyForward}
+              ariaLabel={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Vorwärts gehen"
+                    : "Walk forward"
+                  : copy.flyForward
+              }
               disabled={!isReady}
-              title={`${copy.flyForward} (Shift + ↑)`}
+              title={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Vorwärts gehen (W / ↑)"
+                    : "Walk forward (W / ↑)"
+                  : `${copy.flyForward} (Shift + ↑)`
+              }
               onActivate={() => flyForwardBy(0, 1)}
               onHoldStart={() => setFlightInput(0, 1, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
@@ -2835,9 +3039,21 @@ export function App() {
               <ArrowUp size={17} aria-hidden="true" />
             </HoldControlButton>
             <HoldControlButton
-              ariaLabel={copy.flyLeft}
+              ariaLabel={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Nach links gehen"
+                    : "Walk left"
+                  : copy.flyLeft
+              }
               disabled={!isReady}
-              title={`${copy.flyLeft} (Shift + ←)`}
+              title={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Nach links gehen (A)"
+                    : "Walk left (A)"
+                  : `${copy.flyLeft} (Shift + ←)`
+              }
               onActivate={() => flyForwardBy(-1, 0)}
               onHoldStart={() => setFlightInput(-1, 0, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
@@ -2845,9 +3061,21 @@ export function App() {
               <ArrowLeft size={17} aria-hidden="true" />
             </HoldControlButton>
             <HoldControlButton
-              ariaLabel={copy.flyBack}
+              ariaLabel={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Rückwärts gehen"
+                    : "Walk backward"
+                  : copy.flyBack
+              }
               disabled={!isReady}
-              title={`${copy.flyBack} (Shift + ↓)`}
+              title={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Rückwärts gehen (S / ↓)"
+                    : "Walk backward (S / ↓)"
+                  : `${copy.flyBack} (Shift + ↓)`
+              }
               onActivate={() => flyForwardBy(0, -1)}
               onHoldStart={() => setFlightInput(0, -1, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
@@ -2855,9 +3083,21 @@ export function App() {
               <ArrowDown size={17} aria-hidden="true" />
             </HoldControlButton>
             <HoldControlButton
-              ariaLabel={copy.flyRight}
+              ariaLabel={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Nach rechts gehen"
+                    : "Walk right"
+                  : copy.flyRight
+              }
               disabled={!isReady}
-              title={`${copy.flyRight} (Shift + →)`}
+              title={
+                isPedestrianMode
+                  ? language === "de"
+                    ? "Nach rechts gehen (D)"
+                    : "Walk right (D)"
+                  : `${copy.flyRight} (Shift + →)`
+              }
               onActivate={() => flyForwardBy(1, 0)}
               onHoldStart={() => setFlightInput(1, 0, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
@@ -2875,7 +3115,7 @@ export function App() {
             <button
               type="button"
               aria-label={copy.tunnelSouthbound}
-              disabled={!isReady}
+              disabled={!isReady || isPedestrianMode}
               title={`${copy.tunnelSouthbound} ([)`}
               onClick={() => startTunnelFlight("north-to-south")}
             >
@@ -2884,7 +3124,7 @@ export function App() {
             <button
               type="button"
               aria-label={copy.tunnelNorthbound}
-              disabled={!isReady}
+              disabled={!isReady || isPedestrianMode}
               title={`${copy.tunnelNorthbound} (])`}
               onClick={() => startTunnelFlight("south-to-north")}
             >
@@ -2961,7 +3201,7 @@ export function App() {
               viewerMode === "three" ? copy.trueUnderside : copy.flipVertical
             }
             aria-pressed={viewerMode === "three" && isThreeUnderside}
-            disabled={!isReady}
+            disabled={!isReady || isPedestrianMode}
             title={
               viewerMode === "three" ? copy.trueUnderside : copy.flipVertical
             }
@@ -3147,7 +3387,7 @@ export function App() {
               type="button"
               aria-label={copy.underside}
               aria-pressed={viewerMode === "three" && isThreeUnderside}
-              disabled={!isReady}
+              disabled={!isReady || isPedestrianMode}
               onClick={flipVertical}
             >
               <FlipVertical2 size={19} aria-hidden="true" />
@@ -3230,6 +3470,14 @@ export function App() {
                 <BoxIcon size={20} aria-hidden="true" />
               )}
               <span>{viewerMode === "three" ? "2D" : "3D"}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={isPedestrianMode}
+              onClick={togglePedestrianMode}
+            >
+              <Footprints size={20} aria-hidden="true" />
+              <span>{copy.pedestrian}</span>
             </button>
             <button
               type="button"
@@ -3327,6 +3575,7 @@ export function App() {
             </button>
             <button
               type="button"
+              disabled={isPedestrianMode}
               onClick={() => startTunnelFlight("north-to-south")}
             >
               <ArrowDown size={20} aria-hidden="true" />
@@ -3334,6 +3583,7 @@ export function App() {
             </button>
             <button
               type="button"
+              disabled={isPedestrianMode}
               onClick={() => startTunnelFlight("south-to-north")}
             >
               <ArrowUp size={20} aria-hidden="true" />
@@ -3676,15 +3926,19 @@ export function App() {
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? language === "de"
-                      ? "Gedrückt halten: gleichmäßig bildschirmbezogen durch die 3D-Isometrie verschieben"
-                      : "Hold: move smoothly through the 3D isometry in screen directions"
+                    ? isPedestrianMode
+                      ? language === "de"
+                        ? "Vor / zurück gehen und nach links / rechts drehen"
+                        : "Walk forward / back and turn left / right"
+                      : language === "de"
+                        ? "Gedrückt halten: gleichmäßig bildschirmbezogen durch die 3D-Isometrie verschieben"
+                        : "Hold: move smoothly through the 3D isometry in screen directions"
                     : language === "de"
                       ? "Karte in Meterlage verschieben"
                       : "Move the map in metric space"}
                 </dd>
               </div>
-              <div>
+              {!isPedestrianMode ? <div>
                 <dt>
                   <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
                   <kbd>↑</kbd> <kbd>↓</kbd>
@@ -3698,7 +3952,7 @@ export function App() {
                       ? "Ansicht drehen oder zoomen"
                       : "Rotate or zoom the view"}
                 </dd>
-              </div>
+              </div> : null}
               <div>
                 <dt>
                   <kbd>Alt</kbd>/<kbd>Option</kbd> + <kbd>←</kbd> <kbd>→</kbd>
@@ -3706,9 +3960,13 @@ export function App() {
                 </dt>
                 <dd>
                   {viewerMode === "three"
-                    ? language === "de"
-                      ? "Kamera drehen und stufenlos bis in die Untersicht neigen"
-                      : "Orbit and tilt the camera continuously into the underside view"
+                    ? isPedestrianMode
+                      ? language === "de"
+                        ? "Blickrichtung mit dem Kopf nach links / rechts und oben / unten bewegen"
+                        : "Move your head left / right and look up / down"
+                      : language === "de"
+                        ? "Kamera drehen und stufenlos bis in die Untersicht neigen"
+                        : "Orbit and tilt the camera continuously into the underside view"
                     : language === "de"
                       ? "Ansicht drehen und neigen"
                       : "Rotate and tilt the view"}
@@ -3730,10 +3988,26 @@ export function App() {
                 </dt>
                 <dd>
                   {language === "de"
-                    ? "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
-                    : "Tap: start / pause the sights tour"}
+                    ? isPedestrianMode
+                      ? "Springen (maximal etwa 5,4 m über dem Boden)"
+                      : "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
+                    : isPedestrianMode
+                      ? "Jump (up to about 5.4 m above the ground)"
+                      : "Tap: start / pause the sights tour"}
                 </dd>
               </div>
+              {isPedestrianMode ? (
+                <div>
+                  <dt>
+                    <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Vorwärts, seitwärts und rückwärts gehen; Q / E drehen ebenfalls"
+                      : "Walk forward, sideways, and back; Q / E also turn"}
+                  </dd>
+                </div>
+              ) : null}
               {viewerMode === "three" ? (
                 <div>
                   <dt>{language === "de" ? "Steuerkreise" : "Control pads"}</dt>
@@ -3860,6 +4134,12 @@ export function App() {
               </div>
               <div>
                 <dt>
+                  <kbd>P</kbd>
+                </dt>
+                <dd>{copy.pedestrian}</dd>
+              </div>
+              <div>
+                <dt>
                   <kbd>Esc</kbd>
                 </dt>
                 <dd>
@@ -3871,9 +4151,13 @@ export function App() {
             </dl>
             <p className="help-hint">
               {viewerMode === "three"
-                ? language === "de"
-                  ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
-                  : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."
+                ? isPedestrianMode
+                  ? language === "de"
+                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen. Der Geh-Joystick bewegt; der Sprungknopf oder die Leertaste springt. Flug, Zoom und Untersicht sind gesperrt. Wasser setzt dich am Pariser Platz wieder ab."
+                    : "Walk: drag with the mouse or one finger to move your head. The walking pad moves; the jump button or Space jumps. Flight, zoom, and underside are locked. Water returns you to Pariser Platz."
+                  : language === "de"
+                    ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
+                    : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."
                 : language === "de"
                   ? "Detailkarte: ziehen zum Verschieben, Shift + ziehen zum freien Drehen und scrollen zum Zoomen. Zwei Finger verschieben die Karte oder fliegen per Pinch hinein; drehen über die Pfeiltasten-Knöpfe."
                   : "Detail map: drag to pan, Shift-drag to rotate freely, and scroll to zoom. Two fingers zoom, pan, and rotate together."}

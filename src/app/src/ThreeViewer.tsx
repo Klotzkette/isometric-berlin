@@ -88,6 +88,7 @@ import {
 import { runBoundedTasks } from "./boundedTaskPool";
 import {
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+  type CameraPose,
   captureCameraPose,
   classifyTwoFingerGesture,
   continuousFlightSpeeds,
@@ -98,6 +99,22 @@ import {
   twoFingerPanFlight,
   zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
+import {
+  PEDESTRIAN_EYE_HEIGHT_M,
+  PEDESTRIAN_FOV_DEGREES,
+  PEDESTRIAN_IDLE_INPUT,
+  PEDESTRIAN_VIEW_DISTANCE_M,
+  createPedestrianEnvironment,
+  createPedestrianState,
+  jumpPedestrian,
+  lookPedestrian,
+  pedestrianViewDirection,
+  setPedestrianYaw,
+  stepPedestrian,
+  type PedestrianEnvironment,
+  type PedestrianInput,
+  type PedestrianState,
+} from "./pedestrianNavigation";
 import { CRISPNESS_PROFILES } from "./crispnessProfile";
 import {
   FINE_DETAIL_LAYER_NAMES,
@@ -273,11 +290,13 @@ type ThreeViewerProps = {
   // Only meaningful while lightingMode === "night"; day/minecraft ignore it.
   // See nightLighting.ts for the persisted preference this mirrors.
   nightLightsOn: boolean;
+  pedestrianMode: boolean;
   precipitationEnabled: boolean;
   progressLabel: string;
   sceneUrl: string;
   selectedLandmark: string;
   onError: (message: string) => void;
+  onPedestrianRespawn: () => void;
   onReady: () => void;
   onWarning: (message: string) => void;
   onViewChange: (angles: ViewAngles) => void;
@@ -293,10 +312,24 @@ export type ThreeViewerHandle = {
   setFlightInput: (strafe: number, forward: number, vertical: number) => void;
   setOrbitInput: (horizontal: number, vertical: number) => void;
   setPanInput: (horizontal: number, vertical: number) => void;
+  setPedestrianMode: (enabled: boolean) => boolean;
   setUnderside: (enabled: boolean) => void;
   startTunnelFlight: (direction: TunnelFlightDirection) => boolean;
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
+  jumpPedestrian: () => boolean;
+};
+
+type PedestrianRuntime = {
+  cameraDirty: boolean;
+  enabled: boolean;
+  environment: PedestrianEnvironment | null;
+  requested: boolean;
+  savedFov: number;
+  savedNear: number;
+  savedPose: CameraPose | null;
+  savedUnderside: boolean;
+  state: PedestrianState | null;
 };
 
 type Runtime = {
@@ -327,6 +360,7 @@ type Runtime = {
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
   parkDetails: Group;
+  pedestrian: PedestrianRuntime;
   presentationReady: boolean;
   notifyPresentationReady: () => void;
   rain: ModerateRain;
@@ -452,6 +486,121 @@ const DEFAULT_CAMERA_OFFSET = new Vector3(111, 57, 34);
 const DETAIL_RAISE_M = 0.035;
 const WATER_LEVEL_Y = WATER_TOP_Y;
 const UNDERWATER_COLOR = 0x0b4250;
+
+function applyPedestrianCamera(runtime: Runtime): boolean {
+  const state = runtime.pedestrian.state;
+  if (!runtime.pedestrian.enabled || !state) {
+    return false;
+  }
+  const direction = pedestrianViewDirection(state);
+  runtime.camera.position.set(
+    state.x,
+    state.groundY + PEDESTRIAN_EYE_HEIGHT_M + state.jumpOffset,
+    state.z,
+  );
+  runtime.controls.target
+    .copy(runtime.camera.position)
+    .add(
+      new Vector3(direction.x, direction.y, direction.z).multiplyScalar(
+        PEDESTRIAN_VIEW_DISTANCE_M,
+      ),
+    );
+  runtime.camera.lookAt(runtime.controls.target);
+  runtime.camera.updateMatrixWorld();
+  runtime.renderInvalidated = true;
+  runtime.pedestrian.cameraDirty = false;
+  return true;
+}
+
+function activatePedestrianMode(runtime: Runtime): boolean {
+  runtime.pedestrian.requested = true;
+  const environment = runtime.pedestrian.environment;
+  if (!environment) {
+    return false;
+  }
+  if (!runtime.pedestrian.enabled) {
+    runtime.pedestrian.savedPose = captureCameraPose(
+      runtime.camera,
+      runtime.controls.target,
+    );
+    runtime.pedestrian.savedFov = runtime.camera.fov;
+    runtime.pedestrian.savedNear = runtime.camera.near;
+    runtime.pedestrian.savedUnderside = runtime.underside;
+  }
+  runtime.cancelPanGlide?.();
+  runtime.tunnelFlight = null;
+  runtime.tunnelPortalInteriorVisible = false;
+  runtime.marker.visible = false;
+  runtime.pedestrian.enabled = true;
+  runtime.pedestrian.state = createPedestrianState(environment);
+  runtime.pedestrian.cameraDirty = true;
+  runtime.controls.enabled = false;
+  runtime.camera.fov = PEDESTRIAN_FOV_DEGREES;
+  runtime.camera.near = 0.08;
+  runtime.camera.updateProjectionMatrix();
+  setModelMaterialState(runtime, false);
+  setEnvironmentalPresentation(runtime);
+  applyPedestrianCamera(runtime);
+  return true;
+}
+
+function deactivatePedestrianMode(runtime: Runtime): boolean {
+  runtime.pedestrian.requested = false;
+  if (!runtime.pedestrian.enabled) {
+    return false;
+  }
+  const savedPose = runtime.pedestrian.savedPose;
+  runtime.pedestrian.enabled = false;
+  runtime.pedestrian.state = null;
+  runtime.pedestrian.cameraDirty = false;
+  runtime.controls.enabled = true;
+  runtime.camera.fov = runtime.pedestrian.savedFov;
+  runtime.camera.near = runtime.pedestrian.savedNear;
+  runtime.camera.updateProjectionMatrix();
+  if (savedPose) {
+    runtime.camera.position.copy(savedPose.position);
+    runtime.controls.target.copy(savedPose.target);
+  }
+  setModelMaterialState(runtime, runtime.pedestrian.savedUnderside);
+  runtime.controls.update();
+  runtime.camera.updateMatrixWorld();
+  runtime.pedestrian.savedPose = null;
+  runtime.renderInvalidated = true;
+  setEnvironmentalPresentation(runtime);
+  return true;
+}
+
+function nudgePedestrian(
+  runtime: Runtime,
+  strafe: number,
+  forward: number,
+): boolean {
+  const environment = runtime.pedestrian.environment;
+  let state = runtime.pedestrian.state;
+  if (!runtime.pedestrian.enabled || !environment || !state) {
+    return false;
+  }
+  let changed = false;
+  for (let index = 0; index < 7; index += 1) {
+    const result = stepPedestrian(
+      state,
+      { forward, look: 0, strafe, turn: 0 },
+      0.05,
+      environment,
+    );
+    state = result.state;
+    changed ||= result.changed;
+    if (result.respawned) {
+      break;
+    }
+  }
+  runtime.pedestrian.state = state;
+  runtime.pedestrian.cameraDirty ||= changed;
+  if (changed) {
+    applyPedestrianCamera(runtime);
+  }
+  return changed;
+}
 
 function isTunnelPortalFocus(name: string): boolean {
   return name.includes("Tiergartentunnel") || name === "Spreebogen";
@@ -1301,8 +1450,10 @@ function setSceneLighting(
   // Both drawn worlds (prisms and voxels) use the flat isometric FOV;
   // only the photographic fallback keeps the 39° perspective.
   const targetFov =
-    runtime.focusedCameraFov ??
-    (isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES);
+    runtime.pedestrian.enabled
+      ? PEDESTRIAN_FOV_DEGREES
+      : (runtime.focusedCameraFov ??
+        (isoMode || voxelMode ? ISO_FOV_DEGREES : PHOTO_FOV_DEGREES));
   if (runtime.camera.fov !== targetFov) {
     // Dolly-zoom: pull the camera back exactly as much as the narrower
     // FOV magnifies, so the framing survives the projection change.
@@ -1410,6 +1561,15 @@ function ensureIsoWorld(
     .then(([prisms, ground, street, surfaces, rail]) => {
       if (runtime.disposed) {
         return;
+      }
+      if (ground && surfaces) {
+        runtime.pedestrian.environment = createPedestrianEnvironment(
+          ground,
+          surfaces,
+        );
+        if (runtime.pedestrian.requested) {
+          activatePedestrianMode(runtime);
+        }
       }
       runtime.isoWorld = createIsometricCity(
         prisms,
@@ -2050,10 +2210,17 @@ function notifyView(
   runtime: Runtime,
   callback: (angles: ViewAngles) => void,
 ): void {
+  const pedestrian = runtime.pedestrian.state;
   callback({
-    azimuthDegrees: MathUtils.radToDeg(runtime.controls.getAzimuthalAngle()),
-    polarDegrees: MathUtils.radToDeg(runtime.controls.getPolarAngle()),
-    underside: runtime.underside,
+    azimuthDegrees:
+      runtime.pedestrian.enabled && pedestrian
+        ? MathUtils.radToDeg(-pedestrian.yaw)
+        : MathUtils.radToDeg(runtime.controls.getAzimuthalAngle()),
+    polarDegrees:
+      runtime.pedestrian.enabled && pedestrian
+        ? 90 - MathUtils.radToDeg(pedestrian.pitch)
+        : MathUtils.radToDeg(runtime.controls.getPolarAngle()),
+    underside: runtime.pedestrian.enabled ? false : runtime.underside,
   });
 }
 
@@ -2313,11 +2480,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       canvasAriaLabel,
       lightingMode,
       nightLightsOn,
+      pedestrianMode,
       precipitationEnabled,
       progressLabel,
       sceneUrl,
       selectedLandmark,
       onError,
+      onPedestrianRespawn,
       onReady,
       onWarning,
       onViewChange,
@@ -2336,10 +2505,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     // preserves direct movement without turning key-repeat into camera jumps.
     const panInputRef = useRef(new Vector2());
     const orbitInputRef = useRef(new Vector2());
+    const pedestrianInputRef = useRef<PedestrianInput>({
+      ...PEDESTRIAN_IDLE_INPUT,
+    });
     const lightingModeRef = useRef(lightingMode);
+    const pedestrianModeRef = useRef(pedestrianMode);
     const nightLightsOnRef = useRef(nightLightsOn);
     const precipitationEnabledRef = useRef(precipitationEnabled);
     const onErrorRef = useRef(onError);
+    const onPedestrianRespawnRef = useRef(onPedestrianRespawn);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
@@ -2349,6 +2523,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useEffect(() => {
       activeRef.current = active;
     }, [active]);
+
+    useEffect(() => {
+      pedestrianModeRef.current = pedestrianMode;
+      const runtime = runtimeRef.current;
+      if (!runtime) {
+        return;
+      }
+      flightInputRef.current.set(0, 0, 0);
+      panInputRef.current.set(0, 0);
+      orbitInputRef.current.set(0, 0);
+      pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+      if (pedestrianMode) {
+        activatePedestrianMode(runtime);
+      } else {
+        deactivatePedestrianMode(runtime);
+      }
+    }, [pedestrianMode]);
 
     useEffect(() => {
       runtimeRef.current?.renderer.domElement.setAttribute(
@@ -2394,10 +2585,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
     useEffect(() => {
       onErrorRef.current = onError;
+      onPedestrianRespawnRef.current = onPedestrianRespawn;
       onReadyRef.current = onReady;
       onWarningRef.current = onWarning;
       onViewChangeRef.current = onViewChange;
-    }, [onError, onReady, onWarning, onViewChange]);
+    }, [onError, onPedestrianRespawn, onReady, onWarning, onViewChange]);
 
     const focusLandmark = (name: string, immediate = false): void => {
       const runtime = runtimeRef.current;
@@ -2584,6 +2776,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          if (runtime.pedestrian.enabled) {
+            nudgePedestrian(
+              runtime,
+              MathUtils.clamp(horizontal, -1, 1),
+              MathUtils.clamp(vertical, -1, 1),
+            );
+            notifyView(runtime, onViewChangeRef.current);
+            return;
+          }
           markSurfaceInteraction(runtime);
           flyCameraInViewPlane(
             runtime.camera,
@@ -2597,6 +2798,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         flyForwardBy: (strafe, forward) => {
           const runtime = runtimeRef.current;
           if (!runtime) {
+            return;
+          }
+          if (runtime.pedestrian.enabled) {
+            nudgePedestrian(runtime, strafe, forward);
+            notifyView(runtime, onViewChangeRef.current);
             return;
           }
           markSurfaceInteraction(runtime);
@@ -2615,6 +2821,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          if (runtime.pedestrian.enabled && runtime.pedestrian.environment) {
+            runtime.pedestrian.state = createPedestrianState(
+              runtime.pedestrian.environment,
+            );
+            runtime.pedestrian.cameraDirty = true;
+            applyPedestrianCamera(runtime);
+            notifyView(runtime, onViewChangeRef.current);
+            return;
+          }
           markSurfaceInteraction(runtime);
           runtime.controls.target.copy(DEFAULT_TARGET);
           runtime.camera.position
@@ -2629,6 +2844,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          if (runtime.pedestrian.enabled && runtime.pedestrian.state) {
+            runtime.pedestrian.state = lookPedestrian(
+              runtime.pedestrian.state,
+              MathUtils.degToRad(degrees),
+              0,
+            );
+            runtime.pedestrian.cameraDirty = true;
+            applyPedestrianCamera(runtime);
+            notifyView(runtime, onViewChangeRef.current);
+            return;
+          }
           markSurfaceInteraction(runtime);
           setOrbitAngles(runtime, {
             azimuth:
@@ -2639,6 +2865,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         setFlightInput: (strafe, forward, vertical) => {
           const runtime = runtimeRef.current;
+          if (runtime?.pedestrian.enabled) {
+            pedestrianInputRef.current = {
+              ...pedestrianInputRef.current,
+              forward: MathUtils.clamp(forward, -1, 1),
+              strafe: MathUtils.clamp(strafe, -1, 1),
+            };
+            flightInputRef.current.set(0, 0, 0);
+            if (Math.abs(strafe) > 1e-6 || Math.abs(forward) > 1e-6) {
+              markSurfaceInteraction(runtime, 220);
+            }
+            return;
+          }
           if (
             runtime &&
             (Math.abs(strafe) > 1e-6 ||
@@ -2655,6 +2893,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         setOrbitInput: (horizontal, vertical) => {
           const runtime = runtimeRef.current;
+          if (runtime?.pedestrian.enabled) {
+            pedestrianInputRef.current = {
+              ...pedestrianInputRef.current,
+              look: MathUtils.clamp(vertical, -1, 1),
+              turn: MathUtils.clamp(horizontal, -1, 1),
+            };
+            orbitInputRef.current.set(0, 0);
+            if (Math.abs(horizontal) > 1e-6 || Math.abs(vertical) > 1e-6) {
+              markSurfaceInteraction(runtime, 220);
+            }
+            return;
+          }
           if (
             runtime &&
             (Math.abs(horizontal) > 1e-6 || Math.abs(vertical) > 1e-6)
@@ -2668,6 +2918,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         setPanInput: (horizontal, vertical) => {
           const runtime = runtimeRef.current;
+          if (runtime?.pedestrian.enabled) {
+            panInputRef.current.set(0, 0);
+            return;
+          }
           if (
             runtime &&
             (Math.abs(horizontal) > 1e-6 || Math.abs(vertical) > 1e-6)
@@ -2684,14 +2938,46 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          if (runtime.pedestrian.enabled && runtime.pedestrian.state) {
+            runtime.pedestrian.state = setPedestrianYaw(
+              runtime.pedestrian.state,
+              -MathUtils.degToRad(degrees),
+            );
+            runtime.pedestrian.cameraDirty = true;
+            applyPedestrianCamera(runtime);
+            notifyView(runtime, onViewChangeRef.current);
+            return;
+          }
           markSurfaceInteraction(runtime);
           setOrbitAngles(runtime, { azimuth: MathUtils.degToRad(degrees) });
           notifyView(runtime, onViewChangeRef.current);
+        },
+        setPedestrianMode: (enabled) => {
+          const runtime = runtimeRef.current;
+          pedestrianModeRef.current = enabled;
+          flightInputRef.current.set(0, 0, 0);
+          panInputRef.current.set(0, 0);
+          orbitInputRef.current.set(0, 0);
+          pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+          if (!runtime) {
+            return false;
+          }
+          const changed = enabled
+            ? activatePedestrianMode(runtime)
+            : deactivatePedestrianMode(runtime);
+          if (changed) {
+            notifyView(runtime, onViewChangeRef.current);
+          }
+          return changed;
         },
         setUnderside: (enabled) => {
           const runtime = runtimeRef.current;
           if (!runtime) {
             return;
+          }
+          if (runtime.pedestrian.enabled) {
+            deactivatePedestrianMode(runtime);
+            pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
           }
           markSurfaceInteraction(runtime);
           setModelMaterialState(runtime, enabled);
@@ -2725,6 +3011,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime?.tunnelPoints || runtime.tunnelPoints.length < 2) {
             return false;
           }
+          if (runtime.pedestrian.enabled) {
+            deactivatePedestrianMode(runtime);
+            pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+          }
           runtime.cancelPanGlide?.();
           flightInputRef.current.set(0, 0, 0);
           panInputRef.current.set(0, 0);
@@ -2756,6 +3046,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          if (runtime.pedestrian.enabled && runtime.pedestrian.state) {
+            runtime.pedestrian.state = lookPedestrian(
+              runtime.pedestrian.state,
+              0,
+              -MathUtils.degToRad(degrees),
+            );
+            runtime.pedestrian.cameraDirty = true;
+            applyPedestrianCamera(runtime);
+            notifyView(runtime, onViewChangeRef.current);
+            return;
+          }
           markSurfaceInteraction(runtime);
           const polar = MathUtils.clamp(
             runtime.controls.getPolarAngle() + MathUtils.degToRad(degrees),
@@ -2769,7 +3070,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         zoomBy: (factor) => {
           const runtime = runtimeRef.current;
-          if (!runtime) {
+          if (!runtime || runtime.pedestrian.enabled) {
             return;
           }
           markSurfaceInteraction(runtime);
@@ -2783,6 +3084,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.camera.position.copy(runtime.controls.target).add(offset);
           runtime.controls.update();
+        },
+        jumpPedestrian: () => {
+          const runtime = runtimeRef.current;
+          const state = runtime?.pedestrian.state;
+          if (!runtime?.pedestrian.enabled || !state) {
+            return false;
+          }
+          const next = jumpPedestrian(state);
+          if (next === state) {
+            return false;
+          }
+          runtime.pedestrian.state = next;
+          runtime.pedestrian.cameraDirty = true;
+          markSurfaceInteraction(runtime, 220);
+          return true;
         },
       }),
       [progress.total],
@@ -2995,6 +3311,17 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         modelMaterials: new Set(),
         monuments,
         parkDetails,
+        pedestrian: {
+          cameraDirty: false,
+          enabled: false,
+          environment: null,
+          requested: pedestrianModeRef.current,
+          savedFov: camera.fov,
+          savedNear: camera.near,
+          savedPose: null,
+          savedUnderside: false,
+          state: null,
+        },
         presentationReady: false,
         notifyPresentationReady: () => {
           if (disposed) {
@@ -3077,6 +3404,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let controlsInteracting = false;
       let touchInteracting = false;
       let lastTouchActivityAt = performance.now();
+      let pedestrianLookPointer: {
+        id: number;
+        x: number;
+        y: number;
+      } | null = null;
       let lastSafeCameraPose = captureCameraPose(camera, controls.target);
       let appliedWidth = 0;
       let appliedHeight = 0;
@@ -3160,6 +3492,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
       let wheelEndTimer: number | null = null;
       const onWheelNavigation = (event: WheelEvent): void => {
+        if (runtime.pedestrian.enabled) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
         const now = performance.now();
         const intent = wheelNavigationIntent(
           event,
@@ -3206,6 +3543,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onPointerDown = (event: PointerEvent) => {
         panMomentum.x = 0;
         panMomentum.y = 0;
+        if (runtime.pedestrian.enabled) {
+          if (
+            pedestrianLookPointer ||
+            (event.pointerType !== "touch" && event.button !== 0)
+          ) {
+            return;
+          }
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          renderer.domElement.focus({ preventScroll: true });
+          renderer.domElement.setPointerCapture?.(event.pointerId);
+          pedestrianLookPointer = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+          };
+          controlsInteracting = true;
+          touchInteracting = event.pointerType === "touch";
+          markSurfaceInteraction(runtime);
+          return;
+        }
         if (event.pointerType === "touch" && touchPoints.size === 0) {
           const now = performance.now();
           if (
@@ -3264,6 +3622,28 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const onPointerMove = (event: PointerEvent) => {
+        if (
+          runtime.pedestrian.enabled &&
+          pedestrianLookPointer?.id === event.pointerId &&
+          runtime.pedestrian.state
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const deltaX = event.clientX - pedestrianLookPointer.x;
+          const deltaY = event.clientY - pedestrianLookPointer.y;
+          pedestrianLookPointer.x = event.clientX;
+          pedestrianLookPointer.y = event.clientY;
+          if (deltaX !== 0 || deltaY !== 0) {
+            runtime.pedestrian.state = lookPedestrian(
+              runtime.pedestrian.state,
+              deltaX * 0.0034,
+              -deltaY * 0.0031,
+            );
+            runtime.pedestrian.cameraDirty = true;
+            markSurfaceInteraction(runtime, 220);
+          }
+          return;
+        }
         if (!touchPoints.has(event.pointerId)) {
           return;
         }
@@ -3363,6 +3743,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         previousThreeFingerCenter = center;
       };
       const onPointerUp = (event: PointerEvent) => {
+        if (pedestrianLookPointer?.id === event.pointerId) {
+          pedestrianLookPointer = null;
+          controlsInteracting = false;
+          touchInteracting = false;
+          if (renderer.domElement.hasPointerCapture?.(event.pointerId)) {
+            renderer.domElement.releasePointerCapture?.(event.pointerId);
+          }
+          notifyView(runtime, onViewChangeRef.current);
+          return;
+        }
         if (!touchPoints.has(event.pointerId)) {
           return;
         }
@@ -3406,12 +3796,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (panMomentum.x === 0 && panMomentum.y === 0) {
             touchInteracting = false;
           }
-          controls.enabled = true;
+          controls.enabled = !runtime.pedestrian.enabled;
           notifyView(runtime, onViewChangeRef.current);
           return;
         }
         if (touchPoints.size < 3) {
-          controls.enabled = true;
+          controls.enabled = !runtime.pedestrian.enabled;
           notifyView(runtime, onViewChangeRef.current);
         }
       };
@@ -3439,7 +3829,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         touchInteracting = false;
         panMomentum.x = 0;
         panMomentum.y = 0;
-        controls.enabled = true;
+        pedestrianLookPointer = null;
+        controls.enabled = !runtime.pedestrian.enabled;
         notifyView(runtime, onViewChangeRef.current);
       };
       const onVisibilityChange = () => {
@@ -3448,7 +3839,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const onDoubleClick = (event: MouseEvent) => {
-        if (event.button !== 0) {
+        if (event.button !== 0 || runtime.pedestrian.enabled) {
           return;
         }
         event.preventDefault();
@@ -3517,6 +3908,42 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let wasFlying = false;
       let wasPanning = false;
       let wasOrbiting = false;
+      let wasWalking = false;
+      const applyContinuousPedestrian = (dtSeconds: number): boolean => {
+        const pedestrian = runtime.pedestrian;
+        const environment = pedestrian.environment;
+        const state = pedestrian.state;
+        if (!pedestrian.enabled || !environment || !state) {
+          if (wasWalking) {
+            wasWalking = false;
+            notifyView(runtime, onViewChangeRef.current);
+          }
+          return false;
+        }
+        const input = pedestrianInputRef.current;
+        const inputActive =
+          Math.abs(input.forward) > 1e-6 ||
+          Math.abs(input.strafe) > 1e-6 ||
+          Math.abs(input.turn) > 1e-6 ||
+          Math.abs(input.look) > 1e-6;
+        const result = stepPedestrian(state, input, dtSeconds, environment);
+        pedestrian.state = result.state;
+        if (result.respawned) {
+          onPedestrianRespawnRef.current();
+        }
+        const changed = result.changed || pedestrian.cameraDirty;
+        if (changed) {
+          applyPedestrianCamera(runtime);
+          markSurfaceInteraction(runtime, 220);
+        }
+        if (inputActive || !result.state.grounded) {
+          wasWalking = true;
+        } else if (wasWalking) {
+          wasWalking = false;
+          notifyView(runtime, onViewChangeRef.current);
+        }
+        return changed;
+      };
       const applyContinuousFlight = (dtSeconds: number): boolean => {
         const input = flightInputRef.current;
         if (input.lengthSq() < 1e-6) {
@@ -3663,6 +4090,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         );
         lastAnimateAt = timestamp;
         if (
+          !runtime.pedestrian.enabled &&
           !controls.enabled &&
           (!customTouchGestureActive ||
             touchPoints.size < 2 ||
@@ -3670,11 +4098,24 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ) {
           resetTouchGesture();
         }
-        const guidedFlying = applyGuidedTunnelFlight(timestamp);
-        const panning = guidedFlying ? false : applyContinuousPan(dtSeconds);
-        const orbiting = guidedFlying ? false : applyContinuousOrbit(dtSeconds);
-        const flying = guidedFlying || applyContinuousFlight(dtSeconds);
-        const controlsChanged = controls.update();
+        const pedestrianMoving = applyContinuousPedestrian(dtSeconds);
+        const guidedFlying = runtime.pedestrian.enabled
+          ? false
+          : applyGuidedTunnelFlight(timestamp);
+        const panning =
+          guidedFlying || runtime.pedestrian.enabled
+            ? false
+            : applyContinuousPan(dtSeconds);
+        const orbiting =
+          guidedFlying || runtime.pedestrian.enabled
+            ? false
+            : applyContinuousOrbit(dtSeconds);
+        const flying =
+          !runtime.pedestrian.enabled &&
+          (guidedFlying || applyContinuousFlight(dtSeconds));
+        const controlsChanged = runtime.pedestrian.enabled
+          ? false
+          : controls.update();
         const directInputActive = renderInteractionActive({
           controls: controlsInteracting,
           touch: touchInteracting,
@@ -3683,14 +4124,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // after the trackpad had stopped and reopened the shimmer window.
           wheel: false,
         });
-        const stabilized = stabilizeCameraRig(
-          camera,
-          controls.target,
-          lastSafeCameraPose,
-          controls.minDistance,
-          controls.maxDistance,
-        );
-        lastSafeCameraPose = stabilized.pose;
+        const stabilized = runtime.pedestrian.enabled
+          ? { changed: false, pose: lastSafeCameraPose, recovered: false }
+          : stabilizeCameraRig(
+              camera,
+              controls.target,
+              lastSafeCameraPose,
+              controls.minDistance,
+              controls.maxDistance,
+            );
+        if (!runtime.pedestrian.enabled) {
+          lastSafeCameraPose = stabilized.pose;
+        }
         if (stabilized.recovered) {
           resetTouchGesture();
         }
@@ -3706,6 +4151,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           flying ||
           panning ||
           orbiting ||
+          pedestrianMoving ||
           directInputActive ||
           controlsChanged ||
           stabilized.changed;
@@ -3748,10 +4194,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // The cutaway also engages when the camera itself flies into the
         // Tiergartentunnel tube, not only when orbiting below the horizon.
         const physicallyInsideTunnel =
+          !runtime.pedestrian.enabled &&
           runtime.tunnelBounds !== null &&
           runtime.tunnelBounds.containsPoint(camera.position);
         const framedPortal = runtime.tunnelPortalInteriorVisible;
         const underside =
+          !runtime.pedestrian.enabled &&
           !framedPortal &&
           (controls.getPolarAngle() > Math.PI / 2 || physicallyInsideTunnel);
         if (underside !== runtime.underside) {
@@ -3785,6 +4233,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         // Momentum glide: the released pan eases out smoothly.
         if (
+          !runtime.pedestrian.enabled &&
           (panMomentum.x !== 0 || panMomentum.y !== 0) &&
           touchPoints.size === 0
         ) {
@@ -4312,7 +4761,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onContextLost,
         );
         window.removeEventListener("pointerup", onPointerUp, true);
-        window.removeEventListener("pointercancel", onPointerUp, true);
+        window.removeEventListener("pointercancel", onPointerCancel, true);
         window.removeEventListener("blur", resetTouchGesture);
         document.removeEventListener("visibilitychange", onVisibilityChange);
         controls.removeEventListener("start", onControlsStart);
@@ -4327,6 +4776,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         flightInputRef.current.set(0, 0, 0);
         panInputRef.current.set(0, 0);
         orbitInputRef.current.set(0, 0);
+        pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
         setMinecraftMaterialPresentation(
           scene,
           runtime.minecraftMaterialState,

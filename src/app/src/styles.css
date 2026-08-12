@@ -630,6 +630,39 @@ button:active:not(:disabled) {
   display: none;
 }
 
+.pedestrian-jump-button {
+  position: fixed;
+  z-index: 22;
+  right: 18px;
+  bottom: 82px;
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid rgba(245, 239, 228, 0.38);
+  border-radius: 50%;
+  color: #241f1a;
+  background: rgba(224, 174, 105, 0.94);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pedestrian-jump-button:hover,
+.pedestrian-jump-button:focus-visible {
+  background: #f0c982;
+  outline: 2px solid rgba(245, 239, 228, 0.96);
+  outline-offset: 2px;
+}
+
+.app-shell--pedestrian .three-canvas {
+  cursor: grab;
+}
+
+.app-shell--pedestrian .three-canvas:active {
+  cursor: grabbing;
+}
+
 .orbit-joystick-wrap {
   position: absolute;
   z-index: 18;

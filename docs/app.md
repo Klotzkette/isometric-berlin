@@ -38,7 +38,7 @@ The viewer has a built-in help panel (the keyboard button in the top
 toolbar, or press `?`) listing the shortcuts: `PageUp`/`PageDown`
 previous/next sight, `Space` start/pause the tour, `+`/`=`/`−` zoom,
 `Home`/`0` overview, `D` switch Day/Night, `M` toggle Minecraft, `S` toggle
-Snowstorm, `N` toggle night lights, `F` fullscreen, `R` reset, `B` ambient
+Snowstorm, `P` toggle pedestrian mode, `N` toggle night lights, `F` fullscreen, `R` reset, `B` ambient
 music, `T` Dusk Republic, `[`/`]` tunnel flight in either direction, `L` copy
 a view link, and `Esc` close overlays. `Alt`/`Option` plus arrows remains a
 viewer chord and is deliberately exempt from the browser-shortcut guard.
@@ -59,6 +59,17 @@ Arrow keys translate camera and target together in the visible screen plane.
 heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 bracket keys start a guided flight through the appropriate traffic tube of the
 approximate Tiergartentunnel route; any manual navigation cancels it cleanly.
+
+Pedestrian mode is an independent navigation layer over all four visual modes.
+It starts on Pariser Platz facing the Brandenburg Gate, keeps the camera at a
+1.80 m eye height above the existing smooth metric terrain, and disables
+flight, zoom, underside and guided tunnel controls. `W`/`S` or up/down walk,
+`A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
+the head with an 80-degree vertical limit. `Space` and the touch-safe jump
+button produce a single ground-only jump with a 5.4 m apex; there is no double
+jump. Entering a mapped OSM water polygon after landing respawns at Pariser
+Platz. Islands encoded as water holes remain walkable. The mode neither moves
+source geometry nor invents collision envelopes for buildings.
 
 **Continuous navigation:** held plain arrows pan in screen space; held
 `Shift`+arrows fly along the current heading; held `Alt`/`Option`+arrows orbit
