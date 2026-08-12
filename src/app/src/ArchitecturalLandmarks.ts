@@ -3859,65 +3859,299 @@ function addStationHallEntranceFacade(
 function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
   const pylonX = -51;
   const pylonZ = washingtonFacadeZ - 7.4;
-  const pylonHeight = 34;
-  const frame = modelMaterial(0x657278, { metalness: 0.55, roughness: 0.42 });
-  const screen = modelMaterial(0xaeb9b9, { metalness: 0.32, roughness: 0.58 });
-  const body = addBox(
-    group,
-    "Hauptbahnhof Washingtonplatz DB pylon",
-    [4.8, pylonHeight, 3.2],
-    [pylonX, pylonHeight / 2, pylonZ],
-    screen,
-    0.78,
+  const pylonHeight = HAUPTBAHNHOF_DB_PYLON_PROFILE.heightM;
+  const frame = modelMaterial(0x445257, { metalness: 0.62, roughness: 0.36 });
+  const screen = modelMaterial(0x819093, {
+    metalness: 0.3,
+    roughness: 0.5,
+  });
+  const faceWidth = HAUPTBAHNHOF_DB_PYLON_PROFILE.faceWidthM;
+  const triangleRadius = faceWidth / Math.sqrt(3);
+  const triangleVertices = Array.from({ length: 3 }, (_, index) => {
+    const angle = Math.PI / 2 + index * ((Math.PI * 2) / 3);
+    return [
+      pylonX + Math.cos(angle) * triangleRadius,
+      pylonZ + Math.sin(angle) * triangleRadius,
+    ] as const;
+  });
+  const wallVertexPairs = [
+    [1, 2],
+    [2, 0],
+    [0, 1],
+  ] as const;
+  const transomTransforms: InstanceTransform[] = [];
+  const tensionSegments: VectorSegment[] = [];
+  const wallSpecs = wallVertexPairs.map(([startIndex, endIndex]) => {
+    const start = triangleVertices[startIndex];
+    const end = triangleVertices[endIndex];
+    const dx = end[0] - start[0];
+    const dz = end[1] - start[1];
+    const length = Math.hypot(dx, dz);
+    const centerX = (start[0] + end[0]) / 2;
+    const centerZ = (start[1] + end[1]) / 2;
+    const centreDistance = Math.hypot(centerX - pylonX, centerZ - pylonZ);
+    return {
+      centerX,
+      centerZ,
+      end,
+      outwardX: (centerX - pylonX) / centreDistance,
+      outwardZ: (centerZ - pylonZ) / centreDistance,
+      rotationY: Math.atan2(-dz, dx),
+      start,
+    };
+  });
+  const columnTransforms: InstanceTransform[] = triangleVertices.map(
+    ([x, z]) => ({ position: [x, pylonHeight / 2, z] }),
   );
-  body.userData.geometryStatus =
-    "photo-referenced Washingtonplatz station pylon";
-  const pylonGrid: VectorSegment[] = [];
-  for (let y = 3.2; y < pylonHeight - 4; y += 3.15) {
-    pylonGrid.push([
-      [pylonX - 2.42, y, pylonZ - 1.62],
-      [pylonX + 2.42, y, pylonZ - 1.62],
-    ]);
+  for (const wall of wallSpecs) {
+    const wallMesh = new Mesh(
+      new BoxGeometry(
+        faceWidth,
+        pylonHeight,
+        HAUPTBAHNHOF_DB_PYLON_PROFILE.wallThicknessM,
+      ),
+      screen,
+    );
+    wallMesh.name = "Hauptbahnhof Washingtonplatz DB pylon";
+    wallMesh.position.set(wall.centerX, pylonHeight / 2, wall.centerZ);
+    wallMesh.rotation.y = wall.rotationY;
+    wallMesh.castShadow = true;
+    wallMesh.receiveShadow = true;
+    wallMesh.userData.geometryStatus =
+      "official 60 m three-wall steel vent stack with translucent infill";
+    wallMesh.userData.sourceUrl = HAUPTBAHNHOF_DB_PYLON_PROFILE.sourceUrl;
+    group.add(wallMesh);
+    addEdges(group, wallMesh, 0.82);
+
+    for (const fraction of [1 / 3, 2 / 3]) {
+      columnTransforms.push({
+        position: [
+          wall.start[0] + (wall.end[0] - wall.start[0]) * fraction,
+          pylonHeight / 2,
+          wall.start[1] + (wall.end[1] - wall.start[1]) * fraction,
+        ],
+      });
+    }
+    for (let y = 3.05; y < pylonHeight - 1.2; y += 3.15) {
+      transomTransforms.push({
+        position: [wall.centerX, y, wall.centerZ],
+        rotation: [0, wall.rotationY, 0],
+      });
+      const outset = 0.13;
+      for (let field = 0; field < 3; field += 1) {
+        const from = field / 3 + 0.015;
+        const to = (field + 1) / 3 - 0.015;
+        const left: [number, number] = [
+          wall.start[0] + (wall.end[0] - wall.start[0]) * from,
+          wall.start[1] + (wall.end[1] - wall.start[1]) * from,
+        ];
+        const right: [number, number] = [
+          wall.start[0] + (wall.end[0] - wall.start[0]) * to,
+          wall.start[1] + (wall.end[1] - wall.start[1]) * to,
+        ];
+        tensionSegments.push(
+          [
+            [
+              left[0] + wall.outwardX * outset,
+              y - 1.48,
+              left[1] + wall.outwardZ * outset,
+            ],
+            [
+              right[0] + wall.outwardX * outset,
+              y + 1.48,
+              right[1] + wall.outwardZ * outset,
+            ],
+          ],
+          [
+            [
+              right[0] + wall.outwardX * outset,
+              y - 1.48,
+              right[1] + wall.outwardZ * outset,
+            ],
+            [
+              left[0] + wall.outwardX * outset,
+              y + 1.48,
+              left[1] + wall.outwardZ * outset,
+            ],
+          ],
+        );
+      }
+    }
   }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced DB pylon vertical wall frames",
+    [0.22, pylonHeight + 0.35, 0.22],
+    frame,
+    columnTransforms,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced DB pylon horizontal wall frames",
+    [faceWidth + 0.2, 0.18, 0.18],
+    frame,
+    transomTransforms,
+  );
   addVectorSegments(
     group,
-    "Hauptbahnhof DB pylon facade grid",
-    pylonGrid,
-    0x4e5e63,
-    0.72,
+    "Hauptbahnhof DB pylon cross tension rods",
+    tensionSegments,
+    0x536166,
+    0.76,
   );
-  for (const zSide of [-1, 1]) {
+
+  const badgeWidth = 4.25;
+  const badgeHeight = 2.75;
+  const badgeY = pylonHeight - 7.2;
+  const badgeBacking = modelMaterial(0xfff8e7, {
+    metalness: 0.04,
+    roughness: 0.5,
+  });
+  const badgeFrame = modelMaterial(0xd51f2a, {
+    metalness: 0.08,
+    roughness: 0.42,
+  });
+  for (const wall of wallSpecs) {
+    const tangentX = Math.cos(wall.rotationY);
+    const tangentZ = -Math.sin(wall.rotationY);
+    const badgeNormalX = wall.outwardX;
+    const badgeNormalZ = wall.outwardZ;
+    const badgeRotationY = wall.rotationY + Math.PI;
+    const backingOutset = 0.25;
+    const panelOutset = 0.5;
+    const badgeX = wall.centerX + badgeNormalX * panelOutset;
+    const badgeZ = wall.centerZ + badgeNormalZ * panelOutset;
+    const backing = addBox(
+      group,
+      "Hauptbahnhof DB pylon badge ivory backing",
+      [badgeWidth + 0.34, badgeHeight + 0.34, 0.2],
+      [
+        wall.centerX + badgeNormalX * backingOutset,
+        badgeY,
+        wall.centerZ + badgeNormalZ * backingOutset,
+      ],
+      badgeBacking,
+    );
+    backing.rotation.y = badgeRotationY;
+    addEdges(group, backing, 0.72);
     addStationLetteringPanel(
       group,
       "Hauptbahnhof Washingtonplatz pylon DB badge",
       "DB",
-      4.1,
-      2.55,
-      [pylonX, pylonHeight - 4.5, pylonZ + zSide * 1.64],
-      "#cf2f2f",
-      "#ffffff",
+      badgeWidth,
+      badgeHeight,
+      [badgeX, badgeY, badgeZ],
+      "#fff8e7",
+      "#d51f2a",
+      badgeRotationY,
     );
+    for (const [name, size, offset] of [
+      ["top", [badgeWidth + 0.2, 0.16, 0.1], [0, badgeHeight / 2 + 0.04, 0]],
+      [
+        "bottom",
+        [badgeWidth + 0.2, 0.16, 0.1],
+        [0, -badgeHeight / 2 - 0.04, 0],
+      ],
+      ["left", [0.16, badgeHeight + 0.2, 0.1], [-badgeWidth / 2 - 0.04, 0, 0]],
+      ["right", [0.16, badgeHeight + 0.2, 0.1], [badgeWidth / 2 + 0.04, 0, 0]],
+    ] as const) {
+      const framePiece = addBox(
+        group,
+        `Hauptbahnhof DB pylon badge ${name} red frame`,
+        [...size],
+        [
+          badgeX + tangentX * offset[0] + badgeNormalX * 0.055,
+          badgeY + offset[1],
+          badgeZ + tangentZ * offset[0] + badgeNormalZ * 0.055,
+        ],
+        badgeFrame,
+      );
+      framePiece.rotation.y = badgeRotationY;
+    }
   }
-  for (const xSide of [-1, 1]) {
-    addStationLetteringPanel(
-      group,
-      "Hauptbahnhof Washingtonplatz pylon DB badge",
-      "DB",
-      2.65,
-      2.55,
-      [pylonX + xSide * 2.42, pylonHeight - 4.5, pylonZ],
-      "#cf2f2f",
-      "#ffffff",
-      Math.PI / 2,
-    );
-  }
+
+  const plinth = HAUPTBAHNHOF_DB_PYLON_PROFILE;
+  const plinthZ = pylonZ - 1.65;
+  const plinthMaterial = modelMaterial(0xc8cdca, {
+    metalness: 0.48,
+    roughness: 0.44,
+  });
   addBox(
     group,
-    "Hauptbahnhof DB pylon crown frame",
-    [5.3, 0.38, 3.7],
-    [pylonX, pylonHeight + 0.18, pylonZ],
-    frame,
+    "Hauptbahnhof DB pylon perforated service plinth",
+    [
+      plinth.servicePlinthWidthM,
+      plinth.servicePlinthHeightM,
+      plinth.servicePlinthDepthM,
+    ],
+    [pylonX, plinth.servicePlinthHeightM / 2, plinthZ],
+    plinthMaterial,
+    0.74,
   );
+  const perforationTransforms: InstanceTransform[] = [];
+  const plinthFrontZ = plinthZ - plinth.servicePlinthDepthM / 2 - 0.045;
+  for (let row = 0; row < 9; row += 1) {
+    const y = 1.05 + row * 0.58;
+    for (let column = 0; column < 15; column += 1) {
+      perforationTransforms.push({
+        position: [pylonX - 3.92 + column * 0.56, y, plinthFrontZ],
+      });
+    }
+    for (const xSide of [-1, 1]) {
+      for (let column = 0; column < 7; column += 1) {
+        perforationTransforms.push({
+          position: [
+            pylonX + xSide * (plinth.servicePlinthWidthM / 2 + 0.045),
+            y,
+            plinthZ - 2.28 + column * 0.76,
+          ],
+          rotation: [0, Math.PI / 2, 0],
+        });
+      }
+    }
+  }
+  addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced DB pylon perforations",
+    new CircleGeometry(0.105, 10),
+    modelMaterial(0x485357, { metalness: 0.18, roughness: 0.68 }),
+    perforationTransforms,
+  );
+  addBox(
+    group,
+    "Hauptbahnhof DB pylon service hatch",
+    [1.15, 1.35, 0.09],
+    [pylonX + 2.78, 0.68, plinthFrontZ - 0.055],
+    modelMaterial(0x444d4f, { metalness: 0.32, roughness: 0.58 }),
+    0.58,
+  );
+
+  const antennaSegments: VectorSegment[] = [
+    [
+      [pylonX - 2.2, pylonHeight + 0.1, pylonZ],
+      [pylonX - 2.2, pylonHeight + 2.55, pylonZ],
+    ],
+    [
+      [pylonX + 2.1, pylonHeight + 0.1, pylonZ],
+      [pylonX + 2.1, pylonHeight + 2.15, pylonZ],
+    ],
+    [
+      [pylonX - 2.2, pylonHeight + 2.4, pylonZ],
+      [pylonX - 1.1, pylonHeight + 2.1, pylonZ],
+    ],
+    [
+      [pylonX + 2.1, pylonHeight + 2.0, pylonZ],
+      [pylonX + 3.0, pylonHeight + 1.72, pylonZ],
+    ],
+  ];
+  addVectorSegments(
+    group,
+    "Hauptbahnhof DB pylon antenna crown",
+    antennaSegments,
+    0x3f4a4e,
+    0.86,
+  );
+  group.userData.dbPylon = HAUPTBAHNHOF_DB_PYLON_PROFILE;
 }
 
 function addStationPhotovoltaics(
@@ -4222,6 +4456,31 @@ export const HAUPTBAHNHOF_ANCHOR_WORLD: readonly [number, number] = [
 // by tests that must convert a world-space rail-lines.json point into
 // this model's local (unrotated) frame to check the curvature contract.
 export const HAUPTBAHNHOF_ROTATION_Y_DEGREES = 21.82;
+
+/**
+ * Official dimensions and photo-bounded detail profile for the 60 m
+ * Washingtonplatz ventilation stack. The station position remains tied to the
+ * Hauptbahnhof signature; the perforated service plinth, DB signs and antenna
+ * crown are recognition geometry derived from the owner's August 2026 photos.
+ */
+export const HAUPTBAHNHOF_DB_PYLON_PROFILE = {
+  badgeCount: 3,
+  baseAreaM2: 30,
+  faceWidthM: 8.2,
+  frameFieldsPerWall: 3,
+  heightM: 60,
+  logoSourceUrl:
+    "https://www.deutschebahn.com/resource/blob/6845784/b1aa1e1f1fd5f07e56767f62b1e2a541/TD-Hbf-Berlin-data.pdf",
+  perforationCount: 261,
+  servicePlinthDepthM: 5.8,
+  servicePlinthHeightM: 6.4,
+  servicePlinthWidthM: 9.2,
+  sourceUrl:
+    "https://www.sbp.de/en/project/berlin-main-train-station-vent-stack/",
+  wallCount: 3,
+  wallRotationDegrees: 60,
+  wallThicknessM: 0.2,
+} as const;
 
 /**
  * Places the stationary ICE on a real rail centreline instead of the

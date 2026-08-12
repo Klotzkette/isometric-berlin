@@ -13,6 +13,7 @@ import {
   type ReichstagModelSignature,
   createArchitecturalSignature,
   focusCameraForSignature,
+  HAUPTBAHNHOF_DB_PYLON_PROFILE,
   REICHSTAG_COURTYARDS,
   REICHSTAG_COURTYARD_DEPTH_M,
   REICHSTAG_FLAG_HEIGHT_M,
@@ -132,17 +133,22 @@ describe("metre-scale architectural recognition models", () => {
     expect(bounds.max.x - bounds.min.x).toBeGreaterThanOrEqual(321);
     expect(bounds.max.z - bounds.min.z).toBeGreaterThanOrEqual(180);
     expect(bounds.max.y).toBeGreaterThanOrEqual(46);
-    expect(bounds.max.y).toBeLessThan(47);
+    expect(bounds.max.y).toBeCloseTo(
+      HAUPTBAHNHOF_DB_PYLON_PROFILE.heightM + 2.55,
+      3,
+    );
+    const officeBridges = station!.children.filter(
+      (child) => child.name === "Hauptbahnhof 46 m office bridge",
+    );
+    for (const bridge of officeBridges) {
+      expect(new Box3().setFromObject(bridge).max.y).toBeLessThan(47);
+    }
     expect(
       station!.children.some((child) =>
         child.name.includes("east-west glass roof"),
       ),
     ).toBe(true);
-    expect(
-      station!.children.filter(
-        (child) => child.name === "Hauptbahnhof 46 m office bridge",
-      ),
-    ).toHaveLength(2);
+    expect(officeBridges).toHaveLength(2);
     // v0.56: the elevated deck, ballast, rails, sleepers and platforms are
     // now built from many short straight sub-segments that each follow
     // the real rail curve (railCurveOffset) instead of one long straight

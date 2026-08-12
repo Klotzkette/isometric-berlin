@@ -11,6 +11,7 @@ import {
 
 import {
   createArchitecturalSignature,
+  HAUPTBAHNHOF_DB_PYLON_PROFILE,
   type HauptbahnhofModelSignature,
 } from "../src/ArchitecturalLandmarks";
 
@@ -126,10 +127,53 @@ describe("Hauptbahnhof facade makeover", () => {
     ).toBeInstanceOf(Mesh);
     expect(
       root.children.filter(
-        (child) =>
-          child.name === "Hauptbahnhof Washingtonplatz pylon DB badge",
+        (child) => child.name === "Hauptbahnhof Washingtonplatz DB pylon",
       ),
-    ).toHaveLength(4);
+    ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.wallCount);
+    const pylonBounds = new Box3().setFromObject(
+      root.getObjectByName("Hauptbahnhof Washingtonplatz DB pylon")!,
+    );
+    expect(pylonBounds.max.y).toBeCloseTo(
+      HAUPTBAHNHOF_DB_PYLON_PROFILE.heightM,
+      4,
+    );
+    expect(
+      root.children.filter(
+        (child) => child.name === "Hauptbahnhof Washingtonplatz pylon DB badge",
+      ),
+    ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount);
+    expect(
+      root.children.filter(
+        (child) =>
+          child.name === "Hauptbahnhof DB pylon badge ivory backing",
+      ),
+    ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount);
+    expect(
+      root.getObjectByName("Hauptbahnhof DB pylon perforated service plinth"),
+    ).toBeInstanceOf(Mesh);
+    expect(
+      root.children.filter(
+        (child) =>
+          child.name.startsWith("Hauptbahnhof DB pylon badge") &&
+          child.name.endsWith("red frame"),
+      ),
+    ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount * 4);
+    const perforations = root.getObjectByName(
+      "Hauptbahnhof instanced DB pylon perforations",
+    );
+    expect(perforations).toBeInstanceOf(InstancedMesh);
+    expect((perforations as InstancedMesh).count).toBe(
+      HAUPTBAHNHOF_DB_PYLON_PROFILE.perforationCount,
+    );
+    expect(
+      root.getObjectByName("Hauptbahnhof DB pylon antenna crown"),
+    ).toBeDefined();
+    expect(root.userData.dbPylon).toEqual(HAUPTBAHNHOF_DB_PYLON_PROFILE);
+    expect(HAUPTBAHNHOF_DB_PYLON_PROFILE.sourceUrl).toContain("sbp.de");
+    expect(HAUPTBAHNHOF_DB_PYLON_PROFILE.logoSourceUrl).toContain(
+      "deutschebahn.com",
+    );
+    expect(HAUPTBAHNHOF_DB_PYLON_PROFILE.frameFieldsPerWall).toBe(3);
     expect(
       root.children.filter(
         (child) =>

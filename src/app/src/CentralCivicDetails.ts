@@ -184,6 +184,16 @@ export const CUBE_BERLIN_PRISM_IDS = [
   "lXwHgFCt",
   "MwfoOvua",
 ] as const;
+export const CUBE_BERLIN_FACADE_PROFILE = {
+  facadeCount: 4,
+  foldFacetCount: 16,
+  glassElementTypes: 12,
+  nightWindowCount: 28,
+  officialCubeSideM: 42.5,
+  panelColumnsPerFacade: 22,
+  storeyBands: 10,
+  sourceUrl: "https://3xn.com/project/cube-berlin",
+} as const;
 export const TEAR_PALACE_FOOTPRINT_WORLD = [
   [1048.21, -183.39],
   [1050.44, -187.52],
@@ -1461,14 +1471,14 @@ function addCubeBerlin(builder: Builder): void {
   const baseY = 5.4;
   addExtrudedFootprint(
     builder,
-    0xa9c9cf,
+    0xbcd3d5,
     CUBE_BERLIN_FOOTPRINT_WORLD,
     baseY,
     CUBE_BERLIN_HEIGHT_M,
   );
   addExtrudedFootprint(
     builder,
-    0xdbe4e2,
+    0x617a7f,
     scaledRing(CUBE_BERLIN_FOOTPRINT_WORLD, 1.008),
     baseY + CUBE_BERLIN_HEIGHT_M,
     0.34,
@@ -1486,44 +1496,144 @@ function addCubeBerlin(builder: Builder): void {
     const length = Math.hypot(dx, dz);
     const nx = (signedArea > 0 ? dz : -dz) / length;
     const nz = (signedArea > 0 ? -dx : dx) / length;
-    const bays = Math.max(5, Math.round(length / 7.2));
-    const floors = 9;
-    for (let bay = 0; bay < bays; bay += 1) {
-      const ta = bay / bays;
-      const tb = (bay + 1) / bays;
-      for (let floor = 0; floor < floors; floor += 1) {
-        const ya = baseY + 1.05 + (floor / floors) * 41.2;
-        const yb = baseY + 1.05 + ((floor + 1) / floors) * 41.2;
-        const a = [
-          x0 + dx * ta + nx * 0.07,
-          ya,
-          z0 + dz * ta + nz * 0.07,
-        ] as const;
-        const b = [
-          x0 + dx * tb + nx * 0.07,
-          ya,
-          z0 + dz * tb + nz * 0.07,
-        ] as const;
-        const c = [
-          x0 + dx * tb + nx * 0.07,
-          yb,
-          z0 + dz * tb + nz * 0.07,
-        ] as const;
-        const d = [
-          x0 + dx * ta + nx * 0.07,
-          yb,
-          z0 + dz * ta + nz * 0.07,
-        ] as const;
-        const firstTone = (bay + floor + edge) % 2 === 0 ? 0x7faab4 : 0xc4d9dc;
-        const secondTone = firstTone === 0x7faab4 ? 0x9bbbc2 : 0xe1e8e5;
-        if ((bay + floor) % 2 === 0) {
-          addTriangle(builder, firstTone, a, b, c);
-          addTriangle(builder, secondTone, a, c, d);
-        } else {
-          addTriangle(builder, firstTone, a, b, d);
-          addTriangle(builder, secondTone, b, c, d);
-        }
-      }
+    const rotationY = -Math.atan2(dz / length, dx / length);
+    const edgePoint = new Vector3(x0, baseY, z0);
+
+    // The real outer skin reads first as a calm glazed grid. The old model
+    // split every cell diagonally, producing a noisy checkerboard instead of
+    // 3XN's large folded relief. These slim, physically separated mullions
+    // preserve the curtain-wall scale without coplanar shimmer.
+    for (
+      let column = 1;
+      column < CUBE_BERLIN_FACADE_PROFILE.panelColumnsPerFacade;
+      column += 1
+    ) {
+      localBox(
+        builder,
+        0x78949a,
+        edgePoint,
+        (length * column) / CUBE_BERLIN_FACADE_PROFILE.panelColumnsPerFacade,
+        CUBE_BERLIN_HEIGHT_M / 2,
+        0.13,
+        0.045,
+        CUBE_BERLIN_HEIGHT_M - 0.65,
+        0.1,
+        rotationY,
+        false,
+      );
+    }
+    for (
+      let storey = 1;
+      storey < CUBE_BERLIN_FACADE_PROFILE.storeyBands;
+      storey += 1
+    ) {
+      localBox(
+        builder,
+        0x829ba0,
+        edgePoint,
+        length / 2,
+        (CUBE_BERLIN_HEIGHT_M * storey) /
+          CUBE_BERLIN_FACADE_PROFILE.storeyBands,
+        0.13,
+        length - 0.18,
+        0.055,
+        0.1,
+        rotationY,
+        false,
+      );
+    }
+
+    localBox(
+      builder,
+      0x567078,
+      edgePoint,
+      length / 2,
+      2.1,
+      0.18,
+      length - 0.35,
+      3.75,
+      0.12,
+      rotationY,
+      false,
+    );
+
+    const facadePoint = (
+      u: number,
+      v: number,
+      outset = 0.24,
+    ): readonly [number, number, number] => [
+      x0 + dx * u + nx * outset,
+      baseY + 0.45 + v * (CUBE_BERLIN_HEIGHT_M - 0.9),
+      z0 + dz * u + nz * outset,
+    ];
+    const mirror = edge % 2 === 1;
+    const u = (value: number): number => (mirror ? 1 - value : value);
+    const foldPattern: Array<{
+      color: number;
+      points: [[number, number], [number, number], [number, number]];
+    }> = [
+      {
+        color: edge % 2 === 0 ? 0x3f5960 : 0x526d73,
+        points: [
+          [u(0.02), 0.86],
+          [u(0.52), 1],
+          [u(0.47), 0.74],
+        ],
+      },
+      {
+        color: 0x4b666d,
+        points: [
+          [u(0.39), 0.68],
+          [u(0.98), 0.5],
+          [u(0.53), 0.45],
+        ],
+      },
+      {
+        color: 0x66858b,
+        points: [
+          [u(0.39), 0.68],
+          [u(0.53), 0.45],
+          [u(0.29), 0.3],
+        ],
+      },
+      {
+        color: edge % 2 === 0 ? 0xd7e5e3 : 0x8ca8ad,
+        points: [
+          [u(0.02), 0.04],
+          [u(0.37), 0.3],
+          [u(0.57), 0.04],
+        ],
+      },
+    ];
+    for (const facet of foldPattern) {
+      addTriangle(
+        builder,
+        facet.color,
+        facadePoint(...facet.points[0]),
+        facadePoint(...facet.points[1]),
+        facadePoint(...facet.points[2]),
+      );
+    }
+
+    const litWindows = [
+      [0.14, 0.18],
+      [0.72, 0.2],
+      [0.31, 0.38],
+      [0.84, 0.5],
+      [0.18, 0.64],
+      [0.65, 0.76],
+      [0.43, 0.89],
+    ] as const;
+    for (const [along, vertical] of litWindows) {
+      const geometry = new BoxGeometry(1.08, 1.05, 0.08);
+      geometry.rotateY(rotationY);
+      geometry.translate(
+        x0 + dx * along + nx * 0.34,
+        baseY + 1.1 + vertical * (CUBE_BERLIN_HEIGHT_M - 2.2),
+        z0 + dz * along + nz * 0.34,
+      );
+      paintGeometry(geometry, 0xdce5d8);
+      builder.lamps.push(geometry);
     }
   }
 }
@@ -2935,10 +3045,12 @@ export function createCentralCivicDetails(
       "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints",
   };
   group.userData.cubeBerlin = {
+    facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
     footprintWorld: CUBE_BERLIN_FOOTPRINT_WORLD,
     heightM: CUBE_BERLIN_HEIGHT_M,
     prismIds: CUBE_BERLIN_PRISM_IDS,
-    source: "Berlin LoD2 + OSM way 624737072 + 3XN published dimensions",
+    source:
+      "Berlin LoD2 + OSM way 624737072 + 3XN published dimensions and facade system",
   };
   group.userData.tearPalace = {
     footprintWorld: TEAR_PALACE_FOOTPRINT_WORLD,

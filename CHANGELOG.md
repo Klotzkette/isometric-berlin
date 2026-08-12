@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.71.5
+
+- **The Washingtonplatz DB tower is now the real ventilation structure, not a
+  generic station sign.** Deutsche Bahn's published 60 m logo height and the
+  structural engineer's roughly 30 m², three-wall section replace the old
+  34 m rectangular pylon. The model adds the triangular steel frame,
+  three-field cross bracing, translucent glass-block rhythm, antenna crown,
+  perforated service plinth and one unobstructed red-and-white DB sign on each
+  public-facing side. A four-direction render check caught and removed the old
+  intersecting-wall/sign occlusion before release.
+- **Cube Berlin now reads as a folded double-skin glass cube.** Its existing
+  Berlin LoD2/OSM footprint remains fixed at about 42.27 x 42.70 m, matching
+  3XN's published 42.5 m envelope without rescaling or moving the building.
+  Twenty-two restrained curtain-wall bays and ten storey bands replace the
+  noisy per-cell diagonal checkerboard; sixteen large mirrored fold facets,
+  the dark roof plane and twenty-eight sparse night-office lights reproduce
+  the building's defining character without photo textures or dynamic lights.
+- **Metric and visual contracts protect the correction.** Tests pin the tower
+  height, triangular wall count, three-field frame, DB signage, plinth
+  perforations, source boundaries and Cube facade profile. Day, Night,
+  Minecraft and 390 x 844 mobile checks passed without browser warnings, and
+  two settled mobile frames were byte-identical. Owner photos remain
+  non-bundled visual references. The visible radius remains **5,230 m**;
+  attribution and the additive source hierarchy are unchanged.
+
 ## v0.71.4
 
 - **Berlin Hauptbahnhof now has a recognisable current interior rather than an

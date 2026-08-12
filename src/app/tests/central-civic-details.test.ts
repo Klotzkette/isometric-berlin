@@ -5,6 +5,7 @@ import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
   BUNDESTAG_KITA_SOURCE,
   BUNDESTAG_KITA_WORLD,
+  CUBE_BERLIN_FACADE_PROFILE,
   CUBE_BERLIN_FOOTPRINT_WORLD,
   CUBE_BERLIN_HEIGHT_M,
   CUBE_BERLIN_PRISM_IDS,
@@ -121,7 +122,18 @@ describe("task-11 central transit and civic details", () => {
     });
     expect(CUBE_BERLIN_HEIGHT_M).toBe(43.6);
     expect(CUBE_BERLIN_FOOTPRINT_WORLD).toHaveLength(4);
+    expect(CUBE_BERLIN_FACADE_PROFILE).toEqual({
+      facadeCount: 4,
+      foldFacetCount: 16,
+      glassElementTypes: 12,
+      nightWindowCount: 28,
+      officialCubeSideM: 42.5,
+      panelColumnsPerFacade: 22,
+      sourceUrl: "https://3xn.com/project/cube-berlin",
+      storeyBands: 10,
+    });
     expect(details.userData.cubeBerlin).toMatchObject({
+      facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
       footprintWorld: CUBE_BERLIN_FOOTPRINT_WORLD,
       heightM: CUBE_BERLIN_HEIGHT_M,
       prismIds: CUBE_BERLIN_PRISM_IDS,

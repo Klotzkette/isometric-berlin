@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.4/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.5 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.5/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.4** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.5** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,21 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.4**, built from `main`. Its full viewer
+The current public package is **v0.71.5**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Washingtonplatz DB tower and Cube Berlin now match their defining
+  structures.** The former generic 34 m station pylon is now the documented
+  60 m road-tunnel ventilation stack: a roughly 30 m² triangular section with
+  three steel-and-glass walls, three-field cross bracing, antenna crown,
+  perforated service plinth and correctly mounted DB signs. Cube Berlin keeps
+  its LoD2/OSM footprint, which measures within centimetres of 3XN's published
+  42.5 m envelope, and replaces the noisy cell-by-cell checkerboard with the
+  building's large mirrored double-skin folds, calm curtain-wall grid and
+  sparse warm night offices. Owner photographs remain non-bundled visual
+  references; no photograph or external texture is copied into the model.
 
 - **Berlin Hauptbahnhof now carries its recognisable current concourse.** The
   official five-level station structure gains a stable blue departure board
