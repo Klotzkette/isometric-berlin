@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.71.4
+
+- **Berlin Hauptbahnhof now has a recognisable current interior rather than an
+  abstract stack of galleries.** The north concourse gains a stable 35 x 4.9 m
+  blue departure board with twelve-row timetable structure, an Einstein Kaffee
+  shopfront at the Europaplatz end, a framed glass service pavilion, continuous
+  multi-storey wall framing, warm retail bands and ceiling-light rows. The four
+  existing panoramic lifts also receive their missing circular frame hoops.
+- **The new detail remains fast, calm and source-honest.** Repeated wall,
+  timetable, light and lift elements are batched as instanced geometry; there
+  are no dynamic point lights to shimmer or multiply draw calls. Day and Snow
+  use a constant unlit board blue, while Night swaps to a separate restrained
+  emissive material. The official station plan and DB architecture figures fix
+  the five-level structure; owner-supplied photographs are non-bundled visual
+  references, and exact interior fixture dimensions remain labelled as
+  presentation estimates rather than surveyed geometry.
+- **Focused contracts protect the interior composition.** Tests pin the board
+  dimensions and rows, official/source boundary, Einstein lettering, pavilion
+  placement inside the 180 m hall, 48 static ceiling lights, 52 wall columns
+  and 40 panoramic-lift hoops. Desktop and 390 x 844 mobile checks cover Day
+  and Night with no browser warnings. The visible radius remains **5,230 m**;
+  attribution and the additive source hierarchy are unchanged.
+
 ## v0.71.3
 
 - **The active Lehrter Campus site now occupies the real gap west of Berlin

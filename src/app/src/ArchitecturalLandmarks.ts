@@ -292,7 +292,7 @@ function addInstancedGeometry(
   group: Group,
   name: string,
   geometry: BufferGeometry,
-  material: MeshStandardMaterial | MeshPhysicalMaterial,
+  material: MeshBasicMaterial | MeshStandardMaterial | MeshPhysicalMaterial,
   transforms: InstanceTransform[],
 ): InstancedMesh {
   const instances = new InstancedMesh(geometry, material, transforms.length);
@@ -2074,6 +2074,34 @@ export const HAUPTBAHNHOF_GLASS_DAY_OPACITY = 0.5;
 export const HAUPTBAHNHOF_GLASS_GRID_OPACITY = 0.28;
 
 /**
+ * Current concourse recognition details. The official station plan fixes the
+ * five public levels and places Einstein Kaffee on the ground floor at the
+ * Europaplatz exit. The owner-supplied photographs fix the visible departure-
+ * board, pavilion, wall-grid and lighting character. Exact interior fixture
+ * dimensions are presentation estimates, not a building survey.
+ */
+export const HAUPTBAHNHOF_INTERIOR_PROFILE = {
+  departureBoard: {
+    heightM: 4.9,
+    rowCount: 12,
+    widthM: 35,
+  },
+  geometryStatus:
+    "official five-level station plan with current owner-photo recognition details; interior fixture dimensions are bounded presentation estimates, not surveyed geometry",
+  levelCount: 5,
+  servicePavilion: {
+    depthM: 13,
+    heightM: 3.55,
+    widthM: 8.4,
+  },
+  sources: [
+    "https://www.bahnhof.de/downloads/station-plans/1071.pdf",
+    "https://www.deutschebahn.com/de/architektur_bahnhof-6878040",
+    "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/einstein-kaffee",
+  ] as const,
+} as const;
+
+/**
  * Lateral offset (local metres) of the real rail curve at local-x
  * `xLocal`, relative to the curve's own value at `xLocal = 0` (roughly
  * the crossing with the north-south hall) -- i.e. the curve's *shape*,
@@ -2592,6 +2620,333 @@ function addEscalatorRun(
   );
 }
 
+function addStationCurrentConcourseDetails(
+  group: Group,
+  signature: HauptbahnhofModelSignature,
+  retailGlass: MeshStandardMaterial,
+  frameMaterial: MeshStandardMaterial,
+): void {
+  const profile = HAUPTBAHNHOF_INTERIOR_PROFILE;
+  const halfWidth = signature.north_south_hall_width_m / 2 - 1;
+  const halfLength = signature.north_south_hall_length_m / 2 - 2;
+  const armNear = signature.east_west_roof_width_m / 2;
+  const northArmCentre = (armNear + halfLength) / 2;
+  const boardX = -halfWidth + 0.2;
+  const boardY = 5.35;
+  const boardZ = northArmCentre + 1.5;
+  const boardDay = new MeshBasicMaterial({
+    color: 0x2259ad,
+    side: DoubleSide,
+  });
+  const boardNight = nightEmitter(
+    modelMaterial(0x153b78, { metalness: 0.08, roughness: 0.42 }),
+    0x3d6ed0,
+    0.72,
+  );
+  const board = new Mesh(
+    new BoxGeometry(
+      0.24,
+      profile.departureBoard.heightM,
+      profile.departureBoard.widthM,
+    ),
+    boardDay,
+  );
+  board.name = "Hauptbahnhof blue departure board";
+  board.position.set(boardX, boardY, boardZ);
+  board.castShadow = true;
+  board.receiveShadow = true;
+  board.userData.dayMaterial = boardDay;
+  board.userData.nightMaterial = boardNight;
+  board.userData.geometryStatus = profile.geometryStatus;
+  board.userData.sourceUrl = profile.sources[0];
+  board.userData.visualReference =
+    "owner-supplied current interior photographs";
+  group.add(board);
+  addEdges(group, board, 0.5);
+
+  const boardFaceX = boardX + 0.14;
+  const boardBottom = boardY - profile.departureBoard.heightM / 2;
+  const boardLeft = boardZ - profile.departureBoard.widthM / 2;
+  const timetableGrid: VectorSegment[] = [];
+  for (let row = 0; row <= profile.departureBoard.rowCount; row += 1) {
+    const y =
+      boardBottom +
+      (row / profile.departureBoard.rowCount) * profile.departureBoard.heightM;
+    timetableGrid.push([
+      [boardFaceX, y, boardLeft + 0.45],
+      [boardFaceX, y, boardLeft + profile.departureBoard.widthM - 0.45],
+    ]);
+  }
+  for (const fraction of [0.08, 0.19, 0.65, 0.77, 0.9]) {
+    const z = boardLeft + fraction * profile.departureBoard.widthM;
+    timetableGrid.push([
+      [boardFaceX, boardBottom + 0.25, z],
+      [boardFaceX, boardBottom + profile.departureBoard.heightM - 0.25, z],
+    ]);
+  }
+  addVectorSegments(
+    group,
+    "Hauptbahnhof departure board timetable grid",
+    timetableGrid,
+    0xeaf3ff,
+    0.88,
+  );
+
+  const destinationBars: InstanceTransform[] = [];
+  const rowHeight =
+    profile.departureBoard.heightM / profile.departureBoard.rowCount;
+  for (let row = 0; row < profile.departureBoard.rowCount; row += 1) {
+    const y = boardBottom + (row + 0.5) * rowHeight;
+    for (const [offset, length] of [
+      [0.235, 8.5 - (row % 3) * 0.7],
+      [0.67, 2.2],
+      [0.8, 1.5 + (row % 2) * 0.45],
+    ] as Array<[number, number]>) {
+      destinationBars.push({
+        position: [
+          boardFaceX + 0.012,
+          y,
+          boardLeft + offset * profile.departureBoard.widthM,
+        ],
+        scale: [1, 1, length],
+      });
+    }
+  }
+  const destinationDay = new MeshBasicMaterial({
+    color: 0xf3f7ff,
+    side: DoubleSide,
+  });
+  const destinationNight = nightEmitter(
+    modelMaterial(0xf3f7ff, { roughness: 0.58 }),
+    0xe7f1ff,
+    1.15,
+  );
+  const destinationStrokes = addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced departure board destination strokes",
+    new BoxGeometry(0.035, 0.055, 1),
+    destinationDay,
+    destinationBars,
+  );
+  destinationStrokes.userData.dayMaterial = destinationDay;
+  destinationStrokes.userData.nightMaterial = destinationNight;
+
+  const cafeWidth = 13.8;
+  const cafeZ = boardZ - 4.2;
+  const cafeShell = addBox(
+    group,
+    "Hauptbahnhof Einstein Kaffee storefront",
+    [0.32, 3.7, cafeWidth],
+    [boardX + 0.03, 1.85, cafeZ],
+    nightEmitter(
+      modelMaterial(0x273032, { metalness: 0.2, roughness: 0.5 }),
+      0x2a2420,
+      0.08,
+    ),
+    0.68,
+  );
+  cafeShell.userData.sourceUrl = profile.sources[2];
+  cafeShell.userData.geometryStatus = profile.geometryStatus;
+  addBox(
+    group,
+    "Hauptbahnhof Einstein Kaffee warm shopfront",
+    [0.12, 2.25, cafeWidth - 0.8],
+    [boardX + 0.23, 1.2, cafeZ],
+    retailGlass,
+  );
+  addStationLetteringPanel(
+    group,
+    "Hauptbahnhof Einstein Kaffee fascia",
+    "EINSTEIN KAFFEE",
+    cafeWidth - 0.5,
+    0.86,
+    [boardX + 0.24, 2.93, cafeZ],
+    "#24292a",
+    "#fff1bd",
+    Math.PI / 2,
+  ).userData.sourceUrl = profile.sources[2];
+
+  const facadeMullions: InstanceTransform[] = [];
+  const cafeMullions: InstanceTransform[] = [];
+  for (
+    let z = cafeZ - cafeWidth / 2 + 1.15;
+    z < cafeZ + cafeWidth / 2;
+    z += 2.3
+  ) {
+    cafeMullions.push({ position: [boardX + 0.3, 1.2, z] });
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced Einstein Kaffee mullions",
+    [0.11, 2.25, 0.1],
+    frameMaterial,
+    cafeMullions,
+  );
+
+  const wallBeams: InstanceTransform[] = [];
+  const warmTransoms: InstanceTransform[] = [];
+  const armLength = halfLength - armNear;
+  for (const sideX of [-1, 1]) {
+    for (const sideZ of [-1, 1]) {
+      const armCentre = sideZ * (armNear + armLength / 2);
+      for (let index = 0; index <= 12; index += 1) {
+        facadeMullions.push({
+          position: [
+            sideX * (halfWidth - 0.34),
+            0.45,
+            sideZ * (armNear + (index / 12) * armLength),
+          ],
+          scale: [1, 15.1, 1],
+        });
+      }
+      for (const y of [-5.15, -0.1, 4.48, 7.72]) {
+        wallBeams.push({
+          position: [sideX * (halfWidth - 0.34), y, armCentre],
+          scale: [1, 1, armLength],
+        });
+      }
+      for (let index = 0; index < 6; index += 1) {
+        warmTransoms.push({
+          position: [
+            sideX * (halfWidth - 0.52),
+            3.35,
+            sideZ * (armNear + 5.5 + index * ((armLength - 11) / 5)),
+          ],
+        });
+      }
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced interior wall columns",
+    [0.2, 1, 0.24],
+    frameMaterial,
+    facadeMullions,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced interior floor beams",
+    [0.24, 0.22, 1],
+    frameMaterial,
+    wallBeams,
+  );
+  addInstancedBoxes(
+    group,
+    "Hauptbahnhof instanced warm retail light bands",
+    [0.08, 0.18, 8.2],
+    nightEmitter(modelMaterial(0xffd39b, { roughness: 0.48 }), 0xffbf73, 1.28),
+    warmTransoms,
+  );
+
+  const pavilion = new Group();
+  pavilion.name = "Hauptbahnhof central glass service pavilion";
+  pavilion.position.set(0, 0, armNear + 17);
+  pavilion.userData.geometryStatus = profile.geometryStatus;
+  pavilion.userData.visualReference =
+    "owner-supplied current interior photographs";
+  const pavilionWidth = profile.servicePavilion.widthM;
+  const pavilionDepth = profile.servicePavilion.depthM;
+  const pavilionHeight = profile.servicePavilion.heightM;
+  addBox(
+    pavilion,
+    "Hauptbahnhof service pavilion floor bridge",
+    [pavilionWidth + 1.2, 0.24, pavilionDepth + 1.2],
+    [0, 0.12, 0],
+    modelMaterial(0x989c98, { roughness: 0.86 }),
+    0.45,
+  );
+  for (const zSide of [-1, 1]) {
+    addBox(
+      pavilion,
+      "Hauptbahnhof central glass service pavilion glazing",
+      [pavilionWidth, pavilionHeight, 0.08],
+      [0, pavilionHeight / 2 + 0.24, (zSide * pavilionDepth) / 2],
+      retailGlass,
+    );
+    addBox(
+      pavilion,
+      "Hauptbahnhof service pavilion red belt",
+      [pavilionWidth + 0.08, 0.14, 0.12],
+      [0, 1.44, (zSide * (pavilionDepth + 0.09)) / 2],
+      nightEmitter(
+        modelMaterial(0xb72f35, { roughness: 0.56 }),
+        0xff4f40,
+        0.42,
+      ),
+    );
+  }
+  for (const xSide of [-1, 1]) {
+    addBox(
+      pavilion,
+      "Hauptbahnhof central glass service pavilion glazing",
+      [0.08, pavilionHeight, pavilionDepth],
+      [(xSide * pavilionWidth) / 2, pavilionHeight / 2 + 0.24, 0],
+      retailGlass,
+    );
+  }
+  const pavilionPosts: InstanceTransform[] = [];
+  for (const x of [-pavilionWidth / 2, 0, pavilionWidth / 2]) {
+    for (const z of [-pavilionDepth / 2, pavilionDepth / 2]) {
+      pavilionPosts.push({ position: [x, pavilionHeight / 2 + 0.24, z] });
+    }
+  }
+  for (const x of [-pavilionWidth / 2, pavilionWidth / 2]) {
+    for (const z of [-pavilionDepth / 2, 0, pavilionDepth / 2]) {
+      pavilionPosts.push({ position: [x, pavilionHeight / 2 + 0.24, z] });
+    }
+  }
+  addInstancedBoxes(
+    pavilion,
+    "Hauptbahnhof instanced central pavilion frame",
+    [0.12, pavilionHeight, 0.12],
+    frameMaterial,
+    pavilionPosts,
+  );
+  addBox(
+    pavilion,
+    "Hauptbahnhof central service pavilion roof",
+    [pavilionWidth + 0.45, 0.2, pavilionDepth + 0.45],
+    [0, pavilionHeight + 0.34, 0],
+    frameMaterial,
+    0.5,
+  );
+  addBox(
+    pavilion,
+    "Hauptbahnhof central service counter",
+    [pavilionWidth - 1.4, 1.02, pavilionDepth - 2],
+    [0, 0.75, 0],
+    nightEmitter(modelMaterial(0xe7ded0, { roughness: 0.72 }), 0xffd39b, 0.4),
+    0.34,
+  );
+  group.add(pavilion);
+
+  const ceilingLights: InstanceTransform[] = [];
+  for (const sideX of [-1, 1]) {
+    for (const sideZ of [-1, 1]) {
+      for (let index = 0; index < 12; index += 1) {
+        ceilingLights.push({
+          position: [
+            sideX * (halfWidth - 2.1),
+            7.62,
+            sideZ * (armNear + 3 + index * ((halfLength - armNear - 6) / 11)),
+          ],
+        });
+      }
+    }
+  }
+  const lightRows = addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced concourse point lights",
+    new SphereGeometry(0.14, 8, 6),
+    nightEmitter(modelMaterial(0xffedd0, { roughness: 0.35 }), 0xffc46f, 1.65),
+    ceilingLights,
+  );
+  lightRows.userData.visualReference =
+    "owner-supplied current interior photographs";
+  lightRows.userData.renderingContract =
+    "emissive geometry only; no dynamic point lights or temporal flicker";
+}
+
 /**
  * What you see when you look down through the north–south hall's glass
  * barrel: not one enormous empty room, but four stacked levels.
@@ -2718,10 +3073,13 @@ function addStationInterior(
     0.54,
   );
 
+  addStationCurrentConcourseDetails(group, signature, retailGlass, escalator);
+
   // The station's four panoramic lifts are cylindrical glazed shafts, not
   // opaque square towers. A light four-post frame keeps each cylinder legible
   // through the hall without creating another dense transparent layer.
   const liftFrames: InstanceTransform[] = [];
+  const liftHoops: InstanceTransform[] = [];
   for (const x of [-14.8, 14.8]) {
     for (const z of [-33, 33]) {
       const shaft = new Mesh(
@@ -2743,6 +3101,12 @@ function addStationInterior(
       ] as Array<[number, number]>) {
         liftFrames.push({ position: [x + dx, -2.25, z + dz] });
       }
+      for (let y = -12.8; y <= 8.8; y += 2.4) {
+        liftHoops.push({
+          position: [x, y, z],
+          rotation: [Math.PI / 2, 0, 0],
+        });
+      }
       addBox(
         group,
         "Hauptbahnhof lift car",
@@ -2759,6 +3123,13 @@ function addStationInterior(
     [0.12, 23.5, 0.12],
     escalator,
     liftFrames,
+  );
+  addInstancedGeometry(
+    group,
+    "Hauptbahnhof instanced panoramic lift hoops",
+    new TorusGeometry(1.72, 0.055, 5, 20),
+    escalator,
+    liftHoops,
   );
 
   // The north–south deep station, crossing under the Stadtbahn at −15 m.
@@ -2907,12 +3278,8 @@ function officeBridgeEnvelopeGeometry(
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
   geometry.setIndex([
-    0, 2, 1, 0, 3, 2,
-    4, 5, 6, 4, 6, 7,
-    0, 1, 5, 0, 5, 4,
-    3, 7, 6, 3, 6, 2,
-    0, 4, 7, 0, 7, 3,
-    1, 2, 6, 1, 6, 5,
+    0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 3, 7, 6, 3, 6, 2, 0,
+    4, 7, 0, 7, 3, 1, 2, 6, 1, 6, 5,
   ]);
   geometry.computeVertexNormals();
   return geometry;
@@ -2934,7 +3301,9 @@ function addStationOfficeBridge(
   const innerHeight = bodyOuterHeight - HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M;
   const topAtLocalX = (localX: number): number => {
     const outwardFraction = (outerSide * localX) / width + 0.5;
-    return innerHeight + outwardFraction * HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M;
+    return (
+      innerHeight + outwardFraction * HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M
+    );
   };
   const glass = nightEmitter(
     modelMaterial(0x789ea6, {
@@ -3084,7 +3453,7 @@ function addStationOfficeBridge(
     for (const localX of [-width / 2, 0, width / 2]) {
       const columnHeight = topAtLocalX(localX);
       endFrameColumns.push({
-        position: [x + localX, columnHeight / 2, zSide * depth / 2],
+        position: [x + localX, columnHeight / 2, (zSide * depth) / 2],
         scale: [1, columnHeight, 1],
       });
     }
@@ -3096,8 +3465,16 @@ function addStationOfficeBridge(
     addCylinderBetween(
       group,
       "Hauptbahnhof office-bridge raking crown beam",
-      new Vector3(x - width / 2, topAtLocalX(-width / 2) + 0.18, zSide * depth / 2),
-      new Vector3(x + width / 2, topAtLocalX(width / 2) + 0.18, zSide * depth / 2),
+      new Vector3(
+        x - width / 2,
+        topAtLocalX(-width / 2) + 0.18,
+        (zSide * depth) / 2,
+      ),
+      new Vector3(
+        x + width / 2,
+        topAtLocalX(width / 2) + 0.18,
+        (zSide * depth) / 2,
+      ),
       0.42,
       frame,
       8,
@@ -3176,7 +3553,13 @@ function addStationOfficeBridge(
     }
     for (let storey = 1; storey < 10; storey += 1) {
       const y = storey * storeyHeight;
-      const taper = Math.max(0, Math.min(1, (y - innerHeight) / HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M));
+      const taper = Math.max(
+        0,
+        Math.min(
+          1,
+          (y - innerHeight) / HAUPTBAHNHOF_OFFICE_BRIDGE_INNER_DROP_M,
+        ),
+      );
       const minX = outerSide === 1 ? -width / 2 + taper * width : -width / 2;
       const maxX = outerSide === -1 ? width / 2 - taper * width : width / 2;
       endFacadeGrid.push([
@@ -3375,11 +3758,7 @@ function addStationHallEntranceFacade(
   const facadeWidth = hallWidth - 1.2;
   const facadeApex = barrelBaseY + barrelHeight - 0.6;
   const facade = new Mesh(
-    stationEntranceFacadeGeometry(
-      facadeWidth,
-      barrelBaseY,
-      barrelHeight - 0.6,
-    ),
+    stationEntranceFacadeGeometry(facadeWidth, barrelBaseY, barrelHeight - 0.6),
     glass,
   );
   facade.name = name;
@@ -3409,10 +3788,7 @@ function addStationHallEntranceFacade(
         ? facadeWidth
         : facadeWidth *
           Math.sqrt(
-            Math.max(
-              0,
-              1 - ((y - barrelBaseY) / (barrelHeight - 0.6)) ** 2,
-            ),
+            Math.max(0, 1 - ((y - barrelBaseY) / (barrelHeight - 0.6)) ** 2),
           );
     mullions.push({
       position: [0, y, z],
@@ -3429,7 +3805,11 @@ function addStationHallEntranceFacade(
 
   const outward: -1 | 1 = z < 0 ? -1 : 1;
   const doorGlass = nightEmitter(
-    modelMaterial(0x29454d, { metalness: 0.16, opacity: 0.68, roughness: 0.18 }),
+    modelMaterial(0x29454d, {
+      metalness: 0.16,
+      opacity: 0.68,
+      roughness: 0.18,
+    }),
     0xffd18a,
     1.25,
   );
@@ -3571,8 +3951,7 @@ function addStationPhotovoltaics(
       const lateral = Math.cos(angle) * (roofWidth / 2) + bow;
       const y = roofBaseY + Math.sin(angle) * roofHeight + 0.28;
       const tilt = Math.atan(
-        (roofHeight * Math.cos(angle)) /
-          ((roofWidth / 2) * Math.sin(angle)),
+        (roofHeight * Math.cos(angle)) / ((roofWidth / 2) * Math.sin(angle)),
       );
       panels.push({
         position: [x, y, lateral],
