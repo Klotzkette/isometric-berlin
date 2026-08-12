@@ -12,6 +12,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  Quaternion,
   RingGeometry,
   Shape,
   SphereGeometry,
@@ -248,6 +249,11 @@ const EURO_PLAZA_GRAVEL = 0x9c9689;
 const EURO_PLAZA_SOIL = 0x776557;
 const CONSTRUCTION_RED = 0xc84038;
 const CONSTRUCTION_WHITE = 0xf4f1e7;
+const CONSTRUCTION_CONCRETE = 0xb9bab6;
+const CONSTRUCTION_CONCRETE_LIGHT = 0xd8d8d2;
+const CONSTRUCTION_HOARDING = 0x252d2d;
+const CONSTRUCTION_STEEL = 0x59615f;
+const CONSTRUCTION_TIMBER = 0x9d7b56;
 const UPBEAT_GRID = 0xb6906c;
 const UPBEAT_GRID_LIGHT = 0xd4baa0;
 const UPBEAT_ROOF = 0xdedbd2;
@@ -560,6 +566,32 @@ function addFacadeSegment(
   const geometry = new BoxGeometry(length + 0.08, height, depth);
   geometry.rotateY(-Math.atan2(deltaZ, deltaX));
   geometry.translate((start[0] + end[0]) / 2, centerY, (start[1] + end[1]) / 2);
+  addCustomGeometry(builder, geometry, color, false, lamp);
+}
+
+function addBeamBetween(
+  builder: Builder,
+  color: number,
+  start: Vector3,
+  end: Vector3,
+  thickness: number,
+  lamp = false,
+): void {
+  const direction = end.clone().sub(start);
+  const length = direction.length();
+  if (length < 0.08) return;
+  const geometry = new BoxGeometry(thickness, length, thickness);
+  geometry.applyQuaternion(
+    new Quaternion().setFromUnitVectors(
+      new Vector3(0, 1, 0),
+      direction.normalize(),
+    ),
+  );
+  geometry.translate(
+    (start.x + end.x) / 2,
+    (start.y + end.y) / 2,
+    (start.z + end.z) / 2,
+  );
   addCustomGeometry(builder, geometry, color, false, lamp);
 }
 
@@ -1014,6 +1046,404 @@ function addEuropaplatzNorth(builder: Builder): void {
       );
     }
   });
+}
+
+function addLehrterCampusConstruction(builder: Builder): void {
+  const profile = EUROPACITY_PROFILE.lehrterCampus;
+  const footprint: WorldRing = profile.footprintWorldM;
+  const groundY = profile.groundY;
+
+  // The owner photograph records a construction site, not the published
+  // finished office envelope. Keep the stable, observed ground-floor state:
+  // slab, concrete frame, falsework, perimeter scaffold and dark hoarding.
+  addPolygonPrism(
+    builder,
+    EURO_PLAZA_GRAVEL,
+    footprint,
+    groundY + 0.04,
+    0.18,
+    false,
+  );
+  addPolygonPrism(
+    builder,
+    CONSTRUCTION_CONCRETE,
+    footprint,
+    groundY + 0.22,
+    0.32,
+  );
+
+  const deck: WorldRing = [
+    [-271.8, -743.5],
+    [-249.4, -742.7],
+    [-246.7, -731.8],
+    [-253.6, -699.2],
+    [-264.2, -686.2],
+    [-273.5, -692.3],
+  ];
+  addPolygonPrism(
+    builder,
+    CONSTRUCTION_CONCRETE_LIGHT,
+    deck,
+    groundY + profile.currentSlabTopM - 0.36,
+    0.36,
+  );
+
+  const columnPositions = [
+    [-269.6, -737.4],
+    [-259.9, -737.1],
+    [-250.7, -734.4],
+    [-270.2, -722.5],
+    [-260.5, -721.4],
+    [-251.1, -717.8],
+    [-270.3, -707.2],
+    [-261, -705.1],
+    [-253.8, -700.6],
+    [-269.5, -694.4],
+    [-262.6, -691.2],
+  ] as const;
+  for (const [x, z] of columnPositions) {
+    addBox(
+      builder,
+      CONSTRUCTION_CONCRETE,
+      x,
+      groundY + profile.currentSlabTopM / 2,
+      z,
+      0.58,
+      profile.currentSlabTopM,
+      0.58,
+      0,
+      true,
+    );
+    for (const offset of [-0.17, 0.17]) {
+      addBox(
+        builder,
+        CONSTRUCTION_STEEL,
+        x + offset,
+        groundY + profile.currentSlabTopM + 1.05,
+        z,
+        0.07,
+        2.1,
+        0.07,
+        0,
+        false,
+      );
+    }
+  }
+
+  // Dense falsework below the observed first raised slab. The August 2026
+  // reference reads as a working deck supported by a regular forest of props,
+  // not as an empty finished podium. Keep each prop separated from the slab to
+  // avoid coplanar shimmer while the camera moves.
+  const falseworkRows = [
+    { z: -736.2, xStart: -268.4, xEnd: -251.5 },
+    { z: -729.7, xStart: -269.2, xEnd: -250.2 },
+    { z: -722.8, xStart: -269.7, xEnd: -251.1 },
+    { z: -715.8, xStart: -269.8, xEnd: -252.4 },
+    { z: -708.8, xStart: -269.6, xEnd: -254.0 },
+    { z: -702.1, xStart: -269.1, xEnd: -255.6 },
+    { z: -695.8, xStart: -267.5, xEnd: -258.2 },
+  ] as const;
+  const falseworkTopY = groundY + profile.currentSlabTopM - 0.58;
+  for (const [rowIndex, row] of falseworkRows.entries()) {
+    const span = row.xEnd - row.xStart;
+    const propCount = Math.max(2, Math.floor(span / 2.55));
+    for (let index = 0; index <= propCount; index += 1) {
+      const x = row.xStart + (span * index) / propCount;
+      addBox(
+        builder,
+        CONSTRUCTION_STEEL,
+        x,
+        (groundY + 0.62 + falseworkTopY) / 2,
+        row.z,
+        0.1,
+        falseworkTopY - groundY - 0.62,
+        0.1,
+        0,
+        false,
+      );
+      addBox(
+        builder,
+        CONSTRUCTION_TIMBER,
+        x,
+        falseworkTopY,
+        row.z,
+        0.2,
+        0.16,
+        2.5,
+        0,
+        false,
+      );
+    }
+    addBox(
+      builder,
+      rowIndex % 2 === 0 ? CONSTRUCTION_TIMBER : CONSTRUCTION_STEEL,
+      (row.xStart + row.xEnd) / 2,
+      falseworkTopY + 0.13,
+      row.z,
+      span + 0.35,
+      0.18,
+      0.18,
+      0,
+      false,
+    );
+  }
+
+  // Three incomplete upper-frame strips preserve the photographed construction
+  // state: enough structure to read as an active build, never enough to imply
+  // the published nine-storey final envelope already exists.
+  const upperFrameRows = [
+    { z: -735.1, xStart: -269.2, xEnd: -251.0 },
+    { z: -724.8, xStart: -269.5, xEnd: -250.8 },
+    { z: -714.6, xStart: -269.5, xEnd: -252.5 },
+  ] as const;
+  for (const row of upperFrameRows) {
+    addBox(
+      builder,
+      CONSTRUCTION_CONCRETE,
+      (row.xStart + row.xEnd) / 2,
+      groundY + profile.currentSlabTopM + 2.55,
+      row.z,
+      row.xEnd - row.xStart,
+      0.42,
+      0.48,
+      0,
+      true,
+    );
+    for (let x = row.xStart + 0.8; x < row.xEnd; x += 4.6) {
+      addBox(
+        builder,
+        CONSTRUCTION_CONCRETE,
+        x,
+        groundY + profile.currentSlabTopM + 1.35,
+        row.z,
+        0.44,
+        2.7,
+        0.44,
+        0,
+        true,
+      );
+    }
+  }
+
+  const scaffoldEdges = [
+    [footprint[0], footprint[1]],
+    [footprint[1], footprint[2]],
+    [footprint[2], footprint[3]],
+    [footprint[3], footprint[4]],
+  ] as const;
+  for (const [start, end] of scaffoldEdges) {
+    const length = Math.hypot(end[0] - start[0], end[1] - start[1]);
+    const bayCount = Math.max(1, Math.ceil(length / 2.8));
+    for (let bay = 0; bay <= bayCount; bay += 1) {
+      const fraction = bay / bayCount;
+      const x = start[0] + (end[0] - start[0]) * fraction;
+      const z = start[1] + (end[1] - start[1]) * fraction;
+      addBox(
+        builder,
+        CONSTRUCTION_STEEL,
+        x,
+        groundY + profile.currentScaffoldTopM / 2,
+        z,
+        0.11,
+        profile.currentScaffoldTopM,
+        0.11,
+        0,
+        false,
+      );
+      if (bay === bayCount) continue;
+      const nextFraction = (bay + 1) / bayCount;
+      const nextX = start[0] + (end[0] - start[0]) * nextFraction;
+      const nextZ = start[1] + (end[1] - start[1]) * nextFraction;
+      const lowY = groundY + 1.05 + (bay % 2 === 0 ? 0 : 2.6);
+      const highY = lowY + (bay % 2 === 0 ? 2.6 : -2.6);
+      addBeamBetween(
+        builder,
+        CONSTRUCTION_STEEL,
+        new Vector3(x, lowY, z),
+        new Vector3(nextX, highY, nextZ),
+        0.08,
+      );
+    }
+    for (let y = groundY + 1.05; y < groundY + 10.4; y += 2.55) {
+      addFacadeSegment(builder, CONSTRUCTION_STEEL, start, end, y, 0.09, 0.1);
+      // Narrow timber decks make the scaffold levels legible from the station
+      // and tunnel-ramp approaches without turning the perimeter into a wall.
+      addFacadeSegment(
+        builder,
+        CONSTRUCTION_TIMBER,
+        start,
+        end,
+        y + 0.14,
+        0.13,
+        0.64,
+      );
+    }
+  }
+
+  // Street- and tunnel-facing black construction panels. A short opening is
+  // retained at the south-west corner instead of sealing the site into a box.
+  for (const edgeIndex of [0, 1, 2, 3]) {
+    const start = footprint[edgeIndex];
+    const end = footprint[(edgeIndex + 1) % footprint.length];
+    addFacadeSegment(
+      builder,
+      CONSTRUCTION_HOARDING,
+      start,
+      end,
+      groundY + 1.45,
+      2.75,
+      0.24,
+    );
+  }
+  const northStart = footprint[0];
+  const northEnd = footprint[1];
+  const northLength = Math.hypot(
+    northEnd[0] - northStart[0],
+    northEnd[1] - northStart[1],
+  );
+  for (
+    let distance = 1.1, stripe = 0;
+    distance < northLength;
+    distance += 2.2
+  ) {
+    const fraction = distance / northLength;
+    const nextFraction = Math.min((distance + 1.95) / northLength, 1);
+    addFacadeSegment(
+      builder,
+      stripe++ % 2 === 0 ? CONSTRUCTION_RED : CONSTRUCTION_WHITE,
+      [
+        northStart[0] + (northEnd[0] - northStart[0]) * fraction,
+        northStart[1] + (northEnd[1] - northStart[1]) * fraction,
+      ],
+      [
+        northStart[0] + (northEnd[0] - northStart[0]) * nextFraction,
+        northStart[1] + (northEnd[1] - northStart[1]) * nextFraction,
+      ],
+      groundY + 1.05,
+      0.42,
+      0.28,
+    );
+  }
+
+  // A static lattice tower crane fixes the skyline cue visible in the owner
+  // reference without introducing animation or a transient vehicle snapshot.
+  const crane = new Vector3(
+    profile.craneWorldM[0],
+    groundY,
+    profile.craneWorldM[1],
+  );
+  const mastTopY = groundY + profile.craneMastHeightM;
+  for (const offsetX of [-0.52, 0.52]) {
+    for (const offsetZ of [-0.52, 0.52]) {
+      addBox(
+        builder,
+        CONSTRUCTION_STEEL,
+        crane.x + offsetX,
+        groundY + profile.craneMastHeightM / 2,
+        crane.z + offsetZ,
+        0.16,
+        profile.craneMastHeightM,
+        0.16,
+        0,
+        false,
+      );
+    }
+  }
+  for (let y = groundY + 1.8; y < mastTopY; y += 2.35) {
+    addBox(
+      builder,
+      CONSTRUCTION_STEEL,
+      crane.x,
+      y,
+      crane.z - 0.52,
+      1.18,
+      0.1,
+      0.12,
+      0,
+      false,
+    );
+    addBox(
+      builder,
+      CONSTRUCTION_STEEL,
+      crane.x - 0.52,
+      y,
+      crane.z,
+      0.12,
+      0.1,
+      1.18,
+      0,
+      false,
+    );
+  }
+  const craneRotation = -0.36;
+  const craneOrigin = new Vector3(crane.x, groundY, crane.z);
+  addLocalBox(
+    builder,
+    CONSTRUCTION_STEEL,
+    craneOrigin,
+    12.5,
+    mastTopY,
+    0,
+    49,
+    0.58,
+    0.58,
+    craneRotation,
+    false,
+  );
+  addLocalBox(
+    builder,
+    CONSTRUCTION_TIMBER,
+    craneOrigin,
+    -7.7,
+    mastTopY - 0.75,
+    0,
+    5.5,
+    1.15,
+    1.1,
+    craneRotation,
+    true,
+  );
+  addLocalBox(
+    builder,
+    EURO_GLASS,
+    craneOrigin,
+    1.9,
+    mastTopY - 1.05,
+    0,
+    3.2,
+    1.9,
+    2.2,
+    craneRotation,
+    true,
+  );
+  const [hookX, hookZ] = rotatedLocalOffset(31.5, 0, craneRotation);
+  addBox(
+    builder,
+    CONSTRUCTION_STEEL,
+    crane.x + hookX,
+    mastTopY - 9.1,
+    crane.z + hookZ,
+    0.07,
+    17.6,
+    0.07,
+    0,
+    false,
+  );
+  addBox(
+    builder,
+    CONSTRUCTION_RED,
+    crane.x + hookX,
+    mastTopY - 18.05,
+    crane.z + hookZ,
+    0.65,
+    0.55,
+    0.4,
+    0,
+    true,
+  );
+  const beacon = new SphereGeometry(0.24, 8, 6);
+  beacon.translate(crane.x, mastTopY + 0.4, crane.z);
+  addCustomGeometry(builder, beacon, 0xe35a47, false, true);
 }
 
 function addFiftyHertzStructure(builder: Builder): void {
@@ -4009,6 +4439,7 @@ function addEuropacityCompanyBuildings(
   if (kpmg) {
     addEinzFacadeScreen(builder);
     addEuropaplatzNorth(builder);
+    addLehrterCampusConstruction(builder);
   }
   addFiftyHertzStructure(builder);
   if (dkb) addUpbeatCampus(builder);

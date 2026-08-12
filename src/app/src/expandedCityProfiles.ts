@@ -270,6 +270,29 @@ export const NORTHERN_CITY_PROFILE = {
  * surveyed tier outlines.
  */
 export const EUROPACITY_PROFILE = {
+  lehrterCampus: {
+    craneMastHeightM: 46,
+    craneWorldM: [-259.5, -716.5] as const,
+    currentScaffoldTopM: 10.8,
+    currentSlabTopM: 5.15,
+    currentState:
+      "ground-floor concrete frame, formwork, scaffolding and tower crane observed in the owner's August 2026 photograph; the planned full-height envelope is deliberately not rendered",
+    footprintWorldM: [
+      [-273, -747],
+      [-248, -746],
+      [-244, -733],
+      [-251, -696],
+      [-264, -681],
+      [-276, -689],
+    ] as const,
+    geometryStatus:
+      "bounded current-state presentation reconstruction constrained by the OSM Edge Grand Central east facade, the OSM Tiergartentunnel north approach and the official ground-floor plan proportions; not a surveyed construction-stage scan",
+    groundY: 5.35,
+    observedOn: "2026-08",
+    plannedEnvelopeHeightM: 35.5,
+    plannedStoreyCount: 9,
+    siteUse: "office-and-hotel MK2 under construction",
+  },
   einz: {
     basePartIds: [
       "DEBE3DkE869uphiB",
@@ -420,6 +443,12 @@ export const EUROPACITY_PROFILE = {
     "https://www.allmannwappner.com/de/projekte/11953/hochhaus-am-europaplatz-berlin",
     "https://www.zwp.de/de/projekte/buerogebaeude/hochhaus-am-europaplatz-berlin/",
     "https://mein.berlin.de/projekte/neugestaltung-europaplatz-nord/information/",
+    "https://lehrter-campus.de/",
+    "https://www.aukett-heese.de/de/aukett-heese-lehrter-campus-grundsteinlegung-in-berlin/",
+    "https://transumed.de/immoreferenzen/hauptbahnhof-mk-ii/",
+    "https://www.entwicklungsstadt.de/lehrter-campus-am-hauptbahnhof-baustelle-kommt-kaum-voran/",
+    "https://www.openstreetmap.org/way/126125230",
+    "https://www.openstreetmap.org/way/42103707",
     "https://www.caimmo.com/de/portfolio/projekt/upbeat/",
     "https://kleihues.com/hochhaus-am-nordhafen-berlin/?lang=en",
     "https://www.50hertz.com/Portals/1/Dokumente/Medien/Pressemitteilungen/2023/20230510-50Hertz-PM-Spatenstich-in-der-Europacity-DE.pdf",

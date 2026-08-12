@@ -152,12 +152,18 @@ describe("true voxel Minecraft world", () => {
   test("keeps KPMG and its current north forecourt recognisable in blocks", () => {
     const recognition = createMinecraftEinzEuropaplatzRecognition();
     const profile = recognition.userData.architecturalProfile as {
+      campus: typeof EUROPACITY_PROFILE.lehrterCampus;
       plaza: typeof EUROPACITY_PROFILE.europaplatzNorth;
       tower: typeof EUROPACITY_PROFILE.einz;
     };
-    expect(recognition.count).toBeGreaterThan(150);
+    expect(recognition.count).toBeGreaterThan(200);
     expect(profile.tower.facadeGridM).toBe(1.35);
     expect(profile.plaza.currentState).toContain("temporary 2026");
+    expect(profile.campus.currentState).toContain("ground-floor concrete frame");
+    expect(profile.campus.currentSlabTopM).toBeLessThan(
+      profile.campus.plannedEnvelopeHeightM,
+    );
+    expect(recognition.userData.sourceRole).toContain("Lehrter-Campus");
     expect(
       world.getObjectByName("Voxel KPMG and Europaplatz Nord"),
     ).toBeDefined();

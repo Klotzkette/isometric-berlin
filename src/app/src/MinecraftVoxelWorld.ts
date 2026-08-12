@@ -1004,7 +1004,8 @@ export function createMinecraftBerlinModernRecognition(): InstancedMesh {
 export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
   const profile = EUROPACITY_PROFILE.einz;
   const plaza = EUROPACITY_PROFILE.europaplatzNorth;
-  const writer = instancedBoxes("Voxel KPMG and Europaplatz Nord", 900);
+  const campus = EUROPACITY_PROFILE.lehrterCampus;
+  const writer = instancedBoxes("Voxel KPMG and Europaplatz Nord", 1_300);
   const center = new Vector3();
   const size = new Vector3();
   const color = new Color();
@@ -1297,11 +1298,119 @@ export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
     }
   }
 
+  // Block-native present-day Lehrter Campus: low concrete frame, scaffold,
+  // hoarding and crane. Do not voxelise the published 35.5 m finished mass
+  // while the owner reference still records a ground-floor construction site.
+  const campusBox = (
+    x: number,
+    centerY: number,
+    z: number,
+    width: number,
+    height: number,
+    depth: number,
+    tone: number,
+    rotationY = 0,
+  ): void => {
+    center.set(x, centerY, z);
+    size.set(width, height, depth);
+    writer.write(center, size, color.setHex(tone), rotationY);
+  };
+  campusBox(
+    -260,
+    campus.groundY + 0.45,
+    -714,
+    28,
+    0.9,
+    61,
+    0xa9aaa6,
+  );
+  campusBox(
+    -260,
+    campus.groundY + campus.currentSlabTopM - 0.35,
+    -714,
+    24,
+    0.7,
+    54,
+    0xd4d4ce,
+  );
+  for (const x of [-270, -261, -252]) {
+    for (const z of [-738, -725, -712, -699, -688]) {
+      campusBox(
+        x,
+        campus.groundY + campus.currentSlabTopM / 2,
+        z,
+        0.9,
+        campus.currentSlabTopM,
+        0.9,
+        0xa9aaa6,
+      );
+    }
+  }
+  for (let z = -741; z <= -688; z += 4) {
+    for (const x of [-274.5, -246.5]) {
+      campusBox(
+        x,
+        campus.groundY + campus.currentScaffoldTopM / 2,
+        z,
+        0.35,
+        campus.currentScaffoldTopM,
+        0.35,
+        0x59615f,
+      );
+    }
+  }
+  for (const y of [1.4, 4, 6.6, 9.2]) {
+    campusBox(
+      -246.5,
+      campus.groundY + y,
+      -714,
+      0.35,
+      0.35,
+      56,
+      0x59615f,
+    );
+    campusBox(
+      -274.5,
+      campus.groundY + y,
+      -714,
+      0.35,
+      0.35,
+      56,
+      0x59615f,
+    );
+  }
+  campusBox(-260.5, campus.groundY + 1.5, -745, 26, 3, 0.65, 0x252d2d);
+  campusBox(-246, campus.groundY + 1.5, -714, 0.65, 3, 58, 0x252d2d);
+  campusBox(
+    campus.craneWorldM[0],
+    campus.groundY + campus.craneMastHeightM / 2,
+    campus.craneWorldM[1],
+    1.8,
+    campus.craneMastHeightM,
+    1.8,
+    0x59615f,
+  );
+  campusBox(
+    campus.craneWorldM[0] + 10.8,
+    campus.groundY + campus.craneMastHeightM,
+    campus.craneWorldM[1] + 4.1,
+    47,
+    1.15,
+    1.15,
+    0x59615f,
+    -0.36,
+  );
+
   writer.mesh.instanceMatrix.needsUpdate = true;
   if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
   writer.mesh.frustumCulled = false;
-  writer.mesh.userData.architecturalProfile = { plaza, tower: profile };
-  writer.mesh.userData.sourceRole = "LoD2-tower-current-2026-forecourt";
+  writer.mesh.userData.architecturalProfile = {
+    campus,
+    plaza,
+    tower: profile,
+  };
+  writer.mesh.userData.sourceRole =
+    "LoD2-tower-current-2026-forecourt-and-Lehrter-Campus-construction";
   return writer.mesh;
 }
 

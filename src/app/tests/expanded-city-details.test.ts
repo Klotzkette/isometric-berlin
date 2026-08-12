@@ -210,6 +210,18 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.europaplatzNorth.youngTreeCount).toBe(14);
     expect(profile.europaplatzNorth.lampCount).toBe(8);
     expect(profile.europaplatzNorth.constructionZoneCount).toBe(2);
+    expect(profile.lehrterCampus.footprintWorldM).toHaveLength(6);
+    expect(profile.lehrterCampus.currentState).toContain(
+      "ground-floor concrete frame",
+    );
+    expect(profile.lehrterCampus.currentState).toContain(
+      "full-height envelope is deliberately not rendered",
+    );
+    expect(profile.lehrterCampus.plannedEnvelopeHeightM).toBe(35.5);
+    expect(profile.lehrterCampus.plannedStoreyCount).toBe(9);
+    expect(profile.lehrterCampus.currentSlabTopM).toBeLessThan(6);
+    expect(profile.lehrterCampus.geometryStatus).toContain("not a surveyed");
+    expect(profile.lehrterCampus.observedOn).toBe("2026-08");
     expect(profile.fiftyHertz.sourceTowerPartId).toBe("DEBE3Dyir4lZjw1O");
     expect(profile.fiftyHertz.measuredHeightM).toBeCloseTo(54.975, 3);
     expect(profile.fiftyHertz.floorCount).toBe(13);
@@ -232,7 +244,7 @@ describe("task-10 expanded city recognition details", () => {
       profile.upbeat.groundY + profile.upbeat.heightM,
     );
     expect(profile.upbeat.geometryStatus).toContain("plan-derived tier clips");
-    expect(profile.sources).toHaveLength(9);
+    expect(profile.sources).toHaveLength(15);
   });
 
   test("keeps the WELT balloon tall but introduces no duplicate Carillon", () => {

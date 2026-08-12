@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.71.3
+
+- **The active Lehrter Campus site now occupies the real gap west of Berlin
+  Hauptbahnhof.** Its six-sided presentation footprint is constrained by the
+  OSM-surveyed EDGE Grand Central east facade, the northern Tiergartentunnel
+  approach and the official MK2 ground-floor plan. The owner photograph fixes
+  the August 2026 construction state: compacted site, low concrete frame,
+  falsework, formwork deck, perimeter scaffold, dark hoarding, red-white
+  barriers and a lattice tower crane. No supplied photograph or external
+  texture is bundled.
+- **A future building is not passed off as present-day Berlin.** The published
+  35.5 m, nine-storey office-and-hotel envelope remains source metadata only;
+  the visible structure stops at the photographed low raw-build stage. The
+  same current-state contract is preserved in Day, Night and Snowstorm, while
+  Minecraft receives a separate block-native slab, scaffold, hoarding and
+  crane rather than a finished tower.
+- **Geometry and release checks cover the source boundary.** Focused contracts
+  pin the current slab below six metres, retain the planned figures solely as
+  provenance and require the Minecraft construction cue. Browser inspection
+  covered desktop, tablet and phone framing with no console warnings. The
+  visible radius remains **5,230 m**; attribution and the additive source
+  hierarchy are unchanged.
+
 ## v0.71.2
 
 - **KPMG/EINZ now matches its measured, completed high-rise character.** The
