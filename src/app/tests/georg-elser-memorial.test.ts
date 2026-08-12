@@ -1,12 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { Box3, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
+import groundJson from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
   expandedCityFocusCamera,
   POTSDAMER_DETAIL_PROFILE,
 } from "../src/ExpandedCityDetails";
 import { createGeorgElserMemorial } from "../src/GeorgElserMemorial";
 import { createMemorialLandmarks } from "../src/MemorialLandmarks";
+import {
+  smoothGroundTopSampler,
+  type VoxelPayload,
+} from "../src/MinecraftVoxelWorld";
+
+const ground = groundJson as unknown as VoxelPayload;
 
 describe("Georg Elser memorial", () => {
   test("uses the exact OSM sculpture anchor and published height", () => {
@@ -16,6 +23,19 @@ describe("Georg Elser memorial", () => {
     expect(profile.worldM).toEqual([749.614475, 749.844173]);
     expect(profile.heightM).toBe(17);
     expect(profile.material).toBe("steel");
+  });
+
+  test("sits on the interpolated local terrain instead of the generic sight height", () => {
+    const profile = POTSDAMER_DETAIL_PROFILE.georgElser;
+    const xOffset = profile.worldM[0] / ground.cell_m - ground.grid.min_x_idx;
+    const zOffset = profile.worldM[1] / ground.cell_m - ground.grid.min_z_idx;
+    const sampledGround = smoothGroundTopSampler(ground)(xOffset, zOffset);
+    const memorial = createGeorgElserMemorial();
+    const bounds = new Box3().setFromObject(memorial);
+
+    expect(profile.groundYM).toBeCloseTo(sampledGround, 2);
+    expect(memorial.position.y).toBe(profile.groundYM);
+    expect(bounds.min.y).toBeCloseTo(profile.groundYM, 2);
   });
 
   test("draws one continuous layered profile instead of generic rods", () => {

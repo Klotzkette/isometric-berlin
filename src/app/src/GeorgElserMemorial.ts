@@ -220,11 +220,12 @@ export function createGeorgElserMemorial(): Group {
   const profile = POTSDAMER_DETAIL_PROFILE.georgElser;
   const memorial = new Group();
   memorial.name = "Denkzeichen Georg Elser";
-  memorial.position.set(profile.worldM[0], 8, profile.worldM[1]);
+  memorial.position.set(profile.worldM[0], profile.groundYM, profile.worldM[1]);
   memorial.rotation.y = profile.rotationY;
   memorial.userData = {
     artist: profile.artist,
     geometryStatus: profile.geometryStatus,
+    groundYM: profile.groundYM,
     heightM: profile.heightM,
     inscription: profile.inscription,
     material: profile.material,

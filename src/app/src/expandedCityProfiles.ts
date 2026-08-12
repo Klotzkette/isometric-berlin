@@ -182,7 +182,8 @@ export const POTSDAMER_DETAIL_PROFILE = {
   georgElser: {
     artist: "Ulrich Klages",
     geometryStatus:
-      "OSM sculpture node and material; published 17 m height; owner-photo-bounded profile, lamination and pavement-plaque reconstruction",
+      "OSM sculpture node and material; published 17 m height; Geoportal-derived local ground sample; owner-photo-bounded profile, lamination and pavement-plaque reconstruction",
+    groundYM: 5.02,
     heightM: 17,
     informationNodeId: "11395350229",
     inscription:

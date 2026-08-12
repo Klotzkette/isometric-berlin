@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.71.19
+
+- **The Georg Elser memorial now meets the measured pavement instead of the
+  catalogue's generic sight height.** Its steel shoe and inset quotation plate
+  use the 5.02 m bilinearly interpolated local terrain height from the committed
+  Geoportal-derived ground grid at exact OSM sculpture node `1986458966`. A
+  regression test samples that same grid and checks the complete model's lowest
+  point, preventing the 2.98 m hover that survived the first reconstruction.
+  Profile, published 17 m height, inscription, placement and cross-mode
+  materials are otherwise unchanged. The visible radius remains **5,230 m**;
+  attribution and source hierarchy are unchanged.
+
 ## v0.71.18
 
 - **The Georg Elser memorial is no longer five disconnected placeholder
