@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.71.12
+
+- **The Swiss Embassy's Otto-von-Bismarck-Allee front now follows the supplied
+  current photograph instead of a symmetric generic portico.** The Berlin LoD2
+  50.927 x 22.804 m envelope, 21.05 m historic roof datum and existing local
+  axis remain unchanged. The 1870/71 palace now has its visible nine-bay,
+  three-storey register, 26 differentiated street-front windows, fine surrounds
+  and sashes, eight engaged columns, capitals, dentils, rosettes, layered
+  cornices, warm rusticated base and the offset panelled timber entrance.
+- **The roofline and Swiss flag now match the street-front hierarchy.** A
+  104-member turned balustrade with pedestals replaces the coarse rectangular
+  posts. The centred roof mast carries a restrained 2.2 m square Swiss flag
+  with a proportionally corrected white cross visible from both sides. The
+  modern Diener & Diener wing remains a distinct pale volume and gains its
+  restrained street-front identification.
+- **Higher detail does not create another overview shimmer.** The fine facade,
+  balusters and roof pedestals share the existing 900/1,200 m hysteretic detail
+  band; strong cornice and parapet rails remain as the distant silhouette.
+  Day, Night and Minecraft browser checks preserve the model and its flag, a
+  390 x 844 mobile check has no horizontal overflow, and focused contracts pin
+  the window, column, dentil and baluster counts. The owner-supplied photograph
+  is a non-bundled visual reference; small profiles and fixture dimensions are
+  explicitly recognition estimates, not survey observations. The visible
+  radius remains **5,230 m**; bounds, attribution and source hierarchy are
+  unchanged.
+
 ## v0.71.11
 
 - **The Löwenbrücke now reads as Berlin's oldest suspension bridge instead of

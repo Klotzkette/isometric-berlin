@@ -270,6 +270,18 @@ reconstruction, not survey geometry. The fine members use the shared
 distance-hysteresis and ink fade so the close view stays intricate without
 shimmering in the overview.
 
+The Swiss Embassy recognition model preserves its Berlin LoD2 50.927 x 22.804 m
+envelope and the 21.05 m historic roof datum. The official EDA building history
+identifies the 1870/71 Friedrich Hitzig / Paul Baumgarten palace and the 2000
+Diener & Diener extension as the two architectural layers. The supplied current
+street photograph bounds the old palace's nine-bay, three-storey facade rhythm,
+offset timber entrance, warmer rusticated base, fine cornices, balustrade and
+centred roof flag. Those small profiles, sash widths, fixture positions and the
+2.2 m display flag remain recognition estimates rather than claimed survey
+observations; no photograph is bundled or projected onto the geometry. The
+street-front and 104 fine balusters use the shared hysteretic detail layer so
+they disappear before becoming unstable sub-pixel marks in an overview.
+
 `berlin modern` is handled as planning geometry because the museum is still
 under construction and therefore absent from the completed-building LoD2
 inventory. The model follows the architects' published 120 m length, 71 m

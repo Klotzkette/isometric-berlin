@@ -215,6 +215,15 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
+  test("keeps the Swiss Embassy street-front articulation out of the far overview", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Swiss Embassy historic street-front fine detail",
+    );
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "Swiss Embassy historic roof fine detail",
+    );
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({

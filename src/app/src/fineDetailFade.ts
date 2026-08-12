@@ -238,6 +238,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "MEININGER Hotel facade details bodies",
   "MEININGER Hotel facade details lamps",
   "MEININGER Hotel facade details ink lines",
+  "Swiss Embassy historic street-front fine detail",
+  "Swiss Embassy historic roof fine detail",
   "Amtssitz presidential standard eagle red details front",
   "Amtssitz presidential standard eagle red details back",
 ];
