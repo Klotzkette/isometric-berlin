@@ -2626,8 +2626,8 @@
       "column_rows": 2,
       "columns_per_row": 6,
       "focus_camera": {
-        "distance_m": 98.0,
-        "polar_degrees": 64.0,
+        "distance_m": 94.0,
+        "polar_degrees": 78.0,
         "azimuth_degrees": 73.0,
         "target_height_m": 13.0
       },
