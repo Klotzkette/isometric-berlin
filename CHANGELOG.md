@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.71.6
+
+- **Grillstand HBF now occupies its mapped place beneath the western rail
+  approach.** The current OpenStreetMap fast-food node fixes the kiosk at
+  EPSG:25833 `389289.798 / 5820630.088`; the shipped terrain and rail payloads
+  keep its complete 3.75 m presentation envelope about five metres below the
+  viaduct soffit. Its dark compact shell, projecting canopy, cream-and-red
+  fascia, `GRILLSTAND HBF` lettering, menu band, four food panels, service
+  hatch and three cooler doors replace an anonymous gap without moving the
+  station or rail geometry.
+- **The owner photographs inform recognition, not texture copying.** A bounded
+  procedural reconstruction adds the doner cue, seven foreground bollards,
+  two outdoor tables with six chairs, two bins, seven canopy downlights and
+  twenty bulbs on two sagged patio strings. Exact fixture dimensions are
+  explicitly labelled estimates rather than surveyed geometry; neither photo
+  is bundled or projected onto the model.
+- **The small night landmark remains crisp and deterministic.** Warm unlit
+  sign faces preserve dark lettering instead of washing it out, while static
+  merged lamp materials avoid dynamic-light shimmer. Focused metric contracts
+  cover position, rail clearance, street alignment, detail counts and both
+  material states. Day, Night and Minecraft each produced byte-identical
+  settled frames with no browser warnings. The visible radius remains
+  **5,230 m**; attribution and the additive source hierarchy are unchanged.
+
 ## v0.71.5
 
 - **The Washingtonplatz DB tower is now the real ventilation structure, not a

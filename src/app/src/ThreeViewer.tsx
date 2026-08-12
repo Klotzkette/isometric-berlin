@@ -54,6 +54,7 @@ import {
   createIceOnRails,
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
+import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
 import { createCivicLandmarks } from "./CivicLandmarks";
 import {
   centralCivicDetailsVisible,
@@ -1649,6 +1650,15 @@ function ensureIsoWorld(
         const ice = createIceOnRails(rail);
         if (ice) {
           runtime.isoWorld.add(ice);
+        }
+        // OSM node/2231321435 fixes the small Grillstand HBF beneath the
+        // western Stadtbahn approach. It stays beside the architectural
+        // signatures so its photo-bounded recognition details survive every
+        // surface mode while still disappearing in the underground cutaway.
+        const grillstand = createHauptbahnhofGrillstand(ground, rail);
+        if (grillstand) {
+          markAuthoredFlatUnlit(grillstand);
+          runtime.signatures.add(grillstand);
         }
         const underground = createUndergroundNetwork(rail);
         if (underground) {
