@@ -106,6 +106,7 @@ describe("task-10 expanded city recognition details", () => {
   test("adds company and balloon signs as drawn lettering", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.getObjectByName("KPMG rooftop lettering")).toBeDefined();
+    expect(details.getObjectByName("KPMG side lettering")).toBeDefined();
     expect(details.getObjectByName("DKB rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("WELT rooftop lettering")).toBeDefined();
     expect(
@@ -199,7 +200,16 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.einz.sourceTowerPartId).toBe("DEBE3De9JUgwVTiy");
     expect(profile.einz.measuredHeightM).toBeCloseTo(83.794, 3);
     expect(profile.einz.floorCount).toBe(22);
+    expect(profile.einz.facadeGridM).toBe(1.35);
+    expect(profile.einz.facadeBayCounts).toEqual([32, 18]);
     expect(profile.einz.dgmSceneGroundY).toBeCloseTo(5.51, 2);
+    expect(profile.einz.podium.sourcePartId).toBe("DEBE3DMnbuS0Za6I");
+    expect(profile.einz.podium.floorCount).toBe(6);
+    expect(profile.einz.podium.measuredHeightM).toBeCloseTo(26.426, 3);
+    expect(profile.europaplatzNorth.currentState).toContain("temporary 2026");
+    expect(profile.europaplatzNorth.youngTreeCount).toBe(14);
+    expect(profile.europaplatzNorth.lampCount).toBe(8);
+    expect(profile.europaplatzNorth.constructionZoneCount).toBe(2);
     expect(profile.fiftyHertz.sourceTowerPartId).toBe("DEBE3Dyir4lZjw1O");
     expect(profile.fiftyHertz.measuredHeightM).toBeCloseTo(54.975, 3);
     expect(profile.fiftyHertz.floorCount).toBe(13);
@@ -222,7 +232,7 @@ describe("task-10 expanded city recognition details", () => {
       profile.upbeat.groundY + profile.upbeat.heightM,
     );
     expect(profile.upbeat.geometryStatus).toContain("plan-derived tier clips");
-    expect(profile.sources).toHaveLength(7);
+    expect(profile.sources).toHaveLength(9);
   });
 
   test("keeps the WELT balloon tall but introduces no duplicate Carillon", () => {

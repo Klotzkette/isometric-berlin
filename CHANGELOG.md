@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.71.2
+
+- **KPMG/EINZ now matches its measured, completed high-rise character.** The
+  authoritative Berlin LoD2 envelope remains fixed at 83.794 m and 22
+  storeys; a calm blue-grey curtain wall replaces the pale folded screen. Its
+  published 1.35 m planning module resolves to 32 long-face and 18 short-face
+  bays, the missing 26.426 m six-storey base is restored from its companion
+  LoD2 part, and two restrained upper-corner signs replace the oversized
+  central billboard.
+- **Europaplatz Nord records the actual temporary 2026 condition.** Owner
+  photographs and Berlin's current-state competition documentation guide the
+  broad pale paving, continuous walking routes, fourteen young trees, eight
+  slender lamps, two gravel/soil work areas and their red-white barriers. The
+  model explicitly does not present the still-unbuilt permanent landscape
+  competition as existing public realm, and no reference photograph or
+  external texture is bundled.
+- **All three architectural modes retain the correction.** Day and Night use
+  one merged flat-painted detail layer with sparse deterministic office
+  lights; Minecraft gets its own block-native facade, podium and temporary
+  plaza and suppresses generic square windows across the surveyed tower. New
+  metric, source-boundary, signage, plaza and voxel-presence contracts cover
+  the change. The visible radius remains **5,230 m**; attribution and the
+  additive source hierarchy are unchanged.
+
 ## v0.71.1
 
 - **FUNBOX fills the documented temporary event lot beside Heidestraße.** The

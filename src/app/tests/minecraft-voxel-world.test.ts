@@ -11,6 +11,7 @@ import {
   VOXEL_WINDOW_HEIGHT_M,
   VOXEL_WINDOW_WIDTH_M,
   createMinecraftBerlinModernRecognition,
+  createMinecraftEinzEuropaplatzRecognition,
   createMinecraftFunboxRecognition,
   createMinecraftHamburgerBahnhofRecognition,
   createMinecraftUpbeatRecognition,
@@ -146,6 +147,26 @@ describe("true voxel Minecraft world", () => {
     expect(crowns).toBeLessThanOrEqual(payload.trees.length * 2);
     // Blocky by construction: thousands of surveyed building columns.
     expect(payload.buildings.length).toBeGreaterThan(10_000);
+  });
+
+  test("keeps KPMG and its current north forecourt recognisable in blocks", () => {
+    const recognition = createMinecraftEinzEuropaplatzRecognition();
+    const profile = recognition.userData.architecturalProfile as {
+      plaza: typeof EUROPACITY_PROFILE.europaplatzNorth;
+      tower: typeof EUROPACITY_PROFILE.einz;
+    };
+    expect(recognition.count).toBeGreaterThan(150);
+    expect(profile.tower.facadeGridM).toBe(1.35);
+    expect(profile.plaza.currentState).toContain("temporary 2026");
+    expect(
+      world.getObjectByName("Voxel KPMG and Europaplatz Nord"),
+    ).toBeDefined();
+    expect(
+      voxelRecognitionAreaAt(
+        EUROPACITY_PROFILE.einz.centerWorldM[0],
+        EUROPACITY_PROFILE.einz.centerWorldM[1],
+      )?.name,
+    ).toBe("KPMG Europacity");
   });
 
   test("does not bury the Sinti and Roma memorial under false building columns", () => {

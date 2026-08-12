@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.1/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.2 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.2/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.1** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.2** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.1**, built from `main`. Its full viewer
+The current public package is **v0.71.2**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -61,6 +61,15 @@ local modules.
   kiosk, turrets and obstacle course without copying photo textures. Day,
   Night and Snowstorm share the detailed isometric form; Minecraft receives a
   separate block-native version at the same documented position.
+
+- **KPMG/EINZ and Europaplatz Nord now follow the photographed current
+  condition.** The 84 m, 22-storey LoD2 tower carries the published 1.35 m
+  aluminium facade module, calm blue-grey glazing, small upper-corner KPMG
+  signs and its six-storey base instead of the former pale folded screen and
+  oversized billboard. The northern forecourt shows its temporary 2026
+  paving, clear routes, young tree rows, slim lamps and red-white work-zone
+  barriers; it does not pre-build the still-unrealised permanent competition
+  design. Minecraft gets a deliberately block-native equivalent.
 
 - **A ground-bound pedestrian mode adds a human-scale view.** The independent
   `Walk` / `Spaziergang` control works in Day, Night, Minecraft and Snowstorm,

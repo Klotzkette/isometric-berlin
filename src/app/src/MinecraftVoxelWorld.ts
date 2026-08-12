@@ -204,6 +204,15 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     widthM: 64,
   },
   {
+    center: EUROPACITY_PROFILE.einz.centerWorldM,
+    depthM: EUROPACITY_PROFILE.einz.footprintDepthM,
+    name: "KPMG Europacity",
+    paddingM: 1,
+    rotationDegrees: (EUROPACITY_PROFILE.einz.rotationY * 180) / Math.PI,
+    tone: 0x789da4,
+    widthM: EUROPACITY_PROFILE.einz.footprintLengthM,
+  },
+  {
     // One low 281 m freight hall, not a row of alternating 8/12 m voxel
     // peaks. The payload remains the footprint authority; this envelope only
     // evens the coarse top row and suppresses generic office windows.
@@ -991,6 +1000,311 @@ export function createMinecraftBerlinModernRecognition(): InstancedMesh {
   return writer.mesh;
 }
 
+/** Block-native KPMG/EINZ facade and current temporary Europaplatz Nord. */
+export function createMinecraftEinzEuropaplatzRecognition(): InstancedMesh {
+  const profile = EUROPACITY_PROFILE.einz;
+  const plaza = EUROPACITY_PROFILE.europaplatzNorth;
+  const writer = instancedBoxes("Voxel KPMG and Europaplatz Nord", 900);
+  const center = new Vector3();
+  const size = new Vector3();
+  const color = new Color();
+  const writeAt = (
+    origin: readonly [number, number],
+    rotationY: number,
+    localX: number,
+    centerY: number,
+    localZ: number,
+    width: number,
+    height: number,
+    depth: number,
+    tone: number,
+  ): void => {
+    const cosine = Math.cos(rotationY);
+    const sine = Math.sin(rotationY);
+    center.set(
+      origin[0] + localX * cosine + localZ * sine,
+      centerY,
+      origin[1] - localX * sine + localZ * cosine,
+    );
+    size.set(width, height, depth);
+    writer.write(center, size, color.setHex(tone), rotationY);
+  };
+  const tower = (
+    localX: number,
+    centerY: number,
+    localZ: number,
+    width: number,
+    height: number,
+    depth: number,
+    tone: number,
+  ): void =>
+    writeAt(
+      profile.centerWorldM,
+      profile.rotationY,
+      localX,
+      centerY,
+      localZ,
+      width,
+      height,
+      depth,
+      tone,
+    );
+  const floorPitch = profile.measuredHeightM / profile.floorCount;
+
+  // Calm blue-grey curtain-wall faces. The payload supplies the surveyed
+  // tower mass; this overlay replaces its generic square-window treatment.
+  for (const side of [-1, 1]) {
+    tower(
+      0,
+      profile.groundY + profile.measuredHeightM / 2,
+      side * (profile.footprintDepthM / 2 + 0.18),
+      profile.footprintLengthM,
+      profile.measuredHeightM,
+      0.45,
+      side > 0 ? 0x72c5d2 : 0x5f8790,
+    );
+    tower(
+      side * (profile.footprintLengthM / 2 + 0.18),
+      profile.groundY + profile.measuredHeightM / 2,
+      0,
+      0.45,
+      profile.measuredHeightM,
+      profile.footprintDepthM,
+      side > 0 ? 0xa4dfe2 : 0x72c5d2,
+    );
+    for (let floor = 0; floor <= profile.floorCount; floor += 1) {
+      const y = profile.groundY + floorPitch * floor;
+      tower(
+        0,
+        y,
+        side * (profile.footprintDepthM / 2 + 0.48),
+        profile.footprintLengthM + 0.5,
+        0.36,
+        0.52,
+        0xd4d4b7,
+      );
+      tower(
+        side * (profile.footprintLengthM / 2 + 0.48),
+        y,
+        0,
+        0.52,
+        0.36,
+        profile.footprintDepthM + 0.5,
+        0xd4d4b7,
+      );
+    }
+  }
+  for (
+    let localX = -profile.footprintLengthM / 2;
+    localX <= profile.footprintLengthM / 2;
+    localX += profile.facadeGridM * 2
+  ) {
+    for (const side of [-1, 1]) {
+      tower(
+        localX,
+        profile.groundY + profile.measuredHeightM / 2,
+        side * (profile.footprintDepthM / 2 + 0.5),
+        0.32,
+        profile.measuredHeightM,
+        0.42,
+        0xf3efd0,
+      );
+    }
+  }
+  for (
+    let localZ = -profile.footprintDepthM / 2;
+    localZ <= profile.footprintDepthM / 2;
+    localZ += profile.facadeGridM * 2
+  ) {
+    for (const side of [-1, 1]) {
+      tower(
+        side * (profile.footprintLengthM / 2 + 0.5),
+        profile.groundY + profile.measuredHeightM / 2,
+        localZ,
+        0.42,
+        profile.measuredHeightM,
+        0.32,
+        0xf3efd0,
+      );
+    }
+  }
+  tower(
+    0,
+    profile.groundY + profile.measuredHeightM - 0.55,
+    0,
+    profile.footprintLengthM + 0.8,
+    1.1,
+    profile.footprintDepthM + 0.8,
+    0xb8b4a8,
+  );
+
+  // Small upper-corner lettering cue instead of an oversized billboard.
+  tower(
+    -13.4,
+    profile.groundY + profile.measuredHeightM - 4.1,
+    -(profile.footprintDepthM / 2 + 0.76),
+    6,
+    1.6,
+    0.34,
+    0xf3efd0,
+  );
+  for (const localX of [-15.1, -13.95, -12.8, -11.65]) {
+    tower(
+      localX,
+      profile.groundY + profile.measuredHeightM - 4.1,
+      -(profile.footprintDepthM / 2 + 0.96),
+      0.42,
+      0.78,
+      0.22,
+      0x40515c,
+    );
+  }
+
+  const podium = profile.podium;
+  const podiumBox = (
+    localX: number,
+    centerY: number,
+    localZ: number,
+    width: number,
+    height: number,
+    depth: number,
+    tone: number,
+  ): void =>
+    writeAt(
+      podium.centerWorldM,
+      profile.rotationY,
+      localX,
+      centerY,
+      localZ,
+      width,
+      height,
+      depth,
+      tone,
+    );
+  podiumBox(
+    0,
+    profile.groundY + podium.measuredHeightM / 2,
+    0,
+    podium.footprintLengthM,
+    podium.measuredHeightM,
+    podium.footprintDepthM,
+    0x72c5d2,
+  );
+  for (let floor = 0; floor <= podium.floorCount; floor += 1) {
+    const y =
+      profile.groundY + (podium.measuredHeightM * floor) / podium.floorCount;
+    for (const side of [-1, 1]) {
+      podiumBox(
+        0,
+        y,
+        side * (podium.footprintDepthM / 2 + 0.35),
+        podium.footprintLengthM,
+        0.42,
+        0.42,
+        0xd4d4b7,
+      );
+      podiumBox(
+        side * (podium.footprintLengthM / 2 + 0.35),
+        y,
+        0,
+        0.42,
+        0.42,
+        podium.footprintDepthM,
+        0xd4d4b7,
+      );
+    }
+  }
+
+  const plazaBox = (
+    localX: number,
+    centerY: number,
+    localZ: number,
+    width: number,
+    height: number,
+    depth: number,
+    tone: number,
+  ): void =>
+    writeAt(
+      plaza.centerWorldM,
+      plaza.rotationY,
+      localX,
+      centerY,
+      localZ,
+      width,
+      height,
+      depth,
+      tone,
+    );
+  plazaBox(
+    0,
+    plaza.groundY + 0.32,
+    0,
+    plaza.footprintLengthM,
+    0.64,
+    plaza.footprintDepthM,
+    0xd4d4b7,
+  );
+  for (const [localX, localZ, width, depth] of [
+    [-34, 8, 28, 21],
+    [31, -7, 31, 18],
+  ] as const) {
+    plazaBox(
+      localX,
+      plaza.groundY + 0.68,
+      localZ,
+      width,
+      0.72,
+      depth,
+      0x715b4a,
+    );
+    let barrierIndex = 0;
+    for (let offset = -width / 2 + 1.5; offset < width / 2; offset += 3) {
+      for (const edgeZ of [-depth / 2 - 0.5, depth / 2 + 0.5]) {
+        plazaBox(
+          localX + offset,
+          plaza.groundY + 1.35,
+          localZ + edgeZ,
+          2.6,
+          1.1,
+          0.55,
+          barrierIndex++ % 2 === 0 ? 0xc84038 : 0xf3efd0,
+        );
+      }
+    }
+  }
+  let treeIndex = 0;
+  for (const localZ of [-22, 23]) {
+    for (let localX = -42; localX <= 42; localX += 14) {
+      const stagger = treeIndex++ % 2 === 0 ? -0.7 : 0.7;
+      plazaBox(
+        localX,
+        plaza.groundY + 2,
+        localZ + stagger,
+        0.6,
+        3.4,
+        0.6,
+        0x704a2d,
+      );
+      plazaBox(
+        localX,
+        plaza.groundY + 4.2,
+        localZ + stagger,
+        2.8,
+        2.4,
+        2.8,
+        treeIndex % 3 === 0 ? 0x74b043 : 0x5d9634,
+      );
+    }
+  }
+
+  writer.mesh.instanceMatrix.needsUpdate = true;
+  if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
+  writer.mesh.frustumCulled = false;
+  writer.mesh.userData.architecturalProfile = { plaza, tower: profile };
+  writer.mesh.userData.sourceRole = "LoD2-tower-current-2026-forecourt";
+  return writer.mesh;
+}
+
 /**
  * Block-native Upbeat volume from the same current OSM outline and published
  * 5/11/19-storey height register as the drawn model. The current LoD2 payload
@@ -1217,6 +1531,7 @@ export function createMinecraftVoxelWorld(
   group.add(createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES));
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
+  group.add(createMinecraftEinzEuropaplatzRecognition());
   group.add(createMinecraftUpbeatRecognition());
   group.add(createMinecraftFunboxRecognition());
 

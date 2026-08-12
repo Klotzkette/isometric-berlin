@@ -238,8 +238,16 @@ const PRISON_MORTAR = 0xd8b7a1;
 const BLOOD_BEECH = 0x665d49;
 const EURO_GLASS = 0x789da4;
 const EURO_GLASS_LIGHT = 0x94b6b8;
+const EINZ_GLASS = 0x6f8991;
+const EINZ_GLASS_LIGHT = 0x88a1a6;
 const EURO_ALUMINIUM = 0xe2e0d7;
 const EURO_ALUMINIUM_SHADOW = 0xb9bcb7;
+const EURO_PLAZA_PAVING = 0xc9c8c0;
+const EURO_PLAZA_PATH = 0xe3e0d7;
+const EURO_PLAZA_GRAVEL = 0x9c9689;
+const EURO_PLAZA_SOIL = 0x776557;
+const CONSTRUCTION_RED = 0xc84038;
+const CONSTRUCTION_WHITE = 0xf4f1e7;
 const UPBEAT_GRID = 0xb6906c;
 const UPBEAT_GRID_LIGHT = 0xd4baa0;
 const UPBEAT_ROOF = 0xdedbd2;
@@ -386,6 +394,23 @@ function rotatedLocalOffset(
   const cosine = Math.cos(rotationY);
   const sine = Math.sin(rotationY);
   return [localX * cosine + localZ * sine, -localX * sine + localZ * cosine];
+}
+
+function rotatedRectangleRing(
+  center: readonly [number, number],
+  width: number,
+  depth: number,
+  rotationY: number,
+): [number, number][] {
+  return [
+    [-width / 2, -depth / 2],
+    [width / 2, -depth / 2],
+    [width / 2, depth / 2],
+    [-width / 2, depth / 2],
+  ].map(([localX, localZ]) => {
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotationY);
+    return [center[0] + offsetX, center[1] + offsetZ];
+  });
 }
 
 function addLocalBox(
@@ -610,8 +635,24 @@ function addEinzFacadeScreen(builder: Builder): void {
     profile.centerWorldM[1],
   );
   const floorPitch = profile.measuredHeightM / profile.floorCount;
-  const longBayCount = 22;
-  const shortBayCount = 13;
+  const [longBayCount, shortBayCount] = profile.facadeBayCounts;
+
+  // The LoD2 shell remains the metric authority. A calm, fractionally larger
+  // curtain-wall envelope masks the former decorative folds without changing
+  // the surveyed footprint or 84 m crown. The published 1.35 m planning grid
+  // resolves to 32 bays on the long face and 18 on the short face.
+  addLocalBox(
+    builder,
+    EINZ_GLASS,
+    origin,
+    0,
+    profile.groundY + profile.measuredHeightM / 2,
+    0,
+    profile.footprintLengthM + 0.28,
+    profile.measuredHeightM,
+    profile.footprintDepthM + 0.28,
+    profile.rotationY,
+  );
   for (const side of [-1, 1]) {
     for (let floor = 0; floor <= profile.floorCount; floor += 1) {
       const centerY = profile.groundY + floor * floorPitch;
@@ -646,31 +687,15 @@ function addEinzFacadeScreen(builder: Builder): void {
       const localX =
         -profile.footprintLengthM / 2 +
         (profile.footprintLengthM * bay) / longBayCount;
-      for (let floor = 0; floor < 8; floor += 1) {
-        const fold = 0.18 + (bay % 2 === 0 ? 0.62 : 0.08) * (1 - floor / 8);
-        addLocalBox(
-          builder,
-          EURO_ALUMINIUM,
-          origin,
-          localX,
-          profile.groundY + floorPitch * (floor + 0.5),
-          side * (profile.footprintDepthM / 2 + fold),
-          0.16,
-          floorPitch - 0.18,
-          0.18,
-          profile.rotationY,
-          false,
-        );
-      }
       addLocalBox(
         builder,
         EURO_ALUMINIUM,
         origin,
         localX,
-        profile.groundY + floorPitch * 15,
+        profile.groundY + profile.measuredHeightM / 2,
         side * (profile.footprintDepthM / 2 + 0.18),
-        0.16,
-        floorPitch * 14 - 0.18,
+        0.12,
+        profile.measuredHeightM - 0.14,
         0.18,
         profile.rotationY,
         false,
@@ -694,13 +719,12 @@ function addEinzFacadeScreen(builder: Builder): void {
         false,
       );
     }
-    for (let floor = 1; floor < profile.floorCount; floor += 1) {
-      if (floor % 3 === 0) continue;
+    for (let floor = 2; floor < profile.floorCount; floor += 1) {
       for (let bay = 0; bay < longBayCount; bay += 1) {
-        if ((floor * 5 + bay * 3 + (side > 0 ? 1 : 4)) % 13 > 3) continue;
+        if ((floor * 5 + bay * 3 + (side > 0 ? 1 : 4)) % 19 > 2) continue;
         addLocalLampBox(
           builder,
-          EURO_WINDOW_LIGHT,
+          EINZ_GLASS_LIGHT,
           origin,
           -profile.footprintLengthM / 2 +
             (profile.footprintLengthM * (bay + 0.5)) / longBayCount,
@@ -714,7 +738,23 @@ function addEinzFacadeScreen(builder: Builder): void {
       }
     }
   }
-  // The double-height Europaplatz entrance remains legible beneath the rods.
+
+  // A flat, clean crown matches the completed tower and adds no height beyond
+  // the official LoD2 maximum.
+  addLocalBox(
+    builder,
+    EURO_ALUMINIUM_SHADOW,
+    origin,
+    0,
+    profile.groundY + profile.measuredHeightM - 0.36,
+    0,
+    profile.footprintLengthM + 0.48,
+    0.72,
+    profile.footprintDepthM + 0.48,
+    profile.rotationY,
+  );
+
+  // The double-height entrance faces north towards Hauptbahnhof/Europaplatz.
   for (const localX of [-5.3, 5.3]) {
     addLocalBox(
       builder,
@@ -722,7 +762,7 @@ function addEinzFacadeScreen(builder: Builder): void {
       origin,
       localX,
       profile.groundY + floorPitch,
-      profile.footprintDepthM / 2 + 0.38,
+      -(profile.footprintDepthM / 2 + 0.38),
       0.32,
       floorPitch * 2,
       0.32,
@@ -736,12 +776,244 @@ function addEinzFacadeScreen(builder: Builder): void {
     origin,
     0,
     profile.groundY + floorPitch * 2,
-    profile.footprintDepthM / 2 + 0.5,
+    -(profile.footprintDepthM / 2 + 0.5),
     11,
     0.28,
     1.2,
     profile.rotationY,
   );
+
+  // Six-storey base from the companion LoD2 part. This was previously absent
+  // from the shipped payload and made the tower appear detached from its real
+  // 4–6-storey urban block.
+  const podium = profile.podium;
+  const podiumOrigin = new Vector3(
+    podium.centerWorldM[0],
+    profile.groundY,
+    podium.centerWorldM[1],
+  );
+  addLocalBox(
+    builder,
+    EURO_GLASS,
+    podiumOrigin,
+    0,
+    profile.groundY + podium.measuredHeightM / 2,
+    0,
+    podium.footprintLengthM,
+    podium.measuredHeightM,
+    podium.footprintDepthM,
+    profile.rotationY,
+  );
+  addTierFacadeGrid(
+    builder,
+    rotatedRectangleRing(
+      podium.centerWorldM,
+      podium.footprintLengthM,
+      podium.footprintDepthM,
+      profile.rotationY,
+    ),
+    profile.groundY,
+    profile.groundY + podium.measuredHeightM,
+    podium.floorCount,
+    EURO_ALUMINIUM,
+  );
+  addLocalBox(
+    builder,
+    EURO_ALUMINIUM_SHADOW,
+    podiumOrigin,
+    0,
+    profile.groundY + podium.measuredHeightM + 0.16,
+    0,
+    podium.footprintLengthM + 0.38,
+    0.32,
+    podium.footprintDepthM + 0.38,
+    profile.rotationY,
+  );
+}
+
+function addEuropaplatzNorth(builder: Builder): void {
+  const profile = EUROPACITY_PROFILE.europaplatzNorth;
+  const origin = new Vector3(
+    profile.centerWorldM[0],
+    profile.groundY,
+    profile.centerWorldM[1],
+  );
+  const rotation = profile.rotationY;
+  const at = (localX: number, localZ: number): [number, number] => {
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotation);
+    return [origin.x + offsetX, origin.z + offsetZ];
+  };
+  const localSphere = (
+    color: number,
+    localX: number,
+    centerY: number,
+    localZ: number,
+    radius: number,
+    lamp = false,
+  ): void => {
+    const geometry = new SphereGeometry(radius, 10, 7);
+    const [x, z] = at(localX, localZ);
+    geometry.translate(x, centerY, z);
+    addCustomGeometry(builder, geometry, color, false, lamp);
+  };
+
+  // Current 2026 state: a broad temporary forecourt, not the still-unbuilt
+  // permanent landscape proposal. Clear pale routes remain continuous while
+  // two bounded gravel/soil work areas retain their red-white barriers.
+  addLocalBox(
+    builder,
+    EURO_PLAZA_PAVING,
+    origin,
+    0,
+    profile.groundY + 0.06,
+    0,
+    profile.footprintLengthM,
+    0.12,
+    profile.footprintDepthM,
+    rotation,
+    false,
+  );
+  for (const [localX, width] of [
+    [-15, 12],
+    [17, 9],
+  ] as const) {
+    addLocalBox(
+      builder,
+      EURO_PLAZA_PATH,
+      origin,
+      localX,
+      profile.groundY + 0.14,
+      0,
+      width,
+      0.12,
+      profile.footprintDepthM - 2,
+      rotation,
+      false,
+    );
+  }
+
+  const workZones = [
+    [-34, 8, 28, 21, EURO_PLAZA_GRAVEL],
+    [31, -7, 31, 18, EURO_PLAZA_SOIL],
+  ] as const;
+  for (const [localX, localZ, width, depth, color] of workZones) {
+    addLocalBox(
+      builder,
+      color,
+      origin,
+      localX,
+      profile.groundY + 0.2,
+      localZ,
+      width,
+      0.18,
+      depth,
+      rotation,
+      false,
+    );
+    const barrier = (
+      alongX: boolean,
+      offset: number,
+      fixed: number,
+      index: number,
+    ): void => {
+      addLocalBox(
+        builder,
+        index % 2 === 0 ? CONSTRUCTION_RED : CONSTRUCTION_WHITE,
+        origin,
+        alongX ? localX + offset : localX + fixed,
+        profile.groundY + 0.78,
+        alongX ? localZ + fixed : localZ + offset,
+        alongX ? 2.35 : 0.24,
+        1.05,
+        alongX ? 0.24 : 2.35,
+        rotation,
+        false,
+      );
+    };
+    let index = 0;
+    for (let offset = -width / 2 + 1.2; offset < width / 2; offset += 2.45) {
+      barrier(true, offset, -depth / 2 - 0.25, index++);
+      barrier(true, offset, depth / 2 + 0.25, index++);
+    }
+    for (let offset = -depth / 2 + 1.2; offset < depth / 2; offset += 2.45) {
+      barrier(false, offset, -width / 2 - 0.25, index++);
+      barrier(false, offset, width / 2 + 0.25, index++);
+    }
+  }
+
+  // Young rows from the owner's 2026 photographs: thin trunks and small,
+  // airy crowns rather than mature Tiergarten blobs.
+  let treeIndex = 0;
+  for (const localZ of [-22, 23]) {
+    for (let localX = -42; localX <= 42; localX += 14) {
+      const stagger = treeIndex % 2 === 0 ? -0.7 : 0.7;
+      addLocalBox(
+        builder,
+        0x6f5946,
+        origin,
+        localX,
+        profile.groundY + 2.05,
+        localZ + stagger,
+        0.22,
+        3.7,
+        0.22,
+        rotation,
+        false,
+      );
+      localSphere(
+        treeIndex % 3 === 0 ? 0x769b69 : 0x688f5e,
+        localX,
+        profile.groundY + 4.45,
+        localZ + stagger,
+        1.65,
+      );
+      treeIndex += 1;
+    }
+  }
+
+  // Slender L-head luminaires and one warm globe reproduce the visible
+  // Europaplatz furniture without introducing a heavy decorative layer.
+  const lampPositions = [
+    [-49, -8],
+    [-33, -8],
+    [-17, -8],
+    [0, -8],
+    [17, -8],
+    [33, -8],
+    [49, -8],
+    [1, 22],
+  ] as const;
+  lampPositions.forEach(([localX, localZ], index) => {
+    addLocalBox(
+      builder,
+      DARK_FRAME,
+      origin,
+      localX,
+      profile.groundY + 2.45,
+      localZ,
+      0.16,
+      4.65,
+      0.16,
+      rotation,
+      false,
+    );
+    if (index === lampPositions.length - 1) {
+      localSphere(0xffd89a, localX, profile.groundY + 4.85, localZ, 0.48, true);
+    } else {
+      addLocalLampBox(
+        builder,
+        0xffd89a,
+        origin,
+        localX + 0.55,
+        profile.groundY + 4.75,
+        localZ,
+        1.2,
+        0.16,
+        0.28,
+        rotation,
+      );
+    }
+  });
 }
 
 function addFiftyHertzStructure(builder: Builder): void {
@@ -3734,7 +4006,10 @@ function addEuropacityCompanyBuildings(
   const kpmg = anchor(byName, "KPMG Europacity");
   const dkb = anchor(byName, "DKB Campus Upbeat");
   if (!kpmg && !dkb) return;
-  if (kpmg) addEinzFacadeScreen(builder);
+  if (kpmg) {
+    addEinzFacadeScreen(builder);
+    addEuropaplatzNorth(builder);
+  }
   addFiftyHertzStructure(builder);
   if (dkb) addUpbeatCampus(builder);
 }
@@ -4120,25 +4395,50 @@ function addRooftopSigns(
   const kpmg = anchor(byName, "KPMG Europacity");
   if (kpmg) {
     const profile = EUROPACITY_PROFILE.einz;
-    const [offsetX, offsetZ] = rotatedLocalOffset(
-      0,
+    const [frontOffsetX, frontOffsetZ] = rotatedLocalOffset(
+      -13.4,
       -(profile.footprintDepthM / 2 + 0.42),
       profile.rotationY,
     );
-    const sign = createLetterSign(
+    const frontSign = createLetterSign(
       "KPMG",
-      14,
-      3.8,
+      5.7,
+      1.35,
       new Vector3(
-        profile.centerWorldM[0] + offsetX,
-        profile.groundY + profile.measuredHeightM - 5.3,
-        profile.centerWorldM[1] + offsetZ,
+        profile.centerWorldM[0] + frontOffsetX,
+        profile.groundY + profile.measuredHeightM - 4.15,
+        profile.centerWorldM[1] + frontOffsetZ,
       ),
       profile.rotationY + Math.PI,
-      "#edf2f3",
-      "#245ca8",
+      "#627b83",
+      "#f4f1e7",
     );
-    if (sign) group.add(sign);
+    if (frontSign) {
+      frontSign.name = "KPMG rooftop lettering";
+      group.add(frontSign);
+    }
+    const [sideOffsetX, sideOffsetZ] = rotatedLocalOffset(
+      profile.footprintLengthM / 2 + 0.42,
+      -5.7,
+      profile.rotationY,
+    );
+    const sideSign = createLetterSign(
+      "KPMG",
+      5.7,
+      1.35,
+      new Vector3(
+        profile.centerWorldM[0] + sideOffsetX,
+        profile.groundY + profile.measuredHeightM - 4.15,
+        profile.centerWorldM[1] + sideOffsetZ,
+      ),
+      profile.rotationY + Math.PI / 2,
+      "#627b83",
+      "#f4f1e7",
+    );
+    if (sideSign) {
+      sideSign.name = "KPMG side lettering";
+      group.add(sideSign);
+    }
   }
   const dkb = anchor(byName, "DKB Campus Upbeat");
   if (dkb) {
