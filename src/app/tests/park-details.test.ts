@@ -18,6 +18,7 @@ import {
   setParkSettledDetail,
   treePresentationForm,
 } from "../src/ParkDetails";
+import type { TunnelPortalPayload } from "../src/TunnelPortals";
 
 const payload: ParkDetailsPayload = {
   schema_version: 2,
@@ -171,14 +172,50 @@ describe("OSM park details", () => {
   });
 
   test("keeps tree crowns out of both open Tiergartentunnel approaches", () => {
-    const tunnel = {
+    const tunnel: TunnelPortalPayload = {
       clear_height_m: 5,
       clear_width_each_direction_m: 10.5,
       points: [
         [0, -10, 0],
         [0, -10, 400],
         [0, -10, 900],
-      ] as [number, number, number][],
+      ],
+      portal_approaches: {
+        minna_cauer: {
+          carriageways: [
+            {
+              id: "east",
+              lane_count: 2,
+              osm_way_ids: ["north-test"],
+              points: [
+                [0, 1, 40],
+                [0, 0, 120],
+              ],
+              widths_m: [6, 6],
+            },
+          ],
+          geometry_status: "source-backed test corridor",
+          label: "North test portal",
+          structure: "open_cut",
+        },
+        kemperplatz: {
+          carriageways: [
+            {
+              id: "east",
+              lane_count: 2,
+              osm_way_ids: ["south-test"],
+              points: [
+                [0, 1, 860],
+                [0, 0, 780],
+              ],
+              widths_m: [6, 6],
+            },
+          ],
+          geometry_status: "source-backed test corridor",
+          label: "South test portal",
+          structure: "open_cut",
+        },
+      },
     };
     const park = createParkDetails(
       {

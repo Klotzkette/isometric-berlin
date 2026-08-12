@@ -14,13 +14,12 @@ from shapely.strtree import STRtree
 from isometric_berlin.generation.build_minecraft_voxels import aboveground
 from isometric_berlin.generation.build_surface_polygons import (
   OPEN_TUNNEL_RAMP_APPROACH_M,
-  OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M,
   open_tunnel_ramp_corridors,
   runs_underground,
 )
 from isometric_berlin.generation.prepare_webgl_mesh import (
-  kemperplatz_portal_approach,
-  projected_landmarks,
+  PORTAL_APPROACH_WAYS,
+  tunnel_portal_approaches,
 )
 
 OSM = Path("geo_data/regierungsviertel/osm.gpkg")
@@ -79,7 +78,7 @@ def test_no_carriageway_polygon_covers_the_tiergartentunnel(
 
 
 def test_open_portal_corridors_are_not_covered_by_smooth_surfaces() -> None:
-  """The mouth view must not look at a road or a basin plate.
+  """The mouth view must not look at a road, basin, or lawn plate.
 
   The southern OSM approach has an adjacent ``water=basin`` polygon. It was
   not an asphalt issue after the full-hull refetch, but it still completely
@@ -104,55 +103,55 @@ def test_open_portal_corridors_are_not_covered_by_smooth_surfaces() -> None:
 
   covered = [
     entry
-    for family in ("roads", "water")
+    for family in ("parks", "roads", "water")
     for entry in payload[family]
     if (
       (polygon := make_valid(payload_polygon(entry))).intersects(corridors)
       and polygon.intersection(corridors).area > 1.0
     )
   ]
-  assert not covered, "a smooth road or water plate still roofs a portal ramp"
+  assert not covered, "a smooth park, road, or water plate still roofs a portal ramp"
 
 
-def test_open_portal_corridors_include_road_overlap_and_safe_shoulders() -> None:
+def test_open_portal_corridors_include_every_measured_carriageway() -> None:
   corridors = open_tunnel_ramp_corridors(SCENE)
   assert corridors is not None
   scene = json.loads(SCENE.read_text(encoding="utf-8"))
-  route = scene["tiergartentunnel"]["points"]
+  approaches = scene["tiergartentunnel"]["portal_approaches"]
 
   def world_to_utm(point: list[float]) -> Point:
     return Point(389_500 + point[0], 5_820_000 - point[2])
 
-  for endpoint, neighbour in ((route[0], route[1]), (route[-1], route[-2])):
-    end = world_to_utm(endpoint)
-    toward_surface_x = end.x - world_to_utm(neighbour).x
-    toward_surface_y = end.y - world_to_utm(neighbour).y
-    length = (toward_surface_x**2 + toward_surface_y**2) ** 0.5
-    # The cut extends beyond the OSM tunnel endpoint so the authored apron can
-    # overlap the mapped road instead of ending at a quantised surface seam.
-    outside = Point(
-      end.x + toward_surface_x / length * (OPEN_TUNNEL_RAMP_APPROACH_M - 1),
-      end.y + toward_surface_y / length * (OPEN_TUNNEL_RAMP_APPROACH_M - 1),
-    )
-    assert corridors.covers(outside)
-    # Both 10.5 m carriageways, the median and walls fit with a real shoulder.
-    assert OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M >= 14
+  assert set(approaches) == set(PORTAL_APPROACH_WAYS)
+  assert sum(len(value["carriageways"]) for value in approaches.values()) == 8
+  for approach in approaches.values():
+    for carriageway in approach["carriageways"]:
+      surface, neighbour = carriageway["points"][:2]
+      surface_point = world_to_utm(surface)
+      toward_surface_x = surface_point.x - world_to_utm(neighbour).x
+      toward_surface_y = surface_point.y - world_to_utm(neighbour).y
+      length = (toward_surface_x**2 + toward_surface_y**2) ** 0.5
+      outside = Point(
+        surface_point.x + toward_surface_x / length * (OPEN_TUNNEL_RAMP_APPROACH_M - 1),
+        surface_point.y + toward_surface_y / length * (OPEN_TUNNEL_RAMP_APPROACH_M - 1),
+      )
+      assert corridors.covers(outside)
+      assert corridors.covers(world_to_utm(carriageway["points"][-1]))
 
 
-def test_kemperplatz_portal_approach_is_reproducible_from_osm() -> None:
+def test_all_portal_approaches_are_reproducible_from_osm_and_official_mesh() -> None:
   scene = json.loads(SCENE.read_text(encoding="utf-8"))
-  committed = scene["tiergartentunnel"]["portal_approaches"]["kemperplatz"]
-  generated = kemperplatz_portal_approach(projected_landmarks())
-
-  assert len(committed) >= 15
-  assert len(generated) == len(committed)
-  for actual, expected in zip(generated, committed, strict=True):
-    assert actual == pytest.approx(expected, abs=0.001)
+  committed = scene["tiergartentunnel"]["portal_approaches"]
+  generated = tunnel_portal_approaches()
+  assert generated.keys() == committed.keys()
+  assert generated == committed
 
   corridors = open_tunnel_ramp_corridors(SCENE)
   assert corridors is not None
-  for point in committed:
-    assert corridors.covers(Point(389_500 + point[0], 5_820_000 - point[2]))
+  for approach in committed.values():
+    for carriageway in approach["carriageways"]:
+      for point in carriageway["points"]:
+        assert corridors.covers(Point(389_500 + point[0], 5_820_000 - point[2]))
 
 
 def test_the_portal_ramps_keep_their_lane_markings() -> None:

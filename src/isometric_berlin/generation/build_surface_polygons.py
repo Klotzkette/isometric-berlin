@@ -40,7 +40,7 @@ from shapely.geometry import (
   box,
 )
 from shapely.geometry.base import BaseGeometry
-from shapely.ops import substring, unary_union
+from shapely.ops import unary_union
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.basin_features import (
@@ -177,11 +177,10 @@ MIN_ROAD_AREA_M2 = 25.0
 # identical, while every triangulation remains bounded.
 ROAD_BROWSER_TILE_M = 400.0
 ROAD_BROWSER_HOLE_THRESHOLD = 128
-# The visible Tiergartentunnel ramps are two 10.5 m carriageways, a centre
-# reserve, retaining walls and outer noise barriers. Keep a real shoulder
-# around the authored geometry rather than cutting exactly on its outer face.
-OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M = 14.5
-OPEN_TUNNEL_RAMP_APPROACH_M = 32.0
+# The visible Tiergartentunnel approaches carry eight independently mapped
+# carriageways across four portal sites. Keep a real shoulder around each
+# authored road rather than cutting exactly on its outer face.
+OPEN_TUNNEL_RAMP_APPROACH_M = 8.0
 # Payload rings are rounded to decimetres. Expand the final exclusion by two
 # decimetres so quantisation cannot move a long boundary back over the ramp.
 OPEN_TUNNEL_RAMP_QUANTISATION_GUARD_M = 0.2
@@ -265,7 +264,11 @@ def polygon_parts(geometry: BaseGeometry) -> list[Polygon]:
   return []
 
 
-def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any]]:
+def collect_parkland(
+  osm_path: Path,
+  bounds: BaseGeometry,
+  ramp_corridors: BaseGeometry | None = None,
+) -> list[dict[str, Any]]:
   """Parkland split into open lawn and planted garden.
 
   A garden is drawn on top of the lawn in its own tone, so the beds of the
@@ -293,6 +296,11 @@ def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any
       # streams again and makes the opaque grass plate cover their water.
       simplified = part.simplify(simplify_m, preserve_topology=True)
       carved = simplified.difference(water_union)
+      if ramp_corridors is not None:
+        # The open cuts descend through mapped parkland at Kemperplatz and the
+        # Spreebogen. Leaving the lawn untouched roofs those ramps with an
+        # opaque green plate even though road and water surfaces were removed.
+        carved = carved.difference(ramp_corridors)
       for dry_part in polygon_parts(carved):
         if dry_part.is_empty or dry_part.area < min_area:
           continue
@@ -319,39 +327,24 @@ def collect_parkland(osm_path: Path, bounds: BaseGeometry) -> list[dict[str, Any
 
 
 def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
-  """The daylight troughs which must remain open in smooth surfaces.
+  """Return narrow cut-outs for each mapped daylight carriageway.
 
-  The Tiergartentunnel centreline stored in the scene is a presentation route,
-  but it is the same route :mod:`TunnelPortals` turns into the two visible
-  ramps. OSM marks the buried tube, while a few adjacent approach features
-  remain untagged; at the south mouth an OSM basin also crossed the ramp.
-  Subtracting only these two short engineered corridors keeps the real water,
-  park and road context while leaving the drawn daylight bores unobscured.
+  Every approach in ``scene.json`` is surface-to-mouth and already follows a
+  distinct OSM way. Buffering those roads by their own varying widths prevents
+  the old 29 m-wide generic strip from deleting unrelated parks, buildings and
+  water around the portals.
   """
   payload = json.loads(scene_path.read_text(encoding="utf-8"))
   tunnel = payload.get("tiergartentunnel")
   if not isinstance(tunnel, dict):
     return None
-  raw_points = tunnel.get("points")
-  if not isinstance(raw_points, list) or len(raw_points) < 2:
+  approaches = tunnel.get("portal_approaches")
+  if not isinstance(approaches, dict):
     return None
-  points = [
-    (ORIGIN_EASTING + float(point[0]), ORIGIN_NORTHING - float(point[2]))
-    for point in raw_points
-    if isinstance(point, list) and len(point) >= 3
-  ]
-  if len(points) < 2:
-    return None
-  centreline = LineString(points)
-  if centreline.length == 0:
-    return None
-  ramp_length = min(260.0, centreline.length / 2)
-  north_ramp = substring(centreline, 0, ramp_length)
-  south_ramp = substring(centreline, centreline.length - ramp_length, centreline.length)
 
-  def extend_surface_end(ramp: LineString, at_start: bool) -> LineString:
+  def extend_surface_end(ramp: LineString) -> LineString:
     coords = list(ramp.coords)
-    first, second = (coords[0], coords[1]) if at_start else (coords[-1], coords[-2])
+    first, second = coords[0], coords[1]
     dx = first[0] - second[0]
     dy = first[1] - second[1]
     length = math.hypot(dx, dy) or 1.0
@@ -359,34 +352,46 @@ def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
       first[0] + dx / length * OPEN_TUNNEL_RAMP_APPROACH_M,
       first[1] + dy / length * OPEN_TUNNEL_RAMP_APPROACH_M,
     )
-    return LineString([extension, *coords] if at_start else [*coords, extension])
+    return LineString([extension, *coords])
 
-  ramps: list[LineString] = [
-    extend_surface_end(north_ramp, True),
-    extend_surface_end(south_ramp, False),
-  ]
-  approaches = tunnel.get("portal_approaches")
-  if isinstance(approaches, dict):
-    kemperplatz = approaches.get("kemperplatz")
-    if isinstance(kemperplatz, list) and len(kemperplatz) >= 2:
-      branch = LineString(
+  corridors: list[BaseGeometry] = []
+  for approach in approaches.values():
+    if not isinstance(approach, dict):
+      continue
+    carriageways = approach.get("carriageways")
+    if not isinstance(carriageways, list):
+      continue
+    for carriageway in carriageways:
+      if not isinstance(carriageway, dict):
+        continue
+      raw_points = carriageway.get("points")
+      raw_widths = carriageway.get("widths_m")
+      if not isinstance(raw_points, list) or len(raw_points) < 2:
+        continue
+      if not isinstance(raw_widths, list) or len(raw_widths) != len(raw_points):
+        continue
+      line = LineString(
         [
           (
             ORIGIN_EASTING + float(point[0]),
             ORIGIN_NORTHING - float(point[2]),
           )
-          for point in kemperplatz
+          for point in raw_points
           if isinstance(point, list) and len(point) >= 3
         ]
       )
-      # A stale or malformed course must never punch a cross-city hole.
-      if 25.0 <= branch.length <= 180.0:
-        ramps.append(extend_surface_end(branch, True))
-  corridors = [
-    ramp.buffer(OPEN_TUNNEL_RAMP_CORRIDOR_HALF_WIDTH_M, cap_style=2)
-    for ramp in ramps
-    if not ramp.is_empty
-  ]
+      if not 20.0 <= line.length <= 220.0:
+        continue
+      # Shapely cannot vary a single line-buffer width, so segment buffers use
+      # the larger adjacent width. Their union follows tapered OSM lane counts
+      # while retaining a 1.15 m wall/safety shoulder on each side.
+      line = extend_surface_end(line)
+      coords = list(line.coords)
+      widths = [float(raw_widths[0]), *map(float, raw_widths)]
+      for index in range(len(coords) - 1):
+        segment = LineString(coords[index : index + 2])
+        half_width = max(widths[index], widths[index + 1]) / 2 + 1.15
+        corridors.append(segment.buffer(half_width, cap_style=3, join_style=2))
   return unary_union(corridors) if corridors else None
 
 
@@ -782,7 +787,7 @@ def build_payload(
     "lane_markings": markings,
     "path_inventory": path_inventory,
     "park_simplify_m": PARK_SIMPLIFY_M,
-    "parks": collect_parkland(osm_path, bounds),
+    "parks": collect_parkland(osm_path, bounds, ramp_corridors),
     "road_simplify_m": ROAD_SIMPLIFY_M,
     "road_curve_corner_deg": ROAD_CURVE_CORNER_DEG,
     "road_curve_segment_m": ROAD_CURVE_SEGMENT_M,

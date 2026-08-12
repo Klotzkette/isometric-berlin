@@ -1,17 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { BoxGeometry, InstancedMesh, Material, Mesh, Vector3 } from "three";
+import { InstancedMesh, Material, Mesh } from "three";
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 
 import {
   createTunnelPortalApproachTester,
   createTunnelPortals,
-  RAMP_LENGTH_M,
   setTunnelPortalPresentation,
-  tunnelPortalDeckY,
   tunnelMouthViews,
-  TUNNEL_SURFACE_Y,
+  type TunnelPortalId,
 } from "../src/TunnelPortals";
-import { createTunnelFlightPlan } from "../src/tunnelFlight";
 import {
   createTunnel,
   setTunnelPresentation,
@@ -30,6 +27,14 @@ const payload: TunnelPayload = {
     [80, -10, 200],
   ],
 };
+
+const realRoute = scenePayload.tiergartentunnel as TunnelPayload;
+const portalIds = [
+  "minna_cauer",
+  "invalidenstrasse",
+  "kemperplatz",
+  "reichpietschufer",
+] as const satisfies readonly TunnelPortalId[];
 
 describe("Tiergartentunnel rendering budget", () => {
   test("instances repeated fixtures and keeps four distinct blades per fan", () => {
@@ -60,7 +65,6 @@ describe("Tiergartentunnel rendering budget", () => {
       "Tiergartentunnel instanced portal frames",
     );
     expect(portals).toBeInstanceOf(InstancedMesh);
-    // One frame per tube at each of the two visible endpoints.
     expect((portals as InstancedMesh).count).toBe(4);
     expect(tunnel.children.length).toBeLessThan(30);
   });
@@ -119,118 +123,119 @@ describe("Tiergartentunnel rendering budget", () => {
       }),
     ).toBe(false);
   });
+});
 
-  test("gives both mouths a graded ramp between retaining walls", () => {
-    const portals = createTunnelPortals({
-      clear_height_m: payload.clear_height_m,
-      clear_width_each_direction_m: payload.clear_width_each_direction_m,
-      points: [
-        [0, -10, 0],
-        [0, -10, 100],
-        [0, -10, 200],
-        [0, -10, 400],
-        [0, -10, 600],
-        [0, -10, 700],
-        [0, -10, 800],
-      ],
-    });
-    // Surface geometry, unlike the cutaway: visible in the daylight scene.
+describe("measured Tiergartentunnel entrances", () => {
+  test("builds four access sites and eight source-backed carriageways", () => {
+    const portals = createTunnelPortals(realRoute);
     expect(portals.visible).toBe(true);
-    for (const label of ["north", "south"]) {
-      const deck = portals.children.filter(
-        (child) =>
-          child.name === `Tiergartentunnel ${label} ramp carriageway deck`,
-      );
-      const walls = portals.children.filter(
-        (child) =>
-          child.name === `Tiergartentunnel ${label} ramp retaining wall`,
-      );
-      const barriers = portals.children.filter(
-        (child) =>
-          child.name === `Tiergartentunnel ${label} ramp noise barrier`,
-      );
-      const frames = portals.children.filter(
-        (child) => child.name === `Tiergartentunnel ${label} ramp portal frame`,
-      );
-      // One joined ribbon per direction. Continuous wedge walls retain both
-      // edges while only the outer shoulders need noise barriers.
-      expect(deck).toHaveLength(2);
-      expect(deck.every((piece) => piece.userData.approachLengthM === 32)).toBe(
-        true,
-      );
-      expect(deck.every((piece) => piece.userData.profileSamples >= 30)).toBe(
-        true,
-      );
-      expect(walls).toHaveLength(deck.length * 2);
-      expect(barriers).toHaveLength(2);
-      expect(frames).toHaveLength(2);
-      for (const frame of frames) {
-        const geometry = (frame as Mesh).geometry as BoxGeometry;
-        expect(geometry.parameters.height).toBeLessThanOrEqual(1.5);
-      }
-      expect(
-        portals.getObjectByName(`Tiergartentunnel ${label} ramp portal coping`),
-      ).toBeDefined();
-      expect(
-        portals.getObjectByName(
-          `Tiergartentunnel ${label} ramp lane-control gantry`,
-        ),
-      ).toBeDefined();
-      expect(
-        portals.children.filter(
-          (child) =>
-            child.name === `Tiergartentunnel ${label} ramp green lane signal`,
-        ),
-      ).toHaveLength(4);
-      expect(
-        portals.getObjectByName(
-          `Tiergartentunnel ${label} ramp dashed lane markings`,
-        ),
-      ).toBeInstanceOf(InstancedMesh);
-    }
-    // The open cut descends only to a structurally plausible portal threshold;
-    // the short bore behind it carries the remaining fall to tunnel level.
-    const decks = portals.children.filter((child) =>
-      child.name.endsWith("ramp carriageway deck"),
-    );
-    expect(
-      Math.min(...decks.map((deck) => deck.userData.minimumY as number)),
-    ).toBeCloseTo(tunnelPortalDeckY(5), 5);
-    expect(
-      Math.max(...decks.map((deck) => deck.userData.maximumY as number)),
-    ).toBeGreaterThan(0);
-    expect(RAMP_LENGTH_M).toBeGreaterThan(200);
+    expect(portals.userData.portalApproachCount).toBe(4);
+    expect(portals.userData.carriagewayCount).toBe(8);
 
-    // The mouths are genuinely OPEN ("man muss … tief hineinschauen
-    // können"): past each portal frame a real bore recedes — deck, walls,
-    // ceiling, a row of lamps marching into the dark and a near-black
-    // depth cap — one per tube, two tubes per mouth. All of it sits below
-    // street level so it can only be seen through the mouth.
-    for (const label of ["north", "south"]) {
-      const prefix = `Tiergartentunnel ${label} ramp bore`;
-      const parts = (suffix: string) =>
-        portals.children.filter(
-          (child) => child.name === `${prefix} ${suffix}`,
+    for (const portalId of portalIds) {
+      const approach = realRoute.portal_approaches?.[portalId];
+      expect(approach).toBeDefined();
+      expect(approach!.carriageways).toHaveLength(2);
+      for (const carriageway of approach!.carriageways) {
+        const label = `Tiergartentunnel ${portalId} ${carriageway.id} ramp`;
+        const deck = portals.getObjectByName(
+          `${label} carriageway deck`,
+        ) as Mesh;
+        expect(deck).toBeDefined();
+        expect(deck.userData.carriagewayId).toBe(carriageway.id);
+        expect(deck.userData.osmProfileSamples).toBe(
+          carriageway.points.length + 1,
         );
-      expect(parts("deck")).toHaveLength(2);
-      expect(parts("ceiling")).toHaveLength(2);
-      expect(parts("wall")).toHaveLength(4);
-      expect(parts("safety guide")).toHaveLength(4);
-      expect(parts("depth cap")).toHaveLength(2);
-      const lamps = parts("ceiling lamp");
-      expect(lamps.length).toBeGreaterThanOrEqual(8);
-      for (const piece of [...parts("deck"), ...parts("depth cap"), ...lamps]) {
-        expect(piece.position.y).toBeLessThan(TUNNEL_SURFACE_Y);
-        // The official mesh is a closed, uncut ground shell. Daylight portal
-        // pieces must render over that shell rather than vanish under it.
-        const material = piece.material as Material;
-        expect(material.depthTest).toBe(false);
-        expect(material.depthWrite).toBe(false);
+        expect(deck.userData.maximumWidthM).toBeCloseTo(
+          Math.max(...carriageway.widths_m),
+          6,
+        );
+        expect(
+          portals.children.filter(
+            (child) => child.name === `${label} retaining wall`,
+          ),
+        ).toHaveLength(2);
+        expect(
+          portals.children.filter(
+            (child) => child.name === `${label} safety railing`,
+          ),
+        ).toHaveLength(2);
+        expect(
+          portals.children.filter(
+            (child) => child.name === `${label} acoustic wall slats`,
+          ),
+        ).toHaveLength(2);
+        expect(
+          portals.getObjectByName(`${label} instanced wall lights`),
+        ).toBeInstanceOf(InstancedMesh);
+        expect(
+          portals.getObjectByName(`${label} dashed lane markings`),
+        ).toBeInstanceOf(InstancedMesh);
+
+        const bounds = deck.geometry.boundingBox!;
+        expect(
+          Math.max(bounds.max.x - bounds.min.x, bounds.max.z - bounds.min.z),
+        ).toBeLessThan(150);
       }
+      const portalLabel = `Tiergartentunnel ${portalId} shared portal`;
+      expect(portals.getObjectByName(`${portalLabel} head beam`)).toBeDefined();
+      expect(portals.getObjectByName(`${portalLabel} coping`)).toBeDefined();
+      expect(
+        portals.children.filter((child) =>
+          child.name.startsWith(`${portalLabel} jamb `),
+        ),
+      ).toHaveLength(3);
+      const centreJamb = portals.getObjectByName(
+        `${portalLabel} jamb 2`,
+      ) as Mesh<BoxGeometry>;
+      expect(centreJamb.geometry.parameters.width).toBeGreaterThanOrEqual(0.8);
+      expect(
+        portals.children
+          .filter((child) => child.name.endsWith(" lane-control gantry"))
+          .filter((child) => child.name.startsWith(portalLabel)),
+      ).toHaveLength(2);
+      const expectedThresholdLamps = approach!.carriageways.reduce(
+        (total, carriageway) => total + carriageway.lane_count,
+        0,
+      );
+      expect(
+        portals.children
+          .filter((child) => child.name.includes(" threshold lamp "))
+          .filter((child) => child.name.startsWith(portalLabel)),
+      ).toHaveLength(expectedThresholdLamps);
     }
   });
 
-  test("aims both ramps down the real course, not at each other", () => {
+  test("uses one square shared headwall instead of crossed per-lane beams", () => {
+    const portals = createTunnelPortals(realRoute);
+    expect(
+      portals.children.filter((child) => child.name.endsWith(" head beam")),
+    ).toHaveLength(4);
+    expect(
+      portals.children.filter((child) => child.name.endsWith(" portal frame")),
+    ).toHaveLength(0);
+    expect(
+      portals.children.filter((child) => child.name.endsWith(" coping")),
+    ).toHaveLength(4);
+  });
+
+  test("continues both carriageways on one shared axis behind each portal", () => {
+    const portals = createTunnelPortals(realRoute);
+    for (const portalId of portalIds) {
+      const lamps = portals.children.filter(
+        (child) =>
+          child.name.startsWith(`Tiergartentunnel ${portalId} `) &&
+          child.name.endsWith("bore ceiling lamp"),
+      );
+      expect(lamps.length).toBeGreaterThan(1);
+      const bearings = new Set(
+        lamps.map((lamp) => Math.round(lamp.rotation.y * 1_000_000)),
+      );
+      expect(bearings.size).toBe(1);
+    }
+  });
+
+  test("never invents a generic 260 metre surface ramp", () => {
     const portals = createTunnelPortals({
       clear_height_m: 5,
       clear_width_each_direction_m: 10.5,
@@ -239,173 +244,70 @@ describe("Tiergartentunnel rendering budget", () => {
         [0, -10, 900],
       ],
     });
-    const north = portals.children.find(
-      (child) => child.name === "Tiergartentunnel north ramp portal frame",
-    )!;
-    const south = portals.children.find(
-      (child) => child.name === "Tiergartentunnel south ramp portal frame",
-    )!;
-    // Each portal stands one ramp length in from its own end of the course.
-    expect(north.position.z).toBeCloseTo(RAMP_LENGTH_M, 3);
-    expect(south.position.z).toBeCloseTo(900 - RAMP_LENGTH_M, 3);
+    expect(portals.children).toHaveLength(0);
+    expect(portals.userData.portalApproachCount).toBe(0);
+    expect(portals.userData.carriagewayCount).toBe(0);
   });
 
-  test("aligns both directional flight tubes with the rendered portal mouths", () => {
-    const course: [number, number, number][] = [
-      [0, -10, 0],
-      [0, -10, 400],
-      [0, -10, 900],
-    ];
-    const width = 10.5;
-    const offset = width / 2 + 0.85;
-    const portals = createTunnelPortals({
-      clear_height_m: 5,
-      clear_width_each_direction_m: width,
-      points: course,
-    });
-    const northFrames = portals.children.filter(
-      (child) => child.name === "Tiergartentunnel north ramp portal frame",
-    );
-    const southFrames = portals.children.filter(
-      (child) => child.name === "Tiergartentunnel south ramp portal frame",
-    );
-    const southbound = createTunnelFlightPlan(course, "north-to-south", offset);
-    const northbound = createTunnelFlightPlan(course, "south-to-north", offset);
-    const pointAtPortal = (
-      plan: ReturnType<typeof createTunnelFlightPlan>,
-      distanceM: number,
-    ) => {
-      const index = plan.cumulativeM.findIndex(
-        (distance) => Math.abs(distance - distanceM) < 1e-6,
-      );
-      return plan.points[index];
-    };
-
-    const southboundEntry = pointAtPortal(southbound, southbound.entryPortalM);
-    const southboundExit = pointAtPortal(southbound, southbound.exitPortalM);
-    const northboundEntry = pointAtPortal(northbound, northbound.entryPortalM);
-    const northboundExit = pointAtPortal(northbound, northbound.exitPortalM);
-    expect(
-      northFrames.some(
-        (frame) =>
-          Math.hypot(
-            frame.position.x - southboundEntry.x,
-            frame.position.z - southboundEntry.z,
-          ) < 1e-6,
-      ),
-    ).toBe(true);
-    expect(
-      southFrames.some(
-        (frame) =>
-          Math.hypot(
-            frame.position.x - southboundExit.x,
-            frame.position.z - southboundExit.z,
-          ) < 1e-6,
-      ),
-    ).toBe(true);
-    expect(
-      southFrames.some(
-        (frame) =>
-          Math.hypot(
-            frame.position.x - northboundEntry.x,
-            frame.position.z - northboundEntry.z,
-          ) < 1e-6,
-      ),
-    ).toBe(true);
-    expect(
-      northFrames.some(
-        (frame) =>
-          Math.hypot(
-            frame.position.x - northboundExit.x,
-            frame.position.z - northboundExit.z,
-          ) < 1e-6,
-      ),
-    ).toBe(true);
-  });
-
-  test("contains no route-spanning surface cap or default-visible bore", () => {
-    const portals = createTunnelPortals({
-      clear_height_m: 5,
-      clear_width_each_direction_m: 10.5,
-      points: [
-        [0, -10, 0],
-        [0, -10, 300],
-        [0, -10, 700],
-        [0, -10, 1000],
-      ],
-    });
-    expect(
-      portals.getObjectByName("Tiergartentunnel buried ground occlusion cap"),
-    ).toBeUndefined();
-    const bores = portals.children.filter((object) =>
-      object.name.includes(" ramp bore "),
-    );
-    expect(bores.length).toBeGreaterThan(20);
-    expect(bores.every((object) => object.visible === false)).toBe(true);
-  });
-
-  test("reveals bore details only for an explicit tunnel-mouth focus", () => {
-    const portals = createTunnelPortals({
-      clear_height_m: 5,
-      clear_width_each_direction_m: 10.5,
-      points: [
-        [0, -10, 0],
-        [0, -10, 500],
-        [0, -10, 1000],
-      ],
-    });
-    const bore = portals.getObjectByName(
-      "Tiergartentunnel south ramp bore ceiling lamp",
-    )!;
-    const ramp = portals.getObjectByName(
-      "Tiergartentunnel south ramp carriageway deck",
-    )!;
+  test("keeps exterior close-ups depth-tested and the buried bore occluded", () => {
+    const portals = createTunnelPortals(realRoute);
+    const label = "Tiergartentunnel reichpietschufer east ramp";
+    const bore = portals.getObjectByName(`${label} bore ceiling lamp`)!;
+    const boreMaterial = (bore as Mesh).material as Material;
+    const ramp = portals.getObjectByName(`${label} carriageway deck`) as Mesh;
+    const rampMaterial = ramp.material as Material;
 
     setTunnelPortalPresentation(portals, false, false);
     expect(portals.visible).toBe(true);
     expect(ramp.visible).toBe(true);
     expect(bore.visible).toBe(false);
-    const rampMaterial = (ramp as Mesh).material as Material;
+    expect(boreMaterial.depthTest).toBe(true);
+    expect(boreMaterial.depthWrite).toBe(true);
     expect(rampMaterial.depthTest).toBe(true);
     expect(rampMaterial.depthWrite).toBe(true);
 
     setTunnelPortalPresentation(portals, false, false, true);
-    expect(portals.visible).toBe(true);
-    expect(ramp.visible).toBe(true);
-    expect(bore.visible).toBe(true);
-    expect(rampMaterial.depthTest).toBe(false);
-    expect(rampMaterial.depthWrite).toBe(false);
-
-    // Leaving the authored bore shot restores real occlusion. In particular,
-    // the south ramp can no longer paint through the Potsdamer-Platz ensemble.
-    setTunnelPortalPresentation(portals, false, false, false);
+    expect(bore.visible).toBe(false);
+    expect(boreMaterial.depthTest).toBe(true);
+    expect(boreMaterial.depthWrite).toBe(true);
     expect(rampMaterial.depthTest).toBe(true);
     expect(rampMaterial.depthWrite).toBe(true);
+    expect(
+      portals.getObjectByName(
+        "Tiergartentunnel reichpietschufer shared portal east opening shadow",
+      )!.visible,
+    ).toBe(true);
 
     setTunnelPortalPresentation(portals, false, true, true);
     expect(portals.visible).toBe(true);
-    expect(ramp.visible).toBe(true);
     expect(bore.visible).toBe(false);
+    expect(
+      portals.getObjectByName(
+        "Tiergartentunnel reichpietschufer shared portal east opening shadow",
+      )!.visible,
+    ).toBe(true);
+    expect(boreMaterial.depthTest).toBe(true);
+    expect(boreMaterial.depthWrite).toBe(true);
 
     setTunnelPortalPresentation(portals, true, false, true);
     expect(portals.visible).toBe(false);
     expect(bore.visible).toBe(false);
   });
 
-  test("keeps every real-route bore hidden in an ordinary exterior view", () => {
-    const realRoute = scenePayload.tiergartentunnel as TunnelPayload;
+  test("contains no route-spanning surface cap or default-visible bore", () => {
     const portals = createTunnelPortals(realRoute);
+    expect(
+      portals.getObjectByName("Tiergartentunnel buried ground occlusion cap"),
+    ).toBeUndefined();
     const bores = portals.children.filter((object) =>
       object.name.includes(" ramp bore "),
     );
-
-    expect(bores.length).toBeGreaterThan(20);
+    expect(bores.length).toBeGreaterThan(70);
     expect(bores.every((object) => object.visible === false)).toBe(true);
-    expect(
-      portals.children.some((object) =>
-        object.name.includes("buried ground occlusion cap"),
-      ),
-    ).toBe(false);
+  });
+
+  test("keeps every visible exterior material behind the depth buffer", () => {
+    const portals = createTunnelPortals(realRoute);
     const visibleDepthBypasses: string[] = [];
     portals.traverse((object) => {
       if (!(object instanceof Mesh) || !object.visible) {
@@ -421,93 +323,115 @@ describe("Tiergartentunnel rendering budget", () => {
     expect(visibleDepthBypasses).toEqual([]);
   });
 
-  test("both bore views stand low on the axis and aim inside the tube", () => {
-    const course: [number, number, number][] = [
-      [0, -10, 0],
-      [0, -10, 100],
-      [0, -10, 200],
-      [0, -10, 400],
-      [0, -10, 600],
-      [0, -10, 700],
-      [0, -10, 800],
-    ];
-    const views = tunnelMouthViews({
-      clear_height_m: 5,
-      clear_width_each_direction_m: 10.5,
-      points: course,
-    })!;
-    expect(views).not.toBeNull();
-    for (const [view, inwardZ] of [
-      [views.north, 1],
-      [views.south, -1],
-    ] as const) {
-      // The target sits INSIDE the bore, at half its clear height above
-      // the tunnel floor.
-      const thresholdY = tunnelPortalDeckY(5);
-      const targetInM = view === views.north ? 10 : 18;
-      expect(view.target_world[1]).toBeCloseTo(
-        thresholdY + (-10 - thresholdY) * (targetInM / 46) + 2.5,
-        1,
-      );
-      expect(view.target_height_m).toBe(0);
-      // The tunnel is a close photographic view. Applying the drawn city's
-      // 16° FOV dolly factor would move the stand out over its forecourt.
-      expect(view.fov_degrees).toBeGreaterThanOrEqual(42);
-      expect(view.fov_degrees).toBeLessThanOrEqual(43);
-      // A nearly horizontal sight line follows the ramp through the lamp row
-      // instead of looking down through the portal beam.
-      expect(view.polar_degrees).toBeGreaterThan(86);
-      expect(view.polar_degrees).toBeLessThan(91);
-      // It really does stand back up the ramp, not on the surrounding
-      // plaza where the paving plate would block the view.
-      expect(view.distance_m).toBeGreaterThan(70);
-      expect(view.distance_m).toBeLessThan(100);
-      // The authored portal camera follows the ramp grade. ThreeViewer keeps
-      // this explicit bore shot out of the generic underside/underwater mode.
-      const eyeY =
-        view.target_world[1] +
-        view.distance_m * Math.cos((view.polar_degrees * Math.PI) / 180);
-      expect(eyeY).toBeGreaterThan(-3);
-      expect(eyeY).toBeLessThan(0.5);
-      // The camera stands back UP the ramp, against the inward direction:
-      // for this straight north-south course that is azimuth 180 for the
-      // north bore (camera north of it) and 0 for the south bore.
-      const azimuthRad = (view.azimuth_degrees * Math.PI) / 180;
-      expect(Math.sign(Math.cos(azimuthRad))).toBe(-inwardZ);
-    }
-    // The two targets sit at the OPPOSITE deep ends of the course.
-    expect(views.north.target_world[2]).toBeLessThan(400);
-    expect(views.south.target_world[2]).toBeGreaterThan(400);
-    expect(views.south.fov_degrees).toBeLessThan(views.north.fov_degrees);
+  test("keeps recessed mouths and buried helper bores dark in the day style", () => {
+    const portals = createTunnelPortals(realRoute);
+    const darkMaterialNames: string[] = [];
+    portals.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      if (
+        object.name.includes("opening shadow") ||
+        object.name.includes("bore depth cap")
+      ) {
+        for (const material of materials) {
+          if (material.userData.preserveAuthoredDark === true) {
+            darkMaterialNames.push(object.name);
+          }
+        }
+      }
+    });
+    expect(
+      darkMaterialNames.filter((name) => name.includes("opening shadow")),
+    ).toHaveLength(8);
+    expect(
+      darkMaterialNames.filter((name) => name.includes("bore depth cap")),
+    ).toHaveLength(8);
   });
 
-  test("builds the Kemperplatz side portal from its committed surface anchor", () => {
-    const realRoute = scenePayload.tiergartentunnel as TunnelPayload;
-    const portals = createTunnelPortals(realRoute);
-    const decks = portals.children.filter(
-      (child) =>
-        child.name === "Tiergartentunnel kemperplatz ramp carriageway deck",
-    );
-    expect(decks).toHaveLength(2);
-    expect(
-      portals.getObjectByName(
-        "Tiergartentunnel kemperplatz ramp portal coping",
-      ),
-    ).toBeDefined();
-
-    const anchor = realRoute.portal_surface_anchors?.kemperplatz;
-    expect(anchor).toBeDefined();
+  test("cuts the ground only along the eight mapped carriageways", () => {
     const insideApproach = createTunnelPortalApproachTester(realRoute);
-    expect(insideApproach(anchor![0], anchor![2])).toBe(true);
-    expect(insideApproach(anchor![0] + 80, anchor![2])).toBe(false);
+    for (const approach of Object.values(realRoute.portal_approaches ?? {})) {
+      for (const carriageway of approach.carriageways) {
+        for (const point of [
+          carriageway.points[0],
+          carriageway.points.at(-1)!,
+        ]) {
+          expect(insideApproach(point[0], point[2])).toBe(true);
+        }
+      }
+    }
+    expect(insideApproach(2_500, 2_500)).toBe(false);
+    const kemper = realRoute.portal_approaches!.kemperplatz!.carriageways[0];
+    expect(insideApproach(kemper.points[0][0] + 24, kemper.points[0][2])).toBe(
+      false,
+    );
+  });
 
+  test("can clear an entire coarse terrain cell at a portal edge", () => {
+    const oneCarriageway = {
+      points: [
+        [0, -3, 0],
+        [0, -8, 40],
+      ] as [number, number, number][],
+      portal_approaches: {
+        kemperplatz: {
+          carriageways: [
+            {
+              id: "east",
+              lane_count: 2,
+              osm_way_ids: ["test"],
+              points: [
+                [0, 4, 0],
+                [0, 0, 40],
+              ] as [number, number, number][],
+              widths_m: [6, 6],
+            },
+          ],
+          geometry_status: "test",
+          label: "test",
+          structure: "open_cut" as const,
+        },
+      },
+    };
+    const centreOnly = createTunnelPortalApproachTester(oneCarriageway);
+    const wholeFourMetreCell = createTunnelPortalApproachTester(
+      oneCarriageway,
+      4 / Math.SQRT2,
+    );
+
+    expect(centreOnly(5.55, 20)).toBe(false);
+    expect(wholeFourMetreCell(5.55, 20)).toBe(true);
+  });
+
+  test("provides low bore views for both endpoints and both branches", () => {
     const views = tunnelMouthViews(realRoute)!;
+    expect(views).not.toBeNull();
+    expect(views.invalidenstrasse).toBeDefined();
     expect(views.kemperplatz).toBeDefined();
-    expect(
-      Math.hypot(
-        views.kemperplatz!.target_world[0] - anchor![0],
-        views.kemperplatz!.target_world[2] - anchor![2],
-      ),
-    ).toBeLessThan(160);
+    for (const [portalId, view] of [
+      ["minna_cauer", views.north],
+      ["invalidenstrasse", views.invalidenstrasse!],
+      ["kemperplatz", views.kemperplatz!],
+      ["reichpietschufer", views.south],
+    ] as const) {
+      const mouth =
+        realRoute.portal_approaches![portalId]!.carriageways[0].points.at(-1)!;
+      expect(
+        Math.hypot(
+          view.target_world[0] - mouth[0],
+          view.target_world[2] - mouth[2],
+        ),
+      ).toBeCloseTo(10, 4);
+      expect(view.target_height_m).toBe(0);
+      expect(view.fov_degrees).toBe(48);
+      expect(view.distance_m).toBeGreaterThan(20);
+      expect(view.distance_m).toBeLessThan(60);
+      expect(view.polar_degrees).toBeGreaterThan(80);
+      expect(view.polar_degrees).toBeLessThan(100);
+    }
   });
 });

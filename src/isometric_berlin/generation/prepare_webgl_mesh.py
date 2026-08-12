@@ -26,12 +26,17 @@ from pyproj import Transformer
 from scipy.spatial import cKDTree
 from shapely import contains_xy
 from shapely.affinity import rotate
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, unary_union
 from trimesh.visual.color import ColorVisuals, uv_to_color
 from trimesh.visual.material import SimpleMaterial
 from trimesh.visual.texture import TextureVisuals
+
+from isometric_berlin.generation.road_geometry import (
+  mapped_lane_count,
+  road_width_m,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RAW_DIR = REPO_ROOT / "geo_data/regierungsviertel/raw/berlin_3d_mesh_2025"
@@ -846,50 +851,137 @@ def architectural_signature_payload(
   return signatures
 
 
-def kemperplatz_portal_approach(
-  landmarks: gpd.GeoDataFrame,
-) -> list[list[float]]:
-  """Average the two mapped Kemperplatz ramp carriageways into one course."""
-  matches = landmarks[landmarks["name"] == "Kemperplatz / Tiergartentunnel"]
-  if len(matches) != 1:
-    raise ValueError("Missing unique Kemperplatz / Tiergartentunnel landmark")
-  anchor = matches.geometry.iloc[0]
-  roads = gpd.read_file(OSM_PATH, layer="roads").to_crs(SOURCE_CRS)
-  names = roads["name"].fillna("").astype(str)
-  tunnel = roads["tunnel"].fillna("").astype(str).str.lower()
-  candidates = roads[
-    (names == "Tunnel Tiergarten Spreebogen")
-    & (~tunnel.isin(["1", "true", "yes"]))
-    & (roads.geometry.distance(anchor) <= 160)
+PORTAL_APPROACH_WAYS: dict[str, dict[str, Any]] = {
+  "minna_cauer": {
+    "label": "Minna-Cauer-Straße / Heidestraße",
+    "structure": "open_cut",
+    "carriageways": [
+      ("east", ["4389553"]),
+      ("west", ["168934832"]),
+    ],
+  },
+  "invalidenstrasse": {
+    "label": "Invalidenstraße / Hauptbahnhof",
+    "structure": "rail_deck",
+    "carriageways": [
+      ("west", ["42103707", "342098544"]),
+      ("east", ["342098552", "4412687"]),
+    ],
+  },
+  "kemperplatz": {
+    "label": "Kemperplatz / Tiergarten",
+    "structure": "open_cut",
+    "carriageways": [
+      ("west", ["168934839", "435042786", "4396551"]),
+      ("east", ["166260138", "168934836"]),
+    ],
+  },
+  "reichpietschufer": {
+    "label": "Reichpietschufer / Landwehrkanal",
+    "structure": "open_cut",
+    "carriageways": [
+      ("east", ["139099142"]),
+      ("west", ["4401925"]),
+    ],
+  },
+}
+
+
+def _portal_carriageway_line(
+  roads: gpd.GeoDataFrame,
+  buried: BaseGeometry,
+  way_ids: list[str],
+) -> tuple[LineString, gpd.GeoDataFrame]:
+  selected = roads[
+    (roads["element"].astype(str) == "way") & roads["id"].astype(str).isin(way_ids)
   ]
-  merged = linemerge(unary_union(list(candidates.geometry)))
-  lines = list(merged.geoms) if merged.geom_type == "MultiLineString" else [merged]
-  lanes: list[LineString] = []
-  for geometry in lines:
-    if not isinstance(geometry, LineString) or not 90 <= geometry.length <= 170:
-      continue
-    coords = list(geometry.coords)
-    if anchor.distance(geometry.boundary.geoms[-1]) < anchor.distance(
-      geometry.boundary.geoms[0]
-    ):
-      coords.reverse()
-    lanes.append(LineString(coords))
-  if len(lanes) != 2:
-    raise ValueError(
-      f"Expected two mapped Kemperplatz ramp carriageways, found {len(lanes)}"
+  if len(selected) != len(way_ids):
+    present = set(selected["id"].astype(str))
+    missing = sorted(set(way_ids) - present)
+    raise ValueError(f"Missing OSM portal approach ways: {missing}")
+  union = unary_union(list(selected.geometry))
+  merged = union if isinstance(union, LineString) else linemerge(union)
+  if not isinstance(merged, LineString):
+    raise ValueError(f"Portal ways {way_ids} do not form one carriageway")
+  coords = list(merged.coords)
+  # The last coordinate must be the tunnel mouth. This source relationship is
+  # stronger than a landmark guess and remains stable when OSM adds vertices.
+  if Point(coords[0]).distance(buried) < Point(coords[-1]).distance(buried):
+    coords.reverse()
+  return LineString(coords), selected
+
+
+def tunnel_portal_approaches() -> dict[str, Any]:
+  """Build four access sites from their separate mapped carriageways."""
+  from isometric_berlin.generation.build_park_details import MeshGroundSampler
+
+  roads = gpd.read_file(OSM_PATH, layer="roads").to_crs(SOURCE_CRS)
+  tunnel = roads["tunnel"].fillna("").astype(str).str.lower()
+  names = roads["name"].fillna("").astype(str)
+  buried = unary_union(
+    list(
+      roads[
+        tunnel.isin(["1", "true", "yes"]) & names.str.startswith("Tunnel Tiergarten")
+      ].geometry
     )
-  sample_count = max(2, math.ceil(max(lane.length for lane in lanes) / 8) + 1)
-  course: list[list[float]] = []
-  for index in range(sample_count):
-    fraction = index / (sample_count - 1)
-    samples = [lane.interpolate(fraction, normalized=True) for lane in lanes]
-    x = sum(point.x for point in samples) / len(samples)
-    y = sum(point.y for point in samples) / len(samples)
-    course.append(point_to_world(x, y, elevation=32.4))
-  return course
+  )
+  sampler = MeshGroundSampler.from_directory(OUTPUT_DIR)
+  result: dict[str, Any] = {}
+  for portal_id, portal_spec in PORTAL_APPROACH_WAYS.items():
+    courses: list[tuple[str, list[str], LineString, gpd.GeoDataFrame]] = []
+    for carriageway_id, way_ids in portal_spec["carriageways"]:
+      line, selected = _portal_carriageway_line(roads, buried, way_ids)
+      courses.append((carriageway_id, way_ids, line, selected))
+
+    # Adjacent portal mouths share one deck level. Taking the lower official
+    # mesh sample avoids canopy, bridge-deck and railing returns (notably at
+    # Kemperplatz) lifting one carriageway several metres above its neighbour.
+    portal_y = min(
+      sampler.height(line.coords[-1][0] - ORIGIN[0], ORIGIN[1] - line.coords[-1][1])
+      for _, _, line, _ in courses
+    )
+    carriageways: list[dict[str, Any]] = []
+    for carriageway_id, way_ids, line, selected in courses:
+      sample_count = max(3, math.ceil(line.length / 6) + 1)
+      surface_x, surface_northing = line.coords[0]
+      surface_y = sampler.height(surface_x - ORIGIN[0], ORIGIN[1] - surface_northing)
+      points: list[list[float]] = []
+      widths: list[float] = []
+      for index in range(sample_count):
+        fraction = index / (sample_count - 1)
+        sample = line.interpolate(fraction, normalized=True)
+        smooth = fraction * fraction * (3 - 2 * fraction)
+        elevation = ORIGIN[2] + surface_y + (portal_y - surface_y) * smooth
+        points.append(point_to_world(sample.x, sample.y, elevation=elevation))
+        nearest_index = selected.geometry.distance(sample).idxmin()
+        width = road_width_m(selected.loc[nearest_index])
+        widths.append(round(float(width or 6.5), 3))
+      lane_count = max(
+        int(round(mapped_lane_count(row) or 1)) for _, row in selected.iterrows()
+      )
+      carriageways.append(
+        {
+          "id": carriageway_id,
+          "lane_count": lane_count,
+          "osm_way_ids": way_ids,
+          "points": points,
+          "widths_m": widths,
+        }
+      )
+    result[portal_id] = {
+      "label": portal_spec["label"],
+      "structure": portal_spec["structure"],
+      "geometry_status": (
+        "Separate OSM carriageway centrelines and lane-derived widths; endpoint "
+        "heights sampled from the packaged official Berlin 3D mesh; smooth "
+        "vertical grade between endpoints is a documented approximation"
+      ),
+      "carriageways": carriageways,
+    }
+  return result
 
 
-def tunnel_payload(landmarks: gpd.GeoDataFrame) -> dict[str, Any]:
+def tunnel_payload(_landmarks: gpd.GeoDataFrame) -> dict[str, Any]:
   """Serialize the documented OSM-derived tunnel centreline for WebGL."""
   payload = json.loads(TUNNEL_PATH.read_text(encoding="utf-8"))
   feature = payload["features"][0]
@@ -899,10 +991,6 @@ def tunnel_payload(landmarks: gpd.GeoDataFrame) -> dict[str, Any]:
     x, y = transformer.transform(lon, lat)
     points.append(point_to_world(x, y, elevation=21.5))
   properties = feature["properties"]
-  kemperplatz = landmarks[landmarks["name"] == "Kemperplatz / Tiergartentunnel"]
-  if len(kemperplatz) != 1:
-    raise ValueError("Missing unique Kemperplatz / Tiergartentunnel landmark")
-  kemperplatz_point = kemperplatz.geometry.iloc[0]
   return {
     "name": properties["name"],
     "geometry_status": properties["geometry_status"],
@@ -910,18 +998,20 @@ def tunnel_payload(landmarks: gpd.GeoDataFrame) -> dict[str, Any]:
     "tube_count": properties["tube_count"],
     "clear_width_each_direction_m": properties["clear_width_each_direction_m"],
     "clear_height_m": properties["clear_height_m"],
-    "portal_surface_anchors": {
-      "kemperplatz": point_to_world(
-        kemperplatz_point.x,
-        kemperplatz_point.y,
-        elevation=32.4,
-      )
-    },
-    "portal_approaches": {
-      "kemperplatz": kemperplatz_portal_approach(landmarks),
-    },
+    "portal_approaches": tunnel_portal_approaches(),
     "points": points,
   }
+
+
+def refresh_tunnel_payload(output_dir: Path = OUTPUT_DIR) -> dict[str, Any]:
+  """Refresh only tunnel metadata without rebuilding the committed GLBs."""
+  scene_path = output_dir / "scene.json"
+  manifest = json.loads(scene_path.read_text(encoding="utf-8"))
+  manifest["tiergartentunnel"] = tunnel_payload(projected_landmarks())
+  scene_path.write_text(
+    json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+  )
+  return manifest["tiergartentunnel"]
 
 
 def build_webgl_scene(
@@ -1059,7 +1149,23 @@ def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
   parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+  parser.add_argument(
+    "--tunnel-only",
+    action="store_true",
+    help="Refresh OSM/official-mesh tunnel metadata without rebuilding GLBs.",
+  )
   args = parser.parse_args()
+  if args.tunnel_only:
+    payload = refresh_tunnel_payload(args.output_dir)
+    count = sum(
+      len(approach["carriageways"])
+      for approach in payload["portal_approaches"].values()
+    )
+    print(
+      f"Refreshed {len(payload['portal_approaches'])} Tiergartentunnel access "
+      f"sites with {count} separate carriageways"
+    )
+    return
   manifest = build_webgl_scene(args.raw_dir, args.output_dir)
   total_bytes = sum(tile["bytes"] for tile in manifest["base_tiles"])
   total_bytes += sum(tile["bytes"] for tile in manifest["surface_detail_tiles"])

@@ -681,9 +681,12 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
         f"{forbidden_runtime_switch}"
       )
   required_tunnel_portal_snippets = {
-    "selected-only tunnel bore interiors": "tiergartentunnelPortalInterior",
+    "tagged construction-only tunnel bore interiors": (
+      "tiergartentunnelPortalInterior"
+    ),
     "default-hidden tunnel bore interiors": "object.visible = false",
-    "explicit tunnel bore reveal gate": ("!underside && !voxelMode && revealInterior"),
+    "exterior tunnel bore occlusion": "const interiorVisible = false",
+    "underside portal suppression": "group.visible = !underside",
   }
   failures.extend(
     f"Tunnel portal presentation lacks {label}: {tunnel_portals_path}"
@@ -694,6 +697,11 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     failures.append(
       "Tunnel portal presentation contains a route-spanning surface cap: "
       f"{tunnel_portals_path}"
+    )
+  if "!underside && !voxelMode && revealInterior" in tunnel_portals:
+    failures.append(
+      "Tunnel portal presentation can reveal a buried helper bore in an "
+      f"exterior view: {tunnel_portals_path}"
     )
   if "marker.scale.setScalar" in viewer or "marker-pulse" in styles:
     failures.append(

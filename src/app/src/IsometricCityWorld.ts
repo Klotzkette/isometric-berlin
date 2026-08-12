@@ -9646,7 +9646,7 @@ export function createIsometricCity(
 
   if (ground) {
     const insideTunnelApproach = tunnel
-      ? createTunnelPortalApproachTester(tunnel)
+      ? createTunnelPortalApproachTester(tunnel, ground.cell_m / Math.SQRT2)
       : null;
     const slabs = createGroundSlabs(
       ground,

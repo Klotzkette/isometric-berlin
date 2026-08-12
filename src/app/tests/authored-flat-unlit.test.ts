@@ -43,6 +43,23 @@ describe("flat-unlit authored landmark contract", () => {
     expect(glassMaterial.opacity).toBeCloseTo(0.42);
   });
 
+  test("does not lift deliberately dark authored recesses into ivory", () => {
+    const root = new Group();
+    const recess = new Mesh(
+      new BoxGeometry(1, 1, 1),
+      new MeshStandardMaterial({ color: 0x111416 }),
+    );
+    (recess.material as MeshStandardMaterial).userData.preserveAuthoredDark =
+      true;
+    root.add(recess);
+
+    markAuthoredFlatUnlit(root);
+
+    const material = recess.material as MeshStandardMaterial;
+    expect(material.userData.flatUnlitInstalled).toBe(true);
+    expect(material.userData.flatClean).toBe(0);
+  });
+
   test("keeps official drawn facades readable at night without changing day", () => {
     const material = new MeshStandardMaterial({ color: 0xd9d5cb });
     material.userData.drawnFacadeApplied = true;

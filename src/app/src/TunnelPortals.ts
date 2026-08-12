@@ -1,22 +1,21 @@
 /**
- * The two open approaches of the Tiergartentunnel (B 96), north at the
- * Spreebogen behind the Hauptbahnhof and south towards the Landwehrkanal.
+ * Surface approaches of the Tiergartentunnel (B 96).
  *
- * The tunnel itself is drawn as a cutaway that is only shown when the camera
- * goes under the city. The mouths, though, are surface features: from above
- * you see a trough that drops away between retaining walls, noise barriers
- * along the top, and the carriageway markings running into the portal. Those
- * belong to the daylight scene, so they are built here as their own always
- * visible group rather than inside the cutaway.
+ * The public scene manifest carries four OSM-derived access sites and each
+ * mapped carriageway separately. This matters: Minna-Cauer-Strasse,
+ * Invalidenstrasse, Kemperplatz and Reichpietschufer have different widths,
+ * alignments and portal levels. Treating one averaged line as two identical
+ * roads produced crossing ribbons and oversized grey headwalls.
  *
- * The plan course is the committed OSM-derived centreline; only the vertical
- * profile is engineered, because the manifest carries a single schematic depth
- * for the whole tube and no real gradient.
+ * Horizontal geometry and lane evidence come from OSM. Surface and mouth
+ * heights are sampled from the packaged official Berlin 3D mesh; only the
+ * smooth grade between those samples is an explicit presentation estimate.
  */
 
 import {
   BufferGeometry,
   BoxGeometry,
+  CircleGeometry,
   DoubleSide,
   Float32BufferAttribute,
   Group,
@@ -27,100 +26,105 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
+  TorusGeometry,
   Vector3,
 } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+
+import { createLetteringTexture } from "./drawnLettering";
+
+export type TunnelPortalId =
+  "invalidenstrasse" | "kemperplatz" | "minna_cauer" | "reichpietschufer";
+
+export type TunnelPortalCarriageway = {
+  id: string;
+  lane_count: number;
+  osm_way_ids: string[];
+  points: [number, number, number][];
+  widths_m: number[];
+};
+
+export type TunnelPortalApproach = {
+  carriageways: TunnelPortalCarriageway[];
+  geometry_status: string;
+  label: string;
+  structure: "open_cut" | "rail_deck";
+};
 
 export type TunnelPortalPayload = {
   clear_height_m: number;
   clear_width_each_direction_m: number;
-  portal_surface_anchors?: {
-    kemperplatz?: [number, number, number];
-  };
-  portal_approaches?: {
-    kemperplatz?: [number, number, number][];
-  };
+  portal_approaches?: Partial<Record<TunnelPortalId, TunnelPortalApproach>>;
   points: [number, number, number][];
 };
 
 export type TunnelPortalCourse = {
   clear_height_m?: number;
-  portal_surface_anchors?: {
-    kemperplatz?: readonly [number, number, number];
-  };
-  portal_approaches?: {
-    kemperplatz?: readonly (readonly [number, number, number])[];
-  };
+  portal_approaches?: Partial<
+    Record<
+      TunnelPortalId,
+      {
+        carriageways: readonly {
+          id: string;
+          lane_count: number;
+          osm_way_ids: readonly string[];
+          points: readonly (readonly [number, number, number])[];
+          widths_m: readonly number[];
+        }[];
+        geometry_status: string;
+        label: string;
+        structure: "open_cut" | "rail_deck";
+      }
+    >
+  >;
   points: readonly (readonly [number, number, number])[];
 };
 
 export type TunnelPortalCourseInput =
-  | TunnelPortalCourse
-  | readonly (readonly [number, number, number])[];
+  TunnelPortalCourse | readonly (readonly [number, number, number])[];
 
-/**
- * Length of each open ramp. The committed route has no measured vertical
- * profile, so the surface threshold and schematic tunnel depth are joined by
- * a long engineered transition instead of an abrupt drop.
- */
+/** Kept for the schematic guided flight, not used to author surface portals. */
 export const RAMP_LENGTH_M = 260;
 
-/** Flat overlap with the mapped surface road, preventing an abrupt cut edge. */
-export const PORTAL_APPROACH_M = 32;
+/** Small overlap with the mapped surface road, avoiding a quantised seam. */
+export const PORTAL_APPROACH_M = 8;
 
-/** Outer footprint of both open cuts, including walls and safety shoulder. */
-export const PORTAL_CORRIDOR_HALF_WIDTH_M = 14.5;
-
-/** Street level the ramps come up to at the Spreebogen and the Tiergarten. */
+/** Legacy datum used by the schematic flight when measured approaches are absent. */
 export const TUNNEL_SURFACE_Y = 2.4;
-/** Top of the retaining walls, i.e. the kerb the barriers stand on. */
-const WALL_TOP_Y = TUNNEL_SURFACE_Y + 0.4;
+
 const PORTAL_ROOF_DEPTH_M = 0.8;
-const WALL_THICKNESS_M = 0.65;
-const BARRIER_HEIGHT_M = 1.45;
-const RAMP_SAMPLE_M = 8;
+const WALL_THICKNESS_M = 0.5;
+const RAIL_HEIGHT_M = 1.15;
 const BORE_LENGTH_M = 46;
+const PORTAL_FACE_DEPTH_M = 1.55;
 const PORTAL_INTERIOR_FLAG = "tiergartentunnelPortalInterior";
+const PORTAL_SHADOW_FLAG = "tiergartentunnelPortalShadow";
 const PORTAL_SURFACE_MATERIAL_FLAG = "tiergartentunnelPortalSurfaceMaterial";
-const PORTAL_REVEAL_MATERIAL_FLAG = "tiergartentunnelPortalRevealMaterial";
+const PRESERVE_AUTHORED_DARK_FLAG = "preserveAuthoredDark";
 
-const CONCRETE = 0xaaa9a2;
+const CONCRETE = 0xb9b8b0;
 const ASPHALT = 0x343a3f;
-const BARRIER = 0x697570;
-const MARKING = 0xe9e5d6;
+const RAILING = 0x3f4948;
+const MARKING = 0xf1eee2;
 
-/** Road-deck height at the visible threshold, before the buried bore falls. */
+/** Legacy threshold for the schematic flight profile. */
 export function tunnelPortalDeckY(clearHeightM: number): number {
   return TUNNEL_SURFACE_Y - clearHeightM - PORTAL_ROOF_DEPTH_M;
 }
 
 function surfaceMaterial(
   color: number,
-  options: {
-    metalness?: number;
-    revealThroughGround?: boolean;
-    roughness?: number;
-  } = {},
+  options: { metalness?: number; roughness?: number } = {},
 ): MeshStandardMaterial {
   const material = new MeshStandardMaterial({
     color,
-    flatShading: true,
-    metalness: options.metalness ?? 0.06,
-    polygonOffset: true,
-    polygonOffsetFactor: -1.2,
-    polygonOffsetUnits: -1.2,
-    roughness: options.roughness ?? 0.86,
-    // Surface approaches must obey the city depth buffer. Turning depth tests
-    // off here made the long south ramp paint through the Potsdamer-Platz
-    // buildings from ordinary exterior views. The explicit mouth close-up may
-    // temporarily reveal these materials through the uncut ground shell; the
-    // first free camera movement restores normal occlusion.
     depthTest: true,
     depthWrite: true,
+    flatShading: true,
+    metalness: options.metalness ?? 0.06,
+    roughness: options.roughness ?? 0.86,
   });
   material.userData[PORTAL_SURFACE_MATERIAL_FLAG] = true;
-  if (options.revealThroughGround) {
-    material.userData[PORTAL_REVEAL_MATERIAL_FLAG] = true;
-  }
   return material;
 }
 
@@ -130,8 +134,7 @@ function interiorMaterial(
 ): MeshStandardMaterial {
   const material = surfaceMaterial(color, options);
   delete material.userData[PORTAL_SURFACE_MATERIAL_FLAG];
-  material.depthTest = false;
-  material.depthWrite = false;
+  material.userData[PRESERVE_AUTHORED_DARK_FLAG] = true;
   return material;
 }
 
@@ -142,7 +145,7 @@ function segmentNormal(from: Vector3, to: Vector3): Vector3 {
   return new Vector3(-dz / run, 0, dx / run);
 }
 
-/** Joined offsets keep both carriageways watertight through mapped bends. */
+/** Joined offsets keep road edges watertight through mapped bends. */
 function miterOffsets(points: Vector3[]): Vector3[] {
   const normals = points
     .slice(0, -1)
@@ -166,19 +169,22 @@ function miterOffsets(points: Vector3[]): Vector3[] {
   });
 }
 
+function atIndex(value: number | readonly number[], index: number): number {
+  return typeof value === "number" ? value : value[index];
+}
+
 function roadRibbonGeometry(
   points: Vector3[],
   offsets: Vector3[],
-  centreOffset: number,
-  halfWidth: number,
+  centreOffset: number | readonly number[],
+  halfWidth: number | readonly number[],
 ): BufferGeometry {
   const vertices: number[] = [];
   const indices: number[] = [];
   for (let index = 0; index < points.length; index += 1) {
-    for (const edgeOffset of [
-      centreOffset - halfWidth,
-      centreOffset + halfWidth,
-    ]) {
+    const centre = atIndex(centreOffset, index);
+    const half = atIndex(halfWidth, index);
+    for (const edgeOffset of [centre - half, centre + half]) {
       const vertex = points[index]
         .clone()
         .addScaledVector(offsets[index], edgeOffset);
@@ -202,21 +208,19 @@ function roadRibbonGeometry(
 function wallGeometry(
   points: Vector3[],
   offsets: Vector3[],
-  centreOffset: number,
+  centreOffset: number | readonly number[],
   thickness: number,
-  bottomAt: (point: Vector3) => number,
+  bottomAt: (point: Vector3, index: number) => number,
   topAt: (point: Vector3, index: number) => number,
 ): BufferGeometry {
   const vertices: number[] = [];
   const indices: number[] = [];
   for (let index = 0; index < points.length; index += 1) {
     const point = points[index];
-    const bottom = bottomAt(point);
-    const top = topAt(point, index);
-    for (const edgeOffset of [
-      centreOffset - thickness / 2,
-      centreOffset + thickness / 2,
-    ]) {
+    const bottom = bottomAt(point, index);
+    const top = Math.max(bottom + 0.02, topAt(point, index));
+    const centre = atIndex(centreOffset, index);
+    for (const edgeOffset of [centre - thickness / 2, centre + thickness / 2]) {
       const edge = point.clone().addScaledVector(offsets[index], edgeOffset);
       vertices.push(edge.x, bottom, edge.z, edge.x, top, edge.z);
     }
@@ -224,7 +228,6 @@ function wallGeometry(
   for (let index = 0; index < points.length - 1; index += 1) {
     const current = index * 4;
     const next = current + 4;
-    // Both vertical faces and the coping are authored as one continuous wedge.
     indices.push(
       current,
       next,
@@ -271,82 +274,6 @@ function addMesh(
   return mesh;
 }
 
-function sampleRampProfile(source: Vector3[], destinationY: number): Vector3[] {
-  if (source.length < 2) {
-    return source;
-  }
-  const cumulative = [0];
-  for (let index = 1; index < source.length; index += 1) {
-    cumulative.push(
-      cumulative[index - 1] +
-        Math.hypot(
-          source[index].x - source[index - 1].x,
-          source[index].z - source[index - 1].z,
-        ),
-    );
-  }
-  const total = cumulative.at(-1) || 1;
-  const sampleCount = Math.max(2, Math.ceil(total / RAMP_SAMPLE_M) + 1);
-  const sampled: Vector3[] = [];
-  let segment = 1;
-  for (let index = 0; index < sampleCount; index += 1) {
-    const along = Math.min(total, (index / (sampleCount - 1)) * total);
-    while (segment < cumulative.length - 1 && cumulative[segment] < along) {
-      segment += 1;
-    }
-    const startDistance = cumulative[segment - 1];
-    const span = cumulative[segment] - startDistance;
-    const fraction = span > 1e-6 ? (along - startDistance) / span : 0;
-    const point = source[segment - 1].clone().lerp(source[segment], fraction);
-    // Smoothstep leaves both the street apron and portal threshold level.
-    const progress = Math.min(1, along / total);
-    const grade = progress * progress * (3 - 2 * progress);
-    point.y = TUNNEL_SURFACE_Y + (destinationY - TUNNEL_SURFACE_Y) * grade;
-    sampled.push(point);
-  }
-  return sampled;
-}
-
-/**
- * Walk the centreline inward from one end, returning the ramp's own
- * centreline with the vertical profile applied: street level at the mouth,
- * tunnel level at the portal.
- */
-function rampCentreline(
-  points: Vector3[],
-  fromStart: boolean,
-  destinationY: number,
-): Vector3[] {
-  const ordered = fromStart ? points : [...points].reverse();
-  const source: Vector3[] = [ordered[0].clone()];
-  let travelled = 0;
-  for (
-    let index = 1;
-    index < ordered.length && travelled < RAMP_LENGTH_M;
-    index += 1
-  ) {
-    const previous = ordered[index - 1];
-    const current = ordered[index];
-    const step = Math.hypot(current.x - previous.x, current.z - previous.z);
-    if (travelled + step >= RAMP_LENGTH_M) {
-      const fraction = (RAMP_LENGTH_M - travelled) / (step || 1);
-      source.push(previous.clone().lerp(current, fraction));
-      travelled = RAMP_LENGTH_M;
-      break;
-    }
-    source.push(current.clone());
-    travelled += step;
-  }
-
-  return sampleRampProfile(source, destinationY);
-}
-
-type PortalRamp = {
-  centreline: Vector3[];
-  id: "kemperplatz" | "north" | "south";
-  tunnelY: number;
-};
-
 function closestPointOnCourse(points: Vector3[], anchor: Vector3): Vector3 {
   let closest = points[0].clone();
   let closestDistanceSquared = Number.POSITIVE_INFINITY;
@@ -358,13 +285,11 @@ function closestPointOnCourse(points: Vector3[], anchor: Vector3): Vector3 {
     const lengthSquared = dx * dx + dz * dz;
     const fraction =
       lengthSquared > 1e-8
-        ? Math.max(
+        ? MathUtils.clamp(
+            ((anchor.x - from.x) * dx + (anchor.z - from.z) * dz) /
+              lengthSquared,
             0,
-            Math.min(
-              1,
-              ((anchor.x - from.x) * dx + (anchor.z - from.z) * dz) /
-                lengthSquared,
-            ),
+            1,
           )
         : 0;
     const candidate = from.clone().lerp(to, fraction);
@@ -386,43 +311,111 @@ function normalizePortalCourse(
     : (payload as TunnelPortalCourse);
 }
 
+type PortalRamp = {
+  carriagewayId: string;
+  centreline: Vector3[];
+  id: TunnelPortalId;
+  laneCount: number;
+  structure: "open_cut" | "rail_deck";
+  tunnelY: number;
+  widths: number[];
+};
+
+type PortalMaterials = {
+  concrete: MeshStandardMaterial;
+  marking: MeshStandardMaterial;
+  portalConcrete: MeshStandardMaterial;
+  railing: MeshStandardMaterial;
+  road: MeshStandardMaterial;
+  shadow: MeshStandardMaterial;
+  signal: MeshStandardMaterial;
+  signalStop: MeshStandardMaterial;
+  speedSign: MeshStandardMaterial;
+  speedSignFace: Material;
+  wallLight: MeshStandardMaterial;
+};
+
+type PortalAxis = {
+  inward: Vector3;
+  normal: Vector3;
+  yaw: number;
+};
+
+/** One shared tunnel bearing starts behind both mapped carriageway mouths. */
+function sharedPortalAxis(ramps: readonly PortalRamp[]): PortalAxis {
+  const directions = ramps.map((ramp) => {
+    const points = ramp.centreline;
+    const direction = points.at(-1)!.clone().sub(points.at(-2)!);
+    direction.y = 0;
+    return direction.normalize();
+  });
+  const inward = directions.reduce(
+    (sum, direction) => sum.add(direction),
+    new Vector3(),
+  );
+  if (inward.lengthSq() < 1e-6) {
+    inward.copy(directions[0] ?? new Vector3(0, 0, 1));
+  }
+  inward.normalize();
+  return {
+    inward,
+    normal: new Vector3(-inward.z, 0, inward.x),
+    yaw: Math.atan2(inward.x, inward.z),
+  };
+}
+
+function portalClearHeight(
+  height: number,
+  structure: PortalRamp["structure"],
+): number {
+  return Math.min(height, structure === "rail_deck" ? 4.35 : 4.2);
+}
+
 function portalRamps(payloadInput: TunnelPortalCourseInput): PortalRamp[] {
   const payload = normalizePortalCourse(payloadInput);
-  const points = payload.points.map((point) => new Vector3(...point));
-  if (points.length < 2) {
+  const tunnelPoints = payload.points.map(
+    (point) => new Vector3(point[0], point[1], point[2]),
+  );
+  if (tunnelPoints.length < 2 || !payload.portal_approaches) {
     return [];
   }
-  const portalY = tunnelPortalDeckY(payload.clear_height_m ?? 5);
-  const ramps: PortalRamp[] = [
-    {
-      centreline: rampCentreline(points, true, portalY),
-      id: "north",
-      tunnelY: points[0].y,
-    },
-    {
-      centreline: rampCentreline(points, false, portalY),
-      id: "south",
-      tunnelY: points.at(-1)!.y,
-    },
-  ];
-  const kemperplatz = payload.portal_approaches?.kemperplatz;
-  if (kemperplatz && kemperplatz.length >= 2) {
-    const source = kemperplatz.map((point) => new Vector3(...point));
-    source.forEach((point) => {
-      point.y = TUNNEL_SURFACE_Y;
-    });
-    const surface = source[0];
-    const connection = closestPointOnCourse(points, source.at(-1)!);
-    const horizontalLength = Math.hypot(
-      connection.x - surface.x,
-      connection.z - surface.z,
-    );
-    // Reject stale anchors rather than cutting an accidental cross-city scar.
-    if (horizontalLength >= 25 && horizontalLength <= 180) {
+  const ramps: PortalRamp[] = [];
+  for (const [id, approach] of Object.entries(payload.portal_approaches) as [
+    TunnelPortalId,
+    NonNullable<TunnelPortalCourse["portal_approaches"]>[TunnelPortalId],
+  ][]) {
+    if (!approach) {
+      continue;
+    }
+    for (const carriageway of approach.carriageways) {
+      const centreline = carriageway.points.map(
+        (point) => new Vector3(point[0], point[1], point[2]),
+      );
+      if (
+        centreline.length < 2 ||
+        carriageway.widths_m.length !== centreline.length
+      ) {
+        continue;
+      }
+      const lengthM = centreline.slice(1).reduce((total, point, index) => {
+        const previous = centreline[index];
+        return total + Math.hypot(point.x - previous.x, point.z - previous.z);
+      }, 0);
+      // A malformed manifest must never punch or paint a cross-city stripe.
+      if (lengthM < 20 || lengthM > 220) {
+        continue;
+      }
+      const head = centreline.at(-1)!;
       ramps.push({
-        centreline: sampleRampProfile(source, portalY),
-        id: "kemperplatz",
-        tunnelY: connection.y,
+        carriagewayId: carriageway.id,
+        centreline,
+        id,
+        laneCount: Math.max(1, Math.round(carriageway.lane_count)),
+        structure: approach.structure,
+        tunnelY: closestPointOnCourse(tunnelPoints, head).y,
+        widths: carriageway.widths_m.map((width) =>
+          MathUtils.clamp(width, 3, 15),
+        ),
       });
     }
   }
@@ -431,47 +424,49 @@ function portalRamps(payloadInput: TunnelPortalCourseInput): PortalRamp[] {
 
 export function createTunnelPortalApproachTester(
   payload: TunnelPortalCourseInput,
+  cellHalfDiagonalM = 0,
 ): (x: number, z: number, shoulderM?: number) => boolean {
-  const ramps = portalRamps(payload);
-  if (ramps.length === 0) {
-    return () => false;
-  }
-  const courses = ramps.map(({ centreline: ramp }) => {
-    const inward = ramp[1].clone().sub(ramp[0]);
+  const courses = portalRamps(payload).map((ramp) => {
+    const entrance = ramp.centreline[0];
+    const inward = ramp.centreline[1].clone().sub(entrance);
     inward.y = 0;
     inward.normalize();
-    const approach = ramp[0]
+    const approach = entrance
       .clone()
       .addScaledVector(inward, -PORTAL_APPROACH_M);
-    const route = [approach, ...ramp];
-    const segments = route.slice(0, -1).map((from, index) => {
-      const to = route[index + 1];
-      const dx = to.x - from.x;
-      const dz = to.z - from.z;
-      return {
-        dx,
-        dz,
-        fromX: from.x,
-        fromZ: from.z,
-        lengthSquared: dx * dx + dz * dz,
-        maxX: Math.max(from.x, to.x),
-        maxZ: Math.max(from.z, to.z),
-        minX: Math.min(from.x, to.x),
-        minZ: Math.min(from.z, to.z),
-      };
-    });
+    const route = [approach, ...ramp.centreline];
+    const halfWidth = Math.max(...ramp.widths) / 2 + 1.15;
     return {
+      halfWidth,
       maxX: Math.max(...route.map((point) => point.x)),
       maxZ: Math.max(...route.map((point) => point.z)),
       minX: Math.min(...route.map((point) => point.x)),
       minZ: Math.min(...route.map((point) => point.z)),
-      segments,
+      segments: route.slice(0, -1).map((from, index) => {
+        const to = route[index + 1];
+        const dx = to.x - from.x;
+        const dz = to.z - from.z;
+        return {
+          dx,
+          dz,
+          fromX: from.x,
+          fromZ: from.z,
+          lengthSquared: dx * dx + dz * dz,
+          maxX: Math.max(from.x, to.x),
+          maxZ: Math.max(from.z, to.z),
+          minX: Math.min(from.x, to.x),
+          minZ: Math.min(from.z, to.z),
+        };
+      }),
     };
   });
   return (x: number, z: number, shoulderM = 0): boolean => {
-    const halfWidth = PORTAL_CORRIDOR_HALF_WIDTH_M + Math.max(0, shoulderM);
-    const distanceSquared = halfWidth * halfWidth;
     for (const course of courses) {
+      const halfWidth =
+        course.halfWidth +
+        Math.max(0, shoulderM) +
+        Math.max(0, cellHalfDiagonalM);
+      const distanceSquared = halfWidth * halfWidth;
       if (
         x < course.minX - halfWidth ||
         x > course.maxX + halfWidth ||
@@ -491,14 +486,12 @@ export function createTunnelPortalApproachTester(
         }
         const t =
           segment.lengthSquared > 1e-6
-            ? Math.max(
+            ? MathUtils.clamp(
+                ((x - segment.fromX) * segment.dx +
+                  (z - segment.fromZ) * segment.dz) /
+                  segment.lengthSquared,
                 0,
-                Math.min(
-                  1,
-                  ((x - segment.fromX) * segment.dx +
-                    (z - segment.fromZ) * segment.dz) /
-                    segment.lengthSquared,
-                ),
+                1,
               )
             : 0;
         const deltaX = x - (segment.fromX + segment.dx * t);
@@ -522,148 +515,216 @@ export function pointInsideTunnelPortalApproach(
 }
 
 /**
- * Keep the two public ramps in every surface style. Forced-depth bore pieces
- * are a close-up aid, not surface geometry: reveal them only for an explicit
- * tunnel-mouth focus and hide them again on the first free camera movement.
+ * Surface approaches remain in every above-ground style. The recessed dark
+ * mouth is always present: the coarse terrain cut ends at the measured portal
+ * threshold. Exterior mouth close-ups retain that depth-tested shadow instead
+ * of painting the buried bore through its roof and surrounding buildings. The
+ * continuous interior belongs to the explicit underground/tunnel flight.
  */
 export function setTunnelPortalPresentation(
   group: Group,
   underside: boolean,
-  voxelMode: boolean,
-  revealInterior = false,
+  _voxelMode: boolean,
+  _revealInterior = false,
 ): void {
   group.visible = !underside;
-  const interiorVisible = !underside && !voxelMode && revealInterior;
-  const surfaceMaterials = new Set<Material>();
+  const interiorVisible = false;
   group.traverse((object) => {
     if (object.userData[PORTAL_INTERIOR_FLAG] === true) {
       object.visible = interiorVisible;
     }
-    if (!(object instanceof Mesh)) {
-      return;
-    }
-    const materials = Array.isArray(object.material)
-      ? object.material
-      : [object.material];
-    for (const material of materials) {
-      if (
-        material.userData[PORTAL_SURFACE_MATERIAL_FLAG] === true &&
-        !surfaceMaterials.has(material)
-      ) {
-        surfaceMaterials.add(material);
-        const revealThroughGround =
-          material.userData[PORTAL_REVEAL_MATERIAL_FLAG] === true;
-        material.depthTest = !(interiorVisible && revealThroughGround);
-        material.depthWrite = !(interiorVisible && revealThroughGround);
-      }
+    if (object.userData[PORTAL_SHADOW_FLAG] === true) {
+      object.visible = !underside;
     }
   });
 }
 
-function addRamp(
+function addCarriageway(
   group: Group,
-  label: string,
-  centreline: Vector3[],
-  width: number,
+  ramp: PortalRamp,
   height: number,
-  tunnelY: number,
-  materials: {
-    barrier: MeshStandardMaterial;
-    concrete: MeshStandardMaterial;
-    marking: MeshStandardMaterial;
-    portalConcrete: MeshStandardMaterial;
-    road: MeshStandardMaterial;
-    shadow: MeshStandardMaterial;
-    signal: MeshStandardMaterial;
-  },
+  materials: PortalMaterials,
+  portalAxis: PortalAxis,
 ): void {
-  const entrance = centreline[0];
-  const inwardAtEntrance = centreline[1].clone().sub(entrance);
+  const label = `Tiergartentunnel ${ramp.id} ${ramp.carriagewayId} ramp`;
+  const entrance = ramp.centreline[0];
+  const inwardAtEntrance = ramp.centreline[1].clone().sub(entrance);
   inwardAtEntrance.y = 0;
   inwardAtEntrance.normalize();
   const approach = entrance
     .clone()
     .addScaledVector(inwardAtEntrance, -PORTAL_APPROACH_M);
-  approach.y = TUNNEL_SURFACE_Y;
-  const route = [approach, ...centreline];
+  approach.y = entrance.y;
+  const route = [approach, ...ramp.centreline];
+  const widths = [ramp.widths[0], ...ramp.widths];
+  const halfWidths = widths.map((width) => width / 2);
   const offsets = miterOffsets(route);
-  const tubeOffset = width / 2 + 0.85;
-  const dashes: Object3D[] = [];
-  const dummy = new Object3D();
+  const deck = addMesh(
+    group,
+    `${label} carriageway deck`,
+    roadRibbonGeometry(route, offsets, 0, halfWidths),
+    materials.road,
+    30,
+  );
+  deck.userData.carriagewayId = ramp.carriagewayId;
+  deck.userData.maximumWidthM = Math.max(...widths);
+  deck.userData.minimumY = Math.min(...route.map((point) => point.y));
+  deck.userData.maximumY = Math.max(...route.map((point) => point.y));
+  deck.userData.osmProfileSamples = route.length;
+  deck.userData.portalId = ramp.id;
 
-  // Two continuous ribbons replace the former chain of boxes. Every bend now
-  // shares vertices, so the road cannot split or expose the city shell.
-  for (const tube of [-1, 1]) {
-    const lateral = tube * tubeOffset;
-    const deck = addMesh(
-      group,
-      `${label} carriageway deck`,
-      roadRibbonGeometry(route, offsets, lateral, width / 2),
-      materials.road,
-      30,
+  const head = ramp.centreline.at(-1)!;
+  const clearHeight = portalClearHeight(height, ramp.structure);
+  const portalTopY = head.y + clearHeight + PORTAL_ROOF_DEPTH_M;
+  const wallTops = route.map((point, index) => {
+    const progress = index / Math.max(1, route.length - 1);
+    const eased = progress * progress * (3 - 2 * progress);
+    return Math.max(
+      point.y + 0.22,
+      MathUtils.lerp(route[0].y + 0.25, portalTopY, eased),
     );
-    deck.userData.minimumY = Math.min(...route.map((point) => point.y));
-    deck.userData.maximumY = Math.max(...route.map((point) => point.y));
-    deck.userData.approachLengthM = PORTAL_APPROACH_M;
-    deck.userData.profileSamples = route.length;
+  });
 
-    // Fine solid shoulder lines make the two directional carriageways read as
-    // roads all the way from the mapped surface into the dark bores.
-    for (const edge of [-1, 1]) {
+  for (const edge of [-1, 1]) {
+    const edgeMarkOffsets = widths.map(
+      (width) => edge * (width / 2 - Math.min(0.28, width * 0.06)),
+    );
+    addMesh(
+      group,
+      `${label} solid edge marking`,
+      roadRibbonGeometry(
+        route.map((point) => point.clone().add(new Vector3(0, 0.035, 0))),
+        offsets,
+        edgeMarkOffsets,
+        0.09,
+      ),
+      materials.marking,
+      44,
+    );
+
+    addMesh(
+      group,
+      `${label} maintenance verge`,
+      roadRibbonGeometry(
+        route.map((point) => point.clone().add(new Vector3(0, 0.018, 0))),
+        offsets,
+        widths.map((width) => edge * (width / 2 + 0.42)),
+        0.36,
+      ),
+      materials.concrete,
+      33,
+    );
+
+    addMesh(
+      group,
+      `${label} retaining wall`,
+      wallGeometry(
+        route,
+        offsets,
+        widths.map((width) => edge * (width / 2 + 0.78 + WALL_THICKNESS_M / 2)),
+        WALL_THICKNESS_M,
+        (point) => point.y - 0.22,
+        (_point, index) => wallTops[index],
+      ),
+      materials.concrete,
+      35,
+    );
+
+    const railOffsets = widths.map((width) => edge * (width / 2 + 1.06));
+    addMesh(
+      group,
+      `${label} safety railing`,
+      wallGeometry(
+        route,
+        offsets,
+        railOffsets,
+        0.11,
+        (_point, index) => wallTops[index] + 0.04,
+        (_point, index) => {
+          const progress = index / Math.max(1, route.length - 1);
+          return wallTops[index] + RAIL_HEIGHT_M * Math.min(1, progress * 5);
+        },
+      ),
+      materials.railing,
+      40,
+    );
+
+    const linedRoute = route.slice(Math.floor(route.length * 0.52));
+    const linedOffsets = offsets.slice(Math.floor(route.length * 0.52));
+    const linedWidths = widths.slice(Math.floor(route.length * 0.52));
+    const linedWallTops = wallTops.slice(Math.floor(route.length * 0.52));
+    const slatGeometries = Array.from({ length: 7 }, (_unused, slat) =>
+      wallGeometry(
+        linedRoute,
+        linedOffsets,
+        linedWidths.map((width) => edge * (width / 2 + 0.76)),
+        0.035,
+        (point, index) =>
+          Math.min(point.y + 0.65 + slat * 0.47, linedWallTops[index] - 0.18),
+        (point, index) =>
+          Math.min(point.y + 0.73 + slat * 0.47, linedWallTops[index] - 0.1),
+      ),
+    );
+    const slats = mergeGeometries(slatGeometries, false);
+    slatGeometries.forEach((geometry) => geometry.dispose());
+    if (slats) {
       addMesh(
         group,
-        `${label} solid edge marking`,
-        roadRibbonGeometry(
-          route.map((point) => point.clone().add(new Vector3(0, 0.035, 0))),
-          offsets,
-          lateral + edge * (width / 2 - 0.28),
-          0.09,
-        ),
-        materials.marking,
-        44,
-      );
-
-      const wallOffset = lateral + edge * (width / 2 + WALL_THICKNESS_M / 2);
-      addMesh(
-        group,
-        `${label} retaining wall`,
-        wallGeometry(
-          route,
-          offsets,
-          wallOffset,
-          WALL_THICKNESS_M,
-          (point) => point.y - 0.25,
-          () => WALL_TOP_Y,
-        ),
-        materials.concrete,
-        35,
+        `${label} acoustic wall slats`,
+        slats,
+        materials.railing,
+        42,
       );
     }
   }
 
-  // Only the outer shoulders carry the tall protective panels; four complete
-  // rows previously made the centre reservation look like a grey box canyon.
-  for (const side of [-1, 1]) {
-    const outerOffset = side * (width + 0.85 + WALL_THICKNESS_M + 0.09);
-    addMesh(
-      group,
-      `${label} noise barrier`,
-      wallGeometry(
-        route,
-        offsets,
-        outerOffset,
-        0.18,
-        () => WALL_TOP_Y,
-        (_point, index) =>
-          WALL_TOP_Y +
-          BARRIER_HEIGHT_M * Math.min(1, Math.max(0, (index - 1) / 4)),
-      ),
-      materials.barrier,
-      40,
+  const wallLightInstances: Object3D[] = [];
+  const wallLightDummy = new Object3D();
+  for (
+    let index = Math.max(1, Math.floor(route.length * 0.55));
+    index < route.length;
+    index += 2
+  ) {
+    const point = route[index];
+    const tangentBefore = route[Math.max(0, index - 1)];
+    const tangentAfter = route[Math.min(route.length - 1, index + 1)];
+    const yaw = Math.atan2(
+      tangentAfter.x - tangentBefore.x,
+      tangentAfter.z - tangentBefore.z,
     );
+    for (const edge of [-1, 1]) {
+      wallLightDummy.position
+        .copy(point)
+        .addScaledVector(offsets[index], edge * (widths[index] / 2 + 0.74));
+      wallLightDummy.position.y = Math.min(
+        wallTops[index] - 0.62,
+        point.y + 2.05,
+      );
+      wallLightDummy.rotation.set(0, yaw, 0);
+      wallLightDummy.scale.set(1, 1, 1);
+      wallLightDummy.updateMatrix();
+      wallLightInstances.push(wallLightDummy.clone());
+    }
+  }
+  if (wallLightInstances.length > 0) {
+    const wallLights = new InstancedMesh(
+      new BoxGeometry(0.22, 0.2, 0.07),
+      materials.wallLight,
+      wallLightInstances.length,
+    );
+    wallLights.name = `${label} instanced wall lights`;
+    wallLightInstances.forEach((light, index) => {
+      light.updateMatrix();
+      wallLights.setMatrixAt(index, light.matrix);
+    });
+    wallLights.instanceMatrix.needsUpdate = true;
+    wallLights.computeBoundingSphere();
+    wallLights.renderOrder = 46;
+    group.add(wallLights);
   }
 
-  // Stable 14 m marking rhythm independent of the route sampling interval.
+  const dashes: Object3D[] = [];
+  const dummy = new Object3D();
   let along = 0;
   let nextDashAt = 7;
   for (let index = 0; index < route.length - 1; index += 1) {
@@ -674,11 +735,13 @@ function addRamp(
     const run = Math.hypot(dx, dz) || 1;
     while (nextDashAt <= along + run) {
       const at = (nextDashAt - along) / run;
-      for (const tube of [-1, 1]) {
+      const width = MathUtils.lerp(widths[index], widths[index + 1], at);
+      for (let lane = 1; lane < ramp.laneCount; lane += 1) {
+        const lateral = (lane / ramp.laneCount - 0.5) * width;
         dummy.position
           .copy(from)
           .lerp(to, at)
-          .addScaledVector(offsets[index], tube * tubeOffset)
+          .addScaledVector(offsets[index], lateral)
           .add(new Vector3(0, 0.07, 0));
         dummy.rotation.set(0, Math.atan2(dx, dz), 0);
         dummy.scale.set(1, 1, 3);
@@ -689,7 +752,6 @@ function addRamp(
     }
     along += run;
   }
-
   if (dashes.length > 0) {
     const marks = new InstancedMesh(
       new BoxGeometry(0.18, 0.05, 1),
@@ -707,249 +769,120 @@ function addRamp(
     group.add(marks);
   }
 
-  // Portal headwall at the foot of the ramp, where the trough becomes a tube.
-  const head = centreline[centreline.length - 1];
-  const before = centreline[Math.max(0, centreline.length - 2)];
-  const yaw = Math.atan2(head.x - before.x, head.z - before.z);
-  const dxh = head.x - before.x;
-  const dzh = head.z - before.z;
-  const runh = Math.hypot(dxh, dzh) || 1;
-  const headNormal = new Vector3(-dzh / runh, 0, dxh / runh);
-  const inward = new Vector3(dxh / runh, 0, dzh / runh);
-  for (const tube of [-1, 1]) {
-    const lateral = tube * tubeOffset;
-    const openingTopY = head.y + height;
-    const fasciaHeight = Math.max(1.4, WALL_TOP_Y - openingTopY);
-    const beam = new Mesh(
-      new BoxGeometry(width + 2.2, fasciaHeight, 2.4),
-      materials.portalConcrete,
-    );
-    beam.name = `${label} portal frame`;
-    beam.position.copy(head).addScaledVector(headNormal, lateral);
-    beam.position.y = openingTopY + fasciaHeight / 2;
-    beam.rotation.y = yaw;
-    beam.renderOrder = 55;
-    beam.castShadow = true;
-    group.add(beam);
-    for (const edge of [-1, 1]) {
-      const jambHeight = WALL_TOP_Y - head.y + 0.25;
-      const jamb = new Mesh(
-        new BoxGeometry(1.1, jambHeight, 2.4),
-        materials.portalConcrete,
-      );
-      jamb.name = `${label} portal jamb`;
-      jamb.position
-        .copy(head)
-        .addScaledVector(headNormal, lateral + edge * (width / 2 + 0.55));
-      jamb.position.y = head.y + jambHeight / 2;
-      jamb.rotation.y = yaw;
-      jamb.renderOrder = 55;
-      jamb.castShadow = true;
-      group.add(jamb);
-    }
+  const inward = portalAxis.inward;
+  const normal = portalAxis.normal;
+  const width = widths.at(-1)!;
+  const yaw = portalAxis.yaw;
 
-    const shadow = new Mesh(
-      new BoxGeometry(width - 0.5, height - 0.35, 0.35),
-      materials.shadow,
-    );
-    shadow.name = `${label} portal shadow`;
-    shadow.position
-      .copy(head)
-      .addScaledVector(headNormal, lateral)
-      .addScaledVector(inward, 1.25);
-    shadow.position.y = head.y + height / 2;
-    shadow.rotation.y = yaw;
-    shadow.renderOrder = 54;
-    group.add(shadow);
-  }
-
-  // A single top slab joins both directional mouths and closes the terrain
-  // edge. It remains above street level, so the portal is legible even when
-  // the closed official ground mesh correctly occludes the buried road.
-  const portalWidth = 2 * width + 4.5;
-  const coping = new Mesh(
-    new BoxGeometry(portalWidth, 0.45, 4.6),
-    materials.portalConcrete,
-  );
-  coping.name = `${label} portal coping`;
-  coping.position.copy(head);
-  coping.position.y = WALL_TOP_Y + 0.18;
-  coping.rotation.y = yaw;
-  coping.renderOrder = 56;
-  coping.castShadow = true;
-  coping.receiveShadow = true;
-  group.add(coping);
-
-  // The real entrances are controlled portals, not anonymous holes. A slim
-  // overhead gantry and four lane signals provide the recognisable threshold.
-  const gantryAt = head.clone().addScaledVector(inward, -7);
-  const gantryY = head.y + height - 0.35;
-  const gantry = new Mesh(
-    new BoxGeometry(portalWidth - 2.1, 0.28, 0.28),
-    materials.barrier,
-  );
-  gantry.name = `${label} lane-control gantry`;
-  gantry.position.copy(gantryAt);
-  gantry.position.y = gantryY;
-  gantry.rotation.y = yaw;
-  gantry.renderOrder = 58;
-  group.add(gantry);
-  for (const lateral of [-0.75, -0.25, 0.25, 0.75].map(
-    (fraction) => fraction * (portalWidth / 2 - 2.2),
-  )) {
-    const signal = new Group();
-    signal.name = `${label} green lane signal`;
-    signal.position.copy(gantryAt).addScaledVector(headNormal, lateral);
-    signal.position.y = gantryY - 0.75;
-    signal.rotation.y = yaw;
-    const housing = new Mesh(
-      new BoxGeometry(1.15, 1.15, 0.22),
-      materials.shadow,
-    );
-    housing.position.z = -0.04;
-    housing.renderOrder = 59;
-    signal.add(housing);
-    const stem = new Mesh(new BoxGeometry(0.14, 0.42, 0.08), materials.signal);
-    stem.position.set(0, 0.15, -0.18);
-    stem.renderOrder = 60;
-    signal.add(stem);
-    for (const side of [-1, 1]) {
-      const arrow = new Mesh(
-        new BoxGeometry(0.14, 0.44, 0.08),
-        materials.signal,
-      );
-      arrow.position.set(side * 0.13, -0.16, -0.18);
-      arrow.rotation.z = side * (Math.PI / 4);
-      arrow.renderOrder = 60;
-      signal.add(arrow);
-    }
-    group.add(signal);
-  }
-
-  // The visible tube interior ("man muss … tief hineinschauen können"):
-  // each mouth continues past its portal frame as a real receding bore —
-  // dark road deck, side walls, ceiling with a row of warm lamps, and a
-  // near-black end cap that reads as the tunnel disappearing under the
-  // city rather than a painted-on hole. Everything sits BELOW street
-  // level, so it is only ever seen through the mouth itself.
   const boreWall = interiorMaterial(0x5d625f, { roughness: 0.92 });
   const boreDeck = interiorMaterial(0x30363a, { roughness: 0.95 });
   const boreCeiling = interiorMaterial(0x464a48, { roughness: 0.92 });
   const boreEnd = interiorMaterial(0x111416, { roughness: 1 });
   const guideMaterial = new MeshBasicMaterial({
     color: 0xd9cfad,
-    depthTest: false,
-    depthWrite: false,
+    depthTest: true,
+    depthWrite: true,
   });
   const lampMaterial = new MeshStandardMaterial({
     color: 0xffe2b0,
+    depthTest: true,
+    depthWrite: true,
     emissive: 0xffc678,
     emissiveIntensity: 1.15,
     roughness: 0.6,
-    depthTest: false,
-    depthWrite: false,
   });
   boreWall.side = DoubleSide;
   boreDeck.side = DoubleSide;
   boreCeiling.side = DoubleSide;
   guideMaterial.side = DoubleSide;
-  for (const tube of [-1, 1]) {
-    const lateral = tube * (width / 2 + 0.85);
-    const mouth = head
-      .clone()
-      .addScaledVector(headNormal, lateral)
-      .addScaledVector(inward, 0.7);
-    const deep = mouth.clone().addScaledVector(inward, BORE_LENGTH_M);
-    deep.y = tunnelY;
-    const boreCourse = [mouth, deep];
-    const boreOffsets = [headNormal, headNormal];
-    addMesh(
-      group,
-      `${label} bore deck`,
-      roadRibbonGeometry(
-        boreCourse.map((point) => point.clone().add(new Vector3(0, -0.15, 0))),
-        boreOffsets,
-        0,
-        width / 2,
-      ),
-      boreDeck,
-      74,
-    );
-    addMesh(
-      group,
-      `${label} bore ceiling`,
-      roadRibbonGeometry(
-        boreCourse.map((point) =>
-          point.clone().add(new Vector3(0, height + 0.2, 0)),
-        ),
-        boreOffsets,
-        0,
-        (width + 1) / 2,
-      ),
-      boreCeiling,
-      71,
-    );
-    for (const side of [-1, 1]) {
-      addMesh(
-        group,
-        `${label} bore wall`,
-        wallGeometry(
-          boreCourse,
-          boreOffsets,
-          side * (width / 2 + 0.25),
-          0.5,
-          (point) => point.y,
-          (point) => point.y + height,
-        ),
-        boreWall,
-        72,
-      );
 
-      // A calm, continuous reflector band makes the close bore view readable
-      // without animated lighting or depth-fighting decals.
-      addMesh(
-        group,
-        `${label} bore safety guide`,
-        wallGeometry(
-          boreCourse,
-          boreOffsets,
-          side * (width / 2 - 0.03),
-          0.08,
-          (point) => point.y + 0.99,
-          (point) => point.y + 1.11,
-        ),
-        guideMaterial,
-        77,
-      );
-    }
-    const endCap = new Mesh(
-      new BoxGeometry(width + 1.0, height + 0.6, 0.4),
-      boreEnd,
+  const mouth = head.clone().addScaledVector(inward, 0.7);
+  const deep = mouth.clone().addScaledVector(inward, BORE_LENGTH_M);
+  deep.y = ramp.tunnelY;
+  const boreCourse = [mouth, deep];
+  const boreOffsets = [normal, normal];
+  addMesh(
+    group,
+    `${label} bore deck`,
+    roadRibbonGeometry(
+      boreCourse.map((point) => point.clone().add(new Vector3(0, -0.15, 0))),
+      boreOffsets,
+      0,
+      width / 2,
+    ),
+    boreDeck,
+    74,
+  );
+  addMesh(
+    group,
+    `${label} bore ceiling`,
+    roadRibbonGeometry(
+      boreCourse.map((point) =>
+        point.clone().add(new Vector3(0, clearHeight + 0.2, 0)),
+      ),
+      boreOffsets,
+      0,
+      (width + 1) / 2,
+    ),
+    boreCeiling,
+    71,
+  );
+  for (const side of [-1, 1]) {
+    addMesh(
+      group,
+      `${label} bore wall`,
+      wallGeometry(
+        boreCourse,
+        boreOffsets,
+        side * (width / 2 + 0.25),
+        0.5,
+        (point) => point.y,
+        (point) => point.y + clearHeight,
+      ),
+      boreWall,
+      72,
     );
-    endCap.position.copy(deep).addScaledVector(inward, -0.4);
-    endCap.position.y = tunnelY + height / 2;
-    endCap.rotation.y = yaw;
-    endCap.name = `${label} bore depth cap`;
-    endCap.renderOrder = 70;
-    group.add(endCap);
-    // A row of ceiling lamps marching into the dark — the cue that makes
-    // the bore read as depth instead of a black rectangle.
-    const LAMP_SPACING_M = 7.5;
-    const lampCount = Math.floor((BORE_LENGTH_M - 4) / LAMP_SPACING_M);
-    for (let index = 0; index < lampCount; index += 1) {
-      const lamp = new Mesh(new BoxGeometry(1.6, 0.14, 0.5), lampMaterial);
-      lamp.position
-        .copy(mouth)
-        .addScaledVector(inward, 4 + index * LAMP_SPACING_M);
-      const fraction = (4 + index * LAMP_SPACING_M) / BORE_LENGTH_M;
-      lamp.position.y =
-        MathUtils.lerp(head.y, tunnelY, fraction) + height - 0.12;
-      lamp.rotation.y = yaw;
-      lamp.name = `${label} bore ceiling lamp`;
-      lamp.renderOrder = 78;
-      group.add(lamp);
-    }
+    addMesh(
+      group,
+      `${label} bore safety guide`,
+      wallGeometry(
+        boreCourse,
+        boreOffsets,
+        side * (width / 2 - 0.03),
+        0.08,
+        (point) => point.y + 0.99,
+        (point) => point.y + 1.11,
+      ),
+      guideMaterial,
+      77,
+    );
   }
+  const endCap = new Mesh(
+    new BoxGeometry(width + 1, clearHeight + 0.6, 0.4),
+    boreEnd,
+  );
+  endCap.position.copy(deep).addScaledVector(inward, -0.4);
+  endCap.position.y = ramp.tunnelY + clearHeight / 2;
+  endCap.rotation.y = yaw;
+  endCap.name = `${label} bore depth cap`;
+  endCap.renderOrder = 70;
+  group.add(endCap);
+  const lampSpacingM = 7.5;
+  const lampCount = Math.floor((BORE_LENGTH_M - 4) / lampSpacingM);
+  for (let index = 0; index < lampCount; index += 1) {
+    const alongM = 4 + index * lampSpacingM;
+    const lamp = new Mesh(new BoxGeometry(1.45, 0.14, 0.45), lampMaterial);
+    lamp.position.copy(mouth).addScaledVector(inward, alongM);
+    lamp.position.y =
+      MathUtils.lerp(head.y, ramp.tunnelY, alongM / BORE_LENGTH_M) +
+      clearHeight -
+      0.12;
+    lamp.rotation.y = yaw;
+    lamp.name = `${label} bore ceiling lamp`;
+    lamp.renderOrder = 78;
+    group.add(lamp);
+  }
+
   for (const object of group.children) {
     if (object.name.startsWith(`${label} bore `)) {
       object.userData[PORTAL_INTERIOR_FLAG] = true;
@@ -958,13 +891,256 @@ function addRamp(
   }
 }
 
+function addPortalFixture(
+  group: Group,
+  name: string,
+  geometry: BufferGeometry,
+  material: Material,
+  position: Vector3,
+  yaw: number,
+  renderOrder: number,
+): Mesh {
+  const mesh = new Mesh(geometry, material);
+  mesh.name = name;
+  mesh.position.copy(position);
+  mesh.rotation.y = yaw;
+  mesh.renderOrder = renderOrder;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  group.add(mesh);
+  return mesh;
+}
+
 /**
- * Camera stand for looking INTO a tunnel bore: a low, axis-near position
- * up the ramp from the mouth, aimed a few metres inside the tube so the
- * receding walls, the lamp row and the depth cap fill the frame. Derived
- * from the same centreline the ramps are built from, so the view stays
- * glued to the geometry if the course ever moves.
+ * One coherent headwall per access site. Its shared yaw and datum prevent the
+ * crossed beams produced when each slightly curved carriageway authored its
+ * own independent portal frame.
  */
+function addPortalHeadwall(
+  group: Group,
+  ramps: PortalRamp[],
+  height: number,
+  materials: PortalMaterials,
+): void {
+  if (ramps.length === 0) {
+    return;
+  }
+  const id = ramps[0].id;
+  const heads = ramps.map((ramp) => ramp.centreline.at(-1)!);
+  const { inward, normal, yaw } = sharedPortalAxis(ramps);
+  const centre = heads
+    .reduce((sum, head) => sum.add(head), new Vector3())
+    .multiplyScalar(1 / heads.length);
+  centre.y = Math.min(...heads.map((head) => head.y));
+
+  const bores = ramps
+    .map((ramp, index) => ({
+      centreOffset: heads[index].clone().sub(centre).dot(normal),
+      clearHeight: portalClearHeight(height, ramp.structure),
+      ramp,
+      width: ramp.widths.at(-1)!,
+    }))
+    .sort((left, right) => left.centreOffset - right.centreOffset);
+  const minEdge = Math.min(
+    ...bores.map((bore) => bore.centreOffset - bore.width / 2),
+  );
+  const maxEdge = Math.max(
+    ...bores.map((bore) => bore.centreOffset + bore.width / 2),
+  );
+  const clearHeight = Math.max(...bores.map((bore) => bore.clearHeight));
+  const outerWidth = maxEdge - minEdge + 2.4;
+  const outerCentre = (minEdge + maxEdge) / 2;
+  const topY = centre.y + clearHeight + PORTAL_ROOF_DEPTH_M;
+  const label = `Tiergartentunnel ${id} shared portal`;
+
+  addPortalFixture(
+    group,
+    `${label} head beam`,
+    new BoxGeometry(outerWidth, PORTAL_ROOF_DEPTH_M, PORTAL_FACE_DEPTH_M),
+    materials.portalConcrete,
+    centre
+      .clone()
+      .addScaledVector(normal, outerCentre)
+      .setY(topY - PORTAL_ROOF_DEPTH_M / 2),
+    yaw,
+    55,
+  );
+  addPortalFixture(
+    group,
+    `${label} coping`,
+    new BoxGeometry(outerWidth + 0.45, 0.2, PORTAL_FACE_DEPTH_M + 0.35),
+    materials.portalConcrete,
+    centre
+      .clone()
+      .addScaledVector(normal, outerCentre)
+      .setY(topY + 0.1),
+    yaw,
+    56,
+  );
+
+  const jambs = [
+    { offset: minEdge - 0.6, width: 1.2 },
+    ...bores.slice(0, -1).map((bore, index) => {
+      const next = bores[index + 1];
+      const leftEdge = bore.centreOffset + bore.width / 2;
+      const rightEdge = next.centreOffset - next.width / 2;
+      return {
+        offset: (leftEdge + rightEdge) / 2,
+        // Fill the measured median rather than leaving black gaps around a
+        // generic 0.8 m post. Narrow source gaps still receive a structural
+        // divider wide enough to read at ordinary map zoom.
+        width: Math.max(0.8, rightEdge - leftEdge + 0.08),
+      };
+    }),
+    { offset: maxEdge + 0.6, width: 1.2 },
+  ];
+  for (const [index, jamb] of jambs.entries()) {
+    addPortalFixture(
+      group,
+      `${label} jamb ${index + 1}`,
+      new BoxGeometry(
+        jamb.width,
+        clearHeight + PORTAL_ROOF_DEPTH_M,
+        PORTAL_FACE_DEPTH_M,
+      ),
+      materials.portalConcrete,
+      centre
+        .clone()
+        .addScaledVector(normal, jamb.offset)
+        .setY(centre.y + (clearHeight + PORTAL_ROOF_DEPTH_M) / 2),
+      yaw,
+      55,
+    );
+  }
+
+  for (const bore of bores) {
+    const boreCentre = centre
+      .clone()
+      .addScaledVector(normal, bore.centreOffset)
+      .addScaledVector(inward, 0.82);
+    const shadow = addPortalFixture(
+      group,
+      `${label} ${bore.ramp.carriagewayId} opening shadow`,
+      new BoxGeometry(bore.width + 0.08, bore.clearHeight - 0.18, 0.18),
+      materials.shadow,
+      boreCentre.clone().setY(centre.y + bore.clearHeight / 2),
+      yaw,
+      54,
+    );
+    shadow.userData[PORTAL_SHADOW_FLAG] = true;
+
+    // The first real luminaires sit directly behind the headwall. Keeping
+    // these fixtures on the visible threshold side gives the mouth depth
+    // without revealing the buried construction-only helper bore.
+    for (let lane = 0; lane < bore.ramp.laneCount; lane += 1) {
+      const lateral =
+        (lane / bore.ramp.laneCount - 0.5 + 0.5 / bore.ramp.laneCount) *
+        bore.width;
+      const thresholdLamp = addPortalFixture(
+        group,
+        `${label} ${bore.ramp.carriagewayId} threshold lamp ${lane + 1}`,
+        new BoxGeometry(
+          Math.min(1.05, (bore.width / bore.ramp.laneCount) * 0.42),
+          0.1,
+          0.2,
+        ),
+        materials.wallLight,
+        boreCentre
+          .clone()
+          .addScaledVector(normal, lateral)
+          .addScaledVector(inward, -0.16)
+          .setY(centre.y + bore.clearHeight - 0.42),
+        yaw,
+        59,
+      );
+      thresholdLamp.castShadow = false;
+    }
+
+    const gantryAt = boreCentre.clone().addScaledVector(inward, -2.05);
+    const gantryY = centre.y + bore.clearHeight - 0.28;
+    addPortalFixture(
+      group,
+      `${label} ${bore.ramp.carriagewayId} lane-control gantry`,
+      new BoxGeometry(bore.width - 0.42, 0.2, 0.2),
+      materials.railing,
+      gantryAt.clone().setY(gantryY),
+      yaw,
+      58,
+    );
+    for (let lane = 0; lane < bore.ramp.laneCount; lane += 1) {
+      const lateral =
+        (lane / bore.ramp.laneCount - 0.5 + 0.5 / bore.ramp.laneCount) *
+        bore.width;
+      const signal = new Group();
+      signal.name = `${label} ${bore.ramp.carriagewayId} lane signal`;
+      signal.position
+        .copy(gantryAt)
+        .addScaledVector(normal, lateral)
+        .setY(gantryY - 0.55);
+      signal.rotation.y = yaw;
+      const housing = new Mesh(
+        new BoxGeometry(0.72, 0.72, 0.18),
+        materials.shadow,
+      );
+      signal.add(housing);
+      const signalMaterial =
+        lane === bore.ramp.laneCount - 1 && bore.ramp.carriagewayId === "west"
+          ? materials.signalStop
+          : materials.signal;
+      const diagonal = new Mesh(
+        new BoxGeometry(0.1, 0.45, 0.055),
+        signalMaterial,
+      );
+      diagonal.position.z = -0.12;
+      diagonal.rotation.z =
+        signalMaterial === materials.signalStop ? Math.PI / 4 : 0;
+      signal.add(diagonal);
+      if (signalMaterial === materials.signal) {
+        for (const side of [-1, 1]) {
+          const arrow = new Mesh(
+            new BoxGeometry(0.1, 0.29, 0.055),
+            signalMaterial,
+          );
+          arrow.position.set(side * 0.1, -0.11, -0.12);
+          arrow.rotation.z = side * (Math.PI / 4);
+          signal.add(arrow);
+        }
+      } else {
+        const cross = diagonal.clone();
+        cross.rotation.z = -Math.PI / 4;
+        signal.add(cross);
+      }
+      group.add(signal);
+    }
+
+    const signPosition = boreCentre
+      .clone()
+      .addScaledVector(normal, bore.width / 2 + 0.58)
+      .addScaledVector(inward, -1.7)
+      .setY(centre.y + 2.25);
+    const signFace = addPortalFixture(
+      group,
+      `${label} ${bore.ramp.carriagewayId} 50 speed sign`,
+      new CircleGeometry(0.36, 24),
+      materials.speedSignFace,
+      signPosition,
+      yaw,
+      60,
+    );
+    signFace.rotation.y = yaw + Math.PI;
+    const signRing = addPortalFixture(
+      group,
+      `${label} ${bore.ramp.carriagewayId} speed sign ring`,
+      new TorusGeometry(0.36, 0.055, 8, 24),
+      materials.speedSign,
+      signPosition.clone().addScaledVector(inward, -0.012),
+      yaw,
+      61,
+    );
+    signRing.rotation.y = yaw + Math.PI;
+  }
+}
+
 export type TunnelMouthView = {
   azimuth_degrees: number;
   distance_m: number;
@@ -975,49 +1151,31 @@ export type TunnelMouthView = {
 };
 
 export function tunnelMouthViews(payload: TunnelPortalPayload): {
+  invalidenstrasse?: TunnelMouthView;
   kemperplatz?: TunnelMouthView;
   north: TunnelMouthView;
   south: TunnelMouthView;
 } | null {
   const ramps = portalRamps(payload);
-  const north = ramps.find((ramp) => ramp.id === "north");
-  const south = ramps.find((ramp) => ramp.id === "south");
-  if (!north || !south) {
-    return null;
-  }
   const build = (ramp: PortalRamp): TunnelMouthView => {
     const centreline = ramp.centreline;
-    const head = centreline[centreline.length - 1];
-    const before = centreline[Math.max(0, centreline.length - 2)];
-    const inward = new Vector3(head.x - before.x, 0, head.z - before.z);
-    inward.normalize();
-    const normal = new Vector3(-inward.z, 0, inward.x);
-    // Aim INSIDE one bore, not at the median wall between the two: the
-    // tubes flank the centreline at ±(width/2 + 0.85), exactly where
-    // addRamp lays their decks.
-    const lateral = payload.clear_width_each_direction_m / 2 + 0.85;
-    // The south view aims farther into its long, exposed approach so the lamp
-    // rhythm and both wall guides establish depth behind the portal frame.
-    const targetInM = ramp.id === "north" ? 10 : 18;
-    const target = head
-      .clone()
-      .addScaledVector(inward, targetInM)
-      .addScaledVector(normal, lateral);
+    const head = centreline.at(-1)!;
+    const inward = sharedPortalAxis(
+      ramps.filter((candidate) => candidate.id === ramp.id),
+    ).inward;
+    const targetInM = 10;
+    const target = head.clone().addScaledVector(inward, targetInM);
     target.y =
-      MathUtils.lerp(
-        head.y,
-        ramp.tunnelY,
-        Math.min(1, targetInM / BORE_LENGTH_M),
-      ) +
+      MathUtils.lerp(head.y, ramp.tunnelY, targetInM / BORE_LENGTH_M) +
       payload.clear_height_m / 2;
 
-    // The camera stands up the ramp's own centreline rather than on a fixed
-    // sphere around the target. It must remain close: a 46 m stand became a
-    // 150 m stand after the isometric FOV's dolly compensation and landed
-    // over the Landwehrkanal instead of in front of the south mouth.
-    // Each stand distance is tuned to the available open-ramp envelope; the
-    // south mouth must stay close enough to avoid seeing the uncut city shell.
-    const standBackM = ramp.id === "north" ? 82 : ramp.id === "south" ? 76 : 50;
+    const availableLength = centreline
+      .slice(1)
+      .reduce((total, point, index) => {
+        const previous = centreline[index];
+        return total + Math.hypot(point.x - previous.x, point.z - previous.z);
+      }, 0);
+    const standBackM = Math.min(48, Math.max(24, availableLength * 0.55));
     let stand = head.clone();
     let walked = 0;
     for (let index = centreline.length - 1; index > 0; index -= 1) {
@@ -1025,92 +1183,118 @@ export function tunnelMouthViews(payload: TunnelPortalPayload): {
       const previous = centreline[index - 1];
       const step = Math.hypot(current.x - previous.x, current.z - previous.z);
       if (walked + step >= standBackM) {
-        const fraction = (standBackM - walked) / (step || 1);
-        stand = current.clone().lerp(previous, fraction);
-        walked = standBackM;
+        stand = current
+          .clone()
+          .lerp(previous, (standBackM - walked) / (step || 1));
         break;
       }
       stand = previous.clone();
       walked += step;
     }
-    // Stay on the ramp's own grade. Forcing the eye back to surface level
-    // made it look steeply down through the head beam instead of horizontally
-    // into the bore. ThreeViewer explicitly exempts this authored portal shot
-    // from the generic underside/underwater switch until free navigation.
-    // Keep the eye at driver height above the graded carriageway. The sampled
-    // stand point rises naturally as framing moves farther up the approach.
     stand.y += 1.45;
-    stand.addScaledVector(normal, lateral);
-
     const offset = stand.clone().sub(target);
     const distance = offset.length() || 1;
     return {
       azimuth_degrees: Math.atan2(offset.x, offset.z) * (180 / Math.PI),
       distance_m: distance,
-      fov_degrees: ramp.id === "north" ? 43 : ramp.id === "south" ? 42 : 44,
+      fov_degrees: 48,
       polar_degrees: Math.acos(offset.y / distance) * (180 / Math.PI),
       target_height_m: 0,
       target_world: [target.x, target.y, target.z],
     };
   };
 
-  const views: {
-    kemperplatz?: TunnelMouthView;
-    north: TunnelMouthView;
-    south: TunnelMouthView;
-  } = { north: build(north), south: build(south) };
-  const kemperplatz = ramps.find((ramp) => ramp.id === "kemperplatz");
-  if (kemperplatz) {
-    views.kemperplatz = build(kemperplatz);
+  const north = ramps.find((ramp) => ramp.id === "minna_cauer");
+  const south = ramps.find((ramp) => ramp.id === "reichpietschufer");
+  if (!north || !south) {
+    return null;
   }
-  return views;
+  const invalidenstrasse = ramps.find((ramp) => ramp.id === "invalidenstrasse");
+  const kemperplatz = ramps.find((ramp) => ramp.id === "kemperplatz");
+  return {
+    invalidenstrasse: invalidenstrasse ? build(invalidenstrasse) : undefined,
+    kemperplatz: kemperplatz ? build(kemperplatz) : undefined,
+    north: build(north),
+    south: build(south),
+  };
 }
 
-/** All authored open approaches, ready to drop into the daylight scene. */
+/** All four authored access sites, ready for the daylight scene. */
 export function createTunnelPortals(payload: TunnelPortalPayload): Group {
   const group = new Group();
   group.name = "Tiergartentunnel portal approaches";
   group.userData.geometryStatus =
-    "OSM-derived plan course with an engineered smooth vertical profile; the manifest carries only a schematic constant tunnel depth";
-  const points = payload.points.map((point) => new Vector3(...point));
-  if (points.length < 2) {
-    return group;
-  }
-  const materials = {
-    barrier: surfaceMaterial(BARRIER, { metalness: 0.22, roughness: 0.62 }),
+    "Four OSM-derived access sites with separate carriageways; official-mesh endpoint heights and documented smooth grade estimates";
+  const ramps = portalRamps(payload);
+  group.userData.portalApproachCount = new Set(
+    ramps.map((ramp) => ramp.id),
+  ).size;
+  group.userData.carriagewayCount = ramps.length;
+  const speedSignTexture = createLetteringTexture({
+    bandHeightM: 0.72,
+    bandWidthM: 0.72,
+    capHeightM: 0.35,
+    fieldColor: "#f4f1e8",
+    letterColor: "#17191a",
+    text: "50",
+    texelsPerMetre: 240,
+  });
+  const materials: PortalMaterials = {
     concrete: surfaceMaterial(CONCRETE),
     marking: surfaceMaterial(MARKING, { roughness: 0.94 }),
-    portalConcrete: surfaceMaterial(CONCRETE, { revealThroughGround: true }),
-    road: surfaceMaterial(ASPHALT, {
-      revealThroughGround: true,
-      roughness: 0.93,
-    }),
-    shadow: surfaceMaterial(0x15191b, {
-      revealThroughGround: true,
-      roughness: 1,
-    }),
+    portalConcrete: surfaceMaterial(CONCRETE),
+    railing: surfaceMaterial(RAILING, { metalness: 0.28, roughness: 0.58 }),
+    road: surfaceMaterial(ASPHALT, { roughness: 0.93 }),
+    shadow: surfaceMaterial(0x15191b, { roughness: 1 }),
     signal: surfaceMaterial(0x43d67d, {
       metalness: 0.05,
-      revealThroughGround: true,
       roughness: 0.45,
     }),
+    signalStop: surfaceMaterial(0xe63832, {
+      metalness: 0.05,
+      roughness: 0.45,
+    }),
+    speedSign: surfaceMaterial(0xd92d27, {
+      metalness: 0.05,
+      roughness: 0.62,
+    }),
+    speedSignFace: speedSignTexture
+      ? new MeshBasicMaterial({
+          depthTest: true,
+          depthWrite: true,
+          map: speedSignTexture,
+          side: DoubleSide,
+        })
+      : surfaceMaterial(0xf4f1e8, { roughness: 0.86 }),
+    wallLight: surfaceMaterial(0xffd59a, {
+      metalness: 0.02,
+      roughness: 0.5,
+    }),
   };
+  materials.shadow.userData[PRESERVE_AUTHORED_DARK_FLAG] = true;
   materials.concrete.side = DoubleSide;
   materials.portalConcrete.side = DoubleSide;
-  materials.portalConcrete.emissive.setHex(0xaaa9a2);
-  materials.portalConcrete.emissiveIntensity = 0.16;
+  materials.portalConcrete.emissive.setHex(CONCRETE);
+  materials.portalConcrete.emissiveIntensity = 0.1;
   materials.signal.emissive.setHex(0x29b765);
   materials.signal.emissiveIntensity = 1.35;
-  for (const ramp of portalRamps(payload)) {
-    addRamp(
-      group,
-      `Tiergartentunnel ${ramp.id} ramp`,
-      ramp.centreline,
-      payload.clear_width_each_direction_m,
-      payload.clear_height_m,
-      ramp.tunnelY,
-      materials,
-    );
+  materials.signalStop.emissive.setHex(0xb91616);
+  materials.signalStop.emissiveIntensity = 1.2;
+  materials.wallLight.emissive.setHex(0xffb257);
+  materials.wallLight.emissiveIntensity = 1.05;
+  for (const id of new Set(ramps.map((ramp) => ramp.id))) {
+    const portalRamps = ramps.filter((ramp) => ramp.id === id);
+    const portalAxis = sharedPortalAxis(portalRamps);
+    for (const ramp of portalRamps) {
+      addCarriageway(
+        group,
+        ramp,
+        payload.clear_height_m,
+        materials,
+        portalAxis,
+      );
+    }
+    addPortalHeadwall(group, portalRamps, payload.clear_height_m, materials);
   }
   setTunnelPortalPresentation(group, false, false, false);
   return group;

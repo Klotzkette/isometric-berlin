@@ -260,11 +260,10 @@ describe("drawn carriageways and park paths", () => {
     expect(minecraft.count - drawn.count).toBe(asphaltRuns);
   });
 
-  test("cuts the measured ground raster around both authored tunnel ramps", () => {
+  test("cuts the measured ground raster around all mapped tunnel approaches", () => {
     const insideApproach = createTunnelPortalApproachTester({
       clear_height_m: scenePayload.tiergartentunnel.clear_height_m,
-      portal_surface_anchors:
-        scenePayload.tiergartentunnel.portal_surface_anchors,
+      portal_approaches: scenePayload.tiergartentunnel.portal_approaches,
       points: scenePayload.tiergartentunnel.points as Array<
         [number, number, number]
       >,
@@ -276,6 +275,7 @@ describe("drawn carriageways and park paths", () => {
       { skipAtWorld: insideApproach },
     );
 
-    expect(cut.userData.skippedByWorldPredicateCells).toBeGreaterThan(500);
+    expect(cut.userData.skippedByWorldPredicateCells).toBeGreaterThan(400);
+    expect(cut.userData.skippedByWorldPredicateCells).toBeLessThan(800);
   });
 });

@@ -1,6 +1,6 @@
 # Tiergartentunnel Geometry
 
-This note documents the v0.4.0 tunnel representation used by the
+This note documents the v0.71.20 tunnel representation used by the
 Regierungsviertel viewer.
 
 ## Status
@@ -9,7 +9,7 @@ The committed tunnel artefacts are an open-data engineering
 approximation, not official surveyed as-built tunnel geometry.
 
 The route is strong enough for the current isometric cutaway cue because
-v0.1.49 includes derived OpenStreetMap `highway=trunk`,
+v0.71.20 includes derived OpenStreetMap `highway=trunk`,
 `tunnel=yes`, `layer=-2` carriageway geometries for the named Tunnel
 Tiergarten Spreebogen B96 ways, plus public portal coordinates, public
 route descriptions and published cross-section facts. It must not be
@@ -24,7 +24,8 @@ for the tunnel body is found and committed as a derived clipped artefact.
 | Portals / route anchors | Public portal coordinates and route description for Tunnel Tiergarten Spreebogen | Centreline simplification and portal sanity check |
 | Length | Published length around 2.4 km / 2392 m | Metadata and QA sanity check |
 | Cross section | Published two-tube rectangular road tunnel facts: 10.5 m clear width per direction, 5.0 m clear height, 23.4 m total width | Schematic two-tube cutaway volume |
-| Surface context | OSM roads, tunnels, footways, station passages and portals clipped to the Regierungsviertel | Alignment and open-ramp plan geometry; the two separate Kemperplatz carriageways are averaged into the rendered centre course |
+| Surface context | OSM roads, tunnels, footways, station passages and portals clipped to the Regierungsviertel | Four access sites (Minna-Cauer-Straße, Invalidenstraße, Kemperplatz and Reichpietschufer), retaining all eight separate mapped carriageways and lane-derived widths |
+| Surface / portal levels | Packaged official Berlin 3D mesh | Endpoint samples for each carriageway; vertical grades between samples remain explicit display approximations |
 | Depth | Not found as licensed official geometry in this repo | Schematic -12 m visual depth |
 
 ## Committed Artefacts
@@ -49,25 +50,25 @@ for the tunnel body is found and committed as a derived clipped artefact.
 
 Draw the tunnel below the surface as a readable engineering cutaway:
 
-- two continuous, joined carriageway ribbons at every authored entrance. The
-  north and far-south approaches follow the route endpoints; the Kemperplatz
-  entrance follows the averaged course of its two mapped OSM surface
-  carriageways. Each begins with a flat 32 m overlap, then descends through an
-  open cut to the twin portal frames;
+- continuous, joined carriageway ribbons for all eight mapped approaches at
+  Minna-Cauer-Straße, Invalidenstraße, Kemperplatz and Reichpietschufer. They
+  retain their own OSM plan alignment, lane count and width instead of being
+  averaged or copied from one synthetic centreline;
 - a shallow, structurally readable head beam above each 5 m opening, followed
   by a 46 m enclosed transition to the schematic tunnel depth. Both vertical
   profiles are presentation geometry, not surveyed gradients;
-- a shared 29 m-wide surface-clearance corridor for the exact ground polygons,
-  extrapolated background ground, Minecraft ground cells, kerbs, trees and
-  street furniture, so none of those layers can roof or block an approach;
-- wedge-shaped retaining walls, outer noise barriers, shoulder and lane marks,
-  portal jambs, head beams and a lane-control gantry at both mouths;
+- a separate variable-width clearance corridor for every mapped carriageway,
+  including a short 8 m surface overlap, so a portal cut cannot become a false
+  cross-city stripe;
+- wedge-shaped retaining walls, maintenance verges, horizontal acoustic
+  lining, shoulder and lane marks, one square shared headwall per access site,
+  separate bore openings, lane-control signals and 50 km/h signs;
 - interrupted twin-tube outlines in the global DZI, so the route cannot be
   mistaken for an elevated road and does not cover water, paths or vegetation;
 - dark rectangular tunnel body in the dedicated local underside overlay;
 - two separated tubes with a visible centre wall;
 - side walls / floor guide lines;
-- portal frames at the north, Kemperplatz and far-south visible approaches;
+- shared portal frames at all four visible access sites;
 - ceiling ribs and lane / tube guide marks for the underside view;
 - small service-bay / emergency-cue boxes along the route;
 - warm light points along the route;
@@ -89,13 +90,15 @@ keyboard or the underside preset automatically fades the official surface and
 reveals the tunnel casings, roads, lights, lane marks and ventilation cues. The
 same underside camera also reveals the separately documented mapped passenger-
 rail cutaway and now frames their central crossing rather than forcing a close
-south-portal shot. The open north, Kemperplatz and far-south approaches remain
-ordinary surface features in Day, Night and Minecraft; only their short interior bore aids are
-temporarily revealed when a tunnel-mouth sight is selected. Dedicated
-northbound/southbound controls still centre and fly through the
-Tiergartentunnel. The zero-server fallback follows the same visibility rule.
-The mode therefore follows the real camera angle instead of depending on one
-special button path.
+south-portal shot. All four access sites remain ordinary surface features in
+Day, Night and Minecraft. Their short construction-only bore aids stay
+occluded even in a tunnel-mouth close-up, preventing a tunnel box from
+appearing through terrain, buildings or the railway deck. Recessed opening
+shadows, threshold lamps, lane-control signals and the measured ramps provide
+the exterior depth cue. Dedicated northbound/southbound controls still centre
+and fly through the continuous Tiergartentunnel. The zero-server fallback
+follows the same visibility rule. The mode therefore follows the real camera
+angle instead of depending on one special button path.
 
 If a future agent finds official tunnel-survey geometry, keep the same
 public viewer semantics but replace only the approximate centreline /

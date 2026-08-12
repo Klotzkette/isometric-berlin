@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.71.20
+
+- **All four Tiergartentunnel access sites now follow their actual mapped
+  carriageways instead of two oversized synthetic ramps.** Minna-Cauer-Straße,
+  Invalidenstraße/Hauptbahnhof, Kemperplatz and Reichpietschufer retain eight
+  separate OSM way courses, their lane-derived widths and endpoint heights
+  sampled from the packaged official Berlin 3D mesh. The surface, park,
+  road, water and Minecraft ground cuts use those same narrow corridors, so a
+  ramp descends through the ground only where its carriageway really runs.
+- **The entrances read as complete road structures in Day, Night and
+  Minecraft.** Each site has one coherent square headwall around two separate
+  openings, a measured median, coping, retaining and acoustic walls, safety
+  railings, shoulders, lane marks, 50 km/h signs, lane-control signals and lit
+  threshold fixtures. The Hauptbahnhof branch stays under its railway deck;
+  the southern approaches no longer continue as grey strips across terrain or
+  nearby buildings.
+- **Buried helper geometry can no longer bleed through the city.** Exterior
+  close-ups keep construction-only 46 m bore aids hidden and depth-tested;
+  only the recessed portal shadow is visible. The continuous underground
+  model remains available through the guided tunnel flight and underside
+  view. Regression coverage now rejects route-spanning caps, visible helper
+  bores, incomplete coarse-cell cuts and non-depth-tested exterior materials.
+  Settled-frame checks were byte-identical, and mobile portal framing was
+  verified at 390 x 844 px. The visible radius remains **5,230 m**; attribution
+  and source hierarchy are unchanged.
+
 ## v0.71.19
 
 - **The Georg Elser memorial now meets the measured pavement instead of the

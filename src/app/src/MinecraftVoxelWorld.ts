@@ -1661,7 +1661,7 @@ export function createMinecraftVoxelWorld(
   const center = new Vector3();
   const size = new Vector3();
   const insideTunnelApproach = tunnel
-    ? createTunnelPortalApproachTester(tunnel)
+    ? createTunnelPortalApproachTester(tunnel, cell / Math.SQRT2)
     : null;
   group.add(createMinecraftExtrapolatedWorld());
   group.add(

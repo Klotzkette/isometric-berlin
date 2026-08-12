@@ -67,7 +67,9 @@ import {
   createTunnelPortals,
   setTunnelPortalPresentation,
   tunnelMouthViews,
+  type TunnelPortalApproach,
   type TunnelPortalCourse,
+  type TunnelPortalId,
 } from "./TunnelPortals";
 import {
   createMemorialLandmarks,
@@ -265,12 +267,7 @@ export type TunnelPayload = {
   clear_width_each_direction_m: number;
   depth_status: string;
   geometry_status: string;
-  portal_surface_anchors?: {
-    kemperplatz?: [number, number, number];
-  };
-  portal_approaches?: {
-    kemperplatz?: [number, number, number][];
-  };
+  portal_approaches?: Partial<Record<TunnelPortalId, TunnelPortalApproach>>;
   points: [number, number, number][];
 };
 
@@ -911,7 +908,11 @@ export function markAuthoredFlatUnlit(root: Object3D): void {
         // Opaque stone receives the gentle ivory clean-up. Transparent hero
         // glass keeps its authored colour/transmission and only drops the
         // directional light gradient.
-        material.userData.flatClean = material.transparent ? 0 : 1;
+        material.userData.flatClean =
+          material.transparent ||
+          material.userData.preserveAuthoredDark === true
+            ? 0
+            : 1;
         material.userData.drawnFacadeApplied = true;
       }
     }
@@ -2705,7 +2706,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       );
       const markerHeight = markerHeightForLandmark(name);
       runtime.marker.position.copy(target).setY(markerHeight);
-      runtime.marker.visible = true;
+      // A floating selection halo above a road portal reads as a stray object
+      // in the sky. The framed mouth itself is the unambiguous focus target.
+      runtime.marker.visible = !runtime.tunnelPortalInteriorVisible;
       if (runtime.markerTimer !== null) {
         window.clearTimeout(runtime.markerTimer);
       }
@@ -4620,10 +4623,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnelPortals = createTunnelPortals(
             manifest.tiergartentunnel,
           );
-          // Bore-view presets ("man muss … tief hineinschauen können"):
-          // both tunnel sights aim straight into their bore from a low,
-          // axis-near stand up the ramp, derived from the same centreline
-          // the ramps are built from.
+          // Portal-mouth presets: all tunnel sights use a low, axis-near
+          // exterior stand derived from the same centreline as the ramp. The
+          // buried helper bore stays occluded; the continuous tunnel remains
+          // available through the dedicated guided flight.
           const mouthViews = tunnelMouthViews(manifest.tiergartentunnel);
           if (mouthViews) {
             runtime.focusCameraByName.set(
@@ -4634,7 +4637,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               "Kemperplatz / Tiergartentunnel",
               mouthViews.kemperplatz ?? mouthViews.south,
             );
-            runtime.focusCameraByName.set("Spreebogen", mouthViews.north);
+            runtime.focusCameraByName.set(
+              "Spreebogen",
+              mouthViews.invalidenstrasse ?? mouthViews.north,
+            );
           }
           markAuthoredFlatUnlit(runtime.tunnelPortals);
           scene.add(runtime.tunnelPortals);
