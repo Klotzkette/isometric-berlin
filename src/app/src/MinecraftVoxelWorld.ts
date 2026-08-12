@@ -16,6 +16,7 @@ import {
   BERLIN_MODERN_PROFILE,
   EUROPACITY_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
+  NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 import {
@@ -274,7 +275,10 @@ export function voxelRecognitionAreaAt(
  * sitting hidden inside it. This is intentionally narrower than the generic
  * recognition-area window suppression: only the fully modelled Gate qualifies.
  */
-export function isCompleteRecognitionVoxelColumn(x: number, z: number): boolean {
+export function isCompleteRecognitionVoxelColumn(
+  x: number,
+  z: number,
+): boolean {
   return voxelRecognitionAreaAt(x, z)?.name === "Brandenburger Tor";
 }
 
@@ -608,9 +612,7 @@ export function createGroundSlabs(
       }
       if (
         options?.skipWater &&
-        (className === "water" ||
-          className === "basin" ||
-          className === "pond")
+        (className === "water" || className === "basin" || className === "pond")
       ) {
         continue;
       }
@@ -1005,22 +1007,19 @@ export function createMinecraftUpbeatRecognition(): InstancedMesh {
   const cellM = 3;
   const contains = (x: number, z: number): boolean => {
     let inside = false;
-    for (let index = 0, previous = ring.length - 1; index < ring.length; ) {
+    for (let index = 0, previous = ring.length - 1; index < ring.length;) {
       const [x1, z1] = ring[index];
       const [x2, z2] = ring[previous];
       const crosses =
-        z1 > z !== z2 > z &&
-        x < ((x2 - x1) * (z - z1)) / (z2 - z1) + x1;
+        z1 > z !== z2 > z && x < ((x2 - x1) * (z - z1)) / (z2 - z1) + x1;
       if (crosses) inside = !inside;
       previous = index;
       index += 1;
     }
     return inside;
   };
-  const baseTop =
-    profile.groundY + profile.tierTopHeightsM[0];
-  const middleTop =
-    profile.groundY + profile.tierTopHeightsM[1];
+  const baseTop = profile.groundY + profile.tierTopHeightsM[0];
+  const middleTop = profile.groundY + profile.tierTopHeightsM[1];
   const towerTop = profile.groundY + profile.tierTopHeightsM[2];
   const blocks: ExtrapolatedBlock[] = [];
   for (let x = minimumX + cellM / 2; x < maximumX; x += cellM) {
@@ -1034,8 +1033,7 @@ export function createMinecraftUpbeatRecognition(): InstancedMesh {
             : baseTop;
       const bodyHeight = top - profile.groundY - 1;
       const cellIndex =
-        Math.round((x - minimumX) / cellM) +
-        Math.round((z - minimumZ) / cellM);
+        Math.round((x - minimumX) / cellM) + Math.round((z - minimumZ) / cellM);
       blocks.push({
         color: cellIndex % 5 === 0 ? 0x72c5d2 : 0xa4dfe2,
         position: [x, profile.groundY + bodyHeight / 2, z],
@@ -1064,6 +1062,142 @@ export function createMinecraftUpbeatRecognition(): InstancedMesh {
   return writer.mesh;
 }
 
+/** Block-native counterpart of the temporary 2026 FUNBOX event park. */
+export function createMinecraftFunboxRecognition(): InstancedMesh {
+  const profile = NORTHERN_CITY_PROFILE.funbox;
+  const colors = [
+    0xe84d42, 0xf28a38, 0x367fc8, 0x45a85f, 0x8d62bd, 0xf5c83f,
+  ] as const;
+  const blocks: ExtrapolatedBlock[] = [];
+  const cosine = Math.cos(profile.rotationY);
+  const sine = Math.sin(profile.rotationY);
+  const at = (localX: number, localZ: number): [number, number] => [
+    profile.centerWorldM[0] + localX * cosine + localZ * sine,
+    profile.centerWorldM[1] - localX * sine + localZ * cosine,
+  ];
+  const push = (
+    color: number,
+    localX: number,
+    centerY: number,
+    localZ: number,
+    size: readonly [number, number, number],
+  ): void => {
+    const [x, z] = at(localX, localZ);
+    blocks.push({ color, position: [x, centerY, z], size: [...size] });
+  };
+
+  const zoneDepth = profile.footprintLengthM / profile.sourceZoneCount;
+  for (let zone = 0; zone < profile.sourceZoneCount; zone += 1) {
+    push(
+      colors[zone % colors.length],
+      0,
+      profile.groundY + 0.5,
+      -profile.footprintLengthM / 2 + zoneDepth * (zone + 0.5),
+      [profile.footprintWidthM - 2, 1, zoneDepth - 0.25],
+    );
+  }
+  for (const side of [-1, 1]) {
+    push(side < 0 ? 0x367fc8 : 0x45a85f, side * 21, profile.groundY + 1.5, 0, [
+      2,
+      3,
+      profile.footprintLengthM,
+    ]);
+    push(side < 0 ? 0xf5c83f : 0xe84d42, 0, profile.groundY + 1.5, side * 47, [
+      profile.footprintWidthM,
+      3,
+      2,
+    ]);
+  }
+
+  // Five stepped turrets and the published five-metre slide stay unmistakably
+  // cubic while preserving the day model's placement and colour hierarchy.
+  for (const [index, [localX, localZ]] of [
+    [-17, -42],
+    [15.5, -39],
+    [-17.5, 20],
+    [16, 13],
+    [15, 37],
+  ].entries()) {
+    push(
+      colors[(index + 2) % colors.length],
+      localX,
+      profile.groundY + 3,
+      localZ,
+      [4.5, 5, 4.5],
+    );
+    push(
+      colors[(index + 5) % colors.length],
+      localX,
+      profile.groundY + 6,
+      localZ,
+      [5.5, 1, 5.5],
+    );
+    push(
+      colors[(index + 5) % colors.length],
+      localX,
+      profile.groundY + 7,
+      localZ,
+      [3.2, 1, 3.2],
+    );
+    push(
+      colors[(index + 5) % colors.length],
+      localX,
+      profile.groundY + 8,
+      localZ,
+      [1.4, 1, 1.4],
+    );
+  }
+  for (let step = 0; step < 5; step += 1) {
+    push(
+      step % 2 === 0 ? 0x45a85f : 0xf5c83f,
+      -10.5,
+      profile.groundY + 1 + step * 0.5,
+      -23 - step * 4.2,
+      [14, 1 + step, 4.1],
+    );
+  }
+  for (let row = 0; row < 3; row += 1) {
+    for (let column = 0; column < 5; column += 1) {
+      push(
+        colors[(row + column) % 3],
+        -12 + column * 5.8,
+        profile.groundY + 2,
+        6 + row * 5.2,
+        [1.5, 3, 1.5],
+      );
+    }
+  }
+  for (const [localX, localZ] of [
+    [-8, -10],
+    [-3, -5],
+    [-8, 0],
+    [-13, -5],
+  ] as const) {
+    push(0xf5c83f, localX, profile.groundY + 1.4, localZ, [3, 1.8, 3]);
+  }
+  for (const localZ of [-6, 2]) {
+    push(0xe84d42, 22.2, profile.groundY + 2, localZ, [2, 4, 2]);
+  }
+  push(0xe84d42, 22.2, profile.groundY + 5, -2, [2, 2, 10]);
+  push(0x8d62bd, 26.2, profile.groundY + 2, 10, [5, 4, 9]);
+
+  const writer = instancedBoxes("Voxel FUNBOX event park", blocks.length);
+  for (const block of blocks) {
+    writer.write(
+      new Vector3(...block.position),
+      new Vector3(...block.size),
+      new Color(block.color),
+      profile.rotationY,
+    );
+  }
+  writer.mesh.instanceMatrix.needsUpdate = true;
+  if (writer.mesh.instanceColor) writer.mesh.instanceColor.needsUpdate = true;
+  writer.mesh.frustumCulled = false;
+  writer.mesh.userData.architecturalProfile = profile;
+  writer.mesh.userData.sourceRole = "temporary-event-presentation";
+  return writer.mesh;
+}
+
 export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
@@ -1084,6 +1218,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftUpbeatRecognition());
+  group.add(createMinecraftFunboxRecognition());
 
   const visibleBuildingColumns = payload.buildings.filter(
     ([xIdx, zIdx, y0dm, y1dm]) =>

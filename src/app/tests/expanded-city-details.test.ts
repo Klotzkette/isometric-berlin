@@ -11,6 +11,7 @@ import {
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
+  NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
 } from "../src/ExpandedCityDetails";
@@ -38,6 +39,7 @@ const landmarks = [
   "KPMG Europacity",
   "DKB Campus Upbeat",
   "Geschichtspark Ehemaliges Zellengefängnis Moabit",
+  "Oggi's Gemüsekebab",
 ].map((name, index) => ({
   name,
   world: [index * 120, 3.8, (index % 4) * 160] as [number, number, number],
@@ -138,6 +140,49 @@ describe("task-10 expanded city recognition details", () => {
     expect(MOABIT_PRISON_PARK_PROFILE.preservedWallHeightM).toBe(5);
   });
 
+  test("places the temporary FUNBOX on the event lot opposite its address anchor", () => {
+    const oggi = {
+      name: "Oggi's Gemüsekebab",
+      world: [-150.861, 4.2, -1179.35] as [number, number, number],
+    };
+    const details = createExpandedCityDetails([oggi]);
+    const profile = NORTHERN_CITY_PROFILE.funbox;
+    expect(details.userData.northernCity).toEqual(NORTHERN_CITY_PROFILE);
+    expect(profile.osmAddressNodeId).toBe("7029312961");
+    expect(profile.sourceAreaM2).toBe(4_000);
+    expect(profile.sourceZoneCount).toBe(10);
+    expect(profile.footprintWidthM * profile.footprintLengthM).toBeGreaterThan(
+      profile.sourceAreaM2,
+    );
+    expect(profile.eventListingWorldM).toEqual([-140.167, -1134.842]);
+    expect(profile.geometryStatus).toContain("free Wunderland lot");
+    expect(profile.sources).toHaveLength(3);
+    expect(
+      details.getObjectByName("FUNBOX entrance WELCOME lettering"),
+    ).toBeDefined();
+    expect(
+      details.getObjectByName("FUNBOX ticket kiosk lettering"),
+    ).toBeDefined();
+
+    const bodies = details.getObjectByName(
+      "Expanded architecture and public-realm details bodies",
+    ) as Mesh;
+    const bounds = new Box3().setFromObject(bodies);
+    expect(bounds.min.y).toBeCloseTo(profile.groundY, 2);
+    expect(bounds.max.y).toBeGreaterThan(profile.groundY + 8.5);
+    expect(bounds.max.y).toBeLessThan(profile.groundY + 10);
+    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(60);
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(90);
+    expect(expandedCityFocusCamera(oggi)).toMatchObject({
+      distance_m: 142,
+      target_world: [
+        profile.centerWorldM[0],
+        oggi.world[1],
+        profile.centerWorldM[1],
+      ],
+    });
+  });
+
   test("grounds both company signs on recognisable building masses", () => {
     const details = createExpandedCityDetails(landmarks);
     const bodies = details.getObjectByName(
@@ -173,9 +218,9 @@ describe("task-10 expanded city recognition details", () => {
       verticalOriginM: 30,
     });
     expect(profile.upbeat.tierTopHeightsM).toEqual([21.579, 47.474, 82]);
-    expect(
-      profile.einz.groundY + profile.einz.measuredHeightM,
-    ).toBeGreaterThan(profile.upbeat.groundY + profile.upbeat.heightM);
+    expect(profile.einz.groundY + profile.einz.measuredHeightM).toBeGreaterThan(
+      profile.upbeat.groundY + profile.upbeat.heightM,
+    );
     expect(profile.upbeat.geometryStatus).toContain("plan-derived tier clips");
     expect(profile.sources).toHaveLength(7);
   });

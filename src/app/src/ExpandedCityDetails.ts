@@ -124,6 +124,12 @@ const EXPANDED_FOCUS_PRESETS: Record<
     polar_degrees: 61,
     target_height_m: 48,
   },
+  "Oggi's Gemüsekebab": {
+    azimuth_degrees: 198,
+    distance_m: 142,
+    polar_degrees: 55,
+    target_height_m: 5,
+  },
   "Mall of Berlin": {
     azimuth_degrees: 180,
     distance_m: 176,
@@ -181,6 +187,7 @@ export function expandedCityFocusCamera(
     "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)":
       KULTURFORUM_PROFILE.staatsbibliothek.centerWorldM,
     "KPMG Europacity": EUROPACITY_PROFILE.einz.centerWorldM,
+    "Oggi's Gemüsekebab": NORTHERN_CITY_PROFILE.funbox.centerWorldM,
   };
   const metricTarget = metricTargetByName[landmark.name];
   const target_world: [number, number, number] = metricTarget
@@ -238,6 +245,13 @@ const UPBEAT_GRID_LIGHT = 0xd4baa0;
 const UPBEAT_ROOF = 0xdedbd2;
 const EURO_TERRACE_GREEN = 0x5f8e69;
 const EURO_WINDOW_LIGHT = 0x91aaa7;
+const FUNBOX_RED = 0xe84d42;
+const FUNBOX_ORANGE = 0xf28a38;
+const FUNBOX_YELLOW = 0xf5c83f;
+const FUNBOX_GREEN = 0x45a85f;
+const FUNBOX_BLUE = 0x367fc8;
+const FUNBOX_PURPLE = 0x8d62bd;
+const FUNBOX_PINK = 0xe86d9c;
 
 function transformGeometry(
   geometry: BufferGeometry,
@@ -493,8 +507,7 @@ function clipRingEast(ring: WorldRing, minimumX: number): [number, number][] {
     const currentInside = current[0] >= minimumX;
     const previousInside = previous[0] >= minimumX;
     if (currentInside !== previousInside) {
-      const fraction =
-        (minimumX - previous[0]) / (current[0] - previous[0]);
+      const fraction = (minimumX - previous[0]) / (current[0] - previous[0]);
       clipped.push([
         minimumX,
         previous[1] + (current[1] - previous[1]) * fraction,
@@ -521,11 +534,7 @@ function addFacadeSegment(
   if (length < 0.08 || height <= 0) return;
   const geometry = new BoxGeometry(length + 0.08, height, depth);
   geometry.rotateY(-Math.atan2(deltaZ, deltaX));
-  geometry.translate(
-    (start[0] + end[0]) / 2,
-    centerY,
-    (start[1] + end[1]) / 2,
-  );
+  geometry.translate((start[0] + end[0]) / 2, centerY, (start[1] + end[1]) / 2);
   addCustomGeometry(builder, geometry, color, false, lamp);
 }
 
@@ -582,10 +591,7 @@ function addTierFacadeGrid(
             start[0] + deltaX * startFraction,
             start[1] + deltaZ * startFraction,
           ],
-          [
-            start[0] + deltaX * endFraction,
-            start[1] + deltaZ * endFraction,
-          ],
+          [start[0] + deltaX * endFraction, start[1] + deltaZ * endFraction],
           bottomY + floorPitch * (floor + 0.5),
           Math.max(0.5, floorPitch - 0.62),
           0.12,
@@ -641,9 +647,7 @@ function addEinzFacadeScreen(builder: Builder): void {
         -profile.footprintLengthM / 2 +
         (profile.footprintLengthM * bay) / longBayCount;
       for (let floor = 0; floor < 8; floor += 1) {
-        const fold =
-          0.18 +
-          (bay % 2 === 0 ? 0.62 : 0.08) * (1 - floor / 8);
+        const fold = 0.18 + (bay % 2 === 0 ? 0.62 : 0.08) * (1 - floor / 8);
         addLocalBox(
           builder,
           EURO_ALUMINIUM,
@@ -773,8 +777,7 @@ function addFiftyHertzStructure(builder: Builder): void {
       const braceLength = Math.hypot(bayWidth, moduleHeight);
       const braceAngle = Math.atan2(moduleHeight, bayWidth);
       for (let bay = 0; bay < bayCount; bay += 1) {
-        const localX =
-          -profile.footprintLengthM / 2 + bayWidth * (bay + 0.5);
+        const localX = -profile.footprintLengthM / 2 + bayWidth * (bay + 0.5);
         const centerY =
           profile.groundY + floorPitch * (firstFloor + moduleFloors / 2);
         for (const direction of [-1, 1]) {
@@ -820,14 +823,9 @@ function addUpbeatCampus(builder: Builder): void {
   const profile = EUROPACITY_PROFILE.upbeat;
   const fullRing = profile.footprintWorldM;
   const middleRing = clipRingEast(fullRing, profile.midTierEastClipWorldX);
-  const towerRing = clipRingEast(
-    fullRing,
-    profile.towerTierEastClipWorldX,
-  );
-  const baseTop =
-    profile.groundY + profile.tierTopHeightsM[0];
-  const middleTop =
-    profile.groundY + profile.tierTopHeightsM[1];
+  const towerRing = clipRingEast(fullRing, profile.towerTierEastClipWorldX);
+  const baseTop = profile.groundY + profile.tierTopHeightsM[0];
+  const middleTop = profile.groundY + profile.tierTopHeightsM[1];
   const towerTop = profile.groundY + profile.tierTopHeightsM[2];
   addPolygonPrism(
     builder,
@@ -3741,6 +3739,330 @@ function addEuropacityCompanyBuildings(
   if (dkb) addUpbeatCampus(builder);
 }
 
+function addFunboxPark(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (!byName.has("Oggi's Gemüsekebab")) return;
+  const profile = NORTHERN_CITY_PROFILE.funbox;
+  const origin = new Vector3(
+    profile.centerWorldM[0],
+    profile.groundY,
+    profile.centerWorldM[1],
+  );
+  const rotation = profile.rotationY;
+  const at = (localX: number, localZ: number): [number, number] => {
+    const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotation);
+    return [origin.x + offsetX, origin.z + offsetZ];
+  };
+  const localCylinder = (
+    color: number,
+    localX: number,
+    centerY: number,
+    localZ: number,
+    radius: number,
+    height: number,
+    segments = 12,
+  ): void => {
+    const [x, z] = at(localX, localZ);
+    addCylinder(builder, color, x, centerY, z, radius, height, segments);
+  };
+  const localCone = (
+    color: number,
+    localX: number,
+    centerY: number,
+    localZ: number,
+    radius: number,
+    height: number,
+  ): void => {
+    const [x, z] = at(localX, localZ);
+    addCone(builder, color, x, centerY, z, radius, height, 12);
+  };
+  const localInflatedShape = (
+    color: number,
+    localX: number,
+    centerY: number,
+    localZ: number,
+    scaleX: number,
+    scaleY: number,
+    scaleZ: number,
+    lamp = false,
+  ): void => {
+    const shape = new SphereGeometry(1, 12, 7);
+    shape.scale(scaleX, scaleY, scaleZ);
+    const [x, z] = at(localX, localZ);
+    transformGeometry(shape, x, centerY, z, rotation);
+    addCustomGeometry(builder, shape, color, false, lamp);
+  };
+
+  const zoneColors = [
+    FUNBOX_RED,
+    FUNBOX_ORANGE,
+    FUNBOX_BLUE,
+    FUNBOX_GREEN,
+    FUNBOX_PURPLE,
+    FUNBOX_YELLOW,
+    FUNBOX_RED,
+    FUNBOX_BLUE,
+    FUNBOX_GREEN,
+    FUNBOX_ORANGE,
+  ] as const;
+  const zoneDepth = profile.footprintLengthM / profile.sourceZoneCount;
+  for (let zone = 0; zone < profile.sourceZoneCount; zone += 1) {
+    const localZ = -profile.footprintLengthM / 2 + zoneDepth * (zone + 0.5);
+    addLocalBox(
+      builder,
+      zoneColors[zone],
+      origin,
+      0,
+      profile.groundY + 0.28,
+      localZ,
+      profile.footprintWidthM - 2.4,
+      0.56,
+      zoneDepth - 0.18,
+      rotation,
+      false,
+    );
+    // Closely spaced inflated ribs keep the broad pad recognisable from above
+    // without introducing a texture or copying the supplied photographs.
+    for (let rib = -3; rib <= 3; rib += 1) {
+      addLocalBox(
+        builder,
+        zoneColors[(zone + 2) % zoneColors.length],
+        origin,
+        0,
+        profile.groundY + 0.62,
+        localZ + rib * 1.12,
+        profile.footprintWidthM - 4.2,
+        0.18,
+        0.26,
+        rotation,
+        false,
+      );
+    }
+  }
+
+  // Inflated perimeter tubes and coloured corner cushions define the full
+  // 4,000 m² event footprint while retaining the narrow north/south layout.
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      side < 0 ? FUNBOX_BLUE : FUNBOX_GREEN,
+      origin,
+      side * (profile.footprintWidthM / 2 - 0.7),
+      profile.groundY + 1.05,
+      0,
+      1.4,
+      1.65,
+      profile.footprintLengthM,
+      rotation,
+    );
+  }
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      side < 0 ? FUNBOX_YELLOW : FUNBOX_RED,
+      origin,
+      0,
+      profile.groundY + 1.05,
+      side * (profile.footprintLengthM / 2 - 0.7),
+      profile.footprintWidthM,
+      1.65,
+      1.4,
+      rotation,
+    );
+  }
+  for (const [localX, localZ, color] of [
+    [-21.3, -47.3, FUNBOX_BLUE],
+    [21.3, -47.3, FUNBOX_GREEN],
+    [-21.3, 47.3, FUNBOX_YELLOW],
+    [21.3, 47.3, FUNBOX_RED],
+  ] as const) {
+    localInflatedShape(
+      color,
+      localX,
+      profile.groundY + 1.15,
+      localZ,
+      1.55,
+      1.15,
+      1.55,
+    );
+  }
+
+  // The five-metre slide is the tallest published attraction. Parallel green
+  // and yellow lanes reproduce its observed reading without photo textures.
+  const [slideX, slideZ] = at(-10.5, -30.5);
+  addRamp(
+    builder,
+    FUNBOX_GREEN,
+    slideX,
+    profile.groundY + 0.62,
+    slideZ,
+    14,
+    22,
+    5,
+    rotation,
+  );
+  for (const localX of [-5.3, 0, 5.3]) {
+    const [railX, railZ] = at(-10.5 + localX, -30.5);
+    addRamp(
+      builder,
+      FUNBOX_YELLOW,
+      railX,
+      profile.groundY + 0.76,
+      railZ,
+      0.64,
+      22.2,
+      5.05,
+      rotation,
+    );
+  }
+  addLocalBox(
+    builder,
+    FUNBOX_BLUE,
+    origin,
+    -10.5,
+    profile.groundY + 3.3,
+    -42,
+    15.5,
+    5.4,
+    4.4,
+    rotation,
+  );
+
+  // Castle-like inflatable turrets, circular challenge and obstacle forest.
+  for (const [localX, localZ, shaft, roof] of [
+    [-17, -42, FUNBOX_GREEN, FUNBOX_YELLOW],
+    [15.5, -39, FUNBOX_BLUE, FUNBOX_RED],
+    [-17.5, 20, FUNBOX_PURPLE, FUNBOX_YELLOW],
+    [16, 13, FUNBOX_GREEN, FUNBOX_RED],
+    [15, 37, FUNBOX_BLUE, FUNBOX_YELLOW],
+  ] as const) {
+    localCylinder(shaft, localX, profile.groundY + 3.4, localZ, 2.35, 5.8);
+    localInflatedShape(
+      FUNBOX_RED,
+      localX,
+      profile.groundY + 4.2,
+      localZ,
+      2.5,
+      0.7,
+      2.5,
+    );
+    localCone(roof, localX, profile.groundY + 7.5, localZ, 2.5, 3.0);
+  }
+  const [ringX, ringZ] = at(-8, -5);
+  const challengeRing = new TorusGeometry(5.2, 1.15, 8, 24);
+  challengeRing.rotateX(Math.PI / 2);
+  challengeRing.rotateY(rotation);
+  challengeRing.translate(ringX, profile.groundY + 1.25, ringZ);
+  addCustomGeometry(builder, challengeRing, FUNBOX_YELLOW, false);
+  localInflatedShape(
+    FUNBOX_GREEN,
+    -8,
+    profile.groundY + 1.2,
+    -5,
+    2.2,
+    0.8,
+    2.2,
+  );
+  for (let row = 0; row < 3; row += 1) {
+    for (let column = 0; column < 5; column += 1) {
+      const colors = [FUNBOX_RED, FUNBOX_BLUE, FUNBOX_YELLOW] as const;
+      localCylinder(
+        colors[(row + column) % colors.length],
+        -12 + column * 5.8,
+        profile.groundY + 2.0,
+        6 + row * 5.2,
+        0.82,
+        3.0,
+        10,
+      );
+    }
+  }
+  for (const [localX, localZ, color, scaleX, scaleY, scaleZ] of [
+    [5, -15, FUNBOX_PINK, 4.4, 2.4, 4.0],
+    [13, -9, FUNBOX_ORANGE, 3.2, 2.0, 3.6],
+    [-13, 33, FUNBOX_GREEN, 3.8, 2.2, 3.1],
+  ] as const) {
+    localInflatedShape(
+      color,
+      localX,
+      profile.groundY + scaleY,
+      localZ,
+      scaleX,
+      scaleY,
+      scaleZ,
+    );
+  }
+
+  // East-facing entrance from Heidestrasse and the adjacent ticket kiosk
+  // visible in the supplied street photograph.
+  for (const side of [-1, 1]) {
+    localCylinder(
+      FUNBOX_RED,
+      22.2,
+      profile.groundY + 1.8,
+      -2 + side * 4,
+      0.82,
+      3.2,
+      12,
+    );
+    localInflatedShape(
+      side < 0 ? FUNBOX_YELLOW : FUNBOX_GREEN,
+      22.2,
+      profile.groundY + 3.6,
+      -2 + side * 4,
+      1.1,
+      1.1,
+      1.1,
+      true,
+    );
+  }
+  const [archX, archZ] = at(22.2, -2);
+  const arch = new TorusGeometry(4, 0.82, 8, 28, Math.PI);
+  arch.rotateY(rotation + Math.PI / 2);
+  arch.translate(archX, profile.groundY + 3.9, archZ);
+  addCustomGeometry(builder, arch, FUNBOX_RED, false);
+  addLocalBox(
+    builder,
+    FUNBOX_PURPLE,
+    origin,
+    26.2,
+    profile.groundY + 1.8,
+    10,
+    4.8,
+    3.6,
+    8.4,
+    rotation,
+  );
+  addLocalBox(
+    builder,
+    IVORY,
+    origin,
+    26.2,
+    profile.groundY + 3.8,
+    10,
+    5.2,
+    0.42,
+    9.0,
+    rotation,
+  );
+  for (const side of [-1, 1]) {
+    for (let localZ = -38; localZ <= 38; localZ += 12.5) {
+      localInflatedShape(
+        FUNBOX_YELLOW,
+        side * 20.6,
+        profile.groundY + 3.2,
+        localZ,
+        0.24,
+        0.24,
+        0.24,
+        true,
+      );
+    }
+  }
+}
+
 function addRooftopSigns(
   group: Group,
   byName: Map<string, ExpandedLandmark>,
@@ -3825,11 +4147,7 @@ function addRooftopSigns(
       "DKB",
       17,
       4.6,
-      new Vector3(
-        -636.87,
-        profile.groundY + profile.heightM - 5.8,
-        -1945.96,
-      ),
+      new Vector3(-636.87, profile.groundY + profile.heightM - 5.8, -1945.96),
       2.828,
       "#f2f6f6",
       "#1479b8",
@@ -3848,6 +4166,50 @@ function addRooftopSigns(
       "#fff7ec",
     );
     if (sign) group.add(sign);
+  }
+  if (byName.has("Oggi's Gemüsekebab")) {
+    const profile = NORTHERN_CITY_PROFILE.funbox;
+    const origin = new Vector3(
+      profile.centerWorldM[0],
+      profile.groundY,
+      profile.centerWorldM[1],
+    );
+    const entranceOffset = rotatedLocalOffset(22.2, -2, profile.rotationY);
+    const welcome = createLetterSign(
+      "WELCOME",
+      8.2,
+      1.35,
+      new Vector3(
+        origin.x + entranceOffset[0],
+        profile.groundY + 3.9,
+        origin.z + entranceOffset[1] + 0.08,
+      ),
+      profile.rotationY + Math.PI / 2,
+      "#e84d42",
+      "#fff3d4",
+    );
+    if (welcome) {
+      welcome.name = "FUNBOX entrance WELCOME lettering";
+      group.add(welcome);
+    }
+    const kioskOffset = rotatedLocalOffset(28.65, 10, profile.rotationY);
+    const funbox = createLetterSign(
+      "FUNBOX",
+      7.2,
+      1.25,
+      new Vector3(
+        origin.x + kioskOffset[0],
+        profile.groundY + 2.35,
+        origin.z + kioskOffset[1],
+      ),
+      profile.rotationY + Math.PI / 2,
+      "#8d62bd",
+      "#fff4d8",
+    );
+    if (funbox) {
+      funbox.name = "FUNBOX ticket kiosk lettering";
+      group.add(funbox);
+    }
   }
   if (!byName.has("Mall of Berlin")) return;
   const spielbank = createLetterSign(
@@ -3904,6 +4266,7 @@ export function createExpandedCityDetails(
   group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
   group.userData.moabitPrisonPark = MOABIT_PRISON_PARK_PROFILE;
   group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
+  group.userData.northernCity = NORTHERN_CITY_PROFILE;
   group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
@@ -3915,6 +4278,7 @@ export function createExpandedCityDetails(
     "https://staatsbibliothek-berlin.de/die-staatsbibliothek/die-gebaeude/potsdamer-strasse/baugeschichte",
     "https://www.berliner-philharmoniker.de/ueber-uns/philharmonie/kammermusiksaal/der-bau-des-kammermusiksaals/",
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
+    ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...EUROPACITY_PROFILE.sources,
   ];
   const builder = createBuilder();
@@ -3931,6 +4295,7 @@ export function createExpandedCityDetails(
   addAmanoGrandCentral(builder, byName);
   addMoabitPrisonPark(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);
+  addFunboxPark(builder, byName);
   const bodies = finishDrawnGroup(builder, {
     lampEmissive: 0xffd69b,
     lampEmissiveIntensity: 0.65,

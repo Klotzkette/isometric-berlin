@@ -11,6 +11,7 @@ import {
   VOXEL_WINDOW_HEIGHT_M,
   VOXEL_WINDOW_WIDTH_M,
   createMinecraftBerlinModernRecognition,
+  createMinecraftFunboxRecognition,
   createMinecraftHamburgerBahnhofRecognition,
   createMinecraftUpbeatRecognition,
   createMinecraftVoxelWorld,
@@ -21,6 +22,7 @@ import {
   BERLIN_MODERN_PROFILE,
   EUROPACITY_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
+  NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
 } from "../src/expandedCityProfiles";
 
@@ -65,9 +67,7 @@ describe("true voxel Minecraft world", () => {
     expect(lookup(240.095, 1082.464)).toBe(
       KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone,
     );
-    expect(KOLLHOFF_TOWER_PROFILE.facadeMaterial).toBe(
-      "red-ceramic-cladding",
-    );
+    expect(KOLLHOFF_TOWER_PROFILE.facadeMaterial).toBe("red-ceramic-cladding");
     expect(lookup(-5000, -5000)).toBeNull();
     // Coverage, sampled across the whole area rather than the first rows.
     // The overview raster the tones come from is pinned to the pre-expansion
@@ -314,6 +314,21 @@ describe("true voxel Minecraft world", () => {
         EUROPACITY_PROFILE.upbeat.tierTopHeightsM[2],
       5,
     );
+  });
+
+  test("keeps FUNBOX present as a block-native temporary event", () => {
+    const funbox = createMinecraftFunboxRecognition();
+    const profile = NORTHERN_CITY_PROFILE.funbox;
+    expect(funbox.count).toBeGreaterThan(50);
+    expect(funbox.userData.architecturalProfile).toEqual(profile);
+    expect(funbox.userData.sourceRole).toBe("temporary-event-presentation");
+    expect(world.getObjectByName("Voxel FUNBOX event park")).toBeDefined();
+    const bounds = new Box3().setFromObject(funbox);
+    expect(bounds.min.y).toBeCloseTo(profile.groundY, 5);
+    expect(bounds.max.y).toBeGreaterThan(profile.groundY + 8);
+    expect(bounds.max.y).toBeLessThanOrEqual(profile.groundY + 9);
+    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(60);
+    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(90);
   });
 
   test("places tall Reichstag columns at the surveyed world position", () => {

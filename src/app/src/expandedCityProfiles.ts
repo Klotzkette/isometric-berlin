@@ -218,9 +218,25 @@ export const NORTHERN_CITY_PROFILE = {
     osmRinkWayId: "32979869",
   },
   funbox: {
-    centerWorldM: [-102.823, -1189.993] as const,
-    geometryStatus: "temporary 2026 presentation object at geocoded address",
+    addressAnchorWorldM: [-102.823, -1189.993] as const,
+    centerWorldM: [-165, -1128] as const,
+    eventDates: ["2026-07-23", "2026-09-20"] as const,
+    eventListingWorldM: [-140.167, -1134.842] as const,
+    footprintLengthM: 96,
+    footprintWidthM: 44,
+    geometryStatus:
+      "temporary 2026 presentation object; address and event-listing anchors with footprint placed southwest on the free Wunderland lot shown by the user-supplied location plan",
+    groundY: 4.2,
+    maxFeatureHeightM: 9,
     osmAddressNodeId: "7029312961",
+    rotationY: 0.59,
+    sourceAreaM2: 4_000,
+    sourceZoneCount: 10,
+    sources: [
+      "https://www.visitberlin.de/de/event/funbox",
+      "https://www.visitberlin.de/de/blog/top-11-neueroeffnungen-berlin-im-august",
+      "https://www.berliner-freizeit-tipps.de/huepfburgen-sprungpark-funbox-auf-dem-wunderland-festplatz-am-hauptbahnhof/",
+    ] as const,
   },
   invalidenfriedhof: {
     boardWorldM: [80.888, -1466.868] as const,

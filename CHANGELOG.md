@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.1
+
+- **FUNBOX fills the documented temporary event lot beside Heidestraße.** The
+  procedural isometric reconstruction uses the official 23 July–20 September
+  2026 event listing and its published 4,000 m², ten-zone programme, plus the
+  supplied location plan and photographs as non-bundled visual references.
+  Its long connected playfield, five-metre slide, five turrets, challenge
+  ring, obstacle rows, `WELCOME` arch and ticket kiosk sit southwest of the
+  event marker on the free Wunderland-Festplatz parcel rather than on Oggi's
+  address point. The footprint is a documented presentation reconstruction,
+  not claimed surveyed geometry.
+- **Every visual mode retains the event's identity.** Day, Night and
+  Snowstorm share restrained inflatable geometry and small perimeter lights;
+  Minecraft gets an independent block-native build at the same metric anchor,
+  with ten coloured zones, stepped turrets and a stepped slide. No supplied
+  photograph, Google image or external texture is bundled or copied.
+- **Drawn lettering no longer aborts on `X`.** The shared geometric alphabet
+  now contains the missing glyph used by `FUNBOX`, with focused contracts for
+  source metadata, footprint bounds, camera framing, signage and voxel-mode
+  presence. The visible radius remains **5,230 m**; no source geometry,
+  attribution or additive data hierarchy changed.
+
 ## v0.71.0
 
 - **A real pedestrian camera complements the free-flight viewer.** The new
