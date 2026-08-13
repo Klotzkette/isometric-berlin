@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.71.30
+
+- **The Berliner Ensemble finally reads as the theatre on
+  Schiffbauerdamm.** Its ochre street facade now has arched openings, cornice
+  bands, the western sign tower and a hipped roof; the open red circular sign
+  sits high on that roof stage instead of low on the facade. The real sign can
+  rotate, but this viewer keeps it static to honour the zero-flicker contract.
+  Bertolt Brecht sits on the documented 6 m turntable at
+  Bertolt-Brecht-Platz, while the 2026 Helene Weigel glass-cube work occupies
+  its separate theatre courtyard rather than being invented beside Brecht.
+- **Wallot's Reichstag west front has real depth and hierarchy.** Opaque warm
+  limestone replaces the former translucent portico paint; a dark entrance
+  recess separates all six columns from the wall, the tympanum carries a
+  contrasting relief register, and the 16 m `DEM DEUTSCHEN VOLKE` field uses a
+  darker bronze reading. Its metric LoD2 envelope, dome, tower flags and
+  courtyards do not move. The Brandenburg Gate geometry also stays fixed while
+  the Quadriga's daylight bronze shifts to a clearer green patina so its four
+  horses, Victoria, wreath, cross and eagle survive an ordinary close view.
+- **Nordhafen and the Panke mouth now follow their real hydraulic logic.** The
+  OSM `pond` tag no longer raises Nordhafen to a park-pond plane; it remains at
+  canal level and continues north without a false staircase. The official
+  east-to-west side mouth receives a restrained nine-baffle fish-pass detail.
+  Tests pin the water level and the roughly 2 m published drop without
+  replacing the OSM water polygons.
+- **Source-bounded secondary details are more coherent.** The
+  Konrad-Adenauer-Haus uses its exact six-point OSM glass footprint, published
+  18 m eaves and source-described elliptical inner body, with no political
+  lettering. FUNBOX keeps its recognizable inflatable forms in quieter
+  sun-faded colours; TIPI gains the projecting entrance, doors, ticket booth
+  and planters; the 42 m Carillon gets its dark patinated roof. Vessel hulls
+  gain hatch ribs and bollards, while the unverified `Helmut Kohl` ship name is
+  deliberately removed rather than presented as fact.
+- **Quality gates and scope stay explicit.** Browser QA covers Berliner
+  Ensemble, Reichstag, Brandenburg Gate, Bundeskanzleramt Night and northern
+  Europacity; 661 frontend and 286 pipeline tests cover all visual modes,
+  static-frame stability, touch, audio exit, tunnel occlusion, waterways and
+  release packaging. The visible radius remains **5,230 m**, attribution is
+  unchanged, and no downloaded internet photograph is shipped as a texture.
+
 ## v0.71.29
 
 - **The Bundeskanzleramt Ehrenhof is secured by the real fence line again.**

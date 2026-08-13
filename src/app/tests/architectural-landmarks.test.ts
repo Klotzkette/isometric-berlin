@@ -749,6 +749,35 @@ describe("metre-scale architectural recognition models", () => {
     ) as Mesh;
     expect(reichstagStone.material.userData.nightEmissive).toBe(0x65778d);
     expect(reichstagStone.material.userData.nightEmissiveIntensity).toBe(0.5);
+    expect(reichstagStone.material.opacity).toBe(1);
+    expect(reichstagStone.material.transparent).toBe(false);
+    expect(reichstagStone.material.color.getHex()).toBe(0xe7dcc6);
+    expect(
+      reichstag!.getObjectByName(
+        "Reichstag west tympanum allegorical relief bodies",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
+    expect(
+      (
+        reichstag!.getObjectByName(
+          "Reichstag west tympanum allegorical relief heads",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(11);
+    const tympanumField = reichstag!.getObjectByName(
+      "Reichstag west tympanum relief field",
+    ) as Mesh;
+    expect(tympanumField.material.color.getHex()).toBe(0xbda98d);
+    expect(tympanumField.material.opacity).toBe(1);
+    expect(tympanumField.material.transparent).toBe(false);
+    const entranceRecess = reichstag!.getObjectByName(
+      "Reichstag west entrance recessed backing",
+    ) as Mesh;
+    expect(entranceRecess).toBeInstanceOf(Mesh);
+    expect(entranceRecess.material.color.getHex()).toBe(0x46585b);
+    expect(entranceRecess.position.x).toBeGreaterThan(
+      -signature.width_m / 2 - 3.6,
+    );
     const focusCamera = focusCameraForSignature(signature);
     expect(focusCamera?.distance_m).toBe(200);
     expect(focusCamera?.target_world).toEqual([0, 0, 0]);

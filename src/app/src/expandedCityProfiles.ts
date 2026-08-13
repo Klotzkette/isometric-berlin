@@ -428,8 +428,13 @@ export const NORTHERN_CITY_PROFILE = {
   },
   pankeMouth: {
     centerWorldM: [-281.0, -1954.0] as const,
+    fishPassDropM: 2,
+    flowDirection: "east-to-west-into-the-Nordhafen-forebasin",
     geometryStatus:
-      "official mouth/fish-passage corridor; bounded visual approximation",
+      "official side-mouth/fish-passage corridor; bounded recognition detail over the mapped OSM water polygon",
+    osmWaterPolygonAreaM2: 2_197,
+    sourceUrl:
+      "https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/infrastruktur/wasserbau/ausbau-von-gewaessern/panke/",
   },
   scharnhorstSubstation: {
     centerWorldM: [-228.433, -2061.27] as const,
@@ -437,6 +442,43 @@ export const NORTHERN_CITY_PROFILE = {
       "OSM relation envelope with official monument facade description",
     osmRelationId: "2728348",
   },
+} as const;
+
+/**
+ * Surveyed glass envelope of the Konrad-Adenauer-Haus.
+ *
+ * OSM way 25999445 supplies the exact plan and five-storey glass material.
+ * Published competition/building descriptions establish the 18 m eaves and
+ * the characteristic elliptical, ship-like inner volume. The latter remains
+ * a bounded recognition form rather than a surveyed interior model.
+ */
+export const KONRAD_ADENAUER_HAUS_PROFILE = {
+  atticStoreys: 2,
+  buildingStoreys: 5,
+  eavesHeightM: 18,
+  footprintWorldM: [
+    [-1424.516, 1299.21],
+    [-1379.496, 1332.109],
+    [-1379.4, 1335.371],
+    [-1378.764, 1357.764],
+    [-1378.957, 1379.604],
+    [-1436.888, 1337.274],
+  ] as const,
+  geometryStatus:
+    "exact OSM plan and five-storey glass envelope with source-described elliptical inner body",
+  glassEnvelopeStoreys: 4,
+  groundY: 5.35,
+  innerBodyCenterWorldM: [-1405.0, 1338.0] as const,
+  innerBodyDepthM: 30,
+  innerBodyLengthM: 54,
+  innerBodyRotationY: (-53.84 * Math.PI) / 180,
+  osmWayId: "25999445",
+  signageRendered: false,
+  sources: [
+    "https://www.openstreetmap.org/way/25999445",
+    "https://www.konrad-adenauer.de/seite/gebaeude/",
+    "https://www.bauhaus.de/files/01_BHA_Auslobung.pdf",
+  ] as const,
 } as const;
 
 /**

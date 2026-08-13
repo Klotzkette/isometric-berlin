@@ -22,6 +22,9 @@ describe("drawn vessels (owner-requested staffage)", () => {
 
   test("the group says it is invented, because OSM maps no boats", () => {
     expect(vessels.userData.extrapolated).toBe(true);
+    expect(vessels.userData.properNamesVerified).toBe(false);
+    expect(vessels.userData.properNameRendered).toBe(false);
+    expect(vessels.getObjectByName("yacht stern name")).toBeUndefined();
   });
 
   test("the hulls sit on the water, not above or under it", () => {

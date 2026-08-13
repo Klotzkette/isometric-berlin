@@ -1765,6 +1765,13 @@ describe("smooth OSM water and parkland", () => {
         )!,
       ),
     ).toBe(false);
+    expect(
+      isElevatedParkWater(
+        payloadSurfaces.water.find(
+          (surface) => surface.name === "Nordhafen",
+        )!,
+      ),
+    ).toBe(false);
     const sintiRomaPool = payloadSurfaces.water.find(
       (surface) => surface.kind === "basin" && surface.area_m2 === 113,
     )!;

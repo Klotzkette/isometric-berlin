@@ -104,6 +104,12 @@ describe("cultural and Spree recognition details", () => {
         child instanceof PointLight && child.userData.nightOnly === true,
     );
     expect(concertLights?.every((light) => light.intensity <= 8)).toBe(true);
+    expect(tipi?.getObjectByName("TIPI projecting entrance canopy")).toBeDefined();
+    expect(tipi?.getObjectByName("TIPI Kasse ticket booth")).toBeDefined();
+    expect(tipi?.getObjectByName("TIPI Kasse warm service window")).toBeDefined();
+    expect(
+      tipi?.children.filter((child) => child.name === "TIPI entrance planter"),
+    ).toHaveLength(4);
   });
 
   test("preserves the Carillon height and all 68 visible bells", () => {
@@ -126,6 +132,11 @@ describe("cultural and Spree recognition details", () => {
     expect((bells as InstancedMesh).count).toBe(68);
     expect(clappers).toBeInstanceOf(InstancedMesh);
     expect((clappers as InstancedMesh).count).toBe(68);
+    const roof = carillon?.getObjectByName(
+      "Carillon overhanging patinated flying-bowl roof",
+    ) as Mesh;
+    expect(roof).toBeInstanceOf(Mesh);
+    expect(roof.material.color.getHex()).toBe(0x4f5c58);
     const bounds = new Box3().setFromObject(carillon!);
     expect(bounds.max.y - bounds.min.y).toBeCloseTo(42, 5);
     expect(bounds.max.y - bounds.min.y).toBeLessThan(43);

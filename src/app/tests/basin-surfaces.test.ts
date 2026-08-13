@@ -23,6 +23,18 @@ describe("constructed basins", () => {
     expect(basins.length).toBeLessThan(surfaces.water.length / 2);
   });
 
+  test("keeps the canal-connected Nordhafen at the river table", () => {
+    const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
+    const river = group.getObjectByName("smooth water surface") as Mesh;
+    const naturalWater = group.getObjectByName("natural pond water") as Mesh;
+    const northHarbour = surfaces.water.find(
+      (entry) => entry.name === "Nordhafen",
+    );
+    expect(northHarbour?.kind).toBe("pond");
+    expect(new Box3().setFromObject(river).max.y).toBeCloseTo(-1.15, 5);
+    expect(new Box3().setFromObject(naturalWater).min.y).toBeGreaterThan(5.3);
+  });
+
   test("a basin plate sits above the lawn that surrounds it", () => {
     // The bug this fixes: every basin was drawn at the single Spree table
     // (−1.15 m) while its own terrain is 5.3 m, so the Invalidenpark

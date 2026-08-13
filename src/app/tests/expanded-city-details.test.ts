@@ -15,6 +15,7 @@ import {
   EUROPACITY_PROFILE,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
+  KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
@@ -172,6 +173,31 @@ describe("task-10 expanded city recognition details", () => {
     ).toBeDefined();
   });
 
+  test("reconstructs the Konrad-Adenauer-Haus from its surveyed glass plan", () => {
+    const details = createExpandedCityDetails(landmarks);
+    const profile = KONRAD_ADENAUER_HAUS_PROFILE;
+    expect(details.userData.konradAdenauerHaus).toEqual(profile);
+    expect(profile.osmWayId).toBe("25999445");
+    expect(profile.buildingStoreys).toBe(5);
+    expect(profile.glassEnvelopeStoreys).toBe(4);
+    expect(profile.eavesHeightM).toBe(18);
+    expect(profile.signageRendered).toBe(false);
+    expect(profile.footprintWorldM).toHaveLength(6);
+    const envelope = details.getObjectByName(
+      "Konrad-Adenauer-Haus glass envelope bodies",
+    ) as Mesh;
+    expect(envelope).toBeInstanceOf(Mesh);
+    const bounds = new Box3().setFromObject(envelope);
+    // The source polygon itself is exact; the rendered bounds include the
+    // 16 cm facade-grid stroke just outside that plan.
+    expect(Math.abs(bounds.min.x - -1436.888)).toBeLessThan(0.3);
+    expect(Math.abs(bounds.max.x - -1378.764)).toBeLessThan(0.3);
+    expect(Math.abs(bounds.min.z - 1299.21)).toBeLessThan(0.3);
+    expect(Math.abs(bounds.max.z - 1379.604)).toBeLessThan(0.3);
+    expect(bounds.max.y).toBeGreaterThan(profile.groundY + 24);
+    expect(profile.sources).toHaveLength(3);
+  });
+
   test("adds company signs and curved black WELT balloon lettering", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.getObjectByName("KPMG rooftop lettering")).toBeDefined();
@@ -258,6 +284,19 @@ describe("task-10 expanded city recognition details", () => {
         profile.centerWorldM[1],
       ],
     });
+  });
+
+  test("keeps the Panke mouth as an east-west fish passage into Nordhafen", () => {
+    const details = createExpandedCityDetails([]);
+    const profile = NORTHERN_CITY_PROFILE.pankeMouth;
+    expect(profile.flowDirection).toBe(
+      "east-to-west-into-the-Nordhafen-forebasin",
+    );
+    expect(profile.fishPassDropM).toBe(2);
+    expect(profile.osmWaterPolygonAreaM2).toBe(2_197);
+    const fishPass = details.getObjectByName("Panke mouth fish-pass details");
+    expect(fishPass).toBeDefined();
+    expect(fishPass?.userData.sourceUrl).toContain("berlin.de");
   });
 
   test("grounds both company signs on recognisable building masses", () => {

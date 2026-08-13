@@ -3,9 +3,6 @@ import {
   CylinderGeometry,
   EdgesGeometry,
   Group,
-  Mesh,
-  MeshBasicMaterial,
-  PlaneGeometry,
 } from "three";
 
 import {
@@ -14,7 +11,6 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
-import { createLetteringTexture } from "./drawnLettering";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
 /**
@@ -41,7 +37,6 @@ const CABIN_ROOF = 0xc9c3b4;
 const FUNNEL = 0x33383d;
 const RAIL = 0xb6b1a5;
 const AWNING = 0xe8e3d4;
-const NAMEPLATE = 0x1d2126;
 const LAMPION = 0xf3a94b;
 const NAV_RED = 0xd94945;
 const NAV_GREEN = 0x4ea56d;
@@ -67,12 +62,6 @@ const YACHT = {
   x: -119.3,
   z: -404.3,
 };
-
-const STERN_NAME = "HELMUT KOHL";
-/** Deliberately tiny: the joke only works if you have to look for it. */
-const STERN_NAME_WIDTH_M = 1.9;
-const STERN_NAME_HEIGHT_M = 0.34;
-const STERN_NAME_CAP_M = 0.16;
 
 /** Frame of one boat: `along` runs bow-positive, `across` to starboard. */
 type Frame = {
@@ -228,9 +217,28 @@ function buildBarge(builder: Builder, water: number): void {
   // Foredeck winch and a mast on the bow, both stubby.
   box(builder, COAMING, f, length / 2 - 3.4, water + 1.5, 0, 1.5, 0.8, 1.6);
   box(builder, RAIL, f, length / 2 - 4.6, water + 3.1, 0, 0.24, 3.0, 0.24);
+  for (let index = 0; index < 9; index += 1) {
+    box(
+      builder,
+      index % 2 === 0 ? COAMING : HULL_DARK,
+      f,
+      -14 + index * 3.45,
+      water + 1.83,
+      0,
+      0.18,
+      0.52,
+      width - 0.95,
+      false,
+    );
+  }
+  for (const along of [-length / 2 + 1.2, length / 2 - 1.2]) {
+    for (const across of [-width / 2 + 0.55, width / 2 - 0.55]) {
+      box(builder, FUNNEL, f, along, water + 1.5, across, 0.28, 0.5, 0.28, false);
+    }
+  }
 }
 
-function buildYacht(builder: Builder, water: number): Frame {
+function buildYacht(builder: Builder, water: number): void {
   const f = frame(YACHT.x, YACHT.z, YACHT.headingX, YACHT.headingZ);
   const { lengthM: length, widthM: width } = YACHT;
   hull(builder, f, HULL_WHITE, length, width, water - 0.55, 1.5);
@@ -294,39 +302,12 @@ function buildYacht(builder: Builder, water: number): Frame {
   }
   lampion(builder, f, -1.2, water + 2.5, 0, 0.2);
   lampion(builder, f, 2.6, water + 3.5, 0, 0.18);
-  return f;
-}
-
-/** The transom nameplate. Separate mesh: it is the only textured face. */
-function sternNamePlate(f: Frame, water: number): Mesh | null {
-  const texture = createLetteringTexture({
-    bandHeightM: STERN_NAME_HEIGHT_M,
-    bandWidthM: STERN_NAME_WIDTH_M,
-    capHeightM: STERN_NAME_CAP_M,
-    fieldColor: "#1d2126",
-    letterColor: "#f4f1e8",
-    text: STERN_NAME,
-    texelsPerMetre: 320,
-  });
-  if (!texture) {
-    return null;
-  }
-  const geometry = new PlaneGeometry(STERN_NAME_WIDTH_M, STERN_NAME_HEIGHT_M);
-  // The transom faces astern, so the plate looks down the negative heading.
-  geometry.rotateY(f.rotation + Math.PI / 2);
-  const [px, pz] = f.at(-YACHT.lengthM / 2 - 0.06, 0);
-  geometry.translate(px, water + 0.42, pz);
-  const material = new MeshBasicMaterial({ color: 0xffffff, map: texture });
-  const plate = new Mesh(geometry, material);
-  plate.name = "yacht stern name";
-  plate.renderOrder = 3;
-  return plate;
 }
 
 export function createVessels(waterTopY: number = WATER_TOP_Y): Group {
   const builder = createBuilder();
   buildBarge(builder, waterTopY);
-  const yacht = buildYacht(builder, waterTopY);
+  buildYacht(builder, waterTopY);
   const wakeBuilder = createBuilder();
   const bargeFrame = frame(BARGE.x, BARGE.z, BARGE.headingX, BARGE.headingZ);
   const yachtFrame = frame(YACHT.x, YACHT.z, YACHT.headingX, YACHT.headingZ);
@@ -351,10 +332,8 @@ export function createVessels(waterTopY: number = WATER_TOP_Y): Group {
   }
   // Owner-requested staffage: OSM maps no boats at all.
   group.userData.extrapolated = true;
-  const plate = sternNamePlate(yacht, waterTopY);
-  if (plate) {
-    group.add(plate);
-  }
+  group.userData.properNamesVerified = false;
+  group.userData.properNameRendered = false;
   const wakes = finishDrawnGroup(wakeBuilder, { name: "vessel wake ribbons" });
   if (wakes) {
     wakes.userData.staticAntiFlicker = true;

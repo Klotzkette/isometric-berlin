@@ -961,6 +961,7 @@ function addReichstagDocumentedOrders(
   group: Group,
   signature: ReichstagModelSignature,
   stone: MeshStandardMaterial,
+  reliefStone: MeshStandardMaterial,
 ): void {
   const towerSize = REICHSTAG_TOWER_SIZE_M;
   const towerTop = signature.body_height_m + 2.35;
@@ -1049,7 +1050,7 @@ function addReichstagDocumentedOrders(
       "Reichstag portico architrave moulding",
       [0.62, 0.34, 27.6],
       [westX - 3.72, y, 0],
-      stone,
+      reliefStone,
       0.84,
     );
   }
@@ -1059,8 +1060,36 @@ function addReichstagDocumentedOrders(
     "Reichstag west tympanum relief field",
     [0.34, 3.1, 21.5],
     [westX - 3.3, 22.05, 0],
-    stone,
+    reliefStone,
     0.86,
+  );
+  const reliefHeads: InstanceTransform[] = [];
+  const reliefBodies: InstanceTransform[] = [];
+  for (let index = 0; index < 11; index += 1) {
+    const z = -8.9 + index * 1.78;
+    const height = 0.58 + 1.18 * (1 - Math.abs(z) / 10.4);
+    reliefBodies.push({
+      position: [westX - 3.51, 20.82 + height / 2, z],
+      scale: [0.68, height, 0.72],
+    });
+    reliefHeads.push({
+      position: [westX - 3.61, 20.98 + height, z],
+      scale: [0.72, 0.72, 0.72],
+    });
+  }
+  addInstancedBoxes(
+    group,
+    "Reichstag west tympanum allegorical relief bodies",
+    [0.22, 0.72, 0.52],
+    stone,
+    reliefBodies,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west tympanum allegorical relief heads",
+    new SphereGeometry(0.28, 10, 7),
+    stone,
+    reliefHeads,
   );
 
   // Rusticated base storey: deep horizontal beds plus staggered joints
@@ -1154,12 +1183,22 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   placeMetricGroup(group, signature);
 
   const stoneAccent = nightEmitter(
-    modelMaterial(0xd8d0bf, {
-      opacity: 0.48,
-      roughness: 0.82,
-    }),
+    modelMaterial(0xe7dcc6, { roughness: 0.84 }),
     0x65778d,
     0.5,
+  );
+  // In an unlit flat-paint scene, a restrained second sandstone tone is what
+  // makes Wallot's mouldings and tympanum read as carved depth instead of a
+  // single blank beige slab.
+  const stoneRelief = nightEmitter(
+    modelMaterial(0xbda98d, { roughness: 0.88 }),
+    0x596878,
+    0.36,
+  );
+  const entranceRecess = nightEmitter(
+    modelMaterial(0x46585b, { roughness: 0.42 }),
+    0x28343d,
+    0.2,
   );
   const entranceGlass = nightEmitter(
     modelMaterial(0x6f8f94, {
@@ -1264,6 +1303,17 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     capital.position.set(westX, 18.15, -17.5 + index * 7);
     group.add(capital);
   }
+  // Wallot's six-column order stands in front of a deep, dark entrance
+  // plane. Without this recess the flat isometric paint makes the columns
+  // merge into the LoD2 wall and the west portal reads as a pale applique.
+  addBox(
+    group,
+    "Reichstag west entrance recessed backing",
+    [0.32, 12.8, 31],
+    [westX + 1.5, 10.3, 0],
+    entranceRecess,
+    0.72,
+  );
   for (let index = 0; index < 5; index += 1) {
     addBox(
       group,
@@ -1295,16 +1345,16 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     "Reichstag DEM DEUTSCHEN VOLKE inscription band",
     [0.26, bandHeight, bandWidth],
     [westX - 3.8, 18.55, 0],
-    modelMaterial(0xcfc6b3, { roughness: 0.72 }),
+    modelMaterial(0xd6cbb6, { roughness: 0.72 }),
   );
   const dedicationTexture = createDedicationTexture({
     bandHeightM: bandHeight,
     bandWidthM: bandWidth,
-    fieldColor: "#cfc6b3",
-    letterColor: "#6d4a1e",
+    fieldColor: "#d6cbb6",
+    letterColor: "#4b321b",
   });
   const dedicationMaterial = nightEmitter(
-    modelMaterial(dedicationTexture ? 0xffffff : 0x6d4a1e, {
+    modelMaterial(dedicationTexture ? 0xffffff : 0x4b321b, {
       metalness: 0.34,
       roughness: 0.46,
     }),
@@ -1411,7 +1461,12 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   addEdges(group, pediment, 0.9);
   addReichstagWindowSets(group, signature);
   addReichstagMicroDetails(group, signature, stoneAccent);
-  addReichstagDocumentedOrders(group, signature, stoneAccent);
+  addReichstagDocumentedOrders(
+    group,
+    signature,
+    stoneAccent,
+    stoneRelief,
+  );
 
   return group;
 }

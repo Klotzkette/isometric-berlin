@@ -229,6 +229,13 @@ export function createTillaDurieuxGroundTester(
 
 /** Local water uses park terrain, not the much lower Spree table. */
 export function isElevatedParkWater(surface: SurfacePolygon): boolean {
+  // OSM tags Nordhafen as a pond, but hydraulically and visually it is the
+  // canal basin at the end of the Berlin-Spandauer Schifffahrtskanal. Treating
+  // it like a Tiergarten pond lifted the whole basin to park grade and made
+  // its northern continuation look like a staircase.
+  if (surface.name === "Nordhafen") {
+    return false;
+  }
   if (["basin", "pond", "stream"].includes(surface.kind ?? "")) {
     return true;
   }
@@ -7417,7 +7424,7 @@ export function createSmoothSurfaces(
   );
   const ponds = surfaces.water.filter(
     (entry) =>
-      entry.kind === "pond" ||
+      (entry.kind === "pond" && isElevatedParkWater(entry)) ||
       entry.kind === "stream" ||
       (!entry.kind && isElevatedParkWater(entry)),
   );

@@ -3,6 +3,7 @@ import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
+  BERLINER_ENSEMBLE_PROFILE,
   PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
   BUNDESTAG_KITA_SOURCE,
   BUNDESTAG_KITA_WORLD,
@@ -117,6 +118,35 @@ describe("task-11 central transit and civic details", () => {
     expect(
       details.getObjectByName("Berliner Ensemble red circular roof emblem"),
     ).toBeUndefined();
+    const roofSign = details.getObjectByName(
+      "Berliner Ensemble circular rooftop sign",
+    );
+    expect(roofSign?.userData.animated).toBe(false);
+    expect(roofSign?.userData.antiFlickerDecision).toContain("static");
+    const ring = details.getObjectByName(
+      "Berliner Ensemble open red neon roof ring",
+    );
+    expect(ring?.position.y).toBeCloseTo(
+      landmarks.find(({ name }) => name === "Berliner Ensemble")!.world[1] +
+        0.05 +
+        BERLINER_ENSEMBLE_PROFILE.roofSignCentreHeightM,
+      4,
+    );
+  });
+
+  test("keeps Brecht on the square and Weigel in the theatre courtyard", () => {
+    const details = createCentralCivicDetails(landmarks);
+    const publicArt = details.getObjectByName(
+      "Berliner Ensemble public-art details",
+    );
+    expect(publicArt).toBeDefined();
+    expect(publicArt?.userData.brechtSite).toBe("Bertolt-Brecht-Platz");
+    expect(publicArt?.userData.heleneWeigelSite).toBe("Helene-Weigel-Hof");
+    expect(publicArt?.userData.brechtMonumentWorld).toEqual([1027.048, -349.126]);
+    expect(publicArt?.userData.heleneWeigelCourtyardWorld).toEqual([
+      968.142, -355.096,
+    ]);
+    expect(BERLINER_ENSEMBLE_PROFILE.sources).toHaveLength(4);
   });
 
   test("pins Pariser Platz, Cube and Tränenpalast to surveyed outlines", () => {

@@ -369,6 +369,13 @@ function createTipi(anchor: CulturalLandmark): Group {
     [0, 2.9, 13.7],
     redFront,
   );
+  addBox(
+    group,
+    "TIPI projecting entrance canopy",
+    [18.8, 0.32, 3.8],
+    [0, 5.6, 15.5],
+    timber,
+  );
   for (const x of [-7.8, -2.6, 2.6, 7.8]) {
     addBox(
       group,
@@ -376,6 +383,29 @@ function createTipi(anchor: CulturalLandmark): Group {
       [3.5, 4.5, 0.36],
       [x, 2.25, 14.34],
       timber,
+    );
+  }
+  addBox(
+    group,
+    "TIPI Kasse ticket booth",
+    [3.7, 3.6, 2.8],
+    [12.4, 1.8, 15.2],
+    timber,
+  );
+  addBox(
+    group,
+    "TIPI Kasse warm service window",
+    [2.1, 1.35, 0.12],
+    [12.4, 2.35, 16.66],
+    nightEmitter(modelMaterial(0x635344), 0xffcf7d, 1.1),
+  );
+  for (const x of [-10.8, -8.8, 8.8, 10.8]) {
+    addMesh(
+      group,
+      "TIPI entrance planter",
+      new CylinderGeometry(0.48, 0.62, 0.78, 12),
+      modelMaterial(0x596956, { roughness: 0.9 }),
+      [x, 0.39, 15.45],
     );
   }
   addBox(
@@ -503,7 +533,7 @@ function createCarillon(anchor: CulturalLandmark): Group {
   };
 
   const bronze = modelMaterial(0x9b652d, { metalness: 0.72, roughness: 0.3 });
-  const roof = modelMaterial(0x9d7b36, { metalness: 0.64, roughness: 0.34 });
+  const roof = modelMaterial(0x4f5c58, { metalness: 0.58, roughness: 0.42 });
   const cabinGlass = nightEmitter(
     modelMaterial(0x28383d, { metalness: 0.22, opacity: 0.58, roughness: 0.24 }),
     0xffc66d,
@@ -514,7 +544,7 @@ function createCarillon(anchor: CulturalLandmark): Group {
   // This additive layer supplies recognition detail without drawing a second tower.
   addBox(
     group,
-    "Carillon overhanging brass-toned roof",
+    "Carillon overhanging patinated flying-bowl roof",
     [9.8, 0.35, 9.8],
     [0, 41.27, 0],
     roof,

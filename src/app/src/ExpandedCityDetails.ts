@@ -34,6 +34,7 @@ import {
   BERLIN_MODERN_PROFILE,
   EUROPACITY_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
+  KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
@@ -54,6 +55,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
+import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
 export type ExpandedLandmark = {
   name: string;
@@ -65,6 +67,7 @@ export {
   BERLIN_MODERN_PROFILE,
   EUROPACITY_PROFILE,
   HAMBURGER_BAHNHOF_PROFILE,
+  KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
   MOABIT_PRISON_PARK_PROFILE,
@@ -288,13 +291,17 @@ const CEMETERY_WALL_WHITE = 0xd9d9d2;
 const CEMETERY_WALL_GREY = 0x777b78;
 const EURO_TERRACE_GREEN = 0x5f8e69;
 const EURO_WINDOW_LIGHT = 0x91aaa7;
-const FUNBOX_RED = 0xe84d42;
-const FUNBOX_ORANGE = 0xf28a38;
-const FUNBOX_YELLOW = 0xf5c83f;
-const FUNBOX_GREEN = 0x45a85f;
-const FUNBOX_BLUE = 0x367fc8;
-const FUNBOX_PURPLE = 0x8d62bd;
-const FUNBOX_PINK = 0xe86d9c;
+// The temporary inflatable park is colourful in reality, but the former
+// primary-colour values overwhelmed every permanent building around it.
+// These sun-faded textile tones preserve recognition without turning the
+// Europacity edge into a saturated UI marker.
+const FUNBOX_RED = 0xc95f55;
+const FUNBOX_ORANGE = 0xd58a55;
+const FUNBOX_YELLOW = 0xdcc66d;
+const FUNBOX_GREEN = 0x6f9a72;
+const FUNBOX_BLUE = 0x6789a8;
+const FUNBOX_PURPLE = 0x88769e;
+const FUNBOX_PINK = 0xc68198;
 
 function transformGeometry(
   geometry: BufferGeometry,
@@ -1833,6 +1840,109 @@ function addInvalidenfriedhof(builder: Builder): void {
         false,
       );
     }
+  }
+}
+
+function addPankeMouthFishPass(builder: Builder): void {
+  const y = WATER_TOP_Y;
+  // The official side mouth enters from the east. A short alternating row of
+  // low baffles makes the roughly two-metre fish-pass drop legible without
+  // covering the OSM water polygon or inventing another north-going channel.
+  const start = [-230.5, -2000.8] as const;
+  const end = [-302.5, -1971.5] as const;
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const length = Math.hypot(dx, dz);
+  const nx = -dz / length;
+  const nz = dx / length;
+  for (let index = 0; index < 9; index += 1) {
+    const fraction = (index + 0.5) / 9;
+    const centreX = start[0] + dx * fraction;
+    const centreZ = start[1] + dz * fraction;
+    const halfWidth = index % 2 === 0 ? 2.8 : 2.25;
+    addFacadeSegment(
+      builder,
+      index % 2 === 0 ? 0xa5a59d : 0x888e8a,
+      [centreX - nx * halfWidth, centreZ - nz * halfWidth],
+      [centreX + nx * halfWidth, centreZ + nz * halfWidth],
+      y + 0.04,
+      0.28,
+      0.44,
+    );
+  }
+  // A sparse glint line documents the actual east-to-west flow while staying
+  // physically clear of the transparent water plate, preventing z-fighting.
+  for (const side of [-1, 1]) {
+    addFacadeSegment(
+      builder,
+      0xd6ece9,
+      [start[0] + nx * side * 1.25, start[1] + nz * side * 1.25],
+      [end[0] + nx * side * 1.25, end[1] + nz * side * 1.25],
+      y + 0.18,
+      0.05,
+      0.08,
+    );
+  }
+}
+
+function addKonradAdenauerHaus(builder: Builder): void {
+  const profile = KONRAD_ADENAUER_HAUS_PROFILE;
+  const ring = profile.footprintWorldM;
+  const glassBodyTopY = profile.groundY + profile.eavesHeightM;
+
+  // The glass panes stay open in the merged flat-shaded batch so the timber
+  // body remains visible. A low plinth, roof plate and dense frame register
+  // describe the faceted envelope without relying on party lettering.
+  addPolygonPrism(builder, 0xb8ced0, ring, profile.groundY, 0.28);
+  addPolygonPrism(builder, 0xb8ced0, ring, glassBodyTopY - 0.18, 0.18);
+  addTierFacadeGrid(
+    builder,
+    ring,
+    profile.groundY,
+    glassBodyTopY,
+    profile.glassEnvelopeStoreys,
+    0x59696b,
+    2.35,
+  );
+
+  // The elliptical timber-clad inner body is the building's principal spatial
+  // motif. It is deliberately inset from the OSM hull, so no second footprint
+  // is introduced and no party signage is drawn.
+  const inner = new CylinderGeometry(1, 1, 16.5, 40);
+  inner.scale(
+    profile.innerBodyLengthM / 2,
+    1,
+    profile.innerBodyDepthM / 2,
+  );
+  inner.rotateY(profile.innerBodyRotationY);
+  inner.translate(
+    profile.innerBodyCenterWorldM[0],
+    profile.groundY + 8.25,
+    profile.innerBodyCenterWorldM[1],
+  );
+  addCustomGeometry(builder, inner, 0xb29b77);
+
+  const upper = new CylinderGeometry(1, 1, 8, 40);
+  upper.scale(22.5, 1, 11.8);
+  upper.rotateY(profile.innerBodyRotationY);
+  upper.translate(
+    profile.innerBodyCenterWorldM[0] - 0.6,
+    glassBodyTopY + 4,
+    profile.innerBodyCenterWorldM[1] - 0.4,
+  );
+  addCustomGeometry(builder, upper, 0xd7d0be);
+  for (const level of [1, 2]) {
+    const y = glassBodyTopY + level * 2.7;
+    const accent = new TorusGeometry(16.8, 0.12, 6, 56);
+    accent.scale(1, 1, 0.53);
+    accent.rotateX(Math.PI / 2);
+    accent.rotateY(profile.innerBodyRotationY);
+    accent.translate(
+      profile.innerBodyCenterWorldM[0] - 0.6,
+      y,
+      profile.innerBodyCenterWorldM[1] - 0.4,
+    );
+    addCustomGeometry(builder, accent, 0x4e5b5c, false);
   }
 }
 
@@ -5603,6 +5713,7 @@ export function createExpandedCityDetails(
   group.userData.hamburgerBahnhof = HAMBURGER_BAHNHOF_PROFILE;
   group.userData.kulturforum = KULTURFORUM_PROFILE;
   group.userData.kollhoffTower = KOLLHOFF_TOWER_PROFILE;
+  group.userData.konradAdenauerHaus = KONRAD_ADENAUER_HAUS_PROFILE;
   group.userData.moabitPrisonPark = MOABIT_PRISON_PARK_PROFILE;
   group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
   group.userData.northernCity = NORTHERN_CITY_PROFILE;
@@ -5622,6 +5733,8 @@ export function createExpandedCityDetails(
     ...POTSDAMER_DETAIL_PROFILE.georgElser.sourceUrls,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...NORTHERN_CITY_PROFILE.invalidenfriedhof.sources,
+    NORTHERN_CITY_PROFILE.pankeMouth.sourceUrl,
+    ...KONRAD_ADENAUER_HAUS_PROFILE.sources,
     ...EUROPACITY_PROFILE.sources,
     ...TILLA_DURIEUX_PROFILE.sources,
     ...WELT_BALLOON_PROFILE.sources,
@@ -5687,6 +5800,28 @@ export function createExpandedCityDetails(
     name: "Invalidenfriedhof surveyed walls and graves",
   });
   if (invalidenfriedhof) group.add(invalidenfriedhof);
+
+  const pankeMouthBuilder = createBuilder();
+  addPankeMouthFishPass(pankeMouthBuilder);
+  const pankeMouth = finishDrawnGroup(pankeMouthBuilder, {
+    name: "Panke mouth fish-pass details",
+  });
+  if (pankeMouth) {
+    pankeMouth.userData = NORTHERN_CITY_PROFILE.pankeMouth;
+    group.add(pankeMouth);
+  }
+
+  const konradAdenauerBuilder = createBuilder();
+  addKonradAdenauerHaus(konradAdenauerBuilder);
+  const konradAdenauerHaus = finishDrawnGroup(konradAdenauerBuilder, {
+    lampEmissive: 0xffd89a,
+    lampEmissiveIntensity: 0.45,
+    name: "Konrad-Adenauer-Haus glass envelope",
+  });
+  if (konradAdenauerHaus) {
+    konradAdenauerHaus.userData = KONRAD_ADENAUER_HAUS_PROFILE;
+    group.add(konradAdenauerHaus);
+  }
 
   addRooftopSigns(group, byName);
   // Tiny warm markers for snow-plough salt and balloon fittings only; this is
