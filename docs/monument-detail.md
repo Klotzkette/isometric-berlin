@@ -27,6 +27,7 @@ monument foundation height.
 | Lortzing Monument | Two-step marble platform, apsidal pedestal, five opera putti, standing Lortzing with pen and musical score | Berlin's sculpture inventory documents 6.5 m total height, marble material and the five-putti composition; local part proportions are reference-based. |
 | Tree-donation memorial | Four-part shell-limestone pillar with inscription and incised-relief registers on three faces | Berlin's sculpture inventory documents material, four-part construction and relief/inscription programme; uncited section dimensions are approximate. |
 | Flora/Pomona and *Das deutsche Volkslied* | Flora with fruit, tree support and putto; separate seated embracing pair with lyre | Berlin's sculpture inventory documents each composition and material family. OSM fixes position; uncited dimensions remain reference-based presentation geometry. |
+| Queer Rainbow Memorial Berlin | Living broadleaf tree, six-colour heart and tied fabric, dense flowers, candles, messages and small Pride flags | The owner-supplied Ahornsteig place point fixes the position. The 4.057 m official-mesh point sample remains recorded; the visible base follows the 4.479 m continuous terrain surface used by the drawn park. The current bounded OSM extract has no corresponding named object. Tree dimensions, species and the changing offering arrangement remain explicitly unverified, field-view-bounded display estimates. |
 
 ## Primary sources
 
@@ -54,3 +55,9 @@ kept in source code, uses flat-shaded materials for a crisp model-railway read,
 and batches the 2,710 Holocaust stelae into one draw call. That large instance
 batch receives existing scene shadows but does not cast 2,710 additional
 shadow objects, preserving responsive camera flight on mobile hardware.
+
+The Queer Rainbow Memorial is likewise generated entirely from procedural
+geometry. The supplied photographs are not bundled or projected as textures;
+they only bound the recognisable arrangement. Its 132 flower stems, petals and
+centres, 30 candles, 24 messages and five small flags are rendered as bounded
+instance batches so close inspection does not turn into hundreds of draw calls.

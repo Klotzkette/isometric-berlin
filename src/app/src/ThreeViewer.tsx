@@ -76,6 +76,11 @@ import {
   memorialFocusDistance,
 } from "./MemorialLandmarks";
 import {
+  QUEER_RAINBOW_MEMORIAL_PROFILE,
+  createQueerRainbowMemorial,
+  setQueerRainbowMemorialSnow,
+} from "./QueerRainbowMemorial";
+import {
   createCulturalLandmarks,
   culturalFocusCamera,
 } from "./CulturalLandmarks";
@@ -1372,6 +1377,7 @@ function setSceneLighting(
   applyLightingToRoot(runtime.tramCatenary, mode, lightsOn);
   setUndergroundPresentation(runtime.undergroundNetwork, mode);
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
+  setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
   // Incidental staffage has one authored pose. Updating flags or tiny signal
   // lamps only while the camera moved made those sub-pixel details flash
   // against otherwise deterministic geometry.
@@ -2292,6 +2298,8 @@ function markerHeightForLandmark(name: string): number {
       return 42;
     case "Siegessäule":
       return 72;
+    case "Queer Rainbow Memorial Berlin":
+      return 7.2;
     default:
       return 18;
   }
@@ -4520,7 +4528,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
+          runtime.monuments.add(createQueerRainbowMemorial());
+          runtime.focusCameraByName.set(QUEER_RAINBOW_MEMORIAL_PROFILE.name, {
+            azimuth_degrees: -18,
+            distance_m: 20,
+            fov_degrees: 39,
+            polar_degrees: 72,
+            target_height_m: 2.1,
+            target_world: [...QUEER_RAINBOW_MEMORIAL_PROFILE.worldM],
+          });
+          runtime.monuments.userData.modelCount =
+            runtime.monuments.children.length;
           markAuthoredFlatUnlit(runtime.monuments);
+          setQueerRainbowMemorialSnow(
+            runtime.monuments,
+            runtime.lightingMode === "snowstorm",
+          );
           scene.add(runtime.monuments);
           applyLightingToRoot(
             runtime.monuments,

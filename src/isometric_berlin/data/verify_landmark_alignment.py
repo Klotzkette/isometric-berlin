@@ -304,6 +304,13 @@ LANDMARK_EXPECTATIONS: dict[str, dict[str, Any]] = {
     "osm_ids": ["1986458966"],
     "max_distance_m": 1.0,
   },
+  # This recent, informal memorial is not present in the committed OSM
+  # snapshot. Keep it in the QA report as a deliberate manual-review point;
+  # its exact anchor comes from the owner's supplied Ahornsteig place link.
+  "Queer Rainbow Memorial Berlin": {
+    "aliases": [],
+    "max_distance_m": 1.0,
+  },
 }
 
 RELATIVE_EXPECTATIONS: tuple[dict[str, str], ...] = (

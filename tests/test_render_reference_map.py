@@ -76,3 +76,4 @@ def test_reference_map_numbers_follow_viewer_tour_order() -> None:
     names.index("Tiergartentunnel Südeingang (Sony Center / Potsdamer Platz)") + 1 == 40
   )
   assert names.index("Denkzeichen Georg Elser") + 1 == 88
+  assert names.index("Queer Rainbow Memorial Berlin") + 1 == 89

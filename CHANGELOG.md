@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.71.21
+
+- **The owner-supplied Ahornsteig point now has a dedicated Queer Rainbow
+  Memorial recognition model.** The exact WGS84 point transforms to
+  EPSG:25833 `389540.647, 5819339.990`; the retained official-mesh point sample
+  is 4.057 m, while the rendered base follows the viewer's 4.479 m continuous
+  terrain surface so the offerings do not sink below the drawn park. The
+  bounded OSM snapshot has no matching named object, so the record remains an
+  explicit manual-review anchor rather than receiving an invented OSM match.
+- **The supplied field views are reconstructed as deterministic procedural
+  geometry, not copied imagery.** A living broadleaf tree carries the
+  six-colour heart and tied fabric; bounded instance batches draw 132 flowers,
+  30 candles, 24 cards/messages and five small Pride flags. Tree species,
+  dimensions and the changing arrangement remain explicitly unverified
+  display estimates. No supplied screenshot, Google map image or photo texture
+  is bundled.
+- **The memorial remains legible across every presentation.** Its stable close
+  view frames heart and offerings, the temporary selection ring sits at the
+  memorial rather than above the crown, two shadow-free local candle lights
+  reveal the flowers at Night, and restrained crown caps appear only in
+  Snowstorm. Dense detail shares the existing hysteretic distance fade and the
+  catalogue grows from 88 to 89 sights without expanding the five-item compact
+  rail. Direct `#landmark=queer-rainbow-memorial-berlin` navigation, metric
+  placement, deterministic rebuilds, mode switching and the regenerated
+  reference map are covered by tests. The visible radius remains **5,230 m**;
+  attribution and source hierarchy are unchanged.
+
 ## v0.71.20
 
 - **All four Tiergartentunnel access sites now follow their actual mapped

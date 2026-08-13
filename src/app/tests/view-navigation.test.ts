@@ -39,6 +39,12 @@ describe("view navigation", () => {
         "bahnhof-berlin-friedrichstra-e",
       )?.name,
     ).toBe("Bahnhof Berlin Friedrichstraße");
+    expect(
+      findSightBySlug(
+        [{ name: "Queer Rainbow Memorial Berlin" }],
+        "queer-rainbow-memorial-berlin",
+      )?.name,
+    ).toBe("Queer Rainbow Memorial Berlin");
   });
 
   test("parses full and shorthand hashes", () => {

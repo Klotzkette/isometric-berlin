@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.20 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.20/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.21/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.20** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.21** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.20**, built from `main`. Its full viewer
+The current public package is **v0.71.21**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -78,6 +78,16 @@ local modules.
   `Ich habe den Krieg verhindern wollen. / Georg Elser, Ende November 1939`.
   Profile and plaque proportions are photograph-bounded reconstruction rather
   than surveyed geometry; a dedicated stable close view works in every mode.
+
+- **The owner-supplied Ahornsteig point now carries a dedicated Queer Rainbow
+  Memorial model.** Its exact position and official-mesh ground sample remain
+  recorded, while the visible base follows the same continuous park surface as
+  the viewer. A six-colour heart, tied fabric, flowers, candles, messages and
+  small Pride flags reproduce the supplied field-view cues with deterministic
+  procedural geometry; no screenshot or photo texture is bundled. The changing
+  arrangement and tree dimensions are explicitly not surveyed. Night adds a
+  restrained candle pool and Snowstorm adds crown snow. The direct viewer link
+  is `#landmark=queer-rainbow-memorial-berlin`.
 
 - **Brandenburg Gate and Pariser Platz now carry a photograph-bounded close
   detail pass.** The published 62.5 x 11 x 26 m gate envelope and official
@@ -493,7 +503,7 @@ local modules.
 
 - The compact Sights rail now presents the five primary orientation points:
   Hauptbahnhof, Bundeskanzleramt, Reichstag, Brandenburg Gate and Siegessäule.
-  All 88 source-positioned sights remain available to tours, previous/next
+  All 89 source-positioned sights remain available to tours, previous/next
   navigation and stable `#landmark=` links; the smaller rail is a usability
   choice, not a data deletion.
 - Water bodies retain their mapped plan geometry and now read as recessed
@@ -578,7 +588,7 @@ local modules.
   no replacement street or river geometry is invented.
 - **The 2D overview and 3D scene share the same task-11 bounds.** The DZI,
   reference image and bundled landmark projection were regenerated together;
-  all 88 checked sights use the same coordinate frame in both viewers. The
+  all 89 checked sights use the same coordinate frame in both viewers. The
   embedded and public landmark payloads are byte-identical and enforced by
   release tests. The hosted viewer keeps the full 16384×11616 DZI pyramid; the
   downloadable archive reuses its 8192×5808 lower levels to stay below the
@@ -778,12 +788,13 @@ local modules.
   forced-depth bore interiors are hidden in every ordinary exterior view,
   revealed only by selecting a tunnel-mouth sight, and hidden again by the
   first free camera movement. Both canonical portal ramps remain visible.
-- Nine memorials now have close-range recognition geometry. The Holocaust
+- Ten memorials now have close-range recognition geometry. The Holocaust
   field draws all 2,711 officially documented stelae in one instanced call with
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,
   Sinti/Roma, homosexual-victims, Goethe, composer and 2026 Jehovah's Witnesses
-  memorials, the Polish memorial and Georg Elser's steel profile preserve their defining
-  source-documented forms while the official
+  memorials, the Polish memorial, Georg Elser's steel profile and the
+  owner-supplied Queer Rainbow Memorial preserve their defining
+  source-documented or explicitly field-view-bounded forms while the official
   Berlin surface remains visible underneath. The Soviet memorial's two
   Berlin.de-identified T-34/76 vehicles now use longitudinal hulls, sloped
   glacis plates, ten road wheels each, turrets, hatches and 76 mm barrels rather
@@ -847,7 +858,7 @@ local modules.
 - The responsive controls were verified at 1280×720 and 390×844: no horizontal
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
-- LoD2, OSM, ALKIS/DOP/DGM inventories, 88 landmarks, 38 relative-placement
+- LoD2, OSM, ALKIS/DOP/DGM inventories, 89 landmarks, 38 relative-placement
   checks and 110 accepted Wikimedia references remain part of the additive
   evidence pipeline and attribution chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is
@@ -884,7 +895,7 @@ the packaged viewer projection is
 | Hauptbahnhof / Spree / bridges | Berlin Hauptbahnhof, Humboldthafen, Hugo-Preuß-Brücke, Rahel-Hirsch-Straße, Moltkebrücke, Gustav-Heinemann-Brücke, Spreebogen, Zollpackhof |
 | Pariser Platz and diplomatic edge | Brandenburger Tor, Quadriga mit Victoria, Pariser Platz, Starbucks Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
 | Spreebogen diplomacy / civic symbols | Schweizerische Botschaft, Fahne der Einheit |
-| Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945, Denkzeichen Georg Elser |
+| Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945, Denkzeichen Georg Elser, Queer Rainbow Memorial Berlin am Ahornsteig |
 | Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
 | Northern extension | Hamburger Bahnhof, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |

@@ -211,3 +211,20 @@ derived textures, or traced map geometry.
   Tiergartentunnel, and Platz-der-Republik hedges small but
   recognizable; they should orient the viewer without overriding source
   geometry.
+
+## August 2026 Ahornsteig Memorial Check
+
+- The owner supplied the current place point `52.5129712, 13.372264` and five
+  field views of the informal Queer Rainbow Memorial at Ahornsteig.
+- The point transforms to EPSG:25833 `389540.647, 5819339.990`; the committed
+  official Berlin mesh supplies the retained 4.057 m point sample. The visible
+  base uses the 4.479 m continuous terrain surface shared with the drawn park,
+  so ground offerings are not hidden below the smoothing layer. The point lies
+  inside the versioned polygon.
+- The bounded OSM snapshot has no matching named object. Alignment QA therefore
+  retains this record as a visible manual-review item instead of inventing an
+  OSM identifier, tree species or surveyed dimensions.
+- The supplied map screenshot and field photographs are not committed,
+  projected or copied as textures. The place link contributes only the owner's
+  location assertion; procedural geometry reconstructs the visible heart,
+  fabric, flowers, candles, messages and flags.

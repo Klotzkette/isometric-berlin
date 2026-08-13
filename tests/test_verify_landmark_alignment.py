@@ -21,6 +21,9 @@ LANDMARKS_WITHOUT_OSM_MATCH = {
   # Both are current/future construction projects without a matching named
   # feature at their committed project anchors. Keep them as explicit reviews.
   "DKB Campus Upbeat",
+  # Recent informal memorial supplied by the owner; it is absent from the
+  # committed OSM extract and must remain an explicit manual-review anchor.
+  "Queer Rainbow Memorial Berlin",
   "berlin modern — Museum des 20. Jahrhunderts",
 }
 
@@ -41,11 +44,11 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
 
   assert report["summary"] == {
     "status": "review",
-    "landmarks_checked": 88,
+    "landmarks_checked": 89,
     "relative_relationships_checked": 38,
-    "landmark_review_count": 2,
+    "landmark_review_count": 3,
     "relative_review_count": 0,
-    "review_count": 2,
+    "review_count": 3,
   }
   checks = {check["name"]: check for check in report["checks"]}
   assert checks["Paul-Löbe-Haus"]["best_osm_match"]["name"] == "Paul-Löbe-Haus"
@@ -110,6 +113,8 @@ def test_committed_landmarks_align_with_osm_city_map() -> None:
     == "Bundesministerium der Finanzen"
   )
   assert checks["Denkzeichen Georg Elser"]["best_osm_match"]["id"] == "1986458966"
+  assert checks["Queer Rainbow Memorial Berlin"]["best_osm_match"] is None
+  assert checks["Queer Rainbow Memorial Berlin"]["status"] == "review"
   reviewed = {name for name, check in checks.items() if check["status"] != "ok"}
   assert reviewed == LANDMARKS_WITHOUT_OSM_MATCH
   assert all(

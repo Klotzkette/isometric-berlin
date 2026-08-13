@@ -65,7 +65,7 @@ Must be inside the polygon and visible in the final map:
 - Berliner Ensemble and Berlin Friedrichstraße in the bounded north-east lobe
 - Detlev-Rohwedder-Haus, Gropius Bau, Abgeordnetenhaus and Topography of Terror
 
-The committed 88-place landmark catalogue is the release inventory. Keep all
+The committed 89-place landmark catalogue is the release inventory. Keep all
 data clipped to the polygon, avoid unbounded whole-city output, and record any
 future owner-approved bounds expansion in the changelog and data manifests.
 
@@ -323,7 +323,7 @@ isometric-berlin/
 - A working static viewer (`bun run build`) under `src/app/dist/`
   that pans/zooms cleanly, shows the required attribution overlay
   (including Google attribution if Google content was used), and
-  renders all 88 catalogued sights in the same coordinate frame.
+  renders all 89 catalogued sights in the same coordinate frame.
 - A true Three.js mode using the official Berlin 3D Mesh, with progressive
   loading, mouse/touch orbit, a real below-ground camera and a schematic
   Tiergartentunnel cutaway. The DZI remains the fast detail-map fallback.

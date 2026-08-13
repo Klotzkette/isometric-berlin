@@ -1203,6 +1203,16 @@
         "source": "OpenStreetMap node 1986458966 and Berlin.de memorial documentation"
       },
       "geometry": { "type": "Point", "coordinates": [13.3827365, 52.5123071] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Queer Rainbow Memorial Berlin",
+        "role": "owner_added",
+        "tour_order": 89,
+        "source": "Owner-supplied Ahornsteig place link and field views; display geometry is not surveyed"
+      },
+      "geometry": { "type": "Point", "coordinates": [13.372264, 52.5129712] }
     }
   ]
 }

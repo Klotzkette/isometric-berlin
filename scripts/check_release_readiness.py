@@ -516,6 +516,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   ambient_path = root / "src/app/src/AmbientSoundscape.ts"
   crisp_path = root / "src/app/src/crisp.frag"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
+  queer_memorial_path = root / "src/app/src/QueerRainbowMemorial.ts"
   park_path = root / "src/app/src/ParkDetails.ts"
   project_metadata_path = root / "src/app/src/projectMetadata.ts"
   camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
@@ -532,6 +533,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not ambient_path.exists()
     or not crisp_path.exists()
     or not memorial_path.exists()
+    or not queer_memorial_path.exists()
     or not park_path.exists()
     or not project_metadata_path.exists()
     or not camera_navigation_path.exists()
@@ -549,6 +551,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   ambient = ambient_path.read_text(encoding="utf-8")
   crisp = crisp_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
+  queer_memorial = queer_memorial_path.read_text(encoding="utf-8")
   park = park_path.read_text(encoding="utf-8")
   project_metadata = project_metadata_path.read_text(encoding="utf-8")
   camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
@@ -585,6 +588,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       "controls.getPolarAngle() > Math.PI / 2 || physicallyInsideTunnel"
     ),
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
+    "Ahornsteig rainbow memorial layer": "createQueerRainbowMemorial()",
     "stale mobile hero cancellation": (
       "runtime.coarsePointer && selectedRef.current !== name"
     ),
@@ -772,6 +776,22 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     f"Memorial models lack {label}: {memorial_path}"
     for label, snippet in required_memorial_snippets.items()
     if snippet not in memorial
+  )
+  required_queer_memorial_snippets = {
+    "owner-supplied metric anchor": "worldM: [40.647, 4.479, 660.01]",
+    "retained source ground sample": "sourceGroundYM: 4.057",
+    "surface-fitted display base": "renderedGroundYM: 4.479",
+    "explicit non-survey status": "field-view-bounded tree and memorial",
+    "dense batched flowers": "flowerCount: 132",
+    "night-only candle flames": "Queer Rainbow Memorial candle flames",
+    "local night candle pools": "Queer Rainbow Memorial candle pool light",
+    "snow-only crown caps": "Queer Rainbow Memorial snow crown caps",
+    "deterministic snow switch": "setQueerRainbowMemorialSnow",
+  }
+  failures.extend(
+    f"Queer Rainbow Memorial lacks {label}: {queer_memorial_path}"
+    for label, snippet in required_queer_memorial_snippets.items()
+    if snippet not in queer_memorial
   )
   required_park_snippets = {
     "official settled tree microcrowns": (

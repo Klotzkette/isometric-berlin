@@ -2,13 +2,13 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-12T18:20:11.925176+00:00`
+- Generated: `2026-08-12T23:48:30.876919+00:00`
 - Status: `review`
-- Landmarks checked: `88`
+- Landmarks checked: `89`
 - Relative relationships checked: `38`
-- Landmark review count: `2`
+- Landmark review count: `3`
 - Relative review count: `0`
-- Review count: `2`
+- Review count: `3`
 
 | Landmark | Status | Best OSM evidence | OSM distance | LoD2 evidence |
 |---|---:|---|---:|---|
@@ -100,6 +100,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Topographie des Terrors | `ok` | Topographie des Terrors (pois) | 0.00 m | inside DEBE3DB8G4JuQSIz |
 | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend | `ok` | Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend (pois) | 0.00 m | inside DEBE3DaRKFOzDWtk |
 | Denkzeichen Georg Elser | `ok` | Denkzeichen Georg Elser (pois) | 0.00 m | nearest DEBE3DGM02OGdTwB at 16.28 m |
+| Queer Rainbow Memorial Berlin | `review` | no expected-name hit; nearest: None | 0.00 m | nearest DEBE00YYT600005H at 150.23 m |
 
 ## Relative Placement
 

@@ -209,6 +209,22 @@ the profile and plaque together in frame, while mipmapped lettering disappears
 before it can shimmer at overview distance. The model lives in the shared
 memorial layer, so Day, Night, Minecraft and Snowstorm all retain it.
 
+The Queer Rainbow Memorial at Ahornsteig is another independent recognition
+model. Its WGS84 point was supplied by the owner and is transformed into the
+same EPSG:25833 / official-mesh ground frame as the rest of the scene. The
+4.057 m point sample remains recorded, while the visible base follows the
+4.479 m continuous terrain surface used by the drawn park, preventing the
+ground-level offerings from being buried by the smoothing layer. The
+living tree, six-colour heart, tied fabric, dense flower and message field,
+small Pride flags and candle arrangement are bounded by the supplied current
+field views; neither the tree dimensions nor the offering layout are described
+as surveyed. Flowers, cards, candles and flags are instanced and deterministic,
+the close-detail root uses the shared distance-hysteresis fade, candle flames
+appear only with Night lights, and static crown snow appears only in
+Snowstorm. The compact rail remains limited to five principal orientation
+points, while
+`#landmark=queer-rainbow-memorial-berlin` provides a stable direct close view.
+
 Only the selected landmark receives a small focus ring, and that ring fades
 again after 2.4 seconds. Permanently visible coloured map dots
 were removed from the Three.js, DZI and zero-server fallbacks because they

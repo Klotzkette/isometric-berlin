@@ -4505,9 +4505,41 @@
       },
       "role": "owner_added",
       "status": "ok"
+    },
+    {
+      "best_osm_match": null,
+      "expected_osm_aliases": [],
+      "lod2": {
+        "containing_building_id": null,
+        "contains_landmark": false,
+        "nearest_building_id": "DEBE00YYT600005H",
+        "nearest_distance_m": 150.23
+      },
+      "name": "Queer Rainbow Memorial Berlin",
+      "nearest_named_osm": {
+        "amenity": null,
+        "bridge": null,
+        "diplomatic": null,
+        "distance_m": 0.0,
+        "element": "way",
+        "geometry_type": "Polygon",
+        "government": null,
+        "highway": null,
+        "historic": null,
+        "id": "231293193",
+        "leisure": null,
+        "name": null,
+        "office": null,
+        "playground": null,
+        "railway": null,
+        "source_layer": "parks",
+        "tourism": null
+      },
+      "role": "owner_added",
+      "status": "review"
     }
   ],
-  "generated_at": "2026-08-12T18:20:11.925176+00:00",
+  "generated_at": "2026-08-12T23:48:30.876919+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -5008,7 +5040,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "56f6ef6e18eff8e1bb33167137304853e4145f335253afdee6fb726ba93371d6"
+      "sha256": "0df41ef4439c5da2e28714a2c231c21487c42bef1992781020bc355ada7d92c0"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",
@@ -5020,11 +5052,11 @@
     }
   },
   "summary": {
-    "landmark_review_count": 2,
-    "landmarks_checked": 88,
+    "landmark_review_count": 3,
+    "landmarks_checked": 89,
     "relative_relationships_checked": 38,
     "relative_review_count": 0,
-    "review_count": 2,
+    "review_count": 3,
     "status": "review"
   }
 }

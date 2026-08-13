@@ -252,6 +252,7 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Pariser Platz photo-bounded fine detail",
   "Georg Elser pavement inscription quote",
   "Georg Elser pavement inscription attribution",
+  "Queer Rainbow Memorial fine detail",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */
