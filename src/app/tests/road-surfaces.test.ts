@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, LineSegments, Mesh } from "three";
+import { Box3, InstancedMesh, LineSegments, Mesh } from "three";
 
 import {
   DRAPED_SURFACE_MAX_EDGE_M,
@@ -63,6 +63,27 @@ describe("drawn carriageways and park paths", () => {
     expect(surfaces.lane_markings?.length ?? 0).toBeGreaterThan(20);
     const named = (surfaces.lane_markings ?? []).map((entry) => entry.name);
     expect(named).toContain("Straße des 17. Juni");
+  });
+
+  test("mapped OSM scrub becomes a compact instanced bush layer", () => {
+    expect(surfaces.scrub_inventory?.feature_count ?? 0).toBeGreaterThan(250);
+    expect(surfaces.scrub_inventory?.point_count ?? 0).toBeGreaterThan(1_000);
+    expect(surfaces.scrub_points?.length).toBe(
+      surfaces.scrub_inventory?.point_count,
+    );
+    const group = createSmoothSurfaces(surfaces, -1.15, 4.2, () => 5.2);
+    const families = [1, 2, 3].map((index) =>
+      group.getObjectByName(`source-backed OSM scrub ${index}`),
+    );
+    expect(families.every((entry) => entry instanceof InstancedMesh)).toBe(
+      true,
+    );
+    expect(
+      families.reduce(
+        (count, entry) => count + ((entry as InstancedMesh).count ?? 0),
+        0,
+      ),
+    ).toBe(surfaces.scrub_points?.length ?? 0);
   });
 
   test("no road hole is a degenerate sliver", () => {

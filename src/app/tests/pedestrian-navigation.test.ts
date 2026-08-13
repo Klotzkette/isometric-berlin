@@ -42,10 +42,24 @@ describe("pedestrian navigation", () => {
       environment,
     );
     expect(Math.hypot(result.state.x - start.x, result.state.z - start.z)).toBeCloseTo(
-      0.16,
+      0.32,
     );
     expect(result.state.groundY).toBe(start.groundY);
     expect(result.state.jumpOffset).toBe(0);
+  });
+
+  test("starts on the ground below the current view instead of teleporting", () => {
+    const state = createPedestrianState(environment, {
+      pitch: 0.25,
+      x: 125,
+      yaw: 0.75,
+      z: -240,
+    });
+    expect(state.x).toBe(125);
+    expect(state.z).toBe(-240);
+    expect(state.groundY).toBe(4.25);
+    expect(state.yaw).toBeCloseTo(0.75);
+    expect(state.pitch).toBeCloseTo(0.25);
   });
 
   test("jump reaches roughly three person heights and cannot double jump", () => {

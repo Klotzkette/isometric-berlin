@@ -370,8 +370,12 @@ describe("OSM park details", () => {
     expect(first.distanceTo(second)).toBeCloseTo(
       WALL_TRACE_PROFILE.rowOffsetM * 2,
     );
-    // Even the stone bottom clears the highest drawn road-plate lift (0.14 m).
+    // The double row clears the road by millimetres, never by wall height.
     expect(first.y - WALL_TRACE_PROFILE.heightM / 2).toBeGreaterThan(1.14);
+    expect(first.y - WALL_TRACE_PROFILE.heightM / 2).toBeLessThanOrEqual(
+      1.142,
+    );
+    expect(WALL_TRACE_PROFILE.heightM).toBeLessThanOrEqual(0.01);
   });
 
   test("rejects unknown payload schemas instead of partially rendering them", () => {

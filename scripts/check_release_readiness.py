@@ -603,11 +603,10 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     ),
     "instanced tunnel fixtures": ('"Tiergartentunnel instanced ceiling lights"'),
     "state-aware tunnel presentation": (
-      "setTunnelPresentation(runtime.tunnel, runtime.underside)"
+      "runtime.pedestrian.state?.insideTunnel === true ||"
     ),
-    "automatic orbit underside detection": (
-      "controls.getPolarAngle() > Math.PI / 2 || physicallyInsideTunnel"
-    ),
+    "automatic orbit underside detection": ("controls.getPolarAngle() > Math.PI / 2;"),
+    "exact tunnel-corridor detection": "createTunnelInteriorTester(",
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "Ahornsteig rainbow memorial layer": "createQueerRainbowMemorial()",
     "stale mobile hero cancellation": (
@@ -711,7 +710,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       "tiergartentunnelPortalInterior"
     ),
     "default-hidden tunnel bore interiors": "object.visible = false",
-    "exterior tunnel bore occlusion": "const interiorVisible = false",
+    "explicit in-tunnel bore reveal": (
+      "const interiorVisible = revealInterior && !underside"
+    ),
     "underside portal suppression": "group.visible = !underside",
   }
   failures.extend(

@@ -944,7 +944,7 @@ function addReichstagMicroDetails(
     group,
     "Reichstag batched facade string courses",
     courses,
-    0x817665,
+    0x777b79,
     0.68,
   );
 }
@@ -1054,15 +1054,18 @@ function addReichstagDocumentedOrders(
       0.84,
     );
   }
-  // The tympanum carries a relief field, not blank ashlar.
-  addBox(
-    group,
-    "Reichstag west tympanum relief field",
-    [0.34, 3.1, 21.5],
-    [westX - 3.3, 22.05, 0],
+  // The tympanum is a triangular sculptural field. The former rectangular
+  // slab projected beyond the pediment and read as an unrelated box above
+  // DEM DEUTSCHEN VOLKE.
+  const tympanumField = new Mesh(
+    triangularPrism(31, 4.6, 0.34),
     reliefStone,
-    0.86,
   );
+  tympanumField.name = "Reichstag west triangular tympanum relief field";
+  tympanumField.position.set(westX - 3.68, 20.45, 0);
+  tympanumField.castShadow = true;
+  group.add(tympanumField);
+  addEdges(group, tympanumField, 0.86);
   const reliefHeads: InstanceTransform[] = [];
   const reliefBodies: InstanceTransform[] = [];
   for (let index = 0; index < 11; index += 1) {
@@ -1131,7 +1134,7 @@ function addReichstagDocumentedOrders(
     group,
     "Reichstag batched rusticated base joints",
     rustication,
-    0x817665,
+    0x777b79,
     0.5,
   );
 }
@@ -1183,15 +1186,14 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   placeMetricGroup(group, signature);
 
   const stoneAccent = nightEmitter(
-    modelMaterial(0xe7dcc6, { roughness: 0.84 }),
+    modelMaterial(0xe4e6e2, { roughness: 0.84 }),
     0x65778d,
     0.5,
   );
-  // In an unlit flat-paint scene, a restrained second sandstone tone is what
-  // makes Wallot's mouldings and tympanum read as carved depth instead of a
-  // single blank beige slab.
+  // A restrained neutral limestone step gives Wallot's mouldings depth
+  // without turning the Reichstag into a yellow sandstone block.
   const stoneRelief = nightEmitter(
-    modelMaterial(0xbda98d, { roughness: 0.88 }),
+    modelMaterial(0xc5c7c2, { roughness: 0.88 }),
     0x596878,
     0.36,
   );
@@ -1345,12 +1347,12 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     "Reichstag DEM DEUTSCHEN VOLKE inscription band",
     [0.26, bandHeight, bandWidth],
     [westX - 3.8, 18.55, 0],
-    modelMaterial(0xd6cbb6, { roughness: 0.72 }),
+    modelMaterial(0xd9dad5, { roughness: 0.72 }),
   );
   const dedicationTexture = createDedicationTexture({
     bandHeightM: bandHeight,
     bandWidthM: bandWidth,
-    fieldColor: "#d6cbb6",
+    fieldColor: "#d9dad5",
     letterColor: "#4b321b",
   });
   const dedicationMaterial = nightEmitter(
@@ -6063,11 +6065,6 @@ function createBrandenburgGateModel(
     metalness: 0.36,
     roughness: 0.56,
   });
-  const passageInterior = new MeshStandardMaterial({
-    color: 0x303633,
-    roughness: 0.96,
-    side: FrontSide,
-  });
   const colonnadeWidth = 43;
   const columnCenters: Array<[number, number]> = [];
   for (let row = 0; row < signature.column_rows; row += 1) {
@@ -6249,12 +6246,6 @@ function createBrandenburgGateModel(
       [0, 0.05, passageZ],
       recess,
     );
-    const shadow = new Mesh(new PlaneGeometry(6.1, 11.8), passageInterior);
-    shadow.name = "Brandenburg Gate shaded passage interior";
-    shadow.rotation.y = Math.PI / 2;
-    shadow.position.set(-signature.depth_m / 2 + 0.22, 6.05, passageZ);
-    shadow.receiveShadow = true;
-    group.add(shadow);
   }
 
   const passageDividers = [-12.9, -4.3, 4.3, 12.9];

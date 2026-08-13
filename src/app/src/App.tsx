@@ -86,7 +86,6 @@ import {
   initialLanguage,
 } from "./localization";
 import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
-import type { TunnelFlightDirection } from "./tunnelFlight";
 import {
   isNightLightsOnByUser,
   rememberNightLightsOn,
@@ -626,8 +625,6 @@ export function App() {
   // keeps its established falling-snow default, but the same weather control
   // can now pause and resume it.
   const [snowfallEnabled, setSnowfallEnabled] = useState(true);
-  const [pendingTunnelFlight, setPendingTunnelFlight] =
-    useState<TunnelFlightDirection | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
@@ -1562,44 +1559,6 @@ export function App() {
     setIsPseudoFullscreen(true);
   }, [isPseudoFullscreen]);
 
-  const startTunnelFlight = useCallback(
-    (direction: TunnelFlightDirection) => {
-      disablePedestrianMode();
-      setIsTouring(false);
-      setMobileSheet(null);
-      if (viewerMode !== "three" || !isThreeReady) {
-        setPendingTunnelFlight(direction);
-        setViewerMode("three");
-        return;
-      }
-      const started = threeViewerRef.current?.startTunnelFlight(direction);
-      if (started) {
-        setStatus(
-          direction === "north-to-south"
-            ? copy.tunnelSouthbound
-            : copy.tunnelNorthbound,
-        );
-      }
-    },
-    [
-      copy.tunnelNorthbound,
-      copy.tunnelSouthbound,
-      disablePedestrianMode,
-      isThreeReady,
-      viewerMode,
-    ],
-  );
-
-  useEffect(() => {
-    if (!pendingTunnelFlight || viewerMode !== "three" || !isThreeReady) {
-      return;
-    }
-    const direction = pendingTunnelFlight;
-    setPendingTunnelFlight(null);
-    const timer = window.setTimeout(() => startTunnelFlight(direction), 0);
-    return () => window.clearTimeout(timer);
-  }, [isThreeReady, pendingTunnelFlight, startTunnelFlight, viewerMode]);
-
   useEffect(() => {
     const update = () => {
       const active = document.fullscreenElement !== null;
@@ -1934,16 +1893,6 @@ export function App() {
         void toggleFullscreen();
         return;
       }
-      if (event.key === "[") {
-        event.preventDefault();
-        startTunnelFlight("north-to-south");
-        return;
-      }
-      if (event.key === "]") {
-        event.preventDefault();
-        startTunnelFlight("south-to-north");
-        return;
-      }
       if (event.key.toLowerCase() === "n") {
         event.preventDefault();
         toggleNightLights();
@@ -2116,7 +2065,6 @@ export function App() {
     setFlightInput,
     setOrbitInput,
     setPanInput,
-    startTunnelFlight,
     toggleTour,
     toggleLightingMode,
     toggleMinecraftMode,
@@ -3115,32 +3063,6 @@ export function App() {
             </HoldControlButton>
           </div>
         ) : null}
-        {viewerMode === "three" ? (
-          <div
-            className="control-row tunnel-flight-controls"
-            role="group"
-            aria-label="Tiergartentunnel"
-          >
-            <button
-              type="button"
-              aria-label={copy.tunnelSouthbound}
-              disabled={!isReady || isPedestrianMode}
-              title={`${copy.tunnelSouthbound} ([)`}
-              onClick={() => startTunnelFlight("north-to-south")}
-            >
-              <ArrowDown size={17} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label={copy.tunnelNorthbound}
-              disabled={!isReady || isPedestrianMode}
-              title={`${copy.tunnelNorthbound} (])`}
-              onClick={() => startTunnelFlight("south-to-north")}
-            >
-              <ArrowUp size={17} aria-hidden="true" />
-            </button>
-          </div>
-        ) : null}
         <div
           className="control-row"
           role="group"
@@ -3581,22 +3503,6 @@ export function App() {
                   ? copy.fullscreenExit
                   : copy.fullscreenEnter}
               </span>
-            </button>
-            <button
-              type="button"
-              disabled={isPedestrianMode}
-              onClick={() => startTunnelFlight("north-to-south")}
-            >
-              <ArrowDown size={20} aria-hidden="true" />
-              <span>{copy.tunnelSouthbound}</span>
-            </button>
-            <button
-              type="button"
-              disabled={isPedestrianMode}
-              onClick={() => startTunnelFlight("south-to-north")}
-            >
-              <ArrowUp size={20} aria-hidden="true" />
-              <span>{copy.tunnelNorthbound}</span>
             </button>
             <button
               type="button"
@@ -4091,18 +3997,6 @@ export function App() {
                     : "Toggle the snowstorm"}
                 </dd>
               </div>
-              {viewerMode === "three" ? (
-                <div>
-                  <dt>
-                    <kbd>[</kbd> <kbd>]</kbd>
-                  </dt>
-                  <dd>
-                    {language === "de"
-                      ? "Tiergartentunnel nach Süden / Norden durchfliegen"
-                      : "Fly through the Tiergarten tunnel southbound / northbound"}
-                  </dd>
-                </div>
-              ) : null}
               <div>
                 <dt>
                   <kbd>F</kbd>

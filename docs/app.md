@@ -39,7 +39,7 @@ toolbar, or press `?`) listing the shortcuts: `PageUp`/`PageDown`
 previous/next sight, `Space` start/pause the tour, `+`/`=`/`−` zoom,
 `Home`/`0` overview, `D` switch Day/Night, `M` toggle Minecraft, `S` toggle
 Snowstorm, `P` toggle pedestrian mode, `N` toggle night lights, `F` fullscreen, `R` reset, `B` ambient
-music, `T` Dusk Republic, `[`/`]` tunnel flight in either direction, `L` copy
+music, `T` Dusk Republic, `L` copy
 a view link, and `Esc` close overlays. `Alt`/`Option` plus arrows remains a
 viewer chord and is deliberately exempt from the browser-shortcut guard.
 
@@ -57,13 +57,13 @@ shafts and fans) and out the other end.
 Arrow keys translate camera and target together in the visible screen plane.
 `Shift` plus arrows flies forward/backward or strafes relative to the current
 heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
-bracket keys start a guided flight through the appropriate traffic tube of the
-approximate Tiergartentunnel route; any manual navigation cancels it cleanly.
+lit Tiergartentunnel is entered manually through either connected road portal;
+there is no scripted tunnel ride competing with direct camera control.
 
 Pedestrian mode is an independent navigation layer over all four visual modes.
-It starts on Pariser Platz facing the Brandenburg Gate, keeps the camera at a
-1.80 m eye height above the existing smooth metric terrain, and disables
-flight, zoom, underside and guided tunnel controls. `W`/`S` or up/down walk,
+It starts directly below the current camera at a 1.80 m eye height above the
+existing smooth metric terrain, and disables
+flight, zoom and underside controls. `W`/`S` or up/down walk,
 `A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
 the head with an 80-degree vertical limit. `Space` and the touch-safe jump
 button produce a single ground-only jump with a 5.4 m apex; there is no double

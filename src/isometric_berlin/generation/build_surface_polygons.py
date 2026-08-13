@@ -36,11 +36,13 @@ from shapely.geometry import (
   LineString,
   MultiLineString,
   MultiPolygon,
+  Point,
   Polygon,
   box,
 )
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
+from shapely.strtree import STRtree
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
 from isometric_berlin.generation.basin_features import (
@@ -66,7 +68,7 @@ from isometric_berlin.generation.road_geometry import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "surface-polygons.json"
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 WATER_SIMPLIFY_M = 0.1
 PARK_SIMPLIFY_M = 1.2
 MIN_WATER_AREA_M2 = 40.0
@@ -78,6 +80,11 @@ MIN_PARK_AREA_M2 = 250.0
 # small enough that the 1.2 m lawn tolerance rounds their corners away.
 MIN_GARDEN_AREA_M2 = 20.0
 GARDEN_SIMPLIFY_M = 0.4
+# Sample mapped ``natural=scrub`` polygons on one global lattice. Twelve
+# metres retains the actual thickets while the viewer can render all samples
+# as three instanced low-poly families rather than thousands of objects.
+SCRUB_SPACING_M = 12.0
+MIN_SCRUB_AREA_M2 = 12.0
 
 # --- Carriageways and park paths -------------------------------------
 #
@@ -324,6 +331,94 @@ def collect_parkland(
         )
   surfaces.sort(key=lambda entry: -entry["area_m2"])
   return surfaces
+
+
+def collect_scrub_points(
+  osm_path: Path, bounds: BaseGeometry, roads: list[dict[str, Any]]
+) -> tuple[list[list[int]], dict[str, Any]]:
+  """Sample mapped OSM shrub polygons into compact deterministic clumps.
+
+  These are source-backed locations, not random park decoration. A global
+  lattice makes regeneration stable across runs and neighbouring polygons; a
+  representative point preserves a narrow mapped thicket the lattice misses.
+  """
+  frame = gpd.read_file(osm_path, layer="vegetation").to_crs(epsg=25833)
+  frame = frame[frame["natural"] == "scrub"]
+  water_union = unary_union(
+    [feature.geometry for feature in load_water_features(osm_path)]
+  )
+  road_polygons: list[Polygon] = []
+  for road in roads:
+    if len(road["ring"]) < 4:
+      continue
+    polygon = Polygon(
+      [(x / 10, z / 10) for x, z in road["ring"]],
+      [[(x / 10, z / 10) for x, z in hole] for hole in road.get("holes", [])],
+    )
+    if not polygon.is_valid:
+      polygon = polygon.buffer(0)
+    road_polygons.extend(polygon_parts(polygon))
+  road_index = STRtree(road_polygons)
+  points: list[list[int]] = []
+  mapped_features = 0
+  mapped_area_m2 = 0.0
+  seen: set[tuple[int, int]] = set()
+
+  def add_point(point: Point, feature_id: int) -> None:
+    if not water_union.is_empty and water_union.covers(point):
+      return
+    x_dm = round((point.x - ORIGIN_EASTING) * 10)
+    z_dm = round((ORIGIN_NORTHING - point.y) * 10)
+    key = (x_dm, z_dm)
+    if key in seen:
+      return
+    world_point = Point(x_dm / 10, z_dm / 10)
+    if len(road_index.query(world_point, predicate="covered_by")) > 0:
+      return
+    seen.add(key)
+    seed = (
+      feature_id * 31 + round(point.x * 10) * 17 + round(point.y * 10) * 13
+    ) & 0x7FFFFFFF
+    radius_dm = 13 + seed % 11
+    height_dm = 9 + (seed // 11) % 12
+    points.append([x_dm, z_dm, radius_dm, height_dm, seed % 3])
+
+  for _, row in frame.iterrows():
+    geometry = row.geometry
+    if geometry is None or geometry.is_empty:
+      continue
+    clipped = geometry.intersection(bounds)
+    feature_id = int(row.get("id") or 0)
+    feature_kept = False
+    for part in polygon_parts(clipped):
+      if part.is_empty or part.area < MIN_SCRUB_AREA_M2:
+        continue
+      mapped_area_m2 += part.area
+      feature_kept = True
+      before = len(points)
+      min_x, min_y, max_x, max_y = part.bounds
+      x = math.ceil(min_x / SCRUB_SPACING_M) * SCRUB_SPACING_M
+      while x <= max_x:
+        y = math.ceil(min_y / SCRUB_SPACING_M) * SCRUB_SPACING_M
+        while y <= max_y:
+          candidate = Point(x, y)
+          if part.covers(candidate):
+            add_point(candidate, feature_id)
+          y += SCRUB_SPACING_M
+        x += SCRUB_SPACING_M
+      if len(points) == before:
+        add_point(part.representative_point(), feature_id)
+    if feature_kept:
+      mapped_features += 1
+
+  points.sort(key=lambda entry: (entry[1], entry[0]))
+  return points, {
+    "feature_count": mapped_features,
+    "mapped_area_m2": round(mapped_area_m2),
+    "point_count": len(points),
+    "sampling_spacing_m": SCRUB_SPACING_M,
+    "scope": "bounded OSM natural=scrub polygons outside mapped roads and water",
+  }
 
 
 def open_tunnel_ramp_corridors(scene_path: Path) -> BaseGeometry | None:
@@ -783,6 +878,7 @@ def build_payload(
   roads, markings, path_inventory = collect_roads(
     osm_path, bounds, parkland, ramp_corridors
   )
+  scrub_points, scrub_inventory = collect_scrub_points(osm_path, bounds, roads)
   return {
     "lane_markings": markings,
     "path_inventory": path_inventory,
@@ -799,6 +895,8 @@ def build_payload(
     ),
     "roads": roads,
     "schema_version": SCHEMA_VERSION,
+    "scrub_inventory": scrub_inventory,
+    "scrub_points": scrub_points,
     "simplify_m": WATER_SIMPLIFY_M,
     "source": ATTRIBUTION,
     "sunken_walls": collect_sunken_walls(
@@ -832,6 +930,7 @@ def main(argv: list[str] | None = None) -> None:
     f"Wrote {args.out} ({size / 1024:.0f} KiB) with "
     f"{len(payload['water'])} water ({basins} basins), "
     f"{len(payload['parks'])} park, "
+    f"{len(payload['scrub_points'])} scrub clumps, "
     f"{len(payload['roads'])} road polygons ({dict(kinds)}), "
     f"{len(payload['sunken_walls'])} sunken walls and "
     f"{len(payload['lane_markings'])} lane markings"

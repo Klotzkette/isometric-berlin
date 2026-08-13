@@ -34,6 +34,13 @@ export const CONTINUOUS_FLIGHT_SPEED_MAX_MPS = 780;
 export const CONTINUOUS_VERTICAL_SPEED_RATIO = 1.1;
 export const CONTINUOUS_VERTICAL_SPEED_MIN_MPS = 24;
 export const CONTINUOUS_VERTICAL_SPEED_MAX_MPS = 320;
+export const CAMERA_TARGET_CROSSING_MIN_M = 0.35;
+export const PINCH_TARGET_CROSSING_ZONE_M = 24;
+
+export type SignedPinchDolly = {
+  axis: Vector3;
+  signedDistance: number;
+};
 
 export const REGIERUNGSVIERTEL_FLIGHT_BOUNDS: CameraFlightBounds = {
   // Derive navigation limits from the same versioned envelope the renderers
@@ -150,6 +157,70 @@ export function stabilizeCameraRig(
     pose: captureCameraPose(camera, target),
     recovered: false,
   };
+}
+
+/**
+ * Captures the current view ray for a continuous touch-pinch that may pass
+ * through the focal plane. OrbitControls only supports a positive radius;
+ * keeping the radius signed lets a spreading pinch move cleanly from the
+ * surface side to the underside without teleporting the target.
+ */
+export function createSignedPinchDolly(
+  camera: PerspectiveCamera,
+  target: Vector3,
+): SignedPinchDolly | null {
+  const offset = camera.position.clone().sub(target);
+  const distance = offset.length();
+  if (!Number.isFinite(distance) || distance < 1e-6) {
+    return null;
+  }
+  return {
+    axis: offset.divideScalar(distance),
+    signedDistance: distance,
+  };
+}
+
+/** Advance a signed pinch without allowing a zero-length, undefined view. */
+export function advanceSignedPinchDolly(
+  camera: PerspectiveCamera,
+  target: Vector3,
+  state: SignedPinchDolly,
+  factor: number,
+  minAbsoluteDistance = CAMERA_TARGET_CROSSING_MIN_M,
+  maxAbsoluteDistance = 2_600,
+  bounds = REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+): number {
+  if (
+    !Number.isFinite(factor) ||
+    factor <= 0 ||
+    !Number.isFinite(state.signedDistance) ||
+    !vectorIsFinite(state.axis) ||
+    state.axis.lengthSq() < 1e-8
+  ) {
+    return state.signedDistance;
+  }
+  state.axis.normalize();
+  const travel =
+    Math.log(MathUtils.clamp(factor, 0.2, 5)) *
+    Math.max(Math.abs(state.signedDistance), 14);
+  let nextDistance = state.signedDistance - travel;
+  if (Math.abs(nextDistance) < minAbsoluteDistance) {
+    nextDistance = travel >= 0 ? -minAbsoluteDistance : minAbsoluteDistance;
+  }
+  nextDistance = MathUtils.clamp(
+    nextDistance,
+    -maxAbsoluteDistance,
+    maxAbsoluteDistance,
+  );
+  state.signedDistance = nextDistance;
+  camera.position.copy(target).addScaledVector(state.axis, nextDistance);
+
+  const boundedTarget = target.clone().clamp(bounds.min, bounds.max);
+  const correction = boundedTarget.sub(target);
+  target.add(correction);
+  camera.position.add(correction);
+  camera.updateMatrixWorld();
+  return nextDistance;
 }
 
 export function screenRelativeFlightDelta(

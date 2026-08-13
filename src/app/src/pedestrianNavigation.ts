@@ -3,13 +3,17 @@ import {
   type VoxelPayload,
   smoothGroundTopSampler,
 } from "./MinecraftVoxelWorld";
+import {
+  type TunnelPortalCourseInput,
+  tunnelWalkCourses,
+} from "./TunnelPortals";
 
 export const PEDESTRIAN_EYE_HEIGHT_M = 1.8;
 export const PEDESTRIAN_JUMP_APEX_M = PEDESTRIAN_EYE_HEIGHT_M * 3;
-export const PEDESTRIAN_WALK_SPEED_MPS = 3.2;
+export const PEDESTRIAN_WALK_SPEED_MPS = 6.4;
 export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.62;
 export const PEDESTRIAN_LOOK_SPEED_RAD_S = Math.PI * 0.48;
-export const PEDESTRIAN_GRAVITY_MPS2 = 18;
+export const PEDESTRIAN_GRAVITY_MPS2 = 32;
 export const PEDESTRIAN_MAX_PITCH_RAD = (Math.PI * 80) / 180;
 export const PEDESTRIAN_FOV_DEGREES = 66;
 export const PEDESTRIAN_VIEW_DISTANCE_M = 7;
@@ -31,10 +35,20 @@ export type PedestrianInput = {
 
 export type PedestrianState = {
   grounded: boolean;
+  groundLayer: "surface" | "tunnel";
   groundY: number;
+  insideTunnel: boolean;
   jumpOffset: number;
   pitch: number;
   verticalVelocity: number;
+  x: number;
+  yaw: number;
+  z: number;
+};
+
+export type PedestrianSpawn = {
+  groundYHint?: number;
+  pitch?: number;
   x: number;
   yaw: number;
   z: number;
@@ -59,7 +73,19 @@ export type PedestrianWaterRegion = {
 export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
   groundAt: (x: number, z: number) => number | null;
+  resolveGround?: (
+    x: number,
+    z: number,
+    currentLayer: PedestrianState["groundLayer"],
+    groundYHint?: number,
+  ) => PedestrianGround | null;
   water: PedestrianWaterRegion[];
+};
+
+export type PedestrianGround = {
+  insideTunnel: boolean;
+  layer: PedestrianState["groundLayer"];
+  y: number;
 };
 
 export type PedestrianStep = {
@@ -193,6 +219,7 @@ export function pedestrianPointIsWater(
 export function createPedestrianEnvironment(
   ground: VoxelPayload,
   surfaces: Pick<SurfacePayload, "water">,
+  tunnel?: TunnelPortalCourseInput | null,
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;
@@ -203,33 +230,164 @@ export function createPedestrianEnvironment(
     minX: minXIndex * cell,
     minZ: minZIndex * cell,
   };
+  const surfaceGroundAt = (x: number, z: number): number | null => {
+    const xOffset = x / cell - minXIndex;
+    const zOffset = z / cell - minZIndex;
+    if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
+      return null;
+    }
+    return smoothGround(xOffset, zOffset);
+  };
+  const tunnelSegments = tunnel
+    ? tunnelWalkCourses(tunnel).flatMap((course) =>
+        course.points.slice(0, -1).map((from, index) => {
+          const to = course.points[index + 1];
+          const dx = to[0] - from[0];
+          const dz = to[2] - from[2];
+          return {
+            dx,
+            dz,
+            from,
+            halfWidthM: course.halfWidthM,
+            kind: course.kind,
+            lengthSquared: dx * dx + dz * dz,
+            to,
+          };
+        }),
+      )
+    : [];
+  const tunnelGroundsAt = (x: number, z: number) =>
+    tunnelSegments.flatMap((segment) => {
+      const progress =
+        segment.lengthSquared > 1e-8
+          ? clamp(
+              ((x - segment.from[0]) * segment.dx +
+                (z - segment.from[2]) * segment.dz) /
+                segment.lengthSquared,
+              0,
+              1,
+            )
+          : 0;
+      const closestX = segment.from[0] + segment.dx * progress;
+      const closestZ = segment.from[2] + segment.dz * progress;
+      const distanceSquared = (x - closestX) ** 2 + (z - closestZ) ** 2;
+      if (distanceSquared > (segment.halfWidthM + 0.35) ** 2) {
+        return [];
+      }
+      return [
+        {
+          distanceSquared,
+          kind: segment.kind,
+          y: segment.from[1] + (segment.to[1] - segment.from[1]) * progress,
+        },
+      ];
+    });
+  const resolveGround: NonNullable<PedestrianEnvironment["resolveGround"]> = (
+    x,
+    z,
+    currentLayer,
+    groundYHint,
+  ) => {
+    const surfaceY = surfaceGroundAt(x, z);
+    const tunnelGrounds = tunnelGroundsAt(x, z);
+    const portalGrounds = tunnelGrounds.filter(
+      (candidate) => candidate.kind === "portal",
+    );
+    const selectable =
+      currentLayer === "tunnel" ? tunnelGrounds : portalGrounds;
+    const nearestTunnel = selectable.reduce<
+      (typeof selectable)[number] | null
+    >((nearest, candidate) => {
+      if (!nearest) return candidate;
+      if (Number.isFinite(groundYHint)) {
+        return Math.abs(candidate.y - groundYHint!) <
+          Math.abs(nearest.y - groundYHint!)
+          ? candidate
+          : nearest;
+      }
+      return candidate.distanceSquared < nearest.distanceSquared
+        ? candidate
+        : nearest;
+    }, null);
+    if (nearestTunnel) {
+      const useTunnel =
+        currentLayer === "tunnel" ||
+        surfaceY === null ||
+        !Number.isFinite(groundYHint) ||
+        Math.abs(nearestTunnel.y - groundYHint!) <=
+          Math.abs(surfaceY - groundYHint!) + 0.35;
+      if (useTunnel) {
+        return {
+          insideTunnel:
+            nearestTunnel.kind === "tube" ||
+            surfaceY === null ||
+            nearestTunnel.y < surfaceY - 0.75,
+          layer: "tunnel",
+          y: nearestTunnel.y,
+        };
+      }
+    }
+    return surfaceY === null
+      ? null
+      : { insideTunnel: false, layer: "surface", y: surfaceY };
+  };
   return {
     bounds,
-    groundAt: (x, z) => {
-      const xOffset = x / cell - minXIndex;
-      const zOffset = z / cell - minZIndex;
-      if (xOffset < 0 || zOffset < 0 || xOffset >= cols || zOffset >= rows) {
-        return null;
-      }
-      return smoothGround(xOffset, zOffset);
-    },
+    groundAt: surfaceGroundAt,
+    resolveGround,
     water: compilePedestrianWater(surfaces),
   };
 }
 
 export function createPedestrianState(
-  environment: Pick<PedestrianEnvironment, "groundAt">,
+  environment: Pick<PedestrianEnvironment, "groundAt" | "resolveGround">,
+  requestedSpawn: PedestrianSpawn = PEDESTRIAN_RESPAWN,
 ): PedestrianState {
+  const surfaceY = environment.groundAt(requestedSpawn.x, requestedSpawn.z);
+  const requestedLayer =
+    Number.isFinite(requestedSpawn.groundYHint) &&
+    surfaceY !== null &&
+    requestedSpawn.groundYHint! < surfaceY - 0.75
+      ? "tunnel"
+      : "surface";
+  const requestedGround = environment.resolveGround?.(
+    requestedSpawn.x,
+    requestedSpawn.z,
+    requestedLayer,
+    requestedSpawn.groundYHint,
+  ) ??
+    (() => {
+      const y = environment.groundAt(requestedSpawn.x, requestedSpawn.z);
+      return y === null
+        ? null
+        : ({ insideTunnel: false, layer: "surface", y } as const);
+    })();
+  const spawn = requestedGround === null ? PEDESTRIAN_RESPAWN : requestedSpawn;
+  const resolvedGround =
+    spawn === requestedSpawn
+      ? requestedGround
+      : (environment.resolveGround?.(spawn.x, spawn.z, "surface") ??
+        (() => {
+          const y = environment.groundAt(spawn.x, spawn.z);
+          return y === null
+            ? null
+            : ({ insideTunnel: false, layer: "surface", y } as const);
+        })());
   return {
     grounded: true,
-    groundY:
-      environment.groundAt(PEDESTRIAN_RESPAWN.x, PEDESTRIAN_RESPAWN.z) ?? 4,
+    groundLayer: resolvedGround?.layer ?? "surface",
+    groundY: resolvedGround?.y ?? 4,
+    insideTunnel: resolvedGround?.insideTunnel ?? false,
     jumpOffset: 0,
-    pitch: 0,
+    pitch: clamp(
+      "pitch" in spawn && typeof spawn.pitch === "number" ? spawn.pitch : 0,
+      -PEDESTRIAN_MAX_PITCH_RAD,
+      PEDESTRIAN_MAX_PITCH_RAD,
+    ),
     verticalVelocity: 0,
-    x: PEDESTRIAN_RESPAWN.x,
-    yaw: PEDESTRIAN_RESPAWN.yaw,
-    z: PEDESTRIAN_RESPAWN.z,
+    x: spawn.x,
+    yaw: wrapRadians(spawn.yaw),
+    z: spawn.z,
   };
 }
 
@@ -325,12 +483,38 @@ export function stepPedestrian(
   const nextCandidateZ =
     state.z +
     (-Math.cos(nextYaw) * forward + Math.sin(nextYaw) * strafe) * distance;
-  const canMove =
-    inBounds(nextCandidateX, nextCandidateZ, environment.bounds) &&
-    environment.groundAt(nextCandidateX, nextCandidateZ) !== null;
+  const requestedGround = inBounds(
+    nextCandidateX,
+    nextCandidateZ,
+    environment.bounds,
+  )
+    ? (environment.resolveGround?.(
+        nextCandidateX,
+        nextCandidateZ,
+        state.groundLayer,
+        state.groundY,
+      ) ??
+      (() => {
+        const y = environment.groundAt(nextCandidateX, nextCandidateZ);
+        return y === null
+          ? null
+          : ({ insideTunnel: false, layer: "surface", y } as const);
+      })())
+    : null;
+  const canMove = requestedGround !== null;
   const x = canMove ? nextCandidateX : state.x;
   const z = canMove ? nextCandidateZ : state.z;
-  const groundY = environment.groundAt(x, z) ?? state.groundY;
+  const currentGround = canMove
+    ? requestedGround
+    : (environment.resolveGround?.(
+        x,
+        z,
+        state.groundLayer,
+        state.groundY,
+      ) ?? null);
+  const groundY = currentGround?.y ?? state.groundY;
+  const groundLayer = currentGround?.layer ?? state.groundLayer;
+  const insideTunnel = currentGround?.insideTunnel ?? state.insideTunnel;
 
   let jumpOffset = state.jumpOffset;
   let verticalVelocity = state.verticalVelocity;
@@ -346,7 +530,11 @@ export function stepPedestrian(
     }
   }
 
-  if (grounded && pedestrianPointIsWater(x, z, environment.water)) {
+  if (
+    grounded &&
+    groundLayer === "surface" &&
+    pedestrianPointIsWater(x, z, environment.water)
+  ) {
     return {
       changed: true,
       respawned: true,
@@ -360,6 +548,8 @@ export function stepPedestrian(
     nextYaw !== state.yaw ||
     nextPitch !== state.pitch ||
     groundY !== state.groundY ||
+    groundLayer !== state.groundLayer ||
+    insideTunnel !== state.insideTunnel ||
     jumpOffset !== state.jumpOffset ||
     verticalVelocity !== state.verticalVelocity ||
     grounded !== state.grounded;
@@ -371,7 +561,9 @@ export function stepPedestrian(
     respawned: false,
     state: {
       grounded,
+      groundLayer,
       groundY,
+      insideTunnel,
       jumpOffset,
       pitch: nextPitch,
       verticalVelocity,

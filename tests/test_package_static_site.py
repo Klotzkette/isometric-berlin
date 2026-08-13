@@ -363,6 +363,8 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
   assert manifest["preferred_image"] == "dzi/regierungsviertel/overview_source.png"
   assert manifest["uses_google_content"] is False
   assert "OpenStreetMap contributors" in manifest["required_attribution"]
+  assert "manual-tiergartentunnel-entry-both-directions" in manifest["controls"]
+  assert "guided-tiergartentunnel-flight-both-directions" not in manifest["controls"]
   assert manifest["assets"]["detail_image"]["bytes"] == len(b"source")
   assert len(manifest["assets"]["detail_image"]["sha256"]) == 64
   assert manifest["assets"]["ground_context"]["bytes"] > 0

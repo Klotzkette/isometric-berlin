@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.32 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.32/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.33 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.33/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.32** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.33** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.32**, built from `main`. Its full viewer
+The current public package is **v0.71.33**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -322,13 +322,14 @@ local modules.
 
 - **A ground-bound pedestrian mode adds a human-scale view.** The independent
   `Walk` / `Spaziergang` control works in Day, Night, Minecraft and Snowstorm,
-  starts at Pariser Platz at a 1.80 m eye height, and follows the existing
-  smooth metric terrain without changing its source geometry. `W`/`S` or the
-  up/down arrows walk, `A`/`D` strafe, left/right arrows or `Q`/`E` turn, mouse
-  or touch drag looks around, and `Space` jumps to a bounded 5.4 m apex. Flight,
-  zoom and underside controls stay locked in this mode; entering mapped water
-  returns the walker to Pariser Platz. A dedicated 52 px jump control keeps the
-  complete workflow usable on phones and tablets.
+  starts on the terrain directly below the current camera at a 1.80 m eye
+  height, and follows the existing smooth metric terrain without changing its
+  source geometry. `W`/`S` or the up/down arrows walk, `A`/`D` strafe,
+  left/right arrows or `Q`/`E` turn, mouse or touch drag looks around, and
+  `Space` jumps to a bounded 5.4 m apex. Flight, zoom and underside controls
+  stay locked in this mode; entering mapped water returns the walker to Pariser
+  Platz. A dedicated 52 px jump control keeps the complete workflow usable on
+  phones and tablets.
 
 - **Small memorials now keep their mapped identity.** The OSM extraction
   preserves `memorial` subtypes instead of turning every quiet memorial into
@@ -552,10 +553,9 @@ local modules.
 - Procedural audio now supersedes a browser-blocked load attempt from the real
   click, and stale completions cannot stop a newer audible start. Hidden,
   frozen and back-forward-cache pages pause and resume cleanly, while real
-  navigation still closes every scheduled voice. The guided
-  Tiergartentunnel flight follows the correct directional bore in both
-  directions, begins and ends above the terrain shell, and uses continuous
-  portal ramps without a camera-speed snap.
+  navigation still closes every scheduled voice. The connected
+  Tiergartentunnel portals and directional bores remain available for direct,
+  user-controlled travel without an automatic camera sequence.
 
 - A cold start now keeps the official photogrammetric mesh behind a fully
   opaque, mode-coloured loading curtain. Day, Night, Snow and Minecraft reveal
@@ -803,10 +803,10 @@ local modules.
   analogue rotation and tilt. Camera and target move together, so flight never
   changes the orbit distance accidentally.
 - Fullscreen works through the native browser API on desktop and a safe-area-
-  aware pseudo-fullscreen fallback on iOS. Guided northbound and southbound
-  tunnel flights follow the approximate route inside the correct traffic tube,
-  expose road markings, ceiling lights and paired ventilation fans, and return
-  to the ordinary exterior presentation when cancelled.
+  aware pseudo-fullscreen fallback on iOS. Both connected Tiergartentunnel
+  portals can be entered manually; the approximate traffic tubes expose road
+  markings, ceiling lights and paired ventilation fans without taking camera
+  control away from the visitor.
 - A persistent DE/EN switch translates the application chrome and correctly
   calls the German list `Sehenswürdigkeiten`. Optional music (`B`) synthesizes
   seven original slow 8-bit ambient variations locally with Web Audio; no
@@ -835,9 +835,9 @@ local modules.
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an
   orbit crosses below ground; the underside control now frames the mapped
-  passenger-rail network and Tiergartentunnel together. The dedicated bracket
-  controls retain the direct road-tunnel flights. The underside no longer
-  activates underwater fog, and its lamps,
+  passenger-rail network and Tiergartentunnel together. Visitors can instead
+  enter either connected road portal under their own control. The underside no
+  longer activates underwater fog, and its lamps,
   markings and ventilation cues preserve their drawing order instead of
   disappearing behind the road deck. Only the two open portal troughs are
   exterior geometry: the buried middle route and obsolete duplicate portal

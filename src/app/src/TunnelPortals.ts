@@ -60,6 +60,7 @@ export type TunnelPortalPayload = {
 
 export type TunnelPortalCourse = {
   clear_height_m?: number;
+  clear_width_each_direction_m?: number;
   portal_approaches?: Partial<
     Record<
       TunnelPortalId,
@@ -83,14 +84,8 @@ export type TunnelPortalCourse = {
 export type TunnelPortalCourseInput =
   TunnelPortalCourse | readonly (readonly [number, number, number])[];
 
-/** Kept for the schematic guided flight, not used to author surface portals. */
-export const RAMP_LENGTH_M = 260;
-
 /** Small overlap with the mapped surface road, avoiding a quantised seam. */
 export const PORTAL_APPROACH_M = 8;
-
-/** Legacy datum used by the schematic flight when measured approaches are absent. */
-export const TUNNEL_SURFACE_Y = 2.4;
 
 const PORTAL_ROOF_DEPTH_M = 0.8;
 const WALL_THICKNESS_M = 0.5;
@@ -106,11 +101,6 @@ const CONCRETE = 0xb9b8b0;
 const ASPHALT = 0x343a3f;
 const RAILING = 0x3f4948;
 const MARKING = 0xf1eee2;
-
-/** Legacy threshold for the schematic flight profile. */
-export function tunnelPortalDeckY(clearHeightM: number): number {
-  return TUNNEL_SURFACE_Y - clearHeightM - PORTAL_ROOF_DEPTH_M;
-}
 
 function surfaceMaterial(
   color: number,
@@ -317,8 +307,14 @@ type PortalRamp = {
   id: TunnelPortalId;
   laneCount: number;
   structure: "open_cut" | "rail_deck";
-  tunnelY: number;
+  tunnelJoin: Vector3;
   widths: number[];
+};
+
+export type TunnelWalkCourse = {
+  halfWidthM: number;
+  kind: "portal" | "tube";
+  points: readonly (readonly [number, number, number])[];
 };
 
 type PortalMaterials = {
@@ -379,6 +375,15 @@ function portalRamps(payloadInput: TunnelPortalCourseInput): PortalRamp[] {
   if (tunnelPoints.length < 2 || !payload.portal_approaches) {
     return [];
   }
+  const clearHeight = payload.clear_height_m ?? 5;
+  const tubeOffset =
+    (payload.clear_width_each_direction_m ?? 10.5) / 2 + 0.85;
+  const tunnelOffsets = miterOffsets(tunnelPoints);
+  const tubeCourses = [-1, 1].map((side) =>
+    tunnelPoints.map((point, index) =>
+      point.clone().addScaledVector(tunnelOffsets[index], side * tubeOffset),
+    ),
+  );
   const ramps: PortalRamp[] = [];
   for (const [id, approach] of Object.entries(payload.portal_approaches) as [
     TunnelPortalId,
@@ -406,13 +411,27 @@ function portalRamps(payloadInput: TunnelPortalCourseInput): PortalRamp[] {
         continue;
       }
       const head = centreline.at(-1)!;
+      const outward = centreline.at(-2)!.clone().sub(head).setY(0).normalize();
+      const projectedInside = head
+        .clone()
+        .addScaledVector(outward, -BORE_LENGTH_M);
+      const joinCandidates = tubeCourses.map((course) =>
+        closestPointOnCourse(course, projectedInside),
+      );
+      const tunnelJoin = joinCandidates.reduce((closest, candidate) =>
+        candidate.distanceToSquared(projectedInside) <
+        closest.distanceToSquared(projectedInside)
+          ? candidate
+          : closest,
+      );
+      tunnelJoin.y -= clearHeight / 2 - 0.4;
       ramps.push({
         carriagewayId: carriageway.id,
         centreline,
         id,
         laneCount: Math.max(1, Math.round(carriageway.lane_count)),
         structure: approach.structure,
-        tunnelY: closestPointOnCourse(tunnelPoints, head).y,
+        tunnelJoin,
         widths: carriageway.widths_m.map((width) =>
           MathUtils.clamp(width, 3, 15),
         ),
@@ -420,6 +439,121 @@ function portalRamps(payloadInput: TunnelPortalCourseInput): PortalRamp[] {
     }
   }
   return ramps;
+}
+
+function portalBoreCourse(
+  ramp: PortalRamp,
+  portalAxis: PortalAxis,
+): Vector3[] {
+  const head = ramp.centreline.at(-1)!;
+  const mouth = head.clone().addScaledVector(portalAxis.inward, 0.7);
+  const join = ramp.tunnelJoin.clone();
+  const horizontalRun = Math.hypot(join.x - mouth.x, join.z - mouth.z);
+  const control = mouth
+    .clone()
+    .addScaledVector(portalAxis.inward, Math.min(22, horizontalRun * 0.48));
+  control.y = MathUtils.lerp(mouth.y, join.y, 0.48);
+  return [mouth, control, join];
+}
+
+/** Shared geometry contract for the visible ramps and manual walking layer. */
+export function tunnelWalkCourses(
+  payloadInput: TunnelPortalCourseInput,
+): TunnelWalkCourse[] {
+  const payload = normalizePortalCourse(payloadInput);
+  const height = payload.clear_height_m ?? 5;
+  const width = payload.clear_width_each_direction_m ?? 10.5;
+  const tunnelPoints = payload.points.map(
+    (point) => new Vector3(point[0], point[1], point[2]),
+  );
+  if (tunnelPoints.length < 2) {
+    return [];
+  }
+  const offsets = miterOffsets(tunnelPoints);
+  const tubeOffset = width / 2 + 0.85;
+  const courses: TunnelWalkCourse[] = [-1, 1].map((side) => ({
+    halfWidthM: (width - 0.7) / 2,
+    kind: "tube",
+    points: tunnelPoints.map((point, index) => {
+      const floor = point
+        .clone()
+        .addScaledVector(offsets[index], side * tubeOffset);
+      floor.y -= height / 2 - 0.4;
+      return [floor.x, floor.y, floor.z] as const;
+    }),
+  }));
+  const ramps = portalRamps(payload);
+  for (const id of new Set(ramps.map((ramp) => ramp.id))) {
+    const siteRamps = ramps.filter((ramp) => ramp.id === id);
+    const axis = sharedPortalAxis(siteRamps);
+    for (const ramp of siteRamps) {
+      const entrance = ramp.centreline[0];
+      const inwardAtEntrance = ramp.centreline[1].clone().sub(entrance);
+      inwardAtEntrance.y = 0;
+      inwardAtEntrance.normalize();
+      const approach = entrance
+        .clone()
+        .addScaledVector(inwardAtEntrance, -PORTAL_APPROACH_M);
+      approach.y = entrance.y;
+      const bore = portalBoreCourse(ramp, axis);
+      const points = [approach, ...ramp.centreline, ...bore.slice(1)];
+      courses.push({
+        halfWidthM: Math.max(...ramp.widths) / 2,
+        kind: "portal",
+        points: points.map((point) => [point.x, point.y, point.z] as const),
+      });
+    }
+  }
+  return courses;
+}
+
+/** Tests a camera against the actual tubes and ramps, not their city-wide AABB. */
+export function createTunnelInteriorTester(
+  payloadInput: TunnelPortalCourseInput,
+): (x: number, y: number, z: number) => boolean {
+  const clearHeight = normalizePortalCourse(payloadInput).clear_height_m ?? 5;
+  const segments = tunnelWalkCourses(payloadInput).flatMap((course) =>
+    course.points.slice(0, -1).map((from, index) => {
+      const to = course.points[index + 1];
+      const dx = to[0] - from[0];
+      const dz = to[2] - from[2];
+      return {
+        dx,
+        dz,
+        from,
+        halfWidthM: course.halfWidthM + 0.55,
+        lengthSquared: dx * dx + dz * dz,
+        to,
+      };
+    }),
+  );
+  return (x: number, y: number, z: number): boolean => {
+    for (const segment of segments) {
+      const progress =
+        segment.lengthSquared > 1e-8
+          ? MathUtils.clamp(
+              ((x - segment.from[0]) * segment.dx +
+                (z - segment.from[2]) * segment.dz) /
+                segment.lengthSquared,
+              0,
+              1,
+            )
+          : 0;
+      const floorY = MathUtils.lerp(segment.from[1], segment.to[1], progress);
+      if (y < floorY - 0.8 || y > floorY + clearHeight + 1.1) {
+        continue;
+      }
+      const closestX = MathUtils.lerp(segment.from[0], segment.to[0], progress);
+      const closestZ = MathUtils.lerp(segment.from[2], segment.to[2], progress);
+      if (
+        (x - closestX) ** 2 + (z - closestZ) ** 2 <=
+        segment.halfWidthM ** 2
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
 }
 
 export function createTunnelPortalApproachTester(
@@ -519,16 +653,17 @@ export function pointInsideTunnelPortalApproach(
  * mouth is always present: the coarse terrain cut ends at the measured portal
  * threshold. Exterior mouth close-ups retain that depth-tested shadow instead
  * of painting the buried bore through its roof and surrounding buildings. The
- * continuous interior belongs to the explicit underground/tunnel flight.
+ * continuous interior is revealed only while the pedestrian is physically
+ * inside the tunnel; ordinary exterior and landmark views remain occluded.
  */
 export function setTunnelPortalPresentation(
   group: Group,
   underside: boolean,
   _voxelMode: boolean,
-  _revealInterior = false,
+  revealInterior = false,
 ): void {
   group.visible = !underside;
-  const interiorVisible = false;
+  const interiorVisible = revealInterior && !underside;
   group.traverse((object) => {
     if (object.userData[PORTAL_INTERIOR_FLAG] === true) {
       object.visible = interiorVisible;
@@ -769,15 +904,11 @@ function addCarriageway(
     group.add(marks);
   }
 
-  const inward = portalAxis.inward;
-  const normal = portalAxis.normal;
   const width = widths.at(-1)!;
-  const yaw = portalAxis.yaw;
 
   const boreWall = interiorMaterial(0x5d625f, { roughness: 0.92 });
   const boreDeck = interiorMaterial(0x30363a, { roughness: 0.95 });
   const boreCeiling = interiorMaterial(0x464a48, { roughness: 0.92 });
-  const boreEnd = interiorMaterial(0x111416, { roughness: 1 });
   const guideMaterial = new MeshBasicMaterial({
     color: 0xd9cfad,
     depthTest: true,
@@ -796,16 +927,13 @@ function addCarriageway(
   boreCeiling.side = DoubleSide;
   guideMaterial.side = DoubleSide;
 
-  const mouth = head.clone().addScaledVector(inward, 0.7);
-  const deep = mouth.clone().addScaledVector(inward, BORE_LENGTH_M);
-  deep.y = ramp.tunnelY;
-  const boreCourse = [mouth, deep];
-  const boreOffsets = [normal, normal];
+  const boreCourse = portalBoreCourse(ramp, portalAxis);
+  const boreOffsets = miterOffsets(boreCourse);
   addMesh(
     group,
     `${label} bore deck`,
     roadRibbonGeometry(
-      boreCourse.map((point) => point.clone().add(new Vector3(0, -0.15, 0))),
+      boreCourse,
       boreOffsets,
       0,
       width / 2,
@@ -857,30 +985,22 @@ function addCarriageway(
       77,
     );
   }
-  const endCap = new Mesh(
-    new BoxGeometry(width + 1, clearHeight + 0.6, 0.4),
-    boreEnd,
-  );
-  endCap.position.copy(deep).addScaledVector(inward, -0.4);
-  endCap.position.y = ramp.tunnelY + clearHeight / 2;
-  endCap.rotation.y = yaw;
-  endCap.name = `${label} bore depth cap`;
-  endCap.renderOrder = 70;
-  group.add(endCap);
   const lampSpacingM = 7.5;
-  const lampCount = Math.floor((BORE_LENGTH_M - 4) / lampSpacingM);
-  for (let index = 0; index < lampCount; index += 1) {
-    const alongM = 4 + index * lampSpacingM;
-    const lamp = new Mesh(new BoxGeometry(1.45, 0.14, 0.45), lampMaterial);
-    lamp.position.copy(mouth).addScaledVector(inward, alongM);
-    lamp.position.y =
-      MathUtils.lerp(head.y, ramp.tunnelY, alongM / BORE_LENGTH_M) +
-      clearHeight -
-      0.12;
-    lamp.rotation.y = yaw;
-    lamp.name = `${label} bore ceiling lamp`;
-    lamp.renderOrder = 78;
-    group.add(lamp);
+  for (let segment = 0; segment < boreCourse.length - 1; segment += 1) {
+    const from = boreCourse[segment];
+    const to = boreCourse[segment + 1];
+    const length = Math.hypot(to.x - from.x, to.z - from.z);
+    const lampCount = Math.max(1, Math.floor(length / lampSpacingM));
+    for (let index = 0; index < lampCount; index += 1) {
+      const progress = (index + 1) / (lampCount + 1);
+      const lamp = new Mesh(new BoxGeometry(1.45, 0.14, 0.45), lampMaterial);
+      lamp.position.copy(from).lerp(to, progress);
+      lamp.position.y += clearHeight - 0.12;
+      lamp.rotation.y = Math.atan2(to.x - from.x, to.z - from.z);
+      lamp.name = `${label} bore ceiling lamp`;
+      lamp.renderOrder = 78;
+      group.add(lamp);
+    }
   }
 
   for (const object of group.children) {
@@ -1160,14 +1280,22 @@ export function tunnelMouthViews(payload: TunnelPortalPayload): {
   const build = (ramp: PortalRamp): TunnelMouthView => {
     const centreline = ramp.centreline;
     const head = centreline.at(-1)!;
-    const inward = sharedPortalAxis(
+    const axis = sharedPortalAxis(
       ramps.filter((candidate) => candidate.id === ramp.id),
-    ).inward;
+    );
+    const inward = axis.inward;
     const targetInM = 10;
     const target = head.clone().addScaledVector(inward, targetInM);
-    target.y =
-      MathUtils.lerp(head.y, ramp.tunnelY, targetInM / BORE_LENGTH_M) +
-      payload.clear_height_m / 2;
+    const boreControl = portalBoreCourse(ramp, axis)[1];
+    const controlRun = Math.max(
+      1,
+      Math.hypot(boreControl.x - head.x, boreControl.z - head.z),
+    );
+    target.y = MathUtils.lerp(
+      head.y,
+      boreControl.y,
+      Math.min(1, targetInM / controlRun),
+    );
 
     const availableLength = centreline
       .slice(1)

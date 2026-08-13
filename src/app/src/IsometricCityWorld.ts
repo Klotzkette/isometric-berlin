@@ -163,6 +163,9 @@ export type SunkenWall = {
   width_m: number;
 };
 
+/** [world x dm, world z dm, crown radius dm, crown height dm, colour family]. */
+export type ScrubPoint = [number, number, number, number, number];
+
 export type SurfacePayload = {
   lane_markings?: LaneMarking[];
   path_inventory?: {
@@ -177,6 +180,14 @@ export type SurfacePayload = {
   parks: SurfacePolygon[];
   roads?: SurfacePolygon[];
   schema_version: number;
+  scrub_inventory?: {
+    feature_count: number;
+    mapped_area_m2: number;
+    point_count: number;
+    sampling_spacing_m: number;
+    scope: string;
+  };
+  scrub_points?: ScrubPoint[];
   sunken_walls?: SunkenWall[];
   water: SurfacePolygon[];
 };
@@ -340,7 +351,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 // Reichstag reads as pale grey sandstone (not warm yellow or muddy),
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
-  K0002MCN: 0xcac6bd,
+  K0002MCN: 0xe0e3df,
   MLwG4KW9: 0xeeeeea,
   // One red ceramic tower, not neutral LoD2 parts plus floating brown slabs.
   ...Object.fromEntries(
@@ -879,6 +890,12 @@ export const ISO_GLASS_MULLION_OPACITY = 0.44;
 export const ISO_FACADE_AXIS_OPACITY = 0.26;
 
 function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
+  // Keep every official part inside the Reichstag footprint in the same
+  // bright, cool limestone register. Checking the region before individual
+  // pins prevents the large main prism from reverting to the older beige.
+  if (inReichstagRegion(building)) {
+    return new Color(0xdfe2df).lerp(IVORY, 0.1);
+  }
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
     if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
@@ -889,9 +906,6 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
     // The pins stay neutral light stone (the owner's earlier direction for the
     // Chancellery); the ivory blend is what stops them reading as grey paint.
     return new Color(pinned).lerp(IVORY, 0.34);
-  }
-  if (inReichstagRegion(building)) {
-    return new Color(0xdedacf).lerp(IVORY, 0.36);
   }
   if (isScharounGoldPrism(building)) {
     return new Color(0xf0cf7d).lerp(IVORY, 0.08);
@@ -1149,6 +1163,9 @@ export function setIsoNightPresentation(
     "smooth quay walls",
     "smooth river bed",
     "smooth parkland lawns",
+    "source-backed OSM scrub 1",
+    "source-backed OSM scrub 2",
+    "source-backed OSM scrub 3",
     "smooth paved paths",
     "smooth park paths",
     "smooth carriageways",
@@ -7182,6 +7199,47 @@ export function createSmoothSurfaces(
       edges.renderOrder = 3;
       group.add(edges);
     }
+  }
+
+  // Low mapped thickets are separate evidence from individual trees. Three
+  // instanced families add the real OSM shrub masses with three draw calls,
+  // without random scatter or per-bush browser objects.
+  const scrubPoints = surfaces.scrub_points ?? [];
+  const scrubDay = [0x4f7f4b, 0x648d50, 0x3d7045] as const;
+  const scrubNight = [0x16261a, 0x1a2b1c, 0x132219] as const;
+  for (let variant = 0; variant < scrubDay.length; variant += 1) {
+    const entries = scrubPoints.filter((entry) => entry[4] === variant);
+    if (entries.length === 0) {
+      continue;
+    }
+    const geometry = new IcosahedronGeometry(1, 1);
+    const dayMaterial = new MeshBasicMaterial({ color: scrubDay[variant] });
+    const nightMaterial = new MeshBasicMaterial({
+      color: scrubNight[variant],
+    });
+    const mesh = new InstancedMesh(geometry, dayMaterial, entries.length);
+    const matrix = new Matrix4();
+    entries.forEach(([xDm, zDm, radiusDm, heightDm], index) => {
+      const x = xDm / 10;
+      const z = zDm / 10;
+      const radius = radiusDm / 10;
+      const height = heightDm / 10;
+      matrix.makeScale(radius, height / 2, radius * 0.86);
+      matrix.setPosition(
+        x,
+        (terrainAt ? terrainAt(x, z) : bankY) + height / 2 + 0.08,
+        z,
+      );
+      mesh.setMatrixAt(index, matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.frustumCulled = false;
+    mesh.name = `source-backed OSM scrub ${variant + 1}`;
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.userData.sourceGeometry = "OSM natural=scrub polygon samples";
+    mesh.userData.staticAntiFlicker = true;
+    group.add(mesh);
   }
 
   // Carriageways and park paths, drawn from the buffered OSM centrelines.

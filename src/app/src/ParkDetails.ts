@@ -805,9 +805,9 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
 }
 
 export const WALL_TRACE_PROFILE = {
-  /** Large granite setts, drawn flush-proud of the road plate. */
-  centreLiftM: 0.205,
-  heightM: 0.055,
+  /** Double row of granite setts, only 1 mm proud of the drawn road plate. */
+  centreLiftM: 0.144,
+  heightM: 0.006,
   lengthM: 0.26,
   rowOffsetM: 0.13,
   spacingM: 0.3,
@@ -836,10 +836,9 @@ function addWallTraces(group: Group, traces: WallTrace[]): number {
       for (let step = 0; step < stepCount; step += 1) {
         const fraction = (step + 0.5) / stepCount;
         const centreX = start[0] + dx * fraction;
-        // The official trace payload follows the ground itself, while drawn
-        // roads and plazas sit 0.10-0.14 m above it. The old +0.075 m centre
-        // put the complete 0.07 m stone below that plate, so the historic
-        // double row existed in the scene but disappeared in the pavement.
+        // The official trace follows the terrain while drawn roads and plazas
+        // sit up to 0.14 m above it. Keep the setts one millimetre proud: the
+        // line remains readable without becoming a wall across the Gate.
         const centreY =
           start[1] +
           (end[1] - start[1]) * fraction +

@@ -1,6 +1,5 @@
 import {
   TOUCH,
-  Box3,
   BoxGeometry,
   BufferGeometry,
   Color,
@@ -64,6 +63,7 @@ import {
   createCentralCivicDetails,
 } from "./CentralCivicDetails";
 import {
+  createTunnelInteriorTester,
   createTunnelPortals,
   setTunnelPortalPresentation,
   tunnelMouthViews,
@@ -100,11 +100,16 @@ import {
 } from "./ParkDetails";
 import { runBoundedTasks } from "./boundedTaskPool";
 import {
+  CAMERA_TARGET_CROSSING_MIN_M,
+  PINCH_TARGET_CROSSING_ZONE_M,
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
+  type SignedPinchDolly,
+  advanceSignedPinchDolly,
   type CameraPose,
   captureCameraPose,
   classifyTwoFingerGesture,
   continuousFlightSpeeds,
+  createSignedPinchDolly,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   stabilizeCameraRig,
@@ -126,6 +131,7 @@ import {
   stepPedestrian,
   type PedestrianEnvironment,
   type PedestrianInput,
+  type PedestrianSpawn,
   type PedestrianState,
 } from "./pedestrianNavigation";
 import {
@@ -235,12 +241,6 @@ import {
 } from "./viewerGestures";
 import type { VisualMode } from "./visualMode";
 import {
-  type TunnelFlightDirection,
-  type TunnelFlightPlan,
-  createTunnelFlightPlan,
-  tunnelFlightPose,
-} from "./tunnelFlight";
-import {
   createMinecraftMaterialState,
   disposeMinecraftMaterialState,
   releaseMinecraftMaterialBindings,
@@ -338,7 +338,6 @@ export type ThreeViewerHandle = {
   setPanInput: (horizontal: number, vertical: number) => void;
   setPedestrianMode: (enabled: boolean) => boolean;
   setUnderside: (enabled: boolean) => void;
-  startTunnelFlight: (direction: TunnelFlightDirection) => boolean;
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
   jumpPedestrian: () => boolean;
@@ -401,13 +400,12 @@ type Runtime = {
   settledSurfaceReady: boolean;
   sun: DirectionalLight;
   tunnel: Group;
-  tunnelBounds: Box3 | null;
+  cameraInsideTunnel: boolean;
+  tunnelInteriorAt: ((x: number, y: number, z: number) => boolean) | null;
   tunnelPortals: Group;
   tunnelPoints: TunnelPayload["points"] | null;
   tunnelPortalCourse: TunnelPortalCourse | null;
   tunnelPortalInteriorVisible: boolean;
-  tunnelTubeOffsetM: number;
-  tunnelFlight: { plan: TunnelFlightPlan; startedAt: number } | null;
   groundPayloadPromise?: Promise<VoxelPayload>;
   prismPayloadPromise?: Promise<PrismPayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
@@ -567,11 +565,33 @@ function activatePedestrianMode(runtime: Runtime): boolean {
     runtime.pedestrian.savedUnderside = runtime.underside;
   }
   runtime.cancelPanGlide?.();
-  runtime.tunnelFlight = null;
   runtime.tunnelPortalInteriorVisible = false;
   runtime.marker.visible = false;
   runtime.pedestrian.enabled = true;
-  runtime.pedestrian.state = createPedestrianState(environment);
+  const viewDirection = new Vector3();
+  runtime.camera.getWorldDirection(viewDirection);
+  const currentGroundPoint = [
+    runtime.camera.position,
+    runtime.controls.target,
+  ].find((point) => {
+    return (
+      point.x >= environment.bounds.minX &&
+      point.x <= environment.bounds.maxX &&
+      point.z >= environment.bounds.minZ &&
+      point.z <= environment.bounds.maxZ &&
+      environment.groundAt(point.x, point.z) !== null
+    );
+  });
+  const spawn: PedestrianSpawn | undefined = currentGroundPoint
+    ? {
+        groundYHint: runtime.camera.position.y - PEDESTRIAN_EYE_HEIGHT_M,
+        pitch: Math.asin(MathUtils.clamp(viewDirection.y, -1, 1)),
+        x: currentGroundPoint.x,
+        yaw: Math.atan2(viewDirection.x, -viewDirection.z),
+        z: currentGroundPoint.z,
+      }
+    : undefined;
+  runtime.pedestrian.state = createPedestrianState(environment, spawn);
   runtime.pedestrian.cameraDirty = true;
   runtime.controls.enabled = false;
   runtime.camera.fov = PEDESTRIAN_FOV_DEGREES;
@@ -581,6 +601,21 @@ function activatePedestrianMode(runtime: Runtime): boolean {
   setEnvironmentalPresentation(runtime);
   applyPedestrianCamera(runtime);
   return true;
+}
+
+function syncPedestrianTunnelPresentation(
+  runtime: Runtime,
+  insideTunnel: boolean,
+): void {
+  setTunnelPresentation(runtime.tunnel, false, insideTunnel);
+  setTunnelPortalPresentation(
+    runtime.tunnelPortals,
+    false,
+    voxelModeActive(runtime),
+    insideTunnel,
+  );
+  setEnvironmentalPresentation(runtime);
+  runtime.renderInvalidated = true;
 }
 
 function deactivatePedestrianMode(runtime: Runtime): boolean {
@@ -619,6 +654,7 @@ function nudgePedestrian(
   if (!runtime.pedestrian.enabled || !environment || !state) {
     return false;
   }
+  const wasInsideTunnel = state.insideTunnel;
   let changed = false;
   for (let index = 0; index < 7; index += 1) {
     const result = stepPedestrian(
@@ -635,6 +671,9 @@ function nudgePedestrian(
   }
   runtime.pedestrian.state = state;
   runtime.pedestrian.cameraDirty ||= changed;
+  if (state.insideTunnel !== wasInsideTunnel) {
+    syncPedestrianTunnelPresentation(runtime, state.insideTunnel);
+  }
   if (changed) {
     applyPedestrianCamera(runtime);
   }
@@ -647,7 +686,10 @@ function isTunnelPortalFocus(name: string): boolean {
 
 function setEnvironmentalPresentation(runtime: Runtime): void {
   const obstructed =
-    runtime.underside || runtime.underwater || runtime.tunnelFlight !== null;
+    runtime.underside ||
+    runtime.underwater ||
+    runtime.pedestrian.state?.insideTunnel === true ||
+    runtime.cameraInsideTunnel;
   const rainChanged = setRainPresentation(runtime.rain, {
     enabled: runtime.precipitationEnabled,
     mode: runtime.lightingMode,
@@ -784,13 +826,6 @@ function markSurfaceInteraction(
   durationMs = 650,
   preserveTunnelFocus = false,
 ): void {
-  // Any direct navigation immediately returns control to the visitor instead
-  // of fighting the guided portal-to-portal tunnel camera.
-  if (runtime.tunnelFlight) {
-    runtime.tunnelFlight = null;
-    setTunnelPresentation(runtime.tunnel, runtime.underside);
-    setEnvironmentalPresentation(runtime);
-  }
   if (runtime.tunnelPortalInteriorVisible && !preserveTunnelFocus) {
     runtime.tunnelPortalInteriorVisible = false;
     setTunnelPortalPresentation(
@@ -1463,7 +1498,8 @@ function setSceneLighting(
     runtime.tunnelPortals,
     runtime.underside,
     voxelMode,
-    runtime.tunnelPortalInteriorVisible,
+    runtime.pedestrian.state?.insideTunnel === true ||
+      runtime.cameraInsideTunnel,
   );
   // Recognition models (dome, gate, memorials, park trees…) are drawn
   // geometry — they stay ON in the drawn isometric city and complement
@@ -1513,8 +1549,7 @@ function setSceneLighting(
       .multiplyScalar(scale);
     runtime.controls.maxDistance =
       2600 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
-    runtime.controls.minDistance =
-      30 * fovDollyScale(PHOTO_FOV_DEGREES, targetFov);
+    runtime.controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
     runtime.camera.position.copy(runtime.controls.target).add(offset);
     runtime.camera.far = 16_000;
     runtime.camera.fov = targetFov;
@@ -1637,6 +1672,7 @@ function ensureIsoWorld(
         runtime.pedestrian.environment = createPedestrianEnvironment(
           ground,
           surfaces,
+          runtime.tunnelPortalCourse,
         );
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
@@ -2283,7 +2319,8 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   setTunnelPresentation(
     runtime.tunnel,
     underside,
-    runtime.tunnelFlight !== null,
+    runtime.pedestrian.state?.insideTunnel === true ||
+      runtime.cameraInsideTunnel,
   );
   const voxelMode = voxelModeActive(runtime);
   const isoMode = isoModeActive(runtime);
@@ -2314,7 +2351,8 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     runtime.tunnelPortals,
     underside,
     voxelMode,
-    runtime.tunnelPortalInteriorVisible,
+    runtime.pedestrian.state?.insideTunnel === true ||
+      runtime.cameraInsideTunnel,
   );
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = !underside;
@@ -2782,7 +2820,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.tunnelPortals,
         runtime.underside,
         voxelModeActive(runtime),
-        runtime.tunnelPortalInteriorVisible,
+        runtime.tunnelPortalInteriorVisible ||
+          runtime.pedestrian.state?.insideTunnel === true ||
+          runtime.cameraInsideTunnel,
       );
       const markerHeight = markerHeightForLandmark(name);
       runtime.marker.position.copy(target).setY(markerHeight);
@@ -3112,8 +3152,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             // The old button first focused the south road-tunnel portal, so
             // the underside opened inside one bore and the wider U-/S-Bahn
             // cutaway was effectively undiscoverable. Frame the central
-            // underground network from below; the dedicated bracket/buttons
-            // still own the close Tiergartentunnel flights.
+            // underground network from below; tunnel travel itself is manual.
             const theta = runtime.controls.getAzimuthalAngle();
             // Brandenburg Gate is where the U5 and the North-South S-Bahn
             // cross; centring just west of it puts both source routes, their
@@ -3132,41 +3171,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.controls.update();
           }
           notifyView(runtime, onViewChangeRef.current);
-        },
-        startTunnelFlight: (direction) => {
-          const runtime = runtimeRef.current;
-          if (!runtime?.tunnelPoints || runtime.tunnelPoints.length < 2) {
-            return false;
-          }
-          if (runtime.pedestrian.enabled) {
-            deactivatePedestrianMode(runtime);
-            pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
-          }
-          runtime.cancelPanGlide?.();
-          flightInputRef.current.set(0, 0, 0);
-          panInputRef.current.set(0, 0);
-          orbitInputRef.current.set(0, 0);
-          const plan = createTunnelFlightPlan(
-            runtime.tunnelPoints,
-            direction,
-            runtime.tunnelTubeOffsetM,
-          );
-          runtime.tunnelFlight = { plan, startedAt: performance.now() };
-          runtime.tunnelPortalInteriorVisible = false;
-          setTunnelPortalPresentation(
-            runtime.tunnelPortals,
-            runtime.underside,
-            voxelModeActive(runtime),
-            false,
-          );
-          setTunnelPresentation(runtime.tunnel, false, true);
-          setEnvironmentalPresentation(runtime);
-          const pose = tunnelFlightPose(plan, 0);
-          runtime.camera.position.copy(pose.position);
-          runtime.controls.target.copy(pose.target);
-          runtime.controls.update();
-          runtime.renderInvalidated = true;
-          return true;
         },
         tiltBy: (degrees) => {
           const runtime = runtimeRef.current;
@@ -3371,7 +3375,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       controls.rotateSpeed = 1.08;
       controls.zoomSpeed = 1.12;
       controls.panSpeed = 1.16;
-      controls.minDistance = 30;
+      controls.minDistance = CAMERA_TARGET_CROSSING_MIN_M;
       controls.maxDistance = 2600;
       controls.minPolarAngle = 0.06;
       controls.maxPolarAngle = Math.PI - 0.06;
@@ -3491,13 +3495,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         settledSurfaceReady: false,
         sun,
         tunnel: new Group(),
+        cameraInsideTunnel: false,
         tunnelPortals: new Group(),
-        tunnelBounds: null,
-        tunnelFlight: null,
+        tunnelInteriorAt: null,
         tunnelPoints: null,
         tunnelPortalCourse: null,
         tunnelPortalInteriorVisible: false,
-        tunnelTubeOffsetM: 6.1,
         tramCatenary,
         isoWorld: null,
         isoWorldState: "idle",
@@ -3538,6 +3541,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         center: { x: number; y: number };
         distance: number;
       } | null = null;
+      let signedPinchDolly: SignedPinchDolly | null = null;
       // Pan momentum: finger velocity at release keeps the map gliding
       // with an exponential ease-out (decayPanMomentum).
       const panVelocity = { x: 0, y: 0 };
@@ -3748,6 +3752,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           previousTwoFingerGesture = twoFingerGesture();
           twoFingerStart = previousTwoFingerGesture;
           twoFingerMode = "undecided";
+          signedPinchDolly = null;
           panVelocity.x = 0;
           panVelocity.y = 0;
           panVelocitySampleAt = performance.now();
@@ -3763,6 +3768,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           previousTwoFingerGesture = null;
           twoFingerStart = null;
           twoFingerMode = "undecided";
+          signedPinchDolly = null;
           const points = [...touchPoints.values()];
           previousThreeFingerCenter = {
             x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
@@ -3848,15 +3854,43 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             panVelocity.y = deltaY / dt;
             panVelocitySampleAt = now;
           } else {
-            // Locked pinch zoom: preserve the world point under the finger
-            // midpoint so the map never jumps toward the screen centre.
+            // Far from the focal plane, preserve the world point below the
+            // midpoint. Close to it, switch to a signed dolly so a continued
+            // spread can pass through the ground and emerge on the underside
+            // instead of becoming stuck at OrbitControls' positive radius.
             const pinchRatio = MathUtils.clamp(
               current.distance / previousTwoFingerGesture.distance,
               0.86,
               1.16,
             );
             if (Math.abs(pinchRatio - 1) > 0.002) {
-              zoomAtClientPoint(current.center, pinchRatio);
+              if (
+                !signedPinchDolly &&
+                pinchRatio > 1 &&
+                camera.position.distanceTo(controls.target) <=
+                  PINCH_TARGET_CROSSING_ZONE_M
+              ) {
+                signedPinchDolly = createSignedPinchDolly(
+                  camera,
+                  controls.target,
+                );
+              }
+              if (signedPinchDolly) {
+                const signedDistance = advanceSignedPinchDolly(
+                  camera,
+                  controls.target,
+                  signedPinchDolly,
+                  pinchRatio,
+                  controls.minDistance,
+                  controls.maxDistance,
+                );
+                const underside = signedDistance < 0;
+                if (underside !== runtime.underside) {
+                  setModelMaterialState(runtime, underside);
+                }
+              } else {
+                zoomAtClientPoint(current.center, pinchRatio);
+              }
             }
           }
           controls.update();
@@ -3922,6 +3956,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             previousTwoFingerGesture = twoFingerGesture();
             twoFingerStart = previousTwoFingerGesture;
             twoFingerMode = "undecided";
+            signedPinchDolly = null;
             panVelocity.x = 0;
             panVelocity.y = 0;
             panVelocitySampleAt = performance.now();
@@ -3930,6 +3965,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           previousTwoFingerGesture = null;
           twoFingerStart = null;
           twoFingerMode = "undecided";
+          signedPinchDolly = null;
           previousThreeFingerCenter = null;
           if (touchPoints.size >= 1) {
             // 2→1 finger: fingers rarely leave the glass together, so the
@@ -3972,6 +4008,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         touchPoints.clear();
         previousTwoFingerGesture = null;
+        signedPinchDolly = null;
         previousThreeFingerCenter = null;
         customTouchGestureActive = false;
         controlsInteracting = false;
@@ -4077,6 +4114,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           Math.abs(input.look) > 1e-6;
         const result = stepPedestrian(state, input, dtSeconds, environment);
         pedestrian.state = result.state;
+        if (result.state.insideTunnel !== state.insideTunnel) {
+          syncPedestrianTunnelPresentation(runtime, result.state.insideTunnel);
+        }
         if (result.respawned) {
           onPedestrianRespawnRef.current();
         }
@@ -4199,31 +4239,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         markSurfaceInteraction(runtime, 220);
         return true;
       };
-      const applyGuidedTunnelFlight = (timestamp: number): boolean => {
-        const activeFlight = runtime.tunnelFlight;
-        if (!activeFlight) {
-          return false;
-        }
-        const pose = tunnelFlightPose(
-          activeFlight.plan,
-          timestamp - activeFlight.startedAt,
-        );
-        // The bore remains explicit for both portal approaches. Once inside,
-        // the usual underside cutaway also removes the overlying city plate.
-        setTunnelPresentation(runtime.tunnel, false, true);
-        camera.position.copy(pose.position);
-        controls.target.copy(pose.target);
-        camera.updateMatrixWorld();
-        runtime.renderInvalidated = true;
-        runtime.interactionUntil = timestamp + 120;
-        if (pose.done) {
-          runtime.tunnelFlight = null;
-          setModelMaterialState(runtime, false);
-          setEnvironmentalPresentation(runtime);
-          notifyView(runtime, onViewChangeRef.current);
-        }
-        return true;
-      };
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -4248,20 +4263,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const pedestrianMoving = applyContinuousPedestrian(dtSeconds);
-        const guidedFlying = runtime.pedestrian.enabled
+        const panning = runtime.pedestrian.enabled
           ? false
-          : applyGuidedTunnelFlight(timestamp);
-        const panning =
-          guidedFlying || runtime.pedestrian.enabled
-            ? false
-            : applyContinuousPan(dtSeconds);
-        const orbiting =
-          guidedFlying || runtime.pedestrian.enabled
-            ? false
-            : applyContinuousOrbit(dtSeconds);
+          : applyContinuousPan(dtSeconds);
+        const orbiting = runtime.pedestrian.enabled
+          ? false
+          : applyContinuousOrbit(dtSeconds);
         const flying =
           !runtime.pedestrian.enabled &&
-          (guidedFlying || applyContinuousFlight(dtSeconds));
+          applyContinuousFlight(dtSeconds);
         const controlsChanged = runtime.pedestrian.enabled
           ? false
           : controls.update();
@@ -4343,14 +4353,35 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // The cutaway also engages when the camera itself flies into the
         // Tiergartentunnel tube, not only when orbiting below the horizon.
         const physicallyInsideTunnel =
-          !runtime.pedestrian.enabled &&
-          runtime.tunnelBounds !== null &&
-          runtime.tunnelBounds.containsPoint(camera.position);
+          runtime.pedestrian.state?.insideTunnel === true ||
+          (!runtime.pedestrian.enabled &&
+            runtime.tunnelInteriorAt?.(
+              camera.position.x,
+              camera.position.y,
+              camera.position.z,
+            ) === true);
+        if (physicallyInsideTunnel !== runtime.cameraInsideTunnel) {
+          runtime.cameraInsideTunnel = physicallyInsideTunnel;
+          if (!runtime.pedestrian.enabled) {
+            setTunnelPresentation(
+              runtime.tunnel,
+              runtime.underside,
+              physicallyInsideTunnel,
+            );
+            setTunnelPortalPresentation(
+              runtime.tunnelPortals,
+              runtime.underside,
+              voxelModeActive(runtime),
+              physicallyInsideTunnel,
+            );
+            setEnvironmentalPresentation(runtime);
+          }
+        }
         const framedPortal = runtime.tunnelPortalInteriorVisible;
         const underside =
           !runtime.pedestrian.enabled &&
           !framedPortal &&
-          (controls.getPolarAngle() > Math.PI / 2 || physicallyInsideTunnel);
+          controls.getPolarAngle() > Math.PI / 2;
         if (underside !== runtime.underside) {
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
@@ -4763,17 +4794,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           runtime.tunnelPoints = manifest.tiergartentunnel.points;
           runtime.tunnelPortalCourse = manifest.tiergartentunnel;
-          runtime.tunnelTubeOffsetM =
-            manifest.tiergartentunnel.clear_width_each_direction_m / 2 + 0.85;
+          runtime.tunnelInteriorAt = createTunnelInteriorTester(
+            manifest.tiergartentunnel,
+          );
           scene.add(runtime.tunnel);
           runtime.tunnelPortals.removeFromParent();
           runtime.tunnelPortals = createTunnelPortals(
             manifest.tiergartentunnel,
           );
-          // Portal-mouth presets: all tunnel sights use a low, axis-near
-          // exterior stand derived from the same centreline as the ramp. The
-          // buried helper bore stays occluded; the continuous tunnel remains
-          // available through the dedicated guided flight.
+          // Portal-mouth presets use a low exterior stand on the measured
+          // approach. Entering the connected bore remains entirely manual.
           const mouthViews = tunnelMouthViews(manifest.tiergartentunnel);
           if (mouthViews) {
             runtime.focusCameraByName.set(
@@ -4805,9 +4835,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
-          runtime.tunnelBounds = new Box3()
-            .setFromObject(runtime.tunnel)
-            .expandByScalar(5);
           runtime.ensurePhotoSurface = () => {
             if (
               runtime.disposed ||

@@ -77,7 +77,7 @@ describe("metre-scale architectural recognition models", () => {
       gate!.children.filter(
         (child) => child.name === "Brandenburg Gate shaded passage interior",
       ),
-    ).toHaveLength(5);
+    ).toHaveLength(0);
     expect(bounds.max.z - bounds.min.z).toBeCloseTo(62.5, 1);
     expect(bounds.max.x - bounds.min.x).toBeCloseTo(11, 1);
     expect(bounds.max.y).toBeGreaterThan(25);
@@ -751,7 +751,7 @@ describe("metre-scale architectural recognition models", () => {
     expect(reichstagStone.material.userData.nightEmissiveIntensity).toBe(0.5);
     expect(reichstagStone.material.opacity).toBe(1);
     expect(reichstagStone.material.transparent).toBe(false);
-    expect(reichstagStone.material.color.getHex()).toBe(0xe7dcc6);
+    expect(reichstagStone.material.color.getHex()).toBe(0xe4e6e2);
     expect(
       reichstag!.getObjectByName(
         "Reichstag west tympanum allegorical relief bodies",
@@ -765,11 +765,12 @@ describe("metre-scale architectural recognition models", () => {
       ).count,
     ).toBe(11);
     const tympanumField = reichstag!.getObjectByName(
-      "Reichstag west tympanum relief field",
+      "Reichstag west triangular tympanum relief field",
     ) as Mesh;
-    expect(tympanumField.material.color.getHex()).toBe(0xbda98d);
+    expect(tympanumField.material.color.getHex()).toBe(0xc5c7c2);
     expect(tympanumField.material.opacity).toBe(1);
     expect(tympanumField.material.transparent).toBe(false);
+    expect(tympanumField.geometry.getAttribute("position").count).toBe(6);
     const entranceRecess = reichstag!.getObjectByName(
       "Reichstag west entrance recessed backing",
     ) as Mesh;

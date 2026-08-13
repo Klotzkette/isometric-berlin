@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.71.32"
+PACKAGE_VERSION = "0.71.33"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3839,7 +3839,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "direct-day-night-minecraft-snowstorm-modes",
       "contextual-rain-or-snowfall-toggle-in-all-surface-modes",
       "native-and-ios-safe-pseudo-fullscreen",
-      "guided-tiergartentunnel-flight-both-directions",
+      "manual-tiergartentunnel-entry-both-directions",
       "minecraft-roaming-creepers-and-zombies",
       "opt-in-seven-variant-procedural-audio",
       "persistent-offline-viewer-preferences",

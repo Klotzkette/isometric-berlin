@@ -3,10 +3,12 @@ import { InstancedMesh, Material, Mesh } from "three";
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 
 import {
+  createTunnelInteriorTester,
   createTunnelPortalApproachTester,
   createTunnelPortals,
   setTunnelPortalPresentation,
   tunnelMouthViews,
+  tunnelWalkCourses,
   type TunnelPortalId,
 } from "../src/TunnelPortals";
 import {
@@ -219,7 +221,7 @@ describe("measured Tiergartentunnel entrances", () => {
     ).toHaveLength(4);
   });
 
-  test("continues both carriageways on one shared axis behind each portal", () => {
+  test("continues every carriageway into one of the measured tunnel tubes", () => {
     const portals = createTunnelPortals(realRoute);
     for (const portalId of portalIds) {
       const lamps = portals.children.filter(
@@ -228,10 +230,25 @@ describe("measured Tiergartentunnel entrances", () => {
           child.name.endsWith("bore ceiling lamp"),
       );
       expect(lamps.length).toBeGreaterThan(1);
-      const bearings = new Set(
-        lamps.map((lamp) => Math.round(lamp.rotation.y * 1_000_000)),
+      expect(
+        lamps.every((lamp) => Number.isFinite(lamp.rotation.y)),
+      ).toBe(true);
+    }
+    const courses = tunnelWalkCourses(realRoute);
+    const tubes = courses.filter((course) => course.kind === "tube");
+    const ramps = courses.filter((course) => course.kind === "portal");
+    expect(tubes).toHaveLength(2);
+    expect(ramps).toHaveLength(8);
+    for (const ramp of ramps) {
+      const join = ramp.points.at(-1)!;
+      const nearestTubePoint = Math.min(
+        ...tubes.flatMap((tube) =>
+          tube.points.map((point) =>
+            Math.hypot(join[0] - point[0], join[1] - point[1], join[2] - point[2]),
+          ),
+        ),
       );
-      expect(bearings.size).toBe(1);
+      expect(nearestTubePoint).toBeLessThan(150);
     }
   });
 
@@ -249,7 +266,7 @@ describe("measured Tiergartentunnel entrances", () => {
     expect(portals.userData.carriagewayCount).toBe(0);
   });
 
-  test("keeps exterior close-ups depth-tested and the buried bore occluded", () => {
+  test("keeps exterior close-ups occluded and reveals the bore only from inside", () => {
     const portals = createTunnelPortals(realRoute);
     const label = "Tiergartentunnel reichpietschufer east ramp";
     const bore = portals.getObjectByName(`${label} bore ceiling lamp`)!;
@@ -267,7 +284,7 @@ describe("measured Tiergartentunnel entrances", () => {
     expect(rampMaterial.depthWrite).toBe(true);
 
     setTunnelPortalPresentation(portals, false, false, true);
-    expect(bore.visible).toBe(false);
+    expect(bore.visible).toBe(true);
     expect(boreMaterial.depthTest).toBe(true);
     expect(boreMaterial.depthWrite).toBe(true);
     expect(rampMaterial.depthTest).toBe(true);
@@ -280,7 +297,7 @@ describe("measured Tiergartentunnel entrances", () => {
 
     setTunnelPortalPresentation(portals, false, true, true);
     expect(portals.visible).toBe(true);
-    expect(bore.visible).toBe(false);
+    expect(bore.visible).toBe(true);
     expect(
       portals.getObjectByName(
         "Tiergartentunnel reichpietschufer shared portal east opening shadow",
@@ -323,7 +340,7 @@ describe("measured Tiergartentunnel entrances", () => {
     expect(visibleDepthBypasses).toEqual([]);
   });
 
-  test("keeps recessed mouths and buried helper bores dark in the day style", () => {
+  test("keeps recessed mouths dark without closing the connected bores", () => {
     const portals = createTunnelPortals(realRoute);
     const darkMaterialNames: string[] = [];
     portals.traverse((object) => {
@@ -334,8 +351,7 @@ describe("measured Tiergartentunnel entrances", () => {
         ? object.material
         : [object.material];
       if (
-        object.name.includes("opening shadow") ||
-        object.name.includes("bore depth cap")
+        object.name.includes("opening shadow")
       ) {
         for (const material of materials) {
           if (material.userData.preserveAuthoredDark === true) {
@@ -348,8 +364,19 @@ describe("measured Tiergartentunnel entrances", () => {
       darkMaterialNames.filter((name) => name.includes("opening shadow")),
     ).toHaveLength(8);
     expect(
-      darkMaterialNames.filter((name) => name.includes("bore depth cap")),
-    ).toHaveLength(8);
+      portals.children.filter((object) => object.name.includes("bore depth cap")),
+    ).toHaveLength(0);
+  });
+
+  test("detects only the real tunnel corridor, never its city-wide bounding box", () => {
+    const inside = createTunnelInteriorTester(realRoute);
+    const tube = tunnelWalkCourses(realRoute).find(
+      (course) => course.kind === "tube",
+    )!;
+    const point = tube.points[Math.floor(tube.points.length / 2)];
+    expect(inside(point[0], point[1] + 1.8, point[2])).toBe(true);
+    expect(inside(point[0] + 500, point[1] + 1.8, point[2])).toBe(false);
+    expect(inside(point[0], point[1] + 30, point[2])).toBe(false);
   });
 
   test("cuts the ground only along the eight mapped carriageways", () => {

@@ -6,14 +6,17 @@ import {
   CONTINUOUS_FLIGHT_SPEED_MIN_MPS,
   CONTINUOUS_VERTICAL_SPEED_MAX_MPS,
   CONTINUOUS_VERTICAL_SPEED_MIN_MPS,
+  CAMERA_TARGET_CROSSING_MIN_M,
   NAVIGATION_STEP_DISTANCE_RATIO,
   REGIERUNGSVIERTEL_FLIGHT_BOUNDS,
   TWO_FINGER_DECISION_TRAVEL_PX,
   TWO_FINGER_PAN_PIXELS_PER_UNIT,
   cameraPoseDeltaM,
+  advanceSignedPinchDolly,
   captureCameraPose,
   classifyTwoFingerGesture,
   continuousFlightSpeeds,
+  createSignedPinchDolly,
   flyCameraAlongViewHeading,
   flyCameraInViewPlane,
   heldNavigationInput,
@@ -244,6 +247,47 @@ describe("two-finger swipe pans with direct manipulation", () => {
 
     expect(applied.z).toBeLessThan(0);
     expect(Math.abs(applied.y)).toBeLessThan(1e-8);
+  });
+});
+
+describe("signed pinch target crossing", () => {
+  test("passes through the focal plane and reverses back without a singular view", () => {
+    const camera = new PerspectiveCamera(39, 1, 0.25, 6_000);
+    const target = new Vector3(12, 4, -8);
+    camera.position.copy(target).add(new Vector3(0, 12, 18));
+    camera.lookAt(target);
+    camera.updateMatrixWorld();
+    const dolly = createSignedPinchDolly(camera, target)!;
+
+    for (let step = 0; step < 20 && dolly.signedDistance > 0; step += 1) {
+      advanceSignedPinchDolly(camera, target, dolly, 1.16);
+    }
+
+    expect(dolly.signedDistance).toBeLessThan(0);
+    expect(camera.position.y).toBeLessThan(target.y);
+    expect(camera.position.distanceTo(target)).toBeGreaterThanOrEqual(
+      CAMERA_TARGET_CROSSING_MIN_M,
+    );
+    expect(camera.position.toArray().every(Number.isFinite)).toBe(true);
+
+    for (let step = 0; step < 40 && dolly.signedDistance < 0; step += 1) {
+      advanceSignedPinchDolly(camera, target, dolly, 0.86);
+    }
+    expect(dolly.signedDistance).toBeGreaterThan(0);
+    expect(target.toArray()).toEqual([12, 4, -8]);
+  });
+
+  test("ignores malformed factors and keeps the last finite pose", () => {
+    const camera = new PerspectiveCamera();
+    const target = new Vector3();
+    camera.position.set(0, 10, 10);
+    const dolly = createSignedPinchDolly(camera, target)!;
+    const before = camera.position.clone();
+
+    expect(
+      advanceSignedPinchDolly(camera, target, dolly, Number.NaN),
+    ).toBe(dolly.signedDistance);
+    expect(camera.position.toArray()).toEqual(before.toArray());
   });
 });
 

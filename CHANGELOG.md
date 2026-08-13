@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.71.33
+
+- **The Brandenburg Gate is open again and the Wall trace stays in the
+  pavement.** Five unsupported black vertical passage panels are removed, so
+  every documented gate opening remains visible from east and west. The
+  historical Berlin Wall trace remains as two dark sett rows only 1 mm above
+  the surrounding road plate rather than becoming a wall or steel screen.
+- **Touch can cross the focal plane instead of becoming trapped above the
+  city.** A signed two-finger dolly takes over near the focus point, crosses it
+  without a zero-distance singularity, reveals the underside and can cross
+  back again. Tests preserve cursor-centred zoom outside that narrow crossing
+  zone, direct two-finger pan signs and bounded camera recovery.
+- **Walking begins where the visitor is and reaches the Tiergartentunnel under
+  direct control.** The current camera position is projected to the nearest
+  valid surface or connected tunnel course at 1.80 m eye height; movement is
+  doubled to 6.4 m/s and the same 5.4 m jump now has a quicker 32 m/s² arc.
+  Portal ramps connect to the actual directional tubes, while the inaccurate
+  automatic tunnel ride, its buttons and bracket shortcuts are removed.
+- **Underground visibility follows geometry rather than one city-wide box.**
+  Exact corridor tests replace the broad tunnel bounding box, removing the
+  grey surface stripe and false floating wall around the Swiss Embassy and
+  Chancellery. The buried route appears only from the underside, inside the
+  connected tunnel or in a deliberate mouth close-up.
+- **The Reichstag and Tiergarten receive a restrained source-backed finish.**
+  The Reichstag shifts from yellow-beige to cool light limestone and its west
+  tympanum becomes a triangular relief field above `DEM DEUTSCHEN VOLKE`.
+  All 298 usable bounded OSM `natural=scrub` features produce 1,477
+  deterministic, instanced bush clumps outside roads and water, adding real
+  park understory in only three draw calls. Day, Night, Minecraft and mobile browser checks
+  remain clean; the visible radius stays **5,230 m** and attribution is
+  unchanged.
+
 ## v0.71.32
 
 - **Phone and tablet controls are expanded from the first usable frame.** A
