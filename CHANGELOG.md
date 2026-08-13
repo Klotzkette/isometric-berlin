@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.71.28
+
+- **The false white circle south-east of the Bundeskanzleramt is gone.** The
+  procedural model had placed a 20.8 m-wide round security pavilion on the
+  wrong part of the forecourt, contradicting the owner-verified site view. Its
+  solid drum, two glazed cylinders, roof and associated outline at that false
+  location are removed as one unit, so no ring, cap, shadow or night emissive
+  remnant remains.
+- **The documented forecourt composition stays intact.** The metric
+  Chancellery envelope, glass and stone architecture, Eduardo Chillida's
+  sculpture, protocol flags, security fence, entrance canopy and lamps are
+  unchanged. A geometry regression test bans every former circular component,
+  and direct browser checks cover Day, Night and Minecraft. The visible radius
+  remains **5,230 m** and attribution is unchanged.
+
 ## v0.71.27
 
 - **Tilla-Durieux-Park is a landscape sculpture again, not a stack of green

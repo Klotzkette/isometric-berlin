@@ -2109,49 +2109,11 @@ function addChancelleryStreetEntrance(
     0x657181,
     0.3,
   );
-  const glass = nightEmitter(
-    modelMaterial(0x77969a, {
-      metalness: 0.08,
-      opacity: 0.58,
-      roughness: 0.22,
-    }),
-    0xffd28a,
-    0.9,
-  );
   const metal = modelMaterial(0x6f7778, {
     metalness: 0.55,
     roughness: 0.38,
   });
 
-  const guardhouse = new Mesh(
-    new CylinderGeometry(9.6, 9.6, 7.1, 64),
-    concrete,
-  );
-  guardhouse.name = "Chancellery rounded street security pavilion";
-  guardhouse.position.set(entrance.x, 5.1, entrance.z);
-  guardhouse.castShadow = true;
-  group.add(guardhouse);
-  addEdges(group, guardhouse, 0.62);
-  const windowBand = new Mesh(
-    new CylinderGeometry(9.72, 9.72, 2.55, 64, 1, true),
-    glass,
-  );
-  windowBand.name = "Chancellery street pavilion wraparound window band";
-  windowBand.position.set(entrance.x, 5.4, entrance.z);
-  windowBand.renderOrder = 7;
-  group.add(windowBand);
-  const glazedBase = new Mesh(
-    new CylinderGeometry(9.28, 9.28, 2.1, 64, 1, true),
-    glass,
-  );
-  glazedBase.name = "Chancellery street pavilion glazed security base";
-  glazedBase.position.set(entrance.x, 1.35, entrance.z);
-  glazedBase.renderOrder = 7;
-  group.add(glazedBase);
-  const roof = new Mesh(new CylinderGeometry(10.4, 10.4, 0.45, 64), concrete);
-  roof.name = "Chancellery street pavilion cantilevered round roof";
-  roof.position.set(entrance.x, 8.82, entrance.z);
-  group.add(roof);
   addOrientedBox(
     group,
     "Chancellery street pavilion flat entrance canopy",

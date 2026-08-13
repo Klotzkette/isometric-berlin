@@ -604,19 +604,26 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(ivyPanels).toBeInstanceOf(InstancedMesh);
     expect((ivyPanels as InstancedMesh).count).toBeGreaterThanOrEqual(32);
-    const guardhouse = chancellery!.getObjectByName(
-      "Chancellery rounded street security pavilion",
-    ) as Mesh;
-    expect(guardhouse).toBeInstanceOf(Mesh);
-    expect(guardhouse.geometry.type).toBe("CylinderGeometry");
-    expect(guardhouse.position.x).toBeGreaterThan(
-      signature.forecourt_offset_world![0],
-    );
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery rounded street security pavilion",
+      ),
+    ).toBeUndefined();
     expect(
       chancellery!.getObjectByName(
         "Chancellery street pavilion wraparound window band",
       ),
-    ).toBeInstanceOf(Mesh);
+    ).toBeUndefined();
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery street pavilion glazed security base",
+      ),
+    ).toBeUndefined();
+    expect(
+      chancellery!.getObjectByName(
+        "Chancellery street pavilion cantilevered round roof",
+      ),
+    ).toBeUndefined();
     const streetLamps = chancellery!.getObjectByName(
       "Chancellery instanced oval street entrance lamp heads",
     );
