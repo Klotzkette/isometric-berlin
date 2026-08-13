@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.71.32
+
+- **Phone and tablet controls are expanded from the first usable frame.** A
+  persisted desktop `chromeHidden` preference can no longer make a returning
+  mobile viewer start without its flight/walking joystick. Entering compact
+  layout also restores the controls, while the explicit mobile hide/show
+  button continues to work for the current visit.
+- **Compact input no longer depends on a perfect pointer report.** The direct
+  joystick is present at every layout width up to 1,024 px, including browsers
+  that classify a connected stylus, trackpad or accessibility pointer as
+  `fine`. Unit and live 390 x 844 browser checks cover the saved-hidden reload
+  and hide/show round trip. The visible radius remains **5,230 m** and
+  attribution is unchanged.
+
 ## v0.71.31
 
 - **The Bundestag Kita no longer projects across the diagonal cycle and foot

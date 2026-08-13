@@ -16,6 +16,22 @@ export function compactLayoutForWidth(width: number): boolean {
 }
 
 /**
+ * Compact viewers always start with their direct-manipulation controls
+ * visible. A desktop hide preference must not strand a returning phone user
+ * without the flight joystick.
+ */
+export function chromeHiddenForLayout(
+  requestedHidden: boolean,
+  compact: boolean,
+): boolean {
+  return compact ? false : requestedHidden;
+}
+
+export function shouldPersistChromePreference(compact: boolean): boolean {
+  return !compact;
+}
+
+/**
  * Keep React chrome aligned with the CSS breakpoint after rotation, browser
  * zoom and iPad Split View changes. visualViewport is an iOS fallback for
  * Safari versions that update the viewport before dispatching media changes.

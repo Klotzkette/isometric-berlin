@@ -107,7 +107,9 @@ import {
 } from "./projectMetadata";
 import {
   COMPACT_LAYOUT_MEDIA_QUERY,
+  chromeHiddenForLayout,
   observeCompactLayout,
+  shouldPersistChromePreference,
 } from "./responsiveLayout";
 import {
   PEN_GESTURE_SETTINGS,
@@ -266,7 +268,10 @@ function initialLightingMode(): VisualMode {
 
 function initialChromeHidden(): boolean {
   try {
-    return window.localStorage.getItem(CHROME_STORAGE_KEY) === "true";
+    const storedHidden =
+      window.localStorage.getItem(CHROME_STORAGE_KEY) === "true";
+    const compact = window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY).matches;
+    return chromeHiddenForLayout(storedHidden, compact);
   } catch {
     return false;
   }
@@ -1108,12 +1113,15 @@ export function App() {
   }, [isSoundtrackEnabled, startSoundtrack]);
 
   useEffect(() => {
+    if (!shouldPersistChromePreference(isCompactLayout)) {
+      return;
+    }
     try {
       window.localStorage.setItem(CHROME_STORAGE_KEY, String(isChromeHidden));
     } catch {
       // The viewer remains usable when storage is blocked.
     }
-  }, [isChromeHidden]);
+  }, [isChromeHidden, isCompactLayout]);
 
   useEffect(
     () =>
@@ -1129,6 +1137,7 @@ export function App() {
     if (!isCompactLayout) {
       return;
     }
+    setIsChromeHidden((hidden) => chromeHiddenForLayout(hidden, true));
     setIsLandmarkRailOpen(false);
     setMobileSheet(null);
   }, [isCompactLayout]);

@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 
 import {
   COMPACT_LAYOUT_MAX_WIDTH_PX,
+  chromeHiddenForLayout,
   compactLayoutForWidth,
   observeCompactLayout,
+  shouldPersistChromePreference,
 } from "../src/responsiveLayout";
 
 type MutableMediaQuery = {
@@ -68,5 +70,17 @@ describe("responsive viewer chrome", () => {
     stop();
     expect(mediaEvents.listeners.size).toBe(0);
     expect(viewportEvents.listeners.size).toBe(0);
+  });
+
+  test("always opens direct controls when a compact viewer starts", () => {
+    expect(chromeHiddenForLayout(true, true)).toBe(false);
+    expect(chromeHiddenForLayout(false, true)).toBe(false);
+    expect(shouldPersistChromePreference(true)).toBe(false);
+  });
+
+  test("retains the explicit hide preference only on desktop", () => {
+    expect(chromeHiddenForLayout(true, false)).toBe(true);
+    expect(chromeHiddenForLayout(false, false)).toBe(false);
+    expect(shouldPersistChromePreference(false)).toBe(true);
   });
 });

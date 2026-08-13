@@ -700,6 +700,18 @@ button:active:not(:disabled) {
   .orbit-joystick-wrap {
     display: none;
   }
+
+  /* Some mobile browsers report a fine primary pointer when a trackpad,
+     stylus or accessibility device is connected. Compact layout still needs
+     its direct touch joystick from the first frame. */
+  .flight-joystick-wrap {
+    position: absolute;
+    z-index: 21;
+    bottom: calc(128px + env(safe-area-inset-bottom, 0px));
+    left: 14px;
+    display: block;
+    pointer-events: auto;
+  }
 }
 
 .flight-joystick {
