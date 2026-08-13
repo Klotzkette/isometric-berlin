@@ -5,6 +5,11 @@ import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
   BERLINER_ENSEMBLE_PROFILE,
   PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
+  BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD,
+  BUNDESTAG_KITA_DIAGONAL_PATH_OSM_WAY_ID,
+  BUNDESTAG_KITA_DIAGONAL_PATH_WORLD,
+  BUNDESTAG_KITA_PATH_CLEARANCE_M,
+  BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD,
   BUNDESTAG_KITA_SOURCE,
   BUNDESTAG_KITA_WORLD,
   CUBE_BERLIN_FACADE_PROFILE,
@@ -57,6 +62,76 @@ const landmarks = names.map((name, index) => ({
   name,
   world: [index * 280, 4, (index % 3) * 320] as [number, number, number],
 }));
+
+type Point2 = readonly [number, number];
+
+function pointSegmentDistance(point: Point2, start: Point2, end: Point2) {
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const lengthSquared = dx * dx + dz * dz;
+  const t = Math.max(
+    0,
+    Math.min(
+      1,
+      ((point[0] - start[0]) * dx + (point[1] - start[1]) * dz) /
+        lengthSquared,
+    ),
+  );
+  return Math.hypot(
+    point[0] - (start[0] + t * dx),
+    point[1] - (start[1] + t * dz),
+  );
+}
+
+function cross(a: Point2, b: Point2, c: Point2): number {
+  return (
+    (b[0] - a[0]) * (c[1] - a[1]) -
+    (b[1] - a[1]) * (c[0] - a[0])
+  );
+}
+
+function segmentsIntersect(
+  a: Point2,
+  b: Point2,
+  c: Point2,
+  d: Point2,
+): boolean {
+  return cross(a, b, c) * cross(a, b, d) <= 0 &&
+    cross(c, d, a) * cross(c, d, b) <= 0;
+}
+
+function segmentDistance(
+  a: Point2,
+  b: Point2,
+  c: Point2,
+  d: Point2,
+): number {
+  if (segmentsIntersect(a, b, c, d)) return 0;
+  return Math.min(
+    pointSegmentDistance(a, c, d),
+    pointSegmentDistance(b, c, d),
+    pointSegmentDistance(c, a, b),
+    pointSegmentDistance(d, a, b),
+  );
+}
+
+function minimumRingToLineDistance(
+  ring: readonly Point2[],
+  line: readonly Point2[],
+): number {
+  return Math.min(
+    ...ring.flatMap((start, ringIndex) =>
+      line.slice(0, -1).map((lineStart, lineIndex) =>
+        segmentDistance(
+          start,
+          ring[(ringIndex + 1) % ring.length],
+          lineStart,
+          line[lineIndex + 1],
+        ),
+      ),
+    ),
+  );
+}
 
 describe("task-11 central transit and civic details", () => {
   test("aligns the Hauptbahnhof tram platform with its OSM track axis", () => {
@@ -237,10 +312,30 @@ describe("task-11 central transit and civic details", () => {
     const details = createCentralCivicDetails(landmarks);
     expect(BUNDESTAG_KITA_WORLD).toEqual([255.8, 5.245, -250.4]);
     expect(details.userData.bundestagKita).toEqual({
+      bodyFootprintWorld: BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD,
+      diagonalPathOsmWayId: BUNDESTAG_KITA_DIAGONAL_PATH_OSM_WAY_ID,
+      diagonalPathWorld: BUNDESTAG_KITA_DIAGONAL_PATH_WORLD,
       geometryAnchor: "OSM way 30349234 + Berlin LoD2",
+      pathClearanceM: BUNDESTAG_KITA_PATH_CLEARANCE_M,
+      roofFootprintWorld: BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD,
       source: BUNDESTAG_KITA_SOURCE,
       world: BUNDESTAG_KITA_WORLD,
     });
+    expect(BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD).toHaveLength(7);
+    expect(BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD).toHaveLength(8);
+    expect(BUNDESTAG_KITA_PATH_CLEARANCE_M).toBeGreaterThanOrEqual(2.3);
+    expect(
+      minimumRingToLineDistance(
+        BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD,
+        BUNDESTAG_KITA_DIAGONAL_PATH_WORLD,
+      ),
+    ).toBeGreaterThan(BUNDESTAG_KITA_PATH_CLEARANCE_M);
+    expect(
+      minimumRingToLineDistance(
+        BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD,
+        BUNDESTAG_KITA_DIAGONAL_PATH_WORLD,
+      ),
+    ).toBeGreaterThan(BUNDESTAG_KITA_PATH_CLEARANCE_M);
   });
 
   test("rebuilds Futurium from its metric LoD2 footprint", () => {

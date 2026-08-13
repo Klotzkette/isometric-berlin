@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.71.31
+
+- **The Bundestag Kita no longer projects across the diagonal cycle and foot
+  path.** Its oversized rectangular recognition body and roof are replaced by
+  restrained polygons clipped 0.35 m inside OSM building way `30349234`. The
+  authoritative Berlin LoD2 building remains the geometry anchor, and the
+  Kita's coloured facade and rooftop figures remain unchanged.
+- **The correction is metrically guarded.** A full edge-to-edge geometry test,
+  rather than a corner-only check, enforces more than 2.3 m clearance from OSM
+  path way `912645859` for both added polygons. The visible radius remains
+  **5,230 m**, attribution is unchanged, and no external image is bundled.
+
 ## v0.71.30
 
 - **The Berliner Ensemble finally reads as the theatre on

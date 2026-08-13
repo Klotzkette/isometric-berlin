@@ -279,6 +279,38 @@ const FUTURIUM_SOLAR = 0x315d69;
 export const BUNDESTAG_KITA_WORLD = [255.8, 5.245, -250.4] as const;
 export const BUNDESTAG_KITA_SOURCE =
   "https://www.bundestag.de/besuche/architektur/gebaeude/kindertagesstaette/kindertagesstaette-198806";
+/**
+ * The recognition shell clipped 0.35 m inside OSM way 30349234. The former
+ * rectangular shell crossed the diagonal shared path at the south-west corner.
+ */
+export const BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD = [
+  [232.972, -261.714],
+  [231.699, -260.661],
+  [219.536, -250.375],
+  [219.041, -246.271],
+  [290.524, -237.651],
+  [291.983, -249.751],
+  [290.405, -254.789],
+] as const;
+export const BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD = [
+  [234.034, -262.593],
+  [231.699, -260.661],
+  [217.293, -248.478],
+  [216.936, -245.517],
+  [292.389, -236.419],
+  [293.437, -245.106],
+  [290.091, -255.793],
+  [290.075, -255.836],
+] as const;
+export const BUNDESTAG_KITA_PATH_CLEARANCE_M = 2.3;
+export const BUNDESTAG_KITA_DIAGONAL_PATH_WORLD = [
+  [273.48, -295.737],
+  [265.818, -291.258],
+  [253.328, -282.815],
+  [203.577, -240.437],
+  [189.175, -228.176],
+] as const;
+export const BUNDESTAG_KITA_DIAGONAL_PATH_OSM_WAY_ID = "912645859";
 
 export const TOPOGRAPHY_WALL_LENGTH_M = 200;
 export const TOPOGRAPHY_WALL_SECTION_COUNT = 20;
@@ -1348,11 +1380,25 @@ function addBundestagKita(builder: Builder): void {
   const rotation = -0.12;
   // Peichl's low, ship-like 1998/99 building is already present in LoD2.
   // These restrained solids only recover its recognition cues at close zoom.
-  localBox(builder, IVORY, point, 0, 2.65, 0, 72, 4.8, 17, rotation);
+  // Keep both shells inside the surveyed OSM outline: the old 72 m rectangle
+  // cut across the diagonal shared path at its south-west corner.
+  addExtrudedFootprint(
+    builder,
+    IVORY,
+    BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD,
+    point.y + 0.25,
+    4.8,
+  );
   localBox(builder, KITA_BLUE, point, -24, 2.8, 8.55, 18, 3.9, 0.3, rotation);
   localBox(builder, KITA_RED, point, 0, 2.8, 8.55, 18, 3.9, 0.3, rotation);
   localBox(builder, KITA_YELLOW, point, 24, 2.8, 8.55, 18, 3.9, 0.3, rotation);
-  localBox(builder, STEEL, point, 0, 5.2, 0, 76, 0.34, 19, rotation);
+  addExtrudedFootprint(
+    builder,
+    STEEL,
+    BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD,
+    point.y + 5.03,
+    0.34,
+  );
   for (const along of [-17, 17]) {
     const position = localPoint(point, along, 0, rotation);
     addCylinder(
@@ -3573,7 +3619,12 @@ export function createCentralCivicDetails(
     traceRotationRad: TOPOGRAPHY_WALL_ROTATION_RAD,
   };
   group.userData.bundestagKita = {
+    bodyFootprintWorld: BUNDESTAG_KITA_BODY_FOOTPRINT_WORLD,
+    diagonalPathOsmWayId: BUNDESTAG_KITA_DIAGONAL_PATH_OSM_WAY_ID,
+    diagonalPathWorld: BUNDESTAG_KITA_DIAGONAL_PATH_WORLD,
     geometryAnchor: "OSM way 30349234 + Berlin LoD2",
+    pathClearanceM: BUNDESTAG_KITA_PATH_CLEARANCE_M,
+    roofFootprintWorld: BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD,
     source: BUNDESTAG_KITA_SOURCE,
     world: BUNDESTAG_KITA_WORLD,
   };
