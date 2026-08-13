@@ -42,6 +42,7 @@ import {
   POTSDAMER_DETAIL_PROFILE,
   RIECKHALLEN_PROFILE,
   ST_MATTHAEUS_PROFILE,
+  TILLA_DURIEUX_PROFILE,
   WELT_BALLOON_PROFILE,
 } from "./expandedCityProfiles";
 import {
@@ -72,6 +73,7 @@ export {
   POTSDAMER_DETAIL_PROFILE,
   RIECKHALLEN_PROFILE,
   ST_MATTHAEUS_PROFILE,
+  TILLA_DURIEUX_PROFILE,
   WELT_BALLOON_PROFILE,
 } from "./expandedCityProfiles";
 
@@ -172,9 +174,9 @@ const EXPANDED_FOCUS_PRESETS: Record<
   },
   "Tilla-Durieux-Park": {
     azimuth_degrees: 28,
-    distance_m: 150,
-    polar_degrees: 48,
-    target_height_m: 2,
+    distance_m: 178,
+    polar_degrees: 62,
+    target_height_m: 3.2,
   },
   "WELT Balloon": {
     azimuth_degrees: 34,
@@ -229,7 +231,9 @@ const BRICK = 0xa65d45;
 const DARK_BRICK = 0x79463a;
 const GLASS = 0xa7d1d8;
 const DARK_FRAME = 0x29373a;
-const PARK_GREEN = 0x72aa68;
+const PARK_GREEN = 0x9bc686;
+const PARK_GREEN_BANK = 0x729d68;
+const PARK_CUT_STEEL = 0x606764;
 const SNOW_WHITE = 0xf2f1eb;
 const BRONZE = 0x557e6d;
 const HAMBURGER_STUCCO = 0xe7dfcf;
@@ -4050,34 +4054,218 @@ function addPotsdamerWilhelmDetails(
   );
 }
 
+type TillaLawnProfile =
+  | typeof TILLA_DURIEUX_PROFILE.northLawn
+  | typeof TILLA_DURIEUX_PROFILE.southLawn;
+
+function addTillaLawnLobe(builder: Builder, profile: TillaLawnProfile): void {
+  const westEnd = profile.endWestWorldM;
+  const eastEnd = profile.endEastWorldM;
+  const eastCourt = profile.centerEastWorldM;
+  const westCourt = profile.centerWestWorldM;
+  const groundY = TILLA_DURIEUX_PROFILE.groundY;
+  const lerpPoint = (
+    a: readonly [number, number],
+    b: readonly [number, number],
+    amount: number,
+  ): readonly [number, number] => [
+    a[0] + (b[0] - a[0]) * amount,
+    a[1] + (b[1] - a[1]) * amount,
+  ];
+  type Point3 = readonly [number, number, number];
+  const lawnTopTriangles: number[] = [];
+  const lawnBankTriangles: number[] = [];
+  const courtCutTriangles: number[] = [];
+  const triangle = (
+    target: number[],
+    a: readonly [number, number, number],
+    b: readonly [number, number, number],
+    c: readonly [number, number, number],
+  ): void => {
+    target.push(...a, ...b, ...c);
+  };
+  const upwardTriangle = (
+    target: number[],
+    a: readonly [number, number, number],
+    b: readonly [number, number, number],
+    c: readonly [number, number, number],
+  ): void => {
+    const normalY =
+      (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]);
+    if (normalY < 0) {
+      triangle(target, a, c, b);
+      return;
+    }
+    triangle(target, a, b, c);
+  };
+
+  const stationCount = 33;
+  const firstRiseAmount = 1 / (stationCount - 1);
+  const stations: Array<readonly [Point3, Point3, Point3, Point3]> = [];
+  for (let index = 0; index < stationCount; index += 1) {
+    const amount = index / (stationCount - 1);
+    const longitudinalAmount = Math.max(
+      0,
+      (amount - firstRiseAmount) / (1 - firstRiseAmount),
+    );
+    const eased =
+      longitudinalAmount * longitudinalAmount * (3 - 2 * longitudinalAmount);
+    const west = lerpPoint(westEnd, westCourt, amount);
+    const east = lerpPoint(eastEnd, eastCourt, amount);
+    const toeY = groundY - TILLA_DURIEUX_PROFILE.terrainBuryM;
+    // Both mapped boundaries are the foot of the bank. The broad middle is a
+    // single cross-falling lawn plane, never a second slab laid on top. A short
+    // rise inside the outer end avoids an artificial vertical cut face.
+    const endRise = Math.min(1, amount * (stationCount - 1));
+    const westHeight =
+      profile.endHeightsM.west * (1 - eased) +
+      profile.courtHeightsM.west * eased;
+    const eastHeight =
+      profile.endHeightsM.east * (1 - eased) +
+      profile.courtHeightsM.east * eased;
+    const westShoulderY =
+      toeY + (westHeight + TILLA_DURIEUX_PROFILE.terrainBuryM) * endRise;
+    const eastShoulderY =
+      toeY + (eastHeight + TILLA_DURIEUX_PROFILE.terrainBuryM) * endRise;
+    const westShoulder = lerpPoint(west, east, 0.1);
+    const eastShoulder = lerpPoint(west, east, 0.9);
+    stations.push([
+      [west[0], toeY, west[1]],
+      [westShoulder[0], westShoulderY, westShoulder[1]],
+      [eastShoulder[0], eastShoulderY, eastShoulder[1]],
+      [east[0], toeY, east[1]],
+    ]);
+  }
+
+  const appendStrip = (
+    target: number[],
+    firstAcross: number,
+    secondAcross: number,
+  ): void => {
+    for (let index = 0; index < stations.length - 1; index += 1) {
+      const current = stations[index];
+      const next = stations[index + 1];
+      upwardTriangle(
+        target,
+        current[firstAcross],
+        current[secondAcross],
+        next[secondAcross],
+      );
+      upwardTriangle(
+        target,
+        current[firstAcross],
+        next[secondAcross],
+        next[firstAcross],
+      );
+    }
+  };
+  const highSideIsWest = profile.endHeightsM.west > profile.endHeightsM.east;
+  appendStrip(highSideIsWest ? lawnBankTriangles : lawnTopTriangles, 0, 1);
+  appendStrip(lawnTopTriangles, 1, 2);
+  appendStrip(highSideIsWest ? lawnTopTriangles : lawnBankTriangles, 2, 3);
+
+  const courtStation = stations.at(-1)!;
+  const cutBottomY = groundY - TILLA_DURIEUX_PROFILE.terrainBuryM;
+  for (let across = 0; across < courtStation.length - 1; across += 1) {
+    const first = courtStation[across];
+    const second = courtStation[across + 1];
+    const firstBottom: Point3 = [first[0], cutBottomY, first[2]];
+    const secondBottom: Point3 = [second[0], cutBottomY, second[2]];
+    triangle(courtCutTriangles, first, second, secondBottom);
+    triangle(courtCutTriangles, first, secondBottom, firstBottom);
+  }
+
+  const addSurface = (positions: number[], color: number): void => {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(new Float32Array(positions), 3),
+    );
+    geometry.computeVertexNormals();
+    addCustomGeometry(builder, geometry, color, false);
+  };
+  // Two flat greens make the landform legible without reintroducing shaded
+  // boxes: the broad turf plane stays light while only its actual 35-degree
+  // drop receives the darker bank tone. Both are one continuous triangulated
+  // footprint and meet exactly, so there is no stacked or coplanar geometry.
+  addSurface(lawnTopTriangles, PARK_GREEN);
+  addSurface(lawnBankTriangles, PARK_GREEN_BANK);
+  addSurface(courtCutTriangles, PARK_CUT_STEEL);
+
+  // Only the outside silhouette is inked. Triangulation and the two shoulder
+  // seams are technical details and must not read as rectangles on the lawn.
+  const inkPositions: number[] = [];
+  const inkPoint = ([x, y, z]: Point3): Point3 => [x, y + 0.045, z];
+  for (let index = 0; index < stations.length - 1; index += 1) {
+    for (const across of [0, 3]) {
+      inkPositions.push(
+        ...inkPoint(stations[index][across]),
+        ...inkPoint(stations[index + 1][across]),
+      );
+    }
+  }
+  inkPositions.push(
+    ...inkPoint(stations[0][0]),
+    ...inkPoint(stations[0][3]),
+    ...inkPoint(stations.at(-1)![0]),
+    ...inkPoint(stations.at(-1)![3]),
+  );
+  const inkGeometry = new BufferGeometry();
+  inkGeometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(new Float32Array(inkPositions), 3),
+  );
+  builder.edges.push(inkGeometry);
+}
+
 function addTillaDurieuxPark(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
 ): void {
-  const point = anchor(byName, "Tilla-Durieux-Park");
-  if (!point) return;
-  addRamp(
+  if (!byName.has("Tilla-Durieux-Park")) return;
+
+  addTillaLawnLobe(builder, TILLA_DURIEUX_PROFILE.northLawn);
+  addTillaLawnLobe(builder, TILLA_DURIEUX_PROFILE.southLawn);
+
+  const [courtX, courtZ] = TILLA_DURIEUX_PROFILE.centralCourtWorldM;
+  addBox(
     builder,
-    PARK_GREEN,
-    point.x,
-    point.y + 0.15,
-    point.z,
-    42,
-    170,
-    4.6,
-    -0.22,
+    0xb8b4aa,
+    courtX,
+    TILLA_DURIEUX_PROFILE.groundY + 0.22,
+    courtZ,
+    TILLA_DURIEUX_PROFILE.centralCourtWidthM,
+    0.16,
+    TILLA_DURIEUX_PROFILE.centralCourtLengthM,
+    -0.365,
+    false,
   );
-  addRamp(
-    builder,
-    0x86b878,
-    point.x + 39,
-    point.y + 0.15,
-    point.z - 8,
-    37,
-    154,
-    3.7,
-    -0.22,
-  );
+  for (let index = 0; index < TILLA_DURIEUX_PROFILE.seesawCount; index += 1) {
+    const localZ = (index - 2) * 2.65;
+    const [offsetX, offsetZ] = rotatedLocalOffset(0, localZ, -0.365);
+    addBox(
+      builder,
+      0x747b7b,
+      courtX + offsetX,
+      TILLA_DURIEUX_PROFILE.groundY + 0.48,
+      courtZ + offsetZ,
+      TILLA_DURIEUX_PROFILE.seesawLengthM,
+      0.18,
+      0.22,
+      -0.365,
+    );
+    addBox(
+      builder,
+      0x626967,
+      courtX + offsetX,
+      TILLA_DURIEUX_PROFILE.groundY + 0.28,
+      courtZ + offsetZ,
+      0.42,
+      0.4,
+      0.52,
+      -0.365,
+    );
+  }
 }
 
 function addAnhalterBahnhof(
@@ -5421,6 +5609,7 @@ export function createExpandedCityDetails(
   group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
+  group.userData.tillaDurieux = TILLA_DURIEUX_PROFILE;
   group.userData.weltBalloon = WELT_BALLOON_PROFILE;
   group.userData.sourceUrls = [
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
@@ -5434,6 +5623,7 @@ export function createExpandedCityDetails(
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...NORTHERN_CITY_PROFILE.invalidenfriedhof.sources,
     ...EUROPACITY_PROFILE.sources,
+    ...TILLA_DURIEUX_PROFILE.sources,
     ...WELT_BALLOON_PROFILE.sources,
   ];
   const builder = createBuilder();
@@ -5442,7 +5632,6 @@ export function createExpandedCityDetails(
   addSocialCourt(builder, byName);
   addKulturforum(builder, byName);
   addPotsdamerWilhelmDetails(builder, byName);
-  addTillaDurieuxPark(builder, byName);
   addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);
   addCivicAccents(builder, byName);
@@ -5456,6 +5645,35 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+
+  // Keep the terrain sculpture independently inspectable. It still costs one
+  // merged body draw and one ink draw, but can now be QA-bounded without the
+  // kilometre-wide expanded-city batch masking a misplaced lawn edge.
+  const tillaBuilder = createBuilder();
+  addTillaDurieuxPark(tillaBuilder, byName);
+  const tilla = finishDrawnGroup(tillaBuilder, {
+    name: "Tilla-Durieux-Park lawn sculpture",
+  });
+  if (tilla) {
+    const lawn = tilla.getObjectByName(
+      "Tilla-Durieux-Park lawn sculpture bodies",
+    ) as Mesh | undefined;
+    if (lawn) {
+      const dayMaterial = lawn.userData.dayMaterial as MeshBasicMaterial;
+      const nightMaterial = lawn.userData.nightMaterial as MeshStandardMaterial;
+      dayMaterial.side = DoubleSide;
+      nightMaterial.side = DoubleSide;
+      // A stable polygon offset keeps the two exactly adjoining turf tones
+      // from alternating at their shared boundary as the camera moves.
+      for (const material of [dayMaterial, nightMaterial]) {
+        material.polygonOffset = true;
+        material.polygonOffsetFactor = -2;
+        material.polygonOffsetUnits = -2;
+      }
+    }
+    group.add(tilla);
+  }
+
   const weltBalloon = createWeltBalloon(byName);
   if (weltBalloon) group.add(weltBalloon);
 

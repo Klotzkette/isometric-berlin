@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
+import {
+  Box3,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Raycaster,
+  Vector3,
+} from "three";
 
 import {
   AMANO_GRAND_CENTRAL_PROFILE,
@@ -14,6 +21,7 @@ import {
   NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
+  TILLA_DURIEUX_PROFILE,
   WELT_BALLOON_PROFILE,
 } from "../src/ExpandedCityDetails";
 
@@ -86,6 +94,66 @@ describe("task-10 expanded city recognition details", () => {
       azimuth_degrees: 180,
       target_world: [mall!.world[0], mall!.world[1], mall!.world[2] - 48],
     });
+  });
+
+  test("models Tilla-Durieux as one counter-twisted grass strip", () => {
+    const details = createExpandedCityDetails(landmarks);
+    const profile = TILLA_DURIEUX_PROFILE;
+    expect(details.userData.tillaDurieux).toEqual(profile);
+    expect(profile.surfaceForm).toContain("single grass strip");
+    expect(profile.northLawn.osmWayId).toBe("840814492");
+    expect(profile.southLawn.osmWayId).toBe("840814493");
+    expect(profile.lawnWidthM).toBe(30);
+    expect(profile.maxHeightM).toBeCloseTo(4.5, 3);
+    expect(profile.seesawCount).toBe(5);
+    expect(profile.seesawLengthM).toBe(21);
+    expect(profile.centralCourtWidthM).toBe(profile.lawnWidthM);
+
+    // North: the west edge falls away; south: the twist reverses. This is the
+    // defining lawn sculpture, not two offset green boxes.
+    expect(profile.northLawn.endHeightsM.west).toBeLessThan(
+      profile.northLawn.endHeightsM.east,
+    );
+    expect(profile.southLawn.endHeightsM.west).toBeGreaterThan(
+      profile.southLawn.endHeightsM.east,
+    );
+    expect(profile.northLawn.courtHeightsM).toEqual({ east: 1.7, west: 1.3 });
+    expect(profile.southLawn.courtHeightsM).toEqual({ east: 0.7, west: 2.2 });
+    expect(profile.centralCourtWorldM[1]).toBeGreaterThan(
+      profile.northLawn.centerEastWorldM[1],
+    );
+    expect(profile.centralCourtWorldM[1]).toBeLessThan(
+      profile.southLawn.centerEastWorldM[1],
+    );
+
+    const lawn = details.getObjectByName(
+      "Tilla-Durieux-Park lawn sculpture bodies",
+    ) as Mesh;
+    expect(lawn).toBeInstanceOf(Mesh);
+    const bounds = new Box3().setFromObject(lawn);
+    expect(bounds.min.x).toBeCloseTo(130.4, 0);
+    expect(bounds.max.x).toBeCloseTo(304.9, 0);
+    expect(bounds.min.z).toBeCloseTo(1205.8, 0);
+    expect(bounds.max.z).toBeCloseTo(1619.5, 0);
+    expect(bounds.min.y).toBeCloseTo(profile.groundY - profile.terrainBuryM, 2);
+    expect(bounds.max.y).toBeCloseTo(profile.groundY + profile.maxHeightM, 2);
+    expect(
+      details.getObjectByName("Tilla-Durieux-Park lawn sculpture ink lines"),
+    ).toBeDefined();
+
+    const normals = lawn.geometry.getAttribute("normal");
+    for (let index = 0; index < 12; index += 1) {
+      expect(normals.getY(index)).toBeGreaterThan(0);
+    }
+
+    const raycaster = new Raycaster();
+    for (const [x, z] of [
+      [250, 1314],
+      [166, 1520],
+    ] as const) {
+      raycaster.set(new Vector3(x, 30, z), new Vector3(0, -1, 0));
+      expect(raycaster.intersectObject(lawn).length).toBeGreaterThan(0);
+    }
   });
 
   test("merges the architecture into one outlined flat-paint draw layer", () => {

@@ -4641,9 +4641,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
-          runtime.culturalDetails.add(
-            createExpandedCityDetails(manifest.landmarks),
+          const expandedDetails = createExpandedCityDetails(manifest.landmarks);
+          const tillaDurieux = expandedDetails.getObjectByName(
+            "Tilla-Durieux-Park lawn sculpture",
           );
+          if (tillaDurieux) {
+            // Terrain remains terrain in Minecraft too. Keep the authored
+            // counter-slope with the mode-independent signature layer while
+            // the rest of the fine cultural props can still be culled.
+            tillaDurieux.removeFromParent();
+            runtime.signatures.add(tillaDurieux);
+            applyLightingToRoot(
+              tillaDurieux,
+              runtime.lightingMode,
+              runtime.nightLightsOn,
+            );
+          }
+          runtime.culturalDetails.add(expandedDetails);
           scene.add(runtime.culturalDetails);
           applyLightingToRoot(
             runtime.culturalDetails,

@@ -176,6 +176,57 @@ export const KULTURFORUM_PROFILE = {
   ] as const,
 } as const;
 
+/**
+ * OSM-bounded lawn sculpture of Tilla-Durieux-Park.
+ *
+ * The park is not a pair of stacked landscape boxes. Its two grass lobes form
+ * one long strip, split only by the central seesaw court, and twist in opposite
+ * directions around the longitudinal axis. Scene coordinates below are the
+ * two mapped grass polygons (OSM ways 840814492/840814493) transformed from
+ * EPSG:25833 around the committed (389500, 5820000) origin.
+ */
+export const TILLA_DURIEUX_PROFILE = {
+  centralCourtWorldM: [204.04, 1434.7] as const,
+  centralCourtWidthM: 30,
+  centralCourtLengthM: 16,
+  geometryStatus:
+    "OSM-bounded grass lobes with source-described 4.5 m counter-twist; presentation heights are not a surveyed terrain surface",
+  groundY: 5.2,
+  lawnWidthM: 30,
+  maxHeightM: 4.5,
+  northLawn: {
+    areaM2: 6913,
+    centerEastWorldM: [225.263, 1422.502] as const,
+    centerWestWorldM: [196.256, 1411.333] as const,
+    courtHeightsM: { east: 1.7, west: 1.3 } as const,
+    endEastWorldM: [304.927, 1205.59] as const,
+    endHeightsM: { east: 4.5, west: 0.55 } as const,
+    endWestWorldM: [268.729, 1219.275] as const,
+    osmWayId: "840814492",
+  },
+  osmRelationId: "11518845",
+  seesawCount: 5,
+  seesawLengthM: 21,
+  terrainBuryM: 0.55,
+  southLawn: {
+    areaM2: 5082,
+    centerEastWorldM: [212.158, 1457.805] as const,
+    centerWestWorldM: [182.215, 1446.57] as const,
+    courtHeightsM: { east: 0.7, west: 2.2 } as const,
+    endEastWorldM: [150.353, 1619.457] as const,
+    endHeightsM: { east: 0.55, west: 4.5 } as const,
+    endWestWorldM: [130.403, 1582.386] as const,
+    osmWayId: "840814493",
+  },
+  sources: [
+    "https://www.openstreetmap.org/relation/11518845",
+    "https://www.berlin.de/sen/uvk/_assets/natur-gruen/stadtgruen/peter-joseph-lenne-preis/2026/lenne-preis-aufgabe-a-2026-de.pdf",
+    "https://commons.wikimedia.org/wiki/File:Tilla-Durieux-Park.jpg",
+  ] as const,
+  surfaceForm:
+    "single grass strip with two counter-twisted lobes and one central court",
+} as const;
+
 /** Open-data anchors for the requested Potsdamer/Wilhelmstrasse details. */
 export const POTSDAMER_DETAIL_PROFILE = {
   czechEmbassyWorldM: [854.635, 848.762] as const,

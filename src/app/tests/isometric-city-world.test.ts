@@ -39,6 +39,8 @@ import {
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
   createLandmarkRefinements,
+  createTillaDurieuxGroundTester,
+  isTillaDurieuxLawn,
   createPaulLoebeCanopy,
   ROOF_GABLED,
   ROOF_HIPPED,
@@ -1691,6 +1693,27 @@ describe("real bridge structures", () => {
 });
 
 describe("smooth OSM water and parkland", () => {
+  test("does not stack flat OSM lawns below the Tilla-Durieux sculpture", () => {
+    const tillaLawns = surfacesFixture.parks.filter(isTillaDurieuxLawn);
+    expect(tillaLawns).toHaveLength(2);
+    expect(tillaLawns.map((surface) => surface.area_m2).sort()).toEqual([
+      5082, 6913,
+    ]);
+    expect(
+      isTillaDurieuxLawn({
+        ...tillaLawns[0],
+        area_m2: 5082,
+        ring: tillaLawns[0].ring.map(([x, z]) => [x + 40_000, z]),
+      }),
+    ).toBeFalse();
+
+    const insideTilla = createTillaDurieuxGroundTester(surfacesFixture);
+    expect(insideTilla(250, 1314)).toBeTrue();
+    expect(insideTilla(166, 1520)).toBeTrue();
+    expect(insideTilla(204, 1435)).toBeFalse();
+    expect(insideTilla(340, 1314)).toBeFalse();
+  });
+
   test("draws static curved wave ribbons instead of straight water dashes", () => {
     const ripple = curvedWaterRipple([0, 0], 4.2, 0, 6, 0.6);
     expect(ripple).toHaveLength(6 * 18);

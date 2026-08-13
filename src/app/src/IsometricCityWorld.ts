@@ -39,9 +39,11 @@ import {
   markArchitecturalInk,
 } from "./architecturalInk";
 import { densifyRing, type DensifyOptions } from "./bankCurves";
+import { pointInWorldRing } from "./chancelleryExtensionProfile";
 import {
   KOLLHOFF_TOWER_PROFILE,
   KULTURFORUM_PROFILE,
+  TILLA_DURIEUX_PROFILE,
 } from "./expandedCityProfiles";
 import { createGoldelseFigure } from "./goldelse";
 import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
@@ -188,6 +190,41 @@ function surfaceCentroidM(surface: SurfacePolygon): [number, number] {
       Math.max(1, surface.ring.length) /
       10,
   ];
+}
+
+/**
+ * The two OSM lawns occupied by the authored Tilla-Durieux terrain sculpture.
+ * They must not also enter the generic flat-lawn batch: drawing both surfaces
+ * produced stacked green rectangles and nearly coplanar flicker.
+ */
+export function isTillaDurieuxLawn(surface: SurfacePolygon): boolean {
+  if (surface.kind !== "lawn" || surface.ring.length < 4) {
+    return false;
+  }
+  const expectedAreas = [
+    TILLA_DURIEUX_PROFILE.northLawn.areaM2,
+    TILLA_DURIEUX_PROFILE.southLawn.areaM2,
+  ];
+  if (!expectedAreas.some((area) => Math.abs(surface.area_m2 - area) <= 2)) {
+    return false;
+  }
+  const [x, z] = surfaceCentroidM(surface);
+  return x >= 130 && x <= 308 && z >= 1205 && z <= 1620;
+}
+
+/** Exact OSM footprint of the two authored Tilla-Durieux lawn lobes. */
+export function createTillaDurieuxGroundTester(
+  surfaces: SurfacePayload,
+): (x: number, z: number) => boolean {
+  const rings = surfaces.parks
+    .filter(isTillaDurieuxLawn)
+    .map((surface) =>
+      surface.ring.map(
+        ([xDecimetres, zDecimetres]) =>
+          [xDecimetres / 10, zDecimetres / 10] as [number, number],
+      ),
+    );
+  return (x, z) => rings.some((ring) => pointInWorldRing(x, z, ring));
 }
 
 /** Local water uses park terrain, not the much lower Spree table. */
@@ -7077,7 +7114,9 @@ export function createSmoothSurfaces(
   // Parkland lawns first: they sit just above the rasterised grass so
   // the 4 m steps disappear under a smooth sage plate.
   const lawns = buildPlate(
-    surfaces.parks.filter((entry) => entry.kind !== "garden"),
+    surfaces.parks.filter(
+      (entry) => entry.kind !== "garden" && !isTillaDurieuxLawn(entry),
+    ),
     terrainAt ? 0.06 : bankY + 0.08,
     true,
   );
@@ -9648,6 +9687,9 @@ export function createIsometricCity(
     const insideTunnelApproach = tunnel
       ? createTunnelPortalApproachTester(tunnel, ground.cell_m / Math.SQRT2)
       : null;
+    const insideTillaDurieux = surfaces
+      ? createTillaDurieuxGroundTester(surfaces)
+      : null;
     const slabs = createGroundSlabs(
       ground,
       "Drawn ground slabs",
@@ -9659,7 +9701,13 @@ export function createIsometricCity(
         // and deliberately keeps its block-native road staircase.
         skipClasses: surfaces ? ["asphalt"] : undefined,
         skipBridge: true,
-        skipAtWorld: insideTunnelApproach ?? undefined,
+        skipAtWorld:
+          insideTunnelApproach || insideTillaDurieux
+            ? (x, z) =>
+                Boolean(
+                  insideTunnelApproach?.(x, z) || insideTillaDurieux?.(x, z),
+                )
+            : undefined,
         skipWater: true,
       },
     );

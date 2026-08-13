@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.71.27
+
+- **Tilla-Durieux-Park is a landscape sculpture again, not a stack of green
+  rectangles.** The former two generic ramp boxes and the duplicate flat lawn
+  plates are replaced by two continuous 30 m-wide OSM-bounded turf fields.
+  Their crossfall reverses between the north and south halves, reproducing the
+  documented longitudinal twist: the high points sit at the north-east and
+  south-west ends while the opposite sides fall away as steep grass banks.
+- **The central cut now carries the real architectural logic.** The turf no
+  longer sinks implausibly to zero at the five 21 m seesaws. Source-described
+  0.7–2.2 m court heights form sharp steel-faced end cuts around the paved
+  east-west passage; a restrained second green identifies only the true steep
+  bank, without shading or stacking another surface.
+- **The park is stable in Day, Night and Minecraft.** Its exact two OSM lawn
+  footprints are removed from both the generic smooth-lawn plate and the
+  coarse ground raster before the authored terrain is drawn. This eliminates
+  the overlapping planes that produced blocky green patches and depth flicker.
+  Geometry tests pin bounds, counter-slope direction, central-cut heights,
+  upward normals and ray coverage. The visible radius remains **5,230 m** and
+  attribution is unchanged.
+
 ## v0.71.26
 
 - **The red-and-white DB mark now sits on the Washingtonplatz tower as well
