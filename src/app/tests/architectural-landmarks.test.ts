@@ -4,7 +4,9 @@ import {
   InstancedMesh,
   LineBasicMaterial,
   LineSegments,
+  Matrix4,
   Mesh,
+  Vector3,
 } from "three";
 import {
   type BrandenburgGateModelSignature,
@@ -630,10 +632,50 @@ describe("metre-scale architectural recognition models", () => {
     expect(streetLamps).toBeInstanceOf(InstancedMesh);
     expect((streetLamps as InstancedMesh).count).toBe(5);
     const fenceBars = chancellery!.getObjectByName(
-      "Chancellery instanced street security fence bars",
+      "Chancellery instanced Ehrenhof entrance fence bars",
     );
     expect(fenceBars).toBeInstanceOf(InstancedMesh);
-    expect((fenceBars as InstancedMesh).count).toBe(41);
+    expect((fenceBars as InstancedMesh).count).toBe(381);
+    expect(fenceBars!.userData.widthM).toBe(76);
+    expect(fenceBars!.userData.offsetFromSculptureM).toBe(17.5);
+    expect(fenceBars!.userData.geometryStatus).toContain(
+      "between the office wings",
+    );
+
+    const firstFenceMatrix = new Matrix4();
+    const middleFenceMatrix = new Matrix4();
+    const lastFenceMatrix = new Matrix4();
+    const instancedFence = fenceBars as InstancedMesh;
+    instancedFence.getMatrixAt(0, firstFenceMatrix);
+    instancedFence.getMatrixAt(
+      Math.floor(instancedFence.count / 2),
+      middleFenceMatrix,
+    );
+    instancedFence.getMatrixAt(instancedFence.count - 1, lastFenceMatrix);
+    const firstFenceBar = new Vector3().setFromMatrixPosition(firstFenceMatrix);
+    const middleFenceBar = new Vector3().setFromMatrixPosition(
+      middleFenceMatrix,
+    );
+    const lastFenceBar = new Vector3().setFromMatrixPosition(lastFenceMatrix);
+    const cube = new Vector3(...signature.cube_offset_world);
+    const court = new Vector3(...signature.forecourt_offset_world!);
+    const streetDirection = court.clone().sub(cube).normalize();
+    const expectedFenceCentre = court
+      .clone()
+      .addScaledVector(streetDirection, 17.5);
+    expectedFenceCentre.y = 1.325;
+    expect(firstFenceBar.distanceTo(lastFenceBar)).toBeCloseTo(76, 5);
+    expect(middleFenceBar.distanceTo(expectedFenceCentre)).toBeLessThan(0.001);
+    expect(
+      chancellery!.children.filter((child) =>
+        child.name.startsWith("Chancellery Ehrenhof entrance fence rail "),
+      ),
+    ).toHaveLength(2);
+    const gatePosts = chancellery!.getObjectByName(
+      "Chancellery instanced Ehrenhof entrance gate posts",
+    );
+    expect(gatePosts).toBeInstanceOf(InstancedMesh);
+    expect((gatePosts as InstancedMesh).count).toBe(3);
     expect(
       chancellery!.children.filter((child) =>
         child.name.startsWith("Chancellery Ehrenhof German German flag stripe"),

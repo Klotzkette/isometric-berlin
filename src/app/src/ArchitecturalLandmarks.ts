@@ -2113,6 +2113,14 @@ function addChancelleryStreetEntrance(
     metalness: 0.55,
     roughness: 0.38,
   });
+  const fenceMetal = nightEmitter(
+    modelMaterial(0x9fa8a8, {
+      metalness: 0.62,
+      roughness: 0.44,
+    }),
+    0x829294,
+    0.26,
+  );
 
   addOrientedBox(
     group,
@@ -2162,34 +2170,55 @@ function addChancelleryStreetEntrance(
   );
 
   const fencePosts: InstanceTransform[] = [];
-  const fenceRails: VectorSegment[] = [];
-  const fenceCentre = entrance.clone().addScaledVector(streetDirection, 11.2);
-  for (let index = -20; index <= 20; index += 1) {
-    const point = fenceCentre.clone().addScaledVector(lateral, index * 1.55);
-    fencePosts.push({ position: [point.x, 1.25, point.z] });
+  const fenceHalfWidthM = 38;
+  const fenceOffsetFromSculptureM = 17.5;
+  const fenceCentre = court
+    .clone()
+    .addScaledVector(streetDirection, fenceOffsetFromSculptureM);
+  const fenceBarCount = 381;
+  for (let index = 0; index < fenceBarCount; index += 1) {
+    const offset =
+      -fenceHalfWidthM +
+      (index / (fenceBarCount - 1)) * fenceHalfWidthM * 2;
+    const point = fenceCentre.clone().addScaledVector(lateral, offset);
+    fencePosts.push({ position: [point.x, 1.325, point.z] });
   }
-  for (const y of [0.55, 2.35]) {
-    const left = fenceCentre.clone().addScaledVector(lateral, -31);
-    const right = fenceCentre.clone().addScaledVector(lateral, 31);
-    fenceRails.push([
-      [left.x, y, left.z],
-      [right.x, y, right.z],
-    ]);
-  }
-  addInstancedGeometry(
+  const fenceBars = addInstancedBoxes(
     group,
-    "Chancellery instanced street security fence bars",
-    new CylinderGeometry(0.045, 0.045, 2.5, 6),
-    metal,
+    "Chancellery instanced Ehrenhof entrance fence bars",
+    [0.055, 2.65, 0.055],
+    fenceMetal,
     fencePosts,
   );
-  addVectorSegments(
+  fenceBars.userData.widthM = fenceHalfWidthM * 2;
+  fenceBars.userData.offsetFromSculptureM = fenceOffsetFromSculptureM;
+  fenceBars.userData.geometryStatus =
+    "Owner-verified closed security fence across the Ehrenhof between the office wings";
+  fenceBars.renderOrder = 6;
+  for (const [index, y] of [0.32, 2.42].entries()) {
+    const fenceRail = addOrientedBox(
+      group,
+      `Chancellery Ehrenhof entrance fence rail ${index + 1}`,
+      [fenceHalfWidthM * 2, 0.075, 0.09],
+      [fenceCentre.x, y, fenceCentre.z],
+      heading,
+      fenceMetal,
+    );
+    fenceRail.renderOrder = 6;
+  }
+
+  const gatePosts: InstanceTransform[] = [-7.4, 0, 7.4].map((offset) => {
+    const point = fenceCentre.clone().addScaledVector(lateral, offset);
+    return { position: [point.x, 1.4, point.z] };
+  });
+  const entranceGatePosts = addInstancedBoxes(
     group,
-    "Chancellery batched street security fence rails",
-    fenceRails,
-    0x687273,
-    0.82,
+    "Chancellery instanced Ehrenhof entrance gate posts",
+    [0.18, 2.8, 0.18],
+    fenceMetal,
+    gatePosts,
   );
+  entranceGatePosts.renderOrder = 6;
 }
 
 /**

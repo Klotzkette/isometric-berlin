@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.71.29
+
+- **The Bundeskanzleramt Ehrenhof is secured by the real fence line again.**
+  The silver security fence now closes the 76 m-wide paved entrance court
+  between the two office wings, 17.5 m beyond Eduardo Chillida's sculpture,
+  instead of sitting at the unrelated street-canopy position. Its 381 slender
+  bars, two continuous rails and reinforced central gate remain architectural
+  linework rather than another false pavilion or opaque wall.
+- **Placement and presentation are regression-tested.** Tests pin the fence
+  centre to the Chancellery cube/forecourt axis, its full span and its gate
+  structure, while continuing to ban every component of the removed white
+  circular pavilion. Direct browser checks cover Day, Night and Minecraft;
+  the visible radius remains **5,230 m** and attribution is unchanged.
+
 ## v0.71.28
 
 - **The false white circle south-east of the Bundeskanzleramt is gone.** The
