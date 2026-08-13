@@ -89,6 +89,7 @@ import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
 } from "./ExpandedCityDetails";
+import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
 import {
   type ParkDetailsPayload,
   createParkDetails,
@@ -154,6 +155,10 @@ import {
 } from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
+import {
+  meshReplacementsFor,
+  stripReplacedGeometry,
+} from "./meshReplacements";
 import { minecraftFogRange } from "./minecraftFog";
 import { setQuadrigaMode } from "./Quadriga";
 import { PRESENTATION_TONE } from "./presentationTone";
@@ -2558,6 +2563,7 @@ async function loadModel(
     gltf.scene.position.y += DETAIL_RAISE_M;
   }
   stripSkyArtefacts(gltf.scene, skyArtefactsFor(file.file));
+  stripReplacedGeometry(gltf.scene, meshReplacementsFor(file.file));
   parent.add(gltf.scene);
   // Render-on-demand must also cover streaming geometry: after an otherwise
   // quiet frame a completed loader is the event that makes the new tile visible.
@@ -4611,6 +4617,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           runtime.monuments.add(createKrolloperSculptureEnsemble());
           runtime.monuments.add(createQueerRainbowMemorial());
+          runtime.monuments.add(createSonyCenterForumRoof());
           runtime.focusCameraByName.set(QUEER_RAINBOW_MEMORIAL_PROFILE.name, {
             azimuth_degrees: -18,
             distance_m: 20,

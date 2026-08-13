@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.71.24
+
+- **The Sony Center Forum roof is no longer a heavy generic slab.** Its plan
+  now follows the 24 individual OSM roof ways, fitted to Arup's published
+  102 x 78 m elliptical ring and the measured 29.465-degree site
+  bearing. The off-centre 27.2 m opening, seven support points at 41 m and
+  42.5 m tilted kingpost keep the landmark in its documented metric envelope;
+  Berlin's published 67 m overall roof height fixes the presentation peak.
+- **The lightweight structure is legible as architecture.** Alternating
+  translucent PTFE-membrane and blue-clear glass sectors expose a complete
+  oval ring truss, lattice, inner ring, radial cable net, lower stays and the
+  tilted central kingpost. A shallow reflecting pool completes the Forum
+  below; Day, Night, Minecraft and Snowstorm retain the same silhouette while
+  Night uses restrained cool glass and warm membrane light.
+- **Transparency remains stable while the camera moves or rests.** Membrane
+  and glass occupy disjoint sectors with depth writes disabled, and repeated
+  ring, lattice, cable and support members are instanced. The old source-mesh
+  canopy is removed only inside its registered elliptical roof envelope, so it
+  cannot turn the new construction back into a heavy double roof or z-fight
+  while the surrounding Forum facades remain intact. Settled browser frames
+  were byte-identical. The reconstruction uses OSM geometry plus Arup and
+  Berlin documentation without a copied photo texture or Google content; its
+  bounded curvature remains explicitly documented. The visible radius remains
+  **5,230 m** and attribution is unchanged.
+
 ## v0.71.23
 
 - **The former Krolloper site now carries its four individually mapped

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.23 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.23/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.24 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.24/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.23** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.24** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.23**, built from `main`. Its full viewer
+The current public package is **v0.71.24**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -70,6 +70,14 @@ local modules.
   the final landmark focus share one pose, preventing a visible jump while the
   scene loads. The pedestrian mode remains at realistic eye height and is not
   affected.
+
+- **The Sony Center Forum roof now reads as the light suspended structure it
+  is, rather than a heavy generic slab.** Its 24 mapped roof panels follow the
+  published 102 x 78 m elliptical ring, with alternating translucent
+  membrane and glass, the open centre, radial cable net, tilted kingpost,
+  seven supports and reflecting pool. Instanced steelwork and non-overlapping
+  transparent sectors keep the reconstruction crisp while orbiting; the old
+  source-mesh canopy is suppressed only within this measured roof envelope.
 
 - **The Tiergartentunnel now meets the surface through four real access
   sites.** Minna-Cauer-Straße, Invalidenstraße/Hauptbahnhof, Kemperplatz and
