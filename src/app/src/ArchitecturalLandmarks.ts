@@ -1,6 +1,7 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  CanvasTexture,
   CapsuleGeometry,
   CatmullRomCurve3,
   CircleGeometry,
@@ -13,6 +14,8 @@ import {
   Group,
   InstancedMesh,
   LineBasicMaterial,
+  LinearFilter,
+  LinearMipmapLinearFilter,
   LineSegments,
   MathUtils,
   Mesh,
@@ -26,7 +29,9 @@ import {
   Shape,
   ShapeGeometry,
   SphereGeometry,
+  SRGBColorSpace,
   TorusGeometry,
+  type Texture,
   TubeGeometry,
   Vector3,
 } from "three";
@@ -4516,6 +4521,108 @@ function stationEntranceFacadeGeometry(
   return new ShapeGeometry(shape);
 }
 
+function createStationDbBadgeTexture(): Texture | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = 1560;
+  canvas.height = 1020;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return null;
+  }
+
+  const roundedRectangle = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+  ): void => {
+    context.beginPath();
+    context.moveTo(x + radius, y);
+    context.lineTo(x + width - radius, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius);
+    context.lineTo(x + width, y + height - radius);
+    context.quadraticCurveTo(
+      x + width,
+      y + height,
+      x + width - radius,
+      y + height,
+    );
+    context.lineTo(x + radius, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius);
+    context.lineTo(x, y + radius);
+    context.quadraticCurveTo(x, y, x + radius, y);
+    context.closePath();
+  };
+
+  // One mipmapped image holds the frame and the filled glyphs. The old four
+  // frame bars plus monoline letters vanished independently at overview zoom;
+  // this closed mark averages to DB red instead of a nearly white pixel.
+  context.fillStyle = "#d51f2a";
+  roundedRectangle(16, 16, 1528, 988, 68);
+  context.fill();
+  context.fillStyle = "#fffdf8";
+  roundedRectangle(70, 70, 1420, 880, 34);
+  context.fill();
+
+  context.fillStyle = "#d51f2a";
+  context.beginPath();
+  context.moveTo(250, 250);
+  context.lineTo(505, 250);
+  context.bezierCurveTo(690, 250, 785, 345, 785, 510);
+  context.bezierCurveTo(785, 675, 690, 770, 505, 770);
+  context.lineTo(250, 770);
+  context.closePath();
+  context.fill();
+  context.fillStyle = "#fffdf8";
+  context.beginPath();
+  context.moveTo(385, 355);
+  context.lineTo(495, 355);
+  context.bezierCurveTo(600, 355, 650, 405, 650, 510);
+  context.bezierCurveTo(650, 615, 600, 665, 495, 665);
+  context.lineTo(385, 665);
+  context.closePath();
+  context.fill();
+
+  context.fillStyle = "#d51f2a";
+  context.beginPath();
+  context.moveTo(815, 250);
+  context.lineTo(1080, 250);
+  context.bezierCurveTo(1225, 250, 1305, 310, 1305, 395);
+  context.bezierCurveTo(1305, 455, 1265, 490, 1210, 510);
+  context.bezierCurveTo(1275, 530, 1320, 575, 1320, 650);
+  context.bezierCurveTo(1320, 730, 1230, 770, 1080, 770);
+  context.lineTo(815, 770);
+  context.closePath();
+  context.fill();
+  context.fillStyle = "#fffdf8";
+  for (const [top, bottom, right] of [
+    [350, 465, 1175],
+    [555, 675, 1190],
+  ] as const) {
+    context.beginPath();
+    context.moveTo(945, top);
+    context.lineTo(1070, top);
+    context.bezierCurveTo(right, top, right, bottom, 1070, bottom);
+    context.lineTo(945, bottom);
+    context.closePath();
+    context.fill();
+  }
+
+  const texture = new CanvasTexture(canvas);
+  texture.name = "Hauptbahnhof DB pylon filled logo texture";
+  texture.anisotropy = 8;
+  texture.generateMipmaps = true;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.colorSpace = SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function addStationLetteringPanel(
   group: Group,
   name: string,
@@ -4526,28 +4633,43 @@ function addStationLetteringPanel(
   fieldColor: string,
   letterColor: string,
   rotationY = 0,
+  options: {
+    preserveInkAtNight?: boolean;
+    texture?: Texture | null;
+  } = {},
 ): Mesh {
-  const texture = createLetteringTexture({
-    bandHeightM: height,
-    bandWidthM: width,
-    capHeightM: height * 0.58,
-    fieldColor,
-    letterColor,
-    text,
-    texelsPerMetre: 220,
-  });
+  const texture =
+    options.texture === undefined
+      ? createLetteringTexture({
+          bandHeightM: height,
+          bandWidthM: width,
+          capHeightM: height * 0.58,
+          fieldColor,
+          letterColor,
+          text,
+          texelsPerMetre: 220,
+        })
+      : options.texture;
   const dayMaterial = texture
     ? new MeshBasicMaterial({ map: texture, side: DoubleSide })
     : new MeshBasicMaterial({ color: fieldColor, side: DoubleSide });
-  const nightMaterial = texture
-    ? new MeshStandardMaterial({
-        emissive: 0xffd8a0,
-        emissiveIntensity: 0.72,
-        map: texture,
-        roughness: 0.55,
-        side: DoubleSide,
-      })
-    : new MeshStandardMaterial({ color: fieldColor, side: DoubleSide });
+  const nightMaterial = options.preserveInkAtNight
+    ? texture
+      ? new MeshBasicMaterial({
+          color: 0xfff4e8,
+          map: texture,
+          side: DoubleSide,
+        })
+      : new MeshBasicMaterial({ color: fieldColor, side: DoubleSide })
+    : texture
+      ? new MeshStandardMaterial({
+          emissive: 0xffd8a0,
+          emissiveIntensity: 0.72,
+          map: texture,
+          roughness: 0.55,
+          side: DoubleSide,
+        })
+      : new MeshStandardMaterial({ color: fieldColor, side: DoubleSide });
   const panel = new Mesh(new PlaneGeometry(width, height), dayMaterial);
   panel.name = name;
   panel.position.set(...position);
@@ -4556,6 +4678,9 @@ function addStationLetteringPanel(
   panel.userData.dayMaterial = dayMaterial;
   panel.userData.nightMaterial = nightMaterial;
   panel.userData.lettering = text;
+  panel.userData.letteringFieldColor = fieldColor;
+  panel.userData.letteringInkColor = letterColor;
+  panel.userData.preserveInkAtNight = options.preserveInkAtNight === true;
   group.add(panel);
   return panel;
 }
@@ -4918,31 +5043,34 @@ function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
     0.76,
   );
 
-  const badgeWidth = 4.25;
-  const badgeHeight = 2.75;
-  const badgeY = pylonHeight - 7.2;
-  const badgeBacking = modelMaterial(0xfff8e7, {
-    metalness: 0.04,
-    roughness: 0.5,
-  });
-  const badgeFrame = modelMaterial(0xd51f2a, {
-    metalness: 0.08,
-    roughness: 0.42,
-  });
+  const badgeWidth = HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeWidthM;
+  const badgeHeight = HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeHeightM;
+  const badgeY =
+    pylonHeight - HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCentreBelowTopM;
+  const badgeBacking = nightEmitter(
+    modelMaterial(0xd51f2a, {
+      metalness: 0.04,
+      roughness: 0.5,
+    }),
+    0xd51f2a,
+    0.42,
+  );
+  const badgeTexture = createStationDbBadgeTexture();
   for (const wall of wallSpecs) {
-    const tangentX = Math.cos(wall.rotationY);
-    const tangentZ = -Math.sin(wall.rotationY);
     const badgeNormalX = wall.outwardX;
     const badgeNormalZ = wall.outwardZ;
-    const badgeRotationY = wall.rotationY + Math.PI;
-    const backingOutset = 0.25;
-    const panelOutset = 0.5;
+    // PlaneGeometry's local +Z face must point away from the triangular stack.
+    // Deriving the yaw from the measured outward normal avoids a mirrored sign
+    // on one wall and keeps every DB face stable from orbiting viewpoints.
+    const badgeRotationY = Math.atan2(badgeNormalX, badgeNormalZ);
+    const backingOutset = 0.31;
+    const panelOutset = 0.48;
     const badgeX = wall.centerX + badgeNormalX * panelOutset;
     const badgeZ = wall.centerZ + badgeNormalZ * panelOutset;
     const backing = addBox(
       group,
-      "Hauptbahnhof DB pylon badge ivory backing",
-      [badgeWidth + 0.34, badgeHeight + 0.34, 0.2],
+      "Hauptbahnhof DB pylon badge red frame backing",
+      [badgeWidth + 0.48, badgeHeight + 0.48, 0.2],
       [
         wall.centerX + badgeNormalX * backingOutset,
         badgeY,
@@ -4951,41 +5079,24 @@ function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
       badgeBacking,
     );
     backing.rotation.y = badgeRotationY;
-    addEdges(group, backing, 0.72);
-    addStationLetteringPanel(
+    backing.userData.logoRole = "closed red DB frame";
+    backing.userData.sourceUrl = HAUPTBAHNHOF_DB_PYLON_PROFILE.logoSourceUrl;
+    addEdges(group, backing, 0.78);
+    const badge = addStationLetteringPanel(
       group,
       "Hauptbahnhof Washingtonplatz pylon DB badge",
       "DB",
       badgeWidth,
       badgeHeight,
       [badgeX, badgeY, badgeZ],
-      "#fff8e7",
+      "#fffdf8",
       "#d51f2a",
       badgeRotationY,
+      { preserveInkAtNight: true, texture: badgeTexture },
     );
-    for (const [name, size, offset] of [
-      ["top", [badgeWidth + 0.2, 0.16, 0.1], [0, badgeHeight / 2 + 0.04, 0]],
-      [
-        "bottom",
-        [badgeWidth + 0.2, 0.16, 0.1],
-        [0, -badgeHeight / 2 - 0.04, 0],
-      ],
-      ["left", [0.16, badgeHeight + 0.2, 0.1], [-badgeWidth / 2 - 0.04, 0, 0]],
-      ["right", [0.16, badgeHeight + 0.2, 0.1], [badgeWidth / 2 + 0.04, 0, 0]],
-    ] as const) {
-      const framePiece = addBox(
-        group,
-        `Hauptbahnhof DB pylon badge ${name} red frame`,
-        [...size],
-        [
-          badgeX + tangentX * offset[0] + badgeNormalX * 0.055,
-          badgeY + offset[1],
-          badgeZ + tangentZ * offset[0] + badgeNormalZ * 0.055,
-        ],
-        badgeFrame,
-      );
-      framePiece.rotation.y = badgeRotationY;
-    }
+    badge.userData.logoRole = "DB tower logo";
+    badge.userData.logoRendering = "closed frame with filled geometric glyphs";
+    badge.userData.sourceUrl = HAUPTBAHNHOF_DB_PYLON_PROFILE.logoSourceUrl;
   }
 
   const plinth = HAUPTBAHNHOF_DB_PYLON_PROFILE;
@@ -5382,7 +5493,11 @@ export const HAUPTBAHNHOF_ROTATION_Y_DEGREES = 21.82;
  * crown are recognition geometry derived from the owner's August 2026 photos.
  */
 export const HAUPTBAHNHOF_DB_PYLON_PROFILE = {
+  badgeCentreBelowTopM: 7.2,
   badgeCount: 3,
+  badgeGeometryStatus: "photo-bounded presentation geometry",
+  badgeHeightM: 2.75,
+  badgeWidthM: 4.25,
   baseAreaM2: 30,
   faceWidthM: 8.2,
   frameFieldsPerWall: 3,

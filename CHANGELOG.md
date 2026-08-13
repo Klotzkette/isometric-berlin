@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.71.26
+
+- **The red-and-white DB mark now sits on the Washingtonplatz tower as well
+  as at the Hauptbahnhof entrance.** All three faces of the documented 60 m
+  triangular ventilation stack carry an outward-facing, photo-bounded sign in
+  the same 4.25 x 2.75 m presentation envelope already established from the
+  owner's August 2026 reference view. A closed red carrier, warm-white field
+  and filled red `DB` glyphs
+  replace the four disconnected frame strips and monoline letters that faded
+  into a pale spot at normal viewing distance.
+- **The identity survives every ordinary viewing condition.** One high-
+  resolution mipmapped texture holds frame and glyphs together, so orbiting
+  and zooming cannot separate or shimmer the mark. Night swaps to the same
+  colour-faithful unlit texture instead of washing the red letters out with a
+  uniform emissive material. Tests require all three signs, source provenance,
+  exact dimensions and outward-facing normals. The visible radius remains
+  **5,230 m** and existing attribution is unchanged.
+
 ## v0.71.25
 
 - **The WELT balloon is no longer a beige ellipsoid with a floating red

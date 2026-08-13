@@ -5,6 +5,7 @@ import {
   Group,
   InstancedMesh,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   Vector3,
 } from "three";
@@ -142,22 +143,55 @@ describe("Hauptbahnhof facade makeover", () => {
         (child) => child.name === "Hauptbahnhof Washingtonplatz pylon DB badge",
       ),
     ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount);
-    expect(
-      root.children.filter(
-        (child) =>
-          child.name === "Hauptbahnhof DB pylon badge ivory backing",
-      ),
-    ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount);
+    const pylonBadges = root.children.filter(
+      (child) => child.name === "Hauptbahnhof Washingtonplatz pylon DB badge",
+    ) as Mesh[];
+    const pylonCentre = root.children
+      .filter((child) => child.name === "Hauptbahnhof Washingtonplatz DB pylon")
+      .reduce((sum, wall) => sum.add(wall.position), new Vector3())
+      .multiplyScalar(1 / HAUPTBAHNHOF_DB_PYLON_PROFILE.wallCount);
+    for (const badge of pylonBadges) {
+      expect(badge.userData.lettering).toBe("DB");
+      expect(badge.userData.letteringFieldColor).toBe("#fffdf8");
+      expect(badge.userData.letteringInkColor).toBe("#d51f2a");
+      expect(badge.userData.preserveInkAtNight).toBe(true);
+      expect(badge.userData.logoRendering).toBe(
+        "closed frame with filled geometric glyphs",
+      );
+      expect(badge.userData.nightMaterial).toBeInstanceOf(MeshBasicMaterial);
+      expect(badge.userData.sourceUrl).toContain("deutschebahn.com");
+      const outward = badge.position
+        .clone()
+        .sub(pylonCentre)
+        .setY(0)
+        .normalize();
+      const faceNormal = new Vector3(0, 0, 1)
+        .applyEuler(badge.rotation)
+        .normalize();
+      expect(faceNormal.dot(outward)).toBeGreaterThan(0.99);
+    }
+    const pylonBadgeFrames = root.children.filter(
+      (child) => child.name === "Hauptbahnhof DB pylon badge red frame backing",
+    ) as Mesh[];
+    expect(pylonBadgeFrames).toHaveLength(
+      HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount,
+    );
+    for (const frame of pylonBadgeFrames) {
+      frame.geometry.computeBoundingBox();
+      const size = frame.geometry.boundingBox!.getSize(new Vector3());
+      expect(size.x).toBeCloseTo(
+        HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeWidthM + 0.48,
+        4,
+      );
+      expect(size.y).toBeCloseTo(
+        HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeHeightM + 0.48,
+        4,
+      );
+      expect(frame.userData.logoRole).toBe("closed red DB frame");
+    }
     expect(
       root.getObjectByName("Hauptbahnhof DB pylon perforated service plinth"),
     ).toBeInstanceOf(Mesh);
-    expect(
-      root.children.filter(
-        (child) =>
-          child.name.startsWith("Hauptbahnhof DB pylon badge") &&
-          child.name.endsWith("red frame"),
-      ),
-    ).toHaveLength(HAUPTBAHNHOF_DB_PYLON_PROFILE.badgeCount * 4);
     const perforations = root.getObjectByName(
       "Hauptbahnhof instanced DB pylon perforations",
     );
