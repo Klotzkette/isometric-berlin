@@ -9,10 +9,12 @@ import {
 } from "three";
 
 import {
+  createKrolloperSculptureEnsemble,
   createMemorialLandmarks,
   jehovahDiscRadius,
   memorialFocusDistance,
   SINTI_ROMA_MEMORIAL,
+  KROLLOPER_SCULPTURE_PROFILE,
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
 
@@ -34,6 +36,25 @@ const landmarks: MemorialLandmark[] = names.map((name, index) => ({
 }));
 
 describe("granular memorial recognition models", () => {
+  test("places all four Krolloper anti-war sculptures at their OSM nodes", () => {
+    const ensemble = createKrolloperSculptureEnsemble();
+    expect(ensemble.children).toHaveLength(4);
+    expect(ensemble.userData.modelCount).toBe(4);
+    for (const work of KROLLOPER_SCULPTURE_PROFILE.works) {
+      const model = ensemble.getObjectByName(`Krolloper sculpture ${work.name}`);
+      expect(model).not.toBeNull();
+      expect(model!.position.x).toBeCloseTo(work.worldM[0], 3);
+      expect(model!.position.z).toBeCloseTo(work.worldM[1], 3);
+      expect(model!.position.y).toBe(KROLLOPER_SCULPTURE_PROFILE.groundY);
+    }
+    expect(
+      ensemble.getObjectByName("Himmelschlüssel crown aperture"),
+    ).not.toBeNull();
+    expect(
+      ensemble.getObjectByName("Todes Mauer Bruch split weathered steel plates"),
+    ).toBeInstanceOf(InstancedMesh);
+  });
+
   test("creates all nine documented monument models", () => {
     const root = createMemorialLandmarks(landmarks);
     expect(root.children).toHaveLength(9);

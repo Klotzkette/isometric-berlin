@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.71.23
+
+- **The former Krolloper site now carries its four individually mapped
+  anti-war sculptures instead of an empty lawn.** `Contact`, `Himmelschlüssel`,
+  `Große Knospe III/63` and `Todes Mauer Bruch` sit at their four OSM monument
+  nodes between Große Querallee and Heinrich-von-Gagern-Straße. Their bounded
+  procedural forms use freely licensed Commons and Bildhauerei-in-Berlin views
+  as visual references; no photograph or texture is copied into the viewer.
+- **North Hauptbahnhof and Europacity follow their current geometry more
+  closely.** The tram platforms, shelters and vehicles now share the bearing
+  of OSM tram way `1049894514`, removing the mirrored skew to the tracks.
+  DKB Campus Upbeat keeps its complete 61-point OSM footprint, published 82 m
+  height and three stepped tiers, with the completed fine champagne-silver
+  anodised-aluminium/glass facade and transparent double-height arrival zone.
+- **Invalidenfriedhof and Brandenburger Tor gain source-bounded architectural
+  detail.** The cemetery now separates its 1902 canal-side brick boundary from
+  the preserved concrete Hinterlandmauer fragments, adds 34 mapped tomb
+  anchors, principal paths and a restrained Scharnhorst-tomb reconstruction.
+  The gate adds real recessed flutes to all twelve Doric columns, capital
+  annulets, metopes and guttae, so the classical order remains legible beyond
+  one-pixel line distance. The visible radius remains **5,230 m**; the compact
+  five-sight rail, resilient hosted startup, attribution and source hierarchy
+  are unchanged.
+
 ## v0.71.22
 
 - **The GitHub Pages viewer no longer downloads the complete visual archive at

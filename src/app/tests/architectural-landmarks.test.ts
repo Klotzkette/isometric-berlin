@@ -97,6 +97,15 @@ describe("metre-scale architectural recognition models", () => {
       ((fluting as LineSegments).material as LineBasicMaterial).userData
         .architecturalInkRole,
     ).toBe("micro");
+    const fluteGrooves = gate!.getObjectByName(
+      "Brandenburg Gate recessed Doric flute grooves",
+    ) as InstancedMesh;
+    expect(fluteGrooves).toBeInstanceOf(InstancedMesh);
+    expect(fluteGrooves.count).toBe(
+      12 *
+        BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount *
+        BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteGeometrySegmentCount,
+    );
     expect(
       gate!.getObjectByName("Brandenburg Gate batched pavilion masonry joints"),
     ).toBeInstanceOf(LineSegments);
@@ -115,6 +124,27 @@ describe("metre-scale architectural recognition models", () => {
     );
     expect(abaci).toBeInstanceOf(InstancedMesh);
     expect((abaci as InstancedMesh).count).toBe(12);
+    expect(
+      (
+        gate!.getObjectByName(
+          "Brandenburg Gate Doric capital annulets",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.capitalAnnuletCount);
+    expect(
+      (
+        gate!.getObjectByName(
+          "Brandenburg Gate recessed Doric metopes",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.metopePanelCount);
+    expect(
+      (
+        gate!.getObjectByName(
+          "Brandenburg Gate Doric guttae",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.guttaCount);
     const photoDetails = gate!.getObjectByName(
       "Brandenburg Gate photo-bounded fine detail",
     );

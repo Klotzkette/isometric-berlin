@@ -232,6 +232,9 @@ describe("task-10 expanded city recognition details", () => {
     expect(profile.upbeat.footprintWorldM).toHaveLength(61);
     expect(profile.upbeat.storeyTiers).toEqual([5, 11, 19]);
     expect(profile.upbeat.heightM).toBe(82);
+    expect(profile.upbeat.facadeBayPitchM).toBe(1.45);
+    expect(profile.upbeat.facadeMaterial).toContain("anodised aluminium");
+    expect(profile.upbeat.completedState).toContain("March 2026");
     expect(profile.upbeat.groundY).toBeCloseTo(2.92, 2);
     expect(profile.upbeat.terrainDgm1).toEqual({
       dhhn2016MedianM: 32.92,
@@ -245,6 +248,24 @@ describe("task-10 expanded city recognition details", () => {
     );
     expect(profile.upbeat.geometryStatus).toContain("plan-derived tier clips");
     expect(profile.sources).toHaveLength(15);
+  });
+
+  test("reconstructs the Invalidenfriedhof walls and mapped grave field", () => {
+    const details = createExpandedCityDetails(landmarks);
+    const profile = NORTHERN_CITY_PROFILE.invalidenfriedhof;
+    expect(profile.cemeteryOsmWayId).toBe("51804411");
+    expect(profile.graveWorldM.length).toBeGreaterThan(30);
+    expect(profile.hinterlandWallOsmWayIds).toEqual([
+      "1504490299",
+      "1504490297",
+    ]);
+    expect(profile.geometryStatus).toContain("1902 canal brick boundary");
+    expect(profile.sources).toHaveLength(3);
+    const bodies = details.getObjectByName(
+      "Invalidenfriedhof surveyed walls and graves bodies",
+    ) as Mesh;
+    expect(bodies).toBeInstanceOf(Mesh);
+    expect(new Box3().setFromObject(bodies).min.z).toBeLessThan(-1580);
   });
 
   test("keeps the WELT balloon tall but introduces no duplicate Carillon", () => {

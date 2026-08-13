@@ -118,8 +118,12 @@ export type BrandenburgGateModelSignature = SignatureBase & {
  */
 export const BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE = {
   atticReliefFigureCount: 18,
+  capitalAnnuletCount: 36,
   ceilingCofferCount: 25,
   columnFluteCount: 20,
+  columnFluteGeometrySegmentCount: 3,
+  guttaCount: 300,
+  metopePanelCount: 48,
   passageDividerCount: 4,
   passageMedallionCount: 8,
   pavilionPorticoColumnCount: 16,
@@ -5980,6 +5984,51 @@ function createBrandenburgGateModel(
     0.58,
   );
 
+  // WebGL line width is effectively one device pixel in most browsers, so
+  // the old flute strokes vanished as soon as the gate was viewed at normal
+  // map distance. These shallow, tapered groove inserts make all twenty
+  // Doric flutes per column actual geometry while retaining the thin ink line
+  // above for close-up definition. Three vertical segments follow the shaft's
+  // taper without turning 240 flutes into 240 draw calls.
+  const fluteGrooves: InstanceTransform[] = [];
+  const fluteSegmentCount =
+    BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteGeometrySegmentCount;
+  const fluteBottom = 0.72;
+  const fluteTop = signature.column_height_m - 0.7;
+  const fluteSegmentHeight = (fluteTop - fluteBottom) / fluteSegmentCount;
+  for (const [columnX, columnZ] of columnCenters) {
+    for (
+      let flute = 0;
+      flute < BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount;
+      flute += 1
+    ) {
+      const angle =
+        (flute / BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount) *
+        Math.PI *
+        2;
+      for (let segment = 0; segment < fluteSegmentCount; segment += 1) {
+        const progress = (segment + 0.5) / fluteSegmentCount;
+        const radius = 1.3 + (1.04 - 1.3) * progress;
+        fluteGrooves.push({
+          position: [
+            columnX + Math.cos(angle) * radius,
+            fluteBottom + (segment + 0.5) * fluteSegmentHeight,
+            columnZ + Math.sin(angle) * radius,
+          ],
+          rotation: [0, Math.PI / 2 - angle, 0],
+          scale: [1, fluteSegmentHeight - 0.035, 1],
+        });
+      }
+    }
+  }
+  addInstancedGeometry(
+    group,
+    "Brandenburg Gate recessed Doric flute grooves",
+    new BoxGeometry(0.075, 1, 0.045),
+    sandstoneShadow,
+    fluteGrooves,
+  );
+
   const photoDetails = new Group();
   photoDetails.name = "Brandenburg Gate photo-bounded fine detail";
   photoDetails.userData = {
@@ -6012,6 +6061,21 @@ function createBrandenburgGateModel(
     columnCenters.map(([x, z]) => ({
       position: [x, signature.column_height_m - 0.82, z],
     })),
+  );
+  addInstancedGeometry(
+    photoDetails,
+    "Brandenburg Gate Doric capital annulets",
+    new CylinderGeometry(1.19, 1.19, 0.055, 32),
+    sandstoneShadow,
+    columnCenters.flatMap(([x, z]) =>
+      [0, 1, 2].map((ring) => ({
+        position: [
+          x,
+          signature.column_height_m - 0.68 + ring * 0.095,
+          z,
+        ] as [number, number, number],
+      })),
+    ),
   );
 
   for (let passage = 0; passage < 5; passage += 1) {
@@ -6256,6 +6320,44 @@ function createBrandenburgGateModel(
     [0.26, 0.64, 0.72],
     sandstoneShadow,
     triglyphs,
+  );
+  const metopePanels: InstanceTransform[] = [];
+  const guttae: InstanceTransform[] = [];
+  for (const xSide of [-1, 1]) {
+    for (let index = 0; index < triglyphCount; index += 1) {
+      const z =
+        -colonnadeWidth / 2 + ((index + 0.5) / triglyphCount) * colonnadeWidth;
+      metopePanels.push({
+        position: [xSide * (signature.depth_m / 2 - 0.145), 17.2, z],
+      });
+    }
+    for (let triglyph = 0; triglyph <= triglyphCount; triglyph += 1) {
+      const centreZ =
+        -colonnadeWidth / 2 + (triglyph / triglyphCount) * colonnadeWidth;
+      for (let drop = 0; drop < 6; drop += 1) {
+        guttae.push({
+          position: [
+            xSide * (signature.depth_m / 2 - 0.18),
+            16.76,
+            centreZ - 0.25 + drop * 0.1,
+          ],
+        });
+      }
+    }
+  }
+  addInstancedBoxes(
+    photoDetails,
+    "Brandenburg Gate recessed Doric metopes",
+    [0.055, 0.43, 1.1],
+    sandstoneShadow,
+    metopePanels,
+  );
+  addInstancedGeometry(
+    photoDetails,
+    "Brandenburg Gate Doric guttae",
+    new CylinderGeometry(0.035, 0.055, 0.18, 8),
+    sandstoneShadow,
+    guttae,
   );
 
   for (const [name, y, depth, width] of [

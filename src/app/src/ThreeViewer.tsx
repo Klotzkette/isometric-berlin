@@ -72,6 +72,7 @@ import {
   type TunnelPortalId,
 } from "./TunnelPortals";
 import {
+  createKrolloperSculptureEnsemble,
   createMemorialLandmarks,
   memorialFocusDistance,
 } from "./MemorialLandmarks";
@@ -4608,6 +4609,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
+          runtime.monuments.add(createKrolloperSculptureEnsemble());
           runtime.monuments.add(createQueerRainbowMemorial());
           runtime.focusCameraByName.set(QUEER_RAINBOW_MEMORIAL_PROFILE.name, {
             azimuth_degrees: -18,

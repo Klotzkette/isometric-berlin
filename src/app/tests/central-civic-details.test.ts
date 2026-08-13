@@ -17,6 +17,8 @@ import {
   FRIEDRICHSTRASSE_STATION_SOURCE,
   FRIEDRICHSTRASSE_STATION_TRACK_COUNT,
   FRIEDRICHSTRASSE_STATION_WIDTH_M,
+  HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD,
+  HAUPTBAHNHOF_TRAM_SOURCE_WAY_ID,
   PARISER_PLATZ_GARDENS,
   TEAR_PALACE_FOOTPRINT_WORLD,
   TEAR_PALACE_PRISM_IDS,
@@ -56,6 +58,11 @@ const landmarks = names.map((name, index) => ({
 }));
 
 describe("task-11 central transit and civic details", () => {
+  test("aligns the Hauptbahnhof tram platform with its OSM track axis", () => {
+    expect(HAUPTBAHNHOF_TRAM_SOURCE_WAY_ID).toBe("1049894514");
+    expect(HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD).toBeCloseTo(0.4461257685, 8);
+  });
+
   test("batches official-anchor recognition details into one flat draw layer", () => {
     const details = createCentralCivicDetails(landmarks);
     const bodies = details.getObjectByName(

@@ -161,6 +161,12 @@ export const FRIEDRICHSTRASSE_STATION_TRACK_COUNT = 6;
 export const FRIEDRICHSTRASSE_STATION_SOURCE =
   "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080415";
 
+// Bearing of OSM tram way 1049894514 at the S+U Hauptbahnhof platforms.
+// The paired tracks share this axis; the former negative value mirrored the
+// shelter across Europaplatz and made it visibly skew to the rails.
+export const HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD = 0.4461257685;
+export const HAUPTBAHNHOF_TRAM_SOURCE_WAY_ID = "1049894514";
+
 const FRIEDRICHSTRASSE_HALF_LENGTH_M = FRIEDRICHSTRASSE_STATION_LENGTH_M / 2;
 const FRIEDRICHSTRASSE_HALF_WIDTH_M = FRIEDRICHSTRASSE_STATION_WIDTH_M / 2;
 const FRIEDRICHSTRASSE_CURVE_CENTRE_Z_M = -10;
@@ -752,7 +758,7 @@ function addHauptbahnhofTransit(
 ): void {
   const tram = anchor(byName, "Tramhaltestelle S+U Hauptbahnhof");
   if (tram) {
-    const rotation = -0.43;
+    const rotation = HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD;
     localBox(builder, LIMESTONE, tram, 0, 0.18, 0, 64, 0.28, 7.2, rotation);
     for (const x of [-25, -15, -5, 5, 15, 25]) {
       localBox(builder, STEEL, tram, x, 2.1, 0, 0.22, 4, 0.22, rotation);

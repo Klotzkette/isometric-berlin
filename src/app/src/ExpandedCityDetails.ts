@@ -261,9 +261,19 @@ const CONSTRUCTION_CONCRETE_LIGHT = 0xd8d8d2;
 const CONSTRUCTION_HOARDING = 0x252d2d;
 const CONSTRUCTION_STEEL = 0x59615f;
 const CONSTRUCTION_TIMBER = 0x9d7b56;
-const UPBEAT_GRID = 0xb6906c;
-const UPBEAT_GRID_LIGHT = 0xd4baa0;
-const UPBEAT_ROOF = 0xdedbd2;
+const UPBEAT_GLASS = 0x7e999d;
+const UPBEAT_GLASS_LIGHT = 0xa5b9b9;
+const UPBEAT_GRID = 0xd8cdb5;
+const UPBEAT_GRID_LIGHT = 0xeee5d3;
+const UPBEAT_ROOF = 0xe5e2da;
+const CEMETERY_GRASS = 0x789c6b;
+const CEMETERY_PATH = 0xd4c9ae;
+const CEMETERY_STONE = 0xa9a79f;
+const CEMETERY_STONE_DARK = 0x747570;
+const CEMETERY_BRICK = 0x9a624e;
+const CEMETERY_MORTAR = 0xd2b09c;
+const CEMETERY_WALL_WHITE = 0xd9d9d2;
+const CEMETERY_WALL_GREY = 0x777b78;
 const EURO_TERRACE_GREEN = 0x5f8e69;
 const EURO_WINDOW_LIGHT = 0x91aaa7;
 const FUNBOX_RED = 0xe84d42;
@@ -609,6 +619,7 @@ function addTierFacadeGrid(
   topY: number,
   floorCount: number,
   frameColor: number,
+  bayPitchM = 2.7,
 ): void {
   const floorPitch = (topY - bottomY) / floorCount;
   for (let edgeIndex = 0; edgeIndex < ring.length; edgeIndex += 1) {
@@ -629,7 +640,7 @@ function addTierFacadeGrid(
         0.3,
       );
     }
-    const bayCount = Math.max(1, Math.round(length / 2.7));
+    const bayCount = Math.max(1, Math.round(length / bayPitchM));
     const rotationY = -Math.atan2(deltaZ, deltaX);
     for (let bay = 0; bay <= bayCount; bay += 1) {
       const fraction = bay / bayCount;
@@ -1538,21 +1549,21 @@ function addUpbeatCampus(builder: Builder): void {
   const towerTop = profile.groundY + profile.tierTopHeightsM[2];
   addPolygonPrism(
     builder,
-    EURO_GLASS,
+    UPBEAT_GLASS,
     fullRing,
     profile.groundY,
     baseTop - profile.groundY,
   );
   addPolygonPrism(
     builder,
-    EURO_GLASS_LIGHT,
+    UPBEAT_GLASS_LIGHT,
     middleRing,
     baseTop,
     middleTop - baseTop,
   );
   addPolygonPrism(
     builder,
-    EURO_GLASS,
+    UPBEAT_GLASS,
     towerRing,
     middleTop,
     towerTop - middleTop,
@@ -1564,6 +1575,7 @@ function addUpbeatCampus(builder: Builder): void {
     baseTop,
     profile.storeyTiers[0],
     UPBEAT_GRID,
+    profile.facadeBayPitchM,
   );
   addTierFacadeGrid(
     builder,
@@ -1572,6 +1584,7 @@ function addUpbeatCampus(builder: Builder): void {
     middleTop,
     profile.storeyTiers[1] - profile.storeyTiers[0],
     UPBEAT_GRID_LIGHT,
+    profile.facadeBayPitchM,
   );
   addTierFacadeGrid(
     builder,
@@ -1580,6 +1593,7 @@ function addUpbeatCampus(builder: Builder): void {
     towerTop,
     profile.storeyTiers[2] - profile.storeyTiers[1],
     UPBEAT_GRID,
+    profile.facadeBayPitchM,
   );
   for (const [ring, top] of [
     [fullRing, baseTop],
@@ -1618,6 +1632,196 @@ function addUpbeatCampus(builder: Builder): void {
     3.2,
     -0.44,
   );
+  // The completed building presents a transparent, double-height arrival
+  // zone beneath the fine anodised-aluminium facade. This lobby and its
+  // slender entrance fins replace the old generic brown podium reading.
+  addBox(
+    builder,
+    0x536f74,
+    -625.8,
+    profile.groundY + 3.7,
+    -1954.8,
+    15.5,
+    6.8,
+    0.38,
+    -0.44,
+  );
+  for (let fin = -5; fin <= 5; fin += 1) {
+    addBox(
+      builder,
+      UPBEAT_GRID_LIGHT,
+      -625.8 + fin * 1.25,
+      profile.groundY + 3.7,
+      -1955.05,
+      0.12,
+      6.9,
+      0.26,
+      -0.44,
+      false,
+    );
+  }
+}
+
+function addWorldWallCourse(
+  builder: Builder,
+  points: readonly (readonly [number, number])[],
+  centerY: number,
+  height: number,
+  thickness: number,
+  color: number,
+): void {
+  for (let index = 0; index < points.length - 1; index += 1) {
+    addFacadeSegment(
+      builder,
+      color,
+      points[index],
+      points[index + 1],
+      centerY,
+      height,
+      thickness,
+    );
+  }
+}
+
+function addInvalidenfriedhof(builder: Builder): void {
+  const profile = NORTHERN_CITY_PROFILE.invalidenfriedhof;
+  addPolygonPrism(
+    builder,
+    CEMETERY_GRASS,
+    profile.cemeteryRingWorldM,
+    profile.groundY - 0.08,
+    0.1,
+    false,
+  );
+
+  // The principal compacted paths are traced from the committed OSM ways.
+  const paths = [
+    [
+      [-24.26, -1408.74],
+      [-9.97, -1416.66],
+      [5.04, -1424.98],
+      [16.62, -1431.4],
+      [30.67, -1439.18],
+      [45.06, -1447.16],
+    ],
+    [
+      [83.97, -1470.4],
+      [65.04, -1415.12],
+      [31.18, -1392.49],
+      [5.04, -1424.98],
+      [-33.8, -1485.69],
+      [-78.4, -1555.45],
+    ],
+    [
+      [44.68, -1450.93],
+      [26.7, -1483.56],
+      [10.84, -1512.37],
+      [-17.13, -1525.82],
+    ],
+  ] as const;
+  for (const path of paths) {
+    for (let index = 0; index < path.length - 1; index += 1) {
+      addFacadeSegment(
+        builder,
+        CEMETERY_PATH,
+        path[index],
+        path[index + 1],
+        profile.groundY + 0.025,
+        0.045,
+        2.15,
+      );
+    }
+  }
+
+  for (let index = 0; index < profile.graveWorldM.length; index += 1) {
+    const [x, z] = profile.graveWorldM[index];
+    const height = 0.72 + (index % 5) * 0.16;
+    const width = 0.52 + (index % 3) * 0.12;
+    addBox(
+      builder,
+      index % 4 === 0 ? CEMETERY_STONE_DARK : CEMETERY_STONE,
+      x,
+      profile.groundY + height / 2,
+      z,
+      width,
+      height,
+      0.24,
+      ((index * 37) % 13) * 0.018 - 0.1,
+    );
+    addBox(
+      builder,
+      CEMETERY_STONE_DARK,
+      x,
+      profile.groundY + height * 0.62,
+      z - 0.13,
+      width * 0.58,
+      0.035,
+      0.025,
+      0,
+      false,
+    );
+  }
+
+  // Schinkel's Scharnhorst tomb is the main legible historic composition.
+  addBox(builder, CEMETERY_STONE, 38.597, profile.groundY + 0.32, -1425.035, 3.7, 0.64, 2.2, -0.08);
+  addBox(builder, CEMETERY_STONE, 38.597, profile.groundY + 1.26, -1425.035, 2.75, 1.25, 1.45, -0.08);
+  addCylinder(builder, CEMETERY_STONE_DARK, 38.25, profile.groundY + 2.42, -1425.035, 0.38, 1.35, 10);
+  addCylinder(builder, CEMETERY_STONE_DARK, 39.02, profile.groundY + 2.42, -1425.035, 0.38, 1.35, 10);
+
+  addWorldWallCourse(
+    builder,
+    profile.canalBrickWallWorldM,
+    profile.groundY + 1.25,
+    2.5,
+    0.46,
+    CEMETERY_BRICK,
+  );
+  for (let course = 1; course < 8; course += 1) {
+    addWorldWallCourse(
+      builder,
+      profile.canalBrickWallWorldM,
+      profile.groundY + course * 0.31,
+      0.045,
+      0.49,
+      CEMETERY_MORTAR,
+    );
+  }
+
+  for (const segment of profile.hinterlandWallSegmentsWorldM) {
+    addWorldWallCourse(
+      builder,
+      segment,
+      profile.groundY + 1.7,
+      3.4,
+      0.34,
+      CEMETERY_WALL_WHITE,
+    );
+    addWorldWallCourse(
+      builder,
+      segment,
+      profile.groundY + 1.7,
+      2.95,
+      0.37,
+      CEMETERY_WALL_GREY,
+    );
+    for (let panel = 1; panel < 6; panel += 1) {
+      const start = segment[0];
+      const end = segment[segment.length - 1];
+      const fraction = panel / 6;
+      addBox(
+        builder,
+        CEMETERY_WALL_WHITE,
+        start[0] + (end[0] - start[0]) * fraction,
+        profile.groundY + 1.7,
+        start[1] + (end[1] - start[1]) * fraction,
+        0.16,
+        2.65,
+        0.4,
+        -Math.atan2(end[1] - start[1], end[0] - start[0]),
+        false,
+      );
+    }
+  }
 }
 
 function addGableRoofShell(
@@ -4992,6 +5196,7 @@ export function createExpandedCityDetails(
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
     ...POTSDAMER_DETAIL_PROFILE.georgElser.sourceUrls,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
+    ...NORTHERN_CITY_PROFILE.invalidenfriedhof.sources,
     ...EUROPACITY_PROFILE.sources,
   ];
   const builder = createBuilder();
@@ -5015,6 +5220,18 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+
+  // The cemetery is a surveyed place in its own right rather than an accent
+  // attached to one of the optional recognition landmarks. Keeping it in a
+  // separate batch also prevents its kilometre-distant geometry from
+  // polluting local landmark bounds and culling decisions.
+  const invalidenfriedhofBuilder = createBuilder();
+  addInvalidenfriedhof(invalidenfriedhofBuilder);
+  const invalidenfriedhof = finishDrawnGroup(invalidenfriedhofBuilder, {
+    name: "Invalidenfriedhof surveyed walls and graves",
+  });
+  if (invalidenfriedhof) group.add(invalidenfriedhof);
+
   addRooftopSigns(group, byName);
   // Tiny warm markers for snow-plough salt and balloon fittings only; this is
   // not a selection marker layer and therefore never brings back the old dots.

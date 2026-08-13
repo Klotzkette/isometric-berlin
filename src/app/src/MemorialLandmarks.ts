@@ -50,6 +50,40 @@ const MARBLE = 0xe5e3d8;
 const GOLD = 0xc89a32;
 const EDGE_COLOR = 0x716c62;
 
+export const KROLLOPER_SCULPTURE_PROFILE = {
+  groundY: 4.45,
+  geometryStatus:
+    "Four OSM monument nodes at the former Krolloper site; forms are bounded procedural reconstructions from freely licensed Commons reference views",
+  works: [
+    {
+      name: "Contact",
+      osmNodeId: "2589577819",
+      worldM: [-179.6, 55.7] as const,
+    },
+    {
+      name: "Himmelschlüssel",
+      osmNodeId: "9775538466",
+      worldM: [-189.2, 64.8] as const,
+    },
+    {
+      name: "Große Knospe III/63",
+      osmNodeId: "9775503531",
+      worldM: [-202.3, 24.7] as const,
+    },
+    {
+      name: "Todes Mauer Bruch",
+      osmNodeId: "9775536511",
+      worldM: [-231.2, 33.8] as const,
+    },
+  ],
+  sources: [
+    "https://commons.wikimedia.org/wiki/File:Berlin-Tiergarten_Skulpturen_gegen_Krieg_und_Gewalt.jpg",
+    "https://bildhauerei-in-berlin.de/bildwerk/himmelsschluessel-8326/",
+    "https://bildhauerei-in-berlin.de/bildwerk/grosse-knospe-iii-63-6271/",
+    "https://bildhauerei-in-berlin.de/bildwerk/todes-mauer-bruch-5457/",
+  ],
+} as const;
+
 export const SINTI_ROMA_MEMORIAL = {
   overallExtentM: 60,
   placeStoneCount: 69,
@@ -205,6 +239,125 @@ function addSegment(
 function deterministicUnit(index: number, salt: number): number {
   const value = Math.sin((index + 7) * 19.913 + salt * 73.117) * 31_337.219;
   return value - Math.floor(value);
+}
+
+/** The four individually mapped works of the former Krolloper symposium. */
+export function createKrolloperSculptureEnsemble(): Group {
+  const root = new Group();
+  root.name = "Skulpturen gegen Krieg und Gewalt am ehemaligen Krolloperplatz";
+  root.userData.profile = KROLLOPER_SCULPTURE_PROFILE;
+  const limestone = modelMaterial(0xbeb8aa, { roughness: 0.96 });
+  const limestoneLight = modelMaterial(0xd2cec1, { roughness: 0.94 });
+  const limestoneShadow = modelMaterial(0x85837d, { roughness: 0.98 });
+  const steel = modelMaterial(0x545958, { metalness: 0.42, roughness: 0.72 });
+  const plaque = modelMaterial(0x68645c, { metalness: 0.3, roughness: 0.62 });
+
+  const workGroup = (index: number): Group => {
+    const work = KROLLOPER_SCULPTURE_PROFILE.works[index];
+    const group = new Group();
+    group.name = `Krolloper sculpture ${work.name}`;
+    group.position.set(
+      work.worldM[0],
+      KROLLOPER_SCULPTURE_PROFILE.groundY,
+      work.worldM[1],
+    );
+    group.userData = { ...work };
+    root.add(group);
+    return group;
+  };
+
+  const contact = workGroup(0);
+  addBox(contact, "Contact low stone plinth", [3.2, 0.35, 1.55], [0, 0.18, 0], limestone);
+  const contactBody = addMesh(
+    contact,
+    "Contact rough oval monolith",
+    new SphereGeometry(1, 14, 10),
+    limestone,
+    [0, 1.85, 0],
+  );
+  contactBody.scale.set(1.55, 1.8, 0.58);
+  contactBody.rotation.z = -0.09;
+  addEdges(contact, contactBody, 0.62);
+  addInstances(
+    contact,
+    "Contact carved negative-space grooves",
+    new BoxGeometry(1, 1, 1),
+    limestoneShadow,
+    [
+      { position: [-0.45, 1.95, -0.57], rotation: [0, 0, -0.5], scale: [0.24, 1.55, 0.08] },
+      { position: [0.42, 1.72, -0.58], rotation: [0, 0, 0.45], scale: [0.22, 1.28, 0.08] },
+      { position: [0, 2.76, -0.59], scale: [0.72, 0.2, 0.08] },
+    ],
+  );
+
+  const key = workGroup(1);
+  addBox(key, "Himmelschlüssel stone foot", [1.85, 0.34, 1.65], [0, 0.17, 0], limestone);
+  for (let level = 0; level < 6; level += 1) {
+    const band = addBox(
+      key,
+      "Himmelschlüssel stacked cut limestone band",
+      [1.25 - level * 0.055, 0.72, 1.02],
+      [0, 0.7 + level * 0.62, 0],
+      level % 2 === 0 ? limestone : limestoneLight,
+    );
+    band.rotation.y = (level % 2 === 0 ? -1 : 1) * (0.12 + level * 0.025);
+    addEdges(key, band, 0.54);
+  }
+  addInstances(
+    key,
+    "Himmelschlüssel split crown lobes",
+    new SphereGeometry(0.5, 10, 7),
+    limestoneLight,
+    [
+      { position: [-0.38, 4.35, 0], scale: [0.78, 1.35, 0.86] },
+      { position: [0.38, 4.35, 0], scale: [0.78, 1.35, 0.86] },
+    ],
+  );
+  addMesh(
+    key,
+    "Himmelschlüssel crown aperture",
+    new CylinderGeometry(0.25, 0.25, 1.08, 16),
+    limestoneShadow,
+    [0, 4.42, -0.34],
+  ).rotation.x = Math.PI / 2;
+
+  const bud = workGroup(2);
+  addBox(bud, "Große Knospe stone base", [3, 0.42, 2.3], [0, 0.21, 0], limestone);
+  addInstances(
+    bud,
+    "Große Knospe four organic lobes",
+    new SphereGeometry(1, 12, 9),
+    limestone,
+    [
+      { position: [-0.72, 1.48, -0.25], rotation: [0, 0.2, -0.25], scale: [1.05, 1.45, 0.78] },
+      { position: [0.72, 1.48, -0.16], rotation: [0, -0.25, 0.25], scale: [1.02, 1.52, 0.8] },
+      { position: [-0.42, 2.45, 0], rotation: [0, 0, 0.25], scale: [0.8, 1.05, 0.65] },
+      { position: [0.43, 2.42, 0], rotation: [0, 0, -0.25], scale: [0.82, 1.08, 0.66] },
+    ],
+  );
+  addBox(bud, "Große Knospe central cleft", [0.16, 2.25, 0.1], [0, 1.95, -0.76], limestoneShadow);
+
+  const breakWork = workGroup(3);
+  addBox(breakWork, "Todes Mauer Bruch granite inscription slab", [3.6, 0.24, 2.2], [0, 0.12, 0], limestone);
+  const breakTransforms: InstanceTransform[] = [
+    { position: [-0.98, 1.55, 0], rotation: [0, 0.04, -0.08], scale: [0.8, 3, 0.42] },
+    { position: [-0.28, 1.8, 0], rotation: [0, -0.03, 0.08], scale: [0.55, 3.45, 0.42] },
+    { position: [0.42, 1.68, 0], rotation: [0, 0.05, -0.06], scale: [0.58, 3.18, 0.42] },
+    { position: [1.02, 1.45, 0], rotation: [0, -0.04, 0.1], scale: [0.56, 2.72, 0.42] },
+  ];
+  addInstances(
+    breakWork,
+    "Todes Mauer Bruch split weathered steel plates",
+    new BoxGeometry(1, 1, 1),
+    steel,
+    breakTransforms,
+  );
+
+  for (const group of root.children as Group[]) {
+    addBox(group, `${group.name} information plaque`, [0.62, 0.06, 0.42], [1.8, 0.08, 1.2], plaque);
+  }
+  root.userData.modelCount = root.children.length;
+  return root;
 }
 
 function createHolocaustMemorial(anchor: MemorialLandmark): Group {
