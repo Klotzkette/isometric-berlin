@@ -165,6 +165,7 @@ import {
   setIsoNightPresentation,
 } from "./IsometricCityWorld";
 import {
+  GROUND_CONTEXT_FILE,
   type VoxelPayload,
   VOXEL_WORLD_FILE,
   WATER_TOP_Y,
@@ -207,6 +208,7 @@ import {
   stableViewportSize,
 } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
+import { fetchJsonWithRetry } from "./resilientFetch";
 import { updateWindFlags } from "./WindFlags";
 import {
   type ModerateRain,
@@ -400,8 +402,14 @@ type Runtime = {
   tunnelPortalInteriorVisible: boolean;
   tunnelTubeOffsetM: number;
   tunnelFlight: { plan: TunnelFlightPlan; startedAt: number } | null;
+  groundPayloadPromise?: Promise<VoxelPayload>;
   prismPayloadPromise?: Promise<PrismPayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
+  loadSignal: AbortSignal;
+  ensurePhotoSurface: () => void;
+  photoSurfaceState: "failed" | "idle" | "loading" | "ready";
+  reportCoreProgress: (loaded: number, total: number) => void;
+  startDeferredDetails: () => void;
   trafficSignals?: Group | null;
   tramCatenary: Group;
   cancelPanGlide?: () => void;
@@ -471,6 +479,14 @@ export function startupCurtainMayOpen(
   baseSurfaceReady: boolean,
 ): boolean {
   return status === "ready" || (status === "fallback" && baseSurfaceReady);
+}
+
+/** Heavy photogrammetry is demand-only, never part of the normal first load. */
+export function photographicSurfaceNeeded(
+  status: StartupPresentationStatus,
+  underside: boolean,
+): boolean {
+  return underside || status === "fallback";
 }
 
 export function presentationFogRange(
@@ -744,6 +760,10 @@ function setSurfacePresentation(
   const surfaceQuality =
     startupStatus === "pending"
       ? "startup-hidden"
+      : startupStatus === "ready"
+        ? runtime.lightingMode === "minecraft"
+          ? "voxel-world"
+          : "drawn-isometric"
       : settled
         ? "settled-7m-plus"
         : "interaction-2_3m";
@@ -1527,29 +1547,37 @@ function isoModeActive(runtime: Runtime): boolean {
  * Load and attach the drawn isometric city (LoD2 prisms + shared ground
  * slabs). Idempotent; on failure the photographic day pipeline stays.
  */
-// The multi-MB prism/voxel payloads are fetched and parsed exactly
-// once per session, shared by the drawn-city and block-world paths
-// (a ?theme=minecraft deep link used to download both files twice).
+// Payloads are fetched and parsed exactly once per session. Drawn modes use a
+// compact ground-only sibling; Minecraft's building/tree instances stay lazy.
 function fetchPrismPayload(runtime: Runtime): Promise<PrismPayload> {
-  runtime.prismPayloadPromise ??= fetch(
-    new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl).toString(),
-  ).then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return response.json() as Promise<PrismPayload>;
+  runtime.prismPayloadPromise ??= fetchJsonWithRetry<PrismPayload>(
+    new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl),
+    { signal: runtime.loadSignal },
+  ).catch((error: unknown) => {
+    runtime.prismPayloadPromise = undefined;
+    throw error;
   });
   return runtime.prismPayloadPromise;
 }
 
+function fetchGroundPayload(runtime: Runtime): Promise<VoxelPayload> {
+  runtime.groundPayloadPromise ??= fetchJsonWithRetry<VoxelPayload>(
+    new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl),
+    { signal: runtime.loadSignal },
+  ).catch((error: unknown) => {
+    runtime.groundPayloadPromise = undefined;
+    throw error;
+  });
+  return runtime.groundPayloadPromise;
+}
+
 function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
-  runtime.voxelPayloadPromise ??= fetch(
-    new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl).toString(),
-  ).then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return response.json() as Promise<VoxelPayload>;
+  runtime.voxelPayloadPromise ??= fetchJsonWithRetry<VoxelPayload>(
+    new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl),
+    { signal: runtime.loadSignal },
+  ).catch((error: unknown) => {
+    runtime.voxelPayloadPromise = undefined;
+    throw error;
   });
   return runtime.voxelPayloadPromise;
 }
@@ -1562,24 +1590,38 @@ function ensureIsoWorld(
     return;
   }
   runtime.isoWorldState = "loading";
+  const totalParts = 6;
+  let loadedParts = 0;
+  runtime.reportCoreProgress(0, totalParts);
+  const tracked = async <T,>(task: Promise<T>): Promise<T> => {
+    try {
+      return await task;
+    } finally {
+      loadedParts += 1;
+      runtime.reportCoreProgress(loadedParts, totalParts);
+    }
+  };
   void Promise.all([
-    fetchPrismPayload(runtime),
-    fetchVoxelPayload(runtime).catch(() => null),
-    fetch(new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl).toString())
-      .then((response) =>
-        response.ok ? (response.json() as Promise<StreetDetailsPayload>) : null,
-      )
-      .catch(() => null),
-    fetch(new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString())
-      .then((response) =>
-        response.ok ? (response.json() as Promise<SurfacePayload>) : null,
-      )
-      .catch(() => null),
-    fetch(new URL(RAIL_LINES_FILE, runtime.sceneRootUrl).toString())
-      .then((response) =>
-        response.ok ? (response.json() as Promise<RailPayload>) : null,
-      )
-      .catch(() => null),
+    tracked(fetchPrismPayload(runtime)),
+    tracked(fetchGroundPayload(runtime)).catch(() => null),
+    tracked(
+      fetchJsonWithRetry<StreetDetailsPayload>(
+        new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl),
+        { signal: runtime.loadSignal },
+      ),
+    ).catch(() => null),
+    tracked(
+      fetchJsonWithRetry<SurfacePayload>(
+        new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl),
+        { signal: runtime.loadSignal },
+      ),
+    ).catch(() => null),
+    tracked(
+      fetchJsonWithRetry<RailPayload>(
+        new URL(RAIL_LINES_FILE, runtime.sceneRootUrl),
+        { signal: runtime.loadSignal },
+      ),
+    ).catch(() => null),
   ])
     .then(([prisms, ground, street, surfaces, rail]) => {
       if (runtime.disposed) {
@@ -1706,9 +1748,12 @@ function ensureIsoWorld(
       }
       collectFarZoomAntiFlickerTargets(runtime);
       runtime.scene.add(runtime.isoWorld);
+      loadedParts += 1;
+      runtime.reportCoreProgress(loadedParts, totalParts);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400, true);
       notifyPresentationReadyWhenPossible(runtime);
+      runtime.startDeferredDetails();
     })
     .catch((error: unknown) => {
       if (import.meta.env.DEV) {
@@ -1717,6 +1762,7 @@ function ensureIsoWorld(
       if (!runtime.disposed) {
         runtime.isoWorldState = "failed";
         runtime.renderInvalidated = true;
+        runtime.ensurePhotoSurface();
         notifyPresentationReadyWhenPossible(runtime);
         warn(
           "Die gezeichnete Isometrie konnte nicht geladen werden; die fotografische Tagesansicht bleibt aktiv.",
@@ -1745,12 +1791,22 @@ function ensureVoxelWorld(
     return;
   }
   runtime.voxelWorldState = "loading";
+  runtime.reportCoreProgress(0, 3);
+  let loadedParts = 0;
+  const tracked = async <T,>(task: Promise<T>): Promise<T> => {
+    try {
+      return await task;
+    } finally {
+      loadedParts += 1;
+      runtime.reportCoreProgress(loadedParts, 3);
+    }
+  };
   void Promise.all([
-    fetchVoxelPayload(runtime),
+    tracked(fetchVoxelPayload(runtime)),
     // The prism payload carries each building's sampled real colour;
     // the block city snaps those onto the Minecraft palette so it
     // stops being one cream-coloured mass.
-    fetchPrismPayload(runtime).catch(() => null),
+    tracked(fetchPrismPayload(runtime)).catch(() => null),
   ])
     .then(([payload, prisms]) => {
       if (runtime.disposed) {
@@ -1767,14 +1823,18 @@ function ensureVoxelWorld(
         !runtime.coarsePointer,
       );
       runtime.scene.add(runtime.minecraftMobs.group);
+      loadedParts += 1;
+      runtime.reportCoreProgress(loadedParts, 3);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400, true);
       notifyPresentationReadyWhenPossible(runtime);
+      runtime.startDeferredDetails();
     })
     .catch(() => {
       if (!runtime.disposed) {
         runtime.voxelWorldState = "failed";
         runtime.renderInvalidated = true;
+        runtime.ensurePhotoSurface();
         notifyPresentationReadyWhenPossible(runtime);
         warn(
           "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
@@ -2190,6 +2250,11 @@ export function setTunnelPresentation(
 
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
+  if (
+    photographicSurfaceNeeded(currentStartupPresentationStatus(runtime), underside)
+  ) {
+    runtime.ensurePhotoSurface();
+  }
   runtime.renderInvalidated = true;
   const fogRange = presentationFogRange(runtime.lightingMode, underside);
   const fogColor =
@@ -2734,8 +2799,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // Hero photo crops never show in the voxel block world, in the
       // drawn isometric city, or from the underside.
       const heroVisibleAllowed =
-        !voxelModeActive(runtime) &&
-        !isoModeActive(runtime) &&
+        currentStartupPresentationStatus(runtime) === "fallback" &&
         !runtime.underside;
       for (const [heroName, entry] of runtime.detailGroups) {
         entry.group.visible = heroVisibleAllowed && heroName === name;
@@ -2744,7 +2808,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       }
       const detail = runtime.heroByName.get(name);
-      if (detail && !runtime.detailGroups.has(name)) {
+      if (heroVisibleAllowed && detail && !runtime.detailGroups.has(name)) {
         const facadeAnchor = HERO_FACADE_ANCHORS[detail.id];
         const group = new Group();
         group.name = `${name} high detail`;
@@ -3174,21 +3238,33 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let disposed = false;
       let frame = 0;
       let resizeObserver: ResizeObserver | null = null;
+      const loadController = new AbortController();
       const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
       // Antialias everywhere: touch devices previously rendered without
       // MSAA, which made straight roof edges shimmer on retina phones.
-      const renderer = new WebGLRenderer({
-        antialias: true,
-        powerPreference: "high-performance",
-        // The viewer intentionally stops drawing once a still scene is
-        // settled. Safari/iOS may discard an unpreserved WebGL backbuffer
-        // between compositor passes, producing a blank/old-frame flash even
-        // though no scene state changed. Preserve the last complete frame.
-        preserveDrawingBuffer: true,
-      });
+      let renderer: WebGLRenderer;
+      try {
+        renderer = new WebGLRenderer({
+          antialias: true,
+          powerPreference: "high-performance",
+          // The viewer intentionally stops drawing once a still scene is
+          // settled. Safari/iOS may discard an unpreserved WebGL backbuffer
+          // between compositor passes, producing a blank/old-frame flash even
+          // though no scene state changed. Preserve the last complete frame.
+          preserveDrawingBuffer: true,
+        });
+      } catch (error: unknown) {
+        loadController.abort();
+        onErrorRef.current(
+          error instanceof Error
+            ? `WebGL 2 konnte nicht gestartet werden: ${error.message}`
+            : "WebGL 2 konnte nicht gestartet werden.",
+        );
+        return;
+      }
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = PRESENTATION_TONE.day.toneMapping;
       renderer.toneMappingExposure = PRESENTATION_TONE.day.exposure;
@@ -3388,6 +3464,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         rain,
         precipitationEnabled: precipitationEnabledRef.current,
+        loadSignal: loadController.signal,
+        ensurePhotoSurface: () => undefined,
+        photoSurfaceState: "idle",
+        reportCoreProgress: (loaded, total) => {
+          if (!disposed) {
+            setProgress({ loaded, total });
+          }
+        },
+        startDeferredDetails: () => undefined,
         snowstorm,
         renderer,
         renderInvalidated: true,
@@ -4320,14 +4405,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       animate();
 
-      const manifestController = new AbortController();
-      void fetch(sceneUrl, { signal: manifestController.signal })
-        .then(async (response) => {
-          if (!response.ok) {
-            throw new Error(`3D scene manifest: HTTP ${response.status}`);
-          }
-          return (await response.json()) as SceneManifest;
-        })
+      void fetchJsonWithRetry<SceneManifest>(sceneUrl, {
+        signal: loadController.signal,
+      })
         .then(async (manifest) => {
           if (disposed) {
             return;
@@ -4582,60 +4662,81 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.focusCameraByName.set(landmark.name, centralFocusCamera);
             }
           }
-          if (manifest.park_details?.file) {
-            const parkUrl = new URL(
-              manifest.park_details.file,
-              runtime.sceneRootUrl,
-            );
-            void fetch(parkUrl, { signal: manifestController.signal })
-              .then(async (response) => {
-                if (!response.ok) {
-                  throw new Error(`Parkdetails: HTTP ${response.status}`);
-                }
-                return (await response.json()) as ParkDetailsPayload;
+          let deferredDetailsStarted = false;
+          runtime.startDeferredDetails = () => {
+            if (deferredDetailsStarted || !manifest.park_details?.file) {
+              return;
+            }
+            deferredDetailsStarted = true;
+            const loadParkDetails = (): void => {
+              if (runtime.disposed) {
+                return;
+              }
+              const parkUrl = new URL(
+                manifest.park_details!.file,
+                runtime.sceneRootUrl,
+              );
+              void fetchJsonWithRetry<ParkDetailsPayload>(parkUrl, {
+                signal: loadController.signal,
               })
-              .then((payload) => {
-                if (runtime.disposed) {
-                  return;
-                }
-                const details = createParkDetails(payload, {
-                  settledDetail: !runtime.coarsePointer,
-                  tunnel: manifest.tiergartentunnel ?? null,
-                });
-                runtime.parkDetails.removeFromParent();
-                runtime.parkDetails = details;
-                details.visible = !runtime.underside;
-                setParkDetailsFocus(details, selectedRef.current);
-                scene.add(details);
-                applyLightingToRoot(
-                  details,
-                  runtime.lightingMode,
-                  runtime.nightLightsOn,
-                );
-                if (runtime.lightingMode === "minecraft") {
-                  setMinecraftMaterialPresentation(
+                .then((payload) => {
+                  if (runtime.disposed) {
+                    return;
+                  }
+                  const details = createParkDetails(payload, {
+                    settledDetail: !runtime.coarsePointer,
+                    tunnel: manifest.tiergartentunnel ?? null,
+                  });
+                  runtime.parkDetails.removeFromParent();
+                  runtime.parkDetails = details;
+                  details.visible = !runtime.underside;
+                  setParkDetailsFocus(details, selectedRef.current);
+                  scene.add(details);
+                  applyLightingToRoot(
                     details,
-                    runtime.minecraftMaterialState,
-                    true,
+                    runtime.lightingMode,
+                    runtime.nightLightsOn,
                   );
-                }
-                collectFarZoomAntiFlickerTargets(runtime);
-              })
-              .catch((error: unknown) => {
-                if (
-                  !runtime.disposed &&
-                  !(
-                    error instanceof DOMException && error.name === "AbortError"
-                  )
-                ) {
-                  onWarningRef.current(
-                    error instanceof Error
-                      ? error.message
-                      : "Optionale Parkdetails konnten nicht geladen werden.",
-                  );
-                }
-              });
-          }
+                  if (runtime.lightingMode === "minecraft") {
+                    setMinecraftMaterialPresentation(
+                      details,
+                      runtime.minecraftMaterialState,
+                      true,
+                    );
+                  }
+                  collectFarZoomAntiFlickerTargets(runtime);
+                  runtime.renderInvalidated = true;
+                })
+                .catch((error: unknown) => {
+                  if (
+                    !runtime.disposed &&
+                    !(
+                      error instanceof DOMException &&
+                      error.name === "AbortError"
+                    )
+                  ) {
+                    onWarningRef.current(
+                      error instanceof Error
+                        ? error.message
+                        : "Optionale Parkdetails konnten nicht geladen werden.",
+                    );
+                  }
+                });
+            };
+            const requestIdle = (
+              window as unknown as {
+                requestIdleCallback?: (
+                  callback: IdleRequestCallback,
+                  options?: IdleRequestOptions,
+                ) => number;
+              }
+            ).requestIdleCallback;
+            if (typeof requestIdle === "function") {
+              requestIdle(loadParkDetails, { timeout: 3_000 });
+            } else {
+              window.setTimeout(loadParkDetails, 1_200);
+            }
+          };
           runtime.tunnel = createTunnel(manifest.tiergartentunnel);
           runtime.tunnelPoints = manifest.tiergartentunnel.points;
           runtime.tunnelPortalCourse = manifest.tiergartentunnel;
@@ -4684,110 +4785,109 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnelBounds = new Box3()
             .setFromObject(runtime.tunnel)
             .expandByScalar(5);
-          // Day is the default mode: bring the drawn isometric city in
-          // as soon as the scene manifest is known. A `?theme=minecraft`
-          // deep link starts in Minecraft with no mode change ever
-          // firing, so the block world must load here as well.
-          ensureIsoWorld(runtime, onWarningRef.current);
-          if (lightingModeRef.current === "minecraft") {
-            ensureVoxelWorld(runtime, onWarningRef.current);
-          }
-          setModelMaterialState(runtime, runtime.underside);
-          setProgress({ loaded: 0, total: manifest.base_tiles.length });
-
-          const selected = runtime.landmarkByName.get(selectedRef.current);
-          const distanceFromSelection = (file: MeshFile): number => {
-            if (!selected) {
-              return 0;
+          runtime.ensurePhotoSurface = () => {
+            if (
+              runtime.disposed ||
+              runtime.photoSurfaceState === "loading" ||
+              runtime.photoSurfaceState === "ready"
+            ) {
+              return;
             }
-            const bounds = file.source_bounds_epsg25833;
-            const centerX = (bounds[0][0] + bounds[1][0]) / 2 - 389_500;
-            const centerZ = 5_820_000 - (bounds[0][1] + bounds[1][1]) / 2;
-            return Math.hypot(
-              centerX - selected.world[0],
-              centerZ - selected.world[2],
-            );
-          };
-          const sortedTiles = [...manifest.base_tiles].sort(
-            (left, right) =>
-              distanceFromSelection(left) - distanceFromSelection(right),
-          );
-          focusLandmark(selectedRef.current, true);
-          let loadedBaseTiles = 0;
-          const baseFailures = await runBoundedTasks(
-            sortedTiles,
-            coarsePointer ? 1 : 3,
-            async (file) => {
-              const loaded = await loadModelWithRetry(
-                runtime,
-                file,
-                runtime.interactionSurface,
-                { detail: false },
-              );
-              if (!loaded || disposed) {
-                return;
+            runtime.photoSurfaceState = "loading";
+            const selected = runtime.landmarkByName.get(selectedRef.current);
+            const distanceFromSelection = (file: MeshFile): number => {
+              if (!selected) {
+                return 0;
               }
-              loadedBaseTiles += 1;
-              runtime.baseSurfaceReady = true;
-              notifyPresentationReadyWhenPossible(runtime);
-              setProgress((current) => ({
-                ...current,
-                loaded: current.loaded + 1,
-              }));
-            },
-            { shouldStop: () => runtime.disposed },
-          );
-          if (disposed) {
-            return;
-          }
-          if (loadedBaseTiles === 0) {
-            throw new Error("Keine 3D-Basiskachel konnte geladen werden");
-          }
-          if (baseFailures.length > 0) {
-            setProgress((current) => ({
-              ...current,
-              total: Math.max(
-                current.loaded,
-                current.total - baseFailures.length,
-              ),
-            }));
-            onWarningRef.current(
-              `${baseFailures.length} Basiskachel(n) konnten nach zwei Versuchen nicht geladen werden.`,
-            );
-          }
-          const surfaceTiles = manifest.surface_detail_tiles ?? [];
-          if (!coarsePointer && surfaceTiles.length > 0) {
-            const sortedSurfaceTiles = [...surfaceTiles].sort(
+              const bounds = file.source_bounds_epsg25833;
+              const centerX = (bounds[0][0] + bounds[1][0]) / 2 - 389_500;
+              const centerZ = 5_820_000 - (bounds[0][1] + bounds[1][1]) / 2;
+              return Math.hypot(
+                centerX - selected.world[0],
+                centerZ - selected.world[2],
+              );
+            };
+            const sortedTiles = [...manifest.base_tiles].sort(
               (left, right) =>
                 distanceFromSelection(left) - distanceFromSelection(right),
             );
+            let loadedBaseTiles = 0;
+            setProgress({ loaded: 0, total: sortedTiles.length });
             void runBoundedTasks(
-              sortedSurfaceTiles,
-              1,
+              sortedTiles,
+              coarsePointer ? 1 : 2,
               async (file) => {
-                await loadModelWithRetry(
+                const loaded = await loadModelWithRetry(
                   runtime,
                   file,
-                  runtime.settledSurface,
+                  runtime.interactionSurface,
                   { detail: false },
                 );
+                if (!loaded || runtime.disposed) {
+                  return;
+                }
+                loadedBaseTiles += 1;
+                runtime.baseSurfaceReady = true;
+                setProgress((current) => ({
+                  ...current,
+                  loaded: current.loaded + 1,
+                }));
+                setSurfacePresentation(runtime, true);
+                notifyPresentationReadyWhenPossible(runtime);
               },
               { shouldStop: () => runtime.disposed },
-            ).then((failures) => {
-              if (runtime.disposed) {
-                return;
-              }
-              if (failures.length > 0) {
-                disposeObject3D(runtime, runtime.settledSurface);
-                onWarningRef.current(
-                  `${failures.length} Oberflächen-Detailkachel(n) konnten nicht geladen werden; die flüssige 2,3-Millionen-Flächen-Stufe bleibt aktiv.`,
-                );
-                return;
-              }
-              runtime.settledSurfaceReady = true;
-              markSurfaceInteraction(runtime, 180, true);
-            });
+            )
+              .then((failures) => {
+                if (runtime.disposed) {
+                  return;
+                }
+                if (loadedBaseTiles === 0) {
+                  throw new Error("Keine 3D-Ersatzkachel konnte geladen werden");
+                }
+                runtime.photoSurfaceState = "ready";
+                if (failures.length > 0) {
+                  setProgress((current) => ({
+                    ...current,
+                    total: Math.max(
+                      current.loaded,
+                      current.total - failures.length,
+                    ),
+                  }));
+                  onWarningRef.current(
+                    `${failures.length} optionale 3D-Ersatzkachel(n) konnten nicht geladen werden.`,
+                  );
+                }
+                setSurfacePresentation(runtime, true);
+                notifyPresentationReadyWhenPossible(runtime);
+              })
+              .catch((error: unknown) => {
+                if (runtime.disposed) {
+                  return;
+                }
+                runtime.photoSurfaceState = "failed";
+                const message =
+                  error instanceof Error
+                    ? error.message
+                    : "Die 3D-Ersatzansicht konnte nicht geladen werden.";
+                if (currentStartupPresentationStatus(runtime) === "fallback") {
+                  onErrorRef.current(message);
+                } else {
+                  onWarningRef.current(message);
+                }
+              });
+          };
+
+          focusLandmark(selectedRef.current, true);
+          // Build exactly the world requested for the first visible frame.
+          // Switching mode later triggers the other lazy builder through the
+          // lighting effect. The 31 MiB photographic shell remains a true
+          // failure/underside fallback and is never downloaded invisibly.
+          if (lightingModeRef.current === "minecraft") {
+            ensureVoxelWorld(runtime, onWarningRef.current);
+          } else {
+            ensureIsoWorld(runtime, onWarningRef.current);
           }
+          setModelMaterialState(runtime, runtime.underside);
         })
         .catch((error: unknown) => {
           if (
@@ -4803,7 +4903,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       return () => {
         disposed = true;
         runtime.disposed = true;
-        manifestController.abort();
+        loadController.abort();
         window.cancelAnimationFrame(frame);
         resizeObserver?.disconnect();
         renderer.domElement.removeEventListener(

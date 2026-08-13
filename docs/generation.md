@@ -76,16 +76,18 @@ uv run python -m isometric_berlin.generation.prepare_webgl_mesh
 The converter includes every OBJ material segment. For the full scene it
 samples source textures into enhanced-but-bounded vertex colours, merges
 duplicate OBJ vertices and emits two scale-identical tiers: a 100,000-face-per-
-tile interaction/touch surface and a 289,797-face-per-tile settled desktop
+tile interaction/touch surface and a 289,797-face-per-tile archival detail
 surface, both with quadric aggression 5. A 58° smoothing crease splits normals
 only at severe folds, sharpening roof and facade edges without introducing
 invented metric geometry. The 26 interaction tiles contain 2,599,985 faces and
 1,377,751 vertices in 29.9 MiB; the 26 settled tiles contain 6,623,585 faces and
 3,464,527 vertices in 79.1 MiB. Meshopt uses 16-bit positions and 8-bit normals;
-the viewer carries the interaction tier while moving and swaps to the settled
-tier only after desktop loading and camera damping complete. Touch devices do
-not request the settled tier. At rest, the frontend adds two 80-triangle crown
-microclusters for each of the 25,305 official tree-catalogue points. Together
+the release retains both tiers for documented photo recovery. Normal
+Day/Night/Snow and Minecraft presentation does not request either photo tier;
+the interaction shell loads only for the designed underside cutaway or a
+drawn-world failure. The settled tier remains an archival source-detail asset
+and is not streamed during ordinary navigation. At rest, the frontend adds two
+80-triangle crown microclusters for each of the 25,305 official tree-catalogue points. Together
 with the 6,623,585-face surface this yields 10,672,385 official-source rendered
 face equivalents without tessellating unchanged triangles or describing the
 procedural crowns as surveyed shapes. Reichstag, Bundeskanzleramt, Hauptbahnhof and
@@ -170,7 +172,8 @@ only — no network access — and regenerated with:
 ```bash
 uv run python -m isometric_berlin.generation.build_minecraft_voxels \
   --bounds geo_data/regierungsviertel/bounds.geojson \
-  --out src/app/public/mesh/regierungsviertel/minecraft-voxels.json
+  --out src/app/public/mesh/regierungsviertel/minecraft-voxels.json \
+  --ground-out src/app/public/mesh/regierungsviertel/ground-context.json
 ```
 
 How it is built (all snapping is deterministic, `CELL_M = 4.0`):
@@ -217,11 +220,15 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   the height snapped up to a 4 m multiple (minimum 8 m); the viewer builds
   trunk and crown procedurally.
 
-The committed `minecraft-voxels.json` is 3.6 MB (hard test budget 5 MiB)
-and currently carries 133,060 building columns, 28,096 tree blocks and 641,397
-classified ground cells on a 1,072 × 1,122 grid. The payload embeds the mandatory OSM + Geoportal
+The committed `minecraft-voxels.json` is 4.25 MB decimal (hard test budget
+5 MiB) and currently carries 153,151 building columns, 28,664 tree blocks and
+687,402 classified ground cells on a 1,072 × 1,122 grid. The same deterministic
+run also writes the 0.83 MB decimal `ground-context.json`, which retains the
+classified terrain and sampled heights but intentionally has empty building
+and tree arrays for the fast Day/Night/Snow startup. Both payloads embed the mandatory OSM + Geoportal
 Berlin attribution and per-source licences; `tests/test_build_minecraft_voxels.py`
-guards size, grid consistency and a 24 m+ Reichstag block cross-check.
+guards full/ground size, exact terrain equality, grid consistency and a 24 m+
+Reichstag block cross-check.
 
 ## Step 8c: drawn-isometric LoD2 prism payload
 
@@ -292,9 +299,9 @@ and 3,945 tiles. A clean `bun run build` contains both the full DZI and
 progressive WebGL assets. The release packager keeps every WebGL asset but
 reuses levels 0–13 as an 8192×5808 offline DZI, removing only the redundant
 highest fallback level so both extracted archives remain below their hard
-211 MiB ceiling; the compressed download remains below 200 MB. The browser
-loads hero crops only when their landmark is
-selected.
+212 MiB ceiling; the compressed download remains below 200 MB. Hero crops load
+only when a photographic failure fallback is active and its landmark is
+selected; normal drawn navigation never requests them.
 
 Do not commit PNG quadrant intermediates. Commit only the DZI pyramid and the
 derived overview files under `src/app/public/dzi/regierungsviertel/`.

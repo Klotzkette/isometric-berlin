@@ -66,6 +66,8 @@ export type VoxelPayload = {
 };
 
 export const VOXEL_WORLD_FILE = "minecraft-voxels.json";
+/** Terrain-only sibling used by Day/Night/Snow during the fast first load. */
+export const GROUND_CONTEXT_FILE = "ground-context.json";
 const GROUND_SLAB_M = 3;
 /**
  * Spree/Kanal water table (fallback for payloads without the field).

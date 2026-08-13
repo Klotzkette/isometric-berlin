@@ -323,7 +323,7 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "two fingers pinch-zoom" in readme
   assert "--no-open --port 8770" in readme
   assert "123.466-Flächen-Stufe" in readme
-  assert "654,341-face surface" in readme
+  assert "654,341-face tier" in readme
   assert "5 GLB-Dateien" in readme
 
 
@@ -345,6 +345,7 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
     "mesh/regierungsviertel/scene.json": b'{"schema_version":1}',
+    "mesh/regierungsviertel/ground-context.json": b'{"buildings":[],"trees":[]}',
   }
   for relative, data in files.items():
     path = tmp_path / relative
@@ -364,6 +365,7 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
   assert "OpenStreetMap contributors" in manifest["required_attribution"]
   assert manifest["assets"]["detail_image"]["bytes"] == len(b"source")
   assert len(manifest["assets"]["detail_image"]["sha256"]) == 64
+  assert manifest["assets"]["ground_context"]["bytes"] > 0
 
 
 def test_bundled_landmarks_match_public_viewer_landmarks() -> None:
@@ -579,6 +581,11 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
   scene = root / "src" / "app" / "dist" / "mesh" / "regierungsviertel" / "scene.json"
   scene.parent.mkdir(parents=True)
   scene.write_text('{"schema_version":1}', encoding="utf-8")
+  (scene.parent / "ground-context.json").write_text(
+    '{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
+    '"ground_height":{"y_dm":[0]}}',
+    encoding="utf-8",
+  )
   missing_from_dist = public_dzi / "regierungsviertel_files" / "0" / "0_0.jpg"
   missing_from_dist.parent.mkdir(parents=True)
   missing_from_dist.write_bytes(b"low-level-tile")

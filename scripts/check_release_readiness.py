@@ -40,12 +40,13 @@ PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
 # The compressed download must remain below AGENTS.md's 200 MB ceiling. The
-# extracted offline copy has a separate 211 MiB integrity ceiling: task 11's
+# extracted offline copy has a separate 212 MiB integrity ceiling: task 11's
 # bounded mesh pairs plus the decimetre Tiergarten water network remain below
-# it while the ZIP stays ~154 MiB. Keeping the 8192 px DZI fallback and the
-# mapped stream geometry is more useful than degrading either to save one
-# extracted megabyte.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 211 * 1024 * 1024
+# it while the ZIP stays below the 200 MiB compressed ceiling. The compact
+# 0.79 MiB ground-only startup context saves roughly 146 MiB of normal cold
+# start requests, so retaining it is materially more useful than preserving
+# the previous extracted ceiling.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 212 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
@@ -79,6 +80,7 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
   "dzi/regierungsviertel/tiergartentunnel.json",
   "mesh/regierungsviertel/scene.json",
+  "mesh/regierungsviertel/ground-context.json",
   "mesh/regierungsviertel/tile-3894_58196.glb",
 )
 REQUIRED_ATTRIBUTION = (
@@ -486,8 +488,27 @@ def webgl_manifest_failures(
 def webgl_scene_failures(public_mesh: Path) -> list[str]:
   """Validate the bounded official-mesh scene and every referenced GLB."""
   scene_path = public_mesh / "scene.json"
+  ground_context = public_mesh / "ground-context.json"
   if not scene_path.exists():
     return [f"Missing bundled WebGL scene: {scene_path}"]
+  if not ground_context.exists():
+    return [f"Missing fast-start ground context: {ground_context}"]
+  if ground_context.stat().st_size >= 1024 * 1024:
+    return [f"Fast-start ground context exceeds 1 MiB: {ground_context}"]
+  try:
+    ground_payload = json.loads(ground_context.read_text(encoding="utf-8"))
+  except json.JSONDecodeError as exc:
+    return [f"Invalid fast-start ground context: {ground_context}: {exc}"]
+  if (
+    not isinstance(ground_payload, dict)
+    or ground_payload.get("buildings") != []
+    or ground_payload.get("trees") != []
+    or not ground_payload.get("ground_rows")
+    or not ground_payload.get("ground_height")
+  ):
+    return [
+      f"Fast-start ground context has an invalid terrain subset: {ground_context}"
+    ]
   try:
     scene = json.loads(scene_path.read_text(encoding="utf-8"))
   except json.JSONDecodeError as exc:
@@ -603,7 +624,8 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "temporary selected marker": "runtime.markerTimer = window.setTimeout",
     "static selected marker": "marker.visible = false",
     "Meshopt decoder": "setMeshoptDecoder(MeshoptDecoder)",
-    "six-million-face settled surface": "manifest.surface_detail_tiles",
+    "compact fast-start terrain": "GROUND_CONTEXT_FILE",
+    "demand-only photographic shell": "photographicSurfaceNeeded(",
     "seven-million-plus official-source presentation": '"settled-7m-plus"',
     "settled-only official-tree detail gate": (
       "setParkSettledDetail(runtime.parkDetails, settled)"
@@ -1142,6 +1164,7 @@ def package_manifest_failures(
     "tiergartentunnel_overlay",
     "wikimedia_attribution",
     "webgl_scene",
+    "ground_context",
     "start_page",
   ]:
     entry = assets.get(required)
@@ -1496,6 +1519,7 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
         "favicon.svg",
         "index.html",
         "mesh/regierungsviertel/scene.json",
+        "mesh/regierungsviertel/ground-context.json",
         "mesh/regierungsviertel/tile-3894_58196.glb",
         "dzi/regierungsviertel/regierungsviertel.dzi",
         "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",

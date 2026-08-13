@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.21 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.21/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.22 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.22/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.21** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.22** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,19 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.21**, built from `main`. Its full viewer
+The current public package is **v0.71.22**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The hosted viewer now opens with a small, bounded core instead of silently
+  downloading every visual tier.** Day, Night and Snow use a new 0.79 MiB
+  ground-only context; the 4.05 MiB Minecraft instance payload stays lazy, and
+  the 29.9 MiB photo shell plus hero crops are requested only for an underside
+  cutaway or genuine drawn-world failure. The normal Reichstag start drops
+  from about 151.8 MiB to 5.8 MiB of uncompressed scene requests, a 96.2%
+  reduction. JSON requests time out and retry rather than hanging forever,
+  while browsers without WebGL 2 switch cleanly to the map fallback.
 
 - **The opening view now starts above the Platz der Republik lawn in front of
   the Reichstag.** The elevated camera frames the west facade, flags and glass
@@ -628,19 +637,16 @@ local modules.
   Friedrichstraße/Berliner Ensemble and the southern civic edge. Remaining
   additions carry refreshed LoD2, OSM, ALKIS and official point data plus
   explicitly labelled recognition geometry where documented.
-- Each context tile retains up to 100,000 faces, raising the official base from
-  1,609,984 to 2,599,985 faces without moving its source coordinates. A 58°
-  normal crease keeps severe roof and facade folds crisp while preserving
-  continuous terrain and vegetation. On desktop, a second background-loaded
-  tier retains 6,623,585 official mesh faces. It becomes visible once after its
-  background load and then stays selected during mouse, keyboard, trackpad and
-  UI movement. Two additional 80-triangle crown microclusters then remain for
-  each of the 25,305 official Berlin tree points. This produces
-  10,672,385 rendered official-source face equivalents in the settled
-  presentation. The figure transparently includes GPU instances; it does not
-  claim 10.7 million unique surveyed polygons. Touch devices retain the 2.6M
-  interaction tier and do not download the desktop-only 6.6M geometry or render
-  the settled-only microcrowns. Source-texture vertex
+- Each context tile retains up to 100,000 faces, raising the archived official
+  base from 1,609,984 to 2,599,985 faces without moving source coordinates; a
+  second retained tier contains 6,623,585 faces. A 58° normal crease keeps
+  severe roof and facade folds crisp while preserving terrain and vegetation.
+  These photo tiers are now demand-only source/detail fallbacks: the normal
+  drawn viewer loads neither, while the lighter interaction shell remains
+  available for the underside cutaway or failure recovery. The old
+  10,672,385 face-equivalent desktop presentation remains documented as an
+  archived capacity figure, including instanced microcrowns rather than unique
+  surveyed polygons. Source-texture vertex
   colours receive a bounded saturation/contrast lift so grass, water, brick and
   glass remain distinct without inventing textures. A stronger south-west
   key light and reduced ambient fill keep facade folds and tree trunks crisp
@@ -820,12 +826,13 @@ local modules.
 - The Spree carries a narrow translucent 3D wave surface aligned to the
   committed OSM centreline. Its 0.32 m relief and crest highlights are a
   procedural display treatment, not surveyed hydrodynamic data.
-- Assets load progressively with bounded concurrency and a stable,
-  device-class pixel ratio. The 174.3 MiB scene contains 26 interaction GLBs, 26 settled-detail
-  GLBs and 22 lazy hero parts; every individual public GLB remains below 5 MiB.
-  Both official surface tiers use Meshopt compression with bundled normals.
-  Existing GLB normals are reused
-  instead of recalculating roughly 2.6 million base triangles at startup.
+- The complete offline archive still contains 26 interaction GLBs, 26
+  settled-detail GLBs and 22 hero parts, each below 5 MiB. Normal drawn modes
+  no longer request those photographic tiers in the background; the base shell
+  remains a demand-only underside/failure fallback. JSON core data loads with
+  bounded retries and a 45-second ceiling, optional park detail waits until the
+  first usable city frame, and existing GLB normals avoid recalculating roughly
+  2.6 million triangles when the fallback is actually needed.
 - Mobile devices retain only the selected high-resolution hero group; desktop
   retains the two most recent. Evicted geometry, materials and textures are
   explicitly released from GPU memory. A failed detail file is retried once

@@ -43,6 +43,7 @@ DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_PARK_DETAILS = MESH_PUBLIC_DIR / "park-details.json"
 DEFAULT_SCENE = MESH_PUBLIC_DIR / "scene.json"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "minecraft-voxels.json"
+DEFAULT_GROUND_OUT = MESH_PUBLIC_DIR / "ground-context.json"
 
 CELL_M = 4.0
 ORIGIN_EASTING = 389500.0
@@ -738,6 +739,40 @@ def write_payload(payload: dict[str, Any], out_path: Path) -> int:
   return size
 
 
+def build_ground_context_payload(payload: dict[str, Any]) -> dict[str, Any]:
+  """Return the terrain-only subset shared by the drawn city modes.
+
+  Day, Night and Snow need the classified ground and sampled elevations, but
+  not Minecraft's much larger building and tree instance arrays. Keeping the
+  same schema with empty instance lists lets the browser reuse the established
+  ground samplers without downloading the complete voxel world at startup.
+  """
+  context = {
+    key: payload[key]
+    for key in (
+      "schema_version",
+      "cell_m",
+      "origin",
+      "source",
+      "water_top_y_m",
+      "grid",
+      "classes",
+      "ground_rows",
+      "ground_height",
+    )
+  }
+  context["source"] = {
+    **context["source"],
+    "geometry_status": (
+      "Ground-only startup context derived deterministically from the full "
+      "voxel payload; Minecraft building and tree instances intentionally omitted"
+    ),
+  }
+  context["buildings"] = []
+  context["trees"] = []
+  return context
+
+
 def main(argv: list[str] | None = None) -> None:
   parser = argparse.ArgumentParser(
     description="Build the 4 m voxel-world payload for the Minecraft view mode."
@@ -748,15 +783,18 @@ def main(argv: list[str] | None = None) -> None:
   parser.add_argument("--park-details", type=Path, default=DEFAULT_PARK_DETAILS)
   parser.add_argument("--scene", type=Path, default=DEFAULT_SCENE)
   parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+  parser.add_argument("--ground-out", type=Path, default=DEFAULT_GROUND_OUT)
   args = parser.parse_args(argv)
 
   payload = build_payload(
     args.bounds, args.buildings, args.osm, args.park_details, args.scene
   )
   size = write_payload(payload, args.out)
+  ground_size = write_payload(build_ground_context_payload(payload), args.ground_out)
 
   ground_cells = sum(run[1] for row in payload["ground_rows"] for run in row)
   print(f"Wrote {args.out} ({size / 1024:.0f} KiB)")
+  print(f"Wrote {args.ground_out} ({ground_size / 1024:.0f} KiB)")
   print(
     f"grid {payload['grid']['cols']}x{payload['grid']['rows']} cells, "
     f"{ground_cells} ground cells, {len(payload['buildings'])} building columns, "

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.71.21"
+PACKAGE_VERSION = "0.71.22"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -52,6 +52,7 @@ REQUIRED_PACKAGE_FILES = (
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "mesh/regierungsviertel/scene.json",
+  "mesh/regierungsviertel/ground-context.json",
 )
 CACHEABLE_SUFFIXES = {
   ".css",
@@ -3479,21 +3480,18 @@ Deutsch/Englisch umschaltbar. Taste B oder der Lautsprecherknopf startet und
 stoppt sieben lokal erzeugte 8-Bit-Musikvarianten; Musik bleibt standardmäßig
 aus. Taste D schaltet Tag/Nacht, Taste M Minecraft.
 
-Version {PACKAGE_VERSION} begrenzt den Speicher für hochauflösende
-Gebäudedetails auf eine Gruppe bei Mobilgeräten und zwei Gruppen am Desktop.
-Nicht mehr benötigte Geometrie, Materialien und Texturen werden vollständig aus
-dem GPU-Speicher entfernt. Fehlgeschlagene Dateien werden einmal wiederholt;
-ein einzelnes optionales Detail schaltet das nutzbare Basismodell nicht mehr ab.
-Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive 3D-Szene vollständig
-frei und brechen die restliche GLB-Warteschlange ab; die aktive mobile
-3D-Ansicht nutzt ein begrenztes 30-fps-Budget. Verlorene Pointer-Captures oder
-ein Fensterwechsel setzen Drei-Finger-Gesten sauber zurück. Globale
-Pointer-Releases und ein zehnsekündiger Watchdog verhindern zusätzlich ein
-Festhängen. Am Desktop wird nach dem einmaligen Hintergrundladen eine zweite
-amtliche {settled_faces_de}-Flächen-Stufe eingeblendet und auch bei Maus-,
-Tasten- oder Buttonbewegung beibehalten. Touchgeräte laden nur die leichtere
-{base_faces_de}-Flächen-Stufe. Die interne Renderauflösung bleibt vom Beginn
-einer Geste bis nach dem Ausrollen unverändert.
+Version {PACKAGE_VERSION} startet Tag, Nacht und Schnee mit einem kompakten
+Geländekontext statt mit den fotografischen GLBs. Die amtliche
+{base_faces_de}-Flächen-Stufe lädt nur noch für die Untersicht oder als echte
+Fehlerreserve; die archivierte {settled_faces_de}-Flächen-Stufe wird bei der
+normalen Navigation nicht im Hintergrund angefordert. Minecraft-Gebäude und
+-Bäume bleiben bis zum Wechsel in diesen Modus ebenfalls ungeladen.
+Fehlgeschlagene JSON-Dateien werden einmal wiederholt und nach 45 Sekunden
+sauber abgebrochen. Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive
+3D-Szene vollständig frei. Verlorene Pointer-Captures, Fensterwechsel, globale
+Pointer-Releases und ein zehnsekündiger Watchdog verhindern ein Festhängen.
+Die interne Renderauflösung bleibt vom Beginn einer Geste bis nach dem
+Ausrollen unverändert.
 Vor dem Browserstart prüft serve-local.py außerdem Bytezahl und SHA-256 aller
 {scene_counts["glb_files"]} GLB-Dateien und meldet eine unvollständige Entpackung mit genauem Dateinamen.
 Der lokale HTTP/1.1-Server cached unveränderliche GLBs, Kartenkacheln und
@@ -3671,17 +3669,16 @@ ambient variants. T or the note button controls the independent procedural
 browsers may require the first click, touch or key gesture before either layer
 becomes audible. D toggles Day/Night and M toggles Minecraft.
 
-Version {PACKAGE_VERSION} bounds high-resolution building-detail memory to one
-group on mobile and two groups on desktop. Evicted geometry, materials and
-textures are released from GPU memory. Failed files are retried once, and one
-optional detail no longer disables the usable base scene. Touch devices release
-inactive 3D when switching to the 2D map, cancel the remaining GLB queue and cap
-active rendering at 30 fps. Lost pointer capture or window focus cleanly resets
-three-finger gestures; global pointer release and a ten-second watchdog prevent
-stuck input. Desktop switches once from the {base_faces_en}-face loading surface
-to the official {settled_faces_en}-face surface and keeps it during navigation;
-touch devices request only the lighter tier. The backing-store resolution
-likewise stays unchanged throughout input and momentum. Before opening the browser,
+Version {PACKAGE_VERSION} starts Day, Night and Snow from a compact terrain
+context instead of photographic GLBs. The official {base_faces_en}-face shell
+loads only for the underside or real failure recovery; the archived
+{settled_faces_en}-face tier is not requested during normal navigation.
+Minecraft buildings and trees remain lazy until that mode is selected. Failed
+JSON transfers retry once and stop cleanly after 45 seconds. Touch devices
+release inactive 3D when switching to the 2D map. Lost pointer capture, window
+focus, global pointer release and a ten-second watchdog prevent stuck input.
+The backing-store resolution likewise stays unchanged throughout input and
+momentum. Before opening the browser,
 serve-local.py checks all {scene_counts["glb_files"]} GLB hashes. Its HTTP/1.1 cache reuses immutable
 models, map tiles and app assets
 instead of transferring the complete scene again.
@@ -3695,7 +3692,8 @@ recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
-photographic texture remains visible underneath.
+photographic shell remains bundled as an underside/failure fallback rather
+than loading underneath the ordinary drawn city.
 
 The central Chancellery building now reveals its externally visible spatial
 sequence behind cool transparent glass: split gallery plates around a 14.4 m
@@ -3798,6 +3796,7 @@ def write_package_manifest(package_dir: Path) -> None:
     "tiergartentunnel_overlay": dzi_root / "tiergartentunnel.json",
     "wikimedia_attribution": dzi_root / "wikimedia_attribution.json",
     "webgl_scene": package_dir / "mesh/regierungsviertel/scene.json",
+    "ground_context": package_dir / "mesh/regierungsviertel/ground-context.json",
     "start_page": package_dir / "START-HERE.html",
   }
   missing = [label for label, path in asset_paths.items() if not path.exists()]
@@ -3816,7 +3815,9 @@ def write_package_manifest(package_dir: Path) -> None:
     "dzi_descriptor": "dzi/regierungsviertel/regierungsviertel.dzi",
     "uses_google_content": False,
     "scope": "Berlin Regierungsviertel bounds only",
-    "render_mode": "progressive official WebGL mesh plus source-detail DZI fallback",
+    "render_mode": (
+      "drawn LoD2 city with demand-only official WebGL and source-detail DZI fallback"
+    ),
     "controls": [
       "mouse-pan",
       "mouse-rotate-swivel",
@@ -3825,6 +3826,8 @@ def write_package_manifest(package_dir: Path) -> None:
       "touch-two-finger-direct-pan-midpoint-pinch-zoom",
       "true-threejs-3d-orbit",
       "cancelable-progressive-model-loading",
+      "demand-only-photogrammetry-fallback",
+      "timeout-and-retry-json-loading",
       "http11-immutable-heavy-asset-cache",
       "keyboard-arrow-screen-plane-flight",
       "shift-arrow-heading-flight",

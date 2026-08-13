@@ -243,9 +243,9 @@ function regierungsviertelTileSource(): string {
 function initialViewerMode(): ViewerMode {
   try {
     const canvas = document.createElement("canvas");
-    return canvas.getContext("webgl2") || canvas.getContext("webgl")
-      ? "three"
-      : "map";
+    const context = canvas.getContext("webgl2");
+    context?.getExtension("WEBGL_lose_context")?.loseContext();
+    return context ? "three" : "map";
   } catch {
     return "map";
   }

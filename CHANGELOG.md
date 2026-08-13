@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.22
+
+- **The GitHub Pages viewer no longer downloads the complete visual archive at
+  startup.** Day, Night and Snow share a deterministic 0.79 MiB ground-only
+  context; Minecraft's 4.05 MiB building/tree payload remains lazy, and the
+  29.9 MiB photo shell plus Reichstag hero crops are requested only for an
+  underside cutaway or a real drawn-world failure. The ordinary Reichstag cold
+  start falls from about 151.8 MiB to 5.8 MiB of uncompressed scene requests,
+  a 96.2% reduction, without removing any downloadable source tier.
+- **Slow or interrupted hosts now fail predictably instead of leaving a blank
+  page.** Scene and geometry JSON use a 45-second timeout, one bounded retry,
+  parent cancellation on unmount and cache-safe requests. Optional 5 MiB park
+  detail starts only after the requested world is visible. WebGL renderer
+  creation is guarded, and devices without the WebGL 2 contract required by
+  Three.js switch to the existing OpenSeadragon map fallback.
+- **The release checks now protect the fast path.** The terrain-only file is
+  regenerated from the complete voxel payload, compared byte-for-data in
+  Python tests, kept below 1 MiB and inventoried in both local archives. Browser
+  tests cover retry, timeout, cancellation and demand-only photo loading. The
+  visible radius remains **5,230 m**; geometry, Queer Rainbow Memorial,
+  attribution and source hierarchy are unchanged.
+
 ## v0.71.21
 
 - **The owner-supplied Ahornsteig point now has a dedicated Queer Rainbow

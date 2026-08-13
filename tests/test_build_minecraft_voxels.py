@@ -11,6 +11,7 @@ from shapely.geometry import Point, Polygon
 
 from isometric_berlin.generation.build_minecraft_voxels import (
   CLASSES,
+  build_ground_context_payload,
   encode_ground_rows,
   inset_cells,
   is_interim_office_footprint_suppressed,
@@ -23,6 +24,7 @@ SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
 BOUNDS = Path("geo_data/regierungsviertel/bounds.geojson")
 CELL_AREA_M2 = 4.0 * 4.0
 CELL_M = 4.0
+GROUND_CONTEXT = Path("src/app/public/mesh/regierungsviertel/ground-context.json")
 
 # Reichstag LoD2 footprint in world/scene coordinates (verified against the
 # scene.json landmark at world [315.0, 8.0, 39.8]): x 266.5..367.5, z -29.5..110.3.
@@ -62,6 +64,19 @@ def test_payload_is_small_and_versioned(payload: dict) -> None:
   assert payload["water_top_y_m"] == -1.15
   assert "OpenStreetMap" in payload["source"]["attribution"]
   assert "Geoportal Berlin" in payload["source"]["attribution"]
+
+
+def test_ground_context_is_a_small_exact_terrain_subset(payload: dict) -> None:
+  committed = json.loads(GROUND_CONTEXT.read_text(encoding="utf-8"))
+  expected = build_ground_context_payload(payload)
+
+  assert committed == expected
+  assert GROUND_CONTEXT.stat().st_size < 1024 * 1024
+  assert committed["buildings"] == []
+  assert committed["trees"] == []
+  assert committed["grid"] == payload["grid"]
+  assert committed["ground_rows"] == payload["ground_rows"]
+  assert committed["ground_height"] == payload["ground_height"]
 
 
 def test_building_columns_are_plausible(payload: dict) -> None:

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  photographicSurfaceNeeded,
   presentationFogRange,
   startupCurtainMayOpen,
   startupPresentationStatus,
@@ -81,6 +82,13 @@ describe("startup presentation gate", () => {
     expect(startupCurtainMayOpen(fallback, true)).toBeTrue();
     expect(startupCurtainMayOpen("pending", true)).toBeFalse();
     expect(startupCurtainMayOpen("ready", false)).toBeTrue();
+  });
+
+  test("downloads photogrammetry only for failure recovery or an underside", () => {
+    expect(photographicSurfaceNeeded("pending", false)).toBeFalse();
+    expect(photographicSurfaceNeeded("ready", false)).toBeFalse();
+    expect(photographicSurfaceNeeded("fallback", false)).toBeTrue();
+    expect(photographicSurfaceNeeded("ready", true)).toBeTrue();
   });
 
   test("the startup curtain is opaque and never cross-fades over photos", () => {

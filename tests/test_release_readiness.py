@@ -340,6 +340,17 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
     json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
     encoding="utf-8",
   )
+  (public_mesh / "ground-context.json").write_text(
+    json.dumps(
+      {
+        "buildings": [],
+        "trees": [],
+        "ground_rows": [[[0, 1, 0]]],
+        "ground_height": {"y_dm": [0]},
+      }
+    ),
+    encoding="utf-8",
+  )
   return public_dzi
 
 
@@ -382,6 +393,10 @@ def write_minimal_package_zip(
     "mesh/regierungsviertel/scene.json": json.dumps(
       minimal_webgl_scene(Path(mesh_relative).name, mesh_data)
     ),
+    "mesh/regierungsviertel/ground-context.json": (
+      b'{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
+      b'"ground_height":{"y_dm":[0]}}'
+    ),
     mesh_relative: mesh_data,
   }
   for relative, body in overrides.items():
@@ -399,6 +414,7 @@ def write_minimal_package_zip(
       "tiergartentunnel_overlay": "dzi/regierungsviertel/tiergartentunnel.json",
       "wikimedia_attribution": "dzi/regierungsviertel/wikimedia_attribution.json",
       "webgl_scene": "mesh/regierungsviertel/scene.json",
+      "ground_context": "mesh/regierungsviertel/ground-context.json",
       "start_page": "START-HERE.html",
     }
 
@@ -455,6 +471,10 @@ def write_minimal_static_tarball(
     "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg": b"tile",
     "mesh/regierungsviertel/scene.json": json.dumps(
       minimal_webgl_scene(Path(mesh_relative).name, mesh_data)
+    ),
+    "mesh/regierungsviertel/ground-context.json": (
+      b'{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
+      b'"ground_height":{"y_dm":[0]}}'
     ),
     mesh_relative: mesh_data,
   }
@@ -642,6 +662,11 @@ def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> 
     json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
     encoding="utf-8",
   )
+  (tmp_path / "ground-context.json").write_text(
+    '{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
+    '"ground_height":{"y_dm":[0]}}',
+    encoding="utf-8",
+  )
 
   failures = release_readiness.webgl_scene_failures(tmp_path)
 
@@ -658,6 +683,11 @@ def test_webgl_scene_failures_rejects_unreferenced_glb(tmp_path: Path) -> None:
   (tmp_path / "stale.glb").write_bytes(b"stale")
   (tmp_path / "scene.json").write_text(
     json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    encoding="utf-8",
+  )
+  (tmp_path / "ground-context.json").write_text(
+    '{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
+    '"ground_height":{"y_dm":[0]}}',
     encoding="utf-8",
   )
 
