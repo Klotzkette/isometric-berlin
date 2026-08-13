@@ -283,6 +283,7 @@ def test_committed_wikimedia_manifest_covers_expanded_reference_groups() -> None
     "marie_elisabeth_lueders_haus",
     "hauptbahnhof",
     "humboldthafen",
+    "welt_balloon",
     "gustav_heinemann_bruecke",
     "hugo_preuss_bruecke",
     "hkw",

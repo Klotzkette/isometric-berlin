@@ -703,3 +703,49 @@ export const MOABIT_PRISON_PARK_PROFILE = {
   sourceParkWayId: "498278335",
   wallSideCount: 3,
 } as const;
+
+/**
+ * Published dimensions and bounded presentation pose of Berlin's WELT balloon.
+ *
+ * The operator supplies the FK-5500/STU dimensions, gondola capacity and cable
+ * diameter. The landmark/OSM record fixes the ground anchor. Its 91 m envelope
+ * centre is the deliberately frozen viewer pose, not a claim that the balloon
+ * always flies at that altitude; the real installation can ascend to 150 m.
+ */
+export const WELT_BALLOON_PROFILE = {
+  displayCableStrokeM: 0.06,
+  envelopeCenterAboveGroundM: 91,
+  envelopeDiameterM: 22.67,
+  envelopeVolumeM3: 6_100,
+  geometryStatus:
+    "OSM-ground-anchored FK-5500/STU dimensions with owner-specified white-and-black livery; cable net and ground station are bounded presentation detail",
+  gondolaDiameterM: 5.9,
+  gondolaPassengerCapacity: 30,
+  maxAscentM: 150,
+  model: "FK-5500/STU",
+  repeatedWordCount: 4,
+  tetherDiameterM: 0.022,
+  totalHeightM: 34,
+  sources: [
+    "https://berlinhelicopter.de/weltballon-mehr-erfahren/",
+    "https://www.openstreetmap.org/way/1250081894",
+    "https://commons.wikimedia.org/wiki/File:Germany-04441_-_Berlin%E2%80%99s_Hi-Flyer_(30250209001).jpg",
+    "https://commons.wikimedia.org/wiki/File:Die_Welt_balloon_at_Wilhelmstr.jpg",
+  ] as const,
+  visualReferences: [
+    {
+      artist: "Dennis G. Jarvis",
+      license: "CC BY-SA 2.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0",
+      title: "Germany-04441 - Berlin's Hi-Flyer (30250209001).jpg",
+      url: "https://commons.wikimedia.org/wiki/File:Germany-04441_-_Berlin%E2%80%99s_Hi-Flyer_(30250209001).jpg",
+    },
+    {
+      artist: "Orderinchaos",
+      license: "CC BY-SA 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      title: "Die Welt balloon at Wilhelmstr.jpg",
+      url: "https://commons.wikimedia.org/wiki/File:Die_Welt_balloon_at_Wilhelmstr.jpg",
+    },
+  ] as const,
+} as const;

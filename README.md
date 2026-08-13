@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.24 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.24/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.25 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.25/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.24** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.25** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.24**, built from `main`. Its full viewer
+The current public package is **v0.71.25**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -78,6 +78,13 @@ local modules.
   seven supports and reflecting pool. Instanced steelwork and non-overlapping
   transparent sectors keep the reconstruction crisp while orbiting; the old
   source-mesh canopy is suppressed only within this measured roof envelope.
+
+- **The WELT balloon is now white with a crisp black wordmark, as requested.**
+  The former beige ellipsoid, red panel, box gondola and single heavy cable are
+  replaced by a 22.67 m spherical technical-fabric envelope, four curved
+  mipmapped `WELT` inscriptions, a 5.90 m ring gondola, 24 suspension lines,
+  tether, ground winch and boarding pad. The same white/black livery stays
+  readable at night; no photograph is copied into its procedural texture.
 
 - **The Tiergartentunnel now meets the surface through four real access
   sites.** Minna-Cauer-Straße, Invalidenstraße/Hauptbahnhof, Kemperplatz and
@@ -874,7 +881,7 @@ local modules.
   overflow, full-viewport canvas, 44 px touch targets and visible mobile
   orientation controls.
 - LoD2, OSM, ALKIS/DOP/DGM inventories, 89 landmarks, 38 relative-placement
-  checks and 110 accepted Wikimedia references remain part of the additive
+  checks and 112 accepted Wikimedia references remain part of the additive
   evidence pipeline and attribution chain.
 - No Google, Apple, Bing, Amap, social-media or restricted-photo content is
   bundled. Those services may be inspected for QA, but are not copied.

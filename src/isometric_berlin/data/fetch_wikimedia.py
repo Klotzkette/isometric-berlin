@@ -79,6 +79,10 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "Humboldthafen Berlin Hauptbahnhof",
     "Berlin Humboldthafen",
   ],
+  "welt_balloon": [
+    "Berlin Hi-Flyer WELT Balloon Wilhelmstraße",
+    "Weltballon Berlin gondola",
+  ],
   "rahel_hirsch_strasse": [
     "Rahel-Hirsch-Straße Berlin Hauptbahnhof",
     "Rahel Hirsch Strasse Berlin",

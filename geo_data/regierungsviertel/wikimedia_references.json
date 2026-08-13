@@ -2294,6 +2294,48 @@
       "role": "visual_reference_for_material_and_facade_QA"
     },
     {
+      "landmark_id": "welt_balloon",
+      "title": "File:Germany-04441 - Berlin’s Hi-Flyer (30250209001).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AGermany-04441_-_Berlin%E2%80%99s_Hi-Flyer_%2830250209001%29.jpg",
+      "thumbnail_path": "welt_balloon_01_file-germany-04441-berlin-s-hi-flyer-30250209001-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Germany-04441_-_Berlin%E2%80%99s_Hi-Flyer_%2830250209001%29.jpg/960px-Germany-04441_-_Berlin%E2%80%99s_Hi-Flyer_%2830250209001%29.jpg",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "artist": "Dennis G. Jarvis",
+      "credit": "Own work; originally published on Flickr by Dennis G. Jarvis",
+      "description": "Berlin Hi-Flyer in flight with suspension net and ring gondola.",
+      "dominant_colours": [
+        "#d1def1",
+        "#c1d1e9",
+        "#b0c6e8",
+        "#95c0ef",
+        "#74b4ef",
+        "#57799e"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "welt_balloon",
+      "title": "File:Die Welt balloon at Wilhelmstr.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ADie_Welt_balloon_at_Wilhelmstr.jpg",
+      "thumbnail_path": "welt_balloon_02_file-die-welt-balloon-at-wilhelmstr-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Die_Welt_balloon_at_Wilhelmstr.jpg/960px-Die_Welt_balloon_at_Wilhelmstr.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Orderinchaos",
+      "credit": "Own work",
+      "description": "The WELT captive balloon at rest on Wilhelmstraße, Berlin-Mitte.",
+      "dominant_colours": [
+        "#dce7f5",
+        "#d7e3f3",
+        "#c4cad0",
+        "#a0a7ae",
+        "#616e76",
+        "#353c3b"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
       "landmark_id": "tiergarten",
       "title": "File:Tiergarten park entrance - DPLA - d9136b0394915b7029acdd84b6a64481.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ATiergarten_park_entrance_-_DPLA_-_d9136b0394915b7029acdd84b6a64481.jpg",

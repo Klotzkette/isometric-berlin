@@ -1,12 +1,16 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  CanvasTexture,
   CircleGeometry,
+  CylinderGeometry,
   DoubleSide,
   EdgesGeometry,
   ExtrudeGeometry,
   Float32BufferAttribute,
   Group,
+  LinearFilter,
+  LinearMipmapLinearFilter,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -16,6 +20,8 @@ import {
   RingGeometry,
   Shape,
   SphereGeometry,
+  SRGBColorSpace,
+  type Texture,
   TorusGeometry,
   Vector3,
 } from "three";
@@ -36,6 +42,7 @@ import {
   POTSDAMER_DETAIL_PROFILE,
   RIECKHALLEN_PROFILE,
   ST_MATTHAEUS_PROFILE,
+  WELT_BALLOON_PROFILE,
 } from "./expandedCityProfiles";
 import {
   type Builder,
@@ -65,6 +72,7 @@ export {
   POTSDAMER_DETAIL_PROFILE,
   RIECKHALLEN_PROFILE,
   ST_MATTHAEUS_PROFILE,
+  WELT_BALLOON_PROFILE,
 } from "./expandedCityProfiles";
 
 const EXPANDED_FOCUS_PRESETS: Record<
@@ -4158,18 +4166,258 @@ function addCharlottenburgerTor(
   }
 }
 
-function addWeltBalloon(
-  builder: Builder,
+function createWeltBalloonEnvelopeTexture(): Texture | null {
+  if (typeof document === "undefined") return null;
+  const word = createLetteringTexture({
+    bandHeightM: 5.65,
+    bandWidthM: 17.8,
+    capHeightM: 3.05,
+    fieldColor: "#fbfbf7",
+    letterColor: "#111416",
+    text: "WELT",
+    texelsPerMetre: 90,
+  });
+  if (!word) return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 2048;
+  canvas.height = 1024;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    word.dispose();
+    return null;
+  }
+
+  // White technical fabric, with the restrained diamond seam net visible in
+  // the reference photographs. Keeping the net inside a mipmapped texture
+  // avoids thousands of sub-pixel cable meshes shimmering at skyline scale.
+  // The owner explicitly selected the white presentation livery; the current
+  // globe photography is therefore recorded as a reference, not copied.
+  context.fillStyle = "#f7f7f2";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.strokeStyle = "rgba(151, 158, 158, 0.28)";
+  context.lineWidth = 1.2;
+  for (let x = -canvas.height; x < canvas.width + canvas.height; x += 42) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x + 290, canvas.height);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(x + 290, 0);
+    context.lineTo(x, canvas.height);
+    context.stroke();
+  }
+  context.strokeStyle = "rgba(114, 121, 122, 0.34)";
+  for (let x = 0; x <= canvas.width; x += 128) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x, canvas.height);
+    context.stroke();
+  }
+
+  const bandTop = 426;
+  const bandHeight = 172;
+  context.fillStyle = "#fbfbf7";
+  context.fillRect(0, bandTop, canvas.width, bandHeight);
+  context.strokeStyle = "#222628";
+  context.lineWidth = 5;
+  context.beginPath();
+  context.moveTo(0, bandTop);
+  context.lineTo(canvas.width, bandTop);
+  context.moveTo(0, bandTop + bandHeight);
+  context.lineTo(canvas.width, bandTop + bandHeight);
+  context.stroke();
+
+  const source = word.image as CanvasImageSource;
+  const quarter = canvas.width / WELT_BALLOON_PROFILE.repeatedWordCount;
+  for (
+    let index = 0;
+    index < WELT_BALLOON_PROFILE.repeatedWordCount;
+    index += 1
+  ) {
+    context.drawImage(
+      source,
+      index * quarter + 12,
+      bandTop + 8,
+      quarter - 24,
+      bandHeight - 16,
+    );
+  }
+  word.dispose();
+
+  const texture = new CanvasTexture(canvas);
+  texture.anisotropy = 8;
+  texture.generateMipmaps = true;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.colorSpace = SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createWeltBalloon(
   byName: Map<string, ExpandedLandmark>,
-): void {
+): Group | null {
   const point = anchor(byName, "WELT Balloon");
-  if (!point) return;
-  const balloon = new SphereGeometry(13.5, 24, 16);
-  balloon.scale(1, 0.82, 1);
-  balloon.translate(point.x, point.y + 91, point.z);
-  addCustomGeometry(builder, balloon, 0xe8ddd0);
-  addCylinder(builder, DARK_FRAME, point.x, point.y + 42, point.z, 0.22, 77, 8);
-  addBox(builder, 0xd8b644, point.x, point.y + 75.2, point.z, 4.2, 2.1, 4.2);
+  if (!point) return null;
+  const profile = WELT_BALLOON_PROFILE;
+  const radius = profile.envelopeDiameterM / 2;
+  const envelopeCenterY = point.y + profile.envelopeCenterAboveGroundM;
+  const bottomY = envelopeCenterY + radius - profile.totalHeightM;
+  const gondolaCenterY = bottomY + 1.25;
+  const gondolaTopY = gondolaCenterY + 1.2;
+  const group = new Group();
+  group.name = "WELT Balloon FK-5500/STU";
+  group.userData.profile = profile;
+
+  const texture = createWeltBalloonEnvelopeTexture();
+  const envelopeGeometry = new SphereGeometry(radius, 64, 40);
+  const dayMaterial = texture
+    ? new MeshBasicMaterial({ map: texture })
+    : new MeshBasicMaterial({ color: 0xf7f7f2 });
+  const nightMaterial = texture
+    ? new MeshStandardMaterial({
+        emissiveMap: texture,
+        map: texture,
+        roughness: 0.72,
+      })
+    : new MeshStandardMaterial({ color: 0xf7f7f2, roughness: 0.72 });
+  nightMaterial.userData.nightEmissive = 0xf4f1e8;
+  nightMaterial.userData.nightEmissiveIntensity = 0.52;
+  const envelope = new Mesh(envelopeGeometry, dayMaterial);
+  envelope.name = "WELT Balloon white envelope with curved black lettering";
+  envelope.position.set(point.x, envelopeCenterY, point.z);
+  envelope.userData.dayMaterial = dayMaterial;
+  envelope.userData.nightMaterial = nightMaterial;
+  envelope.userData.lettering = "WELT";
+  envelope.userData.letteringColor = 0x111416;
+  envelope.userData.livery = "white technical fabric with black lettering";
+  envelope.userData.fallbackWithoutCanvas = texture === null;
+  group.add(envelope);
+
+  const builder = createBuilder();
+  const cableColor = 0x737b7c;
+  const gondolaBlue = 0x243b55;
+  const gondolaSteel = 0xc9cdd0;
+
+  // Twenty-four suspension lines fan from the lower envelope into the real
+  // 5.90 m ring gondola. Their 6 cm display stroke is explicitly wider than
+  // the published 22 mm tether so the rig remains stable at skyline zoom.
+  const suspensionY = envelopeCenterY - radius * 0.72;
+  const suspensionRadius = Math.sqrt(
+    radius * radius - (suspensionY - envelopeCenterY) ** 2,
+  );
+  for (let index = 0; index < 24; index += 1) {
+    const angle = (index / 24) * Math.PI * 2;
+    addBeamBetween(
+      builder,
+      cableColor,
+      new Vector3(
+        point.x + Math.cos(angle) * suspensionRadius,
+        suspensionY,
+        point.z + Math.sin(angle) * suspensionRadius,
+      ),
+      new Vector3(
+        point.x + Math.cos(angle) * (profile.gondolaDiameterM / 2 - 0.12),
+        gondolaTopY,
+        point.z + Math.sin(angle) * (profile.gondolaDiameterM / 2 - 0.12),
+      ),
+      profile.displayCableStrokeM,
+    );
+  }
+
+  const gondolaFloor = new CylinderGeometry(
+    profile.gondolaDiameterM / 2,
+    profile.gondolaDiameterM / 2,
+    0.28,
+    32,
+  );
+  gondolaFloor.translate(point.x, bottomY + 0.2, point.z);
+  addCustomGeometry(builder, gondolaFloor, gondolaBlue, false);
+  const fascia = new CylinderGeometry(
+    profile.gondolaDiameterM / 2,
+    profile.gondolaDiameterM / 2,
+    0.58,
+    32,
+    1,
+    true,
+  );
+  fascia.translate(point.x, bottomY + 0.62, point.z);
+  addCustomGeometry(builder, fascia, gondolaBlue, false);
+  for (const ringY of [bottomY + 0.88, gondolaTopY]) {
+    const rail = new TorusGeometry(
+      profile.gondolaDiameterM / 2 - 0.1,
+      0.1,
+      8,
+      48,
+    );
+    rail.rotateX(Math.PI / 2);
+    rail.translate(point.x, ringY, point.z);
+    addCustomGeometry(builder, rail, gondolaSteel, false);
+  }
+  for (let index = 0; index < 16; index += 1) {
+    const angle = (index / 16) * Math.PI * 2;
+    addCylinder(
+      builder,
+      gondolaSteel,
+      point.x + Math.cos(angle) * (profile.gondolaDiameterM / 2 - 0.12),
+      (bottomY + 0.88 + gondolaTopY) / 2,
+      point.z + Math.sin(angle) * (profile.gondolaDiameterM / 2 - 0.12),
+      0.055,
+      gondolaTopY - (bottomY + 0.88),
+      8,
+    );
+  }
+  addCylinder(
+    builder,
+    DARK_FRAME,
+    point.x,
+    (point.y + 0.8 + bottomY) / 2,
+    point.z,
+    profile.displayCableStrokeM,
+    bottomY - point.y - 0.8,
+    8,
+  );
+
+  // Circular boarding pad, protected winch and horizontal cable drum make the
+  // object read as a tethered aircraft rather than an unsupported ornament.
+  const pad = new CircleGeometry(6.5, 40);
+  pad.rotateX(-Math.PI / 2);
+  pad.translate(point.x, point.y + 0.05, point.z);
+  addCustomGeometry(builder, pad, 0xc9c8c0, false);
+  addBox(
+    builder,
+    0x4d5556,
+    point.x + 2.5,
+    point.y + 0.72,
+    point.z + 1.7,
+    3.2,
+    1.35,
+    2.2,
+    0.12,
+  );
+  const drum = new CylinderGeometry(0.7, 0.7, 1.65, 16);
+  drum.rotateZ(Math.PI / 2);
+  drum.translate(point.x + 2.5, point.y + 0.78, point.z + 1.7);
+  addCustomGeometry(builder, drum, 0x252b2d, false);
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI * 2;
+    addCylinder(
+      builder,
+      0x8a8e8b,
+      point.x + Math.cos(angle) * 6.2,
+      point.y + 0.55,
+      point.z + Math.sin(angle) * 6.2,
+      0.08,
+      1.1,
+      8,
+    );
+  }
+  const mechanics = finishDrawnGroup(builder, {
+    name: "WELT Balloon gondola cable net and ground winch",
+  });
+  if (mechanics) group.add(mechanics);
+  return group;
 }
 
 function addCivicAccents(
@@ -5070,19 +5318,6 @@ function addRooftopSigns(
     );
     if (sign) group.add(sign);
   }
-  const welt = anchor(byName, "WELT Balloon");
-  if (welt) {
-    const sign = createLetterSign(
-      "WELT",
-      16,
-      4.8,
-      new Vector3(welt.x, welt.y + 91, welt.z + 13.25),
-      0,
-      "#b6382f",
-      "#fff7ec",
-    );
-    if (sign) group.add(sign);
-  }
   if (byName.has("Oggi's Gemüsekebab")) {
     const profile = NORTHERN_CITY_PROFILE.funbox;
     const origin = new Vector3(
@@ -5186,6 +5421,7 @@ export function createExpandedCityDetails(
   group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
+  group.userData.weltBalloon = WELT_BALLOON_PROFILE;
   group.userData.sourceUrls = [
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
     "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
@@ -5198,6 +5434,7 @@ export function createExpandedCityDetails(
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...NORTHERN_CITY_PROFILE.invalidenfriedhof.sources,
     ...EUROPACITY_PROFILE.sources,
+    ...WELT_BALLOON_PROFILE.sources,
   ];
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
@@ -5208,7 +5445,6 @@ export function createExpandedCityDetails(
   addTillaDurieuxPark(builder, byName);
   addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);
-  addWeltBalloon(builder, byName);
   addCivicAccents(builder, byName);
   addAmanoGrandCentral(builder, byName);
   addMoabitPrisonPark(builder, byName);
@@ -5220,6 +5456,8 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+  const weltBalloon = createWeltBalloon(byName);
+  if (weltBalloon) group.add(weltBalloon);
 
   // The cemetery is a surveyed place in its own right rather than an accent
   // attached to one of the optional recognition landmarks. Keeping it in a

@@ -14,6 +14,7 @@ import {
   NORTHERN_CITY_PROFILE,
   RIECKHALLEN_PROFILE,
   POTSDAMER_DETAIL_PROFILE,
+  WELT_BALLOON_PROFILE,
 } from "../src/ExpandedCityDetails";
 
 const landmarks = [
@@ -103,12 +104,19 @@ describe("task-10 expanded city recognition details", () => {
     ).toBeDefined();
   });
 
-  test("adds company and balloon signs as drawn lettering", () => {
+  test("adds company signs and curved black WELT balloon lettering", () => {
     const details = createExpandedCityDetails(landmarks);
     expect(details.getObjectByName("KPMG rooftop lettering")).toBeDefined();
     expect(details.getObjectByName("KPMG side lettering")).toBeDefined();
     expect(details.getObjectByName("DKB rooftop lettering")).toBeDefined();
-    expect(details.getObjectByName("WELT rooftop lettering")).toBeDefined();
+    const envelope = details.getObjectByName(
+      "WELT Balloon white envelope with curved black lettering",
+    ) as Mesh;
+    expect(envelope).toBeInstanceOf(Mesh);
+    expect(envelope.userData.lettering).toBe("WELT");
+    expect(envelope.userData.letteringColor).toBe(0x111416);
+    expect(envelope.userData.livery).toContain("white");
+    expect(details.getObjectByName("WELT rooftop lettering")).toBeUndefined();
     expect(
       details.getObjectByName("AMANO Grand Central facade lettering"),
     ).toBeDefined();
@@ -276,6 +284,23 @@ describe("task-10 expanded city recognition details", () => {
       details.getObjectByName("Granular 42 m Carillon im Tiergarten"),
     ).toBeUndefined();
     expect(details.userData.geometryStatus).toContain("LoD2 remains");
+    expect(details.userData.weltBalloon).toEqual(WELT_BALLOON_PROFILE);
+    expect(WELT_BALLOON_PROFILE.model).toBe("FK-5500/STU");
+    expect(WELT_BALLOON_PROFILE.envelopeDiameterM).toBeCloseTo(22.67, 2);
+    expect(WELT_BALLOON_PROFILE.gondolaDiameterM).toBeCloseTo(5.9, 2);
+    expect(WELT_BALLOON_PROFILE.tetherDiameterM).toBeCloseTo(0.022, 3);
+    expect(WELT_BALLOON_PROFILE.repeatedWordCount).toBe(4);
+    expect(WELT_BALLOON_PROFILE.visualReferences).toHaveLength(2);
+    expect(
+      WELT_BALLOON_PROFILE.visualReferences.every(
+        (reference) => reference.artist && reference.license,
+      ),
+    ).toBe(true);
+    expect(
+      details.getObjectByName(
+        "WELT Balloon gondola cable net and ground winch bodies",
+      ),
+    ).toBeDefined();
   });
 
   test("frames tall and edge-of-map additions without clipping", () => {

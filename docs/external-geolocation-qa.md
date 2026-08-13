@@ -151,7 +151,7 @@ derived textures, or traced map geometry.
   180 m long and 42 m wide beneath the 321 m east-west glass roof. These values
   replace the earlier 160 x 45 m recognition-envelope estimate; the official
   mesh and LoD2 alignment remain unchanged.
-- The committed Wikimedia set now contains 110 accepted thumbnails across 37
+- The committed Wikimedia set now contains 112 accepted thumbnails across 38
   motif groups. Every attribution-required file has a non-empty artist or
   credit field, and the public attribution payload remains packaged.
 

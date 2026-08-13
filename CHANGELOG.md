@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.71.25
+
+- **The WELT balloon is no longer a beige ellipsoid with a floating red
+  placard.** Its procedural spherical envelope now carries the owner-selected
+  white technical-fabric livery, restrained diamond seams and four
+  mipmapped black `WELT` wordmarks wrapped around the equator. Day preserves
+  exact unlit white/black paint; Night uses the same texture as a cool,
+  restrained emissive map, so the lettering remains readable without making
+  the balloon look like a lamp. The old duplicate sign is removed.
+- **The tethered aircraft now reads as a complete installation.** Published
+  operator dimensions fix the FK-5500/STU envelope at 22.67 m diameter and
+  the circular gondola at 5.90 m; 24 suspension lines, two guard rings,
+  uprights, the central tether, boarding pad, winch, drum and bollards replace
+  the former block gondola and single oversized cable. The 91 m envelope
+  centre remains an explicitly bounded viewer pose, not a claim of a constant
+  operating altitude.
+- **Visual-reference provenance is complete.** Two freely licensed Commons
+  views document the suspension net, gondola and fabric presentation, taking
+  the committed set from 110 to 112 records across 38 motif groups. Author,
+  license and credit ship in the public attribution payload; no photograph is
+  used as the balloon texture. Desktop and 390 x 844 mobile close views were
+  checked in Day and Night, and the settled balloon region was byte-identical
+  across consecutive frames. The visible radius remains **5,230 m** and all
+  existing attribution is unchanged.
+
 ## v0.71.24
 
 - **The Sony Center Forum roof is no longer a heavy generic slab.** Its plan
