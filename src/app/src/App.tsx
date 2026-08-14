@@ -35,6 +35,8 @@ import {
   Moon,
   MoreHorizontal,
   Pause,
+  PanelLeft,
+  PanelRight,
   Play,
   Plus,
   RefreshCw,
@@ -75,6 +77,12 @@ import {
 } from "./audioAutostart";
 import { registerAudioLifecycle } from "./audioLifecycle";
 import { heldNavigationInput } from "./cameraNavigation";
+import {
+  CONTROL_DOCK_SIDE_STORAGE_KEY,
+  type ControlDockSide,
+  controlDockSideFromStored,
+  oppositeControlDockSide,
+} from "./controlDock";
 import { heldPedestrianInput } from "./pedestrianNavigation";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
@@ -273,6 +281,16 @@ function initialChromeHidden(): boolean {
     return chromeHiddenForLayout(storedHidden, compact);
   } catch {
     return false;
+  }
+}
+
+function initialControlDockSide(): ControlDockSide {
+  try {
+    return controlDockSideFromStored(
+      window.localStorage.getItem(CONTROL_DOCK_SIDE_STORAGE_KEY),
+    );
+  } catch {
+    return "left";
   }
 }
 
@@ -641,6 +659,9 @@ export function App() {
   const [isMusicAudible, setIsMusicAudible] = useState(false);
   const [isTouring, setIsTouring] = useState(false);
   const [isChromeHidden, setIsChromeHidden] = useState(initialChromeHidden);
+  const [controlDockSide, setControlDockSide] = useState<ControlDockSide>(
+    initialControlDockSide,
+  );
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
   const [showCoachMark, setShowCoachMark] = useState(() => !hasSeenCoachMark());
   const [showBrandTitle, setShowBrandTitle] = useState(false);
@@ -1120,6 +1141,17 @@ export function App() {
     }
   }, [isChromeHidden, isCompactLayout]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        CONTROL_DOCK_SIDE_STORAGE_KEY,
+        controlDockSide,
+      );
+    } catch {
+      // Side selection is optional when storage is blocked.
+    }
+  }, [controlDockSide]);
+
   useEffect(
     () =>
       observeCompactLayout(
@@ -1522,6 +1554,16 @@ export function App() {
     setMobileSheet(null);
     setIsChromeHidden((hidden) => !hidden);
   }, []);
+
+  const toggleControlDockSide = useCallback(() => {
+    setControlDockSide((current) => {
+      const next = oppositeControlDockSide(current);
+      setStatus(
+        next === "right" ? copy.controlsMovedRight : copy.controlsMovedLeft,
+      );
+      return next;
+    });
+  }, [copy.controlsMovedLeft, copy.controlsMovedRight]);
 
   const toggleFullscreen = useCallback(async () => {
     const shell = appShellRef.current;
@@ -2380,6 +2422,7 @@ export function App() {
         `app-shell--viewer-${viewerMode}`,
         isPedestrianMode ? "app-shell--pedestrian" : "",
         isChromeHidden ? "app-shell--chrome-hidden" : "",
+        `app-shell--controls-${controlDockSide}`,
         isPseudoFullscreen ? "app-shell--pseudo-fullscreen" : "",
       ]
         .filter(Boolean)
@@ -2952,7 +2995,11 @@ export function App() {
       </aside>
 
       <aside className="view-controls" aria-label={copy.alignMove}>
-        <div className="control-row" role="group" aria-label={copy.orientation}>
+        <div
+          className="control-row control-row--orientation"
+          role="group"
+          aria-label={copy.orientation}
+        >
           {ORIENTATIONS.map((candidate) => (
             <button
               key={candidate.short}
@@ -2966,6 +3013,27 @@ export function App() {
               <span>{orientationShort(candidate.short, language)}</span>
             </button>
           ))}
+          <button
+            type="button"
+            className="dock-side-toggle"
+            aria-label={
+              controlDockSide === "left"
+                ? copy.moveControlsRight
+                : copy.moveControlsLeft
+            }
+            title={
+              controlDockSide === "left"
+                ? copy.moveControlsRight
+                : copy.moveControlsLeft
+            }
+            onClick={toggleControlDockSide}
+          >
+            {controlDockSide === "left" ? (
+              <PanelRight size={16} aria-hidden="true" />
+            ) : (
+              <PanelLeft size={16} aria-hidden="true" />
+            )}
+          </button>
         </div>
         {viewerMode === "three" ? (
           <div
@@ -3341,6 +3409,26 @@ export function App() {
               }}
             >
               <MapPinned size={19} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={
+                controlDockSide === "left"
+                  ? copy.moveControlsRight
+                  : copy.moveControlsLeft
+              }
+              title={
+                controlDockSide === "left"
+                  ? copy.moveControlsRight
+                  : copy.moveControlsLeft
+              }
+              onClick={toggleControlDockSide}
+            >
+              {controlDockSide === "left" ? (
+                <PanelRight size={19} aria-hidden="true" />
+              ) : (
+                <PanelLeft size={19} aria-hidden="true" />
+              )}
             </button>
           </div>
         </aside>

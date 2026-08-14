@@ -617,13 +617,20 @@ button:active:not(:disabled) {
 .view-controls {
   position: absolute;
   z-index: 18;
-  top: 136px;
+  top: auto;
+  bottom: 76px;
   left: 16px;
   display: grid;
-  gap: 6px;
-  padding: 6px;
+  width: 278px;
+  gap: 4px;
+  padding: 5px;
   border-radius: 8px;
   pointer-events: auto;
+}
+
+.app-shell--controls-right .view-controls {
+  right: 16px;
+  left: auto;
 }
 
 .flight-joystick-wrap {
@@ -666,18 +673,16 @@ button:active:not(:disabled) {
 .orbit-joystick-wrap {
   position: absolute;
   z-index: 18;
-  top: 136px;
-  /* The view panel can span roughly 320 px in German. Keep the analogue
-     orbit pad beside it instead of letting both pointer targets overlap. */
-  left: min(356px, calc(100vw - 112px));
+  top: auto;
+  bottom: 76px;
+  left: 306px;
   display: block;
   pointer-events: auto;
 }
 
-.orbit-joystick {
-  width: 96px;
-  height: 96px;
-  background: rgba(25, 31, 29, 0.96);
+.app-shell--controls-right .orbit-joystick-wrap {
+  right: 306px;
+  left: auto;
 }
 
 @media (pointer: coarse) {
@@ -693,6 +698,11 @@ button:active:not(:disabled) {
     bottom: calc(128px + env(safe-area-inset-bottom, 0px));
     display: block;
     pointer-events: auto;
+  }
+
+  .app-shell--controls-right .flight-joystick-wrap {
+    right: 14px;
+    left: auto;
   }
 }
 
@@ -711,6 +721,11 @@ button:active:not(:disabled) {
     left: 14px;
     display: block;
     pointer-events: auto;
+  }
+
+  .app-shell--controls-right .flight-joystick-wrap {
+    right: 14px;
+    left: auto;
   }
 }
 
@@ -754,17 +769,33 @@ button:active:not(:disabled) {
   will-change: transform;
 }
 
+.flight-joystick.orbit-joystick {
+  width: 82px;
+  height: 82px;
+  background: rgba(25, 31, 29, 0.96);
+}
+
 .control-row {
   display: flex;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
+}
+
+.control-row--orientation {
+  align-items: center;
+}
+
+.view-controls .dock-side-toggle {
+  margin-left: 2px;
+  color: #d8c8a8;
 }
 
 .movement-controls {
   display: grid;
   width: max-content;
-  grid-template-columns: repeat(3, 34px);
+  grid-template-columns: repeat(3, 30px);
   justify-self: center;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
   border-bottom: 1px solid rgba(245, 239, 228, 0.14);
 }
 
@@ -793,8 +824,8 @@ button:active:not(:disabled) {
 
 .view-controls button {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   place-items: center;
   border: 0;
   border-radius: 7px;
@@ -808,15 +839,29 @@ button:active:not(:disabled) {
     transform 140ms ease;
 }
 
+.app-shell--controls-left .selection-card {
+  bottom: 236px;
+}
+
+.app-shell--controls-right .pedestrian-jump-button {
+  right: auto;
+  left: 18px;
+}
+
+@media (min-width: 1025px) and (max-height: 620px) {
+  .selection-card {
+    display: none;
+  }
+}
+
 .view-controls button span {
   font-size: 13px;
   font-weight: 750;
   line-height: 1;
 }
 
-/* v0.5.5: bigger touch targets on phones/tablets. 34 px squares were fiddly
-   under a fingertip; grow the movement pad, view controls and joystick to at
-   least the ~44 px comfortable minimum on coarse pointers. */
+/* Keep touch targets comfortable on phones, tablets and touch laptops while
+   retaining the denser 30 px desktop dock for precise pointer input. */
 @media (pointer: coarse) {
   .movement-controls {
     grid-template-columns: repeat(3, 46px);
@@ -843,6 +888,28 @@ button:active:not(:disabled) {
     width: 48px;
     height: 48px;
     margin: -24px 0 0 -24px;
+  }
+}
+
+/* Large touch displays keep the desktop panel visible. Give its eight-button
+   command row enough room and keep the analogue pad beside the chosen edge. */
+@media (pointer: coarse) and (min-width: 1025px) {
+  .view-controls {
+    width: 414px;
+  }
+
+  .flight-joystick-wrap {
+    bottom: 76px;
+    left: 442px;
+  }
+
+  .app-shell--controls-right .flight-joystick-wrap {
+    right: 442px;
+    left: auto;
+  }
+
+  .app-shell--controls-left .selection-card {
+    bottom: 302px;
   }
 }
 

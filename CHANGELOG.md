@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.71.36
+
+- **The browser controls are smaller and live in the lower corner.** The
+  desktop button pad moves from the upper left to a compact 278 px dock above
+  the attribution, with the analogue orbit joystick immediately beside it.
+  A clearly labelled panel icon moves both controls to the right or back to
+  the left, and the choice survives a reload.
+- **The same side preference works on touch layouts.** The compass sheet now
+  exposes the left/right switch, which mirrors the direct flight or walking
+  joystick without weakening its large touch target. Large touch laptops get
+  a wider command row instead of overflowing the compact desktop panel.
+- **Short browser windows remain collision-free.** The dock, selected-sight
+  card and wrapped attribution have explicit vertical clearance at desktop,
+  while the existing compact phone toolbar is unchanged. Desktop, shallow
+  laptop and 390 x 844 phone views were checked on both sides with no browser
+  warnings. The visible radius stays **5,230 m**, attribution is unchanged,
+  and no new external data or imagery is bundled.
+
 ## v0.71.35
 
 - **Small but important places now survive a close isometric view.** A new
