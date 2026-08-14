@@ -118,6 +118,7 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
     "View of the Plenary Chamber from the Dome of the Reichstag",
   ],
   "reichstag_forecourt": [
+    "Souvenir shop restaurant Bundestag Scheidemannstraße Berlin Pavillon",
     "Platz der Republik Reichstag",
     "Reichstag Platz der Republik Heckenbosquets",
     "Berlin Pavilion Scheidemannstraße Reichstag",
@@ -255,6 +256,8 @@ REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
     "reichstag",
     "berlin-pavilion",
     "scheidemann",
+    "souvenir-shop",
+    "bundestag",
   ),
   "brandenburger_tor": ("brandenburger",),
   "quadriga_brandenburger_tor": ("quadriga", "brandenburger-tor-mit-quadriga"),

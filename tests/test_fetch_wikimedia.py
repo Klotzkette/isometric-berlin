@@ -268,6 +268,13 @@ def test_title_suitable_accepts_expanded_regierungsviertel_targets() -> None:
   )
 
 
+def test_title_suitable_accepts_current_berlin_pavillon_reference() -> None:
+  assert fw.title_suitable(
+    "reichstag_forecourt",
+    "File:Souvenir shop and restaurant at Bundestag, Scheidemannstraße, 24-05-2025.jpg",
+  )
+
+
 def test_committed_wikimedia_manifest_covers_expanded_reference_groups() -> None:
   payload = json.loads(
     (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(

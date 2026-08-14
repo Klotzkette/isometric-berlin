@@ -2,7 +2,7 @@
 
 This report checks the committed landmark points against the local OpenStreetMap city-map layer and Berlin LoD2 building geometry.
 
-- Generated: `2026-08-12T23:48:30.876919+00:00`
+- Generated: `2026-08-14T16:10:41.221814+00:00`
 - Status: `review`
 - Landmarks checked: `89`
 - Relative relationships checked: `38`
@@ -42,7 +42,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Spreebogen | `ok` | Spreebogenpark (parks) | 55.36 m | nearest DEBE01YYK0002N6A at 0.92 m |
 | TIPI am Kanzleramt | `ok` | Tipi am Kanzleramt (pois) | 0.00 m | nearest DEBE01YYK0002MQ0 at 61.74 m |
 | Eduardo-Chillida-Skulptur Berlin | `ok` | Bundeskanzleramt (pois) | 20.73 m | nearest DEBE01YYK0003VUK at 20.03 m |
-| Reichstagsvorfeld / Berlin-Pavillon | `ok` | Simsonweg (roads) | 11.10 m | nearest DEBE01YYK0002KL4 at 3.46 m |
+| Reichstagsvorfeld / Berlin-Pavillon | `ok` | Reichstag/Bundestag (roads) | 33.71 m | inside DEBE3DDgAhATwErH |
 | Platz der Republik Heckenbosquets | `ok` | Scheidemannstraße (roads) | 35.12 m | nearest DEBE3DdXH5BzPXTO at 25.46 m |
 | Kanzlergarten / Non-Violence-Skulptur | `ok` | Bettina-von-Arnim-Ufer (roads) | 4.88 m | nearest DEBE3DhkSa8wckKv at 9.0 m |
 | Carillon im Tiergarten | `ok` | Große Querallee (roads) | 18.01 m | inside DEBE01YYK0002MQ0 |

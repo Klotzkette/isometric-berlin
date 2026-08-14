@@ -57,6 +57,7 @@ const names = [
   "Topographie des Terrors",
   "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
   "Pariser Platz",
+  "Reichstagsvorfeld / Berlin-Pavillon",
 ];
 
 const landmarks = names.map((name, index) => ({
@@ -391,6 +392,9 @@ describe("task-11 central transit and civic details", () => {
     const friedrichstrasse = landmarks.find(
       ({ name }) => name === "Bahnhof Berlin Friedrichstraße",
     )!;
+    const pavilion = landmarks.find(
+      ({ name }) => name === "Reichstagsvorfeld / Berlin-Pavillon",
+    )!;
     expect(centralCivicFocusCamera(futurium)).toMatchObject({
       distance_m: 168,
       target_world: futurium.world,
@@ -423,6 +427,12 @@ describe("task-11 central transit and civic details", () => {
         friedrichstrasse.world[1],
         friedrichstrasse.world[2] - 12.2,
       ],
+    });
+    expect(centralCivicFocusCamera(pavilion)).toMatchObject({
+      azimuth_degrees: 192,
+      distance_m: 56,
+      polar_degrees: 76,
+      target_world: [156.05, 7.6, 144.35],
     });
   });
 

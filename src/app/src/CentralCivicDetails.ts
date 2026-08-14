@@ -20,6 +20,10 @@ import {
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import type { FocusCamera } from "./ArchitecturalLandmarks";
+import {
+  BERLIN_PAVILLON_PROFILE,
+  createBerlinPavillon,
+} from "./BerlinPavillon";
 import { createLetteringTexture } from "./drawnLettering";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
@@ -80,6 +84,12 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     polar_degrees: 48,
     target_height_m: 5,
   },
+  "Reichstagsvorfeld / Berlin-Pavillon": {
+    azimuth_degrees: 192,
+    distance_m: 56,
+    polar_degrees: 76,
+    target_height_m: 3,
+  },
   "Pariser Platz": {
     azimuth_degrees: 88,
     distance_m: 128,
@@ -116,7 +126,13 @@ export function centralCivicFocusCamera(
       ? [landmark.world[0] + 24, landmark.world[1], landmark.world[2] + 13]
       : landmark.name === "Bahnhof Berlin Friedrichstraße"
         ? [landmark.world[0] + 2.4, landmark.world[1], landmark.world[2] - 12.2]
-        : landmark.world;
+        : landmark.name === "Reichstagsvorfeld / Berlin-Pavillon"
+          ? [
+              BERLIN_PAVILLON_PROFILE.facadeAnchorWorld[0],
+              BERLIN_PAVILLON_PROFILE.groundY + 2.9,
+              BERLIN_PAVILLON_PROFILE.facadeAnchorWorld[1],
+            ]
+          : landmark.world;
   return { ...preset, target_world: targetWorld };
 }
 
@@ -3834,6 +3850,7 @@ export function createCentralCivicDetails(
       "Berlin LoD2 + OSM way 24911034 + BMWE official architecture history",
   };
   group.userData.berlinerEnsemble = BERLINER_ENSEMBLE_PROFILE;
+  group.userData.berlinPavillon = BERLIN_PAVILLON_PROFILE;
   const byName = new Map(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
@@ -3876,6 +3893,7 @@ export function createCentralCivicDetails(
   }
   const ensemblePublicArt = createBerlinerEnsemblePublicArt();
   if (ensemblePublicArt) group.add(ensemblePublicArt);
+  group.add(createBerlinPavillon());
   addSigns(group, byName);
   return group;
 }

@@ -468,13 +468,13 @@
         "name": "Reichstagsvorfeld / Berlin-Pavillon",
         "role": "owner_added",
         "tour_order": 18,
-        "source": "Bundestag visitor-service and Berlin.de QA; approximate Scheidemannstraße south-side point"
+        "source": "Berlin LoD2 parent DEBE01YYK0002Pvf centroid; 2025 Wikimedia Commons north-front visual QA"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
-          13.376,
-          52.5171
+          13.373813857786939,
+          52.51748347900633
         ]
       }
     },

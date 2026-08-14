@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.43
+
+- **The Reichstag forecourt visitor venue is now the existing Berlin Pavillon,
+  not a generic or future visitor-centre placeholder.** Its landmark moves to
+  the exact centroid of the current four-part Berlin LoD2 building at
+  Scheidemannstrasse 1; the DZI, scene and source landmark records now agree,
+  and the alignment report confirms that the point falls inside the official
+  building shell.
+- **The photographed storefront is recognisable without copying a photograph.**
+  A charcoal frame, twenty separately spaced glass panes, sixty small souvenir
+  objects, two postcard racks, cafe tables and chairs, menu boards, two light
+  terrace canopies and sixteen bollards reproduce the current public-facing
+  use as deterministic isometric geometry. Three restrained red inscriptions
+  and a warm night material keep the shop readable in Day and Night while the
+  same source anchor remains stable in Minecraft.
+- **The current visual reference is reproducible and correctly attributed.** A
+  2025 CC BY-SA 4.0 Wikimedia Commons view is accepted by the fetcher, bundled
+  with its author and licence metadata, and added to the reference atlas. The
+  contextual focus camera was visually checked on desktop and phone; no
+  browser warnings were emitted. The visible radius stays **5,230 m** and all
+  existing data attribution remains unchanged.
+
 ## v0.71.42
 
 - **Pedestrian mode now has a deliberate four-times sprint without sacrificing

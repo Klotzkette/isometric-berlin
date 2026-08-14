@@ -1576,15 +1576,15 @@
         "amenity": null,
         "bridge": null,
         "diplomatic": null,
-        "distance_m": 11.1,
-        "element": "way",
-        "geometry_type": "LineString",
+        "distance_m": 33.71,
+        "element": "node",
+        "geometry_type": "Point",
         "government": null,
-        "highway": "footway",
+        "highway": "bus_stop",
         "historic": null,
-        "id": "720167983",
+        "id": "3862767511",
         "leisure": null,
-        "name": "Simsonweg",
+        "name": "Reichstag/Bundestag",
         "office": null,
         "playground": null,
         "railway": null,
@@ -1597,10 +1597,10 @@
         "reichstag bundestag"
       ],
       "lod2": {
-        "containing_building_id": null,
-        "contains_landmark": false,
-        "nearest_building_id": "DEBE01YYK0002KL4",
-        "nearest_distance_m": 3.46
+        "containing_building_id": "DEBE3DDgAhATwErH",
+        "contains_landmark": true,
+        "nearest_building_id": "DEBE3DDgAhATwErH",
+        "nearest_distance_m": 0.0
       },
       "name": "Reichstagsvorfeld / Berlin-Pavillon",
       "nearest_named_osm": {
@@ -4539,7 +4539,7 @@
       "status": "review"
     }
   ],
-  "generated_at": "2026-08-12T23:48:30.876919+00:00",
+  "generated_at": "2026-08-14T16:10:41.221814+00:00",
   "method": "Landmark points checked against named OSM features and nearest Berlin LoD2 building geometry in EPSG:25833.",
   "relative_relationships": [
     {
@@ -5040,7 +5040,7 @@
   "sources": {
     "landmarks": {
       "path": "geo_data/regierungsviertel/landmarks.geojson",
-      "sha256": "0df41ef4439c5da2e28714a2c231c21487c42bef1992781020bc355ada7d92c0"
+      "sha256": "f2753ae69264287d1845c32035db989631d43a7ddaf07e105389b99ff8d1fad2"
     },
     "lod2": {
       "path": "geo_data/regierungsviertel/buildings.gpkg",

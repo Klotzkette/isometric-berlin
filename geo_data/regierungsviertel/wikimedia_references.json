@@ -1139,6 +1139,27 @@
       "role": "visual_reference_for_material_and_facade_QA"
     },
     {
+      "landmark_id": "reichstag_forecourt",
+      "title": "File:Souvenir shop and restaurant at Bundestag, Scheidemannstraße, 24-05-2025.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ASouvenir_shop_and_restaurant_at_Bundestag%2C_Scheidemannstra%C3%9Fe%2C_24-05-2025.jpg",
+      "thumbnail_path": "reichstag_forecourt_04_file-souvenir-shop-and-restaurant-at-bundestag-scheidemannstrasse-24-05-2025-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Souvenir_shop_and_restaurant_at_Bundestag%2C_Scheidemannstra%C3%9Fe%2C_24-05-2025.jpg/960px-Souvenir_shop_and_restaurant_at_Bundestag%2C_Scheidemannstra%C3%9Fe%2C_24-05-2025.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Roy Zuo",
+      "credit": "Own work",
+      "description": "Berlin Pavillon restaurant and souvenir kiosk in front of the Bundestag on Scheidemannstraße, Berlin-Tiergarten",
+      "dominant_colours": [
+        "#babbbc",
+        "#92959a",
+        "#818686",
+        "#596550",
+        "#415835",
+        "#2f392e"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
       "landmark_id": "brandenburger_tor",
       "title": "File:Berlin Brandenburger Tor BW 5.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Brandenburger_Tor_BW_5.jpg",
