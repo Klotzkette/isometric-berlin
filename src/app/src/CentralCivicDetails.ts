@@ -148,6 +148,27 @@ const KITA_BLUE = 0x3f78a8;
 const KITA_RED = 0xd65342;
 const KITA_YELLOW = 0xf0c73b;
 
+export const EMBASSY_DETAIL_PROFILES = {
+  france: {
+    anchorWorld: [540.48, 4.7, 204.53] as const,
+    buildingId: "DEBE3DvO9qerwgls",
+    description:
+      "L-shaped pale embassy with Beton eclate base, two-storey Bel Etage openings and covered Rue de France",
+  },
+  unitedKingdom: {
+    anchorWorld: [619.47, 4.6, 368.73] as const,
+    buildingId: "DEBE3DzLVkos5eqV",
+    description:
+      "sandstone screen with a two-storey void, blue trapezoid and purple cylindrical conference room",
+  },
+  hungary: {
+    anchorWorld: [646.74, 4.7, 235.81] as const,
+    buildingId: "DEBE3DsydVaNVYh5",
+    description:
+      "two six-storey limestone wings, fully glazed base and transparent corner",
+  },
+} as const;
+
 /**
  * Berlin LoD2 envelope and Landesdenkmalamt profile for Bahnhof
  * Friedrichstraße. The model stays on the surveyed station anchor and uses
@@ -1852,7 +1873,7 @@ function addPariserPlatzEmbassies(builder: Builder): void {
 
   // French Embassy, Christian de Portzamparc: a pale, horizontally layered
   // Pariser-Platz facade with a deeper central entrance bay.
-  const france = new Vector3(539.7, 4.7, 201.3);
+  const france = new Vector3(...EMBASSY_DETAIL_PROFILES.france.anchorWorld);
   const franceRotation = 0.087;
   for (let floor = 0; floor < 4; floor += 1) {
     for (let bay = 0; bay < 13; bay += 1) {
@@ -1897,6 +1918,136 @@ function addPariserPlatzEmbassies(builder: Builder): void {
     0.44,
     franceRotation,
   );
+
+  // The square frontage is not a generic office grid: a roughened pale base
+  // supports taller Bel-Etage openings, while the Rue de France remains a
+  // visibly deeper covered passage through the L-shaped complex.
+  localBox(
+    builder,
+    0xe3ded3,
+    france,
+    0,
+    2.25,
+    30.02,
+    66,
+    4.25,
+    0.5,
+    franceRotation,
+  );
+  for (const x of [-26.2, -19.3, -12.4, 8.9, 15.8, 22.7, 29.6]) {
+    localLampBox(
+      builder,
+      0x68868a,
+      france,
+      x,
+      12.3,
+      30.36,
+      4.25,
+      8.1,
+      0.22,
+      franceRotation,
+    );
+  }
+  localBox(
+    builder,
+    0x26383d,
+    france,
+    -2.2,
+    5.2,
+    30.52,
+    11.2,
+    10.1,
+    1.1,
+    franceRotation,
+  );
+  localBox(
+    builder,
+    0xd3c7ae,
+    france,
+    -2.2,
+    10.55,
+    31.05,
+    12.5,
+    0.48,
+    2.15,
+    franceRotation,
+  );
+
+  // British Embassy, Michael Wilford: measured LoD2 body retained. Only the
+  // unmistakable Wilhelmstrasse screen and its projecting collage are added.
+  const british = new Vector3(
+    ...EMBASSY_DETAIL_PROFILES.unitedKingdom.anchorWorld,
+  );
+  addBox(builder, 0xd9cfbd, 598.18, british.y + 10.8, 374.0, 0.52, 20.8, 31.8);
+  for (const z of [360.2, 365.0, 383.0, 387.8]) {
+    for (let floor = 0; floor < 4; floor += 1) {
+      addBox(
+        builder,
+        0x506067,
+        597.86,
+        british.y + 4.0 + floor * 4.25,
+        z,
+        0.22,
+        2.25,
+        2.8,
+        floor % 2 === 0 ? -0.08 : 0.08,
+      );
+    }
+  }
+  addBox(builder, 0x26383e, 597.65, british.y + 12.5, 374.0, 0.42, 13.8, 13.4);
+  const purpleRoom = new CylinderGeometry(3.15, 3.15, 5.2, 24);
+  purpleRoom.rotateZ(Math.PI / 2);
+  purpleRoom.translate(594.85, british.y + 14.7, 369.1);
+  addInkedGeometry(builder, purpleRoom, 0x73527f);
+  const blueRoom = new BoxGeometry(5.8, 6.3, 7.4);
+  blueRoom.rotateZ(-0.19);
+  blueRoom.translate(595.1, british.y + 10.0, 378.2);
+  addInkedGeometry(builder, blueRoom, 0x5aa8bd);
+  addBox(builder, 0x729083, 620.0, british.y + 22.1, 369.0, 39, 0.7, 29, -0.275);
+
+  // Hungarian Embassy, Adam Sylvester: the exact LoD2 envelope is dressed
+  // with its yellow-grey Hungarian limestone, glass base and glazed corner.
+  const hungary = new Vector3(...EMBASSY_DETAIL_PROFILES.hungary.anchorWorld);
+  addBox(builder, 0xd8d0b7, hungary.x, hungary.y + 13.3, 252.55, 33.5, 25.4, 0.42);
+  addBox(builder, 0x9fc4c2, hungary.x, hungary.y + 2.35, 252.83, 32.2, 4.35, 0.3);
+  for (let floor = 0; floor < 5; floor += 1) {
+    for (let bay = 0; bay < 8; bay += 1) {
+      addBox(
+        builder,
+        0x6c8585,
+        hungary.x - 14.2 + bay * 4.05,
+        hungary.y + 6.6 + floor * 4.05,
+        252.82,
+        2.35,
+        2.2,
+        0.22,
+      );
+    }
+  }
+  addBox(builder, 0xd8d0b7, 629.48, hungary.y + 13.3, 236.0, 0.42, 25.4, 32.6);
+  for (let floor = 0; floor < 5; floor += 1) {
+    for (let bay = 0; bay < 7; bay += 1) {
+      addBox(
+        builder,
+        0x6c8585,
+        629.22,
+        hungary.y + 6.6 + floor * 4.05,
+        223.8 + bay * 4.05,
+        0.22,
+        2.2,
+        2.35,
+      );
+    }
+  }
+  addBox(builder, 0x8eb7b8, 629.05, hungary.y + 13.2, 252.65, 1.0, 25.0, 1.0);
+  addCylinder(builder, 0x4e5555, 646.5, hungary.y + 28.6, 250.0, 0.1, 6.2, 10);
+  for (const [offset, color] of [
+    [-0.45, 0xc83b39],
+    [0, 0xf4f0df],
+    [0.45, 0x3d8a58],
+  ] as const) {
+    addBox(builder, color, 647.0 + offset, hungary.y + 29.5, 250.0, 0.45, 1.8, 0.08);
+  }
 }
 
 function addCubeBerlin(builder: Builder): void {

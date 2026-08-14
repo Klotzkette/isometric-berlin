@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.71.34
+
+- **The Spreebogenpark now reads as landscape architecture rather than two
+  flat wedges.** OSM park way `737280675` and the committed Berlin terrain grid
+  anchor two rising circle-segment lawns around the 17 m former-Alsenstrasse
+  window. Dark Corten walls reveal the cut, while OSM ways `34834265` and
+  `1128036906` preserve the exact Ludwig-Erhard-Ufer course. Polygon offsets
+  keep the authored turf clear of the base lawn without depth shimmer.
+- **Sony Center and Hotel Adlon gain their defining public architecture.** The
+  LoD2-anchored Forum receives curved glass bays, stainless horizontal rails
+  and red fins around the existing 24-field translucent cable roof. The Adlon
+  is corrected to LoD2 building `K00006ot`, with a pale facade, patinated green
+  mansard, dormers, window rhythm, awnings and portico instead of an unsupported
+  generic block.
+- **The French, British and Hungarian embassies are recognizable without
+  replacing their surveyed envelopes.** LoD2-anchored overlays add the French
+  Bel-Etage and Rue de France, the British sandstone screen and projecting
+  colour volumes, and the Hungarian stone wings, glass base/corner and roof
+  flag. The former black pavilion plate beside the Brandenburg Gate is also
+  replaced by a sandstone recess, preserving the view through the Gate.
+- **Tiergarten paths curve smoothly while retaining their mapped evidence.**
+  Deterministic centripetal interpolation preserves every OSM source point and
+  endpoint, leaves steps untouched, caps subdivision density and adds no JSON
+  payload. Focused geometry tests plus desktop, 390 x 844 phone and 1024 x 768
+  tablet checks cover Day, Night and Minecraft with no browser warnings. The
+  visible radius stays **5,230 m**, attribution is unchanged, and no internet
+  photograph is bundled or projected as a texture.
+
 ## v0.71.33
 
 - **The Brandenburg Gate is open again and the Wall trace stays in the

@@ -16,6 +16,7 @@ import {
   setParkDetailsFocus,
   setParkSnowPresentation,
   setParkSettledDetail,
+  smoothParkPathPoints,
   treePresentationForm,
 } from "../src/ParkDetails";
 import type { TunnelPortalPayload } from "../src/TunnelPortals";
@@ -137,12 +138,42 @@ describe("OSM park details", () => {
   });
 
   test("joins curved path segments into one continuous ribbon", () => {
-    const geometry = createPathGeometry([payload.paths[0]], 1.6);
-    expect(geometry.getAttribute("position").count).toBe(6);
-    expect(geometry.getIndex()?.count).toBe(12);
+    const path = payload.paths[0];
+    const smoothPoints = smoothParkPathPoints(path);
+    const geometry = createPathGeometry([path], 1.6);
+    expect(geometry.getAttribute("position").count).toBe(
+      smoothPoints.length * 2,
+    );
+    expect(geometry.getIndex()?.count).toBe((smoothPoints.length - 1) * 6);
     const positions = geometry.getAttribute("position");
-    expect(positions.getY(2)).toBeCloseTo(1.22);
-    expect(positions.getY(3)).toBeCloseTo(1.22);
+    expect(positions.getY(0)).toBeCloseTo(path.points[0][1] + 0.12);
+    expect(positions.getY(1)).toBeCloseTo(path.points[0][1] + 0.12);
+    expect(positions.getY(positions.count - 2)).toBeCloseTo(
+      path.points.at(-1)![1] + 0.12,
+    );
+    expect(positions.getY(positions.count - 1)).toBeCloseTo(
+      path.points.at(-1)![1] + 0.12,
+    );
+  });
+
+  test("rounds mapped park bends without moving any source point", () => {
+    const path = payload.paths[0];
+    const points = smoothParkPathPoints(path);
+    expect(points.length).toBeGreaterThan(path.points.length);
+    for (const sourcePoint of path.points) {
+      expect(
+        points.some((point) =>
+          point.toArray().every((value, index) => value === sourcePoint[index]),
+        ),
+      ).toBe(true);
+    }
+    expect(points.every((point) => point.toArray().every(Number.isFinite))).toBe(
+      true,
+    );
+
+    const steps = smoothParkPathPoints({ ...path, kind: "steps" });
+    expect(steps).toHaveLength(path.points.length);
+    expect(steps.map((point) => point.toArray())).toEqual(path.points);
   });
 
   test("batches paths and granular tree crowns", () => {

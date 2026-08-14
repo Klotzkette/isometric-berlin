@@ -16,6 +16,7 @@ import {
   CUBE_BERLIN_FOOTPRINT_WORLD,
   CUBE_BERLIN_HEIGHT_M,
   CUBE_BERLIN_PRISM_IDS,
+  EMBASSY_DETAIL_PROFILES,
   FRIEDRICHSTRASSE_STATION_HEIGHT_M,
   FRIEDRICHSTRASSE_STATION_LENGTH_M,
   FRIEDRICHSTRASSE_STATION_PLATFORM_COUNT,
@@ -293,6 +294,30 @@ describe("task-11 central transit and civic details", () => {
     });
     expect(FRIEDRICHSTRASSE_STATION_ROTATION_RAD).toBeCloseTo(-0.31);
     expect(details.userData.economicsMinistry.source).toContain("Berlin LoD2");
+  });
+
+  test("pins the three embassy facades to their Berlin LoD2 envelopes", () => {
+    expect(EMBASSY_DETAIL_PROFILES.france).toMatchObject({
+      anchorWorld: [540.48, 4.7, 204.53],
+      buildingId: "DEBE3DvO9qerwgls",
+    });
+    expect(EMBASSY_DETAIL_PROFILES.france.description).toContain(
+      "Rue de France",
+    );
+    expect(EMBASSY_DETAIL_PROFILES.unitedKingdom).toMatchObject({
+      anchorWorld: [619.47, 4.6, 368.73],
+      buildingId: "DEBE3DzLVkos5eqV",
+    });
+    expect(EMBASSY_DETAIL_PROFILES.unitedKingdom.description).toContain(
+      "purple cylindrical",
+    );
+    expect(EMBASSY_DETAIL_PROFILES.hungary).toMatchObject({
+      anchorWorld: [646.74, 4.7, 235.81],
+      buildingId: "DEBE3DsydVaNVYh5",
+    });
+    expect(EMBASSY_DETAIL_PROFILES.hungary.description).toContain(
+      "fully glazed base",
+    );
   });
 
   test("keeps the Topography wall as the documented 200 m ruin", () => {

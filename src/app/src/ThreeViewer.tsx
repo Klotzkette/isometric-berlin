@@ -90,6 +90,7 @@ import {
   expandedCityFocusCamera,
 } from "./ExpandedCityDetails";
 import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
+import { createSpreebogenPark } from "./SpreebogenPark";
 import {
   type ParkDetailsPayload,
   createParkDetails,
@@ -1734,6 +1735,21 @@ function ensureIsoWorld(
         const office = createSpreebogenOffice(ground);
         if (office) {
           runtime.signatures.add(office);
+        }
+        const spreebogenPark = createSpreebogenPark(ground);
+        markAuthoredFlatUnlit(spreebogenPark);
+        runtime.signatures.add(spreebogenPark);
+        applyLightingToRoot(
+          spreebogenPark,
+          runtime.lightingMode,
+          runtime.nightLightsOn,
+        );
+        if (runtime.lightingMode === "minecraft") {
+          setMinecraftMaterialPresentation(
+            spreebogenPark,
+            runtime.minecraftMaterialState,
+            true,
+          );
         }
         // Current OSM footprints and the installed South Bridge define the
         // western Kanzlerpark extension; temporary site detail stays labelled.

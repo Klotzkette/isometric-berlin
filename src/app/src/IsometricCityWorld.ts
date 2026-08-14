@@ -353,6 +353,54 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 export const HERO_PRISM_TONES: Record<string, number> = {
   K0002MCN: 0xe0e3df,
   MLwG4KW9: 0xeeeeea,
+  // Hotel Adlon: pale reconstructed stone body below its patinated roof.
+  K00006ot: 0xeee5d4,
+  // The Center / former Sony Center: cool glass-and-steel towers around the
+  // authored Forum facades, instead of unrelated sampled beige prisms.
+  ...Object.fromEntries(
+    [
+      "v5EOhsyE",
+      "ad7uC6lp",
+      "JHEPpGSY",
+      "MYXaomfk",
+      "iYueLH8X",
+      "7uww4nv5",
+    ].map((id) => [id, 0xc8d8d9]),
+  ),
+  // Embassy envelopes stay measured LoD2; the tones identify their real
+  // cladding before the finer facade overlays are applied.
+  ...Object.fromEntries(
+    [
+      "756zLY9B",
+      "miuT9hux",
+      "jI5jm0e2",
+      "9u0FZVDT",
+      "kEAecguY",
+      "nb8WMtZj",
+      "6R7d8GNX",
+      "gIjfOIND",
+      "9qerwgls",
+      "ZKDCm9Z3",
+      "kA70GMff",
+      "buOu0gvz",
+    ].map((id) => [id, 0xe4ddcf]),
+  ),
+  ...Object.fromEntries(
+    ["ORqiW8aK", "yrDOCds1", "Vkos5eqV", "N5S9pjJi"].map((id) => [
+      id,
+      0xd9cfbd,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [
+      "cyb33NJD",
+      "mN0gGHof",
+      "YDxshLdM",
+      "j66nu4dr",
+      "dxdP8ZV2",
+      "dVaNVYh5",
+    ].map((id) => [id, 0xd8d0b7]),
+  ),
   // One red ceramic tower, not neutral LoD2 parts plus floating brown slabs.
   ...Object.fromEntries(
     [...KOLLHOFF_TOWER_PRISM_IDS].map((id) => [
@@ -395,6 +443,11 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   K0003Ty1: 0xe1e3dc,
   K0003VDk: 0xe1e3dc,
   MLwG4KW9: 0xeff1ec,
+  K00006ot: 0x668574,
+  ORqiW8aK: 0x729083,
+  yrDOCds1: 0x729083,
+  Vkos5eqV: 0x729083,
+  N5S9pjJi: 0x729083,
   UbQkgNZe: 0xe1e3dc,
   ycOYQRVL: 0xe1e3dc,
   ...Object.fromEntries(
@@ -5626,29 +5679,32 @@ function createPresentationBackdrop(): Mesh {
 }
 
 /**
- * Hotel Adlon Kempinski, EXTRAPOLATED (owner-approved): the shipped
- * LoD2 extract is clipped just west of Unter den Linden 77, so the
- * hotel's block is absent from the surveyed data. It is drawn here at
- * its documented position (52.5161 N, 13.3800 E → world 573/324) after
- * published dimensions: a closed perimeter block around a courtyard,
- * ~35 m to the eaves, sandstone-cream facade with a mansard attic and
- * the Pariser-Platz corner risalit. Marked userData.extrapolated; no
- * claim of surveyed geometry.
+ * Hotel Adlon recognition layer. The committed LoD2 footprint
+ * DEBE01YYK00006ot anchors the complete block; this authored frontage adds
+ * the Pariser-Platz proportions, window rhythm and patinated mansard that the
+ * unusually low source shell cannot express.
  */
-export const ADLON_WORLD: [number, number] = [573.4, 323.8];
+export const ADLON_LOD2_ID = "K00006ot";
+export const ADLON_WORLD: [number, number] = [590.0, 341.0];
 
 export function createHotelAdlon(): Group {
   const group = new Group();
-  group.name = "extrapolated Hotel Adlon";
-  group.userData.extrapolated = true;
+  group.name = "LoD2-anchored Hotel Adlon recognition layer";
+  group.userData.extrapolated = false;
+  group.userData.lod2BuildingId = ADLON_LOD2_ID;
+  group.userData.geometryStatus =
+    "Berlin LoD2 block anchor with photograph-bounded Pariser-Platz facade and copper mansard details";
   const [ax, az] = ADLON_WORLD;
-  const GROUND = 3.2;
-  const EAVES = 31.5;
+  const GROUND = 4.8;
+  const EAVES = 27.6;
   const parts: BufferGeometry[] = [];
   const edges: BufferGeometry[] = [];
   const FACADE = new Color(0xf2ebda);
   const SOCKEL = new Color(0xe6dfcd);
-  const ROOF = new Color(0xd3d6cf);
+  const ROOF = new Color(0x668574);
+  const ROOF_DARK = new Color(0x4f6d61);
+  const WINDOW = new Color(0x526e76);
+  const AWNING = new Color(0x9f3f36);
   const add = (triangles: Float32Array, tone: Color, inked = true): void => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
@@ -5666,10 +5722,11 @@ export function createHotelAdlon(): Group {
       edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
     }
   };
-  // Perimeter block: four wings around a courtyard (58 × 46 m outer).
-  const halfX = 29;
-  const halfZ = 23;
-  const wing = 13;
+  // Pariser-Platz head building around its court; the larger southern LoD2
+  // continuation remains in the generic surveyed block behind this layer.
+  const halfX = 38;
+  const halfZ = 27;
+  const wing = 14;
   const wings: Array<[number, number, number, number]> = [
     [0, -halfZ + wing / 2, halfX * 2, wing],
     [0, halfZ - wing / 2, halfX * 2, wing],
@@ -5714,7 +5771,7 @@ export function createHotelAdlon(): Group {
       ),
       SOCKEL,
     );
-    // Mansard attic storey, stepped in.
+    // Patinated copper mansard storey, stepped in.
     add(
       boxTriangles(
         ax + ox,
@@ -5752,6 +5809,92 @@ export function createHotelAdlon(): Group {
       15.8,
     ),
     ROOF,
+  );
+
+  // Five strict facade registers, slim limestone pilasters and the familiar
+  // red ground-floor awnings make the square frontage identifiable at close
+  // range without using a photograph as a texture.
+  const frontZ = az - halfZ - 0.24;
+  for (let bay = 0; bay < 15; bay += 1) {
+    const x = ax - 33.2 + bay * 4.75;
+    for (let floor = 0; floor < 5; floor += 1) {
+      add(
+        boxTriangles(
+          x,
+          GROUND + 4.35 + floor * 4.05,
+          frontZ,
+          [1, 0],
+          2.65,
+          2.45,
+          0.28,
+        ),
+        WINDOW,
+      );
+    }
+    add(
+      boxTriangles(
+        x + 2.22,
+        GROUND + 11.5,
+        frontZ - 0.06,
+        [1, 0],
+        0.3,
+        22.8,
+        0.34,
+      ),
+      SOCKEL,
+      false,
+    );
+    if (bay % 2 === 0) {
+      add(
+        boxTriangles(
+          x,
+          GROUND + 3.05,
+          frontZ - 0.72,
+          [1, 0],
+          3.2,
+          0.32,
+          1.35,
+        ),
+        AWNING,
+      );
+    }
+  }
+  // Dormers and roof seams keep the broad green cap from reading as a slab.
+  for (let bay = 0; bay < 11; bay += 1) {
+    const x = ax - 30 + bay * 6;
+    add(
+      boxTriangles(
+        x,
+        EAVES + 2.45,
+        az - halfZ + 2.5,
+        [1, 0],
+        2.55,
+        2.25,
+        2.0,
+      ),
+      ROOF_DARK,
+    );
+    add(
+      boxTriangles(
+        x,
+        EAVES + 2.4,
+        az - halfZ + 1.43,
+        [1, 0],
+        1.45,
+        1.25,
+        0.2,
+      ),
+      WINDOW,
+    );
+  }
+  // Shallow central portico and balcony at the hotel entrance.
+  add(
+    boxTriangles(ax, GROUND + 5.0, frontZ - 0.45, [1, 0], 11.5, 8.8, 0.65),
+    FACADE,
+  );
+  add(
+    boxTriangles(ax, GROUND + 9.55, frontZ - 1.1, [1, 0], 13.2, 0.45, 2.0),
+    SOCKEL,
   );
   const merged = mergeGeometries(parts, false);
   if (merged) {

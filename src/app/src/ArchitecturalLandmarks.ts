@@ -6322,7 +6322,7 @@ function createBrandenburgGateModel(
         "Brandenburg Gate pavilion facade recess",
         [0.24, 10.8, pavilionWidth - 2.8],
         [x * (signature.depth_m / 2 - 0.12), 9.2, pavilionZ],
-        recess,
+        sandstoneShadow,
       );
     }
     const porticoColumns: InstanceTransform[] = [];

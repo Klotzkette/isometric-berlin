@@ -16,6 +16,8 @@ import {
 
 import {
   appendKollhoffClinkerJoints,
+  ADLON_LOD2_ID,
+  ADLON_WORLD,
   CHARITE_BETTENHOCHHAUS_IDS,
   CHARITE_BETTENHOCHHAUS_PROFILE,
   CHARITE_CAMPUS_BRIDGE_ID,
@@ -34,11 +36,14 @@ import {
   ISO_INK_COLOR,
   ISO_WINDOW_BAY_PITCH_M,
   ISO_WINDOW_FLOOR_PITCH_M,
+  HERO_PRISM_ROOF_TONES,
+  HERO_PRISM_TONES,
   KOLLHOFF_TOWER_PRISM_IDS,
   MELH_CANOPY_SUPPORTS,
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
   createLandmarkRefinements,
+  createHotelAdlon,
   createTillaDurieuxGroundTester,
   isTillaDurieuxLawn,
   createPaulLoebeCanopy,
@@ -1053,6 +1058,24 @@ describe("real-colour facade tones", () => {
 });
 
 describe("hero prism pins", () => {
+  test("anchors the Adlon and embassy palettes to their LoD2 parts", () => {
+    expect(ADLON_LOD2_ID).toBe("K00006ot");
+    expect(ADLON_WORLD).toEqual([590, 341]);
+    expect(HERO_PRISM_TONES[ADLON_LOD2_ID]).toBe(0xeee5d4);
+    expect(HERO_PRISM_ROOF_TONES[ADLON_LOD2_ID]).toBe(0x668574);
+    expect(HERO_PRISM_TONES["9qerwgls"]).toBe(0xe4ddcf);
+    expect(HERO_PRISM_TONES.Vkos5eqV).toBe(0xd9cfbd);
+    expect(HERO_PRISM_TONES.dVaNVYh5).toBe(0xd8d0b7);
+
+    const adlon = createHotelAdlon();
+    expect(adlon.userData.extrapolated).toBe(false);
+    expect(adlon.userData.lod2BuildingId).toBe(ADLON_LOD2_ID);
+    expect(adlon.getObjectByName("Adlon bodies")).toBeInstanceOf(Mesh);
+    expect(adlon.getObjectByName("Adlon ink lines")).toBeInstanceOf(
+      LineSegments,
+    );
+  });
+
   test("replaces only the Chancellery leadership cube, not its office bands", async () => {
     const { CHANCELLERY_CENTRAL_PRISM_IDS, PRISM_SUPPRESSED_IDS } =
       await import("../src/IsometricCityWorld");

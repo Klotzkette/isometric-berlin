@@ -1,4 +1,5 @@
 import {
+  BoxGeometry,
   BufferGeometry,
   CylinderGeometry,
   DoubleSide,
@@ -26,6 +27,12 @@ const STRUCTURE_NIGHT = new MeshStandardMaterial({
 });
 
 const OSM_RING_SIZE_M = [103.407738, 78.079653] as const;
+
+type BoxInstance = {
+  position: Vector3;
+  rotationY: number;
+  size: Vector3;
+};
 
 function ringPoint(index: number, heightOffset = 0): Vector3 {
   const angle = (index / PROFILE.segmentCount) * Math.PI * 2;
@@ -269,6 +276,127 @@ function makeInstancedTubes(
   return mesh;
 }
 
+function makeInstancedBoxes(
+  name: string,
+  entries: BoxInstance[],
+  dayMaterial: MeshBasicMaterial,
+  nightMaterial: MeshStandardMaterial,
+): InstancedMesh {
+  const geometry = new BoxGeometry(1, 1, 1);
+  const mesh = new InstancedMesh(geometry, dayMaterial, entries.length);
+  mesh.name = name;
+  mesh.userData.dayMaterial = dayMaterial;
+  mesh.userData.nightMaterial = nightMaterial;
+  const matrix = new Matrix4();
+  const rotation = new Quaternion();
+  entries.forEach((entry, index) => {
+    rotation.setFromAxisAngle(UP, entry.rotationY);
+    matrix.compose(entry.position, rotation, entry.size);
+    mesh.setMatrixAt(index, matrix);
+  });
+  mesh.instanceMatrix.needsUpdate = true;
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+  return mesh;
+}
+
+/**
+ * The former roof-only signature left a pale generic ring below the canopy.
+ * These inward Forum facades follow the same published ellipse: cool glass,
+ * stainless horizontal rails and the real warm-red vertical accent rhythm.
+ */
+function addForumFacades(group: Group): void {
+  const glassPanels: BoxInstance[] = [];
+  const horizontalRails: BoxInstance[] = [];
+  const redFins: BoxInstance[] = [];
+  const radiusX = PROFILE.outerRingSizeM[0] * 0.435;
+  const radiusZ = PROFILE.outerRingSizeM[1] * 0.435;
+  const axis = (PROFILE.axisDegrees * Math.PI) / 180;
+  const panelCount = 28;
+  for (let index = 0; index < panelCount; index += 1) {
+    const angle = (index / panelCount) * Math.PI * 2;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const localX = cos * radiusX;
+    const localZ = sin * radiusZ;
+    const x =
+      PROFILE.outerRingCenterWorldM[0] +
+      localX * Math.cos(axis) -
+      localZ * Math.sin(axis);
+    const z =
+      PROFILE.outerRingCenterWorldM[1] +
+      localX * Math.sin(axis) +
+      localZ * Math.cos(axis);
+    const tangentX =
+      -radiusX * sin * Math.cos(axis) - radiusZ * cos * Math.sin(axis);
+    const tangentZ =
+      -radiusX * sin * Math.sin(axis) + radiusZ * cos * Math.cos(axis);
+    const rotationY = -Math.atan2(tangentZ, tangentX);
+    glassPanels.push({
+      position: new Vector3(x, PROFILE.groundY + 20.2, z),
+      rotationY,
+      size: new Vector3(8.25, 27.2, 0.34),
+    });
+    redFins.push({
+      position: new Vector3(x, PROFILE.groundY + 20.2, z),
+      rotationY,
+      size: new Vector3(0.32, 28.1, 0.56),
+    });
+    for (let floor = 0; floor < 6; floor += 1) {
+      horizontalRails.push({
+        position: new Vector3(x, PROFILE.groundY + 7.1 + floor * 4.65, z),
+        rotationY,
+        size: new Vector3(8.2, 0.16, 0.5),
+      });
+    }
+  }
+  group.add(
+    makeInstancedBoxes(
+      "Sony Center curved Forum glass facades",
+      glassPanels,
+      new MeshBasicMaterial({
+        color: 0xa9cbd0,
+        depthWrite: false,
+        opacity: 0.28,
+        transparent: true,
+      }),
+      new MeshStandardMaterial({
+        color: 0x294d5c,
+        depthWrite: false,
+        emissive: 0x6c9bad,
+        emissiveIntensity: 0.16,
+        metalness: 0.12,
+        opacity: 0.34,
+        roughness: 0.28,
+        transparent: true,
+      }),
+    ),
+    makeInstancedBoxes(
+      "Sony Center stainless facade rails",
+      horizontalRails,
+      new MeshBasicMaterial({ color: 0xd7dddd }),
+      new MeshStandardMaterial({
+        color: 0x8d999c,
+        metalness: 0.45,
+        roughness: 0.34,
+      }),
+    ),
+    makeInstancedBoxes(
+      "Sony Center warm red facade fins",
+      redFins,
+      new MeshBasicMaterial({ color: 0xa94d43 }),
+      new MeshStandardMaterial({
+        color: 0x7a2f31,
+        emissive: 0xb74349,
+        emissiveIntensity: 0.1,
+        roughness: 0.82,
+      }),
+    ),
+  );
+  group.userData.forumFacadePanelCount = panelCount;
+  group.userData.forumFacadeFloorCount = 6;
+}
+
 function makeReflectingPool(): Mesh {
   const geometry = new CylinderGeometry(8.2, 8.2, 0.08, 48);
   const dayMaterial = new MeshBasicMaterial({
@@ -425,5 +553,6 @@ export function createSonyCenterForumRoof(): Group {
     makeInstancedTubes("Sony Center seven ring supports", supports, 0.23, 8),
     makeReflectingPool(),
   );
+  addForumFacades(group);
   return group;
 }

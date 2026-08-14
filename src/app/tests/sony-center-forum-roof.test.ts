@@ -108,6 +108,46 @@ describe("Sony Center Forum roof", () => {
     expect(kingpostScale.y).toBeCloseTo(42.5, 3);
   });
 
+  test("wraps the Forum in curved glass, steel rails and red fins", () => {
+    const roof = createSonyCenterForumRoof();
+    const glass = roof.getObjectByName(
+      "Sony Center curved Forum glass facades",
+    ) as InstancedMesh;
+    const rails = roof.getObjectByName(
+      "Sony Center stainless facade rails",
+    ) as InstancedMesh;
+    const fins = roof.getObjectByName(
+      "Sony Center warm red facade fins",
+    ) as InstancedMesh;
+
+    expect(glass).toBeInstanceOf(InstancedMesh);
+    expect(rails).toBeInstanceOf(InstancedMesh);
+    expect(fins).toBeInstanceOf(InstancedMesh);
+    expect(glass.count).toBe(28);
+    expect(rails.count).toBe(28 * 6);
+    expect(fins.count).toBe(28);
+    expect(glass.userData.dayMaterial).toBeInstanceOf(MeshBasicMaterial);
+    expect(glass.userData.nightMaterial).toBeInstanceOf(MeshStandardMaterial);
+    expect(
+      (glass.userData.dayMaterial as MeshBasicMaterial).transparent,
+    ).toBe(true);
+    expect((glass.userData.dayMaterial as MeshBasicMaterial).opacity).toBe(0.28);
+    expect((glass.userData.dayMaterial as MeshBasicMaterial).depthWrite).toBe(
+      false,
+    );
+    expect(
+      (glass.userData.nightMaterial as MeshStandardMaterial).transparent,
+    ).toBe(true);
+    expect((glass.userData.nightMaterial as MeshStandardMaterial).opacity).toBe(
+      0.34,
+    );
+    expect(
+      (glass.userData.nightMaterial as MeshStandardMaterial).depthWrite,
+    ).toBe(false);
+    expect(roof.userData.forumFacadePanelCount).toBe(28);
+    expect(roof.userData.forumFacadeFloorCount).toBe(6);
+  });
+
   test("stays within the metric Forum envelope and published peak height", () => {
     const roof = createSonyCenterForumRoof();
     const profile = POTSDAMER_DETAIL_PROFILE.sonyCenterForumRoof;

@@ -2,6 +2,7 @@ import {
   AdditiveBlending,
   BoxGeometry,
   BufferGeometry,
+  CatmullRomCurve3,
   Color,
   ConeGeometry,
   CylinderGeometry,
@@ -272,6 +273,47 @@ function pathCategory(kind: string): string {
   return kind in PATH_STYLE ? kind : "path";
 }
 
+const CURVED_PARK_PATH_KINDS = new Set([
+  "bridleway",
+  "cycleway",
+  "footway",
+  "path",
+]);
+
+/**
+ * Preserve every exported OSM control point while replacing visible chord
+ * breaks with a centripetal curve. Sampling is capped per source segment, so
+ * a long Tiergarten path gains rounded bends without turning the static mesh
+ * into an unbounded vertex stream.
+ */
+export function smoothParkPathPoints(path: ParkPath): Vector3[] {
+  const source = path.points.map(([x, y, z]) => new Vector3(x, y, z));
+  if (source.length < 3 || !CURVED_PARK_PATH_KINDS.has(path.kind)) {
+    return source;
+  }
+  const curve = new CatmullRomCurve3(source, false, "centripetal");
+  const smoothed = [source[0].clone()];
+  for (let segment = 0; segment < source.length - 1; segment += 1) {
+    const segmentLength = source[segment].distanceTo(source[segment + 1]);
+    const subdivisions = Math.min(
+      6,
+      Math.max(1, Math.ceil(segmentLength / 1.75)),
+    );
+    for (let step = 1; step <= subdivisions; step += 1) {
+      if (step === subdivisions) {
+        smoothed.push(source[segment + 1].clone());
+        continue;
+      }
+      smoothed.push(
+        curve.getPoint(
+          (segment + step / subdivisions) / (source.length - 1),
+        ),
+      );
+    }
+  }
+  return smoothed;
+}
+
 export function createPathGeometry(
   paths: ParkPath[],
   width: number | ((path: ParkPath) => number),
@@ -280,12 +322,12 @@ export function createPathGeometry(
   const indices: number[] = [];
   for (const path of paths) {
     const resolvedWidth = typeof width === "number" ? width : width(path);
-    const points = path.points.filter(
+    const points = smoothParkPathPoints(path).filter(
       (point, index, entries) =>
         index === 0 ||
         Math.hypot(
-          point[0] - entries[index - 1][0],
-          point[2] - entries[index - 1][2],
+          point.x - entries[index - 1].x,
+          point.z - entries[index - 1].z,
         ) >= 0.05,
     );
     if (points.length < 2) continue;
@@ -296,16 +338,16 @@ export function createPathGeometry(
       const previous = points[Math.max(0, index - 1)];
       const next = points[Math.min(points.length - 1, index + 1)];
       const previousLength =
-        Math.hypot(point[0] - previous[0], point[2] - previous[2]) || 1;
+        Math.hypot(point.x - previous.x, point.z - previous.z) || 1;
       const nextLength =
-        Math.hypot(next[0] - point[0], next[2] - point[2]) || 1;
+        Math.hypot(next.x - point.x, next.z - point.z) || 1;
       const previousNormal: [number, number] = [
-        -(point[2] - previous[2]) / previousLength,
-        (point[0] - previous[0]) / previousLength,
+        -(point.z - previous.z) / previousLength,
+        (point.x - previous.x) / previousLength,
       ];
       const nextNormal: [number, number] = [
-        -(next[2] - point[2]) / nextLength,
-        (next[0] - point[0]) / nextLength,
+        -(next.z - point.z) / nextLength,
+        (next.x - point.x) / nextLength,
       ];
       if (index === 0) previousNormal.splice(0, 2, ...nextNormal);
       if (index === points.length - 1)
@@ -326,12 +368,12 @@ export function createPathGeometry(
       );
       const extension = Math.min(resolvedWidth, halfWidth / denominator);
       positions.push(
-        point[0] + mx * extension,
-        point[1] + 0.12,
-        point[2] + mz * extension,
-        point[0] - mx * extension,
-        point[1] + 0.12,
-        point[2] - mz * extension,
+        point.x + mx * extension,
+        point.y + 0.12,
+        point.z + mz * extension,
+        point.x - mx * extension,
+        point.y + 0.12,
+        point.z - mz * extension,
       );
     }
     for (let index = 0; index < points.length - 1; index += 1) {

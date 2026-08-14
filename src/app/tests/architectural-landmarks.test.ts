@@ -116,6 +116,10 @@ describe("metre-scale architectural recognition models", () => {
     ) as Mesh;
     expect(gateStone.material.userData.nightEmissive).toBe(0xf0c184);
     expect(gateStone.material.userData.nightEmissiveIntensity).toBe(0.72);
+    const pavilionRecess = gate!.getObjectByName(
+      "Brandenburg Gate pavilion facade recess",
+    ) as Mesh;
+    expect(pavilionRecess.material.color.getHex()).toBe(0xbba77c);
     const triglyphs = gate!.getObjectByName(
       "Brandenburg Gate instanced frieze triglyphs",
     );

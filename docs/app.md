@@ -258,7 +258,7 @@ of making the glass itself glow. These interior cues are bounded to what the
 six supplied public exterior views reveal; they are not a surveyed or
 security-relevant floor plan. Its 5.5 m Chillida sculpture is fixed by OSM
 artwork node `4329873408` in the eastern Ehrenhof; the entrance glazing, ivy
-wings, protocol flags, rounded security pavilion, lamps, fence and landscaped
+wings, protocol flags, lamps, gate, fence and landscaped
 approach are bounded recognition details derived from supplied visual
 references rather than surveyed fixture measurements. Hauptbahnhof exposes the 321 m glass roof, 180 x 42 m
 crossing hall and 46 m office bridges. The Brandenburg Gate keeps its published
@@ -296,6 +296,27 @@ Tilla-Durieux-Park; Anhalter Bahnhof, Charlottenburger Tor, the Spanish Embassy,
 Café am Neuen See and the WELT balloon. All placement anchors come from the
 committed LoD2/OSM/landmark frame. Drawn labels and silhouette accents remain
 supplements to that evidence, never substitutes for it.
+
+The Pariser-Platz and Potsdamer-Platz architecture keeps the same boundary.
+The Center / former Sony Center retains its LoD2 glass-and-steel envelopes;
+the Forum now carries 24 translucent membrane fields, seven supports, cable
+geometry, 28 curved glass bays, 168 horizontal stainless rails and 28 red
+vertical fins instead of an opaque dark roof plate. Hotel Adlon remains on
+Berlin LoD2 building `K00006ot`; its pale stone body receives the characteristic
+patinated green mansard, dormers, facade rhythm, awnings and portico as a
+recognition layer. The French, British and Hungarian embassy overlays are
+anchored to their respective LoD2 buildings and add only their defining public
+facade features: French Bel-Etage openings and Rue de France, the British
+screen/collage and green roof, and the Hungarian glazed base, stone wings and
+roof flag. No photograph is projected or bundled as a texture.
+
+Spreebogenpark keeps OSM park way `737280675` and the committed terrain grid as
+its plan and height anchors. Two rising circle-segment lawns frame the surviving
+Alsenstrasse axis with a 17 m landscape window and dark Corten walls; the
+exact mapped Ludwig-Erhard-Ufer paths remain OSM ways `34834265` and
+`1128036906`. The lawn rise and wall treatment follow the published Berlin and
+landscape-architect descriptions and remain explicitly source-described
+recognition geometry rather than a claimed fixture survey.
 
 Three smaller places carry the same evidence boundary. Hotel AMANO Grand
 Central retains OSM way `237687062` and Berlin LoD2 building part
@@ -350,7 +371,11 @@ material groups while retaining an individual resolved width per way; tree
 trunks, fork branches and five-part crowns are instanced, and only the small
 number of mapped playground devices use individual geometry. The always-loaded
 smooth surface pass uses those same six families across the complete bounded
-walking and cycling network. The
+walking and cycling network. Curved bridleways, cycleways, footways and paths
+receive deterministic centripetal interpolation at runtime: every OSM source
+vertex and both endpoints remain exact, while only the drawn intervals between
+them are densified. Steps remain unsmoothed, and the committed payload size does
+not increase. The
 Luiseninsel landmark
 opens from an 82 m oblique camera preset centred on the main equipment cluster.
 Nearby OSM crowns step aside and only the mapped equipment receives a temporary
