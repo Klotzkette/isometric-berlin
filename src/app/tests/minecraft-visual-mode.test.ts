@@ -54,9 +54,9 @@ function screenPoint(
 }
 
 describe("premium Minecraft visual mode", () => {
-  test("uses a coarse 24-28 colour authored palette", () => {
-    expect(MINECRAFT_PALETTE.length).toBeGreaterThanOrEqual(24);
-    expect(MINECRAFT_PALETTE.length).toBeLessThanOrEqual(28);
+  test("uses a coarse 28-32 colour authored block palette", () => {
+    expect(MINECRAFT_PALETTE.length).toBeGreaterThanOrEqual(28);
+    expect(MINECRAFT_PALETTE.length).toBeLessThanOrEqual(32);
     expect(new Set(MINECRAFT_PALETTE).size).toBe(MINECRAFT_PALETTE.length);
     // Every per-material colour must come from the master palette.
     const master = new Set<number>(MINECRAFT_PALETTE);
@@ -75,7 +75,9 @@ describe("premium Minecraft visual mode", () => {
     }
     // Roof-copper must stay varied so Reichstag dome and Chancellery
     // remain distinct at zoom-out.
-    expect(new Set(MATERIAL_PALETTES.roofCopper).size).toBeGreaterThanOrEqual(4);
+    expect(new Set(MATERIAL_PALETTES.roofCopper).size).toBeGreaterThanOrEqual(
+      4,
+    );
   });
 
   test("doubles the voxel base cell and caps it below building collapse", () => {
@@ -84,8 +86,12 @@ describe("premium Minecraft visual mode", () => {
     expect(voxelBaseCell(true)).toBe(4.7);
     expect(voxelBaseCell(false)).toBe(5.6);
     expect(VOXEL_BASE_CELL_CAP_DEVICE_PX).toBe(24);
-    expect(voxelBaseCell(true)).toBeLessThanOrEqual(VOXEL_BASE_CELL_CAP_DEVICE_PX);
-    expect(voxelBaseCell(false)).toBeLessThanOrEqual(VOXEL_BASE_CELL_CAP_DEVICE_PX);
+    expect(voxelBaseCell(true)).toBeLessThanOrEqual(
+      VOXEL_BASE_CELL_CAP_DEVICE_PX,
+    );
+    expect(voxelBaseCell(false)).toBeLessThanOrEqual(
+      VOXEL_BASE_CELL_CAP_DEVICE_PX,
+    );
   });
 
   test("keeps the near-black outline in world space", () => {
@@ -97,7 +103,10 @@ describe("premium Minecraft visual mode", () => {
 
   test("postprocess shader hard-quantises and draws near-black outlines", async () => {
     const fragment = await Bun.file(
-      new URL("../src/visual-modes/minecraft/postprocess.frag", import.meta.url),
+      new URL(
+        "../src/visual-modes/minecraft/postprocess.frag",
+        import.meta.url,
+      ),
     ).text();
     // Hard quantise: dithering must be gated behind the ditherStrength
     // uniform (0 by default) instead of always-on.
@@ -161,7 +170,9 @@ describe("premium Minecraft visual mode", () => {
     scene.add(mesh);
     const state = createMinecraftMaterialState();
     setMinecraftMaterialPresentation(scene, state, true);
-    const material = mesh.material as MeshToonMaterial & { flatShading: boolean };
+    const material = mesh.material as MeshToonMaterial & {
+      flatShading: boolean;
+    };
     expect(material).toBeInstanceOf(MeshToonMaterial);
     expect(material.flatShading).toBe(true);
     disposeMinecraftMaterialState(state);
@@ -189,8 +200,12 @@ describe("premium Minecraft visual mode", () => {
     );
 
     expect(after.distanceTo(before)).toBeLessThanOrEqual(3);
-    expect(dome.getObjectByName("dome alternating diagonal glazing braces")).toBeDefined();
-    expect(dome.getObjectByName("daylight mirror cone 24-sector facet grid")).toBeDefined();
+    expect(
+      dome.getObjectByName("dome alternating diagonal glazing braces"),
+    ).toBeDefined();
+    expect(
+      dome.getObjectByName("daylight mirror cone 24-sector facet grid"),
+    ).toBeDefined();
     disposeMinecraftMaterialState(state);
   });
 });

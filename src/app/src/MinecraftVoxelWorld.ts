@@ -11,7 +11,10 @@ import {
   MeshStandardMaterial,
 } from "three";
 
-import { MINECRAFT_BUILDING_PALETTE } from "./visual-modes/minecraft/palette";
+import {
+  MATERIAL_PALETTES,
+  MINECRAFT_BUILDING_PALETTE,
+} from "./visual-modes/minecraft/palette";
 import {
   BERLIN_MODERN_PROFILE,
   EUROPACITY_PROFILE,
@@ -307,6 +310,26 @@ function shadeFor(
 ): Color {
   const pick = Math.abs(xIdx * 31 + zIdx * 17 + salt * 7) % shades.length;
   return new Color(shades[pick]);
+}
+
+export function minecraftBuildingLayerTones(materialClass: string): {
+  cap: number;
+  plinth: number;
+} {
+  const warm = materialClass === "clinker" || materialClass === "plazaBrick";
+  const glassy = materialClass === "glass";
+  return {
+    cap: warm
+      ? MATERIAL_PALETTES.clinker[0]
+      : glassy
+        ? MATERIAL_PALETTES.metal[1]
+        : MATERIAL_PALETTES.roofCopper[1],
+    plinth: warm
+      ? MATERIAL_PALETTES.clinker[1]
+      : glassy
+        ? MATERIAL_PALETTES.metal[0]
+        : MATERIAL_PALETTES.sandstone[0],
+  };
 }
 
 function voxelMaterial(emissive = 0x3d3d3d): MeshStandardMaterial {
@@ -1691,7 +1714,7 @@ export function createMinecraftVoxelWorld(
 
   const buildings = instancedBoxes(
     "Voxel building columns",
-    visibleBuildingColumns.length * 2,
+    visibleBuildingColumns.length * 3,
   );
   const tonePaint = new Color();
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
@@ -1714,16 +1737,29 @@ export function createMinecraftVoxelWorld(
       tone !== null
         ? tonePaint.setHex(tone).clone()
         : shadeFor(shades, xIdx, zIdx, Math.round(height / cell));
-    // Minecraft buildings wear a darker roof layer — the top block row
-    // reads as roofing, like the game's slab-capped houses.
-    const capHeight = height > 3 ? 1 : 0;
-    center.set(worldX, y0 + (height - capHeight) / 2, worldZ);
-    size.set(cell, height - capHeight, cell);
+    // A palette-native plinth/body/cap stack reads as deliberate block
+    // architecture. The former multiplyScalar roof invented off-palette dark
+    // colours and produced muddy roofs rather than Minecraft materials.
+    const layers = minecraftBuildingLayerTones(
+      tone === KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
+        ? "clinker"
+        : className,
+    );
+    const capHeight = height > 5 ? 1 : 0;
+    const plinthHeight = height > 8 ? 1 : 0;
+    const bodyHeight = height - capHeight - plinthHeight;
+    if (plinthHeight > 0) {
+      center.set(worldX, y0 + plinthHeight / 2, worldZ);
+      size.set(cell, plinthHeight, cell);
+      buildings.write(center, size, tonePaint.setHex(layers.plinth).clone());
+    }
+    center.set(worldX, y0 + plinthHeight + bodyHeight / 2, worldZ);
+    size.set(cell, bodyHeight, cell);
     buildings.write(center, size, facade);
     if (capHeight > 0) {
       center.set(worldX, y0 + height - capHeight / 2, worldZ);
       size.set(cell, capHeight, cell);
-      buildings.write(center, size, facade.clone().multiplyScalar(0.72));
+      buildings.write(center, size, tonePaint.setHex(layers.cap).clone());
     }
   }
   group.add(buildings.mesh);

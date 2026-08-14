@@ -8,21 +8,13 @@ import {
   Object3D,
 } from "three";
 
-import {
-  type VoxelPayload,
-  worldGroundSampler,
-} from "./MinecraftVoxelWorld";
+import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 
 export const CREEPER_COUNT = 3;
 export const ZOMBIE_COUNT = 4;
 
 type MobKind = "creeper" | "zombie";
-type PartMotion =
-  | "arm-left"
-  | "arm-right"
-  | "leg-left"
-  | "leg-right"
-  | "still";
+type PartMotion = "arm-left" | "arm-right" | "leg-left" | "leg-right" | "still";
 
 type MobPart = {
   color: number;
@@ -56,8 +48,10 @@ export type MinecraftMobField = {
 
 const CREEPER_GREEN = 0x4f9c45;
 const CREEPER_LIGHT = 0x6cba50;
+const CREEPER_DARK = 0x346b36;
 const ZOMBIE_GREEN = 0x74a85c;
 const ZOMBIE_SHIRT = 0x4b92a3;
+const ZOMBIE_SHIRT_LIGHT = 0x72c5d2;
 const ZOMBIE_TROUSERS = 0x334b72;
 const FACE_DARK = 0x18251b;
 // The voxel world uses 4 m blocks; a strict 1.8 m person disappears below
@@ -188,13 +182,39 @@ function creeperParts(mobIndex: number): MobPart[] {
   return [
     mobPart(mobIndex, CREEPER_LIGHT, [0, 1.72, 0], [0.76, 0.76, 0.76]),
     mobPart(mobIndex, CREEPER_GREEN, [0, 0.95, 0], [0.62, 0.84, 0.42]),
-    mobPart(mobIndex, CREEPER_GREEN, [-0.2, 0.31, 0.16], [0.25, 0.62, 0.25], "leg-left"),
-    mobPart(mobIndex, CREEPER_GREEN, [0.2, 0.31, 0.16], [0.25, 0.62, 0.25], "leg-right"),
-    mobPart(mobIndex, CREEPER_GREEN, [-0.2, 0.31, -0.16], [0.25, 0.62, 0.25], "leg-right"),
-    mobPart(mobIndex, CREEPER_GREEN, [0.2, 0.31, -0.16], [0.25, 0.62, 0.25], "leg-left"),
+    mobPart(
+      mobIndex,
+      CREEPER_GREEN,
+      [-0.2, 0.31, 0.16],
+      [0.25, 0.62, 0.25],
+      "leg-left",
+    ),
+    mobPart(
+      mobIndex,
+      CREEPER_GREEN,
+      [0.2, 0.31, 0.16],
+      [0.25, 0.62, 0.25],
+      "leg-right",
+    ),
+    mobPart(
+      mobIndex,
+      CREEPER_GREEN,
+      [-0.2, 0.31, -0.16],
+      [0.25, 0.62, 0.25],
+      "leg-right",
+    ),
+    mobPart(
+      mobIndex,
+      CREEPER_GREEN,
+      [0.2, 0.31, -0.16],
+      [0.25, 0.62, 0.25],
+      "leg-left",
+    ),
     mobPart(mobIndex, FACE_DARK, [-0.18, 1.84, 0.39], [0.13, 0.13, 0.045]),
     mobPart(mobIndex, FACE_DARK, [0.18, 1.84, 0.39], [0.13, 0.13, 0.045]),
     mobPart(mobIndex, FACE_DARK, [0, 1.59, 0.39], [0.2, 0.24, 0.045]),
+    mobPart(mobIndex, CREEPER_DARK, [-0.27, 1.52, 0.4], [0.12, 0.16, 0.04]),
+    mobPart(mobIndex, CREEPER_DARK, [0.32, 1.14, 0.23], [0.05, 0.18, 0.16]),
   ];
 }
 
@@ -202,12 +222,39 @@ function zombieParts(mobIndex: number): MobPart[] {
   return [
     mobPart(mobIndex, ZOMBIE_GREEN, [0, 1.74, 0], [0.7, 0.7, 0.7]),
     mobPart(mobIndex, ZOMBIE_SHIRT, [0, 1.02, 0], [0.72, 0.76, 0.38]),
-    mobPart(mobIndex, ZOMBIE_GREEN, [-0.5, 1.02, 0.13], [0.24, 0.82, 0.24], "arm-left"),
-    mobPart(mobIndex, ZOMBIE_GREEN, [0.5, 1.02, 0.13], [0.24, 0.82, 0.24], "arm-right"),
-    mobPart(mobIndex, ZOMBIE_TROUSERS, [-0.2, 0.35, 0], [0.29, 0.7, 0.29], "leg-left"),
-    mobPart(mobIndex, ZOMBIE_TROUSERS, [0.2, 0.35, 0], [0.29, 0.7, 0.29], "leg-right"),
+    mobPart(
+      mobIndex,
+      ZOMBIE_GREEN,
+      [-0.5, 1.02, 0.13],
+      [0.24, 0.82, 0.24],
+      "arm-left",
+    ),
+    mobPart(
+      mobIndex,
+      ZOMBIE_GREEN,
+      [0.5, 1.02, 0.13],
+      [0.24, 0.82, 0.24],
+      "arm-right",
+    ),
+    mobPart(
+      mobIndex,
+      ZOMBIE_TROUSERS,
+      [-0.2, 0.35, 0],
+      [0.29, 0.7, 0.29],
+      "leg-left",
+    ),
+    mobPart(
+      mobIndex,
+      ZOMBIE_TROUSERS,
+      [0.2, 0.35, 0],
+      [0.29, 0.7, 0.29],
+      "leg-right",
+    ),
     mobPart(mobIndex, FACE_DARK, [-0.16, 1.85, 0.36], [0.11, 0.1, 0.04]),
     mobPart(mobIndex, FACE_DARK, [0.16, 1.85, 0.36], [0.11, 0.1, 0.04]),
+    mobPart(mobIndex, FACE_DARK, [0, 1.62, 0.36], [0.22, 0.07, 0.04]),
+    mobPart(mobIndex, ZOMBIE_SHIRT_LIGHT, [0, 1.3, 0.2], [0.34, 0.1, 0.04]),
+    mobPart(mobIndex, FACE_DARK, [0, 0.68, 0.2], [0.68, 0.09, 0.04]),
   ];
 }
 
@@ -368,9 +415,7 @@ export function updateMinecraftMobs(
       ground +
         localY +
         bob +
-        (part.motion.startsWith("leg")
-          ? Math.max(0, alternating) * 0.035
-          : 0),
+        (part.motion.startsWith("leg") ? Math.max(0, alternating) * 0.035 : 0),
       mob.z - localX * sinHeading + localZ * cosHeading,
     );
     dummy.rotation.set(

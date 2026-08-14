@@ -1,4 +1,4 @@
-// 28 colours: deliberately coarse so quantisation reads as discrete
+// 32 colours: deliberately coarse so quantisation reads as discrete
 // Minecraft blocks. Grouped by family — stone-grey, sandstone-cream,
 // concrete-white, glass-teal, roof-copper (kept varied so Reichstag dome
 // and Chancellery stay distinct at zoom-out), water-blue, foliage-green,
@@ -21,25 +21,17 @@ export const MINECRAFT_PALETTE = [
   0x4c7f28, 0x5d9634, 0x74b043, 0x91bd59,
   // dirt-brown + metallic copper + plaza-brick + marquee gold
   0x704a2d, 0xc18a4b, 0xb9684f, 0xe6bd4c,
+  // clinker / terracotta / light timber block accents
+  0xb36f57, 0xce8065, 0xc09a68, 0xd2b17a,
 ] as const;
 
 // Architecture may only snap to materials that can plausibly read as a
 // facade, roof or curtain wall. Using the complete world palette here once
 // allowed pale source stone to become asphalt, water or near-black foliage.
 export const MINECRAFT_BUILDING_PALETTE = [
-  0x74806d,
-  0x8e9a9e,
-  0xa4aa91,
-  0xd4d4b7,
-  0xd6dfe0,
-  0xf3efd0,
-  0xb69b83,
-  0xe8d1ae,
-  0xf5e3c5,
-  0x72c5d2,
-  0xa4dfe2,
-  0xe79a61,
-  0xb9684f,
+  0x74806d, 0x8e9a9e, 0xa4aa91, 0xd4d4b7, 0xd6dfe0, 0xf3efd0, 0xb69b83,
+  0xe8d1ae, 0xf5e3c5, 0x72c5d2, 0xa4dfe2, 0xe79a61, 0xb9684f, 0xb36f57,
+  0xce8065, 0xc09a68, 0xd2b17a,
 ] as const;
 
 export const MATERIAL_PALETTES = {
@@ -47,11 +39,13 @@ export const MATERIAL_PALETTES = {
   domeGlass: [0x8e9a9e, 0xd6dfe0, 0xf7fbf7, 0xa4dfe2],
   foliage: [0x4c7f28, 0x5d9634, 0x74b043, 0x91bd59],
   glass: [0x40515c, 0x8e9a9e, 0x72c5d2, 0xd6dfe0],
+  clinker: [0xb9684f, 0xb36f57, 0xce8065, 0xe79a61],
   metal: [0x74806d, 0x8e9a9e, 0xd6dfe0, 0xf7fbf7],
   path: [0x202923, 0x715b4a, 0xb69b83],
   plazaBrick: [0xb9684f, 0xc18a4b, 0xe79a61],
   roofCopper: [0x34443a, 0x74806d, 0xa4aa91, 0xe79a61],
   sandstone: [0xb69b83, 0xe8d1ae, 0xf5e3c5],
+  timber: [0x704a2d, 0xc09a68, 0xd2b17a],
   water: [0x2e5aa8, 0x3f76e4, 0x72c5d2, 0xa4dfe2],
 } as const;
 

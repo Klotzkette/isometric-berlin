@@ -23,7 +23,10 @@ describe("Minecraft roaming mobs", () => {
     expect(field.mesh).toBeInstanceOf(InstancedMesh);
     expect(field.group.children).toHaveLength(1);
     expect(field.mesh.count).toBe(field.parts.length);
-    expect(field.mesh.count).toBeLessThan(80);
+    expect(field.mesh.count).toBeLessThan(90);
+    expect(
+      field.parts.filter((part) => part.color === 0x18251b).length,
+    ).toBeGreaterThanOrEqual(20);
   });
 
   test("spawns and keeps every walker on open park grass", () => {

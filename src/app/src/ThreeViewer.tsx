@@ -56,6 +56,7 @@ import {
 import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
 import { createMeiningerHotel } from "./MeiningerHotel";
 import { createChancelleryExtension } from "./ChancelleryExtension";
+import { createCityRecognitionRefinements } from "./CityRecognitionRefinements";
 import { createCivicLandmarks } from "./CivicLandmarks";
 import {
   centralCivicDetailsVisible,
@@ -162,10 +163,7 @@ import {
 } from "./drawnBuildings";
 import { heroDetailEvictions } from "./heroDetailCache";
 import { skyArtefactsFor, stripSkyArtefacts } from "./meshArtefacts";
-import {
-  meshReplacementsFor,
-  stripReplacedGeometry,
-} from "./meshReplacements";
+import { meshReplacementsFor, stripReplacedGeometry } from "./meshReplacements";
 import { minecraftFogRange } from "./minecraftFog";
 import { setQuadrigaMode } from "./Quadriga";
 import { PRESENTATION_TONE } from "./presentationTone";
@@ -813,9 +811,9 @@ function setSurfacePresentation(
         ? runtime.lightingMode === "minecraft"
           ? "voxel-world"
           : "drawn-isometric"
-      : settled
-        ? "settled-7m-plus"
-        : "interaction-2_3m";
+        : settled
+          ? "settled-7m-plus"
+          : "interaction-2_3m";
   if (surfaceQuality !== lastSurfaceQualityDataset) {
     lastSurfaceQualityDataset = surfaceQuality;
     runtime.renderer.domElement.dataset.surfaceQuality = surfaceQuality;
@@ -1764,6 +1762,13 @@ function ensureIsoWorld(
         const meininger = createMeiningerHotel(ground);
         markAuthoredFlatUnlit(meininger);
         runtime.signatures.add(meininger);
+        // Source-audited micro-architecture for the wider presentation radius:
+        // landmark facades, Tiergarten bridges/memorials and exact mapped shop
+        // fronts. The four merged batches stay visible in all surface modes;
+        // Minecraft applies its own material presentation below.
+        const refinements = createCityRecognitionRefinements(ground);
+        markAuthoredFlatUnlit(refinements);
+        runtime.signatures.add(refinements);
         const staffage = createCityStaffage(ground);
         if (staffage) {
           runtime.cityStaffage.add(staffage);
@@ -2309,7 +2314,10 @@ export function setTunnelPresentation(
 function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.underside = underside;
   if (
-    photographicSurfaceNeeded(currentStartupPresentationStatus(runtime), underside)
+    photographicSurfaceNeeded(
+      currentStartupPresentationStatus(runtime),
+      underside,
+    )
   ) {
     runtime.ensurePhotoSurface();
   }
@@ -4286,8 +4294,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           ? false
           : applyContinuousOrbit(dtSeconds);
         const flying =
-          !runtime.pedestrian.enabled &&
-          applyContinuousFlight(dtSeconds);
+          !runtime.pedestrian.enabled && applyContinuousFlight(dtSeconds);
         const controlsChanged = runtime.pedestrian.enabled
           ? false
           : controls.update();
@@ -4908,7 +4915,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   return;
                 }
                 if (loadedBaseTiles === 0) {
-                  throw new Error("Keine 3D-Ersatzkachel konnte geladen werden");
+                  throw new Error(
+                    "Keine 3D-Ersatzkachel konnte geladen werden",
+                  );
                 }
                 runtime.photoSurfaceState = "ready";
                 if (failures.length > 0) {

@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.71.35
+
+- **Small but important places now survive a close isometric view.** A new
+  four-batch recognition layer adds source-audited detail to Paris-Moskau,
+  ALDI Invalidenstrasse, REWE Heidestrasse, Motel One, Tour TotalEnergies,
+  Hansabibliothek, Walter-Gropius-Haus, the elliptical Bundespraesidialamt,
+  Adlerbruecke, Lutherbruecke, the Liebknecht and Luxemburg memorials,
+  Tritonbrunnen, three Leipziger-Platz stair mouths and the fire-damaged
+  Teehaus. The additions retain Berlin LoD2/OSM as their metric anchors and
+  identify facade and monument micro-detail as source-referenced presentation
+  geometry rather than a claimed 10 cm survey.
+- **The Sozialgericht is no longer hidden by a detached oversized roof.** Its
+  shallow Neo-Renaissance window rhythm, rusticated base, cornices and central
+  risalit now follow the OSM-derived Invalidenstrasse building edge, while the
+  authoritative LoD2 shell remains intact. The focus camera now presents the
+  historic street wing rather than its roof.
+- **Minecraft gains richer blocks without noisy surfaces.** Stable clinker,
+  terracotta and pale-timber families supplement the palette; tall buildings
+  use coherent plinth/body/cap layers, and the existing three creepers plus
+  four zombies gain clearer faces, clothing and body contrast in the same
+  single instanced draw call. Palette selection is stable per material, so
+  roofs do not become checkerboards or shimmer between frames.
+- **The full interaction surface remains compact and clean.** Day, Night and
+  Minecraft were checked at 1600 x 900 desktop, 1024 x 768 tablet and
+  390 x 844 phone widths with no browser warnings or overlapping controls.
+  The visible radius stays **5,230 m**, attribution is unchanged, and no
+  internet photograph or gated Google content is bundled.
+
 ## v0.71.34
 
 - **The Spreebogenpark now reads as landscape architecture rather than two

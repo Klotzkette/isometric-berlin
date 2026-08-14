@@ -16,8 +16,10 @@ import {
   createMinecraftHamburgerBahnhofRecognition,
   createMinecraftUpbeatRecognition,
   createMinecraftVoxelWorld,
+  minecraftBuildingLayerTones,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
+import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
 import { isChancelleryExtensionConstructionPoint } from "../src/chancelleryExtensionProfile";
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -42,6 +44,18 @@ function instanced(
 
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
+
+  test("uses only palette-native plinth and cap blocks", () => {
+    const master = new Set<number>(MINECRAFT_PALETTE);
+    for (const materialClass of ["clinker", "concrete", "glass"] as const) {
+      const layers = minecraftBuildingLayerTones(materialClass);
+      expect(master.has(layers.plinth)).toBe(true);
+      expect(master.has(layers.cap)).toBe(true);
+    }
+    expect(minecraftBuildingLayerTones("glass")).not.toEqual(
+      minecraftBuildingLayerTones("clinker"),
+    );
+  });
 
   test("columns take their building's real colour, snapped to the palette", async () => {
     const { buildColumnToneLookup } =
@@ -135,11 +149,11 @@ describe("true voxel Minecraft world", () => {
       0,
     );
     expect(instanced("Voxel ground runs", world).count).toBe(groundRuns);
-    // Each column is a facade body plus (when tall enough) a darker
-    // roof-cap layer.
+    // Each column is a facade body plus palette-native plinth and roof-cap
+    // layers when its measured height can carry them.
     const columns = instanced("Voxel building columns", world).count;
     expect(columns).toBeGreaterThanOrEqual(payload.buildings.length);
-    expect(columns).toBeLessThanOrEqual(payload.buildings.length * 2);
+    expect(columns).toBeLessThanOrEqual(payload.buildings.length * 3);
     const visibleTreeCount = payload.trees.filter(
       ([xIdx, zIdx]) =>
         !isChancelleryExtensionConstructionPoint(
@@ -305,6 +319,8 @@ describe("true voxel Minecraft world", () => {
       scale.setFromMatrixScale(matrix);
       if (
         scale.y <= 1.01 &&
+        position.y + scale.y / 2 >
+          RIECKHALLEN_PROFILE.minecraftRoofTopY - 0.1 &&
         voxelRecognitionAreaAt(position.x, position.z)?.name === "Rieckhallen"
       ) {
         roofTops.push(position.y + scale.y / 2);

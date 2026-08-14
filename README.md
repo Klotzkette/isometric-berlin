@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.34 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.34/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.35 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.35/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.34** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.35** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,25 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.34**, built from `main`. Its full viewer
+The current public package is **v0.71.35**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Smaller places now retain their identity at close range.** Source-audited
+  recognition layers refine Paris-Moskau, ALDI Invalidenstrasse, REWE
+  Heidestrasse, Motel One, Tour TotalEnergies, the Sozialgericht,
+  Hansabibliothek, Walter-Gropius-Haus, the oval Bundespraesidialamt,
+  Adlerbruecke, Lutherbruecke, three Tiergarten memorials, Leipziger-Platz
+  stair mouths and the current roofless Teehaus. Berlin LoD2 and OSM remain the
+  metric anchors; the added facade and monument micro-detail is explicitly
+  presentation geometry rather than a claimed 10 cm survey.
+
+- **Minecraft is more deliberately built from blocks.** Its palette gains
+  stable clinker, terracotta and timber families, tall buildings receive
+  coherent plinth/body/cap layers, and the seven roaming creepers and zombies
+  have clearer faces and clothing without adding draw calls or flickering
+  random roof patterns.
 
 - **Mobile controls now open ready to use.** Phone and tablet layouts always
   start with the flight/walking joystick and control chrome visible, even when

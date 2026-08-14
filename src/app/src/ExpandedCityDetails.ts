@@ -164,9 +164,9 @@ const EXPANDED_FOCUS_PRESETS: Record<
     target_height_m: 8,
   },
   "Sozialgericht Berlin": {
-    azimuth_degrees: 25,
-    distance_m: 118,
-    polar_degrees: 58,
+    azimuth_degrees: 115,
+    distance_m: 168,
+    polar_degrees: 67,
     target_height_m: 9,
   },
   "Staatsbibliothek zu Berlin (Haus Potsdamer Straße)": {
@@ -1782,10 +1782,48 @@ function addInvalidenfriedhof(builder: Builder): void {
   }
 
   // Schinkel's Scharnhorst tomb is the main legible historic composition.
-  addBox(builder, CEMETERY_STONE, 38.597, profile.groundY + 0.32, -1425.035, 3.7, 0.64, 2.2, -0.08);
-  addBox(builder, CEMETERY_STONE, 38.597, profile.groundY + 1.26, -1425.035, 2.75, 1.25, 1.45, -0.08);
-  addCylinder(builder, CEMETERY_STONE_DARK, 38.25, profile.groundY + 2.42, -1425.035, 0.38, 1.35, 10);
-  addCylinder(builder, CEMETERY_STONE_DARK, 39.02, profile.groundY + 2.42, -1425.035, 0.38, 1.35, 10);
+  addBox(
+    builder,
+    CEMETERY_STONE,
+    38.597,
+    profile.groundY + 0.32,
+    -1425.035,
+    3.7,
+    0.64,
+    2.2,
+    -0.08,
+  );
+  addBox(
+    builder,
+    CEMETERY_STONE,
+    38.597,
+    profile.groundY + 1.26,
+    -1425.035,
+    2.75,
+    1.25,
+    1.45,
+    -0.08,
+  );
+  addCylinder(
+    builder,
+    CEMETERY_STONE_DARK,
+    38.25,
+    profile.groundY + 2.42,
+    -1425.035,
+    0.38,
+    1.35,
+    10,
+  );
+  addCylinder(
+    builder,
+    CEMETERY_STONE_DARK,
+    39.02,
+    profile.groundY + 2.42,
+    -1425.035,
+    0.38,
+    1.35,
+    10,
+  );
 
   addWorldWallCourse(
     builder,
@@ -1909,11 +1947,7 @@ function addKonradAdenauerHaus(builder: Builder): void {
   // motif. It is deliberately inset from the OSM hull, so no second footprint
   // is introduced and no party signage is drawn.
   const inner = new CylinderGeometry(1, 1, 16.5, 40);
-  inner.scale(
-    profile.innerBodyLengthM / 2,
-    1,
-    profile.innerBodyDepthM / 2,
-  );
+  inner.scale(profile.innerBodyLengthM / 2, 1, profile.innerBodyDepthM / 2);
   inner.rotateY(profile.innerBodyRotationY);
   inner.translate(
     profile.innerBodyCenterWorldM[0],
@@ -2629,51 +2663,150 @@ function addSocialCourt(
 ): void {
   const point = anchor(byName, "Sozialgericht Berlin");
   if (!point) return;
-  // Neo-Renaissance rhythm on the retained LoD2 body: cornices, central
-  // risalit and triangular roof, not a modern replacement box.
-  addBox(
-    builder,
-    SANDSTONE,
-    point.x,
-    point.y + 8,
-    point.z + 22,
-    46,
-    1,
-    1,
-    -0.1,
+
+  // The listed 1874 Berlin-Hamburg railway administration building survives
+  // as the court's three-storey street wing. Keep the official LoD2 body and
+  // place only shallow recognition detail on the mapped OSM street edge.
+  // This avoids the former oversized free-standing gable that obscured it.
+  const streetStart = new Vector3(5.049, point.y, -1016.234);
+  const streetEnd = new Vector3(42.769, point.y, -937.377);
+  const streetVector = streetEnd.clone().sub(streetStart);
+  const facadeLength = Math.hypot(streetVector.x, streetVector.z);
+  const directionX = streetVector.x / facadeLength;
+  const directionZ = streetVector.z / facadeLength;
+  const rotation = -Math.atan2(directionZ, directionX);
+  const facadeCenter = streetStart.clone().add(streetEnd).multiplyScalar(0.5);
+  const facadeOrigin = new Vector3(
+    facadeCenter.x + directionZ * 0.58,
+    point.y,
+    facadeCenter.z - directionX * 0.58,
   );
-  addBox(
-    builder,
-    SANDSTONE,
-    point.x,
-    point.y + 14.4,
-    point.z + 22,
-    48,
-    1.1,
-    1,
-    -0.1,
-  );
-  addBox(
+
+  // Negative local Z faces Invalidenstrasse. Every layer is offset by at
+  // least 0.34 m so no surface is coplanar with the LoD2 shell.
+  for (const [width, y, height, color] of [
+    [facadeLength - 1.8, point.y + 4.55, 0.36, SANDSTONE],
+    [facadeLength, point.y + 8.2, 0.42, IVORY],
+    [facadeLength + 0.8, point.y + 14.35, 0.5, SANDSTONE],
+  ] as const) {
+    addLocalBox(
+      builder,
+      color,
+      facadeOrigin,
+      0,
+      y,
+      0,
+      width,
+      height,
+      0.36,
+      rotation,
+    );
+  }
+
+  // Eleven evenly spaced bays reproduce the restrained Neo-Renaissance
+  // rhythm. The middle bay becomes the tall entrance risalit.
+  const baySpacing = 6.95;
+  for (let bay = -5; bay <= 5; bay += 1) {
+    const localX = bay * baySpacing;
+    for (const [floorY, windowHeight] of [
+      [point.y + 5.1, 2.35],
+      [point.y + 8.75, 2.55],
+      [point.y + 12.2, 2.25],
+    ] as const) {
+      if (bay === 0 && floorY < point.y + 7) continue;
+      addLocalBox(
+        builder,
+        0x607985,
+        facadeOrigin,
+        localX,
+        floorY,
+        -0.34,
+        2.05,
+        windowHeight,
+        0.2,
+        rotation,
+        false,
+      );
+      addLocalBox(
+        builder,
+        IVORY,
+        facadeOrigin,
+        localX,
+        floorY + windowHeight / 2 + 0.18,
+        -0.4,
+        2.45,
+        0.16,
+        0.18,
+        rotation,
+        false,
+      );
+    }
+  }
+
+  for (let course = 0; course < 5; course += 1) {
+    addLocalBox(
+      builder,
+      course % 2 === 0 ? IVORY : SANDSTONE,
+      facadeOrigin,
+      0,
+      point.y + 2.05 + course * 0.67,
+      -0.3,
+      facadeLength - 2.4,
+      0.16,
+      0.2,
+      rotation,
+      false,
+    );
+  }
+
+  addLocalBox(
     builder,
     IVORY,
-    point.x,
-    point.y + 11,
-    point.z + 21.5,
-    12,
-    15,
-    2.5,
-    -0.1,
+    facadeOrigin,
+    0,
+    point.y + 9.3,
+    -0.18,
+    9.2,
+    12.8,
+    1.15,
+    rotation,
   );
+  addLocalBox(
+    builder,
+    0x46575e,
+    facadeOrigin,
+    0,
+    point.y + 3.45,
+    -0.86,
+    3.8,
+    5.9,
+    0.3,
+    rotation,
+  );
+  for (const side of [-1, 1]) {
+    addLocalBox(
+      builder,
+      SANDSTONE,
+      facadeOrigin,
+      side * 2.45,
+      point.y + 3.75,
+      -0.78,
+      0.72,
+      6.8,
+      0.48,
+      rotation,
+    );
+  }
   addGabledRoof(
     builder,
     DARK_BRICK,
-    point.x,
-    point.y + 17,
-    point.z + 10,
-    50,
-    31,
-    8,
-    -0.1,
+    facadeOrigin.x,
+    point.y + 15.9,
+    facadeOrigin.z,
+    11.5,
+    2.1,
+    2.4,
+    rotation,
   );
 }
 
@@ -5723,6 +5856,8 @@ export function createExpandedCityDetails(
   group.userData.tillaDurieux = TILLA_DURIEUX_PROFILE;
   group.userData.weltBalloon = WELT_BALLOON_PROFILE;
   group.userData.sourceUrls = [
+    "https://www.berlin.de/gerichte/sozialgericht/ueber-uns/allgemeines/",
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050269",
     "https://tchobanvoss.de/de/projects/hotels-am-hauptbahnhof",
     "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
     "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
