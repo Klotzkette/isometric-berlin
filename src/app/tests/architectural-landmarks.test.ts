@@ -854,7 +854,9 @@ describe("metre-scale architectural recognition models", () => {
       "Reichstag dark upper corner-tower windows",
     );
     expect(upperTowerWindows).toBeInstanceOf(InstancedMesh);
-    expect((upperTowerWindows as InstancedMesh).count).toBe(24);
+    expect((upperTowerWindows as InstancedMesh).count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.towerUpperWindowCount,
+    );
     expect(
       (upperTowerWindows as InstancedMesh).material.userData.nightEmissive,
     ).toBeUndefined();
@@ -862,7 +864,9 @@ describe("metre-scale architectural recognition models", () => {
       "Reichstag instanced upper corner-tower window frames",
     );
     expect(upperTowerFrames).toBeInstanceOf(InstancedMesh);
-    expect((upperTowerFrames as InstancedMesh).count).toBe(24);
+    expect((upperTowerFrames as InstancedMesh).count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.towerUpperWindowCount,
+    );
     const tallMullions = reichstag!.getObjectByName(
       "Reichstag instanced tall-window vertical mullions",
     );
@@ -875,7 +879,7 @@ describe("metre-scale architectural recognition models", () => {
     upperWindows.geometry.computeBoundingBox();
     const upperBounds = upperWindows.geometry.boundingBox!;
     expect(upperBounds.max.y - upperBounds.min.y).toBeGreaterThan(
-      (upperBounds.max.x - upperBounds.min.x) * 2,
+      (upperBounds.max.x - upperBounds.min.x) * 1.35,
     );
     const upperFrames = reichstag!.getObjectByName(
       "Reichstag instanced upper-window 10 cm reveal frames",
@@ -914,6 +918,48 @@ describe("metre-scale architectural recognition models", () => {
     expect(towerPilasters).toBeInstanceOf(InstancedMesh);
     expect(towerPilasters.count).toBe(
       REICHSTAG_WEST_FACADE_PROFILE.towerPilasterCount,
+    );
+    const towerSidePilasters = reichstag!.getObjectByName(
+      "Reichstag west corner-tower lateral giant-order pilasters",
+    ) as InstancedMesh;
+    expect(towerSidePilasters).toBeInstanceOf(InstancedMesh);
+    expect(towerSidePilasters.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.towerSidePilasterCount,
+    );
+    const towerQuoins = reichstag!.getObjectByName(
+      "Reichstag west corner-tower alternating quoins",
+    ) as InstancedMesh;
+    expect(towerQuoins).toBeInstanceOf(InstancedMesh);
+    expect(towerQuoins.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.cornerQuoinBlockCount,
+    );
+    const towerBalusters = reichstag!.getObjectByName(
+      "Reichstag west tower roof-balustrade posts",
+    ) as InstancedMesh;
+    expect(towerBalusters).toBeInstanceOf(InstancedMesh);
+    expect(towerBalusters.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.towerBalusterCount,
+    );
+    const towerLedgeFigures = reichstag!.getObjectByName(
+      "Reichstag west tower ledge allegorical figures",
+    ) as InstancedMesh;
+    expect(towerLedgeFigures).toBeInstanceOf(InstancedMesh);
+    expect(towerLedgeFigures.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.towerLedgeFigureCount,
+    );
+    const capitalLeaves = reichstag!.getObjectByName(
+      "Reichstag west portico Corinthian capital leaves",
+    ) as InstancedMesh;
+    expect(capitalLeaves).toBeInstanceOf(InstancedMesh);
+    expect(capitalLeaves.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.columnCapitalLeafCount,
+    );
+    const architraveDentils = reichstag!.getObjectByName(
+      "Reichstag west portico architrave dentils",
+    ) as InstancedMesh;
+    expect(architraveDentils).toBeInstanceOf(InstancedMesh);
+    expect(architraveDentils.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.architraveDentilCount,
     );
     const entranceMullions = reichstag!.getObjectByName(
       "Reichstag west entrance bronze mullions",

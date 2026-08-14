@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.38
+
+- **The Reichstag west elevation now carries its complete photographed
+  rhythm.** Each wing has five explicit window bays with arched lower
+  openings, wider upper windows, alternating pediments and twelve giant-order
+  pilasters. The corner pavilions add all-face window articulation, side
+  pilasters, alternating quoins, roof balusters and ledge figures, so an
+  oblique isometric view no longer leaves a blank tower face.
+- **The classical portal survives at close range.** Its six columns now carry
+  eighteen drawn flutes apiece and forty-eight restrained Corinthian leaves;
+  thirty architrave dentils and a triple raking moulding sharpen the
+  `DEM DEUTSCHEN VOLKE` band and sculpted tympanum without bitmap textures.
+  Roofline figures gain separate heads and pedestals instead of reading as
+  anonymous capsules.
+- **A coarse LoD2 overlap no longer hides the authored facade.** Only the two
+  closed 35 m west-portico part-prisms are replaced by the metric open portal.
+  The authoritative 101-point Reichstag body, official height, orientation and
+  all six courtyard holes remain intact. Day, Night, Minecraft and Snowstorm
+  were inspected in the live Three.js viewer; the visible radius stays
+  **5,230 m**, attribution is unchanged, and the owner's photograph remains a
+  visual reference rather than a bundled or projected asset.
+
 ## v0.71.37
 
 - **The Reichstag west front now reads as the photographed parliament

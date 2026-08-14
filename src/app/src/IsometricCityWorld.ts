@@ -463,6 +463,15 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Reichstag west portico. These two LoD2 parts are deliberately coarse,
+  // closed envelopes (the full 35 m portico block and its narrow centre cap).
+  // The metric recognition model reconstructs this exact volume as an open
+  // six-column order with stair, glass entrance, inscription, reliefs and
+  // pediment. Keeping the source boxes hid every one of those referenced
+  // facade details behind a blank slab. The 101-point main Reichstag prism
+  // K0002MCN remains authoritative and keeps all six courtyard holes.
+  "UbQkgNZe",
+  "ycOYQRVL",
   // Brandenburger Tor main body — the gate model has columns, passages,
   // attic and Quadriga; side pavilion prisms stay.
   "K0001xqy",

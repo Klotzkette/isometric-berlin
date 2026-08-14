@@ -132,6 +132,20 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     ).toBe(true);
   });
 
+  test("replaces only the Reichstag's closed LoD2 west-portico boxes", async () => {
+    const { PRISM_SUPPRESSED_IDS } = await import("../src/IsometricCityWorld");
+    expect(PRISM_SUPPRESSED_IDS.has("UbQkgNZe")).toBe(true);
+    expect(PRISM_SUPPRESSED_IDS.has("ycOYQRVL")).toBe(true);
+    expect(PRISM_SUPPRESSED_IDS.has("K0002MCN")).toBe(false);
+
+    const mainBody = payload.buildings.find(
+      (building) => building.id === "K0002MCN",
+    );
+    expect(mainBody).toBeDefined();
+    expect(mainBody!.ring.length).toBe(101);
+    expect(mainBody!.holes).toHaveLength(6);
+  });
+
   test("city geometry spans the quarter and sits above ground", () => {
     const bounds = new Box3().setFromObject(bodies);
     const size = bounds.getSize(new Vector3());
