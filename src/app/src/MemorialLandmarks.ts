@@ -4,6 +4,7 @@ import {
   CapsuleGeometry,
   ConeGeometry,
   CylinderGeometry,
+  DoubleSide,
   EdgesGeometry,
   Group,
   InstancedMesh,
@@ -26,6 +27,7 @@ import {
   ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
   markArchitecturalInk,
 } from "./architecturalInk";
+import { createLetteringTexture } from "./drawnLettering";
 import {
   HOLOCAUST_FIELD,
   HOLOCAUST_GEOMETRY_STATUS,
@@ -88,6 +90,38 @@ export const SINTI_ROMA_MEMORIAL = {
   overallExtentM: 60,
   placeStoneCount: 69,
   poolDiameterM: 12,
+} as const;
+
+export const SOVIET_WAR_MEMORIAL_PROFILE = {
+  colonnadePiers: [
+    [-25.5, -0.65],
+    [-17, -1.65],
+    [-8.5, -2.35],
+    [8.5, -2.35],
+    [17, -1.65],
+    [25.5, -0.65],
+  ] as const,
+  dedicationLines: [
+    "ВЕЧНАЯ СЛАВА",
+    "ГЕРОЯМ ПАВШИМ",
+    "В БОЯХ С НЕМЕЦКО-",
+    "ФАШИСТСКИМИ",
+    "ЗАХВАТЧИКАМИ",
+    "ЗА СВОБОДУ И",
+    "НЕЗАВИСИМОСТЬ",
+    "СОВЕТСКОГО",
+    "СОЮЗА",
+  ] as const,
+  forecourtWidthM: 78,
+  fountainCount: 2,
+  howitzerCount: 2,
+  sarcophagusCount: 2,
+  sidePylonCount: 6,
+  soldierHeightM: 8,
+  tankCount: 2,
+  tankRoadWheelCount: 10,
+  totalHeightM: 20.85,
+  years: ["1941", "1945"] as const,
 } as const;
 
 // Fifth-percentile surface samples from the committed official Berlin mesh.
@@ -234,6 +268,87 @@ function addSegment(
     delta.clone().normalize(),
   );
   return mesh;
+}
+
+function addRectangularSpan(
+  group: Group,
+  name: string,
+  start: readonly [number, number],
+  end: readonly [number, number],
+  centerY: number,
+  height: number,
+  depth: number,
+  material: MeshStandardMaterial,
+): Mesh {
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const length = Math.hypot(dx, dz);
+  const span = addBox(
+    group,
+    name,
+    [length, height, depth],
+    [(start[0] + end[0]) / 2, centerY, (start[1] + end[1]) / 2],
+    material,
+  );
+  span.rotation.y = -Math.atan2(dz, dx);
+  addEdges(group, span, 0.72);
+  return span;
+}
+
+function addMemorialLettering(
+  group: Group,
+  name: string,
+  text: string,
+  size: readonly [number, number],
+  position: readonly [number, number, number],
+  capHeightM: number,
+  fieldColor = "#777870",
+  letterColor = "#d0aa32",
+  rotation: readonly [number, number, number] = [0, 0, 0],
+): Mesh {
+  const texture = createLetteringTexture({
+    bandHeightM: size[1],
+    bandWidthM: size[0],
+    capHeightM,
+    fieldColor,
+    letterColor,
+    text,
+    texelsPerMetre: 320,
+  });
+  const dayMaterial = texture
+    ? new MeshBasicMaterial({ map: texture, side: DoubleSide })
+    : new MeshBasicMaterial({
+        color: Number.parseInt(fieldColor.slice(1), 16),
+        side: DoubleSide,
+      });
+  const nightMaterial = texture
+    ? new MeshStandardMaterial({ map: texture, roughness: 0.74, side: DoubleSide })
+    : new MeshStandardMaterial({
+        color: Number.parseInt(fieldColor.slice(1), 16),
+        roughness: 0.74,
+        side: DoubleSide,
+      });
+  nightMaterial.userData.nightEmissive = Number.parseInt(
+    letterColor.slice(1),
+    16,
+  );
+  nightMaterial.userData.nightEmissiveIntensity = 0.12;
+  const panel = addMesh(
+    group,
+    name,
+    new PlaneGeometry(size[0], size[1]),
+    dayMaterial,
+    [...position],
+  );
+  panel.rotation.set(...rotation);
+  panel.castShadow = false;
+  panel.receiveShadow = false;
+  panel.renderOrder = 5;
+  panel.userData.dayMaterial = dayMaterial;
+  panel.userData.fallbackWithoutCanvas = texture === null;
+  panel.userData.lettering = text;
+  panel.userData.nightMaterial = nightMaterial;
+  return panel;
 }
 
 function deterministicUnit(index: number, salt: number): number {
@@ -866,6 +981,20 @@ function addTank(
   // made both vehicles disappear against the Tiergarten canopy.
   const armor = modelMaterial(0x718264, { metalness: 0.24, roughness: 0.66 });
   const dark = modelMaterial(0x1b221d, { metalness: 0.34, roughness: 0.68 });
+  const wheelGreen = modelMaterial(0x64755a, {
+    metalness: 0.3,
+    roughness: 0.64,
+  });
+  addEdges(
+    vehicle,
+    addBox(
+      vehicle,
+      `${name} lower sloped hull`,
+      [2.76, 0.64, 4.9],
+      [0, 0.88 + lift, 0.04],
+      armor,
+    ),
+  );
   const hull = addBox(
     vehicle,
     `${name} hull`,
@@ -881,6 +1010,38 @@ function addTank(
     [0.52, 0.78, 5.9],
     [-1.55, 0.62 + lift, 0],
     dark,
+  );
+  const trackShoeTransforms: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    for (let index = 0; index < 12; index += 1) {
+      const zPosition = -2.55 + index * (5.1 / 11);
+      trackShoeTransforms.push(
+        {
+          position: [side * 1.83, 0.29 + lift, zPosition],
+          rotation: [0, 0, Math.PI / 2],
+        },
+        {
+          position: [side * 1.83, 1.03 + lift, zPosition],
+          rotation: [0, 0, Math.PI / 2],
+        },
+      );
+    }
+  }
+  addInstances(
+    vehicle,
+    `${name} forty-eight individual track shoes`,
+    new BoxGeometry(0.28, 0.13, 0.42),
+    dark,
+    trackShoeTransforms,
+  );
+  addInstances(
+    vehicle,
+    `${name} track fenders`,
+    new BoxGeometry(0.26, 0.12, 5.64),
+    armor,
+    [-1, 1].map((side) => ({
+      position: [side * 1.61, 1.54 + lift, 0],
+    })),
   );
   addBox(
     vehicle,
@@ -903,6 +1064,13 @@ function addTank(
     `${name} ten T-34 road wheels`,
     new CylinderGeometry(0.46, 0.46, 0.24, 12),
     dark,
+    wheelTransforms,
+  );
+  addInstances(
+    vehicle,
+    `${name} ten green road-wheel hubs`,
+    new CylinderGeometry(0.29, 0.29, 0.27, 12),
+    wheelGreen,
     wheelTransforms,
   );
   const glacis = addBox(
@@ -938,6 +1106,28 @@ function addTank(
     dark,
     [0.34, 2.88 + lift, -0.06],
   );
+  const turretRing = addMesh(
+    vehicle,
+    `${name} turret race ring`,
+    new TorusGeometry(1.22, 0.08, 6, 20),
+    dark,
+    [0, 1.94 + lift, -0.18],
+  );
+  turretRing.rotation.x = Math.PI / 2;
+  addMesh(
+    vehicle,
+    `${name} loader hatch`,
+    new CylinderGeometry(0.31, 0.34, 0.12, 12),
+    armor,
+    [-0.46, 2.83 + lift, -0.1],
+  );
+  addBox(
+    vehicle,
+    `${name} rear engine grille`,
+    [1.7, 0.05, 0.86],
+    [0, 2.08 + lift, 2.18],
+    dark,
+  );
   addMesh(
     vehicle,
     `${name} gun mantlet`,
@@ -960,6 +1150,20 @@ function addTank(
       new SphereGeometry(0.17, 10, 7),
       modelMaterial(0xe5d6a4, { metalness: 0.18, roughness: 0.32 }),
       [side * 0.92, 1.72 + lift, -2.88],
+    );
+  }
+  const turretNumber = name.endsWith("west") ? "300" : "200";
+  for (const side of [-1, 1]) {
+    addMemorialLettering(
+      vehicle,
+      `${name} turret number ${turretNumber} ${side < 0 ? "left" : "right"}`,
+      turretNumber,
+      [1.18, 0.48],
+      [side * 1.18, 2.45 + lift, -0.18],
+      0.34,
+      "#718264",
+      "#f3f0df",
+      [0, side * (Math.PI / 2), 0],
     );
   }
 }
@@ -1027,12 +1231,7 @@ function addHowitzer(
   );
 }
 
-/**
- * Kerbel's eight-metre bronze soldier on the crown of the central portal.
- * A capsule and a ball read as a grey pill from the presentation camera, so
- * the parts that carry the silhouette are modelled: the flaring skirt of the
- * greatcoat, the shoulders, the peaked cap and the slung rifle.
- */
+/** Kerbel's eight-metre bronze soldier on the central granite pylon. */
 function addSovietSoldier(group: Group, bronze: MeshStandardMaterial): void {
   const base = 13.05;
   const z = -3;
@@ -1046,12 +1245,21 @@ function addSovietSoldier(group: Group, bronze: MeshStandardMaterial): void {
     );
     addEdges(group, leg);
   }
+  const cloak = addMesh(
+    group,
+    "Soviet memorial soldier broad greatcoat cloak",
+    new ConeGeometry(1.82, 4.9, 12),
+    bronze,
+    [0, base + 4.25, z - 0.48],
+  );
+  cloak.scale.z = 0.72;
+  addEdges(group, cloak);
   const coat = addMesh(
     group,
     "Soviet memorial eight metre soldier body",
-    new CylinderGeometry(1.12, 1.72, 4.1, 10),
+    new CylinderGeometry(1.06, 1.55, 4.05, 12),
     bronze,
-    [0, base + 3.95, z],
+    [0, base + 4.05, z + 0.18],
   );
   addEdges(group, coat);
   const shoulders = addBox(
@@ -1062,44 +1270,96 @@ function addSovietSoldier(group: Group, bronze: MeshStandardMaterial): void {
     bronze,
   );
   addEdges(group, shoulders);
-  for (const side of [-1, 1]) {
-    addSegment(
+  addSegment(
+    group,
+    "Soviet memorial soldier left bent arm",
+    new Vector3(-1.15, base + 6.18, z + 0.08),
+    new Vector3(-0.72, base + 4.75, z + 0.72),
+    0.34,
+    bronze,
+  );
+  addSegment(
+    group,
+    "Soviet memorial soldier right lowered arm",
+    new Vector3(1.16, base + 6.17, z),
+    new Vector3(1.34, base + 3.62, z + 0.22),
+    0.34,
+    bronze,
+  );
+  for (const [side, y, zOffset] of [
+    [-1, base + 4.68, 0.78],
+    [1, base + 3.45, 0.28],
+  ] as const) {
+    addMesh(
       group,
-      `Soviet memorial soldier ${side < 0 ? "left" : "right"} arm`,
-      new Vector3(side * 1.2, base + 6.2, z),
-      new Vector3(side * 1.42, base + 3.5, z + side * 0.2),
-      0.34,
+      `Soviet memorial soldier ${side < 0 ? "left" : "right"} hand`,
+      new SphereGeometry(0.35, 10, 7),
       bronze,
+      [side * (side < 0 ? 0.69 : 1.35), y, z + zOffset],
     );
   }
-  addMesh(
+  addBox(
+    group,
+    "Soviet memorial soldier greatcoat belt",
+    [2.45, 0.24, 1.38],
+    [0, base + 4.68, z + 0.23],
+    bronze,
+  );
+  addBox(
+    group,
+    "Soviet memorial soldier belt buckle",
+    [0.42, 0.36, 0.12],
+    [0, base + 4.65, z + 0.97],
+    bronze,
+  );
+  for (const side of [-1, 1]) {
+    const lapel = addBox(
+      group,
+      `Soviet memorial soldier ${side < 0 ? "left" : "right"} coat lapel`,
+      [0.28, 1.6, 0.12],
+      [side * 0.39, base + 5.6, z + 0.85],
+      bronze,
+    );
+    lapel.rotation.z = side * 0.3;
+  }
+  const head = addMesh(
     group,
     "Soviet memorial soldier head",
-    new SphereGeometry(0.62, 14, 10),
+    new SphereGeometry(0.62, 16, 12),
     bronze,
-    [0, base + 7.2, z],
+    [0, base + 6.94, z + 0.08],
   );
-  const cap = addMesh(
-    group,
-    "Soviet memorial soldier peaked cap",
-    new CylinderGeometry(0.72, 0.66, 0.34, 12),
-    bronze,
-    [0, base + 7.72, z],
-  );
-  addEdges(group, cap);
+  head.scale.set(0.82, 1.05, 0.78);
   addMesh(
     group,
-    "Soviet memorial soldier cap visor",
-    new BoxGeometry(0.92, 0.1, 0.5),
+    "Soviet memorial soldier face and nose",
+    new SphereGeometry(0.16, 9, 7),
     bronze,
-    [0, base + 7.58, z + 0.62],
+    [0, base + 6.96, z + 0.57],
   );
+  const helmet = addMesh(
+    group,
+    "Soviet memorial soldier steel helmet",
+    new SphereGeometry(0.76, 16, 10),
+    bronze,
+    [0, base + 7.45, z + 0.02],
+  );
+  helmet.scale.set(1, 0.52, 1.08);
+  addEdges(group, helmet);
+  const helmetRim = addMesh(
+    group,
+    "Soviet memorial soldier helmet rim",
+    new CylinderGeometry(0.82, 0.82, 0.11, 16),
+    bronze,
+    [0, base + 7.26, z + 0.02],
+  );
+  addEdges(group, helmetRim);
   // Rifle slung muzzle-up across the right shoulder.
   addSegment(
     group,
     "Soviet memorial soldier rifle",
-    new Vector3(1.46, base + 8.15, z - 0.55),
-    new Vector3(0.72, base + 2.5, z - 0.15),
+    new Vector3(1.5, base + 7.86, z - 0.66),
+    new Vector3(0.78, base + 2.4, z - 0.42),
     0.15,
     bronze,
   );
@@ -1114,65 +1374,459 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   // rotation put the ensemble on the park side and swapped east with west.
   group.userData.streetFrontWorldAxis = "+z";
   group.userData.geometryStatus =
-    "Official street-facing composition, T-34/76 tank type and 8 m soldier height; local spacing remains a visual approximation";
+    "Official street-facing composition, T-34/76 tank type and 8 m soldier height; colonnade, inscription, forecourt and garden proportions are owner-reference-bounded approximations over official terrain";
+  group.userData.profile = SOVIET_WAR_MEMORIAL_PROFILE;
   group.userData.sourceUrl =
     "https://www.berlin.de/sen/uvk/natur-und-gruen/stadtgruen/friedhoefe-und-begraebnisstaetten/sowjetische-ehrenmale/tiergarten/";
-  const stone = modelMaterial(0xcfccc0, { roughness: 0.78 });
+  group.userData.referenceUrls = [
+    group.userData.sourceUrl,
+    "https://commons.wikimedia.org/wiki/File:Sowjetisches_Ehrenmal_(Berlin-Tiergarten)_Totale.jpg",
+  ];
+  const stone = modelMaterial(0xd2d0c6, { roughness: 0.8 });
   // The old 0x777a73 pylon read near-black under the day rig; the real
   // memorial is warm light granite throughout.
-  const stoneDark = modelMaterial(0xa9a79b, { roughness: 0.84 });
+  const stoneDark = modelMaterial(0x999a93, { roughness: 0.86 });
+  const stoneJoint = modelMaterial(0x777a75, { roughness: 0.9 });
+  const blackGranite = modelMaterial(0x383c39, {
+    metalness: 0.12,
+    roughness: 0.64,
+  });
   const bronze = modelMaterial(0x4f6657, { metalness: 0.38, roughness: 0.55 });
   const gold = modelMaterial(0xc9a227, { metalness: 0.45, roughness: 0.4 });
-  addBox(group, "Soviet memorial lower stair", [62, 0.5, 18], [0, 0.25, 0], stone);
-  addBox(group, "Soviet memorial upper stair", [56, 0.55, 14], [0, 0.78, -1], stone);
-  addBox(group, "Soviet memorial central pylon", [6, 12, 5], [0, 7.05, -3], stoneDark);
-  const columnTransforms: InstanceTransform[] = [-24, -16, -8, 8, 16, 24].map(
-    (x) => ({
-      position: [x, 6.1, -3 + Math.abs(x) * 0.075],
-    }),
+  const soil = modelMaterial(0x4b3e31, { roughness: 0.98 });
+  const hedge = modelMaterial(0x4c6a3c, { roughness: 0.96 });
+  const paving = addBox(
+    group,
+    "Soviet memorial broad granite forecourt",
+    [SOVIET_WAR_MEMORIAL_PROFILE.forecourtWidthM, 0.14, 29],
+    [0, 0.07, 10],
+    modelMaterial(0xbebdb4, { roughness: 0.92 }),
+  );
+  paving.castShadow = false;
+  const pavingJoints: InstanceTransform[] = [];
+  for (let x = -36; x <= 36; x += 6) {
+    pavingJoints.push({ position: [x, 0.15, 10] });
+  }
+  addInstances(
+    group,
+    "Soviet memorial forecourt longitudinal granite joints",
+    new BoxGeometry(0.025, 0.018, 28.5),
+    stoneJoint,
+    pavingJoints,
   );
   addInstances(
     group,
-    "Soviet memorial six side pylons",
-    new BoxGeometry(4.3, 10, 3.2),
-    stone,
-    columnTransforms,
+    "Soviet memorial forecourt transverse granite joints",
+    new BoxGeometry(77.5, 0.018, 0.025),
+    stoneJoint,
+    Array.from({ length: 9 }, (_, index) => ({
+      position: [0, 0.15, -2 + index * 3],
+    })),
   );
-  addBox(group, "Soviet memorial left colonnade beam", [23, 1.4, 3.2], [-17, 11.1, -1.8], stone);
-  addBox(group, "Soviet memorial right colonnade beam", [23, 1.4, 3.2], [17, 11.1, -1.8], stone);
-  // The colonnade carries a projecting cornice over the entablature and
-  // stands on a continuous stylobate, not directly on the paving.
-  for (const side of [-1, 1]) {
-    addBox(
+
+  // Four shallow risers reproduce the broad street-facing stair rather than
+  // the former pair of slab-like platforms.
+  for (const [index, width, depth, z] of [
+    [0, 64, 15.5, 2.1],
+    [1, 61.5, 12.8, 0.8],
+    [2, 59, 10.2, -0.45],
+    [3, 56.5, 7.6, -1.65],
+  ] as const) {
+    addEdges(
       group,
-      "Soviet memorial colonnade cornice",
-      [24.4, 0.55, 4.1],
-      [side * 17, 12.05, -1.75],
+      addBox(
+        group,
+        index === 0 ? "Soviet memorial lower stair" : `Soviet memorial stair tread ${index + 1}`,
+        [width, 0.24, depth],
+        [0, 0.24 + index * 0.24, z],
+        stone,
+      ),
+      0.64,
+    );
+  }
+  addBox(
+    group,
+    "Soviet memorial upper stair",
+    [57, 0.28, 5.4],
+    [0, 1.08, -2.45],
+    stone,
+  );
+
+  // The two named officers' sarcophagi sit halfway up the broad stair, not
+  // behind the colonnade. Their low ridged lids keep the street elevation
+  // readable without turning them into full-height wall blocks.
+  for (const side of [-1, 1]) {
+    const x = side * 12.8;
+    addEdges(
+      group,
+      addBox(
+        group,
+        `Soviet memorial ${side < 0 ? "west" : "east"} officers sarcophagus`,
+        [5.6, 1.04, 2.2],
+        [x, 1.4, 0.1],
+        blackGranite,
+      ),
+      0.7,
+    );
+    const lid = addBox(
+      group,
+      "Soviet memorial two officers sarcophagus ridged lids",
+      [5.85, 0.34, 2.42],
+      [x, 2.09, 0.1],
       stoneDark,
     );
+    lid.rotation.x = side * 0.025;
+    addEdges(group, lid, 0.68);
+    addInstances(
+      group,
+      "Soviet memorial officers sarcophagus engraved name rows",
+      new BoxGeometry(3.8, 0.035, 0.025),
+      gold,
+      Array.from({ length: 3 }, (_, row) => ({
+        position: [x, 1.65 - row * 0.23, 1.22],
+        scale: [1 - row * 0.09, 1, 1],
+      })),
+    );
+  }
+
+  addEdges(
+    group,
     addBox(
       group,
-      "Soviet memorial colonnade stylobate",
-      [24.4, 1.1, 4.2],
-      [side * 17, 1.35, -2.4],
+      "Soviet memorial central pylon lower black granite course",
+      [7.2, 1.12, 4.8],
+      [0, 1.68, -3],
+      blackGranite,
+    ),
+  );
+  const centralPylon = addBox(
+    group,
+    "Soviet memorial central pylon",
+    [5.8, 10.75, 3.8],
+    [0, 7.7, -3],
+    stoneDark,
+  );
+  addEdges(group, centralPylon);
+  for (const side of [-1, 1]) {
+    addEdges(
+      group,
+      addBox(
+        group,
+        `Soviet memorial central pylon ${side < 0 ? "west" : "east"} stepped shoulder`,
+        [0.82, 6.3, 4.18],
+        [side * 3.25, 5.35, -3],
+        stoneDark,
+      ),
+      0.72,
+    );
+  }
+  addEdges(
+    group,
+    addBox(
+      group,
+      "Soviet memorial central pylon crown course",
+      [6.55, 0.62, 4.24],
+      [0, 12.92, -3],
+      stoneDark,
+    ),
+  );
+  const centralFrontZ = -1.08;
+  addInstances(
+    group,
+    "Soviet memorial central pylon horizontal granite joints",
+    new BoxGeometry(5.58, 0.035, 0.028),
+    stoneJoint,
+    Array.from({ length: 6 }, (_, index) => ({
+      position: [0, 3.15 + index * 1.54, centralFrontZ],
+    })),
+  );
+  addInstances(
+    group,
+    "Soviet memorial central pylon vertical granite joints",
+    new BoxGeometry(0.035, 10.1, 0.028),
+    stoneJoint,
+    [-1.88, 0, 1.88].map((x) => ({ position: [x, 7.72, centralFrontZ] })),
+  );
+
+  const emblemDisk = addMesh(
+    group,
+    "Soviet memorial gilded USSR emblem disc",
+    new CylinderGeometry(0.86, 0.86, 0.11, 24),
+    gold,
+    [0, 10.78, centralFrontZ + 0.03],
+  );
+  emblemDisk.rotation.x = Math.PI / 2;
+  const emblemWreath = addMesh(
+    group,
+    "Soviet memorial gilded USSR emblem wreath",
+    new TorusGeometry(0.75, 0.1, 7, 28),
+    gold,
+    [0, 10.78, centralFrontZ + 0.1],
+  );
+  emblemWreath.scale.y = 1.08;
+  const emblemLeaves: InstanceTransform[] = [];
+  for (let index = 0; index < 14; index += 1) {
+    const angle = (index / 14) * Math.PI * 2;
+    emblemLeaves.push({
+      position: [
+        Math.cos(angle) * 0.76,
+        10.78 + Math.sin(angle) * 0.82,
+        centralFrontZ + 0.17,
+      ],
+      rotation: [0, 0, angle],
+      scale: [0.52, 1.2, 0.46],
+    });
+  }
+  addInstances(
+    group,
+    "Soviet memorial gilded USSR wreath leaves",
+    new SphereGeometry(0.13, 7, 5),
+    gold,
+    emblemLeaves,
+  );
+  addSegment(
+    group,
+    "Soviet memorial gilded hammer shaft",
+    new Vector3(-0.22, 10.48, centralFrontZ + 0.2),
+    new Vector3(0.22, 11.04, centralFrontZ + 0.2),
+    0.055,
+    gold,
+  );
+  addSegment(
+    group,
+    "Soviet memorial gilded hammer head",
+    new Vector3(0.08, 11.1, centralFrontZ + 0.2),
+    new Vector3(0.38, 10.88, centralFrontZ + 0.2),
+    0.065,
+    gold,
+  );
+  const sickle = addMesh(
+    group,
+    "Soviet memorial gilded sickle",
+    new TorusGeometry(0.32, 0.055, 6, 18, Math.PI * 1.35),
+    gold,
+    [-0.02, 10.74, centralFrontZ + 0.2],
+  );
+  sickle.rotation.z = -0.58;
+
+  SOVIET_WAR_MEMORIAL_PROFILE.dedicationLines.forEach((line, index) => {
+    addMemorialLettering(
+      group,
+      `Soviet memorial gilded dedication line ${index + 1}`,
+      line,
+      [5.18, 0.4],
+      [0, 9.75 - index * 0.49, centralFrontZ + 0.12],
+      0.21,
+    );
+  });
+  SOVIET_WAR_MEMORIAL_PROFILE.years.forEach((year, index) => {
+    addMemorialLettering(
+      group,
+      `Soviet memorial gilded year ${year}`,
+      year,
+      [2.25, 0.62],
+      [0, 4.88 - index * 0.72, centralFrontZ + 0.12],
+      0.43,
+    );
+  });
+
+  const piers = SOVIET_WAR_MEMORIAL_PROFILE.colonnadePiers;
+  for (const [index, [x, z]] of piers.entries()) {
+    const width = Math.abs(x) > 24 ? 3.75 : 3.15;
+    const pylon = addBox(
+      group,
+      "Soviet memorial six side pylons",
+      [width, 9.35, 2.82],
+      [x, 6.25, z],
       stone,
     );
-  }
-  // Gilded inscriptions: a name plate on every side pylon and the
-  // dedication band on the central pylon, like the real memorial.
-  for (const x of [-24, -16, -8, 8, 16, 24]) {
+    addEdges(group, pylon);
     addBox(
       group,
-      "Soviet memorial gilded name plate",
-      [2.6, 3.4, 0.12],
-      [x, 6.4, -1.35 - Math.abs(x) * 0.075],
+      "Soviet memorial side-pylon black granite foot",
+      [width + 0.22, 0.72, 3.04],
+      [x, 1.43, z],
+      blackGranite,
+    );
+    addBox(
+      group,
+      "Soviet memorial side-pylon capital course",
+      [width + 0.32, 0.46, 3.12],
+      [x, 10.98, z],
+      stoneDark,
+    );
+    const pylonFront = z + 1.43;
+    addBox(
+      group,
+      "Soviet memorial recessed side-pylon inscription field",
+      [width - 0.72, 4.35, 0.08],
+      [x, 6.15, pylonFront],
+      stoneDark,
+    );
+    const sideWreath = addMesh(
+      group,
+      "Soviet memorial side-pylon gilded wreath",
+      new TorusGeometry(0.48, 0.065, 6, 20),
       gold,
+      [x, 8.83, pylonFront + 0.07],
+    );
+    sideWreath.scale.y = 1.08;
+    addInstances(
+      group,
+      "Soviet memorial side-pylon fine inscription rows",
+      new BoxGeometry(width - 1.08, 0.035, 0.025),
+      gold,
+      Array.from({ length: 8 }, (_, row) => ({
+        position: [x, 7.85 - row * 0.42, pylonFront + 0.07],
+        scale: [1 - ((index + row) % 3) * 0.08, 1, 1],
+      })),
     );
   }
-  addBox(group, "Soviet memorial gilded dedication band", [5.2, 1.1, 0.12], [0, 11.6, -0.4], gold);
-  // Flower beds flank the stairs.
-  addBox(group, "Soviet memorial west flower bed", [10, 0.5, 4], [-20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
-  addBox(group, "Soviet memorial east flower bed", [10, 0.5, 4], [20, 0.55, 8], modelMaterial(0x4c6a3c, { roughness: 0.95 }));
+
+  // Three open bays per side follow a shallow forward bow visible in the
+  // frontal and aerial references. Separate spans preserve that curvature.
+  for (const side of [-1, 1]) {
+    const sidePiers = piers
+      .filter(([x]) => Math.sign(x) === side)
+      .sort(([a], [b]) => Math.abs(a) - Math.abs(b));
+    const nodes: [number, number][] = [
+      [side * 3.25, -2.9],
+      ...sidePiers.map(([x, z]) => [x, z] as [number, number]),
+    ];
+    for (let index = 0; index < nodes.length - 1; index += 1) {
+      addRectangularSpan(
+        group,
+        side < 0 ? "Soviet memorial left colonnade beam" : "Soviet memorial right colonnade beam",
+        nodes[index],
+        nodes[index + 1],
+        11.25,
+        1.35,
+        2.9,
+        stone,
+      );
+      addRectangularSpan(
+        group,
+        "Soviet memorial colonnade cornice",
+        nodes[index],
+        nodes[index + 1],
+        12.05,
+        0.48,
+        3.7,
+        stoneDark,
+      );
+      addRectangularSpan(
+        group,
+        "Soviet memorial colonnade stylobate",
+        nodes[index],
+        nodes[index + 1],
+        1.42,
+        0.92,
+        3.62,
+        stone,
+      );
+    }
+  }
+
+  // Formal side beds and circular basins visible in the aerial reference.
+  const flowerTransforms: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    addEdges(
+      group,
+      addBox(
+        group,
+        side < 0 ? "Soviet memorial west flower bed" : "Soviet memorial east flower bed",
+        [12.5, 0.34, 4.4],
+        [side * 18.2, 0.34, 10.1],
+        soil,
+      ),
+      0.56,
+    );
+    for (let row = 0; row < 3; row += 1) {
+      for (let column = 0; column < 12; column += 1) {
+        flowerTransforms.push({
+          position: [
+            side * 18.2 - 5.45 + column * 0.99,
+            0.72,
+            8.8 + row * 1.22,
+          ],
+          scale: [1, 0.72, 1],
+        });
+      }
+    }
+    const basin = addMesh(
+      group,
+      `Soviet memorial ${side < 0 ? "west" : "east"} circular garden basin`,
+      new CylinderGeometry(2.05, 2.22, 0.32, 28),
+      stoneDark,
+      [side * 35, 0.25, -7.8],
+    );
+    addEdges(group, basin, 0.68);
+    const basinWater = addMesh(
+      group,
+      `Soviet memorial ${side < 0 ? "west" : "east"} circular basin water`,
+      new CylinderGeometry(1.64, 1.64, 0.08, 28),
+      modelMaterial(0x6f9491, { metalness: 0.08, roughness: 0.3 }),
+      [side * 35, 0.45, -7.8],
+    );
+    basinWater.castShadow = false;
+    const fountainWater = modelMaterial(0x9fc9c8, {
+      metalness: 0.04,
+      roughness: 0.18,
+    });
+    addInstances(
+      group,
+      `Soviet memorial ${side < 0 ? "west" : "east"} fountain jets`,
+      new CylinderGeometry(0.045, 0.08, 1.62, 7),
+      fountainWater,
+      [
+        { position: [side * 35, 1.28, -7.8] },
+        { position: [side * 35 - 0.72, 0.96, -7.8], scale: [1, 0.62, 1] },
+        { position: [side * 35 + 0.72, 0.96, -7.8], scale: [1, 0.62, 1] },
+        { position: [side * 35, 0.96, -8.52], scale: [1, 0.62, 1] },
+        { position: [side * 35, 0.96, -7.08], scale: [1, 0.62, 1] },
+      ],
+    );
+    addMesh(
+      group,
+      `Soviet memorial ${side < 0 ? "west" : "east"} fountain crown spray`,
+      new SphereGeometry(0.28, 8, 6),
+      fountainWater,
+      [side * 35, 2.12, -7.8],
+    ).scale.set(1.35, 0.72, 1.35);
+    addBox(
+      group,
+      `Soviet memorial ${side < 0 ? "west" : "east"} clipped hedge wall`,
+      [14.5, 1.15, 1.5],
+      [side * 34, 0.75, -13],
+      hedge,
+    );
+  }
+  addInstances(
+    group,
+    "Soviet memorial red and white formal flower rows",
+    new SphereGeometry(0.15, 7, 5),
+    modelMaterial(0xb64136, { roughness: 0.82 }),
+    flowerTransforms,
+  );
+  addInstances(
+    group,
+    "Soviet memorial street-front bollards",
+    new CylinderGeometry(0.16, 0.2, 0.92, 10),
+    blackGranite,
+    Array.from({ length: 11 }, (_, index) => ({
+      position: [-35 + index * 7, 0.54, 23.6],
+    })),
+  );
+  for (let index = 0; index < 10; index += 1) {
+    addSegment(
+      group,
+      `Soviet memorial street chain span ${index + 1}`,
+      new Vector3(-35 + index * 7, 0.62, 23.6),
+      new Vector3(-28 + index * 7, 0.62, 23.6),
+      0.035,
+      blackGranite,
+    );
+  }
   addSovietSoldier(group, bronze);
   // The two T-34s frame the main entrance directly beside the road. The two
   // ML-20 gun-howitzers stand diagonally behind them at the first stair.

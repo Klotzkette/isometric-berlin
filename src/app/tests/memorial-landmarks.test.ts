@@ -15,6 +15,7 @@ import {
   memorialFocusDistance,
   SINTI_ROMA_MEMORIAL,
   KROLLOPER_SCULPTURE_PROFILE,
+  SOVIET_WAR_MEMORIAL_PROFILE,
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
 
@@ -284,6 +285,73 @@ describe("granular memorial recognition models", () => {
       (child) => child.name === "Soviet memorial T-34 plinth",
     )!;
     expect(hull.position.y - 1.18 / 2).toBeGreaterThan(plinth.position.y);
+  });
+
+  test("reconstructs the documented Soviet memorial architecture", () => {
+    const root = createMemorialLandmarks(landmarks);
+    const soviet = root.getObjectByName("Sowjetisches Ehrenmal Tiergarten")!;
+
+    expect(soviet.userData.profile).toBe(SOVIET_WAR_MEMORIAL_PROFILE);
+    expect(SOVIET_WAR_MEMORIAL_PROFILE.dedicationLines.join(" ")).toBe(
+      "ВЕЧНАЯ СЛАВА ГЕРОЯМ ПАВШИМ В БОЯХ С НЕМЕЦКО- ФАШИСТСКИМИ ЗАХВАТЧИКАМИ ЗА СВОБОДУ И НЕЗАВИСИМОСТЬ СОВЕТСКОГО СОЮЗА",
+    );
+    expect(
+      soviet.children.filter(
+        (child) => child.name === "Soviet memorial six side pylons",
+      ),
+    ).toHaveLength(SOVIET_WAR_MEMORIAL_PROFILE.sidePylonCount);
+    expect(
+      soviet.children.filter(
+        (child) => child.name === "Soviet memorial colonnade cornice",
+      ),
+    ).toHaveLength(6);
+    expect(
+      soviet.children.filter((child) =>
+        child.name.endsWith("officers sarcophagus"),
+      ),
+    ).toHaveLength(SOVIET_WAR_MEMORIAL_PROFILE.sarcophagusCount);
+    expect(
+      soviet.children.filter((child) => child.name.endsWith("fountain jets")),
+    ).toHaveLength(SOVIET_WAR_MEMORIAL_PROFILE.fountainCount);
+    expect(
+      soviet.children.filter((child) =>
+        child.name.startsWith("Soviet memorial gilded dedication line"),
+      ),
+    ).toHaveLength(SOVIET_WAR_MEMORIAL_PROFILE.dedicationLines.length);
+
+    const forecourt = root.getObjectByName(
+      "Soviet memorial broad granite forecourt",
+    )!;
+    expect(new Box3().setFromObject(forecourt).getSize(new Vector3()).x).toBeCloseTo(
+      SOVIET_WAR_MEMORIAL_PROFILE.forecourtWidthM,
+      2,
+    );
+    expect(
+      new Box3().setFromObject(soviet).max.y - soviet.position.y,
+    ).toBeCloseTo(SOVIET_WAR_MEMORIAL_PROFILE.totalHeightM, 0);
+  });
+
+  test("gives both restored T-34s their documented display numbers", () => {
+    const root = createMemorialLandmarks(landmarks);
+    for (const [side, number] of [
+      ["west", "300"],
+      ["east", "200"],
+    ] as const) {
+      for (const face of ["left", "right"]) {
+        const panel = root.getObjectByName(
+          `Soviet memorial T-34 ${side} turret number ${number} ${face}`,
+        );
+        expect(panel).not.toBeNull();
+        expect(panel?.userData.lettering).toBe(number);
+      }
+      expect(
+        (
+          root.getObjectByName(
+            `Soviet memorial T-34 ${side} forty-eight individual track shoes`,
+          ) as InstancedMesh
+        ).count,
+      ).toBe(48);
+    }
   });
 
   test("each T-34 carries its running gear and stays clear of the colonnade", () => {

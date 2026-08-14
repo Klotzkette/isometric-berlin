@@ -19,6 +19,13 @@ describe("shared drawn alphabet", () => {
       "GLEISS LUTZ",
       "ICH HABE DEN KRIEG VERHINDERN WOLLEN.",
       "GEORG ELSER, ENDE NOVEMBER 1939",
+      "1941",
+      "1945",
+      "ВЕЧНАЯ СЛАВА",
+      "ГЕРОЯМ ПАВШИМ",
+      "В БОЯХ С НЕМЕЦКО-",
+      "ФАШИСТСКИМИ ЗАХВАТЧИКАМИ",
+      "ЗА СВОБОДУ И НЕЗАВИСИМОСТЬ СОВЕТСКОГО СОЮЗА",
     ]) {
       expect(() => letteringLayout(text, 0.5)).not.toThrow();
     }
@@ -46,5 +53,12 @@ describe("shared drawn alphabet", () => {
     const double = letteringLayout("STARBUCKS", 2);
     expect(double.totalWidthM).toBeCloseTo(single.totalWidthM * 2, 6);
     expect(double.strokeWidthM).toBeCloseTo(single.strokeWidthM * 2, 6);
+  });
+
+  test("lays out the Russian memorial dedication without platform fonts", () => {
+    const layout = letteringLayout("ВЕЧНАЯ СЛАВА", 0.21);
+    expect(layout.glyphs).toHaveLength(12);
+    expect(layout.totalWidthM).toBeGreaterThan(2);
+    expect(layout.totalWidthM).toBeLessThan(4);
   });
 });

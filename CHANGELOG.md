@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.39
+
+- **The Soviet War Memorial now follows the photographed street elevation and
+  official site description.** A 78 m jointed granite forecourt, four shallow
+  stair courses, two officers' sarcophagi, six separate open colonnade bays and
+  a stepped central pylon replace the former slab-like approximation. The
+  eight-metre bronze soldier brings the ensemble to about 20.85 m, while the
+  central face carries the complete Russian dedication, gilded USSR emblem and
+  `1941`/`1945` as deterministic drawn lettering.
+- **The military and garden details are now individual models.** The two
+  street-side T-34s carry display numbers `300` and `200`, road wheels, track
+  shoes, hatches, lamps and engine grilles; two ML-20 howitzers remain behind
+  them. Twin circular fountains, formal flower beds, clipped hedges, bollards
+  and chains complete the documented grounds without projecting or bundling
+  any reference photograph.
+- **A hidden lettering fallback failure is closed.** Cyrillic capitals, the
+  hyphen and digit `4` are now part of the shared vector alphabet, so the
+  memorial can never drop the complete Three.js layer merely because a system
+  font or one year glyph is unavailable. Day, Night, Minecraft and Snowstorm
+  were inspected in a clean browser session; the visible radius stays
+  **5,230 m** and attribution is unchanged.
+
 ## v0.71.38
 
 - **The Reichstag west elevation now carries its complete photographed
