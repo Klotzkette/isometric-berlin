@@ -57,6 +57,14 @@ import {
   createHistoricChariteCampus,
   historicChariteRoofCode,
 } from "./HistoricChariteCampus";
+import {
+  DEUTSCHES_THEATER_CUSTOM_FACADE_IDS,
+  DEUTSCHES_THEATER_IDS,
+  DEUTSCHES_THEATER_KAMMERSPIELE_IDS,
+  DEUTSCHES_THEATER_MAIN_IDS,
+  DEUTSCHES_THEATER_TONES,
+  createDeutschesTheater,
+} from "./DeutschesTheater";
 import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
 import {
   type VoxelPayload,
@@ -444,6 +452,20 @@ export const HERO_PRISM_TONES: Record<string, number> = {
       HISTORIC_CHARITE_TONES.virologyFacade,
     ]),
   ),
+  // Deutsches Theater: measured shells remain the geometry anchor while the
+  // real ivory main house and pale-sage Kammerspiele stay visually distinct.
+  ...Object.fromEntries(
+    [...DEUTSCHES_THEATER_MAIN_IDS].map((id) => [
+      id,
+      DEUTSCHES_THEATER_TONES.facadeIvory,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...DEUTSCHES_THEATER_KAMMERSPIELE_IDS].map((id) => [
+      id,
+      DEUTSCHES_THEATER_TONES.kammerspiele,
+    ]),
+  ),
   // Gymnasium Tiergarten Neubau (1971, refurbished 2009-11). The overview
   // raster stops short of the Hansaviertel, so every prism of the school
   // fell back to the generic concrete shade and the white rendered slab
@@ -501,6 +523,12 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
     ]),
   ),
   ...Object.fromEntries([...CHARITE_VIROLOGY_IDS].map((id) => [id, 0x77827d])),
+  ...Object.fromEntries(
+    [...DEUTSCHES_THEATER_IDS].map((id) => [
+      id,
+      DEUTSCHES_THEATER_TONES.slate,
+    ]),
+  ),
 };
 
 // Buildings whose recognition model draws the COMPLETE structure. Their
@@ -1753,6 +1781,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "UbQkgNZe",
   "ycOYQRVL",
   ...HISTORIC_CHARITE_IDS,
+  ...DEUTSCHES_THEATER_CUSTOM_FACADE_IDS,
 ]);
 
 /**
@@ -10111,5 +10140,6 @@ export function createIsometricCity(
   group.add(createLandmarkRefinements());
   group.add(createGymnasiumTiergarten());
   group.add(createHistoricChariteCampus(prisms));
+  group.add(createDeutschesTheater(prisms));
   return group;
 }

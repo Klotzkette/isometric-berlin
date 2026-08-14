@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.47
+
+- **The Deutsches Theater is now recognisable as the documented historic
+  ensemble rather than a generic block.** All 15 official Berlin LoD2 parts
+  retain their measured footprints and heights. A deterministic detail layer
+  gives the main theatre its ivory classical frontage, pilasters, shallow
+  pediment, tall arched entrance windows, terrace and gold `DEUTSCHES THEATER`
+  lettering; the pale-sage Kammerspiele receive seven arched bays, lower
+  shuttered windows and their two-line historic name.
+- **The elevated gold `DT` mark is present at the real ensemble junction.** It
+  sits on a sparse dark triangular roof frame inside the measured 30.5 m
+  envelope. Dark slate roofs, corten-and-hedge garden beds and two paired
+  period lanterns complete the Schumannstrasse approach, with sparse warm
+  night emission and no copied photo textures.
+- **The refinement is source-bounded and regression protected.** Custom fronts
+  suppress the broad generic pane layer, preventing duplicate windows and
+  coplanar flicker. Tests lock every source ID, the main/Kammerspiele palettes,
+  roof tones, facade labels, detail density, ensemble bounds and the official
+  profile plus Commons references. Day, Night, Minecraft and a 390 x 844 px
+  mobile view were inspected without browser errors. The visible radius stays
+  **5,230 m**, and attribution is unchanged.
+
 ## v0.71.46
 
 - **The older Charite campus is no longer a field of generic pale prisms.**
