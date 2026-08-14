@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.71.37
+
+- **The Reichstag west front now reads as the photographed parliament
+  elevation.** The metric recognition layer adds the six-column Corinthian
+  portico, three recessed entrance bays and bronze grid, arched stone reveals,
+  four-bay wing orders, rusticated basement openings, articulated corner
+  pavilions, continuous cornices, dentils, pediments and restrained sculptural
+  figures. The Berlin LoD2 footprint, published 100 x 138 m plan, official
+  height and surveyed placement remain untouched.
+- **The promised lawn view finally faces the facade.** Reichstag focus azimuth
+  moves from -46 to -68 degrees, so the portico, `DEM DEUTSCHEN VOLKE`, four
+  tower flags and Foster dome form one clear isometric composition instead of
+  presenting the west entrance as a small side attachment. Bootstrap, reset
+  and manifest cameras share the same authored offset.
+- **The refinement is stable in every appearance mode.** Geometry and camera
+  contracts cover the new counts and placement; Day, Night, Minecraft and
+  Snowstorm were inspected in the live Three.js viewer with no black square
+  windows or new coplanar facade layers. The visible radius stays **5,230 m**,
+  attribution is unchanged, and the supplied photograph is used only as a
+  visual reference, not bundled or projected as a texture.
+
 ## v0.71.36
 
 - **The browser controls are smaller and live in the lower corner.** The

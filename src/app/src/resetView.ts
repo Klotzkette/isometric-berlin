@@ -8,9 +8,9 @@ export const NORTH_UP_ROTATION = 296.565051177078;
 export const DEFAULT_FOCUS_LANDMARK = "Reichstagsgebäude";
 export const DEFAULT_THREE_TARGET_WORLD = [317.729, 21.595, 40.477] as const;
 export const DEFAULT_THREE_CAMERA_OFFSET = [
-  -128.763,
+  -165.967,
   38.048,
-  124.345,
+  67.055,
 ] as const;
 
 export type ViewState = {

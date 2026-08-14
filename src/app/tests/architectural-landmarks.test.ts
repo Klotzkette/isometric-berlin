@@ -23,6 +23,7 @@ import {
   REICHSTAG_FLAG_WIDTH_M,
   REICHSTAG_FLAGPOLE_HEIGHT_M,
   REICHSTAG_INSCRIPTION_FIELD_WIDTH_M,
+  REICHSTAG_WEST_FACADE_PROFILE,
 } from "../src/ArchitecturalLandmarks";
 import { dedicationLayout } from "../src/reichstagInscription";
 import { windFlagMatrixCount } from "../src/WindFlags";
@@ -755,7 +756,7 @@ describe("metre-scale architectural recognition models", () => {
     expect(reichstagStone.material.userData.nightEmissiveIntensity).toBe(0.5);
     expect(reichstagStone.material.opacity).toBe(1);
     expect(reichstagStone.material.transparent).toBe(false);
-    expect(reichstagStone.material.color.getHex()).toBe(0xe4e6e2);
+    expect(reichstagStone.material.color.getHex()).toBe(0xd8d7d1);
     expect(
       reichstag!.getObjectByName(
         "Reichstag west tympanum allegorical relief bodies",
@@ -766,12 +767,12 @@ describe("metre-scale architectural recognition models", () => {
         reichstag!.getObjectByName(
           "Reichstag west tympanum allegorical relief heads",
         ) as InstancedMesh
-      ).count,
-    ).toBe(11);
+    ).count,
+    ).toBe(REICHSTAG_WEST_FACADE_PROFILE.tympanumFigureCount);
     const tympanumField = reichstag!.getObjectByName(
       "Reichstag west triangular tympanum relief field",
     ) as Mesh;
-    expect(tympanumField.material.color.getHex()).toBe(0xc5c7c2);
+    expect(tympanumField.material.color.getHex()).toBe(0xb9b6ae);
     expect(tympanumField.material.opacity).toBe(1);
     expect(tympanumField.material.transparent).toBe(false);
     expect(tympanumField.geometry.getAttribute("position").count).toBe(6);
@@ -885,7 +886,56 @@ describe("metre-scale architectural recognition models", () => {
       reichstag!.children.filter((child) =>
         child.name.includes("west entrance tall glass pane"),
       ),
-    ).toHaveLength(5);
+    ).toHaveLength(REICHSTAG_WEST_FACADE_PROFILE.centralGlassBayCount);
+    const wingPilasters = reichstag!.getObjectByName(
+      "Reichstag west wing Corinthian pilasters",
+    ) as InstancedMesh;
+    expect(wingPilasters).toBeInstanceOf(InstancedMesh);
+    expect(wingPilasters.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.wingPilasterCount,
+    );
+    const basementWindows = reichstag!.getObjectByName(
+      "Reichstag west rusticated-base recessed windows",
+    ) as InstancedMesh;
+    expect(basementWindows).toBeInstanceOf(InstancedMesh);
+    expect(basementWindows.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.basementWindowCount,
+    );
+    const dentils = reichstag!.getObjectByName(
+      "Reichstag west cornice dentils",
+    ) as InstancedMesh;
+    expect(dentils).toBeInstanceOf(InstancedMesh);
+    expect(dentils.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.corniceDentilCount,
+    );
+    const towerPilasters = reichstag!.getObjectByName(
+      "Reichstag west corner-tower giant-order pilasters",
+    ) as InstancedMesh;
+    expect(towerPilasters).toBeInstanceOf(InstancedMesh);
+    expect(towerPilasters.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.towerPilasterCount,
+    );
+    const entranceMullions = reichstag!.getObjectByName(
+      "Reichstag west entrance bronze mullions",
+    ) as InstancedMesh;
+    expect(entranceMullions).toBeInstanceOf(InstancedMesh);
+    expect(entranceMullions.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.entranceMullionCount,
+    );
+    expect(
+      (
+        reichstag!.getObjectByName(
+          "Reichstag west portico relief figures",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(REICHSTAG_WEST_FACADE_PROFILE.porticoReliefFigureCount);
+    expect(
+      (
+        reichstag!.getObjectByName(
+          "Reichstag west roofline allegorical figures",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(REICHSTAG_WEST_FACADE_PROFILE.roofFigureCount);
     const balustrade = reichstag!.getObjectByName(
       "Reichstag instanced roof-balustrade posts",
     );

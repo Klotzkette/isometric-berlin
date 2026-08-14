@@ -55,10 +55,10 @@ describe("reset returns to the default view", () => {
     expect(DEFAULT_THREE_CAMERA_OFFSET[1]).toBeGreaterThan(35);
     expect(
       DEFAULT_THREE_TARGET_WORLD[0] + DEFAULT_THREE_CAMERA_OFFSET[0],
-    ).toBeCloseTo(188.966, 3);
+    ).toBeCloseTo(151.762, 3);
     expect(
       DEFAULT_THREE_TARGET_WORLD[2] + DEFAULT_THREE_CAMERA_OFFSET[2],
-    ).toBeCloseTo(164.822, 3);
+    ).toBeCloseTo(107.532, 3);
   });
 
   test.each(WRECKED_STATES)("recovers from %s", (_label, state) => {
