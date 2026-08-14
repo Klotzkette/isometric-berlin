@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.71.45
+
+- **The Albrecht von Graefe memorial now addresses the real street corner.**
+  Its OSM anchor remains unchanged, while the complete ensemble rotates about
+  54 degrees toward the adjacent Schumannstrasse/Luisenstrasse approach
+  derived from the committed street geometry. The nameplate and every modelled
+  component share that single rigid orientation, so the figure no longer
+  stares past the corner.
+- **The bronze portrait and 1882 architectural screen are substantially more
+  legible.** The documented 1.66 m figure gains centre-parted hair, full beard,
+  facial relief, hands, articulated arms, frock-coat seams, ophthalmoscope and
+  carved support. The pedimented shell niche and both framed polychrome
+  majolica processions now carry close-range geometry instead of broad flat
+  symbols.
+- **The Charite edge is complete rather than open behind the monument.** A
+  separate 1.84 m straight iron boundary fence with 31 pickets, finials, rails
+  and rings stands behind the sandstone screen; the low curved street-side
+  enclosure and clipped hedge remain distinct in front. Day and Night were
+  visually inspected, orientation and rear-fence geometry are regression
+  tested, the visible radius stays **5,230 m**, and attribution is unchanged.
+
 ## v0.71.44
 
 - **Pedestrian mode now respects the physical city instead of walking through

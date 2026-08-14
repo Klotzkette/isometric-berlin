@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.44 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.44/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.45 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.45/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.44** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.45** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,18 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.44**, built from `main`. Its full viewer
+The current public package is **v0.71.45**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Albrecht von Graefe memorial now faces the Schumannstrasse/
+  Luisenstrasse corner.** Its OSM point stays fixed while the complete
+  three-axis sandstone ensemble follows the local street approach. The
+  1.66 m bronze now has a readable bearded portrait, hands, frock-coat folds
+  and ophthalmological instrument; the shell niche, polychrome reliefs,
+  curved forecourt rail and the tall Charite boundary fence behind it are
+  separately drawn rather than collapsed into one block.
 
 - **Pedestrian mode now treats the mapped city as a solid place.** Exact LoD2
   footprints, including real courtyard holes, stop the walker at building

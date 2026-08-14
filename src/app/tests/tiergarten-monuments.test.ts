@@ -13,8 +13,11 @@ import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
   ARTWORK_BUILDERS,
+  GRAEFE_CHARITE_FACING_TARGET_WORLD,
   GRAEFE_CHARITE_OSM_WORLD,
+  GRAEFE_CHARITE_YAW_DEGREES,
   GRAEFE_MONUMENT_SOURCE_URL,
+  GRAEFE_REAR_FENCE_HEIGHT_M,
   GRAEFE_STATUE_HEIGHT_M,
   MONUMENTS_ALREADY_MODELLED,
   createTiergartenMonuments,
@@ -264,15 +267,34 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     );
     expect(GRAEFE_STATUE_HEIGHT_M).toBe(1.66);
     expect(monuments.userData.graefeCharite).toMatchObject({
+      facingTargetWorld: GRAEFE_CHARITE_FACING_TARGET_WORLD,
       osmWorld: GRAEFE_CHARITE_OSM_WORLD,
+      rearFenceHeightM: GRAEFE_REAR_FENCE_HEIGHT_M,
+      rearFencePickets: 31,
       statueHeightM: GRAEFE_STATUE_HEIGHT_M,
+      yawDegrees: GRAEFE_CHARITE_YAW_DEGREES,
     });
     expect(monuments.userData.sourceUrls).toContain(
       GRAEFE_MONUMENT_SOURCE_URL,
     );
-    expect(
-      monuments.getObjectByName("ALBRECHT VON GRAEFE monument inscription"),
-    ).toBeInstanceOf(Mesh);
+    const inscription = monuments.getObjectByName(
+      "ALBRECHT VON GRAEFE monument inscription",
+    ) as Mesh;
+    expect(inscription).toBeInstanceOf(Mesh);
+    expect((inscription.rotation.y * 180) / Math.PI).toBeCloseTo(
+      GRAEFE_CHARITE_YAW_DEGREES,
+      5,
+    );
+    const front = new Vector3(0, 0, 1).applyAxisAngle(
+      new Vector3(0, 1, 0),
+      inscription.rotation.y,
+    );
+    const toStreetCorner = new Vector3(
+      GRAEFE_CHARITE_FACING_TARGET_WORLD[0] - GRAEFE_CHARITE_OSM_WORLD[0],
+      0,
+      GRAEFE_CHARITE_FACING_TARGET_WORLD[1] - GRAEFE_CHARITE_OSM_WORLD[1],
+    ).normalize();
+    expect(front.dot(toStreetCorner)).toBeGreaterThan(0.9999);
 
     const bodies = monuments.getObjectByName("monument bodies") as Mesh;
     const position = bodies.geometry.getAttribute("position");
@@ -280,18 +302,36 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     let top = -Infinity;
     let foot = Infinity;
     let nearbyVertices = 0;
+    let rearFenceTopVertices = 0;
+    const yaw = (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180;
+    const cosYaw = Math.cos(yaw);
+    const sinYaw = Math.sin(yaw);
+    const monumentGroundY = inscription.position.y - 0.97;
     for (let index = 0; index < position.count; index += 1) {
       vertex.fromBufferAttribute(position, index);
+      const dx = vertex.x - charite.x_dm / 10;
+      const dz = vertex.z - charite.z_dm / 10;
+      const localX = cosYaw * dx - sinYaw * dz;
+      const localZ = sinYaw * dx + cosYaw * dz;
+      const localY = vertex.y - monumentGroundY;
       if (
-        Math.abs(vertex.x - charite.x_dm / 10) < 5.2 &&
-        Math.abs(vertex.z - charite.z_dm / 10) < 2.4
+        Math.abs(localX) < 5.6 &&
+        Math.abs(localZ + 1.08) < 0.12 &&
+        localY > 1.65
+      ) {
+        rearFenceTopVertices += 1;
+      }
+      if (
+        Math.abs(dx) < 6.5 &&
+        Math.abs(dz) < 6.5
       ) {
         nearbyVertices += 1;
         top = Math.max(top, vertex.y);
         foot = Math.min(foot, vertex.y);
       }
     }
-    expect(nearbyVertices).toBeGreaterThan(1_000);
+    expect(nearbyVertices).toBeGreaterThan(2_000);
+    expect(rearFenceTopVertices).toBeGreaterThan(100);
     expect(top - foot).toBeGreaterThan(5);
     expect(top - foot).toBeLessThan(6);
   });

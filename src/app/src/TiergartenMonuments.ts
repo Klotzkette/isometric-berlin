@@ -68,7 +68,9 @@ const FLORAPLATZ_GRANITE = 0xaaa69d;
 const FLORAPLATZ_BRONZE = 0x344b43;
 const GRAEFE_SANDSTONE = 0xd8cbb0;
 const GRAEFE_SANDSTONE_LIGHT = 0xeee6d5;
-const GRAEFE_BRONZE = 0x52766b;
+const GRAEFE_BRONZE = 0x60857a;
+const GRAEFE_BRONZE_LIGHT = 0x7b9b91;
+const GRAEFE_BRONZE_DARK = 0x45665d;
 const GRAEFE_NICHE_BRONZE = 0x87744f;
 const GRAEFE_MAJOLICA = 0x6d7168;
 const GRAEFE_MAJOLICA_BLUE = 0x66818a;
@@ -81,7 +83,16 @@ const WEATHERED_MUSCHELKALK = 0x77786f;
 const ROUSSEAU_SANDSTONE = 0xb89262;
 
 export const GRAEFE_CHARITE_OSM_WORLD = [539.4, -512.9] as const;
+export const GRAEFE_CHARITE_FACING_TARGET_WORLD = [557.75, -499.72] as const;
+export const GRAEFE_CHARITE_YAW_DEGREES =
+  (Math.atan2(
+    GRAEFE_CHARITE_FACING_TARGET_WORLD[0] - GRAEFE_CHARITE_OSM_WORLD[0],
+    GRAEFE_CHARITE_FACING_TARGET_WORLD[1] - GRAEFE_CHARITE_OSM_WORLD[1],
+  ) *
+    180) /
+  Math.PI;
 export const GRAEFE_STATUE_HEIGHT_M = 1.66;
+export const GRAEFE_REAR_FENCE_HEIGHT_M = 1.84;
 export const GRAEFE_MONUMENT_SOURCE_URL =
   "https://bildhauerei-in-berlin.de/bildwerk/albrecht-von-graefe-denkmal-7878/";
 export const GRAEFE_CHARITE_SOURCE_URL =
@@ -91,6 +102,26 @@ type Builder = {
   edges: BufferGeometry[];
   parts: BufferGeometry[];
 };
+
+function appendOrientedBuilder(
+  target: Builder,
+  source: Builder,
+  x: number,
+  y: number,
+  z: number,
+  rotationY: number,
+): void {
+  for (const geometry of source.parts) {
+    geometry.rotateY(rotationY);
+    geometry.translate(x, y, z);
+    target.parts.push(geometry);
+  }
+  for (const geometry of source.edges) {
+    geometry.rotateY(rotationY);
+    geometry.translate(x, y, z);
+    target.edges.push(geometry);
+  }
+}
 
 function box(
   builder: Builder,
@@ -727,17 +758,19 @@ function addGraefeReliefFigures(
     GRAEFE_MAJOLICA_TERRACOTTA,
     GRAEFE_SANDSTONE_LIGHT,
   ] as const;
-  for (let index = 0; index < 6; index += 1) {
-    const figureX = panelX - 1.02 + index * 0.41;
-    const height = 0.48 + (index % 3) * 0.08;
+  for (let index = 0; index < 9; index += 1) {
+    const figureX = panelX - 1.08 + index * 0.27;
+    const height = 0.42 + ((index * 2) % 4) * 0.055;
+    const baseY = 2.25 + (index % 2) * 0.035;
+    const colour = colours[index % colours.length];
     ellipsoid(
       builder,
-      colours[index % colours.length],
+      colour,
       figureX,
       y,
       z,
-      [0, 2.45 + height / 2, 0.5],
-      [0.13, height / 2, 0.065],
+      [0, baseY + height / 2, 0.5],
+      [0.095, height / 2, 0.052],
       0,
     );
     ellipsoid(
@@ -746,8 +779,55 @@ function addGraefeReliefFigures(
       figureX,
       y,
       z,
-      [0, 2.45 + height + 0.1, 0.505],
-      [0.095, 0.11, 0.07],
+      [0, baseY + height + 0.075, 0.505],
+      [0.07, 0.082, 0.05],
+      0,
+    );
+    const stride = index % 2 === 0 ? 0.07 : -0.06;
+    rod(
+      builder,
+      colour,
+      figureX,
+      y,
+      z,
+      [-0.035, baseY + 0.03, 0.505],
+      [stride, baseY - 0.11, 0.505],
+      0.026,
+      0,
+      0.78,
+    );
+    rod(
+      builder,
+      colour,
+      figureX,
+      y,
+      z,
+      [0.035, baseY + 0.03, 0.505],
+      [-stride, baseY - 0.11, 0.505],
+      0.026,
+      0,
+      0.78,
+    );
+    rod(
+      builder,
+      colour,
+      figureX,
+      y,
+      z,
+      [-0.075, baseY + height * 0.72, 0.505],
+      [-0.15, baseY + height * 0.48, 0.51],
+      0.023,
+      0,
+    );
+    rod(
+      builder,
+      colour,
+      figureX,
+      y,
+      z,
+      [0.075, baseY + height * 0.72, 0.505],
+      [0.15, baseY + height * 0.58, 0.51],
+      0.023,
       0,
     );
   }
@@ -761,7 +841,7 @@ function addGraefeReliefFigures(
  * from the Charite and Bildhauerei-in-Berlin descriptions plus the owner's
  * supplied frontal references, not a measured facade survey.
  */
-function buildGraefeChariteMemorial(
+function buildGraefeChariteMemorialLocal(
   builder: Builder,
   x: number,
   y: number,
@@ -791,6 +871,30 @@ function buildGraefeChariteMemorial(
       1.02,
       0.08,
     );
+    for (const frameY of [2.12, 3.24]) {
+      box(
+        builder,
+        GRAEFE_NICHE_BRONZE,
+        x + side * 2.55,
+        y + frameY,
+        z + 0.465,
+        2.86,
+        0.09,
+        0.07,
+      );
+    }
+    for (const frameX of [-1.39, 1.39]) {
+      box(
+        builder,
+        GRAEFE_NICHE_BRONZE,
+        x + side * 2.55 + frameX,
+        y + 2.68,
+        z + 0.465,
+        0.09,
+        1.2,
+        0.07,
+      );
+    }
     box(
       builder,
       GRAEFE_SANDSTONE_LIGHT,
@@ -835,6 +939,21 @@ function buildGraefeChariteMemorial(
   const arch = new TorusGeometry(1.08, 0.14, 6, 30, Math.PI);
   arch.translate(x, y + 3.38, z + 0.53);
   addPaintedGeometry(builder, arch, GRAEFE_SANDSTONE, 20);
+  for (let index = 1; index < 12; index += 1) {
+    const angle = (index / 12) * Math.PI;
+    rod(
+      builder,
+      0x6d6249,
+      x,
+      y,
+      z,
+      [0, 3.37, 0.54],
+      [Math.cos(angle) * 0.82, 3.37 + Math.sin(angle) * 0.82, 0.545],
+      0.022,
+      0,
+      0.72,
+    );
+  }
   for (const side of [-1, 1]) {
     box(
       builder,
@@ -846,6 +965,11 @@ function buildGraefeChariteMemorial(
       1.9,
       0.18,
     );
+    for (const ornamentY of [3.55, 3.78]) {
+      const ornament = new TorusGeometry(0.11, 0.025, 5, 12);
+      ornament.translate(x + side * 0.72, y + ornamentY, z + 0.57);
+      addPaintedGeometry(builder, ornament, GRAEFE_SANDSTONE, 20);
+    }
   }
   addGraefePediment(builder, x, y, z);
 
@@ -870,21 +994,37 @@ function buildGraefeChariteMemorial(
     0,
   );
 
-  // Documented 1.66 m bronze figure: contrapposto, long coat, beard,
-  // ophthalmoscope in the raised right hand and decorated support at left.
-  const footY = 1.03;
+  // Siemering's documented 1.66 m bronze: long frock coat, narrow stance,
+  // full beard, raised ophthalmoscope and the ornate support under his left
+  // hand. The top of the hair is exactly 1.66 m above the shoe line.
+  const footY = 1.02;
   box(builder, GRAEFE_SANDSTONE, x, y + 0.79, z + 0.24, 1.55, 0.4, 0.9);
+  for (const [shoeX, shoeZ] of [
+    [-0.16, 0.64],
+    [0.2, 0.62],
+  ] as const) {
+    ellipsoid(
+      builder,
+      GRAEFE_BRONZE,
+      x,
+      y,
+      z,
+      [shoeX, footY + 0.055, shoeZ],
+      [0.13, 0.055, 0.2],
+      0,
+    );
+  }
   rod(
     builder,
     GRAEFE_BRONZE,
     x,
     y,
     z,
-    [-0.18, footY, 0.5],
-    [-0.12, footY + 0.68, 0.5],
-    0.11,
+    [-0.16, footY + 0.08, 0.57],
+    [-0.11, footY + 0.69, 0.55],
+    0.095,
     0,
-    0.9,
+    0.82,
   );
   rod(
     builder,
@@ -892,11 +1032,25 @@ function buildGraefeChariteMemorial(
     x,
     y,
     z,
-    [0.22, footY, 0.5],
-    [0.1, footY + 0.68, 0.5],
-    0.11,
+    [0.2, footY + 0.08, 0.55],
+    [0.1, footY + 0.69, 0.55],
+    0.095,
     0,
-    0.9,
+    0.82,
+  );
+  const coatSkirt = new CylinderGeometry(0.28, 0.36, 0.76, 12);
+  coatSkirt.scale(1, 1, 0.55);
+  coatSkirt.translate(x, y + footY + 0.62, z + 0.55);
+  addPaintedGeometry(builder, coatSkirt, GRAEFE_BRONZE, 25);
+  ellipsoid(
+    builder,
+    GRAEFE_BRONZE,
+    x,
+    y,
+    z,
+    [0, footY + 1.08, 0.55],
+    [0.31, 0.43, 0.17],
+    0,
   );
   ellipsoid(
     builder,
@@ -904,32 +1058,201 @@ function buildGraefeChariteMemorial(
     x,
     y,
     z,
-    [0, footY + 0.92, 0.5],
-    [0.34, 0.48, 0.18],
+    [0, footY + 1.47, 0.55],
+    [0.15, 0.19, 0.145],
     0,
   );
-  const coat = new CylinderGeometry(0.34, 0.43, 0.78, 8);
-  coat.scale(1, 1, 0.62);
-  coat.translate(x, y + footY + 0.58, z + 0.5);
-  addPaintedGeometry(builder, coat, GRAEFE_BRONZE, 22);
+  // The portrait follows the reference's centre-parted hair, long full beard,
+  // deep eyes and narrow nose. Slight patina shifts remain flat colours, but
+  // make the expression legible in the unlit isometric day material.
   ellipsoid(
+    builder,
+    GRAEFE_BRONZE_LIGHT,
+    x,
+    y,
+    z,
+    [0, footY + 1.49, 0.69],
+    [0.112, 0.13, 0.046],
+    0,
+  );
+  ellipsoid(
+    builder,
+    GRAEFE_BRONZE_DARK,
+    x,
+    y,
+    z,
+    [0, footY + 1.61, 0.575],
+    [0.13, 0.05, 0.12],
+    0,
+  );
+  for (const hairX of [-0.108, 0.108]) {
+    rod(
+      builder,
+      GRAEFE_BRONZE_DARK,
+      x,
+      y,
+      z,
+      [hairX * 0.45, footY + 1.62, 0.65],
+      [hairX * 1.18, footY + 1.43, 0.69],
+      0.034,
+      0,
+      0.9,
+    );
+  }
+  for (const side of [-1, 1]) {
+    ellipsoid(
+      builder,
+      GRAEFE_BRONZE_LIGHT,
+      x,
+      y,
+      z,
+      [side * 0.14, footY + 1.49, 0.61],
+      [0.025, 0.045, 0.024],
+      0,
+    );
+    ellipsoid(
+      builder,
+      GRAEFE_BRONZE_DARK,
+      x,
+      y,
+      z,
+      [side * 0.043, footY + 1.535, 0.731],
+      [0.018, 0.011, 0.01],
+      0,
+    );
+    rod(
+      builder,
+      GRAEFE_BRONZE_DARK,
+      x,
+      y,
+      z,
+      [side * 0.078, footY + 1.565, 0.728],
+      [side * 0.018, footY + 1.56, 0.737],
+      0.009,
+      0,
+      0.75,
+    );
+    ellipsoid(
+      builder,
+      GRAEFE_BRONZE_DARK,
+      x,
+      y,
+      z,
+      [side * 0.06, footY + 1.38, 0.714],
+      [0.064, 0.12, 0.04],
+      0,
+    );
+  }
+  rod(
+    builder,
+    GRAEFE_BRONZE_LIGHT,
+    x,
+    y,
+    z,
+    [0, footY + 1.535, 0.716],
+    [0.008, footY + 1.475, 0.765],
+    0.018,
+    0,
+    0.8,
+  );
+  for (const side of [-1, 1]) {
+    rod(
+      builder,
+      GRAEFE_BRONZE_DARK,
+      x,
+      y,
+      z,
+      [side * 0.006, footY + 1.445, 0.755],
+      [side * 0.078, footY + 1.43, 0.737],
+      0.015,
+      0,
+      0.8,
+    );
+  }
+  ellipsoid(
+    builder,
+    GRAEFE_BRONZE_DARK,
+    x,
+    y,
+    z,
+    [0, footY + 1.32, 0.708],
+    [0.075, 0.145, 0.045],
+    0,
+  );
+  // Lapels, waist seam and four coat buttons sharpen the contemporary dress.
+  rod(
+    builder,
+    0x3f6259,
+    x,
+    y,
+    z,
+    [-0.17, footY + 1.32, 0.69],
+    [0, footY + 1.02, 0.72],
+    0.028,
+    0,
+    0.8,
+  );
+  rod(
+    builder,
+    0x3f6259,
+    x,
+    y,
+    z,
+    [0.17, footY + 1.32, 0.69],
+    [0, footY + 1.02, 0.72],
+    0.028,
+    0,
+    0.8,
+  );
+  for (const buttonY of [0.82, 0.94, 1.06, 1.18]) {
+    ellipsoid(
+      builder,
+      0x2d4942,
+      x,
+      y,
+      z,
+      [0.035, footY + buttonY, 0.725],
+      [0.018, 0.018, 0.012],
+      0,
+    );
+  }
+  rod(
+    builder,
+    GRAEFE_BRONZE_DARK,
+    x,
+    y,
+    z,
+    [0, footY + 0.24, 0.71],
+    [0, footY + 0.78, 0.73],
+    0.014,
+    0,
+    0.7,
+  );
+  for (const foldX of [-0.15, 0.15]) {
+    rod(
+      builder,
+      GRAEFE_BRONZE_LIGHT,
+      x,
+      y,
+      z,
+      [foldX * 0.45, footY + 0.72, 0.72],
+      [foldX, footY + 0.25, 0.69],
+      0.014,
+      0,
+      0.65,
+    );
+  }
+  // Raised right forearm crosses the chest and presents Helmholtz's
+  // ophthalmoscope; the left hand rests on the carved support.
+  rod(
     builder,
     GRAEFE_BRONZE,
     x,
     y,
     z,
-    [0, footY + 1.52, 0.5],
-    [0.2, 0.24, 0.18],
-    0,
-  );
-  ellipsoid(
-    builder,
-    0x344c46,
-    x,
-    y,
-    z,
-    [0, footY + 1.37, 0.63],
-    [0.16, 0.17, 0.09],
+    [-0.24, footY + 1.25, 0.55],
+    [-0.32, footY + 1.02, 0.62],
+    0.065,
     0,
   );
   rod(
@@ -938,9 +1261,9 @@ function buildGraefeChariteMemorial(
     x,
     y,
     z,
-    [-0.24, footY + 1.15, 0.5],
-    [-0.02, footY + 0.92, 0.67],
-    0.07,
+    [-0.32, footY + 1.02, 0.62],
+    [-0.03, footY + 0.94, 0.72],
+    0.058,
     0,
   );
   rod(
@@ -949,28 +1272,135 @@ function buildGraefeChariteMemorial(
     x,
     y,
     z,
-    [0.24, footY + 1.14, 0.5],
-    [0.53, footY + 0.65, 0.58],
-    0.07,
+    [0.25, footY + 1.24, 0.55],
+    [0.35, footY + 0.93, 0.6],
+    0.065,
     0,
   );
-  const ophthalmoscope = new CylinderGeometry(0.055, 0.055, 0.035, 10);
+  rod(
+    builder,
+    GRAEFE_BRONZE,
+    x,
+    y,
+    z,
+    [0.35, footY + 0.93, 0.6],
+    [0.52, footY + 0.72, 0.62],
+    0.058,
+    0,
+  );
+  const ophthalmoscope = new CylinderGeometry(0.052, 0.052, 0.035, 12);
   ophthalmoscope.rotateX(Math.PI / 2);
-  ophthalmoscope.translate(x - 0.02, y + footY + 0.93, z + 0.72);
-  addPaintedGeometry(builder, ophthalmoscope, 0x283c38, 22);
-  box(builder, GRAEFE_BRONZE, x + 0.56, y + 1.43, z + 0.52, 0.14, 0.85, 0.14);
+  ophthalmoscope.translate(x - 0.03, y + footY + 0.95, z + 0.75);
+  addPaintedGeometry(builder, ophthalmoscope, GRAEFE_BRONZE_DARK, 24);
   ellipsoid(
     builder,
-    GRAEFE_BRONZE,
+    GRAEFE_BRONZE_LIGHT,
     x,
     y,
     z,
-    [0.56, 1.91, 0.52],
-    [0.13, 0.16, 0.13],
+    [-0.03, footY + 0.95, 0.735],
+    [0.066, 0.054, 0.038],
     0,
   );
+  for (const supportX of [0.48, 0.58]) {
+    rod(
+      builder,
+      0x304b44,
+      x,
+      y,
+      z,
+      [supportX, footY + 0.08, 0.52],
+      [supportX, footY + 0.72, 0.56],
+      0.045,
+      0,
+      0.82,
+    );
+  }
+  ellipsoid(
+    builder,
+    GRAEFE_BRONZE_DARK,
+    x,
+    y,
+    z,
+    [0.53, footY + 0.76, 0.57],
+    [0.13, 0.11, 0.09],
+    0,
+  );
+  ellipsoid(
+    builder,
+    GRAEFE_BRONZE_LIGHT,
+    x,
+    y,
+    z,
+    [0.52, footY + 0.77, 0.65],
+    [0.07, 0.045, 0.04],
+    0,
+  );
+  for (const supportY of [0.2, 0.48]) {
+    const ornament = new TorusGeometry(0.09, 0.025, 5, 12);
+    ornament.rotateY(Math.PI / 2);
+    ornament.translate(x + 0.53, y + footY + supportY, z + 0.59);
+    addPaintedGeometry(builder, ornament, GRAEFE_BRONZE_DARK, 20);
+  }
 
-  // Low clipped hedge and the reconstructed curved iron enclosure.
+  // The Charite boundary fence stands immediately behind the architecture in
+  // every supplied frontal view. It is taller and straighter than the reduced
+  // 2004 reconstruction around the planted forecourt.
+  const rearFenceZ = -1.08;
+  const rearFenceHalfWidth = 5.45;
+  const rearFencePickets = 31;
+  const rearFencePoints: Array<[number, number, number]> = [];
+  for (let index = 0; index < rearFencePickets; index += 1) {
+    const picketX =
+      -rearFenceHalfWidth +
+      (index / (rearFencePickets - 1)) * rearFenceHalfWidth * 2;
+    rearFencePoints.push([picketX, 0, rearFenceZ]);
+    const isPost = index % 5 === 0;
+    rod(
+      builder,
+      GRAEFE_IRON,
+      x,
+      y,
+      z,
+      [picketX, 0.03, rearFenceZ],
+      [picketX, GRAEFE_REAR_FENCE_HEIGHT_M, rearFenceZ],
+      isPost ? 0.055 : 0.028,
+      0,
+      1,
+    );
+    const finial = new CylinderGeometry(0, isPost ? 0.08 : 0.052, 0.15, 4);
+    finial.translate(
+      x + picketX,
+      y + GRAEFE_REAR_FENCE_HEIGHT_M + 0.075,
+      z + rearFenceZ,
+    );
+    addPaintedGeometry(builder, finial, GRAEFE_IRON, 18);
+  }
+  for (const railY of [0.28, 1.42, 1.7]) {
+    rod(
+      builder,
+      GRAEFE_IRON,
+      x,
+      y,
+      z,
+      [-rearFenceHalfWidth, railY, rearFenceZ],
+      [rearFenceHalfWidth, railY, rearFenceZ],
+      0.035,
+      0,
+      1,
+    );
+  }
+  for (let index = 1; index < rearFencePickets - 1; index += 2) {
+    const ring = new TorusGeometry(0.105, 0.018, 5, 12);
+    ring.translate(
+      x + rearFencePoints[index][0],
+      y + 0.84,
+      z + rearFenceZ + 0.004,
+    );
+    addPaintedGeometry(builder, ring, GRAEFE_IRON, 24);
+  }
+
+  // Low clipped hedge and the reconstructed curved street-side enclosure.
   for (const hedgeX of [-3.25, -1.65, 1.65, 3.25]) {
     box(builder, GRAEFE_HEDGE, x + hedgeX, y + 0.4, z + 0.95, 1.5, 0.48, 0.7);
   }
@@ -1022,6 +1452,24 @@ function buildGraefeChariteMemorial(
   }
 }
 
+function buildGraefeChariteMemorial(
+  builder: Builder,
+  x: number,
+  y: number,
+  z: number,
+): void {
+  const localBuilder: Builder = { edges: [], parts: [] };
+  buildGraefeChariteMemorialLocal(localBuilder, 0, 0, 0);
+  appendOrientedBuilder(
+    builder,
+    localBuilder,
+    x,
+    y,
+    z,
+    (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180,
+  );
+}
+
 function createGraefeNamePlate(x: number, y: number, z: number): Mesh {
   const createLine = (text: string): Mesh => {
     const texture = createLetteringTexture({
@@ -1050,7 +1498,16 @@ function createGraefeNamePlate(x: number, y: number, z: number): Mesh {
   };
   const plate = createLine("ALBRECHT");
   plate.name = "ALBRECHT VON GRAEFE monument inscription";
-  plate.position.set(x, y + 0.97, z + 0.73);
+  plate.position.copy(
+    orientedPoint(
+      x,
+      y,
+      z,
+      [0, 0.97, 0.73],
+      (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180,
+    ),
+  );
+  plate.rotation.y = (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180;
   const secondLine = createLine("VON GRAEFE");
   secondLine.name = "VON GRAEFE monument inscription second line";
   secondLine.position.set(0, -0.15, 0.006);
@@ -2466,11 +2923,15 @@ export function createTiergartenMonuments(
   };
   group.userData.graefeCharite = {
     architecture:
-      "three-axis sandstone screen with pedimented round-arch niche, paired polychrome majolica reliefs, curved iron enclosure and hedges",
+      "three-axis sandstone screen with pedimented shell niche, paired polychrome majolica reliefs, articulated 1.66 m bronze, curved street enclosure, hedges and the tall Charite boundary fence behind",
+    facingTargetWorld: GRAEFE_CHARITE_FACING_TARGET_WORLD,
     osmWorld: GRAEFE_CHARITE_OSM_WORLD,
+    rearFenceHeightM: GRAEFE_REAR_FENCE_HEIGHT_M,
+    rearFencePickets: 31,
     statueHeightM: GRAEFE_STATUE_HEIGHT_M,
     status:
       "OSM-positioned, reference-proportioned presentation reconstruction; only the bronze statue height is documented",
+    yawDegrees: GRAEFE_CHARITE_YAW_DEGREES,
   };
   group.userData.sourceUrls = [
     "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/216",
