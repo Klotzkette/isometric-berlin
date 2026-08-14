@@ -237,6 +237,7 @@ import {
   updateSnowstorm,
 } from "./SnowstormEffects";
 import {
+  pedestrianWheelForwardInput,
   THREE_MOUSE_GESTURE_SETTINGS,
   wheelNavigationIntent,
 } from "./viewerGestures";
@@ -3702,6 +3703,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (runtime.pedestrian.enabled) {
           event.preventDefault();
           event.stopImmediatePropagation();
+          renderer.domElement.focus({ preventScroll: true });
+          const forward = pedestrianWheelForwardInput(event);
+          if (
+            Math.abs(forward) > 1e-6 &&
+            nudgePedestrian(runtime, 0, forward)
+          ) {
+            markSurfaceInteraction(runtime, 220);
+            notifyView(runtime, onViewChangeRef.current);
+          }
           return;
         }
         const now = performance.now();

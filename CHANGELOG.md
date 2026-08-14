@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.71.48
+
+- **The mouse wheel now provides direct pedestrian travel.** Wheel up walks
+  forward and wheel down walks backward along the current heading instead of
+  being swallowed while pedestrian mode is active. Standard notches are
+  decisive, high-resolution vertical trackpad deltas remain proportional, and
+  pinch or horizontal gestures deliberately produce no walking input.
+- **Wheel travel keeps the established world rules.** It delegates to the same
+  terrain-, tunnel-, water- and solid-object-aware stepper used by keyboard,
+  joystick and touch controls, prevents browser scrolling, preserves focus and
+  never changes camera zoom. The DE/EN canvas label, help panel, README and app
+  guide now describe the control explicitly.
+- **The input contract is regression protected.** Tests lock forward/backward
+  signs, line- and pixel-mode scaling, fine input, pinch rejection and
+  horizontal rejection. A live Chromium pass confirmed visible two-way travel
+  at 1.80 m eye height with no console errors. The visible radius stays
+  **5,230 m**, source geometry and attribution are unchanged.
+
 ## v0.71.47
 
 - **The Deutsches Theater is now recognisable as the documented historic

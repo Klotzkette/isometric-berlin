@@ -28,6 +28,36 @@ export type WheelNavigationSample = {
   deltaY: number;
 };
 
+const PEDESTRIAN_WHEEL_NOTCH_PIXELS = 100;
+const PEDESTRIAN_WHEEL_LINE_PIXELS = 32;
+const PEDESTRIAN_WHEEL_PAGE_PIXELS = 240;
+
+/**
+ * Convert a vertical wheel gesture into pedestrian forward input. A regular
+ * wheel notch reaches full walking input, while high-resolution trackpad
+ * deltas stay proportional. Browser pinch events and horizontal gestures do
+ * not move the pedestrian.
+ */
+export function pedestrianWheelForwardInput(
+  sample: WheelNavigationSample,
+): number {
+  if (
+    sample.ctrlKey ||
+    !Number.isFinite(sample.deltaX) ||
+    !Number.isFinite(sample.deltaY) ||
+    Math.abs(sample.deltaY) <= Math.abs(sample.deltaX)
+  ) {
+    return 0;
+  }
+  const pixels =
+    sample.deltaMode === 1
+      ? sample.deltaY * PEDESTRIAN_WHEEL_LINE_PIXELS
+      : sample.deltaMode === 2
+        ? Math.sign(sample.deltaY) * PEDESTRIAN_WHEEL_PAGE_PIXELS
+        : sample.deltaY;
+  return Math.max(-1, Math.min(1, -pixels / PEDESTRIAN_WHEEL_NOTCH_PIXELS));
+}
+
 /**
  * Separate a stepped mouse wheel from high-resolution trackpad input.
  * Browsers expose trackpad pinch as ctrl+wheel, while two-finger scroll

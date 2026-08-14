@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.47 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.47/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.48 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.48/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.47** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.48** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,18 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.47**, built from `main`. Its full viewer
+The current public package is **v0.71.48**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The pedestrian mouse wheel now walks instead of doing nothing.** Wheel up
+  moves forward and wheel down moves backward along the current heading. A
+  regular wheel notch gives a clear step, fine vertical trackpad deltas remain
+  proportional, and pinch or horizontal gestures cannot move the walker. The
+  motion uses the existing collision-aware pedestrian path, so buildings,
+  trees, walls, tunnel geometry, terrain and water keep exactly the same solid
+  behavior as keyboard and joystick travel.
 
 - **The Deutsches Theater now reads as its real historic ensemble.** Its 15
   official Berlin LoD2 parts retain their measured footprints and heights,
@@ -417,10 +425,12 @@ local modules.
   height, and follows the existing smooth metric terrain without changing its
   source geometry. `W`/`S` or the up/down arrows walk, `A`/`D` strafe,
   left/right arrows or `Q`/`E` turn, mouse or touch drag looks around, and
-  `Space` jumps to a bounded 5.4 m apex. Holding `Shift` gives a four-times
+  `Space` jumps to a bounded 5.4 m apex. The mouse wheel also walks along the
+  current view direction (up forward, down backward) without changing camera
+  zoom. Holding `Shift` gives a four-times
   sprint; double-tapping forward, the 3D view, the forward control or the
   walking joystick latches the same fast mode until the next double action.
-  Flight, zoom and underside controls
+  Flight, camera zoom and underside controls
   stay locked in this mode; entering mapped water returns the walker to Pariser
   Platz. A dedicated 52 px jump control keeps the complete workflow usable on
   phones and tablets.

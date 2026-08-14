@@ -63,9 +63,13 @@ there is no scripted tunnel ride competing with direct camera control.
 Pedestrian mode is an independent navigation layer over all four visual modes.
 It starts directly below the current camera at a 1.80 m eye height above the
 existing smooth metric terrain, and disables
-flight, zoom and underside controls. `W`/`S` or up/down walk,
+flight, camera zoom and underside controls. `W`/`S` or up/down walk,
 `A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
-the head with an 80-degree vertical limit. Hold `Shift` for a four-times sprint,
+the head with an 80-degree vertical limit. Scrolling the mouse wheel up walks
+forward and scrolling down walks backward; fine vertical trackpad deltas are
+proportional, while pinch and horizontal gestures do not move the walker. All
+wheel travel passes through the same solid-object, terrain, tunnel and water
+checks as keyboard movement. Hold `Shift` for a four-times sprint,
 or double-tap `W`/up, the 3D canvas, the forward button or the walking joystick
 to latch and unlatch the same sprint on keyboard, mouse and touch. The normal
 6.4 m/s rate remains available for precise inspection, and both speeds pass

@@ -5,6 +5,7 @@ import {
   PEN_GESTURE_SETTINGS,
   THREE_MOUSE_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
+  pedestrianWheelForwardInput,
   rotationDeltaFromMouseDrag,
   rotationDeltaFromTouchPairs,
   snapRotationToCardinals,
@@ -111,5 +112,56 @@ describe("touch viewer gestures", () => {
         deltaY: 3,
       }),
     ).toBe("mouse-wheel-zoom");
+  });
+
+  test("turns the pedestrian mouse wheel into bounded forward travel", () => {
+    expect(
+      pedestrianWheelForwardInput({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: -100,
+      }),
+    ).toBe(1);
+    expect(
+      pedestrianWheelForwardInput({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: 100,
+      }),
+    ).toBe(-1);
+    expect(
+      pedestrianWheelForwardInput({
+        ctrlKey: false,
+        deltaMode: 1,
+        deltaX: 0,
+        deltaY: -3,
+      }),
+    ).toBeCloseTo(0.96);
+    expect(
+      pedestrianWheelForwardInput({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: 12.5,
+      }),
+    ).toBeCloseTo(-0.125);
+    expect(
+      pedestrianWheelForwardInput({
+        ctrlKey: true,
+        deltaMode: 0,
+        deltaX: 0,
+        deltaY: -100,
+      }),
+    ).toBe(0);
+    expect(
+      pedestrianWheelForwardInput({
+        ctrlKey: false,
+        deltaMode: 0,
+        deltaX: 20,
+        deltaY: 10,
+      }),
+    ).toBe(0);
   });
 });
