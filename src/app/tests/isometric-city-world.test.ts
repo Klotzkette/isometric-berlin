@@ -1176,7 +1176,7 @@ describe("hero prism pins", () => {
 });
 
 describe("prism suppression for full recognition models", () => {
-  test("the Brandenburg Gate body prism is skipped (model carries it)", async () => {
+  test("all three Brandenburg Gate prisms are skipped (model carries them)", async () => {
     const { PRISM_SUPPRESSED_IDS, createIsometricCity } =
       await import("../src/IsometricCityWorld");
     const { Matrix4, Mesh, Vector3 } = await import("three");
@@ -1187,9 +1187,12 @@ describe("prism suppression for full recognition models", () => {
       classes: string[];
       schema_version: number;
     };
-    expect(PRISM_SUPPRESSED_IDS.has("K0001xqy")).toBe(true);
-    // The suppressed building exists in the payload (data untouched)…
-    expect(data.buildings.some((b) => b.id === "K0001xqy")).toBe(true);
+    for (const id of ["K0001xqy", "QDYNK7dL", "VpZW4Luf"]) {
+      expect(PRISM_SUPPRESSED_IDS.has(id)).toBe(true);
+      // Every suppressed source building remains in the payload; only the
+      // renderer gives way to the complete metric recognition model.
+      expect(data.buildings.some((building) => building.id === id)).toBe(true);
+    }
     // …but produces no geometry at the gate anchor above pavilion height.
     const city = createIsometricCity(data as never, null);
     const bodies = city.getObjectByName("LoD2 prism buildings") as InstanceType<

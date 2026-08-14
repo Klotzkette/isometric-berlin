@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.71.40
+
+- **The Brandenburg Gate now has its real Doric order instead of a visually
+  even placeholder rhythm.** Two independently drawn rows contain exactly six
+  tapered and fluted columns each. Their axes are derived from the published
+  1.73 m base diameter and the five clear passages: four at 3.80 m and the
+  wider centre at 5.65 m. Rebuilt bases, annulets, capitals, abaci, coffers,
+  triglyphs, metopes, guttae and passage reliefs keep the order legible from
+  overview to close-up.
+- **The complete 62.5 x 11 x 26 m ensemble replaces all three coarse LoD2
+  boxes.** Low gatehouses with recessed porticoes, four-column fronts,
+  triangular pediments and patinated gable roofs now meet the central body at
+  the measured edges. A stepped attic, central relief field and centred
+  Quadriga replace the former oversized blank slabs without moving the
+  surveyed Berlin anchor or deleting the source data.
+- **Regression checks now enforce the architecture rather than merely counting
+  objects.** Tests pin both column rows, every clear passage width, overall
+  envelope, gatehouse height and all three source-prism exclusions. Day,
+  Night, Minecraft and Snowstorm were inspected in the local Three.js viewer;
+  the visible radius stays **5,230 m** and attribution is unchanged.
+
 ## v0.71.39
 
 - **The Soviet War Memorial now follows the photographed street elevation and

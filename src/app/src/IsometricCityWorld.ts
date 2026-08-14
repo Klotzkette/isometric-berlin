@@ -472,9 +472,12 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // K0002MCN remains authoritative and keeps all six courtyard holes.
   "UbQkgNZe",
   "ycOYQRVL",
-  // Brandenburger Tor main body — the gate model has columns, passages,
-  // attic and Quadriga; side pavilion prisms stay.
+  // Brandenburger Tor — the metric model carries the central colonnade and
+  // both gatehouses. Keeping any of the three coarse source prisms would
+  // bury its five passages or overlap the reconstructed pavilion porticoes.
   "K0001xqy",
+  "QDYNK7dL",
+  "VpZW4Luf",
   // Siegessäule at the Großer Stern. LoD2 stops at the socle and the
   // Säulenhalle (25.0 m / 18.2 m / 8.4 m); createSiegessaeule draws the whole
   // 67 m monument including the fluted drums and the gilded Viktoria, so the

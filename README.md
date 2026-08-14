@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.39 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.39/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.40 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.40/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.39** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.40** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,16 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.39**, built from `main`. Its full viewer
+The current public package is **v0.71.40**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Brandenburg Gate now follows its real five-passage Doric rhythm.** Two
+  rows of six fluted columns use the published column and passage dimensions;
+  the centre opening is visibly wider than the four side openings. Recessed
+  gatehouse porticoes, pediments and roofs, the layered frieze and attic, and a
+  centred Quadriga replace the former overlapping LoD2 boxes and blank slabs.
 
 - **The Soviet War Memorial now matches its street-facing composition.** The
   broad granite forecourt rises through four shallow stair courses to two

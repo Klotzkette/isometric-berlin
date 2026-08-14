@@ -59,11 +59,49 @@ describe("metre-scale architectural recognition models", () => {
     const gate = createArchitecturalSignature(signature);
     expect(gate).not.toBeNull();
     const bounds = new Box3().setFromObject(gate!);
+    const columns = gate!.children.filter((child) =>
+      /^Brandenburg Gate Doric column \d+:\d+$/.test(child.name),
+    ) as Mesh[];
+    expect(columns).toHaveLength(12);
+    const westFaceColumns = columns
+      .filter((column) => column.name.startsWith("Brandenburg Gate Doric column 1:"))
+      .sort((left, right) => left.position.z - right.position.z);
+    const eastFaceColumns = columns.filter((column) =>
+      column.name.startsWith("Brandenburg Gate Doric column 2:"),
+    );
+    expect(westFaceColumns).toHaveLength(6);
+    expect(eastFaceColumns).toHaveLength(6);
     expect(
-      gate!.children.filter((child) =>
-        /^Brandenburg Gate Doric column \d+:\d+$/.test(child.name),
-      ),
-    ).toHaveLength(12);
+      new Set(westFaceColumns.map((column) => column.position.z)).size,
+    ).toBe(6);
+    expect(westFaceColumns.every((column) => column.position.x === -4.25)).toBe(
+      true,
+    );
+    expect(eastFaceColumns.every((column) => column.position.x === 4.25)).toBe(
+      true,
+    );
+    const clearPassageWidths = westFaceColumns.slice(0, -1).map(
+      (column, index) =>
+        westFaceColumns[index + 1]!.position.z -
+        column.position.z -
+        BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnBaseDiameterM,
+    );
+    const expectedPassageWidths = [
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.sidePassageWidthM,
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.sidePassageWidthM,
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.centralPassageWidthM,
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.sidePassageWidthM,
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.sidePassageWidthM,
+    ];
+    expect(clearPassageWidths).toHaveLength(expectedPassageWidths.length);
+    clearPassageWidths.forEach((width, index) => {
+      expect(width).toBeCloseTo(expectedPassageWidths[index]!, 6);
+    });
+    const firstColumnBounds = new Box3().setFromObject(westFaceColumns[0]!);
+    expect(firstColumnBounds.max.x - firstColumnBounds.min.x).toBeCloseTo(
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnBaseDiameterM,
+      2,
+    );
     expect(
       gate!.children.filter((child) =>
         /^Brandenburg Gate Doric capital \d+:\d+$/.test(child.name),
@@ -120,7 +158,7 @@ describe("metre-scale architectural recognition models", () => {
     const pavilionRecess = gate!.getObjectByName(
       "Brandenburg Gate pavilion facade recess",
     ) as Mesh;
-    expect(pavilionRecess.material.color.getHex()).toBe(0xbba77c);
+    expect(pavilionRecess.material.color.getHex()).toBe(0x777065);
     const triglyphs = gate!.getObjectByName(
       "Brandenburg Gate instanced frieze triglyphs",
     );
@@ -188,7 +226,20 @@ describe("metre-scale architectural recognition models", () => {
       pavilionColumnBounds.union(new Box3().setFromObject(columns));
     }
     expect(pavilionColumnBounds.min.y).toBeCloseTo(0, 2);
-    expect(pavilionColumnBounds.max.y).toBeCloseTo(8.35, 2);
+    expect(pavilionColumnBounds.max.y).toBeCloseTo(6.6, 2);
+    const pavilionRoofs = photoDetails!.children.filter(
+      (child) =>
+        child.name === "Brandenburg Gate pavilion patinated gable roof",
+    ) as Mesh[];
+    expect(pavilionRoofs).toHaveLength(2);
+    const pavilionRoofBounds = new Box3();
+    for (const roof of pavilionRoofs) {
+      pavilionRoofBounds.union(new Box3().setFromObject(roof));
+    }
+    expect(pavilionRoofBounds.max.y).toBeCloseTo(
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionHeightM,
+      2,
+    );
     const pavilionPediments = photoDetails!.children.filter(
       (child) => child.name === "Brandenburg Gate pavilion triangular pediment",
     ) as Mesh[];
