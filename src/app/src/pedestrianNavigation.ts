@@ -11,6 +11,8 @@ import {
 export const PEDESTRIAN_EYE_HEIGHT_M = 1.8;
 export const PEDESTRIAN_JUMP_APEX_M = PEDESTRIAN_EYE_HEIGHT_M * 3;
 export const PEDESTRIAN_WALK_SPEED_MPS = 6.4;
+export const PEDESTRIAN_SPRINT_MULTIPLIER = 4;
+export const PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS = 340;
 export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.62;
 export const PEDESTRIAN_LOOK_SPEED_RAD_S = Math.PI * 0.48;
 export const PEDESTRIAN_GRAVITY_MPS2 = 32;
@@ -29,6 +31,7 @@ export const PEDESTRIAN_RESPAWN = {
 export type PedestrianInput = {
   forward: number;
   look: number;
+  sprint: boolean;
   strafe: number;
   turn: number;
 };
@@ -97,9 +100,22 @@ export type PedestrianStep = {
 export const PEDESTRIAN_IDLE_INPUT: Readonly<PedestrianInput> = {
   forward: 0,
   look: 0,
+  sprint: false,
   strafe: 0,
   turn: 0,
 };
+
+export function isPedestrianSprintDoubleActivation(
+  previousActivationAt: number,
+  activationAt: number,
+): boolean {
+  const elapsed = activationAt - previousActivationAt;
+  return (
+    previousActivationAt > 0 &&
+    elapsed >= 0 &&
+    elapsed <= PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS
+  );
+}
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.max(minimum, Math.min(maximum, value));
@@ -476,7 +492,10 @@ export function stepPedestrian(
   const inputLength = Math.max(1, Math.hypot(rawForward, rawStrafe));
   const forward = rawForward / inputLength;
   const strafe = rawStrafe / inputLength;
-  const distance = PEDESTRIAN_WALK_SPEED_MPS * dt;
+  const speed =
+    PEDESTRIAN_WALK_SPEED_MPS *
+    (input.sprint ? PEDESTRIAN_SPRINT_MULTIPLIER : 1);
+  const distance = speed * dt;
   const nextCandidateX =
     state.x +
     (Math.sin(nextYaw) * forward + Math.cos(nextYaw) * strafe) * distance;
@@ -582,6 +601,7 @@ export function heldPedestrianInput(
       (keys.has("ArrowUp") || keys.has("w") ? 1 : 0) -
       (keys.has("ArrowDown") || keys.has("s") ? 1 : 0),
     look: 0,
+    sprint: keys.has("Shift"),
     strafe: (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0),
     turn:
       (keys.has("ArrowRight") || keys.has("e") ? 1 : 0) -

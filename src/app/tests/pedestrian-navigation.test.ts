@@ -5,9 +5,11 @@ import {
   PEDESTRIAN_JUMP_APEX_M,
   PEDESTRIAN_MAX_PITCH_RAD,
   PEDESTRIAN_RESPAWN,
+  PEDESTRIAN_SPRINT_MULTIPLIER,
   compilePedestrianWater,
   createPedestrianState,
   heldPedestrianInput,
+  isPedestrianSprintDoubleActivation,
   jumpPedestrian,
   lookPedestrian,
   pedestrianPointIsWater,
@@ -37,7 +39,7 @@ describe("pedestrian navigation", () => {
     const start = createPedestrianState(environment);
     const result = stepPedestrian(
       start,
-      { forward: 1, look: 0, strafe: 1, turn: 0 },
+      { forward: 1, look: 0, sprint: false, strafe: 1, turn: 0 },
       0.05,
       environment,
     );
@@ -46,6 +48,26 @@ describe("pedestrian navigation", () => {
     );
     expect(result.state.groundY).toBe(start.groundY);
     expect(result.state.jumpOffset).toBe(0);
+  });
+
+  test("sprint is an explicit four-times speed layer", () => {
+    const start = createPedestrianState(environment);
+    const result = stepPedestrian(
+      start,
+      { forward: 1, look: 0, sprint: true, strafe: 0, turn: 0 },
+      0.05,
+      environment,
+    );
+    expect(Math.hypot(result.state.x - start.x, result.state.z - start.z)).toBeCloseTo(
+      0.32 * PEDESTRIAN_SPRINT_MULTIPLIER,
+    );
+  });
+
+  test("double activation has a bounded, deterministic sprint window", () => {
+    expect(isPedestrianSprintDoubleActivation(1_000, 1_339)).toBe(true);
+    expect(isPedestrianSprintDoubleActivation(1_000, 1_341)).toBe(false);
+    expect(isPedestrianSprintDoubleActivation(0, 100)).toBe(false);
+    expect(isPedestrianSprintDoubleActivation(1_000, 999)).toBe(false);
   });
 
   test("starts on the ground below the current view instead of teleporting", () => {
@@ -69,7 +91,7 @@ describe("pedestrian navigation", () => {
     for (let step = 0; step < 400 && !state.grounded; step += 1) {
       state = stepPedestrian(
         state,
-        { forward: 0, look: 0, strafe: 0, turn: 0 },
+        { forward: 0, look: 0, sprint: false, strafe: 0, turn: 0 },
         0.01,
         environment,
       ).state;
@@ -113,7 +135,7 @@ describe("pedestrian navigation", () => {
         x: 1,
         z: 1,
       },
-      { forward: 0, look: 0, strafe: 0, turn: 0 },
+      { forward: 0, look: 0, sprint: false, strafe: 0, turn: 0 },
       0.016,
       wetEnvironment,
     );
@@ -126,8 +148,10 @@ describe("pedestrian navigation", () => {
     expect(heldPedestrianInput(new Set(["w", "d", "ArrowLeft"]))).toEqual({
       forward: 1,
       look: 0,
+      sprint: false,
       strafe: 1,
       turn: -1,
     });
+    expect(heldPedestrianInput(new Set(["w", "Shift"])).sprint).toBe(true);
   });
 });

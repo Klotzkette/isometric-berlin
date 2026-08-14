@@ -126,6 +126,7 @@ import {
   PEDESTRIAN_VIEW_DISTANCE_M,
   createPedestrianEnvironment,
   createPedestrianState,
+  isPedestrianSprintDoubleActivation,
   jumpPedestrian,
   lookPedestrian,
   pedestrianViewDirection,
@@ -320,6 +321,7 @@ type ThreeViewerProps = {
   selectedLandmark: string;
   onError: (message: string) => void;
   onPedestrianRespawn: () => void;
+  onPedestrianSprintToggle: () => void;
   onReady: () => void;
   onWarning: (message: string) => void;
   onViewChange: (angles: ViewAngles) => void;
@@ -336,6 +338,7 @@ export type ThreeViewerHandle = {
   setOrbitInput: (horizontal: number, vertical: number) => void;
   setPanInput: (horizontal: number, vertical: number) => void;
   setPedestrianMode: (enabled: boolean) => boolean;
+  setPedestrianSprint: (enabled: boolean) => void;
   setUnderside: (enabled: boolean) => void;
   tiltBy: (degrees: number) => void;
   zoomBy: (factor: number) => void;
@@ -658,7 +661,7 @@ function nudgePedestrian(
   for (let index = 0; index < 7; index += 1) {
     const result = stepPedestrian(
       state,
-      { forward, look: 0, strafe, turn: 0 },
+      { forward, look: 0, sprint: false, strafe, turn: 0 },
       0.05,
       environment,
     );
@@ -2675,6 +2678,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       selectedLandmark,
       onError,
       onPedestrianRespawn,
+      onPedestrianSprintToggle,
       onReady,
       onWarning,
       onViewChange,
@@ -2702,6 +2706,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const precipitationEnabledRef = useRef(precipitationEnabled);
     const onErrorRef = useRef(onError);
     const onPedestrianRespawnRef = useRef(onPedestrianRespawn);
+    const onPedestrianSprintToggleRef = useRef(onPedestrianSprintToggle);
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
@@ -2774,10 +2779,18 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     useEffect(() => {
       onErrorRef.current = onError;
       onPedestrianRespawnRef.current = onPedestrianRespawn;
+      onPedestrianSprintToggleRef.current = onPedestrianSprintToggle;
       onReadyRef.current = onReady;
       onWarningRef.current = onWarning;
       onViewChangeRef.current = onViewChange;
-    }, [onError, onPedestrianRespawn, onReady, onWarning, onViewChange]);
+    }, [
+      onError,
+      onPedestrianRespawn,
+      onPedestrianSprintToggle,
+      onReady,
+      onWarning,
+      onViewChange,
+    ]);
 
     const focusLandmark = (name: string, immediate = false): void => {
       const runtime = runtimeRef.current;
@@ -3160,6 +3173,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             notifyView(runtime, onViewChangeRef.current);
           }
           return changed;
+        },
+        setPedestrianSprint: (enabled) => {
+          pedestrianInputRef.current = {
+            ...pedestrianInputRef.current,
+            sprint: enabled,
+          };
         },
         setUnderside: (enabled) => {
           const runtime = runtimeRef.current;
@@ -3577,6 +3596,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let lastTapAt = 0;
       let lastTapX = 0;
       let lastTapY = 0;
+      let lastPedestrianSprintToggleAt = Number.NEGATIVE_INFINITY;
+      const requestPedestrianSprintToggle = () => {
+        const now = performance.now();
+        if (now - lastPedestrianSprintToggleAt < 400) {
+          return;
+        }
+        lastPedestrianSprintToggleAt = now;
+        onPedestrianSprintToggleRef.current();
+      };
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let touchInteracting = false;
@@ -3721,6 +3749,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (runtime.pedestrian.enabled) {
+          if (event.pointerType === "touch") {
+            const now = performance.now();
+            if (
+              isPedestrianSprintDoubleActivation(lastTapAt, now) &&
+              Math.hypot(event.clientX - lastTapX, event.clientY - lastTapY) <
+                32
+            ) {
+              lastTapAt = 0;
+              requestPedestrianSprintToggle();
+            } else {
+              lastTapAt = now;
+              lastTapX = event.clientX;
+              lastTapY = event.clientY;
+            }
+          }
           if (
             pedestrianLookPointer ||
             (event.pointerType !== "touch" && event.button !== 0)
@@ -3730,7 +3773,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           event.preventDefault();
           event.stopImmediatePropagation();
           renderer.domElement.focus({ preventScroll: true });
-          renderer.domElement.setPointerCapture?.(event.pointerId);
+          try {
+            renderer.domElement.setPointerCapture?.(event.pointerId);
+          } catch {
+            // Some WebKit and synthetic pointer sequences reject capture even
+            // though the pointerdown itself is valid. Looking still works
+            // while the pointer remains over the canvas.
+          }
           pedestrianLookPointer = {
             id: event.pointerId,
             x: event.clientX,
@@ -3955,7 +4004,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           controlsInteracting = false;
           touchInteracting = false;
           if (renderer.domElement.hasPointerCapture?.(event.pointerId)) {
-            renderer.domElement.releasePointerCapture?.(event.pointerId);
+            try {
+              renderer.domElement.releasePointerCapture?.(event.pointerId);
+            } catch {
+              // A cancelled or already-released pointer needs no cleanup.
+            }
           }
           notifyView(runtime, onViewChangeRef.current);
           return;
@@ -4049,11 +4102,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
       };
       const onDoubleClick = (event: MouseEvent) => {
-        if (event.button !== 0 || runtime.pedestrian.enabled) {
+        if (event.button !== 0) {
           return;
         }
         event.preventDefault();
         renderer.domElement.focus({ preventScroll: true });
+        if (runtime.pedestrian.enabled) {
+          requestPedestrianSprintToggle();
+          markSurfaceInteraction(runtime);
+          return;
+        }
         zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
         controls.update();
         markSurfaceInteraction(runtime);

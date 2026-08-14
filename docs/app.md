@@ -65,7 +65,11 @@ It starts directly below the current camera at a 1.80 m eye height above the
 existing smooth metric terrain, and disables
 flight, zoom and underside controls. `W`/`S` or up/down walk,
 `A`/`D` strafe, left/right or `Q`/`E` turn, and mouse or one-finger drag moves
-the head with an 80-degree vertical limit. `Space` and the touch-safe jump
+the head with an 80-degree vertical limit. Hold `Shift` for a four-times sprint,
+or double-tap `W`/up, the 3D canvas, the forward button or the walking joystick
+to latch and unlatch the same sprint on keyboard, mouse and touch. The normal
+6.4 m/s rate remains available for precise inspection, and both speeds pass
+through the same terrain, tunnel and water checks. `Space` and the touch-safe jump
 button produce a single ground-only jump with a 5.4 m apex; there is no double
 jump. Entering a mapped OSM water polygon after landing respawns at Pariser
 Platz. Islands encoded as water holes remain walkable. The mode neither moves

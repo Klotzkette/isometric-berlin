@@ -83,7 +83,10 @@ import {
   controlDockSideFromStored,
   oppositeControlDockSide,
 } from "./controlDock";
-import { heldPedestrianInput } from "./pedestrianNavigation";
+import {
+  heldPedestrianInput,
+  isPedestrianSprintDoubleActivation,
+} from "./pedestrianNavigation";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import { isReservedBrowserChord } from "./keyboardShortcuts";
@@ -436,14 +439,17 @@ function FlightJoystick({
   className = "",
   disabled,
   label,
+  onDoubleActivate,
   onInput,
 }: {
   className?: string;
   disabled: boolean;
   label: string;
+  onDoubleActivate?: () => void;
   onInput: (horizontal: number, vertical: number) => void;
 }) {
   const baseRef = useRef<HTMLDivElement | null>(null);
+  const lastActivationAtRef = useRef(0);
   const pointerIdRef = useRef<number | null>(null);
   const [knob, setKnob] = useState({ x: 0, y: 0 });
 
@@ -485,6 +491,19 @@ function FlightJoystick({
           return;
         }
         event.preventDefault();
+        const now = performance.now();
+        if (
+          onDoubleActivate &&
+          isPedestrianSprintDoubleActivation(
+            lastActivationAtRef.current,
+            now,
+          )
+        ) {
+          lastActivationAtRef.current = 0;
+          onDoubleActivate();
+        } else {
+          lastActivationAtRef.current = now;
+        }
         pointerIdRef.current = event.pointerId;
         event.currentTarget.setPointerCapture(event.pointerId);
         applyFromEvent(event);
@@ -521,6 +540,7 @@ function HoldControlButton({
   children,
   disabled,
   onActivate,
+  onDoubleActivate,
   onHoldEnd,
   onHoldStart,
   title,
@@ -529,6 +549,7 @@ function HoldControlButton({
   children: ReactNode;
   disabled: boolean;
   onActivate: () => void;
+  onDoubleActivate?: () => void;
   onHoldEnd: () => void;
   onHoldStart: () => void;
   title: string;
@@ -536,9 +557,11 @@ function HoldControlButton({
   const pointerIdRef = useRef<number | null>(null);
   const pointerStartedAtRef = useRef(0);
   const onActivateRef = useRef(onActivate);
+  const onDoubleActivateRef = useRef(onDoubleActivate);
   const onHoldEndRef = useRef(onHoldEnd);
   const onHoldStartRef = useRef(onHoldStart);
   onActivateRef.current = onActivate;
+  onDoubleActivateRef.current = onDoubleActivate;
   onHoldEndRef.current = onHoldEnd;
   onHoldStartRef.current = onHoldStart;
 
@@ -585,6 +608,12 @@ function HoldControlButton({
           onActivateRef.current();
         }
       }}
+      onDoubleClick={(event) => {
+        if (onDoubleActivateRef.current) {
+          event.preventDefault();
+          onDoubleActivateRef.current();
+        }
+      }}
     >
       {children}
     </button>
@@ -615,6 +644,8 @@ export function App() {
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   // Held-key state for continuous pan, flight and orbit.
   const heldFlightKeysRef = useRef(new Set<string>());
+  const lastPedestrianForwardActivationAtRef = useRef(0);
+  const pedestrianSprintLockedRef = useRef(false);
   const initialFocusModeRef = useRef<ViewerMode | null>(null);
   const rotationRef = useRef(NORTH_UP_ROTATION);
   const flipRef = useRef(false);
@@ -649,6 +680,7 @@ export function App() {
   const [isThreeReady, setIsThreeReady] = useState(false);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
   const [isPedestrianMode, setIsPedestrianMode] = useState(false);
+  const [isPedestrianSprinting, setIsPedestrianSprinting] = useState(false);
   const [threePolarDegrees, setThreePolarDegrees] = useState(58);
   const [rotation, setRotation] = useState(NORTH_UP_ROTATION);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -731,6 +763,10 @@ export function App() {
       : 0;
 
   const disablePedestrianMode = useCallback(() => {
+    pedestrianSprintLockedRef.current = false;
+    lastPedestrianForwardActivationAtRef.current = 0;
+    setIsPedestrianSprinting(false);
+    threeViewerRef.current?.setPedestrianSprint(false);
     setIsPedestrianMode(false);
     threeViewerRef.current?.setPedestrianMode(false);
   }, []);
@@ -1339,6 +1375,24 @@ export function App() {
     threeViewerRef.current?.setOrbitInput(horizontal, vertical);
   }, []);
 
+  const applyPedestrianSprint = useCallback(
+    (enabled: boolean, announce = false) => {
+      setIsPedestrianSprinting(enabled);
+      threeViewerRef.current?.setPedestrianSprint(enabled);
+      if (announce) {
+        setStatus(enabled ? copy.pedestrianSprintOn : copy.pedestrianSprintOff);
+      }
+    },
+    [copy.pedestrianSprintOff, copy.pedestrianSprintOn],
+  );
+
+  const togglePedestrianSprint = useCallback(() => {
+    const nextLocked = !pedestrianSprintLockedRef.current;
+    pedestrianSprintLockedRef.current = nextLocked;
+    const heldSprint = heldFlightKeysRef.current.has("Shift");
+    applyPedestrianSprint(nextLocked || heldSprint, true);
+  }, [applyPedestrianSprint]);
+
   const zoomBy = useCallback(
     (factor: number) => {
       if (viewerMode === "three") {
@@ -1474,6 +1528,9 @@ export function App() {
 
   const togglePedestrianMode = useCallback(() => {
     const next = !isPedestrianMode;
+    pedestrianSprintLockedRef.current = false;
+    lastPedestrianForwardActivationAtRef.current = 0;
+    applyPedestrianSprint(false);
     heldFlightKeysRef.current.clear();
     setFlightInput(0, 0, 0);
     setPanInput(0, 0);
@@ -1488,6 +1545,7 @@ export function App() {
     threeViewerRef.current?.setPedestrianMode(next);
     setStatus(next ? copy.pedestrianOn : copy.pedestrianOff);
   }, [
+    applyPedestrianSprint,
     copy.pedestrianOff,
     copy.pedestrianOn,
     isPedestrianMode,
@@ -1809,9 +1867,12 @@ export function App() {
     const updateHeldNavigation = () => {
       if (isPedestrianMode) {
         const input = heldPedestrianInput(heldFlightKeysRef.current);
+        const sprint = input.sprint || pedestrianSprintLockedRef.current;
         setPanInput(0, 0);
         setFlightInput(input.strafe, input.forward, 0);
         setOrbitInput(input.turn, input.look);
+        threeViewerRef.current?.setPedestrianSprint(sprint);
+        setIsPedestrianSprinting(sprint);
         return;
       }
       const { flight, orbit, pan } = heldNavigationInput(
@@ -1888,6 +1949,15 @@ export function App() {
           return;
         }
         const key = navigationKey(event.key);
+        if (key === "Shift") {
+          event.preventDefault();
+          heldFlightKeysRef.current.add(key);
+          if (!event.repeat) {
+            setStatus(copy.pedestrianSprintOn);
+          }
+          updateHeldNavigation();
+          return;
+        }
         if (
           [
             "ArrowUp",
@@ -1903,8 +1973,24 @@ export function App() {
           ].includes(key)
         ) {
           event.preventDefault();
+          let sprintToggled = false;
+          if (!event.repeat && (key === "ArrowUp" || key === "w")) {
+            const now = performance.now();
+            if (
+              isPedestrianSprintDoubleActivation(
+                lastPedestrianForwardActivationAtRef.current,
+                now,
+              )
+            ) {
+              lastPedestrianForwardActivationAtRef.current = 0;
+              togglePedestrianSprint();
+              sprintToggled = true;
+            } else {
+              lastPedestrianForwardActivationAtRef.current = now;
+            }
+          }
           heldFlightKeysRef.current.add(key);
-          if (!event.repeat) {
+          if (!event.repeat && !sprintToggled) {
             setStatus(
               language === "de"
                 ? "Zu Fuß · bewegen und umschauen"
@@ -2078,15 +2164,22 @@ export function App() {
         }
       }
     };
+    const handleWindowBlur = () => {
+      stopHeldNavigation();
+      setIsPedestrianSprinting(pedestrianSprintLockedRef.current);
+      threeViewerRef.current?.setPedestrianSprint(
+        pedestrianSprintLockedRef.current,
+      );
+    };
     // Capture phase + preventDefault below beat OpenSeadragon's own
     // canvas key handling, so arrows/+/- act exactly once.
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
-    window.addEventListener("blur", stopHeldNavigation);
+    window.addEventListener("blur", handleWindowBlur);
     return () => {
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp, true);
-      window.removeEventListener("blur", stopHeldNavigation);
+      window.removeEventListener("blur", handleWindowBlur);
       stopHeldNavigation();
     };
   }, [
@@ -2115,6 +2208,7 @@ export function App() {
     toggleMusic,
     toggleNightLights,
     togglePedestrianMode,
+    togglePedestrianSprint,
     toggleSoundtrack,
     viewerMode,
     zoomBy,
@@ -2506,6 +2600,7 @@ export function App() {
                   : "Entered water · back at Pariser Platz",
               );
             }}
+            onPedestrianSprintToggle={togglePedestrianSprint}
             onWarning={(message) => {
               setStatus(
                 `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
@@ -2926,11 +3021,14 @@ export function App() {
             label={
               isPedestrianMode
                 ? language === "de"
-                  ? "Geh-Joystick: Daumen ziehen zum Laufen"
-                  : "Walking joystick: drag with your thumb to walk"
+                  ? "Geh-Joystick: ziehen zum Laufen, doppeltippen für Sprint"
+                  : "Walking joystick: drag to walk, double-tap for sprint"
                 : language === "de"
                   ? "Flug-Joystick: Daumen ziehen zum Fliegen"
                   : "Flight joystick: drag with your thumb to fly"
+            }
+            onDoubleActivate={
+              isPedestrianMode ? togglePedestrianSprint : undefined
             }
             onInput={(strafe, forward) => setFlightInput(strafe, forward, 0)}
           />
@@ -2973,16 +3071,24 @@ export function App() {
         <span>
           {viewerMode === "three"
             ? isPedestrianMode
-              ? language === "de"
-                ? "1,80 m"
-                : "1.80 m"
+              ? isPedestrianSprinting
+                ? "4×"
+                : language === "de"
+                  ? "1,80 m"
+                  : "1.80 m"
               : `${Math.round(threePolarDegrees)}°`
             : (orientation?.short ?? `${Math.round(rotation)}°`)}
         </span>
         <small>
           {viewerMode === "three"
             ? isPedestrianMode
-              ? `${copy.pedestrian} · ${language === "de" ? "1,80 m" : "1.80 m"}`
+              ? `${copy.pedestrian} · ${
+                  isPedestrianSprinting
+                    ? copy.pedestrianSprint
+                    : language === "de"
+                      ? "1,80 m"
+                      : "1.80 m"
+                }`
               : `${orientation ? orientationLabel(orientation.short, language) : copy.freelyRotated} · ${
                   isThreeUnderside ? copy.underside : "3D"
                 }`
@@ -3053,11 +3159,14 @@ export function App() {
               title={
                 isPedestrianMode
                   ? language === "de"
-                    ? "Vorwärts gehen (W / ↑)"
-                    : "Walk forward (W / ↑)"
+                    ? "Vorwärts gehen (W / ↑), doppelklicken für Sprint"
+                    : "Walk forward (W / ↑), double-click for sprint"
                   : `${copy.flyForward} (Shift + ↑)`
               }
               onActivate={() => flyForwardBy(0, 1)}
+              onDoubleActivate={
+                isPedestrianMode ? togglePedestrianSprint : undefined
+              }
               onHoldStart={() => setFlightInput(0, 1, 0)}
               onHoldEnd={() => setFlightInput(0, 0, 0)}
             >
@@ -4002,6 +4111,18 @@ export function App() {
               {isPedestrianMode ? (
                 <div>
                   <dt>
+                    <kbd>Shift</kbd> / <kbd>W</kbd> <kbd>W</kbd>
+                  </dt>
+                  <dd>
+                    {language === "de"
+                      ? "Shift halten oder Vorwärts, Karte beziehungsweise Geh-Joystick doppeltippen: Sprint mit vierfacher Geschwindigkeit ein- / ausschalten"
+                      : "Hold Shift or double-tap forward, the map, or the walking pad: toggle four-times sprint speed"}
+                  </dd>
+                </div>
+              ) : null}
+              {isPedestrianMode ? (
+                <div>
+                  <dt>
                     <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>
                   </dt>
                   <dd>
@@ -4016,8 +4137,12 @@ export function App() {
                   <dt>{language === "de" ? "Steuerkreise" : "Control pads"}</dt>
                   <dd>
                     {language === "de"
-                      ? "Mit der Maus am Orbit-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Flug-Joystick unten links"
-                      : "Drag the desktop orbit pad or hold the arrow buttons; on touch devices use the bottom-left flight joystick"}
+                      ? isPedestrianMode
+                        ? "Mit der Maus am Blick-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Geh-Joystick unten links, Doppeltipp schaltet Sprint"
+                        : "Mit der Maus am Orbit-Kreis ziehen oder die Pfeilknöpfe gedrückt halten; auf Touch-Geräten übernimmt der Flug-Joystick unten links"
+                      : isPedestrianMode
+                        ? "Drag the desktop look pad or hold the arrow buttons; on touch devices use the bottom-left walking joystick, and double-tap it for sprint"
+                        : "Drag the desktop orbit pad or hold the arrow buttons; on touch devices use the bottom-left flight joystick"}
                   </dd>
                 </div>
               ) : null}

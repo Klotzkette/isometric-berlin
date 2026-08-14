@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.71.42
+
+- **Pedestrian mode now has a deliberate four-times sprint without sacrificing
+  precise walking.** The established 6.4 m/s inspection speed remains the
+  default; sprint multiplies only the horizontal movement distance and still
+  passes through the identical terrain, tunnel, bounds and water-respawn
+  checks.
+- **Fast travel is consistent across keyboard, mouse and touch.** Hold `Shift`,
+  double-tap `W`/up, double-click the 3D view or forward control, or double-tap
+  the walking joystick to latch and unlatch sprint. A 340 ms double-activation
+  contract and a same-gesture guard prevent accidental double toggles; window
+  blur releases held movement and modifiers instead of leaving the walker
+  running. Rejected or already-cancelled pointer capture now degrades to an
+  in-canvas drag instead of interrupting touch navigation.
+- **The active speed is visible and bilingual.** The orientation pill changes
+  to `4x` / `Sprint 4x`, canvas labels, tooltips, built-in help, README and app
+  documentation explain the workflow, and deterministic tests pin the exact
+  multiplier, timing window and Shift mapping. The visible radius stays
+  **5,230 m** and attribution is unchanged.
+
 ## v0.71.41
 
 - **The mapped underground network now reads as a real architectural
