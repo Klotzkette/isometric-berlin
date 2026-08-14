@@ -124,6 +124,7 @@ import {
   PEDESTRIAN_FOV_DEGREES,
   PEDESTRIAN_IDLE_INPUT,
   PEDESTRIAN_VIEW_DISTANCE_M,
+  addPedestrianParkObstacles,
   createPedestrianEnvironment,
   createPedestrianState,
   isPedestrianSprintDoubleActivation,
@@ -1633,7 +1634,7 @@ function ensureIsoWorld(
     return;
   }
   runtime.isoWorldState = "loading";
-  const totalParts = 6;
+  const totalParts = 5;
   let loadedParts = 0;
   runtime.reportCoreProgress(0, totalParts);
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
@@ -1675,6 +1676,7 @@ function ensureIsoWorld(
           ground,
           surfaces,
           runtime.tunnelPortalCourse,
+          prisms,
         );
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
@@ -4817,6 +4819,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 .then((payload) => {
                   if (runtime.disposed) {
                     return;
+                  }
+                  if (runtime.pedestrian.environment) {
+                    addPedestrianParkObstacles(
+                      runtime.pedestrian.environment,
+                      payload,
+                      runtime.tunnelPortalCourse,
+                    );
                   }
                   const details = createParkDetails(payload, {
                     settledDetail: !runtime.coarsePointer,

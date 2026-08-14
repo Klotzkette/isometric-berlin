@@ -1,17 +1,21 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  PEDESTRIAN_BODY_RADIUS_M,
   PEDESTRIAN_EYE_HEIGHT_M,
   PEDESTRIAN_JUMP_APEX_M,
   PEDESTRIAN_MAX_PITCH_RAD,
   PEDESTRIAN_RESPAWN,
   PEDESTRIAN_SPRINT_MULTIPLIER,
+  addPedestrianParkObstacles,
+  compilePedestrianObstacles,
   compilePedestrianWater,
   createPedestrianState,
   heldPedestrianInput,
   isPedestrianSprintDoubleActivation,
   jumpPedestrian,
   lookPedestrian,
+  pedestrianPointIsBlocked,
   pedestrianPointIsWater,
   pedestrianViewDirection,
   stepPedestrian,
@@ -22,6 +26,38 @@ const environment: PedestrianEnvironment = {
   bounds: { maxX: 1_000, maxZ: 1_000, minX: -1_000, minZ: -1_000 },
   groundAt: () => 4.25,
   water: [],
+};
+
+const buildingObstacles = compilePedestrianObstacles({
+  buildings: [
+    {
+      class: 0,
+      h_dm: 120,
+      holes: [
+        [
+          [40, 40],
+          [60, 40],
+          [60, 60],
+          [40, 60],
+          [40, 40],
+        ],
+      ],
+      id: "fixture-building",
+      ring: [
+        [0, 0],
+        [100, 0],
+        [100, 100],
+        [0, 100],
+        [0, 0],
+      ],
+      y0_dm: 40,
+    },
+  ],
+});
+
+const collisionEnvironment: PedestrianEnvironment = {
+  ...environment,
+  obstacles: buildingObstacles,
 };
 
 describe("pedestrian navigation", () => {
@@ -43,9 +79,9 @@ describe("pedestrian navigation", () => {
       0.05,
       environment,
     );
-    expect(Math.hypot(result.state.x - start.x, result.state.z - start.z)).toBeCloseTo(
-      0.32,
-    );
+    expect(
+      Math.hypot(result.state.x - start.x, result.state.z - start.z),
+    ).toBeCloseTo(0.32);
     expect(result.state.groundY).toBe(start.groundY);
     expect(result.state.jumpOffset).toBe(0);
   });
@@ -58,9 +94,9 @@ describe("pedestrian navigation", () => {
       0.05,
       environment,
     );
-    expect(Math.hypot(result.state.x - start.x, result.state.z - start.z)).toBeCloseTo(
-      0.32 * PEDESTRIAN_SPRINT_MULTIPLIER,
-    );
+    expect(
+      Math.hypot(result.state.x - start.x, result.state.z - start.z),
+    ).toBeCloseTo(0.32 * PEDESTRIAN_SPRINT_MULTIPLIER);
   });
 
   test("double activation has a bounded, deterministic sprint window", () => {
@@ -115,10 +151,24 @@ describe("pedestrian navigation", () => {
       water: [
         {
           area_m2: 96,
-          holes: [[[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]],
+          holes: [
+            [
+              [20, 20],
+              [40, 20],
+              [40, 40],
+              [20, 40],
+              [20, 20],
+            ],
+          ],
           kind: "pond",
           name: "fixture pond",
-          ring: [[0, 0], [100, 0], [100, 100], [0, 100], [0, 0]],
+          ring: [
+            [0, 0],
+            [100, 0],
+            [100, 100],
+            [0, 100],
+            [0, 0],
+          ],
         },
       ],
     });
@@ -153,5 +203,135 @@ describe("pedestrian navigation", () => {
       turn: -1,
     });
     expect(heldPedestrianInput(new Set(["w", "Shift"])).sprint).toBe(true);
+  });
+
+  test("LoD2 walls are solid while a real courtyard hole remains walkable", () => {
+    expect(pedestrianPointIsBlocked(2, 2, 4.25, buildingObstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(5, 5, 4.25, buildingObstacles)).toBe(false);
+    expect(pedestrianPointIsBlocked(-0.3, 5, 4.25, buildingObstacles)).toBe(
+      true,
+    );
+    expect(pedestrianPointIsBlocked(2, 2, -8, buildingObstacles)).toBe(false);
+  });
+
+  test("walk mode stops at a facade and slides along it", () => {
+    const stopped = stepPedestrian(
+      createPedestrianState(collisionEnvironment, {
+        x: -0.7,
+        yaw: Math.PI / 2,
+        z: 5,
+      }),
+      { forward: 1, look: 0, sprint: false, strafe: 0, turn: 0 },
+      0.05,
+      collisionEnvironment,
+    );
+    expect(stopped.state.x).toBeGreaterThan(-0.7);
+    expect(stopped.state.x).toBeLessThanOrEqual(-PEDESTRIAN_BODY_RADIUS_M);
+
+    const slid = stepPedestrian(
+      createPedestrianState(collisionEnvironment, {
+        x: -0.5,
+        yaw: Math.PI / 2,
+        z: 5,
+      }),
+      { forward: 1, look: 0, sprint: false, strafe: 1, turn: 0 },
+      0.05,
+      collisionEnvironment,
+    );
+    expect(slid.state.x).toBeCloseTo(-0.5);
+    expect(slid.state.z).toBeGreaterThan(5);
+  });
+
+  test("sprint substeps cannot tunnel through a thin official tree trunk", () => {
+    const treeEnvironment: PedestrianEnvironment = {
+      ...environment,
+      obstacles: compilePedestrianObstacles({ buildings: [] }),
+    };
+    const parkPayload = {
+      paths: [],
+      playgrounds: [],
+      schema_version: 4,
+      source: {
+        attribution: "fixture",
+        geometry_status: "fixture",
+        name: "fixture",
+      },
+      trees: [
+        {
+          cr: 2,
+          h: 12,
+          i: "fixture-tree",
+          position: [0, 4.25, 0] as [number, number, number],
+          tr: 0.1,
+          v: 0,
+        },
+      ],
+    };
+    const obstacles = addPedestrianParkObstacles(treeEnvironment, parkPayload);
+    expect(obstacles.treeCount).toBe(1);
+    expect(addPedestrianParkObstacles(treeEnvironment, parkPayload)).toBe(
+      obstacles,
+    );
+    expect(obstacles.treeCount).toBe(1);
+
+    const result = stepPedestrian(
+      createPedestrianState(treeEnvironment, {
+        x: -0.6,
+        yaw: Math.PI / 2,
+        z: 0,
+      }),
+      { forward: 1, look: 0, sprint: true, strafe: 0, turn: 0 },
+      0.05,
+      treeEnvironment,
+    );
+    expect(result.state.x).toBeLessThanOrEqual(-0.58);
+  });
+
+  test("official wall traces are solid without becoming infinite barriers", () => {
+    const wallEnvironment: PedestrianEnvironment = {
+      ...environment,
+      obstacles: compilePedestrianObstacles({ buildings: [] }),
+    };
+    const obstacles = addPedestrianParkObstacles(wallEnvironment, {
+      paths: [],
+      playgrounds: [],
+      schema_version: 4,
+      source: {
+        attribution: "fixture",
+        geometry_status: "fixture",
+        name: "fixture",
+      },
+      trees: [],
+      wall_traces: [
+        {
+          id: "fixture-wall",
+          points: [
+            [0, 4.25, -2],
+            [0, 4.25, 2],
+          ],
+          wall_type: "fixture",
+        },
+      ],
+    });
+    expect(obstacles.wallSegmentCount).toBe(1);
+    expect(pedestrianPointIsBlocked(-0.2, 0, 4.25, obstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(-0.2, 3, 4.25, obstacles)).toBe(false);
+    expect(pedestrianPointIsBlocked(-0.2, 0, 8, obstacles)).toBe(false);
+  });
+
+  test("activation over a solid footprint relocates to nearby open ground", () => {
+    const state = createPedestrianState(collisionEnvironment, {
+      x: 2,
+      yaw: 0,
+      z: 2,
+    });
+    expect(
+      pedestrianPointIsBlocked(
+        state.x,
+        state.z,
+        state.groundY,
+        buildingObstacles,
+      ),
+    ).toBe(false);
   });
 });

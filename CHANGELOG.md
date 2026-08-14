@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.71.44
+
+- **Pedestrian mode now respects the physical city instead of walking through
+  it.** The exact 16,958 LoD2 building footprints form solid facades while
+  their source courtyard holes remain open. The deferred official/OSM detail
+  layer adds tree and shrub trunks, street lights, fixed playground equipment
+  and mapped wall traces to the same collision system; tunnel-level walking
+  remains below surface buildings.
+- **Collision stays forgiving and fast.** A 24 m spatial index limits each
+  movement check to nearby geometry, 22 cm substeps prevent the four-times
+  sprint from tunnelling through narrow objects, and axis-separated fallback
+  lets the walker slide along facades instead of sticking on corners. Starting
+  walk mode over a roof relocates safely to nearby open ground rather than
+  dropping inside the building.
+- **The interaction contract is tested and documented.** Tests cover building
+  walls, body clearance, courtyard holes, underground clearance, tree trunks,
+  wall segments, sprint tunnelling, wall sliding, idempotent deferred loading
+  and safe activation. Desktop, tablet and phone layouts were visually checked;
+  the visible radius stays **5,230 m** and all source attribution is unchanged.
+
 ## v0.71.43
 
 - **The Reichstag forecourt visitor venue is now the existing Berlin Pavillon,

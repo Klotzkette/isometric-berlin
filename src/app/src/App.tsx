@@ -494,10 +494,7 @@ function FlightJoystick({
         const now = performance.now();
         if (
           onDoubleActivate &&
-          isPedestrianSprintDoubleActivation(
-            lastActivationAtRef.current,
-            now,
-          )
+          isPedestrianSprintDoubleActivation(lastActivationAtRef.current, now)
         ) {
           lastActivationAtRef.current = 0;
           onDoubleActivate();
@@ -4050,21 +4047,23 @@ export function App() {
                       : "Move the map in metric space"}
                 </dd>
               </div>
-              {!isPedestrianMode ? <div>
-                <dt>
-                  <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
-                  <kbd>↑</kbd> <kbd>↓</kbd>
-                </dt>
-                <dd>
-                  {viewerMode === "three"
-                    ? language === "de"
-                      ? "Gedrückt halten: entlang der Blickrichtung vorwärts / rückwärts fliegen und seitwärts versetzen"
-                      : "Hold: fly forward / backward along the view heading and strafe sideways"
-                    : language === "de"
-                      ? "Ansicht drehen oder zoomen"
-                      : "Rotate or zoom the view"}
-                </dd>
-              </div> : null}
+              {!isPedestrianMode ? (
+                <div>
+                  <dt>
+                    <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>
+                    <kbd>↑</kbd> <kbd>↓</kbd>
+                  </dt>
+                  <dd>
+                    {viewerMode === "three"
+                      ? language === "de"
+                        ? "Gedrückt halten: entlang der Blickrichtung vorwärts / rückwärts fliegen und seitwärts versetzen"
+                        : "Hold: fly forward / backward along the view heading and strafe sideways"
+                      : language === "de"
+                        ? "Ansicht drehen oder zoomen"
+                        : "Rotate or zoom the view"}
+                  </dd>
+                </div>
+              ) : null}
               <div>
                 <dt>
                   <kbd>Alt</kbd>/<kbd>Option</kbd> + <kbd>←</kbd> <kbd>→</kbd>
@@ -4269,8 +4268,8 @@ export function App() {
               {viewerMode === "three"
                 ? isPedestrianMode
                   ? language === "de"
-                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen. Der Geh-Joystick bewegt; der Sprungknopf oder die Leertaste springt. Flug, Zoom und Untersicht sind gesperrt. Wasser setzt dich am Pariser Platz wieder ab."
-                    : "Walk: drag with the mouse or one finger to move your head. The walking pad moves; the jump button or Space jumps. Flight, zoom, and underside are locked. Water returns you to Pariser Platz."
+                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen. Der Geh-Joystick bewegt; der Sprungknopf oder die Leertaste springt. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser setzt dich am Pariser Platz wieder ab."
+                    : "Walk: drag with the mouse or one finger to move your head. The walking pad moves; the jump button or Space jumps. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water returns you to Pariser Platz."
                   : language === "de"
                     ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
                     : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."

@@ -1,9 +1,16 @@
-import type { SurfacePayload } from "./IsometricCityWorld";
+import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
+import type { PrismPayload, SurfacePayload } from "./IsometricCityWorld";
 import {
   type VoxelPayload,
   smoothGroundTopSampler,
 } from "./MinecraftVoxelWorld";
 import {
+  decodeTrees,
+  type ParkDetailsPayload,
+  type PlaygroundEquipment,
+} from "./ParkDetails";
+import {
+  createTunnelPortalApproachTester,
   type TunnelPortalCourseInput,
   tunnelWalkCourses,
 } from "./TunnelPortals";
@@ -19,6 +26,9 @@ export const PEDESTRIAN_GRAVITY_MPS2 = 32;
 export const PEDESTRIAN_MAX_PITCH_RAD = (Math.PI * 80) / 180;
 export const PEDESTRIAN_FOV_DEGREES = 66;
 export const PEDESTRIAN_VIEW_DISTANCE_M = 7;
+export const PEDESTRIAN_BODY_RADIUS_M = 0.42;
+export const PEDESTRIAN_COLLISION_CELL_M = 24;
+export const PEDESTRIAN_COLLISION_STEP_M = 0.22;
 
 /** Pariser Platz, east of the Brandenburg Gate, in the viewer's metric frame. */
 export const PEDESTRIAN_RESPAWN = {
@@ -73,9 +83,56 @@ export type PedestrianWaterRegion = {
   ring: Array<readonly [number, number]>;
 };
 
+type PedestrianObstacleBase = {
+  maxX: number;
+  maxY: number;
+  maxZ: number;
+  minX: number;
+  minY: number;
+  minZ: number;
+};
+
+export type PedestrianCircleObstacle = PedestrianObstacleBase & {
+  kind: "circle";
+  radius: number;
+  x: number;
+  z: number;
+};
+
+export type PedestrianPolygonObstacle = PedestrianObstacleBase & {
+  holes: Array<Array<readonly [number, number]>>;
+  kind: "polygon";
+  ring: Array<readonly [number, number]>;
+};
+
+export type PedestrianSegmentObstacle = PedestrianObstacleBase & {
+  from: readonly [number, number];
+  kind: "segment";
+  radius: number;
+  to: readonly [number, number];
+};
+
+export type PedestrianObstacle =
+  | PedestrianCircleObstacle
+  | PedestrianPolygonObstacle
+  | PedestrianSegmentObstacle;
+
+export type PedestrianObstacleIndex = {
+  buildingCount: number;
+  cellSizeM: number;
+  cells: Map<string, PedestrianObstacle[]>;
+  obstacleCount: number;
+  parkDetailsAdded: boolean;
+  playgroundEquipmentCount: number;
+  streetLightCount: number;
+  treeCount: number;
+  wallSegmentCount: number;
+};
+
 export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
   groundAt: (x: number, z: number) => number | null;
+  obstacles?: PedestrianObstacleIndex;
   resolveGround?: (
     x: number,
     z: number,
@@ -132,20 +189,17 @@ function pointOnSegment(
   left: readonly [number, number],
   right: readonly [number, number],
 ): boolean {
-  const lengthSquared =
-    (right[0] - left[0]) ** 2 + (right[1] - left[1]) ** 2;
+  const lengthSquared = (right[0] - left[0]) ** 2 + (right[1] - left[1]) ** 2;
   if (lengthSquared < 1e-12) {
     return Math.hypot(x - left[0], z - left[1]) < 1e-7;
   }
   const cross =
-    (x - left[0]) * (right[1] - left[1]) -
-    (z - left[1]) * (right[0] - left[0]);
+    (x - left[0]) * (right[1] - left[1]) - (z - left[1]) * (right[0] - left[0]);
   if (Math.abs(cross) > 1e-7) {
     return false;
   }
   const dot =
-    (x - left[0]) * (right[0] - left[0]) +
-    (z - left[1]) * (right[1] - left[1]);
+    (x - left[0]) * (right[0] - left[0]) + (z - left[1]) * (right[1] - left[1]);
   if (dot < 0) {
     return false;
   }
@@ -161,17 +215,20 @@ export function pointInPedestrianRing(
     return false;
   }
   let inside = false;
-  for (let index = 0, previous = ring.length - 1; index < ring.length; index += 1) {
+  for (
+    let index = 0, previous = ring.length - 1;
+    index < ring.length;
+    index += 1
+  ) {
     const left = ring[previous];
     const right = ring[index];
     if (pointOnSegment(x, z, left, right)) {
       return true;
     }
     if (
-      (right[1] > z) !== (left[1] > z) &&
+      right[1] > z !== left[1] > z &&
       x <
-        ((left[0] - right[0]) * (z - right[1])) /
-          (left[1] - right[1]) +
+        ((left[0] - right[0]) * (z - right[1])) / (left[1] - right[1]) +
           right[0]
     ) {
       inside = !inside;
@@ -185,6 +242,370 @@ function metricRing(ring: number[][]): Array<readonly [number, number]> {
   return ring
     .filter((point) => point.length >= 2)
     .map((point) => [point[0] / 10, point[1] / 10] as const);
+}
+
+function obstacleCellKey(xIndex: number, zIndex: number): string {
+  return `${xIndex}:${zIndex}`;
+}
+
+function emptyPedestrianObstacleIndex(): PedestrianObstacleIndex {
+  return {
+    buildingCount: 0,
+    cellSizeM: PEDESTRIAN_COLLISION_CELL_M,
+    cells: new Map(),
+    obstacleCount: 0,
+    parkDetailsAdded: false,
+    playgroundEquipmentCount: 0,
+    streetLightCount: 0,
+    treeCount: 0,
+    wallSegmentCount: 0,
+  };
+}
+
+function addObstacle(
+  index: PedestrianObstacleIndex,
+  obstacle: PedestrianObstacle,
+): void {
+  const padding = PEDESTRIAN_BODY_RADIUS_M;
+  const minXIndex = Math.floor((obstacle.minX - padding) / index.cellSizeM);
+  const maxXIndex = Math.floor((obstacle.maxX + padding) / index.cellSizeM);
+  const minZIndex = Math.floor((obstacle.minZ - padding) / index.cellSizeM);
+  const maxZIndex = Math.floor((obstacle.maxZ + padding) / index.cellSizeM);
+  for (let zIndex = minZIndex; zIndex <= maxZIndex; zIndex += 1) {
+    for (let xIndex = minXIndex; xIndex <= maxXIndex; xIndex += 1) {
+      const key = obstacleCellKey(xIndex, zIndex);
+      const cell = index.cells.get(key);
+      if (cell) {
+        cell.push(obstacle);
+      } else {
+        index.cells.set(key, [obstacle]);
+      }
+    }
+  }
+  index.obstacleCount += 1;
+}
+
+function addCircleObstacle(
+  index: PedestrianObstacleIndex,
+  x: number,
+  z: number,
+  radius: number,
+  minY: number,
+  maxY: number,
+): void {
+  if (
+    !Number.isFinite(x) ||
+    !Number.isFinite(z) ||
+    !Number.isFinite(radius) ||
+    !Number.isFinite(minY) ||
+    !Number.isFinite(maxY) ||
+    radius <= 0 ||
+    maxY <= minY
+  ) {
+    return;
+  }
+  addObstacle(index, {
+    kind: "circle",
+    maxX: x + radius,
+    maxY,
+    maxZ: z + radius,
+    minX: x - radius,
+    minY,
+    minZ: z - radius,
+    radius,
+    x,
+    z,
+  });
+}
+
+function addPolygonObstacle(
+  index: PedestrianObstacleIndex,
+  ring: Array<readonly [number, number]>,
+  holes: Array<Array<readonly [number, number]>>,
+  minY: number,
+  maxY: number,
+): void {
+  if (ring.length < 3 || maxY <= minY) {
+    return;
+  }
+  const xs = ring.map(([x]) => x);
+  const zs = ring.map(([, z]) => z);
+  addObstacle(index, {
+    holes,
+    kind: "polygon",
+    maxX: Math.max(...xs),
+    maxY,
+    maxZ: Math.max(...zs),
+    minX: Math.min(...xs),
+    minY,
+    minZ: Math.min(...zs),
+    ring,
+  });
+}
+
+function addSegmentObstacle(
+  index: PedestrianObstacleIndex,
+  from: readonly [number, number],
+  to: readonly [number, number],
+  radius: number,
+  minY: number,
+  maxY: number,
+): void {
+  if (
+    !from.every(Number.isFinite) ||
+    !to.every(Number.isFinite) ||
+    !Number.isFinite(radius) ||
+    !Number.isFinite(minY) ||
+    !Number.isFinite(maxY) ||
+    radius <= 0 ||
+    maxY <= minY
+  ) {
+    return;
+  }
+  addObstacle(index, {
+    from,
+    kind: "segment",
+    maxX: Math.max(from[0], to[0]) + radius,
+    maxY,
+    maxZ: Math.max(from[1], to[1]) + radius,
+    minX: Math.min(from[0], to[0]) - radius,
+    minY,
+    minZ: Math.min(from[1], to[1]) - radius,
+    radius,
+    to,
+  });
+}
+
+/** Compile exact LoD2 building footprints into a constant-time local index. */
+export function compilePedestrianObstacles(
+  prisms: Pick<PrismPayload, "buildings">,
+): PedestrianObstacleIndex {
+  const index = emptyPedestrianObstacleIndex();
+  for (const building of prisms.buildings) {
+    const before = index.obstacleCount;
+    addPolygonObstacle(
+      index,
+      metricRing(building.ring),
+      (building.holes ?? []).map(metricRing),
+      building.y0_dm / 10,
+      (building.y0_dm + building.h_dm) / 10,
+    );
+    if (index.obstacleCount > before) {
+      index.buildingCount += 1;
+    }
+  }
+  return index;
+}
+
+function equipmentRadius(item: PlaygroundEquipment): number | null {
+  if (item.kind === "sandpit") {
+    return null;
+  }
+  if (item.kind === "swing" || item.kind === "climbingframe") {
+    return 1.2;
+  }
+  if (item.kind === "slide" || item.kind === "structure") {
+    return 0.9;
+  }
+  if (item.kind === "roundabout" || item.kind === "basketswing") {
+    return 0.75;
+  }
+  return 0.4;
+}
+
+/**
+ * Add the same visible tree trunks, lamp posts and playground fixtures that
+ * the deferred park layer draws. Surface objects inside tunnel approaches or
+ * the Chancellery construction site stay filtered exactly as they are visually.
+ */
+export function addPedestrianParkObstacles(
+  environment: PedestrianEnvironment,
+  payload: ParkDetailsPayload,
+  tunnel?: TunnelPortalCourseInput | null,
+): PedestrianObstacleIndex {
+  const index = environment.obstacles ?? emptyPedestrianObstacleIndex();
+  environment.obstacles = index;
+  if (index.parkDetailsAdded) {
+    return index;
+  }
+  const insideTunnelApproach = tunnel
+    ? createTunnelPortalApproachTester(tunnel)
+    : null;
+  const trees = decodeTrees(payload.trees, payload.tree_vocabulary);
+  for (const tree of trees) {
+    const [x, y, z] = tree.position;
+    if (
+      isChancelleryExtensionConstructionPoint(x, z) ||
+      insideTunnelApproach?.(x, z, tree.crown_radius_m + 1.5)
+    ) {
+      continue;
+    }
+    const isShrub = tree.tree_group?.toLowerCase().includes("strauch") ?? false;
+    const radius = isShrub
+      ? clamp(tree.crown_radius_m * 0.55, 0.3, 1.5)
+      : clamp(tree.trunk_radius_m ?? 0.22, 0.16, 0.65);
+    const before = index.obstacleCount;
+    addCircleObstacle(index, x, z, radius, y, y + Math.max(1, tree.height_m));
+    if (index.obstacleCount > before) {
+      index.treeCount += 1;
+    }
+  }
+  for (const light of payload.street_lights ?? []) {
+    const [x, y, z] = light.position;
+    if (
+      isChancelleryExtensionConstructionPoint(x, z) ||
+      insideTunnelApproach?.(x, z, 0.8)
+    ) {
+      continue;
+    }
+    const before = index.obstacleCount;
+    addCircleObstacle(index, x, z, 0.16, y, y + Math.max(1, light.height_m));
+    if (index.obstacleCount > before) {
+      index.streetLightCount += 1;
+    }
+  }
+  for (const playground of payload.playgrounds) {
+    for (const item of playground.equipment) {
+      const radius = equipmentRadius(item);
+      if (radius === null) {
+        continue;
+      }
+      const [x, y, z] = item.position;
+      const before = index.obstacleCount;
+      addCircleObstacle(index, x, z, radius, y, y + 3.2);
+      if (index.obstacleCount > before) {
+        index.playgroundEquipmentCount += 1;
+      }
+    }
+  }
+  for (const trace of payload.wall_traces ?? []) {
+    for (let point = 1; point < trace.points.length; point += 1) {
+      const from = trace.points[point - 1];
+      const to = trace.points[point];
+      const before = index.obstacleCount;
+      addSegmentObstacle(
+        index,
+        [from[0], from[2]],
+        [to[0], to[2]],
+        0.18,
+        Math.min(from[1], to[1]),
+        Math.max(from[1], to[1]) + 2.4,
+      );
+      if (index.obstacleCount > before) {
+        index.wallSegmentCount += 1;
+      }
+    }
+  }
+  index.parkDetailsAdded = true;
+  return index;
+}
+
+function squaredDistanceToSegment(
+  x: number,
+  z: number,
+  from: readonly [number, number],
+  to: readonly [number, number],
+): number {
+  const dx = to[0] - from[0];
+  const dz = to[1] - from[1];
+  const lengthSquared = dx * dx + dz * dz;
+  const progress =
+    lengthSquared > 1e-12
+      ? clamp(((x - from[0]) * dx + (z - from[1]) * dz) / lengthSquared, 0, 1)
+      : 0;
+  return (
+    (x - (from[0] + dx * progress)) ** 2 + (z - (from[1] + dz * progress)) ** 2
+  );
+}
+
+function squaredDistanceToRing(
+  x: number,
+  z: number,
+  ring: ReadonlyArray<readonly [number, number]>,
+): number {
+  let nearest = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < ring.length; index += 1) {
+    nearest = Math.min(
+      nearest,
+      squaredDistanceToSegment(
+        x,
+        z,
+        ring[index],
+        ring[(index + 1) % ring.length],
+      ),
+    );
+  }
+  return nearest;
+}
+
+function pointTouchesPolygonObstacle(
+  x: number,
+  z: number,
+  obstacle: PedestrianPolygonObstacle,
+): boolean {
+  const paddingSquared = PEDESTRIAN_BODY_RADIUS_M ** 2;
+  const insideOuter = pointInPedestrianRing(x, z, obstacle.ring);
+  if (
+    !insideOuter &&
+    squaredDistanceToRing(x, z, obstacle.ring) > paddingSquared
+  ) {
+    return false;
+  }
+  for (const hole of obstacle.holes) {
+    if (
+      pointInPedestrianRing(x, z, hole) &&
+      squaredDistanceToRing(x, z, hole) > paddingSquared
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/** True when a standing pedestrian capsule overlaps a compiled solid. */
+export function pedestrianPointIsBlocked(
+  x: number,
+  z: number,
+  bodyBottomY: number,
+  obstacles: PedestrianObstacleIndex | undefined,
+): boolean {
+  if (!obstacles) {
+    return false;
+  }
+  const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  const key = obstacleCellKey(
+    Math.floor(x / obstacles.cellSizeM),
+    Math.floor(z / obstacles.cellSizeM),
+  );
+  for (const obstacle of obstacles.cells.get(key) ?? []) {
+    if (
+      bodyTopY <= obstacle.minY + 0.02 ||
+      bodyBottomY >= obstacle.maxY - 0.02 ||
+      x < obstacle.minX - PEDESTRIAN_BODY_RADIUS_M ||
+      x > obstacle.maxX + PEDESTRIAN_BODY_RADIUS_M ||
+      z < obstacle.minZ - PEDESTRIAN_BODY_RADIUS_M ||
+      z > obstacle.maxZ + PEDESTRIAN_BODY_RADIUS_M
+    ) {
+      continue;
+    }
+    if (obstacle.kind === "circle") {
+      const radius = obstacle.radius + PEDESTRIAN_BODY_RADIUS_M;
+      if ((x - obstacle.x) ** 2 + (z - obstacle.z) ** 2 <= radius * radius) {
+        return true;
+      }
+    } else if (obstacle.kind === "segment") {
+      const radius = obstacle.radius + PEDESTRIAN_BODY_RADIUS_M;
+      if (
+        squaredDistanceToSegment(x, z, obstacle.from, obstacle.to) <=
+        radius * radius
+      ) {
+        return true;
+      }
+    } else if (pointTouchesPolygonObstacle(x, z, obstacle)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function compilePedestrianWater(
@@ -236,10 +657,16 @@ export function createPedestrianEnvironment(
   ground: VoxelPayload,
   surfaces: Pick<SurfacePayload, "water">,
   tunnel?: TunnelPortalCourseInput | null,
+  prisms?: Pick<PrismPayload, "buildings"> | null,
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;
-  const { cols, min_x_idx: minXIndex, min_z_idx: minZIndex, rows } = ground.grid;
+  const {
+    cols,
+    min_x_idx: minXIndex,
+    min_z_idx: minZIndex,
+    rows,
+  } = ground.grid;
   const bounds = {
     maxX: (minXIndex + cols) * cell,
     maxZ: (minZIndex + rows) * cell,
@@ -311,20 +738,21 @@ export function createPedestrianEnvironment(
     );
     const selectable =
       currentLayer === "tunnel" ? tunnelGrounds : portalGrounds;
-    const nearestTunnel = selectable.reduce<
-      (typeof selectable)[number] | null
-    >((nearest, candidate) => {
-      if (!nearest) return candidate;
-      if (Number.isFinite(groundYHint)) {
-        return Math.abs(candidate.y - groundYHint!) <
-          Math.abs(nearest.y - groundYHint!)
+    const nearestTunnel = selectable.reduce<(typeof selectable)[number] | null>(
+      (nearest, candidate) => {
+        if (!nearest) return candidate;
+        if (Number.isFinite(groundYHint)) {
+          return Math.abs(candidate.y - groundYHint!) <
+            Math.abs(nearest.y - groundYHint!)
+            ? candidate
+            : nearest;
+        }
+        return candidate.distanceSquared < nearest.distanceSquared
           ? candidate
           : nearest;
-      }
-      return candidate.distanceSquared < nearest.distanceSquared
-        ? candidate
-        : nearest;
-    }, null);
+      },
+      null,
+    );
     if (nearestTunnel) {
       const useTunnel =
         currentLayer === "tunnel" ||
@@ -350,13 +778,78 @@ export function createPedestrianEnvironment(
   return {
     bounds,
     groundAt: surfaceGroundAt,
+    obstacles: prisms ? compilePedestrianObstacles(prisms) : undefined,
     resolveGround,
     water: compilePedestrianWater(surfaces),
   };
 }
 
+function resolvePedestrianGround(
+  environment: PedestrianEnvironment,
+  x: number,
+  z: number,
+  currentLayer: PedestrianState["groundLayer"],
+  groundYHint?: number,
+): PedestrianGround | null {
+  return (
+    environment.resolveGround?.(x, z, currentLayer, groundYHint) ??
+    (() => {
+      const y = environment.groundAt(x, z);
+      return y === null
+        ? null
+        : ({ insideTunnel: false, layer: "surface", y } as const);
+    })()
+  );
+}
+
+function nearestClearPedestrianSpawn(
+  environment: PedestrianEnvironment,
+  spawn: PedestrianSpawn,
+  requestedGround: PedestrianGround,
+): { ground: PedestrianGround; spawn: PedestrianSpawn } | null {
+  if (
+    !pedestrianPointIsBlocked(
+      spawn.x,
+      spawn.z,
+      requestedGround.y,
+      environment.obstacles,
+    )
+  ) {
+    return { ground: requestedGround, spawn };
+  }
+  // Entering walk mode over a roof must place the person beside that building,
+  // not inside its walls. A bounded radial search runs only on activation.
+  for (let radius = 1; radius <= 160; radius += 1) {
+    for (let direction = 0; direction < 16; direction += 1) {
+      const angle = (direction / 16) * Math.PI * 2;
+      const x = spawn.x + Math.cos(angle) * radius;
+      const z = spawn.z + Math.sin(angle) * radius;
+      if (!inBounds(x, z, environment.bounds)) {
+        continue;
+      }
+      const ground = resolvePedestrianGround(
+        environment,
+        x,
+        z,
+        requestedGround.layer,
+        requestedGround.y,
+      );
+      if (
+        ground === null ||
+        pedestrianPointIsBlocked(x, z, ground.y, environment.obstacles) ||
+        (ground.layer === "surface" &&
+          pedestrianPointIsWater(x, z, environment.water))
+      ) {
+        continue;
+      }
+      return { ground, spawn: { ...spawn, x, z } };
+    }
+  }
+  return null;
+}
+
 export function createPedestrianState(
-  environment: Pick<PedestrianEnvironment, "groundAt" | "resolveGround">,
+  environment: PedestrianEnvironment,
   requestedSpawn: PedestrianSpawn = PEDESTRIAN_RESPAWN,
 ): PedestrianState {
   const surfaceY = environment.groundAt(requestedSpawn.x, requestedSpawn.z);
@@ -366,29 +859,27 @@ export function createPedestrianState(
     requestedSpawn.groundYHint! < surfaceY - 0.75
       ? "tunnel"
       : "surface";
-  const requestedGround = environment.resolveGround?.(
+  const requestedGround = resolvePedestrianGround(
+    environment,
     requestedSpawn.x,
     requestedSpawn.z,
     requestedLayer,
     requestedSpawn.groundYHint,
-  ) ??
-    (() => {
-      const y = environment.groundAt(requestedSpawn.x, requestedSpawn.z);
-      return y === null
-        ? null
-        : ({ insideTunnel: false, layer: "surface", y } as const);
-    })();
-  const spawn = requestedGround === null ? PEDESTRIAN_RESPAWN : requestedSpawn;
-  const resolvedGround =
-    spawn === requestedSpawn
-      ? requestedGround
-      : (environment.resolveGround?.(spawn.x, spawn.z, "surface") ??
-        (() => {
-          const y = environment.groundAt(spawn.x, spawn.z);
-          return y === null
-            ? null
-            : ({ insideTunnel: false, layer: "surface", y } as const);
-        })());
+  );
+  const fallbackGround = resolvePedestrianGround(
+    environment,
+    PEDESTRIAN_RESPAWN.x,
+    PEDESTRIAN_RESPAWN.z,
+    "surface",
+  );
+  const initialSpawn =
+    requestedGround === null ? PEDESTRIAN_RESPAWN : requestedSpawn;
+  const initialGround = requestedGround ?? fallbackGround;
+  const clear = initialGround
+    ? nearestClearPedestrianSpawn(environment, initialSpawn, initialGround)
+    : null;
+  const spawn = clear?.spawn ?? initialSpawn;
+  const resolvedGround = clear?.ground ?? initialGround;
   return {
     grounded: true,
     groundLayer: resolvedGround?.layer ?? "surface",
@@ -461,10 +952,7 @@ export function jumpPedestrian(state: PedestrianState): PedestrianState {
 
 function inBounds(x: number, z: number, bounds: PedestrianBounds): boolean {
   return (
-    x >= bounds.minX &&
-    x <= bounds.maxX &&
-    z >= bounds.minZ &&
-    z <= bounds.maxZ
+    x >= bounds.minX && x <= bounds.maxX && z >= bounds.minZ && z <= bounds.maxZ
   );
 }
 
@@ -492,48 +980,6 @@ export function stepPedestrian(
   const inputLength = Math.max(1, Math.hypot(rawForward, rawStrafe));
   const forward = rawForward / inputLength;
   const strafe = rawStrafe / inputLength;
-  const speed =
-    PEDESTRIAN_WALK_SPEED_MPS *
-    (input.sprint ? PEDESTRIAN_SPRINT_MULTIPLIER : 1);
-  const distance = speed * dt;
-  const nextCandidateX =
-    state.x +
-    (Math.sin(nextYaw) * forward + Math.cos(nextYaw) * strafe) * distance;
-  const nextCandidateZ =
-    state.z +
-    (-Math.cos(nextYaw) * forward + Math.sin(nextYaw) * strafe) * distance;
-  const requestedGround = inBounds(
-    nextCandidateX,
-    nextCandidateZ,
-    environment.bounds,
-  )
-    ? (environment.resolveGround?.(
-        nextCandidateX,
-        nextCandidateZ,
-        state.groundLayer,
-        state.groundY,
-      ) ??
-      (() => {
-        const y = environment.groundAt(nextCandidateX, nextCandidateZ);
-        return y === null
-          ? null
-          : ({ insideTunnel: false, layer: "surface", y } as const);
-      })())
-    : null;
-  const canMove = requestedGround !== null;
-  const x = canMove ? nextCandidateX : state.x;
-  const z = canMove ? nextCandidateZ : state.z;
-  const currentGround = canMove
-    ? requestedGround
-    : (environment.resolveGround?.(
-        x,
-        z,
-        state.groundLayer,
-        state.groundY,
-      ) ?? null);
-  const groundY = currentGround?.y ?? state.groundY;
-  const groundLayer = currentGround?.layer ?? state.groundLayer;
-  const insideTunnel = currentGround?.insideTunnel ?? state.insideTunnel;
 
   let jumpOffset = state.jumpOffset;
   let verticalVelocity = state.verticalVelocity;
@@ -548,6 +994,112 @@ export function stepPedestrian(
       grounded = true;
     }
   }
+
+  const speed =
+    PEDESTRIAN_WALK_SPEED_MPS *
+    (input.sprint ? PEDESTRIAN_SPRINT_MULTIPLIER : 1);
+  const distance = speed * dt;
+  const requestedDx =
+    (Math.sin(nextYaw) * forward + Math.cos(nextYaw) * strafe) * distance;
+  const requestedDz =
+    (-Math.cos(nextYaw) * forward + Math.sin(nextYaw) * strafe) * distance;
+  const movementLength = Math.hypot(requestedDx, requestedDz);
+  const movementSteps = Math.max(
+    1,
+    Math.ceil(movementLength / PEDESTRIAN_COLLISION_STEP_M),
+  );
+  const stepX = requestedDx / movementSteps;
+  const stepZ = requestedDz / movementSteps;
+  let x = state.x;
+  let z = state.z;
+  let currentGround =
+    resolvePedestrianGround(
+      environment,
+      x,
+      z,
+      state.groundLayer,
+      state.groundY,
+    ) ??
+    ({
+      insideTunnel: state.insideTunnel,
+      layer: state.groundLayer,
+      y: state.groundY,
+    } as const);
+
+  const acceptedGround = (
+    candidateX: number,
+    candidateZ: number,
+  ): PedestrianGround | null => {
+    if (!inBounds(candidateX, candidateZ, environment.bounds)) {
+      return null;
+    }
+    const ground = resolvePedestrianGround(
+      environment,
+      candidateX,
+      candidateZ,
+      currentGround.layer,
+      currentGround.y,
+    );
+    if (ground === null) {
+      return null;
+    }
+    const currentBlocked = pedestrianPointIsBlocked(
+      x,
+      z,
+      currentGround.y + jumpOffset,
+      environment.obstacles,
+    );
+    const candidateBlocked = pedestrianPointIsBlocked(
+      candidateX,
+      candidateZ,
+      ground.y + jumpOffset,
+      environment.obstacles,
+    );
+    // If a deferred obstacle arrives around the current position, permit the
+    // next movement to escape it. A normal clear position may never enter one.
+    return candidateBlocked && !currentBlocked ? null : ground;
+  };
+
+  const accept = (
+    candidateX: number,
+    candidateZ: number,
+    ground: PedestrianGround,
+  ): void => {
+    x = candidateX;
+    z = candidateZ;
+    currentGround = ground;
+  };
+
+  for (let step = 0; step < movementSteps && movementLength > 0; step += 1) {
+    const fullGround = acceptedGround(x + stepX, z + stepZ);
+    if (fullGround) {
+      accept(x + stepX, z + stepZ, fullGround);
+      continue;
+    }
+    const axes: Array<readonly [number, number]> =
+      Math.abs(stepX) >= Math.abs(stepZ)
+        ? [
+            [stepX, 0],
+            [0, stepZ],
+          ]
+        : [
+            [0, stepZ],
+            [stepX, 0],
+          ];
+    for (const [dx, dz] of axes) {
+      if (dx === 0 && dz === 0) {
+        continue;
+      }
+      const axisGround = acceptedGround(x + dx, z + dz);
+      if (axisGround) {
+        accept(x + dx, z + dz, axisGround);
+      }
+    }
+  }
+
+  const groundY = currentGround.y;
+  const groundLayer = currentGround.layer;
+  const insideTunnel = currentGround.insideTunnel;
 
   if (
     grounded &&

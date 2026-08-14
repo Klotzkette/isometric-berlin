@@ -65,7 +65,7 @@ const DE = {
   orientation: "Kartenorientierung",
   pedestrian: "Spaziergang",
   pedestrianCanvas:
-    "Spaziergänger-Ansicht auf 1,80 Meter Augenhöhe; ziehen zum Umschauen, doppeltippen für Sprint",
+    "Spaziergänger-Ansicht auf 1,80 Meter Augenhöhe; feste Objekte stoppen dich, doppeltippen für Sprint",
   pedestrianJump: "Springen",
   pedestrianOff: "Spaziergänger-Modus beendet",
   pedestrianOn: "Spaziergänger-Modus · Start am aktuellen Standort",
@@ -183,7 +183,7 @@ const EN: Record<CopyKey, string> = {
   orientation: "Map orientation",
   pedestrian: "Walk",
   pedestrianCanvas:
-    "Pedestrian view at 1.80 metre eye height; drag to look around, double-tap for sprint",
+    "Pedestrian view at 1.80 metre eye height; solid objects stop you, double-tap for sprint",
   pedestrianJump: "Jump",
   pedestrianOff: "Pedestrian mode off",
   pedestrianOn: "Pedestrian mode · start at current location",
