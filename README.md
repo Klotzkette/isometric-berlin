@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.45 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.45/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.46 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.46/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.45** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.46** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,22 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.45**, built from `main`. Its full viewer
+The current public package is **v0.71.46**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The older Charite campus now reads as three real architectural periods.**
+  The former Pathological Institute and today's Berlin Museum of Medical
+  History use their exact 20-part Berlin LoD2 shell with red brickwork,
+  sandstone/plaster dressings, segmental-arched mullioned windows, cornices
+  and dark slate roofs. The 1901 Friedrich-Althoff-Haus entrance gains the
+  same documented material language plus its measured-envelope stair-tower
+  helm. The Institute of Virology in the 1956-60 Edmund-Lesser-Haus remains a
+  distinct pale post-war building with white window frames and restrained
+  ivy instead of being incorrectly historicised. Generic facade windows are
+  suppressed on all 32 source parts, preventing duplicates and flicker; the
+  added articulation is source-bounded and explicitly not survey geometry.
 
 - **The Albrecht von Graefe memorial now faces the Schumannstrasse/
   Luisenstrasse corner.** Its OSM point stays fixed while the complete

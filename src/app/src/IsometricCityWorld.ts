@@ -46,6 +46,17 @@ import {
   TILLA_DURIEUX_PROFILE,
 } from "./expandedCityProfiles";
 import { createGoldelseFigure } from "./goldelse";
+import {
+  CHARITE_ALTHOFF_TOWER_HELM_BOTTOM_Y_M,
+  CHARITE_ALTHOFF_TOWER_ID,
+  CHARITE_FRIEDRICH_ALTHOFF_IDS,
+  CHARITE_MEDICAL_MUSEUM_IDS,
+  CHARITE_VIROLOGY_IDS,
+  HISTORIC_CHARITE_IDS,
+  HISTORIC_CHARITE_TONES,
+  createHistoricChariteCampus,
+  historicChariteRoofCode,
+} from "./HistoricChariteCampus";
 import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
 import {
   type VoxelPayload,
@@ -412,6 +423,27 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   ...Object.fromEntries(
     [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [id, 0xdfe5e3]),
   ),
+  // Source-distinct Charite ensembles: the 1899/1905 Pathology and 1901
+  // Althoff entrance remain brick-and-sandstone, while the 1956-60
+  // Edmund-Lesser-Haus is a pale rendered post-war clinic.
+  ...Object.fromEntries(
+    [...CHARITE_MEDICAL_MUSEUM_IDS].map((id) => [
+      id,
+      HISTORIC_CHARITE_TONES.museumFacade,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...CHARITE_FRIEDRICH_ALTHOFF_IDS].map((id) => [
+      id,
+      HISTORIC_CHARITE_TONES.althoffFacade,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...CHARITE_VIROLOGY_IDS].map((id) => [
+      id,
+      HISTORIC_CHARITE_TONES.virologyFacade,
+    ]),
+  ),
   // Gymnasium Tiergarten Neubau (1971, refurbished 2009-11). The overview
   // raster stops short of the Hansaviertel, so every prism of the school
   // fell back to the generic concrete shade and the white rendered slab
@@ -456,6 +488,19 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   ...Object.fromEntries(
     [...CHARITE_BETTENHOCHHAUS_IDS].map((id) => [id, 0xd3d9d8]),
   ),
+  ...Object.fromEntries(
+    [...CHARITE_MEDICAL_MUSEUM_IDS].map((id) => [
+      id,
+      HISTORIC_CHARITE_TONES.slate,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...CHARITE_FRIEDRICH_ALTHOFF_IDS].map((id) => [
+      id,
+      HISTORIC_CHARITE_TONES.slate,
+    ]),
+  ),
+  ...Object.fromEntries([...CHARITE_VIROLOGY_IDS].map((id) => [id, 0x77827d])),
 };
 
 // Buildings whose recognition model draws the COMPLETE structure. Their
@@ -1698,15 +1743,16 @@ export function windowFormatForBuilding(
     HERO_WINDOW_FORMATS[buildingId] ?? (isCivic ? CIVIC_WINDOW : HOUSING_WINDOW)
   );
 }
-// The recognition layer draws the Reichstag's REAL fenestration (tall
-// arched windows, transoms, mullions from references); generic prism
-// panes underneath would double it into mush ("keine falschen Fenster").
-const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+// Recognition layers draw the complete source-specific fenestration for
+// these buildings. Generic prism panes underneath would double the windows,
+// create z-fighting and obscure the documented facade rhythm.
+export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "K0002MCN",
   "K0003Ty1",
   "K0003VDk",
   "UbQkgNZe",
   "ycOYQRVL",
+  ...HISTORIC_CHARITE_IDS,
 ]);
 
 /**
@@ -8908,7 +8954,13 @@ export function createIsometricCity(
     let bodyHeight = totalHeight;
     let roofTriangles: Float32Array | null = null;
     let roofRect: ReturnType<typeof fitRectangle> = null;
-    const roofCode = building.roof ?? 0;
+    const roofCode = historicChariteRoofCode(building.id, building.roof ?? 0);
+    if (building.id === CHARITE_ALTHOFF_TOWER_ID) {
+      bodyHeight = Math.max(
+        2.5,
+        Math.min(bodyHeight, CHARITE_ALTHOFF_TOWER_HELM_BOTTOM_Y_M - y0),
+      );
+    }
     if (
       !isGlass &&
       (roofCode === ROOF_GABLED ||
@@ -9489,9 +9541,12 @@ export function createIsometricCity(
       edgeGeometries.push(
         new EdgesGeometry(roofGeometry, ISO_EDGE_THRESHOLD_DEGREES),
       );
-      // Roof paint reads slightly darker than the facade, like a
-      // drawn tiled surface.
-      bakeColor(roofGeometry, color.clone().multiplyScalar(0.9));
+      // Pinned heritage roofs keep their documented slate tone on slopes;
+      // unpinned roofs retain the established darker-facade convention.
+      const pitchedRoofTone = HISTORIC_CHARITE_IDS.has(building.id)
+        ? capTone.clone()
+        : color.clone().multiplyScalar(0.9);
+      bakeColor(roofGeometry, pitchedRoofTone);
       // Pitched roof slopes step by facing too, so gables read plastic.
       const roofNormals = roofGeometry.getAttribute("normal");
       const roofColors = roofGeometry.getAttribute("color");
@@ -10055,5 +10110,6 @@ export function createIsometricCity(
   group.add(createPaulLoebeCanopy());
   group.add(createLandmarkRefinements());
   group.add(createGymnasiumTiergarten());
+  group.add(createHistoricChariteCampus(prisms));
   return group;
 }

@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.71.46
+
+- **The older Charite campus is no longer a field of generic pale prisms.**
+  Twenty official LoD2 parts of the former Pathological Institute and today's
+  Berlin Museum of Medical History now carry a deterministic red-brick and
+  sandstone facade layer with segmental-arched mullioned windows, courses,
+  plinths, cornices and source-bounded dark slate roof forms. Six parts of the
+  1901 Friedrich-Althoff-Haus use a more ornate version and its rounded stair
+  tower gains a slate helm and finial that end inside the official measured
+  height.
+- **Virology stays architecturally honest rather than being historicised.**
+  The six-part 1956-60 Edmund-Lesser-Haus at Rahel-Hirsch-Weg 3 remains a pale
+  post-war rendered building with white-framed regular windows and restrained
+  ivy. The museum, Althoff entrance and Virology therefore retain separate
+  palettes, window rhythms and construction eras while every footprint and
+  height remains anchored to Berlin LoD2.
+- **Custom facade layers replace overlapping generic windows cleanly.** All
+  32 source parts suppress the broad city window raster, eliminating duplicate
+  panes and z-fighting. Day and Night close-ups were inspected, only a sparse
+  deterministic subset of windows emits warm light, 71 focused regression
+  tests pass, the visible radius stays **5,230 m**, and attribution is
+  unchanged. Added facade articulation is source-bounded and explicitly
+  unsurveyed.
+
 ## v0.71.45
 
 - **The Albrecht von Graefe memorial now addresses the real street corner.**
