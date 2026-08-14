@@ -38,6 +38,9 @@ const TUNNEL_HALF_WIDTH_M = 3.25;
 const TUNNEL_HEIGHT_M = 4.8;
 const FRAME_SPACING_M = 24;
 const ENTRANCE_SHAFT_HALF_WIDTH_M = 1.4;
+const PLATFORM_TOP_OFFSET_M = 0.38;
+const PLATFORM_FASCIA_BOTTOM_OFFSET_M = 0.04;
+const PLATFORM_INK_LIFT_M = 0.025;
 const TRAM_WIRE_HEIGHT_M = 5.8;
 const TRAM_MAST_SPACING_M = 35;
 
@@ -91,6 +94,13 @@ const PLATFORM_COLORS: Record<VisualMode, number> = {
   minecraft: 0xd8caa9,
   night: 0x66747d,
   snowstorm: 0xe7e6df,
+};
+
+const PLATFORM_FASCIA_COLORS: Record<VisualMode, number> = {
+  day: 0xc8bda8,
+  minecraft: 0xb7a482,
+  night: 0x4e5b63,
+  snowstorm: 0xcbd0cd,
 };
 
 type SurfaceBuilder = {
@@ -264,8 +274,22 @@ function platformShape(platform: UndergroundPlatform): ShapeGeometry | null {
   const geometry = new ShapeGeometry(shape);
   geometry.deleteAttribute("uv");
   geometry.rotateX(-Math.PI / 2);
-  geometry.translate(0, platform.track_y_m + 0.38, 0);
+  geometry.translate(0, platform.track_y_m + PLATFORM_TOP_OFFSET_M, 0);
   return geometry;
+}
+
+function platformRingPoints(
+  platform: UndergroundPlatform,
+): Array<[number, number]> {
+  const points = platform.ring.map(
+    ([x, z]) => [x / 10, z / 10] as [number, number],
+  );
+  const first = points[0];
+  const last = points.at(-1);
+  if (first && last && first[0] === last[0] && first[1] === last[1]) {
+    points.pop();
+  }
+  return points;
 }
 
 function createPlatforms(platforms: UndergroundPlatform[]): Mesh | null {
@@ -283,7 +307,62 @@ function createPlatforms(platforms: UndergroundPlatform[]): Mesh | null {
   material.userData.modePalette = PLATFORM_COLORS;
   const mesh = new Mesh(geometry, material);
   mesh.name = "mapped underground station platforms";
+  mesh.userData.planGeometry = "committed OSM platform rings";
   return mesh;
+}
+
+function createPlatformFascias(
+  platforms: UndergroundPlatform[],
+): Mesh | null {
+  const builder: SurfaceBuilder = { indices: [], positions: [] };
+  for (const platform of platforms) {
+    const points = platformRingPoints(platform);
+    const top = platform.track_y_m + PLATFORM_TOP_OFFSET_M;
+    const bottom = platform.track_y_m + PLATFORM_FASCIA_BOTTOM_OFFSET_M;
+    for (let index = 0; index < points.length; index += 1) {
+      const [x0, z0] = points[index];
+      const [x1, z1] = points[(index + 1) % points.length];
+      addQuad(
+        builder,
+        [x0, top, z0],
+        [x1, top, z1],
+        [x1, bottom, z1],
+        [x0, bottom, z0],
+      );
+    }
+  }
+  const geometry = finishSurface(builder);
+  if (!geometry) return null;
+  const material = new MeshBasicMaterial({
+    color: PLATFORM_FASCIA_COLORS.day,
+    side: DoubleSide,
+  });
+  material.userData.modePalette = PLATFORM_FASCIA_COLORS;
+  const mesh = new Mesh(geometry, material);
+  mesh.name = "mapped underground platform edge fascias";
+  mesh.userData.planGeometry = "committed OSM platform-ring edges";
+  mesh.userData.verticalGeometry = "schematic 0.34 m drawing thickness";
+  return mesh;
+}
+
+function addPlatformSectionFrames(
+  platforms: UndergroundPlatform[],
+  positions: number[],
+): void {
+  for (const platform of platforms) {
+    const points = platformRingPoints(platform);
+    const platformY =
+      platform.track_y_m + PLATFORM_TOP_OFFSET_M + PLATFORM_INK_LIFT_M;
+    const ceilingY =
+      platform.track_y_m + TUNNEL_HEIGHT_M + PLATFORM_INK_LIFT_M;
+    for (let index = 0; index < points.length; index += 1) {
+      const [x0, z0] = points[index];
+      const [x1, z1] = points[(index + 1) % points.length];
+      pushSegment(positions, [x0, platformY, z0], [x1, platformY, z1]);
+      pushSegment(positions, [x0, ceilingY, z0], [x1, ceilingY, z1]);
+      pushSegment(positions, [x0, platformY, z0], [x0, ceilingY, z0]);
+    }
+  }
 }
 
 function addEntranceShafts(payload: RailPayload, positions: number[]): void {
@@ -292,21 +371,47 @@ function addEntranceShafts(payload: RailPayload, positions: number[]): void {
     const x = entrance.point[0] / 10;
     const z = entrance.point[1] / 10;
     const bottom = entrance.track_y_m + 0.55;
-    for (const side of [-1, 1]) {
+    const corners = [
+      [-1, -1],
+      [1, -1],
+      [1, 1],
+      [-1, 1],
+    ] as const;
+    for (const [sideX, sideZ] of corners) {
       pushSegment(
         positions,
-        [x + side * ENTRANCE_SHAFT_HALF_WIDTH_M, top, z],
-        [x + side * ENTRANCE_SHAFT_HALF_WIDTH_M, bottom, z],
+        [
+          x + sideX * ENTRANCE_SHAFT_HALF_WIDTH_M,
+          top,
+          z + sideZ * ENTRANCE_SHAFT_HALF_WIDTH_M,
+        ],
+        [
+          x + sideX * ENTRANCE_SHAFT_HALF_WIDTH_M,
+          bottom,
+          z + sideZ * ENTRANCE_SHAFT_HALF_WIDTH_M,
+        ],
       );
     }
     const levels = Math.max(2, Math.round((top - bottom) / 4));
     for (let level = 0; level <= levels; level += 1) {
       const y = bottom + ((top - bottom) * level) / levels;
-      pushSegment(
-        positions,
-        [x - ENTRANCE_SHAFT_HALF_WIDTH_M, y, z],
-        [x + ENTRANCE_SHAFT_HALF_WIDTH_M, y, z],
-      );
+      for (let index = 0; index < corners.length; index += 1) {
+        const [sideX0, sideZ0] = corners[index];
+        const [sideX1, sideZ1] = corners[(index + 1) % corners.length];
+        pushSegment(
+          positions,
+          [
+            x + sideX0 * ENTRANCE_SHAFT_HALF_WIDTH_M,
+            y,
+            z + sideZ0 * ENTRANCE_SHAFT_HALF_WIDTH_M,
+          ],
+          [
+            x + sideX1 * ENTRANCE_SHAFT_HALF_WIDTH_M,
+            y,
+            z + sideZ1 * ENTRANCE_SHAFT_HALF_WIDTH_M,
+          ],
+        );
+      }
     }
   }
 }
@@ -336,6 +441,19 @@ export function createUndergroundNetwork(payload: RailPayload): Group | null {
   group.userData.utilityNetworksIncluded =
     payload.underground.utility_networks_included;
   group.userData.routeEvidence = payload.route_evidence;
+  group.userData.evidenceBoundary = {
+    omitted: [
+      "building services",
+      "district heating",
+      "power",
+      "sewer",
+      "telecom",
+      "unmapped passages",
+      "water",
+    ],
+    planGeometry: "committed OSM tracks, platforms and entrance points",
+    verticalGeometry: "schematic layer-based drawing, not survey data",
+  };
 
   const familySurfaces = new Map<UndergroundLineFamily, SurfaceBuilder>();
   const familyLines = new Map<UndergroundLineFamily, number[]>();
@@ -391,6 +509,29 @@ export function createUndergroundNetwork(payload: RailPayload): Group | null {
   const platforms = createPlatforms(payload.underground.platforms);
   if (platforms) group.add(platforms);
 
+  const platformFascias = createPlatformFascias(
+    payload.underground.platforms,
+  );
+  if (platformFascias) group.add(platformFascias);
+
+  const platformFramePositions: number[] = [];
+  addPlatformSectionFrames(
+    payload.underground.platforms,
+    platformFramePositions,
+  );
+  const platformFrames = makeLineSegments(
+    platformFramePositions,
+    STRUCTURE_COLORS.day,
+    "mapped platform edges with schematic station section frames",
+    STRUCTURE_COLORS,
+  );
+  if (platformFrames) {
+    platformFrames.userData.planGeometry = "committed OSM platform rings";
+    platformFrames.userData.verticalGeometry =
+      "schematic open projection to the documented cutaway height";
+    group.add(platformFrames);
+  }
+
   const shaftPositions: number[] = [];
   addEntranceShafts(payload, shaftPositions);
   const shafts = makeLineSegments(
@@ -399,7 +540,12 @@ export function createUndergroundNetwork(payload: RailPayload): Group | null {
     "mapped subway entrances with schematic shafts and landings",
     STRUCTURE_COLORS,
   );
-  if (shafts) group.add(shafts);
+  if (shafts) {
+    shafts.userData.planGeometry = "committed OSM subway entrance points";
+    shafts.userData.verticalGeometry =
+      "schematic open shafts and level frames, not surveyed structures";
+    group.add(shafts);
+  }
 
   setUndergroundPresentation(group, "day");
   return group;

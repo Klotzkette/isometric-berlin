@@ -121,6 +121,9 @@ def test_u5_and_north_south_sbahn_are_identified_without_snapping(
     "Brandenburger Tor",
     "Unter den Linden",
   ]
+  assert payload["route_evidence"]["u5"]["source"] == (
+    "https://www.bvg.de/de/verbindungen/linienuebersicht/u5"
+  )
   assert payload["route_evidence"]["north_south_sbahn"]["official_sequence"] == [
     "Friedrichstraße",
     "Brandenburger Tor",

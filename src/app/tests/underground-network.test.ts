@@ -36,6 +36,11 @@ describe("the mapped underground passenger cutaway", () => {
     expect(group).toBeInstanceOf(Group);
     expect(group!.visible).toBe(true);
     expect(group!.userData.utilityNetworksIncluded).toBe(false);
+    expect(group!.userData.evidenceBoundary.planGeometry).toContain("OSM");
+    expect(group!.userData.evidenceBoundary.verticalGeometry).toContain(
+      "not survey data",
+    );
+    expect(group!.userData.evidenceBoundary.omitted).toContain("sewer");
     const drawObjects: Array<Mesh | LineSegments> = [];
     group!.traverse((object) => {
       if (object instanceof Mesh || object instanceof LineSegments) {
@@ -47,10 +52,61 @@ describe("the mapped underground passenger cutaway", () => {
       group!.getObjectByName("mapped underground station platforms"),
     ).toBeInstanceOf(Mesh);
     expect(
+      group!.getObjectByName("mapped underground platform edge fascias"),
+    ).toBeInstanceOf(Mesh);
+    const platformFrames = group!.getObjectByName(
+      "mapped platform edges with schematic station section frames",
+    );
+    expect(platformFrames).toBeInstanceOf(LineSegments);
+    expect(platformFrames!.userData.planGeometry).toContain("OSM");
+    expect(platformFrames!.userData.verticalGeometry).toContain("schematic");
+    expect(
       group!.getObjectByName(
         "mapped subway entrances with schematic shafts and landings",
       ),
     ).toBeInstanceOf(LineSegments);
+  });
+
+  test("projects mapped platform rings without claiming surveyed station volumes", () => {
+    const group = createUndergroundNetwork(rail)!;
+    const frames = group.getObjectByName(
+      "mapped platform edges with schematic station section frames",
+    ) as LineSegments;
+    const fascias = group.getObjectByName(
+      "mapped underground platform edge fascias",
+    ) as Mesh;
+    const sourceEdges = rail.underground.platforms.reduce(
+      (sum, platform) =>
+        sum +
+        platform.ring.length -
+        (platform.ring[0]?.[0] === platform.ring.at(-1)?.[0] &&
+        platform.ring[0]?.[1] === platform.ring.at(-1)?.[1]
+          ? 1
+          : 0),
+      0,
+    );
+
+    expect(sourceEdges).toBeGreaterThan(300);
+    expect(frames.geometry.getAttribute("position").count).toBe(
+      sourceEdges * 6,
+    );
+    expect(fascias.geometry.getAttribute("position").count).toBe(
+      sourceEdges * 4,
+    );
+    expect(fascias.userData.planGeometry).toContain("OSM");
+    expect(fascias.userData.verticalGeometry).toContain("schematic");
+  });
+
+  test("draws each mapped entrance as an open spatial frame", () => {
+    const group = createUndergroundNetwork(rail)!;
+    const shafts = group.getObjectByName(
+      "mapped subway entrances with schematic shafts and landings",
+    ) as LineSegments;
+    const position = shafts.geometry.getAttribute("position");
+
+    expect(position.count).toBeGreaterThan(rail.underground.entrances.length * 16);
+    expect(shafts.userData.planGeometry).toContain("OSM");
+    expect(shafts.userData.verticalGeometry).toContain("not surveyed");
   });
 
   test("changes its restrained route palette losslessly in all four modes", () => {

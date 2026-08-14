@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.71.41
+
+- **The mapped underground network now reads as a real architectural
+  cutaway.** All 40 committed OSM platform rings gain crisp top edges and one
+  batched sectional fascia; the same source perimeters rise as open station
+  frames instead of anonymous flat patches. Horizontal courses remain the
+  unshifted OSM geometry, while the 0.34 m fascia and 4.8 m drawing height are
+  explicitly documented as presentation conventions rather than survey data.
+- **Every mapped subway entrance is now spatially legible without inventing
+  its internals.** The 78 OSM entrance points become open four-corner shaft
+  diagrams with level frames instead of one flat ladder symbol. They claim no
+  stair, lift, concourse or hidden-passage course; water, sewer, power,
+  telecom, district-heating and building-service networks remain deliberately
+  absent.
+- **The richer technical drawing stays static and inexpensive.** Platform
+  faces, fascias, station frames, route beds, rails and shafts remain at no
+  more than 16 opaque, unlit draw objects; every visual mode recolours the same
+  geometry without rebuilding it. Day and Night close-ups plus the complete
+  viewer were inspected without a transparent tunnel shell or a new flicker
+  source. U5 route evidence now uses the stable official BVG line overview;
+  the visible radius stays **5,230 m** and attribution is unchanged.
+
 ## v0.71.40
 
 - **The Brandenburg Gate now has its real Doric order instead of a visually
