@@ -117,11 +117,12 @@ export type BrandenburgGateModelSignature = SignatureBase & {
 };
 
 /**
- * Stable recognition details visible in the owner's five current public-space
+ * Stable recognition details visible in the owner's six current public-space
  * photographs. The metric shell still comes from the published dimensions;
  * this profile only records the architectural articulation added inside it.
  */
 export const BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE = {
+  architraveFaceCourseCount: 12,
   atticReliefFigureCount: 18,
   capitalAnnuletCount: 36,
   ceilingCofferCount: 25,
@@ -135,9 +136,11 @@ export const BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE = {
   passageDividerCount: 4,
   passageMedallionCount: 8,
   pavilionHeightM: 10.8,
+  pavilionPedimentReliefCount: 4,
   pavilionPorticoColumnCount: 16,
   sidePassageWidthM: 3.8,
-  sourceViewCount: 5,
+  sourceViewCount: 6,
+  stylobateStepCount: 3,
   temporarySiteFurniture: "omitted",
 } as const;
 
@@ -1359,8 +1362,7 @@ function addReichstagWestFacadeArticulation(
         signature.body_height_m - 1.55,
         -signature.depth_m / 2 +
           2.2 +
-          (index /
-            (REICHSTAG_WEST_FACADE_PROFILE.corniceDentilCount - 1)) *
+          (index / (REICHSTAG_WEST_FACADE_PROFILE.corniceDentilCount - 1)) *
             (signature.depth_m - 4.4),
       ] as [number, number, number],
     }),
@@ -1424,9 +1426,7 @@ function addReichstagWestFacadeArticulation(
         westFaceX - 0.12,
         signature.body_height_m + 1.5,
         -47 +
-          (index /
-            (REICHSTAG_WEST_FACADE_PROFILE.roofFigureCount - 1)) *
-            94,
+          (index / (REICHSTAG_WEST_FACADE_PROFILE.roofFigureCount - 1)) * 94,
       ] as [number, number, number],
     }),
   );
@@ -1616,10 +1616,7 @@ function addReichstagDocumentedOrders(
   // The tympanum is a triangular sculptural field. The former rectangular
   // slab projected beyond the pediment and read as an unrelated box above
   // DEM DEUTSCHEN VOLKE.
-  const tympanumField = new Mesh(
-    triangularPrism(31, 4.6, 0.34),
-    reliefStone,
-  );
+  const tympanumField = new Mesh(triangularPrism(31, 4.6, 0.34), reliefStone);
   tympanumField.name = "Reichstag west triangular tympanum relief field";
   tympanumField.position.set(westX - 3.68, 20.45, 0);
   tympanumField.castShadow = true;
@@ -1654,8 +1651,7 @@ function addReichstagDocumentedOrders(
   ) {
     const z =
       -9.25 +
-      index *
-        (18.5 / (REICHSTAG_WEST_FACADE_PROFILE.tympanumFigureCount - 1));
+      index * (18.5 / (REICHSTAG_WEST_FACADE_PROFILE.tympanumFigureCount - 1));
     const height = 0.58 + 1.18 * (1 - Math.abs(z) / 10.4);
     reliefBodies.push({
       position: [westX - 3.51, 20.82 + height / 2, z],
@@ -1908,10 +1904,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
       stoneRelief,
       0.58,
     );
-    const neckRing = new Mesh(
-      new TorusGeometry(1.3, 0.12, 7, 20),
-      stoneRelief,
-    );
+    const neckRing = new Mesh(new TorusGeometry(1.3, 0.12, 7, 20), stoneRelief);
     neckRing.name = `Reichstag west portico capital neck ring ${index + 1}`;
     neckRing.rotation.x = Math.PI / 2;
     neckRing.position.set(westX, 17.75, -17.5 + index * 7);
@@ -2097,12 +2090,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   addEdges(group, pediment, 0.9);
   addReichstagWindowSets(group, signature);
   addReichstagMicroDetails(group, signature, stoneAccent);
-  addReichstagDocumentedOrders(
-    group,
-    signature,
-    stoneAccent,
-    stoneRelief,
-  );
+  addReichstagDocumentedOrders(group, signature, stoneAccent, stoneRelief);
   addReichstagWestFacadeArticulation(
     group,
     signature,
@@ -2875,8 +2863,7 @@ function addChancelleryStreetEntrance(
   const fenceBarCount = 381;
   for (let index = 0; index < fenceBarCount; index += 1) {
     const offset =
-      -fenceHalfWidthM +
-      (index / (fenceBarCount - 1)) * fenceHalfWidthM * 2;
+      -fenceHalfWidthM + (index / (fenceBarCount - 1)) * fenceHalfWidthM * 2;
     const point = fenceCentre.clone().addScaledVector(lateral, offset);
     fencePosts.push({ position: [point.x, 1.325, point.z] });
   }
@@ -6691,18 +6678,23 @@ function createBrandenburgGateModel(
   placeMetricGroup(group, signature);
 
   const sandstone = nightEmitter(
-    modelMaterial(0xeee5d0, { roughness: 0.84 }),
+    modelMaterial(0xe2d6c0, { roughness: 0.86 }),
     0xf0c184,
     0.72,
   );
   const sandstoneShadow = nightEmitter(
-    modelMaterial(0xd5c4a5, { roughness: 0.9 }),
+    modelMaterial(0xc3b69f, { roughness: 0.92 }),
     0x9a7650,
     0.46,
   );
-  const recess = modelMaterial(0x777065, { opacity: 0.82, roughness: 0.92 });
-  const paving = modelMaterial(0xcfcac0, { roughness: 0.95 });
-  const patinatedCopper = modelMaterial(0x779485, {
+  const sandstoneRelief = nightEmitter(
+    modelMaterial(0xaa9b82, { roughness: 0.94 }),
+    0x8d6d4b,
+    0.38,
+  );
+  const recess = modelMaterial(0x716c63, { opacity: 0.82, roughness: 0.92 });
+  const paving = modelMaterial(0xb6b6b1, { roughness: 0.96 });
+  const patinatedCopper = modelMaterial(0x668f7a, {
     metalness: 0.36,
     roughness: 0.56,
   });
@@ -6736,6 +6728,26 @@ function createBrandenburgGateModel(
   }
   const rowX = [-4.25, 4.25] as const;
   const columnCenters: Array<[number, number]> = [];
+
+  // Three shallow stylobate courses make the gate read as one continuous
+  // classical structure instead of twelve columns placed directly on the
+  // terrain. They remain inside the published 11 m depth and the measured
+  // 33.2 m central body width.
+  for (const [index, depth, width, height] of [
+    [0, signature.depth_m, mainBodyWidth + 0.9, 0.1],
+    [1, signature.depth_m - 0.28, mainBodyWidth + 0.55, 0.08],
+    [2, signature.depth_m - 0.52, mainBodyWidth + 0.2, 0.07],
+  ] as const) {
+    addBox(
+      group,
+      `Brandenburg Gate stylobate step ${index + 1}`,
+      [depth, height, width],
+      [0, 0.05 + index * 0.085, 0],
+      index === 1 ? sandstoneShadow : sandstone,
+      0.4,
+    );
+  }
+
   for (let row = 0; row < rowX.length; row += 1) {
     const x = rowX[row];
     for (let index = 0; index < columnAxes.length; index += 1) {
@@ -6869,7 +6881,7 @@ function createBrandenburgGateModel(
   photoDetails.userData = {
     ...BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE,
     evidence:
-      "Five owner-supplied public-space views; photographs are reference-only and are not bundled or projected",
+      "Six owner-supplied public-space views; photographs are reference-only and are not bundled or projected",
   };
   group.userData.photoDetailProfile = BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE;
   group.add(photoDetails);
@@ -6904,11 +6916,11 @@ function createBrandenburgGateModel(
     sandstoneShadow,
     columnCenters.flatMap(([x, z]) =>
       [0, 1, 2].map((ring) => ({
-        position: [
-          x,
-          signature.column_height_m - 0.68 + ring * 0.095,
-          z,
-        ] as [number, number, number],
+        position: [x, signature.column_height_m - 0.68 + ring * 0.095, z] as [
+          number,
+          number,
+          number,
+        ],
       })),
     ),
   );
@@ -6916,20 +6928,32 @@ function createBrandenburgGateModel(
   const passageCenters = columnAxes
     .slice(0, -1)
     .map((axis, index) => (axis + (columnAxes[index + 1] ?? axis)) / 2);
+  addBox(
+    group,
+    "Brandenburg Gate continuous cool-stone threshold",
+    [signature.depth_m - 0.08, 0.1, mainBodyWidth + 0.7],
+    [0, 0.052, 0],
+    paving,
+    0.36,
+  );
   for (let passage = 0; passage < passageCenters.length; passage += 1) {
     const passageZ = passageCenters[passage] ?? 0;
     const passageWidth = clearPassageWidths[passage] ?? sidePassageWidth;
     addBox(
       group,
       "Brandenburg Gate passage paving shadow",
-      [
-        signature.depth_m - 0.3,
-        0.12,
-        passageWidth - 0.08,
-      ],
+      [signature.depth_m - 0.3, 0.12, passageWidth - 0.08],
       [0, 0.065, passageZ],
       paving,
       0.38,
+    );
+    addBox(
+      photoDetails,
+      "Brandenburg Gate recessed passage soffit",
+      [signature.depth_m - 0.62, 0.22, passageWidth - 0.24],
+      [0, 13.2, passageZ],
+      recess,
+      0.34,
     );
   }
 
@@ -6942,7 +6966,7 @@ function createBrandenburgGateModel(
       "Brandenburg Gate passage masonry divider",
       [8.2, 13.18, 1.42],
       [0, 6.59, dividerZ],
-      sandstoneShadow,
+      sandstone,
       0.7,
     );
     for (const passageSide of [-1, 1]) {
@@ -6959,14 +6983,14 @@ function createBrandenburgGateModel(
     photoDetails,
     "Brandenburg Gate passage round relief medallions",
     new CircleGeometry(0.76, 24),
-    sandstone,
+    sandstoneShadow,
     medallions,
   );
   addInstancedBoxes(
     photoDetails,
     "Brandenburg Gate passage rectangular bas-reliefs",
     [3.75, 2.05, 0.09],
-    sandstone,
+    sandstoneShadow,
     reliefPanels,
   );
 
@@ -6990,8 +7014,7 @@ function createBrandenburgGateModel(
   );
 
   const pavilionWidth = (signature.width_m - mainBodyWidth) / 2;
-  const pavilionHeight =
-    BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionHeightM;
+  const pavilionHeight = BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionHeightM;
   const pavilionBodyHeight = 7.75;
   const pavilionMasonry: VectorSegment[] = [];
   for (const z of [-1, 1]) {
@@ -7001,7 +7024,7 @@ function createBrandenburgGateModel(
       "Brandenburg Gate side pavilion",
       [9.75, pavilionBodyHeight, pavilionWidth],
       [0, pavilionBodyHeight / 2, pavilionZ],
-      sandstoneShadow,
+      sandstone,
       0.88,
     );
     for (const x of [-1, 1]) {
@@ -7017,50 +7040,28 @@ function createBrandenburgGateModel(
     for (const x of [-1, 1]) {
       for (const offsetZ of [-0.34, -0.115, 0.115, 0.34]) {
         porticoColumns.push({
-          position: [
-            x * 5,
-            3.3,
-            pavilionZ + offsetZ * pavilionWidth,
-          ],
+          position: [x * 5, 3.3, pavilionZ + offsetZ * pavilionWidth],
         });
       }
-      const faceX = x * 5.42;
-      const pedimentGeometry = new BufferGeometry();
+      const faceX = x * 5.38;
       const pedimentHalfWidth = pavilionWidth / 2 - 0.85;
-      const pedimentZ =
-        x < 0
-          ? [
-              pavilionZ - pedimentHalfWidth,
-              pavilionZ + pedimentHalfWidth,
-              pavilionZ,
-            ]
-          : [
-              pavilionZ + pedimentHalfWidth,
-              pavilionZ - pedimentHalfWidth,
-              pavilionZ,
-            ];
-      pedimentGeometry.setAttribute(
-        "position",
-        new Float32BufferAttribute(
-          [
-            faceX,
-            7.55,
-            pedimentZ[0],
-            faceX,
-            7.55,
-            pedimentZ[1],
-            faceX,
-            9.58,
-            pedimentZ[2],
-          ],
-          3,
-        ),
+      const pediment = new Mesh(
+        triangularPrism(pedimentHalfWidth * 2, 2.03, 0.2),
+        sandstone,
       );
-      pedimentGeometry.computeVertexNormals();
-      const pediment = new Mesh(pedimentGeometry, sandstone);
       pediment.name = "Brandenburg Gate pavilion triangular pediment";
+      pediment.position.set(faceX, 7.55, pavilionZ);
       photoDetails.add(pediment);
       addEdges(photoDetails, pediment, 0.62);
+
+      const pedimentRelief = new Mesh(
+        triangularPrism(pedimentHalfWidth * 1.55, 1.28, 0.055),
+        sandstoneRelief,
+      );
+      pedimentRelief.name =
+        "Brandenburg Gate pavilion recessed triangular pediment relief";
+      pedimentRelief.position.set(x * 5.49, 7.78, pavilionZ);
+      photoDetails.add(pedimentRelief);
     }
     addInstancedGeometry(
       photoDetails,
@@ -7209,7 +7210,7 @@ function createBrandenburgGateModel(
     "Brandenburg Gate attic",
     [signature.depth_m - 0.42, 1.52, mainBodyWidth - 0.2],
     [0, 18.14, 0],
-    sandstoneShadow,
+    sandstone,
     0.9,
   );
   addBox(
@@ -7217,7 +7218,7 @@ function createBrandenburgGateModel(
     "Brandenburg Gate upper lintel",
     [signature.depth_m, 1.16, mainBodyWidth + 0.48],
     [0, 15.76, 0],
-    sandstoneShadow,
+    sandstone,
     0.88,
   );
   addBox(
@@ -7228,6 +7229,30 @@ function createBrandenburgGateModel(
     sandstone,
     0.8,
   );
+
+  // Real projecting geometry, rather than line-width-dependent strokes,
+  // keeps the Doric architrave legible in the isometric overview and at
+  // high-DPI mobile zoom. Six restrained courses appear on both facades.
+  const architraveCourses = [
+    [13.7, 0.15, mainBodyWidth + 0.34, sandstoneShadow],
+    [14.08, 0.12, mainBodyWidth + 0.18, sandstone],
+    [14.58, 0.11, mainBodyWidth + 0.12, sandstoneShadow],
+    [15.2, 0.16, mainBodyWidth + 0.34, sandstone],
+    [17.24, 0.17, mainBodyWidth + 0.24, sandstone],
+    [18.92, 0.16, mainBodyWidth + 0.08, sandstoneShadow],
+  ] as const;
+  for (const xSide of [-1, 1]) {
+    architraveCourses.forEach(([y, height, width, material], index) => {
+      addBox(
+        photoDetails,
+        `Brandenburg Gate facade architrave course ${xSide}:${index + 1}`,
+        [0.1, height, width],
+        [xSide * (signature.depth_m / 2 - 0.05), y, 0],
+        material,
+        0.5,
+      );
+    });
+  }
   addBox(
     group,
     "Brandenburg Gate stepped attic shoulder",
@@ -7269,16 +7294,14 @@ function createBrandenburgGateModel(
   for (const xSide of [-1, 1]) {
     for (let index = 0; index < triglyphCount; index += 1) {
       const z =
-        -mainBodyWidth / 2 +
-        ((index + 0.5) / triglyphCount) * mainBodyWidth;
+        -mainBodyWidth / 2 + ((index + 0.5) / triglyphCount) * mainBodyWidth;
       metopePanels.push({
         position: [xSide * (signature.depth_m / 2 - 0.145), 16.73, z],
       });
     }
     for (let triglyph = 0; triglyph <= triglyphCount; triglyph += 1) {
       const centreZ =
-        -mainBodyWidth / 2 +
-        (triglyph / triglyphCount) * mainBodyWidth;
+        -mainBodyWidth / 2 + (triglyph / triglyphCount) * mainBodyWidth;
       for (let drop = 0; drop < 6; drop += 1) {
         guttae.push({
           position: [
@@ -7330,7 +7353,7 @@ function createBrandenburgGateModel(
       "Brandenburg Gate central attic relief field",
       [0.1, 1.08, 11.8],
       [xSide * (signature.depth_m / 2 - 0.12), 19.56, 0],
-      sandstone,
+      sandstoneShadow,
       0.42,
     );
     for (
@@ -7367,21 +7390,21 @@ function createBrandenburgGateModel(
     photoDetails,
     "Brandenburg Gate central attic relief figures",
     new CapsuleGeometry(0.085, 0.32, 3, 7),
-    sandstoneShadow,
+    sandstoneRelief,
     atticFigures,
   );
   addInstancedGeometry(
     photoDetails,
     "Brandenburg Gate central attic relief heads",
     new SphereGeometry(0.105, 8, 6),
-    sandstoneShadow,
+    sandstoneRelief,
     atticHeads,
   );
   addInstancedGeometry(
     photoDetails,
     "Brandenburg Gate metope relief figures",
     new CapsuleGeometry(0.06, 0.2, 3, 6),
-    sandstoneShadow,
+    sandstoneRelief,
     friezeFigures,
   );
 

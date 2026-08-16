@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.71.49
+
+- **Brandenburg Gate now reads as a complete classical gate at both overview
+  and close range.** Its official 62.5 x 11 x 26 m envelope, anchor, bearing,
+  two rows of six Doric columns and five clear passages remain unchanged.
+  Three continuous stylobate steps tie the columns to the pavement, twelve
+  projecting facade courses give the architrave real depth, and the four
+  side-pavilion pediments are now solid prisms with recessed relief fields
+  instead of single-sided triangles.
+- **The supplied elevated Pariser-Platz view now has a matching public-space
+  composition and palette.** The generic orange centre is covered by a
+  source-bounded cool-grey sett plate. Both mapped formal gardens gain coherent
+  lawns, continuous flower beds and stone borders, four clipped topiary shrubs,
+  low rails, circular blue basins and white fountain jets. The gate uses warmer
+  pale sandstone, controlled shadow tones and green-patinated roof/sculpture
+  accents without copying or bundling the photograph.
+- **Geometry and mode contracts remain locked.** Focused tests verify the
+  published outer dimensions, 12 columns, 20 flutes per shaft, five passages,
+  new course/pediment/stylobate counts, exact garden anchors and central paving
+  elevation. Day, Night and Minecraft were inspected in the live viewer with
+  no source-coordinate change. The visible radius remains **5,230 m** and all
+  attribution is unchanged.
+
 ## v0.71.48
 
 - **The mouse wheel now provides direct pedestrian travel.** Wheel up walks

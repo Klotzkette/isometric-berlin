@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
+import { Color, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 
 import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
@@ -26,6 +26,7 @@ import {
   FRIEDRICHSTRASSE_STATION_WIDTH_M,
   HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD,
   HAUPTBAHNHOF_TRAM_SOURCE_WAY_ID,
+  PARISER_PLATZ_CENTRAL_PAVING,
   PARISER_PLATZ_GARDENS,
   TEAR_PALACE_FOOTPRINT_WORLD,
   TEAR_PALACE_PRISM_IDS,
@@ -75,8 +76,7 @@ function pointSegmentDistance(point: Point2, start: Point2, end: Point2) {
     0,
     Math.min(
       1,
-      ((point[0] - start[0]) * dx + (point[1] - start[1]) * dz) /
-        lengthSquared,
+      ((point[0] - start[0]) * dx + (point[1] - start[1]) * dz) / lengthSquared,
     ),
   );
   return Math.hypot(
@@ -86,10 +86,7 @@ function pointSegmentDistance(point: Point2, start: Point2, end: Point2) {
 }
 
 function cross(a: Point2, b: Point2, c: Point2): number {
-  return (
-    (b[0] - a[0]) * (c[1] - a[1]) -
-    (b[1] - a[1]) * (c[0] - a[0])
-  );
+  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
 }
 
 function segmentsIntersect(
@@ -98,16 +95,12 @@ function segmentsIntersect(
   c: Point2,
   d: Point2,
 ): boolean {
-  return cross(a, b, c) * cross(a, b, d) <= 0 &&
-    cross(c, d, a) * cross(c, d, b) <= 0;
+  return (
+    cross(a, b, c) * cross(a, b, d) <= 0 && cross(c, d, a) * cross(c, d, b) <= 0
+  );
 }
 
-function segmentDistance(
-  a: Point2,
-  b: Point2,
-  c: Point2,
-  d: Point2,
-): number {
+function segmentDistance(a: Point2, b: Point2, c: Point2, d: Point2): number {
   if (segmentsIntersect(a, b, c, d)) return 0;
   return Math.min(
     pointSegmentDistance(a, c, d),
@@ -123,14 +116,16 @@ function minimumRingToLineDistance(
 ): number {
   return Math.min(
     ...ring.flatMap((start, ringIndex) =>
-      line.slice(0, -1).map((lineStart, lineIndex) =>
-        segmentDistance(
-          start,
-          ring[(ringIndex + 1) % ring.length],
-          lineStart,
-          line[lineIndex + 1],
+      line
+        .slice(0, -1)
+        .map((lineStart, lineIndex) =>
+          segmentDistance(
+            start,
+            ring[(ringIndex + 1) % ring.length],
+            lineStart,
+            line[lineIndex + 1],
+          ),
         ),
-      ),
     ),
   );
 }
@@ -219,7 +214,9 @@ describe("task-11 central transit and civic details", () => {
     expect(publicArt).toBeDefined();
     expect(publicArt?.userData.brechtSite).toBe("Bertolt-Brecht-Platz");
     expect(publicArt?.userData.heleneWeigelSite).toBe("Helene-Weigel-Hof");
-    expect(publicArt?.userData.brechtMonumentWorld).toEqual([1027.048, -349.126]);
+    expect(publicArt?.userData.brechtMonumentWorld).toEqual([
+      1027.048, -349.126,
+    ]);
     expect(publicArt?.userData.heleneWeigelCourtyardWorld).toEqual([
       968.142, -355.096,
     ]);
@@ -229,6 +226,12 @@ describe("task-11 central transit and civic details", () => {
   test("pins Pariser Platz, Cube and Tränenpalast to surveyed outlines", () => {
     const details = createCentralCivicDetails(landmarks);
     expect(PARISER_PLATZ_GARDENS).toHaveLength(2);
+    expect(PARISER_PLATZ_CENTRAL_PAVING).toEqual({
+      centre: [497.05, 294.5],
+      rotationRad: 0.087,
+      size: [76.4, 23.8],
+      topY: 5.03,
+    });
     expect(BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD).toEqual([
       576.06, 4.8, 286.37,
     ]);
@@ -245,6 +248,43 @@ describe("task-11 central transit and civic details", () => {
       ...PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
       photographsBundled: false,
     });
+    expect(PARISER_PLATZ_PHOTO_DETAIL_PROFILE).toMatchObject({
+      continuousFlowerBedCount: 8,
+      formalLawnCount: 2,
+      formalTopiaryCount: 4,
+      fountainBasinCount: 2,
+      fountainJetCount: 2,
+      gardenRailPostCount: 96,
+      sourceViewCount: 6,
+    });
+    const civicBodies = details.getObjectByName(
+      "Central transit and civic details bodies",
+    ) as Mesh;
+    const civicColours = civicBodies.geometry.getAttribute("color");
+    const civicPositions = civicBodies.geometry.getAttribute("position");
+    const lawnColour = new Color(0x8db978);
+    const hasFormalLawn = Array.from(
+      { length: civicColours.count },
+      (_, index) =>
+        Math.abs(civicColours.getX(index) - lawnColour.r) < 0.00001 &&
+        Math.abs(civicColours.getY(index) - lawnColour.g) < 0.00001 &&
+        Math.abs(civicColours.getZ(index) - lawnColour.b) < 0.00001,
+    ).some(Boolean);
+    expect(hasFormalLawn).toBe(true);
+    const pavingColour = new Color(0xc3c3bd);
+    const pavingVertices = Array.from(
+      { length: civicColours.count },
+      (_, index) => index,
+    ).filter(
+      (index) =>
+        Math.abs(civicColours.getX(index) - pavingColour.r) < 0.00001 &&
+        Math.abs(civicColours.getY(index) - pavingColour.g) < 0.00001 &&
+        Math.abs(civicColours.getZ(index) - pavingColour.b) < 0.00001,
+    );
+    expect(pavingVertices).toHaveLength(24);
+    expect(
+      Math.max(...pavingVertices.map((index) => civicPositions.getY(index))),
+    ).toBeCloseTo(PARISER_PLATZ_CENTRAL_PAVING.topY, 4);
     expect(
       pariserPlatzDetails!.getObjectByName(
         "Pariser Platz photo-bounded fine detail lamps",

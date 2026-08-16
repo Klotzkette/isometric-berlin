@@ -155,6 +155,11 @@ const TRANSIT_BLUE = 0x2878b9;
 const GARDEN_GREEN = 0x5e9b66;
 const FOLIAGE = 0x4f8a58;
 const LIGHT_GREEN = 0x95bd75;
+const PARISER_LAWN = 0x8db978;
+const PARISER_FLOWER_SOIL = 0x765d48;
+const PARISER_RAIL = 0x38413d;
+const PARISER_WATER = 0x77b7c8;
+const PARISER_FOUNTAIN_MIST = 0xe8f3ef;
 const TAXI_IVORY = 0xe9dfbd;
 const WALL_CONCRETE = 0xa8a69e;
 const WALL_CONCRETE_DARK = 0x87877f;
@@ -262,15 +267,27 @@ export const PARISER_PLATZ_GARDENS = [
   { centre: [500.7, 334.1], size: [74.3, 22.6] },
   { centre: [494.2, 254.9], size: [75, 23] },
 ] as const;
+export const PARISER_PLATZ_CENTRAL_PAVING = {
+  centre: [497.05, 294.5],
+  rotationRad: 0.087,
+  size: [76.4, 23.8],
+  topY: 5.03,
+} as const;
 export const BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD = [
   576.06, 4.8, 286.37,
 ] as const;
 export const PARISER_PLATZ_PHOTO_DETAIL_PROFILE = {
   benchCount: 8,
+  continuousFlowerBedCount: 8,
   drainageStripCount: 6,
+  formalLawnCount: 2,
+  formalTopiaryCount: 4,
+  fountainBasinCount: 2,
+  fountainJetCount: 2,
+  gardenRailPostCount: 96,
   historicalTwinLampCount: 8,
   permanentBollardCount: 192,
-  sourceViewCount: 5,
+  sourceViewCount: 6,
   temporaryBarrierCount: 0,
   treeGrateCount: 16,
 } as const;
@@ -484,12 +501,7 @@ function addLocalHippedRoof(
   height: number,
   rotationY: number,
 ): void {
-  const geometry = new CylinderGeometry(
-    topRadius,
-    bottomRadius,
-    height,
-    4,
-  );
+  const geometry = new CylinderGeometry(topRadius, bottomRadius, height, 4);
   geometry.rotateY(rotationY + Math.PI / 4);
   const local = localPoint(point, x, z, rotationY);
   geometry.translate(local.x, point.y + y, local.z);
@@ -1482,16 +1494,59 @@ function addPariserPlatzDetails(builder: Builder): void {
   PARISER_PLATZ_GARDENS.forEach(({ centre, size }, gardenIndex) => {
     const point = new Vector3(centre[0], gardenBaseY, centre[1]);
     const [width, depth] = size;
-    // The lawns and fountains already come from OSM. These raised strips are
-    // the narrow flower borders and granite rims documented by Berlin's
-    // Pariser-Platz plan, not a second ground surface.
+    // Explicit, slightly raised lawn plates hide the heterogeneous source
+    // surface while staying wholly inside the official garden rectangles.
+    // This prevents the former orange/raw terrain patch without moving any
+    // surveyed edge or introducing a coplanar overlay.
+    localBox(
+      builder,
+      PARISER_LAWN,
+      point,
+      0,
+      0.18,
+      0,
+      width - 1.8,
+      0.12,
+      depth - 1.8,
+      rotation,
+      false,
+    );
+
+    // Continuous planted strips and pale granite edging reproduce the formal
+    // Pariser-Platz parterres in the supplied elevated view.
     for (const side of [-1, 1]) {
+      localBox(
+        builder,
+        PARISER_FLOWER_SOIL,
+        point,
+        0,
+        0.25,
+        side * (depth / 2 - 1.22),
+        width - 2.1,
+        0.14,
+        1.22,
+        rotation,
+        false,
+      );
+      localBox(
+        builder,
+        PARISER_FLOWER_SOIL,
+        point,
+        side * (width / 2 - 1.22),
+        0.25,
+        0,
+        1.22,
+        0.14,
+        depth - 2.1,
+        rotation,
+        false,
+      );
       localBox(
         builder,
         LIMESTONE,
         point,
         0,
-        0.15,
+        0.31,
         side * (depth / 2 - 0.35),
         width,
         0.3,
@@ -1504,7 +1559,7 @@ function addPariserPlatzDetails(builder: Builder): void {
         LIMESTONE,
         point,
         side * (width / 2 - 0.35),
-        0.15,
+        0.31,
         0,
         0.7,
         0.3,
@@ -1513,63 +1568,216 @@ function addPariserPlatzDetails(builder: Builder): void {
         false,
       );
     }
-    for (let index = 0; index < 18; index += 1) {
-      const along = -width / 2 + 3 + (index / 17) * (width - 6);
+    for (let index = 0; index < 28; index += 1) {
+      const along = -width / 2 + 2.6 + (index / 27) * (width - 5.2);
       for (const side of [-1, 1]) {
         const flower = localPoint(
           point,
           along,
-          side * (depth / 2 - 1.05),
+          side * (depth / 2 - 1.22),
           rotation,
         );
         addCylinder(
           builder,
           flowerPalette[(index + gardenIndex) % flowerPalette.length],
           flower.x,
-          gardenBaseY + 0.32,
+          gardenBaseY + 0.48,
           flower.z,
-          0.26,
-          0.36,
+          0.23,
+          0.32,
           7,
         );
       }
     }
-    for (const x of [-width / 2 + 3.1, width / 2 - 3.1]) {
-      for (const z of [-depth / 2 + 3.1, depth / 2 - 3.1]) {
-        const topiary = localPoint(point, x, z, rotation);
+    for (let index = 0; index < 7; index += 1) {
+      const across = -depth / 2 + 2.8 + (index / 6) * (depth - 5.6);
+      for (const side of [-1, 1]) {
+        const flower = localPoint(
+          point,
+          side * (width / 2 - 1.22),
+          across,
+          rotation,
+        );
         addCylinder(
           builder,
-          FOLIAGE,
-          topiary.x,
-          gardenBaseY + 1.15,
-          topiary.z,
-          1.45,
-          2.1,
-          14,
+          flowerPalette[(index + gardenIndex + 1) % flowerPalette.length],
+          flower.x,
+          gardenBaseY + 0.48,
+          flower.z,
+          0.23,
+          0.32,
+          7,
         );
       }
     }
+
+    // The clipped shrubs sit at the gate-facing end of each parterre. Rounded
+    // geometry replaces the former corner cylinders that read as four blocks.
+    for (const z of [-4.35, 4.35]) {
+      const topiary = localPoint(point, -width / 2 + 8.2, z, rotation);
+      const shrub = new SphereGeometry(1, 18, 12);
+      shrub.scale(1.75, 1.45, 1.55);
+      shrub.translate(topiary.x, gardenBaseY + 1.48, topiary.z);
+      addInkedGeometry(builder, shrub, FOLIAGE, true);
+    }
+
+    // Low black park rails define the planted rectangle without becoming a
+    // visual wall. Posts are real geometry and remain stable while orbiting.
+    for (const side of [-1, 1]) {
+      localBox(
+        builder,
+        PARISER_RAIL,
+        point,
+        0,
+        0.72,
+        side * (depth / 2 + 0.18),
+        width,
+        0.06,
+        0.06,
+        rotation,
+        false,
+      );
+      localBox(
+        builder,
+        PARISER_RAIL,
+        point,
+        side * (width / 2 + 0.18),
+        0.72,
+        0,
+        0.06,
+        0.06,
+        depth,
+        rotation,
+        false,
+      );
+    }
+    for (let index = 0; index < 18; index += 1) {
+      const along = -width / 2 + (index / 17) * width;
+      for (const side of [-1, 1]) {
+        const post = localPoint(
+          point,
+          along,
+          side * (depth / 2 + 0.18),
+          rotation,
+        );
+        addCylinder(
+          builder,
+          PARISER_RAIL,
+          post.x,
+          gardenBaseY + 0.54,
+          post.z,
+          0.045,
+          0.72,
+          8,
+        );
+      }
+    }
+    for (let index = 1; index < 7; index += 1) {
+      const across = -depth / 2 + (index / 7) * depth;
+      for (const side of [-1, 1]) {
+        const post = localPoint(
+          point,
+          side * (width / 2 + 0.18),
+          across,
+          rotation,
+        );
+        addCylinder(
+          builder,
+          PARISER_RAIL,
+          post.x,
+          gardenBaseY + 0.54,
+          post.z,
+          0.045,
+          0.72,
+          8,
+        );
+      }
+    }
+
     addCylinder(
       builder,
-      LIMESTONE,
+      0xbcb7ab,
       centre[0],
-      gardenBaseY + 0.12,
+      gardenBaseY + 0.3,
       centre[1],
-      5.55,
-      0.24,
-      28,
+      5.75,
+      0.32,
+      40,
     );
     addCylinder(
       builder,
-      0x7fb8c5,
+      PARISER_WATER,
       centre[0],
-      gardenBaseY + 0.26,
+      gardenBaseY + 0.49,
       centre[1],
-      4.95,
-      0.12,
-      28,
+      5.12,
+      0.1,
+      40,
+    );
+    const basinRim = new TorusGeometry(5.42, 0.22, 8, 40);
+    basinRim.rotateX(Math.PI / 2);
+    basinRim.translate(centre[0], gardenBaseY + 0.6, centre[1]);
+    addInkedGeometry(builder, basinRim, LIMESTONE, true);
+    addCylinder(
+      builder,
+      PARISER_FOUNTAIN_MIST,
+      centre[0],
+      gardenBaseY + 1.76,
+      centre[1],
+      0.13,
+      2.55,
+      12,
+    );
+    addCone(
+      builder,
+      PARISER_FOUNTAIN_MIST,
+      centre[0],
+      gardenBaseY + 1.68,
+      centre[1],
+      0.68,
+      2.05,
+      18,
+      false,
     );
   });
+
+  const paving = PARISER_PLATZ_CENTRAL_PAVING;
+  const pavingPoint = new Vector3(
+    paving.centre[0],
+    paving.topY - 0.07,
+    paving.centre[1],
+  );
+  // The open centre is cool-grey stone setts, not the peach fallback used
+  // for generic plaza cells. A shallow, non-coplanar plate preserves the
+  // measured footprint while replacing only that fallback surface.
+  localBox(
+    builder,
+    0xc3c3bd,
+    pavingPoint,
+    0,
+    0,
+    0,
+    paving.size[0],
+    0.14,
+    paving.size[1],
+    paving.rotationRad,
+    false,
+  );
+  for (let index = -5; index <= 5; index += 1) {
+    localBox(
+      builder,
+      index === 0 ? 0xa6a8a4 : 0xb5b5af,
+      pavingPoint,
+      0,
+      0.085,
+      index * 1.94,
+      paving.size[0] - 0.8,
+      0.035,
+      index === 0 ? 0.065 : 0.025,
+      paving.rotationRad,
+      false,
+    );
+  }
 
   const entrance = new Vector3(...BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD);
   const entranceRotation = 0.087;
@@ -2019,13 +2227,41 @@ function addPariserPlatzEmbassies(builder: Builder): void {
   blueRoom.rotateZ(-0.19);
   blueRoom.translate(595.1, british.y + 10.0, 378.2);
   addInkedGeometry(builder, blueRoom, 0x5aa8bd);
-  addBox(builder, 0x729083, 620.0, british.y + 22.1, 369.0, 39, 0.7, 29, -0.275);
+  addBox(
+    builder,
+    0x729083,
+    620.0,
+    british.y + 22.1,
+    369.0,
+    39,
+    0.7,
+    29,
+    -0.275,
+  );
 
   // Hungarian Embassy, Adam Sylvester: the exact LoD2 envelope is dressed
   // with its yellow-grey Hungarian limestone, glass base and glazed corner.
   const hungary = new Vector3(...EMBASSY_DETAIL_PROFILES.hungary.anchorWorld);
-  addBox(builder, 0xd8d0b7, hungary.x, hungary.y + 13.3, 252.55, 33.5, 25.4, 0.42);
-  addBox(builder, 0x9fc4c2, hungary.x, hungary.y + 2.35, 252.83, 32.2, 4.35, 0.3);
+  addBox(
+    builder,
+    0xd8d0b7,
+    hungary.x,
+    hungary.y + 13.3,
+    252.55,
+    33.5,
+    25.4,
+    0.42,
+  );
+  addBox(
+    builder,
+    0x9fc4c2,
+    hungary.x,
+    hungary.y + 2.35,
+    252.83,
+    32.2,
+    4.35,
+    0.3,
+  );
   for (let floor = 0; floor < 5; floor += 1) {
     for (let bay = 0; bay < 8; bay += 1) {
       addBox(
@@ -2062,7 +2298,16 @@ function addPariserPlatzEmbassies(builder: Builder): void {
     [0, 0xf4f0df],
     [0.45, 0x3d8a58],
   ] as const) {
-    addBox(builder, color, 647.0 + offset, hungary.y + 29.5, 250.0, 0.45, 1.8, 0.08);
+    addBox(
+      builder,
+      color,
+      647.0 + offset,
+      hungary.y + 29.5,
+      250.0,
+      0.45,
+      1.8,
+      0.08,
+    );
   }
 }
 
@@ -2408,8 +2653,30 @@ function addBerlinerEnsemble(
   localBox(builder, DARK_BRICK, point, 0, 17.2, 22.2, 22, 1.7, 0.2, rotation);
 
   const towerX = BERLINER_ENSEMBLE_PROFILE.roofSignLocalX;
-  localBox(builder, stucco, point, towerX, 23.3, 0.8, 14.4, 7.6, 12.2, rotation);
-  localBox(builder, stuccoLight, point, towerX, 27.5, 0.8, 15.2, 0.8, 12.8, rotation);
+  localBox(
+    builder,
+    stucco,
+    point,
+    towerX,
+    23.3,
+    0.8,
+    14.4,
+    7.6,
+    12.2,
+    rotation,
+  );
+  localBox(
+    builder,
+    stuccoLight,
+    point,
+    towerX,
+    27.5,
+    0.8,
+    15.2,
+    0.8,
+    12.8,
+    rotation,
+  );
   for (const x of [-3.2, 0, 3.2]) {
     addLocalArchedOpening(
       builder,
@@ -2456,11 +2723,56 @@ function createBerlinerEnsemblePublicArt(): Group | null {
     0.2,
     48,
   );
-  addBox(builder, blackStone, brechtX, groundY + 0.58, brechtZ, 2.25, 0.28, 0.78);
-  addBox(builder, blackStone, brechtX + 0.9, groundY + 1.04, brechtZ, 0.16, 0.92, 0.78);
-  addBox(builder, blackStone, brechtX - 0.9, groundY + 1.04, brechtZ, 0.16, 0.92, 0.78);
-  addBox(builder, bronze, brechtX - 0.22, groundY + 1.45, brechtZ, 0.7, 1.15, 0.52);
-  addCylinder(builder, bronze, brechtX - 0.22, groundY + 2.25, brechtZ, 0.25, 0.42, 12);
+  addBox(
+    builder,
+    blackStone,
+    brechtX,
+    groundY + 0.58,
+    brechtZ,
+    2.25,
+    0.28,
+    0.78,
+  );
+  addBox(
+    builder,
+    blackStone,
+    brechtX + 0.9,
+    groundY + 1.04,
+    brechtZ,
+    0.16,
+    0.92,
+    0.78,
+  );
+  addBox(
+    builder,
+    blackStone,
+    brechtX - 0.9,
+    groundY + 1.04,
+    brechtZ,
+    0.16,
+    0.92,
+    0.78,
+  );
+  addBox(
+    builder,
+    bronze,
+    brechtX - 0.22,
+    groundY + 1.45,
+    brechtZ,
+    0.7,
+    1.15,
+    0.52,
+  );
+  addCylinder(
+    builder,
+    bronze,
+    brechtX - 0.22,
+    groundY + 2.25,
+    brechtZ,
+    0.25,
+    0.42,
+    12,
+  );
   addBeamBetween(
     builder,
     bronze,
@@ -2489,23 +2801,66 @@ function createBerlinerEnsemblePublicArt(): Group | null {
     );
   }
 
-  const [weigelX, weigelZ] = BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld;
+  const [weigelX, weigelZ] =
+    BERLINER_ENSEMBLE_PROFILE.heleneWeigelCourtyardWorld;
   const cubeSize = 2.25;
   for (const x of [-cubeSize / 2, cubeSize / 2]) {
     for (const z of [-cubeSize / 2, cubeSize / 2]) {
-      addBox(builder, STEEL, weigelX + x, groundY + 1.18, weigelZ + z, 0.08, 2.3, 0.08, 0, false);
+      addBox(
+        builder,
+        STEEL,
+        weigelX + x,
+        groundY + 1.18,
+        weigelZ + z,
+        0.08,
+        2.3,
+        0.08,
+        0,
+        false,
+      );
     }
   }
   for (const y of [groundY + 0.06, groundY + 2.31]) {
     for (const z of [-cubeSize / 2, cubeSize / 2]) {
-      addBox(builder, STEEL, weigelX, y, weigelZ + z, cubeSize, 0.08, 0.08, 0, false);
+      addBox(
+        builder,
+        STEEL,
+        weigelX,
+        y,
+        weigelZ + z,
+        cubeSize,
+        0.08,
+        0.08,
+        0,
+        false,
+      );
     }
     for (const x of [-cubeSize / 2, cubeSize / 2]) {
-      addBox(builder, STEEL, weigelX + x, y, weigelZ, 0.08, 0.08, cubeSize, 0, false);
+      addBox(
+        builder,
+        STEEL,
+        weigelX + x,
+        y,
+        weigelZ,
+        0.08,
+        0.08,
+        cubeSize,
+        0,
+        false,
+      );
     }
   }
   addBox(builder, 0x68625b, weigelX, groundY + 0.48, weigelZ, 0.62, 0.72, 0.62);
-  addBox(builder, 0x68625b, weigelX, groundY + 0.98, weigelZ + 0.25, 0.62, 0.62, 0.1);
+  addBox(
+    builder,
+    0x68625b,
+    weigelX,
+    groundY + 0.98,
+    weigelZ + 0.25,
+    0.62,
+    0.62,
+    0.1,
+  );
   const portrait = new SphereGeometry(0.22, 12, 8);
   portrait.scale(1, 1.28, 0.18);
   portrait.translate(weigelX, groundY + 1.65, weigelZ - cubeSize / 2 - 0.05);
@@ -3808,7 +4163,7 @@ export function createCentralCivicDetails(
     photoDetailProfile: PARISER_PLATZ_PHOTO_DETAIL_PROFILE,
     subwayEntranceWorld: BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
     source:
-      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints + five owner-supplied public-space reference views",
+      "Berlin official Pariser-Platz landscape plan + OSM entrances and footprints + six owner-supplied public-space reference views",
   };
   group.userData.cubeBerlin = {
     facadeProfile: CUBE_BERLIN_FACADE_PROFILE,
