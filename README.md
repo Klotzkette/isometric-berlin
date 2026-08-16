@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.49 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.49/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.50 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.50/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.49** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.50** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,24 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.49**, built from `main`. Its full viewer
+The current public package is **v0.71.50**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Reichstag west front now has a more faithful classical hierarchy.**
+  The measured shell, glass dome and four flags stay fixed, while the six-column
+  portico gains 24-flute shafts, Corinthian leaves and volutes, profiled plinths,
+  a central tympanum group, alternating triangular and segmental window crowns,
+  keystones, sills, attic relief panels, rosettes and a neutral light-limestone
+  palette. `DEM DEUTSCHEN VOLKE` remains physically separated from the stone
+  band to prevent coplanar shimmer.
+
+- **The Terrassenhaus at Hafenplatz now follows its official stepped massing.**
+  All 26 Berlin LoD2 bodies retain their measured footprints and heights. A
+  source-bounded recognition layer adds the characteristic cross-shaped height
+  cascade, ochre window frames, exposed-aggregate spandrels and parapet rhythm;
+  hidden internal walls are omitted and no photo texture is bundled.
 
 - **The pedestrian mouse wheel now walks instead of doing nothing.** Wheel up
   moves forward and wheel down moves backward along the current heading. A

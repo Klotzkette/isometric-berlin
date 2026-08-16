@@ -173,14 +173,17 @@ export const REICHSTAG_INSCRIPTION_FIELD_WIDTH_M = 16;
  * These counts describe visible architectural members, not inferred rooms.
  */
 export const REICHSTAG_WEST_FACADE_PROFILE = {
-  architraveDentilCount: 30,
+  architraveDentilCount: 36,
   basementWindowCount: 16,
   columnCapitalLeafCount: 48,
-  columnFluteCount: 18,
+  columnCapitalVoluteCount: 12,
+  columnFluteCount: 24,
+  columnPlinthRingCount: 12,
   centralGlassBayCount: 3,
-  corniceDentilCount: 56,
+  corniceDentilCount: 72,
   cornerQuoinBlockCount: 72,
   entranceMullionCount: 4,
+  pedimentAcroterionCount: 3,
   porticoColumnCount: 6,
   porticoReliefFigureCount: 10,
   roofFigureCount: 10,
@@ -189,9 +192,15 @@ export const REICHSTAG_WEST_FACADE_PROFILE = {
   towerPilasterCount: 8,
   towerSidePilasterCount: 8,
   towerUpperWindowCount: 48,
-  tympanumFigureCount: 15,
+  tympanumCentralReliefCount: 7,
+  tympanumFigureCount: 19,
   wingBayCountPerSide: 5,
+  wingFriezePanelCount: 10,
+  wingFriezeRosetteCount: 10,
+  wingKeystoneCount: 10,
   wingPilasterCount: 12,
+  wingSegmentalPedimentCount: 4,
+  wingWindowSillCount: 20,
 } as const;
 
 /** Centre of a corner tower along one axis, given that axis' full extent. */
@@ -1305,25 +1314,101 @@ function addReichstagWestFacadeArticulation(
     })),
   );
 
-  // Alternating triangular hoods make the piano-nobile rhythm legible in
-  // oblique isometric views. They sit over the four bays on each wing.
+  // Wallot alternates triangular and segmental window crowns. Rendering both
+  // profiles is essential in a close front view; a row of identical wedges
+  // made the piano nobile look like a simplified stage set.
   const wingWindowCentres = Array.from(
     { length: REICHSTAG_WEST_FACADE_PROFILE.wingBayCountPerSide },
     (_, index) => 23.5 + index * 6.2,
   );
   for (const side of [-1, 1]) {
     for (const [index, offset] of wingWindowCentres.entries()) {
+      const triangular = index % 2 === 0;
       const hood = new Mesh(
-        triangularPrism(3.15, index % 2 === 0 ? 0.92 : 0.72, 0.32),
+        triangular
+          ? triangularPrism(3.15, 0.92, 0.32)
+          : new TorusGeometry(1.5, 0.16, 7, 24, Math.PI),
         reliefStone,
       );
-      hood.name = "Reichstag west wing alternating window pediment";
-      hood.position.set(westFaceX - 0.32, 18.02, side * offset);
+      hood.name = triangular
+        ? "Reichstag west wing triangular window pediment"
+        : "Reichstag west wing segmental window pediment";
+      if (!triangular) hood.rotation.y = Math.PI / 2;
+      hood.position.set(westFaceX - 0.34, 18.02, side * offset);
       hood.castShadow = true;
       group.add(hood);
       addEdges(group, hood, 0.64);
     }
   }
+
+  const windowSills: InstanceTransform[] = [];
+  const archedKeystones: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    for (const offset of wingWindowCentres) {
+      const z = side * offset;
+      windowSills.push(
+        { position: [westFaceX - 0.36, 5.96, z] },
+        { position: [westFaceX - 0.36, 14.88, z] },
+      );
+      archedKeystones.push({
+        position: [westFaceX - 0.43, 12.22, z],
+      });
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Reichstag west wing profiled window sills",
+    [0.46, 0.24, 2.82],
+    reliefStone,
+    windowSills,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west wing arched-window keystones",
+    new BoxGeometry(0.52, 0.72, 0.46),
+    reliefStone,
+    archedKeystones,
+  );
+
+  // A moulded attic/frieze register bridges the piano nobile and the roof
+  // cornice. Leaving the LoD2 wall bare here produced the oversized blank
+  // strip that dominated close front views.
+  const friezePanels: InstanceTransform[] = [];
+  const friezeRosettes: InstanceTransform[] = [];
+  for (const side of [-1, 1]) {
+    for (const offset of wingWindowCentres) {
+      const z = side * offset;
+      friezePanels.push({ position: [westFaceX - 0.3, 21.3, z] });
+      friezeRosettes.push({
+        position: [westFaceX - 0.48, 21.3, z],
+        rotation: [0, 0, Math.PI / 2],
+      });
+    }
+    for (const y of [20.05, 22.55]) {
+      addBox(
+        group,
+        "Reichstag west wing attic horizontal moulding",
+        [0.48, 0.3, 33.5],
+        [westFaceX - 0.24, y, side * 38.2],
+        reliefStone,
+        0.62,
+      );
+    }
+  }
+  addInstancedBoxes(
+    group,
+    "Reichstag west wing attic relief panels",
+    [0.34, 1.72, 4.72],
+    reliefStone,
+    friezePanels,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west wing attic relief rosettes",
+    new CylinderGeometry(0.34, 0.34, 0.16, 12),
+    stone,
+    friezeRosettes,
+  );
 
   const basementGlass = modelMaterial(0x59686a, {
     metalness: 0.08,
@@ -1560,6 +1645,8 @@ function addReichstagDocumentedOrders(
   );
 
   const capitalLeaves: InstanceTransform[] = [];
+  const capitalVolutes: InstanceTransform[] = [];
+  const plinthRings: InstanceTransform[] = [];
   for (let column = 0; column < 6; column += 1) {
     const cz = -17.5 + column * 7;
     for (let leaf = 0; leaf < 8; leaf += 1) {
@@ -1574,6 +1661,18 @@ function addReichstagDocumentedOrders(
         scale: [1, leaf % 2 === 0 ? 1 : 0.82, 1],
       });
     }
+    for (const side of [-1, 1]) {
+      capitalVolutes.push({
+        position: [westX - 1.12, 18.28, cz + side * 1.02],
+        rotation: [0, Math.PI / 2, 0],
+      });
+    }
+    for (const y of [4.32, 4.76]) {
+      plinthRings.push({
+        position: [westX, y, cz],
+        rotation: [Math.PI / 2, 0, 0],
+      });
+    }
   }
   addInstancedGeometry(
     group,
@@ -1581,6 +1680,20 @@ function addReichstagDocumentedOrders(
     new ConeGeometry(0.22, 0.72, 6),
     reliefStone,
     capitalLeaves,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west portico Corinthian capital volutes",
+    new TorusGeometry(0.31, 0.1, 6, 18),
+    reliefStone,
+    capitalVolutes,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west portico column plinth rings",
+    new TorusGeometry(1.4, 0.12, 7, 24),
+    reliefStone,
+    plinthRings,
   );
 
   // Architrave mouldings above and below the gilded dedication band.
@@ -1675,6 +1788,87 @@ function addReichstagDocumentedOrders(
     new SphereGeometry(0.28, 10, 7),
     stone,
     reliefHeads,
+  );
+
+  // The west tympanum is composed around a dominant central allegorical
+  // group, not a row of equal figures. A shallow shield, the standing centre
+  // figure and two lower attendants make that hierarchy legible in the
+  // isometric front view while remaining inside the photographed relief field.
+  const centralShield = new Mesh(
+    new CylinderGeometry(0.96, 0.96, 0.24, 16),
+    stone,
+  );
+  centralShield.name = "Reichstag west tympanum central heraldic shield";
+  centralShield.rotation.z = Math.PI / 2;
+  centralShield.position.set(westX - 3.77, 22.42, 0);
+  centralShield.scale.set(1, 1, 0.78);
+  centralShield.castShadow = true;
+  group.add(centralShield);
+  addEdges(group, centralShield, 0.72);
+
+  const centralReliefBodies: InstanceTransform[] = [
+    {
+      position: [westX - 3.69, 23.12, 0],
+      scale: [0.92, 1.8, 0.92],
+    },
+    {
+      position: [westX - 3.64, 21.78, -2.15],
+      rotation: [0, 0, -0.52],
+      scale: [0.78, 1.25, 0.82],
+    },
+    {
+      position: [westX - 3.64, 21.78, 2.15],
+      rotation: [0, 0, 0.52],
+      scale: [0.78, 1.25, 0.82],
+    },
+  ];
+  addInstancedGeometry(
+    group,
+    "Reichstag west tympanum dominant central relief bodies",
+    new CapsuleGeometry(0.3, 1.35, 5, 10),
+    reliefStone,
+    centralReliefBodies,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west tympanum dominant central relief heads",
+    new SphereGeometry(0.32, 12, 9),
+    stone,
+    centralReliefBodies.map((transform, index) => ({
+      position: [
+        transform.position[0] - 0.06,
+        transform.position[1] + (index === 0 ? 1.52 : 1.05),
+        transform.position[2],
+      ],
+      scale: index === 0 ? [1.12, 1.12, 1.12] : undefined,
+    })),
+  );
+
+  const acroteria: InstanceTransform[] = [
+    { position: [westX - 3.82, 27.45, 0], scale: [1.05, 1.25, 1.05] },
+    { position: [westX - 3.82, 21.08, -19.15] },
+    { position: [westX - 3.82, 21.08, 19.15] },
+  ];
+  addInstancedGeometry(
+    group,
+    "Reichstag west pediment acroterion figures",
+    new CapsuleGeometry(0.31, 1.18, 4, 9),
+    stone,
+    acroteria,
+  );
+  addInstancedGeometry(
+    group,
+    "Reichstag west pediment acroterion heads",
+    new SphereGeometry(0.29, 10, 8),
+    stone,
+    acroteria.map((transform) => ({
+      position: [
+        transform.position[0] - 0.04,
+        transform.position[1] + 1.05,
+        transform.position[2],
+      ],
+      scale: transform.scale,
+    })),
   );
 
   // Rusticated base storey: deep horizontal beds plus staggered joints
@@ -1778,14 +1972,14 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   placeMetricGroup(group, signature);
 
   const stoneAccent = nightEmitter(
-    modelMaterial(0xd8d7d1, { roughness: 0.84 }),
+    modelMaterial(0xd8d6cf, { roughness: 0.84 }),
     0x65778d,
     0.5,
   );
   // A restrained neutral limestone step gives Wallot's mouldings depth
   // without turning the Reichstag into a yellow sandstone block.
   const stoneRelief = nightEmitter(
-    modelMaterial(0xb9b6ae, { roughness: 0.88 }),
+    modelMaterial(0xadaaa2, { roughness: 0.88 }),
     0x596878,
     0.36,
   );
@@ -1875,7 +2069,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
   const columnHeight = 14.5;
   for (let index = 0; index < 6; index += 1) {
     const column = new Mesh(
-      new CylinderGeometry(1.05, 1.25, columnHeight, 16),
+      new CylinderGeometry(1.05, 1.25, columnHeight, 24),
       stoneAccent,
     );
     column.name = `Reichstag west portico column ${index + 1}`;
@@ -1883,14 +2077,14 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     column.castShadow = true;
     group.add(column);
     const base = new Mesh(
-      new CylinderGeometry(1.55, 1.7, 0.55, 18),
+      new CylinderGeometry(1.55, 1.7, 0.55, 24),
       stoneAccent,
     );
     base.name = `Reichstag west portico column base ${index + 1}`;
     base.position.set(westX, 4.28, -17.5 + index * 7);
     group.add(base);
     const capital = new Mesh(
-      new CylinderGeometry(1.65, 1.25, 0.72, 18),
+      new CylinderGeometry(1.65, 1.25, 0.72, 24),
       stoneAccent,
     );
     capital.name = `Reichstag west portico capital ${index + 1}`;

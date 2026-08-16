@@ -840,7 +840,7 @@ describe("metre-scale architectural recognition models", () => {
     expect(reichstagStone.material.userData.nightEmissiveIntensity).toBe(0.5);
     expect(reichstagStone.material.opacity).toBe(1);
     expect(reichstagStone.material.transparent).toBe(false);
-    expect(reichstagStone.material.color.getHex()).toBe(0xd8d7d1);
+    expect(reichstagStone.material.color.getHex()).toBe(0xd8d6cf);
     expect(
       reichstag!.getObjectByName(
         "Reichstag west tympanum allegorical relief bodies",
@@ -856,10 +856,25 @@ describe("metre-scale architectural recognition models", () => {
     const tympanumField = reichstag!.getObjectByName(
       "Reichstag west triangular tympanum relief field",
     ) as Mesh;
-    expect(tympanumField.material.color.getHex()).toBe(0xb9b6ae);
+    expect(tympanumField.material.color.getHex()).toBe(0xadaaa2);
     expect(tympanumField.material.opacity).toBe(1);
     expect(tympanumField.material.transparent).toBe(false);
     expect(tympanumField.geometry.getAttribute("position").count).toBe(6);
+    const centralShield = reichstag!.getObjectByName(
+      "Reichstag west tympanum central heraldic shield",
+    );
+    expect(centralShield).toBeInstanceOf(Mesh);
+    const centralReliefBodies = reichstag!.getObjectByName(
+      "Reichstag west tympanum dominant central relief bodies",
+    ) as InstancedMesh;
+    const centralReliefHeads = reichstag!.getObjectByName(
+      "Reichstag west tympanum dominant central relief heads",
+    ) as InstancedMesh;
+    expect(centralReliefBodies).toBeInstanceOf(InstancedMesh);
+    expect(centralReliefHeads).toBeInstanceOf(InstancedMesh);
+    expect(centralReliefBodies.count + centralReliefHeads.count + 1).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.tympanumCentralReliefCount,
+    );
     const entranceRecess = reichstag!.getObjectByName(
       "Reichstag west entrance recessed backing",
     ) as Mesh;
@@ -1037,6 +1052,61 @@ describe("metre-scale architectural recognition models", () => {
     expect(capitalLeaves).toBeInstanceOf(InstancedMesh);
     expect(capitalLeaves.count).toBe(
       REICHSTAG_WEST_FACADE_PROFILE.columnCapitalLeafCount,
+    );
+    const capitalVolutes = reichstag!.getObjectByName(
+      "Reichstag west portico Corinthian capital volutes",
+    ) as InstancedMesh;
+    expect(capitalVolutes).toBeInstanceOf(InstancedMesh);
+    expect(capitalVolutes.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.columnCapitalVoluteCount,
+    );
+    const plinthRings = reichstag!.getObjectByName(
+      "Reichstag west portico column plinth rings",
+    ) as InstancedMesh;
+    expect(plinthRings).toBeInstanceOf(InstancedMesh);
+    expect(plinthRings.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.columnPlinthRingCount,
+    );
+    expect(
+      reichstag!.children.filter(
+        (child) =>
+          child.name === "Reichstag west wing segmental window pediment",
+      ),
+    ).toHaveLength(REICHSTAG_WEST_FACADE_PROFILE.wingSegmentalPedimentCount);
+    const wingSills = reichstag!.getObjectByName(
+      "Reichstag west wing profiled window sills",
+    ) as InstancedMesh;
+    expect(wingSills).toBeInstanceOf(InstancedMesh);
+    expect(wingSills.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.wingWindowSillCount,
+    );
+    const wingKeystones = reichstag!.getObjectByName(
+      "Reichstag west wing arched-window keystones",
+    ) as InstancedMesh;
+    expect(wingKeystones).toBeInstanceOf(InstancedMesh);
+    expect(wingKeystones.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.wingKeystoneCount,
+    );
+    const friezePanels = reichstag!.getObjectByName(
+      "Reichstag west wing attic relief panels",
+    ) as InstancedMesh;
+    expect(friezePanels).toBeInstanceOf(InstancedMesh);
+    expect(friezePanels.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.wingFriezePanelCount,
+    );
+    const friezeRosettes = reichstag!.getObjectByName(
+      "Reichstag west wing attic relief rosettes",
+    ) as InstancedMesh;
+    expect(friezeRosettes).toBeInstanceOf(InstancedMesh);
+    expect(friezeRosettes.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.wingFriezeRosetteCount,
+    );
+    const acroteria = reichstag!.getObjectByName(
+      "Reichstag west pediment acroterion figures",
+    ) as InstancedMesh;
+    expect(acroteria).toBeInstanceOf(InstancedMesh);
+    expect(acroteria.count).toBe(
+      REICHSTAG_WEST_FACADE_PROFILE.pedimentAcroterionCount,
     );
     const architraveDentils = reichstag!.getObjectByName(
       "Reichstag west portico architrave dentils",

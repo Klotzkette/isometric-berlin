@@ -67,6 +67,11 @@ import {
 } from "./DeutschesTheater";
 import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
 import {
+  TERRASSENHAUS_HAFENPLATZ_IDS,
+  TERRASSENHAUS_HAFENPLATZ_TONES,
+  createTerrassenhausHafenplatz,
+} from "./TerrassenhausHafenplatz";
+import {
   type VoxelPayload,
   WATER_TOP_Y,
   createGroundSlabs,
@@ -466,6 +471,15 @@ export const HERO_PRISM_TONES: Record<string, number> = {
       DEUTSCHES_THEATER_TONES.kammerspiele,
     ]),
   ),
+  // Hafenplatz 6-10: the 26 measured stepped shells retain their official
+  // massing while the source-specific layer supplies Ollk's grey Brutalist
+  // facade grid and ochre window frames.
+  ...Object.fromEntries(
+    [...TERRASSENHAUS_HAFENPLATZ_IDS].map((id) => [
+      id,
+      TERRASSENHAUS_HAFENPLATZ_TONES.concrete,
+    ]),
+  ),
   // Gymnasium Tiergarten Neubau (1971, refurbished 2009-11). The overview
   // raster stops short of the Hansaviertel, so every prism of the school
   // fell back to the generic concrete shade and the white rendered slab
@@ -527,6 +541,12 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
     [...DEUTSCHES_THEATER_IDS].map((id) => [
       id,
       DEUTSCHES_THEATER_TONES.slate,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...TERRASSENHAUS_HAFENPLATZ_IDS].map((id) => [
+      id,
+      TERRASSENHAUS_HAFENPLATZ_TONES.parapet,
     ]),
   ),
 };
@@ -1040,6 +1060,11 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
       // The clinker is the building's identity. Keep the shared ivory lift
       // restrained here so the red ceramic does not wash back to beige.
       return new Color(pinned).lerp(IVORY, 0.1);
+    }
+    if (TERRASSENHAUS_HAFENPLATZ_IDS.has(building.id)) {
+      // The cool washed-concrete and ochre window register are this listed
+      // ensemble's identity; a strong shared ivory wash erased both.
+      return new Color(pinned).lerp(IVORY, 0.12);
     }
     // The pins stay neutral light stone (the owner's earlier direction for the
     // Chancellery); the ivory blend is what stops them reading as grey paint.
@@ -1782,6 +1807,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "ycOYQRVL",
   ...HISTORIC_CHARITE_IDS,
   ...DEUTSCHES_THEATER_CUSTOM_FACADE_IDS,
+  ...TERRASSENHAUS_HAFENPLATZ_IDS,
 ]);
 
 /**
@@ -10141,5 +10167,6 @@ export function createIsometricCity(
   group.add(createGymnasiumTiergarten());
   group.add(createHistoricChariteCampus(prisms));
   group.add(createDeutschesTheater(prisms));
+  group.add(createTerrassenhausHafenplatz(prisms));
   return group;
 }

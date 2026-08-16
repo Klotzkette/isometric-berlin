@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.71.50
+
+- **The Reichstag west front now reads as Wallot's layered ceremonial facade
+  instead of a pale simplified shell.** Its official LoD2 envelope, anchor,
+  bearing, dome and four roof flags remain fixed. The six-column portico now
+  carries 24-flute shafts, Corinthian leaf and volute capitals, profiled
+  plinths, denser architrave dentils, a dominant central tympanum relief group
+  and three acroteria. Ten wing axes gain alternating triangular and segmental
+  crowns, arched-window keystones, sills, attic panels, rosettes and continuous
+  mouldings, while a neutral light-limestone pair restores readable depth in
+  Day, Night and Minecraft without dark square window overlays.
+- **The Terrassenhaus at Hafenplatz is now a source-bounded stepped ensemble
+  rather than generic pale prisms.** Every one of its 26 Berlin LoD2 bodies is
+  retained, including at least 18 distinct official height tiers up to 39.5 m.
+  Exposed walls receive deterministic ochre-framed window bands,
+  exposed-aggregate spandrels, parapets, balcony shadows and entrance details;
+  occluded internal faces are deliberately suppressed to avoid duplicate
+  geometry and z-fighting. These recognition details follow the supplied
+  photographs and published references but are explicitly not surveyed.
+- **The refinement is regression and browser checked.** Focused tests lock the
+  official Terrassenhaus part inventory and envelope, dense facade register,
+  Reichstag member counts, exact material palette and texture-free output. The
+  live WebGL scene was inspected in Day, Night and Minecraft with no browser
+  warnings or errors. The visible radius remains **5,230 m**, no source
+  coordinates moved, and attribution is unchanged.
+
 ## v0.71.49
 
 - **Brandenburg Gate now reads as a complete classical gate at both overview
