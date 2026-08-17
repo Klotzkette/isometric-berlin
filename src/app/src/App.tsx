@@ -89,7 +89,10 @@ import {
 } from "./pedestrianNavigation";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
-import { isReservedBrowserChord } from "./keyboardShortcuts";
+import {
+  isPedestrianJumpKey,
+  isReservedBrowserChord,
+} from "./keyboardShortcuts";
 import {
   LANGUAGE_STORAGE_KEY,
   UI_COPY,
@@ -1390,6 +1393,14 @@ export function App() {
     applyPedestrianSprint(nextLocked || heldSprint, true);
   }, [applyPedestrianSprint]);
 
+  const triggerPedestrianJump = useCallback(() => {
+    const jumped = threeViewerRef.current?.jumpPedestrian() ?? false;
+    if (jumped) {
+      setStatus(copy.pedestrianJump);
+    }
+    return jumped;
+  }, [copy.pedestrianJump]);
+
   const zoomBy = useCallback(
     (factor: number) => {
       if (viewerMode === "three") {
@@ -1915,7 +1926,7 @@ export function App() {
         }
         if (
           tagName === "button" &&
-          (event.key === " " || event.key === "Enter")
+          (event.key === "Enter" || isPedestrianJumpKey(event))
         ) {
           return;
         }
@@ -1938,10 +1949,10 @@ export function App() {
         !isRepositoryOpen &&
         isReady
       ) {
-        if (event.key === " ") {
+        if (isPedestrianJumpKey(event)) {
           event.preventDefault();
-          if (!event.repeat && threeViewerRef.current?.jumpPedestrian()) {
-            setStatus(copy.pedestrianJump);
+          if (!event.repeat) {
+            triggerPedestrianJump();
           }
           return;
         }
@@ -2207,6 +2218,7 @@ export function App() {
     togglePedestrianMode,
     togglePedestrianSprint,
     toggleSoundtrack,
+    triggerPedestrianJump,
     viewerMode,
     zoomBy,
   ]);
@@ -3056,8 +3068,10 @@ export function App() {
           type="button"
           className="pedestrian-jump-button"
           aria-label={copy.pedestrianJump}
-          title={`${copy.pedestrianJump} (Space)`}
-          onClick={() => threeViewerRef.current?.jumpPedestrian()}
+          title={`${copy.pedestrianJump} (Space · ${
+            language === "de" ? "Doppeltipp" : "double-tap"
+          })`}
+          onClick={triggerPedestrianJump}
         >
           <ArrowUpFromLine size={22} aria-hidden="true" />
         </button>
@@ -4114,8 +4128,8 @@ export function App() {
                   </dt>
                   <dd>
                     {language === "de"
-                      ? "Shift halten oder Vorwärts, Karte beziehungsweise Geh-Joystick doppeltippen: Sprint mit vierfacher Geschwindigkeit ein- / ausschalten"
-                      : "Hold Shift or double-tap forward, the map, or the walking pad: toggle four-times sprint speed"}
+                      ? "Shift halten oder Vorwärts beziehungsweise Geh-Joystick doppeltippen; mit der Maus geht auch ein Doppelklick auf die 3D-Fläche: Sprint mit vierfacher Geschwindigkeit ein- / ausschalten"
+                      : "Hold Shift or double-tap forward or the walking pad; a mouse double-click on the 3D view also toggles four-times sprint speed"}
                   </dd>
                 </div>
               ) : null}
@@ -4268,8 +4282,8 @@ export function App() {
               {viewerMode === "three"
                 ? isPedestrianMode
                   ? language === "de"
-                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen; das Mausrad läuft vor und zurück. Der Geh-Joystick bewegt, der Sprungknopf oder die Leertaste springt. Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser setzt dich am Pariser Platz wieder ab."
-                    : "Walk: drag with the mouse or one finger to move your head; the mouse wheel walks forward and back. The walking pad moves, and the jump button or Space jumps. Buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water returns you to Pariser Platz."
+                    ? "Spaziergang: Mit Maus oder einem Finger ziehen, um den Kopf zu bewegen; das Mausrad läuft vor und zurück. Leertaste, Sprungknopf oder Doppeltipp auf die freie 3D-Fläche springen. Der Geh-Joystick bewegt; Gebäude, Bäume, Laternen, Mauern und feste Spielgeräte sind solide. Wasser setzt dich am Pariser Platz wieder ab."
+                    : "Walk: drag with the mouse or one finger to move your head; the mouse wheel walks forward and back. Space, the jump button, or a double-tap on the open 3D view jumps. The walking pad moves; buildings, trees, lamp posts, walls, and fixed playground equipment are solid. Water returns you to Pariser Platz."
                   : language === "de"
                     ? "3D: Linke Maustaste verschiebt direkt, Mausrad zoomt am Zeiger, rechte Maustaste dreht. Auf dem Trackpad verschiebt Zwei-Finger-Scroll; Pinch zoomt am Fingermittelpunkt. Auf Touchscreens verschieben zwei Finger per Swipe und zoomen per Pinch; Doppeltipp zoomt ebenfalls an dieser Stelle. Drei Finger steuern Drehung und Neigung bis unter das Gelände."
                     : "3D: Left-drag pans directly, the mouse wheel zooms at the pointer, and right-drag orbits. On a trackpad, two-finger scroll pans and pinch zooms at the finger midpoint. On touchscreens, two fingers swipe to pan and pinch to zoom; double-tap zooms at that point too. Three fingers control orbit and tilt into the underside."

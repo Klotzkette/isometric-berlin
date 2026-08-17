@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.50 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.50/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.71.51 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.51/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.50** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.71.51** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.50**, built from `main`. Its full viewer
+The current public package is **v0.71.51**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -442,8 +442,10 @@ local modules.
   `Space` jumps to a bounded 5.4 m apex. The mouse wheel also walks along the
   current view direction (up forward, down backward) without changing camera
   zoom. Holding `Shift` gives a four-times
-  sprint; double-tapping forward, the 3D view, the forward control or the
-  walking joystick latches the same fast mode until the next double action.
+  sprint; double-tapping forward, the forward control or the walking joystick
+  latches the same fast mode until the next double action; a mouse double-click
+  on the 3D view does the same. `Space`, the jump control or a touch double-tap
+  on the free 3D view jumps; drags, pinches and long presses cannot trigger it.
   Flight, camera zoom and underside controls
   stay locked in this mode; entering mapped water returns the walker to Pariser
   Platz. A dedicated 52 px jump control keeps the complete workflow usable on
@@ -628,9 +630,10 @@ local modules.
 - **The bright isometric pass now preserves real material identity.** Facade
   samples retain more of their source hue, mineral roofs stay light without
   turning neutral grey, and roads, lawns, paving and water use fresher but
-  still flat drawn tones. The official Berlin tree catalogue also distinguishes
-  broadleaf, conifer, orchard and shrub silhouettes without sacrificing the
-  instanced rendering budget. Hauptbahnhof keeps its measured 321 m curved
+  still flat drawn tones. The official Berlin tree catalogue now drives distinct
+  oak, willow, pine/larch, fir/spruce, poplar, birch/robinia, lime/elm,
+  maple/plane, beech/chestnut, orchard and shrub silhouettes without moving a
+  tree or sacrificing the instanced rendering budget. Hauptbahnhof keeps its measured 321 m curved
   glass envelope while a stronger pale-cyan skin and finer steel grid stop it
   reading as a wireframe at overview scale.
 
@@ -982,7 +985,11 @@ local modules.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. The
   expanded additive layer combines the official catalogues with unmatched OSM
   evidence into 29,861 individual trees, including measured height, crown and
-  trunk dimensions where published. It also adds 5,829 public-light positions
+  trunk dimensions where published. Species evidence changes only the drawn
+  silhouette: spreading oak lobes, drooping willow crowns, high pine canopies,
+  tiered firs, columnar poplars, airy birches and denser beech groups retain
+  their official point, height, crown and trunk measurements. It also adds
+  5,829 public-light positions
   with night cones, 12 mapped wall traces as granular dark red-brown setts,
   1,651 OSM park-path sections and 101 playground footprints. The complete
   bounded smooth-surface pass additionally records 8,151 walking/cycling path

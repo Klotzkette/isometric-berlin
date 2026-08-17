@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { isReservedBrowserChord } from "../src/keyboardShortcuts";
+import {
+  isPedestrianJumpKey,
+  isReservedBrowserChord,
+} from "../src/keyboardShortcuts";
 
 const chord = (key: string, altKey = false, ctrlKey = false, metaKey = false) =>
   ({ altKey, ctrlKey, key, metaKey }) as const;
@@ -20,5 +23,11 @@ describe("keyboard shortcut browser-chord guard", () => {
 
   test("accepts unmodified viewer shortcuts", () => {
     expect(isReservedBrowserChord(chord("m"))).toBe(false);
+  });
+
+  test("recognises the pedestrian jump independently of layout or legacy key names", () => {
+    expect(isPedestrianJumpKey({ code: "Space", key: " " })).toBe(true);
+    expect(isPedestrianJumpKey({ code: "", key: "Spacebar" })).toBe(true);
+    expect(isPedestrianJumpKey({ code: "KeyW", key: "w" })).toBe(false);
   });
 });

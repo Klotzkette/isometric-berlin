@@ -70,12 +70,15 @@ forward and scrolling down walks backward; fine vertical trackpad deltas are
 proportional, while pinch and horizontal gestures do not move the walker. All
 wheel travel passes through the same solid-object, terrain, tunnel and water
 checks as keyboard movement. Hold `Shift` for a four-times sprint,
-or double-tap `W`/up, the 3D canvas, the forward button or the walking joystick
-to latch and unlatch the same sprint on keyboard, mouse and touch. The normal
+or double-tap `W`/up, the forward button or the walking joystick to latch and
+unlatch the same sprint on keyboard, mouse and touch; a mouse double-click on
+the 3D view does the same. The normal
 6.4 m/s rate remains available for precise inspection, and both speeds pass
-through the same terrain, tunnel and water checks. `Space` and the touch-safe jump
-button produce a single ground-only jump with a 5.4 m apex; there is no double
-jump. Entering a mapped OSM water polygon after landing respawns at Pariser
+through the same terrain, tunnel and water checks. `Space`, the touch-safe jump
+button and a double-tap on the free 3D view produce a single ground-only jump
+with a 5.4 m apex; drags, pinches and long presses never count as a jump, and
+there is no double jump. Entering a mapped OSM water polygon after landing
+respawns at Pariser
 Platz. Islands encoded as water holes remain walkable. The mode neither moves
 source geometry nor invents collision envelopes for buildings.
 
@@ -376,8 +379,12 @@ The optional OSM park-detail request is deliberately non-blocking: a failed
 `park-details.json` request raises a warning but never delays or disables the
 23 official base meshes. When present, schema 4 batches park paths into six
 material groups while retaining an individual resolved width per way; tree
-trunks, fork branches and five-part crowns are instanced, and only the small
-number of mapped playground devices use individual geometry. The always-loaded
+trunks, fork branches and species-resolved crowns are instanced, and only the
+small number of mapped playground devices use individual geometry. Oaks,
+willows, pines/larches, firs/spruces, poplars, birches/robinias, limes/elms,
+maples/planes, beeches/chestnuts, orchard trees and shrubs receive distinct
+profiles from the official catalogue while their published positions and
+dimensions remain unchanged. The always-loaded
 smooth surface pass uses those same six families across the complete bounded
 walking and cycling network. Curved bridleways, cycleways, footways and paths
 receive deterministic centripetal interpolation at runtime: every OSM source

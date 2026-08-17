@@ -268,12 +268,63 @@ describe("OSM park details", () => {
     expect(park.userData.suppressedConstructionTreeCount).toBe(0);
   });
 
-  test("keeps official conifers and shrubs distinct from broadleaf crowns", () => {
+  test("keeps official tree species and shrubs visually distinct", () => {
+    const airy = {
+      ...payload.trees[0],
+      id: "tree-airy",
+      species: "Hänge-Birke (Betula pendula)",
+      tree_group: "Laubbäume",
+    };
+    const columnar = {
+      ...payload.trees[0],
+      id: "tree-columnar",
+      species: "Schwarz-Pappel (Populus nigra)",
+      tree_group: "Laubbäume",
+    };
     const conifer = {
       ...payload.trees[0],
       id: "tree-conifer",
       leaf_type: "needleleaved",
+      species: null,
       tree_group: "Nadelbäume",
+    };
+    const fir = {
+      ...payload.trees[0],
+      id: "tree-fir",
+      leaf_type: "needleleaved",
+      species: "Gemeine Fichte (Picea abies)",
+      tree_group: "Nadelbäume",
+    };
+    const dense = {
+      ...payload.trees[0],
+      id: "tree-dense",
+      species: "Rot-Buche (Fagus sylvatica)",
+      tree_group: "Laubbäume",
+    };
+    const ginkgo = {
+      ...payload.trees[0],
+      id: "tree-ginkgo",
+      species: "Fächerblattbaum (Ginkgo biloba)",
+      tree_group: "Nadelbäume",
+    };
+    const oak = {
+      ...payload.trees[0],
+      id: "tree-oak",
+      species: "Stiel-Eiche (Quercus robur)",
+      tree_group: "Laubbäume",
+    };
+    const pine = {
+      ...payload.trees[0],
+      id: "tree-pine",
+      leaf_type: "needleleaved",
+      species: "Wald-Kiefer (Pinus sylvestris)",
+      tree_group: "Nadelbäume",
+    };
+    const spreading = {
+      ...payload.trees[0],
+      id: "tree-spreading",
+      species: "Spitz-Ahorn (Acer platanoides)",
+      tree_group: "Laubbäume",
     };
     const shrub = {
       ...payload.trees[0],
@@ -287,27 +338,100 @@ describe("OSM park details", () => {
       leaf_type: "broadleaved",
       tree_group: "Obstbäume",
     };
+    const willow = {
+      ...payload.trees[0],
+      id: "tree-willow",
+      species: "Silber-Weide (Salix alba)",
+      tree_group: "Laubbäume",
+    };
+    expect(treePresentationForm(airy)).toBe("airy");
+    expect(treePresentationForm(columnar)).toBe("columnar");
     expect(treePresentationForm(conifer)).toBe("conifer");
+    expect(treePresentationForm(dense)).toBe("dense");
+    expect(treePresentationForm(fir)).toBe("fir");
+    expect(treePresentationForm(ginkgo)).toBe("vase");
+    expect(treePresentationForm(oak)).toBe("oak");
+    expect(treePresentationForm(pine)).toBe("pine");
+    expect(treePresentationForm(spreading)).toBe("spreading");
     expect(treePresentationForm(shrub)).toBe("shrub");
     expect(treePresentationForm(orchard)).toBe("orchard");
+    expect(treePresentationForm(willow)).toBe("willow");
 
     const park = createParkDetails({
       ...payload,
-      trees: [conifer, shrub, orchard],
+      trees: [
+        airy,
+        columnar,
+        conifer,
+        dense,
+        fir,
+        ginkgo,
+        oak,
+        pine,
+        shrub,
+        spreading,
+        orchard,
+        willow,
+      ],
     });
+    const airyCrowns = park.children
+      .filter((child) => child.name.includes("airy birch and robinia crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const columnarCrowns = park.children
+      .filter((child) => child.name.includes("columnar poplar crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
     const coniferCrowns = park.children
       .filter((child) => child.name.includes("tiered conifer crowns"))
       .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
     const shrubCrowns = park.children
       .filter((child) => child.name.includes("low shrub crowns"))
       .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const firCrowns = park.children
+      .filter((child) => child.name.includes("dense fir and spruce crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const denseCrowns = park.children
+      .filter((child) => child.name.includes("dense beech and chestnut crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const oakCrowns = park.children
+      .filter((child) => child.name.includes("wide oak crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const pineCrowns = park.children
+      .filter((child) => child.name.includes("high-trunk pine crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const spreadingCrowns = park.children
+      .filter((child) => child.name.includes("spreading maple and plane crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const vaseCrowns = park.children
+      .filter((child) => child.name.includes("vase-shaped linden and elm crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    const willowCrowns = park.children
+      .filter((child) => child.name.includes("drooping willow crowns"))
+      .reduce((sum, child) => sum + (child as InstancedMesh).count, 0);
+    expect(airyCrowns).toBe(4);
+    expect(columnarCrowns).toBe(4);
     expect(coniferCrowns).toBe(3);
+    expect(denseCrowns).toBe(5);
+    expect(firCrowns).toBe(3);
+    expect(oakCrowns).toBe(6);
+    expect(pineCrowns).toBe(3);
     expect(shrubCrowns).toBe(2);
+    expect(spreadingCrowns).toBe(6);
+    expect(vaseCrowns).toBe(5);
+    expect(willowCrowns).toBe(4);
     expect(park.userData.treePresentationForms).toEqual({
+      airy: 1,
       broadleaf: 0,
+      columnar: 1,
       conifer: 1,
+      dense: 1,
+      fir: 1,
+      oak: 1,
       orchard: 1,
+      pine: 1,
       shrub: 1,
+      spreading: 1,
+      vase: 1,
+      willow: 1,
     });
   });
 

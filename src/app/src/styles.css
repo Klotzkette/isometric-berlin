@@ -653,6 +653,9 @@ button:active:not(:disabled) {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   pointer-events: auto;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .pedestrian-jump-button:hover,
@@ -660,6 +663,10 @@ button:active:not(:disabled) {
   background: #f0c982;
   outline: 2px solid rgba(245, 239, 228, 0.96);
   outline-offset: 2px;
+}
+
+.pedestrian-jump-button:active {
+  transform: translateY(1px) scale(0.96);
 }
 
 .app-shell--pedestrian .three-canvas {
@@ -686,6 +693,11 @@ button:active:not(:disabled) {
 }
 
 @media (pointer: coarse) {
+  .pedestrian-jump-button {
+    width: 60px;
+    height: 60px;
+  }
+
   .orbit-joystick-wrap {
     display: none;
   }

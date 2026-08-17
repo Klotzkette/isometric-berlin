@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.71.51
+
+- **Walking-mode jumping now works consistently across desktop and touch.**
+  Physical `Space` detection no longer depends on the active keyboard layout,
+  while focused controls retain their native keyboard activation. A short,
+  stationary double-tap on the free 3D surface triggers the same bounded jump
+  on phones and tablets; drags, pinches, long presses and a second concurrent
+  finger are explicitly rejected. Touch-generated synthetic mouse events can
+  no longer toggle sprint after a jump, and the coarse-pointer jump control is
+  enlarged to 60 px.
+- **Tiergarten vegetation now reflects far more of the official tree catalogue.**
+  The 29,861 existing source positions retain their published height, crown and
+  trunk dimensions, but species evidence now selects distinct spreading oaks,
+  drooping willows, high-canopy pines/larches, tiered firs/spruces, columnar
+  poplars, airy birches/robinias, vase-shaped limes/elms, broad maples/planes,
+  dense beeches/chestnuts, orchard trees and low shrubs. Static instanced crown
+  profiles preserve the rendering budget and avoid per-tree allocation churn.
+- **Input and heavy-scene regressions are locked down.** New tests cover
+  keyboard-layout-independent Space handling and the complete touch double-tap
+  contract, while the catalogue fixture verifies every new vegetation family.
+  The computationally heavy parliament/Kronprinzen bridge assertion now has a
+  realistic 10-second test allowance without relaxing a single geometry or
+  vertex-budget expectation. The visible radius remains **5,230 m**, no source
+  coordinate moved, and attribution is unchanged.
+
 ## v0.71.50
 
 - **The Reichstag west front now reads as Wallot's layered ceremonial facade

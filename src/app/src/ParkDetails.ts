@@ -55,22 +55,204 @@ export type ParkTree = {
 };
 
 export type TreePresentationForm =
-  "broadleaf" | "conifer" | "orchard" | "shrub";
+  | "airy"
+  | "broadleaf"
+  | "columnar"
+  | "conifer"
+  | "dense"
+  | "fir"
+  | "oak"
+  | "orchard"
+  | "pine"
+  | "shrub"
+  | "spreading"
+  | "vase"
+  | "willow";
 
 /** Keep the official catalogue's botanical form visible in the 3D drawing. */
 export function treePresentationForm(tree: ParkTree): TreePresentationForm {
   const leafType = tree.leaf_type?.toLowerCase() ?? "";
   const group = tree.tree_group?.toLowerCase() ?? "";
-  if (leafType.includes("needle") || group.includes("nadel")) {
-    return "conifer";
-  }
+  const species = tree.species?.toLowerCase() ?? "";
   if (group.includes("strauch") || group.includes("sträuch")) {
     return "shrub";
   }
   if (group.includes("obst")) {
     return "orchard";
   }
+  // Berlin's catalogue groups Ginkgo with gymnosperms, but its fan-leaved
+  // crown must not be drawn as a tiered fir silhouette.
+  if (species.includes("fächerblatt") || species.includes("ginkgo")) {
+    return "vase";
+  }
+  if (species.includes("weide")) {
+    return "willow";
+  }
+  if (species.includes("eiche")) {
+    return "oak";
+  }
+  if (species.includes("kiefer") || species.includes("lärche")) {
+    return "pine";
+  }
+  if (
+    [
+      "fichte",
+      "tanne",
+      "douglas",
+      "zeder",
+      "mammut",
+      "zypresse",
+      "eibe",
+      "hemlock",
+      "lebensbaum",
+    ].some((needle) => species.includes(needle))
+  ) {
+    return "fir";
+  }
+  if (species.includes("pappel")) {
+    return "columnar";
+  }
+  if (species.includes("birke") || species.includes("robinie")) {
+    return "airy";
+  }
+  if (species.includes("linde") || species.includes("ulme")) {
+    return "vase";
+  }
+  if (species.includes("ahorn") || species.includes("platane")) {
+    return "spreading";
+  }
+  if (species.includes("buche") || species.includes("kastanie")) {
+    return "dense";
+  }
+  if (leafType.includes("needle") || group.includes("nadel")) {
+    return "conifer";
+  }
   return "broadleaf";
+}
+
+const TREE_TRUNK_HEIGHT_RATIO: Record<TreePresentationForm, number> = {
+  airy: 0.58,
+  broadleaf: 0.5,
+  columnar: 0.56,
+  conifer: 0.54,
+  dense: 0.48,
+  fir: 0.54,
+  oak: 0.45,
+  orchard: 0.5,
+  pine: 0.67,
+  shrub: 0.24,
+  spreading: 0.44,
+  vase: 0.46,
+  willow: 0.48,
+};
+
+const BRANCHING_TREE_FORMS = new Set<TreePresentationForm>([
+  "airy",
+  "broadleaf",
+  "columnar",
+  "dense",
+  "oak",
+  "orchard",
+  "spreading",
+  "vase",
+  "willow",
+]);
+
+type LobedTreeForm =
+  | "airy"
+  | "broadleaf"
+  | "columnar"
+  | "dense"
+  | "orchard"
+  | "spreading"
+  | "vase";
+
+type LobedCrownProfile = {
+  axisScale: readonly [number, number, number];
+  offsets: readonly (readonly [number, number, number])[];
+  radiusScales: readonly number[];
+};
+
+const LOBED_CROWN_PROFILES: Record<LobedTreeForm, LobedCrownProfile> = {
+  airy: {
+    axisScale: [0.9, 0.8, 0.88],
+    offsets: [
+      [-0.42, 0.04, 0.12],
+      [0.36, 0.2, -0.22],
+      [-0.14, 0.57, -0.3],
+      [0.2, 0.78, 0.22],
+    ],
+    radiusScales: [0.64, 0.6, 0.55, 0.5],
+  },
+  broadleaf: {
+    axisScale: [1, 0.75, 1],
+    offsets: [
+      [-0.3, -0.04, 0.13],
+      [0.29, 0.12, -0.17],
+      [-0.12, 0.34, -0.25],
+      [0.16, 0.52, 0.22],
+      [0.01, 0.72, 0.01],
+    ],
+    radiusScales: [0.84, 0.84, 0.72, 0.72, 0.56],
+  },
+  columnar: {
+    axisScale: [0.72, 1.18, 0.72],
+    offsets: [
+      [-0.08, 0.02, 0.02],
+      [0.08, 0.36, -0.04],
+      [-0.04, 0.72, 0.03],
+      [0.03, 1.02, 0],
+    ],
+    radiusScales: [0.56, 0.52, 0.48, 0.42],
+  },
+  dense: {
+    axisScale: [1.04, 0.82, 1.02],
+    offsets: [
+      [-0.27, -0.02, 0.14],
+      [0.28, 0.08, -0.14],
+      [-0.12, 0.32, -0.22],
+      [0.14, 0.42, 0.2],
+      [0, 0.66, 0],
+    ],
+    radiusScales: [0.88, 0.84, 0.78, 0.7, 0.62],
+  },
+  orchard: {
+    axisScale: [0.98, 0.68, 0.98],
+    offsets: [
+      [-0.32, -0.02, 0.16],
+      [0.3, 0.1, -0.18],
+      [-0.12, 0.34, -0.24],
+      [0.14, 0.5, 0.2],
+    ],
+    radiusScales: [0.74, 0.74, 0.64, 0.58],
+  },
+  spreading: {
+    axisScale: [1.22, 0.62, 1.16],
+    offsets: [
+      [-0.46, -0.05, 0.12],
+      [0.46, 0.02, -0.1],
+      [-0.24, 0.25, -0.34],
+      [0.25, 0.28, 0.33],
+      [0, 0.5, 0],
+      [0.02, -0.16, 0.02],
+    ],
+    radiusScales: [0.8, 0.8, 0.72, 0.72, 0.64, 0.56],
+  },
+  vase: {
+    axisScale: [1.08, 0.72, 1],
+    offsets: [
+      [-0.36, 0.18, 0.12],
+      [0.36, 0.2, -0.12],
+      [-0.18, 0.48, -0.24],
+      [0.19, 0.54, 0.22],
+      [0, 0.78, 0],
+    ],
+    radiusScales: [0.78, 0.78, 0.68, 0.62, 0.54],
+  },
+};
+
+function isLobedTreeForm(form: TreePresentationForm): form is LobedTreeForm {
+  return form in LOBED_CROWN_PROFILES;
 }
 
 /**
@@ -432,29 +614,72 @@ function addTrees(
 ): number {
   const trunks: Transform[] = [];
   const branches: Transform[] = [];
+  const airyCrowns: Transform[][] = [[], [], []];
+  const cutawayAiryCrowns: Transform[][] = [[], [], []];
   const crowns: Transform[][] = [[], [], []];
   const cutawayCrowns: Transform[][] = [[], [], []];
+  const columnarCrowns: Transform[][] = [[], [], []];
+  const cutawayColumnarCrowns: Transform[][] = [[], [], []];
   const coniferCrowns: Transform[][] = [[], [], []];
   const cutawayConiferCrowns: Transform[][] = [[], [], []];
+  const denseCrowns: Transform[][] = [[], [], []];
+  const cutawayDenseCrowns: Transform[][] = [[], [], []];
+  const firCrowns: Transform[][] = [[], [], []];
+  const cutawayFirCrowns: Transform[][] = [[], [], []];
+  const oakCrowns: Transform[][] = [[], [], []];
+  const cutawayOakCrowns: Transform[][] = [[], [], []];
+  const pineCrowns: Transform[][] = [[], [], []];
+  const cutawayPineCrowns: Transform[][] = [[], [], []];
   const shrubCrowns: Transform[][] = [[], [], []];
   const cutawayShrubCrowns: Transform[][] = [[], [], []];
+  const spreadingCrowns: Transform[][] = [[], [], []];
+  const cutawaySpreadingCrowns: Transform[][] = [[], [], []];
+  const vaseCrowns: Transform[][] = [[], [], []];
+  const cutawayVaseCrowns: Transform[][] = [[], [], []];
+  const willowCrowns: Transform[][] = [[], [], []];
+  const cutawayWillowCrowns: Transform[][] = [[], [], []];
   const settledCrowns: Transform[][] = [[], [], []];
   const settledCutawayCrowns: Transform[][] = [[], [], []];
   const snowCaps: Transform[] = [];
   const cutawaySnowCaps: Transform[] = [];
+  const lobedCrownTargets: Record<LobedTreeForm, Transform[][]> = {
+    airy: airyCrowns,
+    broadleaf: crowns,
+    columnar: columnarCrowns,
+    dense: denseCrowns,
+    orchard: crowns,
+    spreading: spreadingCrowns,
+    vase: vaseCrowns,
+  };
+  const cutawayLobedCrownTargets: Record<LobedTreeForm, Transform[][]> = {
+    airy: cutawayAiryCrowns,
+    broadleaf: cutawayCrowns,
+    columnar: cutawayColumnarCrowns,
+    dense: cutawayDenseCrowns,
+    orchard: cutawayCrowns,
+    spreading: cutawaySpreadingCrowns,
+    vase: cutawayVaseCrowns,
+  };
   const formCounts: Record<TreePresentationForm, number> = {
+    airy: 0,
     broadleaf: 0,
+    columnar: 0,
     conifer: 0,
+    dense: 0,
+    fir: 0,
+    oak: 0,
     orchard: 0,
+    pine: 0,
     shrub: 0,
+    spreading: 0,
+    vase: 0,
+    willow: 0,
   };
   for (const tree of trees) {
     const [x, y, z] = tree.position;
     const form = treePresentationForm(tree);
     formCounts[form] += 1;
-    const trunkHeight =
-      tree.height_m *
-      (form === "shrub" ? 0.24 : form === "conifer" ? 0.58 : 0.5);
+    const trunkHeight = tree.height_m * TREE_TRUNK_HEIGHT_RATIO[form];
     const trunkRadius =
       tree.trunk_radius_m ??
       Math.max(
@@ -466,7 +691,7 @@ function addTrees(
       scale: [trunkRadius, trunkHeight, trunkRadius],
     });
     const branchYaw = ((tree.variant % 7) / 7) * Math.PI * 2;
-    if (form === "broadleaf" || form === "orchard") {
+    if (BRANCHING_TREE_FORMS.has(form)) {
       const branchLength = trunkHeight * 0.44;
       const branchRadius = Math.max(0.1, trunkRadius * 0.58);
       for (const direction of [-1, 1]) {
@@ -482,39 +707,118 @@ function addTrees(
       }
     }
     const variant = Math.abs(tree.variant) % 3;
-    const offsets = [
-      [-0.3, -0.04, 0.13],
-      [0.29, 0.12, -0.17],
-      [-0.12, 0.34, -0.25],
-      [0.16, 0.52, 0.22],
-      [0.01, 0.72, 0.01],
-    ];
     const isInsideCutaway = cutaway
       ? Math.hypot(x - cutaway.x, z - cutaway.z) <= cutaway.radiusM
       : false;
-    if (form === "conifer") {
-      const target = isInsideCutaway ? cutawayConiferCrowns : coniferCrowns;
-      const crownHeight = Math.max(2.4, tree.height_m * 0.58);
+    if (form === "conifer" || form === "fir") {
+      const target =
+        form === "fir"
+          ? isInsideCutaway
+            ? cutawayFirCrowns
+            : firCrowns
+          : isInsideCutaway
+            ? cutawayConiferCrowns
+            : coniferCrowns;
+      const crownHeight = Math.max(
+        2.4,
+        tree.height_m * (form === "fir" ? 0.64 : 0.58),
+      );
       for (let layer = 0; layer < 3; layer += 1) {
-        const radius = tree.crown_radius_m * (0.98 - layer * 0.18);
+        const radius =
+          tree.crown_radius_m *
+          (form === "fir" ? 1.02 - layer * 0.22 : 0.98 - layer * 0.18);
         target[variant].push({
-          position: [x, y + tree.height_m * (0.43 + layer * 0.19), z],
+          position: [
+            x,
+            y + tree.height_m * (0.4 + layer * (form === "fir" ? 0.18 : 0.19)),
+            z,
+          ],
           rotation: [0, branchYaw + layer * 0.37, 0],
           scale: [radius, crownHeight * (0.64 - layer * 0.08), radius],
         });
       }
-    } else if (form === "shrub") {
-      const target = isInsideCutaway ? cutawayShrubCrowns : shrubCrowns;
-      for (let lobe = 0; lobe < 2; lobe += 1) {
-        const radius = tree.crown_radius_m * (lobe === 0 ? 0.9 : 0.72);
+    } else if (form === "pine") {
+      const target = isInsideCutaway ? cutawayPineCrowns : pineCrowns;
+      const pineOffsets = [
+        [-0.18, 0.02, 0.12],
+        [0.2, 0.18, -0.08],
+        [0, 0.38, 0],
+      ];
+      pineOffsets.forEach(([offsetX, offsetY, offsetZ], layer) => {
+        const radius = tree.crown_radius_m * (0.72 - layer * 0.08);
         target[variant].push({
           position: [
-            x + (lobe === 0 ? -0.16 : 0.22) * tree.crown_radius_m,
+            x + offsetX * tree.crown_radius_m,
+            y + trunkHeight + radius * (0.28 + offsetY),
+            z + offsetZ * tree.crown_radius_m,
+          ],
+          rotation: [0, branchYaw + layer * 0.83, 0],
+          scale: [radius * 1.14, radius * 0.54, radius],
+        });
+      });
+    } else if (form === "oak") {
+      const target = isInsideCutaway ? cutawayOakCrowns : oakCrowns;
+      const oakOffsets = [
+        [-0.38, -0.04, 0.12],
+        [0.38, 0.03, -0.1],
+        [-0.16, 0.27, -0.3],
+        [0.2, 0.31, 0.28],
+        [0, 0.52, 0],
+        [0.02, -0.18, 0.02],
+      ];
+      oakOffsets.forEach(([offsetX, offsetY, offsetZ], layer) => {
+        const radius =
+          tree.crown_radius_m * (layer === 5 ? 0.64 : layer >= 2 ? 0.76 : 0.86);
+        target[variant].push({
+          position: [
+            x + offsetX * tree.crown_radius_m,
+            y + trunkHeight + radius * (0.38 + offsetY),
+            z + offsetZ * tree.crown_radius_m,
+          ],
+          rotation: [0, branchYaw + layer * 0.57, 0],
+          scale: [radius * 1.12, radius * 0.62, radius],
+        });
+      });
+    } else if (form === "willow") {
+      const target = isInsideCutaway ? cutawayWillowCrowns : willowCrowns;
+      const willowOffsets = [
+        [-0.27, 0.02, 0.08],
+        [0.28, 0.08, -0.1],
+        [0, 0.24, 0.24],
+        [0.02, 0.33, -0.22],
+      ];
+      willowOffsets.forEach(([offsetX, offsetY, offsetZ], layer) => {
+        const radius = tree.crown_radius_m * (layer < 2 ? 0.78 : 0.66);
+        target[variant].push({
+          position: [
+            x + offsetX * tree.crown_radius_m,
+            y + trunkHeight + radius * (0.2 + offsetY),
+            z + offsetZ * tree.crown_radius_m,
+          ],
+          rotation: [Math.PI, branchYaw + layer * 0.74, 0],
+          scale: [radius, radius * (1.25 + layer * 0.08), radius],
+        });
+      });
+    } else if (form === "shrub") {
+      const target = isInsideCutaway ? cutawayShrubCrowns : shrubCrowns;
+      const lobeCount = variant === 1 ? 3 : 2;
+      for (let lobe = 0; lobe < lobeCount; lobe += 1) {
+        const radius =
+          tree.crown_radius_m * (lobe === 0 ? 0.9 : lobe === 1 ? 0.72 : 0.58);
+        target[variant].push({
+          position: [
+            x + (lobe === 0 ? -0.16 : lobe === 1 ? 0.22 : 0.04) *
+              tree.crown_radius_m,
             y + Math.max(0.45, tree.height_m * (0.38 + lobe * 0.12)),
-            z + (lobe === 0 ? 0.12 : -0.18) * tree.crown_radius_m,
+            z + (lobe === 0 ? 0.12 : lobe === 1 ? -0.18 : 0.24) *
+              tree.crown_radius_m,
           ],
           rotation: [0, branchYaw + lobe * 0.61, 0],
-          scale: [radius, radius * 0.58, radius],
+          scale: [
+            radius * (variant === 2 ? 1.18 : 1),
+            radius * (variant === 0 ? 0.48 : 0.64),
+            radius,
+          ],
         });
       }
     }
@@ -530,16 +834,16 @@ function addTrees(
         ],
       });
     }
-    if (form === "broadleaf" || form === "orchard") {
-      const lobeCount = form === "orchard" ? 4 : offsets.length;
-      for (let layer = 0; layer < lobeCount; layer += 1) {
+    if (isLobedTreeForm(form)) {
+      const profile = LOBED_CROWN_PROFILES[form];
+      const target = isInsideCutaway
+        ? cutawayLobedCrownTargets[form]
+        : lobedCrownTargets[form];
+      for (let layer = 0; layer < profile.offsets.length; layer += 1) {
         const [offsetX, offsetY, offsetZ] =
-          offsets[(layer + variant) % offsets.length];
-        const radius =
-          tree.crown_radius_m *
-          (layer === offsets.length - 1 ? 0.56 : layer >= 2 ? 0.72 : 0.84) *
-          (form === "orchard" ? 0.88 : 1);
-        const target = isInsideCutaway ? cutawayCrowns : crowns;
+          profile.offsets[(layer + variant) % profile.offsets.length];
+        const radius = tree.crown_radius_m * profile.radiusScales[layer];
+        const [scaleX, scaleY, scaleZ] = profile.axisScale;
         target[variant].push({
           position: [
             x + offsetX * tree.crown_radius_m,
@@ -547,14 +851,21 @@ function addTrees(
             z + offsetZ * tree.crown_radius_m,
           ],
           rotation: [0, ((tree.variant + layer) * Math.PI) / 7, 0],
-          scale: [radius, radius * (0.7 + layer * 0.045), radius],
+          scale: [
+            radius * scaleX * (variant === 0 ? 1.06 : variant === 1 ? 0.94 : 1),
+            radius *
+              scaleY *
+              (1 + layer * 0.035) *
+              (variant === 1 ? 1.16 : variant === 2 ? 0.88 : 1),
+            radius * scaleZ * (variant === 2 ? 1.08 : 1),
+          ],
         });
       }
     }
     if (
       includeSettledDetail &&
       tree.source === "berlin_official" &&
-      (form === "broadleaf" || form === "orchard")
+      BRANCHING_TREE_FORMS.has(form)
     ) {
       const settledOffsets = [
         [-0.43, 0.45, -0.3],
@@ -654,6 +965,20 @@ function addTrees(
     });
   };
   addSourceFormCrowns(
+    airyCrowns,
+    cutawayAiryCrowns,
+    "airy birch and robinia",
+    [0xa8cf91, 0xb7dca0, 0x98c182],
+    () => new IcosahedronGeometry(1, 0),
+  );
+  addSourceFormCrowns(
+    columnarCrowns,
+    cutawayColumnarCrowns,
+    "columnar poplar",
+    [0x6f9e65, 0x80ad73, 0x608f59],
+    () => new IcosahedronGeometry(1, 1),
+  );
+  addSourceFormCrowns(
     coniferCrowns,
     cutawayConiferCrowns,
     "tiered conifer",
@@ -661,10 +986,59 @@ function addTrees(
     () => new ConeGeometry(1, 1, 8),
   );
   addSourceFormCrowns(
+    denseCrowns,
+    cutawayDenseCrowns,
+    "dense beech and chestnut",
+    [0x6f9f5e, 0x7fae6c, 0x638f54],
+    () => new IcosahedronGeometry(1, 1),
+  );
+  addSourceFormCrowns(
+    firCrowns,
+    cutawayFirCrowns,
+    "dense fir and spruce",
+    [0x567f5d, 0x638e67, 0x486f52],
+    () => new ConeGeometry(1, 1, 9),
+  );
+  addSourceFormCrowns(
+    pineCrowns,
+    cutawayPineCrowns,
+    "high-trunk pine",
+    [0x648a61, 0x73996b, 0x557b58],
+    () => new IcosahedronGeometry(1, 1),
+  );
+  addSourceFormCrowns(
+    oakCrowns,
+    cutawayOakCrowns,
+    "wide oak",
+    [0x76a85e, 0x86b76c, 0x679653],
+    () => new IcosahedronGeometry(1, 1),
+  );
+  addSourceFormCrowns(
+    willowCrowns,
+    cutawayWillowCrowns,
+    "drooping willow",
+    [0x8fb879, 0xa0c68a, 0x7ca76d],
+    () => new ConeGeometry(1, 1, 10, 2),
+  );
+  addSourceFormCrowns(
     shrubCrowns,
     cutawayShrubCrowns,
     "low shrub",
     [0x8ebd74, 0x9bc984, 0x80ad68],
+    () => new IcosahedronGeometry(1, 1),
+  );
+  addSourceFormCrowns(
+    spreadingCrowns,
+    cutawaySpreadingCrowns,
+    "spreading maple and plane",
+    [0x89b978, 0x9bc98a, 0x78a969],
+    () => new IcosahedronGeometry(1, 1),
+  );
+  addSourceFormCrowns(
+    vaseCrowns,
+    cutawayVaseCrowns,
+    "vase-shaped linden and elm",
+    [0x82b46d, 0x93c17d, 0x73a35f],
     () => new IcosahedronGeometry(1, 1),
   );
   const addSnowCaps = (transforms: Transform[], focusCutaway: boolean) => {

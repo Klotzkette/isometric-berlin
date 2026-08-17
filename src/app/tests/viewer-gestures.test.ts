@@ -5,6 +5,8 @@ import {
   PEN_GESTURE_SETTINGS,
   THREE_MOUSE_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
+  isPedestrianJumpDoubleTap,
+  isPedestrianTouchTap,
   pedestrianWheelForwardInput,
   rotationDeltaFromMouseDrag,
   rotationDeltaFromTouchPairs,
@@ -163,5 +165,64 @@ describe("touch viewer gestures", () => {
         deltaY: 10,
       }),
     ).toBe(0);
+  });
+
+  test("turns two completed, nearby pedestrian taps into one jump gesture", () => {
+    const first = {
+      at: 1_000,
+      durationMs: 82,
+      maxTravelPx: 3,
+      x: 120,
+      y: 240,
+    };
+    const second = {
+      at: 1_390,
+      durationMs: 94,
+      maxTravelPx: 5,
+      x: 143,
+      y: 255,
+    };
+
+    expect(isPedestrianTouchTap(first)).toBe(true);
+    expect(isPedestrianJumpDoubleTap(first, second)).toBe(true);
+  });
+
+  test("never mistakes a look drag, long press, distant tap or stale tap for a jump", () => {
+    const tap = {
+      at: 1_000,
+      durationMs: 90,
+      maxTravelPx: 2,
+      x: 100,
+      y: 100,
+    };
+
+    expect(
+      isPedestrianJumpDoubleTap(tap, {
+        ...tap,
+        at: 1_200,
+        maxTravelPx: 24,
+      }),
+    ).toBe(false);
+    expect(
+      isPedestrianJumpDoubleTap(tap, {
+        ...tap,
+        at: 1_200,
+        durationMs: 340,
+      }),
+    ).toBe(false);
+    expect(
+      isPedestrianJumpDoubleTap(tap, {
+        ...tap,
+        at: 1_200,
+        x: 160,
+      }),
+    ).toBe(false);
+    expect(
+      isPedestrianJumpDoubleTap(tap, {
+        ...tap,
+        at: 1_500,
+      }),
+    ).toBe(false);
+    expect(isPedestrianJumpDoubleTap(null, tap)).toBe(false);
   });
 });

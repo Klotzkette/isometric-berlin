@@ -127,7 +127,6 @@ import {
   addPedestrianParkObstacles,
   createPedestrianEnvironment,
   createPedestrianState,
-  isPedestrianSprintDoubleActivation,
   jumpPedestrian,
   lookPedestrian,
   pedestrianViewDirection,
@@ -237,6 +236,9 @@ import {
   updateSnowstorm,
 } from "./SnowstormEffects";
 import {
+  type PedestrianTouchTap,
+  isPedestrianJumpDoubleTap,
+  isPedestrianTouchTap,
   pedestrianWheelForwardInput,
   THREE_MOUSE_GESTURE_SETTINGS,
   wheelNavigationIntent,
@@ -682,6 +684,22 @@ function nudgePedestrian(
     applyPedestrianCamera(runtime);
   }
   return changed;
+}
+
+function triggerPedestrianJump(runtime: Runtime): boolean {
+  const state = runtime.pedestrian.state;
+  if (!runtime.pedestrian.enabled || !state) {
+    return false;
+  }
+  const next = jumpPedestrian(state);
+  if (next === state) {
+    return false;
+  }
+  runtime.pedestrian.state = next;
+  runtime.pedestrian.cameraDirty = true;
+  runtime.renderInvalidated = true;
+  markSurfaceInteraction(runtime, 220);
+  return true;
 }
 
 function isTunnelPortalFocus(name: string): boolean {
@@ -3264,18 +3282,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
         jumpPedestrian: () => {
           const runtime = runtimeRef.current;
-          const state = runtime?.pedestrian.state;
-          if (!runtime?.pedestrian.enabled || !state) {
-            return false;
-          }
-          const next = jumpPedestrian(state);
-          if (next === state) {
-            return false;
-          }
-          runtime.pedestrian.state = next;
-          runtime.pedestrian.cameraDirty = true;
-          markSurfaceInteraction(runtime, 220);
-          return true;
+          return runtime ? triggerPedestrianJump(runtime) : false;
         },
       }),
       [progress.total],
@@ -3593,12 +3600,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const panVelocity = { x: 0, y: 0 };
       let panVelocitySampleAt = performance.now();
       const panMomentum = { x: 0, y: 0 };
-      // Double-tap zoom for touch: browsers don't reliably synthesise
-      // dblclick on a touch-action:none canvas, so we detect it from
-      // pointer timestamps/positions ourselves.
-      let lastTapAt = 0;
-      let lastTapX = 0;
-      let lastTapY = 0;
+      // Browsers do not reliably synthesise dblclick on a touch-action:none
+      // canvas. Completed taps are tracked separately for orbit zoom and the
+      // pedestrian jump so switching modes cannot replay a stale gesture.
+      let lastViewerTapAt = 0;
+      let lastViewerTapX = 0;
+      let lastViewerTapY = 0;
+      let lastPedestrianTap: PedestrianTouchTap | null = null;
       let lastPedestrianSprintToggleAt = Number.NEGATIVE_INFINITY;
       const requestPedestrianSprintToggle = () => {
         const now = performance.now();
@@ -3611,9 +3619,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
       let touchInteracting = false;
-      let lastTouchActivityAt = performance.now();
+      let lastTouchActivityAt = Number.NEGATIVE_INFINITY;
       let pedestrianLookPointer: {
+        cancelled: boolean;
         id: number;
+        maxTravelPx: number;
+        pointerType: string;
+        startedAt: number;
+        startX: number;
+        startY: number;
         x: number;
         y: number;
       } | null = null;
@@ -3761,29 +3775,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panMomentum.x = 0;
         panMomentum.y = 0;
         if (runtime.pedestrian.enabled) {
-          if (event.pointerType === "touch") {
-            const now = performance.now();
-            if (
-              isPedestrianSprintDoubleActivation(lastTapAt, now) &&
-              Math.hypot(event.clientX - lastTapX, event.clientY - lastTapY) <
-                32
-            ) {
-              lastTapAt = 0;
-              requestPedestrianSprintToggle();
-            } else {
-              lastTapAt = now;
-              lastTapX = event.clientX;
-              lastTapY = event.clientY;
-            }
-          }
           if (
             pedestrianLookPointer ||
             (event.pointerType !== "touch" && event.button !== 0)
           ) {
+            if (event.pointerType === "touch") {
+              lastPedestrianTap = null;
+              if (pedestrianLookPointer) {
+                pedestrianLookPointer.cancelled = true;
+              }
+            }
             return;
           }
           event.preventDefault();
           event.stopImmediatePropagation();
+          if (event.pointerType === "touch") {
+            lastTouchActivityAt = performance.now();
+          }
           renderer.domElement.focus({ preventScroll: true });
           try {
             renderer.domElement.setPointerCapture?.(event.pointerId);
@@ -3793,7 +3801,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             // while the pointer remains over the canvas.
           }
           pedestrianLookPointer = {
+            cancelled: false,
             id: event.pointerId,
+            maxTravelPx: 0,
+            pointerType: event.pointerType,
+            startedAt: performance.now(),
+            startX: event.clientX,
+            startY: event.clientY,
             x: event.clientX,
             y: event.clientY,
           };
@@ -3802,21 +3816,25 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           markSurfaceInteraction(runtime);
           return;
         }
+        lastPedestrianTap = null;
         if (event.pointerType === "touch" && touchPoints.size === 0) {
           const now = performance.now();
           if (
-            now - lastTapAt < 340 &&
-            Math.hypot(event.clientX - lastTapX, event.clientY - lastTapY) < 32
+            now - lastViewerTapAt < 340 &&
+            Math.hypot(
+              event.clientX - lastViewerTapX,
+              event.clientY - lastViewerTapY,
+            ) < 32
           ) {
-            lastTapAt = 0;
+            lastViewerTapAt = 0;
             zoomAtClientPoint({ x: event.clientX, y: event.clientY }, 1.5);
             controls.update();
             markSurfaceInteraction(runtime);
             notifyView(runtime, onViewChangeRef.current);
           } else {
-            lastTapAt = now;
-            lastTapX = event.clientX;
-            lastTapY = event.clientY;
+            lastViewerTapAt = now;
+            lastViewerTapX = event.clientX;
+            lastViewerTapY = event.clientY;
           }
         }
         if (event.pointerType !== "touch") {
@@ -3871,6 +3889,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           event.stopImmediatePropagation();
           const deltaX = event.clientX - pedestrianLookPointer.x;
           const deltaY = event.clientY - pedestrianLookPointer.y;
+          pedestrianLookPointer.maxTravelPx = Math.max(
+            pedestrianLookPointer.maxTravelPx,
+            Math.hypot(
+              event.clientX - pedestrianLookPointer.startX,
+              event.clientY - pedestrianLookPointer.startY,
+            ),
+          );
           pedestrianLookPointer.x = event.clientX;
           pedestrianLookPointer.y = event.clientY;
           if (deltaX !== 0 || deltaY !== 0) {
@@ -4012,6 +4037,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       const onPointerUp = (event: PointerEvent) => {
         if (pedestrianLookPointer?.id === event.pointerId) {
+          const finishedPointer = pedestrianLookPointer;
           pedestrianLookPointer = null;
           controlsInteracting = false;
           touchInteracting = false;
@@ -4021,6 +4047,33 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             } catch {
               // A cancelled or already-released pointer needs no cleanup.
             }
+          }
+          if (
+            finishedPointer.pointerType === "touch" &&
+            !finishedPointer.cancelled
+          ) {
+            const endedAt = performance.now();
+            const tap: PedestrianTouchTap = {
+              at: endedAt,
+              durationMs: endedAt - finishedPointer.startedAt,
+              maxTravelPx: Math.max(
+                finishedPointer.maxTravelPx,
+                Math.hypot(
+                  finishedPointer.x - finishedPointer.startX,
+                  finishedPointer.y - finishedPointer.startY,
+                ),
+              ),
+              x: finishedPointer.x,
+              y: finishedPointer.y,
+            };
+            if (isPedestrianJumpDoubleTap(lastPedestrianTap, tap)) {
+              lastPedestrianTap = null;
+              triggerPedestrianJump(runtime);
+            } else {
+              lastPedestrianTap = isPedestrianTouchTap(tap) ? tap : null;
+            }
+          } else {
+            lastPedestrianTap = null;
           }
           notifyView(runtime, onViewChangeRef.current);
           return;
@@ -4086,6 +4139,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         panVelocity.y = 0;
       };
       const resetTouchGesture = () => {
+        // Never retain the first half of a pedestrian double-tap across a
+        // hidden tab, mode transition or cancelled browser gesture.
+        lastPedestrianTap = null;
         if (
           touchPoints.size === 0 &&
           !customTouchGestureActive &&
@@ -4120,6 +4176,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         event.preventDefault();
         renderer.domElement.focus({ preventScroll: true });
         if (runtime.pedestrian.enabled) {
+          // A touch double-tap is the jump gesture. Ignore the synthetic
+          // mouse dblclick that some mobile browsers dispatch afterwards so
+          // the same gesture never toggles sprint as a side effect.
+          if (performance.now() - lastTouchActivityAt < 700) {
+            return;
+          }
           requestPedestrianSprintToggle();
           markSurfaceInteraction(runtime);
           return;
@@ -4136,6 +4198,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // flick momentum — zero the sampled velocity first.
         panVelocity.x = 0;
         panVelocity.y = 0;
+        if (pedestrianLookPointer?.id === event.pointerId) {
+          pedestrianLookPointer.cancelled = true;
+        }
         onPointerUp(event);
       };
       renderer.domElement.addEventListener("pointerup", onPointerUp, true);

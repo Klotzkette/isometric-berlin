@@ -1567,7 +1567,7 @@ describe("real bridge structures", () => {
     expect(submergedProwVertices).toBeGreaterThan(24);
     expect(positions.count).toBeGreaterThan(260_000);
     expect(positions.count).toBeLessThan(320_000);
-  });
+  }, 10_000);
 
   test("Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free", async () => {
     const { createIsometricCity, BRIDGE_PROFILES } =

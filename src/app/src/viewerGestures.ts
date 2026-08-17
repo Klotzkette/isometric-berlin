@@ -28,6 +28,44 @@ export type WheelNavigationSample = {
   deltaY: number;
 };
 
+export type PedestrianTouchTap = {
+  at: number;
+  durationMs: number;
+  maxTravelPx: number;
+  x: number;
+  y: number;
+};
+
+export const PEDESTRIAN_TAP_MAX_DURATION_MS = 300;
+export const PEDESTRIAN_TAP_MAX_TRAVEL_PX = 18;
+export const PEDESTRIAN_JUMP_DOUBLE_TAP_MS = 420;
+export const PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX = 38;
+
+export function isPedestrianTouchTap(sample: PedestrianTouchTap): boolean {
+  return (
+    sample.durationMs >= 0 &&
+    sample.durationMs <= PEDESTRIAN_TAP_MAX_DURATION_MS &&
+    sample.maxTravelPx <= PEDESTRIAN_TAP_MAX_TRAVEL_PX
+  );
+}
+
+/** A forgiving double tap that cannot be produced by a drag or pinch. */
+export function isPedestrianJumpDoubleTap(
+  previous: PedestrianTouchTap | null,
+  current: PedestrianTouchTap,
+): boolean {
+  if (!previous || !isPedestrianTouchTap(previous) || !isPedestrianTouchTap(current)) {
+    return false;
+  }
+  const elapsed = current.at - previous.at;
+  return (
+    elapsed >= 0 &&
+    elapsed <= PEDESTRIAN_JUMP_DOUBLE_TAP_MS &&
+    Math.hypot(current.x - previous.x, current.y - previous.y) <=
+      PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX
+  );
+}
+
 const PEDESTRIAN_WHEEL_NOTCH_PIXELS = 100;
 const PEDESTRIAN_WHEEL_LINE_PIXELS = 32;
 const PEDESTRIAN_WHEEL_PAGE_PIXELS = 240;
