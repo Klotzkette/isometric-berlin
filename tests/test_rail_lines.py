@@ -24,13 +24,13 @@ from isometric_berlin.generation.build_rail_lines import (
 RAIL = Path("src/app/public/mesh/regierungsviertel/rail-lines.json")
 SCENE = Path("src/app/public/mesh/regierungsviertel/scene.json")
 
-# The task-10 data hull runs from x −2880 to x 1410 (see worldEnvelope.ts). The
+# The task-13 data hull runs from x −3900 to x 2420 (see worldEnvelope.ts). The
 # Stadtbahn crosses the whole of it, so a corridor that stops well short of
 # either edge means the export lost the line somewhere.
-WEST_EDGE_M = -2880
-EAST_EDGE_M = 1410
-NORTH_EDGE_M = -2600
-SOUTH_EDGE_M = 1890
+WEST_EDGE_M = -3900
+EAST_EDGE_M = 2420
+NORTH_EDGE_M = -3620
+SOUTH_EDGE_M = 2920
 
 
 @pytest.fixture(scope="module")

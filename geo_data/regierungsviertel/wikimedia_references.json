@@ -2376,6 +2376,258 @@
         "#1d0503"
       ],
       "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "loewen_bridge",
+      "title": "File:Löwenbrücke Großer Tiergarten Berlin.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AL%C3%B6wenbr%C3%BCcke_Gro%C3%9Fer_Tiergarten_Berlin.jpg",
+      "thumbnail_path": "loewen_bridge_01_file-lowenbrucke-grosser-tiergarten-berlin-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/L%C3%B6wenbr%C3%BCcke_Gro%C3%9Fer_Tiergarten_Berlin.jpg/960px-L%C3%B6wenbr%C3%BCcke_Gro%C3%9Fer_Tiergarten_Berlin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Singlespeedfahrer",
+      "credit": "Own work",
+      "description": "Die Löwenbrücke im Großen Tiergarten in Berlin einen Tag nach der Eröffnung (Konstruktion)",
+      "dominant_colours": [
+        "#98a151",
+        "#70793d",
+        "#535c36",
+        "#3f5128",
+        "#324023",
+        "#1b2717"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "loewen_bridge",
+      "title": "File:Löwenbrücke Großer Tiergarten Berlin 10.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AL%C3%B6wenbr%C3%BCcke_Gro%C3%9Fer_Tiergarten_Berlin_10.jpg",
+      "thumbnail_path": "loewen_bridge_02_file-lowenbrucke-grosser-tiergarten-berlin-10-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/L%C3%B6wenbr%C3%BCcke_Gro%C3%9Fer_Tiergarten_Berlin_10.jpg/960px-L%C3%B6wenbr%C3%BCcke_Gro%C3%9Fer_Tiergarten_Berlin_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Singlespeedfahrer",
+      "credit": "Own work",
+      "description": "Löwenbrücke in the Großer Tiergarten in Berlin, Germany",
+      "dominant_colours": [
+        "#dad5bb",
+        "#9c9b71",
+        "#877653",
+        "#546d3f",
+        "#4c4e2f",
+        "#263524"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "potsdamer_platz_station",
+      "title": "File:Nördlicher Eingang zum Bahnhof Potsdamer Platz, Berlin-1785.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AN%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz%2C_Berlin-1785.jpg",
+      "thumbnail_path": "potsdamer_platz_station_01_file-nordlicher-eingang-zum-bahnhof-potsdamer-platz-berlin-1785-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/N%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz%2C_Berlin-1785.jpg/960px-N%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz%2C_Berlin-1785.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Own work",
+      "description": "nördlicher Eingang zum Bahnhof Potsdamer Platz, Berlin",
+      "dominant_colours": [
+        "#c4baab",
+        "#afa697",
+        "#908981",
+        "#766f6a",
+        "#666463",
+        "#414143"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "potsdamer_platz_station",
+      "title": "File:Südlicher Eingang zum Bahnhof Potsdamer Platz-1746.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AS%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg",
+      "thumbnail_path": "potsdamer_platz_station_02_file-sudlicher-eingang-zum-bahnhof-potsdamer-platz-1746-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/S%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg/960px-S%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Own work",
+      "description": "Südlicher Eingang zum Bahnhof Potsdamer Platz, Berlin",
+      "dominant_colours": [
+        "#c8c3bd",
+        "#b9aa9d",
+        "#899fb3",
+        "#867e76",
+        "#696f74",
+        "#4b4845"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "adler_bridge",
+      "title": "File:Adlerbrücke 1 Großer Tiergarten Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AAdlerbr%C3%BCcke_1_Gro%C3%9Fer_Tiergarten_Berlin.JPG",
+      "thumbnail_path": "adler_bridge_01_file-adlerbrucke-1-grosser-tiergarten-berlin-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Adlerbr%C3%BCcke_1_Gro%C3%9Fer_Tiergarten_Berlin.JPG/960px-Adlerbr%C3%BCcke_1_Gro%C3%9Fer_Tiergarten_Berlin.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Lienhard Schulz",
+      "credit": "Own work",
+      "description": "The Adlerbrücke (german for: eaglebridge) is a footbridge in Berlin-Tiergarten , crossing a watercourse in the park Großer Tiergarten . In the handrail are installed two sculptures of eagles, which give the bridge its name. The year of its construction is unknown.",
+      "dominant_colours": [
+        "#bcb8b3",
+        "#9b9289",
+        "#8b7d77",
+        "#757168",
+        "#5e5854",
+        "#2c2c28"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "adler_bridge",
+      "title": "File:Adlerbrücke 2 Großer Tiergarten Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AAdlerbr%C3%BCcke_2_Gro%C3%9Fer_Tiergarten_Berlin.JPG",
+      "thumbnail_path": "adler_bridge_02_file-adlerbrucke-2-grosser-tiergarten-berlin-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Adlerbr%C3%BCcke_2_Gro%C3%9Fer_Tiergarten_Berlin.JPG/960px-Adlerbr%C3%BCcke_2_Gro%C3%9Fer_Tiergarten_Berlin.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Lienhard Schulz",
+      "credit": "Own work",
+      "description": "The Adlerbrücke (german for: eaglebridge) is a footbridge in Berlin-Tiergarten , crossing a watercourse in the park Großer Tiergarten . In the handrail are installed two sculptures of eagles, which give the bridge its name. The year of its construction is unknown.",
+      "dominant_colours": [
+        "#c2c18c",
+        "#aca67d",
+        "#998f7b",
+        "#83766b",
+        "#64605c",
+        "#33302d"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "adler_bridge",
+      "title": "File:Adlerbrücke 3 Großer Tiergarten Berlin.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AAdlerbr%C3%BCcke_3_Gro%C3%9Fer_Tiergarten_Berlin.JPG",
+      "thumbnail_path": "adler_bridge_03_file-adlerbrucke-3-grosser-tiergarten-berlin-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Adlerbr%C3%BCcke_3_Gro%C3%9Fer_Tiergarten_Berlin.JPG/960px-Adlerbr%C3%BCcke_3_Gro%C3%9Fer_Tiergarten_Berlin.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Lienhard Schulz",
+      "credit": "Own work",
+      "description": "The Adlerbrücke (german for: eaglebridge) is a footbridge in Berlin-Tiergarten , crossing a watercourse in the park Großer Tiergarten . In the handrail are installed two sculptures of eagles, which give the bridge its name. The year of its construction is unknown.",
+      "dominant_colours": [
+        "#c3c882",
+        "#a8ac80",
+        "#a2977e",
+        "#89917c",
+        "#807b77",
+        "#504f4f"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "ard_hauptstadtstudio",
+      "title": "File:2024-12-01 ARD Hauptstadtstudio 1080537.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3A2024-12-01_ARD_Hauptstadtstudio_1080537.JPG",
+      "thumbnail_path": "ard_hauptstadtstudio_01_file-2024-12-01-ard-hauptstadtstudio-1080537-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/2024-12-01_ARD_Hauptstadtstudio_1080537.JPG/960px-2024-12-01_ARD_Hauptstadtstudio_1080537.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bärbel Miemietz",
+      "credit": "Own work",
+      "description": "View from Schiffbauer Damm across the Spree to the ARD Hauptstadtstudio on Reichstagsufer in Berlin-Mitte, Germany",
+      "dominant_colours": [
+        "#dafdfe",
+        "#dce8e2",
+        "#7d878e",
+        "#5d545c",
+        "#3a4558",
+        "#1c222d"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "ard_hauptstadtstudio",
+      "title": "File:ARD-Hauptstadtstudio (aus Nordwesten).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AARD-Hauptstadtstudio_%28aus_Nordwesten%29.jpg",
+      "thumbnail_path": "ard_hauptstadtstudio_02_file-ard-hauptstadtstudio-aus-nordwesten-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/ARD-Hauptstadtstudio_%28aus_Nordwesten%29.jpg/960px-ARD-Hauptstadtstudio_%28aus_Nordwesten%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Standardizer",
+      "credit": "Own work",
+      "description": "ARD-Hauptstadtstudio in Berlin am Spreeufer (Reichstagufer Ecke Wilhelmstraße), aufgenommen aus nordwestlicher Richtung von der Treppe des Marie-Elisabeth-Lüders-Hauses",
+      "dominant_colours": [
+        "#bdd0e0",
+        "#b0a798",
+        "#81abcc",
+        "#937b66",
+        "#65716c",
+        "#404042"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "ard_hauptstadtstudio",
+      "title": "File:ARD-Hauptstadtstudio, Berlin-Mitte, Fassade, 170117, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AARD-Hauptstadtstudio%2C_Berlin-Mitte%2C_Fassade%2C_170117%2C_ako.jpg",
+      "thumbnail_path": "ard_hauptstadtstudio_03_file-ard-hauptstadtstudio-berlin-mitte-fassade-170117-ako-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/ARD-Hauptstadtstudio%2C_Berlin-Mitte%2C_Fassade%2C_170117%2C_ako.jpg/960px-ARD-Hauptstadtstudio%2C_Berlin-Mitte%2C_Fassade%2C_170117%2C_ako.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Ansgar Koreng",
+      "credit": "Own work",
+      "description": "Facade of ARD-Hauptstadtstudio in Berlin-Mitte. ARD-Hauptstadtstudio is a television studio in Berlin operated jointly by the members of the federal broadcasting network ARD.",
+      "dominant_colours": [
+        "#ace0fc",
+        "#8bcdfa",
+        "#79a6d4",
+        "#a27b8f",
+        "#8e768d",
+        "#705766"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "reichstagspraesidentenpalais",
+      "title": "File:Reichstagspräsidentenpalais, Westfassade.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagspr%C3%A4sidentenpalais%2C_Westfassade.jpg",
+      "thumbnail_path": "reichstagspraesidentenpalais_01_file-reichstagsprasidentenpalais-westfassade-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Reichstagspr%C3%A4sidentenpalais%2C_Westfassade.jpg/960px-Reichstagspr%C3%A4sidentenpalais%2C_Westfassade.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "Public domain",
+      "license_url": "",
+      "artist": "Beek100",
+      "credit": "Own work",
+      "description": "Palace of the President of the Reichstag (Reichstagspräsidentenpalais) in Berlin, west facade opposite the Reichstag, built 1899-1904 by Paul Wallot",
+      "dominant_colours": [
+        "#dbe9fa",
+        "#c3bbb1",
+        "#b0a291",
+        "#8e7f6e",
+        "#5d5f5e",
+        "#36332d"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "reichstagspraesidentenpalais",
+      "title": "File:Reichstagspräsidentenpalais, Nordseite.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstagspr%C3%A4sidentenpalais%2C_Nordseite.jpg",
+      "thumbnail_path": "reichstagspraesidentenpalais_02_file-reichstagsprasidentenpalais-nordseite-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Reichstagspr%C3%A4sidentenpalais%2C_Nordseite.jpg/960px-Reichstagspr%C3%A4sidentenpalais%2C_Nordseite.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Beek100",
+      "credit": "Own work",
+      "description": "Palace of the President of the Reichstag (Reichstagspräsidentenpalais) in Berlin, built 1899-1904 by Paul Wallot, northern facade seen from Marie-Elisabeth-Lüders-Haus",
+      "dominant_colours": [
+        "#ffffff",
+        "#c0c1bf",
+        "#9c9b97",
+        "#88837f",
+        "#707476",
+        "#484848"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

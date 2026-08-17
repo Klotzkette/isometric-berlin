@@ -46,25 +46,27 @@ import {
   SkipBack,
   SkipForward,
   Snowflake,
+  Sparkles,
   Sun,
   Volume2,
   VolumeX,
   X,
 } from "lucide-react";
-import OpenSeadragon from "openseadragon";
+import type OpenSeadragon from "openseadragon";
 import {
+  Suspense,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  lazy,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 
-import { ThreeViewer, type ThreeViewerHandle } from "./ThreeViewer";
+import type { ThreeViewerHandle } from "./ThreeViewer";
 import {
   AmbientSoundscape,
   isAmbientAudioSupported,
@@ -76,7 +78,6 @@ import {
   shouldStopAudioOnToggleTap,
 } from "./audioAutostart";
 import { registerAudioLifecycle } from "./audioLifecycle";
-import { heldNavigationInput } from "./cameraNavigation";
 import {
   CONTROL_DOCK_SIDE_STORAGE_KEY,
   type ControlDockSide,
@@ -84,9 +85,10 @@ import {
   oppositeControlDockSide,
 } from "./controlDock";
 import {
+  heldNavigationInput,
   heldPedestrianInput,
   isPedestrianSprintDoubleActivation,
-} from "./pedestrianNavigation";
+} from "./navigationInput";
 import bundledLandmarkPayload from "./data/regierungsviertel-landmarks.json";
 import { landmarkPixelCoordinates } from "./landmarkCoordinates";
 import {
@@ -139,6 +141,11 @@ import {
   parseViewHash,
   sightSlug,
 } from "./viewNavigation";
+import {
+  type OpenSeadragonEngine,
+  loadOpenSeadragon,
+  loadThreeViewerComponent,
+} from "./viewerEngineLoader";
 
 type Landmark = {
   name: string;
@@ -158,12 +165,14 @@ type LandmarkPayload = {
 type ViewerMode = "map" | "three";
 type MobileSheet = "compass" | "overflow" | null;
 
+const LazyThreeViewer = lazy(loadThreeViewerComponent);
+
 const CHROME_STORAGE_KEY = "isometric-berlin.chromeHidden";
 const COACH_STORAGE_KEY = "isometric-berlin.seenCoachMark";
 const MUSIC_MUTED_STORAGE_KEY = "isometric-berlin.musicMuted";
 
 const ATTRIBUTION =
-  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia";
+  "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)";
 const MESH_ATTRIBUTION =
   "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH";
 
@@ -213,11 +222,13 @@ const ORIENTATIONS = [
 
 let openSeadragonConsoleFilterInstalled = false;
 
-function installOpenSeadragonConsoleFilter(): void {
+function installOpenSeadragonConsoleFilter(
+  openSeadragon: OpenSeadragonEngine,
+): void {
   if (openSeadragonConsoleFilterInstalled) {
     return;
   }
-  const osd = OpenSeadragon as typeof OpenSeadragon & {
+  const osd = openSeadragon as OpenSeadragonEngine & {
     console?: Pick<Console, "debug" | "error">;
   };
   const osdConsole = osd.console;
@@ -641,6 +652,7 @@ export function App() {
   const referenceReturnFocusRef = useRef<HTMLElement | null>(null);
   const closeRepositoryButtonRef = useRef<HTMLButtonElement | null>(null);
   const repositoryReturnFocusRef = useRef<HTMLElement | null>(null);
+  const openSeadragonRef = useRef<OpenSeadragonEngine | null>(null);
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   // Held-key state for continuous pan, flight and orbit.
   const heldFlightKeysRef = useRef(new Set<string>());
@@ -669,8 +681,9 @@ export function App() {
     isNightLightsOnByUser,
   );
   const [rainEnabled, setRainEnabled] = useState(false);
-  // Snowfall has its own preference so switching back to Day/Night/Minecraft
-  // never turns a previous rain choice into an unexpected shower. Snowstorm
+  // Snowfall has its own preference so switching back to Day/Night/Minecraft/
+  // Schwellenraum never turns a previous rain choice into an unexpected
+  // shower. Snowstorm
   // keeps its established falling-snow default, but the same weather control
   // can now pause and resume it.
   const [snowfallEnabled, setSnowfallEnabled] = useState(true);
@@ -785,13 +798,16 @@ export function App() {
         return;
       }
       const viewer = viewerRef.current;
-      if (!viewer || !viewer.viewport) {
+      const openSeadragon = openSeadragonRef.current;
+      if (!viewer || !viewer.viewport || !openSeadragon) {
         return;
       }
       const point = mapPointForLandmark(viewer, landmark);
       const mobileOffset = isCompactLayout
-        ? viewer.viewport.deltaPointsFromPixels(new OpenSeadragon.Point(0, 32))
-        : new OpenSeadragon.Point(0, 0);
+        ? viewer.viewport.deltaPointsFromPixels(
+            new openSeadragon.Point(0, 32),
+          )
+        : new openSeadragon.Point(0, 0);
       viewer.viewport.zoomTo(
         focusZoomForLandmark(landmark.name),
         undefined,
@@ -1097,20 +1113,23 @@ export function App() {
     }
   }, []);
 
-  // Try before the first paint and before ThreeViewer's passive loading work.
-  // Chrome origins with autoplay permission therefore hear the first scheduled
-  // note as soon as the UI appears. Fresh origins still require the gesture
-  // fallback below; no web application can override that browser policy.
-  useLayoutEffect(() => {
+  // Give the browser one complete app-shell paint before generating the two
+  // Web Audio graphs. Origins with autoplay permission still begin
+  // immediately afterwards; fresh origins keep the gesture fallback below.
+  // Audio must never delay the visible map controls or the 3D engine request.
+  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
-    if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
-      void startMusic({ rememberMute: false, silent: true });
-    }
-    if (isChiptuneSupported()) {
-      void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
-    }
+    const frame = window.requestAnimationFrame(() => {
+      if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
+        void startMusic({ rememberMute: false, silent: true });
+      }
+      if (isChiptuneSupported()) {
+        void startSoundtrack({ preserveIntentOnFailure: true, silent: true });
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [startMusic, startSoundtrack]);
 
   // A page opened in a background tab is deliberately silent while hidden.
@@ -1298,12 +1317,13 @@ export function App() {
 
   const panByViewport = useCallback((dx: number, dy: number) => {
     const viewport = viewerRef.current?.viewport;
-    if (!viewport) {
+    const openSeadragon = openSeadragonRef.current;
+    if (!viewport || !openSeadragon) {
       return;
     }
     const bounds = viewport.getBounds();
     viewport.panBy(
-      new OpenSeadragon.Point(bounds.width * dx, bounds.height * dy),
+      new openSeadragon.Point(bounds.width * dx, bounds.height * dy),
       true,
     );
     viewport.applyConstraints(true);
@@ -1476,7 +1496,17 @@ export function App() {
 
   const selectVisualMode = useCallback(
     (next: VisualMode) => {
+      // Visual modes never restart or replace either audio layer. In
+      // particular, Schwellenraum continues the already-running music at the
+      // same position and volume.
       setLightingMode(next);
+      // Schwellenraum is a spatial 3D presentation with authored thresholds,
+      // interiors and collision. Keeping the photographic 2D sheet untouched
+      // also guarantees that protected memorial pixels are never recoloured.
+      if (next === "schwellenraum") {
+        setViewerMode("three");
+        setIsThreeUnderside(false);
+      }
       setStatus(
         next === "minecraft"
           ? `${copy.minecraft} · Premium Voxel`
@@ -1484,7 +1514,9 @@ export function App() {
             ? copy.night
             : next === "snowstorm"
               ? copy.snowstorm
-              : copy.day,
+              : next === "schwellenraum"
+                ? copy.schwellenraum
+                : copy.day,
       );
     },
     [copy],
@@ -2292,125 +2324,151 @@ export function App() {
       return;
     }
 
+    let cancelled = false;
+    let mountedViewer: OpenSeadragon.Viewer | null = null;
     setIsMapReady(false);
-    installOpenSeadragonConsoleFilter();
-    const viewer = OpenSeadragon({
-      id: "openseadragon-viewer",
-      element: containerRef.current,
-      tileSources: tileSource,
-      showNavigationControl: false,
-      showNavigator: true,
-      navigatorPosition: "BOTTOM_RIGHT",
-      navigatorHeight: "128px",
-      navigatorWidth: "214px",
-      gestureSettingsMouse: {
-        clickToZoom: false,
-        dblClickToZoom: true,
-        dragToPan: true,
-        scrollToZoom: true,
-      },
-      gestureSettingsTouch: TOUCH_GESTURE_SETTINGS,
-      gestureSettingsPen: PEN_GESTURE_SETTINGS,
-      animationTime: 0.12,
-      blendTime: 0.06,
-      constrainDuringPan: true,
-      immediateRender: true,
-      minPixelRatio: 0.5,
-      minZoomImageRatio: 0.56,
-      maxZoomPixelRatio: 6,
-      zoomPerClick: 1.6,
-      showRotationControl: true,
-      visibilityRatio: 1,
-      homeFillsViewer: false,
-      // Input must lead the picture, not wait behind a long camera spring.
-      springStiffness: 18,
-    });
-    viewerRef.current = viewer;
-    if (import.meta.env.DEV) {
-      let previousFrame = performance.now();
-      const frameTimes: number[] = [];
-      viewer.addHandler("animation", () => {
-        const now = performance.now();
-        frameTimes.push(now - previousFrame);
-        previousFrame = now;
-        if (frameTimes.length < 60) {
+    const startMapViewer = async (): Promise<void> => {
+      const openSeadragon = await loadOpenSeadragon();
+      const container = containerRef.current;
+      if (cancelled || !container) {
+        return;
+      }
+      openSeadragonRef.current = openSeadragon;
+      installOpenSeadragonConsoleFilter(openSeadragon);
+      const viewer = openSeadragon({
+        id: "openseadragon-viewer",
+        element: container,
+        tileSources: tileSource,
+        showNavigationControl: false,
+        showNavigator: true,
+        navigatorPosition: "BOTTOM_RIGHT",
+        navigatorHeight: "128px",
+        navigatorWidth: "214px",
+        gestureSettingsMouse: {
+          clickToZoom: false,
+          dblClickToZoom: true,
+          dragToPan: true,
+          scrollToZoom: true,
+        },
+        gestureSettingsTouch: TOUCH_GESTURE_SETTINGS,
+        gestureSettingsPen: PEN_GESTURE_SETTINGS,
+        animationTime: 0.12,
+        blendTime: 0.06,
+        constrainDuringPan: true,
+        immediateRender: true,
+        minPixelRatio: 0.5,
+        minZoomImageRatio: 0.56,
+        maxZoomPixelRatio: 6,
+        zoomPerClick: 1.6,
+        showRotationControl: true,
+        visibilityRatio: 1,
+        homeFillsViewer: false,
+        // Input must lead the picture, not wait behind a long camera spring.
+        springStiffness: 18,
+      });
+      mountedViewer = viewer;
+      viewerRef.current = viewer;
+      if (import.meta.env.DEV) {
+        let previousFrame = performance.now();
+        const frameTimes: number[] = [];
+        viewer.addHandler("animation", () => {
+          const now = performance.now();
+          frameTimes.push(now - previousFrame);
+          previousFrame = now;
+          if (frameTimes.length < 60) {
+            return;
+          }
+          const average =
+            frameTimes.reduce((sum, frameTime) => sum + frameTime, 0) /
+            frameTimes.length;
+          console.debug(
+            `[viewer] touch momentum ${average.toFixed(1)} ms/frame`,
+          );
+          frameTimes.length = 0;
+        });
+      }
+      viewer.addHandler("open", () => {
+        viewer.viewport.setRotation(rotationRef.current);
+        viewer.viewport.setFlip(flipRef.current);
+        viewer.viewport.goHome(true);
+        viewer.viewport.zoomBy(0.76, undefined, true);
+        setIsMapReady(true);
+        setStatus("Bereit · Ready");
+      });
+      viewer.addHandler("open-failed", () => {
+        setIsMapReady(false);
+        setStatus("DZI nicht gefunden · DZI not found");
+      });
+      viewer.addHandler("rotate", (event) => {
+        const next = normalizeRotation(event.degrees);
+        rotationRef.current = next;
+        setRotation(next);
+        if (hashSyncFrameRef.current !== null) {
+          window.cancelAnimationFrame(hashSyncFrameRef.current);
+        }
+        hashSyncFrameRef.current = window.requestAnimationFrame(() => {
+          const params = new URLSearchParams();
+          params.set("landmark", sightSlug(selectedRef.current));
+          const activeOrientation = ORIENTATIONS.find((candidate) =>
+            isRotationActive(candidate.degrees, rotationRef.current),
+          );
+          params.set(
+            "view",
+            activeOrientation?.short ?? `${Math.round(rotationRef.current)}deg`,
+          );
+          if (flipRef.current) {
+            params.set("flip", "1");
+          }
+          window.history.replaceState(null, "", `#${params}`);
+          hashSyncFrameRef.current = null;
+        });
+      });
+      viewer.addHandler("canvas-drag", (event) => {
+        if (event.pointerType !== "mouse" || !event.shift) {
           return;
         }
-        const average =
-          frameTimes.reduce((sum, frameTime) => sum + frameTime, 0) /
-          frameTimes.length;
-        console.debug(`[viewer] touch momentum ${average.toFixed(1)} ms/frame`);
-        frameTimes.length = 0;
+        event.preventDefaultAction = true;
+        const next = normalizeRotation(
+          rotationRef.current + rotationDeltaFromMouseDrag(event.delta.x),
+        );
+        rotationRef.current = next;
+        viewer.viewport.setRotation(next);
+        setRotation(next);
       });
-    }
-    viewer.addHandler("open", () => {
-      viewer.viewport.setRotation(rotationRef.current);
-      viewer.viewport.setFlip(flipRef.current);
-      viewer.viewport.goHome(true);
-      viewer.viewport.zoomBy(0.76, undefined, true);
-      setIsMapReady(true);
-      setStatus("Bereit · Ready");
-    });
-    viewer.addHandler("open-failed", () => {
+      viewer.addHandler("canvas-release", () => {
+        const snapped = snapRotationToCardinals(
+          rotationRef.current,
+          ORIENTATIONS.map((candidate) => candidate.degrees),
+        );
+        if (rotationDistance(snapped, rotationRef.current) < 0.01) {
+          return;
+        }
+        rotationRef.current = snapped;
+        viewer.viewport.setRotation(snapped);
+        setRotation(snapped);
+      });
+    };
+
+    void startMapViewer().catch((error: unknown) => {
+      if (cancelled) {
+        return;
+      }
+      console.error("OpenSeadragon failed to load", error);
       setIsMapReady(false);
       setStatus("DZI nicht gefunden · DZI not found");
     });
-    viewer.addHandler("rotate", (event) => {
-      const next = normalizeRotation(event.degrees);
-      rotationRef.current = next;
-      setRotation(next);
-      if (hashSyncFrameRef.current !== null) {
-        window.cancelAnimationFrame(hashSyncFrameRef.current);
-      }
-      hashSyncFrameRef.current = window.requestAnimationFrame(() => {
-        const params = new URLSearchParams();
-        params.set("landmark", sightSlug(selectedRef.current));
-        const activeOrientation = ORIENTATIONS.find((candidate) =>
-          isRotationActive(candidate.degrees, rotationRef.current),
-        );
-        params.set(
-          "view",
-          activeOrientation?.short ?? `${Math.round(rotationRef.current)}deg`,
-        );
-        if (flipRef.current) {
-          params.set("flip", "1");
-        }
-        window.history.replaceState(null, "", `#${params}`);
-        hashSyncFrameRef.current = null;
-      });
-    });
-    viewer.addHandler("canvas-drag", (event) => {
-      if (event.pointerType !== "mouse" || !event.shift) {
-        return;
-      }
-      event.preventDefaultAction = true;
-      const next = normalizeRotation(
-        rotationRef.current + rotationDeltaFromMouseDrag(event.delta.x),
-      );
-      rotationRef.current = next;
-      viewer.viewport.setRotation(next);
-      setRotation(next);
-    });
-    viewer.addHandler("canvas-release", () => {
-      const snapped = snapRotationToCardinals(
-        rotationRef.current,
-        ORIENTATIONS.map((candidate) => candidate.degrees),
-      );
-      if (rotationDistance(snapped, rotationRef.current) < 0.01) {
-        return;
-      }
-      rotationRef.current = snapped;
-      viewer.viewport.setRotation(snapped);
-      setRotation(snapped);
-    });
 
     return () => {
+      cancelled = true;
       if (hashSyncFrameRef.current !== null) {
         window.cancelAnimationFrame(hashSyncFrameRef.current);
         hashSyncFrameRef.current = null;
       }
-      viewer.destroy();
-      viewerRef.current = null;
+      mountedViewer?.destroy();
+      if (viewerRef.current === mountedViewer) {
+        viewerRef.current = null;
+      }
+      openSeadragonRef.current = null;
       setIsMapReady(false);
     };
   }, [tileSource, viewerMode]);
@@ -2431,11 +2489,12 @@ export function App() {
     // the geometry while the user pans/zooms, instead of shimmering across
     // a fixed screen-space grid.
     const readAnchor = () => {
-      if (!viewer) {
+      const openSeadragon = openSeadragonRef.current;
+      if (!viewer || !openSeadragon) {
         return null;
       }
       const point = viewer.viewport.pixelFromPoint(
-        new OpenSeadragon.Point(0, 0),
+        new openSeadragon.Point(0, 0),
         true,
       );
       // Zoom relative to the furthest-out view; the post-processor sizes
@@ -2472,6 +2531,10 @@ export function App() {
     if (viewerMode !== "map" || !viewer || !isMapReady || !selectedLandmark) {
       return;
     }
+    const openSeadragon = openSeadragonRef.current;
+    if (!openSeadragon) {
+      return;
+    }
     viewer.clearOverlays();
     const marker = document.createElement("div");
     marker.className = "map-marker map-marker--selected";
@@ -2480,8 +2543,8 @@ export function App() {
     viewer.addOverlay({
       element: marker,
       location: mapPointForLandmark(viewer, selectedLandmark),
-      placement: OpenSeadragon.Placement.CENTER,
-      rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION,
+      placement: openSeadragon.Placement.CENTER,
+      rotationMode: openSeadragon.OverlayRotationMode.NO_ROTATION,
       checkResize: false,
     });
     return () => {
@@ -2572,55 +2635,77 @@ export function App() {
           className={viewerMode === "map" ? "viewer is-active" : "viewer"}
         />
         {viewerMode === "three" || (isThreeReady && keepThreeWarm) ? (
-          <ThreeViewer
-            ref={threeViewerRef}
-            active={viewerMode === "three"}
-            canvasAriaLabel={
-              isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
+          <Suspense
+            fallback={
+              <div
+                className={
+                  viewerMode === "three"
+                    ? "three-viewer is-active"
+                    : "three-viewer"
+                }
+                aria-hidden={viewerMode !== "three"}
+              >
+                <div className="three-startup-curtain" aria-hidden="true" />
+                <div className="three-progress" role="status">
+                  <span>{copy.loadingMesh}</span>
+                  <strong>0%</strong>
+                  <div aria-hidden="true">
+                    <span style={{ width: "0%" }} />
+                  </div>
+                </div>
+              </div>
             }
-            lightingMode={lightingMode}
-            nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
-            pedestrianMode={isPedestrianMode}
-            precipitationEnabled={precipitationEnabled}
-            progressLabel={copy.loadingMesh}
-            sceneUrl={sceneUrl}
-            selectedLandmark={selected}
-            onReady={() => {
-              setIsThreeReady(true);
-              setStatus(
-                language === "de"
-                  ? "Isometrische Ansicht bereit"
-                  : "Isometric view ready",
-              );
-            }}
-            onError={(message) => {
-              console.error(`Isometric Berlin 3D: ${message}`);
-              setIsPedestrianMode(false);
-              setIsThreeReady(false);
-              setStatus(
-                `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
-              );
-              setViewerMode("map");
-            }}
-            onPedestrianRespawn={() => {
-              setStatus(
-                language === "de"
-                  ? "Wasser betreten · zurück am Pariser Platz"
-                  : "Entered water · back at Pariser Platz",
-              );
-            }}
-            onPedestrianSprintToggle={togglePedestrianSprint}
-            onWarning={(message) => {
-              setStatus(
-                `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
-              );
-            }}
-            onViewChange={({ azimuthDegrees, polarDegrees, underside }) => {
-              setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
-              setThreePolarDegrees(polarDegrees);
-              setIsThreeUnderside(underside);
-            }}
-          />
+          >
+            <LazyThreeViewer
+              ref={threeViewerRef}
+              active={viewerMode === "three"}
+              canvasAriaLabel={
+                isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
+              }
+              lightingMode={lightingMode}
+              nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
+              pedestrianMode={isPedestrianMode}
+              precipitationEnabled={precipitationEnabled}
+              progressLabel={copy.loadingMesh}
+              sceneUrl={sceneUrl}
+              selectedLandmark={selected}
+              onReady={() => {
+                setIsThreeReady(true);
+                setStatus(
+                  language === "de"
+                    ? "Isometrische Ansicht bereit"
+                    : "Isometric view ready",
+                );
+              }}
+              onError={(message) => {
+                console.error(`Isometric Berlin 3D: ${message}`);
+                setIsPedestrianMode(false);
+                setIsThreeReady(false);
+                setStatus(
+                  `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
+                );
+                setViewerMode("map");
+              }}
+              onPedestrianRespawn={() => {
+                setStatus(
+                  language === "de"
+                    ? "Wasser betreten · zurück am Pariser Platz"
+                    : "Entered water · back at Pariser Platz",
+                );
+              }}
+              onPedestrianSprintToggle={togglePedestrianSprint}
+              onWarning={(message) => {
+                setStatus(
+                  `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
+                );
+              }}
+              onViewChange={({ azimuthDegrees, polarDegrees, underside }) => {
+                setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
+                setThreePolarDegrees(polarDegrees);
+                setIsThreeUnderside(underside);
+              }}
+            />
+          </Suspense>
         ) : null}
         {rainEnabled && viewerMode === "map" && lightingMode !== "snowstorm" ? (
           <div
@@ -2676,6 +2761,7 @@ export function App() {
                 : ""}
               {lightingMode === "minecraft" ? " · Voxel" : ""}
               {lightingMode === "snowstorm" ? " · Snow" : ""}
+              {lightingMode === "schwellenraum" ? " · Schwellenraum" : ""}
             </small>
           </span>
         </button>
@@ -2797,6 +2883,15 @@ export function App() {
               onClick={() => selectVisualMode("snowstorm")}
             >
               <Snowflake size={18} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label={copy.schwellenraum}
+              aria-pressed={lightingMode === "schwellenraum"}
+              title={copy.schwellenraum}
+              onClick={() => selectVisualMode("schwellenraum")}
+            >
+              <Sparkles size={18} aria-hidden="true" />
             </button>
           </div>
           <button
@@ -3671,6 +3766,14 @@ export function App() {
             </button>
             <button
               type="button"
+              aria-pressed={lightingMode === "schwellenraum"}
+              onClick={() => selectVisualMode("schwellenraum")}
+            >
+              <Sparkles size={20} aria-hidden="true" />
+              <span>{copy.schwellenraum}</span>
+            </button>
+            <button
+              type="button"
               className="weather-toggle"
               aria-pressed={precipitationEnabled}
               aria-label={
@@ -4114,10 +4217,10 @@ export function App() {
                 <dd>
                   {language === "de"
                     ? isPedestrianMode
-                      ? "Springen (maximal etwa 5,4 m über dem Boden)"
+                      ? "Springen (maximal etwa 6,2 m über dem Boden)"
                       : "Kurz tippen: Sehenswürdigkeiten-Tour starten / pausieren"
                     : isPedestrianMode
-                      ? "Jump (up to about 5.4 m above the ground)"
+                      ? "Jump (up to about 6.2 m above the ground)"
                       : "Tap: start / pause the sights tour"}
                 </dd>
               </div>

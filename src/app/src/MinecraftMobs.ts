@@ -8,7 +8,12 @@ import {
   Object3D,
 } from "three";
 
-import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
+import {
+  decodeVoxelBuildingColumns,
+  decodeVoxelTreeBlocks,
+  type VoxelPayload,
+  worldGroundSampler,
+} from "./MinecraftVoxelWorld";
 
 export const CREEPER_COUNT = 3;
 export const ZOMBIE_COUNT = 4;
@@ -105,7 +110,7 @@ function buildWalkableGrid(payload: VoxelPayload): {
       );
     }
   });
-  for (const [xIndex, zIndex] of payload.buildings) {
+  for (const [xIndex, zIndex] of decodeVoxelBuildingColumns(payload)) {
     const xOffset = xIndex - payload.grid.min_x_idx;
     const zOffset = zIndex - payload.grid.min_z_idx;
     if (
@@ -118,7 +123,7 @@ function buildWalkableGrid(payload: VoxelPayload): {
     }
   }
   const treeCells = new Uint8Array(payload.grid.cols * payload.grid.rows);
-  for (const [xIndex, zIndex] of payload.trees) {
+  for (const [xIndex, zIndex] of decodeVoxelTreeBlocks(payload)) {
     const xOffset = xIndex - payload.grid.min_x_idx;
     const zOffset = zIndex - payload.grid.min_z_idx;
     if (

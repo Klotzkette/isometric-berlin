@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import geopandas as gpd
+import pytest
 from shapely.geometry import box
 
 from isometric_berlin.data import fetch_lod2 as lod2
@@ -14,27 +15,72 @@ def test_tiles_for_regierungsviertel_bounds_are_minimal() -> None:
   bounds = Path("geo_data/regierungsviertel/bounds.geojson")
   tiles = lod2.tiles_for_bounds(bounds)
   assert [tile.tile_id for tile in tiles] == [
+    "385_5817",
+    "385_5818",
+    "385_5819",
+    "385_5820",
+    "385_5821",
+    "386_5817",
     "386_5818",
     "386_5819",
     "386_5820",
+    "386_5821",
+    "387_5817",
     "387_5818",
     "387_5819",
     "387_5820",
+    "387_5821",
+    "387_5822",
+    "387_5823",
+    "388_5817",
     "388_5818",
     "388_5819",
     "388_5820",
     "388_5821",
     "388_5822",
+    "388_5823",
+    "389_5817",
     "389_5818",
     "389_5819",
     "389_5820",
     "389_5821",
     "389_5822",
+    "389_5823",
+    "390_5817",
     "390_5818",
     "390_5819",
     "390_5820",
     "390_5821",
+    "390_5822",
+    "390_5823",
+    "391_5817",
+    "391_5818",
+    "391_5819",
+    "391_5820",
+    "391_5821",
   ]
+
+
+def test_download_rejects_maintenance_html_as_a_tile(tmp_path: Path) -> None:
+  class MaintenanceResponse:
+    status_code = 200
+    content = b"<!doctype html><title>Wartungsarbeiten</title>"
+    headers = {"Content-Type": "text/html; charset=utf-8"}
+
+    def raise_for_status(self) -> None:
+      return None
+
+  class MaintenanceSession:
+    def get(self, _url: str, *, timeout: int) -> MaintenanceResponse:
+      assert timeout == 120
+      return MaintenanceResponse()
+
+  tile = lod2.Lod2Tile(386, 5818)
+  with pytest.raises(RuntimeError, match="did not return a ZIP archive"):
+    lod2.download_tiles([tile], tmp_path, session=MaintenanceSession())  # type: ignore[arg-type]
+
+  assert not (tmp_path / tile.filename).exists()
+  assert not (tmp_path / f"{tile.filename}.tmp").exists()
 
 
 def test_citygml_building_parser_preserves_lod2_attributes(tmp_path: Path) -> None:

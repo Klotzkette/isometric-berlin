@@ -129,6 +129,98 @@ TILE_BACKOFF_S = 20
 REQUEST_ATTEMPTS = 8
 REQUEST_BACKOFF_S = 5.0
 
+# GeoPackage is an uncompressed SQLite container, so a 500 m expansion of the
+# task hull cannot keep every unused OSM node and still satisfy the repository's
+# 8 MiB canonical-source ceiling. These columns and rows are exactly the source
+# evidence consumed by the generators and landmark QA. Geometry is simplified
+# only below the 0.4 m visual/detail threshold already used by the downstream
+# park and surface builders.
+FILE_SIMPLIFY_M = 0.35
+PRECISE_GEOMETRY_LAYERS = frozenset({"water"})
+RIVERSIDE_BENCH_MAX_WATER_DISTANCE_M = 50.0
+FILE_COLUMNS: dict[str, tuple[str, ...]] = {
+  "roads": (
+    "element",
+    "id",
+    "name",
+    "highway",
+    "bridge",
+    "tunnel",
+    "covered",
+    "layer",
+    "service",
+    "surface",
+    "material",
+    "width",
+    "est_width",
+    "lanes",
+    "lanes:forward",
+    "lanes:backward",
+    "sidewalk",
+    "cycleway",
+  ),
+  "water": (
+    "element",
+    "id",
+    "name",
+    "waterway",
+    "water",
+    "natural",
+    "amenity",
+    "tunnel",
+    "layer",
+    "width",
+  ),
+  "parks": (
+    "element",
+    "id",
+    "name",
+    "natural",
+    "leisure",
+    "playground",
+    "landuse",
+    "surface",
+  ),
+  "vegetation": ("element", "id", "natural", "height", "leaf_type"),
+  "playgrounds": (
+    "element",
+    "id",
+    "name",
+    "leisure",
+    "playground",
+    "surface",
+    "material",
+    "height",
+    "access",
+    "wheelchair",
+  ),
+  "rail": (
+    "element",
+    "id",
+    "name",
+    "railway",
+    "bridge",
+    "tunnel",
+    "covered",
+    "layer",
+    "service",
+    "usage",
+  ),
+  "pois": (
+    "element",
+    "id",
+    "name",
+    "amenity",
+    "tourism",
+    "historic",
+    "memorial",
+    "memorial:type",
+    "office",
+    "diplomatic",
+    "government",
+  ),
+}
+
 
 def tile_polygon(polygon: BaseGeometry, span: float) -> list[BaseGeometry]:
   min_lon, min_lat, max_lon, max_lat = polygon.bounds
@@ -390,22 +482,90 @@ def split_layers(
   return {name: _clip(layer, clip_polygon) for name, layer in layers.items()}
 
 
-def write_layers(layers: dict[str, gpd.GeoDataFrame], out_path: Path) -> None:
-  """The seven layers as one GeoPackage, kept under the 5 MiB repository cap.
+def write_layers(layers: dict[str, gpd.GeoDataFrame], out_path: Path) -> dict[str, int]:
+  """The seven rendered layers as one bounded, sub-8 MiB GeoPackage.
 
-  Two levers, both lossless for what the generators read. The rtree indexes
-  cost ~1.7 MB and nothing in this project queries the file spatially — every
-  consumer loads a whole layer. Columns that are entirely null in a layer cost
-  one SQLite header byte per row and carry no information; `_filter`,
-  `_has_value` and `_isin` already treat a missing column as all-null, so
-  dropping them is the same data.
+  Three levers are lossless at the viewer's precision: rtree indexes are
+  omitted because every consumer loads whole layers, unused columns and point
+  classes are omitted, and sub-0.4 m vertex noise is removed with topology
+  preservation. Named POIs remain available to landmark QA. The only unnamed
+  benches retained are within 50 m of mapped water, which is wider than the
+  riverside-bar builder's entire seat search.
   """
   out_path.parent.mkdir(parents=True, exist_ok=True)
   if out_path.exists():
     out_path.unlink()
-  for layer_name, gdf in layers.items():
-    normalized = drop_empty_columns(normalize_for_file(gdf))
+  rendered = rendered_file_rows(layers)
+  for layer_name, gdf in rendered.items():
+    normalized = compact_for_file(layer_name, gdf)
     normalized.to_file(out_path, layer=layer_name, driver="GPKG", SPATIAL_INDEX="NO")
+  return {name: len(gdf) for name, gdf in rendered.items()}
+
+
+def rendered_file_rows(
+  layers: dict[str, gpd.GeoDataFrame],
+) -> dict[str, gpd.GeoDataFrame]:
+  """Retain every feature class that a generator or landmark QA can consume."""
+  rendered = {name: layer.copy() for name, layer in layers.items()}
+
+  roads = rendered["roads"]
+  rendered["roads"] = roads[
+    (roads.geometry.geom_type != "Point") | _isin(roads, "highway", ["traffic_signals"])
+  ].copy()
+
+  water = rendered["water"]
+  rendered["water"] = water[water.geometry.geom_type != "Point"].copy()
+
+  parks = rendered["parks"]
+  rendered["parks"] = parks[
+    parks.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
+  ].copy()
+
+  rail = rendered["rail"]
+  rendered["rail"] = rail[
+    (rail.geometry.geom_type != "Point") | _isin(rail, "railway", ["subway_entrance"])
+  ].copy()
+
+  pois = rendered["pois"]
+  water_surfaces = water[water.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
+  benches_near_water = Series(False, index=pois.index)
+  if not water_surfaces.empty:
+    water_union = water_surfaces.geometry.union_all()
+    benches_near_water = _isin(pois, "amenity", ["bench"]) & pois.geometry.distance(
+      water_union
+    ).le(RIVERSIDE_BENCH_MAX_WATER_DISTANCE_M)
+  rendered["pois"] = pois[
+    _has_value(pois, "name")
+    | _isin(pois, "amenity", ["fuel", "biergarten", "bar", "pub", "fountain"])
+    | benches_near_water
+    | _isin(pois, "tourism", ["artwork"])
+    | _has_value(pois, "historic")
+    | _has_value(pois, "memorial")
+    | _has_value(pois, "office")
+    | _has_value(pois, "diplomatic")
+    | _has_value(pois, "government")
+  ].copy()
+  return rendered
+
+
+def compact_for_file(layer_name: str, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+  """Select the per-layer schema and remove visually irrelevant vertex noise."""
+  keep = [column for column in FILE_COLUMNS[layer_name] if column in gdf.columns]
+  compact = gdf[[*keep, "geometry"]].copy()
+  # Water/artwork polygon differences encode real built details such as
+  # Invalidenpark's Sinkende Mauer; simplifying those rings independently can
+  # turn a narrow slot into a broad perimeter remainder. Keep them exact.
+  if layer_name not in PRECISE_GEOMETRY_LAYERS:
+    source_geometry = compact.geometry.copy()
+    compact.geometry = compact.geometry.simplify(
+      FILE_SIMPLIFY_M, preserve_topology=True
+    )
+    if layer_name == "pois":
+      exact = _isin(compact, "tourism", ["artwork"]) | _isin(
+        compact, "amenity", ["fountain"]
+      )
+      compact.loc[exact, "geometry"] = source_geometry.loc[exact]
+  return drop_empty_columns(normalize_for_file(compact))
 
 
 def drop_empty_columns(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -535,8 +695,8 @@ def main() -> None:
     normalize_for_file(features).to_crs(WGS84).to_json(), encoding="utf-8"
   )
   layers = split_layers(features, args.bounds)
-  write_layers(layers, args.out)
-  counts = ", ".join(f"{name}={len(gdf)}" for name, gdf in layers.items())
+  written_counts = write_layers(layers, args.out)
+  counts = ", ".join(f"{name}={count}" for name, count in written_counts.items())
   print(f"Wrote OSM layers to {args.out}: {counts}")
 
 

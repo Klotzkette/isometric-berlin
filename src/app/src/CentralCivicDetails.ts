@@ -10,6 +10,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Path,
   PlaneGeometry,
   Quaternion,
   Shape,
@@ -168,6 +169,100 @@ const WALL_FENCE = 0x555d5e;
 const KITA_BLUE = 0x3f78a8;
 const KITA_RED = 0xd65342;
 const KITA_YELLOW = 0xf0c73b;
+
+/**
+ * The Bundestag identifies the lower, public crossing as the
+ * Marie-Elisabeth-Lueders-Steg and the high open crossing as the
+ * Jakob-Maria-Mierscheid-Steg. They do not share one footprint: OSM way
+ * 30596778 maps the full lower route, while LoD2 part DEBE01YYK0001zDa fixes
+ * the upper bridge at 62.61 x 2.90 m. The Bundestag chronology independently
+ * publishes the latter as 62 m long, about 3 m wide and 10 m high.
+ */
+export const BUNDESTAG_SPREE_CONNECTION_PROFILE = {
+  lowerBridge: {
+    centrelineWorld: [
+      [278.707531, -185.999851],
+      [408.683767, -183.387877],
+    ] as const,
+    // The OSM centreline is straight. Its committed 4 m bridge raster centres
+    // the crossing at z=-186, while the primary Bundestag photograph and its
+    // description as the lower Brueckenbogen confirm a bow. The resulting
+    // 1.31 m sag is bounded by both, not an invented surveyed radius.
+    curveSagittaM: -1.31,
+    deckY: 7.15,
+    name: "Marie-Elisabeth-Lüders-Steg",
+    widthM: 4,
+  },
+  osmWayId: "30596778",
+  sources: [
+    "https://www.openstreetmap.org/way/30596778",
+    "https://www.bundestag.de/besuche/architektur/loebehaus/architektur",
+    "https://www.bundestag.de/webarchiv/textarchiv/2012/40236033_kw33_melh_haus-209142",
+    "https://bilddatenbank.bundestag.de/site/picture-detail?id=5005709",
+    "https://www.bundestag.de/resource/blob/272544/515f8fdd4bade0b9945f4cf82ef09505/kapitel_18_03_architektonische_umgestaltung_des_reichstagsgeb__udes_und_neubauten_f__r_den_bundestag_-_chronik-pdf-data.pdf",
+  ] as const,
+  upperBridge: {
+    centrelineWorld: [
+      [312.833017, -182.850387],
+      [375.423346, -181.425566],
+    ] as const,
+    // The LoD2 top is 28.743 m. Subtracting the Bundestag's published 10 m
+    // structural height fixes the bottom envelope; deckY is the 0.48 m
+    // slab's walking surface and roofY is the 0.42 m roof slab's centre.
+    deckY: 19.223,
+    envelopeBottomY: 18.743,
+    envelopeTopY: 28.743,
+    frameBayCount: 13,
+    lod2BuildingId: "DEBE01YYK0001zDa",
+    name: "Jakob-Maria-Mierscheid-Steg",
+    roofY: 28.533,
+    structuralHeightM: 10,
+    widthM: 2.9,
+  },
+} as const;
+
+/** Exact LoD2 facade envelope plus photo-bounded public-space articulation. */
+export const MELH_SPREE_FRONT_PROFILE = {
+  canopy: {
+    footprintWorld: [
+      [356.8, -179.6],
+      [411.8, -179.2],
+      [411.2, -113.5],
+      [361.2, -112.8],
+    ] as const,
+    supportsWorld: [
+      [372.4, -173.6],
+      [372.4, -146.2],
+      [372.4, -119.1],
+    ] as const,
+    topY: 32.7,
+  },
+  circularFacade: {
+    bottomY: 4.1,
+    centreWorld: [381.2, -163.8] as const,
+    heightM: 26.15,
+    openingRadiusM: 11.9,
+    widthM: 31.52,
+  },
+  sources: [
+    "Berlin LoD2 part DEBE3Dv7RdNEzXe9",
+    "https://www.openstreetmap.org/way/1393129898",
+    "https://www.bundestag.de/besuche/architektur/luedershaus/architektur",
+    "https://www.bundestag.de/dokumente/textarchiv/architektur-marie-elisabeth-lueders-haus-1101944",
+  ] as const,
+  stair: {
+    bottomY: 4.2,
+    centrelineWorld: [
+      [411.10745, -109.12252],
+      [443.184148, -98.40888],
+    ] as const,
+    osmWayId: "1393129898",
+    stepCount: 48,
+    topY: 12.7,
+    widthBottomM: 3,
+    widthTopM: 25,
+  },
+} as const;
 
 export const EMBASSY_DETAIL_PROFILES = {
   france: {
@@ -610,6 +705,394 @@ function addExtrudedFootprint(
       new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
     );
   }
+}
+
+/**
+ * Open parliamentary bridges and the public MELH river facade.
+ *
+ * This lives in the always-visible central recognition layer: Day, Night,
+ * Snowstorm, Minecraft and Schwellenraum therefore share one geometry instead
+ * of five drifting copies. IsometricCityWorld suppresses the closed LoD2 bridge
+ * prism; MinecraftVoxelWorld clears the same narrow river corridor.
+ */
+export function createBundestagSpreeConnection(): Group {
+  const group = new Group();
+  group.name = "Bundestag Spree connection recognition model";
+  group.userData.geometryStatus =
+    "separate OSM lower and exact LoD2 upper alignments; upper 62.61 x 2.90 x 10 m envelope is LoD2/Bundestag-published, while the lower bow, frame rhythm, canopy fixtures and stair articulation are source-bounded presentation geometry";
+  group.userData.keepInMinecraft = true;
+  group.userData.photoTexturesBundled = false;
+  group.userData.profile = BUNDESTAG_SPREE_CONNECTION_PROFILE;
+  group.userData.melhSpreeFront = MELH_SPREE_FRONT_PROFILE;
+
+  const CONCRETE = 0xc9c8c1;
+  const CONCRETE_LIGHT = 0xe2dfd6;
+  const BRIDGE_STEEL = 0x737d7e;
+  const RAIL_STEEL = 0x5f696a;
+  const GLASS_TEAL = 0x568c92;
+
+  const lower = BUNDESTAG_SPREE_CONNECTION_PROFILE.lowerBridge;
+  const upper = BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge;
+  const createPlanPath = (
+    centreline: readonly [
+      readonly [number, number],
+      readonly [number, number],
+    ],
+    curveSagittaM = 0,
+  ) => {
+    const [start, end] = centreline;
+    const dx = end[0] - start[0];
+    const dz = end[1] - start[1];
+    const chordLength = Math.hypot(dx, dz) || 1;
+    const normalX = -dz / chordLength;
+    const normalZ = dx / chordLength;
+    const pointAt = (tRaw: number): readonly [number, number] => {
+      const t = Math.max(0, Math.min(1, tRaw));
+      const bow = curveSagittaM * 4 * t * (1 - t);
+      return [
+        start[0] + dx * t + normalX * bow,
+        start[1] + dz * t + normalZ * bow,
+      ];
+    };
+    const tangentAt = (tRaw: number): readonly [number, number] => {
+      const t = Math.max(0, Math.min(1, tRaw));
+      const bowDerivative = curveSagittaM * 4 * (1 - 2 * t);
+      const tangentX = dx + normalX * bowDerivative;
+      const tangentZ = dz + normalZ * bowDerivative;
+      const tangentLength = Math.hypot(tangentX, tangentZ) || 1;
+      return [tangentX / tangentLength, tangentZ / tangentLength];
+    };
+    return {
+      offsetPoint: (t: number, lateralM: number): readonly [number, number] => {
+        const point = pointAt(t);
+        const tangent = tangentAt(t);
+        return [
+          point[0] - tangent[1] * lateralM,
+          point[1] + tangent[0] * lateralM,
+        ];
+      },
+      pointAt,
+    };
+  };
+  const lowerPlan = createPlanPath(
+    lower.centrelineWorld,
+    lower.curveSagittaM,
+  );
+  const upperPlan = createPlanPath(upper.centrelineWorld);
+  const lowerBuilder = createBuilder();
+  const upperBuilder = createBuilder();
+  const DECK_SEGMENTS = 26;
+  for (let index = 0; index < DECK_SEGMENTS; index += 1) {
+    const start = lowerPlan.pointAt(index / DECK_SEGMENTS);
+    const end = lowerPlan.pointAt((index + 1) / DECK_SEGMENTS);
+    const cx = (start[0] + end[0]) / 2;
+    const cz = (start[1] + end[1]) / 2;
+    const length = Math.hypot(end[0] - start[0], end[1] - start[1]);
+    const rotationY = Math.atan2(-(end[1] - start[1]), end[0] - start[0]);
+    addBox(
+      lowerBuilder,
+      CONCRETE,
+      cx,
+      lower.deckY - 0.24,
+      cz,
+      length + 0.08,
+      0.48,
+      lower.widthM,
+      rotationY,
+    );
+  }
+  for (let index = 0; index < DECK_SEGMENTS; index += 1) {
+    const start = upperPlan.pointAt(index / DECK_SEGMENTS);
+    const end = upperPlan.pointAt((index + 1) / DECK_SEGMENTS);
+    const cx = (start[0] + end[0]) / 2;
+    const cz = (start[1] + end[1]) / 2;
+    const length = Math.hypot(end[0] - start[0], end[1] - start[1]);
+    const rotationY = Math.atan2(-(end[1] - start[1]), end[0] - start[0]);
+    addBox(
+      upperBuilder,
+      CONCRETE_LIGHT,
+      cx,
+      upper.deckY - 0.24,
+      cz,
+      length + 0.08,
+      0.48,
+      upper.widthM,
+      rotationY,
+    );
+    addBox(
+      upperBuilder,
+      CONCRETE,
+      cx,
+      upper.roofY,
+      cz,
+      length + 0.08,
+      0.42,
+      upper.widthM,
+      rotationY,
+    );
+  }
+
+  // The lower public bridge is a concrete ribbon with transparent metal
+  // rails, not an opaque parapet. OSM fixes its endpoints; the documented
+  // Brueckenbogen is represented by the restrained photo-bounded sagitta.
+  const lowerRailPoints: Vector3[][] = [[], []];
+  for (let index = 0; index <= DECK_SEGMENTS; index += 1) {
+    const t = index / DECK_SEGMENTS;
+    for (const [sideIndex, side] of [-1, 1].entries()) {
+      const [x, z] = lowerPlan.offsetPoint(
+        t,
+        side * (lower.widthM / 2 - 0.12),
+      );
+      const foot = new Vector3(x, lower.deckY + 0.05, z);
+      const top = new Vector3(x, lower.deckY + 1.18, z);
+      addBeamBetween(lowerBuilder, RAIL_STEEL, foot, top, 0.09);
+      lowerRailPoints[sideIndex].push(top);
+    }
+  }
+  for (const rail of lowerRailPoints) {
+    for (let index = 0; index < rail.length - 1; index += 1) {
+      addBeamBetween(lowerBuilder, RAIL_STEEL, rail[index], rail[index + 1], 0.1);
+      const startMid = rail[index].clone().add(new Vector3(0, -0.55, 0));
+      const endMid = rail[index + 1].clone().add(new Vector3(0, -0.55, 0));
+      addBeamBetween(lowerBuilder, RAIL_STEEL, startMid, endMid, 0.065);
+    }
+  }
+
+  // The high bridge is visibly open in the Bundestag photograph: a slim
+  // concrete deck and roof between steel posts and diagonal ties. No glazing
+  // or full-height facade panel is placed across the Spree.
+  const frameBays = upper.frameBayCount;
+  const frameSides: Vector3[][] = [[], []];
+  for (let index = 0; index <= frameBays; index += 1) {
+    const t = index / frameBays;
+    for (const [sideIndex, side] of [-1, 1].entries()) {
+      const [x, z] = upperPlan.offsetPoint(
+        t,
+        side * (upper.widthM / 2 - 0.08),
+      );
+      const bottom = new Vector3(x, upper.deckY + 0.14, z);
+      const top = new Vector3(x, upper.roofY - 0.22, z);
+      addBeamBetween(upperBuilder, BRIDGE_STEEL, bottom, top, 0.18);
+      frameSides[sideIndex].push(bottom, top);
+    }
+  }
+  for (const sideFrames of frameSides) {
+    for (let bay = 0; bay < frameBays; bay += 1) {
+      const bottomStart = sideFrames[bay * 2];
+      const topStart = sideFrames[bay * 2 + 1];
+      const bottomEnd = sideFrames[(bay + 1) * 2];
+      const topEnd = sideFrames[(bay + 1) * 2 + 1];
+      addBeamBetween(upperBuilder, BRIDGE_STEEL, bottomStart, topEnd, 0.13);
+      addBeamBetween(upperBuilder, RAIL_STEEL, topStart, topEnd, 0.12);
+      addBeamBetween(
+        upperBuilder,
+        RAIL_STEEL,
+        bottomStart.clone().add(new Vector3(0, 1.08, 0)),
+        bottomEnd.clone().add(new Vector3(0, 1.08, 0)),
+        0.08,
+      );
+    }
+  }
+  const bridges = new Group();
+  bridges.name = "Bundestag Spree bridges";
+  bridges.userData.lowerBridgeName = lower.name;
+  bridges.userData.upperBridgeName = upper.name;
+  bridges.userData.openFrame = true;
+  const lowerBridge = finishDrawnGroup(lowerBuilder, {
+    name: lower.name,
+  });
+  if (lowerBridge) bridges.add(lowerBridge);
+  const upperBridge = finishDrawnGroup(upperBuilder, {
+    name: upper.name,
+  });
+  if (upperBridge) bridges.add(upperBridge);
+  group.add(bridges);
+
+  const frontageBuilder = createBuilder();
+  const front = MELH_SPREE_FRONT_PROFILE;
+  const circular = front.circularFacade;
+  const [facadeX, facadeZ] = circular.centreWorld;
+  const facadeCentreY = circular.bottomY + circular.heightM / 2;
+  const facadeDepthM = 0.72;
+  const ringShape = new Shape();
+  ringShape.moveTo(-circular.widthM / 2, -circular.heightM / 2);
+  ringShape.lineTo(circular.widthM / 2, -circular.heightM / 2);
+  ringShape.lineTo(circular.widthM / 2, circular.heightM / 2);
+  ringShape.lineTo(-circular.widthM / 2, circular.heightM / 2);
+  ringShape.closePath();
+  const opening = new Path();
+  opening.absarc(0, 0, circular.openingRadiusM, 0, Math.PI * 2, true);
+  ringShape.holes.push(opening);
+  const ringGeometry = new ExtrudeGeometry(ringShape, {
+    bevelEnabled: false,
+    curveSegments: 48,
+    depth: facadeDepthM,
+  });
+  ringGeometry.rotateY(Math.PI / 2);
+  ringGeometry.translate(
+    facadeX - facadeDepthM / 2,
+    facadeCentreY,
+    facadeZ,
+  );
+  addInkedGeometry(frontageBuilder, ringGeometry, CONCRETE_LIGHT);
+
+  // Turquoise curtain wall within the round opening, with chord-clipped
+  // mullions. It masks the coarse closed prism without bundling a photograph.
+  const glassGeometry = new CylinderGeometry(
+    circular.openingRadiusM * 0.965,
+    circular.openingRadiusM * 0.965,
+    0.16,
+    48,
+  );
+  glassGeometry.rotateZ(Math.PI / 2);
+  glassGeometry.translate(facadeX - 0.48, facadeCentreY, facadeZ);
+  addInkedGeometry(frontageBuilder, glassGeometry, GLASS_TEAL, false);
+  const ringTrim = new TorusGeometry(
+    circular.openingRadiusM,
+    0.22,
+    8,
+    48,
+  );
+  ringTrim.rotateY(Math.PI / 2);
+  ringTrim.translate(facadeX - 0.58, facadeCentreY, facadeZ);
+  addInkedGeometry(frontageBuilder, ringTrim, CONCRETE, false);
+  for (const zOffset of [-8, -4, 0, 4, 8]) {
+    const halfChord = Math.sqrt(
+      Math.max(0, circular.openingRadiusM ** 2 - zOffset ** 2),
+    );
+    addBox(
+      frontageBuilder,
+      BRIDGE_STEEL,
+      facadeX - 0.6,
+      facadeCentreY,
+      facadeZ + zOffset,
+      0.12,
+      halfChord * 2,
+      0.12,
+      0,
+      false,
+    );
+  }
+  for (const yOffset of [-6.4, 0, 6.4]) {
+    const halfChord = Math.sqrt(
+      Math.max(0, circular.openingRadiusM ** 2 - yOffset ** 2),
+    );
+    addBox(
+      frontageBuilder,
+      BRIDGE_STEEL,
+      facadeX - 0.6,
+      facadeCentreY + yOffset,
+      facadeZ,
+      0.12,
+      0.14,
+      halfChord * 2,
+      0,
+      false,
+    );
+  }
+
+  const canopy = front.canopy;
+  addExtrudedFootprint(
+    frontageBuilder,
+    CONCRETE_LIGHT,
+    canopy.footprintWorld,
+    canopy.topY - 0.58,
+    0.58,
+  );
+  const canopyGroundY = 2.35;
+  for (const [x, z] of canopy.supportsWorld) {
+    addCylinder(
+      frontageBuilder,
+      CONCRETE_LIGHT,
+      x,
+      (canopyGroundY + canopy.topY - 0.58) / 2,
+      z,
+      0.43,
+      canopy.topY - 0.58 - canopyGroundY,
+      16,
+    );
+  }
+
+  // Bundestag's defining description is geometric: the Freitreppe widens as
+  // it rises. OSM way 1393129898 supplies both the diagonal plan axis and its
+  // tagged 3-25 m width range; each tread expands toward the upper terrace
+  // instead of repeating the former seven equal boxes on the wrong axis.
+  const stair = front.stair;
+  const [[bottomX, bottomZ], [topX, topZ]] = stair.centrelineWorld;
+  const stairDeltaX = topX - bottomX;
+  const stairDeltaZ = topZ - bottomZ;
+  const stairLength = Math.hypot(stairDeltaX, stairDeltaZ);
+  const stairAxisX = stairDeltaX / stairLength;
+  const stairAxisZ = stairDeltaZ / stairLength;
+  const stairNormalX = -stairAxisZ;
+  const stairNormalZ = stairAxisX;
+  const stairRotationY = Math.atan2(-stairAxisZ, stairAxisX);
+  const stairRun = stairLength / stair.stepCount;
+  for (let index = 0; index < stair.stepCount; index += 1) {
+    const t = (index + 1) / stair.stepCount;
+    const surfaceY = stair.bottomY + (stair.topY - stair.bottomY) * t;
+    const width =
+      stair.widthBottomM +
+      (stair.widthTopM - stair.widthBottomM) * t;
+    const centreDistance = (index + 0.5) * stairRun;
+    addBox(
+      frontageBuilder,
+      CONCRETE,
+      bottomX + stairAxisX * centreDistance,
+      (stair.bottomY + surfaceY) / 2,
+      bottomZ + stairAxisZ * centreDistance,
+      stairRun + 0.05,
+      surfaceY - stair.bottomY,
+      width,
+      stairRotationY,
+    );
+  }
+  addBox(
+    frontageBuilder,
+    CONCRETE_LIGHT,
+    topX + stairAxisX * 1.2,
+    stair.topY - 0.22,
+    topZ + stairAxisZ * 1.2,
+    2.4,
+    0.44,
+    stair.widthTopM,
+    stairRotationY,
+  );
+  for (const side of [-1, 1]) {
+    let previousTop: Vector3 | null = null;
+    for (let index = 0; index <= stair.stepCount; index += 3) {
+      const t = index / stair.stepCount;
+      const x = bottomX + stairDeltaX * t;
+      const z = bottomZ + stairDeltaZ * t;
+      const surfaceY =
+        stair.bottomY + (stair.topY - stair.bottomY) * t;
+      const width =
+        stair.widthBottomM +
+        (stair.widthTopM - stair.widthBottomM) * t;
+      const foot = new Vector3(
+        x + stairNormalX * side * (width / 2 - 0.3),
+        surfaceY + 0.04,
+        z + stairNormalZ * side * (width / 2 - 0.3),
+      );
+      const railTop = foot.clone().add(new Vector3(0, 1.08, 0));
+      addBeamBetween(frontageBuilder, RAIL_STEEL, foot, railTop, 0.085);
+      if (previousTop) {
+        addBeamBetween(frontageBuilder, RAIL_STEEL, previousTop, railTop, 0.095);
+      }
+      previousTop = railTop;
+    }
+  }
+  const frontage = finishDrawnGroup(frontageBuilder, {
+    name: "Marie-Elisabeth-Lüders-Haus Spree facade",
+  });
+  if (frontage) {
+    frontage.userData.circularOpening = true;
+    frontage.userData.canopySupportCount = canopy.supportsWorld.length;
+    frontage.userData.stairOsmWayId = stair.osmWayId;
+    frontage.userData.stairWidensUpward = true;
+    group.add(frontage);
+  }
+  return group;
 }
 
 function scaledRing(
@@ -4126,6 +4609,11 @@ export function createCentralCivicDetails(
   group.userData.geometryStatus =
     "Official LoD2 and OSM anchors with primary-source recognition details; vehicles, facade rhythms and damaged Wall crown are bounded display approximations";
   group.userData.keepInMinecraft = true;
+  group.userData.bundestagSpreeConnection = {
+    bridge: BUNDESTAG_SPREE_CONNECTION_PROFILE,
+    facade: MELH_SPREE_FRONT_PROFILE,
+    sourceStack: "Berlin LoD2 + OSM + Deutscher Bundestag",
+  };
   group.userData.hauptbahnhofTransit = {
     taxiCount: 5,
     taxiType: "Berlin ivory saloons with roof signs, lamps and four wheels",
@@ -4232,6 +4720,7 @@ export function createCentralCivicDetails(
     name: "Central transit and civic details",
   });
   if (drawn) group.add(drawn);
+  group.add(createBundestagSpreeConnection());
   const pariserPlatzBuilder = createBuilder();
   addPariserPlatzPhotoDetails(pariserPlatzBuilder);
   const pariserPlatzFineDetail = finishDrawnGroup(pariserPlatzBuilder, {

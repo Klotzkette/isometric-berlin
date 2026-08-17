@@ -85,6 +85,7 @@ GARDEN_SIMPLIFY_M = 0.4
 # as three instanced low-poly families rather than thousands of objects.
 SCRUB_SPACING_M = 12.0
 MIN_SCRUB_AREA_M2 = 12.0
+GROSSER_TIERGARTEN_RELATION_ID = "7643526"
 
 # --- Carriageways and park paths -------------------------------------
 #
@@ -412,12 +413,44 @@ def collect_scrub_points(
       mapped_features += 1
 
   points.sort(key=lambda entry: (entry[1], entry[0]))
+  # ParkDetails now fills the exact Großer-Tiergarten scrub polygons at a
+  # finer spacing with path, memorial and tunnel clearances. Filter the legacy
+  # coarse points only after sampling, so every old point outside the exact
+  # OSM relation is byte-for-byte preserved instead of being resampled.
+  parks = gpd.read_file(osm_path, layer="parks").to_crs(epsg=25833)
+  tiergarten_rows = parks[
+    (parks["element"] == "relation")
+    & (parks["id"].astype(str) == GROSSER_TIERGARTEN_RELATION_ID)
+  ]
+  if len(tiergarten_rows) != 1:
+    raise ValueError(
+      "Expected exactly one OSM Großer Tiergarten relation/"
+      f"{GROSSER_TIERGARTEN_RELATION_ID}, found {len(tiergarten_rows)}"
+    )
+  tiergarten = tiergarten_rows.geometry.iloc[0]
+  points_before_tiergarten_filter = len(points)
+  points = [
+    point
+    for point in points
+    if not tiergarten.covers(
+      Point(
+        ORIGIN_EASTING + point[0] / 10,
+        ORIGIN_NORTHING - point[1] / 10,
+      )
+    )
+  ]
+  excluded_tiergarten_points = points_before_tiergarten_filter - len(points)
   return points, {
+    "excluded_grosser_tiergarten_point_count": excluded_tiergarten_points,
     "feature_count": mapped_features,
     "mapped_area_m2": round(mapped_area_m2),
     "point_count": len(points),
+    "pre_tiergarten_filter_point_count": points_before_tiergarten_filter,
     "sampling_spacing_m": SCRUB_SPACING_M,
-    "scope": "bounded OSM natural=scrub polygons outside mapped roads and water",
+    "scope": (
+      "bounded OSM natural=scrub polygons outside mapped roads and water; "
+      "legacy coarse points excluded inside exact OSM relation/7643526"
+    ),
   }
 
 

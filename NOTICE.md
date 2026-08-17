@@ -71,6 +71,13 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   `references/wikimedia/README.md`. Derivative public artefacts must
   preserve the relevant per-file attribution and license obligations.
 
+- **Bildhauerei in Berlin (Kindertransport memorial visual references):**
+  five 2021 inventory photographs by Pauline Ahrens, licensed CC BY 4.0,
+  bound the display-only proportions and material reading of the memorial at
+  Bahnhof Friedrichstraße. The photographs and textures are not bundled. The
+  source page and per-file credits are recorded in
+  `src/app/public/dzi/regierungsviertel/visual_reference_attribution.json`.
+
 - **Reichstag dome dimensions:** the procedural glass/steel signature uses
   the diameter, height, rib and ring counts published on the
   [Deutscher Bundestag architecture page](https://www.bundestag.de/besuche/architektur/reichstag/kuppel).
@@ -93,6 +100,10 @@ If Wikimedia Commons media was directly used as a texture source,
 visual derivative, or published reference plate, also include the
 relevant per-file Wikimedia attribution and license notices from
 `geo_data/regierungsviertel/wikimedia_references.json`.
+
+When the Kindertransport memorial reconstruction is displayed, also display:
+
+> Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)
 
 When the Berlin 3D Mesh viewer is used, also display:
 

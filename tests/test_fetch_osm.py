@@ -58,7 +58,10 @@ def test_overpass_requests_never_offer_deflate() -> None:
 
 def test_generated_osm_gpkg_contains_required_layers() -> None:
   assert OSM.exists()
-  assert OSM.stat().st_size < 8 * 1024 * 1024
+  # Task-13 adds 11.015 km² without thinning any source geometry. The bounded
+  # source GeoPackage is not a browser payload; 16 MiB keeps a firm regression
+  # ceiling while retaining the complete second 500 m ring.
+  assert OSM.stat().st_size < 16 * 1024 * 1024
 
   counts: dict[str, int] = {}
   for layer in LAYERS:

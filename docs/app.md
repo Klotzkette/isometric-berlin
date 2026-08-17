@@ -60,7 +60,7 @@ heading; `Alt`/`Option` plus left/right orbits and plus up/down tilts. The
 lit Tiergartentunnel is entered manually through either connected road portal;
 there is no scripted tunnel ride competing with direct camera control.
 
-Pedestrian mode is an independent navigation layer over all four visual modes.
+Pedestrian mode is an independent navigation layer over all five visual modes.
 It starts directly below the current camera at a 1.80 m eye height above the
 existing smooth metric terrain, and disables
 flight, camera zoom and underside controls. `W`/`S` or up/down walk,
@@ -76,11 +76,14 @@ the 3D view does the same. The normal
 6.4 m/s rate remains available for precise inspection, and both speeds pass
 through the same terrain, tunnel and water checks. `Space`, the touch-safe jump
 button and a double-tap on the free 3D view produce a single ground-only jump
-with a 5.4 m apex; drags, pinches and long presses never count as a jump, and
-there is no double jump. Entering a mapped OSM water polygon after landing
+with a 6.2 m apex; the relaxed mobile double-tap still rejects drags, pinches
+and long presses, and there is no double jump. Entering a mapped OSM water
+polygon after landing
 respawns at Pariser
-Platz. Islands encoded as water holes remain walkable. The mode neither moves
-source geometry nor invents collision envelopes for buildings.
+Platz. Islands encoded as water holes remain walkable. The mode does not move
+source geometry. Schwellenraum adds only its explicit, bounded doorway,
+interior-wall and floor collision contracts; every other building remains the
+same closed solid.
 
 **Continuous navigation:** held plain arrows pan in screen space; held
 `Shift`+arrows fly along the current heading; held `Alt`/`Option`+arrows orbit
@@ -100,17 +103,32 @@ the safe-area-aware bottom controls accessible.
 
 ## Language, visual modes, and sound
 
-The toolbar exposes direct Day, Night, Minecraft and Snowstorm buttons. `D`
+The toolbar exposes direct Day, Night, Minecraft, Snowstorm and Schwellenraum
+buttons. `D`
 remains the fast Day/Night toggle, `M` enters or leaves Minecraft independently
 and `S` enters or leaves Snowstorm. A fullscreen control uses the native API on
 desktop and a safe-area-aware pseudo-fullscreen fallback on iOS.
-A separate weather button adds moderate rain without changing Day, Night or
-Minecraft. In Snowstorm the same button becomes a snowfall control: it pauses
+A separate weather button adds moderate rain without changing Day, Night,
+Minecraft or Schwellenraum. In Snowstorm the same button becomes a snowfall
+control: it pauses
 or resumes falling flakes while the settled snow, drifts and snowploughs remain
 in place. True 3D renders precipitation as one camera-following field, with a
 lower particle budget on coarse pointers; the DZI fallback uses a lightweight
 screen layer. Precipitation is hidden automatically in underwater and underside
 views.
+
+Schwellenraum reuses the complete Day city and the already-running music
+without restarting or replacing either audio layer. Its lavender sky,
+pastel light thresholds and elongated repeated frames are additive; buildings
+are never globally warped or recoloured. The mode opens in true 3D and adds
+explicit entrances, ramps, stairs and bounded presentation interiors for the
+Reichstag plenary chamber, Hauptbahnhof concourse and deep platforms,
+Bundeskanzleramt, Potsdamer Platz station cellar and the historic Charite
+entrance. Walking and every flight input use swept solid collision in this
+mode, while the Tiergartentunnel remains walkable through its mapped portals.
+Seventeen persecution-, war- and violence-related memorial volumes override
+all access rules; those models keep their exact Day materials and transforms,
+receive no threshold geometry and cannot be entered.
 
 ## Underground passenger cutaway
 
@@ -142,9 +160,10 @@ camera over the Platz der Republik lawn in Day mode. Explicit landmark deep
 links still override that default. The zero-server fallback uses the same
 start landmark.
 
-**Day is a drawn isometric city**: the lumpy photogrammetry
-buildings are replaced by prisms extruded from the surveyed LoD2 footprint
-polygons (`lod2-prisms.json`, built by
+**Day is a drawn isometric city**: the lumpy photogrammetry buildings are
+replaced by prisms extruded from authoritative LoD2 footprint polygons plus a
+non-overlapping OSM context-building sidecar where LoD2 is absent
+(`lod2-prisms.json`, built by
 `isometric_berlin.generation.build_isometric_prisms`) — exact corners,
 planar walls, courtyard holes (the Reichstag keeps its two courtyards) —
 with hard near-black ink lines from edge geometry and flat quantised
@@ -164,22 +183,62 @@ Night and Snow relight the same drawn city; Minecraft uses its separate voxel
 world. If the requested world fails, the viewer loads the photographic base
 shell as a bounded fallback rather than leaving the curtain open forever.
 
-The ordinary Day/Night/Snow cold start does not request the photographic GLBs
+The ordinary Day/Night/Snow/Schwellenraum cold start does not request the
+photographic GLBs
 or the complete Minecraft instances. It reads `ground-context.json`, a
-terrain-only sibling below 1 MiB, while the full voxel payload stays lazy.
+2.33 MB terrain-only sibling for the expanded bounds, while the losslessly
+row-compressed full voxel payload stays lazy.
+The first HTML response contains a small attributed startup plate. React then
+loads the requested Three.js viewer as a separate chunk, while OpenSeadragon
+stays entirely dormant until the visitor chooses the 2D map. A
+production-build guard caps the synchronous JavaScript graph at 400 KiB
+uncompressed. Once the
+3D runtime exists, the small scene manifest starts first and the immutable
+payloads for the requested world transfer in parallel with manifest-driven
+recognition-detail construction. Procedural audio graph preparation and its
+autoplay attempt run only after the first app-shell paint.
+
+The drawn city itself is progressive without becoming a reduced LOD. The main
+thread constructs the nearest exact 700 LoD2/OSM buildings (320 on coarse
+pointers), the complete ground and every one-off recognition model first. A
+module Worker then supplies eight exact surface families and the remaining
+29,118 buildings in six near-to-far, material-merged groups. Every typed
+geometry buffer transfers ownership rather than being JSON-serialised, and a
+batch receives the currently active Day, Night, Snow or Schwellenraum
+materials before it joins the scene. Entering Minecraft stops the hidden
+Worker and disposes its completed follow-up groups; returning to a drawn mode
+restarts refinement over the still-usable exact near field. A Worker or asset
+failure never invokes the old synchronous full-city build: received exact
+batches and the near field remain the bounded fallback.
+
+The pathological 2,566-hole asphalt union uses the lossless, source-hash-bound
+`surface-pretriangulation.json` / `surface-asphalt-*.plate.gz` Earcut result.
+Terrain tessellation still uses the committed ground samples; paving polygons
+and asphalt triangles are processed in bounded Worker partitions and merged
+back to the historical single material meshes before transfer. Thus the final
+asphalt buffer hash, vertex count and steady surface draw calls match the
+one-shot path. Regenerate the plate after any `surface-polygons.json` change
+with `bun run build:surface-plates` from `src/app`. On the v0.72.0 production
+payload, the reproducible Bun benchmark records a 0.76 s preview build and a
+1.9 ms maximum main-thread batch attachment, versus a 17.08 s synchronous
+one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
+5.44 GiB to 3.55 GiB, while steady geometry remains 576.5 MiB and the complete
+scene uses 188 estimated draw calls versus 150 in the monolithic reference.
+
 Photo geometry remains available for the designed underside cutaway and for
 failure recovery. Optional park details wait until the first usable city frame.
 Core JSON transfers have a finite timeout, one retry and unmount cancellation.
 
 **Minecraft is a true voxel world**: switching in lazily loads
 `mesh/regierungsviertel/minecraft-voxels.json` — generated by
-`isometric_berlin.generation.build_minecraft_voxels` from the surveyed LoD2
-footprints + measured heights (153,151 building columns on a 4 m grid, stepped
-roofs for gabled/hipped ALKIS roof forms), OSM water/roads/plazas as
+`isometric_berlin.generation.build_minecraft_voxels` from authoritative LoD2
+footprints plus the non-overlapping OSM context sidecar (533,329 logical
+building columns on a 4 m grid, stepped roofs for gabled/hipped roof forms),
+OSM water/roads/plazas as
 run-length ground slabs, and the official tree points as trunk+crown cubes.
 The block world replaces the photogrammetry surfaces and hero crops while
 active. Outside the official payload grid, an explicitly marked extrapolated
-block surround carries the same versioned 5,230 m envelope, park bands, tree
+block surround carries the same versioned 6,450 m envelope, park bands, tree
 and lamp positions as Day and Night; it does not claim new surveyed geometry.
 GPU instancing keeps the complete world to a handful of draw calls. An opaque
 mode-coloured curtain stays in place until the block world is usable; only an
@@ -226,7 +285,8 @@ photograph-bounded reconstruction rather than a survey. The inset carries the
 complete documented quotation and attribution. A dedicated close camera keeps
 the profile and plaque together in frame, while mipmapped lettering disappears
 before it can shimmer at overview distance. The model lives in the shared
-memorial layer, so Day, Night, Minecraft and Snowstorm all retain it.
+memorial layer, so Day, Night, Minecraft, Snowstorm and Schwellenraum all
+retain it.
 
 The Queer Rainbow Memorial at Ahornsteig is another independent recognition
 model. Its WGS84 point was supplied by the owner and is transformed into the
@@ -321,6 +381,29 @@ facade features: French Bel-Etage openings and Rue de France, the British
 screen/collage and green roof, and the Hungarian glazed base, stone wings and
 roof flag. No photograph is projected or bundled as a texture.
 
+Hafenplatz 6–10 uses all 26 official LoD2 bodies as the metric envelope. Its
+dedicated Terrassenhaus layer then adds four descending terrace arms, long
+horizontal bands of individually varied glazing, ochre frames/mullions/sills,
+exposed-aggregate spandrels, courtyard loggias, louvres and segmented parapets.
+The same deterministic material and night-window logic is shared by Day,
+Night and Snow rather than baking the owner photographs into a texture.
+
+At Potsdamer Platz, the two station entrance halls remain separate structures
+on their exact LoD2 footprints and official heights. Each is a semi-open
+steel/glass hall with a 10 × 6 roof grid, cross braces, open fronts and its own
+stair/escalator pair; only the subterranean distribution geometry remains
+explicitly schematic.
+
+Between Paul-Löbe-Haus and Marie-Elisabeth-Lüders-Haus, LoD2 part
+`DEBE01YYK0001zDa` no longer renders as a closed river wall. The lower public
+Marie-Elisabeth-Lüders-Steg follows OSM way `30596778` over its full route with
+a photo-bounded shallow bow. The upper Jakob-Maria-Mierscheid-Steg follows the
+62.606 m LoD2 envelope and the Bundestag's published approximately 62 × 3 × 10
+m dimensions as a slender open frame. The MELH river front adds its circular
+opening, canopy on slim supports and the widening 48-step stair from OSM way
+`1393129898`. Minecraft suppresses only the 16 false bridge-prism columns and
+eleven coarse ground-deck cells; adjoining building columns remain intact.
+
 Spreebogenpark keeps OSM park way `737280675` and the committed terrain grid as
 its plan and height anchors. Two rising circle-segment lawns frame the surviving
 Alsenstrasse axis with a 17 m landscape window and dark Corten walls; the
@@ -336,22 +419,34 @@ and setback-storey overlay. The Geschichtspark Ehemaliges Zellengefaengnis
 Moabit retains OSM park way `498278335`; its brick walls, three entrances, four
 wing traces, panopticon frame, three circular yards, blood-beech planting and
 one walk-in cell follow the published Berlin interpretive plan and are not
-labelled as surviving prison survey geometry. At Floraplatz, exactly eight
+labelled as surviving prison survey geometry. The visible boundary itself uses
+the exact 22-point OSM ring and four mapped polygonal wall traces with openings;
+it stays entirely west of Heidestraße, at least 17.29 m from the mapped B96
+centreline. At Floraplatz, exactly eight
 OSM-positioned granite plinths carry differentiated bronze deer, bison, elk,
 bear and bull silhouettes. The duplicate generic Bison node at the same
 eastern plinth as `Liegender Bison II` is the only suppressed record.
 
-The Löwenbrücke is a dedicated metre-scale recognition model at OSM way
-`1411957328`, replacing the former four-cell generic bridge raster rather than
-overdrawing it. Its published 17.3 m length and 2.0 m timber-deck width control
-the envelope; the official Berlin monument record controls the 1838 suspension
-principle, light-yellow timber, bronzed lions and pale sandstone bases. Nine
-lattice bays, ten longitudinal board runs, paired cables, 22 hangers and the
-four inward-facing lions reproduce the supplied current views. Exact lion,
-cable, railing and joinery dimensions remain labelled photo-bounded
-reconstruction, not survey geometry. The fine members use the shared
-distance-hysteresis and ink fade so the close view stays intricate without
-shimmering in the overview.
+The Adlerbrücke and Löwenbrücke are dedicated metre-scale recognition models,
+replacing their former generic park-bridge marks rather than overdrawing them.
+For the Adlerbrücke, OSM way `28872983` fixes the centre and bearing while the
+official Masterplan Brücken Berlin inventory (data status 06/2025) controls the
+7.30 x 3.35 m structure. Its flat steel span, yellow-brick abutments, fourteen
+wavy railing bays and two large central cast-iron eagle reliefs follow the
+current CC BY-SA reference views; older conflicting dimensions are retained in
+the model metadata but do not control the drawing.
+
+For the rebuilt Löwenbrücke, OSM way `1411957328` fixes the plan alignment. The
+same inventory records the 2025 structure at 18.30 x 1.88 m, while the engineers
+publish the complementary 26.80 m overall length, 17.60 m main span, 0.80 m
+timber-superstructure depth and four 31.3 mm open spiral ropes. The official
+monument record controls the pale-yellow longitudinal timber deck, bronzed
+lions and pale sandstone bases. Nine truss bays, the four inward-facing lions,
+suspension cables and hangers are joined by the documented modern steel-rope
+handrails and mesh safety fields. Exact sculpture, mesh pitch, railing and
+joinery dimensions remain labelled photo-bounded reconstruction, not survey
+geometry. Both silhouettes remain visible at distance; only their fine ink,
+posts and wire mesh use the shared hysteretic fade.
 
 The Swiss Embassy recognition model preserves its Berlin LoD2 50.927 x 22.804 m
 envelope and the 21.05 m historic roof datum. The official EDA building history
@@ -375,16 +470,25 @@ photovoltaic gable roof. The Day/Night drawing and block-native Minecraft model
 share that same contract. Sources: [Herzog & de Meuron project data](https://www.herzogdemeuron.com/projects/469-museum-der-moderne-berlin-modern/)
 and [Bundesbau project information](https://bundesbau.de/projekte/berlin-modern).
 
-The optional OSM park-detail request is deliberately non-blocking: a failed
+The optional fused park-detail request is deliberately non-blocking: a failed
 `park-details.json` request raises a warning but never delays or disables the
-23 official base meshes. When present, schema 4 batches park paths into six
+23 official base meshes. When present, schema 6 batches park paths into six
 material groups while retaining an individual resolved width per way; tree
-trunks, fork branches and species-resolved crowns are instanced, and only the
-small number of mapped playground devices use individual geometry. Oaks,
+trunks, fork branches and species-resolved crowns are instanced. The current
+task-13 payload additively fuses 25,305 official catalogue trees with unmatched
+OSM evidence into 45,540 visible trees. In the Großer Tiergarten, all 13,156
+official tree points retain their published height, crown and trunk dimensions
+where present, including the measured 35 m height, 12.5 m crown-radius and
+1.426 m trunk-radius extremes. Oaks,
 willows, pines/larches, firs/spruces, poplars, birches/robinias, limes/elms,
 maples/planes, beeches/chestnuts, orchard trees and shrubs receive distinct
-profiles from the official catalogue while their published positions and
-dimensions remain unchanged. The always-loaded
+profiles, branching habits and bounded species-informed colour registers while
+their published positions and dimensions remain unchanged. In addition, 83
+mapped Tiergarten scrub polygons carry 3,535 deterministic bush clusters and
+23 mapped hedge objects preserve 1,099.2 m of line courses plus 526.8 m² of
+area hedges. These exact OSM outlines remain source geometry; the individual
+foliage clumps and missing hedge dimensions are marked display approximations.
+The always-loaded
 smooth surface pass uses those same six families across the complete bounded
 walking and cycling network. Curved bridleways, cycleways, footways and paths
 receive deterministic centripetal interpolation at runtime: every OSM source
@@ -460,7 +564,7 @@ enforce this. Bundling avoids `fetch()` for downloaded `file://` starts.
 By default the viewer loads the mesh scene from
 `public/mesh/regierungsviertel/scene.json` and the five compact JSON layers
 needed by the drawn city. The terrain-only `ground-context.json` replaces the
-full Minecraft instances during Day/Night/Snow startup. Neither the 2.6M-face
+full Minecraft instances during Day/Night/Snow/Schwellenraum startup. Neither the 2.6M-face
 interaction GLBs, the 6.6M-face archival surface nor hero crops are requested
 for normal drawn navigation. The interaction shell is ordered by distance and
 loaded with bounded concurrency only when an underside cutaway needs context

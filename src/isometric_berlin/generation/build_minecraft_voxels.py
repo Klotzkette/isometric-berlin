@@ -58,7 +58,10 @@ MIN_BRIDGE_HALF_WIDTH_M = CELL_M / 2
 IDW_NEIGHBOURS = 8
 IDW_POWER = 2.0
 TREE_MIN_HEIGHT_M = 8.0
-MAX_PAYLOAD_BYTES = 5 * 1024 * 1024
+# Task-13 increases the real bounded area by 55.2%. Seven MiB is a measured,
+# explicit browser-payload ceiling that keeps every 4 m cell and building; the
+# smaller terrain-only startup payload retains its separate 3 MiB gate.
+MAX_PAYLOAD_BYTES = 7 * 1024 * 1024
 
 CLASSES = [
   "grass",
@@ -632,7 +635,13 @@ def build_tree_blocks(park_details_path: Path, grid: dict[str, int]) -> list[lis
     z_idx = math.floor(z / CELL_M)
     if not (grid["min_x_idx"] <= x_idx < x_hi and grid["min_z_idx"] <= z_idx < z_hi):
       continue
-    height_dm = snap_up(float(tree.get("height_m") or 7.0), TREE_MIN_HEIGHT_M) * 10
+    # Park-detail schema 3+ stores the viewer height as compact key ``h``.
+    # Falling back only to ``height_m`` made every schema-5/6 tree the same
+    # eight-metre minimum in Minecraft, discarding the official measurements.
+    height_dm = (
+      snap_up(float(tree.get("h") or tree.get("height_m") or 7.0), TREE_MIN_HEIGHT_M)
+      * 10
+    )
     y0_dm = round(y * 10)
     existing = per_cell.get((x_idx, z_idx))
     if existing is None or height_dm > existing[1]:
@@ -641,6 +650,88 @@ def build_tree_blocks(park_details_path: Path, grid: dict[str, int]) -> list[lis
     [x_idx, z_idx, y0_dm, height_dm]
     for (x_idx, z_idx), (y0_dm, height_dm) in sorted(per_cell.items())
   ]
+
+
+def encode_building_rows(
+  columns: list[list[int]], grid: dict[str, int]
+) -> list[list[list[int]]]:
+  """Encode absolute building columns as compact per-row horizontal runs.
+
+  ``rows[z_offset]`` contains ``[x_offset, run_length, y0_dm, y1_dm,
+  class_id]``. Adjacent columns with equal vertical extent and material are
+  merged. The task-13 context adds hundreds of thousands of columns, so this
+  lossless row representation keeps the public JSON comfortably below its
+  7 MiB delivery budget without dropping any building geometry.
+  """
+  rows: list[list[list[int]]] = [[] for _ in range(grid["rows"])]
+  min_x = grid["min_x_idx"]
+  min_z = grid["min_z_idx"]
+  for x_idx, z_idx, y0_dm, y1_dm, class_id in columns:
+    rows[z_idx - min_z].append([x_idx - min_x, 1, y0_dm, y1_dm, class_id])
+
+  for row in rows:
+    row.sort(key=lambda run: (run[0], run[2], run[3], run[4]))
+    encoded: list[list[int]] = []
+    for run in row:
+      if (
+        encoded
+        and run[0] == encoded[-1][0] + encoded[-1][1]
+        and run[2:] == encoded[-1][2:]
+      ):
+        encoded[-1][1] += 1
+      else:
+        encoded.append(run)
+    row[:] = encoded
+  return rows
+
+
+def decode_building_rows(
+  rows: list[list[list[int]]], grid: dict[str, int]
+) -> list[list[int]]:
+  """Expand schema-2 building rows; primarily useful for verification."""
+  columns: list[list[int]] = []
+  min_x = grid["min_x_idx"]
+  min_z = grid["min_z_idx"]
+  for z_offset, row in enumerate(rows):
+    for x_offset, run_length, y0_dm, y1_dm, class_id in row:
+      for run_offset in range(run_length):
+        columns.append(
+          [
+            min_x + x_offset + run_offset,
+            min_z + z_offset,
+            y0_dm,
+            y1_dm,
+            class_id,
+          ]
+        )
+  return columns
+
+
+def encode_tree_rows(
+  trees: list[list[int]], grid: dict[str, int]
+) -> list[list[list[int]]]:
+  """Encode absolute tree blocks as ``[x_offset, y0_dm, height_dm]`` rows."""
+  rows: list[list[list[int]]] = [[] for _ in range(grid["rows"])]
+  min_x = grid["min_x_idx"]
+  min_z = grid["min_z_idx"]
+  for x_idx, z_idx, y0_dm, height_dm in trees:
+    rows[z_idx - min_z].append([x_idx - min_x, y0_dm, height_dm])
+  return rows
+
+
+def decode_tree_rows(
+  rows: list[list[list[int]]], grid: dict[str, int]
+) -> list[list[int]]:
+  """Expand schema-2 tree rows; primarily useful for verification."""
+  trees: list[list[int]] = []
+  min_x = grid["min_x_idx"]
+  min_z = grid["min_z_idx"]
+  for z_offset, row in enumerate(rows):
+    trees.extend(
+      [min_x + x_offset, min_z + z_offset, y0_dm, height_dm]
+      for x_offset, y0_dm, height_dm in row
+    )
+  return trees
 
 
 def build_payload(
@@ -696,7 +787,7 @@ def build_payload(
   }
 
   return {
-    "schema_version": 1,
+    "schema_version": 2,
     "cell_m": CELL_M,
     "origin": {
       "epsg": 25833,
@@ -724,18 +815,21 @@ def build_payload(
     "classes": CLASSES,
     "ground_rows": ground_rows,
     "ground_height": ground_height,
-    "buildings": columns,
-    "trees": trees,
+    "building_rows": encode_building_rows(columns, grid),
+    "tree_rows": encode_tree_rows(trees, grid),
   }
 
 
 def write_payload(payload: dict[str, Any], out_path: Path) -> int:
-  out_path.parent.mkdir(parents=True, exist_ok=True)
   text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
-  out_path.write_text(text, encoding="utf-8")
-  size = out_path.stat().st_size
+  size = len(text.encode("utf-8"))
   if size > MAX_PAYLOAD_BYTES:
-    raise ValueError(f"Voxel payload is {size} bytes, above the 5 MB budget")
+    raise ValueError(
+      f"Voxel payload is {size} bytes, above the "
+      f"{MAX_PAYLOAD_BYTES / 1024 / 1024:g} MiB budget"
+    )
+  out_path.parent.mkdir(parents=True, exist_ok=True)
+  out_path.write_text(text, encoding="utf-8")
   return size
 
 
@@ -768,8 +862,8 @@ def build_ground_context_payload(payload: dict[str, Any]) -> dict[str, Any]:
       "voxel payload; Minecraft building and tree instances intentionally omitted"
     ),
   }
-  context["buildings"] = []
-  context["trees"] = []
+  context["building_rows"] = []
+  context["tree_rows"] = []
   return context
 
 
@@ -793,12 +887,14 @@ def main(argv: list[str] | None = None) -> None:
   ground_size = write_payload(build_ground_context_payload(payload), args.ground_out)
 
   ground_cells = sum(run[1] for row in payload["ground_rows"] for run in row)
+  building_columns = sum(run[1] for row in payload["building_rows"] for run in row)
+  tree_blocks = sum(len(row) for row in payload["tree_rows"])
   print(f"Wrote {args.out} ({size / 1024:.0f} KiB)")
   print(f"Wrote {args.ground_out} ({ground_size / 1024:.0f} KiB)")
   print(
     f"grid {payload['grid']['cols']}x{payload['grid']['rows']} cells, "
-    f"{ground_cells} ground cells, {len(payload['buildings'])} building columns, "
-    f"{len(payload['trees'])} tree blocks"
+    f"{ground_cells} ground cells, {building_columns} building columns, "
+    f"{tree_blocks} tree blocks"
   )
 
 

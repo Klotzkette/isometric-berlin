@@ -1,38 +1,98 @@
 {
   "type": "FeatureCollection",
-  "name": "regierungsviertel_overview_bounds",
-  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "name": "regierungsviertel_bounds",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
   "features": [
     {
       "type": "Feature",
       "properties": {
-        "name": "Projection anchor of the committed overview raster",
-        "description": "The polygon used to render src/app/public/dzi/regierungsviertel/overview_source.png for v0.66.0. overview_projection() derives the render centre and px/m scale from this exact extent, so the LoD2 prism tone sampler, DZI markers and offline overview stay metrically aligned.",
-        "source": "bounds.geojson as of v0.66.0 — task-11 Friedrichstraße civic expansion"
+        "name": "Regierungsviertel bounds — task-13 additional 500 m context expansion",
+        "description": "An additional metric 500 m outward buffer around the complete task-12 central-Berlin polygon. The bounded task-13 scene adds a second current OSM street and context-building ring in every direction, propagates that exact scope through the 2D overview, 3D prisms and Minecraft voxel pipelines, and preserves every previously mapped civic area.",
+        "source": "Owner-approved task-13 scope revision on 2026-08-17. The committed task-12 polygon was projected from CRS84 to EPSG:25833 and buffered outward by exactly 500 m with mitred joins. The result was validated as one simple polygon and transformed back to CRS84; nine-decimal storage introduces only sub-millimetre boundary noise."
       },
       "geometry": {
         "type": "Polygon",
-        "coordinates": [[
-          [13.3925, 52.5110],
-          [13.3925, 52.5022],
-          [13.3770, 52.5022],
-          [13.3650, 52.5045],
-          [13.3630, 52.5075],
-          [13.3560, 52.5080],
-          [13.3400, 52.5085],
-          [13.3295, 52.5082],
-          [13.3295, 52.5210],
-          [13.3450, 52.5215],
-          [13.3560, 52.5230],
-          [13.3590, 52.5320],
-          [13.3570, 52.5420],
-          [13.3755, 52.5420],
-          [13.3795, 52.5310],
-          [13.3868, 52.5238],
-          [13.3900, 52.5215],
-          [13.3905, 52.5180],
-          [13.3925, 52.5110]
-        ]]
+        "coordinates": [
+          [
+            [
+              13.35269636,
+              52.499102798
+            ],
+            [
+              13.339967973,
+              52.499500483
+            ],
+            [
+              13.314771488,
+              52.498778901
+            ],
+            [
+              13.314761208,
+              52.529524084
+            ],
+            [
+              13.342989174,
+              52.530436531
+            ],
+            [
+              13.343459777,
+              52.530500723
+            ],
+            [
+              13.344078916,
+              52.532359795
+            ],
+            [
+              13.340346398,
+              52.550986251
+            ],
+            [
+              13.387334485,
+              52.550987285
+            ],
+            [
+              13.393350507,
+              52.534431783
+            ],
+            [
+              13.398753792,
+              52.529100933
+            ],
+            [
+              13.40427426,
+              52.525132052
+            ],
+            [
+              13.405125027,
+              52.519163243
+            ],
+            [
+              13.407233016,
+              52.511776578
+            ],
+            [
+              13.407226772,
+              52.493209212
+            ],
+            [
+              13.374741773,
+              52.493210978
+            ],
+            [
+              13.353970812,
+              52.497191573
+            ],
+            [
+              13.35269636,
+              52.499102798
+            ]
+          ]
+        ]
       }
     }
   ]

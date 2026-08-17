@@ -1,0 +1,67 @@
+{
+  "source": "bildhauerei_in_berlin",
+  "note": "Reference-only photographs used to bound the Kindertransport memorial reconstruction; no photograph or texture is bundled into the model.",
+  "required_attribution": "Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)",
+  "records": [
+    {
+      "landmark_id": "kindertransport_memorial",
+      "title": "MIT_095_1_Pauline_Ahrens_2021.jpg",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/",
+      "file_url": "https://bildhauerei-in-berlin.de/wp-content/uploads/MIT_095_1_Pauline_Ahrens_2021.jpg",
+      "artist": "Pauline Ahrens",
+      "year": 2021,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Foto: Pauline Ahrens, 2021, CC BY 4.0 · Bildhauerei in Berlin",
+      "role": "visual_reference_for_proportion_and_material_QA"
+    },
+    {
+      "landmark_id": "kindertransport_memorial",
+      "title": "MIT_095_3_Pauline_Ahrens_2021.jpg",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/",
+      "file_url": "https://bildhauerei-in-berlin.de/wp-content/uploads/MIT_095_3_Pauline_Ahrens_2021.jpg",
+      "artist": "Pauline Ahrens",
+      "year": 2021,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Foto: Pauline Ahrens, 2021, CC BY 4.0 · Bildhauerei in Berlin",
+      "role": "visual_reference_for_proportion_and_material_QA"
+    },
+    {
+      "landmark_id": "kindertransport_memorial",
+      "title": "MIT_095_6_Pauline_Ahrens_2021.jpg",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/",
+      "file_url": "https://bildhauerei-in-berlin.de/wp-content/uploads/MIT_095_6_Pauline_Ahrens_2021.jpg",
+      "artist": "Pauline Ahrens",
+      "year": 2021,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Foto: Pauline Ahrens, 2021, CC BY 4.0 · Bildhauerei in Berlin",
+      "role": "visual_reference_for_proportion_and_material_QA"
+    },
+    {
+      "landmark_id": "kindertransport_memorial",
+      "title": "MIT_095_7_Pauline_Ahrens_2021.jpg",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/",
+      "file_url": "https://bildhauerei-in-berlin.de/wp-content/uploads/MIT_095_7_Pauline_Ahrens_2021.jpg",
+      "artist": "Pauline Ahrens",
+      "year": 2021,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Foto: Pauline Ahrens, 2021, CC BY 4.0 · Bildhauerei in Berlin",
+      "role": "visual_reference_for_proportion_and_material_QA"
+    },
+    {
+      "landmark_id": "kindertransport_memorial",
+      "title": "MIT_095_13_Pauline_Ahrens_2021.jpg",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/",
+      "file_url": "https://bildhauerei-in-berlin.de/wp-content/uploads/MIT_095_13_Pauline_Ahrens_2021.jpg",
+      "artist": "Pauline Ahrens",
+      "year": 2021,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Foto: Pauline Ahrens, 2021, CC BY 4.0 · Bildhauerei in Berlin",
+      "role": "visual_reference_for_proportion_and_material_QA"
+    }
+  ]
+}

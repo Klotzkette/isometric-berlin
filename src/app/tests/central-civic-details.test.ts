@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { Color, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
+import {
+  Box3,
+  Color,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+} from "three";
 
 import {
   BRANDENBURG_GATE_SUBWAY_ENTRANCE_WORLD,
@@ -12,6 +18,7 @@ import {
   BUNDESTAG_KITA_ROOF_FOOTPRINT_WORLD,
   BUNDESTAG_KITA_SOURCE,
   BUNDESTAG_KITA_WORLD,
+  BUNDESTAG_SPREE_CONNECTION_PROFILE,
   CUBE_BERLIN_FACADE_PROFILE,
   CUBE_BERLIN_FOOTPRINT_WORLD,
   CUBE_BERLIN_HEIGHT_M,
@@ -26,6 +33,7 @@ import {
   FRIEDRICHSTRASSE_STATION_WIDTH_M,
   HAUPTBAHNHOF_TRAM_OSM_ROTATION_RAD,
   HAUPTBAHNHOF_TRAM_SOURCE_WAY_ID,
+  MELH_SPREE_FRONT_PROFILE,
   PARISER_PLATZ_CENTRAL_PAVING,
   PARISER_PLATZ_GARDENS,
   TEAR_PALACE_FOOTPRINT_WORLD,
@@ -33,6 +41,7 @@ import {
   centralCivicDetailsVisible,
   centralCivicFocusCamera,
   createCentralCivicDetails,
+  createBundestagSpreeConnection,
   FUTURIUM_BUILDING_ID,
   FUTURIUM_DREHMOMENT_WORLD,
   FUTURIUM_FOOTPRINT_WORLD,
@@ -147,6 +156,120 @@ describe("task-11 central transit and civic details", () => {
     expect(bodies.userData.nightMaterial).toBeInstanceOf(MeshStandardMaterial);
     expect(details.userData.keepInMinecraft).toBe(true);
     expect(details.userData.geometryStatus).toContain("LoD2");
+  });
+
+  test("replaces the false Spree wall with both open Bundestag bridges and the mapped MELH front", () => {
+    const connection = createBundestagSpreeConnection();
+    expect(connection.userData.keepInMinecraft).toBe(true);
+    expect(connection.userData.photoTexturesBundled).toBe(false);
+    expect(BUNDESTAG_SPREE_CONNECTION_PROFILE).toMatchObject({
+      lowerBridge: {
+        curveSagittaM: -1.31,
+        name: "Marie-Elisabeth-Lüders-Steg",
+      },
+      osmWayId: "30596778",
+      upperBridge: {
+        lod2BuildingId: "DEBE01YYK0001zDa",
+        name: "Jakob-Maria-Mierscheid-Steg",
+        structuralHeightM: 10,
+        widthM: 2.9,
+      },
+    });
+    expect(
+      BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge.deckY -
+        BUNDESTAG_SPREE_CONNECTION_PROFILE.lowerBridge.deckY,
+    ).toBeGreaterThan(10);
+    const [upperStart, upperEnd] =
+      BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge.centrelineWorld;
+    expect(
+      Math.hypot(
+        upperEnd[0] - upperStart[0],
+        upperEnd[1] - upperStart[1],
+      ),
+    ).toBeCloseTo(62.6065, 3);
+    expect(
+      BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge.envelopeTopY -
+        BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge.envelopeBottomY,
+    ).toBe(10);
+    expect(BUNDESTAG_SPREE_CONNECTION_PROFILE.sources).toEqual(
+      expect.arrayContaining([
+        "https://www.openstreetmap.org/way/30596778",
+        "https://www.bundestag.de/webarchiv/textarchiv/2012/40236033_kw33_melh_haus-209142",
+        "https://bilddatenbank.bundestag.de/site/picture-detail?id=5005709",
+        expect.stringContaining("bundestag.de/resource/blob/272544/"),
+      ]),
+    );
+
+    const bridges = connection.getObjectByName("Bundestag Spree bridges");
+    const lowerBridgeBodies = connection.getObjectByName(
+      "Marie-Elisabeth-Lüders-Steg bodies",
+    );
+    const upperBridgeBodies = connection.getObjectByName(
+      "Jakob-Maria-Mierscheid-Steg bodies",
+    );
+    expect(bridges?.userData).toMatchObject({
+      lowerBridgeName: "Marie-Elisabeth-Lüders-Steg",
+      openFrame: true,
+      upperBridgeName: "Jakob-Maria-Mierscheid-Steg",
+    });
+    expect(lowerBridgeBodies).toBeInstanceOf(Mesh);
+    expect(upperBridgeBodies).toBeInstanceOf(Mesh);
+    const lowerBridgeBounds = new Box3().setFromObject(lowerBridgeBodies!);
+    const upperBridgeBounds = new Box3().setFromObject(upperBridgeBodies!);
+    expect(lowerBridgeBounds.max.x - lowerBridgeBounds.min.x).toBeGreaterThan(
+      129,
+    );
+    expect(lowerBridgeBounds.min.y).toBeLessThan(7.1);
+    expect(Math.abs(BUNDESTAG_SPREE_CONNECTION_PROFILE.lowerBridge.curveSagittaM))
+      .toBeGreaterThan(1);
+    expect(Math.abs(BUNDESTAG_SPREE_CONNECTION_PROFILE.lowerBridge.curveSagittaM))
+      .toBeLessThan(2);
+    expect(upperBridgeBounds.max.x - upperBridgeBounds.min.x).toBeGreaterThan(
+      62.5,
+    );
+    expect(upperBridgeBounds.max.x - upperBridgeBounds.min.x).toBeLessThan(63);
+    expect(upperBridgeBounds.min.y).toBeCloseTo(
+      BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge.envelopeBottomY,
+      3,
+    );
+    expect(upperBridgeBounds.max.y).toBeCloseTo(
+      BUNDESTAG_SPREE_CONNECTION_PROFILE.upperBridge.envelopeTopY,
+      3,
+    );
+
+    const frontage = connection.getObjectByName(
+      "Marie-Elisabeth-Lüders-Haus Spree facade",
+    );
+    expect(frontage?.userData).toMatchObject({
+      canopySupportCount: 3,
+      circularOpening: true,
+      stairOsmWayId: "1393129898",
+      stairWidensUpward: true,
+    });
+    expect(MELH_SPREE_FRONT_PROFILE.stair).toMatchObject({
+      centrelineWorld: [
+        [411.10745, -109.12252],
+        [443.184148, -98.40888],
+      ],
+      osmWayId: "1393129898",
+      widthBottomM: 3,
+      widthTopM: 25,
+    });
+    expect(MELH_SPREE_FRONT_PROFILE.stair.widthTopM).toBeGreaterThan(
+      MELH_SPREE_FRONT_PROFILE.stair.widthBottomM * 8,
+    );
+
+    const details = createCentralCivicDetails(landmarks);
+    expect(details.userData.bundestagSpreeConnection).toEqual({
+      bridge: BUNDESTAG_SPREE_CONNECTION_PROFILE,
+      facade: MELH_SPREE_FRONT_PROFILE,
+      sourceStack: "Berlin LoD2 + OSM + Deutscher Bundestag",
+    });
+    expect(
+      details.getObjectByName(
+        "Bundestag Spree connection recognition model",
+      ),
+    ).toBeDefined();
   });
 
   test("ships night-capable windows and headlamps without landmark dots", () => {

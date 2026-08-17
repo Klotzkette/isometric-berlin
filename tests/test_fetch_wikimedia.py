@@ -154,6 +154,77 @@ def test_image_from_page_rejects_by_sa_without_artist_or_credit() -> None:
   assert fw.image_from_page("bundeskanzleramt", missing_attribution) is None
 
 
+def test_fetch_pinned_images_keeps_exact_title_identity(
+  monkeypatch: MonkeyPatch,
+) -> None:
+  title = "File:Adlerbrücke 1 Großer Tiergarten Berlin.JPG"
+  page = {
+    "title": title,
+    "imageinfo": [
+      {
+        "mime": "image/jpeg",
+        "thumburl": "https://upload.wikimedia.org/example.jpg",
+        "thumbwidth": 640,
+        "thumbheight": 427,
+        "extmetadata": {
+          "LicenseShortName": {"value": "CC BY-SA 3.0"},
+          "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/3.0/"},
+          "Artist": {"value": "Lienhard Schulz"},
+          "Credit": {"value": "Own work"},
+        },
+      }
+    ],
+  }
+  monkeypatch.setattr(
+    fw,
+    "request_json",
+    lambda _params: {"query": {"pages": [page]}},
+  )
+
+  images = fw.fetch_pinned_images({title: "adler_bridge"})
+
+  assert [(image.title, image.landmark_id) for image in images] == [
+    (title, "adler_bridge")
+  ]
+  assert images[0].artist == "Lienhard Schulz"
+
+
+def test_sync_pinned_references_writes_credit_and_thumbnail(
+  tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+  image = fw.WikimediaImage(
+    landmark_id="adler_bridge",
+    title="File:Adlerbrücke 1 Großer Tiergarten Berlin.JPG",
+    page_url="https://commons.wikimedia.org/wiki/File%3AAdlerbruecke.jpg",
+    thumb_url="https://upload.wikimedia.org/example.jpg",
+    width=640,
+    height=427,
+    mime="image/jpeg",
+    license="CC BY-SA 3.0",
+    license_url="https://creativecommons.org/licenses/by-sa/3.0/",
+    artist="Lienhard Schulz",
+    credit="Own work",
+    description="Adlerbrücke",
+  )
+
+  def fake_download(_image: fw.WikimediaImage, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", (24, 24), (180, 170, 145)).save(path)
+
+  monkeypatch.setattr(fw, "fetch_pinned_images", lambda: [image])
+  monkeypatch.setattr(fw, "download_thumbnail", fake_download)
+
+  payload = fw.sync_pinned_references(
+    {"records": []}, references_dir=tmp_path / "references"
+  )
+
+  assert payload["records"][0]["artist"] == "Lienhard Schulz"
+  assert payload["records"][0]["license"] == "CC BY-SA 3.0"
+  thumbnail = tmp_path / "references" / payload["records"][0]["thumbnail_path"]
+  assert thumbnail.is_file()
+  assert (tmp_path / "references" / "atlas.jpg").is_file()
+
+
 def test_committed_wikimedia_manifest_has_required_attribution() -> None:
   payload = json.loads(
     (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
@@ -171,6 +242,21 @@ def test_committed_wikimedia_manifest_has_required_attribution() -> None:
   ]
 
   assert missing == []
+
+
+def test_committed_wikimedia_manifest_covers_pinned_module_references() -> None:
+  payload = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+  titles = {
+    fw.normalized_commons_title(record["title"]) for record in payload["records"]
+  }
+
+  assert {
+    fw.normalized_commons_title(title) for title in fw.PINNED_FILE_REFERENCES
+  }.issubset(titles)
 
 
 def test_dominant_colours_returns_hex_palette(tmp_path: Path) -> None:

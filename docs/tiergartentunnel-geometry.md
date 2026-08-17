@@ -35,7 +35,9 @@ for the tunnel body is found and committed as a derived clipped artefact.
   carriageway evidence as a `MultiLineString`.
 - `src/app/public/dzi/regierungsviertel/tiergartentunnel.json` stores
   the projected viewer overlay: centreline points, volume dimensions,
-  lighting, ventilation / shaft markers and cross-section cues.
+  lighting, ventilation / shaft markers and cross-section cues. The overview
+  generator reprojects all 11 source points for the current task-13 bounds,
+  including the Reichpietschufer portal, and records the projection metadata.
 - `scripts/package_static_site.py` renders the zero-server
   `START-HERE.html` overlay from that payload.
 - `src/isometric_berlin/generation/render_quadrants.py` renders the
@@ -91,7 +93,8 @@ reveals the tunnel casings, roads, lights, lane marks and ventilation cues. The
 same underside camera also reveals the separately documented mapped passenger-
 rail cutaway and now frames their central crossing rather than forcing a close
 south-portal shot. All four access sites remain ordinary surface features in
-Day, Night and Minecraft. Their short construction-only bore aids stay
+Day, Night, Minecraft, Snowstorm and Schwellenraum. Their short
+construction-only bore aids stay
 occluded even in a tunnel-mouth close-up, preventing a tunnel box from
 appearing through terrain, buildings or the railway deck. Recessed opening
 shadows, threshold lamps, lane-control signals and the measured ramps provide

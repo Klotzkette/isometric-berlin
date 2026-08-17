@@ -1,32 +1,32 @@
 # Geo data — Regierungsviertel
 
-Derived, clipped geodata for the v0.1 Regierungsviertel area only. Raw
+Derived, clipped geodata for the task-13 Berlin scene. Raw
 city-wide dumps do **not** belong here; raw downloads and large source
 archives stay under gitignored `raw/` paths as described in
 [`docs/data.md`](../../docs/data.md).
 
-The current landmark layer contains 56 OSM/LoD2-checked points. The task-09
-bounds expansion adds 13 of them — Siegessäule, Großer Stern,
-Bismarck-Nationaldenkmal, the five Kulturforum buildings, Leipziger Platz with
-Mall of Berlin and Kollhoff-Tower, Hamburger Bahnhof and the Geschichtspark
-Ehemaliges Zellengefängnis Moabit. The
-Wikimedia manifest contains 110 freely licensed visual references across 37
-motif groups; geometry still comes from Berlin LoD2/OSM/official support data.
+The current landmark layer contains 89 OSM/LoD2-checked points. The exact
+task-13 source hull is an additional 500 m EPSG:25833 buffer around every
+task-12 edge (E385602.60…391910.58 / N5817089.12…5823617.37). The Wikimedia manifest
+contains 113 freely licensed visual references for 38 landmarks; geometry
+still comes from Berlin LoD2, current OSM and official support data.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `bounds.geojson` | Scene polygon: Regierungsviertel core plus the task-09 expansion. |
-| `overview_bounds.geojson` | The polygon the committed overview raster was projected from. Pinned so published prism tones stay stable when `bounds.geojson` grows. |
+| `bounds.geojson` | Exact task-13 scene polygon: an additional 500 m projected buffer around the task-12 source hull. |
+| `overview_bounds.geojson` | Matching task-13 polygon used for the regenerated overview, DZI and prism-tone projection. |
 | `landmarks.geojson` | QA/navigation landmarks used by the renderer and viewer. |
 | `landmark_alignment.json` | Machine-readable landmark alignment report. |
 | `metric_precision.json` | Metric precision / tolerance report. |
-| `buildings.gpkg` | Berlin LoD2 buildings clipped to bounds. |
-| `osm.gpkg` | OSM streets, water, parks, rail, paths, POIs and semantics. Still the **pre-task-09 extract** (E388785…390105 / N5818554…5821015): Overpass was unreachable when the bounds were expanded, so this layer does not yet cover the new areas. |
-| `fused_sources.json` | Additive source-fusion manifest, still describing the pre-task-09 bounds. Regenerating it for the expanded area produces 6.3 MiB, over the 5 MiB repository limit, so it needs a compaction pass first. |
+| `buildings.gpkg` | Canonical Berlin LoD2 package: 17,091 official volumes. It remains authoritative and was not rewritten while the official endpoint was in maintenance. |
+| `osm_context_buildings.gpkg` | 12,856 current OSM fallback footprints only where no LoD2 body exists; every height records whether it is explicit, storey-derived or a display fallback. |
+| `osm.gpkg` | Current Geofabrik/OSM task-13 extract: 41,886 roads, 257 water features, 4,222 parks, 27,312 vegetation features, 865 playground features, 1,906 rail features and 10,644 relevant POIs. |
+| `fused_sources.json` | Canonical additive manifest for the official LoD2 package. The shared runtime/generation loader appends the OSM sidecar before applying corrections. |
 | `alkis.gpkg` | ALKIS parcel/support layer for official alignment context. |
 | `official_details.gpkg` | Bounded official Berlin tree, public-lighting and Vorderlandmauer WFS layers. |
+| `tiergarten-vegetation.geojson` | Small reproducible OSM sidecar for 83 `natural=scrub` polygons and 23 `barrier=hedge` line/area objects clipped to Großer Tiergarten relation `7643526`; source IDs and URLs are retained. |
 | `wikimedia_references.json` | Free-license Wikimedia visual-reference manifest with per-file attribution metadata. |
 | `tiergartentunnel.geojson` | Open-data engineered Tiergartentunnel approximation with derived OSM B96 tunnel carriageway evidence for the under-surface cutaway cue; not official surveyed as-built geometry. |
 | `dop_preview.png` | Small DOP preview image for QA; not a raw orthophoto dump. |
@@ -36,8 +36,8 @@ motif groups; geometry still comes from Berlin LoD2/OSM/official support data.
 
 | Viewer artefact | Location |
 |---|---|
-| Landmark projection used by the static viewer | `../../src/app/public/dzi/regierungsviertel/landmarks.json` — projected from `overview_bounds.geojson` together with the DZI raster, so it still carries the 43 pre-expansion landmarks. |
-| Tiergartentunnel overlay used by the static viewer | `../../src/app/public/dzi/regierungsviertel/tiergartentunnel.json` |
+| Landmark projection used by the static viewer | `../../src/app/public/dzi/regierungsviertel/landmarks.json` — all 89 landmarks projected from task-13 `overview_bounds.geojson` together with the regenerated DZI raster. |
+| Tiergartentunnel overlay used by the static viewer | `../../src/app/public/dzi/regierungsviertel/tiergartentunnel.json` — reprojected with task-13 through the Reichpietschufer portal. |
 | Wikimedia attribution shipped with the viewer | `../../src/app/public/dzi/regierungsviertel/wikimedia_attribution.json` |
 
 ## Licensing

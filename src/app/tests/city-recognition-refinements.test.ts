@@ -34,8 +34,8 @@ describe("source-audited city recognition refinements", () => {
   });
 
   test("records published dimensions for the two refined park bridges", () => {
-    expect(BRIDGE_REFINEMENT_PROFILES.adlerbruecke.lengthM).toBe(11.55);
-    expect(BRIDGE_REFINEMENT_PROFILES.adlerbruecke.widthM).toBe(3.25);
+    expect(BRIDGE_REFINEMENT_PROFILES.adlerbruecke.lengthM).toBe(7.3);
+    expect(BRIDGE_REFINEMENT_PROFILES.adlerbruecke.widthM).toBe(3.35);
     expect(BRIDGE_REFINEMENT_PROFILES.lutherbruecke.lengthM).toBeGreaterThan(
       70,
     );

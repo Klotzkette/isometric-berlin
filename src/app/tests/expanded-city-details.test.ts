@@ -55,6 +55,85 @@ const landmarks = [
   world: [index * 120, 3.8, (index % 4) * 160] as [number, number, number],
 }));
 
+type Point2 = readonly [number, number];
+
+function pointToSegmentDistance(
+  point: Point2,
+  start: Point2,
+  end: Point2,
+): number {
+  const deltaX = end[0] - start[0];
+  const deltaZ = end[1] - start[1];
+  const lengthSquared = deltaX * deltaX + deltaZ * deltaZ;
+  const amount =
+    lengthSquared === 0
+      ? 0
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            ((point[0] - start[0]) * deltaX +
+              (point[1] - start[1]) * deltaZ) /
+              lengthSquared,
+          ),
+        );
+  return Math.hypot(
+    point[0] - (start[0] + amount * deltaX),
+    point[1] - (start[1] + amount * deltaZ),
+  );
+}
+
+function segmentDistance(
+  a0: Point2,
+  a1: Point2,
+  b0: Point2,
+  b1: Point2,
+): number {
+  const cross = (p0: Point2, p1: Point2, p2: Point2): number =>
+    (p1[0] - p0[0]) * (p2[1] - p0[1]) -
+    (p1[1] - p0[1]) * (p2[0] - p0[0]);
+  const aSide0 = cross(a0, a1, b0);
+  const aSide1 = cross(a0, a1, b1);
+  const bSide0 = cross(b0, b1, a0);
+  const bSide1 = cross(b0, b1, a1);
+  const oppositeSides = (first: number, second: number): boolean =>
+    (first > 0 && second < 0) || (first < 0 && second > 0);
+  const onSegment = (point: Point2, start: Point2, end: Point2): boolean =>
+    Math.abs(cross(start, end, point)) < 1e-9 &&
+    point[0] >= Math.min(start[0], end[0]) &&
+    point[0] <= Math.max(start[0], end[0]) &&
+    point[1] >= Math.min(start[1], end[1]) &&
+    point[1] <= Math.max(start[1], end[1]);
+  if (
+    (oppositeSides(aSide0, aSide1) && oppositeSides(bSide0, bSide1)) ||
+    onSegment(b0, a0, a1) ||
+    onSegment(b1, a0, a1) ||
+    onSegment(a0, b0, b1) ||
+    onSegment(a1, b0, b1)
+  ) {
+    return 0;
+  }
+  return Math.min(
+    pointToSegmentDistance(a0, b0, b1),
+    pointToSegmentDistance(a1, b0, b1),
+    pointToSegmentDistance(b0, a0, a1),
+    pointToSegmentDistance(b1, a0, a1),
+  );
+}
+
+function polylineDistance(a: readonly Point2[], b: readonly Point2[]): number {
+  let closest = Number.POSITIVE_INFINITY;
+  for (let aIndex = 0; aIndex < a.length - 1; aIndex += 1) {
+    for (let bIndex = 0; bIndex < b.length - 1; bIndex += 1) {
+      closest = Math.min(
+        closest,
+        segmentDistance(a[aIndex], a[aIndex + 1], b[bIndex], b[bIndex + 1]),
+      );
+    }
+  }
+  return closest;
+}
+
 describe("task-10 expanded city recognition details", () => {
   test("anchors the Kulturforum buildings independently from entrance POIs", () => {
     const details = createExpandedCityDetails(landmarks);
@@ -95,6 +174,65 @@ describe("task-10 expanded city recognition details", () => {
       azimuth_degrees: 180,
       target_world: [mall!.world[0], mall!.world[1], mall!.world[2] - 48],
     });
+  });
+
+  test("rebuilds both Potsdamer station halls on their LoD2 squares", () => {
+    const details = createExpandedCityDetails(landmarks);
+    const profile = POTSDAMER_DETAIL_PROFILE.stationEntranceHalls;
+    expect(profile.halls).toHaveLength(2);
+    expect(profile.halls.map((hall) => hall.sourceBuildingId)).toEqual([
+      "DEBE01YYK0002SCt",
+      "DEBE01YYK0000BRX",
+    ]);
+    expect(profile.geometryStatus).toContain("Berlin LoD2 footprint rings");
+    expect(profile.geometryStatus).toContain("not a component survey");
+    expect(profile.roofBayCountAcross).toBe(10);
+    expect(profile.roofBayCountDepth).toBe(6);
+
+    expect(profile.halls.map((hall) => hall.footprintRingWorldM.length)).toEqual(
+      [6, 10],
+    );
+    for (const hall of profile.halls) {
+      const doubledArea = hall.footprintRingWorldM.reduce(
+        (sum, [x, z], index, ring) => {
+          const [nextX, nextZ] = ring[(index + 1) % ring.length];
+          return sum + x * nextZ - nextX * z;
+        },
+        0,
+      );
+      expect(Math.abs(doubledArea) / 2).toBeCloseTo(hall.footprintAreaM2, 2);
+      expect(hall.footprintSizeM[0]).toBeCloseTo(26.27, 1);
+      expect(hall.footprintSizeM[1]).toBeCloseTo(26.25, 1);
+    }
+    expect(
+      Math.hypot(
+        profile.halls[1].centerWorldM[0] -
+          profile.halls[0].centerWorldM[0],
+        profile.halls[1].centerWorldM[1] -
+          profile.halls[0].centerWorldM[1],
+      ),
+    ).toBeCloseTo(124.84, 1);
+
+    const halls = details.getObjectByName(
+      "Potsdamer Platz station entrance halls",
+    );
+    expect(halls).toBeDefined();
+    const bounds = new Box3().setFromObject(halls!);
+    expect(bounds.min.x).toBeCloseTo(267.4, 1);
+    expect(bounds.max.x).toBeCloseTo(310.2, 1);
+    expect(bounds.min.z).toBeCloseTo(999.9, 1);
+    expect(bounds.max.z).toBeCloseTo(1152.8, 1);
+    expect(bounds.max.y).toBeCloseTo(20.1, 1);
+    expect(
+      details.getObjectByName(
+        "Potsdamer Platz north hall fascia lettering",
+      ),
+    ).toBeDefined();
+    expect(
+      details.getObjectByName(
+        "Potsdamer Platz south hall fascia lettering",
+      ),
+    ).toBeDefined();
   });
 
   test("models Tilla-Durieux as one counter-twisted grass strip", () => {
@@ -236,11 +374,69 @@ describe("task-10 expanded city recognition details", () => {
       MOABIT_PRISON_PARK_PROFILE,
     );
     expect(MOABIT_PRISON_PARK_PROFILE.sourceParkWayId).toBe("498278335");
-    expect(MOABIT_PRISON_PARK_PROFILE.wallSideCount).toBe(3);
+    expect(MOABIT_PRISON_PARK_PROFILE.parkRingWorldM).toHaveLength(22);
+    expect(MOABIT_PRISON_PARK_PROFILE.preservedWallPathsWorldM).toHaveLength(
+      4,
+    );
+    expect(MOABIT_PRISON_PARK_PROFILE.preservedWallWayIds).toEqual([
+      "53178124",
+      "105495351",
+      "498279237",
+      "498279239",
+    ]);
     expect(MOABIT_PRISON_PARK_PROFILE.entranceCount).toBe(3);
     expect(MOABIT_PRISON_PARK_PROFILE.circularYardCount).toBe(3);
     expect(MOABIT_PRISON_PARK_PROFILE.reconstructedCellCount).toBe(1);
     expect(MOABIT_PRISON_PARK_PROFILE.preservedWallHeightM).toBe(5);
+    expect(
+      details.getObjectByName("Geschichtspark Moabit mapped walls and plan"),
+    ).toBeDefined();
+  });
+
+  test("keeps the polygonal Moabit walls safely west of the B96", () => {
+    const profile = MOABIT_PRISON_PARK_PROFILE;
+    const closedParkRing = [
+      ...profile.parkRingWorldM,
+      profile.parkRingWorldM[0],
+    ] as readonly Point2[];
+    const parkClearance = polylineDistance(
+      closedParkRing,
+      profile.b96CenterlineWorldM,
+    );
+    expect(parkClearance).toBeCloseTo(
+      profile.minimumB96CenterlineClearanceM,
+      1,
+    );
+    expect(parkClearance).toBeGreaterThan(17);
+
+    const wallClearance = Math.min(
+      ...profile.preservedWallPathsWorldM.map((path) =>
+        polylineDistance(path, profile.b96CenterlineWorldM),
+      ),
+    );
+    expect(wallClearance).toBeGreaterThan(17);
+    const easternmostWallX = Math.max(
+      ...profile.preservedWallPathsWorldM.flatMap((path) =>
+        path.map(([x]) => x),
+      ),
+    );
+    const westernmostRoadX = Math.min(
+      ...profile.b96CenterlineWorldM.map(([x]) => x),
+    );
+    expect(easternmostWallX).toBeLessThan(westernmostRoadX);
+
+    const rendered = createExpandedCityDetails([
+      {
+        name: "Geschichtspark Ehemaliges Zellengefängnis Moabit",
+        world: [0, profile.groundY, 0],
+      },
+    ]).getObjectByName("Geschichtspark Moabit mapped walls and plan");
+    const renderedBounds = new Box3().setFromObject(rendered!);
+    expect(renderedBounds.max.x).toBeCloseTo(
+      Math.max(...profile.parkRingWorldM.map(([x]) => x)),
+      2,
+    );
+    expect(renderedBounds.max.x).toBeLessThan(westernmostRoadX);
   });
 
   test("places the temporary FUNBOX on the event lot opposite its address anchor", () => {

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.71.51 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.71.51/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.0/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.71.51** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.0** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.71.51**, built from `main`. Its full viewer
+The current public package is **v0.72.0**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -65,9 +65,28 @@ local modules.
 
 - **The Terrassenhaus at Hafenplatz now follows its official stepped massing.**
   All 26 Berlin LoD2 bodies retain their measured footprints and heights. A
-  source-bounded recognition layer adds the characteristic cross-shaped height
-  cascade, ochre window frames, exposed-aggregate spandrels and parapet rhythm;
-  hidden internal walls are omitted and no photo texture is bundled.
+  source-bounded recognition layer adds four descending terrace arms, the
+  characteristic cross-shaped height cascade, long horizontal window bands,
+  ochre frames and mullions, exposed-aggregate spandrels, courtyard loggias and
+  segmented parapet rhythm. Hidden internal walls are omitted and no photo
+  texture is bundled.
+
+- **Potsdamer Platz now has its two separate original station entrance halls.**
+  Their exact LoD2 footprints and heights anchor two semi-open steel-and-glass
+  structures with gridded roofs, cross braces, open fronts and distinct stair
+  and escalator pairs instead of one generic underground entrance cue.
+
+- **The Moabit prison memorial no longer walls off the B96.** Its 22-point OSM
+  park ring and four mapped polygonal wall traces replace the former enclosing
+  rectangle. Deliberate openings remain passable, and every wall stays west of
+  Heidestraße with at least 17.29 m clearance from the mapped road centreline.
+
+- **The parliamentary Spree crossing is open again.** The false tall LoD2 wall
+  and its 16 footprint-matched Minecraft columns are suppressed. The public lower
+  Marie-Elisabeth-Lüders-Steg and the slender upper
+  Jakob-Maria-Mierscheid-Steg are separate open structures; the MELH river
+  front also gains its circular opening, columned canopy and mapped widening
+  freitreppe. Day, Night, Snowstorm, Minecraft and Schwellenraum share the correction.
 
 - **The pedestrian mouse wheel now walks instead of doing nothing.** Wheel up
   moves forward and wheel down moves backward along the current heading. A
@@ -181,11 +200,13 @@ local modules.
   than 2.3 m clearance from OSM way `912645859` for both body and roof.
 
 - **The hosted viewer now opens with a small, bounded core instead of silently
-  downloading every visual tier.** Day, Night and Snow use a new 0.79 MiB
-  ground-only context; the 4.05 MiB Minecraft instance payload stays lazy, and
+  downloading every visual tier.** Day, Night, Snowstorm and Schwellenraum use
+  a 2.22 MiB
+  ground-only context for the expanded terrain; the losslessly row-compressed
+  5.30 MiB Minecraft instance payload stays lazy, and
   the 29.9 MiB photo shell plus hero crops are requested only for an underside
   cutaway or genuine drawn-world failure. The normal Reichstag start drops
-  from about 151.8 MiB to 5.8 MiB of uncompressed scene requests, a 96.2%
+  from about 151.8 MiB to 6.6 MiB of uncompressed scene requests, a 95.7%
   reduction. JSON requests time out and retry rather than hanging forever,
   while browsers without WebGL 2 switch cleanly to the map fallback.
 
@@ -242,7 +263,8 @@ local modules.
   Reichpietschufer use eight separate mapped carriageways, lane-derived widths
   and local official-mesh heights. Joined ramps, retaining and acoustic walls,
   portal frames, medians, railings, lane controls, signs and threshold lights
-  stay coherent in Day, Night and Minecraft. Narrow shared surface cuts stop
+  stay coherent in Day, Night, Minecraft, Snowstorm and Schwellenraum. Narrow
+  shared surface cuts stop
   the tunnel from bleeding through parks, water, buildings or the railway
   deck; buried helper bores remain occluded in every exterior view.
 
@@ -282,7 +304,7 @@ local modules.
   lanterns, eight benches, 16 tree grates, six drainage bands and 192 permanent
   access bollards complete the square. Temporary barriers remain omitted and
   none of the six reference photographs is bundled or projected as a texture.
-  The visible radius remains **5,230 m**.
+  The visible radius is **6,450 m**.
 
 - **The current Federal Chancellery extension work is now visible across the
   Spree instead of leaving an obsolete park surface.** Current OSM construction
@@ -293,8 +315,8 @@ local modules.
   installed crossing. Two restrained work aprons, partial scaffold, cranes,
   fencing, barriers and material stacks communicate that active phase without
   claiming temporary equipment as surveyed. Old trees and lamps are suppressed
-  only within the mapped worksite; Day, Night and Minecraft share the same
-  metre-scale placement.
+  only within the mapped worksite; Day, Night, Minecraft, Snowstorm and
+  Schwellenraum share the same metre-scale placement.
 
 - **The original Federal Chancellery now has an exterior-visible interior.**
   Its official LoD2 position and published 55 x 55 x 36 m leadership-building
@@ -317,16 +339,19 @@ local modules.
   and non-surveyed moulding and fixture dimensions remain documented visual
   estimates.
 
-- **The Löwenbrücke is now Berlin's delicate historic suspension bridge, not
-  a four-cell grey park slab.** OSM way `1411957328` fixes its centre and
-  bearing; the published 17.3 m length and 2.0 m timber-deck width fix its
-  scale. The new recognition model draws the longitudinal deck boards,
-  nine-bay timber lattice, paired suspension cables, 22 vertical hangers,
-  light sandstone approaches and all four inward-facing bronzed lions. The
-  construction and colour register follows the official Berlin monument
-  record and the supplied current photographs. Those photographs remain
-  non-bundled visual references; small sculptural and joinery dimensions are
-  explicitly reconstructed rather than described as surveyed.
+- **Adlerbrücke and Löwenbrücke now read as their actual historic park
+  crossings.** The Adlerbrücke follows OSM way `28872983` and the official
+  06/2025 inventory's 7.30 x 3.35 m structure, with yellow-brick abutments,
+  fourteen wavy iron railing bays and the two large central cast-iron eagle
+  reliefs visible in current photographs. The rebuilt Löwenbrücke follows OSM
+  way `1411957328`, the inventory's 18.30 x 1.88 m deck and the engineers'
+  complementary 26.80 m overall length, 17.60 m main span, 0.80 m timber depth
+  and four 31.3 mm ropes. Longitudinal boards, nine timber truss bays, four
+  inward-facing bronzed lions, suspension cables and the documented modern
+  steel-rope handrails with mesh safety fields replace the grey generic slab.
+  Photographs remain non-bundled visual references; sculptural, mesh and
+  joinery dimensions not published by the sources remain explicit display
+  reconstructions.
 
 - **The Federal Chancellery now follows its measured and published hierarchy
   instead of reading as a pale glass block.** Berlin LoD2 retains the 18 m
@@ -434,12 +459,13 @@ local modules.
   design. Minecraft gets a deliberately block-native equivalent.
 
 - **A ground-bound pedestrian mode adds a human-scale view.** The independent
-  `Walk` / `Spaziergang` control works in Day, Night, Minecraft and Snowstorm,
-  starts on the terrain directly below the current camera at a 1.80 m eye
+  `Walk` / `Spaziergang` control works in Day, Night, Minecraft, Snowstorm and
+  Schwellenraum, starts on the terrain directly below the current camera at a
+  1.80 m eye
   height, and follows the existing smooth metric terrain without changing its
   source geometry. `W`/`S` or the up/down arrows walk, `A`/`D` strafe,
   left/right arrows or `Q`/`E` turn, mouse or touch drag looks around, and
-  `Space` jumps to a bounded 5.4 m apex. The mouse wheel also walks along the
+  `Space` jumps to a bounded 6.2 m apex. The mouse wheel also walks along the
   current view direction (up forward, down backward) without changing camera
   zoom. Holding `Shift` gives a four-times
   sprint; double-tapping forward, the forward control or the walking joystick
@@ -450,6 +476,18 @@ local modules.
   stay locked in this mode; entering mapped water returns the walker to Pariser
   Platz. A dedicated 52 px jump control keeps the complete workflow usable on
   phones and tablets.
+
+- **Schwellenraum is a fifth, deliberately gentle spatial mode.** It keeps the
+  full Day city and the same continuously playing music, then adds a lavender
+  sky, four pastel light thresholds and elongated repeated frames without
+  globally stretching or repainting the source architecture. It provides
+  bounded presentation entrances and interiors for the Reichstag plenary
+  chamber, Hauptbahnhof, Bundeskanzleramt, Potsdamer Platz station cellar and
+  Charite. Walking and all flight controls use swept solid collision against
+  terrain, roofs, buildings, trees, walls and the new interior furnishings;
+  the Tiergartentunnel remains walkable. Seventeen persecution-, war- and
+  violence-related memorial zones retain their exact Day transforms and
+  materials, receive no added portal or light geometry and remain inaccessible.
 
 - **Small memorials now keep their mapped identity.** The OSM extraction
   preserves `memorial` subtypes instead of turning every quiet memorial into
@@ -463,7 +501,7 @@ local modules.
   envelope, so the passages, columns, entablature and Quadriga are no longer
   buried inside a second block wall. A 50-point visual and accuracy audit
   covered five principal sights in Day, Night and Minecraft; settled scene
-  pixels remained stable and the visible radius stays **5,230 m**.
+  pixels remained stable and the visible radius is **6,450 m**.
 
 - **Tiergarten water now follows its mapped character.** The renderer keeps
   rivers, natural ponds, small streams/ditches and constructed basins separate;
@@ -502,7 +540,7 @@ local modules.
   crossings separate carriageways, footways, joints and markings; named modern
   bridges gain bearings and coherent underside structure. Narrow rail and park
   crossings stay quiet, preserving performance and the bright architectural
-  drawing style in Day, Night, Minecraft and Snowstorm.
+  drawing style in Day, Night, Minecraft, Snowstorm and Schwellenraum.
 
 - **Berlin's former Wall line is now legible where the official data places
   it.** The 1989 Vorderlandmauer WFS remains the plan anchor; its two rows of
@@ -556,8 +594,10 @@ local modules.
   Kunstgewerbemuseum/Piazzetta, Philharmonie, Kammermusiksaal and the
   Staatsbibliothek retain named LoD2 envelopes, receive source-described
   facade/roof cues and open with building-centred camera presets. The Mall
-  passages now sit on the LoD2 south facade; the below-grade Potsdamer Platz
-  platforms and distribution passage remain explicitly schematic.
+  passages now sit on the LoD2 south facade. At Potsdamer Platz, the two
+  separate above-ground station halls follow their exact LoD2 footprints and
+  heights with semi-open steel/glass grids, braces, stairs and escalators; the
+  below-grade platforms and distribution passage remain explicitly schematic.
 
 - **Charité Campus Mitte now carries its published renovated facade rhythm.**
   The exact 16-part Berlin LoD2 tower envelope remains the metric anchor; its
@@ -574,12 +614,12 @@ local modules.
   five-section yellow tram with doors, bogies and pantograph.
 
 - **Walking and cycling detail now follows the complete bounded OSM network.**
-  All 8,151 above-ground path line parts resolve through the same metric
+  All 14,381 above-ground path line parts resolve through the same metric
   buffering and terrain sampling as the streets. Explicit OSM surfaces take
   precedence over context, distinguishing asphalt, paving, compacted/gravel,
-  earth, timber and metal; 7,420 parts carry mapped surface evidence and 988
+  earth, sand, timber and metal; 13,080 parts carry mapped surface evidence and 1,719
   carry an explicit `width` or `est_width`. The separate raised park-detail
-  layer retains 1,651 joined path ribbons for close views and now shares those
+  layer retains 2,454 joined path ribbons for close views and now shares those
   resolved materials and per-way widths instead of covering them with a
   generic park colour.
 
@@ -589,9 +629,9 @@ local modules.
   plus bear and bull, with one duplicate OSM bison suppressed only at its
   coincident plinth. AMANO keeps its OSM footprint and official 27.819 m LoD2
   height while adding the documented clinker, staggered-window, glazed-ground-
-  floor and setback-storey reading. The prison park keeps its OSM envelope and
-  follows Berlin's published interpretive plan for three wall sides and
-  entrances, four wings, panopticon, three exercise yards and one walk-in cell.
+  floor and setback-storey reading. The prison park uses the exact 22-point OSM
+  ring and four mapped polygonal wall traces with openings; all remain west of
+  Heidestraße rather than continuing across the B96.
 
 - **Central Berlin's civic and rail architecture has a finer recognition
   layer without moving its source geometry.** The Swiss Embassy now separates
@@ -632,8 +672,10 @@ local modules.
   turning neutral grey, and roads, lawns, paving and water use fresher but
   still flat drawn tones. The official Berlin tree catalogue now drives distinct
   oak, willow, pine/larch, fir/spruce, poplar, birch/robinia, lime/elm,
-  maple/plane, beech/chestnut, orchard and shrub silhouettes without moving a
-  tree or sacrificing the instanced rendering budget. Hauptbahnhof keeps its measured 321 m curved
+  maple/plane, beech/chestnut, orchard and shrub silhouettes, branching habits
+  and bounded colour registers without moving a tree or sacrificing the
+  instanced rendering budget. Exact OSM scrub and hedge outlines add varied
+  clustered understorey without closing mapped paths. Hauptbahnhof keeps its measured 321 m curved
   glass envelope while a stronger pale-cyan skin and finer steel grid stop it
   reading as a wireframe at overview scale.
 
@@ -682,7 +724,8 @@ local modules.
   user-controlled travel without an automatic camera sequence.
 
 - A cold start now keeps the official photogrammetric mesh behind a fully
-  opaque, mode-coloured loading curtain. Day, Night, Snow and Minecraft reveal
+  opaque, mode-coloured loading curtain. Day, Night, Minecraft, Snowstorm and
+  Schwellenraum reveal
   their first city frame only after the requested drawn world is ready; the old
   photo surface is visible only as an explicit load-failure fallback or in the
   designed underground cutaway context.
@@ -703,7 +746,8 @@ local modules.
   stops on release without an acceleration tail. Mouse orbit, wheel/pinch zoom,
   two-finger pan and the 2D fallback use faster direct response curves without
   changing the scene's settled pixels.
-  Day, Night and Minecraft keep their contours in stable world-space geometry;
+  Day, Night, Minecraft, Snowstorm and Schwellenraum keep their contours in
+  stable world-space geometry;
   no screen-space sharpen or edge detector changes line brightness while the
   view moves. Transparent ink cannot overwrite other ink in the depth buffer,
   and all civic, cultural, park, monument and tunnel detail roots share the
@@ -757,27 +801,29 @@ local modules.
   approximation. Topography of Terror carries a 200 m damaged Wall-fragment
   treatment aligned to the mapped trace, and Otto-Weidt-Platz keeps its actual
   fountain outline with a darker basin. These recognition details remain
-  visible and co-located in Day, Night, Minecraft and Snowstorm.
-- The versioned visible presentation radius is **5,230 m**, expanded by exactly
-  100 m in v0.66.0 without moving existing metric geometry. The task-11 data
-  hull reaches world x −2880…1410 and z −2600…1890, covering the full
-  Tiergarten to Charlottenburger Tor, Europacity/DKB in the north and
-  Anhalter Bahnhof/Kochstraße in the south. Its restrained 880 m paper margin
-  yields envelope x −3760…2290 and z −3480…2770. Paper-only context is flat
+  visible and co-located in Day, Night, Minecraft, Snowstorm and
+  Schwellenraum.
+- The versioned visible presentation radius is **6,450 m**. Task-13 adds a
+  second exact 500 m EPSG:25833 buffer, this time around every task-12 edge,
+  without moving existing metric geometry. The source hull reaches world
+  x −3900…2420 and z −3620…2920. Its restrained 790 m paper margin yields
+  envelope x −4690…3210 and z −4410…3710. Paper-only context is flat
   cartographic presentation and is never described as surveyed geometry. Day,
-  Night, Minecraft and Snowstorm use the same envelope.
-- **The OSM layer covers the complete surveyed hull.** v0.66.0 re-clips the
-  Geofabrik Berlin extract to `bounds.geojson` (E386626.58…390908.90 /
-  N5818111.23…5822592.07), so the expanded extent carries bounded OSM streets,
+  Night, Minecraft, Snowstorm and Schwellenraum use the same envelope.
+- **The OSM layer covers the complete task-13 source hull.** The current
+  Geofabrik Berlin extract is clipped to `bounds.geojson`
+  (E385602.60…391910.58 / N5817089.12…5823617.37), so the expanded extent
+  carries bounded OSM streets,
   water, park polygons, paths and POIs. The resulting road,
   water and park surfaces are regenerated from the same bounded source;
   no replacement street or river geometry is invented.
-- **The 2D overview and 3D scene share the same task-11 bounds.** The DZI,
+- **The 2D overview and 3D scene share the same task-13 bounds.** The DZI,
   reference image and bundled landmark projection were regenerated together;
   all 89 checked sights use the same coordinate frame in both viewers. The
   embedded and public landmark payloads are byte-identical and enforced by
   release tests. The hosted viewer keeps the full 16384×11616 DZI pyramid; the
-  downloadable archive reuses its 8192×5808 lower levels to stay below the
+  compact overview fallback is capped at 4800 px, while the downloadable
+  archive reuses its 8192×5808 lower levels to stay below the
   offline size ceiling. All 74 3D GLBs remain byte-complete in both forms.
 - Day and Night render with **no tone mapping at exposure 1**, so an authored
   paint tone reaches the screen bit-exact. The drawn city is a flat unlit
@@ -797,16 +843,21 @@ local modules.
   surveyed kerb lines. Natural bends are interpolated through every retained
   mapped vertex at 2–2.5 m display spacing; engineered 90° corners remain
   sharp. The
-  source export keeps water and road simplification at 0.1 m, road curves at
+  canonical source keeps topology-preserving geometry at 0.35 m, road curves at
   1.5 m and round joins at 16 segments per quadrant. Ground-bound surfaces
   follow a bilinear reading of the committed 16 m IDW terrain support, with
   bounded interior tessellation so rises do not flatten across long triangles.
   River coping follows the local landward grade. These heights remain an
   interpolation of the documented point support, not a new elevation survey.
-- The refreshed OSM extract spans the full task-11 data hull. Großer Stern,
+- The refreshed OSM extract spans the full task-13 data hull. Großer Stern,
   Straße des 17. Juni, the Tiergarten paths, Spree and Landwehrkanal surfaces,
   Europacity and the southern extension are derived from that bounded source
   rather than presentation substitutes.
+- A separate current OSM building sidecar supplies 12,856 non-overlapping
+  context footprints where the committed official LoD2 package has no body.
+  LoD2 remains authoritative wherever it exists; explicit OSM height wins,
+  then mapped storeys, while 3,509 remaining display heights are clearly
+  marked fallbacks. The same loader feeds overview, prisms and Minecraft.
 - The metric base comes from 26 bounded tiles of the official Berlin 3D Mesh
   Model 2025, generated from the June 2025 aerial survey and transformed from
   EPSG:25833 without changing horizontal or vertical scale. These tiles cover
@@ -873,7 +924,8 @@ local modules.
   combined with batched glass seams, masonry courses, column fluting and
   entablature profiles. All additions remain inside the published metric
   envelopes of the four hero landmarks.
-- Day, Night, Minecraft and Snowstorm have separate direct controls. The true 3D scene
+- Day, Night, Minecraft, Snowstorm and Schwellenraum have separate direct
+  controls. The true 3D scene
   changes sky, fog, directional light and exposure; only the Reichstag's tall
   arched occupied bays emit light at night, while its small upper and tower
   windows remain dark. A restrained cool light floor keeps official drawn
@@ -883,7 +935,8 @@ local modules.
 - Snowstorm adds a shared white ground mantle, 2,400 bounded desktop flakes
   (1,100 on touch devices), 168 wind-shaped drifts and three snowploughs while
   preserving the same buildings and metric anchors. One contextual weather
-  control toggles moderate rain in Day, Night and Minecraft, and toggles the
+  control toggles moderate rain in Day, Night, Minecraft and Schwellenraum, and
+  toggles the
   falling flakes in Snowstorm without removing its settled snow.
 - The `Minecraft` visual mode, also available with `M`,
   applies an original 48-colour premium voxel palette, ordered dithering,
@@ -894,11 +947,12 @@ local modules.
   strict mobile density budget. Its distant haze now scales with the versioned
   visible radius, keeping the complete expanded model readable at overview
   distance instead of fading the outer ring. Its official metric voxel payload
-  grows with the expanded bounds; the matching 5,230 m block surround is
+  grows with the expanded bounds; the matching 6,450 m block surround is
   explicitly tagged as extrapolated presentation geometry.
 - Three Creepers and four Zombies walk deterministic park routes only in
   Minecraft mode. They share one instanced rendering batch and disappear
-  completely in Day, Night, Snowstorm, underwater and underside views.
+  completely in Day, Night, Snowstorm, Schwellenraum, underwater and underside
+  views.
 - Phones, tablets and compact laptop viewports up to 1024 px use a compact
   40 px sight status bar, a 56 px bottom action bar,
   a compass sheet and a separate action sheet. The chrome can be hidden with
@@ -946,7 +1000,8 @@ local modules.
   movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
   and the Carillon layer now lets the official mesh carry its granite pylons
   instead of drawing a second tower over them.
-- A settled Day, Night or Minecraft scene holds its final framebuffer rather
+- A settled Day, Night, Minecraft or Schwellenraum scene holds its final
+  framebuffer rather
   than repainting at an idle cadence. v0.66.1 also removes input-dependent DPR
   and surface-detail hysteresis: a viewport keeps one stable sampling grid and
   surface tier while moving and after release. Six-frame browser sequences in
@@ -984,15 +1039,20 @@ local modules.
   than transverse generic boxes; their local spacing remains an approximation.
 - Tiergarten detail is no longer only a coarse photogrammetric canopy. The
   expanded additive layer combines the official catalogues with unmatched OSM
-  evidence into 29,861 individual trees, including measured height, crown and
-  trunk dimensions where published. Species evidence changes only the drawn
+  evidence into 45,540 individual trees across the task-13 envelope. The
+  Großer Tiergarten contributes all 13,156 official tree points, including
+  measured height, crown and trunk dimensions where published. Species evidence changes only the drawn
   silhouette: spreading oak lobes, drooping willow crowns, high pine canopies,
   tiered firs, columnar poplars, airy birches and denser beech groups retain
-  their official point, height, crown and trunk measurements. It also adds
+  their official point, height, crown and trunk measurements. Eighty-three
+  exact OSM scrub polygons now carry 3,535 deterministic varied bush clusters;
+  21 mapped hedge lines total 1,099.2 m and two mapped hedge areas total
+  526.8 m². Their source courses remain exact, while unmapped plant placement
+  and hedge height are explicitly display approximations. The layer also adds
   5,829 public-light positions
   with night cones, 12 mapped wall traces as granular dark red-brown setts,
-  1,651 OSM park-path sections and 101 playground footprints. The complete
-  bounded smooth-surface pass additionally records 8,151 walking/cycling path
+  2,454 OSM park-path sections and 213 playground footprints. The complete
+  bounded smooth-surface pass additionally records 14,381 walking/cycling path
   line parts and their source-resolved materials. The selectable
   Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,
@@ -1254,11 +1314,12 @@ replacement for Berlin open data or OSM):
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
 | Individual trees, public lighting, 1989 Wall route | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
 | Landmark facade / material visual references | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Per file: CC0, public domain, CC BY, CC BY-SA; see `geo_data/regierungsviertel/wikimedia_references.json` |
+| Kindertransport memorial visual references | [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/) | Five photographs: © Pauline Ahrens, 2021, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); no photograph or texture is bundled |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Required attribution in the viewer:**
 
-> © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
+> © OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)
 
 When Google-derived content is used, the required Google attribution
 (e.g. *Imagery © Google · Google Maps Platform*) must additionally be
@@ -1268,6 +1329,8 @@ long as the attributions above are shown.
 Per-file Wikimedia credits are stored in
 `src/app/public/dzi/regierungsviertel/wikimedia_attribution.json` and
 `references/wikimedia/README.md`.
+The five Kindertransport reference-photo credits are stored in
+`src/app/public/dzi/regierungsviertel/visual_reference_attribution.json`.
 
 </td>
 <td valign="top">
@@ -1285,11 +1348,12 @@ als Ersatz für Berliner Open Data oder OSM):
 | Orthophotos / DOP, ALKIS, DGM (optional) | Geoportal Berlin | dl-de/zero-2-0 |
 | Einzelbäume, öffentliche Beleuchtung, Mauerverlauf 1989 | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
 | Fassaden-/Material-Referenzen für Sehenswürdigkeiten | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Je Datei: CC0, Public Domain, CC BY, CC BY-SA; siehe `geo_data/regierungsviertel/wikimedia_references.json` |
+| Bildreferenzen zum Kindertransport-Denkmal | [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/) | Fünf Fotos: © Pauline Ahrens, 2021, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); weder Foto noch Textur wird gebündelt |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Pflicht-Attributionshinweis im Viewer:**
 
-> © OpenStreetMap-Mitwirkende · 3D-Gebäudemodelle: Geoportal Berlin (dl-de/zero-2-0) · Visuelle Referenzen: Wikimedia Commons/Wikipedia
+> © OpenStreetMap-Mitwirkende · 3D-Gebäudemodelle: Geoportal Berlin (dl-de/zero-2-0) · Visuelle Referenzen: Wikimedia Commons/Wikipedia · Kindertransport-Bildreferenzen: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)
 
 Bei Verwendung von Google-Inhalten ist zusätzlich der erforderliche
 Google-Hinweis (z. B. *Imagery © Google · Google Maps Platform*)
@@ -1300,6 +1364,8 @@ obigen Hinweise sichtbar sind.
 Die Wikimedia-Credits pro Datei liegen in
 `src/app/public/dzi/regierungsviertel/wikimedia_attribution.json` und
 `references/wikimedia/README.md`.
+Die Credits der fünf Kindertransport-Referenzfotos liegen in
+`src/app/public/dzi/regierungsviertel/visual_reference_attribution.json`.
 
 </td>
 </tr>

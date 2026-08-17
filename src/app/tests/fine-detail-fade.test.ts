@@ -194,6 +194,25 @@ describe("nextInkLineFadeState", () => {
 });
 
 describe("nextFineDetailVisible", () => {
+  test("retains both historic park-bridge silhouettes while fading their dense ink", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Adlerbruecke ink lines",
+        "Löwenbrücke ink lines",
+        "Löwenbrücke modern safety posts bodies",
+        "Löwenbrücke modern safety mesh fields",
+      ]),
+    );
+    for (const persistentBodyName of [
+      "Adlerbruecke bodies",
+      "Löwenbrücke bodies",
+      "Löwenbrücke modern safety handrails bodies",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentBodyName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentBodyName);
+    }
+  });
+
   test("keeps Moltkebrücke ornament in the anti-flicker detail layer", () => {
     expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Moltkebrücke ornamental stone bodies",
@@ -243,6 +262,46 @@ describe("nextFineDetailVisible", () => {
     expect(FINE_DETAIL_LAYER_NAMES).toContain(
       "Pariser Platz photo-bounded fine detail",
     );
+  });
+
+  test("drops ARD facade modules, roof grid and lettering without hiding either roof surface", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "ARD Hauptstadtstudio architectural details bodies",
+        "ARD Hauptstadtstudio architectural details lamps",
+        "ARD Hauptstadtstudio architectural details ink lines",
+        "ARD HAUPTSTADTSTUDIO facade lettering",
+        "ARD Hauptstadtstudio facade subtitle",
+      ]),
+    );
+
+    // The batched bodies contain the repeated panes and the fine atrium-grid
+    // bars. The two roof surfaces remain independent recognition/envelope
+    // meshes and must therefore survive every far-detail visibility step.
+    for (const retainedRoofName of [
+      "ARD Hauptstadtstudio atrium roof glazing",
+      "ARD Hauptstadtstudio opaque rear roof",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(retainedRoofName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(retainedRoofName);
+    }
+  });
+
+  test("drops only the Palais micro-facade layer while retaining its monumental silhouette", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Reichstagspräsidentenpalais micro facade details bodies",
+        "Reichstagspräsidentenpalais micro facade details lamps",
+        "Reichstagspräsidentenpalais micro facade details ink lines",
+      ]),
+    );
+    for (const persistentName of [
+      "Reichstagspräsidentenpalais persistent architectural details bodies",
+      "Reichstagspräsidentenpalais garden enclosure bodies",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+    }
   });
 
   test("hides once distance passes the hide threshold", () => {

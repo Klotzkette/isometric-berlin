@@ -23,6 +23,7 @@ import {
   Vector2,
   Vector3,
 } from "three";
+import { markArchitecturalAccentInk } from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
@@ -964,12 +965,15 @@ function createSpreeWaveField(): Group {
 
   const crests = new LineSegments(
     spreeWaveCrestGeometry(geometry),
-    new LineBasicMaterial({
-      color: 0xc8f3ef,
-      depthWrite: false,
-      opacity: 0.28,
-      transparent: true,
-    }),
+    markArchitecturalAccentInk(
+      new LineBasicMaterial({
+        depthWrite: false,
+        opacity: 0.28,
+        transparent: true,
+      }),
+      0xc8f3ef,
+      "micro",
+    ),
   );
   crests.name = "Spree broken three-dimensional wave crest highlights";
   crests.renderOrder = 4;

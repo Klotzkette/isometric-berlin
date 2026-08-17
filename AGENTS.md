@@ -36,11 +36,11 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.66)
+## 3. Hard scope rules (v0.72.0)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
-Its presentation radius is 5,230 m. Never generate or bundle geometry outside
+Its presentation radius is 6,450 m. Never generate or bundle geometry outside
 that polygon unless the owner explicitly approves another bounds revision.
 
 Must be inside the polygon and visible in the final map:
@@ -304,7 +304,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.66)
+## 8. What success looks like (Definition of Done v0.72.0)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -399,11 +399,12 @@ a task:
 - Committing raw `.gml`, `.citygml`, `.osm`, `.osm.pbf`, `.tif`,
   `.tiff`, `.glb`, `.b3dm`, `.json` Google tile responses, or an
   unbounded binary > 5 MiB outside of `references/`. The bounded canonical
-  `buildings.gpkg` and `osm.gpkg` may grow to 10 MiB and 8 MiB respectively
-  when an owner-approved bounds revision requires the complete clipped source;
-  release tests enforce those ceilings. The only GLB exception is
-  the bounded, derived `src/app/public/mesh/regierungsviertel/*.glb`
-  web asset set; every file must remain below 5 MiB and pass release QA.
+  `buildings.gpkg`, `osm.gpkg` and `osm_context_buildings.gpkg` may grow to
+  10 MiB, 16 MiB and 8 MiB respectively when an owner-approved bounds revision
+  requires the complete clipped source; release tests enforce those ceilings.
+  Bounded, derived `src/app/public/mesh/regierungsviertel/*.glb` files remain
+  below 5 MiB; lossless prism/Minecraft JSON has a separate measured 7 MiB
+  ceiling. All public assets must pass release QA.
 - **Removing or altering the required attribution string** — including
   failing to add Google attribution when Google content was used.
 - Changing the LICENSE without owner sign-off.

@@ -53,6 +53,11 @@ import {
   createIceOnRails,
   focusCameraForSignature,
 } from "./ArchitecturalLandmarks";
+import {
+  createArdHauptstadtstudioRoofCollision,
+} from "./ArdHauptstadtstudioCollision";
+import { reichstagspraesidentenpalaisDetailSolidAt } from "./Reichstagspraesidentenpalais";
+import { createHistoricParkBridgeCollision } from "./HistoricParkBridgeCollision";
 import { createHauptbahnhofGrillstand } from "./HauptbahnhofGrillstand";
 import { createMeiningerHotel } from "./MeiningerHotel";
 import { createChancelleryExtension } from "./ChancelleryExtension";
@@ -112,11 +117,11 @@ import {
   classifyTwoFingerGesture,
   continuousFlightSpeeds,
   createSignedPinchDolly,
-  flyCameraAlongViewHeading,
-  flyCameraInViewPlane,
+  screenRelativeFlightDelta,
   stabilizeCameraRig,
   decayPanMomentum,
   twoFingerPanFlight,
+  viewHeadingFlightDelta,
   zoomCameraAtScreenPoint,
 } from "./cameraNavigation";
 import {
@@ -137,6 +142,20 @@ import {
   type PedestrianSpawn,
   type PedestrianState,
 } from "./pedestrianNavigation";
+import { resolveSchwellenraumFlightTranslation } from "./schwellenraumNavigation";
+import {
+  createSchwellenraumInteriors,
+  schwellenraumInteriorGroundAt,
+  schwellenraumInteriorSolidAt,
+  schwellenraumNavigationOverrideAt,
+  schwellenraumProtectedAt,
+  setSchwellenraumInteriorsPresentation,
+} from "./SchwellenraumInteriors";
+import { federalStateRepresentationSolidAt } from "./FederalStateRepresentations";
+import {
+  createSchwellenraumMemorialProtectionIndex,
+  schwellenraumProtectedMemorialAt,
+} from "./schwellenraumMemorialProtection";
 import {
   DEFAULT_THREE_CAMERA_OFFSET,
   DEFAULT_THREE_TARGET_WORLD,
@@ -176,6 +195,22 @@ import {
   createIsometricCity,
   setIsoNightPresentation,
 } from "./IsometricCityWorld";
+import {
+  DESKTOP_INITIAL_BUILDING_COUNT,
+  MOBILE_INITIAL_BUILDING_COUNT,
+  progressiveWorldStopPolicy,
+  progressiveWorldTransition,
+  releaseProgressiveWorldBatches,
+  splitProgressiveBuildings,
+  tryProgressiveWorkerOperation,
+  type ProgressiveWorldState,
+  type ProgressiveWorldWorkerInput,
+  type ProgressiveWorldWorkerOutput,
+} from "./progressiveWorld";
+import {
+  deserializeTransferredObject3D,
+  objectMaterialsIncludingTransferredAlternates,
+} from "./transferableObject3D";
 import {
   GROUND_CONTEXT_FILE,
   type VoxelPayload,
@@ -252,6 +287,13 @@ import {
   type MinecraftMaterialState,
 } from "./visual-modes/minecraft/materialMode";
 import { minecraftStabilityPolicy } from "./visual-modes/minecraft/stability";
+import {
+  SCHWELLENRAUM_SKY_COLOR,
+  createSchwellenraumPraesentation,
+  schwellenraumObjektmodus,
+  setSchwellenraumDatenSchutz,
+  setSchwellenraumPraesentation,
+} from "./visual-modes/schwellenraum/presentation";
 import crispFragment from "./crisp.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
 import {
@@ -388,6 +430,8 @@ type Runtime = {
   minecraftMobs: MinecraftMobField | null;
   modelMaterials: Set<MeshStandardMaterial>;
   monuments: Group;
+  schwellenraumInteriors: Group;
+  schwellenraumPraesentation: Group;
   parkDetails: Group;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
@@ -414,7 +458,14 @@ type Runtime = {
   tunnelPortalInteriorVisible: boolean;
   groundPayloadPromise?: Promise<VoxelPayload>;
   prismPayloadPromise?: Promise<PrismPayload>;
+  railPayloadPromise?: Promise<RailPayload>;
+  streetPayloadPromise?: Promise<StreetDetailsPayload>;
+  surfacePayloadPromise?: Promise<SurfacePayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
+  progressiveWorldBatches: Group[];
+  progressiveWorldInput?: ProgressiveWorldWorkerInput;
+  progressiveWorldState: ProgressiveWorldState;
+  progressiveWorldWorker?: Worker;
   loadSignal: AbortSignal;
   ensurePhotoSurface: () => void;
   photoSurfaceState: "failed" | "idle" | "loading" | "ready";
@@ -448,6 +499,77 @@ type Runtime = {
   underwater: boolean;
 };
 
+/**
+ * Translate the camera and its focal point as one rigid body. Schwellenraum
+ * uses the metric pedestrian collision field in full 3D; every other visual
+ * mode retains the established bounded camera movement exactly.
+ */
+function applyBoundedCameraRigTranslation(
+  runtime: Runtime,
+  requested: Vector3,
+): Vector3 {
+  const boundedTarget = runtime.controls.target
+    .clone()
+    .add(requested)
+    .clamp(
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min,
+      REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max,
+    );
+  const boundedRequest = boundedTarget.sub(runtime.controls.target);
+  let applied = boundedRequest;
+  if (
+    runtime.lightingMode === "schwellenraum" &&
+    runtime.pedestrian.environment
+  ) {
+    const resolved = resolveSchwellenraumFlightTranslation(
+      runtime.camera.position,
+      boundedRequest,
+      runtime.pedestrian.environment,
+    );
+    applied = new Vector3(
+      resolved.applied.x,
+      resolved.applied.y,
+      resolved.applied.z,
+    );
+  }
+  runtime.controls.target.add(applied);
+  runtime.camera.position.add(applied);
+  runtime.camera.updateMatrixWorld();
+  return applied;
+}
+
+function flyCameraRigInViewPlane(
+  runtime: Runtime,
+  horizontal: number,
+  vertical: number,
+): Vector3 {
+  return applyBoundedCameraRigTranslation(
+    runtime,
+    screenRelativeFlightDelta(
+      runtime.camera,
+      runtime.controls.target,
+      horizontal,
+      vertical,
+    ),
+  );
+}
+
+function flyCameraRigAlongViewHeading(
+  runtime: Runtime,
+  strafe: number,
+  forward: number,
+): Vector3 {
+  return applyBoundedCameraRigTranslation(
+    runtime,
+    viewHeadingFlightDelta(
+      runtime.camera,
+      runtime.controls.target,
+      strafe,
+      forward,
+    ),
+  );
+}
+
 type WorldLoadState = "failed" | "idle" | "loading";
 export type StartupPresentationStatus = "fallback" | "pending" | "ready";
 
@@ -457,7 +579,8 @@ export type StartupPresentationStatus = "fallback" | "pending" | "ready";
  * The photogrammetric Berlin mesh is an explicit failure fallback, never a
  * startup placeholder. Returning ``pending`` keeps it behind the opaque
  * startup curtain from the first WebGL frame; this prevents the old photo
- * surface from flashing before Day/Night/Snow or Minecraft is ready.
+ * surface from flashing before Day/Night/Snow/Schwellenraum or Minecraft is
+ * ready.
  */
 export function startupPresentationStatus({
   isoWorldReady,
@@ -726,7 +849,26 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     mode: runtime.lightingMode,
     obstructed,
   });
-  if (rainChanged || mobsChanged || snowChanged) {
+  const schwellenraumChanged = setSchwellenraumPraesentation(
+    runtime.schwellenraumPraesentation,
+    runtime.lightingMode,
+    obstructed || runtime.underside,
+  );
+  const interiorsVisible =
+    runtime.lightingMode === "schwellenraum" && !runtime.underside;
+  const interiorsChanged =
+    runtime.schwellenraumInteriors.visible !== interiorsVisible;
+  setSchwellenraumInteriorsPresentation(
+    runtime.schwellenraumInteriors,
+    interiorsVisible,
+  );
+  if (
+    rainChanged ||
+    mobsChanged ||
+    snowChanged ||
+    schwellenraumChanged ||
+    interiorsChanged
+  ) {
     runtime.renderInvalidated = true;
   }
 }
@@ -804,7 +946,8 @@ function setSurfacePresentation(
     interactionTierLocked,
   });
   // The voxel block world (Minecraft) and the drawn isometric city
-  // (Day/Night/Snow) each fully replace the photogrammetry surfaces. While
+  // (Day/Night/Snow/Schwellenraum) each fully replace the photogrammetry
+  // surfaces. While
   // either requested world is still pending, the old photo surface remains
   // hidden as well: it is a failure fallback, not a startup placeholder.
   // Once a drawn world is ready, the sole exception is
@@ -920,7 +1063,10 @@ export function applyMaterialLighting(
   const drawnKind = material.userData.drawnKind as string | undefined;
   const drawnFlat = material.userData.dayFlatColor as number | undefined;
   if (isDrawn) {
-    setFlatUnlit(material, mode === "day" || mode === "snowstorm");
+    setFlatUnlit(
+      material,
+      mode === "day" || mode === "snowstorm" || mode === "schwellenraum",
+    );
     // Flat-kind facades restore their stored flat tone as the albedo in every
     // mode; vertex-kind facades keep the neutral white multiplier set at load
     // so the baked per-vertex colour shows through untinted.
@@ -1228,18 +1374,21 @@ function updateFarZoomAntiFlicker(
   return changed;
 }
 
-function applyLightingToRoot(
+export function applyLightingToRoot(
   root: Object3D,
   mode: LightingMode,
   lightsOn = true,
 ): void {
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
+    // A protected memorial subtree always resolves to ordinary Day. Walking
+    // the ancestry also catches unnamed meshes below a named memorial root.
+    const objectMode = schwellenraumObjektmodus(mode, object);
     if (object.userData.nightOnly === true) {
       // "Licht aus" turns every night-only artificial-light prop (uplights,
       // point lights, glow cones) off along with the emissive materials
       // above — the moonlit look keeps none of them.
-      object.visible = mode === "night" && lightsOn;
+      object.visible = objectMode === "night" && lightsOn;
     }
     // Hero-model ink follows the shared three-level register in every surface
     // mode; purposeful glass, bronze and masonry accents retain their identity.
@@ -1247,7 +1396,10 @@ function applyLightingToRoot(
       object instanceof LineSegments &&
       (object.material as LineBasicMaterial).userData?.modeInk === true
     ) {
-      applyArchitecturalInkMode(object.material as LineBasicMaterial, mode);
+      applyArchitecturalInkMode(
+        object.material as LineBasicMaterial,
+        objectMode,
+      );
     }
     if (!(object instanceof Mesh)) {
       return;
@@ -1261,7 +1413,7 @@ function applyLightingToRoot(
     const nightMaterial = object.userData.nightMaterial as
       MeshBasicMaterial | MeshStandardMaterial | undefined;
     if (dayMaterial && nightMaterial) {
-      object.material = mode === "night" ? nightMaterial : dayMaterial;
+      object.material = objectMode === "night" ? nightMaterial : dayMaterial;
     }
     // Swap flattened building geometry between its flat day colours and the
     // original per-vertex photogrammetry colours: day = piecewise-constant flat
@@ -1274,7 +1426,7 @@ function applyLightingToRoot(
       // measured as 98 000 px of #b6b084 on the Chancellery, and the actual
       // source of "warum … diese hässlichen Fassaden". Flat faces are also
       // simply more minecrafty than a photograph.
-      setBuildingColorMode(object.geometry, mode !== "night");
+      setBuildingColorMode(object.geometry, objectMode !== "night");
     }
     const materials = Array.isArray(object.material)
       ? object.material
@@ -1282,7 +1434,7 @@ function applyLightingToRoot(
     for (const material of materials) {
       if (material instanceof MeshStandardMaterial && !seen.has(material)) {
         seen.add(material);
-        applyMaterialLighting(material, mode, lightsOn);
+        applyMaterialLighting(material, objectMode, lightsOn);
       }
     }
   });
@@ -1300,6 +1452,7 @@ function setSceneLighting(
   const isMoonlit = isNight && !lightsOn;
   const isMinecraft = mode === "minecraft";
   const isSnowstorm = mode === "snowstorm";
+  const isSchwellenraum = mode === "schwellenraum";
   if (!isMinecraft) {
     setMinecraftMaterialPresentation(
       runtime.scene,
@@ -1315,7 +1468,9 @@ function setSceneLighting(
       ? 0xaedaf0
       : isSnowstorm
         ? 0xc9d5dc
-        : 0xdcf3f9;
+        : isSchwellenraum
+          ? SCHWELLENRAUM_SKY_COLOR
+          : 0xdcf3f9;
   runtime.scene.background = new Color(sky);
   // No fog in the drawn modes ("verschwindet alles in einem Nebel …
   // das will ich überhaupt nicht"): the ivory model stays crisp to the
@@ -1454,6 +1609,7 @@ function setSceneLighting(
   applyLightingToRoot(runtime.centralDetails, mode, lightsOn);
   applyLightingToRoot(runtime.civicDetails, mode, lightsOn);
   applyLightingToRoot(runtime.monuments, mode, lightsOn);
+  applyLightingToRoot(runtime.schwellenraumInteriors, mode, lightsOn);
   applyLightingToRoot(runtime.culturalDetails, mode, lightsOn);
   applyLightingToRoot(runtime.parkDetails, mode, lightsOn);
   applyLightingToRoot(runtime.cityStaffage, mode, lightsOn);
@@ -1601,7 +1757,8 @@ function isoModeActive(runtime: Runtime): boolean {
   return (
     (runtime.lightingMode === "day" ||
       runtime.lightingMode === "night" ||
-      runtime.lightingMode === "snowstorm") &&
+      runtime.lightingMode === "snowstorm" ||
+      runtime.lightingMode === "schwellenraum") &&
     runtime.isoWorld !== null
   );
 }
@@ -1634,6 +1791,39 @@ function fetchGroundPayload(runtime: Runtime): Promise<VoxelPayload> {
   return runtime.groundPayloadPromise;
 }
 
+function fetchStreetPayload(runtime: Runtime): Promise<StreetDetailsPayload> {
+  runtime.streetPayloadPromise ??= fetchJsonWithRetry<StreetDetailsPayload>(
+    new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl),
+    { signal: runtime.loadSignal },
+  ).catch((error: unknown) => {
+    runtime.streetPayloadPromise = undefined;
+    throw error;
+  });
+  return runtime.streetPayloadPromise;
+}
+
+function fetchSurfacePayload(runtime: Runtime): Promise<SurfacePayload> {
+  runtime.surfacePayloadPromise ??= fetchJsonWithRetry<SurfacePayload>(
+    new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl),
+    { signal: runtime.loadSignal },
+  ).catch((error: unknown) => {
+    runtime.surfacePayloadPromise = undefined;
+    throw error;
+  });
+  return runtime.surfacePayloadPromise;
+}
+
+function fetchRailPayload(runtime: Runtime): Promise<RailPayload> {
+  runtime.railPayloadPromise ??= fetchJsonWithRetry<RailPayload>(
+    new URL(RAIL_LINES_FILE, runtime.sceneRootUrl),
+    { signal: runtime.loadSignal },
+  ).catch((error: unknown) => {
+    runtime.railPayloadPromise = undefined;
+    throw error;
+  });
+  return runtime.railPayloadPromise;
+}
+
 function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
   runtime.voxelPayloadPromise ??= fetchJsonWithRetry<VoxelPayload>(
     new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl),
@@ -1645,6 +1835,163 @@ function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
   return runtime.voxelPayloadPromise;
 }
 
+/**
+ * Start the immutable payload transfers while the small scene manifest and
+ * authored recognition geometry are being prepared. Construction still waits
+ * for the manifest's tunnel course; only network and JSON parsing move
+ * earlier. Failed speculative requests are swallowed here and retried through
+ * the ordinary finite-retry path when the requested world is attached.
+ */
+function primeRequestedWorldPayloads(
+  runtime: Runtime,
+  mode: LightingMode,
+): void {
+  const requests =
+    mode === "minecraft"
+      ? [fetchVoxelPayload(runtime), fetchPrismPayload(runtime)]
+      : [
+          fetchPrismPayload(runtime),
+          fetchGroundPayload(runtime),
+          fetchStreetPayload(runtime),
+          fetchSurfacePayload(runtime),
+          fetchRailPayload(runtime),
+        ];
+  for (const request of requests) {
+    void request.catch(() => undefined);
+  }
+}
+
+const PROGRESSIVE_WORLD_WARNING =
+  "Die verfeinerte Stadtgeometrie konnte nicht vollständig ergänzt werden; der bereits geladene exakte Nahbereich bleibt bedienbar.";
+
+function failProgressiveWorld(
+  runtime: Runtime,
+  worker: Worker,
+  warn: (message: string) => void,
+): void {
+  if (worker !== runtime.progressiveWorldWorker) return;
+  worker.terminate();
+  runtime.progressiveWorldWorker = undefined;
+  runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
+  // Successfully attached exact batches stay visible. They are now owned by
+  // isoWorld and will be disposed with it; only the restart bookkeeping ends.
+  runtime.progressiveWorldBatches = [];
+  runtime.renderInvalidated = true;
+  warn(PROGRESSIVE_WORLD_WARNING);
+}
+
+function markProgressiveWorldUnavailable(
+  runtime: Runtime,
+  warn: (message: string) => void,
+): void {
+  runtime.progressiveWorldWorker = undefined;
+  runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
+  runtime.renderInvalidated = true;
+  warn(PROGRESSIVE_WORLD_WARNING);
+}
+
+function startProgressiveWorld(
+  runtime: Runtime,
+  warn: (message: string) => void,
+): void {
+  const input = runtime.progressiveWorldInput;
+  if (
+    runtime.disposed ||
+    !input ||
+    runtime.progressiveWorldState !== "idle"
+  ) {
+    return;
+  }
+  const construction = tryProgressiveWorkerOperation(
+    () =>
+      new Worker(new URL("./progressiveWorld.worker.ts", import.meta.url), {
+        name: "isometric-progressive-world",
+        type: "module",
+      }),
+  );
+  if (!construction.ok) {
+    markProgressiveWorldUnavailable(runtime, warn);
+    return;
+  }
+  const worker = construction.value;
+  runtime.progressiveWorldWorker = worker;
+  runtime.progressiveWorldState = "loading";
+  worker.onmessage = (
+    event: MessageEvent<ProgressiveWorldWorkerOutput>,
+  ): void => {
+    if (runtime.disposed || worker !== runtime.progressiveWorldWorker) return;
+    const message = event.data;
+    if (message.type === "batch") {
+      let object: Object3D;
+      try {
+        object = deserializeTransferredObject3D(message.object);
+      } catch {
+        failProgressiveWorld(runtime, worker, warn);
+        return;
+      }
+      if (!(object instanceof Group) || !runtime.isoWorld) {
+        disposeObject3D(runtime, object);
+        failProgressiveWorld(runtime, worker, warn);
+        return;
+      }
+      // Materialise against the mode active at ATTACH time. Day ↔ Night ↔
+      // Snow ↔ Schwellenraum changes therefore never flash a stale batch.
+      setIsoNightPresentation(
+        object,
+        runtime.lightingMode === "night",
+        runtime.nightLightsOn,
+        runtime.lightingMode,
+      );
+      object.userData.progressiveWorldBatch = true;
+      runtime.progressiveWorldBatches.push(object);
+      runtime.isoWorld.add(object);
+      runtime.renderInvalidated = true;
+      return;
+    }
+    if (message.type === "error") {
+      failProgressiveWorld(runtime, worker, warn);
+      return;
+    }
+    worker.terminate();
+    runtime.progressiveWorldWorker = undefined;
+    runtime.progressiveWorldState =
+      progressiveWorldStopPolicy("complete").nextState;
+    collectFarZoomAntiFlickerTargets(runtime);
+    runtime.renderInvalidated = true;
+    performance.mark("isometric-city-exact-ready");
+  };
+  worker.onerror = (): void => {
+    failProgressiveWorld(runtime, worker, warn);
+  };
+  const posted = tryProgressiveWorkerOperation(() => worker.postMessage(input));
+  if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
+}
+
+function applyProgressiveWorldMode(
+  runtime: Runtime,
+  mode: LightingMode,
+  warn: (message: string) => void,
+): void {
+  const transition = progressiveWorldTransition(
+    mode,
+    runtime.progressiveWorldState,
+  );
+  if (transition === "resume") {
+    startProgressiveWorld(runtime, warn);
+    return;
+  }
+  if (transition !== "pause") return;
+  runtime.progressiveWorldWorker?.terminate();
+  runtime.progressiveWorldWorker = undefined;
+  runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
+  releaseProgressiveWorldBatches(
+    runtime.progressiveWorldBatches,
+    (batch) => disposeObject3D(runtime, batch),
+  );
+  collectFarZoomAntiFlickerTargets(runtime);
+  runtime.renderInvalidated = true;
+}
+
 function ensureIsoWorld(
   runtime: Runtime,
   warn: (message: string) => void,
@@ -1653,7 +2000,7 @@ function ensureIsoWorld(
     return;
   }
   runtime.isoWorldState = "loading";
-  const totalParts = 5;
+  const totalParts = 6;
   let loadedParts = 0;
   runtime.reportCoreProgress(0, totalParts);
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
@@ -1667,50 +2014,98 @@ function ensureIsoWorld(
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
-    tracked(
-      fetchJsonWithRetry<StreetDetailsPayload>(
-        new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl),
-        { signal: runtime.loadSignal },
-      ),
-    ).catch(() => null),
-    tracked(
-      fetchJsonWithRetry<SurfacePayload>(
-        new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl),
-        { signal: runtime.loadSignal },
-      ),
-    ).catch(() => null),
-    tracked(
-      fetchJsonWithRetry<RailPayload>(
-        new URL(RAIL_LINES_FILE, runtime.sceneRootUrl),
-        { signal: runtime.loadSignal },
-      ),
-    ).catch(() => null),
+    tracked(fetchStreetPayload(runtime)).catch(() => null),
+    tracked(fetchSurfacePayload(runtime)).catch(() => null),
+    tracked(fetchRailPayload(runtime)).catch(() => null),
   ])
     .then(([prisms, ground, street, surfaces, rail]) => {
       if (runtime.disposed) {
         return;
       }
+      const memorialProtection =
+        createSchwellenraumMemorialProtectionIndex(street?.monuments);
+      if (
+        setSchwellenraumDatenSchutz(
+          runtime.schwellenraumPraesentation,
+          memorialProtection,
+        )
+      ) {
+        runtime.renderInvalidated = true;
+      }
       if (ground && surfaces) {
-        runtime.pedestrian.environment = createPedestrianEnvironment(
+        const pedestrianEnvironment = createPedestrianEnvironment(
           ground,
           surfaces,
           runtime.tunnelPortalCourse,
           prisms,
         );
+        const ardRoofCollision =
+          createArdHauptstadtstudioRoofCollision(prisms);
+        const historicParkBridgeCollision =
+          createHistoricParkBridgeCollision(ground);
+        pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
+          runtime.lightingMode === "schwellenraum" &&
+          schwellenraumNavigationOverrideAt(x, y, z, sourceId);
+        pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
+          runtime.lightingMode === "schwellenraum" &&
+          (schwellenraumProtectedAt(x, y, z) ||
+            schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
+        pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) =>
+          runtime.lightingMode === "schwellenraum" &&
+          (schwellenraumInteriorSolidAt(x, y, z, radius) ||
+            federalStateRepresentationSolidAt(x, y, z, radius) ||
+            reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
+            historicParkBridgeCollision.solidAt(x, y, z, radius) ||
+            ardRoofCollision?.solidAt(x, y, z, radius) === true);
+        pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          if (runtime.lightingMode !== "schwellenraum") {
+            return null;
+          }
+          const hint = Number.isFinite(currentGroundY)
+            ? currentGroundY!
+            : (pedestrianEnvironment.groundAt(x, z) ?? 0);
+          return schwellenraumInteriorGroundAt(x, z, hint);
+        };
+        runtime.pedestrian.environment = pedestrianEnvironment;
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
         }
       }
+      const initialBuildingCount = runtime.coarsePointer
+        ? MOBILE_INITIAL_BUILDING_COUNT
+        : DESKTOP_INITIAL_BUILDING_COUNT;
+      const initialBuildings = splitProgressiveBuildings(
+        prisms.buildings,
+        initialBuildingCount,
+      ).initial;
+      const progressiveInput: ProgressiveWorldWorkerInput | null =
+        ground && surfaces
+          ? {
+              ground,
+              initialBuildingCount,
+              prismPayload: prisms,
+              sceneRootUrl: runtime.sceneRootUrl.toString(),
+              surfaces,
+              tunnel: runtime.tunnelPortalCourse,
+              type: "build",
+            }
+          : null;
+      runtime.progressiveWorldInput = progressiveInput ?? undefined;
+      applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
       runtime.isoWorld = createIsometricCity(
         prisms,
         ground,
         runtime.tunnelPortalCourse,
         surfaces,
+        {
+          buildings: initialBuildings,
+          smoothSurfaces: progressiveInput ? null : undefined,
+        },
       );
       // Metric bridge profiles are recognition geometry, not a soft surface
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
       // Gustav-Heinemann and Sandkrug retain their real proportions in the
-      // block mode as well as in Day/Night/Snow.
+      // block mode as well as in Day/Night/Snow/Schwellenraum.
       const bridges = runtime.isoWorld.getObjectByName(
         "drawn bridge structures",
       );
@@ -1837,6 +2232,7 @@ function ensureIsoWorld(
       runtime.scene.add(runtime.isoWorld);
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, totalParts);
+      performance.mark("isometric-city-preview-ready");
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400, true);
       notifyPresentationReadyWhenPossible(runtime);
@@ -2494,18 +2890,10 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
       object.dispose();
     }
     geometries.add(object.geometry);
-    // The drawn worlds keep a day/night material pair in userData; the
-    // inactive one must be disposed too, not only the assigned one.
-    for (const key of ["dayMaterial", "nightMaterial"] as const) {
-      const stored = object.userData[key];
-      if (stored instanceof Material) {
-        materials.add(stored);
-      }
-    }
-    const objectMaterials = Array.isArray(object.material)
-      ? object.material
-      : [object.material];
-    for (const material of objectMaterials) {
+    // Assigned and every serializer-supported alternate (including the dark
+    // moonlit water) share one Set, so Minecraft pause/resume cycles dispose
+    // each material and its textures exactly once.
+    for (const material of objectMaterialsIncludingTransferredAlternates(object)) {
       materials.add(material);
       for (const value of Object.values(
         material as unknown as Record<string, unknown>,
@@ -2641,7 +3029,9 @@ async function loadModel(
       flattenBuildingVertexColors(object.geometry);
       setBuildingColorMode(
         object.geometry,
-        runtime.lightingMode === "day" || runtime.lightingMode === "snowstorm",
+        runtime.lightingMode === "day" ||
+          runtime.lightingMode === "snowstorm" ||
+          runtime.lightingMode === "schwellenraum",
       );
     }
   });
@@ -2772,7 +3162,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (
         (lightingMode === "day" ||
           lightingMode === "night" ||
-          lightingMode === "snowstorm") &&
+          lightingMode === "snowstorm" ||
+          lightingMode === "schwellenraum") &&
         runtime.tunnelPoints !== null
       ) {
         // Before the scene manifest has delivered the tunnel centreline
@@ -2783,6 +3174,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (lightingMode === "minecraft" && runtime.tunnelPoints !== null) {
         ensureVoxelWorld(runtime, onWarningRef.current);
       }
+      applyProgressiveWorldMode(runtime, lightingMode, onWarningRef.current);
       setSceneLighting(runtime, lightingMode, nightLightsOn);
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
@@ -3011,12 +3403,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
-          flyCameraInViewPlane(
-            runtime.camera,
-            runtime.controls.target,
-            horizontal,
-            vertical,
-          );
+          flyCameraRigInViewPlane(runtime, horizontal, vertical);
           runtime.controls.update();
           notifyView(runtime, onViewChangeRef.current);
         },
@@ -3031,12 +3418,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
-          flyCameraAlongViewHeading(
-            runtime.camera,
-            runtime.controls.target,
-            strafe,
-            forward,
-          );
+          flyCameraRigAlongViewHeading(runtime, strafe, forward);
           runtime.controls.update();
           notifyView(runtime, onViewChangeRef.current);
         },
@@ -3479,6 +3861,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       scene.add(rain.group);
       const snowstorm = createSnowstorm(coarsePointer);
       scene.add(snowstorm.group);
+      const schwellenraumPraesentation = createSchwellenraumPraesentation();
+      scene.add(schwellenraumPraesentation);
+      const schwellenraumInteriors = createSchwellenraumInteriors();
+      scene.add(schwellenraumInteriors);
       const runtime: Runtime = {
         baseSurfaceReady: false,
         camera,
@@ -3506,6 +3892,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         minecraftMobs: null,
         modelMaterials: new Set(),
         monuments,
+        schwellenraumInteriors,
+        schwellenraumPraesentation,
         parkDetails,
         pedestrian: {
           cameraDirty: false,
@@ -3531,6 +3919,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         loadSignal: loadController.signal,
         ensurePhotoSurface: () => undefined,
         photoSurfaceState: "idle",
+        progressiveWorldBatches: [],
+        progressiveWorldState: "idle",
         reportCoreProgress: (loaded, total) => {
           if (!disposed) {
             setProgress({ loaded, total });
@@ -3757,7 +4147,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             -event.deltaX,
             -event.deltaY,
           );
-          flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
+          flyCameraRigAlongViewHeading(runtime, strafe, forward);
         }
         controls.update();
         markSurfaceInteraction(runtime);
@@ -3956,7 +4346,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             const deltaX = current.center.x - previousTwoFingerGesture.center.x;
             const deltaY = current.center.y - previousTwoFingerGesture.center.y;
             const { strafe, forward } = twoFingerPanFlight(deltaX, deltaY);
-            flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
+            flyCameraRigAlongViewHeading(runtime, strafe, forward);
             // Remember the finger velocity so release can glide out.
             const now = performance.now();
             const dt = Math.max(1, now - panVelocitySampleAt) / 1000;
@@ -4319,17 +4709,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           .multiplyScalar(input.z * speed * dtSeconds)
           .add(right.multiplyScalar(input.x * speed * dtSeconds));
         move.y += input.y * verticalSpeed * dtSeconds;
-        const nextTarget = controls.target
-          .clone()
-          .add(move)
-          .clamp(
-            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min,
-            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max,
-          );
-        const applied = nextTarget.sub(controls.target);
-        controls.target.add(applied);
-        camera.position.add(applied);
-        camera.updateMatrixWorld();
+        applyBoundedCameraRigTranslation(runtime, move);
         markSurfaceInteraction(runtime, 220);
         return true;
       };
@@ -4355,17 +4735,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const move = right
           .multiplyScalar(input.x * speed * dtSeconds)
           .add(up.multiplyScalar(input.y * speed * dtSeconds));
-        const nextTarget = controls.target
-          .clone()
-          .add(move)
-          .clamp(
-            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.min,
-            REGIERUNGSVIERTEL_FLIGHT_BOUNDS.max,
-          );
-        const applied = nextTarget.sub(controls.target);
-        controls.target.add(applied);
-        camera.position.add(applied);
-        camera.updateMatrixWorld();
+        applyBoundedCameraRigTranslation(runtime, move);
         markSurfaceInteraction(runtime, 220);
         return true;
       };
@@ -4579,7 +4949,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             panMomentum.x * dtSeconds,
             panMomentum.y * dtSeconds,
           );
-          flyCameraAlongViewHeading(camera, controls.target, strafe, forward);
+          flyCameraRigAlongViewHeading(runtime, strafe, forward);
           const decayed = decayPanMomentum(panMomentum, dtSeconds);
           panMomentum.x = decayed.x;
           panMomentum.y = decayed.y;
@@ -4601,9 +4971,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       animate();
 
-      void fetchJsonWithRetry<SceneManifest>(sceneUrl, {
+      const sceneManifestPromise = fetchJsonWithRetry<SceneManifest>(sceneUrl, {
         signal: loadController.signal,
-      })
+      });
+      primeRequestedWorldPayloads(runtime, lightingModeRef.current);
+      void sceneManifestPromise
         .then(async (manifest) => {
           if (disposed) {
             return;
@@ -5121,6 +5493,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         disposed = true;
         runtime.disposed = true;
         loadController.abort();
+        runtime.progressiveWorldWorker?.terminate();
+        runtime.progressiveWorldWorker = undefined;
+        runtime.progressiveWorldState = "idle";
+        runtime.progressiveWorldBatches = [];
         window.cancelAnimationFrame(frame);
         resizeObserver?.disconnect();
         renderer.domElement.removeEventListener(

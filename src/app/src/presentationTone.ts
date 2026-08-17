@@ -42,6 +42,9 @@ export const PRESENTATION_TONE: Record<VisualMode, PresentationTone> = {
   night: { exposure: 1, toneMapping: NoToneMapping },
   minecraft: { exposure: 1.2, toneMapping: ACESFilmicToneMapping },
   snowstorm: { exposure: 1, toneMapping: NoToneMapping },
+  // The ordinary Day palette remains untouched. Atmosphere is additive and
+  // local, so no film curve may silently recolour the source city.
+  schwellenraum: { exposure: 1, toneMapping: NoToneMapping },
 };
 
 /** True when a mode reproduces authored paint without a film curve. */

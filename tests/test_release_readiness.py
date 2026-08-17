@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import importlib.util
 import io
 import json
 import stat
+import struct
 import tarfile
 import zipfile
 from pathlib import Path
@@ -40,6 +42,8 @@ VALID_START_HERE_HTML = (
   'detail-vehicle vehicle-light-cone detail-boat"></g></svg>'
   '<button id="details-toggle">Details</button><button id="clouds-toggle">Clouds</button>'
   '<button id="performance-toggle">Lite</button>'
+  "Kindertransport visual references: © Pauline Ahrens, 2021 / "
+  "Bildhauerei in Berlin (CC BY 4.0)"
   "<script>event.shiftKey; setViewPreset; ArrowLeft; ArrowRight; tiltBy; "
   "tunnelPayload; addTunnelVentilation; addTunnelTube; scaleY; focusTunnelRoute; "
   "applyLanguage; setLanguage; setTheme; addNightLights; requestAnimationFrame; "
@@ -79,6 +83,87 @@ VALID_SERVE_LOCAL = (
   "  return None\n"
   "print('open', flush=True)\n"
 )
+
+
+def valid_visual_reference_attribution() -> str:
+  records = [
+    {
+      "title": f"MIT_095_{suffix}_Pauline_Ahrens_2021.jpg",
+      "artist": "Pauline Ahrens",
+      "year": 2021,
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/kindertransport/",
+      "file_url": (
+        "https://bildhauerei-in-berlin.de/wp-content/uploads/"
+        f"MIT_095_{suffix}_Pauline_Ahrens_2021.jpg"
+      ),
+    }
+    for suffix in ("1", "3", "6", "7", "13")
+  ]
+  return json.dumps(
+    {
+      "required_attribution": (
+        "Kindertransport visual references: © Pauline Ahrens, 2021 / "
+        "Bildhauerei in Berlin (CC BY 4.0)"
+      ),
+      "records": records,
+    }
+  )
+
+
+SURFACE_SOURCE_DATA = (
+  '{\n  "roads": [{"kind": "asphalt", "rings": '
+  '[[[0.000001, 1e20, 1.0, -0.0]]]}],\n  "label": "Straße"\n}\n'
+).encode()
+# Independent Bun/JSON.stringify fixture value; covers fixed/exponential number
+# spelling, integral floats, negative zero and non-ASCII strings.
+SURFACE_SOURCE_SHA256 = (
+  "adbf1737a45491e2acd90b60c7aa521801a12e1bfa606d0524f7510181d669bd"
+)
+
+
+def minimal_surface_assets() -> dict[str, bytes]:
+  positions = struct.pack("<9f", 0, 0, 0, 1, 0, 0, 0, 1, 0)
+  indices = struct.pack("<3I", 0, 1, 2)
+  raw = (
+    struct.pack(
+      "<8s6I",
+      b"ISOPLT01",
+      1,
+      1,
+      3,
+      3,
+      len(positions),
+      len(indices),
+    )
+    + positions
+    + indices
+  )
+  compressed = gzip.compress(raw, compresslevel=9, mtime=0)
+  filename = f"surface-asphalt-{SURFACE_SOURCE_SHA256[:12]}.plate.gz"
+  manifest = {
+    "format": "isometric-berlin-surface-plate",
+    "schema_version": 1,
+    "source_file": "surface-polygons.json",
+    "source_sha256": SURFACE_SOURCE_SHA256,
+    "stage": "post-earcut-pre-terrain-drape",
+    "plates": [
+      {
+        "compressed_bytes": len(compressed),
+        "file": filename,
+        "index_count": 3,
+        "kind": "asphalt",
+        "raw_bytes": len(raw),
+        "vertex_count": 3,
+      }
+    ],
+  }
+  return {
+    "surface-polygons.json": SURFACE_SOURCE_DATA,
+    "surface-pretriangulation.json": json.dumps(manifest).encode(),
+    filename: compressed,
+  }
 
 
 def webgl_entry(filename: str, data: bytes) -> dict[str, bool | float | int | str]:
@@ -300,6 +385,9 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
     "wikimedia_attribution.json",
   ]:
     (public_dzi / filename).write_bytes(b"shared")
+  (public_dzi / "visual_reference_attribution.json").write_text(
+    valid_visual_reference_attribution(), encoding="utf-8"
+  )
   (public_dzi / "tiergartentunnel.json").write_text(
     json.dumps(
       {
@@ -351,6 +439,12 @@ def write_minimal_release_tree(root: Path, version: str = "9.9.9") -> Path:
     ),
     encoding="utf-8",
   )
+  for relative, data in minimal_surface_assets().items():
+    (public_mesh / relative).write_bytes(data)
+  dist_mesh = root / "src/app/dist/mesh/regierungsviertel"
+  dist_mesh.mkdir(parents=True)
+  for relative, data in minimal_surface_assets().items():
+    (dist_mesh / relative).write_bytes(data)
   return public_dzi
 
 
@@ -385,6 +479,9 @@ def write_minimal_package_zip(
       }
     ),
     "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
+    "dzi/regierungsviertel/visual_reference_attribution.json": (
+      valid_visual_reference_attribution()
+    ),
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
     "dzi/regierungsviertel/regierungsviertel.dzi": TINY_DZI_XML,
     "dzi/regierungsviertel/regierungsviertel_files/0/0_0.jpg": b"tile",
@@ -399,6 +496,8 @@ def write_minimal_package_zip(
     ),
     mesh_relative: mesh_data,
   }
+  for relative, body in minimal_surface_assets().items():
+    files[f"mesh/regierungsviertel/{relative}"] = body
   for relative, body in overrides.items():
     if body is None:
       files.pop(relative, None)
@@ -412,11 +511,27 @@ def write_minimal_package_zip(
       "reference_map": "dzi/regierungsviertel/reference_map.png",
       "landmarks": "dzi/regierungsviertel/landmarks.json",
       "tiergartentunnel_overlay": "dzi/regierungsviertel/tiergartentunnel.json",
+      "visual_reference_attribution": (
+        "dzi/regierungsviertel/visual_reference_attribution.json"
+      ),
       "wikimedia_attribution": "dzi/regierungsviertel/wikimedia_attribution.json",
       "webgl_scene": "mesh/regierungsviertel/scene.json",
       "ground_context": "mesh/regierungsviertel/ground-context.json",
+      "surface_source": "mesh/regierungsviertel/surface-polygons.json",
+      "surface_pretriangulation": (
+        "mesh/regierungsviertel/surface-pretriangulation.json"
+      ),
       "start_page": "START-HERE.html",
     }
+    surface_manifest_data = files.get(
+      "mesh/regierungsviertel/surface-pretriangulation.json"
+    )
+    if surface_manifest_data is not None:
+      surface_manifest = json.loads(surface_manifest_data)
+      for plate in surface_manifest["plates"]:
+        asset_paths[f"surface_plate_{plate['kind']}"] = (
+          f"mesh/regierungsviertel/{plate['file']}"
+        )
 
     def file_meta(relative: str) -> dict[str, int | str]:
       body = files[relative]
@@ -435,6 +550,8 @@ def write_minimal_package_zip(
         "required_attribution": (
           "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
           "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · "
+          "Kindertransport visual references: © Pauline Ahrens, 2021 / "
+          "Bildhauerei in Berlin (CC BY 4.0) · "
           "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
         ),
         "assets": {
@@ -478,6 +595,8 @@ def write_minimal_static_tarball(
     ),
     mesh_relative: mesh_data,
   }
+  for relative, body in minimal_surface_assets().items():
+    files[f"mesh/regierungsviertel/{relative}"] = body
   for relative, body in overrides.items():
     if body is None:
       files.pop(relative, None)
@@ -523,6 +642,86 @@ def test_viewer_binary_size_failures_rejects_oversized_preview(tmp_path: Path) -
   assert len(failures) == 1
   assert "overview_source.png" in failures[0]
   assert "exceeds 5 MiB" in failures[0]
+
+
+def test_visual_reference_attribution_requires_all_five_cc_by_credits(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_visual_credits", "scripts/check_release_readiness.py"
+  )
+  path = tmp_path / "visual_reference_attribution.json"
+  path.write_text(valid_visual_reference_attribution(), encoding="utf-8")
+
+  assert release_readiness.visual_reference_attribution_failures(path) == []
+
+  payload = json.loads(path.read_text(encoding="utf-8"))
+  payload["records"].pop()
+  path.write_text(json.dumps(payload), encoding="utf-8")
+
+  assert release_readiness.visual_reference_attribution_failures(path) == [
+    f"Visual-reference attribution has incomplete per-file credits: {path}"
+  ]
+
+
+def test_surface_pretriangulation_validates_canonical_source_and_plate_header(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_surface_valid", "scripts/check_release_readiness.py"
+  )
+  for relative, data in minimal_surface_assets().items():
+    (tmp_path / relative).write_bytes(data)
+
+  assert (
+    release_readiness.canonical_surface_source_sha256(SURFACE_SOURCE_DATA)
+    == SURFACE_SOURCE_SHA256
+  )
+  assert release_readiness.surface_pretriangulation_failures(tmp_path) == []
+
+
+def test_surface_pretriangulation_rejects_hash_duplicate_kind_and_count(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_surface_contract", "scripts/check_release_readiness.py"
+  )
+  assets = minimal_surface_assets()
+  manifest = json.loads(assets["surface-pretriangulation.json"])
+  manifest["source_sha256"] = "0" * 64
+  manifest["plates"][0]["vertex_count"] = 4
+  manifest["plates"].append(dict(manifest["plates"][0]))
+  assets["surface-pretriangulation.json"] = json.dumps(manifest).encode()
+  for relative, data in assets.items():
+    (tmp_path / relative).write_bytes(data)
+
+  failures = release_readiness.surface_pretriangulation_failures(tmp_path)
+
+  assert any("Surface source hash mismatch" in failure for failure in failures)
+  assert any("repeats kind 'asphalt'" in failure for failure in failures)
+  assert any("vertex count mismatch" in failure for failure in failures)
+
+
+def test_surface_pretriangulation_rejects_corrupt_and_oversized_gzip(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_surface_gzip", "scripts/check_release_readiness.py"
+  )
+  assets = minimal_surface_assets()
+  manifest = json.loads(assets["surface-pretriangulation.json"])
+  filename = manifest["plates"][0]["file"]
+  oversized = b"not-gzip" + b"\0" * release_readiness.MAX_REPOSITORY_BINARY_BYTES
+  assets[filename] = oversized
+  manifest["plates"][0]["compressed_bytes"] = len(oversized)
+  assets["surface-pretriangulation.json"] = json.dumps(manifest).encode()
+  for relative, data in assets.items():
+    (tmp_path / relative).write_bytes(data)
+
+  failures = release_readiness.surface_pretriangulation_failures(tmp_path)
+
+  assert any("strict 5 MiB limit" in failure for failure in failures)
+  assert any("Invalid gzip surface plate" in failure for failure in failures)
 
 
 def test_webgl_integrity_matrix_rejects_100_corrupt_assets() -> None:
@@ -674,6 +873,41 @@ def test_webgl_scene_failures_rejects_manifest_hash_mismatch(tmp_path: Path) -> 
   assert any("hash mismatch" in failure for failure in failures)
 
 
+def test_webgl_scene_allows_two_mib_ground_context_but_rejects_larger(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_ground_budget", "scripts/check_release_readiness.py"
+  )
+  assert release_readiness.MAX_GROUND_CONTEXT_BYTES == 3 * 1024 * 1024
+  mesh_data = b"model"
+  (tmp_path / "tile.glb").write_bytes(mesh_data)
+  (tmp_path / "scene.json").write_text(
+    json.dumps(minimal_webgl_scene("tile.glb", mesh_data)),
+    encoding="utf-8",
+  )
+  ground_context = tmp_path / "ground-context.json"
+  ground_context.write_text(
+    json.dumps(
+      {
+        "building_rows": [],
+        "tree_rows": [],
+        "ground_rows": [[[0, 1, 0]]],
+        "ground_height": {"y_dm": [0]},
+      }
+    ),
+    encoding="utf-8",
+  )
+
+  failures = release_readiness.webgl_scene_failures(tmp_path)
+  assert not any("Fast-start ground context exceeds" in failure for failure in failures)
+
+  with ground_context.open("ab") as stream:
+    stream.truncate(release_readiness.MAX_GROUND_CONTEXT_BYTES + 1)
+  failures = release_readiness.webgl_scene_failures(tmp_path)
+  assert failures == [f"Fast-start ground context exceeds 3 MiB: {ground_context}"]
+
+
 def test_webgl_scene_failures_rejects_unreferenced_glb(tmp_path: Path) -> None:
   release_readiness = load_script_module(
     "check_release_readiness_webgl_orphan", "scripts/check_release_readiness.py"
@@ -737,6 +971,43 @@ def test_zip_package_failures_accepts_complete_zip(tmp_path: Path) -> None:
   write_minimal_package_zip(tmp_path, release_readiness)
 
   assert release_readiness.zip_package_failures(tmp_path) == []
+
+
+def test_zip_package_requires_referenced_surface_plate_and_manifest_inventory(
+  tmp_path: Path,
+) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_zip_surface", "scripts/check_release_readiness.py"
+  )
+  plate_name = next(
+    name for name in minimal_surface_assets() if name.endswith(".plate.gz")
+  )
+  relative_plate = f"mesh/regierungsviertel/{plate_name}"
+  write_minimal_package_zip(
+    tmp_path,
+    release_readiness,
+    {relative_plate: None},
+  )
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+
+  assert any("Missing referenced surface plate" in failure for failure in failures)
+
+  zip_path = write_minimal_package_zip(tmp_path, release_readiness)
+  with zipfile.ZipFile(zip_path) as archive:
+    files = {info.filename: archive.read(info) for info in archive.infolist()}
+  manifest_name = release_readiness.package_arcname("package-manifest.json")
+  package_manifest = json.loads(files[manifest_name])
+  package_manifest["assets"].pop("surface_plate_asphalt")
+  files[manifest_name] = json.dumps(package_manifest).encode()
+  with zipfile.ZipFile(zip_path, "w") as archive:
+    for name, data in files.items():
+      archive.writestr(name, data)
+
+  failures = release_readiness.zip_package_failures(tmp_path)
+  assert any(
+    "does not cover progressive surface assets" in failure for failure in failures
+  )
 
 
 def test_collect_failures_can_require_package_zip(tmp_path: Path) -> None:
@@ -903,6 +1174,28 @@ def test_static_tarball_failures_rejects_missing_scene_glb(tmp_path: Path) -> No
 
   failures = release_readiness.static_tarball_failures(tmp_path)
   assert any("Missing referenced WebGL asset" in failure for failure in failures)
+
+
+def test_static_tarball_failures_rejects_missing_surface_plate(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "check_release_readiness_tar_surface", "scripts/check_release_readiness.py"
+  )
+  (tmp_path / "pyproject.toml").write_text(
+    '[project]\nname = "fixture"\nversion = "9.9.9"\n',
+    encoding="utf-8",
+  )
+  plate_name = next(
+    name for name in minimal_surface_assets() if name.endswith(".plate.gz")
+  )
+  write_minimal_static_tarball(
+    tmp_path,
+    release_readiness,
+    {f"mesh/regierungsviertel/{plate_name}": None},
+  )
+
+  failures = release_readiness.static_tarball_failures(tmp_path)
+
+  assert any("Missing referenced surface plate" in failure for failure in failures)
 
 
 def test_static_tarball_failures_rejects_links_and_duplicates(

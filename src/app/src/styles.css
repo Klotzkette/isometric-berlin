@@ -238,7 +238,7 @@ button:active:not(:disabled) {
  * viewport-sized inset shadow and several backdrop blurs sit above/below it.
  * In 3D the map canvas is not visible and the blur contributes no map detail,
  * so keep a single isolated compositor surface with opaque UI chrome. This is
- * the same presentation in Day, Night and Minecraft and removes idle flashes.
+ * the same presentation in all five visual modes and removes idle flashes.
  */
 .app-shell--viewer-three .viewer {
   visibility: hidden;
@@ -302,6 +302,10 @@ button:active:not(:disabled) {
 
 .app-shell--snowstorm .three-viewer {
   background: #c9d5dc;
+}
+
+.app-shell--schwellenraum .three-viewer {
+  background: #ded9ee;
 }
 
 .three-viewer.is-active {
@@ -1204,6 +1208,20 @@ button:active:not(:disabled) {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.09),
     0 14px 42px rgba(13, 28, 36, 0.27);
+}
+
+.app-shell--schwellenraum .brand,
+.app-shell--schwellenraum .toolbar,
+.app-shell--schwellenraum .view-controls,
+.app-shell--schwellenraum .landmark-rail,
+.app-shell--schwellenraum .orientation-pill,
+.app-shell--schwellenraum .selection-card,
+.app-shell--schwellenraum .attribution {
+  border-color: rgba(232, 220, 255, 0.34);
+  background: rgba(48, 43, 62, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(255, 216, 232, 0.08),
+    0 14px 42px rgba(42, 34, 58, 0.25);
 }
 
 .app-shell--minecraft .toolbar button:hover,
@@ -2143,4 +2161,5 @@ button:active:not(:disabled) {
   .map-marker--selected::before {
     animation: none;
   }
+
 }

@@ -11,6 +11,7 @@ import {
   InstancedMesh,
   LineBasicMaterial,
   LineSegments,
+  Material,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -66,11 +67,26 @@ import {
   createDeutschesTheater,
 } from "./DeutschesTheater";
 import { LOEWEN_BRIDGE_PROFILE, createLoewenBridge } from "./LoewenBridge";
+import { ADLER_BRIDGE_PROFILE, createAdlerBridge } from "./AdlerBridge";
 import {
   TERRASSENHAUS_HAFENPLATZ_IDS,
   TERRASSENHAUS_HAFENPLATZ_TONES,
   createTerrassenhausHafenplatz,
 } from "./TerrassenhausHafenplatz";
+import {
+  ARD_HAUPTSTADTSTUDIO_ATRIUM_ID,
+  ARD_HAUPTSTADTSTUDIO_IDS,
+  ARD_HAUPTSTADTSTUDIO_TONES,
+  createArdHauptstadtstudio,
+} from "./ArdHauptstadtstudio";
+import {
+  REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
+  REICHSTAGSPRAESIDENTENPALAIS_IDS,
+  REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS,
+  REICHSTAGSPRAESIDENTENPALAIS_TONES,
+  createReichstagspraesidentenpalais,
+} from "./Reichstagspraesidentenpalais";
+import { createFederalStateRepresentations } from "./FederalStateRepresentations";
 import {
   type VoxelPayload,
   WATER_TOP_Y,
@@ -93,6 +109,8 @@ import {
   extrapolatedMarginBands,
 } from "./worldEnvelope";
 import type { VisualMode } from "./visualMode";
+import { setModeOnlyDetails } from "./modeOnlyDetails";
+import { schwellenraumObjektmodus } from "./visual-modes/schwellenraum/presentation";
 import {
   createTunnelPortalApproachTester,
   type TunnelPortalCourseInput,
@@ -133,6 +151,27 @@ export type PrismPayload = {
   buildings: PrismBuilding[];
   classes: string[];
   schema_version: number;
+};
+
+/**
+ * Optional decomposition controls for the progressive viewer bootstrap.
+ *
+ * The default remains the historical one-shot city, so generators, tests and
+ * callers outside the viewer retain byte-for-byte input semantics. The viewer
+ * can render a bounded first building batch, then ask a Worker for the
+ * remaining batches without copying or simplifying any source coordinate.
+ */
+export type IsometricCityBuildOptions = {
+  /** Exact source buildings to include in this geometry batch. */
+  buildings?: readonly PrismBuilding[];
+  /** Add the one-off presentation/recognition models only to the base batch. */
+  includeContext?: boolean;
+  /**
+   * Exact surface subset to build in this batch. `undefined` preserves the
+   * legacy behaviour (`surfaces`); `null` builds no smooth surface geometry
+   * while still using `surfaces` for ground masks and tunnel/lawn exclusions.
+   */
+  smoothSurfaces?: SurfacePayload | null;
 };
 
 export const PRISM_WORLD_FILE = "lod2-prisms.json";
@@ -205,15 +244,31 @@ export type SurfacePayload = {
   roads?: SurfacePolygon[];
   schema_version: number;
   scrub_inventory?: {
+    excluded_grosser_tiergarten_point_count?: number;
     feature_count: number;
     mapped_area_m2: number;
     point_count: number;
+    pre_tiergarten_filter_point_count?: number;
     sampling_spacing_m: number;
     scope: string;
   };
   scrub_points?: ScrubPoint[];
   sunken_walls?: SunkenWall[];
   water: SurfacePolygon[];
+};
+
+export type PretriangulatedSurfaceKind = "asphalt" | "paving";
+
+export type SmoothSurfaceBuildOptions = {
+  /**
+   * Lossless, source-hash-bound ShapeGeometry results for the two
+   * hole-heavy road unions. Terrain tessellation and draping still happen at
+   * runtime, so the committed elevation samples remain the sole height
+   * authority; only Earcut's deterministic triangulation is moved offline.
+   */
+  pretriangulated?: Partial<
+    Record<PretriangulatedSurfaceKind, BufferGeometry>
+  >;
 };
 
 function surfaceCentroidM(surface: SurfacePolygon): [number, number] {
@@ -480,6 +535,27 @@ export const HERO_PRISM_TONES: Record<string, number> = {
       TERRASSENHAUS_HAFENPLATZ_TONES.concrete,
     ]),
   ),
+  // ARD Hauptstadtstudio: the official three-part LoD2 shell remains the
+  // massing anchor. Current reference photographs support red-brown concrete
+  // on the Spree wing/head and the published lighter ochre rear body; OSM's
+  // pale #dfb082 mapper tag is retained in the profile only.
+  ...Object.fromEntries(
+    [...ARD_HAUPTSTADTSTUDIO_IDS].map((id) => [
+      id,
+      id === ARD_HAUPTSTADTSTUDIO_ATRIUM_ID
+        ? ARD_HAUPTSTADTSTUDIO_TONES.rearOchre
+        : ARD_HAUPTSTADTSTUDIO_TONES.concrete,
+    ]),
+  ),
+  // Reichstagspräsidentenpalais / Deutsche Parlamentarische Gesellschaft:
+  // the ten-part, two-parent LoD2 union remains the measured envelope. The
+  // dedicated layer restores Wallot's warm yellow sandstone articulation.
+  ...Object.fromEntries(
+    [...REICHSTAGSPRAESIDENTENPALAIS_IDS].map((id) => [
+      id,
+      REICHSTAGSPRAESIDENTENPALAIS_TONES.sandstone,
+    ]),
+  ),
   // Gymnasium Tiergarten Neubau (1971, refurbished 2009-11). The overview
   // raster stops short of the Hansaviertel, so every prism of the school
   // fell back to the generic concrete shade and the white rendered slab
@@ -538,15 +614,24 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   ),
   ...Object.fromEntries([...CHARITE_VIROLOGY_IDS].map((id) => [id, 0x77827d])),
   ...Object.fromEntries(
-    [...DEUTSCHES_THEATER_IDS].map((id) => [
-      id,
-      DEUTSCHES_THEATER_TONES.slate,
-    ]),
+    [...DEUTSCHES_THEATER_IDS].map((id) => [id, DEUTSCHES_THEATER_TONES.slate]),
   ),
   ...Object.fromEntries(
     [...TERRASSENHAUS_HAFENPLATZ_IDS].map((id) => [
       id,
       TERRASSENHAUS_HAFENPLATZ_TONES.parapet,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...ARD_HAUPTSTADTSTUDIO_IDS].map((id) => [
+      id,
+      ARD_HAUPTSTADTSTUDIO_TONES.roofDataTag,
+    ]),
+  ),
+  ...Object.fromEntries(
+    [...REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS].map((id) => [
+      id,
+      REICHSTAGSPRAESIDENTENPALAIS_TONES.slate,
     ]),
   ),
 };
@@ -556,6 +641,18 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
 // solid box burying its twelve columns), so these prisms are skipped and
 // the model carries the building alone.
 export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  // Bremen and Saxony have no matching official LoD2 object in the committed
+  // source set. Their 9 m OSM context prisms are display fallbacks, not height
+  // surveys; FederalStateRepresentations keeps the exact OSM outlines and
+  // applies the source-described 8/4-storey and 4-storey organisations.
+  "24045937",
+  "23075521",
+  // "Sprung ueber die Spree". LoD2 part DEBE01YYK0001zDa preserves the
+  // bridge's correct 62.6 m plan envelope and 28.7 m top, but a footprint
+  // prism necessarily fills everything below that top and therefore became
+  // the false solid wall across the river. CentralCivicDetails rebuilds the
+  // same OSM-anchored crossing as the two real, open pedestrian bridges.
+  "K0001zDa",
   // Reichstag west portico. These two LoD2 parts are deliberately coarse,
   // closed envelopes (the full 35 m portico block and its narrow centre cap).
   // The metric recognition model reconstructs this exact volume as an open
@@ -1066,6 +1163,12 @@ function facadeColorFor(building: PrismBuilding, classes: string[]): Color {
       // ensemble's identity; a strong shared ivory wash erased both.
       return new Color(pinned).lerp(IVORY, 0.12);
     }
+    if (REICHSTAGSPRAESIDENTENPALAIS_IDS.has(building.id)) {
+      // Wallot's yellow sandstone is the Palais' identifying material. Keep
+      // the shared paper lift subtle so the LoD2 envelope and the dedicated
+      // stone articulation stay in one colour register.
+      return new Color(pinned).lerp(IVORY, 0.08);
+    }
     // The pins stay neutral light stone (the owner's earlier direction for the
     // Chancellery); the ivory blend is what stops them reading as grey paint.
     return new Color(pinned).lerp(IVORY, 0.34);
@@ -1109,7 +1212,8 @@ const MOONLIT_WATER = 0x131f2c;
  * vessel lamps — for the cool moonlit-off tones above, and dims the water
  * further, while leaving ink, facade colour and isoFaceShade untouched so
  * the mode switch stays lossless in every direction (day ↔
- * night-lights-on ↔ night-lights-off ↔ minecraft ↔ snowstorm).
+ * night-lights-on ↔ night-lights-off ↔ minecraft ↔ snowstorm ↔
+ * schwellenraum).
  */
 export function setIsoNightPresentation(
   city: Group,
@@ -1123,13 +1227,63 @@ export function setIsoNightPresentation(
       ? "day"
       : requestedMode;
   const moonlit = night && !lightsOn;
+  setModeOnlyDetails(city, mode);
+  // Every progressively transferred mesh carries its alternate materials in
+  // userData. Switch by capability, not by a brittle name allow-list: repeated
+  // building batches and newly added surface families must all materialise for
+  // the mode active when they attach.
+  city.traverse((object) => {
+    if (!(object instanceof Mesh)) return;
+    const dayMaterial = object.userData.dayMaterial;
+    const nightMaterial = object.userData.nightMaterial;
+    if (
+      !(dayMaterial instanceof Material) ||
+      !(nightMaterial instanceof Material)
+    ) {
+      return;
+    }
+    const objectMode = schwellenraumObjektmodus(mode, object);
+    const moonlitMaterial = object.userData.moonlitMaterial;
+    object.material =
+      objectMode === "night"
+        ? !lightsOn && moonlitMaterial instanceof Material
+          ? moonlitMaterial
+          : nightMaterial
+        : dayMaterial;
+  });
+  // Three.js Object3D.clone() JSON-clones userData, so these two authored
+  // facade layers can carry material JSON in legacy clones instead of live
+  // Material instances. Keep their established contract while traversing all
+  // progressive batches; Worker transfers still take the capability path
+  // above with fully rehydrated materials.
+  const facadeWindowMaterialNames = new Set([
+    "Kollhoff recessed window panes",
+    "Charite aluminium facade window panes",
+  ]);
+  city.traverse((windows) => {
+    if (
+      !(windows instanceof Mesh) ||
+      !facadeWindowMaterialNames.has(windows.name) ||
+      !windows.userData.dayMaterial ||
+      !windows.userData.nightMaterial
+    ) {
+      return;
+    }
+    windows.material =
+      schwellenraumObjektmodus(mode, windows) === "night"
+        ? (windows.userData.nightMaterial as Material)
+        : (windows.userData.dayMaterial as Material);
+  });
   city.traverse((object) => {
     if (
       object instanceof LineSegments &&
       object.material instanceof LineBasicMaterial &&
       object.material.userData.modeInk === true
     ) {
-      applyArchitecturalInkMode(object.material, mode);
+      applyArchitecturalInkMode(
+        object.material,
+        schwellenraumObjektmodus(mode, object),
+      );
     }
   });
   const backdrop = city.getObjectByName("presentation paper backdrop");
@@ -1138,16 +1292,20 @@ export function setIsoNightPresentation(
       ? (backdrop.userData.nightMaterial as MeshBasicMaterial)
       : (backdrop.userData.dayMaterial as MeshBasicMaterial);
   }
-  const ink = city.getObjectByName("LoD2 prism ink lines");
-  if (ink instanceof LineSegments) {
+  city.traverse((ink) => {
+    if (ink.name !== "LoD2 prism ink lines" || !(ink instanceof LineSegments)) {
+      return;
+    }
     applyArchitecturalInkMode(
       ink.material as LineBasicMaterial,
       mode,
       "silhouette",
     );
-  }
-  const bodies = city.getObjectByName("LoD2 prism buildings");
-  if (bodies instanceof Mesh) {
+  });
+  city.traverse((bodies) => {
+    if (bodies.name !== "LoD2 prism buildings" || !(bodies instanceof Mesh)) {
+      return;
+    }
     // Day = unlit exact paint; night = the lit moonlight material.
     bodies.material = night
       ? (bodies.userData.nightMaterial as MeshStandardMaterial)
@@ -1161,9 +1319,11 @@ export function setIsoNightPresentation(
     nightMaterial.emissive.setHex(night ? 0x252c39 : 0x000000);
     nightMaterial.emissiveIntensity = night ? 0.68 : 0;
     nightMaterial.needsUpdate = true;
-  }
-  const glass = city.getObjectByName("LoD2 glass prisms");
-  if (glass instanceof Mesh) {
+  });
+  city.traverse((glass) => {
+    if (glass.name !== "LoD2 glass prisms" || !(glass instanceof Mesh)) {
+      return;
+    }
     glass.material = night
       ? (glass.userData.nightMaterial as MeshStandardMaterial)
       : (glass.userData.dayMaterial as MeshBasicMaterial);
@@ -1171,7 +1331,7 @@ export function setIsoNightPresentation(
     nightMaterial.emissive.setHex(night ? 0x0e1a24 : 0x000000);
     nightMaterial.emissiveIntensity = night ? 0.7 : 0;
     nightMaterial.needsUpdate = true;
-  }
+  });
   const surround = city.getObjectByName(
     "extrapolated west ground and Siegessäule",
   );
@@ -1188,12 +1348,15 @@ export function setIsoNightPresentation(
   // loop applies directly: isoWorld accessories never pass through
   // applyMaterialLighting, so this is their one choke point for both
   // turning the warm glow on at night and off again under moonlight.
-  for (const name of [
+  const accessoryNames = new Set([
     "Drawn ground slabs",
     "drawn quay walls",
     "bridge structure bodies",
     "bridge structure lamps",
+    "Adlerbruecke bodies",
     "Löwenbrücke bodies",
+    "Löwenbrücke modern safety handrails bodies",
+    "Löwenbrücke modern safety posts bodies",
     "Moltkebrücke ornamental stone bodies",
     "Moltkebrücke ornamental stone lamps",
     "Adlon bodies",
@@ -1205,17 +1368,32 @@ export function setIsoNightPresentation(
     "vessel bodies",
     "vessel lamps",
     "Amtssitz am Spreebogen bodies",
-  ]) {
-    const accessory = city.getObjectByName(name);
+    "ARD Hauptstadtstudio architectural details bodies",
+    "ARD Hauptstadtstudio architectural details lamps",
+    "ARD Hauptstadtstudio atrium roof glazing",
+    "ARD Hauptstadtstudio opaque rear roof",
+    "ARD HAUPTSTADTSTUDIO facade lettering",
+    "ARD Hauptstadtstudio facade subtitle",
+  ]);
+  city.traverse((accessory) => {
+    if (
+      !accessoryNames.has(accessory.name) &&
+      accessory.userData.federalStateRepresentation !== true &&
+      accessory.userData.reichstagspraesidentenpalaisDetail !== true
+    ) {
+      return;
+    }
     if (accessory instanceof Mesh && accessory.userData.dayMaterial) {
-      accessory.material = night
+      const accessoryNight =
+        schwellenraumObjektmodus(mode, accessory) === "night";
+      accessory.material = accessoryNight
         ? (accessory.userData.nightMaterial as MeshStandardMaterial)
         : (accessory.userData.dayMaterial as MeshBasicMaterial);
       const nightMaterial = accessory.userData
         .nightMaterial as MeshStandardMaterial;
       const lampEmissive = nightMaterial.userData.nightEmissive as
         number | undefined;
-      if (night && typeof lampEmissive === "number") {
+      if (accessoryNight && typeof lampEmissive === "number") {
         nightMaterial.emissive.setHex(
           lightsOn ? lampEmissive : MOONLIT_LAMP_OFF,
         );
@@ -1226,7 +1404,7 @@ export function setIsoNightPresentation(
         nightMaterial.needsUpdate = true;
       }
     }
-  }
+  });
   // The extrapolated west follows the same ink and lamp conventions.
   const adlonInk = city.getObjectByName("Adlon ink lines");
   if (adlonInk instanceof LineSegments) {
@@ -1259,18 +1437,24 @@ export function setIsoNightPresentation(
   // applyMaterialLighting/applyLightingToRoot in ThreeViewer.tsx, which
   // already takes the lightsOn parameter (see setSceneLighting). There is
   // no separate "extrapolated lamp heads" mesh in this drawn city group.
-  const mullions = city.getObjectByName("LoD2 glass mullions");
-  if (mullions instanceof LineSegments) {
-    applyArchitecturalInkMode(
-      mullions.material as LineBasicMaterial,
-      mode,
-      "detail",
-    );
-  }
+  city.traverse((mullions) => {
+    if (
+      mullions.name === "LoD2 glass mullions" &&
+      mullions instanceof LineSegments
+    ) {
+      applyArchitecturalInkMode(
+        mullions.material as LineBasicMaterial,
+        mode,
+        "detail",
+      );
+    }
+  });
   // Facade axes: fine ink by day, dimmed to a whisper at night so the
   // warm light strips carry the reading instead.
-  const axes = city.getObjectByName("LoD2 facade axes");
-  if (axes instanceof LineSegments) {
+  city.traverse((axes) => {
+    if (axes.name !== "LoD2 facade axes" || !(axes instanceof LineSegments)) {
+      return;
+    }
     const material = axes.material as LineBasicMaterial;
     applyArchitecturalInkMode(material, mode, "micro");
     material.opacity = night ? 0.12 : ISO_FACADE_AXIS_OPACITY;
@@ -1280,101 +1464,65 @@ export function setIsoNightPresentation(
     // the wrong brightness when the camera moves again.
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
-  }
-  const clinkerJoints = city.getObjectByName("Kollhoff clinker mortar joints");
-  if (clinkerJoints instanceof LineSegments) {
+  });
+  city.traverse((clinkerJoints) => {
+    if (
+      clinkerJoints.name !== "Kollhoff clinker mortar joints" ||
+      !(clinkerJoints instanceof LineSegments)
+    ) {
+      return;
+    }
     const material = clinkerJoints.material as LineBasicMaterial;
     applyArchitecturalInkMode(material, mode, "micro");
     material.opacity = night ? 0.24 : 0.46;
     material.userData.stableInkAuthoredOpacity = material.opacity;
     material.userData.stableInkAppliedOpacity = null;
-  }
-  const strips = city.getObjectByName("LoD2 facade night strips");
-  if (strips) {
+  });
+  city.traverse((strips) => {
+    if (strips.name !== "LoD2 facade night strips") return;
     // Lit window strips only ever show with the lights on — the entire
     // point of "Licht aus" is that every window goes dark.
     strips.visible = night && lightsOn;
-  }
-  const kollhoffWindows = city.getObjectByName(
-    "Kollhoff recessed window panes",
-  );
-  if (kollhoffWindows instanceof Mesh) {
-    kollhoffWindows.material = night
-      ? (kollhoffWindows.userData.nightMaterial as MeshBasicMaterial)
-      : (kollhoffWindows.userData.dayMaterial as MeshBasicMaterial);
-  }
-  const kollhoffLitWindows = city.getObjectByName("Kollhoff lit window panes");
-  if (kollhoffLitWindows) {
-    kollhoffLitWindows.visible = night && lightsOn;
-  }
-  const chariteWindows = city.getObjectByName(
-    "Charite aluminium facade window panes",
-  );
-  if (chariteWindows instanceof Mesh) {
-    chariteWindows.material = night
-      ? (chariteWindows.userData.nightMaterial as MeshBasicMaterial)
-      : (chariteWindows.userData.dayMaterial as MeshBasicMaterial);
-  }
-  const chariteLitWindows = city.getObjectByName(
+  });
+  const lightOnlyNames = new Set([
+    "Kollhoff lit window panes",
     "Charite lit facade window panes",
-  );
-  if (chariteLitWindows) {
-    chariteLitWindows.visible = night && lightsOn;
-  }
-  for (const name of [
-    "smooth water surface",
-    "smooth quay walls",
-    "smooth river bed",
-    "smooth parkland lawns",
-    "source-backed OSM scrub 1",
-    "source-backed OSM scrub 2",
-    "source-backed OSM scrub 3",
-    "smooth paved paths",
-    "smooth park paths",
-    "smooth carriageways",
-    "smooth kerb upstands",
-    "basin floors",
-    "basin water",
-    "sunken walls",
-    "sunken wall crown path",
-  ]) {
-    const smooth = city.getObjectByName(name);
-    if (smooth instanceof Mesh && smooth.userData.dayMaterial) {
-      // The real (surfaces-backed) water plate has its own moonlit tone;
-      // every other smooth surface here is structural/ground, not an
-      // artificial light, so "Licht aus" leaves it at its ordinary night
-      // material.
-      const moonlitMaterial = smooth.userData.moonlitMaterial as
-        MeshBasicMaterial | undefined;
-      smooth.material = night
-        ? moonlit && moonlitMaterial
-          ? moonlitMaterial
-          : (smooth.userData.nightMaterial as MeshBasicMaterial)
-        : (smooth.userData.dayMaterial as MeshBasicMaterial);
+  ]);
+  city.traverse((lightOnly) => {
+    if (lightOnlyNames.has(lightOnly.name)) {
+      lightOnly.visible = night && lightsOn;
     }
-  }
+  });
   // Painted markings stay white by day and dim to a cool moonlit line at
   // night — headlight-bright dashes would out-shout the whole night city.
-  const laneMarkings = city.getObjectByName("carriageway lane markings");
-  if (laneMarkings instanceof LineSegments) {
+  city.traverse((laneMarkings) => {
+    if (
+      laneMarkings.name !== "carriageway lane markings" ||
+      !(laneMarkings instanceof LineSegments)
+    ) {
+      return;
+    }
     (laneMarkings.material as LineBasicMaterial).color.setHex(
       night ? 0x4a5568 : 0xf2f0e8,
     );
-  }
-  for (const name of [
+  });
+  const surfaceInkNames = new Set([
     "smooth shoreline ink",
     "smooth kerb ink",
     "basin and sunken wall ink",
-  ]) {
-    const inkLines = city.getObjectByName(name);
-    if (inkLines instanceof LineSegments) {
+  ]);
+  city.traverse((inkLines) => {
+    if (
+      surfaceInkNames.has(inkLines.name) &&
+      inkLines instanceof LineSegments
+    ) {
       applyArchitecturalInkMode(
         inkLines.material as LineBasicMaterial,
         mode,
         "detail",
       );
     }
-  }
+  });
   const waterSurface = city.getObjectByName("drawn water surface");
   if (waterSurface instanceof InstancedMesh) {
     // Moonlight keeps the water dark with a slightly cooler, slightly more
@@ -1808,7 +1956,74 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...HISTORIC_CHARITE_IDS,
   ...DEUTSCHES_THEATER_CUSTOM_FACADE_IDS,
   ...TERRASSENHAUS_HAFENPLATZ_IDS,
+  ...ARD_HAUPTSTADTSTUDIO_IDS,
+  ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
 ]);
+
+// Dedicated overlays already carry the documented base/cornice rhythm for
+// these parts. Suppress only the generic trim pass; the measured LoD2 prism
+// itself remains present and collision-authoritative.
+export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...ARD_HAUPTSTADTSTUDIO_IDS,
+  ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
+]);
+
+// The generic pitched-roof pass invents ridge stacks for ordinary gables.
+// Wallot's two affected Palais roof parts instead use source-bounded crest
+// and fixture details in the dedicated recognition layer.
+export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
+]);
+
+/**
+ * Render-only top-cap openings restored by a dedicated recognition layer.
+ * The footprint, measured side shell and pedestrian/flight collision remain
+ * authoritative LoD2 geometry; only the opaque horizontal display cap is
+ * omitted so transparent roof architecture can read as transparent.
+ */
+export const PRISM_VISUAL_TOP_CAP_SUPPRESSED_IDS: ReadonlySet<string> = new Set(
+  [ARD_HAUPTSTADTSTUDIO_ATRIUM_ID],
+);
+
+function withoutVisualTopCap(
+  sourceGeometry: BufferGeometry,
+  topY: number,
+): BufferGeometry {
+  const source = sourceGeometry.index
+    ? sourceGeometry.toNonIndexed()
+    : sourceGeometry;
+  const positions = source.getAttribute("position");
+  const normals = source.getAttribute("normal");
+  const retained: number[] = [];
+  for (let index = 0; index < positions.count; index += 3) {
+    let isTopCap = true;
+    for (let corner = 0; corner < 3; corner += 1) {
+      const vertex = index + corner;
+      if (
+        normals.getY(vertex) <= 0.7 ||
+        Math.abs(positions.getY(vertex) - topY) > 0.075
+      ) {
+        isTopCap = false;
+        break;
+      }
+    }
+    if (isTopCap) continue;
+    for (let corner = 0; corner < 3; corner += 1) {
+      const vertex = index + corner;
+      retained.push(
+        positions.getX(vertex),
+        positions.getY(vertex),
+        positions.getZ(vertex),
+      );
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(retained, 3));
+  geometry.computeVertexNormals();
+  if (source !== sourceGeometry) source.dispose();
+  sourceGeometry.dispose();
+  return geometry;
+}
 
 /**
  * Isometric face shading ("mehr Shading, kompletter isometrischer
@@ -2717,6 +2932,7 @@ function bridgeClusters(ground: VoxelPayload): Array<Array<[number, number]>> {
 export const BRIDGE_MIN_CLUSTER_CELLS = 1;
 
 export type BridgeKind =
+  | "adler"
   | "beam"
   | "curvedBox"
   | "golda"
@@ -2917,10 +3133,28 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     world: [185.4, -989.8],
   },
   {
-    // Berlin's oldest suspension bridge: the published timber envelope is
-    // 17.3 x 2.0 m. OSM way 1411957328 fixes its centre and bearing across
-    // the Tiergarten watercourse; createLoewenBridge supplies the four
-    // historic lions, timber lattice, hangers and paired wire ropes.
+    // Masterplan Bruecken Berlin, Appendix 1 (data status 06/2025),
+    // BW 3446098: 7.30 x 3.35 m steel/light-metal plate-girder/grid bridge,
+    // built 1873. OSM way 28872983 supplies the crossing bearing;
+    // createAdlerBridge supplies the two central iron eagle reliefs, wavy
+    // railings, yellow brick piers and shallow steel soffit.
+    axis: [...ADLER_BRIDGE_PROFILE.axis],
+    halfWidthM: ADLER_BRIDGE_PROFILE.inventory.widthM / 2,
+    kind: "adler",
+    matchRadiusM: 16,
+    name: ADLER_BRIDGE_PROFILE.name,
+    surveyedDeck: {
+      halfLengthM: ADLER_BRIDGE_PROFILE.inventory.lengthM / 2,
+      halfWidthM: ADLER_BRIDGE_PROFILE.inventory.widthM / 2,
+    },
+    world: [...ADLER_BRIDGE_PROFILE.centreWorldM],
+  },
+  {
+    // Berlin's oldest suspension bridge: Masterplan Bruecken Berlin,
+    // Appendix 1 (data status 06/2025), publishes an 18.30 x 1.88 m timber
+    // envelope. OSM way 1411957328 fixes its centre and bearing;
+    // createLoewenBridge supplies the four historic lions, timber lattice,
+    // hangers and paired wire ropes.
     axis: [...LOEWEN_BRIDGE_PROFILE.axis],
     halfWidthM: LOEWEN_BRIDGE_PROFILE.surveyedDeck.halfWidthM,
     kind: "suspension",
@@ -2959,6 +3193,10 @@ export const MOLTKE_GRIFFIN_COUNT = 4;
 export const MOLTKE_KEYSTONE_HEAD_COUNT = 6;
 export const MOLTKE_TROPHY_COUNT = 4;
 export const PARLIAMENT_BRIDGE_LEVELS = 2;
+
+function usesDedicatedBridgeRecognitionModel(kind: BridgeKind): boolean {
+  return kind === "adler" || kind === "suspension" || kind === "parliament";
+}
 
 function createBridgeStructures(ground: VoxelPayload): Group | null {
   const clusters = bridgeClusters(ground).filter(
@@ -3104,10 +3342,10 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
     const profile = bridgeProfileAt(rect.center[0], rect.center[1]);
     const [cx, cz] = profile?.surveyedDeck ? profile.world : rect.center;
     const kind: BridgeKind = profile?.kind ?? "beam";
-    // Its dedicated recognition model replaces this four-cell raster cluster.
-    // Drawing the generic bridge as well would leave a grey slab and duplicate
-    // rails directly beneath the historic timber suspension structure.
-    if (kind === "suspension") {
+    // Dedicated recognition models replace these coarse raster clusters.
+    // Drawing a generic bridge as well would leave a grey slab under the
+    // timber Löwenbrücke or duplicate the open Bundestag connection.
+    if (usesDedicatedBridgeRecognitionModel(kind)) {
       continue;
     }
     const palette = profile?.palette ?? DEFAULT_PALETTE;
@@ -5212,6 +5450,7 @@ function createBridgeStructures(ground: VoxelPayload): Group | null {
       geometry.dispose();
     }
   }
+  group.add(createAdlerBridge(ground));
   group.add(createLoewenBridge(ground));
   return group;
 }
@@ -5959,15 +6198,7 @@ export function createHotelAdlon(): Group {
     );
     if (bay % 2 === 0) {
       add(
-        boxTriangles(
-          x,
-          GROUND + 3.05,
-          frontZ - 0.72,
-          [1, 0],
-          3.2,
-          0.32,
-          1.35,
-        ),
+        boxTriangles(x, GROUND + 3.05, frontZ - 0.72, [1, 0], 3.2, 0.32, 1.35),
         AWNING,
       );
     }
@@ -5976,27 +6207,11 @@ export function createHotelAdlon(): Group {
   for (let bay = 0; bay < 11; bay += 1) {
     const x = ax - 30 + bay * 6;
     add(
-      boxTriangles(
-        x,
-        EAVES + 2.45,
-        az - halfZ + 2.5,
-        [1, 0],
-        2.55,
-        2.25,
-        2.0,
-      ),
+      boxTriangles(x, EAVES + 2.45, az - halfZ + 2.5, [1, 0], 2.55, 2.25, 2.0),
       ROOF_DARK,
     );
     add(
-      boxTriangles(
-        x,
-        EAVES + 2.4,
-        az - halfZ + 1.43,
-        [1, 0],
-        1.45,
-        1.25,
-        0.2,
-      ),
+      boxTriangles(x, EAVES + 2.4, az - halfZ + 1.43, [1, 0], 1.45, 1.25, 0.2),
       WINDOW,
     );
   }
@@ -6369,20 +6584,6 @@ const HKW_SADDLE_RISE_M = 10.5;
 const HKW_SADDLE_DROP_M = 4.5;
 const MELH_ROTUNDA: readonly [number, number] = [406, -139];
 const MELH_ROTUNDA_RADIUS = 16.5;
-/**
- * Four source-informed canopy supports on the paved MELH quay.
- *
- * The former 16-column line continued north through eleven mapped-water
- * positions and made a false colonnade stand in the Spree. These are
- * presentation anchors, not surveyed support coordinates; their key contract
- * is that every one remains landward of the mapped river edge.
- */
-export const MELH_CANOPY_SUPPORTS = [
-  [372.4, -174],
-  [372.4, -168],
-  [372.4, -162],
-  [372.4, -156],
-] as const;
 const JKH_ARCADE_X = 403.2;
 /**
  * Paul-Löbe-Haus: the LoD2 extract carries the comb as ten plain bars,
@@ -6836,11 +7037,6 @@ export function createLandmarkRefinements(): Group {
       );
     }
   }
-  for (const [x, z] of MELH_CANOPY_SUPPORTS) {
-    add(prismTriangles(x, 16, z, 0.48, 22, 12), COLUMN_TONE);
-  }
-  add(boxTriangles(373.2, 27.6, -165, [0, 1], 24, 1.4, 3.6), STONE_TONE);
-
   // --- Jakob-Kaiser-Haus: the west arcade facing the Reichstag ------------
   for (let z = 26; z <= 186; z += 5.6) {
     add(prismTriangles(JKH_ARCADE_X, 16.6, z, 0.5, 23, 10), COLUMN_TONE);
@@ -6922,21 +7118,6 @@ export function createLandmarkRefinements(): Group {
   }
   for (let z = -179; z <= -82; z += 8) {
     inkLines.push(378, MELH_ROOF_Y, z, 486, MELH_ROOF_Y, z);
-  }
-  // Spree-side stair down to the quay, beside the colonnade.
-  for (let step = 0; step < 7; step += 1) {
-    add(
-      boxTriangles(
-        369.4 - step * 1.3,
-        4.9 - step * 0.65,
-        -132.5,
-        [0, 1],
-        16,
-        0.65,
-        1.3,
-      ),
-      STONE_TONE,
-    );
   }
   for (const [x0, x1, z0, z1, roofY] of JKH_ROOF_BARS) {
     for (let x = x0 + 4; x <= x1 - 4; x += 6.6) {
@@ -7194,7 +7375,6 @@ export function createLandmarkRefinements(): Group {
       geometry.dispose();
     }
   }
-  group.userData.melhCanopySupports = MELH_CANOPY_SUPPORTS;
   return group;
 }
 
@@ -7283,6 +7463,53 @@ function shapeFromSurface(surface: SurfacePolygon): Shape {
 }
 
 /**
+ * Run Three/Earcut's deterministic polygon triangulation without applying a
+ * presentation lift or terrain height. The release generator stores this
+ * lossless intermediate for the exceptionally hole-heavy asphalt and paving
+ * unions; the browser still performs the exact tessellation and committed
+ * terrain drape, just without a multi-second Earcut long task or its enormous
+ * temporary linked-list allocation.
+ */
+export function createPretriangulatedSurfacePlate(
+  polygons: readonly SurfacePolygon[],
+): BufferGeometry | null {
+  const shapes: Shape[] = [];
+  for (const surface of polygons) {
+    if (surface.ring.length < 4) {
+      continue;
+    }
+    try {
+      shapes.push(shapeFromSurface(surface));
+    } catch {
+      continue;
+    }
+  }
+  if (shapes.length === 0) {
+    return null;
+  }
+  try {
+    return new ShapeGeometry(shapes);
+  } catch {
+    const parts: BufferGeometry[] = [];
+    for (const shape of shapes) {
+      try {
+        parts.push(new ShapeGeometry(shape));
+      } catch {
+        continue;
+      }
+    }
+    if (parts.length === 0) {
+      return null;
+    }
+    const merged = mergeGeometries(parts, false);
+    for (const part of parts) {
+      part.dispose();
+    }
+    return merged;
+  }
+}
+
+/**
  * Smooth water bodies and parkland from the true OSM polygons: a
  * transparent water plate over a sandy bed, a continuous drawn
  * shoreline, soft quay walls following the real bank line, and lawn
@@ -7304,6 +7531,7 @@ export function createSmoothSurfaces(
    * the map and simply never appeared.
    */
   terrainAt?: (x: number, z: number) => number,
+  options: SmoothSurfaceBuildOptions = {},
 ): Group {
   const group = new Group();
   group.name = "smooth OSM water and parkland";
@@ -7319,6 +7547,7 @@ export function createSmoothSurfaces(
     polygons: SurfacePolygon[],
     y: number,
     followTerrain = false,
+    pretriangulated?: BufferGeometry,
   ): BufferGeometry | null => {
     const shapes: Shape[] = [];
     for (const surface of polygons) {
@@ -7331,10 +7560,10 @@ export function createSmoothSurfaces(
         continue;
       }
     }
-    if (shapes.length === 0) {
+    if (shapes.length === 0 && !pretriangulated) {
       return null;
     }
-    const placeGeometry = (source: ShapeGeometry): BufferGeometry => {
+    const placeGeometry = (source: BufferGeometry): BufferGeometry => {
       source.deleteAttribute("uv");
       let geometry: BufferGeometry = source;
       if (followTerrain && terrainTessellator) {
@@ -7364,6 +7593,9 @@ export function createSmoothSurfaces(
       }
       return geometry;
     };
+    if (pretriangulated) {
+      return placeGeometry(pretriangulated);
+    }
     try {
       // ShapeGeometry accepts an array. Building one family in a single pass
       // avoids allocating and then copying hundreds of temporary geometries
@@ -7564,6 +7796,9 @@ export function createSmoothSurfaces(
       roads.filter((entry) => entry.kind === surface.kind),
       terrainAt ? surface.lift : bankY + surface.lift,
       true,
+      surface.kind === "asphalt" || surface.kind === "paving"
+        ? options.pretriangulated?.[surface.kind]
+        : undefined,
     );
     if (!plate) {
       continue;
@@ -8929,6 +9164,7 @@ export function createIsometricCity(
   ground: VoxelPayload | null,
   tunnel?: TunnelPortalCourseInput | null,
   surfaces?: SurfacePayload | null,
+  options: IsometricCityBuildOptions = {},
 ): Group {
   const group = new Group();
   group.name = "Drawn isometric city (LoD2 prisms + ink lines)";
@@ -8987,7 +9223,7 @@ export function createIsometricCity(
     }
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   };
-  for (const building of prisms.buildings) {
+  for (const building of options.buildings ?? prisms.buildings) {
     if (
       building.ring.length < 3 ||
       PRISM_SUPPRESSED_IDS.has(building.id) ||
@@ -9043,13 +9279,19 @@ export function createIsometricCity(
         }
       }
     }
-    const geometry = new ExtrudeGeometry(shapeFromRings(building), {
-      bevelEnabled: false,
-      depth: bodyHeight,
-    });
+    let geometry: BufferGeometry = new ExtrudeGeometry(
+      shapeFromRings(building),
+      {
+        bevelEnabled: false,
+        depth: bodyHeight,
+      },
+    );
     geometry.rotateX(-Math.PI / 2);
     geometry.translate(0, y0, 0);
     geometry.deleteAttribute("uv");
+    if (PRISM_VISUAL_TOP_CAP_SUPPRESSED_IDS.has(building.id)) {
+      geometry = withoutVisualTopCap(geometry, y0 + bodyHeight);
+    }
     // Ink lines first (edges of the un-coloured prism)…
     const edges = new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES);
     edgeGeometries.push(edges);
@@ -9441,7 +9683,10 @@ export function createIsometricCity(
     // Hyperdetail bands: darker Sockel at the base of every wall and a
     // light protruding Gesims under the flat roof edge (pitched roofs
     // already carry their eaves).
-    if (totalHeight >= DETAIL_MIN_BUILDING_M) {
+    if (
+      totalHeight >= DETAIL_MIN_BUILDING_M &&
+      !GENERIC_FACADE_TRIM_SUPPRESSED_IDS.has(building.id)
+    ) {
       const sockelTone = color.clone().multiplyScalar(0.92);
       const corniceTone = color
         .clone()
@@ -9598,7 +9843,9 @@ export function createIsometricCity(
       );
       // Pinned heritage roofs keep their documented slate tone on slopes;
       // unpinned roofs retain the established darker-facade convention.
-      const pitchedRoofTone = HISTORIC_CHARITE_IDS.has(building.id)
+      const pitchedRoofTone =
+        HISTORIC_CHARITE_IDS.has(building.id) ||
+        REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id)
         ? capTone.clone()
         : color.clone().multiplyScalar(0.9);
       bakeColor(roofGeometry, pitchedRoofTone);
@@ -9623,7 +9870,12 @@ export function createIsometricCity(
       bodyGeometries.push(roofGeometry);
       // Gabled houses get their chimneys back: small drawn stacks on
       // the ridge (one, or two on long roofs), inked like everything.
-      if (roofCode === ROOF_GABLED && roofRect && roofRect.halfLength > 5) {
+      if (
+        roofCode === ROOF_GABLED &&
+        roofRect &&
+        roofRect.halfLength > 5 &&
+        !GENERIC_CHIMNEY_SUPPRESSED_IDS.has(building.id)
+      ) {
         const ridgeY = y0 + totalHeight;
         const stackOffsets = roofRect.halfLength > 10 ? [-0.45, 0.45] : [0.4];
         for (const offset of stackOffsets) {
@@ -10123,7 +10375,11 @@ export function createIsometricCity(
     if (kerbs) {
       group.add(kerbs);
     }
-    if (surfaces) {
+    const surfacesToBuild =
+      options.smoothSurfaces === undefined
+        ? surfaces
+        : options.smoothSurfaces;
+    if (surfacesToBuild) {
       // Smooth shoreline, bed, water plate and quay walls from the real
       // OSM rings ("weiche Flussufer", no more 4 m staircases), plus
       // lawn plates that cover the rasterised parkland steps.
@@ -10141,13 +10397,17 @@ export function createIsometricCity(
         );
       group.add(
         createSmoothSurfaces(
-          surfaces,
+          surfacesToBuild,
           ground.water_top_y_m ?? WATER_TOP_Y,
           bankY,
           terrainAt,
         ),
       );
-    } else {
+    } else if (!surfaces) {
+      // Only the true no-surface fallback owns raster quay walls. A
+      // progressive base deliberately defers its smooth surfaces (`null`) to
+      // the Worker; drawing this fallback there as well duplicated the entire
+      // embankment once the exact water batch arrived.
       const quays = createQuayWalls(ground);
       if (quays) {
         group.add(quays);
@@ -10158,15 +10418,20 @@ export function createIsometricCity(
       group.add(bridges);
     }
   }
-  group.add(createPresentationBackdrop());
-  group.add(createExtrapolatedMargin());
-  group.add(createSiegessaeule());
-  group.add(createHotelAdlon());
-  group.add(createPaulLoebeCanopy());
-  group.add(createLandmarkRefinements());
-  group.add(createGymnasiumTiergarten());
-  group.add(createHistoricChariteCampus(prisms));
-  group.add(createDeutschesTheater(prisms));
-  group.add(createTerrassenhausHafenplatz(prisms));
+  if (options.includeContext !== false) {
+    group.add(createPresentationBackdrop());
+    group.add(createExtrapolatedMargin());
+    group.add(createSiegessaeule());
+    group.add(createHotelAdlon());
+    group.add(createPaulLoebeCanopy());
+    group.add(createLandmarkRefinements());
+    group.add(createGymnasiumTiergarten());
+    group.add(createHistoricChariteCampus(prisms));
+    group.add(createDeutschesTheater(prisms));
+    group.add(createTerrassenhausHafenplatz(prisms));
+    group.add(createArdHauptstadtstudio(prisms));
+    group.add(createReichstagspraesidentenpalais(prisms));
+    group.add(createFederalStateRepresentations());
+  }
   return group;
 }

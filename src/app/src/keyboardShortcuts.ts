@@ -24,6 +24,9 @@ export function isPedestrianJumpKey(
   chord: Pick<ShortcutChord, "code" | "key">,
 ): boolean {
   return (
-    chord.code === "Space" || chord.key === " " || chord.key === "Spacebar"
+    chord.code === "Space" ||
+    chord.key === " " ||
+    chord.key === "Space" ||
+    chord.key === "Spacebar"
   );
 }

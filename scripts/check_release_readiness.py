@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import math
 import re
 import stat
+import struct
 import tarfile
 import tomllib
 import xml.etree.ElementTree as ET
@@ -26,6 +28,7 @@ REQUIRED_VIEWER_FILES = (
   "reference_map.png",
   "regierungsviertel.dzi",
   "tiergartentunnel.json",
+  "visual_reference_attribution.json",
   "wikimedia_attribution.json",
 )
 REQUIRED_REPORT_FILES = (
@@ -39,14 +42,23 @@ DZI_TILES_DIR = "regierungsviertel_files"
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
 PACKAGE_ZIP = f"{PACKAGE_NAME}.zip"
 MAX_REPOSITORY_BINARY_BYTES = 5 * 1024 * 1024
+MAX_GROUND_CONTEXT_BYTES = 3 * 1024 * 1024
+SURFACE_MANIFEST_FILE = "surface-pretriangulation.json"
+SURFACE_SOURCE_FILE = "surface-polygons.json"
+SURFACE_PLATE_FORMAT = "isometric-berlin-surface-plate"
+SURFACE_PLATE_STAGE = "post-earcut-pre-terrain-drape"
+SURFACE_PLATE_MAGIC = b"ISOPLT01"
+SURFACE_PLATE_HEADER_BYTES = 32
+SURFACE_PLATE_SCHEMA_VERSION = 1
+SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # The compressed download must remain below AGENTS.md's 200 MB ceiling. The
-# extracted offline copy has a separate 212 MiB integrity ceiling: task 11's
-# bounded mesh pairs plus the decimetre Tiergarten water network remain below
-# it while the ZIP stays below the 200 MiB compressed ceiling. The compact
-# 0.79 MiB ground-only startup context saves roughly 146 MiB of normal cold
-# start requests, so retaining it is materially more useful than preserving
-# the previous extracted ceiling.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 212 * 1024 * 1024
+# extracted offline copy has a separate 240 MiB integrity ceiling: the task-13
+# 500 m ring measures 238,895,458 extracted bytes (227.8 MiB), while both
+# compressed archives remain below the 200 MiB download ceiling. The compact
+# 2.22 MiB ground-only startup context covers the owner-approved task-13 hull
+# without thinning and saves roughly 146 MiB of normal cold-start requests, so
+# retaining it is materially more useful than the former 1 MiB micro-budget.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 240 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
@@ -79,13 +91,27 @@ REQUIRED_PACKAGE_ENTRIES = (
   "dzi/regierungsviertel/regierungsviertel.dzi",
   "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
   "dzi/regierungsviertel/tiergartentunnel.json",
+  "dzi/regierungsviertel/visual_reference_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
+  f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}",
+  f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}",
   "mesh/regierungsviertel/tile-3894_58196.glb",
 )
 REQUIRED_ATTRIBUTION = (
   "© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0)"
 )
+REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION = (
+  "Kindertransport visual references: © Pauline Ahrens, 2021 / "
+  "Bildhauerei in Berlin (CC BY 4.0)"
+)
+REQUIRED_KINDERTRANSPORT_REFERENCE_FILES = {
+  "MIT_095_1_Pauline_Ahrens_2021.jpg",
+  "MIT_095_3_Pauline_Ahrens_2021.jpg",
+  "MIT_095_6_Pauline_Ahrens_2021.jpg",
+  "MIT_095_7_Pauline_Ahrens_2021.jpg",
+  "MIT_095_13_Pauline_Ahrens_2021.jpg",
+}
 REQUIRED_HERO_MESHES = {
   "reichstag",
   "bundeskanzleramt",
@@ -166,6 +192,282 @@ def static_archive_name(version: str) -> str:
   return f"isometric-berlin-viewer-v{version}.tar.gz"
 
 
+def _js_number_to_string(value: int | float) -> str:
+  """Match the finite-number spelling used by JavaScript JSON.stringify."""
+  try:
+    number = float(value)
+  except OverflowError as exc:
+    raise ValueError("JSON number is outside JavaScript's finite range") from exc
+  if not math.isfinite(number):
+    raise ValueError("surface source contains a non-finite JSON number")
+  if number == 0:
+    return "0"
+
+  negative = number < 0
+  spelling = repr(abs(number))
+  if "e" in spelling:
+    coefficient, exponent_text = spelling.split("e", 1)
+    exponent = int(exponent_text)
+  else:
+    coefficient = spelling
+    exponent = 0
+  if "." in coefficient:
+    whole, fraction = coefficient.split(".", 1)
+  else:
+    whole, fraction = coefficient, ""
+  digits = (whole + fraction).lstrip("0")
+  decimal_exponent = exponent - len(fraction)
+  while len(digits) > 1 and digits.endswith("0"):
+    digits = digits[:-1]
+    decimal_exponent += 1
+
+  digit_count = len(digits)
+  decimal_point = digit_count + decimal_exponent
+  if -6 < decimal_point <= 0:
+    result = f"0.{('0' * -decimal_point)}{digits}"
+  elif digit_count <= decimal_point <= 21:
+    result = f"{digits}{'0' * (decimal_point - digit_count)}"
+  elif 0 < decimal_point <= 21:
+    result = f"{digits[:decimal_point]}.{digits[decimal_point:]}"
+  else:
+    mantissa = digits[0]
+    if digit_count > 1:
+      mantissa = f"{mantissa}.{digits[1:]}"
+    scientific_exponent = decimal_point - 1
+    sign = "+" if scientific_exponent >= 0 else ""
+    result = f"{mantissa}e{sign}{scientific_exponent}"
+  return f"-{result}" if negative else result
+
+
+def _js_array_index(key: str) -> int | None:
+  """Return the ECMAScript array-index value used for object-key ordering."""
+  if not key or not key.isascii() or not key.isdigit():
+    return None
+  if key != "0" and key.startswith("0"):
+    return None
+  index = int(key)
+  if index >= 2**32 - 1 or str(index) != key:
+    return None
+  return index
+
+
+def _js_json_stringify(value: object) -> str:
+  """Serialize parsed JSON with JSON.stringify's insertion/key ordering."""
+  if value is None:
+    return "null"
+  if value is True:
+    return "true"
+  if value is False:
+    return "false"
+  if isinstance(value, str):
+    return json.dumps(value, ensure_ascii=False)
+  if isinstance(value, int | float):
+    return _js_number_to_string(value)
+  if isinstance(value, list):
+    return f"[{','.join(_js_json_stringify(item) for item in value)}]"
+  if isinstance(value, dict):
+    indexed: list[tuple[int, str, object]] = []
+    named: list[tuple[str, object]] = []
+    for key, item in value.items():
+      if not isinstance(key, str):
+        raise ValueError("surface source has a non-string object key")
+      index = _js_array_index(key)
+      if index is None:
+        named.append((key, item))
+      else:
+        indexed.append((index, key, item))
+    ordered = [(key, item) for _, key, item in sorted(indexed)] + named
+    return (
+      "{"
+      + ",".join(
+        f"{json.dumps(key, ensure_ascii=False)}:{_js_json_stringify(item)}"
+        for key, item in ordered
+      )
+      + "}"
+    )
+  raise ValueError(f"surface source contains unsupported JSON value {type(value)!r}")
+
+
+def canonical_surface_source_sha256(data: bytes) -> str:
+  """Hash parsed surface JSON exactly as the browser's JSON.stringify does."""
+
+  def reject_constant(value: str) -> object:
+    raise ValueError(f"invalid JSON constant {value}")
+
+  payload = json.loads(data.decode("utf-8"), parse_constant=reject_constant)
+  canonical = _js_json_stringify(payload).encode("utf-8")
+  return hashlib.sha256(canonical).hexdigest()
+
+
+def surface_pretriangulation_manifest_failures(
+  manifest: dict[str, object],
+  *,
+  label: str,
+  source_reader: Callable[[str], bytes],
+  asset_reader: Callable[[str], bytes],
+  actual_plate_names: set[str] | None = None,
+) -> list[str]:
+  """Validate one progressive pre-triangulation manifest and all plate bytes."""
+  failures: list[str] = []
+  if manifest.get("format") != SURFACE_PLATE_FORMAT:
+    failures.append(f"Surface plate manifest has the wrong format: {label}")
+  schema_version = manifest.get("schema_version")
+  if type(schema_version) is not int or schema_version != SURFACE_PLATE_SCHEMA_VERSION:
+    failures.append(f"Surface plate manifest has the wrong schema version: {label}")
+  if manifest.get("stage") != SURFACE_PLATE_STAGE:
+    failures.append(f"Surface plate manifest has the wrong build stage: {label}")
+
+  source_file = manifest.get("source_file")
+  source_hash = manifest.get("source_sha256")
+  if source_file != SURFACE_SOURCE_FILE:
+    failures.append(f"Surface plate manifest has the wrong source file: {label}")
+  if not isinstance(source_hash, str) or not SHA256_RE.fullmatch(source_hash):
+    failures.append(f"Surface plate manifest has an invalid source SHA-256: {label}")
+  if source_file == SURFACE_SOURCE_FILE:
+    try:
+      source_data = source_reader(source_file)
+    except (FileNotFoundError, KeyError, OSError):
+      failures.append(f"Missing surface source {source_file}: {label}")
+    else:
+      try:
+        actual_source_hash = canonical_surface_source_sha256(source_data)
+      except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        failures.append(
+          f"Invalid canonical surface source {source_file}: {label}: {exc}"
+        )
+      else:
+        if source_hash != actual_source_hash:
+          failures.append(f"Surface source hash mismatch for {source_file}: {label}")
+
+  plates = manifest.get("plates")
+  if not isinstance(plates, list) or not plates:
+    failures.append(f"Surface plate manifest has no plates: {label}")
+    plates = []
+
+  seen_kinds: set[str] = set()
+  expected_plate_names: set[str] = set()
+  for entry in plates:
+    if not isinstance(entry, dict):
+      failures.append(f"Surface plate manifest has an invalid plate entry: {label}")
+      continue
+    kind = entry.get("kind")
+    if not isinstance(kind, str) or kind not in SURFACE_PLATE_KIND_CODES:
+      failures.append(
+        f"Surface plate manifest has an unsupported kind {kind!r}: {label}"
+      )
+      continue
+    if kind in seen_kinds:
+      failures.append(f"Surface plate manifest repeats kind {kind!r}: {label}")
+    seen_kinds.add(kind)
+
+    relative = entry.get("file")
+    if not isinstance(relative, str):
+      failures.append(f"Surface plate {kind!r} has no file: {label}")
+      continue
+    relative_path = PurePosixPath(relative)
+    if (
+      relative_path.is_absolute()
+      or relative_path.name != relative
+      or not relative.endswith(".plate.gz")
+      or "\\" in relative
+    ):
+      failures.append(f"Unsafe surface plate path {relative!r}: {label}")
+      continue
+    if relative in expected_plate_names:
+      failures.append(f"Surface plate manifest repeats file {relative!r}: {label}")
+    expected_plate_names.add(relative)
+
+    compressed_bytes = entry.get("compressed_bytes")
+    raw_bytes = entry.get("raw_bytes")
+    vertex_count = entry.get("vertex_count")
+    index_count = entry.get("index_count")
+    for field, value in (
+      ("compressed_bytes", compressed_bytes),
+      ("raw_bytes", raw_bytes),
+      ("vertex_count", vertex_count),
+      ("index_count", index_count),
+    ):
+      if type(value) is not int or value <= 0:
+        failures.append(f"Surface plate {relative!r} has invalid {field}: {label}")
+
+    try:
+      compressed = asset_reader(relative)
+    except (FileNotFoundError, KeyError, OSError):
+      failures.append(f"Missing referenced surface plate {relative}: {label}")
+      continue
+    if len(compressed) >= MAX_REPOSITORY_BINARY_BYTES:
+      failures.append(
+        f"Surface plate exceeds the strict 5 MiB limit ({relative}): {label}"
+      )
+    if type(compressed_bytes) is int and len(compressed) != compressed_bytes:
+      failures.append(f"Surface plate compressed byte mismatch for {relative}: {label}")
+    try:
+      raw = gzip.decompress(compressed)
+    except (EOFError, gzip.BadGzipFile, OSError) as exc:
+      failures.append(f"Invalid gzip surface plate {relative}: {label}: {exc}")
+      continue
+    if type(raw_bytes) is int and len(raw) != raw_bytes:
+      failures.append(f"Surface plate raw byte mismatch for {relative}: {label}")
+    if len(raw) < SURFACE_PLATE_HEADER_BYTES:
+      failures.append(f"Surface plate is shorter than its header ({relative}): {label}")
+      continue
+
+    (
+      magic,
+      version,
+      kind_code,
+      header_vertex_count,
+      header_index_count,
+      position_bytes,
+      index_bytes,
+    ) = struct.unpack("<8s6I", raw[:SURFACE_PLATE_HEADER_BYTES])
+    if magic != SURFACE_PLATE_MAGIC or version != SURFACE_PLATE_SCHEMA_VERSION:
+      failures.append(f"Surface plate has an unsupported header ({relative}): {label}")
+    if kind_code != SURFACE_PLATE_KIND_CODES[kind]:
+      failures.append(f"Surface plate kind header mismatch for {relative}: {label}")
+    if type(vertex_count) is int and header_vertex_count != vertex_count:
+      failures.append(f"Surface plate vertex count mismatch for {relative}: {label}")
+    if type(index_count) is int and header_index_count != index_count:
+      failures.append(f"Surface plate index count mismatch for {relative}: {label}")
+    if position_bytes != header_vertex_count * 3 * 4:
+      failures.append(f"Surface plate position byte mismatch for {relative}: {label}")
+    if index_bytes != header_index_count * 4:
+      failures.append(f"Surface plate index byte mismatch for {relative}: {label}")
+    if SURFACE_PLATE_HEADER_BYTES + position_bytes + index_bytes != len(raw):
+      failures.append(
+        f"Surface plate header byte total mismatch for {relative}: {label}"
+      )
+
+  if actual_plate_names is not None:
+    unexpected = sorted(actual_plate_names - expected_plate_names)
+    if unexpected:
+      failures.append(f"Unreferenced surface plate files in {label}: {unexpected[:3]}")
+  return failures
+
+
+def surface_pretriangulation_failures(mesh_root: Path) -> list[str]:
+  """Validate progressive surface assets in a source/build/package directory."""
+  manifest_path = mesh_root / SURFACE_MANIFEST_FILE
+  if not manifest_path.exists():
+    return [f"Missing surface plate manifest: {manifest_path}"]
+  try:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+  except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+    return [f"Invalid surface plate manifest: {manifest_path}: {exc}"]
+  if not isinstance(manifest, dict):
+    return [f"Surface plate manifest is not an object: {manifest_path}"]
+  actual_plate_names = {
+    path.name for path in mesh_root.glob("*.plate.gz") if path.is_file()
+  }
+  return surface_pretriangulation_manifest_failures(
+    manifest,
+    label=str(manifest_path),
+    source_reader=lambda relative: (mesh_root / relative).read_bytes(),
+    asset_reader=lambda relative: (mesh_root / relative).read_bytes(),
+    actual_plate_names=actual_plate_names,
+  )
+
+
 def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
   """Keep committed fallback images below the repository binary limit."""
   failures: list[str] = []
@@ -177,6 +479,39 @@ def viewer_binary_size_failures(public_dzi: Path) -> list[str]:
         f"({path.stat().st_size} bytes)"
       )
   return failures
+
+
+def visual_reference_attribution_failures(path: Path) -> list[str]:
+  """Keep every non-Wikimedia CC BY reference auditable in public output."""
+  if not path.exists():
+    return [f"Missing visual-reference attribution: {path}"]
+  try:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+  except json.JSONDecodeError as exc:
+    return [f"Invalid visual-reference attribution: {path}: {exc}"]
+  if payload.get("required_attribution") != REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION:
+    return [f"Visual-reference attribution lacks the required public credit: {path}"]
+  records = payload.get("records")
+  if not isinstance(records, list):
+    return [f"Visual-reference attribution has no records: {path}"]
+  titles = {
+    str(record.get("title", ""))
+    for record in records
+    if isinstance(record, dict)
+    and record.get("artist") == "Pauline Ahrens"
+    and record.get("year") == 2021
+    and record.get("license") == "CC BY 4.0"
+    and record.get("license_url") == "https://creativecommons.org/licenses/by/4.0/"
+    and str(record.get("page_url", "")).startswith(
+      "https://bildhauerei-in-berlin.de/bildwerk/"
+    )
+    and str(record.get("file_url", "")).startswith(
+      "https://bildhauerei-in-berlin.de/wp-content/uploads/"
+    )
+  }
+  if titles != REQUIRED_KINDERTRANSPORT_REFERENCE_FILES:
+    return [f"Visual-reference attribution has incomplete per-file credits: {path}"]
+  return []
 
 
 def webgl_manifest_failures(
@@ -493,16 +828,24 @@ def webgl_scene_failures(public_mesh: Path) -> list[str]:
     return [f"Missing bundled WebGL scene: {scene_path}"]
   if not ground_context.exists():
     return [f"Missing fast-start ground context: {ground_context}"]
-  if ground_context.stat().st_size >= 1024 * 1024:
-    return [f"Fast-start ground context exceeds 1 MiB: {ground_context}"]
+  if ground_context.stat().st_size > MAX_GROUND_CONTEXT_BYTES:
+    return [
+      "Fast-start ground context exceeds "
+      f"{MAX_GROUND_CONTEXT_BYTES // 1024 // 1024} MiB: {ground_context}"
+    ]
   try:
     ground_payload = json.loads(ground_context.read_text(encoding="utf-8"))
   except json.JSONDecodeError as exc:
     return [f"Invalid fast-start ground context: {ground_context}: {exc}"]
+  building_rows = None
+  tree_rows = None
+  if isinstance(ground_payload, dict):
+    building_rows = ground_payload.get("building_rows", ground_payload.get("buildings"))
+    tree_rows = ground_payload.get("tree_rows", ground_payload.get("trees"))
   if (
     not isinstance(ground_payload, dict)
-    or ground_payload.get("buildings") != []
-    or ground_payload.get("trees") != []
+    or building_rows != []
+    or tree_rows != []
     or not ground_payload.get("ground_rows")
     or not ground_payload.get("ground_height")
   ):
@@ -919,6 +1262,10 @@ def package_start_here_failures(start_here_text: str, label: str) -> list[str]:
     failures.append(
       f"Package HTML launcher does not reference overview_source.png: {label}"
     )
+  if REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION not in start_here_text:
+    failures.append(
+      f"Package HTML launcher lacks the Kindertransport photo credit: {label}"
+    )
   if (
     "sourceImage" not in start_here_text
     or "landmarkScaleX" not in start_here_text
@@ -1148,6 +1495,7 @@ def package_manifest_failures(
   if (
     REQUIRED_ATTRIBUTION not in attribution
     or "Wikimedia Commons/Wikipedia" not in attribution
+    or REQUIRED_KINDERTRANSPORT_VISUAL_ATTRIBUTION not in attribution
     or "Berlin Partner für Wirtschaft und Technologie GmbH" not in attribution
   ):
     failures.append(f"Package manifest lacks required attribution: {label}")
@@ -1156,31 +1504,45 @@ def package_manifest_failures(
   if not isinstance(assets, dict):
     return failures + [f"Package manifest has no asset inventory: {label}"]
 
-  for required in [
+  required_asset_labels = [
     "detail_image",
     "pixel_image",
     "dzi_descriptor",
     "reference_map",
     "landmarks",
     "tiergartentunnel_overlay",
+    "visual_reference_attribution",
     "wikimedia_attribution",
     "webgl_scene",
     "ground_context",
+    "surface_source",
+    "surface_pretriangulation",
     "start_page",
-  ]:
+  ]
+  for required in required_asset_labels:
     entry = assets.get(required)
     if not isinstance(entry, dict):
       failures.append(f"Package manifest lacks asset {required!r}: {label}")
+  asset_paths: set[str] = set()
+  for asset_label, entry in assets.items():
+    if not isinstance(entry, dict):
+      failures.append(f"Package manifest asset {asset_label!r} is invalid: {label}")
       continue
     relative = str(entry.get("path", ""))
     expected_hash = str(entry.get("sha256", ""))
     expected_size = entry.get("bytes")
-    if not relative or not expected_hash or not isinstance(expected_size, int):
-      failures.append(f"Package manifest asset {required!r} is incomplete: {label}")
+    if (
+      not relative
+      or not SHA256_RE.fullmatch(expected_hash)
+      or type(expected_size) is not int
+      or expected_size < 0
+    ):
+      failures.append(f"Package manifest asset {asset_label!r} is incomplete: {label}")
       continue
+    asset_paths.add(relative)
     try:
       data = asset_reader(relative)
-    except (FileNotFoundError, KeyError):
+    except (FileNotFoundError, KeyError, OSError):
       failures.append(f"Package manifest references missing asset {relative}: {label}")
       continue
     actual_hash = hashlib.sha256(data).hexdigest()
@@ -1188,6 +1550,36 @@ def package_manifest_failures(
       failures.append(f"Package manifest asset size mismatch for {relative}: {label}")
     if actual_hash != expected_hash:
       failures.append(f"Package manifest asset hash mismatch for {relative}: {label}")
+
+  surface_manifest_relative = f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}"
+  surface_source_relative = f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}"
+  required_surface_paths = {surface_manifest_relative, surface_source_relative}
+  try:
+    surface_manifest = json.loads(
+      asset_reader(surface_manifest_relative).decode("utf-8")
+    )
+  except (
+    FileNotFoundError,
+    KeyError,
+    OSError,
+    UnicodeDecodeError,
+    json.JSONDecodeError,
+  ):
+    surface_manifest = None
+  if isinstance(surface_manifest, dict):
+    plates = surface_manifest.get("plates")
+    if isinstance(plates, list):
+      required_surface_paths.update(
+        f"mesh/regierungsviertel/{entry['file']}"
+        for entry in plates
+        if isinstance(entry, dict) and isinstance(entry.get("file"), str)
+      )
+  missing_surface_inventory = sorted(required_surface_paths - asset_paths)
+  if missing_surface_inventory:
+    failures.append(
+      "Package manifest does not cover progressive surface assets: "
+      f"{label} ({missing_surface_inventory[:3]})"
+    )
   return failures
 
 
@@ -1361,6 +1753,38 @@ def zip_webgl_scene_failures(
   )
 
 
+def zip_surface_pretriangulation_failures(
+  archive: zipfile.ZipFile, names: set[str], zip_path: Path
+) -> list[str]:
+  """Validate the progressive surface files carried by the offline ZIP."""
+  prefix = package_arcname("mesh/regierungsviertel")
+  manifest_name = f"{prefix}/{SURFACE_MANIFEST_FILE}"
+  if manifest_name not in names:
+    return []
+  try:
+    manifest = json.loads(archive.read(manifest_name).decode("utf-8"))
+  except (KeyError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+    return [
+      f"Invalid packaged surface plate manifest: {zip_path}!{manifest_name}: {exc}"
+    ]
+  if not isinstance(manifest, dict):
+    return [
+      f"Packaged surface plate manifest is not an object: {zip_path}!{manifest_name}"
+    ]
+  actual_plate_names = {
+    name.removeprefix(f"{prefix}/")
+    for name in names
+    if name.startswith(f"{prefix}/") and name.endswith(".plate.gz")
+  }
+  return surface_pretriangulation_manifest_failures(
+    manifest,
+    label=f"{zip_path}!{manifest_name}",
+    source_reader=lambda relative: archive.read(f"{prefix}/{relative}"),
+    asset_reader=lambda relative: archive.read(f"{prefix}/{relative}"),
+    actual_plate_names=actual_plate_names,
+  )
+
+
 def zip_package_failures(root: Path = ROOT) -> list[str]:
   zip_path = root / "releases" / PACKAGE_ZIP
   if not zip_path.exists():
@@ -1414,6 +1838,7 @@ def zip_package_failures(root: Path = ROOT) -> list[str]:
           )
         )
       failures.extend(zip_webgl_scene_failures(archive, names, zip_path))
+      failures.extend(zip_surface_pretriangulation_failures(archive, names, zip_path))
 
       for name in names:
         if name.endswith("/"):
@@ -1521,6 +1946,8 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
         "index.html",
         "mesh/regierungsviertel/scene.json",
         "mesh/regierungsviertel/ground-context.json",
+        f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}",
+        f"mesh/regierungsviertel/{SURFACE_SOURCE_FILE}",
         "mesh/regierungsviertel/tile-3894_58196.glb",
         "dzi/regierungsviertel/regierungsviertel.dzi",
         "dzi/regierungsviertel/regierungsviertel_files/12/0_0.jpg",
@@ -1570,6 +1997,36 @@ def static_tarball_failures(root: Path = ROOT) -> list[str]:
                 label=f"{tar_path}!{scene_name}",
                 asset_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
                 actual_asset_names=actual_assets,
+              )
+            )
+
+      surface_manifest_name = f"mesh/regierungsviertel/{SURFACE_MANIFEST_FILE}"
+      if surface_manifest_name in files:
+        try:
+          surface_manifest = json.loads(
+            read_member(surface_manifest_name).decode("utf-8")
+          )
+        except (KeyError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+          failures.append(f"Invalid static surface plate manifest: {tar_path}: {exc}")
+        else:
+          if not isinstance(surface_manifest, dict):
+            failures.append(
+              f"Static surface plate manifest is not an object: {tar_path}"
+            )
+          else:
+            mesh_prefix = "mesh/regierungsviertel/"
+            actual_plates = {
+              name.removeprefix(mesh_prefix)
+              for name in files
+              if name.startswith(mesh_prefix) and name.endswith(".plate.gz")
+            }
+            failures.extend(
+              surface_pretriangulation_manifest_failures(
+                surface_manifest,
+                label=f"{tar_path}!{surface_manifest_name}",
+                source_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
+                asset_reader=lambda relative: read_member(f"{mesh_prefix}{relative}"),
+                actual_plate_names=actual_plates,
               )
             )
 
@@ -1682,6 +2139,11 @@ def collect_failures(
     if not (public_dzi / filename).exists():
       failures.append(f"Missing bundled viewer asset: {public_dzi / filename}")
   failures.extend(viewer_binary_size_failures(public_dzi))
+  failures.extend(
+    visual_reference_attribution_failures(
+      public_dzi / "visual_reference_attribution.json"
+    )
+  )
   failures.extend(dzi_tile_failures(public_dzi))
   public_descriptor = public_dzi / DZI_DESCRIPTOR
   public_landmarks = public_dzi / "landmarks.json"
@@ -1695,6 +2157,9 @@ def collect_failures(
     )
   public_mesh = root / "src" / "app" / "public" / "mesh" / "regierungsviertel"
   failures.extend(webgl_scene_failures(public_mesh))
+  failures.extend(surface_pretriangulation_failures(public_mesh))
+  dist_mesh = root / "src" / "app" / "dist" / "mesh" / "regierungsviertel"
+  failures.extend(surface_pretriangulation_failures(dist_mesh))
   failures.extend(webgl_viewer_source_failures(root))
   tunnel_payload = public_dzi / "tiergartentunnel.json"
   if tunnel_payload.exists():
@@ -1788,6 +2253,9 @@ def collect_failures(
       )
     packaged_mesh = package_dir / "mesh" / "regierungsviertel"
     failures.extend(webgl_scene_failures(packaged_mesh))
+    failures.extend(surface_pretriangulation_failures(packaged_mesh))
+  elif require_package_zip or require_static_tarball:
+    failures.append(f"Missing extracted package directory: {package_dir}")
 
   zip_path = root / "releases" / PACKAGE_ZIP
   if require_package_zip or zip_path.exists():

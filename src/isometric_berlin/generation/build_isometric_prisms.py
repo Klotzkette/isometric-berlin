@@ -68,14 +68,14 @@ DEFAULT_OVERVIEW_BOUNDS = (
 
 # Projection of the render that produced the COMMITTED overview_source.png and
 # landmarks.json: render_overview geometry (project_point on a rectangular
-# 16384×11616 canvas with a 32768 px detail budget). The task-10 render used a
-# 440 m context both when creating its expanded quad and inside
-# render_quadrant, so the effective per-side projection margin is 880 m. Keep
+# 16384×11616 canvas with a 32768 px detail budget). The task-13 render uses a
+# 395 m context both when creating its expanded quad and inside
+# render_quadrant, so the effective per-side projection margin is 790 m. Keep
 # the explicit effective value pinned to the committed landmark pixels.
 OVERVIEW_RENDER_PX = 32_768
 OVERVIEW_CANVAS_WIDTH = 16_384
 OVERVIEW_CANVAS_HEIGHT = 11_616
-OVERVIEW_MARGIN_M = 880.0
+OVERVIEW_MARGIN_M = 790.0
 # landmarks.json markers were projected at 18 m elevation (landmark_records).
 OVERVIEW_LANDMARK_HEIGHT_M = 18.0
 
@@ -356,16 +356,18 @@ def build_payload(
       ),
     },
     "source": {
-      "name": "Berlin LoD2 building prisms (drawn-isometric mode)",
+      "name": "Berlin LoD2 + OSM context building prisms (drawn-isometric mode)",
       "attribution": ATTRIBUTION,
       "licenses": {
         "lod2_buildings": "dl-de/zero-2-0 (Geoportal Berlin)",
+        "osm_context": "ODbL-1.0 (© OpenStreetMap contributors)",
         "ground_samples": "dl-de/zero-2-0 (Geoportal Berlin tree/lighting points)",
       },
       "geometry_status": (
-        "True LoD2 footprint polygons simplified at 0.15 m to remove collinear "
-        "noise; measured heights unsnapped; ground from IDW over committed "
-        "detail samples"
+        "Authoritative LoD2 footprint polygons take precedence; a non-overlapping "
+        "OSM sidecar supplies context buildings where LoD2 is absent. Rings are "
+        "simplified at 0.15 m; heights stay unsnapped and source-qualified; ground "
+        "comes from IDW over committed detail samples"
       ),
       "tone_source": (
         "Per-prism 'tone' sampled from the committed drawn overview "
@@ -385,7 +387,10 @@ def write_payload(payload: dict[str, Any], out_path: Path) -> int:
   out_path.write_text(text, encoding="utf-8")
   size = out_path.stat().st_size
   if size > MAX_PAYLOAD_BYTES:
-    raise ValueError(f"Prism payload is {size} bytes, above the 5 MB budget")
+    raise ValueError(
+      f"Prism payload is {size} bytes, above the "
+      f"{MAX_PAYLOAD_BYTES / 1024 / 1024:g} MiB budget"
+    )
   return size
 
 
@@ -417,7 +422,7 @@ def main(argv: list[str] | None = None) -> None:
   hole_count = sum(len(entry["holes"]) for entry in entries)
   print(f"Wrote {args.out} ({size / 1024:.0f} KiB)")
   print(
-    f"{stats['source_rows']} LoD2 rows, {stats['parts']} footprint parts, "
+    f"{stats['source_rows']} resolved building rows, {stats['parts']} footprint parts, "
     f"{len(entries)} prisms kept, {stats['dropped_parts']} degenerate parts and "
     f"{stats['dropped_flat_rows']} flat (<0.05 m) rows dropped"
   )

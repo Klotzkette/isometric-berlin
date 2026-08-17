@@ -55,6 +55,10 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
+import {
+  createLeipzigerPlatzDetails,
+  LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE,
+} from "./LeipzigerPlatzDetails";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
 export type ExpandedLandmark = {
@@ -79,6 +83,12 @@ export {
   TILLA_DURIEUX_PROFILE,
   WELT_BALLOON_PROFILE,
 } from "./expandedCityProfiles";
+export {
+  createLeipzigerPlatzDetails,
+  LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE,
+  LEIPZIGER_PLATZ_PORTALS,
+  leipzigerPlatzPortalAt,
+} from "./LeipzigerPlatzDetails";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -594,6 +604,7 @@ function addFacadeSegment(
   height: number,
   depth = 0.22,
   lamp = false,
+  inked = false,
 ): void {
   const deltaX = end[0] - start[0];
   const deltaZ = end[1] - start[1];
@@ -602,7 +613,7 @@ function addFacadeSegment(
   const geometry = new BoxGeometry(length + 0.08, height, depth);
   geometry.rotateY(-Math.atan2(deltaZ, deltaX));
   geometry.translate((start[0] + end[0]) / 2, centerY, (start[1] + end[1]) / 2);
-  addCustomGeometry(builder, geometry, color, false, lamp);
+  addCustomGeometry(builder, geometry, color, inked, lamp);
 }
 
 function addBeamBetween(
@@ -3970,42 +3981,349 @@ function addPotsdamerUndergroundStation(builder: Builder): void {
     );
   }
   addLocalBox(builder, 0xb7aa90, station, 0, 1.1, 4, 51, 0.8, 10, rotation);
-  for (const localX of [-18, 18]) {
-    addRamp(
-      builder,
-      0xb6aa94,
-      station.x + localX,
-      -1.6,
-      station.z - 34,
-      5.2,
-      31,
-      8.9,
-      rotation,
+}
+
+function addPotsdamerEntranceHalls(
+  builder: Builder,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (!byName.has("Mall of Berlin")) return;
+  const profile = POTSDAMER_DETAIL_PROFILE.stationEntranceHalls;
+
+  for (const hall of profile.halls) {
+    const origin = new Vector3(
+      hall.centerWorldM[0],
+      hall.groundY,
+      hall.centerWorldM[1],
     );
-    addLocalBox(
+    const [width, depth] = hall.footprintSizeM;
+    const halfWidth = width / 2;
+    const halfDepth = depth / 2;
+    const topY = hall.groundY + hall.officialHeightM;
+    const fasciaHeight = 0.82;
+    const frameStroke = 0.34;
+    const glazedHeight = hall.officialHeightM - fasciaHeight - 0.34;
+    const glazedCenterY = hall.groundY + glazedHeight / 2 + 0.17;
+    const frontSide = hall.frontSide;
+    const backSide = -frontSide;
+
+    // The two halls keep their exact LoD2 plan and top height. Their bodies
+    // remain visibly hollow: three thin glass planes, an open entrance front
+    // and a welded steel grid replace the former pair of tiny solid canopies.
+    addPolygonPrism(
       builder,
-      DARK_FRAME,
-      station,
-      localX,
-      station.y + 1.15,
-      -48,
-      8.4,
-      2.3,
-      4.8,
-      rotation,
+      GLASS,
+      hall.footprintRingWorldM,
+      topY - 0.12,
+      0.12,
+      false,
     );
     addLocalBox(
       builder,
       GLASS,
-      station,
-      localX,
-      station.y + 3.25,
-      -48,
-      9.4,
-      0.28,
-      5.8,
-      rotation,
+      origin,
+      0,
+      glazedCenterY,
+      backSide * (halfDepth - 0.09),
+      width - frameStroke * 2,
+      glazedHeight,
+      0.12,
+      hall.rotationY,
+      false,
     );
+    for (const side of [-1, 1]) {
+      addLocalBox(
+        builder,
+        GLASS,
+        origin,
+        side * (halfWidth - 0.09),
+        glazedCenterY,
+        0,
+        0.12,
+        glazedHeight,
+        depth - frameStroke * 2,
+        hall.rotationY,
+        false,
+      );
+    }
+
+    // Perimeter frame and corner columns stay wholly inside the official
+    // source footprint instead of adding another unmeasured outer shell.
+    for (const side of [-1, 1]) {
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        origin,
+        0,
+        topY - fasciaHeight / 2,
+        side * (halfDepth - frameStroke / 2),
+        width,
+        fasciaHeight,
+        frameStroke,
+        hall.rotationY,
+      );
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        origin,
+        side * (halfWidth - frameStroke / 2),
+        topY - fasciaHeight / 2,
+        0,
+        frameStroke,
+        fasciaHeight,
+        depth,
+        hall.rotationY,
+      );
+      for (const depthSide of [-1, 1]) {
+        addLocalBox(
+          builder,
+          DARK_FRAME,
+          origin,
+          side * (halfWidth - frameStroke / 2),
+          hall.groundY + hall.officialHeightM / 2,
+          depthSide * (halfDepth - frameStroke / 2),
+          frameStroke,
+          hall.officialHeightM,
+          frameStroke,
+          hall.rotationY,
+        );
+      }
+    }
+
+    // Roof carrier grid: ten bays across and six in depth, matching the
+    // repeated welded hollow-box rhythm visible in the architect/Commons
+    // references while remaining explicitly presentation geometry.
+    for (let bay = 1; bay < profile.roofBayCountAcross; bay += 1) {
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        origin,
+        -halfWidth + (width * bay) / profile.roofBayCountAcross,
+        topY - 0.18,
+        0,
+        0.16,
+        0.26,
+        depth - frameStroke * 2,
+        hall.rotationY,
+        false,
+      );
+    }
+    for (let bay = 1; bay < profile.roofBayCountDepth; bay += 1) {
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        origin,
+        0,
+        topY - 0.18,
+        -halfDepth + (depth * bay) / profile.roofBayCountDepth,
+        width - frameStroke * 2,
+        0.26,
+        0.16,
+        hall.rotationY,
+        false,
+      );
+    }
+
+    // Three rows of glass wall panels and slender mullions. The front stays
+    // open; the side walls receive the characteristic diagonal steel braces.
+    for (let row = 1; row < profile.wallPanelRows; row += 1) {
+      const y = hall.groundY + (glazedHeight * row) / profile.wallPanelRows;
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        origin,
+        0,
+        y,
+        backSide * (halfDepth - 0.14),
+        width - frameStroke,
+        0.13,
+        0.16,
+        hall.rotationY,
+        false,
+      );
+      for (const side of [-1, 1]) {
+        addLocalBox(
+          builder,
+          DARK_FRAME,
+          origin,
+          side * (halfWidth - 0.14),
+          y,
+          0,
+          0.16,
+          0.13,
+          depth - frameStroke,
+          hall.rotationY,
+          false,
+        );
+      }
+    }
+    for (let bay = 1; bay < profile.roofBayCountAcross; bay += 1) {
+      addLocalBox(
+        builder,
+        DARK_FRAME,
+        origin,
+        -halfWidth + (width * bay) / profile.roofBayCountAcross,
+        glazedCenterY,
+        backSide * (halfDepth - 0.14),
+        0.13,
+        glazedHeight,
+        0.16,
+        hall.rotationY,
+        false,
+      );
+    }
+    for (const side of [-1, 1]) {
+      for (let bay = 1; bay < profile.roofBayCountDepth; bay += 1) {
+        addLocalBox(
+          builder,
+          DARK_FRAME,
+          origin,
+          side * (halfWidth - 0.14),
+          glazedCenterY,
+          -halfDepth + (depth * bay) / profile.roofBayCountDepth,
+          0.16,
+          glazedHeight,
+          0.13,
+          hall.rotationY,
+          false,
+        );
+      }
+    }
+    const localPoint = (
+      localX: number,
+      y: number,
+      localZ: number,
+    ): Vector3 => {
+      const [offsetX, offsetZ] = rotatedLocalOffset(
+        localX,
+        localZ,
+        hall.rotationY,
+      );
+      return new Vector3(origin.x + offsetX, y, origin.z + offsetZ);
+    };
+    for (const side of [-1, 1]) {
+      for (let bay = 0; bay < profile.roofBayCountDepth; bay += 2) {
+        const z0 = -halfDepth + (depth * bay) / profile.roofBayCountDepth;
+        const z1 =
+          -halfDepth +
+          (depth * Math.min(profile.roofBayCountDepth, bay + 2)) /
+            profile.roofBayCountDepth;
+        addBeamBetween(
+          builder,
+          DARK_FRAME,
+          localPoint(
+            side * (halfWidth - 0.17),
+            hall.groundY + 0.3,
+            z0 + 0.2,
+          ),
+          localPoint(
+            side * (halfWidth - 0.17),
+            topY - fasciaHeight - 0.2,
+            z1 - 0.2,
+          ),
+          0.12,
+        );
+        addBeamBetween(
+          builder,
+          DARK_FRAME,
+          localPoint(
+            side * (halfWidth - 0.17),
+            topY - fasciaHeight - 0.2,
+            z0 + 0.2,
+          ),
+          localPoint(
+            side * (halfWidth - 0.17),
+            hall.groundY + 0.3,
+            z1 - 0.2,
+          ),
+          0.12,
+        );
+      }
+    }
+
+    // Two stair/escalator banks descend from each hall's mapped entrance
+    // edge. The below-grade run is diagrammatic and does not change the LoD2
+    // footprint or claim an as-built underground survey.
+    addLocalBox(
+      builder,
+      0x30383a,
+      origin,
+      0,
+      hall.groundY + 0.035,
+      frontSide * (halfDepth - 6.8),
+      16.4,
+      0.07,
+      11.4,
+      hall.rotationY,
+      false,
+    );
+    for (const bankX of [-5.0, 5.0]) {
+      for (let step = 0; step < 11; step += 1) {
+        addLocalBox(
+          builder,
+          0xbdb9ae,
+          origin,
+          bankX,
+          hall.groundY + 0.16 - step * 0.14,
+          frontSide * (halfDepth - 1.8 - step * 0.84),
+          4.4,
+          0.16,
+          0.88,
+          hall.rotationY,
+          false,
+        );
+      }
+      for (const railSide of [-1, 1]) {
+        addBeamBetween(
+          builder,
+          0x7c8587,
+          localPoint(
+            bankX + railSide * 2.05,
+            hall.groundY + 1.05,
+            frontSide * (halfDepth - 1.45),
+          ),
+          localPoint(
+            bankX + railSide * 2.05,
+            hall.groundY - 0.9,
+            frontSide * (halfDepth - 10.7),
+          ),
+          0.11,
+        );
+      }
+    }
+  }
+}
+
+function addPotsdamerEntranceHallLettering(
+  group: Group,
+  byName: Map<string, ExpandedLandmark>,
+): void {
+  if (!byName.has("Mall of Berlin")) return;
+  const profile = POTSDAMER_DETAIL_PROFILE.stationEntranceHalls;
+  for (const hall of profile.halls) {
+    const [width, depth] = hall.footprintSizeM;
+    const [offsetX, offsetZ] = rotatedLocalOffset(
+      0,
+      hall.frontSide * (depth / 2 - 0.03),
+      hall.rotationY,
+    );
+    const sign = createLetterSign(
+      "BAHNHOF POTSDAMER PLATZ",
+      width - 1.1,
+      0.74,
+      new Vector3(
+        hall.centerWorldM[0] + offsetX,
+        hall.groundY + hall.officialHeightM - 0.43,
+        hall.centerWorldM[1] + offsetZ,
+      ),
+      hall.rotationY + (hall.frontSide < 0 ? Math.PI : 0),
+      "#4f5759",
+      "#f1eee6",
+    );
+    if (!sign) continue;
+    sign.name = `Potsdamer Platz ${hall.key} hall fascia lettering`;
+    sign.userData.sourceBuildingId = hall.sourceBuildingId;
+    group.add(sign);
   }
 }
 
@@ -4016,78 +4334,6 @@ function addPotsdamerWilhelmDetails(
   if (!byName.has("Mall of Berlin")) return;
   addPotsdamerUndergroundStation(builder);
   const profile = POTSDAMER_DETAIL_PROFILE;
-
-  const mall = anchor(byName, "Mall of Berlin");
-  if (mall) {
-    // Two deep-looking pedestrian passages and their restrained stone arcade
-    // identify the Leipziger-Platz block without pretending to subtract the
-    // openings from the authoritative LoD2 shell.
-    const facadeZ = mall.z + profile.mallSouthFacadeOffsetM;
-    for (const localX of [-25, 25]) {
-      addBox(
-        builder,
-        0x718b8b,
-        mall.x + localX,
-        mall.y + 5.2,
-        facadeZ,
-        13,
-        9.8,
-        0.35,
-        -0.04,
-        false,
-      );
-      for (const mullionX of [-4.2, 0, 4.2]) {
-        addBox(
-          builder,
-          DARK_FRAME,
-          mall.x + localX + mullionX,
-          mall.y + 5.2,
-          facadeZ - 0.22,
-          0.18,
-          9.1,
-          0.18,
-          -0.04,
-          false,
-        );
-      }
-      addBox(
-        builder,
-        0xb4c4bd,
-        mall.x + localX,
-        mall.y + 5.1,
-        facadeZ - 0.24,
-        12.5,
-        0.18,
-        0.18,
-        -0.04,
-        false,
-      );
-      for (const columnX of [-6.9, 6.9]) {
-        addBox(
-          builder,
-          SANDSTONE,
-          mall.x + localX + columnX,
-          mall.y + 5.4,
-          facadeZ - 0.4,
-          1.15,
-          10.8,
-          1.15,
-          -0.04,
-        );
-      }
-      addBox(
-        builder,
-        IVORY,
-        mall.x + localX,
-        mall.y + 10.7,
-        facadeZ - 0.4,
-        15.2,
-        1.2,
-        1.35,
-        -0.04,
-      );
-    }
-  }
 
   const spielbank = fixedWorldPoint(profile.spielbankWorldM);
   addBox(
@@ -4113,65 +4359,6 @@ function addPotsdamerWilhelmDetails(
     2.8,
     -0.03,
   );
-
-  const hessen = fixedWorldPoint(profile.hessenRepresentationWorldM);
-  addLocalBox(
-    builder,
-    0xded7c8,
-    hessen,
-    0,
-    hessen.y + 10.6,
-    0,
-    38,
-    21.2,
-    35,
-    -0.079,
-  );
-  // The steel-and-glass conference volume visibly cantilevers over the garden.
-  addLocalBox(
-    builder,
-    0x596f73,
-    hessen,
-    -10.5,
-    hessen.y + 15.8,
-    -19.2,
-    24,
-    8.8,
-    13.5,
-    -0.079,
-  );
-  for (let bay = -3; bay <= 3; bay += 1) {
-    addLocalLampBox(
-      builder,
-      0x91b7ba,
-      hessen,
-      bay * 4.7,
-      hessen.y + 9.8,
-      -17.7,
-      3,
-      5.4,
-      0.18,
-      -0.079,
-    );
-  }
-
-  const taylor = fixedWorldPoint(profile.taylorWessingWorldM);
-  for (let floor = 0; floor < 6; floor += 1) {
-    for (let bay = -4; bay <= 4; bay += 1) {
-      addLocalLampBox(
-        builder,
-        0x6f979c,
-        taylor,
-        bay * 4.2,
-        taylor.y + 4.2 + floor * 3.35,
-        -15.1,
-        2.5,
-        2.15,
-        0.18,
-        -0.075,
-      );
-    }
-  }
 
   const czech = fixedWorldPoint(profile.czechEmbassyWorldM);
   addLocalBox(
@@ -5098,49 +5285,49 @@ function addMoabitPrisonPark(
   );
   const rotation = profile.rotationY;
 
-  const wallSegment = (
-    localX: number,
-    localZ: number,
-    length: number,
-    alongX: boolean,
-  ): void => {
-    addLocalBox(
-      builder,
-      PRISON_BRICK,
-      origin,
-      localX,
-      profile.groundY + profile.preservedWallHeightM / 2,
-      localZ,
-      alongX ? length : 0.82,
-      profile.preservedWallHeightM,
-      alongX ? 0.82 : length,
-      rotation,
-    );
-    for (let course = 1; course < 10; course += 1) {
-      addLocalBox(
-        builder,
-        PRISON_MORTAR,
-        origin,
-        localX,
-        profile.groundY + course * 0.5,
-        localZ,
-        alongX ? length + 0.03 : 0.87,
-        0.035,
-        alongX ? 0.87 : length + 0.03,
-        rotation,
-        false,
-      );
-    }
-  };
+  // Way 498278335 is deliberately retained vertex-for-vertex. The low park
+  // plate makes its irregular plan legible and, unlike the removed rotated
+  // rectangle, never reaches the B96/Tiergartentunnel carriageway.
+  addPolygonPrism(
+    builder,
+    PARK_GREEN,
+    profile.parkRingWorldM,
+    profile.groundY + 0.015,
+    0.055,
+    false,
+  );
 
-  // Three preserved five-metre wall sides, each interrupted by a documented
-  // present-day entrance rather than falsely closing the park as a box.
-  wallSegment(-55, -74, 82, true);
-  wallSegment(57, -74, 78, true);
-  wallSegment(-94, -35, 70, false);
-  wallSegment(-94, 49, 82, false);
-  wallSegment(-48, 78, 84, true);
-  wallSegment(55, 78, 70, true);
+  // The surviving perimeter is mapped as four separate OSM barrier ways.
+  // Drawing every source segment preserves the real bends and the entrance
+  // breaks instead of completing a fictitious box across Heidestrasse.
+  for (const wallPath of profile.preservedWallPathsWorldM) {
+    for (let index = 0; index < wallPath.length - 1; index += 1) {
+      const start = wallPath[index];
+      const end = wallPath[index + 1];
+      addFacadeSegment(
+        builder,
+        PRISON_BRICK,
+        start,
+        end,
+        profile.groundY + profile.preservedWallHeightM / 2,
+        profile.preservedWallHeightM,
+        0.82,
+        false,
+        true,
+      );
+      for (let course = 1; course < 10; course += 1) {
+        addFacadeSegment(
+          builder,
+          PRISON_MORTAR,
+          start,
+          end,
+          profile.groundY + course * 0.5,
+          0.035,
+          0.87,
+        );
+      }
+    }
+  }
 
   // Central observation area: open concrete cube inside the circular place.
   const panopticon = new RingGeometry(10.4, 10.95, 42);
@@ -5811,23 +5998,6 @@ function addRooftopSigns(
     spielbank.name = "Spielbank Berlin facade lettering";
     group.add(spielbank);
   }
-  const taylor = createLetterSign(
-    "TAYLOR WESSING",
-    14,
-    1.45,
-    new Vector3(
-      POTSDAMER_DETAIL_PROFILE.taylorWessingWorldM[0],
-      29.2,
-      POTSDAMER_DETAIL_PROFILE.taylorWessingWorldM[1] - 15.4,
-    ),
-    -0.075,
-    "#e8e4da",
-    "#29596b",
-  );
-  if (taylor) {
-    taylor.name = "Taylor Wessing facade lettering";
-    group.add(taylor);
-  }
 }
 
 export function createExpandedCityDetails(
@@ -5851,6 +6021,8 @@ export function createExpandedCityDetails(
   group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
   group.userData.northernCity = NORTHERN_CITY_PROFILE;
   group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
+  group.userData.leipzigerPlatzArchitecture =
+    LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE;
   group.userData.rieckhallen = RIECKHALLEN_PROFILE;
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
   group.userData.tillaDurieux = TILLA_DURIEUX_PROFILE;
@@ -5866,6 +6038,12 @@ export function createExpandedCityDetails(
     "https://www.berliner-philharmoniker.de/ueber-uns/philharmonie/kammermusiksaal/der-bau-des-kammermusiksaals/",
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050277",
     ...POTSDAMER_DETAIL_PROFILE.georgElser.sourceUrls,
+    ...POTSDAMER_DETAIL_PROFILE.stationEntranceHalls.sources,
+    ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.mall.sources,
+    ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.canada.sources,
+    ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.taylorWessing.sources,
+    ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte.sources,
+    ...MOABIT_PRISON_PARK_PROFILE.sources,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
     ...NORTHERN_CITY_PROFILE.invalidenfriedhof.sources,
     NORTHERN_CITY_PROFILE.pankeMouth.sourceUrl,
@@ -5884,7 +6062,6 @@ export function createExpandedCityDetails(
   addCharlottenburgerTor(builder, byName);
   addCivicAccents(builder, byName);
   addAmanoGrandCentral(builder, byName);
-  addMoabitPrisonPark(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);
   addFunboxPark(builder, byName);
   const bodies = finishDrawnGroup(builder, {
@@ -5893,6 +6070,30 @@ export function createExpandedCityDetails(
     name: "Expanded architecture and public-realm details",
   });
   if (bodies) group.add(bodies);
+  if (byName.has("Mall of Berlin")) {
+    group.add(createLeipzigerPlatzDetails());
+  }
+
+  const potsdamerHallBuilder = createBuilder();
+  addPotsdamerEntranceHalls(potsdamerHallBuilder, byName);
+  const potsdamerHalls = finishDrawnGroup(potsdamerHallBuilder, {
+    name: "Potsdamer Platz station entrance halls",
+  });
+  if (potsdamerHalls) {
+    potsdamerHalls.userData = POTSDAMER_DETAIL_PROFILE.stationEntranceHalls;
+    group.add(potsdamerHalls);
+  }
+  addPotsdamerEntranceHallLettering(group, byName);
+
+  const moabitBuilder = createBuilder();
+  addMoabitPrisonPark(moabitBuilder, byName);
+  const moabitPark = finishDrawnGroup(moabitBuilder, {
+    name: "Geschichtspark Moabit mapped walls and plan",
+  });
+  if (moabitPark) {
+    moabitPark.userData = MOABIT_PRISON_PARK_PROFILE;
+    group.add(moabitPark);
+  }
 
   // Keep the terrain sculpture independently inspectable. It still costs one
   // merged body draw and one ink draw, but can now be QA-bounded without the

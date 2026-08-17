@@ -15,9 +15,52 @@
       content="Isometrische Pixel-Art-Karte des Berliner Regierungsviertels"
     />
     <title>Isometric Berlin Regierungsviertel</title>
+    <style>
+      html,
+      body,
+      #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #242b28;
+      }
+      .boot-shell {
+        box-sizing: border-box;
+        display: grid;
+        width: 100%;
+        height: 100%;
+        place-content: center;
+        gap: 8px;
+        padding: 24px;
+        color: #f5f1e7;
+        font: 15px/1.4 system-ui, sans-serif;
+        text-align: center;
+      }
+      .boot-shell strong {
+        font-size: clamp(24px, 5vw, 44px);
+        letter-spacing: -0.035em;
+      }
+      .boot-shell small {
+        position: fixed;
+        right: 16px;
+        bottom: 12px;
+        left: 16px;
+        color: #c5ccc7;
+        font-size: 10px;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-shell" role="status">
+        <strong>Isometric Berlin</strong>
+        <span>Berlin wird gezeichnet · Drawing Berlin…</span>
+        <small>
+          © OpenStreetMap contributors · 3D building models: Geoportal Berlin
+          (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
+        </small>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

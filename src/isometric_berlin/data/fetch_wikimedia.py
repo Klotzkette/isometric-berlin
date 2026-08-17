@@ -213,6 +213,31 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
   ],
 }
 
+# Exact files used by source-bounded recognition modules. Search-result order is
+# deliberately not trusted for these references: syncing them by title keeps
+# the per-file artist and licence metadata packaged even when Commons ranking
+# changes.
+PINNED_FILE_REFERENCES: dict[str, str] = {
+  "File:Löwenbrücke Großer Tiergarten Berlin.jpg": "loewen_bridge",
+  "File:Löwenbrücke Großer Tiergarten Berlin 10.jpg": "loewen_bridge",
+  "File:Nördlicher Eingang zum Bahnhof Potsdamer Platz, Berlin-1785.jpg": (
+    "potsdamer_platz_station"
+  ),
+  "File:Südlicher Eingang zum Bahnhof Potsdamer Platz-1746.jpg": (
+    "potsdamer_platz_station"
+  ),
+  "File:Adlerbrücke 1 Großer Tiergarten Berlin.JPG": "adler_bridge",
+  "File:Adlerbrücke 2 Großer Tiergarten Berlin.JPG": "adler_bridge",
+  "File:Adlerbrücke 3 Großer Tiergarten Berlin.JPG": "adler_bridge",
+  "File:2024-12-01 ARD Hauptstadtstudio 1080537.JPG": "ard_hauptstadtstudio",
+  "File:ARD-Hauptstadtstudio (aus Nordwesten).jpg": "ard_hauptstadtstudio",
+  "File:ARD-Hauptstadtstudio, Berlin-Mitte, Fassade, 170117, ako.jpg": (
+    "ard_hauptstadtstudio"
+  ),
+  "File:Reichstagspräsidentenpalais, Westfassade.jpg": ("reichstagspraesidentenpalais"),
+  "File:Reichstagspräsidentenpalais, Nordseite.jpg": ("reichstagspraesidentenpalais"),
+}
+
 REQUIRED_TITLE_TERMS: dict[str, tuple[str, ...]] = {
   "reichstag": ("reichstag", "reichstags"),
   "bundeskanzleramt": ("bundeskanzleramt", "kanzler"),
@@ -520,6 +545,46 @@ def search_commons(landmark_id: str, query: str, *, limit: int) -> list[Wikimedi
   return images
 
 
+def normalized_commons_title(title: str) -> str:
+  """Normalize API title spelling without weakening file identity."""
+  return unicodedata.normalize("NFC", title.replace("_", " ")).strip()
+
+
+def fetch_pinned_images(
+  pinned: dict[str, str] = PINNED_FILE_REFERENCES,
+) -> list[WikimediaImage]:
+  """Fetch exact Commons files and fail closed on missing licence metadata."""
+  payload = request_json(
+    {
+      "action": "query",
+      "titles": "|".join(pinned),
+      "prop": "imageinfo",
+      "iiprop": "url|mime|size|extmetadata",
+      "iiurlwidth": 640,
+    }
+  )
+  expected = {
+    normalized_commons_title(title): landmark_id
+    for title, landmark_id in pinned.items()
+  }
+  found: dict[str, WikimediaImage] = {}
+  for page in payload.get("query", {}).get("pages", []):
+    title = normalized_commons_title(str(page.get("title", "")))
+    landmark_id = expected.get(title)
+    if landmark_id is None:
+      continue
+    image = image_from_page(landmark_id, page)
+    if image is None:
+      raise RuntimeError(
+        f"Pinned Commons reference lacks a permitted image or attribution: {title}"
+      )
+    found[title] = image
+  missing = [title for title in expected if title not in found]
+  if missing:
+    raise RuntimeError(f"Pinned Commons references were not returned: {missing}")
+  return [found[normalized_commons_title(title)] for title in pinned]
+
+
 def slugify(value: str) -> str:
   value = value.replace("ß", "ss").replace("ẞ", "SS")
   ascii_value = "".join(
@@ -606,6 +671,101 @@ def write_atlas(records: list[dict[str, Any]], out_path: Path) -> None:
   atlas.save(out_path, optimize=True)
 
 
+def record_from_image(
+  image: WikimediaImage,
+  *,
+  index: int,
+  references_dir: Path,
+) -> dict[str, Any]:
+  """Download one permitted reference and retain its complete credit record."""
+  suffix = ".jpg" if "jpeg" in image.mime or "jpg" in image.mime else ".png"
+  relative = Path(f"{image.landmark_id}_{index:02d}_{slugify(image.title)}{suffix}")
+  thumbnail_path = references_dir / relative
+  download_thumbnail(image, thumbnail_path)
+  return {
+    "landmark_id": image.landmark_id,
+    "title": image.title,
+    "page_url": image.page_url,
+    "thumbnail_path": str(relative),
+    "thumb_url": image.thumb_url,
+    "license": image.license,
+    "license_url": image.license_url,
+    "artist": image.artist,
+    "credit": image.credit,
+    "description": image.description,
+    "dominant_colours": dominant_colours(thumbnail_path),
+    "role": "visual_reference_for_material_and_facade_QA",
+  }
+
+
+def next_landmark_index(records: list[dict[str, Any]], landmark_id: str) -> int:
+  """Return the next stable thumbnail ordinal for one landmark group."""
+  prefix = f"{landmark_id}_"
+  indices: list[int] = []
+  for record in records:
+    relative = str(record.get("thumbnail_path", ""))
+    if not relative.startswith(prefix):
+      continue
+    match = re.match(rf"^{re.escape(prefix)}(\d+)_", relative)
+    if match:
+      indices.append(int(match.group(1)))
+  return max(indices, default=0) + 1
+
+
+def sync_pinned_references(
+  manifest: dict[str, Any],
+  *,
+  references_dir: Path,
+) -> dict[str, Any]:
+  """Merge the exact module references without perturbing search selections."""
+  raw_records = manifest.get("records", [])
+  if not isinstance(raw_records, list):
+    raise ValueError("Wikimedia manifest records must be a list")
+  records = [dict(record) for record in raw_records if isinstance(record, dict)]
+  positions = {
+    normalized_commons_title(str(record.get("title", ""))): index
+    for index, record in enumerate(records)
+  }
+  for image in fetch_pinned_images():
+    title = normalized_commons_title(image.title)
+    existing_index = positions.get(title)
+    if existing_index is None:
+      index = next_landmark_index(records, image.landmark_id)
+    else:
+      previous = records[existing_index]
+      relative = str(previous.get("thumbnail_path", ""))
+      match = re.match(rf"^{re.escape(image.landmark_id)}_(\d+)_", relative)
+      index = (
+        int(match.group(1))
+        if match
+        else next_landmark_index(records, image.landmark_id)
+      )
+    record = record_from_image(
+      image,
+      index=index,
+      references_dir=references_dir,
+    )
+    if existing_index is None:
+      positions[title] = len(records)
+      records.append(record)
+    else:
+      records[existing_index] = record
+  atlas_path = references_dir / "atlas.jpg"
+  write_atlas(records, atlas_path)
+  return {
+    **manifest,
+    "source": "wikimedia",
+    "available": bool(records),
+    "generated_by": "isometric_berlin.data.fetch_wikimedia",
+    "policy": (
+      "Small freely licensed Wikimedia Commons thumbnails for visual reference; "
+      "attribution metadata retained per image."
+    ),
+    "records": records,
+    "atlas_path": str(atlas_path),
+  }
+
+
 def build_manifest(
   *,
   per_landmark: int,
@@ -629,27 +789,7 @@ def build_manifest(
       if len(chosen) >= per_landmark:
         break
     for idx, image in enumerate(chosen, start=1):
-      suffix = ".jpg" if "jpeg" in image.mime or "jpg" in image.mime else ".png"
-      relative = Path(f"{image.landmark_id}_{idx:02d}_{slugify(image.title)}{suffix}")
-      thumbnail_path = references_dir / relative
-      download_thumbnail(image, thumbnail_path)
-      colours = dominant_colours(thumbnail_path)
-      records.append(
-        {
-          "landmark_id": image.landmark_id,
-          "title": image.title,
-          "page_url": image.page_url,
-          "thumbnail_path": str(relative),
-          "thumb_url": image.thumb_url,
-          "license": image.license,
-          "license_url": image.license_url,
-          "artist": image.artist,
-          "credit": image.credit,
-          "description": image.description,
-          "dominant_colours": colours,
-          "role": "visual_reference_for_material_and_facade_QA",
-        }
-      )
+      records.append(record_from_image(image, index=idx, references_dir=references_dir))
   atlas_path = references_dir / "atlas.jpg"
   write_atlas(records, atlas_path)
   return {
@@ -718,6 +858,11 @@ def main() -> int:
   parser.add_argument("--search-limit", type=int, default=18)
   parser.add_argument("--clean", action="store_true")
   parser.add_argument(
+    "--sync-pinned",
+    action="store_true",
+    help="Merge exact recognition-module references into the existing manifest.",
+  )
+  parser.add_argument(
     "--references-dir", type=Path, default=Path("references/wikimedia")
   )
   parser.add_argument(
@@ -728,13 +873,23 @@ def main() -> int:
   args = parser.parse_args()
 
   args.references_dir.mkdir(parents=True, exist_ok=True)
+  if args.sync_pinned and args.clean:
+    parser.error("--sync-pinned cannot be combined with --clean")
   if args.clean:
     clean_reference_images(args.references_dir)
-  manifest = build_manifest(
-    per_landmark=args.per_landmark,
-    search_limit=args.search_limit,
-    references_dir=args.references_dir,
-  )
+  if args.sync_pinned:
+    if not args.out.exists():
+      parser.error(f"--sync-pinned needs an existing manifest: {args.out}")
+    manifest = sync_pinned_references(
+      json.loads(args.out.read_text(encoding="utf-8")),
+      references_dir=args.references_dir,
+    )
+  else:
+    manifest = build_manifest(
+      per_landmark=args.per_landmark,
+      search_limit=args.search_limit,
+      references_dir=args.references_dir,
+    )
   args.out.parent.mkdir(parents=True, exist_ok=True)
   args.out.write_text(
     json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

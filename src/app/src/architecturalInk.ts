@@ -38,6 +38,12 @@ export const ARCHITECTURAL_INK_PALETTE: Record<
     detail: 0x7b8183,
     micro: 0x969a9b,
   },
+  // Exact Day ink: the atmospheric mode never repaints architecture.
+  schwellenraum: {
+    silhouette: 0x68645e,
+    detail: 0x7b766e,
+    micro: 0x918a80,
+  },
 };
 
 function storedRole(material: LineBasicMaterial): ArchitecturalInkRole {
@@ -52,6 +58,7 @@ const ACCENT_BLEND: Record<VisualMode, number> = {
   night: 0.72,
   minecraft: 0.8,
   snowstorm: 0.58,
+  schwellenraum: 0,
 };
 
 /** Mark a line once and initialise it in the daylight drawing register. */

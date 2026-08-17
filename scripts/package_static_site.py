@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.71.51"
+PACKAGE_VERSION = "0.72.0"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -51,8 +51,11 @@ REQUIRED_PACKAGE_FILES = (
   "README.txt",
   "dzi/regierungsviertel/overview_source.png",
   "dzi/regierungsviertel/regierungsviertel.dzi",
+  "dzi/regierungsviertel/visual_reference_attribution.json",
   "mesh/regierungsviertel/scene.json",
   "mesh/regierungsviertel/ground-context.json",
+  "mesh/regierungsviertel/surface-polygons.json",
+  "mesh/regierungsviertel/surface-pretriangulation.json",
 )
 CACHEABLE_SUFFIXES = {
   ".css",
@@ -911,7 +914,7 @@ START_HERE_HTML = """<!doctype html>
     }
     aside {
       display: grid;
-      grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+      grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
       gap: 12px;
       padding: 16px;
       background:
@@ -1100,6 +1103,13 @@ START_HERE_HTML = """<!doctype html>
       color: #ffe0b0;
       background: rgba(101, 42, 32, .5);
     }
+    .source-credit {
+      margin: 0;
+      color: #6f766f;
+      font-size: 9px;
+      line-height: 1.3;
+    }
+    body[data-theme="night"] .source-credit { color: #aebbb3; }
     .reference {
       position: fixed;
       inset: 18px;
@@ -1272,6 +1282,12 @@ START_HERE_HTML = """<!doctype html>
       <p class="notice" id="notice" role="status" aria-live="polite">
         Dies ist nur die 2D-Kompatibilitätsansicht. Für das maßstäbliche 3D-Modell
         unter Windows start-windows.bat öffnen, unter macOS/Linux python3 serve-local.py.
+      </p>
+      <p class="source-credit">
+        © OpenStreetMap contributors · 3D building models: Geoportal Berlin
+        (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia ·
+        Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0) · 3D mesh: Berlin Partner für Wirtschaft und
+        Technologie GmbH
       </p>
     </aside>
   </main>
@@ -3526,8 +3542,9 @@ Halbkreis westlich des Brandenburger Tors lesbar. Gebogene, vollständig in den
 kartierten Wasserflächen liegende Linien ersetzen zugleich die früheren geraden
 Wasserstriche; beide Details sind statisch und erzeugen kein Flackern.
 
-Version {PACKAGE_VERSION} erweitert den sichtbaren Radius auf 5.230 m und
-ergänzt den Nordost-/Südkorridor mit {scene_counts["base_files"]} amtlichen
+Version {PACKAGE_VERSION} erweitert den sichtbaren Radius auf 6.450 m und
+ergänzt den rundum nochmals um 500 m erweiterten Datenring mit
+{scene_counts["base_files"]} amtlichen
 Interaktionskacheln. Tram und Haltestelle am Hauptbahnhof, S15-Zugang,
 Washingtonplatz-Taxis, Futurium, die Bundesministerien, Parlament der Bäume,
 Berliner Ensemble, Bahnhof Friedrichstraße, Detlev-Rohwedder-Haus, Gropius
@@ -3552,8 +3569,8 @@ Wenige statische Personen, BVG-Busse, Autos, Fahrräder, E-Scooter und
 Kinderwagen geben Maßstab, ohne beobachteten Verkehr zu behaupten.
 
 Der vollständige begrenzte OSM-Wegebestand wird als echte Geländeoberfläche
-gezeichnet: 8.151 Geh-, Rad-, Stufen-, Feld- und Trampelpfad-Abschnitte, davon
-7.420 mit eingetragener Oberfläche und 988 mit eingetragener Breite. Asphalt,
+gezeichnet: 14.381 Geh-, Rad-, Stufen-, Feld- und Trampelpfad-Abschnitte, davon
+13.080 mit eingetragener Oberfläche und 1.719 mit eingetragener Breite. Asphalt,
 Pflaster, Kies/Sand, Erde, Holz und Metall bleiben unterscheidbar. Am Floraplatz
 stehen genau die acht dokumentierten Tierbronzen auf Granitsockeln. Hotel AMANO
 Grand Central behält OSM-Grundriss und amtliche LoD2-Höhe; der Geschichtspark
@@ -3711,8 +3728,8 @@ legible. Curved strokes that remain wholly inside mapped water polygons also
 replace the former straight water dashes; both details are static and cannot
 introduce shimmer.
 
-Version {PACKAGE_VERSION} keeps the visible radius at 5,230 m and carries the
-north-east/south corridor in {scene_counts["base_files"]} official interaction
+Version {PACKAGE_VERSION} extends the visible radius to 6,450 m and carries the
+additional 500 m data ring on every side in {scene_counts["base_files"]} official interaction
 tiles. Futurium now follows its exact Berlin LoD2 footprint and height, while
 its cassette skin, panoramic end windows, roof basin, solar field, Skywalk and
 Drehmoment are source-bounded recognition details. Moltkebrücke follows its
@@ -3737,8 +3754,8 @@ buses, cars, bicycles, e-scooters and strollers provide scale without claiming
 observed traffic.
 
 The complete bounded OSM path network is also drawn as terrain-following
-surface geometry: 8,151 footway, cycleway, path, pedestrian, step and track
-parts, including 7,420 mapped surfaces and 988 mapped widths. Asphalt, paving,
+surface geometry: 14,381 footway, cycleway, path, pedestrian, step and track
+parts, including 13,080 mapped surfaces and 1,719 mapped widths. Asphalt, paving,
 gravel/sand, earth, timber and metal remain distinct. Floraplatz contains the
 documented eight animal bronzes on granite plinths. Hotel AMANO Grand Central
 retains its OSM plan and official LoD2 height, while the former Moabit prison
@@ -3775,10 +3792,12 @@ preview, DGM preview, and Wikimedia Commons/Wikipedia. Google/Apple map
 products are used only as visual QA references; nothing from them is copied.
 
 Attribution:
-© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
+© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0) · 3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH
 
 Per-file Wikimedia credits are bundled at
 dzi/regierungsviertel/wikimedia_attribution.json.
+The five Kindertransport reference-photo credits are bundled at
+dzi/regierungsviertel/visual_reference_attribution.json.
 """,
     encoding="utf-8",
   )
@@ -3787,6 +3806,37 @@ dzi/regierungsviertel/wikimedia_attribution.json.
 def write_package_manifest(package_dir: Path) -> None:
   """Write machine-readable release metadata for local package QA."""
   dzi_root = package_dir / "dzi" / "regierungsviertel"
+  mesh_root = package_dir / "mesh" / "regierungsviertel"
+  surface_manifest_path = mesh_root / "surface-pretriangulation.json"
+  try:
+    surface_manifest = json.loads(surface_manifest_path.read_text(encoding="utf-8"))
+  except (OSError, json.JSONDecodeError) as exc:
+    raise SystemExit(f"Cannot inventory progressive surface assets: {exc}") from exc
+  if not isinstance(surface_manifest, dict):
+    raise SystemExit("Cannot inventory progressive surface assets: invalid manifest")
+  source_file = surface_manifest.get("source_file")
+  plates = surface_manifest.get("plates")
+  if (
+    source_file != "surface-polygons.json" or not isinstance(plates, list) or not plates
+  ):
+    raise SystemExit("Cannot inventory progressive surface assets: incomplete manifest")
+  surface_asset_paths: dict[str, Path] = {}
+  seen_surface_kinds: set[str] = set()
+  for entry in plates:
+    if not isinstance(entry, dict):
+      raise SystemExit("Cannot inventory progressive surface assets: invalid plate")
+    kind = entry.get("kind")
+    relative = entry.get("file")
+    if (
+      not isinstance(kind, str)
+      or kind in seen_surface_kinds
+      or not isinstance(relative, str)
+      or Path(relative).name != relative
+      or not relative.endswith(".plate.gz")
+    ):
+      raise SystemExit("Cannot inventory progressive surface assets: unsafe plate")
+    seen_surface_kinds.add(kind)
+    surface_asset_paths[f"surface_plate_{kind}"] = mesh_root / relative
   asset_paths = {
     "detail_image": dzi_root / "overview_source.png",
     "pixel_image": dzi_root / "overview.png",
@@ -3794,9 +3844,13 @@ def write_package_manifest(package_dir: Path) -> None:
     "reference_map": dzi_root / "reference_map.png",
     "landmarks": dzi_root / "landmarks.json",
     "tiergartentunnel_overlay": dzi_root / "tiergartentunnel.json",
+    "visual_reference_attribution": (dzi_root / "visual_reference_attribution.json"),
     "wikimedia_attribution": dzi_root / "wikimedia_attribution.json",
-    "webgl_scene": package_dir / "mesh/regierungsviertel/scene.json",
-    "ground_context": package_dir / "mesh/regierungsviertel/ground-context.json",
+    "webgl_scene": mesh_root / "scene.json",
+    "ground_context": mesh_root / "ground-context.json",
+    "surface_source": mesh_root / str(source_file),
+    "surface_pretriangulation": surface_manifest_path,
+    **surface_asset_paths,
     "start_page": package_dir / "START-HERE.html",
   }
   missing = [label for label, path in asset_paths.items() if not path.exists()]
@@ -3864,6 +3918,8 @@ def write_package_manifest(package_dir: Path) -> None:
     "required_attribution": (
       "© OpenStreetMap contributors · 3D building models: Geoportal Berlin "
       "(dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia · "
+      "Kindertransport visual references: © Pauline Ahrens, 2021 / "
+      "Bildhauerei in Berlin (CC BY 4.0) · "
       "3D mesh: Berlin Partner für Wirtschaft und Technologie GmbH"
     ),
     "assets": {

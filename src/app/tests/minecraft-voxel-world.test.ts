@@ -3,8 +3,11 @@ import { describe, expect, test } from "bun:test";
 import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 
 import {
+  BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING,
   HAMBURGER_BAHNHOF_VOXEL_FACADE,
   isCompleteRecognitionVoxelColumn,
+  isBundestagSpreeBridgeGroundCell,
+  isFalseBundestagSpreeBridgeVoxelColumn,
   isFalseSintiRomaVoxelColumn,
   SINTI_ROMA_VOXEL_CLEARING,
   type VoxelPayload,
@@ -16,6 +19,8 @@ import {
   createMinecraftHamburgerBahnhofRecognition,
   createMinecraftUpbeatRecognition,
   createMinecraftVoxelWorld,
+  decodeVoxelBuildingColumns,
+  decodeVoxelTreeBlocks,
   minecraftBuildingLayerTones,
   voxelRecognitionAreaAt,
 } from "../src/MinecraftVoxelWorld";
@@ -32,6 +37,8 @@ import {
 } from "../src/expandedCityProfiles";
 
 const payload = voxelPayload as unknown as VoxelPayload;
+const buildingColumns = decodeVoxelBuildingColumns(payload);
+const treeBlocks = decodeVoxelTreeBlocks(payload);
 
 function instanced(
   name: string,
@@ -92,16 +99,16 @@ describe("true voxel Minecraft world", () => {
     // untoned by design and fall back to palette shading.
     let hits = 0;
     let taken = 0;
-    const sampleCount = Math.min(2000, payload.buildings.length);
+    const sampleCount = Math.min(2000, buildingColumns.length);
     const stride = Math.max(
       1,
-      Math.floor(payload.buildings.length / sampleCount),
+      Math.floor(buildingColumns.length / sampleCount),
     );
     for (
       let index = 0;
-      index < payload.buildings.length && taken < sampleCount;
+      index < buildingColumns.length && taken < sampleCount;
     ) {
-      const [xIdx, zIdx] = payload.buildings[index];
+      const [xIdx, zIdx] = buildingColumns[index];
       const x = (xIdx + 0.5) * payload.cell_m;
       const z = (zIdx + 0.5) * payload.cell_m;
       if (lookup(x, z) !== null) {
@@ -118,11 +125,12 @@ describe("true voxel Minecraft world", () => {
     const panes = world.getObjectByName("Voxel facade windows");
     expect(panes).toBeInstanceOf(InstancedMesh);
     const mesh = panes as InstanceType<typeof InstancedMesh>;
-    // The task-10 expansion carries ~453k exposed faces on 133k surveyed
-    // columns; interior faces are still skipped and the complete facade stays
-    // in one instanced draw call.
-    expect(mesh.count).toBeGreaterThan(150_000);
-    expect(mesh.count).toBeLessThan(550_000);
+    // The exact task-13 extent plus the non-overlapping OSM building sidecar
+    // carries about 1.6 million exposed window faces on 533k columns;
+    // interior faces are still skipped and the complete facade stays in one
+    // instanced draw call.
+    expect(mesh.count).toBeGreaterThan(1_450_000);
+    expect(mesh.count).toBeLessThan(1_750_000);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();
@@ -148,13 +156,15 @@ describe("true voxel Minecraft world", () => {
       (sum, row) => sum + row.length,
       0,
     );
-    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns);
+    // One 11-cell generic bridge run yields to the two source-sized
+    // Bundestag footbridges; every other block-ground run stays intact.
+    expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 1);
     // Each column is a facade body plus palette-native plinth and roof-cap
     // layers when its measured height can carry them.
     const columns = instanced("Voxel building columns", world).count;
-    expect(columns).toBeGreaterThanOrEqual(payload.buildings.length);
-    expect(columns).toBeLessThanOrEqual(payload.buildings.length * 3);
-    const visibleTreeCount = payload.trees.filter(
+    expect(columns).toBeGreaterThanOrEqual(buildingColumns.length);
+    expect(columns).toBeLessThanOrEqual(buildingColumns.length * 3);
+    const visibleTreeCount = treeBlocks.filter(
       ([xIdx, zIdx]) =>
         !isChancelleryExtensionConstructionPoint(
           (xIdx + 0.5) * payload.cell_m,
@@ -167,7 +177,7 @@ describe("true voxel Minecraft world", () => {
     expect(crowns).toBeGreaterThanOrEqual(visibleTreeCount);
     expect(crowns).toBeLessThanOrEqual(visibleTreeCount * 2);
     // Blocky by construction: thousands of surveyed building columns.
-    expect(payload.buildings.length).toBeGreaterThan(10_000);
+    expect(buildingColumns.length).toBeGreaterThan(10_000);
   });
 
   test("keeps both portal approaches open in a direct Minecraft load", () => {
@@ -185,6 +195,9 @@ describe("true voxel Minecraft world", () => {
     // alone is not a valid measure. The explicit cell counter is the contract.
     expect(cutGround.count).toBeGreaterThan(0);
     expect(fullGround.userData.skippedByWorldPredicateCells).toBe(0);
+    expect(fullGround.userData.skippedBridgeCells).toBe(11);
+    expect(isBundestagSpreeBridgeGroundCell(342, -186)).toBe(true);
+    expect(isBundestagSpreeBridgeGroundCell(342, -178)).toBe(false);
 
     const fullTrees = instanced("Voxel tree trunks", world).count;
     const cutTrees = instanced("Voxel tree trunks", tunnelWorld).count;
@@ -220,7 +233,7 @@ describe("true voxel Minecraft world", () => {
   });
 
   test("does not bury the Sinti and Roma memorial under false building columns", () => {
-    const falseColumns = payload.buildings.filter(([xIdx, zIdx, y0dm, y1dm]) =>
+    const falseColumns = buildingColumns.filter(([xIdx, zIdx, y0dm, y1dm]) =>
       isFalseSintiRomaVoxelColumn(
         (xIdx + 0.5) * payload.cell_m,
         (zIdx + 0.5) * payload.cell_m,
@@ -252,8 +265,52 @@ describe("true voxel Minecraft world", () => {
     expect(remainingFalseColumns).toBe(0);
   });
 
+  test("clears the tall LoD2 wall from the Bundestag's open Spree bridges", () => {
+    const falseBridgeColumns = buildingColumns.filter(
+      ([xIdx, zIdx, y0dm, y1dm]) =>
+        isFalseBundestagSpreeBridgeVoxelColumn(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+          (y1dm - y0dm) / 10,
+        ),
+    );
+    expect(falseBridgeColumns).toHaveLength(16);
+    expect(BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING.sourceBuildingId).toBe(
+      "DEBE01YYK0001zDa",
+    );
+    expect(isFalseBundestagSpreeBridgeVoxelColumn(342, -182, 10)).toBe(false);
+    expect(isFalseBundestagSpreeBridgeVoxelColumn(400, -182, 28)).toBe(false);
+    // Adjacent 32 m connector buildings sit outside the 62.6 m LoD2 bridge
+    // footprint and must survive the opening correction.
+    expect(isFalseBundestagSpreeBridgeVoxelColumn(310, -182, 32)).toBe(false);
+    expect(isFalseBundestagSpreeBridgeVoxelColumn(378, -182, 32)).toBe(false);
+    expect(isFalseBundestagSpreeBridgeVoxelColumn(314, -182, 28)).toBe(true);
+    expect(isFalseBundestagSpreeBridgeVoxelColumn(374, -182, 28)).toBe(true);
+
+    const columns = instanced("Voxel building columns", world);
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    const scale = new Vector3();
+    let remainingFalseBridgeColumns = 0;
+    for (let index = 0; index < columns.count; index += 1) {
+      columns.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      scale.setFromMatrixScale(matrix);
+      if (
+        isFalseBundestagSpreeBridgeVoxelColumn(
+          position.x,
+          position.z,
+          scale.y,
+        )
+      ) {
+        remainingFalseBridgeColumns += 1;
+      }
+    }
+    expect(remainingFalseBridgeColumns).toBe(0);
+  });
+
   test("does not bury the complete Brandenburg Gate model inside a voxel wall", () => {
-    const hiddenGateColumns = payload.buildings.filter(([xIdx, zIdx]) =>
+    const hiddenGateColumns = buildingColumns.filter(([xIdx, zIdx]) =>
       isCompleteRecognitionVoxelColumn(
         (xIdx + 0.5) * payload.cell_m,
         (zIdx + 0.5) * payload.cell_m,

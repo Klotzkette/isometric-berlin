@@ -123,6 +123,7 @@ def test_write_start_here_writes_zero_server_html_viewer(tmp_path: Path) -> None
   assert "preserveStageCenter" in html
   assert "constrainView" in html
   assert "Drehen/Swivel" in html
+  assert "Kindertransport visual references: © Pauline Ahrens, 2021" in html
   assert "rotateBy" in html
   assert "ArrowLeft" in html
   assert "ArrowRight" in html
@@ -325,6 +326,8 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
   assert "123.466-Flächen-Stufe" in readme
   assert "654,341-face tier" in readme
   assert "5 GLB-Dateien" in readme
+  assert "Kindertransport visual references: © Pauline Ahrens, 2021" in readme
+  assert "visual_reference_attribution.json" in readme
 
 
 def test_write_package_manifest_records_version_hashes_and_attribution(
@@ -343,9 +346,23 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
     "dzi/regierungsviertel/reference_map.png": b"reference",
     "dzi/regierungsviertel/landmarks.json": b"{}",
     "dzi/regierungsviertel/tiergartentunnel.json": b'{"routes":[]}',
+    "dzi/regierungsviertel/visual_reference_attribution.json": b"{}",
     "dzi/regierungsviertel/wikimedia_attribution.json": b"{}",
     "mesh/regierungsviertel/scene.json": b'{"schema_version":1}',
     "mesh/regierungsviertel/ground-context.json": b'{"buildings":[],"trees":[]}',
+    "mesh/regierungsviertel/surface-polygons.json": b'{"roads":[]}',
+    "mesh/regierungsviertel/surface-pretriangulation.json": json.dumps(
+      {
+        "source_file": "surface-polygons.json",
+        "plates": [
+          {
+            "kind": "asphalt",
+            "file": "surface-asphalt-fixture.plate.gz",
+          }
+        ],
+      }
+    ).encode(),
+    "mesh/regierungsviertel/surface-asphalt-fixture.plate.gz": b"plate",
   }
   for relative, data in files.items():
     path = tmp_path / relative
@@ -363,11 +380,16 @@ def test_write_package_manifest_records_version_hashes_and_attribution(
   assert manifest["preferred_image"] == "dzi/regierungsviertel/overview_source.png"
   assert manifest["uses_google_content"] is False
   assert "OpenStreetMap contributors" in manifest["required_attribution"]
+  assert "Pauline Ahrens, 2021" in manifest["required_attribution"]
   assert "manual-tiergartentunnel-entry-both-directions" in manifest["controls"]
   assert "guided-tiergartentunnel-flight-both-directions" not in manifest["controls"]
   assert manifest["assets"]["detail_image"]["bytes"] == len(b"source")
   assert len(manifest["assets"]["detail_image"]["sha256"]) == 64
   assert manifest["assets"]["ground_context"]["bytes"] > 0
+  assert manifest["assets"]["visual_reference_attribution"]["bytes"] > 0
+  assert manifest["assets"]["surface_source"]["bytes"] > 0
+  assert manifest["assets"]["surface_pretriangulation"]["bytes"] > 0
+  assert manifest["assets"]["surface_plate_asphalt"]["bytes"] == len(b"plate")
 
 
 def test_bundled_landmarks_match_public_viewer_landmarks() -> None:
@@ -574,6 +596,7 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
       b'<Size Width="1" Height="1" /></Image>'
     ),
     "tiergartentunnel.json": b'{"routes":[]}',
+    "visual_reference_attribution.json": b"{}",
     "wikimedia_attribution.json": b"{}",
   }.items():
     (dist_dzi / filename).write_bytes(data)
@@ -586,6 +609,22 @@ def test_package_static_site_repairs_dzi_levels_from_public_source(
   (scene.parent / "ground-context.json").write_text(
     '{"buildings":[],"trees":[],"ground_rows":[[[0,1,0]]],'
     '"ground_height":{"y_dm":[0]}}',
+    encoding="utf-8",
+  )
+  (scene.parent / "surface-polygons.json").write_text('{"roads":[]}', encoding="utf-8")
+  (scene.parent / "surface-asphalt-fixture.plate.gz").write_bytes(b"plate")
+  (scene.parent / "surface-pretriangulation.json").write_text(
+    json.dumps(
+      {
+        "source_file": "surface-polygons.json",
+        "plates": [
+          {
+            "kind": "asphalt",
+            "file": "surface-asphalt-fixture.plate.gz",
+          }
+        ],
+      }
+    ),
     encoding="utf-8",
   )
   missing_from_dist = public_dzi / "regierungsviertel_files" / "0" / "0_0.jpg"

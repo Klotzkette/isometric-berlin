@@ -8,7 +8,12 @@ import {
 } from "../src/ThreeViewer";
 import type { VisualMode } from "../src/visualMode";
 
-const drawnModes: VisualMode[] = ["day", "night", "snowstorm"];
+const drawnModes: VisualMode[] = [
+  "day",
+  "night",
+  "snowstorm",
+  "schwellenraum",
+];
 const stylesSource = await Bun.file(
   new URL("../src/styles.css", import.meta.url),
 ).text();
@@ -104,7 +109,13 @@ describe("startup presentation gate", () => {
   });
 
   test("keeps every underground mode clear of exterior weather and horizon fog", () => {
-    const modes: VisualMode[] = ["day", "night", "minecraft", "snowstorm"];
+    const modes: VisualMode[] = [
+      "day",
+      "night",
+      "minecraft",
+      "snowstorm",
+      "schwellenraum",
+    ];
     for (const mode of modes) {
       expect(presentationFogRange(mode, true), mode).toBeNull();
     }
@@ -115,5 +126,6 @@ describe("startup presentation gate", () => {
     });
     expect(presentationFogRange("day", false)).toBeNull();
     expect(presentationFogRange("night", false)).toBeNull();
+    expect(presentationFogRange("schwellenraum", false)).toBeNull();
   });
 });

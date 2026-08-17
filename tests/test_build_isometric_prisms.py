@@ -64,7 +64,9 @@ def grid_dm() -> dict[str, int]:
 
 def test_payload_is_small_and_versioned(payload: dict) -> None:
   assert PAYLOAD.exists()
-  assert PAYLOAD.stat().st_size < 5 * 1024 * 1024
+  # Task-13 carries the complete additional 500 m building ring without
+  # thinning true footprints; the measured browser budget grows to 7 MiB.
+  assert PAYLOAD.stat().st_size < 7 * 1024 * 1024
   assert payload["schema_version"] == 1
   assert payload["classes"] == CLASSES
   assert payload["origin"]["easting_offset"] == 389500.0
@@ -73,6 +75,7 @@ def test_payload_is_small_and_versioned(payload: dict) -> None:
   assert "OpenStreetMap" in payload["source"]["attribution"]
   assert "Geoportal Berlin" in payload["source"]["attribution"]
   assert "dl-de/zero-2-0" in payload["source"]["licenses"]["lod2_buildings"]
+  assert "ODbL" in payload["source"]["licenses"]["osm_context"]
 
 
 def test_carries_the_full_lod2_building_stock(payload: dict) -> None:

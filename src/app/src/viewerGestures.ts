@@ -1,5 +1,4 @@
 import type OpenSeadragon from "openseadragon";
-import { MOUSE } from "three";
 
 export const CARDINAL_SNAP_TOLERANCE_DEGREES = 4;
 export const MOUSE_DRAG_ROTATION_DEGREES_PER_PIXEL = 0.28;
@@ -11,9 +10,12 @@ export type RotatableGestureSettings = OpenSeadragon.GestureSettings & {
 // Desktop direct-manipulation contract: the primary button moves the map,
 // while the secondary button deliberately changes the camera orbit.
 export const THREE_MOUSE_GESTURE_SETTINGS = {
-  LEFT: MOUSE.PAN,
-  MIDDLE: MOUSE.DOLLY,
-  RIGHT: MOUSE.ROTATE,
+  // Three's public MOUSE enum is ROTATE=0, DOLLY=1, PAN=2. Keeping the
+  // stable protocol values here prevents map-only UI helpers from eagerly
+  // pulling the complete Three.js runtime into the app-shell bundle.
+  LEFT: 2,
+  MIDDLE: 1,
+  RIGHT: 0,
 } as const;
 
 export type WheelNavigationIntent =
@@ -36,10 +38,14 @@ export type PedestrianTouchTap = {
   y: number;
 };
 
-export const PEDESTRIAN_TAP_MAX_DURATION_MS = 300;
-export const PEDESTRIAN_TAP_MAX_TRAVEL_PX = 18;
-export const PEDESTRIAN_JUMP_DOUBLE_TAP_MS = 420;
-export const PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX = 38;
+// Phone taps are less precise than mouse clicks, especially one-handed. These
+// thresholds deliberately allow a relaxed double tap while staying below a
+// short look-drag: every participating pointer must still complete alone and
+// remain within the travel bound, so a second finger/pinch cannot qualify.
+export const PEDESTRIAN_TAP_MAX_DURATION_MS = 380;
+export const PEDESTRIAN_TAP_MAX_TRAVEL_PX = 24;
+export const PEDESTRIAN_JUMP_DOUBLE_TAP_MS = 520;
+export const PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX = 56;
 
 export function isPedestrianTouchTap(sample: PedestrianTouchTap): boolean {
   return (
@@ -54,7 +60,11 @@ export function isPedestrianJumpDoubleTap(
   previous: PedestrianTouchTap | null,
   current: PedestrianTouchTap,
 ): boolean {
-  if (!previous || !isPedestrianTouchTap(previous) || !isPedestrianTouchTap(current)) {
+  if (
+    !previous ||
+    !isPedestrianTouchTap(previous) ||
+    !isPedestrianTouchTap(current)
+  ) {
     return false;
   }
   const elapsed = current.at - previous.at;

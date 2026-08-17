@@ -1,21 +1,21 @@
-// Hull of the SURVEYED task-10 data (LoD2/OSM/official details), rounded out
-// to whole decametres in scene world metres. It reaches Charlottenburger Tor
-// in the west, Europacity in the north and Kochstrasse/Anhalter Bahnhof in the
-// south-east. The extrapolated paper margin starts outside this measured box.
-export const DATA_WEST_M = -2880;
-export const DATA_EAST_M = 1410;
-export const DATA_NORTH_M = -2600;
-export const DATA_SOUTH_M = 1890;
+// Owner-approved task-13 source hull, rounded outward to whole decametres in
+// scene world metres. It is the second exact EPSG:25833 500 m outward buffer,
+// this time around the complete task-12 polygon. Current OSM and context
+// buildings span this hull. The extrapolated paper margin starts outside it.
+export const DATA_WEST_M = -3900;
+export const DATA_EAST_M = 2420;
+export const DATA_NORTH_M = -3620;
+export const DATA_SOUTH_M = 2920;
 
 // Width of the blank paper ring that carries the drawing past the surveyed
 // hull, so a maximum-altitude flight fades into light ground instead of a
 // void. It invents no content: flat tone plates plus cartographic ruling.
-// The larger task-11 surveyed hull needs less blank paper than task-09. At
-// 880 m every rectangular corner remains inside the versioned 5,230 m visible
-// radius, while still leaving a broad clean fade beyond the last real feature.
-export const EXTRAPOLATED_MARGIN_M = 880;
+// The task-13 source hull adds real mapped context instead of more blank paper.
+// At 790 m every rectangular corner remains inside the versioned 6,450 m
+// visible radius while retaining a broad clean fade past the last feature.
+export const EXTRAPOLATED_MARGIN_M = 790;
 
-export const VISIBLE_RADIUS_M = 5230;
+export const VISIBLE_RADIUS_M = 6450;
 
 // Presentation-only backing planes must sit below every authored underground
 // structure. The Tiergartentunnel road reaches about -8.5 m; older -5.5/-8 m

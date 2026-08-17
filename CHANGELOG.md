@@ -1,5 +1,49 @@
 # Changelog
 
+## v0.72.0
+
+- **The bounded Berlin world grows to its owner-approved 6,450 m presentation
+  radius without thinning the centre.** The complete task-13 source hull,
+  overview, Deep Zoom pyramid, roads, rails, surfaces and block world are
+  regenerated together. A non-overlapping 12,856-footprint OSM sidecar fills
+  gaps around the official LoD2 stock, yielding 29,818 source-backed building
+  prisms and 533,329 Minecraft building columns in the same coordinate frame.
+- **Major requested places now have source-bounded architectural identities.**
+  The Hafenplatz Terrassenhaus, Potsdamer-Platz station halls, Moabit prison
+  memorial walls, both parliamentary Spree footbridges and the MELH river
+  front are corrected. Dedicated overlays add the Mall of Berlin, Canadian
+  Embassy, Taylor Wessing, Magenta Mitte, all 15 represented federal states,
+  ARD Hauptstadtstudio and the Reichstag President's Palace/Parliamentary
+  Society while preserving their official LoD2 envelopes.
+- **Memorial handling is both more exact and more respectful.** Frank Meisler
+  and Arie Ovadia's seven-figure Kindertransport memorial at Friedrichstrasse
+  receives its documented two opposing groups, single rail, luggage and
+  plaques at the exact mapped anchor. Schwellenraum keeps every protected
+  memorial on its Day presentation and uses a data-driven spatial protection
+  index instead of relying only on a short hand-written place list.
+- **Schwellenraum joins as a complete fifth mode.** It keeps the established
+  music and Day geometry while adding a restrained, softly unfamiliar
+  atmosphere, mode-specific light thresholds, solid collision-aware walking
+  and flight, tunnel access and bounded entrances, ramps, stairs and interior
+  spaces. Protected Holocaust, Nazi-era and violence memorials remain
+  unchanged and non-traversable.
+- **The Großer Tiergarten is denser, more varied and more faithful.** Official
+  and OSM evidence now produces 45,540 individual trees, 3,535 deterministic
+  shrub clusters and 23 mapped hedge objects with measured dimensions retained
+  where available. Adlerbrücke and Löwenbrücke gain their documented historic
+  structure, sculpture, colours and modern safety details, with matching
+  collision and presentation contracts across all five modes.
+- **Cold startup is split into a small immediate shell, mode-specific engines
+  and a progressive exact city build.** Synchronous initial JavaScript falls
+  by 84.9% to about 331 kB raw/102 kB gzip, while OpenSeadragon, Three.js and
+  the geometry Worker stay lazy. The source-bound near field now builds in
+  about 0.76 s CPU instead of blocking the main thread for roughly 17 s; exact
+  follow-up batches arrive from about 0.88 s and settle in the background in
+  about 11.5 s with a measured 1.9 ms maximum main-thread attach. A hash-bound,
+  lossless asphalt plate removes the worst triangulation spike, lowers measured
+  peak memory by 34.6% and is covered by source, archive and binary-integrity
+  gates. The release remains a static, key-free website and offline package.
+
 ## v0.71.51
 
 - **Walking-mode jumping now works consistently across desktop and touch.**

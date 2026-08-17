@@ -55,6 +55,12 @@ export type StreetDetailsPayload = {
     /** OSM `memorial=*` subtype; empty only where the source has none. */
     memorial_type: string;
     name: string;
+    /** Stable OSM primitive identity retained across regenerated payloads. */
+    osm_element: "node" | "relation" | "way";
+    osm_id: string;
+    osm_key: string;
+    /** True means Schwellenraum must render and collide as ordinary Day. */
+    schwellenraum_protected: boolean;
     w_dm: number;
     x_dm: number;
     z_dm: number;

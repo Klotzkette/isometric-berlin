@@ -120,10 +120,11 @@ describe("pedestrian navigation", () => {
     expect(state.pitch).toBeCloseTo(0.25);
   });
 
-  test("jump reaches roughly three person heights and cannot double jump", () => {
+  test("jump comfortably clears three person heights and cannot double jump", () => {
     let state = jumpPedestrian(createPedestrianState(environment));
     expect(jumpPedestrian(state)).toBe(state);
     let apex = 0;
+    let flightTime = 0;
     for (let step = 0; step < 400 && !state.grounded; step += 1) {
       state = stepPedestrian(
         state,
@@ -132,8 +133,12 @@ describe("pedestrian navigation", () => {
         environment,
       ).state;
       apex = Math.max(apex, state.jumpOffset);
+      flightTime += 0.01;
     }
     expect(apex).toBeCloseTo(PEDESTRIAN_JUMP_APEX_M, 1);
+    expect(apex).toBeGreaterThan(PEDESTRIAN_EYE_HEIGHT_M * 3);
+    expect(flightTime).toBeGreaterThan(1.3);
+    expect(flightTime).toBeLessThan(1.5);
     expect(state.grounded).toBe(true);
     expect(state.jumpOffset).toBe(0);
   });
@@ -287,6 +292,46 @@ describe("pedestrian navigation", () => {
     expect(result.state.x).toBeLessThanOrEqual(-0.58);
   });
 
+  test("preserves a measured 1.426 m veteran-tree trunk as solid", () => {
+    const veteranEnvironment: PedestrianEnvironment = {
+      ...environment,
+      obstacles: compilePedestrianObstacles({ buildings: [] }),
+    };
+    const obstacles = addPedestrianParkObstacles(veteranEnvironment, {
+      paths: [],
+      playgrounds: [],
+      schema_version: 6,
+      source: {
+        attribution: "fixture",
+        geometry_status: "fixture",
+        name: "fixture",
+      },
+      trees: [
+        {
+          cr: 12.5,
+          h: 35,
+          i: "official-veteran-tree",
+          position: [0, 4.25, 0] as [number, number, number],
+          tr: 1.426,
+          v: 0,
+        },
+      ],
+    });
+    const veteranTrunk = [...obstacles.cells.values()]
+      .flat()
+      .find(
+        (obstacle) =>
+          obstacle.kind === "circle" && obstacle.x === 0 && obstacle.z === 0,
+      );
+    expect(veteranTrunk?.kind).toBe("circle");
+    if (!veteranTrunk || veteranTrunk.kind !== "circle") {
+      throw new Error("veteran-tree trunk obstacle missing");
+    }
+    expect(veteranTrunk.radius).toBeCloseTo(1.426, 3);
+    expect(pedestrianPointIsBlocked(1.84, 0, 4.25, obstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(1.86, 0, 4.25, obstacles)).toBe(false);
+  });
+
   test("official wall traces are solid without becoming infinite barriers", () => {
     const wallEnvironment: PedestrianEnvironment = {
       ...environment,
@@ -317,6 +362,79 @@ describe("pedestrian navigation", () => {
     expect(pedestrianPointIsBlocked(-0.2, 0, 4.25, obstacles)).toBe(true);
     expect(pedestrianPointIsBlocked(-0.2, 3, 4.25, obstacles)).toBe(false);
     expect(pedestrianPointIsBlocked(-0.2, 0, 8, obstacles)).toBe(false);
+  });
+
+  test("mapped hedges and rendered shrubs are finite obstacles", () => {
+    const hedgeEnvironment: PedestrianEnvironment = {
+      ...environment,
+      obstacles: compilePedestrianObstacles({ buildings: [] }),
+    };
+    const obstacles = addPedestrianParkObstacles(hedgeEnvironment, {
+      hedges: [
+        {
+          dimensions_status: "Display dimensions",
+          height_m: 1.5,
+          id: "way/hedge-line:0",
+          kind: "line",
+          points: [
+            [0, 4.25, -2],
+            [0, 4.25, 2],
+          ],
+          source_url: "https://www.openstreetmap.org/way/hedge-line",
+          width_m: 1,
+        },
+        {
+          dimensions_status: "Display dimensions",
+          height_m: 1.5,
+          id: "way/hedge-area:0",
+          kind: "area",
+          rings: [
+            [
+              [10, 4.25, 10],
+              [14, 4.25, 10],
+              [14, 4.25, 14],
+              [10, 4.25, 14],
+              [10, 4.25, 10],
+            ],
+          ],
+          source_url: "https://www.openstreetmap.org/way/hedge-area",
+        },
+      ],
+      paths: [],
+      playgrounds: [],
+      schema_version: 6,
+      shrub_patches: [
+        {
+          clusters: [[20, 4.25, 20, 1.4, 1, 0]],
+          id: "way/scrub:0",
+          rings: [
+            [
+              [18, 4.25, 18],
+              [22, 4.25, 18],
+              [22, 4.25, 22],
+              [18, 4.25, 22],
+              [18, 4.25, 18],
+            ],
+          ],
+          source_url: "https://www.openstreetmap.org/way/scrub",
+        },
+      ],
+      source: {
+        attribution: "fixture",
+        geometry_status: "fixture",
+        name: "fixture",
+      },
+      trees: [],
+    });
+    expect(obstacles.hedgeSegmentCount).toBe(2);
+    expect(obstacles.hedgeAreaCount).toBe(1);
+    expect(obstacles.shrubClusterCount).toBe(1);
+    expect(pedestrianPointIsBlocked(-0.3, 0, 4.25, obstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(-0.3, 3, 4.25, obstacles)).toBe(false);
+    expect(pedestrianPointIsBlocked(12, 12, 4.25, obstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(20, 20, 4.25, obstacles)).toBe(true);
+    expect(pedestrianPointIsBlocked(18.5, 18.5, 4.25, obstacles)).toBe(false);
+    expect(pedestrianPointIsBlocked(20, 20, 6, obstacles)).toBe(false);
   });
 
   test("activation over a solid footprint relocates to nearby open ground", () => {

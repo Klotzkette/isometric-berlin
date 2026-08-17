@@ -12,7 +12,11 @@ from shapely.geometry import Point, Polygon
 from isometric_berlin.generation.build_minecraft_voxels import (
   CLASSES,
   build_ground_context_payload,
+  decode_building_rows,
+  decode_tree_rows,
+  encode_building_rows,
   encode_ground_rows,
+  encode_tree_rows,
   inset_cells,
   is_interim_office_footprint_suppressed,
   snap_up,
@@ -39,10 +43,20 @@ def payload() -> dict:
   return json.loads(raw)
 
 
+def _building_columns(payload: dict) -> list[list[int]]:
+  return decode_building_rows(payload["building_rows"], payload["grid"])
+
+
+def _tree_blocks(payload: dict) -> list[list[int]]:
+  return decode_tree_rows(payload["tree_rows"], payload["grid"])
+
+
 def test_payload_is_small_and_versioned(payload: dict) -> None:
   assert PAYLOAD.exists()
-  assert PAYLOAD.stat().st_size < 5 * 1024 * 1024
-  assert payload["schema_version"] == 1
+  # The task-13 ring keeps every source-backed block inside a measured 7 MiB
+  # ceiling; the terrain-only startup subset remains independently bounded.
+  assert PAYLOAD.stat().st_size < 7 * 1024 * 1024
+  assert payload["schema_version"] == 2
   assert payload["cell_m"] == 4.0
   assert payload["classes"] == CLASSES
   assert payload["classes"] == [
@@ -71,9 +85,12 @@ def test_ground_context_is_a_small_exact_terrain_subset(payload: dict) -> None:
   expected = build_ground_context_payload(payload)
 
   assert committed == expected
-  assert GROUND_CONTEXT.stat().st_size < 1024 * 1024
-  assert committed["buildings"] == []
-  assert committed["trees"] == []
+  # The exact 500 m expansion grows the classified startup terrain from the
+  # former task-10 extent to 1.25 million occupied cells. It still stays well
+  # below the full public-payload budget while avoiding any data thinning.
+  assert GROUND_CONTEXT.stat().st_size < 3 * 1024 * 1024
+  assert committed["building_rows"] == []
+  assert committed["tree_rows"] == []
   assert committed["grid"] == payload["grid"]
   assert committed["ground_rows"] == payload["ground_rows"]
   assert committed["ground_height"] == payload["ground_height"]
@@ -81,7 +98,7 @@ def test_ground_context_is_a_small_exact_terrain_subset(payload: dict) -> None:
 
 def test_building_columns_are_plausible(payload: dict) -> None:
   grid = payload["grid"]
-  columns = payload["buildings"]
+  columns = _building_columns(payload)
   assert len(columns) > 1_000
   x_lo, x_hi = grid["min_x_idx"], grid["min_x_idx"] + grid["cols"]
   z_lo, z_hi = grid["min_z_idx"], grid["min_z_idx"] + grid["rows"]
@@ -121,7 +138,7 @@ def test_ground_rows_cover_most_of_the_bounds_polygon(payload: dict) -> None:
 def test_reichstag_area_has_tall_columns(payload: dict) -> None:
   reichstag = [
     column
-    for column in payload["buildings"]
+    for column in _building_columns(payload)
     if column[0] in REICHSTAG_X_IDX and column[1] in REICHSTAG_Z_IDX
   ]
   assert len(reichstag) > 100
@@ -134,7 +151,7 @@ def test_reichstag_area_has_tall_columns(payload: dict) -> None:
 
 def test_tree_blocks_are_plausible(payload: dict) -> None:
   grid = payload["grid"]
-  trees = payload["trees"]
+  trees = _tree_blocks(payload)
   assert len(trees) > 1_000
   x_lo, x_hi = grid["min_x_idx"], grid["min_x_idx"] + grid["cols"]
   z_lo, z_hi = grid["min_z_idx"], grid["min_z_idx"] + grid["rows"]
@@ -147,6 +164,10 @@ def test_tree_blocks_are_plausible(payload: dict) -> None:
     assert height_dm % 40 == 0
     occupied.add((x_idx, z_idx))
   assert len(occupied) == len(trees), "one voxel tree per cell"
+  heights_dm = {tree[3] for tree in trees}
+  assert len(heights_dm) >= 8, "measured tree heights must survive voxel snapping"
+  assert max(heights_dm) == 360, "the 35 m Tiergarten trees snap to 36 m"
+  assert sum(tree[3] > 280 for tree in trees) >= 100
 
 
 def test_ground_height_grid_matches_terrain_band(payload: dict) -> None:
@@ -217,6 +238,29 @@ def test_encode_ground_rows_run_length() -> None:
   ]
 
 
+def test_schema_2_instance_rows_round_trip_losslessly() -> None:
+  grid = {"min_x_idx": -3, "min_z_idx": 7, "cols": 8, "rows": 3}
+  buildings = [
+    [-2, 7, 10, 90, 3],
+    [-1, 7, 10, 90, 3],
+    [0, 7, 20, 100, 4],
+    [0, 7, 100, 140, 4],
+    [3, 9, 0, 80, 3],
+  ]
+  building_rows = encode_building_rows(buildings, grid)
+  assert building_rows[0] == [
+    [1, 2, 10, 90, 3],
+    [3, 1, 20, 100, 4],
+    [3, 1, 100, 140, 4],
+  ]
+  assert sorted(decode_building_rows(building_rows, grid)) == sorted(buildings)
+
+  trees = [[-3, 7, 32, 120], [2, 8, 35, 160]]
+  tree_rows = encode_tree_rows(trees, grid)
+  assert tree_rows == [[[0, 32, 120]], [[5, 35, 160]], []]
+  assert decode_tree_rows(tree_rows, grid) == trees
+
+
 def test_inset_cells_requires_all_four_neighbours() -> None:
   block = {(x, z) for x in range(3) for z in range(3)}
   assert inset_cells(block) == {(1, 1)}
@@ -259,7 +303,7 @@ def test_interim_office_suppression_uses_buffered_pill_footprint(
   # footprint around the hand-built coloured pill.
   residual_columns = [
     column
-    for column in payload["buildings"]
+    for column in _building_columns(payload)
     if former_site_prism.covers(
       Point((column[0] + 0.5) * CELL_M, (column[1] + 0.5) * CELL_M)
     )

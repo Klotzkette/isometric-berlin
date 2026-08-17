@@ -71,12 +71,14 @@ def test_compact_tree_encoding_round_trips() -> None:
 
 def test_park_detail_payload_is_compact_and_specific() -> None:
   assert PAYLOAD.exists()
-  assert PAYLOAD.stat().st_size < 5 * 1024 * 1024
+  # The additional task-13 ring contributes real paths, trees and lights; the
+  # compact schema keeps all of them under a measured 6 MiB browser budget.
+  assert PAYLOAD.stat().st_size < 6 * 1024 * 1024
   raw = PAYLOAD.read_text(encoding="utf-8")
   assert "NaN" not in raw
   payload = json.loads(raw)
 
-  assert payload["schema_version"] == 4
+  assert payload["schema_version"] == 6
   assert payload["source"]["attribution"] == (
     "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)"
   )
@@ -92,9 +94,47 @@ def test_park_detail_payload_is_compact_and_specific() -> None:
   assert all(4 <= path["w"] <= 600 for path in payload["paths"])
   assert all("name" not in path for path in payload["paths"] if not path.get("name"))
   trees = payload_trees(payload)
-  assert all(3 <= tree["height_m"] <= 28 for tree in trees)
+  assert all(1.5 <= tree["height_m"] <= 40 for tree in trees)
+  assert max(tree["height_m"] for tree in trees) == 35
+  assert max(tree["crown_radius_m"] for tree in trees) >= 12.5
+  assert max(tree["trunk_radius_m"] for tree in trees) > 0.9
+  assert any(tree["crown_radius_m"] == 12.5 for tree in trees)
+  assert any(tree["trunk_radius_m"] == 1.426 for tree in trees)
   assert max(tree["position"][1] for tree in trees) < 8
   assert max(light["position"][1] for light in payload["street_lights"]) < 8
+
+
+def test_tiergarten_scrub_and_hedges_remain_source_bounded() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  source = payload["sources"]["tiergarten_vegetation"]
+  assert source["available"] is True
+  assert source["license"] == "ODbL-1.0"
+  assert source["park_relation_url"].endswith("/relation/7643526")
+  assert source["metrics"] == {
+    "hedge_area_count": 2,
+    "hedge_area_m2": 526.8,
+    "hedge_line_count": 21,
+    "hedge_line_length_m": 1099.2,
+    "scrub_area_count": 83,
+    "scrub_area_m2": 106628.5,
+  }
+  assert len(payload["shrub_patches"]) == 83
+  assert sum(len(patch["clusters"]) for patch in payload["shrub_patches"]) == 3535
+  assert len(payload["hedges"]) == 23
+  lines = [hedge for hedge in payload["hedges"] if hedge["kind"] == "line"]
+  areas = [hedge for hedge in payload["hedges"] if hedge["kind"] == "area"]
+  assert len(lines) == 21
+  assert len(areas) == 2
+  assert round(sum(hedge["length_m"] for hedge in lines), 1) == 1099.2
+  assert round(sum(hedge["area_m2"] for hedge in areas), 1) == 526.8
+  assert {hedge["source_url"].rsplit("/", 1)[-1] for hedge in areas} == {
+    "120583843",
+    "121797064",
+  }
+  assert all("openstreetmap.org/way/" in hedge["source_url"] for hedge in lines)
+  assert all(
+    "Display dimensions" in hedge["dimensions_status"] for hedge in payload["hedges"]
+  )
 
 
 def test_paths_cover_spreebogen_futurium_and_nordhafen_parks() -> None:

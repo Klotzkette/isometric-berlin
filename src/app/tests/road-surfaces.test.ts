@@ -18,6 +18,12 @@ import surfacePayload from "../public/mesh/regierungsviertel/surface-polygons.js
 
 const surfaces = surfacePayload as unknown as SurfacePayload;
 const ground = groundPayload as unknown as VoxelPayload;
+// Task 12 enlarged the exact surface payload by 500 m on every side. This
+// regression intentionally builds all mapped scrub, so allow bounded headroom
+// when the full-city suites triangulate in parallel.
+// Full-payload surface construction reaches about 14 s under parallel load;
+// keep a finite guard with enough headroom for the task-13 outer ring.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 30_000;
 
 describe("drawn carriageways and park paths", () => {
   test("bilinearly interpolates the measured terrain samples for drawn grades", () => {
@@ -84,7 +90,7 @@ describe("drawn carriageways and park paths", () => {
         0,
       ),
     ).toBe(surfaces.scrub_points?.length ?? 0);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("no road hole is a degenerate sliver", () => {
     // A hole without area crashes three's earcut triangulator and used to

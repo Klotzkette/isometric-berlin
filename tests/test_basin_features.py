@@ -14,6 +14,7 @@ from isometric_berlin.generation.basin_features import (
   is_basin,
   load_water_features,
 )
+from isometric_berlin.generation.build_minecraft_voxels import decode_building_rows
 
 OSM = Path("geo_data/regierungsviertel/osm.gpkg")
 SURFACES = Path("src/app/public/mesh/regierungsviertel/surface-polygons.json")
@@ -105,12 +106,13 @@ def test_the_payload_carries_the_wall_axis(surfaces: dict) -> None:
 
 def test_voxel_wedge_steps_up_towards_the_crest() -> None:
   payload = json.loads(VOXELS.read_text(encoding="utf-8"))
+  buildings = decode_building_rows(payload["building_rows"], payload["grid"])
   # A freestanding wall gets its own class so the voxel viewer does not
   # punch storey windows into it.
   wall = payload["classes"].index("wall")
   wedge = sorted(
     (z_idx, y1 - y0)
-    for x_idx, z_idx, y0, y1, cid in payload["buildings"]
+    for x_idx, z_idx, y0, y1, cid in buildings
     if cid == wall and x_idx == 89 and -296 <= z_idx <= -284
   )
   assert len(wedge) >= 6

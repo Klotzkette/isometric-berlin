@@ -9,6 +9,7 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
+import { ADLER_BRIDGE_PROFILE } from "./AdlerBridge";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 
 type RectProfile = {
@@ -146,15 +147,15 @@ export const CITY_REFINEMENT_PROFILES = {
 
 export const BRIDGE_REFINEMENT_PROFILES = {
   adlerbruecke: {
-    centreWorldM: [-1197.93, 931.57] as const,
-    lengthM: 11.55,
+    centreWorldM: ADLER_BRIDGE_PROFILE.centreWorldM,
+    lengthM: ADLER_BRIDGE_PROFILE.inventory.lengthM,
     name: "Adlerbruecke im Grossen Tiergarten",
-    rotationY: -0.7554,
-    sourceUrls: [
-      "https://www.openstreetmap.org/way/28872983",
-      "https://commons.wikimedia.org/wiki/Category:Adlerbr%C3%BCcke_(Gro%C3%9Fer_Tiergarten)",
-    ],
-    widthM: 3.25,
+    rotationY: -Math.atan2(
+      ADLER_BRIDGE_PROFILE.axis[1],
+      ADLER_BRIDGE_PROFILE.axis[0],
+    ),
+    sourceUrls: ADLER_BRIDGE_PROFILE.sourceUrls,
+    widthM: ADLER_BRIDGE_PROFILE.inventory.widthM,
   },
   lutherbruecke: {
     centreWorldM: [-1131.79, 118.32] as const,
@@ -197,7 +198,7 @@ export const MEMORIAL_REFINEMENT_PROFILES = {
 } as const;
 
 export const DETAIL_COVERAGE = {
-  "Adlerbruecke im Tiergarten": "CityRecognitionRefinements",
+  "Adlerbruecke im Tiergarten": "AdlerBridge",
   "ALDI Nord Invalidenstrasse": "CityRecognitionRefinements",
   "Bismarck-Nationaldenkmal": "IsometricCityWorld/createSiegessaeule",
   "Englischer Garten": "OSM park polygons plus current Teehaus presentation",
@@ -627,62 +628,6 @@ function addBridgeDetails(
   builder: Builder,
   groundAt: (x: number, z: number) => number,
 ): void {
-  const adler = BRIDGE_REFINEMENT_PROFILES.adlerbruecke;
-  const adlerGround = groundAt(...adler.centreWorldM) + 0.35;
-  const adlerRect: RectProfile = {
-    centreWorldM: adler.centreWorldM,
-    depthM: adler.widthM,
-    geometryStatus: "OSM centreline and published dimensions",
-    heightM: 0.45,
-    name: adler.name,
-    rotationY: adler.rotationY,
-    sourceUrls: adler.sourceUrls,
-    widthM: adler.lengthM,
-  };
-  localBox(
-    builder,
-    adlerRect,
-    SANDSTONE_LIGHT,
-    0,
-    adlerGround,
-    0,
-    adler.lengthM,
-    0.45,
-    adler.widthM,
-  );
-  for (const side of [-1, 1]) {
-    localBox(
-      builder,
-      adlerRect,
-      SANDSTONE,
-      0,
-      adlerGround + 0.75,
-      side * (adler.widthM / 2),
-      adler.lengthM,
-      0.7,
-      0.22,
-    );
-  }
-  // Two eagles are embedded into the historic railings.
-  for (const end of [-1, 1]) {
-    const [x, z] = at(adlerRect, end * 4.2, 0);
-    addCylinder(builder, SANDSTONE, x, adlerGround + 0.8, z, 0.48, 1.25, 8);
-    addCylinder(builder, BRONZE, x, adlerGround + 1.9, z, 0.38, 0.9, 8);
-    localBox(
-      builder,
-      adlerRect,
-      BRONZE,
-      end * 4.2,
-      adlerGround + 2.05,
-      0,
-      2.4,
-      0.28,
-      0.55,
-      false,
-    );
-    addCone(builder, BRONZE, x, adlerGround + 2.68, z, 0.42, 0.7, 6);
-  }
-
   const luther = BRIDGE_REFINEMENT_PROFILES.lutherbruecke;
   const lutherGround = groundAt(...luther.centreWorldM) + 0.65;
   const lutherRect: RectProfile = {
@@ -1234,7 +1179,6 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
   addBridgeDetails(tiergarten, groundAt);
   addMemorialDetails(tiergarten, groundAt);
   addBatch(root, "Tiergarten bridge and memorial fine details", tiergarten, [
-    "Adlerbruecke",
     "Lutherbruecke",
     "Karl-Liebknecht-Denkmal",
     "Rosa-Luxemburg-Denkmal",

@@ -27,6 +27,7 @@ import {
   markArchitecturalInk,
 } from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
+import { createKindertransportMemorial, KINDERTRANSPORT_MEMORIAL_OSM_KEY } from "./KindertransportMemorial";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "./TrafficSignals";
 
@@ -151,7 +152,7 @@ function box(
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   builder.parts.push(geometry);
   builder.edges.push(
-    new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES)
   );
 }
 
@@ -217,7 +218,7 @@ function cylinder(
     bottomRadius,
     height,
     segments,
-    1,
+    1
   );
   geometry.translate(x, baseY + height / 2, z);
   addPaintedGeometry(builder, geometry, color, 22);
@@ -235,7 +236,7 @@ function orientedPoint(
   return new Vector3(
     x + local[0] * cosine + local[2] * sine,
     y + local[1],
-    z - local[0] * sine + local[2] * cosine,
+    z - local[0] * sine + local[2] * cosine
   );
 }
 
@@ -278,8 +279,7 @@ function rod(
   geometry.applyQuaternion(
     new Quaternion().setFromUnitVectors(
       new Vector3(0, 1, 0),
-      direction.normalize(),
-    ),
+      direction.normalize())
   );
   const centre = start.clone().add(end).multiplyScalar(0.5);
   geometry.translate(centre.x, centre.y, centre.z);
@@ -292,7 +292,7 @@ function floraplatzPlinth(
   y: number,
   z: number,
   rotationY: number,
-  length = 3.35,
+  length = 3.35
 ): number {
   box(builder, STONE_LIGHT, x, y + 0.09, z, length + 0.3, 0.18, 1.85, rotationY);
   box(
@@ -304,7 +304,7 @@ function floraplatzPlinth(
     length,
     0.92,
     1.58,
-    rotationY,
+    rotationY
   );
   box(builder, STONE_LIGHT, x, y + 1.05, z, length + 0.12, 0.12, 1.7, rotationY);
   return 1.11;
@@ -316,7 +316,7 @@ function foldedLegs(
   y: number,
   z: number,
   rotationY: number,
-  deck: number,
+  deck: number
 ): void {
   for (const side of [-0.34, 0.34]) {
     rod(
@@ -329,7 +329,7 @@ function foldedLegs(
       [1.1, deck + 0.2, side],
       0.12,
       rotationY,
-      0.9,
+      0.9
     );
     rod(
       builder,
@@ -360,12 +360,12 @@ function branchedAntlers(
     const middle: [number, number, number] = [
       base[0] - 0.08,
       base[1] + 0.52,
-      side * spread * 0.55,
+      side * spread * 0.55
     ];
     const tip: [number, number, number] = [
       base[0] + 0.08,
       base[1] + 1.02,
-      side * spread,
+      side * spread
     ];
     rod(builder, FLORAPLATZ_BRONZE, x, y, z, root, middle, 0.055, rotationY);
     rod(builder, FLORAPLATZ_BRONZE, x, y, z, middle, tip, 0.045, rotationY);
@@ -400,7 +400,7 @@ function buildMemorialStele(
   x: number,
   y: number,
   z: number,
-  height = 1.65,
+  height = 1.65
 ): void {
   box(builder, STONE_LIGHT, x, y + 0.06, z, 0.72, 0.12, 0.52);
   box(builder, STONE, x, y + 0.12 + height / 2, z, 0.5, height, 0.24);
@@ -416,7 +416,7 @@ function buildMemorialStatue(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, STONE_LIGHT, x, y + 0.36, z, 0.82, 0.72, 0.68);
   rod(builder, BRONZE, x, y, z, [-0.16, 0.72, 0], [-0.16, 1.45, 0], 0.1, 0);
@@ -429,7 +429,7 @@ function buildMemorialObelisk(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, STONE_LIGHT, x, y + 0.18, z, 1.0, 0.36, 1.0);
   cylinder(builder, STONE, x, y + 0.36, z, 0.42, 0.14, 2.65, 4);
@@ -462,7 +462,7 @@ function buildTypedMemorial(
   x: number,
   y: number,
   z: number,
-  memorialType: string,
+  memorialType: string
 ): void {
   switch (memorialType) {
     case "stolperstein":
@@ -515,7 +515,7 @@ function buildRousseauColumn(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, ROUSSEAU_SANDSTONE, x, y + 0.08, z, 1.25, 0.16, 1.25);
   cylinder(builder, ROUSSEAU_SANDSTONE, x, y + 0.16, z, 0.43, 0.4, 1.0, 18);
@@ -558,7 +558,7 @@ function buildLortzingMemorial(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, MARBLE, x, y + 0.1, z, 4.6, 0.2, 3.7);
   box(builder, MARBLE, x, y + 0.28, z, 4.05, 0.16, 3.2);
@@ -572,12 +572,12 @@ function buildLortzingMemorial(
     ellipsoid(
       builder, MARBLE, px, y, z,
       [0, 1.45 + (index % 2) * 0.08, 1.35],
-      [0.22, 0.33, 0.2], 0,
+      [0.22, 0.33, 0.2], 0
     );
     ellipsoid(
       builder, MARBLE, px, y, z,
       [0, 1.86 + (index % 2) * 0.08, 1.35],
-      [0.16, 0.17, 0.16], 0,
+      [0.16, 0.17, 0.16], 0
     );
   }
 
@@ -602,7 +602,7 @@ function buildTreeDonationStele(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, MUSCHELKALK, x, y + 0.1, z, 1.65, 0.2, 1.65);
   const courses = [0.72, 0.8, 0.8, 0.8];
@@ -632,7 +632,7 @@ function buildRobertKochMemorial(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   // Broad four-step marble base and inscribed pedestal.
   box(builder, STONE_LIGHT, x, y + 0.12, z, 5.0, 0.24, 4.3);
@@ -654,7 +654,7 @@ function addGraefePediment(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   const halfWidth = 1.55;
   const bottom = y + 4.03;
@@ -738,7 +738,7 @@ function addGraefePediment(
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
   geometry.setIndex(
-    Array.from({ length: vertices.length / 3 }, (_, index) => index),
+    Array.from({ length: vertices.length / 3 }, (_, index) => index)
   );
   geometry.computeVertexNormals();
   addPaintedGeometry(builder, geometry, GRAEFE_SANDSTONE_LIGHT, 18);
@@ -749,7 +749,7 @@ function addGraefeReliefFigures(
   x: number,
   y: number,
   z: number,
-  side: -1 | 1,
+  side: -1 | 1
 ): void {
   const panelX = x + side * 2.55;
   const colours = [
@@ -771,7 +771,7 @@ function addGraefeReliefFigures(
       z,
       [0, baseY + height / 2, 0.5],
       [0.095, height / 2, 0.052],
-      0,
+      0
     );
     ellipsoid(
       builder,
@@ -794,7 +794,7 @@ function addGraefeReliefFigures(
       [stride, baseY - 0.11, 0.505],
       0.026,
       0,
-      0.78,
+      0.78
     );
     rod(
       builder,
@@ -806,7 +806,7 @@ function addGraefeReliefFigures(
       [-stride, baseY - 0.11, 0.505],
       0.026,
       0,
-      0.78,
+      0.78
     );
     rod(
       builder,
@@ -845,7 +845,7 @@ function buildGraefeChariteMemorialLocal(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   // Stepped sandstone base and three-axis neo-Renaissance screen.
   box(builder, GRAEFE_SANDSTONE, x, y + 0.16, z, 9.2, 0.32, 1.3);
@@ -859,7 +859,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       3.3,
       2.86,
-      0.72,
+      0.72
     );
     box(
       builder,
@@ -869,7 +869,7 @@ function buildGraefeChariteMemorialLocal(
       z + 0.405,
       2.6,
       1.02,
-      0.08,
+      0.08
     );
     for (const frameY of [2.12, 3.24]) {
       box(
@@ -880,7 +880,7 @@ function buildGraefeChariteMemorialLocal(
         z + 0.465,
         2.86,
         0.09,
-        0.07,
+        0.07
       );
     }
     for (const frameX of [-1.39, 1.39]) {
@@ -892,7 +892,7 @@ function buildGraefeChariteMemorialLocal(
         z + 0.465,
         0.09,
         1.2,
-        0.07,
+        0.07
       );
     }
     box(
@@ -903,7 +903,7 @@ function buildGraefeChariteMemorialLocal(
       z + 0.42,
       2.72,
       0.46,
-      0.1,
+      0.1
     );
     // The Schiller inscriptions read as four incised text rows at map scale.
     for (let row = 0; row < 4; row += 1) {
@@ -915,7 +915,7 @@ function buildGraefeChariteMemorialLocal(
         z + 0.485,
         2.2 - (row % 2) * 0.2,
         0.025,
-        0.025,
+        0.025
       );
     }
     addGraefeReliefFigures(builder, x, y, z, side as -1 | 1);
@@ -931,7 +931,7 @@ function buildGraefeChariteMemorialLocal(
     z + 0.475,
     1.86,
     1.86,
-    0.06,
+    0.06
   );
   const nicheCrown = new CircleGeometry(0.93, 24, 0, Math.PI);
   nicheCrown.translate(x, y + 3.38, z + 0.505);
@@ -963,7 +963,7 @@ function buildGraefeChariteMemorialLocal(
       z + 0.46,
       0.28,
       1.9,
-      0.18,
+      0.18
     );
     for (const ornamentY of [3.55, 3.78]) {
       const ornament = new TorusGeometry(0.11, 0.025, 5, 12);
@@ -991,7 +991,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0, 5.02, 0],
     [0.25, 0.42, 0.15],
-    0,
+    0
   );
 
   // Siemering's documented 1.66 m bronze: long frock coat, narrow stance,
@@ -1011,7 +1011,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       [shoeX, footY + 0.055, shoeZ],
       [0.13, 0.055, 0.2],
-      0,
+      0
     );
   }
   rod(
@@ -1024,7 +1024,7 @@ function buildGraefeChariteMemorialLocal(
     [-0.11, footY + 0.69, 0.55],
     0.095,
     0,
-    0.82,
+    0.82
   );
   rod(
     builder,
@@ -1036,7 +1036,7 @@ function buildGraefeChariteMemorialLocal(
     [0.1, footY + 0.69, 0.55],
     0.095,
     0,
-    0.82,
+    0.82
   );
   const coatSkirt = new CylinderGeometry(0.28, 0.36, 0.76, 12);
   coatSkirt.scale(1, 1, 0.55);
@@ -1050,7 +1050,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0, footY + 1.08, 0.55],
     [0.31, 0.43, 0.17],
-    0,
+    0
   );
   ellipsoid(
     builder,
@@ -1060,7 +1060,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0, footY + 1.47, 0.55],
     [0.15, 0.19, 0.145],
-    0,
+    0
   );
   // The portrait follows the reference's centre-parted hair, long full beard,
   // deep eyes and narrow nose. Slight patina shifts remain flat colours, but
@@ -1073,7 +1073,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0, footY + 1.49, 0.69],
     [0.112, 0.13, 0.046],
-    0,
+    0
   );
   ellipsoid(
     builder,
@@ -1083,7 +1083,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0, footY + 1.61, 0.575],
     [0.13, 0.05, 0.12],
-    0,
+    0
   );
   for (const hairX of [-0.108, 0.108]) {
     rod(
@@ -1108,7 +1108,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       [side * 0.14, footY + 1.49, 0.61],
       [0.025, 0.045, 0.024],
-      0,
+      0
     );
     ellipsoid(
       builder,
@@ -1118,7 +1118,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       [side * 0.043, footY + 1.535, 0.731],
       [0.018, 0.011, 0.01],
-      0,
+      0
     );
     rod(
       builder,
@@ -1140,7 +1140,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       [side * 0.06, footY + 1.38, 0.714],
       [0.064, 0.12, 0.04],
-      0,
+      0
     );
   }
   rod(
@@ -1153,7 +1153,7 @@ function buildGraefeChariteMemorialLocal(
     [0.008, footY + 1.475, 0.765],
     0.018,
     0,
-    0.8,
+    0.8
   );
   for (const side of [-1, 1]) {
     rod(
@@ -1177,7 +1177,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0, footY + 1.32, 0.708],
     [0.075, 0.145, 0.045],
-    0,
+    0
   );
   // Lapels, waist seam and four coat buttons sharpen the contemporary dress.
   rod(
@@ -1190,7 +1190,7 @@ function buildGraefeChariteMemorialLocal(
     [0, footY + 1.02, 0.72],
     0.028,
     0,
-    0.8,
+    0.8
   );
   rod(
     builder,
@@ -1202,7 +1202,7 @@ function buildGraefeChariteMemorialLocal(
     [0, footY + 1.02, 0.72],
     0.028,
     0,
-    0.8,
+    0.8
   );
   for (const buttonY of [0.82, 0.94, 1.06, 1.18]) {
     ellipsoid(
@@ -1213,7 +1213,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       [0.035, footY + buttonY, 0.725],
       [0.018, 0.018, 0.012],
-      0,
+      0
     );
   }
   rod(
@@ -1226,7 +1226,7 @@ function buildGraefeChariteMemorialLocal(
     [0, footY + 0.78, 0.73],
     0.014,
     0,
-    0.7,
+    0.7
   );
   for (const foldX of [-0.15, 0.15]) {
     rod(
@@ -1253,7 +1253,7 @@ function buildGraefeChariteMemorialLocal(
     [-0.24, footY + 1.25, 0.55],
     [-0.32, footY + 1.02, 0.62],
     0.065,
-    0,
+    0
   );
   rod(
     builder,
@@ -1264,7 +1264,7 @@ function buildGraefeChariteMemorialLocal(
     [-0.32, footY + 1.02, 0.62],
     [-0.03, footY + 0.94, 0.72],
     0.058,
-    0,
+    0
   );
   rod(
     builder,
@@ -1275,7 +1275,7 @@ function buildGraefeChariteMemorialLocal(
     [0.25, footY + 1.24, 0.55],
     [0.35, footY + 0.93, 0.6],
     0.065,
-    0,
+    0
   );
   rod(
     builder,
@@ -1286,7 +1286,7 @@ function buildGraefeChariteMemorialLocal(
     [0.35, footY + 0.93, 0.6],
     [0.52, footY + 0.72, 0.62],
     0.058,
-    0,
+    0
   );
   const ophthalmoscope = new CylinderGeometry(0.052, 0.052, 0.035, 12);
   ophthalmoscope.rotateX(Math.PI / 2);
@@ -1300,7 +1300,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [-0.03, footY + 0.95, 0.735],
     [0.066, 0.054, 0.038],
-    0,
+    0
   );
   for (const supportX of [0.48, 0.58]) {
     rod(
@@ -1313,7 +1313,7 @@ function buildGraefeChariteMemorialLocal(
       [supportX, footY + 0.72, 0.56],
       0.045,
       0,
-      0.82,
+      0.82
     );
   }
   ellipsoid(
@@ -1324,7 +1324,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0.53, footY + 0.76, 0.57],
     [0.13, 0.11, 0.09],
-    0,
+    0
   );
   ellipsoid(
     builder,
@@ -1334,7 +1334,7 @@ function buildGraefeChariteMemorialLocal(
     z,
     [0.52, footY + 0.77, 0.65],
     [0.07, 0.045, 0.04],
-    0,
+    0
   );
   for (const supportY of [0.2, 0.48]) {
     const ornament = new TorusGeometry(0.09, 0.025, 5, 12);
@@ -1372,7 +1372,7 @@ function buildGraefeChariteMemorialLocal(
     finial.translate(
       x + picketX,
       y + GRAEFE_REAR_FENCE_HEIGHT_M + 0.075,
-      z + rearFenceZ,
+      z + rearFenceZ
     );
     addPaintedGeometry(builder, finial, GRAEFE_IRON, 18);
   }
@@ -1395,7 +1395,7 @@ function buildGraefeChariteMemorialLocal(
     ring.translate(
       x + rearFencePoints[index][0],
       y + 0.84,
-      z + rearFenceZ + 0.004,
+      z + rearFenceZ + 0.004
     );
     addPaintedGeometry(builder, ring, GRAEFE_IRON, 24);
   }
@@ -1419,7 +1419,7 @@ function buildGraefeChariteMemorialLocal(
       [localX, 1.02, localZ],
       0.045,
       0,
-      1,
+      1
     );
     ellipsoid(
       builder,
@@ -1429,7 +1429,7 @@ function buildGraefeChariteMemorialLocal(
       z,
       [localX, 1.08, localZ],
       [0.075, 0.09, 0.075],
-      0,
+      0
     );
   }
   for (let index = 1; index < fencePoints.length; index += 1) {
@@ -1456,7 +1456,7 @@ function buildGraefeChariteMemorial(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   const localBuilder: Builder = { edges: [], parts: [] };
   buildGraefeChariteMemorialLocal(localBuilder, 0, 0, 0);
@@ -1466,7 +1466,7 @@ function buildGraefeChariteMemorial(
     x,
     y,
     z,
-    (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180,
+    (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180
   );
 }
 
@@ -1504,8 +1504,7 @@ function createGraefeNamePlate(x: number, y: number, z: number): Mesh {
       y,
       z,
       [0, 0.97, 0.73],
-      (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180,
-    ),
+      (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180)
   );
   plate.rotation.y = (GRAEFE_CHARITE_YAW_DEGREES * Math.PI) / 180;
   const secondLine = createLine("VON GRAEFE");
@@ -1532,7 +1531,8 @@ function buildAnimalArtwork(builder: Builder, x: number, y: number, z: number, s
   box(builder, BRONZE, x, y + 1.25 * s, z, 2.45 * s, 1.35 * s, 1.1 * s);
   box(builder, BRONZE, x - 1.35 * s, y + 1.75 * s, z, 0.65 * s, 1.35 * s, 0.78 * s, 0.25);
   box(builder, BRONZE, x - 1.75 * s, y + 2.45 * s, z, 0.72 * s, 0.58 * s, 0.62 * s);
-  for (const [dx, dz] of [[-0.8, -0.38], [-0.8, 0.38], [0.86, -0.38], [0.86, 0.38]] as const) {
+  for (const [dx, dz] of [[-0.8, -0.38], [-0.8, 0.38], [0.86, -0.38], [0.86, 0.38],
+  ] as const) {
     box(builder, BRONZE, x + dx * s, y + 0.65 * s, z + dz * s, 0.26 * s, 1.15 * s, 0.26 * s);
   }
 }
@@ -1551,7 +1551,8 @@ function buildStandingArtwork(builder: Builder, x: number, y: number, z: number,
 }
 function buildFigureGroupArtwork(builder: Builder, x: number, y: number, z: number, s: number): void {
   box(builder, STONE, x, y + 0.25 * s, z, 4.0 * s, 0.5 * s, 2.8 * s);
-  for (const [dx, dz, h] of [[-0.9, -0.25, 1.55], [0.2, 0.35, 1.15], [1.05, -0.2, 1.38]] as const) {
+  for (const [dx, dz, h] of [[-0.9, -0.25, 1.55], [0.2, 0.35, 1.15], [1.05, -0.2, 1.38],
+  ] as const) {
     box(builder, BRONZE, x + dx * s, y + (0.55 + h / 2) * s, z + dz * s, 0.66 * s, h * s, 0.62 * s);
     box(builder, BRONZE, x + dx * s, y + (0.7 + h) * s, z + dz * s, 0.38 * s, 0.38 * s, 0.38 * s);
   }
@@ -1610,7 +1611,7 @@ function buildWildschwein(builder: Builder, x: number, y: number, z: number): vo
 
 /** Stab und Scheibe 2: reference-based presentation silhouette, not surveyed geometry. */
 function buildStabUndScheibe2(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Schifferbrunnen: reference-based presentation silhouette, not surveyed geometry. */
@@ -1627,7 +1628,7 @@ function buildSchifferbrunnen(builder: Builder, x: number, y: number, z: number)
 
 /** Hand mit Uhr: reference-based presentation silhouette, not surveyed geometry. */
 function buildHandMitUhr(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Klinkerbär: reference-based presentation silhouette, not surveyed geometry. */
@@ -1637,7 +1638,7 @@ function buildKlinkerbar(builder: Builder, x: number, y: number, z: number): voi
 
 /** Morgendämmerung Nr. 1: reference-based presentation silhouette, not surveyed geometry. */
 function buildMorgendammerungNr1(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Pfeilerfigur Bär: reference-based presentation silhouette, not surveyed geometry. */
@@ -1647,7 +1648,7 @@ function buildPfeilerfigurBar(builder: Builder, x: number, y: number, z: number)
 
 /** Vegetative Plastik I: reference-based presentation silhouette, not surveyed geometry. */
 function buildVegetativePlastikI(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Pfeilerfigur Bär mit Wappen ZG: reference-based presentation silhouette, not surveyed geometry. */
@@ -1657,17 +1658,17 @@ function buildPfeilerfigurBarMitWappenZg(builder: Builder, x: number, y: number,
 
 /** Interbau-Freiplastik: reference-based presentation silhouette, not surveyed geometry. */
 function buildInterbauFreiplastik(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Liegende weibliche Figur: reference-based presentation silhouette, not surveyed geometry. */
 function buildLiegendeWeiblicheFigur(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Georgia: reference-based presentation silhouette, not surveyed geometry. */
 function buildGeorgia(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Fuchsjagd: reference-based presentation silhouette, not surveyed geometry. */
@@ -1682,12 +1683,12 @@ function buildHasenhetze(builder: Builder, x: number, y: number, z: number): voi
 
 /** Silberfisch im Englischen Garten: reference-based presentation silhouette, not surveyed geometry. */
 function buildSilberfischImEnglischenGarten(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Sonnenuhr: reference-based presentation silhouette, not surveyed geometry. */
 function buildSonnenuhr(builder: Builder, x: number, y: number, z: number): void {
-  buildFountainArtwork(builder, x, y, z, 1.20);
+  buildFountainArtwork(builder, x, y, z, 1.2);
 }
 
 /** Theodor Fontane: reference-based presentation silhouette, not surveyed geometry. */
@@ -1718,7 +1719,8 @@ function buildDasDeutscheVolkslied(builder: Builder, x: number, y: number, z: nu
   box(builder, MUSCHELKALK, x, y + 0.24, z, 3.25, 0.16, 2.75);
   box(builder, MUSCHELKALK, x, y + 0.44, z, 2.8, 0.24, 2.35);
   box(builder, MARBLE, x, y + 0.78, z, 2.35, 0.44, 1.9);
-  for (const [dx, height] of [[-0.48, 1.35], [0.48, 1.18]] as const) {
+  for (const [dx, height] of [[-0.48, 1.35], [0.48, 1.18],
+  ] as const) {
     ellipsoid(builder, MARBLE, x, y, z, [dx, 1.55, 0], [0.48, 0.68, 0.43], 0);
     ellipsoid(builder, MARBLE, x, y, z, [dx, 2.25 + height * 0.05, 0], [0.27, 0.31, 0.25], 0);
   }
@@ -1739,7 +1741,7 @@ function buildViktoria(builder: Builder, x: number, y: number, z: number): void 
 
 /** Chance Of Direction: reference-based presentation silhouette, not surveyed geometry. */
 function buildChanceOfDirection(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Galatea: reference-based presentation silhouette, not surveyed geometry. */
@@ -1754,12 +1756,12 @@ function buildKnabeMitPony(builder: Builder, x: number, y: number, z: number): v
 
 /** Wings of Mexico: reference-based presentation silhouette, not surveyed geometry. */
 function buildWingsOfMexico(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Alebrije: reference-based presentation silhouette, not surveyed geometry. */
 function buildAlebrije(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Anna Elisabeth Louise: reference-based presentation silhouette, not surveyed geometry. */
@@ -1791,82 +1793,82 @@ function buildFlorastatue(builder: Builder, x: number, y: number, z: number): vo
 
 /** Waffen: reference-based presentation silhouette, not surveyed geometry. */
 function buildWaffen(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Der Rhein: reference-based presentation silhouette, not surveyed geometry. */
 function buildDerRhein(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Die Elbe: reference-based presentation silhouette, not surveyed geometry. */
 function buildDieElbe(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Die Oder: reference-based presentation silhouette, not surveyed geometry. */
 function buildDieOder(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Die Weichsel: reference-based presentation silhouette, not surveyed geometry. */
 function buildDieWeichsel(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Künstliche Natur: reference-based presentation silhouette, not surveyed geometry. */
 function buildKunstlicheNatur(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Anatolische Zugvögel: reference-based presentation silhouette, not surveyed geometry. */
 function buildAnatolischeZugvogel(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Skulptur Liebe (Gewächs): reference-based presentation silhouette, not surveyed geometry. */
 function buildSkulpturLiebeGewachs(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Abschied des Kriegers von seiner Familie: reference-based presentation silhouette, not surveyed geometry. */
 function buildAbschiedDesKriegersVonSeinerFamilie(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Der Kampf: reference-based presentation silhouette, not surveyed geometry. */
 function buildDerKampf(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Die glückliche Heimkehr des Kriegers: reference-based presentation silhouette, not surveyed geometry. */
 function buildDieGlucklicheHeimkehrDesKriegers(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Richard Wagner: reference-based presentation silhouette, not surveyed geometry. */
 function buildRichardWagner(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Der verwundete Krieger: reference-based presentation silhouette, not surveyed geometry. */
 function buildDerVerwundeteKrieger(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Wegzeichen 3a: reference-based presentation silhouette, not surveyed geometry. */
 function buildWegzeichen3A(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Zusammenhalt: reference-based presentation silhouette, not surveyed geometry. */
 function buildZusammenhalt(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Foundation: reference-based presentation silhouette, not surveyed geometry. */
 function buildFoundation(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Herkules: reference-based presentation silhouette, not surveyed geometry. */
@@ -1881,7 +1883,7 @@ function buildFriedrichWilhelmIiiVonPreuen(builder: Builder, x: number, y: numbe
 
 /** Large Divided Oval: Butterfly: reference-based presentation silhouette, not surveyed geometry. */
 function buildLargeDividedOvalButterfly(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Der Sieger: reference-based presentation silhouette, not surveyed geometry. */
@@ -1896,32 +1898,32 @@ function buildWilhelmVonPreuen(builder: Builder, x: number, y: number, z: number
 
 /** HKW: reference-based presentation silhouette, not surveyed geometry. */
 function buildHkw(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Großer Janus II: reference-based presentation silhouette, not surveyed geometry. */
 function buildGroerJanusIi(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Klanginstallation Klopfzeichen: reference-based presentation silhouette, not surveyed geometry. */
 function buildKlanginstallationKlopfzeichen(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Panoptikum: reference-based presentation silhouette, not surveyed geometry. */
 function buildPanoptikum(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Köpfe und Schwanz: reference-based presentation silhouette, not surveyed geometry. */
 function buildKopfeUndSchwanz(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Polis: reference-based presentation silhouette, not surveyed geometry. */
 function buildPolis(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Berlin Block for Charlie Chaplin: reference-based presentation silhouette, not surveyed geometry. */
@@ -1931,42 +1933,42 @@ function buildBerlinBlockForCharlieChaplin(builder: Builder, x: number, y: numbe
 
 /** Altar: reference-based presentation silhouette, not surveyed geometry. */
 function buildAltar(builder: Builder, x: number, y: number, z: number): void {
-  buildPortalArtwork(builder, x, y, z, 1.10);
+  buildPortalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Imperial Love: reference-based presentation silhouette, not surveyed geometry. */
 function buildImperialLove(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Zeitnadel: reference-based presentation silhouette, not surveyed geometry. */
 function buildZeitnadel(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** "Der Ring" von Norbert Radermacher: reference-based presentation silhouette, not surveyed geometry. */
 function buildDerRingVonNorbertRadermacher(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Denkmal Gustav Hartmann: reference-based presentation silhouette, not surveyed geometry. */
 function buildDenkmalGustavHartmann(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Vier Vierecke im Geviert: reference-based presentation silhouette, not surveyed geometry. */
 function buildVierViereckeImGeviert(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Der Bogenschütze: reference-based presentation silhouette, not surveyed geometry. */
 function buildDerBogenschutze(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Echo I: reference-based presentation silhouette, not surveyed geometry. */
 function buildEchoI(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Todes Mauer Bruch: reference-based presentation silhouette, not surveyed geometry. */
@@ -1976,12 +1978,12 @@ function buildTodesMauerBruch(builder: Builder, x: number, y: number, z: number)
 
 /** Tor auf dem Karlsbad: reference-based presentation silhouette, not surveyed geometry. */
 function buildTorAufDemKarlsbad(builder: Builder, x: number, y: number, z: number): void {
-  buildPortalArtwork(builder, x, y, z, 1.10);
+  buildPortalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Echo II: reference-based presentation silhouette, not surveyed geometry. */
 function buildEchoIi(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** One of Siemering's paired reclining Floraplatz deer. */
@@ -2000,7 +2002,7 @@ function buildHirsch(builder: Builder, x: number, y: number, z: number): void {
 
 /** Große Knospe III/63: reference-based presentation silhouette, not surveyed geometry. */
 function buildGroeKnospeIii63(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Simón Bolívar: reference-based presentation silhouette, not surveyed geometry. */
@@ -2010,7 +2012,7 @@ function buildSimonBolivar(builder: Builder, x: number, y: number, z: number): v
 
 /** Himmelschlüssel: reference-based presentation silhouette, not surveyed geometry. */
 function buildHimmelschlussel(builder: Builder, x: number, y: number, z: number): void {
-  buildPortalArtwork(builder, x, y, z, 1.10);
+  buildPortalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Siemering's single reclining bear at Floraplatz. */
@@ -2038,7 +2040,7 @@ function buildVerticalHighways(builder: Builder, x: number, y: number, z: number
 
 /** Contact: reference-based presentation silhouette, not surveyed geometry. */
 function buildContact(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** One of the paired reclining Floraplatz elk. */
@@ -2066,13 +2068,14 @@ function buildStier(builder: Builder, x: number, y: number, z: number): void {
   ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.42, deck + 0.72, 0], [0.5, 0.34, 0.35], rotationY);
   foldedLegs(builder, x, y, z, rotationY, deck);
   for (const side of [-1, 1]) {
-    rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.45, deck + 0.87, side * 0.18], [-1.62, deck + 1.18, side * 0.62], 0.075, rotationY, 0.25);
+    rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.45, deck + 0.87, side * 0.18], [-1.62, deck + 1.18, side * 0.62], 0.075, rotationY, 0.25,
+    );
   }
 }
 
 /** Partenza: reference-based presentation silhouette, not surveyed geometry. */
 function buildPartenza(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Amazone zu Pferde: reference-based presentation silhouette, not surveyed geometry. */
@@ -2085,7 +2088,7 @@ function buildFloraplatzBison(
   x: number,
   y: number,
   z: number,
-  rotationY: number,
+  rotationY: number
 ): void {
   const deck = floraplatzPlinth(builder, x, y, z, rotationY, 3.7);
   ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [0.32, deck + 0.68, 0], [1.5, 0.69, 0.64], rotationY);
@@ -2093,7 +2096,8 @@ function buildFloraplatzBison(
   ellipsoid(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.42, deck + 0.78, 0], [0.57, 0.46, 0.45], rotationY);
   foldedLegs(builder, x, y, z, rotationY, deck);
   for (const side of [-1, 1]) {
-    rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.48, deck + 0.94, side * 0.2], [-1.62, deck + 1.17, side * 0.52], 0.065, rotationY, 0.22);
+    rod(builder, FLORAPLATZ_BRONZE, x, y, z, [-1.48, deck + 0.94, side * 0.2], [-1.62, deck + 1.17, side * 0.52], 0.065, rotationY, 0.22,
+    );
   }
 }
 
@@ -2151,12 +2155,12 @@ function buildBerlin(builder: Builder, x: number, y: number, z: number): void {
 
 /** Boxers: reference-based presentation silhouette, not surveyed geometry. */
 function buildBoxers(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Double Cage Piece: reference-based presentation silhouette, not surveyed geometry. */
 function buildDoubleCagePiece(builder: Builder, x: number, y: number, z: number): void {
-  buildPortalArtwork(builder, x, y, z, 1.10);
+  buildPortalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Prince Frederick Arthur of Homburg, General of Cav: reference-based presentation silhouette, not surveyed geometry. */
@@ -2171,7 +2175,7 @@ function buildGalileo(builder: Builder, x: number, y: number, z: number): void {
 
 /** Volk Ding Zero: reference-based presentation silhouette, not surveyed geometry. */
 function buildVolkDingZero(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Statue of Liberty: reference-based presentation silhouette, not surveyed geometry. */
@@ -2181,7 +2185,7 @@ function buildStatueOfLiberty(builder: Builder, x: number, y: number, z: number)
 
 /** Global Stone Project: reference-based presentation silhouette, not surveyed geometry. */
 function buildGlobalStoneProject(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Berlin Wall: reference-based presentation silhouette, not surveyed geometry. */
@@ -2191,17 +2195,17 @@ function buildBerlinWall(builder: Builder, x: number, y: number, z: number): voi
 
 /** Lichtschleife mit Datumsgrenze: reference-based presentation silhouette, not surveyed geometry. */
 function buildLichtschleifeMitDatumsgrenze(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Drehmoment: reference-based presentation silhouette, not surveyed geometry. */
 function buildDrehmoment(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Hanging: reference-based presentation silhouette, not surveyed geometry. */
 function buildHanging(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Riding Bikes: reference-based presentation silhouette, not surveyed geometry. */
@@ -2211,12 +2215,12 @@ function buildRidingBikes(builder: Builder, x: number, y: number, z: number): vo
 
 /** Beefeater: reference-based presentation silhouette, not surveyed geometry. */
 function buildBeefeater(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Löwengruppe: reference-based presentation silhouette, not surveyed geometry. */
 function buildLowengruppe(builder: Builder, x: number, y: number, z: number): void {
-  buildAbstractArtwork(builder, x, y, z, 1.00);
+  buildAbstractArtwork(builder, x, y, z, 1.0);
 }
 
 /** Wilhelm Griesinger: reference-based presentation silhouette, not surveyed geometry. */
@@ -2252,7 +2256,7 @@ function buildHerkulesMusagetes(builder: Builder, x: number, y: number, z: numbe
 
 /** wir: reference-based presentation silhouette, not surveyed geometry. */
 function buildWir(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** Roter Niedersachsen-Elefant: reference-based presentation silhouette, not surveyed geometry. */
@@ -2262,12 +2266,12 @@ function buildRoterNiedersachsenElefant(builder: Builder, x: number, y: number, 
 
 /** Figurenrelief: reference-based presentation silhouette, not surveyed geometry. */
 function buildFigurenrelief(builder: Builder, x: number, y: number, z: number): void {
-  buildFigureGroupArtwork(builder, x, y, z, 1.10);
+  buildFigureGroupArtwork(builder, x, y, z, 1.1);
 }
 
 /** 25 Jahre Deutsche Einheit: reference-based presentation silhouette, not surveyed geometry. */
 function buildArtwork25JahreDeutscheEinheit(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Quadriga mit Victoria: reference-based presentation silhouette, not surveyed geometry. */
@@ -2277,7 +2281,7 @@ function buildQuadrigaMitVictoria(builder: Builder, x: number, y: number, z: num
 
 /** Miracolo - L’idea di un’immagine: reference-based presentation silhouette, not surveyed geometry. */
 function buildMiracoloLideaDiUnimmagine(builder: Builder, x: number, y: number, z: number): void {
-  buildVerticalArtwork(builder, x, y, z, 1.10);
+  buildVerticalArtwork(builder, x, y, z, 1.1);
 }
 
 /** Mehr Licht: reference-based presentation silhouette, not surveyed geometry. */
@@ -2296,7 +2300,7 @@ function presentationVariant(
     x: number,
     y: number,
     z: number,
-    scale: number,
+    scale: number
   ) => void,
   scale: number,
 ): ArtworkBuilder {
@@ -2304,39 +2308,39 @@ function presentationVariant(
 }
 
 export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
-  "Panzernashorn": buildPanzernashorn,
-  "Blindenhund": buildBlindenhund,
-  "Knut": buildKnut,
-  "Wildschwein": buildWildschwein,
+  Panzernashorn: buildPanzernashorn,
+  Blindenhund: buildBlindenhund,
+  Knut: buildKnut,
+  Wildschwein: buildWildschwein,
   "Stab und Scheibe 2": buildStabUndScheibe2,
-  "Schifferbrunnen": buildSchifferbrunnen,
+  Schifferbrunnen: buildSchifferbrunnen,
   "Hand mit Uhr": buildHandMitUhr,
-  "Klinkerbär": buildKlinkerbar,
+  Klinkerbär: buildKlinkerbar,
   "Morgendämmerung Nr. 1": buildMorgendammerungNr1,
   "Pfeilerfigur Bär": buildPfeilerfigurBar,
   "Vegetative Plastik I": buildVegetativePlastikI,
   "Pfeilerfigur Bär mit Wappen ZG": buildPfeilerfigurBarMitWappenZg,
   "Interbau-Freiplastik": buildInterbauFreiplastik,
   "Liegende weibliche Figur": buildLiegendeWeiblicheFigur,
-  "Georgia": buildGeorgia,
-  "Fuchsjagd": buildFuchsjagd,
-  "Hasenhetze": buildHasenhetze,
+  Georgia: buildGeorgia,
+  Fuchsjagd: buildFuchsjagd,
+  Hasenhetze: buildHasenhetze,
   "Silberfisch im Englischen Garten": buildSilberfischImEnglischenGarten,
-  "Sonnenuhr": buildSonnenuhr,
+  Sonnenuhr: buildSonnenuhr,
   "Theodor Fontane": buildTheodorFontane,
   "Vier Bären": buildVierBaren,
-  "Büffeljagd": buildBuffeljagd,
-  "Eberjagd": buildEberjagd,
+  Büffeljagd: buildBuffeljagd,
+  Eberjagd: buildEberjagd,
   "Das deutsche Volkslied": buildDasDeutscheVolkslied,
-  "Viktoria": buildViktoria,
+  Viktoria: buildViktoria,
   "Chance Of Direction": buildChanceOfDirection,
-  "Galatea": buildGalatea,
+  Galatea: buildGalatea,
   "Knabe mit Pony": buildKnabeMitPony,
   "Wings of Mexico": buildWingsOfMexico,
-  "Alebrije": buildAlebrije,
+  Alebrije: buildAlebrije,
   "Anna Elisabeth Louise": buildAnnaElisabethLouise,
-  "Florastatue": buildFlorastatue,
-  "Waffen": buildWaffen,
+  Florastatue: buildFlorastatue,
+  Waffen: buildWaffen,
   "Der Rhein": buildDerRhein,
   "Die Elbe": buildDieElbe,
   "Die Oder": buildDieOder,
@@ -2350,24 +2354,24 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Richard Wagner": buildRichardWagner,
   "Der verwundete Krieger": buildDerVerwundeteKrieger,
   "Wegzeichen 3a": buildWegzeichen3A,
-  "Zusammenhalt": buildZusammenhalt,
-  "Foundation": buildFoundation,
-  "Herkules": buildHerkules,
+  Zusammenhalt: buildZusammenhalt,
+  Foundation: buildFoundation,
+  Herkules: buildHerkules,
   "Friedrich Wilhelm III. von Preußen": buildFriedrichWilhelmIiiVonPreuen,
   "Large Divided Oval: Butterfly": buildLargeDividedOvalButterfly,
   "Der Sieger": buildDerSieger,
   "Wilhelm von Preußen": buildWilhelmVonPreuen,
-  "HKW": buildHkw,
+  HKW: buildHkw,
   "Großer Janus II": buildGroerJanusIi,
   "Klanginstallation Klopfzeichen": buildKlanginstallationKlopfzeichen,
-  "Panoptikum": buildPanoptikum,
+  Panoptikum: buildPanoptikum,
   "Köpfe und Schwanz": buildKopfeUndSchwanz,
-  "Polis": buildPolis,
+  Polis: buildPolis,
   "Berlin Block for Charlie Chaplin": buildBerlinBlockForCharlieChaplin,
-  "Altar": buildAltar,
+  Altar: buildAltar,
   "Imperial Love": buildImperialLove,
-  "Zeitnadel": buildZeitnadel,
-  "\"Der Ring\" von Norbert Radermacher": buildDerRingVonNorbertRadermacher,
+  Zeitnadel: buildZeitnadel,
+  '"Der Ring" von Norbert Radermacher': buildDerRingVonNorbertRadermacher,
   "Denkmal Gustav Hartmann": buildDenkmalGustavHartmann,
   "Vier Vierecke im Geviert": buildVierViereckeImGeviert,
   "Der Bogenschütze": buildDerBogenschutze,
@@ -2375,52 +2379,52 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Todes Mauer Bruch": buildTodesMauerBruch,
   "Tor auf dem Karlsbad": buildTorAufDemKarlsbad,
   "Echo II": buildEchoIi,
-  "Hirsch": buildHirsch,
+  Hirsch: buildHirsch,
   "Große Knospe III/63": buildGroeKnospeIii63,
   "Simón Bolívar": buildSimonBolivar,
-  "Himmelschlüssel": buildHimmelschlussel,
-  "Bär": buildBar,
-  "Pferdekopf": buildPferdekopf,
+  Himmelschlüssel: buildHimmelschlussel,
+  Bär: buildBar,
+  Pferdekopf: buildPferdekopf,
   "Vertical Highways": buildVerticalHighways,
-  "Contact": buildContact,
-  "Elch": buildElch,
+  Contact: buildContact,
+  Elch: buildElch,
   "José de San Martín": buildJoseDeSanMartin,
-  "Stier": buildStier,
-  "Partenza": buildPartenza,
+  Stier: buildStier,
+  Partenza: buildPartenza,
   "Amazone zu Pferde": buildAmazoneZuPferde,
   "Liegender Bison Ⅱ": buildLiegenderBisonIi,
-  "Bison": buildBison,
+  Bison: buildBison,
   "Buddy Bear Tierpark": buildBuddyBearTierpark,
   "Der Schreitende": buildDerSchreitende,
   "Berlin-WELCOME-Bear": buildBerlinWelcomeBear,
-  "Orpheus": buildOrpheus,
+  Orpheus: buildOrpheus,
   "Rolling Horse": buildRollingHorse,
-  "Berlin": buildBerlin,
-  "Boxers": buildBoxers,
+  Berlin: buildBerlin,
+  Boxers: buildBoxers,
   "Double Cage Piece": buildDoubleCagePiece,
   "Prince Frederick Arthur of Homburg, General of Cav": buildPrinceFrederickArthurOfHomburgGeneralOfCav,
-  "Galileo": buildGalileo,
+  Galileo: buildGalileo,
   "Volk Ding Zero": buildVolkDingZero,
   "Statue of Liberty": buildStatueOfLiberty,
   "Global Stone Project": buildGlobalStoneProject,
   "Berlin Wall": buildBerlinWall,
   "Lichtschleife mit Datumsgrenze": buildLichtschleifeMitDatumsgrenze,
-  "Drehmoment": buildDrehmoment,
-  "Hanging": buildHanging,
+  Drehmoment: buildDrehmoment,
+  Hanging: buildHanging,
   "Riding Bikes": buildRidingBikes,
-  "Beefeater": buildBeefeater,
-  "Löwengruppe": buildLowengruppe,
+  Beefeater: buildBeefeater,
+  Löwengruppe: buildLowengruppe,
   "Wilhelm Griesinger": buildWilhelmGriesinger,
   "Sinkende Mauer": buildSinkendeMauer,
   "Herkules Musagetes": buildHerkulesMusagetes,
-  "wir": buildWir,
+  wir: buildWir,
   "Roter Niedersachsen-Elefant": buildRoterNiedersachsenElefant,
-  "Figurenrelief": buildFigurenrelief,
+  Figurenrelief: buildFigurenrelief,
   "25 Jahre Deutsche Einheit": buildArtwork25JahreDeutscheEinheit,
   "Quadriga mit Victoria": buildQuadrigaMitVictoria,
   "Miracolo - L’idea di un’immagine": buildMiracoloLideaDiUnimmagine,
   "Mehr Licht": buildMehrLicht,
-  "Werdendes": buildWerdendes,
+  Werdendes: buildWerdendes,
   // Named works introduced by the task-10 north/south expansion. OSM fixes
   // their position; these deliberately modest, category-specific silhouettes
   // keep them above the marker band without claiming surveyed sculpture mesh.
@@ -2433,11 +2437,11 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Die goldene Stunde": presentationVariant(buildVerticalArtwork, 1.05),
   "Felix-Mendelssohn-Bartholdy-Stein": presentationVariant(buildWallArtwork, 0.8),
   "Friede sei mit Dir": presentationVariant(buildVerticalArtwork, 1.25),
-  "Genesung": presentationVariant(buildStandingArtwork, 1.0),
-  "Houseball": presentationVariant(buildAbstractArtwork, 1.15),
+  Genesung: presentationVariant(buildStandingArtwork, 1.0),
+  Houseball: presentationVariant(buildAbstractArtwork, 1.15),
   "Helene Weigel": presentationVariant(buildStandingArtwork, 1.0),
-  "Jakarta": presentationVariant(buildAbstractArtwork, 1.05),
-  "Kaninchenfeld": presentationVariant(buildAnimalArtwork, 0.65),
+  Jakarta: presentationVariant(buildAbstractArtwork, 1.05),
+  Kaninchenfeld: presentationVariant(buildAnimalArtwork, 0.65),
   "Kreuzberg Tower": presentationVariant(buildVerticalArtwork, 1.15),
   "Liegendes Pferd": presentationVariant(buildAnimalArtwork, 1.1),
   "Mauern durchbrechen": presentationVariant(buildWallArtwork, 1.15),
@@ -2445,30 +2449,71 @@ export const ARTWORK_BUILDERS: Readonly<Record<string, ArtworkBuilder>> = {
   "Mitte-Ndnn-Bar": presentationVariant(buildAbstractArtwork, 0.95),
   "Nie wieder Krieg": presentationVariant(buildWallArtwork, 0.9),
   "One World-Bär": presentationVariant(buildAnimalArtwork, 1.0),
-  "Theaterstele": presentationVariant(buildVerticalArtwork, 1.1),
+  Theaterstele: presentationVariant(buildVerticalArtwork, 1.1),
   "Tilted Donut Wedge with Two Balls": presentationVariant(buildAbstractArtwork, 1.2),
   "Walther Tell": presentationVariant(buildStandingArtwork, 1.0),
   "not caring is no option": presentationVariant(buildWallArtwork, 1.05),
 };
+
+/**
+ * Resolve newly mapped outer-context works to an explicit, name-qualified
+ * presentation archetype. Exact researched builders above always win. The
+ * fallback preserves each OSM position/name without pretending that the
+ * sculpture's surveyed mesh or dimensions are known.
+ */
+export function resolveArtworkBuilder(name: string): ArtworkBuilder {
+  const researched = ARTWORK_BUILDERS[name];
+  if (researched) return researched;
+
+  const hash = Array.from(name).reduce((value, character) => (value * 33 + character.codePointAt(0)!) >>> 0, 5381);
+  const scale = 0.88 + (hash % 6) * 0.055;
+  if (
+    /Bär|Bear|Löw|Stier|Bison|Büffel|Hirsch|Elch|Pferd|Pony|Eber|Ziege|Katze|Hund|Schwan|Vogel|Pelik|Gorilla|Orang|Elefant|Iguanodon|Polacanthus|Beluga|Tier|Fisch|Ammonit/i.test(
+      name,
+    )
+  ) {
+    return presentationVariant(buildAnimalArtwork, scale);
+  }
+  if (/Brunnen|Wasser|Quelle|Fluss|Splash|fishing/i.test(name)) {
+    return presentationVariant(buildFountainArtwork, scale);
+  }
+  if (/Tor|Portal|Gate|Flügel|Tür/i.test(name)) {
+    return presentationVariant(buildPortalArtwork, scale);
+  }
+  if (/Mauer|Wand|Wall|Relief|Tafel|Museum|Technik/i.test(name)) {
+    return presentationVariant(buildWallArtwork, scale);
+  }
+  if (
+    /Gruppe|Kinder|Knabe|Mädchen|Mann|Frau|Krieger|Engel|Herkules|Prometheus|Spieler|Trägerin|Sinnende|Willy.Brandt|Lesser/i.test(
+      name,
+    )
+  ) {
+    return presentationVariant(buildFigureGroupArtwork, scale);
+  }
+  if (/Säule|Stein|Flamme|Nadel|Zeichen|Motor|Uhr|Skulptur|Plastik/i.test(name)) {
+    return presentationVariant(buildVerticalArtwork, scale);
+  }
+  return presentationVariant(buildAbstractArtwork, scale);
+}
 
 /** Statue on a plinth: the poets, philosophers and callers. */
 function buildStatue(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   const scale = 1;
   box(builder, STONE, x, y + 0.4 * scale, z, 3 * scale, 0.8 * scale, 3 * scale);
   box(
     builder, STONE_LIGHT,
     x, y + (0.8 + 0.9) * scale, z,
-    1.6 * scale, 1.8 * scale, 1.6 * scale,
+    1.6 * scale, 1.8 * scale, 1.6 * scale
   );
   box(
     builder, BRONZE,
     x, y + (2.6 + 1.1) * scale, z,
-    1 * scale, 2.2 * scale, 1 * scale,
+    1 * scale, 2.2 * scale, 1 * scale
   );
 }
 
@@ -2484,7 +2529,7 @@ function buildLessingMemorial(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   // Stepped granite base, grey lower steps then the reddish pedestal.
   box(builder, STONE_LIGHT, x, y + 0.25, z, 4.6, 0.5, 4.6);
@@ -2513,7 +2558,7 @@ function buildVerkehrsturm(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, TOWER_GREEN, x, y + 2.8, z, 0.55, 5.6, 0.55);
   box(builder, TOWER_GREEN, x, y + 6.9, z, 2.5, 2.6, 2.5, Math.PI / 5);
@@ -2536,7 +2581,7 @@ function buildWhiteCrosses(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   for (let index = -3; index <= 3; index += 1) {
     const px = x + index * 1.4;
@@ -2570,7 +2615,7 @@ function buildWagnerMemorial(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, STONE_LIGHT, x, y + 0.35, z, 8, 0.7, 6.4);
   box(builder, MARBLE, x, y + 1.5, z, 4.6, 1.6, 3.4);
@@ -2674,7 +2719,7 @@ function buildLuiseninselFlowerBeds(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   const colors = [FLOWER_RED, FLOWER_GOLD, FLOWER_WHITE, FLOWER_PINK];
   for (let index = 0; index < 16; index += 1) {
@@ -2699,7 +2744,7 @@ function buildGeneralColumn(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   box(builder, STONE_LIGHT, x, y + 0.35, z, 6, 0.7, 6);
   box(builder, GRANITE_RED, x, y + 1.4, z, 3.6, 1.4, 3.6);
@@ -2720,7 +2765,7 @@ function buildAmazone(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   // Granite pedestal with a stepped foot.
   box(builder, STONE, x, y + 0.3, z, 4.2, 0.6, 2.2);
@@ -2757,7 +2802,7 @@ function buildLionGroup(
   builder: Builder,
   x: number,
   y: number,
-  z: number,
+  z: number
 ): void {
   // Low natural-rock base, two overlapping slabs.
   box(builder, STONE, x, y + 0.35, z, 4.6, 0.7, 2.8);
@@ -2801,18 +2846,55 @@ const STATUE_NAMES =
 export const MONUMENTS_ALREADY_MODELLED =
   /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$/i;
 
+function addMergedMonumentBatch(parent: Group, builder: Builder): void {
+  const merged = builder.parts.length > 0 ? mergeGeometries(builder.parts, false) : null;
+  if (merged) {
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness: 0,
+      roughness: 0.9,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(merged, dayMaterial);
+    mesh.name = "monument bodies";
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.userData.dayMaterial = dayMaterial;
+    parent.add(mesh);
+  }
+  for (const part of builder.parts) part.dispose();
+
+  const inkGeometry = builder.edges.length > 0 ? mergeGeometries(builder.edges, false) : null;
+  if (inkGeometry) {
+    const ink = new LineSegments(inkGeometry, markArchitecturalInk(new LineBasicMaterial(), "detail"));
+    ink.name = "monument ink lines";
+    ink.renderOrder = 2;
+    parent.add(ink);
+  }
+  for (const edge of builder.edges) edge.dispose();
+}
+
 export function createTiergartenMonuments(
   street: StreetDetailsPayload,
-  ground: VoxelPayload,
+  ground: VoxelPayload
 ): Group | null {
   if (!street.monuments || street.monuments.length === 0) {
     return null;
   }
   const sample = worldGroundSampler(ground);
-  const builder: Builder = { edges: [], parts: [] };
+  const ordinaryBuilder: Builder = { edges: [], parts: [] };
+  const protectedBuilder: Builder = { edges: [], parts: [] };
   let floraplatzAnimalCount = 0;
-  let graefeChariteAnchor: [number, number, number] | null = null;
+  let fallbackArtworkCount = 0;
+  let graefeChariteAnchor: {
+    anchor: [number, number, number];
+    protected: boolean;
+  } | null = null;
+  let kindertransportAnchor: { groundYM: number; protected: boolean } | null = null;
   const memorialTypeCounts: Record<string, number> = {};
+  const protectedSourceKeys: string[] = [];
+  const protectedRenderedSourceKeys: string[] = [];
+  const protectedExternallyModelledSourceKeys: string[] = [];
   for (const entry of street.monuments) {
     const x = entry.x_dm / 10;
     const z = entry.z_dm / 10;
@@ -2821,6 +2903,10 @@ export function createTiergartenMonuments(
       continue;
     }
     const name = entry.name;
+    const isProtected = entry.schwellenraum_protected === true;
+    const builder = isProtected ? protectedBuilder : ordinaryBuilder;
+    if (isProtected) protectedSourceKeys.push(entry.osm_key);
+    const partCountBefore = builder.parts.length;
     const memorialType = entry.memorial_type || "unclassified";
     memorialTypeCounts[memorialType] = (memorialTypeCounts[memorialType] ?? 0) + 1;
     if (
@@ -2832,8 +2918,15 @@ export function createTiergartenMonuments(
     ) {
       floraplatzAnimalCount += 1;
     }
-    if (MONUMENTS_ALREADY_MODELLED.test(name) || entry.kind === "tank") {
+    if (entry.osm_key === KINDERTRANSPORT_MEMORIAL_OSM_KEY) {
+      // This exact seven-figure ensemble owns its OSM point. Keeping it out of
+      // the subtype dispatcher prevents the former generic sculpture marker
+      // from surviving underneath the detailed model.
+      kindertransportAnchor = { groundYM: y, protected: isProtected };
+      if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
+    } else if (MONUMENTS_ALREADY_MODELLED.test(name) || entry.kind === "tank") {
       // The verified recognition layer carries these (incl. both T-34s).
+    if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
     } else if (entry.kind === "cannon") {
       buildCannon(builder, x, y, z);
     } else if (/Verkehrsturm/i.test(name)) {
@@ -2850,7 +2943,7 @@ export function createTiergartenMonuments(
       buildRobertKochMemorial(builder, x, y, z);
     } else if (/^Albrecht von Graefe$/i.test(name) && x > 0) {
       buildGraefeChariteMemorial(builder, x, y, z);
-      graefeChariteAnchor = [x, y, z];
+      graefeChariteAnchor = { anchor: [x, y, z], protected: isProtected };
     } else if (/^Lortzing-Denkmal$/i.test(name)) {
       buildLortzingMemorial(builder, x, y, z);
     } else if (/^Rousseau-Säule$/i.test(name)) {
@@ -2878,16 +2971,23 @@ export function createTiergartenMonuments(
     } else if (/Löwengruppe/i.test(name)) {
       buildLionGroup(builder, x, y, z);
     } else if (entry.kind === "artwork") {
-      // Every named artwork has its own builder hook. Quiet OSM memorial
-      // markers alone may use the subtype-aware fallback below.
-      ARTWORK_BUILDERS[name]?.(builder, x, y, z);
+      // Researched names retain their dedicated builders. Newly mapped works
+      // in the 500 m context ring receive a clearly labelled, name-qualified
+      // archetype rather than disappearing or masquerading as surveyed mesh.
+      if (!
+      ARTWORK_BUILDERS[name]) fallbackArtworkCount += 1;
+      resolveArtworkBuilder(name)(builder, x, y, z);
     } else if (STATUE_NAMES.test(name)) {
       buildStatue(builder, x, y, z);
     } else {
       buildTypedMemorial(builder, x, y, z, memorialType);
     }
+
+  if (isProtected && builder.parts.length > partCountBefore) {
+      protectedRenderedSourceKeys.push(entry.osm_key);
+    }
   }
-  if (builder.parts.length === 0) {
+  if (ordinaryBuilder.parts.length === 0&& protectedBuilder.parts.length === 0 && kindertransportAnchor === null) {
     return null;
   }
   const group = new Group();
@@ -2899,14 +2999,22 @@ export function createTiergartenMonuments(
   // monuments merge into one mesh for draw-call economy, so the label
   // lives on the whole group rather than per-figure.
   group.userData.geometryStatus =
-    "Reference-based presentation geometry from OSM point positions and " +
-    "Wikipedia/Wikimedia/Denkmaldatenbank descriptions - not a survey model";
+    "OSM-positioned presentation geometry: researched works use " +
+    "Wikipedia/Wikimedia/Denkmaldatenbank descriptions; newly mapped outer-context " +
+    "works use labelled name-qualified archetypes - never a surveyed mesh";
+  group.userData.fallbackArtworkCount = fallbackArtworkCount;
+  group.userData.fallbackArtworkGeometry =
+    "Name-qualified presentation archetypes for current OSM artwork points without a dedicated researched builder; position/name are mapped, form and scale are not surveyed";
   group.userData.luiseninselFormalGarden =
     "Reference-based Schmuckbeete around the OSM-positioned Koenigin Luise figure";
   group.userData.floraplatzAnimalCount = floraplatzAnimalCount;
   group.userData.floraplatzGeometry =
     "Eight species-specific life-size bronze presentation models on OSM-positioned granite plinths; paired species face opposite directions";
   group.userData.memorialTypeCounts = memorialTypeCounts;
+  group.userData.protectedSourceCount = protectedSourceKeys.length;
+  group.userData.protectedSourceKeys = protectedSourceKeys;
+  group.userData.protectedRenderedSourceKeys = protectedRenderedSourceKeys;
+  group.userData.protectedExternallyModelledSourceKeys = protectedExternallyModelledSourceKeys;
   group.userData.quietMemorialGeometry =
     "OSM memorial subtypes preserved; Stolpersteine use Berlin's documented 0.10 m brass top, while unclassified points stay conservative low markers";
   group.userData.tiergartenHeritageModels = {
@@ -2949,41 +3057,27 @@ export function createTiergartenMonuments(
     GRAEFE_MONUMENT_SOURCE_URL,
   ];
 
-  const merged = mergeGeometries(builder.parts, false);
-  if (merged) {
-    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
-    const nightMaterial = new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.9,
-      vertexColors: true,
-    });
-    const mesh = new Mesh(merged, dayMaterial);
-    mesh.name = "monument bodies";
-    mesh.userData.nightMaterial = nightMaterial;
-    mesh.userData.dayMaterial = dayMaterial;
-    group.add(mesh);
-    for (const part of builder.parts) {
-      part.dispose();
-    }
+  // Ordinary artworks retain the established merged batch. Source-flagged
+  // memorial geometry lives in a second batch whose ancestor forces exact Day
+  // material/ink presentation whenever Schwellenraum is active.
+  addMergedMonumentBatch(group, ordinaryBuilder);
+  const protectedBatch = new Group();
+  protectedBatch.name = "OSM protected memorial Day batch";
+  protectedBatch.userData.schwellenraumGeschuetzt = true;
+  protectedBatch.userData.sourceKeys = protectedSourceKeys;
+  protectedBatch.userData.renderedSourceKeys = protectedRenderedSourceKeys;
+  protectedBatch.userData.externallyModelledSourceKeys = protectedExternallyModelledSourceKeys;
+  protectedBatch.userData.presentationContract = "Exact ordinary Day material, ink and transform in Schwellenraum";
+  addMergedMonumentBatch(protectedBatch, protectedBuilder);
+  group.add(protectedBatch);
+  if (kindertransportAnchor) {
+    const kindertransport = createKindertransportMemorial(kindertransportAnchor.groundYM);
+    (kindertransportAnchor.protected ? protectedBatch :
+    group).add(kindertransport);
   }
-  const inkGeometry =
-    builder.edges.length > 0 ? mergeGeometries(builder.edges, false) : null;
-  if (inkGeometry) {
-    const ink = new LineSegments(
-      inkGeometry,
-      markArchitecturalInk(new LineBasicMaterial(), "detail"),
-    );
-    ink.name = "monument ink lines";
-    ink.renderOrder = 2;
-    group.add(ink);
-    for (const edge of builder.edges) {
-      edge.dispose();
-    }
-  }
-
   if (graefeChariteAnchor) {
-    group.add(createGraefeNamePlate(...graefeChariteAnchor));
+    const plate =createGraefeNamePlate(...graefeChariteAnchor.anchor);
+    (graefeChariteAnchor.protected ? protectedBatch : group).add(plate);
   }
 
   return group;

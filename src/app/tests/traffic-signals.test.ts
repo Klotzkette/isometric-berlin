@@ -20,8 +20,9 @@ const ground = voxelPayload as unknown as VoxelPayload;
 
 describe("task 07: animated OSM traffic signals", () => {
   test("the payload carries every surveyed signal inside bounds", () => {
-    // Schema 5 preserves OSM memorial subtypes for typed presentation.
-    expect(street.schema_version).toBe(5);
+    // Schema 6 adds stable OSM identities and the reviewed protection flag
+    // while preserving the typed memorial presentation introduced in v5.
+    expect(street.schema_version).toBe(6);
     expect(street.traffic_signals_dm.length).toBeGreaterThan(350);
     expect(
       new Set(street.traffic_signals_dm.map(([x, z]) => `${x}:${z}`)).size,

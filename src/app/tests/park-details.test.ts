@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  Color,
   InstancedMesh,
   Matrix4,
   Mesh,
@@ -12,12 +13,15 @@ import {
   createPathGeometry,
   createParkDetails,
   decodeTrees,
+  parkHedgeSegments,
   parkDetailFocusDistance,
   setParkDetailsFocus,
   setParkSnowPresentation,
   setParkSettledDetail,
   smoothParkPathPoints,
   treePresentationForm,
+  treeBarkTone,
+  treeFoliageTone,
 } from "../src/ParkDetails";
 import type { TunnelPortalPayload } from "../src/TunnelPortals";
 
@@ -433,6 +437,113 @@ describe("OSM park details", () => {
       vase: 1,
       willow: 1,
     });
+    const trunks = park.getObjectByName(
+      "OSM instanced granular tree trunks",
+    ) as InstancedMesh;
+    expect(trunks.instanceColor).toBeDefined();
+    const birchTone = new Color();
+    const oakTone = new Color();
+    trunks.getColorAt(0, birchTone);
+    trunks.getColorAt(6, oakTone);
+    expect(birchTone.getHex()).toBe(treeBarkTone(airy));
+    expect(oakTone.getHex()).toBe(treeBarkTone(oak));
+    expect(birchTone.getHex()).not.toBe(oakTone.getHex());
+    expect(
+      treeFoliageTone({
+        ...dense,
+        species: "Blut-Buche (Fagus sylvatica 'Purpurea')",
+      }),
+    ).not.toBe(treeFoliageTone(dense));
+  });
+
+  test("batches exact scrub areas and finite source-mapped hedges", () => {
+    const vegetation = createParkDetails({
+      ...payload,
+      schema_version: 6,
+      shrub_patches: [
+        {
+          clusters: [[20, 1, 20, 1.4, 1.1, 0]],
+          id: "way/100:0",
+          rings: [
+            [
+              [18, 1, 18],
+              [22, 1, 18],
+              [22, 1, 22],
+              [18, 1, 22],
+              [18, 1, 18],
+            ],
+          ],
+          source_url: "https://www.openstreetmap.org/way/100",
+        },
+      ],
+      hedges: [
+        {
+          dimensions_status: "Display dimensions",
+          height_m: 1.5,
+          id: "way/200:0",
+          kind: "line",
+          length_m: 4,
+          points: [
+            [30, 1, 30],
+            [34, 1, 30],
+          ],
+          source_url: "https://www.openstreetmap.org/way/200",
+          width_m: 1,
+        },
+        {
+          area_m2: 16,
+          clusters: [[42, 1, 42, 1.3, 0.8, 1]],
+          dimensions_status: "Display dimensions",
+          height_m: 1.45,
+          id: "way/201:0",
+          kind: "area",
+          rings: [
+            [
+              [40, 1, 40],
+              [44, 1, 40],
+              [44, 1, 44],
+              [40, 1, 44],
+              [40, 1, 40],
+            ],
+          ],
+          source_url: "https://www.openstreetmap.org/way/201",
+        },
+      ],
+    });
+    expect(vegetation.userData.shrubPatchCount).toBe(1);
+    expect(vegetation.userData.shrubClusterCount).toBe(1);
+    expect(vegetation.userData.hedgeCount).toBe(2);
+    expect(parkHedgeSegments([
+      {
+        dimensions_status: "Display dimensions",
+        height_m: 1.5,
+        id: "way/200:0",
+        kind: "line",
+        points: [[30, 1, 30], [34, 1, 30]],
+        source_url: "https://www.openstreetmap.org/way/200",
+        width_m: 1,
+      },
+    ])).toHaveLength(2);
+    expect(
+      vegetation.getObjectByName(
+        "OSM exact Großer Tiergarten scrub-area footprints",
+      ),
+    ).toBeInstanceOf(Mesh);
+    expect(
+      vegetation.getObjectByName("OSM finite Tiergarten hedge course bodies"),
+    ).toBeInstanceOf(InstancedMesh);
+    expect(
+      (
+        vegetation.getObjectByName(
+          "OSM finite Tiergarten hedge course bodies",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(2);
+    expect(
+      vegetation.getObjectByName(
+        "OSM polygon-bounded Tiergarten hedge-area foliage",
+      ),
+    ).toBeInstanceOf(InstancedMesh);
   });
 
   test("adds official-tree microcrowns only to settled desktop detail", () => {
@@ -534,8 +645,8 @@ describe("OSM park details", () => {
   });
 
   test("rejects unknown payload schemas instead of partially rendering them", () => {
-    expect(() => createParkDetails({ ...payload, schema_version: 5 })).toThrow(
-      "Unsupported park-detail schema 5",
+    expect(() => createParkDetails({ ...payload, schema_version: 7 })).toThrow(
+      "Unsupported park-detail schema 7",
     );
   });
 

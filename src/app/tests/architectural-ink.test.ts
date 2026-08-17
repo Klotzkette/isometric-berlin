@@ -17,6 +17,7 @@ describe("shared architectural ink register", () => {
       "night",
       "minecraft",
       "snowstorm",
+      "schwellenraum",
     ] as const) {
       const tones = ARCHITECTURAL_INK_PALETTE[mode];
       expect(new Set(Object.values(tones)).size).toBe(3);
@@ -40,6 +41,7 @@ describe("shared architectural ink register", () => {
       "night",
       "minecraft",
       "snowstorm",
+      "schwellenraum",
       "day",
     ] as const) {
       applyArchitecturalInkMode(material, mode);
@@ -67,6 +69,8 @@ describe("shared architectural ink register", () => {
     expect(material.color.getHex()).not.toBe(night);
     applyArchitecturalInkMode(material, "snowstorm");
     expect(material.color.getHex()).not.toBe(night);
+    applyArchitecturalInkMode(material, "schwellenraum");
+    expect(material.color.getHex()).toBe(bronze);
     applyArchitecturalInkMode(material, "day");
     expect(material.color.getHex()).toBe(bronze);
   });

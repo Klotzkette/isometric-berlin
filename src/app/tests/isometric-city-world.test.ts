@@ -39,7 +39,6 @@ import {
   HERO_PRISM_ROOF_TONES,
   HERO_PRISM_TONES,
   KOLLHOFF_TOWER_PRISM_IDS,
-  MELH_CANOPY_SUPPORTS,
   PAUL_LOEBE_WEST_FACE_X,
   PRISM_GLASSED_IDS,
   createLandmarkRefinements,
@@ -59,6 +58,7 @@ import {
   windowFormatForBuilding,
 } from "../src/IsometricCityWorld";
 import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
+import { ADLER_BRIDGE_PROFILE } from "../src/AdlerBridge";
 import { KOLLHOFF_TOWER_PROFILE } from "../src/expandedCityProfiles";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -68,6 +68,12 @@ import type { SurfacePayload } from "../src/IsometricCityWorld";
 const payload = prismPayload as unknown as PrismPayload;
 const surfacesFixture = surfacePolygonPayload as unknown as SurfacePayload;
 const city = createIsometricCity(payload, null);
+// Task 13 adds another exact 500 m source ring on every side. A small set
+// of regressions deliberately rebuilds the complete city; keep their timeout
+// bounded while allowing for parallel runner load on the larger payload.
+// The bridge pass reaches roughly 19 s in the full parallel suite on the
+// committed payload, so 30 s retains a finite guard with measured headroom.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 30_000;
 
 describe("drawn isometric city (LoD2 prisms)", () => {
   const bodies = city.getObjectByName("LoD2 prism buildings") as Mesh;
@@ -137,6 +143,9 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     expect(PRISM_SUPPRESSED_IDS.has("UbQkgNZe")).toBe(true);
     expect(PRISM_SUPPRESSED_IDS.has("ycOYQRVL")).toBe(true);
     expect(PRISM_SUPPRESSED_IDS.has("K0002MCN")).toBe(false);
+    // This bridge envelope is likewise a valid LoD2 part but a footprint
+    // extrusion fills the complete height and becomes a wall over the Spree.
+    expect(PRISM_SUPPRESSED_IDS.has("K0001zDa")).toBe(true);
 
     const mainBody = payload.buildings.find(
       (building) => building.id === "K0002MCN",
@@ -758,7 +767,7 @@ describe("west Tiergarten extrapolation and the recessed Spree", () => {
     expect(quays).toBeInstanceOf(Mesh);
     // Thousands of embankment triangles along Spree + Humboldthafen.
     expect(quays.geometry.getAttribute("position").count).toBeGreaterThan(3000);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("the Reichstag wears its pinned stately window rhythm", async () => {
     const { HERO_WINDOW_FORMATS } = await import("../src/IsometricCityWorld");
@@ -1260,7 +1269,7 @@ describe("real bridge structures", () => {
     const city = createIsometricCity(payload, ground, null);
     const group = city.getObjectByName("drawn bridge structures") as Group;
     expect(group.userData.smallBridgeClusterCount).toBeGreaterThan(20);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("the Gustav-Heinemann-Brücke reaches both banks of the Spree", async () => {
     const { createIsometricCity, BRIDGE_PROFILES } =
@@ -1295,7 +1304,7 @@ describe("real bridge structures", () => {
       maxZ = Math.max(maxZ, z);
     }
     expect(maxZ - minZ).toBeGreaterThan(88);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("pins the corrected bridges to published dimensions and identities", async () => {
     const {
@@ -1358,8 +1367,14 @@ describe("real bridge structures", () => {
     expect(profile("Löwenbrücke")).toMatchObject({
       axis: [0.894279, 0.447511],
       kind: "suspension",
-      surveyedDeck: { halfLengthM: 8.65, halfWidthM: 1 },
+      surveyedDeck: { halfLengthM: 9.15, halfWidthM: 0.94 },
       world: [-1766.908, 680.6395],
+    });
+    expect(profile("Adlerbruecke")).toMatchObject({
+      axis: ADLER_BRIDGE_PROFILE.axis,
+      kind: "adler",
+      surveyedDeck: { halfLengthM: 3.65, halfWidthM: 1.675 },
+      world: [-1197.926, 931.565],
     });
     expect(profile("Moltkebrücke").surveyedDeck).toEqual({
       halfLengthM: 38.79,
@@ -1479,7 +1494,28 @@ describe("real bridge structures", () => {
       hangerCount: 22,
       lionCount: 4,
       mainCableCount: 4,
+      modernSafetyHandrailCount: 2,
+      modernSafetyMeshFieldCount: 18,
+      modernSafetyPostCount: 20,
       osmWayId: "1411957328",
+    });
+    expect(
+      loewenBridge.getObjectByName(
+        "Löwenbrücke modern safety handrails bodies",
+      ),
+    ).toBeInstanceOf(Mesh);
+    expect(
+      loewenBridge.getObjectByName("Löwenbrücke modern safety mesh fields"),
+    ).toBeInstanceOf(LineSegments);
+    const adlerBridge = city.getObjectByName(
+      "Adlerbruecke recognition model",
+    ) as Group;
+    expect(adlerBridge).toBeInstanceOf(Group);
+    expect(adlerBridge.userData).toMatchObject({
+      eagleCount: 2,
+      genericBridgeReplacement: true,
+      osmWayId: "28872983",
+      railBayCount: 14,
     });
     // The dedicated timber model replaces, rather than overlays, the old
     // four-cell grey raster slab at the same coordinate.
@@ -1495,6 +1531,18 @@ describe("real bridge structures", () => {
       }
     }
     expect(genericLoewenVertices).toBe(0);
+    let genericAdlerVertices = 0;
+    for (let index = 0; index < positions.count; index += 1) {
+      if (
+        Math.hypot(
+          positions.getX(index) - profile("Adlerbruecke").world[0],
+          positions.getZ(index) - profile("Adlerbruecke").world[1],
+        ) < 12
+      ) {
+        genericAdlerVertices += 1;
+      }
+    }
+    expect(genericAdlerVertices).toBe(0);
     let upwardMoltkeVertices = 0;
     for (let index = 0; index < positions.count; index += 1) {
       if (
@@ -1508,9 +1556,9 @@ describe("real bridge structures", () => {
       }
     }
     expect(upwardMoltkeVertices).toBeGreaterThan(100);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
-  test("draws the parliament levels and Kronprinzen prow supports without exceeding the bridge budget", async () => {
+  test("leaves the parliament crossing to its open recognition model and keeps the Kronprinzen prow supports", async () => {
     const {
       createIsometricCity,
       BRIDGE_MIN_CLEARANCE_M,
@@ -1563,11 +1611,14 @@ describe("real bridge structures", () => {
         submergedProwVertices += 1;
       }
     }
-    expect(upperParliamentVertices).toBeGreaterThan(2_000);
+    expect(upperParliamentVertices).toBe(0);
     expect(submergedProwVertices).toBeGreaterThan(24);
-    expect(positions.count).toBeGreaterThan(260_000);
-    expect(positions.count).toBeLessThan(320_000);
-  }, 10_000);
+    // The exact task-13 OSM hull adds mapped road/rail crossings throughout
+    // the additional 500 m ring. Keep the measured expansion bounded without discarding
+    // those structures or relaxing to an unbounded instance count.
+    expect(positions.count).toBeGreaterThan(520_000);
+    expect(positions.count).toBeLessThan(555_000);
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("Gustav-Heinemann has a green Vierendeel frame and Hugo-Preuß stays pier-free", async () => {
     const { createIsometricCity, BRIDGE_PROFILES } =
@@ -1623,7 +1674,7 @@ describe("real bridge structures", () => {
     }
     expect(greenFrameVertices).toBeGreaterThan(4_000);
     expect(hugoCentralUnderwaterVertices).toBe(0);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("the Gymnasium Tiergarten Altbau replaces its flat LoD2 prism", async () => {
     const { createGymnasiumTiergarten, PRISM_SUPPRESSED_IDS } =
@@ -1692,44 +1743,6 @@ describe("real bridge structures", () => {
     expect(bounds.max.y).toBeGreaterThan(35);
   });
 
-  test("keeps every Lüders-Haus canopy support out of the Spree", () => {
-    const insideRing = (x: number, z: number, ring: number[][]): boolean => {
-      let inside = false;
-      for (
-        let index = 0, previous = ring.length - 1;
-        index < ring.length;
-        previous = index++
-      ) {
-        const [xDm, zDm] = ring[index];
-        const [previousXDm, previousZDm] = ring[previous];
-        const xi = xDm / 10;
-        const zi = zDm / 10;
-        const xj = previousXDm / 10;
-        const zj = previousZDm / 10;
-        if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) {
-          inside = !inside;
-        }
-      }
-      return inside;
-    };
-    const inMappedWater = (x: number, z: number): boolean =>
-      surfacesFixture.water.some(
-        (surface) =>
-          insideRing(x, z, surface.ring) &&
-          !surface.holes.some((hole) => insideRing(x, z, hole)),
-      );
-
-    expect(MELH_CANOPY_SUPPORTS).toHaveLength(4);
-    expect(MELH_CANOPY_SUPPORTS.map(([x, z]) => inMappedWater(x, z))).toEqual([
-      false,
-      false,
-      false,
-      false,
-    ]);
-    expect(createLandmarkRefinements().userData.melhCanopySupports).toEqual(
-      MELH_CANOPY_SUPPORTS,
-    );
-  });
 });
 
 describe("smooth OSM water and parkland", () => {
@@ -1870,7 +1883,7 @@ describe("smooth OSM water and parkland", () => {
     const wallBounds = new Box3().setFromObject(walls);
     expect(wallBounds.max.y).toBeGreaterThan(waterBounds.max.y + 3);
     expect(wallBounds.min.y).toBeLessThan(waterBounds.max.y - 2);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("draws the shipped banks granularly, with no facets left", async () => {
     const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
@@ -1963,7 +1976,7 @@ describe("smooth OSM water and parkland", () => {
       ([x, z]) => [x / 10, z / 10] as [number, number],
     );
     expect(sharpestTurnDeg(ring)).toBeGreaterThan(80);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 });
 
 describe("isometric face shading", () => {

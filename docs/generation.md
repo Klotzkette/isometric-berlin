@@ -8,9 +8,9 @@ three opt-in variables in `AGENTS.md` are explicitly set.
 
 ## Step 7: quadrant coverage
 
-The reproducible task-10 grid is 650 quadrants (26 rows × 25 columns), using
+The reproducible task-13 grid is 1,406 quadrants (38 rows × 37 columns), using
 180 m map tiles with a 90 m margin. It starts at approximately EPSG:25833
-`386536.58, 5818021.23` and is rebuilt with:
+`385512.60, 5816999.12` and is rebuilt with:
 
 ```bash
 uv run python -m isometric_berlin.generation.create_grid \
@@ -25,7 +25,7 @@ is inspected for coverage and remains available for per-quadrant/AI work.
 
 The public DZI uses the same `render_quadrant` LoD2/OSM scene code in one
 coherent global projection. This avoids stitching the contextual margins of
-the 650 working quadrants into visible duplicate geometry. The renderer uses
+the 1,406 working quadrants into visible duplicate geometry. The renderer uses
 a 32768-pixel internal detail budget on a 16384×11616 rectangular canvas;
 geometry, facade lines, landmark signatures and vertical extrusion are drawn
 at that resolution. Existing overview pixels are never upscaled.
@@ -36,22 +36,25 @@ body wins. This prevents duplicate Reichstag domes and repeated station or
 chancellery roof treatments on small adjacent structures.
 
 Complex CityGML ensembles are rendered part by part at their official measured
-heights. The current clipped source contains 17,091 volumes: 6,465 buildings
+heights. The official package contains 17,091 volumes: 6,465 buildings
 and 10,626 `BuildingPart` records in 2,012 parent ensembles. Every committed
-volume has a measured LoD2 height. Named OSM building polygons associate all parts in a
+volume has a measured LoD2 height. A separate 12,856-feature OSM sidecar fills
+only locations without LoD2 coverage (261 explicit heights, 9,086 heights from
+mapped storeys and 3,509 source-labelled display fallbacks). Named OSM building
+polygons associate all official parts in a
 landmark family with the same material cue; only the one part at the verified
 landmark anchor receives the singular dome, shell or facade signature.
 
 ```bash
 uv run python -m isometric_berlin.generation.render_overview \
   --render-px 32768 --canvas-width 16384 --canvas-height 11616 \
-  --preview-max-width 6144 --margin-m 440
+  --preview-max-width 4800 --margin-m 395
 ```
 
-The 440 m argument is applied once to the overview quad and once by the shared
-quadrant renderer, yielding the documented 880 m paper ring on every side.
+The 395 m argument is applied once to the overview quad and once by the shared
+quadrant renderer, yielding the documented 790 m paper ring on every side.
 
-The derived `overview_source.png` and `overview.png` are capped at 6144 pixels
+The derived `overview_source.png` and `overview.png` are capped at 4800 pixels
 wide and use a bounded PNG palette for offline fallback/package size. The DZI
 itself retains all 16384×11616 source pixels and its full colour source.
 
@@ -59,7 +62,10 @@ The global render also loads `tiergartentunnel.geojson`. Only its engineered
 `underground_reference_route` centreline is rendered; the 13 OSM carriageway
 ways remain provenance evidence and are not duplicated as visible tunnel
 bodies. The cutaway is clipped to the current scene and remains explicitly
-schematic in depth.
+schematic in depth. The same run reprojects the zero-server overlay's complete
+11-point route into the current task-13 2157×1529 package coordinate space,
+including the southern Reichpietschufer portal; stale pixels from an older
+bounds projection cannot survive regeneration.
 
 ## Step 8a: official photogrammetric WebGL mesh
 
@@ -83,7 +89,8 @@ invented metric geometry. The 26 interaction tiles contain 2,599,985 faces and
 1,377,751 vertices in 29.9 MiB; the 26 settled tiles contain 6,623,585 faces and
 3,464,527 vertices in 79.1 MiB. Meshopt uses 16-bit positions and 8-bit normals;
 the release retains both tiers for documented photo recovery. Normal
-Day/Night/Snow and Minecraft presentation does not request either photo tier;
+Day/Night/Snow/Schwellenraum and Minecraft presentation does not request either
+photo tier;
 the interaction shell loads only for the designed underside cutaway or a
 drawn-world failure. The settled tier remains an archival source-detail asset
 and is not streamed during ordinary navigation. At rest, the frontend adds two
@@ -128,24 +135,30 @@ ditches are included only inside the Großer Tiergarten polygon. Their visible
 bed depth is explicitly a display approximation because the open source bundle
 does not contain pond bathymetry.
 
-Tiergarten paths, tree points/tree rows and playground equipment are rebuilt
-after an OSM refresh with:
+Tiergarten paths, tree points/tree rows, scrub, hedges and playground equipment
+are rebuilt after an OSM refresh with:
 
 ```bash
+uv run python -m isometric_berlin.data.extract_tiergarten_vegetation
 uv run python -m isometric_berlin.generation.build_park_details
 ```
 
 Before that step, `fetch_official_details` clips the two official tree
 catalogues, public-lighting WFS and wall-trace WFS into the bounded
-GeoPackage. The task-10 builder additively fuses that evidence with OSM and
-emits 29,861 visible trees, 5,829 street lights, 12 wall traces, 1,651 joined
-park-path sections and 101 playground footprints. The separate all-area
-surface builder records 8,151 bounded above-ground walking/cycling line parts:
-7,420 have an explicit OSM `surface`, 988 have `width` or `est_width`, and
+GeoPackage. The dedicated extractor preserves `natural=scrub` and
+`barrier=hedge` geometries clipped to OSM relation `7643526` in the small,
+reviewable `tiergarten-vegetation.geojson` sidecar. The task-13 builder
+additively fuses that evidence with OSM and emits 45,540 visible trees, 83
+Tiergarten shrub patches with 3,535 deterministic clusters, 23 mapped hedge
+objects, 5,829 street lights, 12 wall traces, 3,466 joined park-path sections
+and 360 playground footprints. The separate all-area
+surface builder records 20,782 bounded above-ground walking/cycling line parts:
+18,848 have an explicit OSM `surface`, 2,574 have `width` or `est_width`, and
 every remaining width/material is marked as a class/context fallback. Heights
 are sampled locally from the packaged official mesh; a scene-ground fallback
-is used only outside mesh coverage. The resulting `park-details.json` is 5.2
-MB; raw WFS, OSM and mesh intermediates remain excluded.
+is used only outside mesh coverage. The resulting schema-6
+`park-details.json` is 6.05 MB decimal (bounded by a 6 MiB test gate); raw WFS,
+OSM and mesh intermediates remain excluded.
 
 Regenerate the complete street and path surface payload with:
 
@@ -153,15 +166,16 @@ Regenerate the complete street and path surface payload with:
 uv run python -m isometric_berlin.generation.build_surface_polygons
 ```
 
-Schema 7 resolves path surfaces into asphalt, paving, compacted/gravel, earth,
-timber and metal. Explicit OSM tags win over park context, so a mapped asphalt
+Schema 10 resolves path surfaces into asphalt, paving, sand/gravel, earth,
+wood and metal. Explicit OSM tags win over park context, so a mapped asphalt
 cycleway remains asphalt through a park and a mapped earth desire path remains
 earth at its edge. The committed payload includes a `path_inventory` audit
 block with highway, source-surface, resolved-material and mapped-width counts.
-The compact `park-details.json` schema 4 stores the same material as a one-byte
+The compact `park-details.json` schema 6 stores the same material as a one-byte
 code and each resolved width in decimetres. Unnamed paths omit the optional
-name field; this keeps all six materials and 1,651 close-view ribbons below the
-5 MiB release ceiling without increasing the number of path draw calls.
+name field; this keeps all six materials, 3,466 close-view ribbons and the
+source-bounded Tiergarten understorey below the 6 MiB release ceiling without
+increasing the number of path draw calls.
 
 ## Step 8b: Minecraft-mode voxel payload
 
@@ -184,16 +198,20 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   fast if the packaged scene origin ever changes. Output heights are
   decimetre integers to keep the JSON compact.
 - **Buildings.** Every LoD2 footprint in `buildings.gpkg` (buildings and
-  building parts, additive) is rasterised by 4 m cell-centre containment.
-  Each covered cell becomes one column `[x_idx, z_idx, y0_dm, y1_dm, class]`
-  with the measured height snapped **up** to a 4 m multiple; the tallest
+  building parts, additive), followed by every non-overlapping footprint in
+  `osm_context_buildings.gpkg`, is rasterised by 4 m cell-centre containment.
+  Each covered cell becomes one logical column
+  `[x_idx, z_idx, y0_dm, y1_dm, class]` with the measured height snapped
+  **up** to a 4 m multiple; the tallest
   covering building wins a contested cell. ALKIS office (`31001_2020`) and
   station-hall (`31001_3091`) functions map to `glass`, everything else to
   `concrete` (LoD2 has no facade material — this is a display palette).
   Gabled/hipped roof forms (ALKIS `3100/3200/3300/3400`) add a one-cell-inset
   second tier 4 m higher as a simple stepped roof; flat (`1000`) and unknown
-  roofs stay flat.
-- **Ground height.** Inverse-distance interpolation (k=8) over the 34,534
+  roofs stay flat. Schema 2 ships adjacent equal columns as
+  `building_rows[z_offset] = [x_offset, run, y0_dm, y1_dm, class][]` and the
+  viewer expands those losslessly.
+- **Ground height.** Inverse-distance interpolation (k=8) over the 42,168
   committed tree and street-light y samples in `park-details.json`; a coarse
   16 m height grid ships in the payload so the viewer can stack from real
   terrain. Minecraft deliberately keeps nearest-cell steps. The drawn city
@@ -214,28 +232,36 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   Gustav-Heinemann-Brücke, Hugo-Preuß-Brücke, Kronprinzenbrücke and the
   Hauptbahnhof S-Bahn viaduct — keep their decks instead of vanishing into
   unbroken water. Bridge cells render at the IDW terrain height (roughly
-  bank height, e.g. 2.8 m at the Moltkebrücke, above the 1.31 m water top).
+  bank height, e.g. 2.8 m at the Moltkebrücke, above the −1.15 m water top).
+  The eleven coarse bridge cells below the two always-visible Bundestag footbridges
+  are hidden only in that corridor, avoiding a false third deck.
 - **Trees.** One voxel tree per occupied cell (tallest wins) from the fused
-  `park-details.json` points: `[x_idx, z_idx, ground_y_dm, height_dm]` with
+  `park-details.json` points. The logical record
+  `[x_idx, z_idx, ground_y_dm, height_dm]` is shipped per z row as
+  `[x_offset, ground_y_dm, height_dm]`, with
   the height snapped up to a 4 m multiple (minimum 8 m); the viewer builds
   trunk and crown procedurally.
 
-The committed `minecraft-voxels.json` is 4.25 MB decimal (hard test budget
-5 MiB) and currently carries 153,151 building columns, 28,664 tree blocks and
-687,402 classified ground cells on a 1,072 × 1,122 grid. The same deterministic
-run also writes the 0.83 MB decimal `ground-context.json`, which retains the
-classified terrain and sampled heights but intentionally has empty building
-and tree arrays for the fast Day/Night/Snow startup. Both payloads embed the mandatory OSM + Geoportal
+The committed schema-2 `minecraft-voxels.json` is 5.55 MB decimal (hard test
+budget 7 MiB) and losslessly row-encodes 533,329 building columns, 44,222 tree
+blocks and 1,936,080 classified ground cells on a 1,578 × 1,633 grid. Horizontal
+building runs preserve every column while avoiding repeated absolute indices.
+The same deterministic run also writes the 2.33 MB decimal
+`ground-context.json`, which retains the expanded classified terrain and
+sampled heights but intentionally has empty building and tree rows for the fast
+Day/Night/Snow/Schwellenraum startup. Both payloads embed the mandatory OSM +
+Geoportal
 Berlin attribution and per-source licences; `tests/test_build_minecraft_voxels.py`
 guards full/ground size, exact terrain equality, grid consistency and a 24 m+
 Reichstag block cross-check.
 
-## Step 8c: drawn-isometric LoD2 prism payload
+## Step 8c: drawn-isometric building prism payload
 
-The drawn-isometric mode ("gezeichnete Isometrie") extrudes every building
-as a hard-edged prism from its TRUE LoD2 footprint — the crisp LoD2 shapes
-replace the lumpy photogrammetry surface. Regenerated from committed sources
-only:
+The drawn-isometric mode ("gezeichnete Isometrie") extrudes every building as
+a hard-edged prism. Authoritative LoD2 footprints take precedence; the
+non-overlapping OSM sidecar supplies the extended context only where LoD2 is
+absent. These crisp plan shapes replace the lumpy photogrammetry surface.
+Regenerated from committed sources only:
 
 ```bash
 uv run python -m isometric_berlin.generation.build_isometric_prisms \
@@ -249,8 +275,8 @@ How it is built (deterministic, shares the Step 8b machinery):
   `scene.json`: `world_x = easting − 389500`, `world_z = 5820000 − northing`.
   Ring vertices ship as decimetre-integer `[x_dm, z_dm]` pairs with the
   closing vertex omitted; heights are decimetre integers.
-- **Footprints.** One prism per LoD2 footprint polygon part (MultiPolygons
-  split). Exterior and interior rings are simplified with shapely
+- **Footprints.** One prism per resolved building-footprint polygon part
+  (MultiPolygons split). Exterior and interior rings are simplified with shapely
   `simplify(0.15 m)` to remove collinear CityGML noise while preserving real
   corners; winding is normalised (exterior CCW, holes CW in the x/z frame).
   Courtyards survive as `holes` — the Reichstag keeps its interior rings.
@@ -271,7 +297,7 @@ How it is built (deterministic, shares the Step 8b machinery):
   (`overview_source.png`) under its footprint, so the Kanzleramt reads light
   and the Reichstag stone-grey instead of one shared cream palette. The
   builder reproduces the exact projection of the committed overview
-  (`project_point`, 16384×11616 canvas, 32768 px budget, 880 m effective margin —
+  (`project_point`, 16384×11616 canvas, 32768 px budget, 790 m effective margin —
   pinned by re-projecting committed `landmarks.json` records in the tests)
   and samples a deterministic interior grid (~3 m spacing, refined to ≥5
   points for small parts, capped at 200) at ground elevation, where the
@@ -280,8 +306,8 @@ How it is built (deterministic, shares the Step 8b machinery):
   as the viewer's `drawnBuildings.medianColorFromPixels`. Parts without a
   valid raster sample omit `tone` and fall back to the class shades.
 
-The committed `lod2-prisms.json` is 2.5 MB (hard test budget 5 MiB) and
-carries 15,076 prisms; 90 retain a total of 142 courtyard holes and 12,950
+The committed `lod2-prisms.json` is 6.31 MB decimal (hard test budget 7 MiB)
+and carries 29,818 prisms; 486 retain a total of 676 courtyard holes and 25,853
 carry a sampled `tone`. Parts without a reliable raster sample use the
 documented class palette. The payload embeds
 the mandatory OSM + Geoportal Berlin attribution and per-source licences;
@@ -299,7 +325,8 @@ and 3,945 tiles. A clean `bun run build` contains both the full DZI and
 progressive WebGL assets. The release packager keeps every WebGL asset but
 reuses levels 0–13 as an 8192×5808 offline DZI, removing only the redundant
 highest fallback level so both extracted archives remain below their hard
-212 MiB ceiling; the compressed download remains below 200 MB. Hero crops load
+240 MiB ceiling (task-13 measures 238,895,458 extracted bytes); the compressed
+download remains below 200 MB. Hero crops load
 only when a photographic failure fallback is active and its landmark is
 selected; normal drawn navigation never requests them.
 

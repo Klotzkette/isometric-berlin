@@ -23,6 +23,7 @@ import {
   RIECKHALLEN_PROFILE,
 } from "./expandedCityProfiles";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
+import { createMinecraftHistoricParkBridges } from "./MinecraftHistoricParkBridges";
 import {
   AXIS_FROM,
   AXIS_TO,
@@ -61,15 +62,61 @@ export type VoxelPayload = {
   };
   /** rows[z_offset] = [x_start_offset, run_length, classId][] (grid offsets). */
   ground_rows: Array<Array<[number, number, number]>>;
-  /** [x_idx, z_idx, y0_dm, y1_dm, classId] with ABSOLUTE cell indices. */
-  buildings: Array<[number, number, number, number, number]>;
-  /** [x_idx, z_idx, y0_dm, height_dm] with ABSOLUTE cell indices. */
-  trees: Array<[number, number, number, number]>;
+  /** Legacy schema 1: absolute [x_idx, z_idx, y0_dm, y1_dm, classId]. */
+  buildings?: VoxelBuildingColumn[];
+  /** Schema 2: rows[z_offset] = [x_offset, run, y0_dm, y1_dm, classId][]. */
+  building_rows?: Array<Array<[number, number, number, number, number]>>;
+  /** Legacy schema 1: absolute [x_idx, z_idx, y0_dm, height_dm]. */
+  trees?: VoxelTreeBlock[];
+  /** Schema 2: rows[z_offset] = [x_offset, y0_dm, height_dm][]. */
+  tree_rows?: Array<Array<[number, number, number]>>;
   water_top_y_m: number;
 };
 
+export type VoxelBuildingColumn = [number, number, number, number, number];
+export type VoxelTreeBlock = [number, number, number, number];
+
+/** Losslessly expand the compact schema-2 rows, while accepting schema 1. */
+export function decodeVoxelBuildingColumns(
+  payload: VoxelPayload,
+): VoxelBuildingColumn[] {
+  if (!payload.building_rows) return payload.buildings ?? [];
+  const columns: VoxelBuildingColumn[] = [];
+  payload.building_rows.forEach((row, zOffset) => {
+    for (const [xOffset, runLength, y0dm, y1dm, classId] of row) {
+      for (let offset = 0; offset < runLength; offset += 1) {
+        columns.push([
+          payload.grid.min_x_idx + xOffset + offset,
+          payload.grid.min_z_idx + zOffset,
+          y0dm,
+          y1dm,
+          classId,
+        ]);
+      }
+    }
+  });
+  return columns;
+}
+
+/** Losslessly expand compact schema-2 trees, while accepting schema 1. */
+export function decodeVoxelTreeBlocks(payload: VoxelPayload): VoxelTreeBlock[] {
+  if (!payload.tree_rows) return payload.trees ?? [];
+  const trees: VoxelTreeBlock[] = [];
+  payload.tree_rows.forEach((row, zOffset) => {
+    for (const [xOffset, y0dm, heightDm] of row) {
+      trees.push([
+        payload.grid.min_x_idx + xOffset,
+        payload.grid.min_z_idx + zOffset,
+        y0dm,
+        heightDm,
+      ]);
+    }
+  });
+  return trees;
+}
+
 export const VOXEL_WORLD_FILE = "minecraft-voxels.json";
-/** Terrain-only sibling used by Day/Night/Snow during the fast first load. */
+/** Terrain-only sibling used by Day/Night/Snow/Schwellenraum on first load. */
 export const GROUND_CONTEXT_FILE = "ground-context.json";
 const GROUND_SLAB_M = 3;
 /**
@@ -146,6 +193,60 @@ export function isFalseSintiRomaVoxelColumn(
       SINTI_ROMA_VOXEL_CLEARING.halfWidthM &&
     Math.abs(worldZ - SINTI_ROMA_VOXEL_CLEARING.center[1]) <=
       SINTI_ROMA_VOXEL_CLEARING.halfDepthM
+  );
+}
+
+/**
+ * LoD2 part DEBE01YYK0001zDa is a valid bridge envelope, but voxelising its
+ * footprint from terrain to the 28.7 m top turns it into a closed wall over
+ * the Spree. The always-visible central recognition layer supplies both open
+ * bridge levels, so only the narrow source-prism corridor yields here.
+ */
+export const BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING = {
+  // Exact world bounds of LoD2 part DEBE01YYK0001zDa. Using the former
+  // coarse 310…378 m box also erased three 32 m connector-building columns.
+  maxX: 375.424,
+  maxZ: -179.962,
+  minFalseHeightM: 20,
+  minX: 312.831,
+  minZ: -184.3,
+  sourceBuildingId: "DEBE01YYK0001zDa",
+} as const;
+
+export function isFalseBundestagSpreeBridgeVoxelColumn(
+  worldX: number,
+  worldZ: number,
+  heightM: number,
+): boolean {
+  const clearing = BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING;
+  return (
+    heightM >= clearing.minFalseHeightM &&
+    worldX >= clearing.minX &&
+    worldX <= clearing.maxX &&
+    worldZ >= clearing.minZ &&
+    worldZ <= clearing.maxZ
+  );
+}
+
+/** Eleven block-deck cells beneath the always-visible lower civic footbridge. */
+export const BUNDESTAG_SPREE_BRIDGE_GROUND_CLEARING = {
+  maxX: 364,
+  maxZ: -184,
+  minX: 320,
+  minZ: -188,
+  osmWayId: "30596778",
+} as const;
+
+export function isBundestagSpreeBridgeGroundCell(
+  worldX: number,
+  worldZ: number,
+): boolean {
+  const clearing = BUNDESTAG_SPREE_BRIDGE_GROUND_CLEARING;
+  return (
+    worldX >= clearing.minX &&
+    worldX <= clearing.maxX &&
+    worldZ >= clearing.minZ &&
+    worldZ <= clearing.maxZ
   );
 }
 
@@ -627,6 +728,7 @@ export function createGroundSlabs(
     emissive?: number;
     skipClasses?: readonly string[];
     skipBridge?: boolean;
+    skipBridgeAtWorld?: (x: number, z: number) => boolean;
     skipAtWorld?: (x: number, z: number) => boolean;
     skipWater?: boolean;
   },
@@ -645,6 +747,7 @@ export function createGroundSlabs(
     zOffset: number;
   }> = [];
   let skippedByWorldPredicateCells = 0;
+  let skippedBridgeCells = 0;
   payload.ground_rows.forEach((row, zOffset) => {
     for (const [xStart, run, classId] of row) {
       const className = payload.classes[classId] ?? "grass";
@@ -658,22 +761,26 @@ export function createGroundSlabs(
       ) {
         continue;
       }
-      if (!options?.skipAtWorld) {
+      const skipBridgeAtWorld =
+        className === "bridge" ? options?.skipBridgeAtWorld : undefined;
+      if (!options?.skipAtWorld && !skipBridgeAtWorld) {
         visibleRuns.push({ classId, run, xStart, zOffset });
         continue;
       }
       let visibleStart = -1;
       for (let step = 0; step < run; step += 1) {
         const xOffset = xStart + step;
-        const hidden = options.skipAtWorld(
-          worldXAbs(min_x_idx + xOffset),
-          worldZAbs(min_z_idx + zOffset),
-        );
+        const worldX = worldXAbs(min_x_idx + xOffset);
+        const worldZ = worldZAbs(min_z_idx + zOffset);
+        const hiddenByWorld = options?.skipAtWorld?.(worldX, worldZ) ?? false;
+        const hiddenBridge = skipBridgeAtWorld?.(worldX, worldZ) ?? false;
+        const hidden = hiddenByWorld || hiddenBridge;
         if (!hidden && visibleStart < 0) {
           visibleStart = xOffset;
         }
         if (hidden) {
-          skippedByWorldPredicateCells += 1;
+          if (hiddenByWorld) skippedByWorldPredicateCells += 1;
+          if (hiddenBridge) skippedBridgeCells += 1;
           if (visibleStart >= 0) {
             visibleRuns.push({
               classId,
@@ -698,6 +805,7 @@ export function createGroundSlabs(
   const ground = instancedBoxes(name, visibleRuns.length, options?.emissive);
   ground.mesh.userData.skippedByWorldPredicateCells =
     skippedByWorldPredicateCells;
+  ground.mesh.userData.skippedBridgeCells = skippedBridgeCells;
   const center = new Vector3();
   const size = new Vector3();
   for (const { classId, run, xStart, zOffset } of visibleRuns) {
@@ -1692,6 +1800,7 @@ export function createMinecraftVoxelWorld(
   group.add(
     createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES, {
       skipAtWorld: insideTunnelApproach ?? undefined,
+      skipBridgeAtWorld: isBundestagSpreeBridgeGroundCell,
     }),
   );
   group.add(createMinecraftHamburgerBahnhofRecognition());
@@ -1699,10 +1808,17 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftEinzEuropaplatzRecognition());
   group.add(createMinecraftUpbeatRecognition());
   group.add(createMinecraftFunboxRecognition());
+  group.add(createMinecraftHistoricParkBridges(worldGroundSampler(payload)));
 
-  const visibleBuildingColumns = payload.buildings.filter(
+  const buildingColumns = decodeVoxelBuildingColumns(payload);
+  const visibleBuildingColumns = buildingColumns.filter(
     ([xIdx, zIdx, y0dm, y1dm]) =>
       !isFalseSintiRomaVoxelColumn(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        (y1dm - y0dm) / 10,
+      ) &&
+      !isFalseBundestagSpreeBridgeVoxelColumn(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
         (y1dm - y0dm) / 10,
@@ -1871,7 +1987,7 @@ export function createMinecraftVoxelWorld(
     group.add(panes);
   }
 
-  const visibleTrees = payload.trees.filter(
+  const visibleTrees = decodeVoxelTreeBlocks(payload).filter(
     ([xIdx, zIdx]) =>
       !isChancelleryExtensionConstructionPoint(
         worldXAbs(xIdx),

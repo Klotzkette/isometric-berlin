@@ -121,14 +121,27 @@ def download_tiles(
     for tile in tiles:
       path = raw_dir / tile.filename
       if path.exists() and path.stat().st_size > 0:
-        paths.append(path)
-        continue
+        if zipfile.is_zipfile(path):
+          paths.append(path)
+          continue
+        # A Berlin maintenance page has occasionally been returned with HTTP
+        # 200 and the expected .zip filename. Never reuse that HTML as a tile.
+        path.unlink()
       response = client.get(tile.url, timeout=timeout)
       if response.status_code == 404:
         continue
       response.raise_for_status()
       tmp = path.with_suffix(path.suffix + ".tmp")
       tmp.write_bytes(response.content)
+      if not zipfile.is_zipfile(tmp):
+        content_type = response.headers.get("Content-Type", "unknown")
+        byte_count = tmp.stat().st_size
+        tmp.unlink()
+        raise RuntimeError(
+          f"Berlin LoD2 tile {tile.tile_id} did not return a ZIP archive "
+          f"(Content-Type {content_type}, {byte_count} bytes); the official "
+          "download service may be unavailable"
+        )
       tmp.replace(path)
       paths.append(path)
   finally:

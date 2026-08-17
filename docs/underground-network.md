@@ -1,7 +1,7 @@
 # Underground passenger-network cutaway
 
 The 3D underside view includes a restrained architectural cutaway of mapped
-passenger rail beneath the complete 5,230 m presentation envelope. It is a
+passenger rail beneath the complete 6,450 m presentation envelope. It is a
 separate layer from the Tiergartentunnel road model documented in
 [`tiergartentunnel-geometry.md`](tiergartentunnel-geometry.md).
 
@@ -57,7 +57,8 @@ schematic level, not an as-built ceiling survey.
 The pale structural ink, ivory platform faces, darker sectional edges and
 restrained U5/S-Bahn colour cues form an original technical-cutaway language.
 They use no photographic texture and no transparent tunnel shell, avoiding both
-visual clutter and alpha-layer flicker. Day, Night, Minecraft and Snowstorm
+visual clutter and alpha-layer flicker. Day, Night, Minecraft, Snowstorm and
+Schwellenraum
 recolour the same geometry without rebuilding or moving it.
 
 Exterior horizon and snow fog are always disabled after the camera enters the

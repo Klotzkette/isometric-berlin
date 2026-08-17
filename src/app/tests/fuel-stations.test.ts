@@ -17,20 +17,33 @@ describe("drawn filling stations (OSM amenity=fuel)", () => {
 
   test("the payload carries every mapped station in the expanded area with an axis", () => {
     expect(stations.map((entry) => entry.name).sort()).toEqual([
+      "Agip",
+      "Aral",
+      "Aral",
       "Aral",
       "Aral",
       "Esso",
+      "SB Tank",
       "Shell",
+      "Shell",
+      "Sprint",
       "Total",
+      "Total",
+      "Westfehling",
     ]);
     for (const station of stations) {
       const [ax, az] = station.axis;
       expect(Math.hypot(ax, az)).toBeCloseTo(1, 3);
     }
-    // Shell and Total are mapped areas; the other three are nodes whose
-    // forecourt is derived from the frontage road.
+    // SB Tank, both Shells and one Total are mapped areas; the other nine are
+    // nodes whose forecourt is derived from the nearest frontage road.
     const surveyed = stations.filter((entry) => entry.surveyed_outline);
-    expect(surveyed.map((entry) => entry.name).sort()).toEqual(["Shell", "Total"]);
+    expect(surveyed.map((entry) => entry.name).sort()).toEqual([
+      "SB Tank",
+      "Shell",
+      "Shell",
+      "Total",
+    ]);
   });
 
   test("the node-only Esso keeps the axis of its mapped canopy", () => {

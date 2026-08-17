@@ -2,6 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { MOUSE } from "three";
 
 import {
+  PEDESTRIAN_JUMP_DOUBLE_TAP_MS,
+  PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX,
+  PEDESTRIAN_TAP_MAX_DURATION_MS,
+  PEDESTRIAN_TAP_MAX_TRAVEL_PX,
   PEN_GESTURE_SETTINGS,
   THREE_MOUSE_GESTURE_SETTINGS,
   TOUCH_GESTURE_SETTINGS,
@@ -187,6 +191,27 @@ describe("touch viewer gestures", () => {
     expect(isPedestrianJumpDoubleTap(first, second)).toBe(true);
   });
 
+  test("gives a one-handed mobile double tap a generous inclusive window", () => {
+    const first = {
+      at: 1_000,
+      durationMs: PEDESTRIAN_TAP_MAX_DURATION_MS,
+      maxTravelPx: PEDESTRIAN_TAP_MAX_TRAVEL_PX,
+      x: 100,
+      y: 100,
+    };
+    const second = {
+      ...first,
+      at: 1_000 + PEDESTRIAN_JUMP_DOUBLE_TAP_MS,
+      x: 100 + PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX,
+    };
+    expect(PEDESTRIAN_TAP_MAX_DURATION_MS).toBeGreaterThanOrEqual(360);
+    expect(PEDESTRIAN_TAP_MAX_TRAVEL_PX).toBeGreaterThanOrEqual(24);
+    expect(PEDESTRIAN_JUMP_DOUBLE_TAP_MS).toBeGreaterThanOrEqual(500);
+    expect(PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX).toBeGreaterThanOrEqual(52);
+    expect(isPedestrianTouchTap(first)).toBe(true);
+    expect(isPedestrianJumpDoubleTap(first, second)).toBe(true);
+  });
+
   test("never mistakes a look drag, long press, distant tap or stale tap for a jump", () => {
     const tap = {
       at: 1_000,
@@ -200,27 +225,27 @@ describe("touch viewer gestures", () => {
       isPedestrianJumpDoubleTap(tap, {
         ...tap,
         at: 1_200,
-        maxTravelPx: 24,
+        maxTravelPx: PEDESTRIAN_TAP_MAX_TRAVEL_PX + 1,
       }),
     ).toBe(false);
     expect(
       isPedestrianJumpDoubleTap(tap, {
         ...tap,
         at: 1_200,
-        durationMs: 340,
+        durationMs: PEDESTRIAN_TAP_MAX_DURATION_MS + 1,
       }),
     ).toBe(false);
     expect(
       isPedestrianJumpDoubleTap(tap, {
         ...tap,
         at: 1_200,
-        x: 160,
+        x: 100 + PEDESTRIAN_JUMP_DOUBLE_TAP_RADIUS_PX + 1,
       }),
     ).toBe(false);
     expect(
       isPedestrianJumpDoubleTap(tap, {
         ...tap,
-        at: 1_500,
+        at: 1_000 + PEDESTRIAN_JUMP_DOUBLE_TAP_MS + 1,
       }),
     ).toBe(false);
     expect(isPedestrianJumpDoubleTap(null, tap)).toBe(false);

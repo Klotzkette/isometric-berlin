@@ -189,7 +189,15 @@ uv run python -m isometric_berlin.data.fetch_lod2 \
 # 3: OSM
 uv run python -m isometric_berlin.data.fetch_osm \
   --bounds geo_data/regierungsviertel/bounds.geojson \
+  --pbf geo_data/regierungsviertel/raw/osm/berlin-latest.osm.pbf \
   --out geo_data/regierungsviertel/osm.gpkg
+
+# 3b: OSM building sidecar only where official LoD2 has no footprint
+uv run python -m isometric_berlin.data.fetch_osm_context_buildings \
+  --pbf geo_data/regierungsviertel/raw/osm/berlin-latest.osm.pbf \
+  --bounds geo_data/regierungsviertel/bounds.geojson \
+  --official-buildings geo_data/regierungsviertel/buildings.gpkg \
+  --out geo_data/regierungsviertel/osm_context_buildings.gpkg
 
 # 4: ALKIS / DOP / DGM (optional)
 uv run python -m isometric_berlin.data.fetch_official_support \
@@ -227,11 +235,12 @@ uv run python -m isometric_berlin.data.fuse_sources \
   --out geo_data/regierungsviertel/fused_sources.json
 ```
 
-## OSM / Overpass query
+## Current OSM extract and Overpass fallback
 
-Pipeline step 3 uses OSMnx against Overpass with the Regierungsviertel
-polygon from `geo_data/regierungsviertel/bounds.geojson`, clipped back
-to the same polygon in EPSG:25833. The effective tag filter is:
+The committed task-13 refresh reads the local 2026-08-17 Geofabrik Berlin PBF and clips
+it to `geo_data/regierungsviertel/bounds.geojson` in EPSG:25833. The same
+command can still use OSMnx/Overpass when `--pbf` is omitted. Its effective tag
+filter is:
 
 ```python
 {
@@ -260,34 +269,41 @@ to the same polygon in EPSG:25833. The effective tag filter is:
 }
 ```
 
-Since the task-09 expansion, including the larger task-10 lobe, the polygon is fetched in roughly
-kilometre-wide tiles rather than in one request: asking Overpass for every tag
-across the whole area produces a response of hundreds of megabytes, which the
-connection does not survive. Tiles are clipped back to the polygon and
-deduplicated by element/id, so the result is identical to a single request.
+The Overpass fallback fetches the task-13 polygon in roughly kilometre-wide
+tiles, clips them back to the polygon and deduplicates by element/id. The local
+PBF path avoids transient Overpass failures and is the reproducible source used
+for the current commit.
 
 The normalized raw feature response is cached at
 `geo_data/regierungsviertel/raw/osm_overpass.json` (gitignored), and
 OSMnx's request cache lives under
 `geo_data/regierungsviertel/raw/osmnx_cache/`.
 
-The clipped GeoPackage now exposes `vegetation` and `playgrounds` alongside
-roads, water, parks, rail and POIs. It retains equipment type, surface,
-material, height, leaf and accessibility attributes. The public viewer does
-not ship the raw response: `build_park_details` simplifies this evidence into
-the compact `park-details.json` display payload.
+The clipped GeoPackage exposes 41,886 roads, 257 water features, 4,222 parks,
+27,312 vegetation features, 865 playground features, 1,906 rail features and
+10,644 relevant POIs. It retains equipment type, surface, material, height,
+leaf and accessibility attributes. The public viewer does not ship the raw
+response: `build_park_details` simplifies this evidence into the compact
+`park-details.json` display payload.
+
+The building sidecar contains 12,856 non-overlapping OSM footprints (12,443 ways
+and 413 relations). LoD2 always wins where present. Of the sidecar heights, 261
+are explicit, 9,086 come from mapped storeys and 3,509 are marked display
+fallbacks; floating `min_height` volumes are excluded. The shared building
+loader feeds the overview, drawn prisms and Minecraft without modifying the
+canonical official `buildings.gpkg`.
 
 Walking/cycling infrastructure is audited separately from motor traffic.
-`surface-polygons.json` schema 9 contains 8,151 bounded above-ground line parts
-across `footway`, `cycleway`, `path`, `pedestrian`, `steps` and `track`; 7,420
-parts have an explicit OSM `surface` and 988 have `width` or `est_width`.
-Explicit surface tags resolve to six drawn families (asphalt, paving,
-compacted/gravel, earth, timber and metal) before any park/class fallback is
+`surface-polygons.json` schema 10 contains 20,782 bounded above-ground line
+parts across `footway`, `cycleway`, `path`, `pedestrian`, `steps` and `track`;
+18,848 parts have an explicit OSM `surface` and 2,574 have `width` or
+`est_width`. Explicit surface tags resolve to six drawn families (asphalt,
+paving, sand/gravel, earth, wood and metal) before any park/class fallback is
 considered. The payload's `path_inventory` preserves the source and resolution
 counts so missing width evidence is documented rather than presented as a
 surveyed kerb line.
 
-Schema 9 keeps the 0.1 m water/road tolerance and separates four water roles:
+Schema 10 keeps the 0.1 m water/road tolerance and separates four water roles:
 Spree/canal/harbour polygons (`river`), natural still water (`pond`), built
 fountains and reflecting pools (`basin`), and OSM-mapped Tiergarten streams or
 ditches (`stream`). Linear streams are clipped to the OSM Großer-Tiergarten
@@ -298,17 +314,21 @@ pond. The renderer keeps every mapped shoreline and island ring, derives a
 robust local level from the official terrain-support samples, and labels its
 0.35-1.55 m visible pond depth as unsurveyed presentation geometry.
 
-Schema 9 also samples
+Schema 10 also samples
 road curves at 1.5 m and uses 16 round-buffer segments per quadrant. The viewer
 inserts additional 2–2.5 m display points only between the retained exported
 vertices. Natural bends can therefore flow continuously while engineered
 basin/quay corners remain sharp; the display interpolation does not move a
 retained centreline or shoreline vertex and stays inside the mapped extent.
 
-`park-details.json` schema 4 repeats only compact material codes and resolved
-decimetre widths for the 1,651 raised close-view ribbons. It omits null path
-names and batches by six materials, preserving both the source distinction and
-the 5 MiB public-payload ceiling.
+`park-details.json` schema 6 repeats only compact material codes and resolved
+decimetre widths for the 3,466 raised close-view ribbons. It omits null path
+names and batches by six materials. The same payload preserves 83 exact OSM
+Tiergarten scrub polygons with 3,535 deterministic foliage clusters and 23
+mapped hedge objects; the earlier coarse all-area scrub samples are omitted
+only inside exact park relation `7643526`. This preserves both the source
+distinction and the measured 6 MiB public-payload ceiling without double
+drawing the Tiergarten understorey.
 
 Floraplatz's animal inventory combines OSM monument positions with Berlin's
 restoration record: two deer, two bison, two elk, one bear and one bull. A
@@ -320,13 +340,16 @@ OSM way `498278335` for its current envelope and Berlin's published landscape-
 architecture description for its interpretive interior. These recognition
 details remain additive and do not override their source geometry.
 
-`street-details.json` schema 5 also preserves `memorial=*` (and the deprecated
+`street-details.json` schema 6 also preserves `memorial=*` (and the deprecated
 `memorial:type=*` fallback) instead of flattening every `historic=memorial`
-point into one object. The viewer therefore distinguishes Stolpersteine,
-plaques, statues, sculptures, steles, busts, stones, war memorials, obelisks,
-ghost bikes, headstones, benches and pavement plaques. Stolpersteine use the
-documented 0.10 m brass top without an ink halo; a missing subtype yields only
-a conservative low marker, never a falsely asserted landmark-sized block.
+point into one object. Every entry retains its stable `osm_element`, `osm_id`
+and combined `osm_key`; `schwellenraum_protected` is the reviewed source-side
+contract for unchanged Day rendering and indexed navigation exclusion. The
+viewer therefore distinguishes Stolpersteine, plaques, statues, sculptures,
+steles, busts, stones, war memorials, obelisks, ghost bikes, headstones,
+benches and pavement plaques. Stolpersteine use the documented 0.10 m brass
+top without an ink halo; a missing subtype yields only a conservative low
+marker, never a falsely asserted landmark-sized block.
 
 ## Berlin official support layers
 

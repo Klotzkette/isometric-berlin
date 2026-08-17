@@ -256,10 +256,71 @@ export const POTSDAMER_DETAIL_PROFILE = {
   // Kept as a compatibility alias for consumers written before the measured
   // memorial profile was introduced.
   georgElserWorldM: [749.614475, 749.844173] as const,
-  hessenRepresentationWorldM: [455.937, 780.79] as const,
   mallSouthFacadeOffsetM: -59.5,
   northKoreanEmbassyWorldM: [946.346, 832.865] as const,
   potsdamerStationWorldM: [291.008, 1091.994] as const,
+  stationEntranceHalls: {
+    geometryStatus:
+      "Berlin LoD2 footprint rings and heights anchor two inset steel-glass frame reconstructions; grid, open fronts, stairs and braces are source-bounded presentation detail, not a component survey",
+    halls: [
+      {
+        centerWorldM: [281.832837, 1014.305612] as const,
+        entranceNodeId: "2491824683",
+        footprintAreaM2: 689.235,
+        footprintRingWorldM: [
+          [292.607, 999.955],
+          [293.496, 999.86],
+          [296.275, 1025.964],
+          [295.386, 1026.059],
+          [270.187, 1028.757],
+          [267.376, 1002.652],
+        ] as const,
+        footprintSizeM: [26.2688, 26.2559] as const,
+        frontSide: 1,
+        groundY: 5.4,
+        key: "north",
+        officialHeightM: 9.414,
+        rotationY: 0.106488,
+        sourceBuildingId: "DEBE01YYK0002SCt",
+      },
+      {
+        centerWorldM: [295.739475, 1138.368472] as const,
+        entranceNodeId: "1576240058",
+        footprintAreaM2: 689.298,
+        footprintRingWorldM: [
+          [291.364, 1152.024],
+          [284.06, 1152.795],
+          [281.679, 1130.281],
+          [281.405, 1127.687],
+          [281.297, 1126.694],
+          [282.429, 1126.576],
+          [302.768, 1124.432],
+          [307.417, 1123.942],
+          [309.676, 1145.274],
+          [310.181, 1150.042],
+        ] as const,
+        footprintSizeM: [26.2777, 26.2468] as const,
+        frontSide: -1,
+        groundY: 5.4,
+        key: "south",
+        officialHeightM: 14.696,
+        rotationY: 0.105006,
+        sourceBuildingId: "DEBE01YYK0000BRX",
+      },
+    ] as const,
+    roofBayCountAcross: 10,
+    roofBayCountDepth: 6,
+    sources: [
+      "https://daten.berlin.de/datensaetze/3d-gebaeudemodelle-lod2-berlin",
+      "https://www.hoe-architects.com/projekte/regionalbahnhof-potsdamer-platz-berlin/",
+      "https://behringer-ingenieure.de/projekte/details/47/bahnhof-potsdamer-platz-berlin",
+      "https://www.openstreetmap.org/node/2491824683",
+      "https://www.openstreetmap.org/node/1576240058",
+      "https://commons.wikimedia.org/wiki/File:N%C3%B6rdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz,_Berlin-1785.jpg",
+      "https://commons.wikimedia.org/wiki/File:S%C3%BCdlicher_Eingang_zum_Bahnhof_Potsdamer_Platz-1746.jpg",
+    ] as const,
+    wallPanelRows: 3,
+  },
   sonyCenterForumRoof: {
     axisDegrees: 29.465,
     geometryStatus:
@@ -290,7 +351,9 @@ export const POTSDAMER_DETAIL_PROFILE = {
     supportHeightAboveGroundM: 41,
   },
   spielbankWorldM: [10.472, 1250.269] as const,
-  taylorWessingWorldM: [368.684, 890.551] as const,
+  // Exact centroid of LoD2 parent DEBE01YYK00009eV. Kept as a compatibility
+  // alias; the component-bound façade now lives in LeipzigerPlatzDetails.
+  taylorWessingWorldM: [376.463, 885.086] as const,
   trafficTowerWorldM: [302.391, 1081.736] as const,
   alterDessauerWorldM: [812.54, 838.495] as const,
   geometryStatus:
@@ -777,24 +840,114 @@ export const AMANO_GRAND_CENTRAL_PROFILE = {
 /**
  * Present-day Geschichtspark envelope and the official interpretive plan.
  *
- * The park extent/axis is OSM way 498278335. Internal traces are a documented
- * landscape-architecture reconstruction (not surviving prison geometry): the
- * official Berlin description identifies three five-metre walls, three
- * entrances, four star wings, the central panopticon cube, three circular
- * exercise yards, blood-beech hedges and one walk-in cell.
+ * The 22-vertex park extent is OSM way 498278335; the four wall polylines are
+ * the separately mapped surviving brick barriers. Internal traces are a
+ * documented landscape-architecture reconstruction (not surviving prison
+ * geometry): Berlin's official description identifies five-metre walls,
+ * three entrances, four star wings, the central panopticon cube, three
+ * circular exercise yards, blood-beech hedges and one walk-in cell.
  */
 export const MOABIT_PRISON_PARK_PROFILE = {
+  b96CenterlineWorldM: [
+    [-225.706, -1013.291],
+    [-225.869, -1003.947],
+    [-227.779, -997.848],
+    [-232.704, -980.811],
+    [-237.138, -951.022],
+    [-239.14, -925.818],
+    [-243.487, -863.267],
+    [-244.767, -845.369],
+    [-245.973, -829.55],
+    [-246.454, -818.2],
+    [-246.31, -790.077],
+  ] as const,
   centerWorldM: [-329.097233, -906.302474] as const,
   circularYardCount: 3,
   entranceCount: 3,
   geometryStatus:
-    "OSM park envelope with official interpretive-plan reconstruction",
+    "exact OSM park/wall plan with official interpretive-plan reconstruction; internal display heights beyond the published five-metre wall are not survey claims",
   groundY: 5.9,
+  minimumB96CenterlineClearanceM: 17.29,
+  parkRingWorldM: [
+    [-422.988, -933.418],
+    [-365.535, -813.884],
+    [-360.813, -815.936],
+    [-346.507, -786.491],
+    [-347.566, -783.165],
+    [-318.209, -797.412],
+    [-314.456, -799.185],
+    [-312.816, -799.961],
+    [-310.539, -801.033],
+    [-279.353, -815.684],
+    [-269.063, -820.525],
+    [-263.375, -828.375],
+    [-258.947, -899.893],
+    [-259.972, -907.094],
+    [-255.039, -964.625],
+    [-313.275, -1032.798],
+    [-341.453, -995.635],
+    [-342.043, -988.148],
+    [-351.047, -988.853],
+    [-400.444, -963.888],
+    [-430.476, -950.079],
+    [-428.091, -945.118],
+  ] as const,
   preservedWallHeightM: 5,
+  preservedWallPathsWorldM: [
+    [
+      [-346.607, -783.555],
+      [-318.209, -797.412],
+      [-314.456, -799.185],
+      [-312.816, -799.961],
+      [-310.539, -801.033],
+      [-279.353, -815.684],
+      [-269.063, -820.525],
+      [-263.375, -828.375],
+      [-259.293, -899.912],
+      [-270.422, -922.475],
+      [-271.402, -924.456],
+      [-272.057, -925.784],
+      [-283.87, -949.342],
+      [-342.043, -988.148],
+    ],
+    [
+      [-351.047, -988.853],
+      [-400.444, -963.888],
+      [-430.476, -950.079],
+      [-428.091, -945.118],
+      [-422.988, -933.418],
+    ],
+    [
+      [-341.653, -993.102],
+      [-333.679, -1005.975],
+    ],
+    [
+      [-330.996, -1009.352],
+      [-314.424, -1030.91],
+    ],
+  ] as const,
+  preservedWallWayIds: [
+    "53178124",
+    "105495351",
+    "498279237",
+    "498279239",
+  ] as const,
   reconstructedCellCount: 1,
   rotationY: 2.019,
+  sourceB96WayIds: ["4389552", "168934832", "4411242"] as const,
   sourceParkWayId: "498278335",
-  wallSideCount: 3,
+  sources: [
+    "https://www.openstreetmap.org/way/498278335",
+    "https://www.openstreetmap.org/way/53178124",
+    "https://www.openstreetmap.org/way/105495351",
+    "https://www.openstreetmap.org/way/498279237",
+    "https://www.openstreetmap.org/way/498279239",
+    "https://www.openstreetmap.org/way/4389552",
+    "https://www.openstreetmap.org/way/168934832",
+    "https://www.openstreetmap.org/way/4411242",
+    "https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html",
+    "https://www.berlin.de/kunst-und-kultur-mitte/geschichte/erinnerungskultur/gedenktafel-datenbank/id-2459_zellengefaengnis-erlaeuterung.pdf",
+  ] as const,
 } as const;
 
 /**

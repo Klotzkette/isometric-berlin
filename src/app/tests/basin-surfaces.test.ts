@@ -13,6 +13,12 @@ const surfaces = surfacePayload as unknown as SurfacePayload;
 /** Surveyed ground in the Invalidenpark, well above the Spree table. */
 const TERRAIN_M = 5.3;
 const terrainAt = () => TERRAIN_M;
+// Task 12 enlarged the exact surface payload by 500 m on every side. These
+// tests intentionally triangulate that complete payload, so retain a bounded
+// timeout while allowing for parallel test-runner load on the larger scene.
+// Full-payload surface construction reaches about 14 s under parallel load;
+// keep a finite guard with enough headroom for the task-13 outer ring.
+const TASK_13_FULL_CITY_TIMEOUT_MS = 30_000;
 
 describe("constructed basins", () => {
   test("water is split into rivers, natural park water and basins", () => {
@@ -33,7 +39,7 @@ describe("constructed basins", () => {
     expect(northHarbour?.kind).toBe("pond");
     expect(new Box3().setFromObject(river).max.y).toBeCloseTo(-1.15, 5);
     expect(new Box3().setFromObject(naturalWater).min.y).toBeGreaterThan(5.3);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("a basin plate sits above the lawn that surrounds it", () => {
     // The bug this fixes: every basin was drawn at the single Spree table
@@ -48,13 +54,13 @@ describe("constructed basins", () => {
     expect(basinBox.min.y).toBeGreaterThan(lawnTop);
     // A water surface is flat: one level per basin, not a draped plate.
     expect(basinBox.max.y - basinBox.min.y).toBeLessThan(0.01);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("the river keeps the Spree table while the basin does not", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
     const river = group.getObjectByName("smooth water surface") as Mesh;
     expect(new Box3().setFromObject(river).max.y).toBeCloseTo(-1.15, 5);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("natural ponds have local flat water, a visible floor and sloped banks", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
@@ -72,7 +78,7 @@ describe("constructed basins", () => {
     expect(group.getObjectByName("natural pond shoreline ink")).toBeInstanceOf(
       LineSegments,
     );
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 });
 
 describe("natural pond level", () => {
@@ -109,7 +115,7 @@ describe("the sunken wall", () => {
     // through the surface by the plunge face — that drop IS the artwork.
     expect(box.max.y).toBeGreaterThan(water + 4);
     expect(box.min.y).toBeLessThan(water);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("the wedge is low in the north and high in the south", () => {
     const wall = surfaces.sunken_walls?.[0];
@@ -131,7 +137,7 @@ describe("the sunken wall", () => {
       }
     }
     expect(southTop).toBeGreaterThan(northTop + 2);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("a walkable crown with rails runs the whole ramp", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
@@ -154,7 +160,7 @@ describe("the sunken wall", () => {
     expect(new Box3().setFromObject(ink).max.y).toBeGreaterThan(
       crownBox.max.y + 0.5,
     );
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("basin and wall are inked and carry a night tone", () => {
     const group = createSmoothSurfaces(surfaces, -1.15, 4.2, terrainAt);
@@ -179,5 +185,5 @@ describe("the sunken wall", () => {
     setIsoNightPresentation(group, false);
     const slab = group.getObjectByName("sunken walls") as Mesh;
     expect(slab.material).toBe(slab.userData.dayMaterial);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 });

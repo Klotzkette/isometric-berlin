@@ -22,17 +22,23 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import webbrowser
 from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, jsonify, request
+from pyproj import Transformer
 from shapely.geometry import Polygon, shape
+from shapely.ops import transform
 
 HOST = "127.0.0.1"
 PORT = 8765
 ATTRIBUTION = "© OpenStreetMap contributors"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+CRS84 = "OGC:CRS84"
+BERLIN_PROJECTED = "EPSG:25833"
+COORDINATE_DECIMALS = 9
 
 
 def repo_root() -> Path:
@@ -133,6 +139,84 @@ def build_feature_collection(
   }
 
 
+def project_bounds_polygon(
+  feature_collection: dict[str, Any], target_crs: str = BERLIN_PROJECTED
+) -> Polygon:
+  """Return the bounds polygon projected from CRS84 into ``target_crs``.
+
+  Metric scope operations must never buffer longitude/latitude degrees. Berlin's
+  official ETRS89 / UTM zone 33N CRS keeps the expansion distance in metres and
+  matches the rest of the geometry pipeline.
+  """
+  geometry = shape(feature_collection["features"][0]["geometry"])
+  if not isinstance(geometry, Polygon):
+    raise ValueError(f"Expected a Polygon, got {geometry.geom_type!r}.")
+  transformer = Transformer.from_crs(CRS84, target_crs, always_xy=True)
+  projected = transform(transformer.transform, geometry)
+  if not isinstance(projected, Polygon):
+    raise ValueError(f"Projected geometry is {projected.geom_type!r}, not Polygon.")
+  return projected
+
+
+def expand_feature_collection(
+  feature_collection: dict[str, Any],
+  distance_m: float,
+  *,
+  name: str | None = None,
+  description: str | None = None,
+  source: str | None = None,
+) -> dict[str, Any]:
+  """Expand a bounds polygon outward by ``distance_m`` in EPSG:25833.
+
+  Mitred joins preserve the authored straight edges and corners. The result is
+  converted back to CRS84 and rounded to the repository's nine-decimal GeoJSON
+  convention (sub-millimetre coordinate precision at Berlin's latitude).
+  """
+  if not math.isfinite(distance_m) or distance_m <= 0:
+    raise ValueError("Expansion distance must be a finite positive number of metres.")
+
+  projected = project_bounds_polygon(feature_collection)
+  expanded = projected.buffer(distance_m, join_style="mitre")
+  if not isinstance(expanded, Polygon):
+    raise ValueError(f"Expanded geometry is {expanded.geom_type!r}, not Polygon.")
+  if not expanded.is_valid or expanded.interiors:
+    raise ValueError("Expansion did not produce one valid polygon without holes.")
+
+  to_crs84 = Transformer.from_crs(BERLIN_PROJECTED, CRS84, always_xy=True)
+  expanded_crs84 = transform(to_crs84.transform, expanded)
+  ring = [
+    [round(float(lng), COORDINATE_DECIMALS), round(float(lat), COORDINATE_DECIMALS)]
+    for lng, lat in expanded_crs84.exterior.coords
+  ]
+  errors = validate_ring(ring)
+  if errors:
+    raise ValueError("Invalid expanded ring: " + "; ".join(errors))
+
+  props = bounds_properties(feature_collection)
+  return build_feature_collection(
+    ring,
+    name if name is not None else props["name"],
+    description if description is not None else props["description"],
+    source if source is not None else props["source"],
+  )
+
+
+def metric_expansion_report(
+  before: dict[str, Any], after: dict[str, Any]
+) -> dict[str, float]:
+  """Return reproducible EPSG:25833 area/perimeter/ring measurements."""
+  old_polygon = project_bounds_polygon(before)
+  new_polygon = project_bounds_polygon(after)
+  return {
+    "old_area_m2": old_polygon.area,
+    "new_area_m2": new_polygon.area,
+    "ring_area_m2": new_polygon.area - old_polygon.area,
+    "old_perimeter_m": old_polygon.length,
+    "new_perimeter_m": new_polygon.length,
+    "minimum_boundary_distance_m": old_polygon.boundary.distance(new_polygon.boundary),
+  }
+
+
 def save_bounds(
   path: Path, ring: list[list[float]], name: str, description: str, source: str
 ) -> None:
@@ -209,11 +293,47 @@ def main() -> None:
   parser.add_argument("--host", default=HOST)
   parser.add_argument("--port", type=int, default=PORT)
   parser.add_argument(
+    "--expand-by-m",
+    type=float,
+    help=(
+      "Batch-expand the current polygon by this metric EPSG:25833 distance, "
+      "write it, print metrics and exit instead of opening the editor."
+    ),
+  )
+  parser.add_argument("--name", help="Replacement feature name for batch expansion.")
+  parser.add_argument(
+    "--description", help="Replacement feature description for batch expansion."
+  )
+  parser.add_argument(
+    "--source", help="Replacement feature source for batch expansion."
+  )
+  parser.add_argument(
     "--no-browser",
     action="store_true",
     help="Do not open a browser tab automatically.",
   )
   args = parser.parse_args()
+
+  if args.expand_by_m is not None:
+    before = load_geojson(args.bounds)
+    after = expand_feature_collection(
+      before,
+      args.expand_by_m,
+      name=args.name,
+      description=args.description,
+      source=args.source,
+    )
+    args.bounds.write_text(
+      json.dumps(after, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    report = metric_expansion_report(before, after)
+    print(
+      f"Expanded {args.bounds} by {args.expand_by_m:g} m in {BERLIN_PROJECTED}: "
+      f"{report['old_area_m2']:.3f} -> {report['new_area_m2']:.3f} m² "
+      f"(+{report['ring_area_m2']:.3f} m²); committed minimum boundary "
+      f"distance {report['minimum_boundary_distance_m']:.6f} m."
+    )
+    return
 
   app = create_app(args.bounds, args.landmarks)
   url = f"http://{args.host}:{args.port}/"

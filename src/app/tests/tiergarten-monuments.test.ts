@@ -6,13 +6,14 @@ import {
   LineBasicMaterial,
   LineSegments,
   Mesh,
-  Vector3,
+  Vector3
 } from "three";
 
-import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
+import { setIsoNightPresentation } from "../src/IsometricCityWorld";
+import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
-  ARTWORK_BUILDERS,
+
   GRAEFE_CHARITE_FACING_TARGET_WORLD,
   GRAEFE_CHARITE_OSM_WORLD,
   GRAEFE_CHARITE_YAW_DEGREES,
@@ -21,12 +22,39 @@ import {
   GRAEFE_STATUE_HEIGHT_M,
   MONUMENTS_ALREADY_MODELLED,
   createTiergartenMonuments,
+  resolveArtworkBuilder,
 } from "../src/TiergartenMonuments";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 
 const street = streetDetails as unknown as StreetDetailsPayload;
-const ground = voxelPayload as unknown as VoxelPayload;
+const ground = voxelPayload as unknown as GroundPayload;
+
+function monumentBodyMeshes(root: Group): Mesh[] {
+  const matches: Mesh[] = [];
+  root.traverse((object) => {
+    if (object instanceof Mesh && object.name === "monument bodies") {
+      matches.push(object);
+    }
+  });
+  return matches;
+}
+
+function forEachMonumentVertex(root: Group, visit: (vertex: Vector3) => void): void {
+  const vertex = new Vector3();
+  for (const body of monumentBodyMeshes(root)) {
+    const positions = body.geometry.getAttribute("position");
+    for (let index = 0; index < positions.count; index += 1) {
+      visit(vertex.fromBufferAttribute(positions, index));
+    }
+  }
+}
+
+function monumentBodyBounds(root: Group): Box3 {
+  const bounds = new Box3();
+  for (const body of monumentBodyMeshes(root)) bounds.expandByObject(body);
+  return bounds;
+}
 
 describe("drawn Tiergarten monuments (OSM historic layer)", () => {
   const monuments = createTiergartenMonuments(street, ground)!;
@@ -68,12 +96,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     // No drawn-monument geometry near the Soviet memorial's colonnade
     // (its recognition model owns that ground; only the two howitzers
     // between the tanks are ours).
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
+
     let tallAtEhrenmal = 0;
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       if (
         Math.abs(vertex.x - 27.4) < 30 &&
         Math.abs(vertex.z - 258.1) < 30 &&
@@ -82,36 +107,89 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         tallAtEhrenmal += 1;
       }
     }
+    );
     expect(tallAtEhrenmal).toBe(0);
   });
 
-  test("monuments merge into one drawn mesh with ink lines", () => {
+  test("generic memorials stay merged while the Kindertransport model retains four exact material batches", () => {
     expect(monuments).toBeInstanceOf(Group);
-    const bodies = monuments.getObjectByName("monument bodies");
-    const ink = monuments.getObjectByName("monument ink lines");
-    expect(bodies).toBeInstanceOf(Mesh);
-    expect(ink).toBeInstanceOf(LineSegments);
-    expect((bodies as Mesh).geometry.getAttribute("color")).toBeDefined();
-    expect((ink as LineSegments).material).toBeInstanceOf(LineBasicMaterial);
-    expect(
-      ((ink as LineSegments).material as LineBasicMaterial).userData.modeInk,
+    const bodies = monumentBodyMeshes(monuments);
+    const inks: LineSegments[] = [];
+    monuments.traverse((object) => {
+      if (object instanceof LineSegments && object.name === "monument ink lines") {
+        inks.push(object);
+      }
+    });
+    const kindertransport = monuments.getObjectByName("Denkmal zur Erinnerung an Kindertransporte") as Group;
+    expect(monumentBodyMeshes(kindertransport)).toHaveLength(4);
+    expect(bodies).toHaveLength(6);
+    expect(inks).toHaveLength(6);
+    for (const body of bodies) {
+      expect(body.geometry.getAttribute("color")).toBeDefined();
+    }
+    for (
+    const ink of inks) {
+      expect(ink.material).toBeInstanceOf(LineBasicMaterial);
+      expect((ink.material as LineBasicMaterial).userData.modeInk
     ).toBeTrue();
     expect(
-      ((ink as LineSegments).material as LineBasicMaterial).userData
-        .architecturalInkRole,
+      (ink .material as LineBasicMaterial).userData
+        .architecturalInkRole
     ).toBe("detail");
+  }});
+
+  test("renders source-protected records in a separate exact-Day batch", () => {
+    const protectedEntry = street.monuments!.find((entry) => entry.name=== "Sophie Charlotte"
+    )!;
+    const ordinaryEntry = street.monuments!.find((entry) => entry.name === "Knut")!;
+    expect(protectedEntry.schwellenraum_protected).toBeTrue();
+    expect(ordinaryEntry.schwellenraum_protected).toBeFalse();
+
+    const pair = createTiergartenMonuments({ ...street, monuments: [protectedEntry, ordinaryEntry] }, ground)!;
+    const protectedBatch = pair.getObjectByName("OSM protected memorial Day batch") as Group;
+    const protectedBody = protectedBatch.getObjectByName("monument bodies") as Mesh;
+    const protectedInk = protectedBatch.getObjectByName("monument ink lines") as LineSegments;
+    const ordinaryBody = pair.children.find((child) => child.name === "monument bodies") as Mesh;
+    expect(protectedBatch.userData.schwellenraumGeschuetzt).toBeTrue();
+    expect(protectedBatch.userData.sourceKeys).toContain(protectedEntry.osm_key);
+    expect(protectedBody).toBeInstanceOf(Mesh);
+    expect(ordinaryBody).toBeInstanceOf(Mesh);
+
+    setIsoNightPresentation(pair, false, true, "day");
+    const dayMaterial = protectedBody.material;
+    const dayBodyColor = (dayMaterial as LineBasicMaterial).color.getHex();
+    const dayInkColor = (protectedInk.material as LineBasicMaterial).color.getHex();
+    const dayMatrix = protectedBody.matrix.toArray();
+    const dayPosition = protectedBody.position .clone();
+    setIsoNightPresentation(pair, true, true, "night");
+    expect(protectedBody.material).not.toBe(dayMaterial);
+    setIsoNightPresentation(pair, false, true, "schwellenraum");
+    expect(protectedBody.material).toBe(dayMaterial);
+    expect((protectedBody.material as LineBasicMaterial).color.getHex()).toBe(dayBodyColor);
+    expect((protectedInk.material as LineBasicMaterial).color.getHex()).toBe(dayInkColor);
+    expect(protectedBody.matrix.toArray()).toEqual(dayMatrix);
+    expect(protectedBody.position).toEqual(dayPosition);
+  });
+
+  test("accounts for every protected source in exactly one Day-owned geometry layer", () => {
+    const protectedEntries = street.monuments!.filter((entry) => entry.schwellenraum_protected);
+    const sourceKeys = monuments.userData.protectedSourceKeys as string[];
+    const renderedKeys = monuments.userData.protectedRenderedSourceKeys as string[];
+    const externallyModelledKeys = monuments.userData.protectedExternallyModelledSourceKeys as string[];
+    const ownership = [...renderedKeys, ...externallyModelledKeys];
+
+    expect(sourceKeys).toHaveLength(protectedEntries.length);
+    expect( new Set(sourceKeys).size).toBe(sourceKeys.length);
+    expect(new Set(ownership).size).toBe(ownership.length);
+    expect(new Set(ownership)).toEqual(new Set(sourceKeys));
+    expect(renderedKeys.length).toBeGreaterThan(1_400);
+    expect(externallyModelledKeys.length).toBeGreaterThan(0);
   });
 
   test("the Verkehrsturm rises at the surveyed Potsdamer Platz corner", () => {
-    const entry = street.monuments!.find((candidate) =>
-      candidate.name.includes("Verkehrsturm"),
-    )!;
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
+    const entry = street.monuments!.find((candidate) => candidate.name.includes("Verkehrsturm"))!;
     let towerTop = 0;
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       if (
         Math.abs(vertex.x - entry.x_dm / 10) < 4 &&
         Math.abs(vertex.z - entry.z_dm / 10) < 4
@@ -119,8 +197,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         towerTop = Math.max(towerTop, vertex.y);
       }
     }
+    );
     // ~8.9 m tower head above the plaza (ground ≈ 34 m NHN offset).
-    const groundBounds = new Box3().setFromObject(bodies);
+    const groundBounds = monumentBodyBounds(monuments);
     expect(towerTop - groundBounds.min.y).toBeGreaterThan(7);
   });
   test("the Tiergarten's marble is drawn, not just its historic= tags", () => {
@@ -134,11 +213,12 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(
       street
         .monuments!.filter((entry) => entry.kind === "artwork")
-        .every((entry) => entry.name.length > 0),
-    ).toBe(true);
+        .every((entry) => entry.name.length > 0)
+    ).toBe(true,
+    );
   });
 
-  test("every named artwork has a dedicated presentation builder and a height band", () => {
+  test("every named artwork has an explicit presentation builder and a height band", () => {
     // Quiet memorials use subtype-aware presentation geometry. A named
     // `tourism=artwork` must instead enter the explicit artwork dispatcher and
     // lift clear of every low marker band.
@@ -147,25 +227,24 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         candidate.kind === "artwork" &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
     )) {
-      expect(ARTWORK_BUILDERS[entry.name]).toBeDefined();
+      expect(resolveArtworkBuilder(entry.name)).toBeFunction();
       const height = tallestAtArtwork(entry.name);
       if (height <= 1.2) {
         throw new Error(`${entry.name} remained in the marker height band (${height} m)`);
       }
     }
+  expect(monuments.userData.fallbackArtworkCount).toBeGreaterThan(100);
+    expect(monuments.userData.fallbackArtworkGeometry).toContain("not surveyed");
   });
 
   function tallestNear(name: string): number {
     const entry = street.monuments!.find((candidate) =>
-      candidate.name.includes(name),
+      candidate.name=== name) ??
+      street.monuments!.find((candidate) => candidate.name.includes(name)
     )!;
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
     let top = -Infinity;
     let foot = Infinity;
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       if (
         Math.abs(vertex.x - entry.x_dm / 10) < 9 &&
         Math.abs(vertex.z - entry.z_dm / 10) < 9
@@ -174,20 +253,17 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         foot = Math.min(foot, vertex.y);
       }
     }
+    );
     return top - foot;
   }
 
   function tallestAtArtwork(name: string): number {
     const entry = street.monuments!.find(
-      (candidate) => candidate.kind === "artwork" && candidate.name === name,
+      (candidate) => candidate.kind === "artwork" && candidate.name === name
     )!;
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
     let top = -Infinity;
     let foot = Infinity;
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       if (
         Math.abs(vertex.x - entry.x_dm / 10) < 9 &&
         Math.abs(vertex.z - entry.z_dm / 10) < 9
@@ -196,6 +272,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         foot = Math.min(foot, vertex.y);
       }
     }
+    );
     return top - foot;
   }
 
@@ -203,10 +280,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     const entry = street.monuments!.find((candidate) => candidate.name === name)!;
     const single = createTiergartenMonuments(
       { ...street, monuments: [entry] },
-      ground,
+      ground
     )!;
-    const bodies = single.getObjectByName("monument bodies") as Mesh;
-    return new Box3().setFromObject(bodies);
+    return monumentBodyBounds( single);
   }
 
   test("OSM memorial subtypes replace the universal grey block", () => {
@@ -258,12 +334,12 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
 
   test("the Charite Graefe memorial is the full three-axis 1882 screen", () => {
     const entries = street.monuments!.filter(
-      (candidate) => candidate.name === "Albrecht von Graefe",
+      (candidate) => candidate.name === "Albrecht von Graefe"
     );
     expect(entries).toHaveLength(2);
     const charite = entries.find((candidate) => candidate.x_dm > 0)!;
     expect([charite.x_dm / 10, charite.z_dm / 10]).toEqual(
-      GRAEFE_CHARITE_OSM_WORLD,
+      GRAEFE_CHARITE_OSM_WORLD
     );
     expect(GRAEFE_STATUE_HEIGHT_M).toBe(1.66);
     expect(monuments.userData.graefeCharite).toMatchObject({
@@ -275,19 +351,19 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
       yawDegrees: GRAEFE_CHARITE_YAW_DEGREES,
     });
     expect(monuments.userData.sourceUrls).toContain(
-      GRAEFE_MONUMENT_SOURCE_URL,
+      GRAEFE_MONUMENT_SOURCE_URL
     );
     const inscription = monuments.getObjectByName(
-      "ALBRECHT VON GRAEFE monument inscription",
+      "ALBRECHT VON GRAEFE monument inscription"
     ) as Mesh;
     expect(inscription).toBeInstanceOf(Mesh);
     expect((inscription.rotation.y * 180) / Math.PI).toBeCloseTo(
       GRAEFE_CHARITE_YAW_DEGREES,
-      5,
+      5
     );
     const front = new Vector3(0, 0, 1).applyAxisAngle(
       new Vector3(0, 1, 0),
-      inscription.rotation.y,
+      inscription.rotation.y
     );
     const toStreetCorner = new Vector3(
       GRAEFE_CHARITE_FACING_TARGET_WORLD[0] - GRAEFE_CHARITE_OSM_WORLD[0],
@@ -296,9 +372,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     ).normalize();
     expect(front.dot(toStreetCorner)).toBeGreaterThan(0.9999);
 
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
+
     let top = -Infinity;
     let foot = Infinity;
     let nearbyVertices = 0;
@@ -307,8 +381,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     const cosYaw = Math.cos(yaw);
     const sinYaw = Math.sin(yaw);
     const monumentGroundY = inscription.position.y - 0.97;
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       const dx = vertex.x - charite.x_dm / 10;
       const dz = vertex.z - charite.z_dm / 10;
       const localX = cosYaw * dx - sinYaw * dz;
@@ -330,6 +403,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         foot = Math.min(foot, vertex.y);
       }
     }
+    );
     expect(nearbyVertices).toBeGreaterThan(2_000);
     expect(rearFenceTopVertices).toBeGreaterThan(100);
     expect(top - foot).toBeGreaterThan(5);
@@ -343,14 +417,10 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(tallestNear("Gotthold Ephraim Lessing")).toBeGreaterThan(6);
     expect(tallestNear("Gotthold Ephraim Lessing")).toBeLessThan(8);
     const entry = street.monuments!.find(
-      (candidate) => candidate.name === "Gotthold Ephraim Lessing",
+      (candidate) => candidate.name === "Gotthold Ephraim Lessing"
     )!;
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
     const figureYValues = new Set<number>();
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       if (
         Math.abs(vertex.x - entry.x_dm / 10) < 1 &&
         Math.abs(vertex.z - entry.z_dm / 10) < 1 &&
@@ -359,6 +429,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         figureYValues.add(Math.round(vertex.y * 10) / 10);
       }
     }
+    );
     // Coat/legs, torso, and head are three distinct elevations.
     expect(figureYValues.size).toBeGreaterThanOrEqual(3);
   });
@@ -390,10 +461,10 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(baumdank).toBeGreaterThan(3.1);
     expect(baumdank).toBeLessThan(3.7);
     expect(monuments.userData.tiergartenHeritageModels.rousseau).toContain(
-      "2.2 m",
+      "2.2 m"
     );
     expect(monuments.userData.tiergartenHeritageModels.lortzing).toContain(
-      "6.5 m",
+      "6.5 m"
     );
   });
 
@@ -401,10 +472,10 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(tallestNear("Florastatue")).toBeGreaterThan(3);
     expect(tallestNear("Das deutsche Volkslied")).toBeGreaterThan(2.4);
     expect(monuments.userData.tiergartenHeritageModels.flora).toContain(
-      "putto",
+      "putto"
     );
     expect(monuments.userData.tiergartenHeritageModels.volkslied).toContain(
-      "lyre",
+      "lyre"
     );
   });
 
@@ -414,16 +485,12 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     // least four shrinking slabs (the vault steps) sitting above the
     // four canopy posts, not a single flat roof plate.
     const entry = street.monuments!.find(
-      (candidate) => candidate.name === "Richard Wagner",
+      (candidate) => candidate.name === "Richard Wagner"
     )!;
-    const bodies = monuments.getObjectByName("monument bodies") as Mesh;
-    const position = bodies.geometry.getAttribute("position");
-    const vertex = new Vector3();
     const vaultTopYValues = new Set<number>();
     let postTop = -Infinity;
     let marbleGroupTop = -Infinity;
-    for (let index = 0; index < position.count; index += 1) {
-      vertex.fromBufferAttribute(position, index);
+    forEachMonumentVertex(monuments, (vertex) => {
       if (
         Math.abs(vertex.x - entry.x_dm / 10) < 6 &&
         Math.abs(vertex.z - entry.z_dm / 10) < 6
@@ -442,6 +509,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         postTop = Math.max(postTop, vertex.y);
       }
     }
+    );
     // At least four distinct vault-step top elevations above y=6.
     expect(vaultTopYValues.size).toBeGreaterThanOrEqual(4);
     // The posts must reach up into the vault's height range.

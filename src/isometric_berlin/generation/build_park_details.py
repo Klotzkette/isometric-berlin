@@ -19,6 +19,7 @@ from typing import Any, Iterable
 
 import geopandas as gpd
 import numpy as np
+import shapely
 import trimesh
 from pandas import isna
 from scipy.spatial import cKDTree
@@ -41,6 +42,9 @@ PLAYGROUND_NAMES = {"24911694": "Spielplatz an der Luiseninsel"}
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MESHOPT_DECOMPRESSOR = REPO_ROOT / "src/app/scripts/decompress-meshopt.mjs"
 TREE_MATCH_DISTANCE_M = 3.0
+OFFICIAL_HEIGHT_SAFETY_MAX_M = 40.0
+OFFICIAL_CROWN_RADIUS_SAFETY_MAX_M = 15.0
+OFFICIAL_TRUNK_RADIUS_SAFETY_MAX_M = 1.5
 PATH_MATERIAL_CODES = {
   "asphalt": "a",
   "paving": "p",
@@ -49,6 +53,15 @@ PATH_MATERIAL_CODES = {
   "wood": "w",
   "metal": "m",
 }
+TIERGARTEN_VEGETATION_DEFAULT = (
+  REPO_ROOT / "geo_data/regierungsviertel/tiergarten-vegetation.geojson"
+)
+SHRUB_CLUSTER_SPACING_M = 5.4
+SHRUB_PATH_CLEARANCE_M = 0.75
+SHRUB_MONUMENT_CLEARANCE_M = 5.0
+SHRUB_PLAYGROUND_CLEARANCE_M = 1.0
+DEFAULT_HEDGE_HEIGHT_M = 1.45
+DEFAULT_HEDGE_WIDTH_M = 1.0
 
 
 @dataclass(frozen=True)
@@ -211,7 +224,7 @@ def build_paths(
     clipped = row.geometry.intersection(local_areas)
     for part_index, line in enumerate(line_parts(clipped)):
       # One metre stays below the visual width of the narrowest rendered path
-      # while keeping the complete bounded layer under its 5 MiB release cap.
+      # while keeping the complete bounded layer under its 6 MiB release cap.
       simplified = line.simplify(1.0, preserve_topology=True)
       if simplified.length < 2.5:
         continue
@@ -290,22 +303,32 @@ def build_official_trees(
     identifier = str(row["tree_id"])
     seed = stable_seed(identifier)
     measured_height = parse_positive_number(row.get("height_m"))
-    height = min(28.0, max(3.0, measured_height or 8.4 + (seed % 67) / 10))
+    # Never apply the compact fallback cap to a source-measured veteran tree.
+    # Großer Tiergarten contains 69 catalogue trees above the former 28 m cap,
+    # with a measured maximum of 35 m.  A separate 40 m safety ceiling catches
+    # malformed future records while preserving the current official range.
+    height = (
+      min(OFFICIAL_HEIGHT_SAFETY_MAX_M, max(1.5, measured_height))
+      if measured_height is not None
+      else min(18.0, max(3.0, 8.4 + (seed % 67) / 10))
+    )
     measured_crown = parse_positive_number(row.get("crown_diameter_m"))
-    crown_radius = min(
-      9.5,
-      max(
-        1.25,
-        measured_crown / 2
-        if measured_crown is not None
-        else height * (0.29 + ((seed >> 8) % 7) / 100),
-      ),
+    crown_radius = (
+      min(OFFICIAL_CROWN_RADIUS_SAFETY_MAX_M, max(0.35, measured_crown / 2))
+      if measured_crown is not None
+      else min(
+        9.5,
+        max(1.25, height * (0.29 + ((seed >> 8) % 7) / 100)),
+      )
     )
     circumference_cm = parse_positive_number(row.get("trunk_circumference_cm"))
     trunk_radius = (
-      circumference_cm / (200 * math.pi)
+      min(
+        OFFICIAL_TRUNK_RADIUS_SAFETY_MAX_M,
+        max(0.05, circumference_cm / (200 * math.pi)),
+      )
       if circumference_cm is not None
-      else crown_radius * 0.095
+      else min(0.9, max(0.12, crown_radius * 0.095))
     )
     result.append(
       {
@@ -317,7 +340,7 @@ def build_official_trees(
         "height_measured": measured_height is not None,
         "crown_radius_m": round(crown_radius, 2),
         "crown_measured": measured_crown is not None,
-        "trunk_radius_m": round(min(0.9, max(0.12, trunk_radius)), 3),
+        "trunk_radius_m": round(trunk_radius, 3),
         "leaf_type": None,
         "species": optional_text(row.get("species_de")),
         "tree_group": optional_text(row.get("tree_group")),
@@ -386,18 +409,30 @@ TREE_COMPACT_KEYS = {
   "variant": "v",
   "osm_evidence_ids": "e",
 }
+TREE_VIEWER_OMIT_KEYS = frozenset(
+  {"id", "height_measured", "crown_measured", "osm_evidence_ids"}
+)
 
 
 def compact_trees(
   trees: list[dict[str, Any]],
+  *,
+  viewer_payload: bool = False,
 ) -> tuple[list[dict[str, Any]], dict[str, list[str]]]:
-  """Shorten keys, intern strings and drop empty fields. Fully reversible."""
+  """Shorten keys, intern strings and drop empty fields.
+
+  The default remains fully reversible for audit/export callers. The public
+  viewer variant also omits identity and measurement-provenance fields that no
+  renderer reads; fusion counts and the actual measured dimensions remain.
+  """
   vocabulary: dict[str, list[str]] = {key: [] for key in TREE_VOCABULARY_KEYS}
   indexes: dict[str, dict[str, int]] = {key: {} for key in TREE_VOCABULARY_KEYS}
   compact: list[dict[str, Any]] = []
   for tree in trees:
     record: dict[str, Any] = {}
     for key, value in tree.items():
+      if viewer_payload and key in TREE_VIEWER_OMIT_KEYS:
+        continue
       if value is None or value is False or value == []:
         continue
       if key in vocabulary:
@@ -561,6 +596,232 @@ def build_wall_traces(
   return result
 
 
+def read_tiergarten_vegetation(
+  path: Path | None,
+) -> tuple[gpd.GeoDataFrame, dict[str, Any]]:
+  """Read the bounded OSM vegetation sidecar and its audit metadata."""
+  if path is None or not path.exists():
+    return gpd.GeoDataFrame(geometry=[], crs="EPSG:25833"), {
+      "available": False,
+      "reason": "bounded_sidecar_missing",
+    }
+  raw = json.loads(path.read_text(encoding="utf-8"))
+  frame = gpd.read_file(path)
+  if frame.crs is None:
+    raise ValueError(f"Tiergarten vegetation sidecar has no CRS: {path}")
+  if frame.crs.to_epsg() != 25833:
+    frame = frame.to_crs(25833)
+  return frame, {
+    "available": True,
+    "license": raw.get("source", {}).get("license", "ODbL-1.0"),
+    "attribution": raw.get("source", {}).get(
+      "attribution", "© OpenStreetMap contributors"
+    ),
+    "geometry_status": raw.get("source", {}).get("geometry_status"),
+    "park_relation_url": raw.get("source", {}).get("park_relation_url"),
+    "metrics": raw.get("metrics", {}),
+  }
+
+
+def polygon_world_rings(
+  polygon: Polygon,
+  origin: SceneOrigin,
+  sampler: MeshGroundSampler,
+) -> list[list[list[float]]]:
+  """Convert an exact metric polygon and any holes into viewer rings."""
+  rings = [polygon.exterior, *polygon.interiors]
+  return [
+    [world_position(Point(x, y), origin, sampler) for x, y in ring.coords]
+    for ring in rings
+  ]
+
+
+def shrub_clearance_geometry(
+  roads: gpd.GeoDataFrame,
+  pois: gpd.GeoDataFrame,
+  playgrounds: gpd.GeoDataFrame,
+  vegetation: gpd.GeoDataFrame,
+) -> BaseGeometry:
+  """Keep derived shrub clumps off paths, monuments and play surfaces.
+
+  The source scrub polygon remains unchanged in the payload.  Only the
+  explicitly approximate interior clumps yield to mapped public-space uses.
+  """
+  if vegetation.empty:
+    return Polygon()
+  park_extent = vegetation.geometry.union_all()
+  clearances: list[BaseGeometry] = []
+  paths = roads[
+    roads["highway"].isin(PATH_HIGHWAYS) & roads.geometry.intersects(park_extent)
+  ]
+  clearances.extend(
+    row.geometry.buffer((road_width_m(row) or 1.35) / 2 + SHRUB_PATH_CLEARANCE_M)
+    for _, row in paths.iterrows()
+  )
+  protected_pois = pois[
+    pois.geometry.intersects(park_extent)
+    & (
+      pois["historic"].notna()
+      | pois["memorial"].notna()
+      | pois["tourism"].isin(["artwork", "attraction"])
+    )
+  ]
+  clearances.extend(
+    geometry.buffer(SHRUB_MONUMENT_CLEARANCE_M) for geometry in protected_pois.geometry
+  )
+  clearances.extend(
+    geometry.buffer(SHRUB_PLAYGROUND_CLEARANCE_M)
+    for geometry in playgrounds[playgrounds.geometry.intersects(park_extent)].geometry
+  )
+  hedge_areas = vegetation[vegetation["kind"] == "hedge_area"]
+  clearances.extend(hedge_areas.geometry)
+  return shapely.union_all(clearances) if clearances else Polygon()
+
+
+def deterministic_polygon_clusters(
+  polygon: Polygon,
+  identifier: str,
+  origin: SceneOrigin,
+  sampler: MeshGroundSampler,
+  *,
+  excluded: BaseGeometry | None = None,
+  spacing_m: float = SHRUB_CLUSTER_SPACING_M,
+  hedge: bool = False,
+) -> list[list[float | int]]:
+  """Fill a source polygon deterministically without claiming measured shrubs."""
+  usable = polygon.difference(excluded) if excluded is not None else polygon
+  if usable.is_empty:
+    return []
+  min_x, min_y, max_x, max_y = polygon.bounds
+  seed = stable_seed(identifier)
+  phase_x = ((seed >> 4) % 997) / 997 * spacing_m
+  phase_y = ((seed >> 14) % 991) / 991 * spacing_m
+  first_x = math.floor(min_x / spacing_m) * spacing_m + phase_x
+  first_y = math.floor(min_y / spacing_m) * spacing_m + phase_y
+  clusters: list[list[float | int]] = []
+  row = 0
+  y = first_y
+  while y <= max_y:
+    column = 0
+    x = first_x
+    while x <= max_x:
+      point_seed = stable_seed(f"{identifier}:{column}:{row}")
+      jitter = spacing_m * 0.18
+      point = Point(
+        x + (((point_seed >> 5) % 101) / 100 - 0.5) * jitter,
+        y + (((point_seed >> 13) % 101) / 100 - 0.5) * jitter,
+      )
+      if usable.contains(point):
+        world = world_position(point, origin, sampler)
+        variant = point_seed % 3
+        if hedge:
+          height = 1.15 + variant * 0.16
+          radius = 0.72 + ((point_seed >> 9) % 5) * 0.07
+        else:
+          height = 0.9 + ((point_seed >> 8) % 7) * 0.16
+          radius = 0.82 + ((point_seed >> 16) % 7) * 0.09
+        clusters.append(
+          [
+            round(world[0], 2),
+            round(world[1], 3),
+            round(world[2], 2),
+            round(height, 2),
+            round(radius, 2),
+            variant,
+          ]
+        )
+      column += 1
+      x += spacing_m
+    row += 1
+    y += spacing_m
+  return clusters
+
+
+def build_tiergarten_vegetation_details(
+  vegetation: gpd.GeoDataFrame,
+  roads: gpd.GeoDataFrame,
+  pois: gpd.GeoDataFrame,
+  playgrounds: gpd.GeoDataFrame,
+  origin: SceneOrigin,
+  sampler: MeshGroundSampler,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+  """Build exact OSM outlines plus bounded, explicitly approximate foliage."""
+  if vegetation.empty:
+    return [], []
+  clearance = shrub_clearance_geometry(roads, pois, playgrounds, vegetation)
+  shrub_patches: list[dict[str, Any]] = []
+  hedges: list[dict[str, Any]] = []
+  for _, row in vegetation.sort_values("id").iterrows():
+    kind = str(row["kind"])
+    source_url = str(row["source_url"])
+    identifier = str(row["id"])
+    height = parse_positive_number(row.get("height_m")) or DEFAULT_HEDGE_HEIGHT_M
+    width = parse_positive_number(row.get("width_m")) or DEFAULT_HEDGE_WIDTH_M
+    dimensions_status = (
+      "OSM-tagged dimensions"
+      if parse_positive_number(row.get("height_m")) is not None
+      or parse_positive_number(row.get("width_m")) is not None
+      else "Display dimensions; OSM course/footprint is source-mapped"
+    )
+    if kind == "scrub_area":
+      for part_index, polygon in enumerate(polygon_parts(row.geometry)):
+        patch_id = f"{identifier}:{part_index}"
+        shrub_patches.append(
+          {
+            "id": patch_id,
+            "leaf_type": optional_text(row.get("leaf_type")),
+            "rings": polygon_world_rings(polygon, origin, sampler),
+            "clusters": deterministic_polygon_clusters(
+              polygon,
+              patch_id,
+              origin,
+              sampler,
+              excluded=clearance,
+            ),
+            "source_url": source_url,
+          }
+        )
+    elif kind == "hedge_line":
+      for part_index, line in enumerate(line_parts(row.geometry)):
+        hedges.append(
+          {
+            "id": f"{identifier}:{part_index}",
+            "kind": "line",
+            "points": [
+              world_position(Point(x, y), origin, sampler) for x, y in line.coords
+            ],
+            "height_m": round(height, 2),
+            "width_m": round(width, 2),
+            "length_m": round(line.length, 2),
+            "dimensions_status": dimensions_status,
+            "source_url": source_url,
+          }
+        )
+    elif kind == "hedge_area":
+      for part_index, polygon in enumerate(polygon_parts(row.geometry)):
+        hedge_id = f"{identifier}:{part_index}"
+        hedges.append(
+          {
+            "id": hedge_id,
+            "kind": "area",
+            "rings": polygon_world_rings(polygon, origin, sampler),
+            "clusters": deterministic_polygon_clusters(
+              polygon,
+              hedge_id,
+              origin,
+              sampler,
+              spacing_m=1.6,
+              hedge=True,
+            ),
+            "height_m": round(height, 2),
+            "area_m2": round(polygon.area, 2),
+            "dimensions_status": dimensions_status,
+            "source_url": source_url,
+          }
+        )
+  return shrub_patches, hedges
+
+
 def equipment_payload(
   row: Any, origin: SceneOrigin, sampler: MeshGroundSampler
 ) -> dict[str, Any]:
@@ -625,6 +886,7 @@ def build_payload(
   scene_path: Path,
   mesh_dir: Path,
   official_details_path: Path | None = None,
+  tiergarten_vegetation_path: Path | None = TIERGARTEN_VEGETATION_DEFAULT,
 ) -> dict[str, Any]:
   origin = scene_origin(scene_path)
   sampler = MeshGroundSampler.from_directory(mesh_dir)
@@ -632,6 +894,7 @@ def build_payload(
   parks = gpd.read_file(osm_path, layer="parks")
   vegetation = gpd.read_file(osm_path, layer="vegetation")
   playgrounds = gpd.read_file(osm_path, layer="playgrounds")
+  pois = gpd.read_file(osm_path, layer="pois")
   park_rows = parks[parks.geometry.notna() & ~parks.geometry.is_empty]
   if park_rows.empty:
     raise ValueError("OSM park layer does not contain usable park geometry")
@@ -646,15 +909,28 @@ def build_payload(
   osm_trees = build_trees(vegetation, origin, sampler)
   official_trees = build_official_trees(official_tree_frame, origin, sampler)
   trees, tree_fusion = fuse_trees(official_trees, osm_trees)
-  compact, tree_vocabulary = compact_trees(trees)
+  compact, tree_vocabulary = compact_trees(trees, viewer_payload=True)
+  tiergarten_vegetation, tiergarten_vegetation_source = read_tiergarten_vegetation(
+    tiergarten_vegetation_path
+  )
+  shrub_patches, hedges = build_tiergarten_vegetation_details(
+    tiergarten_vegetation,
+    roads,
+    pois,
+    playgrounds,
+    origin,
+    sampler,
+  )
   return {
-    "schema_version": 4,
+    "schema_version": 6,
     "source": {
       "name": "Additive OSM and Geoportal Berlin detail fusion",
       "attribution": "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)",
       "geometry_status": (
-        "Source-positioned detail clipped to all bounded OSM park areas; missing "
-        "tree dimensions and lamp mast forms remain explicit display approximations"
+        "Source-positioned detail clipped to all bounded OSM park areas; exact Großer "
+        "Tiergarten scrub/hedge outlines are retained while their foliage clumps, "
+        "missing tree dimensions and lamp mast forms remain explicit display "
+        "approximations"
       ),
     },
     "sources": {
@@ -665,11 +941,14 @@ def build_payload(
         "license": "dl-de/zero-2-0",
         "layers": ["trees", "street_lights", "berlin_wall"],
       },
+      "tiergarten_vegetation": tiergarten_vegetation_source,
     },
     "tree_fusion": tree_fusion,
     "paths": build_paths(roads, park_rows, origin, sampler),
     "tree_vocabulary": tree_vocabulary,
     "trees": compact,
+    "shrub_patches": shrub_patches,
+    "hedges": hedges,
     "street_lights": build_street_lights(official_light_frame, origin, sampler),
     "wall_traces": build_wall_traces(official_wall_frame, origin, sampler),
     "playgrounds": build_playgrounds(playgrounds, origin, sampler),
@@ -697,12 +976,23 @@ def main() -> None:
     default=Path("geo_data/regierungsviertel/official_details.gpkg"),
   )
   parser.add_argument(
+    "--tiergarten-vegetation",
+    type=Path,
+    default=Path("geo_data/regierungsviertel/tiergarten-vegetation.geojson"),
+  )
+  parser.add_argument(
     "--out",
     type=Path,
     default=Path("src/app/public/mesh/regierungsviertel/park-details.json"),
   )
   args = parser.parse_args()
-  payload = build_payload(args.osm, args.scene, args.mesh_dir, args.official_details)
+  payload = build_payload(
+    args.osm,
+    args.scene,
+    args.mesh_dir,
+    args.official_details,
+    args.tiergarten_vegetation,
+  )
   args.out.parent.mkdir(parents=True, exist_ok=True)
   args.out.write_text(
     json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
@@ -713,7 +1003,9 @@ def main() -> None:
     f"Wrote {args.out}: paths={len(payload['paths'])}, "
     f"trees={len(payload['trees'])}, lights={len(payload['street_lights'])}, "
     f"wall_traces={len(payload['wall_traces'])}, "
-    f"playgrounds={len(payload['playgrounds'])}"
+    f"playgrounds={len(payload['playgrounds'])}, "
+    f"shrub_patches={len(payload['shrub_patches'])}, "
+    f"hedges={len(payload['hedges'])}"
   )
 
 

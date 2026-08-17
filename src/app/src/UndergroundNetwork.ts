@@ -80,6 +80,14 @@ const ROUTE_COLORS: Record<
     subway: 0x7597b0,
     u5: 0xc4a357,
   },
+  schwellenraum: {
+    mainline: 0xa36d55,
+    north_south_sbahn: 0x4f9975,
+    north_south_sbahn_service: 0x77a58b,
+    s_bahn: 0x75a66d,
+    subway: 0x668baa,
+    u5: 0xc99b32,
+  },
 };
 
 const STRUCTURE_COLORS: Record<VisualMode, number> = {
@@ -87,6 +95,7 @@ const STRUCTURE_COLORS: Record<VisualMode, number> = {
   minecraft: 0x566158,
   night: 0xa9c7d3,
   snowstorm: 0x69777a,
+  schwellenraum: 0x5d625e,
 };
 
 const PLATFORM_COLORS: Record<VisualMode, number> = {
@@ -94,6 +103,7 @@ const PLATFORM_COLORS: Record<VisualMode, number> = {
   minecraft: 0xd8caa9,
   night: 0x66747d,
   snowstorm: 0xe7e6df,
+  schwellenraum: 0xe7dfcb,
 };
 
 const PLATFORM_FASCIA_COLORS: Record<VisualMode, number> = {
@@ -101,6 +111,7 @@ const PLATFORM_FASCIA_COLORS: Record<VisualMode, number> = {
   minecraft: 0xb7a482,
   night: 0x4e5b63,
   snowstorm: 0xcbd0cd,
+  schwellenraum: 0xc8bda8,
 };
 
 type SurfaceBuilder = {

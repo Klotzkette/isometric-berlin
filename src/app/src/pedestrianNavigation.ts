@@ -6,6 +6,8 @@ import {
 } from "./MinecraftVoxelWorld";
 import {
   decodeTrees,
+  parkHedgeSegments,
+  parkShrubClusters,
   type ParkDetailsPayload,
   type PlaygroundEquipment,
 } from "./ParkDetails";
@@ -14,15 +16,25 @@ import {
   type TunnelPortalCourseInput,
   tunnelWalkCourses,
 } from "./TunnelPortals";
+import type { PedestrianInput } from "./navigationInput";
+
+export {
+  heldPedestrianInput,
+  isPedestrianSprintDoubleActivation,
+  PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS,
+  type PedestrianInput,
+} from "./navigationInput";
 
 export const PEDESTRIAN_EYE_HEIGHT_M = 1.8;
-export const PEDESTRIAN_JUMP_APEX_M = PEDESTRIAN_EYE_HEIGHT_M * 3;
+// A slightly taller, softer presentation jump makes stairs and low urban
+// obstacles easy to clear without changing the ground-only/no-double-jump
+// contract. This is intentionally playful navigation, not human biomechanics.
+export const PEDESTRIAN_JUMP_APEX_M = 6.2;
 export const PEDESTRIAN_WALK_SPEED_MPS = 6.4;
 export const PEDESTRIAN_SPRINT_MULTIPLIER = 4;
-export const PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS = 340;
 export const PEDESTRIAN_TURN_SPEED_RAD_S = Math.PI * 0.62;
 export const PEDESTRIAN_LOOK_SPEED_RAD_S = Math.PI * 0.48;
-export const PEDESTRIAN_GRAVITY_MPS2 = 32;
+export const PEDESTRIAN_GRAVITY_MPS2 = 26;
 export const PEDESTRIAN_MAX_PITCH_RAD = (Math.PI * 80) / 180;
 export const PEDESTRIAN_FOV_DEGREES = 66;
 export const PEDESTRIAN_VIEW_DISTANCE_M = 7;
@@ -37,14 +49,6 @@ export const PEDESTRIAN_RESPAWN = {
   // West, toward the Brandenburg Gate.
   yaw: -Math.PI / 2,
 } as const;
-
-export type PedestrianInput = {
-  forward: number;
-  look: number;
-  sprint: boolean;
-  strafe: number;
-  turn: number;
-};
 
 export type PedestrianState = {
   grounded: boolean;
@@ -90,6 +94,8 @@ type PedestrianObstacleBase = {
   minX: number;
   minY: number;
   minZ: number;
+  /** Stable source feature used to open only the matching authored interior. */
+  sourceId?: string;
 };
 
 export type PedestrianCircleObstacle = PedestrianObstacleBase & {
@@ -121,9 +127,12 @@ export type PedestrianObstacleIndex = {
   buildingCount: number;
   cellSizeM: number;
   cells: Map<string, PedestrianObstacle[]>;
+  hedgeAreaCount: number;
+  hedgeSegmentCount: number;
   obstacleCount: number;
   parkDetailsAdded: boolean;
   playgroundEquipmentCount: number;
+  shrubClusterCount: number;
   streetLightCount: number;
   treeCount: number;
   wallSegmentCount: number;
@@ -133,6 +142,36 @@ export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
   groundAt: (x: number, z: number) => number | null;
   obstacles?: PedestrianObstacleIndex;
+  /**
+   * A tightly bounded authored doorway, ramp, stair or interior may locally
+   * replace its matching closed LoD2 footprint. The optional source id lets a
+   * tester reject every other overlapping building. Street furniture, walls
+   * and trees are never bypassed by this hook.
+   */
+  walkableInteriorAt?: (
+    x: number,
+    y: number,
+    z: number,
+    sourceId?: string,
+  ) => boolean;
+  /**
+   * Immutable memorial and commemoration volumes always win over an interior
+   * opening. Testers should describe the protected volume, not its appearance.
+   */
+  protectedVolumeAt?: (x: number, y: number, z: number) => boolean;
+  /** Mode-authored walls, jambs, gates, ceilings and fixed furnishings. */
+  interiorSolidAt?: (
+    x: number,
+    y: number,
+    z: number,
+    radius?: number,
+  ) => boolean;
+  /** Optional mode-authored stairs, ramps and interior floor elevations. */
+  interiorGroundAt?: (
+    x: number,
+    z: number,
+    currentGroundY?: number,
+  ) => number | null;
   resolveGround?: (
     x: number,
     z: number,
@@ -161,18 +200,6 @@ export const PEDESTRIAN_IDLE_INPUT: Readonly<PedestrianInput> = {
   strafe: 0,
   turn: 0,
 };
-
-export function isPedestrianSprintDoubleActivation(
-  previousActivationAt: number,
-  activationAt: number,
-): boolean {
-  const elapsed = activationAt - previousActivationAt;
-  return (
-    previousActivationAt > 0 &&
-    elapsed >= 0 &&
-    elapsed <= PEDESTRIAN_SPRINT_DOUBLE_ACTIVATION_MS
-  );
-}
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.max(minimum, Math.min(maximum, value));
@@ -253,9 +280,12 @@ function emptyPedestrianObstacleIndex(): PedestrianObstacleIndex {
     buildingCount: 0,
     cellSizeM: PEDESTRIAN_COLLISION_CELL_M,
     cells: new Map(),
+    hedgeAreaCount: 0,
+    hedgeSegmentCount: 0,
     obstacleCount: 0,
     parkDetailsAdded: false,
     playgroundEquipmentCount: 0,
+    shrubClusterCount: 0,
     streetLightCount: 0,
     treeCount: 0,
     wallSegmentCount: 0,
@@ -324,6 +354,7 @@ function addPolygonObstacle(
   holes: Array<Array<readonly [number, number]>>,
   minY: number,
   maxY: number,
+  sourceId?: string,
 ): void {
   if (ring.length < 3 || maxY <= minY) {
     return;
@@ -340,6 +371,7 @@ function addPolygonObstacle(
     minY,
     minZ: Math.min(...zs),
     ring,
+    sourceId,
   });
 }
 
@@ -389,6 +421,7 @@ export function compilePedestrianObstacles(
       (building.holes ?? []).map(metricRing),
       building.y0_dm / 10,
       (building.y0_dm + building.h_dm) / 10,
+      building.id,
     );
     if (index.obstacleCount > before) {
       index.buildingCount += 1;
@@ -414,9 +447,9 @@ function equipmentRadius(item: PlaygroundEquipment): number | null {
 }
 
 /**
- * Add the same visible tree trunks, lamp posts and playground fixtures that
- * the deferred park layer draws. Surface objects inside tunnel approaches or
- * the Chancellery construction site stay filtered exactly as they are visually.
+ * Add the same visible trunks, shrub clumps, lamp posts and playground fixtures
+ * that the deferred park layer draws. Surface objects inside tunnel approaches
+ * or the Chancellery construction site stay filtered as they are visually.
  */
 export function addPedestrianParkObstacles(
   environment: PedestrianEnvironment,
@@ -443,11 +476,29 @@ export function addPedestrianParkObstacles(
     const isShrub = tree.tree_group?.toLowerCase().includes("strauch") ?? false;
     const radius = isShrub
       ? clamp(tree.crown_radius_m * 0.55, 0.3, 1.5)
-      : clamp(tree.trunk_radius_m ?? 0.22, 0.16, 0.65);
+      : clamp(tree.trunk_radius_m ?? 0.22, 0.16, 1.5);
     const before = index.obstacleCount;
     addCircleObstacle(index, x, z, radius, y, y + Math.max(1, tree.height_m));
     if (index.obstacleCount > before) {
       index.treeCount += 1;
+    }
+  }
+  for (const [x, y, z, height, radius, variant] of parkShrubClusters(
+    payload.shrub_patches ?? [],
+    insideTunnelApproach,
+  )) {
+    const before = index.obstacleCount;
+    const renderedRadius = radius * (variant === 1 ? 1.16 : 1);
+    addCircleObstacle(
+      index,
+      x,
+      z,
+      renderedRadius,
+      y,
+      y + Math.max(0.1, height),
+    );
+    if (index.obstacleCount > before) {
+      index.shrubClusterCount += 1;
     }
   }
   for (const light of payload.street_lights ?? []) {
@@ -476,6 +527,49 @@ export function addPedestrianParkObstacles(
       if (index.obstacleCount > before) {
         index.playgroundEquipmentCount += 1;
       }
+    }
+  }
+  for (const segment of parkHedgeSegments(payload.hedges ?? [])) {
+    const x = (segment.from[0] + segment.to[0]) / 2;
+    const z = (segment.from[2] + segment.to[2]) / 2;
+    if (insideTunnelApproach?.(x, z, segment.widthM)) {
+      continue;
+    }
+    const before = index.obstacleCount;
+    addSegmentObstacle(
+      index,
+      [segment.from[0], segment.from[2]],
+      [segment.to[0], segment.to[2]],
+      segment.widthM / 2,
+      Math.min(segment.from[1], segment.to[1]),
+      Math.max(segment.from[1], segment.to[1]) + segment.heightM,
+    );
+    if (index.obstacleCount > before) {
+      index.hedgeSegmentCount += 1;
+    }
+  }
+  for (const hedge of payload.hedges ?? []) {
+    if (hedge.kind !== "area" || !hedge.rings || hedge.rings.length === 0) {
+      continue;
+    }
+    const rings = hedge.rings.filter((ring) => ring.length >= 3);
+    if (rings.length === 0) continue;
+    const toGroundRing = (
+      ring: [number, number, number][],
+    ): Array<readonly [number, number]> =>
+      ring.map(([x, , z]) => [x, z] as const);
+    const heights = rings.flatMap((ring) => ring.map(([, y]) => y));
+    const before = index.obstacleCount;
+    addPolygonObstacle(
+      index,
+      toGroundRing(rings[0]),
+      rings.slice(1).map(toGroundRing),
+      Math.min(...heights),
+      Math.max(...heights) + hedge.height_m,
+      hedge.id,
+    );
+    if (index.obstacleCount > before) {
+      index.hedgeAreaCount += 1;
     }
   }
   for (const trace of payload.wall_traces ?? []) {
@@ -562,17 +656,61 @@ function pointTouchesPolygonObstacle(
   return true;
 }
 
+function pedestrianBodySamples(
+  x: number,
+  z: number,
+  bodyBottomY: number,
+): Array<readonly [number, number, number]> {
+  const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  const bodyMiddleY = (bodyBottomY + bodyTopY) / 2;
+  return [
+    [x, bodyBottomY, z],
+    [x, bodyMiddleY, z],
+    [x, bodyTopY, z],
+    [x - PEDESTRIAN_BODY_RADIUS_M, bodyMiddleY, z],
+    [x + PEDESTRIAN_BODY_RADIUS_M, bodyMiddleY, z],
+    [x, bodyMiddleY, z - PEDESTRIAN_BODY_RADIUS_M],
+    [x, bodyMiddleY, z + PEDESTRIAN_BODY_RADIUS_M],
+  ];
+}
+
 /** True when a standing pedestrian capsule overlaps a compiled solid. */
 export function pedestrianPointIsBlocked(
   x: number,
   z: number,
   bodyBottomY: number,
   obstacles: PedestrianObstacleIndex | undefined,
+  access?: Pick<
+    PedestrianEnvironment,
+    "interiorSolidAt" | "protectedVolumeAt" | "walkableInteriorAt"
+  >,
 ): boolean {
+  const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  const bodySamples = pedestrianBodySamples(x, z, bodyBottomY);
+  if (
+    access?.protectedVolumeAt &&
+    bodySamples.some(([sampleX, sampleY, sampleZ]) =>
+      access.protectedVolumeAt!(sampleX, sampleY, sampleZ),
+    )
+  ) {
+    return true;
+  }
+  if (
+    access?.interiorSolidAt &&
+    bodySamples.some(([sampleX, sampleY, sampleZ]) =>
+      access.interiorSolidAt!(
+        sampleX,
+        sampleY,
+        sampleZ,
+        PEDESTRIAN_BODY_RADIUS_M,
+      ),
+    )
+  ) {
+    return true;
+  }
   if (!obstacles) {
     return false;
   }
-  const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
   const key = obstacleCellKey(
     Math.floor(x / obstacles.cellSizeM),
     Math.floor(z / obstacles.cellSizeM),
@@ -602,7 +740,19 @@ export function pedestrianPointIsBlocked(
         return true;
       }
     } else if (pointTouchesPolygonObstacle(x, z, obstacle)) {
-      return true;
+      if (
+        !access?.walkableInteriorAt ||
+        !bodySamples.every(([sampleX, sampleY, sampleZ]) =>
+          access.walkableInteriorAt!(
+            sampleX,
+            sampleY,
+            sampleZ,
+            obstacle.sourceId,
+          ),
+        )
+      ) {
+        return true;
+      }
     }
   }
   return false;
@@ -791,6 +941,12 @@ function resolvePedestrianGround(
   currentLayer: PedestrianState["groundLayer"],
   groundYHint?: number,
 ): PedestrianGround | null {
+  if (currentLayer !== "tunnel") {
+    const interiorY = environment.interiorGroundAt?.(x, z, groundYHint);
+    if (typeof interiorY === "number" && Number.isFinite(interiorY)) {
+      return { insideTunnel: false, layer: "surface", y: interiorY };
+    }
+  }
   return (
     environment.resolveGround?.(x, z, currentLayer, groundYHint) ??
     (() => {
@@ -813,6 +969,7 @@ function nearestClearPedestrianSpawn(
       spawn.z,
       requestedGround.y,
       environment.obstacles,
+      environment,
     )
   ) {
     return { ground: requestedGround, spawn };
@@ -836,7 +993,13 @@ function nearestClearPedestrianSpawn(
       );
       if (
         ground === null ||
-        pedestrianPointIsBlocked(x, z, ground.y, environment.obstacles) ||
+        pedestrianPointIsBlocked(
+          x,
+          z,
+          ground.y,
+          environment.obstacles,
+          environment,
+        ) ||
         (ground.layer === "surface" &&
           pedestrianPointIsWater(x, z, environment.water))
       ) {
@@ -853,7 +1016,13 @@ export function createPedestrianState(
   requestedSpawn: PedestrianSpawn = PEDESTRIAN_RESPAWN,
 ): PedestrianState {
   const surfaceY = environment.groundAt(requestedSpawn.x, requestedSpawn.z);
+  const interiorY = environment.interiorGroundAt?.(
+    requestedSpawn.x,
+    requestedSpawn.z,
+    requestedSpawn.groundYHint,
+  );
   const requestedLayer =
+    !Number.isFinite(interiorY) &&
     Number.isFinite(requestedSpawn.groundYHint) &&
     surfaceY !== null &&
     requestedSpawn.groundYHint! < surfaceY - 0.75
@@ -1048,12 +1217,14 @@ export function stepPedestrian(
       z,
       currentGround.y + jumpOffset,
       environment.obstacles,
+      environment,
     );
     const candidateBlocked = pedestrianPointIsBlocked(
       candidateX,
       candidateZ,
       ground.y + jumpOffset,
       environment.obstacles,
+      environment,
     );
     // If a deferred obstacle arrives around the current position, permit the
     // next movement to escape it. A normal clear position may never enter one.
@@ -1142,21 +1313,5 @@ export function stepPedestrian(
       yaw: nextYaw,
       z,
     },
-  };
-}
-
-export function heldPedestrianInput(
-  keys: ReadonlySet<string>,
-): PedestrianInput {
-  return {
-    forward:
-      (keys.has("ArrowUp") || keys.has("w") ? 1 : 0) -
-      (keys.has("ArrowDown") || keys.has("s") ? 1 : 0),
-    look: 0,
-    sprint: keys.has("Shift"),
-    strafe: (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0),
-    turn:
-      (keys.has("ArrowRight") || keys.has("e") ? 1 : 0) -
-      (keys.has("ArrowLeft") || keys.has("q") ? 1 : 0),
   };
 }

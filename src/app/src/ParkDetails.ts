@@ -23,6 +23,7 @@ import {
   Vector2,
   Vector3,
 } from "three";
+import { markArchitecturalAccentInk } from "./architecturalInk";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import {
   createTunnelPortalApproachTester,
@@ -88,6 +89,21 @@ export function treePresentationForm(tree: ParkTree): TreePresentationForm {
   if (species.includes("weide")) {
     return "willow";
   }
+  if (
+    [
+      "apfel",
+      "birne",
+      "eberesche",
+      "kirsche",
+      "mehlbeere",
+      "pflaume",
+      "weißdorn",
+      "weissdorn",
+      "zwetschge",
+    ].some((fruit) => species.includes(fruit))
+  ) {
+    return "orchard";
+  }
   if (species.includes("eiche")) {
     return "oak";
   }
@@ -112,7 +128,12 @@ export function treePresentationForm(tree: ParkTree): TreePresentationForm {
   if (species.includes("pappel")) {
     return "columnar";
   }
-  if (species.includes("birke") || species.includes("robinie")) {
+  if (
+    species.includes("birke") ||
+    species.includes("robinie") ||
+    species.includes("esche") ||
+    species.includes("erle")
+  ) {
     return "airy";
   }
   if (species.includes("linde") || species.includes("ulme")) {
@@ -120,6 +141,9 @@ export function treePresentationForm(tree: ParkTree): TreePresentationForm {
   }
   if (species.includes("ahorn") || species.includes("platane")) {
     return "spreading";
+  }
+  if (species.includes("götterbaum") || species.includes("amberbaum")) {
+    return "vase";
   }
   if (species.includes("buche") || species.includes("kastanie")) {
     return "dense";
@@ -255,8 +279,70 @@ function isLobedTreeForm(form: TreePresentationForm): form is LobedTreeForm {
   return form in LOBED_CROWN_PROFILES;
 }
 
+const TREE_FORM_FOLIAGE_TONES: Record<
+  TreePresentationForm,
+  readonly [number, number, number]
+> = {
+  airy: [0xa8cf91, 0xb7dca0, 0x98c182],
+  broadleaf: [0x97c98a, 0xaed8a0, 0x87ba7b],
+  columnar: [0x6f9e65, 0x80ad73, 0x608f59],
+  conifer: [0x6fa36b, 0x7eb175, 0x628f60],
+  dense: [0x6f9f5e, 0x7fae6c, 0x638f54],
+  fir: [0x567f5d, 0x638e67, 0x486f52],
+  oak: [0x76a85e, 0x86b76c, 0x679653],
+  orchard: [0x91bd75, 0xa2ca83, 0x7fac68],
+  pine: [0x648a61, 0x73996b, 0x557b58],
+  shrub: [0x8ebd74, 0x9bc984, 0x80ad68],
+  spreading: [0x89b978, 0x9bc98a, 0x78a969],
+  vase: [0x82b46d, 0x93c17d, 0x73a35f],
+  willow: [0x8fb879, 0xa0c68a, 0x7ca76d],
+};
+
+/** Species-informed display tone; the catalogue does not measure leaf colour. */
+export function treeFoliageTone(tree: ParkTree): number {
+  const species = tree.species?.toLowerCase() ?? "";
+  const variant = Math.abs(tree.variant) % 3;
+  if (
+    ["blut", "purpur", "rotblättr", "schwedleri", "atropurpurea"].some(
+      (cue) => species.includes(cue),
+    )
+  ) {
+    return [0x806354, 0x8f7060, 0x705746][variant];
+  }
+  if (
+    ["silber-weide", "silber-ahorn", "silber-linde", "grau-pappel"].some(
+      (cue) => species.includes(cue),
+    )
+  ) {
+    return [0xa8bea0, 0xb7c9ad, 0x96ad90][variant];
+  }
+  return TREE_FORM_FOLIAGE_TONES[treePresentationForm(tree)][variant];
+}
+
+/** Species-informed bark tone, kept in one instanced trunk draw call. */
+export function treeBarkTone(tree: ParkTree): number {
+  const species = tree.species?.toLowerCase() ?? "";
+  const variant = Math.abs(tree.variant) % 3;
+  if (species.includes("birke")) {
+    return [0xd5d1c3, 0xe0dccf, 0xc7c5ba][variant];
+  }
+  if (species.includes("buche") || species.includes("hainbuche")) {
+    return [0x837f78, 0x8f8a82, 0x75726c][variant];
+  }
+  if (species.includes("platane")) {
+    return [0x9b8a70, 0xaa9b80, 0x887a66][variant];
+  }
+  if (species.includes("kiefer") || species.includes("lärche")) {
+    return [0x8f6549, 0x9d7253, 0x7e5943][variant];
+  }
+  if (species.includes("eiche")) {
+    return [0x6f604b, 0x796953, 0x625642][variant];
+  }
+  return [0x7b6549, 0x836d50, 0x705b43][variant];
+}
+
 /**
- * Wire form of a tree since schema 3. The task-09 bounds carry 20,911 official
+ * Wire form of a tree since schema 3. The expanded bounds carry 25,305 official
  * catalogue points instead of 6,893, which pushed the verbose records past the
  * payload budget, so keys are shortened, repeated strings are interned into
  * `tree_vocabulary` and empty fields are omitted. `position` keeps its long
@@ -270,7 +356,8 @@ export type CompactParkTree = {
   g?: number;
   h: number;
   hm?: number;
-  i: string;
+  /** Omitted by the schema-5 viewer payload; retained by reversible audit exports. */
+  i?: string;
   lt?: number;
   position: [number, number, number];
   s?: number;
@@ -304,6 +391,32 @@ export type WallTrace = {
   wall_type: string | null;
 };
 
+/** [x, ground y, z, display height, display radius, deterministic variant]. */
+export type ParkShrubCluster = [number, number, number, number, number, number];
+
+export type ParkShrubPatch = {
+  clusters: ParkShrubCluster[];
+  id: string;
+  leaf_type?: string | null;
+  /** Exterior first, then any exact OSM polygon holes. */
+  rings: [number, number, number][][];
+  source_url: string;
+};
+
+export type ParkHedge = {
+  area_m2?: number;
+  clusters?: ParkShrubCluster[];
+  dimensions_status: string;
+  height_m: number;
+  id: string;
+  kind: "area" | "line";
+  length_m?: number;
+  points?: [number, number, number][];
+  rings?: [number, number, number][][];
+  source_url: string;
+  width_m?: number;
+};
+
 export type PlaygroundEquipment = {
   id: string;
   kind: string;
@@ -323,6 +436,7 @@ export type ParkPlayground = {
 };
 
 export type ParkDetailsPayload = {
+  hedges?: ParkHedge[];
   paths: ParkPath[];
   playgrounds: ParkPlayground[];
   schema_version: number;
@@ -332,6 +446,7 @@ export type ParkDetailsPayload = {
     name: string;
   };
   street_lights?: StreetLight[];
+  shrub_patches?: ParkShrubPatch[];
   tree_vocabulary?: TreeVocabulary;
   trees: (CompactParkTree | ParkTree)[];
   wall_traces?: WallTrace[];
@@ -352,15 +467,15 @@ export function decodeTrees(
   trees: (CompactParkTree | ParkTree)[],
   vocabulary: TreeVocabulary = {},
 ): ParkTree[] {
-  return trees.map((tree) => {
-    if (!("i" in tree)) {
+  return trees.map((tree, index) => {
+    if (!("h" in tree)) {
       return tree;
     }
     return {
       catalogue: vocabularyEntry(vocabulary.catalogue, tree.c),
       crown_radius_m: tree.cr,
       height_m: tree.h,
-      id: tree.i,
+      id: tree.i ?? `tree-${index}`,
       leaf_type: vocabularyEntry(vocabulary.leaf_type, tree.lt),
       position: tree.position,
       source: (vocabularyEntry(vocabulary.source, tree.s) ?? undefined) as
@@ -374,6 +489,7 @@ export function decodeTrees(
 }
 
 type Transform = {
+  color?: number;
   position: [number, number, number];
   rotation?: [number, number, number];
   scale?: [number, number, number];
@@ -437,14 +553,21 @@ function instanced(
   const mesh = new InstancedMesh(geometry, surface, transforms.length);
   mesh.name = name;
   const dummy = new Object3D();
+  const instanceColor = new Color();
   transforms.forEach((transform, index) => {
     dummy.position.set(...transform.position);
     dummy.rotation.set(...(transform.rotation ?? [0, 0, 0]));
     dummy.scale.set(...(transform.scale ?? [1, 1, 1]));
     dummy.updateMatrix();
     mesh.setMatrixAt(index, dummy.matrix);
+    if (transform.color !== undefined) {
+      mesh.setColorAt(index, instanceColor.setHex(transform.color));
+    }
   });
   mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) {
+    mesh.instanceColor.needsUpdate = true;
+  }
   mesh.computeBoundingBox();
   mesh.computeBoundingSphere();
   mesh.receiveShadow = surface instanceof MeshStandardMaterial;
@@ -678,6 +801,8 @@ function addTrees(
   for (const tree of trees) {
     const [x, y, z] = tree.position;
     const form = treePresentationForm(tree);
+    const foliageColor = treeFoliageTone(tree);
+    const barkColor = treeBarkTone(tree);
     formCounts[form] += 1;
     const trunkHeight = tree.height_m * TREE_TRUNK_HEIGHT_RATIO[form];
     const trunkRadius =
@@ -687,6 +812,7 @@ function addTrees(
         tree.crown_radius_m * (form === "shrub" ? 0.055 : 0.095),
       );
     trunks.push({
+      color: barkColor,
       position: [x, y + trunkHeight / 2, z],
       scale: [trunkRadius, trunkHeight, trunkRadius],
     });
@@ -696,6 +822,7 @@ function addTrees(
       const branchRadius = Math.max(0.1, trunkRadius * 0.58);
       for (const direction of [-1, 1]) {
         branches.push({
+          color: barkColor,
           position: [
             x + Math.cos(branchYaw) * direction * branchLength * 0.12,
             y + trunkHeight * 0.8,
@@ -728,6 +855,7 @@ function addTrees(
           tree.crown_radius_m *
           (form === "fir" ? 1.02 - layer * 0.22 : 0.98 - layer * 0.18);
         target[variant].push({
+          color: foliageColor,
           position: [
             x,
             y + tree.height_m * (0.4 + layer * (form === "fir" ? 0.18 : 0.19)),
@@ -747,6 +875,7 @@ function addTrees(
       pineOffsets.forEach(([offsetX, offsetY, offsetZ], layer) => {
         const radius = tree.crown_radius_m * (0.72 - layer * 0.08);
         target[variant].push({
+          color: foliageColor,
           position: [
             x + offsetX * tree.crown_radius_m,
             y + trunkHeight + radius * (0.28 + offsetY),
@@ -770,6 +899,7 @@ function addTrees(
         const radius =
           tree.crown_radius_m * (layer === 5 ? 0.64 : layer >= 2 ? 0.76 : 0.86);
         target[variant].push({
+          color: foliageColor,
           position: [
             x + offsetX * tree.crown_radius_m,
             y + trunkHeight + radius * (0.38 + offsetY),
@@ -790,6 +920,7 @@ function addTrees(
       willowOffsets.forEach(([offsetX, offsetY, offsetZ], layer) => {
         const radius = tree.crown_radius_m * (layer < 2 ? 0.78 : 0.66);
         target[variant].push({
+          color: foliageColor,
           position: [
             x + offsetX * tree.crown_radius_m,
             y + trunkHeight + radius * (0.2 + offsetY),
@@ -806,6 +937,7 @@ function addTrees(
         const radius =
           tree.crown_radius_m * (lobe === 0 ? 0.9 : lobe === 1 ? 0.72 : 0.58);
         target[variant].push({
+          color: foliageColor,
           position: [
             x + (lobe === 0 ? -0.16 : lobe === 1 ? 0.22 : 0.04) *
               tree.crown_radius_m,
@@ -845,6 +977,7 @@ function addTrees(
         const radius = tree.crown_radius_m * profile.radiusScales[layer];
         const [scaleX, scaleY, scaleZ] = profile.axisScale;
         target[variant].push({
+          color: foliageColor,
           position: [
             x + offsetX * tree.crown_radius_m,
             y + trunkHeight + radius * (0.4 + offsetY),
@@ -875,6 +1008,7 @@ function addTrees(
       settledOffsets.forEach(([offsetX, offsetY, offsetZ], index) => {
         const radius = tree.crown_radius_m * (index === 0 ? 0.54 : 0.58);
         target[variant].push({
+          color: foliageColor,
           position: [
             x + offsetX * tree.crown_radius_m,
             y + trunkHeight + radius * offsetY,
@@ -890,7 +1024,7 @@ function addTrees(
     instanced(
       "OSM instanced granular tree trunks",
       new CylinderGeometry(1, 1.18, 1, 7),
-      material(0x7b6549),
+      material(0xffffff),
       trunks,
     ),
   );
@@ -898,20 +1032,19 @@ function addTrees(
     instanced(
       "OSM instanced granular tree fork branches",
       new CylinderGeometry(1, 1.18, 1, 6),
-      material(0x836d50),
+      material(0xffffff),
       branches,
     ),
   );
   // Fresh but still light foliage separates individual source trees without
   // turning the Tiergarten into one heavy green mass around the ivory city.
-  const colors = [0x97c98a, 0xaed8a0, 0x87ba7b];
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(
         instanced(
           `OSM instanced five-lobed tree crowns variant ${index + 1}`,
           new IcosahedronGeometry(1, 1),
-          material(colors[index], 0.9),
+          material(0xffffff, 0.9),
           transforms,
         ),
       );
@@ -922,7 +1055,7 @@ function addTrees(
       const mesh = instanced(
         `OSM instanced five-lobed tree crowns variant ${index + 1}`,
         new IcosahedronGeometry(1, 1),
-        material(colors[index], 0.9),
+        material(0xffffff, 0.9),
         transforms,
       );
       mesh.name += " focus cutaway";
@@ -937,6 +1070,8 @@ function addTrees(
     formColors: readonly number[],
     geometry: () => BufferGeometry,
   ): void => {
+    group.userData.treeFamilyPalettes ??= {};
+    group.userData.treeFamilyPalettes[family] = [...formColors];
     transforms.forEach((entries, index) => {
       if (entries.length === 0) {
         return;
@@ -945,7 +1080,7 @@ function addTrees(
         instanced(
           `Geoportal Berlin ${family} crowns variant ${index + 1}`,
           geometry(),
-          material(formColors[index], 0.94),
+          material(0xffffff, 0.94),
           entries,
         ),
       );
@@ -957,7 +1092,7 @@ function addTrees(
       const mesh = instanced(
         `Geoportal Berlin ${family} crowns variant ${index + 1} focus cutaway`,
         geometry(),
-        material(formColors[index], 0.94),
+        material(0xffffff, 0.94),
         entries,
       );
       mesh.userData.focusCutawayFor = cutaway.focusName;
@@ -1077,7 +1212,7 @@ function addTrees(
     const mesh = instanced(
       `Geoportal Berlin settled-only official tree microcrowns variant ${index + 1}`,
       geometry,
-      material(colors[index], 0.9),
+      material(0xffffff, 0.9),
       transforms,
     );
     mesh.visible = false;
@@ -1097,6 +1232,263 @@ function addTrees(
   });
   group.userData.treePresentationForms = formCounts;
   return settledDetailFaces;
+}
+
+export type ParkHedgeSegment = {
+  from: [number, number, number];
+  heightM: number;
+  id: string;
+  to: [number, number, number];
+  widthM: number;
+};
+
+/** Finite source-course pieces used by both the renderer and walk collision. */
+export function parkHedgeSegments(hedges: ParkHedge[]): ParkHedgeSegment[] {
+  const segments: ParkHedgeSegment[] = [];
+  for (const hedge of hedges) {
+    if (hedge.kind !== "line" || !hedge.points || hedge.points.length < 2) {
+      continue;
+    }
+    for (let point = 1; point < hedge.points.length; point += 1) {
+      const from = hedge.points[point - 1];
+      const to = hedge.points[point];
+      const length = Math.hypot(to[0] - from[0], to[2] - from[2]);
+      const steps = Math.max(1, Math.ceil(length / 2));
+      for (let step = 0; step < steps; step += 1) {
+        const start = step / steps;
+        const end = (step + 1) / steps;
+        const interpolate = (fraction: number): [number, number, number] => [
+          from[0] + (to[0] - from[0]) * fraction,
+          from[1] + (to[1] - from[1]) * fraction,
+          from[2] + (to[2] - from[2]) * fraction,
+        ];
+        segments.push({
+          from: interpolate(start),
+          heightM: hedge.height_m,
+          id: hedge.id,
+          to: interpolate(end),
+          widthM: hedge.width_m ?? 1,
+        });
+      }
+    }
+  }
+  return segments;
+}
+
+/** The exact derived shrub clumps that survive the renderer's tunnel clearing. */
+export function parkShrubClusters(
+  shrubPatches: ParkShrubPatch[],
+  insideTunnelApproach: (
+    (x: number, z: number, radius?: number) => boolean
+  ) | null = null,
+): ParkShrubCluster[] {
+  return shrubPatches
+    .flatMap((patch) => patch.clusters)
+    .filter(
+      ([x, , z, , radius]) =>
+        !insideTunnelApproach || !insideTunnelApproach(x, z, radius + 0.5),
+    );
+}
+
+function batchedVegetationFootprints(
+  entries: Array<{ rings: [number, number, number][][] }>,
+): BufferGeometry {
+  const positions: number[] = [];
+  const indices: number[] = [];
+  for (const entry of entries) {
+    const normalizedRings = entry.rings
+      .map((ring) => {
+        const points = [...ring];
+        if (
+          points.length > 2 &&
+          points[0][0] === points.at(-1)?.[0] &&
+          points[0][2] === points.at(-1)?.[2]
+        ) {
+          points.pop();
+        }
+        return points;
+      })
+      .filter((ring) => ring.length >= 3);
+    if (normalizedRings.length === 0) continue;
+    const offset = positions.length / 3;
+    const flat = normalizedRings.flat();
+    flat.forEach(([x, y, z]) => positions.push(x, y + 0.065, z));
+    const contour = normalizedRings[0].map(([x, , z]) => new Vector2(x, z));
+    const holes = normalizedRings
+      .slice(1)
+      .map((ring) => ring.map(([x, , z]) => new Vector2(x, z)));
+    ShapeUtils.triangulateShape(contour, holes).forEach((face) => {
+      indices.push(offset + face[0], offset + face[1], offset + face[2]);
+    });
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+function addTiergartenVegetation(
+  group: Group,
+  shrubPatches: ParkShrubPatch[],
+  hedges: ParkHedge[],
+  insideTunnelApproach: ((x: number, z: number, radius?: number) => boolean) | null,
+): void {
+  const shrubClusters = parkShrubClusters(shrubPatches, insideTunnelApproach);
+  const hedgeAreas = hedges.filter(
+    (hedge): hedge is ParkHedge & { rings: [number, number, number][][] } =>
+      hedge.kind === "area" && Boolean(hedge.rings),
+  );
+  const hedgeAreaClusters = hedgeAreas
+    .flatMap((hedge) => hedge.clusters ?? [])
+    .filter(
+      ([x, , z, , radius]) =>
+        !insideTunnelApproach || !insideTunnelApproach(x, z, radius + 0.5),
+    );
+
+  if (shrubPatches.length > 0) {
+    const footprint = new Mesh(
+      batchedVegetationFootprints(shrubPatches),
+      material(0x769a67, 1),
+    );
+    footprint.name = "OSM exact Großer Tiergarten scrub-area footprints";
+    footprint.receiveShadow = true;
+    footprint.renderOrder = 1;
+    footprint.userData.vegetation = true;
+    footprint.userData.geometryStatus =
+      "Exact OSM natural=scrub boundaries; derived clumps yield to paths, memorials and playgrounds";
+    group.add(footprint);
+  }
+  if (hedgeAreas.length > 0) {
+    const footprint = new Mesh(
+      batchedVegetationFootprints(hedgeAreas),
+      material(0x557f50, 0.98),
+    );
+    footprint.name = "OSM exact Großer Tiergarten hedge-area footprints";
+    footprint.receiveShadow = true;
+    footprint.userData.vegetation = true;
+    group.add(footprint);
+  }
+
+  const shrubTones = [0x779f62, 0x8caf72, 0x688f58];
+  const shrubTransforms: Transform[] = shrubClusters.map(
+    ([x, y, z, height, radius, variant]) => ({
+      color: shrubTones[Math.abs(variant) % shrubTones.length],
+      position: [x, y + height * 0.48, z],
+      rotation: [0, ((x * 0.17 + z * 0.11) % 1) * Math.PI, 0],
+      scale: [radius, height * 0.58, radius * (variant === 1 ? 1.16 : 0.94)],
+    }),
+  );
+  if (shrubTransforms.length > 0) {
+    const shrubs = instanced(
+      "OSM polygon-bounded diverse Tiergarten shrub clumps",
+      new IcosahedronGeometry(1, 1),
+      material(0xffffff, 0.96),
+      shrubTransforms,
+    );
+    shrubs.userData.vegetation = true;
+    shrubs.userData.positionStatus =
+      "Deterministic display fill inside exact OSM natural=scrub polygons";
+    group.add(shrubs);
+  }
+
+  const visibleSegments = parkHedgeSegments(hedges).filter((segment) => {
+    const x = (segment.from[0] + segment.to[0]) / 2;
+    const z = (segment.from[2] + segment.to[2]) / 2;
+    return !insideTunnelApproach || !insideTunnelApproach(x, z, segment.widthM);
+  });
+  const hedgeBodies: Transform[] = [];
+  const hedgeLobes: Transform[] = [];
+  visibleSegments.forEach((segment, index) => {
+    const dx = segment.to[0] - segment.from[0];
+    const dz = segment.to[2] - segment.from[2];
+    const length = Math.hypot(dx, dz);
+    if (length < 0.02) return;
+    const groundY = (segment.from[1] + segment.to[1]) / 2;
+    const x = (segment.from[0] + segment.to[0]) / 2;
+    const z = (segment.from[2] + segment.to[2]) / 2;
+    const yaw = -Math.atan2(dz, dx);
+    const tone = [0x4f7849, 0x5c8653, 0x466d43][index % 3];
+    hedgeBodies.push({
+      color: tone,
+      position: [x, groundY + segment.heightM / 2, z],
+      rotation: [0, yaw, 0],
+      scale: [length + 0.08, segment.heightM, segment.widthM],
+    });
+    hedgeLobes.push({
+      color: tone,
+      position: [x, groundY + segment.heightM * 0.82, z],
+      rotation: [0, yaw + index * 0.37, 0],
+      scale: [length * 0.62 + 0.24, segment.heightM * 0.35, segment.widthM * 0.72],
+    });
+  });
+  if (hedgeBodies.length > 0) {
+    const bodies = instanced(
+      "OSM finite Tiergarten hedge course bodies",
+      new BoxGeometry(1, 1, 1),
+      material(0xffffff, 0.98),
+      hedgeBodies,
+    );
+    bodies.userData.vegetation = true;
+    bodies.userData.geometryStatus =
+      "Exact OSM barrier=hedge courses; untagged height and width are display approximations";
+    group.add(bodies);
+    const lobes = instanced(
+      "OSM finite Tiergarten hedge foliage lobes",
+      new IcosahedronGeometry(1, 1),
+      material(0xffffff, 0.96),
+      hedgeLobes,
+    );
+    lobes.userData.vegetation = true;
+    group.add(lobes);
+  }
+
+  if (hedgeAreaClusters.length > 0) {
+    const transforms = hedgeAreaClusters.map(
+      ([x, y, z, height, radius, variant]): Transform => ({
+        color: [0x4f7849, 0x5c8653, 0x466d43][Math.abs(variant) % 3],
+        position: [x, y + height * 0.52, z],
+        rotation: [0, variant * 0.83, 0],
+        scale: [radius, height * 0.58, radius],
+      }),
+    );
+    const areas = instanced(
+      "OSM polygon-bounded Tiergarten hedge-area foliage",
+      new IcosahedronGeometry(1, 1),
+      material(0xffffff, 0.96),
+      transforms,
+    );
+    areas.userData.vegetation = true;
+    group.add(areas);
+  }
+
+  const snowTransforms: Transform[] = [...shrubClusters, ...hedgeAreaClusters]
+    .filter((_, index) => index % 4 === 0)
+    .map(([x, y, z, height, radius, variant]) => ({
+      position: [x, y + height * 0.92, z],
+      rotation: [0, variant * 0.71, 0],
+      scale: [radius * 0.72, Math.max(0.08, height * 0.08), radius * 0.66],
+    }));
+  if (snowTransforms.length > 0) {
+    const snow = instanced(
+      "Snowstorm-only Tiergarten shrub and hedge caps",
+      new IcosahedronGeometry(1, 0),
+      material(0xf4f7f6, 0.98),
+      snowTransforms,
+    );
+    snow.visible = false;
+    snow.userData.snowOnly = true;
+    snow.userData.snowActive = false;
+    group.add(snow);
+  }
+
+  group.userData.shrubPatchCount = shrubPatches.length;
+  group.userData.shrubClusterCount = shrubClusters.length;
+  group.userData.hedgeCount = hedges.length;
+  group.userData.hedgeSegmentCount = visibleSegments.length;
+  group.userData.hedgeAreaClusterCount = hedgeAreaClusters.length;
 }
 
 function lampHeadCount(lightType: string | null): number {
@@ -1464,7 +1856,11 @@ function footprintGeometry(
 function addClimbingFrame(group: Group, item: PlaygroundEquipment): void {
   const [x, y, z] = item.position;
   const steel = material(0x2e6f72, 0.52);
-  const rope = new LineBasicMaterial({ color: 0xd7c394 });
+  const rope = markArchitecturalAccentInk(
+    new LineBasicMaterial(),
+    0xd7c394,
+    "micro",
+  );
   const posts = [
     new Vector3(x - 1.6, y, z - 1.25),
     new Vector3(x + 1.6, y, z - 1.25),
@@ -1699,7 +2095,7 @@ export function createParkDetails(
   payload: ParkDetailsPayload,
   options: ParkDetailOptions = {},
 ): Group {
-  if (payload.schema_version < 1 || payload.schema_version > 4) {
+  if (payload.schema_version < 1 || payload.schema_version > 6) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
   const group = new Group();
@@ -1760,6 +2156,12 @@ export function createParkDetails(
     trees,
     treeCrownCutaway(payload.playgrounds),
     options.settledDetail ?? true,
+  );
+  addTiergartenVegetation(
+    group,
+    payload.shrub_patches ?? [],
+    payload.hedges ?? [],
+    insideTunnelApproach,
   );
   addStreetLights(group, streetLights);
   group.userData.wallStoneCount = addWallTraces(group, wallTraces);

@@ -32,6 +32,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import { markArchitecturalAccentInk } from "./architecturalInk";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
 
 export const RAIL_LINES_FILE = "rail-lines.json";
@@ -491,7 +492,11 @@ export function createRailNetwork(
   if (inkGeometry) {
     const ink = new LineSegments(
       inkGeometry,
-      new LineBasicMaterial({ color: RAIL_INK }),
+      markArchitecturalAccentInk(
+        new LineBasicMaterial(),
+        RAIL_INK,
+        "detail",
+      ),
     );
     ink.name = "railway deck ink lines";
     ink.renderOrder = 2;

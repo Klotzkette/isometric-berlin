@@ -15,6 +15,7 @@ from isometric_berlin.generation.build_street_details import (
   DEFAULT_OSM,
   ORIGIN_EASTING,
   ORIGIN_NORTHING,
+  SCHWELLENRAUM_PROTECTED_OSM_KEYS,
   deduplicate_floraplatz_animals,
   rectangle_axis,
 )
@@ -52,20 +53,28 @@ def test_every_in_bounds_osm_traffic_signal_is_exported() -> None:
 
 def test_fuel_stations_are_exported_with_a_forecourt_axis() -> None:
   payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
-  assert payload["schema_version"] == 5
+  assert payload["schema_version"] == 6
   stations = payload["fuel_stations"]
   assert sorted(entry["name"] for entry in stations) == [
+    "Agip",
+    "Aral",
+    "Aral",
     "Aral",
     "Aral",
     "Esso",
+    "SB Tank",
     "Shell",
+    "Shell",
+    "Sprint",
     "Total",
+    "Total",
+    "Westfehling",
   ]
   for entry in stations:
     assert math.isclose(math.hypot(*entry["axis"]), 1.0, abs_tol=1e-3)
     assert entry["w_dm"] > 0 and entry["d_dm"] > 0
   surveyed = sorted(entry["name"] for entry in stations if entry["surveyed_outline"])
-  assert surveyed == ["Shell", "Total"]
+  assert surveyed == ["SB Tank", "Shell", "Shell", "Total"]
 
 
 def test_zollpackhof_beer_garden_keeps_its_surveyed_ring() -> None:
@@ -140,6 +149,45 @@ def test_memorial_subtypes_survive_the_osm_pipeline() -> None:
     entry["memorial_type"] == "statue" and entry["name"] == "Sophie Charlotte"
     for entry in monuments
   )
+
+
+def test_every_monument_has_a_stable_osm_identity_and_protection_contract() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  monuments = payload["monuments"]
+  keys = [entry["osm_key"] for entry in monuments]
+  assert len(keys) == len(set(keys))
+  for entry in monuments:
+    assert entry["osm_element"] in {"node", "way", "relation"}
+    assert entry["osm_id"].isdigit()
+    assert entry["osm_key"] == f"{entry['osm_element']}/{entry['osm_id']}"
+    assert isinstance(entry["schwellenraum_protected"], bool)
+
+
+def test_schwellenraum_protection_is_conservative_and_keeps_art_reviewable() -> None:
+  payload = json.loads(PAYLOAD.read_text(encoding="utf-8"))
+  monuments = payload["monuments"]
+  protected = [entry for entry in monuments if entry["schwellenraum_protected"]]
+
+  # Every source-declared memorial and every Stolperstein stays ordinary Day.
+  assert all(
+    entry["schwellenraum_protected"]
+    for entry in monuments
+    if entry["kind"] == "memorial" or entry["memorial_type"]
+  )
+  assert sum(entry["memorial_type"] == "stolperstein" for entry in protected) > 900
+
+  # Stable-key exceptions cover artwork embedded in the Moabit/Krolloper/Neue
+  # Wache remembrance ensembles even though OSM does not tag it as a memorial.
+  protected_keys = {entry["osm_key"] for entry in protected}
+  assert SCHWELLENRAUM_PROTECTED_OSM_KEYS <= protected_keys
+  assert next(entry for entry in monuments if entry["name"] == "Nie wieder Krieg")[
+    "schwellenraum_protected"
+  ]
+
+  # The flag is selective and inspectable, not an accidental blanket setting.
+  assert not next(entry for entry in monuments if entry["name"] == "Knut")[
+    "schwellenraum_protected"
+  ]
 
 
 def test_floraplatz_deduplication_is_narrow_and_deterministic() -> None:

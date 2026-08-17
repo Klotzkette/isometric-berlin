@@ -20,9 +20,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import geopandas as gpd
+from pandas import concat
+
+from isometric_berlin.data.common import BERLIN_PROJECTED
 
 # A ruin keeps its ground walls, so it must not keep its pitched roof.
 FLAT_ROOF_TYPE = "1000"
+OSM_CONTEXT_BUILDINGS_FILENAME = "osm_context_buildings.gpkg"
 
 
 @dataclass(frozen=True)
@@ -81,5 +85,25 @@ def apply_building_corrections(buildings: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def load_current_buildings(buildings_path: Path) -> gpd.GeoDataFrame:
-  """Read ``buildings.gpkg`` as the district stands today."""
-  return apply_building_corrections(gpd.read_file(buildings_path, layer="buildings"))
+  """Read corrected LoD2 plus its optional bounded OSM context sidecar.
+
+  The sibling sidecar fills only footprints not represented by the official
+  LoD2 stock.  Keeping its append here makes the 2D, prism and Minecraft
+  generators consume the same additive building frame.
+  """
+  buildings = gpd.read_file(buildings_path, layer="buildings")
+  context_path = buildings_path.with_name(OSM_CONTEXT_BUILDINGS_FILENAME)
+  if buildings_path.name != OSM_CONTEXT_BUILDINGS_FILENAME and context_path.exists():
+    context = gpd.read_file(context_path, layer="buildings")
+    if buildings.crs is None:
+      buildings = buildings.set_crs(BERLIN_PROJECTED)
+    if context.crs is None:
+      context = context.set_crs(BERLIN_PROJECTED)
+    if context.crs != buildings.crs:
+      context = context.to_crs(buildings.crs)
+    buildings = gpd.GeoDataFrame(
+      concat([buildings, context], ignore_index=True, sort=False),
+      geometry="geometry",
+      crs=buildings.crs,
+    )
+  return apply_building_corrections(buildings)

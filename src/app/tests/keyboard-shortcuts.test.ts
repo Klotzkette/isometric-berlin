@@ -27,6 +27,7 @@ describe("keyboard shortcut browser-chord guard", () => {
 
   test("recognises the pedestrian jump independently of layout or legacy key names", () => {
     expect(isPedestrianJumpKey({ code: "Space", key: " " })).toBe(true);
+    expect(isPedestrianJumpKey({ code: "", key: "Space" })).toBe(true);
     expect(isPedestrianJumpKey({ code: "", key: "Spacebar" })).toBe(true);
     expect(isPedestrianJumpKey({ code: "KeyW", key: "w" })).toBe(false);
   });

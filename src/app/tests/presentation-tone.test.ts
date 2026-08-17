@@ -13,7 +13,7 @@ import { PRESENTATION_TONE, isPaintFaithful } from "../src/presentationTone";
  */
 describe("presentation tone response", () => {
   test("the drawn modes reproduce authored paint with no film curve", () => {
-    for (const mode of ["day", "night"] as const) {
+    for (const mode of ["day", "night", "schwellenraum"] as const) {
       expect(PRESENTATION_TONE[mode].toneMapping).toBe(NoToneMapping);
       expect(PRESENTATION_TONE[mode].exposure).toBe(1);
       expect(isPaintFaithful(mode)).toBe(true);

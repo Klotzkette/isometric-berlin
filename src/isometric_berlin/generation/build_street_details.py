@@ -34,7 +34,7 @@ from isometric_berlin.generation.build_minecraft_voxels import (
 
 DEFAULT_OSM = REPO_ROOT / "geo_data/regierungsviertel/osm.gpkg"
 DEFAULT_OUT = MESH_PUBLIC_DIR / "street-details.json"
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 # Roads a filling station can front. Service ways and footpaths run behind
 # and beside forecourts, so matching those would rotate the canopy at random.
@@ -55,6 +55,54 @@ FUEL_DEFAULT_DEPTH_DM = 140
 MONUMENT_KINDS = {"cannon", "memorial", "monument", "tank"}
 # Landmarks the recognition layer already models completely.
 MONUMENT_SKIP_NAMES = {"Brandenburger Tor"}
+
+# Most protected places arrive as ``historic=memorial`` and need no
+# name-based interpretation. A few installations are mapped only as public
+# art even though they belong to an explicitly protected remembrance
+# ensemble. Stable OSM keys keep those exceptions reviewable and independent
+# of translated or subsequently corrected names.
+SCHWELLENRAUM_PROTECTED_OSM_KEYS = {
+  "node/2310445137",  # Klanginstallation Klopfzeichen, Moabit prison park
+  "way/195086492",  # Panoptikum, Moabit prison park
+  "node/2589577819",  # Contact, former Krolloper site
+  "node/9775503531",  # Grosse Knospe III/63, former Krolloper site
+  "node/9775536511",  # Todes Mauer Bruch, former Krolloper site
+  "node/9775538466",  # Himmelschluessel, former Krolloper site
+  "node/5253735916",  # Mutter mit totem Sohn, Neue Wache
+}
+
+# A conservative fallback for present and future ``tourism=artwork`` records
+# whose names state a direct relation to persecution, victims or violence.
+# It intentionally prefers a harmless false positive (ordinary Day styling)
+# over visually changing a newly mapped place of remembrance.
+SCHWELLENRAUM_PROTECTED_ARTWORK_MARKERS = (
+  "deport",
+  "ermord",
+  "euthanas",
+  "gefallen",
+  "gedenk",
+  "gewalt",
+  "holocaust",
+  "jüdis",
+  "juden",
+  "krieg",
+  "mahnmal",
+  "nationalsozial",
+  "nazi",
+  "nie wieder",
+  "opfer",
+  "pogrom",
+  "sinti",
+  "stalin",
+  "terror",
+  "todes",
+  "totem",
+  "verfolg",
+  "verwundet",
+  "völkermord",
+  "widerstand",
+  "zwangs",
+)
 
 # Beer-garden and bar outlines are traced node by node in OSM; at viewer
 # scale the extra vertices only add jitter to the ink outline.
@@ -112,6 +160,40 @@ def monument_kind(row: Any) -> str | None:
   if row.get("tourism") == "artwork":
     return "artwork"
   return None
+
+
+def osm_identity(row: Any) -> tuple[str, str, str]:
+  """Return the stable OSM element, id and combined key for a source row."""
+  element = row.get("element")
+  osm_id = row.get("id")
+  if not isinstance(element, str) or element not in {"node", "way", "relation"}:
+    raise ValueError(f"Monument row has no stable OSM element: {element!r}")
+  if not isinstance(osm_id, str) or not osm_id:
+    raise ValueError(f"Monument row has no stable OSM id: {osm_id!r}")
+  return element, osm_id, f"{element}/{osm_id}"
+
+
+def schwellenraum_protected(
+  kind: str, name: str, memorial_type: str, osm_key: str
+) -> bool:
+  """Whether the source feature must retain exact Day presentation.
+
+  Every OSM memorial subtype is protected without trying to infer its subject
+  from a translated name. Tanks, cannons and historic monuments are protected
+  conservatively as well; there are only ten such records in the payload and
+  this includes all hardware of the Soviet memorial and the Berlin Wall site.
+  Public art stays ordinary unless its stable key or its name makes the
+  remembrance/violence context explicit.
+  """
+  if kind in {"memorial", "monument", "tank", "cannon"} or memorial_type:
+    return True
+  if osm_key in SCHWELLENRAUM_PROTECTED_OSM_KEYS:
+    return True
+  normalized = name.casefold()
+  return any(
+    marker.casefold() in normalized
+    for marker in SCHWELLENRAUM_PROTECTED_ARTWORK_MARKERS
+  )
 
 
 def rectangle_axis(polygon: Any) -> tuple[tuple[float, float], float, float]:
@@ -388,19 +470,27 @@ def build_payload(
     centroid = geometry.centroid
     if not bounds.contains(centroid):
       continue
+    osm_element, osm_id, osm_key = osm_identity(row)
+    memorial_type = next(
+      (
+        value
+        for value in (row.get("memorial"), row.get("memorial:type"))
+        if isinstance(value, str) and value
+      ),
+      "",
+    )
     min_x, min_y, max_x, max_y = geometry.bounds
     monuments.append(
       {
         "kind": kind,
-        "memorial_type": next(
-          (
-            value
-            for value in (row.get("memorial"), row.get("memorial:type"))
-            if isinstance(value, str) and value
-          ),
-          "",
-        ),
+        "memorial_type": memorial_type,
         "name": name,
+        "osm_element": osm_element,
+        "osm_id": osm_id,
+        "osm_key": osm_key,
+        "schwellenraum_protected": schwellenraum_protected(
+          kind, name, memorial_type, osm_key
+        ),
         "w_dm": round((max_x - min_x) * 10),
         "d_dm": round((max_y - min_y) * 10),
         "x_dm": round((centroid.x - ORIGIN_EASTING) * 10),
