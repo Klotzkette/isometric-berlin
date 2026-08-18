@@ -283,7 +283,7 @@ describe("task-11 central transit and civic details", () => {
     expect(details.getObjectByName("landmark dots")).toBeUndefined();
   });
 
-  test("adds transit, theatre and S15 lettering", () => {
+  test("adds transit and S15 lettering without the retired theatre shell", () => {
     const details = createCentralCivicDetails(landmarks);
     expect(details.userData.hauptbahnhofTransit).toEqual({
       taxiCount: 5,
@@ -293,40 +293,19 @@ describe("task-11 central transit and civic details", () => {
         "yellow five-section Flexity presentation model with articulated joints, doors, bogies and pantograph",
     });
     expect(details.getObjectByName("OGGI civic lettering")).toBeDefined();
-    expect(
-      details.getObjectByName("BERLINER ENSEMBLE civic lettering"),
-    ).toBeDefined();
     expect(details.getObjectByName("S15 civic lettering")).toBeDefined();
     expect(
       details.getObjectByName("Berliner Ensemble circular rooftop sign"),
-    ).toBeDefined();
+    ).toBeUndefined();
     expect(
       details.getObjectByName("Berliner Ensemble open red neon roof ring"),
-    ).toBeDefined();
-    expect(
-      (
-        details.getObjectByName(
-          "Berliner Ensemble open red neon roof ring",
-        ) as Mesh
-      ).geometry.type,
-    ).toBe("TorusGeometry");
-    expect(
-      details.getObjectByName("Berliner Ensemble red circular roof emblem"),
     ).toBeUndefined();
-    const roofSign = details.getObjectByName(
-      "Berliner Ensemble circular rooftop sign",
-    );
-    expect(roofSign?.userData.animated).toBe(false);
-    expect(roofSign?.userData.antiFlickerDecision).toContain("static");
-    const ring = details.getObjectByName(
-      "Berliner Ensemble open red neon roof ring",
-    );
-    expect(ring?.position.y).toBeCloseTo(
-      landmarks.find(({ name }) => name === "Berliner Ensemble")!.world[1] +
-        0.05 +
-        BERLINER_ENSEMBLE_PROFILE.roofSignCentreHeightM,
-      4,
-    );
+    expect(
+      details.getObjectByName("BERLINER ENSEMBLE civic lettering"),
+    ).toBeUndefined();
+    expect(
+      details.getObjectByName("Berliner Ensemble details"),
+    ).toBeUndefined();
   });
 
   test("keeps Brecht on the square and Weigel in the theatre courtyard", () => {
@@ -338,11 +317,13 @@ describe("task-11 central transit and civic details", () => {
     expect(publicArt?.userData.brechtSite).toBe("Bertolt-Brecht-Platz");
     expect(publicArt?.userData.heleneWeigelSite).toBe("Helene-Weigel-Hof");
     expect(publicArt?.userData.brechtMonumentWorld).toEqual([
-      1027.048, -349.126,
+      1026.376, -349.777,
     ]);
     expect(publicArt?.userData.heleneWeigelCourtyardWorld).toEqual([
-      968.142, -355.096,
+      965.8, -361.8,
     ]);
+    expect(publicArt?.userData.brechtOsmKey).toBe("node/988668382");
+    expect(publicArt?.userData.heleneWeigelOsmKey).toBe("node/13841652635");
     expect(BERLINER_ENSEMBLE_PROFILE.sources).toHaveLength(4);
   });
 
@@ -570,13 +551,11 @@ describe("task-11 central transit and civic details", () => {
       target_world: pariserPlatz.world,
     });
     expect(centralCivicFocusCamera(ensemble)).toMatchObject({
-      distance_m: 146,
-      target_height_m: 17,
-      target_world: [
-        ensemble.world[0] + 24,
-        ensemble.world[1],
-        ensemble.world[2] + 13,
-      ],
+      azimuth_degrees: 121,
+      distance_m: 128,
+      polar_degrees: 62,
+      target_height_m: 10.5,
+      target_world: [988.9, 4, -327.3],
     });
     expect(centralCivicFocusCamera(tram)).toMatchObject({
       distance_m: 176,

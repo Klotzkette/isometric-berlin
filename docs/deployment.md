@@ -42,6 +42,29 @@ rejects hidden, duplicate or stale 3D assets. The same gate parses the static
 tarball, rejects links/special files/path traversal and verifies all scene and
 DZI payloads before tagging.
 
+## Hashed lazy assets and already-open tabs
+
+The public host must retain hashed JavaScript, CSS and Worker assets from the
+current release and **at least the previous two live releases**. An open tab can
+hold an older HTML manifest for hours and request its lazy Three.js or Worker
+chunk only when the visitor later selects a 3D mode. Deleting every old file in
+`assets/` during deployment turns that valid interaction into a 404.
+
+Publish new root files and mutable metadata normally, but merge the new
+`dist/assets/` directory into the hosted `assets/` directory without a blanket
+delete. Prune a hashed file only after it is outside the current-plus-two-live-
+release retention window. This compatibility store is a GitHub Pages policy;
+the downloadable ZIP and static tarball contain only the current build and must
+continue to reject duplicate or stale assets.
+
+The v0.72.3 runtime adds a second line of defence. Its early
+`vite:preloadError` listener performs at most one version-scoped reload so the
+tab can acquire the current HTML manifest, and the successful Three.js import
+clears that guard. If loading or rendering still fails, a visible boundary
+offers Reload and the 2D map rather than leaving the 3D surface blank. Asset
+retention remains required because it also preserves uninterrupted sessions
+that have not yet loaded the new recovery runtime.
+
 If a future deployment separates heavy assets, the DZI pyramid and mesh can be
 placed on an object store such as Cloudflare R2. Attribution and relative-path
 requirements from `AGENTS.md` and `NOTICE.md` remain mandatory.

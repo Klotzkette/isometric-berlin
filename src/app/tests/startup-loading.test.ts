@@ -17,6 +17,9 @@ const navigationInputSource = await Bun.file(
 const indexSource = await Bun.file(
   new URL("../index.html", import.meta.url),
 ).text();
+const boundarySource = await Bun.file(
+  new URL("../src/ThreeViewerErrorBoundary.tsx", import.meta.url),
+).text();
 
 describe("progressive viewer startup", () => {
   test("keeps both rendering engines behind dynamic imports", () => {
@@ -35,6 +38,24 @@ describe("progressive viewer startup", () => {
   test("coalesces Strict Mode map imports into one promise", () => {
     expect(engineLoaderSource).toContain("openSeadragonPromise ??=");
     expect(engineLoaderSource).toContain("return openSeadragonPromise");
+  });
+
+  test("keeps a visible recovery boundary around the lazy 3D viewer", () => {
+    const boundaryStart = appSource.indexOf("<ThreeViewerErrorBoundary");
+    const suspenseStart = appSource.indexOf("<Suspense", boundaryStart);
+    const lazyViewer = appSource.indexOf("<LazyThreeViewer", suspenseStart);
+    const boundaryEnd = appSource.indexOf(
+      "</ThreeViewerErrorBoundary>",
+      lazyViewer,
+    );
+
+    expect(boundaryStart).toBeGreaterThan(-1);
+    expect(suspenseStart).toBeGreaterThan(boundaryStart);
+    expect(lazyViewer).toBeGreaterThan(suspenseStart);
+    expect(boundaryEnd).toBeGreaterThan(lazyViewer);
+    expect(boundarySource).toContain('role="alert"');
+    expect(appSource).toContain('setViewerMode("map")');
+    expect(appSource).toContain("setIsThreeReady(false)");
   });
 
   test("keeps app-shell navigation helpers free of rendering engines", () => {

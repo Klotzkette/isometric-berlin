@@ -218,6 +218,13 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
 # the per-file artist and licence metadata packaged even when Commons ranking
 # changes.
 PINNED_FILE_REFERENCES: dict[str, str] = {
+  "File:Berliner Ensemble building (Theater am Schiffbauerdamm).jpg": (
+    "berliner_ensemble"
+  ),
+  "File:Mitte Bertolt-Brecht-Platz Theater am Schiffbauerdamm.JPG": (
+    "berliner_ensemble"
+  ),
+  "File:Theater am Schiffbauerdamm 01.jpg": "berliner_ensemble",
   "File:Berlin Victory Column - BugWarp 01.jpg": "siegessaeule",
   "File:Mosaik in der Berliner Siegessäule.jpg": "siegessaeule",
   "File:Reichstag (building) architecture from west - Berlin, Germany - DSC09654.JPG": (

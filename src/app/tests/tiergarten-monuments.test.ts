@@ -10,6 +10,7 @@ import {
 } from "three";
 
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
+import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
@@ -225,6 +226,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     for (const entry of street.monuments!.filter(
       (candidate) =>
         candidate.kind === "artwork" &&
+        !BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(candidate.osm_key) &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
     )) {
       expect(resolveArtworkBuilder(entry.name)).toBeFunction();

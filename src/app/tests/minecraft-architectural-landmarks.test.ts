@@ -29,6 +29,7 @@ const EXPECTED_MODELS = [
   "Minecraft Berlin Hauptbahnhof block signature",
   "Minecraft Brandenburg Gate block signature",
   "Minecraft parliamentary band block signature",
+  "Minecraft Berliner Ensemble block signature",
 ] as const;
 
 function instancedChildren(): InstancedMesh[] {
@@ -51,13 +52,13 @@ function matrixAndColourFingerprint(mesh: InstancedMesh): string {
 }
 
 describe("block-native Berlin architectural signatures", () => {
-  test("uses five shared, opaque cube batches and stays within budget", () => {
+  test("uses six shared, opaque cube batches and stays within budget", () => {
     const group = createMinecraftArchitecturalLandmarks();
     expect(group.name).toBe("Minecraft block-native architectural landmarks");
     expect(group.children.map(({ name }) => name)).toEqual(EXPECTED_MODELS);
     expect(group.userData).toMatchObject({
       blockNative: true,
-      drawCallBudget: 5,
+      drawCallBudget: 6,
       noAdditionalPayload: true,
       staticAntiFlicker: true,
     });
@@ -69,6 +70,7 @@ describe("block-native Berlin architectural signatures", () => {
       "berlin-hauptbahnhof",
       "brandenburger-tor",
       "parliamentary-band",
+      "berliner-ensemble",
     ]);
     const geometryIds = new Set<string>();
     const materialIds = new Set<string>();
@@ -96,7 +98,7 @@ describe("block-native Berlin architectural signatures", () => {
     }
     expect(geometryIds.size).toBe(1);
     expect(materialIds.size).toBe(1);
-    expect(totalBlocks).toBe(15_515);
+    expect(totalBlocks).toBe(15_575);
   });
 
   test("keeps every colour in the fixed palette with restrained precious accents", () => {
@@ -398,6 +400,12 @@ describe("block-native Berlin architectural signatures", () => {
       8,
     );
     expect(minecraftArchitecturalVoxelTopAt(500, -150, 38)).toBe(38);
+    const ensemble = MINECRAFT_ARCHITECTURAL_PROFILES.berlinerEnsemble;
+    expect(minecraftArchitecturalVoxelTopAt(1006, -326, 28.2, 4)).toBe(
+      ensemble.blockLoD.roofStageBaseY,
+    );
+    expect(minecraftArchitecturalVoxelTopAt(1006, -326, 20, 4)).toBe(20);
+    expect(minecraftArchitecturalVoxelTopAt(998, -334, 28.1, 4)).toBe(28.1);
   });
 
   test("pins the full LoD2 source registries behind every replacement", () => {

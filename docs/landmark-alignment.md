@@ -92,7 +92,7 @@ This report checks the committed landmark points against the local OpenStreetMap
 | Futurium | `ok` | Futurium (pois) | 0.00 m | inside DEBE00YY20g0005J |
 | Bundesministerium für Forschung, Technologie und Raumfahrt | `ok` | Bundesministerium für Forschung, Technologie und Raumfahrt (pois) | 0.00 m | inside DEBE3DBlrT1zM4av |
 | Parlament der Bäume gegen Krieg und Gewalt | `ok` | Parlament der Bäume (pois) | 0.00 m | inside DEBE01YYK00007aT |
-| Berliner Ensemble | `ok` | Berliner Ensemble (pois) | 0.00 m | nearest DEBE01YYK00008HD at 8.76 m |
+| Berliner Ensemble | `ok` | Berliner Ensemble (pois; legacy tour-point/site way 422928025) | 0.00 m | legacy POI result: nearest DEBE01YYK00008HD at 8.76 m; exact model uses LoD2 parent DEBE01YYK00004vY and protected building way 43017010 |
 | Bahnhof Berlin Friedrichstraße | `ok` | Berlin Friedrichstraße (rail) | 0.00 m | inside DEBE00YYpY0000Jk |
 | Bundesministerium der Finanzen / Detlev-Rohwedder-Haus | `ok` | Bundesministerium der Finanzen (pois) | 0.00 m | inside DEBE3DSOWJjXsCQe |
 | Gropius Bau | `ok` | Gropius-Bau (pois) | 0.00 m | inside DEBE3DUNRQLhhnrF |

@@ -26,6 +26,7 @@ import {
   ARCHITECTURAL_INK_PALETTE,
   markArchitecturalInk,
 } from "./architecturalInk";
+import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "./BerlinerEnsemble";
 import { createLetteringTexture } from "./drawnLettering";
 import { createKindertransportMemorial, KINDERTRANSPORT_MEMORIAL_OSM_KEY } from "./KindertransportMemorial";
 import { type VoxelPayload, worldGroundSampler } from "./MinecraftVoxelWorld";
@@ -2924,9 +2925,13 @@ export function createTiergartenMonuments(
       // from surviving underneath the detailed model.
       kindertransportAnchor = { groundYM: y, protected: isProtected };
       if (isProtected) protectedRenderedSourceKeys.push(entry.osm_key);
-    } else if (MONUMENTS_ALREADY_MODELLED.test(name) || entry.kind === "tank") {
+    } else if (
+      BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS.has(entry.osm_key) ||
+      MONUMENTS_ALREADY_MODELLED.test(name) ||
+      entry.kind === "tank"
+    ) {
       // The verified recognition layer carries these (incl. both T-34s).
-    if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
+      if (isProtected) protectedExternallyModelledSourceKeys.push(entry.osm_key);
     } else if (entry.kind === "cannon") {
       buildCannon(builder, x, y, z);
     } else if (/Verkehrsturm/i.test(name)) {

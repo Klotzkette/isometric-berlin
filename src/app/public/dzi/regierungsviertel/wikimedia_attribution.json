@@ -1153,6 +1153,33 @@
       "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
       "artist": "Daderot",
       "credit": "Own work"
+    },
+    {
+      "landmark_id": "berliner_ensemble",
+      "title": "File:Berliner Ensemble building (Theater am Schiffbauerdamm).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerliner_Ensemble_building_%28Theater_am_Schiffbauerdamm%29.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Yair Haklai",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "berliner_ensemble",
+      "title": "File:Mitte Bertolt-Brecht-Platz Theater am Schiffbauerdamm.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AMitte_Bertolt-Brecht-Platz_Theater_am_Schiffbauerdamm.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "berliner_ensemble",
+      "title": "File:Theater am Schiffbauerdamm 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ATheater_am_Schiffbauerdamm_01.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Derbrauni",
+      "credit": "Own work"
     }
   ]
 }

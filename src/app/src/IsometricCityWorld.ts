@@ -85,6 +85,11 @@ import {
   createArdHauptstadtstudio,
 } from "./ArdHauptstadtstudio";
 import {
+  BERLINER_ENSEMBLE_IDS,
+  BERLINER_ENSEMBLE_TONES,
+  createBerlinerEnsemble,
+} from "./BerlinerEnsemble";
+import {
   REICHSTAGSPRAESIDENTENPALAIS_GENERIC_CHIMNEY_SUPPRESSED_IDS,
   REICHSTAGSPRAESIDENTENPALAIS_IDS,
   REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS,
@@ -557,6 +562,15 @@ export const HERO_PRISM_TONES: Record<string, number> = {
         : ARD_HAUPTSTADTSTUDIO_TONES.concrete,
     ]),
   ),
+  // Berliner Ensemble: retain all four measured shells while presenting the
+  // current stripped warm-grey render. The dedicated module owns only thin
+  // facade, entrance, roof and sign recognition detail.
+  ...Object.fromEntries(
+    [...BERLINER_ENSEMBLE_IDS].map((id) => [
+      id,
+      BERLINER_ENSEMBLE_TONES.facade,
+    ]),
+  ),
   // Reichstagspräsidentenpalais / Deutsche Parlamentarische Gesellschaft:
   // the ten-part, two-parent LoD2 union remains the measured envelope. The
   // dedicated layer restores Wallot's warm yellow sandstone articulation.
@@ -637,6 +651,9 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
       id,
       ARD_HAUPTSTADTSTUDIO_TONES.roofDataTag,
     ]),
+  ),
+  ...Object.fromEntries(
+    [...BERLINER_ENSEMBLE_IDS].map((id) => [id, BERLINER_ENSEMBLE_TONES.slate]),
   ),
   ...Object.fromEntries(
     [...REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS].map((id) => [
@@ -1392,6 +1409,8 @@ export function setIsoNightPresentation(
     "ARD Hauptstadtstudio opaque rear roof",
     "ARD HAUPTSTADTSTUDIO facade lettering",
     "ARD Hauptstadtstudio facade subtitle",
+    "Berliner Ensemble architectural details bodies",
+    "Berliner Ensemble architectural details lamps",
   ]);
   city.traverse((accessory) => {
     if (
@@ -1975,6 +1994,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...DEUTSCHES_THEATER_CUSTOM_FACADE_IDS,
   ...TERRASSENHAUS_HAFENPLATZ_IDS,
   ...ARD_HAUPTSTADTSTUDIO_IDS,
+  ...BERLINER_ENSEMBLE_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
 ]);
 
@@ -1983,6 +2003,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...ARD_HAUPTSTADTSTUDIO_IDS,
+  ...BERLINER_ENSEMBLE_IDS,
   ...REICHSTAGSPRAESIDENTENPALAIS_IDS,
 ]);
 
@@ -10185,6 +10206,7 @@ export function createIsometricCity(
       // unpinned roofs retain the established darker-facade convention.
       const pitchedRoofTone =
         HISTORIC_CHARITE_IDS.has(building.id) ||
+        BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id)
         ? capTone.clone()
         : color.clone().multiplyScalar(0.9);
@@ -10773,6 +10795,7 @@ export function createIsometricCity(
     group.add(createDeutschesTheater(prisms));
     group.add(createTerrassenhausHafenplatz(prisms));
     group.add(createArdHauptstadtstudio(prisms));
+    group.add(createBerlinerEnsemble(prisms));
     group.add(createReichstagspraesidentenpalais(prisms));
     group.add(createFederalStateRepresentations());
   }

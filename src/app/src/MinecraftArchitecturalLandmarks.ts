@@ -14,6 +14,15 @@ import {
   MELH_SPREE_FRONT_PROFILE,
 } from "./CentralCivicDetails";
 import {
+  BERLINER_ENSEMBLE_IDS,
+  BERLINER_ENSEMBLE_PROFILE,
+  BERLINER_ENSEMBLE_PUBLIC_FACADE_AZIMUTH_DEGREES,
+  BERLINER_ENSEMBLE_ROOF_CAP_TOP_Y_M,
+  BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
+  BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
+  BERLINER_ENSEMBLE_ROOF_TOWER_ROTATION_DEGREES,
+} from "./BerlinerEnsemble";
+import {
   MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK,
   MINECRAFT_PALETTE,
 } from "./visual-modes/minecraft/palette";
@@ -47,6 +56,40 @@ type BlockRenderResources = {
 };
 
 export const MINECRAFT_ARCHITECTURAL_PROFILES = {
+  berlinerEnsemble: {
+    blockLoD: {
+      maxDrawCalls: 1,
+      roofStageBaseY: 22.14,
+      roofStageTopY: BERLINER_ENSEMBLE_ROOF_CAP_TOP_Y_M,
+      signCentreY: BERLINER_ENSEMBLE_ROOF_SIGN_CENTRE_Y_M,
+      signDiameterM: BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
+      towerDepthM:
+        BERLINER_ENSEMBLE_PROFILE.roofTower.capContainment.baseDepthM,
+      towerWidthM:
+        BERLINER_ENSEMBLE_PROFILE.roofTower.capContainment.baseWidthM,
+    },
+    parentGmlId: BERLINER_ENSEMBLE_PROFILE.lod2Parent,
+    signFrame: {
+      anchorWorld: [
+        BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM[0],
+        4.05,
+        BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM[1],
+      ] as const,
+      rotationDegrees: BERLINER_ENSEMBLE_PUBLIC_FACADE_AZIMUTH_DEGREES,
+    },
+    sourceOsmBuildingWay: BERLINER_ENSEMBLE_PROFILE.osm.buildingWayId,
+    sourceOsmSiteWay: BERLINER_ENSEMBLE_PROFILE.osm.siteWayId,
+    sourcePrismIds: [...BERLINER_ENSEMBLE_IDS] as const,
+    sourceUrl: BERLINER_ENSEMBLE_PROFILE.sourceUrls[0],
+    towerFrame: {
+      anchorWorld: [
+        BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM[0],
+        4.05,
+        BERLINER_ENSEMBLE_PROFILE.roofTower.anchorWorldM[1],
+      ] as const,
+      rotationDegrees: BERLINER_ENSEMBLE_ROOF_TOWER_ROTATION_DEGREES,
+    },
+  },
   brandenburgGate: {
     anchorWorld: [417.898, 4.734, 300.453] as const,
     columnHeightM: 13.5,
@@ -2084,8 +2127,133 @@ function createParliamentaryBandBlocks(
   );
 }
 
+function createBerlinerEnsembleBlocks(
+  resources: BlockRenderResources,
+): InstancedMesh {
+  const profile = MINECRAFT_ARCHITECTURAL_PROFILES.berlinerEnsemble;
+  const towerFrame: LocalFrame = profile.towerFrame;
+  const signFrame: LocalFrame = profile.signFrame;
+  const plan = newPlan();
+  const baseY =
+    profile.blockLoD.roofStageBaseY - towerFrame.anchorWorld[1];
+
+  // The measured LoD2 voxel body ends at this source-bound roof stage. Only
+  // the characteristic truncated tower cap and sign rise above it here, so
+  // no smooth theatre shell, TorusGeometry or textured lettering survives in
+  // Minecraft mode.
+  for (let course = 0; course < 3; course += 1) {
+    pushLocalBlock(
+      plan,
+      towerFrame,
+      "Berliner Ensemble taupe roof tower",
+      [0, baseY + 0.7 + course * 1.4, 0],
+      [profile.blockLoD.towerWidthM, 1.34, profile.blockLoD.towerDepthM],
+      course % 2 === 0 ? BLOCK.limestone : BLOCK.quartzIvory,
+    );
+  }
+  for (const localX of [-2.7, 0, 2.7]) {
+    pushLocalBlock(
+      plan,
+      towerFrame,
+      "Berliner Ensemble tower opening",
+      [localX, baseY + 2.25, profile.blockLoD.towerDepthM / 2 - 0.25],
+      [1.05, 2.25, 0.46],
+      BLOCK.deepRecess,
+    );
+  }
+
+  const roofCourses = [
+    [profile.blockLoD.towerWidthM, profile.blockLoD.towerDepthM, 0.76],
+    [profile.blockLoD.towerWidthM * 0.8, profile.blockLoD.towerDepthM * 0.8, 0.76],
+    [profile.blockLoD.towerWidthM * 0.6, profile.blockLoD.towerDepthM * 0.6, 0.76],
+    [profile.blockLoD.towerWidthM * 0.4, profile.blockLoD.towerDepthM * 0.4, 0.76],
+  ] as const;
+  for (const [index, [width, depth, height]] of roofCourses.entries()) {
+    pushLocalBlock(
+      plan,
+      towerFrame,
+      "Berliner Ensemble stepped hipped roof",
+      [0, baseY + 4.2 + height / 2 + index * height, 0],
+      [width, height, depth],
+      index % 2 === 0 ? BLOCK.oxidisedCopper : BLOCK.iron,
+    );
+  }
+
+  const centreY =
+    profile.blockLoD.signCentreY - signFrame.anchorWorld[1];
+  const radius = profile.blockLoD.signDiameterM / 2;
+  const roofTop = profile.blockLoD.roofStageTopY - signFrame.anchorWorld[1];
+  const supportHeight = Math.max(1, centreY - radius - roofTop + 0.55);
+  for (const localX of [-2.55, 2.55]) {
+    pushLocalBlock(
+      plan,
+      signFrame,
+      "Berliner Ensemble roof-sign support",
+      [localX, roofTop + supportHeight / 2, 0],
+      [0.7, supportHeight, 0.7],
+      BLOCK.iron,
+    );
+  }
+  for (let segment = 0; segment < 24; segment += 1) {
+    const angle = (segment / 24) * Math.PI * 2;
+    pushLocalBlock(
+      plan,
+      signFrame,
+      "Berliner Ensemble open circular sign",
+      [Math.cos(angle) * radius, centreY + Math.sin(angle) * radius, 0],
+      [0.68, 0.68, 0.68],
+      BLOCK.red,
+    );
+  }
+  for (const [line, localY] of [
+    ["upper", centreY + 0.72],
+    ["lower", centreY - 0.72],
+  ] as const) {
+    for (const localX of [-2.35, -1.55, -0.75, 0.05, 0.85, 1.65, 2.45]) {
+      pushLocalBlock(
+        plan,
+        signFrame,
+        `Berliner Ensemble ${line} lettering cue`,
+        [localX, localY, 0.18],
+        [0.52, 0.58, 0.5],
+        BLOCK.quartzIvory,
+      );
+    }
+  }
+
+  const mesh = finishPlan(
+    "Minecraft Berliner Ensemble block signature",
+    "berliner-ensemble",
+    plan,
+    profile,
+    resources,
+  );
+  mesh.userData.sourceBoundBlocks = plan.blocks.map(
+    ({ cue, position, rotationY, size }) => ({
+      cue,
+      position,
+      rotationY,
+      size,
+    }),
+  );
+  mesh.userData.sourceBoundTowerRoofBlocks = plan.blocks
+    .filter(
+      ({ cue }) =>
+        cue === "Berliner Ensemble taupe roof tower" ||
+        cue === "Berliner Ensemble tower opening" ||
+        cue === "Berliner Ensemble stepped hipped roof",
+    )
+    .map(({ cue, position, rotationY, size }) => ({
+      cue,
+      position,
+      rotationY,
+      size,
+    }));
+  return mesh;
+}
+
 /**
- * Five lazy, opaque, block-native signature batches. They replace hundreds of
+ * Six lazy, opaque, block-native signature batches. They replace hundreds of
  * smooth hero meshes. The official 4 m LoD2 mass remains the measured body
  * except where a deliberately open signature owns the source cells itself:
  * Reichstag portico, Chancellery leadership cube, Hauptbahnhof and Gate.
@@ -2095,7 +2263,7 @@ export function createMinecraftArchitecturalLandmarks(): Group {
   group.name = "Minecraft block-native architectural landmarks";
   group.userData = {
     blockNative: true,
-    drawCallBudget: 5,
+    drawCallBudget: 6,
     noAdditionalPayload: true,
     sourceStack: "versioned architectural signatures + LoD2 voxel mass + OSM",
     staticAntiFlicker: true,
@@ -2117,6 +2285,7 @@ export function createMinecraftArchitecturalLandmarks(): Group {
     createHauptbahnhofBlocks(resources),
     createBrandenburgGateBlocks(resources),
     createParliamentaryBandBlocks(resources),
+    createBerlinerEnsembleBlocks(resources),
   );
   return group;
 }
@@ -2147,6 +2316,36 @@ function pointInRing(point: Point2, ring: readonly Point2[]): boolean {
     }
   }
   return inside;
+}
+
+/** Exact SAT overlap between one axis-aligned voxel cell and a source frame. */
+function voxelCellIntersectsLocalRectangle(
+  frame: LocalFrame,
+  x: number,
+  z: number,
+  cellSizeM: number,
+  widthM: number,
+  depthM: number,
+): boolean {
+  const [localX, localZ] = worldToLocal(frame, x, z);
+  const radians = (frame.rotationDegrees * Math.PI) / 180;
+  const absoluteCosine = Math.abs(Math.cos(radians));
+  const absoluteSine = Math.abs(Math.sin(radians));
+  const cellHalf = cellSizeM / 2;
+  const widthHalf = widthM / 2;
+  const depthHalf = depthM / 2;
+  const worldDx = Math.abs(x - frame.anchorWorld[0]);
+  const worldDz = Math.abs(z - frame.anchorWorld[2]);
+  return (
+    worldDx <=
+      cellHalf + widthHalf * absoluteCosine + depthHalf * absoluteSine &&
+    worldDz <=
+      cellHalf + widthHalf * absoluteSine + depthHalf * absoluteCosine &&
+    Math.abs(localX) <=
+      widthHalf + cellHalf * (absoluteCosine + absoluteSine) &&
+    Math.abs(localZ) <=
+      depthHalf + cellHalf * (absoluteCosine + absoluteSine)
+  );
 }
 
 export type MinecraftArchitecturalReplacement =
@@ -2286,12 +2485,15 @@ export function minecraftArchitecturalReplacementAt(
  * Preserve the measured voxel body while lowering only coarse roof cells
  * that would otherwise swallow authored block architecture. This is a top
  * clip, never a broad footprint deletion: the Reichstag remains solid below
- * its dome and four tower crowns, and the MELH body remains below its canopy.
+ * its dome and four tower crowns, the MELH body remains below its canopy, and
+ * only voxel cells intersecting the Berliner Ensemble cap frame yield to its
+ * source-bound roof tower.
  */
 export function minecraftArchitecturalVoxelTopAt(
   x: number,
   z: number,
   sourceTopY: number,
+  voxelCellSizeM = 4,
 ): number {
   let topY = sourceTopY;
   const reichstag = MINECRAFT_ARCHITECTURAL_PROFILES.reichstag;
@@ -2334,6 +2536,20 @@ export function minecraftArchitecturalVoxelTopAt(
     z <= paul.canopy.centreZ + paul.canopy.spanZ / 2 + 2.9
   ) {
     topY = Math.min(topY, paul.canopy.topY - 0.5);
+  }
+
+  const ensemble = MINECRAFT_ARCHITECTURAL_PROFILES.berlinerEnsemble;
+  if (
+    voxelCellIntersectsLocalRectangle(
+      ensemble.towerFrame,
+      x,
+      z,
+      voxelCellSizeM,
+      ensemble.blockLoD.towerWidthM,
+      ensemble.blockLoD.towerDepthM,
+    )
+  ) {
+    topY = Math.min(topY, ensemble.blockLoD.roofStageBaseY);
   }
   return topY;
 }

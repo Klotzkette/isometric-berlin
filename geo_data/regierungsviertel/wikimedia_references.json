@@ -2691,6 +2691,69 @@
         "#54422d"
       ],
       "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "berliner_ensemble",
+      "title": "File:Berliner Ensemble building (Theater am Schiffbauerdamm).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerliner_Ensemble_building_%28Theater_am_Schiffbauerdamm%29.jpg",
+      "thumbnail_path": "berliner_ensemble_01_file-berliner-ensemble-building-theater-am-schiffbauerdamm-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Berliner_Ensemble_building_%28Theater_am_Schiffbauerdamm%29.jpg/960px-Berliner_Ensemble_building_%28Theater_am_Schiffbauerdamm%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Yair Haklai",
+      "credit": "Own work",
+      "description": "Berliner Ensemble building (Theater am Schiffbauerdamm) established by actress Helene Weigel and her husband playwright Bertolt Brecht",
+      "dominant_colours": [
+        "#d1c9c0",
+        "#94beeb",
+        "#8eafd4",
+        "#988d7c",
+        "#6e7471",
+        "#4a4a3d"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "berliner_ensemble",
+      "title": "File:Mitte Bertolt-Brecht-Platz Theater am Schiffbauerdamm.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AMitte_Bertolt-Brecht-Platz_Theater_am_Schiffbauerdamm.JPG",
+      "thumbnail_path": "berliner_ensemble_02_file-mitte-bertolt-brecht-platz-theater-am-schiffbauerdamm-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Mitte_Bertolt-Brecht-Platz_Theater_am_Schiffbauerdamm.JPG/960px-Mitte_Bertolt-Brecht-Platz_Theater_am_Schiffbauerdamm.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Fridolin freudenfett",
+      "credit": "Own work",
+      "description": "Berlin-Mitte Bertolt-Brecht-Platz Theater am Schiffbauerdamm",
+      "dominant_colours": [
+        "#fefefe",
+        "#ecfbfe",
+        "#b6c1c6",
+        "#6f767a",
+        "#5e6063",
+        "#383535"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "berliner_ensemble",
+      "title": "File:Theater am Schiffbauerdamm 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ATheater_am_Schiffbauerdamm_01.jpg",
+      "thumbnail_path": "berliner_ensemble_03_file-theater-am-schiffbauerdamm-01-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Theater_am_Schiffbauerdamm_01.jpg/960px-Theater_am_Schiffbauerdamm_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "artist": "Derbrauni",
+      "credit": "Own work",
+      "description": "Theater am Schiffbauerdamm",
+      "dominant_colours": [
+        "#d8e6f6",
+        "#c7d7ec",
+        "#999fa5",
+        "#71685e",
+        "#5a5753",
+        "#3e3332"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

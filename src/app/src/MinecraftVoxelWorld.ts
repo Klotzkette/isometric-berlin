@@ -2049,12 +2049,15 @@ export function createMinecraftVoxelWorld(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
         sourceTopY,
+        cell,
       );
+      const clippedTopDm =
+        clippedTopY < sourceTopY - 1e-6 ? clippedTopY * 10 : y1dm;
       return [
         xIdx,
         zIdx,
         y0dm,
-        Math.max(y0dm, Math.floor(clippedTopY * 10)),
+        Math.max(y0dm, clippedTopDm),
         classId,
       ];
     })

@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.72.3
+
+- **The Berliner Ensemble now follows its real Schiffbauerdamm massing and
+  public front.** All four official Berlin LoD2 parts of parent
+  `DEBE01YYK00004vY` remain visible and collision-authoritative. Thin
+  wall-bound detail follows the stepped show-facade and corner entrance with
+  the current stripped warm-grey plaster, arched opening rhythm, granite
+  columns, truncated roof cap and smaller open two-line roof sign; it does not
+  restore the stucco and sculpture removed in 1953–54 or replace the measured
+  shells. The landmark focus now faces the theatre from Bertolt-Brecht-Platz.
+  The Brecht and Helene Weigel works retain their separate OSM-owned public-art
+  models instead of receiving duplicate generic sculpture markers. A single
+  instanced Minecraft draw call adds a four-part-source-bound block signature:
+  taupe tower, stepped hipped roof, smaller open red ring and restrained
+  two-line lettering cues. Smooth facade, torus and text geometry stay outside
+  the voxel presentation.
+- **An already-open tab can recover when a deployment changes a lazy viewer
+  filename.** A version-scoped `vite:preloadError` handler requests at most one
+  reload so the tab can acquire the current HTML and asset manifest, clears its
+  guard only after the Three.js module loads, and otherwise exposes explicit
+  Reload and 2D-map actions instead of leaving a dead Schwellenraum button or
+  blank 3D surface. GitHub Pages deployments retain hashed lazy assets from the
+  current and at least the previous two live releases; the offline archive
+  remains a clean, current-release-only package.
+
 ## v0.72.2
 
 - **Schwellenraum water now carries a restrained ethereal light of its own.**

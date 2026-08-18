@@ -67,6 +67,7 @@ import {
 } from "react";
 
 import type { ThreeViewerHandle } from "./ThreeViewer";
+import { ThreeViewerErrorBoundary } from "./ThreeViewerErrorBoundary";
 import {
   AmbientSoundscape,
   isAmbientAudioSupported,
@@ -2016,6 +2017,18 @@ export function App() {
     viewerMode,
   ]);
 
+  const useMapAfterThreeViewerFailure = useCallback(() => {
+    disablePedestrianMode();
+    setIsThreeReady(false);
+    setIsThreeUnderside(false);
+    setViewerMode("map");
+    setStatus(copy.threeLoadError);
+  }, [copy.threeLoadError, disablePedestrianMode]);
+
+  const reloadAfterThreeViewerFailure = useCallback(() => {
+    window.location.reload();
+  }, []);
+
   const toggleChrome = useCallback(() => {
     setMobileSheet(null);
     setIsChromeHidden((hidden) => !hidden);
@@ -3020,77 +3033,94 @@ export function App() {
           className={viewerMode === "map" ? "viewer is-active" : "viewer"}
         />
         {viewerMode === "three" || (isThreeReady && keepThreeWarm) ? (
-          <Suspense
-            fallback={
-              <div
-                className={
-                  viewerMode === "three"
-                    ? "three-viewer is-active"
-                    : "three-viewer"
-                }
-                aria-hidden={viewerMode !== "three"}
-              >
-                <div className="three-startup-curtain" aria-hidden="true" />
-                <div className="three-progress" role="status">
-                  <span>{copy.loadingMesh}</span>
-                  <strong>0%</strong>
-                  <div aria-hidden="true">
-                    <span style={{ width: "0%" }} />
+          <ThreeViewerErrorBoundary
+            active={viewerMode === "three"}
+            detail={copy.threeLoadErrorDetail}
+            mapLabel={copy.useMapFallback}
+            message={copy.threeLoadError}
+            reloadLabel={copy.reloadPage}
+            onReload={reloadAfterThreeViewerFailure}
+            onUseMap={useMapAfterThreeViewerFailure}
+          >
+            <Suspense
+              fallback={
+                <div
+                  className={
+                    viewerMode === "three"
+                      ? "three-viewer is-active"
+                      : "three-viewer"
+                  }
+                  aria-hidden={viewerMode !== "three"}
+                >
+                  <div className="three-startup-curtain" aria-hidden="true" />
+                  <div className="three-progress" role="status">
+                    <span>{copy.loadingMesh}</span>
+                    <strong>0%</strong>
+                    <div aria-hidden="true">
+                      <span style={{ width: "0%" }} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            }
-          >
-            <LazyThreeViewer
-              ref={threeViewerRef}
-              active={viewerMode === "three"}
-              canvasAriaLabel={
-                isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
               }
-              lightingMode={lightingMode}
-              nightLightsOn={resolveNightLightsOn(lightingMode, nightLightsOn)}
-              pedestrianMode={isPedestrianMode}
-              precipitationEnabled={precipitationEnabled}
-              progressLabel={copy.loadingMesh}
-              sceneUrl={sceneUrl}
-              selectedLandmark={selected}
-              onReady={() => {
-                setIsThreeReady(true);
-                setStatus(
-                  language === "de"
-                    ? "Isometrische Ansicht bereit"
-                    : "Isometric view ready",
-                );
-              }}
-              onError={(message) => {
-                console.error(`Isometric Berlin 3D: ${message}`);
-                setIsPedestrianMode(false);
-                setIsThreeReady(false);
-                setStatus(
-                  `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
-                );
-                setViewerMode("map");
-              }}
-              onPedestrianRespawn={() => {
-                setStatus(
-                  language === "de"
-                    ? "Wasser betreten · zurück am Pariser Platz"
-                    : "Entered water · back at Pariser Platz",
-                );
-              }}
-              onPedestrianSprintToggle={togglePedestrianSprint}
-              onWarning={(message) => {
-                setStatus(
-                  `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
-                );
-              }}
-              onViewChange={({ azimuthDegrees, polarDegrees, underside }) => {
-                setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
-                setThreePolarDegrees(polarDegrees);
-                setIsThreeUnderside(underside);
-              }}
-            />
-          </Suspense>
+            >
+              <LazyThreeViewer
+                ref={threeViewerRef}
+                active={viewerMode === "three"}
+                canvasAriaLabel={
+                  isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
+                }
+                lightingMode={lightingMode}
+                nightLightsOn={resolveNightLightsOn(
+                  lightingMode,
+                  nightLightsOn,
+                )}
+                pedestrianMode={isPedestrianMode}
+                precipitationEnabled={precipitationEnabled}
+                progressLabel={copy.loadingMesh}
+                sceneUrl={sceneUrl}
+                selectedLandmark={selected}
+                onReady={() => {
+                  setIsThreeReady(true);
+                  setStatus(
+                    language === "de"
+                      ? "Isometrische Ansicht bereit"
+                      : "Isometric view ready",
+                  );
+                }}
+                onError={(message) => {
+                  console.error(`Isometric Berlin 3D: ${message}`);
+                  setIsPedestrianMode(false);
+                  setIsThreeReady(false);
+                  setStatus(
+                    `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
+                  );
+                  setViewerMode("map");
+                }}
+                onPedestrianRespawn={() => {
+                  setStatus(
+                    language === "de"
+                      ? "Wasser betreten · zurück am Pariser Platz"
+                      : "Entered water · back at Pariser Platz",
+                  );
+                }}
+                onPedestrianSprintToggle={togglePedestrianSprint}
+                onWarning={(message) => {
+                  setStatus(
+                    `${language === "de" ? "3D-Hinweis" : "3D notice"}: ${message}`,
+                  );
+                }}
+                onViewChange={({
+                  azimuthDegrees,
+                  polarDegrees,
+                  underside,
+                }) => {
+                  setRotation(mapRotationForThreeAzimuth(azimuthDegrees));
+                  setThreePolarDegrees(polarDegrees);
+                  setIsThreeUnderside(underside);
+                }}
+              />
+            </Suspense>
+          </ThreeViewerErrorBoundary>
         ) : null}
         {rainEnabled && viewerMode === "map" && lightingMode !== "snowstorm" ? (
           <div

@@ -158,14 +158,14 @@ describe("authored small-water Schwellenraum surface batches", () => {
     expect(isSchwellenraumWaterSurface(water)).toBeTrue();
     expect(water.geometry.getAttribute("position").count).toBe(488);
     expect(water.geometry.index?.count).toBe(960);
-    expect(main.geometry.getAttribute("position").count).toBe(100_290);
-    expect(main.geometry.index?.count).toBe(159_792);
+    expect(main.geometry.getAttribute("position").count).toBe(95_222);
+    expect(main.geometry.index?.count).toBe(154_524);
     expect(
       main.geometry.getAttribute("position").count +
         water.geometry.getAttribute("position").count,
-    ).toBe(100_778);
+    ).toBe(95_710);
     expect((main.geometry.index?.count ?? 0) + (water.geometry.index?.count ?? 0)).toBe(
-      160_752,
+      155_484,
     );
     expect(countColourVertices(root, 0x77b7c8)).toBe(488);
     expect(water.parent?.children).toHaveLength(1);

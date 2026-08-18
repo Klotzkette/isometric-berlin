@@ -40,6 +40,7 @@ const DE = {
   link: "Link",
   loadingMap: "Lade hochauflösende Detailkarte",
   loadingMesh: "Lade amtliches 3D-Mesh",
+  reloadPage: "Seite neu laden",
   map: "Detailkarte",
   minecraft: "Minecraft",
   mode: "Modus",
@@ -120,6 +121,9 @@ const DE = {
   switchToMap: "Zur hochauflösenden Kartenansicht wechseln",
   switchToThreeD: "Zur freien amtlichen 3D-Ansicht wechseln",
   threeD: "Freie 3D-Ansicht",
+  threeLoadError: "Die 3D-Ansicht konnte nicht geladen werden.",
+  threeLoadErrorDetail:
+    "Die Seite war möglicherweise während einer Aktualisierung geöffnet.",
   tiltDown: "Kamera tiefer bis zur Untersicht neigen",
   tiltUp: "Kamera höher neigen",
   tour: "Tour",
@@ -128,6 +132,7 @@ const DE = {
   viewTransform: "Ansicht drehen und umklappen",
   visualModes:
     "Darstellung: Tag, Nacht, Minecraft, Schneesturm oder Schwellenraum",
+  useMapFallback: "2D-Karte öffnen",
   westUp: "West oben",
   zoomIn: "Vergrößern",
   zoomOut: "Verkleinern",
@@ -173,6 +178,7 @@ const EN: Record<CopyKey, string> = {
   link: "Link",
   loadingMap: "Loading high-resolution detail map",
   loadingMesh: "Loading official 3D mesh",
+  reloadPage: "Reload page",
   map: "Detail map",
   minecraft: "Minecraft",
   mode: "Mode",
@@ -253,6 +259,9 @@ const EN: Record<CopyKey, string> = {
   switchToMap: "Switch to the high-resolution detail map",
   switchToThreeD: "Switch to the free official 3D view",
   threeD: "Free 3D view",
+  threeLoadError: "The 3D view could not be loaded.",
+  threeLoadErrorDetail:
+    "The page may have remained open while the site was updated.",
   tiltDown: "Tilt camera down into the underside view",
   tiltUp: "Tilt camera up",
   tour: "Tour",
@@ -261,6 +270,7 @@ const EN: Record<CopyKey, string> = {
   viewTransform: "Rotate and flip view",
   visualModes:
     "Appearance: day, night, Minecraft, snowstorm, or Schwellenraum",
+  useMapFallback: "Open 2D map",
   westUp: "West up",
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",

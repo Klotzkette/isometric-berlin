@@ -25,7 +25,10 @@ import {
 } from "../src/MinecraftVoxelWorld";
 import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
 import { isChancelleryExtensionConstructionPoint } from "../src/chancelleryExtensionProfile";
-import { minecraftArchitecturalReplacementAt } from "../src/MinecraftArchitecturalLandmarks";
+import {
+  MINECRAFT_ARCHITECTURAL_PROFILES,
+  minecraftArchitecturalReplacementAt,
+} from "../src/MinecraftArchitecturalLandmarks";
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
@@ -52,7 +55,7 @@ function instanced(
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
 
-  test("ships the civic hero buildings as five block-native batches", () => {
+  test("ships the civic hero buildings as six block-native batches", () => {
     const landmarks = world.getObjectByName(
       "Minecraft block-native architectural landmarks",
     );
@@ -63,11 +66,12 @@ describe("true voxel Minecraft world", () => {
       "Minecraft Berlin Hauptbahnhof block signature",
       "Minecraft Brandenburg Gate block signature",
       "Minecraft parliamentary band block signature",
+      "Minecraft Berliner Ensemble block signature",
     ]);
     expect(landmarks?.children.every((child) => child instanceof InstancedMesh)).toBe(
       true,
     );
-    expect(landmarks?.userData.drawCallBudget).toBe(5);
+    expect(landmarks?.userData.drawCallBudget).toBe(6);
   });
 
   test("uses only palette-native plinth and cap blocks", () => {
@@ -534,6 +538,47 @@ describe("true voxel Minecraft world", () => {
       }
     }
     expect(tallReichstagColumns).toBeGreaterThan(300);
+  });
+
+  test("clips only the coarse Berliner Ensemble roof cell and retains its body", () => {
+    const buildings = instanced("Voxel building columns", world);
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    const scale = new Vector3();
+    const spansAt = (x: number, z: number): Array<[number, number]> => {
+      const spans: Array<[number, number]> = [];
+      for (let index = 0; index < buildings.count; index += 1) {
+        buildings.getMatrixAt(index, matrix);
+        position.setFromMatrixPosition(matrix);
+        if (
+          Math.abs(position.x - x) > 1e-5 ||
+          Math.abs(position.z - z) > 1e-5
+        ) {
+          continue;
+        }
+        scale.setFromMatrixScale(matrix);
+        spans.push([
+          position.y - scale.y / 2,
+          position.y + scale.y / 2,
+        ]);
+      }
+      return spans.sort(([a], [b]) => a - b);
+    };
+
+    const clipped = spansAt(1006, -326);
+    expect(clipped).toHaveLength(3);
+    expect(clipped[0][0]).toBeCloseTo(4.2, 6);
+    expect(Math.max(...clipped.map(([, top]) => top))).toBeCloseTo(
+      MINECRAFT_ARCHITECTURAL_PROFILES.berlinerEnsemble.blockLoD
+        .roofStageBaseY,
+      5,
+    );
+    for (let index = 1; index < clipped.length; index += 1) {
+      expect(clipped[index][0]).toBeLessThanOrEqual(clipped[index - 1][1] + 1e-6);
+    }
+
+    const outside = spansAt(998, -334);
+    expect(Math.max(...outside.map(([, top]) => top))).toBeCloseTo(28.1, 6);
   });
 
   test("keeps every column inside the payload grid in world metres", () => {

@@ -202,7 +202,13 @@ The first HTML response contains a small attributed startup plate. React then
 loads the requested Three.js viewer as a separate chunk, while OpenSeadragon
 stays entirely dormant until the visitor chooses the 2D map. A
 production-build guard caps the synchronous JavaScript graph at 400 KiB
-uncompressed. Once the
+uncompressed. Since v0.72.3, a version-scoped preload listener is registered
+before React can request that lazy chunk. If an already-open tab references a
+hashed viewer file removed by a newer deployment, it requests exactly one
+reload to obtain the current HTML manifest. The guard clears only after the
+Three.js module loads successfully. A repeated module or render failure reaches
+a visible error boundary with explicit Reload and 2D-map actions instead of
+leaving a blank surface or an apparently inactive 3D mode button. Once the
 3D runtime exists, the small scene manifest starts first and the immutable
 payloads for the requested world transfer in parallel with manifest-driven
 recognition-detail construction. Procedural audio graph preparation and its
@@ -228,9 +234,10 @@ and asphalt triangles are processed in bounded Worker partitions and merged
 back to the historical single material meshes before transfer. Thus the final
 asphalt buffer hash, vertex count and steady surface draw calls match the
 one-shot path. Regenerate the plate after any `surface-polygons.json` change
-with `bun run build:surface-plates` from `src/app`. On the v0.72.2 production
-payload, the reproducible Bun benchmark records a 0.76 s preview build and a
-1.9 ms maximum main-thread batch attachment, versus a 17.08 s synchronous
+with `bun run build:surface-plates` from `src/app`. On the v0.72.2 benchmark
+payload retained for v0.72.3, the reproducible Bun benchmark records a 0.76 s
+preview build and a 1.9 ms maximum main-thread batch attachment, versus a
+17.08 s synchronous
 one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
 5.44 GiB to 3.55 GiB, while steady geometry remains 576.5 MiB and the complete
 scene uses 188 estimated draw calls versus 150 in the monolithic reference.
@@ -390,6 +397,22 @@ shore instead of a duplicated vertical quay. Hugo-Preuß-Brücke follows OSM way
 `26109166`, while the two Sandkrugbrücke carriageways preserve ways `36260393`
 and `248010193`. Minecraft carries the same harbour, vessel and railing
 identities as one compact block-native instance layer.
+
+The Berliner Ensemble retains the complete four-part Berlin LoD2 parent
+`DEBE01YYK00004vY`; the measured shells remain visible and authoritative. Its
+dedicated drawn layer is limited to thin overlays on the exact exposed wall
+runs: current stripped warm-grey plaster, lower and upper arched opening
+rhythms, the shallow corner entrance with polished-granite columns, the
+truncated dark roof cap and the smaller open two-line sign. It neither adds a
+replacement envelope nor reconstructs the exterior ornament removed in
+1953–54. The focus preset now faces the public elevation from
+Bertolt-Brecht-Platz. Dedicated public-art geometry owns OSM nodes
+`988668382` (Bertolt Brecht) and `13841652635` (Helene Weigel), so the generic
+monument layer cannot duplicate either work. Minecraft adds a single instanced
+draw-call signature bound to the same four LoD2 parts: a block-native taupe
+tower, stepped hipped roof, smaller open red ring and restrained two-line
+lettering cues. The smooth facade, torus and texture-backed text remain outside
+that mode.
 
 The task-10 recognition layer covers the expanded edges without pretending to
 be survey geometry: Hamburger Bahnhof/Rieckhallen and the historic

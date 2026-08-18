@@ -1,5 +1,8 @@
 import type OpenSeadragon from "openseadragon";
 
+import { clearPreloadRecoveryGuard } from "./preloadRecovery";
+import { PROJECT_VERSION } from "./projectMetadata";
+
 export type OpenSeadragonEngine = typeof OpenSeadragon;
 export type LazyThreeViewerModule = {
   default: typeof import("./ThreeViewer").ThreeViewer;
@@ -28,5 +31,6 @@ export async function loadThreeViewerComponent(): Promise<
   LazyThreeViewerModule
 > {
   const module = await import("./ThreeViewer");
+  clearPreloadRecoveryGuard(PROJECT_VERSION);
   return { default: module.ThreeViewer };
 }

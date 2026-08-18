@@ -1130,7 +1130,7 @@
         "name": "Berliner Ensemble",
         "role": "owner_added",
         "tour_order": 81,
-        "source": "OpenStreetMap building geometry and Berliner Ensemble official venue history"
+        "source": "OpenStreetMap theatre site/POI way 422928025; protected building geometry way 43017010 (ref:lda=09011192); Berliner Ensemble official venue history"
       },
       "geometry": { "type": "Point", "coordinates": [13.38555, 52.52215] }
     },

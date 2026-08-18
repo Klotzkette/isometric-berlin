@@ -25,6 +25,10 @@ import {
   BERLIN_PAVILLON_PROFILE,
   createBerlinPavillon,
 } from "./BerlinPavillon";
+import {
+  BERLINER_ENSEMBLE_FOCUS_AZIMUTH_DEGREES,
+  BERLINER_ENSEMBLE_PROFILE,
+} from "./BerlinerEnsemble";
 import { createLetteringTexture } from "./drawnLettering";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
@@ -36,6 +40,8 @@ import {
   finishDrawnGroup,
   paintGeometry,
 } from "./drawnKit";
+
+export { BERLINER_ENSEMBLE_PROFILE } from "./BerlinerEnsemble";
 
 export type CentralCivicLandmark = {
   name: string;
@@ -56,10 +62,10 @@ const FOCUS: Record<string, Omit<FocusCamera, "target_world">> = {
     target_height_m: 14,
   },
   "Berliner Ensemble": {
-    azimuth_degrees: 24,
-    distance_m: 146,
-    polar_degrees: 58,
-    target_height_m: 17,
+    azimuth_degrees: BERLINER_ENSEMBLE_FOCUS_AZIMUTH_DEGREES,
+    distance_m: 128,
+    polar_degrees: 62,
+    target_height_m: 10.5,
   },
   "Bundesministerium der Finanzen / Detlev-Rohwedder-Haus": {
     azimuth_degrees: -68,
@@ -124,7 +130,7 @@ export function centralCivicFocusCamera(
   if (!preset) return null;
   const targetWorld: [number, number, number] =
     landmark.name === "Berliner Ensemble"
-      ? [landmark.world[0] + 24, landmark.world[1], landmark.world[2] + 13]
+      ? [...BERLINER_ENSEMBLE_PROFILE.focus.targetWorldM]
       : landmark.name === "Bahnhof Berlin Friedrichstraße"
         ? [landmark.world[0] + 2.4, landmark.world[1], landmark.world[2] - 12.2]
         : landmark.name === "Reichstagsvorfeld / Berlin-Pavillon"
@@ -387,26 +393,6 @@ export const PARISER_PLATZ_PHOTO_DETAIL_PROFILE = {
   sourceViewCount: 6,
   temporaryBarrierCount: 0,
   treeGrateCount: 16,
-} as const;
-
-/**
- * Surveyed/public-art anchors around the Berliner Ensemble. The two works do
- * not share a site: Brecht sits on the public square, while the 2026 Helene
- * Weigel work stands in the theatre courtyard.
- */
-export const BERLINER_ENSEMBLE_PROFILE = {
-  brechtMonumentWorld: [1027.048, -349.126],
-  brechtTurntableDiameterM: 6,
-  heleneWeigelCourtyardWorld: [968.142, -355.096],
-  roofSignLocalX: -15.5,
-  roofSignCentreHeightM: 47.5,
-  roofSignAnimated: false,
-  sources: [
-    "https://www.berliner-ensemble.de/en/node/67?language_content_entity=de",
-    "https://www.berliner-ensemble.de/magazin/berlin-leuchtet",
-    "https://bildhauerei-in-berlin.de/bildwerk/bertolt-brecht-denkmal-5412/",
-    "https://www.berliner-ensemble.de/eine-skulptur-fuer-helene-weigel",
-  ],
 } as const;
 
 /** Berlin LoD2 building DEBE00YY20g0005J, in project-world metres. */
@@ -3063,136 +3049,6 @@ function addEconomicsMinistry(builder: Builder): void {
   }
 }
 
-function addBerlinerEnsemble(
-  builder: Builder,
-  byName: Map<string, CentralCivicLandmark>,
-): void {
-  const source = anchor(byName, "Berliner Ensemble");
-  if (!source) return;
-  const point = source.clone().add(new Vector3(24, 0, 13));
-  point.y = 4.05;
-  const rotation = -0.12;
-  const stucco = 0xdfcba0;
-  const stuccoLight = 0xeee0bd;
-  // LoD2 keeps the complete theatre mass. This layer adds only the
-  // Schiffbauerdamm facade and its sign-bearing roof tower. The latter is
-  // deliberately offset to the western bay, as the official facade view
-  // shows; placing the sign over the centre made it float over the eaves.
-  localBox(builder, stucco, point, 0, 19.2, 21.75, 48, 1.0, 0.62, rotation);
-  localBox(builder, stuccoLight, point, 0, 2.2, 21.75, 46, 4.2, 0.6, rotation);
-  localBox(builder, stucco, point, 0, 8.1, 21.64, 46.2, 0.42, 0.78, rotation);
-  localBox(builder, stucco, point, 0, 15.6, 21.64, 46.2, 0.5, 0.78, rotation);
-  for (const x of [-17, -11.3, -5.6, 0, 5.6, 11.3, 17]) {
-    localBox(
-      builder,
-      stucco,
-      point,
-      x,
-      10.1,
-      21.75,
-      0.72,
-      16.8,
-      0.65,
-      rotation,
-    );
-  }
-  for (const x of [-18, -12, -6, 0, 6, 12, 18]) {
-    addLocalArchedOpening(
-      builder,
-      DARK_GLASS,
-      point,
-      x,
-      2.25,
-      22.04,
-      3.05,
-      5.25,
-      0.28,
-      rotation,
-    );
-  }
-  for (const x of [-10.5, 0, 10.5]) {
-    addLocalArchedOpening(
-      builder,
-      0x30484b,
-      point,
-      x,
-      9.15,
-      22.04,
-      3.35,
-      8.4,
-      0.28,
-      rotation,
-    );
-  }
-  for (const x of [-18.8, 18.8]) {
-    addLocalArchedOpening(
-      builder,
-      DARK_GLASS,
-      point,
-      x,
-      10.15,
-      22.04,
-      2.2,
-      5.8,
-      0.28,
-      rotation,
-    );
-  }
-  localBox(builder, DARK_BRICK, point, 0, 17.2, 22.2, 22, 1.7, 0.2, rotation);
-
-  const towerX = BERLINER_ENSEMBLE_PROFILE.roofSignLocalX;
-  localBox(
-    builder,
-    stucco,
-    point,
-    towerX,
-    23.3,
-    0.8,
-    14.4,
-    7.6,
-    12.2,
-    rotation,
-  );
-  localBox(
-    builder,
-    stuccoLight,
-    point,
-    towerX,
-    27.5,
-    0.8,
-    15.2,
-    0.8,
-    12.8,
-    rotation,
-  );
-  for (const x of [-3.2, 0, 3.2]) {
-    addLocalArchedOpening(
-      builder,
-      DARK_GLASS,
-      point,
-      towerX + x,
-      21.7,
-      7,
-      1.65,
-      3.4,
-      0.24,
-      rotation,
-    );
-  }
-  addLocalHippedRoof(
-    builder,
-    point,
-    towerX,
-    33.1,
-    0.8,
-    9.6,
-    4.1,
-    10.6,
-    rotation,
-  );
-  localBox(builder, INK, point, towerX, 38.9, 0.8, 8.6, 1.0, 5.2, rotation);
-}
-
 function createBerlinerEnsemblePublicArt(): Group | null {
   const builder = createBuilder();
   const groundY = 4.08;
@@ -4458,81 +4314,6 @@ function createSign(
   return sign;
 }
 
-function createBerlinerEnsembleRoofSign(point: Vector3): Group {
-  const group = new Group();
-  group.name = "Berliner Ensemble circular rooftop sign";
-  group.userData = {
-    geometryStatus: "official-photo-referenced open neon ring and lettering",
-    animated: BERLINER_ENSEMBLE_PROFILE.roofSignAnimated,
-    antiFlickerDecision:
-      "real sign rotates; viewer keeps it static to preserve zero-motion stability",
-    sourceUrl: "https://www.berliner-ensemble.de/magazin/berlin-leuchtet",
-  };
-  const rotationY = -0.12;
-  const signX = BERLINER_ENSEMBLE_PROFILE.roofSignLocalX;
-  const centre = localPoint(point, signX, 0, rotationY);
-  const dayMaterial = new MeshBasicMaterial({
-    color: 0xa72e2e,
-    side: DoubleSide,
-  });
-  const nightMaterial = new MeshStandardMaterial({
-    color: 0xa72e2e,
-    emissive: 0xdb3e31,
-    emissiveIntensity: 0.82,
-    side: DoubleSide,
-  });
-  const ring = new Mesh(new TorusGeometry(6.95, 0.2, 8, 72), dayMaterial);
-  ring.name = "Berliner Ensemble open red neon roof ring";
-  ring.position.set(
-    centre.x,
-    point.y + BERLINER_ENSEMBLE_PROFILE.roofSignCentreHeightM,
-    centre.z,
-  );
-  ring.rotation.y = rotationY;
-  ring.userData.dayMaterial = dayMaterial;
-  ring.userData.nightMaterial = nightMaterial;
-  group.add(ring);
-
-  for (const x of [-4.4, 4.4]) {
-    const supportPoint = localPoint(point, signX + x, 0.2, rotationY);
-    const support = new Mesh(
-      new BoxGeometry(0.28, 5.2, 0.28),
-      new MeshBasicMaterial({ color: 0x555b59 }),
-    );
-    support.name = "Berliner Ensemble roof-sign support";
-    // Meet the black roof-stage at the bottom and overlap the open ring at
-    // the top. A visible air gap made the correctly elevated sign look as if
-    // it floated above the theatre.
-    support.position.set(supportPoint.x, point.y + 42, supportPoint.z);
-    group.add(support);
-  }
-  group.add(
-    createSign(
-      "BERLINER",
-      11.4,
-      2.1,
-      point,
-      [signX, BERLINER_ENSEMBLE_PROFILE.roofSignCentreHeightM + 1.7, 0.08],
-      rotationY,
-      "rgba(0,0,0,0)",
-      "#fff5df",
-      true,
-    ),
-    createSign(
-      "ENSEMBLE",
-      11.4,
-      2.1,
-      point,
-      [signX, BERLINER_ENSEMBLE_PROFILE.roofSignCentreHeightM - 1.7, 0.08],
-      rotationY,
-      "rgba(0,0,0,0)",
-      "#fff5df",
-      true,
-    ),
-  );
-  return group;
-}
-
 function addSigns(
   group: Group,
   byName: Map<string, CentralCivicLandmark>,
@@ -4551,24 +4332,6 @@ function addSigns(
         "#377553",
       ),
     );
-  }
-  const ensemble = anchor(byName, "Berliner Ensemble");
-  if (ensemble) {
-    const point = ensemble.clone().add(new Vector3(24, 0, 13));
-    point.y = 4.05;
-    group.add(
-      createSign(
-        "BERLINER ENSEMBLE",
-        20,
-        1.55,
-        point,
-        [0, 18.3, 22.35],
-        -0.12,
-        "#75463c",
-        "#f6e9ca",
-      ),
-    );
-    group.add(createBerlinerEnsembleRoofSign(point));
   }
   const s15 = anchor(byName, "S15-Station Berlin Hauptbahnhof");
   if (s15) {
@@ -4714,7 +4477,6 @@ export function createCentralCivicDetails(
   addPariserPlatzEmbassies(builder);
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
-  addBerlinerEnsemble(builder, byName);
   addFriedrichstrasseStation(builder, byName);
   addTearPalace(builder);
   addFinanceMinistry(builder, byName);

@@ -15,6 +15,23 @@ ROOT = Path(__file__).resolve().parents[1]
 DADEROT_REICHSTAG_WEST_TITLE = (
   "File:Reichstag (building) architecture from west - Berlin, Germany - DSC09654.JPG"
 )
+BERLINER_ENSEMBLE_REFERENCES = {
+  "File:Berliner Ensemble building (Theater am Schiffbauerdamm).jpg": (
+    "Yair Haklai",
+    "CC BY-SA 4.0",
+    "https://creativecommons.org/licenses/by-sa/4.0",
+  ),
+  "File:Mitte Bertolt-Brecht-Platz Theater am Schiffbauerdamm.JPG": (
+    "Fridolin freudenfett",
+    "CC BY-SA 4.0",
+    "https://creativecommons.org/licenses/by-sa/4.0",
+  ),
+  "File:Theater am Schiffbauerdamm 01.jpg": (
+    "Derbrauni",
+    "CC BY 4.0",
+    "https://creativecommons.org/licenses/by/4.0",
+  ),
+}
 
 
 class FakeResponse:
@@ -357,6 +374,51 @@ def test_daderot_reichstag_west_reference_is_pinned_and_publicly_packaged() -> N
   assert "Reichstag (building) architecture from west" in readme
   assert "Daderot" in readme
   assert "[CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en)" in readme
+
+
+def test_berliner_ensemble_references_are_pinned_and_publicly_packaged() -> None:
+  assert {
+    title: fw.PINNED_FILE_REFERENCES[title] for title in BERLINER_ENSEMBLE_REFERENCES
+  } == {title: "berliner_ensemble" for title in BERLINER_ENSEMBLE_REFERENCES}
+  manifest = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+  public = json.loads(
+    (
+      ROOT / "src/app/public/dzi/regierungsviertel/wikimedia_attribution.json"
+    ).read_text(encoding="utf-8")
+  )
+  records = {
+    record["title"]: record
+    for record in manifest["records"]
+    if record.get("landmark_id") == "berliner_ensemble"
+  }
+  public_records = {
+    record["title"]: record
+    for record in public["records"]
+    if record.get("landmark_id") == "berliner_ensemble"
+  }
+  assert set(records) == set(BERLINER_ENSEMBLE_REFERENCES)
+  assert set(public_records) == set(BERLINER_ENSEMBLE_REFERENCES)
+  for title, (
+    artist,
+    license_name,
+    license_url,
+  ) in BERLINER_ENSEMBLE_REFERENCES.items():
+    record = records[title]
+    assert record["artist"] == artist
+    assert record["license"] == license_name
+    assert record["license_url"] == license_url
+    assert (ROOT / "references/wikimedia" / record["thumbnail_path"]).is_file()
+    assert public_records[title]["artist"] == artist
+    assert public_records[title]["license"] == license_name
+    assert public_records[title]["license_url"] == license_url
+
+  readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
+  assert all(title.removeprefix("File:") in readme for title in records)
+  assert all(artist in readme for artist, _, _ in BERLINER_ENSEMBLE_REFERENCES.values())
 
 
 def test_dominant_colours_returns_hex_palette(tmp_path: Path) -> None:
