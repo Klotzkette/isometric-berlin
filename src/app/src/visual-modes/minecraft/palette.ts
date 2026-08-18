@@ -34,6 +34,31 @@ export const MINECRAFT_BUILDING_PALETTE = [
   0xce8065, 0xc09a68, 0xd2b17a,
 ] as const;
 
+/**
+ * Semantic aliases for the block-native landmark layer.
+ *
+ * These are deliberately aliases of the fixed 32-colour world palette, not
+ * extra colours.  A recognisable civic building may therefore use quartz,
+ * marble, lapis or a metal accent without bypassing the same coarse colour
+ * language as the rest of the Minecraft world.
+ */
+export const MINECRAFT_ARCHITECTURAL_BLOCKS = {
+  bronze: 0xc18a4b,
+  deepRecess: 0x40515c,
+  gold: 0xe6bd4c,
+  iceGlass: 0xa4dfe2,
+  iron: 0x8e9a9e,
+  lapis: 0x2e5aa8,
+  limestone: 0xd4d4b7,
+  marbleLight: 0xf7fbf7,
+  marbleShadow: 0xa4aa91,
+  oxidisedCopper: 0x34443a,
+  quartzIvory: 0xf3efd0,
+  red: 0xb9684f,
+  silver: 0xd6dfe0,
+  tealGlass: 0x72c5d2,
+} as const;
+
 export const MATERIAL_PALETTES = {
   concrete: [0xa4aa91, 0xd4d4b7, 0xf3efd0, 0xd6dfe0],
   domeGlass: [0x8e9a9e, 0xd6dfe0, 0xf7fbf7, 0xa4dfe2],

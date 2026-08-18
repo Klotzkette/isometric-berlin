@@ -1,7 +1,6 @@
 import {
   BoxGeometry,
   BufferGeometry,
-  CapsuleGeometry,
   CatmullRomCurve3,
   ConeGeometry,
   CylinderGeometry,
@@ -26,6 +25,7 @@ import {
 import { markArchitecturalAccentInk } from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import { REAL_SPREE_VESSEL_PROFILES } from "./SpreeVesselProfiles";
 
 export type CulturalLandmark = {
   name: string;
@@ -76,12 +76,13 @@ const CARILLON_MESH_TOWER_WORLD: [number, number] = [-307.06, 118.51];
 // offset photo-geotag anchor).
 const CARILLON_GROUND_Y = 4.51;
 const SPREE_WATER_Y = WATER_TOP_Y;
-// The excursion steamer floats on the Spree, so it rides the water
-// table down into the cut with everything else.
-const BOAT_WORLD: [number, number, number] = [
-  -259.21,
-  Number((SPREE_WATER_Y - 0.061).toFixed(3)),
-  -219.53,
+const SPREEBOGEN_VESSEL_PROFILE = REAL_SPREE_VESSEL_PROFILES.find(
+  (profile) => profile.name === "FMS Spree-Blick III",
+)!;
+const SPREEBOGEN_VESSEL_WORLD: [number, number, number] = [
+  SPREEBOGEN_VESSEL_PROFILE.displayPositionWorldM[0],
+  SPREE_WATER_Y,
+  SPREEBOGEN_VESSEL_PROFILE.displayPositionWorldM[1],
 ];
 const LEGO_GIRAFFE_WORLD: [number, number, number] = [17.884, 4.12, 1023.63];
 const SPREE_CENTERLINE_WORLD: Array<[number, number]> = [
@@ -619,228 +620,6 @@ function createCarillon(anchor: CulturalLandmark): Group {
   return group;
 }
 
-function shipHullGeometry(length: number, width: number, height: number): BufferGeometry {
-  const sections = [
-    { halfWidth: width * 0.46, z: -length / 2 },
-    { halfWidth: width / 2, z: length * 0.27 },
-    { halfWidth: width * 0.08, z: length / 2 },
-  ];
-  const positions: number[] = [];
-  for (const section of sections) {
-    positions.push(
-      -section.halfWidth * 0.72,
-      0,
-      section.z,
-      section.halfWidth * 0.72,
-      0,
-      section.z,
-      -section.halfWidth,
-      height,
-      section.z,
-      section.halfWidth,
-      height,
-      section.z,
-    );
-  }
-  const indices: number[] = [];
-  for (let section = 0; section < sections.length - 1; section += 1) {
-    const start = section * 4;
-    const end = (section + 1) * 4;
-    indices.push(
-      start, start + 1, end + 1, start, end + 1, end,
-      start + 2, end + 3, start + 3, start + 2, end + 2, end + 3,
-      start, end, end + 2, start, end + 2, start + 2,
-      start + 1, start + 3, end + 3, start + 1, end + 3, end + 1,
-    );
-  }
-  indices.push(0, 2, 3, 0, 3, 1, 8, 9, 11, 8, 11, 10);
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
-  return geometry;
-}
-
-function createExcursionSteamer(): Group {
-  const group = new Group();
-  group.name = "Berlin Spree excursion steamer with occupied upper deck";
-  group.position.set(...BOAT_WORLD);
-  group.position.y -= 0.72;
-  group.rotation.y = MathUtils.degToRad(-22);
-  group.userData = {
-    geometryStatus: "Typical Berlin excursion-boat display model",
-    passengerCount: 10,
-    sourceUrl: "https://www.berlin.de/tourismus/dampferfahrten/ausflugsfahrten/",
-  };
-
-  const hull = modelMaterial(0x244f62, { metalness: 0.26, roughness: 0.5 });
-  const white = modelMaterial(0xe8ece8, { roughness: 0.72 });
-  const deck = modelMaterial(0xb98a58, { roughness: 0.88 });
-  const glass = nightEmitter(
-    modelMaterial(0x1f4654, { metalness: 0.26, opacity: 0.72, roughness: 0.22 }),
-    0xffd28c,
-    0.82,
-  );
-  const rail = modelMaterial(0xc5d0cf, { metalness: 0.72, roughness: 0.26 });
-  const chimney = modelMaterial(0x253037, { metalness: 0.46, roughness: 0.4 });
-  const wakeMaterial = modelMaterial(0xf1f3ee, {
-    opacity: 0.4,
-    roughness: 0.9,
-  });
-  wakeMaterial.depthWrite = false;
-
-  const sternWash = addBox(
-    group,
-    "Spree steamer stern wash",
-    [4.5, 0.035, 2.2],
-    [0, 0.72, -16.1],
-    wakeMaterial,
-  );
-  sternWash.renderOrder = 4;
-  for (const side of [-1, 1]) {
-    const wake = addBox(
-      group,
-      "Spree steamer diverging wake",
-      [0.18, 0.04, 9.5],
-      [side * 1.6, 0.73, -19.7],
-      wakeMaterial,
-    );
-    wake.rotation.y = side * 0.14;
-    wake.renderOrder = 4;
-  }
-
-  addMesh(
-    group,
-    "Spree steamer pointed displacement hull",
-    shipHullGeometry(31.6, 5.72, 2.05),
-    hull,
-    [0, 0, 0],
-  );
-  addBox(group, "Spree steamer main deck", [5.55, 0.24, 26], [0, 2.12, -1], deck);
-  addBox(group, "Spree steamer lower saloon", [4.9, 2.35, 20], [0, 3.28, -1.5], white);
-  addBox(group, "Spree steamer open upper deck", [5.2, 0.22, 20.5], [0, 4.58, -1], deck);
-  addBox(group, "Spree steamer wheelhouse", [4.2, 2.2, 4.8], [0, 5.72, 7.2], white);
-
-  const windows: InstanceTransform[] = [];
-  for (const side of [-1, 1]) {
-    for (let index = 0; index < 10; index += 1) {
-      windows.push({
-        position: [side * 2.49, 3.42, -9.1 + index * 1.7],
-      });
-    }
-  }
-  addInstances(
-    group,
-    "Spree steamer saloon windows",
-    new BoxGeometry(0.1, 0.82, 1.18),
-    glass,
-    windows,
-  );
-
-  addMesh(
-    group,
-    "Spree steamer smokestack",
-    new CylinderGeometry(0.34, 0.42, 2.7, 12),
-    chimney,
-    [0, 5.92, -7.2],
-  );
-  const steam = modelMaterial(0xe6eceb, { opacity: 0.48, roughness: 1 });
-  for (let index = 0; index < 3; index += 1) {
-    addMesh(
-      group,
-      `Spree steamer steam puff ${index + 1}`,
-      new SphereGeometry(0.48 + index * 0.18, 10, 7),
-      steam,
-      [index * 0.25, 7.6 + index * 0.7, -7.2 - index * 0.18],
-    );
-  }
-
-  for (const x of [-2.45, 2.45]) {
-    addSegment(
-      group,
-      "Spree steamer upper-deck handrail",
-      new Vector3(x, 5.34, -11),
-      new Vector3(x, 5.34, 9),
-      0.045,
-      rail,
-    );
-    for (let z = -11; z <= 9; z += 2) {
-      addSegment(
-        group,
-        "Spree steamer handrail stanchion",
-        new Vector3(x, 4.67, z),
-        new Vector3(x, 5.34, z),
-        0.035,
-        rail,
-      );
-    }
-  }
-
-  const chairSeats: InstanceTransform[] = [];
-  const chairBacks: InstanceTransform[] = [];
-  const passengers: InstanceTransform[] = [];
-  const heads: InstanceTransform[] = [];
-  const greenDrinks: InstanceTransform[] = [];
-  const redDrinks: InstanceTransform[] = [];
-  for (let index = 0; index < 10; index += 1) {
-    const x = index % 2 === 0 ? -1.45 : 1.45;
-    const z = -7.6 + Math.floor(index / 2) * 3.25;
-    chairSeats.push({ position: [x, 4.94, z], rotation: [-0.08, 0, 0] });
-    chairBacks.push({ position: [x, 5.35, z - 0.42], rotation: [-0.42, 0, 0] });
-    passengers.push({ position: [x, 5.48, z + 0.02], scale: [1, 0.78, 1] });
-    heads.push({ position: [x, 6.05, z - 0.06] });
-    (index % 2 === 0 ? greenDrinks : redDrinks).push({
-      position: [x + (x < 0 ? 0.36 : -0.36), 5.3, z + 0.28],
-    });
-  }
-  const chairMaterial = modelMaterial(0xe6d5a8, { roughness: 0.82 });
-  addInstances(
-    group,
-    "Spree steamer ten deck-chair seats",
-    new BoxGeometry(0.72, 0.1, 0.86),
-    chairMaterial,
-    chairSeats,
-  );
-  addInstances(
-    group,
-    "Spree steamer ten deck-chair backs",
-    new BoxGeometry(0.72, 0.1, 0.92),
-    chairMaterial,
-    chairBacks,
-  );
-  addInstances(
-    group,
-    "Spree steamer seated passengers",
-    new CapsuleGeometry(0.2, 0.48, 4, 8),
-    modelMaterial(0x9b4f66, { roughness: 0.8 }),
-    passengers,
-  );
-  addInstances(
-    group,
-    "Spree steamer passenger heads",
-    new SphereGeometry(0.18, 9, 7),
-    modelMaterial(0xd5a57c, { roughness: 0.88 }),
-    heads,
-  );
-  addInstances(
-    group,
-    "Spree steamer green Berliner Weisse glasses",
-    new CylinderGeometry(0.11, 0.075, 0.27, 9),
-    modelMaterial(0x70b653, { opacity: 0.82, roughness: 0.28 }),
-    greenDrinks,
-  );
-  addInstances(
-    group,
-    "Spree steamer red Berliner Weisse glasses",
-    new CylinderGeometry(0.11, 0.075, 0.27, 9),
-    modelMaterial(0xd84f58, { opacity: 0.82, roughness: 0.28 }),
-    redDrinks,
-  );
-  return group;
-}
-
 function spreeWaveSurfaceGeometry(): BufferGeometry {
   const curve = new CatmullRomCurve3(
     SPREE_CENTERLINE_WORLD.map(
@@ -1248,7 +1027,7 @@ function createStarbucksStorefront(
 
 export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   const group = new Group();
-  group.name = "Cultural venues, Carillon and Spree excursion detail";
+  group.name = "Cultural venues, Carillon and Spree detail";
   const byName = new Map(landmarks.map((landmark) => [landmark.name, landmark]));
   const tipi = byName.get(TIPI_NAME);
   const carillon = byName.get(CARILLON_NAME);
@@ -1268,7 +1047,6 @@ export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
     );
   }
   group.add(createSpreeWaveField());
-  group.add(createExcursionSteamer());
   group.add(createLegoGiraffe());
   return group;
 }
@@ -1311,7 +1089,7 @@ export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
       distance_m: 90,
       polar_degrees: 58,
       target_height_m: 4,
-      target_world: BOAT_WORLD,
+      target_world: SPREEBOGEN_VESSEL_WORLD,
     };
   }
   return null;

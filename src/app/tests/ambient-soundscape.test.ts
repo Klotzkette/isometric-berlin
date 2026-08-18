@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  AMBIENT_MASTER_GAIN,
   AMBIENT_VARIANTS,
   AMBIENT_START_DELAY_SECONDS,
   AmbientSoundscape,
@@ -344,6 +345,148 @@ describe("deep swell beat cadence", () => {
       expect(internals.timer).toBeNull();
       expect(timerCounts.intervalStarts).toBe(0);
       expect(graph.counts.closes).toBe(1);
+    });
+  });
+
+  test("mode handover fades to zero before suspending and remains resumable", async () => {
+    await withTimerWindow(async (timerCounts) => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("running");
+      const source = {
+        disconnect() {},
+        onended: null,
+        stop() {},
+      } as unknown as AudioScheduledSourceNode;
+      const internals = soundscape as unknown as {
+        activeSources: Map<AudioScheduledSourceNode, AudioNode[]>;
+        context: AudioContext | null;
+        master: GainNode | null;
+        resumeAfterSuspension: boolean;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 17;
+      internals.activeSources.set(source, []);
+
+      expect(await soundscape.fadeToSuspended(0.02)).toBe(true);
+      expect(graph.master.gain.value).toBe(0);
+      expect(graph.counts.suspends).toBe(1);
+      expect(timerCounts.intervalClears).toBe(1);
+      expect(internals.resumeAfterSuspension).toBeTrue();
+      expect(soundscape.activeVoiceCount).toBe(0);
+      soundscape.dispose();
+    });
+  });
+
+  test("an immediate restart cancels a stale mode-handover suspension", async () => {
+    await withTimerWindow(async () => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("running");
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 18;
+
+      const fading = soundscape.fadeToSuspended(0.02);
+      expect(await soundscape.start()).toBe(true);
+      expect(await fading).toBe(false);
+      expect(graph.counts.suspends).toBe(0);
+      expect(graph.master.gain.value).toBe(AMBIENT_MASTER_GAIN);
+      soundscape.dispose();
+    });
+  });
+
+  test("a restart wins while the handover suspend promise is pending", async () => {
+    await withTimerWindow(async () => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("running");
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 19;
+      (soundscape as unknown as { scheduleAhead(): void }).scheduleAhead = () =>
+        undefined;
+
+      let markSuspendStarted: (() => void) | undefined;
+      let releaseSuspend: (() => void) | undefined;
+      const suspendStarted = new Promise<void>((resolve) => {
+        markSuspendStarted = resolve;
+      });
+      (graph.context as unknown as { suspend(): Promise<void> }).suspend = () => {
+        graph.counts.suspends += 1;
+        markSuspendStarted?.();
+        return new Promise<void>((resolve) => {
+          releaseSuspend = () => {
+            graph.setState("suspended");
+            resolve();
+          };
+        });
+      };
+
+      const fading = soundscape.fadeToSuspended(0.02);
+      await suspendStarted;
+      expect(await soundscape.start()).toBe(true);
+      releaseSuspend?.();
+
+      expect(await fading).toBe(false);
+      expect(graph.context.state).toBe("running");
+      expect(graph.counts.resumes).toBe(1);
+      expect(internals.timer).not.toBeNull();
+      expect(graph.master.gain.value).toBe(AMBIENT_MASTER_GAIN);
+      soundscape.dispose();
+    });
+  });
+
+  test("a visibility resume wins while lifecycle suspension is pending", async () => {
+    await withTimerWindow(async () => {
+      const soundscape = new AmbientSoundscape();
+      const graph = fakeAudioGraph("running");
+      const internals = soundscape as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 20;
+      (soundscape as unknown as { scheduleAhead(): void }).scheduleAhead = () =>
+        undefined;
+
+      let markSuspendStarted: (() => void) | undefined;
+      let releaseSuspend: (() => void) | undefined;
+      const suspendStarted = new Promise<void>((resolve) => {
+        markSuspendStarted = resolve;
+      });
+      (graph.context as unknown as { suspend(): Promise<void> }).suspend = () => {
+        graph.counts.suspends += 1;
+        markSuspendStarted?.();
+        return new Promise<void>((resolve) => {
+          releaseSuspend = () => {
+            graph.setState("suspended");
+            resolve();
+          };
+        });
+      };
+
+      const pausing = soundscape.setSuspended(true);
+      await suspendStarted;
+      expect(await soundscape.setSuspended(false)).toBe(true);
+      releaseSuspend?.();
+
+      expect(await pausing).toBe(false);
+      expect(graph.context.state).toBe("running");
+      expect(graph.counts.resumes).toBe(1);
+      expect(internals.timer).not.toBeNull();
+      soundscape.dispose();
     });
   });
 

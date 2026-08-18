@@ -158,6 +158,12 @@ button:active:not(:disabled) {
   animation-timing-function: steps(6, end);
 }
 
+/* Schwellenraum's world-motion contract permits recognised civic flags only. */
+.app-shell--schwellenraum .map-rain,
+.app-shell--schwellenraum .map-snowstorm {
+  display: none;
+}
+
 @keyframes map-rain-fall {
   to {
     transform: translate3d(-24px, 76px, 0);
@@ -305,7 +311,7 @@ button:active:not(:disabled) {
 }
 
 .app-shell--schwellenraum .three-viewer {
-  background: #ded9ee;
+  background: #e7e0cc;
 }
 
 .three-viewer.is-active {
@@ -549,6 +555,7 @@ button:active:not(:disabled) {
 
 .toolbar button:disabled,
 .view-controls button:disabled,
+.mobile-overflow-grid button:disabled,
 .landmark-list button:disabled {
   color: rgba(245, 239, 228, 0.46);
   background: rgba(255, 255, 255, 0.045);
@@ -608,7 +615,10 @@ button:active:not(:disabled) {
 .toolbar button:disabled:focus-visible,
 .view-controls button:disabled:hover,
 .view-controls button:disabled:focus-visible,
-.view-controls button:disabled[aria-pressed="true"] {
+.view-controls button:disabled[aria-pressed="true"],
+.mobile-overflow-grid button:disabled:hover,
+.mobile-overflow-grid button:disabled:focus-visible,
+.mobile-overflow-grid button:disabled[aria-pressed="true"] {
   color: rgba(245, 239, 228, 0.46);
   background: rgba(255, 255, 255, 0.045);
 }
@@ -1904,6 +1914,14 @@ button:active:not(:disabled) {
   .mobile-overflow-grid button[aria-pressed="true"] {
     color: #211d18;
     background: #e0ae69;
+  }
+
+  .mobile-overflow-grid button:disabled,
+  .mobile-overflow-grid button:disabled[aria-pressed="true"] {
+    color: rgba(245, 239, 228, 0.46);
+    background: rgba(255, 255, 255, 0.045);
+    box-shadow: none;
+    cursor: not-allowed;
   }
 
   .mobile-sheet-footer {

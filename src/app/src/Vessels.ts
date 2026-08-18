@@ -1,7 +1,9 @@
 import {
   BoxGeometry,
+  BufferGeometry,
   CylinderGeometry,
   EdgesGeometry,
+  Float32BufferAttribute,
   Group,
 } from "three";
 
@@ -12,69 +14,46 @@ import {
   paintGeometry,
 } from "./drawnKit";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import {
+  REAL_SPREE_VESSEL_PROFILES,
+  REEDEREI_RIEDEL_FLEET_SOURCE,
+  SPREE_VESSEL_GEOMETRY_STATUS,
+  type SpreeVesselProfile,
+} from "./SpreeVesselProfiles";
 
 /**
- * Two boats on the water — staffage the owner asked for, not survey.
+ * Static, source-bound Berlin passenger vessels.
  *
- * OSM maps no vessels, so nothing here is derived from data: a cargo
- * barge lies in the Humboldthafen on course for the Berlin-Spandauer
- * Schifffahrtskanal, and a small old excursion yacht runs the Spree off
- * the Kanzleramt with a deck party aboard. Both positions and headings
- * are taken from the surveyed waterway centre lines so the boats float
- * in the channel rather than through a quay, but the boats themselves
- * are invented and the group says so.
+ * Reederei Riedel publishes each vessel's length, beam, draught, build year
+ * and type. Those three envelope dimensions are exact here. The restrained
+ * superstructures express only the published "salon" / "panorama" typology;
+ * they are not presented as general-arrangement surveys. Display positions
+ * follow committed OSM waterway centre lines and are explicitly not AIS.
  */
 
-const HULL_DARK = 0x3f4a52;
-const HULL_BOOT = 0x2d3238;
-const HULL_WHITE = 0xf4f1e8;
-const HULL_SHEER = 0x2b2f33;
-const CARGO = 0xa8a08c;
-const COAMING = 0x6d7681;
-const DECK_WOOD = 0xd9c9a6;
-const CABIN = 0xefebe0;
-const CABIN_ROOF = 0xc9c3b4;
-const FUNNEL = 0x33383d;
-const RAIL = 0xb6b1a5;
-const AWNING = 0xe8e3d4;
-const LAMPION = 0xf3a94b;
+const HULL_WHITE = 0xf1efe8;
+const DECK = 0xd7d0c0;
+const CABIN = 0xe9e5da;
+const ROOF = 0xbfc4c0;
+const WINDOW_BLUE = 0x315c6a;
+const RAIL = 0x687174;
 const NAV_RED = 0xd94945;
 const NAV_GREEN = 0x4ea56d;
-const WINDOW_BLUE = 0x315f70;
 const WAKE = 0xc9edf0;
-const PARTY = [0xd8455f, 0x5b8fb9, 0xe0c04a, 0x7ba05b] as const;
 
-/** Berlin-Spandauer Schifffahrtskanal centre line inside the harbour. */
-const BARGE = {
-  headingX: 0.0998,
-  headingZ: -0.995,
-  lengthM: 52,
-  widthM: 7.4,
-  x: 45,
-  z: -650,
-};
-/** Spree centre line off the Kanzleramt, tangent (0.9269, -0.3754). */
-const YACHT = {
-  headingX: 0.9269,
-  headingZ: -0.3754,
-  lengthM: 18.5,
-  widthM: 4.4,
-  x: -119.3,
-  z: -404.3,
-};
-
-/** Frame of one boat: `along` runs bow-positive, `across` to starboard. */
 type Frame = {
   at: (along: number, across: number) => [number, number];
   rotation: number;
 };
 
-function frame(x: number, z: number, hx: number, hz: number): Frame {
-  const rotation = Math.atan2(hz, hx);
+function frame(profile: SpreeVesselProfile): Frame {
+  const [hx, hz] = profile.heading;
+  // Three's +Y rotation maps local +X toward world -Z, hence the minus.
+  const rotation = -Math.atan2(hz, hx);
   return {
     at: (along, across) => [
-      x + hx * along - hz * across,
-      z + hz * along + hx * across,
+      profile.displayPositionWorldM[0] + hx * along - hz * across,
+      profile.displayPositionWorldM[1] + hz * along + hx * across,
     ],
     rotation,
   };
@@ -98,28 +77,10 @@ function box(
   geometry.translate(cx, y, cz);
   paintGeometry(geometry, color);
   builder.parts.push(geometry);
-  if (inked) {
-    builder.edges.push(new EdgesGeometry(geometry, 24));
-  }
+  if (inked) builder.edges.push(new EdgesGeometry(geometry, 24));
 }
 
-/** A warm lampion: emissive only after dark, plain paper by day. */
-function lampion(
-  builder: Builder,
-  f: Frame,
-  along: number,
-  y: number,
-  across: number,
-  radius: number,
-): void {
-  const geometry = new CylinderGeometry(radius, radius, radius * 1.5, 6);
-  const [cx, cz] = f.at(along, across);
-  geometry.translate(cx, y, cz);
-  paintGeometry(geometry, LAMPION);
-  builder.lamps.push(geometry);
-}
-
-function markerLamp(
+function navLamp(
   builder: Builder,
   f: Frame,
   color: number,
@@ -127,217 +88,290 @@ function markerLamp(
   y: number,
   across: number,
 ): void {
-  const geometry = new CylinderGeometry(0.13, 0.13, 0.32, 8);
+  const geometry = new CylinderGeometry(0.11, 0.11, 0.28, 8);
   const [cx, cz] = f.at(along, across);
   geometry.translate(cx, y, cz);
   paintGeometry(geometry, color);
   builder.lamps.push(geometry);
 }
 
-function wakeRibbon(
+/** A connected polygonal waterline inside the exact published envelope. */
+function exactEnvelopeHull(
   builder: Builder,
-  f: Frame,
-  along: number,
-  across: number,
-  length: number,
-  angle: number,
+  profile: SpreeVesselProfile,
   water: number,
 ): void {
-  const geometry = new BoxGeometry(length, 0.035, 0.16);
-  geometry.rotateY(f.rotation + angle);
-  const [cx, cz] = f.at(along, across);
-  geometry.translate(cx, water + 0.075, cz);
+  const length = profile.lengthM;
+  const beam = profile.beamM;
+  // Symmetric port/starboard taper: pointed bow, restrained transom stern.
+  const outline: ReadonlyArray<readonly [number, number]> = [
+    [-length / 2, -beam * 0.32],
+    [-length * 0.44, -beam / 2],
+    [length * 0.3, -beam / 2],
+    [length / 2, 0],
+    [length * 0.3, beam / 2],
+    [-length * 0.44, beam / 2],
+    [-length / 2, beam * 0.32],
+  ];
+  const freeboard = profile.type === "salon" ? 0.9 : 0.78;
+  const bottom = water - profile.draughtM;
+  const top = water + freeboard;
+  const positions: number[] = [];
+  for (const y of [bottom, top]) {
+    for (const [along, across] of outline) positions.push(along, y, across);
+  }
+  const count = outline.length;
+  const indices: number[] = [];
+  for (let index = 1; index < count - 1; index += 1) {
+    indices.push(0, index + 1, index);
+    indices.push(count, count + index, count + index + 1);
+  }
+  for (let index = 0; index < count; index += 1) {
+    const next = (index + 1) % count;
+    indices.push(index, next, count + next, index, count + next, count + index);
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  const f = frame(profile);
+  geometry.rotateY(f.rotation);
+  geometry.translate(
+    profile.displayPositionWorldM[0],
+    0,
+    profile.displayPositionWorldM[1],
+  );
+  paintGeometry(geometry, HULL_WHITE);
+  builder.parts.push(geometry);
+  builder.edges.push(new EdgesGeometry(geometry, 24));
+}
+
+function addSideWindows(
+  builder: Builder,
+  f: Frame,
+  profile: SpreeVesselProfile,
+  water: number,
+  cabinLength: number,
+  cabinY: number,
+): void {
+  const panes = profile.type === "panorama" ? 9 : 12;
+  const spacing = cabinLength / panes;
+  const paneLength = spacing * 0.68;
+  for (let index = 0; index < panes; index += 1) {
+    const along = -cabinLength / 2 + spacing * (index + 0.5);
+    for (const side of [-1, 1]) {
+      box(
+        builder,
+        WINDOW_BLUE,
+        f,
+        along,
+        cabinY,
+        side * (profile.beamM / 2 - 0.43),
+        paneLength,
+        profile.type === "panorama" ? 1.02 : 0.86,
+        0.08,
+        false,
+      );
+    }
+  }
+  for (const side of [-1, 1]) {
+    navLamp(
+      builder,
+      f,
+      side < 0 ? NAV_RED : NAV_GREEN,
+      profile.lengthM / 2 - profile.lengthM * 0.08,
+      water + 1.45,
+      side * (profile.beamM / 2 - 0.22),
+    );
+  }
+}
+
+function buildPassengerVessel(
+  builder: Builder,
+  profile: SpreeVesselProfile,
+  water: number,
+): void {
+  const f = frame(profile);
+  exactEnvelopeHull(builder, profile, water);
+  const cabinLength =
+    profile.lengthM * (profile.type === "salon" ? 0.68 : 0.64);
+  const cabinHeight = profile.type === "salon" ? 2.45 : 2.2;
+  const cabinY = water + 0.72 + cabinHeight / 2;
+  box(
+    builder,
+    DECK,
+    f,
+    -profile.lengthM * 0.025,
+    water + 0.7,
+    0,
+    profile.lengthM * 0.87,
+    0.12,
+    profile.beamM * 0.91,
+  );
+  box(
+    builder,
+    CABIN,
+    f,
+    -profile.lengthM * 0.05,
+    cabinY,
+    0,
+    cabinLength,
+    cabinHeight,
+    profile.beamM - 0.78,
+  );
+  box(
+    builder,
+    ROOF,
+    f,
+    -profile.lengthM * 0.05,
+    water + 0.74 + cabinHeight,
+    0,
+    cabinLength + 0.55,
+    0.18,
+    profile.beamM - 0.42,
+  );
+  addSideWindows(builder, f, profile, water, cabinLength, cabinY + 0.18);
+
+  // Published type cues only: panorama roof glazing or a second salon band.
+  if (profile.type === "panorama") {
+    box(
+      builder,
+      WINDOW_BLUE,
+      f,
+      -profile.lengthM * 0.02,
+      water + cabinHeight + 0.9,
+      0,
+      cabinLength * 0.62,
+      0.68,
+      profile.beamM * 0.52,
+      false,
+    );
+  } else {
+    box(
+      builder,
+      CABIN,
+      f,
+      -profile.lengthM * 0.11,
+      water + cabinHeight + 1.12,
+      0,
+      cabinLength * 0.54,
+      1.7,
+      profile.beamM - 1.15,
+    );
+    box(
+      builder,
+      WINDOW_BLUE,
+      f,
+      -profile.lengthM * 0.11,
+      water + cabinHeight + 1.18,
+      0,
+      cabinLength * 0.48,
+      0.78,
+      profile.beamM - 1.05,
+      false,
+    );
+  }
+
+  // Sparse stanchions are a recognition cue, not a fixture survey.
+  const stations = Math.max(4, Math.floor(profile.lengthM / 5));
+  for (let index = 0; index <= stations; index += 1) {
+    const along =
+      -profile.lengthM * 0.39 + (profile.lengthM * 0.78 * index) / stations;
+    for (const side of [-1, 1]) {
+      box(
+        builder,
+        RAIL,
+        f,
+        along,
+        water + 1.18,
+        side * (profile.beamM / 2 - 0.2),
+        0.07,
+        0.72,
+        0.07,
+        false,
+      );
+    }
+  }
+  for (const side of [-1, 1]) {
+    box(
+      builder,
+      RAIL,
+      f,
+      0,
+      water + 1.54,
+      side * (profile.beamM / 2 - 0.2),
+      profile.lengthM * 0.78,
+      0.07,
+      0.07,
+      false,
+    );
+  }
+}
+
+function wakeRibbon(
+  builder: Builder,
+  profile: SpreeVesselProfile,
+  water: number,
+  side: -1 | 1,
+): void {
+  const f = frame(profile);
+  const length = profile.lengthM * 0.34;
+  const geometry = new BoxGeometry(length, 0.025, 0.12);
+  geometry.rotateY(f.rotation - side * 0.24);
+  const [cx, cz] = f.at(-profile.lengthM * 0.61, side * profile.beamM * 0.31);
+  geometry.translate(cx, water + 0.055, cz);
   paintGeometry(geometry, WAKE);
   builder.parts.push(geometry);
 }
 
-/**
- * A hull that tapers to a bow: five box sections, the forward ones
- * narrowing. Cheaper than a lofted shape and it keeps the flat-tone,
- * ink-outline register of everything else drawn in the scene.
- */
-function hull(
-  builder: Builder,
-  f: Frame,
-  color: number,
-  length: number,
-  width: number,
-  baseY: number,
-  depth: number,
-): void {
-  const sections = 5;
-  for (let index = 0; index < sections; index += 1) {
-    const t = (index + 0.5) / sections;
-    const sectionLength = length / sections;
-    // Only the forward fifth narrows; a barge is a box for most of its run.
-    const taper = t < 0.8 ? 1 : 1 - (t - 0.8) * 3.2;
-    box(
-      builder, color, f,
-      -length / 2 + (index + 0.5) * sectionLength,
-      baseY + depth / 2,
-      0,
-      sectionLength,
-      depth,
-      Math.max(width * 0.28, width * taper),
-    );
-  }
-}
-
-function buildBarge(builder: Builder, water: number): void {
-  const f = frame(BARGE.x, BARGE.z, BARGE.headingX, BARGE.headingZ);
-  const { lengthM: length, widthM: width } = BARGE;
-  // Loaded, so she sits low: only about a metre of freeboard shows.
-  hull(builder, f, HULL_DARK, length, width, water - 0.35, 1.5);
-  box(
-    builder, HULL_BOOT, f,
-    0, water - 0.28, 0,
-    length * 0.94, 0.34, width + 0.16,
-    false,
-  );
-  // Open hold with a coaming and a heaped cargo of sand.
-  box(builder, COAMING, f, -2, water + 1.35, 0, length * 0.62, 0.5, width - 0.5);
-  box(builder, CARGO, f, -2, water + 1.5, 0, length * 0.58, 0.5, width - 1.4);
-  // Wheelhouse and accommodation aft.
-  box(builder, CABIN, f, -length / 2 + 4.2, water + 2.6, 0, 5.4, 2.6, width - 1.6);
-  box(
-    builder, CABIN_ROOF, f,
-    -length / 2 + 4.2, water + 4.0, 0,
-    5.8, 0.24, width - 1.2,
-  );
-  box(builder, FUNNEL, f, -length / 2 + 2.2, water + 4.8, 1.4, 0.7, 1.8, 0.7);
-  // Wheelhouse glazing and navigation lamps distinguish bow, stern and
-  // direction at close range without applying a photographic texture.
-  for (const along of [-length / 2 + 2.8, -length / 2 + 4.2, -length / 2 + 5.6]) {
-    for (const across of [-(width / 2 - 0.72), width / 2 - 0.72]) {
-      box(builder, WINDOW_BLUE, f, along, water + 2.8, across, 0.9, 0.72, 0.12, false);
-    }
-  }
-  markerLamp(builder, f, NAV_RED, length / 2 - 1.6, water + 2.1, -width / 2 + 0.35);
-  markerLamp(builder, f, NAV_GREEN, length / 2 - 1.6, water + 2.1, width / 2 - 0.35);
-  // Foredeck winch and a mast on the bow, both stubby.
-  box(builder, COAMING, f, length / 2 - 3.4, water + 1.5, 0, 1.5, 0.8, 1.6);
-  box(builder, RAIL, f, length / 2 - 4.6, water + 3.1, 0, 0.24, 3.0, 0.24);
-  for (let index = 0; index < 9; index += 1) {
-    box(
-      builder,
-      index % 2 === 0 ? COAMING : HULL_DARK,
-      f,
-      -14 + index * 3.45,
-      water + 1.83,
-      0,
-      0.18,
-      0.52,
-      width - 0.95,
-      false,
-    );
-  }
-  for (const along of [-length / 2 + 1.2, length / 2 - 1.2]) {
-    for (const across of [-width / 2 + 0.55, width / 2 - 0.55]) {
-      box(builder, FUNNEL, f, along, water + 1.5, across, 0.28, 0.5, 0.28, false);
-    }
-  }
-}
-
-function buildYacht(builder: Builder, water: number): void {
-  const f = frame(YACHT.x, YACHT.z, YACHT.headingX, YACHT.headingZ);
-  const { lengthM: length, widthM: width } = YACHT;
-  hull(builder, f, HULL_WHITE, length, width, water - 0.55, 1.5);
-  // The black sheer stripe that makes an old motor yacht read as old.
-  box(
-    builder, HULL_SHEER, f,
-    0, water + 0.72, 0,
-    length * 0.9, 0.22, width + 0.1,
-    false,
-  );
-  box(builder, DECK_WOOD, f, 0, water + 0.95, 0, length * 0.92, 0.16, width - 0.3);
-  // Deckhouse with a raised bridge, both a little lopsided — she is old.
-  box(builder, CABIN, f, -1.2, water + 1.95, 0, 7.4, 1.9, width - 1.0);
-  box(builder, CABIN_ROOF, f, -1.2, water + 2.98, 0, 7.8, 0.22, width - 0.6);
-  box(builder, CABIN, f, 2.6, water + 2.5, 0, 3.0, 3.0, width - 1.4);
-  box(builder, CABIN_ROOF, f, 2.6, water + 4.08, 0, 3.4, 0.22, width - 1.0);
-  box(builder, FUNNEL, f, -3.6, water + 3.7, 0, 0.6, 1.5, 0.6);
-  for (const along of [-2.9, -1.7, -0.5, 1.9, 2.6, 3.3]) {
-    for (const across of [-(width / 2 - 0.56), width / 2 - 0.56]) {
-      box(builder, WINDOW_BLUE, f, along, water + 2.15, across, 0.68, 0.62, 0.1, false);
-    }
-  }
-  markerLamp(builder, f, NAV_RED, length / 2 - 1.2, water + 2.0, -width / 2 + 0.22);
-  markerLamp(builder, f, NAV_GREEN, length / 2 - 1.2, water + 2.0, width / 2 - 0.22);
-  // Aft awning over the party deck, on four thin posts.
-  for (const along of [-6.6, -3.2]) {
-    for (const across of [-1.5, 1.5]) {
-      box(builder, RAIL, f, along, water + 1.9, across, 0.1, 1.8, 0.1, false);
-    }
-  }
-  box(builder, AWNING, f, -4.9, water + 2.86, 0, 4.2, 0.14, width - 0.8);
-  // Guests: a scatter of coloured blocks, no two the same height.
-  const guests: Array<[number, number, number]> = [
-    [-6.2, -1.2, 1.72],
-    [-5.4, 0.9, 1.66],
-    [-4.3, -0.6, 1.78],
-    [-3.6, 1.3, 1.62],
-    [-6.6, 0.4, 1.7],
-    [4.4, -0.8, 1.74],
-  ];
-  guests.forEach(([along, across, height], index) => {
-    box(
-      builder, PARTY[index % PARTY.length], f,
-      along, water + 1.03 + height / 2, across,
-      0.42, height, 0.42,
-    );
-  });
-  // Deck rail: a low line of stanchions round the open stern.
-  for (let index = 0; index < 7; index += 1) {
-    const along = -length / 2 + 0.8 + index * 1.15;
-    for (const across of [-(width / 2 - 0.35), width / 2 - 0.35]) {
-      box(builder, RAIL, f, along, water + 1.4, across, 0.08, 0.8, 0.08, false);
-    }
-  }
-  // Lampions: a string along the awning edge and two inside the deckhouse.
-  for (let index = 0; index < 6; index += 1) {
-    const along = -7.0 + index * 0.86;
-    for (const across of [-(width / 2 - 0.45), width / 2 - 0.45]) {
-      lampion(builder, f, along, water + 2.66, across, 0.17);
-    }
-  }
-  lampion(builder, f, -1.2, water + 2.5, 0, 0.2);
-  lampion(builder, f, 2.6, water + 3.5, 0, 0.18);
-}
-
 export function createVessels(waterTopY: number = WATER_TOP_Y): Group {
   const builder = createBuilder();
-  buildBarge(builder, waterTopY);
-  buildYacht(builder, waterTopY);
-  const wakeBuilder = createBuilder();
-  const bargeFrame = frame(BARGE.x, BARGE.z, BARGE.headingX, BARGE.headingZ);
-  const yachtFrame = frame(YACHT.x, YACHT.z, YACHT.headingX, YACHT.headingZ);
-  for (let index = 0; index < 4; index += 1) {
-    const distance = 7 + index * 7;
-    wakeRibbon(wakeBuilder, bargeFrame, -BARGE.lengthM / 2 - distance, -1.6 - index * 0.7, 8 + index * 2.4, 0.28, waterTopY);
-    wakeRibbon(wakeBuilder, bargeFrame, -BARGE.lengthM / 2 - distance, 1.6 + index * 0.7, 8 + index * 2.4, -0.28, waterTopY);
+  for (const profile of REAL_SPREE_VESSEL_PROFILES) {
+    buildPassengerVessel(builder, profile, waterTopY);
   }
-  for (let index = 0; index < 3; index += 1) {
-    const distance = 3 + index * 4.2;
-    wakeRibbon(wakeBuilder, yachtFrame, -YACHT.lengthM / 2 - distance, -0.8 - index * 0.45, 4.2 + index * 1.8, 0.34, waterTopY);
-    wakeRibbon(wakeBuilder, yachtFrame, -YACHT.lengthM / 2 - distance, 0.8 + index * 0.45, 4.2 + index * 1.8, -0.34, waterTopY);
-  }
+  const group =
+    finishDrawnGroup(builder, {
+      name: "vessel",
+      lampEmissive: 0xf3e8c5,
+      lampEmissiveIntensity: 0.6,
+    }) ?? new Group();
 
-  const group = finishDrawnGroup(builder, {
-    name: "vessel",
-    lampEmissive: 0xffb457,
-    lampEmissiveIntensity: 1.15,
-  });
-  if (group === null) {
-    return new Group();
+  const wakeBuilder = createBuilder();
+  for (const profile of REAL_SPREE_VESSEL_PROFILES) {
+    wakeRibbon(wakeBuilder, profile, waterTopY, -1);
+    wakeRibbon(wakeBuilder, profile, waterTopY, 1);
   }
-  // Owner-requested staffage: OSM maps no boats at all.
-  group.userData.extrapolated = true;
-  group.userData.properNamesVerified = false;
-  group.userData.properNameRendered = false;
-  const wakes = finishDrawnGroup(wakeBuilder, { name: "vessel wake ribbons" });
+  const wakes = finishDrawnGroup(wakeBuilder, {
+    name: "vessel wake ribbons",
+  });
   if (wakes) {
+    wakes.userData.hiddenInSchwellenraum = true;
     wakes.userData.staticAntiFlicker = true;
+    wakes.userData.staticAllModes = true;
     group.add(wakes);
   }
+
+  group.userData.extrapolated = false;
+  group.userData.sourceBound = true;
+  group.userData.properNamesVerified = true;
+  group.userData.properNameRendered = false;
+  group.userData.placementObserved = false;
+  group.userData.staticAllModes = true;
+  group.userData.staticAntiFlicker = true;
+  group.userData.primarySource = REEDEREI_RIEDEL_FLEET_SOURCE;
+  group.userData.geometryStatus = SPREE_VESSEL_GEOMETRY_STATUS;
+  group.userData.vessels = REAL_SPREE_VESSEL_PROFILES.map((profile) => ({
+    beamM: profile.beamM,
+    buildYear: profile.buildYear,
+    displayPositionWorldM: [...profile.displayPositionWorldM],
+    draughtM: profile.draughtM,
+    lengthM: profile.lengthM,
+    name: profile.name,
+    type: profile.type,
+  }));
+  group.traverse((object) => {
+    object.userData.staticAllModes = true;
+    object.userData.staticAntiFlicker = true;
+  });
   return group;
 }

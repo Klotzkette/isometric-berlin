@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.72.1
+
+- **Minecraft's civic centre is now genuinely block-native and still reads as
+  Berlin.** Reichstag, Bundeskanzleramt, Hauptbahnhof, Brandenburger Tor,
+  Paul-Löbe-Haus and Marie-Elisabeth-Lüders-Haus use 15,469 deterministic
+  opaque blocks in five instanced draw calls. Pale marble, quartz and
+  limestone define the public buildings; silver, lapis and gold remain sparse,
+  source-related accents. The models retain the Reichstag portico and stepped
+  dome, the Chancellery's twin openings, the Hauptbahnhof hall cross and office
+  bridges, all five Gate passages, the parliamentary rotundas, stair and two
+  open Spree bridges without smooth hero-building doubles or coplanar shimmer.
+- **The block world is solid without sealing its real entrances.** Exact
+  source-ownership masks remove only the coarse columns that would bury the
+  authored civic models. Four Hauptbahnhof hall entrances, four office-bridge
+  entrances and all five Brandenburg Gate passages remain open, while the
+  Reichstag, Chancellery, dome, Quadriga, facade frames and rails remain solid.
+  Walking, keyboard/touch flight, orbit, pan and zoom share a swept Minecraft-
+  only collision policy, including on a direct cold start.
+- **Schwellenraum becomes quieter, stranger and fully mode-specific.** Its
+  world motion is frozen except for the presidential, German, European and
+  Swiss flags. A dedicated low-level procedural soundscape replaces the normal
+  score with deterministic air, rustle, low harmonic beds and sparse light
+  points; mode changes crossfade without losing the user's two audio-switch
+  intentions. Static, collision-aware furniture remains sparse and outside all
+  protected memorial areas, while the Unter den Linden median follows the
+  committed paired OSM lanes.
+- **Humboldthafen, its road bridges and Spree vessels are source-bound.** The
+  northern harbour edge now uses the documented sloped bank instead of a
+  universal vertical quay, Sandkrugbrücke follows its two OSM carriageways,
+  and bridge furniture remains block-native in Minecraft. Invented party boats
+  are replaced by two restrained passenger-vessel profiles tied to the
+  operator's published fleet dimensions, with static wakes and navigation
+  lights rather than animation or lampion decoration.
+
 ## v0.72.0
 
 - **The bounded Berlin world grows to its owner-approved 6,450 m presentation

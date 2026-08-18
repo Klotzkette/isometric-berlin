@@ -283,6 +283,23 @@ export class AmbientSoundscape {
   async start(): Promise<boolean> {
     if (this.timer !== null) {
       if (this.context?.state === "running") {
+        // A mode handover may still be ramping this live graph towards
+        // suspension. An explicit start must invalidate that pending fade and
+        // restore the authored ceiling without creating a second scheduler.
+        this.startGeneration += 1;
+        this.resumeAfterSuspension = false;
+        if (this.master) {
+          const now = this.context.currentTime;
+          this.master.gain.cancelScheduledValues(now);
+          this.master.gain.setValueAtTime(
+            Math.max(0, this.master.gain.value),
+            now,
+          );
+          this.master.gain.linearRampToValueAtTime(
+            AMBIENT_MASTER_GAIN,
+            now + AMBIENT_START_FADE_SECONDS,
+          );
+        }
         return true;
       }
       // Safari/iOS and power-saving browsers can suspend an AudioContext
@@ -403,6 +420,76 @@ export class AmbientSoundscape {
     }, 240);
   }
 
+  /**
+   * Fade the live layer to true zero before suspending its warm context.
+   *
+   * Unlike the lifecycle-oriented `setSuspended(true)`, this keeps the
+   * current scheduler and voices alive for the requested handover interval.
+   * A subsequent resume, stop or dispose increments `startGeneration`, so a
+   * stale fade can never suspend a newly restarted layer.
+   */
+  async fadeToSuspended(fadeSeconds: number): Promise<boolean> {
+    const context = this.context;
+    const master = this.master;
+    if (!context || !master || context.state === "closed") {
+      return false;
+    }
+    const wasPlaying = this.timer !== null;
+    this.resumeAfterSuspension ||= wasPlaying;
+    const generation = ++this.startGeneration;
+    const seconds = Math.max(0.02, fadeSeconds);
+    const now = context.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(Math.max(0, master.gain.value), now);
+    master.gain.linearRampToValueAtTime(0, now + seconds);
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, Math.ceil(seconds * 1_000));
+    });
+    if (
+      generation !== this.startGeneration ||
+      context !== this.context ||
+      master !== this.master
+    ) {
+      return false;
+    }
+    this.clearScheduler();
+    this.stopActiveSources(context.currentTime, true);
+    if (context.state === "running") {
+      try {
+        await context.suspend();
+      } catch {
+        return false;
+      }
+    }
+    if (
+      generation !== this.startGeneration ||
+      context !== this.context ||
+      master !== this.master
+    ) {
+      // `AudioContext.suspend()` itself cannot be cancelled. A fresh start can
+      // therefore win while that promise is still pending, after the checks
+      // above but before the context actually reaches `suspended`. Restore the
+      // same live graph here only when that newer generation has already armed
+      // its scheduler; stop/dispose/lifecycle suspension deliberately leave it
+      // silent.
+      if (
+        context === this.context &&
+        master === this.master &&
+        this.timer !== null &&
+        context.state === "suspended"
+      ) {
+        try {
+          await context.resume();
+        } catch {
+          // The newer explicit start remains the owner and may retry on the
+          // next user gesture if the browser declines this recovery.
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+
   /** Close synchronously enough for pagehide/beforeunload to silence the tab. */
   dispose(): void {
     this.startGeneration += 1;
@@ -442,13 +529,32 @@ export class AmbientSoundscape {
         // A browser-blocked/pending autoplay attempt must wait for a fresh
         // gesture after the page becomes visible again.
         this.resumeAfterSuspension ||= this.timer !== null;
-        this.startGeneration += 1;
+        const generation = ++this.startGeneration;
         this.clearScheduler();
         master.gain.cancelScheduledValues(context.currentTime);
         master.gain.setValueAtTime(0, context.currentTime);
         this.stopActiveSources(context.currentTime, true);
         if (context.state === "running") {
           await context.suspend();
+        }
+        if (
+          generation !== this.startGeneration ||
+          context !== this.context ||
+          master !== this.master
+        ) {
+          // A visible transition can rearm the graph while the browser is
+          // still resolving the preceding suspend request. Restore only that
+          // newer live scheduler; stop/dispose keep `timer` empty and remain
+          // deliberately silent.
+          if (
+            context === this.context &&
+            master === this.master &&
+            this.timer !== null &&
+            context.state === "suspended"
+          ) {
+            await context.resume();
+          }
+          return false;
         }
         return true;
       }
@@ -457,6 +563,7 @@ export class AmbientSoundscape {
       }
       this.resumeAfterSuspension = false;
       const generation = ++this.startGeneration;
+      this.clearScheduler();
       if (!(await this.resumeWithin(context))) {
         return false;
       }

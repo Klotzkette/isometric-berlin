@@ -88,6 +88,11 @@ import {
 } from "./Reichstagspraesidentenpalais";
 import { createFederalStateRepresentations } from "./FederalStateRepresentations";
 import {
+  SANDKRUG_OSM_DECK,
+  createNorthernHumboldthafenRefinements,
+  isNorthernHumboldthafenQuayEdge,
+} from "./HumboldthafenRefinements";
+import {
   type VoxelPayload,
   WATER_TOP_Y,
   createGroundSlabs,
@@ -1228,6 +1233,14 @@ export function setIsoNightPresentation(
       : requestedMode;
   const moonlit = night && !lightsOn;
   setModeOnlyDetails(city, mode);
+  // Vessel wakes are source-neutral motion cues. Keep their authored static
+  // geometry in ordinary modes, but remove it from Schwellenraum rather than
+  // letting a frozen wake imply movement in that deliberately still world.
+  city.traverse((object) => {
+    if (object.userData.hiddenInSchwellenraum === true) {
+      object.visible = mode !== "schwellenraum";
+    }
+  });
   // Every progressively transferred mesh carries its alternate materials in
   // userData. Switch by capability, not by a brittle name allow-list: repeated
   // building batches and newly added surface families must all materialise for
@@ -1342,8 +1355,8 @@ export function setIsoNightPresentation(
   }
   // Accessory meshes share the prism convention: exact flat paint by
   // day (unlit), the lit material only under the night rig. Any mesh
-  // named "… lamps" (drawnKit.finishDrawnGroup's lamp bucket — currently
-  // only the excursion yacht's lampions) additionally carries its own
+  // named "… lamps" (drawnKit.finishDrawnGroup's lamp bucket, including
+  // the source-bound vessels' navigation lamps) additionally carries its own
   // authored nightEmissive/nightEmissiveIntensity in userData, which this
   // loop applies directly: isoWorld accessories never pass through
   // applyMaterialLighting, so this is their one choke point for both
@@ -2572,6 +2585,12 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     const az = (min_z_idx + z1) * cell;
     const bx = (min_x_idx + x2) * cell;
     const bz = (min_z_idx + z2) * cell;
+    // The northern Humboldthafen is a documented restored Schrägufer. Its
+    // source-bound face is built once by HumboldthafenRefinements; retaining
+    // this raster wall/ledge/rail would create a coincident vertical double.
+    if (isNorthernHumboldthafenQuayEdge(ax, az, bx, bz)) {
+      return;
+    }
     // Drawn masonry: the bank edge, the water line where the wall enters
     // the Spree, and vertical joints between the two.
     const nudgeX = towardWaterX * 0.05;
@@ -3116,9 +3135,10 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
   },
   {
     // Berlin bridge inventory BW 3446035: open frame, built 1994,
-    // 32.60 x 28.80 m. The broad road deck must not inherit a guessed
-    // generic span from the 4 m raster.
-    axis: [0.31623, 0.94868],
+    // 32.60 x 28.80 m. OSM ways 36260393 and 248010193 independently pin
+    // the two carriageways; their averaged eastbound bearings replace the
+    // old nearly perpendicular hand-tuned axis.
+    axis: [...SANDKRUG_OSM_DECK.axis],
     halfWidthM: 14.4,
     kind: "openFrame",
     matchRadiusM: 60,
@@ -3130,7 +3150,7 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
       structure: 0xb3b6b3,
     },
     surveyedDeck: { halfLengthM: 16.3, halfWidthM: 14.4 },
-    world: [185.4, -989.8],
+    world: [...SANDKRUG_OSM_DECK.centreWorldM],
   },
   {
     // Masterplan Bruecken Berlin, Appendix 1 (data status 06/2025),
@@ -8105,6 +8125,12 @@ export function createSmoothSurfaces(
       if (run < 0.2) {
         continue;
       }
+      // Replace only the OSM 52189421 north-bank run by its DGM-grounded
+      // Schrägufer. This suppresses the old vertical wall and coping before
+      // either geometry is emitted, so there is no deck/rail Z-fighting.
+      if (isNorthernHumboldthafenQuayEdge(ax, az, bx, bz)) {
+        continue;
+      }
       // Coping band: the walkable lip on top of the wall, on the land side.
       const outX = ((bz - az) / run) * COPING_WIDTH_M * outward;
       const outZ = (-(bx - ax) / run) * COPING_WIDTH_M * outward;
@@ -10416,6 +10442,9 @@ export function createIsometricCity(
     const bridges = createBridgeStructures(ground);
     if (bridges) {
       group.add(bridges);
+    }
+    if (options.includeContext !== false) {
+      group.add(createNorthernHumboldthafenRefinements(ground));
     }
   }
   if (options.includeContext !== false) {

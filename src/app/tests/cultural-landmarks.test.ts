@@ -4,6 +4,8 @@ import {
   createCulturalLandmarks,
   culturalFocusCamera,
 } from "../src/CulturalLandmarks";
+import { WATER_TOP_Y } from "../src/MinecraftVoxelWorld";
+import { REAL_SPREE_VESSEL_PROFILES } from "../src/SpreeVesselProfiles";
 
 const landmarks = [
   {
@@ -142,31 +144,24 @@ describe("cultural and Spree recognition details", () => {
     expect(bounds.max.y - bounds.min.y).toBeLessThan(43);
   });
 
-  test("grounds a detailed occupied excursion steamer in the Spree", () => {
+  test("does not duplicate the source-bound ships with invented party staffage", () => {
     const details = createCulturalLandmarks(landmarks);
-    const boat = details.getObjectByName(
+    const forbiddenNames = [
       "Berlin Spree excursion steamer with occupied upper deck",
-    );
-    const chairs = details.getObjectByName("Spree steamer ten deck-chair seats");
-    const passengers = details.getObjectByName("Spree steamer seated passengers");
-    const greenDrinks = details.getObjectByName(
+      "Spree steamer ten deck-chair seats",
+      "Spree steamer seated passengers",
       "Spree steamer green Berliner Weisse glasses",
-    );
-    const redDrinks = details.getObjectByName(
       "Spree steamer red Berliner Weisse glasses",
-    );
-    expect(boat).toBeDefined();
-    expect(boat?.position.y).toBeLessThan(1.249);
-    expect(chairs).toBeInstanceOf(InstancedMesh);
-    expect((chairs as InstancedMesh).count).toBe(10);
-    expect(passengers).toBeInstanceOf(InstancedMesh);
-    expect((passengers as InstancedMesh).count).toBe(10);
-    expect((greenDrinks as InstancedMesh).count).toBe(5);
-    expect((redDrinks as InstancedMesh).count).toBe(5);
-    expect(
-      boat?.children.filter((child) => child.name.includes("wake")),
-    ).toHaveLength(2);
-    expect(boat?.getObjectByName("Spree steamer stern wash")).toBeDefined();
+      "Spree steamer stern wash",
+    ];
+    for (const name of forbiddenNames) {
+      expect(details.getObjectByName(name)).toBeUndefined();
+    }
+    const legacyObjects: string[] = [];
+    details.traverse((object) => {
+      if (object.name.includes("Spree steamer")) legacyObjects.push(object.name);
+    });
+    expect(legacyObjects).toEqual([]);
   });
 
   test("adds a metrically aligned Spree surface with real vertical relief", () => {
@@ -227,9 +222,14 @@ describe("cultural and Spree recognition details", () => {
     expect(culturalFocusCamera("Carillon im Tiergarten")?.target_height_m).toBe(20);
     expect(culturalFocusCamera("Spreebogen")?.distance_m).toBe(90);
     expect(culturalFocusCamera("Spreebogen")?.azimuth_degrees).toBe(130);
-    // The excursion steamer rides the deepened Spree water table.
+    const vessel = REAL_SPREE_VESSEL_PROFILES.find(
+      (profile) => profile.name === "FMS Spree-Blick III",
+    )!;
+    // The focus follows the source-bound profile, not the removed alt boat.
     expect(culturalFocusCamera("Spreebogen")?.target_world).toEqual([
-      -259.21, -1.211, -219.53,
+      vessel.displayPositionWorldM[0],
+      WATER_TOP_Y,
+      vessel.displayPositionWorldM[1],
     ]);
     expect(culturalFocusCamera("Reichstagsgebäude")).toBeNull();
   });

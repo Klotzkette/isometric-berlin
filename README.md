@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.0 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.0/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.1/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.0** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.1** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.0**, built from `main`. Its full viewer
+The current public package is **v0.72.1**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -186,6 +186,21 @@ local modules.
   coherent plinth/body/cap layers, and the seven roaming creepers and zombies
   have clearer faces and clothing without adding draw calls or flickering
   random roof patterns.
+
+- **The civic skyline is now genuinely block-native in Minecraft.** Reichstag,
+  Bundeskanzleramt, Hauptbahnhof, Brandenburger Tor, Paul-Löbe-Haus and
+  Marie-Elisabeth-Lüders-Haus use five opaque instanced cube batches instead of
+  the smooth Day models. Their porticos, stepped glass dome, semicircular
+  Kanzleramt openings, crossed station halls, open Gate passages, committee
+  rotundas, Spree bridges and widening stair remain recognisable. The 15,469
+  blocks share one geometry/material; quartz and pale limestone dominate,
+  while silver, lapis and gold stay below 1.2% and follow real architectural
+  cues. Exact ownership masks remove only the 12 closed Reichstag-portico,
+  188 Kanzleramt-cube, 1,284 Hauptbahnhof, 52 Gate, 149 Paul-Löbe rotunda,
+  85 Lüders-Haus rotunda and 40 Lüders-Haus stair source records; complete
+  block floors, facade shells, roofs and glazing replace them without erasing
+  courts or neighbours. No texture, transparency, extra payload or idle
+  animation is added.
 
 - **Mobile controls now open ready to use.** Phone and tablet layouts always
   start with the flight/walking joystick and control chrome visible, even when
@@ -478,9 +493,13 @@ local modules.
   phones and tablets.
 
 - **Schwellenraum is a fifth, deliberately gentle spatial mode.** It keeps the
-  full Day city and the same continuously playing music, then adds a lavender
-  sky, four pastel light thresholds and elongated repeated frames without
-  globally stretching or repainting the source architecture. It provides
+  full Day city, adds a warm pearlescent sky, quiet pastel light thresholds,
+  elongated repeated frames and a few fixed pieces of everyday furniture
+  without globally stretching or repainting the source architecture. The
+  world is completely still in this mode except for the explicitly identified
+  German, EU, Swiss and Federal President flags. A separate very quiet,
+  procedural two-bus sound layer provides soft air/rustle and sparse harmonic
+  tones; the ordinary music layers crossfade out and resume on exit. It provides
   bounded presentation entrances and interiors for the Reichstag plenary
   chamber, Hauptbahnhof, Bundeskanzleramt, Potsdamer Platz station cellar and
   Charite. Walking and all flight controls use swept solid collision against
@@ -497,8 +516,9 @@ local modules.
   stay low and conservative rather than claiming invented architecture.
 
 - **Minecraft keeps the Brandenburg Gate recognisable.** Its complete metric
-  recognition model now replaces the 24 coarse voxel columns in the same
-  envelope, so the passages, columns, entablature and Quadriga are no longer
+  block model now replaces all 52 stacked LoD2 source records in the correctly
+  oriented 11 × 62.5 m envelope, so the passages, columns, entablature and
+  Quadriga are no longer
   buried inside a second block wall. A 50-point visual and accuracy audit
   covered five principal sights in Day, Night and Minecraft; settled scene
   pixels remained stable and the visible radius is **6,450 m**.
@@ -917,8 +937,18 @@ local modules.
   ellipse and receives structural ribs, golden `PIGOR & EICHHORN` / `NUR HEUTE
   ABEND` bulb lines, 220 rib lights and night-only concert colour. The 42 m
   Carillon exposes all 68 bells below its shallow roof; two small security
-  figures mark the Chancellery entrance. An occupied Spree excursion boat adds
-  an open upper deck, deckchairs, passengers, drinks, steam and wake.
+  figures mark the Chancellery entrance. Two static passenger vessels use the
+  [published](https://reederei-riedel.de/flotte?lang=en) 43.10 x 7.00 x 1.29 m
+  and 29.55 x 6.98 x 1.20 m fleet envelopes,
+  restrained type-level superstructures and committed OSM waterway axes. Their
+  placements are display compositions rather than live vessel observations;
+  wakes remain static in the normal drawn modes and disappear in Schwellenraum.
+- Humboldthafen now separates its source-backed northern sloped bank and DGM
+  crest from the remaining vertical quay walls. Hugo-Preuß-Brücke follows OSM
+  way `26109166`; both independently mapped Sandkrugbrücke carriageways follow
+  ways `36260393` and `248010193` instead of the former nearly transverse axis.
+  The same harbour, vessel and railing identities have compact block-native
+  recognition geometry in Minecraft without adding another data download.
 - Close-up detail now stays sharp without multiplying draw calls: instanced
   roof ribs, sleepers, facade panes, train fittings and balustrade posts are
   combined with batched glass seams, masonry courses, column fluting and
@@ -935,11 +965,12 @@ local modules.
 - Snowstorm adds a shared white ground mantle, 2,400 bounded desktop flakes
   (1,100 on touch devices), 168 wind-shaped drifts and three snowploughs while
   preserving the same buildings and metric anchors. One contextual weather
-  control toggles moderate rain in Day, Night, Minecraft and Schwellenraum, and
-  toggles the
+  control toggles moderate rain in Day, Night and Minecraft, and toggles the
   falling flakes in Snowstorm without removing its settled snow.
+  Schwellenraum keeps the stored rain preference but disables precipitation so
+  its street, water, vegetation, light and sparse-prop tableau stays still.
 - The `Minecraft` visual mode, also available with `M`,
-  applies an original 48-colour premium voxel palette, ordered dithering,
+  applies an original fixed 32-colour premium voxel palette,
   toon materials and restrained animated water/glass highlights without moving a
   single LoD2 anchor or changing camera framing. Deterministic villages,
   market tents, fields, tiny people, animals and boats appear progressively
@@ -995,7 +1026,11 @@ local modules.
   the first allowed click, pointer movement, touch, wheel or key gesture (or a
   later focus/visibility retry). Both layers can be switched off for the
   current session and may run together within a fixed low-volume headroom
-  budget. Sight changes remain visually quiet and show no unsolicited slogans.
+  budget. Schwellenraum replaces them with its own lower-ceiling procedural
+  layer: the existing `B` and `T` controls independently fade the room-rustle
+  and sparse-score buses, while mode changes crossfade without resetting the
+  stored choices. Sight changes remain visually quiet and show no unsolicited
+  slogans.
 - A bounded sharpen/saturation pass runs only after camera motion stops, while
   movement keeps the cheaper direct pipeline. The Chancellery cloud is removed,
   and the Carillon layer now lets the official mesh carry its granite pylons
@@ -1007,9 +1042,11 @@ local modules.
   surface tier while moving and after release. Six-frame browser sequences in
   Day and Night record 0 changed pixels across every adjacent still-frame
   comparison. The selected-sight marker is static rather than pulsing. In
-  Minecraft, only the deliberately walking figures change pixels; the
-  committed measurement tool independently enforces a bounded perceptual-delta
-  threshold for the rest of the frame.
+  Minecraft, only the deliberately walking figures change pixels. In
+  Schwellenraum only the allowlisted flags request sparse 15 Hz redraws; the
+  rest of the world remains bit-still. The committed measurement tool
+  independently enforces a bounded perceptual-delta threshold for the rest of
+  the frame.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
   road decks and lane marks, ventilation shafts and four-blade fan cues. It is
   hidden in ordinary exterior views and appears automatically only when an

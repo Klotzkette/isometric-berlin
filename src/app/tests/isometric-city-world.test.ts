@@ -60,6 +60,7 @@ import {
 import { ARCHITECTURAL_INK_PALETTE } from "../src/architecturalInk";
 import { ADLER_BRIDGE_PROFILE } from "../src/AdlerBridge";
 import { KOLLHOFF_TOWER_PROFILE } from "../src/expandedCityProfiles";
+import { SANDKRUG_OSM_DECK } from "../src/HumboldthafenSources";
 import prismPayload from "../public/mesh/regierungsviertel/lod2-prisms.json";
 import voxelGroundPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import surfacePolygonPayload from "../public/mesh/regierungsviertel/surface-polygons.json";
@@ -1361,8 +1362,9 @@ describe("real bridge structures", () => {
       halfWidthM: 14.4,
     });
     expect(profile("Sandkrugbrücke")).toMatchObject({
-      axis: [0.31623, 0.94868],
+      axis: SANDKRUG_OSM_DECK.axis,
       kind: "openFrame",
+      world: SANDKRUG_OSM_DECK.centreWorldM,
     });
     expect(profile("Löwenbrücke")).toMatchObject({
       axis: [0.894279, 0.447511],

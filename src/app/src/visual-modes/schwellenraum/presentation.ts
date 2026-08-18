@@ -8,6 +8,7 @@ import {
   LineSegments,
   Mesh,
   MeshBasicMaterial,
+  OctahedronGeometry,
   type Object3D,
   PlaneGeometry,
   SphereGeometry,
@@ -30,13 +31,13 @@ import {
  * is therefore made from a different sky and a few additive light objects,
  * never from displaced, stretched or post-processed architecture.
  */
-export const SCHWELLENRAUM_SKY_COLOR = 0xded9ee;
+export const SCHWELLENRAUM_SKY_COLOR = 0xe7e0cc;
 
 export const SCHWELLENRAUM_LIGHT_TONES = [
-  0xffd8e8,
-  0xd6ccff,
-  0xc8f2e2,
-  0xffdfb8,
+  0xffdfa0,
+  0xfff0c9,
+  0xd8caff,
+  0xc9eadf,
 ] as const;
 
 /**
@@ -117,6 +118,38 @@ export const SCHWELLENRAUM_LICHTORTE: readonly SchwellenraumLichtort[] = [
     widthM: 6.6,
     x: 303,
     z: 1645,
+  },
+  {
+    heightM: 9.6,
+    name: "Futurium Vorfeld",
+    rotationY: -0.12,
+    widthM: 5.8,
+    x: 170,
+    z: -580,
+  },
+  {
+    heightM: 10.6,
+    name: "Leipziger Platz Passage",
+    rotationY: 0.22,
+    widthM: 6.4,
+    x: 540,
+    z: 1010,
+  },
+  {
+    heightM: 8.8,
+    name: "Haus der Kulturen Vorfeld",
+    rotationY: -0.42,
+    widthM: 5.6,
+    x: -540,
+    z: 20,
+  },
+  {
+    heightM: 9.2,
+    name: "Cafe am Neuen See Gartenweg",
+    rotationY: 0.3,
+    widthM: 5.9,
+    x: -1815,
+    z: 930,
   },
 ] as const;
 
@@ -292,9 +325,13 @@ function createLichtschwelle(
   }
 
   const moteGeometry = new SphereGeometry(0.09, 8, 6);
+  const glintGeometry = new OctahedronGeometry(0.13, 0);
   for (let mote = 0; mote < 9; mote += 1) {
     const color = SCHWELLENRAUM_LIGHT_TONES[(index + mote) % 4];
-    const point = new Mesh(moteGeometry, lightMaterial(color, 0.31));
+    const point = new Mesh(
+      mote % 3 === 0 ? glintGeometry : moteGeometry,
+      lightMaterial(color, mote % 3 === 0 ? 0.48 : 0.31),
+    );
     point.name = `${profile.name} ruhender Lichtpunkt ${mote + 1}`;
     const t = (mote + 1) / 10;
     point.position.set(
@@ -303,10 +340,13 @@ function createLichtschwelle(
       -0.5 - Math.cos((mote + 1) * 1.71) * 1.25,
     );
     point.scale.setScalar(0.7 + (mote % 3) * 0.16);
+    point.rotation.set(mote * 0.13, mote * 0.29, mote * 0.07);
+    point.userData.schwellenraumStatic = true;
     group.add(point);
   }
 
   group.userData.schwellenraumPraesentation = true;
+  group.userData.schwellenraumStatic = true;
   group.userData.kollision = "nur Licht; keine begehbare oder durchfliegbare Masse";
   // The outer floor-light torus is the widest accent. This radius lets the
   // source-data guard disable the complete threshold before a future mapped
