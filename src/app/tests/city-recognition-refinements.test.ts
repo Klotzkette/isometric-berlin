@@ -13,11 +13,11 @@ import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 const payload = voxelPayload as unknown as VoxelPayload;
 
 describe("source-audited city recognition refinements", () => {
-  test("merges the presentation geometry into four stable draw batches", () => {
+  test("merges the presentation geometry into five stable draw batches", () => {
     const details = createCityRecognitionRefinements(payload);
 
-    expect(details.children).toHaveLength(4);
-    expect(details.userData.batchCount).toBe(4);
+    expect(details.children).toHaveLength(5);
+    expect(details.userData.batchCount).toBe(5);
     expect(details.userData.geometryStatus).toContain("not a 10 cm survey");
   });
 

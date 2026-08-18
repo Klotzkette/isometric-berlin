@@ -96,7 +96,7 @@ describe("block-native Berlin architectural signatures", () => {
     }
     expect(geometryIds.size).toBe(1);
     expect(materialIds.size).toBe(1);
-    expect(totalBlocks).toBe(15_469);
+    expect(totalBlocks).toBe(15_515);
   });
 
   test("keeps every colour in the fixed palette with restrained precious accents", () => {
@@ -128,6 +128,8 @@ describe("block-native Berlin architectural signatures", () => {
       "bronze dedication band": 4,
       "five-course west stair": 45,
       "four corner-tower crowns": 48,
+      "paired crowned Wappenbaum reliefs": 28,
+      "paired crowned west-pediment finials": 18,
       "six-column west portico": 42,
       "west entrance glass": 15,
       "west entrance recess": 32,

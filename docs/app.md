@@ -116,7 +116,7 @@ in place. True 3D renders precipitation as one camera-following field, with a
 lower particle budget on coarse pointers; the DZI fallback uses a lightweight
 screen layer. Precipitation is hidden automatically in underwater and underside
 views. Schwellenraum preserves the visitor's rain preference but disables the
-weather control and precipitation so its world remains still.
+weather control and precipitation so its geometry remains still.
 
 Schwellenraum reuses the complete Day city and crossfades the two normal audio
 layers into a dedicated, very quiet procedural soundscape. Its two existing
@@ -124,9 +124,13 @@ audio controls independently fade a soft room-rustle bus and a sparse harmonic
 bus; leaving the mode restores the standard layers without losing either user
 choice. Its warm pearlescent sky, pastel light thresholds, fixed sparse
 furnishings and elongated repeated frames are additive; buildings are never
-globally warped or recoloured. The complete world is static except for the
-explicitly identified German, EU, Swiss and Federal President flags, updated
-on a quiet 15 Hz cadence. The mode opens in true 3D and adds
+globally warped or recoloured. The only changing elements are the explicitly
+identified German, EU, Swiss and Federal President flags, updated on a quiet
+15 Hz cadence, and a texture-free light veil over the source water. Its fixed
+mist fields breathe at 3.75 Hz and a sparse deterministic subset may show a
+slow, faint glint; water vertices, ripples, vessels and wakes never move.
+Reduced-motion preference freezes this veil at one dim sample. The mode opens
+in true 3D and adds
 explicit entrances, ramps, stairs and bounded presentation interiors for the
 Reichstag plenary chamber, Hauptbahnhof concourse and deep platforms,
 Bundeskanzleramt, Potsdamer Platz station cellar and the historic Charite
@@ -224,7 +228,7 @@ and asphalt triangles are processed in bounded Worker partitions and merged
 back to the historical single material meshes before transfer. Thus the final
 asphalt buffer hash, vertex count and steady surface draw calls match the
 one-shot path. Regenerate the plate after any `surface-polygons.json` change
-with `bun run build:surface-plates` from `src/app`. On the v0.72.1 production
+with `bun run build:surface-plates` from `src/app`. On the v0.72.2 production
 payload, the reproducible Bun benchmark records a 0.76 s preview build and a
 1.9 ms maximum main-thread batch attachment, versus a 17.08 s synchronous
 one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
@@ -500,9 +504,14 @@ and [Bundesbau project information](https://bundesbau.de/projekte/berlin-modern)
 
 The optional fused park-detail request is deliberately non-blocking: a failed
 `park-details.json` request raises a warning but never delays or disables the
-23 official base meshes. When present, schema 6 batches park paths into six
-material groups while retaining an individual resolved width per way; tree
-trunks, fork branches and species-resolved crowns are instanced. The current
+23 official base meshes. When present, schema 7 batches park paths into nine
+source-resolved material groups while retaining every committed OSM vertex and
+an individual centimetre width per way. Small deterministic metre-scale tiles
+show setts, paving joints, loose fine gravel, compacted aggregate, sand, earth,
+timber, metal and asphalt without adding or moving a route; Minecraft reuses
+the same maps on its toon materials and a mode round-trip restores the exact
+Day material. Tree trunks, fork branches and species-resolved crowns are
+instanced. The current
 task-13 payload additively fuses 25,305 official catalogue trees with unmatched
 OSM evidence into 45,540 visible trees. In the Großer Tiergarten, all 13,156
 official tree points retain their published height, crown and trunk dimensions

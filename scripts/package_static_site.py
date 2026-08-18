@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.1"
+PACKAGE_VERSION = "0.72.2"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3569,9 +3569,10 @@ Wenige statische Personen, BVG-Busse, Autos, Fahrräder, E-Scooter und
 Kinderwagen geben Maßstab, ohne beobachteten Verkehr zu behaupten.
 
 Der vollständige begrenzte OSM-Wegebestand wird als echte Geländeoberfläche
-gezeichnet: 14.381 Geh-, Rad-, Stufen-, Feld- und Trampelpfad-Abschnitte, davon
-13.080 mit eingetragener Oberfläche und 1.719 mit eingetragener Breite. Asphalt,
-Pflaster, Kies/Sand, Erde, Holz und Metall bleiben unterscheidbar. Am Floraplatz
+gezeichnet: 20.782 Geh-, Rad-, Stufen-, Feld- und Trampelpfad-Abschnitte, davon
+18.848 mit eingetragener Oberfläche und 2.574 mit eingetragener Breite. Asphalt,
+Pflasterplatten, Setz-/Kopfstein, Feinkies, wassergebundene Decke, Sand, Erde,
+Holz und Metall bleiben unterscheidbar. Am Floraplatz
 stehen genau die acht dokumentierten Tierbronzen auf Granitsockeln. Hotel AMANO
 Grand Central behält OSM-Grundriss und amtliche LoD2-Höhe; der Geschichtspark
 Zellengefängnis Moabit behält seinen OSM-Parkumriss und liest die dokumentierten
@@ -3754,9 +3755,10 @@ buses, cars, bicycles, e-scooters and strollers provide scale without claiming
 observed traffic.
 
 The complete bounded OSM path network is also drawn as terrain-following
-surface geometry: 14,381 footway, cycleway, path, pedestrian, step and track
-parts, including 13,080 mapped surfaces and 1,719 mapped widths. Asphalt, paving,
-gravel/sand, earth, timber and metal remain distinct. Floraplatz contains the
+surface geometry: 20,782 footway, cycleway, path, pedestrian, step and track
+parts, including 18,848 mapped surfaces and 2,574 mapped widths. Asphalt,
+paving slabs, granite setts, fine gravel, compacted cover, sand, earth, timber
+and metal remain distinct. Floraplatz contains the
 documented eight animal bronzes on granite plinths. Hotel AMANO Grand Central
 retains its OSM plan and official LoD2 height, while the former Moabit prison
 park retains its OSM envelope and uses the published walls, wings, yards,

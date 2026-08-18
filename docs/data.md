@@ -286,6 +286,23 @@ leaf and accessibility attributes. The public viewer does not ship the raw
 response: `build_park_details` simplifies this evidence into the compact
 `park-details.json` display payload.
 
+The fetch contract also retains `informal=yes` on road/path rows. This is
+source evidence for mapped desire paths only; it never authorizes the renderer
+to infer an unrecorded shortcut through the park.
+
+The close-view material split follows the documented OSM `surface` semantics
+([OSM surface key](https://wiki.openstreetmap.org/wiki/Key:surface),
+[fine gravel](https://wiki.openstreetmap.org/wiki/Tag:surface%3Dfine_gravel)).
+Berlin's Straßen- und Grünflächenamt describes water-bound path surfaces as
+the normal treatment where use permits in large parks including the Großer
+Tiergarten, while higher bicycle loads or gradients can require asphalt
+([Berlin.de path-surface note](https://www.berlin.de/ba-mitte/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/planung-entwurf-neubau/artikel.688979.php)).
+The Senate's Bremer-Weg bridge record independently documents the local park
+walk as an approximately 4.60 m-wide water-bound surface
+([Berlin.de bridge record](https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/infrastruktur/brueckenbau/holzbruecke-bremer-weg-west/)).
+These references inform presentation only; per-way OSM geometry, `surface` and
+width tags remain the feature-level evidence.
+
 The building sidecar contains 12,856 non-overlapping OSM footprints (12,443 ways
 and 413 relations). LoD2 always wins where present. Of the sidecar heights, 261
 are explicit, 9,086 come from mapped storeys and 3,509 are marked display
@@ -321,10 +338,13 @@ vertices. Natural bends can therefore flow continuously while engineered
 basin/quay corners remain sharp; the display interpolation does not move a
 retained centreline or shoreline vertex and stays inside the mapped extent.
 
-`park-details.json` schema 6 repeats only compact material codes and resolved
-decimetre widths for the 3,466 raised close-view ribbons. It omits null path
-names and batches by six materials. The same payload preserves 83 exact OSM
-Tiergarten scrub polygons with 3,535 deterministic foliage clusters and 23
+`park-details.json` schema 7 repeats only compact material codes and resolved
+centimetre widths for the 3,467 raised close-view ribbons. It preserves every
+vertex of the committed 0.35 m OSM geometry and batches by nine close-view
+materials: asphalt, paving, setts/cobble, fine gravel, compacted aggregate,
+sand, earth, wood and metal. It omits null path names. The same payload
+preserves 83 exact OSM Tiergarten scrub polygons with 3,535 deterministic
+foliage clusters and 23
 mapped hedge objects; the earlier coarse all-area scrub samples are omitted
 only inside exact park relation `7643526`. This preserves both the source
 distinction and the measured 6 MiB public-payload ceiling without double

@@ -46,7 +46,12 @@ import {
   KULTURFORUM_PROFILE,
   TILLA_DURIEUX_PROFILE,
 } from "./expandedCityProfiles";
-import { createGoldelseFigure } from "./goldelse";
+import { GOLDELSE_HEIGHT_M, createGoldelseFigure } from "./goldelse";
+import {
+  SIEGESSAEULE_BRONZE_TONES,
+  SIEGESSAEULE_MOSAIC_TONES,
+  SIEGESSAEULE_PROFILE,
+} from "./SiegessaeuleProfile";
 import {
   CHARITE_ALTHOFF_TOWER_HELM_BOTTOM_Y_M,
   CHARITE_ALTHOFF_TOWER_ID,
@@ -5738,13 +5743,15 @@ export function createSiegessaeule(): Group {
   const group = new Group();
   group.name = "Siegessäule and Bismarck-Nationaldenkmal";
   group.userData.recognitionModel = true;
+  group.userData.sourceProfile = SIEGESSAEULE_PROFILE;
   const bodyGeometries: BufferGeometry[] = [];
+  const bronzeReliefGeometries: BufferGeometry[] = [];
+  const mosaicGeometries: BufferGeometry[] = [];
   const edgeGeometries: BufferGeometry[] = [];
-  const addPart = (
+  const colouredGeometry = (
     triangles: Float32Array,
     tone: number,
-    inked = true,
-  ): void => {
+  ): BufferGeometry => {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
     geometry.computeVertexNormals();
@@ -5757,12 +5764,29 @@ export function createSiegessaeule(): Group {
       colors[index * 3 + 2] = paint.b;
     }
     geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+    return geometry;
+  };
+  const addPart = (
+    triangles: Float32Array,
+    tone: number,
+    inked = true,
+  ): void => {
+    const geometry = colouredGeometry(triangles, tone);
     bodyGeometries.push(geometry);
     if (inked) {
       edgeGeometries.push(
         new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES),
       );
     }
+  };
+  const addDecorationPart = (
+    target: BufferGeometry[],
+    triangles: Float32Array,
+    tone: number,
+  ): BufferGeometry => {
+    const geometry = colouredGeometry(triangles, tone);
+    target.push(geometry);
+    return geometry;
   };
   const GROUND_TOP = 2.1;
   const axisDx = AXIS_TO[0] - AXIS_FROM[0];
@@ -5772,23 +5796,70 @@ export function createSiegessaeule(): Group {
   // Großer Stern circle and the Siegessäule.
   const SX = AXIS_TO[0];
   const SZ = AXIS_TO[1];
+  const BASE_PLATFORM_TOP_Y = GROUND_TOP + 1.4;
+  const BASE_TOP_Y =
+    BASE_PLATFORM_TOP_Y + SIEGESSAEULE_PROFILE.base.heightMApprox;
+  const HALL_FLOOR_TOP_Y = BASE_TOP_Y + 0.62;
+  const HALL_ROOF_BOTTOM_Y =
+    HALL_FLOOR_TOP_Y + SIEGESSAEULE_PROFILE.colonnade.columnHeightM;
+  const HALL_ROOF_THICKNESS_M = 0.7;
+  const HALL_ROOF_TOP_Y = HALL_ROOF_BOTTOM_Y + HALL_ROOF_THICKNESS_M;
+  const TARGET_TOP_Y = GROUND_TOP + SIEGESSAEULE_PROFILE.heightM;
+  const DRUM_BAND_HEIGHT_M = 0.8;
+  const COLUMN_CROWN_HEIGHT_M = 2.2;
+  const DRUM_PROPORTIONS = [14, 13, 12, 11] as const;
+  const DRUM_BODY_HEIGHT_M =
+    TARGET_TOP_Y -
+    HALL_ROOF_TOP_Y -
+    DRUM_PROPORTIONS.length * DRUM_BAND_HEIGHT_M -
+    COLUMN_CROWN_HEIGHT_M -
+    GOLDELSE_HEIGHT_M;
+  const drumProportionTotal = DRUM_PROPORTIONS.reduce(
+    (total, proportion) => total + proportion,
+    0,
+  );
+  group.userData.lowerRegisterMetrics = {
+    baseTopY: BASE_TOP_Y,
+    bronzeReliefCount: SIEGESSAEULE_PROFILE.reliefs.count,
+    colonnadeColumnHeightM: HALL_ROOF_BOTTOM_Y - HALL_FLOOR_TOP_Y,
+    colonnadeColumnCount: SIEGESSAEULE_PROFILE.colonnade.columnCount,
+    groundTopY: GROUND_TOP,
+    mosaicColourFieldCount: SIEGESSAEULE_PROFILE.mosaic.colourFieldCount,
+    mosaicFigureCueCount: SIEGESSAEULE_PROFILE.mosaic.figureCueCount,
+    mosaicMinY: HALL_FLOOR_TOP_Y + 0.25,
+    mosaicMaxY: HALL_ROOF_BOTTOM_Y - 0.2,
+    renderedHeightM: TARGET_TOP_Y - GROUND_TOP,
+    renderedTopY: TARGET_TOP_Y,
+  };
   addPart(
     prismTriangles(SX, GROUND_TOP - 1.3, SZ, 100, 3.2, 16),
     ISO_GROUND_SHADES.asphalt[1],
     false,
   );
   addPart(prismTriangles(SX, GROUND_TOP + 0.7, SZ, 22, 1.4, 12), 0xcbc8be);
-  addPart(boxTriangles(SX, GROUND_TOP + 4.9, SZ, axis, 23, 7, 23), 0x9a5f4c);
-  addPart(prismTriangles(SX, GROUND_TOP + 10.4, SZ, 9, 4, 12), 0xcbc8be);
+  addPart(
+    boxTriangles(
+      SX,
+      (BASE_PLATFORM_TOP_Y + BASE_TOP_Y) / 2,
+      SZ,
+      axis,
+      SIEGESSAEULE_PROFILE.base.widthM,
+      SIEGESSAEULE_PROFILE.base.heightMApprox,
+      SIEGESSAEULE_PROFILE.base.widthM,
+    ),
+    0x855345,
+  );
   // Four sandstone drums (the fourth was added when the column was moved in
   // 1938/39, taking it from 60.5 m to today's 67 m).
-  const DRUMS = [
-    [4.4, 14],
-    [4.0, 13],
-    [3.6, 12],
-    [3.2, 11],
-  ] as const;
-  let columnBase = GROUND_TOP + 12.4;
+  const DRUMS = [4.4, 4.0, 3.6, 3.2].map(
+    (radius, index) =>
+      [
+        radius,
+        (DRUM_BODY_HEIGHT_M * DRUM_PROPORTIONS[index]) /
+          drumProportionTotal,
+      ] as const,
+  );
+  let columnBase = HALL_ROOF_TOP_Y;
   for (const [radius, height] of DRUMS) {
     addPart(
       prismTriangles(SX, columnBase + height / 2, SZ, radius, height, 12),
@@ -5796,31 +5867,49 @@ export function createSiegessaeule(): Group {
     );
     columnBase += height;
     addPart(
-      prismTriangles(SX, columnBase + 0.4, SZ, radius + 0.5, 0.8, 12),
+      prismTriangles(
+        SX,
+        columnBase + DRUM_BAND_HEIGHT_M / 2,
+        SZ,
+        radius + 0.5,
+        DRUM_BAND_HEIGHT_M,
+        12,
+      ),
       0xd4af37,
     );
-    columnBase += 0.8;
+    columnBase += DRUM_BAND_HEIGHT_M;
   }
-  addPart(prismTriangles(SX, columnBase + 1.1, SZ, 4.6, 2.2, 12), 0xcbc8be);
+  addPart(
+    prismTriangles(
+      SX,
+      columnBase + COLUMN_CROWN_HEIGHT_M / 2,
+      SZ,
+      4.6,
+      COLUMN_CROWN_HEIGHT_M,
+      12,
+    ),
+    0xcbc8be,
+  );
   // Drake's gilded Viktoria. She faces west along the Straße des 17. Juni
   // axis towards Ernst-Reuter-Platz, as she has since the 1939 move from the
   // Königsplatz; `axis` runs Pariser Platz -> Großer Stern, so it already
   // points that way.
   const goldelse = createGoldelseFigure({
-    base: [SX, columnBase + 2.2, SZ],
+    base: [SX, columnBase + COLUMN_CROWN_HEIGHT_M, SZ],
     facing: axis,
   });
   for (const part of goldelse.parts) {
     addPart(part.triangles, part.tone);
   }
   // Strack's documented apparatus: the gilded cannon barrels set into the
-  // flutes, the relief band on the sandstone socle, and the ring of granite
-  // columns of the Säulenhalle around it.
+  // flutes, the four bronze reliefs inset into the lower square granite base,
+  // and the circular colonnade with von Werner's glass mosaic one level
+  // higher.  Keeping those registers separate is the key recognition cue.
   const monumentInk: number[] = [...goldelse.inkSegments];
   // Sixty captured gun barrels are gilded into the flutes of the lower three
   // drums; the fourth drum was added in 1938 and carries plain flutes.
   const BARRELS_PER_DRUM = 20;
-  let fluteBase = GROUND_TOP + 12.4;
+  let fluteBase = HALL_ROOF_TOP_Y;
   DRUMS.forEach(([radius, height], drum) => {
     const gilded = drum < 3;
     const count = gilded ? BARRELS_PER_DRUM : 12;
@@ -5853,79 +5942,262 @@ export function createSiegessaeule(): Group {
         );
       }
     }
-    fluteBase += height + 0.8;
+    fluteBase += height + DRUM_BAND_HEIGHT_M;
   });
-  for (const y of [GROUND_TOP + 2.6, GROUND_TOP + 7.2]) {
-    for (const zSide of [-11.5, 11.5]) {
-      monumentInk.push(SX - 11.5, y, SZ + zSide, SX + 11.5, y, SZ + zSide);
-    }
-    for (const xSide of [-11.5, 11.5]) {
-      monumentInk.push(SX + xSide, y, SZ - 11.5, SX + xSide, y, SZ + 11.5);
-    }
-  }
-  for (let panel = 1; panel < 5; panel += 1) {
-    const t = -11.5 + (panel / 5) * 23;
-    for (const zSide of [-11.5, 11.5]) {
+  const halfBase = SIEGESSAEULE_PROFILE.base.widthM / 2;
+  const reliefY = BASE_PLATFORM_TOP_Y + 3.4;
+  for (const y of [BASE_PLATFORM_TOP_Y + 0.75, BASE_TOP_Y - 0.75]) {
+    for (const zSide of [-halfBase, halfBase]) {
       monumentInk.push(
-        SX + t,
-        GROUND_TOP + 2.6,
+        SX - halfBase,
+        y,
         SZ + zSide,
-        SX + t,
-        GROUND_TOP + 7.2,
+        SX + halfBase,
+        y,
         SZ + zSide,
       );
     }
-    for (const xSide of [-11.5, 11.5]) {
+    for (const xSide of [-halfBase, halfBase]) {
       monumentInk.push(
         SX + xSide,
-        GROUND_TOP + 2.6,
-        SZ + t,
+        y,
+        SZ - halfBase,
         SX + xSide,
-        GROUND_TOP + 7.2,
-        SZ + t,
+        y,
+        SZ + halfBase,
       );
     }
   }
-  for (let column = 0; column < 16; column += 1) {
-    const angle = (column / 16) * Math.PI * 2;
-    const cxx = SX + Math.cos(angle) * 17.4;
-    const czz = SZ + Math.sin(angle) * 17.4;
-    addPart(prismTriangles(cxx, GROUND_TOP + 4.6, czz, 0.85, 6.4, 8), 0xcbc8be);
-    // Doric capital and base, so the ring reads as a colonnade rather than
-    // as sixteen plain posts.
+
+  const acrossAxis: [number, number] = [-axis[1], axis[0]];
+  // The square base follows the Straße-des-17.-Juni axis, so its reliefs
+  // must use the same rotated face frame rather than world-cardinal planes.
+  const reliefFaces = [
+    { axis, normal: acrossAxis },
+    { axis, normal: [-acrossAxis[0], -acrossAxis[1]] as [number, number] },
+    { axis: acrossAxis, normal: axis },
+    { axis: acrossAxis, normal: [-axis[0], -axis[1]] as [number, number] },
+  ];
+  for (const { axis: reliefAxis, normal } of reliefFaces) {
+    const faceX = SX + normal[0] * (halfBase + 0.07);
+    const faceZ = SZ + normal[1] * (halfBase + 0.07);
+    const field = addDecorationPart(
+      bronzeReliefGeometries,
+      boxTriangles(
+        faceX,
+        reliefY,
+        faceZ,
+        reliefAxis,
+        SIEGESSAEULE_PROFILE.reliefs.widthMApprox,
+        SIEGESSAEULE_PROFILE.reliefs.heightMApprox,
+        0.14,
+      ),
+      SIEGESSAEULE_BRONZE_TONES.field,
+    );
+    edgeGeometries.push(
+      new EdgesGeometry(field, ISO_EDGE_THRESHOLD_DEGREES),
+    );
+    // A shallow procession of alternating bodies and standards reads as
+    // relief without reproducing, texturing or celebrating the battle scenes.
+    for (let figure = 0; figure < 9; figure += 1) {
+      const along = (figure - 4) * 1.12;
+      const rise = ((figure * 5) % 3) * 0.18;
+      const outward = halfBase + 0.16;
+      const x = SX + reliefAxis[0] * along + normal[0] * outward;
+      const z = SZ + reliefAxis[1] * along + normal[1] * outward;
+      addDecorationPart(
+        bronzeReliefGeometries,
+        boxTriangles(
+          x,
+          reliefY - 0.18 + rise,
+          z,
+          reliefAxis,
+          figure % 3 === 0 ? 0.72 : 0.5,
+          0.72 + rise,
+          0.12,
+        ),
+        SIEGESSAEULE_BRONZE_TONES.highlight,
+      );
+    }
+  }
+
+  // The square relief-bearing base finishes first.  The 15.7 m circular hall
+  // then rises on it; its 16 columns are not a ground-level outer ring.
+  const hallRadius = SIEGESSAEULE_PROFILE.colonnade.diameterM / 2;
+  addPart(
+    prismTriangles(
+      SX,
+      (BASE_TOP_Y + HALL_FLOOR_TOP_Y) / 2,
+      SZ,
+      hallRadius + 0.9,
+      HALL_FLOOR_TOP_Y - BASE_TOP_Y,
+      32,
+    ),
+    0xbcb8ae,
+  );
+  const shaftBottomY = HALL_FLOOR_TOP_Y;
+  const shaftTopY = HALL_ROOF_BOTTOM_Y;
+  const capitalHeight = 0.38;
+  const baseHeight = 0.38;
+  const columnShaftBottomY = HALL_FLOOR_TOP_Y + baseHeight;
+  const columnShaftTopY = HALL_ROOF_BOTTOM_Y - capitalHeight;
+  for (
+    let column = 0;
+    column < SIEGESSAEULE_PROFILE.colonnade.columnCount;
+    column += 1
+  ) {
+    const angle =
+      (column / SIEGESSAEULE_PROFILE.colonnade.columnCount) * Math.PI * 2;
+    const cxx = SX + Math.cos(angle) * hallRadius;
+    const czz = SZ + Math.sin(angle) * hallRadius;
     addPart(
-      prismTriangles(cxx, GROUND_TOP + 7.95, czz, 1.05, 0.5, 8),
+      prismTriangles(
+        cxx,
+        (columnShaftBottomY + columnShaftTopY) / 2,
+        czz,
+        0.38,
+        columnShaftTopY - columnShaftBottomY,
+        8,
+      ),
+      0xcbc8be,
+    );
+    addPart(
+      prismTriangles(
+        cxx,
+        HALL_FLOOR_TOP_Y + baseHeight / 2,
+        czz,
+        0.55,
+        baseHeight,
+        8,
+      ),
       0xd6d2c7,
     );
-    addPart(prismTriangles(cxx, GROUND_TOP + 1.6, czz, 1.02, 0.6, 8), 0xd6d2c7);
+    addPart(
+      prismTriangles(
+        cxx,
+        HALL_ROOF_BOTTOM_Y - capitalHeight / 2,
+        czz,
+        0.58,
+        capitalHeight,
+        8,
+      ),
+      0xd6d2c7,
+    );
   }
-  addPart(prismTriangles(SX, GROUND_TOP + 8.3, SZ, 19.2, 1, 16), 0xbfbcb2);
-  // Antonio Salviati's glass mosaic (1876, after Anton von Werner's cartoon
-  // of the founding of the Reich) lines the wall of the Säulenhalle behind
-  // the colonnade. Drawn as a gold-ground band with its panel divisions
-  // inked, which is what the mosaic reads as from outside the ring.
   addPart(
-    prismTriangles(SX, GROUND_TOP + 4.9, SZ, 16.6, 5.2, 32),
-    0xa8843c,
-    false,
+    prismTriangles(
+      SX,
+      (HALL_ROOF_BOTTOM_Y + HALL_ROOF_TOP_Y) / 2,
+      SZ,
+      hallRadius + 1.08,
+      HALL_ROOF_TOP_Y - HALL_ROOF_BOTTOM_Y,
+      32,
+    ),
+    0xbfbcb2,
   );
-  for (let panel = 0; panel < 16; panel += 1) {
-    const angle = ((panel + 0.5) / 16) * Math.PI * 2;
-    const mx = SX + Math.cos(angle) * 16.65;
-    const mz = SZ + Math.sin(angle) * 16.65;
-    monumentInk.push(mx, GROUND_TOP + 2.4, mz, mx, GROUND_TOP + 7.4, mz);
+
+  // Antonio Salviati's glass mosaic (1873-76, after Anton von Werner's
+  // cartoon) covers the outward face of the inner shaft, behind the columns.
+  // It is one continuous narrative, so the cue uses irregular polychrome
+  // fields and small figure silhouettes rather than false panel divisions.
+  const mosaicRadius = 5.42;
+  const mosaicMinY = HALL_FLOOR_TOP_Y + 0.25;
+  const mosaicMaxY = HALL_ROOF_BOTTOM_Y - 0.2;
+  addDecorationPart(
+    mosaicGeometries,
+    prismTriangles(
+      SX,
+      (shaftBottomY + shaftTopY) / 2,
+      SZ,
+      mosaicRadius,
+      shaftTopY - shaftBottomY,
+      48,
+    ),
+    SIEGESSAEULE_MOSAIC_TONES[0],
+  );
+  for (
+    let field = 0;
+    field < SIEGESSAEULE_PROFILE.mosaic.colourFieldCount;
+    field += 1
+  ) {
+    const angle =
+      ((field + 0.5) / SIEGESSAEULE_PROFILE.mosaic.colourFieldCount) *
+      Math.PI *
+      2;
+    const tangent: [number, number] = [-Math.sin(angle), Math.cos(angle)];
+    const radius = mosaicRadius + 0.065;
+    const height = 0.42 + ((field * 7) % 4) * 0.1;
+    const y = mosaicMinY + 0.38 + ((field * 5) % 4) * 0.58;
+    addDecorationPart(
+      mosaicGeometries,
+      boxTriangles(
+        SX + Math.cos(angle) * radius,
+        Math.min(y, mosaicMaxY - height / 2),
+        SZ + Math.sin(angle) * radius,
+        tangent,
+        0.66 + (field % 3) * 0.09,
+        height,
+        0.1,
+      ),
+      SIEGESSAEULE_MOSAIC_TONES[
+        1 + (field % (SIEGESSAEULE_MOSAIC_TONES.length - 1))
+      ],
+    );
   }
-  for (const y of [GROUND_TOP + 2.4, GROUND_TOP + 7.4]) {
+  for (
+    let figure = 0;
+    figure < SIEGESSAEULE_PROFILE.mosaic.figureCueCount;
+    figure += 1
+  ) {
+    const angle =
+      ((figure + 0.35) / SIEGESSAEULE_PROFILE.mosaic.figureCueCount) *
+      Math.PI *
+      2;
+    const tangent: [number, number] = [-Math.sin(angle), Math.cos(angle)];
+    const radius = mosaicRadius + 0.13;
+    const bodyHeight = 0.72 + (figure % 4) * 0.08;
+    const bodyY = mosaicMinY + 0.55 + ((figure * 3) % 2) * 0.28;
+    const tone =
+      SIEGESSAEULE_MOSAIC_TONES[
+        1 + ((figure + 2) % (SIEGESSAEULE_MOSAIC_TONES.length - 1))
+      ];
+    addDecorationPart(
+      mosaicGeometries,
+      boxTriangles(
+        SX + Math.cos(angle) * radius,
+        bodyY,
+        SZ + Math.sin(angle) * radius,
+        tangent,
+        0.24,
+        bodyHeight,
+        0.1,
+      ),
+      tone,
+    );
+    addDecorationPart(
+      mosaicGeometries,
+      prismTriangles(
+        SX + Math.cos(angle) * radius,
+        bodyY + bodyHeight / 2 + 0.13,
+        SZ + Math.sin(angle) * radius,
+        0.13,
+        0.24,
+        6,
+      ),
+      tone,
+    );
+  }
+  for (const y of [mosaicMinY, mosaicMaxY]) {
     for (let step = 0; step < 32; step += 1) {
       const a0 = (step / 32) * Math.PI * 2;
       const a1 = ((step + 1) / 32) * Math.PI * 2;
       monumentInk.push(
-        SX + Math.cos(a0) * 16.65,
+        SX + Math.cos(a0) * (mosaicRadius + 0.08),
         y,
-        SZ + Math.sin(a0) * 16.65,
-        SX + Math.cos(a1) * 16.65,
+        SZ + Math.sin(a0) * (mosaicRadius + 0.08),
+        SX + Math.cos(a1) * (mosaicRadius + 0.08),
         y,
-        SZ + Math.sin(a1) * 16.65,
+        SZ + Math.sin(a1) * (mosaicRadius + 0.08),
       );
     }
   }
@@ -5997,6 +6269,48 @@ export function createSiegessaeule(): Group {
     new Float32BufferAttribute(monumentInk, 3),
   );
   edgeGeometries.push(bismarckGeometry);
+  const addMergedDecoration = (
+    name: string,
+    geometries: BufferGeometry[],
+    architecturalLevel: string,
+    metalness: number,
+    roughness: number,
+  ): void => {
+    const geometry = mergeGeometries(geometries, false);
+    if (!geometry) return;
+    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
+    const nightMaterial = new MeshStandardMaterial({
+      flatShading: true,
+      metalness,
+      roughness,
+      vertexColors: true,
+    });
+    const mesh = new Mesh(geometry, dayMaterial);
+    mesh.name = name;
+    mesh.renderOrder = 1;
+    mesh.userData.animated = false;
+    mesh.userData.architecturalLevel = architecturalLevel;
+    mesh.userData.dayMaterial = dayMaterial;
+    mesh.userData.nightMaterial = nightMaterial;
+    mesh.userData.staticDecoration = true;
+    mesh.userData.textureFree = true;
+    group.add(mesh);
+    for (const sourceGeometry of geometries) sourceGeometry.dispose();
+  };
+  addMergedDecoration(
+    "Siegessäule lower bronze relief bodies",
+    bronzeReliefGeometries,
+    SIEGESSAEULE_PROFILE.reliefs.architecturalLevel,
+    0.52,
+    0.56,
+  );
+  addMergedDecoration(
+    "Siegessäule Anton von Werner glass mosaic bodies",
+    mosaicGeometries,
+    SIEGESSAEULE_PROFILE.mosaic.architecturalLevel,
+    0.08,
+    0.48,
+  );
   const merged = mergeGeometries(bodyGeometries, false);
   if (merged) {
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });

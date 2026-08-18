@@ -2628,6 +2628,69 @@
         "#484848"
       ],
       "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "siegessaeule",
+      "title": "File:Berlin Victory Column - BugWarp 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Victory_Column_-_BugWarp_01.jpg",
+      "thumbnail_path": "siegessaeule_01_file-berlin-victory-column-bugwarp-01-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Berlin_Victory_Column_-_BugWarp_01.jpg/960px-Berlin_Victory_Column_-_BugWarp_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "BugWarp",
+      "credit": "Own work",
+      "description": "Berlin Victory Column in August 2024.",
+      "dominant_colours": [
+        "#8ebae5",
+        "#789fcf",
+        "#6f8fb7",
+        "#808081",
+        "#5080b9",
+        "#444c54"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "siegessaeule",
+      "title": "File:Mosaik in der Berliner Siegessäule.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AMosaik_in_der_Berliner_Siegess%C3%A4ule.jpg",
+      "thumbnail_path": "siegessaeule_02_file-mosaik-in-der-berliner-siegessaule-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Mosaik_in_der_Berliner_Siegess%C3%A4ule.jpg/960px-Mosaik_in_der_Berliner_Siegess%C3%A4ule.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "OguzKurt28",
+      "credit": "Own work",
+      "description": "Mosaik in der Berliner Siegessäule",
+      "dominant_colours": [
+        "#e0dfc1",
+        "#aca075",
+        "#8d7b4e",
+        "#7d5c29",
+        "#655531",
+        "#453011"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "reichstag",
+      "title": "File:Reichstag (building) architecture from west - Berlin, Germany - DSC09654.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstag_%28building%29_architecture_from_west_-_Berlin%2C_Germany_-_DSC09654.JPG",
+      "thumbnail_path": "reichstag_04_file-reichstag-building-architecture-from-west-berlin-germany-dsc09654-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Reichstag_%28building%29_architecture_from_west_-_Berlin%2C_Germany_-_DSC09654.JPG/960px-Reichstag_%28building%29_architecture_from_west_-_Berlin%2C_Germany_-_DSC09654.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Daderot",
+      "credit": "Own work",
+      "description": "Reichstag (building) architecture from west - Berlin, Germany.",
+      "dominant_colours": [
+        "#d2c19c",
+        "#ccab74",
+        "#bc965e",
+        "#6a90c2",
+        "#857a6c",
+        "#54422d"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

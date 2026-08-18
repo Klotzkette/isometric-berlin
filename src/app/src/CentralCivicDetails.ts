@@ -160,6 +160,8 @@ const PARISER_LAWN = 0x8db978;
 const PARISER_FLOWER_SOIL = 0x765d48;
 const PARISER_RAIL = 0x38413d;
 const PARISER_WATER = 0x77b7c8;
+export const PARISER_PLATZ_WATER_MESH_NAME =
+  "Pariser Platz authored fountain water";
 const PARISER_FOUNTAIN_MIST = 0xe8f3ef;
 const TAXI_IVORY = 0xe9dfbd;
 const WALL_CONCRETE = 0xa8a69e;
@@ -1970,7 +1972,10 @@ function addBundestagKita(builder: Builder): void {
   });
 }
 
-function addPariserPlatzDetails(builder: Builder): void {
+function addPariserPlatzDetails(
+  builder: Builder,
+  waterBuilder: Builder,
+): void {
   const rotation = 0.087;
   const gardenBaseY = 4.84;
   const flowerPalette = [0x4f72af, 0xf1eee5, 0xb84946] as const;
@@ -2188,7 +2193,7 @@ function addPariserPlatzDetails(builder: Builder): void {
       40,
     );
     addCylinder(
-      builder,
+      waterBuilder,
       PARISER_WATER,
       centre[0],
       gardenBaseY + 0.49,
@@ -4698,13 +4703,14 @@ export function createCentralCivicDetails(
     landmarks.map((landmark) => [landmark.name, landmark]),
   );
   const builder = createBuilder();
+  const pariserPlatzWaterBuilder = createBuilder();
   addHauptbahnhofTransit(builder, byName);
   addOggiAndTaxis(builder, byName);
   addFuturium(builder, byName);
   addGreenFederalCampus(builder, byName);
   addParliamentOfTrees(builder, byName);
   addBundestagKita(builder);
-  addPariserPlatzDetails(builder);
+  addPariserPlatzDetails(builder, pariserPlatzWaterBuilder);
   addPariserPlatzEmbassies(builder);
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
@@ -4720,6 +4726,19 @@ export function createCentralCivicDetails(
     name: "Central transit and civic details",
   });
   if (drawn) group.add(drawn);
+  const pariserPlatzWater = finishDrawnGroup(pariserPlatzWaterBuilder, {
+    name: "Pariser Platz authored fountain water detail",
+  });
+  if (pariserPlatzWater) {
+    const waterMesh = pariserPlatzWater.getObjectByName(
+      "Pariser Platz authored fountain water detail bodies",
+    );
+    if (waterMesh instanceof Mesh) {
+      waterMesh.name = PARISER_PLATZ_WATER_MESH_NAME;
+      waterMesh.userData.schwellenraumWaterSurface = true;
+    }
+    group.add(pariserPlatzWater);
+  }
   group.add(createBundestagSpreeConnection());
   const pariserPlatzBuilder = createBuilder();
   addPariserPlatzPhotoDetails(pariserPlatzBuilder);

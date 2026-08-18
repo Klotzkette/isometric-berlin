@@ -312,6 +312,12 @@ import {
   updateSchwellenraumMovingFlags,
 } from "./visual-modes/schwellenraum/motion";
 import {
+  SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS,
+  SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS,
+  setSchwellenraumWaterAtmospherePresentation,
+  updateSchwellenraumWaterAtmosphere,
+} from "./visual-modes/schwellenraum/waterAtmosphere";
+import {
   createSchwellenraumStaticPropCollision,
   installSchwellenraumStaticProps,
 } from "./visual-modes/schwellenraum/staticProps";
@@ -458,12 +464,16 @@ type Runtime = {
   schwellenraumPraesentation: Group;
   schwellenraumFlagElapsedSeconds: number;
   schwellenraumLastFlagFrameAt: number;
+  schwellenraumLastWaterFrameAt: number;
   schwellenraumMovingFlagCount: number;
+  schwellenraumWaterElapsedSeconds: number;
+  schwellenraumWaterLightCount: number;
   parkDetails: Group;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
   notifyPresentationReady: () => void;
   rain: ModerateRain;
+  reducedMotion: boolean;
   precipitationEnabled: boolean;
   snowstorm: Snowstorm;
   renderer: WebGLRenderer;
@@ -906,6 +916,19 @@ function isTunnelPortalFocus(name: string): boolean {
   return name.includes("Tiergartentunnel") || name === "Spreebogen";
 }
 
+function schwellenraumWaterRoots(runtime: Runtime): Object3D[] {
+  const roots: Object3D[] = [
+    runtime.signatures,
+    runtime.centralDetails,
+    runtime.civicDetails,
+    runtime.monuments,
+    runtime.culturalDetails,
+    runtime.parkDetails,
+  ];
+  if (runtime.isoWorld) roots.push(runtime.isoWorld);
+  return roots;
+}
+
 function setEnvironmentalPresentation(runtime: Runtime): void {
   const obstructed =
     runtime.underside ||
@@ -931,6 +954,25 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.lightingMode,
     obstructed || runtime.underside,
   );
+  const waterWasVisible = runtime.schwellenraumWaterLightCount > 0;
+  const waterAtmosphere = setSchwellenraumWaterAtmospherePresentation(
+    schwellenraumWaterRoots(runtime),
+    runtime.lightingMode,
+    obstructed || runtime.underside,
+  );
+  runtime.schwellenraumWaterLightCount = waterAtmosphere.visibleCount;
+  if (waterAtmosphere.visibleCount > 0) {
+    updateSchwellenraumWaterAtmosphere(
+      schwellenraumWaterRoots(runtime),
+      runtime.schwellenraumWaterElapsedSeconds,
+      runtime.reducedMotion,
+    );
+    if (!waterWasVisible) {
+      // Entering the mode or resurfacing shows the already established
+      // sample first. The next change waits one complete bounded interval.
+      runtime.schwellenraumLastWaterFrameAt = performance.now();
+    }
+  }
   const interiorsVisible =
     runtime.lightingMode === "schwellenraum" && !runtime.underside;
   const interiorsChanged =
@@ -944,6 +986,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     mobsChanged ||
     snowChanged ||
     schwellenraumChanged ||
+    waterAtmosphere.changed ||
     interiorsChanged
   ) {
     runtime.renderInvalidated = true;
@@ -1522,6 +1565,8 @@ function setSceneLighting(
   mode: LightingMode,
   lightsOn = true,
 ): void {
+  const enteringSchwellenraum =
+    mode === "schwellenraum" && runtime.lightingMode !== "schwellenraum";
   runtime.renderInvalidated = true;
   runtime.lightingMode = mode;
   runtime.nightLightsOn = lightsOn;
@@ -1694,14 +1739,20 @@ function setSceneLighting(
   setUndergroundPresentation(runtime.undergroundNetwork, mode);
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
-  // Every mode starts from one authored cloth pose. Schwellenraum's separate
-  // closed allowlist may subsequently advance recognised civic flags at a
-  // calm fixed cadence; all other flags and signal lamps remain frozen.
-  updateWindFlags(runtime.signatures, 0.9);
-  updateWindFlags(runtime.civicDetails, 0.9);
-  if (isSchwellenraum) {
+  // Every true mode entry starts from one authored cloth pose. A same-mode
+  // Schwellenraum relight (for example after resurfacing) must keep both the
+  // current pose and elapsed clock; resetting only the geometry would make
+  // the next allowlisted 15 Hz tick jump discontinuously.
+  if (!isSchwellenraum || enteringSchwellenraum) {
+    updateWindFlags(runtime.signatures, 0.9);
+    updateWindFlags(runtime.civicDetails, 0.9);
+  }
+  if (enteringSchwellenraum) {
     runtime.schwellenraumFlagElapsedSeconds = 0.9;
     runtime.schwellenraumLastFlagFrameAt = 0;
+    runtime.schwellenraumWaterElapsedSeconds =
+      SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS;
+    runtime.schwellenraumLastWaterFrameAt = 0;
   }
   refreshSchwellenraumMovingFlagCount(runtime);
   if (runtime.trafficSignals) {
@@ -2023,6 +2074,10 @@ function startProgressiveWorld(
       object.userData.progressiveWorldBatch = true;
       runtime.progressiveWorldBatches.push(object);
       runtime.isoWorld.add(object);
+      // Water is commonly the first exact progressive surface batch. Install
+      // the light-only Schwellenraum veil in the same task, before any frame
+      // can expose an uninitialised or day-bright overlay.
+      setEnvironmentalPresentation(runtime);
       runtime.renderInvalidated = true;
       return;
     }
@@ -3287,6 +3342,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
 
     useEffect(() => {
       activeRef.current = active;
+      const runtime = runtimeRef.current;
+      if (active && runtime) {
+        runtime.schwellenraumLastWaterFrameAt = performance.now();
+        runtime.renderInvalidated = true;
+      }
     }, [active]);
 
     useEffect(() => {
@@ -4064,7 +4124,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         schwellenraumPraesentation,
         schwellenraumFlagElapsedSeconds: 0.9,
         schwellenraumLastFlagFrameAt: 0,
+        schwellenraumLastWaterFrameAt: 0,
         schwellenraumMovingFlagCount: 0,
+        schwellenraumWaterElapsedSeconds:
+          SCHWELLENRAUM_WATER_INITIAL_TIME_SECONDS,
+        schwellenraumWaterLightCount: 0,
         parkDetails,
         pedestrian: {
           cameraDirty: false,
@@ -4086,6 +4150,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onReadyRef.current();
         },
         rain,
+        reducedMotion,
         precipitationEnabled: precipitationEnabledRef.current,
         loadSignal: loadController.signal,
         ensurePhotoSurface: () => undefined,
@@ -4751,6 +4816,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onVisibilityChange = () => {
         if (document.hidden) {
           resetTouchGesture();
+        } else {
+          runtime.schwellenraumLastWaterFrameAt = performance.now();
+          runtime.renderInvalidated = true;
         }
       };
       const onDoubleClick = (event: MouseEvent) => {
@@ -5039,12 +5107,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
         const schwellenraumMotion = schwellenraumMotionDecision({
           lastFlagFrameAt: runtime.schwellenraumLastFlagFrameAt,
+          lastWaterFrameAt: runtime.schwellenraumLastWaterFrameAt,
           minecraftMobsVisible: runtime.minecraftMobs?.group.visible === true,
           mode: runtime.lightingMode,
           movingFlagCount: runtime.schwellenraumMovingFlagCount,
           rainVisible: runtime.rain.group.visible,
+          reducedMotion,
           snowVisible: snowfallAnimationActive(runtime.snowstorm),
           timestamp,
+          waterLightCount: runtime.schwellenraumWaterLightCount,
         });
         const environmentalMotion = schwellenraumMotion.environmentalMotion;
         // A still camera must let Minecraft settle to one calm frame instead
@@ -5156,14 +5227,26 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               reducedMotion ? dtSeconds * 0.35 : dtSeconds,
             );
           }
-        } else if (schwellenraumMotion.animateFlags) {
-          runtime.schwellenraumFlagElapsedSeconds +=
-            SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS / 1000;
-          updateSchwellenraumMovingFlags(
-            [runtime.signatures, runtime.civicDetails],
-            runtime.schwellenraumFlagElapsedSeconds,
-          );
-          runtime.schwellenraumLastFlagFrameAt = timestamp;
+        } else {
+          if (schwellenraumMotion.animateFlags) {
+            runtime.schwellenraumFlagElapsedSeconds +=
+              SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS / 1000;
+            updateSchwellenraumMovingFlags(
+              [runtime.signatures, runtime.civicDetails],
+              runtime.schwellenraumFlagElapsedSeconds,
+            );
+            runtime.schwellenraumLastFlagFrameAt = timestamp;
+          }
+          if (schwellenraumMotion.animateWaterLight) {
+            runtime.schwellenraumWaterElapsedSeconds +=
+              SCHWELLENRAUM_WATER_FRAME_INTERVAL_MS / 1_000;
+            updateSchwellenraumWaterAtmosphere(
+              schwellenraumWaterRoots(runtime),
+              runtime.schwellenraumWaterElapsedSeconds,
+              reducedMotion,
+            );
+            runtime.schwellenraumLastWaterFrameAt = timestamp;
+          }
         }
         // Momentum glide: the released pan eases out smoothly.
         if (
@@ -5533,6 +5616,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                       true,
                     );
                   }
+                  setEnvironmentalPresentation(runtime);
                   collectFarZoomAntiFlickerTargets(runtime);
                   runtime.renderInvalidated = true;
                 })

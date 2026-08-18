@@ -183,9 +183,9 @@ export const REICHSTAG_WEST_FACADE_PROFILE = {
   corniceDentilCount: 72,
   cornerQuoinBlockCount: 72,
   entranceMullionCount: 4,
-  pedimentAcroterionCount: 3,
+  pedimentAcroterionCount: 2,
   porticoColumnCount: 6,
-  porticoReliefFigureCount: 10,
+  porticoReliefFigureCount: 0,
   roofFigureCount: 10,
   towerBalusterCount: 24,
   towerLedgeFigureCount: 8,
@@ -201,6 +201,30 @@ export const REICHSTAG_WEST_FACADE_PROFILE = {
   wingPilasterCount: 12,
   wingSegmentalPedimentCount: 4,
   wingWindowSillCount: 20,
+} as const;
+
+/**
+ * The two conspicuous crowned finials at the springing points of the west
+ * portico pediment, plus the paired heraldic "trees" in the outer portico
+ * bays.  These are photo-bounded recognition dimensions rather than surveyed
+ * sculpture: the Bundestag source fixes the Wappenbaum subject/count and the
+ * CC0 west-elevation photograph fixes the present-day silhouette.
+ */
+export const REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE = {
+  cornerFinialBaseY: 20.22,
+  cornerFinialCount: 2,
+  cornerFinialHeightM: 9.36,
+  cornerFinialZ: [-19.15, 19.15] as const,
+  geometryStatus:
+    "photo-bounded display approximation inside the existing portico frame",
+  sourceUrls: [
+    "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518",
+    "https://commons.wikimedia.org/wiki/File:Reichstag_(building)_architecture_from_west_-_Berlin,_Germany_-_DSC09654.JPG",
+  ] as const,
+  wappenCrownCount: 2,
+  wappenShieldCount: 20,
+  wappenTreeZ: [-14, 14] as const,
+  wappenTreeCount: 2,
 } as const;
 
 /** Centre of a corner tower along one axis, given that axis' full extent. */
@@ -1067,6 +1091,110 @@ function addReichstagMicroDetails(
   );
 }
 
+function addReichstagWestPorticoWappenTrees(
+  group: Group,
+  signature: ReichstagModelSignature,
+  stone: MeshStandardMaterial,
+  reliefStone: MeshStandardMaterial,
+): void {
+  const details = new Group();
+  details.name = "Reichstag west portico Wappenbaum fine detail";
+  details.userData = {
+    fixedStaticGeometry: true,
+    geometryStatus:
+      REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.geometryStatus,
+    sourceUrls: [...REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.sourceUrls],
+  };
+
+  const westFaceX = -signature.width_m / 2;
+  const reliefX = westFaceX - 3.08;
+  const treeCentres = REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.wappenTreeZ;
+  addInstancedGeometry(
+    details,
+    "Reichstag west portico Wappenbaum trunks",
+    new CylinderGeometry(0.16, 0.25, 6.1, 7),
+    reliefStone,
+    treeCentres.map((z) => ({ position: [reliefX, 9.75, z] })),
+  );
+
+  const branches: InstanceTransform[] = [];
+  for (const treeZ of treeCentres) {
+    for (let level = 0; level < 4; level += 1) {
+      const y = 8.35 + level * 1.35;
+      for (const side of [-1, 1]) {
+        branches.push({
+          position: [reliefX, y, treeZ + side * (0.48 + level * 0.05)],
+          rotation: [side * 0.64, 0, 0],
+          scale: [1, 1 - level * 0.06, 1],
+        });
+      }
+    }
+  }
+  addInstancedBoxes(
+    details,
+    "Reichstag west portico Wappenbaum solid branches",
+    [0.18, 1.58, 0.18],
+    reliefStone,
+    branches,
+  );
+
+  const shieldOffsets = [
+    [6.85, -0.78],
+    [6.85, 0.78],
+    [8.15, -1.12],
+    [8.15, 1.12],
+    [9.48, -1.42],
+    [9.48, 1.42],
+    [10.82, -1.08],
+    [10.82, 1.08],
+    [12.15, -0.7],
+    [12.15, 0.7],
+  ] as const;
+  const shields: InstanceTransform[] = [];
+  for (const treeZ of treeCentres) {
+    for (const [y, offsetZ] of shieldOffsets) {
+      shields.push({
+        position: [reliefX - 0.24, y, treeZ + offsetZ],
+        rotation: [0, 0, Math.PI / 2],
+        scale: y < 8 ? [1.14, 1, 1.18] : [1, 1, 1.06],
+      });
+    }
+  }
+  addInstancedGeometry(
+    details,
+    "Reichstag west portico twenty Wappenbaum shields",
+    new CylinderGeometry(0.39, 0.34, 0.18, 6),
+    stone,
+    shields,
+  );
+
+  addInstancedGeometry(
+    details,
+    "Reichstag west portico Wappenbaum imperial crowns",
+    new ConeGeometry(0.5, 0.78, 8),
+    stone,
+    treeCentres.map((z) => ({ position: [reliefX - 0.03, 13.48, z] })),
+  );
+  const eagleWings: InstanceTransform[] = [];
+  for (const treeZ of treeCentres) {
+    for (const side of [-1, 1]) {
+      eagleWings.push({
+        position: [reliefX - 0.05, 14.05, treeZ + side * 0.34],
+        rotation: [side * 0.58, 0, 0],
+      });
+    }
+  }
+  addInstancedBoxes(
+    details,
+    "Reichstag west portico Wappenbaum eagle wings",
+    [0.18, 0.74, 0.42],
+    reliefStone,
+    eagleWings,
+  );
+
+  group.add(details);
+}
+
 function addReichstagWestFacadeArticulation(
   group: Group,
   signature: ReichstagModelSignature,
@@ -1468,7 +1596,7 @@ function addReichstagWestFacadeArticulation(
 
   // The portico is not a glass curtain from edge to edge. Three central glass
   // bays are flanked by sculptural stone panels, visible between the columns.
-  const panelCentres = [-11.2, 11.2];
+  const panelCentres = REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.wappenTreeZ;
   for (const z of panelCentres) {
     const panel = addBox(
       group,
@@ -1480,35 +1608,10 @@ function addReichstagWestFacadeArticulation(
     );
     panel.userData.documentedFacadeMember = true;
   }
-  const porticoReliefBodies: InstanceTransform[] = [];
-  const porticoReliefHeads: InstanceTransform[] = [];
-  for (const panelCentre of panelCentres) {
-    for (let index = 0; index < 5; index += 1) {
-      const z = panelCentre - 1.65 + index * 0.82;
-      const y = 7.2 + (index % 2) * 0.45;
-      porticoReliefBodies.push({
-        position: [-signature.width_m / 2 - 2.95, y, z],
-        scale: [0.72, 0.9 + (index % 3) * 0.14, 0.72],
-      });
-      porticoReliefHeads.push({
-        position: [-signature.width_m / 2 - 3.05, y + 1.05, z],
-      });
-    }
-  }
-  addInstancedGeometry(
-    group,
-    "Reichstag west portico relief figures",
-    new CapsuleGeometry(0.24, 1.25, 4, 8),
-    stone,
-    porticoReliefBodies,
-  );
-  addInstancedGeometry(
-    group,
-    "Reichstag west portico relief figure heads",
-    new SphereGeometry(0.25, 9, 7),
-    stone,
-    porticoReliefHeads,
-  );
+  // The earlier generic figure-and-head placeholders occupied these exact
+  // panels and intersected the source-backed heraldic trees. Keep the panel
+  // substrate, but let the Wappenbaum relief be its sole raised ornament.
+  addReichstagWestPorticoWappenTrees(group, signature, stone, reliefStone);
 
   const roofFigures: InstanceTransform[] = Array.from(
     { length: REICHSTAG_WEST_FACADE_PROFILE.roofFigureCount },
@@ -1554,6 +1657,143 @@ function addReichstagWestFacadeArticulation(
       ],
     })),
   );
+}
+
+function addReichstagWestPedimentCornerFinials(
+  group: Group,
+  westX: number,
+  stone: MeshStandardMaterial,
+  reliefStone: MeshStandardMaterial,
+): void {
+  const ornaments = new Group();
+  ornaments.name = "Reichstag west pediment crowned corner finials";
+  ornaments.userData = {
+    fixedStaticGeometry: true,
+    geometryStatus:
+      REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.geometryStatus,
+    sourceUrls: [...REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.sourceUrls],
+  };
+  const baseY = REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.cornerFinialBaseY;
+  const frontX = westX - 3.82;
+  const finials = REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.cornerFinialZ.map(
+    (z) => ({ position: [frontX, 0, z] as [number, number, number] }),
+  );
+  const atHeight = (offsetY: number): InstanceTransform[] =>
+    finials.map(({ position }) => ({
+      position: [position[0], baseY + offsetY, position[2]],
+    }));
+
+  addInstancedBoxes(
+    ornaments,
+    "Reichstag west pediment corner-finial lower plinths",
+    [2.2, 0.52, 2.2],
+    stone,
+    atHeight(0.26),
+  );
+  addInstancedBoxes(
+    ornaments,
+    "Reichstag west pediment corner-finial upper plinths",
+    [1.74, 0.44, 1.74],
+    reliefStone,
+    atHeight(0.72),
+  );
+  addInstancedBoxes(
+    ornaments,
+    "Reichstag west pediment corner-finial volute blocks",
+    [1.48, 0.82, 1.48],
+    stone,
+    atHeight(1.34),
+  );
+  addInstancedGeometry(
+    ornaments,
+    "Reichstag west pediment corner-finial tapered shafts",
+    new CylinderGeometry(0.54, 0.76, 3.36, 4),
+    stone,
+    finials.map(({ position }) => ({
+      position: [position[0], baseY + 3.38, position[2]],
+      rotation: [0, Math.PI / 4, 0],
+    })),
+  );
+  addInstancedBoxes(
+    ornaments,
+    "Reichstag west pediment corner-finial shoulder caps",
+    [1.66, 0.48, 1.66],
+    reliefStone,
+    atHeight(5.25),
+  );
+  addInstancedGeometry(
+    ornaments,
+    "Reichstag west pediment corner-finial urn bodies",
+    new CylinderGeometry(0.46, 0.7, 1.5, 8),
+    stone,
+    atHeight(6.25),
+  );
+  addInstancedGeometry(
+    ornaments,
+    "Reichstag west pediment corner-finial crowned bowls",
+    new SphereGeometry(0.62, 10, 7),
+    reliefStone,
+    atHeight(7.18).map((transform) => ({
+      ...transform,
+      scale: [1, 0.76, 1],
+    })),
+  );
+  addInstancedGeometry(
+    ornaments,
+    "Reichstag west pediment corner-finial terminal spikes",
+    new ConeGeometry(0.3, 1.42, 8),
+    stone,
+    atHeight(8.65),
+  );
+
+  const crownDetail = new Group();
+  crownDetail.name =
+    "Reichstag west pediment crowned-finial fine detail";
+  crownDetail.userData.fixedStaticGeometry = true;
+  addInstancedGeometry(
+    crownDetail,
+    "Reichstag west pediment corner-finial crown rings",
+    new TorusGeometry(0.55, 0.13, 6, 18),
+    reliefStone,
+    atHeight(7.72).map((transform) => ({
+      ...transform,
+      rotation: [Math.PI / 2, 0, 0],
+    })),
+  );
+  const petals: InstanceTransform[] = [];
+  for (const z of REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.cornerFinialZ) {
+    for (let index = 0; index < 6; index += 1) {
+      const angle = (index / 6) * Math.PI * 2;
+      petals.push({
+        position: [
+          frontX + Math.cos(angle) * 0.38,
+          baseY + 8.18,
+          z + Math.sin(angle) * 0.38,
+        ],
+        scale: [0.78, 1, 0.78],
+      });
+    }
+  }
+  addInstancedGeometry(
+    crownDetail,
+    "Reichstag west pediment corner-finial crown petals",
+    new ConeGeometry(0.22, 0.92, 6),
+    reliefStone,
+    petals,
+  );
+  addInstancedGeometry(
+    crownDetail,
+    "Reichstag west pediment corner-finial heraldic cartouches",
+    new CylinderGeometry(0.42, 0.37, 0.18, 8),
+    reliefStone,
+    REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.cornerFinialZ.map((z) => ({
+      position: [frontX - 0.67, baseY + 3.58, z],
+      rotation: [0, 0, Math.PI / 2],
+      scale: [1, 1, 1.16],
+    })),
+  );
+  ornaments.add(crownDetail);
+  group.add(ornaments);
 }
 
 /**
@@ -1850,32 +2090,7 @@ function addReichstagDocumentedOrders(
     })),
   );
 
-  const acroteria: InstanceTransform[] = [
-    { position: [westX - 3.82, 27.45, 0], scale: [1.05, 1.25, 1.05] },
-    { position: [westX - 3.82, 21.08, -19.15] },
-    { position: [westX - 3.82, 21.08, 19.15] },
-  ];
-  addInstancedGeometry(
-    group,
-    "Reichstag west pediment acroterion figures",
-    new CapsuleGeometry(0.31, 1.18, 4, 9),
-    stone,
-    acroteria,
-  );
-  addInstancedGeometry(
-    group,
-    "Reichstag west pediment acroterion heads",
-    new SphereGeometry(0.29, 10, 8),
-    stone,
-    acroteria.map((transform) => ({
-      position: [
-        transform.position[0] - 0.04,
-        transform.position[1] + 1.05,
-        transform.position[2],
-      ],
-      scale: transform.scale,
-    })),
-  );
+  addReichstagWestPedimentCornerFinials(group, westX, stone, reliefStone);
 
   // Rusticated base storey: deep horizontal beds plus staggered joints
   // on the two long fronts.

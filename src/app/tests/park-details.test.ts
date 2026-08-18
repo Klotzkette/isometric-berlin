@@ -190,7 +190,7 @@ describe("OSM park details", () => {
     expect(pathMeshes).toHaveLength(2);
     expect(pathMeshes.map((child) => child.name).sort()).toEqual([
       "Berlin park asphalt batched path ribbons",
-      "Berlin park gravel and compacted batched path ribbons",
+      "Berlin park compacted aggregate batched path ribbons",
     ]);
     const trunks = park.getObjectByName("OSM instanced granular tree trunks");
     expect(trunks).toBeInstanceOf(InstancedMesh);
@@ -645,8 +645,8 @@ describe("OSM park details", () => {
   });
 
   test("rejects unknown payload schemas instead of partially rendering them", () => {
-    expect(() => createParkDetails({ ...payload, schema_version: 7 })).toThrow(
-      "Unsupported park-detail schema 7",
+    expect(() => createParkDetails({ ...payload, schema_version: 8 })).toThrow(
+      "Unsupported park-detail schema 8",
     );
   });
 

@@ -26,7 +26,10 @@ from scipy.spatial import cKDTree
 from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
 from shapely.geometry.base import BaseGeometry
 
-from isometric_berlin.generation.build_surface_polygons import road_surface_kind
+from isometric_berlin.generation.build_surface_polygons import (
+  optional_osm_text,
+  road_surface_kind,
+)
 from isometric_berlin.generation.road_geometry import road_width_m
 
 PATH_HIGHWAYS = {
@@ -53,6 +56,18 @@ PATH_MATERIAL_CODES = {
   "wood": "w",
   "metal": "m",
 }
+# The broad surface-polygons layer intentionally merges related materials into
+# six draw families.  Close park ribbons retain the distinctions a pedestrian
+# actually reads: loose fine gravel, mechanically compacted aggregate, sand and
+# dressed setts must not all become the same yellow strip.  These one-byte codes
+# keep the complete source-backed layer within its browser payload budget.
+SETT_PATH_SURFACES = {
+  "cobblestone",
+  "pebblestone",
+  "sett",
+  "unhewn_cobblestone",
+}
+FINE_GRAVEL_PATH_SURFACES = {"fine_gravel", "gravel", "shells"}
 TIERGARTEN_VEGETATION_DEFAULT = (
   REPO_ROOT / "geo_data/regierungsviertel/tiergarten-vegetation.geojson"
 )
@@ -203,6 +218,23 @@ def optional_text(value: object) -> str | None:
   return text if text and text.lower() not in {"nan", "none"} else None
 
 
+def path_material_code(row: Any, highway: str, in_park: bool) -> str:
+  """Compact, source-faithful close-view material for one mapped path."""
+  surface = optional_osm_text(row.get("surface"))
+  if surface in SETT_PATH_SURFACES:
+    return "c"
+  if surface in FINE_GRAVEL_PATH_SURFACES:
+    return "f"
+  if surface == "sand":
+    return "s"
+  # An explicitly informal path without a surface survey is open ground, not
+  # the compacted-aggregate fallback used by an ordinary untagged park walk.
+  if surface is None and optional_osm_text(row.get("informal")) == "yes":
+    return "e"
+  resolved = road_surface_kind(row, highway, in_park)
+  return PATH_MATERIAL_CODES[resolved]
+
+
 def build_paths(
   roads: gpd.GeoDataFrame,
   detail_areas: gpd.GeoDataFrame,
@@ -223,21 +255,24 @@ def build_paths(
     local_areas = detail_areas.iloc[area_indexes].geometry.union_all()
     clipped = row.geometry.intersection(local_areas)
     for part_index, line in enumerate(line_parts(clipped)):
-      # One metre stays below the visual width of the narrowest rendered path
-      # while keeping the complete bounded layer under its 6 MiB release cap.
-      simplified = line.simplify(1.0, preserve_topology=True)
-      if simplified.length < 2.5:
+      # The committed GeoPackage already applies its documented 0.35 m file
+      # tolerance.  Keep every resulting source vertex here: a second 1 m
+      # simplification visibly cut Tiergarten bends and shortened desire-path
+      # spurs.  The compact schema still remains below the 6 MiB release cap.
+      if line.length < 2.5:
         continue
-      points = [
-        world_position(Point(x, y), origin, sampler) for x, y in simplified.coords
-      ]
+      points = [world_position(Point(x, y), origin, sampler) for x, y in line.coords]
       kind = str(row["highway"])
+      width_m = road_width_m(row) or 1.35
       path = {
         "id": f"{row['id']}:{part_index}",
         "kind": kind,
-        "m": PATH_MATERIAL_CODES[road_surface_kind(row, kind, True)],
+        "m": path_material_code(row, kind, True),
         "points": points,
-        "w": round((road_width_m(row) or 1.35) * 10),
+        # Schema 7 stores centimetres instead of decimetres.  This preserves
+        # source widths such as 3.75 m without growing the key or adding a
+        # parallel field; schemas 4--6 remain decoded as decimetres.
+        "w": round(width_m * 100),
       }
       name = optional_text(row.get("name"))
       if name is not None:
@@ -922,7 +957,7 @@ def build_payload(
     sampler,
   )
   return {
-    "schema_version": 6,
+    "schema_version": 7,
     "source": {
       "name": "Additive OSM and Geoportal Berlin detail fusion",
       "attribution": "© OpenStreetMap contributors · Geoportal Berlin (dl-de/zero-2-0)",

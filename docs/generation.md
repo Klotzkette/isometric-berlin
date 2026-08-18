@@ -150,14 +150,16 @@ GeoPackage. The dedicated extractor preserves `natural=scrub` and
 reviewable `tiergarten-vegetation.geojson` sidecar. The task-13 builder
 additively fuses that evidence with OSM and emits 45,540 visible trees, 83
 Tiergarten shrub patches with 3,535 deterministic clusters, 23 mapped hedge
-objects, 5,829 street lights, 12 wall traces, 3,466 joined park-path sections
+objects, 5,829 street lights, 12 wall traces, 3,467 joined park-path sections
 and 360 playground footprints. The separate all-area
 surface builder records 20,782 bounded above-ground walking/cycling line parts:
 18,848 have an explicit OSM `surface`, 2,574 have `width` or `est_width`, and
-every remaining width/material is marked as a class/context fallback. Heights
+every remaining width/material is marked as a class/context fallback. The
+close-view export now retains one additional short valid section because the
+former second-stage 1 m path simplification has been removed. Heights
 are sampled locally from the packaged official mesh; a scene-ground fallback
-is used only outside mesh coverage. The resulting schema-6
-`park-details.json` is 6.05 MB decimal (bounded by a 6 MiB test gate); raw WFS,
+is used only outside mesh coverage. The resulting schema-7
+`park-details.json` is 6.11 MB decimal (bounded by a 6 MiB binary test gate); raw WFS,
 OSM and mesh intermediates remain excluded.
 
 Regenerate the complete street and path surface payload with:
@@ -171,11 +173,14 @@ wood and metal. Explicit OSM tags win over park context, so a mapped asphalt
 cycleway remains asphalt through a park and a mapped earth desire path remains
 earth at its edge. The committed payload includes a `path_inventory` audit
 block with highway, source-surface, resolved-material and mapped-width counts.
-The compact `park-details.json` schema 6 stores the same material as a one-byte
-code and each resolved width in decimetres. Unnamed paths omit the optional
-name field; this keeps all six materials, 3,466 close-view ribbons and the
-source-bounded Tiergarten understorey below the 6 MiB release ceiling without
-increasing the number of path draw calls.
+The compact `park-details.json` schema 7 refines the broad six-family surface
+into one-byte codes for asphalt, paving, setts/cobble, fine gravel, compacted
+aggregate, sand, earth, wood and metal. It retains every vertex of the
+committed 0.35 m OSM source and stores each resolved full width in centimetres;
+schemas 4--6 remain decoded as decimetres. Unnamed paths omit the optional name
+field. Nine batched, metre-scaled procedural surface tiles keep all 3,467
+close-view ribbons and the source-bounded Tiergarten understorey below the
+6 MiB binary release ceiling without adding a route or one draw call per way.
 
 ## Step 8b: Minecraft-mode voxel payload
 

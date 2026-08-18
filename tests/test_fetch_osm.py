@@ -5,10 +5,17 @@ from __future__ import annotations
 from pathlib import Path
 
 import geopandas as gpd
-from shapely.geometry import box
+from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
-from isometric_berlin.data.fetch_osm import tile_polygon, use_gzip_only_encoding
+from isometric_berlin.data.fetch_osm import (
+  FILE_COLUMNS,
+  OSM_TAGS,
+  tile_polygon,
+  use_gzip_only_encoding,
+  write_layers,
+)
+from isometric_berlin.generation.build_park_details import path_material_code
 
 OSM = Path("geo_data/regierungsviertel/osm.gpkg")
 LAYERS = (
@@ -56,6 +63,59 @@ def test_overpass_requests_never_offer_deflate() -> None:
   assert "User-Agent" in headers
 
 
+def test_canonical_output_retains_mapped_informal_path_evidence(tmp_path: Path) -> None:
+  assert OSM_TAGS["informal"] is True
+  assert "informal" in FILE_COLUMNS["roads"]
+  crs = "EPSG:25833"
+
+  def frame(properties: dict[str, list[object]], geometry: list[object]):
+    return gpd.GeoDataFrame(properties, geometry=geometry, crs=crs)
+
+  square = Polygon([(0, 0), (20, 0), (20, 20), (0, 20)])
+  layers = {
+    "roads": frame(
+      {
+        "element": ["way"],
+        "id": ["101"],
+        "highway": ["path"],
+        "informal": ["yes"],
+        "surface": [None],
+      },
+      [LineString([(1, 1), (19, 19)])],
+    ),
+    "water": frame(
+      {"element": ["way"], "id": ["102"], "natural": ["water"]},
+      [square],
+    ),
+    "parks": frame(
+      {"element": ["way"], "id": ["103"], "leisure": ["park"]},
+      [square],
+    ),
+    "vegetation": frame(
+      {"element": ["node"], "id": ["104"], "natural": ["tree"]},
+      [Point(30, 30)],
+    ),
+    "playgrounds": frame(
+      {"element": ["way"], "id": ["105"], "leisure": ["playground"]},
+      [square],
+    ),
+    "rail": frame(
+      {"element": ["way"], "id": ["106"], "railway": ["rail"]},
+      [LineString([(30, 30), (40, 40)])],
+    ),
+    "pois": frame(
+      {"element": ["node"], "id": ["107"], "name": ["Test POI"]},
+      [Point(50, 50)],
+    ),
+  }
+  output = tmp_path / "canonical-output.gpkg"
+  counts = write_layers(layers, output)
+  assert counts["roads"] == 1
+  exported = gpd.read_file(output, layer="roads")
+  assert list(exported["informal"]) == ["yes"]
+  assert path_material_code(exported.iloc[0], "path", True) == "e"
+
+
 def test_generated_osm_gpkg_contains_required_layers() -> None:
   assert OSM.exists()
   # Task-13 adds 11.015 km² without thinning any source geometry. The bounded
@@ -94,11 +154,13 @@ def test_generated_osm_gpkg_contains_required_layers() -> None:
 
   roads = gpd.read_file(OSM, layer="roads")
   for column in [
+    "informal",
     "width",
     "lanes",
     "sidewalk",
     "cycleway",
   ]:
     assert column in roads.columns
+  assert roads["informal"].eq("yes").sum() >= 100
   assert roads["width"].notna().sum() > 1_000
   assert roads["lanes"].notna().sum() > 1_000

@@ -21,7 +21,7 @@ const payload = parkDetailsJson as unknown as ParkDetailsPayload & {
 
 describe("source-bounded Großer Tiergarten vegetation", () => {
   test("retains exact source inventory and veteran-tree dimensions", () => {
-    expect(payload.schema_version).toBe(6);
+    expect(payload.schema_version).toBe(7);
     expect(payload.sources.tiergarten_vegetation.available).toBeTrue();
     expect(payload.sources.tiergarten_vegetation.license).toBe("ODbL-1.0");
     expect(payload.sources.tiergarten_vegetation.park_relation_url).toContain(

@@ -26,6 +26,11 @@ import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionP
 import { createMinecraftHistoricParkBridges } from "./MinecraftHistoricParkBridges";
 import { createMinecraftHumboldthafenDetails } from "./MinecraftHumboldthafen";
 import {
+  SIEGESSAEULE_BRONZE_TONES,
+  SIEGESSAEULE_MOSAIC_TONES,
+  SIEGESSAEULE_PROFILE,
+} from "./SiegessaeuleProfile";
+import {
   createMinecraftArchitecturalLandmarks,
   isMinecraftArchitecturalReplacementColumn,
   minecraftArchitecturalVoxelTopAt,
@@ -1008,14 +1013,24 @@ export function createMinecraftExtrapolatedWorld(): Group {
 
   const columnParts: ExtrapolatedBlock[] = [
     {
+      color: 0xc7c4b7,
+      position: [AXIS_TO[0], 2.7, AXIS_TO[1]],
+      size: [30, 1.2, 30],
+    },
+    {
       color: 0x994a35,
-      position: [AXIS_TO[0], 5.6, AXIS_TO[1]],
-      size: [46, 7, 46],
+      position: [AXIS_TO[0], 6.25, AXIS_TO[1]],
+      size: [26, 5.9, 26],
+    },
+    {
+      color: SIEGESSAEULE_MOSAIC_TONES[0],
+      position: [AXIS_TO[0], 11.6, AXIS_TO[1]],
+      size: [10, 4.8, 10],
     },
     {
       color: 0xd4d4b7,
-      position: [AXIS_TO[0], 11.6, AXIS_TO[1]],
-      size: [18, 5, 18],
+      position: [AXIS_TO[0], 14.35, AXIS_TO[1]],
+      size: [19, 0.7, 19],
     },
     {
       color: 0xe8d1ae,
@@ -1039,7 +1054,11 @@ export function createMinecraftExtrapolatedWorld(): Group {
     },
     {
       color: 0xe6bd4c,
-      position: [AXIS_TO[0], 68, AXIS_TO[1]],
+      position: [
+        AXIS_TO[0],
+        2.1 + SIEGESSAEULE_PROFILE.heightM - 1,
+        AXIS_TO[1],
+      ],
       size: [2, 2, 2],
     },
   ];
@@ -1054,7 +1073,135 @@ export function createMinecraftExtrapolatedWorld(): Group {
       new Color(part.color),
     );
   }
+  column.mesh.userData.animated = false;
+  column.mesh.userData.groundTopY = 2.1;
+  column.mesh.userData.renderedHeightM = SIEGESSAEULE_PROFILE.heightM;
+  column.mesh.userData.renderedTopY =
+    2.1 + SIEGESSAEULE_PROFILE.heightM;
   group.add(column.mesh);
+
+  // The four historic bronze reliefs belong to the lower red-granite base,
+  // not to the mosaic storey above it.  One shallow block per face preserves
+  // that two-register reading without importing smooth geometry or textures.
+  const bronzeReliefParts: ExtrapolatedBlock[] = [
+    {
+      color: SIEGESSAEULE_BRONZE_TONES.field,
+      position: [AXIS_TO[0], 6.25, AXIS_TO[1] - 13.16],
+      size: [11.8, 2.1, 0.48],
+    },
+    {
+      color: SIEGESSAEULE_BRONZE_TONES.highlight,
+      position: [AXIS_TO[0], 6.25, AXIS_TO[1] + 13.16],
+      size: [11.8, 2.1, 0.48],
+    },
+    {
+      color: SIEGESSAEULE_BRONZE_TONES.field,
+      position: [AXIS_TO[0] - 13.16, 6.25, AXIS_TO[1]],
+      size: [0.48, 2.1, 11.8],
+    },
+    {
+      color: SIEGESSAEULE_BRONZE_TONES.highlight,
+      position: [AXIS_TO[0] + 13.16, 6.25, AXIS_TO[1]],
+      size: [0.48, 2.1, 11.8],
+    },
+  ];
+  const bronzeReliefs = instancedBoxes(
+    "Voxel Siegessäule lower bronze relief panels",
+    bronzeReliefParts.length,
+  );
+  for (const part of bronzeReliefParts) {
+    bronzeReliefs.write(
+      new Vector3(...part.position),
+      new Vector3(...part.size),
+      new Color(part.color),
+    );
+  }
+  bronzeReliefs.mesh.userData.animated = false;
+  bronzeReliefs.mesh.userData.architecturalLevel =
+    SIEGESSAEULE_PROFILE.reliefs.architecturalLevel;
+  bronzeReliefs.mesh.userData.blockNative = true;
+  bronzeReliefs.mesh.userData.textureFree = true;
+  group.add(bronzeReliefs.mesh);
+
+  // One merged, block-native colour register on the four outward faces of
+  // the inner hall core.  It remains visibly behind a separate ring of 16
+  // marble blocks, so Minecraft does not flatten the upper mosaic and lower
+  // bronze-bearing base into the same cube.
+  const mosaicBandParts: ExtrapolatedBlock[] = [];
+  const bandOffsets = [-3, -1, 1, 3] as const;
+  for (let face = 0; face < 4; face += 1) {
+    for (let index = 0; index < bandOffsets.length; index += 1) {
+      const along = bandOffsets[index];
+      const tone =
+        SIEGESSAEULE_MOSAIC_TONES[
+          1 + ((face * bandOffsets.length + index) %
+            (SIEGESSAEULE_MOSAIC_TONES.length - 1))
+        ];
+      const xFace = face >= 2;
+      const sign = face % 2 === 0 ? -1 : 1;
+      mosaicBandParts.push({
+        color: tone,
+        position: [
+          AXIS_TO[0] + (xFace ? sign * 5.18 : along),
+          11.75 + ((face + index) % 2) * 0.32,
+          AXIS_TO[1] + (xFace ? along : sign * 5.18),
+        ],
+        size: xFace ? [0.42, 1.35, 1.7] : [1.7, 1.35, 0.42],
+      });
+    }
+  }
+  const mosaicBand = instancedBoxes(
+    "Voxel Siegessäule glass mosaic colour band",
+    mosaicBandParts.length,
+  );
+  for (const part of mosaicBandParts) {
+    mosaicBand.write(
+      new Vector3(...part.position),
+      new Vector3(...part.size),
+      new Color(part.color),
+    );
+  }
+  mosaicBand.mesh.userData.animated = false;
+  mosaicBand.mesh.userData.architecturalLevel =
+    SIEGESSAEULE_PROFILE.mosaic.architecturalLevel;
+  mosaicBand.mesh.userData.blockNative = true;
+  mosaicBand.mesh.userData.textureFree = true;
+  group.add(mosaicBand.mesh);
+
+  const colonnadeParts: ExtrapolatedBlock[] = [];
+  const hallRadius = SIEGESSAEULE_PROFILE.colonnade.diameterM / 2;
+  for (
+    let index = 0;
+    index < SIEGESSAEULE_PROFILE.colonnade.columnCount;
+    index += 1
+  ) {
+    const angle =
+      (index / SIEGESSAEULE_PROFILE.colonnade.columnCount) * Math.PI * 2;
+    colonnadeParts.push({
+      color: index % 2 === 0 ? 0xe7e0c9 : 0xd4d4b7,
+      position: [
+        AXIS_TO[0] + Math.cos(angle) * hallRadius,
+        11.7,
+        AXIS_TO[1] + Math.sin(angle) * hallRadius,
+      ],
+      size: [0.9, 4.1, 0.9],
+    });
+  }
+  const colonnade = instancedBoxes(
+    "Voxel Siegessäule upper colonnade",
+    colonnadeParts.length,
+  );
+  for (const part of colonnadeParts) {
+    colonnade.write(
+      new Vector3(...part.position),
+      new Vector3(...part.size),
+      new Color(part.color),
+    );
+  }
+  colonnade.mesh.userData.animated = false;
+  colonnade.mesh.userData.blockNative = true;
+  colonnade.mesh.userData.textureFree = true;
+  group.add(colonnade.mesh);
 
   for (const child of group.children) {
     if (child instanceof InstancedMesh) {

@@ -79,6 +79,9 @@ describe("Schwellenraum closed world-motion contract", () => {
     ] as const) {
       expect(isSchwellenraumWorldMotionAllowed({ kind }), kind).toBeFalse();
     }
+    expect(
+      isSchwellenraumWorldMotionAllowed({ kind: "water-light" }),
+    ).toBeTrue();
   });
 
   test("updates all four allowed classes and leaves every other wind flag frozen", () => {
@@ -122,31 +125,39 @@ describe("Schwellenraum closed world-motion contract", () => {
   test("suppresses Rain, Snow and Mob updates even when their visibility flags are true", () => {
     const beforeTick = schwellenraumMotionDecision({
       lastFlagFrameAt: 100,
+      lastWaterFrameAt: 100,
       minecraftMobsVisible: true,
       mode: "schwellenraum",
       movingFlagCount: 4,
       rainVisible: true,
+      reducedMotion: false,
       snowVisible: true,
       timestamp: 100 + SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS - 0.01,
+      waterLightCount: 0,
     });
     expect(beforeTick).toEqual({
       animateFlags: false,
       animateOrdinaryEnvironment: false,
+      animateWaterLight: false,
       environmentalMotion: false,
     });
 
     const tick = schwellenraumMotionDecision({
       lastFlagFrameAt: 100,
+      lastWaterFrameAt: 100,
       minecraftMobsVisible: true,
       mode: "schwellenraum",
       movingFlagCount: 4,
       rainVisible: true,
+      reducedMotion: false,
       snowVisible: true,
       timestamp: 100 + SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
+      waterLightCount: 0,
     });
     expect(tick).toEqual({
       animateFlags: true,
       animateOrdinaryEnvironment: false,
+      animateWaterLight: false,
       environmentalMotion: true,
     });
     expect(stylesSource).toContain(".app-shell--schwellenraum .map-rain");
@@ -161,16 +172,20 @@ describe("Schwellenraum closed world-motion contract", () => {
   test("retains ordinary environmental animation policy outside Schwellenraum", () => {
     const decision = schwellenraumMotionDecision({
       lastFlagFrameAt: 0,
+      lastWaterFrameAt: 0,
       minecraftMobsVisible: false,
       mode: "day",
       movingFlagCount: 4,
       rainVisible: true,
+      reducedMotion: false,
       snowVisible: false,
       timestamp: 10_000,
+      waterLightCount: 3,
     });
     expect(decision).toEqual({
       animateFlags: false,
       animateOrdinaryEnvironment: true,
+      animateWaterLight: false,
       environmentalMotion: true,
     });
   });

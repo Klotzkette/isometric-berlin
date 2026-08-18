@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.72.2
+
+- **Schwellenraum water now carries a restrained ethereal light of its own.**
+  River, pond, basin and authored fountain surfaces receive a deterministic,
+  texture-free haze and glint layer at only 3.75 Hz. Geometry, boats and
+  ripples remain still; reduced-motion, hidden, underwater and tunnel states
+  pause cleanly, and every memorial protection volume clips the effect before
+  shading. The ordinary Spree surface remains the single host beneath its
+  undulating recognition layer, avoiding doubled transparency or brightness.
+- **The Reichstag west portico gains its missing heraldic silhouette.** Two
+  9.36 m crowned corner finials stand at the pediment shoulders, while the two
+  official Wappenbaum reliefs occupy the clear outer column bays with 20
+  shields and two crowns. Their block-native Minecraft equivalents use pale
+  marble and quartz with only two small gold accents; columns, tower crowns
+  and moving flags remain separate and unobstructed.
+- **Tiergarten paths now retain their mapped course and surface character.**
+  Schema 7 preserves 13,400 committed OSM support points across 3,467 park
+  ribbons, centimetre widths and nine distinct close-view materials: asphalt,
+  paving, granite setts, fine gravel, compacted cover, sand, earth, timber and
+  metal. `informal=yes` survives the canonical GeoPackage pipeline, so mapped
+  desire paths without a separate surface tag still render as earth rather
+  than a formal compacted walk. No inferred connector or path is added.
+- **The Siegessaeule's lower registers are vertically and materially correct.**
+  Four bronze relief fields sit on the lower red-granite base; Anton von
+  Werner's Salviati glass mosaic appears one level higher on the inner shaft
+  behind the 16-column hall. The complete static structure is exactly 67 m in
+  both drawn and Minecraft modes, where the reliefs, mosaic band and colonnade
+  receive separate block-native cues. All three new Commons references are
+  pinned with complete author and licence metadata in the shipped attribution.
+
 ## v0.72.1
 
 - **Minecraft's civic centre is now genuinely block-native and still reads as

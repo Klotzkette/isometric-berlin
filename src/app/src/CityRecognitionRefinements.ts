@@ -1,4 +1,10 @@
-import { BoxGeometry, CylinderGeometry, EdgesGeometry, Group } from "three";
+import {
+  BoxGeometry,
+  CylinderGeometry,
+  EdgesGeometry,
+  Group,
+  Mesh,
+} from "three";
 
 import {
   type Builder,
@@ -34,6 +40,8 @@ const BRONZE = 0x49675d;
 const GOLD = 0xd7ae43;
 const ROOF_RED = 0x985342;
 const WATER = 0x7eb3bf;
+export const CITY_RECOGNITION_SMALL_WATER_MESH_NAME =
+  "Tritonbrunnen and Hansabibliothek authored water";
 const GREEN = 0x729d62;
 const FLOWER_RED = 0xc75c67;
 const FLOWER_GOLD = 0xe1b84d;
@@ -699,6 +707,7 @@ function addBridgeDetails(
 
 function addMemorialDetails(
   builder: Builder,
+  waterBuilder: Builder,
   groundAt: (x: number, z: number) => number,
 ): void {
   for (const [index, profile] of [
@@ -780,7 +789,7 @@ function addMemorialDetails(
     32,
   );
   addCylinder(
-    builder,
+    waterBuilder,
     WATER,
     triton.worldM[0],
     ground + 0.47,
@@ -837,6 +846,7 @@ function addMemorialDetails(
 
 function addHansaviertelDetails(
   builder: Builder,
+  waterBuilder: Builder,
   groundAt: (x: number, z: number) => number,
 ): void {
   const library = CITY_REFINEMENT_PROFILES.hansabibliothek;
@@ -881,7 +891,7 @@ function addHansaviertelDetails(
     );
   }
   localBox(
-    builder,
+    waterBuilder,
     library,
     WATER,
     10.5,
@@ -1139,6 +1149,18 @@ function addBatch(
   parent.add(group);
 }
 
+function addSmallWaterBatch(parent: Group, builder: Builder): void {
+  const groupName = "Tritonbrunnen and Hansabibliothek authored water detail";
+  const group = finishDrawnGroup(builder, { name: groupName });
+  if (!group) return;
+  const waterMesh = group.getObjectByName(`${groupName} bodies`);
+  if (waterMesh instanceof Mesh) {
+    waterMesh.name = CITY_RECOGNITION_SMALL_WATER_MESH_NAME;
+    waterMesh.userData.schwellenraumWaterSurface = true;
+  }
+  parent.add(group);
+}
+
 export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
   const root = new Group();
   root.name = "Open-data city recognition refinements";
@@ -1159,6 +1181,7 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
   ];
   const sample = worldGroundSampler(ground);
   const groundAt = (x: number, z: number): number => sample(x, z) ?? 5.2;
+  const smallWater = createBuilder();
 
   const north = createBuilder();
   addParisMoskau(
@@ -1177,7 +1200,7 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
 
   const tiergarten = createBuilder();
   addBridgeDetails(tiergarten, groundAt);
-  addMemorialDetails(tiergarten, groundAt);
+  addMemorialDetails(tiergarten, smallWater, groundAt);
   addBatch(root, "Tiergarten bridge and memorial fine details", tiergarten, [
     "Lutherbruecke",
     "Karl-Liebknecht-Denkmal",
@@ -1186,7 +1209,7 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
   ]);
 
   const west = createBuilder();
-  addHansaviertelDetails(west, groundAt);
+  addHansaviertelDetails(west, smallWater, groundAt);
   addBatch(root, "Bellevue and Hansaviertel fine details", west, [
     "Bundespraesidialamt",
     "Hansabibliothek",
@@ -1199,6 +1222,7 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
     "Leipziger Platz subway entrances",
     "Teehaus im Englischen Garten",
   ]);
+  addSmallWaterBatch(root, smallWater);
 
   root.userData.batchCount = root.children.length;
   return root;

@@ -294,6 +294,10 @@ export const MINECRAFT_ARCHITECTURAL_PROFILES = {
       diameterM: 40,
       heightM: 23.5,
     },
+    ornamentSourceUrls: [
+      "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518",
+      "https://commons.wikimedia.org/wiki/File:Reichstag_(building)_architecture_from_west_-_Berlin,_Germany_-_DSC09654.JPG",
+    ] as const,
     rotationDegrees: -1.676,
     sourceUrl:
       "https://www.bundestag.de/dokumente/textarchiv/2024/kw33-rtg-beschreibung-383518",
@@ -333,6 +337,7 @@ export const MINECRAFT_ARCHITECTURAL_PROFILES = {
     ] as const,
     towerInsetM: 0.9,
     towerSizeM: 16.5,
+    wappenTreeZ: [-14, 14] as const,
     widthM: 100,
   },
 } as const;
@@ -665,6 +670,78 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
       [westX, 21.1 + layer * 1.1, 0],
       [6.4, 1, 38 - layer * 7.2],
       layer % 2 === 0 ? BLOCK.marbleLight : BLOCK.limestone,
+    );
+  }
+  // The two tall, crowned stone finials stand at the pediment springing
+  // points.  Their stepped block silhouette remains legible in Minecraft;
+  // the tiny carved petals are deliberately resolved as one crown course.
+  const finialCourses = [
+    [20.48, 2.4, 0.72, BLOCK.marbleLight],
+    [21.12, 2.0, 0.62, BLOCK.quartzIvory],
+    [22.18, 1.38, 1.38, BLOCK.limestone],
+    [23.64, 1.28, 1.38, BLOCK.marbleLight],
+    [25.1, 1.18, 1.38, BLOCK.limestone],
+    [26.18, 1.92, 0.7, BLOCK.quartzIvory],
+    [27.15, 1.54, 1.16, BLOCK.marbleLight],
+    [28.18, 1.92, 0.72, BLOCK.quartzIvory],
+    [29.12, 0.94, 1.16, BLOCK.marbleLight],
+  ] as const;
+  for (const z of [-19.15, 19.15]) {
+    for (const [y, width, height, color] of finialCourses) {
+      pushLocalBlock(
+        plan,
+        frame,
+        "paired crowned west-pediment finials",
+        [westX - 3.82, y, z],
+        [width, height, width],
+        color,
+      );
+    }
+  }
+
+  // The historic reliefs remain a block-native heraldic tree: three trunk
+  // courses, ten shield pixels and one restrained gold crown in each outer
+  // portico bay.  Nothing is a texture or a transparent coplanar decal.
+  const shieldOffsets = [
+    [6.85, -0.78],
+    [6.85, 0.78],
+    [8.15, -1.12],
+    [8.15, 1.12],
+    [9.48, -1.42],
+    [9.48, 1.42],
+    [10.82, -1.08],
+    [10.82, 1.08],
+    [12.15, -0.7],
+    [12.15, 0.7],
+  ] as const;
+  for (const treeZ of profile.wappenTreeZ) {
+    for (const y of [7.15, 9.25, 11.35]) {
+      pushLocalBlock(
+        plan,
+        frame,
+        "paired crowned Wappenbaum reliefs",
+        [westX + 1.25, y, treeZ],
+        [0.72, 1.82, 0.72],
+        BLOCK.marbleShadow,
+      );
+    }
+    for (const [y, offsetZ] of shieldOffsets) {
+      pushLocalBlock(
+        plan,
+        frame,
+        "paired crowned Wappenbaum reliefs",
+        [westX + 0.82, y, treeZ + offsetZ],
+        [0.72, 0.86, 0.86],
+        BLOCK.marbleLight,
+      );
+    }
+    pushLocalBlock(
+      plan,
+      frame,
+      "paired crowned Wappenbaum reliefs",
+      [westX + 0.82, 13.48, treeZ],
+      [0.78, 0.82, 1.18],
+      BLOCK.gold,
     );
   }
   pushLocalBlock(

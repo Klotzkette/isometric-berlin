@@ -53,6 +53,7 @@ OSM_TAGS = {
   "covered": True,
   "layer": True,
   "service": True,
+  "informal": True,
   "usage": True,
 }
 USER_AGENT = "OSMnx/2.0 isometric-berlin/0.1 (Klotzkette)"
@@ -82,6 +83,7 @@ TAG_COLUMNS = (
   "covered",
   "layer",
   "service",
+  "informal",
   "usage",
   "surface",
   "material",
@@ -149,6 +151,7 @@ FILE_COLUMNS: dict[str, tuple[str, ...]] = {
     "covered",
     "layer",
     "service",
+    "informal",
     "surface",
     "material",
     "width",
@@ -606,6 +609,7 @@ def normalize_for_file(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
       "covered",
       "layer",
       "service",
+      "informal",
       "usage",
       "surface",
       "material",

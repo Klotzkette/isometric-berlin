@@ -12,6 +12,9 @@ from pytest import MonkeyPatch
 from isometric_berlin.data import fetch_wikimedia as fw
 
 ROOT = Path(__file__).resolve().parents[1]
+DADEROT_REICHSTAG_WEST_TITLE = (
+  "File:Reichstag (building) architecture from west - Berlin, Germany - DSC09654.JPG"
+)
 
 
 class FakeResponse:
@@ -257,6 +260,103 @@ def test_committed_wikimedia_manifest_covers_pinned_module_references() -> None:
   assert {
     fw.normalized_commons_title(title) for title in fw.PINNED_FILE_REFERENCES
   }.issubset(titles)
+
+
+def test_committed_siegessaeule_references_are_packaged_and_public() -> None:
+  manifest = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+  records = [
+    record
+    for record in manifest["records"]
+    if record.get("landmark_id") == "siegessaeule"
+  ]
+  expected = {
+    "File:Berlin Victory Column - BugWarp 01.jpg": ("BugWarp", "CC0"),
+    "File:Mosaik in der Berliner Siegessäule.jpg": (
+      "OguzKurt28",
+      "CC BY-SA 4.0",
+    ),
+  }
+
+  assert {
+    record["title"]: (record["artist"], record["license"]) for record in records
+  } == expected
+  assert all(
+    (ROOT / "references/wikimedia" / record["thumbnail_path"]).is_file()
+    for record in records
+  )
+
+  readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
+  assert all(title.removeprefix("File:") in readme for title in expected)
+
+  public_payload = json.loads(
+    (
+      ROOT / "src/app/public/dzi/regierungsviertel/wikimedia_attribution.json"
+    ).read_text(encoding="utf-8")
+  )
+  public_records = [
+    record
+    for record in public_payload["records"]
+    if record.get("landmark_id") == "siegessaeule"
+  ]
+  assert [record["title"] for record in public_records] == [
+    record["title"] for record in records
+  ]
+  for public_record, manifest_record in zip(public_records, records, strict=True):
+    assert public_record == {
+      key: manifest_record.get(key)
+      for key in (
+        "landmark_id",
+        "title",
+        "page_url",
+        "license",
+        "license_url",
+        "artist",
+        "credit",
+      )
+    }
+
+
+def test_daderot_reichstag_west_reference_is_pinned_and_publicly_packaged() -> None:
+  assert fw.PINNED_FILE_REFERENCES[DADEROT_REICHSTAG_WEST_TITLE] == "reichstag"
+  manifest = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+  public = json.loads(
+    (
+      ROOT / "src/app/public/dzi/regierungsviertel/wikimedia_attribution.json"
+    ).read_text(encoding="utf-8")
+  )
+  expected = {
+    "landmark_id": "reichstag",
+    "title": DADEROT_REICHSTAG_WEST_TITLE,
+    "artist": "Daderot",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  }
+
+  record = next(
+    record
+    for record in manifest["records"]
+    if record["title"] == DADEROT_REICHSTAG_WEST_TITLE
+  )
+  assert {key: record[key] for key in expected} == expected
+  assert (ROOT / "references/wikimedia" / record["thumbnail_path"]).is_file()
+  public_record = next(
+    record
+    for record in public["records"]
+    if record["title"] == DADEROT_REICHSTAG_WEST_TITLE
+  )
+  assert {key: public_record[key] for key in expected} == expected
+  readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
+  assert "Reichstag (building) architecture from west" in readme
+  assert "Daderot" in readme
+  assert "[CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en)" in readme
 
 
 def test_dominant_colours_returns_hex_palette(tmp_path: Path) -> None:

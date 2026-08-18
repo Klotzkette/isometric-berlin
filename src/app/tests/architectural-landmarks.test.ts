@@ -24,6 +24,7 @@ import {
   REICHSTAG_FLAGPOLE_HEIGHT_M,
   REICHSTAG_INSCRIPTION_FIELD_WIDTH_M,
   REICHSTAG_WEST_FACADE_PROFILE,
+  REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE,
 } from "../src/ArchitecturalLandmarks";
 import { dedicationLayout } from "../src/reichstagInscription";
 import { windFlagMatrixCount } from "../src/WindFlags";
@@ -1101,13 +1102,23 @@ describe("metre-scale architectural recognition models", () => {
     expect(friezeRosettes.count).toBe(
       REICHSTAG_WEST_FACADE_PROFILE.wingFriezeRosetteCount,
     );
-    const acroteria = reichstag!.getObjectByName(
-      "Reichstag west pediment acroterion figures",
+    const finialPlinths = reichstag!.getObjectByName(
+      "Reichstag west pediment corner-finial lower plinths",
     ) as InstancedMesh;
-    expect(acroteria).toBeInstanceOf(InstancedMesh);
-    expect(acroteria.count).toBe(
+    expect(finialPlinths).toBeInstanceOf(InstancedMesh);
+    expect(finialPlinths.count).toBe(
       REICHSTAG_WEST_FACADE_PROFILE.pedimentAcroterionCount,
     );
+    expect(finialPlinths.count).toBe(
+      REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.cornerFinialCount,
+    );
+    expect(
+      (
+        reichstag!.getObjectByName(
+          "Reichstag west portico twenty Wappenbaum shields",
+        ) as InstancedMesh
+      ).count,
+    ).toBe(REICHSTAG_WEST_PORTICO_ORNAMENT_PROFILE.wappenShieldCount);
     const architraveDentils = reichstag!.getObjectByName(
       "Reichstag west portico architrave dentils",
     ) as InstancedMesh;
@@ -1122,13 +1133,15 @@ describe("metre-scale architectural recognition models", () => {
     expect(entranceMullions.count).toBe(
       REICHSTAG_WEST_FACADE_PROFILE.entranceMullionCount,
     );
+    expect(REICHSTAG_WEST_FACADE_PROFILE.porticoReliefFigureCount).toBe(0);
     expect(
-      (
-        reichstag!.getObjectByName(
-          "Reichstag west portico relief figures",
-        ) as InstancedMesh
-      ).count,
-    ).toBe(REICHSTAG_WEST_FACADE_PROFILE.porticoReliefFigureCount);
+      reichstag!.getObjectByName("Reichstag west portico relief figures"),
+    ).toBeUndefined();
+    expect(
+      reichstag!.getObjectByName(
+        "Reichstag west portico relief figure heads",
+      ),
+    ).toBeUndefined();
     expect(
       (
         reichstag!.getObjectByName(

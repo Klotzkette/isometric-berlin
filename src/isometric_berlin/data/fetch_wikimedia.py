@@ -218,6 +218,11 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
 # the per-file artist and licence metadata packaged even when Commons ranking
 # changes.
 PINNED_FILE_REFERENCES: dict[str, str] = {
+  "File:Berlin Victory Column - BugWarp 01.jpg": "siegessaeule",
+  "File:Mosaik in der Berliner Siegessäule.jpg": "siegessaeule",
+  "File:Reichstag (building) architecture from west - Berlin, Germany - DSC09654.JPG": (
+    "reichstag"
+  ),
   "File:Löwenbrücke Großer Tiergarten Berlin.jpg": "loewen_bridge",
   "File:Löwenbrücke Großer Tiergarten Berlin 10.jpg": "loewen_bridge",
   "File:Nördlicher Eingang zum Bahnhof Potsdamer Platz, Berlin-1785.jpg": (

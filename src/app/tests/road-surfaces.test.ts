@@ -120,7 +120,7 @@ describe("drawn carriageways and park paths", () => {
     }
     const markings = group.getObjectByName("carriageway lane markings");
     expect(markings).toBeInstanceOf(LineSegments);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("asphalt carriageways carry raised kerbstones with an ink arris", () => {
     // "Alle Straßen, die Bordsteine haben, müssen diese Bordsteine
@@ -138,7 +138,7 @@ describe("drawn carriageways and park paths", () => {
     expect(positions.count).toBeGreaterThan(3_000);
     const ink = group.getObjectByName("smooth kerb ink");
     expect(ink).toBeInstanceOf(LineSegments);
-  });
+  }, TASK_13_FULL_CITY_TIMEOUT_MS);
 
   test("surfaces follow the terrain instead of one constant height", () => {
     // A compact metric fixture exercises the same draping contract without

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.1 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.1/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.2 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.2/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.1** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.2** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,33 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.1**, built from `main`. Its full viewer
+The current public package is **v0.72.2**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Schwellenraum water now glints and hazes very gently without moving.**
+  A deterministic, texture-free light layer covers mapped rivers, ponds,
+  basins and separately authored fountain tops at 3.75 Hz. Protected memorial
+  volumes remain exact Day, reduced-motion stays static, and neither geometry,
+  wakes nor boats animate.
+
+- **The Reichstag portico now carries its missing crowned ornaments.** The
+  paired pediment finials and two official Wappenbaum reliefs are separate
+  static structures; the latter occupy clear outer column bays and carry 20
+  shield cues. Minecraft receives its own pale marble/quartz block version
+  without hiding columns or changing the four roof flags.
+
+- **Tiergarten paths preserve more of their mapped geometry and material.**
+  The park detail payload retains 13,400 committed OSM support points across
+  3,467 ribbons, centimetre widths, nine close-view surfaces and every eligible
+  park-clipped informal path in the bounded source snapshot. No guessed desire
+  path is introduced.
+
+- **The Siegessaeule now reads correctly from base to mosaic hall.** Four
+  bronze reliefs sit on the red-granite base, while the polychrome
+  von-Werner/Salviati mosaic is one level higher behind the 16-column hall.
+  Drawn and Minecraft versions share the exact 67 m total height.
 
 - **The Reichstag west front now has a more faithful classical hierarchy.**
   The measured shell, glass dome and four flags stay fixed, while the six-column
@@ -496,8 +519,12 @@ local modules.
   full Day city, adds a warm pearlescent sky, quiet pastel light thresholds,
   elongated repeated frames and a few fixed pieces of everyday furniture
   without globally stretching or repainting the source architecture. The
-  world is completely still in this mode except for the explicitly identified
-  German, EU, Swiss and Federal President flags. A separate very quiet,
+  world geometry is completely still in this mode. Only the explicitly
+  identified German, EU, Swiss and Federal President flags and an extremely
+  faint material-only veil over mapped water may change: fixed mist fields
+  breathe slowly and rare deterministic glints fade softly, without moving a
+  water vertex, ripple, vessel or wake. Reduced-motion freezes the veil at one
+  dim sample. A separate very quiet,
   procedural two-bus sound layer provides soft air/rustle and sparse harmonic
   tones; the ordinary music layers crossfade out and resume on exit. It provides
   bounded presentation entrances and interiors for the Reichstag plenary
@@ -634,14 +661,16 @@ local modules.
   five-section yellow tram with doors, bogies and pantograph.
 
 - **Walking and cycling detail now follows the complete bounded OSM network.**
-  All 14,381 above-ground path line parts resolve through the same metric
+  All 20,782 above-ground path line parts resolve through the same metric
   buffering and terrain sampling as the streets. Explicit OSM surfaces take
-  precedence over context, distinguishing asphalt, paving, compacted/gravel,
-  earth, sand, timber and metal; 13,080 parts carry mapped surface evidence and 1,719
-  carry an explicit `width` or `est_width`. The separate raised park-detail
-  layer retains 2,454 joined path ribbons for close views and now shares those
-  resolved materials and per-way widths instead of covering them with a
-  generic park colour.
+  precedence over context; 18,848 parts carry mapped surface evidence and
+  2,574 carry an explicit `width` or `est_width`. The separate raised
+  park-detail layer retains all 3,467 joined path ribbons and every vertex of
+  the committed OSM source for close views. It distinguishes asphalt, regular
+  paving, dressed setts/cobble, compacted aggregate, loose fine gravel, sand,
+  open earth, timber and metal with small metre-scaled procedural grains and
+  joints. Schema 7 retains centimetre widths (including values such as 3.75 m)
+  instead of covering the network with a generic park colour.
 
 - **Floraplatz, Hotel AMANO Grand Central and the former Moabit prison park
   gain source-bounded recognition detail.** Floraplatz now contains the eight
@@ -856,13 +885,15 @@ local modules.
   facades pale.
 - Streets, footways, cycleways, steps, tracks and desire paths are drawn as
   real surfaces buffered from OSM centrelines. Path material follows an
-  explicit OSM `surface` first (asphalt, paving, compacted/gravel, earth,
-  timber or metal), then a documented class/park fallback. Explicit OSM
+  explicit OSM `surface` first (asphalt, paving, setts/cobble, compacted
+  aggregate, fine gravel, sand, earth, timber or metal), then a documented
+  class/park fallback. Explicit OSM
   `width` and `est_width` values win; class widths remain presentation
   cross-sections where no measurement is mapped and are not claimed as
-  surveyed kerb lines. Natural bends are interpolated through every retained
-  mapped vertex at 2–2.5 m display spacing; engineered 90° corners remain
-  sharp. The
+  surveyed kerb lines. The close-view ribbons retain every vertex of the
+  committed 0.35 m source and encode resolved widths to the centimetre;
+  natural bends are interpolated through those vertices without moving them,
+  while engineered 90° corners remain sharp. The
   canonical source keeps topology-preserving geometry at 0.35 m, road curves at
   1.5 m and round joins at 16 segments per quadrant. Ground-bound surfaces
   follow a bilinear reading of the committed 16 m IDW terrain support, with
@@ -968,7 +999,8 @@ local modules.
   control toggles moderate rain in Day, Night and Minecraft, and toggles the
   falling flakes in Snowstorm without removing its settled snow.
   Schwellenraum keeps the stored rain preference but disables precipitation so
-  its street, water, vegetation, light and sparse-prop tableau stays still.
+  its street, water geometry, vegetation and sparse-prop tableau stay still;
+  only the bounded water-light veil and allowlisted civic flags may change.
 - The `Minecraft` visual mode, also available with `M`,
   applies an original fixed 32-colour premium voxel palette,
   toon materials and restrained animated water/glass highlights without moving a
@@ -1043,8 +1075,9 @@ local modules.
   Day and Night record 0 changed pixels across every adjacent still-frame
   comparison. The selected-sight marker is static rather than pulsing. In
   Minecraft, only the deliberately walking figures change pixels. In
-  Schwellenraum only the allowlisted flags request sparse 15 Hz redraws; the
-  rest of the world remains bit-still. The committed measurement tool
+  Schwellenraum the allowlisted flags request sparse 15 Hz redraws and the
+  light-only water veil requests at most 3.75 Hz; the rest of the world remains
+  bit-still. The committed measurement tool
   independently enforces a bounded perceptual-delta threshold for the rest of
   the frame.
 - The two-tube Tiergartentunnel cutaway has lit fixtures and safety strips,
@@ -1088,8 +1121,8 @@ local modules.
   and hedge height are explicitly display approximations. The layer also adds
   5,829 public-light positions
   with night cones, 12 mapped wall traces as granular dark red-brown setts,
-  2,454 OSM park-path sections and 213 playground footprints. The complete
-  bounded smooth-surface pass additionally records 14,381 walking/cycling path
+  3,467 OSM park-path sections and 360 playground footprints. The complete
+  bounded smooth-surface pass additionally records 20,782 walking/cycling path
   line parts and their source-resolved materials. The selectable
   Luiseninsel playground opposite the
   Philharmonie includes its mapped climbing frames, slide, swings, sandpit,

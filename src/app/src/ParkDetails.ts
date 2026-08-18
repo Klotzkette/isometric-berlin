@@ -6,20 +6,27 @@ import {
   Color,
   ConeGeometry,
   CylinderGeometry,
+  DataTexture,
   DoubleSide,
   Float32BufferAttribute,
   Group,
   IcosahedronGeometry,
   InstancedMesh,
   LineBasicMaterial,
+  LinearFilter,
+  LinearMipmapLinearFilter,
   LineSegments,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
+  RepeatWrapping,
+  RGBAFormat,
   ShapeUtils,
   SphereGeometry,
+  SRGBColorSpace,
+  UnsignedByteType,
   Vector2,
   Vector3,
 } from "three";
@@ -33,11 +40,11 @@ import {
 export type ParkPath = {
   id: string;
   kind: string;
-  /** Compact material code since schema 4: asphalt/paving/gravel/earth/wood/metal. */
-  m?: "a" | "p" | "g" | "e" | "w" | "m";
+  /** Source surface: asphalt/sett/earth/fine-gravel/compacted/metal/paving/sand/wood. */
+  m?: "a" | "c" | "e" | "f" | "g" | "m" | "p" | "s" | "w";
   name?: string | null;
   points: [number, number, number][];
-  /** Full path width in decimetres since schema 4. */
+  /** Full path width: centimetres in schema 7, decimetres in schemas 4--6. */
   w?: number;
 };
 
@@ -517,19 +524,187 @@ const PATH_STYLE: Record<string, { color: number; width: number }> = {
   steps: { color: 0x71706b, width: 1.65 },
   track: { color: 0x6f6046, width: 2.25 },
 };
+type PathMaterialStyle = {
+  color: number;
+  label: string;
+  pattern: string;
+  roughness: number;
+  tileM: number;
+};
+
 const PATH_MATERIAL_STYLE: Record<
   NonNullable<ParkPath["m"]>,
-  { color: number; label: string }
+  PathMaterialStyle
 > = {
-  // Match the all-area unlit plates: the close ribbon must sharpen a path,
-  // never cover it with a darker and apparently different surface.
-  a: { color: 0xc4c5c0, label: "asphalt" },
-  p: { color: 0xdcd8cc, label: "paving" },
-  g: { color: 0xd9c9a6, label: "gravel and compacted" },
-  e: { color: 0xbca780, label: "earth desire" },
-  w: { color: 0xc49c68, label: "timber" },
-  m: { color: 0xaeb8b8, label: "metal" },
+  // The broad plates below retain the six-family far-view palette. These
+  // close ribbons add only source-selected grain/joints, so a path sharpens
+  // on approach without changing route, width or terrain alignment.
+  a: {
+    color: 0xc4c5c0,
+    label: "asphalt",
+    pattern: "fine asphalt grain",
+    roughness: 0.91,
+    tileM: 1.4,
+  },
+  c: {
+    color: 0xc5bba8,
+    label: "granite sett",
+    pattern: "staggered dressed-stone joints",
+    roughness: 0.98,
+    tileM: 1.1,
+  },
+  e: {
+    color: 0xbca780,
+    label: "earth desire",
+    pattern: "irregular open-ground grain",
+    roughness: 1,
+    tileM: 1.7,
+  },
+  f: {
+    color: 0xddd1b5,
+    label: "fine gravel",
+    pattern: "loose fine-gravel grain",
+    roughness: 1,
+    tileM: 0.72,
+  },
+  g: {
+    color: 0xd9c9a6,
+    label: "compacted aggregate",
+    pattern: "water-bound compacted grain",
+    roughness: 0.99,
+    tileM: 1.5,
+  },
+  m: {
+    color: 0xaeb8b8,
+    label: "metal",
+    pattern: "fine metal grid",
+    roughness: 0.7,
+    tileM: 0.52,
+  },
+  p: {
+    color: 0xdcd8cc,
+    label: "paving",
+    pattern: "regular paving-stone joints",
+    roughness: 0.94,
+    tileM: 0.9,
+  },
+  s: {
+    color: 0xe4ca94,
+    label: "sand",
+    pattern: "soft sand grain",
+    roughness: 1,
+    tileM: 1.2,
+  },
+  w: {
+    color: 0xc49c68,
+    label: "timber",
+    pattern: "transverse timber boards",
+    roughness: 0.92,
+    tileM: 0.82,
+  },
 };
+
+const SEMANTIC_PATH_MATERIAL: Record<string, NonNullable<ParkPath["m"]>> = {
+  bridleway: "g",
+  cycleway: "p",
+  footway: "p",
+  path: "g",
+  pedestrian: "p",
+  steps: "p",
+  track: "g",
+};
+
+const PATH_TEXTURE_SIZE = 64;
+
+function pathTextureNoise(x: number, y: number, seed: number): number {
+  let value = (x * 374761393 + y * 668265263 + seed * 69069) | 0;
+  value = (value ^ (value >>> 13)) * 1274126177;
+  return (value ^ (value >>> 16)) & 0xff;
+}
+
+/** Small deterministic, texture-free-at-build-time surface tile. */
+export function createParkPathSurfaceTexture(
+  code: NonNullable<ParkPath["m"]>,
+): DataTexture {
+  const style = PATH_MATERIAL_STYLE[code];
+  const data = new Uint8Array(PATH_TEXTURE_SIZE * PATH_TEXTURE_SIZE * 4);
+  for (let y = 0; y < PATH_TEXTURE_SIZE; y += 1) {
+    for (let x = 0; x < PATH_TEXTURE_SIZE; x += 1) {
+      const noise = pathTextureNoise(x, y, code.charCodeAt(0));
+      let shade = 252;
+      if (code === "a") {
+        shade = 248 + (noise % 8);
+      } else if (code === "c") {
+        const row = Math.floor(y / 13);
+        const shiftedX = (x + (row % 2) * 8) % 16;
+        const joint = shiftedX <= 1 || y % 13 <= 1;
+        shade = joint ? 202 : 244 + (noise % 12);
+      } else if (code === "e") {
+        shade = 235 + ((noise + Math.floor(8 * Math.sin((x + y) / 7))) % 20);
+      } else if (code === "f") {
+        shade = noise < 24 ? 211 + (noise % 18) : 247 + (noise % 9);
+      } else if (code === "g") {
+        const compactedBand = Math.abs(Math.sin((x + y * 0.36) / 8));
+        shade = 242 + Math.round(compactedBand * 9) + (noise % 5);
+      } else if (code === "m") {
+        shade = x % 16 <= 1 || y % 16 <= 1 ? 210 : 249 + (noise % 7);
+      } else if (code === "p") {
+        const row = Math.floor(y / 16);
+        const shiftedX = (x + (row % 2) * 16) % 32;
+        shade = shiftedX <= 1 || y % 16 <= 1 ? 224 : 250 + (noise % 6);
+      } else if (code === "s") {
+        shade = 247 + ((noise + Math.round(5 * Math.sin((x - y) / 6))) % 9);
+      } else if (code === "w") {
+        shade = x % 32 <= 1 ? 211 : 240 + ((noise + y) % 16);
+      }
+      const offset = (y * PATH_TEXTURE_SIZE + x) * 4;
+      data[offset] = shade;
+      data[offset + 1] = shade;
+      data[offset + 2] = shade;
+      data[offset + 3] = 255;
+    }
+  }
+  const texture = new DataTexture(
+    data,
+    PATH_TEXTURE_SIZE,
+    PATH_TEXTURE_SIZE,
+    RGBAFormat,
+    UnsignedByteType,
+  );
+  texture.name = `OSM park ${style.label} deterministic surface tile`;
+  texture.colorSpace = SRGBColorSpace;
+  texture.generateMipmaps = true;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.wrapS = RepeatWrapping;
+  texture.wrapT = RepeatWrapping;
+  texture.repeat.set(1 / style.tileM, 1 / style.tileM);
+  texture.userData = {
+    materialCode: code,
+    pattern: style.pattern,
+    sourceContract: "OSM surface tag selects presentation; no geometry inference",
+  };
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function parkPathMaterial(
+  code: NonNullable<ParkPath["m"]>,
+): MeshStandardMaterial {
+  const style = PATH_MATERIAL_STYLE[code];
+  const surface = material(style.color, style.roughness);
+  surface.name = `OSM park ${style.label} source-surface material`;
+  surface.map = createParkPathSurfaceTexture(code);
+  surface.side = DoubleSide;
+  surface.userData = {
+    ...surface.userData,
+    pathMaterialCode: code,
+    pathSurfacePattern: style.pattern,
+    sourceBackedPathSurface: true,
+  };
+  surface.needsUpdate = true;
+  return surface;
+}
 
 function material(color: number, roughness = 0.82): MeshStandardMaterial {
   return new MeshStandardMaterial({
@@ -624,6 +799,7 @@ export function createPathGeometry(
   width: number | ((path: ParkPath) => number),
 ): BufferGeometry {
   const positions: number[] = [];
+  const uvs: number[] = [];
   const indices: number[] = [];
   for (const path of paths) {
     const resolvedWidth = typeof width === "number" ? width : width(path);
@@ -638,10 +814,17 @@ export function createPathGeometry(
     if (points.length < 2) continue;
     const offset = positions.length / 3;
     const halfWidth = resolvedWidth / 2;
+    let distanceAlong = 0;
     for (let index = 0; index < points.length; index += 1) {
       const point = points[index];
       const previous = points[Math.max(0, index - 1)];
       const next = points[Math.min(points.length - 1, index + 1)];
+      if (index > 0) {
+        distanceAlong += Math.hypot(
+          point.x - previous.x,
+          point.z - previous.z,
+        );
+      }
       const previousLength =
         Math.hypot(point.x - previous.x, point.z - previous.z) || 1;
       const nextLength =
@@ -680,6 +863,14 @@ export function createPathGeometry(
         point.y + 0.12,
         point.z - mz * extension,
       );
+      // Metre-space UVs keep grains and joints at one physical scale on every
+      // path width. U follows the mapped route; V crosses the full ribbon.
+      uvs.push(
+        distanceAlong,
+        -resolvedWidth / 2,
+        distanceAlong,
+        resolvedWidth / 2,
+      );
     }
     for (let index = 0; index < points.length - 1; index += 1) {
       const left = offset + index * 2;
@@ -691,6 +882,7 @@ export function createPathGeometry(
   }
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
@@ -698,7 +890,11 @@ export function createPathGeometry(
   return geometry;
 }
 
-function addPaths(group: Group, paths: ParkPath[]): void {
+function addPaths(
+  group: Group,
+  paths: ParkPath[],
+  encodedWidthScaleM: number,
+): void {
   const byKind = new Map<string, ParkPath[]>();
   for (const path of paths) {
     const kind = path.m ? `material:${path.m}` : pathCategory(path.kind);
@@ -708,18 +904,15 @@ function addPaths(group: Group, paths: ParkPath[]): void {
     const materialCode = kind.startsWith("material:")
       ? (kind.slice(-1) as NonNullable<ParkPath["m"]>)
       : null;
-    const materialStyle = materialCode
-      ? PATH_MATERIAL_STYLE[materialCode]
-      : null;
-    const semanticStyle = materialStyle ? null : PATH_STYLE[kind];
-    const pathMaterial = material(
-      materialStyle?.color ?? semanticStyle?.color ?? PATH_STYLE.path.color,
-      0.96,
-    );
-    pathMaterial.side = DoubleSide;
+    const resolvedCode =
+      materialCode ?? SEMANTIC_PATH_MATERIAL[kind] ?? "g";
+    const materialStyle = PATH_MATERIAL_STYLE[resolvedCode];
+    const pathMaterial = parkPathMaterial(resolvedCode);
     const mesh = new Mesh(
       createPathGeometry(entries, (path) =>
-        path.w ? path.w / 10 : PATH_STYLE[pathCategory(path.kind)].width,
+        path.w
+          ? path.w * encodedWidthScaleM
+          : PATH_STYLE[pathCategory(path.kind)].width,
       ),
       pathMaterial,
     );
@@ -2095,7 +2288,7 @@ export function createParkDetails(
   payload: ParkDetailsPayload,
   options: ParkDetailOptions = {},
 ): Group {
-  if (payload.schema_version < 1 || payload.schema_version > 6) {
+  if (payload.schema_version < 1 || payload.schema_version > 7) {
     throw new Error(`Unsupported park-detail schema ${payload.schema_version}`);
   }
   const group = new Group();
@@ -2150,7 +2343,7 @@ export function createParkDetails(
       constructionFilteredTrees.length - trees.length,
     treeCount: trees.length,
   };
-  addPaths(group, payload.paths);
+  addPaths(group, payload.paths, payload.schema_version >= 7 ? 0.01 : 0.1);
   group.userData.settledOfficialTreeDetailFaces = addTrees(
     group,
     trees,

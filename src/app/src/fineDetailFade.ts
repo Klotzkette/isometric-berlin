@@ -260,6 +260,8 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "ARD Hauptstadtstudio architectural details ink lines",
   "ARD HAUPTSTADTSTUDIO facade lettering",
   "ARD Hauptstadtstudio facade subtitle",
+  "Reichstag west pediment crowned-finial fine detail",
+  "Reichstag west portico Wappenbaum fine detail",
   "Reichstagspräsidentenpalais micro facade details bodies",
   "Reichstagspräsidentenpalais micro facade details lamps",
   "Reichstagspräsidentenpalais micro facade details ink lines",
