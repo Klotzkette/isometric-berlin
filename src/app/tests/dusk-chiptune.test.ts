@@ -661,6 +661,151 @@ describe("Dusk Republic — player", () => {
     });
   });
 
+  test("mode handover fades the score before suspending its warm graph", async () => {
+    await withFakeTimerWindow(async (timerCounts) => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("running");
+      const source = {
+        disconnect() {},
+        onended: null,
+        stop() {},
+      } as unknown as AudioScheduledSourceNode;
+      const internals = player as unknown as {
+        activeSources: Map<AudioScheduledSourceNode, AudioNode[]>;
+        context: AudioContext | null;
+        master: GainNode | null;
+        resumeAfterSuspension: boolean;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 81;
+      internals.activeSources.set(source, []);
+
+      expect(await player.fadeToSuspended(0.02)).toBe(true);
+      expect(graph.master.gain.value).toBe(0);
+      expect(graph.counts.suspends).toBe(1);
+      expect(timerCounts.intervalClears).toBe(1);
+      expect(internals.resumeAfterSuspension).toBeTrue();
+      expect(player.activeVoiceCount).toBe(0);
+      await player.dispose();
+    });
+  });
+
+  test("an immediate score restart cancels a stale handover suspension", async () => {
+    await withFakeTimerWindow(async () => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("running");
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 82;
+
+      const fading = player.fadeToSuspended(0.02);
+      expect(await player.start()).toBe(true);
+      expect(await fading).toBe(false);
+      expect(graph.counts.suspends).toBe(0);
+      expect(graph.master.gain.value).toBe(CHIP_MASTER_GAIN);
+      await player.dispose();
+    });
+  });
+
+  test("a score restart wins while the handover suspend is pending", async () => {
+    await withFakeTimerWindow(async () => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("running");
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        lowpass: BiquadFilterNode | null;
+        master: GainNode | null;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.lowpass = {} as BiquadFilterNode;
+      internals.master = graph.master;
+      internals.timer = 83;
+      player.prepare = () => true;
+      (player as unknown as { scheduleAhead(): void }).scheduleAhead = () =>
+        undefined;
+
+      let markSuspendStarted: (() => void) | undefined;
+      let releaseSuspend: (() => void) | undefined;
+      const suspendStarted = new Promise<void>((resolve) => {
+        markSuspendStarted = resolve;
+      });
+      (graph.context as unknown as { suspend(): Promise<void> }).suspend = () => {
+        graph.counts.suspends += 1;
+        markSuspendStarted?.();
+        return new Promise<void>((resolve) => {
+          releaseSuspend = () => {
+            graph.setState("suspended");
+            resolve();
+          };
+        });
+      };
+
+      const fading = player.fadeToSuspended(0.02);
+      await suspendStarted;
+      expect(await player.start()).toBe(true);
+      releaseSuspend?.();
+
+      expect(await fading).toBe(false);
+      expect(graph.context.state).toBe("running");
+      expect(graph.counts.resumes).toBe(1);
+      expect(internals.timer).not.toBeNull();
+      expect(graph.master.gain.value).toBe(CHIP_MASTER_GAIN);
+      await player.dispose();
+    });
+  });
+
+  test("a visibility resume wins while score suspension is pending", async () => {
+    await withFakeTimerWindow(async () => {
+      const player = new DuskChiptune();
+      const graph = fakeChipGraph("running");
+      const internals = player as unknown as {
+        context: AudioContext | null;
+        master: GainNode | null;
+        timer: number | null;
+      };
+      internals.context = graph.context;
+      internals.master = graph.master;
+      internals.timer = 84;
+      (player as unknown as { scheduleAhead(): void }).scheduleAhead = () =>
+        undefined;
+
+      let markSuspendStarted: (() => void) | undefined;
+      let releaseSuspend: (() => void) | undefined;
+      const suspendStarted = new Promise<void>((resolve) => {
+        markSuspendStarted = resolve;
+      });
+      (graph.context as unknown as { suspend(): Promise<void> }).suspend = () => {
+        graph.counts.suspends += 1;
+        markSuspendStarted?.();
+        return new Promise<void>((resolve) => {
+          releaseSuspend = () => {
+            graph.setState("suspended");
+            resolve();
+          };
+        });
+      };
+
+      const pausing = player.setSuspended(true);
+      await suspendStarted;
+      expect(await player.setSuspended(false)).toBe(true);
+      releaseSuspend?.();
+
+      expect(await pausing).toBe(false);
+      expect(graph.context.state).toBe("running");
+      expect(graph.counts.resumes).toBe(1);
+      expect(internals.timer).not.toBeNull();
+      await player.dispose();
+    });
+  });
+
   test("a hidden autoplay attempt cannot resume without a fresh gesture", async () => {
     await withFakeTimerWindow(async (timerCounts) => {
       const player = new DuskChiptune();

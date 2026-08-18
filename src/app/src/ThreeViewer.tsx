@@ -130,6 +130,7 @@ import {
   PEDESTRIAN_IDLE_INPUT,
   PEDESTRIAN_VIEW_DISTANCE_M,
   addPedestrianParkObstacles,
+  compilePedestrianWater,
   createPedestrianEnvironment,
   createPedestrianState,
   jumpPedestrian,
@@ -218,7 +219,17 @@ import {
   WATER_TOP_Y,
   buildColumnToneLookup,
   createMinecraftVoxelWorld,
+  smoothGroundTopSampler,
 } from "./MinecraftVoxelWorld";
+import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
+import {
+  minecraftHeroCollisionEnabled,
+  minecraftHeroGroundAt,
+  minecraftHeroSolidAt,
+  minecraftHeroWalkableAt,
+  reconcileMinecraftHeroCameraRig,
+  resolveMinecraftHeroFlightTranslation,
+} from "./MinecraftHeroNavigation";
 import {
   type MinecraftMobField,
   createMinecraftMobs,
@@ -294,6 +305,19 @@ import {
   setSchwellenraumDatenSchutz,
   setSchwellenraumPraesentation,
 } from "./visual-modes/schwellenraum/presentation";
+import {
+  SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
+  countSchwellenraumMovingFlags,
+  schwellenraumMotionDecision,
+  updateSchwellenraumMovingFlags,
+} from "./visual-modes/schwellenraum/motion";
+import {
+  createSchwellenraumStaticPropCollision,
+  installSchwellenraumStaticProps,
+} from "./visual-modes/schwellenraum/staticProps";
+import {
+  installUnterDenLindenMedianRefinement,
+} from "./visual-modes/schwellenraum/unterDenLindenMedian";
 import crispFragment from "./crisp.frag?raw";
 import postprocessVertex from "./visual-modes/minecraft/postprocess.vert?raw";
 import {
@@ -432,6 +456,9 @@ type Runtime = {
   monuments: Group;
   schwellenraumInteriors: Group;
   schwellenraumPraesentation: Group;
+  schwellenraumFlagElapsedSeconds: number;
+  schwellenraumLastFlagFrameAt: number;
+  schwellenraumMovingFlagCount: number;
   parkDetails: Group;
   pedestrian: PedestrianRuntime;
   presentationReady: boolean;
@@ -499,10 +526,17 @@ type Runtime = {
   underwater: boolean;
 };
 
+function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
+  runtime.schwellenraumMovingFlagCount = countSchwellenraumMovingFlags([
+    runtime.signatures,
+    runtime.civicDetails,
+  ]);
+}
+
 /**
  * Translate the camera and its focal point as one rigid body. Schwellenraum
- * uses the metric pedestrian collision field in full 3D; every other visual
- * mode retains the established bounded camera movement exactly.
+ * and Minecraft use the metric pedestrian collision field in full 3D; the
+ * other visual modes retain the established bounded camera movement exactly.
  */
 function applyBoundedCameraRigTranslation(
   runtime: Runtime,
@@ -518,10 +552,14 @@ function applyBoundedCameraRigTranslation(
   const boundedRequest = boundedTarget.sub(runtime.controls.target);
   let applied = boundedRequest;
   if (
-    runtime.lightingMode === "schwellenraum" &&
+    (runtime.lightingMode === "schwellenraum" ||
+      minecraftHeroCollisionEnabled(runtime.lightingMode)) &&
     runtime.pedestrian.environment
   ) {
-    const resolved = resolveSchwellenraumFlightTranslation(
+    const resolver = minecraftHeroCollisionEnabled(runtime.lightingMode)
+      ? resolveMinecraftHeroFlightTranslation
+      : resolveSchwellenraumFlightTranslation;
+    const resolved = resolver(
       runtime.camera.position,
       boundedRequest,
       runtime.pedestrian.environment,
@@ -536,6 +574,45 @@ function applyBoundedCameraRigTranslation(
   runtime.camera.position.add(applied);
   runtime.camera.updateMatrixWorld();
   return applied;
+}
+
+/** Keep a direct Minecraft orbit/dolly/pan pose outside metric solids. */
+function reconcileMinecraftCameraRig(
+  runtime: Runtime,
+  previousCamera: Vector3,
+  previousTarget: Vector3,
+): boolean {
+  if (
+    runtime.pedestrian.enabled ||
+    !minecraftHeroCollisionEnabled(runtime.lightingMode) ||
+    !runtime.pedestrian.environment
+  ) {
+    return false;
+  }
+  const reconciled = reconcileMinecraftHeroCameraRig(
+    {
+      camera: previousCamera,
+      target: previousTarget,
+    },
+    {
+      camera: runtime.camera.position,
+      target: runtime.controls.target,
+    },
+    runtime.pedestrian.environment,
+  );
+  runtime.camera.position.set(
+    reconciled.camera.x,
+    reconciled.camera.y,
+    reconciled.camera.z,
+  );
+  runtime.controls.target.set(
+    reconciled.target.x,
+    reconciled.target.y,
+    reconciled.target.z,
+  );
+  runtime.camera.lookAt(runtime.controls.target);
+  runtime.camera.updateMatrixWorld();
+  return reconciled.blocked;
 }
 
 function flyCameraRigInViewPlane(
@@ -1617,11 +1694,16 @@ function setSceneLighting(
   setUndergroundPresentation(runtime.undergroundNetwork, mode);
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
-  // Incidental staffage has one authored pose. Updating flags or tiny signal
-  // lamps only while the camera moved made those sub-pixel details flash
-  // against otherwise deterministic geometry.
+  // Every mode starts from one authored cloth pose. Schwellenraum's separate
+  // closed allowlist may subsequently advance recognised civic flags at a
+  // calm fixed cadence; all other flags and signal lamps remain frozen.
   updateWindFlags(runtime.signatures, 0.9);
   updateWindFlags(runtime.civicDetails, 0.9);
+  if (isSchwellenraum) {
+    runtime.schwellenraumFlagElapsedSeconds = 0.9;
+    runtime.schwellenraumLastFlagFrameAt = 0;
+  }
+  refreshSchwellenraumMovingFlagCount(runtime);
   if (runtime.trafficSignals) {
     updateTrafficSignals(
       runtime.trafficSignals,
@@ -1679,27 +1761,23 @@ function setSceneLighting(
     runtime.pedestrian.state?.insideTunnel === true ||
       runtime.cameraInsideTunnel,
   );
-  // Recognition models (dome, gate, memorials, park trees…) are drawn
-  // geometry — they stay ON in the drawn isometric city and complement
-  // the prisms; only the voxel world and the underside hide them. The
-  // photographic hero crops additionally hide in the drawn city.
+  // Drawn recognition models complement the prisms. Minecraft keeps the
+  // non-building signatures, but the hero architecture below has dedicated
+  // block-native replacements inside the voxel world.
   const recognitionVisible = !runtime.underside && !voxelMode;
-  // Landmarks must survive the block world ("nicht um Detailverlust
-  // gebeten"): architectural signatures and the memorial models stay
-  // visible in Minecraft too (they get the toon treatment); only the
-  // softer cultural/park layers and photo crops step aside there.
   runtime.signatures.visible = !runtime.underside;
   runtime.centralDetails.visible = centralCivicDetailsVisible(
     runtime.underside,
   );
+  setMinecraftArchitecturePresentation(
+    runtime.signatures,
+    runtime.centralDetails,
+    voxelMode,
+  );
   for (const signature of runtime.signatures.children) {
-    // The real LoD2 voxel station remains in Minecraft; its fine curved-glass
-    // recognition shell belongs to the drawn modes and looked implausibly
-    // exact beside the deliberately blocky station.
     if (
-      signature.name === "Metre-scale Berlin Hauptbahnhof recognition model" ||
       signature.name ===
-        "Measured MEININGER Hotel Hauptbahnhof recognition model"
+      "Measured MEININGER Hotel Hauptbahnhof recognition model"
     ) {
       signature.visible = !isMinecraft;
     }
@@ -2024,14 +2102,6 @@ function ensureIsoWorld(
       }
       const memorialProtection =
         createSchwellenraumMemorialProtectionIndex(street?.monuments);
-      if (
-        setSchwellenraumDatenSchutz(
-          runtime.schwellenraumPraesentation,
-          memorialProtection,
-        )
-      ) {
-        runtime.renderInvalidated = true;
-      }
       if (ground && surfaces) {
         const pedestrianEnvironment = createPedestrianEnvironment(
           ground,
@@ -2043,21 +2113,43 @@ function ensureIsoWorld(
           createArdHauptstadtstudioRoofCollision(prisms);
         const historicParkBridgeCollision =
           createHistoricParkBridgeCollision(ground);
-        pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
-          runtime.lightingMode === "schwellenraum" &&
-          schwellenraumNavigationOverrideAt(x, y, z, sourceId);
+        const staticPropSolidAt = createSchwellenraumStaticPropCollision(
+          pedestrianEnvironment.groundAt,
+          memorialProtection,
+        );
+        pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
+          if (runtime.lightingMode === "schwellenraum") {
+            return schwellenraumNavigationOverrideAt(x, y, z, sourceId);
+          }
+          return (
+            minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+            minecraftHeroWalkableAt(x, y, z, sourceId)
+          );
+        };
         pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
           runtime.lightingMode === "schwellenraum" &&
           (schwellenraumProtectedAt(x, y, z) ||
             schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
-        pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) =>
-          runtime.lightingMode === "schwellenraum" &&
-          (schwellenraumInteriorSolidAt(x, y, z, radius) ||
-            federalStateRepresentationSolidAt(x, y, z, radius) ||
-            reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
-            historicParkBridgeCollision.solidAt(x, y, z, radius) ||
-            ardRoofCollision?.solidAt(x, y, z, radius) === true);
+        pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+          if (runtime.lightingMode === "schwellenraum") {
+            return (
+              schwellenraumInteriorSolidAt(x, y, z, radius) ||
+              staticPropSolidAt(x, y, z, radius) ||
+              federalStateRepresentationSolidAt(x, y, z, radius) ||
+              reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
+              historicParkBridgeCollision.solidAt(x, y, z, radius) ||
+              ardRoofCollision?.solidAt(x, y, z, radius) === true
+            );
+          }
+          return (
+            minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+            minecraftHeroSolidAt(x, y, z, radius)
+          );
+        };
         pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+          if (minecraftHeroCollisionEnabled(runtime.lightingMode)) {
+            return minecraftHeroGroundAt(x, z);
+          }
           if (runtime.lightingMode !== "schwellenraum") {
             return null;
           }
@@ -2066,10 +2158,32 @@ function ensureIsoWorld(
             : (pedestrianEnvironment.groundAt(x, z) ?? 0);
           return schwellenraumInteriorGroundAt(x, z, hint);
         };
+        installSchwellenraumStaticProps(
+          runtime.schwellenraumPraesentation,
+          pedestrianEnvironment.groundAt,
+        );
+        const terrainSample = smoothGroundTopSampler(ground);
+        installUnterDenLindenMedianRefinement(
+          runtime.schwellenraumPraesentation,
+          surfaces,
+          (x, z) =>
+            terrainSample(
+              x / ground.cell_m - ground.grid.min_x_idx,
+              z / ground.cell_m - ground.grid.min_z_idx,
+            ),
+        );
         runtime.pedestrian.environment = pedestrianEnvironment;
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
         }
+      }
+      if (
+        setSchwellenraumDatenSchutz(
+          runtime.schwellenraumPraesentation,
+          memorialProtection,
+        )
+      ) {
+        runtime.renderInvalidated = true;
       }
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
@@ -2143,8 +2257,9 @@ function ensureIsoWorld(
         }
       }
       if (ground) {
-        // Staffage the owner asked for: a barge in the Humboldthafen and
-        // an excursion yacht on the Spree. No OSM source for either.
+        // Two source-bound Berlin passenger-vessel envelopes on committed OSM
+        // waterway axes. Their positions are explicit static display
+        // compositions, not live vessel observations or AIS tracks.
         runtime.isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
         // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
         // Like the surveyed bridge signatures it remains visible in Minecraft,
@@ -2306,6 +2421,44 @@ function ensureVoxelWorld(
         !runtime.coarsePointer,
       );
       runtime.scene.add(runtime.minecraftMobs.group);
+      // Minecraft can be the cold-start mode, in which case the drawn-world
+      // builder has not yet created the shared navigation environment. Load
+      // only the water polygons in the background; block presentation stays
+      // on the existing fast voxel+prism critical path.
+      if (prisms && runtime.pedestrian.environment === null) {
+        const environment = createPedestrianEnvironment(
+          payload,
+          { water: [] },
+          runtime.tunnelPortalCourse,
+          prisms,
+        );
+        environment.walkableInteriorAt = (x, y, z, sourceId) =>
+          minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+          minecraftHeroWalkableAt(x, y, z, sourceId);
+        environment.interiorSolidAt = (x, y, z, radius) =>
+          minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+          minecraftHeroSolidAt(x, y, z, radius);
+        environment.interiorGroundAt = (x, z) =>
+          minecraftHeroCollisionEnabled(runtime.lightingMode)
+            ? minecraftHeroGroundAt(x, z)
+            : null;
+        runtime.pedestrian.environment = environment;
+        if (runtime.pedestrian.requested) {
+          activatePedestrianMode(runtime);
+        }
+        void fetchSurfacePayload(runtime)
+          .then((surfaces) => {
+            if (
+              !runtime.disposed &&
+              runtime.pedestrian.environment === environment
+            ) {
+              environment.water = compilePedestrianWater(surfaces);
+            }
+          })
+          // Building, portal and terrain collision are already live; only
+          // water respawn waits for a later drawn-world retry after failure.
+          .catch(() => undefined);
+      }
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, 3);
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
@@ -2801,6 +2954,11 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   const recognitionVisible = !underside && !voxelMode;
   runtime.signatures.visible = !underside;
   runtime.centralDetails.visible = centralCivicDetailsVisible(underside);
+  setMinecraftArchitecturePresentation(
+    runtime.signatures,
+    runtime.centralDetails,
+    voxelMode,
+  );
   runtime.civicDetails.visible = civicDetailsVisible(underside);
   runtime.monuments.visible = !underside;
   runtime.culturalDetails.visible = recognitionVisible;
@@ -2862,6 +3020,8 @@ function setOrbitAngles(
   runtime: Runtime,
   angles: { azimuth?: number; polar?: number },
 ): void {
+  const previousCamera = runtime.camera.position.clone();
+  const previousTarget = runtime.controls.target.clone();
   const offset = runtime.camera.position.clone().sub(runtime.controls.target);
   const spherical = new Spherical().setFromVector3(offset);
   if (angles.azimuth !== undefined) {
@@ -2872,6 +3032,7 @@ function setOrbitAngles(
   }
   offset.setFromSpherical(spherical);
   runtime.camera.position.copy(runtime.controls.target).add(offset);
+  reconcileMinecraftCameraRig(runtime, previousCamera, previousTarget);
   runtime.controls.update();
 }
 
@@ -3651,6 +3812,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             return;
           }
           markSurfaceInteraction(runtime);
+          const previousCamera = runtime.camera.position.clone();
+          const previousTarget = runtime.controls.target.clone();
           const offset = runtime.camera.position
             .clone()
             .sub(runtime.controls.target);
@@ -3660,6 +3823,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.controls.maxDistance,
           );
           runtime.camera.position.copy(runtime.controls.target).add(offset);
+          reconcileMinecraftCameraRig(
+            runtime,
+            previousCamera,
+            previousTarget,
+          );
           runtime.controls.update();
         },
         jumpPedestrian: () => {
@@ -3894,6 +4062,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         monuments,
         schwellenraumInteriors,
         schwellenraumPraesentation,
+        schwellenraumFlagElapsedSeconds: 0.9,
+        schwellenraumLastFlagFrameAt: 0,
+        schwellenraumMovingFlagCount: 0,
         parkDetails,
         pedestrian: {
           cameraDirty: false,
@@ -4008,6 +4179,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       let previousThreeFingerCenter: { x: number; y: number } | null = null;
       let controlsInteracting = false;
+      const lastDirectControlCamera = camera.position.clone();
+      const lastDirectControlTarget = controls.target.clone();
       let touchInteracting = false;
       let lastTouchActivityAt = Number.NEGATIVE_INFINITY;
       let pedestrianLookPointer: {
@@ -4091,6 +4264,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         const ndcX = ((point.x - rect.left) / rect.width) * 2 - 1;
         const ndcY = -((point.y - rect.top) / rect.height) * 2 + 1;
+        const previousCamera = camera.position.clone();
+        const previousTarget = controls.target.clone();
         zoomCameraAtScreenPoint(
           camera,
           controls.target,
@@ -4099,6 +4274,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           factor,
           controls.minDistance,
           controls.maxDistance,
+        );
+        reconcileMinecraftCameraRig(
+          runtime,
+          previousCamera,
+          previousTarget,
         );
       };
       let trackpadPanSequenceUntil = Number.NEGATIVE_INFINITY;
@@ -4376,6 +4556,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 );
               }
               if (signedPinchDolly) {
+                const previousCamera = camera.position.clone();
+                const previousTarget = controls.target.clone();
                 const signedDistance = advanceSignedPinchDolly(
                   camera,
                   controls.target,
@@ -4384,9 +4566,21 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   controls.minDistance,
                   controls.maxDistance,
                 );
-                const underside = signedDistance < 0;
-                if (underside !== runtime.underside) {
-                  setModelMaterialState(runtime, underside);
+                const blocked = reconcileMinecraftCameraRig(
+                  runtime,
+                  previousCamera,
+                  previousTarget,
+                );
+                if (blocked) {
+                  signedPinchDolly = createSignedPinchDolly(
+                    camera,
+                    controls.target,
+                  );
+                } else {
+                  const underside = signedDistance < 0;
+                  if (underside !== runtime.underside) {
+                    setModelMaterialState(runtime, underside);
+                  }
                 }
               } else {
                 zoomAtClientPoint(current.center, pinchRatio);
@@ -4614,15 +4808,31 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       window.addEventListener("blur", resetTouchGesture);
       document.addEventListener("visibilitychange", onVisibilityChange);
       const onControlsStart = () => {
+        lastDirectControlCamera.copy(camera.position);
+        lastDirectControlTarget.copy(controls.target);
         controlsInteracting = true;
         markSurfaceInteraction(runtime);
       };
+      const onControlsChange = () => {
+        if (controlsInteracting) {
+          reconcileMinecraftCameraRig(
+            runtime,
+            lastDirectControlCamera,
+            lastDirectControlTarget,
+          );
+        }
+        lastDirectControlCamera.copy(camera.position);
+        lastDirectControlTarget.copy(controls.target);
+      };
       const onControlsEnd = () => {
         controlsInteracting = false;
+        lastDirectControlCamera.copy(camera.position);
+        lastDirectControlTarget.copy(controls.target);
         markSurfaceInteraction(runtime);
         notifyView(runtime, onViewChangeRef.current);
       };
       controls.addEventListener("start", onControlsStart);
+      controls.addEventListener("change", onControlsChange);
       controls.addEventListener("end", onControlsEnd);
       resizeObserver = new ResizeObserver(() => resize());
       resizeObserver.observe(host);
@@ -4827,10 +5037,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           resetTouchGesture();
         }
         const stability = minecraftStabilityPolicy(runtime.lightingMode);
-        const environmentalMotion =
-          runtime.rain.group.visible ||
-          snowfallAnimationActive(runtime.snowstorm) ||
-          runtime.minecraftMobs?.group.visible === true;
+        const schwellenraumMotion = schwellenraumMotionDecision({
+          lastFlagFrameAt: runtime.schwellenraumLastFlagFrameAt,
+          minecraftMobsVisible: runtime.minecraftMobs?.group.visible === true,
+          mode: runtime.lightingMode,
+          movingFlagCount: runtime.schwellenraumMovingFlagCount,
+          rainVisible: runtime.rain.group.visible,
+          snowVisible: snowfallAnimationActive(runtime.snowstorm),
+          timestamp,
+        });
+        const environmentalMotion = schwellenraumMotion.environmentalMotion;
         // A still camera must let Minecraft settle to one calm frame instead
         // of re-voxelising forever (the "Flirren"); motion still drives the
         // active cadence through the terms below.
@@ -4922,22 +5138,32 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             underside,
           }),
         );
-        updateModerateRain(
-          runtime.rain,
-          reducedMotion ? dtSeconds * 0.45 : dtSeconds,
-          controls.target,
-          runtime.lightingMode,
-        );
-        updateSnowstorm(
-          runtime.snowstorm,
-          reducedMotion ? dtSeconds * 0.38 : dtSeconds,
-          controls.target,
-        );
-        if (runtime.minecraftMobs?.group.visible) {
-          updateMinecraftMobs(
-            runtime.minecraftMobs,
-            reducedMotion ? dtSeconds * 0.35 : dtSeconds,
+        if (schwellenraumMotion.animateOrdinaryEnvironment) {
+          updateModerateRain(
+            runtime.rain,
+            reducedMotion ? dtSeconds * 0.45 : dtSeconds,
+            controls.target,
+            runtime.lightingMode,
           );
+          updateSnowstorm(
+            runtime.snowstorm,
+            reducedMotion ? dtSeconds * 0.38 : dtSeconds,
+            controls.target,
+          );
+          if (runtime.minecraftMobs?.group.visible) {
+            updateMinecraftMobs(
+              runtime.minecraftMobs,
+              reducedMotion ? dtSeconds * 0.35 : dtSeconds,
+            );
+          }
+        } else if (schwellenraumMotion.animateFlags) {
+          runtime.schwellenraumFlagElapsedSeconds +=
+            SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS / 1000;
+          updateSchwellenraumMovingFlags(
+            [runtime.signatures, runtime.civicDetails],
+            runtime.schwellenraumFlagElapsedSeconds,
+          );
+          runtime.schwellenraumLastFlagFrameAt = timestamp;
         }
         // Momentum glide: the released pan eases out smoothly.
         if (
@@ -4994,6 +5220,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.nightLightsOn,
           );
           updateWindFlags(runtime.civicDetails, 0.9);
+          refreshSchwellenraumMovingFlagCount(runtime);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.civicDetails,
@@ -5021,6 +5248,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               true,
             );
           }
+          setMinecraftArchitecturePresentation(
+            runtime.signatures,
+            runtime.centralDetails,
+            voxelModeActive(runtime),
+          );
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
             distance_m: 88,
@@ -5167,6 +5399,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.nightLightsOn,
           );
           updateWindFlags(runtime.signatures, 0.9);
+          refreshSchwellenraumMovingFlagCount(runtime);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               runtime.signatures,
@@ -5174,6 +5407,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               true,
             );
           }
+          setMinecraftArchitecturePresentation(
+            runtime.signatures,
+            runtime.centralDetails,
+            voxelModeActive(runtime),
+          );
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           runtime.monuments.add(createKrolloperSculptureEnsemble());
@@ -5535,6 +5773,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         window.removeEventListener("blur", resetTouchGesture);
         document.removeEventListener("visibilitychange", onVisibilityChange);
         controls.removeEventListener("start", onControlsStart);
+        controls.removeEventListener("change", onControlsChange);
         controls.removeEventListener("end", onControlsEnd);
         if (wheelEndTimer !== null) {
           window.clearTimeout(wheelEndTimer);

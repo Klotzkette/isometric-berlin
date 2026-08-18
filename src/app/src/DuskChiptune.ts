@@ -665,6 +665,23 @@ export class DuskChiptune {
   async start(): Promise<boolean> {
     if (this.timer !== null) {
       if (this.context?.state === "running") {
+        // Cancel an in-progress mode-handover fade while retaining the one
+        // live scheduler. This keeps an exit click synchronous on iOS and
+        // prevents the stale fade from suspending the restarted score later.
+        this.startGeneration += 1;
+        this.resumeAfterSuspension = false;
+        if (this.master) {
+          const now = this.context.currentTime;
+          this.master.gain.cancelScheduledValues(now);
+          this.master.gain.setValueAtTime(
+            Math.max(0, this.master.gain.value),
+            now,
+          );
+          this.master.gain.linearRampToValueAtTime(
+            CHIP_MASTER_GAIN,
+            now + CHIP_START_FADE_SECONDS,
+          );
+        }
         return true;
       }
       // A browser may interrupt the context while leaving JavaScript timers
@@ -809,6 +826,70 @@ export class DuskChiptune {
     }
   }
 
+  /**
+   * Music-mode handover: preserve live voices while the master reaches zero,
+   * then suspend the reusable graph. Generation checks make a quick resume,
+   * stop or dispose win over the pending fade.
+   */
+  async fadeToSuspended(fadeSeconds: number): Promise<boolean> {
+    const context = this.context;
+    const master = this.master;
+    if (!context || !master || context.state === "closed") {
+      return false;
+    }
+    const wasPlaying = this.timer !== null;
+    this.resumeAfterSuspension ||= wasPlaying;
+    const generation = ++this.startGeneration;
+    const seconds = Math.max(0.02, fadeSeconds);
+    const now = context.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(Math.max(0, master.gain.value), now);
+    master.gain.linearRampToValueAtTime(0, now + seconds);
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, Math.ceil(seconds * 1_000));
+    });
+    if (
+      generation !== this.startGeneration ||
+      context !== this.context ||
+      master !== this.master
+    ) {
+      return false;
+    }
+    this.clearScheduler();
+    this.stopActiveSources(context.currentTime);
+    if (context.state === "running") {
+      try {
+        await context.suspend();
+      } catch {
+        return false;
+      }
+    }
+    if (
+      generation !== this.startGeneration ||
+      context !== this.context ||
+      master !== this.master
+    ) {
+      // `suspend()` may settle after a newer user-triggered start has already
+      // rearmed this graph. Only that newer live generation is allowed to
+      // recover the warm context; stop/dispose/lifecycle suspension keep it
+      // silent by leaving the scheduler cleared.
+      if (
+        context === this.context &&
+        master === this.master &&
+        this.timer !== null &&
+        context.state === "suspended"
+      ) {
+        try {
+          await context.resume();
+        } catch {
+          // A later explicit gesture can retry if the browser rejects resume.
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+
   async setSuspended(suspended: boolean): Promise<boolean> {
     const context = this.context;
     const master = this.master;
@@ -821,13 +902,31 @@ export class DuskChiptune {
         // A browser-blocked/pending autoplay attempt must wait for a fresh
         // gesture after the page becomes visible again.
         this.resumeAfterSuspension ||= this.timer !== null;
-        this.startGeneration += 1;
+        const generation = ++this.startGeneration;
         this.clearScheduler();
         master.gain.cancelScheduledValues(context.currentTime);
         master.gain.setValueAtTime(0, context.currentTime);
         this.stopActiveSources(context.currentTime);
         if (context.state === "running") {
           await context.suspend();
+        }
+        if (
+          generation !== this.startGeneration ||
+          context !== this.context ||
+          master !== this.master
+        ) {
+          // A visibility resume can win while the preceding suspend promise
+          // is still pending. Only a newer armed scheduler may revive this
+          // same graph; stop/dispose leave it silent.
+          if (
+            context === this.context &&
+            master === this.master &&
+            this.timer !== null &&
+            context.state === "suspended"
+          ) {
+            await context.resume();
+          }
+          return false;
         }
         return true;
       }
@@ -836,6 +935,7 @@ export class DuskChiptune {
       }
       this.resumeAfterSuspension = false;
       const generation = ++this.startGeneration;
+      this.clearScheduler();
       if (!(await this.resumeWithin(context))) {
         return false;
       }

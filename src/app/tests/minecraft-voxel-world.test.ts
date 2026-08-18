@@ -5,7 +5,6 @@ import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 import {
   BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING,
   HAMBURGER_BAHNHOF_VOXEL_FACADE,
-  isCompleteRecognitionVoxelColumn,
   isBundestagSpreeBridgeGroundCell,
   isFalseBundestagSpreeBridgeVoxelColumn,
   isFalseSintiRomaVoxelColumn,
@@ -26,6 +25,7 @@ import {
 } from "../src/MinecraftVoxelWorld";
 import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
 import { isChancelleryExtensionConstructionPoint } from "../src/chancelleryExtensionProfile";
+import { minecraftArchitecturalReplacementAt } from "../src/MinecraftArchitecturalLandmarks";
 import scenePayload from "../public/mesh/regierungsviertel/scene.json";
 import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {
@@ -51,6 +51,24 @@ function instanced(
 
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
+
+  test("ships the civic hero buildings as five block-native batches", () => {
+    const landmarks = world.getObjectByName(
+      "Minecraft block-native architectural landmarks",
+    );
+    expect(landmarks).toBeDefined();
+    expect(landmarks?.children.map(({ name }) => name)).toEqual([
+      "Minecraft Reichstag block signature",
+      "Minecraft Federal Chancellery block signature",
+      "Minecraft Berlin Hauptbahnhof block signature",
+      "Minecraft Brandenburg Gate block signature",
+      "Minecraft parliamentary band block signature",
+    ]);
+    expect(landmarks?.children.every((child) => child instanceof InstancedMesh)).toBe(
+      true,
+    );
+    expect(landmarks?.userData.drawCallBudget).toBe(5);
+  });
 
   test("uses only palette-native plinth and cap blocks", () => {
     const master = new Set<number>(MINECRAFT_PALETTE);
@@ -189,12 +207,18 @@ describe("true voxel Minecraft world", () => {
     const fullGround = instanced("Voxel ground runs", world);
     const cutGround = instanced("Voxel ground runs", tunnelWorld);
     const skipped = cutGround.userData.skippedByWorldPredicateCells as number;
+    const harbourReplacementCells = fullGround.userData
+      .skippedByWorldPredicateCells as number;
 
     expect(skipped).toBeGreaterThan(500);
     // Cutting a diagonal course can split retained RLE runs, so instance count
     // alone is not a valid measure. The explicit cell counter is the contract.
     expect(cutGround.count).toBeGreaterThan(0);
-    expect(fullGround.userData.skippedByWorldPredicateCells).toBe(0);
+    // The direct world deliberately removes exactly the north-bank cells
+    // rebuilt by its block-native Schrägufer detail. The tunnel adds its two
+    // portal cuts to that same counter; neither layer is a dirty double.
+    expect(harbourReplacementCells).toBe(68);
+    expect(skipped).toBeGreaterThan(harbourReplacementCells);
     expect(fullGround.userData.skippedBridgeCells).toBe(11);
     expect(isBundestagSpreeBridgeGroundCell(342, -186)).toBe(true);
     expect(isBundestagSpreeBridgeGroundCell(342, -178)).toBe(false);
@@ -309,27 +333,55 @@ describe("true voxel Minecraft world", () => {
     expect(remainingFalseBridgeColumns).toBe(0);
   });
 
-  test("does not bury the complete Brandenburg Gate model inside a voxel wall", () => {
-    const hiddenGateColumns = buildingColumns.filter(([xIdx, zIdx]) =>
-      isCompleteRecognitionVoxelColumn(
+  test("does not bury complete civic block models inside their source mass", () => {
+    const hiddenByOwner = new Map<string, number>();
+    const uniqueCellsByOwner = new Map<string, Set<string>>();
+    for (const [xIdx, zIdx] of buildingColumns) {
+      const owner = minecraftArchitecturalReplacementAt(
         (xIdx + 0.5) * payload.cell_m,
         (zIdx + 0.5) * payload.cell_m,
+      );
+      if (!owner) continue;
+      hiddenByOwner.set(owner, (hiddenByOwner.get(owner) ?? 0) + 1);
+      const cells = uniqueCellsByOwner.get(owner) ?? new Set<string>();
+      cells.add(`${xIdx}:${zIdx}`);
+      uniqueCellsByOwner.set(owner, cells);
+    }
+    expect(Object.fromEntries(hiddenByOwner)).toEqual({
+      "berlin-hauptbahnhof": 1_284,
+      "brandenburg-gate": 52,
+      "chancellery-leadership-cube": 188,
+      "melh-library-rotunda": 85,
+      "melh-widening-stair": 40,
+      "paul-loebe-rotunda": 149,
+      "reichstag-west-portico": 12,
+    });
+    expect(
+      Object.fromEntries(
+        [...uniqueCellsByOwner].map(([owner, cells]) => [owner, cells.size]),
       ),
-    );
-    expect(hiddenGateColumns).toHaveLength(24);
+    ).toEqual({
+      "berlin-hauptbahnhof": 1_235,
+      "brandenburg-gate": 46,
+      "chancellery-leadership-cube": 188,
+      "melh-library-rotunda": 85,
+      "melh-widening-stair": 40,
+      "paul-loebe-rotunda": 149,
+      "reichstag-west-portico": 12,
+    });
 
     const columns = instanced("Voxel building columns", world);
     const matrix = new Matrix4();
     const position = new Vector3();
-    let remainingGateColumns = 0;
+    const remainingByOwner = new Map<string, number>();
     for (let index = 0; index < columns.count; index += 1) {
       columns.getMatrixAt(index, matrix);
       position.setFromMatrixPosition(matrix);
-      if (isCompleteRecognitionVoxelColumn(position.x, position.z)) {
-        remainingGateColumns += 1;
-      }
+      const owner = minecraftArchitecturalReplacementAt(position.x, position.z);
+      if (!owner) continue;
+      remainingByOwner.set(owner, (remainingByOwner.get(owner) ?? 0) + 1);
     }
-    expect(remainingGateColumns).toBe(0);
+    expect(remainingByOwner.size).toBe(0);
   });
 
   test("gives Hamburger Bahnhof its own stepped historical front", () => {

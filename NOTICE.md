@@ -54,6 +54,13 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   the attributed OSM extract; inferred depths and sections are marked as
   schematic in `docs/underground-network.md`.
 
+- **Berlin passenger-vessel dimensions:** the static Spree display models use
+  length, beam, draught, build year and vessel type published in
+  [Reederei Riedel's fleet catalogue](https://reederei-riedel.de/flotte?lang=en).
+  Their positions come from the attributed OSM waterways and are explicitly
+  display compositions rather than live AIS observations. No fleet photograph,
+  texture or livery artwork is bundled.
+
 - **Google Maps Platform / Photorealistic 3D Tiles (opt-in, additive):**
   Only used when the three opt-in env vars are set
   (`GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_3D_TILES_ENABLED=true`,

@@ -399,7 +399,11 @@ function addPresidentialStandard(group: Group, roofY: number): void {
     mesh.name = name;
     mesh.position.set(poleX, flagCentreY, poleZ + zOffset);
     mesh.rotation.y = -0.08;
-    markWindFlag(mesh, flagSide, { amplitudeM, phase: 0.56 });
+    markWindFlag(mesh, flagSide, {
+      amplitudeM,
+      kind: "federal-president",
+      phase: 0.56,
+    });
     group.add(mesh);
     return mesh;
   };
@@ -497,6 +501,7 @@ function addPresidentialStandard(group: Group, roofY: number): void {
     redParts.instanceMatrix.needsUpdate = true;
     markWindFlagInstances(redParts, transforms, flagSide, {
       amplitudeM: 0.12,
+      kind: "federal-president",
       phase: 0.56,
     });
     group.add(redParts);

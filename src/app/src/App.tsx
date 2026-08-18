@@ -73,6 +73,12 @@ import {
 } from "./AmbientSoundscape";
 import { DuskChiptune, isChiptuneSupported } from "./DuskChiptune";
 import {
+  SCHWELLENRAUM_ENTER_FADE_SECONDS,
+  SchwellenraumSoundscape,
+  isSchwellenraumAudioSupported,
+  type SchwellenraumMix,
+} from "./SchwellenraumSoundscape";
+import {
   registerFirstGestureStart,
   registerVisibleAutoplayRetry,
   shouldStopAudioOnToggleTap,
@@ -640,8 +646,16 @@ export function App() {
   // the visitor's first gesture. Turning it off applies to this session.
   const chiptuneRef = useRef<DuskChiptune | null>(null);
   const chiptuneStartAttemptRef = useRef(0);
-  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(() =>
-    isChiptuneSupported(),
+  const soundtrackIntentRef = useRef(isChiptuneSupported());
+  const schwellenraumSoundscapeRef =
+    useRef<SchwellenraumSoundscape | null>(null);
+  const schwellenraumStartAttemptRef = useRef(0);
+  const schwellenraumMixRef = useRef<SchwellenraumMix>({
+    room: !isMusicMutedByUser(),
+    score: isChiptuneSupported(),
+  });
+  const [isSoundtrackEnabled, setIsSoundtrackEnabled] = useState(
+    soundtrackIntentRef.current,
   );
   // Intent is on from the first frame, but a browser that blocks autoplay
   // leaves the page silent. The toggle follows this, not the intent, so it
@@ -674,6 +688,7 @@ export function App() {
   const [viewerMode, setViewerMode] = useState<ViewerMode>(initialViewerMode);
   const [lightingMode, setLightingMode] =
     useState<VisualMode>(initialLightingMode);
+  const lightingModeRef = useRef<VisualMode>(lightingMode);
   // "Licht an/aus": persisted like mute (nightLighting.ts), independent of
   // the visual mode itself. Only night reads it — day/minecraft ignore it
   // entirely, see resolveNightLightsOn.
@@ -840,6 +855,14 @@ export function App() {
   }, [rotation]);
 
   useEffect(() => {
+    lightingModeRef.current = lightingMode;
+  }, [lightingMode]);
+
+  useEffect(() => {
+    soundtrackIntentRef.current = isSoundtrackEnabled;
+  }, [isSoundtrackEnabled]);
+
+  useEffect(() => {
     flipRef.current = isFlipped;
   }, [isFlipped]);
 
@@ -869,12 +892,16 @@ export function App() {
   const disposeAllAudio = useCallback(() => {
     ambientStartAttemptRef.current += 1;
     chiptuneStartAttemptRef.current += 1;
+    schwellenraumStartAttemptRef.current += 1;
     const ambient = ambientSoundscapeRef.current;
     ambientSoundscapeRef.current = null;
     const chiptune = chiptuneRef.current;
     chiptuneRef.current = null;
+    const schwellenraum = schwellenraumSoundscapeRef.current;
+    schwellenraumSoundscapeRef.current = null;
     ambient?.dispose();
     void chiptune?.dispose();
+    schwellenraum?.dispose();
   }, []);
 
   useEffect(() => {
@@ -882,12 +909,17 @@ export function App() {
       dispose: disposeAllAudio,
       documentTarget: document,
       resume: () => {
+        if (lightingModeRef.current === "schwellenraum") {
+          void schwellenraumSoundscapeRef.current?.setSuspended(false);
+          return;
+        }
         void ambientSoundscapeRef.current?.setSuspended(false);
         void chiptuneRef.current?.setSuspended(false);
       },
       suspend: () => {
         void ambientSoundscapeRef.current?.setSuspended(true);
         void chiptuneRef.current?.setSuspended(true);
+        void schwellenraumSoundscapeRef.current?.setSuspended(true);
       },
       windowTarget: window,
     });
@@ -901,9 +933,113 @@ export function App() {
     setLanguage((current) => (current === "de" ? "en" : "de"));
   }, []);
 
+  const suspendStandardAudio = useCallback(
+    (fadeSeconds = 0) => {
+      if (lightingModeRef.current !== "schwellenraum") {
+        return;
+      }
+      if (fadeSeconds > 0) {
+        void ambientSoundscapeRef.current?.fadeToSuspended(fadeSeconds);
+        void chiptuneRef.current?.fadeToSuspended(fadeSeconds);
+      } else {
+        void ambientSoundscapeRef.current?.setSuspended(true);
+        void chiptuneRef.current?.setSuspended(true);
+      }
+    },
+    [],
+  );
+
+  const startSchwellenraumAudio = useCallback(
+    async (
+      mix: SchwellenraumMix = schwellenraumMixRef.current,
+      options: { silent?: boolean } = {},
+    ) => {
+      const { silent = false } = options;
+      const normalizedMix = {
+        room: Boolean(mix.room),
+        score: Boolean(mix.score),
+      };
+      schwellenraumMixRef.current = normalizedMix;
+      setIsMusicEnabled(normalizedMix.room);
+      soundtrackIntentRef.current = normalizedMix.score;
+      setIsSoundtrackEnabled(normalizedMix.score);
+
+      if (!isSchwellenraumAudioSupported()) {
+        setIsMusicAudible(false);
+        setIsSoundtrackAudible(false);
+        suspendStandardAudio();
+        if (!silent) {
+          setStatus(copy.schwellenraumAudioUnsupported);
+        }
+        return false;
+      }
+      if (typeof document !== "undefined" && document.hidden) {
+        return false;
+      }
+
+      const soundscape =
+        schwellenraumSoundscapeRef.current ?? new SchwellenraumSoundscape();
+      schwellenraumSoundscapeRef.current = soundscape;
+      soundscape.setMix(normalizedMix);
+      if (!normalizedMix.room && !normalizedMix.score) {
+        schwellenraumStartAttemptRef.current += 1;
+        soundscape.stop(0.08);
+        setIsMusicAudible(false);
+        setIsSoundtrackAudible(false);
+        suspendStandardAudio();
+        return true;
+      }
+
+      if (!silent) {
+        setStatus(copy.schwellenraumAudioStarting);
+      }
+      const attempt = ++schwellenraumStartAttemptRef.current;
+      let started = false;
+      try {
+        started = await soundscape.start();
+      } catch {
+        started = false;
+      }
+      if (
+        attempt !== schwellenraumStartAttemptRef.current ||
+        soundscape !== schwellenraumSoundscapeRef.current ||
+        lightingModeRef.current !== "schwellenraum"
+      ) {
+        return false;
+      }
+
+      const audible = started && soundscape.audible;
+      setIsMusicAudible(audible && normalizedMix.room);
+      setIsSoundtrackAudible(audible && normalizedMix.score);
+      // Let the quiet replacement establish itself before retiring the
+      // standard layers. On an unsupported/blocked start, silence is still a
+      // truer fallback than leaking the ordinary soundtrack into this mode.
+      suspendStandardAudio(
+        started ? SCHWELLENRAUM_ENTER_FADE_SECONDS : 0,
+      );
+      if (!silent) {
+        setStatus(
+          started
+            ? copy.schwellenraumAudioOn
+            : copy.schwellenraumAudioUnsupported,
+        );
+      }
+      return started;
+    },
+    [
+      copy.schwellenraumAudioOn,
+      copy.schwellenraumAudioStarting,
+      copy.schwellenraumAudioUnsupported,
+      suspendStandardAudio,
+    ],
+  );
+
   const startMusic = useCallback(
     async (options: { rememberMute?: boolean; silent?: boolean } = {}) => {
       const { rememberMute = true, silent = false } = options;
+      if (lightingModeRef.current === "schwellenraum") {
+        return false;
+      }
       const unsupportedMessage =
         language === "de"
           ? "Audio wird von diesem Browser nicht unterstützt"
@@ -932,8 +1068,22 @@ export function App() {
       } catch {
         failed = true;
       }
-      if (attempt !== ambientStartAttemptRef.current) {
-        if (started && ambientSoundscapeRef.current !== soundscape) {
+      // This ref is intentionally mutable across the await above; reset the
+      // entry-guard narrowing so TypeScript models the possible mode change.
+      const modeChangedToSchwellenraum =
+        (lightingModeRef.current as VisualMode) === "schwellenraum";
+      if (
+        attempt !== ambientStartAttemptRef.current ||
+        modeChangedToSchwellenraum
+      ) {
+        if (ambientSoundscapeRef.current === soundscape) {
+          if (failed) {
+            soundscape.dispose();
+            ambientSoundscapeRef.current = null;
+          } else if (started) {
+            void soundscape.setSuspended(true);
+          }
+        } else if (started) {
           soundscape.dispose();
         }
         return false;
@@ -974,6 +1124,36 @@ export function App() {
   // `isMusicEnabled` starts `false` here (see the useState above) and so
   // was not actually exposed to it in practice.
   const toggleMusic = useCallback(async () => {
+    if (lightingModeRef.current === "schwellenraum") {
+      if (shouldStopAudioOnToggleTap(isMusicAudible)) {
+        const nextMix = { ...schwellenraumMixRef.current, room: false };
+        schwellenraumMixRef.current = nextMix;
+        schwellenraumSoundscapeRef.current?.setMix(nextMix);
+        setIsMusicEnabled(false);
+        setIsMusicAudible(false);
+        rememberMusicMuted(true);
+        if (!nextMix.score) {
+          schwellenraumStartAttemptRef.current += 1;
+          schwellenraumSoundscapeRef.current?.stop();
+        }
+        setStatus(copy.schwellenraumRoomOff);
+        return;
+      }
+      rememberMusicMuted(false);
+      const started = await startSchwellenraumAudio(
+        { ...schwellenraumMixRef.current, room: true },
+        { silent: true },
+      );
+      if (lightingModeRef.current !== "schwellenraum") {
+        return;
+      }
+      setStatus(
+        started
+          ? copy.schwellenraumRoomOn
+          : copy.schwellenraumAudioUnsupported,
+      );
+      return;
+    }
     if (shouldStopAudioOnToggleTap(isMusicAudible)) {
       ambientStartAttemptRef.current += 1;
       ambientSoundscapeRef.current?.stop();
@@ -986,7 +1166,15 @@ export function App() {
       return;
     }
     await startMusic();
-  }, [copy.musicOff, isMusicAudible, startMusic]);
+  }, [
+    copy.musicOff,
+    copy.schwellenraumAudioUnsupported,
+    copy.schwellenraumRoomOff,
+    copy.schwellenraumRoomOn,
+    isMusicAudible,
+    startMusic,
+    startSchwellenraumAudio,
+  ]);
 
   const startSoundtrack = useCallback(
     async (
@@ -996,11 +1184,15 @@ export function App() {
       } = {},
     ) => {
       const { preserveIntentOnFailure = false, silent = false } = options;
+      if (lightingModeRef.current === "schwellenraum") {
+        return false;
+      }
       const unsupportedMessage =
         language === "de"
           ? "Soundtrack wird von diesem Browser nicht unterstützt"
           : "Soundtrack is not supported by this browser";
       if (!isChiptuneSupported()) {
+        soundtrackIntentRef.current = false;
         setIsSoundtrackEnabled(false);
         setIsSoundtrackAudible(false);
         if (!silent) {
@@ -1021,8 +1213,20 @@ export function App() {
       } catch {
         failed = true;
       }
-      if (attempt !== chiptuneStartAttemptRef.current) {
-        if (started && chiptuneRef.current !== player) {
+      const modeChangedToSchwellenraum =
+        (lightingModeRef.current as VisualMode) === "schwellenraum";
+      if (
+        attempt !== chiptuneStartAttemptRef.current ||
+        modeChangedToSchwellenraum
+      ) {
+        if (chiptuneRef.current === player) {
+          if (failed) {
+            await player.dispose();
+            chiptuneRef.current = null;
+          } else if (started) {
+            void player.setSuspended(true);
+          }
+        } else if (started) {
           await player.dispose();
         }
         return false;
@@ -1037,6 +1241,7 @@ export function App() {
         return false;
       }
       if (started || !preserveIntentOnFailure) {
+        soundtrackIntentRef.current = started;
         setIsSoundtrackEnabled(started);
       }
       setIsSoundtrackAudible(started && player.audible);
@@ -1053,6 +1258,14 @@ export function App() {
   // trusting the last thing we told the player to do.
   useEffect(() => {
     const sync = () => {
+      if (lightingModeRef.current === "schwellenraum") {
+        const soundscape = schwellenraumSoundscapeRef.current;
+        const mix = soundscape?.currentMix ?? schwellenraumMixRef.current;
+        const audible = soundscape?.audible ?? false;
+        setIsSoundtrackAudible(audible && mix.score);
+        setIsMusicAudible(audible && mix.room);
+        return;
+      }
       setIsSoundtrackAudible(chiptuneRef.current?.audible ?? false);
       setIsMusicAudible(ambientSoundscapeRef.current?.audible ?? false);
     };
@@ -1065,8 +1278,12 @@ export function App() {
   // us in: say "waiting for a click" rather than pretending to be off.
   const isSoundtrackWaiting = isSoundtrackEnabled && !isSoundtrackAudible;
   const soundtrackOnLabel = isSoundtrackWaiting
-    ? copy.soundtrackWaiting
-    : copy.soundtrackOn;
+    ? lightingMode === "schwellenraum"
+      ? copy.schwellenraumAudioWaiting
+      : copy.soundtrackWaiting
+    : lightingMode === "schwellenraum"
+      ? copy.schwellenraumScoreOn
+      : copy.soundtrackOn;
 
   // Mobile-only race (v0.56.2): the visitor's first tap anywhere on the
   // page — e.g. the "…" overflow button that opens this very sheet — is
@@ -1083,22 +1300,90 @@ export function App() {
   // where the toggle button itself is the first gesture and no race
   // exists.
   const toggleSoundtrack = useCallback(async () => {
+    if (lightingModeRef.current === "schwellenraum") {
+      if (shouldStopAudioOnToggleTap(isSoundtrackAudible)) {
+        const nextMix = { ...schwellenraumMixRef.current, score: false };
+        schwellenraumMixRef.current = nextMix;
+        schwellenraumSoundscapeRef.current?.setMix(nextMix);
+        soundtrackIntentRef.current = false;
+        setIsSoundtrackEnabled(false);
+        setIsSoundtrackAudible(false);
+        if (!nextMix.room) {
+          schwellenraumStartAttemptRef.current += 1;
+          schwellenraumSoundscapeRef.current?.stop();
+        }
+        setStatus(copy.schwellenraumScoreOff);
+        return;
+      }
+      const started = await startSchwellenraumAudio(
+        { ...schwellenraumMixRef.current, score: true },
+        { silent: true },
+      );
+      if (lightingModeRef.current !== "schwellenraum") {
+        return;
+      }
+      setStatus(
+        started
+          ? copy.schwellenraumScoreOn
+          : copy.schwellenraumAudioUnsupported,
+      );
+      return;
+    }
     if (shouldStopAudioOnToggleTap(isSoundtrackAudible)) {
       chiptuneStartAttemptRef.current += 1;
       chiptuneRef.current?.stop();
+      soundtrackIntentRef.current = false;
       setIsSoundtrackEnabled(false);
       setIsSoundtrackAudible(false);
       setStatus(copy.soundtrackOff);
       return;
     }
+    soundtrackIntentRef.current = true;
+    setIsSoundtrackEnabled(true);
     await startSoundtrack();
-  }, [copy.soundtrackOff, isSoundtrackAudible, startSoundtrack]);
+  }, [
+    copy.schwellenraumAudioUnsupported,
+    copy.schwellenraumScoreOff,
+    copy.schwellenraumScoreOn,
+    copy.soundtrackOff,
+    isSoundtrackAudible,
+    startSchwellenraumAudio,
+    startSoundtrack,
+  ]);
+
+  const resumeStandardAudio = useCallback(() => {
+    if (lightingModeRef.current === "schwellenraum") {
+      return;
+    }
+    // These start calls are deliberately made in the mode-selection call
+    // stack. Both engines reach AudioContext.resume() before their first
+    // await, preserving the exit gesture on iOS even when the page opened
+    // directly in Schwellenraum and no standard graph exists yet.
+    if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
+      void startMusic({ rememberMute: false, silent: true });
+    } else {
+      ambientStartAttemptRef.current += 1;
+      ambientSoundscapeRef.current?.stop();
+    }
+    if (soundtrackIntentRef.current && isChiptuneSupported()) {
+      void startSoundtrack({
+        preserveIntentOnFailure: true,
+        silent: true,
+      });
+    } else {
+      chiptuneStartAttemptRef.current += 1;
+      chiptuneRef.current?.stop();
+    }
+  }, [startMusic, startSoundtrack]);
 
   // Build both procedural graphs while they are suspended. There are no media
   // files in this soundtrack; the generated reverb/noise/wave buffers are the
   // assets to warm, leaving the first permitted gesture only the resume call.
   useEffect(() => {
     if (typeof window === "undefined" || document.hidden) {
+      return;
+    }
+    if (lightingModeRef.current === "schwellenraum") {
       return;
     }
     if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
@@ -1122,6 +1407,12 @@ export function App() {
       return;
     }
     const frame = window.requestAnimationFrame(() => {
+      if (lightingModeRef.current === "schwellenraum") {
+        void startSchwellenraumAudio(schwellenraumMixRef.current, {
+          silent: true,
+        });
+        return;
+      }
       if (!isMusicMutedByUser() && isAmbientAudioSupported()) {
         void startMusic({ rememberMute: false, silent: true });
       }
@@ -1130,7 +1421,7 @@ export function App() {
       }
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [startMusic, startSoundtrack]);
+  }, [startMusic, startSchwellenraumAudio, startSoundtrack]);
 
   // A page opened in a background tab is deliberately silent while hidden.
   // Retry as soon as Chrome first exposes or restores it, while leaving a
@@ -1139,23 +1430,48 @@ export function App() {
     const unregisterAmbient = registerVisibleAutoplayRetry({
       documentTarget: document,
       isAudible: () => ambientSoundscapeRef.current?.audible ?? false,
-      isEnabled: () => !isMusicMutedByUser() && isAmbientAudioSupported(),
+      isEnabled: () =>
+        lightingModeRef.current !== "schwellenraum" &&
+        !isMusicMutedByUser() &&
+        isAmbientAudioSupported(),
       start: () => startMusic({ rememberMute: false, silent: true }),
       windowTarget: window,
     });
     const unregisterSoundtrack = registerVisibleAutoplayRetry({
       documentTarget: document,
       isAudible: () => chiptuneRef.current?.audible ?? false,
-      isEnabled: () => isSoundtrackEnabled,
+      isEnabled: () =>
+        lightingModeRef.current !== "schwellenraum" && isSoundtrackEnabled,
       start: () =>
         startSoundtrack({ preserveIntentOnFailure: true, silent: true }),
+      windowTarget: window,
+    });
+    const unregisterSchwellenraum = registerVisibleAutoplayRetry({
+      documentTarget: document,
+      isAudible: () => schwellenraumSoundscapeRef.current?.audible ?? false,
+      isEnabled: () => {
+        const mix = schwellenraumMixRef.current;
+        return (
+          lightingModeRef.current === "schwellenraum" &&
+          (mix.room || mix.score) &&
+          isSchwellenraumAudioSupported()
+        );
+      },
+      start: () =>
+        startSchwellenraumAudio(schwellenraumMixRef.current, { silent: true }),
       windowTarget: window,
     });
     return () => {
       unregisterAmbient();
       unregisterSoundtrack();
+      unregisterSchwellenraum();
     };
-  }, [isSoundtrackEnabled, startMusic, startSoundtrack]);
+  }, [
+    isSoundtrackEnabled,
+    startMusic,
+    startSchwellenraumAudio,
+    startSoundtrack,
+  ]);
 
   // A phone never allows the load-time attempt above, so the real start is
   // the visitor's FIRST gesture — including a map drag, which is why these
@@ -1165,7 +1481,8 @@ export function App() {
       return;
     }
     return registerFirstGestureStart({
-      isMuted: isMusicMutedByUser,
+      isMuted: () =>
+        lightingModeRef.current === "schwellenraum" || isMusicMutedByUser(),
       start: () => startMusic({ rememberMute: false, silent: true }),
       target: window,
     });
@@ -1178,12 +1495,31 @@ export function App() {
     return registerFirstGestureStart({
       // Dusk Republic deliberately has no persisted mute key: turning the
       // ambient layer off must never suppress the independent soundtrack.
-      isMuted: () => !isSoundtrackEnabled,
+      isMuted: () =>
+        lightingModeRef.current === "schwellenraum" || !isSoundtrackEnabled,
       start: () =>
         startSoundtrack({ preserveIntentOnFailure: true, silent: true }),
       target: window,
     });
   }, [isSoundtrackEnabled, startSoundtrack]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !isSchwellenraumAudioSupported()) {
+      return;
+    }
+    return registerFirstGestureStart({
+      isMuted: () => {
+        const mix = schwellenraumMixRef.current;
+        return (
+          lightingModeRef.current !== "schwellenraum" ||
+          (!mix.room && !mix.score)
+        );
+      },
+      start: () =>
+        startSchwellenraumAudio(schwellenraumMixRef.current, { silent: true }),
+      target: window,
+    });
+  }, [startSchwellenraumAudio]);
 
   useEffect(() => {
     if (!shouldPersistChromePreference(isCompactLayout)) {
@@ -1496,9 +1832,32 @@ export function App() {
 
   const selectVisualMode = useCallback(
     (next: VisualMode) => {
-      // Visual modes never restart or replace either audio layer. In
-      // particular, Schwellenraum continues the already-running music at the
-      // same position and volume.
+      const previous = lightingModeRef.current;
+      lightingModeRef.current = next;
+      if (next === "schwellenraum" && previous !== "schwellenraum") {
+        // Invalidate any normal-layer start that was still waiting for the
+        // browser when this mode-selection gesture arrived. Its post-await
+        // guard will silence the stale graph without changing the user's two
+        // retained bus intentions.
+        ambientStartAttemptRef.current += 1;
+        chiptuneStartAttemptRef.current += 1;
+        const mix = {
+          room: !isMusicMutedByUser(),
+          score: soundtrackIntentRef.current,
+        };
+        schwellenraumMixRef.current = mix;
+        // This call reaches AudioContext.resume() synchronously inside the
+        // mode-button gesture; its long fade then hands over from the two
+        // ordinary layers without a click or a silence gap.
+        void startSchwellenraumAudio(mix, { silent: true });
+      } else if (
+        previous === "schwellenraum" &&
+        next !== "schwellenraum"
+      ) {
+        schwellenraumStartAttemptRef.current += 1;
+        schwellenraumSoundscapeRef.current?.stop();
+        resumeStandardAudio();
+      }
       setLightingMode(next);
       // Schwellenraum is a spatial 3D presentation with authored thresholds,
       // interiors and collision. Keeping the photographic 2D sheet untouched
@@ -1519,7 +1878,11 @@ export function App() {
                 : copy.day,
       );
     },
-    [copy],
+    [
+      copy,
+      resumeStandardAudio,
+      startSchwellenraumAudio,
+    ],
   );
 
   const resetToDefaultView = useCallback(() => {
@@ -1609,6 +1972,10 @@ export function App() {
   }, [copy, lightingMode]);
 
   const togglePrecipitation = useCallback(() => {
+    if (lightingMode === "schwellenraum") {
+      setStatus(copy.schwellenraumWeatherStatic);
+      return;
+    }
     if (lightingMode === "snowstorm") {
       setSnowfallEnabled((current) => {
         const next = !current;
@@ -1625,6 +1992,7 @@ export function App() {
   }, [
     copy.rainActive,
     copy.rainInactive,
+    copy.schwellenraumWeatherStatic,
     copy.snowfallActive,
     copy.snowfallInactive,
     lightingMode,
@@ -2572,11 +2940,28 @@ export function App() {
     viewerMode,
   ]);
 
+  const schwellenraumMode = lightingMode === "schwellenraum";
   const snowfallMode = lightingMode === "snowstorm";
-  const precipitationEnabled = snowfallMode ? snowfallEnabled : rainEnabled;
+  const precipitationEnabled = schwellenraumMode
+    ? false
+    : snowfallMode
+      ? snowfallEnabled
+      : rainEnabled;
   const precipitationOnLabel = snowfallMode ? copy.snowfallOn : copy.rainOn;
   const precipitationOffLabel = snowfallMode ? copy.snowfallOff : copy.rainOff;
   const precipitationLabel = snowfallMode ? copy.snowfall : copy.rain;
+  const musicOnLabel = schwellenraumMode
+    ? copy.schwellenraumRoomOn
+    : copy.musicOn;
+  const musicOffLabel = schwellenraumMode
+    ? copy.schwellenraumRoomOff
+    : copy.musicOff;
+  const soundtrackOffLabel = schwellenraumMode
+    ? copy.schwellenraumScoreOff
+    : copy.soundtrackOff;
+  const soundtrackName = schwellenraumMode
+    ? copy.schwellenraumSound
+    : copy.soundtrack;
 
   return (
     <main
@@ -2898,16 +3283,21 @@ export function App() {
             type="button"
             className="weather-toggle"
             aria-label={
-              precipitationEnabled
+              schwellenraumMode
+                ? copy.schwellenraumWeatherStatic
+                : precipitationEnabled
                 ? precipitationOffLabel
                 : precipitationOnLabel
             }
             aria-pressed={precipitationEnabled}
             title={
-              precipitationEnabled
+              schwellenraumMode
+                ? copy.schwellenraumWeatherStatic
+                : precipitationEnabled
                 ? precipitationOffLabel
                 : precipitationOnLabel
             }
+            disabled={schwellenraumMode}
             onClick={togglePrecipitation}
           >
             {snowfallMode ? (
@@ -2952,9 +3342,9 @@ export function App() {
           <button
             type="button"
             data-audio-toggle="ambient"
-            aria-label={isMusicAudible ? copy.musicOff : copy.musicOn}
+            aria-label={isMusicAudible ? musicOffLabel : musicOnLabel}
             aria-pressed={isMusicAudible}
-            title={`${isMusicAudible ? copy.musicOff : copy.musicOn} (B)`}
+            title={`${isMusicAudible ? musicOffLabel : musicOnLabel} (B)`}
             onClick={toggleMusic}
           >
             {isMusicAudible ? (
@@ -2967,14 +3357,14 @@ export function App() {
             type="button"
             data-audio-toggle="soundtrack"
             aria-label={
-              isSoundtrackAudible ? copy.soundtrackOff : soundtrackOnLabel
+              isSoundtrackAudible ? soundtrackOffLabel : soundtrackOnLabel
             }
             aria-pressed={isSoundtrackAudible}
             className={`soundtrack-toggle${
               isSoundtrackAudible ? " is-active" : ""
             }${isSoundtrackWaiting ? " is-waiting" : ""}`}
             title={`${
-              isSoundtrackAudible ? copy.soundtrackOff : soundtrackOnLabel
+              isSoundtrackAudible ? soundtrackOffLabel : soundtrackOnLabel
             } (T)`}
             onClick={toggleSoundtrack}
           >
@@ -3777,10 +4167,13 @@ export function App() {
               className="weather-toggle"
               aria-pressed={precipitationEnabled}
               aria-label={
-                precipitationEnabled
+                schwellenraumMode
+                  ? copy.schwellenraumWeatherStatic
+                  : precipitationEnabled
                   ? precipitationOffLabel
                   : precipitationOnLabel
               }
+              disabled={schwellenraumMode}
               onClick={togglePrecipitation}
             >
               {snowfallMode ? (
@@ -3789,7 +4182,9 @@ export function App() {
                 <CloudRain size={20} aria-hidden="true" />
               )}
               <span>
-                {precipitationEnabled
+                {schwellenraumMode
+                  ? copy.schwellenraumWeatherStatic
+                  : precipitationEnabled
                   ? precipitationOffLabel
                   : precipitationLabel}
               </span>
@@ -3886,6 +4281,7 @@ export function App() {
               type="button"
               data-audio-toggle="ambient"
               aria-pressed={isMusicAudible}
+              aria-label={isMusicAudible ? musicOffLabel : musicOnLabel}
               onClick={toggleMusic}
             >
               {isMusicAudible ? (
@@ -3893,13 +4289,13 @@ export function App() {
               ) : (
                 <VolumeX size={20} aria-hidden="true" />
               )}
-              <span>{isMusicAudible ? copy.musicOff : copy.musicOn}</span>
+              <span>{isMusicAudible ? musicOffLabel : musicOnLabel}</span>
             </button>
             <button
               type="button"
               data-audio-toggle="soundtrack"
               aria-label={
-                isSoundtrackAudible ? copy.soundtrackOff : soundtrackOnLabel
+                isSoundtrackAudible ? soundtrackOffLabel : soundtrackOnLabel
               }
               aria-pressed={isSoundtrackAudible}
               className="soundtrack-toggle"
@@ -3909,7 +4305,7 @@ export function App() {
               }}
             >
               <Music size={20} aria-hidden="true" />
-              <span>{copy.soundtrack}</span>
+              <span>{soundtrackName}</span>
             </button>
             <button
               type="button"
@@ -4356,13 +4752,17 @@ export function App() {
                 <dt>
                   <kbd>B</kbd>
                 </dt>
-                <dd>{isMusicEnabled ? copy.musicOff : copy.musicOn}</dd>
+                <dd>{isMusicEnabled ? musicOffLabel : musicOnLabel}</dd>
               </div>
               <div>
                 <dt>
                   <kbd>T</kbd>
                 </dt>
-                <dd>{copy.soundtrackShortcut}</dd>
+                <dd>
+                  {schwellenraumMode
+                    ? copy.schwellenraumScoreShortcut
+                    : copy.soundtrackShortcut}
+                </dd>
               </div>
               <div>
                 <dt>

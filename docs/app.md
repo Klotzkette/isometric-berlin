@@ -108,19 +108,25 @@ buttons. `D`
 remains the fast Day/Night toggle, `M` enters or leaves Minecraft independently
 and `S` enters or leaves Snowstorm. A fullscreen control uses the native API on
 desktop and a safe-area-aware pseudo-fullscreen fallback on iOS.
-A separate weather button adds moderate rain without changing Day, Night,
-Minecraft or Schwellenraum. In Snowstorm the same button becomes a snowfall
+A separate weather button adds moderate rain without changing Day, Night or
+Minecraft. In Snowstorm the same button becomes a snowfall
 control: it pauses
 or resumes falling flakes while the settled snow, drifts and snowploughs remain
 in place. True 3D renders precipitation as one camera-following field, with a
 lower particle budget on coarse pointers; the DZI fallback uses a lightweight
 screen layer. Precipitation is hidden automatically in underwater and underside
-views.
+views. Schwellenraum preserves the visitor's rain preference but disables the
+weather control and precipitation so its world remains still.
 
-Schwellenraum reuses the complete Day city and the already-running music
-without restarting or replacing either audio layer. Its lavender sky,
-pastel light thresholds and elongated repeated frames are additive; buildings
-are never globally warped or recoloured. The mode opens in true 3D and adds
+Schwellenraum reuses the complete Day city and crossfades the two normal audio
+layers into a dedicated, very quiet procedural soundscape. Its two existing
+audio controls independently fade a soft room-rustle bus and a sparse harmonic
+bus; leaving the mode restores the standard layers without losing either user
+choice. Its warm pearlescent sky, pastel light thresholds, fixed sparse
+furnishings and elongated repeated frames are additive; buildings are never
+globally warped or recoloured. The complete world is static except for the
+explicitly identified German, EU, Swiss and Federal President flags, updated
+on a quiet 15 Hz cadence. The mode opens in true 3D and adds
 explicit entrances, ramps, stairs and bounded presentation interiors for the
 Reichstag plenary chamber, Hauptbahnhof concourse and deep platforms,
 Bundeskanzleramt, Potsdamer Platz station cellar and the historic Charite
@@ -218,7 +224,7 @@ and asphalt triangles are processed in bounded Worker partitions and merged
 back to the historical single material meshes before transfer. Thus the final
 asphalt buffer hash, vertex count and steady surface draw calls match the
 one-shot path. Regenerate the plate after any `surface-polygons.json` change
-with `bun run build:surface-plates` from `src/app`. On the v0.72.0 production
+with `bun run build:surface-plates` from `src/app`. On the v0.72.1 production
 payload, the reproducible Bun benchmark records a 0.76 s preview build and a
 1.9 ms maximum main-thread batch attachment, versus a 17.08 s synchronous
 one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
@@ -243,7 +249,21 @@ and lamp positions as Day and Night; it does not claim new surveyed geometry.
 GPU instancing keeps the complete world to a handful of draw calls. An opaque
 mode-coloured curtain stays in place until the block world is usable; only an
 actual payload failure starts the photographic fallback. Leaving Minecraft
-restores the drawn LoD2 scene losslessly. Three Creepers and four Zombies roam deterministic, tree-cleared
+restores the drawn LoD2 scene losslessly. Reichstag, Bundeskanzleramt,
+Hauptbahnhof, Brandenburger Tor and the parliamentary band receive five shared,
+opaque `InstancedMesh<BoxGeometry>` recognition batches over the same metric
+voxel mass. Their stepped dome, portals, glass halls, rotundas and open Spree
+bridges replace the smooth hero meshes atomically once the block payload is
+ready. The light limestone/quartz palette remains inside the fixed 32-colour
+world palette; silver, lapis and gold are sparse architectural cues rather than
+random decoration. The five batches contain 15,469 blocks, share one cube
+geometry and material, add no network asset and contain no transparent or
+coplanar faces. Component-exact masks replace 12 closed Reichstag-portico
+records, 188 Kanzleramt leadership-cube records, 1,284 Hauptbahnhof
+hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
+Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining
+courts and neighbours; the new batches therefore include their own rear walls,
+floors, facade shells, roofs, glazing and open block railings. Three Creepers and four Zombies roam deterministic, tree-cleared
 park routes while Minecraft is active. All of their block parts share one
 instanced draw call, and the group is removed from Day, Night, underwater and
 underside presentations. A persistent DE/EN control translates all viewer
@@ -356,8 +376,16 @@ altering the official base mesh. The 32 x 26 m TIPI has twenty structural ribs,
 the official photogrammetric mesh carry its four granite pylons and adds 68
 individually placed bells beneath a shallow roof cap. Two compact
 uniformed figures mark the Chancellery entrance. Selecting `Spreebogen` opens
-an unobstructed east-side view of the occupied excursion boat, its open deck,
-wake and a 3D wave ribbon aligned to the committed OSM river centreline.
+an unobstructed view of two static, source-bound Berlin passenger-vessel types.
+Their 43.10 x 7.00 x 1.29 m and 29.55 x 6.98 x 1.20 m envelopes come from the
+operator's fleet data; restrained superstructures sit on committed OSM
+waterway axes. These are display placements, not live vessel observations.
+Their wakes are static outside Schwellenraum and hidden inside its still scene.
+At Humboldthafen the northern OSM bank and DGM crest form a separate sloped
+shore instead of a duplicated vertical quay. Hugo-Preuß-Brücke follows OSM way
+`26109166`, while the two Sandkrugbrücke carriageways preserve ways `36260393`
+and `248010193`. Minecraft carries the same harbour, vessel and railing
+identities as one compact block-native instance layer.
 
 The task-10 recognition layer covers the expanded edges without pretending to
 be survey geometry: Hamburger Bahnhof/Rieckhallen and the historic

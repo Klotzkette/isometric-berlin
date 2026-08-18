@@ -159,7 +159,11 @@ function addSwissFlag(group: Group): void {
     );
     mesh.name = name;
     mesh.position.set(poleX, roofY + poleHeight - 1.2, poleZ + zOffset);
-    markWindFlag(mesh, width, { amplitudeM: 0.14, phase: 0.42 });
+    markWindFlag(mesh, width, {
+      amplitudeM: 0.14,
+      kind: "switzerland",
+      phase: 0.42,
+    });
     group.add(mesh);
   };
   const field = new PlaneGeometry(width, width, 12, 10);
@@ -849,7 +853,11 @@ function createUnityFlag(anchor: CivicLandmark): Group {
     );
     stripe.name = `Flag of Unity animated German stripe ${index + 1}`;
     stripe.position.set(0, poleHeight - 1.15 - index * 2, 0);
-    markWindFlag(stripe, width, { amplitudeM: 0.62, phase: 0.42 });
+    markWindFlag(stripe, width, {
+      amplitudeM: 0.62,
+      kind: "germany",
+      phase: 0.42,
+    });
     group.add(stripe);
   });
 

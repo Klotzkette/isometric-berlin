@@ -600,7 +600,7 @@ function addGermanFlag(
     );
     stripe.rotation.y = -0.06;
     stripe.rotation.z = 0.04 * (index - 1);
-    markWindFlag(stripe, flagWidth, { phase: 0.42 });
+    markWindFlag(stripe, flagWidth, { kind: "germany", phase: 0.42 });
     group.add(stripe);
   }
 }
@@ -638,7 +638,10 @@ function addEuropeanFlag(
   flag.name = `${name} European Union flag`;
   flag.position.set(position[0], flagCentreY, position[2]);
   flag.rotation.y = -0.06;
-  markWindFlag(flag, flagWidth, { phase: 0.42 });
+  markWindFlag(flag, flagWidth, {
+    kind: "european-union",
+    phase: 0.42,
+  });
   group.add(flag);
 
   const stars = new InstancedMesh(
@@ -671,7 +674,10 @@ function addEuropeanFlag(
     });
   }
   stars.instanceMatrix.needsUpdate = true;
-  markWindFlagInstances(stars, starTransforms, flagWidth, { phase: 0.42 });
+  markWindFlagInstances(stars, starTransforms, flagWidth, {
+    kind: "european-union",
+    phase: 0.42,
+  });
   group.add(stars);
 }
 

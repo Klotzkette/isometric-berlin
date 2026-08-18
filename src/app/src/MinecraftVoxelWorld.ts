@@ -24,6 +24,13 @@ import {
 } from "./expandedCityProfiles";
 import { isChancelleryExtensionConstructionPoint } from "./chancelleryExtensionProfile";
 import { createMinecraftHistoricParkBridges } from "./MinecraftHistoricParkBridges";
+import { createMinecraftHumboldthafenDetails } from "./MinecraftHumboldthafen";
+import {
+  createMinecraftArchitecturalLandmarks,
+  isMinecraftArchitecturalReplacementColumn,
+  minecraftArchitecturalVoxelTopAt,
+} from "./MinecraftArchitecturalLandmarks";
+import { isNorthernHumboldthafenReplacementCell } from "./HumboldthafenSources";
 import {
   AXIS_FROM,
   AXIS_TO,
@@ -305,6 +312,58 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     widthM: 341,
   },
   {
+    // Paul-Löbe-Haus main parliamentary bar. Its block-native west grid and
+    // committee rotundas own the fenestration; keep generic square panes out.
+    center: [233.35, -135.15],
+    depthM: 39.5,
+    name: "Paul-Löbe-Haus main bar",
+    paddingM: 2,
+    rotationDegrees: 1.35,
+    tone: 0xd6dfe0,
+    widthM: 160,
+  },
+  {
+    // Exact narrow west wing / canopy carrier (LoD2 HA7mKuzG).
+    center: [143.5, -137.25],
+    depthM: 105,
+    name: "Paul-Löbe-Haus west wing",
+    paddingM: 2,
+    rotationDegrees: 0,
+    tone: 0xd6dfe0,
+    widthM: 31,
+  },
+  {
+    // The two rows of committee-room rotundas project beyond the main bar.
+    // Their curved block shells own the nearby panes as well as their source
+    // cells; a bar-only rectangle leaves square generic windows through them.
+    center: [233.35, -108.2],
+    depthM: 22,
+    name: "Paul-Löbe-Haus north rotundas",
+    paddingM: 2,
+    rotationDegrees: 0,
+    tone: 0xd6dfe0,
+    widthM: 132,
+  },
+  {
+    center: [234, -161.8],
+    depthM: 22,
+    name: "Paul-Löbe-Haus south rotundas",
+    paddingM: 2,
+    rotationDegrees: 0,
+    tone: 0xd6dfe0,
+    widthM: 132,
+  },
+  {
+    // MELH rotunda and Spree facade are authored as one block-native ensemble.
+    center: [406, -139],
+    depthM: 116,
+    name: "Marie-Elisabeth-Lüders-Haus",
+    paddingM: 2,
+    rotationDegrees: 0,
+    tone: 0xd6dfe0,
+    widthM: 64,
+  },
+  {
     // The head building is not a generic office facade. A dedicated stepped
     // voxel elevation below carries its two towers and arched hall front.
     center: HAMBURGER_BAHNHOF_VOXEL_FACADE.center,
@@ -392,15 +451,15 @@ export function voxelRecognitionAreaAt(
 }
 
 /**
- * Complete recognition models replace their coarse voxel mass rather than
+ * Complete recognition components replace their coarse voxel mass rather than
  * sitting hidden inside it. This is intentionally narrower than the generic
- * recognition-area window suppression: only the fully modelled Gate qualifies.
+ * recognition-area window suppression and preserves courtyards/neighbours.
  */
 export function isCompleteRecognitionVoxelColumn(
   x: number,
   z: number,
 ): boolean {
-  return voxelRecognitionAreaAt(x, z)?.name === "Brandenburger Tor";
+  return isMinecraftArchitecturalReplacementColumn(x, z);
 }
 
 function shadeFor(
@@ -1799,10 +1858,19 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftExtrapolatedWorld());
   group.add(
     createGroundSlabs(payload, "Voxel ground runs", CLASS_SHADES, {
-      skipAtWorld: insideTunnelApproach ?? undefined,
+      // The northern harbour staircase below is rebuilt from the same exact
+      // predicate in one block-native detail mesh. Suppressing it here first
+      // prevents coincident DGM slabs and Schrägufer blocks from flickering.
+      skipAtWorld: (x, z) =>
+        Boolean(
+          insideTunnelApproach?.(x, z) ||
+          isNorthernHumboldthafenReplacementCell(x, z),
+        ),
       skipBridgeAtWorld: isBundestagSpreeBridgeGroundCell,
     }),
   );
+  group.add(createMinecraftHumboldthafenDetails(payload));
+  group.add(createMinecraftArchitecturalLandmarks());
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());
@@ -1811,8 +1879,9 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftHistoricParkBridges(worldGroundSampler(payload)));
 
   const buildingColumns = decodeVoxelBuildingColumns(payload);
-  const visibleBuildingColumns = buildingColumns.filter(
-    ([xIdx, zIdx, y0dm, y1dm]) =>
+  const visibleBuildingColumns = buildingColumns
+    .filter(
+      ([xIdx, zIdx, y0dm, y1dm]) =>
       !isFalseSintiRomaVoxelColumn(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
@@ -1824,9 +1893,25 @@ export function createMinecraftVoxelWorld(
         (y1dm - y0dm) / 10,
       ) &&
       !isCompleteRecognitionVoxelColumn(worldXAbs(xIdx), worldZAbs(zIdx)) &&
-      (!insideTunnelApproach ||
-        !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx))),
-  );
+        (!insideTunnelApproach ||
+          !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx))),
+    )
+    .map(([xIdx, zIdx, y0dm, y1dm, classId]): VoxelBuildingColumn => {
+      const sourceTopY = y1dm / 10;
+      const clippedTopY = minecraftArchitecturalVoxelTopAt(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        sourceTopY,
+      );
+      return [
+        xIdx,
+        zIdx,
+        y0dm,
+        Math.max(y0dm, Math.floor(clippedTopY * 10)),
+        classId,
+      ];
+    })
+    .filter(([, , y0dm, y1dm]) => y1dm > y0dm);
 
   const buildings = instancedBoxes(
     "Voxel building columns",
