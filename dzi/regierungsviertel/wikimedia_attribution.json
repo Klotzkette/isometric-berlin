@@ -1126,6 +1126,33 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "artist": "Beek100",
       "credit": "Own work"
+    },
+    {
+      "landmark_id": "siegessaeule",
+      "title": "File:Berlin Victory Column - BugWarp 01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Victory_Column_-_BugWarp_01.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "BugWarp",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "siegessaeule",
+      "title": "File:Mosaik in der Berliner Siegessäule.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AMosaik_in_der_Berliner_Siegess%C3%A4ule.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "OguzKurt28",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "reichstag",
+      "title": "File:Reichstag (building) architecture from west - Berlin, Germany - DSC09654.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AReichstag_%28building%29_architecture_from_west_-_Berlin%2C_Germany_-_DSC09654.JPG",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Daderot",
+      "credit": "Own work"
     }
   ]
 }
