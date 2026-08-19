@@ -71,11 +71,12 @@ const HAUPTBAHNHOF_NAVIGATION_SOURCE_ID_SET = new Set<string>(
 /**
  * Deliberately small public openings through otherwise authoritative solids.
  * The Reichstag and Chancellery have no Minecraft-only public interior: their
- * source footprints therefore remain closed. The station entries and the
- * Gate's five historical passages are the only building-shell exceptions.
+ * source footprints therefore remain closed. Station entries are specific to
+ * Minecraft; the Gate records the same five real passages reused by every
+ * visual mode's pedestrian access policy.
  */
-export const MINECRAFT_HERO_PORTALS: ReadonlyArray<MinecraftHeroPortal> = [
-  ...gatePassageCentres().map(
+export const BRANDENBURG_GATE_PUBLIC_PASSAGES: ReadonlyArray<MinecraftHeroPortal> =
+  gatePassageCentres().map(
     (centerZ, index): MinecraftHeroPortal => ({
       centerLocalM: [0, 6.15, centerZ],
       frame: gate,
@@ -86,7 +87,10 @@ export const MINECRAFT_HERO_PORTALS: ReadonlyArray<MinecraftHeroPortal> = [
       // replaced by the five real passage voids.
       sourceBuildingIds: [gate.sourcePrismIds[0]],
     }),
-  ),
+  );
+
+export const MINECRAFT_HERO_PORTALS: ReadonlyArray<MinecraftHeroPortal> = [
+  ...BRANDENBURG_GATE_PUBLIC_PASSAGES,
   {
     centerLocalM: [
       0,
@@ -435,6 +439,28 @@ export function minecraftHeroCollisionEnabled(mode: VisualMode): boolean {
 }
 
 /**
+ * The five historic passages are real public voids in every presentation,
+ * even though the authoritative LoD2 source represents the colonnade as one
+ * closed footprint. Keep this exception source-specific so columns and side
+ * pavilions remain solid.
+ */
+export function brandenburgGateWalkableAt(
+  x: number,
+  y: number,
+  z: number,
+  sourceBuildingId?: string,
+): boolean {
+  if (![x, y, z].every(Number.isFinite) || sourceBuildingId === undefined) {
+    return false;
+  }
+  return BRANDENBURG_GATE_PUBLIC_PASSAGES.some(
+    (portal) =>
+      portal.sourceBuildingIds.includes(sourceBuildingId) &&
+      pointInsidePortal(portal, x, y, z),
+  );
+}
+
+/**
  * Source-specific exception for public portals and the old false solid wall
  * between the Bundestag buildings. Unknown or overlapping source ids never
  * inherit an opening.
@@ -446,7 +472,9 @@ export function minecraftHeroWalkableAt(
   sourceBuildingId?: string,
 ): boolean {
   if (![x, y, z].every(Number.isFinite)) return false;
+  if (brandenburgGateWalkableAt(x, y, z, sourceBuildingId)) return true;
   for (const portal of MINECRAFT_HERO_PORTALS) {
+    if (portal.landmark === "Brandenburger Tor") continue;
     if (
       pointInsidePortal(portal, x, y, z) &&
       sourceBuildingId !== undefined &&

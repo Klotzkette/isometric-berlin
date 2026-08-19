@@ -78,12 +78,13 @@ through the same terrain, tunnel and water checks. `Space`, the touch-safe jump
 button and a double-tap on the free 3D view produce a single ground-only jump
 with a 6.2 m apex; the relaxed mobile double-tap still rejects drags, pinches
 and long presses, and there is no double jump. Entering a mapped OSM water
-polygon after landing
-respawns at Pariser
-Platz. Islands encoded as water holes remain walkable. The mode does not move
-source geometry. Schwellenraum adds only its explicit, bounded doorway,
-interior-wall and floor collision contracts; every other building remains the
-same closed solid.
+polygon after landing respawns at Pariser Platz. Islands encoded as water
+holes remain walkable. The mode does not move source geometry. The five
+historic Brandenburg Gate passages are explicit, source-scoped voids in Day,
+Night, Minecraft, Snowstorm and Schwellenraum; all twelve columns, the lintel
+and both side pavilions remain solid. Schwellenraum adds only its further
+bounded doorway, interior-wall and floor collision contracts; every other
+building remains the same closed solid.
 
 **Continuous navigation:** held plain arrows pan in screen space; held
 `Shift`+arrows fly along the current heading; held `Alt`/`Option`+arrows orbit

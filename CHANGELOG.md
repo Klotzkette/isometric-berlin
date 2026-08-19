@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.72.4
+
+- **Pedestrians can use all five historic passages through the Brandenburg
+  Gate in every visual mode.** Day, Night, Minecraft, Snowstorm and
+  Schwellenraum share the same source-scoped public passage voids, aligned to
+  the rendered Gate's metric frame and clear widths. Walking works continuously
+  in both directions through every opening, including on cold-start worlds,
+  while all twelve columns, the lintel, upper masonry and both side pavilions
+  remain solid. Minecraft-only station entrances and Schwellenraum interior
+  exceptions keep their existing mode boundaries.
+
 ## v0.72.3
 
 - **The Berliner Ensemble now follows its real Schiffbauerdamm massing and

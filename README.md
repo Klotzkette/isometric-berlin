@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.3 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.3/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.4/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.3** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.4** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,17 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.3**, built from `main`. Its full viewer
+The current public package is **v0.72.4**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **All five Brandenburg Gate passages are open to pedestrians everywhere.**
+  Day, Night, Minecraft, Snowstorm and Schwellenraum now share the same five
+  source-scoped historic openings. They are walkable continuously from either
+  side in warm and cold-start worlds, while all twelve columns, the lintel,
+  upper masonry and both side pavilions remain solid. Other authored interior
+  exceptions keep their existing mode boundaries.
 
 - **The Berliner Ensemble now opens on its real public facade.** The theatre
   retains all four official LoD2 parts and their measured heights. A thin
@@ -532,7 +539,10 @@ local modules.
   Flight, camera zoom and underside controls
   stay locked in this mode; entering mapped water returns the walker to Pariser
   Platz. A dedicated 52 px jump control keeps the complete workflow usable on
-  phones and tablets.
+  phones and tablets. All five historic passages through the Brandenburg Gate
+  are walkable from either side in Day, Night, Minecraft, Snowstorm and
+  Schwellenraum, while its twelve columns, upper masonry and side pavilions
+  remain solid.
 
 - **Schwellenraum is a fifth, deliberately gentle spatial mode.** It keeps the
   full Day city, adds a warm pearlescent sky, quiet pastel light thresholds,

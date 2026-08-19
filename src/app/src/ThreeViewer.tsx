@@ -148,7 +148,6 @@ import {
   createSchwellenraumInteriors,
   schwellenraumInteriorGroundAt,
   schwellenraumInteriorSolidAt,
-  schwellenraumNavigationOverrideAt,
   schwellenraumProtectedAt,
   setSchwellenraumInteriorsPresentation,
 } from "./SchwellenraumInteriors";
@@ -226,10 +225,10 @@ import {
   minecraftHeroCollisionEnabled,
   minecraftHeroGroundAt,
   minecraftHeroSolidAt,
-  minecraftHeroWalkableAt,
   reconcileMinecraftHeroCameraRig,
   resolveMinecraftHeroFlightTranslation,
 } from "./MinecraftHeroNavigation";
+import { visualModeWalkableInteriorAt } from "./visualModePedestrianAccess";
 import {
   type MinecraftMobField,
   createMinecraftMobs,
@@ -2173,12 +2172,12 @@ function ensureIsoWorld(
           memorialProtection,
         );
         pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
-          if (runtime.lightingMode === "schwellenraum") {
-            return schwellenraumNavigationOverrideAt(x, y, z, sourceId);
-          }
-          return (
-            minecraftHeroCollisionEnabled(runtime.lightingMode) &&
-            minecraftHeroWalkableAt(x, y, z, sourceId)
+          return visualModeWalkableInteriorAt(
+            runtime.lightingMode,
+            x,
+            y,
+            z,
+            sourceId,
           );
         };
         pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
@@ -2488,8 +2487,13 @@ function ensureVoxelWorld(
           prisms,
         );
         environment.walkableInteriorAt = (x, y, z, sourceId) =>
-          minecraftHeroCollisionEnabled(runtime.lightingMode) &&
-          minecraftHeroWalkableAt(x, y, z, sourceId);
+          visualModeWalkableInteriorAt(
+            runtime.lightingMode,
+            x,
+            y,
+            z,
+            sourceId,
+          );
         environment.interiorSolidAt = (x, y, z, radius) =>
           minecraftHeroCollisionEnabled(runtime.lightingMode) &&
           minecraftHeroSolidAt(x, y, z, radius);

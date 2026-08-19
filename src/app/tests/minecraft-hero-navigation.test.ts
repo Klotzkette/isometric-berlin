@@ -605,8 +605,8 @@ describe("Minecraft hero navigation", () => {
     expect(zoomed.target).toEqual({ x: -1, y: 5, z: -8 });
   });
 
-  test("ThreeViewer wires both walking and flight only through the mode gate", () => {
-    expect(viewerSource).toContain("minecraftHeroWalkableAt(x, y, z, sourceId)");
+  test("ThreeViewer keeps universal walking access separate from Minecraft flight", () => {
+    expect(viewerSource).toContain("visualModeWalkableInteriorAt(");
     expect(viewerSource).toContain("minecraftHeroSolidAt(x, y, z, radius)");
     expect(viewerSource).toContain("resolveMinecraftHeroFlightTranslation");
     expect(viewerSource).toContain("reconcileMinecraftHeroCameraRig");
