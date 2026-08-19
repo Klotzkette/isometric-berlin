@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.4 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.4/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.5 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.5/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.4** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.5** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,7 +50,7 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.4**, built from `main`. Its full viewer
+The current public package is **v0.72.5**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
@@ -349,6 +349,20 @@ local modules.
   arrangement and tree dimensions are explicitly not surveyed. Night adds a
   restrained candle pool and Snowstorm adds crown snow. The direct viewer link
   is `#landmark=queer-rainbow-memorial-berlin`.
+
+- **The newly established CSD memorial place nearby is a separate, additive
+  ensemble.** Its source anchor is exact OSM node
+  [`14076715427`](https://www.openstreetmap.org/node/14076715427), not the
+  owner-supplied Queer Rainbow Memorial point 165 m farther east. A young
+  French maple with an already leafed crown stands inside a round, segmented
+  metal guard carrying a sparse, static selection of small Pride flags,
+  wreaths and unlettered cards; a rainbow-slatted bench completes the place
+  across the sett path. Day, Night, Minecraft, Snowstorm and Schwellenraum all
+  retain the ensemble and keep it legible. The anchor and species are source
+  facts; every local part dimension,
+  orientation and offering placement is a photo-bounded, non-surveyed display
+  estimate. No supplied or press photograph is bundled or projected as a
+  texture.
 
 - **Brandenburg Gate and Pariser Platz now carry a photograph-bounded close
   detail pass.** The published 62.5 x 11 x 26 m gate envelope and official
@@ -1414,6 +1428,7 @@ replacement for Berlin open data or OSM):
 | Individual trees, public lighting, 1989 Wall route | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
 | Landmark facade / material visual references | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Per file: CC0, public domain, CC BY, CC BY-SA; see `geo_data/regierungsviertel/wikimedia_references.json` |
 | Kindertransport memorial visual references | [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/) | Five photographs: © Pauline Ahrens, 2021, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); no photograph or texture is bundled |
+| CSD memorial place at Ahornsteig | [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php), [Berlin.de](https://www.berlin.de/aktuelles/10556192-958090-ahornbaum-und-regenbogenbank-erinnern-an.html), [rbb24](https://www.rbb24.de/panorama/beitrag/2026/08/berlin-anschlag-csd-baumpflanzung-gedenkort.html) and [OSM node 14076715427](https://www.openstreetmap.org/node/14076715427) | Position: OSM/ODbL; official and press pages are evidence only, with no photograph or page media bundled |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Required attribution in the viewer:**
@@ -1448,6 +1463,7 @@ als Ersatz für Berliner Open Data oder OSM):
 | Einzelbäume, öffentliche Beleuchtung, Mauerverlauf 1989 | [Geoportal Berlin](https://daten.berlin.de/datensaetze/baumbestand-berlin-wfs-48ad3a23) | dl-de/zero-2-0 |
 | Fassaden-/Material-Referenzen für Sehenswürdigkeiten | [Wikimedia Commons / Wikipedia](https://commons.wikimedia.org) | Je Datei: CC0, Public Domain, CC BY, CC BY-SA; siehe `geo_data/regierungsviertel/wikimedia_references.json` |
 | Bildreferenzen zum Kindertransport-Denkmal | [Bildhauerei in Berlin](https://bildhauerei-in-berlin.de/bildwerk/denkmal-zur-erinnerung-an-die-kindertransporte-und-die-deportation-von-kindern-1938-1945-5234/) | Fünf Fotos: © Pauline Ahrens, 2021, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); weder Foto noch Textur wird gebündelt |
+| CSD-Gedenkstelle am Ahornsteig | [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php), [Berlin.de](https://www.berlin.de/aktuelles/10556192-958090-ahornbaum-und-regenbogenbank-erinnern-an.html), [rbb24](https://www.rbb24.de/panorama/beitrag/2026/08/berlin-anschlag-csd-baumpflanzung-gedenkort.html) und [OSM-Knoten 14076715427](https://www.openstreetmap.org/node/14076715427) | Position: OSM/ODbL; amtliche und journalistische Seiten dienen nur als Beleg, weder Foto noch Seitenmedium wird gebündelt |
 | Photorealistic 3D Tiles (opt-in) | [Google Maps Platform](https://developers.google.com/maps/documentation/tile/3d-tiles) | [Google Maps Platform ToS](https://cloud.google.com/maps-platform/terms) |
 
 **Pflicht-Attributionshinweis im Viewer:**

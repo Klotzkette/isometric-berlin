@@ -28,6 +28,7 @@ monument foundation height.
 | Tree-donation memorial | Four-part shell-limestone pillar with inscription and incised-relief registers on three faces | Berlin's sculpture inventory documents material, four-part construction and relief/inscription programme; uncited section dimensions are approximate. |
 | Flora/Pomona and *Das deutsche Volkslied* | Flora with fruit, tree support and putto; separate seated embracing pair with lyre | Berlin's sculpture inventory documents each composition and material family. OSM fixes position; uncited dimensions remain reference-based presentation geometry. |
 | Queer Rainbow Memorial Berlin | Living broadleaf tree, six-colour heart and tied fabric, dense flowers, candles, messages and small Pride flags | The owner-supplied Ahornsteig place point fixes the position. The 4.057 m official-mesh point sample remains recorded; the visible base follows the 4.479 m continuous terrain surface used by the drawn park. The current bounded OSM extract has no corresponding named object. Tree dimensions, species and the changing offering arrangement remain explicitly unverified, field-view-bounded display estimates. |
+| CSD memorial place at Ahornsteig (French maple and rainbow bench) | Already leafed young crown, pale protected trunk, round segmented metal tree guard, sparse static small Pride flags, wreaths and unlettered cards, and rainbow-slatted bench | OSM node `14076715427` fixes the separate ensemble anchor; Bezirksamt Mitte documents the French maple, protective grid and rainbow bench. The displayed tree is 5.30 m high with a 2.60 m crown diameter and 0.12 m trunk diameter; its square planting pit is 1.55 m wide, the guard is 1.50 m in diameter and 2.10 m high, and the bench is 2.05 m wide and 0.82 m high. These local model values, bench offset/orientation and offering placement are current-view-bounded design dimensions only, not survey measurements or official dimensions. |
 
 ## Primary sources
 
@@ -47,6 +48,14 @@ monument foundation height.
 - Berlin public-sculpture inventory, Rousseau, Lortzing, Baumdank, Flora and
   *Das deutsche Volkslied*:
   <https://bildhauerei-in-berlin.de/>
+- Bezirksamt Mitte, establishment and intended use of the CSD memorial place:
+  <https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php>
+- Berlin.de summary and rbb24 report on the French maple, protective grid and
+  rainbow-coloured bench:
+  <https://www.berlin.de/aktuelles/10556192-958090-ahornbaum-und-regenbogenbank-erinnern-an.html>
+  <https://www.rbb24.de/panorama/beitrag/2026/08/berlin-anschlag-csd-baumpflanzung-gedenkort.html>
+- OpenStreetMap, exact separate ensemble anchor:
+  <https://www.openstreetmap.org/node/14076715427>
 - Per-file licensed visual references and credits:
   [`../references/wikimedia/README.md`](../references/wikimedia/README.md)
 
@@ -61,3 +70,12 @@ geometry. The supplied photographs are not bundled or projected as textures;
 they only bound the recognisable arrangement. Its 132 flower stems, petals and
 centres, 30 candles, 24 messages and five small flags are rendered as bounded
 instance batches so close inspection does not turn into hundreds of draw calls.
+
+The separate CSD memorial place is also generated entirely from procedural
+geometry and stays present in all five visual modes. Its young French maple,
+round tree guard, restrained static Pride offerings and rainbow bench use
+source-bound placement plus explicitly non-surveyed local display dimensions.
+Supplied screenshots and press photographs are visual evidence only: none is
+bundled, copied,
+projected or converted into a texture, and the small cards carry no reproduced
+personal text.

@@ -881,6 +881,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   crisp_path = root / "src/app/src/crisp.frag"
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   queer_memorial_path = root / "src/app/src/QueerRainbowMemorial.ts"
+  csd_attack_memorial_path = root / "src/app/src/CsdAttackMemorial.ts"
   park_path = root / "src/app/src/ParkDetails.ts"
   project_metadata_path = root / "src/app/src/projectMetadata.ts"
   camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
@@ -898,6 +899,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not crisp_path.exists()
     or not memorial_path.exists()
     or not queer_memorial_path.exists()
+    or not csd_attack_memorial_path.exists()
     or not park_path.exists()
     or not project_metadata_path.exists()
     or not camera_navigation_path.exists()
@@ -916,6 +918,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   crisp = crisp_path.read_text(encoding="utf-8")
   memorial = memorial_path.read_text(encoding="utf-8")
   queer_memorial = queer_memorial_path.read_text(encoding="utf-8")
+  csd_attack_memorial = csd_attack_memorial_path.read_text(encoding="utf-8")
   park = park_path.read_text(encoding="utf-8")
   project_metadata = project_metadata_path.read_text(encoding="utf-8")
   camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
@@ -952,6 +955,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     "exact tunnel-corridor detection": "createTunnelInteriorTester(",
     "granular memorial layer": "createMemorialLandmarks(manifest.landmarks)",
     "Ahornsteig rainbow memorial layer": "createQueerRainbowMemorial()",
+    "separate CSD attack memorial layer": "createCsdAttackMemorial()",
     "stale mobile hero cancellation": (
       "runtime.coarsePointer && selectedRef.current !== name"
     ),
@@ -1159,6 +1163,43 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     for label, snippet in required_queer_memorial_snippets.items()
     if snippet not in queer_memorial
   )
+  required_csd_attack_memorial_snippets = {
+    "new OSM source identity": 'CSD_ATTACK_MEMORIAL_OSM_KEY = "node/14076715427"',
+    "independent new-site anchor": "worldM: [-115.6634, 3.3105, 714.3809]",
+    "documented French maple": "Französischer Ahorn (Acer monspessulanum)",
+    "already leafy young crown": "CSD attack memorial young French maple leaves",
+    "round metal guard": "CSD attack memorial round metal guard vertical rods",
+    "six-colour rainbow bench": "CSD attack memorial rainbow bench slats",
+    "static Pride offerings": "CSD attack memorial static Pride flag stripes",
+    "closed Pride-flag motion policy": (
+      'motionPolicy = "static in every mode including Schwellenraum"'
+    ),
+    "hanging wreaths": "CSD attack memorial hanging wreaths",
+    "privacy-safe cards": "CSD attack memorial unlettered cards",
+    "exact-Day Schwellenraum subtree": "schwellenraumGeschuetzt: true",
+    "disjoint source-driven quiet volumes": "treeProtectionRadiusM: 1.75",
+    "separate bench quiet volume": "benchProtectionRadiusM: 1.55",
+    "precise pedestrian solids": "export function csdAttackMemorialSolidAt(",
+    "deterministic snow switch": "setCsdAttackMemorialSnow",
+  }
+  failures.extend(
+    f"CSD attack memorial lacks {label}: {csd_attack_memorial_path}"
+    for label, snippet in required_csd_attack_memorial_snippets.items()
+    if snippet not in csd_attack_memorial
+  )
+  for forbidden in [
+    "CanvasTexture",
+    "TextureLoader",
+    "PointLight",
+    "markWindFlag(",
+    ".userData.windFlag =",
+    ".userData.windFlagInstances =",
+  ]:
+    if forbidden in csd_attack_memorial:
+      failures.append(
+        f"CSD attack memorial violates its lightweight static contract, found "
+        f"{forbidden}: {csd_attack_memorial_path}"
+      )
   required_park_snippets = {
     "official settled tree microcrowns": (
       "Geoportal Berlin settled-only official tree microcrowns"

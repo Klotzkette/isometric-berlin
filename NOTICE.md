@@ -48,6 +48,20 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   See <https://www.openstreetmap.org/copyright>.
 
+- **CSD memorial place at Ahornsteig (factual and visual evidence):**
+  [Bezirksamt Mitte](https://www.berlin.de/ba-mitte/aktuelles/pressemitteilungen/2026/pressemitteilung.1699951.php)
+  and the
+  [Berlin.de state portal](https://www.berlin.de/aktuelles/10556192-958090-ahornbaum-und-regenbogenbank-erinnern-an.html)
+  document the newly planted French maple, protective metal grid and
+  rainbow-coloured bench; the
+  [rbb24 report](https://www.rbb24.de/panorama/beitrag/2026/08/berlin-anschlag-csd-baumpflanzung-gedenkort.html)
+  and owner-supplied press screenshots only bound the current visual reading.
+  Exact ensemble placement comes from
+  [OSM node 14076715427](https://www.openstreetmap.org/node/14076715427) under
+  the ODbL attribution above. Local part dimensions and arrangements are
+  explicitly non-surveyed display estimates. No page photograph, press image,
+  supplied screenshot or texture derived from one is bundled in the project.
+
 - **Passenger-rail route validation:** official BVG and S-Bahn Berlin route
   pages are used only to validate the displayed U5 and shared North-South
   S-Bahn station sequence. Track, platform and entrance plan geometry remains

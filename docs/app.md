@@ -336,6 +336,21 @@ Snowstorm. The compact rail remains limited to five principal orientation
 points, while
 `#landmark=queer-rainbow-memorial-berlin` provides a stable direct close view.
 
+The newly established CSD memorial place near Bellevueallee and Ahornsteig is
+an additional street/monument-detail root, not a replacement for that
+owner-supplied model and not a 90th tour sight. Its separate source anchor is
+exact OSM node [`14076715427`](https://www.openstreetmap.org/node/14076715427),
+about 165 m west of the older point. Bezirksamt Mitte documents the French
+maple, protective metal grid and rainbow-coloured bench; current reference
+views bound the already leafed young crown, the guard's round segmented form
+and a sparse arrangement of small Pride flags, wreaths and cards. These small
+offerings remain static. Day, Night, Minecraft, Snowstorm and Schwellenraum all
+retain the place and keep it legible. Only the OSM anchor and published
+descriptive facts are source-fixed: tree and guard
+dimensions, bench offset/orientation and offering placement are local,
+photo-bounded display estimates rather than survey measurements. No supplied
+or press photograph is bundled, projected or converted into a texture.
+
 Only the selected landmark receives a small focus ring, and that ring fades
 again after 2.4 seconds. Permanently visible coloured map dots
 were removed from the Three.js, DZI and zero-server fallbacks because they

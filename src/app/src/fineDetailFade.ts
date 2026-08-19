@@ -268,6 +268,7 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Georg Elser pavement inscription quote",
   "Georg Elser pavement inscription attribution",
   "Queer Rainbow Memorial fine detail",
+  "CSD attack memorial fine detail",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.4"
+PACKAGE_VERSION = "0.72.5"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3428,6 +3428,14 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Version {PACKAGE_VERSION} ergänzt außerdem die neue, vom vorhandenen
+Queer-Rainbow-Gedenkmodell getrennte CSD-Gedenkstelle am exakten OSM-Knoten
+14076715427. Französischer Ahorn, belaubte junge Krone, rundes Metallschutzgitter,
+wenige statische Pride-Fahnen, Kränze und Karten sowie die Regenbogenbank bleiben
+in Tag, Nacht, Minecraft, Schneesturm und Schwellenraum sichtbar. Nur der
+Quellanker und die veröffentlichten Sachmerkmale sind fest; alle örtlichen Maße
+und Anordnungen sind fotoeingrenzte, nicht vermessene Darstellungswerte. Es wird
+kein Foto oder Screenshot gebündelt.
 Neu ist ein zweisprachiger Deutsch/English-Schalter und ein Tag-/Nachtmodus.
 Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
@@ -3622,6 +3630,14 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Version {PACKAGE_VERSION} also adds the new CSD memorial place at exact OSM
+node 14076715427, separately from the existing Queer Rainbow memorial model.
+Its French maple, already leafed young crown, round metal guard, sparse static
+Pride flags, wreaths and cards, and rainbow bench remain visible in Day, Night,
+Minecraft, Snowstorm and Schwellenraum. Only the source anchor and published
+descriptive facts are fixed; all local dimensions and arrangements are
+photo-bounded, non-surveyed display values. No photograph or screenshot is
+bundled.
 It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,

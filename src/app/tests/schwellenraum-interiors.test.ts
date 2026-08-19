@@ -175,6 +175,9 @@ describe("Schwellenraum accessible architecture", () => {
     expect(SCHWELLENRAUM_PROTECTED_NAMES).toContain(
       "Denkmal für die ermordeten Juden Europas",
     );
+    expect(SCHWELLENRAUM_PROTECTED_NAMES).toContain(
+      "Gedenkstelle CSD-Attentat vom 25.7.2026",
+    );
     expect(SCHWELLENRAUM_PROTECTED_VOLUMES.length).toBeGreaterThanOrEqual(17);
     expect(
       isSchwellenraumProtectedObjectName(
@@ -184,6 +187,11 @@ describe("Schwellenraum accessible architecture", () => {
     expect(
       isSchwellenraumProtectedObjectName(
         "Queer Rainbow Memorial candle pool light 1",
+      ),
+    ).toBeTrue();
+    expect(
+      isSchwellenraumProtectedObjectName(
+        "Gedenkstelle CSD-Attentat vom 25.7.2026",
       ),
     ).toBeTrue();
     expect(isSchwellenraumProtectedObjectName("Goethe-Denkmal")).toBeTrue();

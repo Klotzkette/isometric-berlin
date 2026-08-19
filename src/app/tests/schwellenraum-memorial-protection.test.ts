@@ -3,6 +3,10 @@ import { describe, expect, test } from "bun:test";
 import streetDetails from "../public/mesh/regierungsviertel/street-details.json";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
+  CSD_ATTACK_MEMORIAL_OSM_KEY,
+  CSD_ATTACK_MEMORIAL_PROFILE,
+} from "../src/CsdAttackMemorial";
+import {
   SCHWELLENRAUM_MEMORIAL_GRID_CELL_M,
   createSchwellenraumMemorialProtectionIndex,
   schwellenraumProtectedMemorialAt,
@@ -21,7 +25,9 @@ describe("data-driven Schwellenraum memorial protection", () => {
     );
     expect(index.cellSizeM).toBe(SCHWELLENRAUM_MEMORIAL_GRID_CELL_M);
     expect(index.protectedEntryCount).toBe(protectedEntries.length);
-    expect(index.shapes).toHaveLength(protectedEntries.length);
+    // The CSD ensemble owns two disjoint quiet islands so the mapped path
+    // between its tree and bench remains open.
+    expect(index.shapes).toHaveLength(protectedEntries.length + 1);
     expect(index.protectedEntryCount).toBeGreaterThan(1_400);
     expect(index.sourceKeys.size).toBe(index.protectedEntryCount);
     for (const entry of protectedEntries) {
@@ -65,6 +71,69 @@ describe("data-driven Schwellenraum memorial protection", () => {
       expect(entry.schwellenraum_protected, name).toBeTrue();
       expect(index.sourceKeys.has(entry.osm_key), name).toBeTrue();
     }
+  });
+
+  test("protects the complete separate CSD attack ensemble at its new OSM node", () => {
+    const entry = street.monuments!.find(
+      (candidate) => candidate.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY,
+    )!;
+    expect(entry.name).toBe(CSD_ATTACK_MEMORIAL_PROFILE.name);
+    expect(entry.schwellenraum_protected).toBeTrue();
+    const dedicatedIndex = createSchwellenraumMemorialProtectionIndex([entry]);
+    const treeShape = schwellenraumProtectedMemorialShapeAt(
+      dedicatedIndex,
+      entry.x_dm / 10,
+      5,
+      entry.z_dm / 10,
+    )!;
+    expect(dedicatedIndex.shapes).toHaveLength(2);
+    expect(treeShape.kind).toBe("circle");
+    expect(treeShape.radiusM).toBe(
+      CSD_ATTACK_MEMORIAL_PROFILE.treeProtectionRadiusM,
+    );
+    const [benchLocalX, benchLocalZ] =
+      CSD_ATTACK_MEMORIAL_PROFILE.benchOffsetLocalM;
+    const cosine = Math.cos(CSD_ATTACK_MEMORIAL_PROFILE.rotationY);
+    const sine = Math.sin(CSD_ATTACK_MEMORIAL_PROFILE.rotationY);
+    const benchX =
+      entry.x_dm / 10 + cosine * benchLocalX + sine * benchLocalZ;
+    const benchZ =
+      entry.z_dm / 10 - sine * benchLocalX + cosine * benchLocalZ;
+    const benchShape = schwellenraumProtectedMemorialShapeAt(
+      dedicatedIndex,
+      benchX,
+      5,
+      benchZ,
+    )!;
+    expect(benchShape.kind).toBe("circle");
+    expect(benchShape.radiusM).toBe(
+      CSD_ATTACK_MEMORIAL_PROFILE.benchProtectionRadiusM,
+    );
+    expect(
+      schwellenraumProtectedMemorialAt(
+        dedicatedIndex,
+        treeShape.x + treeShape.radiusM - 0.01,
+        5,
+        treeShape.z,
+      ),
+    ).toBeTrue();
+    expect(
+      schwellenraumProtectedMemorialAt(
+        dedicatedIndex,
+        treeShape.x + treeShape.radiusM + 0.01,
+        5,
+        treeShape.z,
+      ),
+    ).toBeFalse();
+    // Exact centre of the mapped 2.4 m Ahornsteig between both installations.
+    expect(
+      schwellenraumProtectedMemorialAt(
+        dedicatedIndex,
+        -112.861,
+        5,
+        718.105,
+      ),
+    ).toBeFalse();
   });
 
   test("uses bounded point and area shapes without blocking the deep tunnel layer", () => {

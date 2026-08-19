@@ -11,6 +11,7 @@ import {
 
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { BERLINER_ENSEMBLE_PUBLIC_ART_OSM_KEYS } from "../src/BerlinerEnsemble";
+import { CSD_ATTACK_MEMORIAL_OSM_KEY } from "../src/CsdAttackMemorial";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
@@ -185,6 +186,8 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(new Set(ownership)).toEqual(new Set(sourceKeys));
     expect(renderedKeys.length).toBeGreaterThan(1_400);
     expect(externallyModelledKeys.length).toBeGreaterThan(0);
+    expect(externallyModelledKeys).toContain(CSD_ATTACK_MEMORIAL_OSM_KEY);
+    expect(renderedKeys).not.toContain(CSD_ATTACK_MEMORIAL_OSM_KEY);
   });
 
   test("the Verkehrsturm rises at the surveyed Potsdamer Platz corner", () => {

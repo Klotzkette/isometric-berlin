@@ -3,6 +3,10 @@ import {
   KINDERTRANSPORT_MEMORIAL_OSM_KEY,
   KINDERTRANSPORT_MEMORIAL_PROFILE,
 } from "./KindertransportMemorial";
+import {
+  CSD_ATTACK_MEMORIAL_OSM_KEY,
+  CSD_ATTACK_MEMORIAL_PROFILE,
+} from "./CsdAttackMemorial";
 
 type MonumentEntry = NonNullable<StreetDetailsPayload["monuments"]>[number];
 
@@ -49,11 +53,47 @@ function pointRadiusM(entry: MonumentEntry): number {
   return 2.2;
 }
 
-function protectionShape(
+function protectionShapes(
   entry: MonumentEntry,
-): SchwellenraumProtectedMemorialShape {
+): readonly SchwellenraumProtectedMemorialShape[] {
+  if (entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY) {
+    const treeX = entry.x_dm / 10;
+    const treeZ = entry.z_dm / 10;
+    const [benchLocalX, benchLocalZ] =
+      CSD_ATTACK_MEMORIAL_PROFILE.benchOffsetLocalM;
+    const cosine = Math.cos(CSD_ATTACK_MEMORIAL_PROFILE.rotationY);
+    const sine = Math.sin(CSD_ATTACK_MEMORIAL_PROFILE.rotationY);
+    const common = {
+      maxYM: PROTECTED_MAX_Y_M,
+      minYM: PROTECTED_MIN_Y_M,
+      name: entry.name,
+      osmKey: entry.osm_key,
+    };
+    const treeRadiusM = CSD_ATTACK_MEMORIAL_PROFILE.treeProtectionRadiusM;
+    const benchRadiusM = CSD_ATTACK_MEMORIAL_PROFILE.benchProtectionRadiusM;
+    return [
+      {
+        ...common,
+        halfDepthM: treeRadiusM,
+        halfWidthM: treeRadiusM,
+        kind: "circle",
+        radiusM: treeRadiusM,
+        x: treeX,
+        z: treeZ,
+      },
+      {
+        ...common,
+        halfDepthM: benchRadiusM,
+        halfWidthM: benchRadiusM,
+        kind: "circle",
+        radiusM: benchRadiusM,
+        x: treeX + cosine * benchLocalX + sine * benchLocalZ,
+        z: treeZ - sine * benchLocalX + cosine * benchLocalZ,
+      },
+    ];
+  }
   if (entry.osm_key === KINDERTRANSPORT_MEMORIAL_OSM_KEY) {
-    return {
+    return [{
       halfDepthM: KINDERTRANSPORT_MEMORIAL_PROFILE.collisionHalfExtentsM[1],
       halfWidthM: KINDERTRANSPORT_MEMORIAL_PROFILE.collisionHalfExtentsM[0],
       kind: "box",
@@ -66,13 +106,13 @@ function protectionShape(
       ),
       x: entry.x_dm / 10,
       z: entry.z_dm / 10,
-    };
+    }];
   }
   const widthM = Math.max(0, entry.w_dm / 10);
   const depthM = Math.max(0, entry.d_dm / 10);
   const radiusM = pointRadiusM(entry);
   const isArea = widthM > 0.4 || depthM > 0.4;
-  return {
+  return [{
     // OSM exports an axis-aligned source bbox here. A 1.25 m quiet margin
     // makes that conservative even for a rotated footprint and also gives a
     // standing/flying body room to stop before touching the object.
@@ -86,7 +126,7 @@ function protectionShape(
     radiusM,
     x: entry.x_dm / 10,
     z: entry.z_dm / 10,
-  };
+  }];
 }
 
 function shapeBounds(
@@ -120,23 +160,24 @@ export function createSchwellenraumMemorialProtectionIndex(
       );
     }
     sourceKeys.add(entry.osm_key);
-    const shape = protectionShape(entry);
-    shapes.push(shape);
-    const [minX, minZ, maxX, maxZ] = shapeBounds(shape);
-    for (
-      let zIndex = Math.floor(minZ / cellSizeM);
-      zIndex <= Math.floor(maxZ / cellSizeM);
-      zIndex += 1
-    ) {
+    for (const shape of protectionShapes(entry)) {
+      shapes.push(shape);
+      const [minX, minZ, maxX, maxZ] = shapeBounds(shape);
       for (
-        let xIndex = Math.floor(minX / cellSizeM);
-        xIndex <= Math.floor(maxX / cellSizeM);
-        xIndex += 1
+        let zIndex = Math.floor(minZ / cellSizeM);
+        zIndex <= Math.floor(maxZ / cellSizeM);
+        zIndex += 1
       ) {
-        const key = cellKey(xIndex, zIndex);
-        const bucket = cells.get(key);
-        if (bucket) bucket.push(shape);
-        else cells.set(key, [shape]);
+        for (
+          let xIndex = Math.floor(minX / cellSizeM);
+          xIndex <= Math.floor(maxX / cellSizeM);
+          xIndex += 1
+        ) {
+          const key = cellKey(xIndex, zIndex);
+          const bucket = cells.get(key);
+          if (bucket) bucket.push(shape);
+          else cells.set(key, [shape]);
+        }
       }
     }
   }

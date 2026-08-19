@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.72.5
+
+- **The newly established CSD memorial place at Ahornsteig is now a separate,
+  source-anchored scene ensemble.** Exact OSM node `14076715427` places the
+  young French maple independently of the owner-supplied Queer Rainbow
+  Memorial 165 m farther east. A leafed crown, pale protected trunk, round
+  segmented metal guard, sparse static small Pride flags, wreaths and
+  unlettered cards, and a rainbow-slatted bench remain visible in Day, Night,
+  Minecraft, Snowstorm and Schwellenraum. Bezirksamt Mitte fixes the species,
+  guard and bench as published facts, while every local dimension,
+  bench offset/orientation and offering
+  placement remains explicitly photo-bounded and non-surveyed. No supplied or
+  press photograph is bundled or projected as a texture. The existing
+  `#landmark=queer-rainbow-memorial-berlin` model and 89-place tour catalogue
+  remain unchanged.
+
 ## v0.72.4
 
 - **Pedestrians can use all five historic passages through the Brandenburg

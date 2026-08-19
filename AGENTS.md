@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.4)
+## 3. Hard scope rules (v0.72.5)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -55,6 +55,9 @@ Must be inside the polygon and visible in the final map:
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
 - The complete Großer Tiergarten to Charlottenburger Tor, with Siegessäule,
   Luiseninsel, Rosengarten, Café am Neuen See and the mapped path/tree network
+- The newly established CSD memorial place near Bellevueallee/Ahornsteig at
+  exact OSM node `14076715427`, kept separate from the existing owner-supplied
+  Queer Rainbow Memorial model and from the 89-place tour catalogue
 - Luiseninsel playground opposite the Philharmonie, including mapped paths,
   trees and playground equipment
 - Kulturforum, Potsdamer/Leipziger Platz, Anhalter Bahnhof, Kochstraße and the
@@ -304,7 +307,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.4)
+## 8. What success looks like (Definition of Done v0.72.5)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small

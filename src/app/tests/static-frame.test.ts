@@ -118,6 +118,35 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).not.toContain("coarsePointer ? 1000 / 30 : 0");
   });
 
+  test("registers the late CSD memorial before a cold Minecraft frame", () => {
+    const memorialInstall = viewerSource.indexOf(
+      "runtime.monuments.add(createCsdAttackMemorial())",
+    );
+    const antiFlickerCollect = viewerSource.indexOf(
+      "collectFarZoomAntiFlickerTargets(runtime);",
+      memorialInstall,
+    );
+    const nextLateLayer = viewerSource.indexOf(
+      "runtime.culturalDetails.removeFromParent()",
+      memorialInstall,
+    );
+    expect(memorialInstall).toBeGreaterThan(-1);
+    expect(antiFlickerCollect).toBeGreaterThan(memorialInstall);
+    expect(antiFlickerCollect).toBeLessThan(nextLateLayer);
+    expect(viewerSource).toContain(
+      "setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm)",
+    );
+    expect(
+      viewerSource.match(/csdAttackMemorialSolidAt\(x, y, z, radius\)/g),
+    ).toHaveLength(2);
+    const afterInstall = viewerSource.slice(memorialInstall);
+    expect(afterInstall).toContain('runtime.lightingMode === "minecraft"');
+    expect(afterInstall).toContain("setMinecraftMaterialPresentation(");
+    expect(viewerSource).toContain(
+      "runtime.monuments.visible = !runtime.underside",
+    );
+  });
+
   test("runs the same final anti-aliasing pass in motion and at rest", () => {
     expect(viewerSource).toContain(
       'import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js"',

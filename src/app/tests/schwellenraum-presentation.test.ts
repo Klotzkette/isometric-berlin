@@ -25,6 +25,7 @@ import { PRESENTATION_TONE, isPaintFaithful } from "../src/presentationTone";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import { applyLightingToRoot } from "../src/ThreeViewer";
 import { createSchwellenraumMemorialProtectionIndex } from "../src/schwellenraumMemorialProtection";
+import { createCsdAttackMemorial } from "../src/CsdAttackMemorial";
 
 const appSource = await Bun.file(new URL("../src/App.tsx", import.meta.url)).text();
 const street = streetDetails as unknown as StreetDetailsPayload;
@@ -97,6 +98,16 @@ describe("Schwellenraum presentation", () => {
     expect(schwellenraumObjektmodus("schwellenraum", ordinary)).toBe(
       "schwellenraum",
     );
+  });
+
+  test("keeps the separate CSD attack memorial on exact Day presentation", () => {
+    const memorial = createCsdAttackMemorial();
+    expect(memorial.name).toBe("Gedenkstelle CSD-Attentat vom 25.7.2026");
+    expect(memorial.userData.schwellenraumGeschuetzt).toBeTrue();
+    memorial.traverse((object) => {
+      expect(isSchwellenraumGeschuetzt(object), object.name).toBeTrue();
+      expect(schwellenraumObjektmodus("schwellenraum", object)).toBe("day");
+    });
   });
 
   test("keeps every additive light threshold outside all quiet zones", () => {

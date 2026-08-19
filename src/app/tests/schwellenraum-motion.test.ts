@@ -7,6 +7,7 @@ import {
   updateWindFlags,
 } from "../src/WindFlags";
 import { createCivicLandmarks } from "../src/CivicLandmarks";
+import { createCsdAttackMemorial } from "../src/CsdAttackMemorial";
 import {
   SCHWELLENRAUM_FLAG_FRAME_INTERVAL_MS,
   SCHWELLENRAUM_MOVING_FLAG_KINDS,
@@ -206,6 +207,23 @@ describe("Schwellenraum closed world-motion contract", () => {
         expect(object.userData.windFlag).toBeUndefined();
         expect(object.userData.windFlagInstances).toBeUndefined();
       }
+    });
+  });
+
+  test("keeps the CSD memorial's small Pride flags static", () => {
+    const memorial = createCsdAttackMemorial();
+    expect(memorial.userData.staticPrideFlagCount).toBe(3);
+    const before = matrixSnapshot(memorial);
+
+    for (const elapsed of [0.25, 1.7, 8.4, 42]) {
+      updateSchwellenraumMovingFlags([memorial], elapsed);
+      memorial.updateMatrixWorld(true);
+    }
+
+    expect(matrixSnapshot(memorial)).toEqual(before);
+    memorial.traverse((object) => {
+      expect(object.userData.windFlag).toBeUndefined();
+      expect(object.userData.windFlagInstances).toBeUndefined();
     });
   });
 });

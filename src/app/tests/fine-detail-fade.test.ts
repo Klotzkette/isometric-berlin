@@ -304,6 +304,17 @@ describe("nextFineDetailVisible", () => {
     }
   });
 
+  test("fades only the CSD attack memorial offerings and thin detail", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toContain(
+      "CSD attack memorial fine detail",
+    );
+    // The complete tree/guard/bench ensemble remains a legible landmark at
+    // overview distance; only its cards, wreath details and thin accents go.
+    expect(FINE_DETAIL_LAYER_NAMES).not.toContain(
+      "Gedenkstelle CSD-Attentat vom 25.7.2026",
+    );
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({

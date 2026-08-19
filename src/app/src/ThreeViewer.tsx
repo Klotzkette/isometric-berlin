@@ -88,6 +88,12 @@ import {
   setQueerRainbowMemorialSnow,
 } from "./QueerRainbowMemorial";
 import {
+  CSD_ATTACK_MEMORIAL_PROFILE,
+  createCsdAttackMemorial,
+  csdAttackMemorialSolidAt,
+  setCsdAttackMemorialSnow,
+} from "./CsdAttackMemorial";
+import {
   createCulturalLandmarks,
   culturalFocusCamera,
 } from "./CulturalLandmarks";
@@ -1738,6 +1744,7 @@ function setSceneLighting(
   setUndergroundPresentation(runtime.undergroundNetwork, mode);
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
+  setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm);
   // Every true mode entry starts from one authored cloth pose. A same-mode
   // Schwellenraum relight (for example after resurfacing) must keep both the
   // current pose and elapsed clock; resetting only the geometry would make
@@ -2185,6 +2192,9 @@ function ensureIsoWorld(
           (schwellenraumProtectedAt(x, y, z) ||
             schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
         pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+          if (csdAttackMemorialSolidAt(x, y, z, radius)) {
+            return true;
+          }
           if (runtime.lightingMode === "schwellenraum") {
             return (
               schwellenraumInteriorSolidAt(x, y, z, radius) ||
@@ -2495,8 +2505,9 @@ function ensureVoxelWorld(
             sourceId,
           );
         environment.interiorSolidAt = (x, y, z, radius) =>
-          minecraftHeroCollisionEnabled(runtime.lightingMode) &&
-          minecraftHeroSolidAt(x, y, z, radius);
+          csdAttackMemorialSolidAt(x, y, z, radius) ||
+          (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+            minecraftHeroSolidAt(x, y, z, radius));
         environment.interiorGroundAt = (x, z) =>
           minecraftHeroCollisionEnabled(runtime.lightingMode)
             ? minecraftHeroGroundAt(x, z)
@@ -5503,6 +5514,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           runtime.monuments.add(createKrolloperSculptureEnsemble());
           runtime.monuments.add(createQueerRainbowMemorial());
+          runtime.monuments.add(createCsdAttackMemorial());
           runtime.monuments.add(createSonyCenterForumRoof());
           runtime.focusCameraByName.set(QUEER_RAINBOW_MEMORIAL_PROFILE.name, {
             azimuth_degrees: -18,
@@ -5512,10 +5524,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 2.1,
             target_world: [...QUEER_RAINBOW_MEMORIAL_PROFILE.worldM],
           });
+          runtime.focusCameraByName.set(CSD_ATTACK_MEMORIAL_PROFILE.name, {
+            azimuth_degrees: -124,
+            distance_m: 23,
+            fov_degrees: 39,
+            polar_degrees: 70,
+            target_height_m: 2.1,
+            target_world: [...CSD_ATTACK_MEMORIAL_PROFILE.worldM],
+          });
           runtime.monuments.userData.modelCount =
             runtime.monuments.children.length;
           markAuthoredFlatUnlit(runtime.monuments);
           setQueerRainbowMemorialSnow(
+            runtime.monuments,
+            runtime.lightingMode === "snowstorm",
+          );
+          setCsdAttackMemorialSnow(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",
           );
@@ -5525,6 +5549,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          // The monuments arrive independently of the drawn-world/park
+          // builders. Register their thin guard, offerings and bench slats
+          // immediately so a cold Minecraft start receives the same stable
+          // far-distance fade as Day without waiting for a later park load.
+          collectFarZoomAntiFlickerTargets(runtime);
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
           const expandedDetails = createExpandedCityDetails(manifest.landmarks);
