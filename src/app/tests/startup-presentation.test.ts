@@ -89,11 +89,13 @@ describe("startup presentation gate", () => {
     expect(startupCurtainMayOpen("ready", false)).toBeTrue();
   });
 
-  test("downloads photogrammetry only for failure recovery or an underside", () => {
+  test("downloads photogrammetry only for desktop recovery or an underside", () => {
     expect(photographicSurfaceNeeded("pending", false)).toBeFalse();
     expect(photographicSurfaceNeeded("ready", false)).toBeFalse();
     expect(photographicSurfaceNeeded("fallback", false)).toBeTrue();
     expect(photographicSurfaceNeeded("ready", true)).toBeTrue();
+    expect(photographicSurfaceNeeded("fallback", false, true)).toBeFalse();
+    expect(photographicSurfaceNeeded("ready", true, true)).toBeFalse();
   });
 
   test("the startup curtain is opaque and never cross-fades over photos", () => {

@@ -629,6 +629,25 @@ describe("Minecraft hero navigation", () => {
     ).toBeLessThan(
       voxelBuilder.indexOf("void fetchSurfacePayload(runtime)"),
     );
+    const waterLoader = voxelBuilder.indexOf(
+      "runtime.ensurePedestrianWater = () =>",
+    );
+    const waterFetch = voxelBuilder.indexOf(
+      "void fetchSurfacePayload(runtime)",
+    );
+    const requestedWater = voxelBuilder.indexOf(
+      "runtime.ensurePedestrianWater();",
+      waterLoader,
+    );
+    expect(waterLoader).toBeGreaterThan(-1);
+    expect(waterFetch).toBeGreaterThan(waterLoader);
+    expect(requestedWater).toBeGreaterThan(waterFetch);
+    expect(
+      voxelBuilder.slice(
+        voxelBuilder.indexOf("runtime.scene.add(provisionalMinecraftMobs.group)"),
+        waterLoader,
+      ),
+    ).not.toContain("fetchSurfacePayload(runtime)");
     expect(voxelBuilder).toContain(
       "pedestrianSnapshot = capturePedestrianAttachment(runtime)",
     );

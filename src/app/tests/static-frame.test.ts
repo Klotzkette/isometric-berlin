@@ -294,22 +294,15 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain(
       "runtime.controls.minDistance = snapshot.controlsMinDistance",
     );
-    expect(voxelLoader).toContain(
-      "if (!runtime.coarsePointer) {\n        runtime.startDeferredDetails()",
-    );
-    const voxelDeferredDetails = voxelLoader.indexOf(
-      "runtime.startDeferredDetails()",
-    );
+    expect(voxelLoader).not.toContain("runtime.startDeferredDetails()");
     const voxelCommit = voxelLoader.indexOf(
       "provisionalVoxelWorld = null",
-      voxelDeferredDetails,
     );
     const voxelReady = voxelLoader.indexOf(
       "notifyPresentationReadyWhenPossible(runtime)",
       voxelCommit,
     );
-    expect(voxelDeferredDetails).toBeGreaterThan(-1);
-    expect(voxelCommit).toBeGreaterThan(voxelDeferredDetails);
+    expect(voxelCommit).toBeGreaterThan(-1);
     expect(voxelReady).toBeGreaterThan(voxelCommit);
   });
 
@@ -374,10 +367,28 @@ describe("idle-frame anti-flicker contract", () => {
       'runtime.lightingMode === "minecraft" &&',
     );
     expect(deferredPark).toContain("!voxelMode");
+    expect(deferredPark).toContain(
+      'detailProfile: runtime.coarsePointer ? "mobile" : "full"',
+    );
     expect(viewerSource).toContain(
       "releaseMinecraftMaterialBindings(\n        runtime.parkDetails",
     );
     expect(viewerSource).toContain("child !== runtime.parkDetails");
+  });
+
+  test("never allocates the legacy photo shell on coarse-pointer recovery", () => {
+    const photoLoader = viewerSource.slice(
+      viewerSource.indexOf("runtime.ensurePhotoSurface = () =>"),
+      viewerSource.indexOf("runtime.ensurePhotoSurface = () =>") + 1_600,
+    );
+    expect(photoLoader).toContain("if (runtime.coarsePointer)");
+    expect(photoLoader).toContain('runtime.photoSurfaceState = "failed"');
+    expect(photoLoader.indexOf("if (runtime.coarsePointer)")).toBeLessThan(
+      photoLoader.indexOf("const sortedTiles"),
+    );
+    expect(viewerSource).toContain(
+      "photographicSurfaceNeeded(\n      currentStartupPresentationStatus(runtime),\n      underside,\n      runtime.coarsePointer",
+    );
   });
 
   test("keeps authored civic flags in every above-ground visual mode", () => {

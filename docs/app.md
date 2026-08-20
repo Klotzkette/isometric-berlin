@@ -215,27 +215,43 @@ payloads for the requested world transfer in parallel with manifest-driven
 recognition-detail construction. Procedural audio graph preparation and its
 autoplay attempt run only after the first app-shell paint.
 
-The drawn city itself is progressive without becoming a reduced LOD. The main
-thread constructs the nearest exact 700 LoD2/OSM buildings (320 on coarse
-pointers), the complete ground and every one-off recognition model first. A
-module Worker then supplies eight exact surface families and the remaining
-29,118 buildings in six near-to-far, material-merged groups. Every typed
-geometry buffer transfers ownership rather than being JSON-serialised, and a
-batch receives the currently active Day, Night, Snow or Schwellenraum
-materials before it joins the scene. Entering Minecraft stops the hidden
-Worker and disposes its completed follow-up groups; returning to a drawn mode
-restarts refinement over the still-usable exact near field. A Worker or asset
-failure never invokes the old synchronous full-city build: received exact
-batches and the near field remain the bounded fallback.
+The drawn city itself is progressive. Non-touch desktop constructs the nearest
+exact 700 LoD2/OSM buildings on the main thread, then completes the source
+inventory in near-to-far, material-merged Worker groups. The mobile-like touch
+profile applies when the primary or any pointer is coarse, or the browser
+reports `navigator.maxTouchPoints > 0`; it constructs an initial 320-building frame and stops
+after the nearest **5,000 LoD2 buildings**. This is the complete bounded touch
+near-field profile, not a reduction of the non-touch desktop inventory. Both
+profiles retain the complete ground and every one-off recognition model.
+Non-touch desktop's Worker supplies all eight exact surface families. The touch
+profile's delayed Worker receives only the 4,680 remaining building records,
+without a second copy of the ground/surface payload, and creates no exact
+`surface-*` batches; the preview's raster ground, water and
+asphalt plus the complete ParkDetails path network retain the context. Park
+construction starts only after that Worker completes or fails. Hiding the page
+stops the Worker, disposes partial follow-up groups and restarts deterministically
+when visible. Every transferred typed geometry buffer changes ownership rather
+than being JSON-serialised, and each batch receives the active Day, Night, Snow
+or Schwellenraum materials before attachment. Entering Minecraft likewise stops
+the hidden Worker and disposes its completed follow-up groups. A Worker or asset
+failure never invokes the old synchronous full-city build.
 
-The pathological 2,566-hole asphalt union uses the lossless, source-hash-bound
+On non-touch desktop, the pathological 2,566-hole asphalt union uses the
+lossless, source-hash-bound
 `surface-pretriangulation.json` / `surface-asphalt-*.plate.gz` Earcut result.
 Terrain tessellation still uses the committed ground samples; paving polygons
 and asphalt triangles are processed in bounded Worker partitions and merged
 back to the historical single material meshes before transfer. Thus the final
 asphalt buffer hash, vertex count and steady surface draw calls match the
-one-shot path. Regenerate the plate after any `surface-polygons.json` change
-with `bun run build:surface-plates` from `src/app`. On the v0.72.2 benchmark
+one-shot path. The touch profile deliberately does not allocate either heavy
+road plate;
+its raster asphalt and full ParkDetails path ribbons preserve road context and
+every authored park route. Regenerate the non-touch desktop plate after any
+`surface-polygons.json` change with `bun run build:surface-plates` from
+`src/app`. The touch profile deliberately creates none of the eight exact
+Worker surface families; its raster surfaces and full ParkDetails path ribbons preserve the
+bounded context without duplicating the surface payload into a second realm.
+On the v0.72.2 benchmark
 payload retained for v0.72.3, the reproducible Bun benchmark records a 0.76 s
 preview build and a 1.9 ms maximum main-thread batch attachment, versus a
 17.08 s synchronous
@@ -243,9 +259,12 @@ one-shot build; exact settle is 11.51 s. Whole-process peak RSS falls from
 5.44 GiB to 3.55 GiB, while steady geometry remains 576.5 MiB and the complete
 scene uses 188 estimated draw calls versus 150 in the monolithic reference.
 
-Photo geometry remains available for the designed underside cutaway and for
-failure recovery. Optional park details wait until the first usable city frame.
-Core JSON transfers have a finite timeout, one retry and unmount cancellation.
+Non-touch desktop photo geometry remains available for the designed underside
+cutaway and for failure recovery. Mobile-like touch sessions keep the authored
+tunnel/network view and never allocate the legacy photogrammetric shell for
+underside or failure presentation. Optional park details wait until the first
+usable city frame in a drawn presentation. Core JSON transfers have a finite
+timeout, one retry and unmount cancellation.
 
 **Minecraft is a true voxel world**: switching in lazily loads
 `mesh/regierungsviertel/minecraft-voxels.json` — generated by
@@ -259,9 +278,11 @@ active. Outside the official payload grid, an explicitly marked extrapolated
 block surround carries the same versioned 6,450 m envelope, park bands, tree
 and lamp positions as Day and Night; it does not claim new surveyed geometry.
 GPU instancing keeps the complete world to a handful of draw calls. An opaque
-mode-coloured curtain stays in place until the block world is usable; only an
-actual payload failure starts the photographic fallback. Leaving Minecraft
-restores the drawn LoD2 scene losslessly. Reichstag, Bundeskanzleramt,
+mode-coloured curtain stays in place until the block world is usable. On
+non-touch desktop, only an actual payload failure starts the photographic
+fallback; touch-profile failure remains on the authored recovery presentation.
+Leaving
+Minecraft restores the drawn LoD2 scene losslessly. Reichstag, Bundeskanzleramt,
 Hauptbahnhof, Brandenburger Tor and the parliamentary band receive shared,
 opaque `InstancedMesh<BoxGeometry>` recognition batches over the same metric
 voxel mass. Fewer than 5,000 signature blocks use a deliberately coarse 8 m
@@ -287,18 +308,44 @@ underside presentations. A persistent DE/EN control translates all viewer
 chrome; official German place names remain unchanged, and the German UI uses
 `Sehenswürdigkeiten` rather than the English false friend.
 
-On mobile/coarse-pointer devices, the bounded Minecraft profile produces
+Minecraft cold start reads the voxel and recognition-prism payloads but not
+`surface-polygons.json`. That surface file remains deferred until an actual
+transition to a drawn mode or until pedestrian mode requires its water-collision
+polygons. A cold Minecraft start also neither constructs nor loads ParkDetails
+in either full or touch profile; the first actual switch to any drawn mode
+starts their idempotent deferred construction.
+
+In mobile-like touch sessions, the bounded Minecraft profile produces
 **845,561 instances / 63.265 MiB of instance buffers** in the committed
 benchmark, versus the unchanged full profile's **3,419,412 / 249.815 MiB**.
-Only that mobile profile omits generic facade panes and meadow flowers and
+Only that touch profile omits generic facade panes and meadow flowers and
 collapses non-Hero source columns to one body block; all Hero courses no taller
 than 8 m, block-native signatures and navigation contracts remain. Its WebGL
 renderer has no MSAA and its composer uses zero samples plus `UnsignedByte`
-targets and SMAA. Desktop retains the 4x `HalfFloat` composer. A mode change
-before voxel construction cancels the inactive build; any failed attach rolls
+targets and SMAA. Non-touch desktop retains the 4x `HalfFloat` composer. A mode
+change before voxel construction cancels the inactive build; any failed attach rolls
 back partial roots. Smooth park details stay hidden in voxel mode and therefore
 do not receive Minecraft toon-material clones. These are benchmark and
 automated-browser contracts, not physical iOS-device validation.
+
+With the tunnel in the production scene, the mobile-like touch ParkDetails
+profile keeps every mapped path, official tree and playground anchor in
+**107,201 instances and 11,422,846 bytes of geometry plus instance buffers**.
+The non-touch settled production profile uses **499,963 instances and
+42,937,418 bytes**. The frozen comparison contract excludes both tunnel and
+settled detail: its touch fixture is **107,239 instances, 66 drawables and
+11,425,374 bytes**, versus the full fixture's **450,038 instances, 1,471
+drawables and 39,096,522 bytes**. The touch profile drops texture maps, derived
+micro-vegetation and other non-source micro-detail; it does not drop a path or
+source anchor.
+
+Mobile-like touch sessions use family-keyed single-world residency: drawn modes
+share one family and Minecraft uses another, so a family transition unmounts
+the previous scene, parsed payload ownership and WebGL context before mounting
+the next. Non-touch desktop retains its warm complete scene. Runtime recovery is
+not touch-gated: every profile gets exactly one clean automatic WebGL remount;
+a repeated failure exposes the Recovery and 2D-map actions instead of creating
+another hidden renderer.
 
 Both music layers are generated locally with Web Audio and load no recording,
 stream or external audio asset. The music button or `B` controls seven original
@@ -704,23 +751,30 @@ By default the viewer loads the mesh scene from
 needed by the drawn city. The terrain-only `ground-context.json` replaces the
 full Minecraft instances during Day/Night/Snow/Schwellenraum startup. Neither the 2.6M-face
 interaction GLBs, the 6.6M-face archival surface nor hero crops are requested
-for normal drawn navigation. The interaction shell is ordered by distance and
-loaded with bounded concurrency only when an underside cutaway needs context
-or the requested drawn world has failed. Its model requests retry once; JSON
-requests additionally have a finite timeout. The settled tier and all hero
-assets remain in the reproducible local archive but do not consume normal live
-bandwidth or GPU memory. A lost WebGL
-context switches to the DZI fallback and a later 3D selection creates a fresh
-context. On touch/coarse-pointer devices, switching to the 2D map unmounts the
-inactive WebGL scene and moving 3D rendering uses a 30 fps budget; desktop keeps
-the loaded scene warm and interaction at 60 fps. Static scenes hold the final
-framebuffer without a periodic redraw. Existing GLB normals are reused, repeated
-tunnel fixtures are instanced, and a stale mobile hero queue is stopped and
-disposed after a new landmark selection. Disposal also stops workers before
-they start another queued GLB, closes decoded image resources where the browser
-exposes them and resets custom touch state on lost pointer capture, global
-pointer release, window blur or tab hiding. A watchdog restores controls after
-a stale three-finger sequence, while finite camera bounds recover a lost pose.
+for normal drawn navigation. On non-touch desktop, the interaction shell is
+ordered by distance and loaded with bounded concurrency only when an underside
+cutaway needs context or the requested drawn world has failed. Mobile-like touch
+sessions never load that legacy photogrammetric shell for underside or failure;
+they keep the authored cutaway/network presentation and explicit recovery UI
+instead.
+Model requests retry once, while JSON requests additionally have a finite
+timeout. The settled tier and all hero assets remain in the reproducible local
+archive but do not consume normal live bandwidth or GPU memory.
+
+A WebGL runtime failure in any profile releases the canvas and active world,
+then performs exactly one clean automatic remount for that world family. A
+repeated failure exposes the Recovery and 2D-map actions instead of allocating
+another hidden renderer or selecting 2D implicitly. In mobile-like touch
+sessions, both a drawn/Minecraft family transition and an explicit move to the 2D map unmount the
+inactive WebGL world; non-touch desktop keeps its complete scene warm. Static
+scenes hold the final framebuffer without a periodic redraw. Existing GLB normals are
+reused, repeated tunnel fixtures are instanced, and a stale mobile hero queue is
+stopped and disposed after a new landmark selection. Disposal also stops
+workers before they start another queued GLB, closes decoded image resources
+where the browser exposes them and resets custom touch state on lost pointer
+capture, global pointer release, window blur or tab hiding. A watchdog restores
+controls after a stale three-finger sequence, while finite camera bounds recover
+a lost pose.
 
 The DZI tile pyramid and reference map
 load from `public/dzi/regierungsviertel/`, while the DZI landmark navigation is

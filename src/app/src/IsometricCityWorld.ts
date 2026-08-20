@@ -182,6 +182,16 @@ export type IsometricCityBuildOptions = {
   /** Add the one-off presentation/recognition models only to the base batch. */
   includeContext?: boolean;
   /**
+   * Keep the 4 m raster asphalt in the preview instead of waiting for the
+   * memory-heavy exact road plate. Used only by the coarse-pointer profile.
+   */
+  retainRasterAsphalt?: boolean;
+  /**
+   * Keep the static 4 m water, bed and quay fallback when the mobile Worker
+   * deliberately omits every exact surface family.
+   */
+  retainRasterWater?: boolean;
+  /**
    * Exact surface subset to build in this batch. `undefined` preserves the
    * legacy behaviour (`surfaces`); `null` builds no smooth surface geometry
    * while still using `surfaces` for ground masks and tunnel/lawn exclusions.
@@ -2566,7 +2576,10 @@ const QUAY_JOINT_SPACING_M = 14;
  * carries its own ink: a top line along the bank edge, the water line
  * where the masonry enters the Spree, and vertical joints between them.
  */
-function createQuayWalls(ground: VoxelPayload): Group | null {
+function createQuayWalls(
+  ground: VoxelPayload,
+  detailProfile: "full" | "mobile" = "full",
+): Group | null {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
   const classGrid = new Int16Array(cols * rows).fill(-1);
@@ -2660,6 +2673,13 @@ function createQuayWalls(ground: VoxelPayload): Group | null {
     ] as const) {
       positions.push(px, py, pz);
       colors.push(paint.r, paint.g, paint.b);
+    }
+    if (detailProfile === "mobile") {
+      // Phones need a closed bank face around the retained raster water, not
+      // the memory-heavy promenade ledges, rail posts and repeated stair
+      // flights owned by the full fallback. The top/water ink above keeps the
+      // coarse embankment legible with a bounded vertex count.
+      return;
     }
     // The riverside promenade: a light boardwalk ledge just above the
     // water, jutting from the quay wall — the "Weg zum Ufer".
@@ -10649,7 +10669,10 @@ export function createIsometricCity(
         // Smooth OSM road polygons below replace this coarse class in the
         // drawn modes. Minecraft calls createGroundSlabs without this filter
         // and deliberately keeps its block-native road staircase.
-        skipClasses: surfaces ? ["asphalt"] : undefined,
+        skipClasses:
+          surfaces && !options.retainRasterAsphalt
+            ? ["asphalt"]
+            : undefined,
         skipBridge: true,
         skipAtWorld:
           insideTunnelApproach || insideTillaDurieux
@@ -10678,7 +10701,10 @@ export function createIsometricCity(
     const waterClass = ground.classes.indexOf("water");
     // With the true OSM polygons available the smooth layers own the
     // river; the rasterised plates below stay as the fallback only.
-    if (waterClass >= 0 && !surfaces) {
+    if (
+      waterClass >= 0 &&
+      (!surfaces || options.retainRasterWater === true)
+    ) {
       const cell = ground.cell_m;
       const { min_x_idx, min_z_idx } = ground.grid;
       const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
@@ -10771,12 +10797,15 @@ export function createIsometricCity(
           terrainAt,
         ),
       );
-    } else if (!surfaces) {
-      // Only the true no-surface fallback owns raster quay walls. A
-      // progressive base deliberately defers its smooth surfaces (`null`) to
-      // the Worker; drawing this fallback there as well duplicated the entire
-      // embankment once the exact water batch arrived.
-      const quays = createQuayWalls(ground);
+    } else if (!surfaces || options.retainRasterWater === true) {
+      // The true no-surface fallback and the bounded touch preview own raster
+      // quay walls. A full progressive base deliberately defers its smooth
+      // surfaces (`null`) to the Worker; drawing this fallback there as well
+      // would duplicate the embankment once the exact water batch arrived.
+      const quays = createQuayWalls(
+        ground,
+        options.retainRasterWater === true ? "mobile" : "full",
+      );
       if (quays) {
         group.add(quays);
       }

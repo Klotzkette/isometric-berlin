@@ -509,7 +509,10 @@ type TreeCrownCutaway = {
   z: number;
 };
 
+export type ParkDetailProfile = "full" | "mobile";
+
 export type ParkDetailOptions = {
+  detailProfile?: ParkDetailProfile;
   settledDetail?: boolean;
   tunnel?: TunnelPortalPayload | null;
 };
@@ -690,11 +693,14 @@ export function createParkPathSurfaceTexture(
 
 function parkPathMaterial(
   code: NonNullable<ParkPath["m"]>,
+  includeTexture = true,
 ): MeshStandardMaterial {
   const style = PATH_MATERIAL_STYLE[code];
   const surface = material(style.color, style.roughness);
   surface.name = `OSM park ${style.label} source-surface material`;
-  surface.map = createParkPathSurfaceTexture(code);
+  if (includeTexture) {
+    surface.map = createParkPathSurfaceTexture(code);
+  }
   surface.side = DoubleSide;
   surface.userData = {
     ...surface.userData,
@@ -702,6 +708,9 @@ function parkPathMaterial(
     pathSurfacePattern: style.pattern,
     sourceBackedPathSurface: true,
   };
+  if (!includeTexture) {
+    surface.userData.mobileTexturelessSurface = true;
+  }
   surface.needsUpdate = true;
   return surface;
 }
@@ -894,6 +903,7 @@ function addPaths(
   group: Group,
   paths: ParkPath[],
   encodedWidthScaleM: number,
+  includeTextures = true,
 ): void {
   const byKind = new Map<string, ParkPath[]>();
   for (const path of paths) {
@@ -907,7 +917,7 @@ function addPaths(
     const resolvedCode =
       materialCode ?? SEMANTIC_PATH_MATERIAL[kind] ?? "g";
     const materialStyle = PATH_MATERIAL_STYLE[resolvedCode];
-    const pathMaterial = parkPathMaterial(resolvedCode);
+    const pathMaterial = parkPathMaterial(resolvedCode, includeTextures);
     const mesh = new Mesh(
       createPathGeometry(entries, (path) =>
         path.w
@@ -1427,6 +1437,82 @@ function addTrees(
   return settledDetailFaces;
 }
 
+/**
+ * Coarse-pointer tree presentation: one measured anchor, one trunk and one
+ * crown per retained source tree. The full profile above remains the desktop
+ * source-form presentation; this branch deliberately allocates no fork
+ * branches, crown lobes, snow caps or settled microcrowns.
+ */
+function addMobileTrees(group: Group, trees: ParkTree[]): void {
+  const trunks: Transform[] = [];
+  const crowns: Transform[] = [];
+  const formCounts: Record<TreePresentationForm, number> = {
+    airy: 0,
+    broadleaf: 0,
+    columnar: 0,
+    conifer: 0,
+    dense: 0,
+    fir: 0,
+    oak: 0,
+    orchard: 0,
+    pine: 0,
+    shrub: 0,
+    spreading: 0,
+    vase: 0,
+    willow: 0,
+  };
+  for (const tree of trees) {
+    const [x, y, z] = tree.position;
+    const form = treePresentationForm(tree);
+    const trunkHeight = Math.max(
+      0.4,
+      tree.height_m * TREE_TRUNK_HEIGHT_RATIO[form],
+    );
+    const trunkRadius =
+      tree.trunk_radius_m ??
+      Math.max(
+        form === "shrub" ? 0.1 : 0.18,
+        tree.crown_radius_m * (form === "shrub" ? 0.055 : 0.095),
+      );
+    const crownHeight = Math.max(0.8, tree.height_m - trunkHeight);
+    formCounts[form] += 1;
+    trunks.push({
+      color: treeBarkTone(tree),
+      position: [x, y + trunkHeight / 2, z],
+      scale: [trunkRadius, trunkHeight, trunkRadius],
+    });
+    crowns.push({
+      color: treeFoliageTone(tree),
+      position: [x, y + trunkHeight + crownHeight / 2, z],
+      rotation: [0, ((tree.variant % 12) / 12) * Math.PI * 2, 0],
+      scale: [
+        Math.max(0.35, tree.crown_radius_m),
+        crownHeight / 2,
+        Math.max(0.35, tree.crown_radius_m),
+      ],
+    });
+  }
+  const trunkMesh = instanced(
+    "Mobile park instanced coarse tree trunks",
+    new CylinderGeometry(1, 1.12, 1, 5),
+    material(0xffffff, 0.96),
+    trunks,
+  );
+  trunkMesh.castShadow = false;
+  group.add(trunkMesh);
+  const crownMesh = instanced(
+    "Mobile park instanced one-crown tree anchors",
+    new IcosahedronGeometry(1, 0),
+    material(0xffffff, 0.98),
+    crowns,
+  );
+  crownMesh.castShadow = false;
+  group.add(crownMesh);
+  group.userData.treePresentationForms = formCounts;
+  group.userData.mobileTreeTrunkCount = trunks.length;
+  group.userData.mobileTreeCrownCount = crowns.length;
+}
+
 export type ParkHedgeSegment = {
   from: [number, number, number];
   heightM: number;
@@ -1528,18 +1614,23 @@ function addTiergartenVegetation(
   shrubPatches: ParkShrubPatch[],
   hedges: ParkHedge[],
   insideTunnelApproach: ((x: number, z: number, radius?: number) => boolean) | null,
+  includeDerivedDetail = true,
 ): void {
-  const shrubClusters = parkShrubClusters(shrubPatches, insideTunnelApproach);
+  const shrubClusters = includeDerivedDetail
+    ? parkShrubClusters(shrubPatches, insideTunnelApproach)
+    : [];
   const hedgeAreas = hedges.filter(
     (hedge): hedge is ParkHedge & { rings: [number, number, number][][] } =>
       hedge.kind === "area" && Boolean(hedge.rings),
   );
-  const hedgeAreaClusters = hedgeAreas
-    .flatMap((hedge) => hedge.clusters ?? [])
-    .filter(
-      ([x, , z, , radius]) =>
-        !insideTunnelApproach || !insideTunnelApproach(x, z, radius + 0.5),
-    );
+  const hedgeAreaClusters = includeDerivedDetail
+    ? hedgeAreas
+        .flatMap((hedge) => hedge.clusters ?? [])
+        .filter(
+          ([x, , z, , radius]) =>
+            !insideTunnelApproach || !insideTunnelApproach(x, z, radius + 0.5),
+        )
+    : [];
 
   if (shrubPatches.length > 0) {
     const footprint = new Mesh(
@@ -1610,12 +1701,18 @@ function addTiergartenVegetation(
       rotation: [0, yaw, 0],
       scale: [length + 0.08, segment.heightM, segment.widthM],
     });
-    hedgeLobes.push({
-      color: tone,
-      position: [x, groundY + segment.heightM * 0.82, z],
-      rotation: [0, yaw + index * 0.37, 0],
-      scale: [length * 0.62 + 0.24, segment.heightM * 0.35, segment.widthM * 0.72],
-    });
+    if (includeDerivedDetail) {
+      hedgeLobes.push({
+        color: tone,
+        position: [x, groundY + segment.heightM * 0.82, z],
+        rotation: [0, yaw + index * 0.37, 0],
+        scale: [
+          length * 0.62 + 0.24,
+          segment.heightM * 0.35,
+          segment.widthM * 0.72,
+        ],
+      });
+    }
   });
   if (hedgeBodies.length > 0) {
     const bodies = instanced(
@@ -1628,14 +1725,16 @@ function addTiergartenVegetation(
     bodies.userData.geometryStatus =
       "Exact OSM barrier=hedge courses; untagged height and width are display approximations";
     group.add(bodies);
-    const lobes = instanced(
-      "OSM finite Tiergarten hedge foliage lobes",
-      new IcosahedronGeometry(1, 1),
-      material(0xffffff, 0.96),
-      hedgeLobes,
-    );
-    lobes.userData.vegetation = true;
-    group.add(lobes);
+    if (includeDerivedDetail) {
+      const lobes = instanced(
+        "OSM finite Tiergarten hedge foliage lobes",
+        new IcosahedronGeometry(1, 1),
+        material(0xffffff, 0.96),
+        hedgeLobes,
+      );
+      lobes.userData.vegetation = true;
+      group.add(lobes);
+    }
   }
 
   if (hedgeAreaClusters.length > 0) {
@@ -1657,24 +1756,26 @@ function addTiergartenVegetation(
     group.add(areas);
   }
 
-  const snowTransforms: Transform[] = [...shrubClusters, ...hedgeAreaClusters]
-    .filter((_, index) => index % 4 === 0)
-    .map(([x, y, z, height, radius, variant]) => ({
-      position: [x, y + height * 0.92, z],
-      rotation: [0, variant * 0.71, 0],
-      scale: [radius * 0.72, Math.max(0.08, height * 0.08), radius * 0.66],
-    }));
-  if (snowTransforms.length > 0) {
-    const snow = instanced(
-      "Snowstorm-only Tiergarten shrub and hedge caps",
-      new IcosahedronGeometry(1, 0),
-      material(0xf4f7f6, 0.98),
-      snowTransforms,
-    );
-    snow.visible = false;
-    snow.userData.snowOnly = true;
-    snow.userData.snowActive = false;
-    group.add(snow);
+  if (includeDerivedDetail) {
+    const snowTransforms: Transform[] = [...shrubClusters, ...hedgeAreaClusters]
+      .filter((_, index) => index % 4 === 0)
+      .map(([x, y, z, height, radius, variant]) => ({
+        position: [x, y + height * 0.92, z],
+        rotation: [0, variant * 0.71, 0],
+        scale: [radius * 0.72, Math.max(0.08, height * 0.08), radius * 0.66],
+      }));
+    if (snowTransforms.length > 0) {
+      const snow = instanced(
+        "Snowstorm-only Tiergarten shrub and hedge caps",
+        new IcosahedronGeometry(1, 0),
+        material(0xf4f7f6, 0.98),
+        snowTransforms,
+      );
+      snow.visible = false;
+      snow.userData.snowOnly = true;
+      snow.userData.snowActive = false;
+      group.add(snow);
+    }
   }
 
   group.userData.shrubPatchCount = shrubPatches.length;
@@ -1682,6 +1783,9 @@ function addTiergartenVegetation(
   group.userData.hedgeCount = hedges.length;
   group.userData.hedgeSegmentCount = visibleSegments.length;
   group.userData.hedgeAreaClusterCount = hedgeAreaClusters.length;
+  if (!includeDerivedDetail) {
+    group.userData.mobileDerivedVegetationDetail = false;
+  }
 }
 
 function lampHeadCount(lightType: string | null): number {
@@ -1694,7 +1798,11 @@ function lampHeadCount(lightType: string | null): number {
   return 1;
 }
 
-function addStreetLights(group: Group, lights: StreetLight[]): void {
+function addStreetLights(
+  group: Group,
+  lights: StreetLight[],
+  includeLightCones = true,
+): void {
   if (lights.length === 0) {
     return;
   }
@@ -1735,16 +1843,18 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
         scale: [0.42, 0.22, 0.28],
       });
     }
-    const coneHeight = Math.max(2.8, height * 0.86);
-    cones.push({
-      position: [x, y + height - coneHeight / 2, z],
-      rotation: [0, yaw, 0],
-      scale: [
-        Math.min(4.6, height * 0.54),
-        coneHeight,
-        Math.min(4.6, height * 0.54),
-      ],
-    });
+    if (includeLightCones) {
+      const coneHeight = Math.max(2.8, height * 0.86);
+      cones.push({
+        position: [x, y + height - coneHeight / 2, z],
+        rotation: [0, yaw, 0],
+        scale: [
+          Math.min(4.6, height * 0.54),
+          coneHeight,
+          Math.min(4.6, height * 0.54),
+        ],
+      });
+    }
   }
 
   const poleMaterial = material(0x4b5759, 0.46);
@@ -1783,26 +1893,28 @@ function addStreetLights(group: Group, lights: StreetLight[]): void {
     );
   }
 
-  const coneMaterial = new MeshStandardMaterial({
-    blending: AdditiveBlending,
-    color: 0xffd88a,
-    depthWrite: false,
-    emissive: 0xffc76a,
-    emissiveIntensity: 0.42,
-    opacity: 0.075,
-    roughness: 1,
-    transparent: true,
-  });
-  const coneMesh = instanced(
-    "Geoportal Berlin night-only instanced street-light cones",
-    new ConeGeometry(1, 1, 14, 1, false),
-    coneMaterial,
-    cones,
-  );
-  coneMesh.userData.nightOnly = true;
-  coneMesh.castShadow = false;
-  coneMesh.receiveShadow = false;
-  group.add(coneMesh);
+  if (includeLightCones) {
+    const coneMaterial = new MeshStandardMaterial({
+      blending: AdditiveBlending,
+      color: 0xffd88a,
+      depthWrite: false,
+      emissive: 0xffc76a,
+      emissiveIntensity: 0.42,
+      opacity: 0.075,
+      roughness: 1,
+      transparent: true,
+    });
+    const coneMesh = instanced(
+      "Geoportal Berlin night-only instanced street-light cones",
+      new ConeGeometry(1, 1, 14, 1, false),
+      coneMaterial,
+      cones,
+    );
+    coneMesh.userData.nightOnly = true;
+    coneMesh.castShadow = false;
+    coneMesh.receiveShadow = false;
+    group.add(coneMesh);
+  }
 }
 
 export const WALL_TRACE_PROFILE = {
@@ -1911,6 +2023,55 @@ function addWallTraces(group: Group, traces: WallTrace[]): number {
     "https://www.berlin.de/mauer/geschichte/geschichtsmeile/geschichtsmeile-berliner-mauer-am-brandenburger-tor-148630.php";
   group.add(stoneMesh);
   return stones.length;
+}
+
+function addMobileWallTraces(group: Group, traces: WallTrace[]): number {
+  const courses: Transform[] = [];
+  for (const trace of traces) {
+    for (let index = 1; index < trace.points.length; index += 1) {
+      const start = trace.points[index - 1];
+      const end = trace.points[index];
+      const dx = end[0] - start[0];
+      const dz = end[2] - start[2];
+      const length = Math.hypot(dx, dz);
+      if (length < 0.05) {
+        continue;
+      }
+      courses.push({
+        color: index % 2 === 0 ? 0x79483d : 0x845044,
+        position: [
+          (start[0] + end[0]) / 2,
+          (start[1] + end[1]) / 2 + WALL_TRACE_PROFILE.centreLiftM,
+          (start[2] + end[2]) / 2,
+        ],
+        rotation: [0, -Math.atan2(dz, dx), 0],
+        scale: [
+          length,
+          WALL_TRACE_PROFILE.heightM,
+          WALL_TRACE_PROFILE.rowOffsetM * 2 + WALL_TRACE_PROFILE.widthM,
+        ],
+      });
+    }
+  }
+  if (courses.length === 0) {
+    return 0;
+  }
+  const surface = new MeshBasicMaterial({ color: 0xffffff });
+  const mesh = instanced(
+    "Mobile official Vorderlandmauer coarse continuous courses",
+    new BoxGeometry(1, 1, 1),
+    surface,
+    courses,
+  );
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+  mesh.renderOrder = 7;
+  mesh.userData.geometryStatus =
+    "Official 1989 Vorderlandmauer centreline; coarse mobile course presentation";
+  mesh.userData.sourceUrl =
+    "https://www.berlin.de/mauer/geschichte/geschichtsmeile/geschichtsmeile-berliner-mauer-am-brandenburger-tor-148630.php";
+  group.add(mesh);
+  return courses.length;
 }
 
 function addHiddenEasterEggs(group: Group, trees: ParkTree[]): number {
@@ -2284,6 +2445,152 @@ function addPlaygrounds(group: Group, playgrounds: ParkPlayground[]): void {
   }
 }
 
+function batchedPlaygroundFootprintGeometry(
+  playgrounds: ParkPlayground[],
+): BufferGeometry {
+  const positions: number[] = [];
+  const indices: number[] = [];
+  for (const playground of playgrounds) {
+    const unique = playground.outline.filter(
+      (point, index) =>
+        index === 0 ||
+        point[0] !== playground.outline[index - 1][0] ||
+        point[2] !== playground.outline[index - 1][2],
+    );
+    if (
+      unique.length > 2 &&
+      unique[0][0] === unique.at(-1)?.[0] &&
+      unique[0][2] === unique.at(-1)?.[2]
+    ) {
+      unique.pop();
+    }
+    if (unique.length < 3) {
+      continue;
+    }
+    const offset = positions.length / 3;
+    unique.forEach((point) =>
+      positions.push(point[0], point[1] + 0.11, point[2]),
+    );
+    const contour = unique.map((point) => new Vector2(point[0], point[2]));
+    ShapeUtils.triangulateShape(contour, []).forEach((face) => {
+      indices.push(offset + face[0], offset + face[1], offset + face[2]);
+    });
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(positions, 3),
+  );
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+function playgroundSourceAnchor(
+  playground: ParkPlayground,
+): [number, number, number] {
+  const outline = playground.outline.filter(
+    (point, index) =>
+      index === 0 ||
+      point[0] !== playground.outline[index - 1][0] ||
+      point[2] !== playground.outline[index - 1][2],
+  );
+  if (
+    outline.length > 2 &&
+    outline[0][0] === outline.at(-1)?.[0] &&
+    outline[0][2] === outline.at(-1)?.[2]
+  ) {
+    outline.pop();
+  }
+  const points =
+    outline.length > 0
+      ? outline
+      : playground.equipment.map((item) => item.position);
+  if (points.length === 0) {
+    return [0, 0, 0];
+  }
+  return [
+    points.reduce((sum, point) => sum + point[0], 0) / points.length,
+    points.reduce((sum, point) => sum + point[1], 0) / points.length,
+    points.reduce((sum, point) => sum + point[2], 0) / points.length,
+  ];
+}
+
+function addMobilePlaygrounds(
+  group: Group,
+  playgrounds: ParkPlayground[],
+): void {
+  const footprintGroups = new Map<"sand" | "other", ParkPlayground[]>();
+  for (const playground of playgrounds) {
+    if (playground.outline.length < 4) {
+      continue;
+    }
+    const surface = playground.surface === "sand" ? "sand" : "other";
+    const entries = footprintGroups.get(surface) ?? [];
+    entries.push(playground);
+    footprintGroups.set(surface, entries);
+  }
+  let footprintCount = 0;
+  for (const [surfaceKind, entries] of footprintGroups) {
+    const surface = material(
+      surfaceKind === "sand" ? 0xb99b5f : 0x6f865e,
+      1,
+    );
+    surface.side = DoubleSide;
+    const footprint = new Mesh(
+      batchedPlaygroundFootprintGeometry(entries),
+      surface,
+    );
+    footprint.name = `Mobile batched ${surfaceKind} OSM playground footprints`;
+    footprint.receiveShadow = false;
+    footprint.userData.playgroundFootprintCount = entries.length;
+    footprint.userData.playgroundIds = entries.map((entry) => entry.id);
+    footprint.userData.sourceUrls = entries.map((entry) => entry.source_url);
+    group.add(footprint);
+    footprintCount += entries.length;
+  }
+
+  const anchors = playgrounds.map((playground): Transform => {
+    const [x, y, z] = playgroundSourceAnchor(playground);
+    return {
+      color: playground.surface === "sand" ? 0xd6b96f : 0x719064,
+      position: [x, y + 0.135, z],
+      scale: [0.22, 0.05, 0.22],
+    };
+  });
+  const anchorMesh = instanced(
+    "Mobile mapped playground source anchors",
+    new BoxGeometry(1, 1, 1),
+    new MeshBasicMaterial({ color: 0xffffff }),
+    anchors,
+  );
+  anchorMesh.castShadow = false;
+  anchorMesh.receiveShadow = false;
+  anchorMesh.userData.playgroundIds = playgrounds.map((entry) => entry.id);
+  anchorMesh.userData.sourceUrls = playgrounds.map(
+    (entry) => entry.source_url,
+  );
+  group.add(anchorMesh);
+
+  const signature = playgrounds.find(
+    (entry) => entry.name === "Spielplatz an der Luiseninsel",
+  );
+  if (signature) {
+    const signatureGroup = new Group();
+    signatureGroup.name = `${signature.name} OSM playground details`;
+    signatureGroup.userData.focusRevealFor = signature.name;
+    signatureGroup.userData.mobileSignature = true;
+    signature.equipment.forEach((item) =>
+      addPlaygroundEquipment(signatureGroup, item),
+    );
+    group.add(signatureGroup);
+  }
+  group.userData.mobilePlaygroundFootprintCount = footprintCount;
+  group.userData.mobilePlaygroundSourceAnchorCount = anchors.length;
+}
+
 export function createParkDetails(
   payload: ParkDetailsPayload,
   options: ParkDetailOptions = {},
@@ -2293,6 +2600,7 @@ export function createParkDetails(
   }
   const group = new Group();
   group.name = "Additive open-data park and civic surface details";
+  const detailProfile = options.detailProfile ?? "full";
   const insideTunnelApproach = options.tunnel
     ? createTunnelPortalApproachTester(options.tunnel)
     : null;
@@ -2343,23 +2651,43 @@ export function createParkDetails(
       constructionFilteredTrees.length - trees.length,
     treeCount: trees.length,
   };
-  addPaths(group, payload.paths, payload.schema_version >= 7 ? 0.01 : 0.1);
-  group.userData.settledOfficialTreeDetailFaces = addTrees(
+  addPaths(
     group,
-    trees,
-    treeCrownCutaway(payload.playgrounds),
-    options.settledDetail ?? true,
+    payload.paths,
+    payload.schema_version >= 7 ? 0.01 : 0.1,
+    detailProfile === "full",
   );
+  if (detailProfile === "mobile") {
+    addMobileTrees(group, trees);
+    group.userData.detailProfile = "mobile";
+    group.userData.settledOfficialTreeDetailFaces = 0;
+  } else {
+    group.userData.settledOfficialTreeDetailFaces = addTrees(
+      group,
+      trees,
+      treeCrownCutaway(payload.playgrounds),
+      options.settledDetail ?? true,
+    );
+  }
   addTiergartenVegetation(
     group,
     payload.shrub_patches ?? [],
     payload.hedges ?? [],
     insideTunnelApproach,
+    detailProfile === "full",
   );
-  addStreetLights(group, streetLights);
-  group.userData.wallStoneCount = addWallTraces(group, wallTraces);
-  group.userData.eggCount = addHiddenEasterEggs(group, trees);
-  addPlaygrounds(group, payload.playgrounds);
+  addStreetLights(group, streetLights, detailProfile === "full");
+  group.userData.wallStoneCount =
+    detailProfile === "mobile"
+      ? addMobileWallTraces(group, wallTraces)
+      : addWallTraces(group, wallTraces);
+  group.userData.eggCount =
+    detailProfile === "mobile" ? 0 : addHiddenEasterEggs(group, trees);
+  if (detailProfile === "mobile") {
+    addMobilePlaygrounds(group, payload.playgrounds);
+  } else {
+    addPlaygrounds(group, payload.playgrounds);
+  }
   return group;
 }
 

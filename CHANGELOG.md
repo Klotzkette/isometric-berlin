@@ -1,5 +1,43 @@
 # Changelog
 
+## v0.72.9
+
+- **The mobile-like touch drawn city now has a bounded, source-exact near-field
+  profile.** The profile applies when either the primary or any pointer is
+  coarse, or when the browser reports `navigator.maxTouchPoints > 0`, and
+  retains the nearest **5,000 LoD2 buildings**. After the first 320-building
+  frame, a slim Worker receives only the remaining 4,680 bounded
+  building records; it receives no duplicate ground or surface payload and
+  creates no exact `surface-*` Worker batches. Raster ground/water/asphalt and
+  the complete authored park-path network retain the map reading. With the
+  tunnel in the production scene, ParkDetails measures **107,201 instances and
+  11,422,846 bytes of geometry plus instance buffers** in the touch profile;
+  non-touch settled production measures **499,963 instances and 42,937,418
+  bytes**. The frozen comparison contract intentionally excludes tunnel and
+  settled detail: **107,239 instances / 66 drawables / 11,425,374 bytes** touch
+  versus **450,038 / 1,471 / 39,096,522 bytes** full.
+  Hidden tabs stop and discard partial refinement before a clean visible-tab
+  restart. Non-touch desktop continues to build the complete building,
+  road-surface and park profiles.
+- **A mobile-like touch session retains only its active heavy world family.** A
+  drawn-to-Minecraft or Minecraft-to-drawn transition unmounts the previous
+  scene and context before creating the next family. Minecraft no longer
+  builds ParkDetails at cold startup in either profile and no longer requests
+  `surface-polygons.json` there; the park starts idempotently after an actual
+  switch to any drawn mode, while surface polygons remain deferred until a
+  drawn-mode transition or pedestrian water collision needs them. Mobile-like touch
+  underside and failure paths keep the authored tunnel/network view and do not
+  allocate the legacy photogrammetric shell. Non-touch desktop warm-scene and
+  photogrammetry behavior is unchanged.
+- **Runtime recovery is bounded and explicit in every profile.** A WebGL runtime
+  failure receives one clean automatic remount after the prior canvas and
+  allocations are released. A repeated failure shows the Recovery and 2D-map
+  actions instead of starting another hidden renderer or loading a second
+  world. Only single-family residency and the no-photo-shell guard are specific
+  to the mobile-like touch profile. These guarantees and the budgets above are
+  automated production-data contracts; this release makes no unsupported
+  physical-device or iOS claim.
+
 ## v0.72.8
 
 - **Coarse-pointer/mobile Minecraft now has a bounded world profile instead of

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.8"
+PACKAGE_VERSION = "0.72.9"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3521,24 +3521,53 @@ bleiben im Minecraft-Modus ausgeblendet. Vorhandene Eingangsportale, offene
 Passagen sowie freie Dreh-, Schwenk-, Zoom-, Flug- und Fußgängernavigation
 bleiben erhalten.
 
-Auf Mobil-/Coarse-Pointer-Geräten begrenzt Version {PACKAGE_VERSION} den
-Minecraft-Speicher: Das mobile Profil misst 845,561 Instanzen / 63.265 MiB
-Instanzpuffer statt 3,419,412 / 249.815 MiB im unveränderten Vollprofil. Nur
-mobil entfallen generische Fassadenscheiben und Wiesenblumen; Nicht-Hero-
+Im mobilen Touch-Profil begrenzt Version {PACKAGE_VERSION} den Minecraft-
+Speicher. Es gilt bei primärem oder beliebigem groben Zeiger sowie bei
+navigator.maxTouchPoints > 0 und misst 845,561 Instanzen / 63.265 MiB
+Instanzpuffer statt 3,419,412 / 249.815 MiB im unveränderten Vollprofil. Nur in
+diesem Profil entfallen generische Fassadenscheiben und Wiesenblumen; Nicht-Hero-
 Quellspalten werden zusammengefasst, während Hero-Kurse bis 8 m, Signaturen und
-Navigation erhalten bleiben. Coarse WebGL nutzt kein Renderer-MSAA, einen
-0x-UnsignedByte-Composer und SMAA; Desktop bleibt bei 4x HalfFloat. Inaktive
+Navigation erhalten bleiben. Touch-Profil-WebGL nutzt kein Renderer-MSAA, einen
+0x-UnsignedByte-Composer und SMAA; Nicht-Touch-Desktop bleibt bei 4x HalfFloat.
+Inaktive
 Weltaufbauten werden abgebrochen, fehlgeschlagene Voxel-Anbindungen
 zurückgerollt und glatte Parkdetails bleiben im Voxelmodus ohne Toon-Klone
 verborgen. Dies ist Benchmark-/Browser-QA, keine Prüfung auf einem physischen
 iOS-Gerät.
 
+Dasselbe mobile Touch-Profil begrenzt die aktive Welt auf die nächsten 5.000
+LoD2-Gebäude. Nach dem ersten Bild aus 320 Gebäuden erhält der verzögert
+gestartete Worker nur die übrigen 4.680 Gebäudedatensätze, keine zweite Kopie
+von Gelände- oder Flächendaten, und erzeugt keine exakten `surface-*`-
+Worker-Flächenfamilien. Rastergelände, -wasser und -asphalt sowie das
+vollständige modellierte Parkwegenetz erhalten den Kartenkontext. ParkDetails
+startet erst danach. Mit Tunnel in der Produktionsszene misst das Touch-Profil
+107.201 Instanzen und 11.422.846 Byte Geometrie- plus Instanzpuffer; das
+Nicht-Touch-Produktionsprofil mit Settled-Detail misst 499.963 Instanzen und
+42.937.418 Byte. Der eingefrorene Vergleichsvertrag ohne Tunnel und
+Settled-Detail bleibt bei
+107.239 Instanzen / 66 Drawables / 11.425.374 Byte für Touch gegenüber 450.038 /
+1.471 / 39.096.522 Byte im Vollprofil. Verborgene Tabs
+stoppen Teilverfeinerungen und starten sie sichtbar sauber neu. Ein
+kalter Minecraft-Start baut oder lädt ParkDetails in keinem Profil und fordert
+surface-polygons.json nicht an. Die Datei bleibt bis zum Wechsel in einen
+gezeichneten Modus oder bis zum Wasser-Kollisionsbedarf des Fußgängermodus
+zurückgestellt. Erst ein tatsächlicher Wechsel in einen beliebigen gezeichneten
+Modus startet die idempotente Parkdetail-Erzeugung. Im Touch-Profil bleibt
+jeweils nur die aktive
+gezeichnete oder Minecraft-Weltfamilie im Speicher. Profilunabhängig erhält ein
+WebGL-Laufzeitfehler genau einen sauberen Neustart; beim zweiten Fehler
+erscheinen Wiederherstellung und 2D-Karte als ausdrückliche Auswahl.
+Nicht-Touch-Desktop behält das vollständige Profil unverändert.
+
 Version {PACKAGE_VERSION} startet Tag, Nacht und Schnee mit einem kompakten
-Geländekontext statt mit den fotografischen GLBs. Die amtliche
-{base_faces_de}-Flächen-Stufe lädt nur noch für die Untersicht oder als echte
-Fehlerreserve; die archivierte {settled_faces_de}-Flächen-Stufe wird bei der
-normalen Navigation nicht im Hintergrund angefordert. Minecraft-Gebäude und
--Bäume bleiben bis zum Wechsel in diesen Modus ebenfalls ungeladen.
+Geländekontext statt mit den fotografischen GLBs. Auf Nicht-Touch-Desktop lädt
+die amtliche
+{base_faces_de}-Flächen-Stufe nur noch für die Untersicht oder als echte
+Fehlerreserve; mobileähnliche Touch-Sitzungen laden diese alte Foto-Hülle auch
+dort nicht. Die archivierte {settled_faces_de}-Flächen-Stufe wird bei der normalen
+Navigation nicht im Hintergrund angefordert. Minecraft-Gebäude und -Bäume
+bleiben bis zum Wechsel in diesen Modus ebenfalls ungeladen.
 Fehlgeschlagene JSON-Dateien werden einmal wiederholt und nach 45 Sekunden
 sauber abgebrochen. Beim Wechsel zur 2D-Karte geben Touchgeräte die inaktive
 3D-Szene vollständig frei. Verlorene Pointer-Captures, Fensterwechsel, globale
@@ -3749,22 +3778,47 @@ smooth architectural overlays stay hidden in Minecraft. Existing entrance
 portals, open passages and free orbit, pan, zoom, flight and pedestrian
 navigation remain available.
 
-On mobile/coarse-pointer devices, version {PACKAGE_VERSION} bounds Minecraft
-memory: the mobile profile measures 845,561 instances / 63.265 MiB of instance
-buffers versus 3,419,412 / 249.815 MiB for the unchanged full profile. Only
-mobile omits generic facade panes and meadow flowers and collapses non-Hero
-source columns; Hero courses up to 8 m, signatures and navigation remain.
-Coarse WebGL uses no renderer MSAA, a 0x UnsignedByte composer and SMAA, while
+Version {PACKAGE_VERSION} bounds Minecraft in the mobile-like touch profile,
+which applies when the primary or any pointer is coarse or
+navigator.maxTouchPoints > 0. It measures 845,561 instances / 63.265 MiB of instance buffers
+versus 3,419,412 / 249.815 MiB for the unchanged full profile. Only this profile
+omits generic facade panes and meadow flowers and collapses non-Hero source
+columns; Hero courses up to 8 m, signatures and navigation remain. Touch-profile
+WebGL uses no renderer MSAA, a 0x UnsignedByte composer and SMAA, while non-touch
 desktop stays at 4x HalfFloat. Inactive world builds are canceled, failed
 voxel attachment rolls back, and smooth park details remain hidden without
 toon clones in voxel mode. This is benchmark/browser QA, not validation on a
 physical iOS device.
 
+The same mobile-like touch drawn profile bounds the active world to the nearest
+5,000 LoD2 buildings. After the first 320-building frame, its delayed Worker receives
+only the remaining 4,680 building records, no duplicate ground or surface
+payload, and creates no exact `surface-*` Worker families. Raster ground,
+water and asphalt plus the complete authored park-path network preserve the map
+context. ParkDetails starts afterwards. With the tunnel in production, the touch
+profile measures 107,201 instances and 11,422,846 bytes of geometry plus
+instance buffers; the non-touch settled production profile measures 499,963
+instances and 42,937,418 bytes. The frozen comparison contract excludes tunnel
+and settled detail and remains 107,239 instances / 66 drawables / 11,425,374
+bytes touch versus 450,038 / 1,471 / 39,096,522 bytes full.
+Hidden tabs stop partial refinement and restart it cleanly when visible. A cold
+Minecraft start neither builds nor loads ParkDetails in either profile and does not request
+surface-polygons.json. That file remains deferred until a transition to a drawn
+mode or until pedestrian mode needs water collision. The
+first actual switch to any drawn mode starts the idempotent park-detail
+construction. The touch profile retains only the active drawn or Minecraft
+world family.
+In every profile, a WebGL runtime failure receives exactly one clean restart; a
+second failure shows Recovery and 2D-map choices explicitly. Non-touch desktop's
+full profile is unchanged.
+
 Version {PACKAGE_VERSION} starts Day, Night and Snow from a compact terrain
-context instead of photographic GLBs. The official {base_faces_en}-face shell
-loads only for the underside or real failure recovery; the archived
-{settled_faces_en}-face tier is not requested during normal navigation.
-Minecraft buildings and trees remain lazy until that mode is selected. Failed
+context instead of photographic GLBs. On non-touch desktop, the official
+{base_faces_en}-face shell loads only for the underside or real failure
+recovery; mobile-like touch sessions do not load that legacy photo shell there
+either. The archived {settled_faces_en}-face tier is not requested during
+normal navigation. Minecraft buildings and trees remain lazy until that mode
+is selected. Failed
 JSON transfers retry once and stop cleanly after 45 seconds. Touch devices
 release inactive 3D when switching to the 2D map. Lost pointer capture, window
 focus, global pointer release and a ten-second watchdog prevent stuck input.
@@ -3783,8 +3837,9 @@ recognition models add the Reichstag west portico, towers and 40 x 23.5 m dome;
 the Chancellery 36 m cube and LoD2-aligned 18 m bands; Hauptbahnhof's 321 m
 glass roof, 180 x 42 m crossing hall and 46 m frames; and the 62.5 x 11 x 26 m
 Brandenburg Gate with twelve columns and a patinated Quadriga. The official
-photographic shell remains bundled as an underside/failure fallback rather
-than loading underneath the ordinary drawn city.
+photographic shell remains bundled as an underside/failure fallback for
+non-touch desktop only rather than loading underneath the ordinary drawn city;
+mobile-like touch sessions never allocate it for either presentation.
 
 The central Chancellery building now reveals its externally visible spatial
 sequence behind cool transparent glass: split gallery plates around a 14.4 m
@@ -3956,6 +4011,15 @@ def write_package_manifest(package_dir: Path) -> None:
       "true-threejs-3d-orbit",
       "cancelable-progressive-model-loading",
       "demand-only-photogrammetry-fallback",
+      "mobile-like-touch-no-photogrammetry-fallback",
+      "touch-capability-mobile-profile",
+      "mobile-building-only-progressive-worker",
+      "hidden-tab-progressive-pause-and-restart",
+      "sequential-mobile-progressive-and-park-build",
+      "mobile-family-keyed-single-world-residency",
+      "single-clean-webgl-runtime-recovery",
+      "explicit-recovery-or-2d-after-repeat-failure",
+      "minecraft-defers-surface-polygons-until-drawn-or-pedestrian",
       "timeout-and-retry-json-loading",
       "http11-immutable-heavy-asset-cache",
       "keyboard-arrow-screen-plane-flight",

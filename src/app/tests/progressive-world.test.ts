@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry,
+  BufferGeometry,
   Group,
   InstancedMesh,
   LineBasicMaterial,
@@ -24,10 +25,13 @@ import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   MAX_PROGRESSIVE_BUILDING_BATCHES,
   MOBILE_INITIAL_BUILDING_COUNT,
+  MOBILE_TOTAL_BUILDING_LIMIT,
   PAVING_POLYGON_BATCH_SIZE,
   PROGRESSIVE_BUILDING_BATCH_SIZE,
   progressiveWorldStopPolicy,
   progressiveWorldTransition,
+  progressiveWorldVisibilityTransition,
+  progressiveHeavyRoadPlatesEnabled,
   releaseProgressiveWorldBatches,
   splitProgressiveBuildings,
   splitRoadSurfaceFamily,
@@ -50,6 +54,9 @@ import {
 const meshRoot = `${import.meta.dir}/../public/mesh/regierungsviertel`;
 const threeViewerSource = await Bun.file(
   new URL("../src/ThreeViewer.tsx", import.meta.url),
+).text();
+const progressiveWorkerSource = await Bun.file(
+  new URL("../src/progressiveWorld.worker.ts", import.meta.url),
 ).text();
 
 function building(id: string, xDm: number, zDm: number): PrismBuilding {
@@ -88,6 +95,101 @@ describe("progressive exact-world scheduling", () => {
     expect(new Set(ids).size).toBe(buildings.length);
   });
 
+  test("bounds the coarse-pointer LoD2 city while desktop stays source-complete", () => {
+    const buildings = Array.from({ length: 29_818 }, (_, index) =>
+      building(String(index), 3_177 + index * 20, 405),
+    );
+    const mobile = splitProgressiveBuildings(
+      buildings,
+      MOBILE_INITIAL_BUILDING_COUNT,
+      PROGRESSIVE_BUILDING_BATCH_SIZE,
+      MOBILE_TOTAL_BUILDING_LIMIT,
+    );
+    const desktop = splitProgressiveBuildings(
+      buildings,
+      DESKTOP_INITIAL_BUILDING_COUNT,
+    );
+
+    expect(MOBILE_TOTAL_BUILDING_LIMIT).toBeLessThanOrEqual(5_000);
+    expect([...mobile.initial, ...mobile.remaining.flat()]).toHaveLength(
+      MOBILE_TOTAL_BUILDING_LIMIT,
+    );
+    expect(mobile.initial).toHaveLength(MOBILE_INITIAL_BUILDING_COUNT);
+    expect(mobile.remaining).toHaveLength(1);
+    expect([...desktop.initial, ...desktop.remaining.flat()]).toHaveLength(
+      buildings.length,
+    );
+  });
+
+  test("keeps exact heavy road plates on desktop and raster asphalt on phones", async () => {
+    expect(progressiveHeavyRoadPlatesEnabled("full")).toBeTrue();
+    expect(progressiveHeavyRoadPlatesEnabled("mobile")).toBeFalse();
+    const [ground, surfaces] = await Promise.all([
+      Bun.file(`${meshRoot}/ground-context.json`).json() as Promise<VoxelPayload>,
+      Bun.file(`${meshRoot}/surface-polygons.json`).json() as Promise<SurfacePayload>,
+    ]);
+    const source = building("ordinary", 0, 0);
+    const payload = {
+      buildings: [source],
+      classes: ["concrete"],
+      schema_version: 1,
+    };
+    const deferred = createIsometricCity(payload, ground, null, surfaces, {
+      buildings: [source],
+      includeContext: false,
+      smoothSurfaces: null,
+    });
+    const mobile = createIsometricCity(payload, ground, null, surfaces, {
+      buildings: [source],
+      includeContext: false,
+      retainRasterAsphalt: true,
+      smoothSurfaces: null,
+    });
+    const deferredSlabs = deferred.getObjectByName(
+      "Drawn ground slabs",
+    ) as InstancedMesh;
+    const mobileSlabs = mobile.getObjectByName(
+      "Drawn ground slabs",
+    ) as InstancedMesh;
+    expect(mobileSlabs.count).toBeGreaterThan(deferredSlabs.count);
+  });
+
+  test("posts a slim building-only payload to the mobile Worker", () => {
+    const inputStart = threeViewerSource.indexOf(
+      "const progressiveInput: ProgressiveWorldWorkerInput",
+    );
+    const desktopBranch = threeViewerSource.indexOf(
+      ": ground && surfaces",
+      inputStart,
+    );
+    const mobileBranch = threeViewerSource.slice(inputStart, desktopBranch);
+    expect(inputStart).toBeGreaterThan(0);
+    expect(desktopBranch).toBeGreaterThan(inputStart);
+    expect(mobileBranch).toContain('detailProfile: "mobile"');
+    expect(mobileBranch).toContain("initialBuildingCount: 0");
+    expect(mobileBranch).toContain("buildings: mobileWorkerBuildings");
+    expect(mobileBranch).not.toContain("ground,");
+    expect(mobileBranch).not.toContain("sceneRootUrl:");
+    expect(mobileBranch).not.toContain("surfaces,");
+    expect(mobileBranch).not.toContain("tunnel:");
+
+    const workerMobileStart = progressiveWorkerSource.indexOf(
+      'if (input.detailProfile === "mobile")',
+    );
+    const workerDesktopStart = progressiveWorkerSource.indexOf(
+      "const heavyRoadPlates",
+      workerMobileStart,
+    );
+    const workerMobileBranch = progressiveWorkerSource.slice(
+      workerMobileStart,
+      workerDesktopStart,
+    );
+    expect(workerMobileBranch).toContain("postBuildingBatches(input)");
+    expect(workerMobileBranch).not.toContain("postSurface(");
+    expect(workerMobileBranch).not.toContain("createSmoothSurfaces(");
+    expect(workerMobileBranch).toContain("pretriangulated: false");
+  });
+
   test("pauses only for Minecraft and retains partial exact batches on errors", () => {
     expect(progressiveWorldTransition("minecraft", "loading")).toBe("pause");
     expect(progressiveWorldTransition("minecraft", "complete")).toBe("pause");
@@ -112,6 +214,55 @@ describe("progressive exact-world scheduling", () => {
     releaseProgressiveWorldBatches(batches, (batch) => disposed.push(batch));
     expect(disposed).toEqual(["water", "buildings"]);
     expect(batches).toEqual([]);
+  });
+
+  test("stops hidden-tab refinement and restarts it without retaining partial batches", () => {
+    expect(progressiveWorldVisibilityTransition(true, "loading")).toBe(
+      "pause",
+    );
+    expect(progressiveWorldVisibilityTransition(true, "complete")).toBe(
+      "none",
+    );
+    expect(progressiveWorldVisibilityTransition(false, "idle")).toBe(
+      "resume",
+    );
+    expect(progressiveWorldVisibilityTransition(false, "loading")).toBe(
+      "none",
+    );
+    expect(threeViewerSource).toContain(
+      "cancelScheduledProgressiveWorld(runtime)",
+    );
+    expect(threeViewerSource).toContain(
+      'window.addEventListener("pagehide", onPageHide)',
+    );
+    expect(threeViewerSource).toContain(
+      'window.addEventListener("pageshow", onPageShow)',
+    );
+    expect(threeViewerSource).toContain("resize(true)");
+  });
+
+  test("starts mobile ParkDetails only after exact refinement settles", () => {
+    const completionStart = threeViewerSource.indexOf(
+      'progressiveWorldStopPolicy("complete").nextState',
+    );
+    const parkAfterCompletion = threeViewerSource.indexOf(
+      "if (runtime.coarsePointer) runtime.startDeferredDetails()",
+      completionStart,
+    );
+    expect(completionStart).toBeGreaterThan(0);
+    expect(parkAfterCompletion).toBeGreaterThan(completionStart);
+
+    const parkScheduler = threeViewerSource.slice(
+      threeViewerSource.indexOf("runtime.startDeferredDetails = () =>"),
+      threeViewerSource.indexOf("runtime.tunnel = createTunnel("),
+    );
+    expect(parkScheduler).toContain(
+      'runtime.progressiveWorldState === "loading"',
+    );
+    expect(parkScheduler).toContain(
+      'runtime.progressiveWorldState === "idle"',
+    );
+    expect(parkScheduler).toContain("document.hidden");
   });
 
   test("bounds unavailable Worker APIs outside the exact-preview promise", () => {
@@ -270,6 +421,67 @@ describe("progressive exact-world scheduling", () => {
     expect(preview.getObjectByName("Drawn ground slabs")).not.toBeNull();
     expect(preview.getObjectByName("drawn quay walls")).toBeUndefined();
     expect(preview.getObjectByName("smooth quay walls")).toBeUndefined();
+  });
+
+  test("the production mobile preview retains bounded static water, bed and quays", async () => {
+    const [ground, surfaces] = await Promise.all([
+      Bun.file(`${meshRoot}/ground-context.json`).json() as Promise<VoxelPayload>,
+      Bun.file(`${meshRoot}/surface-polygons.json`).json() as Promise<SurfacePayload>,
+    ]);
+    const source = building("ordinary", 0, 0);
+    const preview = createIsometricCity(
+      { buildings: [source], classes: ["concrete"], schema_version: 1 },
+      ground,
+      null,
+      surfaces,
+      {
+        buildings: [source],
+        includeContext: false,
+        retainRasterAsphalt: true,
+        retainRasterWater: true,
+        smoothSurfaces: null,
+      },
+    );
+    const bed = preview.getObjectByName("drawn river bed") as InstancedMesh;
+    const water = preview.getObjectByName(
+      "drawn water surface",
+    ) as InstancedMesh;
+    const quays = preview.getObjectByName("drawn quay walls") as Mesh;
+    const quayInk = preview.getObjectByName("quay ink lines") as LineSegments;
+    expect(bed).toBeInstanceOf(InstancedMesh);
+    expect(water).toBeInstanceOf(InstancedMesh);
+    expect(water.count).toBe(4_263);
+    expect(bed.count).toBe(water.count);
+    expect(quays).toBeInstanceOf(Mesh);
+    expect(quayInk).toBeInstanceOf(LineSegments);
+    expect(preview.getObjectByName("smooth water surface")).toBeUndefined();
+    expect(preview.getObjectByName("smooth river bed")).toBeUndefined();
+    expect(preview.getObjectByName("smooth quay walls")).toBeUndefined();
+
+    const seenGeometries = new Set<BufferGeometry>();
+    let retainedBytes = 0;
+    for (const object of [bed, water, quays, quayInk]) {
+      if (!seenGeometries.has(object.geometry)) {
+        seenGeometries.add(object.geometry);
+        for (const attribute of Object.values(object.geometry.attributes)) {
+          retainedBytes += attribute.array.byteLength;
+        }
+        retainedBytes += object.geometry.index?.array.byteLength ?? 0;
+      }
+      if (object instanceof InstancedMesh) {
+        retainedBytes += object.instanceMatrix.array.byteLength;
+        retainedBytes += object.instanceColor?.array.byteLength ?? 0;
+      }
+    }
+    expect(retainedBytes).toBeLessThan(4 * 1024 * 1024);
+
+    const isoLoader = threeViewerSource.slice(
+      threeViewerSource.indexOf("function ensureIsoWorld("),
+      threeViewerSource.indexOf("function ensureVoxelWorld("),
+    );
+    expect(isoLoader).toContain(
+      "retainRasterWater: runtime.coarsePointer",
+    );
   });
 
   test("production follow-up groups stay inside the steady draw-call budget", async () => {

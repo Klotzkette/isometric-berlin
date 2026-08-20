@@ -65,6 +65,17 @@ offers Reload and the 2D map rather than leaving the 3D surface blank. Asset
 retention remains required because it also preserves uninterrupted sessions
 that have not yet loaded the new recovery runtime.
 
+v0.72.9 separately bounds failures after the 3D runtime is already active.
+Recovery is not gated by touch capability: every profile releases the failed
+canvas and active world and performs exactly one clean remount for that world
+family. A second failure presents explicit Recovery and 2D-map actions; it does
+not start another renderer, retain a second world or select the DZI map
+automatically. Separately, a mobile-like touch session—primary or any coarse
+pointer, or `navigator.maxTouchPoints > 0`—keeps only one heavy world family
+resident across family changes. Non-touch desktop's complete warm-scene
+behavior is unchanged. These are source, production-profile and automated-browser
+release contracts, not a claim of physical iOS-device validation.
+
 If a future deployment separates heavy assets, the DZI pyramid and mesh can be
 placed on an object store such as Cloudflare R2. Attribution and relative-path
 requirements from `AGENTS.md` and `NOTICE.md` remain mandatory.

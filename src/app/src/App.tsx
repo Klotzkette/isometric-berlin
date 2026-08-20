@@ -67,7 +67,10 @@ import {
 } from "react";
 
 import type { ThreeViewerHandle } from "./ThreeViewer";
-import { ThreeViewerErrorBoundary } from "./ThreeViewerErrorBoundary";
+import {
+  ThreeViewerErrorBoundary,
+  ThreeViewerLoadErrorFallback,
+} from "./ThreeViewerErrorBoundary";
 import {
   AmbientSoundscape,
   isAmbientAudioSupported,
@@ -85,6 +88,12 @@ import {
   shouldStopAudioOnToggleTap,
 } from "./audioAutostart";
 import { registerAudioLifecycle } from "./audioLifecycle";
+import {
+  browserUsesMobileViewerProfile,
+  mobileWorldFamilyChanges,
+  threeViewerWorldFamily,
+  viewerRuntimeFailureDecision,
+} from "./viewerResidency";
 import {
   CONTROL_DOCK_SIDE_STORAGE_KEY,
   type ControlDockSide,
@@ -680,6 +689,9 @@ export function App() {
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const brandRevealTimerRef = useRef<number | null>(null);
   const minecraftSparkTimerRef = useRef<number | null>(null);
+  const activeThreeViewerKeyRef = useRef("");
+  const threeViewerAutoRecoveryUsedRef = useRef(false);
+  const threeViewerGenerationRef = useRef(0);
   const selectedRef = useRef(DEFAULT_FOCUS_LANDMARK);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [selected, setSelected] = useState<string>(DEFAULT_FOCUS_LANDMARK);
@@ -707,6 +719,10 @@ export function App() {
   const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
   const [isThreeReady, setIsThreeReady] = useState(false);
+  const [threeRuntimeError, setThreeRuntimeError] = useState<string | null>(
+    null,
+  );
+  const [threeViewerGeneration, setThreeViewerGeneration] = useState(0);
   const [isThreeUnderside, setIsThreeUnderside] = useState(false);
   const [isPedestrianMode, setIsPedestrianMode] = useState(false);
   const [isPedestrianSprinting, setIsPedestrianSprinting] = useState(false);
@@ -749,8 +765,14 @@ export function App() {
     () => !window.matchMedia(COMPACT_LAYOUT_MEDIA_QUERY).matches,
   );
   const [keepThreeWarm] = useState(
-    () => !window.matchMedia("(pointer: coarse)").matches,
+    () => !browserUsesMobileViewerProfile(),
   );
+  const threeViewerFamily = threeViewerWorldFamily(
+    lightingMode,
+    keepThreeWarm,
+  );
+  const threeViewerInstanceKey = `${threeViewerFamily}-${threeViewerGeneration}`;
+  activeThreeViewerKeyRef.current = threeViewerInstanceKey;
   const compactCoachActive = showCoachMark && isCompactLayout;
 
   const tileSource = useMemo(() => regierungsviertelTileSource(), []);
@@ -1835,6 +1857,21 @@ export function App() {
     (next: VisualMode) => {
       const previous = lightingModeRef.current;
       lightingModeRef.current = next;
+      const changesMobileWorldFamily = mobileWorldFamilyChanges(
+        previous,
+        next,
+        keepThreeWarm,
+      );
+      if (changesMobileWorldFamily) {
+        // React unmounts the previous ThreeViewer before constructing the new
+        // family, releasing its scene, parsed payloads and WebGL context. A
+        // phone therefore never retains the full drawn and voxel worlds at
+        // the same time. Browser cache still avoids repeat network transfer.
+        setIsThreeReady(false);
+        setIsThreeUnderside(false);
+        setThreeRuntimeError(null);
+        threeViewerAutoRecoveryUsedRef.current = false;
+      }
       if (next === "schwellenraum" && previous !== "schwellenraum") {
         // Invalidate any normal-layer start that was still waiting for the
         // browser when this mode-selection gesture arrived. Its post-await
@@ -1881,6 +1918,7 @@ export function App() {
     },
     [
       copy,
+      keepThreeWarm,
       resumeStandardAudio,
       startSchwellenraumAudio,
     ],
@@ -2021,6 +2059,7 @@ export function App() {
     disablePedestrianMode();
     setIsThreeReady(false);
     setIsThreeUnderside(false);
+    setThreeRuntimeError(null);
     setViewerMode("map");
     setStatus(copy.threeLoadError);
   }, [copy.threeLoadError, disablePedestrianMode]);
@@ -2028,6 +2067,45 @@ export function App() {
   const reloadAfterThreeViewerFailure = useCallback(() => {
     window.location.reload();
   }, []);
+
+  const handleThreeViewerRuntimeError = useCallback(
+    (message: string, failedInstanceKey: string) => {
+      if (activeThreeViewerKeyRef.current !== failedInstanceKey) {
+        return;
+      }
+      console.error(`Isometric Berlin 3D: ${message}`);
+      setIsPedestrianMode(false);
+      setIsThreeReady(false);
+      setIsThreeUnderside(false);
+
+      // A lost mobile context commonly recovers once the old canvas and all
+      // of its CPU/GPU allocations are actually destroyed. Remount exactly
+      // once per world family; a persistent failure becomes a visible choice
+      // instead of silently allocating OpenSeadragon/DZI on top of the crash.
+      if (
+        viewerRuntimeFailureDecision(
+          threeViewerAutoRecoveryUsedRef.current,
+        ) === "restart-clean"
+      ) {
+        threeViewerAutoRecoveryUsedRef.current = true;
+        threeViewerGenerationRef.current += 1;
+        setThreeViewerGeneration(threeViewerGenerationRef.current);
+        setThreeRuntimeError(null);
+        setStatus(
+          language === "de"
+            ? "3D wird speicherschonend neu gestartet"
+            : "Restarting 3D with a clean memory state",
+        );
+        return;
+      }
+
+      setThreeRuntimeError(message);
+      setStatus(
+        `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
+      );
+    },
+    [language],
+  );
 
   const toggleChrome = useCallback(() => {
     setMobileSheet(null);
@@ -3033,7 +3111,19 @@ export function App() {
           className={viewerMode === "map" ? "viewer is-active" : "viewer"}
         />
         {viewerMode === "three" || (isThreeReady && keepThreeWarm) ? (
+          threeRuntimeError ? (
+            <ThreeViewerLoadErrorFallback
+              active={viewerMode === "three"}
+              detail={copy.threeLoadErrorDetail}
+              mapLabel={copy.useMapFallback}
+              message={copy.threeLoadError}
+              reloadLabel={copy.reloadPage}
+              onReload={reloadAfterThreeViewerFailure}
+              onUseMap={useMapAfterThreeViewerFailure}
+            />
+          ) : (
           <ThreeViewerErrorBoundary
+            key={threeViewerInstanceKey}
             active={viewerMode === "three"}
             detail={copy.threeLoadErrorDetail}
             mapLabel={copy.useMapFallback}
@@ -3080,7 +3170,14 @@ export function App() {
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 onReady={() => {
+                  if (
+                    activeThreeViewerKeyRef.current !==
+                    threeViewerInstanceKey
+                  ) {
+                    return;
+                  }
                   setIsThreeReady(true);
+                  setThreeRuntimeError(null);
                   setStatus(
                     language === "de"
                       ? "Isometrische Ansicht bereit"
@@ -3088,13 +3185,10 @@ export function App() {
                   );
                 }}
                 onError={(message) => {
-                  console.error(`Isometric Berlin 3D: ${message}`);
-                  setIsPedestrianMode(false);
-                  setIsThreeReady(false);
-                  setStatus(
-                    `${language === "de" ? "3D nicht verfügbar" : "3D unavailable"}: ${message}`,
+                  handleThreeViewerRuntimeError(
+                    message,
+                    threeViewerInstanceKey,
                   );
-                  setViewerMode("map");
                 }}
                 onPedestrianRespawn={() => {
                   setStatus(
@@ -3121,6 +3215,7 @@ export function App() {
               />
             </Suspense>
           </ThreeViewerErrorBoundary>
+          )
         ) : null}
         {rainEnabled && viewerMode === "map" && lightingMode !== "snowstorm" ? (
           <div

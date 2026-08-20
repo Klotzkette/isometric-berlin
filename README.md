@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.8 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.8/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.9 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.9/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.8** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.9** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,20 +50,45 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.8**, built from `main`. Its full viewer
+The current public package is **v0.72.9**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
 
-- **Mobile Minecraft and WebGL now stay inside a substantially smaller memory
-  budget.** The coarse-pointer world benchmark is **845,561 instances / 63.265
+- **Mobile-like touch sessions retain one bounded world family at a time.** This
+  profile applies when the primary or any pointer is coarse, or the browser
+  reports `navigator.maxTouchPoints > 0`. Its drawn city stops after the nearest
+  **5,000 LoD2 buildings**. The delayed Worker receives
+  only the 4,680 records beyond the first 320-building frame—no duplicate
+  ground or surface payload—and creates no exact `surface-*` Worker batches.
+  Raster ground, water and asphalt plus the complete authored park-path network
+  retain the map reading. With the tunnel in production, park detail measures
+  **107,201 instances and 11,422,846 bytes of geometry plus instance buffers**
+  in the touch profile; non-touch settled production measures **499,963
+  instances and 42,937,418 bytes**. The frozen no-tunnel/no-settled-detail
+  comparison remains **107,239 / 66 drawables / 11,425,374 bytes** touch versus
+  **450,038 / 1,471 / 39,096,522 bytes** full. Hidden tabs stop partial
+  refinement and restart it cleanly
+  when visible. A cold Minecraft start builds no ParkDetails in either profile
+  and delays `surface-polygons.json` until an actual switch to a drawn mode or
+  pedestrian water collision needs it. Touch-profile underside and failure
+  paths do not allocate the legacy photogrammetric shell. Switching between
+  drawn and voxel families remounts a single clean WebGL world on the touch
+  profile. Independently of profile, a runtime failure gets one automatic clean
+  remount, then visible Recovery and 2D-map choices. Non-touch desktop keeps the
+  complete building, surface, park and photogrammetry behavior unchanged. These
+  are frozen production-profile budgets and automated contracts, not
+  physical-device or iOS claims.
+
+- **Touch-profile Minecraft and WebGL stay inside a substantially smaller memory
+  budget.** The mobile-like touch world benchmark is **845,561 instances / 63.265
   MiB of instance buffers**, compared with the unchanged full profile's
-  **3,419,412 / 249.815 MiB**. Only mobile omits generic facade panes and meadow
-  flowers and collapses non-Hero source columns; all Hero courses up to 8 m,
-  block signatures and navigation stay intact. Coarse WebGL disables renderer
-  MSAA and uses a 0x `UnsignedByte` composer with SMAA, while desktop remains
-  4x `HalfFloat`. Inactive world builds are canceled, failed voxel attachment
-  rolls back, and the smooth park stays hidden without toon clones in voxel
+  **3,419,412 / 249.815 MiB**. Only the touch profile omits generic facade panes
+  and meadow flowers and collapses non-Hero source columns; all Hero courses up
+  to 8 m, block signatures and navigation stay intact. Touch-profile WebGL disables
+  renderer MSAA and uses a 0x `UnsignedByte` composer with SMAA, while non-touch
+  desktop remains 4x `HalfFloat`. Inactive world builds are canceled, failed
+  voxel attachment rolls back, and the smooth park stays hidden without toon clones in voxel
   mode. This is benchmark- and browser-tested, not a claim of physical iOS
   device validation.
 
@@ -296,8 +321,11 @@ local modules.
   a 2.22 MiB
   ground-only context for the expanded terrain; the losslessly row-compressed
   5.30 MiB Minecraft instance payload stays lazy, and
-  the 29.9 MiB photo shell plus hero crops are requested only for an underside
-  cutaway or genuine drawn-world failure. The normal Reichstag start drops
+  the 29.9 MiB photo shell plus hero crops are requested on non-touch desktop
+  only for an underside cutaway or genuine drawn-world failure. Mobile-like
+  touch sessions
+  retain the authored cutaway/recovery presentation without that shell. The
+  normal Reichstag start drops
   from about 151.8 MiB to 6.6 MiB of uncompressed scene requests, a 95.7%
   reduction. JSON requests time out and retry rather than hanging forever,
   while browsers without WebGL 2 switch cleanly to the map fallback.
@@ -847,8 +875,10 @@ local modules.
   opaque, mode-coloured loading curtain. Day, Night, Minecraft, Snowstorm and
   Schwellenraum reveal
   their first city frame only after the requested drawn world is ready; the old
-  photo surface is visible only as an explicit load-failure fallback or in the
-  designed underground cutaway context.
+  photo surface remains an explicit load-failure fallback and designed
+  underground cutaway context for non-touch desktop only. Mobile-like touch
+  sessions do not allocate
+  it for either case.
 
 - The compact Sights rail now presents the five primary orientation points:
   Hauptbahnhof, Bundeskanzleramt, Reichstag, Brandenburg Gate and Siegessäule.
@@ -993,7 +1023,9 @@ local modules.
   severe roof and facade folds crisp while preserving terrain and vegetation.
   These photo tiers are now demand-only source/detail fallbacks: the normal
   drawn viewer loads neither, while the lighter interaction shell remains
-  available for the underside cutaway or failure recovery. The old
+  available on non-touch desktop for the underside cutaway or failure recovery.
+  Touch-profile sessions keep the authored cutaway/recovery view without that
+  shell. The old
   10,672,385 face-equivalent desktop presentation remains documented as an
   archived capacity figure, including instanced microcrowns rather than unique
   surveyed polygons. Source-texture vertex
@@ -1211,9 +1243,11 @@ local modules.
 - The complete offline archive still contains 26 interaction GLBs, 26
   settled-detail GLBs and 22 hero parts, each below 5 MiB. Normal drawn modes
   no longer request those photographic tiers in the background; the base shell
-  remains a demand-only underside/failure fallback. JSON core data loads with
-  bounded retries and a 45-second ceiling, optional park detail waits until the
-  first usable city frame, and existing GLB normals avoid recalculating roughly
+  remains a demand-only underside/failure fallback for non-touch desktop, while
+  the touch profile never loads it. JSON core data loads with bounded retries
+  and a 45-second
+  ceiling, optional park detail waits until the first usable drawn city frame,
+  and existing GLB normals avoid recalculating roughly
   2.6 million triangles when the fallback is actually needed.
 - Mobile devices retain only the selected high-resolution hero group; desktop
   retains the two most recent. Evicted geometry, materials and textures are

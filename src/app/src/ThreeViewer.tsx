@@ -208,8 +208,10 @@ import {
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   MOBILE_INITIAL_BUILDING_COUNT,
+  MOBILE_TOTAL_BUILDING_LIMIT,
   progressiveWorldStopPolicy,
   progressiveWorldTransition,
+  progressiveWorldVisibilityTransition,
   releaseProgressiveWorldBatches,
   splitProgressiveBuildings,
   tryProgressiveWorkerOperation,
@@ -283,6 +285,7 @@ import {
   stableWebglMemoryProfile,
   stableViewportSize,
 } from "./renderQuality";
+import { browserUsesMobileViewerProfile } from "./viewerResidency";
 import { shouldUseSettledSurface } from "./surfaceQuality";
 import { fetchJsonWithRetry } from "./resilientFetch";
 import { updateWindFlags } from "./WindFlags";
@@ -520,9 +523,11 @@ type Runtime = {
   progressiveWorldBatches: Group[];
   progressiveWorldInput?: ProgressiveWorldWorkerInput;
   progressiveWorldState: ProgressiveWorldState;
+  progressiveWorldStartCancel?: () => void;
   progressiveWorldWorker?: Worker;
   loadSignal: AbortSignal;
   ensurePhotoSurface: () => void;
+  ensurePedestrianWater: () => void;
   photoSurfaceState: "failed" | "idle" | "loading" | "ready";
   reportCoreProgress: (loaded: number, total: number) => void;
   startDeferredDetails: () => void;
@@ -732,7 +737,13 @@ export function startupCurtainMayOpen(
 export function photographicSurfaceNeeded(
   status: StartupPresentationStatus,
   underside: boolean,
+  coarsePointer = false,
 ): boolean {
+  // Phones use the authored tunnel/network cutaway without allocating the
+  // legacy 31 MiB photographic shell.  It is especially harmful after a
+  // WebGL memory failure, where loading another large scene is the opposite
+  // of recovery.  Desktop retains the richer underside/failure fallback.
+  if (coarsePointer) return false;
   return underside || status === "fallback";
 }
 
@@ -2082,6 +2093,7 @@ function restoreProgressiveWorld(
   runtime: Runtime,
   snapshot: ProgressiveWorldSnapshot,
 ): void {
+  cancelScheduledProgressiveWorld(runtime);
   if (
     runtime.progressiveWorldWorker &&
     runtime.progressiveWorldWorker !== snapshot.worker
@@ -2248,6 +2260,7 @@ function failProgressiveWorld(
   // isoWorld and will be disposed with it; only the restart bookkeeping ends.
   runtime.progressiveWorldBatches = [];
   runtime.renderInvalidated = true;
+  if (runtime.coarsePointer) runtime.startDeferredDetails();
   warn(PROGRESSIVE_WORLD_WARNING);
 }
 
@@ -2258,7 +2271,26 @@ function markProgressiveWorldUnavailable(
   runtime.progressiveWorldWorker = undefined;
   runtime.progressiveWorldState = progressiveWorldStopPolicy("error").nextState;
   runtime.renderInvalidated = true;
+  if (runtime.coarsePointer) runtime.startDeferredDetails();
   warn(PROGRESSIVE_WORLD_WARNING);
+}
+
+function cancelScheduledProgressiveWorld(runtime: Runtime): void {
+  runtime.progressiveWorldStartCancel?.();
+  runtime.progressiveWorldStartCancel = undefined;
+}
+
+function stopProgressiveWorld(runtime: Runtime): void {
+  cancelScheduledProgressiveWorld(runtime);
+  runtime.progressiveWorldWorker?.terminate();
+  runtime.progressiveWorldWorker = undefined;
+  runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
+  releaseProgressiveWorldBatches(
+    runtime.progressiveWorldBatches,
+    (batch) => disposeObject3D(runtime, batch),
+  );
+  collectFarZoomAntiFlickerTargets(runtime);
+  runtime.renderInvalidated = true;
 }
 
 function startProgressiveWorld(
@@ -2268,6 +2300,8 @@ function startProgressiveWorld(
   const input = runtime.progressiveWorldInput;
   if (
     runtime.disposed ||
+    document.hidden ||
+    !isoWorldIntentActive(runtime) ||
     !input ||
     runtime.progressiveWorldState !== "idle"
   ) {
@@ -2291,6 +2325,10 @@ function startProgressiveWorld(
     event: MessageEvent<ProgressiveWorldWorkerOutput>,
   ): void => {
     if (runtime.disposed || worker !== runtime.progressiveWorldWorker) return;
+    if (document.hidden) {
+      stopProgressiveWorld(runtime);
+      return;
+    }
     const message = event.data;
     if (message.type === "batch") {
       let object: Object3D;
@@ -2334,12 +2372,70 @@ function startProgressiveWorld(
     collectFarZoomAntiFlickerTargets(runtime);
     runtime.renderInvalidated = true;
     performance.mark("isometric-city-exact-ready");
+    if (runtime.coarsePointer) runtime.startDeferredDetails();
   };
   worker.onerror = (): void => {
     failProgressiveWorld(runtime, worker, warn);
   };
   const posted = tryProgressiveWorkerOperation(() => worker.postMessage(input));
   if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
+}
+
+/**
+ * Let the committed mobile preview paint and release constructor temporaries
+ * before another realm starts building exact batches. The input stays owned
+ * by Runtime; this scheduler never clones the multi-megabyte payloads.
+ */
+function scheduleProgressiveWorld(
+  runtime: Runtime,
+  warn: (message: string) => void,
+): void {
+  if (
+    runtime.disposed ||
+    document.hidden ||
+    !isoWorldIntentActive(runtime) ||
+    !runtime.progressiveWorldInput ||
+    runtime.progressiveWorldState !== "idle" ||
+    runtime.progressiveWorldStartCancel
+  ) {
+    return;
+  }
+  let cancelled = false;
+  let cancelScheduled = (): void => undefined;
+  const start = (): void => {
+    if (cancelled) return;
+    if (runtime.progressiveWorldStartCancel === cancelScheduled) {
+      runtime.progressiveWorldStartCancel = undefined;
+    }
+    startProgressiveWorld(runtime, warn);
+  };
+  const requestIdle = (
+    window as unknown as {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    }
+  ).requestIdleCallback;
+  if (typeof requestIdle === "function") {
+    const handle = requestIdle(start, { timeout: 1_500 });
+    cancelScheduled = () => {
+      cancelled = true;
+      (
+        window as unknown as {
+          cancelIdleCallback?: (handle: number) => void;
+        }
+      ).cancelIdleCallback?.(handle);
+    };
+  } else {
+    const handle = window.setTimeout(start, 120);
+    cancelScheduled = () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }
+  runtime.progressiveWorldStartCancel = cancelScheduled;
 }
 
 function applyProgressiveWorldMode(
@@ -2352,19 +2448,18 @@ function applyProgressiveWorldMode(
     runtime.progressiveWorldState,
   );
   if (transition === "resume") {
-    startProgressiveWorld(runtime, warn);
+    if (runtime.coarsePointer) {
+      scheduleProgressiveWorld(runtime, warn);
+    } else {
+      startProgressiveWorld(runtime, warn);
+    }
     return;
   }
-  if (transition !== "pause") return;
-  runtime.progressiveWorldWorker?.terminate();
-  runtime.progressiveWorldWorker = undefined;
-  runtime.progressiveWorldState = progressiveWorldStopPolicy("pause").nextState;
-  releaseProgressiveWorldBatches(
-    runtime.progressiveWorldBatches,
-    (batch) => disposeObject3D(runtime, batch),
-  );
-  collectFarZoomAntiFlickerTargets(runtime);
-  runtime.renderInvalidated = true;
+  if (transition === "pause") {
+    stopProgressiveWorld(runtime);
+  } else if (mode === "minecraft") {
+    cancelScheduledProgressiveWorld(runtime);
+  }
 }
 
 function ensureIsoWorld(
@@ -2505,22 +2600,43 @@ function ensureIsoWorld(
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
         : DESKTOP_INITIAL_BUILDING_COUNT;
-      const initialBuildings = splitProgressiveBuildings(
+      const buildingPartition = splitProgressiveBuildings(
         prisms.buildings,
         initialBuildingCount,
-      ).initial;
+        undefined,
+        runtime.coarsePointer
+          ? MOBILE_TOTAL_BUILDING_LIMIT
+          : Number.POSITIVE_INFINITY,
+      );
+      const initialBuildings = buildingPartition.initial;
+      const mobileWorkerBuildings = runtime.coarsePointer
+        ? buildingPartition.remaining.flat()
+        : [];
       const progressiveInput: ProgressiveWorldWorkerInput | null =
-        ground && surfaces
-          ? {
-              ground,
-              initialBuildingCount,
-              prismPayload: prisms,
-              sceneRootUrl: runtime.sceneRootUrl.toString(),
-              surfaces,
-              tunnel: runtime.tunnelPortalCourse,
-              type: "build",
-            }
-          : null;
+        runtime.coarsePointer
+          ? mobileWorkerBuildings.length > 0
+            ? {
+                detailProfile: "mobile",
+                initialBuildingCount: 0,
+                prismPayload: {
+                  ...prisms,
+                  buildings: mobileWorkerBuildings,
+                },
+                type: "build",
+              }
+            : null
+          : ground && surfaces
+            ? {
+                ground,
+                detailProfile: "full",
+                initialBuildingCount,
+                prismPayload: prisms,
+                sceneRootUrl: runtime.sceneRootUrl.toString(),
+                surfaces,
+                tunnel: runtime.tunnelPortalCourse,
+                type: "build",
+              }
+            : null;
       const isoWorld = createIsometricCity(
         prisms,
         ground,
@@ -2528,7 +2644,10 @@ function ensureIsoWorld(
         surfaces,
         {
           buildings: initialBuildings,
-          smoothSurfaces: progressiveInput ? null : undefined,
+          retainRasterAsphalt: runtime.coarsePointer,
+          retainRasterWater: runtime.coarsePointer,
+          smoothSurfaces:
+            runtime.coarsePointer || progressiveInput ? null : undefined,
         },
       );
       provisionalIsoWorld = isoWorld;
@@ -2672,6 +2791,7 @@ function ensureIsoWorld(
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalPedestrianEnvironment) {
         runtime.pedestrian.environment = provisionalPedestrianEnvironment;
+        runtime.ensurePedestrianWater = () => undefined;
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
         }
@@ -2685,8 +2805,15 @@ function ensureIsoWorld(
         runtime.renderInvalidated = true;
       }
       markSurfaceInteraction(runtime, 400, true);
-      runtime.startDeferredDetails();
-      applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
+      if (!runtime.coarsePointer) {
+        runtime.startDeferredDetails();
+        applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
+      } else {
+        applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
+      }
+      if (runtime.coarsePointer && !progressiveInput) {
+        runtime.startDeferredDetails();
+      }
       provisionalIsoWorld = null;
       provisionalPedestrianEnvironment = null;
       mutableRootSnapshots = null;
@@ -2865,30 +2992,39 @@ function ensureVoxelWorld(
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalEnvironment) {
         runtime.pedestrian.environment = provisionalEnvironment;
+        const environment = provisionalEnvironment;
+        let waterRequestStarted = false;
+        runtime.ensurePedestrianWater = () => {
+          if (
+            waterRequestStarted ||
+            runtime.disposed ||
+            runtime.pedestrian.environment !== environment
+          ) {
+            return;
+          }
+          waterRequestStarted = true;
+          void fetchSurfacePayload(runtime)
+            .then((surfaces) => {
+              if (
+                !runtime.disposed &&
+                runtime.pedestrian.environment === environment
+              ) {
+                environment.water = compilePedestrianWater(surfaces);
+              }
+            })
+            // Building, portal and terrain collision are already live; only
+            // water respawn waits for a later drawn-world retry after failure.
+            .catch(() => undefined);
+        };
         if (runtime.pedestrian.requested) {
+          runtime.ensurePedestrianWater();
           activatePedestrianMode(runtime);
         }
-        const environment = provisionalEnvironment;
-        void fetchSurfacePayload(runtime)
-          .then((surfaces) => {
-            if (
-              !runtime.disposed &&
-              runtime.pedestrian.environment === environment
-            ) {
-              environment.water = compilePedestrianWater(surfaces);
-            }
-          })
-          // Building, portal and terrain collision are already live; only
-          // water respawn waits for a later drawn-world retry after failure.
-          .catch(() => undefined);
       }
       markSurfaceInteraction(runtime, 400, true);
-      // A coarse Minecraft-only visit never renders the 450k-instance smooth
-      // park layer. Day's successful loader calls this same idempotent hook,
-      // so deferral is lifecycle-safe and saves its hidden allocation peak.
-      if (!runtime.coarsePointer) {
-        runtime.startDeferredDetails();
-      }
+      // A Minecraft-only visit never renders the smooth park layer. Day's
+      // successful loader calls the same idempotent hook later, so cold voxel
+      // starts must not download/build a large group merely to hide it.
       provisionalVoxelWorld = null;
       provisionalMinecraftMobs = null;
       provisionalEnvironment = null;
@@ -3360,6 +3496,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     photographicSurfaceNeeded(
       currentStartupPresentationStatus(runtime),
       underside,
+      runtime.coarsePointer,
     )
   ) {
     runtime.ensurePhotoSurface();
@@ -3776,6 +3913,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       orbitInputRef.current.set(0, 0);
       pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
       if (pedestrianMode) {
+        runtime.ensurePedestrianWater();
         activatePedestrianMode(runtime);
       } else {
         deactivatePedestrianMode(runtime);
@@ -3812,6 +3950,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         ensureVoxelWorld(runtime, onWarningRef.current);
       }
       applyProgressiveWorldMode(runtime, lightingMode, onWarningRef.current);
+      if (
+        runtime.coarsePointer &&
+        isoWorldIntentActive(runtime) &&
+        (runtime.progressiveWorldState === "complete" ||
+          runtime.progressiveWorldState === "failed" ||
+          !runtime.progressiveWorldInput)
+      ) {
+        runtime.startDeferredDetails();
+      }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
@@ -4206,6 +4353,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return false;
           }
+          if (enabled) {
+            runtime.ensurePedestrianWater();
+          }
           const changed = enabled
             ? activatePedestrianMode(runtime)
             : deactivatePedestrianMode(runtime);
@@ -4329,7 +4479,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let frame = 0;
       let resizeObserver: ResizeObserver | null = null;
       const loadController = new AbortController();
-      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const coarsePointer = browserUsesMobileViewerProfile();
       const webglMemoryProfile = stableWebglMemoryProfile(coarsePointer);
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
@@ -4562,6 +4712,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         precipitationEnabled: precipitationEnabledRef.current,
         loadSignal: loadController.signal,
         ensurePhotoSurface: () => undefined,
+        ensurePedestrianWater: () => undefined,
         photoSurfaceState: "idle",
         progressiveWorldBatches: [],
         progressiveWorldState: "idle",
@@ -5224,10 +5375,52 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onVisibilityChange = () => {
         if (document.hidden) {
           resetTouchGesture();
+          cancelScheduledProgressiveWorld(runtime);
+          if (
+            progressiveWorldVisibilityTransition(
+              true,
+              runtime.progressiveWorldState,
+            ) === "pause"
+          ) {
+            stopProgressiveWorld(runtime);
+          }
         } else {
           runtime.schwellenraumLastWaterFrameAt = performance.now();
           runtime.renderInvalidated = true;
+          if (
+            progressiveWorldVisibilityTransition(
+              false,
+              runtime.progressiveWorldState,
+            ) === "resume"
+          ) {
+            applyProgressiveWorldMode(
+              runtime,
+              runtime.lightingMode,
+              onWarningRef.current,
+            );
+          }
+          if (
+            runtime.coarsePointer &&
+            isoWorldIntentActive(runtime) &&
+            (runtime.progressiveWorldState === "complete" ||
+              runtime.progressiveWorldState === "failed" ||
+              !runtime.progressiveWorldInput)
+          ) {
+            runtime.startDeferredDetails();
+          }
         }
+      };
+      const onPageHide = () => {
+        resetTouchGesture();
+        cancelScheduledProgressiveWorld(runtime);
+        if (runtime.progressiveWorldState === "loading") {
+          stopProgressiveWorld(runtime);
+        }
+      };
+      const onPageShow = (event: PageTransitionEvent) => {
+        if (!event.persisted) return;
+        resize(true);
+        onVisibilityChange();
       };
       const onDoubleClick = (event: MouseEvent) => {
         if (event.button !== 0) {
@@ -5282,6 +5475,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       window.addEventListener("pointerup", onPointerUp, true);
       window.addEventListener("pointercancel", onPointerCancel, true);
       window.addEventListener("blur", resetTouchGesture);
+      window.addEventListener("pagehide", onPageHide);
+      window.addEventListener("pageshow", onPageShow);
       document.addEventListener("visibilitychange", onVisibilityChange);
       const onControlsStart = () => {
         lastDirectControlCamera.copy(camera.position);
@@ -6014,9 +6209,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             if (deferredDetailsStarted || !manifest.park_details?.file) {
               return;
             }
+            if (
+              runtime.coarsePointer &&
+              (document.hidden ||
+                !isoWorldIntentActive(runtime) ||
+                runtime.progressiveWorldState === "loading" ||
+                runtime.progressiveWorldStartCancel !== undefined ||
+                (runtime.progressiveWorldInput !== undefined &&
+                  runtime.progressiveWorldState === "idle"))
+            ) {
+              return;
+            }
             deferredDetailsStarted = true;
             const loadParkDetails = (): void => {
               if (runtime.disposed) {
+                return;
+              }
+              if (
+                runtime.coarsePointer &&
+                (document.hidden || !isoWorldIntentActive(runtime))
+              ) {
+                deferredDetailsStarted = false;
                 return;
               }
               const parkUrl = new URL(
@@ -6030,6 +6243,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   if (runtime.disposed) {
                     return;
                   }
+                  if (
+                    runtime.coarsePointer &&
+                    (document.hidden || !isoWorldIntentActive(runtime))
+                  ) {
+                    deferredDetailsStarted = false;
+                    return;
+                  }
                   if (runtime.pedestrian.environment) {
                     addPedestrianParkObstacles(
                       runtime.pedestrian.environment,
@@ -6038,6 +6258,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     );
                   }
                   const details = createParkDetails(payload, {
+                    detailProfile: runtime.coarsePointer ? "mobile" : "full",
                     settledDetail: !runtime.coarsePointer,
                     tunnel: manifest.tiergartentunnel ?? null,
                   });
@@ -6148,8 +6369,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             if (
               runtime.disposed ||
               runtime.photoSurfaceState === "loading" ||
-              runtime.photoSurfaceState === "ready"
+              runtime.photoSurfaceState === "ready" ||
+              runtime.photoSurfaceState === "failed"
             ) {
+              return;
+            }
+            if (runtime.coarsePointer) {
+              // Never answer a mobile OOM/context-loss path by allocating the
+              // old photogrammetry.  Report once so App can remount the lean
+              // renderer and, if that also fails, offer an explicit 2D action.
+              runtime.photoSurfaceState = "failed";
+              onErrorRef.current(
+                "Die mobile 3D-Welt konnte nicht stabil geladen werden.",
+              );
               return;
             }
             runtime.photoSurfaceState = "loading";
@@ -6265,6 +6497,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         disposed = true;
         runtime.disposed = true;
         loadController.abort();
+        cancelScheduledProgressiveWorld(runtime);
         runtime.progressiveWorldWorker?.terminate();
         runtime.progressiveWorldWorker = undefined;
         runtime.progressiveWorldState = "idle";
@@ -6305,6 +6538,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         window.removeEventListener("pointerup", onPointerUp, true);
         window.removeEventListener("pointercancel", onPointerCancel, true);
         window.removeEventListener("blur", resetTouchGesture);
+        window.removeEventListener("pagehide", onPageHide);
+        window.removeEventListener("pageshow", onPageShow);
         document.removeEventListener("visibilitychange", onVisibilityChange);
         controls.removeEventListener("start", onControlsStart);
         controls.removeEventListener("change", onControlsChange);

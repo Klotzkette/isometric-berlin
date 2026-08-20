@@ -11,6 +11,14 @@ import type { VisualMode } from "./visualMode";
 export const DESKTOP_INITIAL_BUILDING_COUNT = 700;
 export const MOBILE_INITIAL_BUILDING_COUNT = 320;
 /**
+ * Coarse-pointer devices keep the complete authored near field, but stop the
+ * exact LoD2 refinement before a phone has to retain the full 29k-building
+ * desktop city.  Five thousand nearest buildings still cover the government
+ * quarter and its recognisable approaches while bounding both CPU and GPU
+ * memory.  Desktop remains source-complete.
+ */
+export const MOBILE_TOTAL_BUILDING_LIMIT = 5_000;
+/**
  * The initial near field stays deliberately small, but retaining forty-two
  * 700-building meshes forever multiplied the LoD2 core from 11 draw calls to
  * more than 250. Five-thousand-building Worker batches remain cheap to
@@ -21,20 +29,40 @@ export const PROGRESSIVE_BUILDING_BATCH_SIZE = 5_000;
 export const MAX_PROGRESSIVE_BUILDING_BATCHES = 6;
 export const PAVING_POLYGON_BATCH_SIZE = 100;
 
-export type ProgressiveWorldWorkerInput = {
-  ground: VoxelPayload;
+type ProgressiveWorldWorkerInputBase = {
   initialBuildingCount: number;
   prismPayload: PrismPayload;
-  sceneRootUrl: string;
-  surfaces: SurfacePayload;
-  tunnel: TunnelPortalCourseInput | null;
   type: "build";
 };
+
+export type ProgressiveWorldWorkerInput =
+  | (ProgressiveWorldWorkerInputBase & {
+      detailProfile: "full";
+      ground: VoxelPayload;
+      sceneRootUrl: string;
+      surfaces: SurfacePayload;
+      tunnel: TunnelPortalCourseInput | null;
+    })
+  | (ProgressiveWorldWorkerInputBase & {
+      /** Mobile refines buildings only; ground/surface payloads stay main-thread. */
+      detailProfile: "mobile";
+    });
 
 export type ProgressiveWorldBatchKind = "buildings" | "surfaces";
 export type ProgressiveWorldState = "complete" | "failed" | "idle" | "loading";
 export type ProgressiveWorldTransition = "none" | "pause" | "resume";
 export type ProgressiveWorldStopReason = "complete" | "error" | "pause";
+
+/**
+ * Exact asphalt/paving plates are the worker's dominant transient allocation.
+ * Phones retain the preview's raster asphalt and every authored park path
+ * from ParkDetails instead; desktop keeps both exact road families.
+ */
+export function progressiveHeavyRoadPlatesEnabled(
+  detailProfile: ProgressiveWorldWorkerInput["detailProfile"],
+): boolean {
+  return detailProfile === "full";
+}
 
 export type ProgressiveWorldWorkerOutput =
   | {
@@ -64,6 +92,19 @@ export function progressiveWorldTransition(
   if (mode === "minecraft") {
     return state === "loading" || state === "complete" ? "pause" : "none";
   }
+  return state === "idle" ? "resume" : "none";
+}
+
+/**
+ * A background tab must not keep constructing transferable city geometry.
+ * Pausing disposes every already attached partial batch, so a visible-tab
+ * restart can replay the deterministic Worker output without duplicates.
+ */
+export function progressiveWorldVisibilityTransition(
+  hidden: boolean,
+  state: ProgressiveWorldState,
+): ProgressiveWorldTransition {
+  if (hidden) return state === "loading" ? "pause" : "none";
   return state === "idle" ? "resume" : "none";
 }
 
@@ -137,8 +178,13 @@ export function splitProgressiveBuildings(
   buildings: readonly PrismBuilding[],
   initialCount: number,
   batchSize = PROGRESSIVE_BUILDING_BATCH_SIZE,
+  totalLimit = Number.POSITIVE_INFINITY,
 ): { initial: PrismBuilding[]; remaining: PrismBuilding[][] } {
-  const ordered = prioritizeBuildings(buildings);
+  const boundedTotal = Math.max(
+    0,
+    Math.min(buildings.length, Math.floor(totalLimit)),
+  );
+  const ordered = prioritizeBuildings(buildings).slice(0, boundedTotal);
   const boundedInitial = Math.max(0, Math.min(ordered.length, initialCount));
   const boundedBatch = Math.max(1, Math.floor(batchSize));
   const remaining: PrismBuilding[][] = [];
