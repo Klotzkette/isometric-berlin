@@ -1,11 +1,24 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, Mesh, PointLight } from "three";
+import {
+  Box3,
+  Group,
+  InstancedMesh,
+  Material,
+  Mesh,
+  MeshStandardMaterial,
+  PointLight,
+} from "three";
 import {
   createCulturalLandmarks,
   culturalFocusCamera,
 } from "../src/CulturalLandmarks";
 import { WATER_TOP_Y } from "../src/MinecraftVoxelWorld";
 import { REAL_SPREE_VESSEL_PROFILES } from "../src/SpreeVesselProfiles";
+import {
+  setStarbucksPariserPlatzSnow,
+  STARBUCKS_PARISER_PLATZ_PROFILE,
+} from "../src/StarbucksPariserPlatz";
+import { applyMaterialLighting } from "../src/ThreeViewer";
 
 const landmarks = [
   {
@@ -231,20 +244,175 @@ describe("cultural and Spree recognition details", () => {
       WATER_TOP_Y,
       vessel.displayPositionWorldM[1],
     ]);
+    expect(culturalFocusCamera("Starbucks Pariser Platz")).toEqual({
+      azimuth_degrees: -40,
+      distance_m: 58,
+      polar_degrees: 68,
+      target_height_m: 2.4,
+      target_world: [
+        STARBUCKS_PARISER_PLATZ_PROFILE.southwestCornerWorldM[0] + 2.2,
+        STARBUCKS_PARISER_PLATZ_PROFILE.groundY,
+        STARBUCKS_PARISER_PLATZ_PROFILE.southwestCornerWorldM[1] - 1.2,
+      ],
+    });
+    const starbucksAzimuth = (-40 * Math.PI) / 180;
+    const cameraHorizontal = [
+      Math.sin(starbucksAzimuth),
+      Math.cos(starbucksAzimuth),
+    ];
+    for (const facade of Object.values(
+      STARBUCKS_PARISER_PLATZ_PROFILE.facades,
+    )) {
+      const exteriorDot =
+        cameraHorizontal[0] * facade.outwardNormalWorld[0] +
+        cameraHorizontal[1] * facade.outwardNormalWorld[1];
+      expect(exteriorDot).toBeGreaterThan(0.65);
+    }
     expect(culturalFocusCamera("Reichstagsgebäude")).toBeNull();
   });
 
-  test("gives the Pariser Platz Starbucks a drawn fascia, not a bitmap logo", () => {
+  test("binds the Starbucks profile to the OSM POI and both exact LoD2 axes", () => {
+    expect(STARBUCKS_PARISER_PLATZ_PROFILE.osmNodeId).toBe("66917229");
+    expect(STARBUCKS_PARISER_PLATZ_PROFILE.lod2BuildingId).toBe("K00005Hq");
+    expect(STARBUCKS_PARISER_PLATZ_PROFILE.poiWorldM).toEqual([
+      559.5734097249806,
+      4.95,
+      253.47099111787975,
+    ]);
+    expect(STARBUCKS_PARISER_PLATZ_PROFILE.southwestCornerWorldM).toEqual([
+      551.552,
+      259.24,
+    ]);
+    expect(
+      STARBUCKS_PARISER_PLATZ_PROFILE.facades.west.sourceEndWorldM,
+    ).toEqual([550.123, 242.808]);
+    expect(
+      STARBUCKS_PARISER_PLATZ_PROFILE.facades.south.sourceEndWorldM,
+    ).toEqual([576.089, 257.151]);
+    expect(
+      STARBUCKS_PARISER_PLATZ_PROFILE.facades.west.rotationYRadians,
+    ).toBeCloseTo(-1.4840501098435204, 12);
+    expect(
+      STARBUCKS_PARISER_PLATZ_PROFILE.facades.south.rotationYRadians,
+    ).toBeCloseTo(0.0849319244334032, 12);
+  });
+
+  test("wraps the real Starbucks corner with shallow glass overlays and two shared wordmarks", () => {
     const details = createCulturalLandmarks(landmarks);
     const shop = details.getObjectByName("Starbucks Pariser Platz")!;
-    expect(shop).not.toBeNull();
-    const fascia = details.getObjectByName("Starbucks fascia sign")!;
-    expect(fascia.userData.lettering).toBe("STARBUCKS");
-    expect(details.getObjectByName("Starbucks glazed shopfront")).not.toBeNull();
-    // Turned towards the square, not left on the default bearing.
-    expect(Math.abs(shop.rotation.y)).toBeGreaterThan(0.1);
-    const bounds = new Box3().setFromObject(shop);
-    expect(bounds.max.y - bounds.min.y).toBeGreaterThan(5);
-    expect(bounds.max.y - bounds.min.y).toBeLessThan(9);
+    expect(shop.userData.osmNodeId).toBe("66917229");
+    expect(shop.userData.lod2BuildingId).toBe("K00005Hq");
+    expect(shop.userData.sourceBound).toBe(true);
+    expect(shop.userData.sourceAttribution).toEqual([
+      "OpenStreetMap contributors: node 66917229",
+      "Berlin LoD2 building K00005Hq: west and south source edges",
+    ]);
+
+    const west = details.getObjectByName(
+      "Starbucks west source-bound facade overlay",
+    )!;
+    const south = details.getObjectByName(
+      "Starbucks south source-bound facade overlay",
+    )!;
+    const profile = STARBUCKS_PARISER_PLATZ_PROFILE;
+    expect(west.position.x).toBeCloseTo(
+      profile.southwestCornerWorldM[0] +
+        profile.facades.west.outwardNormalWorld[0] * 0.13,
+      8,
+    );
+    expect(west.position.z).toBeCloseTo(
+      profile.southwestCornerWorldM[1] +
+        profile.facades.west.outwardNormalWorld[1] * 0.13,
+      8,
+    );
+    expect(west.rotation.y).toBeCloseTo(
+      profile.facades.west.rotationYRadians,
+      12,
+    );
+    expect(south.position.x).toBeCloseTo(
+      profile.southwestCornerWorldM[0] +
+        profile.facades.south.outwardNormalWorld[0] * 0.13,
+      8,
+    );
+    expect(south.position.z).toBeCloseTo(
+      profile.southwestCornerWorldM[1] +
+        profile.facades.south.outwardNormalWorld[1] * 0.13,
+      8,
+    );
+    expect(south.rotation.y).toBeCloseTo(
+      profile.facades.south.rotationYRadians,
+      12,
+    );
+
+    const westBounds = new Box3().setFromObject(west);
+    const southBounds = new Box3().setFromObject(south);
+    expect(westBounds.max.x - westBounds.min.x).toBeLessThan(1.5);
+    expect(westBounds.max.z - westBounds.min.z).toBeLessThan(13.2);
+    expect(southBounds.max.x - southBounds.min.x).toBeLessThan(12.2);
+    expect(southBounds.max.z - southBounds.min.z).toBeLessThan(1.4);
+    expect(westBounds.max.y - westBounds.min.y).toBeLessThan(4.7);
+    expect(southBounds.max.y - southBounds.min.y).toBeLessThan(4.7);
+
+    const wordmarks: Mesh[] = [];
+    shop.traverse((object) => {
+      if (object.userData.lettering === "STARBUCKS") {
+        wordmarks.push(object as Mesh);
+      }
+    });
+    expect(wordmarks).toHaveLength(2);
+    expect(wordmarks.map((wordmark) => wordmark.userData.facade).sort()).toEqual([
+      "south",
+      "west",
+    ]);
+    expect(wordmarks[0].material).toBe(wordmarks[1].material);
+    expect(
+      (wordmarks[0].material as Material).userData.sharedCodeGeneratedTexture,
+    ).toBe(true);
+
+    const westGlass = shop.getObjectByName(
+      "Starbucks west large dark glass fields",
+    ) as InstancedMesh;
+    const glassMaterial = westGlass.material as MeshStandardMaterial;
+    const dayAppearance = {
+      color: glassMaterial.color.getHex(),
+      map: glassMaterial.map,
+      opacity: glassMaterial.opacity,
+    };
+    applyMaterialLighting(glassMaterial, "night");
+    expect(glassMaterial.emissive.getHex()).toBe(0xffcf9c);
+    expect(glassMaterial.emissiveIntensity).toBe(0.62);
+    applyMaterialLighting(glassMaterial, "day");
+    expect(glassMaterial.emissive.getHex()).toBe(0x000000);
+    expect({
+      color: glassMaterial.color.getHex(),
+      map: glassMaterial.map,
+      opacity: glassMaterial.opacity,
+    }).toEqual(dayAppearance);
+  });
+
+  test("keeps obsolete green fascia and double-wall geometry out, with reversible snow caps", () => {
+    const details = createCulturalLandmarks(landmarks);
+    const shop = details.getObjectByName("Starbucks Pariser Platz")!;
+    const obsolete = [
+      "Starbucks shopfront pier",
+      "Starbucks fascia sign",
+      "Starbucks awning",
+      "Starbucks pavement tables",
+    ];
+    for (const name of obsolete) {
+      expect(shop.getObjectByName(name)).toBeUndefined();
+    }
+    expect(
+      shop.getObjectByName(
+        "Starbucks four black freestanding umbrella canopies",
+      )?.userData.freestanding,
+    ).toBe(true);
+
+    const snowCaps = shop.getObjectByName("Starbucks snow caps")!;
+    expect(snowCaps.visible).toBe(false);
+    setStarbucksPariserPlatzSnow(shop as Group, true);
+    expect(snowCaps.visible).toBe(true);
+    setStarbucksPariserPlatzSnow(shop as Group, false);
+    expect(snowCaps.visible).toBe(false);
   });
 });

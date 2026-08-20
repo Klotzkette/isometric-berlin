@@ -2754,6 +2754,90 @@
         "#3e3332"
       ],
       "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "hotel_adlon",
+      "title": "File:Hotel Adlon Berlin-Mitte.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHotel_Adlon_Berlin-Mitte.jpg",
+      "thumbnail_path": "hotel_adlon_01_file-hotel-adlon-berlin-mitte-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Hotel_Adlon_Berlin-Mitte.jpg/960px-Hotel_Adlon_Berlin-Mitte.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Lukas Beck",
+      "credit": "Own work",
+      "description": "Hotel Adlon in Berlin-Mitte",
+      "dominant_colours": [
+        "#accbe5",
+        "#95b6d3",
+        "#8f8775",
+        "#625c4c",
+        "#434f45",
+        "#2a2f26"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "hotel_adlon",
+      "title": "File:Hotel Adlon Kempinski, 2024 (02).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHotel_Adlon_Kempinski%2C_2024_%2802%29.jpg",
+      "thumbnail_path": "hotel_adlon_02_file-hotel-adlon-kempinski-2024-02-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Hotel_Adlon_Kempinski%2C_2024_%2802%29.jpg/960px-Hotel_Adlon_Kempinski%2C_2024_%2802%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bahnfrend",
+      "credit": "Own work",
+      "description": "Late afternoon view of the Hotel Adlon Kempinski , taken from Pariser Platz",
+      "dominant_colours": [
+        "#b4d1ee",
+        "#a0bde3",
+        "#9faec1",
+        "#988367",
+        "#6a675e",
+        "#3e372a"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "starbucks_pariser_platz",
+      "title": "File:Pariser Platz 4A - exterior view 2025.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3APariser_Platz_4A_-_exterior_view_2025.jpg",
+      "thumbnail_path": "starbucks_pariser_platz_01_file-pariser-platz-4a-exterior-view-2025-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Pariser_Platz_4A_-_exterior_view_2025.jpg/960px-Pariser_Platz_4A_-_exterior_view_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Karmelki90",
+      "credit": "Own work",
+      "description": "Pariser Platz 4A - exterior view 2025",
+      "dominant_colours": [
+        "#d2dbe4",
+        "#bec5cc",
+        "#afb1ae",
+        "#9c9d98",
+        "#7d807f",
+        "#3b3f41"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
+    },
+    {
+      "landmark_id": "starbucks_pariser_platz",
+      "title": "File:Bürogebäude Pariser Platz 4a, Berlin-Mitte-3877.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AB%C3%BCrogeb%C3%A4ude_Pariser_Platz_4a%2C_Berlin-Mitte-3877.jpg",
+      "thumbnail_path": "starbucks_pariser_platz_02_file-burogebaude-pariser-platz-4a-berlin-mitte-3877-jpg.jpg",
+      "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/B%C3%BCrogeb%C3%A4ude_Pariser_Platz_4a%2C_Berlin-Mitte-3877.jpg/960px-B%C3%BCrogeb%C3%A4ude_Pariser_Platz_4a%2C_Berlin-Mitte-3877.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Own work",
+      "description": "Bürogebäude Pariser Platz 4a, Berlin-Mitte. U.a. hat dasPilecki Institut Berlin dort seinen Sitz",
+      "dominant_colours": [
+        "#f7f0e4",
+        "#ded8cc",
+        "#afbabf",
+        "#aba08b",
+        "#5da2db",
+        "#6c6556"
+      ],
+      "role": "visual_reference_for_material_and_facade_QA"
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

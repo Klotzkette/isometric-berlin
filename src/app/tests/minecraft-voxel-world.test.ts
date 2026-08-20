@@ -117,7 +117,7 @@ describe("true voxel Minecraft world", () => {
     expect(world.getObjectByName("Voxel meadow flowers")).toBeDefined();
     expect(mobileWorld.getObjectByName("Voxel facade windows")).toBeUndefined();
     expect(mobileWorld.getObjectByName("Voxel meadow flowers")).toBeUndefined();
-    expect(instanced("Voxel facade windows", world).count).toBe(1_595_099);
+    expect(instanced("Voxel facade windows", world).count).toBe(1_595_025);
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
     expect(instanced("Voxel building columns", world).count).toBe(1_481_857);
     expect(instanced("Voxel building columns", mobileWorld).count).toBe(
@@ -141,6 +141,17 @@ describe("true voxel Minecraft world", () => {
         (landmarks.getObjectByName(name) as InstancedMesh).count,
       ]),
     );
+    const pariserPlatzName =
+      "Minecraft Hotel Adlon and Starbucks block signature";
+    const fullPariserPlatz = landmarks?.getObjectByName(pariserPlatzName);
+    const mobilePariserPlatz =
+      mobileLandmarks?.getObjectByName(pariserPlatzName);
+    expect(fullPariserPlatz).toBeInstanceOf(InstancedMesh);
+    expect(mobilePariserPlatz).toBeInstanceOf(InstancedMesh);
+    expect((fullPariserPlatz as InstancedMesh).count).toBe(292);
+    expect((mobilePariserPlatz as InstancedMesh).count).toBe(292);
+    expect(fullPariserPlatz?.visible).toBe(true);
+    expect(mobilePariserPlatz?.visible).toBe(true);
   });
 
   test("keeps mobile hero courses while collapsing generic layer stacks", () => {
@@ -188,7 +199,7 @@ describe("true voxel Minecraft world", () => {
     }
   });
 
-  test("ships the civic hero buildings as six block-native batches", () => {
+  test("ships the civic hero buildings as seven block-native batches", () => {
     const landmarks = world.getObjectByName(
       "Minecraft block-native architectural landmarks",
     );
@@ -200,11 +211,42 @@ describe("true voxel Minecraft world", () => {
       "Minecraft Brandenburg Gate block signature",
       "Minecraft parliamentary band block signature",
       "Minecraft Berliner Ensemble block signature",
+      "Minecraft Hotel Adlon and Starbucks block signature",
     ]);
     expect(landmarks?.children.every((child) => child instanceof InstancedMesh)).toBe(
       true,
     );
-    expect(landmarks?.userData.drawCallBudget).toBe(6);
+    expect(landmarks?.userData.drawCallBudget).toBe(7);
+  });
+
+  test("suppresses generic windows only on the authored Adlon and Starbucks fronts", () => {
+    const adlon = MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon;
+    expect(
+      voxelRecognitionAreaAt(
+        adlon.front.centerWorldM[0],
+        adlon.front.centerWorldM[1],
+      )?.name,
+    ).toBe("Hotel Adlon authored north facade");
+    // Deep inside the retained southern hotel block, generic source mass and
+    // its ordinary facade treatment remain untouched.
+    expect(voxelRecognitionAreaAt(590, 405)).toBeNull();
+
+    const starbucks =
+      MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz;
+    for (const facade of Object.values(starbucks.facades)) {
+      const middleX =
+        facade.sourceStartWorldM[0] +
+        facade.directionWorld[0] * facade.storefrontLengthM * 0.5;
+      const middleZ =
+        facade.sourceStartWorldM[1] +
+        facade.directionWorld[1] * facade.storefrontLengthM * 0.5;
+      expect(voxelRecognitionAreaAt(middleX, middleZ)?.name).toBe(
+        `Starbucks authored ${facade.key} facade`,
+      );
+    }
+    // K00005Hq's office envelope away from the tenant L keeps its source
+    // windows and never becomes a broad Starbucks replacement box.
+    expect(voxelRecognitionAreaAt(580, 230)).toBeNull();
   });
 
   test("loads the static Invalidenfriedhof block details only with the voxel world", () => {

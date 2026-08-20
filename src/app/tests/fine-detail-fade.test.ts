@@ -112,6 +112,37 @@ describe("micro-detail visibility", () => {
       "Kollhoff clinker mortar joints",
     );
   });
+
+  test("fades only smooth Starbucks furniture, never its Minecraft batch", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Starbucks west direct STARBUCKS wordmark",
+        "Starbucks south direct STARBUCKS wordmark",
+      ]),
+    );
+    expect(MICRO_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Starbucks four black freestanding umbrella canopies",
+        "Starbucks umbrella poles",
+        "Starbucks compact round pavement tables",
+        "Starbucks compact table stems",
+        "Starbucks compact dark pavement chairs",
+        "Starbucks compact stone planters",
+      ]),
+    );
+    // Snow caps are mode state, not distance state. Registering them here
+    // would let the far-detail updater turn them back on in Day.
+    expect(MICRO_DETAIL_LAYER_NAMES).not.toContain("Starbucks snow caps");
+    for (const persistentName of [
+      "Minecraft Hotel Adlon and Starbucks block signature",
+      "Starbucks west source-bound facade overlay",
+      "Starbucks south source-bound facade overlay",
+      "Adlon bodies",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+    }
+  });
 });
 
 describe("inkLineFadeOpacity", () => {

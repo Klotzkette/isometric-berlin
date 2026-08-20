@@ -32,6 +32,32 @@ BERLINER_ENSEMBLE_REFERENCES = {
     "https://creativecommons.org/licenses/by/4.0",
   ),
 }
+ADLON_AND_STARBUCKS_REFERENCES = {
+  "File:Hotel Adlon Berlin-Mitte.jpg": (
+    "hotel_adlon",
+    "Lukas Beck",
+    "CC BY-SA 4.0",
+    "https://creativecommons.org/licenses/by-sa/4.0",
+  ),
+  "File:Hotel Adlon Kempinski, 2024 (02).jpg": (
+    "hotel_adlon",
+    "Bahnfrend",
+    "CC BY-SA 4.0",
+    "https://creativecommons.org/licenses/by-sa/4.0",
+  ),
+  "File:Pariser Platz 4A - exterior view 2025.jpg": (
+    "starbucks_pariser_platz",
+    "Karmelki90",
+    "CC0",
+    "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  ),
+  "File:Bürogebäude Pariser Platz 4a, Berlin-Mitte-3877.jpg": (
+    "starbucks_pariser_platz",
+    "Raimond Spekking",
+    "CC BY-SA 4.0",
+    "https://creativecommons.org/licenses/by-sa/4.0",
+  ),
+}
 
 
 class FakeResponse:
@@ -418,6 +444,38 @@ def test_berliner_ensemble_references_are_pinned_and_publicly_packaged() -> None
 
   readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
   assert all(title.removeprefix("File:") in readme for title in records)
+
+
+def test_adlon_and_starbucks_references_are_pinned_and_publicly_packaged() -> None:
+  manifest = json.loads(
+    (ROOT / "geo_data/regierungsviertel/wikimedia_references.json").read_text(
+      encoding="utf-8"
+    )
+  )
+  public = json.loads(
+    (
+      ROOT / "src/app/public/dzi/regierungsviertel/wikimedia_attribution.json"
+    ).read_text(encoding="utf-8")
+  )
+  records = {record["title"]: record for record in manifest["records"]}
+  public_records = {record["title"]: record for record in public["records"]}
+  readme = (ROOT / "references/wikimedia/README.md").read_text(encoding="utf-8")
+
+  for title, (landmark_id, artist, license_name, license_url) in (
+    ADLON_AND_STARBUCKS_REFERENCES.items()
+  ):
+    assert fw.PINNED_FILE_REFERENCES[title] == landmark_id
+    record = records[title]
+    assert record["landmark_id"] == landmark_id
+    assert record["artist"] == artist
+    assert record["license"] == license_name
+    assert record["license_url"] == license_url
+    assert (ROOT / "references/wikimedia" / record["thumbnail_path"]).is_file()
+    assert public_records[title]["landmark_id"] == landmark_id
+    assert public_records[title]["artist"] == artist
+    assert public_records[title]["license"] == license_name
+    assert public_records[title]["license_url"] == license_url
+    assert title.removeprefix("File:") in readme
   assert all(artist in readme for artist, _, _ in BERLINER_ENSEMBLE_REFERENCES.values())
 
 

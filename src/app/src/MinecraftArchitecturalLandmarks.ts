@@ -22,6 +22,8 @@ import {
   BERLINER_ENSEMBLE_ROOF_SIGN_DIAMETER_M,
   BERLINER_ENSEMBLE_ROOF_TOWER_ROTATION_DEGREES,
 } from "./BerlinerEnsemble";
+import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
+import { STARBUCKS_PARISER_PLATZ_PROFILE } from "./StarbucksPariserPlatz";
 import {
   MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK,
   MINECRAFT_PALETTE,
@@ -58,6 +60,7 @@ type BlockRenderResources = {
 const COARSE_CIVIC_BLOCK_SPAN_M = 8;
 
 export const MINECRAFT_ARCHITECTURAL_PROFILES = {
+  hotelAdlon: HOTEL_ADLON_PROFILE,
   berlinerEnsemble: {
     blockLoD: {
       maxDrawCalls: 1,
@@ -330,6 +333,7 @@ export const MINECRAFT_ARCHITECTURAL_PROFILES = {
       "https://www.bundestag.de/besuche/architektur/loebehaus/architektur",
     sourcePrismIds: ["0sVYAxtY", "HA7mKuzG"] as const,
   },
+  starbucksPariserPlatz: STARBUCKS_PARISER_PLATZ_PROFILE,
   reichstag: {
     anchorWorld: [317.729, 3.595, 40.477] as const,
     bodyHeightM: 28.055,
@@ -2296,7 +2300,370 @@ function createBerlinerEnsembleBlocks(
 }
 
 /**
- * Six lazy, opaque, block-native signature batches. They replace hundreds of
+ * One deliberately coarse Pariser-Platz batch: Hotel Adlon's source-bound
+ * north frontage plus the two short Starbucks tenant fronts around the
+ * south-west corner of LoD2 body K00005Hq. The measured voxel masses stay in
+ * place behind these shallow overlays; this batch only supplies recognition
+ * cues which those unusually plain source columns cannot carry.
+ */
+function createPariserPlatzBlocks(
+  resources: BlockRenderResources,
+): InstancedMesh {
+  const adlon = MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon;
+  const starbucks = MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz;
+  const plan = newPlan();
+  const adlonFrame: LocalFrame = {
+    anchorWorld: [
+      adlon.front.centerWorldM[0],
+      adlon.heights.groundWorldY,
+      adlon.front.centerWorldM[1],
+    ],
+    // The mathematical x/z bearing is -5.07 degrees. Three.js local +x uses
+    // the opposite yaw sign, which the shared source profile records here.
+    rotationDegrees: (adlon.front.rotationY * 180) / Math.PI,
+  };
+  const facadeLength = adlon.front.lengthM;
+  const eavesLocalY =
+    adlon.heights.eavesWorldY - adlon.heights.groundWorldY;
+  const ridgeLocalY =
+    adlon.heights.ridgeWorldY - adlon.heights.groundWorldY;
+
+  // Five broad stone courses retain a visible brick grammar even before a
+  // window row resolves. Every box is at most eight metres high and every
+  // long course is automatically split into the shared eight-metre span.
+  for (const [index, [centreY, height]] of [
+    [3.6, 7.2],
+    [9.05, 3.6],
+    [12.7, 3.6],
+    [16.35, 3.6],
+    [20.275, 4.25],
+  ].entries()) {
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "Hotel Adlon pale stone facade courses",
+      [0, centreY, 0.2],
+      [facadeLength, height, 0.9],
+      index % 2 === 0 ? BLOCK.quartzIvory : BLOCK.limestone,
+    );
+  }
+
+  // K00006ot's measured source shell is only 11.5 m high. Above that exact
+  // top, two coarse courses carry the full OSM-bounded front-head depth to
+  // the eaves. This keeps the mansard supported in oblique/side views without
+  // replacing a single measured source column or filling the first courtyard.
+  const upperHeadStartY = adlon.heights.lod2MeasuredHeightM;
+  const upperHeadDepth = adlon.publicFacade.frontHeadDepthM - 0.7;
+  const upperHeadCentreZ = 0.7 + upperHeadDepth / 2;
+  const upperHeadMiddleY = 17;
+  for (const [index, [bottomY, topY]] of [
+    [upperHeadStartY, upperHeadMiddleY],
+    [upperHeadMiddleY, eavesLocalY],
+  ].entries()) {
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "Hotel Adlon supported upper-head block mass",
+      [0, (bottomY + topY) / 2, upperHeadCentreZ],
+      [facadeLength, topY - bottomY, upperHeadDepth],
+      index % 2 === 0 ? BLOCK.limestone : BLOCK.quartzIvory,
+    );
+  }
+
+  // Five high, stepped ground-floor arches. Their dark fields sit just in
+  // front of the retained source mass; pale shoulders and caps keep them from
+  // reading as smooth rectangular glazing.
+  const archCount = adlon.publicFacade.archBayCount;
+  const archSpacing = facadeLength / archCount;
+  for (let bay = 0; bay < archCount; bay += 1) {
+    const x = -facadeLength / 2 + archSpacing * (bay + 0.5);
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      bay === Math.floor(archCount / 2)
+        ? "central Hotel Adlon entrance"
+        : "five high ground-floor dark recesses",
+      [x, 2.8, -0.58],
+      [7.2, 5.2, 0.42],
+      bay === Math.floor(archCount / 2)
+        ? BLOCK.tealGlass
+        : BLOCK.deepRecess,
+    );
+    for (const side of [-1, 1]) {
+      pushLocalBlock(
+        plan,
+        adlonFrame,
+        "five high ground-floor block arches",
+        [x + side * 3.65, 4.15, -0.56],
+        [1.05, 3.0, 0.46],
+        BLOCK.marbleLight,
+      );
+    }
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "five high ground-floor block arches",
+      [x, 5.95, -0.56],
+      [5.55, 0.8, 0.5],
+      BLOCK.marbleLight,
+    );
+  }
+
+  // Nine strict axes repeated over five storeys are enough to identify the
+  // Adlon rhythm without recreating every smooth window and moulding.
+  for (const localY of [8.75, 11.7, 14.65, 17.6, 20.55]) {
+    for (const localX of adlon.publicFacade.frontWindowAxesM) {
+      pushLocalBlock(
+        plan,
+        adlonFrame,
+        "Hotel Adlon five facade window registers",
+        [localX, localY, -0.57],
+        [3.15, 1.9, 0.4],
+        localY === 8.75 ? BLOCK.tealGlass : BLOCK.iceGlass,
+      );
+    }
+  }
+  pushLocalBlock(
+    plan,
+    adlonFrame,
+    "Hotel Adlon block cornice",
+    [0, eavesLocalY + 0.4, 0.05],
+    [facadeLength + 0.8, 0.8, 1.5],
+    BLOCK.marbleLight,
+  );
+
+  // The central entrance projects just enough to read from the square: a
+  // wine-red block canopy, two square posts and the dark central arch above.
+  pushLocalBlock(
+    plan,
+    adlonFrame,
+    "Hotel Adlon wine-red entrance canopy",
+    [0, 5.45, -2.05],
+    [11.6, 0.65, 3.0],
+    BLOCK.red,
+  );
+  for (const x of [-4.9, 4.9]) {
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "Hotel Adlon entrance canopy posts",
+      [x, 2.55, -3.15],
+      [0.65, 5.1, 0.65],
+      BLOCK.deepRecess,
+    );
+  }
+
+  // Four shallow, patina-green courses climb to the source-profile ridge.
+  // Alternating two palette tones make the mansard visibly block-built.
+  const roofCourses = [
+    [eavesLocalY + 1.0, 2.0, facadeLength - 1.8, 8.0, 3.35],
+    [eavesLocalY + 2.9, 1.8, facadeLength - 5.0, 6.2, 4.3],
+    [eavesLocalY + 4.7, 1.8, facadeLength - 8.0, 4.4, 5.2],
+    [ridgeLocalY - 0.6, 1.2, facadeLength - 12.0, 2.8, 6.0],
+  ] as const;
+  for (const [index, [centreY, height, width, depth, localZ]] of roofCourses.entries()) {
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "Hotel Adlon stepped patina-green mansard",
+      [0, centreY, localZ],
+      [width, height, depth],
+      index % 2 === 0 ? BLOCK.oxidisedCopper : MINECRAFT_PALETTE[3],
+    );
+  }
+  for (let dormer = 0; dormer < adlon.publicFacade.frontDormerCount; dormer += 1) {
+    const x =
+      -facadeLength * 0.39 +
+      (dormer / (adlon.publicFacade.frontDormerCount - 1)) *
+        facadeLength *
+        0.78;
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "Hotel Adlon eight block dormers",
+      [x, eavesLocalY + 3.0, -1.25],
+      [3.3, 2.5, 1.6],
+      BLOCK.limestone,
+    );
+    pushLocalBlock(
+      plan,
+      adlonFrame,
+      "Hotel Adlon dormer dark fields",
+      [x, eavesLocalY + 2.9, -2.18],
+      [1.55, 1.25, 0.24],
+      BLOCK.deepRecess,
+    );
+  }
+
+  // Two restrained five-block rows are the Minecraft equivalent of the
+  // HOTEL / ADLON roof wordmark: actual geometry, never a texture.
+  for (const [word, localY] of [
+    ["HOTEL", ridgeLocalY - 0.9],
+    ["ADLON", ridgeLocalY - 1.8],
+  ] as const) {
+    for (let letter = 0; letter < word.length; letter += 1) {
+      pushLocalBlock(
+        plan,
+        adlonFrame,
+        `Hotel Adlon ${word} roof lettering cue`,
+        [-2.8 + letter * 1.4, localY, -1.95],
+        [0.55, 0.65, 0.34],
+        BLOCK.marbleLight,
+      );
+    }
+  }
+
+  const addStarbucksFacade = (
+    facade: (typeof starbucks.facades)["west" | "south"],
+  ): void => {
+    const frame: LocalFrame = {
+      anchorWorld: [
+        facade.sourceStartWorldM[0],
+        starbucks.groundY,
+        facade.sourceStartWorldM[1],
+      ],
+      rotationDegrees: (facade.rotationYRadians * 180) / Math.PI,
+    };
+    const along = facade.localAlongSign;
+    const startDistance = 1.05;
+    const span = facade.storefrontLengthM - startDistance;
+    const centreDistance = startDistance + span / 2;
+    const localCentreX = along * centreDistance;
+    pushLocalBlock(
+      plan,
+      frame,
+      `Starbucks ${facade.key} quartz-limestone frontage`,
+      [localCentreX, 3.1, 0.35],
+      [span, 6.2, 0.8],
+      facade.key === "south" ? BLOCK.quartzIvory : BLOCK.limestone,
+    );
+    pushLocalBlock(
+      plan,
+      frame,
+      `Starbucks ${facade.key} pale block cornice`,
+      [localCentreX, 6.45, 0.35],
+      [span + 0.35, 0.4, 1.0],
+      BLOCK.marbleLight,
+    );
+
+    const glassMargin = 1.05;
+    const mullionGap = 0.7;
+    const paneWidth =
+      (facade.storefrontLengthM - glassMargin * 2 - mullionGap) / 2;
+    const paneDistances = [
+      glassMargin + paneWidth / 2,
+      glassMargin + paneWidth + mullionGap + paneWidth / 2,
+    ];
+    for (const distance of paneDistances) {
+      pushLocalBlock(
+        plan,
+        frame,
+        `Starbucks ${facade.key} glass-block fields`,
+        [along * distance, 2.12, 1.02],
+        [paneWidth, 3.35, 0.34],
+        BLOCK.tealGlass,
+      );
+    }
+    for (const distance of [
+      glassMargin,
+      facade.storefrontLengthM / 2,
+      facade.storefrontLengthM - glassMargin,
+    ]) {
+      pushLocalBlock(
+        plan,
+        frame,
+        `Starbucks ${facade.key} dark block frames`,
+        [along * distance, 2.15, 1.18],
+        [0.38, 3.9, 0.38],
+        BLOCK.deepRecess,
+      );
+    }
+    for (const [localY, height] of [
+      [0.35, 0.4],
+      [4.08, 0.34],
+    ] as const) {
+      pushLocalBlock(
+        plan,
+        frame,
+        `Starbucks ${facade.key} dark block frames`,
+        [along * (facade.storefrontLengthM / 2), localY, 1.18],
+        [facade.storefrontLengthM - glassMargin * 2, height, 0.38],
+        BLOCK.deepRecess,
+      );
+    }
+
+    // Nine grey letter-cubes per facade deliberately echo a word rather than
+    // introducing a smooth canvas or a trademark image into Minecraft mode.
+    for (let letter = 0; letter < 9; letter += 1) {
+      const distance = 2.0 + (letter / 8) * (facade.storefrontLengthM - 4.0);
+      pushLocalBlock(
+        plan,
+        frame,
+        "Starbucks two grey block word signs",
+        [along * distance, 4.95, 1.05],
+        [0.5, 0.68, 0.32],
+        BLOCK.iron,
+      );
+    }
+
+    // Two freestanding, square black umbrellas on each side of the L. They
+    // remain compact visual staffage and do not change pedestrian collision.
+    for (const distance of [3.6, facade.storefrontLengthM - 3.2]) {
+      pushLocalBlock(
+        plan,
+        frame,
+        "Starbucks black block umbrella poles",
+        [along * distance, 1.25, 4.0],
+        [0.34, 2.5, 0.34],
+        MINECRAFT_PALETTE[0],
+      );
+      pushLocalBlock(
+        plan,
+        frame,
+        "Starbucks black block umbrella canopies",
+        [along * distance, 2.42, 4.0],
+        [2.35, 0.34, 2.35],
+        MINECRAFT_PALETTE[0],
+      );
+      pushLocalBlock(
+        plan,
+        frame,
+        "Starbucks black block umbrella canopies",
+        [along * distance, 2.75, 4.0],
+        [3.15, 0.3, 3.15],
+        MINECRAFT_PALETTE[0],
+      );
+    }
+  };
+  addStarbucksFacade(starbucks.facades.west);
+  addStarbucksFacade(starbucks.facades.south);
+
+  const mesh = finishPlan(
+    "Minecraft Hotel Adlon and Starbucks block signature",
+    "pariser-platz-adlon-starbucks",
+    plan,
+    { hotelAdlon: adlon, starbucksPariserPlatz: starbucks },
+    resources,
+  );
+  mesh.userData.sourcePrismIds = [
+    adlon.lod2BuildingId,
+    starbucks.lod2BuildingId,
+  ];
+  mesh.userData.retainsGenericSourceMass = true;
+  mesh.userData.completeReplacementMask = false;
+  mesh.userData.sourceBoundBlocks = plan.blocks.map(
+    ({ cue, position, rotationY, size }) => ({
+      cue,
+      position,
+      rotationY,
+      size,
+    }),
+  );
+  return mesh;
+}
+
+/**
+ * Seven lazy, opaque, block-native signature batches. They replace hundreds of
  * smooth hero meshes. The official 4 m LoD2 mass remains the measured body
  * except where a deliberately open signature owns the source cells itself:
  * Reichstag portico, Chancellery leadership cube, Hauptbahnhof and Gate.
@@ -2307,7 +2674,7 @@ export function createMinecraftArchitecturalLandmarks(): Group {
   group.userData = {
     blockNative: true,
     coarseBlockSpanM: COARSE_CIVIC_BLOCK_SPAN_M,
-    drawCallBudget: 6,
+    drawCallBudget: 7,
     instanceBudget: 5_000,
     noAdditionalPayload: true,
     sourceStack: "versioned architectural signatures + LoD2 voxel mass + OSM",
@@ -2331,6 +2698,7 @@ export function createMinecraftArchitecturalLandmarks(): Group {
     createBrandenburgGateBlocks(resources),
     createParliamentaryBandBlocks(resources),
     createBerlinerEnsembleBlocks(resources),
+    createPariserPlatzBlocks(resources),
   );
   return group;
 }

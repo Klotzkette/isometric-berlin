@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.9 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.9/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.10 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.10/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.9** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.10** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,24 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.9**, built from `main`. Its full viewer
+The current public package is **v0.72.10**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Hotel Adlon and Starbucks now read from their real Pariser-Platz
+  frontages.** Adlon follows OSM relation `4582978`, outer way `26041943` and
+  LoD2 anchor `K00006ot`: its 68.78 m oblique public facade carries five tall
+  arches, a rusticated stone base, wine-red entrance canopy, varied window and
+  wrought-iron balcony registers, patinated stepped mansard, dormers, flags
+  and open roof lettering. Starbucks follows OSM node `66917229` around the
+  south-west corner of LoD2 body `K00005Hq`, with two shallow dark-glass
+  storefronts, grey facade wordmarks and freestanding black terrace elements
+  instead of the former diagonal green fascia. Both are static and source-bound
+  in Day, Night, Snowstorm and Schwellenraum; Minecraft uses one shared,
+  coarse, opaque block batch rather than either smooth model. The four pinned
+  Wikimedia references are publicly attributed and are not projected or
+  bundled as facade textures.
 
 - **Mobile-like touch sessions retain one bounded world family at a time.** This
   profile applies when the primary or any pointer is coarse, or the browser

@@ -1089,7 +1089,7 @@ describe("real-colour facade tones", () => {
 describe("hero prism pins", () => {
   test("anchors the Adlon and embassy palettes to their LoD2 parts", () => {
     expect(ADLON_LOD2_ID).toBe("K00006ot");
-    expect(ADLON_WORLD).toEqual([590, 341]);
+    expect(ADLON_WORLD).toEqual([591.135, 316.75]);
     expect(HERO_PRISM_TONES[ADLON_LOD2_ID]).toBe(0xeee5d4);
     expect(HERO_PRISM_ROOF_TONES[ADLON_LOD2_ID]).toBe(0x668574);
     expect(HERO_PRISM_TONES["9qerwgls"]).toBe(0xe4ddcf);

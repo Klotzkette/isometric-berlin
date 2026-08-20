@@ -23,9 +23,12 @@ import {
   Vector3,
 } from "three";
 import { markArchitecturalAccentInk } from "./architecturalInk";
-import { createLetteringTexture } from "./drawnLettering";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 import { REAL_SPREE_VESSEL_PROFILES } from "./SpreeVesselProfiles";
+import {
+  createStarbucksPariserPlatz,
+  STARBUCKS_PARISER_PLATZ_PROFILE,
+} from "./StarbucksPariserPlatz";
 
 export type CulturalLandmark = {
   name: string;
@@ -50,15 +53,7 @@ const TIPI_NAME = "TIPI am Kanzleramt";
 const CARILLON_NAME = "Carillon im Tiergarten";
 const SPREEBOGEN_NAME = "Spreebogen";
 const HKW_NAME = "Haus der Kulturen der Welt (Schwangere Auster)";
-const STARBUCKS_NAME = "Starbucks Pariser Platz";
-const PARISER_PLATZ_NAME = "Pariser Platz";
-const STARBUCKS_LETTERING = "STARBUCKS";
-const STOREFRONT_WIDTH_M = 7.6;
-const STARBUCKS_FASCIA_HEIGHT_M = 0.8;
-const STARBUCKS_CAP_HEIGHT_M = 0.42;
-// Pariser Platz paving, matched to the surrounding terrace rather than
-// sampled per point: the café carries no mesh sample of its own.
-const STARBUCKS_GROUND_Y = 4.95;
+const STARBUCKS_NAME = STARBUCKS_PARISER_PLATZ_PROFILE.name;
 const TIPI_GROUND_Y = 3.98;
 // The committed "Carillon im Tiergarten" landmark anchor derives from
 // Wikimedia photo geotags (photographer standpoints, see
@@ -912,119 +907,6 @@ function createLegoGiraffe(): Group {
   return group;
 }
 
-/**
- * The Starbucks on the north-east side of the Pariser Platz: a shopfront bay
- * with a glazed ground floor, an awning and the drawn "STARBUCKS" fascia.
- *
- * The lettering is a stroked canvas texture from the shared drawn alphabet —
- * no bitmap logo, and no siren roundel, because neither can be reproduced from
- * the open sources this project is allowed to use.
- */
-function createStarbucksStorefront(
-  anchor: CulturalLandmark,
-  squareCentre: [number, number, number] | null,
-): Group {
-  const group = new Group();
-  group.name = STARBUCKS_NAME;
-  group.position.set(anchor.world[0], STARBUCKS_GROUND_Y, anchor.world[2]);
-  // Turn the shopfront towards the square rather than guessing a street angle:
-  // the OSM point carries no facade bearing of its own.
-  const towardsSquare = squareCentre
-    ? [squareCentre[0] - anchor.world[0], squareCentre[2] - anchor.world[2]]
-    : [-1, 0];
-  group.rotation.y = Math.atan2(towardsSquare[0], towardsSquare[1]);
-  group.userData.geometryStatus =
-    "OSM café point with a drawn shopfront bay; the facade bearing is derived from the Pariser Platz centre, not surveyed";
-
-  const stone = new MeshStandardMaterial({
-    color: 0xd9d2c2,
-    flatShading: true,
-    roughness: 0.82,
-  });
-  const frame = new MeshStandardMaterial({
-    color: 0x2d3a33,
-    flatShading: true,
-    metalness: 0.3,
-    roughness: 0.5,
-  });
-  const glass = new MeshPhysicalMaterial({
-    color: 0x22333a,
-    metalness: 0.1,
-    opacity: 0.62,
-    roughness: 0.12,
-    transparent: true,
-  });
-  glass.userData.nightEmissive = 0xffd9a0;
-  glass.userData.nightEmissiveIntensity = 0.7;
-
-  addBox(group, "Starbucks shopfront pier", [STOREFRONT_WIDTH_M, 6.4, 1.1], [0, 3.2, -0.55], stone);
-  const window = addBox(
-    group,
-    "Starbucks glazed shopfront",
-    [STOREFRONT_WIDTH_M - 1.2, 3.5, 0.14],
-    [0, 1.95, 0.07],
-    frame,
-  );
-  window.material = glass;
-  for (const side of [-1, 0, 1]) {
-    addBox(
-      group,
-      "Starbucks shopfront mullion",
-      [0.16, 3.5, 0.2],
-      [side * 2.6, 1.95, 0.12],
-      frame,
-    );
-  }
-  const fascia = addBox(
-    group,
-    "Starbucks fascia sign",
-    [STOREFRONT_WIDTH_M - 0.6, STARBUCKS_FASCIA_HEIGHT_M, 0.16],
-    [0, 4.35, 0.12],
-    frame,
-  );
-  const lettering = createLetteringTexture({
-    bandHeightM: STARBUCKS_FASCIA_HEIGHT_M,
-    bandWidthM: STOREFRONT_WIDTH_M - 0.6,
-    capHeightM: STARBUCKS_CAP_HEIGHT_M,
-    fieldColor: "#12331f",
-    letterColor: "#f2efe4",
-    text: STARBUCKS_LETTERING,
-    texelsPerMetre: 240,
-  });
-  if (lettering) {
-    const signed = new MeshStandardMaterial({
-      color: 0xffffff,
-      map: lettering,
-      roughness: 0.62,
-    });
-    signed.userData.nightEmissive = 0xdff0e2;
-    signed.userData.nightEmissiveIntensity = 0.55;
-    fascia.material = signed;
-  }
-  fascia.userData.lettering = STARBUCKS_LETTERING;
-  const awning = addBox(
-    group,
-    "Starbucks awning",
-    [STOREFRONT_WIDTH_M - 1, 0.14, 1.8],
-    [0, 3.75, 0.95],
-    new MeshStandardMaterial({
-      color: 0x1d5638,
-      flatShading: true,
-      roughness: 0.86,
-    }),
-  );
-  awning.rotation.x = -0.14;
-  // Pavement seating, which is what actually marks the café out on the square.
-  addInstances(
-    group,
-    "Starbucks pavement tables",
-    new CylinderGeometry(0.36, 0.3, 0.74, 10),
-    new MeshStandardMaterial({ color: 0x3b4640, flatShading: true, roughness: 0.7 }),
-    [-2.4, 0, 2.4].map((x) => ({ position: [x, 0.37, 2.4] as [number, number, number] })),
-  );
-  return group;
-}
-
 export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   const group = new Group();
   group.name = "Cultural venues, Carillon and Spree detail";
@@ -1039,12 +921,7 @@ export function createCulturalLandmarks(landmarks: CulturalLandmark[]): Group {
   }
   const starbucks = byName.get(STARBUCKS_NAME);
   if (starbucks) {
-    group.add(
-      createStarbucksStorefront(
-        starbucks,
-        byName.get(PARISER_PLATZ_NAME)?.world ?? null,
-      ),
-    );
+    group.add(createStarbucksPariserPlatz());
   }
   group.add(createSpreeWaveField());
   group.add(createLegoGiraffe());
@@ -1090,6 +967,22 @@ export function culturalFocusCamera(name: string): CulturalFocusCamera | null {
       polar_degrees: 58,
       target_height_m: 4,
       target_world: SPREEBOGEN_VESSEL_WORLD,
+    };
+  }
+  if (name === STARBUCKS_NAME) {
+    return {
+      // Look from the exterior angle bisector of the west and south LoD2
+      // facade normals. The former 222-degree preset sat behind both skins
+      // and put a phone camera inside K00005Hq's wall.
+      azimuth_degrees: -40,
+      distance_m: 58,
+      polar_degrees: 68,
+      target_height_m: 2.4,
+      target_world: [
+        STARBUCKS_PARISER_PLATZ_PROFILE.southwestCornerWorldM[0] + 2.2,
+        STARBUCKS_PARISER_PLATZ_PROFILE.groundY,
+        STARBUCKS_PARISER_PLATZ_PROFILE.southwestCornerWorldM[1] - 1.2,
+      ],
     };
   }
   return null;

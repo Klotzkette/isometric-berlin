@@ -552,10 +552,22 @@ The Pariser-Platz and Potsdamer-Platz architecture keeps the same boundary.
 The Center / former Sony Center retains its LoD2 glass-and-steel envelopes;
 the Forum now carries 24 translucent membrane fields, seven supports, cable
 geometry, 28 curved glass bays, 168 horizontal stainless rails and 28 red
-vertical fins instead of an opaque dark roof plate. Hotel Adlon remains on
-Berlin LoD2 building `K00006ot`; its pale stone body receives the characteristic
-patinated green mansard, dormers, facade rhythm, awnings and portico as a
-recognition layer. The French, British and Hungarian embassy overlays are
+vertical fins instead of an opaque dark roof plate. Hotel Adlon remains bound
+to Berlin LoD2 building `K00006ot`, while OSM relation `4582978` and outer way
+`26041943` fix its real 68.78 m, 5.07-degree Pariser-Platz frontage. Its
+source-bounded recognition layer distinguishes five high ground-floor arches,
+rustication, the central wine-red entrance canopy, varied window registers,
+wrought-iron balcony bands, a patinated stepped mansard with dormers and flags,
+and open `HOTEL ADLON` roof lettering. Starbucks Pariser Platz remains a tenant
+detail rather than a second building shell: OSM node `66917229` binds two
+shallow dark-glass storefront overlays to the south-west corner of LoD2 body
+`K00005Hq`, each with a restrained grey facade wordmark. Freestanding black
+umbrellas, furniture and planters replace the former invented green fascia and
+attached awning. Day, Night, Snowstorm and Schwellenraum share static geometry;
+Minecraft uses one additional coarse, opaque block batch for both identities.
+Four openly licensed Wikimedia reference files are pinned and publicly
+attributed, but no photograph is bundled or projected as a facade texture. The
+French, British and Hungarian embassy overlays are
 anchored to their respective LoD2 buildings and add only their defining public
 facade features: French Bel-Etage openings and Rue de France, the British
 screen/collage and green roof, and the Hungarian glazed base, stone wings and

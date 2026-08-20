@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.9"
+PACKAGE_VERSION = "0.72.10"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3436,6 +3436,17 @@ in Tag, Nacht, Minecraft, Schneesturm und Schwellenraum sichtbar. Nur der
 Quellanker und die veröffentlichten Sachmerkmale sind fest; alle örtlichen Maße
 und Anordnungen sind fotoeingrenzte, nicht vermessene Darstellungswerte. Es wird
 kein Foto oder Screenshot gebündelt.
+Version {PACKAGE_VERSION} richtet Hotel Adlon und Starbucks an ihren echten
+Pariser-Platz-Fassaden aus. Adlon folgt OSM-Relation 4582978, Außenweg 26041943
+und LoD2-Körper K00006ot; Rundbögen, Rustika, rotes Eingangsvordach,
+Balkonbänder, patiniertes Mansarddach, Gauben, Flaggen und offene Dachschrift
+bilden eine statische, quellengebundene Erkennungsschicht. Starbucks folgt
+OSM-Knoten 66917229 um die Südwestecke von LoD2-Körper K00005Hq: zwei flache
+Glasfronten, graue Fassadenschrift und freistehende schwarze Terrassenelemente
+ersetzen die frühere diagonale grüne Blende. Minecraft verwendet dafür eine
+gemeinsame grobe, opake Blocksignatur. Vier frei lizenzierte Referenzen sind im
+öffentlichen Quellenpaket attribuiert; kein Foto wird als Fassadentextur
+gebündelt oder projiziert.
 Version {PACKAGE_VERSION} unterscheidet am Invalidenfriedhof außerdem das
 Scharnhorst-Löwengrab, die charakteristischen Grabmale Witzleben, Winterfeld,
 Kessel und Rauch, die Auguste-Viktoria-Glocke im offenen Stahlrahmen sowie
@@ -3696,6 +3707,16 @@ Minecraft, Snowstorm and Schwellenraum. Only the source anchor and published
 descriptive facts are fixed; all local dimensions and arrangements are
 photo-bounded, non-surveyed display values. No photograph or screenshot is
 bundled.
+Version {PACKAGE_VERSION} aligns Hotel Adlon and Starbucks to their real
+Pariser-Platz frontages. Adlon follows OSM relation 4582978, outer way
+26041943 and LoD2 body K00006ot; arches, rustication, wine-red entrance canopy,
+balcony bands, patinated mansard, dormers, flags and open roof lettering form
+a static, source-bound recognition layer. Starbucks follows OSM node 66917229
+around the south-west corner of LoD2 body K00005Hq: two shallow glass fronts,
+grey facade lettering and freestanding black terrace cues replace the former
+diagonal green fascia. Minecraft uses one shared coarse, opaque block
+signature. Four openly licensed references are attributed in the public source
+package; no photograph is bundled or projected as a facade texture.
 Version {PACKAGE_VERSION} also distinguishes the Invalidenfriedhof's
 Scharnhorst lion tomb, characteristic Witzleben, Winterfeld, Kessel and Rauch
 monuments, open-framed Auguste-Viktoria bell, and separate canal and Hinterland

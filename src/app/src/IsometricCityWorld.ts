@@ -47,6 +47,7 @@ import {
   TILLA_DURIEUX_PROFILE,
 } from "./expandedCityProfiles";
 import { GOLDELSE_HEIGHT_M, createGoldelseFigure } from "./goldelse";
+import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
 import {
   SIEGESSAEULE_BRONZE_TONES,
   SIEGESSAEULE_MOSAIC_TONES,
@@ -124,7 +125,13 @@ import {
   extrapolatedMarginBands,
 } from "./worldEnvelope";
 import type { VisualMode } from "./visualMode";
-import { setModeOnlyDetails } from "./modeOnlyDetails";
+import { createSnowAccents, setModeOnlyDetails } from "./modeOnlyDetails";
+import {
+  createBuilder,
+  finishDrawnGroup,
+  paintGeometry,
+  type Builder,
+} from "./drawnKit";
 import { schwellenraumObjektmodus } from "./visual-modes/schwellenraum/presentation";
 import {
   createTunnelPortalApproachTester,
@@ -1411,6 +1418,7 @@ export function setIsoNightPresentation(
     "Moltkebrücke ornamental stone bodies",
     "Moltkebrücke ornamental stone lamps",
     "Adlon bodies",
+    "Adlon lamps",
     "Paul-Löbe canopy bodies",
     "tunnel portal ramps",
     "monument bodies",
@@ -6411,231 +6419,963 @@ function createPresentationBackdrop(): Mesh {
   return backdrop;
 }
 
-/**
- * Hotel Adlon recognition layer. The committed LoD2 footprint
- * DEBE01YYK00006ot anchors the complete block; this authored frontage adds
- * the Pariser-Platz proportions, window rhythm and patinated mansard that the
- * unusually low source shell cannot express.
- */
-export const ADLON_LOD2_ID = "K00006ot";
-export const ADLON_WORLD: [number, number] = [590.0, 341.0];
+/** Source identifiers kept as compatibility exports for scene and tests. */
+export const ADLON_LOD2_ID = HOTEL_ADLON_PROFILE.lod2BuildingId;
+export const ADLON_WORLD: [number, number] = [
+  ...HOTEL_ADLON_PROFILE.front.centerWorldM,
+];
 
+type AdlonFrame = {
+  axis: readonly [number, number];
+  center: readonly [number, number];
+  inward: readonly [number, number];
+  rotationY: number;
+};
+
+type AdlonPoint3 = readonly [number, number, number];
+
+const ADLON_LETTER_PIXELS: Readonly<Record<string, readonly string[]>> = {
+  A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
+  D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
+  E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+  H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
+  L: ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
+  N: ["10001", "11001", "11001", "10101", "10011", "10011", "10001"],
+  O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
+  T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+};
+
+function adlonFramePoint(
+  frame: AdlonFrame,
+  alongM: number,
+  inwardM: number,
+): readonly [number, number] {
+  return [
+    frame.center[0] + frame.axis[0] * alongM + frame.inward[0] * inwardM,
+    frame.center[1] + frame.axis[1] * alongM + frame.inward[1] * inwardM,
+  ];
+}
+
+function adlonFrameFromSegment(
+  start: readonly [number, number],
+  end: readonly [number, number],
+  centerDistanceM?: number,
+): AdlonFrame {
+  const dx = end[0] - start[0];
+  const dz = end[1] - start[1];
+  const lengthM = Math.hypot(dx, dz);
+  const axis = [dx / lengthM, dz / lengthM] as const;
+  const centerM = centerDistanceM ?? lengthM / 2;
+  return {
+    axis,
+    center: [start[0] + axis[0] * centerM, start[1] + axis[1] * centerM],
+    inward: [-axis[1], axis[0]],
+    rotationY: Math.atan2(-axis[1], axis[0]),
+  };
+}
+
+function adlonPointAlongSegment(
+  start: readonly [number, number],
+  end: readonly [number, number],
+  distanceM: number,
+): readonly [number, number] {
+  return adlonFrameFromSegment(start, end, distanceM).center;
+}
+
+function addAdlonGeometry(
+  builder: Builder,
+  geometry: BufferGeometry,
+  color: number,
+  bucket: "lamps" | "parts" = "parts",
+  inked = false,
+): void {
+  // BoxGeometry is indexed while ExtrudeGeometry and the faceted mansard are
+  // not. drawnKit deliberately rejects mixed merge inputs, so normalize every
+  // Adlon part to the same compact position/normal/color attribute contract.
+  const mergeGeometry = geometry.index ? geometry.toNonIndexed() : geometry;
+  for (const attributeName of Object.keys(mergeGeometry.attributes)) {
+    if (attributeName !== "position" && attributeName !== "normal") {
+      mergeGeometry.deleteAttribute(attributeName);
+    }
+  }
+  if (!mergeGeometry.getAttribute("normal")) {
+    mergeGeometry.computeVertexNormals();
+  }
+  paintGeometry(mergeGeometry, color);
+  builder[bucket].push(mergeGeometry);
+  if (inked) {
+    builder.edges.push(
+      new EdgesGeometry(mergeGeometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
+    );
+  }
+  if (mergeGeometry !== geometry) geometry.dispose();
+}
+
+function addAdlonFrameBox(
+  builder: Builder,
+  frame: AdlonFrame,
+  color: number,
+  alongM: number,
+  y: number,
+  inwardM: number,
+  widthM: number,
+  heightM: number,
+  depthM: number,
+  bucket: "lamps" | "parts" = "parts",
+  inked = false,
+): void {
+  const [x, z] = adlonFramePoint(frame, alongM, inwardM);
+  const geometry = new BoxGeometry(widthM, heightM, depthM);
+  geometry.rotateY(frame.rotationY);
+  geometry.translate(x, y, z);
+  addAdlonGeometry(builder, geometry, color, bucket, inked);
+}
+
+function addAdlonArch(
+  builder: Builder,
+  frame: AdlonFrame,
+  alongM: number,
+  widthM: number,
+  baseY: number,
+  springY: number,
+  inwardM: number,
+): void {
+  const radius = widthM / 2;
+  const shape = new Shape();
+  shape.moveTo(alongM - radius, baseY);
+  shape.lineTo(alongM + radius, baseY);
+  shape.lineTo(alongM + radius, springY);
+  shape.absarc(alongM, springY, radius, 0, Math.PI, false);
+  shape.lineTo(alongM - radius, baseY);
+  const depthM = 0.22;
+  const geometry = new ExtrudeGeometry(shape, {
+    bevelEnabled: false,
+    depth: depthM,
+  });
+  geometry.translate(0, 0, inwardM - depthM / 2);
+  geometry.rotateY(frame.rotationY);
+  geometry.translate(frame.center[0], 0, frame.center[1]);
+  addAdlonGeometry(builder, geometry, 0x314248, "lamps", true);
+}
+
+function adlonMansardGeometry(): BufferGeometry {
+  const { eavesWorldY, ridgeWorldY } = HOTEL_ADLON_PROFILE.heights;
+  const depthM = HOTEL_ADLON_PROFILE.publicFacade.frontHeadDepthM;
+  const westBack = adlonPointAlongSegment(
+    HOTEL_ADLON_PROFILE.returns.west.startWorldM,
+    HOTEL_ADLON_PROFILE.returns.west.endWorldM,
+    depthM,
+  );
+  const eastBack = adlonPointAlongSegment(
+    HOTEL_ADLON_PROFILE.returns.east.startWorldM,
+    HOTEL_ADLON_PROFILE.returns.east.endWorldM,
+    depthM,
+  );
+  const outer: AdlonPoint3[] = [
+    [
+      HOTEL_ADLON_PROFILE.front.westWorldM[0],
+      eavesWorldY,
+      HOTEL_ADLON_PROFILE.front.westWorldM[1],
+    ],
+    [
+      HOTEL_ADLON_PROFILE.front.eastWorldM[0],
+      eavesWorldY,
+      HOTEL_ADLON_PROFILE.front.eastWorldM[1],
+    ],
+    [eastBack[0], eavesWorldY, eastBack[1]],
+    [westBack[0], eavesWorldY, westBack[1]],
+  ];
+  const shoulderY = 31.45;
+  const centreX = outer.reduce((sum, point) => sum + point[0], 0) / 4;
+  const centreZ = outer.reduce((sum, point) => sum + point[2], 0) / 4;
+  const shoulder = outer.map((point): AdlonPoint3 => {
+    const dx = centreX - point[0];
+    const dz = centreZ - point[2];
+    const lengthM = Math.hypot(dx, dz);
+    return [
+      point[0] + (dx / lengthM) * 3.1,
+      shoulderY,
+      point[2] + (dz / lengthM) * 3.1,
+    ];
+  });
+  const leftMid = [
+    (shoulder[0][0] + shoulder[3][0]) / 2,
+    (shoulder[0][2] + shoulder[3][2]) / 2,
+  ] as const;
+  const rightMid = [
+    (shoulder[1][0] + shoulder[2][0]) / 2,
+    (shoulder[1][2] + shoulder[2][2]) / 2,
+  ] as const;
+  const ridgeDx = rightMid[0] - leftMid[0];
+  const ridgeDz = rightMid[1] - leftMid[1];
+  const ridgeLengthM = Math.hypot(ridgeDx, ridgeDz);
+  const ridgeAxis = [ridgeDx / ridgeLengthM, ridgeDz / ridgeLengthM] as const;
+  const ridge: [AdlonPoint3, AdlonPoint3] = [
+    [
+      leftMid[0] + ridgeAxis[0] * 5.7,
+      ridgeWorldY,
+      leftMid[1] + ridgeAxis[1] * 5.7,
+    ],
+    [
+      rightMid[0] - ridgeAxis[0] * 5.7,
+      ridgeWorldY,
+      rightMid[1] - ridgeAxis[1] * 5.7,
+    ],
+  ];
+  const positions: number[] = [];
+  const addTriangle = (a: AdlonPoint3, b: AdlonPoint3, c: AdlonPoint3): void => {
+    positions.push(...a, ...b, ...c);
+  };
+  const addQuad = (
+    a: AdlonPoint3,
+    b: AdlonPoint3,
+    c: AdlonPoint3,
+    d: AdlonPoint3,
+  ): void => {
+    addTriangle(a, b, c);
+    addTriangle(a, c, d);
+  };
+  addQuad(outer[0], outer[1], shoulder[1], shoulder[0]);
+  addQuad(outer[1], outer[2], shoulder[2], shoulder[1]);
+  addQuad(outer[2], outer[3], shoulder[3], shoulder[2]);
+  addQuad(outer[3], outer[0], shoulder[0], shoulder[3]);
+  addQuad(shoulder[0], shoulder[1], ridge[1], ridge[0]);
+  addQuad(shoulder[2], shoulder[3], ridge[0], ridge[1]);
+  addTriangle(shoulder[3], shoulder[0], ridge[0]);
+  addTriangle(shoulder[1], shoulder[2], ridge[1]);
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(new Float32Array(positions), 3),
+  );
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function addAdlonOpenLettering(
+  builder: Builder,
+  frame: AdlonFrame,
+  centerAlongM: number,
+  baselineY: number,
+  inwardM: number,
+): void {
+  const text = "HOTEL ADLON";
+  const pixelWidthM = 0.13;
+  const pixelHeightM = 0.16;
+  const columnStepM = 0.17;
+  const rowStepM = 0.18;
+  const glyphAdvanceM = 1.02;
+  const spaceAdvanceM = 0.62;
+  const totalWidthM = [...text].reduce(
+    (width, character) =>
+      width + (character === " " ? spaceAdvanceM : glyphAdvanceM),
+    0,
+  );
+  let cursorM = centerAlongM - totalWidthM / 2;
+  for (const character of text) {
+    if (character === " ") {
+      cursorM += spaceAdvanceM;
+      continue;
+    }
+    const rows = ADLON_LETTER_PIXELS[character];
+    for (let row = 0; row < rows.length; row += 1) {
+      for (let column = 0; column < rows[row].length; column += 1) {
+        if (rows[row][column] !== "1") continue;
+        addAdlonFrameBox(
+          builder,
+          frame,
+          0xc49a54,
+          cursorM + column * columnStepM,
+          baselineY + (6 - row) * rowStepM,
+          inwardM,
+          pixelWidthM,
+          pixelHeightM,
+          0.12,
+          "lamps",
+        );
+      }
+    }
+    cursorM += glyphAdvanceM;
+  }
+}
+
+function addAdlonMarker(
+  group: Group,
+  name: string,
+  metadata: Record<string, unknown>,
+): void {
+  const marker = new Group();
+  marker.name = name;
+  marker.userData = metadata;
+  group.add(marker);
+}
+
+/**
+ * Source-bound Hotel Adlon recognition layer.
+ *
+ * The committed low LoD2 prism remains untouched. This model adds a thin
+ * facade veneer on the exact OSM front bearing plus the missing roof volume;
+ * it never builds a second courtyard block or suppresses source geometry.
+ */
 export function createHotelAdlon(): Group {
-  const group = new Group();
+  const profile = HOTEL_ADLON_PROFILE;
+  const front: AdlonFrame = {
+    axis: profile.front.axisWorld,
+    center: profile.front.centerWorldM,
+    inward: [
+      -profile.front.outwardNormalWorld[0],
+      -profile.front.outwardNormalWorld[1],
+    ],
+    rotationY: profile.front.rotationY,
+  };
+  const builder = createBuilder();
+  const facade = 0xf3e0c8;
+  const stoneLight = 0xeadcc5;
+  const rustica = 0xd9c8ad;
+  const windowSurround = 0xded2bd;
+  const wroughtIron = 0x303735;
+  const roof = 0x668574;
+  const roofDark = 0x4f6d61;
+  const awning = 0x983c36;
+  const groundY = profile.heights.groundWorldY;
+  const eavesY = profile.heights.eavesWorldY;
+  const facadeHeightM = eavesY - groundY;
+
+  // A 28 cm facade skin follows the measured front axis. It is intentionally
+  // too thin to act as a second building mass over the retained LoD2 shell.
+  addAdlonFrameBox(
+    builder,
+    front,
+    facade,
+    0,
+    groundY + facadeHeightM / 2,
+    -0.12,
+    profile.front.lengthM,
+    facadeHeightM,
+    0.28,
+    "parts",
+    true,
+  );
+  addAdlonFrameBox(
+    builder,
+    front,
+    rustica,
+    0,
+    8.05,
+    -0.31,
+    profile.front.lengthM + 0.1,
+    6.5,
+    0.18,
+  );
+
+  // Five tall ground-floor arches. The centre bay carries the real entrance
+  // hierarchy instead of the former opaque rectangular portico.
+  const archCentresM = [-25.2, -12.6, 0, 12.6, 25.2] as const;
+  archCentresM.forEach((alongM, index) => {
+    addAdlonArch(
+      builder,
+      front,
+      alongM,
+      index === 2 ? 8.4 : 7.35,
+      groundY + 0.35,
+      groundY + 3.0,
+      -0.47,
+    );
+  });
+  // Entrance doors and brass centre stile remain visible under the canopy.
+  for (const alongM of [-2.1, 0, 2.1]) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      0x23363b,
+      alongM,
+      groundY + 2.35,
+      -0.62,
+      1.75,
+      4.35,
+      0.12,
+      "lamps",
+    );
+  }
+  addAdlonFrameBox(
+    builder,
+    front,
+    0xb79052,
+    0,
+    groundY + 2.4,
+    -0.72,
+    0.16,
+    4.4,
+    0.12,
+  );
+
+  // Belt courses preserve the six-level reading without manufacturing a
+  // duplicate deep shell.
+  for (const [y, height, depth] of [
+    [groundY + 6.55, 0.32, 0.38],
+    [groundY + 9.55, 0.26, 0.32],
+    [groundY + 12.55, 0.22, 0.3],
+    [eavesY - 0.22, 0.5, 0.5],
+  ] as const) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      stoneLight,
+      0,
+      y,
+      -depth / 2 - 0.23,
+      profile.front.lengthM + 0.5,
+      height,
+      depth,
+      "parts",
+      true,
+    );
+  }
+
+  const addWindow = (
+    windowPlane: AdlonFrame,
+    alongM: number,
+    y: number,
+    widthM: number,
+    heightM: number,
+  ): void => {
+    addAdlonFrameBox(
+      builder,
+      windowPlane,
+      0x536970,
+      alongM,
+      y,
+      -0.49,
+      widthM,
+      heightM,
+      0.12,
+      "lamps",
+    );
+    const frameDepth = -0.58;
+    for (const side of [-1, 1]) {
+      addAdlonFrameBox(
+        builder,
+        windowPlane,
+        windowSurround,
+        alongM + (side * (widthM + 0.24)) / 2,
+        y,
+        frameDepth,
+        0.24,
+        heightM + 0.3,
+        0.12,
+      );
+    }
+    for (const vertical of [-1, 1]) {
+      addAdlonFrameBox(
+        builder,
+        windowPlane,
+        windowSurround,
+        alongM,
+        y + (vertical * (heightM + 0.24)) / 2,
+        frameDepth,
+        widthM + 0.48,
+        0.24,
+        0.12,
+      );
+    }
+    addAdlonFrameBox(
+      builder,
+      windowPlane,
+      0xc9c6b7,
+      alongM,
+      y,
+      -0.64,
+      0.08,
+      heightM,
+      0.08,
+    );
+  };
+
+  // The compact mezzanine carries eleven smaller openings; the four upper
+  // registers use nine alternating wide/narrow French-window axes.
+  for (let index = 0; index < 11; index += 1) {
+    addWindow(front, -29.5 + index * 5.9, 12.45, 2.45, 1.75);
+  }
+  const upperRows = [15.65, 18.85, 22.0, 25.05] as const;
+  for (const y of upperRows) {
+    profile.publicFacade.frontWindowAxesM.forEach((alongM, index) => {
+      addWindow(front, alongM, y, index % 2 === 0 ? 3.25 : 2.25, 2.35);
+    });
+  }
+
+  // Wrought-iron balconettes and the characteristic long upper gallery.
+  for (const y of [17.0, 20.2]) {
+    profile.publicFacade.frontWindowAxesM.forEach((alongM, index) => {
+      if (index % 2 !== 0) return;
+      addAdlonFrameBox(
+        builder,
+        front,
+        wroughtIron,
+        alongM,
+        y,
+        -0.82,
+        3.8,
+        0.12,
+        0.12,
+      );
+      for (const offsetM of [-1.55, -0.78, 0, 0.78, 1.55]) {
+        addAdlonFrameBox(
+          builder,
+          front,
+          wroughtIron,
+          alongM + offsetM,
+          y + 0.42,
+          -0.81,
+          0.08,
+          0.82,
+          0.08,
+        );
+      }
+    });
+  }
+  for (const y of [23.45, 24.05, 24.65]) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      wroughtIron,
+      0,
+      y,
+      -0.84,
+      profile.front.lengthM - 1.8,
+      0.08,
+      0.08,
+    );
+  }
+  for (let alongM = -32; alongM <= 32; alongM += 2.9) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      wroughtIron,
+      alongM,
+      24.05,
+      -0.84,
+      0.07,
+      1.25,
+      0.07,
+    );
+  }
+
+  // The July-2006 wine-red entrance canopy, Quarré awnings and a deliberately
+  // compact current terrace reading remain one batched facade layer.
+  addAdlonFrameBox(
+    builder,
+    front,
+    awning,
+    0,
+    9.1,
+    -2.45,
+    11.8,
+    0.34,
+    4.5,
+    "parts",
+    true,
+  );
+  addAdlonFrameBox(
+    builder,
+    front,
+    0x7d302f,
+    0,
+    8.72,
+    -4.66,
+    11.8,
+    0.72,
+    0.18,
+  );
+  for (const alongM of [-25.2, -12.6, 12.6, 25.2]) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      awning,
+      alongM,
+      8.0,
+      -1.55,
+      7.1,
+      0.25,
+      2.45,
+    );
+  }
+  for (const alongM of [-22, -10.5, 10.5, 22]) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      0x9f4740,
+      alongM,
+      7.65,
+      -5.7,
+      5.2,
+      0.2,
+      3.1,
+    );
+    addAdlonFrameBox(
+      builder,
+      front,
+      wroughtIron,
+      alongM,
+      6.15,
+      -5.7,
+      0.12,
+      3,
+      0.12,
+    );
+  }
+  addAdlonFrameBox(
+    builder,
+    front,
+    0x556146,
+    0,
+    5.55,
+    -7.25,
+    55,
+    0.75,
+    0.65,
+  );
+
+  // The retained LoD2 shell ends below the eaves. Three 28 cm skins close
+  // only that missing upper head (both real OSM return bearings plus its rear
+  // seam), keeping the supplement hollow instead of adding a massive second
+  // building over the authoritative source footprint.
+  const headDepthM = profile.publicFacade.frontHeadDepthM;
+  const sourceTopY = groundY + profile.heights.lod2MeasuredHeightM;
+  const upperHeadHeightM = eavesY - sourceTopY;
+  const eastReturnFrame = adlonFrameFromSegment(
+    profile.returns.east.startWorldM,
+    profile.returns.east.endWorldM,
+    headDepthM / 2,
+  );
+  const westReturnFrame = adlonFrameFromSegment(
+    profile.returns.west.startWorldM,
+    profile.returns.west.endWorldM,
+    headDepthM / 2,
+  );
+  for (const returnFrame of [westReturnFrame, eastReturnFrame]) {
+    addAdlonFrameBox(
+      builder,
+      returnFrame,
+      facade,
+      0,
+      sourceTopY + upperHeadHeightM / 2,
+      0,
+      headDepthM,
+      upperHeadHeightM,
+      0.28,
+      "parts",
+      true,
+    );
+  }
+  const westBack = adlonPointAlongSegment(
+    profile.returns.west.startWorldM,
+    profile.returns.west.endWorldM,
+    headDepthM,
+  );
+  const eastBack = adlonPointAlongSegment(
+    profile.returns.east.startWorldM,
+    profile.returns.east.endWorldM,
+    headDepthM,
+  );
+  const rearFrame = adlonFrameFromSegment(westBack, eastBack);
+  addAdlonFrameBox(
+    builder,
+    rearFrame,
+    facade,
+    0,
+    sourceTopY + upperHeadHeightM / 2,
+    0,
+    Math.hypot(eastBack[0] - westBack[0], eastBack[1] - westBack[1]),
+    upperHeadHeightM,
+    0.28,
+    "parts",
+    true,
+  );
+
+  // The freely licensed 2024 east-return view resolves the upper facade as
+  // repeated French-window axes with belt courses, wrought balconettes and
+  // dormers. Keep those cues in the existing batches; the west return remains
+  // plain because the selected references do not establish the same detail.
+  const eastUpperWindowAxesM = [-7.8, -2.6, 2.6, 7.8] as const;
+  for (const y of [18.45, 21.65, 24.85]) {
+    for (const alongM of eastUpperWindowAxesM) {
+      addWindow(eastReturnFrame, alongM, y, 3.05, 2.2);
+    }
+  }
+  for (const y of [19.95, 23.15, eavesY - 0.22]) {
+    addAdlonFrameBox(
+      builder,
+      eastReturnFrame,
+      stoneLight,
+      0,
+      y,
+      -0.16,
+      headDepthM + 0.3,
+      0.22,
+      0.34,
+      "parts",
+      true,
+    );
+  }
+  for (const railY of [20.55, 23.75]) {
+    for (const offsetY of [0, 0.58]) {
+      addAdlonFrameBox(
+        builder,
+        eastReturnFrame,
+        wroughtIron,
+        0,
+        railY + offsetY,
+        -0.48,
+        headDepthM - 1.2,
+        0.08,
+        0.08,
+      );
+    }
+    for (let alongM = -9.6; alongM <= 9.6; alongM += 1.2) {
+      addAdlonFrameBox(
+        builder,
+        eastReturnFrame,
+        wroughtIron,
+        alongM,
+        railY + 0.29,
+        -0.48,
+        0.07,
+        0.66,
+        0.07,
+      );
+    }
+  }
+
+  // One closed, faceted mansard/hip surface replaces the previous green
+  // boxes. Eight dormers, standing seams and rainwater goods remain legible.
+  addAdlonGeometry(builder, adlonMansardGeometry(), roof, "parts", true);
+  const dormerAxesM = [-29, -21, -13, -4.5, 4.5, 13, 21, 29] as const;
+  for (const alongM of dormerAxesM) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      roofDark,
+      alongM,
+      29.95,
+      1.25,
+      3.15,
+      2.7,
+      2.2,
+      "parts",
+      true,
+    );
+    addAdlonFrameBox(
+      builder,
+      front,
+      0x526b73,
+      alongM,
+      29.75,
+      0.1,
+      1.95,
+      1.55,
+      0.12,
+      "lamps",
+    );
+  }
+  const eastDormerAxesM = [-6.8, 0, 6.8] as const;
+  for (const alongM of eastDormerAxesM) {
+    addAdlonFrameBox(
+      builder,
+      eastReturnFrame,
+      roofDark,
+      alongM,
+      29.95,
+      1.2,
+      3.15,
+      2.7,
+      2.2,
+      "parts",
+      true,
+    );
+    addAdlonFrameBox(
+      builder,
+      eastReturnFrame,
+      0x526b73,
+      alongM,
+      29.75,
+      0.05,
+      1.95,
+      1.55,
+      0.12,
+      "lamps",
+    );
+  }
+  for (let alongM = -32; alongM <= 32; alongM += 4) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      roofDark,
+      alongM,
+      29.15,
+      1.45,
+      0.08,
+      3.65,
+      0.08,
+    );
+  }
+  addAdlonFrameBox(
+    builder,
+    front,
+    roofDark,
+    0,
+    eavesY + 0.08,
+    -0.27,
+    profile.front.lengthM + 0.25,
+    0.18,
+    0.22,
+  );
+  for (const alongM of [-27.8, -14, 0, 14, 27.8]) {
+    addAdlonFrameBox(
+      builder,
+      front,
+      roofDark,
+      alongM,
+      17.2,
+      -0.72,
+      0.13,
+      19.9,
+      0.13,
+    );
+  }
+
+  // Three static roof flags and two open, code-native HOTEL ADLON signs are
+  // merged into the existing body/lamp batches rather than adding draw calls.
+  const flagColors = [0x1f2f5c, 0x272727, 0xffffff] as const;
+  [-27, 0, 27].forEach((alongM, index) => {
+    addAdlonFrameBox(
+      builder,
+      front,
+      0x6f8278,
+      alongM,
+      36.8,
+      11,
+      0.12,
+      5.6,
+      0.12,
+    );
+    addAdlonFrameBox(
+      builder,
+      front,
+      flagColors[index],
+      alongM + 1.05,
+      38.55,
+      11,
+      2,
+      1.05,
+      0.08,
+    );
+  });
+  addAdlonOpenLettering(builder, front, 0, 34.45, 10.8);
+  addAdlonOpenLettering(builder, eastReturnFrame, 0, 33.7, -3.2);
+
+  const group =
+    finishDrawnGroup(builder, {
+      lampEmissive: 0xffd69a,
+      lampEmissiveIntensity: 0.62,
+      name: "Adlon",
+    }) ?? new Group();
   group.name = "LoD2-anchored Hotel Adlon recognition layer";
   group.userData.extrapolated = false;
   group.userData.lod2BuildingId = ADLON_LOD2_ID;
   group.userData.geometryStatus =
-    "Berlin LoD2 block anchor with photograph-bounded Pariser-Platz facade and copper mansard details";
-  const [ax, az] = ADLON_WORLD;
-  const GROUND = 4.8;
-  const EAVES = 27.6;
-  const parts: BufferGeometry[] = [];
-  const edges: BufferGeometry[] = [];
-  const FACADE = new Color(0xf2ebda);
-  const SOCKEL = new Color(0xe6dfcd);
-  const ROOF = new Color(0x668574);
-  const ROOF_DARK = new Color(0x4f6d61);
-  const WINDOW = new Color(0x526e76);
-  const AWNING = new Color(0x9f3f36);
-  const add = (triangles: Float32Array, tone: Color, inked = true): void => {
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", new Float32BufferAttribute(triangles, 3));
-    geometry.computeVertexNormals();
-    const count = geometry.getAttribute("position").count;
-    const colors = new Float32Array(count * 3);
-    for (let index = 0; index < count; index += 1) {
-      colors[index * 3] = tone.r;
-      colors[index * 3 + 1] = tone.g;
-      colors[index * 3 + 2] = tone.b;
-    }
-    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
-    parts.push(geometry);
-    if (inked) {
-      edges.push(new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES));
-    }
+    "retained Berlin LoD2 source shell with exact OSM-front facade veneer, photo-bounded mansard and no raster texture";
+  group.userData.sourceProfile = HOTEL_ADLON_PROFILE;
+  group.userData.drawCallBudget = 4;
+  group.userData.facadeSkinDepthM = 0.28;
+  group.userData.hasCornerRisalit = false;
+  group.userData.frontBearingDegreesXZ = profile.front.bearingDegreesXZ;
+  group.userData.upperHeadClosedWithHollowSkins = true;
+  group.userData.eastLetteringFrame = {
+    axisWorld: eastReturnFrame.axis,
+    bearingDegreesXZ: profile.returns.east.bearingDegreesXZ,
+    endWorldM: profile.returns.east.endWorldM,
+    startWorldM: profile.returns.east.startWorldM,
   };
-  // Pariser-Platz head building around its court; the larger southern LoD2
-  // continuation remains in the generic surveyed block behind this layer.
-  const halfX = 38;
-  const halfZ = 27;
-  const wing = 14;
-  const wings: Array<[number, number, number, number]> = [
-    [0, -halfZ + wing / 2, halfX * 2, wing],
-    [0, halfZ - wing / 2, halfX * 2, wing],
-    [-halfX + wing / 2, 0, wing, halfZ * 2 - wing * 2],
-    [halfX - wing / 2, 0, wing, halfZ * 2 - wing * 2],
-  ];
-  for (const [ox, oz, sx, sz] of wings) {
-    add(
-      boxTriangles(
-        ax + ox,
-        GROUND + (EAVES - GROUND) / 2,
-        az + oz,
-        [1, 0],
-        sx,
-        EAVES - GROUND,
-        sz,
-      ),
-      FACADE,
-    );
-    // Sockel band and eaves cornice, matching the city convention.
-    add(
-      boxTriangles(
-        ax + ox,
-        GROUND + 0.35,
-        az + oz,
-        [1, 0],
-        sx + 0.5,
-        0.7,
-        sz + 0.5,
-      ),
-      SOCKEL,
-    );
-    add(
-      boxTriangles(
-        ax + ox,
-        EAVES + 0.2,
-        az + oz,
-        [1, 0],
-        sx + 0.9,
-        0.5,
-        sz + 0.9,
-      ),
-      SOCKEL,
-    );
-    // Patinated copper mansard storey, stepped in.
-    add(
-      boxTriangles(
-        ax + ox,
-        EAVES + 2.1,
-        az + oz,
-        [1, 0],
-        sx - 2.2,
-        3.4,
-        sz - 2.2,
-      ),
-      ROOF,
-    );
-  }
-  // The Pariser-Platz corner risalit rises one storey higher.
-  add(
-    boxTriangles(
-      ax - halfX + 9,
-      GROUND + (EAVES + 3 - GROUND) / 2,
-      az - halfZ + 9,
-      [1, 0],
-      18,
-      EAVES + 3 - GROUND,
-      18,
-    ),
-    FACADE,
-  );
-  add(
-    boxTriangles(
-      ax - halfX + 9,
-      EAVES + 5.4,
-      az - halfZ + 9,
-      [1, 0],
-      15.8,
-      3.8,
-      15.8,
-    ),
-    ROOF,
-  );
+  group.userData.sourcePrismSuppressed = false;
 
-  // Five strict facade registers, slim limestone pilasters and the familiar
-  // red ground-floor awnings make the square frontage identifiable at close
-  // range without using a photograph as a texture.
-  const frontZ = az - halfZ - 0.24;
-  for (let bay = 0; bay < 15; bay += 1) {
-    const x = ax - 33.2 + bay * 4.75;
-    for (let floor = 0; floor < 5; floor += 1) {
-      add(
-        boxTriangles(
-          x,
-          GROUND + 4.35 + floor * 4.05,
-          frontZ,
-          [1, 0],
-          2.65,
-          2.45,
-          0.28,
-        ),
-        WINDOW,
-      );
-    }
-    add(
-      boxTriangles(
-        x + 2.22,
-        GROUND + 11.5,
-        frontZ - 0.06,
-        [1, 0],
-        0.3,
-        22.8,
-        0.34,
-      ),
-      SOCKEL,
-      false,
-    );
-    if (bay % 2 === 0) {
-      add(
-        boxTriangles(x, GROUND + 3.05, frontZ - 0.72, [1, 0], 3.2, 0.32, 1.35),
-        AWNING,
-      );
-    }
+  const body = group.getObjectByName("Adlon bodies");
+  if (body instanceof Mesh) {
+    const dayMaterial = body.userData.dayMaterial as MeshBasicMaterial;
+    const nightMaterial = body.userData.nightMaterial as MeshStandardMaterial;
+    dayMaterial.side = DoubleSide;
+    nightMaterial.side = DoubleSide;
   }
-  // Dormers and roof seams keep the broad green cap from reading as a slab.
-  for (let bay = 0; bay < 11; bay += 1) {
-    const x = ax - 30 + bay * 6;
-    add(
-      boxTriangles(x, EAVES + 2.45, az - halfZ + 2.5, [1, 0], 2.55, 2.25, 2.0),
-      ROOF_DARK,
-    );
-    add(
-      boxTriangles(x, EAVES + 2.4, az - halfZ + 1.43, [1, 0], 1.45, 1.25, 0.2),
-      WINDOW,
-    );
+  const ink = group.getObjectByName("Adlon ink lines");
+  if (ink instanceof LineSegments) {
+    markArchitecturalInk(ink.material as LineBasicMaterial, "silhouette");
   }
-  // Shallow central portico and balcony at the hotel entrance.
-  add(
-    boxTriangles(ax, GROUND + 5.0, frontZ - 0.45, [1, 0], 11.5, 8.8, 0.65),
-    FACADE,
-  );
-  add(
-    boxTriangles(ax, GROUND + 9.55, frontZ - 1.1, [1, 0], 13.2, 0.45, 2.0),
-    SOCKEL,
-  );
-  const merged = mergeGeometries(parts, false);
-  if (merged) {
-    const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
-    const nightMaterial = new MeshStandardMaterial({
-      flatShading: true,
-      metalness: 0,
-      roughness: 0.9,
-      vertexColors: true,
+
+  for (let index = 0; index < 3; index += 1) {
+    addAdlonMarker(group, `Adlon flagpole ${index + 1}`, {
+      codeNative: true,
+      staticInSchwellenraum: true,
     });
-    const mesh = new Mesh(merged, dayMaterial);
-    mesh.userData.dayMaterial = dayMaterial;
-    mesh.userData.nightMaterial = nightMaterial;
-    mesh.name = "Adlon bodies";
-    group.add(mesh);
-    for (const geometry of parts) {
-      geometry.dispose();
-    }
   }
-  const ink = mergeGeometries(edges, false);
-  if (ink) {
-    const lines = new LineSegments(
-      ink,
-      markArchitecturalInk(new LineBasicMaterial(), "silhouette"),
-    );
-    lines.name = "Adlon ink lines";
-    lines.renderOrder = 2;
-    group.add(lines);
-    for (const geometry of edges) {
-      geometry.dispose();
-    }
-  }
+  addAdlonMarker(group, "Adlon open HOTEL ADLON lettering front", {
+    codeNative: true,
+    facade: "Pariser Platz",
+  });
+  addAdlonMarker(group, "Adlon open HOTEL ADLON lettering east", {
+    axisWorld: eastReturnFrame.axis,
+    bearingDegreesXZ: profile.returns.east.bearingDegreesXZ,
+    codeNative: true,
+    endWorldM: profile.returns.east.endWorldM,
+    facade: "east return",
+    startWorldM: profile.returns.east.startWorldM,
+  });
+  dormerAxesM.forEach((alongM, index) => {
+    addAdlonMarker(group, `Adlon front dormer ${index + 1}`, {
+      alongM,
+      codeNative: true,
+    });
+  });
+  eastDormerAxesM.forEach((alongM, index) => {
+    addAdlonMarker(group, `Adlon east dormer ${index + 1}`, {
+      alongM,
+      codeNative: true,
+      source: profile.sources.visualReferences[1],
+    });
+  });
+  eastUpperWindowAxesM.forEach((alongM, index) => {
+    addAdlonMarker(group, `Adlon east upper window axis ${index + 1}`, {
+      alongM,
+      codeNative: true,
+      source: profile.sources.visualReferences[1],
+    });
+  });
+  archCentresM.forEach((alongM, index) => {
+    addAdlonMarker(group, `Adlon ground arch ${index + 1}`, {
+      alongM,
+      codeNative: true,
+    });
+  });
+
+  const frontSnowWest = adlonFramePoint(front, -34.2, -0.1);
+  const frontSnowEast = adlonFramePoint(front, 34.2, -0.1);
+  const ridgeWest = adlonFramePoint(front, -25.5, 11);
+  const ridgeEast = adlonFramePoint(front, 25.5, 11);
+  group.add(
+    createSnowAccents({
+      name: "Adlon snow accents",
+      ridges: [
+        {
+          end: [frontSnowEast[0], eavesY + 0.31, frontSnowEast[1]],
+          start: [frontSnowWest[0], eavesY + 0.31, frontSnowWest[1]],
+          widthM: 0.22,
+        },
+        {
+          end: [ridgeEast[0], profile.heights.ridgeWorldY + 0.12, ridgeEast[1]],
+          start: [ridgeWest[0], profile.heights.ridgeWorldY + 0.12, ridgeWest[1]],
+          widthM: 0.2,
+        },
+      ],
+    }),
+  );
   return group;
 }
 

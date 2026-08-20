@@ -277,9 +277,17 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Invalidenfriedhof Auguste-Viktoria bell tower fine detail",
   "Günter Litfin watchtower fine detail",
   "Invalidenfriedhof historic wall fine detail",
+  "Starbucks west direct STARBUCKS wordmark",
+  "Starbucks south direct STARBUCKS wordmark",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */
 export const MICRO_DETAIL_LAYER_NAMES: readonly string[] = [
   "Kollhoff clinker mortar joints",
+  "Starbucks four black freestanding umbrella canopies",
+  "Starbucks umbrella poles",
+  "Starbucks compact round pavement tables",
+  "Starbucks compact table stems",
+  "Starbucks compact dark pavement chairs",
+  "Starbucks compact stone planters",
 ];

@@ -31,6 +31,7 @@ const EXPECTED_MODELS = [
   "Minecraft Brandenburg Gate block signature",
   "Minecraft parliamentary band block signature",
   "Minecraft Berliner Ensemble block signature",
+  "Minecraft Hotel Adlon and Starbucks block signature",
 ] as const;
 
 function instancedChildren(): InstancedMesh[] {
@@ -53,14 +54,14 @@ function matrixAndColourFingerprint(mesh: InstancedMesh): string {
 }
 
 describe("block-native Berlin architectural signatures", () => {
-  test("uses six shared, opaque cube batches and stays within budget", () => {
+  test("uses seven shared, opaque cube batches and stays within budget", () => {
     const group = createMinecraftArchitecturalLandmarks();
     expect(group.name).toBe("Minecraft block-native architectural landmarks");
     expect(group.children.map(({ name }) => name)).toEqual(EXPECTED_MODELS);
     expect(group.userData).toMatchObject({
       blockNative: true,
       coarseBlockSpanM: 8,
-      drawCallBudget: 6,
+      drawCallBudget: 7,
       instanceBudget: 5_000,
       noAdditionalPayload: true,
       staticAntiFlicker: true,
@@ -74,6 +75,7 @@ describe("block-native Berlin architectural signatures", () => {
       "brandenburger-tor",
       "parliamentary-band",
       "berliner-ensemble",
+      "pariser-platz-adlon-starbucks",
     ]);
     const geometryIds = new Set<string>();
     const materialIds = new Set<string>();
@@ -107,7 +109,7 @@ describe("block-native Berlin architectural signatures", () => {
     expect(totalBlocks).toBeGreaterThan(3_500);
     expect(totalBlocks).toBeLessThan(5_000);
     expect(meshes.map(({ count }) => count)).toEqual([
-      338, 376, 2_699, 134, 776, 60,
+      338, 376, 2_699, 134, 776, 60, 292,
     ]);
   });
 
@@ -180,6 +182,20 @@ describe("block-native Berlin architectural signatures", () => {
       "upper bridge single block ties": 26,
       "upper parliamentary bridge deck": 13,
     });
+    expect(byName.get(EXPECTED_MODELS[6])).toMatchObject({
+      "Hotel Adlon pale stone facade courses": 45,
+      "Hotel Adlon supported upper-head block mass": 54,
+      "five high ground-floor block arches": 15,
+      "Hotel Adlon five facade window registers": 45,
+      "Hotel Adlon stepped patina-green mansard": 33,
+      "Hotel Adlon eight block dormers": 8,
+      "Hotel Adlon HOTEL roof lettering cue": 5,
+      "Hotel Adlon ADLON roof lettering cue": 5,
+      "Starbucks west glass-block fields": 2,
+      "Starbucks south glass-block fields": 2,
+      "Starbucks two grey block word signs": 18,
+      "Starbucks black block umbrella canopies": 8,
+    });
     expect(byName.get(EXPECTED_MODELS[0])).not.toHaveProperty(
       "40 m stepped glass dome",
     );
@@ -219,6 +235,46 @@ describe("block-native Berlin architectural signatures", () => {
     assertQuarterTurns(meshes[4], "eight coarse Paul-Löbe committee rotundas");
     assertQuarterTurns(meshes[4], "six-course Lüders-Haus library rotunda");
     assertQuarterTurns(meshes[4], "sixteen-block Lüders-Haus Spree opening");
+  });
+
+  test("supports the Adlon mansard from the exact low source top to the eaves", () => {
+    const profile = MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon;
+    const mesh = instancedChildren()[6];
+    const blocks = mesh.userData.sourceBoundBlocks as Array<{
+      cue: string;
+      position: readonly [number, number, number];
+      size: readonly [number, number, number];
+    }>;
+    const upperHead = blocks.filter(
+      ({ cue }) => cue === "Hotel Adlon supported upper-head block mass",
+    );
+    expect(upperHead).toHaveLength(54);
+    const theta = profile.front.rotationY;
+    const cosine = Math.cos(theta);
+    const sine = Math.sin(theta);
+    const localZBounds = upperHead.flatMap(({ position, size }) => {
+      const dx = position[0] - profile.front.centerWorldM[0];
+      const dz = position[2] - profile.front.centerWorldM[1];
+      const localZ = dx * sine + dz * cosine;
+      return [localZ - size[2] / 2, localZ + size[2] / 2];
+    });
+    const bottoms = upperHead.map(
+      ({ position, size }) => position[1] - size[1] / 2,
+    );
+    const tops = upperHead.map(
+      ({ position, size }) => position[1] + size[1] / 2,
+    );
+    expect(Math.min(...bottoms)).toBeCloseTo(
+      profile.heights.groundWorldY + profile.heights.lod2MeasuredHeightM,
+      6,
+    );
+    expect(Math.max(...tops)).toBeCloseTo(profile.heights.eavesWorldY, 6);
+    expect(Math.min(...localZBounds)).toBeCloseTo(0.7, 6);
+    expect(Math.max(...localZBounds)).toBeCloseTo(
+      profile.publicFacade.frontHeadDepthM,
+      6,
+    );
+    expect(Math.max(...upperHead.map(({ size }) => size[1]))).toBeLessThan(8);
   });
 
   test("has no positive-area coplanar top overlaps under OBB SAT", () => {
@@ -325,6 +381,7 @@ describe("block-native Berlin architectural signatures", () => {
     const station = new Box3().setFromObject(meshes[2]);
     const gate = new Box3().setFromObject(meshes[3]);
     const parliament = new Box3().setFromObject(meshes[4]);
+    const pariserPlatz = new Box3().setFromObject(meshes[6]);
 
     expect(MINECRAFT_ARCHITECTURAL_PROFILES.reichstag.anchorWorld).toEqual([
       317.729, 3.595, 40.477,
@@ -374,6 +431,52 @@ describe("block-native Berlin architectural signatures", () => {
     expect(gate.max.y).toBeCloseTo(31, 0);
     expect(parliament.min.x).toBeLessThan(120);
     expect(parliament.max.x).toBeGreaterThan(446.5);
+    expect(MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon).toMatchObject({
+      lod2BuildingId: "K00006ot",
+      front: {
+        bearingDegreesXZ: -5.07,
+        centerWorldM: [591.135, 316.75],
+        rotationY: (5.07 * Math.PI) / 180,
+      },
+    });
+    expect(
+      MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz,
+    ).toMatchObject({
+      lod2BuildingId: "K00005Hq",
+      osmNodeId: "66917229",
+      southwestCornerWorldM: [551.552, 259.24],
+    });
+    expect(pariserPlatz.min.x).toBeGreaterThan(545);
+    expect(pariserPlatz.max.x).toBeLessThan(628);
+    expect(pariserPlatz.min.z).toBeGreaterThan(235);
+    expect(pariserPlatz.max.z).toBeLessThan(342);
+    expect(pariserPlatz.max.y).toBeCloseTo(
+      MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.heights.ridgeWorldY,
+      1,
+    );
+    const rotations = meshes[6].userData.rotationYByCue as Record<
+      string,
+      number[]
+    >;
+    expect(rotations["Hotel Adlon pale stone facade courses"]).toEqual([
+      Number(
+        MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.rotationY.toFixed(6),
+      ),
+    ]);
+    expect(rotations["Starbucks west glass-block fields"]).toEqual([
+      Number(
+        MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz.facades.west.rotationYRadians.toFixed(
+          6,
+        ),
+      ),
+    ]);
+    expect(rotations["Starbucks south glass-block fields"]).toEqual([
+      Number(
+        MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz.facades.south.rotationYRadians.toFixed(
+          6,
+        ),
+      ),
+    ]);
   });
 
   test("keeps the office-bridge portals visibly open to their collision height", () => {
@@ -523,6 +626,20 @@ describe("block-native Berlin architectural signatures", () => {
         chancellery.anchorWorld[2],
       ),
     ).toBeNull();
+    expect(
+      minecraftArchitecturalReplacementAt(
+        MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.centerWorldM[0],
+        MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.centerWorldM[1],
+      ),
+    ).toBeNull();
+    expect(
+      minecraftArchitecturalReplacementAt(
+        MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz
+          .southwestCornerWorldM[0],
+        MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz
+          .southwestCornerWorldM[1],
+      ),
+    ).toBeNull();
   });
 
   test("clips only coarse roof tops that would hide authored block cues", () => {
@@ -596,6 +713,18 @@ describe("block-native Berlin architectural signatures", () => {
     expect(
       MINECRAFT_ARCHITECTURAL_PROFILES.marieElisabethLuedersHaus.sourcePrismIds,
     ).toEqual(["RdNEzXe9"]);
+    expect(MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.lod2BuildingId).toBe(
+      "K00006ot",
+    );
+    expect(
+      MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz.lod2BuildingId,
+    ).toBe("K00005Hq");
+    const pariserPlatz = instancedChildren()[6];
+    expect(pariserPlatz.userData).toMatchObject({
+      completeReplacementMask: false,
+      retainsGenericSourceMass: true,
+      sourcePrismIds: ["K00006ot", "K00005Hq"],
+    });
   });
 
   test("atomically swaps smooth hero architecture only in Minecraft", () => {

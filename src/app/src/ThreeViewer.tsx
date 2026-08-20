@@ -98,6 +98,7 @@ import {
   createCulturalLandmarks,
   culturalFocusCamera,
 } from "./CulturalLandmarks";
+import { setStarbucksPariserPlatzSnow } from "./StarbucksPariserPlatz";
 import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
@@ -1782,6 +1783,7 @@ function setSceneLighting(
   setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
   setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm);
   setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm);
+  setStarbucksPariserPlatzSnow(runtime.culturalDetails, isSnowstorm);
   // Every true mode entry starts from one authored cloth pose. A same-mode
   // Schwellenraum relight (for example after resurfacing) must keep both the
   // current pose and elapsed clock; resetting only the geometry would make
@@ -6174,11 +6176,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           runtime.culturalDetails.add(expandedDetails);
           scene.add(runtime.culturalDetails);
+          setStarbucksPariserPlatzSnow(
+            runtime.culturalDetails,
+            runtime.lightingMode === "snowstorm",
+          );
           applyLightingToRoot(
             runtime.culturalDetails,
             runtime.lightingMode,
             runtime.nightLightsOn,
           );
+          // Cultural details arrive after the initial anti-flicker scan. Add
+          // the thin storefront mullions, lettering and Adlon facade accents
+          // immediately so late-loaded close detail remains stable at range.
+          collectFarZoomAntiFlickerTargets(runtime);
           if (runtime.lightingMode === "minecraft") {
             setMinecraftMaterialPresentation(
               scene,

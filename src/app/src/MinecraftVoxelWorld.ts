@@ -31,6 +31,7 @@ import {
   SIEGESSAEULE_PROFILE,
 } from "./SiegessaeuleProfile";
 import {
+  MINECRAFT_ARCHITECTURAL_PROFILES,
   createMinecraftArchitecturalLandmarks,
   isMinecraftArchitecturalReplacementColumn,
   minecraftArchitecturalVoxelTopAt,
@@ -430,6 +431,39 @@ const RECOGNITION_AREAS: readonly VoxelRecognitionArea[] = [
     tone: 0xe8d1ae,
     widthM: 68,
   },
+  {
+    // Only the shallow north facade authored by the seventh architecture
+    // batch yields its generic square windows. K00006ot's complete southern
+    // hotel block remains measured voxel mass, including all courtyards.
+    center:
+      MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.centerWorldM,
+    depthM: 2.4,
+    name: "Hotel Adlon authored north facade",
+    paddingM: 0.35,
+    rotationDegrees:
+      (MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.rotationY * 180) /
+      Math.PI,
+    tone: 0xf3efd0,
+    widthM: MINECRAFT_ARCHITECTURAL_PROFILES.hotelAdlon.front.lengthM,
+  },
+  ...Object.values(
+    MINECRAFT_ARCHITECTURAL_PROFILES.starbucksPariserPlatz.facades,
+  ).map((facade): VoxelRecognitionArea => ({
+    // The two tenant spans form a short L at K00005Hq's south-west corner.
+    // Suppression is facade-thin; the parent office mass is never replaced.
+    center: [
+      facade.sourceStartWorldM[0] +
+        facade.directionWorld[0] * facade.storefrontLengthM * 0.5,
+      facade.sourceStartWorldM[1] +
+        facade.directionWorld[1] * facade.storefrontLengthM * 0.5,
+    ],
+    depthM: 2.2,
+    name: `Starbucks authored ${facade.key} facade`,
+    paddingM: 0.3,
+    rotationDegrees: (facade.rotationYRadians * 180) / Math.PI,
+    tone: 0xd4d4b7,
+    widthM: facade.storefrontLengthM,
+  })),
   {
     // OSM way/1535591727. The exact bent outline is supplied by the
     // always-visible recognition model; suppress the generic square-window

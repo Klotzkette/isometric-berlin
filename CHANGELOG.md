@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.72.10
+
+- **Hotel Adlon now follows its real Pariser-Platz frontage instead of an
+  axis-aligned generic hotel block.** OSM relation `4582978`, outer way
+  `26041943` and LoD2 body `K00006ot` bind the 68.78 m, 5.07-degree public
+  facade. A source-bounded stone frontage adds five tall ground-floor arches,
+  rustication, the central wine-red entrance canopy, varied window registers,
+  wrought-iron balcony bands, patinated stepped mansard, dormers, flags and
+  open `HOTEL ADLON` lettering. Day, Night, Snowstorm and Schwellenraum share
+  the static geometry; snow remains limited to horizontal ledges and roof
+  accents.
+- **Starbucks at Pariser Platz 4a now wraps the actual south-west building
+  corner.** OSM node `66917229` and LoD2 body `K00005Hq` bind two shallow
+  glass-and-limestone storefront overlays, dark mullions, a grey word sign on
+  each facade and restrained freestanding black umbrellas, furniture and
+  planters. The former diagonal double wall, green full-width fascia and
+  attached awning are gone, and the dedicated focus view now faces the real
+  corner.
+- **Both places remain recognisable without becoming smooth replicas in
+  Minecraft.** One additional shared, opaque block batch gives Adlon coarse
+  stone courses, five arch cues, a stepped copper roof and block lettering,
+  while Starbucks receives two block storefronts and sparse sign/umbrella
+  cues. Thin recognition zones suppress only generic facade panes behind the
+  authored fronts; source buildings, navigation, the touch memory profile and
+  the mobile photo-shell guard stay unchanged. Four openly licensed Wikimedia
+  references are attributed in the public source package; no reference photo
+  is shipped as a facade texture.
+
 ## v0.72.9
 
 - **The mobile-like touch drawn city now has a bounded, source-exact near-field

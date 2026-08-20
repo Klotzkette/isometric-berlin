@@ -151,7 +151,11 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain(
       "setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm)",
     );
+    expect(viewerSource).toContain(
+      "setStarbucksPariserPlatzSnow(runtime.culturalDetails, isSnowstorm)",
+    );
     expect(viewerSource).toContain("setInvalidenfriedhofSnow(");
+    expect(viewerSource).toContain("setStarbucksPariserPlatzSnow(");
     expect(
       viewerSource.match(
         /invalidenfriedhofPedestrianSolidAt\(x, y, z, radius\)/g,

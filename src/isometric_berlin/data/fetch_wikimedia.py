@@ -218,6 +218,12 @@ LANDMARK_QUERIES: dict[str, list[str]] = {
 # the per-file artist and licence metadata packaged even when Commons ranking
 # changes.
 PINNED_FILE_REFERENCES: dict[str, str] = {
+  "File:Hotel Adlon Berlin-Mitte.jpg": "hotel_adlon",
+  "File:Hotel Adlon Kempinski, 2024 (02).jpg": "hotel_adlon",
+  "File:Pariser Platz 4A - exterior view 2025.jpg": "starbucks_pariser_platz",
+  "File:Bürogebäude Pariser Platz 4a, Berlin-Mitte-3877.jpg": (
+    "starbucks_pariser_platz"
+  ),
   "File:Berliner Ensemble building (Theater am Schiffbauerdamm).jpg": (
     "berliner_ensemble"
   ),
