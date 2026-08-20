@@ -9,7 +9,6 @@ import {
 } from "three";
 
 import {
-  decodeVoxelBuildingColumns,
   decodeVoxelTreeBlocks,
   type VoxelPayload,
   worldGroundSampler,
@@ -110,16 +109,32 @@ function buildWalkableGrid(payload: VoxelPayload): {
       );
     }
   });
-  for (const [xIndex, zIndex] of decodeVoxelBuildingColumns(payload)) {
-    const xOffset = xIndex - payload.grid.min_x_idx;
-    const zOffset = zIndex - payload.grid.min_z_idx;
-    if (
-      xOffset >= 0 &&
-      zOffset >= 0 &&
-      xOffset < payload.grid.cols &&
-      zOffset < payload.grid.rows
-    ) {
-      walkable[zOffset * payload.grid.cols + xOffset] = 0;
+  if (payload.building_rows) {
+    payload.building_rows.forEach((row, zOffset) => {
+      if (zOffset >= payload.grid.rows) {
+        return;
+      }
+      const rowStart = zOffset * payload.grid.cols;
+      for (const [xOffset, runLength] of row) {
+        const start = Math.max(0, xOffset);
+        const end = Math.min(payload.grid.cols, xOffset + runLength);
+        if (end > start) {
+          walkable.fill(0, rowStart + start, rowStart + end);
+        }
+      }
+    });
+  } else {
+    for (const [xIndex, zIndex] of payload.buildings ?? []) {
+      const xOffset = xIndex - payload.grid.min_x_idx;
+      const zOffset = zIndex - payload.grid.min_z_idx;
+      if (
+        xOffset >= 0 &&
+        zOffset >= 0 &&
+        xOffset < payload.grid.cols &&
+        zOffset < payload.grid.rows
+      ) {
+        walkable[zOffset * payload.grid.cols + xOffset] = 0;
+      }
     }
   }
   const treeCells = new Uint8Array(payload.grid.cols * payload.grid.rows);

@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.7"
+PACKAGE_VERSION = "0.72.8"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3521,6 +3521,18 @@ bleiben im Minecraft-Modus ausgeblendet. Vorhandene Eingangsportale, offene
 Passagen sowie freie Dreh-, Schwenk-, Zoom-, Flug- und Fußgängernavigation
 bleiben erhalten.
 
+Auf Mobil-/Coarse-Pointer-Geräten begrenzt Version {PACKAGE_VERSION} den
+Minecraft-Speicher: Das mobile Profil misst 845,561 Instanzen / 63.265 MiB
+Instanzpuffer statt 3,419,412 / 249.815 MiB im unveränderten Vollprofil. Nur
+mobil entfallen generische Fassadenscheiben und Wiesenblumen; Nicht-Hero-
+Quellspalten werden zusammengefasst, während Hero-Kurse bis 8 m, Signaturen und
+Navigation erhalten bleiben. Coarse WebGL nutzt kein Renderer-MSAA, einen
+0x-UnsignedByte-Composer und SMAA; Desktop bleibt bei 4x HalfFloat. Inaktive
+Weltaufbauten werden abgebrochen, fehlgeschlagene Voxel-Anbindungen
+zurückgerollt und glatte Parkdetails bleiben im Voxelmodus ohne Toon-Klone
+verborgen. Dies ist Benchmark-/Browser-QA, keine Prüfung auf einem physischen
+iOS-Gerät.
+
 Version {PACKAGE_VERSION} startet Tag, Nacht und Schnee mit einem kompakten
 Geländekontext statt mit den fotografischen GLBs. Die amtliche
 {base_faces_de}-Flächen-Stufe lädt nur noch für die Untersicht oder als echte
@@ -3736,6 +3748,17 @@ source bodies are split vertically into block courses no taller than 8 m;
 smooth architectural overlays stay hidden in Minecraft. Existing entrance
 portals, open passages and free orbit, pan, zoom, flight and pedestrian
 navigation remain available.
+
+On mobile/coarse-pointer devices, version {PACKAGE_VERSION} bounds Minecraft
+memory: the mobile profile measures 845,561 instances / 63.265 MiB of instance
+buffers versus 3,419,412 / 249.815 MiB for the unchanged full profile. Only
+mobile omits generic facade panes and meadow flowers and collapses non-Hero
+source columns; Hero courses up to 8 m, signatures and navigation remain.
+Coarse WebGL uses no renderer MSAA, a 0x UnsignedByte composer and SMAA, while
+desktop stays at 4x HalfFloat. Inactive world builds are canceled, failed
+voxel attachment rolls back, and smooth park details remain hidden without
+toon clones in voxel mode. This is benchmark/browser QA, not validation on a
+physical iOS device.
 
 Version {PACKAGE_VERSION} starts Day, Night and Snow from a compact terrain
 context instead of photographic GLBs. The official {base_faces_en}-face shell

@@ -9,10 +9,27 @@ import {
   renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
+  stableWebglMemoryProfile,
   stableViewportSize,
 } from "../src/renderQuality";
 
 describe("stable 3D render quality", () => {
+  test("bounds persistent WebGL targets on coarse-pointer devices", () => {
+    expect(stableWebglMemoryProfile(true)).toEqual({
+      antialias: false,
+      composerSamples: 0,
+      halfFloatComposer: false,
+    });
+  });
+
+  test("preserves the established desktop WebGL quality profile", () => {
+    expect(stableWebglMemoryProfile(false)).toEqual({
+      antialias: true,
+      composerSamples: 4,
+      halfFloatComposer: true,
+    });
+  });
+
   test("does not discard alternate touch frames during camera motion", () => {
     expect(ACTIVE_MOTION_FRAME_INTERVAL_MS).toBe(0);
   });

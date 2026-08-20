@@ -86,6 +86,17 @@ export type VoxelPayload = {
   water_top_y_m: number;
 };
 
+export type MinecraftVoxelDetailProfile = "full" | "mobile";
+
+export type MinecraftVoxelWorldOptions = {
+  /**
+   * `mobile` keeps the surveyed envelopes and authored landmarks while
+   * dropping city-wide decorative micro-detail and redundant generic layers.
+   * Omitted means `full`, preserving the existing desktop output exactly.
+   */
+  detailProfile?: MinecraftVoxelDetailProfile;
+};
+
 export type VoxelBuildingColumn = [number, number, number, number, number];
 export type VoxelTreeBlock = [number, number, number, number];
 
@@ -477,12 +488,17 @@ const MINECRAFT_HERO_COURSE_AREAS = new Set([
 
 export const MINECRAFT_HERO_SOURCE_COURSE_MAX_M = 8;
 
+function isMinecraftHeroSourceCourseArea(
+  area: VoxelRecognitionArea | null,
+): boolean {
+  return area !== null && MINECRAFT_HERO_COURSE_AREAS.has(area.name);
+}
+
 export function isMinecraftHeroSourceCourseAreaAt(
   x: number,
   z: number,
 ): boolean {
-  const area = voxelRecognitionAreaAt(x, z);
-  return area !== null && MINECRAFT_HERO_COURSE_AREAS.has(area.name);
+  return isMinecraftHeroSourceCourseArea(voxelRecognitionAreaAt(x, z));
 }
 
 /**
@@ -2017,9 +2033,11 @@ export function createMinecraftVoxelWorld(
   payload: VoxelPayload,
   toneLookup?: ColumnToneLookup | null,
   tunnel?: TunnelPortalCourseInput | null,
+  options: MinecraftVoxelWorldOptions = {},
 ): Group {
   const group = new Group();
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
+  const mobileDetail = options.detailProfile === "mobile";
   const cell = payload.cell_m;
   // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
   // offsets (see the payload origin note): cell (x_idx, z_idx) spans
@@ -2104,10 +2122,14 @@ export function createMinecraftVoxelWorld(
           ? RIECKHALLEN_PROFILE.minecraftRoofTopY
           : y1dm / 10;
       const height = Math.max(cell, roofTopY - y0dm / 10);
+      const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
+      if (mobileDetail && !heroSource) {
+        return count + 1;
+      }
       const capHeight = height > 5 ? 1 : 0;
       const plinthHeight = height > 8 ? 1 : 0;
       const bodyHeight = height - capHeight - plinthHeight;
-      const bodyCourseCount = isMinecraftHeroSourceCourseAreaAt(worldX, worldZ)
+      const bodyCourseCount = heroSource
         ? Math.max(
             1,
             Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M),
@@ -2136,6 +2158,7 @@ export function createMinecraftVoxelWorld(
         ? RIECKHALLEN_PROFILE.minecraftRoofTopY
         : y1dm / 10;
     const height = Math.max(cell, roofTopY - y0);
+    const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
     // Real building colour when the prism payload knows this footprint;
     // whole buildings read as one hue (no checkerboard), the class
     // shades stay as fallback for unknown columns.
@@ -2144,6 +2167,12 @@ export function createMinecraftVoxelWorld(
       tone !== null
         ? tonePaint.setHex(tone).clone()
         : shadeFor(shades, xIdx, zIdx, Math.round(height / cell));
+    if (mobileDetail && !heroSource) {
+      center.set(worldX, y0 + height / 2, worldZ);
+      size.set(cell, height, cell);
+      buildings.write(center, size, facade);
+      continue;
+    }
     // A palette-native plinth/body/cap stack reads as deliberate block
     // architecture. The former multiplyScalar roof invented off-palette dark
     // colours and produced muddy roofs rather than Minecraft materials.
@@ -2160,7 +2189,7 @@ export function createMinecraftVoxelWorld(
       size.set(cell, plinthHeight, cell);
       buildings.write(center, size, tonePaint.setHex(layers.plinth).clone());
     }
-    const bodyCourseCount = isMinecraftHeroSourceCourseAreaAt(worldX, worldZ)
+    const bodyCourseCount = heroSource
       ? Math.max(
           1,
           Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M),
@@ -2197,107 +2226,109 @@ export function createMinecraftVoxelWorld(
   // that no neighbouring column covers gets a pale portrait pane. Hero
   // envelopes yield to their referenced recognition fenestration instead of
   // receiving a second grid of generic square holes.
-  const columnTops = new Map<number, number>();
-  const columnKey = (x: number, z: number): number => x * 65536 + z;
-  for (const [xIdx, zIdx, , y1dm] of visibleBuildingColumns) {
-    const key = columnKey(xIdx, zIdx);
-    columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
-  }
-  type WindowFace = {
-    color: Color;
-    nx: number;
-    nz: number;
-    x: number;
-    y: number;
-    z: number;
-  };
-  const faces: WindowFace[] = [];
-  const glass = new Color(VOXEL_WINDOW_GLASS);
-  const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
-  const teal = new Color(VOXEL_WINDOW_TEAL);
-  for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
-    if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
-      continue;
+  if (!mobileDetail) {
+    const columnTops = new Map<number, number>();
+    const columnKey = (x: number, z: number): number => x * 65536 + z;
+    for (const [xIdx, zIdx, , y1dm] of visibleBuildingColumns) {
+      const key = columnKey(xIdx, zIdx);
+      columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
     }
-    if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
-      continue;
-    }
-    const top = y1dm / 10;
-    for (const [dx, dz] of [
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1],
-    ] as const) {
-      const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
-      const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
-      const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
-      if (voxelRecognitionAreaAt(faceX, faceZ)) {
+    type WindowFace = {
+      color: Color;
+      nx: number;
+      nz: number;
+      x: number;
+      y: number;
+      z: number;
+    };
+    const faces: WindowFace[] = [];
+    const glass = new Color(VOXEL_WINDOW_GLASS);
+    const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
+    const teal = new Color(VOXEL_WINDOW_TEAL);
+    for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
+      if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
         continue;
       }
-      // Storey-banded window rows: every column face carries its glass
-      // on the SAME storey grid, so the facade reads as designed rows
-      // rather than randomly punched holes.
-      const base = y0dm / 10;
-      const firstRow = Math.ceil((base + 2) / cell) * cell;
-      for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += cell) {
-        if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
+      if (voxelRecognitionAreaAt(worldXAbs(xIdx), worldZAbs(zIdx))) {
+        continue;
+      }
+      const top = y1dm / 10;
+      for (const [dx, dz] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
+        const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
+        const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
+        if (voxelRecognitionAreaAt(faceX, faceZ)) {
           continue;
         }
-        // Two glass tones alternate along the row for gentle block
-        // variety; a teal accent every fourth bay keeps it lively.
-        const bay = Math.abs(xIdx + zIdx);
-        const color = bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
-        faces.push({
-          color,
-          nx: dx,
-          nz: dz,
-          x: faceX,
-          y: yCenter,
-          z: faceZ,
-        });
+        // Storey-banded window rows: every column face carries its glass
+        // on the SAME storey grid, so the facade reads as designed rows
+        // rather than randomly punched holes.
+        const base = y0dm / 10;
+        const firstRow = Math.ceil((base + 2) / cell) * cell;
+        for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += cell) {
+          if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
+            continue;
+          }
+          // Two glass tones alternate along the row for gentle block
+          // variety; a teal accent every fourth bay keeps it lively.
+          const bay = Math.abs(xIdx + zIdx);
+          const color = bay % 4 === 0 ? teal : bay % 2 === 0 ? glass : glassPale;
+          faces.push({
+            color,
+            nx: dx,
+            nz: dz,
+            x: faceX,
+            y: yCenter,
+            z: faceZ,
+          });
+        }
       }
     }
-  }
-  if (faces.length > 0) {
-    const panes = new InstancedMesh(
-      new PlaneGeometry(1, 1),
-      new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
-      faces.length,
-    );
-    panes.name = "Voxel facade windows";
-    const matrix = new Matrix4();
-    faces.forEach((face, index) => {
-      // Plane spans the face's tangent; dir = up × normal in the plane.
-      const dirX = -face.nz;
-      const dirZ = face.nx;
-      matrix.set(
-        dirX * VOXEL_WINDOW_WIDTH_M,
-        0,
-        face.nx,
-        face.x,
-        0,
-        VOXEL_WINDOW_HEIGHT_M,
-        0,
-        face.y,
-        dirZ * VOXEL_WINDOW_WIDTH_M,
-        0,
-        face.nz,
-        face.z,
-        0,
-        0,
-        0,
-        1,
+    if (faces.length > 0) {
+      const panes = new InstancedMesh(
+        new PlaneGeometry(1, 1),
+        new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }),
+        faces.length,
       );
-      panes.setMatrixAt(index, matrix);
-      panes.setColorAt(index, face.color);
-    });
-    panes.instanceMatrix.needsUpdate = true;
-    if (panes.instanceColor) {
-      panes.instanceColor.needsUpdate = true;
+      panes.name = "Voxel facade windows";
+      const matrix = new Matrix4();
+      faces.forEach((face, index) => {
+        // Plane spans the face's tangent; dir = up × normal in the plane.
+        const dirX = -face.nz;
+        const dirZ = face.nx;
+        matrix.set(
+          dirX * VOXEL_WINDOW_WIDTH_M,
+          0,
+          face.nx,
+          face.x,
+          0,
+          VOXEL_WINDOW_HEIGHT_M,
+          0,
+          face.y,
+          dirZ * VOXEL_WINDOW_WIDTH_M,
+          0,
+          face.nz,
+          face.z,
+          0,
+          0,
+          0,
+          1,
+        );
+        panes.setMatrixAt(index, matrix);
+        panes.setColorAt(index, face.color);
+      });
+      panes.instanceMatrix.needsUpdate = true;
+      if (panes.instanceColor) {
+        panes.instanceColor.needsUpdate = true;
+      }
+      panes.frustumCulled = false;
+      group.add(panes);
     }
-    panes.frustumCulled = false;
-    group.add(panes);
   }
 
   const visibleTrees = decodeVoxelTreeBlocks(payload).filter(
@@ -2350,44 +2381,46 @@ export function createMinecraftVoxelWorld(
 
   // Meadow flowers: sparse deterministic colour dots on grass runs —
   // the small-scale life real Minecraft plains have.
-  const FLOWER_TONES = [0xe6bd4c, 0xe79a61, 0xf7fbf7] as const;
-  const grassClass = payload.classes.indexOf("grass");
-  const groundTopY = groundTopSampler(payload);
-  const flowerSpots: Array<[number, number, number]> = [];
-  payload.ground_rows.forEach((row, zOffset) => {
-    for (const [xStart, run, classId] of row) {
-      if (classId !== grassClass) {
-        continue;
-      }
-      for (let step = 0; step < run; step += 1) {
-        const xOffset = xStart + step;
-        const roll = Math.abs(xOffset * 2654435761 + zOffset * 40503) % 41;
-        if (roll === 0) {
-          flowerSpots.push([xOffset, zOffset, roll]);
+  if (!mobileDetail) {
+    const FLOWER_TONES = [0xe6bd4c, 0xe79a61, 0xf7fbf7] as const;
+    const grassClass = payload.classes.indexOf("grass");
+    const groundTopY = groundTopSampler(payload);
+    const flowerSpots: Array<[number, number, number]> = [];
+    payload.ground_rows.forEach((row, zOffset) => {
+      for (const [xStart, run, classId] of row) {
+        if (classId !== grassClass) {
+          continue;
+        }
+        for (let step = 0; step < run; step += 1) {
+          const xOffset = xStart + step;
+          const roll = Math.abs(xOffset * 2654435761 + zOffset * 40503) % 41;
+          if (roll === 0) {
+            flowerSpots.push([xOffset, zOffset, roll]);
+          }
         }
       }
+    });
+    const flowers = instancedBoxes("Voxel meadow flowers", flowerSpots.length);
+    for (const [xOffset, zOffset] of flowerSpots) {
+      const topY = groundTopY(xOffset, zOffset);
+      center.set(
+        worldXAbs(payload.grid.min_x_idx + xOffset),
+        topY + 0.3,
+        worldZAbs(payload.grid.min_z_idx + zOffset),
+      );
+      size.set(0.55, 0.6, 0.55);
+      flowers.write(
+        center,
+        size,
+        new Color(
+          FLOWER_TONES[
+            Math.abs(xOffset * 31 + zOffset * 17) % FLOWER_TONES.length
+          ],
+        ),
+      );
     }
-  });
-  const flowers = instancedBoxes("Voxel meadow flowers", flowerSpots.length);
-  for (const [xOffset, zOffset] of flowerSpots) {
-    const topY = groundTopY(xOffset, zOffset);
-    center.set(
-      worldXAbs(payload.grid.min_x_idx + xOffset),
-      topY + 0.3,
-      worldZAbs(payload.grid.min_z_idx + zOffset),
-    );
-    size.set(0.55, 0.6, 0.55);
-    flowers.write(
-      center,
-      size,
-      new Color(
-        FLOWER_TONES[
-          Math.abs(xOffset * 31 + zOffset * 17) % FLOWER_TONES.length
-        ],
-      ),
-    );
+    group.add(flowers.mesh);
   }
-  group.add(flowers.mesh);
 
   for (const child of group.children) {
     if (child instanceof InstancedMesh) {

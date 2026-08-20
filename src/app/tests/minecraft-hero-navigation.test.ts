@@ -619,9 +619,27 @@ describe("Minecraft hero navigation", () => {
       viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
     );
     expect(voxelBuilder).toContain("createPedestrianEnvironment(");
-    expect(voxelBuilder).toContain("runtime.pedestrian.environment = environment");
-    expect(voxelBuilder.indexOf("runtime.pedestrian.environment = environment")).toBeLessThan(
+    expect(voxelBuilder).toContain(
+      "runtime.pedestrian.environment = provisionalEnvironment",
+    );
+    expect(
+      voxelBuilder.indexOf(
+        "runtime.pedestrian.environment = provisionalEnvironment",
+      ),
+    ).toBeLessThan(
       voxelBuilder.indexOf("void fetchSurfacePayload(runtime)"),
+    );
+    expect(voxelBuilder).toContain(
+      "pedestrianSnapshot = capturePedestrianAttachment(runtime)",
+    );
+    expect(voxelBuilder).toContain(
+      "restorePedestrianAttachment(runtime, pedestrianSnapshot)",
+    );
+    expect(viewerSource).toContain(
+      "runtime.pedestrian.environment = snapshot.environment",
+    );
+    expect(viewerSource).toContain(
+      "runtime.pedestrian.requested = snapshot.requested",
     );
   });
 });

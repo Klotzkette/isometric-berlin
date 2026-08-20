@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.72.8
+
+- **Coarse-pointer/mobile Minecraft now has a bounded world profile instead of
+  allocating the complete desktop instance set.** The committed benchmark
+  produces **845,561 instances / 63.265 MiB of instance buffers**, versus the
+  unchanged full profile's **3,419,412 / 249.815 MiB**. Only the mobile profile
+  omits generic facade panes and meadow flowers and collapses non-Hero source
+  columns to one body block. Hero courses no taller than 8 m, every block-native
+  signature and the existing navigation openings remain intact.
+- **The coarse-pointer WebGL path now avoids redundant multisample render
+  targets.** It disables renderer MSAA and uses a zero-sample `UnsignedByte`
+  composer with the final SMAA pass; the desktop 4x `HalfFloat` composer stays
+  unchanged.
+- **Interrupted mode changes no longer retain half-built worlds or hidden
+  smooth duplicates.** An inactive Minecraft request is canceled before world
+  construction, a failed voxel attach rolls back its partial roots, and the
+  smooth park-detail layer remains hidden without Minecraft toon-material
+  clones while the voxel world is active. These changes are covered by
+  committed benchmarks and automated/browser checks; this release does not
+  claim validation on a physical iOS device.
+
 ## v0.72.7
 
 - **Minecraft's principal architecture is intentionally coarser and more

@@ -23,6 +23,40 @@ export type StableViewportSize = {
   width: number;
 };
 
+export type StableWebglMemoryProfile = {
+  /** Let the final SMAA pass own edge smoothing on memory-constrained GPUs. */
+  antialias: boolean;
+  /** Multisample count for the EffectComposer's two render targets. */
+  composerSamples: 0 | 4;
+  /** Desktop keeps the existing HDR target; touch uses compact byte colour. */
+  halfFloatComposer: boolean;
+};
+
+/**
+ * Bound persistent WebGL render-target memory on coarse-pointer devices.
+ *
+ * A 4x multisampled half-float composer can reserve hundreds of MiB at tablet
+ * resolutions because EffectComposer owns two full-size targets. Mobile keeps
+ * the same final SMAA pass but avoids both the duplicate renderer MSAA buffer
+ * and the half-float multisample targets. Desktop output stays byte-for-byte
+ * on the established high-quality profile.
+ */
+export function stableWebglMemoryProfile(
+  coarsePointer: boolean,
+): StableWebglMemoryProfile {
+  return coarsePointer
+    ? {
+        antialias: false,
+        composerSamples: 0,
+        halfFloatComposer: false,
+      }
+    : {
+        antialias: true,
+        composerSamples: 4,
+        halfFloatComposer: true,
+      };
+}
+
 /**
  * Keep the WebGL backing store on one integer CSS-pixel size.
  *

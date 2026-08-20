@@ -45,6 +45,26 @@ const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
 const treeBlocks = decodeVoxelTreeBlocks(payload);
 
+const genericDetailFixture: VoxelPayload = {
+  schema_version: 2,
+  cell_m: 4,
+  classes: ["grass", "concrete"],
+  grid: { cols: 3, min_x_idx: 2_000, min_z_idx: 2_000, rows: 2 },
+  ground_height: {
+    cols: 3,
+    rows: 2,
+    stride_cells: 1,
+    y_dm: [0, 0, 0, 0, 0, 0],
+  },
+  ground_rows: [
+    [[0, 3, 0]],
+    [[0, 3, 0]],
+  ],
+  building_rows: [[[0, 2, 0, 120, 1]], []],
+  tree_rows: [[], []],
+  water_top_y_m: -1.15,
+};
+
 function instanced(
   name: string,
   root: ReturnType<typeof createMinecraftVoxelWorld>,
@@ -56,6 +76,117 @@ function instanced(
 
 describe("true voxel Minecraft world", () => {
   const world = createMinecraftVoxelWorld(payload);
+  const mobileWorld = createMinecraftVoxelWorld(payload, null, null, {
+    detailProfile: "mobile",
+  });
+
+  test("keeps omitted and explicit full detail profiles byte-for-byte equivalent", () => {
+    const implicit = createMinecraftVoxelWorld(genericDetailFixture);
+    const explicit = createMinecraftVoxelWorld(
+      genericDetailFixture,
+      null,
+      null,
+      { detailProfile: "full" },
+    );
+    const contract = (root: typeof implicit) => {
+      const meshes: Array<{
+        capacity: number;
+        count: number;
+        matrix: number[];
+        name: string;
+      }> = [];
+      root.traverse((child) => {
+        if (!(child instanceof InstancedMesh)) return;
+        const first = new Matrix4();
+        if (child.count > 0) child.getMatrixAt(0, first);
+        meshes.push({
+          capacity: child.instanceMatrix.count,
+          count: child.count,
+          matrix: first.toArray(),
+          name: child.name,
+        });
+      });
+      return meshes;
+    };
+    expect(contract(explicit)).toEqual(contract(implicit));
+    expect(instanced("Voxel building columns", implicit).count).toBe(6);
+  });
+
+  test("uses an explicit decoration-free mobile profile without touching hero batches", () => {
+    expect(world.getObjectByName("Voxel facade windows")).toBeDefined();
+    expect(world.getObjectByName("Voxel meadow flowers")).toBeDefined();
+    expect(mobileWorld.getObjectByName("Voxel facade windows")).toBeUndefined();
+    expect(mobileWorld.getObjectByName("Voxel meadow flowers")).toBeUndefined();
+    expect(instanced("Voxel facade windows", world).count).toBe(1_595_099);
+    expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
+    expect(instanced("Voxel building columns", world).count).toBe(1_481_857);
+    expect(instanced("Voxel building columns", mobileWorld).count).toBe(
+      542_721,
+    );
+
+    const landmarks = world.getObjectByName(
+      "Minecraft block-native architectural landmarks",
+    );
+    const mobileLandmarks = mobileWorld.getObjectByName(
+      "Minecraft block-native architectural landmarks",
+    );
+    expect(
+      mobileLandmarks?.children.map(({ name }) => [
+        name,
+        (mobileLandmarks.getObjectByName(name) as InstancedMesh).count,
+      ]),
+    ).toEqual(
+      landmarks?.children.map(({ name }) => [
+        name,
+        (landmarks.getObjectByName(name) as InstancedMesh).count,
+      ]),
+    );
+  });
+
+  test("keeps mobile hero courses while collapsing generic layer stacks", () => {
+    const heroCourseHeights = (root: typeof world): number[] => {
+      const buildings = instanced("Voxel building columns", root);
+      const matrix = new Matrix4();
+      const position = new Vector3();
+      const scale = new Vector3();
+      const heights: number[] = [];
+      for (let index = 0; index < buildings.count; index += 1) {
+        buildings.getMatrixAt(index, matrix);
+        position.setFromMatrixPosition(matrix);
+        if (!isMinecraftHeroSourceCourseAreaAt(position.x, position.z)) {
+          continue;
+        }
+        scale.setFromMatrixScale(matrix);
+        heights.push(scale.y);
+      }
+      return heights;
+    };
+    const fullHeroCourses = heroCourseHeights(world);
+    const mobileHeroCourses = heroCourseHeights(mobileWorld);
+    expect(mobileHeroCourses).toEqual(fullHeroCourses);
+    expect(mobileHeroCourses.length).toBeGreaterThan(2_000);
+    expect(Math.max(...mobileHeroCourses)).toBeLessThanOrEqual(
+      MINECRAFT_HERO_SOURCE_COURSE_MAX_M + 0.001,
+    );
+
+    const fullFixture = createMinecraftVoxelWorld(genericDetailFixture);
+    const mobileFixture = createMinecraftVoxelWorld(
+      genericDetailFixture,
+      null,
+      null,
+      { detailProfile: "mobile" },
+    );
+    expect(instanced("Voxel building columns", fullFixture).count).toBe(6);
+    const mobileColumns = instanced("Voxel building columns", mobileFixture);
+    expect(mobileColumns.count).toBe(2);
+    const matrix = new Matrix4();
+    const scale = new Vector3();
+    for (let index = 0; index < mobileColumns.count; index += 1) {
+      mobileColumns.getMatrixAt(index, matrix);
+      scale.setFromMatrixScale(matrix);
+      expect(scale.y).toBeCloseTo(12, 6);
+    }
+  });
 
   test("ships the civic hero buildings as six block-native batches", () => {
     const landmarks = world.getObjectByName(

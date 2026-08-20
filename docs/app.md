@@ -287,6 +287,19 @@ underside presentations. A persistent DE/EN control translates all viewer
 chrome; official German place names remain unchanged, and the German UI uses
 `Sehenswürdigkeiten` rather than the English false friend.
 
+On mobile/coarse-pointer devices, the bounded Minecraft profile produces
+**845,561 instances / 63.265 MiB of instance buffers** in the committed
+benchmark, versus the unchanged full profile's **3,419,412 / 249.815 MiB**.
+Only that mobile profile omits generic facade panes and meadow flowers and
+collapses non-Hero source columns to one body block; all Hero courses no taller
+than 8 m, block-native signatures and navigation contracts remain. Its WebGL
+renderer has no MSAA and its composer uses zero samples plus `UnsignedByte`
+targets and SMAA. Desktop retains the 4x `HalfFloat` composer. A mode change
+before voxel construction cancels the inactive build; any failed attach rolls
+back partial roots. Smooth park details stay hidden in voxel mode and therefore
+do not receive Minecraft toon-material clones. These are benchmark and
+automated-browser contracts, not physical iOS-device validation.
+
 Both music layers are generated locally with Web Audio and load no recording,
 stream or external audio asset. The music button or `B` controls seven original
 54 BPM ambient variants; an explicit Ambient mute persists across reloads. The

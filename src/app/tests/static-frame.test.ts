@@ -181,6 +181,205 @@ describe("idle-frame anti-flicker contract", () => {
     expect(viewerSource).toContain("smaaPass.dispose()");
   });
 
+  test("uses the bounded mobile WebGL profile without changing desktop", () => {
+    expect(viewerSource).toContain(
+      "const webglMemoryProfile = stableWebglMemoryProfile(coarsePointer)",
+    );
+    expect(viewerSource).toContain(
+      "antialias: webglMemoryProfile.antialias",
+    );
+    expect(viewerSource).toContain(
+      "samples: webglMemoryProfile.composerSamples",
+    );
+    expect(viewerSource).toContain("? HalfFloatType");
+    expect(viewerSource).toContain(": UnsignedByteType");
+  });
+
+  test("cancels inactive world construction after payload races", () => {
+    expect(viewerSource).toContain(
+      'function voxelWorldIntentActive(runtime: Runtime): boolean {\n  return runtime.lightingMode === "minecraft"',
+    );
+    expect(viewerSource).toContain(
+      'function isoWorldIntentActive(runtime: Runtime): boolean {\n  return runtime.lightingMode !== "minecraft"',
+    );
+    const isoLoader = viewerSource.slice(
+      viewerSource.indexOf("function ensureIsoWorld("),
+      viewerSource.indexOf("function ensureVoxelWorld("),
+    );
+    expect(isoLoader).toContain("!isoWorldIntentActive(runtime)");
+    expect(isoLoader).toContain('runtime.isoWorldState = "idle"');
+    expect(isoLoader.indexOf("!isoWorldIntentActive(runtime)")).toBeLessThan(
+      isoLoader.indexOf("createSchwellenraumMemorialProtectionIndex"),
+    );
+    const inactiveIsoFailure = isoLoader.lastIndexOf(
+      "!isoWorldIntentActive(runtime)",
+    );
+    const activeIsoFallback = isoLoader.indexOf(
+      "runtime.ensurePhotoSurface()",
+      inactiveIsoFailure,
+    );
+    expect(activeIsoFallback).toBeGreaterThan(inactiveIsoFailure);
+    expect(isoLoader.slice(inactiveIsoFailure, activeIsoFallback)).toContain(
+      "return",
+    );
+
+    const voxelLoader = viewerSource.slice(
+      viewerSource.indexOf("function ensureVoxelWorld("),
+      viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
+    );
+    expect(voxelLoader).toContain("!voxelWorldIntentActive(runtime)");
+    expect(voxelLoader).toContain('runtime.voxelWorldState = "idle"');
+    expect(voxelLoader).toContain(
+      '{ detailProfile: runtime.coarsePointer ? "mobile" : "full" }',
+    );
+    expect(
+      voxelLoader.indexOf("!voxelWorldIntentActive(runtime)"),
+    ).toBeLessThan(voxelLoader.indexOf("createMinecraftVoxelWorld("));
+  });
+
+  test("rolls back a partially attached voxel world before fallback", () => {
+    const voxelLoader = viewerSource.slice(
+      viewerSource.indexOf("function ensureVoxelWorld("),
+      viewerSource.indexOf("const PHOTO_FOV_DEGREES"),
+    );
+    expect(voxelLoader).toContain(
+      "let provisionalVoxelWorld: Group | null = null",
+    );
+    expect(voxelLoader).toContain(
+      "let provisionalMinecraftMobs: MinecraftMobField | null = null",
+    );
+    expect(voxelLoader).toContain(
+      "runtime.voxelWorld === provisionalVoxelWorld",
+    );
+    expect(voxelLoader).toContain(
+      "disposeObject3D(runtime, provisionalVoxelWorld)",
+    );
+    expect(voxelLoader).toContain(
+      "disposeObject3D(runtime, provisionalMinecraftMobs.group)",
+    );
+    expect(voxelLoader.indexOf("runtime.voxelWorld = provisionalVoxelWorld"))
+      .toBeGreaterThan(voxelLoader.indexOf("createMinecraftMobs("));
+    const inactiveFailure = voxelLoader.lastIndexOf(
+      "!voxelWorldIntentActive(runtime)",
+    );
+    expect(inactiveFailure).toBeGreaterThan(-1);
+    const activeFallback = voxelLoader.indexOf(
+      "runtime.ensurePhotoSurface()",
+      inactiveFailure,
+    );
+    expect(activeFallback).toBeGreaterThan(inactiveFailure);
+    expect(voxelLoader.slice(inactiveFailure, activeFallback)).toContain(
+      "return",
+    );
+    expect(voxelLoader).toContain(
+      "pedestrianSnapshot = capturePedestrianAttachment(runtime)",
+    );
+    expect(voxelLoader).toContain(
+      "restorePedestrianAttachment(runtime, pedestrianSnapshot)",
+    );
+    expect(voxelLoader).toContain(
+      "restoreWorldPresentationAfterRollback(runtime, rollbackUnderside)",
+    );
+    expect(viewerSource).toContain("cameraFar: runtime.camera.far");
+    expect(viewerSource).toContain(
+      "controlsMaxDistance: runtime.controls.maxDistance",
+    );
+    expect(viewerSource).toContain(
+      "controlsMinDistance: runtime.controls.minDistance",
+    );
+    expect(viewerSource).toContain("runtime.camera.far = snapshot.cameraFar");
+    expect(viewerSource).toContain(
+      "runtime.controls.maxDistance = snapshot.controlsMaxDistance",
+    );
+    expect(viewerSource).toContain(
+      "runtime.controls.minDistance = snapshot.controlsMinDistance",
+    );
+    expect(voxelLoader).toContain(
+      "if (!runtime.coarsePointer) {\n        runtime.startDeferredDetails()",
+    );
+    const voxelDeferredDetails = voxelLoader.indexOf(
+      "runtime.startDeferredDetails()",
+    );
+    const voxelCommit = voxelLoader.indexOf(
+      "provisionalVoxelWorld = null",
+      voxelDeferredDetails,
+    );
+    const voxelReady = voxelLoader.indexOf(
+      "notifyPresentationReadyWhenPossible(runtime)",
+      voxelCommit,
+    );
+    expect(voxelDeferredDetails).toBeGreaterThan(-1);
+    expect(voxelCommit).toBeGreaterThan(voxelDeferredDetails);
+    expect(voxelReady).toBeGreaterThan(voxelCommit);
+  });
+
+  test("publishes the smooth world transactionally before its worker", () => {
+    const isoLoader = viewerSource.slice(
+      viewerSource.indexOf("function ensureIsoWorld("),
+      viewerSource.indexOf("function ensureVoxelWorld("),
+    );
+    const construction = isoLoader.indexOf(
+      "const isoWorld = createIsometricCity(",
+    );
+    const commit = isoLoader.indexOf("runtime.isoWorld = isoWorld");
+    const workerStart = isoLoader.indexOf(
+      "applyProgressiveWorldMode(runtime, runtime.lightingMode, warn)",
+    );
+    expect(construction).toBeGreaterThan(-1);
+    expect(commit).toBeGreaterThan(construction);
+    expect(workerStart).toBeGreaterThan(commit);
+    expect(isoLoader).toContain(
+      "mutableRootSnapshots = captureMutableRootSnapshots([",
+    );
+    expect(isoLoader).toContain("runtime.signatures,");
+    expect(isoLoader).toContain(
+      "restoreProgressiveWorld(runtime, progressiveSnapshot)",
+    );
+    expect(isoLoader).toContain(
+      "rollbackMutableRoots(runtime, mutableRootSnapshots)",
+    );
+    expect(isoLoader).toContain("runtime.isoWorld = originalIsoWorld");
+    expect(isoLoader).toContain("disposeObject3D(runtime, provisionalIsoWorld)");
+    expect(isoLoader).toContain(
+      "restorePedestrianAttachment(runtime, pedestrianSnapshot)",
+    );
+    const deferredDetails = isoLoader.indexOf("runtime.startDeferredDetails()");
+    const progressiveMode = isoLoader.indexOf(
+      "applyProgressiveWorldMode(runtime, runtime.lightingMode, warn)",
+    );
+    const transactionCommit = isoLoader.indexOf(
+      "provisionalIsoWorld = null",
+      progressiveMode,
+    );
+    const presentationReady = isoLoader.indexOf(
+      "notifyPresentationReadyWhenPossible(runtime)",
+      transactionCommit,
+    );
+    expect(deferredDetails).toBeGreaterThan(commit);
+    expect(progressiveMode).toBeGreaterThan(deferredDetails);
+    expect(transactionCommit).toBeGreaterThan(progressiveMode);
+    expect(presentationReady).toBeGreaterThan(transactionCommit);
+  });
+
+  test("does not clone or reveal deferred park details behind voxels", () => {
+    const deferredPark = viewerSource.slice(
+      viewerSource.indexOf("const details = createParkDetails("),
+      viewerSource.indexOf("runtime.tunnel = createTunnel("),
+    );
+    expect(deferredPark).toContain("const voxelMode = voxelModeActive(runtime)");
+    expect(deferredPark).toContain(
+      "details.visible = !runtime.underside && !voxelMode",
+    );
+    expect(deferredPark).toContain(
+      'runtime.lightingMode === "minecraft" &&',
+    );
+    expect(deferredPark).toContain("!voxelMode");
+    expect(viewerSource).toContain(
+      "releaseMinecraftMaterialBindings(\n        runtime.parkDetails",
+    );
+    expect(viewerSource).toContain("child !== runtime.parkDetails");
+  });
+
   test("keeps authored civic flags in every above-ground visual mode", () => {
     for (const mode of ["day", "night", "minecraft"] as const) {
       expect(civicDetailsVisible(false), mode).toBe(true);

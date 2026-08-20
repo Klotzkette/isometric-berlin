@@ -135,17 +135,31 @@ describe("progressive exact-world scheduling", () => {
     const postGuard = threeViewerSource.indexOf(
       "const posted = tryProgressiveWorkerOperation",
     );
-    const previewBuild = threeViewerSource.indexOf(
-      "runtime.isoWorld = createIsometricCity",
-    );
     expect(constructionGuard).toBeGreaterThan(0);
     expect(postGuard).toBeGreaterThan(constructionGuard);
-    expect(previewBuild).toBeGreaterThan(postGuard);
     expect(threeViewerSource).toContain(
       "markProgressiveWorldUnavailable(runtime, warn)",
     );
     expect(threeViewerSource).toContain(
       "if (!posted.ok) failProgressiveWorld(runtime, worker, warn)",
+    );
+
+    const isoLoader = threeViewerSource.slice(
+      threeViewerSource.indexOf("function ensureIsoWorld("),
+      threeViewerSource.indexOf("function ensureVoxelWorld("),
+    );
+    const previewBuild = isoLoader.indexOf(
+      "const isoWorld = createIsometricCity",
+    );
+    const committedRoot = isoLoader.indexOf("runtime.isoWorld = isoWorld");
+    const progressiveStart = isoLoader.indexOf(
+      "applyProgressiveWorldMode(runtime, runtime.lightingMode, warn)",
+    );
+    expect(previewBuild).toBeGreaterThan(0);
+    expect(committedRoot).toBeGreaterThan(previewBuild);
+    expect(progressiveStart).toBeGreaterThan(committedRoot);
+    expect(isoLoader).toContain(
+      "restoreProgressiveWorld(runtime, progressiveSnapshot)",
     );
   });
 

@@ -33,6 +33,7 @@ import {
   SRGBColorSpace,
   TorusGeometry,
   Texture,
+  UnsignedByteType,
   Vector2,
   Vector3,
   WebGLRenderer,
@@ -279,6 +280,7 @@ import {
   renderFrameRequired,
   renderInteractionActive,
   renderPixelRatio,
+  stableWebglMemoryProfile,
   stableViewportSize,
 } from "./renderQuality";
 import { shouldUseSettledSurface } from "./surfaceQuality";
@@ -1794,11 +1796,31 @@ function setSceneLighting(
     );
   }
   if (isMinecraft) {
-    setMinecraftMaterialPresentation(
-      runtime.scene,
-      runtime.minecraftMaterialState,
-      true,
-    );
+    const completedVoxelMode = voxelModeActive(runtime);
+    if (completedVoxelMode) {
+      // Park details can finish before the voxel payload. Release any toon
+      // fallback bindings they acquired while Minecraft was pending, then
+      // skip that hidden, high-cardinality root during the scene traversal.
+      releaseMinecraftMaterialBindings(
+        runtime.parkDetails,
+        runtime.minecraftMaterialState,
+      );
+      for (const child of runtime.scene.children) {
+        if (child !== runtime.parkDetails) {
+          setMinecraftMaterialPresentation(
+            child,
+            runtime.minecraftMaterialState,
+            true,
+          );
+        }
+      }
+    } else {
+      setMinecraftMaterialPresentation(
+        runtime.scene,
+        runtime.minecraftMaterialState,
+        true,
+      );
+    }
     if (runtime.underside) {
       // Keep the contextual underside shell photographic and quiet. Toon
       // shading on its double-sided 13% surfaces reads as metallic shards.
@@ -1906,6 +1928,194 @@ function setSceneLighting(
 
 function voxelModeActive(runtime: Runtime): boolean {
   return runtime.lightingMode === "minecraft" && runtime.voxelWorld !== null;
+}
+
+function voxelWorldIntentActive(runtime: Runtime): boolean {
+  return runtime.lightingMode === "minecraft";
+}
+
+function isoWorldIntentActive(runtime: Runtime): boolean {
+  return runtime.lightingMode !== "minecraft";
+}
+
+type MutableRootSnapshot = {
+  children: Map<
+    Object3D,
+    { userData: Record<string, unknown>; visible: boolean }
+  >;
+  root: Group;
+  userData: Record<string, unknown>;
+  visible: boolean;
+};
+
+type PedestrianAttachmentSnapshot = {
+  cameraDirty: boolean;
+  cameraFar: number;
+  cameraFov: number;
+  cameraNear: number;
+  cameraPosition: Vector3;
+  cameraTarget: Vector3;
+  controlsEnabled: boolean;
+  controlsMaxDistance: number;
+  controlsMinDistance: number;
+  enabled: boolean;
+  environment: PedestrianEnvironment | null;
+  markerVisible: boolean;
+  requested: boolean;
+  savedFov: number;
+  savedNear: number;
+  savedPose: CameraPose | null;
+  savedUnderside: boolean;
+  state: PedestrianState | null;
+  tunnelPortalInteriorVisible: boolean;
+  underside: boolean;
+};
+
+type ProgressiveWorldSnapshot = {
+  batches: Group[];
+  input: ProgressiveWorldWorkerInput | undefined;
+  state: ProgressiveWorldState;
+  worker: Worker | undefined;
+};
+
+function captureMutableRootSnapshots(roots: Group[]): MutableRootSnapshot[] {
+  return roots.map((root) => ({
+    children: new Map(
+      root.children.map((child) => [
+        child,
+        { userData: { ...child.userData }, visible: child.visible },
+      ]),
+    ),
+    root,
+    userData: { ...root.userData },
+    visible: root.visible,
+  }));
+}
+
+function rollbackMutableRoots(
+  runtime: Runtime,
+  snapshots: MutableRootSnapshot[],
+): void {
+  for (const snapshot of snapshots) {
+    for (const child of [...snapshot.root.children]) {
+      if (!snapshot.children.has(child)) {
+        disposeObject3D(runtime, child);
+      }
+    }
+    snapshot.root.userData = { ...snapshot.userData };
+    snapshot.root.visible = snapshot.visible;
+    for (const [child, state] of snapshot.children) {
+      child.userData = { ...state.userData };
+      child.visible = state.visible;
+    }
+  }
+}
+
+function capturePedestrianAttachment(
+  runtime: Runtime,
+): PedestrianAttachmentSnapshot {
+  return {
+    cameraDirty: runtime.pedestrian.cameraDirty,
+    cameraFar: runtime.camera.far,
+    cameraFov: runtime.camera.fov,
+    cameraNear: runtime.camera.near,
+    cameraPosition: runtime.camera.position.clone(),
+    cameraTarget: runtime.controls.target.clone(),
+    controlsEnabled: runtime.controls.enabled,
+    controlsMaxDistance: runtime.controls.maxDistance,
+    controlsMinDistance: runtime.controls.minDistance,
+    enabled: runtime.pedestrian.enabled,
+    environment: runtime.pedestrian.environment,
+    markerVisible: runtime.marker.visible,
+    requested: runtime.pedestrian.requested,
+    savedFov: runtime.pedestrian.savedFov,
+    savedNear: runtime.pedestrian.savedNear,
+    savedPose: runtime.pedestrian.savedPose,
+    savedUnderside: runtime.pedestrian.savedUnderside,
+    state: runtime.pedestrian.state,
+    tunnelPortalInteriorVisible: runtime.tunnelPortalInteriorVisible,
+    underside: runtime.underside,
+  };
+}
+
+function restorePedestrianAttachment(
+  runtime: Runtime,
+  snapshot: PedestrianAttachmentSnapshot,
+): void {
+  runtime.pedestrian.cameraDirty = snapshot.cameraDirty;
+  runtime.pedestrian.enabled = snapshot.enabled;
+  runtime.pedestrian.environment = snapshot.environment;
+  // Rollback never revokes the visitor's walking-mode request. If no prior
+  // environment existed this coherently returns to requested-but-pending.
+  runtime.pedestrian.requested = snapshot.requested;
+  runtime.pedestrian.savedFov = snapshot.savedFov;
+  runtime.pedestrian.savedNear = snapshot.savedNear;
+  runtime.pedestrian.savedPose = snapshot.savedPose;
+  runtime.pedestrian.savedUnderside = snapshot.savedUnderside;
+  runtime.pedestrian.state = snapshot.state;
+  runtime.camera.position.copy(snapshot.cameraPosition);
+  runtime.controls.target.copy(snapshot.cameraTarget);
+  runtime.camera.far = snapshot.cameraFar;
+  runtime.camera.fov = snapshot.cameraFov;
+  runtime.camera.near = snapshot.cameraNear;
+  runtime.camera.updateProjectionMatrix();
+  runtime.controls.enabled = snapshot.controlsEnabled;
+  runtime.controls.maxDistance = snapshot.controlsMaxDistance;
+  runtime.controls.minDistance = snapshot.controlsMinDistance;
+  runtime.controls.update();
+  runtime.marker.visible = snapshot.markerVisible;
+  runtime.tunnelPortalInteriorVisible = snapshot.tunnelPortalInteriorVisible;
+  runtime.underside = snapshot.underside;
+  runtime.renderInvalidated = true;
+}
+
+function captureProgressiveWorld(runtime: Runtime): ProgressiveWorldSnapshot {
+  return {
+    batches: [...runtime.progressiveWorldBatches],
+    input: runtime.progressiveWorldInput,
+    state: runtime.progressiveWorldState,
+    worker: runtime.progressiveWorldWorker,
+  };
+}
+
+function restoreProgressiveWorld(
+  runtime: Runtime,
+  snapshot: ProgressiveWorldSnapshot,
+): void {
+  if (
+    runtime.progressiveWorldWorker &&
+    runtime.progressiveWorldWorker !== snapshot.worker
+  ) {
+    runtime.progressiveWorldWorker.terminate();
+  }
+  const retained = new Set(snapshot.batches);
+  for (const batch of [...runtime.progressiveWorldBatches]) {
+    if (!retained.has(batch)) {
+      disposeObject3D(runtime, batch);
+    }
+  }
+  runtime.progressiveWorldBatches = [...snapshot.batches];
+  runtime.progressiveWorldWorker = snapshot.worker;
+  runtime.progressiveWorldState = snapshot.state;
+  if (snapshot.input) {
+    runtime.progressiveWorldInput = snapshot.input;
+  } else {
+    delete runtime.progressiveWorldInput;
+  }
+}
+
+function restoreWorldPresentationAfterRollback(
+  runtime: Runtime,
+  underside: boolean,
+): void {
+  try {
+    setModelMaterialState(runtime, underside);
+    setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
+  } catch (error: unknown) {
+    if (import.meta.env.DEV) {
+      console.error("Failed to restore world presentation after rollback", error);
+    }
+  }
 }
 
 /**
@@ -2176,6 +2386,13 @@ function ensureIsoWorld(
       runtime.reportCoreProgress(loadedParts, totalParts);
     }
   };
+  let provisionalIsoWorld: Group | null = null;
+  let provisionalPedestrianEnvironment: PedestrianEnvironment | null = null;
+  let mutableRootSnapshots: MutableRootSnapshot[] | null = null;
+  let pedestrianSnapshot: PedestrianAttachmentSnapshot | null = null;
+  let progressiveSnapshot: ProgressiveWorldSnapshot | null = null;
+  let originalIsoWorld: Group | null = null;
+  let originalTrafficSignals: Group | null | undefined;
   void Promise.all([
     tracked(fetchPrismPayload(runtime)),
     tracked(fetchGroundPayload(runtime)).catch(() => null),
@@ -2187,6 +2404,24 @@ function ensureIsoWorld(
       if (runtime.disposed) {
         return;
       }
+      // Day can be left while the shared payloads are still in flight. The
+      // fulfilled promises stay cached, but Minecraft must not pay the smooth
+      // city's construction/worker peak for a world it will keep hidden.
+      if (!isoWorldIntentActive(runtime)) {
+        runtime.isoWorldState = "idle";
+        return;
+      }
+      mutableRootSnapshots = captureMutableRootSnapshots([
+        runtime.signatures,
+        runtime.cityStaffage,
+        runtime.undergroundNetwork,
+        runtime.tramCatenary,
+        runtime.schwellenraumPraesentation,
+      ]);
+      pedestrianSnapshot = capturePedestrianAttachment(runtime);
+      progressiveSnapshot = captureProgressiveWorld(runtime);
+      originalIsoWorld = runtime.isoWorld;
+      originalTrafficSignals = runtime.trafficSignals;
       const memorialProtection =
         createSchwellenraumMemorialProtectionIndex(street?.monuments);
       if (ground && surfaces) {
@@ -2196,6 +2431,7 @@ function ensureIsoWorld(
           runtime.tunnelPortalCourse,
           prisms,
         );
+        provisionalPedestrianEnvironment = pedestrianEnvironment;
         const ardRoofCollision =
           createArdHauptstadtstudioRoofCollision(prisms);
         const historicParkBridgeCollision =
@@ -2265,18 +2501,6 @@ function ensureIsoWorld(
               z / ground.cell_m - ground.grid.min_z_idx,
             ),
         );
-        runtime.pedestrian.environment = pedestrianEnvironment;
-        if (runtime.pedestrian.requested) {
-          activatePedestrianMode(runtime);
-        }
-      }
-      if (
-        setSchwellenraumDatenSchutz(
-          runtime.schwellenraumPraesentation,
-          memorialProtection,
-        )
-      ) {
-        runtime.renderInvalidated = true;
       }
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
@@ -2297,9 +2521,7 @@ function ensureIsoWorld(
               type: "build",
             }
           : null;
-      runtime.progressiveWorldInput = progressiveInput ?? undefined;
-      applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
-      runtime.isoWorld = createIsometricCity(
+      const isoWorld = createIsometricCity(
         prisms,
         ground,
         runtime.tunnelPortalCourse,
@@ -2309,11 +2531,12 @@ function ensureIsoWorld(
           smoothSurfaces: progressiveInput ? null : undefined,
         },
       );
+      provisionalIsoWorld = isoWorld;
       // Metric bridge profiles are recognition geometry, not a soft surface
       // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
       // Gustav-Heinemann and Sandkrug retain their real proportions in the
       // block mode as well as in Day/Night/Snow/Schwellenraum.
-      const bridges = runtime.isoWorld.getObjectByName(
+      const bridges = isoWorld.getObjectByName(
         "drawn bridge structures",
       );
       if (bridges) {
@@ -2324,7 +2547,7 @@ function ensureIsoWorld(
         // they inherit its day/night/voxel/underside visibility.
         const signals = createTrafficSignals(street, ground);
         if (signals) {
-          runtime.isoWorld.add(signals);
+          isoWorld.add(signals);
           runtime.trafficSignals = signals;
           updateTrafficSignals(
             signals,
@@ -2336,24 +2559,24 @@ function ensureIsoWorld(
         // Every OSM monument in the quarter, drawn ("alle Denkmäler").
         const monuments = createTiergartenMonuments(street, ground);
         if (monuments) {
-          runtime.isoWorld.add(monuments);
+          isoWorld.add(monuments);
         }
         // The quarter's three filling stations, canopy and all.
         const fuel = createFuelStations(street, ground);
         if (fuel) {
-          runtime.isoWorld.add(fuel);
+          isoWorld.add(fuel);
         }
         // Capital Beach on the Ludwig-Erhard-Ufer and the beer gardens.
         const venues = createRiversideVenues(street, ground);
         if (venues) {
-          runtime.isoWorld.add(venues);
+          isoWorld.add(venues);
         }
       }
       if (ground) {
         // Two source-bound Berlin passenger-vessel envelopes on committed OSM
         // waterway axes. Their positions are explicit static display
         // compositions, not live vessel observations or AIS tracks.
-        runtime.isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
+        isoWorld.add(createVessels(ground.water_top_y_m ?? undefined));
         // The 2026 interim seat of the Bundespräsidialamt, too new for LoD2.
         // Like the surveyed bridge signatures it remains visible in Minecraft,
         // where the old LoD2/voxel mass cannot represent its new bent outline.
@@ -2406,7 +2629,7 @@ function ensureIsoWorld(
         // Hauptbahnhof instead of letting them stop in mid-air.
         const railway = createRailNetwork(rail, ground);
         if (railway) {
-          runtime.isoWorld.add(railway);
+          isoWorld.add(railway);
         }
         // Task 37: the stationary ICE used to stand on the Hauptbahnhof
         // model's own stub track, which pointed off the east gable at
@@ -2416,7 +2639,7 @@ function ensureIsoWorld(
         // rotated/translated station model group).
         const ice = createIceOnRails(rail);
         if (ice) {
-          runtime.isoWorld.add(ice);
+          isoWorld.add(ice);
         }
         // OSM node/2231321435 fixes the small Grillstand HBF beneath the
         // western Stadtbahn approach. It stays beside the architectural
@@ -2436,29 +2659,103 @@ function ensureIsoWorld(
           runtime.tramCatenary.add(catenary);
         }
       }
+      // Publish the complete preview root atomically. The progressive worker
+      // is deliberately started only after this pointer and scene attachment
+      // exist; any later failure rolls both it and its batches back below.
+      runtime.isoWorld = isoWorld;
+      runtime.scene.add(isoWorld);
+      runtime.progressiveWorldInput = progressiveInput ?? undefined;
       collectFarZoomAntiFlickerTargets(runtime);
-      runtime.scene.add(runtime.isoWorld);
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, totalParts);
       performance.mark("isometric-city-preview-ready");
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
+      if (provisionalPedestrianEnvironment) {
+        runtime.pedestrian.environment = provisionalPedestrianEnvironment;
+        if (runtime.pedestrian.requested) {
+          activatePedestrianMode(runtime);
+        }
+      }
+      if (
+        setSchwellenraumDatenSchutz(
+          runtime.schwellenraumPraesentation,
+          memorialProtection,
+        )
+      ) {
+        runtime.renderInvalidated = true;
+      }
       markSurfaceInteraction(runtime, 400, true);
-      notifyPresentationReadyWhenPossible(runtime);
       runtime.startDeferredDetails();
+      applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
+      provisionalIsoWorld = null;
+      provisionalPedestrianEnvironment = null;
+      mutableRootSnapshots = null;
+      pedestrianSnapshot = null;
+      progressiveSnapshot = null;
+      // Open the startup curtain only after every synchronous attachment
+      // hook has succeeded and the rollback transaction has been committed.
+      // A consumer callback must never turn a ready world into a rollback.
+      try {
+        notifyPresentationReadyWhenPossible(runtime);
+      } catch (error: unknown) {
+        if (import.meta.env.DEV) {
+          console.error("Failed to notify drawn-world readiness", error);
+        }
+      }
     })
     .catch((error: unknown) => {
+      const transactionStarted = pedestrianSnapshot !== null;
+      const rollbackUnderside =
+        pedestrianSnapshot?.underside ?? runtime.underside;
+      if (progressiveSnapshot) {
+        restoreProgressiveWorld(runtime, progressiveSnapshot);
+        progressiveSnapshot = null;
+      }
+      if (
+        provisionalIsoWorld &&
+        runtime.isoWorld === provisionalIsoWorld
+      ) {
+        runtime.isoWorld = originalIsoWorld;
+      }
+      if (mutableRootSnapshots) {
+        rollbackMutableRoots(runtime, mutableRootSnapshots);
+        mutableRootSnapshots = null;
+      }
+      if (provisionalIsoWorld) {
+        disposeObject3D(runtime, provisionalIsoWorld);
+        provisionalIsoWorld = null;
+      }
+      if (transactionStarted) {
+        runtime.trafficSignals = originalTrafficSignals;
+      }
+      if (pedestrianSnapshot) {
+        restorePedestrianAttachment(runtime, pedestrianSnapshot);
+        pedestrianSnapshot = null;
+      }
+      provisionalPedestrianEnvironment = null;
+      if (transactionStarted) {
+        collectFarZoomAntiFlickerTargets(runtime);
+      }
       if (import.meta.env.DEV) {
         console.error("Failed to attach drawn isometric world", error);
       }
-      if (!runtime.disposed) {
-        runtime.isoWorldState = "failed";
-        runtime.renderInvalidated = true;
-        runtime.ensurePhotoSurface();
-        notifyPresentationReadyWhenPossible(runtime);
-        warn(
-          "Die gezeichnete Isometrie konnte nicht geladen werden; die fotografische Tagesansicht bleibt aktiv.",
-        );
+      if (runtime.disposed) {
+        return;
       }
+      runtime.renderInvalidated = true;
+      if (!isoWorldIntentActive(runtime)) {
+        runtime.isoWorldState = "idle";
+        restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
+        notifyPresentationReadyWhenPossible(runtime);
+        return;
+      }
+      runtime.isoWorldState = "failed";
+      restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
+      runtime.ensurePhotoSurface();
+      notifyPresentationReadyWhenPossible(runtime);
+      warn(
+        "Die gezeichnete Isometrie konnte nicht geladen werden; die fotografische Tagesansicht bleibt aktiv.",
+      );
     });
 }
 
@@ -2492,6 +2789,10 @@ function ensureVoxelWorld(
       runtime.reportCoreProgress(loadedParts, 3);
     }
   };
+  let provisionalVoxelWorld: Group | null = null;
+  let provisionalMinecraftMobs: MinecraftMobField | null = null;
+  let provisionalEnvironment: PedestrianEnvironment | null = null;
+  let pedestrianSnapshot: PedestrianAttachmentSnapshot | null = null;
   void Promise.all([
     tracked(fetchVoxelPayload(runtime)),
     // The prism payload carries each building's sampled real colour;
@@ -2503,29 +2804,37 @@ function ensureVoxelWorld(
       if (runtime.disposed) {
         return;
       }
-      runtime.voxelWorld = createMinecraftVoxelWorld(
+      // A visitor can leave Minecraft while these cached payload requests are
+      // in flight. Do not turn that quick switch into a synchronous multi-
+      // million-instance allocation hidden behind Day; a later Minecraft
+      // entry retries immediately from the fulfilled fetch promises.
+      if (!voxelWorldIntentActive(runtime)) {
+        runtime.voxelWorldState = "idle";
+        return;
+      }
+      pedestrianSnapshot = capturePedestrianAttachment(runtime);
+      provisionalVoxelWorld = createMinecraftVoxelWorld(
         payload,
         prisms ? buildColumnToneLookup(prisms) : null,
         runtime.tunnelPortalCourse,
+        { detailProfile: runtime.coarsePointer ? "mobile" : "full" },
       );
-      runtime.scene.add(runtime.voxelWorld);
-      runtime.minecraftMobs = createMinecraftMobs(
+      provisionalMinecraftMobs = createMinecraftMobs(
         payload,
         !runtime.coarsePointer,
       );
-      runtime.scene.add(runtime.minecraftMobs.group);
       // Minecraft can be the cold-start mode, in which case the drawn-world
       // builder has not yet created the shared navigation environment. Load
       // only the water polygons in the background; block presentation stays
       // on the existing fast voxel+prism critical path.
       if (prisms && runtime.pedestrian.environment === null) {
-        const environment = createPedestrianEnvironment(
+        provisionalEnvironment = createPedestrianEnvironment(
           payload,
           { water: [] },
           runtime.tunnelPortalCourse,
           prisms,
         );
-        environment.walkableInteriorAt = (x, y, z, sourceId) =>
+        provisionalEnvironment.walkableInteriorAt = (x, y, z, sourceId) =>
           visualModeWalkableInteriorAt(
             runtime.lightingMode,
             x,
@@ -2533,19 +2842,33 @@ function ensureVoxelWorld(
             z,
             sourceId,
           );
-        environment.interiorSolidAt = (x, y, z, radius) =>
+        provisionalEnvironment.interiorSolidAt = (x, y, z, radius) =>
           csdAttackMemorialSolidAt(x, y, z, radius) ||
           invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
           (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
             minecraftHeroSolidAt(x, y, z, radius));
-        environment.interiorGroundAt = (x, z) =>
+        provisionalEnvironment.interiorGroundAt = (x, z) =>
           minecraftHeroCollisionEnabled(runtime.lightingMode)
             ? minecraftHeroGroundAt(x, z)
             : null;
-        runtime.pedestrian.environment = environment;
+      }
+
+      // Commit only after every expensive constructor succeeds. Anything
+      // below that can still throw is guarded by the chain's rollback, so a
+      // partial group can never masquerade as a ready voxel world.
+      runtime.voxelWorld = provisionalVoxelWorld;
+      runtime.minecraftMobs = provisionalMinecraftMobs;
+      runtime.scene.add(provisionalVoxelWorld);
+      runtime.scene.add(provisionalMinecraftMobs.group);
+      loadedParts += 1;
+      runtime.reportCoreProgress(loadedParts, 3);
+      setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
+      if (provisionalEnvironment) {
+        runtime.pedestrian.environment = provisionalEnvironment;
         if (runtime.pedestrian.requested) {
           activatePedestrianMode(runtime);
         }
+        const environment = provisionalEnvironment;
         void fetchSurfacePayload(runtime)
           .then((surfaces) => {
             if (
@@ -2559,23 +2882,70 @@ function ensureVoxelWorld(
           // water respawn waits for a later drawn-world retry after failure.
           .catch(() => undefined);
       }
-      loadedParts += 1;
-      runtime.reportCoreProgress(loadedParts, 3);
-      setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       markSurfaceInteraction(runtime, 400, true);
-      notifyPresentationReadyWhenPossible(runtime);
-      runtime.startDeferredDetails();
-    })
-    .catch(() => {
-      if (!runtime.disposed) {
-        runtime.voxelWorldState = "failed";
-        runtime.renderInvalidated = true;
-        runtime.ensurePhotoSurface();
-        notifyPresentationReadyWhenPossible(runtime);
-        warn(
-          "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
-        );
+      // A coarse Minecraft-only visit never renders the 450k-instance smooth
+      // park layer. Day's successful loader calls this same idempotent hook,
+      // so deferral is lifecycle-safe and saves its hidden allocation peak.
+      if (!runtime.coarsePointer) {
+        runtime.startDeferredDetails();
       }
+      provisionalVoxelWorld = null;
+      provisionalMinecraftMobs = null;
+      provisionalEnvironment = null;
+      pedestrianSnapshot = null;
+      // As above, readiness is the final, non-transactional publication step.
+      try {
+        notifyPresentationReadyWhenPossible(runtime);
+      } catch (error: unknown) {
+        if (import.meta.env.DEV) {
+          console.error("Failed to notify voxel-world readiness", error);
+        }
+      }
+    })
+    .catch((error: unknown) => {
+      const rollbackUnderside =
+        pedestrianSnapshot?.underside ?? runtime.underside;
+      if (provisionalMinecraftMobs) {
+        if (runtime.minecraftMobs === provisionalMinecraftMobs) {
+          runtime.minecraftMobs = null;
+        }
+        disposeObject3D(runtime, provisionalMinecraftMobs.group);
+        provisionalMinecraftMobs = null;
+      }
+      if (provisionalVoxelWorld) {
+        if (runtime.voxelWorld === provisionalVoxelWorld) {
+          runtime.voxelWorld = null;
+        }
+        disposeObject3D(runtime, provisionalVoxelWorld);
+        provisionalVoxelWorld = null;
+      }
+      if (pedestrianSnapshot) {
+        restorePedestrianAttachment(runtime, pedestrianSnapshot);
+        pedestrianSnapshot = null;
+      }
+      provisionalEnvironment = null;
+      if (runtime.disposed) {
+        return;
+      }
+      if (import.meta.env.DEV) {
+        console.error("Failed to attach Minecraft voxel world", error);
+      }
+      runtime.renderInvalidated = true;
+      if (!voxelWorldIntentActive(runtime)) {
+        // An inactive world's optional loader must not wake the heavyweight
+        // photographic fallback. Keep the cached request and retry next time.
+        runtime.voxelWorldState = "idle";
+        restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
+        notifyPresentationReadyWhenPossible(runtime);
+        return;
+      }
+      runtime.voxelWorldState = "failed";
+      restoreWorldPresentationAfterRollback(runtime, rollbackUnderside);
+      runtime.ensurePhotoSurface();
+      notifyPresentationReadyWhenPossible(runtime);
+      warn(
+        "Die Voxel-Welt konnte nicht geladen werden; der Minecraft-Modus nutzt die Block-Materialien.",
+      );
     });
 }
 
@@ -3960,15 +4330,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let resizeObserver: ResizeObserver | null = null;
       const loadController = new AbortController();
       const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const webglMemoryProfile = stableWebglMemoryProfile(coarsePointer);
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      // Antialias everywhere: touch devices previously rendered without
-      // MSAA, which made straight roof edges shimmer on retina phones.
       let renderer: WebGLRenderer;
       try {
         renderer = new WebGLRenderer({
-          antialias: true,
+          antialias: webglMemoryProfile.antialias,
           powerPreference: "high-performance",
           // The viewer intentionally stops drawing once a still scene is
           // settled. Safari/iOS may discard an unpreserved WebGL backbuffer
@@ -4043,30 +4412,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         fragmentShader: crispFragment,
       });
       crispPass.enabled = false;
-      // Hard MSAA floor for the settled post-process chain. v0.55.0: raised
-      // the coarse-pointer floor from 2x to 4x. A retina phone's native
-      // devicePixelRatio (often 3) is capped well below that by
-      // renderPixelRatio's mobile budget (see renderQuality.ts), so the
-      // composer was resolving dense, high-frequency line patterns -- the
-      // ground's kerb/grid ink, roof glazing seams -- at a coarser physical
-      // sample grid than desktop while feeding the *same* screen-space
-      // unsharp+edge pass (crisp.frag). That combination is exactly the
-      // moire mechanism users photographed on iPhones: too few samples per
-      // final pixel to resolve a fine repeating line pattern, then a
-      // sharpening filter amplifying whatever aliasing survived. 4x on both
-      // tiers removes the gap; the cost is one texture's worth of MSAA
-      // storage, not a per-frame shading cost, so it does not compete with
-      // the pixel-ratio budget that actually protects phone frame rate.
+      // Desktop retains the established 4x half-float composer. On coarse
+      // pointers the final SMAA pass below owns edge smoothing, avoiding both
+      // renderer MSAA and two full-size multisampled half-float targets. At a
+      // tablet viewport those persistent targets alone can otherwise consume
+      // hundreds of MiB and trigger Safari WebGL context loss.
       const composerTarget = new WebGLRenderTarget(1, 1, {
-        samples: 4,
-        type: HalfFloatType,
+        samples: webglMemoryProfile.composerSamples,
+        type: webglMemoryProfile.halfFloatComposer
+          ? HalfFloatType
+          : UnsignedByteType,
       });
       const composer = new EffectComposer(renderer, composerTarget);
       composer.addPass(new RenderPass(scene, camera));
       composer.addPass(crispPass);
-      // MSAA resolves polygon and line samples inside the scene render, while
-      // SMAA removes the remaining screen-space stair steps after that
-      // resolve. Keep it permanently last and enabled in every visual mode:
+      // Keep SMAA permanently last and enabled in every visual mode: on
+      // desktop it removes remaining stair steps after the MSAA resolve; on
+      // mobile it is the single bounded anti-aliasing stage. In both cases,
       // motion and rest must use the exact same pixel pipeline, otherwise the
       // anti-aliasing transition itself becomes a visible flash.
       const smaaPass = new SMAAPass();
@@ -5681,7 +6043,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   });
                   runtime.parkDetails.removeFromParent();
                   runtime.parkDetails = details;
-                  details.visible = !runtime.underside;
+                  const voxelMode = voxelModeActive(runtime);
+                  details.visible = !runtime.underside && !voxelMode;
                   setParkDetailsFocus(details, selectedRef.current);
                   scene.add(details);
                   applyLightingToRoot(
@@ -5689,7 +6052,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     runtime.lightingMode,
                     runtime.nightLightsOn,
                   );
-                  if (runtime.lightingMode === "minecraft") {
+                  if (
+                    runtime.lightingMode === "minecraft" &&
+                    !voxelMode
+                  ) {
+                    // Only the smooth fallback needs toon clones. A completed
+                    // voxel world keeps this large deferred layer hidden, so
+                    // cloning thousands of its materials would waste mobile
+                    // memory without producing a pixel.
                     setMinecraftMaterialPresentation(
                       details,
                       runtime.minecraftMaterialState,
