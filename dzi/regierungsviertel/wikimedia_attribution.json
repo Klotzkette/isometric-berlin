@@ -1180,6 +1180,42 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0",
       "artist": "Derbrauni",
       "credit": "Own work"
+    },
+    {
+      "landmark_id": "hotel_adlon",
+      "title": "File:Hotel Adlon Berlin-Mitte.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHotel_Adlon_Berlin-Mitte.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Lukas Beck",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "hotel_adlon",
+      "title": "File:Hotel Adlon Kempinski, 2024 (02).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AHotel_Adlon_Kempinski%2C_2024_%2802%29.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Bahnfrend",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "starbucks_pariser_platz",
+      "title": "File:Pariser Platz 4A - exterior view 2025.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3APariser_Platz_4A_-_exterior_view_2025.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Karmelki90",
+      "credit": "Own work"
+    },
+    {
+      "landmark_id": "starbucks_pariser_platz",
+      "title": "File:Bürogebäude Pariser Platz 4a, Berlin-Mitte-3877.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3AB%C3%BCrogeb%C3%A4ude_Pariser_Platz_4a%2C_Berlin-Mitte-3877.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Raimond Spekking",
+      "credit": "Own work"
     }
   ]
 }
