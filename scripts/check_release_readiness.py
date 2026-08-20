@@ -882,6 +882,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   memorial_path = root / "src/app/src/MemorialLandmarks.ts"
   queer_memorial_path = root / "src/app/src/QueerRainbowMemorial.ts"
   csd_attack_memorial_path = root / "src/app/src/CsdAttackMemorial.ts"
+  invalidenfriedhof_path = root / "src/app/src/InvalidenfriedhofDetails.ts"
   park_path = root / "src/app/src/ParkDetails.ts"
   project_metadata_path = root / "src/app/src/projectMetadata.ts"
   camera_navigation_path = root / "src/app/src/cameraNavigation.ts"
@@ -900,6 +901,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     or not memorial_path.exists()
     or not queer_memorial_path.exists()
     or not csd_attack_memorial_path.exists()
+    or not invalidenfriedhof_path.exists()
     or not park_path.exists()
     or not project_metadata_path.exists()
     or not camera_navigation_path.exists()
@@ -919,6 +921,7 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
   memorial = memorial_path.read_text(encoding="utf-8")
   queer_memorial = queer_memorial_path.read_text(encoding="utf-8")
   csd_attack_memorial = csd_attack_memorial_path.read_text(encoding="utf-8")
+  invalidenfriedhof = invalidenfriedhof_path.read_text(encoding="utf-8")
   park = park_path.read_text(encoding="utf-8")
   project_metadata = project_metadata_path.read_text(encoding="utf-8")
   camera_navigation = camera_navigation_path.read_text(encoding="utf-8")
@@ -1199,6 +1202,59 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
       failures.append(
         f"CSD attack memorial violates its lightweight static contract, found "
         f"{forbidden}: {csd_attack_memorial_path}"
+      )
+  required_invalidenfriedhof_snippets = {
+    "Scharnhorst lion tomb": 'id: "scharnhorst-lion-tomb"',
+    "Witzleben Gothic canopy": 'id: "witzleben-green-canopy-tomb"',
+    "Winterfeld OSM-owned pedestal": 'osmKey: "node/279219439"',
+    "Kessel fenced grave": 'id: "von-kessel-fenced-slab"',
+    "correct Rauch family OSM anchor": 'osmKey: "node/281941696"',
+    "absorbed Rauch family legacy marker": '"node/281941700"',
+    "August-Viktoria bell OSM anchor": 'osmKey: "node/7430297888"',
+    "open bell LoD2 ownership": 'lod2BuildingPartId: "K0001yqp"',
+    "documented 1.60 m bell": "displayBellDiameterM: 1.6",
+    "Litfin watchtower OSM anchor": 'osmKey: "way/31347999"',
+    "Litfin LoD2 ownership": 'lod2BuildingPartId: "1pC0000R"',
+    "three-metre Litfin shaft": "shaftFootprintM: [3.0, 3.0]",
+    "sixteen Litfin observation panes": "upperPaneCount: 16",
+    "eight Litfin small windows": "smallWindowCount: 8",
+    "solid Hinterland wall shell": (
+      "Invalidenfriedhof Hinterlandmauer continuous grey backing shell"
+    ),
+    "separate canal brick wall": (
+      "Invalidenfriedhof canal wall red brick piers and coping"
+    ),
+    "all-mode Minecraft signatures": "createMinecraftInvalidenfriedhofDetails",
+    "granular physical solids": "export function invalidenfriedhofSolidAt(",
+    "source-scoped open bell undercroft": (
+      "export function invalidenfriedhofWalkableInteriorAt("
+    ),
+    "exact LoD2 voxel replacement": (
+      "export function invalidenfriedhofVoxelReplacementAt("
+    ),
+    "deterministic horizontal snow": "setInvalidenfriedhofSnow",
+    "reference-only supplied photographs": (
+      "Owner-supplied field photographs are reference-only"
+    ),
+  }
+  failures.extend(
+    f"Invalidenfriedhof detail layer lacks {label}: {invalidenfriedhof_path}"
+    for label, snippet in required_invalidenfriedhof_snippets.items()
+    if snippet not in invalidenfriedhof
+  )
+  for forbidden in [
+    "CanvasTexture",
+    "TextureLoader",
+    "PointLight",
+    "markWindFlag(",
+    ".userData.windFlag =",
+    ".userData.windFlagInstances =",
+    "Math.random",
+  ]:
+    if forbidden in invalidenfriedhof:
+      failures.append(
+        "Invalidenfriedhof detail layer violates its lightweight static "
+        f"contract, found {forbidden}: {invalidenfriedhof_path}"
       )
   required_park_snippets = {
     "official settled tree microcrowns": (

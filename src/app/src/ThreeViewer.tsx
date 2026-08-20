@@ -101,6 +101,9 @@ import {
   createExpandedCityDetails,
   expandedCityFocusCamera,
 } from "./ExpandedCityDetails";
+import {
+  setInvalidenfriedhofSnow,
+} from "./InvalidenfriedhofDetails";
 import { createSonyCenterForumRoof } from "./SonyCenterForumRoof";
 import { createSpreebogenPark } from "./SpreebogenPark";
 import {
@@ -234,7 +237,10 @@ import {
   reconcileMinecraftHeroCameraRig,
   resolveMinecraftHeroFlightTranslation,
 } from "./MinecraftHeroNavigation";
-import { visualModeWalkableInteriorAt } from "./visualModePedestrianAccess";
+import {
+  invalidenfriedhofPedestrianSolidAt,
+  visualModeWalkableInteriorAt,
+} from "./visualModePedestrianAccess";
 import {
   type MinecraftMobField,
   createMinecraftMobs,
@@ -1745,6 +1751,7 @@ function setSceneLighting(
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
   setCsdAttackMemorialSnow(runtime.monuments, isSnowstorm);
+  setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm);
   // Every true mode entry starts from one authored cloth pose. A same-mode
   // Schwellenraum relight (for example after resurfacing) must keep both the
   // current pose and elapsed clock; resetting only the geometry would make
@@ -2192,7 +2199,10 @@ function ensureIsoWorld(
           (schwellenraumProtectedAt(x, y, z) ||
             schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
         pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
-          if (csdAttackMemorialSolidAt(x, y, z, radius)) {
+          if (
+            csdAttackMemorialSolidAt(x, y, z, radius) ||
+            invalidenfriedhofPedestrianSolidAt(x, y, z, radius)
+          ) {
             return true;
           }
           if (runtime.lightingMode === "schwellenraum") {
@@ -2506,6 +2516,7 @@ function ensureVoxelWorld(
           );
         environment.interiorSolidAt = (x, y, z, radius) =>
           csdAttackMemorialSolidAt(x, y, z, radius) ||
+          invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
           (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
             minecraftHeroSolidAt(x, y, z, radius));
         environment.interiorGroundAt = (x, z) =>
@@ -5557,6 +5568,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.culturalDetails.removeFromParent();
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
           const expandedDetails = createExpandedCityDetails(manifest.landmarks);
+          setInvalidenfriedhofSnow(
+            expandedDetails,
+            runtime.lightingMode === "snowstorm",
+          );
           const tillaDurieux = expandedDetails.getObjectByName(
             "Tilla-Durieux-Park lawn sculpture",
           );

@@ -371,6 +371,53 @@ benches and pavement plaques. Stolpersteine use the documented 0.10 m brass
 top without an ink halo; a missing subtype yields only a conservative low
 marker, never a falsely asserted landmark-sized block.
 
+## Invalidenfriedhof and Kieler Eck evidence contract
+
+The Invalidenfriedhof recognition layer keeps source roles separate:
+
+- Berlin monument object `09010206` documents the protected cemetery ensemble
+  and named historic grave monuments.
+- OSM way `51804411`, the committed paths and individual grave anchors control
+  plan placement and semantics; they do not supply facade or sculpture survey
+  geometry. OSM node `279219439` independently anchors the Hans Carl von
+  Winterfeld monument.
+- OSM node `7430297888` identifies the Auguste-Viktoria bell, while Berlin
+  LoD2 object `DEBE01YYK0001yqp` supplies its official building anchor and
+  10.044 m measured building height. The published 1.60 m bell diameter and
+  1.8 t mass apply only to the bell, not to uncited frame or spacing
+  dimensions.
+- Berlin's Wall documentation and monument inventory distinguish the 1902
+  canal-side brick cemetery wall from the surviving concrete
+  Hinterlandmauer. The committed official Wall layer and OSM wall ways retain
+  their separate traces.
+- OSM way `31347999`, monument object `09040270,T,010` and Stiftung Berliner
+  Mauer documentation independently anchor the former Führungsstelle Kieler
+  Eck / Gedenkstätte Günter Litfin. LoD2 object `DEBE01AL1pC0000R` supplies its
+  8.946 m measured building height. Its recognition shell must not be merged
+  into the cemetery wall, and uncited facade subdivisions must not be
+  relabelled as LoD2 survey detail.
+
+Close procedural shapes for the Scharnhorst, Witzleben, Winterfeld, Kessel and
+Rauch grave monuments, the bell frame and the watchtower's openings, rails,
+plaques and information board are bounded recognition geometry wherever no
+published dimension exists. User-supplied photographs remain unbundled visual
+references only; they are never source textures or metric evidence. Repeated
+members are batched, every visual mode keeps the ensembles static, and
+navigation collision is limited to the represented solid geometry so mapped
+paths and deliberate open structural bays stay traversable.
+
+Primary public records:
+
+- [Invalidenfriedhof monument ensemble](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206)
+- [Berlin Wall remains at Invalidenfriedhof](https://www.berlin.de/mauer/orte/mauerreste/artikel.151178.php)
+- [Invalidenfriedhof Wall monument record](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-648151.php)
+- [Führungsstelle Kieler Eck monument record](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/fuehrungsstelle-kieler-eck-649714.php)
+- [Gedenkstätte Günter Litfin](https://www.stiftung-berliner-mauer.de/de/gedenkstaette-guenter-litfin)
+- [Auguste-Viktoria bell information](https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/augusta-viktoria-glocke)
+- [OpenStreetMap watchtower footprint](https://www.openstreetmap.org/way/31347999)
+- [OpenStreetMap bell anchor](https://www.openstreetmap.org/node/7430297888)
+- [OpenStreetMap Hans Carl von Winterfeld anchor](https://www.openstreetmap.org/node/279219439)
+
 ## Berlin official support layers
 
 Pipeline step 4 keeps official support data additive and scoped to the

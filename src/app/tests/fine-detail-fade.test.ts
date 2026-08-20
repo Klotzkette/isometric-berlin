@@ -315,6 +315,31 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
+  test("fades the Invalidenfriedhof ornament without dropping its silhouettes", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Invalidenfriedhof Scharnhorst lion tomb fine detail",
+        "Invalidenfriedhof Witzleben canopy fine detail",
+        "Invalidenfriedhof Winterfeld portrait and helmet fine detail",
+        "Invalidenfriedhof von Kessel fenced slab fine detail",
+        "Invalidenfriedhof Familie von Rauch arch fine detail",
+        "Invalidenfriedhof Auguste-Viktoria bell tower fine detail",
+        "Günter Litfin watchtower fine detail",
+        "Invalidenfriedhof historic wall fine detail",
+      ]),
+    );
+    for (const persistentName of [
+      "Invalidenfriedhof Scharnhorst lion tomb exact Day protected",
+      "Invalidenfriedhof Winterfeld pedestal exact Day protected",
+      "Invalidenfriedhof Auguste-Viktoria bell tower exact Day protected",
+      "Günter Litfin watchtower exact Day protected",
+      "Invalidenfriedhof historic walls exact Day protected",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+    }
+  });
+
   test("hides once distance passes the hide threshold", () => {
     expect(
       nextFineDetailVisible({

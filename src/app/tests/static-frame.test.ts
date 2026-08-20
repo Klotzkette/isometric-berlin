@@ -147,6 +147,26 @@ describe("idle-frame anti-flicker contract", () => {
     );
   });
 
+  test("keeps Invalidenfriedhof snow and collision identical on warm and cold starts", () => {
+    expect(viewerSource).toContain(
+      "setInvalidenfriedhofSnow(runtime.culturalDetails, isSnowstorm)",
+    );
+    expect(viewerSource).toContain("setInvalidenfriedhofSnow(");
+    expect(
+      viewerSource.match(
+        /invalidenfriedhofPedestrianSolidAt\(x, y, z, radius\)/g,
+      ),
+    ).toHaveLength(2);
+    // Smooth cemetery detail follows the ordinary cultural visibility policy;
+    // Minecraft receives its separate block-native group with the voxel world.
+    expect(viewerSource).toContain(
+      "runtime.culturalDetails.visible = recognitionVisible",
+    );
+    expect(viewerSource).toContain(
+      "runtime.voxelWorld.visible = voxelMode && !runtime.underside",
+    );
+  });
+
   test("runs the same final anti-aliasing pass in motion and at rest", () => {
     expect(viewerSource).toContain(
       'import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js"',

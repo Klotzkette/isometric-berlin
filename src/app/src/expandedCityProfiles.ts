@@ -484,8 +484,8 @@ export const NORTHERN_CITY_PROFILE = {
     ] as const,
     osmNodeId: "3346038362",
     sources: [
-      "https://www.berlin.de/mauer/orte/mauerreste/mauerreste-auf-dem-invalidenfriedhof-151178.php",
-      "https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-649727.php",
+      "https://www.berlin.de/mauer/orte/mauerreste/artikel.151178.php",
+      "https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-648151.php",
       "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206",
     ] as const,
   },

@@ -29,6 +29,8 @@ monument foundation height.
 | Flora/Pomona and *Das deutsche Volkslied* | Flora with fruit, tree support and putto; separate seated embracing pair with lyre | Berlin's sculpture inventory documents each composition and material family. OSM fixes position; uncited dimensions remain reference-based presentation geometry. |
 | Queer Rainbow Memorial Berlin | Living broadleaf tree, six-colour heart and tied fabric, dense flowers, candles, messages and small Pride flags | The owner-supplied Ahornsteig place point fixes the position. The 4.057 m official-mesh point sample remains recorded; the visible base follows the 4.479 m continuous terrain surface used by the drawn park. The current bounded OSM extract has no corresponding named object. Tree dimensions, species and the changing offering arrangement remain explicitly unverified, field-view-bounded display estimates. |
 | CSD memorial place at Ahornsteig (French maple and rainbow bench) | Already leafed young crown, pale protected trunk, round segmented metal tree guard, sparse static small Pride flags, wreaths and unlettered cards, and rainbow-slatted bench | OSM node `14076715427` fixes the separate ensemble anchor; Bezirksamt Mitte documents the French maple, protective grid and rainbow bench. The displayed tree is 5.30 m high with a 2.60 m crown diameter and 0.12 m trunk diameter; its square planting pit is 1.55 m wide, the guard is 1.50 m in diameter and 2.10 m high, and the bench is 2.05 m wide and 0.82 m high. These local model values, bench offset/orientation and offering placement are current-view-bounded design dimensions only, not survey measurements or official dimensions. |
+| Invalidenfriedhof historic ensemble | Scharnhorst's reliefed pale sarcophagus with resting bronze lion and open iron enclosure; Witzleben's green Gothic Revival tabernacle; Winterfeld's pale pedestal with unlettered laurel portrait, trophy mantle and plumed helmet; Kessel's low dark grave with compact Gothic fence; the von Rauch family's ochre four-support arcade and white cross; the separate open Auguste-Viktoria bell frame; canal brick wall and concrete Hinterlandmauer fragments | Berlin monument object `09010206`, OSM cemetery/path/grave evidence and the official Wall records fix identity and plan context. OSM node `279219439` fixes the Winterfeld monument. OSM node `7430297888` and LoD2 object `DEBE01YYK0001yqp` anchor the bell, with a 10.044 m measured building height; its published 1.60 m diameter and 1.8 t mass are retained. Uncited sculpture, fence, frame, opening and spacing dimensions remain reference-bounded display geometry. |
+| Gedenkstätte Günter Litfin / Führungsstelle Kieler Eck | Square concrete command tower with small lower openings, entrance, upper window band, projecting slab roof, guard rail, plaques and a separate information board | OSM way `31347999`, Berlin monument object `09040270,T,010` and Stiftung Berliner Mauer documentation fix the independent site and characteristic structure; LoD2 object `DEBE01AL1pC0000R` supplies its 8.946 m measured building height. Unpublished opening, fixture, plaque and board dimensions remain reference-bounded rather than surveyed. |
 
 ## Primary sources
 
@@ -56,6 +58,23 @@ monument foundation height.
   <https://www.rbb24.de/panorama/beitrag/2026/08/berlin-anschlag-csd-baumpflanzung-gedenkort.html>
 - OpenStreetMap, exact separate ensemble anchor:
   <https://www.openstreetmap.org/node/14076715427>
+- Berlin monument inventory, Invalidenfriedhof ensemble:
+  <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206>
+- Berlin Wall records for the Invalidenfriedhof wall remains:
+  <https://www.berlin.de/mauer/orte/mauerreste/artikel.151178.php>
+  <https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-648151.php>
+- Berlin monument inventory and Stiftung Berliner Mauer, Führungsstelle
+  Kieler Eck / Gedenkstätte Günter Litfin:
+  <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09040270>
+  <https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/fuehrungsstelle-kieler-eck-649714.php>
+  <https://www.stiftung-berliner-mauer.de/de/gedenkstaette-guenter-litfin>
+- OpenStreetMap anchors for the watchtower and Auguste-Viktoria bell:
+  <https://www.openstreetmap.org/way/31347999>
+  <https://www.openstreetmap.org/node/7430297888>
+- OpenStreetMap anchor for the Hans Carl von Winterfeld monument:
+  <https://www.openstreetmap.org/node/279219439>
+- Public Auguste-Viktoria bell information, including diameter and mass:
+  <https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/augusta-viktoria-glocke>
 - Per-file licensed visual references and credits:
   [`../references/wikimedia/README.md`](../references/wikimedia/README.md)
 
@@ -79,3 +98,11 @@ Supplied screenshots and press photographs are visual evidence only: none is
 bundled, copied,
 projected or converted into a texture, and the small cards carry no reproduced
 personal text.
+
+The Invalidenfriedhof and Kieler-Eck additions follow the same evidence rule.
+Their procedural forms are static in every visual mode; Minecraft uses
+separate block-native equivalents. Repeated bars, rails, grave details and wall
+courses share batches. Collision belongs only to represented solid parts:
+cemetery paths and deliberately open bell-frame bays remain traversable. The
+supplied cemetery and watchtower photographs are not bundled, projected,
+traced as textures or treated as measured survey data.

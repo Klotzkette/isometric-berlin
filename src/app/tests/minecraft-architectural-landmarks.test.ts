@@ -22,6 +22,7 @@ import {
   setMinecraftArchitecturePresentation,
 } from "../src/MinecraftArchitecturalLandmarks";
 import { MINECRAFT_PALETTE } from "../src/visual-modes/minecraft/palette";
+import { INVALIDENFRIEDHOF_DETAIL_PROFILE } from "../src/InvalidenfriedhofDetails";
 
 const EXPECTED_MODELS = [
   "Minecraft Reichstag block signature",
@@ -318,6 +319,19 @@ describe("block-native Berlin architectural signatures", () => {
   });
 
   test("uses component-exact ownership instead of broad landmark boxes", () => {
+    const invalidenfriedhof = INVALIDENFRIEDHOF_DETAIL_PROFILE;
+    expect(
+      minecraftArchitecturalReplacementAt(
+        invalidenfriedhof.augusteViktoriaBell.centerWorldM[0],
+        invalidenfriedhof.augusteViktoriaBell.centerWorldM[2],
+      ),
+    ).toBe("auguste-viktoria-bell");
+    expect(
+      minecraftArchitecturalReplacementAt(
+        invalidenfriedhof.litfinWatchtower.centerWorldM[0],
+        invalidenfriedhof.litfinWatchtower.centerWorldM[2],
+      ),
+    ).toBe("litfin-watchtower");
     const gate = MINECRAFT_ARCHITECTURAL_PROFILES.brandenburgGate;
     expect(
       minecraftArchitecturalReplacementAt(

@@ -74,6 +74,28 @@ describe("true voxel Minecraft world", () => {
     expect(landmarks?.userData.drawCallBudget).toBe(6);
   });
 
+  test("loads the static Invalidenfriedhof block details only with the voxel world", () => {
+    const details = world.getObjectByName(
+      "Minecraft Invalidenfriedhof block-native details",
+    );
+    expect(details).toBeDefined();
+    expect(details?.parent).toBe(world);
+    expect(details?.userData).toMatchObject({
+      blockNative: true,
+      motionPolicy: "static in Minecraft",
+      sourceFootprintOwnership: [
+        "litfin-watchtower",
+        "auguste-viktoria-bell",
+      ],
+    });
+    expect(details?.children.every((child) => child instanceof InstancedMesh)).toBe(
+      true,
+    );
+    expect(details?.userData.drawCallCount).toBeLessThanOrEqual(10);
+    expect(details?.userData.instanceCount).toBeGreaterThan(250);
+    expect(details?.userData.instanceCount).toBeLessThanOrEqual(2_500);
+  });
+
   test("uses only palette-native plinth and cap blocks", () => {
     const master = new Set<number>(MINECRAFT_PALETTE);
     for (const materialClass of ["clinker", "concrete", "glass"] as const) {
@@ -352,6 +374,7 @@ describe("true voxel Minecraft world", () => {
       uniqueCellsByOwner.set(owner, cells);
     }
     expect(Object.fromEntries(hiddenByOwner)).toEqual({
+      "auguste-viktoria-bell": 1,
       "berlin-hauptbahnhof": 1_284,
       "brandenburg-gate": 52,
       "chancellery-leadership-cube": 188,
@@ -365,6 +388,7 @@ describe("true voxel Minecraft world", () => {
         [...uniqueCellsByOwner].map(([owner, cells]) => [owner, cells.size]),
       ),
     ).toEqual({
+      "auguste-viktoria-bell": 1,
       "berlin-hauptbahnhof": 1_235,
       "brandenburg-gate": 46,
       "chancellery-leadership-cube": 188,

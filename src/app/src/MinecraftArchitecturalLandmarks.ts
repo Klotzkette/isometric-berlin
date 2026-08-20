@@ -27,6 +27,7 @@ import {
   MINECRAFT_PALETTE,
 } from "./visual-modes/minecraft/palette";
 import { domeRadius } from "./ReichstagDome";
+import { invalidenfriedhofVoxelReplacementAt } from "./InvalidenfriedhofDetails";
 
 type Point2 = readonly [number, number];
 type Point3 = readonly [number, number, number];
@@ -2349,9 +2350,11 @@ function voxelCellIntersectsLocalRectangle(
 }
 
 export type MinecraftArchitecturalReplacement =
+  | "auguste-viktoria-bell"
   | "berlin-hauptbahnhof"
   | "brandenburg-gate"
   | "chancellery-leadership-cube"
+  | "litfin-watchtower"
   | "melh-library-rotunda"
   | "melh-widening-stair"
   | "paul-loebe-rotunda"
@@ -2409,6 +2412,9 @@ export function minecraftArchitecturalReplacementAt(
   x: number,
   z: number,
 ): MinecraftArchitecturalReplacement | null {
+  const invalidenfriedhof = invalidenfriedhofVoxelReplacementAt(x, z);
+  if (invalidenfriedhof) return invalidenfriedhof;
+
   const reichstag = MINECRAFT_ARCHITECTURAL_PROFILES.reichstag;
   const [reichstagX, reichstagZ] = worldToLocal(reichstag, x, z);
   if (

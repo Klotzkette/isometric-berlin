@@ -4,7 +4,21 @@ import {
   minecraftHeroWalkableAt,
 } from "./MinecraftHeroNavigation";
 import { schwellenraumNavigationOverrideAt } from "./SchwellenraumInteriors";
+import {
+  invalidenfriedhofSolidAt,
+  invalidenfriedhofWalkableInteriorAt,
+} from "./InvalidenfriedhofDetails";
 import type { VisualMode } from "./visualMode";
+
+/** Capsule-aware solids without double-closing the authored bell opening. */
+export function invalidenfriedhofPedestrianSolidAt(
+  x: number,
+  y: number,
+  z: number,
+  radius = 0,
+): boolean {
+  return invalidenfriedhofSolidAt(x, y, z, radius);
+}
 
 /**
  * Compose the deliberately narrow public openings used by pedestrian mode.
@@ -18,6 +32,9 @@ export function visualModeWalkableInteriorAt(
   z: number,
   sourceBuildingId?: string,
 ): boolean {
+  if (invalidenfriedhofWalkableInteriorAt(x, y, z, sourceBuildingId)) {
+    return true;
+  }
   if (brandenburgGateWalkableAt(x, y, z, sourceBuildingId)) return true;
   if (mode === "schwellenraum") {
     return schwellenraumNavigationOverrideAt(x, y, z, sourceBuildingId);

@@ -414,6 +414,50 @@ shore instead of a duplicated vertical quay. Hugo-Preuß-Brücke follows OSM way
 and `248010193`. Minecraft carries the same harbour, vessel and railing
 identities as one compact block-native instance layer.
 
+Invalidenfriedhof uses a dedicated close-detail layer over the committed
+cemetery, terrain and wall evidence. Berlin's monument inventory object
+`09010206`, OSM cemetery/path/grave features and the existing official-mesh
+ground frame fix the ensemble context. Schinkel's Scharnhorst monument keeps
+its pale reliefed sarcophagus, resting bronze lion and open black enclosure;
+Job von Witzleben's memorial keeps its green Gothic Revival tabernacle;
+Hans Carl von Winterfeld's monument at OSM node `279219439` keeps a pale
+rectangular pedestal, unlettered laurel portrait medallion, trophy mantle and
+plumed helmet;
+Gustav Friedrich von Kessel's low dark grave remains inside a compact Gothic
+fence; and the von Rauch family grave retains its ochre four-support arcade and
+white cross. These are characteristic procedural recognition forms rather
+than replacement survey meshes. Repeated fence bars, relief cues and grave
+details share batches and the normal close-detail fade.
+
+The Auguste-Viktoria bell is a separate open structure at OSM node
+`7430297888`, associated with official LoD2 building
+`DEBE01YYK0001yqp`; its measured building height is 10.044 m. The documented
+1.60 m bell diameter and 1.8 t mass control the bell itself; frame, hood and
+local-spacing values that lack a published dimension remain reference-bounded
+display geometry. The model preserves the open lower steel bays instead of
+filling them with a collision box. The
+canal-side brick cemetery boundary and the surviving concrete
+Hinterlandmauer fragments likewise remain separate structures rather than one
+generic perimeter wall.
+
+The Gedenkstätte Günter Litfin is independent of the cemetery group. OSM way
+`31347999`, Berlin monument object `09040270,T,010`, LoD2 object
+`DEBE01AL1pC0000R` and the responsible foundation's documentation anchor the
+former Führungsstelle Kieler Eck. LoD2 supplies the 8.946 m measured building
+height. Its procedural signature includes the square concrete shaft, small
+lower wall openings, upper window band, projecting slab roof and guard rail;
+uncited opening, plaque and information-board proportions remain
+visual-reference estimates. Collision is attached only to represented solid
+parts, so adjacent public paths and the information area stay open.
+
+All of these details remain static in Day, Night, Minecraft, Snowstorm and
+Schwellenraum. Minecraft uses separate block-native replacements for the bell,
+tower, graves and wall signatures rather than leaking the smooth close layer.
+Repeated members are instanced or consolidated, and the fine layer fades
+before sub-pixel shimmer can appear. Supplied photographs only bound
+recognisable proportions and materials: no photograph is bundled, projected
+or converted into a texture.
+
 The Berliner Ensemble retains the complete four-part Berlin LoD2 parent
 `DEBE01YYK00004vY`; the measured shells remain visible and authoritative. Its
 dedicated drawn layer is limited to thin overlays on the exact exposed wall

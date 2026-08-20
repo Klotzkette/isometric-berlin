@@ -147,6 +147,11 @@ describe("drawn isometric city (LoD2 prisms)", () => {
     // This bridge envelope is likewise a valid LoD2 part but a footprint
     // extrusion fills the complete height and becomes a wall over the Spree.
     expect(PRISM_SUPPRESSED_IDS.has("K0001zDa")).toBe(true);
+    // Both Invalidenfriedhof memorial structures are rebuilt as complete,
+    // open recognition models; their source footprints remain metric anchors
+    // but must not become opaque full-height prism extrusions.
+    expect(PRISM_SUPPRESSED_IDS.has("K0001yqp")).toBe(true);
+    expect(PRISM_SUPPRESSED_IDS.has("1pC0000R")).toBe(true);
 
     const mainBody = payload.buildings.find(
       (building) => building.id === "K0002MCN",

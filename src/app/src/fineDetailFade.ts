@@ -269,6 +269,14 @@ export const FINE_DETAIL_LAYER_NAMES: readonly string[] = [
   "Georg Elser pavement inscription attribution",
   "Queer Rainbow Memorial fine detail",
   "CSD attack memorial fine detail",
+  "Invalidenfriedhof Scharnhorst lion tomb fine detail",
+  "Invalidenfriedhof Witzleben canopy fine detail",
+  "Invalidenfriedhof Winterfeld portrait and helmet fine detail",
+  "Invalidenfriedhof von Kessel fenced slab fine detail",
+  "Invalidenfriedhof Familie von Rauch arch fine detail",
+  "Invalidenfriedhof Auguste-Viktoria bell tower fine detail",
+  "Günter Litfin watchtower fine detail",
+  "Invalidenfriedhof historic wall fine detail",
 ];
 
 /** Dense line layers that would alias in the overview even when faded. */

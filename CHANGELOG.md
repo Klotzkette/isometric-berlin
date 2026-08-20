@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.72.6
+
+- **The Invalidenfriedhof now reads as a historic cemetery instead of a field
+  of generic markers.** The source-bound close layer distinguishes Schinkel's
+  Scharnhorst monument with its reliefed stone sarcophagus, resting bronze
+  lion and open iron enclosure; Job von Witzleben's green Gothic Revival
+  tabernacle; Hans Carl von Winterfeld's pale pedestal with laurel portrait,
+  trophy mantle and plumed helmet; Gustav Friedrich von Kessel's low dark
+  grave inside a small Gothic fence; and the ochre arcade and white cross of
+  the von Rauch family grave. The Auguste-Viktoria bell is a separate open
+  steel-frame ensemble, and the canal-side brick wall remains visually and
+  semantically separate from the surviving concrete Hinterlandmauer fragments.
+- **The former GDR command post at Kieler Eck is now an independent Günter
+  Litfin memorial model.** Official monument records and OSM way `31347999`
+  anchor the square concrete tower, its upper window band, overhanging roof,
+  guard rail, small wall openings, entrance and information board without
+  treating photograph-derived proportions as survey measurements.
+- **The new cemetery details remain quiet, navigable and inexpensive.** They
+  are static in Day, Night, Minecraft, Snowstorm and Schwellenraum; collision
+  follows only represented solid parts, leaving paths and the bell frame's
+  open bays unobstructed. Repeated rails, bars, grave details and wall courses
+  are batched. Supplied photographs are reference evidence only: none is
+  bundled, projected or converted into a texture.
+
 ## v0.72.5
 
 - **The newly established CSD memorial place at Ahornsteig is now a separate,

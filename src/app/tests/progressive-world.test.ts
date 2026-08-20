@@ -286,12 +286,14 @@ describe("progressive exact-world scheduling", () => {
       });
       group.clear();
     }
-    // The monolithic production building core is 11 renderables / 17,628,148
-    // vertices. Progressive ownership adds only six bounded groups and 32
-    // shared primitive vertices, never the former 42-batch explosion.
+    // The monolithic production building core is 11 renderables / 17,627,512
+    // vertices after the source prisms for the open bell frame and authored
+    // Litfin tower are suppressed. Progressive ownership adds only six bounded
+    // groups and 32 shared primitive vertices, never the former 42-batch
+    // explosion.
     expect(batches.remaining).toHaveLength(MAX_PROGRESSIVE_BUILDING_BATCHES);
     expect(renderables).toBe(49);
-    expect(vertices).toBe(17_628_180);
+    expect(vertices).toBe(17_627_544);
   });
 });
 

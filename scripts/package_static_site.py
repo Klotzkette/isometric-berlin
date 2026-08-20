@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.5"
+PACKAGE_VERSION = "0.72.6"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3436,6 +3436,15 @@ in Tag, Nacht, Minecraft, Schneesturm und Schwellenraum sichtbar. Nur der
 Quellanker und die veröffentlichten Sachmerkmale sind fest; alle örtlichen Maße
 und Anordnungen sind fotoeingrenzte, nicht vermessene Darstellungswerte. Es wird
 kein Foto oder Screenshot gebündelt.
+Version {PACKAGE_VERSION} unterscheidet am Invalidenfriedhof außerdem das
+Scharnhorst-Löwengrab, die charakteristischen Grabmale Witzleben, Winterfeld,
+Kessel und Rauch, die Auguste-Viktoria-Glocke im offenen Stahlrahmen sowie
+Kanal- und Hinterlandmauer. Der separate ehemalige DDR-Führungsturm Kieler Eck
+ist als Gedenkstätte Günter Litfin aus amtlichen Denkmal-, OSM- und
+LoD2-Ankern rekonstruiert. Alle neuen Details bleiben statisch; Minecraft nutzt
+eigene Blockformen. Wege und offene Glockenturmfelder bleiben begehbar,
+wiederholte Feinteile sind gebündelt, und die gelieferten Fotos bleiben
+ungebündelte Referenzbilder statt Texturen oder Vermessungsdaten.
 Neu ist ein zweisprachiger Deutsch/English-Schalter und ein Tag-/Nachtmodus.
 Im Nachtmodus legt der Offline-Viewer beleuchtete Fenster für Reichstag,
 Bundeskanzleramt und Hauptbahnhof, Lichtkegel am Brandenburger Tor,
@@ -3638,6 +3647,15 @@ Minecraft, Snowstorm and Schwellenraum. Only the source anchor and published
 descriptive facts are fixed; all local dimensions and arrangements are
 photo-bounded, non-surveyed display values. No photograph or screenshot is
 bundled.
+Version {PACKAGE_VERSION} also distinguishes the Invalidenfriedhof's
+Scharnhorst lion tomb, characteristic Witzleben, Winterfeld, Kessel and Rauch
+monuments, open-framed Auguste-Viktoria bell, and separate canal and Hinterland
+Wall layers. The independent former GDR command tower at Kieler Eck is
+reconstructed as the Günter Litfin memorial from official monument, OSM and
+LoD2 anchors. Every new detail remains static; Minecraft uses separate block
+forms. Paths and open bell-frame bays remain walkable, repeated fine members
+are batched, and the supplied photographs remain unbundled references rather
+than textures or survey evidence.
 It now includes a bilingual German/English switch and a Day/Night mode.
 Night mode overlays lit windows for the Reichstag, Federal Chancellery and
 Hauptbahnhof, a light cone at Brandenburg Gate, monument accents,

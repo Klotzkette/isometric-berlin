@@ -15,6 +15,7 @@ import {
   EUROPACITY_PROFILE,
   expandedCityFocusCamera,
   HAMBURGER_BAHNHOF_PROFILE,
+  INVALIDENFRIEDHOF_DETAIL_PROFILE,
   KONRAD_ADENAUER_HAUS_PROFILE,
   KULTURFORUM_PROFILE,
   KOLLHOFF_TOWER_PROFILE,
@@ -577,6 +578,41 @@ describe("task-10 expanded city recognition details", () => {
     ) as Mesh;
     expect(bodies).toBeInstanceOf(Mesh);
     expect(new Box3().setFromObject(bodies).min.z).toBeLessThan(-1580);
+    expect(
+      INVALIDENFRIEDHOF_DETAIL_PROFILE.graves.vonRauch
+        .absorbedGenericSourcePointsWorldM,
+    ).toContain(profile.graveWorldM[15]);
+    details.updateMatrixWorld(true);
+    const [absorbedX, absorbedZ] = profile.graveWorldM[15];
+    const absorbedIntersections = new Raycaster(
+      new Vector3(
+        absorbedX,
+        INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.groundY + 3,
+        absorbedZ,
+      ),
+      new Vector3(0, -1, 0),
+      0,
+      4,
+    ).intersectObject(bodies);
+    expect(absorbedIntersections).not.toHaveLength(0);
+    expect(
+      absorbedIntersections.some(
+        ({ point }) =>
+          point.y > INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.groundY + 0.4,
+      ),
+    ).toBeFalse();
+    expect(
+      details.getObjectByName("Invalidenfriedhof granular isometric details"),
+    ).toBeDefined();
+    expect(details.userData.invalidenfriedhofDetails).toBe(
+      INVALIDENFRIEDHOF_DETAIL_PROFILE,
+    );
+    expect(details.userData.sourceUrls).toEqual(
+      expect.arrayContaining([
+        INVALIDENFRIEDHOF_DETAIL_PROFILE.augusteViktoriaBell.sourceUrl,
+        INVALIDENFRIEDHOF_DETAIL_PROFILE.litfinWatchtower.sourceUrl,
+      ]),
+    );
   });
 
   test("keeps the WELT balloon tall but introduces no duplicate Carillon", () => {

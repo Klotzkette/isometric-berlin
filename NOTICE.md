@@ -62,6 +62,20 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   explicitly non-surveyed display estimates. No page photograph, press image,
   supplied screenshot or texture derived from one is bundled in the project.
 
+- **Invalidenfriedhof and Gedenkstätte Günter Litfin (factual and visual
+  evidence):** Berlin monument records document the
+  [Invalidenfriedhof ensemble](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010206),
+  [Invalidenfriedhof Wall remains](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/invalidenfriedhof-648151.php)
+  and the
+  [Führungsstelle Kieler Eck](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/fuehrungsstelle-kieler-eck-649714.php).
+  The [Stiftung Berliner Mauer](https://www.stiftung-berliner-mauer.de/de/gedenkstaette-guenter-litfin)
+  supplies the memorial context; the public
+  [Auguste-Viktoria bell text](https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/augusta-viktoria-glocke)
+  supplies its documented diameter and mass. Plan anchors remain attributed
+  OSM and official LoD2 data. Supplied cemetery and watchtower photographs
+  only bound recognition forms; no supplied photograph, crop,
+  tracing or derived texture is bundled.
+
 - **Passenger-rail route validation:** official BVG and S-Bahn Berlin route
   pages are used only to validate the displayed U5 and shared North-South
   S-Bahn station sequence. Track, platform and entrance plan geometry remains

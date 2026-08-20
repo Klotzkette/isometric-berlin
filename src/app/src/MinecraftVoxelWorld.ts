@@ -35,6 +35,7 @@ import {
   isMinecraftArchitecturalReplacementColumn,
   minecraftArchitecturalVoxelTopAt,
 } from "./MinecraftArchitecturalLandmarks";
+import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
 import { isNorthernHumboldthafenReplacementCell } from "./HumboldthafenSources";
 import {
   AXIS_FROM,
@@ -2018,6 +2019,7 @@ export function createMinecraftVoxelWorld(
   );
   group.add(createMinecraftHumboldthafenDetails(payload));
   group.add(createMinecraftArchitecturalLandmarks());
+  group.add(createMinecraftInvalidenfriedhofDetails());
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());

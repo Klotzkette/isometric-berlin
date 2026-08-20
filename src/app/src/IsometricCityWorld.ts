@@ -695,6 +695,12 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "K0001xqy",
   "QDYNK7dL",
   "VpZW4Luf",
+  // Invalidenfriedhof memorial structures. Their LoD2 footprints are useful
+  // metric anchors, but prism extrusion closes the Auguste-Viktoria bell
+  // frame and turns the three-metre-base Litfin watchtower into one opaque
+  // shaft. InvalidenfriedhofDetails reconstructs both complete, open forms.
+  "K0001yqp",
+  "1pC0000R",
   // Siegessäule at the Großer Stern. LoD2 stops at the socle and the
   // Säulenhalle (25.0 m / 18.2 m / 8.4 m); createSiegessaeule draws the whole
   // 67 m monument including the fluted drums and the gilded Viktoria, so the

@@ -59,6 +59,10 @@ import {
   createLeipzigerPlatzDetails,
   LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE,
 } from "./LeipzigerPlatzDetails";
+import {
+  createInvalidenfriedhofDetails,
+  INVALIDENFRIEDHOF_DETAIL_PROFILE,
+} from "./InvalidenfriedhofDetails";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
 
 export type ExpandedLandmark = {
@@ -89,6 +93,10 @@ export {
   LEIPZIGER_PLATZ_PORTALS,
   leipzigerPlatzPortalAt,
 } from "./LeipzigerPlatzDetails";
+export {
+  createInvalidenfriedhofDetails,
+  INVALIDENFRIEDHOF_DETAIL_PROFILE,
+} from "./InvalidenfriedhofDetails";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -297,8 +305,6 @@ const CEMETERY_STONE = 0xa9a79f;
 const CEMETERY_STONE_DARK = 0x747570;
 const CEMETERY_BRICK = 0x9a624e;
 const CEMETERY_MORTAR = 0xd2b09c;
-const CEMETERY_WALL_WHITE = 0xd9d9d2;
-const CEMETERY_WALL_GREY = 0x777b78;
 const EURO_TERRACE_GREEN = 0x5f8e69;
 const EURO_WINDOW_LIGHT = 0x91aaa7;
 // The temporary inflatable park is colourful in reality, but the former
@@ -1715,11 +1721,12 @@ function addWorldWallCourse(
 
 function addInvalidenfriedhof(builder: Builder): void {
   const profile = NORTHERN_CITY_PROFILE.invalidenfriedhof;
+  const groundY = INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.groundY;
   addPolygonPrism(
     builder,
     CEMETERY_GRASS,
     profile.cemeteryRingWorldM,
-    profile.groundY - 0.08,
+    groundY - 0.08,
     0.1,
     false,
   );
@@ -1756,22 +1763,38 @@ function addInvalidenfriedhof(builder: Builder): void {
         CEMETERY_PATH,
         path[index],
         path[index + 1],
-        profile.groundY + 0.025,
+        groundY + 0.025,
         0.045,
         2.15,
       );
     }
   }
 
+  const detailedGraveAnchors = Object.values(
+    INVALIDENFRIEDHOF_DETAIL_PROFILE.graves,
+  ).flatMap((grave) => [
+    grave.sourcePointWorldM,
+    ...("absorbedGenericSourcePointsWorldM" in grave
+      ? grave.absorbedGenericSourcePointsWorldM
+      : []),
+  ]);
   for (let index = 0; index < profile.graveWorldM.length; index += 1) {
     const [x, z] = profile.graveWorldM[index];
+    if (
+      detailedGraveAnchors.some(
+        (sourcePointWorldM) =>
+          sourcePointWorldM[0] === x && sourcePointWorldM[1] === z,
+      )
+    ) {
+      continue;
+    }
     const height = 0.72 + (index % 5) * 0.16;
     const width = 0.52 + (index % 3) * 0.12;
     addBox(
       builder,
       index % 4 === 0 ? CEMETERY_STONE_DARK : CEMETERY_STONE,
       x,
-      profile.groundY + height / 2,
+      groundY + height / 2,
       z,
       width,
       height,
@@ -1782,7 +1805,7 @@ function addInvalidenfriedhof(builder: Builder): void {
       builder,
       CEMETERY_STONE_DARK,
       x,
-      profile.groundY + height * 0.62,
+      groundY + height * 0.62,
       z - 0.13,
       width * 0.58,
       0.035,
@@ -1792,55 +1815,15 @@ function addInvalidenfriedhof(builder: Builder): void {
     );
   }
 
-  // Schinkel's Scharnhorst tomb is the main legible historic composition.
-  addBox(
-    builder,
-    CEMETERY_STONE,
-    38.597,
-    profile.groundY + 0.32,
-    -1425.035,
-    3.7,
-    0.64,
-    2.2,
-    -0.08,
-  );
-  addBox(
-    builder,
-    CEMETERY_STONE,
-    38.597,
-    profile.groundY + 1.26,
-    -1425.035,
-    2.75,
-    1.25,
-    1.45,
-    -0.08,
-  );
-  addCylinder(
-    builder,
-    CEMETERY_STONE_DARK,
-    38.25,
-    profile.groundY + 2.42,
-    -1425.035,
-    0.38,
-    1.35,
-    10,
-  );
-  addCylinder(
-    builder,
-    CEMETERY_STONE_DARK,
-    39.02,
-    profile.groundY + 2.42,
-    -1425.035,
-    0.38,
-    1.35,
-    10,
-  );
-
+  // Keep the retained structural backing below the authored dentil/coping
+  // layers.  The detailed wall owns the visible 2.19--2.37 m red-brick crown
+  // and its snow cap, while this body supports the white fields and mortar.
+  const canalBackingHeight = 2.17;
   addWorldWallCourse(
     builder,
     profile.canalBrickWallWorldM,
-    profile.groundY + 1.25,
-    2.5,
+    groundY + canalBackingHeight / 2,
+    canalBackingHeight,
     0.46,
     CEMETERY_BRICK,
   );
@@ -1848,47 +1831,11 @@ function addInvalidenfriedhof(builder: Builder): void {
     addWorldWallCourse(
       builder,
       profile.canalBrickWallWorldM,
-      profile.groundY + course * 0.31,
+      groundY + course * 0.31,
       0.045,
       0.49,
       CEMETERY_MORTAR,
     );
-  }
-
-  for (const segment of profile.hinterlandWallSegmentsWorldM) {
-    addWorldWallCourse(
-      builder,
-      segment,
-      profile.groundY + 1.7,
-      3.4,
-      0.34,
-      CEMETERY_WALL_WHITE,
-    );
-    addWorldWallCourse(
-      builder,
-      segment,
-      profile.groundY + 1.7,
-      2.95,
-      0.37,
-      CEMETERY_WALL_GREY,
-    );
-    for (let panel = 1; panel < 6; panel += 1) {
-      const start = segment[0];
-      const end = segment[segment.length - 1];
-      const fraction = panel / 6;
-      addBox(
-        builder,
-        CEMETERY_WALL_WHITE,
-        start[0] + (end[0] - start[0]) * fraction,
-        profile.groundY + 1.7,
-        start[1] + (end[1] - start[1]) * fraction,
-        0.16,
-        2.65,
-        0.4,
-        -Math.atan2(end[1] - start[1], end[0] - start[0]),
-        false,
-      );
-    }
   }
 }
 
@@ -6020,6 +5967,8 @@ export function createExpandedCityDetails(
   group.userData.moabitPrisonPark = MOABIT_PRISON_PARK_PROFILE;
   group.userData.neueNationalgalerie = NEUE_NATIONALGALERIE_PROFILE;
   group.userData.northernCity = NORTHERN_CITY_PROFILE;
+  group.userData.invalidenfriedhofDetails =
+    INVALIDENFRIEDHOF_DETAIL_PROFILE;
   group.userData.potsdamerDetails = POTSDAMER_DETAIL_PROFILE;
   group.userData.leipzigerPlatzArchitecture =
     LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE;
@@ -6045,7 +5994,9 @@ export function createExpandedCityDetails(
     ...LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte.sources,
     ...MOABIT_PRISON_PARK_PROFILE.sources,
     ...NORTHERN_CITY_PROFILE.funbox.sources,
-    ...NORTHERN_CITY_PROFILE.invalidenfriedhof.sources,
+    ...INVALIDENFRIEDHOF_DETAIL_PROFILE.walls.sourceUrls,
+    ...INVALIDENFRIEDHOF_DETAIL_PROFILE.augusteViktoriaBell.sourceUrls,
+    ...INVALIDENFRIEDHOF_DETAIL_PROFILE.litfinWatchtower.sourceUrls,
     NORTHERN_CITY_PROFILE.pankeMouth.sourceUrl,
     ...KONRAD_ADENAUER_HAUS_PROFILE.sources,
     ...EUROPACITY_PROFILE.sources,
@@ -6136,6 +6087,7 @@ export function createExpandedCityDetails(
     name: "Invalidenfriedhof surveyed walls and graves",
   });
   if (invalidenfriedhof) group.add(invalidenfriedhof);
+  group.add(createInvalidenfriedhofDetails());
 
   const pankeMouthBuilder = createBuilder();
   addPankeMouthFishPass(pankeMouthBuilder);
