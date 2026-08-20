@@ -457,6 +457,35 @@ export function voxelRecognitionAreaAt(
 }
 
 /**
+ * Important retained source masses must read as stacked blocks too. Their
+ * dedicated recognition models already own the silhouette and openings, but
+ * Reichstag, Chancellery and the parliamentary bars intentionally retain
+ * parts of their surveyed LoD2 mass underneath. Splitting only these areas
+ * avoids turning the entire 4 km city into millions of extra instances.
+ */
+const MINECRAFT_HERO_COURSE_AREAS = new Set([
+  "Reichstag",
+  "Bundeskanzleramt",
+  "Berlin Hauptbahnhof",
+  "Paul-Löbe-Haus main bar",
+  "Paul-Löbe-Haus west wing",
+  "Paul-Löbe-Haus north rotundas",
+  "Paul-Löbe-Haus south rotundas",
+  "Marie-Elisabeth-Lüders-Haus",
+  "Brandenburger Tor",
+]);
+
+export const MINECRAFT_HERO_SOURCE_COURSE_MAX_M = 8;
+
+export function isMinecraftHeroSourceCourseAreaAt(
+  x: number,
+  z: number,
+): boolean {
+  const area = voxelRecognitionAreaAt(x, z);
+  return area !== null && MINECRAFT_HERO_COURSE_AREAS.has(area.name);
+}
+
+/**
  * Complete recognition components replace their coarse voxel mass rather than
  * sitting hidden inside it. This is intentionally narrower than the generic
  * recognition-area window suppression and preserves courtyards/neighbours.
@@ -2065,10 +2094,35 @@ export function createMinecraftVoxelWorld(
     })
     .filter(([, , y0dm, y1dm]) => y1dm > y0dm);
 
-  const buildings = instancedBoxes(
-    "Voxel building columns",
-    visibleBuildingColumns.length * 3,
+  const buildingLayerCount = visibleBuildingColumns.reduce(
+    (count, [xIdx, zIdx, y0dm, y1dm]) => {
+      const worldX = worldXAbs(xIdx);
+      const worldZ = worldZAbs(zIdx);
+      const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
+      const roofTopY =
+        recognitionArea?.name === "Rieckhallen"
+          ? RIECKHALLEN_PROFILE.minecraftRoofTopY
+          : y1dm / 10;
+      const height = Math.max(cell, roofTopY - y0dm / 10);
+      const capHeight = height > 5 ? 1 : 0;
+      const plinthHeight = height > 8 ? 1 : 0;
+      const bodyHeight = height - capHeight - plinthHeight;
+      const bodyCourseCount = isMinecraftHeroSourceCourseAreaAt(worldX, worldZ)
+        ? Math.max(
+            1,
+            Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M),
+          )
+        : 1;
+      return (
+        count +
+        bodyCourseCount +
+        (plinthHeight > 0 ? 1 : 0) +
+        (capHeight > 0 ? 1 : 0)
+      );
+    },
+    0,
   );
+  const buildings = instancedBoxes("Voxel building columns", buildingLayerCount);
   const tonePaint = new Color();
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of visibleBuildingColumns) {
     const className = payload.classes[classId] ?? "concrete";
@@ -2106,9 +2160,31 @@ export function createMinecraftVoxelWorld(
       size.set(cell, plinthHeight, cell);
       buildings.write(center, size, tonePaint.setHex(layers.plinth).clone());
     }
-    center.set(worldX, y0 + plinthHeight + bodyHeight / 2, worldZ);
-    size.set(cell, bodyHeight, cell);
-    buildings.write(center, size, facade);
+    const bodyCourseCount = isMinecraftHeroSourceCourseAreaAt(worldX, worldZ)
+      ? Math.max(
+          1,
+          Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M),
+        )
+      : 1;
+    const bodyCourseHeight = bodyHeight / bodyCourseCount;
+    for (let course = 0; course < bodyCourseCount; course += 1) {
+      center.set(
+        worldX,
+        y0 + plinthHeight + (course + 0.5) * bodyCourseHeight,
+        worldZ,
+      );
+      // Horizontal cells already keep a 12 cm mortar line. A smaller 8 cm
+      // vertical joint makes the retained mass visibly course-built without
+      // changing its measured envelope or pedestrian collision contract.
+      size.set(
+        cell,
+        bodyCourseCount > 1
+          ? Math.max(0.08, bodyCourseHeight - 0.08)
+          : bodyCourseHeight,
+        cell,
+      );
+      buildings.write(center, size, facade);
+    }
     if (capHeight > 0) {
       center.set(worldX, y0 + height - capHeight / 2, worldZ);
       size.set(cell, capHeight, cell);

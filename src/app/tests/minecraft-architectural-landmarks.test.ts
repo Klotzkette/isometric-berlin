@@ -59,7 +59,9 @@ describe("block-native Berlin architectural signatures", () => {
     expect(group.children.map(({ name }) => name)).toEqual(EXPECTED_MODELS);
     expect(group.userData).toMatchObject({
       blockNative: true,
+      coarseBlockSpanM: 8,
       drawCallBudget: 6,
+      instanceBudget: 5_000,
       noAdditionalPayload: true,
       staticAntiFlicker: true,
     });
@@ -87,19 +89,26 @@ describe("block-native Berlin architectural signatures", () => {
       expect(mesh.userData).toMatchObject({
         blockCount: mesh.count,
         blockNative: true,
+        blockGrammar: "coarse eight-metre civic voxel",
+        coarseBlockSpanM: 8,
         staticAntiFlicker: true,
         transparentGeometry: false,
       });
       expect(mesh.userData.maxNonStructuralVerticalSpanM).toBeLessThanOrEqual(
-        4.001,
+        8.001,
       );
+      expect(mesh.userData.maxHorizontalSpanM).toBeLessThanOrEqual(8.001);
       geometryIds.add(mesh.geometry.uuid);
       materialIds.add(material.uuid);
       totalBlocks += mesh.count;
     }
     expect(geometryIds.size).toBe(1);
     expect(materialIds.size).toBe(1);
-    expect(totalBlocks).toBe(15_575);
+    expect(totalBlocks).toBeGreaterThan(3_500);
+    expect(totalBlocks).toBeLessThan(5_000);
+    expect(meshes.map(({ count }) => count)).toEqual([
+      338, 376, 2_699, 134, 776, 60,
+    ]);
   });
 
   test("keeps every colour in the fixed palette with restrained precious accents", () => {
@@ -108,81 +117,205 @@ describe("block-native Berlin architectural signatures", () => {
     const colour = new Color();
     let total = 0;
     let precious = 0;
+    let allMetalAccents = 0;
     for (const mesh of instancedChildren()) {
       expect(mesh.instanceColor).not.toBeNull();
-      expect(mesh.userData.preciousAccentRatio).toBeLessThanOrEqual(0.015);
+      expect(mesh.userData.preciousAccentRatio).toBeLessThanOrEqual(0.035);
       for (let index = 0; index < mesh.count; index += 1) {
         mesh.getColorAt(index, colour);
         const hex = colour.getHex();
         expect(palette.has(hex)).toBe(true);
         if (hex === 0xe6bd4c || hex === 0x2e5aa8) precious += 1;
+        if (hex === 0xe6bd4c || hex === 0x2e5aa8 || hex === 0xd6dfe0) {
+          allMetalAccents += 1;
+        }
         total += 1;
       }
     }
     expect(precious / total).toBeLessThanOrEqual(0.012);
+    expect(allMetalAccents / total).toBeLessThanOrEqual(0.032);
   });
 
-  test("pins the recognisable architectural cues", () => {
+  test("pins coarse silhouettes instead of fine architectural replicas", () => {
     const byName = new Map(
       instancedChildren().map((mesh) => [mesh.name, mesh.userData.cueCounts]),
     );
     expect(byName.get(EXPECTED_MODELS[0])).toMatchObject({
-      "40 m stepped glass dome": 792,
-      "bronze dedication band": 4,
-      "five-course west stair": 45,
-      "four corner-tower crowns": 48,
+      "four three-tier corner crowns": 36,
+      "paired block crown finials": 6,
       "paired crowned Wappenbaum reliefs": 28,
-      "paired crowned west-pediment finials": 18,
-      "six-column west portico": 42,
-      "west entrance glass": 15,
-      "west entrance recess": 32,
-      "west portico rear glazing": 18,
-      "west portico rear masonry": 32,
+      "seven-step octagonal glass dome": 81,
+      "six coarse west-portico columns": 24,
+      "three-step west pediment": 11,
     });
     expect(byName.get(EXPECTED_MODELS[1])).toMatchObject({
-      "leadership aperture glazing": 106,
-      "leadership cube masonry shell": 102,
-      "four leadership pylons": 144,
-      "open upper frame": 54,
-      "stepped monumental saddle roof": 117,
-      "twin semicircular leadership frames": 50,
+      "coarse stepped saddle roof": 35,
+      "four six-course leadership pylons": 24,
+      "stair-stepped leadership aperture": 36,
+      "twin five-block leadership arch frames": 10,
     });
     expect(byName.get(EXPECTED_MODELS[2])).toMatchObject({
-      "180 m north-south crossing hall": 450,
-      "321 m bowed east-west glass hall": 810,
-      "east-west station floor blocks": 700,
-      "north-south station floor blocks": 450,
-      "DB red entrance badge": 4,
-      "east-west hall block gables": 40,
-      "east-west hall side glazing": 648,
-      "east-west raised railway deck": 810,
-      "four east-west block tracks": 648,
-      "north-south hall side glazing": 360,
-      "station crossing floor seams": 20,
-      "office-bridge end frames": 200,
-      "office-bridge floor bands": 1_800,
-      "office-bridge stepped crowns": 450,
-      "twin 46 m office bridges": 1_932,
+      "coarse 180 m north-south crossing hall": 115,
+      "coarse 321 m east-west glass hall": 205,
+      "coarse office-bridge portal frames": 68,
+      "coarse twin 46 m office bridges": 660,
+      "five coarse office floor bands": 240,
+      "four paired block tracks": 328,
+      "stepped east-west block gables": 14,
+      "stepped north-south block portals": 34,
     });
     expect(byName.get(EXPECTED_MODELS[3])).toMatchObject({
       "four Quadriga horse bodies": 4,
-      "twelve block Doric columns": 48,
-      "two sandstone side pavilions": 72,
+      "twelve three-course Doric columns": 36,
+      "two coarse sandstone side pavilions": 16,
     });
     expect(byName.get(EXPECTED_MODELS[4])).toMatchObject({
-      "eight Paul-Löbe committee rotundas": 432,
-      "eight Paul-Löbe rotunda chord walls": 240,
-      "eight Paul-Löbe rotunda roof caps": 48,
-      "Lüders-Haus circular Spree opening": 32,
-      "Lüders-Haus circular inner glazing": 22,
-      "Lüders-Haus widening stair": 92,
-      "Lüders-Haus rotunda roof cap": 45,
-      "Paul-Löbe thirteen canopy columns": 65,
-      "lower public bridge block handrails": 104,
-      "lower public bridge deck": 52,
-      "upper parliamentary bridge deck": 26,
-      "upper bridge stepped diagonal ties": 78,
+      "eight coarse Paul-Löbe chord walls": 96,
+      "eight coarse Paul-Löbe committee rotundas": 192,
+      "eight-step Lüders-Haus widening stair": 20,
+      "lower public bridge block handrails": 52,
+      "lower public bridge deck": 26,
+      "six-course Lüders-Haus library rotunda": 72,
+      "sixteen-block Lüders-Haus Spree opening": 16,
+      "upper bridge single block ties": 26,
+      "upper parliamentary bridge deck": 13,
     });
+    expect(byName.get(EXPECTED_MODELS[0])).not.toHaveProperty(
+      "40 m stepped glass dome",
+    );
+    expect(byName.get(EXPECTED_MODELS[1])).not.toHaveProperty(
+      "three-row office wing glazing",
+    );
+    expect(byName.get(EXPECTED_MODELS[2])).not.toHaveProperty(
+      "office-bridge floor bands",
+    );
+  });
+
+  test("keeps dome and rotunda blocks on axis-aligned quarter turns", () => {
+    const meshes = instancedChildren();
+    const assertQuarterTurns = (
+      mesh: InstancedMesh,
+      cue: string,
+      baseRotation = 0,
+    ): void => {
+      const rotations = (
+        mesh.userData.rotationYByCue as Record<string, number[]>
+      )[cue];
+      expect(rotations.length).toBeGreaterThan(0);
+      for (const yaw of rotations) {
+        const quarterTurns = (yaw - baseRotation) / (Math.PI / 2);
+        expect(Math.abs(quarterTurns - Math.round(quarterTurns))).toBeLessThan(
+          1e-4,
+        );
+      }
+    };
+
+    assertQuarterTurns(
+      meshes[0],
+      "seven-step octagonal glass dome",
+      (MINECRAFT_ARCHITECTURAL_PROFILES.reichstag.rotationDegrees * Math.PI) /
+        180,
+    );
+    assertQuarterTurns(meshes[4], "eight coarse Paul-Löbe committee rotundas");
+    assertQuarterTurns(meshes[4], "six-course Lüders-Haus library rotunda");
+    assertQuarterTurns(meshes[4], "sixteen-block Lüders-Haus Spree opening");
+  });
+
+  test("has no positive-area coplanar top overlaps under OBB SAT", () => {
+    type SurfaceBlock = {
+      color: number;
+      halfX: number;
+      halfZ: number;
+      top: number;
+      worldHalfX: number;
+      worldHalfZ: number;
+      x: number;
+      yaw: number;
+      z: number;
+    };
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    const quaternion = new Quaternion();
+    const scale = new Vector3();
+    const color = new Color();
+    let overlapPairs = 0;
+    let differentColorOverlapPairs = 0;
+
+    for (const mesh of instancedChildren()) {
+      const blocks: SurfaceBlock[] = [];
+      for (let index = 0; index < mesh.count; index += 1) {
+        mesh.getMatrixAt(index, matrix);
+        mesh.getColorAt(index, color);
+        matrix.decompose(position, quaternion, scale);
+        const yaw = 2 * Math.atan2(quaternion.y, quaternion.w);
+        const cosine = Math.cos(yaw);
+        const sine = Math.sin(yaw);
+        const halfX = scale.x / 2;
+        const halfZ = scale.z / 2;
+        blocks.push({
+          color: color.getHex(),
+          halfX,
+          halfZ,
+          top: position.y + scale.y / 2,
+          worldHalfX:
+            halfX * Math.abs(cosine) + halfZ * Math.abs(sine),
+          worldHalfZ:
+            halfX * Math.abs(sine) + halfZ * Math.abs(cosine),
+          x: position.x,
+          yaw,
+          z: position.z,
+        });
+      }
+
+      for (let first = 0; first < blocks.length; first += 1) {
+        const a = blocks[first];
+        const aCosine = Math.cos(a.yaw);
+        const aSine = Math.sin(a.yaw);
+        const aAxes = [
+          [aCosine, -aSine],
+          [aSine, aCosine],
+        ] as const;
+        for (let second = first + 1; second < blocks.length; second += 1) {
+          const b = blocks[second];
+          if (Math.abs(a.top - b.top) >= 1e-4) continue;
+          const dx = b.x - a.x;
+          const dz = b.z - a.z;
+          if (
+            a.worldHalfX + b.worldHalfX - Math.abs(dx) <= 0.001 ||
+            a.worldHalfZ + b.worldHalfZ - Math.abs(dz) <= 0.001
+          ) {
+            continue;
+          }
+
+          const bCosine = Math.cos(b.yaw);
+          const bSine = Math.sin(b.yaw);
+          const bAxes = [
+            [bCosine, -bSine],
+            [bSine, bCosine],
+          ] as const;
+          const positiveArea = [...aAxes, ...bAxes].every(([axisX, axisZ]) => {
+            const centreDistance = Math.abs(dx * axisX + dz * axisZ);
+            const aRadius =
+              a.halfX *
+                Math.abs(axisX * aAxes[0][0] + axisZ * aAxes[0][1]) +
+              a.halfZ *
+                Math.abs(axisX * aAxes[1][0] + axisZ * aAxes[1][1]);
+            const bRadius =
+              b.halfX *
+                Math.abs(axisX * bAxes[0][0] + axisZ * bAxes[0][1]) +
+              b.halfZ *
+                Math.abs(axisX * bAxes[1][0] + axisZ * bAxes[1][1]);
+            return aRadius + bRadius - centreDistance > 0.001;
+          });
+          if (!positiveArea) continue;
+          overlapPairs += 1;
+          if (a.color !== b.color) differentColorOverlapPairs += 1;
+        }
+      }
+    }
+
+    expect(overlapPairs).toBe(0);
+    expect(differentColorOverlapPairs).toBe(0);
   });
 
   test("uses the exact source anchors and metre-scale envelopes", () => {
@@ -202,7 +335,7 @@ describe("block-native Berlin architectural signatures", () => {
     expect(reichstag.max.z).toBeGreaterThan(110);
     expect(reichstag.max.y).toBeGreaterThan(49);
 
-    expect(chancellery.max.x - chancellery.min.x).toBeGreaterThan(335);
+    expect(chancellery.max.x - chancellery.min.x).toBeGreaterThan(325);
     expect(chancellery.max.x - chancellery.min.x).toBeLessThan(345);
     expect(chancellery.max.y).toBeCloseTo(37.55, 1);
     expect(station.max.x - station.min.x).toBeGreaterThan(335);
@@ -240,7 +373,7 @@ describe("block-native Berlin architectural signatures", () => {
     expect(gate.max.z - gate.min.z).toBeCloseTo(63.2, 0);
     expect(gate.max.y).toBeCloseTo(31, 0);
     expect(parliament.min.x).toBeLessThan(120);
-    expect(parliament.max.x).toBeGreaterThan(447);
+    expect(parliament.max.x).toBeGreaterThan(446.5);
   });
 
   test("keeps the office-bridge portals visibly open to their collision height", () => {
@@ -284,7 +417,7 @@ describe("block-native Berlin architectural signatures", () => {
       }
     }
     expect(portalFrameBlocks).toBeGreaterThan(lintelBlocks);
-    expect(lintelBlocks).toBe(12);
+    expect(lintelBlocks).toBe(4);
   });
 
   test("emits finite positive and deterministic non-coincident transforms", () => {

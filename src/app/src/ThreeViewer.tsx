@@ -231,6 +231,11 @@ import {
 } from "./MinecraftVoxelWorld";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
 import {
+  applyMinecraftVisibility,
+  restoreMinecraftVisibility,
+  type MinecraftVisibilityRoots,
+} from "./MinecraftVisibility";
+import {
   minecraftHeroCollisionEnabled,
   minecraftHeroGroundAt,
   minecraftHeroSolidAt,
@@ -546,6 +551,15 @@ type Runtime = {
   undergroundNetwork: Group;
   underwater: boolean;
 };
+
+function minecraftVisibilityRoots(runtime: Runtime): MinecraftVisibilityRoots {
+  return {
+    centralDetails: runtime.centralDetails,
+    cityStaffage: runtime.cityStaffage,
+    civicDetails: runtime.civicDetails,
+    signatures: runtime.signatures,
+  };
+}
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
   runtime.schwellenraumMovingFlagCount = countSchwellenraumMovingFlags([
@@ -1578,6 +1592,9 @@ function setSceneLighting(
 ): void {
   const enteringSchwellenraum =
     mode === "schwellenraum" && runtime.lightingMode !== "schwellenraum";
+  // Release only the visibility values owned by the previous voxel filter
+  // before the target mode's lighting and night-only policies run.
+  restoreMinecraftVisibility(minecraftVisibilityRoots(runtime));
   runtime.renderInvalidated = true;
   runtime.lightingMode = mode;
   runtime.nightLightsOn = lightsOn;
@@ -1833,6 +1850,7 @@ function setSceneLighting(
   runtime.centralDetails.visible = centralCivicDetailsVisible(
     runtime.underside,
   );
+  runtime.cityStaffage.visible = !runtime.underside;
   setMinecraftArchitecturePresentation(
     runtime.signatures,
     runtime.centralDetails,
@@ -1847,6 +1865,7 @@ function setSceneLighting(
     }
   }
   runtime.civicDetails.visible = civicDetailsVisible(runtime.underside);
+  applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
   runtime.monuments.visible = !runtime.underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -3041,6 +3060,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
     voxelMode,
   );
   runtime.civicDetails.visible = civicDetailsVisible(underside);
+  applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
   runtime.monuments.visible = !underside;
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -5362,6 +5382,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.centralDetails,
             voxelModeActive(runtime),
           );
+          applyMinecraftVisibility(
+            minecraftVisibilityRoots(runtime),
+            voxelModeActive(runtime),
+          );
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
             distance_m: 88,
@@ -5521,6 +5545,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.centralDetails,
             voxelModeActive(runtime),
           );
+          applyMinecraftVisibility(
+            minecraftVisibilityRoots(runtime),
+            voxelModeActive(runtime),
+          );
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
           runtime.monuments.add(createKrolloperSculptureEnsemble());
@@ -5601,6 +5629,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               true,
             );
           }
+          applyMinecraftVisibility(
+            minecraftVisibilityRoots(runtime),
+            voxelModeActive(runtime),
+          );
           for (const landmark of manifest.landmarks) {
             const focusCamera = culturalFocusCamera(landmark.name);
             if (focusCamera) {

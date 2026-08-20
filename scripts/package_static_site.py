@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.6"
+PACKAGE_VERSION = "0.72.7"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3513,6 +3513,14 @@ Deutsch/Englisch umschaltbar. Taste B oder der Lautsprecherknopf startet und
 stoppt sieben lokal erzeugte 8-Bit-Musikvarianten; Musik bleibt standardmäßig
 aus. Taste D schaltet Tag/Nacht, Taste M Minecraft.
 
+In Version {PACKAGE_VERSION} ist die Minecraft-Hauptarchitektur bewusst gröber
+und blockiger: weniger als 5.000 Signaturblöcke folgen einem 8-m-Hero-Raster.
+Beibehaltene Quellkörper von Reichstag, Kanzleramt und Parlamentsbauten werden
+vertikal in höchstens 8 m hohe Blockkurse geteilt; glatte Architektur-Overlays
+bleiben im Minecraft-Modus ausgeblendet. Vorhandene Eingangsportale, offene
+Passagen sowie freie Dreh-, Schwenk-, Zoom-, Flug- und Fußgängernavigation
+bleiben erhalten.
+
 Version {PACKAGE_VERSION} startet Tag, Nacht und Schnee mit einem kompakten
 Geländekontext statt mit den fotografischen GLBs. Die amtliche
 {base_faces_de}-Flächen-Stufe lädt nur noch für die Untersicht oder als echte
@@ -3720,6 +3728,14 @@ ambient variants. T or the note button controls the independent procedural
 `Dusk Republic` soundtrack, whose enabled intent resets on each reload. Modern
 browsers may require the first click, touch or key gesture before either layer
 becomes audible. D toggles Day/Night and M toggles Minecraft.
+
+In version {PACKAGE_VERSION}, Minecraft's principal architecture is
+deliberately coarser and more block-like: fewer than 5,000 signature blocks
+follow an 8 m hero raster. Retained Reichstag, Chancellery and parliamentary
+source bodies are split vertically into block courses no taller than 8 m;
+smooth architectural overlays stay hidden in Minecraft. Existing entrance
+portals, open passages and free orbit, pan, zoom, flight and pedestrian
+navigation remain available.
 
 Version {PACKAGE_VERSION} starts Day, Night and Snow from a compact terrain
 context instead of photographic GLBs. The official {base_faces_en}-face shell

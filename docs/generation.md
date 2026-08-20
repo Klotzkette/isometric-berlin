@@ -184,9 +184,11 @@ close-view ribbons and the source-bounded Tiergarten understorey below the
 
 ## Step 8b: Minecraft-mode voxel payload
 
-The viewer's Minecraft mode renders the quarter as axis-aligned 4 m blocks
-("eckig, klotzig, blockig"). The payload is derived from committed sources
-only — no network access — and regenerated with:
+The viewer's Minecraft mode renders the general city as axis-aligned 4 m blocks
+("eckig, klotzig, blockig"). Its principal architectural signatures use a
+separate, deliberately coarser 8 m hero raster so they read as constructed
+block models rather than smooth LoD replicas. The payload is derived from
+committed sources only — no network access — and regenerated with:
 
 ```bash
 uv run python -m isometric_berlin.generation.build_minecraft_voxels \
@@ -216,6 +218,13 @@ How it is built (all snapping is deterministic, `CELL_M = 4.0`):
   roofs stay flat. Schema 2 ships adjacent equal columns as
   `building_rows[z_offset] = [x_offset, run, y0_dm, y1_dm, class][]` and the
   viewer expands those losslessly.
+- **Principal architecture.** Reichstag, Bundeskanzleramt, Hauptbahnhof,
+  Brandenburger Tor and the parliamentary band use fewer than 5,000
+  block-native signature blocks on the 8 m hero raster. Retained Reichstag,
+  Chancellery and parliamentary source bodies are divided vertically into
+  block courses no taller than 8 m. Smooth architectural recognition overlays
+  are hidden while Minecraft is active; existing entrance portals, open
+  passages and navigation contracts remain unchanged.
 - **Ground height.** Inverse-distance interpolation (k=8) over the 42,168
   committed tree and street-light y samples in `park-details.json`; a coarse
   16 m height grid ships in the payload so the viewer can stack from real

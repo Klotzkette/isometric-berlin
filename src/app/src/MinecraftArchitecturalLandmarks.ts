@@ -26,7 +26,6 @@ import {
   MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK,
   MINECRAFT_PALETTE,
 } from "./visual-modes/minecraft/palette";
-import { domeRadius } from "./ReichstagDome";
 import { invalidenfriedhofVoxelReplacementAt } from "./InvalidenfriedhofDetails";
 
 type Point2 = readonly [number, number];
@@ -55,6 +54,8 @@ type BlockRenderResources = {
   geometry: BoxGeometry;
   material: MeshStandardMaterial;
 };
+
+const COARSE_CIVIC_BLOCK_SPAN_M = 8;
 
 export const MINECRAFT_ARCHITECTURAL_PROFILES = {
   berlinerEnsemble: {
@@ -445,11 +446,12 @@ function pushBlock(
   ) {
     return;
   }
-  // Even structural courses are emitted as at most 4 m horizontal blocks.
-  // This avoids 64/180 m scaled boxes that technically use BoxGeometry but
-  // read as smooth slabs rather than a Minecraft construction language.
-  const xSegments = Math.ceil(size[0] / 4.001);
-  const zSegments = Math.ceil(size[2] / 4.001);
+  // Hero architecture intentionally uses an eight-metre civic voxel: large
+  // enough to read as a deliberately constructed block model rather than a
+  // smooth LoD replica, yet still small enough to preserve portals and the
+  // characteristic silhouettes at the viewer's isometric scale.
+  const xSegments = Math.ceil(size[0] / (COARSE_CIVIC_BLOCK_SPAN_M + 0.001));
+  const zSegments = Math.ceil(size[2] / (COARSE_CIVIC_BLOCK_SPAN_M + 0.001));
   const childSize: Point3 = [size[0] / xSegments, size[1], size[2] / zSegments];
   const cosine = Math.cos(rotationY);
   const sine = Math.sin(rotationY);
@@ -627,17 +629,37 @@ function finishPlan(
   const maxNonStructuralVerticalCue = nonStructuralBlocks.find(
     ({ size }) => size[1] === maxNonStructuralVerticalSpanM,
   )?.cue;
+  const maxHorizontalSpanM = Math.max(
+    0,
+    ...plan.blocks.flatMap(({ size }) => [size[0], size[2]]),
+  );
+  const rotationYByCue = Object.fromEntries(
+    [...plan.cueCounts.keys()].map((cue) => [
+      cue,
+      [
+        ...new Set(
+          plan.blocks
+            .filter((block) => block.cue === cue)
+            .map(({ rotationY }) => Number(rotationY.toFixed(6))),
+        ),
+      ],
+    ]),
+  );
   mesh.userData = {
     blockCount: plan.blocks.length,
     blockNative: true,
+    blockGrammar: "coarse eight-metre civic voxel",
+    coarseBlockSpanM: COARSE_CIVIC_BLOCK_SPAN_M,
     cueCounts: Object.fromEntries(plan.cueCounts),
     landmarkId,
+    maxHorizontalSpanM,
     maxNonStructuralVerticalCue,
     maxNonStructuralVerticalSpanM,
     palette: "shared fixed 32-colour Minecraft palette",
     preciousAccentRatio:
       plan.blocks.length === 0 ? 0 : preciousCount / plan.blocks.length,
     profile,
+    rotationYByCue,
     staticAntiFlicker: true,
     transparentGeometry: false,
   };
@@ -650,50 +672,47 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
   const plan = newPlan();
   const westX = -profile.widthM / 2 - 3.6;
 
-  // West entrance: six block columns, a deep lapis-grey portal, stepped
-  // pediment and the one historically bronze/gold cue on the whole facade.
+  // Six chunky columns, one dark portal and three pediment steps carry the
+  // whole west elevation. Carved details are reduced to two block crests.
   for (let column = 0; column < 6; column += 1) {
     const z = -17.5 + column * 7;
-    for (let layer = 0; layer < 7; layer += 1) {
+    for (let layer = 0; layer < 4; layer += 1) {
       pushLocalBlock(
         plan,
         frame,
-        "six-column west portico",
-        [westX, 5.2 + layer * 2.05, z],
-        [2.1, 1.95, 2.1],
-        layer % 3 === 0 ? BLOCK.marbleLight : BLOCK.quartzIvory,
+        "six coarse west-portico columns",
+        [westX, 5.4 + layer * 4, z],
+        [3.2, 3.7, 3.2],
+        layer % 2 === 0 ? BLOCK.marbleLight : BLOCK.quartzIvory,
       );
     }
     pushLocalBlock(
       plan,
       frame,
-      "portico capitals",
-      [westX, 18.3, z],
-      [3.2, 1.1, 3.2],
+      "six coarse west-portico capitals",
+      [westX, 19.1, z],
+      [4.6, 1.4, 4.6],
       BLOCK.marbleLight,
     );
   }
-  // The deep portal and its panes are built in storey-height courses as well
-  // as horizontal cubes. Keeping the full 12.8/9.5 m height in one cuboid
-  // would read as a smooth extruded panel at the most prominent entrance.
-  for (let course = 0; course < 4; course += 1) {
+  for (let course = 0; course < 3; course += 1) {
     pushLocalBlock(
       plan,
       frame,
-      "west entrance recess",
-      [westX + 1.3, 5.5 + course * 3.2, 0],
-      [1.2, 3.2, 31],
+      "deep block entrance",
+      [westX + 1.3, 6 + course * 4, 0],
+      [1.6, 3.8, 29],
       BLOCK.deepRecess,
     );
   }
-  for (const z of [-8, -4, 0, 4, 8]) {
-    for (let course = 0; course < 3; course += 1) {
+  for (const z of [-8, 0, 8]) {
+    for (const y of [7.5, 11.5]) {
       pushLocalBlock(
         plan,
         frame,
-        "west entrance glass",
-        [westX + 0.55, 6.833333 + course * (9.5 / 3), z],
-        [1.1, 9.5 / 3, 3.2],
+        "three-bay entrance glass",
+        [westX + 0.4, y, z],
+        [1.2, 3.6, 5.8],
         BLOCK.tealGlass,
       );
     }
@@ -701,52 +720,38 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
   pushLocalBlock(
     plan,
     frame,
-    "west portico entablature",
+    "block portico entablature",
     [westX, 19.2, 0],
-    [7.2, 2.2, 41],
+    [7.2, 2.4, 41],
     BLOCK.quartzIvory,
   );
-  for (let layer = 0; layer < 5; layer += 1) {
+  for (let layer = 0; layer < 3; layer += 1) {
     pushLocalBlock(
       plan,
       frame,
-      "stepped west pediment",
-      [westX, 21.1 + layer * 1.1, 0],
-      [6.4, 1, 38 - layer * 7.2],
+      "three-step west pediment",
+      [westX, 21.2 + layer * 1.8, 0],
+      [6.4, 1.6, 38 - layer * 11],
       layer % 2 === 0 ? BLOCK.marbleLight : BLOCK.limestone,
     );
   }
-  // The two tall, crowned stone finials stand at the pediment springing
-  // points.  Their stepped block silhouette remains legible in Minecraft;
-  // the tiny carved petals are deliberately resolved as one crown course.
-  const finialCourses = [
-    [20.48, 2.4, 0.72, BLOCK.marbleLight],
-    [21.12, 2.0, 0.62, BLOCK.quartzIvory],
-    [22.18, 1.38, 1.38, BLOCK.limestone],
-    [23.64, 1.28, 1.38, BLOCK.marbleLight],
-    [25.1, 1.18, 1.38, BLOCK.limestone],
-    [26.18, 1.92, 0.7, BLOCK.quartzIvory],
-    [27.15, 1.54, 1.16, BLOCK.marbleLight],
-    [28.18, 1.92, 0.72, BLOCK.quartzIvory],
-    [29.12, 0.94, 1.16, BLOCK.marbleLight],
-  ] as const;
   for (const z of [-19.15, 19.15]) {
-    for (const [y, width, height, color] of finialCourses) {
+    for (const [y, width] of [
+      [22, 3.2],
+      [25, 2.4],
+      [27.5, 3.4],
+    ] as const) {
       pushLocalBlock(
         plan,
         frame,
-        "paired crowned west-pediment finials",
+        "paired block crown finials",
         [westX - 3.82, y, z],
-        [width, height, width],
-        color,
+        [width, 2.2, width],
+        y === 25 ? BLOCK.limestone : BLOCK.marbleLight,
       );
     }
   }
-
-  // The historic reliefs remain a block-native heraldic tree: three trunk
-  // courses, ten shield pixels and one restrained gold crown in each outer
-  // portico bay.  Nothing is a texture or a transparent coplanar decal.
-  const shieldOffsets = [
+  const crestPixels = [
     [6.85, -0.78],
     [6.85, 0.78],
     [8.15, -1.12],
@@ -759,23 +764,31 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
     [12.15, 0.7],
   ] as const;
   for (const treeZ of profile.wappenTreeZ) {
-    for (const y of [7.15, 9.25, 11.35]) {
+    for (const y of [8, 11.2]) {
       pushLocalBlock(
         plan,
         frame,
         "paired crowned Wappenbaum reliefs",
-        [westX + 1.25, y, treeZ],
-        [0.72, 1.82, 0.72],
+        [westX + 0.9, y, treeZ],
+        [1.2, 2.8, 2.8],
         BLOCK.marbleShadow,
       );
     }
-    for (const [y, offsetZ] of shieldOffsets) {
+    pushLocalBlock(
+      plan,
+      frame,
+      "paired crowned Wappenbaum reliefs",
+      [westX + 0.9, 5.4, treeZ],
+      [1.2, 2.2, 2.2],
+      BLOCK.marbleShadow,
+    );
+    for (const [y, offsetZ] of crestPixels) {
       pushLocalBlock(
         plan,
         frame,
         "paired crowned Wappenbaum reliefs",
-        [westX + 0.82, y, treeZ + offsetZ],
-        [0.72, 0.86, 0.86],
+        [westX + 0.9, y, treeZ + offsetZ],
+        [1.2, 1.1, 1.1],
         BLOCK.marbleLight,
       );
     }
@@ -783,26 +796,26 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
       plan,
       frame,
       "paired crowned Wappenbaum reliefs",
-      [westX + 0.82, 13.48, treeZ],
-      [0.78, 0.82, 1.18],
+      [westX + 0.9, 13.5, treeZ],
+      [1.2, 1.6, 3.8],
       BLOCK.gold,
     );
   }
   pushLocalBlock(
     plan,
     frame,
-    "bronze dedication band",
+    "single gold dedication band",
     [westX - 3.75, 18.6, 0],
-    [0.8, 1.25, 16],
+    [0.9, 1.4, 16],
     BLOCK.gold,
   );
-  for (let step = 0; step < 5; step += 1) {
+  for (let step = 0; step < 3; step += 1) {
     pushLocalBlock(
       plan,
       frame,
-      "five-course west stair",
-      [westX - 4.8 - step * 1.15, 3.7 - step * 0.62, 0],
-      [1.2, 0.65, 37 - step * 1.6],
+      "three-course west stair",
+      [westX - 5 - step * 1.7, 3.6 - step * 0.8, 0],
+      [1.8, 0.8, 37 - step * 3],
       step % 2 === 0 ? BLOCK.marbleLight : BLOCK.quartzIvory,
     );
   }
@@ -810,58 +823,48 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
   // The coarse two-part LoD2 portico is removed from the voxel payload below.
   // Rebuild its rear plane as a real block wall so opening the six-column
   // order never turns the entrance into a hole through the Reichstag body.
-  for (let z = -18; z <= 18; z += 4) {
-    for (let y = 5.8; y <= 21.8; y += 4) {
-      const entrance = Math.abs(z) <= 10 && y <= 13.8;
+  for (let z = -16; z <= 16; z += 8) {
+    for (const y of [7, 11, 15, 19]) {
+      const entrance = Math.abs(z) <= 8 && y <= 11;
       pushLocalBlock(
         plan,
         frame,
-        entrance ? "west portico rear glazing" : "west portico rear masonry",
+        entrance ? "coarse rear glazing" : "coarse rear masonry",
         [-48.2, y, z],
-        [2.1, 3.8, 3.8],
-        entrance
-          ? Math.round(z + y) % 8 === 0
-            ? BLOCK.iceGlass
-            : BLOCK.deepRecess
-          : Math.round(z + y) % 8 === 0
-            ? BLOCK.marbleLight
-            : BLOCK.limestone,
+        [2.1, 3.8, 7.6],
+        entrance ? BLOCK.tealGlass : BLOCK.limestone,
       );
     }
   }
 
-  // Strong, sparse window cadence. These are recessed opaque glass blocks,
-  // not coplanar planes, so the facade stays stable while orbiting.
+  // Two oversized window rows are enough to suggest the historic facades.
   for (const side of [-1, 1]) {
-    // A 4 m axis-aligned source cell can protrude about 2 m beyond the rotated
-    // metric facade. The 2.35 m relief keeps every authored pane wholly in
-    // front of that coarse block skin instead of intersecting it.
     const faceX = side * (profile.widthM / 2 + 2.35);
-    for (let z = -50; z <= 50; z += 8) {
+    for (let z = -48; z <= 48; z += 16) {
       if (side < 0 && Math.abs(z) < 24) continue;
-      for (const y of [8.5, 14.5, 20.5]) {
+      for (const y of [9, 17]) {
         pushLocalBlock(
           plan,
           frame,
-          "tall facade windows",
+          "oversized facade window blocks",
           [faceX, y, z],
-          [1.25, 3.2, 4.2],
-          (Math.abs(z) + Math.round(y)) % 5 === 0
+          [1.25, 3.8, 7.2],
+          (Math.abs(z) + Math.round(y)) % 32 === 0
             ? BLOCK.iceGlass
             : BLOCK.deepRecess,
         );
       }
     }
     const faceZ = side * (profile.depthM / 2 + 2.35);
-    for (let x = -32; x <= 32; x += 8) {
-      for (const y of [8.5, 14.5, 20.5]) {
+    for (let x = -32; x <= 32; x += 16) {
+      for (const y of [9, 17]) {
         pushLocalBlock(
           plan,
           frame,
-          "long facade windows",
+          "oversized facade window blocks",
           [x, y, faceZ],
-          [4.2, 3.2, 1.25],
-          (Math.abs(x) + Math.round(y)) % 5 === 0
+          [7.2, 3.8, 1.25],
+          (Math.abs(x) + Math.round(y)) % 32 === 0
             ? BLOCK.iceGlass
             : BLOCK.deepRecess,
         );
@@ -875,18 +878,15 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
     for (const zSide of [-1, 1]) {
       const towerX = towerCentre(xSide, profile.widthM);
       const towerZ = towerCentre(zSide, profile.depthM);
-      for (const gx of [-6, -2, 2, 6]) {
-        for (const gz of [-6, -2, 2, 6]) {
-          if (Math.abs(gx) < 5 && Math.abs(gz) < 5) continue;
-          pushLocalBlock(
-            plan,
-            frame,
-            "four corner-tower crowns",
-            [towerX + gx, profile.bodyHeightM + 2, towerZ + gz],
-            [3.8, 2, 3.8],
-            (gx + gz) % 4 === 0 ? BLOCK.marbleLight : BLOCK.limestone,
-          );
-        }
+      for (let tier = 0; tier < 3; tier += 1) {
+        pushLocalBlock(
+          plan,
+          frame,
+          "four three-tier corner crowns",
+          [towerX, profile.bodyHeightM + 1 + tier * 1.8, towerZ],
+          [12 - tier * 3, 1.6, 12 - tier * 3],
+          tier === 1 ? BLOCK.limestone : BLOCK.marbleLight,
+        );
       }
       pushFlag(
         plan,
@@ -900,68 +900,97 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
     }
   }
 
-  // Square block podium under a genuinely stepped, hollow glass dome. Its
-  // top meets the surveyed dome base; it must not float on the higher coarse
-  // 4 m LoD2 roof tier used by the generic voxeliser.
+  // A seven-ring octagonal dome replaces the former near-smooth 792-block
+  // hemisphere. The broad steps are the intended Minecraft silhouette.
   const dome = profile.dome;
   const podiumLocalY = dome.anchorWorld[1] - profile.anchorWorld[1] - 0.9;
-  for (let x = -20; x <= 20; x += 4) {
-    for (let z = -20; z <= 20; z += 4) {
+  for (let x = -16; x <= 16; x += 8) {
+    for (let z = -16; z <= 16; z += 8) {
       pushLocalBlock(
         plan,
         frame,
-        "dome podium tiles",
+        "coarse dome podium",
         [x, podiumLocalY, z],
-        [3.8, 1.8, 3.8],
-        (x + z) % 8 === 0 ? BLOCK.marbleLight : BLOCK.marbleShadow,
+        [7.6, 1.8, 7.6],
+        (x + z) % 16 === 0 ? BLOCK.marbleLight : BLOCK.marbleShadow,
       );
     }
   }
-  const domeRows = 17;
-  const domeRowHeight = dome.heightM / (domeRows - 1);
-  for (let row = 0; row < domeRows; row += 1) {
-    const t = row / (domeRows - 1);
-    const radius = domeRadius(t, dome.diameterM);
-    // Forty-eight lower blocks expose the documented 24 structural sectors
-    // as alternating silver ribs and glass; the tight upper rings use 24 so
-    // the real 2.4 m oculus remains open instead of collapsing into a plug.
-    const segments = radius > 7 ? 48 : 24;
-    const tangentM = Math.max(0.55, (Math.PI * 2 * radius * 0.9) / segments);
-    for (let segment = 0; segment < segments; segment += 1) {
-      const angle = (segment / segments) * Math.PI * 2;
-      const structuralRib = segments === 48 ? segment % 2 === 0 : true;
-      const rareLapisGlint = !structuralRib && (segment + row * 7) % 191 === 0;
-      const renderRadius = radius + 0.3;
-      pushWorldBlock(
+  const domeTiers = [
+    [20, 4, 8],
+    [17.5, 4, 7],
+    [15, 4, 6],
+    [12.5, 3.5, 5],
+    [10, 3.5, 4],
+    [7, 3, 3],
+  ] as const;
+  for (const [
+    row,
+    [halfExtent, edgeThickness, bevel],
+  ] of domeTiers.entries()) {
+    const y =
+      dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + row * 3.35;
+    const edgeOffset = halfExtent - edgeThickness / 2;
+    const straightLength = 2 * (halfExtent - bevel);
+    for (const side of [-1, 1]) {
+      pushLocalBlock(
         plan,
-        "40 m stepped glass dome",
-        [
-          dome.anchorWorld[0] + Math.cos(angle) * renderRadius,
-          dome.anchorWorld[1] + t * dome.heightM,
-          dome.anchorWorld[2] + Math.sin(angle) * renderRadius,
-        ],
-        [tangentM, Math.max(0.8, domeRowHeight * 0.82), 0.5],
-        rareLapisGlint
-          ? BLOCK.lapis
-          : structuralRib
-            ? BLOCK.iron
-            : BLOCK.iceGlass,
-        Math.PI / 2 - angle,
+        frame,
+        "seven-step octagonal glass dome",
+        [0, y, side * edgeOffset],
+        [straightLength, 3, edgeThickness],
+        (side + row) % 3 === 0 ? BLOCK.iron : BLOCK.iceGlass,
+      );
+      pushLocalBlock(
+        plan,
+        frame,
+        "seven-step octagonal glass dome",
+        [side * edgeOffset, y, 0],
+        [edgeThickness, 3, straightLength],
+        (side + row + 1) % 3 === 0 ? BLOCK.iron : BLOCK.iceGlass,
       );
     }
+    for (const xSide of [-1, 1]) {
+      for (const zSide of [-1, 1]) {
+        pushLocalBlock(
+          plan,
+          frame,
+          "seven-step octagonal glass dome",
+          [
+            xSide * (halfExtent - bevel / 2),
+            y,
+            zSide * (halfExtent - bevel / 2),
+          ],
+          [bevel, 3, bevel],
+          (xSide + zSide + row) % 3 === 0 ? BLOCK.iron : BLOCK.iceGlass,
+        );
+      }
+    }
   }
-  for (let level = 0; level < 8; level += 1) {
-    const width = Math.max(2, 8 - level * 0.7);
+  pushLocalBlock(
+    plan,
+    frame,
+    "seven-step octagonal glass dome",
+    [
+      0,
+      dome.anchorWorld[1] - profile.anchorWorld[1] + 1.7 + 6 * 3.35,
+      0,
+    ],
+    [8, 3, 8],
+    BLOCK.iron,
+  );
+  for (let level = 0; level < 4; level += 1) {
+    const width = 7 - level * 1.2;
     pushWorldBlock(
       plan,
-      "silver daylight cone",
+      "four-block silver daylight cone",
       [
         dome.anchorWorld[0],
-        dome.anchorWorld[1] + 2.2 + level * 2,
+        dome.anchorWorld[1] + 3 + level * 4,
         dome.anchorWorld[2],
       ],
-      [width, 1.8, width],
-      level % 3 === 0 ? BLOCK.marbleLight : BLOCK.iron,
+      [width, 3.6, width],
+      level === 0 ? BLOCK.marbleLight : BLOCK.iron,
     );
   }
 
@@ -983,20 +1012,20 @@ function createChancelleryBlocks(
   const cube = profile.cube;
   const [cubeX, cubeZ] = cube.offsetLocal;
 
-  // Nine clearly separated courses turn each leadership pylon into stacked
-  // quartz blocks instead of one smooth white post.
+  // Six overscale courses per pylon establish the Kanzleramt as a white
+  // Minecraft monument before any window cue is visible.
   for (const xSide of [-1, 1]) {
     for (const zSide of [-1, 1]) {
       const x = cubeX + xSide * (cube.widthM / 2 - 2.3);
       const z = cubeZ + zSide * (cube.depthM / 2 - 2.3);
-      for (let layer = 0; layer < 9; layer += 1) {
+      for (let layer = 0; layer < 6; layer += 1) {
         pushLocalBlock(
           plan,
           frame,
-          "four leadership pylons",
-          [x, 2 + layer * 4, z],
-          [4.5, 3.8, 4.5],
-          layer % 3 === 1 ? BLOCK.marbleShadow : BLOCK.marbleLight,
+          "four six-course leadership pylons",
+          [x, 3 + layer * 5.8, z],
+          [5.8, 5.5, 5.8],
+          layer % 2 === 1 ? BLOCK.marbleShadow : BLOCK.marbleLight,
         );
       }
     }
@@ -1020,31 +1049,30 @@ function createChancelleryBlocks(
     );
   }
 
-  // The 13 closed LoD2 parts of the leadership cube are removed from the
-  // voxel payload. Rebuild the complete perimeter as a hollow, stacked shell:
-  // cool stone around the two huge semicircular glass halls, and a restrained
-  // rear/front window rhythm. Nothing fills the cube's interior volume.
+  // The central openings are intentionally stair-stepped rather than sampled
+  // semicircles. Five broad courses make the iconic twin arches unmistakable
+  // while keeping the source cube hollow and visibly voxel-built.
+  const shellInnerHalfDepth = cube.depthM / 2 - 2.2;
+  const shellDepthBay = (shellInnerHalfDepth * 2) / 7;
   for (const xSide of [-1, 1]) {
     const masonryX = cubeX + xSide * (cube.widthM / 2 - 1);
     const glazingX = cubeX + xSide * (cube.widthM / 2 + 0.45);
-    for (let z = -24; z <= 24; z += 4) {
+    for (let bay = 0; bay < 7; bay += 1) {
+      const z = -shellInnerHalfDepth + shellDepthBay * (bay + 0.5);
       const absoluteZ = cubeZ + z;
-      const archTop =
-        Math.abs(z) < 17.2
-          ? 10.5 + Math.sqrt(Math.max(0, 17.2 ** 2 - z ** 2))
-          : Number.NEGATIVE_INFINITY;
-      for (let y = 2; y <= 30; y += 4) {
-        const insideArch = Math.abs(z) < 17.2 && y <= archTop;
+      for (const y of [4, 10, 16, 22, 28]) {
+        const archHalfWidth = y <= 10 ? 16 : y <= 16 ? 16 : y <= 22 ? 8 : 0;
+        const insideArch = archHalfWidth > 0 && Math.abs(z) <= archHalfWidth;
         if (insideArch) {
           pushLocalBlock(
             plan,
             frame,
-            "leadership aperture glazing",
+            "stair-stepped leadership aperture",
             [glazingX, y, absoluteZ],
-            [0.9, 3.7, 3.7],
-            xSide > 0 && Math.abs(z) < 2 && y === 18
+            [1.2, 5.6, shellDepthBay],
+            xSide > 0 && Math.abs(z) < 1e-6 && y === 16
               ? BLOCK.lapis
-              : Math.round(z + y) % 8 === 0
+              : (z / 8 + y / 6) % 3 === 0
                 ? BLOCK.iron
                 : BLOCK.tealGlass,
           );
@@ -1053,34 +1081,40 @@ function createChancelleryBlocks(
         pushLocalBlock(
           plan,
           frame,
-          "leadership cube masonry shell",
+          "coarse leadership masonry shell",
           [masonryX, y, absoluteZ],
-          [2, 3.8, 3.8],
-          (Math.round(z + y) + xSide) % 12 === 0
+          [2.4, 5.6, shellDepthBay],
+          (Math.round(z / 8) + Math.round(y / 6) + xSide) % 3 === 0
             ? BLOCK.marbleShadow
             : BLOCK.marbleLight,
         );
       }
     }
-
-    const faceX = cubeX + xSide * (cube.widthM / 2 + 0.7);
-    for (let step = 0; step <= 24; step += 1) {
-      const angle = (step / 24) * Math.PI;
+    for (const [z, y] of [
+      [-16, 17],
+      [-8, 23],
+      [0, 28],
+      [8, 23],
+      [16, 17],
+    ] as const) {
       pushLocalBlock(
         plan,
         frame,
-        "twin semicircular leadership frames",
-        [faceX, 10.5 + Math.sin(angle) * 17.2, cubeZ + Math.cos(angle) * 17.2],
-        [2, 2, 2],
+        "twin five-block leadership arch frames",
+        [cubeX + xSide * (cube.widthM / 2 + 0.8), y, cubeZ + z],
+        [2.2, 2.2, 6],
         BLOCK.iron,
       );
     }
   }
+  const shellInnerHalfWidth = cube.widthM / 2 - 2.2;
+  const shellWidthBay = (shellInnerHalfWidth * 2) / 7;
   for (const zSide of [-1, 1]) {
     const faceZ = cubeZ + zSide * (cube.depthM / 2 - 1);
-    for (let x = -24; x <= 24; x += 4) {
-      for (let y = 2; y <= 30; y += 4) {
-        const windowBay = y >= 6 && y <= 22 && Math.abs(x) <= 18;
+    for (let bay = 0; bay < 7; bay += 1) {
+      const x = -shellInnerHalfWidth + shellWidthBay * (bay + 0.5);
+      for (const y of [4, 10, 16, 22, 28]) {
+        const windowBay = y >= 10 && y <= 22 && Math.abs(x) <= 16;
         pushLocalBlock(
           plan,
           frame,
@@ -1088,9 +1122,9 @@ function createChancelleryBlocks(
             ? "leadership transverse facade glazing"
             : "leadership transverse masonry shell",
           [cubeX + x, y, faceZ],
-          [3.8, 3.8, 2],
+          [shellWidthBay, 5.6, 2.4],
           windowBay
-            ? (Math.round(x + y) + zSide) % 8 === 0
+            ? (Math.round(x / 8) + Math.round(y / 6) + zSide) % 3 === 0
               ? BLOCK.iron
               : BLOCK.iceGlass
             : BLOCK.quartzIvory,
@@ -1099,24 +1133,24 @@ function createChancelleryBlocks(
     }
   }
 
-  // Office wings retain their source voxel mass and receive only a regular,
-  // deeply inset three-row glass cadence on their public long fronts.
+  // The measured office-wing mass stays in the generic voxel layer. Only two
+  // rows of oversized panes are added here, avoiding a realistic curtain wall.
   for (const [segmentIndex, segment] of profile.officeSegments.entries()) {
     const [segmentX, segmentZ] = segment.offsetLocal;
     for (const zSide of [-1, 1]) {
       for (
-        let x = -segment.widthM / 2 + 4;
-        x <= segment.widthM / 2 - 4;
-        x += 8
+        let x = -segment.widthM / 2 + 8;
+        x <= segment.widthM / 2 - 8;
+        x += 16
       ) {
-        for (const y of [5, 9.5, 14]) {
+        for (const y of [6.5, 13]) {
           pushLocalBlock(
             plan,
             frame,
-            "three-row office wing glazing",
+            "two-row oversized office glazing",
             [segmentX + x, y, segmentZ + zSide * (segment.depthM / 2 + 2.35)],
-            [5.2, 2.8, 1.25],
-            segmentIndex === 0 && zSide > 0 && y === 9.5 && Math.abs(x) < 5
+            [7.2, 4.2, 1.4],
+            segmentIndex === 0 && zSide > 0 && y === 13 && Math.abs(x) < 9
               ? BLOCK.lapis
               : BLOCK.iceGlass,
           );
@@ -1125,17 +1159,19 @@ function createChancelleryBlocks(
     }
   }
 
-  // Block-sampled saddle canopy: no continuous curve, no transparent skin.
-  for (let forward = -16; forward <= 16; forward += 4) {
-    for (let lateral = -24; lateral <= 24; lateral += 4) {
+  // Five-by-seven stepped saddle: visibly angular, never a sampled surface.
+  for (let forward = -16; forward <= 16; forward += 8) {
+    for (let lateral = -24; lateral <= 24; lateral += 8) {
       const y = 31.8 + 3.8 * ((lateral / 25.5) ** 2 - (forward / 18) ** 2);
       pushLocalBlock(
         plan,
         frame,
-        "stepped monumental saddle roof",
+        "coarse stepped saddle roof",
         [cubeX + 2.4 + forward, y, cubeZ + lateral],
-        [3.8, 0.9, 3.8],
-        (forward + lateral) % 8 === 0 ? BLOCK.marbleLight : BLOCK.marbleShadow,
+        [7.6, 1.3, 7.6],
+        (forward + lateral) % 16 === 0
+          ? BLOCK.marbleLight
+          : BLOCK.marbleShadow,
       );
     }
   }
@@ -1175,6 +1211,8 @@ function createHauptbahnhofBlocks(
   const frame: LocalFrame = profile;
   const plan = newPlan();
   const curveAt = hauptbahnhofEastWestCurveAt;
+  const coarseBowAt = (localX: number): number =>
+    Math.round(curveAt(localX) / 4) * 4;
 
   const eastWest = profile.eastWestRoof;
   const northSouth = profile.northSouthHall;
@@ -1183,24 +1221,25 @@ function createHauptbahnhofBlocks(
     eastWest.riseM * Math.sqrt(1 - (18 / (eastWest.widthM / 2)) ** 2) -
     0.85;
   const eastWestWallCourseHeight =
-    (eastWestWallTopY - profile.publicFloorTopLocalY) / 4;
-  for (let x = -160; x <= 160; x += 4) {
-    const bow = curveAt(x);
-    for (let z = -18; z <= 18; z += 4) {
+    (eastWestWallTopY - profile.publicFloorTopLocalY) / 2;
+  for (let x = -160; x <= 160; x += 8) {
+    const bow = coarseBowAt(x);
+    for (let z = -16; z <= 16; z += 8) {
       const cross = z / (eastWest.widthM / 2);
-      const y =
+      const y = Math.round(
         eastWest.baseY +
-        eastWest.riseM * Math.sqrt(Math.max(0, 1 - cross * cross));
-      const index = Math.round((x + 160) / 4) + Math.round((z + 18) / 4) * 81;
+          eastWest.riseM * Math.sqrt(Math.max(0, 1 - cross * cross)),
+      );
+      const index = Math.round((x + 160) / 8) + Math.round((z + 16) / 8) * 41;
       pushLocalBlock(
         plan,
         frame,
-        "321 m bowed east-west glass hall",
+        "coarse 321 m east-west glass hall",
         [x, y, z + bow],
-        [3.8, 1.7, 3.8],
-        index % 97 === 0
+        [7.6, 2.4, 7.6],
+        index % 149 === 0
           ? BLOCK.lapis
-          : index % 5 === 0
+          : index % 4 === 0
             ? BLOCK.iron
             : BLOCK.iceGlass,
       );
@@ -1210,27 +1249,25 @@ function createHauptbahnhofBlocks(
         pushLocalBlock(
           plan,
           frame,
-          "east-west station floor blocks",
+          "coarse east-west station floor",
           [x, profile.publicFloorTopLocalY - 0.55, z + bow],
-          [3.8, 1.1, 3.8],
-          index % 6 === 0 ? BLOCK.marbleShadow : BLOCK.limestone,
+          [8, 1.1, 8],
+          index % 5 === 0 ? BLOCK.marbleShadow : BLOCK.limestone,
         );
       }
     }
-    // The published elevated E-W railway level spans 37 m and carries four
-    // tracks. Ten deck bays plus two rails per track preserve that width
-    // without stretching one smooth slab across the station.
-    const deckBayCount = 10;
+    // Five broad deck blocks and four paired rails preserve the railway cue.
+    const deckBayCount = 5;
     const deckBayWidth = profile.trackDeckWidthM / deckBayCount;
     for (let bay = 0; bay < deckBayCount; bay += 1) {
       const z = -profile.trackDeckWidthM / 2 + deckBayWidth * (bay + 0.5);
       pushLocalBlock(
         plan,
         frame,
-        "east-west raised railway deck",
+        "five-block-wide raised railway deck",
         [x, profile.trackDeckCentreLocalY, z + bow],
-        [3.8, 1.1, deckBayWidth],
-        (Math.round(x / 4) + bay) % 6 === 0
+        [7.6, 1.1, deckBayWidth],
+        (Math.round(x / 8) + bay) % 5 === 0
           ? BLOCK.marbleShadow
           : BLOCK.limestone,
       );
@@ -1240,31 +1277,29 @@ function createHauptbahnhofBlocks(
         pushLocalBlock(
           plan,
           frame,
-          "four east-west block tracks",
+          "four paired block tracks",
           [
             x,
             profile.trackDeckTopLocalY + 0.18,
             trackCentre + railOffset + bow,
           ],
-          [3.8, 0.32, 0.5],
+          [7.6, 0.5, 0.7],
           BLOCK.iron,
         );
       }
     }
     for (const side of [-1, 1]) {
-      // Four courses close the side wall up to the lowest roof springing;
-      // two courses left a six-metre horizontal slit through the hall.
-      for (let course = 0; course < 4; course += 1) {
+      for (let course = 0; course < 2; course += 1) {
         const y =
           profile.publicFloorTopLocalY +
           eastWestWallCourseHeight * (course + 0.5);
         pushLocalBlock(
           plan,
           frame,
-          "east-west hall side glazing",
+          "two-course east-west side glazing",
           [x, y, bow + side * 19.2],
-          [3.8, eastWestWallCourseHeight, 1.2],
-          (Math.round(x / 4) + Math.round(y) + side) % 5 === 0
+          [7.6, eastWestWallCourseHeight, 1.4],
+          (Math.round(x / 8) + course + side) % 4 === 0
             ? BLOCK.iron
             : BLOCK.iceGlass,
         );
@@ -1277,21 +1312,22 @@ function createHauptbahnhofBlocks(
     northSouth.riseM * Math.sqrt(1 - (18 / (northSouth.widthM / 2)) ** 2) -
     0.85;
   const northSouthWallCourseHeight =
-    (northSouthWallTopY - profile.publicFloorTopLocalY) / 4;
-  for (let z = -88; z <= 88; z += 4) {
-    for (let x = -18; x <= 18; x += 4) {
+    (northSouthWallTopY - profile.publicFloorTopLocalY) / 2;
+  for (let z = -88; z <= 88; z += 8) {
+    for (let x = -16; x <= 16; x += 8) {
       const cross = x / (northSouth.widthM / 2);
-      const y =
+      const y = Math.round(
         northSouth.baseY +
-        northSouth.riseM * Math.sqrt(Math.max(0, 1 - cross * cross));
-      const index = Math.round((z + 88) / 4) + Math.round((x + 18) / 4) * 45;
+          northSouth.riseM * Math.sqrt(Math.max(0, 1 - cross * cross)),
+      );
+      const index = Math.round((z + 88) / 8) + Math.round((x + 16) / 8) * 23;
       pushLocalBlock(
         plan,
         frame,
-        "180 m north-south crossing hall",
+        "coarse 180 m north-south crossing hall",
         [x, y, z],
-        [3.8, 1.7, 3.8],
-        index % 101 === 0
+        [7.6, 2.4, 7.6],
+        index % 113 === 0
           ? BLOCK.lapis
           : index % 4 === 0
             ? BLOCK.iron
@@ -1300,63 +1336,51 @@ function createHauptbahnhofBlocks(
       pushLocalBlock(
         plan,
         frame,
-        "north-south station floor blocks",
+        "coarse north-south station floor",
         [x, profile.publicFloorTopLocalY - 0.6, z],
-        [3.8, 1.2, 3.8],
-        index % 7 === 0 ? BLOCK.marbleShadow : BLOCK.limestone,
+        [8, 1.2, 8],
+        index % 5 === 0 ? BLOCK.marbleShadow : BLOCK.limestone,
       );
     }
     // Longitudinal glass walls make the north-south crossing a real hall
     // rather than a floating roof between the two office bridges.
     for (const side of [-1, 1]) {
-      for (let course = 0; course < 4; course += 1) {
+      for (let course = 0; course < 2; course += 1) {
         const y =
           profile.publicFloorTopLocalY +
           northSouthWallCourseHeight * (course + 0.5);
         pushLocalBlock(
           plan,
           frame,
-          "north-south hall side glazing",
+          "two-course north-south side glazing",
           [side * 19.2, y, z],
-          [1.2, northSouthWallCourseHeight, 3.8],
-          (Math.round(z / 4) + Math.round(y) + side) % 5 === 0
+          [1.4, northSouthWallCourseHeight, 7.6],
+          (Math.round(z / 8) + course + side) % 4 === 0
             ? BLOCK.iron
             : BLOCK.tealGlass,
         );
       }
     }
   }
-  // Exact bridge between the two differently sampled floor grids. These
-  // narrow strips touch both plates without overlaps or walkable cracks.
-  for (const x of [-21, 21]) {
-    for (let z = -18; z <= 18; z += 4) {
-      pushLocalBlock(
-        plan,
-        frame,
-        "station crossing floor seams",
-        [x, profile.publicFloorTopLocalY - 0.55, z],
-        [2.2, 1.1, 3.8],
-        BLOCK.limestone,
-      );
-    }
-  }
+  // Exact eight-metre floor cells meet at the crossing boundary. No narrow
+  // coplanar seam boxes are needed, so no second colour can fight that top.
   for (const zSide of [-1, 1]) {
-    for (let x = -18; x <= 18; x += 4) {
+    for (let x = -16; x <= 16; x += 8) {
       const cross = x / (northSouth.widthM / 2);
       const roofY =
         northSouth.baseY +
         northSouth.riseM * Math.sqrt(Math.max(0, 1 - cross * cross));
-      for (let y = 3; y <= roofY - 2; y += 4) {
+      for (let y = 4; y <= roofY - 2; y += 6) {
         // Both Washingtonplatz and Europaplatz retain a broad, genuinely
         // open central entry below the glass gable.
         if (Math.abs(x) <= 6 && y <= 7) continue;
         pushLocalBlock(
           plan,
           frame,
-          "north-south hall portal glazing",
+          "stepped north-south block portals",
           [x, y, zSide * 89.1],
-          [3.7, 3.7, 1.15],
-          (Math.round(x / 4) + Math.round(y) + zSide) % 4 === 0
+          [7.4, 5.6, 1.4],
+          (Math.round(x / 8) + Math.round(y / 6) + zSide) % 4 === 0
             ? BLOCK.iron
             : BLOCK.tealGlass,
         );
@@ -1366,20 +1390,20 @@ function createHauptbahnhofBlocks(
   // The 321 m hall also terminates in two stepped glass gables. Their lower
   // central bays remain open instead of becoming decorative opaque screens.
   for (const xSide of [-1, 1]) {
-    for (let z = -18; z <= 18; z += 4) {
+    for (let z = -16; z <= 16; z += 8) {
       const roofY =
         eastWest.baseY +
         eastWest.riseM *
           Math.sqrt(Math.max(0, 1 - (z / (eastWest.widthM / 2)) ** 2));
-      for (let y = 3; y <= roofY - 2; y += 4) {
+      for (let y = 4; y <= roofY - 2; y += 6) {
         if (Math.abs(z) <= 14 && y <= 11) continue;
         pushLocalBlock(
           plan,
           frame,
-          "east-west hall block gables",
-          [xSide * 160.6, y, z + curveAt(xSide * 160.6)],
-          [1.15, 3.7, 3.7],
-          (Math.round(z / 4) + Math.round(y) + xSide) % 4 === 0
+          "stepped east-west block gables",
+          [xSide * 160.6, y, z + coarseBowAt(xSide * 160.6)],
+          [1.4, 5.6, 7.4],
+          (Math.round(z / 8) + Math.round(y / 6) + xSide) % 4 === 0
             ? BLOCK.iron
             : BLOCK.iceGlass,
           hauptbahnhofEastWestTangentRotationAt(xSide * 160.6),
@@ -1388,11 +1412,11 @@ function createHauptbahnhofBlocks(
     }
   }
 
-  // Two 46 m glass office bridges. Long facade runs reduce instance count
-  // while their 4 m vertical rhythm stays visibly block-based.
+  // Two 46 m office bridges use twelve-metre bays and six broad vertical
+  // courses. They remain recognisable towers, not detailed glass facsimiles.
   for (const bridgeX of [-35, 35]) {
     for (const xSide of [-1, 1]) {
-      const facadeBayCount = 23;
+      const facadeBayCount = 15;
       const facadeBayLength = 180 / facadeBayCount;
       for (let bay = 0; bay < facadeBayCount; bay += 1) {
         const z = -90 + facadeBayLength * (bay + 0.5);
@@ -1400,7 +1424,7 @@ function createHauptbahnhofBlocks(
         const roofTopY = 43.2 + slopeDirection * xSide * 8 * 0.35;
         const wallBottomY = 1.425;
         const wallTopY = roofTopY - 0.9;
-        const courses = Math.ceil((wallTopY - wallBottomY) / 4.001);
+        const courses = Math.ceil((wallTopY - wallBottomY) / 8.001);
         const courseHeight = (wallTopY - wallBottomY) / courses;
         for (let course = 0; course < courses; course += 1) {
           const y = wallBottomY + courseHeight * (course + 0.5);
@@ -1408,10 +1432,10 @@ function createHauptbahnhofBlocks(
           pushLocalBlock(
             plan,
             frame,
-            "twin 46 m office bridges",
+            "coarse twin 46 m office bridges",
             [bridgeX + xSide * 9.7, y, z],
-            [1.2, courseHeight, facadeBayLength + 0.08],
-            index % 113 === 0
+            [1.2, courseHeight, facadeBayLength],
+            index % 149 === 0
               ? BLOCK.lapis
               : index % 3 === 0
                 ? BLOCK.iron
@@ -1420,13 +1444,13 @@ function createHauptbahnhofBlocks(
         }
       }
     }
-    for (let x = -8; x <= 8; x += 4) {
+    for (let x = -8; x <= 8; x += 8) {
       for (const zSide of [-1, 1]) {
         const slopeDirection = bridgeX < 0 ? -1 : 1;
         const roofTopY = 43.2 + slopeDirection * x * 0.35;
         const wallBottomY = 1.425;
         const wallTopY = roofTopY - 0.9;
-        const courses = Math.ceil((wallTopY - wallBottomY) / 4.001);
+        const courses = Math.ceil((wallTopY - wallBottomY) / 8.001);
         const courseHeight = (wallTopY - wallBottomY) / courses;
         for (let course = 0; course < courses; course += 1) {
           const y = wallBottomY + courseHeight * (course + 0.5);
@@ -1447,9 +1471,9 @@ function createHauptbahnhofBlocks(
           pushLocalBlock(
             plan,
             frame,
-            "office-bridge end frames",
+            "coarse office-bridge portal frames",
             [bridgeX + x, blockBottom + blockHeight / 2, zSide * 90.4],
-            [3.8, blockHeight, 1.2],
+            [7.4, blockHeight, 0.8],
             (Math.round(x) * 3 + course * 5) % 97 === 0
               ? BLOCK.lapis
               : BLOCK.iron,
@@ -1457,38 +1481,40 @@ function createHauptbahnhofBlocks(
         }
       }
     }
-    for (let z = -88; z <= 88; z += 4) {
+    for (let z = -88; z <= 88; z += 8) {
       pushLocalBlock(
         plan,
         frame,
-        "office-bridge ground deck",
+        "coarse office-bridge ground deck",
         [bridgeX, 0.75, z],
-        [19.5, 1.35, 3.8],
-        Math.round(z / 4) % 2 === 0 ? BLOCK.limestone : BLOCK.marbleShadow,
+        [19.5, 1.35, 7.6],
+        Math.round(z / 8) % 2 === 0 ? BLOCK.limestone : BLOCK.marbleShadow,
       );
-      for (const y of [4, 8, 12, 16, 20, 24, 28, 32, 36, 40]) {
-        for (const side of [-1, 1]) {
-          pushLocalBlock(
-            plan,
-            frame,
-            "office-bridge floor bands",
-            [bridgeX + side * 9.45, y, z],
-            [0.75, 0.6, 3.8],
-            BLOCK.iron,
-          );
-        }
-      }
-      for (const xOffset of [-8, -4, 0, 4, 8]) {
+      for (const xOffset of [-8, 0, 8]) {
         const slopeDirection = bridgeX < 0 ? -1 : 1;
         const roofTopY = 43.2 + slopeDirection * xOffset * 0.35;
         pushLocalBlock(
           plan,
           frame,
-          "office-bridge stepped crowns",
+          "three-wide office-bridge crowns",
           [bridgeX + xOffset, roofTopY - 0.45, z],
-          [3.8, 0.9, 3.8],
+          [7.4, 1.2, 7.6],
           Math.abs(xOffset) === 8 ? BLOCK.silver : BLOCK.iron,
         );
+      }
+    }
+    for (let z = -88; z <= 88; z += 16) {
+      for (const y of [8, 16, 24, 32, 40]) {
+        for (const side of [-1, 1]) {
+          pushLocalBlock(
+            plan,
+            frame,
+            "five coarse office floor bands",
+            [bridgeX + side * 9.45, y, z],
+            [0.85, 0.8, 7.6],
+            BLOCK.iron,
+          );
+        }
       }
     }
   }
@@ -1537,13 +1563,13 @@ function createBrandenburgGateBlocks(
 
   for (const localX of [-4.25, 4.25]) {
     for (const localZ of axes) {
-      for (let layer = 0; layer < 4; layer += 1) {
+      for (let layer = 0; layer < 3; layer += 1) {
         pushLocalBlock(
           plan,
           frame,
-          "twelve block Doric columns",
-          [localX, 1.7 + layer * 3.35, localZ],
-          [2.1, 3.2, 2.1],
+          "twelve three-course Doric columns",
+          [localX, 2.4 + layer * 4.7, localZ],
+          [2.8, 4.4, 2.8],
           layer % 2 === 0 ? BLOCK.quartzIvory : BLOCK.limestone,
         );
       }
@@ -1576,27 +1602,27 @@ function createBrandenburgGateBlocks(
   const pavilionWidth = (profile.widthM - mainBodyWidth) / 2;
   for (const side of [-1, 1]) {
     const centreZ = side * (profile.widthM / 2 - pavilionWidth / 2);
-    for (let y = 2; y <= 8; y += 3) {
-      for (const x of [-3.5, 0, 3.5]) {
+    for (const y of [2.8, 7.2]) {
+      for (const x of [-3.5, 3.5]) {
         pushLocalBlock(
           plan,
           frame,
-          "two sandstone side pavilions",
+          "two coarse sandstone side pavilions",
           [x, y, centreZ],
-          [3.2, 2.8, pavilionWidth - 0.6],
+          [6.4, 4.1, pavilionWidth - 0.6],
           (Math.round(y + x) + side) % 2 === 0
             ? BLOCK.quartzIvory
             : BLOCK.limestone,
         );
       }
     }
-    for (let roof = 0; roof < 3; roof += 1) {
+    for (let roof = 0; roof < 2; roof += 1) {
       pushLocalBlock(
         plan,
         frame,
-        "stepped pavilion roofs",
-        [0, 8.8 + roof * 0.8, centreZ],
-        [profile.depthM - roof * 1.6, 0.75, pavilionWidth - roof * 2.4],
+        "two-step pavilion roofs",
+        [0, 9 + roof * 1.1, centreZ],
+        [profile.depthM - roof * 2.4, 1, pavilionWidth - roof * 3.2],
         BLOCK.oxidisedCopper,
       );
     }
@@ -1678,7 +1704,6 @@ function pushRing(
   size: Point3,
   row: number,
 ): void {
-  const tangentM = Math.max(size[0], (Math.PI * 2 * radius * 0.99) / segments);
   for (let segment = 0; segment < segments; segment += 1) {
     const angle = (segment / segments) * Math.PI * 2;
     pushWorldBlock(
@@ -1689,9 +1714,8 @@ function pushRing(
         y,
         centre[1] + Math.sin(angle) * radius,
       ],
-      [tangentM, size[1], size[2]],
+      size,
       (segment + row) % 7 === 0 ? BLOCK.iron : BLOCK.iceGlass,
-      Math.PI / 2 - angle,
     );
   }
 }
@@ -1708,10 +1732,6 @@ function pushHalfRing(
   row: number,
 ): void {
   const startAngle = outwardZ > 0 ? 0 : Math.PI;
-  const tangentM = Math.max(
-    size[0],
-    (Math.PI * radius * 0.99) / (segments - 1),
-  );
   for (let segment = 0; segment < segments; segment += 1) {
     const angle = startAngle + (segment / (segments - 1)) * Math.PI;
     pushWorldBlock(
@@ -1722,9 +1742,8 @@ function pushHalfRing(
         y,
         centre[1] + Math.sin(angle) * radius,
       ],
-      [tangentM, size[1], size[2]],
+      size,
       (segment + row) % 7 === 0 ? BLOCK.iron : BLOCK.iceGlass,
-      Math.PI / 2 - angle,
     );
   }
 }
@@ -1762,7 +1781,11 @@ function pushParliamentBridges(plan: BlockPlan): void {
         plan,
         cue,
         [(a[0] + b[0]) / 2, y, (a[1] + b[1]) / 2],
-        [segmentLength + 0.08, 0.8, width],
+        [
+          Math.max(0.1, segmentLength - (sagitta === 0 ? 0 : 0.04)),
+          0.8,
+          width,
+        ],
         color,
         Math.atan2(-(b[1] - a[1]), b[0] - a[0]),
       );
@@ -1775,11 +1798,10 @@ function pushParliamentBridges(plan: BlockPlan): void {
     lower.deckY - 0.35,
     lower.widthM,
     BLOCK.quartzIvory,
-    26,
+    13,
     lower.curveSagittaM,
   );
-  // The public lower bridge has two open block handrails, never a solid
-  // parapet. Their 26 courses follow the same restrained OSM/photo bow.
+  // Thirteen deck-sized handrail blocks preserve the open public crossing.
   for (const side of [-1, 1]) {
     const [start, end] = lower.centrelineWorld;
     const dx = end[0] - start[0];
@@ -1794,14 +1816,18 @@ function pushParliamentBridges(plan: BlockPlan): void {
         start[1] + dz * t + nz * (bow + side * (lower.widthM / 2 - 0.25)),
       ];
     };
-    for (let index = 0; index < 26; index += 1) {
-      const a = at(index / 26);
-      const b = at((index + 1) / 26);
+    for (let index = 0; index < 13; index += 1) {
+      const a = at(index / 13);
+      const b = at((index + 1) / 13);
       pushWorldBlock(
         plan,
         "lower public bridge block handrails",
         [(a[0] + b[0]) / 2, lower.deckY + 1.05, (a[1] + b[1]) / 2],
-        [Math.hypot(b[0] - a[0], b[1] - a[1]) + 0.08, 0.55, 0.45],
+        [
+          Math.max(0.1, Math.hypot(b[0] - a[0], b[1] - a[1]) - 0.04),
+          0.55,
+          0.45,
+        ],
         BLOCK.iron,
         Math.atan2(-(b[1] - a[1]), b[0] - a[0]),
       );
@@ -1851,32 +1877,30 @@ function pushParliamentBridges(plan: BlockPlan): void {
       );
     }
   }
-  // Stepped diagonal ties retain the documented open Vierendeel-like rhythm
-  // without introducing rotated non-block beams.
+  // One central tie per bay hints at the upper bridge frame without drawing
+  // a near-engineering replica.
   for (let bay = 0; bay < upper.frameBayCount; bay += 1) {
     for (const side of [-1, 1]) {
-      for (let step = 0; step < 3; step += 1) {
-        const t = (bay + (step + 0.5) / 3) / upper.frameBayCount;
-        const x = upperStart[0] + (upperEnd[0] - upperStart[0]) * t;
-        const z = upperStart[1] + (upperEnd[1] - upperStart[1]) * t;
-        const length = Math.hypot(
-          upperEnd[0] - upperStart[0],
-          upperEnd[1] - upperStart[1],
-        );
-        const nx = -(upperEnd[1] - upperStart[1]) / length;
-        const nz = (upperEnd[0] - upperStart[0]) / length;
-        pushWorldBlock(
-          plan,
-          "upper bridge stepped diagonal ties",
-          [
-            x + nx * side * 1.25,
-            upper.deckY + 1.65 + step * 2.55,
-            z + nz * side * 1.25,
-          ],
-          [0.7, 0.7, 0.7],
-          BLOCK.iron,
-        );
-      }
+      const t = (bay + 0.5) / upper.frameBayCount;
+      const x = upperStart[0] + (upperEnd[0] - upperStart[0]) * t;
+      const z = upperStart[1] + (upperEnd[1] - upperStart[1]) * t;
+      const length = Math.hypot(
+        upperEnd[0] - upperStart[0],
+        upperEnd[1] - upperStart[1],
+      );
+      const nx = -(upperEnd[1] - upperStart[1]) / length;
+      const nz = (upperEnd[0] - upperStart[0]) / length;
+      pushWorldBlock(
+        plan,
+        "upper bridge single block ties",
+        [
+          x + nx * side * 1.25,
+          (upper.deckY + upper.roofY) / 2,
+          z + nz * side * 1.25,
+        ],
+        [0.9, 0.9, 0.9],
+        BLOCK.iron,
+      );
     }
   }
 }
@@ -1888,13 +1912,13 @@ function createParliamentaryBandBlocks(
   const paul = MINECRAFT_ARCHITECTURAL_PROFILES.paulLoebeHaus;
   const canopy = paul.canopy;
   const outerX = canopy.westFaceX - canopy.reachM;
-  for (let z = -50; z <= 50; z += 4) {
+  for (let z = -48; z <= 48; z += 8) {
     pushWorldBlock(
       plan,
       "Paul-Löbe cantilevered west canopy",
       [canopy.westFaceX - canopy.reachM / 2, canopy.topY, canopy.centreZ + z],
-      [canopy.reachM, 0.9, 3.8],
-      z % 8 === 0 ? BLOCK.marbleLight : BLOCK.quartzIvory,
+      [canopy.reachM, 1.2, 7.6],
+      z % 16 === 0 ? BLOCK.marbleLight : BLOCK.quartzIvory,
     );
   }
   for (let column = 0; column < canopy.columnCount; column += 1) {
@@ -1903,24 +1927,24 @@ function createParliamentaryBandBlocks(
       canopy.spanZ / 2 +
       3.2 +
       ((canopy.spanZ - 6.4) * column) / (canopy.columnCount - 1);
-    for (let y = 7; y <= 25; y += 4) {
+    for (const y of [8, 14, 20, 26]) {
       pushWorldBlock(
         plan,
         "Paul-Löbe thirteen canopy columns",
         [outerX + 1.1, y, z],
-        [1.5, 3.8, 1.5],
+        [2.2, 5.5, 2.2],
         BLOCK.iron,
       );
     }
   }
-  for (let z = -48; z <= 48; z += 4) {
-    for (const y of [7.5, 12, 16.5, 21, 25.5]) {
+  for (let z = -48; z <= 48; z += 8) {
+    for (const y of [8, 14, 20, 26]) {
       pushWorldBlock(
         plan,
-        "Paul-Löbe west glass grid",
+        "coarse Paul-Löbe west glass grid",
         [canopy.westFaceX - 2.8, y, canopy.centreZ + z],
-        [1.2, 3.1, 3.2],
-        (Math.round(z / 4) + Math.round(y)) % 13 === 0
+        [1.4, 5.2, 7.2],
+        (Math.round(z / 8) + Math.round(y / 6)) % 17 === 0
           ? BLOCK.lapis
           : BLOCK.tealGlass,
       );
@@ -1935,34 +1959,37 @@ function createParliamentaryBandBlocks(
     const chordRotation = Math.atan2(-chordDz, chordDx);
     const normalX = (rotunda.outwardZ * -chordDz) / chordLength;
     const normalZ = (rotunda.outwardZ * chordDx) / chordLength;
-    for (let row = 0; row < 6; row += 1) {
-      const rowY = paul.rotundaBaseY + 2 + row * 4;
+    // The flat rear chord is inset by one coarse mortar joint so its top
+    // meets the axis-aligned half-ring visually without sharing any area.
+    const chordInsetM = 2.65;
+    for (let row = 0; row < 4; row += 1) {
+      const rowY = paul.rotundaBaseY + 3 + row * 6;
       pushHalfRing(
         plan,
-        "eight Paul-Löbe committee rotundas",
+        "eight coarse Paul-Löbe committee rotundas",
         centre,
         rowY,
         rotunda.radiusM,
         rotunda.outwardZ,
-        9,
-        [3.2, 3.7, 2.1],
+        6,
+        [5, 5.6, 2.8],
         row,
       );
       pushWorldBlock(
         plan,
-        "eight Paul-Löbe rotunda chord walls",
+        "eight coarse Paul-Löbe chord walls",
         [
-          (chordStart[0] + chordEnd[0]) / 2 - normalX * 0.35,
+          (chordStart[0] + chordEnd[0]) / 2 - normalX * chordInsetM,
           rowY,
-          (chordStart[1] + chordEnd[1]) / 2 - normalZ * 0.35,
+          (chordStart[1] + chordEnd[1]) / 2 - normalZ * chordInsetM,
         ],
-        [chordLength, 3.7, 1.4],
+        [chordLength, 5.6, 1.8],
         row % 4 === 0 ? BLOCK.iron : BLOCK.tealGlass,
         chordRotation,
       );
     }
-    for (let xOffset = -8; xOffset <= 8; xOffset += 4) {
-      for (let zOffset = -8; zOffset <= 8; zOffset += 4) {
+    for (let xOffset = -8; xOffset <= 8; xOffset += 8) {
+      for (let zOffset = -8; zOffset <= 8; zOffset += 8) {
         const outwardDistance = xOffset * normalX + zOffset * normalZ;
         if (
           outwardDistance < -0.1 ||
@@ -1972,112 +1999,112 @@ function createParliamentaryBandBlocks(
         }
         pushWorldBlock(
           plan,
-          "eight Paul-Löbe rotunda roof caps",
+          "eight coarse Paul-Löbe roof caps",
           [
             centre[0] + xOffset,
             paul.rotundaBaseY + paul.rotundaHeightM - 0.45,
             centre[1] + zOffset,
           ],
-          [3.8, 0.9, 3.8],
-          (xOffset + zOffset) % 8 === 0 ? BLOCK.marbleLight : BLOCK.silver,
+          [7.6, 1.2, 7.6],
+          (xOffset + zOffset) % 16 === 0 ? BLOCK.marbleLight : BLOCK.silver,
         );
       }
     }
   }
 
   const melh = MINECRAFT_ARCHITECTURAL_PROFILES.marieElisabethLuedersHaus;
-  const melhRowHeight = melh.rotunda.heightM / 9;
-  for (let row = 0; row < 9; row += 1) {
+  const melhRowHeight = melh.rotunda.heightM / 6;
+  for (let row = 0; row < 6; row += 1) {
     pushRing(
       plan,
-      "Lüders-Haus library rotunda",
+      "six-course Lüders-Haus library rotunda",
       melh.rotunda.centreWorld,
       melh.rotunda.baseY + (row + 0.5) * melhRowHeight,
       melh.rotunda.radiusM,
-      24,
-      [3.8, melhRowHeight - 0.18, 2.2],
+      12,
+      [5.6, melhRowHeight - 0.18, 3],
       row,
     );
   }
-  for (let xOffset = -16; xOffset <= 16; xOffset += 4) {
-    for (let zOffset = -16; zOffset <= 16; zOffset += 4) {
+  for (let xOffset = -16; xOffset <= 16; xOffset += 8) {
+    for (let zOffset = -16; zOffset <= 16; zOffset += 8) {
       if (Math.hypot(xOffset, zOffset) > melh.rotunda.radiusM - 1.1) {
         continue;
       }
       pushWorldBlock(
         plan,
-        "Lüders-Haus rotunda roof cap",
+        "coarse Lüders-Haus rotunda roof cap",
         [
           melh.rotunda.centreWorld[0] + xOffset,
           melh.rotunda.baseY + melh.rotunda.heightM - 0.45,
           melh.rotunda.centreWorld[1] + zOffset,
         ],
-        [3.8, 0.9, 3.8],
-        (xOffset + zOffset) % 8 === 0 ? BLOCK.marbleLight : BLOCK.silver,
+        [7.6, 1.2, 7.6],
+        (xOffset + zOffset) % 16 === 0 ? BLOCK.marbleLight : BLOCK.silver,
       );
     }
   }
   const circular = melh.facade.circularFacade;
   const circularCentreY = circular.bottomY + circular.heightM / 2;
-  for (let step = 0; step < 32; step += 1) {
-    const angle = (step / 32) * Math.PI * 2;
+  for (let step = 0; step < 16; step += 1) {
+    const angle = (step / 16) * Math.PI * 2;
     pushWorldBlock(
       plan,
-      "Lüders-Haus circular Spree opening",
+      "sixteen-block Lüders-Haus Spree opening",
       [
         circular.centreWorld[0] - 0.9,
         circularCentreY + Math.sin(angle) * circular.openingRadiusM,
         circular.centreWorld[1] + Math.cos(angle) * circular.openingRadiusM,
       ],
-      [1.8, 2.1, 2.1],
-      step % 5 === 0 ? BLOCK.marbleLight : BLOCK.iron,
+      [2.2, 3.2, 3.2],
+      step % 4 === 0 ? BLOCK.marbleLight : BLOCK.iron,
     );
   }
   // The circular cut-out keeps its turquoise inner curtain wall and silver
   // mullion rhythm after the smooth facade is hidden in Minecraft.
-  for (let yOffset = -10; yOffset <= 10; yOffset += 4) {
+  for (let yOffset = -8; yOffset <= 8; yOffset += 8) {
     const halfChord = Math.sqrt(
       Math.max(0, circular.openingRadiusM ** 2 - yOffset ** 2),
     );
     for (
-      let zOffset = -halfChord + 1.8;
-      zOffset <= halfChord - 1.8;
-      zOffset += 3.6
+      let zOffset = -halfChord + 3.4;
+      zOffset <= halfChord - 3.4;
+      zOffset += 6.8
     ) {
-      const mullion = Math.round((zOffset + halfChord) / 3.6) % 4 === 0;
+      const mullion = Math.round((zOffset + halfChord) / 6.8) % 4 === 0;
       pushWorldBlock(
         plan,
         mullion
-          ? "Lüders-Haus circular silver mullions"
-          : "Lüders-Haus circular inner glazing",
+          ? "coarse Lüders-Haus silver mullions"
+          : "coarse Lüders-Haus inner glazing",
         [
           circular.centreWorld[0] - 2.05,
           circularCentreY + yOffset,
           circular.centreWorld[1] + zOffset,
         ],
-        [0.9, 3.3, 3.15],
+        [1.2, 6.4, 6.2],
         mullion ? BLOCK.silver : BLOCK.tealGlass,
       );
     }
   }
-  for (let x = 360; x <= 408; x += 4) {
-    for (let z = -176; z <= -116; z += 4) {
+  for (let x = 360; x <= 408; x += 8) {
+    for (let z = -176; z <= -120; z += 8) {
       pushWorldBlock(
         plan,
-        "Lüders-Haus block canopy",
+        "coarse Lüders-Haus block canopy",
         [x, melh.facade.canopy.topY, z],
-        [3.8, 0.9, 3.8],
-        (x + z) % 8 === 0 ? BLOCK.marbleLight : BLOCK.marbleShadow,
+        [7.6, 1.2, 7.6],
+        (x + z) % 16 === 0 ? BLOCK.marbleLight : BLOCK.marbleShadow,
       );
     }
   }
   for (const [x, z] of melh.facade.canopy.supportsWorld) {
-    for (let y = 6; y <= 30; y += 4) {
+    for (const y of [7, 13, 19, 25]) {
       pushWorldBlock(
         plan,
         "Lüders-Haus canopy supports",
         [x, y, z],
-        [1.4, 3.8, 1.4],
+        [2, 5.5, 2],
         BLOCK.iron,
       );
     }
@@ -2088,7 +2115,7 @@ function createParliamentaryBandBlocks(
   const stairDz = stairEnd[1] - stairStart[1];
   const stairLength = Math.hypot(stairDx, stairDz);
   const stairRotation = Math.atan2(-stairDz, stairDx);
-  const stairSteps = 12;
+  const stairSteps = 8;
   for (let step = 0; step < stairSteps; step += 1) {
     const t = (step + 0.5) / stairSteps;
     const surfaceY =
@@ -2096,12 +2123,12 @@ function createParliamentaryBandBlocks(
     const width =
       stair.widthBottomM + (stair.widthTopM - stair.widthBottomM) * t;
     const stackHeight = surfaceY - stair.bottomY;
-    const verticalCourses = Math.ceil(stackHeight / 4.001);
+    const verticalCourses = Math.ceil(stackHeight / 8.001);
     const courseHeight = stackHeight / verticalCourses;
     for (let course = 0; course < verticalCourses; course += 1) {
       pushWorldBlock(
         plan,
-        "Lüders-Haus widening stair",
+        "eight-step Lüders-Haus widening stair",
         [
           stairStart[0] + stairDx * t,
           stair.bottomY + courseHeight * (course + 0.5),
@@ -2143,14 +2170,21 @@ function createBerlinerEnsembleBlocks(
   // no smooth theatre shell, TorusGeometry or textured lettering survives in
   // Minecraft mode.
   for (let course = 0; course < 3; course += 1) {
-    pushLocalBlock(
-      plan,
-      towerFrame,
-      "Berliner Ensemble taupe roof tower",
-      [0, baseY + 0.7 + course * 1.4, 0],
-      [profile.blockLoD.towerWidthM, 1.34, profile.blockLoD.towerDepthM],
-      course % 2 === 0 ? BLOCK.limestone : BLOCK.quartzIvory,
-    );
+    const width = profile.blockLoD.towerWidthM / 3;
+    for (let segment = 0; segment < 3; segment += 1) {
+      pushLocalBlock(
+        plan,
+        towerFrame,
+        "Berliner Ensemble taupe roof tower",
+        [
+          -profile.blockLoD.towerWidthM / 2 + width * (segment + 0.5),
+          baseY + 0.7 + course * 1.4,
+          0,
+        ],
+        [width, 1.34, profile.blockLoD.towerDepthM],
+        course % 2 === 0 ? BLOCK.limestone : BLOCK.quartzIvory,
+      );
+    }
   }
   for (const localX of [-2.7, 0, 2.7]) {
     pushLocalBlock(
@@ -2170,14 +2204,22 @@ function createBerlinerEnsembleBlocks(
     [profile.blockLoD.towerWidthM * 0.4, profile.blockLoD.towerDepthM * 0.4, 0.76],
   ] as const;
   for (const [index, [width, depth, height]] of roofCourses.entries()) {
-    pushLocalBlock(
-      plan,
-      towerFrame,
-      "Berliner Ensemble stepped hipped roof",
-      [0, baseY + 4.2 + height / 2 + index * height, 0],
-      [width, height, depth],
-      index % 2 === 0 ? BLOCK.oxidisedCopper : BLOCK.iron,
-    );
+    const segments = [3, 2, 2, 1][index];
+    const segmentWidth = width / segments;
+    for (let segment = 0; segment < segments; segment += 1) {
+      pushLocalBlock(
+        plan,
+        towerFrame,
+        "Berliner Ensemble stepped hipped roof",
+        [
+          -width / 2 + segmentWidth * (segment + 0.5),
+          baseY + 4.2 + height / 2 + index * height,
+          0,
+        ],
+        [segmentWidth, height, depth],
+        index % 2 === 0 ? BLOCK.oxidisedCopper : BLOCK.iron,
+      );
+    }
   }
 
   const centreY =
@@ -2264,7 +2306,9 @@ export function createMinecraftArchitecturalLandmarks(): Group {
   group.name = "Minecraft block-native architectural landmarks";
   group.userData = {
     blockNative: true,
+    coarseBlockSpanM: COARSE_CIVIC_BLOCK_SPAN_M,
     drawCallBudget: 6,
+    instanceBudget: 5_000,
     noAdditionalPayload: true,
     sourceStack: "versioned architectural signatures + LoD2 voxel mass + OSM",
     staticAntiFlicker: true,

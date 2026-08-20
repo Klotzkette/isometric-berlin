@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.72.7
+
+- **Minecraft's principal architecture is intentionally coarser and more
+  block-like.** Fewer than 5,000 signature blocks now follow an 8 m hero
+  raster. Retained Reichstag, Federal Chancellery and parliamentary source
+  bodies use vertical block courses no taller than 8 m, and smooth
+  architectural overlays stay hidden in Minecraft. Existing entrance portals,
+  open passages and free orbit, pan, zoom, flight and pedestrian navigation
+  remain unchanged.
+
 ## v0.72.6
 
 - **The Invalidenfriedhof now reads as a historic cemetery instead of a field

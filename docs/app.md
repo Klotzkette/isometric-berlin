@@ -262,15 +262,20 @@ GPU instancing keeps the complete world to a handful of draw calls. An opaque
 mode-coloured curtain stays in place until the block world is usable; only an
 actual payload failure starts the photographic fallback. Leaving Minecraft
 restores the drawn LoD2 scene losslessly. Reichstag, Bundeskanzleramt,
-Hauptbahnhof, Brandenburger Tor and the parliamentary band receive five shared,
+Hauptbahnhof, Brandenburger Tor and the parliamentary band receive shared,
 opaque `InstancedMesh<BoxGeometry>` recognition batches over the same metric
-voxel mass. Their stepped dome, portals, glass halls, rotundas and open Spree
-bridges replace the smooth hero meshes atomically once the block payload is
-ready. The light limestone/quartz palette remains inside the fixed 32-colour
-world palette; silver, lapis and gold are sparse architectural cues rather than
-random decoration. The five batches contain 15,469 blocks, share one cube
-geometry and material, add no network asset and contain no transparent or
-coplanar faces. Component-exact masks replace 12 closed Reichstag-portico
+voxel mass. Fewer than 5,000 signature blocks use a deliberately coarse 8 m
+hero raster. Retained Reichstag, Chancellery and parliamentary source bodies
+are divided vertically into block courses no taller than 8 m. Their stepped
+dome, portals, glass halls, rotundas and open Spree bridges replace the smooth
+hero meshes atomically once the block payload is ready, and every other smooth
+architectural overlay with a block replacement stays hidden in Minecraft. The
+light limestone/quartz palette remains inside the fixed 32-colour world
+palette; silver, lapis and gold are sparse architectural cues rather than
+random decoration. The batches share one cube geometry and material, add no
+network asset and contain no transparent or coplanar faces. Existing entrance
+portals, open passages and orbit, pan, zoom, flight and pedestrian navigation
+remain unchanged. Component-exact masks replace 12 closed Reichstag-portico
 records, 188 Kanzleramt leadership-cube records, 1,284 Hauptbahnhof
 hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
 Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining

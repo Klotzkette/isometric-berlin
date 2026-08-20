@@ -5,9 +5,11 @@ import { Box3, InstancedMesh, Matrix4, Vector3 } from "three";
 import {
   BUNDESTAG_SPREE_BRIDGE_VOXEL_CLEARING,
   HAMBURGER_BAHNHOF_VOXEL_FACADE,
+  MINECRAFT_HERO_SOURCE_COURSE_MAX_M,
   isBundestagSpreeBridgeGroundCell,
   isFalseBundestagSpreeBridgeVoxelColumn,
   isFalseSintiRomaVoxelColumn,
+  isMinecraftHeroSourceCourseAreaAt,
   SINTI_ROMA_VOXEL_CLEARING,
   type VoxelPayload,
   VOXEL_WINDOW_HEIGHT_M,
@@ -203,11 +205,11 @@ describe("true voxel Minecraft world", () => {
     // One 11-cell generic bridge run yields to the two source-sized
     // Bundestag footbridges; every other block-ground run stays intact.
     expect(instanced("Voxel ground runs", world).count).toBe(groundRuns - 1);
-    // Each column is a facade body plus palette-native plinth and roof-cap
-    // layers when its measured height can carry them.
+    // Ordinary columns are a facade body plus palette-native plinth and
+    // roof-cap. Retained civic heroes add a few vertical block courses.
     const columns = instanced("Voxel building columns", world).count;
     expect(columns).toBeGreaterThanOrEqual(buildingColumns.length);
-    expect(columns).toBeLessThanOrEqual(buildingColumns.length * 3);
+    expect(columns).toBeLessThanOrEqual(buildingColumns.length * 4);
     const visibleTreeCount = treeBlocks.filter(
       ([xIdx, zIdx]) =>
         !isChancelleryExtensionConstructionPoint(
@@ -541,27 +543,28 @@ describe("true voxel Minecraft world", () => {
     expect(bounds.max.z - bounds.min.z).toBeGreaterThan(90);
   });
 
-  test("places tall Reichstag columns at the surveyed world position", () => {
+  test("builds retained civic hero masses from visible vertical block courses", () => {
     const buildings = instanced("Voxel building columns", world);
     const matrix = new Matrix4();
     const position = new Vector3();
     const scale = new Vector3();
-    let tallReichstagColumns = 0;
+    let heroCourses = 0;
+    let reichstagCourses = 0;
     for (let index = 0; index < buildings.count; index += 1) {
       buildings.getMatrixAt(index, matrix);
       position.setFromMatrixPosition(matrix);
       scale.setFromMatrixScale(matrix);
-      if (
-        position.x >= 260 &&
-        position.x <= 372 &&
-        position.z >= -34 &&
-        position.z <= 115 &&
-        scale.y >= 24
-      ) {
-        tallReichstagColumns += 1;
+      if (!isMinecraftHeroSourceCourseAreaAt(position.x, position.z)) continue;
+      heroCourses += 1;
+      expect(scale.y).toBeLessThanOrEqual(
+        MINECRAFT_HERO_SOURCE_COURSE_MAX_M + 0.001,
+      );
+      if (voxelRecognitionAreaAt(position.x, position.z)?.name === "Reichstag") {
+        reichstagCourses += 1;
       }
     }
-    expect(tallReichstagColumns).toBeGreaterThan(300);
+    expect(heroCourses).toBeGreaterThan(2_000);
+    expect(reichstagCourses).toBeGreaterThan(1_000);
   });
 
   test("clips only the coarse Berliner Ensemble roof cell and retains its body", () => {
