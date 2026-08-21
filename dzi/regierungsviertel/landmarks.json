@@ -813,6 +813,33 @@
       "y": 7275,
       "nx": 0.258667,
       "ny": 0.626291
+    },
+    {
+      "name": "Weidendammer Brücke",
+      "role": "owner_added",
+      "tourOrder": 91,
+      "x": 12227,
+      "y": 7917,
+      "nx": 0.746277,
+      "ny": 0.68156
+    },
+    {
+      "name": "Bertolt Brecht",
+      "role": "owner_added",
+      "tourOrder": 92,
+      "x": 12003,
+      "y": 7766,
+      "nx": 0.732605,
+      "ny": 0.668561
+    },
+    {
+      "name": "Scharnhorst-Grabmal",
+      "role": "owner_added",
+      "tourOrder": 93,
+      "x": 12229,
+      "y": 5110,
+      "nx": 0.746399,
+      "ny": 0.43991
     }
   ]
 }
