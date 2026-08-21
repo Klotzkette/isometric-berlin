@@ -31,6 +31,12 @@ import {
 } from "./BerlinerEnsemble";
 import { createBerlinerEnsemblePublicArt } from "./BerlinerEnsembleMemorials";
 import { createLetteringTexture } from "./drawnLettering";
+import {
+  FRIEDRICHSTADT_PALAST_PROFILE,
+  TEAR_PALACE_PROFILE,
+  createFriedrichstadtAndTearPalaces,
+  type PalaceDetailProfile,
+} from "./FriedrichstadtAndTearPalaces";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import {
   type Builder,
@@ -44,6 +50,13 @@ import {
 import { createPariserPlatzArchitecture } from "./PariserPlatzArchitecture";
 
 export { BERLINER_ENSEMBLE_PROFILE } from "./BerlinerEnsemble";
+export {
+  FRIEDRICHSTADT_PALAST_FOOTPRINT_WORLD,
+  FRIEDRICHSTADT_PALAST_PROFILE,
+  TEAR_PALACE_FOOTPRINT_WORLD,
+  TEAR_PALACE_PRISM_IDS,
+  TEAR_PALACE_PROFILE,
+} from "./FriedrichstadtAndTearPalaces";
 
 export type CentralCivicLandmark = {
   name: string;
@@ -349,25 +362,6 @@ export const CUBE_BERLIN_FACADE_PROFILE = {
   storeyBands: 10,
   sourceUrl: "https://3xn.com/project/cube-berlin",
 } as const;
-export const TEAR_PALACE_FOOTPRINT_WORLD = [
-  [1048.21, -183.39],
-  [1050.44, -187.52],
-  [1049.32, -188.34],
-  [1063.04, -213.1],
-  [1072.14, -210.04],
-  [1073.54, -212.54],
-  [1079.71, -208.2],
-  [1077.7, -206.02],
-  [1083.41, -198.58],
-  [1064.82, -177.35],
-  [1063.82, -178.14],
-  [1060.67, -174.51],
-] as const;
-export const TEAR_PALACE_PRISM_IDS = [
-  "U4ubriIq",
-  "3z4aOJds",
-  "92ZtVVpI",
-] as const;
 export const PARISER_PLATZ_GARDENS = [
   { centre: [500.7, 334.1], size: [74.3, 22.6] },
   { centre: [494.2, 254.9], size: [75, 23] },
@@ -3708,48 +3702,6 @@ function addFriedrichstrasseStation(
   }
 }
 
-function addTearPalace(builder: Builder): void {
-  const baseY = 2.85;
-  addExtrudedFootprint(
-    builder,
-    0x91bcc4,
-    TEAR_PALACE_FOOTPRINT_WORLD,
-    baseY,
-    7.35,
-  );
-  addExtrudedFootprint(
-    builder,
-    0xd6dedc,
-    scaledRing(TEAR_PALACE_FOOTPRINT_WORLD, 1.055),
-    baseY + 7.28,
-    0.34,
-  );
-  const ring = TEAR_PALACE_FOOTPRINT_WORLD;
-  for (let edge = 0; edge < ring.length; edge += 1) {
-    const [x0, z0] = ring[edge];
-    const [x1, z1] = ring[(edge + 1) % ring.length];
-    const dx = x1 - x0;
-    const dz = z1 - z0;
-    const length = Math.hypot(dx, dz);
-    const posts = Math.max(1, Math.round(length / 2.35));
-    for (let index = 0; index <= posts; index += 1) {
-      const t = index / posts;
-      addBox(
-        builder,
-        0x7b9ba0,
-        x0 + dx * t,
-        baseY + 3.7,
-        z0 + dz * t,
-        0.16,
-        7.2,
-        0.16,
-        -Math.atan2(dz, dx),
-        false,
-      );
-    }
-  }
-}
-
 function addFinanceMinistry(
   builder: Builder,
   byName: Map<string, CentralCivicLandmark>,
@@ -4062,12 +4014,14 @@ function addSigns(
 
 export function createCentralCivicDetails(
   landmarks: CentralCivicLandmark[],
+  detailProfile: PalaceDetailProfile = "full",
 ): Group {
   const group = new Group();
   group.name = "Task-11 central transit and civic recognition details";
   group.userData.geometryStatus =
     "Official LoD2 and OSM anchors with primary-source recognition details; vehicles, facade rhythms and damaged Wall crown are bounded display approximations";
   group.userData.keepInMinecraft = true;
+  group.userData.detailProfile = detailProfile;
   group.userData.bundestagSpreeConnection = {
     bridge: BUNDESTAG_SPREE_CONNECTION_PROFILE,
     facade: MELH_SPREE_FRONT_PROFILE,
@@ -4120,11 +4074,8 @@ export function createCentralCivicDetails(
     source:
       "Berlin LoD2 + OSM way 624737072 + 3XN published dimensions and facade system",
   };
-  group.userData.tearPalace = {
-    footprintWorld: TEAR_PALACE_FOOTPRINT_WORLD,
-    prismIds: TEAR_PALACE_PRISM_IDS,
-    source: "Berlin LoD2 + OSM way 43173495 + Haus der Geschichte",
-  };
+  group.userData.friedrichstadtPalast = FRIEDRICHSTADT_PALAST_PROFILE;
+  group.userData.tearPalace = TEAR_PALACE_PROFILE;
   group.userData.friedrichstrasseStation = {
     curveSagM: FRIEDRICHSTRASSE_CURVE_SAG_M,
     footprintM: [
@@ -4169,7 +4120,6 @@ export function createCentralCivicDetails(
   addCubeBerlin(builder);
   addEconomicsMinistry(builder);
   addFriedrichstrasseStation(builder, byName);
-  addTearPalace(builder);
   addFinanceMinistry(builder, byName);
   addGropiusAndParliament(builder, byName);
   addTopographyOfTerror(builder, byName);
@@ -4179,6 +4129,7 @@ export function createCentralCivicDetails(
     name: "Central transit and civic details",
   });
   if (drawn) group.add(drawn);
+  group.add(createFriedrichstadtAndTearPalaces(detailProfile));
   group.add(createPariserPlatzArchitecture());
   const pariserPlatzWater = finishDrawnGroup(pariserPlatzWaterBuilder, {
     name: "Pariser Platz authored fountain water detail",

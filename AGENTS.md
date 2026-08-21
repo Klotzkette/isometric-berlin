@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.17)
+## 3. Hard scope rules (v0.72.18)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -63,6 +63,17 @@ Must be inside the polygon and visible in the final map:
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
 - The complete Großer Tiergarten to Charlottenburger Tor, with Siegessäule,
   Luiseninsel, Rosengarten, Café am Neuen See and the mapped path/tree network
+- The ten-metre Beethoven-Haydn-Mozart monument at its committed Tiergarten
+  anchor, retaining the rounded granite understructure, chamfered three-sided
+  tinted-marble pavilion, three round-arched white-marble half figures,
+  restored gilt appliques, swans, scaled cupola, pinecones and putti/laurel
+  crown. Published monument facts and procedural local subdivisions must stay
+  source-separated.
+- The Holocaust Memorial remains completely free of trees, Creepers, Zombies
+  and Skeletons in Minecraft. Voxel-tree filtering and all hostile-mob spawn,
+  walkability and movement must use the same rotated protected field plus
+  conservative edge clearance. The sparse allowed complement remains four
+  Creepers, four Zombies and three Skeletons in one instanced draw call.
 - The Goethe-Denkmal at exact OSM node `278738513` and the Lessing-Denkmal at
   exact OSM node `884700390`, each as a source-bound close-detail model in the
   four drawn modes plus a separate block-native Minecraft reading; reversible
@@ -108,6 +119,16 @@ Must be inside the polygon and visible in the final map:
   underground route
 - Hauptbahnhof tram/S15 public realm, Futurium and the federal research campus
 - Berliner Ensemble and Berlin Friedrichstraße in the bounded north-east lobe
+- Friedrichstadt-Palast at its OSM/LoD2 anchor with the documented 110 x 80 m
+  main volume, higher stage tower, foyer risalit, stairs, fins and two-storey
+  coloured concrete-glass fields; and the Tränenpalast as its separate low
+  steel-and-glass pavilion, never swallowed by the Friedrichstraße station
+  shell. Full/mobile profiles remain bounded and image-free.
+- The bounded City West recognition ensemble: Europa-Center, Allianz-Haus,
+  historic Café Kranzler and New Kranzler Eck, Bahnhof Zoologischer Garten,
+  Kaiser-Wilhelm-Gedächtniskirche with Breitscheidplatz, and Urania. Each keeps
+  OSM/LoD2 as the metric anchor and adds only source-labelled, batched,
+  mobile-aware procedural recognition detail.
 - The current Helene Weigel installation in the Helene-Weigel-Hof at exact OSM
   node `13841652635`, kept separate from Brecht and from the 93-place tour
   catalogue. Its recognition model must read as a transparent glass cube on a
@@ -357,7 +378,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.17)
+## 8. What success looks like (Definition of Done v0.72.18)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small

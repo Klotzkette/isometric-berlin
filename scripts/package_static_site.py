@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.17"
+PACKAGE_VERSION = "0.72.18"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3429,6 +3429,33 @@ Referenzkarte und Sehenswürdigkeiten-Liste. Er startet mit der schärferen Deta
 und hat große Buttons für Zoom, Drehen, Swivel/Kippen, Reset und Pixel-Art.
 Version {PACKAGE_VERSION} hat zusätzlich Atlas/Cinematic/Lab-Grafikprofile,
 eine technische Kartenbühne, Fokus-Ring und HUD für Sehenswürdigkeit/Zoom/Kamera.
+Version {PACKAGE_VERSION} baut das Beethoven-Haydn-Mozart-Denkmal als zehn
+Meter hohen, dreiseitigen und an den Ecken abgestumpften „Musikerofen“ mit
+Granitunterbau, getöntem Marmor, drei Rundbogennischen und weißen Halbfiguren,
+Pilastern, Masken und Instrumenten, Schwänen, vergoldetem Schuppendach,
+Pinienzapfen sowie drei Putten mit Lorbeerkranz. Veröffentlichte Merkmale und
+prozedurale lokale Unterteilungen bleiben in den Metadaten getrennt. Das
+Modell bleibt bei 30 Renderables / 2.847 gespeicherten / 7.137 gerenderten
+Vertices. Eine erhöhte Südansicht hält Nischen, Halbfiguren und Kuppel beim
+Fokussieren frei vom dichten Kronendach.
+Im Minecraft-Modus schützt eine gemeinsame gedrehte Ausschlussfläche das
+Holocaust-Mahnmal vollständig vor Voxelbäumen und vor Spawn, Wegfindung und
+Bewegung von Creepern, Zombies und Skeletten. Außerhalb davon laufen weiterhin
+sparsam vier Creeper, vier Zombies und drei Skelette in einem Instanz-Batch;
+drei zusätzliche erlaubte Routen liegen im Tiergarten. 116 Quellbäume werden
+im Schutzfeld unterdrückt; die elf Figuren bleiben 136 Instanzteile.
+Version {PACKAGE_VERSION} gibt Europa-Center, Allianz-Haus, altem Café Kranzler
+und Neuem Kranzler Eck, Bahnhof Zoo, Gedächtniskirche/Breitscheidplatz und
+Urania eigene quellengebundene Silhouetten und Fassadenrhythmen. Der
+City-West-Block nutzt vier zusammengeführte Ensembles mit 11 Renderables /
+14.634 Vertices im Vollprofil und 11 / 8.427 mobil. Der
+Friedrichstadt-Palast erhält seinen dokumentierten Hauptbau, Bühnenturm,
+Foyer-Risalit, Stufen, Lisenen und zweigeschossige Betonglasfelder; der
+Tränenpalast bleibt separat als niedriger Stahl-Glas-Pavillon am Bahnhof
+Friedrichstraße. Alle neuen Details sind foto- und texturfrei gebündelt und
+besitzen begrenzte Voll-/Mobilprofile. Friedrichstadt- und Tränenpalast nutzen
+zusammen voll 8 Renderables / 439 Instanzen / 5.329 gespeicherte / 16.873
+gerenderte Vertices und mobil 8 / 393 / 3.477 / 13.365.
 Version {PACKAGE_VERSION} hält die temporäre FUNBOX vollständig auf ihrer
 Darstellungsfläche zwischen Heidestraße, Minna-Cauer-Straße und Döberitzer
 Straße. Gezeichnete und Minecraft-Hülle haben mindestens 2,553 m Abstand zu
@@ -3541,8 +3568,8 @@ Scherenrahmen; ihn umgeben die gefaltete rote Stuhl-/Objektlandschaft,
 Licht-/Audioelemente und sichtbare Kabel. Ein großes schwarzes prozedurales
 Rasterporträt liegt auf dem Glas. Es werden weder Pressefoto noch
 Porträtausschnitt oder Porträttextur gebündelt oder geladen.
-Minecraft lässt genau drei Creeper, zwei Skelette mit Bogen und drei Zombies
-auf deterministischen, baumfreien Grasrouten laufen. Alle acht Figuren teilen
+Minecraft lässt genau vier Creeper, drei Skelette mit Bogen und vier Zombies
+auf deterministischen, baumfreien und gedenkstättengeschützten Grasrouten laufen. Alle elf Figuren teilen
 einen Renderdurchlauf und verschwinden außerhalb des Minecraft-Modus.
 Version {PACKAGE_VERSION} ergänzt außerdem die neue, vom vorhandenen
 Queer-Rainbow-Gedenkmodell getrennte CSD-Gedenkstelle am exakten OSM-Knoten
@@ -3858,6 +3885,32 @@ reference map, and landmark list. It starts with the sharper detail render
 and has large buttons for zoom, rotate, swivel/tilt, reset, and Pixel-Art.
 Version {PACKAGE_VERSION} also adds Atlas/Cinematic/Lab visual profiles, a
 technical map stage, focus ring, and HUD for landmark/zoom/camera state.
+Version {PACKAGE_VERSION} rebuilds the Beethoven-Haydn-Mozart memorial as its
+ten-metre, three-sided, corner-chamfered “Musikerofen”, with granite base,
+tinted marble, three round-arched niches and white half figures, pilasters,
+masks and instruments, swans, a scaled gilded roof, pinecones and three putti
+holding the laurel wreath. Published evidence and procedural local
+subdivision remain separate in metadata. The model remains bounded at 30
+renderables / 2,847 stored / 7,137 rendered vertices. A dedicated elevated
+southern focus keeps the niches, figures and cupola clear of the dense canopy.
+In Minecraft, one shared rotated exclusion protects the entire Holocaust
+Memorial from voxel trees and from hostile-mob spawn, walkability and motion.
+Outside it, the deliberately sparse single instance batch now contains four
+Creepers, four Zombies and three bow-carrying Skeletons, including three new
+allowed Tiergarten routes. The protected field removes 116 source trees; all
+eleven figures remain 136 instanced parts.
+Version {PACKAGE_VERSION} gives Europa-Center, Allianz-Haus, the historic Café
+Kranzler and New Kranzler Eck, Bahnhof Zoo, Memorial Church/Breitscheidplatz
+and Urania their own source-anchored silhouettes and facade rhythms.
+The City-West layer uses four merged ensembles with 11 renderables / 14,634
+vertices in full and 11 / 8,427 on mobile.
+Friedrichstadt-Palast gains its documented main body, taller stage tower,
+projecting foyer, steps, fins and two-storey concrete-glass fields; the
+Tränenpalast remains separate as a low steel-and-glass pavilion beside
+Friedrichstraße station. Every new detail is batched, image-free and bounded
+by separate full/mobile profiles. Friedrichstadt-Palast and Tränenpalast
+together use 8 renderables / 439 instances / 5,329 stored / 16,873 rendered
+vertices in full and 8 / 393 / 3,477 / 13,365 on mobile.
 Version {PACKAGE_VERSION} keeps the temporary FUNBOX completely on its display
 lot between Heidestraße, Minna-Cauer-Straße and Döberitzer Straße. Its drawn
 and Minecraft envelopes retain at least 2.553 m clearance from the delivered
@@ -3963,8 +4016,8 @@ scissor frames, surrounded by the folded red chair/object landscape,
 light/audio elements and visible cable runs. A large black procedural raster
 portrait sits on the glass. No press photograph, portrait crop or portrait
 texture is bundled or loaded.
-Minecraft lets exactly three Creepers, two bow-carrying Skeletons and three
-Zombies roam deterministic, tree-cleared grass routes. All eight figures share
+Minecraft lets exactly four Creepers, three bow-carrying Skeletons and four
+Zombies roam deterministic, tree-cleared and memorial-protected grass routes. All eleven figures share
 one draw call and disappear outside Minecraft.
 Version {PACKAGE_VERSION} also adds the new CSD memorial place at exact OSM
 node 14076715427, separately from the existing Queer Rainbow memorial model.
@@ -4360,7 +4413,7 @@ def write_package_manifest(package_dir: Path) -> None:
       "contextual-rain-or-snowfall-toggle-in-all-surface-modes",
       "native-and-ios-safe-pseudo-fullscreen",
       "manual-tiergartentunnel-entry-both-directions",
-      "minecraft-roaming-creepers-and-zombies",
+      "minecraft-roaming-creepers-zombies-and-skeletons",
       "opt-in-seven-variant-procedural-audio",
       "persistent-offline-viewer-preferences",
       "persistent-last-landmark-and-view",

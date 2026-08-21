@@ -13,10 +13,11 @@ import {
   type VoxelPayload,
   worldGroundSampler,
 } from "./MinecraftVoxelWorld";
+import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
 
-export const CREEPER_COUNT = 3;
-export const SKELETON_COUNT = 2;
-export const ZOMBIE_COUNT = 3;
+export const CREEPER_COUNT = 4;
+export const SKELETON_COUNT = 3;
+export const ZOMBIE_COUNT = 4;
 
 type MobKind = "creeper" | "skeleton" | "zombie";
 type PartMotion = "arm-left" | "arm-right" | "leg-left" | "leg-right" | "still";
@@ -78,11 +79,14 @@ const DESIRED_SPAWNS: ReadonlyArray<{
   { heading: 0.3, kind: "creeper", x: 180, z: 130 },
   { heading: 2.1, kind: "creeper", x: 80, z: 220 },
   { heading: 4.4, kind: "creeper", x: -130, z: 520 },
+  { heading: 5.3, kind: "creeper", x: -420, z: 550 },
   { heading: 1.2, kind: "zombie", x: 245, z: 230 },
   { heading: 3.5, kind: "zombie", x: 360, z: 180 },
   { heading: 5.1, kind: "zombie", x: -260, z: 100 },
+  { heading: 0.8, kind: "zombie", x: -500, z: 340 },
   { heading: 2.7, kind: "skeleton", x: -40, z: 670 },
   { heading: 5.6, kind: "skeleton", x: 510, z: 460 },
+  { heading: 4.1, kind: "skeleton", x: -330, z: 620 },
 ];
 
 function cellIndex(payload: VoxelPayload, x: number, z: number): number | null {
@@ -165,7 +169,7 @@ function nearestWalkable(
   isWalkable: (x: number, z: number) => boolean,
   targetX: number,
   targetZ: number,
-): readonly [number, number] {
+): readonly [number, number] | null {
   const cell = payload.cell_m;
   const centerX = (Math.floor(targetX / cell) + 0.5) * cell;
   const centerZ = (Math.floor(targetZ / cell) + 0.5) * cell;
@@ -192,7 +196,10 @@ function nearestWalkable(
       }
     }
   }
-  return [centerX, centerZ];
+  // Never fall back to the requested point: it may be a building, tree or
+  // protected memorial cell. Omitting one decorative mob is safer than
+  // spawning it in an invalid place when a reduced payload has no park cell.
+  return null;
 }
 
 function mobPart(
@@ -336,6 +343,9 @@ export function createMinecraftMobs(
 ): MinecraftMobField {
   const walkability = buildWalkableGrid(payload);
   const isWalkable = (x: number, z: number): boolean => {
+    if (isHolocaustMinecraftProtectedAt(x, z)) {
+      return false;
+    }
     const index = cellIndex(payload, x, z);
     if (index === null || walkability.ground[index] !== 1) {
       return false;
@@ -363,9 +373,13 @@ export function createMinecraftMobs(
     }
     return true;
   };
-  const mobs = DESIRED_SPAWNS.map((spawn, index): MobState => {
-    const [x, z] = nearestWalkable(payload, isWalkable, spawn.x, spawn.z);
-    return {
+  const mobs = DESIRED_SPAWNS.flatMap((spawn, index): MobState[] => {
+    const position = nearestWalkable(payload, isWalkable, spawn.x, spawn.z);
+    if (!position) {
+      return [];
+    }
+    const [x, z] = position;
+    return [{
       heading: spawn.heading,
       kind: spawn.kind,
       phase: index * 0.83,
@@ -378,7 +392,7 @@ export function createMinecraftMobs(
       turnClock: 1.4 + index * 0.31,
       x,
       z,
-    };
+    }];
   });
   const parts = mobs.flatMap((mob, index) => {
     if (mob.kind === "creeper") {
@@ -418,12 +432,15 @@ export function createMinecraftMobs(
   const group = new Group();
   group.name = "Minecraft roaming mobs";
   group.visible = true;
-  group.userData.creeperCount = CREEPER_COUNT;
-  group.userData.skeletonCount = SKELETON_COUNT;
-  group.userData.zombieCount = ZOMBIE_COUNT;
+  const creeperCount = mobs.filter(({ kind }) => kind === "creeper").length;
+  const skeletonCount = mobs.filter(({ kind }) => kind === "skeleton").length;
+  const zombieCount = mobs.filter(({ kind }) => kind === "zombie").length;
+  group.userData.creeperCount = creeperCount;
+  group.userData.skeletonCount = skeletonCount;
+  group.userData.zombieCount = zombieCount;
   group.add(mesh);
   const field = {
-    creeperCount: CREEPER_COUNT,
+    creeperCount,
     groundAt: worldGroundSampler(payload),
     group,
     isWalkable,
@@ -431,8 +448,8 @@ export function createMinecraftMobs(
     mesh,
     mobs,
     parts,
-    skeletonCount: SKELETON_COUNT,
-    zombieCount: ZOMBIE_COUNT,
+    skeletonCount,
+    zombieCount,
   };
   updateMinecraftMobs(field, 0);
   group.visible = false;

@@ -1,5 +1,52 @@
 # Changelog
 
+## v0.72.18
+
+- **Das Beethoven-Haydn-Mozart-Denkmal liest sich nun als der zehn Meter hohe
+  „Musikerofen“ statt als grobe Dreieckssäule.** Der amtliche Tiergarten-Anker
+  bleibt erhalten; der gerundete Granitunterbau trägt jetzt den an den Ecken
+  abgestumpften Pavillon aus gelblich getöntem pentelischem Marmor. Drei
+  Rundbogennischen enthalten getrennte weiße Marmor-Halbfiguren, ergänzt um
+  Pilaster, Masken- und Instrumentappliken, lyrahaltende Schwäne, das
+  schuppenartig ornamentierte vergoldete Kuppeldach, Pinienzapfen und drei
+  Putten mit Lorbeerkranz. Amtlich veröffentlichte Höhe, Materialien und
+  Bildprogramm bleiben von den prozedural ergänzten lokalen Unterteilungen
+  getrennt. Das gefrorene Modellbudget beträgt **30 Renderables / 2.847
+  gespeicherte / 7.137 gerenderte Vertices**. Eine eigene erhöhte Südansicht
+  hält Nischen, Halbfiguren und Kuppel beim Fokussieren frei vom Kronendach.
+- **Das Holocaust-Mahnmal ist im Minecraft-Modus eine strikt ruhige,
+  baum- und mobfreie Schutzzone.** Eine gemeinsame gedrehte Feldprüfung mit
+  konservativem Rand wird sowohl beim Aufbau der Voxelbäume als auch bei
+  Spawn, Wegprüfung und Bewegung der feindlichen Figuren angewendet. Dadurch
+  können weder Baumkronen noch Creeper, Zombies oder Skelette das Stelenfeld
+  betreten. Außerhalb davon steigt die weiterhin sparsame, in einem einzigen
+  Instanz-Batch gezeichnete Staffage von acht auf elf Figuren: vier Creeper,
+  vier Zombies und drei Skelette, mit drei zusätzlichen erlaubten Routen im
+  Tiergarten. Der Voxelaufbau unterdrückt **116** Quellbäume im Schutzfeld; die
+  elf Figuren bleiben zusammen bei **136** Instanzteilen und einem Draw Call.
+- **Die City West erhält statt austauschbarer LoD2-Massen ein gebündeltes,
+  mobil begrenztes Erkennungsensemble.** Europa-Center, Allianz-Haus,
+  historisches Café Kranzler und Neues Kranzler Eck, Bahnhof Zoologischer
+  Garten, Kaiser-Wilhelm-Gedächtniskirche mit Breitscheidplatz und Urania
+  behalten ihre OSM-/LoD2-Anker und gewinnen ihre jeweils charakteristischen
+  Turm-, Dach-, Raster-, Rotunden-, Hallen-, Podiums- und Fassadenmerkmale.
+  Wiederholte Details werden zusammengeführt oder instanziert; das
+  Smartphone-Profil verwendet eine eigene reduzierte Detailstufe. Die vier
+  zusammengeführten Ensembles nutzen tatsächlich **11 Renderables / 14.634
+  Vertices** in Full und **11 / 8.427** auf Mobilgeräten.
+- **Friedrichstadt-Palast und Tränenpalast sind jetzt getrennte,
+  architektonisch erkennbare Häuser.** Der Palast folgt seinem amtlich
+  dokumentierten 110 × 80-m-Baukörper mit höherem Bühnenturm, Foyer-Risalit,
+  Stufenanlage, Betonlisenen und zweigeschossigen farbigen Betonglasfeldern.
+  Der Tränenpalast bleibt in seiner exakten OSM-Lage als niedriger,
+  freitragender Stahl-Glas-Pavillon mit großen Fenstern, Flachdach,
+  Aluminiumprofilen und Verbindungsgang sichtbar; die bestehende
+  Quellprismen-Unterdrückung verhindert weiterhin, dass der Bahnhof ihn
+  verschluckt. Beide Profile sind textur- und fotofrei und besitzen getrennte
+  Full-/Mobile-Budgets: zusammen **8 Renderables / 439 Instanzen / 5.329
+  gespeicherte / 16.873 gerenderte Vertices** in Full und **8 / 393 / 3.477 /
+  13.365** auf Mobilgeräten.
+
 ## v0.72.17
 
 - **The current Helene Weigel installation in the Berliner Ensemble courtyard

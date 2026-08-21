@@ -6,6 +6,7 @@ import {
   CylinderGeometry,
   DoubleSide,
   EdgesGeometry,
+  Float32BufferAttribute,
   Group,
   InstancedMesh,
   LineBasicMaterial,
@@ -132,6 +133,28 @@ export const SOVIET_WAR_MEMORIAL_PROFILE = {
   years: ["1941", "1945"] as const,
 } as const;
 
+export const BEETHOVEN_HAYDN_MOZART_PROFILE = {
+  documentedHalfFigureHeightRangeM: [1.56, 1.7] as const,
+  officialPartObject: "09046318,T,030",
+  presentationFocus: {
+    // The monument stands inside a dense Tiergarten canopy.  A high southern
+    // approach clears the low trees along the path while retaining a readable
+    // three-quarter view of the niches and cupola.
+    azimuthDegrees: 180,
+    distanceM: 48,
+    fovDegrees: 34,
+    polarDegrees: 65,
+    targetHeightM: 4.4,
+    targetWorldM: [-88.23575241171056, 3.73, 570.9512711009011] as const,
+  },
+  subjects: ["Mozart", "Haydn", "Beethoven"] as const,
+  totalHeightM: 10,
+  sources: [
+    "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046318",
+    "https://bildhauerei-in-berlin.de/bildwerk/haydn-mozart-beethoven-denkmal-5236/",
+  ],
+} as const;
+
 // Fifth-percentile surface samples from the committed official Berlin mesh.
 // The manifest camera anchors use a uniform 38 m NHN and are not ground points.
 const MEMORIAL_GROUND_Y: Record<string, number> = {
@@ -253,6 +276,56 @@ function addEdges(group: Group, mesh: Mesh, opacity = 0.8): LineSegments {
   edges.renderOrder = 8;
   group.add(edges);
   return edges;
+}
+
+/** A three-sided pavilion with each corner cut back to a short sixth face. */
+function chamferedTrianglePrismGeometry(
+  bottomRadius: number,
+  topRadius: number,
+  height: number,
+): BufferGeometry {
+  const triangle = [0, 1, 2].map((index) => {
+    const angle = Math.PI / 2 + (index * Math.PI * 2) / 3;
+    return [Math.cos(angle), Math.sin(angle)] as const;
+  });
+  const chamfer = 0.18;
+  const outline: Array<readonly [number, number]> = [];
+  triangle.forEach((corner, index) => {
+    const previous = triangle[(index + triangle.length - 1) % triangle.length];
+    const next = triangle[(index + 1) % triangle.length];
+    outline.push(
+      [
+        corner[0] * (1 - chamfer) + previous[0] * chamfer,
+        corner[1] * (1 - chamfer) + previous[1] * chamfer,
+      ],
+      [
+        corner[0] * (1 - chamfer) + next[0] * chamfer,
+        corner[1] * (1 - chamfer) + next[1] * chamfer,
+      ],
+    );
+  });
+  const positions: number[] = [];
+  for (const radius of [bottomRadius, topRadius]) {
+    const y = radius === bottomRadius ? 0 : height;
+    for (const [x, z] of outline) positions.push(x * radius, y, z * radius);
+  }
+  const count = outline.length;
+  const indices: number[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const next = (index + 1) % count;
+    indices.push(index, next, count + next, index, count + next, count + index);
+  }
+  for (let index = 1; index < count - 1; index += 1) {
+    indices.push(0, index, index + 1);
+    indices.push(count, count + index + 1, count + index);
+  }
+  const indexed = new BufferGeometry();
+  indexed.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  indexed.setIndex(indices);
+  const geometry = indexed.toNonIndexed();
+  indexed.dispose();
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 function addSegment(
@@ -1891,23 +1964,30 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
   group.userData.geometryStatus =
-    "Official 10 m height and characteristic three-sided marble monument with gilded crown";
-  const marble = modelMaterial(MARBLE, { roughness: 0.66 });
+    "Landesdenkmalamt/Bildhauerei-in-Berlin: 10 m monument with rounded granite understructure, chamfered three-sided Pentelic-marble pavilion, three 1.56-1.70 m Laas-marble half figures in shallow round-arched niches, pilasters, restored gilded masks/instruments, lyre-bearing swans, scaled gilded cupola, pinecones and three putti carrying a laurel wreath. Unpublished local subdivisions and bearings are procedural recognition geometry.";
+  group.userData.evidence = BEETHOVEN_HAYDN_MOZART_PROFILE;
+  const granite = modelMaterial(0x85827c, { roughness: 0.82 });
+  const pentelicMarble = modelMaterial(0xd8c99f, { roughness: 0.68 });
+  const laasMarble = modelMaterial(0xf1efe8, { roughness: 0.62 });
+  const marbleShadow = modelMaterial(0xb7aa88, { roughness: 0.75 });
+  const nicheShadow = modelMaterial(0x78705e, { roughness: 0.84 });
   const gold = nightEmitter(
     modelMaterial(GOLD, { metalness: 0.66, roughness: 0.35 }),
     0xffc45f,
-    0.82,
+    0.38,
   );
-  // A round stone step ring under the triangular base, as on the Großer
-  // Weg: the monument is approached, it does not just stand on grass.
+
+  // The source calls this a rounded granite understructure. Its unpublished
+  // radii are display estimates; two low courses prevent the old oversized
+  // single disc from reading as a circular fountain basin.
   addEdges(
     group,
     addMesh(
       group,
       "Composer memorial step ring",
-      new CylinderGeometry(6.2, 6.6, 0.34, 24),
-      marble,
-      [0, 0.17, 0],
+      new CylinderGeometry(4.55, 4.85, 0.28, 30),
+      granite,
+      [0, 0.14, 0],
     ),
   );
   addEdges(
@@ -1915,94 +1995,329 @@ function createComposerMemorial(anchor: MemorialLandmark): Group {
     addMesh(
       group,
       "Composer memorial three-sided marble base",
-      new CylinderGeometry(4.2, 4.7, 0.7, 3),
-      marble,
-      [0, 0.69, 0],
+      new CylinderGeometry(3.9, 4.35, 0.48, 30),
+      granite,
+      [0, 0.52, 0],
+    ),
+  );
+
+  // A purpose-built six-face outline alternates three long elevations with
+  // three short cut corners; a regular triangular or hexagonal cylinder does
+  // not reproduce the documented "an den Ecken abgestumpft" pavilion.
+  addEdges(
+    group,
+    addMesh(
+      group,
+      "Composer memorial three-sided coloured stele",
+      chamferedTrianglePrismGeometry(3.6, 3.18, 5.38),
+      pentelicMarble,
+      [0, 0.76, 0],
+    ),
+  );
+  const faceAngles = [0, 1, 2].map(
+    (index) => (index / 3) * Math.PI * 2 + Math.PI / 6,
+  );
+  const faceRotation = (angle: number): [number, number, number] => [
+    0,
+    Math.PI / 2 - angle,
+    0,
+  ];
+  const radial = (
+    angle: number,
+    radius: number,
+    y: number,
+  ): [number, number, number] => [
+    Math.cos(angle) * radius,
+    y,
+    Math.sin(angle) * radius,
+  ];
+
+  // Shallow rectangular recesses plus true upper arch caps and projecting
+  // torus frames read as the three documented round-arched niches.
+  addInstances(
+    group,
+    "Composer memorial three bust niches",
+    new BoxGeometry(1.82, 2.18, 0.16),
+    nicheShadow,
+    faceAngles.map((angle) => ({
+      position: radial(angle, 1.78, 3.48),
+      rotation: faceRotation(angle),
+    })),
+  );
+  addInstances(
+    group,
+    "Composer memorial three round-arch niche caps",
+    new SphereGeometry(0.91, 14, 7, 0, Math.PI * 2, 0, Math.PI / 2),
+    nicheShadow,
+    faceAngles.map((angle) => ({
+      position: radial(angle, 1.8, 4.56),
+      rotation: faceRotation(angle),
+      scale: [1, 1, 0.12],
+    })),
+  );
+  addInstances(
+    group,
+    "Composer memorial three projecting round-arch frames",
+    new TorusGeometry(0.91, 0.1, 6, 18, Math.PI),
+    laasMarble,
+    faceAngles.map((angle) => ({
+      position: radial(angle, 1.92, 4.52),
+      rotation: faceRotation(angle),
+    })),
+  );
+
+  // Pilasters emphasise the three blunt corners rather than sitting at the
+  // centre of the principal elevations.
+  addInstances(
+    group,
+    "Composer memorial corner piers",
+    new BoxGeometry(0.66, 5.08, 0.58),
+    pentelicMarble,
+    [0, 1, 2].map((index) => {
+      const angle = (index / 3) * Math.PI * 2 + Math.PI / 2;
+      return {
+        position: radial(angle, 3.03, 3.34),
+        rotation: [0, -angle, 0],
+      };
+    }),
+  );
+
+  const torsos = addInstances(
+    group,
+    "Composer memorial Haydn Beethoven Mozart busts",
+    new SphereGeometry(0.54, 14, 10),
+    laasMarble,
+    faceAngles.map((angle) => ({
+      position: radial(angle, 2.01, 3.22),
+      rotation: faceRotation(angle),
+      scale: [1.18, 0.72, 0.58],
+    })),
+  );
+  torsos.userData.subjects = BEETHOVEN_HAYDN_MOZART_PROFILE.subjects;
+  torsos.userData.documentedHeightRangeM =
+    BEETHOVEN_HAYDN_MOZART_PROFILE.documentedHalfFigureHeightRangeM;
+  addInstances(
+    group,
+    "Composer memorial three white-marble portrait heads",
+    new SphereGeometry(0.43, 14, 10),
+    laasMarble,
+    faceAngles.map((angle, index) => ({
+      position: radial(angle, 2.1, 4.0 + (index === 2 ? 0.03 : 0)),
+      scale: [0.9, index === 2 ? 1.12 : 1.04, 0.82],
+    })),
+  );
+  addInstances(
+    group,
+    "Composer memorial differentiated portrait hair",
+    new SphereGeometry(0.2, 9, 7),
+    marbleShadow,
+    faceAngles.flatMap((angle, faceIndex) =>
+      [-0.28, 0, 0.28].map((tangentOffset) => ({
+        position: [
+          Math.cos(angle) * 2.12 - Math.sin(angle) * tangentOffset,
+          4.32,
+          Math.sin(angle) * 2.12 + Math.cos(angle) * tangentOffset,
+        ] as [number, number, number],
+        scale: [faceIndex === 2 ? 1.25 : 0.95, 1.05, 0.72] as [
+          number,
+          number,
+          number,
+        ],
+      })),
+    ),
+  );
+
+  // Restored gilded appliques: paired theatre masks and abstracted wind/string
+  // instruments occupy the pilaster faces. Their exact local spacing is not
+  // published and therefore remains deterministic display geometry.
+  const cornerAngles = [0, 1, 2].map(
+    (index) => (index / 3) * Math.PI * 2 + Math.PI / 2,
+  );
+  addInstances(
+    group,
+    "Composer memorial six paired gilded theatre masks",
+    new SphereGeometry(0.22, 9, 7),
+    gold,
+    cornerAngles.flatMap((angle) =>
+      [-0.24, 0.24].map((offset) => ({
+        position: [
+          Math.cos(angle) * 3.37 - Math.sin(angle) * offset,
+          3.52,
+          Math.sin(angle) * 3.37 + Math.cos(angle) * offset,
+        ] as [number, number, number],
+        scale: [0.78, 1.1, 0.45] as [number, number, number],
+      })),
+    ),
+  );
+  addInstances(
+    group,
+    "Composer memorial six gilded instrument appliques",
+    new CapsuleGeometry(0.075, 0.72, 3, 6),
+    gold,
+    cornerAngles.flatMap((angle) =>
+      [-0.22, 0.22].map((offset, index) => ({
+        position: [
+          Math.cos(angle) * 3.38 - Math.sin(angle) * offset,
+          index === 0 ? 2.55 : 4.42,
+          Math.sin(angle) * 3.38 + Math.cos(angle) * offset,
+        ] as [number, number, number],
+        rotation: [0, -angle, index === 0 ? -0.35 : 0.35] as [
+          number,
+          number,
+          number,
+        ],
+      })),
+    ),
+  );
+
+  // A swan spreading two wings over each niche and a small lyre at its chest.
+  addInstances(
+    group,
+    "Composer memorial three lyre-bearing swans",
+    new CapsuleGeometry(0.18, 0.5, 4, 7),
+    laasMarble,
+    faceAngles.map((angle) => ({
+      position: radial(angle, 2.08, 5.25),
+      rotation: [0, Math.PI / 2 - angle, Math.PI / 2],
+    })),
+  );
+  addInstances(
+    group,
+    "Composer memorial six spread swan wings",
+    new SphereGeometry(0.42, 10, 7),
+    laasMarble,
+    faceAngles.flatMap((angle) =>
+      [-0.42, 0.42].map((offset) => ({
+        position: [
+          Math.cos(angle) * 2.06 - Math.sin(angle) * offset,
+          5.3,
+          Math.sin(angle) * 2.06 + Math.cos(angle) * offset,
+        ] as [number, number, number],
+        rotation: faceRotation(angle),
+        scale: [1.1, 0.34, 0.3] as [number, number, number],
+      })),
+    ),
+  );
+  addInstances(
+    group,
+    "Composer memorial three swan lyres",
+    new TorusGeometry(0.2, 0.045, 5, 10, Math.PI * 1.45),
+    gold,
+    faceAngles.map((angle) => ({
+      position: radial(angle, 2.5, 5.25),
+      rotation: faceRotation(angle),
+    })),
+  );
+
+  // The multiply profiled cornice carries the scaled gilded cupola.
+  addEdges(
+    group,
+    addMesh(
+      group,
+      "Composer memorial lower profiled cornice",
+      chamferedTrianglePrismGeometry(3.45, 3.31, 0.25),
+      pentelicMarble,
+      [0, 6.02, 0],
     ),
   );
   addEdges(
     group,
     addMesh(
       group,
-      "Composer memorial three-sided coloured stele",
-      new CylinderGeometry(2.9, 3.5, 6.2, 3),
-      modelMaterial(0xd8d4c3, { roughness: 0.72 }),
-      [0, 4.14, 0],
+      "Composer memorial upper profiled cornice",
+      chamferedTrianglePrismGeometry(3.64, 3.46, 0.24),
+      pentelicMarble,
+      [0, 6.27, 0],
     ),
-  );
-  const faceAngles = [0, 1, 2].map(
-    (index) => (index / 3) * Math.PI * 2 + Math.PI / 6,
-  );
-  // Each composer's bust sits in a recessed niche. The frame around it is
-  // what makes the three faces read as faces rather than a plain cone.
-  addInstances(
-    group,
-    "Composer memorial three bust niches",
-    new BoxGeometry(2, 3.1, 0.3),
-    modelMaterial(0xbdb7a4, { roughness: 0.78 }),
-    faceAngles.map((angle) => ({
-      // A three-sided cylinder puts its faces at half the circumradius,
-      // so the niches sit at ~1.6 m, not out at the 3.1 m corners.
-      position: [Math.cos(angle) * 1.62, 4.5, Math.sin(angle) * 1.62],
-      rotation: [0, Math.PI / 2 - angle, 0],
-    })),
-  );
-  // The corners of the triangle are carried by slim marble piers.
-  addInstances(
-    group,
-    "Composer memorial corner piers",
-    new BoxGeometry(0.62, 6.2, 0.62),
-    marble,
-    [0, 1, 2].map((index) => {
-      const angle = (index / 3) * Math.PI * 2 + Math.PI / 2;
-      return {
-        position: [Math.cos(angle) * 3.1, 4.14, Math.sin(angle) * 3.1],
-        rotation: [0, -angle, 0],
-      };
-    }),
-  );
-  const busts: InstanceTransform[] = faceAngles.map((angle) => ({
-    position: [Math.cos(angle) * 2.05, 4.64, Math.sin(angle) * 2.05],
-    scale: [1, 1.25, 0.72],
-  }));
-  addInstances(
-    group,
-    "Composer memorial Haydn Beethoven Mozart busts",
-    new SphereGeometry(0.68, 14, 10),
-    marble,
-    busts,
   );
   const dome = addMesh(
     group,
     "Composer memorial gilded cupola",
-    new SphereGeometry(2.25, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    new SphereGeometry(3.18, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
     gold,
-    [0, 7.54, 0],
+    [0, 6.5, 0],
   );
-  dome.scale.y = 0.7;
+  dome.scale.y = 0.5;
   addEdges(group, dome);
+  addInstances(
+    group,
+    "Composer memorial gilded scale-roof shingles",
+    new BoxGeometry(0.58, 0.09, 0.34),
+    gold,
+    [0, 1, 2].flatMap((ring) =>
+      [0, 1, 2, 3, 4, 5].map((index) => {
+        const angle = (index / 6) * Math.PI * 2 + (ring % 2) * 0.18;
+        const radius = 2.55 - ring * 0.56;
+        return {
+          position: radial(angle, radius, 6.88 + ring * 0.43),
+          rotation: [0, -angle, -0.12 - ring * 0.04] as [
+            number,
+            number,
+            number,
+          ],
+        };
+      }),
+    ),
+  );
+  addInstances(
+    group,
+    "Composer memorial three leaf volutes and pinecones",
+    new ConeGeometry(0.25, 0.72, 8),
+    gold,
+    cornerAngles.map((angle) => ({
+      position: radial(angle, 2.75, 7.05),
+      rotation: [0, 0, Math.PI],
+    })),
+  );
+
+  const putti = addInstances(
+    group,
+    "Composer memorial three gilded putti",
+    new CapsuleGeometry(0.26, 0.68, 4, 8),
+    gold,
+    [0, 1, 2].map((index) => {
+      const angle = (index / 3) * Math.PI * 2;
+      return {
+        position: radial(angle, 0.78, 8.53),
+        rotation: [0, -angle, 0],
+      };
+    }),
+  );
+  putti.userData.materialEvidence = "gilded galvanoplastic WMF figures";
+  addInstances(
+    group,
+    "Composer memorial three putti heads",
+    new SphereGeometry(0.23, 10, 8),
+    gold,
+    [0, 1, 2].map((index) => {
+      const angle = (index / 3) * Math.PI * 2;
+      return { position: radial(angle, 0.78, 9.12) };
+    }),
+  );
+  addInstances(
+    group,
+    "Composer memorial six raised putti arms",
+    new BoxGeometry(0.14, 0.72, 0.14),
+    gold,
+    [0, 1, 2].flatMap((index) => {
+      const angle = (index / 3) * Math.PI * 2;
+      return [-1, 1].map((side) => ({
+        position: [
+          Math.cos(angle) * 0.7 - Math.sin(angle) * side * 0.24,
+          9.28,
+          Math.sin(angle) * 0.7 + Math.cos(angle) * side * 0.24,
+        ] as [number, number, number],
+        rotation: [0, -angle, side * 0.48] as [number, number, number],
+      }));
+    }),
+  );
   addMesh(
     group,
     "Composer memorial laurel crown",
-    new TorusGeometry(1.65, 0.19, 8, 24),
+    new TorusGeometry(1.2, 0.16, 8, 24),
     gold,
-    [0, 9.89, 0],
+    [0, 9.84, 0],
   ).rotation.x = Math.PI / 2;
-  const putti: InstanceTransform[] = [0, 1, 2].map((index) => {
-    const angle = (index / 3) * Math.PI * 2;
-    return {
-      position: [Math.cos(angle) * 0.95, 8.89, Math.sin(angle) * 0.95],
-      rotation: [0, -angle, 0],
-      scale: [0.72, 1.1, 0.72],
-    };
-  });
-  addInstances(
-    group,
-    "Composer memorial three gilded putti",
-    new CapsuleGeometry(0.35, 0.95, 4, 8),
-    gold,
-    putti,
-  );
   return group;
 }
 
@@ -2134,7 +2449,7 @@ export function memorialFocusDistance(name: string): number | null {
     return 108;
   }
   if (name === "Beethoven-Haydn-Mozart-Denkmal") {
-    return 72;
+    return 42;
   }
   if (name === "Goethe-Denkmal") {
     return 38;

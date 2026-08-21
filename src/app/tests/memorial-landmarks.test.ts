@@ -5,10 +5,12 @@ import {
   LineBasicMaterial,
   LineSegments,
   Matrix4,
+  Mesh,
   Vector3,
 } from "three";
 
 import {
+  BEETHOVEN_HAYDN_MOZART_PROFILE,
   createKrolloperSculptureEnsemble,
   createMemorialLandmarks,
   jehovahDiscRadius,
@@ -169,8 +171,18 @@ describe("granular memorial recognition models", () => {
 
     const composer = root.getObjectByName("Beethoven-Haydn-Mozart-Denkmal");
     const bounds = new Box3().setFromObject(composer!);
-    expect(bounds.max.y - bounds.min.y).toBeGreaterThan(9);
-    expect(bounds.max.y - bounds.min.y).toBeLessThan(11);
+    expect(bounds.max.y - bounds.min.y).toBeCloseTo(
+      BEETHOVEN_HAYDN_MOZART_PROFILE.totalHeightM,
+      5,
+    );
+    expect(BEETHOVEN_HAYDN_MOZART_PROFILE.presentationFocus).toEqual({
+      azimuthDegrees: 180,
+      distanceM: 48,
+      fovDegrees: 34,
+      polarDegrees: 65,
+      targetHeightM: 4.4,
+      targetWorldM: [-88.23575241171056, 3.73, 570.9512711009011],
+    });
   });
 
   test("the NS memorials carry their own detail", () => {
@@ -292,6 +304,112 @@ describe("granular memorial recognition models", () => {
       .getSize(new Vector3()).y;
     expect(lessingHeight).toBeGreaterThan(7);
     expect(lessingHeight).toBeLessThan(7.2);
+  });
+
+  test("rebuilds Siemering's Musikerofen from its documented programme", () => {
+    const root = createMemorialLandmarks(landmarks);
+    const composer = root.getObjectByName("Beethoven-Haydn-Mozart-Denkmal")!;
+    // Updating the complete root first also updates the world matrices of the
+    // individual detail batches inspected below.
+    new Box3().setFromObject(composer);
+    expect(composer.userData.evidence).toBe(BEETHOVEN_HAYDN_MOZART_PROFILE);
+    expect(BEETHOVEN_HAYDN_MOZART_PROFILE.officialPartObject).toBe(
+      "09046318,T,030",
+    );
+    expect(BEETHOVEN_HAYDN_MOZART_PROFILE.sources).toEqual([
+      "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046318",
+      "https://bildhauerei-in-berlin.de/bildwerk/haydn-mozart-beethoven-denkmal-5236/",
+    ]);
+
+    const expectedInstances: Record<string, number> = {
+      "Composer memorial three round-arch niche caps": 3,
+      "Composer memorial three projecting round-arch frames": 3,
+      "Composer memorial Haydn Beethoven Mozart busts": 3,
+      "Composer memorial three white-marble portrait heads": 3,
+      "Composer memorial differentiated portrait hair": 9,
+      "Composer memorial six paired gilded theatre masks": 6,
+      "Composer memorial six gilded instrument appliques": 6,
+      "Composer memorial three lyre-bearing swans": 3,
+      "Composer memorial six spread swan wings": 6,
+      "Composer memorial three swan lyres": 3,
+      "Composer memorial gilded scale-roof shingles": 18,
+      "Composer memorial three leaf volutes and pinecones": 3,
+      "Composer memorial three gilded putti": 3,
+      "Composer memorial six raised putti arms": 6,
+    };
+    for (const [name, count] of Object.entries(expectedInstances)) {
+      const layer = composer.getObjectByName(name);
+      expect(layer).toBeInstanceOf(InstancedMesh);
+      expect((layer as InstancedMesh).count).toBe(count);
+    }
+
+    // The complete rendered half figures (torso, head and hair) stay inside
+    // the inventory's published 1.56-1.70 m range.
+    const figureBounds = new Box3();
+    for (const name of [
+      "Composer memorial Haydn Beethoven Mozart busts",
+      "Composer memorial three white-marble portrait heads",
+      "Composer memorial differentiated portrait hair",
+    ]) {
+      figureBounds.union(new Box3().setFromObject(composer.getObjectByName(name)!));
+    }
+    const figureHeight = figureBounds.getSize(new Vector3()).y;
+    expect(figureHeight).toBeGreaterThanOrEqual(
+      BEETHOVEN_HAYDN_MOZART_PROFILE.documentedHalfFigureHeightRangeM[0],
+    );
+    expect(figureHeight).toBeLessThanOrEqual(
+      BEETHOVEN_HAYDN_MOZART_PROFILE.documentedHalfFigureHeightRangeM[1] +
+        1e-5,
+    );
+
+    // Appliques belong to the three chamfered pilaster faces, never over the
+    // portrait niches. Pin that separation for every procedural instance.
+    const busts = composer.getObjectByName(
+      "Composer memorial Haydn Beethoven Mozart busts",
+    ) as InstancedMesh;
+    const bustCentres: Vector3[] = [];
+    const matrix = new Matrix4();
+    for (let index = 0; index < busts.count; index += 1) {
+      busts.getMatrixAt(index, matrix);
+      bustCentres.push(new Vector3().setFromMatrixPosition(matrix));
+    }
+    for (const name of [
+      "Composer memorial six paired gilded theatre masks",
+      "Composer memorial six gilded instrument appliques",
+    ]) {
+      const details = composer.getObjectByName(name) as InstancedMesh;
+      for (let index = 0; index < details.count; index += 1) {
+        details.getMatrixAt(index, matrix);
+        const detail = new Vector3().setFromMatrixPosition(matrix);
+        expect(
+          Math.min(
+            ...bustCentres.map((bust) =>
+              Math.hypot(detail.x - bust.x, detail.z - bust.z),
+            ),
+          ),
+        ).toBeGreaterThan(2);
+      }
+    }
+
+    const masks = composer.getObjectByName(
+      "Composer memorial six paired gilded theatre masks",
+    ) as InstancedMesh;
+    expect(masks.material.userData.nightEmissiveIntensity).toBe(0.38);
+
+    let renderables = 0;
+    let storedVertices = 0;
+    let renderedVertices = 0;
+    composer.traverse((object) => {
+      if (!(object instanceof Mesh || object instanceof LineSegments)) return;
+      renderables += 1;
+      const vertices = object.geometry.getAttribute("position")?.count ?? 0;
+      storedVertices += vertices;
+      renderedVertices +=
+        vertices * (object instanceof InstancedMesh ? object.count : 1);
+    });
+    expect(renderables).toBe(30);
+    expect(storedVertices).toBe(2_847);
+    expect(renderedVertices).toBe(7_137);
   });
 
   test("the literary memorials and composers carry ink-line edges", () => {
@@ -541,6 +659,7 @@ describe("granular memorial recognition models", () => {
   test("uses close presentation distances for small monuments", () => {
     expect(memorialFocusDistance("Goethe-Denkmal")).toBe(38);
     expect(memorialFocusDistance("Lessing-Denkmal")).toBe(36);
+    expect(memorialFocusDistance("Beethoven-Haydn-Mozart-Denkmal")).toBe(42);
     expect(
       memorialFocusDistance("Denkmal für die ermordeten Juden Europas"),
     ).toBeGreaterThan(140);

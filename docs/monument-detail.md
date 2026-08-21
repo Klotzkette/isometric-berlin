@@ -16,12 +16,12 @@ monument foundation height.
 
 | Memorial | Retained recognition cues | Metric status |
 |---|---|---|
-| Memorial to the Murdered Jews of Europe | Complete field, depressed terrain cue, individually varied and slightly tilted stelae | The responsible foundation currently states 2,710 concrete stelae, 0.95 x 2.38 m each, 19,073 m² field area and four published height bands. Count, cross-section and height-band totals are exact; scene footprint/orientation is approximate. |
+| Memorial to the Murdered Jews of Europe | Complete field, depressed terrain cue, individually varied and slightly tilted stelae | The current model contract retains 2,711 concrete stelae, each 0.95 x 2.38 m, with 0.95 m single-file alleys and a 0.2–4.7 m published height range. Count, cross-section, alley width and range are exact contracts; individual height, tilt, terrain roll and scene orientation remain deterministic presentation geometry. |
 | Memorial to the Sinti and Roma murdered under National Socialism | Black reflecting pool in a dark-coated steel pan, retractable triangular granite stone with daily flower, German/English rim poem, broken-granite apron, 69 crime-site stones, segmented glass/Corten chronology and nine-biography 2022 exhibition cues | The responsible foundation publishes the approximately 12 m pool diameter and 69 named places; Dani Karavan's catalogue publishes a 2.5 x 60 x 60 m overall artwork extent. Those figures are exact model contracts; uncited stone, panel and local-spacing dimensions remain visual-reference approximations. |
 | Memorial to Homosexuals Persecuted under Nazism | Tall concrete cuboid and inset viewing window | Characteristic form follows the responsible foundation and licensed reference images; uncited dimensions are approximate. |
 | Soviet War Memorial Tiergarten | Street-facing forecourt, broad stair, six side pylons, central pylon, soldier, two T-34/76 tanks, two ML-20 gun-howitzers and rifle | Berlin's official pages document the south-facing entrance on Strasse des 17. Juni: tanks left and right at the road, guns diagonally behind at the first stair, and an 8 m soldier on a total height around 20 m. Local spacing and simplified vehicle dimensions are approximate. |
 | Goethe Monument | Standing Goethe, cylindrical pedestal and three allegorical groups | Composition follows the Berlin monument inventory and licensed references; uncited dimensions are approximate. |
-| Beethoven-Haydn-Mozart Monument | Three-sided marble stele, three busts, gilded dome, three putti and laurel wreath | Berlin's monument inventory states a 10 m monument and the characteristic three-composer, coloured-marble and gilded-crown composition. |
+| Beethoven-Haydn-Mozart Monument | Rounded granite understructure; corner-chamfered three-sided tinted-marble pavilion; three round-arched niches with differentiated white-marble half figures; pilasters, masks/instruments, lyre-bearing swans, scaled gilded cupola, pinecones, three putti and laurel wreath | Landesdenkmalamt part object `09046318,T,030` and Bildhauerei in Berlin state the 10 m total, 1.56–1.70 m half figures, Pentelic/Laas marble, restored gilt programme and WMF putti. Local bearings and subdivisions remain deterministic presentation geometry. The frozen model uses 30 renderables / 2,847 stored / 7,137 rendered vertices. |
 | Memorial to Jehovah's Witnesses persecuted and murdered under National Socialism | Slender folded column with a broad flared crown | The responsible foundation documents Matthias Leeck's bronze sculpture and its public opening on 24 June 2026. Shape follows the committed licensed 2026 references; height is not claimed as surveyed. |
 | Rousseau Column | Three-zone sandstone/limestone column with spiral lower bossing, bowl-like middle and floral crown | Berlin's sculpture inventory documents the 2.2 m total height and three-zone carved composition; the OSM point fixes its position on Rousseau Island. |
 | Lortzing Monument | Two-step marble platform, apsidal pedestal, five opera putti, standing Lortzing with pen and musical score | Berlin's sculpture inventory documents 6.5 m total height, marble material and the five-putti composition; local part proportions are reference-based. |
@@ -49,6 +49,9 @@ monument foundation height.
 - Berlin monument inventory, Großer Tiergarten subobjects including Goethe and
   the Beethoven-Haydn-Mozart monument:
   <https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046318>
+- Bildhauerei in Berlin, detailed materials, iconography and 1.56–1.70 m
+  half-figure dimensions for the Beethoven-Haydn-Mozart monument:
+  <https://bildhauerei-in-berlin.de/bildwerk/haydn-mozart-beethoven-denkmal-5236/>
 - Berlin public-sculpture inventory, Rousseau, Lortzing, Baumdank, Flora and
   *Das deutsche Volkslied*:
   <https://bildhauerei-in-berlin.de/>
@@ -95,8 +98,8 @@ monument foundation height.
 
 No external photograph is copied into the WebGL scene. The procedural layer is
 kept in source code, uses flat-shaded materials for a crisp model-railway read,
-and batches the 2,710 Holocaust stelae into one draw call. That large instance
-batch receives existing scene shadows but does not cast 2,710 additional
+and batches the 2,711 Holocaust stelae into one draw call. That large instance
+batch receives existing scene shadows but does not cast 2,711 additional
 shadow objects, preserving responsive camera flight on mobile hardware.
 
 The Queer Rainbow Memorial is likewise generated entirely from procedural

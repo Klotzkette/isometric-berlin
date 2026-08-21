@@ -68,6 +68,11 @@ import {
   type MoabitPrisonMemorialDetailProfile,
 } from "./MoabitPrisonMemorialPark";
 import { WATER_TOP_Y } from "./MinecraftVoxelWorld";
+import {
+  CITY_WEST_PROFILE,
+  CITY_WEST_SOURCE_URLS,
+  createCityWestDetails,
+} from "./CityWestDetails";
 
 export type ExpandedLandmark = {
   name: string;
@@ -109,6 +114,12 @@ export {
   MOABIT_PRISON_PARK_SOURCE_PROFILE,
   createMoabitPrisonMemorialPark,
 } from "./MoabitPrisonMemorialPark";
+export {
+  CITY_WEST_PROFILE,
+  CITY_WEST_RENDER_BUDGET,
+  CITY_WEST_SOURCE_URLS,
+  createCityWestDetails,
+} from "./CityWestDetails";
 
 const EXPANDED_FOCUS_PRESETS: Record<
   string,
@@ -5778,6 +5789,7 @@ export function createExpandedCityDetails(
   group.userData.stMatthaeus = ST_MATTHAEUS_PROFILE;
   group.userData.tillaDurieux = TILLA_DURIEUX_PROFILE;
   group.userData.weltBalloon = WELT_BALLOON_PROFILE;
+  group.userData.cityWest = CITY_WEST_PROFILE;
   group.userData.sourceUrls = [
     "https://www.berlin.de/gerichte/sozialgericht/ueber-uns/allgemeines/",
     "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050269",
@@ -5804,6 +5816,7 @@ export function createExpandedCityDetails(
     ...EUROPACITY_PROFILE.sources,
     ...TILLA_DURIEUX_PROFILE.sources,
     ...WELT_BALLOON_PROFILE.sources,
+    ...CITY_WEST_SOURCE_URLS,
   ];
   const builder = createBuilder();
   addHamburgerBahnhof(builder, byName);
@@ -5908,6 +5921,8 @@ export function createExpandedCityDetails(
     konradAdenauerHaus.userData = KONRAD_ADENAUER_HAUS_PROFILE;
     group.add(konradAdenauerHaus);
   }
+
+  group.add(createCityWestDetails(options.detailProfile ?? "full"));
 
   addRooftopSigns(group, byName);
   // Tiny warm markers for snow-plough salt and balloon fittings only; this is

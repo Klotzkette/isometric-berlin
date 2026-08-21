@@ -326,10 +326,12 @@ records, 188 Kanzleramt leadership-cube records, 1,284 Hauptbahnhof
 hall/office records, 52 Gate records, 149 Paul-Löbe rotunda records, 85
 Lüders-Haus rotunda records and 40 Lüders-Haus stair records while retaining
 courts and neighbours; the new batches therefore include their own rear walls,
-floors, facade shells, roofs, glazing and open block railings. Three Creepers,
-two bow-carrying Skeletons and three Zombies roam deterministic, tree-cleared
-grass routes while Minecraft is active. All eight figures share one instanced
-draw call, and the group is removed from Day, Night, Snowstorm,
+floors, facade shells, roofs, glazing and open block railings. Four Creepers,
+three bow-carrying Skeletons and four Zombies roam deterministic, tree-cleared
+grass routes while Minecraft is active. A shared rotated protection envelope
+rejects voxel trees and every mob spawn or movement cell throughout the
+Holocaust Memorial, including a conservative edge clearance. All eleven
+figures share one instanced draw call, and the group is removed from Day, Night, Snowstorm,
 Schwellenraum, water and underside presentations. A persistent DE/EN control
 translates all viewer
 chrome; official German place names remain unchanged, and the German UI uses
@@ -341,6 +343,37 @@ transition to a drawn mode or until pedestrian mode requires its water-collision
 polygons. A cold Minecraft start also neither constructs nor loads ParkDetails
 in either full or touch profile; the first actual switch to any drawn mode
 starts their idempotent deferred construction.
+
+The source-anchored recognition layer now distinguishes the western presentation
+area as architecture rather than generic LoD2 mass. Europa-Center,
+Allianz-Haus, the historic Café Kranzler and New Kranzler Eck, Bahnhof
+Zoologischer Garten, Kaiser-Wilhelm-Gedächtniskirche/Breitscheidplatz and
+Urania retain their OSM/LoD2 footprints while procedural, texture-free batches
+add the characteristic facade, tower, roof, rotunda, hall and podium cues.
+The four merged groups use 11 renderables / 14,634 vertices in full and 11 /
+8,427 in the coarse-pointer mobile profile.
+Friedrichstadt-Palast likewise receives its documented main body, taller stage
+tower, projecting foyer, broad stairs, concrete fins and two-storey coloured
+concrete-glass fields. The exact Tränenpalast outline remains separate from the
+station as a low steel-and-glass pavilion; its three false opaque source prisms
+stay suppressed. Full and coarse-pointer paths choose distinct bounded detail
+profiles, and no photograph or canvas texture is constructed or fetched.
+Together the two buildings use 8 renderables / 439 instances / 5,329 stored /
+16,873 rendered vertices in full and 8 / 393 / 3,477 / 13,365 in the
+coarse-pointer mobile profile.
+
+The ten-metre Beethoven-Haydn-Mozart monument keeps its exact Tiergarten anchor
+but now uses the documented rounded granite base, three-sided corner-chamfered
+Pentelic-marble pavilion, three 1.56–1.70 m white-marble half figures in
+round-arched niches, pilasters, masks and instruments, lyre-bearing swans,
+scaled gilded cupola, pinecones and three putti carrying a laurel wreath.
+Published dimensions and iconography remain explicit metadata; uncited local
+subdivision is labelled procedural recognition geometry.
+The complete monument is exactly 10.00 m high and stays at 30 renderables /
+2,847 stored / 7,137 rendered vertices. Its dedicated elevated southern focus
+keeps the niches, figures and cupola clear of the dense Tiergarten canopy. The
+Minecraft protection removes 116 source tree instances from the field; all
+eleven mobs use 136 parts in their single draw call.
 
 In mobile-like touch sessions, the bounded Minecraft profile produces
 **845,561 instances / 63.265 MiB of instance buffers** in the committed

@@ -89,6 +89,7 @@ import {
   type TunnelPortalId,
 } from "./TunnelPortals";
 import {
+  BEETHOVEN_HAYDN_MOZART_PROFILE,
   createKrolloperSculptureEnsemble,
   createMemorialLandmarks,
   memorialFocusDistance,
@@ -3816,6 +3817,18 @@ function wagnerMemorialFocusCamera(mode: LightingMode): FocusCamera {
   };
 }
 
+function composerMemorialFocusCamera(): FocusCamera {
+  const focus = BEETHOVEN_HAYDN_MOZART_PROFILE.presentationFocus;
+  return {
+    azimuth_degrees: focus.azimuthDegrees,
+    distance_m: focus.distanceM,
+    fov_degrees: focus.fovDegrees,
+    polar_degrees: focus.polarDegrees,
+    target_height_m: focus.targetHeightM,
+    target_world: [...focus.targetWorldM],
+  };
+}
+
 function moabitPrisonMemorialFocusCamera(mode: LightingMode): FocusCamera {
   const focus = moabitPrisonMemorialFocusForMode(mode);
   return {
@@ -4223,6 +4236,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const cameraPreset =
         name === WAGNER_MEMORIAL_PROFILE.name
           ? wagnerMemorialFocusCamera(runtime.lightingMode)
+          : name === "Beethoven-Haydn-Mozart-Denkmal"
+            ? composerMemorialFocusCamera()
           : name === MOABIT_PRISON_MEMORIAL_PROFILE.name
             ? moabitPrisonMemorialFocusCamera(runtime.lightingMode)
             : runtime.focusCameraByName.get(name);
@@ -6177,6 +6192,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.centralDetails.removeFromParent();
           runtime.centralDetails = createCentralCivicDetails(
             manifest.landmarks,
+            runtime.coarsePointer ? "mobile" : "full",
           );
           runtime.centralDetails.visible = centralCivicDetailsVisible(
             runtime.underside,
@@ -6329,6 +6345,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             target_height_m: 3,
             target_world: [26.57719945925055, 4.79, 245.32870413176715],
           });
+          runtime.focusCameraByName.set(
+            "Beethoven-Haydn-Mozart-Denkmal",
+            composerMemorialFocusCamera(),
+          );
           // v0.58.0: the ensemble is three separate OSM points spread
           // across ~55 m E-W and ~125 m N-S (Koenigin Luise at the south,
           // Friedrich Wilhelm III across the water to the north-west,

@@ -11,6 +11,8 @@ import {
   MeshStandardMaterial,
 } from "three";
 
+import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
+
 import {
   MATERIAL_PALETTES,
   MINECRAFT_BUILDING_PALETTE,
@@ -2402,6 +2404,11 @@ export function createMinecraftVoxelWorld(
       !isChancelleryExtensionConstructionPoint(
         worldXAbs(xIdx),
         worldZAbs(zIdx),
+      ) &&
+      !isHolocaustMinecraftProtectedAt(
+        worldXAbs(xIdx),
+        worldZAbs(zIdx),
+        cell * 1.1,
       ) &&
       (!insideTunnelApproach ||
         !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx), cell * 1.1)),

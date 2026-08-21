@@ -58,6 +58,7 @@ import {
   WEIDENDAMMER_BRIDGE_MINECRAFT_ROOT_NAME,
   WEIDENDAMMER_BRIDGE_PROFILE,
 } from "../src/WeidendammerBridgeDetails";
+import { isHolocaustMinecraftProtectedAt } from "../src/holocaustField";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 const buildingColumns = decodeVoxelBuildingColumns(payload);
@@ -660,15 +661,47 @@ describe("true voxel Minecraft world", () => {
         !isChancelleryExtensionConstructionPoint(
           (xIdx + 0.5) * payload.cell_m,
           (zIdx + 0.5) * payload.cell_m,
+        ) &&
+        !isHolocaustMinecraftProtectedAt(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+          payload.cell_m * 1.1,
         ),
     ).length;
     expect(instanced("Voxel tree trunks", world).count).toBe(visibleTreeCount);
+    expect(treeBlocks.length - visibleTreeCount).toBeGreaterThan(100);
     // Crowns: one per tree plus a stacked spruce top on some species.
     const crowns = instanced("Voxel tree crowns", world).count;
     expect(crowns).toBeGreaterThanOrEqual(visibleTreeCount);
     expect(crowns).toBeLessThanOrEqual(visibleTreeCount * 2);
     // Blocky by construction: thousands of surveyed building columns.
     expect(buildingColumns.length).toBeGreaterThan(10_000);
+  });
+
+  test("removes every voxel tree from the Holocaust memorial protection area", () => {
+    const trunks = instanced("Voxel tree trunks", world);
+    const matrix = new Matrix4();
+    const position = new Vector3();
+    for (let index = 0; index < trunks.count; index += 1) {
+      trunks.getMatrixAt(index, matrix);
+      position.setFromMatrixPosition(matrix);
+      expect(
+        isHolocaustMinecraftProtectedAt(
+          position.x,
+          position.z,
+          payload.cell_m * 1.1,
+        ),
+      ).toBe(false);
+    }
+    expect(
+      treeBlocks.some(([xIdx, zIdx]) =>
+        isHolocaustMinecraftProtectedAt(
+          (xIdx + 0.5) * payload.cell_m,
+          (zIdx + 0.5) * payload.cell_m,
+          payload.cell_m * 1.1,
+        ),
+      ),
+    ).toBe(true);
   });
 
   test("keeps both portal approaches open in a direct Minecraft load", () => {

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.17 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.17/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.18 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.18/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.17** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.18** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,53 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.17**, built from `main`. Its full viewer
+The current public package is **v0.72.18**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **The Beethoven–Haydn–Mozart monument now reads as Siemering's ten-metre
+  “Musikerofen”.** Its exact Tiergarten anchor carries a rounded granite
+  understructure and a chamfered, three-sided pavilion in warm Pentelic marble,
+  with three round-arched niches, differentiated white-marble half figures,
+  pilasters, masks and instruments, lyre-bearing swans, a scaled gilded cupola,
+  pinecones and three putti raising the laurel wreath. Published height,
+  material and iconographic evidence remains explicit; unpublished local
+  subdivisions are deterministic, texture-free recognition geometry. Its
+  frozen budget is **30 renderables / 2,847 stored / 7,137 rendered vertices**;
+  a dedicated elevated southern focus keeps the niches and cupola clear of the
+  surrounding canopy.
+
+- **Minecraft keeps the Holocaust Memorial absolutely free of trees and
+  hostile mobs.** One shared, rotated protection envelope with conservative
+  edge clearance filters voxel trees and rejects mob spawn, walking and
+  movement throughout the stele field. Elsewhere the sparse one-draw-call cast
+  rises only from eight to eleven—four Creepers, four Zombies and three
+  bow-carrying Skeletons—with the three additional allowed routes distributed
+  across Tiergarten grass. The filter removes **116** source trees from the
+  protection field; all eleven figures remain **136 instanced parts in one
+  draw call**.
+
+- **City West now has a source-anchored architectural identity.** A batched,
+  mobile-aware layer distinguishes Europa-Center, Allianz-Haus, the historic
+  Café Kranzler and New Kranzler Eck, Bahnhof Zoologischer Garten,
+  Kaiser-Wilhelm-Gedächtniskirche and Breitscheidplatz, plus Urania through
+  their characteristic tower, roof, facade, rotunda, hall and podium forms.
+  OSM and Berlin LoD2 remain the metric anchors; repeated fine elements are
+  merged or instanced, and the touch profile receives a bounded detail level.
+  The four merged ensembles use **11 renderables / 14,634 vertices** in full
+  and **11 / 8,427** on mobile.
+
+- **Friedrichstadt-Palast and Tränenpalast are now separate, recognisable
+  buildings rather than generic shells.** The former follows the documented
+  110 x 80 m theatre, taller stage tower, projecting foyer, broad steps,
+  concrete fins and two-storey coloured glass-block fields. The latter keeps
+  its exact OSM outline as a low, freestanding steel-and-glass pavilion with
+  large windows, flat roof, aluminium framing and station link; the existing
+  prism suppression still prevents Friedrichstraße station from swallowing
+  it. Both use procedural, image-free full/mobile geometry. Together they use
+  **8 renderables / 439 instances / 5,329 stored / 16,873 rendered vertices**
+  in full and **8 / 393 / 3,477 / 13,365** on mobile.
 
 - **FUNBOX now stays on the event lot instead of entering Heidestraße.** The
   complete procedural footprint is fitted between the delivered
@@ -218,10 +261,10 @@ local modules.
   only non-legible incision cues: no copyrighted poem or quotation is
   reproduced.
 
-- **Minecraft adds only a sparse complement of hostile staffage.** Three
-  Creepers, two bow-carrying Skeletons and three Zombies share one instanced
-  draw call, follow deterministic tree-cleared grass routes and disappear
-  outside Minecraft, water and underside presentations.
+- **Minecraft adds only a sparse complement of hostile staffage.** Four
+  Creepers, three bow-carrying Skeletons and four Zombies share one instanced
+  draw call, follow deterministic tree-cleared, memorial-protected grass routes
+  and disappear outside Minecraft, water and underside presentations.
 
 - **Traffic-signal poles now stand at the roadside instead of in the modelled
   carriageway.** Schema 7 retains all **1,328** source OSM signal nodes and the
@@ -512,9 +555,9 @@ local modules.
 
 - **Minecraft is more deliberately built from blocks.** Its palette gains
   stable clinker, terracotta and timber families, tall buildings receive
-  coherent plinth/body/cap layers, and the seven roaming creepers and zombies
-  have clearer faces and clothing without adding draw calls or flickering
-  random roof patterns.
+  coherent plinth/body/cap layers, and the current eleven roaming Creepers,
+  Zombies and bow-carrying Skeletons have clear faces and clothing without
+  adding draw calls or flickering random roof patterns.
 
 - **The civic skyline is now genuinely block-native in Minecraft.** Reichstag,
   Bundeskanzleramt, Hauptbahnhof, Brandenburger Tor, Paul-Löbe-Haus and
@@ -1350,7 +1393,8 @@ local modules.
   distance instead of fading the outer ring. Its official metric voxel payload
   grows with the expanded bounds; the matching 6,450 m block surround is
   explicitly tagged as extrapolated presentation geometry.
-- Three Creepers and four Zombies walk deterministic park routes only in
+- Four Creepers, four Zombies and three bow-carrying Skeletons walk
+  deterministic, tree-cleared and memorial-protected park routes only in
   Minecraft mode. They share one instanced rendering batch and disappear
   completely in Day, Night, Snowstorm, Schwellenraum, underwater and underside
   views.

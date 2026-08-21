@@ -50,6 +50,41 @@ export const HOLOCAUST_FIELD = {
   siteDepth: 95,
 } as const;
 
+/**
+ * Shared world-space exclusion used by the Minecraft tree and mob layers.
+ * The centre and bearing are the committed landmark anchor and the same
+ * presentation rotation used by `MemorialLandmarks`. The extra eight metres
+ * keep voxel crowns and one-block-high walkers out of the memorial's edge,
+ * rather than merely testing their centre points against the stele lattice.
+ */
+export const HOLOCAUST_MINECRAFT_PROTECTION = {
+  centreWorldM: [462.88128157681786, 557.3677023872733] as const,
+  edgeClearanceM: 8,
+  rotationY: -0.105,
+} as const;
+
+/** True throughout the protected stele field, including its voxel clearance. */
+export function isHolocaustMinecraftProtectedAt(
+  worldX: number,
+  worldZ: number,
+  extraClearanceM = 0,
+): boolean {
+  const dx = worldX - HOLOCAUST_MINECRAFT_PROTECTION.centreWorldM[0];
+  const dz = worldZ - HOLOCAUST_MINECRAFT_PROTECTION.centreWorldM[1];
+  const sine = Math.sin(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
+  const cosine = Math.cos(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
+  // Inverse of the memorial group's Y rotation: world -> field local.
+  const localX = cosine * dx - sine * dz;
+  const localZ = sine * dx + cosine * dz;
+  const clearance =
+    HOLOCAUST_MINECRAFT_PROTECTION.edgeClearanceM +
+    Math.max(0, extraClearanceM);
+  return (
+    Math.abs(localX) <= HOLOCAUST_FIELD.siteWidth / 2 + clearance &&
+    Math.abs(localZ) <= HOLOCAUST_FIELD.siteDepth / 2 + clearance
+  );
+}
+
 /** Centre-to-centre spacing across the stele's short side. */
 export const PITCH_ACROSS =
   HOLOCAUST_FIELD.steleWidth + HOLOCAUST_FIELD.alley;

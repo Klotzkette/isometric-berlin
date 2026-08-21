@@ -11,6 +11,11 @@ import {
   updateMinecraftMobs,
 } from "../src/MinecraftMobs";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
+import {
+  HOLOCAUST_FIELD,
+  HOLOCAUST_MINECRAFT_PROTECTION,
+  isHolocaustMinecraftProtectedAt,
+} from "../src/holocaustField";
 
 const payload = voxelPayload as unknown as VoxelPayload;
 
@@ -46,26 +51,26 @@ describe("Minecraft roaming mobs", () => {
     expect(field.creeperCount).toBe(CREEPER_COUNT);
     expect(field.skeletonCount).toBe(SKELETON_COUNT);
     expect(field.zombieCount).toBe(ZOMBIE_COUNT);
-    expect(field.creeperCount).toBe(3);
-    expect(field.skeletonCount).toBe(2);
-    expect(field.zombieCount).toBe(3);
+    expect(field.creeperCount).toBe(4);
+    expect(field.skeletonCount).toBe(3);
+    expect(field.zombieCount).toBe(4);
     expect(field.mobs).toHaveLength(
       CREEPER_COUNT + SKELETON_COUNT + ZOMBIE_COUNT,
     );
     expect(field.mesh).toBeInstanceOf(InstancedMesh);
     expect(field.group.children).toHaveLength(1);
     expect(field.mesh.count).toBe(field.parts.length);
-    expect(field.mesh.count).toBeLessThan(110);
-    expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(2);
+    expect(field.mesh.count).toBeLessThan(150);
+    expect(field.mobs.filter(({ kind }) => kind === "skeleton")).toHaveLength(3);
     expect(
       field.parts.filter((part) => part.color === 0xd9d8c8).length,
-    ).toBeGreaterThanOrEqual(16);
+    ).toBeGreaterThanOrEqual(24);
     expect(
       field.parts.filter((part) => part.color === 0x76502f).length,
-    ).toBe(6);
+    ).toBe(9);
     expect(
       field.parts.filter((part) => part.color === 0x18251b).length,
-    ).toBeGreaterThanOrEqual(20);
+    ).toBeGreaterThanOrEqual(30);
   });
 
   test("spawns and keeps every walker on open park grass", () => {
@@ -79,11 +84,62 @@ describe("Minecraft roaming mobs", () => {
 
     field.mobs.forEach((mob, index) => {
       expect(field.isWalkable(mob.x, mob.z)).toBe(true);
+      expect(isHolocaustMinecraftProtectedAt(mob.x, mob.z)).toBe(false);
       expect(
         Math.hypot(mob.x - starts[index][0], mob.z - starts[index][1]),
       ).toBeGreaterThan(0.1);
     });
     expect(field.mesh.count).toBe(field.parts.length);
+  });
+
+  test("keeps the rotated Holocaust field and its safety edge mob-free", () => {
+    const field = createMinecraftMobs(payload, false);
+    const [centreX, centreZ] =
+      HOLOCAUST_MINECRAFT_PROTECTION.centreWorldM;
+    const sine = Math.sin(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
+    const cosine = Math.cos(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
+    const toWorld = (localX: number, localZ: number): [number, number] => [
+      centreX + cosine * localX + sine * localZ,
+      centreZ - sine * localX + cosine * localZ,
+    ];
+    const protectedSamples = [
+      toWorld(0, 0),
+      toWorld(HOLOCAUST_FIELD.siteWidth / 2 + 7.9, 0),
+      toWorld(0, HOLOCAUST_FIELD.siteDepth / 2 + 7.9),
+      toWorld(
+        HOLOCAUST_FIELD.siteWidth / 2 + 7.9,
+        HOLOCAUST_FIELD.siteDepth / 2 + 7.9,
+      ),
+    ];
+    for (const [x, z] of protectedSamples) {
+      expect(isHolocaustMinecraftProtectedAt(x, z)).toBe(true);
+      expect(field.isWalkable(x, z)).toBe(false);
+    }
+    const outside = toWorld(HOLOCAUST_FIELD.siteWidth / 2 + 8.1, 0);
+    expect(isHolocaustMinecraftProtectedAt(...outside)).toBe(false);
+
+    setMinecraftMobsVisible(field, true);
+    for (let step = 0; step < 1_200; step += 1) {
+      updateMinecraftMobs(field, 0.1);
+    }
+    expect(
+      field.mobs.every(
+        ({ x, z }) => !isHolocaustMinecraftProtectedAt(x, z),
+      ),
+    ).toBe(true);
+  });
+
+  test("omits decorative mobs when a reduced payload has no safe grass", () => {
+    const noGrass: VoxelPayload = {
+      ...compactWalkabilityFixture,
+      ground_rows: compactWalkabilityFixture.ground_rows.map((row) =>
+        row.map(([start, run]) => [start, run, 1]),
+      ),
+    };
+    const field = createMinecraftMobs(noGrass, false);
+    expect(field.mobs).toHaveLength(0);
+    expect(field.mesh.count).toBe(0);
+    expect(field.creeperCount + field.skeletonCount + field.zombieCount).toBe(0);
   });
 
   test("only exposes the field when Minecraft presentation requests it", () => {
