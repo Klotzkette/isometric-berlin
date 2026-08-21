@@ -867,6 +867,39 @@
       "credit": "Own work"
     },
     {
+      "landmark_id": "lessing_denkmal",
+      "title": "File:Lessing monument in Berlin Tiergarten 9593.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALessing_monument_in_Berlin_Tiergarten_9593.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Dosseman",
+      "credit": "Own work",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lessing_denkmal",
+      "title": "File:Lessing Tiergarten 3K.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALessing_Tiergarten_3K.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brueckels",
+      "credit": "Self-photographed",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lessing_denkmal",
+      "title": "File:Lessing Tiergarten 4K.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALessing_Tiergarten_4K.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brueckels",
+      "credit": "Self-photographed",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "luiseninsel",
       "title": "File:Berlin Tiergarten Luiseninsel.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Tiergarten_Luiseninsel.jpg",
