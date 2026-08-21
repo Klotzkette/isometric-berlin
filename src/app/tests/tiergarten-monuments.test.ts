@@ -96,7 +96,9 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(MONUMENTS_ALREADY_MODELLED.test("Fahne der Einheit")).toBe(true);
     expect(MONUMENTS_ALREADY_MODELLED.test("Fahne der Einheiten")).toBe(false);
     expect(MONUMENTS_ALREADY_MODELLED.test("Verkehrsturm")).toBe(false);
-    expect(MONUMENTS_ALREADY_MODELLED.test("Gotthold Ephraim Lessing")).toBe(false);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Gotthold Ephraim Lessing")).toBe(true);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Lessing-Denkmal")).toBe(true);
+    expect(MONUMENTS_ALREADY_MODELLED.test("Johann Wolfgang von Goethe")).toBe(true);
     // No drawn-monument geometry near the Soviet memorial's colonnade
     // (its recognition model owns that ground; only the two howitzers
     // between the tanks are ours).
@@ -425,28 +427,16 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(top - foot).toBeLessThan(6);
   });
 
-  test("Lessing stands on his own jointed granite pedestal, not a generic cube stack", () => {
-    // The real monument is a 3 m marble Lessing on a 4 m granite
-    // pedestal (~7 m total), with the bronze "Genius der Humanität"
-    // reclining at the front. https://de.wikipedia.org/wiki/Lessing-Denkmal_(Berlin)
-    expect(tallestNear("Gotthold Ephraim Lessing")).toBeGreaterThan(6);
-    expect(tallestNear("Gotthold Ephraim Lessing")).toBeLessThan(8);
-    const entry = street.monuments!.find(
-      (candidate) => candidate.name === "Gotthold Ephraim Lessing"
-    )!;
-    const figureYValues = new Set<number>();
-    forEachMonumentVertex(monuments, (vertex) => {
-      if (
-        Math.abs(vertex.x - entry.x_dm / 10) < 1 &&
-        Math.abs(vertex.z - entry.z_dm / 10) < 1 &&
-        vertex.y > 3.5
-      ) {
-        figureYValues.add(Math.round(vertex.y * 10) / 10);
-      }
+  test("delegates Goethe and Lessing to the dedicated literary models exactly once", () => {
+    const externallyModelled = monuments.userData
+      .protectedExternallyModelledSourceKeys as string[];
+    const rendered = monuments.userData.protectedRenderedSourceKeys as string[];
+    for (const sourceKey of ["node/278738513", "node/884700390"]) {
+      expect(externallyModelled).toContain(sourceKey);
+      expect(rendered).not.toContain(sourceKey);
     }
-    );
-    // Coat/legs, torso, and head are three distinct elevations.
-    expect(figureYValues.size).toBeGreaterThanOrEqual(3);
+    expect(tallestNear("Johann Wolfgang von Goethe")).toBe(-Infinity);
+    expect(tallestNear("Gotthold Ephraim Lessing")).toBe(-Infinity);
   });
 
   test("Bismarck is not drawn twice at the Großer Stern", () => {

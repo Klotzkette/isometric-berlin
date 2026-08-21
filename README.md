@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v0.72.13 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.13/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v0.72.14 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v0.72.14/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,7 +24,7 @@ or Linux, run `python3 serve-local.py` in the extracted folder; it opens the
 3D viewer directly. The distinction is explicit in the package so the old
 flat renderer cannot be mistaken for current 3D quality.
 
-**Status:** Public open-data project · **Local v0.72.13** · hosted viewer and a
+**Status:** Public open-data project · **Local v0.72.14** · hosted viewer and a
 complete local package for macOS, Windows, and Linux.
 
 ## Screenshots
@@ -50,10 +50,38 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The current public package is **v0.72.13**, built from `main`. Its full viewer
+The current public package is **v0.72.14**, built from `main`. Its full viewer
 is a progressively loaded, freely orbitable 3D scene; the double-click HTML
 remains a clearly labelled compatibility fallback for browsers that cannot run
 local modules.
+
+- **Goethe and Lessing now read as their real Tiergarten ensembles rather than
+  generic monument blocks.** Exact OSM nodes `278738513` and `884700390` keep
+  the two works independent. The Goethe model follows Fritz Schaper's
+  Carrara-marble figure, articulated round pedestal, inscription, paired
+  allegories and reconstructed iron enclosure. The Lessing model follows Otto
+  Lessing's white-marble author with book, reddish-granite pedestal, front and
+  rear bronze allegories, three portrait reliefs, side basins and present
+  simplified fence. Its visible, Minecraft and collision forms share the same
+  **28-field, eight-segment chamfered octagon**. Berlin's monument inventory
+  and Bildhauerei in Berlin provide the factual and dimensional evidence; the
+  photographs remain QA references rather than runtime assets. Without snow,
+  Goethe is exactly
+  **6.08 m** high and carries **42** fence fields plus all three paired
+  allegories/six figures; Lessing is exactly **7.00 m** high with five steps,
+  two basins and dolphin spouts, three portrait fields and both principal
+  bronze allegories.
+
+- **Both monuments are complete all-mode citizens.** Day, Night, Snowstorm and
+  Schwellenraum share their source-bound drawn geometry, while Minecraft uses
+  separate coarse block-native counterparts and never exposes a smooth double.
+  Snow accumulation is reversible. Their combined Smooth Snowstorm profile is
+  **8 renderables / 24,870 rendered vertices**; Minecraft is **one
+  InstancedMesh / 557 blocks / 13,368 rendered vertices**, and both
+  representations store **9 renderables** in total. Schwellenraum protection
+  uses **4.3 m** and **2.95 m** radii for Goethe and Lessing. Walking collision
+  follows only the represented core and fence-side solids, so the surrounding
+  mapped park paths and all eight sampled approach directions remain usable.
 
 - **Pariser Platz now distinguishes four major civic buildings at close
   range.** The Max-Liebermann-Haus, French Embassy, US Embassy and Akademie der
@@ -1283,11 +1311,11 @@ local modules.
   forced-depth bore interiors are hidden in every ordinary exterior view,
   revealed only by selecting a tunnel-mouth sight, and hidden again by the
   first free camera movement. Both canonical portal ramps remain visible.
-- Ten memorials now have close-range recognition geometry. The Holocaust
+- Source-bound memorials have close-range recognition geometry. The Holocaust
   field draws all 2,711 officially documented stelae in one instanced call with
   the published 0.95 x 2.38 m cross-section and height bands; the Soviet,
-  Sinti/Roma, homosexual-victims, Goethe, composer and 2026 Jehovah's Witnesses
-  memorials, the Polish memorial, Georg Elser's steel profile and the
+  Sinti/Roma, homosexual-victims, Goethe, Lessing, composer and 2026 Jehovah's
+  Witnesses memorials, the Polish memorial, Georg Elser's steel profile and the
   owner-supplied Queer Rainbow Memorial preserve their defining
   source-documented or explicitly field-view-bounded forms while the official
   Berlin surface remains visible underneath. The Soviet memorial's two
@@ -1403,7 +1431,7 @@ the packaged viewer projection is
 | Pariser Platz and diplomatic edge | Brandenburger Tor, Quadriga mit Victoria, Pariser Platz, Starbucks Pariser Platz, Max-Liebermann-Haus, Botschaft der Vereinigten Staaten von Amerika |
 | Spreebogen diplomacy / civic symbols | Schweizerische Botschaft, Fahne der Einheit |
 | Memorials | Denkmal für die ermordeten Juden Europas, Denkmal für die im Nationalsozialismus verfolgten Homosexuellen, Denkmal für die im Nationalsozialismus ermordeten Sinti und Roma Europas, Sowjetisches Ehrenmal Tiergarten, Mahnmal für verfolgte Zeugen Jehovas, Gedenkort für Polen 1939-1945, Denkzeichen Georg Elser, Queer Rainbow Memorial Berlin am Ahornsteig |
-| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
+| Tiergarten / culture / park details | Haus der Kulturen der Welt, Großer Tiergarten, Beethoven-Haydn-Mozart-Denkmal, Venusbassin / Goldfischteich, Goethe-Denkmal, Lessing-Denkmal, TIPI am Kanzleramt, Eduardo-Chillida-Skulptur Berlin, Carillon im Tiergarten |
 | Tunnel context | Kemperplatz / Tiergartentunnel, Tiergartentunnel Südeingang, approximate Tiergartentunnel underground reference route |
 | Northern extension | Hamburger Bahnhof, Rieckhallen, Sozialgericht Berlin, KPMG, DKB, Europacity |
 | Kulturforum / Potsdamer Platz | Philharmonie, Kammermusiksaal, Staatsbibliothek, Neue Nationalgalerie, berlin modern, Henry-Moore-Plastik, Tilla-Durieux-Park, Kollhoff-Tower |

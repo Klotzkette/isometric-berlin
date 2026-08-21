@@ -2021,6 +2021,42 @@
       "role": "visual_reference_for_material_and_facade_QA"
     },
     {
+      "landmark_id": "lessing_denkmal",
+      "title": "File:Lessing monument in Berlin Tiergarten 9593.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALessing_monument_in_Berlin_Tiergarten_9593.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Dosseman",
+      "credit": "Own work",
+      "description": "Current front view of the Lessing memorial and its simplified protective fence.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lessing_denkmal",
+      "title": "File:Lessing Tiergarten 3K.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALessing_Tiergarten_3K.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brueckels",
+      "credit": "Self-photographed",
+      "description": "Left-side detail with the Ewald von Kleist portrait relief and lateral basin.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lessing_denkmal",
+      "title": "File:Lessing Tiergarten 4K.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File%3ALessing_Tiergarten_4K.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Manfred Brueckels",
+      "credit": "Self-photographed",
+      "description": "Reverse detail with the Allegory of Criticism and its attributes.",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "luiseninsel",
       "title": "File:Berlin Tiergarten Luiseninsel.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3ABerlin_Tiergarten_Luiseninsel.jpg",

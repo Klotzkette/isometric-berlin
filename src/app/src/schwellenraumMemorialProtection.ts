@@ -7,6 +7,12 @@ import {
   CSD_ATTACK_MEMORIAL_OSM_KEY,
   CSD_ATTACK_MEMORIAL_PROFILE,
 } from "./CsdAttackMemorial";
+import {
+  TIERGARTEN_LITERARY_MEMORIALS_PROFILE,
+  TIERGARTEN_LITERARY_MEMORIAL_OSM_KEYS,
+  TIERGARTEN_LITERARY_MEMORIAL_PROTECTION_PROFILES,
+  tiergartenLiteraryMemorialProtectedAt,
+} from "./TiergartenLiteraryMemorials";
 
 type MonumentEntry = NonNullable<StreetDetailsPayload["monuments"]>[number];
 
@@ -18,7 +24,7 @@ const PROTECTED_MAX_Y_M = 45;
 export type SchwellenraumProtectedMemorialShape = {
   halfDepthM: number;
   halfWidthM: number;
-  kind: "box" | "circle";
+  kind: "box" | "circle" | "literary";
   maxYM: number;
   minYM: number;
   name: string;
@@ -56,6 +62,32 @@ function pointRadiusM(entry: MonumentEntry): number {
 function protectionShapes(
   entry: MonumentEntry,
 ): readonly SchwellenraumProtectedMemorialShape[] {
+  if (
+    TIERGARTEN_LITERARY_MEMORIAL_OSM_KEYS.includes(
+      entry.osm_key as (typeof TIERGARTEN_LITERARY_MEMORIAL_OSM_KEYS)[number],
+    )
+  ) {
+    const isGoethe =
+      entry.osm_key === TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.osmKey;
+    const profile = isGoethe
+      ? TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe
+      : TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing;
+    const radiusM = isGoethe
+      ? TIERGARTEN_LITERARY_MEMORIAL_PROTECTION_PROFILES.goethe.radiusM
+      : TIERGARTEN_LITERARY_MEMORIAL_PROTECTION_PROFILES.lessing.radiusM;
+    return [{
+      halfDepthM: radiusM,
+      halfWidthM: radiusM,
+      kind: "literary",
+      maxYM: PROTECTED_MAX_Y_M,
+      minYM: PROTECTED_MIN_Y_M,
+      name: profile.name,
+      osmKey: profile.osmKey,
+      radiusM,
+      x: profile.worldM[0],
+      z: profile.worldM[2],
+    }];
+  }
   if (entry.osm_key === CSD_ATTACK_MEMORIAL_OSM_KEY) {
     const treeX = entry.x_dm / 10;
     const treeZ = entry.z_dm / 10;
@@ -132,8 +164,9 @@ function protectionShapes(
 function shapeBounds(
   shape: SchwellenraumProtectedMemorialShape,
 ): readonly [number, number, number, number] {
-  const halfX = shape.kind === "circle" ? shape.radiusM : shape.halfWidthM;
-  const halfZ = shape.kind === "circle" ? shape.radiusM : shape.halfDepthM;
+  const radial = shape.kind === "circle" || shape.kind === "literary";
+  const halfX = radial ? shape.radiusM : shape.halfWidthM;
+  const halfZ = radial ? shape.radiusM : shape.halfDepthM;
   return [shape.x - halfX, shape.z - halfZ, shape.x + halfX, shape.z + halfZ];
 }
 
@@ -199,7 +232,7 @@ export function schwellenraumProtectedMemorialClearanceM(
   if (![x, z].every(Number.isFinite)) return 0;
   let clearanceM = Number.POSITIVE_INFINITY;
   for (const shape of index.shapes) {
-    if (shape.kind === "circle") {
+    if (shape.kind === "circle" || shape.kind === "literary") {
       clearanceM = Math.min(
         clearanceM,
         Math.max(0, Math.hypot(x - shape.x, z - shape.z) - shape.radiusM),
@@ -230,7 +263,9 @@ export function schwellenraumProtectedMemorialShapeAt(
   if (!bucket) return null;
   for (const shape of bucket) {
     if (y < shape.minYM || y > shape.maxYM) continue;
-    if (shape.kind === "circle") {
+    if (shape.kind === "literary") {
+      if (tiergartenLiteraryMemorialProtectedAt(x, z)) return shape;
+    } else if (shape.kind === "circle") {
       if ((x - shape.x) ** 2 + (z - shape.z) ** 2 <= shape.radiusM ** 2) {
         return shape;
       }

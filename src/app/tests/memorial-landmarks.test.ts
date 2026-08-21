@@ -18,6 +18,7 @@ import {
   SOVIET_WAR_MEMORIAL_PROFILE,
   type MemorialLandmark,
 } from "../src/MemorialLandmarks";
+import { TIERGARTEN_LITERARY_MEMORIALS_PROFILE } from "../src/TiergartenLiteraryMemorials";
 
 const names = [
   "Denkmal für die ermordeten Juden Europas",
@@ -25,6 +26,7 @@ const names = [
   "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen",
   "Sowjetisches Ehrenmal Tiergarten",
   "Goethe-Denkmal",
+  "Lessing-Denkmal",
   "Beethoven-Haydn-Mozart-Denkmal",
   "Mahnmal für verfolgte Zeugen Jehovas",
   "Gedenkort für Polen 1939-1945",
@@ -56,10 +58,10 @@ describe("granular memorial recognition models", () => {
     ).toBeInstanceOf(InstancedMesh);
   });
 
-  test("creates all nine documented monument models", () => {
+  test("creates all ten documented monument models", () => {
     const root = createMemorialLandmarks(landmarks);
-    expect(root.children).toHaveLength(9);
-    expect(root.userData.modelCount).toBe(9);
+    expect(root.children).toHaveLength(10);
+    expect(root.userData.modelCount).toBe(10);
     names.forEach((name) => expect(root.getObjectByName(name)).not.toBeNull());
     const ink: LineSegments[] = [];
     root.traverse((object) => {
@@ -72,6 +74,31 @@ describe("granular memorial recognition models", () => {
           (line.material as LineBasicMaterial).userData.modeInk === true,
       ),
     ).toBeTrue();
+  });
+
+  test("attaches only requested literary models at their exact source anchors", () => {
+    const goetheOnly = createMemorialLandmarks([
+      { name: "Goethe-Denkmal", world: [9_999, 99, 9_999] },
+    ]);
+    expect(goetheOnly.children).toHaveLength(1);
+    expect(goetheOnly.getObjectByName("Lessing-Denkmal")).toBeUndefined();
+    const goethe = goetheOnly.getObjectByName("Goethe-Denkmal")!;
+    expect(goethe.position.toArray()).toEqual([
+      ...TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.worldM,
+    ]);
+    expect(goethe.userData).toMatchObject({
+      exactOwnOsmKey: TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.osmKey,
+      sourceOwned: true,
+      tiergartenLiteraryMemorialSmooth: true,
+    });
+
+    const lessingOnly = createMemorialLandmarks([
+      { name: "Lessing-Denkmal", world: [-9_999, 99, -9_999] },
+    ]);
+    expect(lessingOnly.children).toHaveLength(1);
+    expect(lessingOnly.getObjectByName("Goethe-Denkmal")).toBeUndefined();
+    expect(lessingOnly.getObjectByName("Lessing-Denkmal")?.position.toArray())
+      .toEqual([...TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.worldM]);
   });
 
   test("grounds every model on the sampled official mesh instead of the camera anchor", () => {
@@ -215,15 +242,16 @@ describe("granular memorial recognition models", () => {
     ).toBe(3);
   });
 
-  test("the composers and Goethe are built, not blocked out", () => {
+  test("the composers and both literary memorials are built, not blocked out", () => {
     const root = createMemorialLandmarks(landmarks);
     for (const name of [
       "Composer memorial step ring",
       "Composer memorial three bust niches",
       "Composer memorial corner piers",
-      "Goethe memorial lower step",
-      "Goethe memorial pedestal cornice",
-      "Goethe memorial allegorical figure pedestals",
+      "Goethe memorial structural silhouette",
+      "Goethe memorial fine allegory and fence cues",
+      "Lessing memorial structural silhouette",
+      "Lessing memorial relief allegory and fence cues",
     ]) {
       expect(root.getObjectByName(name)).not.toBeNull();
     }
@@ -233,23 +261,23 @@ describe("granular memorial recognition models", () => {
     expect((niches as InstancedMesh).count).toBe(3);
     const goethe = root.getObjectByName("Goethe-Denkmal")!;
     const goetheHeight = new Box3().setFromObject(goethe).getSize(new Vector3()).y;
-    expect(goetheHeight).toBeGreaterThan(8);
-    expect(goetheHeight).toBeLessThan(10.5);
+    expect(goetheHeight).toBeGreaterThan(6);
+    expect(goetheHeight).toBeLessThan(6.3);
+    const lessing = root.getObjectByName("Lessing-Denkmal")!;
+    const lessingHeight = new Box3()
+      .setFromObject(lessing)
+      .getSize(new Vector3()).y;
+    expect(lessingHeight).toBeGreaterThan(7);
+    expect(lessingHeight).toBeLessThan(7.2);
   });
 
-  test("Goethe and the composers carry ink-line edges, not flat silhouettes", () => {
-    // v0.58.0: these two models built detailed geometry (cloak, head,
-    // scroll, bust niches, gilded cupola) but never called addEdges(),
-    // so at isometric camera distance they rendered as one flat pale
-    // silhouette with no facet lines, unlike every other memorial here.
+  test("the literary memorials and composers carry ink-line edges", () => {
     const root = createMemorialLandmarks(landmarks);
-    for (const meshName of [
-      "Goethe memorial round pedestal",
-      "Goethe standing figure body",
-      "Goethe standing figure cloak",
-      "Goethe standing figure head",
+    for (const layerName of [
+      "Goethe memorial structural silhouette ink lines",
+      "Lessing memorial structural silhouette ink lines",
     ]) {
-      expect(root.getObjectByName(`${meshName} model edges`)).not.toBeNull();
+      expect(root.getObjectByName(layerName)).not.toBeNull();
     }
     for (const meshName of [
       "Composer memorial step ring",
@@ -488,7 +516,8 @@ describe("granular memorial recognition models", () => {
   });
 
   test("uses close presentation distances for small monuments", () => {
-    expect(memorialFocusDistance("Goethe-Denkmal")).toBeLessThan(70);
+    expect(memorialFocusDistance("Goethe-Denkmal")).toBe(38);
+    expect(memorialFocusDistance("Lessing-Denkmal")).toBe(36);
     expect(
       memorialFocusDistance("Denkmal für die ermordeten Juden Europas"),
     ).toBeGreaterThan(140);

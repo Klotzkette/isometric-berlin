@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.72.14
+
+- **The Goethe-Denkmal is now a source-bound sculptural ensemble instead of a
+  coarse oversized placeholder.** Exact OSM node `278738513` fixes the anchor;
+  the Berlin monument inventory and Bildhauerei in Berlin fix Fritz Schaper's
+  Carrara-marble composition, the grey-granite underbase, articulated round
+  pedestal, east inscription, standing Goethe in court dress and the paired
+  allegories of lyric poetry, drama and scholarship. The snow-free model is
+  exactly **6.08 m** high, carries all three paired allegory groups with six
+  figures and reconstructs the documented enclosure as **42** dark iron fields
+  rather than an invented park barrier.
+- **The Lessing-Denkmal now carries its distinct Otto Lessing programme.** OSM
+  node `884700390` fixes the location while the official records bind the
+  white-marble Lessing with book, reddish-granite pedestal, front Genius of
+  Humanity, rear Allegory of Criticism, the Mendelssohn/Kleist/Nicolai reliefs,
+  side basins and the present simplified protective fence. Its drawn enclosure,
+  block-native reading and physical fence collision share one chamfered
+  octagon: **28 fence fields across eight exact segments**. The snow-free model
+  is exactly **7.00 m** high and retains five pedestal steps, two lateral
+  basins with dolphin spouts, three portrait fields and both principal bronze
+  allegories. Three freely licensed Commons views were used only for front,
+  side and rear visual QA; their credits are shipped as attribution-only
+  records and no photograph or thumbnail is bundled.
+- **Both monuments retain one appropriate representation and safe navigation
+  in every visual mode.** Day, Night, Snowstorm and Schwellenraum use the drawn
+  detail models; Minecraft uses separate block-native readings without smooth
+  doubles. Reversible snow accents remain confined to exposed monument
+  surfaces. Together, their Smooth Snowstorm presentation is exactly
+  **8 renderables / 24,870 rendered vertices**; Minecraft is exactly **one
+  InstancedMesh / 557 blocks / 13,368 rendered vertices**, for **9 stored
+  renderables** across the two representations. Schwellenraum uses **4.3 m**
+  and **2.95 m** protection radii for Goethe and Lessing. Physical pedestrian
+  collision remains limited to each core and its fence-side solids, leaving the
+  surrounding mapped paths and all eight sampled approach directions open.
+
 ## v0.72.13
 
 - **Four Pariser-Platz civic facades now have distinct, source-bounded

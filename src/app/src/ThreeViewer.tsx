@@ -95,6 +95,11 @@ import {
   memorialFocusDistance,
 } from "./MemorialLandmarks";
 import {
+  TIERGARTEN_LITERARY_MEMORIALS_PROFILE,
+  setTiergartenLiteraryMemorialsSnow,
+  tiergartenLiteraryMemorialSolidAt,
+} from "./TiergartenLiteraryMemorials";
+import {
   QUEER_RAINBOW_MEMORIAL_PROFILE,
   createQueerRainbowMemorial,
   setQueerRainbowMemorialSnow,
@@ -1941,6 +1946,11 @@ function setSceneLighting(
   setWindFlagWinterPresentation(runtime.signatures, isSnowstorm);
   setWindFlagWinterPresentation(runtime.civicDetails, isSnowstorm);
   runtime.monuments.visible = !runtime.underside;
+  setTiergartenLiteraryMemorialSmoothVisibility(
+    runtime.monuments,
+    !voxelMode,
+  );
+  setTiergartenLiteraryMemorialsSnow(runtime.monuments, isSnowstorm);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -1980,6 +1990,22 @@ function setSceneLighting(
 
 function voxelModeActive(runtime: Runtime): boolean {
   return runtime.lightingMode === "minecraft" && runtime.voxelWorld !== null;
+}
+
+function setTiergartenLiteraryMemorialSmoothVisibility(
+  root: Object3D | null,
+  visible: boolean,
+): void {
+  if (!root) return;
+  for (const profile of [
+    TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe,
+    TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing,
+  ]) {
+    const memorial = root.getObjectByName(profile.name);
+    if (memorial?.userData.tiergartenLiteraryMemorialSmooth === true) {
+      memorial.visible = visible;
+    }
+  }
 }
 
 function voxelWorldIntentActive(runtime: Runtime): boolean {
@@ -2594,6 +2620,7 @@ function ensureIsoWorld(
           if (
             csdAttackMemorialSolidAt(x, y, z, radius) ||
             berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
+            tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
             invalidenfriedhofPedestrianSolidAt(x, y, z, radius)
           ) {
             return true;
@@ -3015,6 +3042,7 @@ function ensureVoxelWorld(
         provisionalEnvironment.interiorSolidAt = (x, y, z, radius) =>
           csdAttackMemorialSolidAt(x, y, z, radius) ||
           berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
+          tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
           invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
           (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
             minecraftHeroSolidAt(x, y, z, radius));
@@ -3617,6 +3645,10 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   runtime.civicDetails.visible = civicDetailsVisible(underside);
   applyMinecraftVisibility(minecraftVisibilityRoots(runtime), voxelMode);
   runtime.monuments.visible = !underside;
+  setTiergartenLiteraryMemorialSmoothVisibility(
+    runtime.monuments,
+    !voxelMode,
+  );
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
   for (const detail of runtime.detailGroups.values()) {
@@ -3667,6 +3699,18 @@ function markerHeightForLandmark(name: string): number {
       return 72;
     case "Queer Rainbow Memorial Berlin":
       return 7.2;
+    case "Goethe-Denkmal":
+      return (
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.worldM[1] +
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.totalHeightM +
+        1.2
+      );
+    case "Lessing-Denkmal":
+      return (
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.worldM[1] +
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.totalHeightM +
+        1.2
+      );
     default:
       return 18;
   }
@@ -6243,6 +6287,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.lightingMode === "snowstorm",
           );
           setCsdAttackMemorialSnow(
+            runtime.monuments,
+            runtime.lightingMode === "snowstorm",
+          );
+          setTiergartenLiteraryMemorialSmoothVisibility(
+            runtime.monuments,
+            !voxelModeActive(runtime),
+          );
+          setTiergartenLiteraryMemorialsSnow(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",
           );

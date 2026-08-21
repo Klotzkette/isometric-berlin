@@ -720,10 +720,11 @@ export const SCHWELLENRAUM_PROTECTED_NAMES: ReadonlySet<string> = new Set([
   "Karl-Liebknecht-Denkmal am Neuen See",
   "Rosa-Luxemburg-Denkmal am Neuen See",
   // Source-side protection deliberately treats every historic memorial
-  // conservatively. These three recognition models replace protected OSM
+  // conservatively. These four recognition models replace protected OSM
   // records in other scene batches, so they inherit the same exact-Day rule.
   "Beethoven-Haydn-Mozart-Denkmal",
   "Goethe-Denkmal",
+  "Lessing-Denkmal",
   "Siegessäule and Bismarck-Nationaldenkmal",
 ]);
 

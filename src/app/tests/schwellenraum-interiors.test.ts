@@ -195,6 +195,7 @@ describe("Schwellenraum accessible architecture", () => {
       ),
     ).toBeTrue();
     expect(isSchwellenraumProtectedObjectName("Goethe-Denkmal")).toBeTrue();
+    expect(isSchwellenraumProtectedObjectName("Lessing-Denkmal")).toBeTrue();
     expect(isSchwellenraumProtectedObjectName("Knut sculpture")).toBeFalse();
 
     const field = SCHWELLENRAUM_PROTECTED_VOLUMES.find(

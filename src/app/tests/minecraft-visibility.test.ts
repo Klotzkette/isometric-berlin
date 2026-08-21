@@ -323,4 +323,44 @@ describe("Minecraft visibility source wiring", () => {
       ).toBeGreaterThan(anchorIndex);
     }
   });
+
+  test("replaces only the two smooth literary roots after voxel commit and preserves fallback", () => {
+    const helperStart = viewerSource.indexOf(
+      "function setTiergartenLiteraryMemorialSmoothVisibility(",
+    );
+    const helperEnd = viewerSource.indexOf(
+      "function voxelWorldIntentActive(",
+      helperStart,
+    );
+    const helper = viewerSource.slice(helperStart, helperEnd);
+    expect(helper).toContain(
+      "TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe",
+    );
+    expect(helper).toContain(
+      "TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing",
+    );
+    expect(helper).toContain("tiergartenLiteraryMemorialSmooth");
+
+    const lightingStart = viewerSource.indexOf("function setSceneLighting(");
+    const lightingEnd = viewerSource.indexOf(
+      "function setTiergartenLiteraryMemorialSmoothVisibility(",
+      lightingStart,
+    );
+    const lighting = viewerSource.slice(lightingStart, lightingEnd);
+    expect(lighting).toContain(
+      "setTiergartenLiteraryMemorialSmoothVisibility(\n    runtime.monuments,\n    !voxelMode",
+    );
+    expect(lighting.indexOf("setTiergartenLiteraryMemorialSmoothVisibility("))
+      .toBeLessThan(
+        lighting.indexOf("setTiergartenLiteraryMemorialsSnow("),
+      );
+    expect(viewerSource).toContain(
+      "!voxelModeActive(runtime),\n          );\n          setTiergartenLiteraryMemorialsSnow(",
+    );
+    expect(
+      viewerSource.match(
+        /tiergartenLiteraryMemorialSolidAt\(x, y, z, radius\)/g,
+      ),
+    ).toHaveLength(2);
+  });
 });

@@ -35,6 +35,10 @@ import {
   holocaustStelePlacements,
 } from "./holocaustField";
 import { createGeorgElserMemorial } from "./GeorgElserMemorial";
+import {
+  TIERGARTEN_LITERARY_MEMORIALS_PROFILE,
+  createTiergartenLiteraryMemorials,
+} from "./TiergartenLiteraryMemorials";
 
 export type MemorialLandmark = {
   name: string;
@@ -1878,144 +1882,6 @@ function createSovietMemorial(anchor: MemorialLandmark): Group {
   return group;
 }
 
-function createGoetheMemorial(anchor: MemorialLandmark): Group {
-  const group = new Group();
-  group.name = anchor.name;
-  placeOnOfficialMesh(group, anchor);
-  group.userData.geometryStatus =
-    "Pedestal, standing Goethe and three allegorical groups from Berlin monument inventory and licensed references";
-  const marble = modelMaterial(MARBLE, { roughness: 0.7 });
-  // The monument stands on a two-step stylobate; without the steps the
-  // plinth looks dropped on the lawn rather than built into the Großer Weg.
-  addEdges(
-    group,
-    addBox(group, "Goethe memorial lower step", [9, 0.3, 9], [0, 0.15, 0], marble),
-  );
-  addEdges(
-    group,
-    addBox(group, "Goethe memorial upper step", [8.1, 0.3, 8.1], [0, 0.45, 0], marble),
-  );
-  addEdges(
-    group,
-    addBox(group, "Goethe memorial plinth", [7.2, 0.65, 7.2], [0, 0.93, 0], marble),
-  );
-  const pedestal = addMesh(
-    group,
-    "Goethe memorial round pedestal",
-    new CylinderGeometry(2.25, 2.6, 3.5, 20),
-    marble,
-    [0, 3, 0],
-  );
-  addEdges(group, pedestal);
-  // A cornice under the standing figure and a base moulding at the drum's
-  // foot: the two lines that read as a pedestal at isometric distance.
-  const cornice = addMesh(
-    group,
-    "Goethe memorial pedestal cornice",
-    new CylinderGeometry(2.55, 2.35, 0.34, 20),
-    marble,
-    [0, 4.9, 0],
-  );
-  addEdges(group, cornice);
-  const baseMoulding = addMesh(
-    group,
-    "Goethe memorial pedestal base moulding",
-    new CylinderGeometry(2.85, 3, 0.4, 20),
-    marble,
-    [0, 1.45, 0],
-  );
-  addEdges(group, baseMoulding);
-  const body = addMesh(
-    group,
-    "Goethe standing figure body",
-    new CapsuleGeometry(0.8, 2.55, 5, 10),
-    marble,
-    [0, 6.25, 0],
-  );
-  addEdges(group, body);
-  // Schaper's Goethe wears a long cloak over the left shoulder and holds a
-  // scroll; the cloak is what gives the figure its wide, readable silhouette.
-  const cloak = addMesh(
-    group,
-    "Goethe standing figure cloak",
-    new ConeGeometry(0.98, 2.9, 14, 1, true),
-    marble,
-    [-0.08, 6, -0.06],
-  );
-  cloak.rotation.z = 0.05;
-  addEdges(group, cloak);
-  const head = addMesh(
-    group,
-    "Goethe standing figure head",
-    new SphereGeometry(0.58, 14, 10),
-    marble,
-    [0, 8.15, 0],
-  );
-  addEdges(group, head);
-  addSegment(
-    group,
-    "Goethe standing figure right arm",
-    new Vector3(0.62, 7.1, 0.1),
-    new Vector3(0.78, 5.95, 0.62),
-    0.19,
-    marble,
-  );
-  addSegment(
-    group,
-    "Goethe standing figure left arm",
-    new Vector3(-0.62, 7.1, 0.05),
-    new Vector3(-0.5, 6.1, 0.5),
-    0.19,
-    marble,
-  );
-  addEdges(
-    group,
-    addBox(
-      group,
-      "Goethe standing figure scroll",
-      [0.16, 0.16, 0.62],
-      [0.82, 5.88, 0.72],
-      marble,
-    ),
-  );
-  // Lyrik, Forschung and Drama sit against the drum: seated bodies with
-  // separate heads, so each group reads as a figure and not a lump.
-  const allegoryAngles = [0, 1, 2].map((index) => (index / 3) * Math.PI * 2);
-  // Lyrik, Forschung and Drama each sit on a block that steps out of the
-  // drum, the way Schaper set them — otherwise they float against it.
-  addInstances(
-    group,
-    "Goethe memorial allegorical figure pedestals",
-    new BoxGeometry(1.9, 0.85, 1.6),
-    marble,
-    allegoryAngles.map((angle) => ({
-      position: [Math.cos(angle) * 3.1, 1.68, Math.sin(angle) * 3.1],
-      rotation: [0, -angle, 0],
-    })),
-  );
-  addInstances(
-    group,
-    "Goethe memorial three allegorical figure groups",
-    new CapsuleGeometry(0.62, 1.65, 4, 8),
-    marble,
-    allegoryAngles.map((angle) => ({
-      position: [Math.cos(angle) * 2.9, 2.65, Math.sin(angle) * 2.9],
-      rotation: [0, -angle, Math.PI / 2],
-      scale: [0.78, 1.1, 0.78],
-    })),
-  );
-  addInstances(
-    group,
-    "Goethe memorial allegorical figure heads",
-    new SphereGeometry(0.34, 12, 9),
-    marble,
-    allegoryAngles.map((angle) => ({
-      position: [Math.cos(angle) * 3.35, 3.48, Math.sin(angle) * 3.35],
-    })),
-  );
-  return group;
-}
-
 function createComposerMemorial(anchor: MemorialLandmark): Group {
   const group = new Group();
   group.name = anchor.name;
@@ -2212,7 +2078,6 @@ const BUILDERS: Record<string, (landmark: MemorialLandmark) => Group> = {
   "Denkmal für die im Nationalsozialismus verfolgten Homosexuellen":
     createHomosexualMemorial,
   "Gedenkort für Polen 1939-1945": createPolishMemorial,
-  "Goethe-Denkmal": createGoetheMemorial,
   "Mahnmal für verfolgte Zeugen Jehovas": createJehovahsWitnessesMemorial,
   "Sowjetisches Ehrenmal Tiergarten": createSovietMemorial,
 };
@@ -2220,10 +2085,32 @@ const BUILDERS: Record<string, (landmark: MemorialLandmark) => Group> = {
 export function createMemorialLandmarks(landmarks: MemorialLandmark[]): Group {
   const root = new Group();
   root.name = "Verified memorial detail models";
+  const requestedNames = new Set(landmarks.map(({ name }) => name));
   for (const landmark of landmarks) {
     const builder = BUILDERS[landmark.name];
     if (builder) {
       root.add(builder(landmark));
+    }
+  }
+  if (
+    requestedNames.has(TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.name) ||
+    requestedNames.has(TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.name)
+  ) {
+    const literaryMemorials = createTiergartenLiteraryMemorials();
+    for (const memorial of [...literaryMemorials.children]) {
+      const profile =
+        memorial.userData.exactOwnOsmKey ===
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe.osmKey
+          ? TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe
+          : memorial.userData.exactOwnOsmKey ===
+              TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing.osmKey
+            ? TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing
+            : null;
+      if (!profile || !requestedNames.has(profile.name)) continue;
+      memorial.removeFromParent();
+      memorial.name = profile.name;
+      memorial.userData.tiergartenLiteraryMemorialSmooth = true;
+      root.add(memorial);
     }
   }
   root.userData.modelCount = root.children.length;
@@ -2243,7 +2130,10 @@ export function memorialFocusDistance(name: string): number | null {
     return 72;
   }
   if (name === "Goethe-Denkmal") {
-    return 58;
+    return 38;
+  }
+  if (name === "Lessing-Denkmal") {
+    return 36;
   }
   if (name === "Gedenkort für Polen 1939-1945") {
     return 34;

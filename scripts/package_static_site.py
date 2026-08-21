@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "0.72.13"
+PACKAGE_VERSION = "0.72.14"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 DUPLICATE_COPY_RE = re.compile(r"^.+ [2-9](?:\.[^.]+)?$")
@@ -3436,6 +3436,20 @@ zeigen ihre charakteristischen Fenster-, Stein-, Eingangs-, Glas- und
 Erschließungsrhythmen in Tag, Nacht, Schneesturm und Schwellenraum; Minecraft
 nutzt dafür eine einzige grobe, opake Blocksignatur. Alle Details sind
 codebasiert, nicht vermessen und enthalten keine Fototextur.
+Version {PACKAGE_VERSION} rekonstruiert außerdem Goethe und Lessing an ihren
+exakten OSM-Knoten als getrennte quellengebundene Tiergarten-Denkmäler. Goethe
+ist schneefrei 6,08 m hoch und behält 42 Zaunfelder sowie drei Zweiergruppen
+mit sechs Allegoriefiguren. Lessing ist schneefrei 7,00 m hoch und behält fünf
+Stufen, zwei Becken mit Delphinausläufen, drei Porträts und zwei große
+Bronzeallegorien. Sichtbares Modell, Minecraft und physische Kollision teilen
+für Lessing denselben abgeschrägten Achtkant mit 28 Zaunfeldern auf acht
+Segmenten. Tag, Nacht, Schneesturm und Schwellenraum nutzen die gezeichneten
+Modelle; Minecraft unterdrückt sie zugunsten einer blockeigenen Lesart. Im
+Schneesturm sind es zusammen genau 8 Renderables mit 24.870 gerenderten
+Vertices; Minecraft nutzt ein InstancedMesh mit 557 Blöcken und 13.368
+gerenderten Vertices, insgesamt sind 9 Renderables gespeichert. Schutzradien
+von 4,3 m und 2,95 m halten die Denkmäler geschlossen, während Core- und
+Zaunseiten-Kollision alle acht geprüften Anlaufrichtungen frei lässt.
 Version {PACKAGE_VERSION} verfeinert außerdem das Forum des ehemaligen Sony
 Center mit dem 24-teiligen Dachplan, Ringfachwerk, Seilen, geneigter Mittelstütze,
 sieben Auflagern, Klemmen, Licht, gegliederten Glasfassaden und Brunnen. Das
@@ -3759,6 +3773,20 @@ retained LoD2/OSM bodies. Drawn variants carry their characteristic window,
 stone, entrance, glass and circulation rhythms in Day, Night, Snowstorm and
 Schwellenraum; Minecraft uses one coarse opaque block signature. Every detail
 is code-native, non-surveyed and free of photographic facade textures.
+Version {PACKAGE_VERSION} also reconstructs Goethe and Lessing at their exact
+OSM nodes as separate, source-bound Tiergarten memorials. Snow-free Goethe is
+6.08 m high and retains 42 fence fields plus three paired groups with six
+allegorical figures. Snow-free Lessing is 7.00 m high and retains five steps,
+two basins with dolphin spouts, three portraits and two principal bronze
+allegories. Its visible model, Minecraft reading and physical collision share
+the same chamfered octagon with 28 fence fields across eight segments. Day,
+Night, Snowstorm and Schwellenraum use the drawn models; Minecraft suppresses
+them in favour of a block-native reading. Together, Smooth Snowstorm uses
+exactly 8 renderables and 24,870 rendered vertices; Minecraft uses one
+InstancedMesh with 557 blocks and 13,368 rendered vertices, for 9 stored
+renderables overall. Protection radii of 4.3 m and 2.95 m keep the memorials
+closed while core and fence-side collision leaves all eight sampled approach
+directions open.
 Version {PACKAGE_VERSION} also deepens the former Sony Center Forum with its
 24-part roof plan, ring lattice, cables, tilted kingpost, seven supports,
 clamps, light, articulated glass facades and fountain. TIPI am Kanzleramt keeps

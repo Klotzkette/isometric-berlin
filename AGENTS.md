@@ -36,7 +36,7 @@ agent. See §9.
   produced fresh here. Do not vendor or copy NYC tile data into this
   repo.
 
-## 3. Hard scope rules (v0.72.13)
+## 3. Hard scope rules (v0.72.14)
 
 The release **only** covers the versioned central-Berlin polygon
 in [`geo_data/regierungsviertel/bounds.geojson`](geo_data/regierungsviertel/bounds.geojson).
@@ -55,6 +55,13 @@ Must be inside the polygon and visible in the final map:
 - Haus der Kulturen der Welt ("Schwangere Auster") with its bow-roof
 - The complete Großer Tiergarten to Charlottenburger Tor, with Siegessäule,
   Luiseninsel, Rosengarten, Café am Neuen See and the mapped path/tree network
+- The Goethe-Denkmal at exact OSM node `278738513` and the Lessing-Denkmal at
+  exact OSM node `884700390`, each as a source-bound close-detail model in the
+  four drawn modes plus a separate block-native Minecraft reading; reversible
+  Snowstorm accumulation, memorial protection and solid-only pedestrian
+  collision must preserve their surrounding mapped paths and approaches. The
+  Lessing fence must use the same 28-field, eight-segment chamfered-octagon
+  outline for drawn geometry, Minecraft blocks and physical collision.
 - The newly established CSD memorial place near Bellevueallee/Ahornsteig at
   exact OSM node `14076715427`, kept separate from the existing owner-supplied
   Queer Rainbow Memorial model and from the 89-place tour catalogue
@@ -307,7 +314,7 @@ isometric-berlin/
 └── tests/
 ```
 
-## 8. What success looks like (Definition of Done v0.72.13)
+## 8. What success looks like (Definition of Done v0.72.14)
 
 - `geo_data/regierungsviertel/bounds.geojson` finalised and reviewed.
 - LoD2 buildings clipped, OSM context clipped, both stored as small
@@ -333,6 +340,24 @@ isometric-berlin/
 - All landmarks and required context details from §3 are navigable. Hero
   recognition geometry may supplement, but never displace, the measured
   LoD2/OSM anchors.
+- Goethe and Lessing remain independently selectable at their exact OSM
+  anchors. Day, Night, Snowstorm and Schwellenraum share the source-bound drawn
+  monuments; Minecraft uses block-native counterparts without smooth doubles.
+  Snow is reversible, memorial protection stays non-enterable, pedestrian
+  collision follows represented core/fence-side solids instead of closing the
+  surrounding park paths, and no visual-reference photograph is loaded by the
+  viewer.
+- The frozen Goethe/Lessing detail profile keeps snow-free heights of 6.08 m
+  and 7.00 m. Goethe retains 42 fence fields and three paired allegory
+  groups/six figures; Lessing retains five steps, two basins with dolphin
+  spouts, three portrait fields, two principal bronze allegories and a
+  28-field/eight-segment chamfered-octagon fence shared by drawn, Minecraft and
+  collision forms. Their combined Smooth Snowstorm budget is exactly 8
+  renderables / 24,870 rendered vertices; Minecraft is one InstancedMesh / 557
+  blocks / 13,368 rendered vertices, for 9 stored renderables across both
+  representations. Protection
+  radii are 4.3 m and 2.95 m; physical collision remains core-plus-fence-side
+  only, and all eight sampled approach directions remain free.
 
 ## 9. Hosting target: Perplexity
 

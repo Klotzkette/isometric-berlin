@@ -135,6 +135,29 @@ all permitted sources (see [`docs/data.md`](docs/data.md) and
   only bound recognition forms; no supplied photograph, crop,
   tracing or derived texture is bundled.
 
+- **Goethe- and Lessing-Denkmal in the Großer Tiergarten (factual and visual
+  evidence):** the Berlin monument database records both works as parts
+  [`09046318,T,028` and `09046318,T,027`](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046318).
+  The Bildhauerei in Berlin inventories for the
+  [Goethe-Denkmal](https://bildhauerei-in-berlin.de/bildwerk/goethedenkmal-5168/)
+  and
+  [Lessing-Denkmal](https://bildhauerei-in-berlin.de/bildwerk/lessingdenkmal-4997/)
+  supply the documented dimensions, materials, sculptural programmes,
+  inscriptions, restoration histories and enclosure status. Exact plan anchors
+  remain OSM nodes `278738513` and `884700390`. The three already recorded
+  Goethe Commons files remain visual QA references. Lessing additionally uses
+  Dosseman's
+  [*Lessing monument in Berlin Tiergarten 9593.jpg*](https://commons.wikimedia.org/wiki/File%3ALessing_monument_in_Berlin_Tiergarten_9593.jpg)
+  (CC BY-SA 4.0), and Manfred Brueckels'
+  [*Lessing Tiergarten 3K.jpg*](https://commons.wikimedia.org/wiki/File%3ALessing_Tiergarten_3K.jpg)
+  and
+  [*Lessing Tiergarten 4K.jpg*](https://commons.wikimedia.org/wiki/File%3ALessing_Tiergarten_4K.jpg)
+  (both CC BY-SA 3.0), only to check the current front, Kleist side/basin and
+  rear criticism-group readings, including the current protective fence's
+  eight-segment chamfered outline. All three Lessing records are attribution
+  only; no source photograph, thumbnail, crop, tracing or derived texture is
+  bundled or loaded by the viewer.
+
 - **Passenger-rail route validation:** official BVG and S-Bahn Berlin route
   pages are used only to validate the displayed U5 and shared North-South
   S-Bahn station sequence. Track, platform and entrance plan geometry remains

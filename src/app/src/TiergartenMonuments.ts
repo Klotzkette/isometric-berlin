@@ -39,11 +39,11 @@ import type { StreetDetailsPayload } from "./TrafficSignals";
  * ligne-claire city. The seven landmarks the verified recognition
  * layer already models in full (Holocaust stelae field, Soviet War
  * Memorial with its T-34s, Sinti-und-Roma, Homosexuellen-Denkmal,
- * Goethe, the composers, Zeugen Jehovas) are skipped here; this layer
+ * Goethe, Lessing, the composers, Zeugen Jehovas) are skipped here; this layer
  * adds everything else — the Potsdamer Platz Verkehrsturm replica,
  * the Euthanasie memorial's blue glass wall, the ML-20 howitzers, the
  * Weiße Kreuze, the Grundgesetz-49 glass
- * panels, statues on plinths for Lessing/Grimm/Bruno/Der Rufer, and
+ * panels, statues on plinths for Grimm/Bruno/Der Rufer, and
  * subtype-aware quiet markers. Positions, footprints and memorial types
  * are OSM (ODbL); the drawing is ours.
  */
@@ -2519,36 +2519,6 @@ function buildStatue(
   );
 }
 
-/**
- * Otto Lessing's 1890 Lessing-Denkmal: a 3 m white-marble Gotthold
- * Ephraim Lessing on a 4 m reddish-granite pedestal, with the bronze
- * "Genius der Humanität" -- a winged youth holding a flaming bowl and
- * a laurel branch -- reclining against the front of the pedestal.
- * Reference: https://de.wikipedia.org/wiki/Lessing-Denkmal_(Berlin)
- * and https://bildhauerei-in-berlin.de/bildwerk/lessingdenkmal-4997/ .
- */
-function buildLessingMemorial(
-  builder: Builder,
-  x: number,
-  y: number,
-  z: number
-): void {
-  // Stepped granite base, grey lower steps then the reddish pedestal.
-  box(builder, STONE_LIGHT, x, y + 0.25, z, 4.6, 0.5, 4.6);
-  box(builder, GRANITE_RED, x, y + 0.85, z, 3.6, 0.7, 3.6);
-  box(builder, GRANITE_RED, x, y + 2.0, z, 2.4, 1.6, 2.4);
-  box(builder, GRANITE_RED, x, y + 3.15, z, 2.9, 0.65, 2.9); // cornice
-  // Lessing himself: coat-draped torso, book-holding stance, head --
-  // three elevations rather than one bronze cuboid, in pale marble.
-  box(builder, STONE_LIGHT, x, y + 4.1, z, 1.0, 1.7, 0.9); // coat/legs
-  box(builder, STONE_LIGHT, x, y + 5.25, z, 0.85, 0.65, 0.75); // torso
-  box(builder, STONE_LIGHT, x, y + 5.85, z, 0.5, 0.45, 0.5); // head
-  // Genius der Humanität: a small winged bronze figure at the pedestal
-  // foot, reclining, holding its bowl up at chest height.
-  box(builder, BRONZE, x, y + 3.7, z + 1.7, 1.3, 0.6, 0.9); // reclining body
-  box(builder, BRONZE, x + 0.3, y + 4.15, z + 1.7, 0.4, 0.4, 0.4); // raised arm/bowl
-}
-
 function buildCannon(builder: Builder, x: number, y: number, z: number): void {
   box(builder, STONE, x, y + 0.5, z, 5.6, 1, 3);
   box(builder, SOVIET_GREEN, x, y + 1.5, z, 3.4, 1, 1.4);
@@ -2827,7 +2797,7 @@ const STATUE_NAMES =
 // Memorials the verified recognition layer (MemorialLandmarks) already
 // models completely — the Holocaust stelae field, the Soviet memorial
 // with its T-34s and soldier, Sinti-und-Roma, the Homosexuellen cuboid,
-// Goethe and the composers. Drawing them twice doubles the geometry.
+// Goethe, Lessing and the composers. Drawing them twice doubles the geometry.
 // Bismarck is here too: createSiegessaeule() in IsometricCityWorld.ts
 // already draws the Bismarck-Nationaldenkmal as part of its verified
 // Großer Stern recognition model (fixed offset from the Siegessäule,
@@ -2838,7 +2808,7 @@ const STATUE_NAMES =
 // intersection. Skipping it here removes the duplicate; the detailed
 // figure now lives solely in createSiegessaeule().
 export const MONUMENTS_ALREADY_MODELLED =
-  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$|^Fahne der Einheit$/i;
+  /ermordeten Juden Europas|Sowjetisches Ehrenmal|Sowjetischer Soldat|Sinti und Roma|Homosexuellen|Beethoven-Haydn-Mozart|Goethe|Johann Wolfgang von Goethe|Lessing-Denkmal|Gotthold Ephraim Lessing|Zeugen Jehovas|^Otto von Bismarck$|^Quadriga mit Victoria$|^Fahne der Einheit$/i;
 
 function addMergedMonumentBatch(parent: Group, builder: Builder): void {
   const merged = builder.parts.length > 0 ? mergeGeometries(builder.parts, false) : null;
@@ -2961,8 +2931,6 @@ export function createTiergartenMonuments(
       if (variant === "luise") {
         buildLuiseninselFlowerBeds(builder, x, y, z);
       }
-    } else if (/^Lessing-Denkmal$|Gotthold Ephraim Lessing/i.test(name)) {
-      buildLessingMemorial(builder, x, y, z);
     } else if (/Amazone zu Pferde/i.test(name)) {
       buildAmazone(builder, x, y, z);
     } else if (/Löwengruppe/i.test(name)) {

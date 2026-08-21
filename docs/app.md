@@ -394,12 +394,45 @@ tile load via `meshArtefacts.ts` (evidence notes inline). Minecraft
 uses its separate palette pass with reduced bloom and sparse shimmer. This keeps
 controls responsive while improving stationary facade and roof definition.
 
-Nine memorial recognition models supplement the official mesh at normal
+Dedicated memorial recognition models supplement the official mesh at normal
 selection distances. Repeated Holocaust stelae use GPU instancing, as do the
 Soviet colonnade and fine folds of the 2026 Jehovah's Witnesses memorial; this
 adds close-range granularity without loading another texture set or creating
 thousands of draw calls. Evidence and approximation boundaries are documented
 in [`monument-detail.md`](monument-detail.md).
+
+The Goethe- and Lessing-Denkmal are independent source-bound detail roots at
+OSM nodes `278738513` and `884700390`. Berlin monument-register parts
+`09046318,T,028` and `09046318,T,027`, together with the corresponding
+Bildhauerei in Berlin inventories, bind their scale, materials and documented
+sculptural programmes; mapped approaches and the current QA views bind their
+presentation orientation. Goethe retains the articulated round
+Carrara-marble pedestal, east inscription, court-dress figure, the paired
+allegories of lyric poetry, drama and scholarship, and the reconstructed iron
+enclosure. Its snow-free height is exactly 6.08 m; the detail root includes all
+three paired allegory groups/six figures and 42 fence fields. Lessing retains
+the white-marble author with book, reddish-granite pedestal, front Genius of
+Humanity, rear Allegory of Criticism, Mendelssohn/Kleist/Nicolai reliefs, side
+basins and the present simplified protective fence. Drawn geometry, Minecraft
+blocks and physical fence collision share one chamfered-octagon outline with
+28 visible fields across eight exact segments. Its snow-free height is exactly
+7.00 m; the detail root retains five steps, two basins with dolphin spouts,
+three portrait fields and both principal bronze allegories. The three
+existing Goethe Commons records remain unchanged;
+three Lessing front/side/rear files are attribution-only QA evidence with
+`photo_bundled:false` and no thumbnail or runtime image path.
+
+Day, Night, Snowstorm and Schwellenraum share the drawn monument models;
+Minecraft substitutes separate block-native counterparts and suppresses the
+smooth roots. Snow caps are reversible and do not alter the
+source anchors. Across Goethe and Lessing, the Smooth Snowstorm model is frozen
+at exactly 8 renderables and 24,870 rendered vertices. Minecraft uses one
+InstancedMesh containing 557 blocks and 13,368 rendered vertices; the two
+representations store 9 renderables together. Schwellenraum protection keeps
+the enclosed memorials non-enterable with radii of 4.3 m for Goethe and 2.95 m
+for Lessing, while normal pedestrian collision follows each represented core
+and its fence-side solids rather than blocking the mapped park paths or any of
+the eight sampled approach directions.
 
 The Georg Elser memorial at Wilhelmstrasse is an additional independent
 recognition model at OSM sculpture node `1986458966`. Its published 17 m height,

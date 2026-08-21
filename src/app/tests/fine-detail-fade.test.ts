@@ -346,6 +346,25 @@ describe("nextFineDetailVisible", () => {
     );
   });
 
+  test("fades only the literary memorial relief and fence detail layers", () => {
+    expect(FINE_DETAIL_LAYER_NAMES).toEqual(
+      expect.arrayContaining([
+        "Goethe memorial fine allegory and fence cues",
+        "Lessing memorial relief allegory and fence cues",
+      ]),
+    );
+    for (const persistentName of [
+      "Goethe memorial structural silhouette",
+      "Lessing memorial structural silhouette",
+      "Goethe memorial reversible snow caps",
+      "Lessing memorial reversible snow caps",
+      "Tiergarten literary memorials Minecraft block batch",
+    ]) {
+      expect(FINE_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+      expect(MICRO_DETAIL_LAYER_NAMES).not.toContain(persistentName);
+    }
+  });
+
   test("fades the Invalidenfriedhof ornament without dropping its silhouettes", () => {
     expect(FINE_DETAIL_LAYER_NAMES).toEqual(
       expect.arrayContaining([

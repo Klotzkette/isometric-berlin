@@ -7,6 +7,11 @@ import {
   CSD_ATTACK_MEMORIAL_PROFILE,
 } from "../src/CsdAttackMemorial";
 import {
+  TIERGARTEN_LITERARY_MEMORIALS_PROFILE,
+  TIERGARTEN_LITERARY_MEMORIAL_PROTECTION_PROFILES,
+  tiergartenLiteraryMemorialProtectedAt,
+} from "../src/TiergartenLiteraryMemorials";
+import {
   SCHWELLENRAUM_MEMORIAL_GRID_CELL_M,
   createSchwellenraumMemorialProtectionIndex,
   schwellenraumProtectedMemorialAt,
@@ -134,6 +139,57 @@ describe("data-driven Schwellenraum memorial protection", () => {
         718.105,
       ),
     ).toBeFalse();
+  });
+
+  test("uses the exact circular literary protection while all mapped ring directions stay open", () => {
+    for (const [profile, protection, pathRadiusM] of [
+      [
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.goethe,
+        TIERGARTEN_LITERARY_MEMORIAL_PROTECTION_PROFILES.goethe,
+        5.2,
+      ],
+      [
+        TIERGARTEN_LITERARY_MEMORIALS_PROFILE.lessing,
+        TIERGARTEN_LITERARY_MEMORIAL_PROTECTION_PROFILES.lessing,
+        4.1,
+      ],
+    ] as const) {
+      const entry = street.monuments!.find(
+        (candidate) => candidate.osm_key === profile.osmKey,
+      )!;
+      const dedicatedIndex = createSchwellenraumMemorialProtectionIndex([
+        entry,
+      ]);
+      const shape = schwellenraumProtectedMemorialShapeAt(
+        dedicatedIndex,
+        profile.worldM[0],
+        5,
+        profile.worldM[2],
+      )!;
+      expect(shape).toMatchObject({
+        kind: "literary",
+        osmKey: profile.osmKey,
+        radiusM: protection.radiusM,
+        x: profile.worldM[0],
+        z: profile.worldM[2],
+      });
+      for (let direction = 0; direction < 8; direction += 1) {
+        const angle = (direction / 8) * Math.PI * 2;
+        const x = profile.worldM[0] + Math.cos(angle) * pathRadiusM;
+        const z = profile.worldM[2] + Math.sin(angle) * pathRadiusM;
+        expect(
+          tiergartenLiteraryMemorialProtectedAt(x, z, 0.42),
+          `${profile.name} body-clear path direction ${direction}`,
+        ).toBeFalse();
+        expect(
+          schwellenraumProtectedMemorialAt(dedicatedIndex, x, 5, z),
+          `${profile.name} indexed path direction ${direction}`,
+        ).toBeFalse();
+        expect(
+          schwellenraumProtectedMemorialClearanceM(dedicatedIndex, x, z),
+        ).toBeGreaterThan(0.42);
+      }
+    }
   });
 
   test("uses bounded point and area shapes without blocking the deep tunnel layer", () => {

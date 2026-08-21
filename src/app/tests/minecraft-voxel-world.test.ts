@@ -271,6 +271,22 @@ describe("true voxel Minecraft world", () => {
     expect(details?.userData.instanceCount).toBeLessThanOrEqual(2_500);
   });
 
+  test("keeps both literary memorials as one block-native batch in full and mobile", () => {
+    const name = "Tiergarten literary memorials Minecraft block batch";
+    const full = instanced(name, world);
+    const mobile = instanced(name, mobileWorld);
+    expect(full.count).toBe(557);
+    expect(mobile.count).toBe(full.count);
+    expect(full.userData).toMatchObject({
+      blockNative: true,
+      exactOneBatch: true,
+      lessingFenceOutline: "chamfered-octagon",
+      smoothGeometryExcluded: true,
+      textureFree: true,
+    });
+    expect(mobile.userData).toEqual(full.userData);
+  });
+
   test("uses only palette-native plinth and cap blocks", () => {
     const master = new Set<number>(MINECRAFT_PALETTE);
     for (const materialClass of ["clinker", "concrete", "glass"] as const) {

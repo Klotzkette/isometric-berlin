@@ -38,6 +38,7 @@ import {
 } from "./MinecraftArchitecturalLandmarks";
 import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
+import { createTiergartenLiteraryMemorialsMinecraft } from "./TiergartenLiteraryMemorials";
 import {
   createMinecraftTipiAmKanzleramt,
   isMinecraftTipiReplacementColumn,
@@ -2111,6 +2112,7 @@ export function createMinecraftVoxelWorld(
   group.add(createMinecraftPariserPlatzArchitecture());
   group.add(createMinecraftTipiAmKanzleramt());
   group.add(createMinecraftInvalidenfriedhofDetails());
+  group.add(createTiergartenLiteraryMemorialsMinecraft());
   group.add(createMinecraftHamburgerBahnhofRecognition());
   group.add(createMinecraftBerlinModernRecognition());
   group.add(createMinecraftEinzEuropaplatzRecognition());
